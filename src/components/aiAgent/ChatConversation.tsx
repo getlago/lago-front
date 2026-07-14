@@ -7,6 +7,8 @@ import { ChatRole } from '~/hooks/aiAgent/aiAgentReducer'
 import { useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+export const CHAT_CONVERSATION_TEST_ID = 'chat-conversation'
+
 interface ChatConversationProps {
   subscription: OnConversationSubscriptionHookResult
 }
@@ -37,6 +39,7 @@ export const ChatConversation: FC<ChatConversationProps> = ({ subscription }) =>
   return (
     <div
       data-id="conversation-container"
+      data-test={CHAT_CONVERSATION_TEST_ID}
       className="flex h-full flex-1 flex-col gap-6 overflow-y-auto p-6"
     >
       {state.messages.map((message) => {

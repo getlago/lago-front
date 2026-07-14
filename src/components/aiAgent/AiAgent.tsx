@@ -20,6 +20,8 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
 
+export const AI_AGENT_NAV_TEST_ID = 'ai-agent-nav'
+
 export const AiAgent = () => {
   const { agentType, panelRef, currentPanelOpened, panelOpen, state, resetConversation } =
     useAiAgent()
@@ -86,7 +88,7 @@ export const AiAgent = () => {
 
   return (
     <>
-      <div className="relative">
+      <div className="relative" data-test={AI_AGENT_NAV_TEST_ID}>
         <div className="h-screen w-12 bg-white shadow-l">
           <div className="absolute rotate-90-tl">
             <NavigationBar hasAccessToAiAgent={hasAccessToAiAgent} />

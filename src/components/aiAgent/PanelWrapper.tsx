@@ -4,6 +4,8 @@ import { Typography } from '~/components/designSystem/Typography'
 import { useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+export const PANEL_WRAPPER_TITLE_TEST_ID = 'panel-wrapper-title'
+
 type PanelWrapperProps = {
   children: React.ReactNode
   title: string
@@ -45,7 +47,12 @@ export const PanelWrapper = ({
           <Button size="medium" variant="quaternary" icon="arrow-left" onClick={onBackButton} />
         )}
         <div className="flex h-8 flex-1 items-center gap-2 truncate">
-          <Typography variant="bodyHl" className="!truncate" color="grey700">
+          <Typography
+            variant="bodyHl"
+            className="!truncate"
+            color="grey700"
+            data-test={PANEL_WRAPPER_TITLE_TEST_ID}
+          >
             {title}
           </Typography>
           {isBeta && (

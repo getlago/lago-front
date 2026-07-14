@@ -3,6 +3,8 @@ import { CreateAiConversationInput } from '~/generated/graphql'
 import { AiAgentTypeEnum } from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+export const CHAT_SHORTCUTS_TEST_ID = 'chat-shortcuts'
+
 const billingShortcuts = [
   {
     id: 'revenue-insights',
@@ -80,7 +82,7 @@ export const ChatShortcuts = ({
   const shortcuts = agentType === AiAgentTypeEnum.finance ? financeShortcuts : billingShortcuts
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-2" data-test={CHAT_SHORTCUTS_TEST_ID}>
       {shortcuts.map((shortcut) => (
         <Button
           className="bg-white"

@@ -14,6 +14,11 @@ import { CreateAiConversationInput } from '~/generated/graphql'
 import { AiAgentTypeEnum, useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+export const PANEL_AI_AGENT_WELCOME_TEST_ID = 'panel-ai-agent-welcome'
+export const PANEL_AI_AGENT_PREMIUM_BLOCK_TEST_ID = 'panel-ai-agent-premium-block'
+export const PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID = 'panel-ai-agent-initial-prompt'
+export const PANEL_AI_AGENT_ERROR_TEST_ID = 'panel-ai-agent-error'
+
 type PanelAiAgentProps = {
   hasAccessToAiAgent: boolean
   isFullscreen?: boolean
@@ -85,7 +90,10 @@ export const PanelAiAgent = ({ hasAccessToAiAgent, isFullscreen }: PanelAiAgentP
   return (
     <div className={tw('flex h-full flex-col bg-grey-100', !isFullscreen && 'shadow-l')}>
       {shouldDisplayWelcomeMessage && (
-        <div className="mb-6 mt-auto flex flex-col gap-6 px-6">
+        <div
+          className="mb-6 mt-auto flex flex-col gap-6 px-6"
+          data-test={PANEL_AI_AGENT_WELCOME_TEST_ID}
+        >
           <div className="flex flex-col gap-1">
             <Typography variant="headline" color="grey700">
               {isFinanceAssistant
@@ -102,7 +110,7 @@ export const PanelAiAgent = ({ hasAccessToAiAgent, isFullscreen }: PanelAiAgentP
       )}
 
       {!hasAccessToAiAgent && (
-        <div className="p-6 pt-0">
+        <div className="p-6 pt-0" data-test={PANEL_AI_AGENT_PREMIUM_BLOCK_TEST_ID}>
           <PremiumFeature
             title={translate('text_1765530128923vobffyisvq9')}
             description={translate('text_176553012892493ck00lv7qj')}
@@ -114,7 +122,10 @@ export const PanelAiAgent = ({ hasAccessToAiAgent, isFullscreen }: PanelAiAgentP
       )}
 
       {!shouldDisplayWelcomeMessage && !state.messages.length && initialPrompt && !error && (
-        <div className="mt-auto flex h-full flex-col gap-6 p-6">
+        <div
+          className="mt-auto flex h-full flex-col gap-6 p-6"
+          data-test={PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID}
+        >
           <ChatMessages.Sent>{initialPrompt}</ChatMessages.Sent>
 
           <ChatMessages.Loading agentType={agentType} />
@@ -122,7 +133,10 @@ export const PanelAiAgent = ({ hasAccessToAiAgent, isFullscreen }: PanelAiAgentP
       )}
 
       {!state.messages.length && error && (
-        <div className="mt-auto flex h-full flex-col gap-6 p-6">
+        <div
+          className="mt-auto flex h-full flex-col gap-6 p-6"
+          data-test={PANEL_AI_AGENT_ERROR_TEST_ID}
+        >
           {!!initialPrompt && <ChatMessages.Sent>{initialPrompt}</ChatMessages.Sent>}
 
           <ChatMessages.Error>{translate('text_1757417225851jw88w0yfa0n')}</ChatMessages.Error>
