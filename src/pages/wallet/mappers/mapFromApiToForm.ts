@@ -68,3 +68,10 @@ export const mapFromApiToForm = ({
     skipInvoiceCustomSections: wallet?.skipInvoiceCustomSections || false,
   },
 })
+
+/**
+ * Static empty defaults — used for `withForm` section typing only.
+ * The real runtime defaults are built via `mapFromApiToForm`.
+ */
+export const emptyWalletFormDefaultValues = (): TWalletDataForm =>
+  mapFromApiToForm({ wallet: undefined, customerData: undefined, currency: CurrencyEnum.Usd })

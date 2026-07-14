@@ -4476,5 +4476,6 @@
   "text_1783584917380so6uufk82e0": "Automatic top-ups triggered on a set interval or when a threshold is reached.",
   "text_1783584917380z3uuxa0ey02": "Rule {{number}}",
   "text_178344708284148puah3a4at": "Failed to save. Please try again.",
-  "text_1783447082842231k4gnufxi": "This value was rejected. Please review it."
+  "text_1783447082842231k4gnufxi": "This value was rejected. Please review it.",
+  "text_1784022064201xi14v3sglp1": "Must be between {{min}} and {{max}}"
 }

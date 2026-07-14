@@ -1,14 +1,11 @@
 import { gql } from '@apollo/client'
-import { useFormik } from 'formik'
-import { DateTime } from 'luxon'
+import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
-import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
-import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import {
   CLOSE_CREATE_WALLET_BUTTON_DATA_TEST,
@@ -17,21 +14,10 @@ import {
 import { addToast } from '~/core/apolloClient'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_DETAILS_TAB_ROUTE, useNavigate, WALLET_DETAILS_ROUTE } from '~/core/router'
 import {
-  deserializeAmount,
-  getCurrencyPrecision,
-  serializeAmount,
-} from '~/core/serializers/serializeAmount'
-import {
-  CreateCustomerWalletInput,
   CurrencyEnum,
-  GetWalletInfosForWalletFormQuery,
   LagoApiError,
-  RecurringTransactionMethodEnum,
-  RecurringTransactionTriggerEnum,
-  UpdateCustomerWalletInput,
   useCreateCustomerWalletMutation,
   useGetCustomerInfosForWalletFormQuery,
   useGetWalletInfosForWalletFormQuery,
@@ -40,17 +26,14 @@ import {
   WalletForUpdateFragmentDoc,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm } from '~/hooks/forms/useAppform'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import { ScopeSection } from '~/pages/wallet/components/ScopeSection'
 import { SettingsSection } from '~/pages/wallet/components/SettingsSection'
-import { TopUpSection } from '~/pages/wallet/components/TopUpSection'
-import { walletFormSchema } from '~/pages/wallet/form'
-import { TWalletDataForm } from '~/pages/wallet/types'
-import { transformRecurringTransactionRule } from '~/pages/wallet/utils/transformRecurringTransactionRule'
+import { walletFormValidationSchema } from '~/pages/wallet/formInitialization/validationSchema'
+import { mapFromApiToForm } from '~/pages/wallet/mappers/mapFromApiToForm'
+import { mapFormToCreateInput, mapFormToUpdateInput } from '~/pages/wallet/mappers/mapFromFormToApi'
 import { WalletDetailsTabsOptionsEnum } from '~/pages/wallet/WalletDetails'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
-
-const WALLET_DEFAULT_PRIORITY = 50
 
 gql`
   fragment WalletForUpdate on Wallet {
@@ -151,12 +134,6 @@ gql`
   ${WalletForScopeSectionFragmentDoc}
 `
 
-function hasWalletRecurringTopUpEnabled(
-  wallet: GetWalletInfosForWalletFormQuery['wallet'],
-): boolean {
-  return !!wallet?.recurringTransactionRules?.[0]?.trigger
-}
-
 const CreateWallet = () => {
   const navigate = useNavigate()
 
@@ -184,15 +161,11 @@ const CreateWallet = () => {
   const wallet = walletData?.wallet
 
   const [showExpirationDate, setShowExpirationDate] = useState(!!wallet?.expirationAt)
-  const [isRecurringTopUpEnabled, setIsRecurringTopUpEnabled] = useState(
-    hasWalletRecurringTopUpEnabled(wallet),
-  )
   const [showMinTopUp, setShowMinTopUp] = useState(!!wallet?.paidTopUpMinAmountCents)
   const [showMaxTopUp, setShowMaxTopUp] = useState(!!wallet?.paidTopUpMaxAmountCents)
 
   useEffect(() => {
     if (wallet) {
-      setIsRecurringTopUpEnabled(hasWalletRecurringTopUpEnabled(wallet))
       setShowMinTopUp(!!wallet?.paidTopUpMinAmountCents)
       setShowMaxTopUp(!!wallet?.paidTopUpMaxAmountCents)
     }
@@ -258,201 +231,26 @@ const CreateWallet = () => {
     },
   })
 
-  const formikProps = useFormik<TWalletDataForm>({
-    initialValues: {
-      currency,
-      billingEntityId:
-        wallet?.billingEntityId || customerData?.customer?.billingEntity?.id || undefined,
-      expirationAt: wallet?.expirationAt || undefined,
-      grantedCredits: '',
-      name: wallet?.name || '',
-      transactionName: undefined,
-      appliesTo: wallet?.appliesTo || {
-        feeTypes: [],
-        billableMetrics: [],
-      },
-      paidCredits: '',
-      rateAmount: intlFormatNumber(wallet?.rateAmount ?? 1, {
-        currency,
-        style: 'decimal',
-        minimumFractionDigits: getCurrencyPrecision(currency),
-      }),
-      recurringTransactionRules:
-        wallet?.recurringTransactionRules?.map(transformRecurringTransactionRule) || undefined,
-      invoiceRequiresSuccessfulPayment: wallet?.invoiceRequiresSuccessfulPayment ?? false,
-      paidTopUpMinAmountCents: wallet?.paidTopUpMinAmountCents
-        ? deserializeAmount(wallet.paidTopUpMinAmountCents, currency)
-        : undefined,
-      paidTopUpMaxAmountCents: wallet?.paidTopUpMaxAmountCents
-        ? deserializeAmount(wallet.paidTopUpMaxAmountCents, currency)
-        : undefined,
-      ignorePaidTopUpLimitsOnCreation: false,
-      priority: wallet?.priority || WALLET_DEFAULT_PRIORITY,
-      paymentMethod: {
-        paymentMethodType: wallet?.paymentMethodType,
-        paymentMethodId: wallet?.paymentMethod?.id,
-      },
-      invoiceCustomSection: {
-        invoiceCustomSections: wallet?.selectedInvoiceCustomSections || [],
-        skipInvoiceCustomSections: wallet?.skipInvoiceCustomSections || false,
-      },
+  const form = useAppForm({
+    defaultValues: mapFromApiToForm({ wallet, customerData, currency }),
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: walletFormValidationSchema,
     },
-    validationSchema: walletFormSchema(),
-    validateOnMount: true,
-    enableReinitialize: true,
-    onSubmit: async ({
-      grantedCredits,
-      paidCredits,
-      rateAmount,
-      currency: valuesCurrency,
-      recurringTransactionRules,
-      appliesTo,
-      priority,
-      paymentMethod,
-      invoiceCustomSection,
-      billingEntityId,
-      ...values
-    }) => {
-      const recurringTransactionRulesFormatted =
-        recurringTransactionRules && recurringTransactionRules?.length > 0
-          ? recurringTransactionRules.map((rule) => {
-              const {
-                interval,
-                trigger,
-                thresholdCredits,
-                method,
-                targetOngoingBalance,
-                startedAt,
-                invoiceRequiresSuccessfulPayment,
-                paidCredits: rulePaidCredit,
-                grantedCredits: ruleGrantedCredit,
-                grantsTargetTopUp,
-                expirationAt,
-                ignorePaidTopUpLimits,
-                invoiceCustomSection: ruleInvoiceCustomSection,
-                ...rest
-              } = rule
-
-              let targetedBalance: string | null = null
-
-              if (method === RecurringTransactionMethodEnum.Target && targetOngoingBalance === '') {
-                targetedBalance = '0'
-              } else if (method === RecurringTransactionMethodEnum.Target) {
-                targetedBalance = String(targetOngoingBalance)
-              }
-
-              return {
-                ...rest,
-                lagoId:
-                  'lagoId' in rule && formType === FORM_TYPE_ENUM.edition
-                    ? (rule.lagoId as string | undefined)
-                    : undefined,
-                method: method as RecurringTransactionMethodEnum,
-                trigger: trigger as RecurringTransactionTriggerEnum,
-                interval: trigger === RecurringTransactionTriggerEnum.Interval ? interval : null,
-                startedAt:
-                  trigger === RecurringTransactionTriggerEnum.Interval
-                    ? (startedAt ?? DateTime.now().toISO())
-                    : null,
-                thresholdCredits:
-                  trigger === RecurringTransactionTriggerEnum.Threshold ? thresholdCredits : null,
-                paidCredits: rulePaidCredit === '' ? '0' : String(rulePaidCredit),
-                grantedCredits: ruleGrantedCredit === '' ? '0' : String(ruleGrantedCredit),
-                targetOngoingBalance: targetedBalance,
-                grantsTargetTopUp:
-                  method === RecurringTransactionMethodEnum.Target
-                    ? Boolean(grantsTargetTopUp)
-                    : null,
-                invoiceRequiresSuccessfulPayment,
-                ignorePaidTopUpLimits,
-                expirationAt: expirationAt === '' ? null : expirationAt,
-                invoiceCustomSection: toInvoiceCustomSectionReference(
-                  ruleInvoiceCustomSection as InvoiceCustomSectionInput,
-                ),
-              }
-            })
-          : []
-
-      const formattedAppliesTo = {
-        feeTypes: appliesTo?.feeTypes || [],
-        billableMetricIds: appliesTo?.billableMetrics?.map((bm) => bm.id) || [],
-      }
-
+    onSubmit: async ({ value }) => {
+      // NOTE: there is no field-level server-error mapping on this form —
+      // both mutations silence UnprocessableEntity and surface errors via
+      // toast only; we simply abort the navigation when the mutation fails.
       if (formType === FORM_TYPE_ENUM.edition) {
-        const input = {
-          ...values,
-          recurringTransactionRules: recurringTransactionRulesFormatted,
-          id: walletId,
-          // `null` (not `undefined`) on clear → BE stores NULL on the
-          // wallet column, meaning "inherit from customer".
-          billingEntityId: billingEntityId || null,
-          appliesTo: formattedAppliesTo,
-          paymentMethod,
-          invoiceCustomSection: toInvoiceCustomSectionReference(invoiceCustomSection),
-          ...(values.paidTopUpMinAmountCents
-            ? {
-                paidTopUpMinAmountCents: serializeAmount(
-                  values.paidTopUpMinAmountCents,
-                  valuesCurrency,
-                ),
-              }
-            : {
-                paidTopUpMinAmountCents: null,
-              }),
-          ...(values.paidTopUpMaxAmountCents
-            ? {
-                paidTopUpMaxAmountCents: serializeAmount(
-                  values.paidTopUpMaxAmountCents,
-                  valuesCurrency,
-                ),
-              }
-            : {
-                paidTopUpMaxAmountCents: null,
-              }),
-          priority: priority || WALLET_DEFAULT_PRIORITY,
-        } satisfies UpdateCustomerWalletInput
-
-        // eslint-disable-next-line
-        const { ignorePaidTopUpLimitsOnCreation, ...ignoreMutationInput } = input
-
-        const { errors } = await updateWallet({ variables: { input: ignoreMutationInput } })
+        const { errors } = await updateWallet({
+          variables: { input: mapFormToUpdateInput(value, walletId) },
+        })
 
         if (!!errors?.length) return
       } else {
-        const input = {
-          ...values,
-          customerId,
-          // `null` (not `undefined`) on clear → BE stores NULL on the
-          // wallet column, meaning "inherit from customer".
-          billingEntityId: billingEntityId || null,
-          currency: valuesCurrency,
-          rateAmount: String(rateAmount),
-          grantedCredits: grantedCredits === '' ? '0' : String(grantedCredits),
-          paidCredits: paidCredits === '' ? '0' : String(paidCredits),
-          recurringTransactionRules: recurringTransactionRulesFormatted,
-          appliesTo: formattedAppliesTo,
-          paymentMethod,
-          invoiceCustomSection: toInvoiceCustomSectionReference(invoiceCustomSection),
-          ...(values.paidTopUpMinAmountCents
-            ? {
-                paidTopUpMinAmountCents: serializeAmount(
-                  values.paidTopUpMinAmountCents,
-                  valuesCurrency,
-                ),
-              }
-            : {}),
-          ...(values.paidTopUpMaxAmountCents
-            ? {
-                paidTopUpMaxAmountCents: serializeAmount(
-                  values.paidTopUpMaxAmountCents,
-                  valuesCurrency,
-                ),
-              }
-            : {}),
-          priority: priority || WALLET_DEFAULT_PRIORITY,
-        } satisfies CreateCustomerWalletInput
-
-        const { errors } = await createWallet({ variables: { input } })
+        const { errors } = await createWallet({
+          variables: { input: mapFormToCreateInput(value, customerId) },
+        })
 
         if (!!errors?.length) return
       }
@@ -460,6 +258,8 @@ const CreateWallet = () => {
       navigateToCustomerWalletTab(walletId)
     },
   })
+
+  const isDirty = useStore(form.store, (state) => state.isDirty)
 
   const openDirtyAttributesWarning = useCallback(() => {
     centralizedDialog.open({
@@ -472,85 +272,86 @@ const CreateWallet = () => {
   }, [centralizedDialog, navigateToCustomerWalletTab, translate, wallet?.id])
 
   const onAbort = useCallback(() => {
-    formikProps.dirty ? openDirtyAttributesWarning() : navigateToCustomerWalletTab(walletId)
-  }, [formikProps.dirty, navigateToCustomerWalletTab, openDirtyAttributesWarning, walletId])
+    isDirty ? openDirtyAttributesWarning() : navigateToCustomerWalletTab(walletId)
+  }, [isDirty, navigateToCustomerWalletTab, openDirtyAttributesWarning, walletId])
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault()
+    form.handleSubmit()
+  }
 
   return (
     <CenteredPage.Wrapper>
-      <CenteredPage.Header>
-        <Typography variant="bodyHl" color="textSecondary" noWrap>
-          {translate(
-            formType === FORM_TYPE_ENUM.edition
-              ? 'text_62d9430e8b9fe36851cddd09'
-              : 'text_6560809c38fb9de88d8a505e',
-          )}
-        </Typography>
-        <Button
-          variant="quaternary"
-          icon="close"
-          onClick={onAbort}
-          data-test={CLOSE_CREATE_WALLET_BUTTON_DATA_TEST}
-        />
-      </CenteredPage.Header>
-
-      {isLoading && !wallet && (
-        <CenteredPage.Container>
-          <FormLoadingSkeleton id="create-wallet" />
-        </CenteredPage.Container>
-      )}
-
-      {!isLoading && (
-        <CenteredPage.Container>
-          <CenteredPage.PageTitle
-            title={translate(
+      <form
+        id="create-wallet"
+        className="flex size-full min-h-full flex-col overflow-auto"
+        onSubmit={handleSubmit}
+      >
+        <CenteredPage.Header>
+          <Typography variant="bodyHl" color="textSecondary" noWrap>
+            {translate(
               formType === FORM_TYPE_ENUM.edition
                 ? 'text_62d9430e8b9fe36851cddd09'
                 : 'text_6560809c38fb9de88d8a505e',
             )}
-            description={translate('text_1748422458559917eelhobh5')}
+          </Typography>
+          <Button
+            variant="quaternary"
+            icon="close"
+            onClick={onAbort}
+            data-test={CLOSE_CREATE_WALLET_BUTTON_DATA_TEST}
           />
+        </CenteredPage.Header>
 
-          <SettingsSection
-            formikProps={formikProps}
-            formType={formType}
-            customerData={customerData}
-            showExpirationDate={showExpirationDate}
-            setShowExpirationDate={setShowExpirationDate}
-            showMinTopUp={showMinTopUp}
-            setShowMinTopUp={setShowMinTopUp}
-            showMaxTopUp={showMaxTopUp}
-            setShowMaxTopUp={setShowMaxTopUp}
-          />
+        {isLoading && !wallet && (
+          <CenteredPage.Container>
+            <FormLoadingSkeleton id="create-wallet" />
+          </CenteredPage.Container>
+        )}
 
-          <ScopeSection formikProps={formikProps} />
+        {!isLoading && (
+          <CenteredPage.Container>
+            <CenteredPage.PageTitle
+              title={translate(
+                formType === FORM_TYPE_ENUM.edition
+                  ? 'text_62d9430e8b9fe36851cddd09'
+                  : 'text_6560809c38fb9de88d8a505e',
+              )}
+              description={translate('text_1748422458559917eelhobh5')}
+            />
 
-          <TopUpSection
-            formikProps={formikProps}
-            formType={formType}
-            customerData={customerData}
-            isRecurringTopUpEnabled={isRecurringTopUpEnabled}
-            setIsRecurringTopUpEnabled={setIsRecurringTopUpEnabled}
-          />
-        </CenteredPage.Container>
-      )}
+            <SettingsSection
+              form={form}
+              formType={formType}
+              customerData={customerData}
+              showExpirationDate={showExpirationDate}
+              setShowExpirationDate={setShowExpirationDate}
+              showMinTopUp={showMinTopUp}
+              setShowMinTopUp={setShowMinTopUp}
+              showMaxTopUp={showMaxTopUp}
+              setShowMaxTopUp={setShowMaxTopUp}
+            />
 
-      <CenteredPage.StickyFooter>
-        <Button variant="quaternary" onClick={onAbort}>
-          {translate('text_62e79671d23ae6ff149de968')}
-        </Button>
-        <Button
-          variant="primary"
-          disabled={!formikProps.isValid}
-          onClick={formikProps.submitForm}
-          data-test={SUBMIT_WALLET_DATA_TEST}
-        >
-          {translate(
-            formType === FORM_TYPE_ENUM.edition
-              ? 'text_62e161ceb87c201025388aa2'
-              : 'text_6560809c38fb9de88d8a505e',
-          )}
-        </Button>
-      </CenteredPage.StickyFooter>
+            {/* TODO(ING-381): re-enable ScopeSection once migrated to TanStack Form (PR3) */}
+            {/* TODO(ING-382/ING-426/ING-383): re-enable TopUpSection once migrated to TanStack Form (PR4a/PR4b/PR5) */}
+          </CenteredPage.Container>
+        )}
+
+        <CenteredPage.StickyFooter>
+          <Button variant="quaternary" onClick={onAbort}>
+            {translate('text_62e79671d23ae6ff149de968')}
+          </Button>
+          <form.AppForm>
+            <form.SubmitButton variant="primary" dataTest={SUBMIT_WALLET_DATA_TEST}>
+              {translate(
+                formType === FORM_TYPE_ENUM.edition
+                  ? 'text_62e161ceb87c201025388aa2'
+                  : 'text_6560809c38fb9de88d8a505e',
+              )}
+            </form.SubmitButton>
+          </form.AppForm>
+        </CenteredPage.StickyFooter>
+      </form>
     </CenteredPage.Wrapper>
   )
 }
