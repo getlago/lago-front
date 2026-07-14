@@ -202,7 +202,7 @@ const Analytics = () => {
         />
       </div>
 
-      <div className="absolute inset-x-0 bottom-6 z-10 px-4">
+      <div className="pointer-events-none absolute inset-x-0 bottom-6 z-10 px-4">
         <FinanceAssistantAnalyticsCta />
       </div>
     </>
