@@ -17,6 +17,7 @@ import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
 import { CUSTOMER_DETAILS_TAB_ROUTE, useNavigate, WALLET_DETAILS_ROUTE } from '~/core/router'
 import {
   CurrencyEnum,
+  GetWalletInfosForWalletFormQuery,
   LagoApiError,
   useCreateCustomerWalletMutation,
   useGetCustomerInfosForWalletFormQuery,
@@ -30,6 +31,7 @@ import { useAppForm } from '~/hooks/forms/useAppform'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { ScopeSection } from '~/pages/wallet/components/ScopeSection'
 import { SettingsSection } from '~/pages/wallet/components/SettingsSection'
+import { TopUpSection } from '~/pages/wallet/components/TopUpSection'
 import { walletFormValidationSchema } from '~/pages/wallet/formInitialization/validationSchema'
 import { mapFromApiToForm } from '~/pages/wallet/mappers/mapFromApiToForm'
 import { mapFormToCreateInput, mapFormToUpdateInput } from '~/pages/wallet/mappers/mapFromFormToApi'
@@ -135,6 +137,12 @@ gql`
   ${WalletForScopeSectionFragmentDoc}
 `
 
+function hasWalletRecurringTopUpEnabled(
+  wallet: GetWalletInfosForWalletFormQuery['wallet'],
+): boolean {
+  return !!wallet?.recurringTransactionRules?.[0]?.trigger
+}
+
 const CreateWallet = () => {
   const navigate = useNavigate()
 
@@ -162,11 +170,15 @@ const CreateWallet = () => {
   const wallet = walletData?.wallet
 
   const [showExpirationDate, setShowExpirationDate] = useState(!!wallet?.expirationAt)
+  const [isRecurringTopUpEnabled, setIsRecurringTopUpEnabled] = useState(
+    hasWalletRecurringTopUpEnabled(wallet),
+  )
   const [showMinTopUp, setShowMinTopUp] = useState(!!wallet?.paidTopUpMinAmountCents)
   const [showMaxTopUp, setShowMaxTopUp] = useState(!!wallet?.paidTopUpMaxAmountCents)
 
   useEffect(() => {
     if (wallet) {
+      setIsRecurringTopUpEnabled(hasWalletRecurringTopUpEnabled(wallet))
       setShowMinTopUp(!!wallet?.paidTopUpMinAmountCents)
       setShowMaxTopUp(!!wallet?.paidTopUpMaxAmountCents)
     }
@@ -335,7 +347,13 @@ const CreateWallet = () => {
 
             <ScopeSection form={form} />
 
-            {/* TODO(ING-382/ING-426/ING-383): re-enable TopUpSection once migrated to TanStack Form (PR4a/PR4b/PR5) */}
+            <TopUpSection
+              form={form}
+              formType={formType}
+              customerData={customerData}
+              isRecurringTopUpEnabled={isRecurringTopUpEnabled}
+              setIsRecurringTopUpEnabled={setIsRecurringTopUpEnabled}
+            />
           </CenteredPage.Container>
         )}
 
