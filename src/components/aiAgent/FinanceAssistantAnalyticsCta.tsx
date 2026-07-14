@@ -48,9 +48,10 @@ export const FinanceAssistantAnalyticsCta = () => {
 
   return (
     <div className="sticky bottom-6 z-10 mx-auto mt-[-24px] flex w-full max-w-[500px] justify-center">
+      {/* The page-level wrapper is pointer-events-none (full-width overlay strip); only the visible card may catch clicks */}
       <form
         onSubmit={handleSubmit}
-        className="flex w-full items-center gap-3 rounded-2xl bg-white px-7 py-6 shadow-xl"
+        className="pointer-events-auto flex w-full items-center gap-3 rounded-2xl bg-white px-7 py-6 shadow-xl"
         data-test={FINANCE_ASSISTANT_CTA_TEST_ID}
       >
         <AiBadge className="shrink-0" iconSize={16}>
