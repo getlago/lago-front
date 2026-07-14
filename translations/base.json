@@ -4477,7 +4477,7 @@
   "text_1783584917380z3uuxa0ey02": "Rule {{number}}",
   "text_178344708284148puah3a4at": "Failed to save. Please try again.",
   "text_1783447082842231k4gnufxi": "This value was rejected. Please review it.",
-  "text_1780562979519nd49yg82e20": "Billing Assistant",
+  "text_1780562979519nd49yg82e20": "AI Assistant",
   "text_17805629795197990fik8a0f": "Finance Assistant",
   "text_1780562979519a6i8bacevvs": "Need insights on your financial data?",
   "text_1780562979519l80fg3hw8vr": "Monthly account receivables",
@@ -4496,5 +4496,6 @@
   "text_178108767575418a6s91vcje": "The previous session expired, so this answer was created without the earlier conversation context.",
   "text_1782899568265kc2tovrmz2s": "Export to CSV",
   "text_1782899568265bph7iv6nops": "Could not export the results. Please try again.",
-  "text_1782903800979dsgmc2xp79z": "We're building your report..."
+  "text_1782903800979dsgmc2xp79z": "We're building your report...",
+  "text_1783590769660p6nhcqws986": "Lago AI"
 }

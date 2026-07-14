@@ -10,7 +10,6 @@ import { PanelWrapper } from '~/components/aiAgent/PanelWrapper'
 import { getHiddenAiAgentPaths } from '~/components/aiAgent/utils'
 import { useLocation } from '~/core/router'
 import {
-  AGENT_TYPE_LABELS,
   AGENT_TYPE_SHOW_HISTORY,
   AIPanelEnum,
   PANEL_CLOSED,
@@ -72,7 +71,6 @@ export const AiAgent = () => {
 
   const shouldDisplayWelcomeMessage = !state.messages.length
   const agentHasHistory = AGENT_TYPE_SHOW_HISTORY[agentType]
-  const emptyStateTitle = translate(AGENT_TYPE_LABELS[agentType])
 
   const onBackButton = () => {
     if (showHistory) {
@@ -114,10 +112,9 @@ export const AiAgent = () => {
             title={
               showHistory
                 ? translate('text_17574172258513wv8yozezoz')
-                : (state.messages[0]?.message ?? emptyStateTitle)
+                : (state.messages[0]?.message ?? translate('text_1783590769660p6nhcqws986'))
             }
             isBeta={shouldDisplayWelcomeMessage && !showHistory}
-            showAgentSelector={shouldDisplayWelcomeMessage && !showHistory}
             showBackButton={!shouldDisplayWelcomeMessage || showHistory}
             onBackButton={onBackButton}
             showHistoryButton={
@@ -127,7 +124,7 @@ export const AiAgent = () => {
             onFullscreen={() => onFullscreen()}
             isFullscreen={isFullscreen}
           >
-            <div className="h-full w-full max-w-5xl">
+            <div className="size-full max-w-5xl">
               {showHistory && (
                 <ChatHistory
                   isFullscreen={isFullscreen}
