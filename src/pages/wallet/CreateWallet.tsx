@@ -28,6 +28,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { ScopeSection } from '~/pages/wallet/components/ScopeSection'
 import { SettingsSection } from '~/pages/wallet/components/SettingsSection'
 import { walletFormValidationSchema } from '~/pages/wallet/formInitialization/validationSchema'
 import { mapFromApiToForm } from '~/pages/wallet/mappers/mapFromApiToForm'
@@ -332,7 +333,8 @@ const CreateWallet = () => {
               setShowMaxTopUp={setShowMaxTopUp}
             />
 
-            {/* TODO(ING-381): re-enable ScopeSection once migrated to TanStack Form (PR3) */}
+            <ScopeSection form={form} />
+
             {/* TODO(ING-382/ING-426/ING-383): re-enable TopUpSection once migrated to TanStack Form (PR4a/PR4b/PR5) */}
           </CenteredPage.Container>
         )}
