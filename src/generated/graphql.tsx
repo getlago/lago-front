@@ -1881,6 +1881,7 @@ export type CreateCustomerWalletInput = {
   paidTopUpMinAmountCents?: InputMaybe<Scalars['BigInt']['input']>;
   paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
   priority: Scalars['Int']['input'];
+  purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   rateAmount: Scalars['String']['input'];
   recurringTransactionRules?: InputMaybe<Array<CreateRecurringTransactionRuleInput>>;
   transactionName?: InputMaybe<Scalars['String']['input']>;
@@ -1899,6 +1900,7 @@ export type CreateCustomerWalletTransactionInput = {
   paidCredits?: InputMaybe<Scalars['String']['input']>;
   paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
   priority?: InputMaybe<Scalars['Int']['input']>;
+  purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   voidedCredits?: InputMaybe<Scalars['String']['input']>;
   walletId: Scalars['ID']['input'];
 };
@@ -2145,6 +2147,7 @@ export type CreateRecurringTransactionRuleInput = {
   method?: InputMaybe<RecurringTransactionMethodEnum>;
   paidCredits?: InputMaybe<Scalars['String']['input']>;
   paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
+  purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   startedAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   targetOngoingBalance?: InputMaybe<Scalars['String']['input']>;
   thresholdCredits?: InputMaybe<Scalars['String']['input']>;
@@ -2213,6 +2216,7 @@ export type CreateSubscriptionInput = {
   planId: Scalars['ID']['input'];
   planOverrides?: InputMaybe<PlanOverridesInput>;
   progressiveBillingDisabled?: InputMaybe<Scalars['Boolean']['input']>;
+  purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   subscriptionAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   subscriptionId?: InputMaybe<Scalars['ID']['input']>;
   usageThresholds?: InputMaybe<Array<UsageThresholdInput>>;
@@ -3929,10 +3933,11 @@ export type ExportFinanceAssistantResultInput = {
 /** Organization Feature Flag Values */
 export enum FeatureFlagEnum {
   EnrichedEventsAggregation = 'enriched_events_aggregation',
+  FixedChargeUsageDeltaMigration = 'fixed_charge_usage_delta_migration',
   Meilisearch = 'meilisearch',
+  MultiConnection = 'multi_connection',
   MultiCurrency = 'multi_currency',
   MultiEntityBilling = 'multi_entity_billing',
-  MultiplePaymentMethods = 'multiple_payment_methods',
   OrderForms = 'order_forms',
   PaymentGatedSubscriptions = 'payment_gated_subscriptions',
   PostgresEnrichedEvents = 'postgres_enriched_events',
@@ -7807,7 +7812,6 @@ export type QueryCustomerPortalCustomerUsageArgs = {
 
 export type QueryCustomerPortalInvoiceCollectionsArgs = {
   expireCache?: InputMaybe<Scalars['Boolean']['input']>;
-  months?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -7821,7 +7825,6 @@ export type QueryCustomerPortalInvoicesArgs = {
 
 export type QueryCustomerPortalOverdueBalancesArgs = {
   expireCache?: InputMaybe<Scalars['Boolean']['input']>;
-  months?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -8061,6 +8064,7 @@ export type QueryFeaturesArgs = {
 
 
 export type QueryGrossRevenuesArgs = {
+  billingEntityCode?: InputMaybe<Scalars['String']['input']>;
   billingEntityId?: InputMaybe<Scalars['ID']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
   expireCache?: InputMaybe<Scalars['Boolean']['input']>;
@@ -8123,7 +8127,6 @@ export type QueryInvoiceBuildRegenerationPreviewArgs = {
 
 export type QueryInvoiceCollectionsArgs = {
   billingEntityCode?: InputMaybe<Scalars['String']['input']>;
-  billingEntityId?: InputMaybe<Scalars['ID']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
   isCustomerTinEmpty?: InputMaybe<Scalars['Boolean']['input']>;
 };
@@ -8148,7 +8151,7 @@ export type QueryInvoiceCustomSectionsArgs = {
 
 
 export type QueryInvoicedUsagesArgs = {
-  billingEntityId?: InputMaybe<Scalars['ID']['input']>;
+  billingEntityCode?: InputMaybe<Scalars['String']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
 };
 
@@ -8185,7 +8188,7 @@ export type QueryMembershipsArgs = {
 
 
 export type QueryMrrsArgs = {
-  billingEntityId?: InputMaybe<Scalars['ID']['input']>;
+  billingEntityCode?: InputMaybe<Scalars['String']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
 };
 
@@ -8235,7 +8238,6 @@ export type QueryOrdersArgs = {
 
 export type QueryOverdueBalancesArgs = {
   billingEntityCode?: InputMaybe<Scalars['String']['input']>;
-  billingEntityId?: InputMaybe<Scalars['ID']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
   expireCache?: InputMaybe<Scalars['Boolean']['input']>;
   externalCustomerId?: InputMaybe<Scalars['String']['input']>;
@@ -8579,6 +8581,7 @@ export type RecurringTransactionRule = {
   paidCredits: Scalars['String']['output'];
   paymentMethod?: Maybe<PaymentMethod>;
   paymentMethodType?: Maybe<PaymentMethodTypeEnum>;
+  purchaseOrderNumber?: Maybe<Scalars['String']['output']>;
   selectedInvoiceCustomSections?: Maybe<Array<InvoiceCustomSection>>;
   skipInvoiceCustomSections?: Maybe<Scalars['Boolean']['output']>;
   startedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
@@ -8966,6 +8969,7 @@ export type Subscription = {
   previousPlan?: Maybe<Plan>;
   previousSubscription?: Maybe<Subscription>;
   progressiveBillingDisabled?: Maybe<Scalars['Boolean']['output']>;
+  purchaseOrderNumber?: Maybe<Scalars['String']['output']>;
   selectedInvoiceCustomSections?: Maybe<Array<InvoiceCustomSection>>;
   skipInvoiceCustomSections?: Maybe<Scalars['Boolean']['output']>;
   startedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
@@ -9775,6 +9779,7 @@ export type UpdateCustomerWalletInput = {
   paidTopUpMinAmountCents?: InputMaybe<Scalars['BigInt']['input']>;
   paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
   priority: Scalars['Int']['input'];
+  purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   recurringTransactionRules?: InputMaybe<Array<UpdateRecurringTransactionRuleInput>>;
 };
 
@@ -10067,6 +10072,7 @@ export type UpdateRecurringTransactionRuleInput = {
   method?: InputMaybe<RecurringTransactionMethodEnum>;
   paidCredits?: InputMaybe<Scalars['String']['input']>;
   paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
+  purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   startedAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   targetOngoingBalance?: InputMaybe<Scalars['String']['input']>;
   thresholdCredits?: InputMaybe<Scalars['String']['input']>;
@@ -10170,6 +10176,7 @@ export type UpdateSubscriptionInput = {
   paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
   planOverrides?: InputMaybe<PlanOverridesInput>;
   progressiveBillingDisabled?: InputMaybe<Scalars['Boolean']['input']>;
+  purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   subscriptionAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   usageThresholds?: InputMaybe<Array<UsageThresholdInput>>;
 };
@@ -10312,6 +10319,7 @@ export type Wallet = {
   paymentMethod?: Maybe<PaymentMethod>;
   paymentMethodType?: Maybe<PaymentMethodTypeEnum>;
   priority: Scalars['Int']['output'];
+  purchaseOrderNumber?: Maybe<Scalars['String']['output']>;
   rateAmount: Scalars['Float']['output'];
   recurringTransactionRules?: Maybe<Array<RecurringTransactionRule>>;
   selectedInvoiceCustomSections?: Maybe<Array<InvoiceCustomSection>>;
@@ -10368,6 +10376,7 @@ export type WalletTransaction = {
   metadata?: Maybe<Array<WalletTransactionMetadataObject>>;
   name?: Maybe<Scalars['String']['output']>;
   priority: Scalars['Int']['output'];
+  purchaseOrderNumber?: Maybe<Scalars['String']['output']>;
   remainingAmountCents?: Maybe<Scalars['BigInt']['output']>;
   remainingCreditAmount?: Maybe<Scalars['String']['output']>;
   selectedInvoiceCustomSections?: Maybe<Array<InvoiceCustomSection>>;
