@@ -11,8 +11,9 @@ import { topUpAmountError, walletFormErrorCodes } from '~/pages/wallet/form'
 import { TWalletDataForm } from '~/pages/wallet/types'
 
 /**
- * Zod re-map of the legacy Yup `walletFormSchema` (src/pages/wallet/form.ts).
- * Semantics are a 1:1 parity port — do not "fix" behaviours here:
+ * Zod re-map of the legacy Yup `walletFormSchema` (removed — see git history
+ * of src/pages/wallet/form.ts). Semantics are a 1:1 parity port — do not
+ * "fix" behaviours here:
  * - `rateAmount` is the ONLY unconditionally-required top-level field.
  * - `paidTopUpMin/Max` is a two-way cross-field check (BOTH fields error).
  * - rule `paidCredits` bounds run against the TOP-LEVEL wallet values
