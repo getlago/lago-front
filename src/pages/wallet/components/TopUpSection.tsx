@@ -220,7 +220,10 @@ export const TopUpSection = withForm({
                 endIcon={isPremium ? undefined : 'sparkles'}
                 onClick={() => {
                   if (isPremium) {
-                    form.setFieldValue('recurringTransactionRules[0]', DEFAULT_RULES)
+                    // Set the WHOLE array: a bracket-index set on an undefined
+                    // base would create a plain object ({0: ...}) instead of
+                    // an array and break validation.
+                    form.setFieldValue('recurringTransactionRules', [DEFAULT_RULES])
                     setIsRecurringTopUpEnabled(true)
                     setAccordionIsOpen(true)
                   } else {
