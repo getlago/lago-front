@@ -25,7 +25,9 @@ jest.mock('~/components/settings/integrations/AddAnrokDialog', () => ({
   AddAnrokDialog: () => null,
 }))
 jest.mock('~/components/settings/integrations/AddAvalaraDialog', () => ({
-  AddAvalaraDialog: () => null,
+  useAddAvalaraDialog: () => ({
+    openAddAvalaraDialog: jest.fn(),
+  }),
 }))
 jest.mock('~/components/settings/integrations/AddNetsuiteDialog', () => ({
   AddNetsuiteDialog: () => null,

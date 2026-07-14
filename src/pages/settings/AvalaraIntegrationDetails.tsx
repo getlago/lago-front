@@ -4,10 +4,7 @@ import { generatePath, useParams } from 'react-router-dom'
 
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
-import {
-  AddAvalaraDialog,
-  AddAvalaraDialogRef,
-} from '~/components/settings/integrations/AddAvalaraDialog'
+import { useAddAvalaraDialog } from '~/components/settings/integrations/AddAvalaraDialog'
 import {
   AddEditDeleteSuccessRedirectUrlDialog,
   AddEditDeleteSuccessRedirectUrlDialogRef,
@@ -75,7 +72,7 @@ gql`
 const AvalaraIntegrationDetails = () => {
   const navigate = useNavigate()
   const { integrationId = '' } = useParams()
-  const addAvalaraDialogRef = useRef<AddAvalaraDialogRef>(null)
+  const { openAddAvalaraDialog } = useAddAvalaraDialog()
   const { openDeleteAvalaraIntegrationDialog } = useDeleteAvalaraIntegrationDialog()
   const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { translate } = useInternationalization()
@@ -137,7 +134,7 @@ const AvalaraIntegrationDetails = () => {
                 {
                   label: translate('text_65845f35d7d69c3ab4793dac'),
                   onClick: (closePopper) => {
-                    addAvalaraDialogRef.current?.openDialog({
+                    openAddAvalaraDialog({
                       integration: avalaraIntegration,
                       deleteDialogCallback,
                     })
@@ -181,7 +178,6 @@ const AvalaraIntegrationDetails = () => {
         ]}
       />
       <>{activeTabContent}</>
-      <AddAvalaraDialog ref={addAvalaraDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )

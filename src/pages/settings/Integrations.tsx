@@ -24,10 +24,7 @@ import {
   AddAnrokDialog,
   AddAnrokDialogRef,
 } from '~/components/settings/integrations/AddAnrokDialog'
-import {
-  AddAvalaraDialog,
-  AddAvalaraDialogRef,
-} from '~/components/settings/integrations/AddAvalaraDialog'
+import { useAddAvalaraDialog } from '~/components/settings/integrations/AddAvalaraDialog'
 import {
   AddCashfreeDialog,
   AddCashfreeDialogRef,
@@ -178,7 +175,7 @@ const Integrations = () => {
 
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
   const addAnrokDialogRef = useRef<AddAnrokDialogRef>(null)
-  const addAvalaraDialogRef = useRef<AddAvalaraDialogRef>(null)
+  const { openAddAvalaraDialog } = useAddAvalaraDialog()
   const addStripeDialogRef = useRef<AddStripeDialogRef>(null)
   const addAdyenDialogRef = useRef<AddAdyenDialogRef>(null)
   const addGocardlessDialogRef = useRef<AddGocardlessDialogRef>(null)
@@ -424,7 +421,7 @@ const Integrations = () => {
                               }),
                             )
                           } else {
-                            addAvalaraDialogRef.current?.openDialog()
+                            openAddAvalaraDialog()
                           }
                         }}
                       />
@@ -849,7 +846,6 @@ const Integrations = () => {
       <>{activeTabContent}</>
 
       <AddAnrokDialog ref={addAnrokDialogRef} />
-      <AddAvalaraDialog ref={addAvalaraDialogRef} />
       <AddAdyenDialog ref={addAdyenDialogRef} />
       <AddStripeDialog ref={addStripeDialogRef} />
       <AddCashfreeDialog ref={addCashfreeDialogRef} />
