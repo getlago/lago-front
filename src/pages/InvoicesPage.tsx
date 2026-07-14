@@ -10,7 +10,8 @@ import {
   isOutstandingUrlParams,
 } from '~/components/designSystem/Filters'
 import { usePageSearchParam } from '~/components/designSystem/Pagination'
-import { ExportDialog, ExportDialogRef, ExportValues } from '~/components/exports/ExportDialog'
+import { useExportDialog } from '~/components/exports/ExportDialog'
+import { ExportValues } from '~/components/exports/types'
 import {
   FinalizeInvoiceDialog,
   FinalizeInvoiceDialogRef,
@@ -146,7 +147,7 @@ const InvoicesPage = () => {
   )
 
   const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
-  const exportInvoicesDialogRef = useRef<ExportDialogRef>(null)
+  const { openExportDialog } = useExportDialog()
 
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
   const { page, goToPage } = usePageSearchParam()
@@ -238,7 +239,27 @@ const InvoicesPage = () => {
               variant: 'secondary',
               disabled: !invoicesTotalCount,
               onClick: () => {
-                exportInvoicesDialogRef.current?.openDialog()
+                openExportDialog({
+                  totalCountLabel: translate(
+                    'text_66b21236c939426d07ff9937',
+                    { invoicesTotalCount },
+                    invoicesTotalCount,
+                  ),
+                  onExport: onInvoicesExport,
+                  disableExport: invoicesTotalCount === 0,
+                  resourceTypeOptions: [
+                    {
+                      label: translate('text_66b21236c939426d07ff993b'),
+                      sublabel: translate('text_66b21236c939426d07ff993c'),
+                      value: InvoiceExportTypeEnum.Invoices,
+                    },
+                    {
+                      label: translate('text_66b21236c939426d07ff993d'),
+                      sublabel: translate('text_66b21236c939426d07ff993e'),
+                      value: InvoiceExportTypeEnum.InvoiceFees,
+                    },
+                  ],
+                })
               },
             },
             {
@@ -314,28 +335,6 @@ const InvoicesPage = () => {
       />
 
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
-      <ExportDialog
-        ref={exportInvoicesDialogRef}
-        totalCountLabel={translate(
-          'text_66b21236c939426d07ff9937',
-          { invoicesTotalCount },
-          invoicesTotalCount,
-        )}
-        onExport={onInvoicesExport}
-        disableExport={invoicesTotalCount === 0}
-        resourceTypeOptions={[
-          {
-            label: translate('text_66b21236c939426d07ff993b'),
-            sublabel: translate('text_66b21236c939426d07ff993c'),
-            value: InvoiceExportTypeEnum.Invoices,
-          },
-          {
-            label: translate('text_66b21236c939426d07ff993d'),
-            sublabel: translate('text_66b21236c939426d07ff993e'),
-            value: InvoiceExportTypeEnum.InvoiceFees,
-          },
-        ]}
-      />
     </>
   )
 }

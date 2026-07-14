@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import CreditNotesTable from '~/components/creditNote/CreditNotesTable'
@@ -9,7 +9,8 @@ import {
   formatFiltersForCreditNotesQuery,
 } from '~/components/designSystem/Filters'
 import { usePageSearchParam } from '~/components/designSystem/Pagination'
-import { ExportDialog, ExportDialogRef, ExportValues } from '~/components/exports/ExportDialog'
+import { useExportDialog } from '~/components/exports/ExportDialog'
+import { ExportValues } from '~/components/exports/types'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
@@ -116,7 +117,7 @@ const CreditNotesPage = () => {
     PremiumIntegrationTypeEnum.RevenueShare,
   )
 
-  const exportCreditNotesDialogRef = useRef<ExportDialogRef>(null)
+  const { openExportDialog } = useExportDialog()
 
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
   const { page, goToPage } = usePageSearchParam()
@@ -196,7 +197,27 @@ const CreditNotesPage = () => {
               variant: 'secondary',
               disabled: !dataCreditNotes?.creditNotes?.metadata.totalCount,
               onClick: () => {
-                exportCreditNotesDialogRef.current?.openDialog()
+                openExportDialog({
+                  totalCountLabel: translate(
+                    'text_17346987416277yx1mf6nau2',
+                    { creditNotesTotalCount },
+                    creditNotesTotalCount,
+                  ),
+                  onExport: onCreditNotesExport,
+                  disableExport: creditNotesTotalCount === 0,
+                  resourceTypeOptions: [
+                    {
+                      label: translate('text_1734698741627bges5xz01la'),
+                      sublabel: translate('text_173469874162761dxr57rvw7'),
+                      value: CreditNoteExportTypeEnum.CreditNotes,
+                    },
+                    {
+                      label: translate('text_1734698741627449t5wdghef'),
+                      sublabel: translate('text_1734698875217ppgrrmd10q2'),
+                      value: CreditNoteExportTypeEnum.CreditNoteItems,
+                    },
+                  ],
+                })
               },
             },
           ],
@@ -249,29 +270,6 @@ const CreditNotesPage = () => {
           default: 16,
           md: 48,
         }}
-      />
-
-      <ExportDialog
-        ref={exportCreditNotesDialogRef}
-        totalCountLabel={translate(
-          'text_17346987416277yx1mf6nau2',
-          { creditNotesTotalCount },
-          creditNotesTotalCount,
-        )}
-        onExport={onCreditNotesExport}
-        disableExport={creditNotesTotalCount === 0}
-        resourceTypeOptions={[
-          {
-            label: translate('text_1734698741627bges5xz01la'),
-            sublabel: translate('text_173469874162761dxr57rvw7'),
-            value: CreditNoteExportTypeEnum.CreditNotes,
-          },
-          {
-            label: translate('text_1734698741627449t5wdghef'),
-            sublabel: translate('text_1734698875217ppgrrmd10q2'),
-            value: CreditNoteExportTypeEnum.CreditNoteItems,
-          },
-        ]}
       />
     </>
   )
