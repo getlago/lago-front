@@ -161,11 +161,12 @@ export const useMyDialog = () => {
       .open({
         title: translate('...'),
         children: (
-          <div className="...">
+          <div className="p-8">
             {/* Dialog content */}
           </div>
         ),
         closeOnError: false,
+        onEntered: focusFirstInput,
         mainAction: (
           <form.AppForm>
             <form.SubmitButton>{translate('...')}</form.SubmitButton>
@@ -211,6 +212,39 @@ const handleSubmit = async (): Promise<DialogResult> => {
 ```
 
 Do **not** drop `validationLogic` to "simplify" — without `revalidateLogic()` the `onDynamic` validator never runs and the schema is silently skipped. Keep `revalidateLogic()` (the default, submit-first); do not use `revalidateLogic({ mode: 'change' })` unless a field genuinely needs live validation feedback.
+
+#### Content padding and initial focus — REQUIRED for every migration
+
+Two things are easy to drop during migration and both produce visible regressions. Apply them to **every** `FormDialog` / `FormDialogOpeningDialog` you migrate.
+
+**1. Wrap `children` in a padding container (`p-8`).**
+
+`BaseDialog` only auto-pads content when `children` is a plain **string**. JSX children get **no** padding, so the content renders flush against the left/right edges while the header (`p-8`) and footer stay inset — a broken, misaligned layout. The legacy `Dialog` padded content for you; the new system does not.
+
+Always wrap the JSX children in a padding container so the content's left edge aligns with the header title:
+
+```tsx
+children: (
+  <div className="p-8">
+    {/* dialog content */}
+  </div>
+),
+```
+
+Use `p-8` to match the header/footer gutter. If the content is a nested form component (e.g. a `withForm` render), put the `p-8` on that component's outer wrapper instead. Never leave the children unwrapped.
+
+**2. Focus the first input on enter (`onEntered: focusFirstInput`).**
+
+The legacy `Dialog` auto-focused the first field. `FormDialog` exposes an `onEntered?: (container: HTMLElement) => void` callback (fired after the enter transition) but does nothing by default, so the migrated dialog opens with nothing focused. Wire the shared helper:
+
+```tsx
+import { focusFirstInput } from '~/components/drawers/useFocusTrap'
+
+// inside the .open({ ... }) call, as a sibling of `children` / `closeOnError`:
+onEntered: focusFirstInput,
+```
+
+`focusFirstInput(container)` scopes its lookup to the dialog's own container and focuses the first editable input (skipping hidden/disabled), so it works regardless of dialog-stack position. It's the same helper the plan and charge drawers use. For a dialog whose first field is not the desired target, pass a custom selector via a wrapper: `onEntered: (c) => focusFirstInput(c, '#my-field')`.
 
 **New Pattern (hook-based with CentralizedDialog):**
 
@@ -352,13 +386,14 @@ export const useMyFormDialog = () => {
         title: translate(isEdition ? '...' : '...'),
         description: translate('...'),
         children: (
-          <div className="...">
+          <div className="p-8">
             <form.AppField name="fieldName">
               {(field) => <field.TextInputField label={translate('...')} />}
             </form.AppField>
           </div>
         ),
         closeOnError: false,
+        onEntered: focusFirstInput,
         mainAction: (
           <form.AppForm>
             <form.SubmitButton>{translate('...')}</form.SubmitButton>
@@ -459,6 +494,7 @@ Add (for FormDialog):
 import { useRef } from 'react'
 import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { DialogResult } from '~/components/dialogs/types'
+import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 ```
 
 Or (for CentralizedDialog):
@@ -473,6 +509,7 @@ Or (for FormDialogOpeningDialog):
 import { useRef } from 'react'
 import { useFormDialogOpeningDialog } from '~/components/dialogs/FormDialogOpeningDialog'
 import { DialogResult } from '~/components/dialogs/types'
+import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 ```
 
 #### Step 2.4: Remove Old Exports
@@ -642,6 +679,8 @@ type FormDialogOpeningDialogProps = FormDialogProps & {
 - [ ] Replace `useState(localData)` with `useRef` (for FormDialog/FormDialogOpeningDialog) or function parameter (for CentralizedDialog)
 - [ ] Replace `Dialog`/`WarningDialog` with `useFormDialog()`, `useCentralizedDialog()`, or `useFormDialogOpeningDialog()`
 - [ ] Implement `handleSubmit` returning `Promise<DialogResult>` (for FormDialog/FormDialogOpeningDialog)
+- [ ] Wrap `children` JSX in a `p-8` padding container (BaseDialog does NOT pad JSX children → flush/misaligned layout otherwise)
+- [ ] Add `onEntered: focusFirstInput` so the dialog focuses its first input on open (legacy Dialog did this automatically)
 - [ ] Handle form reset and cleanup in `.then()` callback (for FormDialog/FormDialogOpeningDialog)
 - [ ] Remove old exports (`forwardRef`, `DialogRef` interface, `displayName`)
 - [ ] (Deletion dialog) Replace `refetchQueries` / bare `cache.evict()` with the `evictFromCache` helper
