@@ -29,6 +29,9 @@ import { TWalletDataForm } from '~/pages/wallet/types'
  * in the already-migrated MetadataAccordion.
  */
 
+export const WALLET_PRIORITY_MIN = 1
+export const WALLET_PRIORITY_MAX = 50
+
 const addExpirationIssue = (
   ctx: z.RefinementCtx,
   value: string | null | undefined,
@@ -62,7 +65,8 @@ export const walletFormValidationSchema = z.custom<TWalletDataForm>().superRefin
 
   // rateAmount — the only unconditionally-required top-level field
   if (!rateAmount) {
-    ctx.addIssue({ code: 'custom', message: '', path: ['rateAmount'] })
+    // "Field is required"
+    ctx.addIssue({ code: 'custom', message: 'text_1771342994699klxu2paz7g8', path: ['rateAmount'] })
   }
 
   // expirationAt — valid ISO + in the future
@@ -101,10 +105,10 @@ export const walletFormValidationSchema = z.custom<TWalletDataForm>().superRefin
     if (
       (typeof priority === 'string' && priority === '') ||
       isNaN(priorityNumber) ||
-      priorityNumber < 1 ||
-      priorityNumber > 50
+      priorityNumber < WALLET_PRIORITY_MIN ||
+      priorityNumber > WALLET_PRIORITY_MAX
     ) {
-      ctx.addIssue({ code: 'custom', message: '', path: ['priority'] })
+      ctx.addIssue({ code: 'custom', message: 'text_1784022064201xi14v3sglp1', path: ['priority'] })
     }
   }
 
