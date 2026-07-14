@@ -111,4 +111,27 @@ describe('TextInputFieldForTanstack', () => {
       expect(mockTranslate).not.toHaveBeenCalled()
     })
   })
+
+  describe('errorOverride', () => {
+    it('replaces the field errors with the override string', () => {
+      mockedUseFieldContext.mockReturnValue(createMockField([{ message: 'error_1' }]))
+
+      const { getByText, queryByText } = render(
+        <TextInputField errorOverride="Custom override error" />,
+      )
+
+      // TextInput runs the error string through translate()
+      expect(getByText('translated_Custom override error')).toBeInTheDocument()
+      // the field meta error is not displayed
+      expect(queryByText('translated_error_1')).not.toBeInTheDocument()
+    })
+
+    it('falls back to the field errors when omitted', () => {
+      mockedUseFieldContext.mockReturnValue(createMockField([{ message: 'error_1' }]))
+
+      render(<TextInputField />)
+
+      expect(mockTranslate).toHaveBeenCalledWith('error_1')
+    })
+  })
 })
