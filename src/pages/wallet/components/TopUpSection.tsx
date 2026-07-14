@@ -13,8 +13,11 @@ import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { ButtonSelector, ComboBox, Switch } from '~/components/form'
+import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
+import { PaymentMethodsForm, ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
 import { getWordingForWalletCreationAlert } from '~/components/wallets/utils'
 import {
+  ADD_METADATA_DATA_TEST,
   RECURRING_IGNORE_PAID_TOPUP_LIMITS_SWITCH_DATA_TEST,
   RECURRING_INVOICE_REQUIRES_SUCCESSFUL_PAYMENT_SWITCH_DATA_TEST,
   RECURRING_TOPUP_TYPE_DATA_TEST,
@@ -23,6 +26,10 @@ import {
 import { dateErrorCodes, FORM_TYPE_ENUM, getIntervalTranslationKey } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { intlFormatDateTime } from '~/core/timezone'
+import {
+  METADATA_VALUE_MAX_LENGTH_DEFAULT,
+  MetadataErrorsEnum,
+} from '~/formValidation/metadataSchema'
 import {
   CurrencyEnum,
   GetCustomerInfosForWalletFormQuery,
@@ -164,6 +171,18 @@ export const TopUpSection = withForm({
 
     const hasMinMax = !!paidTopUpMinAmountCents || !!paidTopUpMaxAmountCents
 
+    // Structural adapter for PaymentMethodsInvoiceSettings: its children only
+    // need live `values` + a `setFieldValue(path, value)` — form-core resolves
+    // the dot-index paths (`recurringTransactionRules.0.*`) it produces to the
+    // same segments as our bracket field names.
+    const paymentMethodsFormAdapter: PaymentMethodsForm<
+      ViewTypeEnum.WalletTopUp | ViewTypeEnum.WalletRecurringTopUp
+    > = {
+      values: walletValues,
+      setFieldValue: (field, value) =>
+        form.setFieldValue(field as Parameters<typeof form.setFieldValue>[0], value as never),
+    }
+
     const canDisplayAccordionAlert =
       !!recurringTransactionRules?.method &&
       ((recurringTransactionRules?.trigger === RecurringTransactionTriggerEnum.Interval &&
@@ -173,7 +192,20 @@ export const TopUpSection = withForm({
 
     return (
       <>
-        {/* TODO(ING-383): re-enable wallet-level PaymentMethodsInvoiceSettings once migrated (PR5) */}
+        {(customerData?.customer?.externalId || customerData?.customer?.id) && (
+          <section className="flex w-full flex-col gap-6 pb-12 shadow-b">
+            <div className="flex flex-col gap-1">
+              <Typography variant="subhead1">
+                {translate('text_17634566456760qoj7hs7jrh')}
+              </Typography>
+            </div>
+            <PaymentMethodsInvoiceSettings
+              customer={customerData?.customer}
+              form={paymentMethodsFormAdapter}
+              viewType={ViewTypeEnum.WalletTopUp}
+            />
+          </section>
+        )}
 
         <section className="flex w-full flex-col gap-6">
           <div className="flex flex-col gap-1">
@@ -188,7 +220,10 @@ export const TopUpSection = withForm({
                 endIcon={isPremium ? undefined : 'sparkles'}
                 onClick={() => {
                   if (isPremium) {
-                    form.setFieldValue('recurringTransactionRules[0]', DEFAULT_RULES)
+                    // Set the WHOLE array: a bracket-index set on an undefined
+                    // base would create a plain object ({0: ...}) instead of
+                    // an array and break validation.
+                    form.setFieldValue('recurringTransactionRules', [DEFAULT_RULES])
                     setIsRecurringTopUpEnabled(true)
                     setAccordionIsOpen(true)
                   } else {
@@ -608,8 +643,145 @@ export const TopUpSection = withForm({
                 )}
               </div>
 
-              {/* TODO(ING-383): rule-level PaymentMethodsInvoiceSettings re-added in PR5 */}
-              {/* TODO(ING-383): transactionMetadata rows re-added in PR5 */}
+              {(customerData?.customer?.externalId || customerData?.customer?.id) && (
+                <div className="flex flex-col gap-6 p-4 shadow-b">
+                  <PaymentMethodsInvoiceSettings
+                    customer={customerData?.customer}
+                    form={paymentMethodsFormAdapter}
+                    formFieldBasePath="recurringTransactionRules.0"
+                    viewType={ViewTypeEnum.WalletRecurringTopUp}
+                  />
+                </div>
+              )}
+
+              <div className="flex flex-col gap-6 p-4">
+                <div>
+                  <Typography variant="bodyHl" color="textSecondary">
+                    {translate('text_63fcc3218d35b9377840f59b')}
+                  </Typography>
+                  <Typography variant="caption">
+                    {translate('text_1741690423581n3e4cj019jg')}
+                  </Typography>
+                </div>
+
+                {recurringTransactionRules?.transactionMetadata?.map((_metadata, index) => {
+                  return (
+                    <div
+                      className="flex w-full flex-row items-center gap-3"
+                      key={`metadata-item-${index}`}
+                    >
+                      <div className="basis-[200px]">
+                        <form.AppField
+                          name={`recurringTransactionRules[0].transactionMetadata[${index}].key`}
+                        >
+                          {(field) => {
+                            const keyError = (
+                              field.state.meta.errors as unknown as { message?: string }[]
+                            ).find((error) =>
+                              Object.keys(MetadataErrorsEnum).includes(error?.message ?? ''),
+                            )?.message
+
+                            return (
+                              <Tooltip
+                                placement="top-end"
+                                title={
+                                  (keyError === MetadataErrorsEnum.uniqueness &&
+                                    translate('text_63fcc3218d35b9377840f5dd')) ||
+                                  (keyError === MetadataErrorsEnum.maxLength &&
+                                    translate('text_63fcc3218d35b9377840f5d9', { max: 20 }))
+                                }
+                                disableHoverListener={!keyError}
+                              >
+                                <field.TextInputField
+                                  label={translate('text_63fcc3218d35b9377840f5a3')}
+                                  silentError={!keyError}
+                                  placeholder={translate('text_63fcc3218d35b9377840f5a7')}
+                                  displayErrorText={false}
+                                />
+                              </Tooltip>
+                            )
+                          }}
+                        </form.AppField>
+                      </div>
+                      <div className="grow">
+                        <form.AppField
+                          name={`recurringTransactionRules[0].transactionMetadata[${index}].value`}
+                        >
+                          {(field) => {
+                            const valueError = (
+                              field.state.meta.errors as unknown as { message?: string }[]
+                            ).find((error) =>
+                              Object.keys(MetadataErrorsEnum).includes(error?.message ?? ''),
+                            )?.message
+
+                            return (
+                              <Tooltip
+                                placement="top-end"
+                                title={
+                                  valueError === MetadataErrorsEnum.maxLength
+                                    ? translate('text_63fcc3218d35b9377840f5e5', {
+                                        max: METADATA_VALUE_MAX_LENGTH_DEFAULT,
+                                      })
+                                    : undefined
+                                }
+                                disableHoverListener={!valueError}
+                              >
+                                <field.TextInputField
+                                  label={translate('text_63fcc3218d35b9377840f5ab')}
+                                  silentError={!valueError}
+                                  placeholder={translate('text_63fcc3218d35b9377840f5af')}
+                                  displayErrorText={false}
+                                />
+                              </Tooltip>
+                            )
+                          }}
+                        </form.AppField>
+                      </div>
+                      <Tooltip
+                        className="flex items-center"
+                        placement="top-end"
+                        title={translate('text_63fcc3218d35b9377840f5e1')}
+                      >
+                        <Button
+                          className="mt-7"
+                          variant="quaternary"
+                          size="medium"
+                          icon="trash"
+                          onClick={() => {
+                            form.setFieldValue('recurringTransactionRules[0].transactionMetadata', [
+                              ...(recurringTransactionRules.transactionMetadata || []).filter(
+                                (_m, j) => {
+                                  return j !== index
+                                },
+                              ),
+                            ])
+                          }}
+                        />
+                      </Tooltip>
+                    </div>
+                  )
+                })}
+
+                <Button
+                  className="self-start"
+                  startIcon="plus"
+                  variant="inline"
+                  onClick={() => {
+                    const metadatas = [
+                      ...(recurringTransactionRules?.transactionMetadata || []),
+                      { key: '', value: '' },
+                    ]
+
+                    form.setFieldValue(
+                      'recurringTransactionRules[0].transactionMetadata',
+                      metadatas,
+                    )
+                  }}
+                  data-test={ADD_METADATA_DATA_TEST}
+                >
+                  {translate('text_63fcc3218d35b9377840f5bb')}
+                </Button>
+              </div>
             </Accordion>
           )}
         </section>

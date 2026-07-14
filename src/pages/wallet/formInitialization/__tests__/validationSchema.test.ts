@@ -342,3 +342,19 @@ describe('walletFormValidationSchema', () => {
     })
   })
 })
+
+describe('malformed recurringTransactionRules shape', () => {
+  it('does not throw when rules is a plain object instead of an array', () => {
+    // Regression: an index-set on an undefined base once produced {0: rule}
+    // — a throwing superRefine leaves the form stuck in isSubmitting.
+    expect(() =>
+      walletFormValidationSchema.safeParse(
+        baseForm({
+          recurringTransactionRules: {
+            0: baseRule(),
+          } as unknown as TWalletDataForm['recurringTransactionRules'],
+        }),
+      ),
+    ).not.toThrow()
+  })
+})

@@ -112,8 +112,14 @@ export const walletFormValidationSchema = z.custom<TWalletDataForm>().superRefin
     }
   }
 
-  // recurringTransactionRules[] — conditional graph per item
-  data.recurringTransactionRules?.forEach((rule, index) => {
+  // recurringTransactionRules[] — conditional graph per item.
+  // Guard with Array.isArray: superRefine must NEVER throw (a throwing
+  // validator leaves the form stuck in isSubmitting), and a malformed value
+  // (e.g. a {0: rule} object from an index-set on an undefined base) would
+  // crash .forEach.
+  const rules = Array.isArray(data.recurringTransactionRules) ? data.recurringTransactionRules : []
+
+  rules.forEach((rule, index) => {
     const rulePath = (field: string) => ['recurringTransactionRules', index, field]
     const {
       trigger,
@@ -129,15 +135,27 @@ export const walletFormValidationSchema = z.custom<TWalletDataForm>().superRefin
 
     // trigger + method are required
     if (!trigger) {
-      ctx.addIssue({ code: 'custom', message: '', path: rulePath('trigger') })
+      ctx.addIssue({
+        code: 'custom',
+        message: 'text_1771342994699klxu2paz7g8',
+        path: rulePath('trigger'),
+      })
     }
     if (!method) {
-      ctx.addIssue({ code: 'custom', message: '', path: rulePath('method') })
+      ctx.addIssue({
+        code: 'custom',
+        message: 'text_1771342994699klxu2paz7g8',
+        path: rulePath('method'),
+      })
     }
 
     // interval — required unless trigger is set to something else than Interval
     if ((!trigger || trigger === RecurringTransactionTriggerEnum.Interval) && !interval) {
-      ctx.addIssue({ code: 'custom', message: '', path: rulePath('interval') })
+      ctx.addIssue({
+        code: 'custom',
+        message: 'text_1771342994699klxu2paz7g8',
+        path: rulePath('interval'),
+      })
     }
 
     // thresholdCredits — required unless trigger is set to something else
@@ -155,7 +173,11 @@ export const walletFormValidationSchema = z.custom<TWalletDataForm>().superRefin
           path: rulePath('thresholdCredits'),
         })
       } else if (!thresholdCredits) {
-        ctx.addIssue({ code: 'custom', message: '', path: rulePath('thresholdCredits') })
+        ctx.addIssue({
+          code: 'custom',
+          message: 'text_1771342994699klxu2paz7g8',
+          path: rulePath('thresholdCredits'),
+        })
       }
     }
 
@@ -194,7 +216,11 @@ export const walletFormValidationSchema = z.custom<TWalletDataForm>().superRefin
     // > thresholdCredits when trigger=Threshold
     if (!method || method === RecurringTransactionMethodEnum.Target) {
       if (!targetOngoingBalance && method === RecurringTransactionMethodEnum.Target) {
-        ctx.addIssue({ code: 'custom', message: '', path: rulePath('targetOngoingBalance') })
+        ctx.addIssue({
+          code: 'custom',
+          message: 'text_1771342994699klxu2paz7g8',
+          path: rulePath('targetOngoingBalance'),
+        })
       } else if (
         !!thresholdCredits &&
         trigger === RecurringTransactionTriggerEnum.Threshold &&
@@ -207,7 +233,11 @@ export const walletFormValidationSchema = z.custom<TWalletDataForm>().superRefin
           path: rulePath('targetOngoingBalance'),
         })
       } else if (isNaN(Number(targetOngoingBalance))) {
-        ctx.addIssue({ code: 'custom', message: '', path: rulePath('targetOngoingBalance') })
+        ctx.addIssue({
+          code: 'custom',
+          message: 'text_1771342994699klxu2paz7g8',
+          path: rulePath('targetOngoingBalance'),
+        })
       }
     }
 
