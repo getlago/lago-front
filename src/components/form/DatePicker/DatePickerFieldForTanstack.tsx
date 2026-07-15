@@ -17,8 +17,12 @@ const DatePickerField = (
   const { silentError = false, displayErrorText = true, errorOverride, ...rest } = props
   const field = useFieldContext<string | undefined>()
 
-  const finalError = useFieldError({ silentError, displayErrorText, translateErrors: true })
-  const fieldError = typeof finalError === 'string' ? finalError : undefined
+  const fieldError = useFieldError({
+    silentError,
+    displayErrorText,
+    translateErrors: true,
+    noBoolean: true,
+  })
 
   return (
     <DatePicker
