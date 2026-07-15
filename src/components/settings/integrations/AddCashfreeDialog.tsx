@@ -6,10 +6,13 @@ import { z } from 'zod'
 
 import { useFormDialogOpeningDialog } from '~/components/dialogs/FormDialogOpeningDialog'
 import { DialogResult } from '~/components/dialogs/types'
+import { focusFirstInput } from '~/components/drawers/useFocusTrap'
+import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
 import { addToast } from '~/core/apolloClient'
 import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CASHFREE_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
+import { zodOptionalUrl } from '~/formValidation/zodCustoms'
 import {
   AddCashfreeProviderDialogFragment,
   CashfreeIntegrationDetailsFragmentDoc,
@@ -100,7 +103,7 @@ const validationSchema = z.object({
   code: z.string().min(1),
   clientId: z.string().min(1),
   clientSecret: z.string().min(1),
-  successRedirectUrl: z.string(),
+  successRedirectUrl: zodOptionalUrl,
 })
 
 type OpenAddCashfreeDialogData = {
@@ -261,27 +264,20 @@ export const useAddCashfreeDialog = () => {
           isEdition ? 'text_1724507963056bu20ky8z98g' : 'text_17245079170372xxmw737fhf',
         ),
         children: (
-          <div className="mb-8 flex flex-col gap-6">
-            <div className="flex flex-row items-start gap-6 *:flex-1">
-              <form.AppField name="name">
-                {(field) => (
-                  <field.TextInputField
-                    // eslint-disable-next-line jsx-a11y/no-autofocus
-                    autoFocus
-                    label={translate('text_6584550dc4cec7adf861504d')}
-                    placeholder={translate('text_6584550dc4cec7adf861504f')}
-                  />
-                )}
-              </form.AppField>
-              <form.AppField name="code">
-                {(field) => (
-                  <field.TextInputField
-                    label={translate('text_6584550dc4cec7adf8615051')}
-                    placeholder={translate('text_6584550dc4cec7adf8615053')}
-                  />
-                )}
-              </form.AppField>
-            </div>
+          <div className="flex flex-col gap-6 p-6">
+            <NameAndCodeGroup
+              form={form}
+              fields={{ name: 'name', code: 'code' }}
+              disableAutoGenerateCode={isEdition}
+              nameProps={{
+                label: translate('text_6584550dc4cec7adf861504d'),
+                placeholder: translate('text_6584550dc4cec7adf861504f'),
+              }}
+              codeProps={{
+                label: translate('text_6584550dc4cec7adf8615051'),
+                placeholder: translate('text_6584550dc4cec7adf8615053'),
+              }}
+            />
             <form.AppField name="clientId">
               {(field) => (
                 <field.TextInputField
@@ -311,6 +307,7 @@ export const useAddCashfreeDialog = () => {
           </div>
         ),
         closeOnError: false,
+        onEntered: focusFirstInput,
         mainAction: (
           <form.AppForm>
             <form.SubmitButton>
