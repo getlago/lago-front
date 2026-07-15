@@ -47,11 +47,14 @@ describe('invoiceFormValidationSchema', () => {
 
   describe('GIVEN an empty fees array', () => {
     describe('WHEN validating', () => {
-      it('THEN should pass', () => {
-        // Parity with Yup 1.x: array().required('') does NOT reject [] — the
-        // "at least one item" block lives in the submit-button gate
-        // (hasAnyFee), not in the schema.
-        expect(invoiceFormValidationSchema.safeParse(baseForm({ fees: [] })).success).toBe(true)
+      it('THEN should fail on fees with the at-least-one-item label', () => {
+        // Deliberate deviation from the old form (which silently disabled the
+        // submit button instead): the rule lives in the schema so the button
+        // stays enabled upfront and the error renders under "Add an item".
+        const result = invoiceFormValidationSchema.safeParse(baseForm({ fees: [] }))
+
+        expect(issuePaths(result)).toEqual(['fees'])
+        expect(issueFor(result, 'fees')?.message).toBe(invoiceFormErrorLabels.atLeastOneFee)
       })
     })
   })
