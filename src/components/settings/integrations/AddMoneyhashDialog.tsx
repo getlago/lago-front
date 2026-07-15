@@ -6,6 +6,7 @@ import { z } from 'zod'
 
 import { useFormDialogOpeningDialog } from '~/components/dialogs/FormDialogOpeningDialog'
 import { DialogResult } from '~/components/dialogs/types'
+import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { addToast } from '~/core/apolloClient'
 import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -236,14 +237,12 @@ export const useAddMoneyhashDialog = () => {
           isEdition ? 'text_17337299668343fncntgiyhf' : 'text_1733491430992msh3b2v8nlx',
         ),
         children: (
-          <div className="flex flex-col gap-6 p-8">
+          <div className="flex flex-col gap-6 p-6">
             <div className="flex items-start gap-6">
               <form.AppField name="name">
                 {(field) => (
                   <field.TextInputField
                     className="flex-1"
-                    // eslint-disable-next-line jsx-a11y/no-autofocus
-                    autoFocus
                     label={translate('text_6584550dc4cec7adf861504d')}
                     placeholder={translate('text_6584550dc4cec7adf861504f')}
                   />
@@ -279,6 +278,7 @@ export const useAddMoneyhashDialog = () => {
           </div>
         ),
         closeOnError: false,
+        onEntered: focusFirstInput,
         mainAction: (
           <form.AppForm>
             <form.SubmitButton>
