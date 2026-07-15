@@ -42,10 +42,7 @@ import {
   AddLagoTaxManagementDialog,
   AddLagoTaxManagementDialogRef,
 } from '~/components/settings/integrations/AddLagoTaxManagementDialog'
-import {
-  AddMoneyhashDialog,
-  AddMoneyhashDialogRef,
-} from '~/components/settings/integrations/AddMoneyhashDialog'
+import { useAddMoneyhashDialog } from '~/components/settings/integrations/AddMoneyhashDialog'
 import {
   AddNetsuiteDialog,
   AddNetsuiteDialogRef,
@@ -182,8 +179,9 @@ const Integrations = () => {
   const addSalesforceDialogRef = useRef<AddSalesforceDialogRef>(null)
   const addXeroDialogRef = useRef<AddXeroDialogRef>(null)
   const addHubspotDialogRef = useRef<AddHubspotDialogRef>(null)
-  const addMoneyhashDialogRef = useRef<AddMoneyhashDialogRef>(null)
   const addFlutterwaveDialogRef = useRef<AddFlutterwaveDialogRef>(null)
+
+  const { openAddMoneyhashDialog } = useAddMoneyhashDialog()
 
   const { data, loading } = useIntegrationsSettingQuery({
     variables: { limit: 1000 },
@@ -826,7 +824,7 @@ const Integrations = () => {
                             const element = document.activeElement as HTMLElement
 
                             element.blur && element.blur()
-                            addMoneyhashDialogRef.current?.openDialog()
+                            openAddMoneyhashDialog()
                           }
                         }}
                         fullWidth
@@ -845,7 +843,6 @@ const Integrations = () => {
       <AddAnrokDialog ref={addAnrokDialogRef} />
       <AddAdyenDialog ref={addAdyenDialogRef} />
       <AddStripeDialog ref={addStripeDialogRef} />
-      <AddMoneyhashDialog ref={addMoneyhashDialogRef} />
       <AddGocardlessDialog ref={addGocardlessDialogRef} />
       <AddLagoTaxManagementDialog ref={addLagoTaxManagementDialog} />
       <AddNetsuiteDialog ref={addNetsuiteDialogRef} />
