@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
-import { useMemo, useRef } from 'react'
+import { useMemo } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { Alert } from '~/components/designSystem/Alert'
@@ -10,10 +10,7 @@ import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import {
-  AddCashfreeDialog,
-  AddCashfreeDialogRef,
-} from '~/components/settings/integrations/AddCashfreeDialog'
+import { useAddCashfreeDialog } from '~/components/settings/integrations/AddCashfreeDialog'
 import { useDeleteCashfreeIntegrationDialog } from '~/components/settings/integrations/DeleteCashfreeIntegrationDialog'
 import { addToast, envGlobalVar } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -70,7 +67,7 @@ const CashfreeIntegrationDetails = () => {
   const navigate = useNavigate()
   const { integrationId } = useParams()
   const { hasPermissions } = usePermissions()
-  const addDialogRef = useRef<AddCashfreeDialogRef>(null)
+  const { openAddCashfreeDialog } = useAddCashfreeDialog()
   const { openDeleteCashfreeIntegrationDialog } = useDeleteCashfreeIntegrationDialog()
   const { apiUrl } = envGlobalVar()
   const { currentMembership } = useCurrentUser()
@@ -145,13 +142,9 @@ const CashfreeIntegrationDetails = () => {
                   label: translate('text_65845f35d7d69c3ab4793dac'),
                   hidden: !canEditIntegration,
                   onClick: (closePopper) => {
-                    addDialogRef.current?.openDialog({
+                    openAddCashfreeDialog({
                       provider: cashfreePaymentProvider,
-                      onDeleteClick: () =>
-                        openDeleteCashfreeIntegrationDialog({
-                          provider: cashfreePaymentProvider,
-                          callback: deleteDialogCallback,
-                        }),
+                      deleteCallback: deleteDialogCallback,
                     })
                     closePopper()
                   },
@@ -188,13 +181,9 @@ const CashfreeIntegrationDetails = () => {
                 variant="inline"
                 align="left"
                 onClick={() => {
-                  addDialogRef.current?.openDialog({
+                  openAddCashfreeDialog({
                     provider: cashfreePaymentProvider,
-                    onDeleteClick: () =>
-                      openDeleteCashfreeIntegrationDialog({
-                        provider: cashfreePaymentProvider,
-                        callback: deleteDialogCallback,
-                      }),
+                    deleteCallback: deleteDialogCallback,
                   })
                 }}
               >
@@ -268,8 +257,6 @@ const CashfreeIntegrationDetails = () => {
           )}
         </section>
       </div>
-
-      <AddCashfreeDialog ref={addDialogRef} />
     </div>
   )
 }
