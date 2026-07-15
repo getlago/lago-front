@@ -217,7 +217,12 @@ const FeatureForm = () => {
           translateKey: 'text_1752692673069avy1qgb1ut9',
         })
 
-        onLeave()
+        navigate(
+          generatePath(FEATURE_DETAILS_ROUTE, {
+            featureId: createdFeature.id,
+            tab: FeatureDetailsTabsOptionsEnum.overview,
+          }),
+        )
       }
     },
   })
