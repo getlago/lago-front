@@ -53,6 +53,7 @@ gql`
     ongoingBalanceCents
     creditsOngoingBalance
     priority
+    purchaseOrderNumber
     paidTopUpMinAmountCents
     paidTopUpMinCredits
     paidTopUpMaxAmountCents

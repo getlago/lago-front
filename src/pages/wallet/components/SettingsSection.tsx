@@ -15,6 +15,7 @@ import {
   TextInput,
   TextInputField,
 } from '~/components/form'
+import { PurchaseOrderFormBlock } from '~/components/purchaseOrder/PurchaseOrderFormBlock'
 import {
   ADD_MAX_TOPUP_OPTION_DATA_TEST,
   ADD_MIN_MAX_AMOUNT_DATA_TEST,
@@ -311,6 +312,14 @@ export const SettingsSection: FC<SettingsSectionProps> = ({
           )}
         </Popper>
       </div>
+
+      <PurchaseOrderFormBlock
+        value={formikProps.values.purchaseOrderNumber}
+        description={translate('text_1783511588872okv9237slg5')}
+        onChange={(value) => {
+          formikProps.setFieldValue('purchaseOrderNumber', value)
+        }}
+      />
     </section>
   )
 }

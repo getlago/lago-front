@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon'
 import { array, number, object, string } from 'yup'
 
+import { PURCHASE_ORDER_NUMBER_MAX_LENGTH } from '~/components/purchaseOrder/constants'
 import { dateErrorCodes } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { TranslateData } from '~/core/translations'
@@ -109,6 +110,7 @@ export const topUpAmountError = ({
 export const walletFormSchema = () => {
   return object().shape({
     name: string(),
+    purchaseOrderNumber: string().max(PURCHASE_ORDER_NUMBER_MAX_LENGTH).nullable(),
     appliesTo: object()
       .shape({
         feeTypes: array().of(string()).nullable(),
@@ -206,6 +208,7 @@ export const walletFormSchema = () => {
         object().shape({
           trigger: string().required(''),
           method: string().required(''),
+          purchaseOrderNumber: string().max(PURCHASE_ORDER_NUMBER_MAX_LENGTH).nullable(),
           interval: string()
             .test({
               test: function (interval) {

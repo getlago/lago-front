@@ -43,6 +43,7 @@ gql`
     nextSubscriptionAt
     nextSubscriptionType
     billingEntityId
+    purchaseOrderNumber
     activationRules {
       id
       type
@@ -243,6 +244,10 @@ const getSubscriptionInformationGrid = ({
           customerEntity={subscription?.customer?.billingEntity}
         />
       ),
+    },
+    {
+      label: translate('text_17822197712865r9iwe3lgel'),
+      value: subscription?.purchaseOrderNumber || '-',
     },
   ]
 }

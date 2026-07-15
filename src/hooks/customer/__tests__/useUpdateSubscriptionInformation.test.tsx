@@ -48,6 +48,7 @@ const expectedInput = {
   name: 'My subscription',
   subscriptionAt: DateTime.fromISO('2026-01-01').toUTC().toISO(),
   endingAt: null,
+  purchaseOrderNumber: null,
 }
 
 const renderUpdateHook = (mocks: MockedResponse[], onSuccess: () => void) => {

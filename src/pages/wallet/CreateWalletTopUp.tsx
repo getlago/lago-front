@@ -17,6 +17,9 @@ import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
 import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
+import { PURCHASE_ORDER_NUMBER_MAX_LENGTH } from '~/components/purchaseOrder/constants'
+import { normalizePurchaseOrderNumber } from '~/components/purchaseOrder/PO'
+import { PurchaseOrderFormBlock } from '~/components/purchaseOrder/PurchaseOrderFormBlock'
 import {
   ADD_METADATA_DATA_TEST,
   CLOSE_CREATE_TOPUP_BUTTON_DATA_TEST,
@@ -170,6 +173,7 @@ const CreateWalletTopUp = () => {
       metadata: undefined,
       ignorePaidTopUpLimits: undefined,
       priority: 50,
+      purchaseOrderNumber: undefined,
     },
     validationSchema: object().shape({
       paidCredits: string().test({
@@ -202,6 +206,7 @@ const CreateWalletTopUp = () => {
       }),
       metadata: metadataSchema().nullable(),
       priority: number(),
+      purchaseOrderNumber: string().max(PURCHASE_ORDER_NUMBER_MAX_LENGTH).nullable(),
     }),
     validateOnMount: true,
     onSubmit: async ({
@@ -212,6 +217,7 @@ const CreateWalletTopUp = () => {
       invoiceCustomSection,
       paymentMethod,
       priority,
+      purchaseOrderNumber,
       ...rest
     }) => {
       if (!wallet) return
@@ -246,6 +252,7 @@ const CreateWalletTopUp = () => {
             invoiceRequiresSuccessfulPayment,
             ignorePaidTopUpLimits,
             paymentMethod,
+            purchaseOrderNumber: normalizePurchaseOrderNumber(purchaseOrderNumber),
             invoiceCustomSection: toInvoiceCustomSectionReference(
               invoiceCustomSection as InvoiceCustomSectionInput,
             ),
@@ -264,6 +271,12 @@ const CreateWalletTopUp = () => {
 
     formikProps.setFieldValue('grantedCredits', '')
     formikProps.setFieldValue('paidCredits', '')
+
+    // Free credits never generate an invoice, so a PO number set while in
+    // prepaid mode must not survive the switch.
+    if (type === WalletTransactionType.FreeCredits) {
+      formikProps.setFieldValue('purchaseOrderNumber', undefined)
+    }
   }
 
   const navigateBack = useCallback(
@@ -521,6 +534,16 @@ const CreateWalletTopUp = () => {
                 })}
               </Typography>
             </Alert>
+
+            {transactionType === WalletTransactionType.PrepaidCredits && (
+              <PurchaseOrderFormBlock
+                value={formikProps.values.purchaseOrderNumber}
+                description={translate('text_1783511588872okv9237slg5')}
+                onChange={(value) => {
+                  formikProps.setFieldValue('purchaseOrderNumber', value)
+                }}
+              />
+            )}
 
             <TextInputField
               name="priority"

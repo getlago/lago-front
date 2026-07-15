@@ -10,6 +10,7 @@ import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
 import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
+import { normalizePurchaseOrderNumber } from '~/components/purchaseOrder/PO'
 import {
   CLOSE_CREATE_WALLET_BUTTON_DATA_TEST,
   SUBMIT_WALLET_DATA_TEST,
@@ -64,6 +65,7 @@ gql`
     paidTopUpMinAmountCents
     paidTopUpMaxAmountCents
     priority
+    purchaseOrderNumber
     paymentMethodType
     paymentMethod {
       id
@@ -88,6 +90,7 @@ gql`
       lagoId
       method
       paidCredits
+      purchaseOrderNumber
       startedAt
       targetOngoingBalance
       thresholdCredits
@@ -272,6 +275,7 @@ const CreateWallet = () => {
         billableMetrics: [],
       },
       paidCredits: '',
+      purchaseOrderNumber: wallet?.purchaseOrderNumber || undefined,
       rateAmount: intlFormatNumber(wallet?.rateAmount ?? 1, {
         currency,
         style: 'decimal',
@@ -369,6 +373,7 @@ const CreateWallet = () => {
                 invoiceCustomSection: toInvoiceCustomSectionReference(
                   ruleInvoiceCustomSection as InvoiceCustomSectionInput,
                 ),
+                purchaseOrderNumber: normalizePurchaseOrderNumber(rule.purchaseOrderNumber),
               }
             })
           : []
@@ -381,6 +386,7 @@ const CreateWallet = () => {
       if (formType === FORM_TYPE_ENUM.edition) {
         const input = {
           ...values,
+          purchaseOrderNumber: normalizePurchaseOrderNumber(values.purchaseOrderNumber),
           recurringTransactionRules: recurringTransactionRulesFormatted,
           id: walletId,
           // `null` (not `undefined`) on clear → BE stores NULL on the
@@ -421,6 +427,7 @@ const CreateWallet = () => {
       } else {
         const input = {
           ...values,
+          purchaseOrderNumber: normalizePurchaseOrderNumber(values.purchaseOrderNumber),
           customerId,
           // `null` (not `undefined`) on clear → BE stores NULL on the
           // wallet column, meaning "inherit from customer".
