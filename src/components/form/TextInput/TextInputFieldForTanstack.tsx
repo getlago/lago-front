@@ -10,11 +10,17 @@ const TextInputField = ({
   silentError = false,
   displayErrorText = true,
   showOnlyErrors,
+  errorOverride,
   ...props
 }: Omit<TextInputProps, 'name' | 'value' | 'onChange' | 'onBlur' | 'error'> & {
   silentError?: boolean
   displayErrorText?: boolean
   showOnlyErrors?: string[]
+  /**
+   * Full control over the displayed error (e.g. labels needing translate
+   * variables). When omitted, the field meta errors are used.
+   */
+  errorOverride?: string | boolean
 }) => {
   const field = useFieldContext<string>()
   const { translate } = useInternationalization()
@@ -46,7 +52,7 @@ const TextInputField = ({
       value={field.state.value}
       onChange={(value) => field.handleChange(value)}
       onBlur={field.handleBlur}
-      error={finalError}
+      error={errorOverride ?? finalError}
     />
   )
 }

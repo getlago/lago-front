@@ -9,7 +9,7 @@ const CURRENCY_DATA = Object.values(CurrencyEnum).map((value) => ({ value }))
 // we own (`data`, `value`, `onChange`).
 type FlatComboBoxProps = Extract<ComboBoxProps, { renderGroupHeader?: never }>
 
-type CurrencyPickerProps = Omit<FlatComboBoxProps, 'data' | 'value' | 'onChange'> & {
+export type CurrencyPickerProps = Omit<FlatComboBoxProps, 'data' | 'value' | 'onChange'> & {
   value: CurrencyEnum | undefined
   onChange: (currency: CurrencyEnum) => void
   /**
