@@ -33,6 +33,14 @@ import { TWalletDataForm } from '~/pages/wallet/types'
 export const WALLET_PRIORITY_MIN = 1
 export const WALLET_PRIORITY_MAX = 50
 
+/**
+ * Formik ran Yup on `prepareDataForValidation(values)`, which recursively
+ * converts every empty string to `undefined`. The checks below that depend on
+ * that behaviour emulate it explicitly ('' → undefined → NaN).
+ */
+const prepared = <T>(value: T): T | undefined =>
+  value === ('' as unknown as T) ? undefined : value
+
 const addExpirationIssue = (
   ctx: z.RefinementCtx,
   value: string | null | undefined,
@@ -89,22 +97,25 @@ export const walletFormValidationSchema = z.custom<TWalletDataForm>().superRefin
     ctx.addIssue({ code: 'custom', message: '', path: ['paidCredits'] })
   }
 
-  // paidTopUpMin <= paidTopUpMax — two-way: BOTH fields fail
+  // paidTopUpMin <= paidTopUpMax — two-way: BOTH fields fail.
+  // An emptied side ('') skips the check (old runtime: '' → undefined → NaN).
   if (
-    !isNaN(Number(paidTopUpMinAmountCents)) &&
-    !isNaN(Number(paidTopUpMaxAmountCents)) &&
+    !isNaN(Number(prepared(paidTopUpMinAmountCents))) &&
+    !isNaN(Number(prepared(paidTopUpMaxAmountCents))) &&
     Number(paidTopUpMinAmountCents) > Number(paidTopUpMaxAmountCents)
   ) {
     ctx.addIssue({ code: 'custom', message: '', path: ['paidTopUpMinAmountCents'] })
     ctx.addIssue({ code: 'custom', message: '', path: ['paidTopUpMaxAmountCents'] })
   }
 
-  // priority 1-50 (empty / non-numeric fails, like the Yup number() cast)
-  if (priority !== null && priority !== undefined) {
-    const priorityNumber = Number(priority)
+  // priority 1-50 — an emptied field ('') counted as absent in the old
+  // Formik runtime (prepareDataForValidation) and falls back to the default
+  const preparedPriority = prepared(priority)
+
+  if (preparedPriority !== null && preparedPriority !== undefined) {
+    const priorityNumber = Number(preparedPriority)
 
     if (
-      (typeof priority === 'string' && priority === '') ||
       isNaN(priorityNumber) ||
       priorityNumber < WALLET_PRIORITY_MIN ||
       priorityNumber > WALLET_PRIORITY_MAX
@@ -193,23 +204,22 @@ export const walletFormValidationSchema = z.custom<TWalletDataForm>().superRefin
       currency,
     })?.error
 
+    // method=Fixed → at least one of paidCredits/grantedCredits must be set.
+    // Empty strings count as MISSING (old runtime: '' → undefined → NaN),
+    // which is what blocked the submit with both credits left empty.
+    const missingBothCredits =
+      (!method || method === RecurringTransactionMethodEnum.Fixed) &&
+      isNaN(Number(prepared(rulePaidCredits))) &&
+      isNaN(Number(prepared(ruleGrantedCredits)))
+
     if (ruleBoundsError) {
       ctx.addIssue({ code: 'custom', message: '', path: rulePath('paidCredits') })
-    } else if (
-      (!method || method === RecurringTransactionMethodEnum.Fixed) &&
-      isNaN(Number(rulePaidCredits)) &&
-      isNaN(Number(ruleGrantedCredits))
-    ) {
-      // method=Fixed → at least one of paidCredits/grantedCredits
+    } else if (missingBothCredits) {
       ctx.addIssue({ code: 'custom', message: '', path: rulePath('paidCredits') })
     }
 
     // grantedCredits — same "at least one" rule for method=Fixed
-    if (
-      (!method || method === RecurringTransactionMethodEnum.Fixed) &&
-      isNaN(Number(ruleGrantedCredits)) &&
-      isNaN(Number(rulePaidCredits))
-    ) {
+    if (missingBothCredits) {
       ctx.addIssue({ code: 'custom', message: '', path: rulePath('grantedCredits') })
     }
 

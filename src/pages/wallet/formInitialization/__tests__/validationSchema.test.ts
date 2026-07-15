@@ -97,6 +97,14 @@ describe('walletFormValidationSchema', () => {
       )
     })
 
+    it('skips the min/max cross-check when one side is emptied', () => {
+      const result = walletFormValidationSchema.safeParse(
+        baseForm({ paidTopUpMinAmountCents: '100', paidTopUpMaxAmountCents: '' }),
+      )
+
+      expect(result.success).toBe(true)
+    })
+
     it('accepts min <= max', () => {
       const result = walletFormValidationSchema.safeParse(
         baseForm({ paidTopUpMinAmountCents: '50', paidTopUpMaxAmountCents: '100' }),
@@ -116,6 +124,11 @@ describe('walletFormValidationSchema', () => {
       expect(walletFormValidationSchema.safeParse(baseForm({ priority: undefined })).success).toBe(
         true,
       )
+      // an emptied priority input ('') counts as absent (default applies)
+      expect(
+        walletFormValidationSchema.safeParse(baseForm({ priority: '' as unknown as number }))
+          .success,
+      ).toBe(true)
     })
 
     it('fails paidCredits when the paid amount exceeds the max bound', () => {
@@ -228,21 +241,39 @@ describe('walletFormValidationSchema', () => {
       expect(issuePaths(result)).toContain('recurringTransactionRules.0.targetOngoingBalance')
     })
 
-    it('requires at least one of paidCredits/grantedCredits when method=Fixed', () => {
+    it.each([
+      ['undefined', undefined],
+      // empty strings count as missing — Formik ran Yup on
+      // prepareDataForValidation(values) which converts '' to undefined
+      ['empty strings', ''],
+    ])(
+      'requires at least one of paidCredits/grantedCredits when method=Fixed (%s)',
+      (_, emptyValue) => {
+        const result = walletFormValidationSchema.safeParse(
+          baseForm({
+            recurringTransactionRules: [
+              baseRule({ paidCredits: emptyValue, grantedCredits: emptyValue }),
+            ],
+          }),
+        )
+
+        expect(issuePaths(result)).toEqual(
+          expect.arrayContaining([
+            'recurringTransactionRules.0.paidCredits',
+            'recurringTransactionRules.0.grantedCredits',
+          ]),
+        )
+      },
+    )
+
+    it('accepts a Fixed rule when only one of the credits is filled', () => {
       const result = walletFormValidationSchema.safeParse(
         baseForm({
-          recurringTransactionRules: [
-            baseRule({ paidCredits: undefined, grantedCredits: undefined }),
-          ],
+          recurringTransactionRules: [baseRule({ paidCredits: '', grantedCredits: '5' })],
         }),
       )
 
-      expect(issuePaths(result)).toEqual(
-        expect.arrayContaining([
-          'recurringTransactionRules.0.paidCredits',
-          'recurringTransactionRules.0.grantedCredits',
-        ]),
-      )
+      expect(result.success).toBe(true)
     })
 
     it('runs the rule paidCredits bounds against the TOP-LEVEL wallet limits', () => {
