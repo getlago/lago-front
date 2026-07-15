@@ -7,12 +7,14 @@ import { ChatRole } from '~/hooks/aiAgent/aiAgentReducer'
 import { useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+export const CHAT_CONVERSATION_TEST_ID = 'chat-conversation'
+
 interface ChatConversationProps {
   subscription: OnConversationSubscriptionHookResult
 }
 
 export const ChatConversation: FC<ChatConversationProps> = ({ subscription }) => {
-  const { lastAssistantMessage, state, setChatDone, streamChunk } = useAiAgent()
+  const { agentType, lastAssistantMessage, state, setChatDone, streamChunk } = useAiAgent()
   const { translate } = useInternationalization()
 
   useEffect(() => {
@@ -37,6 +39,7 @@ export const ChatConversation: FC<ChatConversationProps> = ({ subscription }) =>
   return (
     <div
       data-id="conversation-container"
+      data-test={CHAT_CONVERSATION_TEST_ID}
       className="flex h-full flex-1 flex-col gap-6 overflow-y-auto p-6"
     >
       {state.messages.map((message) => {
@@ -48,6 +51,13 @@ export const ChatConversation: FC<ChatConversationProps> = ({ subscription }) =>
           )
         }
 
+        // Skip the assistant bubble while it has nothing to render yet — the
+        // loader stands in for the pending reply. An empty Received element
+        // would otherwise stack a second gap-6 above the loader.
+        if (!message.message && !message.financeAssistantResult) {
+          return null
+        }
+
         return (
           <ChatMessages.Received key={message.id}>
             <Message message={message} />
@@ -55,9 +65,9 @@ export const ChatConversation: FC<ChatConversationProps> = ({ subscription }) =>
         )
       })}
 
-      {state.isLoading && <ChatMessages.Loading />}
+      {state.isLoading && <ChatMessages.Loading agentType={agentType} />}
 
-      {subscription.error && (
+      {(subscription.error || state.hasError) && (
         <ChatMessages.Error>{translate('text_1757417225851jw88w0yfa0n')}</ChatMessages.Error>
       )}
     </div>

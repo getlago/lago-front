@@ -4,6 +4,8 @@ import { Typography } from '~/components/designSystem/Typography'
 import { useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+export const PANEL_WRAPPER_TITLE_TEST_ID = 'panel-wrapper-title'
+
 type PanelWrapperProps = {
   children: React.ReactNode
   title: string
@@ -12,6 +14,8 @@ type PanelWrapperProps = {
   onBackButton?: () => void
   showHistoryButton?: boolean
   onShowHistory?: () => void
+  onFullscreen?: () => void
+  isFullscreen?: boolean
 }
 
 export const PanelWrapper = ({
@@ -22,9 +26,19 @@ export const PanelWrapper = ({
   onBackButton,
   showHistoryButton,
   onShowHistory,
+  onFullscreen,
+  isFullscreen,
 }: PanelWrapperProps) => {
   const { closePanel } = useAiAgent()
   const { translate } = useInternationalization()
+
+  const onClose = () => {
+    if (isFullscreen) {
+      onFullscreen?.()
+    }
+
+    closePanel()
+  }
 
   return (
     <div>
@@ -33,7 +47,12 @@ export const PanelWrapper = ({
           <Button size="medium" variant="quaternary" icon="arrow-left" onClick={onBackButton} />
         )}
         <div className="flex h-8 flex-1 items-center gap-2 truncate">
-          <Typography variant="bodyHl" className="!truncate" color="grey700">
+          <Typography
+            variant="bodyHl"
+            className="!truncate"
+            color="grey700"
+            data-test={PANEL_WRAPPER_TITLE_TEST_ID}
+          >
             {title}
           </Typography>
           {isBeta && (
@@ -45,13 +64,21 @@ export const PanelWrapper = ({
           )}
         </div>
         <div className="flex flex-row items-center gap-3">
+          {onFullscreen && (
+            <Button
+              size="medium"
+              variant="quaternary"
+              icon={isFullscreen ? 'resize-reduce' : 'resize-expand'}
+              onClick={onFullscreen}
+            />
+          )}
           {showHistoryButton && (
             <Button size="medium" variant="quaternary" icon="history" onClick={onShowHistory} />
           )}
-          <Button size="medium" variant="quaternary" icon="close" onClick={closePanel} />
+          <Button size="medium" variant="quaternary" icon="close" onClick={onClose} />
         </div>
       </div>
-      <div className="height-minus-nav flex flex-col justify-between overflow-y-auto">
+      <div className="height-minus-nav flex flex-col items-center justify-center overflow-y-auto bg-grey-100">
         {children}
       </div>
     </div>

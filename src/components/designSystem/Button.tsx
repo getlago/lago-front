@@ -32,6 +32,7 @@ export interface SimpleButtonProps extends Pick<
   icon?: never
   align?: ButtonAlign
   endIcon?: IconName
+  endIconSize?: ButtonSize
   startIcon?: IconName
   loading?: boolean // If the `onClick` function returns a promise, the loading state will be handled automatically
   className?: string
@@ -131,6 +132,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       inheritColor,
       onClick,
       type = 'button',
+      endIconSize,
       ...props
     }: ButtonProps,
     ref,
@@ -196,9 +198,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         endIcon={
           localLoading && !icon && !startIcon ? (
-            <Icon animation="spin" name="processing" />
+            <Icon animation="spin" name="processing" size={endIconSize} />
           ) : (
-            endIcon && <Icon name={endIcon} />
+            endIcon && <Icon name={endIcon} size={endIconSize} />
           )
         }
         startIcon={

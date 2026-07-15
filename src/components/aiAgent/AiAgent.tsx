@@ -1,6 +1,6 @@
 import { tw } from 'lago-design-system'
 import { useState } from 'react'
-import { Panel, PanelResizeHandle } from 'react-resizable-panels'
+import { Panel } from 'react-resizable-panels'
 import { matchRoutes } from 'react-router-dom'
 
 import { ChatHistory } from '~/components/aiAgent/ChatHistory'
@@ -9,16 +9,26 @@ import { PanelAiAgent } from '~/components/aiAgent/PanelAiAgent'
 import { PanelWrapper } from '~/components/aiAgent/PanelWrapper'
 import { getHiddenAiAgentPaths } from '~/components/aiAgent/utils'
 import { useLocation } from '~/core/router'
-import { AIPanelEnum, PANEL_CLOSED, PANEL_OPEN, useAiAgent } from '~/hooks/aiAgent/useAiAgent'
+import {
+  AGENT_TYPE_SHOW_HISTORY,
+  AIPanelEnum,
+  PANEL_CLOSED,
+  PANEL_OPEN,
+  useAiAgent,
+} from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
 
+export const AI_AGENT_NAV_TEST_ID = 'ai-agent-nav'
+
 export const AiAgent = () => {
-  const { panelRef, currentPanelOpened, panelOpen, state, resetConversation } = useAiAgent()
+  const { agentType, panelRef, currentPanelOpened, panelOpen, state, resetConversation } =
+    useAiAgent()
   const { isPremium, currentUser } = useCurrentUser()
   const { translate } = useInternationalization()
   const [showHistory, setShowHistory] = useState(false)
+  const [isFullscreen, setIsFullscreen] = useState(false)
   const location = useLocation()
   const { hasPermissions } = usePermissions()
 
@@ -62,6 +72,7 @@ export const AiAgent = () => {
     isPremium && hasPermissions(['aiConversationsView', 'aiConversationsCreate'])
 
   const shouldDisplayWelcomeMessage = !state.messages.length
+  const agentHasHistory = AGENT_TYPE_SHOW_HISTORY[agentType]
 
   const onBackButton = () => {
     if (showHistory) {
@@ -71,9 +82,13 @@ export const AiAgent = () => {
     return resetConversation()
   }
 
+  const onFullscreen = () => {
+    setIsFullscreen((f) => !f)
+  }
+
   return (
     <>
-      <div className="relative">
+      <div className="relative" data-test={AI_AGENT_NAV_TEST_ID}>
         <div className="h-screen w-12 bg-white shadow-l">
           <div className="absolute rotate-90-tl">
             <NavigationBar hasAccessToAiAgent={hasAccessToAiAgent} />
@@ -81,32 +96,48 @@ export const AiAgent = () => {
         </div>
       </div>
 
-      <PanelResizeHandle disabled={currentPanelOpened !== AIPanelEnum.ai} />
-
       <Panel
         id="ai-panel"
         ref={panelRef}
         defaultSize={PANEL_CLOSED}
         minSize={PANEL_CLOSED}
         maxSize={PANEL_OPEN}
-        className={tw(panelOpen ? 'min-w-[360px] max-w-[420px]' : 'min-w-[0px]', 'shadow-l')}
+        className={tw(
+          panelOpen && isFullscreen && 'fixed left-0 top-0 z-[1700] w-full bg-white',
+          panelOpen && !isFullscreen && 'min-w-[360px] max-w-[420px]',
+          !panelOpen && 'min-w-[0px]',
+          'shadow-l',
+        )}
       >
         {currentPanelOpened === AIPanelEnum.ai && (
           <PanelWrapper
             title={
               showHistory
                 ? translate('text_17574172258513wv8yozezoz')
-                : (state.messages[0]?.message ?? translate('text_175741722585199myqwj6vyw'))
+                : (state.messages[0]?.message ?? translate('text_1783590769660p6nhcqws986'))
             }
             isBeta={shouldDisplayWelcomeMessage && !showHistory}
             showBackButton={!shouldDisplayWelcomeMessage || showHistory}
             onBackButton={onBackButton}
-            showHistoryButton={shouldDisplayWelcomeMessage && !showHistory && hasAccessToAiAgent}
+            showHistoryButton={
+              agentHasHistory && shouldDisplayWelcomeMessage && !showHistory && hasAccessToAiAgent
+            }
             onShowHistory={() => setShowHistory(true)}
+            onFullscreen={() => onFullscreen()}
+            isFullscreen={isFullscreen}
           >
-            {showHistory && <ChatHistory hideHistory={() => setShowHistory(false)} />}
+            <div className="size-full max-w-5xl">
+              {showHistory && (
+                <ChatHistory
+                  isFullscreen={isFullscreen}
+                  hideHistory={() => setShowHistory(false)}
+                />
+              )}
 
-            {!showHistory && <PanelAiAgent hasAccessToAiAgent={hasAccessToAiAgent} />}
+              {!showHistory && (
+                <PanelAiAgent isFullscreen={isFullscreen} hasAccessToAiAgent={hasAccessToAiAgent} />
+              )}
+            </div>
           </PanelWrapper>
         )}
       </Panel>

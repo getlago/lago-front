@@ -45,6 +45,11 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
   }),
 }))
 
+// FinanceAssistantAnalyticsCta needs AiAgentProvider (mounted at App level, not in this tree)
+jest.mock('~/components/aiAgent/FinanceAssistantAnalyticsCta', () => ({
+  FinanceAssistantAnalyticsCta: () => null,
+}))
+
 // Mock child page components to avoid rendering their internals
 jest.mock(
   '~/pages/analytics/RevenueStreams',

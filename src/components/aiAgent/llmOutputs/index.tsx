@@ -1,5 +1,6 @@
 import { FC } from 'react'
 
+import { FinanceAssistantResult } from '~/components/aiAgent/FinanceAssistantResult'
 import { useCustomLLMOutput } from '~/components/aiAgent/llmOutputs/hook'
 import { ChatMessage, ChatStatus } from '~/hooks/aiAgent/aiAgentReducer'
 
@@ -9,6 +10,10 @@ interface MessageProps {
 
 export const Message: FC<MessageProps> = ({ message }: MessageProps) => {
   const blockMatches = useCustomLLMOutput(message.message, message.status === ChatStatus.done)
+
+  if (message.financeAssistantResult) {
+    return <FinanceAssistantResult message={message} />
+  }
 
   return blockMatches.map((blockMatch, index) => {
     const Component = blockMatch.block.component
