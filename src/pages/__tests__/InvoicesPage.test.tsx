@@ -84,7 +84,7 @@ jest.mock('~/components/invoices/FinalizeInvoiceDialog', () => ({
 }))
 
 jest.mock('~/components/exports/ExportDialog', () => ({
-  ExportDialog: () => null,
+  useExportDialog: () => ({ openExportDialog: jest.fn() }),
 }))
 
 describe('InvoicesPage', () => {
