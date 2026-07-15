@@ -18,17 +18,11 @@ export const checkOnlyZeroValues = <T extends Record<string, unknown>>(
   })
 }
 
-export const calculateYAxisDomain = <T extends Record<string, unknown>>(
-  data: T[] | undefined,
+const collectChartValues = <T extends Record<string, unknown>>(
+  data: T[],
   lines: Array<MultipleLineChartLine<T> | StackedBarChartBar<T>>,
-  hasOnlyZeroValues: boolean,
-): [number, number] => {
-  if (hasOnlyZeroValues || !data?.length) {
-    return [0, 1]
-  }
-
-  let minValue: number | undefined
-  let maxValue: number | undefined
+): number[] => {
+  const values: number[] = []
 
   for (const item of data) {
     for (const line of lines) {
@@ -38,21 +32,28 @@ export const calculateYAxisDomain = <T extends Record<string, unknown>>(
 
       const value = Number(item[line.dataKey])
 
-      if (isNaN(value)) {
-        continue
-      }
-
-      if (minValue === undefined || value < minValue) {
-        minValue = value
-      }
-      if (maxValue === undefined || value > maxValue) {
-        maxValue = value
+      if (!isNaN(value)) {
+        values.push(value)
       }
     }
   }
 
-  const min = minValue || 0
-  const max = maxValue || 1
+  return values
+}
+
+export const calculateYAxisDomain = <T extends Record<string, unknown>>(
+  data: T[] | undefined,
+  lines: Array<MultipleLineChartLine<T> | StackedBarChartBar<T>>,
+  hasOnlyZeroValues: boolean,
+): [number, number] => {
+  if (hasOnlyZeroValues || !data?.length) {
+    return [0, 1]
+  }
+
+  const values = collectChartValues(data, lines)
+
+  const min = (values.length ? Math.min(...values) : undefined) || 0
+  const max = (values.length ? Math.max(...values) : undefined) || 1
 
   if (min === max) {
     return [min - 1, max + 1]

@@ -3,6 +3,7 @@ import { array, number, object, string } from 'yup'
 
 import { dateErrorCodes } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { TranslateData } from '~/core/translations'
 import { metadataSchema } from '~/formValidation/metadataSchema'
 import {
   CurrencyEnum,
@@ -22,6 +23,12 @@ enum TopUpAmountError {
   AboveMax = 'top-up-above-max',
   NotBetween = 'top-up-not-between',
 }
+
+const buildTopUpErrorLabel = (
+  translate: TranslateFunc | undefined,
+  key: string,
+  variables: TranslateData,
+): string => (translate ? translate(key, variables) : '')
 
 export const topUpAmountError = ({
   rateAmount,
@@ -67,38 +74,32 @@ export const topUpAmountError = ({
   if (hasMin && hasMax && (isBelow || isAbove)) {
     return {
       error: TopUpAmountError.NotBetween,
-      label: translate
-        ? translate('text_1758285686647a868tiok58q', {
-            minCredits,
-            maxCredits,
-            minAmount,
-            maxAmount,
-          })
-        : '',
+      label: buildTopUpErrorLabel(translate, 'text_1758285686647a868tiok58q', {
+        minCredits,
+        maxCredits,
+        minAmount,
+        maxAmount,
+      }),
     }
   }
 
   if (hasMin && isBelow) {
     return {
       error: TopUpAmountError.BelowMin,
-      label: translate
-        ? translate('text_1758285686647tnf634qa99c', {
-            minCredits,
-            minAmount,
-          })
-        : '',
+      label: buildTopUpErrorLabel(translate, 'text_1758285686647tnf634qa99c', {
+        minCredits,
+        minAmount,
+      }),
     }
   }
 
   if (hasMax && isAbove) {
     return {
       error: TopUpAmountError.AboveMax,
-      label: translate
-        ? translate('text_175828568664787kip4pzn8l', {
-            maxCredits,
-            maxAmount,
-          })
-        : '',
+      label: buildTopUpErrorLabel(translate, 'text_175828568664787kip4pzn8l', {
+        maxCredits,
+        maxAmount,
+      }),
     }
   }
 
