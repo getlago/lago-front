@@ -6,6 +6,7 @@ import { z } from 'zod'
 
 import { useFormDialogOpeningDialog } from '~/components/dialogs/FormDialogOpeningDialog'
 import { DialogResult } from '~/components/dialogs/types'
+import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { addToast } from '~/core/apolloClient'
 import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -249,14 +250,12 @@ export const useAddAdyenDialog = () => {
           isEdition ? 'text_65846a0ed9fdbd46c4afc42d' : 'text_658466afe6140b469140e1fc',
         ),
         children: (
-          <div className="mb-8 flex flex-col gap-6">
+          <div className="flex flex-col gap-6 p-6">
             <div className="flex flex-row items-start gap-6">
               <form.AppField name="name">
                 {(field) => (
                   <field.TextInputField
                     className="flex-1"
-                    // eslint-disable-next-line jsx-a11y/no-autofocus
-                    autoFocus
                     label={translate('text_6584550dc4cec7adf861504d')}
                     placeholder={translate('text_6584550dc4cec7adf861504f')}
                   />
@@ -316,6 +315,7 @@ export const useAddAdyenDialog = () => {
           </div>
         ),
         closeOnError: false,
+        onEntered: focusFirstInput,
         mainAction: (
           <form.AppForm>
             <form.SubmitButton>
