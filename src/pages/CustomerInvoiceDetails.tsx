@@ -521,9 +521,6 @@ const CustomerInvoiceDetails = () => {
     currency,
     status,
     taxStatus,
-    creditableAmountCents,
-    refundableAmountCents,
-    offsettableAmountCents,
     taxProviderVoidable,
     associatedActiveWalletPresent,
     paymentDisputeLostAt,
@@ -536,9 +533,6 @@ const CustomerInvoiceDetails = () => {
   const { disabledIssueCreditNoteButton, disabledIssueCreditNoteButtonLabel } =
     createCreditNoteForInvoiceButtonProps({
       invoiceType,
-      creditableAmountCents,
-      refundableAmountCents,
-      offsettableAmountCents,
       associatedActiveWalletPresent,
     })
 

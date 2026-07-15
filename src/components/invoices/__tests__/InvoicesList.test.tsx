@@ -168,9 +168,6 @@ const createMockInvoice = (overrides: Partial<InvoiceItem> = {}): InvoiceItem =>
   paymentDisputeLostAt: null,
   taxProviderVoidable: false,
   invoiceType: InvoiceTypeEnum.Subscription,
-  creditableAmountCents: '10000',
-  refundableAmountCents: '0',
-  offsettableAmountCents: '0',
   associatedActiveWalletPresent: false,
   voidedInvoiceId: null,
   regeneratedInvoiceId: null,
@@ -1247,8 +1244,8 @@ describe('InvoicesList', () => {
     })
   })
 
-  describe('Disabled Credit Note Action', () => {
-    it('shows disabled credit note action with tooltip for partially paid invoice with zero creditable amount', async () => {
+  describe('Issue Credit Note Action enablement', () => {
+    it('keeps the issue-credit-note action enabled for a finalized invoice regardless of covered amount', async () => {
       const user = userEvent.setup()
 
       await renderInvoicesList({
@@ -1256,10 +1253,8 @@ describe('InvoicesList', () => {
           createMockInvoice({
             status: InvoiceStatusTypeEnum.Finalized,
             paymentStatus: InvoicePaymentStatusTypeEnum.Pending,
-            totalAmountCents: '10000',
-            totalPaidAmountCents: '0',
-            creditableAmountCents: '0',
-            refundableAmountCents: '0',
+            invoiceType: InvoiceTypeEnum.Subscription,
+            associatedActiveWalletPresent: true,
           }),
         ],
       })
@@ -1273,6 +1268,31 @@ describe('InvoicesList', () => {
       })
 
       expect(issueCreditNoteButton).toBeInTheDocument()
+      expect(issueCreditNoteButton).not.toBeDisabled()
+    })
+
+    it('disables the issue-credit-note action for a credit invoice whose wallet was terminated', async () => {
+      const user = userEvent.setup()
+
+      await renderInvoicesList({
+        invoices: [
+          createMockInvoice({
+            status: InvoiceStatusTypeEnum.Finalized,
+            invoiceType: InvoiceTypeEnum.Credit,
+            associatedActiveWalletPresent: false,
+          }),
+        ],
+      })
+
+      const actionButton = screen.getByTestId('open-action-button')
+
+      await waitFor(() => user.click(actionButton))
+
+      const issueCreditNoteButton = screen.getByRole('button', {
+        name: 'text_636bdef6565341dcb9cfb127',
+      })
+
+      expect(issueCreditNoteButton).toBeDisabled()
     })
   })
 
