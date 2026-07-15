@@ -1,6 +1,6 @@
 import { FormikConfig, useFormik } from 'formik'
 import { Icon, tw } from 'lago-design-system'
-import { FC } from 'react'
+import { FC, useEffect, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
@@ -12,6 +12,8 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { MenuPopper } from '~/styles'
 
 export const CHAT_PROMPT_EDITOR_TEST_ID = 'chat-prompt-editor'
+export const CHAT_PROMPT_EDITOR_GRADIENT_TEST_ID = 'chat-prompt-editor-gradient'
+export const GRADIENT_MIN_TEXTAREA_HEIGHT = 80
 export const CHAT_PROMPT_EDITOR_INPUT_TEST_ID = 'chat-prompt-editor-input'
 export const CHAT_PROMPT_EDITOR_SUBMIT_BUTTON_TEST_ID = 'chat-prompt-editor-submit-button'
 export const CHAT_PROMPT_EDITOR_AGENT_SELECTOR_TEST_ID = 'chat-prompt-editor-agent-selector'
@@ -27,6 +29,21 @@ export const ChatPromptEditor: FC<ChatPromptEditorProps> = ({
 }) => {
   const { agentType, setAgentType, state } = useAiAgent()
   const { translate } = useInternationalization()
+
+  const [textareaElement, setTextareaElement] = useState<HTMLTextAreaElement | null>(null)
+  const [showGradient, setShowGradient] = useState(false)
+
+  useEffect(() => {
+    if (!textareaElement) return
+
+    const observer = new ResizeObserver(() => {
+      setShowGradient(textareaElement.offsetHeight >= GRADIENT_MIN_TEXTAREA_HEIGHT)
+    })
+
+    observer.observe(textareaElement)
+
+    return () => observer.disconnect()
+  }, [textareaElement])
 
   const formikProps = useFormik({
     initialValues: {
@@ -62,14 +79,21 @@ export const ChatPromptEditor: FC<ChatPromptEditorProps> = ({
       onSubmit={formikProps.handleSubmit}
       data-test={CHAT_PROMPT_EDITOR_TEST_ID}
     >
-      <div className="pointer-events-none absolute bottom-full h-16 w-full bg-[linear-gradient(180deg,rgba(243,244,246,0)_0%,#F3F4F6_100%)] pt-1" />
-
       <div className="h-30 w-full" />
       <div className="absolute inset-x-0 bottom-0">
+        {/* Anchored to this wrapper (not the form): the input grows upward past the
+            fixed-height form, so only this wrapper's top tracks the textarea's top */}
+        {showGradient && (
+          <div
+            className="pointer-events-none absolute bottom-full h-16 w-full bg-[linear-gradient(180deg,rgba(243,244,246,0)_0%,#F3F4F6_100%)] pt-1"
+            data-test={CHAT_PROMPT_EDITOR_GRADIENT_TEST_ID}
+          />
+        )}
         <TextInputField
           // eslint-disable-next-line jsx-a11y/no-autofocus
           autoFocus
           className="rounded-xl bg-white"
+          inputRef={setTextareaElement}
           onKeyDown={handleKeyDown}
           multiline
           id="message"

@@ -1,5 +1,6 @@
 import { createContext, ReactNode, useContext, useMemo, useReducer, useState } from 'react'
 
+import { getItemFromLS, setItemFromLS } from '~/core/utils/localStorage'
 import {
   ChatActionType,
   ChatMessage,
@@ -15,8 +16,8 @@ export enum AIPanelEnum {
 }
 
 export enum AiAgentTypeEnum {
-  billing = 'billing',
   finance = 'finance',
+  billing = 'billing',
 }
 
 export const AGENT_TYPE_LABELS: Record<AiAgentTypeEnum, string> = {
@@ -27,6 +28,16 @@ export const AGENT_TYPE_LABELS: Record<AiAgentTypeEnum, string> = {
 export const AGENT_TYPE_SHOW_HISTORY: Record<AiAgentTypeEnum, boolean> = {
   [AiAgentTypeEnum.billing]: true,
   [AiAgentTypeEnum.finance]: false,
+}
+
+export const AI_AGENT_TYPE_LS_KEY = 'aiAgentType'
+
+const getStoredAgentType = (): AiAgentTypeEnum => {
+  const stored = getItemFromLS(AI_AGENT_TYPE_LS_KEY)
+
+  return Object.values(AiAgentTypeEnum).includes(stored as AiAgentTypeEnum)
+    ? (stored as AiAgentTypeEnum)
+    : AiAgentTypeEnum.finance
 }
 
 interface AiAgentContextType extends UsePanelReturn<AIPanelEnum> {
@@ -76,7 +87,7 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
   })
 
   const [conversationId, setConversationId] = useState('')
-  const [agentType, setAgentTypeState] = useState<AiAgentTypeEnum>(AiAgentTypeEnum.billing)
+  const [agentType, setAgentTypeState] = useState<AiAgentTypeEnum>(getStoredAgentType)
 
   const [state, dispatch] = useReducer(chatReducer, {
     messages: [],
@@ -108,6 +119,7 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
 
     setConversationId('')
     setAgentTypeState(newAgentType)
+    setItemFromLS(AI_AGENT_TYPE_LS_KEY, newAgentType)
     dispatch({ type: ChatActionType.RESET_CONVERSATION })
   }
 

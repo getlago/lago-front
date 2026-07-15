@@ -2,7 +2,12 @@ import { act, renderHook } from '@testing-library/react'
 import { ReactNode } from 'react'
 
 import { ChatRole, ChatStatus } from '~/hooks/aiAgent/aiAgentReducer'
-import { AiAgentProvider, AiAgentTypeEnum, useAiAgent } from '~/hooks/aiAgent/useAiAgent'
+import {
+  AI_AGENT_TYPE_LS_KEY,
+  AiAgentProvider,
+  AiAgentTypeEnum,
+  useAiAgent,
+} from '~/hooks/aiAgent/useAiAgent'
 
 const wrapper = ({ children }: { children: ReactNode }) => (
   <AiAgentProvider>{children}</AiAgentProvider>
@@ -11,6 +16,10 @@ const wrapper = ({ children }: { children: ReactNode }) => (
 const renderAiAgent = () => renderHook(() => useAiAgent(), { wrapper })
 
 describe('useAiAgent', () => {
+  beforeEach(() => {
+    localStorage.clear()
+  })
+
   describe('GIVEN the hook is used outside the provider', () => {
     describe('WHEN it is called', () => {
       it('THEN should throw an explicit error', () => {
@@ -28,12 +37,32 @@ describe('useAiAgent', () => {
 
   describe('GIVEN the provider default state', () => {
     describe('WHEN the hook mounts', () => {
-      it('THEN should default to the billing agent with an empty conversation', () => {
+      it('THEN should default to the finance agent with an empty conversation', () => {
+        const { result } = renderAiAgent()
+
+        expect(result.current.agentType).toBe(AiAgentTypeEnum.finance)
+        expect(result.current.conversationId).toBe('')
+        expect(result.current.state.messages).toHaveLength(0)
+      })
+    })
+
+    describe('WHEN an agent type is stored in localStorage', () => {
+      it('THEN should restore the stored agent type', () => {
+        localStorage.setItem(AI_AGENT_TYPE_LS_KEY, AiAgentTypeEnum.billing)
+
         const { result } = renderAiAgent()
 
         expect(result.current.agentType).toBe(AiAgentTypeEnum.billing)
-        expect(result.current.conversationId).toBe('')
-        expect(result.current.state.messages).toHaveLength(0)
+      })
+    })
+
+    describe('WHEN the stored agent type is invalid', () => {
+      it('THEN should fall back to the finance agent', () => {
+        localStorage.setItem(AI_AGENT_TYPE_LS_KEY, 'not-an-agent')
+
+        const { result } = renderAiAgent()
+
+        expect(result.current.agentType).toBe(AiAgentTypeEnum.finance)
       })
     })
   })
@@ -76,19 +105,20 @@ describe('useAiAgent', () => {
 
   describe('GIVEN the agent type changes', () => {
     describe('WHEN switching to another agent', () => {
-      it('THEN should reset the ongoing conversation', () => {
+      it('THEN should reset the ongoing conversation and persist the choice', () => {
         const { result } = renderAiAgent()
 
         act(() => {
           result.current.startNewConversation({ convId: 'conv-1', message: 'hello' })
         })
         act(() => {
-          result.current.setAgentType(AiAgentTypeEnum.finance)
+          result.current.setAgentType(AiAgentTypeEnum.billing)
         })
 
-        expect(result.current.agentType).toBe(AiAgentTypeEnum.finance)
+        expect(result.current.agentType).toBe(AiAgentTypeEnum.billing)
         expect(result.current.conversationId).toBe('')
         expect(result.current.state.messages).toHaveLength(0)
+        expect(localStorage.getItem(AI_AGENT_TYPE_LS_KEY)).toBe(AiAgentTypeEnum.billing)
       })
     })
 
@@ -100,7 +130,7 @@ describe('useAiAgent', () => {
           result.current.startNewConversation({ convId: 'conv-1', message: 'hello' })
         })
         act(() => {
-          result.current.setAgentType(AiAgentTypeEnum.billing)
+          result.current.setAgentType(AiAgentTypeEnum.finance)
         })
 
         expect(result.current.conversationId).toBe('conv-1')
