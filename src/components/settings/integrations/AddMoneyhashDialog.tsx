@@ -1,27 +1,29 @@
-import { gql } from '@apollo/client'
-import { useFormik } from 'formik'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
+import { gql, useApolloClient } from '@apollo/client'
+import { revalidateLogic } from '@tanstack/react-form'
+import { useRef } from 'react'
 import { generatePath } from 'react-router-dom'
-import { object, string } from 'yup'
+import { z } from 'zod'
 
-import { Button } from '~/components/designSystem/Button'
-import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
-import { TextInputField } from '~/components/form'
+import { useFormDialogOpeningDialog } from '~/components/dialogs/FormDialogOpeningDialog'
+import { DialogResult } from '~/components/dialogs/types'
+import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { addToast } from '~/core/apolloClient'
+import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { MONEYHASH_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import {
   AddMoneyhashPaymentProviderInput,
   AddMoneyhashProviderDialogFragment,
+  GetMoneyhashIntegrationsListDocument,
   LagoApiError,
   MoneyhashIntegrationDetailsFragmentDoc,
   useAddMoneyhashApiKeyMutation,
+  useDeleteMoneyhashIntegrationMutation,
   useGetProviderByCodeForMoneyhashLazyQuery,
   useUpdateMoneyhashApiKeyMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-
-import { useDeleteMoneyhashIntegrationDialog } from './DeleteMoneyhashIntegrationDialog'
+import { useAppForm } from '~/hooks/forms/useAppform'
 
 gql`
   fragment AddMoneyhashProviderDialog on MoneyhashProvider {
@@ -70,28 +72,40 @@ gql`
   ${MoneyhashIntegrationDetailsFragmentDoc}
 `
 
-type TAddMoneyhashDialogProps = Partial<{
-  provider: AddMoneyhashProviderDialogFragment
-  deleteDialogCallback: () => void
-}>
+const ADD_MONEYHASH_FORM_ID = 'form-add-moneyhash-integration'
 
-export interface AddMoneyhashDialogRef {
-  openDialog: (props?: TAddMoneyhashDialogProps) => unknown
-  closeDialog: () => unknown
+type OpenAddMoneyhashDialogData = {
+  provider?: AddMoneyhashProviderDialogFragment
+  deleteDialogCallback?: () => void
 }
 
-export const AddMoneyhashDialog = forwardRef<AddMoneyhashDialogRef>((_, ref) => {
+const defaultFormValues: AddMoneyhashPaymentProviderInput = {
+  name: '',
+  code: '',
+  apiKey: '',
+  flowId: '',
+}
+
+const validationSchema = z.object({
+  name: z.string().min(1),
+  code: z.string().min(1),
+  apiKey: z.string().min(1),
+  flowId: z.string().min(1),
+})
+
+export const useAddMoneyhashDialog = () => {
+  const formDialogOpeningDialog = useFormDialogOpeningDialog()
   const { translate } = useInternationalization()
   const navigate = useNavigate()
-  const dialogRef = useRef<DialogRef>(null)
-  const [localData, setLocalData] = useState<TAddMoneyhashDialogProps | undefined>(undefined)
-  const moneyhashProvider = localData?.provider
-  const isEdition = !!moneyhashProvider
-  const { openDeleteMoneyhashIntegrationDialog } = useDeleteMoneyhashIntegrationDialog()
+  const client = useApolloClient()
+
+  const dataRef = useRef<OpenAddMoneyhashDialogData | null>(null)
+  const successRef = useRef(false)
 
   const [addApiKey] = useAddMoneyhashApiKeyMutation({
     onCompleted({ addMoneyhashPaymentProvider }) {
       if (addMoneyhashPaymentProvider?.id) {
+        successRef.current = true
         navigate(
           generatePath(MONEYHASH_INTEGRATION_DETAILS_ROUTE, {
             integrationId: addMoneyhashPaymentProvider.id,
@@ -109,6 +123,7 @@ export const AddMoneyhashDialog = forwardRef<AddMoneyhashDialogRef>((_, ref) => 
   const [updateApiKey] = useUpdateMoneyhashApiKeyMutation({
     onCompleted({ updateMoneyhashPaymentProvider }) {
       if (updateMoneyhashPaymentProvider?.id) {
+        successRef.current = true
         addToast({
           message: translate('text_17337300102103wt4s6yz2gh'),
           severity: 'success',
@@ -117,26 +132,24 @@ export const AddMoneyhashDialog = forwardRef<AddMoneyhashDialogRef>((_, ref) => 
     },
   })
 
+  const [deleteMoneyhash] = useDeleteMoneyhashIntegrationMutation()
+
   const [getMoneyhashProviderByCode] = useGetProviderByCodeForMoneyhashLazyQuery()
 
-  const formikProps = useFormik<AddMoneyhashPaymentProviderInput>({
-    initialValues: {
-      name: moneyhashProvider?.name || '',
-      code: moneyhashProvider?.code || '',
-      apiKey: moneyhashProvider?.apiKey || '',
-      flowId: moneyhashProvider?.flowId || '',
+  const form = useAppForm({
+    defaultValues: defaultFormValues,
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: validationSchema,
     },
-    validationSchema: object().shape({
-      name: string().required(''),
-      code: string().required(''),
-      apiKey: string().required(''),
-      flowId: string().required(''),
-    }),
-    onSubmit: async ({ apiKey, flowId, ...values }, formikBag) => {
+    onSubmit: async ({ value, formApi }) => {
+      const provider = dataRef.current?.provider
+      const isEdition = !!provider
+
       const res = await getMoneyhashProviderByCode({
         context: { silentErrorCodes: [LagoApiError.NotFound] },
         variables: {
-          code: values.code,
+          code: value.code,
         },
       })
 
@@ -144,19 +157,31 @@ export const AddMoneyhashDialog = forwardRef<AddMoneyhashDialogRef>((_, ref) => 
         (!!res.data?.paymentProvider?.id && !isEdition) ||
         (isEdition &&
           !!res.data?.paymentProvider?.id &&
-          res.data?.paymentProvider?.id !== moneyhashProvider?.id)
+          res.data?.paymentProvider?.id !== provider?.id)
 
       if (isNotAllowedToMutate) {
-        formikBag.setFieldError('code', translate('text_632a2d437e341dcc76817556'))
+        formApi.setErrorMap({
+          onDynamic: {
+            fields: {
+              code: {
+                message: translate('text_632a2d437e341dcc76817556'),
+                path: ['code'],
+              },
+            },
+          },
+        })
         return
       }
+
+      const { apiKey, flowId, name, code } = value
 
       if (isEdition) {
         await updateApiKey({
           variables: {
             input: {
-              ...values,
-              id: moneyhashProvider?.id,
+              id: provider.id,
+              name,
+              code,
               flowId,
             },
           },
@@ -165,110 +190,147 @@ export const AddMoneyhashDialog = forwardRef<AddMoneyhashDialogRef>((_, ref) => 
         await addApiKey({
           variables: {
             input: {
-              ...values,
+              name,
+              code,
               apiKey,
               flowId,
             },
           },
         })
       }
-
-      dialogRef.current?.closeDialog()
     },
-    validateOnMount: true,
-    enableReinitialize: true,
   })
 
-  useImperativeHandle(ref, () => ({
-    openDialog: (data) => {
-      setLocalData(data)
-      dialogRef.current?.openDialog()
-    },
-    closeDialog: () => dialogRef.current?.closeDialog(),
-  }))
+  const handleSubmit = async (): Promise<DialogResult> => {
+    successRef.current = false
+    await form.handleSubmit()
 
-  return (
-    <Dialog
-      ref={dialogRef}
-      title={translate(
-        isEdition ? 'text_658461066530343fe1808cd9' : 'text_1733489819311q0nzqi3u7wz',
-        {
-          name: moneyhashProvider?.name,
-        },
-      )}
-      description={translate(
-        isEdition ? 'text_17337299668343fncntgiyhf' : 'text_1733491430992msh3b2v8nlx',
-      )}
-      onClose={formikProps.resetForm}
-      actions={({ closeDialog }) => (
-        <div className="flex w-full items-center gap-3">
-          {isEdition && (
-            <Button
-              danger
-              variant="quaternary"
-              onClick={() => {
-                closeDialog()
-                openDeleteMoneyhashIntegrationDialog({
-                  provider: moneyhashProvider,
-                  callback: localData?.deleteDialogCallback,
-                })
-              }}
-            >
-              {translate('text_65845f35d7d69c3ab4793dad')}
-            </Button>
-          )}
-          <div className="ml-auto flex items-center gap-3">
-            <Button variant="quaternary" onClick={closeDialog}>
-              {translate('text_63eba8c65a6c8043feee2a14')}
-            </Button>
-            <Button
-              variant="primary"
-              disabled={!formikProps.isValid || !formikProps.dirty}
-              onClick={formikProps.submitForm}
-            >
+    if (!successRef.current) {
+      throw new Error('Submit failed')
+    }
+
+    return { reason: 'success' }
+  }
+
+  const openAddMoneyhashDialog = (data?: OpenAddMoneyhashDialogData) => {
+    dataRef.current = data ?? null
+    const provider = data?.provider
+    const isEdition = !!provider
+
+    form.reset()
+    if (provider) {
+      form.setFieldValue('name', provider.name || '')
+      form.setFieldValue('code', provider.code || '')
+      form.setFieldValue('apiKey', provider.apiKey || '')
+      form.setFieldValue('flowId', provider.flowId || '')
+    }
+
+    formDialogOpeningDialog
+      .open({
+        title: translate(
+          isEdition ? 'text_658461066530343fe1808cd9' : 'text_1733489819311q0nzqi3u7wz',
+          {
+            name: provider?.name,
+          },
+        ),
+        description: translate(
+          isEdition ? 'text_17337299668343fncntgiyhf' : 'text_1733491430992msh3b2v8nlx',
+        ),
+        children: (
+          <div className="flex flex-col gap-6 p-6">
+            <div className="flex items-start gap-6">
+              <form.AppField name="name">
+                {(field) => (
+                  <field.TextInputField
+                    className="flex-1"
+                    label={translate('text_6584550dc4cec7adf861504d')}
+                    placeholder={translate('text_6584550dc4cec7adf861504f')}
+                  />
+                )}
+              </form.AppField>
+              <form.AppField name="code">
+                {(field) => (
+                  <field.TextInputField
+                    className="flex-1"
+                    label={translate('text_6584550dc4cec7adf8615051')}
+                    placeholder={translate('text_6584550dc4cec7adf8615053')}
+                  />
+                )}
+              </form.AppField>
+            </div>
+            <form.AppField name="apiKey">
+              {(field) => (
+                <field.TextInputField
+                  disabled={isEdition}
+                  label={translate('text_645d071272418a14c1c76a77')}
+                  placeholder={translate('text_645d071272418a14c1c76a83')}
+                />
+              )}
+            </form.AppField>
+            <form.AppField name="flowId">
+              {(field) => (
+                <field.TextInputField
+                  label={translate('text_1737453888927uw38sepj7xy')}
+                  placeholder={translate('text_1737453902655bnm8uycr7o7')}
+                />
+              )}
+            </form.AppField>
+          </div>
+        ),
+        closeOnError: false,
+        onEntered: focusFirstInput,
+        mainAction: (
+          <form.AppForm>
+            <form.SubmitButton>
               {translate(
                 isEdition ? 'text_1733729938415dtehv31k9in' : 'text_1733489819311q0nzqi3u7wz',
               )}
-            </Button>
-          </div>
-        </div>
-      )}
-    >
-      <div className="mb-8 flex flex-col gap-6">
-        <div className="flex items-start gap-6">
-          <TextInputField
-            className="flex-1"
-            // eslint-disable-next-line jsx-a11y/no-autofocus
-            autoFocus
-            formikProps={formikProps}
-            name="name"
-            label={translate('text_6584550dc4cec7adf861504d')}
-            placeholder={translate('text_6584550dc4cec7adf861504f')}
-          />
-          <TextInputField
-            className="flex-1"
-            formikProps={formikProps}
-            name="code"
-            label={translate('text_6584550dc4cec7adf8615051')}
-            placeholder={translate('text_6584550dc4cec7adf8615053')}
-          />
-        </div>
-        <TextInputField
-          name="apiKey"
-          disabled={isEdition}
-          label={translate('text_645d071272418a14c1c76a77')}
-          placeholder={translate('text_645d071272418a14c1c76a83')}
-          formikProps={formikProps}
-        />
-        <TextInputField
-          name="flowId"
-          label={translate('text_1737453888927uw38sepj7xy')}
-          placeholder={translate('text_1737453902655bnm8uycr7o7')}
-          formikProps={formikProps}
-        />
-      </div>
-    </Dialog>
-  )
-})
+            </form.SubmitButton>
+          </form.AppForm>
+        ),
+        form: {
+          id: ADD_MONEYHASH_FORM_ID,
+          submit: handleSubmit,
+        },
+        canOpenDialog: isEdition,
+        openDialogText: translate('text_65845f35d7d69c3ab4793dad'),
+        otherDialogProps: {
+          title: translate('text_658461066530343fe1808cd7', { name: provider?.name }),
+          description: translate('text_658461066530343fe1808cc2'),
+          colorVariant: 'danger',
+          actionText: translate('text_645d071272418a14c1c76a81'),
+          onAction: async () => {
+            const res = await deleteMoneyhash({
+              variables: { input: { id: provider?.id as string } },
+            })
 
-AddMoneyhashDialog.displayName = 'AddMoneyhashDialog'
+            const destroyedId = res.data?.destroyPaymentProvider?.id
+
+            if (destroyedId) {
+              evictFromCache(client, {
+                id: destroyedId,
+                __typename: 'MoneyhashProvider',
+                listFieldName: 'paymentProviders',
+                listQueryDocument: GetMoneyhashIntegrationsListDocument,
+              })
+
+              data?.deleteDialogCallback?.()
+
+              addToast({
+                message: translate('text_1737463302046fgixue5wtvu'),
+                severity: 'success',
+              })
+            }
+          },
+        },
+      })
+      .then((response) => {
+        if (response.reason === 'close' || response.reason === 'open-other-dialog') {
+          form.reset()
+          dataRef.current = null
+        }
+      })
+  }
+
+  return { openAddMoneyhashDialog }
+}

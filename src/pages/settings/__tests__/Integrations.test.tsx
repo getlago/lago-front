@@ -56,7 +56,9 @@ jest.mock('~/components/settings/integrations/AddCashfreeDialog', () => ({
   }),
 }))
 jest.mock('~/components/settings/integrations/AddMoneyhashDialog', () => ({
-  AddMoneyhashDialog: () => null,
+  useAddMoneyhashDialog: () => ({
+    openAddMoneyhashDialog: jest.fn(),
+  }),
 }))
 jest.mock('~/components/settings/integrations/AddLagoTaxManagementDialog', () => ({
   AddLagoTaxManagementDialog: () => null,
