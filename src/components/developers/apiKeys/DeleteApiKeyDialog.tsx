@@ -44,7 +44,7 @@ export const useDeleteApiKeyDialog = () => {
       colorVariant: 'danger',
       actionText: translate('text_1732182455718y0m5fijuray'),
       children: (
-        <div className="mb-8 flex flex-col gap-8">
+        <div className="flex flex-col gap-8 p-8">
           <div className="flex w-full items-center">
             <Typography className="w-35" variant="caption" color="grey600">
               {translate('text_1731515447290xbe4iqm5n6r')}
