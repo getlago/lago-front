@@ -20,10 +20,7 @@ import {
   EditCustomerInvoiceGracePeriodDialog,
   EditCustomerInvoiceGracePeriodDialogRef,
 } from '~/components/customers/EditCustomerInvoiceGracePeriodDialog'
-import {
-  EditCustomerVatRateDialog,
-  EditCustomerVatRateDialogRef,
-} from '~/components/customers/EditCustomerVatRateDialog'
+import { useEditCustomerVatRateDialog } from '~/components/customers/EditCustomerVatRateDialog'
 import {
   EditCustomerIssuingDatePolicyDialog,
   EditCustomerIssuingDatePolicyDialogRef,
@@ -199,8 +196,8 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
   })
   const customer = data?.customer
   const billingEntity = data?.customer?.billingEntity
-  const editVATDialogRef = useRef<EditCustomerVatRateDialogRef>(null)
   const editIssuingDatePolicyDialogRef = useRef<EditCustomerIssuingDatePolicyDialogRef>(null)
+  const { openEditCustomerVatRateDialog } = useEditCustomerVatRateDialog()
   const { openDeleteCustomerVatRateDialog } = useDeleteCustomerVatRateDialog()
   const editInvoiceGracePeriodDialogRef = useRef<EditCustomerInvoiceGracePeriodDialogRef>(null)
   const { openDeleteCustomerGracePeriodeDialog } = useDeleteCustomerGracePeriodeDialog()
@@ -844,7 +841,14 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                       <Button
                         variant="inline"
                         disabled={loading}
-                        onClick={() => editVATDialogRef?.current?.openDialog()}
+                        onClick={() => {
+                          if (customer) {
+                            openEditCustomerVatRateDialog({
+                              customer,
+                              appliedTaxRatesTaxesIds: customer.taxes?.map((t) => t.id),
+                            })
+                          }
+                        }}
                         data-test="add-vat-rate-button"
                       >
                         {translate('text_645bb193927b375079d28ad2')}
@@ -937,11 +941,6 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
 
       {!!customer && (
         <>
-          <EditCustomerVatRateDialog
-            ref={editVATDialogRef}
-            customer={customer}
-            appliedTaxRatesTaxesIds={customer.taxes?.map((t) => t.id)}
-          />
           <EditCustomerInvoiceGracePeriodDialog
             ref={editInvoiceGracePeriodDialogRef}
             invoiceGracePeriod={customer?.invoiceGracePeriod}

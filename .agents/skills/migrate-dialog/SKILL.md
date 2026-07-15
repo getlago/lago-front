@@ -246,6 +246,31 @@ onEntered: focusFirstInput,
 
 `focusFirstInput(container)` scopes its lookup to the dialog's own container and focuses the first editable input (skipping hidden/disabled), so it works regardless of dialog-stack position. It's the same helper the plan and charge drawers use. For a dialog whose first field is not the desired target, pass a custom selector via a wrapper: `onEntered: (c) => focusFirstInput(c, '#my-field')`.
 
+**2b. When the first field is a `ComboBox`, open its dropdown instead of just focusing it.**
+
+`focusFirstInput` only focuses the underlying `<input>`, leaving the dropdown closed - the user still has to click/type to see the options. When the combobox is the dialog's primary (or only) field, the expected UX is to open the menu on enter. Match the charge-drawer pattern: give the `ComboBox` a known className, then in `onEntered` click its `MuiInputBase-root` to pop the dropdown open.
+
+```tsx
+import {
+  MUI_INPUT_BASE_ROOT_CLASSNAME,
+  SEARCH_TAX_INPUT_FOR_CUSTOMER_CLASSNAME,
+} from '~/core/constants/form'
+
+// the ComboBox carries the search-input className:
+<ComboBox className={SEARCH_TAX_INPUT_FOR_CUSTOMER_CLASSNAME} ... />
+
+// inside the .open({ ... }) call:
+onEntered: (container) => {
+  container
+    .querySelector<HTMLElement>(
+      `.${SEARCH_TAX_INPUT_FOR_CUSTOMER_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
+    )
+    ?.click()
+},
+```
+
+Clicking the `MuiInputBase-root` both focuses the field and opens the menu, so it replaces `focusFirstInput` entirely (don't call both). Reference: `EditCustomerVatRateDialog.tsx`, and the plan/charge drawers (`FixedChargeDrawer.tsx`, `UsageChargeDrawer.tsx`) which gate the same click behind a `shouldFocusComboBoxRef` when the combobox should only auto-open in create mode - a dialog whose combobox is always the entry point can click unconditionally.
+
 **New Pattern (hook-based with CentralizedDialog):**
 
 ```typescript
@@ -680,7 +705,7 @@ type FormDialogOpeningDialogProps = FormDialogProps & {
 - [ ] Replace `Dialog`/`WarningDialog` with `useFormDialog()`, `useCentralizedDialog()`, or `useFormDialogOpeningDialog()`
 - [ ] Implement `handleSubmit` returning `Promise<DialogResult>` (for FormDialog/FormDialogOpeningDialog)
 - [ ] Wrap `children` JSX in a `p-8` padding container (BaseDialog does NOT pad JSX children → flush/misaligned layout otherwise)
-- [ ] Add `onEntered: focusFirstInput` so the dialog focuses its first input on open (legacy Dialog did this automatically)
+- [ ] Add `onEntered: focusFirstInput` so the dialog focuses its first input on open (legacy Dialog did this automatically) - if the first field is a `ComboBox`, `.click()` its `MuiInputBase-root` in `onEntered` to open the dropdown instead (see section 2b)
 - [ ] Handle form reset and cleanup in `.then()` callback (for FormDialog/FormDialogOpeningDialog)
 - [ ] Remove old exports (`forwardRef`, `DialogRef` interface, `displayName`)
 - [ ] (Deletion dialog) Replace `refetchQueries` / bare `cache.evict()` with the `evictFromCache` helper
