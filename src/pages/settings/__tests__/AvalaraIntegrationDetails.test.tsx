@@ -7,7 +7,9 @@ import { renderIntegrationPage } from './integrationTestHelpers'
 import AvalaraIntegrationDetails from '../AvalaraIntegrationDetails'
 
 jest.mock('~/components/settings/integrations/AddAvalaraDialog', () => ({
-  AddAvalaraDialog: () => null,
+  useAddAvalaraDialog: () => ({
+    openAddAvalaraDialog: jest.fn(),
+  }),
 }))
 jest.mock('~/components/settings/integrations/DeleteAvalaraIntegrationDialog', () => ({
   useDeleteAvalaraIntegrationDialog: () => ({
