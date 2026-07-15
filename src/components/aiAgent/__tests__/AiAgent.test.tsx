@@ -5,6 +5,7 @@ import { AI_AGENT_NAV_TEST_ID, AiAgent } from '~/components/aiAgent/AiAgent'
 import { CHAT_CONVERSATION_TEST_ID } from '~/components/aiAgent/ChatConversation'
 import { CHAT_HISTORY_ITEM_TEST_ID, CHAT_HISTORY_TEST_ID } from '~/components/aiAgent/ChatHistory'
 import { PANEL_AI_AGENT_WELCOME_TEST_ID } from '~/components/aiAgent/PanelAiAgent'
+import { FeatureFlags, setFeatureFlags } from '~/core/utils/featureFlags'
 import { GetAiConversationDocument, ListAiConversationsDocument } from '~/generated/graphql'
 import { AiAgentProvider, AiAgentTypeEnum, useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { render, TestMocksType } from '~/test-utils'
@@ -117,6 +118,8 @@ const getHistoryButton = () =>
 describe('AiAgent', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    localStorage.clear()
+    setFeatureFlags(FeatureFlags.AI_FINANCE_ASSISTANT)
     window.history.pushState({}, '', '/test-org/analytics')
   })
 

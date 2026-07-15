@@ -1,5 +1,6 @@
 import { createContext, ReactNode, useContext, useMemo, useReducer, useState } from 'react'
 
+import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import { getItemFromLS, setItemFromLS } from '~/core/utils/localStorage'
 import {
   ChatActionType,
@@ -33,6 +34,11 @@ export const AGENT_TYPE_SHOW_HISTORY: Record<AiAgentTypeEnum, boolean> = {
 export const AI_AGENT_TYPE_LS_KEY = 'aiAgentType'
 
 const getStoredAgentType = (): AiAgentTypeEnum => {
+  // Without the flag the finance assistant does not exist: ignore any stored choice
+  if (!isFeatureFlagActive(FeatureFlags.AI_FINANCE_ASSISTANT)) {
+    return AiAgentTypeEnum.billing
+  }
+
   const stored = getItemFromLS(AI_AGENT_TYPE_LS_KEY)
 
   return Object.values(AiAgentTypeEnum).includes(stored as AiAgentTypeEnum)
@@ -116,6 +122,11 @@ export function AiAgentProvider({ children }: { children: ReactNode }) {
 
   const setAgentType = (newAgentType: AiAgentTypeEnum) => {
     if (agentType === newAgentType) return
+    if (
+      newAgentType === AiAgentTypeEnum.finance &&
+      !isFeatureFlagActive(FeatureFlags.AI_FINANCE_ASSISTANT)
+    )
+      return
 
     setConversationId('')
     setAgentTypeState(newAgentType)

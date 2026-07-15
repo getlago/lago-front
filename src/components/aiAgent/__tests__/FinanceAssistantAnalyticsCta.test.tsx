@@ -7,6 +7,7 @@ import {
   FINANCE_ASSISTANT_CTA_TEST_ID,
   FinanceAssistantAnalyticsCta,
 } from '~/components/aiAgent/FinanceAssistantAnalyticsCta'
+import { FeatureFlags, setFeatureFlags } from '~/core/utils/featureFlags'
 import { ChatState } from '~/hooks/aiAgent/aiAgentReducer'
 import { AiAgentTypeEnum } from '~/hooks/aiAgent/useAiAgent'
 import { render } from '~/test-utils'
@@ -62,12 +63,23 @@ const buildState = (overrides: Partial<ChatState> = {}): ChatState => ({
 describe('FinanceAssistantAnalyticsCta', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    setFeatureFlags(FeatureFlags.AI_FINANCE_ASSISTANT)
     mockState = buildState()
     mockIsPremium = true
     mockHasPermissions = true
   })
 
   describe('GIVEN the user has no access to the AI agent', () => {
+    describe('WHEN the finance assistant feature flag is not present', () => {
+      it('THEN should render nothing', () => {
+        setFeatureFlags([])
+
+        render(<FinanceAssistantAnalyticsCta />)
+
+        expect(screen.queryByTestId(FINANCE_ASSISTANT_CTA_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
     describe('WHEN the user is not premium', () => {
       it('THEN should render nothing', () => {
         mockIsPremium = false

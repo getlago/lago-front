@@ -9,6 +9,7 @@ import {
   ChatPromptEditor,
   GRADIENT_MIN_TEXTAREA_HEIGHT,
 } from '~/components/aiAgent/ChatPromptEditor'
+import { FeatureFlags, setFeatureFlags } from '~/core/utils/featureFlags'
 import { ChatState } from '~/hooks/aiAgent/aiAgentReducer'
 import { AGENT_TYPE_LABELS, AiAgentTypeEnum } from '~/hooks/aiAgent/useAiAgent'
 import { render } from '~/test-utils'
@@ -82,6 +83,7 @@ describe('ChatPromptEditor', () => {
     jest.clearAllMocks()
     resizeObservers = []
     global.ResizeObserver = ResizeObserverMock as unknown as typeof ResizeObserver
+    setFeatureFlags(FeatureFlags.AI_FINANCE_ASSISTANT)
     mockAgentType = AiAgentTypeEnum.billing
     mockState = buildState()
   })
@@ -245,6 +247,18 @@ describe('ChatPromptEditor', () => {
         await userEvent.click(await screen.findByText(AGENT_TYPE_LABELS[AiAgentTypeEnum.finance]))
 
         expect(mockSetAgentType).toHaveBeenCalledWith(AiAgentTypeEnum.finance)
+      })
+    })
+
+    describe('WHEN the finance assistant feature flag is not present', () => {
+      it('THEN should not display the agent selector', () => {
+        setFeatureFlags([])
+
+        render(<ChatPromptEditor onSubmit={jest.fn()} />)
+
+        expect(
+          screen.queryByTestId(CHAT_PROMPT_EDITOR_AGENT_SELECTOR_TEST_ID),
+        ).not.toBeInTheDocument()
       })
     })
   })
