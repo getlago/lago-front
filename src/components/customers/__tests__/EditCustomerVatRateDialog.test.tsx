@@ -5,10 +5,6 @@ import { ReactNode } from 'react'
 
 import { FORM_DIALOG_NAME, FORM_DIALOG_TEST_ID } from '~/components/dialogs/const'
 import FormDialog from '~/components/dialogs/FormDialog'
-import {
-  MUI_INPUT_BASE_ROOT_CLASSNAME,
-  SEARCH_TAX_INPUT_FOR_CUSTOMER_CLASSNAME,
-} from '~/core/constants/form'
 import { CREATE_TAX_ROUTE } from '~/core/router'
 import { GetTaxRatesForEditCustomerDocument } from '~/generated/graphql'
 import { render, TestMocksType } from '~/test-utils'
@@ -124,15 +120,18 @@ describe('EditCustomerVatRateDialog', () => {
   })
 
   it('should propose to create a new tax if none exists and have permissions', async () => {
+    const user = userEvent.setup()
+
     await prepare()
 
-    await userEvent.click(
-      screen
-        .queryByTestId(FORM_DIALOG_TEST_ID)
-        ?.querySelector(
-          `.${SEARCH_TAX_INPUT_FOR_CUSTOMER_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
-        ) as HTMLElement,
-    )
+    const input = screen
+      .getByTestId(FORM_DIALOG_TEST_ID)
+      .querySelector('[role="combobox"]') as HTMLElement
+
+    // The tax rate ComboBox is freeSolo (allowAddValue): typing opens the popper and,
+    // when no tax matches, surfaces the "create a tax" option.
+    await user.click(input)
+    await user.keyboard('a')
 
     const createTaxItem = await screen.findByTestId('combobox-item-Create a tax_rate')
 
