@@ -16,10 +16,7 @@ import {
 } from '~/components/layouts/Settings'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
-import {
-  AddAdyenDialog,
-  AddAdyenDialogRef,
-} from '~/components/settings/integrations/AddAdyenDialog'
+import { useAddAdyenDialog } from '~/components/settings/integrations/AddAdyenDialog'
 import {
   AddAnrokDialog,
   AddAnrokDialogRef,
@@ -171,7 +168,7 @@ const Integrations = () => {
   const addAnrokDialogRef = useRef<AddAnrokDialogRef>(null)
   const { openAddAvalaraDialog } = useAddAvalaraDialog()
   const addStripeDialogRef = useRef<AddStripeDialogRef>(null)
-  const addAdyenDialogRef = useRef<AddAdyenDialogRef>(null)
+  const { openAddAdyenDialog } = useAddAdyenDialog()
   const addGocardlessDialogRef = useRef<AddGocardlessDialogRef>(null)
   const { openAddCashfreeDialog } = useAddCashfreeDialog()
   const addLagoTaxManagementDialog = useRef<AddLagoTaxManagementDialogRef>(null)
@@ -339,7 +336,7 @@ const Integrations = () => {
                             const element = document.activeElement as HTMLElement
 
                             element.blur && element.blur()
-                            addAdyenDialogRef.current?.openDialog()
+                            openAddAdyenDialog()
                           }
                         }}
                         fullWidth
@@ -841,7 +838,6 @@ const Integrations = () => {
       <>{activeTabContent}</>
 
       <AddAnrokDialog ref={addAnrokDialogRef} />
-      <AddAdyenDialog ref={addAdyenDialogRef} />
       <AddStripeDialog ref={addStripeDialogRef} />
       <AddGocardlessDialog ref={addGocardlessDialogRef} />
       <AddLagoTaxManagementDialog ref={addLagoTaxManagementDialog} />

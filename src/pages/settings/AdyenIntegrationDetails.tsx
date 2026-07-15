@@ -8,22 +8,17 @@ import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import {
-  AddAdyenDialog,
-  AddAdyenDialogRef,
-} from '~/components/settings/integrations/AddAdyenDialog'
+import { useAddAdyenDialog } from '~/components/settings/integrations/AddAdyenDialog'
 import {
   AddEditDeleteSuccessRedirectUrlDialog,
   AddEditDeleteSuccessRedirectUrlDialogRef,
 } from '~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog'
-import { useDeleteAdyenIntegrationDialog } from '~/components/settings/integrations/DeleteAdyenIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { ADYEN_INTEGRATION_ROUTE, INTEGRATIONS_ROUTE, useNavigate } from '~/core/router'
 import {
   AddAdyenProviderDialogFragmentDoc,
   AdyenForCreateAndEditSuccessRedirectUrlFragmentDoc,
   AdyenIntegrationDetailsFragment,
-  DeleteAdyenIntegrationDialogFragmentDoc,
   ProviderTypeEnum,
   useGetAdyenIntegrationsDetailsQuery,
 } from '~/generated/graphql'
@@ -51,7 +46,6 @@ gql`
       ... on AdyenProvider {
         id
         ...AdyenIntegrationDetails
-        ...DeleteAdyenIntegrationDialog
         ...AddAdyenProviderDialog
         ...AdyenForCreateAndEditSuccessRedirectUrl
       }
@@ -67,15 +61,13 @@ gql`
   }
 
   ${AdyenForCreateAndEditSuccessRedirectUrlFragmentDoc}
-  ${DeleteAdyenIntegrationDialogFragmentDoc}
   ${AddAdyenProviderDialogFragmentDoc}
 `
 
 const AdyenIntegrationDetails = () => {
   const navigate = useNavigate()
   const { integrationId } = useParams()
-  const addAdyenDialogRef = useRef<AddAdyenDialogRef>(null)
-  const { openDeleteAdyenIntegrationDialog } = useDeleteAdyenIntegrationDialog()
+  const { openAddAdyenDialog } = useAddAdyenDialog()
   const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
@@ -139,13 +131,9 @@ const AdyenIntegrationDetails = () => {
                   label: translate('text_65845f35d7d69c3ab4793dac'),
                   hidden: !canEditIntegration,
                   onClick: (closePopper) => {
-                    addAdyenDialogRef.current?.openDialog({
+                    openAddAdyenDialog({
                       provider: adyenPaymentProvider,
-                      onDelete: (provider) =>
-                        openDeleteAdyenIntegrationDialog({
-                          provider,
-                          callback: deleteDialogCallback,
-                        }),
+                      deleteCallback: deleteDialogCallback,
                     })
                     closePopper()
                   },
@@ -154,9 +142,9 @@ const AdyenIntegrationDetails = () => {
                   label: translate('text_65845f35d7d69c3ab4793dad'),
                   hidden: !canDeleteIntegration,
                   onClick: (closePopper) => {
-                    openDeleteAdyenIntegrationDialog({
+                    openAddAdyenDialog({
                       provider: adyenPaymentProvider,
-                      callback: deleteDialogCallback,
+                      deleteCallback: deleteDialogCallback,
                     })
                     closePopper()
                   },
@@ -176,13 +164,9 @@ const AdyenIntegrationDetails = () => {
                 variant="inline"
                 disabled={loading}
                 onClick={() => {
-                  addAdyenDialogRef.current?.openDialog({
+                  openAddAdyenDialog({
                     provider: adyenPaymentProvider,
-                    onDelete: (provider) =>
-                      openDeleteAdyenIntegrationDialog({
-                        provider,
-                        callback: deleteDialogCallback,
-                      }),
+                    deleteCallback: deleteDialogCallback,
                   })
                 }}
               >
@@ -331,7 +315,6 @@ const AdyenIntegrationDetails = () => {
         </section>
       </IntegrationsPage.Container>
 
-      <AddAdyenDialog ref={addAdyenDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )

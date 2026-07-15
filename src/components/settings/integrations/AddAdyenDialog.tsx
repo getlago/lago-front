@@ -1,26 +1,28 @@
-import { gql } from '@apollo/client'
-import Stack from '@mui/material/Stack'
-import { useFormik } from 'formik'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
+import { gql, useApolloClient } from '@apollo/client'
+import { revalidateLogic } from '@tanstack/react-form'
+import { useRef } from 'react'
 import { generatePath } from 'react-router-dom'
-import { object, string } from 'yup'
+import { z } from 'zod'
 
-import { Button } from '~/components/designSystem/Button'
-import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
-import { TextInputField } from '~/components/form'
+import { useFormDialogOpeningDialog } from '~/components/dialogs/FormDialogOpeningDialog'
+import { DialogResult } from '~/components/dialogs/types'
 import { addToast } from '~/core/apolloClient'
+import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { ADYEN_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import {
   AddAdyenPaymentProviderInput,
   AddAdyenProviderDialogFragment,
   AdyenIntegrationDetailsFragmentDoc,
+  GetAdyenIntegrationsListDocument,
   LagoApiError,
   useAddAdyenApiKeyMutation,
+  useDeleteAdyenIntegrationMutation,
   useGetProviderByCodeForAdyenLazyQuery,
   useUpdateAdyenApiKeyMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm } from '~/hooks/forms/useAppform'
 
 gql`
   fragment AddAdyenProviderDialog on AdyenProvider {
@@ -74,30 +76,53 @@ gql`
     }
   }
 
+  mutation deleteAdyenIntegration($input: DestroyPaymentProviderInput!) {
+    destroyPaymentProvider(input: $input) {
+      id
+    }
+  }
+
   ${AdyenIntegrationDetailsFragmentDoc}
 `
 
-type TAddAdyenDialogProps = Partial<{
-  onDelete: (provider: AddAdyenProviderDialogFragment) => void
-  provider: AddAdyenProviderDialogFragment
-}>
+const ADD_ADYEN_FORM_ID = 'form-add-adyen-integration'
 
-export interface AddAdyenDialogRef {
-  openDialog: (props?: TAddAdyenDialogProps) => unknown
-  closeDialog: () => unknown
+type OpenAddAdyenDialogData = {
+  provider?: AddAdyenProviderDialogFragment
+  deleteCallback?: () => void
 }
 
-export const AddAdyenDialog = forwardRef<AddAdyenDialogRef>((_, ref) => {
+const defaultFormValues: AddAdyenPaymentProviderInput = {
+  name: '',
+  code: '',
+  apiKey: '',
+  hmacKey: '',
+  livePrefix: '',
+  merchantAccount: '',
+}
+
+const validationSchema = z.object({
+  name: z.string(),
+  code: z.string().min(1),
+  apiKey: z.string().min(1),
+  hmacKey: z.string().optional(),
+  livePrefix: z.string().optional(),
+  merchantAccount: z.string().min(1),
+})
+
+export const useAddAdyenDialog = () => {
+  const formDialogOpeningDialog = useFormDialogOpeningDialog()
   const { translate } = useInternationalization()
   const navigate = useNavigate()
-  const dialogRef = useRef<DialogRef>(null)
-  const [localData, setLocalData] = useState<TAddAdyenDialogProps | undefined>(undefined)
-  const adyenProvider = localData?.provider
-  const isEdition = !!adyenProvider
+  const client = useApolloClient()
+
+  const dataRef = useRef<OpenAddAdyenDialogData | null>(null)
+  const successRef = useRef(false)
 
   const [addApiKey] = useAddAdyenApiKeyMutation({
     onCompleted({ addAdyenPaymentProvider }) {
       if (addAdyenPaymentProvider?.id) {
+        successRef.current = true
         navigate(
           generatePath(ADYEN_INTEGRATION_DETAILS_ROUTE, {
             integrationId: addAdyenPaymentProvider.id,
@@ -116,6 +141,7 @@ export const AddAdyenDialog = forwardRef<AddAdyenDialogRef>((_, ref) => {
   const [updateApiKey] = useUpdateAdyenApiKeyMutation({
     onCompleted({ updateAdyenPaymentProvider }) {
       if (updateAdyenPaymentProvider?.id) {
+        successRef.current = true
         addToast({
           message: translate('text_645d071272418a14c1c76a3e'),
           severity: 'success',
@@ -126,28 +152,22 @@ export const AddAdyenDialog = forwardRef<AddAdyenDialogRef>((_, ref) => {
 
   const [getAdyenProviderByCode] = useGetProviderByCodeForAdyenLazyQuery()
 
-  const formikProps = useFormik<AddAdyenPaymentProviderInput>({
-    initialValues: {
-      name: adyenProvider?.name || '',
-      code: adyenProvider?.code || '',
-      apiKey: adyenProvider?.apiKey || '',
-      hmacKey: adyenProvider?.hmacKey || undefined,
-      livePrefix: adyenProvider?.livePrefix || undefined,
-      merchantAccount: adyenProvider?.merchantAccount || '',
+  const [deleteAdyen] = useDeleteAdyenIntegrationMutation()
+
+  const form = useAppForm({
+    defaultValues: defaultFormValues,
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: validationSchema,
     },
-    validationSchema: object().shape({
-      name: string(),
-      code: string().required(''),
-      apiKey: string().required(''),
-      hmacKey: string(),
-      livePrefix: string(),
-      merchantAccount: string().required(''),
-    }),
-    onSubmit: async ({ apiKey, merchantAccount, hmacKey, livePrefix, ...values }, formikBag) => {
+    onSubmit: async ({ value, formApi }) => {
+      const adyenProvider = dataRef.current?.provider
+      const isEdition = !!adyenProvider
+
       const res = await getAdyenProviderByCode({
         context: { silentErrorCodes: [LagoApiError.NotFound] },
         variables: {
-          code: values.code,
+          code: value.code,
         },
       })
       const isNotAllowedToMutate =
@@ -157,15 +177,26 @@ export const AddAdyenDialog = forwardRef<AddAdyenDialogRef>((_, ref) => {
           res.data?.paymentProvider?.id !== adyenProvider?.id)
 
       if (isNotAllowedToMutate) {
-        formikBag.setFieldError('code', translate('text_632a2d437e341dcc76817556'))
+        formApi.setErrorMap({
+          onDynamic: {
+            fields: {
+              code: {
+                message: translate('text_632a2d437e341dcc76817556'),
+                path: ['code'],
+              },
+            },
+          },
+        })
         return
       }
+
+      const { apiKey, merchantAccount, hmacKey, livePrefix, ...rest } = value
 
       if (isEdition) {
         await updateApiKey({
           variables: {
             input: {
-              ...values,
+              ...rest,
               id: adyenProvider?.id || '',
             },
           },
@@ -173,132 +204,170 @@ export const AddAdyenDialog = forwardRef<AddAdyenDialogRef>((_, ref) => {
       } else {
         await addApiKey({
           variables: {
-            input: { ...values, apiKey, merchantAccount, hmacKey, livePrefix },
+            input: { ...rest, apiKey, merchantAccount, hmacKey, livePrefix },
           },
         })
       }
-
-      dialogRef.current?.closeDialog()
     },
-    validateOnMount: true,
-    enableReinitialize: true,
   })
 
-  useImperativeHandle(ref, () => ({
-    openDialog: (data) => {
-      setLocalData(data)
-      dialogRef.current?.openDialog()
-    },
-    closeDialog: () => dialogRef.current?.closeDialog(),
-  }))
+  const handleSubmit = async (): Promise<DialogResult> => {
+    successRef.current = false
+    await form.handleSubmit()
 
-  return (
-    <Dialog
-      ref={dialogRef}
-      title={translate(
-        isEdition ? 'text_658461066530343fe1808cd9' : 'text_658466afe6140b469140e1fa',
-        {
-          name: adyenProvider?.name,
-        },
-      )}
-      description={translate(
-        isEdition ? 'text_65846a0ed9fdbd46c4afc42d' : 'text_658466afe6140b469140e1fc',
-      )}
-      onClose={formikProps.resetForm}
-      actions={({ closeDialog }) => (
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-          width={isEdition ? '100%' : 'inherit'}
-          spacing={3}
-        >
-          {isEdition && (
-            <Button
-              danger
-              variant="quaternary"
-              onClick={() => {
-                closeDialog()
-                if (adyenProvider) {
-                  localData?.onDelete?.(adyenProvider)
-                }
-              }}
-            >
-              {translate('text_65845f35d7d69c3ab4793dad')}
-            </Button>
-          )}
-          <Stack direction="row" spacing={3} alignItems="center">
-            <Button variant="quaternary" onClick={closeDialog}>
-              {translate('text_63eba8c65a6c8043feee2a14')}
-            </Button>
-            <Button
-              variant="primary"
-              disabled={!formikProps.isValid || !formikProps.dirty}
-              onClick={formikProps.submitForm}
-            >
+    if (!successRef.current) {
+      throw new Error('Submit failed')
+    }
+
+    return { reason: 'success' }
+  }
+
+  const openAddAdyenDialog = (data?: OpenAddAdyenDialogData) => {
+    dataRef.current = data ?? null
+    const adyenProvider = data?.provider
+    const isEdition = !!adyenProvider
+
+    form.reset()
+    if (adyenProvider) {
+      form.setFieldValue('name', adyenProvider.name || '')
+      form.setFieldValue('code', adyenProvider.code || '')
+      form.setFieldValue('apiKey', adyenProvider.apiKey || '')
+      form.setFieldValue('hmacKey', adyenProvider.hmacKey || '')
+      form.setFieldValue('livePrefix', adyenProvider.livePrefix || '')
+      form.setFieldValue('merchantAccount', adyenProvider.merchantAccount || '')
+    }
+
+    formDialogOpeningDialog
+      .open({
+        title: translate(
+          isEdition ? 'text_658461066530343fe1808cd9' : 'text_658466afe6140b469140e1fa',
+          {
+            name: adyenProvider?.name,
+          },
+        ),
+        description: translate(
+          isEdition ? 'text_65846a0ed9fdbd46c4afc42d' : 'text_658466afe6140b469140e1fc',
+        ),
+        children: (
+          <div className="mb-8 flex flex-col gap-6">
+            <div className="flex flex-row items-start gap-6">
+              <form.AppField name="name">
+                {(field) => (
+                  <field.TextInputField
+                    className="flex-1"
+                    // eslint-disable-next-line jsx-a11y/no-autofocus
+                    autoFocus
+                    label={translate('text_6584550dc4cec7adf861504d')}
+                    placeholder={translate('text_6584550dc4cec7adf861504f')}
+                  />
+                )}
+              </form.AppField>
+              <form.AppField name="code">
+                {(field) => (
+                  <field.TextInputField
+                    className="flex-1"
+                    label={translate('text_6584550dc4cec7adf8615051')}
+                    placeholder={translate('text_6584550dc4cec7adf8615053')}
+                  />
+                )}
+              </form.AppField>
+            </div>
+
+            <form.AppField name="apiKey">
+              {(field) => (
+                <field.TextInputField
+                  disabled={isEdition}
+                  label={translate('text_645d071272418a14c1c76a77')}
+                  placeholder={translate('text_645d071272418a14c1c76a83')}
+                />
+              )}
+            </form.AppField>
+            <form.AppField name="merchantAccount">
+              {(field) => (
+                <field.TextInputField
+                  disabled={isEdition}
+                  label={translate('text_645d071272418a14c1c76a8f')}
+                  placeholder={translate('text_645d071272418a14c1c76a9c')}
+                />
+              )}
+            </form.AppField>
+            {(!isEdition || !!adyenProvider.livePrefix) && (
+              <form.AppField name="livePrefix">
+                {(field) => (
+                  <field.TextInputField
+                    disabled={isEdition}
+                    label={translate('text_645d071272418a14c1c76aa6')}
+                    placeholder={translate('text_645d071272418a14c1c76ab0')}
+                  />
+                )}
+              </form.AppField>
+            )}
+            {(!isEdition || !!adyenProvider.hmacKey) && (
+              <form.AppField name="hmacKey">
+                {(field) => (
+                  <field.TextInputField
+                    disabled={isEdition}
+                    label={translate('text_645d071272418a14c1c76aba')}
+                    placeholder={translate('text_645d071272418a14c1c76ac4')}
+                  />
+                )}
+              </form.AppField>
+            )}
+          </div>
+        ),
+        closeOnError: false,
+        mainAction: (
+          <form.AppForm>
+            <form.SubmitButton>
               {translate(
                 isEdition ? 'text_645d071272418a14c1c76a67' : 'text_645d071272418a14c1c76ad8',
               )}
-            </Button>
-          </Stack>
-        </Stack>
-      )}
-    >
-      <div className="mb-8 flex flex-col gap-6">
-        <div className="flex flex-row items-start gap-6">
-          <TextInputField
-            className="flex-1"
-            // eslint-disable-next-line jsx-a11y/no-autofocus
-            autoFocus
-            formikProps={formikProps}
-            name="name"
-            label={translate('text_6584550dc4cec7adf861504d')}
-            placeholder={translate('text_6584550dc4cec7adf861504f')}
-          />
-          <TextInputField
-            className="flex-1"
-            formikProps={formikProps}
-            name="code"
-            label={translate('text_6584550dc4cec7adf8615051')}
-            placeholder={translate('text_6584550dc4cec7adf8615053')}
-          />
-        </div>
+            </form.SubmitButton>
+          </form.AppForm>
+        ),
+        form: {
+          id: ADD_ADYEN_FORM_ID,
+          submit: handleSubmit,
+        },
+        canOpenDialog: isEdition,
+        openDialogText: translate('text_65845f35d7d69c3ab4793dad'),
+        otherDialogProps: {
+          title: translate('text_658461066530343fe1808cd7', { name: adyenProvider?.name }),
+          description: translate('text_658461066530343fe1808cc2'),
+          colorVariant: 'danger',
+          actionText: translate('text_645d071272418a14c1c76a81'),
+          onAction: async () => {
+            const result = await deleteAdyen({
+              variables: { input: { id: adyenProvider?.id as string } },
+            })
 
-        <TextInputField
-          name="apiKey"
-          disabled={isEdition}
-          label={translate('text_645d071272418a14c1c76a77')}
-          placeholder={translate('text_645d071272418a14c1c76a83')}
-          formikProps={formikProps}
-        />
-        <TextInputField
-          name="merchantAccount"
-          disabled={isEdition}
-          label={translate('text_645d071272418a14c1c76a8f')}
-          placeholder={translate('text_645d071272418a14c1c76a9c')}
-          formikProps={formikProps}
-        />
-        {(!isEdition || !!adyenProvider.livePrefix) && (
-          <TextInputField
-            name="livePrefix"
-            disabled={isEdition}
-            label={translate('text_645d071272418a14c1c76aa6')}
-            placeholder={translate('text_645d071272418a14c1c76ab0')}
-            formikProps={formikProps}
-          />
-        )}
-        {(!isEdition || !!adyenProvider.hmacKey) && (
-          <TextInputField
-            name="hmacKey"
-            disabled={isEdition}
-            label={translate('text_645d071272418a14c1c76aba')}
-            placeholder={translate('text_645d071272418a14c1c76ac4')}
-            formikProps={formikProps}
-          />
-        )}
-      </div>
-    </Dialog>
-  )
-})
+            const destroyedId = result.data?.destroyPaymentProvider?.id
 
-AddAdyenDialog.displayName = 'AddAdyenDialog'
+            if (destroyedId) {
+              evictFromCache(client, {
+                id: destroyedId,
+                __typename: 'AdyenProvider',
+                listFieldName: 'paymentProviders',
+                listQueryDocument: GetAdyenIntegrationsListDocument,
+              })
+
+              data?.deleteCallback?.()
+
+              addToast({
+                message: translate('text_645d071272418a14c1c76b25'),
+                severity: 'success',
+              })
+            }
+          },
+        },
+      })
+      .then((response) => {
+        if (response.reason === 'close' || response.reason === 'open-other-dialog') {
+          form.reset()
+          dataRef.current = null
+        }
+      })
+  }
+
+  return { openAddAdyenDialog }
+}
