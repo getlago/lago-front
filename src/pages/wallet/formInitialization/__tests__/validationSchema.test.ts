@@ -97,6 +97,26 @@ describe('walletFormValidationSchema', () => {
       )
     })
 
+    it('skips the bounds check when the max bound is emptied', () => {
+      // '' bound counts as absent (old runtime: '' → undefined) — otherwise
+      // Number('') = 0 turns any paid amount into a false "above-max"
+      const topLevel = walletFormValidationSchema.safeParse(
+        baseForm({ rateAmount: '1', paidCredits: '50', paidTopUpMaxAmountCents: '' }),
+      )
+
+      expect(topLevel.success).toBe(true)
+
+      const ruleLevel = walletFormValidationSchema.safeParse(
+        baseForm({
+          rateAmount: '1',
+          paidTopUpMaxAmountCents: '',
+          recurringTransactionRules: [baseRule({ paidCredits: '5' })],
+        }),
+      )
+
+      expect(ruleLevel.success).toBe(true)
+    })
+
     it('skips the min/max cross-check when one side is emptied', () => {
       const result = walletFormValidationSchema.safeParse(
         baseForm({ paidTopUpMinAmountCents: '100', paidTopUpMaxAmountCents: '' }),

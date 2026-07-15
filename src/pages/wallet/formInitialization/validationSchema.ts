@@ -89,8 +89,12 @@ export const walletFormValidationSchema = z.custom<TWalletDataForm>().superRefin
       skip: !!ignorePaidTopUpLimitsOnCreation,
       paidCredits: (paidCredits ?? undefined) as string | undefined,
       rateAmount,
-      paidTopUpMinAmountCents: (paidTopUpMinAmountCents ?? undefined) as string | undefined,
-      paidTopUpMaxAmountCents: (paidTopUpMaxAmountCents ?? undefined) as string | undefined,
+      // emptied bounds ('') count as absent (old runtime: '' → undefined),
+      // otherwise Number('') = 0 turns any amount into a false "above-max"
+      paidTopUpMinAmountCents: (prepared(paidTopUpMinAmountCents) ?? undefined) as
+        string | undefined,
+      paidTopUpMaxAmountCents: (prepared(paidTopUpMaxAmountCents) ?? undefined) as
+        string | undefined,
       currency,
     })?.error
   ) {
@@ -199,8 +203,11 @@ export const walletFormValidationSchema = z.custom<TWalletDataForm>().superRefin
       skip: !!ignorePaidTopUpLimits,
       paidCredits: (rulePaidCredits ?? undefined) as string | undefined,
       rateAmount,
-      paidTopUpMinAmountCents: (paidTopUpMinAmountCents ?? undefined) as string | undefined,
-      paidTopUpMaxAmountCents: (paidTopUpMaxAmountCents ?? undefined) as string | undefined,
+      // same '' → absent semantics as the top-level bounds check above
+      paidTopUpMinAmountCents: (prepared(paidTopUpMinAmountCents) ?? undefined) as
+        string | undefined,
+      paidTopUpMaxAmountCents: (prepared(paidTopUpMaxAmountCents) ?? undefined) as
+        string | undefined,
       currency,
     })?.error
 
