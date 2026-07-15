@@ -5,6 +5,7 @@ import { z } from 'zod'
 
 import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { DialogResult } from '~/components/dialogs/types'
+import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { addToast } from '~/core/apolloClient'
 import {
   EditCustomerDunningCampaignFragment,
@@ -108,7 +109,7 @@ const DialogContent = withForm({
     const behavior = useStore(form.store, (state) => state.values.behavior)
 
     return (
-      <div className="mb-8 not-last-child:mb-4">
+      <div className="p-6 not-last-child:mb-4">
         <form.AppField name="behavior">
           {(field) => (
             <field.RadioField
@@ -243,6 +244,7 @@ export const useEditCustomerDunningCampaignDialog = () => {
         description: translate('text_1729543665907gw6pj8jsj3z'),
         children: <DialogContent customer={customer} form={form} />,
         closeOnError: false,
+        onEntered: focusFirstInput,
         mainAction: (
           <form.AppForm>
             <form.SubmitButton>{translate('text_17295436903260tlyb1gp1i7')}</form.SubmitButton>
