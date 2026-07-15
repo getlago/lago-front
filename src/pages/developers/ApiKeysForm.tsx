@@ -413,7 +413,7 @@ const ApiKeysForm = () => {
                     },
                     {
                       key: 'canRead',
-                      minWidth: 176,
+                      minWidth: 180,
                       title: (
                         <Checkbox
                           canBeIndeterminate
@@ -461,7 +461,7 @@ const ApiKeysForm = () => {
                     },
                     {
                       key: 'canWrite',
-                      minWidth: 150,
+                      minWidth: 154,
                       title: (
                         <Checkbox
                           canBeIndeterminate
