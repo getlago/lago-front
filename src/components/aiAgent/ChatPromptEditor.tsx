@@ -6,6 +6,7 @@ import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
 import { Typography } from '~/components/designSystem/Typography'
 import { TextInputField } from '~/components/form'
+import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import { CreateAiConversationInput } from '~/generated/graphql'
 import { AGENT_TYPE_LABELS, AiAgentTypeEnum, useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -67,11 +68,17 @@ export const ChatPromptEditor: FC<ChatPromptEditorProps> = ({
   const isWaitingForResponse = state.isLoading || state.isStreaming
   const canSubmit = !!formikProps.values.message && !isWaitingForResponse && !disabled
 
-  const agentOptions = Object.values(AiAgentTypeEnum).map((value) => ({
-    value,
-    label: translate(AGENT_TYPE_LABELS[value]),
-  }))
+  const agentOptions = Object.values(AiAgentTypeEnum)
+    .filter(
+      (value) =>
+        value !== AiAgentTypeEnum.finance || isFeatureFlagActive(FeatureFlags.AI_FINANCE_ASSISTANT),
+    )
+    .map((value) => ({
+      value,
+      label: translate(AGENT_TYPE_LABELS[value]),
+    }))
   const selectedAgentLabel = agentOptions.find((option) => option.value === agentType)?.label
+  const showAgentSelector = agentOptions.length > 1
 
   return (
     <form
@@ -114,54 +121,56 @@ export const ChatPromptEditor: FC<ChatPromptEditorProps> = ({
         />
 
         <div className="absolute bottom-3 right-4 flex items-center gap-2">
-          <Popper
-            PopperProps={{
-              placement: 'top-end',
-              modifiers: [
-                {
-                  name: 'offset',
-                  enabled: true,
-                  options: {
-                    offset: [0, 8],
+          {showAgentSelector && (
+            <Popper
+              PopperProps={{
+                placement: 'top-end',
+                modifiers: [
+                  {
+                    name: 'offset',
+                    enabled: true,
+                    options: {
+                      offset: [0, 8],
+                    },
                   },
-                },
-              ],
-            }}
-            opener={
-              <div className="px-3" data-test={CHAT_PROMPT_EDITOR_AGENT_SELECTOR_TEST_ID}>
-                <Button
-                  className="disabled:!bg-transparent !text-grey-600 disabled:!text-grey-400"
-                  variant="inline"
-                  endIcon="chevron-down"
-                  endIconSize="small"
-                  size="small"
-                  disabled={isWaitingForResponse}
-                >
-                  <Typography variant="caption" color="grey600">
-                    {selectedAgentLabel}
-                  </Typography>
-                </Button>
-              </div>
-            }
-          >
-            {({ closePopper }) => (
-              <MenuPopper className="w-50">
-                {agentOptions.map((option) => (
+                ],
+              }}
+              opener={
+                <div className="px-3" data-test={CHAT_PROMPT_EDITOR_AGENT_SELECTOR_TEST_ID}>
                   <Button
-                    align="left"
-                    key={option.value}
-                    variant={agentType === option.value ? 'secondary' : 'quaternary'}
-                    onClick={() => {
-                      setAgentType(option.value)
-                      closePopper()
-                    }}
+                    className="disabled:!bg-transparent !text-grey-600 disabled:!text-grey-400"
+                    variant="inline"
+                    endIcon="chevron-down"
+                    endIconSize="small"
+                    size="small"
+                    disabled={isWaitingForResponse}
                   >
-                    {option.label}
+                    <Typography variant="caption" color="grey600">
+                      {selectedAgentLabel}
+                    </Typography>
                   </Button>
-                ))}
-              </MenuPopper>
-            )}
-          </Popper>
+                </div>
+              }
+            >
+              {({ closePopper }) => (
+                <MenuPopper className="w-50">
+                  {agentOptions.map((option) => (
+                    <Button
+                      align="left"
+                      key={option.value}
+                      variant={agentType === option.value ? 'secondary' : 'quaternary'}
+                      onClick={() => {
+                        setAgentType(option.value)
+                        closePopper()
+                      }}
+                    >
+                      {option.label}
+                    </Button>
+                  ))}
+                </MenuPopper>
+              )}
+            </Popper>
+          )}
 
           <button
             type="submit"

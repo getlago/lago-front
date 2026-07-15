@@ -1,6 +1,7 @@
 import { act, renderHook } from '@testing-library/react'
 import { ReactNode } from 'react'
 
+import { FeatureFlags, setFeatureFlags } from '~/core/utils/featureFlags'
 import { ChatRole, ChatStatus } from '~/hooks/aiAgent/aiAgentReducer'
 import {
   AI_AGENT_TYPE_LS_KEY,
@@ -18,6 +19,7 @@ const renderAiAgent = () => renderHook(() => useAiAgent(), { wrapper })
 describe('useAiAgent', () => {
   beforeEach(() => {
     localStorage.clear()
+    setFeatureFlags(FeatureFlags.AI_FINANCE_ASSISTANT)
   })
 
   describe('GIVEN the hook is used outside the provider', () => {
@@ -63,6 +65,34 @@ describe('useAiAgent', () => {
         const { result } = renderAiAgent()
 
         expect(result.current.agentType).toBe(AiAgentTypeEnum.finance)
+      })
+    })
+  })
+
+  describe('GIVEN the finance assistant feature flag is not present', () => {
+    beforeEach(() => {
+      setFeatureFlags([])
+    })
+
+    describe('WHEN the hook mounts', () => {
+      it('THEN should default to the billing agent even with a stored finance choice', () => {
+        localStorage.setItem(AI_AGENT_TYPE_LS_KEY, AiAgentTypeEnum.finance)
+
+        const { result } = renderAiAgent()
+
+        expect(result.current.agentType).toBe(AiAgentTypeEnum.billing)
+      })
+    })
+
+    describe('WHEN switching to the finance agent', () => {
+      it('THEN should ignore the switch', () => {
+        const { result } = renderAiAgent()
+
+        act(() => {
+          result.current.setAgentType(AiAgentTypeEnum.finance)
+        })
+
+        expect(result.current.agentType).toBe(AiAgentTypeEnum.billing)
       })
     })
   })
