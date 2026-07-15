@@ -306,3 +306,76 @@ describe('mapFormToUpdateInput', () => {
     expect(input.recurringTransactionRules?.[0]?.startedAt).toBe('2024-01-01T00:00:00Z')
   })
 })
+
+describe('currency precision (non-2-decimal currencies)', () => {
+  it('formats the default rateAmount without decimals for JPY (0-decimal)', () => {
+    const values = mapFromApiToForm({
+      wallet: undefined,
+      customerData,
+      currency: CurrencyEnum.Jpy,
+    })
+
+    expect(values.rateAmount).toBe('1')
+  })
+
+  it('deserializes JPY min/max bounds without dividing by 100', () => {
+    const values = mapFromApiToForm({
+      wallet: {
+        ...wallet,
+        currency: CurrencyEnum.Jpy,
+        paidTopUpMinAmountCents: '1000',
+        paidTopUpMaxAmountCents: '10000',
+      } as unknown as NonNullable<GetWalletInfosForWalletFormQuery['wallet']>,
+      customerData,
+      currency: CurrencyEnum.Jpy,
+    })
+
+    // JPY has 0 decimals: "cents" are whole units
+    expect(values.paidTopUpMinAmountCents).toBe(1000)
+    expect(values.paidTopUpMaxAmountCents).toBe(10000)
+  })
+
+  it('serializes JPY min/max bounds back without multiplying by 100', () => {
+    const input = mapFormToCreateInput(
+      baseForm({
+        currency: CurrencyEnum.Jpy,
+        paidTopUpMinAmountCents: 1000,
+        paidTopUpMaxAmountCents: 10000,
+      }),
+      'customer-id',
+    )
+
+    expect(input.paidTopUpMinAmountCents).toBe(1000)
+    expect(input.paidTopUpMaxAmountCents).toBe(10000)
+  })
+
+  it('serializes 3-decimal currencies (BHD) with a 1000 factor', () => {
+    const input = mapFormToCreateInput(
+      baseForm({ currency: CurrencyEnum.Bhd, paidTopUpMaxAmountCents: 12.345 }),
+      'customer-id',
+    )
+
+    expect(input.paidTopUpMaxAmountCents).toBe(12345)
+  })
+
+  it('round-trips EUR amounts through deserialize/serialize', () => {
+    const values = mapFromApiToForm({
+      wallet: {
+        ...wallet,
+        currency: CurrencyEnum.Eur,
+        paidTopUpMinAmountCents: '12345',
+      } as unknown as NonNullable<GetWalletInfosForWalletFormQuery['wallet']>,
+      customerData,
+      currency: CurrencyEnum.Eur,
+    })
+
+    expect(values.paidTopUpMinAmountCents).toBe(123.45)
+
+    const input = mapFormToUpdateInput(
+      baseForm({ currency: CurrencyEnum.Eur, paidTopUpMinAmountCents: 123.45 }),
+      'wallet-id',
+    )
+
+    expect(input.paidTopUpMinAmountCents).toBe(12345)
+  })
+})
