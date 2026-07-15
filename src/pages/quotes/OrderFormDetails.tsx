@@ -89,7 +89,7 @@ const OrderFormDetails = () => {
           {loading ? (
             <FormLoadingSkeleton id="order-form-details" />
           ) : (
-            <div className="flex flex-col gap-12">
+            <div className="flex flex-col">
               <div className="flex flex-col gap-1">
                 <Typography variant="headline" color="grey700">
                   {translate('text_17828094623997l9tqj385k5', { orderFormNumber })}

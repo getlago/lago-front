@@ -215,7 +215,7 @@ const SignOrderForm = () => {
           {loading ? (
             <FormLoadingSkeleton id="sign-order-form" />
           ) : (
-            <div className="flex flex-col gap-12">
+            <div className="flex flex-col">
               <Alert data-test={SIGN_ORDER_FORM_ALERT_TEST_ID} type="info">
                 <Typography className="text-grey-700">
                   {translate('text_1781686594125tgfd5ypl1h6')}

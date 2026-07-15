@@ -6,6 +6,20 @@ import { BillingTimeEnum, PlanInterval } from '~/generated/graphql'
 export type BillingTimeHelperKey =
   { key: string; variables?: Record<string, string | number> } | undefined
 
+const getDayBasedBillingKey = (
+  currentDay: number,
+  keys: { upTo28: string; day29: string; day30: string; otherwise: string },
+): BillingTimeHelperKey => {
+  if (currentDay <= 28) {
+    return { key: keys.upTo28, variables: { day: currentDay } }
+  } else if (currentDay === 29) {
+    return { key: keys.day29 }
+  } else if (currentDay === 30) {
+    return { key: keys.day30 }
+  }
+  return { key: keys.otherwise }
+}
+
 export const getBillingTimeHelperKey = (
   billingTime: BillingTimeEnum,
   subscriptionAt: string | undefined,
@@ -26,14 +40,12 @@ export const getBillingTimeHelperKey = (
         return { key: 'text_62ea7cd44cd4b14bb9ac1d7e' }
       }
 
-      if (currentDay <= 28) {
-        return { key: 'text_62ea7cd44cd4b14bb9ac1d82', variables: { day: currentDay } }
-      } else if (currentDay === 29) {
-        return { key: 'text_62ea7cd44cd4b14bb9ac1d86' }
-      } else if (currentDay === 30) {
-        return { key: 'text_62ea7cd44cd4b14bb9ac1d8a' }
-      }
-      return { key: 'text_62ea7cd44cd4b14bb9ac1d8e' }
+      return getDayBasedBillingKey(currentDay, {
+        upTo28: 'text_62ea7cd44cd4b14bb9ac1d82',
+        day29: 'text_62ea7cd44cd4b14bb9ac1d86',
+        day30: 'text_62ea7cd44cd4b14bb9ac1d8a',
+        otherwise: 'text_62ea7cd44cd4b14bb9ac1d8e',
+      })
 
     case PlanInterval.Yearly:
       if (billingTime === BillingTimeEnum.Calendar) {
@@ -70,14 +82,12 @@ export const getBillingTimeHelperKey = (
         return { key: 'text_64d6357b00dea100ad1cba34' }
       }
 
-      if (currentDay <= 28) {
-        return { key: 'text_64d6357b00dea100ad1cba36', variables: { day: currentDay } }
-      } else if (currentDay === 29) {
-        return { key: 'text_64d63ec2f6bd3f41a6e353ac' }
-      } else if (currentDay === 30) {
-        return { key: 'text_64d63ec2f6bd3f41a6e353b0' }
-      }
-      return { key: 'text_64d63ec2f6bd3f41a6e353b4' }
+      return getDayBasedBillingKey(currentDay, {
+        upTo28: 'text_64d6357b00dea100ad1cba36',
+        day29: 'text_64d63ec2f6bd3f41a6e353ac',
+        day30: 'text_64d63ec2f6bd3f41a6e353b0',
+        otherwise: 'text_64d63ec2f6bd3f41a6e353b4',
+      })
 
     case PlanInterval.Weekly:
     default:

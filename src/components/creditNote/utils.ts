@@ -175,11 +175,6 @@ export const formatCreditNoteTypesForDisplay = (translatedTypes: string[]): stri
   return `${firstType}, ${middleTypes.join(', ')} & ${lastType}`
 }
 
-const TRANSLATIONS_MAP_ISSUE_CREDIT_NOTE_DISABLED = {
-  terminatedWallet: 'text_172908299496461z9ejmm2j7',
-  fullyCovered: 'text_1729082994964zccpjmtotdy',
-}
-
 // ----------------------------------------
 // Invoice Amount Helpers
 // ----------------------------------------
@@ -252,27 +247,16 @@ export const isCreditNoteCreationDisabled = (
 export const createCreditNoteForInvoiceButtonProps = ({
   invoiceType,
   associatedActiveWalletPresent,
-  creditableAmountCents,
-  refundableAmountCents,
-  offsettableAmountCents,
 }: Partial<Invoice>) => {
-  const isAssociatedWithTerminatedWallet =
+  // The fully-covered case is handled on the create-credit-note page itself (form + danger
+  // alert), so no entry point pre-disables for it. The only remaining reason to disable the
+  // action is a prepaid-credits invoice whose wallet has been terminated.
+  const disabledIssueCreditNoteButton =
     invoiceType === InvoiceTypeEnum.Credit && !associatedActiveWalletPresent
 
-  const disabledIssueCreditNoteButton = isCreditNoteCreationDisabled({
-    creditableAmountCents,
-    refundableAmountCents,
-    offsettableAmountCents,
-  })
-
-  const getDisabledReason = (): keyof typeof TRANSLATIONS_MAP_ISSUE_CREDIT_NOTE_DISABLED => {
-    if (isAssociatedWithTerminatedWallet) return 'terminatedWallet'
-    return 'fullyCovered'
-  }
-
-  const disabledIssueCreditNoteButtonLabel =
-    disabledIssueCreditNoteButton &&
-    TRANSLATIONS_MAP_ISSUE_CREDIT_NOTE_DISABLED[getDisabledReason()]
+  const disabledIssueCreditNoteButtonLabel = disabledIssueCreditNoteButton
+    ? 'text_172908299496461z9ejmm2j7'
+    : undefined
 
   return {
     disabledIssueCreditNoteButton,
