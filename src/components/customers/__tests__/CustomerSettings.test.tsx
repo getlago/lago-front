@@ -78,13 +78,11 @@ jest.mock('~/components/customers/DeleteCustomerVatRateDialog', () => ({
   }),
 }))
 
-jest.mock('~/components/customers/EditCustomerDunningCampaignDialog', () => {
-  const React = jest.requireActual('react')
-  const MockDialog = React.forwardRef(() => null)
-
-  MockDialog.displayName = 'EditCustomerDunningCampaignDialog'
-  return { EditCustomerDunningCampaignDialog: MockDialog }
-})
+jest.mock('~/components/customers/EditCustomerDunningCampaignDialog', () => ({
+  useEditCustomerDunningCampaignDialog: () => ({
+    openEditCustomerDunningCampaignDialog: jest.fn(),
+  }),
+}))
 
 jest.mock('~/components/customers/EditCustomerInvoiceCustomSectionsDialog', () => {
   const React = jest.requireActual('react')

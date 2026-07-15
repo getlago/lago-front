@@ -8,10 +8,7 @@ import { useDeleteCustomerGracePeriodeDialog } from '~/components/customers/Dele
 import { useDeleteCustomerNetPaymentTermDialog } from '~/components/customers/DeleteCustomerNetPaymentTermDialog'
 import { useDeleteCustomerVatRateDialog } from '~/components/customers/DeleteCustomerVatRateDialog'
 import { useEditCustomerDocumentLocaleDialog } from '~/components/customers/EditCustomerDocumentLocaleDialog'
-import {
-  EditCustomerDunningCampaignDialog,
-  EditCustomerDunningCampaignDialogRef,
-} from '~/components/customers/EditCustomerDunningCampaignDialog'
+import { useEditCustomerDunningCampaignDialog } from '~/components/customers/EditCustomerDunningCampaignDialog'
 import {
   EditCustomerInvoiceCustomSectionsDialog,
   EditCustomerInvoiceCustomSectionsDialogRef,
@@ -202,7 +199,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
   const editInvoiceGracePeriodDialogRef = useRef<EditCustomerInvoiceGracePeriodDialogRef>(null)
   const { openDeleteCustomerGracePeriodeDialog } = useDeleteCustomerGracePeriodeDialog()
   const { openEditCustomerDocumentLocaleDialog } = useEditCustomerDocumentLocaleDialog()
-  const editCustomerDunningCampaignDialogRef = useRef<EditCustomerDunningCampaignDialogRef>(null)
+  const { openEditCustomerDunningCampaignDialog } = useEditCustomerDunningCampaignDialog()
   const editCustomerInvoiceCustomSectionsDialogRef =
     useRef<EditCustomerInvoiceCustomSectionsDialogRef>(null)
   const { openDeleteCustomerDocumentLocaleDialog } = useDeleteCustomerDocumentLocaleDialog()
@@ -492,7 +489,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                       <Button
                         disabled={loading}
                         variant="inline"
-                        onClick={() => editCustomerDunningCampaignDialogRef?.current?.openDialog()}
+                        onClick={() => customer && openEditCustomerDunningCampaignDialog(customer)}
                       >
                         {translate('text_63e51ef4985f0ebd75c212fc')}
                       </Button>
@@ -945,11 +942,6 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
             ref={editInvoiceGracePeriodDialogRef}
             invoiceGracePeriod={customer?.invoiceGracePeriod}
           />
-          <EditCustomerDunningCampaignDialog
-            ref={editCustomerDunningCampaignDialogRef}
-            customer={customer}
-          />
-
           <EditCustomerIssuingDatePolicyDialog
             ref={editIssuingDatePolicyDialogRef}
             customer={customer}
