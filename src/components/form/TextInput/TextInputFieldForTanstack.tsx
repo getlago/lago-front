@@ -26,9 +26,9 @@ const TextInputField = ({
   const { translate } = useInternationalization()
 
   const errorMap = useStore(field.store, (state) => state.meta.errorMap)
-  const allErrors = useStore(field.store, (state) => state.meta.errors)
-    .map((e) => e.message)
-    .filter(Boolean)
+  const allErrors = useStore(field.store, (state) => state.meta.errors).flatMap((e) =>
+    e.message ? [e.message] : [],
+  )
 
   // Filter errors if showOnlyErrors is provided
   const filteredErrors = showOnlyErrors

@@ -152,7 +152,7 @@ export const MultipleComboBox = ({
         }
 
         return tagValues.map((option, index) => {
-          const tagOptions = getTagProps({ index })
+          const { key, ...tagProps } = getTagProps({ index })
           // Happens when `freeSolo` is true and user types a value that is not in the list and press enter
           const optionValue = typeof option === 'string' ? option : option.value
           const optionLabel = typeof option === 'string' ? option : option.label || optionValue
@@ -160,14 +160,7 @@ export const MultipleComboBox = ({
           // Happens when `freeSolo` is true and we click on the option instead of submitting by using the enter key
           const labelToUse = option.customValue ? optionValue : optionLabel
 
-          return (
-            <Chip
-              {...tagOptions}
-              className="my-2 ml-2 mr-0"
-              key={tagOptions.key}
-              label={labelToUse}
-            />
-          )
+          return <Chip key={key} {...tagProps} className="my-2 ml-2 mr-0" label={labelToUse} />
         })
       }}
       componentsProps={{

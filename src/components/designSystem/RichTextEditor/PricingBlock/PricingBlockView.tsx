@@ -85,7 +85,11 @@ export const PricingBlockView = ({ node, updateAttributes }: NodeViewProps) => {
   const isEmpty = entityIds.length === 0
 
   const lookupIds = localEntityIds.length > 0 ? localEntityIds : entityIds
-  const resolvedEntities = lookupIds.map((id) => entities[id]).filter(Boolean)
+  const resolvedEntities = lookupIds.flatMap((id) => {
+    const entity = entities[id]
+
+    return entity ? [entity] : []
+  })
   const hasResolved = resolvedEntities.length > 0
 
   // Preview mode: dispatch by pricing type

@@ -68,11 +68,11 @@ export const RadioGroupField: FC<RadioGroupFieldProps> = ({
           ({ value: optionValue, label: optionLabel, disabled: optionDisabled, ...props }) => {
             return (
               <RadioField
+                key={`radio-group-field-${optionValue}`}
                 {...props}
                 name={name}
                 formikProps={formikProps}
                 disabled={disabled || optionDisabled}
-                key={`radio-group-field-${optionValue}`}
                 label={optionLabel ?? optionValue}
                 labelVariant={optionLabelVariant}
                 value={optionValue}

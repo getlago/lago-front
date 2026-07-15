@@ -17,9 +17,15 @@ export const getMostRecentPaymentMethodId = (
     return undefined
   }
 
-  const paymentWithMethodId = [...payments]
+  const paymentWithMethodId = payments
     .filter((payment) => !!payment.paymentMethodId)
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]
+    .reduce<PaymentWithMethodId | undefined>((mostRecent, payment) => {
+      if (!mostRecent) return payment
+
+      return new Date(payment.createdAt).getTime() > new Date(mostRecent.createdAt).getTime()
+        ? payment
+        : mostRecent
+    }, undefined)
 
   return paymentWithMethodId?.paymentMethodId ?? undefined
 }

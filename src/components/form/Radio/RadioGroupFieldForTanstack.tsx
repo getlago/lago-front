@@ -71,10 +71,10 @@ const RadioGroupField: FC<RadioGroupFieldProps> = ({
           ({ value: optionValue, label: optionLabel, disabled: optionDisabled, ...props }) => {
             return (
               <Radio
+                key={`radio-group-field-${optionValue}`}
                 {...props}
                 name={field.name}
                 disabled={disabled || optionDisabled}
-                key={`radio-group-field-${optionValue}`}
                 label={optionLabel ?? String(optionValue)}
                 labelVariant={optionLabelVariant}
                 value={optionValue}
