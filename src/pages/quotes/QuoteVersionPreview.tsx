@@ -121,7 +121,7 @@ const QuoteVersionPreview = () => {
           {loading ? (
             <FormLoadingSkeleton id="quote-version-preview" />
           ) : (
-            <div className="flex flex-col gap-12">
+            <div className="flex flex-col">
               <div className="flex flex-col gap-1">
                 <Typography variant="headline">
                   {translate('text_17827453798351lxoetcgnjt', {

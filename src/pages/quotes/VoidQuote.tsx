@@ -208,7 +208,7 @@ const VoidQuote = () => {
           {loading ? (
             <FormLoadingSkeleton id="void-quote" />
           ) : (
-            <div className="flex flex-col gap-12">
+            <div className="flex flex-col">
               <Alert data-test={VOID_QUOTE_ALERT_TEST_ID} type="warning">
                 <Typography className="text-grey-700">
                   {translate('text_1776414006125a67i2j1xl8s')}

@@ -202,7 +202,7 @@ const EditOrderFormContent = ({ order, loading }: EditOrderFormContentProps) => 
           {loading || !order ? (
             <FormLoadingSkeleton id="edit-order" />
           ) : (
-            <div className="flex flex-col gap-12">
+            <div className="flex flex-col">
               <div className="flex flex-col gap-1">
                 <Typography variant="headline" color="grey700">
                   {translate('text_178272359198433nj9yyhjt2', { orderNumber: order.number })}
