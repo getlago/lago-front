@@ -17,7 +17,7 @@ const baseForm = (overrides: Partial<TWalletDataForm> = {}): TWalletDataForm => 
   expirationAt: undefined,
   grantedCredits: '',
   name: '',
-  code: '',
+  code: 'wallet-code',
   transactionName: undefined,
   appliesTo: { feeTypes: [], billableMetrics: [] },
   paidCredits: '',
@@ -64,6 +64,12 @@ describe('walletFormValidationSchema', () => {
       const result = walletFormValidationSchema.safeParse(baseForm({ rateAmount: '' }))
 
       expect(issuePaths(result)).toContain('rateAmount')
+    })
+
+    it('requires code', () => {
+      const result = walletFormValidationSchema.safeParse(baseForm({ code: '' }))
+
+      expect(issuePaths(result)).toContain('code')
     })
 
     it('rejects a badly formatted expirationAt', () => {
