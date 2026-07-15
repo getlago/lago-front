@@ -1,11 +1,13 @@
-import { screen } from '@testing-library/react'
+import { act, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import {
   CHAT_PROMPT_EDITOR_AGENT_SELECTOR_TEST_ID,
+  CHAT_PROMPT_EDITOR_GRADIENT_TEST_ID,
   CHAT_PROMPT_EDITOR_INPUT_TEST_ID,
   CHAT_PROMPT_EDITOR_SUBMIT_BUTTON_TEST_ID,
   ChatPromptEditor,
+  GRADIENT_MIN_TEXTAREA_HEIGHT,
 } from '~/components/aiAgent/ChatPromptEditor'
 import { ChatState } from '~/hooks/aiAgent/aiAgentReducer'
 import { AGENT_TYPE_LABELS, AiAgentTypeEnum } from '~/hooks/aiAgent/useAiAgent'
@@ -44,9 +46,42 @@ const getInput = () => screen.getByTestId(CHAT_PROMPT_EDITOR_INPUT_TEST_ID) as H
 const getSubmitButton = () =>
   screen.getByTestId(CHAT_PROMPT_EDITOR_SUBMIT_BUTTON_TEST_ID) as HTMLButtonElement
 
+// jest-setup's global ResizeObserver stub never fires; keep per-instance callbacks and
+// observed targets so tests can simulate a textarea resize on demand.
+let resizeObservers: { callback: ResizeObserverCallback; targets: Element[] }[] = []
+
+class ResizeObserverMock {
+  targets: Element[] = []
+  callback: ResizeObserverCallback
+
+  constructor(callback: ResizeObserverCallback) {
+    this.callback = callback
+    resizeObservers.push(this)
+  }
+  observe(target: Element) {
+    this.targets.push(target)
+  }
+  unobserve() {}
+  disconnect() {}
+}
+
+const resizeTextareaTo = (height: number) => {
+  const textarea = getInput()
+
+  Object.defineProperty(textarea, 'offsetHeight', { configurable: true, value: height })
+
+  act(() => {
+    resizeObservers
+      .filter(({ targets }) => targets.includes(textarea))
+      .forEach(({ callback }) => callback([], undefined as unknown as ResizeObserver))
+  })
+}
+
 describe('ChatPromptEditor', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    resizeObservers = []
+    global.ResizeObserver = ResizeObserverMock as unknown as typeof ResizeObserver
     mockAgentType = AiAgentTypeEnum.billing
     mockState = buildState()
   })
@@ -153,6 +188,39 @@ describe('ChatPromptEditor', () => {
 
         expect(getInput()).toBeDisabled()
         expect(getSubmitButton()).toBeDisabled()
+      })
+    })
+  })
+
+  describe('GIVEN the gradient above the prompt input', () => {
+    describe('WHEN the textarea is below the height threshold', () => {
+      it('THEN should not display the gradient', () => {
+        render(<ChatPromptEditor onSubmit={jest.fn()} />)
+
+        resizeTextareaTo(GRADIENT_MIN_TEXTAREA_HEIGHT - 1)
+
+        expect(screen.queryByTestId(CHAT_PROMPT_EDITOR_GRADIENT_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the textarea reaches the height threshold', () => {
+      it('THEN should display the gradient', () => {
+        render(<ChatPromptEditor onSubmit={jest.fn()} />)
+
+        resizeTextareaTo(GRADIENT_MIN_TEXTAREA_HEIGHT)
+
+        expect(screen.getByTestId(CHAT_PROMPT_EDITOR_GRADIENT_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the textarea shrinks back below the threshold', () => {
+      it('THEN should hide the gradient again', () => {
+        render(<ChatPromptEditor onSubmit={jest.fn()} />)
+
+        resizeTextareaTo(GRADIENT_MIN_TEXTAREA_HEIGHT)
+        resizeTextareaTo(GRADIENT_MIN_TEXTAREA_HEIGHT - 1)
+
+        expect(screen.queryByTestId(CHAT_PROMPT_EDITOR_GRADIENT_TEST_ID)).not.toBeInTheDocument()
       })
     })
   })
