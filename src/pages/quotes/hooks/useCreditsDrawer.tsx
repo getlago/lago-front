@@ -9,6 +9,7 @@ import { CreditsDrawerContent } from '~/components/designSystem/RichTextEditor/C
 import type { CreditsBlockAttributes } from '~/components/designSystem/RichTextEditor/extensions/CreditsBlock.schema'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
 import { isWalletItemPersistable } from '~/components/wallets/tanstackForm/walletFormSchema'
+import { addToast } from '~/core/apolloClient'
 import {
   type BillingItemsPayload,
   mergeWalletCredits,
@@ -21,17 +22,27 @@ import {
 } from '~/core/serializers/serializeQuoteWallets'
 import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import type { SavePricingResult } from '~/pages/quotes/EditQuote'
+import { QUOTE_SAVE_FAILED_TOAST_KEY } from '~/pages/quotes/utils/quoteSaveErrorKeys'
 
 const MAX_WALLETS = 5
 
 interface PendingSave {
   onSave: (attrs: CreditsBlockAttributes) => void
   localId: string
+  // Whether the drawer opened on an existing block (edit) vs a fresh insertion.
+  // A failed edit must NOT roll back (remove) the block — the resubmit path is
+  // `updateAttributes`, which can't resurrect a deleted node.
+  isEdit: boolean
 }
 
 export const useCreditsDrawer = (
   billingItems: BillingItemsPayload | null | undefined,
-  options: { currency: CurrencyEnum; onPersist?: (billingItems: BillingItemsPayload) => void },
+  options: {
+    currency: CurrencyEnum
+    onPersist?: (billingItems: BillingItemsPayload) => void | Promise<SavePricingResult>
+    onRemoveBlock?: (localId: string) => void
+  },
 ): {
   onCreditsCommand: OnCreditsCommand
   isCreditsDisabled: () => boolean
@@ -40,9 +51,9 @@ export const useCreditsDrawer = (
 } => {
   const { translate } = useInternationalization()
   const drawer = useFormDrawer()
-  const { currency, onPersist } = options
+  const { currency, onPersist, onRemoveBlock } = options
 
-  const initial = fromWallets(billingItems?.wallet_credits ?? [])
+  const initial = fromWallets(billingItems?.walletCredits ?? [])
 
   const itemsRef = useRef<Record<string, WalletFormItem>>(
     Object.fromEntries(initial.walletItems.map((w) => [w.localId, w])),
@@ -62,16 +73,16 @@ export const useCreditsDrawer = (
 
   const rebuild = useCallback((): BillingItemsPayload => {
     const items = Object.values(itemsRef.current)
-    const wallet_credits = toWallets(items, currency)
-    const { entities: nextEntities } = fromWallets(wallet_credits)
+    const walletCredits = toWallets(items, currency)
+    const { entities: nextEntities } = fromWallets(walletCredits)
 
     setEntities(nextEntities)
 
-    // Sibling-preserving: replaces ONLY wallet_credits; plans/addons/coupons pass through.
-    return mergeWalletCredits(latestBillingItemsRef.current, wallet_credits)
+    // Sibling-preserving: replaces ONLY walletCredits; plans/addOns/coupons pass through.
+    return mergeWalletCredits(latestBillingItemsRef.current, walletCredits)
   }, [currency])
 
-  const handleSave = useCallback(() => {
+  const handleSave = useCallback(async () => {
     const pending = pendingSaveRef.current
 
     if (!pending) return
@@ -80,14 +91,37 @@ export const useCreditsDrawer = (
 
     if (!isWalletItemPersistable(draft)) return // main-drawer save gate
 
-    itemsRef.current[pending.localId] = { ...draft, localId: pending.localId }
+    const { onSave, localId, isEdit } = pending
+    const nextItem: WalletFormItem = { ...draft, localId }
 
-    const updated = rebuild()
+    // Build the prospective payload WITHOUT committing itemsRef — the commit
+    // only happens once onPersist confirms the save succeeded. Sibling-preserving:
+    // replaces ONLY walletCredits; plans/addOns/coupons pass through.
+    const prospectiveItems = { ...itemsRef.current, [localId]: nextItem }
+    const walletCredits = toWallets(Object.values(prospectiveItems), currency)
+    const prospectivePayload = mergeWalletCredits(latestBillingItemsRef.current, walletCredits)
 
-    pending.onSave({ localId: pending.localId })
-    onPersist?.(updated)
-    drawer.close()
-  }, [drawer, onPersist, rebuild])
+    // Insert the block, then save.
+    onSave({ localId })
+
+    const result = (await onPersist?.(prospectivePayload)) ?? { ok: true }
+
+    if (result.ok) {
+      itemsRef.current[localId] = nextItem
+      rebuild()
+      drawer.close()
+
+      return
+    }
+
+    // Roll back only a newly inserted block; surface the error and keep the
+    // drawer open. Editing an existing block must NOT remove it (see PendingSave).
+    if (!isEdit) {
+      onRemoveBlock?.(localId)
+    }
+
+    addToast({ severity: 'danger', translateKey: QUOTE_SAVE_FAILED_TOAST_KEY })
+  }, [drawer, onPersist, onRemoveBlock, rebuild, currency])
 
   const onCreditsCommand = useCallback<OnCreditsCommand>(
     ({ onSave, editData }) => {
@@ -96,10 +130,13 @@ export const useCreditsDrawer = (
       const initialItem = existing ?? makeEmptyWalletItem(localId)
 
       draftRef.current = initialItem
-      pendingSaveRef.current = { onSave, localId }
+      pendingSaveRef.current = { onSave, localId, isEdit: !!editData }
 
       drawer.open({
         title: translate('text_1783352692385rxn8gajgtw4'),
+        // handleSave owns close: close on success, stay open (toast + rollback)
+        // on a failed save. See FormDrawer.closeOnSubmitSuccess.
+        closeOnSubmitSuccess: false,
         form: { id: 'credits-drawer-form', submit: handleSave },
         mainAction: (
           <Button data-test="credits-drawer-submit" type="submit">

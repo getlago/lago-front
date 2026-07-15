@@ -98,34 +98,34 @@ describe('serializeQuoteWallets', () => {
 describe('mergeWalletCredits — never drops sibling categories', () => {
   const siblings = {
     plans: [{ type: 'plan' }],
-    addons: [{ type: 'addon' }],
+    addOns: [{ type: 'add_on' }],
     coupons: [{ type: 'coupon' }],
   } as never
 
-  it('replaces only wallet_credits when creating/editing a wallet', () => {
+  it('replaces only walletCredits when creating/editing a wallet', () => {
     const walletCredits = toWallets([baseItem], CurrencyEnum.Eur)
     const result = mergeWalletCredits(siblings, walletCredits)
 
-    expect(result.wallet_credits).toHaveLength(1)
+    expect(result.walletCredits).toHaveLength(1)
     expect(result.plans).toEqual((siblings as { plans: unknown }).plans)
-    expect(result.addons).toEqual((siblings as { addons: unknown }).addons)
+    expect(result.addOns).toEqual((siblings as { addOns: unknown }).addOns)
     expect(result.coupons).toEqual((siblings as { coupons: unknown }).coupons)
   })
 
-  it('replaces only wallet_credits when deleting all wallets (empty array)', () => {
+  it('replaces only walletCredits when deleting all wallets (empty array)', () => {
     const result = mergeWalletCredits(
-      { ...(siblings as object), wallet_credits: toWallets([baseItem], CurrencyEnum.Eur) },
+      { ...(siblings as object), walletCredits: toWallets([baseItem], CurrencyEnum.Eur) },
       [],
     )
 
-    expect(result.wallet_credits).toEqual([])
+    expect(result.walletCredits).toEqual([])
     expect(result.plans).toEqual((siblings as { plans: unknown }).plans)
-    expect(result.addons).toEqual((siblings as { addons: unknown }).addons)
+    expect(result.addOns).toEqual((siblings as { addOns: unknown }).addOns)
     expect(result.coupons).toEqual((siblings as { coupons: unknown }).coupons)
   })
 
   it('tolerates null/undefined billingItems', () => {
-    expect(mergeWalletCredits(null, []).wallet_credits).toEqual([])
+    expect(mergeWalletCredits(null, []).walletCredits).toEqual([])
     expect(mergeWalletCredits(undefined, []).plans).toBeUndefined()
   })
 })

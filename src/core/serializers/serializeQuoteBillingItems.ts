@@ -38,11 +38,11 @@ export interface BillingItemsPayload {
   addOns?: BillingItemAddon[]
   plans?: BillingItemPlan[]
   coupons?: BillingItemCoupon[]
-  wallet_credits?: BillingItemWallet[]
+  walletCredits?: BillingItemWallet[]
 }
 
 /**
- * Replace ONLY the wallet_credits slice, preserving every sibling category
+ * Replace ONLY the walletCredits slice, preserving every sibling category
  * (plans/addons/coupons) untouched. This is the single guarantee that
  * creating/editing/deleting a wallet never drops other categories.
  * `useCreditsDrawer.rebuild` is the only caller and routes every mutation
@@ -51,7 +51,7 @@ export interface BillingItemsPayload {
 export const mergeWalletCredits = (
   billingItems: BillingItemsPayload | null | undefined,
   walletCredits: BillingItemWallet[],
-): BillingItemsPayload => ({ ...(billingItems ?? {}), wallet_credits: walletCredits })
+): BillingItemsPayload => ({ ...(billingItems ?? {}), walletCredits })
 
 // --- Serialization helpers ---
 

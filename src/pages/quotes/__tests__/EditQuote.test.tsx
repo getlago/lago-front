@@ -1239,7 +1239,7 @@ describe('EditQuote', () => {
     })
 
     describe('WHEN a saved credits block is deleted from the editor', () => {
-      it('THEN should save wallet_credits cleared while leaving plans/addons/coupons untouched', async () => {
+      it('THEN should save walletCredits cleared while leaving plans/addons/coupons untouched', async () => {
         // useCreditsDrawer is NOT mocked (unlike useDiscountDrawer) so this test
         // exercises the real syncCreditsBlocks -> mergeWalletCredits route.
         const originalPlans = [{ type: 'plan' }]
@@ -1257,9 +1257,9 @@ describe('EditQuote', () => {
               ...mockQuote.currentVersion,
               billingItems: {
                 plans: originalPlans,
-                addons: originalAddons,
+                addOns: originalAddons,
                 coupons: originalCoupons,
-                wallet_credits: walletCredits,
+                walletCredits: walletCredits,
               },
             },
           },
@@ -1282,9 +1282,9 @@ describe('EditQuote', () => {
             expect.objectContaining({
               billingItems: {
                 plans: originalPlans,
-                addons: originalAddons,
+                addOns: originalAddons,
                 coupons: originalCoupons,
-                wallet_credits: [],
+                walletCredits: [],
               },
             }),
             false,

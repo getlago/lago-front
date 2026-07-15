@@ -129,7 +129,10 @@ const EditQuote = () => {
   const { onPricingCommand, isPricingDisabled, entities, syncEntitiesWithBlocks } =
     isSubscriptionOrder ? subscriptionPricing : oneOffPricing
 
-  const quoteCurrency = quote?.customer?.currency ?? CurrencyEnum.Usd
+  // Discount + credits drawers price in the quote's own currency (matches the
+  // pricing drawers), not the customer's — the quote version currency is the
+  // source of truth for amounts shown/serialized in this quote.
+  const quoteCurrency = (quote?.currentVersion?.currency as CurrencyEnum) ?? CurrencyEnum.Usd
 
   // Stable ref so useDiscountDrawer can call savePricingBlock without a
   // forward-declaration error (savePricingBlock is defined below).
@@ -150,6 +153,11 @@ const EditQuote = () => {
   const credits = useCreditsDrawer(quote?.currentVersion?.billingItems, {
     currency: quoteCurrency,
     onPersist: (billingItems) => savePricingBlockRef.current(billingItems),
+    onRemoveBlock: (localId) => {
+      isRollingBackRef.current = true
+      removeBlockRef.current?.(localId)
+      isRollingBackRef.current = false
+    },
   })
 
   const mergedEntities = useMemo(
@@ -389,6 +397,11 @@ const EditQuote = () => {
 
   const handleCreditsBlocksChange = useCallback(
     (blocks: CreditsBlockAttributes[]) => {
+      // See handlePricingBlocksChange: skip reconciliation during a rollback so
+      // the failed wallet's cached payload isn't pruned, which would break a
+      // corrected resubmit.
+      if (isRollingBackRef.current) return
+
       const updated = credits.syncCreditsBlocks(blocks)
 
       if (updated) {

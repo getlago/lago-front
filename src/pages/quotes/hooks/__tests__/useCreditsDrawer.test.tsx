@@ -18,16 +18,16 @@ const wrapper = ({ children }: { children: React.ReactNode }) => <>{children}</>
 
 const withOneWallet: BillingItemsPayload = {
   plans: [{ type: 'plan' } as never],
-  addons: [{ type: 'addon' } as never],
+  addOns: [{ type: 'add_on' } as never],
   coupons: [{ type: 'coupon' } as never],
-  wallet_credits: toWallets(
+  walletCredits: toWallets(
     [{ ...makeEmptyWalletItem('wl_1'), rateAmount: '1', paidCredits: '10' }],
     CurrencyEnum.Usd,
   ),
 }
 
 describe('useCreditsDrawer', () => {
-  it('hydrates entities from billingItems.wallet_credits', () => {
+  it('hydrates entities from billingItems.walletCredits', () => {
     const { result } = renderHook(
       () => useCreditsDrawer(withOneWallet, { currency: CurrencyEnum.Usd }),
       { wrapper },
@@ -65,10 +65,10 @@ describe('useCreditsDrawer', () => {
       updated = result.current.syncCreditsBlocks([]) // wl_1 removed from the doc
     })
 
-    expect(updated?.wallet_credits).toEqual([])
-    // Deleting a wallet must NOT drop plans/addons/coupons (billingItems-category-drop regression).
+    expect(updated?.walletCredits).toEqual([])
+    // Deleting a wallet must NOT drop plans/addOns/coupons (billingItems-category-drop regression).
     expect(updated?.plans).toEqual(withOneWallet.plans)
-    expect(updated?.addons).toEqual(withOneWallet.addons)
+    expect(updated?.addOns).toEqual(withOneWallet.addOns)
     expect(updated?.coupons).toEqual(withOneWallet.coupons)
   })
 
