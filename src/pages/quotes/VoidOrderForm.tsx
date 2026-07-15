@@ -188,7 +188,7 @@ const VoidOrderForm = () => {
           {loading ? (
             <FormLoadingSkeleton id="void-order-form" />
           ) : (
-            <div className="flex flex-col gap-12">
+            <div className="flex flex-col">
               <Alert data-test={VOID_ORDER_FORM_ALERT_TEST_ID} type="warning">
                 <Typography className="text-grey-700">
                   {translate('text_1779715648585ih339cvcfjx')}

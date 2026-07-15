@@ -175,7 +175,7 @@ const ApproveQuote = () => {
           {loading ? (
             <FormLoadingSkeleton id="approve-quote" />
           ) : (
-            <div className="flex flex-col gap-12">
+            <div className="flex flex-col">
               <Alert data-test={APPROVE_QUOTE_ALERT_TEST_ID} type="info">
                 <Typography className="text-grey-700">
                   {translate('text_1776848720529x0n0j0tob0w')}
