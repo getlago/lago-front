@@ -16,10 +16,7 @@ import {
   DeleteApiKeyDialog,
   DeleteApiKeyDialogRef,
 } from '~/components/developers/apiKeys/DeleteApiKeyDialog'
-import {
-  RotateApiKeyDialog,
-  RotateApiKeyDialogRef,
-} from '~/components/developers/apiKeys/RotateApiKeyDialog'
+import { useRotateApiKeyDialog } from '~/components/developers/apiKeys/RotateApiKeyDialog'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import {
   SettingsListItem,
@@ -100,9 +97,9 @@ export const ApiKeys = () => {
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const { closePanel: close, setMainRouterUrl } = useDeveloperTool()
 
-  const rotateApiKeyDialogRef = useRef<RotateApiKeyDialogRef>(null)
   const deleteApiKeyDialogRef = useRef<DeleteApiKeyDialogRef>(null)
   const premiumWarningDialog = usePremiumWarningDialog()
+  const { openRotateApiKeyDialog } = useRotateApiKeyDialog()
   const [showOrganizationId, setShowOrganizationId] = useState(false)
   const [shownApiKeysMap, setShownApiKeysMap] = useState<Map<string, string>>(new Map())
   const [loadingKeyIds, setLoadingKeyIds] = useState<Set<string>>(new Set())
@@ -498,13 +495,14 @@ export const ApiKeys = () => {
                           disabled: apiKeysLoading,
                           title: translate('text_17315063604211fznu9haor8'),
                           onAction: () => {
-                            rotateApiKeyDialogRef.current?.openDialog({
+                            openRotateApiKeyDialog({
                               apiKey: item,
                               callBack: (itemToReveal) => {
                                 setShownApiKeysMap(
                                   (prev) => new Map(prev.set(itemToReveal.id, itemToReveal.value)),
                                 )
                               },
+                              openPremiumDialog: () => premiumWarningDialog.open(),
                             })
                           },
                         },
@@ -542,10 +540,6 @@ export const ApiKeys = () => {
         </SettingsListWrapper>
       </div>
 
-      <RotateApiKeyDialog
-        ref={rotateApiKeyDialogRef}
-        openPremiumDialog={() => premiumWarningDialog.open()}
-      />
       <DeleteApiKeyDialog ref={deleteApiKeyDialogRef} />
     </div>
   )
