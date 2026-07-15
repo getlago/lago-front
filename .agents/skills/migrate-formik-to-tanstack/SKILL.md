@@ -60,6 +60,30 @@ Before starting, gather context by reading these reference files:
 
 **This step is critical. Document ALL validations before proceeding.**
 
+> **⛔ CRITICAL — Formik does NOT validate raw values (`prepareDataForValidation`)**
+>
+> Formik runs Yup on `prepareDataForValidation(values)`, which **recursively converts
+> every empty string (`''`) to `undefined`** (arrays and nested objects included), and
+> passes the PREPARED values as the Yup `context` too. A literal Yup→Zod translation
+> silently diverges on every `''`-sensitive check:
+>
+> - `Number('') === 0` (passes `!isNaN`) while `Number(undefined)` is `NaN` (fails it)
+>   → "at least one of X/Y" rules stop firing on emptied fields
+> - `min <= max` cross-checks run against `0` instead of being skipped
+> - optional numeric fields (`yup.number().min().max()`) accepted an emptied input
+>   (`''` → `undefined` → not required); a raw-`''` port wrongly rejects it
+>
+> **Rule:** in the Zod schema, treat `''` as ABSENT wherever the Yup rule relied on
+> presence/`isNaN`/numeric casts. Use a tiny helper and apply it inside each check:
+>
+> ```typescript
+> const prepared = <T,>(value: T): T | undefined =>
+>   value === ('' as unknown as T) ? undefined : value
+> ```
+>
+> Reference implementation: `src/pages/wallet/formInitialization/validationSchema.ts`.
+
+
 1. **Locate validation sources** - Search for:
 
    ```typescript
@@ -614,7 +638,34 @@ Verify:
 4. **Loading state**: Loading skeleton renders correctly (if using `FormLoadingSkeleton`)
 5. **Responsive behavior**: The form looks correct on different viewport sizes
 
-#### Step 3.3: Test Validation Behavior
+#### Step 3.3: Empirical Validation Parity Audit (RECOMMENDED for complex schemas)
+
+Do not trust a by-eye Yup→Zod translation — verify it EMPIRICALLY with a throwaway
+differential test before deleting the old schema:
+
+```typescript
+import { validateYupSchema } from 'formik' // the EXACT runtime path Formik used
+import { ValidationError } from 'yup'
+
+const oldErrorPaths = (values: unknown): string[] => {
+  try {
+    // sync=true; context defaults to the PREPARED values, exactly like Formik
+    validateYupSchema(values, oldYupSchema(), true)
+    return []
+  } catch (error) {
+    if (error instanceof ValidationError) return error.inner.map((e) => e.path || '')
+    throw error
+  }
+}
+// Compare against newZodSchema.safeParse(values) issue paths (normalize [0] vs .0)
+```
+
+Build a scenario matrix that includes **a `''`-variant of every string field** (plus the
+bound/cross-field combos), assert old and new produce the same invalid-field sets, then
+delete the harness. Never call `schema.validateSync` directly — it skips
+`prepareDataForValidation` and will falsely report parity.
+
+#### Step 3.4: Test Validation Behavior
 
 Manually test each validation case:
 
@@ -1252,6 +1303,7 @@ The `/make-tests` skill will automatically:
 - [ ] Read target form file completely
 - [ ] Identify all form fields and types
 - [ ] **Validation Analysis (CRITICAL):**
+  - [ ] **Account for `prepareDataForValidation`** — Formik validated `''` as `undefined`; map every `isNaN`/presence/numeric check with `''`-as-absent semantics
   - [ ] Locate Yup schema / validate function / field-level validations
   - [ ] Create Validation Mapping Table (Field → Yup → Zod)
   - [ ] Document cross-field validations (`.when()`, `.test()`)
@@ -1355,6 +1407,13 @@ The `/make-tests` skill will automatically:
 16. **Field shows `0` instead of placeholder**: If `defaultValues` is `0`, the field displays `0` as a value. Use `''` as default when the original form showed `0` as placeholder (visually empty field). See Pattern 11.
 17. **Dialog closes even when validation fails**: `closeDialog()` after `await form.handleSubmit()` runs unconditionally because `handleSubmit` doesn't throw on validation failure. Use the `closeDialogRef` pattern (Pattern 12) to call `closeDialog` only from inside `onSubmit`.
 18. **Translation keys added manually cause inconsistent IDs**: Always use `pnpm translations:add <count>` to generate keys. See Pattern 13.
+19. **Setting an array item on an undefined base corrupts the value**: `form.setFieldValue('rules[0]', item)` when `rules` is `undefined` creates a plain OBJECT (`{0: item}`), not an array (Formik/lodash created an array). Any `.forEach`/`Array.isArray` consumer then breaks. **Always set the whole array instead** (`form.setFieldValue('rules', [item])`); bracket-index paths are safe only on an EXISTING array.
+20. **Submit stuck in loading forever (no errors shown, no mutation fired)**: an exception thrown INSIDE the validation phase (e.g. a `superRefine` crashing on malformed data) fires after `isSubmitting=true` but before the reset — the button spins forever. `superRefine` must NEVER throw: guard array shapes with `Array.isArray`, optional chains everywhere. This symptom triad (infinite loading + zero validation errors + no network call) = throwing validator.
+21. **Zod v4 replaces empty messages with "Invalid input"**: the Yup `required('')` pattern (mark invalid without visible text) cannot be ported as `message: ''` — Zod substitutes its default "Invalid input" which then renders. Use a real translation key (generic required key: `text_1771342994699klxu2paz7g8` "Field is required") or suppress display via the wrapper's `errorOverride`/`silentError`.
+22. **Error labels needing translate variables**: the `*ForTanstack` wrappers translate message KEYS without variables — a `{{min}}/{{max}}` label renders raw placeholders. Emit the key from the schema, and let the COMPONENT translate with variables via the wrapper's `errorOverride` prop (`errorOverride={hasError ? translate(key, { min, max }) : undefined}`). `TextInputField`, `AmountInputField` and `DatePickerField` all support `errorOverride` (string replaces the error, `false` suppresses it).
+23. **Validation timing changes reviewer perception**: Formik's `validateOnMount` disabled the submit instantly; `revalidateLogic()` surfaces errors at the FIRST submit attempt, then live. Same rules, different moment — warn reviewers/QA or they will report "missing validations".
+24. **The `<form>` wrapper enables Enter-key submission**: a native form submits on Enter inside inputs — behavior the Formik version did not have. Usually desirable; flag it in the visual/UX check.
+25. **Section validity for UNMOUNTED fields**: Formik's `errors.someArray` reflected schema errors regardless of what was rendered. The TanStack equivalent for an accordion validity icon is the form-level error map, not `fieldMeta` (which only covers mounted fields): `useStore(form.store, (s) => { const fields = (s.errorMap as { onDynamic?: { fields?: Record<string, unknown> } })?.onDynamic?.fields; return !!fields && Object.keys(fields).some((k) => k.startsWith('someArray')) })`.
 
 ## Usage
 
