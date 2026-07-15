@@ -1,26 +1,28 @@
-import { gql } from '@apollo/client'
-import Stack from '@mui/material/Stack'
-import { useFormik } from 'formik'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
+import { gql, useApolloClient } from '@apollo/client'
+import { revalidateLogic } from '@tanstack/react-form'
+import { useRef } from 'react'
 import { generatePath } from 'react-router-dom'
-import { object, string } from 'yup'
+import { z } from 'zod'
 
-import { Button } from '~/components/designSystem/Button'
-import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
-import { TextInputField } from '~/components/form'
+import { useFormDialogOpeningDialog } from '~/components/dialogs/FormDialogOpeningDialog'
+import { DialogResult } from '~/components/dialogs/types'
 import { addToast } from '~/core/apolloClient'
+import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CASHFREE_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import {
-  AddCashfreePaymentProviderInput,
   AddCashfreeProviderDialogFragment,
   CashfreeIntegrationDetailsFragmentDoc,
+  DeleteCashfreeIntegrationDialogFragmentDoc,
+  GetCashfreeIntegrationsListDocument,
   LagoApiError,
   useAddCashfreeApiKeyMutation,
+  useDeleteCashfreeMutation,
   useGetProviderByCodeForCashfreeLazyQuery,
   useUpdateCashfreeApiKeyMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm } from '~/hooks/forms/useAppform'
 
 gql`
   fragment AddCashfreeProviderDialog on CashfreeProvider {
@@ -72,30 +74,53 @@ gql`
   }
 
   ${CashfreeIntegrationDetailsFragmentDoc}
+  ${DeleteCashfreeIntegrationDialogFragmentDoc}
 `
 
-type TAddCashfreeDialogProps = Partial<{
-  provider: AddCashfreeProviderDialogFragment
-  onDeleteClick: () => void
-}>
+const ADD_CASHFREE_FORM_ID = 'form-add-cashfree-integration'
 
-export interface AddCashfreeDialogRef {
-  openDialog: (props?: TAddCashfreeDialogProps) => unknown
-  closeDialog: () => unknown
+type AddCashfreeFormValues = {
+  name: string
+  code: string
+  clientId: string
+  clientSecret: string
+  successRedirectUrl: string
 }
 
-export const AddCashfreeDialog = forwardRef<AddCashfreeDialogRef>((_, ref) => {
-  const navigate = useNavigate()
-  const dialogRef = useRef<DialogRef>(null)
+const defaultFormValues: AddCashfreeFormValues = {
+  name: '',
+  code: '',
+  clientId: '',
+  clientSecret: '',
+  successRedirectUrl: '',
+}
 
+const validationSchema = z.object({
+  name: z.string(),
+  code: z.string().min(1),
+  clientId: z.string().min(1),
+  clientSecret: z.string().min(1),
+  successRedirectUrl: z.string(),
+})
+
+type OpenAddCashfreeDialogData = {
+  provider?: AddCashfreeProviderDialogFragment
+  deleteCallback?: () => void
+}
+
+export const useAddCashfreeDialog = () => {
+  const navigate = useNavigate()
+  const formDialogOpeningDialog = useFormDialogOpeningDialog()
   const { translate } = useInternationalization()
-  const [localData, setLocalData] = useState<TAddCashfreeDialogProps | undefined>(undefined)
-  const cashfreeProvider = localData?.provider
-  const isEdition = !!cashfreeProvider
+  const client = useApolloClient()
+
+  const dataRef = useRef<OpenAddCashfreeDialogData | null>(null)
+  const successRef = useRef(false)
 
   const [addApiKey] = useAddCashfreeApiKeyMutation({
     onCompleted({ addCashfreePaymentProvider }) {
       if (addCashfreePaymentProvider?.id) {
+        successRef.current = true
         navigate(
           generatePath(CASHFREE_INTEGRATION_DETAILS_ROUTE, {
             integrationId: addCashfreePaymentProvider.id,
@@ -114,6 +139,7 @@ export const AddCashfreeDialog = forwardRef<AddCashfreeDialogRef>((_, ref) => {
   const [updateApiKey] = useUpdateCashfreeApiKeyMutation({
     onCompleted({ updateCashfreePaymentProvider }) {
       if (updateCashfreePaymentProvider?.id) {
+        successRef.current = true
         navigate(
           generatePath(CASHFREE_INTEGRATION_DETAILS_ROUTE, {
             integrationId: updateCashfreePaymentProvider.id,
@@ -131,26 +157,22 @@ export const AddCashfreeDialog = forwardRef<AddCashfreeDialogRef>((_, ref) => {
 
   const [getCashfreeProviderByCode] = useGetProviderByCodeForCashfreeLazyQuery()
 
-  const formikProps = useFormik<AddCashfreePaymentProviderInput>({
-    initialValues: {
-      code: cashfreeProvider?.code || '',
-      name: cashfreeProvider?.name || '',
-      clientId: cashfreeProvider?.clientId || '',
-      clientSecret: cashfreeProvider?.clientSecret || '',
-      successRedirectUrl: cashfreeProvider?.successRedirectUrl || '',
+  const [deleteCashfree] = useDeleteCashfreeMutation()
+
+  const form = useAppForm({
+    defaultValues: defaultFormValues,
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: validationSchema,
     },
-    validationSchema: object().shape({
-      name: string(),
-      code: string().required(''),
-      clientId: string().required(''),
-      clientSecret: string().required(''),
-      successRedirectUrl: string(),
-    }),
-    onSubmit: async ({ clientId, clientSecret, successRedirectUrl, ...values }, formikBag) => {
+    onSubmit: async ({ value, formApi }) => {
+      const cashfreeProvider = dataRef.current?.provider
+      const isEdition = !!cashfreeProvider
+
       const res = await getCashfreeProviderByCode({
         context: { silentErrorCodes: [LagoApiError.NotFound] },
         variables: {
-          code: values.code,
+          code: value.code,
         },
       })
       const isNotAllowedToMutate =
@@ -160,17 +182,29 @@ export const AddCashfreeDialog = forwardRef<AddCashfreeDialogRef>((_, ref) => {
           res.data?.paymentProvider?.id !== cashfreeProvider?.id)
 
       if (isNotAllowedToMutate) {
-        formikBag.setFieldError('code', translate('text_632a2d437e341dcc76817556'))
+        formApi.setErrorMap({
+          onDynamic: {
+            fields: {
+              code: {
+                message: translate('text_632a2d437e341dcc76817556'),
+                path: ['code'],
+              },
+            },
+          },
+        })
         return
       }
+
+      const { clientId, clientSecret, successRedirectUrl, name, code } = value
 
       if (isEdition) {
         await updateApiKey({
           variables: {
             input: {
               id: cashfreeProvider?.id || '',
+              name,
+              code,
               successRedirectUrl: successRedirectUrl || undefined,
-              ...values,
             },
           },
         })
@@ -178,120 +212,157 @@ export const AddCashfreeDialog = forwardRef<AddCashfreeDialogRef>((_, ref) => {
         await addApiKey({
           variables: {
             input: {
+              name,
+              code,
               clientId,
               clientSecret,
               successRedirectUrl: successRedirectUrl || undefined,
-              ...values,
             },
           },
         })
       }
-      dialogRef.current?.closeDialog()
     },
-    validateOnMount: true,
-    enableReinitialize: true,
   })
 
-  useImperativeHandle(ref, () => ({
-    openDialog: (data) => {
-      setLocalData(data)
-      dialogRef.current?.openDialog()
-    },
-    closeDialog: () => dialogRef.current?.closeDialog(),
-  }))
+  const handleSubmit = async (): Promise<DialogResult> => {
+    successRef.current = false
+    await form.handleSubmit()
 
-  return (
-    <Dialog
-      ref={dialogRef}
-      title={translate(
-        isEdition ? 'text_658461066530343fe1808cd9' : 'text_172450747075633492aqpbm2',
-        {
-          name: cashfreeProvider?.name,
-        },
-      )}
-      description={translate(
-        isEdition ? 'text_1724507963056bu20ky8z98g' : 'text_17245079170372xxmw737fhf',
-      )}
-      onClose={() => {
-        formikProps.resetForm()
-      }}
-      actions={({ closeDialog }) => (
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-          width={isEdition ? '100%' : 'inherit'}
-          spacing={3}
-        >
-          {isEdition && (
-            <Button
-              danger
-              variant="quaternary"
-              onClick={() => {
-                closeDialog()
-                localData?.onDeleteClick?.()
-              }}
-            >
-              {translate('text_65845f35d7d69c3ab4793dad')}
-            </Button>
-          )}
-          <Stack direction="row" spacing={3} alignItems="center">
-            <Button variant="quaternary" onClick={closeDialog}>
-              {translate('text_62b1edddbf5f461ab971276d')}
-            </Button>
-            <Button
-              variant="primary"
-              disabled={!formikProps.isValid || !formikProps.dirty}
-              onClick={formikProps.submitForm}
-            >
+    if (!successRef.current) {
+      throw new Error('Submit failed')
+    }
+
+    return { reason: 'success' }
+  }
+
+  const openAddCashfreeDialog = (data?: OpenAddCashfreeDialogData) => {
+    dataRef.current = data ?? null
+    const cashfreeProvider = data?.provider
+    const isEdition = !!cashfreeProvider
+
+    form.reset()
+    if (cashfreeProvider) {
+      form.setFieldValue('name', cashfreeProvider.name || '')
+      form.setFieldValue('code', cashfreeProvider.code || '')
+      form.setFieldValue('clientId', cashfreeProvider.clientId || '')
+      form.setFieldValue('clientSecret', cashfreeProvider.clientSecret || '')
+      form.setFieldValue('successRedirectUrl', cashfreeProvider.successRedirectUrl || '')
+    }
+
+    formDialogOpeningDialog
+      .open({
+        title: translate(
+          isEdition ? 'text_658461066530343fe1808cd9' : 'text_172450747075633492aqpbm2',
+          {
+            name: cashfreeProvider?.name,
+          },
+        ),
+        description: translate(
+          isEdition ? 'text_1724507963056bu20ky8z98g' : 'text_17245079170372xxmw737fhf',
+        ),
+        children: (
+          <div className="mb-8 flex flex-col gap-6">
+            <div className="flex flex-row items-start gap-6 *:flex-1">
+              <form.AppField name="name">
+                {(field) => (
+                  <field.TextInputField
+                    // eslint-disable-next-line jsx-a11y/no-autofocus
+                    autoFocus
+                    label={translate('text_6584550dc4cec7adf861504d')}
+                    placeholder={translate('text_6584550dc4cec7adf861504f')}
+                  />
+                )}
+              </form.AppField>
+              <form.AppField name="code">
+                {(field) => (
+                  <field.TextInputField
+                    label={translate('text_6584550dc4cec7adf8615051')}
+                    placeholder={translate('text_6584550dc4cec7adf8615053')}
+                  />
+                )}
+              </form.AppField>
+            </div>
+            <form.AppField name="clientId">
+              {(field) => (
+                <field.TextInputField
+                  disabled={isEdition}
+                  label={translate('text_1727620558031ftsky1vpr55')}
+                  placeholder={translate('text_1727624537843s2ublm4rsyj')}
+                />
+              )}
+            </form.AppField>
+            <form.AppField name="clientSecret">
+              {(field) => (
+                <field.TextInputField
+                  disabled={isEdition}
+                  label={translate('text_1727620574228qfyoqtsdih7')}
+                  placeholder={translate('text_17276245391922l9540z7f78')}
+                />
+              )}
+            </form.AppField>
+            <form.AppField name="successRedirectUrl">
+              {(field) => (
+                <field.TextInputField
+                  label={translate('text_65367cb78324b77fcb6af21c')}
+                  placeholder={translate('text_1733303818769298k0fvsgcz')}
+                />
+              )}
+            </form.AppField>
+          </div>
+        ),
+        closeOnError: false,
+        mainAction: (
+          <form.AppForm>
+            <form.SubmitButton>
               {translate(
                 isEdition ? 'text_65845f35d7d69c3ab4793dac' : 'text_172450747075633492aqpbm2',
               )}
-            </Button>
-          </Stack>
-        </Stack>
-      )}
-    >
-      <div className="mb-8 flex flex-col gap-6">
-        <div className="flex flex-row items-start gap-6 *:flex-1">
-          <TextInputField
-            // eslint-disable-next-line jsx-a11y/no-autofocus
-            autoFocus
-            formikProps={formikProps}
-            name="name"
-            label={translate('text_6584550dc4cec7adf861504d')}
-            placeholder={translate('text_6584550dc4cec7adf861504f')}
-          />
-          <TextInputField
-            formikProps={formikProps}
-            name="code"
-            label={translate('text_6584550dc4cec7adf8615051')}
-            placeholder={translate('text_6584550dc4cec7adf8615053')}
-          />
-        </div>
-        <TextInputField
-          formikProps={formikProps}
-          disabled={isEdition}
-          name="clientId"
-          label={translate('text_1727620558031ftsky1vpr55')}
-          placeholder={translate('text_1727624537843s2ublm4rsyj')}
-        />
-        <TextInputField
-          formikProps={formikProps}
-          disabled={isEdition}
-          name="clientSecret"
-          label={translate('text_1727620574228qfyoqtsdih7')}
-          placeholder={translate('text_17276245391922l9540z7f78')}
-        />
-        <TextInputField
-          formikProps={formikProps}
-          name="successRedirectUrl"
-          label={translate('text_65367cb78324b77fcb6af21c')}
-          placeholder={translate('text_1733303818769298k0fvsgcz')}
-        />
-      </div>
-    </Dialog>
-  )
-})
+            </form.SubmitButton>
+          </form.AppForm>
+        ),
+        form: {
+          id: ADD_CASHFREE_FORM_ID,
+          submit: handleSubmit,
+        },
+        canOpenDialog: isEdition,
+        openDialogText: translate('text_65845f35d7d69c3ab4793dad'),
+        otherDialogProps: {
+          title: translate('text_658461066530343fe1808cd7', { name: cashfreeProvider?.name }),
+          description: translate('text_1727621816788cygs13tsdyv'),
+          actionText: translate('text_659d5de7c9b7f51394f7f3fd'),
+          colorVariant: 'danger',
+          onAction: async () => {
+            const res = await deleteCashfree({
+              variables: { input: { id: cashfreeProvider?.id as string } },
+            })
 
-AddCashfreeDialog.displayName = 'AddCashfreeDialog'
+            const destroyedId = res.data?.destroyPaymentProvider?.id
+
+            if (destroyedId) {
+              evictFromCache(client, {
+                id: destroyedId,
+                __typename: 'CashfreeProvider',
+                listFieldName: 'paymentProviders',
+                listQueryDocument: GetCashfreeIntegrationsListDocument,
+              })
+
+              dataRef.current?.deleteCallback?.()
+
+              addToast({
+                message: translate('text_1727621949511zk6kkl99pzk'),
+                severity: 'success',
+              })
+            }
+          },
+        },
+      })
+      .then((response) => {
+        if (response.reason === 'close' || response.reason === 'open-other-dialog') {
+          form.reset()
+          dataRef.current = null
+        }
+      })
+  }
+
+  return { openAddCashfreeDialog }
+}

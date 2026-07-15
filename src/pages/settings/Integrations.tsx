@@ -25,10 +25,7 @@ import {
   AddAnrokDialogRef,
 } from '~/components/settings/integrations/AddAnrokDialog'
 import { useAddAvalaraDialog } from '~/components/settings/integrations/AddAvalaraDialog'
-import {
-  AddCashfreeDialog,
-  AddCashfreeDialogRef,
-} from '~/components/settings/integrations/AddCashfreeDialog'
+import { useAddCashfreeDialog } from '~/components/settings/integrations/AddCashfreeDialog'
 import {
   AddFlutterwaveDialog,
   AddFlutterwaveDialogRef,
@@ -179,7 +176,7 @@ const Integrations = () => {
   const addStripeDialogRef = useRef<AddStripeDialogRef>(null)
   const addAdyenDialogRef = useRef<AddAdyenDialogRef>(null)
   const addGocardlessDialogRef = useRef<AddGocardlessDialogRef>(null)
-  const addCashfreeDialogRef = useRef<AddCashfreeDialogRef>(null)
+  const { openAddCashfreeDialog } = useAddCashfreeDialog()
   const addLagoTaxManagementDialog = useRef<AddLagoTaxManagementDialogRef>(null)
   const addNetsuiteDialogRef = useRef<AddNetsuiteDialogRef>(null)
   const addSalesforceDialogRef = useRef<AddSalesforceDialogRef>(null)
@@ -746,7 +743,7 @@ const Integrations = () => {
                               }),
                             )
                           } else {
-                            addCashfreeDialogRef.current?.openDialog()
+                            openAddCashfreeDialog()
                           }
                         }}
                       />
@@ -848,7 +845,6 @@ const Integrations = () => {
       <AddAnrokDialog ref={addAnrokDialogRef} />
       <AddAdyenDialog ref={addAdyenDialogRef} />
       <AddStripeDialog ref={addStripeDialogRef} />
-      <AddCashfreeDialog ref={addCashfreeDialogRef} />
       <AddMoneyhashDialog ref={addMoneyhashDialogRef} />
       <AddGocardlessDialog ref={addGocardlessDialogRef} />
       <AddLagoTaxManagementDialog ref={addLagoTaxManagementDialog} />

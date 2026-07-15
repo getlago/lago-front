@@ -51,7 +51,9 @@ jest.mock('~/components/settings/integrations/AddGocardlessDialog', () => ({
   AddGocardlessDialog: () => null,
 }))
 jest.mock('~/components/settings/integrations/AddCashfreeDialog', () => ({
-  AddCashfreeDialog: () => null,
+  useAddCashfreeDialog: () => ({
+    openAddCashfreeDialog: jest.fn(),
+  }),
 }))
 jest.mock('~/components/settings/integrations/AddMoneyhashDialog', () => ({
   AddMoneyhashDialog: () => null,
