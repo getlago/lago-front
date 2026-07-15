@@ -147,15 +147,14 @@ export const TopUpSection = withForm({
 
     // Schema-level check (NOT limited to mounted fields): mirrors the Formik
     // `errors.recurringTransactionRules` read that drove the validity icon.
+    // Validator-produced errors live DIRECTLY on errorMap.onDynamic, keyed by
+    // field path (the `.fields` sub-shape only exists for manual setErrorMap).
     const hasRecurringTransactionRulesErrors = useStore(form.store, (state) => {
-      const fields = (state.errorMap as { onDynamic?: { fields?: Record<string, unknown> } })
-        ?.onDynamic?.fields
+      const dynamicErrors =
+        (state.errorMap as { onDynamic?: Record<string, unknown> })?.onDynamic ?? {}
 
-      return (
-        !!fields &&
-        Object.entries(fields).some(
-          ([key, value]) => key.startsWith('recurringTransactionRules') && !!value,
-        )
+      return Object.entries(dynamicErrors).some(
+        ([key, value]) => key.startsWith('recurringTransactionRules') && !!value,
       )
     })
 
