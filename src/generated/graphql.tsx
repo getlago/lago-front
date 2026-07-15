@@ -12400,8 +12400,6 @@ export type RetryAllAvalaraInvoicesMutationVariables = Exact<{
 
 export type RetryAllAvalaraInvoicesMutation = { __typename?: 'Mutation', retryAllInvoices?: { __typename?: 'InvoiceCollection', metadata: { __typename?: 'CollectionMetadata', totalCount: number } } | null };
 
-export type DeleteAdyenIntegrationDialogFragment = { __typename?: 'AdyenProvider', id: string, name: string };
-
 export type DeleteAdyenIntegrationMutationVariables = Exact<{
   input: DestroyPaymentProviderInput;
 }>;
@@ -18046,12 +18044,6 @@ export const AvalaraIntegrationSettingsFragmentDoc = gql`
   failedInvoicesCount
   hasMappingsConfigured
   licenseKey
-  name
-}
-    `;
-export const DeleteAdyenIntegrationDialogFragmentDoc = gql`
-    fragment DeleteAdyenIntegrationDialog on AdyenProvider {
-  id
   name
 }
     `;
@@ -40007,7 +39999,6 @@ export const GetAdyenIntegrationsDetailsDocument = gql`
     ... on AdyenProvider {
       id
       ...AdyenIntegrationDetails
-      ...DeleteAdyenIntegrationDialog
       ...AddAdyenProviderDialog
       ...AdyenForCreateAndEditSuccessRedirectUrl
     }
@@ -40021,7 +40012,6 @@ export const GetAdyenIntegrationsDetailsDocument = gql`
   }
 }
     ${AdyenIntegrationDetailsFragmentDoc}
-${DeleteAdyenIntegrationDialogFragmentDoc}
 ${AddAdyenProviderDialogFragmentDoc}
 ${AdyenForCreateAndEditSuccessRedirectUrlFragmentDoc}`;
 
@@ -40070,14 +40060,12 @@ export const GetAdyenIntegrationsListDocument = gql`
         id
         ...AdyenIntegrations
         ...AddAdyenProviderDialog
-        ...DeleteAdyenIntegrationDialog
       }
     }
   }
 }
     ${AdyenIntegrationsFragmentDoc}
-${AddAdyenProviderDialogFragmentDoc}
-${DeleteAdyenIntegrationDialogFragmentDoc}`;
+${AddAdyenProviderDialogFragmentDoc}`;
 
 /**
  * __useGetAdyenIntegrationsListQuery__

@@ -42,7 +42,7 @@ jest.mock('~/components/settings/integrations/AddSalesforceDialog', () => ({
   AddSalesforceDialog: () => null,
 }))
 jest.mock('~/components/settings/integrations/AddAdyenDialog', () => ({
-  AddAdyenDialog: () => null,
+  useAddAdyenDialog: () => ({ openAddAdyenDialog: () => null }),
 }))
 jest.mock('~/components/settings/integrations/AddStripeDialog', () => ({
   AddStripeDialog: () => null,
