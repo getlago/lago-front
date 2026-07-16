@@ -10,7 +10,7 @@ import {
   SEARCH_TAX_INPUT_FOR_CUSTOMER_CLASSNAME,
 } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { CREATE_TAX_ROUTE } from '~/core/router'
+import { CREATE_TAX_ROUTE, useNavigate } from '~/core/router'
 import {
   CustomerAppliedTaxRatesForSettingsFragmentDoc,
   EditCustomerVatRateFragment,
@@ -66,11 +66,13 @@ export const EDIT_CUSTOMER_VAT_RATE_FORM_ID = 'edit-customer-vat-rate-form'
 interface EditCustomerVatRateContentProps {
   appliedTaxRatesTaxesIds?: string[]
   onSelect: (taxCode: string) => void
+  onCreateTaxClick: () => void
 }
 
 const EditCustomerVatRateContent = ({
   appliedTaxRatesTaxesIds,
   onSelect,
+  onCreateTaxClick,
 }: EditCustomerVatRateContentProps) => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
@@ -115,7 +117,7 @@ const EditCustomerVatRateContent = ({
           hasPermissions(['organizationTaxesUpdate'])
             ? {
                 label: translate('text_64639c4d172d7a006ef30516'),
-                redirectionUrl: CREATE_TAX_ROUTE,
+                onClick: onCreateTaxClick,
               }
             : undefined
         }
@@ -142,6 +144,7 @@ interface OpenEditCustomerVatRateDialogParams {
 
 export const useEditCustomerVatRateDialog = () => {
   const formDialog = useFormDialog()
+  const navigate = useNavigate()
   const { translate } = useInternationalization()
   const customerRef = useRef<EditCustomerVatRateFragment | null>(null)
   const taxCodeRef = useRef<string>('')
@@ -184,6 +187,10 @@ export const useEditCustomerVatRateDialog = () => {
           onSelect={(taxCode) => {
             taxCodeRef.current = taxCode
             setDisabledRef.current(!taxCode)
+          }}
+          onCreateTaxClick={() => {
+            formDialog.close()
+            navigate(CREATE_TAX_ROUTE)
           }}
         />
       ),
