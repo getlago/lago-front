@@ -37,11 +37,10 @@ export const ComboBoxItemWrapper = ({
         condition={!!addValueOnClick}
         invalidWrapper={(children) => <>{children}</>}
         validWrapper={(children) => (
-          <button
-            type="button"
-            className="w-full min-w-0 cursor-pointer text-left"
-            onClick={addValueOnClick}
-          >
+          // `display: contents` keeps the button out of the layout box model so the
+          // wrapped ComboboxItem sizes/insets exactly like a non-clickable option row
+          // (otherwise the full-width button makes the hover highlight overflow the popper).
+          <button type="button" className="contents cursor-pointer" onClick={addValueOnClick}>
             {children}
           </button>
         )}
