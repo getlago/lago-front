@@ -37,6 +37,7 @@ gql`
     code
     invoiceDisplayName
     itemType
+    filtersCount
     createdAt
     product {
       id
@@ -51,14 +52,14 @@ gql`
     $page: Int
     $limit: Int
     $searchTerm: String
-    $productId: ID
+    $productIds: [ID!]
     $itemType: ProductItemTypeEnum
   ) {
     productItems(
       page: $page
       limit: $limit
       searchTerm: $searchTerm
-      productId: $productId
+      productIds: $productIds
       itemType: $itemType
     ) {
       metadata {

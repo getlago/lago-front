@@ -118,16 +118,17 @@ describe('ProductItemsList', () => {
     )
   })
 
-  it('renders the name, attached product, item type and creation date columns', () => {
+  it('renders name, attached product, filters count, item type and creation date columns', () => {
     render(<ProductItemsList />)
 
     const { columns } = getTableProps()
 
-    expect(columns).toHaveLength(4)
+    expect(columns).toHaveLength(5)
     expect(columns[0]).toEqual(expect.objectContaining({ key: 'name', maxSpace: true }))
     expect(columns[1]).toEqual(expect.objectContaining({ key: 'product.name' }))
-    expect(columns[2]).toEqual(expect.objectContaining({ key: 'itemType' }))
-    expect(columns[3]).toEqual(expect.objectContaining({ key: 'createdAt', textAlign: 'right' }))
+    expect(columns[2]).toEqual(expect.objectContaining({ key: 'filtersCount', textAlign: 'right' }))
+    expect(columns[3]).toEqual(expect.objectContaining({ key: 'itemType' }))
+    expect(columns[4]).toEqual(expect.objectContaining({ key: 'createdAt', textAlign: 'right' }))
   })
 
   it('shows the attached product name or a dash', () => {

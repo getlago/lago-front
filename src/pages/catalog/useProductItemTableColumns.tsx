@@ -52,6 +52,17 @@ export const useProductItemTableColumns = ({
         }
       : null,
     {
+      key: 'filtersCount',
+      title: translate('text_1783980718114wkor6aysepe'),
+      textAlign: 'right',
+      minWidth: 112,
+      content: ({ filtersCount }) => (
+        <Typography color="grey600" variant="body" noWrap>
+          {filtersCount}
+        </Typography>
+      ),
+    },
+    {
       key: 'itemType',
       title: translate('text_1783980718113na6t9imp2k0'),
       minWidth: 112,

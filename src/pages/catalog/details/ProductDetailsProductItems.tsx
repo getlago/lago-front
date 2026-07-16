@@ -34,8 +34,8 @@ import { useProductItemTableColumns } from '../useProductItemTableColumns'
 const PREVIEW_LIMIT = 6
 
 gql`
-  query getProductItemsForProductDetails($productId: ID, $limit: Int, $searchTerm: String) {
-    productItems(productId: $productId, limit: $limit, searchTerm: $searchTerm) {
+  query getProductItemsForProductDetails($productIds: [ID!], $limit: Int, $searchTerm: String) {
+    productItems(productIds: $productIds, limit: $limit, searchTerm: $searchTerm) {
       metadata {
         totalCount
       }
@@ -61,7 +61,7 @@ const ProductItemsPreview = ({ product }: { product: ProductAttachment }) => {
 
   const [getProductItems, { data, error, loading, variables }] =
     useGetProductItemsForProductDetailsLazyQuery({
-      variables: { productId: product.id, limit: PREVIEW_LIMIT },
+      variables: { productIds: [product.id], limit: PREVIEW_LIMIT },
       notifyOnNetworkStatusChange: true,
       fetchPolicy: 'cache-and-network',
     })

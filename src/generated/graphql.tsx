@@ -7584,6 +7584,7 @@ export type ProductItem = {
   code: Scalars['String']['output'];
   createdAt: Scalars['ISO8601DateTime']['output'];
   description?: Maybe<Scalars['String']['output']>;
+  filtersCount: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
   invoiceDisplayName?: Maybe<Scalars['String']['output']>;
   itemType: ProductItemTypeEnum;
@@ -8781,8 +8782,9 @@ export type QueryProductItemsArgs = {
   itemType?: InputMaybe<ProductItemTypeEnum>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
-  productId?: InputMaybe<Scalars['ID']['input']>;
+  productIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
+  withoutProduct?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 
@@ -14806,18 +14808,18 @@ export type GoogleRegisterMutationVariables = Exact<{
 
 export type GoogleRegisterMutation = { __typename?: 'Mutation', googleRegisterUser?: { __typename?: 'RegisterUser', token: string } | null };
 
-export type ProductItemForListFragment = { __typename?: 'ProductItem', id: string, name: string, code: string, invoiceDisplayName?: string | null, itemType: ProductItemTypeEnum, createdAt: any, description?: string | null, attachedToPlanOrSubscription: boolean, product?: { __typename?: 'Product', id: string, name: string, code: string } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string } | null };
+export type ProductItemForListFragment = { __typename?: 'ProductItem', id: string, name: string, code: string, invoiceDisplayName?: string | null, itemType: ProductItemTypeEnum, filtersCount: number, createdAt: any, description?: string | null, attachedToPlanOrSubscription: boolean, product?: { __typename?: 'Product', id: string, name: string, code: string } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string } | null };
 
 export type ProductItemsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
-  productId?: InputMaybe<Scalars['ID']['input']>;
+  productIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
   itemType?: InputMaybe<ProductItemTypeEnum>;
 }>;
 
 
-export type ProductItemsQuery = { __typename?: 'Query', productItems: { __typename?: 'ProductItemCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'ProductItem', id: string, name: string, code: string, invoiceDisplayName?: string | null, itemType: ProductItemTypeEnum, createdAt: any, description?: string | null, attachedToPlanOrSubscription: boolean, product?: { __typename?: 'Product', id: string, name: string, code: string } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string } | null }> } };
+export type ProductItemsQuery = { __typename?: 'Query', productItems: { __typename?: 'ProductItemCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'ProductItem', id: string, name: string, code: string, invoiceDisplayName?: string | null, itemType: ProductItemTypeEnum, filtersCount: number, createdAt: any, description?: string | null, attachedToPlanOrSubscription: boolean, product?: { __typename?: 'Product', id: string, name: string, code: string } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string } | null }> } };
 
 export type ProductListItemFragment = { __typename?: 'Product', id: string, name: string, code: string, invoiceDisplayName?: string | null, productItemsCount: number, createdAt: any, description?: string | null, attachedToPlanOrSubscription: boolean };
 
@@ -14849,13 +14851,13 @@ export type GetProductForDetailsOverviewQueryVariables = Exact<{
 export type GetProductForDetailsOverviewQuery = { __typename?: 'Query', product?: { __typename?: 'Product', id: string, name: string, code: string, description?: string | null, invoiceDisplayName?: string | null, attachedToPlanOrSubscription: boolean } | null };
 
 export type GetProductItemsForProductDetailsQueryVariables = Exact<{
-  productId?: InputMaybe<Scalars['ID']['input']>;
+  productIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-export type GetProductItemsForProductDetailsQuery = { __typename?: 'Query', productItems: { __typename?: 'ProductItemCollection', metadata: { __typename?: 'CollectionMetadata', totalCount: number }, collection: Array<{ __typename?: 'ProductItem', id: string, name: string, code: string, invoiceDisplayName?: string | null, itemType: ProductItemTypeEnum, createdAt: any, description?: string | null, attachedToPlanOrSubscription: boolean, product?: { __typename?: 'Product', id: string, name: string, code: string } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string } | null }> } };
+export type GetProductItemsForProductDetailsQuery = { __typename?: 'Query', productItems: { __typename?: 'ProductItemCollection', metadata: { __typename?: 'CollectionMetadata', totalCount: number }, collection: Array<{ __typename?: 'ProductItem', id: string, name: string, code: string, invoiceDisplayName?: string | null, itemType: ProductItemTypeEnum, filtersCount: number, createdAt: any, description?: string | null, attachedToPlanOrSubscription: boolean, product?: { __typename?: 'Product', id: string, name: string, code: string } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string } | null }> } };
 
 export type ProductItemForProductItemDetailsFragment = { __typename?: 'ProductItem', id: string, name: string, code: string, description?: string | null, invoiceDisplayName?: string | null, itemType: ProductItemTypeEnum, attachedToPlanOrSubscription: boolean, product?: { __typename?: 'Product', id: string, name: string, code: string } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string } | null };
 
@@ -21119,6 +21121,7 @@ export const ProductItemForListFragmentDoc = gql`
   code
   invoiceDisplayName
   itemType
+  filtersCount
   createdAt
   product {
     id
@@ -38635,12 +38638,12 @@ export type GoogleRegisterMutationHookResult = ReturnType<typeof useGoogleRegist
 export type GoogleRegisterMutationResult = Apollo.MutationResult<GoogleRegisterMutation>;
 export type GoogleRegisterMutationOptions = Apollo.BaseMutationOptions<GoogleRegisterMutation, GoogleRegisterMutationVariables>;
 export const ProductItemsDocument = gql`
-    query productItems($page: Int, $limit: Int, $searchTerm: String, $productId: ID, $itemType: ProductItemTypeEnum) {
+    query productItems($page: Int, $limit: Int, $searchTerm: String, $productIds: [ID!], $itemType: ProductItemTypeEnum) {
   productItems(
     page: $page
     limit: $limit
     searchTerm: $searchTerm
-    productId: $productId
+    productIds: $productIds
     itemType: $itemType
   ) {
     metadata {
@@ -38671,7 +38674,7 @@ export const ProductItemsDocument = gql`
  *      page: // value for 'page'
  *      limit: // value for 'limit'
  *      searchTerm: // value for 'searchTerm'
- *      productId: // value for 'productId'
+ *      productIds: // value for 'productIds'
  *      itemType: // value for 'itemType'
  *   },
  * });
@@ -38837,8 +38840,8 @@ export type GetProductForDetailsOverviewLazyQueryHookResult = ReturnType<typeof 
 export type GetProductForDetailsOverviewSuspenseQueryHookResult = ReturnType<typeof useGetProductForDetailsOverviewSuspenseQuery>;
 export type GetProductForDetailsOverviewQueryResult = Apollo.QueryResult<GetProductForDetailsOverviewQuery, GetProductForDetailsOverviewQueryVariables>;
 export const GetProductItemsForProductDetailsDocument = gql`
-    query getProductItemsForProductDetails($productId: ID, $limit: Int, $searchTerm: String) {
-  productItems(productId: $productId, limit: $limit, searchTerm: $searchTerm) {
+    query getProductItemsForProductDetails($productIds: [ID!], $limit: Int, $searchTerm: String) {
+  productItems(productIds: $productIds, limit: $limit, searchTerm: $searchTerm) {
     metadata {
       totalCount
     }
@@ -38862,7 +38865,7 @@ export const GetProductItemsForProductDetailsDocument = gql`
  * @example
  * const { data, loading, error } = useGetProductItemsForProductDetailsQuery({
  *   variables: {
- *      productId: // value for 'productId'
+ *      productIds: // value for 'productIds'
  *      limit: // value for 'limit'
  *      searchTerm: // value for 'searchTerm'
  *   },

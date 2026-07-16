@@ -245,8 +245,9 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.paymentOverdue]: (value: string) => value === 'true',
   [AvailableFiltersEnum.paymentStatus]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.planCode]: (value: string) => value,
-  [AvailableFiltersEnum.productItemProduct]: (value: string) =>
+  [AvailableFiltersEnum.productItemProduct]: (value: string) => [
     value.split(filterDataInlineSeparator)[0],
+  ],
   [AvailableFiltersEnum.productItemType]: (value: string) => value,
   [AvailableFiltersEnum.orderFormCreatedAt]: (value: string) => {
     return {
@@ -430,13 +431,13 @@ export const formatFiltersForCreditNotesQuery = (
   })
 }
 
-type ProductItemsQueryFilters = Partial<Pick<ProductItemsQueryVariables, 'productId' | 'itemType'>>
+type ProductItemsQueryFilters = Partial<Pick<ProductItemsQueryVariables, 'productIds' | 'itemType'>>
 
 export const formatFiltersForProductItemsQuery = (
   searchParams: URLSearchParams,
 ): ProductItemsQueryFilters => {
   const keyMap: Partial<Record<AvailableFiltersEnum, keyof ProductItemsQueryFilters & string>> = {
-    [AvailableFiltersEnum.productItemProduct]: 'productId',
+    [AvailableFiltersEnum.productItemProduct]: 'productIds',
     [AvailableFiltersEnum.productItemType]: 'itemType',
   }
 
