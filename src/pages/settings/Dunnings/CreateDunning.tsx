@@ -10,10 +10,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { AmountInputField, ComboBoxField, TextInput, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
-import {
-  DefaultCampaignDialog,
-  DefaultCampaignDialogRef,
-} from '~/components/settings/dunnings/DefaultCampaignDialog'
+import { useDefaultCampaignDialog } from '~/components/settings/dunnings/DefaultCampaignDialog'
 import {
   PreviewCampaignEmailDrawer,
   PreviewCampaignEmailDrawerRef,
@@ -45,7 +42,7 @@ const CreateDunning = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
 
-  const defaultCampaignDialogRef = useRef<DefaultCampaignDialogRef>(null)
+  const { openDefaultCampaignDialog } = useDefaultCampaignDialog()
   const centralizedDialog = useCentralizedDialog()
   const previewCampaignEmailDrawerRef = useRef<PreviewCampaignEmailDrawerRef>(null)
 
@@ -140,7 +137,7 @@ const CreateDunning = () => {
         formikProps.values.appliedToOrganization &&
       formikProps.values.appliedToOrganization === true
     ) {
-      defaultCampaignDialogRef.current?.openDialog({
+      openDefaultCampaignDialog({
         type: 'setDefault',
         onConfirm: () => formikProps.submitForm(),
       })
@@ -434,7 +431,6 @@ const CreateDunning = () => {
         </CenteredPage.StickyFooter>
       </CenteredPage.Wrapper>
 
-      <DefaultCampaignDialog ref={defaultCampaignDialogRef} />
       <PreviewCampaignEmailDrawer ref={previewCampaignEmailDrawerRef} />
     </>
   )
