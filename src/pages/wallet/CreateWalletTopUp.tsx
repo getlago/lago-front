@@ -7,14 +7,12 @@ import { generatePath, useParams } from 'react-router-dom'
 import { Accordion } from '~/components/designSystem/Accordion'
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
-import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
 import { PaymentMethodsForm, ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
 import {
-  ADD_METADATA_DATA_TEST,
   CLOSE_CREATE_TOPUP_BUTTON_DATA_TEST,
   CREATE_WALLET_TOP_UP_FORM_TEST_ID,
   IGNORE_PAID_TOPUP_LIMITS_SWITCH_DATA_TEST,
@@ -26,10 +24,6 @@ import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_DETAILS_TAB_ROUTE, useNavigate, WALLET_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount, getCurrencyPrecision } from '~/core/serializers/serializeAmount'
-import {
-  METADATA_VALUE_MAX_LENGTH_DEFAULT,
-  MetadataErrorsEnum,
-} from '~/formValidation/metadataSchema'
 import {
   CurrencyEnum,
   useCreateCustomerWalletTransactionMutation,
@@ -49,6 +43,7 @@ import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActio
 import TopUpTypeSelector, {
   WalletTransactionType,
 } from '~/pages/wallet/components/TopUpTypeSelector'
+import { TransactionMetadataGroup } from '~/pages/wallet/components/TransactionMetadataGroup'
 import { topUpAmountError } from '~/pages/wallet/form'
 import {
   getTopUpFormValidationSchema,
@@ -575,111 +570,7 @@ const CreateWalletTopUp = () => {
                 }
               >
                 <div className="flex flex-col gap-6">
-                  {(formValues.metadata ?? []).map((_metadata, index) => {
-                    return (
-                      <div
-                        className="flex w-full flex-row items-center gap-3"
-                        key={`metadata-item-${index}`}
-                      >
-                        <div className="basis-[200px]">
-                          <form.AppField name={`metadata[${index}].key`}>
-                            {(field) => {
-                              const keyError = (
-                                field.state.meta.errors as unknown as { message?: string }[]
-                              ).find((error) =>
-                                Object.keys(MetadataErrorsEnum).includes(error?.message ?? ''),
-                              )?.message
-
-                              return (
-                                <Tooltip
-                                  placement="top-end"
-                                  title={
-                                    (keyError === MetadataErrorsEnum.uniqueness &&
-                                      translate('text_63fcc3218d35b9377840f5dd')) ||
-                                    (keyError === MetadataErrorsEnum.maxLength &&
-                                      translate('text_63fcc3218d35b9377840f5d9', { max: 20 }))
-                                  }
-                                  disableHoverListener={!keyError}
-                                >
-                                  <field.TextInputField
-                                    label={translate('text_63fcc3218d35b9377840f5a3')}
-                                    silentError={!keyError}
-                                    placeholder={translate('text_63fcc3218d35b9377840f5a7')}
-                                    displayErrorText={false}
-                                  />
-                                </Tooltip>
-                              )
-                            }}
-                          </form.AppField>
-                        </div>
-                        <div className="grow">
-                          <form.AppField name={`metadata[${index}].value`}>
-                            {(field) => {
-                              const valueError = (
-                                field.state.meta.errors as unknown as { message?: string }[]
-                              ).find((error) =>
-                                Object.keys(MetadataErrorsEnum).includes(error?.message ?? ''),
-                              )?.message
-
-                              return (
-                                <Tooltip
-                                  placement="top-end"
-                                  title={
-                                    valueError === MetadataErrorsEnum.maxLength
-                                      ? translate('text_63fcc3218d35b9377840f5e5', {
-                                          max: METADATA_VALUE_MAX_LENGTH_DEFAULT,
-                                        })
-                                      : undefined
-                                  }
-                                  disableHoverListener={!valueError}
-                                >
-                                  <field.TextInputField
-                                    label={translate('text_63fcc3218d35b9377840f5ab')}
-                                    silentError={!valueError}
-                                    placeholder={translate('text_63fcc3218d35b9377840f5af')}
-                                    displayErrorText={false}
-                                  />
-                                </Tooltip>
-                              )
-                            }}
-                          </form.AppField>
-                        </div>
-                        <Tooltip
-                          className="flex items-center"
-                          placement="top-end"
-                          title={translate('text_63fcc3218d35b9377840f5e1')}
-                        >
-                          <Button
-                            className="mt-7"
-                            variant="quaternary"
-                            size="medium"
-                            icon="trash"
-                            onClick={() => {
-                              form.setFieldValue(
-                                'metadata',
-                                (form.state.values.metadata ?? []).filter((_, i) => i !== index),
-                              )
-                            }}
-                          />
-                        </Tooltip>
-                      </div>
-                    )
-                  })}
-
-                  <Button
-                    className="self-start"
-                    startIcon="plus"
-                    variant="inline"
-                    onClick={() =>
-                      form.setFieldValue('metadata', [
-                        ...(form.state.values.metadata ?? []),
-                        { key: '', value: '' },
-                      ])
-                    }
-                    data-test={ADD_METADATA_DATA_TEST}
-                  >
-                    {translate('text_63fcc3218d35b9377840f5bb')}
-                  </Button>
+                  <TransactionMetadataGroup form={form} fields={{ metadata: 'metadata' }} />
                 </div>
               </Accordion>
             </section>
