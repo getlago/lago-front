@@ -4,8 +4,8 @@ import { TopUpAmountError } from '~/pages/wallet/form'
 import { TWalletTopUpDataForm } from '~/pages/wallet/topUp/types'
 
 import {
+  getTopUpFormValidationSchema,
   topUpFormErrorLabels,
-  topUpFormValidationSchema,
   TopUpValidationContext,
 } from '../validationSchema'
 
@@ -34,12 +34,12 @@ const baseForm = (overrides: Partial<TWalletTopUpDataForm> = {}): TWalletTopUpDa
   ...overrides,
 })
 
-type ParseResult = ReturnType<ReturnType<typeof topUpFormValidationSchema>['safeParse']>
+type ParseResult = ReturnType<ReturnType<typeof getTopUpFormValidationSchema>['safeParse']>
 
 const parse = (
   values: TWalletTopUpDataForm,
   context: TopUpValidationContext = noBounds,
-): ParseResult => topUpFormValidationSchema(context).safeParse(values)
+): ParseResult => getTopUpFormValidationSchema(context).safeParse(values)
 
 const issuePaths = (result: ParseResult): string[] =>
   result.success ? [] : result.error.issues.map((i) => i.path.join('.'))
@@ -47,7 +47,7 @@ const issuePaths = (result: ParseResult): string[] =>
 const issueFor = (result: ParseResult, path: string) =>
   result.success ? undefined : result.error.issues.find((i) => i.path.join('.') === path)
 
-describe('topUpFormValidationSchema', () => {
+describe('getTopUpFormValidationSchema', () => {
   describe('GIVEN the at-least-one-credits rule', () => {
     describe('WHEN one credit amount is set', () => {
       it.each([

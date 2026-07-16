@@ -33,7 +33,7 @@ export type TopUpValidationContext = {
 const prepared = <T>(value: T): T | undefined =>
   value === ('' as unknown as T) ? undefined : value
 
-export const topUpFormValidationSchema = ({
+export const getTopUpFormValidationSchema = ({
   rateAmount,
   paidTopUpMinAmountCents,
   paidTopUpMaxAmountCents,

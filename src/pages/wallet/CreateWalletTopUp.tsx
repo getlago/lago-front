@@ -51,8 +51,8 @@ import TopUpTypeSelector, {
 } from '~/pages/wallet/components/TopUpTypeSelector'
 import { topUpAmountError } from '~/pages/wallet/form'
 import {
+  getTopUpFormValidationSchema,
   topUpFormErrorLabels,
-  topUpFormValidationSchema,
 } from '~/pages/wallet/topUp/formInitialization/validationSchema'
 import {
   mapFromApiToForm,
@@ -168,7 +168,7 @@ const CreateWalletTopUp = () => {
   // the schema when the wallet resolves.
   const validationSchema = useMemo(
     () =>
-      topUpFormValidationSchema({
+      getTopUpFormValidationSchema({
         rateAmount: wallet?.rateAmount?.toString(),
         paidTopUpMinAmountCents,
         paidTopUpMaxAmountCents,
