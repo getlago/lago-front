@@ -54,6 +54,7 @@ gql`
     $searchTerm: String
     $productIds: [ID!]
     $itemType: ProductItemTypeEnum
+    $withoutProduct: Boolean
   ) {
     productItems(
       page: $page
@@ -61,6 +62,7 @@ gql`
       searchTerm: $searchTerm
       productIds: $productIds
       itemType: $itemType
+      withoutProduct: $withoutProduct
     ) {
       metadata {
         currentPage

@@ -7,6 +7,12 @@ export const filterDataInlineSeparator = '|-_-|'
 // decode them back only for display — see escapeFilterLabel / unescapeFilterLabel in utils.
 export const filterDataLabelCommaPlaceholder = '|-COMMA-|'
 
+// Sentinel entry for the "Not defined" option of the product-item Product filter.
+// Selected alongside real product ids in the same multi-select, it is NOT a product id:
+// it maps to the standalone `withoutProduct: true` query arg. Kept free of the comma and
+// `filterDataInlineSeparator` so it can never collide with an encoded product selection.
+export const filterWithoutProductValue = '__without_product__'
+
 export enum AvailableQuickFilters {
   invoiceStatus = 'invoiceStatus',
   customerAccountType = 'customerAccountType',

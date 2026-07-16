@@ -12085,7 +12085,6 @@ export type GetPlansForFiltersItemPlanCodeQuery = { __typename?: 'Query', plans:
 export type GetProductsForFilterItemProductQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
-  searchTerm?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
@@ -14816,6 +14815,7 @@ export type ProductItemsQueryVariables = Exact<{
   searchTerm?: InputMaybe<Scalars['String']['input']>;
   productIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
   itemType?: InputMaybe<ProductItemTypeEnum>;
+  withoutProduct?: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
@@ -26520,8 +26520,8 @@ export type GetPlansForFiltersItemPlanCodeLazyQueryHookResult = ReturnType<typeo
 export type GetPlansForFiltersItemPlanCodeSuspenseQueryHookResult = ReturnType<typeof useGetPlansForFiltersItemPlanCodeSuspenseQuery>;
 export type GetPlansForFiltersItemPlanCodeQueryResult = Apollo.QueryResult<GetPlansForFiltersItemPlanCodeQuery, GetPlansForFiltersItemPlanCodeQueryVariables>;
 export const GetProductsForFilterItemProductDocument = gql`
-    query getProductsForFilterItemProduct($page: Int, $limit: Int, $searchTerm: String) {
-  products(page: $page, limit: $limit, searchTerm: $searchTerm) {
+    query getProductsForFilterItemProduct($page: Int, $limit: Int) {
+  products(page: $page, limit: $limit) {
     metadata {
       currentPage
       totalPages
@@ -26548,7 +26548,6 @@ export const GetProductsForFilterItemProductDocument = gql`
  *   variables: {
  *      page: // value for 'page'
  *      limit: // value for 'limit'
- *      searchTerm: // value for 'searchTerm'
  *   },
  * });
  */
@@ -38638,13 +38637,14 @@ export type GoogleRegisterMutationHookResult = ReturnType<typeof useGoogleRegist
 export type GoogleRegisterMutationResult = Apollo.MutationResult<GoogleRegisterMutation>;
 export type GoogleRegisterMutationOptions = Apollo.BaseMutationOptions<GoogleRegisterMutation, GoogleRegisterMutationVariables>;
 export const ProductItemsDocument = gql`
-    query productItems($page: Int, $limit: Int, $searchTerm: String, $productIds: [ID!], $itemType: ProductItemTypeEnum) {
+    query productItems($page: Int, $limit: Int, $searchTerm: String, $productIds: [ID!], $itemType: ProductItemTypeEnum, $withoutProduct: Boolean) {
   productItems(
     page: $page
     limit: $limit
     searchTerm: $searchTerm
     productIds: $productIds
     itemType: $itemType
+    withoutProduct: $withoutProduct
   ) {
     metadata {
       currentPage
@@ -38676,6 +38676,7 @@ export const ProductItemsDocument = gql`
  *      searchTerm: // value for 'searchTerm'
  *      productIds: // value for 'productIds'
  *      itemType: // value for 'itemType'
+ *      withoutProduct: // value for 'withoutProduct'
  *   },
  * });
  */

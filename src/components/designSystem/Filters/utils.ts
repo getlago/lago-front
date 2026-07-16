@@ -80,6 +80,7 @@ import {
   CustomerPaymentsAvailableFilters,
   filterDataInlineSeparator,
   filterDataLabelCommaPlaceholder,
+  filterWithoutProductValue,
   ForecastsAvailableFilters,
   InvoiceAvailableFilters,
   MrrBreakdownPlansAvailableFilters,
@@ -245,9 +246,21 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.paymentOverdue]: (value: string) => value === 'true',
   [AvailableFiltersEnum.paymentStatus]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.planCode]: (value: string) => value,
-  [AvailableFiltersEnum.productItemProduct]: (value: string) => [
-    value.split(filterDataInlineSeparator)[0],
-  ],
+  [AvailableFiltersEnum.productItemProduct]: (value: string) => {
+    // Multi-select: real products go to `productIds`; the synthetic "Not defined" entry
+    // maps to the standalone `withoutProduct` arg instead of polluting the id array.
+    // Returning an object lets formatFiltersForQuery spread both keys into the query vars.
+    const parts = value.split(',').filter(Boolean)
+    const withoutProduct = parts.includes(filterWithoutProductValue)
+    const productIds = parts
+      .filter((part) => part !== filterWithoutProductValue)
+      .map((part) => part.split(filterDataInlineSeparator)[0])
+
+    return {
+      ...(productIds.length > 0 && { productIds }),
+      ...(withoutProduct && { withoutProduct: true }),
+    }
+  },
   [AvailableFiltersEnum.productItemType]: (value: string) => value,
   [AvailableFiltersEnum.orderFormCreatedAt]: (value: string) => {
     return {
@@ -431,13 +444,17 @@ export const formatFiltersForCreditNotesQuery = (
   })
 }
 
-type ProductItemsQueryFilters = Partial<Pick<ProductItemsQueryVariables, 'productIds' | 'itemType'>>
+type ProductItemsQueryFilters = Partial<
+  Pick<ProductItemsQueryVariables, 'productIds' | 'itemType' | 'withoutProduct'>
+>
 
 export const formatFiltersForProductItemsQuery = (
   searchParams: URLSearchParams,
 ): ProductItemsQueryFilters => {
+  // productItemProduct is intentionally absent: its FILTER_VALUE_MAP entry returns an object
+  // ({ productIds?, withoutProduct? }) that formatFiltersForQuery spreads directly, so it
+  // maps to two keys at once and can't go through the single-key keyMap.
   const keyMap: Partial<Record<AvailableFiltersEnum, keyof ProductItemsQueryFilters & string>> = {
-    [AvailableFiltersEnum.productItemProduct]: 'productIds',
     [AvailableFiltersEnum.productItemType]: 'itemType',
   }
 
@@ -972,10 +989,23 @@ export const formatActiveFilterValueDisplay = (
         .join(', ')
     case AvailableFiltersEnum.customerExternalId:
     case AvailableFiltersEnum.billingEntityId:
-    case AvailableFiltersEnum.productItemProduct:
       return unescapeFilterLabel(
         value.split(filterDataInlineSeparator)[1] || value.split(filterDataInlineSeparator)[0],
       )
+    case AvailableFiltersEnum.productItemProduct:
+      // Multi-select with a synthetic "Not defined" entry; render its translated label.
+      return value
+        .split(',')
+        .filter(Boolean)
+        .map((entry) =>
+          entry === filterWithoutProductValue
+            ? translate?.('text_1784214117868fh6rndi4m75') || ''
+            : unescapeFilterLabel(
+                entry.split(filterDataInlineSeparator)[1] ||
+                  entry.split(filterDataInlineSeparator)[0],
+              ),
+        )
+        .join(', ')
     case AvailableFiltersEnum.isCustomerTinEmpty:
       return (
         translate?.(
