@@ -15,10 +15,7 @@ import {
   SettingsPaddedContainer,
 } from '~/components/layouts/Settings'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import {
-  EditBillingEntityDocumentLocaleDialog,
-  EditBillingEntityDocumentLocaleDialogRef,
-} from '~/components/settings/invoices/EditBillingEntityDocumentLocaleDialog'
+import { useEditBillingEntityDocumentLocaleDialog } from '~/components/settings/invoices/EditBillingEntityDocumentLocaleDialog'
 import {
   EditBillingEntityGracePeriodDialog,
   EditBillingEntityGracePeriodDialogRef,
@@ -132,7 +129,7 @@ const BillingEntityInvoiceSettings = () => {
   const editBillingEntityInvoiceIssuingDatePolicyDialogRef =
     useRef<EditBillingEntityInvoiceIssuingDatePolicyDialogRef>(null)
   const editGracePeriodDialogRef = useRef<EditBillingEntityGracePeriodDialogRef>(null)
-  const editDocumentLanguageDialogRef = useRef<EditBillingEntityDocumentLocaleDialogRef>(null)
+  const { openEditBillingEntityDocumentLocaleDialog } = useEditBillingEntityDocumentLocaleDialog()
   const editNetPaymentTermDialogRef = useRef<EditNetPaymentTermDialogRef>(null)
   const editFinalizeZeroAmountInvoiceDialogRef =
     useRef<EditFinalizeZeroAmountInvoiceDialogRef>(null)
@@ -193,19 +190,17 @@ const BillingEntityInvoiceSettings = () => {
         <Button
           variant="inline"
           disabled={!canEditInvoiceSettings}
-          onClick={() => editDocumentLanguageDialogRef?.current?.openDialog()}
+          onClick={() =>
+            openEditBillingEntityDocumentLocaleDialog({
+              id: billingEntity?.id as string,
+              documentLocale,
+            })
+          }
         >
           {translate('text_63e51ef4985f0ebd75c212fc')}
         </Button>
       ),
       content: DocumentLocales[documentLocale as keyof typeof DocumentLocales],
-      dialog: (
-        <EditBillingEntityDocumentLocaleDialog
-          ref={editDocumentLanguageDialogRef}
-          documentLocale={documentLocale}
-          id={billingEntity?.id as string}
-        />
-      ),
     },
     {
       id: 'invoice-settings-finalize-zero-amount',
