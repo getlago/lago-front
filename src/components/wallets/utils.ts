@@ -107,6 +107,41 @@ const setStartOfSentence = ({
 
 const MINIMUM_DAYS_IN_MONTH = 28
 
+const getIntervalEndOfSentence = ({
+  interval,
+  isDayPotentiallyNotReachableOnEntirePeriod,
+  dateRef,
+  translate,
+}: {
+  interval?: RecurringTransactionIntervalEnum | null
+  isDayPotentiallyNotReachableOnEntirePeriod: boolean
+  dateRef: DateTime
+  translate: TranslateFunc
+}): string => {
+  switch (interval) {
+    case RecurringTransactionIntervalEnum.Weekly:
+      return translate('text_6657be42151661006d2f3b79', { dayOfWeek: dateRef.weekdayLong })
+    case RecurringTransactionIntervalEnum.Monthly:
+      return isDayPotentiallyNotReachableOnEntirePeriod
+        ? translate('text_6657be42151661006d2f3b7d')
+        : translate('text_6657be42151661006d2f3b7b')
+    case RecurringTransactionIntervalEnum.Quarterly:
+      return isDayPotentiallyNotReachableOnEntirePeriod
+        ? translate('text_6657be42151661006d2f3b81')
+        : translate('text_6657be42151661006d2f3b7f')
+    case RecurringTransactionIntervalEnum.Semiannual:
+      return isDayPotentiallyNotReachableOnEntirePeriod
+        ? translate('text_1756374810493e2wep7ld6yk')
+        : translate('text_1756374359049ylvettsjq4l')
+    case RecurringTransactionIntervalEnum.Yearly:
+      return isDayPotentiallyNotReachableOnEntirePeriod
+        ? translate('text_6657be42151661006d2f3b85', { month: dateRef.monthLong })
+        : translate('text_6657be42151661006d2f3b83')
+    default:
+      return ''
+  }
+}
+
 const setEndOfSentence = ({
   recurringRulesValues,
   customerTimezone,
@@ -129,33 +164,12 @@ const setEndOfSentence = ({
     })
     const isDayPotentiallyNotReachableOnEntirePeriod = dateRef.day > MINIMUM_DAYS_IN_MONTH
 
-    switch (recurringRulesValues?.interval) {
-      case RecurringTransactionIntervalEnum.Weekly:
-        text = translate('text_6657be42151661006d2f3b79', { dayOfWeek: dateRef.weekdayLong })
-        break
-      case RecurringTransactionIntervalEnum.Monthly:
-        text = isDayPotentiallyNotReachableOnEntirePeriod
-          ? translate('text_6657be42151661006d2f3b7d')
-          : translate('text_6657be42151661006d2f3b7b')
-        break
-      case RecurringTransactionIntervalEnum.Quarterly:
-        text = isDayPotentiallyNotReachableOnEntirePeriod
-          ? translate('text_6657be42151661006d2f3b81')
-          : translate('text_6657be42151661006d2f3b7f')
-        break
-      case RecurringTransactionIntervalEnum.Semiannual:
-        text = isDayPotentiallyNotReachableOnEntirePeriod
-          ? translate('text_1756374810493e2wep7ld6yk')
-          : translate('text_1756374359049ylvettsjq4l')
-        break
-      case RecurringTransactionIntervalEnum.Yearly:
-        text = isDayPotentiallyNotReachableOnEntirePeriod
-          ? translate('text_6657be42151661006d2f3b85', { month: dateRef.monthLong })
-          : translate('text_6657be42151661006d2f3b83')
-        break
-      default:
-        break
-    }
+    text = getIntervalEndOfSentence({
+      interval: recurringRulesValues?.interval,
+      isDayPotentiallyNotReachableOnEntirePeriod,
+      dateRef,
+      translate,
+    })
   } else if (recurringRulesValues?.trigger === RecurringTransactionTriggerEnum.Threshold) {
     if (recurringRulesValues?.method === RecurringTransactionMethodEnum.Fixed) {
       const totalCreditCount =
