@@ -114,6 +114,8 @@ const RecurringRuleInfoGrid = ({
     customerIcsData,
   })
 
+  const purchaseOrderNumber = rule?.purchaseOrderNumber
+
   return (
     <>
       <DetailsPage.InfoGrid
@@ -224,6 +226,10 @@ const RecurringRuleInfoGrid = ({
                 },
               ]
             : []),
+          {
+            label: translate('text_17822197712865r9iwe3lgel'),
+            value: purchaseOrderNumber || '-',
+          },
         ]}
       />
 
