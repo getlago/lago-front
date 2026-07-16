@@ -11,6 +11,10 @@ import {
 } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
+import {
+  PRODUCT_ITEM_DRAWER_REMOVE_DESCRIPTION_TEST_ID,
+  PRODUCT_ITEM_DRAWER_SHOW_DESCRIPTION_TEST_ID,
+} from '../ProductItemDrawerContent'
 import { useProductItemDrawer } from '../useProductItemDrawer'
 
 type CapturedDrawerArgs = {
@@ -69,6 +73,12 @@ const productItemFixture: ProductItemForDrawerFragment = {
   attachedToPlanOrSubscription: false,
   product: { id: 'prod-1', name: 'Object storage', code: 'object_storage' },
   billableMetric: null,
+}
+
+const usageProductItemFixture: ProductItemForDrawerFragment = {
+  ...productItemFixture,
+  itemType: ProductItemTypeEnum.Usage,
+  billableMetric: { id: 'bm-1', name: 'API calls', code: 'api_calls' },
 }
 
 const renderDrawerHook = (mocks: MockedResponse[] = []) =>
@@ -206,6 +216,51 @@ describe('useProductItemDrawer', () => {
         message: 'text_1783980718114jtotg0hluib',
       })
       expect(mockNavigate).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('GIVEN the optional description field', () => {
+    it('reveals and removes a prefilled description in edit mode', async () => {
+      const { result } = renderDrawerHook()
+
+      act(() => result.current.openDrawer({ productItem: productItemFixture }))
+      renderDrawerBody()
+
+      const removeButton = await screen.findByTestId(PRODUCT_ITEM_DRAWER_REMOVE_DESCRIPTION_TEST_ID)
+
+      expect(screen.getByDisplayValue('Per seat billing')).toBeInTheDocument()
+
+      await userEvent.click(removeButton)
+
+      expect(screen.queryByDisplayValue('Per seat billing')).not.toBeInTheDocument()
+      expect(screen.getByTestId(PRODUCT_ITEM_DRAWER_SHOW_DESCRIPTION_TEST_ID)).toBeInTheDocument()
+
+      await userEvent.click(screen.getByTestId(PRODUCT_ITEM_DRAWER_SHOW_DESCRIPTION_TEST_ID))
+
+      expect(screen.getByTestId(PRODUCT_ITEM_DRAWER_REMOVE_DESCRIPTION_TEST_ID)).toBeInTheDocument()
+    })
+  })
+
+  describe('GIVEN a usage item in edit mode', () => {
+    it('reveals the billable metric selector prefilled from the item', async () => {
+      const { result } = renderDrawerHook()
+
+      act(() => result.current.openDrawer({ productItem: usageProductItemFixture }))
+      renderDrawerBody()
+
+      await waitFor(() => expect(screen.getByDisplayValue('API calls')).toBeInTheDocument())
+    })
+  })
+
+  describe('GIVEN a fixed item in edit mode', () => {
+    it('hides the billable metric selector', async () => {
+      const { result } = renderDrawerHook()
+
+      act(() => result.current.openDrawer({ productItem: productItemFixture }))
+      renderDrawerBody()
+
+      await waitFor(() => expect(screen.getByDisplayValue('Seats')).toBeInTheDocument())
+      expect(screen.queryByDisplayValue('API calls')).not.toBeInTheDocument()
     })
   })
 })

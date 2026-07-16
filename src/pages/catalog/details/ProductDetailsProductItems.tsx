@@ -31,6 +31,11 @@ import { useDeleteProductItemDialog } from '../dialogs/useDeleteProductItemDialo
 import { useProductItemDrawer } from '../drawers/productItem/useProductItemDrawer'
 import { useProductItemTableColumns } from '../useProductItemTableColumns'
 
+export const PRODUCT_DETAILS_ADD_PRODUCT_ITEM_TEST_ID = 'product-details-add-product-item'
+export const PRODUCT_DETAILS_PRODUCT_ITEMS_EMPTY_TEST_ID = 'product-details-product-items-empty'
+export const PRODUCT_DETAILS_PRODUCT_ITEMS_VIEW_ALL_TEST_ID =
+  'product-details-product-items-view-all'
+
 const PREVIEW_LIMIT = 6
 
 gql`
@@ -123,7 +128,10 @@ const ProductItemsPreview = ({ product }: { product: ProductAttachment }) => {
   // of the full-page empty illustration.
   if (!isLoading && totalCount === 0 && !hasSearch) {
     return (
-      <div className="flex items-center justify-center rounded-xl border border-dashed border-grey-300 px-4 py-6">
+      <div
+        className="flex items-center justify-center rounded-xl border border-dashed border-grey-300 px-4 py-6"
+        data-test={PRODUCT_DETAILS_PRODUCT_ITEMS_EMPTY_TEST_ID}
+      >
         <Typography variant="body" color="grey500">
           {translate('text_1783980718114mr3o8mh00qx')}
         </Typography>
@@ -166,7 +174,11 @@ const ProductItemsPreview = ({ product }: { product: ProductAttachment }) => {
       />
       {totalCount > PREVIEW_LIMIT && (
         <Link to={viewAllTo} className="w-fit">
-          <Button variant="quaternary" endIcon="arrow-right">
+          <Button
+            variant="quaternary"
+            endIcon="arrow-right"
+            data-test={PRODUCT_DETAILS_PRODUCT_ITEMS_VIEW_ALL_TEST_ID}
+          >
             {translate('text_1783980718114q92o669eemw', { count: totalCount })}
           </Button>
         </Link>
@@ -194,6 +206,7 @@ export const ProductDetailsProductItems = ({ product }: { product?: ProductAttac
         {hasPermissions(['productItemsCreate']) && !!product && (
           <Button
             variant="inline"
+            data-test={PRODUCT_DETAILS_ADD_PRODUCT_ITEM_TEST_ID}
             onClick={() => openProductItemDrawer({ attachToProduct: product })}
           >
             {translate('text_1783622030703m9jlurg4jsn')}

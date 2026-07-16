@@ -13,6 +13,10 @@ import {
 } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
+import {
+  PRODUCT_DRAWER_REMOVE_DESCRIPTION_TEST_ID,
+  PRODUCT_DRAWER_SHOW_DESCRIPTION_TEST_ID,
+} from '../ProductDrawerContent'
 import { useProductDrawer } from '../useProductDrawer'
 
 type CapturedDrawerArgs = {
@@ -389,6 +393,43 @@ describe('useProductDrawer', () => {
           }),
         ),
       )
+    })
+  })
+
+  describe('GIVEN the optional description field', () => {
+    it('reveals and removes a prefilled description in edit mode', async () => {
+      const { result } = renderDrawerHook()
+
+      act(() => result.current.openDrawer(productFixture))
+      renderDrawerBody()
+
+      const removeButton = await screen.findByTestId(PRODUCT_DRAWER_REMOVE_DESCRIPTION_TEST_ID)
+
+      expect(screen.getByDisplayValue('Base storage product')).toBeInTheDocument()
+
+      await userEvent.click(removeButton)
+
+      expect(screen.queryByDisplayValue('Base storage product')).not.toBeInTheDocument()
+      expect(screen.getByTestId(PRODUCT_DRAWER_SHOW_DESCRIPTION_TEST_ID)).toBeInTheDocument()
+
+      await userEvent.click(screen.getByTestId(PRODUCT_DRAWER_SHOW_DESCRIPTION_TEST_ID))
+
+      expect(screen.getByTestId(PRODUCT_DRAWER_REMOVE_DESCRIPTION_TEST_ID)).toBeInTheDocument()
+    })
+
+    it('toggles the description on then off in create mode', async () => {
+      const { result } = renderDrawerHook()
+
+      act(() => result.current.openDrawer())
+      renderDrawerBody()
+
+      await userEvent.click(await screen.findByTestId(PRODUCT_DRAWER_SHOW_DESCRIPTION_TEST_ID))
+
+      expect(screen.getByTestId(PRODUCT_DRAWER_REMOVE_DESCRIPTION_TEST_ID)).toBeInTheDocument()
+
+      await userEvent.click(screen.getByTestId(PRODUCT_DRAWER_REMOVE_DESCRIPTION_TEST_ID))
+
+      expect(screen.getByTestId(PRODUCT_DRAWER_SHOW_DESCRIPTION_TEST_ID)).toBeInTheDocument()
     })
   })
 })
