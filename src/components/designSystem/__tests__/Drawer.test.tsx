@@ -1,10 +1,19 @@
+import NiceModal from '@ebay/nice-modal-react'
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { createRef } from 'react'
+import { createRef, ReactNode } from 'react'
 
+import CentralizedDialog from '~/components/dialogs/CentralizedDialog'
+import { CENTRALIZED_DIALOG_NAME } from '~/components/dialogs/const'
 import { render } from '~/test-utils'
 
 import { Drawer, DrawerRef } from '../Drawer'
+
+NiceModal.register(CENTRALIZED_DIALOG_NAME, CentralizedDialog)
+
+const NiceModalWrapper = ({ children }: { children: ReactNode }) => (
+  <NiceModal.Provider>{children}</NiceModal.Provider>
+)
 
 // Test IDs
 export const DRAWER_OPENER_TEST_ID = 'drawer-opener'
@@ -472,9 +481,11 @@ describe('Drawer', () => {
       const onClose = jest.fn()
 
       render(
-        <Drawer title="Test Drawer" forceOpen showCloseWarningDialog onClose={onClose}>
-          <div data-test={DRAWER_CONTENT_TEST_ID}>Content</div>
-        </Drawer>,
+        <NiceModalWrapper>
+          <Drawer title="Test Drawer" forceOpen showCloseWarningDialog onClose={onClose}>
+            <div data-test={DRAWER_CONTENT_TEST_ID}>Content</div>
+          </Drawer>
+        </NiceModalWrapper>,
       )
 
       const closeButton = screen.getByTestId('button')
@@ -495,9 +506,11 @@ describe('Drawer', () => {
       const onClose = jest.fn()
 
       render(
-        <Drawer title="Test Drawer" forceOpen showCloseWarningDialog onClose={onClose}>
-          <div data-test={DRAWER_CONTENT_TEST_ID}>Content</div>
-        </Drawer>,
+        <NiceModalWrapper>
+          <Drawer title="Test Drawer" forceOpen showCloseWarningDialog onClose={onClose}>
+            <div data-test={DRAWER_CONTENT_TEST_ID}>Content</div>
+          </Drawer>
+        </NiceModalWrapper>,
       )
 
       const closeButton = screen.getByTestId('button')
@@ -536,9 +549,11 @@ describe('Drawer', () => {
       const onClose = jest.fn()
 
       render(
-        <Drawer title="Test Drawer" forceOpen showCloseWarningDialog onClose={onClose}>
-          <div data-test={DRAWER_CONTENT_TEST_ID}>Content</div>
-        </Drawer>,
+        <NiceModalWrapper>
+          <Drawer title="Test Drawer" forceOpen showCloseWarningDialog onClose={onClose}>
+            <div data-test={DRAWER_CONTENT_TEST_ID}>Content</div>
+          </Drawer>
+        </NiceModalWrapper>,
       )
 
       const closeButton = screen.getByTestId('button')
