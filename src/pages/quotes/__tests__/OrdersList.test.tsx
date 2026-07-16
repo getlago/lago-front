@@ -1,7 +1,8 @@
 import { screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
 import { OrderExecutionModeEnum, OrderStatusEnum } from '~/generated/graphql'
-import { render } from '~/test-utils'
+import { render, testMockNavigateFn } from '~/test-utils'
 
 import { useOrders } from '../hooks/useOrders'
 import OrdersList from '../OrdersList'
@@ -194,5 +195,38 @@ describe('OrdersList', () => {
     } finally {
       window.history.pushState({}, '', '/')
     }
+  })
+
+  describe('row navigation', () => {
+    beforeEach(() => {
+      testMockNavigateFn.mockClear()
+      mockUseOrders.mockReturnValue({
+        orders: mockOrders,
+        loading: false,
+        error: undefined,
+        fetchMore: jest.fn(),
+        metadata: { currentPage: 1, totalPages: 1, totalCount: mockOrders.length },
+      })
+    })
+
+    it('THEN navigates an Executed order row to the details page', async () => {
+      const user = userEvent.setup()
+
+      render(<OrdersList />)
+
+      await user.click(screen.getByTestId('table-row-0'))
+
+      expect(testMockNavigateFn).toHaveBeenCalledWith('/order/order-1')
+    })
+
+    it('THEN navigates a Created order row to the execute page', async () => {
+      const user = userEvent.setup()
+
+      render(<OrdersList />)
+
+      await user.click(screen.getByTestId('table-row-1'))
+
+      expect(testMockNavigateFn).toHaveBeenCalledWith('/order/order-2/execute')
+    })
   })
 })
