@@ -45,7 +45,7 @@ jest.mock('~/components/settings/integrations/AddAdyenDialog', () => ({
   useAddAdyenDialog: () => ({ openAddAdyenDialog: () => null }),
 }))
 jest.mock('~/components/settings/integrations/AddStripeDialog', () => ({
-  AddStripeDialog: () => null,
+  useAddStripeDialog: () => ({ openAddStripeDialog: () => null }),
 }))
 jest.mock('~/components/settings/integrations/AddGocardlessDialog', () => ({
   AddGocardlessDialog: () => null,
