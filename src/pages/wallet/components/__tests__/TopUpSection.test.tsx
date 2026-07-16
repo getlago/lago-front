@@ -1,3 +1,4 @@
+import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useState } from 'react'
@@ -16,6 +17,7 @@ import {
 } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { DEFAULT_RULES, TopUpSection } from '~/pages/wallet/components/TopUpSection'
+import { walletFormValidationSchema } from '~/pages/wallet/formInitialization/validationSchema'
 import { mapFromApiToForm } from '~/pages/wallet/mappers/mapFromApiToForm'
 import { TWalletDataForm } from '~/pages/wallet/types'
 import { render } from '~/test-utils'
@@ -51,12 +53,16 @@ const customerData = {
   },
 } as unknown as GetCustomerInfosForWalletFormQuery
 
+const SUBMIT_BUTTON_DATA_TEST = 'submit-wallet-form'
+
 const TestWrapper = ({
   defaultsOverride,
   initiallyEnabled = false,
+  withValidation = false,
 }: {
   defaultsOverride?: Partial<TWalletDataForm>
   initiallyEnabled?: boolean
+  withValidation?: boolean
 }) => {
   const form = useAppForm({
     defaultValues: {
@@ -67,18 +73,39 @@ const TestWrapper = ({
       }),
       ...defaultsOverride,
     },
+    // Mirror the CreateWallet form setup so submit runs the real schema
+    ...(withValidation
+      ? {
+          validationLogic: revalidateLogic(),
+          validators: { onDynamic: walletFormValidationSchema },
+        }
+      : {}),
   })
 
   const [isRecurringTopUpEnabled, setIsRecurringTopUpEnabled] = useState(initiallyEnabled)
 
+  // Lets tests wait until a submit attempt (and its validation) completed
+  const submissionAttempts = useStore(form.store, (state) => state.submissionAttempts)
+
   return (
-    <TopUpSection
-      form={form}
-      formType={FORM_TYPE_ENUM.creation}
-      customerData={customerData}
-      isRecurringTopUpEnabled={isRecurringTopUpEnabled}
-      setIsRecurringTopUpEnabled={setIsRecurringTopUpEnabled}
-    />
+    <>
+      <TopUpSection
+        form={form}
+        formType={FORM_TYPE_ENUM.creation}
+        customerData={customerData}
+        isRecurringTopUpEnabled={isRecurringTopUpEnabled}
+        setIsRecurringTopUpEnabled={setIsRecurringTopUpEnabled}
+      />
+      {withValidation && (
+        <button
+          type="button"
+          data-test={SUBMIT_BUTTON_DATA_TEST}
+          onClick={() => form.handleSubmit()}
+        >
+          submit ({submissionAttempts})
+        </button>
+      )}
+    </>
   )
 }
 
@@ -291,6 +318,61 @@ describe('TopUpSection', () => {
         await waitFor(() => {
           expect(queryInput('recurringTransactionRules[0].transactionMetadata[0].key')).toBeNull()
         })
+      })
+    })
+  })
+
+  describe('GIVEN the accordion validity indicator', () => {
+    // Icon renders as `<svg data-test="validate-filled/medium">` with
+    // text-green-600 (success) or text-grey-400 (disabled = invalid)
+    const validityIcon = () =>
+      document.querySelector('[data-test="validate-filled/medium"]') as SVGElement
+
+    describe('WHEN submitting with an invalid rule (threshold credits missing)', () => {
+      it('THEN should flip the indicator to invalid', async () => {
+        const user = userEvent.setup()
+
+        // DEFAULT_RULES: trigger=Threshold with thresholdCredits '' → schema
+        // errors on recurringTransactionRules[0].thresholdCredits at submit
+        render(<TestWrapper initiallyEnabled withValidation defaultsOverride={withRule()} />)
+
+        // revalidateLogic: no error surfaces before the first submit attempt
+        expect(validityIcon()).toHaveClass('text-green-600')
+
+        await user.click(screen.getByTestId(SUBMIT_BUTTON_DATA_TEST))
+
+        await waitFor(() => {
+          expect(validityIcon()).toHaveClass('text-grey-400')
+        })
+      })
+    })
+
+    describe('WHEN submitting with a valid rule but errors elsewhere in the form', () => {
+      it('THEN should keep the indicator valid', async () => {
+        const user = userEvent.setup()
+
+        render(
+          <TestWrapper
+            initiallyEnabled
+            withValidation
+            defaultsOverride={{
+              // top-level error OUTSIDE the rules: rateAmount is required
+              rateAmount: '',
+              ...withRule({ thresholdCredits: '100', paidCredits: '50' }),
+            }}
+          />,
+        )
+
+        await user.click(screen.getByTestId(SUBMIT_BUTTON_DATA_TEST))
+
+        // Wait for the submit attempt to be registered — validation has run
+        await waitFor(() => {
+          expect(screen.getByTestId(SUBMIT_BUTTON_DATA_TEST)).toHaveTextContent('submit (1)')
+        })
+
+        // The submit failed (rateAmount required), but no error is keyed
+        // under recurringTransactionRules → the rule indicator stays valid
+        expect(validityIcon()).toHaveClass('text-green-600')
       })
     })
   })
