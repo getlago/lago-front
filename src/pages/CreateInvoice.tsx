@@ -1,11 +1,8 @@
 import { gql } from '@apollo/client'
-import InputAdornment from '@mui/material/InputAdornment'
-import { useFormik } from 'formik'
-import _get from 'lodash/get'
+import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { DateTime } from 'luxon'
 import { useCallback, useMemo, useState } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
-import { array, number, object, string } from 'yup'
 
 import { BillingEntityFormPicker } from '~/components/billingEntity/BillingEntityFormPicker'
 import { Alert } from '~/components/designSystem/Alert'
@@ -13,39 +10,25 @@ import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
 import { Card } from '~/components/designSystem/Card'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
-import { Popper } from '~/components/designSystem/Popper'
 import { Skeleton } from '~/components/designSystem/Skeleton'
-import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
-import { AmountInput, ComboBox, ComboBoxField, ComboboxItem, TextInput } from '~/components/form'
-import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
-import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
-import { useEditFeeBillingPeriodDialog } from '~/components/invoices/EditFeeBillingPeriod'
-import { useEditInvoiceItemDescriptionDialog } from '~/components/invoices/EditInvoiceItemDescriptionDialog'
-import { useEditInvoiceItemTaxDialog } from '~/components/invoices/EditInvoiceItemTaxDialog'
 import { InvoiceTaxesDisplay, TaxMapType } from '~/components/invoices/InvoiceTaxesDisplay'
-import { InvoiceFormInput, LocalFeeInput } from '~/components/invoices/types'
-import { useEditInvoiceDisplayNameDialog } from '~/components/invoices/useEditInvoiceDisplayName'
 import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
-import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
-import { normalizePurchaseOrderNumber, PO } from '~/components/purchaseOrder/PO'
+import { PaymentMethodsForm, ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
+import { PO } from '~/components/purchaseOrder/PO'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import {
-  ADD_ITEM_FOR_INVOICE_INPUT_NAME,
   appliedTaxEnumedTaxCodeTranslationKey,
   LocalTaxProviderErrorsEnum,
-  MUI_INPUT_BASE_ROOT_CLASSNAME,
 } from '~/core/constants/form'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { formatAddress } from '~/core/formats/formatAddress'
-import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_INVOICE_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
 import { formatInvoiceDisplayValue, invoiceFeesToFeeInput } from '~/core/utils/invoiceUtils'
 import {
-  AddOnForInvoiceEditTaxDialogFragmentDoc,
   CurrencyEnum,
   CustomerAccountTypeEnum,
   FeatureFlagEnum,
@@ -56,7 +39,6 @@ import {
   TaxInfosForCreateInvoiceFragment,
   useCreateInvoiceMutation,
   useFetchDraftInvoiceTaxesMutation,
-  useGetAddonListForInfoiceLazyQuery,
   useGetBillingEntityQuery,
   useGetBillingEntityTaxesForCreateInvoiceQuery,
   useGetInfosForCreateInvoiceQuery,
@@ -64,13 +46,18 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
+import { useAppForm } from '~/hooks/forms/useAppform'
 import { useBillingEntitiesOptions } from '~/hooks/useBillingEntitiesOptions'
 import { useIframeConfig } from '~/hooks/useIframeConfig'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
+import { FeesSection } from '~/pages/createInvoice/components/FeesSection'
+import { invoiceFormValidationSchema } from '~/pages/createInvoice/formInitialization/validationSchema'
+import { mapFromApiToForm } from '~/pages/createInvoice/mappers/mapFromApiToForm'
+import { mapFormToCreateInput } from '~/pages/createInvoice/mappers/mapFromFormToApi'
 import { useInvoiceBuildRegenerationPreview } from '~/pages/invoiceDetails/common/useInvoiceBuildRegenerationPreview'
 import ErrorImage from '~/public/images/maneki/error.svg'
-import { MenuPopper, PageHeader } from '~/styles'
+import { PageHeader } from '~/styles'
 import { tw } from '~/styles/utils'
 
 export const computeHasTaxProvider = (
@@ -160,28 +147,6 @@ gql`
     }
   }
 
-  query getAddonListForInfoice($page: Int, $limit: Int, $searchTerm: String) {
-    addOns(page: $page, limit: $limit, searchTerm: $searchTerm) {
-      metadata {
-        currentPage
-        totalPages
-      }
-      collection {
-        id
-        name
-        description
-        amountCents
-        amountCurrency
-        invoiceDisplayName
-        ...AddOnForInvoiceEditTaxDialog
-        taxes {
-          id
-          ...TaxInfosForCreateInvoice
-        }
-      }
-    }
-  }
-
   mutation fetchDraftInvoiceTaxes($input: FetchDraftInvoiceTaxesInput!) {
     fetchDraftInvoiceTaxes(input: $input) {
       collection {
@@ -205,8 +170,9 @@ gql`
   }
 
   ${FeeForInvoiceFeesToFeeInputFragmentDoc}
-  ${AddOnForInvoiceEditTaxDialogFragmentDoc}
 `
+
+export const CREATE_INVOICE_SUBMIT_BUTTON_TEST_ID = 'create-invoice-button'
 
 const CreateInvoice = () => {
   const { translate } = useInternationalization()
@@ -222,17 +188,12 @@ const CreateInvoice = () => {
     isRunningInSalesForceIframe,
   } = useIframeConfig()
 
-  const [showAddItem, setShowAddItem] = useState(false)
   const [taxProviderTaxesResult, setTaxProviderTaxesResult] =
     useState<FetchDraftInvoiceTaxesMutation['fetchDraftInvoiceTaxes']>(null)
   const [taxProviderTaxesErrorMessage, setTaxProviderTaxesErrorMessage] =
     useState<LocalTaxProviderErrorsEnum | null>(null)
 
   const centralizedDialog = useCentralizedDialog()
-  const { openEditInvoiceItemDescriptionDialog } = useEditInvoiceItemDescriptionDialog()
-  const { openEditInvoiceItemTaxDialog } = useEditInvoiceItemTaxDialog()
-  const { openEditInvoiceDisplayNameDialog } = useEditInvoiceDisplayNameDialog()
-  const { openEditFeeBillingPeriodDialog } = useEditFeeBillingPeriodDialog()
 
   const handleClosePage = useCallback(() => {
     goBack(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: customerId as string }))
@@ -245,7 +206,7 @@ const CreateInvoice = () => {
   })
   const { customer, taxes } = data || {}
 
-  const { invoiceBuildRegenerationPreview: prefillInvoice } =
+  const { invoiceBuildRegenerationPreview: prefillInvoice, loading: prefillInvoiceLoading } =
     useInvoiceBuildRegenerationPreview(voidedInvoiceId)
 
   const prefillFees = useMemo(() => {
@@ -255,7 +216,7 @@ const CreateInvoice = () => {
       return
     }
 
-    return invoiceFeesToFeeInput(prefillInvoice as Invoice)
+    return invoiceFeesToFeeInput(prefillInvoice as Invoice) ?? undefined
   }, [prefillInvoice])
 
   const { options: billingEntityOptions } = useBillingEntitiesOptions()
@@ -318,10 +279,6 @@ const CreateInvoice = () => {
     ],
   )
 
-  const [getAddOns, { data: addOnData }] = useGetAddonListForInfoiceLazyQuery({
-    variables: { limit: 20 },
-  })
-
   const [getTaxFromTaxProvider] = useFetchDraftInvoiceTaxesMutation({
     fetchPolicy: 'no-cache',
     context: {
@@ -363,39 +320,22 @@ const CreateInvoice = () => {
 
   const [voidInvoice] = useVoidInvoiceMutation({})
 
-  const formikProps = useFormik<InvoiceFormInput>({
-    initialValues: {
-      customerId: customerId || '',
-      billingEntityId: customer?.billingEntity?.id || undefined,
-      currency: data?.customer?.currency || billingEntity?.defaultCurrency || CurrencyEnum.Usd,
-      fees: prefillFees || [],
-      paymentMethod: undefined,
-      invoiceCustomSection: undefined,
-      purchaseOrderNumber: prefillInvoice?.purchaseOrderNumber || undefined,
-    },
-    validationSchema: object().shape({
-      customerId: string().required(''),
-      currency: string().required(''),
-      fees: array()
-        .of(
-          object().shape({
-            addOnId: string().required(''),
-            description: string().nullable(),
-            units: number().min(1, 'text_645381a65b99559adf6401f0').required(''),
-          }),
-        )
-        .required(''),
-      purchaseOrderNumber: string().nullable(),
+  const form = useAppForm({
+    // Recomputed inline on every render: TanStack re-seeds an untouched form
+    // when defaults deep-change, replacing Formik's enableReinitialize as the
+    // customer/billing-entity/regeneration-preview queries resolve.
+    defaultValues: mapFromApiToForm({
+      customerId,
+      customer,
+      billingEntity,
+      prefillInvoice,
+      prefillFees,
     }),
-    enableReinitialize: true,
-    validateOnMount: true,
-    onSubmit: async ({
-      fees,
-      paymentMethod,
-      invoiceCustomSection,
-      purchaseOrderNumber,
-      ...values
-    }) => {
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: invoiceFormValidationSchema,
+    },
+    onSubmit: async ({ value }) => {
       if (voidedInvoiceId && prefillInvoice?.id && actions.canVoid(prefillInvoice)) {
         const res = await voidInvoice({
           variables: {
@@ -413,52 +353,44 @@ const CreateInvoice = () => {
 
       await createInvoice({
         variables: {
-          input: {
-            ...values,
-            purchaseOrderNumber: normalizePurchaseOrderNumber(purchaseOrderNumber),
-            ...(prefillInvoice?.id ? { voidedInvoiceId: prefillInvoice.id } : {}),
-            paymentMethod,
-            invoiceCustomSection: toInvoiceCustomSectionReference(
-              invoiceCustomSection as InvoiceCustomSectionInput,
-            ),
-            fees: fees.map(({ unitAmountCents, taxes: addonTaxes, ...fee }) => {
-              return {
-                ...fee,
-                unitAmountCents: Number(serializeAmount(unitAmountCents, currency) || 0),
-                taxCodes: hasTaxProvider ? [] : addonTaxes?.map(({ code }) => code) || [],
-              }
-            }),
-          },
+          input: mapFormToCreateInput(value, {
+            hasTaxProvider,
+            prefillInvoiceId: prefillInvoice?.id,
+          }),
         },
       })
     },
   })
-  const currency = formikProps.values.currency || CurrencyEnum.Usd
-  const hasAnyFee = formikProps.values.fees.length > 0
 
-  const addOns = useMemo(() => {
-    if (!addOnData || !addOnData?.addOns || !addOnData?.addOns?.collection) return []
+  const formValues = useStore(form.store, (state) => state.values)
+  const isDirty = useStore(form.store, (state) => state.isDirty)
 
-    return addOnData?.addOns?.collection.map(({ id, name, amountCents, amountCurrency }) => {
-      return {
-        label: name,
-        labelNode: (
-          <ComboboxItem>
-            <Typography variant="body" color="grey700" noWrap>
-              {name}
-            </Typography>
-            <Typography variant="caption" color="grey600" noWrap>
-              {intlFormatNumber(deserializeAmount(amountCents, amountCurrency) || 0, {
-                currencyDisplay: 'symbol',
-                currency: amountCurrency,
-              })}
-            </Typography>
-          </ComboboxItem>
-        ),
-        value: id,
-      }
-    })
-  }, [addOnData])
+  // Live validity for the tax-provider fetch gate — the old form validated on
+  // mount/change, while revalidateLogic only populates errors from the first
+  // submit attempt.
+  const isFormValid = useMemo(
+    () => invoiceFormValidationSchema.safeParse(formValues).success,
+    [formValues],
+  )
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault()
+    form.handleSubmit()
+  }
+
+  const paymentMethodsFormAdapter: PaymentMethodsForm<ViewTypeEnum.OneOffInvoice> = {
+    values: formValues,
+    setFieldValue: (field, value) =>
+      form.setFieldValue(field as Parameters<typeof form.setFieldValue>[0], value as never),
+  }
+
+  const currency = formValues.currency || CurrencyEnum.Usd
+  const hasAnyFee = formValues.fees.length > 0
+
+  // On the regenerate route the prefill must land BEFORE the user can touch
+  // the form — TanStack only re-seeds untouched forms (unlike Formik's
+  // reinitialize, which wiped user edits when the preview resolved).
+  const isLoading = loading || (!!voidedInvoiceId && prefillInvoiceLoading && !prefillInvoice)
 
   const {
     subTotal,
@@ -495,7 +427,7 @@ const CreateInvoice = () => {
       return currentTaxesMap
     }
 
-    const totalsReduced = formikProps.values.fees.reduce(
+    const totalsReduced = formValues.fees.reduce(
       (acc, fee) => {
         acc = {
           subTotal: acc.subTotal + (fee?.units || 0) * (fee?.unitAmountCents || 0),
@@ -521,7 +453,7 @@ const CreateInvoice = () => {
       taxesToDisplay: totalsReduced.taxesToDisplay,
       total: localTotal,
     }
-  }, [formikProps.values.fees, hasTaxProvider])
+  }, [formValues.fees, hasTaxProvider])
 
   const {
     taxProviderTaxesToDisplay,
@@ -569,7 +501,7 @@ const CreateInvoice = () => {
     )
 
     const localTaxProviderSubtotalHT =
-      formikProps.values.fees.reduce((acc, fee) => {
+      formValues.fees.reduce((acc, fee) => {
         acc += (fee.units || 0) * (fee.unitAmountCents || 0)
         return acc
       }, 0) || 0
@@ -579,13 +511,7 @@ const CreateInvoice = () => {
       taxProviderSubtotalHT: localTaxProviderSubtotalHT,
       taxProviderTotalTTC: localTaxProviderSubtotalHT + taxesTotalAmount,
     }
-  }, [
-    currency,
-    formikProps.values.fees,
-    hasTaxProvider,
-    taxProviderTaxesResult?.collection,
-    translate,
-  ])
+  }, [currency, formValues.fees, hasTaxProvider, taxProviderTaxesResult?.collection, translate])
 
   const showBillingEntityPicker = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
   const hasMultiCurrency = hasFeatureFlag(FeatureFlagEnum.MultiCurrency)
@@ -603,12 +529,8 @@ const CreateInvoice = () => {
     )
   }
 
-  const gridClassname =
-    'grid  grid-cols-[minmax(0,1fr)_minmax(0,80px)_minmax(0,168px)_minmax(0,64px)_minmax(0,160px)_minmax(0,24px)] gap-3 [&>*:nth-last-child(-n+3)]:flex [&>*:nth-last-child(-n+3)]:justify-end'
   const invoiceFooterLineClassname =
     'flex items-center [&>*:first-child]:mr-4 [&>*:first-child]:flex-1 [&>*:last-child]:w-42 [&>*:last-child]:text-end'
-
-  const canSubmit = formikProps.isValid && hasAnyFee && (!!voidedInvoiceId || formikProps.dirty)
 
   const subtotalDisplayValue = formatInvoiceDisplayValue(
     hasTaxProvider,
@@ -640,7 +562,7 @@ const CreateInvoice = () => {
             variant="quaternary"
             icon="close"
             onClick={() =>
-              formikProps.dirty
+              isDirty
                 ? centralizedDialog.open({
                     title: translate('text_645388d5bdbd7b00abffa030'),
                     description: translate('text_645388d5bdbd7b00abffa031'),
@@ -653,10 +575,10 @@ const CreateInvoice = () => {
           />
         )}
       </PageHeader.Wrapper>
-      <div className="size-full">
+      <form className="size-full" onSubmit={handleSubmit}>
         <div className="mx-auto my-12 min-h-full max-w-5xl px-4">
           <Card className="mb-12 gap-8">
-            {loading ? (
+            {isLoading ? (
               <>
                 <div className="flex items-center justify-between">
                   <Skeleton variant="text" className="w-30" />
@@ -724,15 +646,15 @@ const CreateInvoice = () => {
 
                   <PO
                     className="flex-row items-center gap-4"
-                    value={formikProps.values.purchaseOrderNumber}
+                    value={formValues.purchaseOrderNumber}
                     onChange={(value) => {
-                      formikProps.setFieldValue('purchaseOrderNumber', value || undefined)
+                      form.setFieldValue('purchaseOrderNumber', value || undefined)
                     }}
                     description={translate('text_1782219771286e8qwitkefxr')}
                   >
                     <PO.Title className="min-w-[200px]" variant="caption" color="grey600" />
 
-                    {formikProps.values.purchaseOrderNumber ? (
+                    {formValues.purchaseOrderNumber ? (
                       <div className="flex items-center gap-2">
                         <PO.Number variant="body" color="grey700" />
                         <PO.EditButton />
@@ -749,25 +671,27 @@ const CreateInvoice = () => {
                     <div className="w-80">
                       <BillingEntityFormPicker
                         label={translate('text_1743611497157teaa1zu8l24')}
-                        value={formikProps.values.billingEntityId}
+                        value={formValues.billingEntityId}
                         onChange={(id) => {
-                          formikProps.setFieldValue('billingEntityId', id)
+                          form.setFieldValue('billingEntityId', id)
                           setPickedBillingEntityId(id)
                         }}
                       />
                     </div>
                   )}
                   <div className="w-40">
-                    <ComboBoxField
-                      disableClearable
-                      data={Object.values(CurrencyEnum).map((currencyType) => ({
-                        value: currencyType,
-                      }))}
-                      disabled={!!customer?.currency && !hasMultiCurrency}
-                      formikProps={formikProps}
-                      label={translate('text_6453819268763979024ad057')}
-                      name="currency"
-                    />
+                    <form.AppField name="currency">
+                      {(field) => (
+                        <field.ComboBoxField
+                          disableClearable
+                          data={Object.values(CurrencyEnum).map((currencyType) => ({
+                            value: currencyType,
+                          }))}
+                          disabled={!!customer?.currency && !hasMultiCurrency}
+                          label={translate('text_6453819268763979024ad057')}
+                        />
+                      )}
+                    </form.AppField>
                   </div>
                 </div>
 
@@ -842,344 +766,14 @@ const CreateInvoice = () => {
                   </div>
                 </div>
 
-                <div className="w-full">
-                  <div className={tw(gridClassname, 'h-12 shadow-b [&>*]:flex [&>*]:items-center')}>
-                    <Typography variant="bodyHl" color="grey500">
-                      {translate('text_6453819268763979024ad071')}
-                    </Typography>
-                    <Typography variant="bodyHl" color="grey500">
-                      {translate('text_6453819268763979024ad07d')}
-                    </Typography>
-                    <Typography variant="bodyHl" color="grey500">
-                      {translate('text_6453819268763979024ad089')}
-                    </Typography>
-                    <Typography variant="bodyHl" color="grey500">
-                      {translate('text_636bedf292786b19d3398f06')}
-                    </Typography>
-                    <Typography variant="bodyHl" color="grey500">
-                      {translate('text_6453819268763979024ad097')}
-                    </Typography>
-                    {/* Action column */}
-                    <div></div>
-                  </div>
-                  {!!formikProps?.values?.fees?.length &&
-                    formikProps?.values?.fees?.map((fee, i) => {
-                      const unitValidationErrorKey = _get(formikProps.errors, `fees.${i}.units`)
-
-                      // Compute tax display content
-                      let taxDisplayContent
-
-                      if (hasTaxProvider) {
-                        const hasTaxProviderResult = !!taxProviderTaxesResult?.collection.length
-
-                        if (hasTaxProviderResult) {
-                          const taxItem = taxProviderTaxesResult?.collection.find(
-                            (t) => t.itemId === fee.addOnId,
-                          )
-
-                          taxDisplayContent = taxItem?.taxBreakdown?.map((tax) => (
-                            <Typography
-                              key={`fee-${i}-applied-taxe-${tax.name}`}
-                              variant="body"
-                              color="grey700"
-                            >
-                              {intlFormatNumber(tax?.rate || 0, {
-                                style: 'percent',
-                              })}
-                            </Typography>
-                          ))
-                        } else {
-                          taxDisplayContent = '-'
-                        }
-                      } else {
-                        if (fee.taxes?.length) {
-                          taxDisplayContent = fee.taxes.map((tax) => (
-                            <Typography
-                              key={`fee-${i}-applied-taxe-${tax.id}`}
-                              variant="body"
-                              color="grey700"
-                            >
-                              {intlFormatNumber(tax.rate / 100 || 0, {
-                                style: 'percent',
-                              })}
-                            </Typography>
-                          ))
-                        } else {
-                          taxDisplayContent = '0%'
-                        }
-                      }
-
-                      return (
-                        <div
-                          className={tw(gridClassname, 'min-h-17 items-center py-3 shadow-b')}
-                          key={`item-${i}`}
-                          data-test="invoice-item"
-                        >
-                          <div>
-                            <Typography variant="captionHl" color="grey600" noWrap>
-                              {translate('text_633dae57ca9a923dd53c2097', {
-                                fromDate: intlFormatDateTime(fee.fromDatetime).date,
-                                toDate: intlFormatDateTime(fee.toDatetime).date,
-                              })}
-                            </Typography>
-
-                            <div className="flex items-center gap-2">
-                              <Typography variant="body" color="grey700" noWrap>
-                                {fee.invoiceDisplayName || fee.name}
-                              </Typography>
-                              <Tooltip
-                                title={translate('text_65018c8e5c6b626f030bcf8d')}
-                                placement="top-end"
-                              >
-                                <Button
-                                  icon="pen"
-                                  variant="quaternary"
-                                  size="small"
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-
-                                    openEditInvoiceDisplayNameDialog({
-                                      invoiceDisplayName: fee.invoiceDisplayName,
-                                      callback: (invoiceDisplayName: string) => {
-                                        formikProps.setFieldValue(
-                                          `fees.${i}.invoiceDisplayName`,
-                                          invoiceDisplayName,
-                                        )
-                                      },
-                                    })
-                                  }}
-                                />
-                              </Tooltip>
-                            </div>
-                            {!!fee.description && (
-                              <Typography variant="caption" color="grey600" noWrap>
-                                {fee.description}
-                              </Typography>
-                            )}
-                          </div>
-                          <Tooltip
-                            placement="top-end"
-                            title={
-                              !!unitValidationErrorKey && translate(`${unitValidationErrorKey}`)
-                            }
-                            disableHoverListener={!unitValidationErrorKey}
-                          >
-                            <TextInput
-                              name={`fees.${i}.units`}
-                              type="number"
-                              beforeChangeFormatter={['triDecimal', 'positiveNumber']}
-                              error={false}
-                              placeholder={translate('text_62824f0e5d93bc008d268d00')}
-                              value={formikProps.values.fees[i].units || undefined}
-                              onChange={(value) => {
-                                formikProps.setFieldValue(`fees.${i}.units`, Number(value))
-                                !!hasTaxProvider && setTaxProviderTaxesResult(null)
-                              }}
-                            />
-                          </Tooltip>
-                          <AmountInput
-                            beforeChangeFormatter={['positiveNumber']}
-                            value={formikProps.values.fees[i].unitAmountCents || 0}
-                            currency={currency}
-                            InputProps={{
-                              startAdornment: (
-                                <InputAdornment position="start">
-                                  {getCurrencySymbol(currency)}
-                                </InputAdornment>
-                              ),
-                            }}
-                            onChange={(value) => {
-                              formikProps.setFieldValue(`fees.${i}.unitAmountCents`, value)
-                              !!hasTaxProvider && setTaxProviderTaxesResult(null)
-                            }}
-                          />
-                          <Typography
-                            className="flex flex-col items-end py-1"
-                            variant="body"
-                            color="grey700"
-                          >
-                            {taxDisplayContent}
-                          </Typography>
-                          <Typography variant="body" color="grey700">
-                            {!fee.units
-                              ? '-'
-                              : intlFormatNumber((fee.units || 0) * (fee.unitAmountCents || 0), {
-                                  style: 'currency',
-                                  currency,
-                                })}
-                          </Typography>
-                          <Popper
-                            PopperProps={{ placement: 'bottom-end' }}
-                            opener={() => (
-                              <Button
-                                icon="dots-horizontal"
-                                variant="quaternary"
-                                size="small"
-                                data-test="invoice-item-actions-button"
-                              />
-                            )}
-                          >
-                            {({ closePopper }) => (
-                              <MenuPopper>
-                                <Button
-                                  startIcon="calendar"
-                                  variant="quaternary"
-                                  align="left"
-                                  onClick={() => {
-                                    openEditFeeBillingPeriodDialog({
-                                      fromDatetime: fee.fromDatetime,
-                                      toDatetime: fee.toDatetime,
-                                      callback: (fromDatetime: string, toDatetime: string) => {
-                                        formikProps.setValues({
-                                          ...formikProps.values,
-                                          fees: formikProps.values.fees.map((f, j) =>
-                                            j === i ? { ...f, fromDatetime, toDatetime } : f,
-                                          ),
-                                        })
-                                      },
-                                    })
-                                    closePopper()
-                                  }}
-                                >
-                                  {translate('text_1754596347194200100004000')}
-                                </Button>
-                                <Button
-                                  startIcon="text"
-                                  variant="quaternary"
-                                  align="left"
-                                  onClick={() => {
-                                    openEditInvoiceItemDescriptionDialog({
-                                      description: fee.description || '',
-                                      callback: (newDescription?: string) => {
-                                        formikProps.setFieldValue(
-                                          `fees.${i}.description`,
-                                          newDescription,
-                                        )
-                                      },
-                                    })
-                                    closePopper()
-                                  }}
-                                >
-                                  {translate('text_6453819268763979024ad124')}
-                                </Button>
-                                {!hasTaxProvider && (
-                                  <Button
-                                    startIcon="percentage"
-                                    variant="quaternary"
-                                    align="left"
-                                    onClick={() => {
-                                      openEditInvoiceItemTaxDialog({
-                                        taxes: fee.taxes,
-                                        callback: (newTaxesArray?: LocalFeeInput['taxes']) => {
-                                          formikProps.setFieldValue(
-                                            `fees.${i}.taxes`,
-                                            newTaxesArray,
-                                          )
-                                        },
-                                      })
-                                      closePopper()
-                                    }}
-                                    data-test="invoice-item-edit-taxes"
-                                  >
-                                    {translate('text_64d40b7e80e64e40710a49ba')}
-                                  </Button>
-                                )}
-                                <Button
-                                  startIcon="trash"
-                                  variant="quaternary"
-                                  align="left"
-                                  onClick={() => {
-                                    const fees = [...formikProps.values.fees]
-
-                                    fees.splice(i, 1)
-                                    formikProps.setFieldValue('fees', fees)
-                                    !!hasTaxProvider && setTaxProviderTaxesResult(null)
-
-                                    closePopper()
-                                  }}
-                                >
-                                  {translate('text_6453819268763979024ad12c')}
-                                </Button>
-                              </MenuPopper>
-                            )}
-                          </Popper>
-                        </div>
-                      )
-                    })}
-                  <div className="mt-6">
-                    {showAddItem ? (
-                      <div className="flex items-center gap-3">
-                        <ComboBox
-                          containerClassName="flex-1"
-                          className={ADD_ITEM_FOR_INVOICE_INPUT_NAME}
-                          data={addOns}
-                          loading={loading}
-                          searchQuery={getAddOns}
-                          placeholder={translate('text_6453819268763979024ad0ad')}
-                          onChange={(value) => {
-                            const addOn = addOnData?.addOns?.collection.find((c) => c.id === value)
-                            const today = DateTime.now()
-                            const addonApplicableTaxes = () => {
-                              if (hasTaxProvider) return undefined
-                              if (!!addOn?.taxes?.length) return addOn?.taxes
-                              return customerApplicableTax
-                            }
-
-                            if (!!addOn) {
-                              formikProps.setFieldValue('fees', [
-                                ...formikProps.values.fees,
-                                {
-                                  addOnId: addOn.id,
-                                  name: addOn.name,
-                                  description: addOn.description,
-                                  invoiceDisplayName: addOn.invoiceDisplayName || '',
-                                  units: 1,
-                                  unitAmountCents: deserializeAmount(addOn.amountCents, currency),
-                                  taxes: addonApplicableTaxes(),
-                                  fromDatetime: today.startOf('day').toISO(),
-                                  toDatetime: today.endOf('day').toISO(),
-                                },
-                              ])
-
-                              !!hasTaxProvider && setTaxProviderTaxesResult(null)
-                            }
-
-                            setShowAddItem(false)
-                          }}
-                        />
-                        <Tooltip
-                          title={translate('text_628b8c693e464200e00e4a10')}
-                          placement="top-end"
-                        >
-                          <Button
-                            icon="trash"
-                            variant="quaternary"
-                            size="small"
-                            onClick={() => setShowAddItem(false)}
-                          />
-                        </Tooltip>
-                      </div>
-                    ) : (
-                      <Button
-                        variant="inline"
-                        startIcon="plus"
-                        onClick={() => {
-                          setShowAddItem(true)
-                          setTimeout(() => {
-                            ;(
-                              document.querySelector(
-                                `.${ADD_ITEM_FOR_INVOICE_INPUT_NAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
-                              ) as HTMLElement
-                            ).click()
-                          }, 0)
-                        }}
-                        data-test="add-item-button"
-                      >
-                        {translate('text_6453819268763979024ad0d7')}
-                      </Button>
-                    )}
-                  </div>
-                </div>
+                <FeesSection
+                  form={form}
+                  hasTaxProvider={hasTaxProvider}
+                  customerApplicableTax={customerApplicableTax}
+                  taxProviderTaxesResult={taxProviderTaxesResult}
+                  setTaxProviderTaxesResult={setTaxProviderTaxesResult}
+                  loading={loading}
+                />
 
                 <div className="flex w-full flex-col gap-8">
                   <div className="ml-auto w-[472px]">
@@ -1255,21 +849,21 @@ const CreateInvoice = () => {
               </div>
               <PaymentMethodsInvoiceSettings
                 customer={customer}
-                form={formikProps}
+                form={paymentMethodsFormAdapter}
                 viewType={ViewTypeEnum.OneOffInvoice}
               />
             </Card>
           )}
         </div>
 
-        {!loading && (
+        {!isLoading && (
           <div className="sticky bottom-0 z-navBar border-t border-t-grey-200 bg-white">
             <div className="mx-auto flex h-20 max-w-5xl items-center justify-end gap-3 px-4">
               {!!hasTaxProvider && (
                 <Button
                   size="large"
                   variant="secondary"
-                  disabled={!formikProps.isValid || !formikProps.dirty || !!taxProviderTaxesResult}
+                  disabled={!isFormValid || !isDirty || !!taxProviderTaxesResult}
                   onClick={async () => {
                     setTaxProviderTaxesErrorMessage(null)
 
@@ -1277,8 +871,8 @@ const CreateInvoice = () => {
                       variables: {
                         input: {
                           currency,
-                          customerId: formikProps.values.customerId,
-                          fees: formikProps.values.fees.map((f) => ({
+                          customerId: formValues.customerId,
+                          fees: formValues.fees.map((f) => ({
                             ...f,
                             unitAmountCents: String(serializeAmount(f.unitAmountCents, currency)),
                           })),
@@ -1347,18 +941,15 @@ const CreateInvoice = () => {
                   {translate('text_172383173554743nq9isxpje')}
                 </Button>
               )}
-              <Button
-                size="large"
-                disabled={!canSubmit}
-                onClick={formikProps.submitForm}
-                data-test="create-invoice-button"
-              >
-                {translate('text_6453819268763979024ad134')}
-              </Button>
+              <form.AppForm>
+                <form.SubmitButton size="large" dataTest={CREATE_INVOICE_SUBMIT_BUTTON_TEST_ID}>
+                  {translate('text_6453819268763979024ad134')}
+                </form.SubmitButton>
+              </form.AppForm>
             </div>
           </div>
         )}
-      </div>
+      </form>
     </>
   )
 }
