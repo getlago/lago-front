@@ -1,9 +1,8 @@
 import { gql } from '@apollo/client'
 import InputAdornment from '@mui/material/InputAdornment'
-import { getIn, useFormik } from 'formik'
-import { useCallback, useState } from 'react'
+import { revalidateLogic, useStore } from '@tanstack/react-form'
+import { useCallback, useMemo, useState } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
-import { boolean, number, object, string } from 'yup'
 
 import { Accordion } from '~/components/designSystem/Accordion'
 import { Alert } from '~/components/designSystem/Alert'
@@ -11,12 +10,9 @@ import { Button } from '~/components/designSystem/Button'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
-import { AmountInputField, SwitchField, TextInputField } from '~/components/form'
-import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
-import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
-import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
+import { PaymentMethodsForm, ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
 import {
   ADD_METADATA_DATA_TEST,
   CLOSE_CREATE_TOPUP_BUTTON_DATA_TEST,
@@ -33,10 +29,8 @@ import { deserializeAmount, getCurrencyPrecision } from '~/core/serializers/seri
 import {
   METADATA_VALUE_MAX_LENGTH_DEFAULT,
   MetadataErrorsEnum,
-  metadataSchema,
 } from '~/formValidation/metadataSchema'
 import {
-  CreateCustomerWalletTransactionInput,
   CurrencyEnum,
   useCreateCustomerWalletTransactionMutation,
   useGetCustomerInfosForWalletFormQuery,
@@ -49,12 +43,22 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
+import { useAppForm } from '~/hooks/forms/useAppform'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
 import TopUpTypeSelector, {
   WalletTransactionType,
 } from '~/pages/wallet/components/TopUpTypeSelector'
 import { topUpAmountError } from '~/pages/wallet/form'
+import {
+  topUpFormErrorLabels,
+  topUpFormValidationSchema,
+} from '~/pages/wallet/topUp/formInitialization/validationSchema'
+import {
+  mapFromApiToForm,
+  WALLET_TOP_UP_DEFAULT_PRIORITY,
+} from '~/pages/wallet/topUp/mappers/mapFromApiToForm'
+import { mapFormToCreateInput } from '~/pages/wallet/topUp/mappers/mapFromFormToApi'
 import { WalletDetailsTabsOptionsEnum } from '~/pages/wallet/WalletDetails'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
@@ -93,7 +97,6 @@ gql`
 `
 
 export const CREATE_ACTIVE_WALLET_TOP_UP_ID = 'active-wallet'
-const WALLET_TOP_UP_DEFAULT_PRIORITY = '50'
 
 const CreateWalletTopUp = () => {
   const { translate } = useInternationalization()
@@ -161,59 +164,28 @@ const CreateWalletTopUp = () => {
     ? deserializeAmount(wallet?.paidTopUpMaxAmountCents, currency)?.toString()
     : undefined
 
-  const formikProps = useFormik<Omit<CreateCustomerWalletTransactionInput, 'walletId'>>({
-    initialValues: {
-      grantedCredits: '',
-      invoiceRequiresSuccessfulPayment: wallet?.invoiceRequiresSuccessfulPayment,
-      paidCredits: '',
-      name: undefined,
-      metadata: undefined,
-      ignorePaidTopUpLimits: undefined,
-      priority: 50,
+  // The bounds live on the target wallet, not in the form values — rebuild
+  // the schema when the wallet resolves.
+  const validationSchema = useMemo(
+    () =>
+      topUpFormValidationSchema({
+        rateAmount: wallet?.rateAmount?.toString(),
+        paidTopUpMinAmountCents,
+        paidTopUpMaxAmountCents,
+        currency: wallet?.currency,
+      }),
+    [wallet?.rateAmount, wallet?.currency, paidTopUpMinAmountCents, paidTopUpMaxAmountCents],
+  )
+
+  const form = useAppForm({
+    // Recomputed inline on every render: TanStack re-seeds an untouched form
+    // when defaults deep-change as the wallet query resolves.
+    defaultValues: mapFromApiToForm({ wallet }),
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: validationSchema,
     },
-    validationSchema: object().shape({
-      paidCredits: string().test({
-        test: function (paidCredits) {
-          const { ignorePaidTopUpLimits, grantedCredits } = this?.parent || {}
-
-          const error = topUpAmountError({
-            skip: ignorePaidTopUpLimits,
-            paidCredits,
-            rateAmount: wallet?.rateAmount?.toString(),
-            paidTopUpMinAmountCents,
-            paidTopUpMaxAmountCents,
-            currency: wallet?.currency,
-          })
-
-          if (error?.error) {
-            return false
-          }
-
-          return !isNaN(Number(paidCredits)) || !isNaN(Number(grantedCredits))
-        },
-      }),
-      invoiceRequiresSuccessfulPayment: boolean(),
-      grantedCredits: string().test({
-        test: function (grantedCredits) {
-          const { paidCredits } = this?.parent || {}
-
-          return !isNaN(Number(grantedCredits)) || !isNaN(Number(paidCredits))
-        },
-      }),
-      metadata: metadataSchema().nullable(),
-      priority: number(),
-    }),
-    validateOnMount: true,
-    onSubmit: async ({
-      grantedCredits,
-      paidCredits,
-      invoiceRequiresSuccessfulPayment,
-      ignorePaidTopUpLimits,
-      invoiceCustomSection,
-      paymentMethod,
-      priority,
-      ...rest
-    }) => {
+    onSubmit: async ({ value }) => {
       if (!wallet) return
 
       if (
@@ -237,19 +209,7 @@ const CreateWalletTopUp = () => {
 
       await createWallet({
         variables: {
-          input: {
-            ...rest,
-            walletId: wallet.id,
-            priority: Number(priority) || Number(WALLET_TOP_UP_DEFAULT_PRIORITY),
-            grantedCredits: grantedCredits === '' ? '0' : String(grantedCredits),
-            paidCredits: paidCredits === '' ? '0' : String(paidCredits),
-            invoiceRequiresSuccessfulPayment,
-            ignorePaidTopUpLimits,
-            paymentMethod,
-            invoiceCustomSection: toInvoiceCustomSectionReference(
-              invoiceCustomSection as InvoiceCustomSectionInput,
-            ),
-          },
+          input: mapFormToCreateInput(value, { walletId: wallet.id }),
         },
         refetchQueries: ['getCustomerWalletList', 'getWalletTransactions'],
         notifyOnNetworkStatusChange: true,
@@ -259,11 +219,35 @@ const CreateWalletTopUp = () => {
     },
   })
 
+  const formValues = useStore(form.store, (state) => state.values)
+  const isDirty = useStore(form.store, (state) => state.isDirty)
+  // Validator-produced errors live DIRECTLY on errorMap.onDynamic, keyed by
+  // field path (the `.fields` sub-shape only exists for manual setErrorMap).
+  const dynamicFieldErrors = useStore(
+    form.store,
+    (state) => (state.errorMap as { onDynamic?: Record<string, unknown> })?.onDynamic ?? {},
+  )
+
+  const creditsRequiredError = (fieldName: 'paidCredits' | 'grantedCredits') =>
+    (dynamicFieldErrors[fieldName] as { message?: string }[] | undefined)?.[0]?.message ===
+    topUpFormErrorLabels.required
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault()
+    form.handleSubmit()
+  }
+
+  const paymentMethodsFormAdapter: PaymentMethodsForm<ViewTypeEnum.WalletTransactionTopUp> = {
+    values: formValues,
+    setFieldValue: (field, value) =>
+      form.setFieldValue(field as Parameters<typeof form.setFieldValue>[0], value as never),
+  }
+
   const updateTransactionType = (type: WalletTransactionType) => {
     setTransactionType(type)
 
-    formikProps.setFieldValue('grantedCredits', '')
-    formikProps.setFieldValue('paidCredits', '')
+    form.setFieldValue('grantedCredits', '')
+    form.setFieldValue('paidCredits', '')
   }
 
   const navigateBack = useCallback(
@@ -310,8 +294,8 @@ const CreateWalletTopUp = () => {
   }, [centralizedDialog, navigateToCustomerWalletTab, translate, wallet?.id])
 
   const onAbort = useCallback(() => {
-    formikProps.dirty ? openDirtyAttributesWarning() : navigateBack()
-  }, [formikProps.dirty, navigateBack, openDirtyAttributesWarning])
+    isDirty ? openDirtyAttributesWarning() : navigateBack()
+  }, [isDirty, navigateBack, openDirtyAttributesWarning])
 
   const hasMinMax =
     (wallet?.paidTopUpMinAmountCents !== null && wallet?.paidTopUpMinAmountCents !== undefined) ||
@@ -319,365 +303,400 @@ const CreateWalletTopUp = () => {
 
   const paidCreditsError = topUpAmountError({
     rateAmount: wallet?.rateAmount?.toString(),
-    paidCredits: formikProps?.values?.paidCredits?.toString(),
+    paidCredits: formValues.paidCredits?.toString(),
     paidTopUpMinAmountCents,
     paidTopUpMaxAmountCents,
     currency: wallet?.currency,
-    skip: !!formikProps?.values?.ignorePaidTopUpLimits,
+    skip: !!formValues.ignorePaidTopUpLimits,
     translate,
   })
 
   return (
     <CenteredPage.Wrapper>
-      <CenteredPage.Header>
-        <Typography variant="bodyHl" color="textSecondary" noWrap>
-          {translate('text_62e161ceb87c201025388ada')}
-        </Typography>
-        <Button
-          variant="quaternary"
-          icon="close"
-          onClick={onAbort}
-          data-test={CLOSE_CREATE_TOPUP_BUTTON_DATA_TEST}
-        />
-      </CenteredPage.Header>
-
-      {loading && !wallet && (
-        <CenteredPage.Container>
-          <FormLoadingSkeleton id="create-wallet" />
-        </CenteredPage.Container>
-      )}
-
-      {!loading && wallet && (
-        <CenteredPage.Container>
-          <CenteredPage.PageTitle
-            title={translate('text_62e79671d23ae6ff149de924')}
-            description={translate('text_1741103892833sy9e4va0pvb')}
+      <form
+        id="create-wallet-top-up"
+        className="flex size-full min-h-full flex-col overflow-auto"
+        onSubmit={handleSubmit}
+      >
+        <CenteredPage.Header>
+          <Typography variant="bodyHl" color="textSecondary" noWrap>
+            {translate('text_62e161ceb87c201025388ada')}
+          </Typography>
+          <Button
+            variant="quaternary"
+            icon="close"
+            onClick={onAbort}
+            data-test={CLOSE_CREATE_TOPUP_BUTTON_DATA_TEST}
           />
+        </CenteredPage.Header>
 
-          <section className="flex flex-col gap-6 pb-12 shadow-b">
-            <div className="flex flex-col gap-1">
-              <Typography variant="subhead1">
-                {translate('text_6560809c38fb9de88d8a5090')}
-              </Typography>
-              <Typography variant="caption">
-                {translate('text_17411038928332xzx1hb4wjx')}
-              </Typography>
-            </div>
+        {loading && !wallet && (
+          <CenteredPage.Container>
+            <FormLoadingSkeleton id="create-wallet" />
+          </CenteredPage.Container>
+        )}
 
-            <WalletSettingsInfosDisplay
-              infos={[
-                { label: translate('text_6419c64eace749372fc72b0f'), value: wallet.name },
-                {
-                  label: translate('text_1755695821678c8hkgkxkh73'),
-                  value: wallet.priority,
-                },
-                {
-                  label: translate('text_1750411499858su5b7bbp5t9'),
-                  value: translate('text_62da6ec24a8e24e44f812872', {
-                    rateAmount: intlFormatNumber(wallet.rateAmount, {
-                      currency,
-                      minimumFractionDigits: getCurrencyPrecision(currency),
-                      currencyDisplay: 'symbol',
-                    }),
-                  }),
-                },
-                {
-                  label: translate('text_1759387047166vuoep9t72ny'),
-                  value: intlFormatNumber(
-                    deserializeAmount(wallet?.paidTopUpMinAmountCents, currency),
-                    {
-                      currency,
-                    },
-                  ),
-                  hide: !wallet?.paidTopUpMinAmountCents,
-                },
-                {
-                  label: translate('text_1759387047167hwbqm5hx7ye'),
-                  value: intlFormatNumber(
-                    deserializeAmount(wallet?.paidTopUpMaxAmountCents, currency),
-                    {
-                      currency,
-                    },
-                  ),
-                  hide: !wallet?.paidTopUpMaxAmountCents,
-                },
-              ]}
+        {!loading && wallet && (
+          <CenteredPage.Container>
+            <CenteredPage.PageTitle
+              title={translate('text_62e79671d23ae6ff149de924')}
+              description={translate('text_1741103892833sy9e4va0pvb')}
             />
-          </section>
 
-          <section
-            data-test={CREATE_WALLET_TOP_UP_FORM_TEST_ID}
-            className="flex flex-col gap-6 pb-12 shadow-b"
-          >
-            <div className="flex flex-col gap-1">
-              <Typography variant="subhead1">
-                {translate('text_6657be42151661006d2f3b89')}
-              </Typography>
-              <Typography variant="caption">
-                {translate('text_1741103892833plsi99wvuop')}
-              </Typography>
-            </div>
-            <TextInputField
-              // eslint-disable-next-line jsx-a11y/no-autofocus
-              autoFocus
-              name="name"
-              formikProps={formikProps}
-              label={translate('text_17580145853389xkffv9cs1d')}
-              placeholder={translate('text_17580145853390n3v83gao69')}
-              helperText={translate('text_1758014585339ly8tof8ub3r')}
-            />
-            <TopUpTypeSelector
-              selectedType={transactionType}
-              setSelectedType={updateTransactionType}
-            />
-            {transactionType === WalletTransactionType.PrepaidCredits && (
-              <>
-                <AmountInputField
-                  name="paidCredits"
-                  currency={wallet.currency}
-                  beforeChangeFormatter={['positiveNumber']}
-                  label={translate('text_62e79671d23ae6ff149de944')}
-                  formikProps={formikProps}
-                  silentError={true}
-                  error={paidCreditsError?.label}
-                  helperText={translate('text_62d18855b22699e5cf55f88b', {
-                    paidCredits: intlFormatNumber(
-                      isNaN(Number(formikProps.values.paidCredits))
-                        ? 0
-                        : Number(formikProps.values.paidCredits) * Number(wallet.rateAmount),
-
-                      {
-                        currencyDisplay: 'symbol',
-                        currency: wallet.currency,
-                      },
-                    ),
-                  })}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        {translate('text_62e79671d23ae6ff149de94c')}
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-                {formikProps.values.paidCredits && (
-                  <>
-                    {hasMinMax && (
-                      <SwitchField
-                        name={'ignorePaidTopUpLimits'}
-                        formikProps={formikProps}
-                        label={translate('text_17587075291282to3nmogezj')}
-                        data-test={IGNORE_PAID_TOPUP_LIMITS_SWITCH_DATA_TEST}
-                      />
-                    )}
-
-                    <SwitchField
-                      name="invoiceRequiresSuccessfulPayment"
-                      formikProps={formikProps}
-                      label={translate('text_66a8aed1c3e07b277ec3990d')}
-                      subLabel={translate('text_66a8aed1c3e07b277ec3990f')}
-                      data-test={INVOICE_REQUIRES_SUCCESSFUL_PAYMENT_SWITCH_DATA_TEST}
-                    />
-                  </>
-                )}
-              </>
-            )}
-            {transactionType === WalletTransactionType.FreeCredits && (
-              <AmountInputField
-                name="grantedCredits"
-                currency={wallet.currency}
-                beforeChangeFormatter={['positiveNumber']}
-                label={translate('text_62d18855b22699e5cf55f88d')}
-                formikProps={formikProps}
-                silentError={true}
-                helperText={translate('text_62d18855b22699e5cf55f893', {
-                  grantedCredits: intlFormatNumber(
-                    isNaN(Number(formikProps.values.grantedCredits))
-                      ? 0
-                      : Number(formikProps.values.grantedCredits) * Number(wallet.rateAmount),
-                    {
-                      currencyDisplay: 'symbol',
-                      currency: wallet.currency,
-                    },
-                  ),
-                })}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      {translate('text_62e79671d23ae6ff149de95c')}
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            )}
-            <Alert type="info">
-              <Typography color="textSecondary">
-                {translate('text_17411038928333ksu96fbmam', {
-                  totalCreditCount:
-                    Math.round(
-                      Number(formikProps.values.paidCredits || 0) * 100 +
-                        Number(formikProps.values.grantedCredits || 0) * 100,
-                    ) / 100,
-                })}
-              </Typography>
-            </Alert>
-
-            <TextInputField
-              name="priority"
-              type="number"
-              beforeChangeFormatter={['positiveNumber', 'int']}
-              label={translate('text_17708227222843peys0u3ywu')}
-              description={translate('text_17708227222846t71arrz7dn')}
-              placeholder={WALLET_TOP_UP_DEFAULT_PRIORITY}
-              formikProps={formikProps}
-            />
-          </section>
-
-          {(customerData?.customer?.externalId || customerData?.customer?.id) && (
             <section className="flex flex-col gap-6 pb-12 shadow-b">
               <div className="flex flex-col gap-1">
                 <Typography variant="subhead1">
-                  {translate('text_17634566456760qoj7hs7jrh')}
+                  {translate('text_6560809c38fb9de88d8a5090')}
+                </Typography>
+                <Typography variant="caption">
+                  {translate('text_17411038928332xzx1hb4wjx')}
                 </Typography>
               </div>
-              <PaymentMethodsInvoiceSettings
-                customer={customerData?.customer}
-                form={formikProps}
-                viewType={ViewTypeEnum.WalletTransactionTopUp}
+
+              <WalletSettingsInfosDisplay
+                infos={[
+                  { label: translate('text_6419c64eace749372fc72b0f'), value: wallet.name },
+                  {
+                    label: translate('text_1755695821678c8hkgkxkh73'),
+                    value: wallet.priority,
+                  },
+                  {
+                    label: translate('text_1750411499858su5b7bbp5t9'),
+                    value: translate('text_62da6ec24a8e24e44f812872', {
+                      rateAmount: intlFormatNumber(wallet.rateAmount, {
+                        currency,
+                        minimumFractionDigits: getCurrencyPrecision(currency),
+                        currencyDisplay: 'symbol',
+                      }),
+                    }),
+                  },
+                  {
+                    label: translate('text_1759387047166vuoep9t72ny'),
+                    value: intlFormatNumber(
+                      deserializeAmount(wallet?.paidTopUpMinAmountCents, currency),
+                      {
+                        currency,
+                      },
+                    ),
+                    hide: !wallet?.paidTopUpMinAmountCents,
+                  },
+                  {
+                    label: translate('text_1759387047167hwbqm5hx7ye'),
+                    value: intlFormatNumber(
+                      deserializeAmount(wallet?.paidTopUpMaxAmountCents, currency),
+                      {
+                        currency,
+                      },
+                    ),
+                    hide: !wallet?.paidTopUpMaxAmountCents,
+                  },
+                ]}
               />
             </section>
-          )}
 
-          <section className="flex flex-col gap-6">
-            <Accordion
-              variant="borderless"
-              summary={
-                <div className="flex flex-col gap-2">
+            <section
+              data-test={CREATE_WALLET_TOP_UP_FORM_TEST_ID}
+              className="flex flex-col gap-6 pb-12 shadow-b"
+            >
+              <div className="flex flex-col gap-1">
+                <Typography variant="subhead1">
+                  {translate('text_6657be42151661006d2f3b89')}
+                </Typography>
+                <Typography variant="caption">
+                  {translate('text_1741103892833plsi99wvuop')}
+                </Typography>
+              </div>
+              <form.AppField name="name">
+                {(field) => (
+                  <field.TextInputField
+                    // eslint-disable-next-line jsx-a11y/no-autofocus
+                    autoFocus
+                    label={translate('text_17580145853389xkffv9cs1d')}
+                    placeholder={translate('text_17580145853390n3v83gao69')}
+                    helperText={translate('text_1758014585339ly8tof8ub3r')}
+                  />
+                )}
+              </form.AppField>
+              <TopUpTypeSelector
+                selectedType={transactionType}
+                setSelectedType={updateTransactionType}
+              />
+              {transactionType === WalletTransactionType.PrepaidCredits && (
+                <>
+                  <form.AppField name="paidCredits">
+                    {(field) => (
+                      <field.AmountInputField
+                        currency={wallet.currency}
+                        beforeChangeFormatter={['positiveNumber']}
+                        label={translate('text_62e79671d23ae6ff149de944')}
+                        // the visible bounds label is computed live at component
+                        // level; the at-least-one error surfaces after a submit
+                        // attempt. false suppresses the raw schema markers.
+                        errorOverride={
+                          paidCreditsError?.label ||
+                          (creditsRequiredError('paidCredits')
+                            ? translate(topUpFormErrorLabels.required)
+                            : false)
+                        }
+                        helperText={translate('text_62d18855b22699e5cf55f88b', {
+                          paidCredits: intlFormatNumber(
+                            isNaN(Number(formValues.paidCredits))
+                              ? 0
+                              : Number(formValues.paidCredits) * Number(wallet.rateAmount),
+
+                            {
+                              currencyDisplay: 'symbol',
+                              currency: wallet.currency,
+                            },
+                          ),
+                        })}
+                        InputProps={{
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              {translate('text_62e79671d23ae6ff149de94c')}
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                    )}
+                  </form.AppField>
+                  {formValues.paidCredits && (
+                    <>
+                      {hasMinMax && (
+                        <form.AppField name="ignorePaidTopUpLimits">
+                          {(field) => (
+                            <field.SwitchField
+                              label={translate('text_17587075291282to3nmogezj')}
+                              data-test={IGNORE_PAID_TOPUP_LIMITS_SWITCH_DATA_TEST}
+                            />
+                          )}
+                        </form.AppField>
+                      )}
+
+                      <form.AppField name="invoiceRequiresSuccessfulPayment">
+                        {(field) => (
+                          <field.SwitchField
+                            label={translate('text_66a8aed1c3e07b277ec3990d')}
+                            subLabel={translate('text_66a8aed1c3e07b277ec3990f')}
+                            data-test={INVOICE_REQUIRES_SUCCESSFUL_PAYMENT_SWITCH_DATA_TEST}
+                          />
+                        )}
+                      </form.AppField>
+                    </>
+                  )}
+                </>
+              )}
+              {transactionType === WalletTransactionType.FreeCredits && (
+                <form.AppField name="grantedCredits">
+                  {(field) => (
+                    <field.AmountInputField
+                      currency={wallet.currency}
+                      beforeChangeFormatter={['positiveNumber']}
+                      label={translate('text_62d18855b22699e5cf55f88d')}
+                      errorOverride={
+                        creditsRequiredError('grantedCredits')
+                          ? translate(topUpFormErrorLabels.required)
+                          : false
+                      }
+                      helperText={translate('text_62d18855b22699e5cf55f893', {
+                        grantedCredits: intlFormatNumber(
+                          isNaN(Number(formValues.grantedCredits))
+                            ? 0
+                            : Number(formValues.grantedCredits) * Number(wallet.rateAmount),
+                          {
+                            currencyDisplay: 'symbol',
+                            currency: wallet.currency,
+                          },
+                        ),
+                      })}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            {translate('text_62e79671d23ae6ff149de95c')}
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  )}
+                </form.AppField>
+              )}
+              <Alert type="info">
+                <Typography color="textSecondary">
+                  {translate('text_17411038928333ksu96fbmam', {
+                    totalCreditCount:
+                      Math.round(
+                        Number(formValues.paidCredits || 0) * 100 +
+                          Number(formValues.grantedCredits || 0) * 100,
+                      ) / 100,
+                  })}
+                </Typography>
+              </Alert>
+
+              <form.AppField name="priority">
+                {(field) => (
+                  <field.TextInputField
+                    type="number"
+                    beforeChangeFormatter={['positiveNumber', 'int']}
+                    label={translate('text_17708227222843peys0u3ywu')}
+                    description={translate('text_17708227222846t71arrz7dn')}
+                    placeholder={WALLET_TOP_UP_DEFAULT_PRIORITY}
+                  />
+                )}
+              </form.AppField>
+            </section>
+
+            {(customerData?.customer?.externalId || customerData?.customer?.id) && (
+              <section className="flex flex-col gap-6 pb-12 shadow-b">
+                <div className="flex flex-col gap-1">
                   <Typography variant="subhead1">
-                    {translate('text_63fcc3218d35b9377840f59b')}
-                  </Typography>
-                  <Typography variant="caption">
-                    {translate('text_1741706729331emiq4h111k8')}
+                    {translate('text_17634566456760qoj7hs7jrh')}
                   </Typography>
                 </div>
-              }
-            >
-              <div className="flex flex-col gap-6">
-                {(formikProps.values.metadata ?? []).map((_metadata, index) => {
-                  const metadataItemKeyError = getIn(formikProps.errors, `metadata.${index}.key`)
-                  const metadataItemValueError = getIn(
-                    formikProps.errors,
-                    `metadata.${index}.value`,
-                  )
+                <PaymentMethodsInvoiceSettings
+                  customer={customerData?.customer}
+                  form={paymentMethodsFormAdapter}
+                  viewType={ViewTypeEnum.WalletTransactionTopUp}
+                />
+              </section>
+            )}
 
-                  const hasCustomKeyError =
-                    Object.keys(MetadataErrorsEnum).includes(metadataItemKeyError)
-                  const hasCustomValueError =
-                    Object.keys(MetadataErrorsEnum).includes(metadataItemValueError)
-
-                  return (
-                    <div
-                      className="flex w-full flex-row items-center gap-3"
-                      key={`metadata-item-${index}`}
-                    >
-                      <div className="basis-[200px]">
-                        <Tooltip
-                          placement="top-end"
-                          title={
-                            (metadataItemKeyError === MetadataErrorsEnum.uniqueness &&
-                              translate('text_63fcc3218d35b9377840f5dd')) ||
-                            (metadataItemKeyError === MetadataErrorsEnum.maxLength &&
-                              translate('text_63fcc3218d35b9377840f5d9', { max: 20 }))
-                          }
-                          disableHoverListener={!hasCustomKeyError}
-                        >
-                          <TextInputField
-                            name={`metadata.${index}.key`}
-                            label={translate('text_63fcc3218d35b9377840f5a3')}
-                            silentError={!hasCustomKeyError}
-                            placeholder={translate('text_63fcc3218d35b9377840f5a7')}
-                            formikProps={formikProps}
-                            displayErrorText={false}
-                          />
-                        </Tooltip>
-                      </div>
-                      <div className="grow">
-                        <Tooltip
-                          placement="top-end"
-                          title={
-                            metadataItemValueError === MetadataErrorsEnum.maxLength
-                              ? translate('text_63fcc3218d35b9377840f5e5', {
-                                  max: METADATA_VALUE_MAX_LENGTH_DEFAULT,
-                                })
-                              : undefined
-                          }
-                          disableHoverListener={!hasCustomValueError}
-                        >
-                          <TextInputField
-                            name={`metadata.${index}.value`}
-                            label={translate('text_63fcc3218d35b9377840f5ab')}
-                            silentError={!hasCustomValueError}
-                            placeholder={translate('text_63fcc3218d35b9377840f5af')}
-                            formikProps={formikProps}
-                            displayErrorText={false}
-                          />
-                        </Tooltip>
-                      </div>
-                      <Tooltip
-                        className="flex items-center"
-                        placement="top-end"
-                        title={translate('text_63fcc3218d35b9377840f5e1')}
+            <section className="flex flex-col gap-6">
+              <Accordion
+                variant="borderless"
+                summary={
+                  <div className="flex flex-col gap-2">
+                    <Typography variant="subhead1">
+                      {translate('text_63fcc3218d35b9377840f59b')}
+                    </Typography>
+                    <Typography variant="caption">
+                      {translate('text_1741706729331emiq4h111k8')}
+                    </Typography>
+                  </div>
+                }
+              >
+                <div className="flex flex-col gap-6">
+                  {(formValues.metadata ?? []).map((_metadata, index) => {
+                    return (
+                      <div
+                        className="flex w-full flex-row items-center gap-3"
+                        key={`metadata-item-${index}`}
                       >
-                        <Button
-                          className="mt-7"
-                          variant="quaternary"
-                          size="medium"
-                          icon="trash"
-                          onClick={() => {
-                            formikProps.setFieldValue(
-                              'metadata',
-                              (formikProps.values.metadata ?? []).filter((_, i) => i !== index),
-                            )
-                          }}
-                        />
-                      </Tooltip>
-                    </div>
-                  )
-                })}
+                        <div className="basis-[200px]">
+                          <form.AppField name={`metadata[${index}].key`}>
+                            {(field) => {
+                              const keyError = (
+                                field.state.meta.errors as unknown as { message?: string }[]
+                              ).find((error) =>
+                                Object.keys(MetadataErrorsEnum).includes(error?.message ?? ''),
+                              )?.message
 
-                <Button
-                  className="self-start"
-                  startIcon="plus"
-                  variant="inline"
-                  onClick={() =>
-                    formikProps.setFieldValue('metadata', [
-                      ...(formikProps.values.metadata ?? []),
-                      { key: '', value: '' },
-                    ])
-                  }
-                  data-test={ADD_METADATA_DATA_TEST}
-                >
-                  {translate('text_63fcc3218d35b9377840f5bb')}
-                </Button>
-              </div>
-            </Accordion>
-          </section>
-        </CenteredPage.Container>
-      )}
+                              return (
+                                <Tooltip
+                                  placement="top-end"
+                                  title={
+                                    (keyError === MetadataErrorsEnum.uniqueness &&
+                                      translate('text_63fcc3218d35b9377840f5dd')) ||
+                                    (keyError === MetadataErrorsEnum.maxLength &&
+                                      translate('text_63fcc3218d35b9377840f5d9', { max: 20 }))
+                                  }
+                                  disableHoverListener={!keyError}
+                                >
+                                  <field.TextInputField
+                                    label={translate('text_63fcc3218d35b9377840f5a3')}
+                                    silentError={!keyError}
+                                    placeholder={translate('text_63fcc3218d35b9377840f5a7')}
+                                    displayErrorText={false}
+                                  />
+                                </Tooltip>
+                              )
+                            }}
+                          </form.AppField>
+                        </div>
+                        <div className="grow">
+                          <form.AppField name={`metadata[${index}].value`}>
+                            {(field) => {
+                              const valueError = (
+                                field.state.meta.errors as unknown as { message?: string }[]
+                              ).find((error) =>
+                                Object.keys(MetadataErrorsEnum).includes(error?.message ?? ''),
+                              )?.message
 
-      <CenteredPage.StickyFooter>
-        <Button variant="quaternary" onClick={onAbort}>
-          {translate('text_62e79671d23ae6ff149de968')}
-        </Button>
-        <Button
-          variant="primary"
-          disabled={!formikProps.isValid || !formikProps.dirty}
-          onClick={formikProps.submitForm}
-          data-test={SUBMIT_WALLET_DATA_TEST}
-        >
-          {translate('text_1741103892833yi7redcuhoc')}
-        </Button>
-      </CenteredPage.StickyFooter>
+                              return (
+                                <Tooltip
+                                  placement="top-end"
+                                  title={
+                                    valueError === MetadataErrorsEnum.maxLength
+                                      ? translate('text_63fcc3218d35b9377840f5e5', {
+                                          max: METADATA_VALUE_MAX_LENGTH_DEFAULT,
+                                        })
+                                      : undefined
+                                  }
+                                  disableHoverListener={!valueError}
+                                >
+                                  <field.TextInputField
+                                    label={translate('text_63fcc3218d35b9377840f5ab')}
+                                    silentError={!valueError}
+                                    placeholder={translate('text_63fcc3218d35b9377840f5af')}
+                                    displayErrorText={false}
+                                  />
+                                </Tooltip>
+                              )
+                            }}
+                          </form.AppField>
+                        </div>
+                        <Tooltip
+                          className="flex items-center"
+                          placement="top-end"
+                          title={translate('text_63fcc3218d35b9377840f5e1')}
+                        >
+                          <Button
+                            className="mt-7"
+                            variant="quaternary"
+                            size="medium"
+                            icon="trash"
+                            onClick={() => {
+                              form.setFieldValue(
+                                'metadata',
+                                (form.state.values.metadata ?? []).filter((_, i) => i !== index),
+                              )
+                            }}
+                          />
+                        </Tooltip>
+                      </div>
+                    )
+                  })}
+
+                  <Button
+                    className="self-start"
+                    startIcon="plus"
+                    variant="inline"
+                    onClick={() =>
+                      form.setFieldValue('metadata', [
+                        ...(form.state.values.metadata ?? []),
+                        { key: '', value: '' },
+                      ])
+                    }
+                    data-test={ADD_METADATA_DATA_TEST}
+                  >
+                    {translate('text_63fcc3218d35b9377840f5bb')}
+                  </Button>
+                </div>
+              </Accordion>
+            </section>
+          </CenteredPage.Container>
+        )}
+
+        <CenteredPage.StickyFooter>
+          <Button variant="quaternary" onClick={onAbort}>
+            {translate('text_62e79671d23ae6ff149de968')}
+          </Button>
+          <form.AppForm>
+            <form.SubmitButton variant="primary" dataTest={SUBMIT_WALLET_DATA_TEST}>
+              {translate('text_1741103892833yi7redcuhoc')}
+            </form.SubmitButton>
+          </form.AppForm>
+        </CenteredPage.StickyFooter>
+      </form>
     </CenteredPage.Wrapper>
   )
 }
