@@ -11,10 +11,7 @@ import {
   AddEditDeleteSuccessRedirectUrlDialog,
   AddEditDeleteSuccessRedirectUrlDialogRef,
 } from '~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog'
-import {
-  AddStripeDialog,
-  AddStripeDialogRef,
-} from '~/components/settings/integrations/AddStripeDialog'
+import { useAddStripeDialog } from '~/components/settings/integrations/AddStripeDialog'
 import { useDeleteStripeIntegrationDialog } from '~/components/settings/integrations/DeleteStripeIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { INTEGRATIONS_ROUTE, STRIPE_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
@@ -59,7 +56,7 @@ gql`
 const StripeIntegrations = () => {
   const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
-  const addStripeDialogRef = useRef<AddStripeDialogRef>(null)
+  const { openAddStripeDialog } = useAddStripeDialog()
   const { openDeleteStripeIntegrationDialog } = useDeleteStripeIntegrationDialog()
   const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { translate } = useInternationalization()
@@ -108,7 +105,7 @@ const StripeIntegrations = () => {
               variant: 'primary',
               hidden: !canCreateIntegration,
               onClick: () => {
-                addStripeDialogRef.current?.openDialog()
+                openAddStripeDialog()
               },
             },
           ],
@@ -162,13 +159,9 @@ const StripeIntegrations = () => {
                               variant="quaternary"
                               align="left"
                               onClick={() => {
-                                addStripeDialogRef.current?.openDialog({
+                                openAddStripeDialog({
                                   provider: connection,
-                                  onDelete: (provider) =>
-                                    openDeleteStripeIntegrationDialog({
-                                      provider,
-                                      callback: deleteDialogCallback,
-                                    }),
+                                  deleteCallback: deleteDialogCallback,
                                 })
                                 closePopper()
                               }}
@@ -203,7 +196,6 @@ const StripeIntegrations = () => {
         </section>
       </IntegrationsPage.Container>
 
-      <AddStripeDialog ref={addStripeDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )

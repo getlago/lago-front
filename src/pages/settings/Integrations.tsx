@@ -48,10 +48,7 @@ import {
   AddSalesforceDialog,
   AddSalesforceDialogRef,
 } from '~/components/settings/integrations/AddSalesforceDialog'
-import {
-  AddStripeDialog,
-  AddStripeDialogRef,
-} from '~/components/settings/integrations/AddStripeDialog'
+import { useAddStripeDialog } from '~/components/settings/integrations/AddStripeDialog'
 import { AddXeroDialog, AddXeroDialogRef } from '~/components/settings/integrations/AddXeroDialog'
 import {
   DOCUMENTATION_AIRBYTE,
@@ -167,7 +164,7 @@ const Integrations = () => {
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
   const addAnrokDialogRef = useRef<AddAnrokDialogRef>(null)
   const { openAddAvalaraDialog } = useAddAvalaraDialog()
-  const addStripeDialogRef = useRef<AddStripeDialogRef>(null)
+  const { openAddStripeDialog } = useAddStripeDialog()
   const { openAddAdyenDialog } = useAddAdyenDialog()
   const addGocardlessDialogRef = useRef<AddGocardlessDialogRef>(null)
   const { openAddCashfreeDialog } = useAddCashfreeDialog()
@@ -631,7 +628,7 @@ const Integrations = () => {
                             const element = document.activeElement as HTMLElement
 
                             element.blur && element.blur()
-                            addStripeDialogRef.current?.openDialog()
+                            openAddStripeDialog()
                           }
                         }}
                         fullWidth
@@ -838,7 +835,6 @@ const Integrations = () => {
       <>{activeTabContent}</>
 
       <AddAnrokDialog ref={addAnrokDialogRef} />
-      <AddStripeDialog ref={addStripeDialogRef} />
       <AddGocardlessDialog ref={addGocardlessDialogRef} />
       <AddLagoTaxManagementDialog ref={addLagoTaxManagementDialog} />
       <AddNetsuiteDialog ref={addNetsuiteDialogRef} />
