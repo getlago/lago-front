@@ -1873,6 +1873,7 @@ export type CreateCustomerWalletInput = {
   paidTopUpMinAmountCents?: InputMaybe<Scalars['BigInt']['input']>;
   paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
   priority: Scalars['Int']['input'];
+  purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   rateAmount: Scalars['String']['input'];
   recurringTransactionRules?: InputMaybe<Array<CreateRecurringTransactionRuleInput>>;
   transactionName?: InputMaybe<Scalars['String']['input']>;
@@ -1891,6 +1892,7 @@ export type CreateCustomerWalletTransactionInput = {
   paidCredits?: InputMaybe<Scalars['String']['input']>;
   paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
   priority?: InputMaybe<Scalars['Int']['input']>;
+  purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   voidedCredits?: InputMaybe<Scalars['String']['input']>;
   walletId: Scalars['ID']['input'];
 };
@@ -2137,6 +2139,7 @@ export type CreateRecurringTransactionRuleInput = {
   method?: InputMaybe<RecurringTransactionMethodEnum>;
   paidCredits?: InputMaybe<Scalars['String']['input']>;
   paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
+  purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   startedAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   targetOngoingBalance?: InputMaybe<Scalars['String']['input']>;
   thresholdCredits?: InputMaybe<Scalars['String']['input']>;
@@ -2205,6 +2208,7 @@ export type CreateSubscriptionInput = {
   planId: Scalars['ID']['input'];
   planOverrides?: InputMaybe<PlanOverridesInput>;
   progressiveBillingDisabled?: InputMaybe<Scalars['Boolean']['input']>;
+  purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   subscriptionAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   subscriptionId?: InputMaybe<Scalars['ID']['input']>;
   usageThresholds?: InputMaybe<Array<UsageThresholdInput>>;
@@ -3914,7 +3918,9 @@ export enum EventsStoreEnum {
 /** Organization Feature Flag Values */
 export enum FeatureFlagEnum {
   EnrichedEventsAggregation = 'enriched_events_aggregation',
+  FixedChargeUsageDeltaMigration = 'fixed_charge_usage_delta_migration',
   Meilisearch = 'meilisearch',
+  MultiConnection = 'multi_connection',
   MultiCurrency = 'multi_currency',
   MultiEntityBilling = 'multi_entity_billing',
   OrderForms = 'order_forms',
@@ -4721,6 +4727,7 @@ export enum InvoiceSettlementTypeEnum {
 
 export enum InvoiceStatusTypeEnum {
   Closed = 'closed',
+  Deleted = 'deleted',
   Draft = 'draft',
   Failed = 'failed',
   Finalized = 'finalized',
@@ -7761,7 +7768,6 @@ export type QueryCustomerPortalCustomerUsageArgs = {
 
 export type QueryCustomerPortalInvoiceCollectionsArgs = {
   expireCache?: InputMaybe<Scalars['Boolean']['input']>;
-  months?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -7775,7 +7781,6 @@ export type QueryCustomerPortalInvoicesArgs = {
 
 export type QueryCustomerPortalOverdueBalancesArgs = {
   expireCache?: InputMaybe<Scalars['Boolean']['input']>;
-  months?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -8015,6 +8020,7 @@ export type QueryFeaturesArgs = {
 
 
 export type QueryGrossRevenuesArgs = {
+  billingEntityCode?: InputMaybe<Scalars['String']['input']>;
   billingEntityId?: InputMaybe<Scalars['ID']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
   expireCache?: InputMaybe<Scalars['Boolean']['input']>;
@@ -8077,7 +8083,6 @@ export type QueryInvoiceBuildRegenerationPreviewArgs = {
 
 export type QueryInvoiceCollectionsArgs = {
   billingEntityCode?: InputMaybe<Scalars['String']['input']>;
-  billingEntityId?: InputMaybe<Scalars['ID']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
   isCustomerTinEmpty?: InputMaybe<Scalars['Boolean']['input']>;
 };
@@ -8102,7 +8107,7 @@ export type QueryInvoiceCustomSectionsArgs = {
 
 
 export type QueryInvoicedUsagesArgs = {
-  billingEntityId?: InputMaybe<Scalars['ID']['input']>;
+  billingEntityCode?: InputMaybe<Scalars['String']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
 };
 
@@ -8139,7 +8144,7 @@ export type QueryMembershipsArgs = {
 
 
 export type QueryMrrsArgs = {
-  billingEntityId?: InputMaybe<Scalars['ID']['input']>;
+  billingEntityCode?: InputMaybe<Scalars['String']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
 };
 
@@ -8189,7 +8194,6 @@ export type QueryOrdersArgs = {
 
 export type QueryOverdueBalancesArgs = {
   billingEntityCode?: InputMaybe<Scalars['String']['input']>;
-  billingEntityId?: InputMaybe<Scalars['ID']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
   expireCache?: InputMaybe<Scalars['Boolean']['input']>;
   externalCustomerId?: InputMaybe<Scalars['String']['input']>;
@@ -8533,6 +8537,7 @@ export type RecurringTransactionRule = {
   paidCredits: Scalars['String']['output'];
   paymentMethod?: Maybe<PaymentMethod>;
   paymentMethodType?: Maybe<PaymentMethodTypeEnum>;
+  purchaseOrderNumber?: Maybe<Scalars['String']['output']>;
   selectedInvoiceCustomSections?: Maybe<Array<InvoiceCustomSection>>;
   skipInvoiceCustomSections?: Maybe<Scalars['Boolean']['output']>;
   startedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
@@ -8920,6 +8925,7 @@ export type Subscription = {
   previousPlan?: Maybe<Plan>;
   previousSubscription?: Maybe<Subscription>;
   progressiveBillingDisabled?: Maybe<Scalars['Boolean']['output']>;
+  purchaseOrderNumber?: Maybe<Scalars['String']['output']>;
   selectedInvoiceCustomSections?: Maybe<Array<InvoiceCustomSection>>;
   skipInvoiceCustomSections?: Maybe<Scalars['Boolean']['output']>;
   startedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
@@ -9729,6 +9735,7 @@ export type UpdateCustomerWalletInput = {
   paidTopUpMinAmountCents?: InputMaybe<Scalars['BigInt']['input']>;
   paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
   priority: Scalars['Int']['input'];
+  purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   recurringTransactionRules?: InputMaybe<Array<UpdateRecurringTransactionRuleInput>>;
 };
 
@@ -10021,6 +10028,7 @@ export type UpdateRecurringTransactionRuleInput = {
   method?: InputMaybe<RecurringTransactionMethodEnum>;
   paidCredits?: InputMaybe<Scalars['String']['input']>;
   paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
+  purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   startedAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   targetOngoingBalance?: InputMaybe<Scalars['String']['input']>;
   thresholdCredits?: InputMaybe<Scalars['String']['input']>;
@@ -10124,6 +10132,7 @@ export type UpdateSubscriptionInput = {
   paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
   planOverrides?: InputMaybe<PlanOverridesInput>;
   progressiveBillingDisabled?: InputMaybe<Scalars['Boolean']['input']>;
+  purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   subscriptionAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   usageThresholds?: InputMaybe<Array<UsageThresholdInput>>;
 };
@@ -10266,6 +10275,7 @@ export type Wallet = {
   paymentMethod?: Maybe<PaymentMethod>;
   paymentMethodType?: Maybe<PaymentMethodTypeEnum>;
   priority: Scalars['Int']['output'];
+  purchaseOrderNumber?: Maybe<Scalars['String']['output']>;
   rateAmount: Scalars['Float']['output'];
   recurringTransactionRules?: Maybe<Array<RecurringTransactionRule>>;
   selectedInvoiceCustomSections?: Maybe<Array<InvoiceCustomSection>>;
@@ -10322,6 +10332,7 @@ export type WalletTransaction = {
   metadata?: Maybe<Array<WalletTransactionMetadataObject>>;
   name?: Maybe<Scalars['String']['output']>;
   priority: Scalars['Int']['output'];
+  purchaseOrderNumber?: Maybe<Scalars['String']['output']>;
   remainingAmountCents?: Maybe<Scalars['BigInt']['output']>;
   remainingCreditAmount?: Maybe<Scalars['String']['output']>;
   selectedInvoiceCustomSections?: Maybe<Array<InvoiceCustomSection>>;
@@ -13536,15 +13547,6 @@ export type GetBillingEntityTaxesForCreateInvoiceQueryVariables = Exact<{
 
 export type GetBillingEntityTaxesForCreateInvoiceQuery = { __typename?: 'Query', billingEntityTaxes: { __typename?: 'TaxCollection', collection: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number }> } };
 
-export type GetAddonListForInfoiceQueryVariables = Exact<{
-  page?: InputMaybe<Scalars['Int']['input']>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  searchTerm?: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-export type GetAddonListForInfoiceQuery = { __typename?: 'Query', addOns: { __typename?: 'AddOnCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AddOn', id: string, name: string, description?: string | null, amountCents: any, amountCurrency: CurrencyEnum, invoiceDisplayName?: string | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null }> } };
-
 export type FetchDraftInvoiceTaxesMutationVariables = Exact<{
   input: FetchDraftInvoiceTaxesInput;
 }>;
@@ -14141,6 +14143,15 @@ export type SubsidiariesListForExternalAppsAccordionQueryVariables = Exact<{
 
 
 export type SubsidiariesListForExternalAppsAccordionQuery = { __typename?: 'Query', integrationSubsidiaries?: { __typename?: 'SubsidiaryCollection', collection: Array<{ __typename?: 'Subsidiary', externalId: string, externalName?: string | null }> } | null };
+
+export type GetAddonListForInfoiceQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetAddonListForInfoiceQuery = { __typename?: 'Query', addOns: { __typename?: 'AddOnCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'AddOn', id: string, name: string, description?: string | null, amountCents: any, amountCurrency: CurrencyEnum, invoiceDisplayName?: string | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null }> } };
 
 export type GetCreditNoteForDetailsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -35202,68 +35213,6 @@ export type GetBillingEntityTaxesForCreateInvoiceQueryHookResult = ReturnType<ty
 export type GetBillingEntityTaxesForCreateInvoiceLazyQueryHookResult = ReturnType<typeof useGetBillingEntityTaxesForCreateInvoiceLazyQuery>;
 export type GetBillingEntityTaxesForCreateInvoiceSuspenseQueryHookResult = ReturnType<typeof useGetBillingEntityTaxesForCreateInvoiceSuspenseQuery>;
 export type GetBillingEntityTaxesForCreateInvoiceQueryResult = Apollo.QueryResult<GetBillingEntityTaxesForCreateInvoiceQuery, GetBillingEntityTaxesForCreateInvoiceQueryVariables>;
-export const GetAddonListForInfoiceDocument = gql`
-    query getAddonListForInfoice($page: Int, $limit: Int, $searchTerm: String) {
-  addOns(page: $page, limit: $limit, searchTerm: $searchTerm) {
-    metadata {
-      currentPage
-      totalPages
-    }
-    collection {
-      id
-      name
-      description
-      amountCents
-      amountCurrency
-      invoiceDisplayName
-      ...AddOnForInvoiceEditTaxDialog
-      taxes {
-        id
-        ...TaxInfosForCreateInvoice
-      }
-    }
-  }
-}
-    ${AddOnForInvoiceEditTaxDialogFragmentDoc}
-${TaxInfosForCreateInvoiceFragmentDoc}`;
-
-/**
- * __useGetAddonListForInfoiceQuery__
- *
- * To run a query within a React component, call `useGetAddonListForInfoiceQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetAddonListForInfoiceQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetAddonListForInfoiceQuery({
- *   variables: {
- *      page: // value for 'page'
- *      limit: // value for 'limit'
- *      searchTerm: // value for 'searchTerm'
- *   },
- * });
- */
-export function useGetAddonListForInfoiceQuery(baseOptions?: Apollo.QueryHookOptions<GetAddonListForInfoiceQuery, GetAddonListForInfoiceQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetAddonListForInfoiceQuery, GetAddonListForInfoiceQueryVariables>(GetAddonListForInfoiceDocument, options);
-      }
-export function useGetAddonListForInfoiceLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAddonListForInfoiceQuery, GetAddonListForInfoiceQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetAddonListForInfoiceQuery, GetAddonListForInfoiceQueryVariables>(GetAddonListForInfoiceDocument, options);
-        }
-// @ts-ignore
-export function useGetAddonListForInfoiceSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAddonListForInfoiceQuery, GetAddonListForInfoiceQueryVariables>): Apollo.UseSuspenseQueryResult<GetAddonListForInfoiceQuery, GetAddonListForInfoiceQueryVariables>;
-export function useGetAddonListForInfoiceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAddonListForInfoiceQuery, GetAddonListForInfoiceQueryVariables>): Apollo.UseSuspenseQueryResult<GetAddonListForInfoiceQuery | undefined, GetAddonListForInfoiceQueryVariables>;
-export function useGetAddonListForInfoiceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAddonListForInfoiceQuery, GetAddonListForInfoiceQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetAddonListForInfoiceQuery, GetAddonListForInfoiceQueryVariables>(GetAddonListForInfoiceDocument, options);
-        }
-export type GetAddonListForInfoiceQueryHookResult = ReturnType<typeof useGetAddonListForInfoiceQuery>;
-export type GetAddonListForInfoiceLazyQueryHookResult = ReturnType<typeof useGetAddonListForInfoiceLazyQuery>;
-export type GetAddonListForInfoiceSuspenseQueryHookResult = ReturnType<typeof useGetAddonListForInfoiceSuspenseQuery>;
-export type GetAddonListForInfoiceQueryResult = Apollo.QueryResult<GetAddonListForInfoiceQuery, GetAddonListForInfoiceQueryVariables>;
 export const FetchDraftInvoiceTaxesDocument = gql`
     mutation fetchDraftInvoiceTaxes($input: FetchDraftInvoiceTaxesInput!) {
   fetchDraftInvoiceTaxes(input: $input) {
@@ -37977,6 +37926,68 @@ export type SubsidiariesListForExternalAppsAccordionQueryHookResult = ReturnType
 export type SubsidiariesListForExternalAppsAccordionLazyQueryHookResult = ReturnType<typeof useSubsidiariesListForExternalAppsAccordionLazyQuery>;
 export type SubsidiariesListForExternalAppsAccordionSuspenseQueryHookResult = ReturnType<typeof useSubsidiariesListForExternalAppsAccordionSuspenseQuery>;
 export type SubsidiariesListForExternalAppsAccordionQueryResult = Apollo.QueryResult<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>;
+export const GetAddonListForInfoiceDocument = gql`
+    query getAddonListForInfoice($page: Int, $limit: Int, $searchTerm: String) {
+  addOns(page: $page, limit: $limit, searchTerm: $searchTerm) {
+    metadata {
+      currentPage
+      totalPages
+    }
+    collection {
+      id
+      name
+      description
+      amountCents
+      amountCurrency
+      invoiceDisplayName
+      ...AddOnForInvoiceEditTaxDialog
+      taxes {
+        id
+        ...TaxInfosForCreateInvoice
+      }
+    }
+  }
+}
+    ${AddOnForInvoiceEditTaxDialogFragmentDoc}
+${TaxInfosForCreateInvoiceFragmentDoc}`;
+
+/**
+ * __useGetAddonListForInfoiceQuery__
+ *
+ * To run a query within a React component, call `useGetAddonListForInfoiceQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAddonListForInfoiceQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAddonListForInfoiceQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *   },
+ * });
+ */
+export function useGetAddonListForInfoiceQuery(baseOptions?: Apollo.QueryHookOptions<GetAddonListForInfoiceQuery, GetAddonListForInfoiceQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAddonListForInfoiceQuery, GetAddonListForInfoiceQueryVariables>(GetAddonListForInfoiceDocument, options);
+      }
+export function useGetAddonListForInfoiceLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAddonListForInfoiceQuery, GetAddonListForInfoiceQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAddonListForInfoiceQuery, GetAddonListForInfoiceQueryVariables>(GetAddonListForInfoiceDocument, options);
+        }
+// @ts-ignore
+export function useGetAddonListForInfoiceSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAddonListForInfoiceQuery, GetAddonListForInfoiceQueryVariables>): Apollo.UseSuspenseQueryResult<GetAddonListForInfoiceQuery, GetAddonListForInfoiceQueryVariables>;
+export function useGetAddonListForInfoiceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAddonListForInfoiceQuery, GetAddonListForInfoiceQueryVariables>): Apollo.UseSuspenseQueryResult<GetAddonListForInfoiceQuery | undefined, GetAddonListForInfoiceQueryVariables>;
+export function useGetAddonListForInfoiceSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAddonListForInfoiceQuery, GetAddonListForInfoiceQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetAddonListForInfoiceQuery, GetAddonListForInfoiceQueryVariables>(GetAddonListForInfoiceDocument, options);
+        }
+export type GetAddonListForInfoiceQueryHookResult = ReturnType<typeof useGetAddonListForInfoiceQuery>;
+export type GetAddonListForInfoiceLazyQueryHookResult = ReturnType<typeof useGetAddonListForInfoiceLazyQuery>;
+export type GetAddonListForInfoiceSuspenseQueryHookResult = ReturnType<typeof useGetAddonListForInfoiceSuspenseQuery>;
+export type GetAddonListForInfoiceQueryResult = Apollo.QueryResult<GetAddonListForInfoiceQuery, GetAddonListForInfoiceQueryVariables>;
 export const GetCreditNoteForDetailsDocument = gql`
     query getCreditNoteForDetails($id: ID!) {
   creditNote(id: $id) {
