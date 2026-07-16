@@ -3929,7 +3929,6 @@
   "text_1773687275957yugpyzdyfk1": "Edit filter",
   "text_1773687275957f97sto0sosz": "The pricing model is inherited from the parent charge.",
   "text_1773692639715a1g5pyyfj3n": "Add a pricing group key",
-  "text_1773693201084rlj6btz4xe1": "Filter already used in the plan, customers will be charged several times.",
   "text_1773950414511euzjefq877r": "{{thresholdCount}} threshold defined|{{thresholdCount}} thresholds defined",
   "text_177488074309762bkd4znl3p": "Prorate amount",
   "text_1774880743098ioxd3oxanxo": "Price is prorated based on the fee start and end dates within the billing period.",
@@ -4476,5 +4475,6 @@
   "text_1783447082842231k4gnufxi": "This value was rejected. Please review it.",
   "text_1783670256902guo0smcgak1": "The total amount of all credit notes matches this invoice's total. No additional credit notes can be created.",
   "text_1784022064201xi14v3sglp1": "Must be between {{min}} and {{max}}",
-  "text_1784125321861zpfdo292vgj": "You must add at least one item"
+  "text_1784125321861zpfdo292vgj": "You must add at least one item",
+  "text_17842075995060cc5300kk8j": "This filter has the exact same definition as another filter on this charge — only the price differs. Both will match the same usage, so it will be billed twice."
 }
