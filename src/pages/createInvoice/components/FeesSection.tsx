@@ -63,6 +63,11 @@ gql`
   ${AddOnForInvoiceEditTaxDialogFragmentDoc}
 `
 
+export const FEES_SECTION_ITEM_TEST_ID = 'invoice-item'
+export const FEES_SECTION_ITEM_ACTIONS_BUTTON_TEST_ID = 'invoice-item-actions-button'
+export const FEES_SECTION_ADD_ITEM_BUTTON_TEST_ID = 'add-item-button'
+export const FEES_SECTION_AT_LEAST_ONE_FEE_ERROR_TEST_ID = 'fees-section-at-least-one-fee-error'
+
 const gridClassname =
   'grid  grid-cols-[minmax(0,1fr)_minmax(0,80px)_minmax(0,168px)_minmax(0,64px)_minmax(0,160px)_minmax(0,24px)] gap-3 [&>*:nth-last-child(-n+3)]:flex [&>*:nth-last-child(-n+3)]:justify-end'
 
@@ -229,7 +234,7 @@ export const FeesSection = withForm({
                     <div
                       className={tw(gridClassname, 'min-h-17 items-center py-3 shadow-b')}
                       key={`item-${i}`}
-                      data-test="invoice-item"
+                      data-test={FEES_SECTION_ITEM_TEST_ID}
                     >
                       <div>
                         <Typography variant="captionHl" color="grey600" noWrap>
@@ -329,7 +334,7 @@ export const FeesSection = withForm({
                             icon="dots-horizontal"
                             variant="quaternary"
                             size="small"
-                            data-test="invoice-item-actions-button"
+                            data-test={FEES_SECTION_ITEM_ACTIONS_BUTTON_TEST_ID}
                           />
                         )}
                       >
@@ -474,13 +479,18 @@ export const FeesSection = withForm({
                         ).click()
                       }, 0)
                     }}
-                    data-test="add-item-button"
+                    data-test={FEES_SECTION_ADD_ITEM_BUTTON_TEST_ID}
                   >
                     {translate('text_6453819268763979024ad0d7')}
                   </Button>
                 )}
                 {!!atLeastOneFeeError && (
-                  <Typography className="mt-1" variant="caption" color="danger600">
+                  <Typography
+                    className="mt-1"
+                    variant="caption"
+                    color="danger600"
+                    data-test={FEES_SECTION_AT_LEAST_ONE_FEE_ERROR_TEST_ID}
+                  >
                     {translate(atLeastOneFeeError)}
                   </Typography>
                 )}

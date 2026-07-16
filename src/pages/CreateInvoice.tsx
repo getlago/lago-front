@@ -172,6 +172,8 @@ gql`
   ${FeeForInvoiceFeesToFeeInputFragmentDoc}
 `
 
+export const CREATE_INVOICE_SUBMIT_BUTTON_TEST_ID = 'create-invoice-button'
+
 const CreateInvoice = () => {
   const { translate } = useInternationalization()
   const { customerId, voidedInvoiceId = '' } = useParams()
@@ -940,7 +942,7 @@ const CreateInvoice = () => {
                 </Button>
               )}
               <form.AppForm>
-                <form.SubmitButton size="large" dataTest="create-invoice-button">
+                <form.SubmitButton size="large" dataTest={CREATE_INVOICE_SUBMIT_BUTTON_TEST_ID}>
                   {translate('text_6453819268763979024ad134')}
                 </form.SubmitButton>
               </form.AppForm>
