@@ -59,18 +59,22 @@ jest.mock('../ProductItemDrawerContent', () => ({
   }: {
     form: {
       setFieldValue: (name: string, value: string) => void
+      state: { values: { productId?: string } }
     }
   }) => (
-    <button
-      data-test="seed-fixed-item"
-      onClick={() => {
-        form.setFieldValue('name', 'Seats')
-        form.setFieldValue('code', 'seats')
-        form.setFieldValue('itemType', 'fixed')
-      }}
-    >
-      seed
-    </button>
+    <>
+      <button
+        data-test="seed-fixed-item"
+        onClick={() => {
+          form.setFieldValue('name', 'Seats')
+          form.setFieldValue('code', 'seats')
+          form.setFieldValue('itemType', 'fixed')
+        }}
+      >
+        seed
+      </button>
+      <span data-test="product-id-value">{form.state.values.productId ?? ''}</span>
+    </>
   ),
 }))
 
@@ -99,6 +103,34 @@ const createProductItemMock = (
       },
     },
     ...overrides,
+  },
+})
+
+const ATTACHED_PRODUCT = { id: 'prod-1', name: 'Object storage', code: 'object_storage' }
+
+// Create mock for the attach-to-product flow: the productId comes from the
+// prefilled selection (not from the seed button, which only sets name/code/type).
+const createProductItemForProductMock = (): MockedResponse => ({
+  request: { query: CreateProductItemDocument },
+  variableMatcher: (vars) =>
+    vars?.input?.name === 'Seats' &&
+    vars?.input?.code === 'seats' &&
+    vars?.input?.itemType === ProductItemTypeEnum.Fixed &&
+    vars?.input?.productId === 'prod-1',
+  result: {
+    data: {
+      createProductItem: {
+        id: 'pitem-1',
+        name: 'Seats',
+        code: 'seats',
+        description: null,
+        invoiceDisplayName: null,
+        itemType: ProductItemTypeEnum.Fixed,
+        attachedToPlanOrSubscription: false,
+        product: ATTACHED_PRODUCT,
+        billableMetric: null,
+      },
+    },
   },
 })
 
@@ -170,6 +202,40 @@ describe('useProductItemDrawer create flow', () => {
     )
     expect(mockClose).not.toHaveBeenCalled()
     expect(mockNavigate).not.toHaveBeenCalled()
+  })
+
+  it('re-seeds the attached product after a create-more reset', async () => {
+    const { result } = renderDrawerHook([createProductItemForProductMock()])
+
+    act(() => result.current.openDrawer({ attachToProduct: ATTACHED_PRODUCT }))
+
+    render(<>{lastDrawerArgs?.secondaryAction}</>)
+    await userEvent.click(screen.getByTestId(CREATE_MORE_SWITCH_TEST_ID))
+
+    const view = render(
+      <MockedProvider mocks={[]} addTypename={false}>
+        {lastDrawerArgs?.children}
+      </MockedProvider>,
+    )
+
+    // The prefilled product is present before submitting.
+    expect(screen.getByTestId('product-id-value')).toHaveTextContent('prod-1')
+
+    await userEvent.click(screen.getByTestId('seed-fixed-item'))
+    await act(async () => {
+      await lastDrawerArgs?.form?.submit()
+    })
+
+    await waitFor(() => expect(addToast).toHaveBeenCalled())
+    expect(mockClose).not.toHaveBeenCalled()
+
+    // After the create-more reset the product selection is preserved, not cleared.
+    view.rerender(
+      <MockedProvider mocks={[]} addTypename={false}>
+        {lastDrawerArgs?.children}
+      </MockedProvider>,
+    )
+    expect(screen.getByTestId('product-id-value')).toHaveTextContent('prod-1')
   })
 
   it('keeps the drawer open on a duplicate code without toasting', async () => {

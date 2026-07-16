@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { tw } from 'lago-design-system'
 import { useCallback, useMemo } from 'react'
-import { generatePath, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 
 import {
   Filters,
@@ -10,24 +10,20 @@ import {
 } from '~/components/designSystem/Filters'
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Table, TablePlaceholder } from '~/components/designSystem/Table/Table'
-import { ActionColumn, ActionItem } from '~/components/designSystem/Table/types'
 import { SearchInput } from '~/components/SearchInput'
 import { PRODUCT_ITEM_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
-import { ProductItemDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { PRODUCT_ITEM_DETAILS_ROUTE } from '~/core/router'
 import {
   ProductItemForDeleteProductItemDialogFragmentDoc,
   ProductItemForDrawerFragmentDoc,
-  ProductItemForListFragment,
   useProductItemsLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { usePermissions } from '~/hooks/usePermissions'
 
-import { useDeleteProductItemDialog } from './dialogs/useDeleteProductItemDialog'
 import { useProductItemDrawer } from './drawers/productItem/useProductItemDrawer'
+import { useProductItemTableActions } from './useProductItemTableActions'
 import { useProductItemTableColumns } from './useProductItemTableColumns'
 
 gql`
@@ -84,7 +80,7 @@ const ProductItemsList = () => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const { openDrawer: openProductItemDrawer } = useProductItemDrawer()
-  const { openDeleteProductItemDialog } = useDeleteProductItemDialog()
+  const { actionColumn, actionColumnTooltip, getRowActionLink } = useProductItemTableActions()
   const [searchParams] = useSearchParams()
   const { page, goToPage } = usePageSearchParam()
 
@@ -105,25 +101,6 @@ const ProductItemsList = () => {
   const { debouncedSearch, isLoading } = useDebouncedSearch(getProductItems, loading)
 
   const canCreateProductItems = hasPermissions(['productItemsCreate'])
-  const canUpdateProductItems = hasPermissions(['productItemsUpdate'])
-  const canDeleteProductItems = hasPermissions(['productItemsDelete'])
-
-  const composeTooltipLabel = useCallback((): string => {
-    const editLabel = translate('text_629728388c4d2300e2d3816a')
-    const deleteLabel = translate('text_629728388c4d2300e2d38182')
-
-    let tooltipLabel = [
-      canUpdateProductItems && editLabel.toLowerCase(),
-      canDeleteProductItems && deleteLabel.toLowerCase(),
-    ]
-      .filter(Boolean)
-      .join(', ')
-
-    // uppercase first letter
-    tooltipLabel = tooltipLabel.charAt(0).toUpperCase() + tooltipLabel.slice(1)
-
-    return tooltipLabel
-  }, [canUpdateProductItems, canDeleteProductItems, translate])
 
   const searchInputOnChange = useCallback(
     (value: string) => {
@@ -132,39 +109,6 @@ const ProductItemsList = () => {
     },
     [goToPage, debouncedSearch],
   )
-
-  const getRowActionLink = useCallback(
-    ({ id }: { id: string }) =>
-      generatePath(PRODUCT_ITEM_DETAILS_ROUTE, {
-        productItemId: id,
-        tab: ProductItemDetailsTabsOptionsEnum.overview,
-      }),
-    [],
-  )
-
-  const actionColumn: ActionColumn<ProductItemForListFragment> = (productItem) => {
-    const actions: ActionItem<ProductItemForListFragment>[] = []
-
-    if (canUpdateProductItems) {
-      actions.push({
-        startIcon: 'pen',
-        title: translate('text_629728388c4d2300e2d3816a'),
-        onAction: () => openProductItemDrawer({ productItem }),
-      })
-    }
-
-    if (canDeleteProductItems) {
-      actions.push({
-        startIcon: 'trash',
-        title: translate('text_629728388c4d2300e2d38182'),
-        // No callback: the dialog evicts the item from the cached list, so the
-        // row disappears without waiting for a refetch.
-        onAction: () => openDeleteProductItemDialog({ productItem }),
-      })
-    }
-
-    return actions
-  }
 
   const columns = useProductItemTableColumns({ withAttachedProduct: true })
 
@@ -232,7 +176,7 @@ const ProductItemsList = () => {
           hasError={!!error}
           rowDataTestId={(productItem) => `${productItem.name}`}
           onRowActionLink={getRowActionLink}
-          actionColumnTooltip={composeTooltipLabel}
+          actionColumnTooltip={actionColumnTooltip}
           actionColumn={actionColumn}
           columns={columns}
           placeholder={placeholder}

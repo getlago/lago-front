@@ -7,18 +7,13 @@ import {
   escapeFilterLabel,
   filterDataInlineSeparator,
 } from '~/components/designSystem/Filters'
-import { Table } from '~/components/designSystem/Table/Table'
-import { ActionColumn, ActionItem } from '~/components/designSystem/Table/types'
+import { Table, TablePlaceholder } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { SearchInput } from '~/components/SearchInput'
 import { PRODUCT_ITEM_LIST_FILTER_PREFIX } from '~/core/constants/filters'
+import { ProductCatalogTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { Link, PRODUCT_CATALOG_TAB_ROUTE } from '~/core/router'
 import {
-  ProductCatalogTabsOptionsEnum,
-  ProductItemDetailsTabsOptionsEnum,
-} from '~/core/constants/tabsOptions'
-import { Link, PRODUCT_CATALOG_TAB_ROUTE, PRODUCT_ITEM_DETAILS_ROUTE } from '~/core/router'
-import {
-  ProductItemForListFragment,
   ProductItemForListFragmentDoc,
   useGetProductItemsForProductDetailsLazyQuery,
 } from '~/generated/graphql'
@@ -26,12 +21,11 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { usePermissions } from '~/hooks/usePermissions'
 
-import { useDeleteProductItemDialog } from '../dialogs/useDeleteProductItemDialog'
 import { useProductItemDrawer } from '../drawers/productItem/useProductItemDrawer'
+import { useProductItemTableActions } from '../useProductItemTableActions'
 import { useProductItemTableColumns } from '../useProductItemTableColumns'
 
 export const PRODUCT_DETAILS_ADD_PRODUCT_ITEM_TEST_ID = 'product-details-add-product-item'
-export const PRODUCT_DETAILS_PRODUCT_ITEMS_EMPTY_TEST_ID = 'product-details-product-items-empty'
 export const PRODUCT_DETAILS_PRODUCT_ITEMS_VIEW_ALL_TEST_ID =
   'product-details-product-items-view-all'
 
@@ -59,9 +53,7 @@ type ProductAttachment = { id: string; name: string; code: string }
 // (avoids an initial fetch with an empty productId).
 const ProductItemsPreview = ({ product }: { product: ProductAttachment }) => {
   const { translate } = useInternationalization()
-  const { hasPermissions } = usePermissions()
-  const { openDrawer: openProductItemDrawer } = useProductItemDrawer()
-  const { openDeleteProductItemDialog } = useDeleteProductItemDialog()
+  const { actionColumn, actionColumnTooltip, getRowActionLink } = useProductItemTableActions()
 
   const [getProductItems, { data, error, loading, variables }] =
     useGetProductItemsForProductDetailsLazyQuery({
@@ -71,68 +63,34 @@ const ProductItemsPreview = ({ product }: { product: ProductAttachment }) => {
     })
   const { debouncedSearch, isLoading } = useDebouncedSearch(getProductItems, loading)
 
-  const canUpdateProductItems = hasPermissions(['productItemsUpdate'])
-  const canDeleteProductItems = hasPermissions(['productItemsDelete'])
-
   const columns = useProductItemTableColumns({ withAttachedProduct: false })
 
-  const composeTooltipLabel = (): string => {
-    let tooltipLabel = [
-      canUpdateProductItems && translate('text_629728388c4d2300e2d3816a').toLowerCase(),
-      canDeleteProductItems && translate('text_629728388c4d2300e2d38182').toLowerCase(),
-    ]
-      .filter(Boolean)
-      .join(', ')
-
-    tooltipLabel = tooltipLabel.charAt(0).toUpperCase() + tooltipLabel.slice(1)
-
-    return tooltipLabel
-  }
-
-  const getRowActionLink = ({ id }: { id: string }): string =>
-    generatePath(PRODUCT_ITEM_DETAILS_ROUTE, {
-      productItemId: id,
-      tab: ProductItemDetailsTabsOptionsEnum.overview,
-    })
-
-  const actionColumn: ActionColumn<ProductItemForListFragment> = (productItem) => {
-    const actions: ActionItem<ProductItemForListFragment>[] = []
-
-    if (canUpdateProductItems) {
-      actions.push({
-        startIcon: 'pen',
-        title: translate('text_629728388c4d2300e2d3816a'),
-        onAction: () => openProductItemDrawer({ productItem }),
-      })
-    }
-
-    if (canDeleteProductItems) {
-      actions.push({
-        startIcon: 'trash',
-        title: translate('text_629728388c4d2300e2d38182'),
-        onAction: () => openDeleteProductItemDialog({ productItem }),
-      })
-    }
-
-    return actions
-  }
-
   const totalCount = data?.productItems?.metadata?.totalCount ?? 0
-  const hasSearch = !!variables?.searchTerm
 
-  // No items and no active search: show the compact dashed placeholder instead
-  // of the full-page empty illustration.
-  if (!isLoading && totalCount === 0 && !hasSearch) {
-    return (
-      <div
-        className="flex items-center justify-center rounded-xl border border-dashed border-grey-300 px-4 py-6"
-        data-test={PRODUCT_DETAILS_PRODUCT_ITEMS_EMPTY_TEST_ID}
-      >
-        <Typography variant="body" color="grey500">
-          {translate('text_1783980718114mr3o8mh00qx')}
-        </Typography>
-      </div>
-    )
+  // Standard, search-aware table empty/error placeholder (same design as every
+  // other list in the app); the Table renders it via `hasError`/empty data.
+  const placeholder: TablePlaceholder = {
+    errorState: variables?.searchTerm
+      ? {
+          title: translate('text_623b53fea66c76017eaebb6e'),
+          subtitle: translate('text_63bab307a61c62af497e0599'),
+        }
+      : {
+          title: translate('text_629728388c4d2300e2d380d5'),
+          subtitle: translate('text_629728388c4d2300e2d380eb'),
+          buttonTitle: translate('text_629728388c4d2300e2d38110'),
+          buttonVariant: 'primary',
+          buttonAction: () => location.reload(),
+        },
+    emptyState: variables?.searchTerm
+      ? {
+          title: translate('text_1783980718114wya9wp01m5i'),
+          subtitle: translate('text_63bee4e10e2d53912bfe4da7'),
+        }
+      : {
+          title: translate('text_1783980718114bqx4jce32fv'),
+          subtitle: translate('text_1783980718114kj0fch41rw4'),
+        },
   }
 
   // The product filter value is id-encoded (chip shows the code); the "View all"
@@ -158,15 +116,10 @@ const ProductItemsPreview = ({ product }: { product: ProductAttachment }) => {
         loadingRowCount={PREVIEW_LIMIT}
         hasError={!!error}
         onRowActionLink={getRowActionLink}
-        actionColumnTooltip={composeTooltipLabel}
+        actionColumnTooltip={actionColumnTooltip}
         actionColumn={actionColumn}
         columns={columns}
-        placeholder={{
-          emptyState: {
-            title: translate('text_1783980718114wya9wp01m5i'),
-            subtitle: translate('text_63bee4e10e2d53912bfe4da7'),
-          },
-        }}
+        placeholder={placeholder}
       />
       {totalCount > PREVIEW_LIMIT && (
         <Link to={viewAllTo} className="w-fit">
@@ -189,13 +142,13 @@ export const ProductDetailsProductItems = ({ product }: { product?: ProductAttac
   const { openDrawer: openProductItemDrawer } = useProductItemDrawer()
 
   return (
-    <section className="flex flex-col gap-6">
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex flex-col gap-1">
-          <Typography variant="subhead1" color="grey700">
+    <section>
+      <div className="flex h-18 items-center justify-between gap-4">
+        <div className="flex flex-col">
+          <Typography variant="subhead1" color="grey700" noWrap>
             {translate('text_17831042398250iwa2xp8pba')}
           </Typography>
-          <Typography variant="caption" color="grey600">
+          <Typography variant="caption" color="grey600" noWrap>
             {translate('text_1783980718114ltktg3qxx47')}
           </Typography>
         </div>

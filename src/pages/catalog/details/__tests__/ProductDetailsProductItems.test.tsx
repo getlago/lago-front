@@ -8,7 +8,6 @@ import { render } from '~/test-utils'
 
 import {
   PRODUCT_DETAILS_ADD_PRODUCT_ITEM_TEST_ID,
-  PRODUCT_DETAILS_PRODUCT_ITEMS_EMPTY_TEST_ID,
   PRODUCT_DETAILS_PRODUCT_ITEMS_VIEW_ALL_TEST_ID,
   ProductDetailsProductItems,
 } from '../ProductDetailsProductItems'
@@ -109,9 +108,7 @@ describe('ProductDetailsProductItems', () => {
         render(<ProductDetailsProductItems />)
 
         expect(mockUseProductItemsLazyQuery).not.toHaveBeenCalled()
-        expect(
-          screen.queryByTestId(PRODUCT_DETAILS_PRODUCT_ITEMS_EMPTY_TEST_ID),
-        ).not.toBeInTheDocument()
+        expect(mockTableProps).not.toHaveBeenCalled()
       })
 
       it('THEN hides the create product item button', () => {
@@ -172,23 +169,20 @@ describe('ProductDetailsProductItems', () => {
     })
 
     describe('WHEN there are no items and no active search', () => {
-      it('THEN shows the compact empty placeholder instead of the table', () => {
+      it('THEN renders the table with the standard empty-state placeholder', () => {
         render(<ProductDetailsProductItems product={product} />)
 
-        expect(screen.getByTestId(PRODUCT_DETAILS_PRODUCT_ITEMS_EMPTY_TEST_ID)).toBeInTheDocument()
-        expect(mockTableProps).not.toHaveBeenCalled()
+        expect(mockTableProps).toHaveBeenCalled()
+        expect(getTableProps().placeholder?.emptyState?.title).toBe('text_1783980718114bqx4jce32fv')
       })
     })
 
     describe('WHEN the query is loading', () => {
-      it('THEN renders the table in a loading state rather than the placeholder', () => {
+      it('THEN renders the table in a loading state', () => {
         mockIsLoading = true
 
         render(<ProductDetailsProductItems product={product} />)
 
-        expect(
-          screen.queryByTestId(PRODUCT_DETAILS_PRODUCT_ITEMS_EMPTY_TEST_ID),
-        ).not.toBeInTheDocument()
         expect(getTableProps().isLoading).toBe(true)
       })
     })
@@ -266,7 +260,7 @@ describe('ProductDetailsProductItems', () => {
     })
 
     describe('WHEN there are no items but a search is active', () => {
-      it('THEN renders the table with its empty search state instead of the placeholder', () => {
+      it('THEN renders the table with its empty search state', () => {
         mockUseProductItemsLazyQuery.mockReturnValue(
           queryStateWith({
             data: { productItems: { metadata: { totalCount: 0 }, collection: [] } },
@@ -276,10 +270,8 @@ describe('ProductDetailsProductItems', () => {
 
         render(<ProductDetailsProductItems product={product} />)
 
-        expect(
-          screen.queryByTestId(PRODUCT_DETAILS_PRODUCT_ITEMS_EMPTY_TEST_ID),
-        ).not.toBeInTheDocument()
         expect(mockTableProps).toHaveBeenCalled()
+        expect(getTableProps().placeholder?.emptyState?.title).toBe('text_1783980718114wya9wp01m5i')
       })
     })
 

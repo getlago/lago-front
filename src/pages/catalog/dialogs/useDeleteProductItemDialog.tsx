@@ -4,6 +4,7 @@ import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
 import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import {
+  GetProductItemsForProductDetailsDocument,
   ProductItemForDeleteProductItemDialogFragment,
   ProductItemsDocument,
   useDeleteProductItemMutation,
@@ -57,11 +58,14 @@ export const useDeleteProductItemDialog = () => {
         if (destroyedId) {
           // Evict instead of refetching the list so a still-mounted details
           // query is not driven to a post-delete 404 (see evictFromCache).
+          // Both list watchers read the same `productItems` root field: the
+          // standalone list and the product-details preview. Passing both
+          // documents lets each drop the row without a refetch.
           evictFromCache(client, {
             id: destroyedId,
             __typename: 'ProductItem',
             listFieldName: 'productItems',
-            listQueryDocument: ProductItemsDocument,
+            listQueryDocument: [ProductItemsDocument, GetProductItemsForProductDetailsDocument],
           })
 
           callback?.()

@@ -5,7 +5,11 @@ import { ReactNode } from 'react'
 
 import { addToast } from '~/core/apolloClient'
 import { evictFromCache } from '~/core/apolloClient/evictFromCache'
-import { DeleteProductItemDocument, ProductItemsDocument } from '~/generated/graphql'
+import {
+  DeleteProductItemDocument,
+  GetProductItemsForProductDetailsDocument,
+  ProductItemsDocument,
+} from '~/generated/graphql'
 
 import { useDeleteProductItemDialog } from '../useDeleteProductItemDialog'
 
@@ -99,7 +103,7 @@ describe('useDeleteProductItemDialog', () => {
       id: 'pitem-1',
       __typename: 'ProductItem',
       listFieldName: 'productItems',
-      listQueryDocument: ProductItemsDocument,
+      listQueryDocument: [ProductItemsDocument, GetProductItemsForProductDetailsDocument],
     })
     expect(callback).toHaveBeenCalledTimes(1)
     expect(addToast).toHaveBeenCalledWith({

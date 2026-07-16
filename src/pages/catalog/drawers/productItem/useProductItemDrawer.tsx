@@ -120,7 +120,10 @@ const useProductItemForm = ({
 
   const [createProductItem] = useCreateProductItemMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
-    refetchQueries: ['productItems'],
+    // Both names are refetched only if that query is currently active (mounted):
+    // 'productItems' for the standalone list, 'getProductItemsForProductDetails'
+    // for the product-details preview. An unmounted list is not refetched.
+    refetchQueries: ['productItems', 'getProductItemsForProductDetails'],
   })
   const [updateProductItem] = useUpdateProductItemMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
@@ -230,6 +233,11 @@ export const useProductItemDrawer = () => {
   const { createMoreControl, isCreateMoreEnabled, resetCreateMore, resetSignal, notifyReset } =
     useCreateMore()
 
+  // Remembers the product to attach for the whole drawer session so the
+  // "create more" reset (fired from onSuccess, outside openDrawer's scope)
+  // can re-seed it instead of clearing the selection.
+  const attachToProductRef = useRef<ProductAttachment | undefined>(undefined)
+
   const { form, resetForm } = useProductItemForm({
     onSuccess: ({ productItem, wasEdit }) => {
       if (wasEdit) {
@@ -247,7 +255,9 @@ export const useProductItemDrawer = () => {
       })
 
       if (isCreateMoreEnabled()) {
-        resetForm()
+        // Re-seed the attached product (if any) so the next item stays scoped to
+        // the same product instead of resetting to "no product".
+        resetForm(undefined, attachToProductRef.current)
         notifyReset()
         // The drawer renders outside the matched-route context, so the router
         // Link in the toast cannot auto-prepend the org slug; bake it in here.
@@ -271,6 +281,7 @@ export const useProductItemDrawer = () => {
   })
 
   const openDrawer = ({ productItem, attachToProduct }: OpenProductItemDrawerArgs = {}) => {
+    attachToProductRef.current = attachToProduct
     resetCreateMore()
     resetForm(productItem, attachToProduct)
 
