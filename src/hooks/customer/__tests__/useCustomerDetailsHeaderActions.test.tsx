@@ -1,7 +1,5 @@
 import { renderHook } from '@testing-library/react'
-import { RefObject } from 'react'
 
-import { AddCouponToCustomerDialogRef } from '~/components/customers/AddCouponToCustomerDialog'
 import { MainHeaderDropdownAction, MainHeaderInPageAction } from '~/components/MainHeader/types'
 import { CustomerAccountTypeEnum, CustomerDetailsFragment } from '~/generated/graphql'
 
@@ -77,12 +75,12 @@ const createMockCustomer = (
     ...overrides,
   }) as unknown as CustomerDetailsFragment
 
+const mockOpenAddCouponToCustomerDialog = jest.fn()
+
 const defaultParams = {
   customerId: 'cust-1',
   customer: createMockCustomer(),
-  addCouponDialogRef: {
-    current: { openDialog: jest.fn() },
-  } as unknown as RefObject<AddCouponToCustomerDialogRef>,
+  openAddCouponToCustomerDialog: mockOpenAddCouponToCustomerDialog,
 }
 
 describe('useCustomerDetailsHeaderActions', () => {
@@ -293,10 +291,7 @@ describe('useCustomerDetailsHeaderActions', () => {
 
         dropdownAction.items[3].onClick(closePopper)
 
-        expect(
-          (defaultParams.addCouponDialogRef.current as unknown as { openDialog: jest.Mock })
-            .openDialog,
-        ).toHaveBeenCalled()
+        expect(mockOpenAddCouponToCustomerDialog).toHaveBeenCalled()
         expect(closePopper).toHaveBeenCalled()
       })
     })

@@ -65,7 +65,6 @@ describe('Coupons', () => {
     cy.get('[data-option-index="0"]').click({ force: true })
     cy.get(`[data-test="plan-limitation-section"]`).should('exist')
 
-    cy.pause()
     cy.get('[data-test="submit"]')
       .click()
       .then(() => {

@@ -1,14 +1,10 @@
 import { gql } from '@apollo/client'
 import { tw } from 'lago-design-system'
-import { useRef } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { CouponCaption } from '~/components/coupons/CouponCaption'
 import { APPLIED_COUPON_STATUS_CONFIG } from '~/components/coupons/utils'
-import {
-  AddCouponToCustomerDialog,
-  AddCouponToCustomerDialogRef,
-} from '~/components/customers/AddCouponToCustomerDialog'
+import { useAddCouponToCustomerDialog } from '~/components/customers/AddCouponToCustomerDialog'
 import { Button } from '~/components/designSystem/Button'
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Status } from '~/components/designSystem/Status'
@@ -71,7 +67,7 @@ export const CustomerAppliedCouponsList = ({
   const { hasPermissions } = usePermissions()
   const { terminateCoupon } = useTerminateAppliedCoupon()
   const centralizedDialog = useCentralizedDialog()
-  const addCouponDialogRef = useRef<AddCouponToCustomerDialogRef>(null)
+  const { openAddCouponToCustomerDialog } = useAddCouponToCustomerDialog()
   const { page, goToPage } = usePageSearchParam()
 
   const { data, error, loading } = useGetAppliedCouponsForCustomerQuery({
@@ -169,7 +165,9 @@ export const CustomerAppliedCouponsList = ({
     ? {
         title: translate('text_628b8dc14c71840130f8d8a1'),
         onClick: () => {
-          addCouponDialogRef.current?.openDialog()
+          openAddCouponToCustomerDialog({
+            customer: { id: customerId, displayName: customerDisplayName },
+          })
         },
       }
     : undefined
@@ -206,11 +204,6 @@ export const CustomerAppliedCouponsList = ({
           actionColumn={actionColumn}
         />
       </PaginatedContent>
-
-      <AddCouponToCustomerDialog
-        ref={addCouponDialogRef}
-        customer={{ id: customerId, displayName: customerDisplayName }}
-      />
     </>
   )
 }

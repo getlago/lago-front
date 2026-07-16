@@ -51,13 +51,9 @@ jest.mock('~/components/dialogs/CentralizedDialog', () => ({
   }),
 }))
 
-jest.mock('~/components/customers/AddCouponToCustomerDialog', () => {
-  const React = jest.requireActual('react')
-  const MockDialog = React.forwardRef(() => <div data-testid="add-coupon-dialog" />)
-
-  MockDialog.displayName = 'AddCouponToCustomerDialog'
-  return { AddCouponToCustomerDialog: MockDialog }
-})
+jest.mock('~/components/customers/AddCouponToCustomerDialog', () => ({
+  useAddCouponToCustomerDialog: () => ({ openAddCouponToCustomerDialog: jest.fn() }),
+}))
 
 const mockAppliedCoupon = {
   __typename: 'AppliedCoupon' as const,

@@ -51,6 +51,7 @@ export const ADD_ITEM_FOR_INVOICE_INPUT_NAME = 'addItemInput'
 export const SEARCH_INVOICE_CUSTOM_SECTION_INPUT_CLASSNAME = 'searchInvoiceCustomSectionInput'
 // Customer
 export const SEARCH_TAX_INPUT_FOR_CUSTOMER_CLASSNAME = 'searchTaxForCustomerInput'
+export const SEARCH_COUPON_INPUT_FOR_CUSTOMER_CLASSNAME = 'searchCouponForCustomerInput'
 export const ADD_CUSTOMER_PAYMENT_PROVIDER_ACCORDION = 'addCustomerPaymentProviderAccordion'
 export const ADD_CUSTOMER_ACCOUNTING_PROVIDER_ACCORDION = 'addCustomerAccountingProviderAccordion'
 export const ADD_CUSTOMER_TAX_PROVIDER_ACCORDION = 'addCustomerTaxProviderAccordion'
