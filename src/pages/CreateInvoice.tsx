@@ -1,11 +1,9 @@
 import { gql } from '@apollo/client'
 import InputAdornment from '@mui/material/InputAdornment'
-import { useFormik } from 'formik'
-import _get from 'lodash/get'
+import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { DateTime } from 'luxon'
 import { useCallback, useMemo, useState } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
-import { array, number, object, string } from 'yup'
 
 import { BillingEntityFormPicker } from '~/components/billingEntity/BillingEntityFormPicker'
 import { Alert } from '~/components/designSystem/Alert'
@@ -18,18 +16,16 @@ import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
-import { AmountInput, ComboBox, ComboBoxField, ComboboxItem, TextInput } from '~/components/form'
-import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
-import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
+import { AmountInput, ComboBox, ComboboxItem, TextInput } from '~/components/form'
 import { useEditFeeBillingPeriodDialog } from '~/components/invoices/EditFeeBillingPeriod'
 import { useEditInvoiceItemDescriptionDialog } from '~/components/invoices/EditInvoiceItemDescriptionDialog'
 import { useEditInvoiceItemTaxDialog } from '~/components/invoices/EditInvoiceItemTaxDialog'
 import { InvoiceTaxesDisplay, TaxMapType } from '~/components/invoices/InvoiceTaxesDisplay'
-import { InvoiceFormInput, LocalFeeInput } from '~/components/invoices/types'
+import { LocalFeeInput } from '~/components/invoices/types'
 import { useEditInvoiceDisplayNameDialog } from '~/components/invoices/useEditInvoiceDisplayName'
 import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
-import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
-import { normalizePurchaseOrderNumber, PO } from '~/components/purchaseOrder/PO'
+import { PaymentMethodsForm, ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
+import { PO } from '~/components/purchaseOrder/PO'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import {
   ADD_ITEM_FOR_INVOICE_INPUT_NAME,
@@ -64,10 +60,17 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
+import { useAppForm } from '~/hooks/forms/useAppform'
 import { useBillingEntitiesOptions } from '~/hooks/useBillingEntitiesOptions'
 import { useIframeConfig } from '~/hooks/useIframeConfig'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
+import {
+  invoiceFormErrorLabels,
+  invoiceFormValidationSchema,
+} from '~/pages/createInvoice/formInitialization/validationSchema'
+import { mapFromApiToForm } from '~/pages/createInvoice/mappers/mapFromApiToForm'
+import { mapFormToCreateInput } from '~/pages/createInvoice/mappers/mapFromFormToApi'
 import { useInvoiceBuildRegenerationPreview } from '~/pages/invoiceDetails/common/useInvoiceBuildRegenerationPreview'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PageHeader } from '~/styles'
@@ -245,7 +248,7 @@ const CreateInvoice = () => {
   })
   const { customer, taxes } = data || {}
 
-  const { invoiceBuildRegenerationPreview: prefillInvoice } =
+  const { invoiceBuildRegenerationPreview: prefillInvoice, loading: prefillInvoiceLoading } =
     useInvoiceBuildRegenerationPreview(voidedInvoiceId)
 
   const prefillFees = useMemo(() => {
@@ -255,7 +258,7 @@ const CreateInvoice = () => {
       return
     }
 
-    return invoiceFeesToFeeInput(prefillInvoice as Invoice)
+    return invoiceFeesToFeeInput(prefillInvoice as Invoice) ?? undefined
   }, [prefillInvoice])
 
   const { options: billingEntityOptions } = useBillingEntitiesOptions()
@@ -363,39 +366,22 @@ const CreateInvoice = () => {
 
   const [voidInvoice] = useVoidInvoiceMutation({})
 
-  const formikProps = useFormik<InvoiceFormInput>({
-    initialValues: {
-      customerId: customerId || '',
-      billingEntityId: customer?.billingEntity?.id || undefined,
-      currency: data?.customer?.currency || billingEntity?.defaultCurrency || CurrencyEnum.Usd,
-      fees: prefillFees || [],
-      paymentMethod: undefined,
-      invoiceCustomSection: undefined,
-      purchaseOrderNumber: prefillInvoice?.purchaseOrderNumber || undefined,
-    },
-    validationSchema: object().shape({
-      customerId: string().required(''),
-      currency: string().required(''),
-      fees: array()
-        .of(
-          object().shape({
-            addOnId: string().required(''),
-            description: string().nullable(),
-            units: number().min(1, 'text_645381a65b99559adf6401f0').required(''),
-          }),
-        )
-        .required(''),
-      purchaseOrderNumber: string().nullable(),
+  const form = useAppForm({
+    // Recomputed inline on every render: TanStack re-seeds an untouched form
+    // when defaults deep-change, replacing Formik's enableReinitialize as the
+    // customer/billing-entity/regeneration-preview queries resolve.
+    defaultValues: mapFromApiToForm({
+      customerId,
+      customer,
+      billingEntity,
+      prefillInvoice,
+      prefillFees,
     }),
-    enableReinitialize: true,
-    validateOnMount: true,
-    onSubmit: async ({
-      fees,
-      paymentMethod,
-      invoiceCustomSection,
-      purchaseOrderNumber,
-      ...values
-    }) => {
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: invoiceFormValidationSchema,
+    },
+    onSubmit: async ({ value }) => {
       if (voidedInvoiceId && prefillInvoice?.id && actions.canVoid(prefillInvoice)) {
         const res = await voidInvoice({
           variables: {
@@ -413,28 +399,54 @@ const CreateInvoice = () => {
 
       await createInvoice({
         variables: {
-          input: {
-            ...values,
-            purchaseOrderNumber: normalizePurchaseOrderNumber(purchaseOrderNumber),
-            ...(prefillInvoice?.id ? { voidedInvoiceId: prefillInvoice.id } : {}),
-            paymentMethod,
-            invoiceCustomSection: toInvoiceCustomSectionReference(
-              invoiceCustomSection as InvoiceCustomSectionInput,
-            ),
-            fees: fees.map(({ unitAmountCents, taxes: addonTaxes, ...fee }) => {
-              return {
-                ...fee,
-                unitAmountCents: Number(serializeAmount(unitAmountCents, currency) || 0),
-                taxCodes: hasTaxProvider ? [] : addonTaxes?.map(({ code }) => code) || [],
-              }
-            }),
-          },
+          input: mapFormToCreateInput(value, {
+            hasTaxProvider,
+            prefillInvoiceId: prefillInvoice?.id,
+          }),
         },
       })
     },
   })
-  const currency = formikProps.values.currency || CurrencyEnum.Usd
-  const hasAnyFee = formikProps.values.fees.length > 0
+
+  const formValues = useStore(form.store, (state) => state.values)
+  const isDirty = useStore(form.store, (state) => state.isDirty)
+  const dynamicFieldErrors = useStore(
+    form.store,
+    (state) => (state.errorMap as { onDynamic?: Record<string, unknown> })?.onDynamic ?? {},
+  )
+
+  // Live validity for the tax-provider fetch gate — the old form validated on
+  // mount/change, while revalidateLogic only populates errors from the first
+  // submit attempt.
+  const isFormValid = useMemo(
+    () => invoiceFormValidationSchema.safeParse(formValues).success,
+    [formValues],
+  )
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault()
+    form.handleSubmit()
+  }
+
+  const paymentMethodsFormAdapter: PaymentMethodsForm<ViewTypeEnum.OneOffInvoice> = {
+    values: formValues,
+    setFieldValue: (field, value) =>
+      form.setFieldValue(field as Parameters<typeof form.setFieldValue>[0], value as never),
+  }
+
+  const currency = formValues.currency || CurrencyEnum.Usd
+  const hasAnyFee = formValues.fees.length > 0
+
+  const feesIssues = dynamicFieldErrors['fees'] as { message?: string }[] | undefined
+  const atLeastOneFeeError =
+    feesIssues?.[0]?.message === invoiceFormErrorLabels.atLeastOneFee
+      ? feesIssues[0].message
+      : undefined
+
+  // On the regenerate route the prefill must land BEFORE the user can touch
+  // the form — TanStack only re-seeds untouched forms (unlike Formik's
+  // reinitialize, which wiped user edits when the preview resolved).
+  const isLoading = loading || (!!voidedInvoiceId && prefillInvoiceLoading && !prefillInvoice)
 
   const addOns = useMemo(() => {
     if (!addOnData || !addOnData?.addOns || !addOnData?.addOns?.collection) return []
@@ -495,7 +507,7 @@ const CreateInvoice = () => {
       return currentTaxesMap
     }
 
-    const totalsReduced = formikProps.values.fees.reduce(
+    const totalsReduced = formValues.fees.reduce(
       (acc, fee) => {
         acc = {
           subTotal: acc.subTotal + (fee?.units || 0) * (fee?.unitAmountCents || 0),
@@ -521,7 +533,7 @@ const CreateInvoice = () => {
       taxesToDisplay: totalsReduced.taxesToDisplay,
       total: localTotal,
     }
-  }, [formikProps.values.fees, hasTaxProvider])
+  }, [formValues.fees, hasTaxProvider])
 
   const {
     taxProviderTaxesToDisplay,
@@ -569,7 +581,7 @@ const CreateInvoice = () => {
     )
 
     const localTaxProviderSubtotalHT =
-      formikProps.values.fees.reduce((acc, fee) => {
+      formValues.fees.reduce((acc, fee) => {
         acc += (fee.units || 0) * (fee.unitAmountCents || 0)
         return acc
       }, 0) || 0
@@ -579,13 +591,7 @@ const CreateInvoice = () => {
       taxProviderSubtotalHT: localTaxProviderSubtotalHT,
       taxProviderTotalTTC: localTaxProviderSubtotalHT + taxesTotalAmount,
     }
-  }, [
-    currency,
-    formikProps.values.fees,
-    hasTaxProvider,
-    taxProviderTaxesResult?.collection,
-    translate,
-  ])
+  }, [currency, formValues.fees, hasTaxProvider, taxProviderTaxesResult?.collection, translate])
 
   const showBillingEntityPicker = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
   const hasMultiCurrency = hasFeatureFlag(FeatureFlagEnum.MultiCurrency)
@@ -607,8 +613,6 @@ const CreateInvoice = () => {
     'grid  grid-cols-[minmax(0,1fr)_minmax(0,80px)_minmax(0,168px)_minmax(0,64px)_minmax(0,160px)_minmax(0,24px)] gap-3 [&>*:nth-last-child(-n+3)]:flex [&>*:nth-last-child(-n+3)]:justify-end'
   const invoiceFooterLineClassname =
     'flex items-center [&>*:first-child]:mr-4 [&>*:first-child]:flex-1 [&>*:last-child]:w-42 [&>*:last-child]:text-end'
-
-  const canSubmit = formikProps.isValid && hasAnyFee && (!!voidedInvoiceId || formikProps.dirty)
 
   const subtotalDisplayValue = formatInvoiceDisplayValue(
     hasTaxProvider,
@@ -640,7 +644,7 @@ const CreateInvoice = () => {
             variant="quaternary"
             icon="close"
             onClick={() =>
-              formikProps.dirty
+              isDirty
                 ? centralizedDialog.open({
                     title: translate('text_645388d5bdbd7b00abffa030'),
                     description: translate('text_645388d5bdbd7b00abffa031'),
@@ -653,10 +657,10 @@ const CreateInvoice = () => {
           />
         )}
       </PageHeader.Wrapper>
-      <div className="size-full">
+      <form className="size-full" onSubmit={handleSubmit}>
         <div className="mx-auto my-12 min-h-full max-w-5xl px-4">
           <Card className="mb-12 gap-8">
-            {loading ? (
+            {isLoading ? (
               <>
                 <div className="flex items-center justify-between">
                   <Skeleton variant="text" className="w-30" />
@@ -724,15 +728,15 @@ const CreateInvoice = () => {
 
                   <PO
                     className="flex-row items-center gap-4"
-                    value={formikProps.values.purchaseOrderNumber}
+                    value={formValues.purchaseOrderNumber}
                     onChange={(value) => {
-                      formikProps.setFieldValue('purchaseOrderNumber', value || undefined)
+                      form.setFieldValue('purchaseOrderNumber', value || undefined)
                     }}
                     description={translate('text_1782219771286e8qwitkefxr')}
                   >
                     <PO.Title className="min-w-[200px]" variant="caption" color="grey600" />
 
-                    {formikProps.values.purchaseOrderNumber ? (
+                    {formValues.purchaseOrderNumber ? (
                       <div className="flex items-center gap-2">
                         <PO.Number variant="body" color="grey700" />
                         <PO.EditButton />
@@ -749,25 +753,27 @@ const CreateInvoice = () => {
                     <div className="w-80">
                       <BillingEntityFormPicker
                         label={translate('text_1743611497157teaa1zu8l24')}
-                        value={formikProps.values.billingEntityId}
+                        value={formValues.billingEntityId}
                         onChange={(id) => {
-                          formikProps.setFieldValue('billingEntityId', id)
+                          form.setFieldValue('billingEntityId', id)
                           setPickedBillingEntityId(id)
                         }}
                       />
                     </div>
                   )}
                   <div className="w-40">
-                    <ComboBoxField
-                      disableClearable
-                      data={Object.values(CurrencyEnum).map((currencyType) => ({
-                        value: currencyType,
-                      }))}
-                      disabled={!!customer?.currency && !hasMultiCurrency}
-                      formikProps={formikProps}
-                      label={translate('text_6453819268763979024ad057')}
-                      name="currency"
-                    />
+                    <form.AppField name="currency">
+                      {(field) => (
+                        <field.ComboBoxField
+                          disableClearable
+                          data={Object.values(CurrencyEnum).map((currencyType) => ({
+                            value: currencyType,
+                          }))}
+                          disabled={!!customer?.currency && !hasMultiCurrency}
+                          label={translate('text_6453819268763979024ad057')}
+                        />
+                      )}
+                    </form.AppField>
                   </div>
                 </div>
 
@@ -862,9 +868,16 @@ const CreateInvoice = () => {
                     {/* Action column */}
                     <div></div>
                   </div>
-                  {!!formikProps?.values?.fees?.length &&
-                    formikProps?.values?.fees?.map((fee, i) => {
-                      const unitValidationErrorKey = _get(formikProps.errors, `fees.${i}.units`)
+                  {!!formValues.fees?.length &&
+                    formValues.fees?.map((fee, i) => {
+                      const unitsIssues = dynamicFieldErrors[`fees[${i}].units`] as
+                        { message?: string }[] | undefined
+                      // Only the min-1 message ever displayed on the old form —
+                      // the required error was message-less and never rendered.
+                      const unitValidationErrorKey =
+                        unitsIssues?.[0]?.message === invoiceFormErrorLabels.feeUnitsBelowOne
+                          ? unitsIssues[0].message
+                          : undefined
 
                       // Compute tax display content
                       let taxDisplayContent
@@ -941,8 +954,8 @@ const CreateInvoice = () => {
                                     openEditInvoiceDisplayNameDialog({
                                       invoiceDisplayName: fee.invoiceDisplayName,
                                       callback: (invoiceDisplayName: string) => {
-                                        formikProps.setFieldValue(
-                                          `fees.${i}.invoiceDisplayName`,
+                                        form.setFieldValue(
+                                          `fees[${i}].invoiceDisplayName`,
                                           invoiceDisplayName,
                                         )
                                       },
@@ -970,16 +983,16 @@ const CreateInvoice = () => {
                               beforeChangeFormatter={['triDecimal', 'positiveNumber']}
                               error={false}
                               placeholder={translate('text_62824f0e5d93bc008d268d00')}
-                              value={formikProps.values.fees[i].units || undefined}
+                              value={formValues.fees[i].units || undefined}
                               onChange={(value) => {
-                                formikProps.setFieldValue(`fees.${i}.units`, Number(value))
+                                form.setFieldValue(`fees[${i}].units`, Number(value))
                                 !!hasTaxProvider && setTaxProviderTaxesResult(null)
                               }}
                             />
                           </Tooltip>
                           <AmountInput
                             beforeChangeFormatter={['positiveNumber']}
-                            value={formikProps.values.fees[i].unitAmountCents || 0}
+                            value={formValues.fees[i].unitAmountCents || 0}
                             currency={currency}
                             InputProps={{
                               startAdornment: (
@@ -989,7 +1002,7 @@ const CreateInvoice = () => {
                               ),
                             }}
                             onChange={(value) => {
-                              formikProps.setFieldValue(`fees.${i}.unitAmountCents`, value)
+                              form.setFieldValue(`fees[${i}].unitAmountCents`, value)
                               !!hasTaxProvider && setTaxProviderTaxesResult(null)
                             }}
                           />
@@ -1030,12 +1043,14 @@ const CreateInvoice = () => {
                                       fromDatetime: fee.fromDatetime,
                                       toDatetime: fee.toDatetime,
                                       callback: (fromDatetime: string, toDatetime: string) => {
-                                        formikProps.setValues({
-                                          ...formikProps.values,
-                                          fees: formikProps.values.fees.map((f, j) =>
+                                        // whole-array set: both dates land in one atomic
+                                        // update, from a fresh callback-time read
+                                        form.setFieldValue(
+                                          'fees',
+                                          form.state.values.fees.map((f, j) =>
                                             j === i ? { ...f, fromDatetime, toDatetime } : f,
                                           ),
-                                        })
+                                        )
                                       },
                                     })
                                     closePopper()
@@ -1051,10 +1066,7 @@ const CreateInvoice = () => {
                                     openEditInvoiceItemDescriptionDialog({
                                       description: fee.description || '',
                                       callback: (newDescription?: string) => {
-                                        formikProps.setFieldValue(
-                                          `fees.${i}.description`,
-                                          newDescription,
-                                        )
+                                        form.setFieldValue(`fees[${i}].description`, newDescription)
                                       },
                                     })
                                     closePopper()
@@ -1071,10 +1083,7 @@ const CreateInvoice = () => {
                                       openEditInvoiceItemTaxDialog({
                                         taxes: fee.taxes,
                                         callback: (newTaxesArray?: LocalFeeInput['taxes']) => {
-                                          formikProps.setFieldValue(
-                                            `fees.${i}.taxes`,
-                                            newTaxesArray,
-                                          )
+                                          form.setFieldValue(`fees[${i}].taxes`, newTaxesArray)
                                         },
                                       })
                                       closePopper()
@@ -1089,10 +1098,10 @@ const CreateInvoice = () => {
                                   variant="quaternary"
                                   align="left"
                                   onClick={() => {
-                                    const fees = [...formikProps.values.fees]
+                                    const fees = [...form.state.values.fees]
 
                                     fees.splice(i, 1)
-                                    formikProps.setFieldValue('fees', fees)
+                                    form.setFieldValue('fees', fees)
                                     !!hasTaxProvider && setTaxProviderTaxesResult(null)
 
                                     closePopper()
@@ -1126,8 +1135,8 @@ const CreateInvoice = () => {
                             }
 
                             if (!!addOn) {
-                              formikProps.setFieldValue('fees', [
-                                ...formikProps.values.fees,
+                              form.setFieldValue('fees', [
+                                ...form.state.values.fees,
                                 {
                                   addOnId: addOn.id,
                                   name: addOn.name,
@@ -1177,6 +1186,11 @@ const CreateInvoice = () => {
                       >
                         {translate('text_6453819268763979024ad0d7')}
                       </Button>
+                    )}
+                    {!!atLeastOneFeeError && (
+                      <Typography className="mt-1" variant="caption" color="danger600">
+                        {translate(atLeastOneFeeError)}
+                      </Typography>
                     )}
                   </div>
                 </div>
@@ -1255,21 +1269,21 @@ const CreateInvoice = () => {
               </div>
               <PaymentMethodsInvoiceSettings
                 customer={customer}
-                form={formikProps}
+                form={paymentMethodsFormAdapter}
                 viewType={ViewTypeEnum.OneOffInvoice}
               />
             </Card>
           )}
         </div>
 
-        {!loading && (
+        {!isLoading && (
           <div className="sticky bottom-0 z-navBar border-t border-t-grey-200 bg-white">
             <div className="mx-auto flex h-20 max-w-5xl items-center justify-end gap-3 px-4">
               {!!hasTaxProvider && (
                 <Button
                   size="large"
                   variant="secondary"
-                  disabled={!formikProps.isValid || !formikProps.dirty || !!taxProviderTaxesResult}
+                  disabled={!isFormValid || !isDirty || !!taxProviderTaxesResult}
                   onClick={async () => {
                     setTaxProviderTaxesErrorMessage(null)
 
@@ -1277,8 +1291,8 @@ const CreateInvoice = () => {
                       variables: {
                         input: {
                           currency,
-                          customerId: formikProps.values.customerId,
-                          fees: formikProps.values.fees.map((f) => ({
+                          customerId: formValues.customerId,
+                          fees: formValues.fees.map((f) => ({
                             ...f,
                             unitAmountCents: String(serializeAmount(f.unitAmountCents, currency)),
                           })),
@@ -1347,18 +1361,15 @@ const CreateInvoice = () => {
                   {translate('text_172383173554743nq9isxpje')}
                 </Button>
               )}
-              <Button
-                size="large"
-                disabled={!canSubmit}
-                onClick={formikProps.submitForm}
-                data-test="create-invoice-button"
-              >
-                {translate('text_6453819268763979024ad134')}
-              </Button>
+              <form.AppForm>
+                <form.SubmitButton size="large" dataTest="create-invoice-button">
+                  {translate('text_6453819268763979024ad134')}
+                </form.SubmitButton>
+              </form.AppForm>
             </div>
           </div>
         )}
-      </div>
+      </form>
     </>
   )
 }

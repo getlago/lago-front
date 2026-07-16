@@ -3,18 +3,21 @@ import { z } from 'zod'
 import { InvoiceFormInput } from '~/components/invoices/types'
 
 /**
- * 1:1 parity port of the Yup schema from CreateInvoice.tsx — do NOT tighten
- * rules here. In particular `fees: []` is VALID (the "at least one fee" block
- * lives in the submit-button gate), and only the three checked fields have
- * rules: everything else is deliberately unvalidated.
+ * Parity port of the Yup schema from CreateInvoice.tsx — do NOT tighten rules
+ * here. One deliberate deviation: empty `fees` fails with a visible message
+ * (the old form silently disabled the submit button instead), so the button
+ * can stay enabled upfront per the TanStack convention. Everything outside
+ * the checked fields is deliberately unvalidated.
  */
 
 // `required` ports Yup's message-less required('') — Zod v4 renders an empty
-// message as "Invalid input". `feeUnitsBelowOne` is the only error the UI
-// displays (fee-row tooltip). Exported so tests/UI don't hardcode keys.
+// message as "Invalid input". `feeUnitsBelowOne` (fee-row tooltip) and
+// `atLeastOneFee` (caption under "Add an item") are the only errors the UI
+// displays. Exported so tests/UI don't hardcode keys.
 export const invoiceFormErrorLabels = {
   required: 'text_1771342994699klxu2paz7g8',
   feeUnitsBelowOne: 'text_645381a65b99559adf6401f0',
+  atLeastOneFee: 'text_1784125321861zpfdo292vgj',
 } as const
 
 const REQUIRED_LABEL = invoiceFormErrorLabels.required
@@ -49,6 +52,14 @@ export const invoiceFormValidationSchema = z.custom<InvoiceFormInput>().superRef
   if (!Array.isArray(data.fees)) {
     ctx.addIssue({ code: 'custom', message: REQUIRED_LABEL, path: ['fees'] })
     return
+  }
+
+  if (data.fees.length === 0) {
+    ctx.addIssue({
+      code: 'custom',
+      message: invoiceFormErrorLabels.atLeastOneFee,
+      path: ['fees'],
+    })
   }
 
   data.fees.forEach((fee, index) => {
