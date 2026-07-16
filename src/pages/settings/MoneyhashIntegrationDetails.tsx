@@ -12,10 +12,7 @@ import {
   AddEditDeleteSuccessRedirectUrlDialog,
   AddEditDeleteSuccessRedirectUrlDialogRef,
 } from '~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog'
-import {
-  AddMoneyhashDialog,
-  AddMoneyhashDialogRef,
-} from '~/components/settings/integrations/AddMoneyhashDialog'
+import { useAddMoneyhashDialog } from '~/components/settings/integrations/AddMoneyhashDialog'
 import { useDeleteMoneyhashIntegrationDialog } from '~/components/settings/integrations/DeleteMoneyhashIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { INTEGRATIONS_ROUTE, MONEYHASH_INTEGRATION_ROUTE, useNavigate } from '~/core/router'
@@ -67,8 +64,8 @@ gql`
 const MoneyhashIntegrationDetails = () => {
   const navigate = useNavigate()
   const { integrationId } = useParams()
-  const addMoneyhashDialogRef = useRef<AddMoneyhashDialogRef>(null)
   const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
+  const { openAddMoneyhashDialog } = useAddMoneyhashDialog()
   const { openDeleteMoneyhashIntegrationDialog } = useDeleteMoneyhashIntegrationDialog()
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
@@ -134,7 +131,7 @@ const MoneyhashIntegrationDetails = () => {
                   label: translate('text_65845f35d7d69c3ab4793dac'),
                   hidden: !canEditIntegration,
                   onClick: (closePopper) => {
-                    addMoneyhashDialogRef.current?.openDialog({
+                    openAddMoneyhashDialog({
                       provider: moneyhashPaymentProvider,
                       deleteDialogCallback,
                     })
@@ -167,7 +164,7 @@ const MoneyhashIntegrationDetails = () => {
               variant="inline"
               disabled={loading}
               onClick={() => {
-                addMoneyhashDialogRef.current?.openDialog({
+                openAddMoneyhashDialog({
                   provider: moneyhashPaymentProvider,
                   deleteDialogCallback,
                 })
@@ -249,7 +246,6 @@ const MoneyhashIntegrationDetails = () => {
           )}
         </>
       </section>
-      <AddMoneyhashDialog ref={addMoneyhashDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )

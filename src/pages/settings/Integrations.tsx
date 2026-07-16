@@ -16,22 +16,13 @@ import {
 } from '~/components/layouts/Settings'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
-import {
-  AddAdyenDialog,
-  AddAdyenDialogRef,
-} from '~/components/settings/integrations/AddAdyenDialog'
+import { useAddAdyenDialog } from '~/components/settings/integrations/AddAdyenDialog'
 import {
   AddAnrokDialog,
   AddAnrokDialogRef,
 } from '~/components/settings/integrations/AddAnrokDialog'
-import {
-  AddAvalaraDialog,
-  AddAvalaraDialogRef,
-} from '~/components/settings/integrations/AddAvalaraDialog'
-import {
-  AddCashfreeDialog,
-  AddCashfreeDialogRef,
-} from '~/components/settings/integrations/AddCashfreeDialog'
+import { useAddAvalaraDialog } from '~/components/settings/integrations/AddAvalaraDialog'
+import { useAddCashfreeDialog } from '~/components/settings/integrations/AddCashfreeDialog'
 import {
   AddFlutterwaveDialog,
   AddFlutterwaveDialogRef,
@@ -48,10 +39,7 @@ import {
   AddLagoTaxManagementDialog,
   AddLagoTaxManagementDialogRef,
 } from '~/components/settings/integrations/AddLagoTaxManagementDialog'
-import {
-  AddMoneyhashDialog,
-  AddMoneyhashDialogRef,
-} from '~/components/settings/integrations/AddMoneyhashDialog'
+import { useAddMoneyhashDialog } from '~/components/settings/integrations/AddMoneyhashDialog'
 import {
   AddNetsuiteDialog,
   AddNetsuiteDialogRef,
@@ -178,18 +166,19 @@ const Integrations = () => {
 
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
   const addAnrokDialogRef = useRef<AddAnrokDialogRef>(null)
-  const addAvalaraDialogRef = useRef<AddAvalaraDialogRef>(null)
+  const { openAddAvalaraDialog } = useAddAvalaraDialog()
   const addStripeDialogRef = useRef<AddStripeDialogRef>(null)
-  const addAdyenDialogRef = useRef<AddAdyenDialogRef>(null)
+  const { openAddAdyenDialog } = useAddAdyenDialog()
   const addGocardlessDialogRef = useRef<AddGocardlessDialogRef>(null)
-  const addCashfreeDialogRef = useRef<AddCashfreeDialogRef>(null)
+  const { openAddCashfreeDialog } = useAddCashfreeDialog()
   const addLagoTaxManagementDialog = useRef<AddLagoTaxManagementDialogRef>(null)
   const addNetsuiteDialogRef = useRef<AddNetsuiteDialogRef>(null)
   const addSalesforceDialogRef = useRef<AddSalesforceDialogRef>(null)
   const addXeroDialogRef = useRef<AddXeroDialogRef>(null)
   const addHubspotDialogRef = useRef<AddHubspotDialogRef>(null)
-  const addMoneyhashDialogRef = useRef<AddMoneyhashDialogRef>(null)
   const addFlutterwaveDialogRef = useRef<AddFlutterwaveDialogRef>(null)
+
+  const { openAddMoneyhashDialog } = useAddMoneyhashDialog()
 
   const { data, loading } = useIntegrationsSettingQuery({
     variables: { limit: 1000 },
@@ -347,7 +336,7 @@ const Integrations = () => {
                             const element = document.activeElement as HTMLElement
 
                             element.blur && element.blur()
-                            addAdyenDialogRef.current?.openDialog()
+                            openAddAdyenDialog()
                           }
                         }}
                         fullWidth
@@ -424,7 +413,7 @@ const Integrations = () => {
                               }),
                             )
                           } else {
-                            addAvalaraDialogRef.current?.openDialog()
+                            openAddAvalaraDialog()
                           }
                         }}
                       />
@@ -749,7 +738,7 @@ const Integrations = () => {
                               }),
                             )
                           } else {
-                            addCashfreeDialogRef.current?.openDialog()
+                            openAddCashfreeDialog()
                           }
                         }}
                       />
@@ -832,7 +821,7 @@ const Integrations = () => {
                             const element = document.activeElement as HTMLElement
 
                             element.blur && element.blur()
-                            addMoneyhashDialogRef.current?.openDialog()
+                            openAddMoneyhashDialog()
                           }
                         }}
                         fullWidth
@@ -849,11 +838,7 @@ const Integrations = () => {
       <>{activeTabContent}</>
 
       <AddAnrokDialog ref={addAnrokDialogRef} />
-      <AddAvalaraDialog ref={addAvalaraDialogRef} />
-      <AddAdyenDialog ref={addAdyenDialogRef} />
       <AddStripeDialog ref={addStripeDialogRef} />
-      <AddCashfreeDialog ref={addCashfreeDialogRef} />
-      <AddMoneyhashDialog ref={addMoneyhashDialogRef} />
       <AddGocardlessDialog ref={addGocardlessDialogRef} />
       <AddLagoTaxManagementDialog ref={addLagoTaxManagementDialog} />
       <AddNetsuiteDialog ref={addNetsuiteDialogRef} />

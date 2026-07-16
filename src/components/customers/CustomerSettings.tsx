@@ -8,10 +8,7 @@ import { useDeleteCustomerGracePeriodeDialog } from '~/components/customers/Dele
 import { useDeleteCustomerNetPaymentTermDialog } from '~/components/customers/DeleteCustomerNetPaymentTermDialog'
 import { useDeleteCustomerVatRateDialog } from '~/components/customers/DeleteCustomerVatRateDialog'
 import { useEditCustomerDocumentLocaleDialog } from '~/components/customers/EditCustomerDocumentLocaleDialog'
-import {
-  EditCustomerDunningCampaignDialog,
-  EditCustomerDunningCampaignDialogRef,
-} from '~/components/customers/EditCustomerDunningCampaignDialog'
+import { useEditCustomerDunningCampaignDialog } from '~/components/customers/EditCustomerDunningCampaignDialog'
 import {
   EditCustomerInvoiceCustomSectionsDialog,
   EditCustomerInvoiceCustomSectionsDialogRef,
@@ -20,10 +17,7 @@ import {
   EditCustomerInvoiceGracePeriodDialog,
   EditCustomerInvoiceGracePeriodDialogRef,
 } from '~/components/customers/EditCustomerInvoiceGracePeriodDialog'
-import {
-  EditCustomerVatRateDialog,
-  EditCustomerVatRateDialogRef,
-} from '~/components/customers/EditCustomerVatRateDialog'
+import { useEditCustomerVatRateDialog } from '~/components/customers/EditCustomerVatRateDialog'
 import {
   EditCustomerIssuingDatePolicyDialog,
   EditCustomerIssuingDatePolicyDialogRef,
@@ -199,13 +193,13 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
   })
   const customer = data?.customer
   const billingEntity = data?.customer?.billingEntity
-  const editVATDialogRef = useRef<EditCustomerVatRateDialogRef>(null)
   const editIssuingDatePolicyDialogRef = useRef<EditCustomerIssuingDatePolicyDialogRef>(null)
+  const { openEditCustomerVatRateDialog } = useEditCustomerVatRateDialog()
   const { openDeleteCustomerVatRateDialog } = useDeleteCustomerVatRateDialog()
   const editInvoiceGracePeriodDialogRef = useRef<EditCustomerInvoiceGracePeriodDialogRef>(null)
   const { openDeleteCustomerGracePeriodeDialog } = useDeleteCustomerGracePeriodeDialog()
   const { openEditCustomerDocumentLocaleDialog } = useEditCustomerDocumentLocaleDialog()
-  const editCustomerDunningCampaignDialogRef = useRef<EditCustomerDunningCampaignDialogRef>(null)
+  const { openEditCustomerDunningCampaignDialog } = useEditCustomerDunningCampaignDialog()
   const editCustomerInvoiceCustomSectionsDialogRef =
     useRef<EditCustomerInvoiceCustomSectionsDialogRef>(null)
   const { openDeleteCustomerDocumentLocaleDialog } = useDeleteCustomerDocumentLocaleDialog()
@@ -495,7 +489,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                       <Button
                         disabled={loading}
                         variant="inline"
-                        onClick={() => editCustomerDunningCampaignDialogRef?.current?.openDialog()}
+                        onClick={() => customer && openEditCustomerDunningCampaignDialog(customer)}
                       >
                         {translate('text_63e51ef4985f0ebd75c212fc')}
                       </Button>
@@ -844,7 +838,14 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                       <Button
                         variant="inline"
                         disabled={loading}
-                        onClick={() => editVATDialogRef?.current?.openDialog()}
+                        onClick={() => {
+                          if (customer) {
+                            openEditCustomerVatRateDialog({
+                              customer,
+                              appliedTaxRatesTaxesIds: customer.taxes?.map((t) => t.id),
+                            })
+                          }
+                        }}
                         data-test="add-vat-rate-button"
                       >
                         {translate('text_645bb193927b375079d28ad2')}
@@ -937,20 +938,10 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
 
       {!!customer && (
         <>
-          <EditCustomerVatRateDialog
-            ref={editVATDialogRef}
-            customer={customer}
-            appliedTaxRatesTaxesIds={customer.taxes?.map((t) => t.id)}
-          />
           <EditCustomerInvoiceGracePeriodDialog
             ref={editInvoiceGracePeriodDialogRef}
             invoiceGracePeriod={customer?.invoiceGracePeriod}
           />
-          <EditCustomerDunningCampaignDialog
-            ref={editCustomerDunningCampaignDialogRef}
-            customer={customer}
-          />
-
           <EditCustomerIssuingDatePolicyDialog
             ref={editIssuingDatePolicyDialogRef}
             customer={customer}

@@ -25,7 +25,9 @@ jest.mock('~/components/settings/integrations/AddAnrokDialog', () => ({
   AddAnrokDialog: () => null,
 }))
 jest.mock('~/components/settings/integrations/AddAvalaraDialog', () => ({
-  AddAvalaraDialog: () => null,
+  useAddAvalaraDialog: () => ({
+    openAddAvalaraDialog: jest.fn(),
+  }),
 }))
 jest.mock('~/components/settings/integrations/AddNetsuiteDialog', () => ({
   AddNetsuiteDialog: () => null,
@@ -40,7 +42,7 @@ jest.mock('~/components/settings/integrations/AddSalesforceDialog', () => ({
   AddSalesforceDialog: () => null,
 }))
 jest.mock('~/components/settings/integrations/AddAdyenDialog', () => ({
-  AddAdyenDialog: () => null,
+  useAddAdyenDialog: () => ({ openAddAdyenDialog: () => null }),
 }))
 jest.mock('~/components/settings/integrations/AddStripeDialog', () => ({
   AddStripeDialog: () => null,
@@ -49,10 +51,14 @@ jest.mock('~/components/settings/integrations/AddGocardlessDialog', () => ({
   AddGocardlessDialog: () => null,
 }))
 jest.mock('~/components/settings/integrations/AddCashfreeDialog', () => ({
-  AddCashfreeDialog: () => null,
+  useAddCashfreeDialog: () => ({
+    openAddCashfreeDialog: jest.fn(),
+  }),
 }))
 jest.mock('~/components/settings/integrations/AddMoneyhashDialog', () => ({
-  AddMoneyhashDialog: () => null,
+  useAddMoneyhashDialog: () => ({
+    openAddMoneyhashDialog: jest.fn(),
+  }),
 }))
 jest.mock('~/components/settings/integrations/AddLagoTaxManagementDialog', () => ({
   AddLagoTaxManagementDialog: () => null,

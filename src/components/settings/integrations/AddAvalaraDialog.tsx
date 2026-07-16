@@ -1,32 +1,30 @@
-import { FetchResult, gql } from '@apollo/client'
+import { gql, useApolloClient } from '@apollo/client'
 import { captureException } from '@sentry/react'
-import { useFormik } from 'formik'
+import { revalidateLogic } from '@tanstack/react-form'
 import { forwardRef, useId, useImperativeHandle, useRef, useState } from 'react'
 import { generatePath } from 'react-router-dom'
-import { object, string } from 'yup'
+import { z } from 'zod'
 
 import { Alert } from '~/components/designSystem/Alert'
-import { Button } from '~/components/designSystem/Button'
-import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
-import { TextInputField } from '~/components/form'
+import { useFormDialogOpeningDialog } from '~/components/dialogs/FormDialogOpeningDialog'
+import { DialogResult } from '~/components/dialogs/types'
+import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { addToast, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
+import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { AVALARA_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import {
   AddAvalaraIntegrationDialogFragment,
   AvalaraIntegrationDetailsFragmentDoc,
-  CreateAvalaraIntegrationInput,
-  CreateAvalaraIntegrationMutation,
+  GetAvalaraIntegrationsListDocument,
   LagoApiError,
-  UpdateAvalaraIntegrationMutation,
   useCreateAvalaraIntegrationMutation,
+  useDestroyNangoIntegrationMutation,
   useUpdateAvalaraIntegrationMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm } from '~/hooks/forms/useAppform'
 import { AvalaraIntegrationDetailsTabs } from '~/pages/settings/AvalaraIntegrationDetails'
-import { tw } from '~/styles/utils'
-
-import { useDeleteAvalaraIntegrationDialog } from './DeleteAvalaraIntegrationDialog'
 
 gql`
   fragment AddAvalaraIntegrationDialog on AvalaraIntegration {
@@ -56,31 +54,70 @@ gql`
   ${AvalaraIntegrationDetailsFragmentDoc}
 `
 
-type AddAvalaraDialogProps = {
-  integration: AddAvalaraIntegrationDialogFragment
+const ADD_AVALARA_FORM_ID = 'form-add-avalara-integration'
+
+type OpenAddAvalaraDialogData = {
+  integration?: AddAvalaraIntegrationDialogFragment
   deleteDialogCallback?: () => void
 }
 
-export interface AddAvalaraDialogRef {
-  openDialog: (props?: AddAvalaraDialogProps) => unknown
-  closeDialog: () => unknown
+type AvalaraFormValues = {
+  accountId: string
+  code: string
+  companyCode: string
+  licenseKey: string
+  name: string
 }
 
-export const AddAvalaraDialog = forwardRef<AddAvalaraDialogRef>((_, ref) => {
+const defaultFormValues: AvalaraFormValues = {
+  accountId: '',
+  code: '',
+  companyCode: '',
+  licenseKey: '',
+  name: '',
+}
+
+const validationSchema = z.object({
+  accountId: z.string().min(1),
+  code: z.string().min(1),
+  companyCode: z.string().min(1),
+  licenseKey: z.string().min(1),
+  name: z.string().min(1),
+})
+
+type NangoErrorHandle = {
+  setShow: (show: boolean) => void
+}
+
+const NangoErrorAlert = forwardRef<NangoErrorHandle>((_, ref) => {
+  const [show, setShow] = useState(false)
+  const { translate } = useInternationalization()
+
+  useImperativeHandle(ref, () => ({ setShow }), [])
+
+  if (!show) return null
+
+  return <Alert type="danger">{translate('text_1749562792335fy21gc3sxn0')}</Alert>
+})
+
+NangoErrorAlert.displayName = 'NangoErrorAlert'
+
+export const useAddAvalaraDialog = () => {
   const componentId = useId()
   const navigate = useNavigate()
+  const client = useApolloClient()
   const { nangoPublicKey } = envGlobalVar()
-  const dialogRef = useRef<DialogRef>(null)
   const { translate } = useInternationalization()
-  const [localData, setLocalData] = useState<AddAvalaraDialogProps | undefined>(undefined)
-  const [showGlobalError, setShowGlobalError] = useState(false)
-  const avalaraIntegration = localData?.integration
-  const isEdition = !!avalaraIntegration
-  const { openDeleteAvalaraIntegrationDialog } = useDeleteAvalaraIntegrationDialog()
+  const formDialogOpeningDialog = useFormDialogOpeningDialog()
+
+  const dataRef = useRef<OpenAddAvalaraDialogData | null>(null)
+  const successRef = useRef(false)
+  const nangoErrorRef = useRef<NangoErrorHandle | null>(null)
 
   const [addAvalara] = useCreateAvalaraIntegrationMutation({
     onCompleted({ createAvalaraIntegration }) {
       if (createAvalaraIntegration?.id) {
+        successRef.current = true
         navigate(
           generatePath(AVALARA_INTEGRATION_DETAILS_ROUTE, {
             integrationId: createAvalaraIntegration.id,
@@ -100,206 +137,256 @@ export const AddAvalaraDialog = forwardRef<AddAvalaraDialogRef>((_, ref) => {
   const [updateAvalara] = useUpdateAvalaraIntegrationMutation({
     onCompleted({ updateAvalaraIntegration }) {
       if (updateAvalaraIntegration?.id) {
+        successRef.current = true
         addToast({
           message: translate('text_1744293680332firnbl6qch5'),
           severity: 'success',
         })
-
-        dialogRef.current?.closeDialog()
       }
     },
   })
 
-  const formikProps = useFormik<Omit<CreateAvalaraIntegrationInput, 'connectionId'>>({
-    enableReinitialize: true,
-    validateOnMount: true,
-    initialValues: {
-      accountId: avalaraIntegration?.accountId || '',
-      code: avalaraIntegration?.code || '',
-      companyCode: avalaraIntegration?.companyCode || '',
-      licenseKey: avalaraIntegration?.licenseKey || '',
-      name: avalaraIntegration?.name || '',
+  const [deleteAvalara] = useDestroyNangoIntegrationMutation()
+
+  const form = useAppForm({
+    defaultValues: defaultFormValues,
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: validationSchema,
     },
-    validationSchema: object().shape({
-      accountId: string().required(''),
-      code: string().required(''),
-      companyCode: string().required(''),
-      licenseKey: string().required(''),
-      name: string().required(''),
-    }),
-    onSubmit: async ({ ...values }, formikBag) => {
-      setShowGlobalError(false)
-      let res
+    onSubmit: async ({ value, formApi }) => {
+      nangoErrorRef.current?.setShow(false)
+
+      const integration = dataRef.current?.integration
+      const isEdition = !!integration
 
       if (isEdition) {
-        res = await updateAvalara({
+        const res = await updateAvalara({
           variables: {
             input: {
-              id: avalaraIntegration?.id || '',
-              ...values,
+              id: integration?.id || '',
+              ...value,
             },
           },
           context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
         })
-      } else {
-        const { default: Nango, AuthError } = await import('@nangohq/frontend')
-        const connectionId = `avalara-${componentId.replaceAll(':', '')}-${Date.now()}`
-        const nango = new Nango({ publicKey: nangoPublicKey })
 
-        try {
-          const nangoApiKeyConnection = await nango.auth('avalara-sandbox', connectionId, {
-            params: { avalaraClient: 'asd' },
-            credentials: {
-              username: values.accountId,
-              password: values.licenseKey,
-            },
-          })
-
-          res = await addAvalara({
-            variables: {
-              input: {
-                ...values,
-                connectionId: nangoApiKeyConnection?.connectionId || '',
+        if (hasDefinedGQLError('ValueAlreadyExist', res.errors)) {
+          formApi.setErrorMap({
+            onDynamic: {
+              fields: {
+                code: {
+                  message: translate('text_632a2d437e341dcc76817556'),
+                  path: ['code'],
+                },
               },
             },
           })
-        } catch (error) {
-          if (error instanceof AuthError) return setShowGlobalError(true)
+        }
 
-          captureException(error, {
-            tags: {
-              integration: 'avalara',
-              action: isEdition ? 'update' : 'create',
+        return
+      }
+
+      const { default: Nango, AuthError } = await import('@nangohq/frontend')
+      const connectionId = `avalara-${componentId.replaceAll(':', '')}-${Date.now()}`
+      const nango = new Nango({ publicKey: nangoPublicKey })
+
+      try {
+        const nangoApiKeyConnection = await nango.auth('avalara-sandbox', connectionId, {
+          params: { avalaraClient: 'asd' },
+          credentials: {
+            username: value.accountId,
+            password: value.licenseKey,
+          },
+        })
+
+        const res = await addAvalara({
+          variables: {
+            input: {
+              ...value,
+              connectionId: nangoApiKeyConnection?.connectionId || '',
             },
-            extra: {
-              accountId: values.accountId,
+          },
+        })
+
+        if (hasDefinedGQLError('ValueAlreadyExist', res.errors)) {
+          formApi.setErrorMap({
+            onDynamic: {
+              fields: {
+                code: {
+                  message: translate('text_632a2d437e341dcc76817556'),
+                  path: ['code'],
+                },
+              },
             },
           })
         }
-      }
+      } catch (error) {
+        if (error instanceof AuthError) {
+          nangoErrorRef.current?.setShow(true)
+          return
+        }
 
-      const { errors } = res as
-        | FetchResult<UpdateAvalaraIntegrationMutation>
-        | FetchResult<CreateAvalaraIntegrationMutation>
-
-      if (!errors) dialogRef.current?.closeDialog()
-
-      if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
-        formikBag.setErrors({
-          code: translate('text_632a2d437e341dcc76817556'),
+        captureException(error, {
+          tags: {
+            integration: 'avalara',
+            action: 'create',
+          },
+          extra: {
+            accountId: value.accountId,
+          },
         })
       }
     },
   })
 
-  useImperativeHandle(ref, () => ({
-    openDialog: (data) => {
-      setShowGlobalError(false)
-      setLocalData(data)
-      dialogRef.current?.openDialog()
-    },
-    closeDialog: () => dialogRef.current?.closeDialog(),
-  }))
+  const handleSubmit = async (): Promise<DialogResult> => {
+    successRef.current = false
+    await form.handleSubmit()
 
-  return (
-    <Dialog
-      ref={dialogRef}
-      title={translate(
-        isEdition ? 'text_658461066530343fe1808cd9' : 'text_174429360927877m0kmo6gmm',
-        {
-          name: avalaraIntegration?.name,
-        },
-      )}
-      description={translate(
-        isEdition ? 'text_17442936803327ymv9v7ecv0' : 'text_174429360927806xa8sxsreg',
-      )}
-      onClose={formikProps.resetForm}
-      actions={({ closeDialog }) => (
-        <div
-          className={tw('flex flex-row items-center justify-between gap-3', isEdition && 'w-full')}
-        >
-          {isEdition && (
-            <Button
-              danger
-              variant="quaternary"
-              onClick={() => {
-                closeDialog()
-                openDeleteAvalaraIntegrationDialog({
-                  provider: avalaraIntegration,
-                  callback: localData?.deleteDialogCallback,
-                })
-              }}
-            >
-              {translate('text_65845f35d7d69c3ab4793dad')}
-            </Button>
-          )}
-          <div className="flex items-center gap-3">
-            <Button variant="quaternary" onClick={closeDialog}>
-              {translate('text_62b1edddbf5f461ab971276d')}
-            </Button>
-            <Button
-              variant="primary"
-              disabled={!formikProps.isValid || !formikProps.dirty}
-              onClick={formikProps.submitForm}
-            >
+    if (!successRef.current) {
+      throw new Error('Submit failed')
+    }
+
+    return { reason: 'success' }
+  }
+
+  const openAddAvalaraDialog = (data?: OpenAddAvalaraDialogData) => {
+    dataRef.current = data ?? null
+    const integration = data?.integration
+    const isEdition = !!integration
+
+    form.reset()
+    if (integration) {
+      form.setFieldValue('accountId', integration.accountId || '')
+      form.setFieldValue('code', integration.code || '')
+      form.setFieldValue('companyCode', integration.companyCode || '')
+      form.setFieldValue('licenseKey', integration.licenseKey || '')
+      form.setFieldValue('name', integration.name || '')
+    }
+
+    formDialogOpeningDialog
+      .open({
+        title: translate(
+          isEdition ? 'text_658461066530343fe1808cd9' : 'text_174429360927877m0kmo6gmm',
+          {
+            name: integration?.name,
+          },
+        ),
+        description: translate(
+          isEdition ? 'text_17442936803327ymv9v7ecv0' : 'text_174429360927806xa8sxsreg',
+        ),
+        children: (
+          <div className="flex flex-col gap-6 p-6">
+            <NangoErrorAlert ref={nangoErrorRef} />
+
+            <div className="flex flex-row items-start gap-6">
+              <form.AppField name="name">
+                {(field) => (
+                  <field.TextInputField
+                    className="flex-1"
+                    label={translate('text_6584550dc4cec7adf861504d')}
+                    placeholder={translate('text_6584550dc4cec7adf861504f')}
+                  />
+                )}
+              </form.AppField>
+              <form.AppField name="code">
+                {(field) => (
+                  <field.TextInputField
+                    className="flex-1"
+                    label={translate('text_6584550dc4cec7adf8615051')}
+                    placeholder={translate('text_6584550dc4cec7adf8615053')}
+                  />
+                )}
+              </form.AppField>
+            </div>
+
+            <form.AppField name="accountId">
+              {(field) => (
+                <field.TextInputField
+                  disabled={isEdition}
+                  label={translate('text_1744293609278tzbixvdszc6')}
+                  placeholder={translate('text_1744293635186p3wseb9b7hl')}
+                />
+              )}
+            </form.AppField>
+
+            <form.AppField name="licenseKey">
+              {(field) => (
+                <field.TextInputField
+                  disabled={isEdition}
+                  label={translate('text_1744293635187073v2g6xw0o')}
+                  placeholder={translate('text_1744293635187idjlrbzbv21')}
+                />
+              )}
+            </form.AppField>
+
+            <form.AppField name="companyCode">
+              {(field) => (
+                <field.TextInputField
+                  disabled={isEdition}
+                  label={translate('text_1744293635187hxvz11n5bq3')}
+                  placeholder={translate('text_1744293635187q00705sjtf8')}
+                />
+              )}
+            </form.AppField>
+          </div>
+        ),
+        closeOnError: false,
+        onEntered: focusFirstInput,
+        mainAction: (
+          <form.AppForm>
+            <form.SubmitButton>
               {translate(
                 isEdition ? 'text_664c732c264d7eed1c74fdaa' : 'text_174429360927877m0kmo6gmm',
               )}
-            </Button>
-          </div>
-        </div>
-      )}
-    >
-      <div className="mb-8 flex flex-col gap-6">
-        {!!showGlobalError && (
-          <Alert type="danger">{translate('text_1749562792335fy21gc3sxn0')}</Alert>
-        )}
+            </form.SubmitButton>
+          </form.AppForm>
+        ),
+        form: {
+          id: ADD_AVALARA_FORM_ID,
+          submit: handleSubmit,
+        },
+        canOpenDialog: isEdition && !!data?.deleteDialogCallback,
+        openDialogText: translate('text_65845f35d7d69c3ab4793dad'),
+        otherDialogProps: {
+          title: translate('text_658461066530343fe1808cd7', { name: integration?.name }),
+          description: translate('text_1744293719130klvtjda8wjz'),
+          actionText: translate('text_645d071272418a14c1c76a81'),
+          colorVariant: 'danger',
+          onAction: async () => {
+            const res = await deleteAvalara({
+              variables: { input: { id: integration?.id as string } },
+            })
 
-        <div className="flex flex-row items-start gap-6">
-          <TextInputField
-            className="flex-1"
-            // eslint-disable-next-line jsx-a11y/no-autofocus
-            autoFocus
-            formikProps={formikProps}
-            name="name"
-            label={translate('text_6584550dc4cec7adf861504d')}
-            placeholder={translate('text_6584550dc4cec7adf861504f')}
-          />
-          <TextInputField
-            className="flex-1"
-            formikProps={formikProps}
-            name="code"
-            label={translate('text_6584550dc4cec7adf8615051')}
-            placeholder={translate('text_6584550dc4cec7adf8615053')}
-          />
-        </div>
+            const destroyedId = res.data?.destroyIntegration?.id
 
-        <TextInputField
-          name="accountId"
-          disabled={isEdition}
-          label={translate('text_1744293609278tzbixvdszc6')}
-          placeholder={translate('text_1744293635186p3wseb9b7hl')}
-          formikProps={formikProps}
-        />
+            if (destroyedId) {
+              evictFromCache(client, {
+                id: destroyedId,
+                __typename: 'AvalaraIntegration',
+                listFieldName: 'integrations',
+                listQueryDocument: GetAvalaraIntegrationsListDocument,
+              })
 
-        <TextInputField
-          name="licenseKey"
-          disabled={isEdition}
-          label={translate('text_1744293635187073v2g6xw0o')}
-          placeholder={translate('text_1744293635187idjlrbzbv21')}
-          formikProps={formikProps}
-        />
+              data?.deleteDialogCallback?.()
 
-        <TextInputField
-          name="companyCode"
-          disabled={isEdition}
-          label={translate('text_1744293635187hxvz11n5bq3')}
-          placeholder={translate('text_1744293635187q00705sjtf8')}
-          formikProps={formikProps}
-        />
-      </div>
-    </Dialog>
-  )
-})
+              addToast({
+                message: translate('text_661ff6e56ef7e1b7c542b2f9'),
+                severity: 'success',
+              })
+            }
+          },
+        },
+      })
+      .then((response) => {
+        if (response.reason === 'close' || response.reason === 'open-other-dialog') {
+          form.reset()
+          dataRef.current = null
+          nangoErrorRef.current?.setShow(false)
+        }
+      })
+  }
 
-AddAvalaraDialog.displayName = 'AddAvalaraDialog'
+  return { openAddAvalaraDialog }
+}

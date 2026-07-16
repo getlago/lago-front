@@ -11,7 +11,9 @@ import {
 import MoneyhashIntegrations from '../MoneyhashIntegrations'
 
 jest.mock('~/components/settings/integrations/AddMoneyhashDialog', () => ({
-  AddMoneyhashDialog: () => null,
+  useAddMoneyhashDialog: () => ({
+    openAddMoneyhashDialog: jest.fn(),
+  }),
 }))
 jest.mock('~/components/settings/integrations/DeleteMoneyhashIntegrationDialog', () => ({
   useDeleteMoneyhashIntegrationDialog: () => ({

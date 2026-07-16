@@ -27,10 +27,7 @@ import {
   EditBillingEntityInvoiceIssuingDatePolicyDialog,
   EditBillingEntityInvoiceIssuingDatePolicyDialogRef,
 } from '~/components/settings/invoices/EditBillingEntityInvoiceIssuingDatePolicyDialog'
-import {
-  EditBillingEntityInvoiceNumberingDialog,
-  EditBillingEntityInvoiceNumberingDialogRef,
-} from '~/components/settings/invoices/EditBillingEntityInvoiceNumberingDialog'
+import { useEditBillingEntityInvoiceNumberingDialog } from '~/components/settings/invoices/EditBillingEntityInvoiceNumberingDialog'
 import { useEditBillingEntityInvoiceTemplateDialog } from '~/components/settings/invoices/EditBillingEntityInvoiceTemplateDialog'
 import { useEditDefaultCurrencyDialog } from '~/components/settings/invoices/EditDefaultCurrencyDialog'
 import {
@@ -132,7 +129,6 @@ const BillingEntityInvoiceSettings = () => {
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
 
-  const editInvoiceNumberingDialogRef = useRef<EditBillingEntityInvoiceNumberingDialogRef>(null)
   const editBillingEntityInvoiceIssuingDatePolicyDialogRef =
     useRef<EditBillingEntityInvoiceIssuingDatePolicyDialogRef>(null)
   const editGracePeriodDialogRef = useRef<EditBillingEntityGracePeriodDialogRef>(null)
@@ -143,6 +139,8 @@ const BillingEntityInvoiceSettings = () => {
   const premiumWarningDialog = usePremiumWarningDialog()
   const { openEditDefaultCurrencyDialog } = useEditDefaultCurrencyDialog()
   const { openEditBillingEntityInvoiceTemplateDialog } = useEditBillingEntityInvoiceTemplateDialog()
+  const { openEditBillingEntityInvoiceNumberingDialog } =
+    useEditBillingEntityInvoiceNumberingDialog()
 
   const { data, error, loading } = useGetBillingEntitySettingsQuery({
     variables: {
@@ -308,7 +306,13 @@ const BillingEntityInvoiceSettings = () => {
         <Button
           variant="inline"
           disabled={!canEditInvoiceSettings}
-          onClick={() => editInvoiceNumberingDialogRef?.current?.openDialog()}
+          onClick={() =>
+            openEditBillingEntityInvoiceNumberingDialog({
+              id: billingEntity?.id as string,
+              documentNumbering: billingEntity?.documentNumbering,
+              documentNumberPrefix: billingEntity?.documentNumberPrefix,
+            })
+          }
         >
           {translate('text_6380d7e60f081e5b777c4b24')}
         </Button>
@@ -329,14 +333,6 @@ const BillingEntityInvoiceSettings = () => {
             )}
           </Typography>
         </div>
-      ),
-      dialog: (
-        <EditBillingEntityInvoiceNumberingDialog
-          ref={editInvoiceNumberingDialogRef}
-          documentNumbering={billingEntity?.documentNumbering}
-          documentNumberPrefix={billingEntity?.documentNumberPrefix}
-          id={billingEntity?.id as string}
-        />
       ),
     },
     {

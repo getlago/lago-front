@@ -1,14 +1,18 @@
+import NiceModal from '@ebay/nice-modal-react'
 import { act, cleanup, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { createRef } from 'react'
+import { ReactNode } from 'react'
 
 import {
   ROTATE_API_KEY_DIALOG_SUBMIT_BUTTON_TEST_ID,
-  RotateApiKeyDialog,
-  RotateApiKeyDialogRef,
+  useRotateApiKeyDialog,
 } from '~/components/developers/apiKeys/RotateApiKeyDialog'
+import { DIALOG_TITLE_TEST_ID, FORM_DIALOG_NAME } from '~/components/dialogs/const'
+import FormDialog from '~/components/dialogs/FormDialog'
 import { ApiKeyForRotateApiKeyDialogFragment } from '~/generated/graphql'
 import { render } from '~/test-utils'
+
+NiceModal.register(FORM_DIALOG_NAME, FormDialog)
 
 const mockRotate = jest.fn()
 
@@ -34,20 +38,47 @@ const apiKey: ApiKeyForRotateApiKeyDialogFragment = {
   lastUsedAt: null,
 }
 
+const OPEN_BUTTON_TEST_ID = 'open-rotate-api-key-dialog'
+
+const NiceModalWrapper = ({ children }: { children: ReactNode }) => (
+  <NiceModal.Provider>{children}</NiceModal.Provider>
+)
+
+const Harness = () => {
+  const { openRotateApiKeyDialog } = useRotateApiKeyDialog()
+
+  return (
+    <button
+      data-test={OPEN_BUTTON_TEST_ID}
+      onClick={() =>
+        openRotateApiKeyDialog({
+          apiKey,
+          callBack: jest.fn(),
+          openPremiumDialog: jest.fn(),
+        })
+      }
+    >
+      open
+    </button>
+  )
+}
+
 async function prepare() {
-  const ref = createRef<RotateApiKeyDialogRef>()
+  await act(() =>
+    render(
+      <NiceModalWrapper>
+        <Harness />
+      </NiceModalWrapper>,
+    ),
+  )
 
-  await act(() => render(<RotateApiKeyDialog ref={ref} openPremiumDialog={jest.fn()} />))
-
-  await act(() => {
-    ref.current?.openDialog({ apiKey, callBack: jest.fn() })
+  await act(async () => {
+    screen.getByTestId(OPEN_BUTTON_TEST_ID).click()
   })
 
   await waitFor(() => {
-    expect(screen.getByTestId('dialog-title')).toBeInTheDocument()
+    expect(screen.getByTestId(DIALOG_TITLE_TEST_ID)).toBeInTheDocument()
   })
-
-  return { ref }
 }
 
 describe('RotateApiKeyDialog', () => {
@@ -60,6 +91,15 @@ describe('RotateApiKeyDialog', () => {
     describe('WHEN the user submits the form', () => {
       it('THEN it rotates the key with a null expiresAt', async () => {
         const user = userEvent.setup()
+
+        mockRotate.mockResolvedValue({
+          data: {
+            rotateApiKey: {
+              id: 'api-key-1',
+              value: 'new-value',
+            },
+          },
+        })
 
         await prepare()
 
@@ -87,6 +127,15 @@ describe('RotateApiKeyDialog', () => {
     describe('WHEN the user submits the form', () => {
       it('THEN it rotates the key with a non-null ISO expiresAt', async () => {
         const user = userEvent.setup()
+
+        mockRotate.mockResolvedValue({
+          data: {
+            rotateApiKey: {
+              id: 'api-key-1',
+              value: 'new-value',
+            },
+          },
+        })
 
         await prepare()
 

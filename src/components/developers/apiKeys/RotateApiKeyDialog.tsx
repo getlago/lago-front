@@ -2,12 +2,14 @@ import { gql } from '@apollo/client'
 import { revalidateLogic } from '@tanstack/react-form'
 import { Icon } from 'lago-design-system'
 import { DateTime } from 'luxon'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
+import { useRef } from 'react'
 import { z } from 'zod'
 
 import { Button } from '~/components/designSystem/Button'
-import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
 import { Typography } from '~/components/designSystem/Typography'
+import { useFormDialog } from '~/components/dialogs/FormDialog'
+import { DialogResult } from '~/components/dialogs/types'
+import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { addToast } from '~/core/apolloClient'
 import { intlFormatDateTime } from '~/core/timezone/utils'
 import {
@@ -62,25 +64,32 @@ gql`
   ${ApiKeyRevealedForApiKeysListFragmentDoc}
 `
 
-type RotateApiKeyDialogProps = {
+type RotateApiKeyDialogData = {
   apiKey: ApiKeyForRotateApiKeyDialogFragment
   callBack: (itemToReveal: ApiKeyRevealedForApiKeysListFragment) => void
+  openPremiumDialog: VoidFunction
 }
 
-export interface RotateApiKeyDialogRef {
-  openDialog: (data: RotateApiKeyDialogProps) => unknown
-  closeDialog: () => unknown
-}
-
-export const RotateApiKeyDialog = forwardRef<
-  RotateApiKeyDialogRef,
-  { openPremiumDialog: VoidFunction }
->(({ openPremiumDialog }, ref) => {
+export const useRotateApiKeyDialog = () => {
+  const formDialog = useFormDialog()
   const { isPremium } = useCurrentUser()
   const { translate } = useInternationalization()
-  const dialogRef = useRef<DialogRef>(null)
-  const [localData, setLocalData] = useState<RotateApiKeyDialogProps | undefined>(undefined)
-  const apiKey = localData?.apiKey
+  const dataRef = useRef<RotateApiKeyDialogData | null>(null)
+  const successRef = useRef(false)
+
+  const [rotateApiKey] = useRotateApiKeyMutation({
+    onCompleted(data) {
+      if (!!data?.rotateApiKey?.id) {
+        dataRef.current?.callBack(data.rotateApiKey)
+
+        addToast({
+          message: translate('text_1731506310510htbvgegpzd8'),
+          severity: 'success',
+        })
+      }
+    },
+    refetchQueries: ['getApiKeys'],
+  })
 
   const form = useAppForm({
     defaultValues: {
@@ -102,17 +111,19 @@ export const RotateApiKeyDialog = forwardRef<
         ExpirationValuesAsTime[expiresAt as keyof typeof ExpirationValuesEnum]
 
       try {
-        await rotateApiKey({
+        const result = await rotateApiKey({
           variables: {
             input: {
-              id: apiKey?.id || '',
+              id: dataRef.current?.apiKey.id || '',
               expiresAt: transformedExpiredAt,
-              name: localData?.apiKey.name,
+              name: dataRef.current?.apiKey.name,
             },
           },
         })
 
-        dialogRef.current?.closeDialog()
+        if (result.data?.rotateApiKey?.id) {
+          successRef.current = true
+        }
       } catch {
         addToast({
           severity: 'danger',
@@ -122,142 +133,131 @@ export const RotateApiKeyDialog = forwardRef<
     },
   })
 
-  const [rotateApiKey] = useRotateApiKeyMutation({
-    onCompleted(data) {
-      if (!!data?.rotateApiKey?.id) {
-        localData?.callBack(data.rotateApiKey)
+  const handleSubmit = async (): Promise<DialogResult> => {
+    successRef.current = false
+    await form.handleSubmit()
 
-        addToast({
-          message: translate('text_1731506310510htbvgegpzd8'),
-          severity: 'success',
-        })
-      }
-    },
-    refetchQueries: ['getApiKeys'],
-  })
+    if (!successRef.current) {
+      throw new Error('Submit failed')
+    }
 
-  useImperativeHandle(ref, () => ({
-    openDialog: (data) => {
-      setLocalData(data)
-      dialogRef.current?.openDialog()
-    },
-    closeDialog: () => {
-      dialogRef.current?.closeDialog()
-    },
-  }))
-
-  const handleFormSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    form.handleSubmit()
+    return { reason: 'success' }
   }
 
-  return (
-    <Dialog
-      ref={dialogRef}
-      title={translate('text_173151476175058ugha8fd08')}
-      description={translate('text_1731514761750dnh1s073j9o')}
-      onClose={() => form.reset()}
-      formId={ROTATE_API_KEY_FORM_ID}
-      formSubmit={handleFormSubmit}
-      actions={({ closeDialog }) => (
-        <>
-          <Button variant="quaternary" onClick={closeDialog}>
-            {translate('text_64352657267c3d916f962769')}
-          </Button>
-          <Button
-            danger
-            type="submit"
-            variant="primary"
-            data-test={ROTATE_API_KEY_DIALOG_SUBMIT_BUTTON_TEST_ID}
-          >
-            {translate('text_173151476175058ugha8fd08')}
-          </Button>
-        </>
-      )}
-    >
-      <div className="mb-8 flex flex-col gap-8">
-        <div className="flex w-full items-center">
-          <Typography className="w-35" variant="caption" color="grey600">
-            {translate('text_1731515447290xbe4iqm5n6r')}
-          </Typography>
-          <Typography className="flex-1" variant="body" color="grey700">
-            {!!apiKey?.lastUsedAt
-              ? intlFormatDateTime(apiKey?.lastUsedAt, {
-                  timezone: TimezoneEnum.TzUtc,
-                }).date
-              : '-'}
-          </Typography>
-        </div>
-        <div className="flex flex-col">
-          <div className="mb-4">
-            <Typography variant="bodyHl" color="grey700">
-              {translate('text_1732286530467qf204t1o5ol')}
-            </Typography>
-            <Typography variant="caption" color="grey600">
-              {translate('text_17322865304677r38axxm3cc')}
-            </Typography>
-          </div>
+  const openRotateApiKeyDialog = (data: RotateApiKeyDialogData) => {
+    dataRef.current = data
+    form.reset()
 
-          <div className="flex flex-col gap-4">
-            <form.AppField name="expiresAt">
-              {(field) => (
-                <>
-                  <field.RadioField
-                    labelVariant="body"
-                    value={ExpirationValuesEnum.Now}
-                    label={translate(ExpirationValuesTranslationLookup.Now)}
-                  />
-                  {!isPremium && (
-                    <div className="flex w-full flex-row items-center justify-between gap-2 rounded-xl bg-grey-100 px-6 py-4">
-                      <div className="flex flex-col">
-                        <div className="flex flex-row items-center gap-2">
-                          <Typography variant="bodyHl" color="grey700">
-                            {translate('text_1732286530467ezav2z7ypj1')}
-                          </Typography>
-                          <Icon name="sparkles" />
+    formDialog
+      .open({
+        title: translate('text_173151476175058ugha8fd08'),
+        description: translate('text_1731514761750dnh1s073j9o'),
+        closeOnError: false,
+        onEntered: focusFirstInput,
+        children: (
+          <div className="flex flex-col gap-8 p-8">
+            <div className="flex w-full items-center">
+              <Typography className="w-35" variant="caption" color="grey600">
+                {translate('text_1731515447290xbe4iqm5n6r')}
+              </Typography>
+              <Typography className="flex-1" variant="body" color="grey700">
+                {!!data.apiKey.lastUsedAt
+                  ? intlFormatDateTime(data.apiKey.lastUsedAt, {
+                      timezone: TimezoneEnum.TzUtc,
+                    }).date
+                  : '-'}
+              </Typography>
+            </div>
+            <div className="flex flex-col">
+              <div className="mb-4">
+                <Typography variant="bodyHl" color="grey700">
+                  {translate('text_1732286530467qf204t1o5ol')}
+                </Typography>
+                <Typography variant="caption" color="grey600">
+                  {translate('text_17322865304677r38axxm3cc')}
+                </Typography>
+              </div>
+
+              <div className="flex flex-col gap-4">
+                <form.AppField name="expiresAt">
+                  {(field) => (
+                    <>
+                      <field.RadioField
+                        labelVariant="body"
+                        value={ExpirationValuesEnum.Now}
+                        label={translate(ExpirationValuesTranslationLookup.Now)}
+                      />
+                      {!isPremium && (
+                        <div className="flex w-full flex-row items-center justify-between gap-2 rounded-xl bg-grey-100 px-6 py-4">
+                          <div className="flex flex-col">
+                            <div className="flex flex-row items-center gap-2">
+                              <Typography variant="bodyHl" color="grey700">
+                                {translate('text_1732286530467ezav2z7ypj1')}
+                              </Typography>
+                              <Icon name="sparkles" />
+                            </div>
+
+                            <Typography variant="caption" color="grey600">
+                              {translate('text_1732286530467gnhwm6q5ftl')}
+                            </Typography>
+                          </div>
+                          <Button
+                            endIcon="sparkles"
+                            variant="tertiary"
+                            onClick={data.openPremiumDialog}
+                          >
+                            {translate('text_65ae73ebe3a66bec2b91d72d')}
+                          </Button>
                         </div>
-
-                        <Typography variant="caption" color="grey600">
-                          {translate('text_1732286530467gnhwm6q5ftl')}
-                        </Typography>
-                      </div>
-                      <Button endIcon="sparkles" variant="tertiary" onClick={openPremiumDialog}>
-                        {translate('text_65ae73ebe3a66bec2b91d72d')}
-                      </Button>
-                    </div>
+                      )}
+                      <field.RadioField
+                        labelVariant="body"
+                        disabled={!isPremium}
+                        value={ExpirationValuesEnum.OneHour}
+                        label={translate(ExpirationValuesTranslationLookup.OneHour)}
+                      />
+                      <field.RadioField
+                        labelVariant="body"
+                        disabled={!isPremium}
+                        value={ExpirationValuesEnum.OneDay}
+                        label={translate(ExpirationValuesTranslationLookup.OneDay)}
+                      />
+                      <field.RadioField
+                        labelVariant="body"
+                        disabled={!isPremium}
+                        value={ExpirationValuesEnum.TwoDays}
+                        label={translate(ExpirationValuesTranslationLookup.TwoDays)}
+                      />
+                      <field.RadioField
+                        labelVariant="body"
+                        disabled={!isPremium}
+                        value={ExpirationValuesEnum.OneWeek}
+                        label={translate(ExpirationValuesTranslationLookup.OneWeek)}
+                      />
+                    </>
                   )}
-                  <field.RadioField
-                    labelVariant="body"
-                    disabled={!isPremium}
-                    value={ExpirationValuesEnum.OneHour}
-                    label={translate(ExpirationValuesTranslationLookup.OneHour)}
-                  />
-                  <field.RadioField
-                    labelVariant="body"
-                    disabled={!isPremium}
-                    value={ExpirationValuesEnum.OneDay}
-                    label={translate(ExpirationValuesTranslationLookup.OneDay)}
-                  />
-                  <field.RadioField
-                    labelVariant="body"
-                    disabled={!isPremium}
-                    value={ExpirationValuesEnum.TwoDays}
-                    label={translate(ExpirationValuesTranslationLookup.TwoDays)}
-                  />
-                  <field.RadioField
-                    labelVariant="body"
-                    disabled={!isPremium}
-                    value={ExpirationValuesEnum.OneWeek}
-                    label={translate(ExpirationValuesTranslationLookup.OneWeek)}
-                  />
-                </>
-              )}
-            </form.AppField>
+                </form.AppField>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-    </Dialog>
-  )
-})
+        ),
+        mainAction: (
+          <form.AppForm>
+            <form.SubmitButton danger dataTest={ROTATE_API_KEY_DIALOG_SUBMIT_BUTTON_TEST_ID}>
+              {translate('text_173151476175058ugha8fd08')}
+            </form.SubmitButton>
+          </form.AppForm>
+        ),
+        form: {
+          id: ROTATE_API_KEY_FORM_ID,
+          submit: handleSubmit,
+        },
+      })
+      .then(() => {
+        form.reset()
+        dataRef.current = null
+      })
+  }
 
-RotateApiKeyDialog.displayName = 'RotateApiKeyDialog'
+  return { openRotateApiKeyDialog }
+}
