@@ -17,7 +17,7 @@ export interface BasicComboBoxData {
   disabled?: boolean
   customValue?: boolean
   group?: never
-  addValueRedirectionUrl?: string
+  addValueOnClick?: () => void
 }
 
 export interface ComboboxDataGrouped extends Omit<BasicComboBoxData, 'group'> {
@@ -43,7 +43,7 @@ interface BasicComboboxProps extends Omit<ComboBoxInputProps, 'params' | 'search
   }
   addValueProps?: {
     label: string
-    redirectionUrl?: string
+    onClick?: () => void
   }
   renderGroupHeader?: never
   onChange: (value: string) => unknown

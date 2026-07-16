@@ -46,6 +46,13 @@ jest.mock('~/hooks/useCurrentUser', () => ({
   }),
 }))
 
+const mockNavigate = jest.fn()
+
+jest.mock('~/core/router', () => ({
+  ...jest.requireActual('~/core/router'),
+  useNavigate: () => mockNavigate,
+}))
+
 const customer = {
   id: '1234',
   name: 'Customer Name',
@@ -136,6 +143,9 @@ describe('EditCustomerVatRateDialog', () => {
     const createTaxItem = await screen.findByTestId('combobox-item-Create a tax_rate')
 
     expect(createTaxItem).toBeInTheDocument()
-    expect(createTaxItem.querySelector(`a`)).toHaveAttribute('href', CREATE_TAX_ROUTE)
+
+    await user.click(createTaxItem.querySelector('button') as HTMLElement)
+
+    expect(mockNavigate).toHaveBeenCalledWith(CREATE_TAX_ROUTE)
   })
 })
