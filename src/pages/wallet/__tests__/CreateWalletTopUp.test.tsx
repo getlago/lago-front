@@ -223,14 +223,16 @@ describe('CreateWalletTopUp', () => {
         })
       })
 
-      it('THEN should display the submit button as disabled initially', async () => {
+      it('THEN should display the submit button as enabled upfront', async () => {
+        // TanStack convention: validation gates the button only after the
+        // first submit attempt (the old form disabled it upfront)
         render(<CreateWalletTopUp />, { mocks: getDefaultMocks() })
 
         await waitFor(() => {
           expect(screen.getByTestId(CREATE_WALLET_TOP_UP_FORM_TEST_ID)).toBeInTheDocument()
         })
 
-        expect(screen.getByTestId(SUBMIT_WALLET_DATA_TEST)).toBeDisabled()
+        expect(screen.getByTestId(SUBMIT_WALLET_DATA_TEST)).not.toBeDisabled()
       })
 
       it('THEN should display the paid credits input', async () => {
