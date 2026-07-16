@@ -3,9 +3,11 @@ import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import {
+  ADD_METADATA_DATA_TEST,
   CLOSE_CREATE_TOPUP_BUTTON_DATA_TEST,
   CREATE_WALLET_TOP_UP_FORM_TEST_ID,
   SUBMIT_WALLET_DATA_TEST,
+  TOPUP_TYPE_FREE_CREDITS_DATA_TEST,
 } from '~/components/wallets/utils/dataTestConstants'
 import { addToast } from '~/core/apolloClient'
 import {
@@ -303,12 +305,7 @@ describe('CreateWalletTopUp', () => {
           expect(screen.getByTestId(CREATE_WALLET_TOP_UP_FORM_TEST_ID)).toBeInTheDocument()
         })
 
-        // Click the Free Credits tab button
-        const freeCreditsTab = screen.getByRole('button', {
-          name: /text_1770376670114piyn9eibuhm/,
-        })
-
-        await user.click(freeCreditsTab)
+        await user.click(screen.getByTestId(TOPUP_TYPE_FREE_CREDITS_DATA_TEST))
 
         await waitFor(() => {
           expect(document.querySelector('input[name="grantedCredits"]')).toBeInTheDocument()
@@ -409,12 +406,7 @@ describe('CreateWalletTopUp', () => {
           expect(screen.getByTestId(CREATE_WALLET_TOP_UP_FORM_TEST_ID)).toBeInTheDocument()
         })
 
-        // Switch to Free Credits tab
-        const freeCreditsTab = screen.getByRole('button', {
-          name: /text_1770376670114piyn9eibuhm/,
-        })
-
-        await user.click(freeCreditsTab)
+        await user.click(screen.getByTestId(TOPUP_TYPE_FREE_CREDITS_DATA_TEST))
 
         await waitFor(() => {
           expect(document.querySelector('input[name="grantedCredits"]')).toBeInTheDocument()
@@ -526,6 +518,118 @@ describe('CreateWalletTopUp', () => {
 
         await waitFor(() => {
           expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+        })
+      })
+    })
+  })
+
+  describe('GIVEN no credit amount is set', () => {
+    describe('WHEN submitting the form', () => {
+      it('THEN should show the required error on the credits input, disable the button and not call the mutation', async () => {
+        const user = userEvent.setup()
+        let mutationCalled = false
+
+        render(<CreateWalletTopUp />, {
+          mocks: getDefaultMocks(() => {
+            mutationCalled = true
+          }),
+        })
+
+        await waitFor(() => {
+          expect(getPaidCreditsInput()).toBeInTheDocument()
+        })
+
+        await act(async () => {
+          await user.click(screen.getByTestId(SUBMIT_WALLET_DATA_TEST))
+        })
+
+        await waitFor(() => {
+          expect(getPaidCreditsInput()).toHaveAttribute('aria-invalid', 'true')
+        })
+        expect(screen.getByTestId(SUBMIT_WALLET_DATA_TEST)).toBeDisabled()
+        expect(mutationCalled).toBe(false)
+      })
+
+      it('THEN should clear the error and re-enable the button when an amount is typed', async () => {
+        const user = userEvent.setup()
+
+        render(<CreateWalletTopUp />, { mocks: getDefaultMocks() })
+
+        await waitFor(() => {
+          expect(getPaidCreditsInput()).toBeInTheDocument()
+        })
+
+        await act(async () => {
+          await user.click(screen.getByTestId(SUBMIT_WALLET_DATA_TEST))
+        })
+
+        await waitFor(() => {
+          expect(getPaidCreditsInput()).toHaveAttribute('aria-invalid', 'true')
+        })
+
+        await user.type(getPaidCreditsInput(), '10')
+
+        await waitFor(() => {
+          expect(getPaidCreditsInput()).toHaveAttribute('aria-invalid', 'false')
+        })
+        expect(screen.getByTestId(SUBMIT_WALLET_DATA_TEST)).not.toBeDisabled()
+      })
+    })
+  })
+
+  describe('GIVEN the metadata accordion', () => {
+    const openMetadataAccordion = async (user: ReturnType<typeof userEvent.setup>) => {
+      await user.click(document.querySelector('.MuiAccordionSummary-root') as HTMLElement)
+
+      await waitFor(() => {
+        expect(document.querySelector('.MuiCollapse-entered')).toBeInTheDocument()
+      })
+    }
+
+    describe('WHEN adding a metadata row', () => {
+      it('THEN should display the key and value inputs', async () => {
+        const user = userEvent.setup()
+
+        render(<CreateWalletTopUp />, { mocks: getDefaultMocks() })
+
+        await waitFor(() => {
+          expect(screen.getByTestId(CREATE_WALLET_TOP_UP_FORM_TEST_ID)).toBeInTheDocument()
+        })
+
+        await openMetadataAccordion(user)
+        await user.click(screen.getByTestId(ADD_METADATA_DATA_TEST))
+
+        await waitFor(() => {
+          expect(document.querySelector('input[name="metadata[0].key"]')).toBeInTheDocument()
+        })
+        expect(document.querySelector('input[name="metadata[0].value"]')).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN removing a metadata row', () => {
+      it('THEN should remove its inputs', async () => {
+        const user = userEvent.setup()
+
+        render(<CreateWalletTopUp />, { mocks: getDefaultMocks() })
+
+        await waitFor(() => {
+          expect(screen.getByTestId(CREATE_WALLET_TOP_UP_FORM_TEST_ID)).toBeInTheDocument()
+        })
+
+        await openMetadataAccordion(user)
+        await user.click(screen.getByTestId(ADD_METADATA_DATA_TEST))
+
+        await waitFor(() => {
+          expect(document.querySelector('input[name="metadata[0].key"]')).toBeInTheDocument()
+        })
+
+        const collapse = document.querySelector('.MuiCollapse-entered') as HTMLElement
+        const trashIcon = collapse.querySelector('svg[data-test="trash/medium"]') as SVGElement
+
+        await user.click(trashIcon.closest('button') as HTMLButtonElement)
+
+        await waitFor(() => {
+          expect(document.querySelector('input[name="metadata[0].key"]')).not.toBeInTheDocument()
         })
       })
     })
