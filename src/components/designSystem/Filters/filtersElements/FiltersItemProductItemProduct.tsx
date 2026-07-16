@@ -57,6 +57,23 @@ export const FiltersItemProductItemProduct = ({
     ]
   }, [data?.products?.collection, translate])
 
+  const selectedProductsValue = useMemo(
+    () =>
+      (value ?? '')
+        .split(',')
+        .filter((v) => !!v)
+        .map((v) => ({
+          label:
+            v === filterWithoutProductValue
+              ? translate('text_1784214117868fh6rndi4m75')
+              : unescapeFilterLabel(
+                  v.split(filterDataInlineSeparator)[1] || v.split(filterDataInlineSeparator)[0],
+                ),
+          value: v,
+        })),
+    [value, translate],
+  )
+
   return (
     <MultipleComboBox
       PopperProps={{ displayInDialog }}
@@ -68,18 +85,7 @@ export const FiltersItemProductItemProduct = ({
       onChange={(products) => {
         setFilterValue(String(products.map((v) => v.value).join(',')))
       }}
-      value={(value ?? '')
-        .split(',')
-        .filter((v) => !!v)
-        .map((v) => ({
-          label:
-            v === filterWithoutProductValue
-              ? translate('text_1784214117868fh6rndi4m75')
-              : unescapeFilterLabel(
-                  v.split(filterDataInlineSeparator)[1] || v.split(filterDataInlineSeparator)[0],
-                ),
-          value: v,
-        }))}
+      value={selectedProductsValue}
     />
   )
 }

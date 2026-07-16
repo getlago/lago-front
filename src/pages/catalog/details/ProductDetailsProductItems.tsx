@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { useCallback } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -77,7 +76,7 @@ const ProductItemsPreview = ({ product }: { product: ProductAttachment }) => {
 
   const columns = useProductItemTableColumns({ withAttachedProduct: false })
 
-  const composeTooltipLabel = useCallback((): string => {
+  const composeTooltipLabel = (): string => {
     let tooltipLabel = [
       canUpdateProductItems && translate('text_629728388c4d2300e2d3816a').toLowerCase(),
       canDeleteProductItems && translate('text_629728388c4d2300e2d38182').toLowerCase(),
@@ -88,16 +87,13 @@ const ProductItemsPreview = ({ product }: { product: ProductAttachment }) => {
     tooltipLabel = tooltipLabel.charAt(0).toUpperCase() + tooltipLabel.slice(1)
 
     return tooltipLabel
-  }, [canUpdateProductItems, canDeleteProductItems, translate])
+  }
 
-  const getRowActionLink = useCallback(
-    ({ id }: { id: string }) =>
-      generatePath(PRODUCT_ITEM_DETAILS_ROUTE, {
-        productItemId: id,
-        tab: ProductItemDetailsTabsOptionsEnum.overview,
-      }),
-    [],
-  )
+  const getRowActionLink = ({ id }: { id: string }): string =>
+    generatePath(PRODUCT_ITEM_DETAILS_ROUTE, {
+      productItemId: id,
+      tab: ProductItemDetailsTabsOptionsEnum.overview,
+    })
 
   const actionColumn: ActionColumn<ProductItemForListFragment> = (productItem) => {
     const actions: ActionItem<ProductItemForListFragment>[] = []

@@ -46,6 +46,20 @@ const NameAndCodeGroup = withFieldGroup({
       group.setFieldValue('code', formatCodeFromName(value))
     }
 
+    // Clear the server "code already exists" error once the user edits the code
+    // so the submit button re-enables. Gated by the message so the zod
+    // required-check isn't wiped.
+    const handleCodeChange = () => {
+      const meta = group.getFieldMeta('code')
+
+      if (meta?.errorMap?.onDynamic?.message === EXISTING_CODE_ERROR_MESSAGE) {
+        group.setFieldMeta('code', (current) => ({
+          ...current,
+          errorMap: { ...current.errorMap, onDynamic: undefined },
+        }))
+      }
+    }
+
     return (
       <div className="grid grid-cols-2 gap-6">
         <group.AppField name="name" listeners={{ onChange: handleNameChange }}>
@@ -57,24 +71,7 @@ const NameAndCodeGroup = withFieldGroup({
             />
           )}
         </group.AppField>
-        <group.AppField
-          name="code"
-          listeners={{
-            // Clear the server "code already exists" error once the user edits
-            // the code so the submit button re-enables. Gated by the message so
-            // the zod required-check isn't wiped.
-            onChange: () => {
-              const meta = group.getFieldMeta('code')
-
-              if (meta?.errorMap?.onDynamic?.message === EXISTING_CODE_ERROR_MESSAGE) {
-                group.setFieldMeta('code', (current) => ({
-                  ...current,
-                  errorMap: { ...current.errorMap, onDynamic: undefined },
-                }))
-              }
-            },
-          }}
-        >
+        <group.AppField name="code" listeners={{ onChange: handleCodeChange }}>
           {(field) => (
             <field.TextInputField
               label={translate('text_629728388c4d2300e2d380b7')}
