@@ -120,6 +120,7 @@ gql`
         id
         name
       }
+      purchaseOrderNumber
     }
 
     ...WalletInfosForTransactions
