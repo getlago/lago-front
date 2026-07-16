@@ -6,8 +6,11 @@ import { z } from 'zod'
 import { Typography } from '~/components/designSystem/Typography'
 import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { DialogResult } from '~/components/dialogs/types'
-import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { addToast } from '~/core/apolloClient'
+import {
+  MUI_INPUT_BASE_ROOT_CLASSNAME,
+  SEARCH_INVOICE_CUSTOM_SECTION_INPUT_CLASSNAME,
+} from '~/core/constants/form'
 import {
   BillingEntity,
   useApplyBillingEntityInvoiceCustomSectionMutation,
@@ -110,12 +113,19 @@ export const useApplyInvoiceCustomSectionDialog = () => {
         title: translate('text_17490246341928gnllhmzx4w'),
         description: <Typography>{translate('text_1749024634192qi2o0ycntua')}</Typography>,
         closeOnError: false,
-        onEntered: focusFirstInput,
+        onEntered: (container) => {
+          container
+            .querySelector<HTMLElement>(
+              `.${SEARCH_INVOICE_CUSTOM_SECTION_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
+            )
+            ?.click()
+        },
         children: (
           <div className="p-8">
             <form.AppField name="invoiceCustomSectionId">
               {(field) => (
                 <field.ComboBoxField
+                  className={SEARCH_INVOICE_CUSTOM_SECTION_INPUT_CLASSNAME}
                   label={translate('text_1749026767605u5u8ww3dhov')}
                   loading={loading}
                   data={invoiceCustomSections}

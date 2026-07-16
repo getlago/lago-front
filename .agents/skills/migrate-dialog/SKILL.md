@@ -246,30 +246,42 @@ onEntered: focusFirstInput,
 
 `focusFirstInput(container)` scopes its lookup to the dialog's own container and focuses the first editable input (skipping hidden/disabled), so it works regardless of dialog-stack position. It's the same helper the plan and charge drawers use. For a dialog whose first field is not the desired target, pass a custom selector via a wrapper: `onEntered: (c) => focusFirstInput(c, '#my-field')`.
 
-**2b. When the first field is a `ComboBox`, open its dropdown instead of just focusing it.**
+**2b. When the first field is a `ComboBox` / `ComboBoxField`, open its dropdown instead of just focusing it.**
 
-`focusFirstInput` only focuses the underlying `<input>`, leaving the dropdown closed - the user still has to click/type to see the options. When the combobox is the dialog's primary (or only) field, the expected UX is to open the menu on enter. Match the charge-drawer pattern: give the `ComboBox` a known className, then in `onEntered` click its `MuiInputBase-root` to pop the dropdown open.
+`focusFirstInput` only focuses the underlying `<input>`, leaving the dropdown closed - the user still has to click/type to see the options. When the combobox is the dialog's primary (or only) field, the expected UX is to open the menu on enter. This applies to **both** the raw design-system `<ComboBox>` and the TanStack `<field.ComboBoxField>` (the wrapper spreads `...props` to `ComboBox`, so `className` passes straight through). Match the charge-drawer pattern: give the combobox a known className, then in `onEntered` click its `MuiInputBase-root` to pop the dropdown open.
+
+**Add a dedicated className constant** in `src/core/constants/form.ts` for this combobox - do **not** reuse an unrelated feature's constant (e.g. `SEARCH_TAX_INPUT_FOR_CUSTOMER_CLASSNAME` belongs to the customer VAT flow; borrowing it makes the selector lie and collides if both dialogs mount). Name it after the field, grouped under the relevant feature comment:
+
+```ts
+// Billing entity
+export const SEARCH_INVOICE_CUSTOM_SECTION_INPUT_CLASSNAME = 'searchInvoiceCustomSectionInput'
+```
+
+Then wire it in the dialog:
 
 ```tsx
 import {
   MUI_INPUT_BASE_ROOT_CLASSNAME,
-  SEARCH_TAX_INPUT_FOR_CUSTOMER_CLASSNAME,
+  SEARCH_INVOICE_CUSTOM_SECTION_INPUT_CLASSNAME,
 } from '~/core/constants/form'
 
-// the ComboBox carries the search-input className:
-<ComboBox className={SEARCH_TAX_INPUT_FOR_CUSTOMER_CLASSNAME} ... />
+// raw ComboBox:
+<ComboBox className={SEARCH_INVOICE_CUSTOM_SECTION_INPUT_CLASSNAME} ... />
 
-// inside the .open({ ... }) call:
+// or TanStack field.ComboBoxField (className is forwarded to the inner ComboBox):
+<field.ComboBoxField className={SEARCH_INVOICE_CUSTOM_SECTION_INPUT_CLASSNAME} ... />
+
+// inside the .open({ ... }) call - replaces `onEntered: focusFirstInput`:
 onEntered: (container) => {
   container
     .querySelector<HTMLElement>(
-      `.${SEARCH_TAX_INPUT_FOR_CUSTOMER_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
+      `.${SEARCH_INVOICE_CUSTOM_SECTION_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
     )
     ?.click()
 },
 ```
 
-Clicking the `MuiInputBase-root` both focuses the field and opens the menu, so it replaces `focusFirstInput` entirely (don't call both). Reference: `EditCustomerVatRateDialog.tsx`, and the plan/charge drawers (`FixedChargeDrawer.tsx`, `UsageChargeDrawer.tsx`) which gate the same click behind a `shouldFocusComboBoxRef` when the combobox should only auto-open in create mode - a dialog whose combobox is always the entry point can click unconditionally.
+Clicking the `MuiInputBase-root` both focuses the field and opens the menu, so it replaces `focusFirstInput` entirely (don't call both, and drop the now-unused `focusFirstInput` import). Reference: `ApplyInvoiceCustomSectionDialog.tsx` (TanStack `field.ComboBoxField`), `EditCustomerVatRateDialog.tsx` (raw `ComboBox`), and the plan/charge drawers (`FixedChargeDrawer.tsx`, `UsageChargeDrawer.tsx`) which gate the same click behind a `shouldFocusComboBoxRef` when the combobox should only auto-open in create mode - a dialog whose combobox is always the entry point can click unconditionally.
 
 **New Pattern (hook-based with CentralizedDialog):**
 
@@ -705,7 +717,7 @@ type FormDialogOpeningDialogProps = FormDialogProps & {
 - [ ] Replace `Dialog`/`WarningDialog` with `useFormDialog()`, `useCentralizedDialog()`, or `useFormDialogOpeningDialog()`
 - [ ] Implement `handleSubmit` returning `Promise<DialogResult>` (for FormDialog/FormDialogOpeningDialog)
 - [ ] Wrap `children` JSX in a `p-8` padding container (BaseDialog does NOT pad JSX children → flush/misaligned layout otherwise)
-- [ ] Add `onEntered: focusFirstInput` so the dialog focuses its first input on open (legacy Dialog did this automatically) - if the first field is a `ComboBox`, `.click()` its `MuiInputBase-root` in `onEntered` to open the dropdown instead (see section 2b)
+- [ ] Add `onEntered: focusFirstInput` so the dialog focuses its first input on open (legacy Dialog did this automatically) - if the first field is a `ComboBox` or `field.ComboBoxField`, add a dedicated className constant and `.click()` its `MuiInputBase-root` in `onEntered` to open the dropdown instead of `focusFirstInput` (see section 2b)
 - [ ] Handle form reset and cleanup in `.then()` callback (for FormDialog/FormDialogOpeningDialog)
 - [ ] Remove old exports (`forwardRef`, `DialogRef` interface, `displayName`)
 - [ ] (Deletion dialog) Replace `refetchQueries` / bare `cache.evict()` with the `evictFromCache` helper
