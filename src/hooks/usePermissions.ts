@@ -94,6 +94,7 @@ gql`
       orderFormsVoid
       ordersExecute
       ordersUpdate
+      ordersView
       pricingUnitsCreate
       pricingUnitsUpdate
       pricingUnitsView

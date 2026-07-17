@@ -4482,5 +4482,7 @@
   "text_1783693954158ptbr210ec4g": "This action cannot be undone. Please verify all details before proceeding. The order will be executed immediately, and billing will be provisioned.",
   "text_1783693954158o27yno2lfnm": "Execute order",
   "text_1783693954158zdvy0q96esu": "Order executed successfully",
-  "text_178410354866260f9hd0qa81": "Execute orders"
+  "text_178410354866260f9hd0qa81": "Execute orders",
+  "text_1784189562649n0q3uaf6w9q": "Order {{orderNumber}}",
+  "text_17841895626504bixbm3xbyj": "View the details of this executed order, including its execution settings and content."
 }
