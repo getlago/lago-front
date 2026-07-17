@@ -269,7 +269,7 @@ const Invitation = () => {
           input: {
             code: entraIdCode,
             state: entraIdState,
-            inviteToken: token || '',
+            inviteToken: token,
           },
         },
       })
