@@ -109,6 +109,34 @@ const oktaIntegrationsMock: TestMocksType = [
   },
 ]
 
+const entraIdIntegrationsMock: TestMocksType = [
+  {
+    request: {
+      query: GetAuthIntegrationsDocument,
+      variables: { limit: 10 },
+    },
+    result: {
+      data: {
+        integrations: {
+          __typename: 'IntegrationCollection',
+          collection: [
+            {
+              __typename: 'EntraIdIntegration',
+              id: 'entra-id-123',
+              domain: 'test.example.com',
+              clientId: 'test-client-id',
+              clientSecret: 'test-secret',
+              tenantId: 'test-tenant-id',
+              host: 'login.microsoftonline.com',
+              name: 'Test Entra ID',
+            },
+          ],
+        },
+      },
+    },
+  },
+]
+
 const customRender = (
   ui: ReactElement,
   options?: Omit<RenderOptions, 'wrapper'> & { mocks?: TestMocksType },
@@ -591,6 +619,147 @@ describe('Authentication', () => {
       const dialog = document.querySelector('[class*="MuiDialog"]')
 
       expect(dialog).toBeInTheDocument()
+    })
+  })
+
+  it('renders a selector for Entra ID', async () => {
+    await prepare()
+
+    await waitFor(() => {
+      const selectors = screen.getAllByRole('button').filter((el) => el.tagName === 'DIV')
+
+      expect(selectors.length).toBeGreaterThanOrEqual(4)
+    })
+  })
+
+  it('shows sparkle icon for Entra ID when no Entra ID premium integration', async () => {
+    mockOrganizationData = {
+      premiumIntegrations: [PremiumIntegrationTypeEnum.Okta],
+      authenticationMethods: [AuthenticationMethodsEnum.EmailPassword],
+    }
+
+    await prepare()
+
+    await waitFor(() => {
+      const sparkleIcons = screen.queryAllByTestId(/sparkles/)
+
+      expect(sparkleIcons.length).toBeGreaterThanOrEqual(1)
+    })
+  })
+
+  it('navigates to Entra ID details when clicking Entra ID selector with existing integration', async () => {
+    const user = userEvent.setup()
+
+    mockOrganizationData = {
+      premiumIntegrations: [PremiumIntegrationTypeEnum.EntraId],
+      authenticationMethods: [
+        AuthenticationMethodsEnum.EmailPassword,
+        AuthenticationMethodsEnum.EntraId,
+      ],
+    }
+
+    await prepare({ mocks: entraIdIntegrationsMock })
+
+    // Wait for the GraphQL query to resolve - 3 dots-horizontal icons appear
+    // (EmailPassword + GoogleOauth get theirs immediately, Entra ID only after query resolves;
+    // Okta shows the sparkles icon since it is not part of the premium integrations)
+    await waitFor(() => {
+      expect(screen.getAllByTestId(/dots-horizontal/).length).toBe(3)
+    })
+
+    const selectorButtons = screen.getAllByRole('button').filter((el) => el.tagName === 'DIV')
+
+    // Click the Entra ID selector (4th one)
+    await user.click(selectorButtons[3])
+
+    await waitFor(() => {
+      expect(testMockNavigateFn).toHaveBeenCalled()
+    })
+  })
+
+  it('opens Entra ID add dialog when clicking Entra ID without integration', async () => {
+    const user = userEvent.setup()
+
+    mockOrganizationData = {
+      premiumIntegrations: [PremiumIntegrationTypeEnum.EntraId],
+      authenticationMethods: [AuthenticationMethodsEnum.EmailPassword],
+    }
+
+    await prepare({ mocks: emptyIntegrationsMock })
+
+    await waitFor(() => {
+      const selectors = screen.getAllByRole('button').filter((el) => el.tagName === 'DIV')
+
+      expect(selectors.length).toBeGreaterThanOrEqual(4)
+    })
+
+    const selectorButtons = screen.getAllByRole('button').filter((el) => el.tagName === 'DIV')
+
+    // Click the Entra ID selector (4th one)
+    await user.click(selectorButtons[3])
+
+    await waitFor(() => {
+      const dialog = document.querySelector('[class*="MuiDialog"]')
+
+      expect(dialog).toBeInTheDocument()
+    })
+  })
+
+  it('opens premium warning when non-premium clicks Entra ID', async () => {
+    const user = userEvent.setup()
+
+    mockIsPremium = false
+
+    await prepare()
+
+    await waitFor(() => {
+      const selectors = screen.getAllByRole('button').filter((el) => el.tagName === 'DIV')
+
+      expect(selectors.length).toBeGreaterThanOrEqual(4)
+    })
+
+    const selectorButtons = screen.getAllByRole('button').filter((el) => el.tagName === 'DIV')
+
+    // Click the Entra ID selector (4th one)
+    await user.click(selectorButtons[3])
+
+    // Premium warning dialog should appear
+    await waitFor(() => {
+      const dialog = document.querySelector('[class*="MuiDialog"]')
+
+      expect(dialog).toBeInTheDocument()
+    })
+  })
+
+  it('shows edit and delete in Entra ID popper when integration exists', async () => {
+    const user = userEvent.setup()
+
+    mockOrganizationData = {
+      premiumIntegrations: [PremiumIntegrationTypeEnum.EntraId],
+      authenticationMethods: [
+        AuthenticationMethodsEnum.EmailPassword,
+        AuthenticationMethodsEnum.EntraId,
+      ],
+    }
+
+    await prepare({ mocks: entraIdIntegrationsMock })
+
+    // Wait for all 3 dots-horizontal icons (Entra ID's appears after query resolves,
+    // Okta shows the sparkles icon since it is not part of the premium integrations)
+    await waitFor(() => {
+      expect(screen.getAllByTestId(/dots-horizontal/).length).toBe(3)
+    })
+
+    // Click the Entra ID dots button (3rd one)
+    const dotsIcons = screen.getAllByTestId(/dots-horizontal/)
+    const entraIdDotsButton = dotsIcons[2].closest('button') as HTMLElement
+
+    await user.click(entraIdDotsButton)
+
+    // Should see pen (edit) and trash (delete) icons in the Entra ID popper
+    await waitFor(() => {
+      expect(screen.queryAllByTestId(/pen\//).length).toBeGreaterThanOrEqual(1)
+      expect(screen.queryAllByTestId(/trash\//).length).toBeGreaterThanOrEqual(1)
     })
   })
 

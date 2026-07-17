@@ -20,6 +20,8 @@ import {
   CurrentUserFragmentDoc,
   LagoApiError,
   useAcceptInviteMutation,
+  useEntraIdAcceptInviteMutation,
+  useFetchEntraIdAuthorizeUrlMutation,
   useFetchOktaAuthorizeUrlMutation,
   useGetinviteQuery,
   useGoogleAcceptInviteMutation,
@@ -29,6 +31,7 @@ import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { usePasswordValidation } from '~/hooks/forms/usePasswordValidation'
+import MicrosoftEntraId from '~/public/images/microsoft-entra-id.svg'
 import { Card, Page, StyledLogo, Subtitle, Title } from '~/styles/auth'
 
 import {
@@ -76,6 +79,18 @@ gql`
     }
   }
 
+  mutation fetchEntraIdAuthorizeUrl($input: EntraIdAuthorizeInput!) {
+    entraIdAuthorize(input: $input) {
+      url
+    }
+  }
+
+  mutation entraIdAcceptInvite($input: EntraIdAcceptInviteInput!) {
+    entraIdAcceptInvite(input: $input) {
+      token
+    }
+  }
+
   ${CurrentUserFragmentDoc}
 `
 
@@ -89,6 +104,8 @@ const Invitation = () => {
   const googleCode = searchParams.get('code') || ''
   const oktaCode = searchParams.get('oktaCode') || ''
   const oktaState = searchParams.get('oktaState') || ''
+  const entraIdCode = searchParams.get('entraIdCode') || ''
+  const entraIdState = searchParams.get('entraIdState') || ''
 
   const { data, error, loading } = useGetinviteQuery({
     context: { silentErrorCodes: [LagoApiError.InviteNotFound, LagoApiError.NotFound] },
@@ -134,6 +151,26 @@ const Invitation = () => {
       },
     })
 
+  const [
+    fetchEntraIdAuthorizeUrl,
+    { error: entraIdAuthorizeUrlError, loading: entraIdAuthorizeUrlLoading },
+  ] = useFetchEntraIdAuthorizeUrlMutation({
+    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
+    fetchPolicy: 'network-only',
+  })
+
+  const [
+    entraIdAcceptInvite,
+    { error: entraIdAcceptInviteError, loading: entraIdAcceptInviteLoading },
+  ] = useEntraIdAcceptInviteMutation({
+    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
+    onCompleted: async (res) => {
+      if (!!res?.entraIdAcceptInvite) {
+        await onLogIn(client, res?.entraIdAcceptInvite.token)
+      }
+    },
+  })
+
   const form = useAppForm({
     defaultValues: invitationDefaultValues,
     validationLogic: revalidateLogic(),
@@ -176,6 +213,26 @@ const Invitation = () => {
     }
   }
 
+  const onEntraIdLogin = async () => {
+    const { data: entraIdAuthorizeData } = await fetchEntraIdAuthorizeUrl({
+      variables: {
+        input: {
+          email: email || '',
+        },
+      },
+    })
+
+    if (entraIdAuthorizeData?.entraIdAuthorize?.url) {
+      window.location.href = addValuesToUrlState({
+        url: entraIdAuthorizeData.entraIdAuthorize.url,
+        values: {
+          invitationToken: token || '',
+        },
+        stateType: 'string',
+      })
+    }
+  }
+
   useEffect(() => {
     if (!!googleCode && !!token) {
       googleAcceptInvite({
@@ -205,12 +262,29 @@ const Invitation = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [oktaCode, oktaState, token])
 
+  useEffect(() => {
+    if (!!entraIdCode && !!entraIdState && !!token) {
+      entraIdAcceptInvite({
+        variables: {
+          input: {
+            code: entraIdCode,
+            state: entraIdState,
+            inviteToken: token || '',
+          },
+        },
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [entraIdCode, entraIdState, token])
+
   const errorTranslation: string | undefined = useMemo(() => {
     if (
       !acceptInviteError &&
       !googleAcceptInviteError &&
       !oktaAcceptInviteError &&
-      !oktaAuthorizeUrlError
+      !oktaAuthorizeUrlError &&
+      !entraIdAcceptInviteError &&
+      !entraIdAuthorizeUrlError
     )
       return
 
@@ -244,6 +318,20 @@ const Invitation = () => {
       })
     }
 
+    if (hasDefinedGQLError('DomainNotConfigured', entraIdAuthorizeUrlError)) {
+      return translate('text_1784307344255gbzqobkgkr0')
+    }
+
+    if (hasDefinedGQLError('EntraIdUserinfoError', entraIdAcceptInviteError)) {
+      return translate('text_178430734425582hoo5w7p20')
+    }
+
+    if (hasDefinedGQLError('LoginMethodNotAuthorized', entraIdAcceptInviteError)) {
+      return translate('text_17521583805554mlsol8fld6', {
+        method: translate('text_17843073442548zt904xoinv'),
+      })
+    }
+
     if (hasDefinedGQLError('LoginMethodNotAuthorized', googleAcceptInviteError)) {
       return translate('text_17521583805554mlsol8fld6', {
         method: translate('text_1752158380555upqjf6cxtq9'),
@@ -259,7 +347,14 @@ const Invitation = () => {
     return
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [acceptInviteError, googleAcceptInviteError, oktaAcceptInviteError, oktaAuthorizeUrlError])
+  }, [
+    acceptInviteError,
+    googleAcceptInviteError,
+    oktaAcceptInviteError,
+    oktaAuthorizeUrlError,
+    entraIdAcceptInviteError,
+    entraIdAuthorizeUrlError,
+  ])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -330,6 +425,17 @@ const Invitation = () => {
                   loading={oktaAuthorizeUrlLoading || oktaAcceptInviteLoading}
                 >
                   {translate('text_664c90c9b2b6c2012aa50bd5')}
+                </Button>
+
+                <Button
+                  fullWidth
+                  size="large"
+                  variant="tertiary"
+                  onClick={() => onEntraIdLogin()}
+                  loading={entraIdAuthorizeUrlLoading || entraIdAcceptInviteLoading}
+                >
+                  <MicrosoftEntraId className="mr-2 size-4" />
+                  {translate('text_1784307344255ojifndnfotw')}
                 </Button>
               </Stack>
 
