@@ -1,7 +1,7 @@
 import { IconName } from 'lago-design-system'
 import { generatePath } from 'react-router-dom'
 
-import { EDIT_ORDER_ROUTE, useNavigate } from '~/core/router'
+import { EDIT_ORDER_ROUTE, EXECUTE_ORDER_ROUTE, useNavigate } from '~/core/router'
 import { OrderListItemFragment, OrderStatusEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
@@ -53,6 +53,15 @@ export const useOrderActions = () => {
             }),
           ).catch(() => undefined)
         },
+      })
+    }
+
+    // Execute manually — only for created (not yet executed) orders, requires ordersExecute
+    if (order.status === OrderStatusEnum.Created && hasPermissions(['ordersExecute'])) {
+      actions.push({
+        icon: 'flash',
+        label: translate('text_17836939541574skv5dmaj06'),
+        onAction: () => navigate(generatePath(EXECUTE_ORDER_ROUTE, { orderId: order.id })),
       })
     }
 

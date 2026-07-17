@@ -67,9 +67,10 @@ describe('useOrderActions', () => {
       const { result } = renderHook(() => useOrderActions())
       const actions = result.current.getActions(createMockOrder())
 
-      expect(actions).toHaveLength(2)
+      expect(actions).toHaveLength(3)
       expect(actions[0].icon).toBe('pen')
       expect(actions[1].icon).toBe('download')
+      expect(actions[2].icon).toBe('flash')
     })
   })
 
@@ -148,6 +149,41 @@ describe('useOrderActions', () => {
         },
       })
       expect(mockDownload).toHaveBeenCalledWith({ content: '# Hello World' })
+    })
+  })
+
+  describe('execute-manually action', () => {
+    it('appears for a created order with ordersExecute permission and navigates to the execute route', () => {
+      mockHasPermissions.mockImplementation((perms: string[]) => perms.includes('ordersExecute'))
+
+      const { result } = renderHook(() => useOrderActions())
+      const actions = result.current.getActions(createMockOrder())
+      const execute = actions.find((a) => a.icon === 'flash')
+
+      expect(execute).toBeDefined()
+
+      execute?.onAction()
+      expect(testMockNavigateFn).toHaveBeenCalledWith('/order/order-1/execute')
+    })
+
+    it('is absent for an executed order even with ordersExecute permission', () => {
+      mockHasPermissions.mockReturnValue(true)
+
+      const { result } = renderHook(() => useOrderActions())
+      const actions = result.current.getActions(
+        createMockOrder({ status: OrderStatusEnum.Executed }),
+      )
+
+      expect(actions.find((a) => a.icon === 'flash')).toBeUndefined()
+    })
+
+    it('is absent without ordersExecute permission', () => {
+      mockHasPermissions.mockImplementation((perms: string[]) => perms.includes('ordersUpdate'))
+
+      const { result } = renderHook(() => useOrderActions())
+      const actions = result.current.getActions(createMockOrder())
+
+      expect(actions.find((a) => a.icon === 'flash')).toBeUndefined()
     })
   })
 })
