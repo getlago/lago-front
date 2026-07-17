@@ -1,5 +1,6 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { StrictMode } from 'react'
 
 import {
   CLOSE_CREATE_WALLET_BUTTON_DATA_TEST,
@@ -15,10 +16,14 @@ const mockCreateWallet = jest.fn(() => Promise.resolve({ errors: undefined }))
 const mockUpdateWallet = jest.fn(() => Promise.resolve({ errors: undefined }))
 
 let mockWalletData: unknown = undefined
+let mockWalletLoading = false
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useParams: () => ({ customerId: 'customer-id', walletId: mockWalletData ? 'wallet-id' : '' }),
+  useParams: () => ({
+    customerId: 'customer-id',
+    walletId: mockWalletData || mockWalletLoading ? 'wallet-id' : '',
+  }),
 }))
 
 jest.mock('~/core/router', () => ({
@@ -65,7 +70,7 @@ jest.mock('~/generated/graphql', () => ({
   }),
   useGetWalletInfosForWalletFormQuery: () => ({
     data: mockWalletData ? { wallet: mockWalletData } : undefined,
-    loading: false,
+    loading: mockWalletLoading,
   }),
   useCreateCustomerWalletMutation: () => [mockCreateWallet],
   useUpdateCustomerWalletMutation: () => [mockUpdateWallet],
@@ -83,6 +88,7 @@ describe('CreateWallet', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockWalletData = undefined
+    mockWalletLoading = false
   })
 
   describe('GIVEN the creation mode', () => {
@@ -92,6 +98,8 @@ describe('CreateWallet', () => {
 
         render(<CreateWallet />)
 
+        // code is required — typing a name auto-generates it
+        await user.type(queryInput('name'), 'My wallet')
         await user.click(screen.getByTestId(SUBMIT_WALLET_DATA_TEST))
 
         await waitFor(() => {
@@ -99,6 +107,8 @@ describe('CreateWallet', () => {
             variables: {
               input: expect.objectContaining({
                 customerId: 'customer-id',
+                name: 'My wallet',
+                code: 'my_wallet',
                 currency: CurrencyEnum.Usd,
                 rateAmount: '1.00',
                 paidCredits: '0',
@@ -112,6 +122,21 @@ describe('CreateWallet', () => {
           })
         })
         expect(mockNavigate).toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN submitting without a code', () => {
+      it('THEN should block the submission and not call the mutation', async () => {
+        const user = userEvent.setup()
+
+        render(<CreateWallet />)
+
+        await user.click(screen.getByTestId(SUBMIT_WALLET_DATA_TEST))
+
+        await waitFor(() => {
+          expect(mockCreateWallet).not.toHaveBeenCalled()
+        })
+        expect(mockNavigate).not.toHaveBeenCalled()
       })
     })
 
@@ -170,6 +195,7 @@ describe('CreateWallet', () => {
         currency: 'USD',
         expirationAt: null,
         name: 'Existing wallet',
+        code: 'abc',
         rateAmount: '2',
         invoiceRequiresSuccessfulPayment: false,
         paidTopUpMinAmountCents: null,
@@ -192,6 +218,44 @@ describe('CreateWallet', () => {
 
         expect(rateInput).toHaveValue('2.00')
         expect(rateInput).toBeDisabled()
+      })
+
+      it('THEN should prefill the wallet name and code', () => {
+        render(<CreateWallet />)
+
+        expect(queryInput('name')).toHaveValue('Existing wallet')
+        expect(queryInput('code')).toHaveValue('abc')
+      })
+
+      it('THEN should prefill when the wallet arrives asynchronously', async () => {
+        // mirror the real page: skeleton while the query is in flight,
+        // wallet data landing on a later render — under StrictMode like the app
+        const walletData = mockWalletData
+
+        mockWalletData = undefined
+        mockWalletLoading = true
+
+        const { rerender } = render(
+          <StrictMode>
+            <CreateWallet />
+          </StrictMode>,
+        )
+
+        expect(queryInput('code')).toBeNull()
+
+        mockWalletData = walletData
+        mockWalletLoading = false
+        rerender(
+          <StrictMode>
+            <CreateWallet />
+          </StrictMode>,
+        )
+
+        await waitFor(() => {
+          expect(queryInput('code')).toHaveValue('abc')
+        })
+        expect(queryInput('name')).toHaveValue('Existing wallet')
+        expect(queryInput('rateAmount')).toHaveValue('2.00')
       })
     })
 
