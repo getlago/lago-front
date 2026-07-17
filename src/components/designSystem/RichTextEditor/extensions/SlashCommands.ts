@@ -2,6 +2,7 @@ import { Extension } from '@tiptap/core'
 import { NodeSelection } from '@tiptap/pm/state'
 import { Editor, Range, ReactRenderer } from '@tiptap/react'
 import Suggestion, { SuggestionKeyDownProps, SuggestionProps } from '@tiptap/suggestion'
+import { IconName } from 'lago-design-system'
 import tippy, { type Instance as TippyInstance } from 'tippy.js'
 
 import type { OnDiscountCommand, OnPricingCommand } from '../common/RichTextEditorContext'
@@ -11,12 +12,14 @@ export interface SlashCommandItem {
   title: string
   description: string
   command: (editor: Editor) => void
+  icon: IconName
   disabled?: boolean
 }
 
 interface SlashCommandDefinition {
   titleKey: string
   descriptionKey: string
+  icon: IconName
   command: (editor: Editor) => void
 }
 
@@ -24,32 +27,38 @@ export const slashCommandDefinitions: SlashCommandDefinition[] = [
   {
     titleKey: 'text_1774281559656dn2u208gh80',
     descriptionKey: 'text_1774281559656pla0xamsvmf',
+    icon: 'h1',
     command: (editor) => editor.chain().focus().toggleHeading({ level: 1 }).run(),
   },
   {
     titleKey: 'text_1774281559657ec0exeaqqd3',
     descriptionKey: 'text_1774281559657q7h8pu6455p',
+    icon: 'h2',
     command: (editor) => editor.chain().focus().toggleHeading({ level: 2 }).run(),
   },
   {
     titleKey: 'text_1774281559657t0kkn628zdy',
     descriptionKey: 'text_1774281559657o48ilt0rq5y',
+    icon: 'h3',
     command: (editor) => editor.chain().focus().toggleHeading({ level: 3 }).run(),
   },
   {
     titleKey: 'text_1774281559657cbz20fzcjka',
+    icon: 'list-bullet',
     descriptionKey: 'text_17742815596575m8mqwrg1qy',
     command: (editor) => editor.chain().focus().toggleBulletList().run(),
   },
   {
     titleKey: 'text_1774281559657yc3z031hm6x',
     descriptionKey: 'text_1774281559657y9saycc2aev',
+    icon: 'table-horizontale',
     command: (editor) =>
       editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run(),
   },
   {
     titleKey: 'text_1774281559657l4kkx9ws4mz',
     descriptionKey: 'text_1774281559657qdknwsvn5ka',
+    icon: 'code',
     command: (editor) => editor.chain().focus().toggleCodeBlock().run(),
   },
 ]
@@ -135,6 +144,7 @@ export const SlashCommands = Extension.create({
     const resolvedItems: SlashCommandItem[] = slashCommandDefinitions.map((def) => ({
       title: translate(def.titleKey),
       description: translate(def.descriptionKey),
+      icon: def.icon,
       command: def.command,
     }))
 
@@ -144,6 +154,7 @@ export const SlashCommands = Extension.create({
       pricingItem = {
         title: translate('text_1779802343219a1cl5ckvtrn'),
         description: translate('text_1779802343219rul1jvs7170'),
+        icon: 'board',
         command: (editor) => {
           onPricingCommand({
             onSave: (attrs) => {
@@ -167,6 +178,7 @@ export const SlashCommands = Extension.create({
       const discountItem: SlashCommandItem = {
         title: translate('text_1782889379261hdcd0jhzdm6'),
         description: translate('text_178288937926153opd9g5cwg'),
+        icon: 'coupon',
         command: (editor) => {
           onDiscountCommand({
             onSave: (attrs) => {
