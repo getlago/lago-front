@@ -24,7 +24,7 @@ describe('useOrdersColumns', () => {
       'orderForm.quote.number',
       'orderForm.number',
       'executionMode',
-      'executedAt',
+      'executeAt',
     ])
     expect(result.current[0].title).toBe('text_1782392058759pmmuy0h997w')
   })
@@ -37,7 +37,7 @@ describe('useOrdersColumns', () => {
       'status',
       'orderForm.number',
       'executionMode',
-      'executedAt',
+      'executeAt',
     ])
   })
 })

@@ -40,7 +40,7 @@ const createMockOrder = (
   number: 'OR-2026-0001',
   status: OrderStatusEnum.Created,
   executionMode: null,
-  executedAt: null,
+  executeAt: null,
   customer: { id: 'customer-001', displayName: 'Acme Corp' },
   orderForm: {
     id: 'of-1',

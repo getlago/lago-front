@@ -46,7 +46,7 @@ const mockOrders = [
     number: 'ORD-2026-0001',
     status: OrderStatusEnum.Executed,
     executionMode: OrderExecutionModeEnum.ExecuteInLago,
-    executedAt: '2026-04-10T10:00:00Z',
+    executeAt: '2026-04-10T10:00:00Z',
     customer: { id: 'customer-001', displayName: 'Acme Corp' },
     orderForm: {
       id: 'of-1',
@@ -64,7 +64,7 @@ const mockOrders = [
     number: 'ORD-2026-0002',
     status: OrderStatusEnum.Created,
     executionMode: null,
-    executedAt: null,
+    executeAt: null,
     customer: { id: 'customer-002', displayName: 'Globex Corp' },
     orderForm: {
       id: 'of-2',
