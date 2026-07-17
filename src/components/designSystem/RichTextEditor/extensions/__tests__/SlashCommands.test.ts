@@ -62,6 +62,7 @@ const resolveItems = () =>
   slashCommandDefinitions.map((def) => ({
     title: mockTranslate(def.titleKey),
     description: mockTranslate(def.descriptionKey),
+    icon: def.icon,
     command: def.command,
   }))
 
@@ -94,6 +95,16 @@ describe('SlashCommands', () => {
           expect(typeof def.command).toBe('function')
         },
       )
+
+      it('THEN should expose the expected icon for each definition', () => {
+        const icons = slashCommandDefinitions.map((def) => def.icon)
+
+        expect(icons).toEqual(['h1', 'h2', 'h3', 'list-bullet', 'table-horizontale', 'code'])
+      })
+
+      it.each(slashCommandDefinitions)('THEN each definition should have an icon', (def) => {
+        expect(def.icon).toBeTruthy()
+      })
     })
 
     describe('GIVEN the suggestion config', () => {
@@ -637,7 +648,7 @@ describe('SlashCommands', () => {
         storage.triggerMenu(() => new DOMRect())
 
         const rendererProps = ReactRendererMock.mock.calls[0][1].props as {
-          items: Array<{ title: string; command: (editor: Editor) => void }>
+          items: Array<{ title: string; icon: string; command: (editor: Editor) => void }>
           command: (item: { title: string; command: (editor: Editor) => void }) => void
         }
         const pricingItem = rendererProps.items.find(
@@ -645,10 +656,11 @@ describe('SlashCommands', () => {
         )
 
         expect(pricingItem).toBeDefined()
+        expect(pricingItem?.icon).toBe('board')
 
         // Execute the pricing command through the menu's command callback
         rendererProps.command(
-          pricingItem as { title: string; disabled: boolean; command: jest.Mock },
+          pricingItem as { title: string; icon: string; disabled: boolean; command: jest.Mock },
         )
 
         expect(mockOnPricingCommand).toHaveBeenCalledWith({ onSave: expect.any(Function) })
@@ -1140,13 +1152,14 @@ describe('SlashCommands', () => {
         storage.triggerMenu(() => new DOMRect())
 
         const rendererProps = ReactRendererMock.mock.calls[0][1].props as {
-          items: Array<{ title: string; command: (editor: Editor) => void }>
+          items: Array<{ title: string; icon: string; command: (editor: Editor) => void }>
         }
         const discountItem = rendererProps.items.find(
           (item) => item.title === mockTranslate('text_1782889379261hdcd0jhzdm6'),
         )
 
         expect(discountItem).toBeDefined()
+        expect(discountItem?.icon).toBe('coupon')
 
         document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
         editor.destroy()
