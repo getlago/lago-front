@@ -167,7 +167,11 @@ export const useMyDialog = () => {
           </div>
         ),
         closeOnError: false,
-        onEntered: focusFirstInput,
+        // onEntered: CLASSIFY THE FIRST FIELD FIRST (see section 2, decision table). Do NOT
+        // default to focusFirstInput. Pick exactly one branch:
+        //   2a plain-input-first  → onEntered: focusFirstInput
+        //   2b combobox-first/only → onEntered clicks the combobox MuiInputBase-root (opens dropdown)
+        onEntered: /* branch 2a or 2b — see section 2 */ focusFirstInput,
         mainAction: (
           <form.AppForm>
             <form.SubmitButton>{translate('...')}</form.SubmitButton>
@@ -440,6 +444,9 @@ export const useMyFormDialog = () => {
           </div>
         ),
         closeOnError: false,
+        // onEntered: CLASSIFY THE FIRST FIELD FIRST (see section 2, decision table). This example's
+        // first field is a TextInputField, so branch 2a (focusFirstInput) applies. A combobox-first
+        // dialog needs branch 2b (click the combobox MuiInputBase-root to open its dropdown).
         onEntered: focusFirstInput,
         mainAction: (
           <form.AppForm>
@@ -541,6 +548,9 @@ Add (for FormDialog):
 import { useRef } from 'react'
 import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { DialogResult } from '~/components/dialogs/types'
+// Only for branch 2a (plain-input-first). Branch 2b (combobox-first/only) does NOT import
+// focusFirstInput — it imports MUI_INPUT_BASE_ROOT_CLASSNAME + a field className from
+// ~/core/constants/form and clicks the combobox MuiInputBase-root in onEntered. See section 2.
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 ```
 
@@ -556,6 +566,9 @@ Or (for FormDialogOpeningDialog):
 import { useRef } from 'react'
 import { useFormDialogOpeningDialog } from '~/components/dialogs/FormDialogOpeningDialog'
 import { DialogResult } from '~/components/dialogs/types'
+// Only for branch 2a (plain-input-first). Branch 2b (combobox-first/only) does NOT import
+// focusFirstInput — it imports MUI_INPUT_BASE_ROOT_CLASSNAME + a field className from
+// ~/core/constants/form and clicks the combobox MuiInputBase-root in onEntered. See section 2.
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 ```
 

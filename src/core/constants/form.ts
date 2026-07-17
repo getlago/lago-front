@@ -47,6 +47,7 @@ export const SEARCH_TAX_INPUT_FOR_ADD_ON_CLASSNAME = 'searchTaxForAddOnInput'
 // Invoices
 export const SEARCH_TAX_INPUT_FOR_INVOICE_ADD_ON_CLASSNAME = 'searchTaxForInvoiceAddOnInput'
 export const ADD_ITEM_FOR_INVOICE_INPUT_NAME = 'addItemInput'
+export const NET_PAYMENT_TERM_INPUT_CLASSNAME = 'netPaymentTermInput'
 // Billing entity
 export const SEARCH_INVOICE_CUSTOM_SECTION_INPUT_CLASSNAME = 'searchInvoiceCustomSectionInput'
 // Customer
