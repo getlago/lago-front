@@ -58,6 +58,11 @@ const TestNetsuiteAccountingProviderContentWrapper = ({
   return (
     <NetsuiteAccountingProviderContent
       form={form}
+      fields={{
+        externalCustomerId: 'accountingCustomer.accountingCustomerId',
+        syncWithProvider: 'accountingCustomer.syncWithProvider',
+        subsidiaryId: 'accountingCustomer.subsidiaryId',
+      }}
       hadInitialNetsuiteIntegrationCustomer={hadInitialNetsuiteIntegrationCustomer}
       selectedNetsuiteIntegration={selectedNetsuiteIntegration}
       isEdition={isEdition}

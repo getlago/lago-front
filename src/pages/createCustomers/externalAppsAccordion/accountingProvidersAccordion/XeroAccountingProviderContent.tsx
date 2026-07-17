@@ -2,8 +2,8 @@ import { useStore } from '@tanstack/react-form'
 
 import { XeroIntegration } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { withForm } from '~/hooks/forms/useAppform'
-import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
+import { withFieldGroup } from '~/hooks/forms/useAppform'
+import { connectionFieldGroupDefaultValues } from '~/pages/createCustomers/externalAppsAccordion/common/connectionFieldGroup'
 
 type XeroAccountingProviderContentProps = {
   hadInitialXeroIntegrationCustomer: boolean
@@ -17,31 +17,28 @@ const defaultProps: XeroAccountingProviderContentProps = {
   isEdition: false,
 }
 
-const XeroAccountingProviderContent = withForm({
-  defaultValues: emptyCreateCustomerDefaultValues,
+const XeroAccountingProviderContent = withFieldGroup({
+  defaultValues: connectionFieldGroupDefaultValues,
   props: defaultProps,
   render: function Render({
-    form,
+    group,
     hadInitialXeroIntegrationCustomer,
     selectedXeroIntegration,
     isEdition,
   }) {
     const { translate } = useInternationalization()
 
-    const syncWithProvider = useStore(
-      form.store,
-      (state) => state.values.accountingCustomer?.syncWithProvider,
-    )
+    const syncWithProvider = useStore(group.store, (state) => state.values.syncWithProvider)
 
     const handleSyncWithProviderChange = (value: boolean | undefined) => {
       if (!value || isEdition) return
 
-      form.setFieldValue('accountingCustomer.accountingCustomerId', '')
+      group.setFieldValue('externalCustomerId', '')
     }
 
     return (
       <>
-        <form.AppField name="accountingCustomer.accountingCustomerId">
+        <group.AppField name="externalCustomerId">
           {(field) => (
             <field.TextInputField
               disabled={!!syncWithProvider || hadInitialXeroIntegrationCustomer}
@@ -49,9 +46,9 @@ const XeroAccountingProviderContent = withForm({
               placeholder={translate('text_667d39dc1a765800d28d0605')}
             />
           )}
-        </form.AppField>
-        <form.AppField
-          name="accountingCustomer.syncWithProvider"
+        </group.AppField>
+        <group.AppField
+          name="syncWithProvider"
           listeners={{
             onChange: ({ value }) => handleSyncWithProviderChange(value),
           }}
@@ -64,7 +61,7 @@ const XeroAccountingProviderContent = withForm({
               })}
             />
           )}
-        </form.AppField>
+        </group.AppField>
       </>
     )
   },

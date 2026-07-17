@@ -1,6 +1,7 @@
 import { useStore } from '@tanstack/react-form'
 import { Dispatch, ReactNode, SetStateAction, useMemo } from 'react'
 
+import { buildConnectionComboBoxData } from '~/components/customerConnections/ConnectionComboBox'
 import { Accordion } from '~/components/designSystem/Accordion'
 import { Alert } from '~/components/designSystem/Alert'
 import { Avatar } from '~/components/designSystem/Avatar'
@@ -74,17 +75,14 @@ const PaymentProvidersAccordion = withForm({
     const connectedPaymentProvidersData: ComboboxDataGrouped[] | [] = useMemo(() => {
       if (!paymentProviders?.paymentProviders?.collection.length) return []
 
-      return paymentProviders?.paymentProviders?.collection.map((provider) => ({
-        value: provider.code,
-        label: provider.name,
-        group: provider.__typename.toLocaleLowerCase().replace('provider', ''),
-        labelNode: (
-          <ExternalAppsAccordionLayout.ComboboxItem
-            label={provider.name}
-            subLabel={provider.code}
-          />
-        ),
-      }))
+      return buildConnectionComboBoxData(
+        paymentProviders.paymentProviders.collection.map((provider) => ({
+          value: provider.code,
+          label: provider.name,
+          subLabel: provider.code,
+          group: provider.__typename.toLocaleLowerCase().replace('provider', ''),
+        })),
+      )
     }, [paymentProviders?.paymentProviders?.collection])
 
     const isSyncWithProviderSupported = useMemo(() => {
@@ -236,7 +234,12 @@ const PaymentProvidersAccordion = withForm({
             )}
 
             {paymentProvider === ProviderTypeEnum.Stripe && (
-              <StripePaymentProviderContent form={form} />
+              <StripePaymentProviderContent
+                form={form}
+                fields={{
+                  providerPaymentMethods: 'paymentProviderCustomer.providerPaymentMethods',
+                }}
+              />
             )}
           </div>
         </Accordion>

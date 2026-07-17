@@ -1,6 +1,7 @@
 import { useStore } from '@tanstack/react-form'
 import { Dispatch, SetStateAction, useMemo } from 'react'
 
+import { buildConnectionComboBoxData } from '~/components/customerConnections/ConnectionComboBox'
 import { Accordion } from '~/components/designSystem/Accordion'
 import { Alert } from '~/components/designSystem/Alert'
 import { Avatar } from '~/components/designSystem/Avatar'
@@ -120,17 +121,14 @@ const AccountingProvidersAccordion = withForm({
     const connectedAccountingIntegrationsData: ComboboxDataGrouped[] | [] = useMemo(() => {
       if (!allAccountingIntegrationsData?.length) return []
 
-      return allAccountingIntegrationsData?.map((integration) => ({
-        value: integration.code,
-        label: integration.name,
-        group: integration?.__typename?.replace('Integration', '') || '',
-        labelNode: (
-          <ExternalAppsAccordionLayout.ComboboxItem
-            label={integration.name}
-            subLabel={integration.code}
-          />
-        ),
-      }))
+      return buildConnectionComboBoxData(
+        allAccountingIntegrationsData.map((integration) => ({
+          value: integration.code,
+          label: integration.name,
+          subLabel: integration.code,
+          group: integration?.__typename?.replace('Integration', '') || '',
+        })),
+      )
     }, [allAccountingIntegrationsData])
 
     const getAccordionSummaryAvatar = () => {
@@ -210,6 +208,11 @@ const AccountingProvidersAccordion = withForm({
             {!!selectedNetsuiteIntegration && (
               <NetsuiteAccountingProviderContent
                 form={form}
+                fields={{
+                  externalCustomerId: 'accountingCustomer.accountingCustomerId',
+                  syncWithProvider: 'accountingCustomer.syncWithProvider',
+                  subsidiaryId: 'accountingCustomer.subsidiaryId',
+                }}
                 hadInitialNetsuiteIntegrationCustomer={hadInitialNetsuiteIntegrationCustomer}
                 selectedNetsuiteIntegration={selectedNetsuiteIntegration}
                 isEdition={isEdition}
@@ -219,6 +222,10 @@ const AccountingProvidersAccordion = withForm({
             {!!selectedXeroIntegration && (
               <XeroAccountingProviderContent
                 form={form}
+                fields={{
+                  externalCustomerId: 'accountingCustomer.accountingCustomerId',
+                  syncWithProvider: 'accountingCustomer.syncWithProvider',
+                }}
                 hadInitialXeroIntegrationCustomer={hadInitialXeroIntegrationCustomer}
                 selectedXeroIntegration={selectedXeroIntegration}
                 isEdition={isEdition}

@@ -35,6 +35,10 @@ const TestAvalaraTaxProviderContentWrapper = ({
   return (
     <AvalaraTaxProviderContent
       form={form}
+      fields={{
+        externalCustomerId: 'taxCustomer.taxCustomerId',
+        syncWithProvider: 'taxCustomer.syncWithProvider',
+      }}
       hadInitialAvalaraIntegrationCustomer={hadInitialAvalaraIntegrationCustomer}
       selectedAvalaraIntegration={selectedAvalaraIntegration}
       isEdition={isEdition}

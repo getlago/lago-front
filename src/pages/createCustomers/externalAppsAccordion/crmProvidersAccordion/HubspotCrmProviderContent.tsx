@@ -3,8 +3,11 @@ import { useStore } from '@tanstack/react-form'
 import { getHubspotTargetedObjectTranslationKey } from '~/core/constants/form'
 import { HubspotIntegration, HubspotTargetedObjectsEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { withForm } from '~/hooks/forms/useAppform'
-import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
+import { withFieldGroup } from '~/hooks/forms/useAppform'
+import {
+  connectionFieldGroupDefaultValues,
+  ConnectionFieldGroupValues,
+} from '~/pages/createCustomers/externalAppsAccordion/common/connectionFieldGroup'
 
 type HubspotCrmProviderContentProps = {
   hadInitialHubspotIntegrationCustomer: boolean
@@ -16,6 +19,15 @@ const defaultProps: HubspotCrmProviderContentProps = {
   hadInitialHubspotIntegrationCustomer: false,
   selectedHubspotIntegration: undefined,
   isEdition: false,
+}
+
+type HubspotConnectionValues = ConnectionFieldGroupValues & {
+  targetedObject: HubspotTargetedObjectsEnum | undefined
+}
+
+const defaultValues: HubspotConnectionValues = {
+  ...connectionFieldGroupDefaultValues,
+  targetedObject: undefined,
 }
 
 const hubspotExternalIdTypeCopyMap: Record<
@@ -32,23 +44,20 @@ const hubspotExternalIdTypeCopyMap: Record<
   },
 }
 
-const HubspotCrmProviderContent = withForm({
-  defaultValues: emptyCreateCustomerDefaultValues,
+const HubspotCrmProviderContent = withFieldGroup({
+  defaultValues,
   props: defaultProps,
   render: function Render({
-    form,
+    group,
     hadInitialHubspotIntegrationCustomer,
     selectedHubspotIntegration,
     isEdition,
   }) {
     const { translate } = useInternationalization()
 
-    const syncWithProvider = useStore(
-      form.store,
-      (state) => state.values.crmCustomer?.syncWithProvider,
-    )
+    const syncWithProvider = useStore(group.store, (state) => state.values.syncWithProvider)
 
-    const targetedObject = useStore(form.store, (state) => state.values.crmCustomer?.targetedObject)
+    const targetedObject = useStore(group.store, (state) => state.values.targetedObject)
 
     const targetedObjectdata = [
       {
@@ -68,12 +77,12 @@ const HubspotCrmProviderContent = withForm({
     const handleSyncWithProviderChange = (value: boolean | undefined) => {
       if (!value || isEdition) return
 
-      form.setFieldValue('crmCustomer.crmCustomerId', '')
+      group.setFieldValue('externalCustomerId', '')
     }
 
     return (
       <>
-        <form.AppField name="crmCustomer.targetedObject">
+        <group.AppField name="targetedObject">
           {(field) => (
             <field.ComboBoxField
               disableClearable
@@ -83,10 +92,10 @@ const HubspotCrmProviderContent = withForm({
               PopperProps={{ displayInDialog: true }}
             />
           )}
-        </form.AppField>
+        </group.AppField>
         {!!targetedObject && (
           <>
-            <form.AppField name="crmCustomer.crmCustomerId">
+            <group.AppField name="externalCustomerId">
               {(field) => (
                 <field.TextInputField
                   disabled={!!syncWithProvider || hadInitialHubspotIntegrationCustomer}
@@ -96,9 +105,9 @@ const HubspotCrmProviderContent = withForm({
                   )}
                 />
               )}
-            </form.AppField>
-            <form.AppField
-              name="crmCustomer.syncWithProvider"
+            </group.AppField>
+            <group.AppField
+              name="syncWithProvider"
               listeners={{
                 onChange: ({ value }) => handleSyncWithProviderChange(value),
               }}
@@ -111,7 +120,7 @@ const HubspotCrmProviderContent = withForm({
                   })}
                 />
               )}
-            </form.AppField>
+            </group.AppField>
           </>
         )}
       </>

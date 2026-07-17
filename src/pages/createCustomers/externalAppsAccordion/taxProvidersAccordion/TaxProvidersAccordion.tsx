@@ -1,6 +1,7 @@
 import { useStore } from '@tanstack/react-form'
 import { Dispatch, SetStateAction, useMemo } from 'react'
 
+import { buildConnectionComboBoxData } from '~/components/customerConnections/ConnectionComboBox'
 import { Accordion } from '~/components/designSystem/Accordion'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Typography } from '~/components/designSystem/Typography'
@@ -111,17 +112,14 @@ const TaxProvidersAccordion = withForm({
     const connectedTaxIntegrationsData: ComboboxDataGrouped[] | [] = useMemo(() => {
       if (!allAccountingIntegrationsData?.length) return []
 
-      return allAccountingIntegrationsData?.map((integration) => ({
-        value: integration.code,
-        label: integration.name,
-        group: integration?.__typename?.replace('Integration', '') || '',
-        labelNode: (
-          <ExternalAppsAccordionLayout.ComboboxItem
-            label={integration.name}
-            subLabel={integration.code}
-          />
-        ),
-      }))
+      return buildConnectionComboBoxData(
+        allAccountingIntegrationsData.map((integration) => ({
+          value: integration.code,
+          label: integration.name,
+          subLabel: integration.code,
+          group: integration?.__typename?.replace('Integration', '') || '',
+        })),
+      )
     }, [allAccountingIntegrationsData])
 
     const getAccordionSummaryAvatar = () => {
@@ -199,6 +197,10 @@ const TaxProvidersAccordion = withForm({
             {!!selectedAnrokIntegration && (
               <AnrokTaxProviderContent
                 form={form}
+                fields={{
+                  externalCustomerId: 'taxCustomer.taxCustomerId',
+                  syncWithProvider: 'taxCustomer.syncWithProvider',
+                }}
                 hadInitialAnrokIntegrationCustomer={hadInitialAnrokIntegrationCustomer}
                 selectedAnrokIntegration={selectedAnrokIntegration}
                 isEdition={isEdition}
@@ -208,6 +210,10 @@ const TaxProvidersAccordion = withForm({
             {!!selectedAvalaraIntegration && (
               <AvalaraTaxProviderContent
                 form={form}
+                fields={{
+                  externalCustomerId: 'taxCustomer.taxCustomerId',
+                  syncWithProvider: 'taxCustomer.syncWithProvider',
+                }}
                 hadInitialAvalaraIntegrationCustomer={hadInitialAvalaraIntegrationCustomer}
                 selectedAvalaraIntegration={selectedAvalaraIntegration}
                 isEdition={isEdition}

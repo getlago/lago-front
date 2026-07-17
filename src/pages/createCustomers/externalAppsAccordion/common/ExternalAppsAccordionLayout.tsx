@@ -1,27 +1,18 @@
 import { Icon } from 'lago-design-system'
 import { FC, ReactNode } from 'react'
 
+import { ConnectionComboBoxLabel } from '~/components/customerConnections/ConnectionComboBox'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
-import { ComboboxItem } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 const ExternalAppsAccordionComboboxItem: FC<{
   label: string
   subLabel: string
 }> = ({ label, subLabel }) => {
-  return (
-    <ComboboxItem>
-      <Typography variant="body" color="grey700" noWrap>
-        {label}
-      </Typography>
-      <Typography variant="caption" color="grey600" noWrap>
-        {subLabel}
-      </Typography>
-    </ComboboxItem>
-  )
+  return <ConnectionComboBoxLabel label={label} subLabel={subLabel} />
 }
 
 const ExternalAppsAccordionSummary: FC<{
