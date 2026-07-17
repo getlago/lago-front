@@ -10,7 +10,11 @@ import {
 } from '~/components/dialogs/const'
 import FormDialogOpeningDialog from '~/components/dialogs/FormDialogOpeningDialog'
 import { initializeTranslations } from '~/core/apolloClient'
-import { CreateEntraIdIntegrationDocument } from '~/generated/graphql'
+import {
+  AddEntraIdIntegrationDialogFragment,
+  CreateEntraIdIntegrationDocument,
+  UpdateEntraIdIntegrationDocument,
+} from '~/generated/graphql'
 import {
   ENTRA_ID_INTEGRATION_SUBMIT_BTN,
   useAddEntraIdDialog,
@@ -209,6 +213,99 @@ describe('AddEntraIdDialog', () => {
     // After submit attempt with empty domain (required), button should be disabled
     await waitFor(() => {
       expect(screen.getByTestId(ENTRA_ID_INTEGRATION_SUBMIT_BTN)).toBeDisabled()
+    })
+  })
+
+  describe('edition mode', () => {
+    const existingIntegration: AddEntraIdIntegrationDialogFragment = {
+      id: 'integration-id',
+      name: 'Entra ID Integration',
+      domain: 'example.com',
+      clientId: 'client-id',
+      clientSecret: 'client-secret',
+      tenantId: 'tenant-id',
+      host: 'login.microsoftonline.com',
+    }
+
+    const TestEditComponent = () => {
+      const { openAddEntraIdDialog } = useAddEntraIdDialog()
+
+      useEffect(() => {
+        openAddEntraIdDialog({
+          integration: existingIntegration,
+          callback: mockOnSubmit,
+        })
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, [])
+
+      return null
+    }
+
+    async function prepareEdit({ mocks = [] }: { mocks?: TestMocksType } = {}) {
+      await act(() =>
+        render(
+          <NiceModalWrapper>
+            <TestEditComponent />
+          </NiceModalWrapper>,
+          { mocks },
+        ),
+      )
+
+      await waitFor(() => {
+        expect(screen.getByLabelText(/Your domain name/i)).toBeInTheDocument()
+      })
+    }
+
+    it('prefills the form with the integration values', async () => {
+      await prepareEdit()
+
+      expect(screen.getByLabelText(/Your domain name/i)).toHaveValue('example.com')
+      expect(screen.getByLabelText(/Host \(optional\)/i)).toHaveValue('login.microsoftonline.com')
+      expect(screen.getByLabelText(/Entra ID client ID/i)).toHaveValue('client-id')
+      expect(screen.getByLabelText(/Entra ID client secret/i)).toHaveValue('client-secret')
+      expect(screen.getByLabelText(/Entra ID tenant ID/i)).toHaveValue('tenant-id')
+    })
+
+    it('updates the integration on submit', async () => {
+      const mocks: TestMocksType = [
+        {
+          request: {
+            query: UpdateEntraIdIntegrationDocument,
+            variables: {
+              input: {
+                domain: 'edited.com',
+                host: 'login.microsoftonline.com',
+                clientId: 'client-id',
+                clientSecret: 'client-secret',
+                tenantId: 'tenant-id',
+                id: 'integration-id',
+              },
+            },
+          },
+          result: {
+            data: {
+              updateEntraIdIntegration: {
+                id: 'integration-id',
+              },
+            },
+          },
+        },
+      ]
+
+      await prepareEdit({ mocks })
+
+      const domainInput = screen.getByLabelText(/Your domain name/i)
+
+      await userEvent.clear(domainInput)
+      await userEvent.type(domainInput, 'edited.com')
+
+      const submitButton = screen.getByTestId(ENTRA_ID_INTEGRATION_SUBMIT_BTN)
+
+      await userEvent.click(submitButton)
+
+      await waitFor(() => {
+        expect(mockOnSubmit).toHaveBeenCalledWith('integration-id')
+      })
     })
   })
 })
