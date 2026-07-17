@@ -70,9 +70,9 @@ const EntraIdAuthenticationDetails = () => {
       refetch={refetch}
       hasOtherAuthenticationMethods={hasOtherAuthenticationMethodsThanEntraId}
       icon={<MicrosoftEntraId />}
-      viewNameKey="text_17843073442548zt904xoinv"
-      metadataKey="text_1784307344255xnl91ujbf4g"
-      deleteMenuLabelKey="text_17843073442559jjt3vfrvmk"
+      viewNameKey={'text_17843073442548zt904xoinv'}
+      metadataKey={'text_1784307344255xnl91ujbf4g'}
+      deleteMenuLabelKey={'text_17843073442559jjt3vfrvmk'}
       openAddDialog={openAddEntraIdDialog}
       openDeleteDialog={openDeleteEntraIdIntegrationDialog}
       getDetailRows={(currentIntegration) => [

@@ -28,9 +28,9 @@ const LoginOkta = () => (
     useAuthorizeMutation={useFetchOktaAuthorizeUrlMutation}
     getAuthorizeUrl={(data) => data?.oktaAuthorize?.url}
     getErrorKey={getErrorKey}
-    titleKey="text_664c90c9b2b6c2012aa50bce"
-    subtitleKey="text_664c90c9b2b6c2012aa50bd0"
-    footerKey="text_664c90c9b2b6c2012aa50bda"
+    titleKey={'text_664c90c9b2b6c2012aa50bce'}
+    subtitleKey={'text_664c90c9b2b6c2012aa50bd0'}
+    footerKey={'text_664c90c9b2b6c2012aa50bda'}
     errorAlertDataTest="login-okta-error-alert"
   />
 )
