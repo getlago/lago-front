@@ -10,10 +10,7 @@ import { useDeleteCustomerVatRateDialog } from '~/components/customers/DeleteCus
 import { useEditCustomerDocumentLocaleDialog } from '~/components/customers/EditCustomerDocumentLocaleDialog'
 import { useEditCustomerDunningCampaignDialog } from '~/components/customers/EditCustomerDunningCampaignDialog'
 import { useEditCustomerInvoiceCustomSectionsDialog } from '~/components/customers/EditCustomerInvoiceCustomSectionsDialog'
-import {
-  EditCustomerInvoiceGracePeriodDialog,
-  EditCustomerInvoiceGracePeriodDialogRef,
-} from '~/components/customers/EditCustomerInvoiceGracePeriodDialog'
+import { useEditCustomerInvoiceGracePeriodDialog } from '~/components/customers/EditCustomerInvoiceGracePeriodDialog'
 import { useEditCustomerVatRateDialog } from '~/components/customers/EditCustomerVatRateDialog'
 import {
   EditCustomerIssuingDatePolicyDialog,
@@ -193,7 +190,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
   const editIssuingDatePolicyDialogRef = useRef<EditCustomerIssuingDatePolicyDialogRef>(null)
   const { openEditCustomerVatRateDialog } = useEditCustomerVatRateDialog()
   const { openDeleteCustomerVatRateDialog } = useDeleteCustomerVatRateDialog()
-  const editInvoiceGracePeriodDialogRef = useRef<EditCustomerInvoiceGracePeriodDialogRef>(null)
+  const { openEditCustomerInvoiceGracePeriodDialog } = useEditCustomerInvoiceGracePeriodDialog()
   const { openDeleteCustomerGracePeriodeDialog } = useDeleteCustomerGracePeriodeDialog()
   const { openEditCustomerDocumentLocaleDialog } = useEditCustomerDocumentLocaleDialog()
   const { openEditCustomerDunningCampaignDialog } = useEditCustomerDunningCampaignDialog()
@@ -590,7 +587,10 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                             endIcon={isPremium ? undefined : 'sparkles'}
                             onClick={() =>
                               isPremium
-                                ? editInvoiceGracePeriodDialogRef?.current?.openDialog()
+                                ? openEditCustomerInvoiceGracePeriodDialog({
+                                    customerId,
+                                    invoiceGracePeriod: customer?.invoiceGracePeriod,
+                                  })
                                 : openPremiumWarningDialog()
                             }
                           >
@@ -615,7 +615,10 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                                   variant="quaternary"
                                   align="left"
                                   onClick={() => {
-                                    editInvoiceGracePeriodDialogRef.current?.openDialog()
+                                    openEditCustomerInvoiceGracePeriodDialog({
+                                      customerId,
+                                      invoiceGracePeriod: customer?.invoiceGracePeriod,
+                                    })
                                     closePopper()
                                   }}
                                 >
@@ -933,10 +936,6 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
 
       {!!customer && (
         <>
-          <EditCustomerInvoiceGracePeriodDialog
-            ref={editInvoiceGracePeriodDialogRef}
-            invoiceGracePeriod={customer?.invoiceGracePeriod}
-          />
           <EditCustomerIssuingDatePolicyDialog
             ref={editIssuingDatePolicyDialogRef}
             customer={customer}

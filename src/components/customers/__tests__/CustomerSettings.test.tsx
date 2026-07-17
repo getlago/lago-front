@@ -38,15 +38,11 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
   }),
 }))
 
-// Mock dialog components that use useParams() internally
-// Using require('react').forwardRef inside each mock factory to avoid hoisting issues
-jest.mock('~/components/customers/EditCustomerInvoiceGracePeriodDialog', () => {
-  const React = jest.requireActual('react')
-  const MockDialog = React.forwardRef(() => null)
-
-  MockDialog.displayName = 'EditCustomerInvoiceGracePeriodDialog'
-  return { EditCustomerInvoiceGracePeriodDialog: MockDialog }
-})
+jest.mock('~/components/customers/EditCustomerInvoiceGracePeriodDialog', () => ({
+  useEditCustomerInvoiceGracePeriodDialog: () => ({
+    openEditCustomerInvoiceGracePeriodDialog: jest.fn(),
+  }),
+}))
 
 jest.mock('~/components/customers/DeleteCustomerGracePeriodeDialog', () => ({
   useDeleteCustomerGracePeriodeDialog: () => ({

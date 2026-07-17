@@ -1295,7 +1295,6 @@
   "text_638dff9779fb99299bee90bc": "Período de carência",
   "text_638dff9779fb99299bee90c0": "0",
   "text_638dff9779fb99299bee90c4": "dias",
-  "text_638dff9779fb99299bee90c8": "Cancelar",
   "text_638dff9779fb99299bee90cc": "Adicionar período de carência",
   "text_638dff9779fb99299bee9132": "{{invoiceGracePeriod}} dia (herdar da entidade de faturamento)|{{invoiceGracePeriod}} dias (herdar da entidade de faturamento)",
   "text_638dff9779fb99299bee914a": "Período de carência definido com sucesso",
