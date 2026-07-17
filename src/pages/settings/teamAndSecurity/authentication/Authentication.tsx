@@ -289,7 +289,7 @@ const Authentication = () => {
                       {translate('text_1752158016616mbk432yu9oz')}
                     </Button>
                   )}
-                  {providerConfig && providerConfig.integration?.id && (
+                  {providerConfig?.integration?.id && (
                     <>
                       <Button
                         startIcon="pen"

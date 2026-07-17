@@ -134,9 +134,9 @@ export const SSOAuthenticationDetails = <TIntegration extends { id: string }>({
             ))
           ) : (
             <>
-              {getDetailRows(integration).map((row, index) => (
+              {getDetailRows(integration).map((row) => (
                 <IntegrationsPage.DetailsItem
-                  key={`sso-details-item-${index}`}
+                  key={`sso-details-item-${row.labelKey}`}
                   icon={row.icon}
                   label={translate(row.labelKey)}
                   value={row.value}
