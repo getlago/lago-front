@@ -235,6 +235,22 @@ const StackedBarChart = <T extends DataItem>({
     [localData, localBars, hasOnlyZeroValues],
   )
 
+  const resolveTickDateValue = (index: number, fallback: string): string => {
+    if (!xAxisTickAttributes || !localData?.length) {
+      return fallback
+    }
+
+    if (index === 0 && localData[0]) {
+      return String(localData[0][xAxisTickAttributes[0]])
+    }
+
+    if (index === localData.length - 1 && localData[localData.length - 1]) {
+      return String(localData[localData.length - 1][xAxisTickAttributes[1]])
+    }
+
+    return ''
+  }
+
   return (
     <ChartWrapper className="rounded-xl bg-white" blur={blur}>
       <ResponsiveContainer width="100%" height={232}>
@@ -297,23 +313,7 @@ const StackedBarChart = <T extends DataItem>({
                 )
               }
 
-              let dateValue = ''
-
-              if (xAxisTickAttributes && localData?.length) {
-                if (index === 0 && localData[0]) {
-                  const firstAttributeKey = xAxisTickAttributes[0]
-                  const attributeValue = localData[0][firstAttributeKey]
-
-                  dateValue = String(attributeValue)
-                } else if (index === localData.length - 1 && localData[localData.length - 1]) {
-                  const secondAttributeKey = xAxisTickAttributes[1]
-                  const lastItem = localData[localData.length - 1]
-
-                  dateValue = String(lastItem[secondAttributeKey])
-                }
-              } else {
-                dateValue = props.payload?.value || ''
-              }
+              const dateValue = resolveTickDateValue(index, props.payload?.value || '')
 
               const shift = localData?.length ? 500 / localData?.length : 0
 
