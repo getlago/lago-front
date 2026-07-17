@@ -17,7 +17,6 @@ import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoic
 import { PaymentMethodsForm, ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
 import { getWordingForWalletCreationAlert } from '~/components/wallets/utils'
 import {
-  ADD_METADATA_DATA_TEST,
   RECURRING_IGNORE_PAID_TOPUP_LIMITS_SWITCH_DATA_TEST,
   RECURRING_INVOICE_REQUIRES_SUCCESSFUL_PAYMENT_SWITCH_DATA_TEST,
   RECURRING_TOPUP_TYPE_DATA_TEST,
@@ -26,10 +25,6 @@ import {
 import { dateErrorCodes, FORM_TYPE_ENUM, getIntervalTranslationKey } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { intlFormatDateTime } from '~/core/timezone'
-import {
-  METADATA_VALUE_MAX_LENGTH_DEFAULT,
-  MetadataErrorsEnum,
-} from '~/formValidation/metadataSchema'
 import {
   CurrencyEnum,
   GetCustomerInfosForWalletFormQuery,
@@ -40,6 +35,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { TransactionMetadataGroup } from '~/pages/wallet/components/TransactionMetadataGroup'
 import { topUpAmountError, walletFormErrorCodes } from '~/pages/wallet/form'
 import { emptyWalletFormDefaultValues } from '~/pages/wallet/mappers/mapFromApiToForm'
 import { TWalletDataForm } from '~/pages/wallet/types'
@@ -663,123 +659,10 @@ export const TopUpSection = withForm({
                   </Typography>
                 </div>
 
-                {recurringTransactionRules?.transactionMetadata?.map((_metadata, index) => {
-                  return (
-                    <div
-                      className="flex w-full flex-row items-center gap-3"
-                      key={`metadata-item-${index}`}
-                    >
-                      <div className="basis-[200px]">
-                        <form.AppField
-                          name={`recurringTransactionRules[0].transactionMetadata[${index}].key`}
-                        >
-                          {(field) => {
-                            const keyError = (
-                              field.state.meta.errors as unknown as { message?: string }[]
-                            ).find((error) =>
-                              Object.keys(MetadataErrorsEnum).includes(error?.message ?? ''),
-                            )?.message
-
-                            return (
-                              <Tooltip
-                                placement="top-end"
-                                title={
-                                  (keyError === MetadataErrorsEnum.uniqueness &&
-                                    translate('text_63fcc3218d35b9377840f5dd')) ||
-                                  (keyError === MetadataErrorsEnum.maxLength &&
-                                    translate('text_63fcc3218d35b9377840f5d9', { max: 20 }))
-                                }
-                                disableHoverListener={!keyError}
-                              >
-                                <field.TextInputField
-                                  label={translate('text_63fcc3218d35b9377840f5a3')}
-                                  silentError={!keyError}
-                                  placeholder={translate('text_63fcc3218d35b9377840f5a7')}
-                                  displayErrorText={false}
-                                />
-                              </Tooltip>
-                            )
-                          }}
-                        </form.AppField>
-                      </div>
-                      <div className="grow">
-                        <form.AppField
-                          name={`recurringTransactionRules[0].transactionMetadata[${index}].value`}
-                        >
-                          {(field) => {
-                            const valueError = (
-                              field.state.meta.errors as unknown as { message?: string }[]
-                            ).find((error) =>
-                              Object.keys(MetadataErrorsEnum).includes(error?.message ?? ''),
-                            )?.message
-
-                            return (
-                              <Tooltip
-                                placement="top-end"
-                                title={
-                                  valueError === MetadataErrorsEnum.maxLength
-                                    ? translate('text_63fcc3218d35b9377840f5e5', {
-                                        max: METADATA_VALUE_MAX_LENGTH_DEFAULT,
-                                      })
-                                    : undefined
-                                }
-                                disableHoverListener={!valueError}
-                              >
-                                <field.TextInputField
-                                  label={translate('text_63fcc3218d35b9377840f5ab')}
-                                  silentError={!valueError}
-                                  placeholder={translate('text_63fcc3218d35b9377840f5af')}
-                                  displayErrorText={false}
-                                />
-                              </Tooltip>
-                            )
-                          }}
-                        </form.AppField>
-                      </div>
-                      <Tooltip
-                        className="flex items-center"
-                        placement="top-end"
-                        title={translate('text_63fcc3218d35b9377840f5e1')}
-                      >
-                        <Button
-                          className="mt-7"
-                          variant="quaternary"
-                          size="medium"
-                          icon="trash"
-                          onClick={() => {
-                            form.setFieldValue('recurringTransactionRules[0].transactionMetadata', [
-                              ...(recurringTransactionRules.transactionMetadata || []).filter(
-                                (_m, j) => {
-                                  return j !== index
-                                },
-                              ),
-                            ])
-                          }}
-                        />
-                      </Tooltip>
-                    </div>
-                  )
-                })}
-
-                <Button
-                  className="self-start"
-                  startIcon="plus"
-                  variant="inline"
-                  onClick={() => {
-                    const metadatas = [
-                      ...(recurringTransactionRules?.transactionMetadata || []),
-                      { key: '', value: '' },
-                    ]
-
-                    form.setFieldValue(
-                      'recurringTransactionRules[0].transactionMetadata',
-                      metadatas,
-                    )
-                  }}
-                  data-test={ADD_METADATA_DATA_TEST}
-                >
-                  {translate('text_63fcc3218d35b9377840f5bb')}
-                </Button>
+                <TransactionMetadataGroup
+                  form={form}
+                  fields={{ metadata: 'recurringTransactionRules[0].transactionMetadata' }}
+                />
               </div>
             </Accordion>
           )}
