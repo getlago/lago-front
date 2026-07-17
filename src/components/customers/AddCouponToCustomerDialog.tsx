@@ -1,22 +1,20 @@
 import { gql, useApolloClient } from '@apollo/client'
-import { useFormik } from 'formik'
-import { forwardRef, RefObject, useMemo, useRef } from 'react'
-import { number, object, string } from 'yup'
+import { revalidateLogic, useStore } from '@tanstack/react-form'
+import { useEffect, useRef } from 'react'
+import { z } from 'zod'
 
 import { CouponCaption } from '~/components/coupons/CouponCaption'
 import { Alert } from '~/components/designSystem/Alert'
-import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'
-import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
 import { Typography } from '~/components/designSystem/Typography'
-import {
-  AmountInputField,
-  ComboBox,
-  ComboBoxField,
-  ComboboxItem,
-  TextInputField,
-} from '~/components/form'
+import { useFormDialog } from '~/components/dialogs/FormDialog'
+import { DialogResult } from '~/components/dialogs/types'
+import { ComboBox, ComboboxItem } from '~/components/form'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import {
+  MUI_INPUT_BASE_ROOT_CLASSNAME,
+  SEARCH_COUPON_INPUT_FOR_CUSTOMER_CLASSNAME,
+} from '~/core/constants/form'
 import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CouponBillableMetricsForCustomerFragment,
@@ -28,7 +26,6 @@ import {
   CouponPlansForCustomerFragmentDoc,
   CouponStatusEnum,
   CouponTypeEnum,
-  CreateAppliedCouponInput,
   CurrencyEnum,
   Customer,
   LagoApiError,
@@ -36,6 +33,7 @@ import {
   useGetCouponForCustomerLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm, withForm } from '~/hooks/forms/useAppform'
 
 gql`
   fragment CouponPlansForCustomer on Plan {
@@ -90,34 +88,311 @@ gql`
   ${CouponCaptionFragmentDoc}
 `
 
-type FormType = CreateAppliedCouponInput & {
-  couponType: CouponTypeEnum
-  plans?: CouponPlansForCustomerFragment[] | null
-  billableMetrics?: CouponBillableMetricsForCustomerFragment[] | null
+export const ADD_COUPON_TO_CUSTOMER_FORM_ID = 'add-coupon-to-customer-form'
+
+const defaultFormValues = {
+  couponId: '',
+  couponType: CouponTypeEnum.FixedAmount as CouponTypeEnum,
+  amountCents: undefined as number | undefined,
+  amountCurrency: undefined as CurrencyEnum | undefined,
+  percentageRate: undefined as number | undefined,
+  frequency: undefined as CouponFrequency | undefined,
+  frequencyDuration: undefined as number | undefined,
+  plans: undefined as CouponPlansForCustomerFragment[] | undefined,
+  billableMetrics: undefined as CouponBillableMetricsForCustomerFragment[] | undefined,
 }
 
-export type AddCouponToCustomerDialogRef = DialogRef
+const validationSchema = z
+  .object({
+    couponId: z.string().min(1),
+    couponType: z.enum([CouponTypeEnum.FixedAmount, CouponTypeEnum.Percentage]),
+    amountCents: z.number().optional(),
+    amountCurrency: z.string().optional(),
+    percentageRate: z.number().optional(),
+    frequency: z.enum([CouponFrequency.Once, CouponFrequency.Recurring, CouponFrequency.Forever]),
+    frequencyDuration: z.number().optional(),
+    plans: z.any().optional(),
+    billableMetrics: z.any().optional(),
+  })
+  .superRefine((value, ctx) => {
+    if (value.couponType === CouponTypeEnum.FixedAmount) {
+      if (
+        value.amountCents === undefined ||
+        value.amountCents === null ||
+        value.amountCents < 0.001
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'text_632d68358f1fedc68eed3e91',
+          path: ['amountCents'],
+        })
+      }
+      if (!value.amountCurrency) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: '',
+          path: ['amountCurrency'],
+        })
+      }
+    }
+    if (value.couponType === CouponTypeEnum.Percentage) {
+      if (
+        value.percentageRate === undefined ||
+        value.percentageRate === null ||
+        value.percentageRate < 0.001
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'text_633445d00315a713775f02a6',
+          path: ['percentageRate'],
+        })
+      }
+    }
+    if (value.frequency === CouponFrequency.Recurring) {
+      if (
+        value.frequencyDuration === undefined ||
+        value.frequencyDuration === null ||
+        value.frequencyDuration < 1
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'text_63314cfeb607e57577d894c9',
+          path: ['frequencyDuration'],
+        })
+      }
+    }
+  })
 
-interface AddCouponToCustomerDialogProps {
+type OpenAddCouponToCustomerDialogData = {
   customer?: Pick<Customer, 'id' | 'displayName'> | null
 }
 
-export const AddCouponToCustomerDialog = forwardRef<
-  AddCouponToCustomerDialogRef,
-  AddCouponToCustomerDialogProps
->(({ customer }: AddCouponToCustomerDialogProps, ref) => {
-  const customerId = customer?.id
-  const customerName = customer?.displayName
-  const shouldRefetchOnClose = useRef(false)
+const AddCouponToCustomerDialogContent = withForm({
+  defaultValues: defaultFormValues,
+  validationLogic: revalidateLogic(),
+  validators: {
+    onDynamic: validationSchema as unknown as never,
+  },
+  render: function Render({ form }) {
+    const { translate } = useInternationalization()
+    const [getCoupons, { loading, data }] = useGetCouponForCustomerLazyQuery({
+      variables: { limit: 50, status: CouponStatusEnum.Active },
+      fetchPolicy: 'network-only',
+      nextFetchPolicy: 'network-only',
+      notifyOnNetworkStatusChange: true,
+    })
 
+    // Eagerly load the active coupons on mount so the dropdown has options when
+    // the dialog auto-opens it (searchQuery only fires on typing, not on open).
+    useEffect(() => {
+      getCoupons()
+    }, [getCoupons])
+
+    const couponId = useStore(form.store, (state) => state.values.couponId)
+    const couponType = useStore(form.store, (state) => state.values.couponType)
+    const frequency = useStore(form.store, (state) => state.values.frequency)
+    const plans = useStore(form.store, (state) => state.values.plans)
+    const billableMetrics = useStore(form.store, (state) => state.values.billableMetrics)
+    const amountCurrency = useStore(form.store, (state) => state.values.amountCurrency)
+    const fieldMeta = useStore(form.store, (state) => state.fieldMeta)
+
+    const coupons =
+      data?.coupons?.collection?.map((coupon) => {
+        const { id, name } = coupon
+
+        return {
+          label: name,
+          labelNode: (
+            <ComboboxItem>
+              <Typography variant="body" color="grey700" noWrap>
+                {name}
+              </Typography>
+              <CouponCaption coupon={coupon as CouponItemFragment} variant="caption" />
+            </ComboboxItem>
+          ),
+          value: id,
+        }
+      }) || []
+
+    const couponIdErrors = fieldMeta?.couponId?.errors as Array<{ message?: string }> | undefined
+    const couponIdError = couponIdErrors?.[0]?.message
+    const hasCurrencyError = !!(fieldMeta?.amountCurrency?.errors as unknown[] | undefined)?.length
+
+    return (
+      <div className="flex flex-col gap-6 p-8">
+        <ComboBox
+          className={SEARCH_COUPON_INPUT_FOR_CUSTOMER_CLASSNAME}
+          name="selectCoupon"
+          value={couponId ? String(couponId) : ''}
+          label={translate('text_628b8c693e464200e00e4677')}
+          data={coupons}
+          loading={loading}
+          searchQuery={getCoupons}
+          placeholder={translate('text_628b8c693e464200e00e4685')}
+          onChange={(value) => {
+            const coupon = data?.coupons?.collection.find((c) => c.id === value)
+
+            if (coupon) {
+              form.setFieldValue('couponId', coupon.id)
+              form.setFieldValue(
+                'amountCents',
+                deserializeAmount(
+                  coupon.amountCents || 0,
+                  coupon.amountCurrency || CurrencyEnum.Usd,
+                ),
+              )
+              form.setFieldValue('amountCurrency', coupon.amountCurrency ?? undefined)
+              form.setFieldValue('percentageRate', coupon.percentageRate ?? undefined)
+              form.setFieldValue('couponType', coupon.couponType)
+              form.setFieldValue('frequency', coupon.frequency)
+              form.setFieldValue('frequencyDuration', coupon.frequencyDuration ?? undefined)
+              form.setFieldValue('plans', coupon.plans ?? undefined)
+              form.setFieldValue('billableMetrics', coupon.billableMetrics ?? undefined)
+            } else {
+              form.setFieldValue('couponId', '')
+            }
+          }}
+          PopperProps={{ displayInDialog: true }}
+        />
+
+        {!!plans?.length && (
+          <div data-test="plan-limitation-section">
+            <Typography className="mb-1" variant="captionHl" color="grey700">
+              {translate('text_63d66aa2471035c8ff598857')}
+            </Typography>
+            <div className="flex flex-wrap gap-1">
+              {plans.map((plan) => (
+                <Chip key={`coupon-plan-appied-to-${plan.id}`} label={plan.name} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {!!billableMetrics?.length && (
+          <div data-test="billable-metric-limitation-section">
+            <Typography className="mb-1" variant="captionHl" color="grey700">
+              {translate('text_63d66aa2471035c8ff598857')}
+            </Typography>
+            <div className="flex flex-wrap gap-1">
+              {billableMetrics.map((bm) => (
+                <Chip key={`coupon-billable-metric-appied-to-${bm.id}`} label={bm.name} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {!!couponId && (
+          <>
+            {couponType === CouponTypeEnum.FixedAmount ? (
+              <div className="flex gap-3">
+                <form.AppField name="amountCents">
+                  {(field) => (
+                    <field.AmountInputField
+                      className="flex-1"
+                      currency={amountCurrency || CurrencyEnum.Usd}
+                      beforeChangeFormatter={['positiveNumber']}
+                      label={translate('text_628b8c693e464200e00e469b')}
+                    />
+                  )}
+                </form.AppField>
+                <form.AppField name="amountCurrency">
+                  {(field) => (
+                    <field.ComboBoxField
+                      containerClassName="max-w-30 mt-7"
+                      data={Object.values(CurrencyEnum).map((currencyType) => ({
+                        value: currencyType,
+                      }))}
+                      disableClearable
+                      PopperProps={{ displayInDialog: true }}
+                    />
+                  )}
+                </form.AppField>
+              </div>
+            ) : (
+              <form.AppField name="percentageRate">
+                {(field) => (
+                  <field.TextInputField
+                    beforeChangeFormatter={['positiveNumber', 'quadDecimal']}
+                    label={translate('text_632d68358f1fedc68eed3e76')}
+                    placeholder={translate('text_632d68358f1fedc68eed3e86')}
+                    InputProps={{
+                      endAdornment: (
+                        <Typography className="mr-4 shrink-0" variant="body" color="textSecondary">
+                          {translate('text_632d68358f1fedc68eed3e93')}
+                        </Typography>
+                      ),
+                    }}
+                  />
+                )}
+              </form.AppField>
+            )}
+
+            <form.AppField name="frequency">
+              {(field) => (
+                <field.ComboBoxField
+                  label={translate('text_632d68358f1fedc68eed3e9d')}
+                  helperText={translate('text_632d68358f1fedc68eed3eab')}
+                  data={[
+                    {
+                      value: CouponFrequency.Once,
+                      label: translate('text_632d68358f1fedc68eed3ea3'),
+                    },
+                    {
+                      value: CouponFrequency.Recurring,
+                      label: translate('text_632d68358f1fedc68eed3e64'),
+                    },
+                    {
+                      value: CouponFrequency.Forever,
+                      label: translate('text_63c83a3476e46bc6ab9d85d6'),
+                    },
+                  ]}
+                  disableClearable
+                  PopperProps={{ displayInDialog: true }}
+                />
+              )}
+            </form.AppField>
+
+            {frequency === CouponFrequency.Recurring && (
+              <form.AppField name="frequencyDuration">
+                {(field) => (
+                  <field.TextInputField
+                    beforeChangeFormatter={['positiveNumber', 'int']}
+                    label={translate('text_632d68358f1fedc68eed3e80')}
+                    placeholder={translate('text_632d68358f1fedc68eed3e88')}
+                    InputProps={{
+                      endAdornment: (
+                        <Typography className="mr-4 shrink-0" variant="body" color="textSecondary">
+                          {translate('text_632d68358f1fedc68eed3e95')}
+                        </Typography>
+                      ),
+                    }}
+                  />
+                )}
+              </form.AppField>
+            )}
+          </>
+        )}
+        {!!couponIdError && couponIdError !== '' && <Alert type="danger">{couponIdError}</Alert>}
+        {!!amountCurrency && hasCurrencyError && (
+          <Alert type="danger">{translate('text_632c88c97af78294bc02ea9d')}</Alert>
+        )}
+        {!!couponId && couponIdError === '' && (
+          <Alert type="danger">{translate('text_64352657267c3d916f96278a')}</Alert>
+        )}
+      </div>
+    )
+  },
+})
+
+export const useAddCouponToCustomerDialog = () => {
+  const formDialog = useFormDialog()
   const { translate } = useInternationalization()
   const client = useApolloClient()
-  const [getCoupons, { loading, data }] = useGetCouponForCustomerLazyQuery({
-    variables: { limit: 50, status: CouponStatusEnum.Active },
-    fetchPolicy: 'network-only',
-    nextFetchPolicy: 'network-only',
-    notifyOnNetworkStatusChange: true,
-  })
+
+  const dataRef = useRef<OpenAddCouponToCustomerDialogData | null>(null)
+  const successRef = useRef(false)
+  const shouldRefetchOnCloseRef = useRef(false)
+
   const [addCoupon] = useAddCouponMutation({
     context: {
       silentErrorCodes: [
@@ -128,6 +403,8 @@ export const AddCouponToCustomerDialog = forwardRef<
     },
     onCompleted({ createAppliedCoupon }) {
       if (createAppliedCoupon) {
+        successRef.current = true
+        shouldRefetchOnCloseRef.current = true
         addToast({
           severity: 'success',
           translateKey: 'text_628b8c693e464200e00e49f2',
@@ -135,91 +412,46 @@ export const AddCouponToCustomerDialog = forwardRef<
       }
     },
   })
-  const formikProps = useFormik<Omit<FormType, 'customerId'>>({
-    initialValues: {
-      couponId: '',
-      amountCents: undefined,
-      percentageRate: undefined,
-      couponType: CouponTypeEnum.FixedAmount,
-      frequency: undefined,
-      frequencyDuration: undefined,
-      amountCurrency: undefined,
-      plans: undefined,
-      billableMetrics: undefined,
-    },
-    validationSchema: object().shape({
-      couponId: string().required(''),
-      amountCents: number().when('couponType', {
-        is: (couponType: CouponTypeEnum) =>
-          !!couponType && couponType === CouponTypeEnum.FixedAmount,
-        then: (schema) =>
-          schema
-            .typeError(translate('text_624ea7c29103fd010732ab7d'))
-            .min(0.001, 'text_632d68358f1fedc68eed3e91')
-            .required(''),
-      }),
-      amountCurrency: string()
-        .when('couponType', {
-          is: (couponType: CouponTypeEnum) =>
-            !!couponType && couponType === CouponTypeEnum.FixedAmount,
-          then: (schema) => schema.required(''),
-        })
-        .nullable(),
-      percentageRate: number()
-        .when('couponType', {
-          is: (couponType: CouponTypeEnum) =>
-            !!couponType && couponType === CouponTypeEnum.Percentage,
-          then: (schema) =>
-            schema
-              .typeError(translate('text_624ea7c29103fd010732ab7d'))
-              .min(0.001, 'text_633445d00315a713775f02a6')
-              .required(''),
-        })
-        .nullable(),
-      couponType: string().required('').nullable(),
-      frequency: string().required('').nullable(),
-      frequencyDuration: number()
-        .when('frequency', {
-          is: (frequency: CouponFrequency) =>
-            !!frequency && frequency === CouponFrequency.Recurring,
-          then: (schema) =>
-            schema
-              .typeError(translate('text_63314cfeb607e57577d894c9'))
-              .min(1, 'text_63314cfeb607e57577d894c9')
-              .required(''),
-        })
-        .nullable(),
-    }),
-    validateOnMount: true,
-    enableReinitialize: true,
-    onSubmit: async (
-      { amountCents, amountCurrency, percentageRate, frequencyDuration, ...values },
-      formikBag,
-    ) => {
-      if (!customerId) return
 
-      const couponValues = {
-        ...values,
-        couponType: undefined,
-        plans: undefined,
-        billableMetrics: undefined,
-      }
+  const form = useAppForm({
+    defaultValues: defaultFormValues,
+    validationLogic: revalidateLogic(),
+    validators: {
+      // Zod's `.optional()` output shape doesn't line up with the FormValues
+      // literal (property-optional vs. property-may-be-undefined). Cast to any
+      // to bypass the mismatch; the runtime validation is still correct.
+      onDynamic: validationSchema as unknown as never,
+    },
+    onSubmit: async ({ value, formApi }) => {
+      const customer = dataRef.current?.customer
+
+      if (!customer?.id) return
+
+      const {
+        couponId,
+        couponType,
+        amountCents,
+        amountCurrency,
+        percentageRate,
+        frequency,
+        frequencyDuration,
+      } = value
 
       const answer = await addCoupon({
         variables: {
           input: {
-            customerId,
+            customerId: customer.id,
+            couponId,
+            frequency: frequency as CouponFrequency,
             amountCents:
-              values.couponType === CouponTypeEnum.FixedAmount
+              couponType === CouponTypeEnum.FixedAmount
                 ? serializeAmount(amountCents || 0, amountCurrency || CurrencyEnum.Usd)
                 : undefined,
-            amountCurrency:
-              values.couponType === CouponTypeEnum.FixedAmount ? amountCurrency : undefined,
+            amountCurrency: couponType === CouponTypeEnum.FixedAmount ? amountCurrency : undefined,
             percentageRate:
-              values.couponType === CouponTypeEnum.Percentage ? Number(percentageRate) : undefined,
+              couponType === CouponTypeEnum.Percentage ? Number(percentageRate) : undefined,
             frequencyDuration:
-              values.frequency === CouponFrequency.Recurring ? frequencyDuration : undefined,
-            ...couponValues,
+              frequency === CouponFrequency.Recurring ? frequencyDuration : undefined,
           },
         },
       })
@@ -227,232 +459,93 @@ export const AddCouponToCustomerDialog = forwardRef<
       const { errors } = answer
 
       if (hasDefinedGQLError('CouponIsNotReusable', errors)) {
-        formikBag.setFieldError(
-          'couponId',
-          translate('text_638f48274d41e3f1d01fc119', { customerFullName: customerName }),
-        )
+        formApi.setErrorMap({
+          onDynamic: {
+            fields: {
+              couponId: {
+                message: translate('text_638f48274d41e3f1d01fc119', {
+                  customerFullName: customer.displayName,
+                }),
+                path: ['couponId'],
+              },
+            },
+          },
+        })
       } else if (hasDefinedGQLError('CurrenciesDoesNotMatch', errors, 'currency')) {
-        formikBag.setFieldError('amountCurrency', '')
+        formApi.setErrorMap({
+          onDynamic: {
+            fields: {
+              amountCurrency: { message: '', path: ['amountCurrency'] },
+            },
+          },
+        })
       } else if (hasDefinedGQLError('PlanOverlapping', errors)) {
-        formikBag.setFieldError('couponId', '')
-      } else {
-        shouldRefetchOnClose.current = true
-        ;(ref as unknown as RefObject<DialogRef>)?.current?.closeDialog()
+        formApi.setErrorMap({
+          onDynamic: {
+            fields: {
+              couponId: { message: '', path: ['couponId'] },
+            },
+          },
+        })
       }
     },
   })
 
-  const coupons = useMemo(() => {
-    if (!data || !data?.coupons || !data?.coupons?.collection) return []
+  const handleSubmit = async (): Promise<DialogResult> => {
+    successRef.current = false
+    await form.handleSubmit()
 
-    return data?.coupons?.collection.map((coupon) => {
-      const { id, name } = coupon
+    if (!successRef.current) {
+      throw new Error('Submit failed')
+    }
 
-      return {
-        label: name,
-        labelNode: (
-          <ComboboxItem>
-            <Typography variant="body" color="grey700" noWrap>
-              {name}
-            </Typography>
-            <CouponCaption coupon={coupon as CouponItemFragment} variant="caption" />
-          </ComboboxItem>
+    return { reason: 'success' }
+  }
+
+  const openAddCouponToCustomerDialog = (openData?: OpenAddCouponToCustomerDialogData) => {
+    dataRef.current = openData ?? null
+    form.reset()
+    shouldRefetchOnCloseRef.current = false
+
+    formDialog
+      .open({
+        title: translate('text_628b8c693e464200e00e465b'),
+        description: translate('text_628b8c693e464200e00e4669'),
+        closeOnError: false,
+        onEntered: (container) => {
+          container
+            .querySelector<HTMLElement>(
+              `.${SEARCH_COUPON_INPUT_FOR_CUSTOMER_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
+            )
+            ?.click()
+        },
+        children: <AddCouponToCustomerDialogContent form={form} />,
+        mainAction: (
+          <form.AppForm>
+            <form.SubmitButton dataTest="submit">
+              {translate('text_628b8c693e464200e00e46a1')}
+            </form.SubmitButton>
+          </form.AppForm>
         ),
-        value: id,
-      }
-    })
-  }, [data])
+        form: {
+          id: ADD_COUPON_TO_CUSTOMER_FORM_ID,
+          submit: handleSubmit,
+        },
+      })
+      .then((response) => {
+        if (response.reason === 'close' || response.reason === 'success') {
+          form.reset()
+          dataRef.current = null
 
-  return (
-    <Dialog
-      ref={ref}
-      title={translate('text_628b8c693e464200e00e465b')}
-      description={translate('text_628b8c693e464200e00e4669')}
-      onOpen={() => {
-        if (!loading && !data) {
-          getCoupons()
+          if (shouldRefetchOnCloseRef.current) {
+            shouldRefetchOnCloseRef.current = false
+            client.refetchQueries({
+              include: ['getAppliedCouponsForCustomer', 'getAppliedCouponsForCouponDetails'],
+            })
+          }
         }
-      }}
-      onClose={() => {
-        formikProps.resetForm()
+      })
+  }
 
-        if (shouldRefetchOnClose.current) {
-          shouldRefetchOnClose.current = false
-          client.refetchQueries({
-            include: ['getAppliedCouponsForCustomer', 'getAppliedCouponsForCouponDetails'],
-          })
-        }
-      }}
-      actions={({ closeDialog }) => (
-        <>
-          <Button variant="quaternary" onClick={closeDialog}>
-            {translate('text_628b8c693e464200e00e4693')}
-          </Button>
-          <Button
-            disabled={!formikProps.isValid}
-            onClick={formikProps.submitForm}
-            data-test="submit"
-          >
-            {translate('text_628b8c693e464200e00e46a1')}
-          </Button>
-        </>
-      )}
-    >
-      <div className="mb-8 flex flex-col gap-6">
-        <ComboBox
-          name="selectCoupon"
-          value={formikProps.values.couponId ? String(formikProps.values.couponId) : ''}
-          label={translate('text_628b8c693e464200e00e4677')}
-          data={coupons}
-          loading={loading}
-          searchQuery={getCoupons}
-          placeholder={translate('text_628b8c693e464200e00e4685')}
-          onChange={(value) => {
-            const coupon = data?.coupons?.collection.find((c) => c.id === value)
-
-            if (!!coupon) {
-              formikProps.setValues({
-                couponId: coupon.id,
-                amountCents: deserializeAmount(
-                  coupon.amountCents || 0,
-                  coupon.amountCurrency || CurrencyEnum.Usd,
-                ),
-                amountCurrency: coupon.amountCurrency,
-                percentageRate: coupon.percentageRate,
-                couponType: coupon.couponType,
-                frequency: coupon.frequency,
-                frequencyDuration: coupon.frequencyDuration,
-                plans: coupon.plans,
-                billableMetrics: coupon.billableMetrics,
-              })
-            } else {
-              formikProps.setFieldValue('couponId', undefined)
-            }
-          }}
-          PopperProps={{ displayInDialog: true }}
-        />
-
-        {!!formikProps.values.plans?.length && (
-          <div data-test="plan-limitation-section">
-            <Typography className="mb-1" variant="captionHl" color="grey700">
-              {translate('text_63d66aa2471035c8ff598857')}
-            </Typography>
-            <div className="flex flex-wrap gap-1">
-              {formikProps.values.plans.map((plan) => (
-                <Chip key={`coupon-plan-appied-to-${plan.id}`} label={plan.name} />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {!!formikProps.values.billableMetrics?.length && (
-          <div data-test="billable-metric-limitation-section">
-            <Typography className="mb-1" variant="captionHl" color="grey700">
-              {translate('text_63d66aa2471035c8ff598857')}
-            </Typography>
-            <div className="flex flex-wrap gap-1">
-              {formikProps.values.billableMetrics.map((bm) => (
-                <Chip key={`coupon-billable-metric-appied-to-${bm.id}`} label={bm.name} />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {!!formikProps.values.couponId && (
-          <>
-            {formikProps.values.couponType === CouponTypeEnum.FixedAmount ? (
-              <div className="flex gap-3">
-                <AmountInputField
-                  className="flex-1"
-                  name="amountCents"
-                  currency={formikProps.values.amountCurrency || CurrencyEnum.Usd}
-                  beforeChangeFormatter={['positiveNumber']}
-                  label={translate('text_628b8c693e464200e00e469b')}
-                  formikProps={formikProps}
-                />
-                <ComboBoxField
-                  containerClassName="max-w-30 mt-7"
-                  name="amountCurrency"
-                  data={Object.values(CurrencyEnum).map((currencyType) => ({
-                    value: currencyType,
-                  }))}
-                  isEmptyNull={false}
-                  disableClearable
-                  formikProps={formikProps}
-                  PopperProps={{ displayInDialog: true }}
-                />
-              </div>
-            ) : (
-              <TextInputField
-                name="percentageRate"
-                beforeChangeFormatter={['positiveNumber', 'quadDecimal']}
-                label={translate('text_632d68358f1fedc68eed3e76')}
-                placeholder={translate('text_632d68358f1fedc68eed3e86')}
-                formikProps={formikProps}
-                InputProps={{
-                  endAdornment: (
-                    <Typography className="mr-4 shrink-0" variant="body" color="textSecondary">
-                      {translate('text_632d68358f1fedc68eed3e93')}
-                    </Typography>
-                  ),
-                }}
-              />
-            )}
-
-            <ComboBoxField
-              name="frequency"
-              label={translate('text_632d68358f1fedc68eed3e9d')}
-              helperText={translate('text_632d68358f1fedc68eed3eab')}
-              data={[
-                {
-                  value: CouponFrequency.Once,
-                  label: translate('text_632d68358f1fedc68eed3ea3'),
-                },
-                {
-                  value: CouponFrequency.Recurring,
-                  label: translate('text_632d68358f1fedc68eed3e64'),
-                },
-                {
-                  value: CouponFrequency.Forever,
-                  label: translate('text_63c83a3476e46bc6ab9d85d6'),
-                },
-              ]}
-              disableClearable
-              formikProps={formikProps}
-              PopperProps={{ displayInDialog: true }}
-            />
-
-            {formikProps.values.frequency === CouponFrequency.Recurring && (
-              <TextInputField
-                name="frequencyDuration"
-                beforeChangeFormatter={['positiveNumber', 'int']}
-                label={translate('text_632d68358f1fedc68eed3e80')}
-                placeholder={translate('text_632d68358f1fedc68eed3e88')}
-                formikProps={formikProps}
-                InputProps={{
-                  endAdornment: (
-                    <Typography className="mr-4 shrink-0" variant="body" color="textSecondary">
-                      {translate('text_632d68358f1fedc68eed3e95')}
-                    </Typography>
-                  ),
-                }}
-              />
-            )}
-          </>
-        )}
-        {!!formikProps.errors?.couponId && formikProps.errors.couponId !== '' && (
-          <Alert type="danger">{formikProps.errors?.couponId}</Alert>
-        )}
-        {!!formikProps.values.amountCurrency &&
-          !!Object.keys(formikProps.errors).includes('amountCurrency') && (
-            <Alert type="danger">{translate('text_632c88c97af78294bc02ea9d')}</Alert>
-          )}
-        {!!formikProps.values.couponId && formikProps.errors.couponId === '' && (
-          <Alert type="danger">{translate('text_64352657267c3d916f96278a')}</Alert>
-        )}
-      </div>
-    </Dialog>
-  )
-})
-
-AddCouponToCustomerDialog.displayName = 'AddCouponToCustomerDialog'
+  return { openAddCouponToCustomerDialog }
+}

@@ -55,17 +55,18 @@ Before starting, gather context by reading these reference files:
    - Form setup (if any): `useAppForm`, validation schema, `onSubmit` handler
    - What data is passed via `openDialog(data)`
    - The dialog's JSX content (children)
+   - **The type of the first editable field** (plain input vs `ComboBox`) — determines the `onEntered` branch (see section 2). A combo-box-first dialog must open its dropdown on enter, not just focus it.
    - The dialog's actions (submit button, cancel button)
 
 #### Step 1.2: Determine Target Dialog Type
 
-| Old Dialog Pattern                             | New Dialog Type                                     | When to Use                                             |
-| ---------------------------------------------- | --------------------------------------------------- | ------------------------------------------------------- |
-| Has form fields + submit button                | `useFormDialog`                                     | Dialog contains a form with validation                  |
-| Has a single action button (confirm/copy/etc.) | `useCentralizedDialog`                              | Dialog is for confirmation or simple action             |
-| Uses `useCentralizedDialog`                    | Confirmation/warning dialogs with danger/info modes |
-| Chains to another dialog after success         | Both                                                | Use FormDialog for the form, chain to CentralizedDialog |
-| Form dialog + optional secondary action button (e.g., delete from edit) | `useFormDialogOpeningDialog` | Form dialog with a danger/action button that opens a CentralizedDialog |
+| Old Dialog Pattern                                                      | New Dialog Type                                     | When to Use                                                            |
+| ----------------------------------------------------------------------- | --------------------------------------------------- | ---------------------------------------------------------------------- |
+| Has form fields + submit button                                         | `useFormDialog`                                     | Dialog contains a form with validation                                 |
+| Has a single action button (confirm/copy/etc.)                          | `useCentralizedDialog`                              | Dialog is for confirmation or simple action                            |
+| Uses `useCentralizedDialog`                                             | Confirmation/warning dialogs with danger/info modes |
+| Chains to another dialog after success                                  | Both                                                | Use FormDialog for the form, chain to CentralizedDialog                |
+| Form dialog + optional secondary action button (e.g., delete from edit) | `useFormDialogOpeningDialog`                        | Form dialog with a danger/action button that opens a CentralizedDialog |
 
 #### Step 1.3: Find All Usages
 
@@ -233,7 +234,16 @@ children: (
 
 Use `p-8` to match the header/footer gutter. If the content is a nested form component (e.g. a `withForm` render), put the `p-8` on that component's outer wrapper instead. Never leave the children unwrapped.
 
-**2. Focus the first input on enter (`onEntered: focusFirstInput`).**
+**2. Focus on enter (`onEntered`) — REQUIRED. First, classify the first field.**
+
+> **STOP — mandatory decision before writing `onEntered`.** Open the dialog's `children` JSX and look at the **first editable field** (top to bottom). Decide which branch applies. Do NOT default to `focusFirstInput` without doing this check — a combo-box-first dialog needs branch 2b, and skipping the check ships a dialog that opens with a closed dropdown (a known, repeated regression).
+>
+> | First field is…                                                            | Use branch                 |
+> | -------------------------------------------------------------------------- | -------------------------- |
+> | A text/amount/plain input                                                  | 2a (`focusFirstInput`)     |
+> | A `ComboBox` (or `field.ComboBoxField`), OR the dialog has only a combobox | **2b (open the dropdown)** |
+
+**2a. Plain input first → focus it (`onEntered: focusFirstInput`).**
 
 The legacy `Dialog` auto-focused the first field. `FormDialog` exposes an `onEntered?: (container: HTMLElement) => void` callback (fired after the enter transition) but does nothing by default, so the migrated dialog opens with nothing focused. Wire the shared helper:
 
@@ -717,7 +727,9 @@ type FormDialogOpeningDialogProps = FormDialogProps & {
 - [ ] Replace `Dialog`/`WarningDialog` with `useFormDialog()`, `useCentralizedDialog()`, or `useFormDialogOpeningDialog()`
 - [ ] Implement `handleSubmit` returning `Promise<DialogResult>` (for FormDialog/FormDialogOpeningDialog)
 - [ ] Wrap `children` JSX in a `p-8` padding container (BaseDialog does NOT pad JSX children → flush/misaligned layout otherwise)
-- [ ] Add `onEntered: focusFirstInput` so the dialog focuses its first input on open (legacy Dialog did this automatically) - if the first field is a `ComboBox` or `field.ComboBoxField`, add a dedicated className constant and `.click()` its `MuiInputBase-root` in `onEntered` to open the dropdown instead of `focusFirstInput` (see section 2b)
+- [ ] **Classify the first editable field before writing `onEntered`** (see section 2 decision table) — this check is mandatory, not optional:
+  - [ ] First field is a plain input → `onEntered: focusFirstInput` (branch 2a)
+  - [ ] First field is a `ComboBox` / `field.ComboBoxField`, OR the dialog has only a combobox → give it a className and `.click()` its `MuiInputBase-root` in `onEntered` to open the dropdown; do NOT also call `focusFirstInput` (branch 2b)
 - [ ] Handle form reset and cleanup in `.then()` callback (for FormDialog/FormDialogOpeningDialog)
 - [ ] Remove old exports (`forwardRef`, `DialogRef` interface, `displayName`)
 - [ ] (Deletion dialog) Replace `refetchQueries` / bare `cache.evict()` with the `evictFromCache` helper
