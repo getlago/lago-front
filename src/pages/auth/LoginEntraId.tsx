@@ -28,9 +28,9 @@ const LoginEntraId = () => (
     useAuthorizeMutation={useFetchEntraIdAuthorizeUrlMutation}
     getAuthorizeUrl={(data) => data?.entraIdAuthorize?.url}
     getErrorKey={getErrorKey}
-    titleKey="text_1784307344254zepa808t6gd"
-    subtitleKey="text_1784307344255tyy4spapa0w"
-    footerKey="text_178430734425578xg4dxyfcq"
+    titleKey={'text_1784307344254zepa808t6gd'}
+    subtitleKey={'text_1784307344255tyy4spapa0w'}
+    footerKey={'text_178430734425578xg4dxyfcq'}
     errorAlertDataTest="login-entra-id-error-alert"
   />
 )
