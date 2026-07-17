@@ -9,10 +9,7 @@ import { useDeleteCustomerNetPaymentTermDialog } from '~/components/customers/De
 import { useDeleteCustomerVatRateDialog } from '~/components/customers/DeleteCustomerVatRateDialog'
 import { useEditCustomerDocumentLocaleDialog } from '~/components/customers/EditCustomerDocumentLocaleDialog'
 import { useEditCustomerDunningCampaignDialog } from '~/components/customers/EditCustomerDunningCampaignDialog'
-import {
-  EditCustomerInvoiceCustomSectionsDialog,
-  EditCustomerInvoiceCustomSectionsDialogRef,
-} from '~/components/customers/EditCustomerInvoiceCustomSectionsDialog'
+import { useEditCustomerInvoiceCustomSectionsDialog } from '~/components/customers/EditCustomerInvoiceCustomSectionsDialog'
 import {
   EditCustomerInvoiceGracePeriodDialog,
   EditCustomerInvoiceGracePeriodDialogRef,
@@ -200,8 +197,8 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
   const { openDeleteCustomerGracePeriodeDialog } = useDeleteCustomerGracePeriodeDialog()
   const { openEditCustomerDocumentLocaleDialog } = useEditCustomerDocumentLocaleDialog()
   const { openEditCustomerDunningCampaignDialog } = useEditCustomerDunningCampaignDialog()
-  const editCustomerInvoiceCustomSectionsDialogRef =
-    useRef<EditCustomerInvoiceCustomSectionsDialogRef>(null)
+  const { openEditCustomerInvoiceCustomSectionsDialog } =
+    useEditCustomerInvoiceCustomSectionsDialog(customerId)
   const { openDeleteCustomerDocumentLocaleDialog } = useDeleteCustomerDocumentLocaleDialog()
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
   const editNetPaymentTermDialogRef = useRef<EditNetPaymentTermDialogRef>(null)
@@ -684,9 +681,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                         disabled={loading}
                         variant="inline"
                         endIcon={isPremium ? undefined : 'sparkles'}
-                        onClick={() =>
-                          editCustomerInvoiceCustomSectionsDialogRef?.current?.openDialog()
-                        }
+                        onClick={openEditCustomerInvoiceCustomSectionsDialog}
                       >
                         {translate('text_63e51ef4985f0ebd75c212fc')}
                       </Button>
@@ -945,10 +940,6 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
           <EditCustomerIssuingDatePolicyDialog
             ref={editIssuingDatePolicyDialogRef}
             customer={customer}
-          />
-          <EditCustomerInvoiceCustomSectionsDialog
-            ref={editCustomerInvoiceCustomSectionsDialogRef}
-            customerId={customerId}
           />
           <EditNetPaymentTermDialog
             ref={editNetPaymentTermDialogRef}

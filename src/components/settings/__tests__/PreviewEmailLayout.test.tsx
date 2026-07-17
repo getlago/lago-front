@@ -14,6 +14,14 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => mockOrganizationInfos,
 }))
 
+const mockOpenUpdateBillingEntityLogoDialog = jest.fn()
+
+jest.mock('~/components/settings/emails/UpdateBillingEntityLogoDialog', () => ({
+  useUpdateBillingEntityLogoDialog: () => ({
+    openUpdateBillingEntityLogoDialog: mockOpenUpdateBillingEntityLogoDialog,
+  }),
+}))
+
 describe('PreviewEmailLayout', () => {
   beforeEach(() => {
     mockOrganizationInfos.hasOrganizationPremiumAddon.mockReturnValue(false)
@@ -145,8 +153,9 @@ describe('PreviewEmailLayout', () => {
       await userEvent.click(logoButton)
     })
 
-    // Dialog should open (checking that no error occurred)
-    expect(logoButton).toBeInTheDocument()
+    expect(mockOpenUpdateBillingEntityLogoDialog).toHaveBeenCalledWith({
+      existingLogoUrl: 'https://example.com/logo.png',
+    })
   })
 
   it('opens logo dialog when clicking plus button', async () => {
@@ -162,8 +171,9 @@ describe('PreviewEmailLayout', () => {
       await userEvent.click(plusButton)
     })
 
-    // Dialog should open (checking that no error occurred)
-    expect(plusButton).toBeInTheDocument()
+    expect(mockOpenUpdateBillingEntityLogoDialog).toHaveBeenCalledWith({
+      existingLogoUrl: null,
+    })
   })
 
   it('renders a static logo without an edit button when disableLogoEdit is true', () => {

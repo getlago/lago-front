@@ -89,12 +89,12 @@ export const useOrdersColumns = ({
       },
     },
     {
-      key: 'executedAt',
+      key: 'executeAt',
       title: translate('text_1782392058759njezxv1yrhl'),
       minWidth: 120,
-      content: ({ executedAt }) => (
+      content: ({ executeAt }) => (
         <Typography color="grey600">
-          {executedAt ? intlFormatDateTimeOrgaTZ(executedAt).date : '-'}
+          {executeAt ? intlFormatDateTimeOrgaTZ(executeAt).date : '-'}
         </Typography>
       ),
     },

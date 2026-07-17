@@ -37,6 +37,7 @@ export const mapFromApiToForm = ({
   expirationAt: wallet?.expirationAt || undefined,
   grantedCredits: '',
   name: wallet?.name || '',
+  code: wallet?.code || '',
   transactionName: undefined,
   appliesTo: wallet?.appliesTo || {
     feeTypes: [],

@@ -3,7 +3,6 @@ import { Icon } from 'lago-design-system'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Typography } from '~/components/designSystem/Typography'
-import { Link } from '~/core/router'
 
 import { ComboboxItem } from './ComboBoxItem'
 import { ComboBoxData } from './types'
@@ -16,7 +15,7 @@ interface ComboBoxItemWrapperProps {
   selected?: boolean
   comboboxProps: React.HTMLAttributes<HTMLLIElement>
   virtualized?: boolean
-  addValueRedirectionUrl?: string
+  addValueOnClick?: () => void
 }
 
 export const ComboBoxItemWrapper = ({
@@ -25,7 +24,7 @@ export const ComboBoxItemWrapper = ({
   selected,
   virtualized,
   comboboxProps,
-  addValueRedirectionUrl,
+  addValueOnClick,
 }: ComboBoxItemWrapperProps) => {
   const { className, ...allProps } = comboboxProps
 
@@ -35,9 +34,16 @@ export const ComboBoxItemWrapper = ({
       data-test={`combobox-item-${label}`}
     >
       <ConditionalWrapper
-        condition={!!addValueRedirectionUrl}
+        condition={!!addValueOnClick}
         invalidWrapper={(children) => <>{children}</>}
-        validWrapper={(children) => <Link to={addValueRedirectionUrl as string}>{children}</Link>}
+        validWrapper={(children) => (
+          // `display: contents` keeps the button out of the layout box model so the
+          // wrapped ComboboxItem sizes/insets exactly like a non-clickable option row
+          // (otherwise the full-width button makes the hover highlight overflow the popper).
+          <button type="button" className="contents cursor-pointer" onClick={addValueOnClick}>
+            {children}
+          </button>
+        )}
       >
         <ComboboxItem
           id={id}
