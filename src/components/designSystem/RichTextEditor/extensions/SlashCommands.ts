@@ -218,6 +218,7 @@ export const SlashCommands = Extension.create({
       creditsItem = {
         title: translate('text_1783352692386xocpgvrz3na'),
         description: translate('text_1783352692386nm1wsx38b6v'),
+        icon: 'wallet',
         command: (editor) => {
           onCreditsCommand({
             onSave: (attrs) => {
@@ -236,6 +237,18 @@ export const SlashCommands = Extension.create({
       }
 
       resolvedItems.push(creditsItem)
+    }
+
+    const getRendererIsDisabled = (selectedItem: SlashCommandItem) => {
+      if (selectedItem === pricingItem) {
+        return isPricingDisabled?.() ?? false
+      }
+
+      if (selectedItem === creditsItem) {
+        return isCreditsDisabled?.() ?? false
+      }
+
+      return false
     }
 
     const editorRef = this.editor
@@ -278,12 +291,7 @@ export const SlashCommands = Extension.create({
         props: {
           items: resolvedItems.map((item) => ({
             ...item,
-            disabled:
-              item === pricingItem
-                ? (isPricingDisabled?.() ?? false)
-                : item === creditsItem
-                  ? (isCreditsDisabled?.() ?? false)
-                  : false,
+            disabled: getRendererIsDisabled(item),
           })),
           command: (item: SlashCommandItem) => {
             if (item.disabled) return
@@ -317,12 +325,7 @@ export const SlashCommands = Extension.create({
             .filter((item) => item.title.toLowerCase().includes(query.toLowerCase()))
             .map((item) => ({
               ...item,
-              disabled:
-                item === pricingItem
-                  ? (isPricingDisabled?.() ?? false)
-                  : item === creditsItem
-                    ? (isCreditsDisabled?.() ?? false)
-                    : false,
+              disabled: getRendererIsDisabled(item),
             }))
         },
       }),
