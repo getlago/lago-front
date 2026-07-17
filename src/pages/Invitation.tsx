@@ -165,7 +165,7 @@ const Invitation = () => {
   ] = useEntraIdAcceptInviteMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     onCompleted: async (res) => {
-      if (!!res?.entraIdAcceptInvite) {
+      if (res?.entraIdAcceptInvite) {
         await onLogIn(client, res?.entraIdAcceptInvite.token)
       }
     },
