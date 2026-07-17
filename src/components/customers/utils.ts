@@ -9,7 +9,10 @@ type RawIntegration = NonNullable<
   NonNullable<IntegrationsListForCustomerMainInfosQuery['integrations']>['collection']
 >[number]
 
-type Integration = Exclude<RawIntegration, { __typename?: 'OktaIntegration' }>
+type Integration = Exclude<
+  RawIntegration,
+  { __typename?: 'OktaIntegration' } | { __typename?: 'EntraIdIntegration' }
+>
 
 export const getInitials = (str: string) =>
   str.split(' ').reduce((acc, n) => (acc = acc + n[0]), '')
