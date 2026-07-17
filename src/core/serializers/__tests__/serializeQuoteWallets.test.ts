@@ -45,28 +45,28 @@ const baseItem: WalletFormItem = {
 }
 
 describe('serializeQuoteWallets', () => {
-  it('toWallets maps a form item into the wallet_credit envelope with overrides + position', () => {
+  it('toWallets maps a form item into the wallet_credit envelope with payload + position', () => {
     const [entry] = toWallets([baseItem], CurrencyEnum.Eur)
 
     expect(entry.type).toBe('wallet_credit')
     expect(entry.localId).toBe('wl_1')
-    expect(entry.overrides.position).toBe(1)
-    expect(entry.overrides.currency).toBe('EUR')
-    expect(entry.overrides.rate_amount).toBe('1.5')
-    expect(entry.overrides.granted_credits).toBe('500.0')
-    expect(entry.overrides.paid_credits).toBe('500.0')
-    expect(entry.overrides.applies_to).toEqual({
-      fee_types: ['charge'],
-      billable_metric_codes: ['cpu', 'storage'],
+    expect(entry.payload.position).toBe(1)
+    expect(entry.payload.currency).toBe('EUR')
+    expect(entry.payload.rateAmount).toBe('1.5')
+    expect(entry.payload.grantedCredits).toBe('500.0')
+    expect(entry.payload.paidCredits).toBe('500.0')
+    expect(entry.payload.appliesTo).toEqual({
+      feeTypes: ['charge'],
+      billableMetricCodes: ['cpu', 'storage'],
     })
-    expect(entry.overrides.recurring_transaction_rules).toHaveLength(1)
-    expect(entry.overrides.recurring_transaction_rules[0].target_ongoing_balance).toBe('1000.0')
+    expect(entry.payload.recurringTransactionRules).toHaveLength(1)
+    expect(entry.payload.recurringTransactionRules[0].targetOngoingBalance).toBe('1000.0')
   })
 
   it('toWallets emits no recurring rules when recurringRule is null', () => {
     const [entry] = toWallets([{ ...baseItem, recurringRule: null }], CurrencyEnum.Eur)
 
-    expect(entry.overrides.recurring_transaction_rules).toEqual([])
+    expect(entry.payload.recurringTransactionRules).toEqual([])
   })
 
   it('fromWallets is the inverse of toWallets (round-trip preserves localId + fields)', () => {
@@ -86,8 +86,8 @@ describe('serializeQuoteWallets', () => {
     const a: BillingItemWallet = toWallets([{ ...baseItem, localId: 'wl_a' }], CurrencyEnum.Eur)[0]
     const b: BillingItemWallet = toWallets([{ ...baseItem, localId: 'wl_b' }], CurrencyEnum.Eur)[0]
 
-    b.overrides.position = 1
-    a.overrides.position = 2
+    b.payload.position = 1
+    a.payload.position = 2
 
     const { walletItems } = fromWallets([a, b])
 

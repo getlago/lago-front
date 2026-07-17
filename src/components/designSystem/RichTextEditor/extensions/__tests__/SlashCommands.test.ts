@@ -1378,13 +1378,19 @@ describe('SlashCommands', () => {
         storage.triggerMenu(() => new DOMRect())
 
         const rendererProps = ReactRendererMock.mock.calls[0][1].props as {
-          items: Array<{ title: string; disabled: boolean; command: (editor: Editor) => void }>
+          items: Array<{
+            title: string
+            icon: string
+            disabled: boolean
+            command: (editor: Editor) => void
+          }>
         }
         const creditsItem = rendererProps.items.find(
           (item) => item.title === mockTranslate('text_1783352692386xocpgvrz3na'),
         )
 
         expect(creditsItem).toBeDefined()
+        expect(creditsItem?.icon).toBe('wallet')
         expect(creditsItem?.disabled).toBe(false)
 
         document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))

@@ -48,44 +48,44 @@ export interface WalletFormItem {
   recurringRule: WalletRecurringRuleForm | null
 }
 
-// --- Wire shape (snake_case), sent under `overrides` ---
-export interface RecurringTransactionRuleOverride {
+// --- Wire shape (camelCase), sent under `payload` ---
+export interface RecurringTransactionRulePayload {
   trigger: string
   method: string
   interval: string | null
-  paid_credits: string
-  granted_credits: string
-  target_ongoing_balance: string | null
-  threshold_credits: string | null
-  started_at: string | null
-  transaction_name: string | null
-  invoice_requires_successful_payment: boolean
-  expiration_at: string | null
+  paidCredits: string
+  grantedCredits: string
+  targetOngoingBalance: string | null
+  thresholdCredits: string | null
+  startedAt: string | null
+  transactionName: string | null
+  invoiceRequiresSuccessfulPayment: boolean
+  expirationAt: string | null
 }
 
-export interface WalletCreditOverrides {
+export interface WalletCreditPayload {
   position: number
   name: string | null
   currency: string
-  rate_amount: string
-  paid_credits: string
-  granted_credits: string
-  expiration_at: string | null
+  rateAmount: string
+  paidCredits: string
+  grantedCredits: string
+  expirationAt: string | null
   priority: number
-  invoice_requires_successful_payment: boolean
-  paid_top_up_min_amount_cents: number | null
-  paid_top_up_max_amount_cents: number | null
+  invoiceRequiresSuccessfulPayment: boolean
+  paidTopUpMinAmountCents: number | null
+  paidTopUpMaxAmountCents: number | null
   // ⚠️ backend key unconfirmed — flagged in the plan's Global Constraints.
-  purchase_order_number: string | null
+  purchaseOrderNumber: string | null
   metadata: WalletMetadataItem[]
-  applies_to: { fee_types: string[]; billable_metric_codes: string[] }
-  recurring_transaction_rules: RecurringTransactionRuleOverride[]
+  appliesTo: { feeTypes: string[]; billableMetricCodes: string[] }
+  recurringTransactionRules: RecurringTransactionRulePayload[]
 }
 
 export interface BillingItemWallet {
   type: 'wallet_credit'
   localId: string
-  overrides: WalletCreditOverrides
+  payload: WalletCreditPayload
 }
 
 export const makeEmptyWalletItem = (localId: string): WalletFormItem => ({
@@ -106,64 +106,64 @@ export const makeEmptyWalletItem = (localId: string): WalletFormItem => ({
   recurringRule: null,
 })
 
-const ruleToOverride = (rule: WalletRecurringRuleForm): RecurringTransactionRuleOverride => ({
+const ruleToPayload = (rule: WalletRecurringRuleForm): RecurringTransactionRulePayload => ({
   trigger: rule.trigger,
   method: rule.method,
   interval: rule.interval ?? null,
-  paid_credits: rule.paidCredits || '0',
-  granted_credits: rule.grantedCredits || '0',
-  target_ongoing_balance: rule.targetOngoingBalance ?? null,
-  threshold_credits: rule.thresholdCredits ?? null,
-  started_at: rule.startedAt ?? null,
-  transaction_name: rule.transactionName ?? null,
-  invoice_requires_successful_payment: rule.invoiceRequiresSuccessfulPayment,
-  expiration_at: rule.expirationAt ?? null,
+  paidCredits: rule.paidCredits || '0',
+  grantedCredits: rule.grantedCredits || '0',
+  targetOngoingBalance: rule.targetOngoingBalance ?? null,
+  thresholdCredits: rule.thresholdCredits ?? null,
+  startedAt: rule.startedAt ?? null,
+  transactionName: rule.transactionName ?? null,
+  invoiceRequiresSuccessfulPayment: rule.invoiceRequiresSuccessfulPayment,
+  expirationAt: rule.expirationAt ?? null,
 })
 
-const overrideToRule = (o: RecurringTransactionRuleOverride): WalletRecurringRuleForm => ({
+const payloadToRule = (o: RecurringTransactionRulePayload): WalletRecurringRuleForm => ({
   trigger: o.trigger as RecurringTransactionTriggerEnum,
   method: o.method as RecurringTransactionMethodEnum,
   interval: (o.interval as RecurringTransactionIntervalEnum) ?? null,
-  paidCredits: o.paid_credits ?? '',
-  grantedCredits: o.granted_credits ?? '',
-  targetOngoingBalance: o.target_ongoing_balance ?? null,
-  thresholdCredits: o.threshold_credits ?? null,
-  startedAt: o.started_at ?? null,
-  transactionName: o.transaction_name ?? null,
-  invoiceRequiresSuccessfulPayment: !!o.invoice_requires_successful_payment,
-  expirationAt: o.expiration_at ?? null,
+  paidCredits: o.paidCredits ?? '',
+  grantedCredits: o.grantedCredits ?? '',
+  targetOngoingBalance: o.targetOngoingBalance ?? null,
+  thresholdCredits: o.thresholdCredits ?? null,
+  startedAt: o.startedAt ?? null,
+  transactionName: o.transactionName ?? null,
+  invoiceRequiresSuccessfulPayment: !!o.invoiceRequiresSuccessfulPayment,
+  expirationAt: o.expirationAt ?? null,
 })
 
 export const toWallets = (items: WalletFormItem[], currency: CurrencyEnum): BillingItemWallet[] =>
   items.map((item, index) => {
-    const overrides: WalletCreditOverrides = {
+    const payload: WalletCreditPayload = {
       position: index + 1,
       name: item.name || null,
       currency,
-      rate_amount: item.rateAmount || '0',
-      paid_credits: item.paidCredits || '0',
-      granted_credits: item.freeCredits || '0',
-      expiration_at: item.expirationAt ?? null,
+      rateAmount: item.rateAmount || '0',
+      paidCredits: item.paidCredits || '0',
+      grantedCredits: item.freeCredits || '0',
+      expirationAt: item.expirationAt ?? null,
       priority: item.priority,
-      invoice_requires_successful_payment: item.invoiceRequiresSuccessfulPayment,
-      paid_top_up_min_amount_cents:
+      invoiceRequiresSuccessfulPayment: item.invoiceRequiresSuccessfulPayment,
+      paidTopUpMinAmountCents:
         item.paidTopUpMinAmountCents !== null && item.paidTopUpMinAmountCents !== ''
           ? serializeAmount(Number(item.paidTopUpMinAmountCents), currency)
           : null,
-      paid_top_up_max_amount_cents:
+      paidTopUpMaxAmountCents:
         item.paidTopUpMaxAmountCents !== null && item.paidTopUpMaxAmountCents !== ''
           ? serializeAmount(Number(item.paidTopUpMaxAmountCents), currency)
           : null,
-      purchase_order_number: item.purchaseOrderNumber || null,
+      purchaseOrderNumber: item.purchaseOrderNumber || null,
       metadata: item.metadata,
-      applies_to: {
-        fee_types: item.feeTypes,
-        billable_metric_codes: item.billableMetricCodes,
+      appliesTo: {
+        feeTypes: item.feeTypes,
+        billableMetricCodes: item.billableMetricCodes,
       },
-      recurring_transaction_rules: item.recurringRule ? [ruleToOverride(item.recurringRule)] : [],
+      recurringTransactionRules: item.recurringRule ? [ruleToPayload(item.recurringRule)] : [],
     }
 
-    return { type: 'wallet_credit' as const, localId: item.localId, overrides }
+    return { type: 'wallet_credit' as const, localId: item.localId, payload }
   })
 
 export const fromWallets = (
@@ -172,45 +172,43 @@ export const fromWallets = (
   const entities: Record<string, EntityData> = {}
   const walletItems: WalletFormItem[] = []
 
-  const sorted = [...wallets].sort((a, b) => a.overrides.position - b.overrides.position)
+  const sorted = [...wallets].sort((a, b) => a.payload.position - b.payload.position)
 
   for (const wallet of sorted) {
-    const { overrides, localId: savedLocalId } = wallet
+    const { payload, localId: savedLocalId } = wallet
     const localId = savedLocalId ?? crypto.randomUUID()
-    const currency = (overrides.currency as CurrencyEnum) ?? CurrencyEnum.Usd
+    const currency = (payload.currency as CurrencyEnum) ?? CurrencyEnum.Usd
 
     walletItems.push({
       localId,
-      name: overrides.name ?? null,
-      rateAmount: overrides.rate_amount ?? '1',
-      priority: overrides.priority ?? 50,
-      expirationAt: overrides.expiration_at ?? null,
+      name: payload.name ?? null,
+      rateAmount: payload.rateAmount ?? '1',
+      priority: payload.priority ?? 50,
+      expirationAt: payload.expirationAt ?? null,
       paidTopUpMinAmountCents:
-        overrides.paid_top_up_min_amount_cents !== null &&
-        overrides.paid_top_up_min_amount_cents !== undefined
-          ? deserializeAmount(overrides.paid_top_up_min_amount_cents, currency).toString()
+        payload.paidTopUpMinAmountCents !== null && payload.paidTopUpMinAmountCents !== undefined
+          ? deserializeAmount(payload.paidTopUpMinAmountCents, currency).toString()
           : null,
       paidTopUpMaxAmountCents:
-        overrides.paid_top_up_max_amount_cents !== null &&
-        overrides.paid_top_up_max_amount_cents !== undefined
-          ? deserializeAmount(overrides.paid_top_up_max_amount_cents, currency).toString()
+        payload.paidTopUpMaxAmountCents !== null && payload.paidTopUpMaxAmountCents !== undefined
+          ? deserializeAmount(payload.paidTopUpMaxAmountCents, currency).toString()
           : null,
-      purchaseOrderNumber: overrides.purchase_order_number ?? null,
-      feeTypes: (overrides.applies_to?.fee_types ?? []) as FeeTypesEnum[],
-      billableMetricCodes: overrides.applies_to?.billable_metric_codes ?? [],
-      freeCredits: overrides.granted_credits ?? '',
-      paidCredits: overrides.paid_credits ?? '',
-      invoiceRequiresSuccessfulPayment: !!overrides.invoice_requires_successful_payment,
-      metadata: overrides.metadata ?? [],
-      recurringRule: overrides.recurring_transaction_rules?.[0]
-        ? overrideToRule(overrides.recurring_transaction_rules[0])
+      purchaseOrderNumber: payload.purchaseOrderNumber ?? null,
+      feeTypes: (payload.appliesTo?.feeTypes ?? []) as FeeTypesEnum[],
+      billableMetricCodes: payload.appliesTo?.billableMetricCodes ?? [],
+      freeCredits: payload.grantedCredits ?? '',
+      paidCredits: payload.paidCredits ?? '',
+      invoiceRequiresSuccessfulPayment: !!payload.invoiceRequiresSuccessfulPayment,
+      metadata: payload.metadata ?? [],
+      recurringRule: payload.recurringTransactionRules?.[0]
+        ? payloadToRule(payload.recurringTransactionRules[0])
         : null,
     })
 
     entities[localId] = {
       entityId: localId,
       entityType: 'wallet',
-      name: overrides.name ?? '',
+      name: payload.name ?? '',
       code: '',
     }
   }
