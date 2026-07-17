@@ -1,6 +1,6 @@
 import { gql, useApolloClient } from '@apollo/client'
 import { revalidateLogic, useStore } from '@tanstack/react-form'
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { z } from 'zod'
 
 import { CouponCaption } from '~/components/coupons/CouponCaption'
@@ -181,6 +181,12 @@ const AddCouponToCustomerDialogContent = withForm({
       nextFetchPolicy: 'network-only',
       notifyOnNetworkStatusChange: true,
     })
+
+    // Eagerly load the active coupons on mount so the dropdown has options when
+    // the dialog auto-opens it (searchQuery only fires on typing, not on open).
+    useEffect(() => {
+      getCoupons()
+    }, [getCoupons])
 
     const couponId = useStore(form.store, (state) => state.values.couponId)
     const couponType = useStore(form.store, (state) => state.values.couponType)
