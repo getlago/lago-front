@@ -1,4 +1,4 @@
-import { FC, PropsWithChildren, useRef } from 'react'
+import { FC, PropsWithChildren } from 'react'
 
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
@@ -12,10 +12,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import Logo from '~/public/images/logo/lago-logo-grey.svg'
 
-import {
-  UpdateBillingEntityLogoDialog,
-  UpdateBillingEntityLogoDialogRef,
-} from './emails/UpdateBillingEntityLogoDialog'
+import { useUpdateBillingEntityLogoDialog } from './emails/UpdateBillingEntityLogoDialog'
 
 interface PreviewEmailLayoutProps extends PropsWithChildren {
   language: LocaleEnum
@@ -41,7 +38,7 @@ export const PreviewEmailLayout: FC<PreviewEmailLayoutProps> = ({
   name,
   disableLogoEdit,
 }) => {
-  const updateLogoDialogRef = useRef<UpdateBillingEntityLogoDialogRef>(null)
+  const { openUpdateBillingEntityLogoDialog } = useUpdateBillingEntityLogoDialog()
 
   const { translate } = useInternationalization()
   const { translateWithContextualLocal } = useContextualLocale(language)
@@ -82,7 +79,7 @@ export const PreviewEmailLayout: FC<PreviewEmailLayoutProps> = ({
           className="rounded-xl p-0"
           size="small"
           variant="quaternary"
-          onClick={() => updateLogoDialogRef?.current?.openDialog()}
+          onClick={() => openUpdateBillingEntityLogoDialog({ existingLogoUrl: logoUrl })}
         >
           {logoAvatar}
         </Button>
@@ -95,95 +92,89 @@ export const PreviewEmailLayout: FC<PreviewEmailLayoutProps> = ({
           icon="plus"
           size="small"
           variant="secondary"
-          onClick={() => updateLogoDialogRef?.current?.openDialog()}
+          onClick={() => openUpdateBillingEntityLogoDialog({ existingLogoUrl: logoUrl })}
         />
       </Tooltip>
     )
   }
 
   return (
-    <>
-      <div>
-        {!!emailObject && (
-          <>
-            {isLoading ? (
-              <Skeleton color="dark" variant="text" className="mb-5 w-90" />
-            ) : (
-              <Typography className="mb-4" variant="bodyHl" color="grey700">
-                {emailObject}
-              </Typography>
-            )}
+    <div>
+      {!!emailObject && (
+        <>
+          {isLoading ? (
+            <Skeleton color="dark" variant="text" className="mb-5 w-90" />
+          ) : (
+            <Typography className="mb-4" variant="bodyHl" color="grey700">
+              {emailObject}
+            </Typography>
+          )}
 
-            <div className="mb-12 flex w-full items-center">
-              {isLoading ? (
-                <>
-                  <Skeleton color="dark" variant="circular" size="big" className="mr-4" />
-                  <div>
-                    <Skeleton color="dark" variant="text" className="mb-2 w-60" />
-                    <Skeleton color="dark" variant="text" className="w-30" />
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="mr-4 size-10 rounded-full bg-grey-300" />
-                  <div>
-                    <div className="h-[1em]">
-                      <Typography variant="captionHl" color="grey700" component="span">
-                        {name}
-                      </Typography>
-                      <Typography variant="note" component="span" className="ml-1">
-                        {emailFrom || translate('text_64188b3d9735d5007d712260')}
-                      </Typography>
-                    </div>
-                    <Typography variant="note" component="span">
-                      {emailTo || translateWithContextualLocal('text_64188b3d9735d5007d712262')}
-                    </Typography>
-                  </div>
-                </>
-              )}
-            </div>
-          </>
-        )}
-
-        <div>
-          <div className="mb-8 flex items-center justify-center not-last-child:mr-3">
+          <div className="mb-12 flex w-full items-center">
             {isLoading ? (
               <>
-                <Skeleton color="dark" variant="connectorAvatar" size="medium" className="mr-3" />
-                <Skeleton color="dark" variant="text" className="w-30" />
+                <Skeleton color="dark" variant="circular" size="big" className="mr-4" />
+                <div>
+                  <Skeleton color="dark" variant="text" className="mb-2 w-60" />
+                  <Skeleton color="dark" variant="text" className="w-30" />
+                </div>
               </>
             ) : (
               <>
-                {renderLogo()}
-                <Typography variant="subhead1">{name}</Typography>
+                <div className="mr-4 size-10 rounded-full bg-grey-300" />
+                <div>
+                  <div className="h-[1em]">
+                    <Typography variant="captionHl" color="grey700" component="span">
+                      {name}
+                    </Typography>
+                    <Typography variant="note" component="span" className="ml-1">
+                      {emailFrom || translate('text_64188b3d9735d5007d712260')}
+                    </Typography>
+                  </div>
+                  <Typography variant="note" component="span">
+                    {emailTo || translateWithContextualLocal('text_64188b3d9735d5007d712262')}
+                  </Typography>
+                </div>
               </>
             )}
           </div>
+        </>
+      )}
 
-          <section className="mb-8 rounded-xl border border-grey-300 bg-white p-8">
-            {children}
-          </section>
-
-          {showPoweredBy && (
-            <div className="mb-20 flex items-center justify-center [&>svg]:mx-1">
-              {isLoading ? (
-                <Skeleton color="dark" variant="text" className="w-55" />
-              ) : (
-                <>
-                  <Typography variant="note" color="grey500">
-                    {translateWithContextualLocal('text_64188b3d9735d5007d712278')}
-                  </Typography>
-                  <Logo height="12px" />
-                </>
-              )}
-            </div>
+      <div>
+        <div className="mb-8 flex items-center justify-center not-last-child:mr-3">
+          {isLoading ? (
+            <>
+              <Skeleton color="dark" variant="connectorAvatar" size="medium" className="mr-3" />
+              <Skeleton color="dark" variant="text" className="w-30" />
+            </>
+          ) : (
+            <>
+              {renderLogo()}
+              <Typography variant="subhead1">{name}</Typography>
+            </>
           )}
         </div>
-      </div>
 
-      {!disableLogoEdit && (
-        <UpdateBillingEntityLogoDialog ref={updateLogoDialogRef} existingLogoUrl={logoUrl} />
-      )}
-    </>
+        <section className="mb-8 rounded-xl border border-grey-300 bg-white p-8">
+          {children}
+        </section>
+
+        {showPoweredBy && (
+          <div className="mb-20 flex items-center justify-center [&>svg]:mx-1">
+            {isLoading ? (
+              <Skeleton color="dark" variant="text" className="w-55" />
+            ) : (
+              <>
+                <Typography variant="note" color="grey500">
+                  {translateWithContextualLocal('text_64188b3d9735d5007d712278')}
+                </Typography>
+                <Logo height="12px" />
+              </>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
   )
 }
