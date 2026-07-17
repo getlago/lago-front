@@ -48,20 +48,16 @@ const EditQuote = () => {
   const { quote, loading, refetch: refetchQuote } = useQuote(quoteId)
 
   const { addQuoteImage } = useAddQuoteImage()
-  const [uploadedImages, setUploadedImages] = useState<Record<string, string>>({})
-
-  const images = useMemo(
-    () => ({ ...((quote?.images ?? {}) as Record<string, string>), ...uploadedImages }),
-    [quote?.images, uploadedImages],
-  )
+  // quote.images is the single source of truth — useAddQuoteImage writes each
+  // uploaded blob into the normalized Quote.images cache field, so it updates
+  // reactively here (on-screen editor) and everywhere quote.images is read.
+  const images = (quote?.images ?? {}) as Record<string, string>
 
   const onImageUpload = useCallback(
     async (base64: string): Promise<string> => {
       if (!quoteId) throw new Error('Missing quote id')
 
-      const { id, url } = await addQuoteImage({ id: quoteId, image: base64 })
-
-      setUploadedImages((prev) => ({ ...prev, [id]: url }))
+      const { id } = await addQuoteImage({ id: quoteId, image: base64 })
 
       return id
     },
