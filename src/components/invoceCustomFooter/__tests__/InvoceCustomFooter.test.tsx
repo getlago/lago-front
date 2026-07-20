@@ -37,7 +37,7 @@ let lastOpenParams:
       }) => void
     }
   | undefined
-const openEditInvoiceCustomSectionDialogMock = jest.fn(
+const mockOpenEditInvoiceCustomSectionDialog = jest.fn(
   (params: {
     customerId: string
     selectedSections: InvoiceCustomSectionBasic[]
@@ -51,7 +51,7 @@ const openEditInvoiceCustomSectionDialogMock = jest.fn(
 
 jest.mock('~/components/invoceCustomFooter/EditInvoiceCustomSectionDialog', () => ({
   useEditInvoiceCustomSectionDialog: () => ({
-    openEditInvoiceCustomSectionDialog: openEditInvoiceCustomSectionDialogMock,
+    openEditInvoiceCustomSectionDialog: mockOpenEditInvoiceCustomSectionDialog,
   }),
   InvoiceCustomSectionBehavior: {
     FALLBACK: 'fallback',
@@ -150,7 +150,7 @@ describe('InvoceCustomFooter', () => {
 
       await userEvent.click(editButton)
 
-      expect(openEditInvoiceCustomSectionDialogMock).toHaveBeenCalled()
+      expect(mockOpenEditInvoiceCustomSectionDialog).toHaveBeenCalled()
       expect(lastOpenParams?.selectedSections).toEqual([
         { id: 'section-1', name: 'Section 1' },
         { id: 'section-2', name: 'Section 2' },
@@ -322,7 +322,7 @@ describe('InvoceCustomFooter', () => {
     beforeEach(() => {
       capturedOnSave = undefined
       lastOpenParams = undefined
-      openEditInvoiceCustomSectionDialogMock.mockClear()
+      mockOpenEditInvoiceCustomSectionDialog.mockClear()
     })
 
     it('THEN opens dialog when edit button is clicked', async () => {
@@ -332,7 +332,7 @@ describe('InvoceCustomFooter', () => {
 
       await userEvent.click(editButton)
 
-      expect(openEditInvoiceCustomSectionDialogMock).toHaveBeenCalledTimes(1)
+      expect(mockOpenEditInvoiceCustomSectionDialog).toHaveBeenCalledTimes(1)
     })
 
     it('THEN passes correct props to dialog based on current behavior', async () => {
@@ -369,7 +369,7 @@ describe('InvoceCustomFooter', () => {
     beforeEach(() => {
       capturedOnSave = undefined
       lastOpenParams = undefined
-      openEditInvoiceCustomSectionDialogMock.mockClear()
+      mockOpenEditInvoiceCustomSectionDialog.mockClear()
     })
 
     it('THEN calls setInvoiceCustomSection with FALLBACK behavior values', async () => {
