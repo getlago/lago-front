@@ -4573,5 +4573,9 @@
   "text_1784579021080myc4hsroeid": "Define at least one filter to save this product item filter and continue.",
   "text_1784579158112yn0ioe02z9r": "Item filter successfully edited",
   "text_17845791581125eyy6m5pmbc": "Item filter successfully created",
-  "text_1784579158112phjg1rsk7kb": "Item filter <a data-text=\"{{productItemFilterName}}\" href=\"{{productItemFilterUrl}}\">-</a> successfully created"
+  "text_1784579158112phjg1rsk7kb": "Item filter <a data-text=\"{{productItemFilterName}}\" href=\"{{productItemFilterUrl}}\">-</a> successfully created",
+  "text_17845809313441m5o9s4s87a": "Delete {{productItemFilterName}}",
+  "text_1784580931344h5s8k9g2ovw": "By deleting this item filter, you won't be able to retrieve it back. Are you sure?",
+  "text_1784580931344s54qxlevbcb": "Delete item filter",
+  "text_1784581042201wnl8rlwi1nh": "Item filter successfully deleted"
 }

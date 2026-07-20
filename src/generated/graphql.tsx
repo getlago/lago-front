@@ -14902,6 +14902,15 @@ export type DeleteProductItemMutationVariables = Exact<{
 
 export type DeleteProductItemMutation = { __typename?: 'Mutation', destroyProductItem?: { __typename?: 'DestroyProductItemPayload', id?: string | null } | null };
 
+export type ProductItemFilterForDeleteProductItemFilterDialogFragment = { __typename?: 'ProductItemFilter', id: string, name: string };
+
+export type DeleteProductItemFilterMutationVariables = Exact<{
+  input: DestroyProductItemFilterInput;
+}>;
+
+
+export type DeleteProductItemFilterMutation = { __typename?: 'Mutation', destroyProductItemFilter?: { __typename?: 'DestroyProductItemFilterPayload', id?: string | null } | null };
+
 export type ProductForProductDrawerFragment = { __typename?: 'Product', id: string, name: string, code: string, description?: string | null, invoiceDisplayName?: string | null, attachedToPlanOrSubscription: boolean };
 
 export type CreateProductMutationVariables = Exact<{
@@ -21245,6 +21254,12 @@ export const ProductItemForDetailsOverviewFragmentDoc = gql`
   ...ProductItemForDrawer
 }
     ${ProductItemForDrawerFragmentDoc}`;
+export const ProductItemFilterForDeleteProductItemFilterDialogFragmentDoc = gql`
+    fragment ProductItemFilterForDeleteProductItemFilterDialog on ProductItemFilter {
+  id
+  name
+}
+    `;
 export const ProductItemFilterForDrawerFragmentDoc = gql`
     fragment ProductItemFilterForDrawer on ProductItemFilter {
   id
@@ -39101,6 +39116,39 @@ export function useDeleteProductItemMutation(baseOptions?: Apollo.MutationHookOp
 export type DeleteProductItemMutationHookResult = ReturnType<typeof useDeleteProductItemMutation>;
 export type DeleteProductItemMutationResult = Apollo.MutationResult<DeleteProductItemMutation>;
 export type DeleteProductItemMutationOptions = Apollo.BaseMutationOptions<DeleteProductItemMutation, DeleteProductItemMutationVariables>;
+export const DeleteProductItemFilterDocument = gql`
+    mutation deleteProductItemFilter($input: DestroyProductItemFilterInput!) {
+  destroyProductItemFilter(input: $input) {
+    id
+  }
+}
+    `;
+export type DeleteProductItemFilterMutationFn = Apollo.MutationFunction<DeleteProductItemFilterMutation, DeleteProductItemFilterMutationVariables>;
+
+/**
+ * __useDeleteProductItemFilterMutation__
+ *
+ * To run a mutation, you first call `useDeleteProductItemFilterMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteProductItemFilterMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteProductItemFilterMutation, { data, loading, error }] = useDeleteProductItemFilterMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDeleteProductItemFilterMutation(baseOptions?: Apollo.MutationHookOptions<DeleteProductItemFilterMutation, DeleteProductItemFilterMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteProductItemFilterMutation, DeleteProductItemFilterMutationVariables>(DeleteProductItemFilterDocument, options);
+      }
+export type DeleteProductItemFilterMutationHookResult = ReturnType<typeof useDeleteProductItemFilterMutation>;
+export type DeleteProductItemFilterMutationResult = Apollo.MutationResult<DeleteProductItemFilterMutation>;
+export type DeleteProductItemFilterMutationOptions = Apollo.BaseMutationOptions<DeleteProductItemFilterMutation, DeleteProductItemFilterMutationVariables>;
 export const CreateProductDocument = gql`
     mutation createProduct($input: CreateProductInput!) {
   createProduct(input: $input) {
