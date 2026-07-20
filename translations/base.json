@@ -390,7 +390,6 @@
   "text_6630ec823adac97d3bf0fb4b": "Items fetching can take time.",
   "text_66423cad72bbad009f2f5689": "Connect to external apps",
   "text_66423cad72bbad009f2f568f": "Accounting provider",
-  "text_66423cad72bbad009f2f5691": "Select a connection",
   "text_66423cad72bbad009f2f569a": "NetSuite customer ID",
   "text_66423cad72bbad009f2f569c": "Type a NetSuite customer ID",
   "text_66423cad72bbad009f2f569e": "Create automatically this customer in {{connectionName}}",
