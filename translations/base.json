@@ -4562,5 +4562,16 @@
   "text_17839807181152ujl4fo6wyy": "Delete product item",
   "text_1783980718115h8wwdamd5di": "Product item successfully deleted",
   "text_17839807181150t4xkvfjefv": "Product item name",
-  "text_1784214117868fh6rndi4m75": "Not defined"
+  "text_1784214117868fh6rndi4m75": "Not defined",
+  "text_1784579021079qarjon667xy": "Edit an item filter",
+  "text_1784579021080ysbidm753z8": "Item filter settings",
+  "text_1784579021080xvr3zayq5rz": "Define the name, code and product item this filter applies to.",
+  "text_17845790210805g4buh2kivc": "Attached product item",
+  "text_1784579021080kajutbc14la": "Select a product item",
+  "text_1784579021080cayu2mqo1o8": "Filter definition",
+  "text_1784579021080da8nd35wa0j": "Select the billable metric filter values that define this item filter.",
+  "text_1784579021080myc4hsroeid": "Define at least one filter to save this product item filter and continue.",
+  "text_1784579158112yn0ioe02z9r": "Item filter successfully edited",
+  "text_17845791581125eyy6m5pmbc": "Item filter successfully created",
+  "text_1784579158112phjg1rsk7kb": "Item filter <a data-text=\"{{productItemFilterName}}\" href=\"{{productItemFilterUrl}}\">-</a> successfully created"
 }
