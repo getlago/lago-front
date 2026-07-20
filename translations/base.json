@@ -4482,5 +4482,7 @@
   "text_1783693954158zdvy0q96esu": "Order executed successfully",
   "text_178410354866260f9hd0qa81": "Execute orders",
   "text_1784189562649n0q3uaf6w9q": "Order {{orderNumber}}",
-  "text_17841895626504bixbm3xbyj": "View the details of this executed order, including its execution settings and content."
+  "text_17841895626504bixbm3xbyj": "View the details of this executed order, including its execution settings and content.",
+  "text_1784560679832ncjei0uis94": "Please enter the number of credits to void.",
+  "text_1784560679832ird9d8k4iqw": "Credits to void must be greater than 0."
 }

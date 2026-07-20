@@ -1,11 +1,10 @@
 import { IconName } from 'lago-design-system'
-import { useRef } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { buildLinkToActivityLog } from '~/components/activityLogs/utils'
 import { AvailableFiltersEnum } from '~/components/designSystem/Filters'
 import { useTerminateCustomerWalletDialog } from '~/components/wallets/TerminateCustomerWalletDialog'
-import { VoidWalletDialogRef } from '~/components/wallets/VoidWalletDialog'
+import { useVoidWalletDialog } from '~/components/wallets/VoidWalletDialog'
 import { addToast } from '~/core/apolloClient'
 import {
   CREATE_WALLET_TOP_UP_ROUTE,
@@ -42,7 +41,6 @@ interface UseWalletActionsParams {
 
 interface UseWalletActionsReturn {
   actions: WalletActionItem[]
-  voidDialogRef: React.RefObject<VoidWalletDialogRef>
 }
 
 export const useWalletActions = ({
@@ -59,7 +57,7 @@ export const useWalletActions = ({
   const { isPremium } = useCurrentUser()
   const { setUrl, openPanel: open } = useDeveloperTool()
   const { openTerminateCustomerWalletDialog } = useTerminateCustomerWalletDialog()
-  const voidDialogRef = useRef<VoidWalletDialogRef>(null) as React.RefObject<VoidWalletDialogRef>
+  const { openVoidWalletDialog } = useVoidWalletDialog()
 
   const isWalletActive = status === WalletStatusEnum.Active
 
@@ -112,7 +110,7 @@ export const useWalletActions = ({
       hidden: !isWalletActive || !hasPermissions(['walletsTerminate']),
       disabled: !!(creditsBalance && creditsBalance <= 0),
       onAction: (closePopper) => {
-        voidDialogRef.current?.openDialog({
+        openVoidWalletDialog({
           walletId: walletId as string,
           rateAmount,
           creditsBalance,
@@ -162,5 +160,5 @@ export const useWalletActions = ({
     },
   ]
 
-  return { actions, voidDialogRef }
+  return { actions }
 }
