@@ -1,6 +1,12 @@
 import { DateTime } from 'luxon'
 
-import { AvailableFiltersEnum, filterDataInlineSeparator } from '../types'
+import { TranslateFunc } from '~/hooks/core/useInternationalization'
+
+import {
+  AvailableFiltersEnum,
+  filterDataInlineSeparator,
+  filterWithoutProductValue,
+} from '../types'
 import {
   defineDefaultToDateValue,
   escapeFilterLabel,
@@ -12,6 +18,7 @@ import {
   formatFiltersForMrrQuery,
   formatFiltersForOrderFormsQuery,
   formatFiltersForOrdersQuery,
+  formatFiltersForProductItemsQuery,
   formatFiltersForQuery,
   formatFiltersForQuotesQuery,
   formatFiltersForRevenueStreamsQuery,
@@ -345,6 +352,26 @@ describe('Filters utils', () => {
       const result = formatActiveFilterValueDisplay(AvailableFiltersEnum.planCode, 'planCodeValue')
 
       expect(result).toBe('PlanCodeValue')
+    })
+    it('should format active filter productItemProduct product code display', () => {
+      const result = formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.productItemProduct,
+        `prod-1${filterDataInlineSeparator}code-1,prod-2${filterDataInlineSeparator}code-2`,
+      )
+
+      expect(result).toBe('code-1, code-2')
+    })
+    it('should format active filter productItemProduct "Not defined" with translation', () => {
+      const translate = ((key: string) =>
+        key === 'text_1784214117868fh6rndi4m75' ? 'Not defined' : key) as TranslateFunc
+
+      const result = formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.productItemProduct,
+        `${filterWithoutProductValue},prod-1${filterDataInlineSeparator}code-1`,
+        translate,
+      )
+
+      expect(result).toBe('Not defined, code-1')
     })
     it('should format active filter paymentDisputeLost value display', () => {
       const result = formatActiveFilterValueDisplay(AvailableFiltersEnum.paymentDisputeLost, 'true')
@@ -1044,6 +1071,29 @@ describe('Filters utils', () => {
 
       expect(result).toEqual(['draft', 'approved'])
     })
+
+    it('should map productItemProduct products-only to productIds', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.productItemProduct](
+        `prod-1${filterDataInlineSeparator}code-1,prod-2${filterDataInlineSeparator}code-2`,
+      )
+
+      expect(result).toEqual({ productIds: ['prod-1', 'prod-2'] })
+    })
+
+    it('should map productItemProduct "Not defined" only to withoutProduct', () => {
+      const result =
+        FILTER_VALUE_MAP[AvailableFiltersEnum.productItemProduct](filterWithoutProductValue)
+
+      expect(result).toEqual({ withoutProduct: true })
+    })
+
+    it('should map productItemProduct with "Not defined" and products to both keys', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.productItemProduct](
+        `${filterWithoutProductValue},prod-1${filterDataInlineSeparator}code-1`,
+      )
+
+      expect(result).toEqual({ productIds: ['prod-1'], withoutProduct: true })
+    })
   })
 
   describe('formatMetadataFilter', () => {
@@ -1324,6 +1374,50 @@ describe('Filters utils', () => {
           logTypes: ['api_key'],
         }),
       )
+    })
+  })
+
+  describe('formatFiltersForProductItemsQuery', () => {
+    it('should map products-only Product filter to productIds', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set(
+        'pit_productItemProduct',
+        `prod-1${filterDataInlineSeparator}code-1,prod-2${filterDataInlineSeparator}code-2`,
+      )
+
+      const result = formatFiltersForProductItemsQuery(searchParams)
+
+      expect(result).toEqual({ productIds: ['prod-1', 'prod-2'] })
+    })
+
+    it('should map "Not defined"-only Product filter to withoutProduct with no productIds', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('pit_productItemProduct', filterWithoutProductValue)
+
+      const result = formatFiltersForProductItemsQuery(searchParams)
+
+      expect(result).toEqual({ withoutProduct: true })
+      expect(result).not.toHaveProperty('productIds')
+    })
+
+    it('should map "Not defined" + products + itemType to all three query args', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set(
+        'pit_productItemProduct',
+        `${filterWithoutProductValue},prod-1${filterDataInlineSeparator}code-1`,
+      )
+      searchParams.set('pit_productItemType', 'fixed')
+
+      const result = formatFiltersForProductItemsQuery(searchParams)
+
+      expect(result).toEqual({
+        productIds: ['prod-1'],
+        withoutProduct: true,
+        itemType: 'fixed',
+      })
     })
   })
 

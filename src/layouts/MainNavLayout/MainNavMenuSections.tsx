@@ -31,6 +31,8 @@ import {
   PLANS_ROUTE,
   PRODUCT_CATALOG_ROUTE,
   PRODUCT_CATALOG_TAB_ROUTE,
+  PRODUCT_DETAILS_ROUTE,
+  PRODUCT_ITEM_DETAILS_ROUTE,
   QUOTE_DETAILS_ROUTE,
   QUOTES_LIST_ROUTE,
   QUOTES_TAB_ROUTE,
@@ -132,7 +134,12 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
       icon: 'box',
       link: PRODUCT_CATALOG_ROUTE,
       canBeClickedOnActive: true,
-      match: [PRODUCT_CATALOG_ROUTE, PRODUCT_CATALOG_TAB_ROUTE],
+      match: [
+        PRODUCT_CATALOG_ROUTE,
+        PRODUCT_CATALOG_TAB_ROUTE,
+        PRODUCT_DETAILS_ROUTE,
+        PRODUCT_ITEM_DETAILS_ROUTE,
+      ],
       hidden:
         !hasFeatureFlag(FeatureFlagEnum.ProductCatalog) ||
         !hasPermissionsOr([

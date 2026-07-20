@@ -1,9 +1,15 @@
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+export const PRODUCT_ITEM_FILTERS_LIST_TEST_ID = 'product-item-filters-list'
+
 const ProductItemFiltersList = () => {
   const { translate } = useInternationalization()
 
-  return <div className="p-4">{translate('text_1783104239825gamldgumtq0')}</div>
+  return (
+    <div className="p-4" data-test={PRODUCT_ITEM_FILTERS_LIST_TEST_ID}>
+      {translate('text_1783104239825gamldgumtq0')}
+    </div>
+  )
 }
 
 export default ProductItemFiltersList

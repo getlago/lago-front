@@ -7584,6 +7584,7 @@ export type ProductItem = {
   code: Scalars['String']['output'];
   createdAt: Scalars['ISO8601DateTime']['output'];
   description?: Maybe<Scalars['String']['output']>;
+  filtersCount: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
   invoiceDisplayName?: Maybe<Scalars['String']['output']>;
   itemType: ProductItemTypeEnum;
@@ -8781,8 +8782,9 @@ export type QueryProductItemsArgs = {
   itemType?: InputMaybe<ProductItemTypeEnum>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
-  productId?: InputMaybe<Scalars['ID']['input']>;
+  productIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
+  withoutProduct?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 
@@ -12080,6 +12082,14 @@ export type GetPlansForFiltersItemPlanCodeQueryVariables = Exact<{
 
 export type GetPlansForFiltersItemPlanCodeQuery = { __typename?: 'Query', plans: { __typename?: 'PlanCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Plan', id: string, code: string, deletedAt?: any | null }> } };
 
+export type GetProductsForFilterItemProductQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetProductsForFilterItemProductQuery = { __typename?: 'Query', products: { __typename?: 'ProductCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Product', id: string, code: string }> } };
+
 export type AddOnForPricingSectionFragment = { __typename?: 'AddOn', id: string, name: string, code: string, invoiceDisplayName?: string | null, description?: string | null, amountCents: any, amountCurrency: CurrencyEnum, taxes?: Array<{ __typename?: 'Tax', id: string, code: string }> | null };
 
 export type GetAddOnsForPricingSectionQueryVariables = Exact<{
@@ -14797,6 +14807,20 @@ export type GoogleRegisterMutationVariables = Exact<{
 
 export type GoogleRegisterMutation = { __typename?: 'Mutation', googleRegisterUser?: { __typename?: 'RegisterUser', token: string } | null };
 
+export type ProductItemForListFragment = { __typename?: 'ProductItem', id: string, name: string, code: string, invoiceDisplayName?: string | null, itemType: ProductItemTypeEnum, filtersCount: number, createdAt: any, description?: string | null, attachedToPlanOrSubscription: boolean, product?: { __typename?: 'Product', id: string, name: string, code: string } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string } | null };
+
+export type ProductItemsQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+  productIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
+  itemType?: InputMaybe<ProductItemTypeEnum>;
+  withoutProduct?: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+export type ProductItemsQuery = { __typename?: 'Query', productItems: { __typename?: 'ProductItemCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'ProductItem', id: string, name: string, code: string, invoiceDisplayName?: string | null, itemType: ProductItemTypeEnum, filtersCount: number, createdAt: any, description?: string | null, attachedToPlanOrSubscription: boolean, product?: { __typename?: 'Product', id: string, name: string, code: string } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string } | null }> } };
+
 export type ProductListItemFragment = { __typename?: 'Product', id: string, name: string, code: string, invoiceDisplayName?: string | null, productItemsCount: number, createdAt: any, description?: string | null, attachedToPlanOrSubscription: boolean };
 
 export type ProductsQueryVariables = Exact<{
@@ -14826,6 +14850,33 @@ export type GetProductForDetailsOverviewQueryVariables = Exact<{
 
 export type GetProductForDetailsOverviewQuery = { __typename?: 'Query', product?: { __typename?: 'Product', id: string, name: string, code: string, description?: string | null, invoiceDisplayName?: string | null, attachedToPlanOrSubscription: boolean } | null };
 
+export type GetProductItemsForProductDetailsQueryVariables = Exact<{
+  productIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetProductItemsForProductDetailsQuery = { __typename?: 'Query', productItems: { __typename?: 'ProductItemCollection', metadata: { __typename?: 'CollectionMetadata', totalCount: number }, collection: Array<{ __typename?: 'ProductItem', id: string, name: string, code: string, invoiceDisplayName?: string | null, itemType: ProductItemTypeEnum, filtersCount: number, createdAt: any, description?: string | null, attachedToPlanOrSubscription: boolean, product?: { __typename?: 'Product', id: string, name: string, code: string } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string } | null }> } };
+
+export type ProductItemForProductItemDetailsFragment = { __typename?: 'ProductItem', id: string, name: string, code: string, description?: string | null, invoiceDisplayName?: string | null, itemType: ProductItemTypeEnum, attachedToPlanOrSubscription: boolean, product?: { __typename?: 'Product', id: string, name: string, code: string } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string } | null };
+
+export type GetProductItemForDetailsQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetProductItemForDetailsQuery = { __typename?: 'Query', productItem?: { __typename?: 'ProductItem', id: string, name: string, code: string, description?: string | null, invoiceDisplayName?: string | null, itemType: ProductItemTypeEnum, attachedToPlanOrSubscription: boolean, product?: { __typename?: 'Product', id: string, name: string, code: string } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string } | null } | null };
+
+export type ProductItemForDetailsOverviewFragment = { __typename?: 'ProductItem', id: string, name: string, code: string, description?: string | null, invoiceDisplayName?: string | null, itemType: ProductItemTypeEnum, attachedToPlanOrSubscription: boolean, product?: { __typename?: 'Product', id: string, name: string, code: string } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, code: string, name: string } | null };
+
+export type GetProductItemForDetailsOverviewQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetProductItemForDetailsOverviewQuery = { __typename?: 'Query', productItem?: { __typename?: 'ProductItem', id: string, name: string, code: string, description?: string | null, invoiceDisplayName?: string | null, itemType: ProductItemTypeEnum, attachedToPlanOrSubscription: boolean, product?: { __typename?: 'Product', id: string, name: string, code: string } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, code: string, name: string } | null } | null };
+
 export type ProductForDeleteProductDialogFragment = { __typename?: 'Product', id: string, name: string };
 
 export type DeleteProductMutationVariables = Exact<{
@@ -14834,6 +14885,15 @@ export type DeleteProductMutationVariables = Exact<{
 
 
 export type DeleteProductMutation = { __typename?: 'Mutation', destroyProduct?: { __typename?: 'DestroyProductPayload', id?: string | null } | null };
+
+export type ProductItemForDeleteProductItemDialogFragment = { __typename?: 'ProductItem', id: string, name: string };
+
+export type DeleteProductItemMutationVariables = Exact<{
+  input: DestroyProductItemInput;
+}>;
+
+
+export type DeleteProductItemMutation = { __typename?: 'Mutation', destroyProductItem?: { __typename?: 'DestroyProductItemPayload', id?: string | null } | null };
 
 export type ProductForProductDrawerFragment = { __typename?: 'Product', id: string, name: string, code: string, description?: string | null, invoiceDisplayName?: string | null, attachedToPlanOrSubscription: boolean };
 
@@ -14850,6 +14910,40 @@ export type UpdateProductMutationVariables = Exact<{
 
 
 export type UpdateProductMutation = { __typename?: 'Mutation', updateProduct?: { __typename?: 'Product', id: string, name: string, code: string, description?: string | null, invoiceDisplayName?: string | null, attachedToPlanOrSubscription: boolean } | null };
+
+export type GetProductsForProductItemDrawerQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetProductsForProductItemDrawerQuery = { __typename?: 'Query', products: { __typename?: 'ProductCollection', collection: Array<{ __typename?: 'Product', id: string, name: string, code: string }> } };
+
+export type GetBillableMetricsForProductItemDrawerQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetBillableMetricsForProductItemDrawerQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> } };
+
+export type ProductItemForDrawerFragment = { __typename?: 'ProductItem', id: string, name: string, code: string, description?: string | null, invoiceDisplayName?: string | null, itemType: ProductItemTypeEnum, attachedToPlanOrSubscription: boolean, product?: { __typename?: 'Product', id: string, name: string, code: string } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string } | null };
+
+export type CreateProductItemMutationVariables = Exact<{
+  input: CreateProductItemInput;
+}>;
+
+
+export type CreateProductItemMutation = { __typename?: 'Mutation', createProductItem?: { __typename?: 'ProductItem', id: string, name: string, code: string, description?: string | null, invoiceDisplayName?: string | null, itemType: ProductItemTypeEnum, attachedToPlanOrSubscription: boolean, product?: { __typename?: 'Product', id: string, name: string, code: string } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string } | null } | null };
+
+export type UpdateProductItemMutationVariables = Exact<{
+  input: UpdateProductItemInput;
+}>;
+
+
+export type UpdateProductItemMutation = { __typename?: 'Mutation', updateProductItem?: { __typename?: 'ProductItem', id: string, name: string, code: string, description?: string | null, invoiceDisplayName?: string | null, itemType: ProductItemTypeEnum, attachedToPlanOrSubscription: boolean, product?: { __typename?: 'Product', id: string, name: string, code: string } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string } | null } | null };
 
 export type BillableMetricsForCouponsFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string };
 
@@ -20993,6 +21087,52 @@ export const SubscriptionForSubscriptionsListFragmentDoc = gql`
   }
 }
     `;
+export const ProductItemForDrawerFragmentDoc = gql`
+    fragment ProductItemForDrawer on ProductItem {
+  id
+  name
+  code
+  description
+  invoiceDisplayName
+  itemType
+  attachedToPlanOrSubscription
+  product {
+    id
+    name
+    code
+  }
+  billableMetric {
+    id
+    name
+    code
+  }
+}
+    `;
+export const ProductItemForDeleteProductItemDialogFragmentDoc = gql`
+    fragment ProductItemForDeleteProductItemDialog on ProductItem {
+  id
+  name
+}
+    `;
+export const ProductItemForListFragmentDoc = gql`
+    fragment ProductItemForList on ProductItem {
+  id
+  name
+  code
+  invoiceDisplayName
+  itemType
+  filtersCount
+  createdAt
+  product {
+    id
+    name
+    code
+  }
+  ...ProductItemForDrawer
+  ...ProductItemForDeleteProductItemDialog
+}
+    ${ProductItemForDrawerFragmentDoc}
+${ProductItemForDeleteProductItemDialogFragmentDoc}`;
 export const ProductForProductDrawerFragmentDoc = gql`
     fragment ProductForProductDrawer on Product {
   id
@@ -21042,6 +21182,37 @@ export const ProductForProductDetailsOverviewFragmentDoc = gql`
   ...ProductForProductDrawer
 }
     ${ProductForProductDrawerFragmentDoc}`;
+export const ProductItemForProductItemDetailsFragmentDoc = gql`
+    fragment ProductItemForProductItemDetails on ProductItem {
+  id
+  name
+  code
+  ...ProductItemForDrawer
+  ...ProductItemForDeleteProductItemDialog
+}
+    ${ProductItemForDrawerFragmentDoc}
+${ProductItemForDeleteProductItemDialogFragmentDoc}`;
+export const ProductItemForDetailsOverviewFragmentDoc = gql`
+    fragment ProductItemForDetailsOverview on ProductItem {
+  id
+  name
+  code
+  description
+  invoiceDisplayName
+  itemType
+  product {
+    id
+    name
+    code
+  }
+  billableMetric {
+    id
+    name
+    code
+  }
+  ...ProductItemForDrawer
+}
+    ${ProductItemForDrawerFragmentDoc}`;
 export const InvoiceFeeFragmentDoc = gql`
     fragment InvoiceFee on Fee {
   id
@@ -26348,6 +26519,57 @@ export type GetPlansForFiltersItemPlanCodeQueryHookResult = ReturnType<typeof us
 export type GetPlansForFiltersItemPlanCodeLazyQueryHookResult = ReturnType<typeof useGetPlansForFiltersItemPlanCodeLazyQuery>;
 export type GetPlansForFiltersItemPlanCodeSuspenseQueryHookResult = ReturnType<typeof useGetPlansForFiltersItemPlanCodeSuspenseQuery>;
 export type GetPlansForFiltersItemPlanCodeQueryResult = Apollo.QueryResult<GetPlansForFiltersItemPlanCodeQuery, GetPlansForFiltersItemPlanCodeQueryVariables>;
+export const GetProductsForFilterItemProductDocument = gql`
+    query getProductsForFilterItemProduct($page: Int, $limit: Int) {
+  products(page: $page, limit: $limit) {
+    metadata {
+      currentPage
+      totalPages
+    }
+    collection {
+      id
+      code
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetProductsForFilterItemProductQuery__
+ *
+ * To run a query within a React component, call `useGetProductsForFilterItemProductQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetProductsForFilterItemProductQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetProductsForFilterItemProductQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetProductsForFilterItemProductQuery(baseOptions?: Apollo.QueryHookOptions<GetProductsForFilterItemProductQuery, GetProductsForFilterItemProductQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetProductsForFilterItemProductQuery, GetProductsForFilterItemProductQueryVariables>(GetProductsForFilterItemProductDocument, options);
+      }
+export function useGetProductsForFilterItemProductLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetProductsForFilterItemProductQuery, GetProductsForFilterItemProductQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetProductsForFilterItemProductQuery, GetProductsForFilterItemProductQueryVariables>(GetProductsForFilterItemProductDocument, options);
+        }
+// @ts-ignore
+export function useGetProductsForFilterItemProductSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetProductsForFilterItemProductQuery, GetProductsForFilterItemProductQueryVariables>): Apollo.UseSuspenseQueryResult<GetProductsForFilterItemProductQuery, GetProductsForFilterItemProductQueryVariables>;
+export function useGetProductsForFilterItemProductSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProductsForFilterItemProductQuery, GetProductsForFilterItemProductQueryVariables>): Apollo.UseSuspenseQueryResult<GetProductsForFilterItemProductQuery | undefined, GetProductsForFilterItemProductQueryVariables>;
+export function useGetProductsForFilterItemProductSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProductsForFilterItemProductQuery, GetProductsForFilterItemProductQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetProductsForFilterItemProductQuery, GetProductsForFilterItemProductQueryVariables>(GetProductsForFilterItemProductDocument, options);
+        }
+export type GetProductsForFilterItemProductQueryHookResult = ReturnType<typeof useGetProductsForFilterItemProductQuery>;
+export type GetProductsForFilterItemProductLazyQueryHookResult = ReturnType<typeof useGetProductsForFilterItemProductLazyQuery>;
+export type GetProductsForFilterItemProductSuspenseQueryHookResult = ReturnType<typeof useGetProductsForFilterItemProductSuspenseQuery>;
+export type GetProductsForFilterItemProductQueryResult = Apollo.QueryResult<GetProductsForFilterItemProductQuery, GetProductsForFilterItemProductQueryVariables>;
 export const GetAddOnsForPricingSectionDocument = gql`
     query getAddOnsForPricingSection($page: Int, $limit: Int, $searchTerm: String) {
   addOns(page: $page, limit: $limit, searchTerm: $searchTerm) {
@@ -38414,6 +38636,69 @@ export function useGoogleRegisterMutation(baseOptions?: Apollo.MutationHookOptio
 export type GoogleRegisterMutationHookResult = ReturnType<typeof useGoogleRegisterMutation>;
 export type GoogleRegisterMutationResult = Apollo.MutationResult<GoogleRegisterMutation>;
 export type GoogleRegisterMutationOptions = Apollo.BaseMutationOptions<GoogleRegisterMutation, GoogleRegisterMutationVariables>;
+export const ProductItemsDocument = gql`
+    query productItems($page: Int, $limit: Int, $searchTerm: String, $productIds: [ID!], $itemType: ProductItemTypeEnum, $withoutProduct: Boolean) {
+  productItems(
+    page: $page
+    limit: $limit
+    searchTerm: $searchTerm
+    productIds: $productIds
+    itemType: $itemType
+    withoutProduct: $withoutProduct
+  ) {
+    metadata {
+      currentPage
+      totalPages
+      totalCount
+    }
+    collection {
+      id
+      ...ProductItemForList
+    }
+  }
+}
+    ${ProductItemForListFragmentDoc}`;
+
+/**
+ * __useProductItemsQuery__
+ *
+ * To run a query within a React component, call `useProductItemsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useProductItemsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useProductItemsQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *      productIds: // value for 'productIds'
+ *      itemType: // value for 'itemType'
+ *      withoutProduct: // value for 'withoutProduct'
+ *   },
+ * });
+ */
+export function useProductItemsQuery(baseOptions?: Apollo.QueryHookOptions<ProductItemsQuery, ProductItemsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ProductItemsQuery, ProductItemsQueryVariables>(ProductItemsDocument, options);
+      }
+export function useProductItemsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ProductItemsQuery, ProductItemsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ProductItemsQuery, ProductItemsQueryVariables>(ProductItemsDocument, options);
+        }
+// @ts-ignore
+export function useProductItemsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ProductItemsQuery, ProductItemsQueryVariables>): Apollo.UseSuspenseQueryResult<ProductItemsQuery, ProductItemsQueryVariables>;
+export function useProductItemsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProductItemsQuery, ProductItemsQueryVariables>): Apollo.UseSuspenseQueryResult<ProductItemsQuery | undefined, ProductItemsQueryVariables>;
+export function useProductItemsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProductItemsQuery, ProductItemsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ProductItemsQuery, ProductItemsQueryVariables>(ProductItemsDocument, options);
+        }
+export type ProductItemsQueryHookResult = ReturnType<typeof useProductItemsQuery>;
+export type ProductItemsLazyQueryHookResult = ReturnType<typeof useProductItemsLazyQuery>;
+export type ProductItemsSuspenseQueryHookResult = ReturnType<typeof useProductItemsSuspenseQuery>;
+export type ProductItemsQueryResult = Apollo.QueryResult<ProductItemsQuery, ProductItemsQueryVariables>;
 export const ProductsDocument = gql`
     query products($page: Int, $limit: Int, $searchTerm: String) {
   products(page: $page, limit: $limit, searchTerm: $searchTerm) {
@@ -38555,6 +38840,145 @@ export type GetProductForDetailsOverviewQueryHookResult = ReturnType<typeof useG
 export type GetProductForDetailsOverviewLazyQueryHookResult = ReturnType<typeof useGetProductForDetailsOverviewLazyQuery>;
 export type GetProductForDetailsOverviewSuspenseQueryHookResult = ReturnType<typeof useGetProductForDetailsOverviewSuspenseQuery>;
 export type GetProductForDetailsOverviewQueryResult = Apollo.QueryResult<GetProductForDetailsOverviewQuery, GetProductForDetailsOverviewQueryVariables>;
+export const GetProductItemsForProductDetailsDocument = gql`
+    query getProductItemsForProductDetails($productIds: [ID!], $limit: Int, $searchTerm: String) {
+  productItems(productIds: $productIds, limit: $limit, searchTerm: $searchTerm) {
+    metadata {
+      totalCount
+    }
+    collection {
+      id
+      ...ProductItemForList
+    }
+  }
+}
+    ${ProductItemForListFragmentDoc}`;
+
+/**
+ * __useGetProductItemsForProductDetailsQuery__
+ *
+ * To run a query within a React component, call `useGetProductItemsForProductDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetProductItemsForProductDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetProductItemsForProductDetailsQuery({
+ *   variables: {
+ *      productIds: // value for 'productIds'
+ *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *   },
+ * });
+ */
+export function useGetProductItemsForProductDetailsQuery(baseOptions?: Apollo.QueryHookOptions<GetProductItemsForProductDetailsQuery, GetProductItemsForProductDetailsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetProductItemsForProductDetailsQuery, GetProductItemsForProductDetailsQueryVariables>(GetProductItemsForProductDetailsDocument, options);
+      }
+export function useGetProductItemsForProductDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetProductItemsForProductDetailsQuery, GetProductItemsForProductDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetProductItemsForProductDetailsQuery, GetProductItemsForProductDetailsQueryVariables>(GetProductItemsForProductDetailsDocument, options);
+        }
+// @ts-ignore
+export function useGetProductItemsForProductDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetProductItemsForProductDetailsQuery, GetProductItemsForProductDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetProductItemsForProductDetailsQuery, GetProductItemsForProductDetailsQueryVariables>;
+export function useGetProductItemsForProductDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProductItemsForProductDetailsQuery, GetProductItemsForProductDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetProductItemsForProductDetailsQuery | undefined, GetProductItemsForProductDetailsQueryVariables>;
+export function useGetProductItemsForProductDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProductItemsForProductDetailsQuery, GetProductItemsForProductDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetProductItemsForProductDetailsQuery, GetProductItemsForProductDetailsQueryVariables>(GetProductItemsForProductDetailsDocument, options);
+        }
+export type GetProductItemsForProductDetailsQueryHookResult = ReturnType<typeof useGetProductItemsForProductDetailsQuery>;
+export type GetProductItemsForProductDetailsLazyQueryHookResult = ReturnType<typeof useGetProductItemsForProductDetailsLazyQuery>;
+export type GetProductItemsForProductDetailsSuspenseQueryHookResult = ReturnType<typeof useGetProductItemsForProductDetailsSuspenseQuery>;
+export type GetProductItemsForProductDetailsQueryResult = Apollo.QueryResult<GetProductItemsForProductDetailsQuery, GetProductItemsForProductDetailsQueryVariables>;
+export const GetProductItemForDetailsDocument = gql`
+    query getProductItemForDetails($id: ID!) {
+  productItem(id: $id) {
+    id
+    ...ProductItemForProductItemDetails
+  }
+}
+    ${ProductItemForProductItemDetailsFragmentDoc}`;
+
+/**
+ * __useGetProductItemForDetailsQuery__
+ *
+ * To run a query within a React component, call `useGetProductItemForDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetProductItemForDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetProductItemForDetailsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetProductItemForDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetProductItemForDetailsQuery, GetProductItemForDetailsQueryVariables> & ({ variables: GetProductItemForDetailsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetProductItemForDetailsQuery, GetProductItemForDetailsQueryVariables>(GetProductItemForDetailsDocument, options);
+      }
+export function useGetProductItemForDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetProductItemForDetailsQuery, GetProductItemForDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetProductItemForDetailsQuery, GetProductItemForDetailsQueryVariables>(GetProductItemForDetailsDocument, options);
+        }
+// @ts-ignore
+export function useGetProductItemForDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetProductItemForDetailsQuery, GetProductItemForDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetProductItemForDetailsQuery, GetProductItemForDetailsQueryVariables>;
+export function useGetProductItemForDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProductItemForDetailsQuery, GetProductItemForDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetProductItemForDetailsQuery | undefined, GetProductItemForDetailsQueryVariables>;
+export function useGetProductItemForDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProductItemForDetailsQuery, GetProductItemForDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetProductItemForDetailsQuery, GetProductItemForDetailsQueryVariables>(GetProductItemForDetailsDocument, options);
+        }
+export type GetProductItemForDetailsQueryHookResult = ReturnType<typeof useGetProductItemForDetailsQuery>;
+export type GetProductItemForDetailsLazyQueryHookResult = ReturnType<typeof useGetProductItemForDetailsLazyQuery>;
+export type GetProductItemForDetailsSuspenseQueryHookResult = ReturnType<typeof useGetProductItemForDetailsSuspenseQuery>;
+export type GetProductItemForDetailsQueryResult = Apollo.QueryResult<GetProductItemForDetailsQuery, GetProductItemForDetailsQueryVariables>;
+export const GetProductItemForDetailsOverviewDocument = gql`
+    query getProductItemForDetailsOverview($id: ID!) {
+  productItem(id: $id) {
+    id
+    ...ProductItemForDetailsOverview
+  }
+}
+    ${ProductItemForDetailsOverviewFragmentDoc}`;
+
+/**
+ * __useGetProductItemForDetailsOverviewQuery__
+ *
+ * To run a query within a React component, call `useGetProductItemForDetailsOverviewQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetProductItemForDetailsOverviewQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetProductItemForDetailsOverviewQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetProductItemForDetailsOverviewQuery(baseOptions: Apollo.QueryHookOptions<GetProductItemForDetailsOverviewQuery, GetProductItemForDetailsOverviewQueryVariables> & ({ variables: GetProductItemForDetailsOverviewQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetProductItemForDetailsOverviewQuery, GetProductItemForDetailsOverviewQueryVariables>(GetProductItemForDetailsOverviewDocument, options);
+      }
+export function useGetProductItemForDetailsOverviewLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetProductItemForDetailsOverviewQuery, GetProductItemForDetailsOverviewQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetProductItemForDetailsOverviewQuery, GetProductItemForDetailsOverviewQueryVariables>(GetProductItemForDetailsOverviewDocument, options);
+        }
+// @ts-ignore
+export function useGetProductItemForDetailsOverviewSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetProductItemForDetailsOverviewQuery, GetProductItemForDetailsOverviewQueryVariables>): Apollo.UseSuspenseQueryResult<GetProductItemForDetailsOverviewQuery, GetProductItemForDetailsOverviewQueryVariables>;
+export function useGetProductItemForDetailsOverviewSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProductItemForDetailsOverviewQuery, GetProductItemForDetailsOverviewQueryVariables>): Apollo.UseSuspenseQueryResult<GetProductItemForDetailsOverviewQuery | undefined, GetProductItemForDetailsOverviewQueryVariables>;
+export function useGetProductItemForDetailsOverviewSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProductItemForDetailsOverviewQuery, GetProductItemForDetailsOverviewQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetProductItemForDetailsOverviewQuery, GetProductItemForDetailsOverviewQueryVariables>(GetProductItemForDetailsOverviewDocument, options);
+        }
+export type GetProductItemForDetailsOverviewQueryHookResult = ReturnType<typeof useGetProductItemForDetailsOverviewQuery>;
+export type GetProductItemForDetailsOverviewLazyQueryHookResult = ReturnType<typeof useGetProductItemForDetailsOverviewLazyQuery>;
+export type GetProductItemForDetailsOverviewSuspenseQueryHookResult = ReturnType<typeof useGetProductItemForDetailsOverviewSuspenseQuery>;
+export type GetProductItemForDetailsOverviewQueryResult = Apollo.QueryResult<GetProductItemForDetailsOverviewQuery, GetProductItemForDetailsOverviewQueryVariables>;
 export const DeleteProductDocument = gql`
     mutation deleteProduct($input: DestroyProductInput!) {
   destroyProduct(input: $input) {
@@ -38588,6 +39012,39 @@ export function useDeleteProductMutation(baseOptions?: Apollo.MutationHookOption
 export type DeleteProductMutationHookResult = ReturnType<typeof useDeleteProductMutation>;
 export type DeleteProductMutationResult = Apollo.MutationResult<DeleteProductMutation>;
 export type DeleteProductMutationOptions = Apollo.BaseMutationOptions<DeleteProductMutation, DeleteProductMutationVariables>;
+export const DeleteProductItemDocument = gql`
+    mutation deleteProductItem($input: DestroyProductItemInput!) {
+  destroyProductItem(input: $input) {
+    id
+  }
+}
+    `;
+export type DeleteProductItemMutationFn = Apollo.MutationFunction<DeleteProductItemMutation, DeleteProductItemMutationVariables>;
+
+/**
+ * __useDeleteProductItemMutation__
+ *
+ * To run a mutation, you first call `useDeleteProductItemMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteProductItemMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteProductItemMutation, { data, loading, error }] = useDeleteProductItemMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDeleteProductItemMutation(baseOptions?: Apollo.MutationHookOptions<DeleteProductItemMutation, DeleteProductItemMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteProductItemMutation, DeleteProductItemMutationVariables>(DeleteProductItemDocument, options);
+      }
+export type DeleteProductItemMutationHookResult = ReturnType<typeof useDeleteProductItemMutation>;
+export type DeleteProductItemMutationResult = Apollo.MutationResult<DeleteProductItemMutation>;
+export type DeleteProductItemMutationOptions = Apollo.BaseMutationOptions<DeleteProductItemMutation, DeleteProductItemMutationVariables>;
 export const CreateProductDocument = gql`
     mutation createProduct($input: CreateProductInput!) {
   createProduct(input: $input) {
@@ -38656,6 +39113,172 @@ export function useUpdateProductMutation(baseOptions?: Apollo.MutationHookOption
 export type UpdateProductMutationHookResult = ReturnType<typeof useUpdateProductMutation>;
 export type UpdateProductMutationResult = Apollo.MutationResult<UpdateProductMutation>;
 export type UpdateProductMutationOptions = Apollo.BaseMutationOptions<UpdateProductMutation, UpdateProductMutationVariables>;
+export const GetProductsForProductItemDrawerDocument = gql`
+    query getProductsForProductItemDrawer($page: Int, $limit: Int, $searchTerm: String) {
+  products(page: $page, limit: $limit, searchTerm: $searchTerm) {
+    collection {
+      id
+      name
+      code
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetProductsForProductItemDrawerQuery__
+ *
+ * To run a query within a React component, call `useGetProductsForProductItemDrawerQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetProductsForProductItemDrawerQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetProductsForProductItemDrawerQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *   },
+ * });
+ */
+export function useGetProductsForProductItemDrawerQuery(baseOptions?: Apollo.QueryHookOptions<GetProductsForProductItemDrawerQuery, GetProductsForProductItemDrawerQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetProductsForProductItemDrawerQuery, GetProductsForProductItemDrawerQueryVariables>(GetProductsForProductItemDrawerDocument, options);
+      }
+export function useGetProductsForProductItemDrawerLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetProductsForProductItemDrawerQuery, GetProductsForProductItemDrawerQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetProductsForProductItemDrawerQuery, GetProductsForProductItemDrawerQueryVariables>(GetProductsForProductItemDrawerDocument, options);
+        }
+// @ts-ignore
+export function useGetProductsForProductItemDrawerSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetProductsForProductItemDrawerQuery, GetProductsForProductItemDrawerQueryVariables>): Apollo.UseSuspenseQueryResult<GetProductsForProductItemDrawerQuery, GetProductsForProductItemDrawerQueryVariables>;
+export function useGetProductsForProductItemDrawerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProductsForProductItemDrawerQuery, GetProductsForProductItemDrawerQueryVariables>): Apollo.UseSuspenseQueryResult<GetProductsForProductItemDrawerQuery | undefined, GetProductsForProductItemDrawerQueryVariables>;
+export function useGetProductsForProductItemDrawerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProductsForProductItemDrawerQuery, GetProductsForProductItemDrawerQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetProductsForProductItemDrawerQuery, GetProductsForProductItemDrawerQueryVariables>(GetProductsForProductItemDrawerDocument, options);
+        }
+export type GetProductsForProductItemDrawerQueryHookResult = ReturnType<typeof useGetProductsForProductItemDrawerQuery>;
+export type GetProductsForProductItemDrawerLazyQueryHookResult = ReturnType<typeof useGetProductsForProductItemDrawerLazyQuery>;
+export type GetProductsForProductItemDrawerSuspenseQueryHookResult = ReturnType<typeof useGetProductsForProductItemDrawerSuspenseQuery>;
+export type GetProductsForProductItemDrawerQueryResult = Apollo.QueryResult<GetProductsForProductItemDrawerQuery, GetProductsForProductItemDrawerQueryVariables>;
+export const GetBillableMetricsForProductItemDrawerDocument = gql`
+    query getBillableMetricsForProductItemDrawer($page: Int, $limit: Int, $searchTerm: String) {
+  billableMetrics(page: $page, limit: $limit, searchTerm: $searchTerm) {
+    collection {
+      id
+      name
+      code
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetBillableMetricsForProductItemDrawerQuery__
+ *
+ * To run a query within a React component, call `useGetBillableMetricsForProductItemDrawerQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetBillableMetricsForProductItemDrawerQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetBillableMetricsForProductItemDrawerQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *   },
+ * });
+ */
+export function useGetBillableMetricsForProductItemDrawerQuery(baseOptions?: Apollo.QueryHookOptions<GetBillableMetricsForProductItemDrawerQuery, GetBillableMetricsForProductItemDrawerQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetBillableMetricsForProductItemDrawerQuery, GetBillableMetricsForProductItemDrawerQueryVariables>(GetBillableMetricsForProductItemDrawerDocument, options);
+      }
+export function useGetBillableMetricsForProductItemDrawerLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetBillableMetricsForProductItemDrawerQuery, GetBillableMetricsForProductItemDrawerQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetBillableMetricsForProductItemDrawerQuery, GetBillableMetricsForProductItemDrawerQueryVariables>(GetBillableMetricsForProductItemDrawerDocument, options);
+        }
+// @ts-ignore
+export function useGetBillableMetricsForProductItemDrawerSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetBillableMetricsForProductItemDrawerQuery, GetBillableMetricsForProductItemDrawerQueryVariables>): Apollo.UseSuspenseQueryResult<GetBillableMetricsForProductItemDrawerQuery, GetBillableMetricsForProductItemDrawerQueryVariables>;
+export function useGetBillableMetricsForProductItemDrawerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillableMetricsForProductItemDrawerQuery, GetBillableMetricsForProductItemDrawerQueryVariables>): Apollo.UseSuspenseQueryResult<GetBillableMetricsForProductItemDrawerQuery | undefined, GetBillableMetricsForProductItemDrawerQueryVariables>;
+export function useGetBillableMetricsForProductItemDrawerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillableMetricsForProductItemDrawerQuery, GetBillableMetricsForProductItemDrawerQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetBillableMetricsForProductItemDrawerQuery, GetBillableMetricsForProductItemDrawerQueryVariables>(GetBillableMetricsForProductItemDrawerDocument, options);
+        }
+export type GetBillableMetricsForProductItemDrawerQueryHookResult = ReturnType<typeof useGetBillableMetricsForProductItemDrawerQuery>;
+export type GetBillableMetricsForProductItemDrawerLazyQueryHookResult = ReturnType<typeof useGetBillableMetricsForProductItemDrawerLazyQuery>;
+export type GetBillableMetricsForProductItemDrawerSuspenseQueryHookResult = ReturnType<typeof useGetBillableMetricsForProductItemDrawerSuspenseQuery>;
+export type GetBillableMetricsForProductItemDrawerQueryResult = Apollo.QueryResult<GetBillableMetricsForProductItemDrawerQuery, GetBillableMetricsForProductItemDrawerQueryVariables>;
+export const CreateProductItemDocument = gql`
+    mutation createProductItem($input: CreateProductItemInput!) {
+  createProductItem(input: $input) {
+    id
+    ...ProductItemForDrawer
+  }
+}
+    ${ProductItemForDrawerFragmentDoc}`;
+export type CreateProductItemMutationFn = Apollo.MutationFunction<CreateProductItemMutation, CreateProductItemMutationVariables>;
+
+/**
+ * __useCreateProductItemMutation__
+ *
+ * To run a mutation, you first call `useCreateProductItemMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateProductItemMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createProductItemMutation, { data, loading, error }] = useCreateProductItemMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateProductItemMutation(baseOptions?: Apollo.MutationHookOptions<CreateProductItemMutation, CreateProductItemMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateProductItemMutation, CreateProductItemMutationVariables>(CreateProductItemDocument, options);
+      }
+export type CreateProductItemMutationHookResult = ReturnType<typeof useCreateProductItemMutation>;
+export type CreateProductItemMutationResult = Apollo.MutationResult<CreateProductItemMutation>;
+export type CreateProductItemMutationOptions = Apollo.BaseMutationOptions<CreateProductItemMutation, CreateProductItemMutationVariables>;
+export const UpdateProductItemDocument = gql`
+    mutation updateProductItem($input: UpdateProductItemInput!) {
+  updateProductItem(input: $input) {
+    id
+    ...ProductItemForDrawer
+  }
+}
+    ${ProductItemForDrawerFragmentDoc}`;
+export type UpdateProductItemMutationFn = Apollo.MutationFunction<UpdateProductItemMutation, UpdateProductItemMutationVariables>;
+
+/**
+ * __useUpdateProductItemMutation__
+ *
+ * To run a mutation, you first call `useUpdateProductItemMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateProductItemMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateProductItemMutation, { data, loading, error }] = useUpdateProductItemMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateProductItemMutation(baseOptions?: Apollo.MutationHookOptions<UpdateProductItemMutation, UpdateProductItemMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateProductItemMutation, UpdateProductItemMutationVariables>(UpdateProductItemDocument, options);
+      }
+export type UpdateProductItemMutationHookResult = ReturnType<typeof useUpdateProductItemMutation>;
+export type UpdateProductItemMutationResult = Apollo.MutationResult<UpdateProductItemMutation>;
+export type UpdateProductItemMutationOptions = Apollo.BaseMutationOptions<UpdateProductItemMutation, UpdateProductItemMutationVariables>;
 export const GetBillableMetricsForCouponsDocument = gql`
     query getBillableMetricsForCoupons($page: Int, $limit: Int, $searchTerm: String) {
   billableMetrics(page: $page, limit: $limit, searchTerm: $searchTerm) {

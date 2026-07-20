@@ -7,6 +7,12 @@ export const filterDataInlineSeparator = '|-_-|'
 // decode them back only for display — see escapeFilterLabel / unescapeFilterLabel in utils.
 export const filterDataLabelCommaPlaceholder = '|-COMMA-|'
 
+// Sentinel entry for the "Not defined" option of the product-item Product filter.
+// Selected alongside real product ids in the same multi-select, it is NOT a product id:
+// it maps to the standalone `withoutProduct: true` query arg. Kept free of the comma and
+// `filterDataInlineSeparator` so it can never collide with an encoded product selection.
+export const filterWithoutProductValue = '__without_product__'
+
 export enum AvailableQuickFilters {
   invoiceStatus = 'invoiceStatus',
   customerAccountType = 'customerAccountType',
@@ -87,6 +93,8 @@ export enum AvailableFiltersEnum {
   paymentOverdue = 'paymentOverdue',
   paymentStatus = 'paymentStatus',
   planCode = 'planCode',
+  productItemProduct = 'productItemProduct',
+  productItemType = 'productItemType',
   orderFormCreatedAt = 'orderFormCreatedAt',
   orderFormNumber = 'orderFormNumber',
   orderFormStatus = 'orderFormStatus',
@@ -305,6 +313,11 @@ export const SubscriptionAvailableFilters = [
   AvailableFiltersEnum.subscriptionStatus,
 ]
 
+export const ProductItemAvailableFilters = [
+  AvailableFiltersEnum.productItemProduct,
+  AvailableFiltersEnum.productItemType,
+]
+
 export const CustomerAnalyticsAvailableFilters = [
   AvailableFiltersEnum.currency,
   AvailableFiltersEnum.billingEntityId,
@@ -397,6 +410,8 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.paymentOverdue]: 'text_666c5b12fea4aa1e1b26bf55',
   [AvailableFiltersEnum.paymentStatus]: 'text_63eba8c65a6c8043feee2a0f',
   [AvailableFiltersEnum.planCode]: 'text_642d5eb2783a2ad10d670320',
+  [AvailableFiltersEnum.productItemProduct]: 'text_1783020794399ai60io2ufkg',
+  [AvailableFiltersEnum.productItemType]: 'text_632d68358f1fedc68eed3e5a',
   [AvailableFiltersEnum.orderFormCreatedAt]: 'text_1776870266380s3zbpmnfrhj',
   [AvailableFiltersEnum.orderFormNumber]: 'text_1781624189693d7zcv2vog4c',
   [AvailableFiltersEnum.orderFormStatus]: 'text_63ac86d797f728a87b2f9fa7',

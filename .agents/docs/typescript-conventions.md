@@ -108,3 +108,19 @@ return (
   </div>
 );
 ```
+
+**When to extract.** When the render holds non-trivial logic (multi-branch
+conditionals, `map` + `filter` chains, formatting, derived values), compute it
+in a named variable or helper above the `return`, then use the result in the
+JSX. This keeps the render shallow and readable instead of nesting logic deep
+inside the markup.
+
+Memoize the extracted value with `useMemo` (or a callback with `useCallback`)
+**only when it makes sense**: the computation is genuinely expensive, or the
+value feeds another hook's dependency array / a memoized child where a stable
+reference matters. Do not wrap cheap derivations in `useMemo` by default.
+
+**When NOT to extract.** Leave it inline when the logic is a single one-line
+ternary or a cheap expression, or when pulling it out would not meaningfully
+improve readability (a new variable/function for near-zero gain adds noise, not
+clarity).
