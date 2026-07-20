@@ -59,12 +59,12 @@ export const useVoidWalletDialog = () => {
       name: z.string(),
       voidCredits: z
         .string()
-        .min(1)
+        .min(1, { message: translate('text_1784560679832ncjei0uis94') })
         .refine((value) => {
           const parsed = Number(value)
 
           return !isNaN(parsed) && parsed > 0
-        })
+        }, translate('text_1784560679832ird9d8k4iqw'))
         .refine(
           (value) => {
             const parsed = Number(value)
@@ -103,6 +103,7 @@ export const useVoidWalletDialog = () => {
           },
         },
         refetchQueries: ['getCustomerWalletList', 'getWalletTransactions'],
+        awaitRefetchQueries: true,
         notifyOnNetworkStatusChange: true,
       })
     },
