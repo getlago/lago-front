@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Button } from '~/components/designSystem/Button'
 import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { DialogResult } from '~/components/dialogs/types'
+import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { EDIT_PM_DIALOG_SAVE_BUTTON_TEST_ID } from './dataTestConstants'
@@ -120,6 +121,7 @@ export const useEditPaymentMethodDialog = () => {
         title: translate('text_1764327933607ccgjo6zvcqe', { object: viewTypeLabel }),
         description: translate('text_1764327933607muwda2648vk', { object: viewTypeLabel }),
         closeOnError: false,
+        onEntered: focusFirstInput,
         children: (
           <EditPaymentMethodDialogContent
             externalCustomerId={externalCustomerId}
