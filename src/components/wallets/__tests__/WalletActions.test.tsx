@@ -34,7 +34,7 @@ jest.mock('~/components/wallets/TerminateCustomerWalletDialog', () => ({
 }))
 
 jest.mock('~/components/wallets/VoidWalletDialog', () => ({
-  VoidWalletDialog: () => null,
+  useVoidWalletDialog: () => ({ openVoidWalletDialog: jest.fn() }),
 }))
 
 describe('WalletActions', () => {
