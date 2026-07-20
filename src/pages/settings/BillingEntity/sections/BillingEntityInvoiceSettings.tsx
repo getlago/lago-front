@@ -31,10 +31,7 @@ import {
   EditFinalizeZeroAmountInvoiceDialog,
   EditFinalizeZeroAmountInvoiceDialogRef,
 } from '~/components/settings/invoices/EditFinalizeZeroAmountInvoiceDialog'
-import {
-  EditNetPaymentTermDialog,
-  EditNetPaymentTermDialogRef,
-} from '~/components/settings/invoices/EditNetPaymentTermDialog'
+import { useEditNetPaymentTermDialog } from '~/components/settings/invoices/EditNetPaymentTermDialog'
 import {
   INVOICE_ISSUING_DATE_ADJUSTMENT_SETTING_KEYS,
   INVOICE_ISSUING_DATE_ANCHOR_SETTING_KEYS,
@@ -130,7 +127,8 @@ const BillingEntityInvoiceSettings = () => {
     useRef<EditBillingEntityInvoiceIssuingDatePolicyDialogRef>(null)
   const editGracePeriodDialogRef = useRef<EditBillingEntityGracePeriodDialogRef>(null)
   const { openEditBillingEntityDocumentLocaleDialog } = useEditBillingEntityDocumentLocaleDialog()
-  const editNetPaymentTermDialogRef = useRef<EditNetPaymentTermDialogRef>(null)
+  const { openEditNetPaymentTermDialog } = useEditNetPaymentTermDialog()
+  const netPaymentTermDialogDescription = translate('text_64c7a89b6c67eb6c988980eb')
   const editFinalizeZeroAmountInvoiceDialogRef =
     useRef<EditFinalizeZeroAmountInvoiceDialogRef>(null)
   const premiumWarningDialog = usePremiumWarningDialog()
@@ -384,7 +382,12 @@ const BillingEntityInvoiceSettings = () => {
         <Button
           variant="inline"
           disabled={!canEditInvoiceSettings}
-          onClick={() => editNetPaymentTermDialogRef?.current?.openDialog(billingEntity)}
+          onClick={() =>
+            openEditNetPaymentTermDialog({
+              model: billingEntity,
+              description: netPaymentTermDialogDescription,
+            })
+          }
         >
           {translate('text_637f819eff19cd55a56d55e4')}
         </Button>
@@ -395,12 +398,6 @@ const BillingEntityInvoiceSettings = () => {
           days: billingEntity?.netPaymentTerm,
         },
         billingEntity?.netPaymentTerm,
-      ),
-      dialog: (
-        <EditNetPaymentTermDialog
-          ref={editNetPaymentTermDialogRef}
-          description={translate('text_64c7a89b6c67eb6c988980eb')}
-        />
       ),
     },
   ]

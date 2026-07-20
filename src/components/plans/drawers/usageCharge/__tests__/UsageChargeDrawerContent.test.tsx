@@ -486,6 +486,80 @@ describe('UsageChargeDrawerContent', () => {
     })
   })
 
+  describe('GIVEN a charge with multiple filters', () => {
+    const mockEditFormValuesWithTwoFilters = {
+      ...mockEditFormValues,
+      billableMetric: {
+        ...mockEditFormValues.billableMetric,
+        filters: [{ id: 'f1', key: 'region', values: ['us', 'eu'] }],
+      },
+      filters: [
+        {
+          values: ['{"region":"us"}'],
+          properties: { amount: '5', packageSize: '' },
+          invoiceDisplayName: '',
+        },
+        {
+          values: ['{"region":"eu"}'],
+          properties: { amount: '8', packageSize: '' },
+          invoiceDisplayName: '',
+        },
+      ],
+    }
+
+    const getOpenedFilterDrawerContentProps = () => {
+      const lastCall = mockDrawerOpen.mock.calls[mockDrawerOpen.mock.calls.length - 1][0]
+
+      // children is <ChargeFilterDrawerProvider><ChargeFilterDrawerContent .../></ChargeFilterDrawerProvider>
+      return lastCall.children.props.children.props
+    }
+
+    describe('WHEN opening the drawer to add a new filter', () => {
+      it('THEN should pass every existing filter values as otherFiltersValues', async () => {
+        mockCurrentFormValues = mockEditFormValuesWithTwoFilters
+        mockForm.state = { values: mockEditFormValuesWithTwoFilters }
+
+        render(
+          <UsageChargeDrawerContent
+            isCreateMode={false}
+            editIndex={0}
+            currency="USD"
+            interval="monthly"
+          />,
+        )
+
+        await userEvent.click(screen.getByTestId('add-charge-filter'))
+
+        expect(getOpenedFilterDrawerContentProps().otherFiltersValues).toEqual([
+          ['{"region":"us"}'],
+          ['{"region":"eu"}'],
+        ])
+      })
+    })
+
+    describe('WHEN opening the drawer to edit an existing filter', () => {
+      it('THEN should exclude that filter own values from otherFiltersValues', async () => {
+        mockCurrentFormValues = mockEditFormValuesWithTwoFilters
+        mockForm.state = { values: mockEditFormValuesWithTwoFilters }
+
+        render(
+          <UsageChargeDrawerContent
+            isCreateMode={false}
+            editIndex={0}
+            currency="USD"
+            interval="monthly"
+          />,
+        )
+
+        await userEvent.click(screen.getByTestId('filter-charge-selector-0'))
+
+        expect(getOpenedFilterDrawerContentProps().otherFiltersValues).toEqual([
+          ['{"region":"eu"}'],
+        ])
+      })
+    })
+  })
+
   describe('GIVEN the invoicing section renders', () => {
     describe('WHEN the component is in edit mode', () => {
       it('THEN should render PlanBillingPeriodInfoSection', () => {

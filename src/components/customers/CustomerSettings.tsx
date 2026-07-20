@@ -36,10 +36,7 @@ import {
   EditFinalizeZeroAmountInvoiceDialog,
   EditFinalizeZeroAmountInvoiceDialogRef,
 } from '~/components/settings/invoices/EditFinalizeZeroAmountInvoiceDialog'
-import {
-  EditNetPaymentTermDialog,
-  EditNetPaymentTermDialogRef,
-} from '~/components/settings/invoices/EditNetPaymentTermDialog'
+import { useEditNetPaymentTermDialog } from '~/components/settings/invoices/EditNetPaymentTermDialog'
 import {
   INVOICE_ISSUING_DATE_ADJUSTMENT_SETTING_KEYS,
   INVOICE_ISSUING_DATE_ANCHOR_SETTING_KEYS,
@@ -198,7 +195,8 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
     useEditCustomerInvoiceCustomSectionsDialog(customerId)
   const { openDeleteCustomerDocumentLocaleDialog } = useDeleteCustomerDocumentLocaleDialog()
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
-  const editNetPaymentTermDialogRef = useRef<EditNetPaymentTermDialogRef>(null)
+  const { openEditNetPaymentTermDialog } = useEditNetPaymentTermDialog()
+  const netPaymentTermDialogDescription = translate('text_64c7a89b6c67eb6c988980eb')
   const { openDeleteCustomerNetPaymentTermDialog } = useDeleteCustomerNetPaymentTermDialog()
   const editFinalizeZeroAmountInvoiceDialogRef =
     useRef<EditFinalizeZeroAmountInvoiceDialogRef>(null)
@@ -738,7 +736,10 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                             disabled={loading}
                             variant="inline"
                             onClick={() =>
-                              editNetPaymentTermDialogRef?.current?.openDialog(customer)
+                              openEditNetPaymentTermDialog({
+                                model: customer,
+                                description: netPaymentTermDialogDescription,
+                              })
                             }
                           >
                             {translate('text_645bb193927b375079d28ad2')}
@@ -762,7 +763,10 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                                   variant="quaternary"
                                   align="left"
                                   onClick={() => {
-                                    editNetPaymentTermDialogRef?.current?.openDialog(customer)
+                                    openEditNetPaymentTermDialog({
+                                      model: customer,
+                                      description: netPaymentTermDialogDescription,
+                                    })
                                     closePopper()
                                   }}
                                 >
@@ -939,10 +943,6 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
           <EditCustomerIssuingDatePolicyDialog
             ref={editIssuingDatePolicyDialogRef}
             customer={customer}
-          />
-          <EditNetPaymentTermDialog
-            ref={editNetPaymentTermDialogRef}
-            description={translate('text_64c7a89b6c67eb6c988980eb')}
           />
           <EditFinalizeZeroAmountInvoiceDialog
             ref={editFinalizeZeroAmountInvoiceDialogRef}
