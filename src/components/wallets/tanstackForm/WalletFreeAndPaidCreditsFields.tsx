@@ -124,31 +124,34 @@ export const WalletFreeAndPaidCreditsFields = withForm({
         {/* Read-only wallet summary */}
         <div className="flex flex-col gap-3 border-b border-grey-200 pb-8">
           <Typography variant="subhead1">{translate('text_17833526923863j848qxkffb')}</Typography>
-          <div className="flex gap-8">
-            <div>
-              <Typography variant="caption" color="grey600">
+          <Typography variant="caption" color="grey600">
+            {translate('text_1784552920236w7zteb5dk1y')}
+          </Typography>
+          <div className="flex flex-col gap-2">
+            <div className="flex gap-3">
+              <Typography className="w-40 shrink-0" variant="caption" color="grey600">
                 {translate('text_62d18855b22699e5cf55f875')}
               </Typography>
               <Typography variant="body" color="grey700">
                 {walletName || '-'}
               </Typography>
             </div>
-            <div>
-              <Typography variant="caption" color="grey600">
+            <div className="flex gap-3">
+              <Typography className="w-40 shrink-0" variant="caption" color="grey600">
                 {translate('text_62d18855b22699e5cf55f879')}
               </Typography>
-              <Typography variant="body" color="grey700">{`1 = ${rateLabel}`}</Typography>
+              <Typography variant="body" color="grey700">{`1 credit = ${rateLabel}`}</Typography>
             </div>
           </div>
         </div>
 
-        <form.AppField name="paidCredits">
+        <form.AppField name="freeCredits">
           {(field) => (
             <field.TextInputField
               beforeChangeFormatter={['positiveNumber', 'decimal']}
-              label={translate('text_62e79671d23ae6ff149de944')}
-              helperText={translate('text_62d18855b22699e5cf55f88b', {
-                paidCredits: toCurrency(String(field.state.value)),
+              label={translate('text_1784552920237ss68mgdwkmt')}
+              helperText={translate('text_1784552920237jisdtu6bwqy', {
+                freeCredits: toCurrency(String(field.state.value)),
               })}
               InputProps={{
                 endAdornment: (
@@ -161,13 +164,13 @@ export const WalletFreeAndPaidCreditsFields = withForm({
           )}
         </form.AppField>
 
-        <form.AppField name="freeCredits">
+        <form.AppField name="paidCredits">
           {(field) => (
             <field.TextInputField
               beforeChangeFormatter={['positiveNumber', 'decimal']}
-              label={translate('text_62e79671d23ae6ff149de954')}
-              helperText={translate('text_62d18855b22699e5cf55f893', {
-                grantedCredits: toCurrency(String(field.state.value)),
+              label={translate('text_1784552920237g89fvc8lki5')}
+              helperText={translate('text_62d18855b22699e5cf55f88b', {
+                paidCredits: toCurrency(String(field.state.value)),
               })}
               InputProps={{
                 endAdornment: (
@@ -192,10 +195,16 @@ export const WalletFreeAndPaidCreditsFields = withForm({
 
         {/* Metadata accordion — minimal key/value rows editor over the metadata slice. */}
         <Accordion
+          variant="borderless"
           summary={
-            <Typography variant="bodyHl" color="grey700">
-              {translate('text_63fcc3218d35b9377840f59b')}
-            </Typography>
+            <div className="flex flex-col gap-1">
+              <Typography variant="bodyHl" color="grey700">
+                {translate('text_63fcc3218d35b9377840f59b')}
+              </Typography>
+              <Typography variant="caption" color="grey600">
+                {translate('text_1784552920236qoa5zheiakw')}
+              </Typography>
+            </div>
           }
         >
           <MetadataRows form={form} />

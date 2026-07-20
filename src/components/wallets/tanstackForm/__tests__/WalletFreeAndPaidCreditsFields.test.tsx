@@ -48,6 +48,11 @@ const TestWrapper = ({
 // carries data-test="open-charge". Expand it to reach the metadata rows.
 const ACCORDION_TOGGLE_TEST_ID = 'open-charge'
 
+const KEY_FREE_CREDITS_LABEL = 'text_1784552920237ss68mgdwkmt'
+const KEY_PAID_CREDITS_LABEL = 'text_1784552920237g89fvc8lki5'
+const KEY_WALLET_SETTINGS_DESC = 'text_1784552920236w7zteb5dk1y'
+const KEY_METADATA_DESC = 'text_1784552920236qoa5zheiakw'
+
 describe('WalletFreeAndPaidCreditsFields', () => {
   describe('GIVEN the component renders', () => {
     describe('WHEN in default state', () => {
@@ -55,6 +60,26 @@ describe('WalletFreeAndPaidCreditsFields', () => {
         render(<TestWrapper />)
 
         expect(screen.getByTestId(WALLET_FREE_PAID_INVOICE_SWITCH_TEST_ID)).toBeInTheDocument()
+      })
+
+      it('THEN should render the Free credits field before the Paid credits field', () => {
+        render(<TestWrapper />)
+
+        const labels = screen.getAllByText(
+          (_, el) =>
+            el?.textContent === KEY_FREE_CREDITS_LABEL ||
+            el?.textContent === KEY_PAID_CREDITS_LABEL,
+        )
+
+        // First matched label in DOM order must be the free-credits one.
+        expect(labels[0]).toHaveTextContent(KEY_FREE_CREDITS_LABEL)
+      })
+
+      it('THEN should render the wallet-settings and metadata description lines', () => {
+        render(<TestWrapper />)
+
+        expect(screen.getByText(KEY_WALLET_SETTINGS_DESC)).toBeInTheDocument()
+        expect(screen.getByText(KEY_METADATA_DESC)).toBeInTheDocument()
       })
     })
   })
