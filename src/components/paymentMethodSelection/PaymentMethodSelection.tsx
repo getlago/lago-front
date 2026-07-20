@@ -1,11 +1,9 @@
-import { useState } from 'react'
-
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePaymentMethodsList } from '~/hooks/customer/usePaymentMethodsList'
 
-import { EditPaymentMethodDialog } from './EditPaymentMethodDialog'
+import { useEditPaymentMethodDialog } from './EditPaymentMethodDialog'
 import { PaymentMethodDisplay } from './PaymentMethodDisplay'
 import { PaymentMethodSelectionProps } from './types'
 import { useDisplayedPaymentMethod } from './useDisplayedPaymentMethod'
@@ -23,7 +21,7 @@ export const PaymentMethodSelection = ({
   disabled = false,
 }: PaymentMethodSelectionProps) => {
   const { translate } = useInternationalization()
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const { openEditPaymentMethodDialog } = useEditPaymentMethodDialog()
 
   const {
     data: paymentMethodsList,
@@ -61,7 +59,14 @@ export const PaymentMethodSelection = ({
           <Button
             variant="inline"
             startIcon="pen"
-            onClick={() => setIsDialogOpen(true)}
+            onClick={() =>
+              openEditPaymentMethodDialog({
+                externalCustomerId,
+                selectedPaymentMethod,
+                setSelectedPaymentMethod,
+                viewType,
+              })
+            }
             disabled={isDisabled}
             data-test={EDIT_PAYMENT_METHOD_BUTTON_TEST_ID}
           >
@@ -69,15 +74,6 @@ export const PaymentMethodSelection = ({
           </Button>
         </div>
       </div>
-
-      <EditPaymentMethodDialog
-        open={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
-        selectedPaymentMethod={selectedPaymentMethod}
-        setSelectedPaymentMethod={setSelectedPaymentMethod}
-        externalCustomerId={externalCustomerId}
-        viewType={viewType}
-      />
     </div>
   )
 }

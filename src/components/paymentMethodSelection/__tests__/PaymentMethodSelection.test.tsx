@@ -1,6 +1,10 @@
+import NiceModal from '@ebay/nice-modal-react'
 import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { ReactNode } from 'react'
 
+import { FORM_DIALOG_NAME } from '~/components/dialogs/const'
+import FormDialog from '~/components/dialogs/FormDialog'
 import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
 import { PaymentMethodsDocument } from '~/generated/graphql'
 import {
@@ -14,6 +18,12 @@ import {
   PaymentMethodSelection,
 } from '../PaymentMethodSelection'
 import { SelectedPaymentMethod } from '../types'
+
+NiceModal.register(FORM_DIALOG_NAME, FormDialog)
+
+const NiceModalWrapper = ({ children }: { children: ReactNode }) => (
+  <NiceModal.Provider>{children}</NiceModal.Provider>
+)
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -82,14 +92,16 @@ async function prepare({
 
   const result = await act(() =>
     render(
-      <PaymentMethodSelection
-        externalCustomerId={EXTERNAL_CUSTOMER_ID}
-        selectedPaymentMethod={selectedPaymentMethod}
-        setSelectedPaymentMethod={mockSetSelectedPaymentMethod}
-        viewType={viewType}
-        className={className}
-        disabled={disabled}
-      />,
+      <NiceModalWrapper>
+        <PaymentMethodSelection
+          externalCustomerId={EXTERNAL_CUSTOMER_ID}
+          selectedPaymentMethod={selectedPaymentMethod}
+          setSelectedPaymentMethod={mockSetSelectedPaymentMethod}
+          viewType={viewType}
+          className={className}
+          disabled={disabled}
+        />
+      </NiceModalWrapper>,
       { mocks },
     ),
   )
@@ -100,6 +112,11 @@ async function prepare({
 describe('PaymentMethodSelection', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+  })
+
+  afterEach(() => {
+    // NiceModal keeps open modals in module-level state that survives cleanup().
+    NiceModal.remove(FORM_DIALOG_NAME)
   })
 
   describe('WHEN rendering with basic props', () => {
