@@ -14816,6 +14816,16 @@ export type GoogleRegisterMutation = { __typename?: 'Mutation', googleRegisterUs
 
 export type ProductItemFilterForListFragment = { __typename?: 'ProductItemFilter', id: string, name: string, code: string, invoiceDisplayName?: string | null, createdAt: any, attachedToPlanOrSubscription: boolean, description?: string | null, productItem: { __typename?: 'ProductItem', id: string, name: string, invoiceDisplayName?: string | null, code: string }, values: Array<{ __typename?: 'ProductItemFilterValue', id: string, value: string, billableMetricFilter: { __typename?: 'BillableMetricFilter', id: string, key: string, values: Array<string> } }> };
 
+export type ProductItemFiltersQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+  productItemId?: InputMaybe<Scalars['ID']['input']>;
+}>;
+
+
+export type ProductItemFiltersQuery = { __typename?: 'Query', productItemFilters: { __typename?: 'ProductItemFilterCollection', collection: Array<{ __typename?: 'ProductItemFilter', id: string, name: string, code: string, invoiceDisplayName?: string | null, createdAt: any, attachedToPlanOrSubscription: boolean, description?: string | null, productItem: { __typename?: 'ProductItem', id: string, name: string, invoiceDisplayName?: string | null, code: string }, values: Array<{ __typename?: 'ProductItemFilterValue', id: string, value: string, billableMetricFilter: { __typename?: 'BillableMetricFilter', id: string, key: string, values: Array<string> } }> }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
+
 export type ProductItemForListFragment = { __typename?: 'ProductItem', id: string, name: string, code: string, invoiceDisplayName?: string | null, itemType: ProductItemTypeEnum, filtersCount: number, createdAt: any, description?: string | null, attachedToPlanOrSubscription: boolean, product?: { __typename?: 'Product', id: string, name: string, code: string } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string } | null };
 
 export type ProductItemsQueryVariables = Exact<{
@@ -38727,6 +38737,65 @@ export function useGoogleRegisterMutation(baseOptions?: Apollo.MutationHookOptio
 export type GoogleRegisterMutationHookResult = ReturnType<typeof useGoogleRegisterMutation>;
 export type GoogleRegisterMutationResult = Apollo.MutationResult<GoogleRegisterMutation>;
 export type GoogleRegisterMutationOptions = Apollo.BaseMutationOptions<GoogleRegisterMutation, GoogleRegisterMutationVariables>;
+export const ProductItemFiltersDocument = gql`
+    query productItemFilters($page: Int, $limit: Int, $searchTerm: String, $productItemId: ID) {
+  productItemFilters(
+    page: $page
+    limit: $limit
+    searchTerm: $searchTerm
+    productItemId: $productItemId
+  ) {
+    collection {
+      id
+      ...ProductItemFilterForList
+    }
+    metadata {
+      currentPage
+      totalPages
+      totalCount
+    }
+  }
+}
+    ${ProductItemFilterForListFragmentDoc}`;
+
+/**
+ * __useProductItemFiltersQuery__
+ *
+ * To run a query within a React component, call `useProductItemFiltersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useProductItemFiltersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useProductItemFiltersQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *      productItemId: // value for 'productItemId'
+ *   },
+ * });
+ */
+export function useProductItemFiltersQuery(baseOptions?: Apollo.QueryHookOptions<ProductItemFiltersQuery, ProductItemFiltersQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ProductItemFiltersQuery, ProductItemFiltersQueryVariables>(ProductItemFiltersDocument, options);
+      }
+export function useProductItemFiltersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ProductItemFiltersQuery, ProductItemFiltersQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ProductItemFiltersQuery, ProductItemFiltersQueryVariables>(ProductItemFiltersDocument, options);
+        }
+// @ts-ignore
+export function useProductItemFiltersSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ProductItemFiltersQuery, ProductItemFiltersQueryVariables>): Apollo.UseSuspenseQueryResult<ProductItemFiltersQuery, ProductItemFiltersQueryVariables>;
+export function useProductItemFiltersSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProductItemFiltersQuery, ProductItemFiltersQueryVariables>): Apollo.UseSuspenseQueryResult<ProductItemFiltersQuery | undefined, ProductItemFiltersQueryVariables>;
+export function useProductItemFiltersSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProductItemFiltersQuery, ProductItemFiltersQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ProductItemFiltersQuery, ProductItemFiltersQueryVariables>(ProductItemFiltersDocument, options);
+        }
+export type ProductItemFiltersQueryHookResult = ReturnType<typeof useProductItemFiltersQuery>;
+export type ProductItemFiltersLazyQueryHookResult = ReturnType<typeof useProductItemFiltersLazyQuery>;
+export type ProductItemFiltersSuspenseQueryHookResult = ReturnType<typeof useProductItemFiltersSuspenseQuery>;
+export type ProductItemFiltersQueryResult = Apollo.QueryResult<ProductItemFiltersQuery, ProductItemFiltersQueryVariables>;
 export const ProductItemsDocument = gql`
     query productItems($page: Int, $limit: Int, $searchTerm: String, $productIds: [ID!], $itemType: ProductItemTypeEnum, $withoutProduct: Boolean) {
   productItems(

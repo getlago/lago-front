@@ -14,6 +14,7 @@ import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import {
   DeleteProductItemFilterDocument,
   ProductItemFilterForDeleteProductItemFilterDialogFragment,
+  ProductItemFiltersDocument,
 } from '~/generated/graphql'
 
 import { useDeleteProductItemFilterDialog } from '../useDeleteProductItemFilterDialog'
@@ -139,7 +140,7 @@ describe('useDeleteProductItemFilterDialog', () => {
       id: 'pifilter-1',
       __typename: 'ProductItemFilter',
       listFieldName: 'productItemFilters',
-      listQueryDocument: [],
+      listQueryDocument: [ProductItemFiltersDocument],
     })
     expect(addToast).toHaveBeenCalledWith({
       message: 'text_1784581042201wnl8rlwi1nh',
@@ -163,7 +164,9 @@ describe('useDeleteProductItemFilterDialog', () => {
     await openDialogAndConfirm()
 
     await waitFor(() => {
-      expect(screen.queryByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID)).not.toBeInTheDocument()
+      expect(
+        screen.queryByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID),
+      ).not.toBeInTheDocument()
     })
 
     expect(evictFromCache).not.toHaveBeenCalled()

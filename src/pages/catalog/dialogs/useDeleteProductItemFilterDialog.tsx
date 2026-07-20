@@ -5,6 +5,7 @@ import { addToast } from '~/core/apolloClient'
 import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import {
   ProductItemFilterForDeleteProductItemFilterDialogFragment,
+  ProductItemFiltersDocument,
   useDeleteProductItemFilterMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -61,15 +62,14 @@ export const useDeleteProductItemFilterDialog = () => {
         if (destroyedId) {
           // Evict instead of refetching the list so a still-mounted details
           // query is not driven to a post-delete 404 (see evictFromCache).
-          // Tasks 6 (list) and 11 (nested preview) will add their generated query
-          // documents (ProductItemFiltersDocument, GetProductItemFiltersForProductItemDetailsDocument)
-          // to this array once those queries exist. The cache-collection cleanup runs
-          // regardless; no surface renders this dialog before Task 6.
+          // Task 11 (nested preview) will append its generated query document
+          // (GetProductItemFiltersForProductItemDetailsDocument) to this array
+          // once that query exists.
           evictFromCache(client, {
             id: destroyedId,
             __typename: 'ProductItemFilter',
             listFieldName: 'productItemFilters',
-            listQueryDocument: [],
+            listQueryDocument: [ProductItemFiltersDocument],
           })
 
           callback?.()
