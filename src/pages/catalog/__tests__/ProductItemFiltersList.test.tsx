@@ -32,6 +32,20 @@ jest.mock('~/components/designSystem/Pagination', () => ({
   usePageSearchParam: () => ({ page: 1, goToPage: mockGoToPage }),
 }))
 
+jest.mock('~/components/designSystem/Filters', () => ({
+  Filters: {
+    Provider: ({ children }: { children: ReactNode }) => <>{children}</>,
+    Component: () => null,
+  },
+  formatFiltersForProductItemFiltersQuery: () => ({}),
+  ProductItemFilterAvailableFilters: [],
+}))
+
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useSearchParams: () => [new URLSearchParams(), jest.fn()],
+}))
+
 jest.mock('~/components/SearchInput', () => ({
   SearchInput: (props: Record<string, unknown>) => {
     mockSearchInputProps(props)

@@ -13,6 +13,13 @@ export const filterDataLabelCommaPlaceholder = '|-COMMA-|'
 // `filterDataInlineSeparator` so it can never collide with an encoded product selection.
 export const filterWithoutProductValue = '__without_product__'
 
+// Sentinel entry for the "Not defined" option of the product-item-filters list's
+// Product item filter. Matches the Figma reference for visual parity with the
+// product-item list's Product filter, but has no backend meaning here: a
+// ProductItemFilter always belongs to exactly one product item, so selecting it
+// never contributes a `productItemId` (see formatFiltersForProductItemFiltersQuery).
+export const filterWithoutProductItemValue = '__without_product_item__'
+
 export enum AvailableQuickFilters {
   invoiceStatus = 'invoiceStatus',
   customerAccountType = 'customerAccountType',
@@ -95,6 +102,8 @@ export enum AvailableFiltersEnum {
   planCode = 'planCode',
   productItemProduct = 'productItemProduct',
   productItemType = 'productItemType',
+  productItemFilterProduct = 'productItemFilterProduct',
+  productItemFilterProductItem = 'productItemFilterProductItem',
   orderFormCreatedAt = 'orderFormCreatedAt',
   orderFormNumber = 'orderFormNumber',
   orderFormStatus = 'orderFormStatus',
@@ -318,6 +327,11 @@ export const ProductItemAvailableFilters = [
   AvailableFiltersEnum.productItemType,
 ]
 
+export const ProductItemFilterAvailableFilters = [
+  AvailableFiltersEnum.productItemFilterProduct,
+  AvailableFiltersEnum.productItemFilterProductItem,
+]
+
 export const CustomerAnalyticsAvailableFilters = [
   AvailableFiltersEnum.currency,
   AvailableFiltersEnum.billingEntityId,
@@ -412,6 +426,10 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.planCode]: 'text_642d5eb2783a2ad10d670320',
   [AvailableFiltersEnum.productItemProduct]: 'text_1783020794399ai60io2ufkg',
   [AvailableFiltersEnum.productItemType]: 'text_632d68358f1fedc68eed3e5a',
+  // Reuses the "Product" / "Product item" resource-name labels (same words shown
+  // elsewhere for the entity types) rather than minting new filter-specific copy.
+  [AvailableFiltersEnum.productItemFilterProduct]: 'text_1783020794399ai60io2ufkg',
+  [AvailableFiltersEnum.productItemFilterProductItem]: 'text_1783020794400si0ioidu0m5',
   [AvailableFiltersEnum.orderFormCreatedAt]: 'text_1776870266380s3zbpmnfrhj',
   [AvailableFiltersEnum.orderFormNumber]: 'text_1781624189693d7zcv2vog4c',
   [AvailableFiltersEnum.orderFormStatus]: 'text_63ac86d797f728a87b2f9fa7',

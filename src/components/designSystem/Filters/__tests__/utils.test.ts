@@ -5,6 +5,7 @@ import { TranslateFunc } from '~/hooks/core/useInternationalization'
 import {
   AvailableFiltersEnum,
   filterDataInlineSeparator,
+  filterWithoutProductItemValue,
   filterWithoutProductValue,
 } from '../types'
 import {
@@ -18,6 +19,7 @@ import {
   formatFiltersForMrrQuery,
   formatFiltersForOrderFormsQuery,
   formatFiltersForOrdersQuery,
+  formatFiltersForProductItemFiltersQuery,
   formatFiltersForProductItemsQuery,
   formatFiltersForQuery,
   formatFiltersForQuotesQuery,
@@ -372,6 +374,34 @@ describe('Filters utils', () => {
       )
 
       expect(result).toBe('Not defined, code-1')
+    })
+    it('should format active filter productItemFilterProduct product code display', () => {
+      const result = formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.productItemFilterProduct,
+        `prod-1${filterDataInlineSeparator}code-1,prod-2${filterDataInlineSeparator}code-2`,
+      )
+
+      expect(result).toBe('code-1, code-2')
+    })
+    it('should format active filter productItemFilterProductItem name display', () => {
+      const result = formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.productItemFilterProductItem,
+        `pi-1${filterDataInlineSeparator}Seats,pi-2${filterDataInlineSeparator}Extra`,
+      )
+
+      expect(result).toBe('Seats, Extra')
+    })
+    it('should format active filter productItemFilterProductItem "Not defined" with translation', () => {
+      const translate = ((key: string) =>
+        key === 'text_1784214117868fh6rndi4m75' ? 'Not defined' : key) as TranslateFunc
+
+      const result = formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.productItemFilterProductItem,
+        `${filterWithoutProductItemValue},pi-1${filterDataInlineSeparator}Seats`,
+        translate,
+      )
+
+      expect(result).toBe('Not defined, Seats')
     })
     it('should format active filter paymentDisputeLost value display', () => {
       const result = formatActiveFilterValueDisplay(AvailableFiltersEnum.paymentDisputeLost, 'true')
@@ -1094,6 +1124,38 @@ describe('Filters utils', () => {
 
       expect(result).toEqual({ productIds: ['prod-1'], withoutProduct: true })
     })
+
+    it('should map productItemFilterProduct the same way as productItemProduct', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.productItemFilterProduct](
+        `${filterWithoutProductValue},prod-1${filterDataInlineSeparator}code-1`,
+      )
+
+      expect(result).toEqual({ productIds: ['prod-1'], withoutProduct: true })
+    })
+
+    it('should map productItemFilterProductItem to the first real productItemId', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.productItemFilterProductItem](
+        `pi-1${filterDataInlineSeparator}Seats,pi-2${filterDataInlineSeparator}Extra`,
+      )
+
+      expect(result).toEqual({ productItemId: 'pi-1' })
+    })
+
+    it('should map productItemFilterProductItem "Not defined"-only to an empty object', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.productItemFilterProductItem](
+        filterWithoutProductItemValue,
+      )
+
+      expect(result).toEqual({})
+    })
+
+    it('should skip a leading "Not defined" entry and map productItemFilterProductItem to the first real id', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.productItemFilterProductItem](
+        `${filterWithoutProductItemValue},pi-1${filterDataInlineSeparator}Seats`,
+      )
+
+      expect(result).toEqual({ productItemId: 'pi-1' })
+    })
   })
 
   describe('formatMetadataFilter', () => {
@@ -1418,6 +1480,41 @@ describe('Filters utils', () => {
         withoutProduct: true,
         itemType: 'fixed',
       })
+    })
+  })
+
+  describe('formatFiltersForProductItemFiltersQuery', () => {
+    it('maps the product-item filter to a single productItemId', () => {
+      const params = new URLSearchParams()
+
+      params.set('pif_productItemFilterProductItem', 'pi-1|-_-|Seats')
+
+      expect(formatFiltersForProductItemFiltersQuery(params)).toEqual({ productItemId: 'pi-1' })
+    })
+
+    it('keeps only the first product item when multiple are selected', () => {
+      const params = new URLSearchParams()
+
+      params.set(
+        'pif_productItemFilterProductItem',
+        `pi-1${filterDataInlineSeparator}Seats,pi-2${filterDataInlineSeparator}Extra`,
+      )
+
+      expect(formatFiltersForProductItemFiltersQuery(params)).toEqual({ productItemId: 'pi-1' })
+    })
+
+    it('ignores the Product filter entirely', () => {
+      const params = new URLSearchParams()
+
+      params.set('pif_productItemFilterProduct', `prod-1${filterDataInlineSeparator}code-1`)
+
+      expect(formatFiltersForProductItemFiltersQuery(params)).toEqual({})
+    })
+
+    it('returns an empty object when no filter is set', () => {
+      const params = new URLSearchParams()
+
+      expect(formatFiltersForProductItemFiltersQuery(params)).toEqual({})
     })
   })
 

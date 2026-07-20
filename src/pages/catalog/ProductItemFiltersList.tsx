@@ -1,10 +1,17 @@
 import { gql } from '@apollo/client'
 import { tw } from 'lago-design-system'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
+import { useSearchParams } from 'react-router-dom'
 
+import {
+  Filters,
+  formatFiltersForProductItemFiltersQuery,
+  ProductItemFilterAvailableFilters,
+} from '~/components/designSystem/Filters'
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Table, TablePlaceholder } from '~/components/designSystem/Table/Table'
 import { SearchInput } from '~/components/SearchInput'
+import { PRODUCT_ITEM_FILTER_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import {
   ProductItemFilterForDeleteProductItemFilterDialogFragmentDoc,
@@ -66,14 +73,20 @@ const ProductItemFiltersList = () => {
   const { hasPermissions } = usePermissions()
   const { openDrawer: openProductItemFilterDrawer } = useProductItemFilterDrawer()
   const { actionColumn, actionColumnTooltip, getRowActionLink } = useProductItemFilterTableActions()
+  const [searchParams] = useSearchParams()
   const { page, goToPage } = usePageSearchParam()
+
+  const filtersForProductItemFiltersQuery = useMemo(
+    () => formatFiltersForProductItemFiltersQuery(searchParams),
+    [searchParams],
+  )
 
   // network-only: tabs are route-based so this component remounts on tab switch
   // and `?page` is dropped; a cache-first read would flash the previously viewed
   // page before the page-1 refetch.
   const [getProductItemFilters, { data, error, loading, variables }] =
     useProductItemFiltersLazyQuery({
-      variables: { limit: DEFAULT_PAGE_SIZE, page },
+      variables: { limit: DEFAULT_PAGE_SIZE, page, ...filtersForProductItemFiltersQuery },
       notifyOnNetworkStatusChange: true,
       fetchPolicy: 'network-only',
       nextFetchPolicy: 'network-only',
@@ -127,13 +140,19 @@ const ProductItemFiltersList = () => {
   // 4px cell gutter.
   return (
     <div className="px-4 md:px-12" data-test={PRODUCT_ITEM_FILTERS_LIST_TEST_ID}>
-      <div className="py-4">
-        <SearchInput
-          onChange={searchInputOnChange}
-          placeholder={translate('text_17845854002450t175dwblcq')}
-          data-test="product-item-filters-search-input"
-        />
-      </div>
+      <Filters.Provider
+        filtersNamePrefix={PRODUCT_ITEM_FILTER_LIST_FILTER_PREFIX}
+        availableFilters={ProductItemFilterAvailableFilters}
+      >
+        <div className="flex flex-col gap-3 py-4 md:flex-row md:items-center">
+          <SearchInput
+            onChange={searchInputOnChange}
+            placeholder={translate('text_17845854002450t175dwblcq')}
+            data-test="product-item-filters-search-input"
+          />
+          <Filters.Component />
+        </div>
+      </Filters.Provider>
       <PaginatedContent
         metadata={data?.productItemFilters?.metadata}
         loading={isLoading}
