@@ -30,6 +30,17 @@ const FEE_TYPE_LABEL_KEYS: Record<AvailableFeeTypes, string> = {
 
 const DEFAULTS: WalletScopeSlice = { feeTypes: [], billableMetricCodes: [] }
 
+export const WALLET_SCOPE_FEE_TYPE_CHIPS_TEST_ID = 'wallet-scope-fee-type-chips'
+export const WALLET_SCOPE_FEE_TYPE_ADD_BUTTON_TEST_ID = 'wallet-scope-fee-type-add-button'
+export const WALLET_SCOPE_FEE_TYPE_COMBOBOX_TEST_ID = 'wallet-scope-fee-type-combobox'
+export const WALLET_SCOPE_FEE_TYPE_CANCEL_BUTTON_TEST_ID = 'wallet-scope-fee-type-cancel-button'
+export const WALLET_SCOPE_BILLABLE_METRIC_CHIPS_TEST_ID = 'wallet-scope-billable-metric-chips'
+export const WALLET_SCOPE_BILLABLE_METRIC_ADD_BUTTON_TEST_ID =
+  'wallet-scope-billable-metric-add-button'
+export const WALLET_SCOPE_BILLABLE_METRIC_COMBOBOX_TEST_ID = 'wallet-scope-billable-metric-combobox'
+export const WALLET_SCOPE_BILLABLE_METRIC_CANCEL_BUTTON_TEST_ID =
+  'wallet-scope-billable-metric-cancel-button'
+
 export const WalletScopeFields = withForm({
   defaultValues: DEFAULTS,
   props: {},
@@ -74,7 +85,10 @@ export const WalletScopeFields = withForm({
                 </div>
 
                 {!!selected.length && (
-                  <div className="flex flex-wrap items-center gap-3">
+                  <div
+                    className="flex flex-wrap items-center gap-3"
+                    data-test={WALLET_SCOPE_FEE_TYPE_CHIPS_TEST_ID}
+                  >
                     {selected.map((feeType) => (
                       <Chip
                         key={feeType}
@@ -94,6 +108,7 @@ export const WalletScopeFields = withForm({
                 {showFeeTypeInput ? (
                   <div className="flex items-center gap-4">
                     <ComboBox
+                      data-test={WALLET_SCOPE_FEE_TYPE_COMBOBOX_TEST_ID}
                       containerClassName="flex-1"
                       placeholder={translate('text_17484381918689r63e54hrh1')}
                       data={comboboxFeeTypesData}
@@ -106,6 +121,7 @@ export const WalletScopeFields = withForm({
                     />
                     <Tooltip placement="top-end" title={translate('text_63aa085d28b8510cd46443ff')}>
                       <Button
+                        data-test={WALLET_SCOPE_FEE_TYPE_CANCEL_BUTTON_TEST_ID}
                         icon="trash"
                         variant="quaternary"
                         onClick={() => setShowFeeTypeInput(false)}
@@ -114,6 +130,7 @@ export const WalletScopeFields = withForm({
                   </div>
                 ) : (
                   <Button
+                    data-test={WALLET_SCOPE_FEE_TYPE_ADD_BUTTON_TEST_ID}
                     className="self-start"
                     startIcon="plus"
                     variant="inline"
@@ -163,7 +180,10 @@ export const WalletScopeFields = withForm({
                 </div>
 
                 {!!selected.length && (
-                  <div className="flex flex-wrap items-center gap-3">
+                  <div
+                    className="flex flex-wrap items-center gap-3"
+                    data-test={WALLET_SCOPE_BILLABLE_METRIC_CHIPS_TEST_ID}
+                  >
                     {selected.map((code) => {
                       const matched = billableMetricsData?.billableMetrics?.collection.find(
                         (billableMetric) => billableMetric.code === code,
@@ -185,6 +205,7 @@ export const WalletScopeFields = withForm({
                 {showBillableMetricInput ? (
                   <div className="flex items-center gap-4">
                     <ComboBox
+                      data-test={WALLET_SCOPE_BILLABLE_METRIC_COMBOBOX_TEST_ID}
                       containerClassName="flex-1"
                       placeholder={translate('text_17484381918689r63e54hrh1')}
                       loading={billableMetricsLoading}
@@ -199,6 +220,7 @@ export const WalletScopeFields = withForm({
                     />
                     <Tooltip placement="top-end" title={translate('text_63aa085d28b8510cd46443ff')}>
                       <Button
+                        data-test={WALLET_SCOPE_BILLABLE_METRIC_CANCEL_BUTTON_TEST_ID}
                         icon="trash"
                         variant="quaternary"
                         onClick={() => setShowBillableMetricInput(false)}
@@ -207,6 +229,7 @@ export const WalletScopeFields = withForm({
                   </div>
                 ) : (
                   <Button
+                    data-test={WALLET_SCOPE_BILLABLE_METRIC_ADD_BUTTON_TEST_ID}
                     className="self-start"
                     startIcon="plus"
                     variant="inline"

@@ -19,6 +19,12 @@ const DEFAULTS: WalletFreeAndPaidSlice = {
   metadata: [],
 }
 
+export const WALLET_FREE_PAID_METADATA_ROW_TEST_ID = 'wallet-free-paid-metadata-row'
+export const WALLET_FREE_PAID_METADATA_ADD_BUTTON_TEST_ID = 'wallet-free-paid-metadata-add-button'
+export const WALLET_FREE_PAID_METADATA_DELETE_BUTTON_TEST_ID =
+  'wallet-free-paid-metadata-delete-button'
+export const WALLET_FREE_PAID_INVOICE_SWITCH_TEST_ID = 'wallet-free-paid-invoice-switch'
+
 const MetadataRows = withForm({
   defaultValues: DEFAULTS,
   render: function Render({ form }) {
@@ -36,7 +42,11 @@ const MetadataRows = withForm({
     return (
       <div className="flex flex-col gap-4">
         {metadata.map((_row, index) => (
-          <div key={index} className="flex items-start gap-3">
+          <div
+            key={index}
+            className="flex items-start gap-3"
+            data-test={WALLET_FREE_PAID_METADATA_ROW_TEST_ID}
+          >
             <form.AppField name={`metadata[${index}].key`}>
               {(field) => (
                 <field.TextInputField
@@ -60,12 +70,23 @@ const MetadataRows = withForm({
               placement="top-end"
               title={translate('text_63fcc3218d35b9377840f5e1')}
             >
-              <Button icon="trash" variant="quaternary" onClick={() => removeMetadata(index)} />
+              <Button
+                data-test={WALLET_FREE_PAID_METADATA_DELETE_BUTTON_TEST_ID}
+                icon="trash"
+                variant="quaternary"
+                onClick={() => removeMetadata(index)}
+              />
             </Tooltip>
           </div>
         ))}
 
-        <Button className="self-start" startIcon="plus" variant="inline" onClick={addMetadata}>
+        <Button
+          data-test={WALLET_FREE_PAID_METADATA_ADD_BUTTON_TEST_ID}
+          className="self-start"
+          startIcon="plus"
+          variant="inline"
+          onClick={addMetadata}
+        >
           {translate('text_63fcc3218d35b9377840f5bb')}
         </Button>
       </div>
@@ -155,6 +176,7 @@ export const WalletFreeAndPaidCreditsFields = withForm({
         <form.AppField name="invoiceRequiresSuccessfulPayment">
           {(field) => (
             <field.SwitchField
+              dataTest={WALLET_FREE_PAID_INVOICE_SWITCH_TEST_ID}
               label={translate('text_66a8aed1c3e07b277ec3990d')}
               subLabel={translate('text_66a8aed1c3e07b277ec3990f')}
             />

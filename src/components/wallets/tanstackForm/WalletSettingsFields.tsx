@@ -14,6 +14,17 @@ import { itemToSettings, type WalletSettingsSlice } from './walletFormSchema'
 
 const DEFAULTS: WalletSettingsSlice = itemToSettings(makeEmptyWalletItem(''))
 
+export const WALLET_SETTINGS_EXPIRATION_ADD_BUTTON_TEST_ID = 'wallet-settings-expiration-add-button'
+export const WALLET_SETTINGS_EXPIRATION_SECTION_TEST_ID = 'wallet-settings-expiration-section'
+export const WALLET_SETTINGS_EXPIRATION_DELETE_BUTTON_TEST_ID =
+  'wallet-settings-expiration-delete-button'
+export const WALLET_SETTINGS_MIN_MAX_ADD_BUTTON_TEST_ID = 'wallet-settings-min-max-add-button'
+export const WALLET_SETTINGS_MIN_MAX_SECTION_TEST_ID = 'wallet-settings-min-max-section'
+export const WALLET_SETTINGS_MIN_MAX_DELETE_BUTTON_TEST_ID = 'wallet-settings-min-max-delete-button'
+export const WALLET_SETTINGS_PO_ADD_BUTTON_TEST_ID = 'wallet-settings-po-add-button'
+export const WALLET_SETTINGS_PO_SECTION_TEST_ID = 'wallet-settings-po-section'
+export const WALLET_SETTINGS_PO_DELETE_BUTTON_TEST_ID = 'wallet-settings-po-delete-button'
+
 export const WalletSettingsFields = withForm({
   defaultValues: DEFAULTS,
   props: {
@@ -83,7 +94,10 @@ export const WalletSettingsFields = withForm({
 
         {/* Expiration date (toggle) */}
         {showExpiration ? (
-          <div className="flex items-end gap-3 [&>*:first-child]:flex-1">
+          <div
+            className="flex items-end gap-3 [&>*:first-child]:flex-1"
+            data-test={WALLET_SETTINGS_EXPIRATION_SECTION_TEST_ID}
+          >
             <form.AppField name="expirationAt">
               {(field) => (
                 <field.DatePickerField
@@ -99,6 +113,7 @@ export const WalletSettingsFields = withForm({
               title={translate('text_63aa085d28b8510cd46443ff')}
             >
               <Button
+                data-test={WALLET_SETTINGS_EXPIRATION_DELETE_BUTTON_TEST_ID}
                 icon="trash"
                 variant="quaternary"
                 onClick={() => {
@@ -109,14 +124,19 @@ export const WalletSettingsFields = withForm({
             </Tooltip>
           </div>
         ) : (
-          <Button startIcon="plus" variant="inline" onClick={() => setShowExpiration(true)}>
+          <Button
+            data-test={WALLET_SETTINGS_EXPIRATION_ADD_BUTTON_TEST_ID}
+            startIcon="plus"
+            variant="inline"
+            onClick={() => setShowExpiration(true)}
+          >
             {translate('text_6560809c38fb9de88d8a517e')}
           </Button>
         )}
 
         {/* Min/max per transaction (toggle) */}
         {showMinMax ? (
-          <div className="flex gap-3">
+          <div className="flex gap-3" data-test={WALLET_SETTINGS_MIN_MAX_SECTION_TEST_ID}>
             <form.AppField name="paidTopUpMinAmountCents">
               {(field) => (
                 <field.AmountInputField
@@ -143,6 +163,7 @@ export const WalletSettingsFields = withForm({
               title={translate('text_63aa085d28b8510cd46443ff')}
             >
               <Button
+                data-test={WALLET_SETTINGS_MIN_MAX_DELETE_BUTTON_TEST_ID}
                 icon="trash"
                 variant="quaternary"
                 onClick={() => {
@@ -154,14 +175,22 @@ export const WalletSettingsFields = withForm({
             </Tooltip>
           </div>
         ) : (
-          <Button startIcon="plus" variant="inline" onClick={() => setShowMinMax(true)}>
+          <Button
+            data-test={WALLET_SETTINGS_MIN_MAX_ADD_BUTTON_TEST_ID}
+            startIcon="plus"
+            variant="inline"
+            onClick={() => setShowMinMax(true)}
+          >
             {translate('text_17582856866461p9g3nsnrgc')}
           </Button>
         )}
 
         {/* Purchase order number (toggle) */}
         {showPO ? (
-          <div className="flex items-end gap-3 [&>*:first-child]:flex-1">
+          <div
+            className="flex items-end gap-3 [&>*:first-child]:flex-1"
+            data-test={WALLET_SETTINGS_PO_SECTION_TEST_ID}
+          >
             <form.AppField name="purchaseOrderNumber">
               {(field) => (
                 <field.TextInputField label={translate('text_1783352692386p9bls6f0o76')} />
@@ -173,6 +202,7 @@ export const WalletSettingsFields = withForm({
               title={translate('text_63aa085d28b8510cd46443ff')}
             >
               <Button
+                data-test={WALLET_SETTINGS_PO_DELETE_BUTTON_TEST_ID}
                 icon="trash"
                 variant="quaternary"
                 onClick={() => {
@@ -183,7 +213,12 @@ export const WalletSettingsFields = withForm({
             </Tooltip>
           </div>
         ) : (
-          <Button startIcon="plus" variant="inline" onClick={() => setShowPO(true)}>
+          <Button
+            data-test={WALLET_SETTINGS_PO_ADD_BUTTON_TEST_ID}
+            startIcon="plus"
+            variant="inline"
+            onClick={() => setShowPO(true)}
+          >
             {translate('text_1783352692386valktkog1dw')}
           </Button>
         )}

@@ -35,6 +35,15 @@ const DEFAULTS: WalletRecurringSlice = {
   expirationAt: null,
 }
 
+export const WALLET_RECURRING_METHOD_COMBOBOX_TEST_ID = 'wallet-recurring-method-combobox'
+export const WALLET_RECURRING_TRIGGER_COMBOBOX_TEST_ID = 'wallet-recurring-trigger-combobox'
+export const WALLET_RECURRING_INTERVAL_COMBOBOX_TEST_ID = 'wallet-recurring-interval-combobox'
+export const WALLET_RECURRING_EXPIRATION_ADD_BUTTON_TEST_ID =
+  'wallet-recurring-expiration-add-button'
+export const WALLET_RECURRING_EXPIRATION_SECTION_TEST_ID = 'wallet-recurring-expiration-section'
+export const WALLET_RECURRING_EXPIRATION_DELETE_BUTTON_TEST_ID =
+  'wallet-recurring-expiration-delete-button'
+
 const INTERVAL_OPTIONS = [
   RecurringTransactionIntervalEnum.Weekly,
   RecurringTransactionIntervalEnum.Monthly,
@@ -128,6 +137,7 @@ export const WalletRecurringTopUpFields = withForm({
         >
           {(field) => (
             <field.ComboBoxField
+              dataTest={WALLET_RECURRING_METHOD_COMBOBOX_TEST_ID}
               disableClearable
               placeholder={translate('text_6657c29c84ad4500ad764ed8')}
               label={translate('text_6657c29c84ad4500ad764ed7')}
@@ -227,6 +237,7 @@ export const WalletRecurringTopUpFields = withForm({
           >
             {(field) => (
               <field.ComboBoxField
+                dataTest={WALLET_RECURRING_TRIGGER_COMBOBOX_TEST_ID}
                 containerClassName="flex-1"
                 disableClearable
                 placeholder={translate('text_6657c29c84ad4500ad764ee2')}
@@ -252,6 +263,7 @@ export const WalletRecurringTopUpFields = withForm({
                   <form.AppField name="interval">
                     {(field) => (
                       <field.ComboBoxField
+                        dataTest={WALLET_RECURRING_INTERVAL_COMBOBOX_TEST_ID}
                         containerClassName="flex-1"
                         disableClearable
                         placeholder={translate('text_6560c252c4f33631aff1ab27')}
@@ -310,6 +322,7 @@ export const WalletRecurringTopUpFields = withForm({
             if (!showExpiration) {
               return (
                 <Button
+                  data-test={WALLET_RECURRING_EXPIRATION_ADD_BUTTON_TEST_ID}
                   className="self-start"
                   startIcon="plus"
                   variant="inline"
@@ -321,7 +334,10 @@ export const WalletRecurringTopUpFields = withForm({
             }
 
             return (
-              <div className="flex items-end gap-3 [&>*:first-child]:flex-1">
+              <div
+                className="flex items-end gap-3 [&>*:first-child]:flex-1"
+                data-test={WALLET_RECURRING_EXPIRATION_SECTION_TEST_ID}
+              >
                 <field.DatePickerField
                   disablePast
                   label={translate('text_62d18855b22699e5cf55f897')}
@@ -334,6 +350,7 @@ export const WalletRecurringTopUpFields = withForm({
                   title={translate('text_63aa085d28b8510cd46443ff')}
                 >
                   <Button
+                    data-test={WALLET_RECURRING_EXPIRATION_DELETE_BUTTON_TEST_ID}
                     icon="trash"
                     variant="quaternary"
                     onClick={() => field.handleChange(null)}
