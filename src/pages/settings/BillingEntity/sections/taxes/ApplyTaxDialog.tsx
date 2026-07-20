@@ -1,16 +1,22 @@
 import { gql } from '@apollo/client'
-import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react'
+import { revalidateLogic } from '@tanstack/react-form'
+import { useEffect, useMemo, useRef } from 'react'
+import { z } from 'zod'
 
-import { Button } from '~/components/designSystem/Button'
-import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
 import { Typography } from '~/components/designSystem/Typography'
-import { ComboBox } from '~/components/form'
+import { useFormDialog } from '~/components/dialogs/FormDialog'
+import { DialogResult } from '~/components/dialogs/types'
 import { addToast } from '~/core/apolloClient'
+import {
+  MUI_INPUT_BASE_ROOT_CLASSNAME,
+  SEARCH_APPLY_TAX_INPUT_CLASSNAME,
+} from '~/core/constants/form'
 import {
   useApplyBillingEntityTaxesMutation,
   useGetTaxesForApplyTaxLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm, withForm } from '~/hooks/forms/useAppform'
 import {
   APPLY_TAX_DIALOG_SUBMIT_BUTTON_TEST_ID,
   APPLY_TAX_DIALOG_TEST_ID,
@@ -43,25 +49,84 @@ gql`
   }
 `
 
-export type ApplyTaxDialogRef = {
-  openDialog: (billingEntityId: string) => unknown
-  closeDialog: () => unknown
+export const APPLY_TAX_FORM_ID = 'apply-tax-form'
+
+const REQUIRED_TAX_ERROR = 'text_624ea7c29103fd010732ab7d'
+
+const applyTaxValidationSchema = z.object({
+  // The combobox sets the value to undefined when cleared, so the type-level
+  // error needs the same message as the empty-string one.
+  taxCode: z.string({ error: REQUIRED_TAX_ERROR }).min(1, { message: REQUIRED_TAX_ERROR }),
+})
+
+const applyTaxFormOptions = {
+  defaultValues: {
+    taxCode: '',
+  },
+  validationLogic: revalidateLogic(),
+  validators: {
+    onDynamic: applyTaxValidationSchema,
+  },
 }
 
-export const ApplyTaxDialog = forwardRef<ApplyTaxDialogRef>((_, ref) => {
-  const { translate } = useInternationalization()
-  const dialogRef = useRef<DialogRef>(null)
+const ApplyTaxDialogContent = withForm({
+  ...applyTaxFormOptions,
+  render: function Render({ form }) {
+    const { translate } = useInternationalization()
+    const [getTaxes, { data, loading }] = useGetTaxesForApplyTaxLazyQuery({
+      variables: {
+        limit: 50,
+      },
+      notifyOnNetworkStatusChange: true,
+    })
 
-  const [getTaxes, { data, loading }] = useGetTaxesForApplyTaxLazyQuery({
-    variables: {
-      limit: 50,
-    },
-    notifyOnNetworkStatusChange: true,
-  })
+    // Eagerly load the taxes on mount so the dropdown has options when the
+    // dialog auto-opens it (searchQuery only fires on typing, not on open).
+    useEffect(() => {
+      getTaxes()
+    }, [getTaxes])
+
+    const taxes = useMemo(
+      () =>
+        data?.taxes?.collection?.map((item) => ({
+          value: item.code,
+          label: item.name,
+          description: item.code,
+        })) || [],
+      [data],
+    )
+
+    return (
+      <div className="p-8" data-test={APPLY_TAX_DIALOG_TEST_ID}>
+        <form.AppField name="taxCode">
+          {(field) => (
+            <field.ComboBoxField
+              className={SEARCH_APPLY_TAX_INPUT_CLASSNAME}
+              label={translate('text_1743241419870gwqt1b54uuq')}
+              loading={loading}
+              data={taxes}
+              searchQuery={getTaxes}
+              placeholder={translate('text_17436000251334xxp8qsljsk')}
+              PopperProps={{ displayInDialog: true }}
+              emptyText={translate('text_1743600025133454kb04evs6')}
+            />
+          )}
+        </form.AppField>
+      </div>
+    )
+  },
+})
+
+export const useApplyTaxDialog = () => {
+  const formDialog = useFormDialog()
+  const { translate } = useInternationalization()
+  const billingEntityIdRef = useRef<string | null>(null)
+  const successRef = useRef(false)
 
   const [applyTax] = useApplyBillingEntityTaxesMutation({
     onCompleted(_data) {
-      if (_data) {
+      if (_data?.billingEntityApplyTaxes) {
+        successRef.current = true
         addToast({
           message: translate('text_1743600025133ouzufhpiyw8'),
           severity: 'success',
@@ -71,78 +136,71 @@ export const ApplyTaxDialog = forwardRef<ApplyTaxDialogRef>((_, ref) => {
     refetchQueries: ['getBillingEntityTaxes'],
   })
 
-  const taxes = useMemo(
-    () =>
-      data?.taxes?.collection?.map((item) => ({
-        value: item.code,
-        label: item.name,
-        description: item.code,
-      })) || [],
-    [data],
-  )
+  const form = useAppForm({
+    ...applyTaxFormOptions,
+    onSubmit: async ({ value }) => {
+      const billingEntityId = billingEntityIdRef.current
 
-  const [billingEntityId, setBillingEntityId] = useState<string | null>(null)
-  const [taxCode, setTaxCode] = useState<string | null>(null)
+      if (!billingEntityId || !value.taxCode) return
 
-  useImperativeHandle(ref, () => ({
-    openDialog: (_billingEntityId) => {
-      setBillingEntityId(_billingEntityId)
-
-      dialogRef.current?.openDialog()
+      await applyTax({
+        variables: {
+          input: {
+            billingEntityId,
+            taxCodes: [value.taxCode],
+          },
+        },
+      })
     },
-    closeDialog: () => dialogRef.current?.closeDialog(),
-  }))
+  })
 
-  return (
-    <Dialog
-      ref={dialogRef}
-      data-test={APPLY_TAX_DIALOG_TEST_ID}
-      title={translate('text_1743600025132l3aadb2il09')}
-      description={<Typography>{translate('text_17436000251322d5x6wtpjq1')}</Typography>}
-      actions={({ closeDialog }) => (
-        <>
-          <Button variant="quaternary" onClick={closeDialog}>
-            {translate('text_63eba8c65a6c8043feee2a14')}
-          </Button>
+  const handleSubmit = async (): Promise<DialogResult> => {
+    successRef.current = false
+    await form.handleSubmit()
 
-          <Button
-            variant="primary"
-            data-test={APPLY_TAX_DIALOG_SUBMIT_BUTTON_TEST_ID}
-            onClick={async () => {
-              if (billingEntityId && taxCode) {
-                applyTax({
-                  variables: {
-                    input: {
-                      billingEntityId,
-                      taxCodes: [taxCode],
-                    },
-                  },
-                })
-              }
+    if (!successRef.current) {
+      throw new Error('Submit failed')
+    }
 
-              closeDialog()
-            }}
-          >
-            {translate('text_1743600025133natje9qmw0q')}
-          </Button>
-        </>
-      )}
-    >
-      <ComboBox
-        name="billingEntityApplyTaxes"
-        label={translate('text_1743241419870gwqt1b54uuq')}
-        className="mb-8"
-        loading={loading}
-        data={taxes}
-        value={taxCode || ''}
-        onChange={(t) => setTaxCode(t)}
-        searchQuery={getTaxes}
-        placeholder={translate('text_17436000251334xxp8qsljsk')}
-        PopperProps={{ displayInDialog: true }}
-        emptyText={translate('text_1743600025133454kb04evs6')}
-      />
-    </Dialog>
-  )
-})
+    return { reason: 'success' }
+  }
 
-ApplyTaxDialog.displayName = 'ApplyTaxDialog'
+  const openApplyTaxDialog = (billingEntityId: string) => {
+    billingEntityIdRef.current = billingEntityId
+    form.reset()
+
+    formDialog
+      .open({
+        title: translate('text_1743600025132l3aadb2il09'),
+        description: <Typography>{translate('text_17436000251322d5x6wtpjq1')}</Typography>,
+        closeOnError: false,
+        onEntered: (container) => {
+          container
+            .querySelector<HTMLElement>(
+              `.${SEARCH_APPLY_TAX_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
+            )
+            ?.click()
+        },
+        children: <ApplyTaxDialogContent form={form} />,
+        mainAction: (
+          <form.AppForm>
+            <form.SubmitButton dataTest={APPLY_TAX_DIALOG_SUBMIT_BUTTON_TEST_ID}>
+              {translate('text_1743600025133natje9qmw0q')}
+            </form.SubmitButton>
+          </form.AppForm>
+        ),
+        form: {
+          id: APPLY_TAX_FORM_ID,
+          submit: handleSubmit,
+        },
+      })
+      .then((response) => {
+        if (response.reason === 'close') {
+          form.reset()
+          billingEntityIdRef.current = null
+        }
+      })
+  }
+
+  return { openApplyTaxDialog }
+}

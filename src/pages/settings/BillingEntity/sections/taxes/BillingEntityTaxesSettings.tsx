@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
-import { useRef } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
@@ -22,10 +21,7 @@ import { BILLING_ENTITY_ROUTE } from '~/core/router/SettingRoutes'
 import { Tax, useGetBillingEntityQuery, useGetBillingEntityTaxesQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
-import {
-  ApplyTaxDialog,
-  ApplyTaxDialogRef,
-} from '~/pages/settings/BillingEntity/sections/taxes/ApplyTaxDialog'
+import { useApplyTaxDialog } from '~/pages/settings/BillingEntity/sections/taxes/ApplyTaxDialog'
 import { APPLY_TAX_BUTTON_TEST_ID } from '~/pages/settings/BillingEntity/sections/taxes/dataTestConstants'
 import { useRemoveTaxDialog } from '~/pages/settings/BillingEntity/sections/taxes/RemoveTaxDialog'
 import ErrorImage from '~/public/images/maneki/error.svg'
@@ -47,7 +43,7 @@ const BillingEntityTaxesSettings = () => {
   const { hasPermissions } = usePermissions()
   const { translate } = useInternationalization()
 
-  const applyTaxDialogRef = useRef<ApplyTaxDialogRef>(null)
+  const { openApplyTaxDialog } = useApplyTaxDialog()
   const { openRemoveTaxDialog } = useRemoveTaxDialog()
 
   const { billingEntityCode } = useParams()
@@ -120,7 +116,7 @@ const BillingEntityTaxesSettings = () => {
                           disabled={loading}
                           onClick={() => {
                             if (billingEntity?.id) {
-                              applyTaxDialogRef?.current?.openDialog(billingEntity.id)
+                              openApplyTaxDialog(billingEntity.id)
                             }
                           }}
                           data-test={APPLY_TAX_BUTTON_TEST_ID}
@@ -206,8 +202,6 @@ const BillingEntityTaxesSettings = () => {
           </>
         )}
       </SettingsPaddedContainer>
-
-      <ApplyTaxDialog ref={applyTaxDialogRef} />
     </>
   )
 }
