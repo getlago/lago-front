@@ -108,6 +108,10 @@ const OktaAuthenticationDetails = lazyLoad(
   () => import('~/pages/settings/teamAndSecurity/authentication/OktaAuthenticationDetails'),
 )
 
+const EntraIdAuthenticationDetails = lazyLoad(
+  () => import('~/pages/settings/teamAndSecurity/authentication/EntraIdAuthenticationDetails'),
+)
+
 // ----------- Routes -----------
 export const SETTINGS_ROUTE = '/settings'
 export const INVOICE_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/invoice-sections`
@@ -170,6 +174,7 @@ export const ROLE_EDIT_ROUTE = `${ROOT_ROLES_ROUTE}/:roleId/edit`
 
 export const AUTHENTICATION_ROUTE = `${TEAM_AND_SECURITY_ROOT_ROUTE}/authentication`
 export const OKTA_AUTHENTICATION_ROUTE = `${AUTHENTICATION_ROUTE}/okta/:integrationId`
+export const ENTRA_ID_AUTHENTICATION_ROUTE = `${AUTHENTICATION_ROUTE}/entra/:integrationId`
 
 export const TEAM_AND_SECURITY_GROUP_ROUTE = `${TEAM_AND_SECURITY_ROOT_ROUTE}/:group`
 export const TEAM_AND_SECURITY_TAB_ROUTE = `${TEAM_AND_SECURITY_GROUP_ROUTE}/:tab`
@@ -257,6 +262,12 @@ export const settingRoutes: CustomRouteObject[] = [
         path: OKTA_AUTHENTICATION_ROUTE,
         private: true,
         element: <OktaAuthenticationDetails />,
+        permissions: ['organizationIntegrationsView', 'authenticationMethodsView'],
+      },
+      {
+        path: ENTRA_ID_AUTHENTICATION_ROUTE,
+        private: true,
+        element: <EntraIdAuthenticationDetails />,
         permissions: ['organizationIntegrationsView', 'authenticationMethodsView'],
       },
       {
