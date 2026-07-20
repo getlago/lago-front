@@ -10,9 +10,11 @@ import {
   WALLET_SETTINGS_EXPIRATION_ADD_BUTTON_TEST_ID,
   WALLET_SETTINGS_EXPIRATION_DELETE_BUTTON_TEST_ID,
   WALLET_SETTINGS_EXPIRATION_SECTION_TEST_ID,
+  WALLET_SETTINGS_MAX_SECTION_TEST_ID,
+  WALLET_SETTINGS_MIN_DELETE_BUTTON_TEST_ID,
   WALLET_SETTINGS_MIN_MAX_ADD_BUTTON_TEST_ID,
-  WALLET_SETTINGS_MIN_MAX_DELETE_BUTTON_TEST_ID,
-  WALLET_SETTINGS_MIN_MAX_SECTION_TEST_ID,
+  WALLET_SETTINGS_MIN_OPTION_TEST_ID,
+  WALLET_SETTINGS_MIN_SECTION_TEST_ID,
   WALLET_SETTINGS_PO_ADD_BUTTON_TEST_ID,
   WALLET_SETTINGS_PO_DELETE_BUTTON_TEST_ID,
   WALLET_SETTINGS_PO_SECTION_TEST_ID,
@@ -56,7 +58,6 @@ describe('WalletSettingsFields', () => {
     describe('WHEN the component renders', () => {
       it.each([
         ['expiration', WALLET_SETTINGS_EXPIRATION_ADD_BUTTON_TEST_ID],
-        ['min/max', WALLET_SETTINGS_MIN_MAX_ADD_BUTTON_TEST_ID],
         ['purchase order', WALLET_SETTINGS_PO_ADD_BUTTON_TEST_ID],
       ])('THEN should show the collapsed add button for %s', (_, testId) => {
         render(<TestWrapper />)
@@ -66,7 +67,6 @@ describe('WalletSettingsFields', () => {
 
       it.each([
         ['expiration', WALLET_SETTINGS_EXPIRATION_SECTION_TEST_ID],
-        ['min/max', WALLET_SETTINGS_MIN_MAX_SECTION_TEST_ID],
         ['purchase order', WALLET_SETTINGS_PO_SECTION_TEST_ID],
       ])('THEN should not show the %s section', (_, testId) => {
         render(<TestWrapper />)
@@ -111,24 +111,6 @@ describe('WalletSettingsFields', () => {
     })
   })
 
-  describe('GIVEN the min/max toggle', () => {
-    describe('WHEN clicking the add button then the delete button', () => {
-      it('THEN should open and then collapse the section', async () => {
-        const user = userEvent.setup()
-
-        render(<TestWrapper />)
-
-        await user.click(screen.getByTestId(WALLET_SETTINGS_MIN_MAX_ADD_BUTTON_TEST_ID))
-        expect(screen.getByTestId(WALLET_SETTINGS_MIN_MAX_SECTION_TEST_ID)).toBeInTheDocument()
-
-        await user.click(screen.getByTestId(WALLET_SETTINGS_MIN_MAX_DELETE_BUTTON_TEST_ID))
-        expect(
-          screen.queryByTestId(WALLET_SETTINGS_MIN_MAX_SECTION_TEST_ID),
-        ).not.toBeInTheDocument()
-      })
-    })
-  })
-
   describe('GIVEN the purchase order toggle', () => {
     describe('WHEN clicking the add button then the delete button', () => {
       it('THEN should open and then collapse the section', async () => {
@@ -155,10 +137,10 @@ describe('WalletSettingsFields', () => {
     })
 
     describe('WHEN a min amount is set', () => {
-      it('THEN should open the min/max section on mount', () => {
+      it('THEN should open the min section on mount', () => {
         render(<TestWrapper initialValues={{ ...emptySettings, paidTopUpMinAmountCents: '10' }} />)
 
-        expect(screen.getByTestId(WALLET_SETTINGS_MIN_MAX_SECTION_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByTestId(WALLET_SETTINGS_MIN_SECTION_TEST_ID)).toBeInTheDocument()
       })
     })
 
@@ -168,6 +150,39 @@ describe('WalletSettingsFields', () => {
 
         expect(screen.getByTestId(WALLET_SETTINGS_PO_SECTION_TEST_ID)).toBeInTheDocument()
       })
+    })
+  })
+
+  describe('section headers', () => {
+    it('renders persistent expiration/top-up/PO section titles even when collapsed', () => {
+      render(<TestWrapper />)
+      expect(screen.getByText('text_1748422458559n8iqcz37i2z')).toBeInTheDocument()
+      expect(screen.getByText('text_1758285686646sieyihhzwak')).toBeInTheDocument()
+      expect(screen.getByText('text_1783352692386p9bls6f0o76')).toBeInTheDocument()
+    })
+  })
+
+  describe('min/max dropdown menu', () => {
+    it('opens the menu and adds only the minimum field', async () => {
+      const user = userEvent.setup()
+
+      render(<TestWrapper />)
+      await user.click(screen.getByTestId(WALLET_SETTINGS_MIN_MAX_ADD_BUTTON_TEST_ID))
+      await user.click(screen.getByTestId(WALLET_SETTINGS_MIN_OPTION_TEST_ID))
+
+      expect(screen.getByTestId(WALLET_SETTINGS_MIN_SECTION_TEST_ID)).toBeInTheDocument()
+      expect(screen.queryByTestId(WALLET_SETTINGS_MAX_SECTION_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    it('removes the minimum field via its delete button', async () => {
+      const user = userEvent.setup()
+
+      render(<TestWrapper />)
+      await user.click(screen.getByTestId(WALLET_SETTINGS_MIN_MAX_ADD_BUTTON_TEST_ID))
+      await user.click(screen.getByTestId(WALLET_SETTINGS_MIN_OPTION_TEST_ID))
+      await user.click(screen.getByTestId(WALLET_SETTINGS_MIN_DELETE_BUTTON_TEST_ID))
+
+      expect(screen.queryByTestId(WALLET_SETTINGS_MIN_SECTION_TEST_ID)).not.toBeInTheDocument()
     })
   })
 })
