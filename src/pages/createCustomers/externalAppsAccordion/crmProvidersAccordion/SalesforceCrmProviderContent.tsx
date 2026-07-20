@@ -2,8 +2,8 @@ import { useStore } from '@tanstack/react-form'
 
 import { SalesforceIntegration } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { withForm } from '~/hooks/forms/useAppform'
-import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
+import { withFieldGroup } from '~/hooks/forms/useAppform'
+import { connectionFieldGroupDefaultValues } from '~/pages/createCustomers/externalAppsAccordion/common/connectionFieldGroup'
 
 type SalesforceCrmProviderContentProps = {
   hadInitialSalesforceIntegrationCustomer: boolean
@@ -17,31 +17,28 @@ const defaultProps: SalesforceCrmProviderContentProps = {
   isEdition: false,
 }
 
-const SalesforceCrmProviderContent = withForm({
-  defaultValues: emptyCreateCustomerDefaultValues,
+const SalesforceCrmProviderContent = withFieldGroup({
+  defaultValues: connectionFieldGroupDefaultValues,
   props: defaultProps,
   render: function Render({
-    form,
+    group,
     hadInitialSalesforceIntegrationCustomer,
     selectedSalesforceIntegration,
     isEdition,
   }) {
     const { translate } = useInternationalization()
 
-    const syncWithProvider = useStore(
-      form.store,
-      (state) => state.values.crmCustomer?.syncWithProvider,
-    )
+    const syncWithProvider = useStore(group.store, (state) => state.values.syncWithProvider)
 
     const handleSyncWithProviderChange = (value: boolean | undefined) => {
       if (!value || isEdition) return
 
-      form.setFieldValue('crmCustomer.crmCustomerId', '')
+      group.setFieldValue('externalCustomerId', '')
     }
 
     return (
       <>
-        <form.AppField name="crmCustomer.crmCustomerId">
+        <group.AppField name="externalCustomerId">
           {(field) => (
             <field.TextInputField
               disabled={!!syncWithProvider || hadInitialSalesforceIntegrationCustomer}
@@ -49,9 +46,9 @@ const SalesforceCrmProviderContent = withForm({
               placeholder={translate('text_1731677317443j3iga5orbb6')}
             />
           )}
-        </form.AppField>
-        <form.AppField
-          name="crmCustomer.syncWithProvider"
+        </group.AppField>
+        <group.AppField
+          name="syncWithProvider"
           listeners={{
             onChange: ({ value }) => handleSyncWithProviderChange(value),
           }}
@@ -64,7 +61,7 @@ const SalesforceCrmProviderContent = withForm({
               })}
             />
           )}
-        </form.AppField>
+        </group.AppField>
       </>
     )
   },

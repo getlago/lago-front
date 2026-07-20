@@ -34,6 +34,10 @@ const TestXeroAccountingProviderContentWrapper = ({
   return (
     <XeroAccountingProviderContent
       form={form}
+      fields={{
+        externalCustomerId: 'accountingCustomer.accountingCustomerId',
+        syncWithProvider: 'accountingCustomer.syncWithProvider',
+      }}
       hadInitialXeroIntegrationCustomer={hadInitialXeroIntegrationCustomer}
       selectedXeroIntegration={selectedXeroIntegration}
       isEdition={isEdition}

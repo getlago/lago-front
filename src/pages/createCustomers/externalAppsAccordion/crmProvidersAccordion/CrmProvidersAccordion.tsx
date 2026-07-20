@@ -1,6 +1,7 @@
 import { useStore } from '@tanstack/react-form'
 import { Dispatch, SetStateAction, useMemo } from 'react'
 
+import { buildConnectionComboBoxData } from '~/components/customerConnections/ConnectionComboBox'
 import { Accordion } from '~/components/designSystem/Accordion'
 import { Alert } from '~/components/designSystem/Alert'
 import { Avatar } from '~/components/designSystem/Avatar'
@@ -118,17 +119,14 @@ const CrmProvidersAccordion = withForm({
     const connectedCrmIntegrationsData: ComboboxDataGrouped[] | [] = useMemo(() => {
       if (!allAccountingIntegrationsData?.length) return []
 
-      return allAccountingIntegrationsData?.map((integration) => ({
-        value: integration.code,
-        label: integration.name,
-        group: integration?.__typename?.replace('Integration', '') || '',
-        labelNode: (
-          <ExternalAppsAccordionLayout.ComboboxItem
-            label={integration.name}
-            subLabel={integration.code}
-          />
-        ),
-      }))
+      return buildConnectionComboBoxData(
+        allAccountingIntegrationsData.map((integration) => ({
+          value: integration.code,
+          label: integration.name,
+          subLabel: integration.code,
+          group: integration?.__typename?.replace('Integration', '') || '',
+        })),
+      )
     }, [allAccountingIntegrationsData])
 
     const getAccordionSummaryAvatar = () => {
@@ -206,6 +204,11 @@ const CrmProvidersAccordion = withForm({
             {!!selectedHubspotIntegration && (
               <HubspotCrmProviderContent
                 form={form}
+                fields={{
+                  externalCustomerId: 'crmCustomer.crmCustomerId',
+                  syncWithProvider: 'crmCustomer.syncWithProvider',
+                  targetedObject: 'crmCustomer.targetedObject',
+                }}
                 hadInitialHubspotIntegrationCustomer={hadInitialHubspotIntegrationCustomer}
                 selectedHubspotIntegration={selectedHubspotIntegration}
                 isEdition={isEdition}
@@ -215,6 +218,10 @@ const CrmProvidersAccordion = withForm({
             {!!selectedSalesforceIntegration && (
               <SalesforceCrmProviderContent
                 form={form}
+                fields={{
+                  externalCustomerId: 'crmCustomer.crmCustomerId',
+                  syncWithProvider: 'crmCustomer.syncWithProvider',
+                }}
                 hadInitialSalesforceIntegrationCustomer={hadInitialSalesforceIntegrationCustomer}
                 selectedSalesforceIntegration={selectedSalesforceIntegration}
                 isEdition={isEdition}

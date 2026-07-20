@@ -5,9 +5,12 @@ import { Alert } from '~/components/designSystem/Alert'
 import { BasicComboBoxData } from '~/components/form'
 import { NetsuiteIntegration } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { withForm } from '~/hooks/forms/useAppform'
+import { withFieldGroup } from '~/hooks/forms/useAppform'
+import {
+  connectionFieldGroupDefaultValues,
+  ConnectionFieldGroupValues,
+} from '~/pages/createCustomers/externalAppsAccordion/common/connectionFieldGroup'
 import { ExternalAppsAccordionLayout } from '~/pages/createCustomers/externalAppsAccordion/common/ExternalAppsAccordionLayout'
-import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
 
 import { useAccountingProvidersSubsidaries } from './useAccountingProvidersSubsidaries'
 
@@ -23,11 +26,20 @@ const defaultProps: NetsuiteAccountingProviderContentProps = {
   isEdition: false,
 }
 
-const NetsuiteAccountingProviderContent = withForm({
-  defaultValues: emptyCreateCustomerDefaultValues,
+type NetsuiteConnectionValues = ConnectionFieldGroupValues & {
+  subsidiaryId: string | undefined
+}
+
+const defaultValues: NetsuiteConnectionValues = {
+  ...connectionFieldGroupDefaultValues,
+  subsidiaryId: '',
+}
+
+const NetsuiteAccountingProviderContent = withFieldGroup({
+  defaultValues,
   props: defaultProps,
   render: function Render({
-    form,
+    group,
     hadInitialNetsuiteIntegrationCustomer,
     selectedNetsuiteIntegration,
     isEdition,
@@ -36,10 +48,7 @@ const NetsuiteAccountingProviderContent = withForm({
 
     const { subsidiariesData } = useAccountingProvidersSubsidaries(selectedNetsuiteIntegration?.id)
 
-    const syncWithProvider = useStore(
-      form.store,
-      (state) => state.values.accountingCustomer?.syncWithProvider,
-    )
+    const syncWithProvider = useStore(group.store, (state) => state.values.syncWithProvider)
 
     const connectedIntegrationSubsidiaries: BasicComboBoxData[] | [] = useMemo(() => {
       if (!subsidiariesData?.integrationSubsidiaries?.collection.length) return []
@@ -59,12 +68,12 @@ const NetsuiteAccountingProviderContent = withForm({
     const handleSyncWithProviderChange = (value: boolean | undefined) => {
       if (!value || isEdition) return
 
-      form.setFieldValue('accountingCustomer.accountingCustomerId', '')
+      group.setFieldValue('externalCustomerId', '')
     }
 
     return (
       <>
-        <form.AppField name="accountingCustomer.accountingCustomerId">
+        <group.AppField name="externalCustomerId">
           {(field) => (
             <field.TextInputField
               disabled={!!syncWithProvider || hadInitialNetsuiteIntegrationCustomer}
@@ -72,9 +81,9 @@ const NetsuiteAccountingProviderContent = withForm({
               placeholder={translate('text_66423cad72bbad009f2f569c')}
             />
           )}
-        </form.AppField>
-        <form.AppField
-          name="accountingCustomer.syncWithProvider"
+        </group.AppField>
+        <group.AppField
+          name="syncWithProvider"
           listeners={{
             onChange: ({ value }) => handleSyncWithProviderChange(value),
           }}
@@ -87,10 +96,10 @@ const NetsuiteAccountingProviderContent = withForm({
               })}
             />
           )}
-        </form.AppField>
+        </group.AppField>
 
         {!!syncWithProvider && (
-          <form.AppField name="accountingCustomer.subsidiaryId">
+          <group.AppField name="subsidiaryId">
             {(field) => (
               <field.ComboBoxField
                 data={connectedIntegrationSubsidiaries}
@@ -100,7 +109,7 @@ const NetsuiteAccountingProviderContent = withForm({
                 PopperProps={{ displayInDialog: true }}
               />
             )}
-          </form.AppField>
+          </group.AppField>
         )}
         {syncWithProvider && isEdition && !hadInitialNetsuiteIntegrationCustomer && (
           <Alert type="info">{translate('text_66423cad72bbad009f2f56a4')}</Alert>

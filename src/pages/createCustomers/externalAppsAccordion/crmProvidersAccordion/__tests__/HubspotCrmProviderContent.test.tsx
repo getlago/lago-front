@@ -34,6 +34,11 @@ const TestHubspotCrmProviderContentWrapper = ({
   return (
     <HubspotCrmProviderContent
       form={form}
+      fields={{
+        externalCustomerId: 'crmCustomer.crmCustomerId',
+        syncWithProvider: 'crmCustomer.syncWithProvider',
+        targetedObject: 'crmCustomer.targetedObject',
+      }}
       hadInitialHubspotIntegrationCustomer={hadInitialHubspotIntegrationCustomer}
       selectedHubspotIntegration={selectedHubspotIntegration}
       isEdition={isEdition}

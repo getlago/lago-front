@@ -2,8 +2,8 @@ import { useStore } from '@tanstack/react-form'
 
 import { AvalaraIntegration } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { withForm } from '~/hooks/forms/useAppform'
-import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
+import { withFieldGroup } from '~/hooks/forms/useAppform'
+import { connectionFieldGroupDefaultValues } from '~/pages/createCustomers/externalAppsAccordion/common/connectionFieldGroup'
 
 type AvalaraTaxProviderContentProps = {
   hadInitialAvalaraIntegrationCustomer: boolean
@@ -17,31 +17,28 @@ const defaultProps: AvalaraTaxProviderContentProps = {
   isEdition: false,
 }
 
-const AvalaraTaxProviderContent = withForm({
-  defaultValues: emptyCreateCustomerDefaultValues,
+const AvalaraTaxProviderContent = withFieldGroup({
+  defaultValues: connectionFieldGroupDefaultValues,
   props: defaultProps,
   render: function Render({
-    form,
+    group,
     hadInitialAvalaraIntegrationCustomer,
     selectedAvalaraIntegration,
     isEdition,
   }) {
     const { translate } = useInternationalization()
 
-    const syncWithProvider = useStore(
-      form.store,
-      (state) => state.values.taxCustomer?.syncWithProvider,
-    )
+    const syncWithProvider = useStore(group.store, (state) => state.values.syncWithProvider)
 
     const handleSyncWithProviderChange = (value: boolean | undefined) => {
       if (!value || isEdition) return
 
-      form.setFieldValue('taxCustomer.taxCustomerId', '')
+      group.setFieldValue('externalCustomerId', '')
     }
 
     return (
       <>
-        <form.AppField name="taxCustomer.taxCustomerId">
+        <group.AppField name="externalCustomerId">
           {(field) => (
             <field.TextInputField
               disabled={!!syncWithProvider || hadInitialAvalaraIntegrationCustomer}
@@ -49,9 +46,9 @@ const AvalaraTaxProviderContent = withForm({
               placeholder={translate('text_1745827156646zoyf7wmog2m')}
             />
           )}
-        </form.AppField>
-        <form.AppField
-          name="taxCustomer.syncWithProvider"
+        </group.AppField>
+        <group.AppField
+          name="syncWithProvider"
           listeners={{
             onChange: ({ value }) => handleSyncWithProviderChange(value),
           }}
@@ -64,7 +61,7 @@ const AvalaraTaxProviderContent = withForm({
               })}
             />
           )}
-        </form.AppField>
+        </group.AppField>
       </>
     )
   },

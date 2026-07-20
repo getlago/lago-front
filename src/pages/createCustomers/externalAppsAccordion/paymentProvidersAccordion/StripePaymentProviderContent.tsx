@@ -4,45 +4,51 @@ import { Alert } from '~/components/designSystem/Alert'
 import { Typography } from '~/components/designSystem/Typography'
 import { ProviderPaymentMethodsEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { withForm } from '~/hooks/forms/useAppform'
-import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
+import { withFieldGroup } from '~/hooks/forms/useAppform'
 
-const StripePaymentProviderContent = withForm({
-  defaultValues: emptyCreateCustomerDefaultValues,
-  render: function Render({ form }) {
+type StripeConnectionValues = {
+  providerPaymentMethods: Partial<Record<ProviderPaymentMethodsEnum, boolean>> | undefined
+}
+
+const defaultValues: StripeConnectionValues = {
+  providerPaymentMethods: {},
+}
+
+const StripePaymentProviderContent = withFieldGroup({
+  defaultValues,
+  render: function Render({ group }) {
     const { translate } = useInternationalization()
-    const paymentProviderCustomer = useStore(
-      form.store,
-      (state) => state.values.paymentProviderCustomer,
+    const paymentMethods = useStore(
+      group.store,
+      (state) => state.values.providerPaymentMethods || {},
     )
 
-    const paymentMethods = paymentProviderCustomer?.providerPaymentMethods || {}
     const isPaymentMethodUnique = Object.values(paymentMethods).filter(Boolean).length === 1
     const isBankTransferEnabled = paymentMethods[ProviderPaymentMethodsEnum.CustomerBalance]
 
     const handleCardOnChange = (checked: boolean | undefined) => {
       if (!checked) {
         // uncheck link if card is unchecked
-        form.setFieldValue('paymentProviderCustomer.providerPaymentMethods.link', false)
+        group.setFieldValue('providerPaymentMethods.link', false)
 
         return
       }
 
       // uncheck bank transfer
-      form.setFieldValue('paymentProviderCustomer.providerPaymentMethods.customer_balance', false)
+      group.setFieldValue('providerPaymentMethods.customer_balance', false)
     }
 
     const handleCustomerBalanceChange = (checked: boolean | undefined) => {
       if (!checked) return
 
       // uncheck all except for bank transfer
-      form.setFieldValue('paymentProviderCustomer.providerPaymentMethods.card', false)
-      form.setFieldValue('paymentProviderCustomer.providerPaymentMethods.link', false)
-      form.setFieldValue('paymentProviderCustomer.providerPaymentMethods.sepa_debit', false)
-      form.setFieldValue('paymentProviderCustomer.providerPaymentMethods.us_bank_account', false)
-      form.setFieldValue('paymentProviderCustomer.providerPaymentMethods.bacs_debit', false)
-      form.setFieldValue('paymentProviderCustomer.providerPaymentMethods.boleto', false)
-      form.setFieldValue('paymentProviderCustomer.providerPaymentMethods.crypto', false)
+      group.setFieldValue('providerPaymentMethods.card', false)
+      group.setFieldValue('providerPaymentMethods.link', false)
+      group.setFieldValue('providerPaymentMethods.sepa_debit', false)
+      group.setFieldValue('providerPaymentMethods.us_bank_account', false)
+      group.setFieldValue('providerPaymentMethods.bacs_debit', false)
+      group.setFieldValue('providerPaymentMethods.boleto', false)
+      group.setFieldValue('providerPaymentMethods.crypto', false)
     }
 
     return (
@@ -59,8 +65,8 @@ const StripePaymentProviderContent = withForm({
             {translate('text_65e1f90471bc198c0c934d82')}
           </Typography>
           <div className="grid grid-cols-2 gap-4">
-            <form.AppField
-              name="paymentProviderCustomer.providerPaymentMethods.card"
+            <group.AppField
+              name="providerPaymentMethods.card"
               listeners={{
                 onChange: ({ value: checked }) => handleCardOnChange(checked),
               }}
@@ -71,9 +77,9 @@ const StripePaymentProviderContent = withForm({
                   sublabel={translate('text_65e1f90471bc198c0c934d86')}
                 />
               )}
-            </form.AppField>
+            </group.AppField>
             {/* Link can be enabled only if Card is enabled */}
-            <form.AppField name="paymentProviderCustomer.providerPaymentMethods.link">
+            <group.AppField name="providerPaymentMethods.link">
               {(field) => (
                 <field.CheckboxField
                   label={translate('text_6686b316b672a6e75a29eea0')}
@@ -81,10 +87,10 @@ const StripePaymentProviderContent = withForm({
                   disabled={!paymentMethods[ProviderPaymentMethodsEnum.Card]}
                 />
               )}
-            </form.AppField>
+            </group.AppField>
 
-            <form.AppField
-              name="paymentProviderCustomer.providerPaymentMethods.customer_balance"
+            <group.AppField
+              name="providerPaymentMethods.customer_balance"
               listeners={{
                 onChange: ({ value: checked }) => handleCustomerBalanceChange(checked),
               }}
@@ -95,7 +101,7 @@ const StripePaymentProviderContent = withForm({
                   sublabel={translate('text_1739432510045brhda8fxidc')}
                 />
               )}
-            </form.AppField>
+            </group.AppField>
           </div>
         </div>
         <div className="flex flex-col gap-1">
@@ -104,7 +110,7 @@ const StripePaymentProviderContent = withForm({
           </Typography>
 
           <div className="grid grid-cols-2 gap-4">
-            <form.AppField name="paymentProviderCustomer.providerPaymentMethods.sepa_debit">
+            <group.AppField name="providerPaymentMethods.sepa_debit">
               {(field) => (
                 <field.CheckboxField
                   label={translate('text_64aeb7b998c4322918c8420c')}
@@ -115,8 +121,8 @@ const StripePaymentProviderContent = withForm({
                   }
                 />
               )}
-            </form.AppField>
-            <form.AppField name="paymentProviderCustomer.providerPaymentMethods.us_bank_account">
+            </group.AppField>
+            <group.AppField name="providerPaymentMethods.us_bank_account">
               {(field) => (
                 <field.CheckboxField
                   label={translate('text_65e1f90471bc198c0c934d8e')}
@@ -128,8 +134,8 @@ const StripePaymentProviderContent = withForm({
                   }
                 />
               )}
-            </form.AppField>
-            <form.AppField name="paymentProviderCustomer.providerPaymentMethods.bacs_debit">
+            </group.AppField>
+            <group.AppField name="providerPaymentMethods.bacs_debit">
               {(field) => (
                 <field.CheckboxField
                   label={translate('text_65e1f90471bc198c0c934d92')}
@@ -140,8 +146,8 @@ const StripePaymentProviderContent = withForm({
                   }
                 />
               )}
-            </form.AppField>
-            <form.AppField name="paymentProviderCustomer.providerPaymentMethods.boleto">
+            </group.AppField>
+            <group.AppField name="providerPaymentMethods.boleto">
               {(field) => (
                 <field.CheckboxField
                   label={translate('text_1738234109827diqh4eswleu')}
@@ -152,8 +158,8 @@ const StripePaymentProviderContent = withForm({
                   }
                 />
               )}
-            </form.AppField>
-            <form.AppField name="paymentProviderCustomer.providerPaymentMethods.crypto">
+            </group.AppField>
+            <group.AppField name="providerPaymentMethods.crypto">
               {(field) => (
                 <field.CheckboxField
                   label={translate('text_17394287699017cunbdlhnhf')}
@@ -164,7 +170,7 @@ const StripePaymentProviderContent = withForm({
                   }
                 />
               )}
-            </form.AppField>
+            </group.AppField>
           </div>
         </div>
 

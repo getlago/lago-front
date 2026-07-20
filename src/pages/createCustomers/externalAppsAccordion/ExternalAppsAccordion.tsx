@@ -1,10 +1,10 @@
 import { useStore } from '@tanstack/react-form'
 import { useEffect, useState } from 'react'
 
+import { AddConnectionMenu } from '~/components/customerConnections/AddConnectionMenu'
+import { ConnectionCategory } from '~/components/customerConnections/types'
 import { Accordion } from '~/components/designSystem/Accordion'
 import { Alert } from '~/components/designSystem/Alert'
-import { Button } from '~/components/designSystem/Button'
-import { Popper } from '~/components/designSystem/Popper'
 import { Typography } from '~/components/designSystem/Typography'
 import {
   ADD_CUSTOMER_ACCOUNTING_PROVIDER_ACCORDION,
@@ -18,7 +18,6 @@ import { AddCustomerDrawerFragment, ProviderTypeEnum } from '~/generated/graphql
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
-import { MenuPopper } from '~/styles'
 
 import AccountingProvidersAccordion from './accountingProvidersAccordion/AccountingProvidersAccordion'
 import CrmProvidersAccordion from './crmProvidersAccordion/CrmProvidersAccordion'
@@ -119,87 +118,49 @@ const ExternalAppsAccordion = withForm({
             />
           )}
 
-          <Popper
-            PopperProps={{ placement: 'bottom-start' }}
-            opener={
-              <Button
-                startIcon="plus"
-                variant="inline"
-                disabled={
-                  showAccountingSection && showPaymentSection && showTaxSection && showCrmSection
-                }
-              >
-                {translate('text_65846763e6140b469140e235')}
-              </Button>
+          <AddConnectionMenu
+            disabled={
+              showAccountingSection && showPaymentSection && showTaxSection && showCrmSection
             }
-          >
-            {({ closePopper }) => (
-              <MenuPopper>
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  disabled={showPaymentSection}
-                  onClick={() => {
-                    setShowPaymentSection(true)
+            disabledCategories={[
+              ...(showPaymentSection ? [ConnectionCategory.Payment] : []),
+              ...(showAccountingSection ? [ConnectionCategory.Accounting] : []),
+              ...(showTaxSection ? [ConnectionCategory.Tax] : []),
+              ...(showCrmSection ? [ConnectionCategory.Crm] : []),
+            ]}
+            onSelect={(category, { closePopper }) => {
+              const sectionByCategory: Record<
+                ConnectionCategory,
+                { show: () => void; accordionClassName: string }
+              > = {
+                [ConnectionCategory.Payment]: {
+                  show: () => setShowPaymentSection(true),
+                  accordionClassName: ADD_CUSTOMER_PAYMENT_PROVIDER_ACCORDION,
+                },
+                [ConnectionCategory.Accounting]: {
+                  show: () => setShowAccountingSection(true),
+                  accordionClassName: ADD_CUSTOMER_ACCOUNTING_PROVIDER_ACCORDION,
+                },
+                [ConnectionCategory.Tax]: {
+                  show: () => setShowTaxSection(true),
+                  accordionClassName: ADD_CUSTOMER_TAX_PROVIDER_ACCORDION,
+                },
+                [ConnectionCategory.Crm]: {
+                  show: () => setShowCrmSection(true),
+                  accordionClassName: ADD_CUSTOMER_CRM_PROVIDER_ACCORDION,
+                },
+              }
 
-                    scrollToAndClickElement({
-                      selector: `.${ADD_CUSTOMER_PAYMENT_PROVIDER_ACCORDION} .${MUI_BUTTON_BASE_ROOT_CLASSNAME}`,
-                      callback: closePopper,
-                    })
-                  }}
-                >
-                  {translate('text_634ea0ecc6147de10ddb6631')}
-                </Button>
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  disabled={showAccountingSection}
-                  onClick={() => {
-                    setShowAccountingSection(true)
+              const section = sectionByCategory[category]
 
-                    scrollToAndClickElement({
-                      selector: `.${ADD_CUSTOMER_ACCOUNTING_PROVIDER_ACCORDION} .${MUI_BUTTON_BASE_ROOT_CLASSNAME}`,
-                      callback: closePopper,
-                    })
-                  }}
-                >
-                  {translate('text_66423cad72bbad009f2f568f')}
-                </Button>
+              section.show()
 
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  disabled={showTaxSection}
-                  onClick={() => {
-                    setShowTaxSection(true)
-
-                    scrollToAndClickElement({
-                      selector: `.${ADD_CUSTOMER_TAX_PROVIDER_ACCORDION} .${MUI_BUTTON_BASE_ROOT_CLASSNAME}`,
-                      callback: closePopper,
-                    })
-                  }}
-                >
-                  {translate('text_6668821d94e4da4dfd8b3840')}
-                </Button>
-
-                <Button
-                  variant="quaternary"
-                  align="left"
-                  disabled={showCrmSection}
-                  onClick={() => {
-                    setShowCrmSection(true)
-
-                    scrollToAndClickElement({
-                      selector: `.${ADD_CUSTOMER_CRM_PROVIDER_ACCORDION} .${MUI_BUTTON_BASE_ROOT_CLASSNAME}`,
-                      callback: closePopper,
-                    })
-                  }}
-                >
-                  {translate('text_1728658962985xpfdvl5ru8a')}
-                </Button>
-              </MenuPopper>
-            )}
-          </Popper>
+              scrollToAndClickElement({
+                selector: `.${section.accordionClassName} .${MUI_BUTTON_BASE_ROOT_CLASSNAME}`,
+                callback: closePopper,
+              })
+            }}
+          />
 
           {!!paymentProviderCustomer &&
             !!paymentProviderCustomer.syncWithProvider &&

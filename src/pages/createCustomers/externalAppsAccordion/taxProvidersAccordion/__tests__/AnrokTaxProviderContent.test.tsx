@@ -34,6 +34,10 @@ const TestAnrokTaxProviderContentWrapper = ({
   return (
     <AnrokTaxProviderContent
       form={form}
+      fields={{
+        externalCustomerId: 'taxCustomer.taxCustomerId',
+        syncWithProvider: 'taxCustomer.syncWithProvider',
+      }}
       hadInitialAnrokIntegrationCustomer={hadInitialAnrokIntegrationCustomer}
       selectedAnrokIntegration={selectedAnrokIntegration}
       isEdition={isEdition}

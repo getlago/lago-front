@@ -32,6 +32,10 @@ const TestSalesforceCrmProviderContentWrapper = ({
   return (
     <SalesforceCrmProviderContent
       form={form}
+      fields={{
+        externalCustomerId: 'crmCustomer.crmCustomerId',
+        syncWithProvider: 'crmCustomer.syncWithProvider',
+      }}
       hadInitialSalesforceIntegrationCustomer={hadInitialSalesforceIntegrationCustomer}
       selectedSalesforceIntegration={selectedSalesforceIntegration}
       isEdition={isEdition}
