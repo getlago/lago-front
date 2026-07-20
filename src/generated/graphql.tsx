@@ -14913,6 +14913,15 @@ export type GetProductItemFilterForDetailsQueryVariables = Exact<{
 
 export type GetProductItemFilterForDetailsQuery = { __typename?: 'Query', productItemFilter?: { __typename?: 'ProductItemFilter', id: string, name: string, code: string, description?: string | null, invoiceDisplayName?: string | null, attachedToPlanOrSubscription: boolean, productItem: { __typename?: 'ProductItem', id: string, name: string, code: string }, values: Array<{ __typename?: 'ProductItemFilterValue', id: string, value: string, billableMetricFilter: { __typename?: 'BillableMetricFilter', id: string, key: string, values: Array<string> } }> } | null };
 
+export type ProductItemFilterForDetailsOverviewFragment = { __typename?: 'ProductItemFilter', id: string, name: string, code: string, description?: string | null, invoiceDisplayName?: string | null, attachedToPlanOrSubscription: boolean, productItem: { __typename?: 'ProductItem', id: string, name: string, code: string, invoiceDisplayName?: string | null, product?: { __typename?: 'Product', id: string, name: string, code: string } | null }, values: Array<{ __typename?: 'ProductItemFilterValue', id: string, key: string, value: string, billableMetricFilter: { __typename?: 'BillableMetricFilter', id: string, key: string, values: Array<string> } }> };
+
+export type GetProductItemFilterForDetailsOverviewQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetProductItemFilterForDetailsOverviewQuery = { __typename?: 'Query', productItemFilter?: { __typename?: 'ProductItemFilter', id: string, name: string, code: string, description?: string | null, invoiceDisplayName?: string | null, attachedToPlanOrSubscription: boolean, productItem: { __typename?: 'ProductItem', id: string, name: string, code: string, invoiceDisplayName?: string | null, product?: { __typename?: 'Product', id: string, name: string, code: string } | null }, values: Array<{ __typename?: 'ProductItemFilterValue', id: string, key: string, value: string, billableMetricFilter: { __typename?: 'BillableMetricFilter', id: string, key: string, values: Array<string> } }> } | null };
+
 export type ProductForDeleteProductDialogFragment = { __typename?: 'Product', id: string, name: string };
 
 export type DeleteProductMutationVariables = Exact<{
@@ -21339,6 +21348,38 @@ export const ProductItemFilterForProductItemFilterDetailsFragmentDoc = gql`
 }
     ${ProductItemFilterForDrawerFragmentDoc}
 ${ProductItemFilterForDeleteProductItemFilterDialogFragmentDoc}`;
+export const ProductItemFilterForDetailsOverviewFragmentDoc = gql`
+    fragment ProductItemFilterForDetailsOverview on ProductItemFilter {
+  id
+  name
+  code
+  description
+  invoiceDisplayName
+  attachedToPlanOrSubscription
+  productItem {
+    id
+    name
+    code
+    invoiceDisplayName
+    product {
+      id
+      name
+      code
+    }
+  }
+  values {
+    id
+    key
+    value
+    billableMetricFilter {
+      id
+      key
+      values
+    }
+  }
+  ...ProductItemFilterForDrawer
+}
+    ${ProductItemFilterForDrawerFragmentDoc}`;
 export const InvoiceFeeFragmentDoc = gql`
     fragment InvoiceFee on Fee {
   id
@@ -39260,6 +39301,50 @@ export type GetProductItemFilterForDetailsQueryHookResult = ReturnType<typeof us
 export type GetProductItemFilterForDetailsLazyQueryHookResult = ReturnType<typeof useGetProductItemFilterForDetailsLazyQuery>;
 export type GetProductItemFilterForDetailsSuspenseQueryHookResult = ReturnType<typeof useGetProductItemFilterForDetailsSuspenseQuery>;
 export type GetProductItemFilterForDetailsQueryResult = Apollo.QueryResult<GetProductItemFilterForDetailsQuery, GetProductItemFilterForDetailsQueryVariables>;
+export const GetProductItemFilterForDetailsOverviewDocument = gql`
+    query getProductItemFilterForDetailsOverview($id: ID!) {
+  productItemFilter(id: $id) {
+    id
+    ...ProductItemFilterForDetailsOverview
+  }
+}
+    ${ProductItemFilterForDetailsOverviewFragmentDoc}`;
+
+/**
+ * __useGetProductItemFilterForDetailsOverviewQuery__
+ *
+ * To run a query within a React component, call `useGetProductItemFilterForDetailsOverviewQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetProductItemFilterForDetailsOverviewQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetProductItemFilterForDetailsOverviewQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetProductItemFilterForDetailsOverviewQuery(baseOptions: Apollo.QueryHookOptions<GetProductItemFilterForDetailsOverviewQuery, GetProductItemFilterForDetailsOverviewQueryVariables> & ({ variables: GetProductItemFilterForDetailsOverviewQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetProductItemFilterForDetailsOverviewQuery, GetProductItemFilterForDetailsOverviewQueryVariables>(GetProductItemFilterForDetailsOverviewDocument, options);
+      }
+export function useGetProductItemFilterForDetailsOverviewLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetProductItemFilterForDetailsOverviewQuery, GetProductItemFilterForDetailsOverviewQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetProductItemFilterForDetailsOverviewQuery, GetProductItemFilterForDetailsOverviewQueryVariables>(GetProductItemFilterForDetailsOverviewDocument, options);
+        }
+// @ts-ignore
+export function useGetProductItemFilterForDetailsOverviewSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetProductItemFilterForDetailsOverviewQuery, GetProductItemFilterForDetailsOverviewQueryVariables>): Apollo.UseSuspenseQueryResult<GetProductItemFilterForDetailsOverviewQuery, GetProductItemFilterForDetailsOverviewQueryVariables>;
+export function useGetProductItemFilterForDetailsOverviewSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProductItemFilterForDetailsOverviewQuery, GetProductItemFilterForDetailsOverviewQueryVariables>): Apollo.UseSuspenseQueryResult<GetProductItemFilterForDetailsOverviewQuery | undefined, GetProductItemFilterForDetailsOverviewQueryVariables>;
+export function useGetProductItemFilterForDetailsOverviewSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProductItemFilterForDetailsOverviewQuery, GetProductItemFilterForDetailsOverviewQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetProductItemFilterForDetailsOverviewQuery, GetProductItemFilterForDetailsOverviewQueryVariables>(GetProductItemFilterForDetailsOverviewDocument, options);
+        }
+export type GetProductItemFilterForDetailsOverviewQueryHookResult = ReturnType<typeof useGetProductItemFilterForDetailsOverviewQuery>;
+export type GetProductItemFilterForDetailsOverviewLazyQueryHookResult = ReturnType<typeof useGetProductItemFilterForDetailsOverviewLazyQuery>;
+export type GetProductItemFilterForDetailsOverviewSuspenseQueryHookResult = ReturnType<typeof useGetProductItemFilterForDetailsOverviewSuspenseQuery>;
+export type GetProductItemFilterForDetailsOverviewQueryResult = Apollo.QueryResult<GetProductItemFilterForDetailsOverviewQuery, GetProductItemFilterForDetailsOverviewQueryVariables>;
 export const DeleteProductDocument = gql`
     mutation deleteProduct($input: DestroyProductInput!) {
   destroyProduct(input: $input) {
