@@ -72,6 +72,18 @@ describe('WalletRecurringTopUpFields', () => {
         ).not.toBeInTheDocument()
         expect(screen.queryByTestId(INFO_ALERT_TEST_ID)).not.toBeInTheDocument()
       })
+
+      it('THEN should render the invoice switch between the paid and granted credit fields', () => {
+        render(<TestWrapper />)
+
+        const paid = screen.getByText('text_62e79671d23ae6ff149de944') // Credits to purchase
+        const granted = screen.getByText('text_62e79671d23ae6ff149de954') // Free credits to offer
+        const switchLabel = screen.getByText('text_66a8aed1c3e07b277ec3990d')
+
+        // DOCUMENT_POSITION_FOLLOWING === 4
+        expect(paid.compareDocumentPosition(switchLabel) & 4).toBeTruthy()
+        expect(switchLabel.compareDocumentPosition(granted) & 4).toBeTruthy()
+      })
     })
   })
 

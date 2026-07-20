@@ -185,6 +185,15 @@ export const WalletRecurringTopUpFields = withForm({
                   )}
                 </form.AppField>
 
+                <form.AppField name="invoiceRequiresSuccessfulPayment">
+                  {(field) => (
+                    <field.SwitchField
+                      label={translate('text_66a8aed1c3e07b277ec3990d')}
+                      subLabel={translate('text_66a8aed1c3e07b277ec3990f')}
+                    />
+                  )}
+                </form.AppField>
+
                 <form.AppField name="grantedCredits">
                   {(field) => (
                     <field.TextInputField
@@ -202,27 +211,29 @@ export const WalletRecurringTopUpFields = withForm({
                 </form.AppField>
               </>
             ) : (
-              <form.AppField name="targetOngoingBalance">
-                {(field) => (
-                  <field.TextInputField
-                    beforeChangeFormatter={['positiveNumber', 'decimal']}
-                    label={translate('text_6657c34670561c0127132da5')}
-                    {...adornment}
-                  />
-                )}
-              </form.AppField>
+              <>
+                <form.AppField name="targetOngoingBalance">
+                  {(field) => (
+                    <field.TextInputField
+                      beforeChangeFormatter={['positiveNumber', 'decimal']}
+                      label={translate('text_6657c34670561c0127132da5')}
+                      {...adornment}
+                    />
+                  )}
+                </form.AppField>
+
+                <form.AppField name="invoiceRequiresSuccessfulPayment">
+                  {(field) => (
+                    <field.SwitchField
+                      label={translate('text_66a8aed1c3e07b277ec3990d')}
+                      subLabel={translate('text_66a8aed1c3e07b277ec3990f')}
+                    />
+                  )}
+                </form.AppField>
+              </>
             )
           }
         </form.Subscribe>
-
-        <form.AppField name="invoiceRequiresSuccessfulPayment">
-          {(field) => (
-            <field.SwitchField
-              label={translate('text_66a8aed1c3e07b277ec3990d')}
-              subLabel={translate('text_66a8aed1c3e07b277ec3990f')}
-            />
-          )}
-        </form.AppField>
 
         <div className="flex gap-3">
           <form.AppField
