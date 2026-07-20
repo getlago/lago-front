@@ -53,7 +53,7 @@ const mockTranslate = (key: string): string => {
     text_1774281559657qdknwsvn5ka: 'Insert a code block',
     text_1782889379261hdcd0jhzdm6: 'Discount',
     text_178288937926153opd9g5cwg: 'Apply a coupon discount to this quote',
-    text_1783352692386xocpgvrz3na: 'Credits and wallets',
+    text_1783352692386xocpgvrz3na: 'Credits',
     text_1783352692386nm1wsx38b6v: 'Add prepaid credits to this quote',
   }
 
