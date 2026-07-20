@@ -10,6 +10,8 @@ import {
   WALLET_SETTINGS_EXPIRATION_ADD_BUTTON_TEST_ID,
   WALLET_SETTINGS_EXPIRATION_DELETE_BUTTON_TEST_ID,
   WALLET_SETTINGS_EXPIRATION_SECTION_TEST_ID,
+  WALLET_SETTINGS_MAX_DELETE_BUTTON_TEST_ID,
+  WALLET_SETTINGS_MAX_OPTION_TEST_ID,
   WALLET_SETTINGS_MAX_SECTION_TEST_ID,
   WALLET_SETTINGS_MIN_DELETE_BUTTON_TEST_ID,
   WALLET_SETTINGS_MIN_MAX_ADD_BUTTON_TEST_ID,
@@ -183,6 +185,52 @@ describe('WalletSettingsFields', () => {
       await user.click(screen.getByTestId(WALLET_SETTINGS_MIN_DELETE_BUTTON_TEST_ID))
 
       expect(screen.queryByTestId(WALLET_SETTINGS_MIN_SECTION_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    it('opens the menu and adds only the maximum field', async () => {
+      const user = userEvent.setup()
+
+      render(<TestWrapper />)
+      await user.click(screen.getByTestId(WALLET_SETTINGS_MIN_MAX_ADD_BUTTON_TEST_ID))
+      await user.click(screen.getByTestId(WALLET_SETTINGS_MAX_OPTION_TEST_ID))
+
+      expect(screen.getByTestId(WALLET_SETTINGS_MAX_SECTION_TEST_ID)).toBeInTheDocument()
+      expect(screen.queryByTestId(WALLET_SETTINGS_MIN_SECTION_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    it('removes the maximum field via its delete button', async () => {
+      const user = userEvent.setup()
+
+      render(<TestWrapper />)
+      await user.click(screen.getByTestId(WALLET_SETTINGS_MIN_MAX_ADD_BUTTON_TEST_ID))
+      await user.click(screen.getByTestId(WALLET_SETTINGS_MAX_OPTION_TEST_ID))
+      await user.click(screen.getByTestId(WALLET_SETTINGS_MAX_DELETE_BUTTON_TEST_ID))
+
+      expect(screen.queryByTestId(WALLET_SETTINGS_MAX_SECTION_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    it('disables the opener button once both the minimum and maximum fields are shown', async () => {
+      const user = userEvent.setup()
+
+      render(<TestWrapper />)
+      await user.click(screen.getByTestId(WALLET_SETTINGS_MIN_MAX_ADD_BUTTON_TEST_ID))
+      await user.click(screen.getByTestId(WALLET_SETTINGS_MIN_OPTION_TEST_ID))
+      await user.click(screen.getByTestId(WALLET_SETTINGS_MIN_MAX_ADD_BUTTON_TEST_ID))
+      await user.click(screen.getByTestId(WALLET_SETTINGS_MAX_OPTION_TEST_ID))
+
+      expect(screen.getByTestId(WALLET_SETTINGS_MIN_MAX_ADD_BUTTON_TEST_ID)).toBeDisabled()
+    })
+
+    it('disables the option for a field that is already shown while leaving the other enabled', async () => {
+      const user = userEvent.setup()
+
+      render(<TestWrapper />)
+      await user.click(screen.getByTestId(WALLET_SETTINGS_MIN_MAX_ADD_BUTTON_TEST_ID))
+      await user.click(screen.getByTestId(WALLET_SETTINGS_MIN_OPTION_TEST_ID))
+      await user.click(screen.getByTestId(WALLET_SETTINGS_MIN_MAX_ADD_BUTTON_TEST_ID))
+
+      expect(screen.getByTestId(WALLET_SETTINGS_MIN_OPTION_TEST_ID)).toBeDisabled()
+      expect(screen.getByTestId(WALLET_SETTINGS_MAX_OPTION_TEST_ID)).not.toBeDisabled()
     })
   })
 })
