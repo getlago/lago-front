@@ -47,6 +47,7 @@ export const CreditsBlockView = ({ node, updateAttributes }: NodeViewProps) => {
       <NodeViewWrapper className="spacer" data-type="creditsBlock">
         <div className="block-wrapper">
           <button
+            type="button"
             className="pricing-block pricing-block--empty"
             onMouseDown={(e) => e.stopPropagation()}
             onClick={handleClick}

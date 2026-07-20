@@ -51,7 +51,7 @@ export interface BillingItemsPayload {
 export const mergeWalletCredits = (
   billingItems: BillingItemsPayload | null | undefined,
   walletCredits: BillingItemWallet[],
-): BillingItemsPayload => ({ ...(billingItems ?? {}), walletCredits })
+): BillingItemsPayload => ({ ...billingItems, walletCredits })
 
 // --- Serialization helpers ---
 

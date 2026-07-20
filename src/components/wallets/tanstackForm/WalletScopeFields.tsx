@@ -73,6 +73,10 @@ export const WalletScopeFields = withForm({
               disabled: selected.includes(feeType),
             }))
 
+            const removeFeeType = (target: FeeTypesEnum) =>
+              field.handleChange(selected.filter((current) => current !== target))
+            const addFeeType = (value: FeeTypesEnum) => field.handleChange([...selected, value])
+
             return (
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-1">
@@ -93,9 +97,7 @@ export const WalletScopeFields = withForm({
                       <Chip
                         key={feeType}
                         label={translate(FEE_TYPE_LABEL_KEYS[feeType as AvailableFeeTypes])}
-                        onDelete={() =>
-                          field.handleChange(selected.filter((current) => current !== feeType))
-                        }
+                        onDelete={() => removeFeeType(feeType)}
                       />
                     ))}
                   </div>
@@ -113,8 +115,8 @@ export const WalletScopeFields = withForm({
                       placeholder={translate('text_17484381918689r63e54hrh1')}
                       data={comboboxFeeTypesData}
                       onChange={(value) => {
-                        if (!!value) {
-                          field.handleChange([...selected, value as FeeTypesEnum])
+                        if (value) {
+                          addFeeType(value as FeeTypesEnum)
                         }
                         setShowFeeTypeInput(false)
                       }}
@@ -168,6 +170,10 @@ export const WalletScopeFields = withForm({
               disabled: selected.includes(code),
             }))
 
+            const removeCode = (target: string) =>
+              field.handleChange(selected.filter((current) => current !== target))
+            const addCode = (value: string) => field.handleChange([...selected, value])
+
             return (
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-1">
@@ -193,9 +199,7 @@ export const WalletScopeFields = withForm({
                         <Chip
                           key={code}
                           label={matched?.name ?? code}
-                          onDelete={() =>
-                            field.handleChange(selected.filter((current) => current !== code))
-                          }
+                          onDelete={() => removeCode(code)}
                         />
                       )
                     })}
@@ -212,8 +216,8 @@ export const WalletScopeFields = withForm({
                       data={comboboxBillableMetricsData}
                       searchQuery={getBillableMetrics}
                       onChange={(value) => {
-                        if (!!value) {
-                          field.handleChange([...selected, value])
+                        if (value) {
+                          addCode(value)
                         }
                         setShowBillableMetricInput(false)
                       }}

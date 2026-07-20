@@ -1,4 +1,5 @@
 import { useStore } from '@tanstack/react-form'
+import { useState } from 'react'
 
 import { Accordion } from '~/components/designSystem/Accordion'
 import { Button } from '~/components/designSystem/Button'
@@ -31,19 +32,25 @@ const MetadataRows = withForm({
     const { translate } = useInternationalization()
     const metadata = useStore(form.store, (state) => state.values.metadata || [])
 
+    // Stable per-row keys: metadata items carry no id, and their key/value can be
+    // empty or duplicated, so a client-side id list is kept in sync with add/remove.
+    const [rowIds, setRowIds] = useState<string[]>(() => metadata.map(() => crypto.randomUUID()))
+
     const addMetadata = () => {
       form.pushFieldValue('metadata', { key: '', value: '' })
+      setRowIds((ids) => [...ids, crypto.randomUUID()])
     }
 
     const removeMetadata = (index: number) => {
       form.removeFieldValue('metadata', index)
+      setRowIds((ids) => ids.filter((_, i) => i !== index))
     }
 
     return (
       <div className="flex flex-col gap-4">
-        {metadata.map((_row, index) => (
+        {rowIds.map((rowId, index) => (
           <div
-            key={index}
+            key={rowId}
             className="flex items-start gap-3"
             data-test={WALLET_FREE_PAID_METADATA_ROW_TEST_ID}
           >
