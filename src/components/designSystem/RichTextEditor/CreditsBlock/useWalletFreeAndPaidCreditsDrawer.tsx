@@ -71,6 +71,8 @@ export const useWalletFreeAndPaidCreditsDrawer = (
               currency={ctx.currency}
               rateAmount={ctx.rateAmount}
               walletName={ctx.walletName}
+              min={ctx.min}
+              max={ctx.max}
             />
           </form>
         ),

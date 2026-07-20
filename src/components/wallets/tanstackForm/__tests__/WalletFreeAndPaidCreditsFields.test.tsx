@@ -14,9 +14,31 @@ import {
   WalletFreeAndPaidCreditsFields,
 } from '../WalletFreeAndPaidCreditsFields'
 
+// Real English templates for the three top-up-range keys, so the mock can
+// exercise `{{var}}` interpolation the way production `translateKey` does.
+const TOPUP_TEMPLATES: Record<string, string> = {
+  text_1758285686647a868tiok58q:
+    'The credit top-up amount must be between {{minCredits}} credits ({{minAmount}}) and {{maxCredits}} credits ({{maxAmount}}) for this wallet. Please top up within this range.',
+  text_1758285686647tnf634qa99c:
+    'The credit top-up is below the minimum allowed for this wallet: {{minCredits}} credits ({{minAmount}}).',
+  text_175828568664787kip4pzn8l:
+    'The credit top-up exceeds the maximum allowed for this wallet: {{maxCredits}} credits ({{maxAmount}}).',
+}
+
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
-    translate: (key: string) => key,
+    // Mirror production behavior: return the template (key falls back to itself),
+    // then substitute any `{{var}}` placeholders from the data object.
+    translate: (key: string, data?: Record<string, unknown>) => {
+      const template = TOPUP_TEMPLATES[key] ?? key
+
+      if (!data) return template
+
+      return Object.entries(data).reduce(
+        (acc, [name, value]) => acc.replaceAll(`{{${name}}}`, String(value)),
+        template,
+      )
+    },
   }),
 }))
 
@@ -29,8 +51,12 @@ const emptySlice: WalletFreeAndPaidSlice = {
 
 const TestWrapper = ({
   initialValues = emptySlice,
+  min = null,
+  max = null,
 }: {
   initialValues?: WalletFreeAndPaidSlice
+  min?: string | null
+  max?: string | null
 }) => {
   const form = useAppForm({ defaultValues: initialValues })
 
@@ -40,6 +66,8 @@ const TestWrapper = ({
       currency={CurrencyEnum.Eur}
       rateAmount="2"
       walletName="My wallet"
+      min={min}
+      max={max}
     />
   )
 }
@@ -173,6 +201,25 @@ describe('WalletFreeAndPaidCreditsFields', () => {
         await user.click(screen.getByTestId(ACCORDION_TOGGLE_TEST_ID))
 
         expect(screen.getAllByTestId(WALLET_FREE_PAID_METADATA_ROW_TEST_ID)).toHaveLength(1)
+      })
+    })
+  })
+
+  describe('GIVEN top-up min/max limits and an out-of-range paid credits amount', () => {
+    describe('WHEN the range error is displayed', () => {
+      // rateAmount=2, min=10, max=100 → minCredits=5, maxCredits=50.
+      // paidCredits=100 → amount=200 > max → out of range.
+      it('THEN interpolates the credit/amount values instead of showing raw placeholders', () => {
+        render(
+          <TestWrapper initialValues={{ ...emptySlice, paidCredits: '100' }} min="10" max="100" />,
+        )
+
+        // The bug: raw "{{minCredits}}" etc. leaked to the UI.
+        expect(screen.queryByText(/\{\{/)).not.toBeInTheDocument()
+        // The resolved values are present (5 = 10/2 credits, 50 = 100/2 credits).
+        expect(
+          screen.getByText(/must be between 5 credits .* and 50 credits .* for this wallet/),
+        ).toBeInTheDocument()
       })
     })
   })

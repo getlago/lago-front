@@ -10,6 +10,7 @@ import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
+import { topUpAmountError } from '~/pages/wallet/form'
 
 import type { WalletFreeAndPaidSlice } from './walletFormSchema'
 
@@ -107,8 +108,10 @@ export const WalletFreeAndPaidCreditsFields = withForm({
     currency: CurrencyEnum.Usd as CurrencyEnum,
     rateAmount: '1',
     walletName: '',
+    min: null as string | null,
+    max: null as string | null,
   },
-  render: function Render({ form, currency, rateAmount, walletName }) {
+  render: function Render({ form, currency, rateAmount, walletName, min, max }) {
     const { translate } = useInternationalization()
     const rateLabel = intlFormatNumber(Number(rateAmount || 0), { currency })
     const toCurrency = (credits: string) =>
@@ -165,22 +168,40 @@ export const WalletFreeAndPaidCreditsFields = withForm({
         </form.AppField>
 
         <form.AppField name="paidCredits">
-          {(field) => (
-            <field.TextInputField
-              beforeChangeFormatter={['positiveNumber', 'decimal']}
-              label={translate('text_1784552920237g89fvc8lki5')}
-              helperText={translate('text_62d18855b22699e5cf55f88b', {
-                paidCredits: toCurrency(String(field.state.value)),
-              })}
-              InputProps={{
-                endAdornment: (
-                  <Typography className="mr-4" variant="body" color="textSecondary">
-                    {translate('text_62d18855b22699e5cf55f889')}
-                  </Typography>
-                ),
-              }}
-            />
-          )}
+          {(field) => {
+            // The schema's top-up-range message keys carry translate variables
+            // ({{minCredits}}/{{minAmount}}/…) that the field's auto-translate can't
+            // interpolate. Resolve the label here (shared with the Formik wallet form)
+            // and feed it through errorOverride, which is built for exactly this case.
+            // topUpAmountError returns null/undefined when the amount is empty or in
+            // range, so errorOverride only surfaces once an out-of-range value is entered.
+            const topUpError = topUpAmountError({
+              rateAmount,
+              paidCredits: String(field.state.value),
+              paidTopUpMinAmountCents: min ?? undefined,
+              paidTopUpMaxAmountCents: max ?? undefined,
+              currency,
+              translate,
+            })
+
+            return (
+              <field.TextInputField
+                beforeChangeFormatter={['positiveNumber', 'decimal']}
+                label={translate('text_1784552920237g89fvc8lki5')}
+                helperText={translate('text_62d18855b22699e5cf55f88b', {
+                  paidCredits: toCurrency(String(field.state.value)),
+                })}
+                errorOverride={topUpError?.label ?? undefined}
+                InputProps={{
+                  endAdornment: (
+                    <Typography className="mr-4" variant="body" color="textSecondary">
+                      {translate('text_62d18855b22699e5cf55f889')}
+                    </Typography>
+                  ),
+                }}
+              />
+            )
+          }}
         </form.AppField>
 
         <form.AppField name="invoiceRequiresSuccessfulPayment">
