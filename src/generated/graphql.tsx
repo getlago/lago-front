@@ -14814,6 +14814,8 @@ export type GoogleRegisterMutationVariables = Exact<{
 
 export type GoogleRegisterMutation = { __typename?: 'Mutation', googleRegisterUser?: { __typename?: 'RegisterUser', token: string } | null };
 
+export type ProductItemFilterForListFragment = { __typename?: 'ProductItemFilter', id: string, name: string, code: string, invoiceDisplayName?: string | null, createdAt: any, attachedToPlanOrSubscription: boolean, description?: string | null, productItem: { __typename?: 'ProductItem', id: string, name: string, invoiceDisplayName?: string | null, code: string }, values: Array<{ __typename?: 'ProductItemFilterValue', id: string, value: string, billableMetricFilter: { __typename?: 'BillableMetricFilter', id: string, key: string, values: Array<string> } }> };
+
 export type ProductItemForListFragment = { __typename?: 'ProductItem', id: string, name: string, code: string, invoiceDisplayName?: string | null, itemType: ProductItemTypeEnum, filtersCount: number, createdAt: any, description?: string | null, attachedToPlanOrSubscription: boolean, product?: { __typename?: 'Product', id: string, name: string, code: string } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string } | null };
 
 export type ProductItemsQueryVariables = Exact<{
@@ -21128,6 +21130,54 @@ export const SubscriptionForSubscriptionsListFragmentDoc = gql`
   }
 }
     `;
+export const ProductItemFilterForDrawerFragmentDoc = gql`
+    fragment ProductItemFilterForDrawer on ProductItemFilter {
+  id
+  name
+  code
+  description
+  invoiceDisplayName
+  attachedToPlanOrSubscription
+  productItem {
+    id
+    name
+    code
+  }
+  values {
+    id
+    value
+    billableMetricFilter {
+      id
+      key
+      values
+    }
+  }
+}
+    `;
+export const ProductItemFilterForDeleteProductItemFilterDialogFragmentDoc = gql`
+    fragment ProductItemFilterForDeleteProductItemFilterDialog on ProductItemFilter {
+  id
+  name
+}
+    `;
+export const ProductItemFilterForListFragmentDoc = gql`
+    fragment ProductItemFilterForList on ProductItemFilter {
+  id
+  name
+  code
+  invoiceDisplayName
+  createdAt
+  attachedToPlanOrSubscription
+  productItem {
+    id
+    name
+    invoiceDisplayName
+  }
+  ...ProductItemFilterForDrawer
+  ...ProductItemFilterForDeleteProductItemFilterDialog
+}
+    ${ProductItemFilterForDrawerFragmentDoc}
+${ProductItemFilterForDeleteProductItemFilterDialogFragmentDoc}`;
 export const ProductItemForDrawerFragmentDoc = gql`
     fragment ProductItemForDrawer on ProductItem {
   id
@@ -21254,36 +21304,6 @@ export const ProductItemForDetailsOverviewFragmentDoc = gql`
   ...ProductItemForDrawer
 }
     ${ProductItemForDrawerFragmentDoc}`;
-export const ProductItemFilterForDeleteProductItemFilterDialogFragmentDoc = gql`
-    fragment ProductItemFilterForDeleteProductItemFilterDialog on ProductItemFilter {
-  id
-  name
-}
-    `;
-export const ProductItemFilterForDrawerFragmentDoc = gql`
-    fragment ProductItemFilterForDrawer on ProductItemFilter {
-  id
-  name
-  code
-  description
-  invoiceDisplayName
-  attachedToPlanOrSubscription
-  productItem {
-    id
-    name
-    code
-  }
-  values {
-    id
-    value
-    billableMetricFilter {
-      id
-      key
-      values
-    }
-  }
-}
-    `;
 export const InvoiceFeeFragmentDoc = gql`
     fragment InvoiceFee on Fee {
   id

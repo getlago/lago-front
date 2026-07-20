@@ -1,4 +1,24 @@
+import { gql } from '@apollo/client'
+
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+
+gql`
+  fragment ProductItemFilterForList on ProductItemFilter {
+    id
+    name
+    code
+    invoiceDisplayName
+    createdAt
+    attachedToPlanOrSubscription
+    productItem {
+      id
+      name
+      invoiceDisplayName
+    }
+    ...ProductItemFilterForDrawer
+    ...ProductItemFilterForDeleteProductItemFilterDialog
+  }
+`
 
 export const PRODUCT_ITEM_FILTERS_LIST_TEST_ID = 'product-item-filters-list'
 
