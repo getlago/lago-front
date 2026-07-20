@@ -1,6 +1,7 @@
 import { useStore } from '@tanstack/react-form'
 import { useMemo } from 'react'
 
+import { ConnectionComboBoxLabel } from '~/components/customerConnections/ConnectionComboBox'
 import { Alert } from '~/components/designSystem/Alert'
 import { BasicComboBoxData } from '~/components/form'
 import { NetsuiteIntegration } from '~/generated/graphql'
@@ -10,7 +11,6 @@ import {
   connectionFieldGroupDefaultValues,
   ConnectionFieldGroupValues,
 } from '~/pages/createCustomers/externalAppsAccordion/common/connectionFieldGroup'
-import { ExternalAppsAccordionLayout } from '~/pages/createCustomers/externalAppsAccordion/common/ExternalAppsAccordionLayout'
 
 import { useAccountingProvidersSubsidaries } from './useAccountingProvidersSubsidaries'
 
@@ -57,7 +57,7 @@ const NetsuiteAccountingProviderContent = withFieldGroup({
         value: integrationSubsidiary.externalId,
         label: `${integrationSubsidiary.externalName} (${integrationSubsidiary.externalId})`,
         labelNode: (
-          <ExternalAppsAccordionLayout.ComboboxItem
+          <ConnectionComboBoxLabel
             label={integrationSubsidiary.externalName ?? ''}
             subLabel={integrationSubsidiary.externalId}
           />

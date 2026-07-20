@@ -391,8 +391,6 @@
   "text_66423cad72bbad009f2f5689": "Connect to external apps",
   "text_66423cad72bbad009f2f568f": "Accounting provider",
   "text_66423cad72bbad009f2f5691": "Select a connection",
-  "text_66423cad72bbad009f2f5695": "Connected account",
-  "text_66423cad72bbad009f2f5697": "Search and select a connected account",
   "text_66423cad72bbad009f2f569a": "NetSuite customer ID",
   "text_66423cad72bbad009f2f569c": "Type a NetSuite customer ID",
   "text_66423cad72bbad009f2f569e": "Create automatically this customer in {{connectionName}}",
@@ -4481,5 +4479,11 @@
   "text_1783693954158zdvy0q96esu": "Order executed successfully",
   "text_178410354866260f9hd0qa81": "Execute orders",
   "text_1784189562649n0q3uaf6w9q": "Order {{orderNumber}}",
-  "text_17841895626504bixbm3xbyj": "View the details of this executed order, including its execution settings and content."
+  "text_17841895626504bixbm3xbyj": "View the details of this executed order, including its execution settings and content.",
+  "text_1784537967970sdhggipd1s0": "Customer integrations",
+  "text_1784537967970afggowvwkgz": "The customer and attached objects will be synced to this connection.",
+  "text_17845400557039mygcsig4ny": "Select a payment connection",
+  "text_1784540055704pgpqnpvkgw3": "Select an accounting connection",
+  "text_1784540055704fe0ekxa7yfh": "Select a tax connection",
+  "text_1784540055704s7odgggdp3j": "Select a CRM connection"
 }
