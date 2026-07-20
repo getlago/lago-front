@@ -4501,5 +4501,11 @@
   "text_1783352692386nm1wsx38b6v": "Add prepaid credits to this quote",
   "text_1783352692386p9bls6f0o76": "Purchase order number",
   "text_1783352692386valktkog1dw": "Add purchase order number",
-  "text_17833526923863j848qxkffb": "Wallet settings"
+  "text_17833526923863j848qxkffb": "Wallet settings",
+  "text_1784552920236s8nbmvhxn9i": "Define a PO number to display on future finalized invoices linked to this wallet.",
+  "text_1784552920236w7zteb5dk1y": "Defined wallet information and settings.",
+  "text_1784552920236qoa5zheiakw": "Include metadata for this top-up transaction.",
+  "text_1784552920237ss68mgdwkmt": "Free credits",
+  "text_1784552920237g89fvc8lki5": "Paid credits",
+  "text_1784552920237jisdtu6bwqy": "This quote includes {{freeCredits}} free credits"
 }
