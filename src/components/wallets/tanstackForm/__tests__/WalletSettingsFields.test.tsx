@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { CurrencyEnum } from '~/generated/graphql'
@@ -121,7 +121,12 @@ describe('WalletSettingsFields', () => {
         render(<TestWrapper />)
 
         await user.click(screen.getByTestId(WALLET_SETTINGS_PO_ADD_BUTTON_TEST_ID))
-        expect(screen.getByTestId(WALLET_SETTINGS_PO_SECTION_TEST_ID)).toBeInTheDocument()
+
+        const poSection = screen.getByTestId(WALLET_SETTINGS_PO_SECTION_TEST_ID)
+
+        expect(poSection).toBeInTheDocument()
+        // Seeded to an empty string (not null) so the input mounts controlled from the start.
+        expect(within(poSection).getByRole('textbox')).toHaveValue('')
 
         await user.click(screen.getByTestId(WALLET_SETTINGS_PO_DELETE_BUTTON_TEST_ID))
         expect(screen.queryByTestId(WALLET_SETTINGS_PO_SECTION_TEST_ID)).not.toBeInTheDocument()
@@ -172,8 +177,12 @@ describe('WalletSettingsFields', () => {
       await user.click(screen.getByTestId(WALLET_SETTINGS_MIN_MAX_ADD_BUTTON_TEST_ID))
       await user.click(screen.getByTestId(WALLET_SETTINGS_MIN_OPTION_TEST_ID))
 
-      expect(screen.getByTestId(WALLET_SETTINGS_MIN_SECTION_TEST_ID)).toBeInTheDocument()
+      const minSection = screen.getByTestId(WALLET_SETTINGS_MIN_SECTION_TEST_ID)
+
+      expect(minSection).toBeInTheDocument()
       expect(screen.queryByTestId(WALLET_SETTINGS_MAX_SECTION_TEST_ID)).not.toBeInTheDocument()
+      // Seeded to an empty string (not null) so the input mounts controlled from the start.
+      expect(within(minSection).getByRole('textbox')).toHaveValue('')
     })
 
     it('removes the minimum field via its delete button', async () => {
@@ -194,8 +203,12 @@ describe('WalletSettingsFields', () => {
       await user.click(screen.getByTestId(WALLET_SETTINGS_MIN_MAX_ADD_BUTTON_TEST_ID))
       await user.click(screen.getByTestId(WALLET_SETTINGS_MAX_OPTION_TEST_ID))
 
-      expect(screen.getByTestId(WALLET_SETTINGS_MAX_SECTION_TEST_ID)).toBeInTheDocument()
+      const maxSection = screen.getByTestId(WALLET_SETTINGS_MAX_SECTION_TEST_ID)
+
+      expect(maxSection).toBeInTheDocument()
       expect(screen.queryByTestId(WALLET_SETTINGS_MIN_SECTION_TEST_ID)).not.toBeInTheDocument()
+      // Seeded to an empty string (not null) so the input mounts controlled from the start.
+      expect(within(maxSection).getByRole('textbox')).toHaveValue('')
     })
 
     it('removes the maximum field via its delete button', async () => {

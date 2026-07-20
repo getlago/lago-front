@@ -184,7 +184,7 @@ export const WalletSettingsFields = withForm({
                   icon="trash"
                   variant="quaternary"
                   onClick={() => {
-                    form.setFieldValue('paidTopUpMinAmountCents', null)
+                    form.setFieldValue('paidTopUpMinAmountCents', '')
                     setShowMin(false)
                   }}
                 />
@@ -216,7 +216,7 @@ export const WalletSettingsFields = withForm({
                   icon="trash"
                   variant="quaternary"
                   onClick={() => {
-                    form.setFieldValue('paidTopUpMaxAmountCents', null)
+                    form.setFieldValue('paidTopUpMaxAmountCents', '')
                     setShowMax(false)
                   }}
                 />
@@ -248,6 +248,9 @@ export const WalletSettingsFields = withForm({
                     data-test={WALLET_SETTINGS_MIN_OPTION_TEST_ID}
                     disabled={showMin}
                     onClick={() => {
+                      if (form.getFieldValue('paidTopUpMinAmountCents') === null) {
+                        form.setFieldValue('paidTopUpMinAmountCents', '')
+                      }
                       setShowMin(true)
                       closePopper()
                     }}
@@ -259,6 +262,9 @@ export const WalletSettingsFields = withForm({
                     data-test={WALLET_SETTINGS_MAX_OPTION_TEST_ID}
                     disabled={showMax}
                     onClick={() => {
+                      if (form.getFieldValue('paidTopUpMaxAmountCents') === null) {
+                        form.setFieldValue('paidTopUpMaxAmountCents', '')
+                      }
                       setShowMax(true)
                       closePopper()
                     }}
@@ -299,7 +305,7 @@ export const WalletSettingsFields = withForm({
                   icon="trash"
                   variant="quaternary"
                   onClick={() => {
-                    form.setFieldValue('purchaseOrderNumber', null)
+                    form.setFieldValue('purchaseOrderNumber', '')
                     setShowPO(false)
                   }}
                 />
@@ -311,7 +317,12 @@ export const WalletSettingsFields = withForm({
               className="self-start"
               startIcon="plus"
               variant="inline"
-              onClick={() => setShowPO(true)}
+              onClick={() => {
+                if (form.getFieldValue('purchaseOrderNumber') === null) {
+                  form.setFieldValue('purchaseOrderNumber', '')
+                }
+                setShowPO(true)
+              }}
             >
               {translate('text_1783352692386valktkog1dw')}
             </Button>
