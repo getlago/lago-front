@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 import Stack from '@mui/material/Stack'
-import { useRef } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { Alert } from '~/components/designSystem/Alert'
@@ -27,8 +26,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { AnrokIntegrationDetailsTabs } from '~/pages/settings/AnrokIntegrationDetails'
 import { theme } from '~/styles'
 
-import { AddAnrokDialog, AddAnrokDialogRef } from './AddAnrokDialog'
-import { useDeleteAnrokIntegrationDialog } from './DeleteAnrokIntegrationDialog'
+import { useAddAnrokDialog } from './AddAnrokDialog'
 
 const PROVIDER_CONNECTION_LIMIT = 2
 
@@ -76,8 +74,7 @@ gql`
 const AnrokIntegrationSettings = () => {
   const navigate = useNavigate()
   const { integrationId = '' } = useParams()
-  const addAnrokDialogRef = useRef<AddAnrokDialogRef>(null)
-  const { openDeleteAnrokIntegrationDialog } = useDeleteAnrokIntegrationDialog()
+  const { openAddAnrokDialog } = useAddAnrokDialog()
   const { translate } = useInternationalization()
   const [retryAllInvoices] = useRetryAllInvoicesMutation({
     onCompleted(result) {
@@ -113,118 +110,108 @@ const AnrokIntegrationSettings = () => {
   }
 
   return (
-    <>
-      <IntegrationsPage.Container className="my-4 md:my-8">
-        {!!anrokIntegration && !anrokIntegration?.hasMappingsConfigured && (
-          <Alert
-            type="warning"
-            ButtonProps={{
-              label: translate('text_661ff6e56ef7e1b7c542b20a'),
-              onClick: () => {
-                navigate(
-                  generatePath(ANROK_INTEGRATION_DETAILS_ROUTE, {
-                    integrationId,
-                    tab: AnrokIntegrationDetailsTabs.Items,
-                    integrationGroup: IntegrationsTabsOptionsEnum.Lago,
-                  }),
-                )
-              },
-            }}
-          >
-            {translate('text_6668821d94e4da4dfd8b3888')}
-          </Alert>
-        )}
-
-        <section>
-          <IntegrationsPage.Headline label={translate('text_661ff6e56ef7e1b7c542b232')}>
-            <Button
-              variant="inline"
-              disabled={loading}
-              onClick={() => {
-                addAnrokDialogRef.current?.openDialog({
-                  integration: anrokIntegration,
-                  onDelete: (provider) =>
-                    openDeleteAnrokIntegrationDialog({
-                      provider,
-                      callback: deleteDialogCallback,
-                    }),
-                })
-              }}
-            >
-              {translate('text_62b1edddbf5f461ab9712787')}
-            </Button>
-          </IntegrationsPage.Headline>
-
-          <>
-            {loading &&
-              [0, 1, 2].map((i) => (
-                <IntegrationsPage.ItemSkeleton key={`item-skeleton-item-${i}`} />
-              ))}
-            {!loading && (
-              <>
-                <IntegrationsPage.DetailsItem
-                  icon="text"
-                  label={translate('text_626162c62f790600f850b76a')}
-                  value={anrokIntegration?.name}
-                />
-                <IntegrationsPage.DetailsItem
-                  icon="id"
-                  label={translate('text_62876e85e32e0300e1803127')}
-                  value={anrokIntegration?.code}
-                />
-                <IntegrationsPage.DetailsItem
-                  icon="info-circle"
-                  label={translate('text_6668821d94e4da4dfd8b38d5')}
-                  value={anrokIntegration?.apiKey}
-                />
-              </>
-            )}
-          </>
-        </section>
-
-        <Stack
-          direction="row"
-          gap={4}
-          justifyContent="space-between"
-          alignItems="baseline"
-          paddingBottom={6}
-          sx={{ boxShadow: theme.shadows[7] }}
+    <IntegrationsPage.Container className="my-4 md:my-8">
+      {!!anrokIntegration && !anrokIntegration?.hasMappingsConfigured && (
+        <Alert
+          type="warning"
+          ButtonProps={{
+            label: translate('text_661ff6e56ef7e1b7c542b20a'),
+            onClick: () => {
+              navigate(
+                generatePath(ANROK_INTEGRATION_DETAILS_ROUTE, {
+                  integrationId,
+                  tab: AnrokIntegrationDetailsTabs.Items,
+                  integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                }),
+              )
+            },
+          }}
         >
-          <Stack flex={1}>
-            <Typography variant="bodyHl" color="grey700">
-              {translate('text_66ba5a76e614f000a738c97a')}
-            </Typography>
-            {loading && <Skeleton className="mb-1 mt-2" variant="text" />}
-            {!loading && !!anrokIntegration?.failedInvoicesCount && (
-              <Typography variant="caption" color="grey600">
-                {translate(
-                  'text_1746004262383fhhy4jl1g6o',
-                  {
-                    failedInvoicesCount: anrokIntegration?.failedInvoicesCount,
-                  },
-                  anrokIntegration?.failedInvoicesCount,
-                )}
-              </Typography>
-            )}
-            {!loading && !anrokIntegration?.failedInvoicesCount && (
-              <Typography variant="caption" color="grey600">
-                {translate('text_66ba5ca33713b600c4e8fcf1')}
-              </Typography>
-            )}
-          </Stack>
+          {translate('text_6668821d94e4da4dfd8b3888')}
+        </Alert>
+      )}
 
+      <section>
+        <IntegrationsPage.Headline label={translate('text_661ff6e56ef7e1b7c542b232')}>
           <Button
             variant="inline"
-            disabled={!anrokIntegration?.failedInvoicesCount}
-            onClick={async () => await retryAllInvoices({ variables: { input: {} } })}
+            disabled={loading}
+            onClick={() => {
+              openAddAnrokDialog({
+                integration: anrokIntegration,
+                deleteCallback: deleteDialogCallback,
+              })
+            }}
           >
-            {translate('text_66ba5a76e614f000a738c97e')}
+            {translate('text_62b1edddbf5f461ab9712787')}
           </Button>
-        </Stack>
-      </IntegrationsPage.Container>
+        </IntegrationsPage.Headline>
 
-      <AddAnrokDialog ref={addAnrokDialogRef} />
-    </>
+        <>
+          {loading &&
+            [0, 1, 2].map((i) => <IntegrationsPage.ItemSkeleton key={`item-skeleton-item-${i}`} />)}
+          {!loading && (
+            <>
+              <IntegrationsPage.DetailsItem
+                icon="text"
+                label={translate('text_626162c62f790600f850b76a')}
+                value={anrokIntegration?.name}
+              />
+              <IntegrationsPage.DetailsItem
+                icon="id"
+                label={translate('text_62876e85e32e0300e1803127')}
+                value={anrokIntegration?.code}
+              />
+              <IntegrationsPage.DetailsItem
+                icon="info-circle"
+                label={translate('text_6668821d94e4da4dfd8b38d5')}
+                value={anrokIntegration?.apiKey}
+              />
+            </>
+          )}
+        </>
+      </section>
+
+      <Stack
+        direction="row"
+        gap={4}
+        justifyContent="space-between"
+        alignItems="baseline"
+        paddingBottom={6}
+        sx={{ boxShadow: theme.shadows[7] }}
+      >
+        <Stack flex={1}>
+          <Typography variant="bodyHl" color="grey700">
+            {translate('text_66ba5a76e614f000a738c97a')}
+          </Typography>
+          {loading && <Skeleton className="mb-1 mt-2" variant="text" />}
+          {!loading && !!anrokIntegration?.failedInvoicesCount && (
+            <Typography variant="caption" color="grey600">
+              {translate(
+                'text_1746004262383fhhy4jl1g6o',
+                {
+                  failedInvoicesCount: anrokIntegration?.failedInvoicesCount,
+                },
+                anrokIntegration?.failedInvoicesCount,
+              )}
+            </Typography>
+          )}
+          {!loading && !anrokIntegration?.failedInvoicesCount && (
+            <Typography variant="caption" color="grey600">
+              {translate('text_66ba5ca33713b600c4e8fcf1')}
+            </Typography>
+          )}
+        </Stack>
+
+        <Button
+          variant="inline"
+          disabled={!anrokIntegration?.failedInvoicesCount}
+          onClick={async () => await retryAllInvoices({ variables: { input: {} } })}
+        >
+          {translate('text_66ba5a76e614f000a738c97e')}
+        </Button>
+      </Stack>
+    </IntegrationsPage.Container>
   )
 }
 

@@ -17,10 +17,7 @@ import {
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import { useAddAdyenDialog } from '~/components/settings/integrations/AddAdyenDialog'
-import {
-  AddAnrokDialog,
-  AddAnrokDialogRef,
-} from '~/components/settings/integrations/AddAnrokDialog'
+import { useAddAnrokDialog } from '~/components/settings/integrations/AddAnrokDialog'
 import { useAddAvalaraDialog } from '~/components/settings/integrations/AddAvalaraDialog'
 import { useAddCashfreeDialog } from '~/components/settings/integrations/AddCashfreeDialog'
 import { useAddFlutterwaveDialog } from '~/components/settings/integrations/AddFlutterwaveDialog'
@@ -144,7 +141,7 @@ const Integrations = () => {
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
 
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
-  const addAnrokDialogRef = useRef<AddAnrokDialogRef>(null)
+  const { openAddAnrokDialog } = useAddAnrokDialog()
   const { openAddAvalaraDialog } = useAddAvalaraDialog()
   const { openAddStripeDialog } = useAddStripeDialog()
   const { openAddAdyenDialog } = useAddAdyenDialog()
@@ -353,7 +350,7 @@ const Integrations = () => {
                               }),
                             )
                           } else {
-                            addAnrokDialogRef.current?.openDialog()
+                            openAddAnrokDialog()
                           }
                         }}
                       />
@@ -815,7 +812,6 @@ const Integrations = () => {
 
       <>{activeTabContent}</>
 
-      <AddAnrokDialog ref={addAnrokDialogRef} />
       <AddXeroDialog ref={addXeroDialogRef} />
     </>
   )
