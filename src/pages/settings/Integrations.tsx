@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Alert } from '~/components/designSystem/Alert'
@@ -28,7 +27,7 @@ import { useAddMoneyhashDialog } from '~/components/settings/integrations/AddMon
 import { useAddNetsuiteDialog } from '~/components/settings/integrations/AddNetsuiteDialog'
 import { useAddSalesforceDialog } from '~/components/settings/integrations/AddSalesforceDialog'
 import { useAddStripeDialog } from '~/components/settings/integrations/AddStripeDialog'
-import { AddXeroDialog, AddXeroDialogRef } from '~/components/settings/integrations/AddXeroDialog'
+import { useAddXeroDialog } from '~/components/settings/integrations/AddXeroDialog'
 import {
   DOCUMENTATION_AIRBYTE,
   DOCUMENTATION_HIGHTTOUCH,
@@ -150,7 +149,7 @@ const Integrations = () => {
   const { openAddLagoTaxManagementDialog } = useAddLagoTaxManagementDialog()
   const { openAddNetsuiteDialog } = useAddNetsuiteDialog()
   const { openAddSalesforceDialog } = useAddSalesforceDialog()
-  const addXeroDialogRef = useRef<AddXeroDialogRef>(null)
+  const { openAddXeroDialog } = useAddXeroDialog()
   const { openAddFlutterwaveDialog } = useAddFlutterwaveDialog()
   const { openAddHubspotDialog } = useAddHubspotDialog()
   const { openAddMoneyhashDialog } = useAddMoneyhashDialog()
@@ -645,7 +644,7 @@ const Integrations = () => {
                               }),
                             )
                           } else {
-                            addXeroDialogRef.current?.openDialog()
+                            openAddXeroDialog()
                           }
                         }}
                       />
@@ -811,8 +810,6 @@ const Integrations = () => {
       />
 
       <>{activeTabContent}</>
-
-      <AddXeroDialog ref={addXeroDialogRef} />
     </>
   )
 }

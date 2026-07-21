@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -7,7 +6,7 @@ import { Popper } from '~/components/designSystem/Popper'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import { AddXeroDialog, AddXeroDialogRef } from '~/components/settings/integrations/AddXeroDialog'
+import { useAddXeroDialog } from '~/components/settings/integrations/AddXeroDialog'
 import { useDeleteXeroIntegrationDialog } from '~/components/settings/integrations/DeleteXeroIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { INTEGRATIONS_ROUTE, useNavigate, XERO_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
@@ -52,7 +51,7 @@ gql`
 const XeroIntegrations = () => {
   const navigate = useNavigate()
   const { translate } = useInternationalization()
-  const addXeroDialogRef = useRef<AddXeroDialogRef>(null)
+  const { openAddXeroDialog } = useAddXeroDialog()
   const { openDeleteXeroIntegrationDialog } = useDeleteXeroIntegrationDialog()
   const { data, loading } = useGetXeroIntegrationsListQuery({
     variables: { limit: 1000, types: [IntegrationTypeEnum.Xero] },
@@ -103,7 +102,7 @@ const XeroIntegrations = () => {
               label: translate('text_65846763e6140b469140e235'),
               variant: 'primary',
               onClick: () => {
-                addXeroDialogRef.current?.openDialog()
+                openAddXeroDialog()
               },
             },
           ],
@@ -156,9 +155,9 @@ const XeroIntegrations = () => {
                           variant="quaternary"
                           align="left"
                           onClick={() => {
-                            addXeroDialogRef.current?.openDialog({
+                            openAddXeroDialog({
                               provider: connection,
-                              onDelete: openDeleteDialog,
+                              deleteDialogCallback,
                             })
                             closePopper()
                           }}
@@ -184,8 +183,6 @@ const XeroIntegrations = () => {
             })}
         </section>
       </IntegrationsPage.Container>
-
-      <AddXeroDialog ref={addXeroDialogRef} />
     </>
   )
 }

@@ -26,8 +26,7 @@ import {
   AddEditDeleteSuccessRedirectUrlDialog,
   AddEditDeleteSuccessRedirectUrlDialogRef,
 } from './AddEditDeleteSuccessRedirectUrlDialog'
-import { AddXeroDialog, AddXeroDialogRef } from './AddXeroDialog'
-import { useDeleteXeroIntegrationDialog } from './DeleteXeroIntegrationDialog'
+import { useAddXeroDialog } from './AddXeroDialog'
 
 const PROVIDER_CONNECTION_LIMIT = 2
 
@@ -95,8 +94,7 @@ const buildEnabledSynchronizedLabelKeys = (integration?: XeroIntegrationSettings
 const XeroIntegrationSettings = () => {
   const navigate = useNavigate()
   const { integrationId = '' } = useParams()
-  const addXeroDialogRef = useRef<AddXeroDialogRef>(null)
-  const { openDeleteXeroIntegrationDialog } = useDeleteXeroIntegrationDialog()
+  const { openAddXeroDialog } = useAddXeroDialog()
   const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { translate } = useInternationalization()
   const { data, loading } = useGetXeroIntegrationsSettingsQuery({
@@ -120,13 +118,6 @@ const XeroIntegrationSettings = () => {
         generatePath(INTEGRATIONS_ROUTE, { integrationGroup: IntegrationsTabsOptionsEnum.Lago }),
       )
     }
-  }
-  const openDeleteDialog = () => {
-    if (!xeroIntegration) return
-    openDeleteXeroIntegrationDialog({
-      provider: xeroIntegration,
-      callback: deleteDialogCallback,
-    })
   }
 
   return (
@@ -158,9 +149,9 @@ const XeroIntegrationSettings = () => {
               variant="inline"
               disabled={loading}
               onClick={() => {
-                addXeroDialogRef.current?.openDialog({
+                openAddXeroDialog({
                   provider: xeroIntegration,
-                  onDelete: openDeleteDialog,
+                  deleteDialogCallback,
                 })
               }}
             >
@@ -198,7 +189,6 @@ const XeroIntegrationSettings = () => {
           </>
         </section>
       </IntegrationsPage.Container>
-      <AddXeroDialog ref={addXeroDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )
