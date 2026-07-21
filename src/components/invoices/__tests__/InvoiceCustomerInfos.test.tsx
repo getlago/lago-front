@@ -232,20 +232,19 @@ describe('InvoiceCustomerInfos', () => {
       ).toBeInTheDocument()
     })
 
-    it.each([
-      InvoiceTypeEnum.OneOff,
-      InvoiceTypeEnum.Subscription,
-      InvoiceTypeEnum.Credit,
-    ])('should render the purchase order number for %s invoices', (invoiceType) => {
-      const mockInvoice = createMockInvoice({
-        invoiceType,
-        purchaseOrderNumber: 'PO-12345',
-      })
+    it.each(Object.values(InvoiceTypeEnum))(
+      'should render the purchase order number for %s invoices',
+      (invoiceType) => {
+        const mockInvoice = createMockInvoice({
+          invoiceType,
+          purchaseOrderNumber: 'PO-12345',
+        })
 
-      render(<InvoiceCustomerInfos invoice={mockInvoice} />)
+        render(<InvoiceCustomerInfos invoice={mockInvoice} />)
 
-      expect(screen.getByText('PO-12345')).toBeInTheDocument()
-    })
+        expect(screen.getByText('PO-12345')).toBeInTheDocument()
+      },
+    )
 
     it('should render a dash for the purchase order number when there is no PO number', () => {
       const mockInvoice = createMockInvoice({
