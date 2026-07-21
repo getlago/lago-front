@@ -89,9 +89,9 @@ const defaultFormValues: AddFlutterwaveFormValues = {
 }
 
 const validationSchema = z.object({
-  name: z.string().min(1),
-  code: z.string().min(1),
-  secretKey: z.string().min(1),
+  name: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
+  code: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
+  secretKey: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
   successRedirectUrl: zodOptionalUrl,
 })
 
