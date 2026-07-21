@@ -15,7 +15,7 @@ export const CreditsBlockView = ({ node, updateAttributes }: NodeViewProps) => {
   const localId = (node.attrs.localId ?? '') as string
   const entity = localId ? entities[localId] : undefined
   const isEmpty = localId === '' || !entity
-  const blockLabel = translate('text_1783352692386vc0tpd7owy3')
+  const blockLabel = translate('text_1783352692386xocpgvrz3na')
   const displayName = entity?.name || blockLabel
 
   // Preview mode: minimal placeholder, non-interactive (preview table is out of scope).
