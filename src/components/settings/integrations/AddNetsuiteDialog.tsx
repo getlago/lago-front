@@ -87,14 +87,14 @@ const defaultFormValues: AddNetsuiteFormValues = {
 }
 
 const validationSchema = z.object({
-  name: z.string().min(1),
-  code: z.string().min(1),
-  accountId: z.string().min(1),
-  clientId: z.string().min(1),
-  clientSecret: z.string().min(1),
-  tokenId: z.string().min(1),
-  tokenSecret: z.string().min(1),
-  scriptEndpointUrl: z.string().min(1).url(),
+  name: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
+  code: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
+  accountId: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
+  clientId: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
+  clientSecret: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
+  tokenId: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
+  tokenSecret: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
+  scriptEndpointUrl: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }).url(),
   syncCreditNotes: z.boolean(),
   syncInvoices: z.boolean(),
   syncPayments: z.boolean(),
