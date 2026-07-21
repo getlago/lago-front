@@ -27,11 +27,17 @@ jest.mock('~/pages/createCustomers/common/usePaymentProviders', () => ({
   }),
 }))
 
+const ACCOUNTING_PROVIDER_BY_CODE: Record<string, string> = {
+  'netsuite-conn': 'netsuite',
+  'xero-conn': 'xero',
+}
+
 jest.mock('~/pages/createCustomers/common/useAccountingProviders', () => ({
   useAccountingProviders: () => ({
     accountingProviders: undefined,
     isLoadingAccountProviders: false,
-    getAccountingProviderFromCode: () => null,
+    getAccountingProviderFromCode: (code?: string) =>
+      code ? (ACCOUNTING_PROVIDER_BY_CODE[code] ?? null) : null,
   }),
 }))
 
@@ -94,10 +100,12 @@ const Harness = ({
   openedValues,
   hadInitialConnection = false,
   viaReset = false,
+  category = ConnectionCategory.Payment,
 }: {
   openedValues: Values
   hadInitialConnection?: boolean
   viaReset?: boolean
+  category?: ConnectionCategory
 }) => {
   // Mirrors the drawer contract: the hook's defaultValues ARE the opened
   // values (react-form re-runs formApi.update(options) on every render and
@@ -118,7 +126,7 @@ const Harness = ({
   return (
     <ConnectionDrawerProviderContent
       form={form as unknown as CustomerConnectionDrawerFormApi}
-      category={ConnectionCategory.Payment}
+      category={category}
       hadInitialConnection={hadInitialConnection}
       isCustomerEdition={true}
     />
@@ -228,6 +236,54 @@ describe('ConnectionDrawerProviderContent — payment', () => {
         )
 
         expect(container).toBeEmptyDOMElement()
+      })
+    })
+  })
+})
+
+describe('ConnectionDrawerProviderContent — accounting', () => {
+  describe('GIVEN a NetSuite connection with sync enabled', () => {
+    describe('WHEN the content is rendered', () => {
+      it('THEN should display the subsidiary combobox', () => {
+        const { container } = render(
+          <Harness
+            category={ConnectionCategory.Accounting}
+            openedValues={{
+              ...EMPTY_DEFAULTS,
+              providerCode: 'netsuite-conn',
+              providerType: 'netsuite',
+              syncWithProvider: true,
+            }}
+          />,
+        )
+
+        expect(
+          container.querySelector('input[name="subsidiaryId"]') as HTMLInputElement | null,
+        ).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN an integration connection during customer edition', () => {
+    describe('WHEN the user enables "sync with provider"', () => {
+      it('THEN should keep the typed external customer id (only payment clears it)', () => {
+        const { container } = render(
+          <Harness
+            category={ConnectionCategory.Accounting}
+            openedValues={{
+              ...EMPTY_DEFAULTS,
+              providerCode: 'xero-conn',
+              providerType: 'xero',
+              externalCustomerId: 'ACC-42',
+            }}
+          />,
+        )
+
+        const checkbox = syncCheckbox(container) as HTMLInputElement
+
+        fireEvent.click(checkbox)
+
+        expect(externalIdInput(container)).toHaveValue('ACC-42')
       })
     })
   })
