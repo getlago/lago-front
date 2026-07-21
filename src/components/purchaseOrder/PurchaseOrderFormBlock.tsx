@@ -4,7 +4,7 @@ import { TextInput } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { PURCHASE_ORDER_NUMBER_MAX_LENGTH, PURCHASE_ORDER_TRANSLATIONS } from './constants'
-import { PO } from './PO'
+import { PurchaseOrder } from './PO'
 import { PurchaseOrderRootProps } from './types'
 import { normalizePurchaseOrderNumber } from './utils'
 
@@ -36,10 +36,16 @@ export const PurchaseOrderFormBlock = ({
   }, [value])
 
   return (
-    <PO className="gap-3" value={value} onChange={onChange} disabled={disabled} {...props}>
+    <PurchaseOrder
+      className="gap-3"
+      value={value}
+      onChange={onChange}
+      disabled={disabled}
+      {...props}
+    >
       <div className="flex flex-col gap-1">
-        <PO.Title />
-        <PO.Description />
+        <PurchaseOrder.Title />
+        <PurchaseOrder.Description />
       </div>
       {showInput ? (
         // Mirrors the metrics of sibling input+trash rows (e.g. the subscription
@@ -60,7 +66,7 @@ export const PurchaseOrderFormBlock = ({
             onChange={(newValue) => onChange?.(newValue)}
             data-test={PURCHASE_ORDER_FORM_BLOCK_INPUT_TEST_ID}
           />
-          <PO.TrashButton
+          <PurchaseOrder.TrashButton
             size="medium"
             onClick={() => {
               onChange?.(null)
@@ -70,13 +76,13 @@ export const PurchaseOrderFormBlock = ({
           />
         </div>
       ) : (
-        <PO.AddButton
+        <PurchaseOrder.AddButton
           onClick={() => {
             setFocusOnReveal(true)
             setShowInput(true)
           }}
         />
       )}
-    </PO>
+    </PurchaseOrder>
   )
 }

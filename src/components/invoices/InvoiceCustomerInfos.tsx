@@ -7,7 +7,7 @@ import { generatePath } from 'react-router-dom'
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Status, StatusType } from '~/components/designSystem/Status'
 import { Typography } from '~/components/designSystem/Typography'
-import { PO } from '~/components/purchaseOrder/PO'
+import { PurchaseOrder } from '~/components/purchaseOrder/PO'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { formatAddress } from '~/core/formats/formatAddress'
 import { CUSTOMER_DETAILS_ROUTE, Link } from '~/core/router'
@@ -87,6 +87,33 @@ const InvoiceCustomerInfosComponent = ({
     zipcode: customer?.zipcode,
   })
 
+  const renderPurchaseOrderValue = () => {
+    if (!onPurchaseOrderNumberChange) {
+      return invoice?.purchaseOrderNumber || '-'
+    }
+
+    return (
+      <PurchaseOrder
+        className="flex-row items-center gap-2"
+        value={purchaseOrderNumber}
+        onChange={onPurchaseOrderNumberChange}
+        description={translate('text_1782219771286e8qwitkefxr')}
+      >
+        {purchaseOrderNumber ? (
+          <>
+            <PurchaseOrder.Number variant="body" color="grey700" />
+            <PurchaseOrder.EditButton />
+            <PurchaseOrder.TrashButton />
+          </>
+        ) : (
+          <PurchaseOrder.AddButton>
+            {translate('text_17822197712864tnvgq76xou')}
+          </PurchaseOrder.AddButton>
+        )}
+      </PurchaseOrder>
+    )
+  }
+
   return (
     <DetailsPage.Overview
       leftColumn={
@@ -161,28 +188,7 @@ const InvoiceCustomerInfosComponent = ({
           {!!invoice && (
             <DetailsPage.OverviewLine
               title={translate('text_17822197712867qhfbaf9fpk')}
-              value={
-                onPurchaseOrderNumberChange ? (
-                  <PO
-                    className="flex-row items-center gap-2"
-                    value={purchaseOrderNumber}
-                    onChange={onPurchaseOrderNumberChange}
-                    description={translate('text_1782219771286e8qwitkefxr')}
-                  >
-                    {purchaseOrderNumber ? (
-                      <>
-                        <PO.Number variant="body" color="grey700" />
-                        <PO.EditButton />
-                        <PO.TrashButton />
-                      </>
-                    ) : (
-                      <PO.AddButton>{translate('text_17822197712864tnvgq76xou')}</PO.AddButton>
-                    )}
-                  </PO>
-                ) : (
-                  invoice.purchaseOrderNumber || '-'
-                )
-              }
+              value={renderPurchaseOrderValue()}
             />
           )}
           {invoice?.issuingDate && (

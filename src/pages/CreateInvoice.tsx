@@ -29,7 +29,7 @@ import { InvoiceFormInput, LocalFeeInput } from '~/components/invoices/types'
 import { useEditInvoiceDisplayNameDialog } from '~/components/invoices/useEditInvoiceDisplayName'
 import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
 import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
-import { normalizePurchaseOrderNumber, PO } from '~/components/purchaseOrder/PO'
+import { normalizePurchaseOrderNumber, PurchaseOrder } from '~/components/purchaseOrder/PO'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import {
   ADD_ITEM_FOR_INVOICE_INPUT_NAME,
@@ -722,7 +722,7 @@ const CreateInvoice = () => {
                     </Typography>
                   </div>
 
-                  <PO
+                  <PurchaseOrder
                     className="flex-row items-center gap-4"
                     value={formikProps.values.purchaseOrderNumber}
                     onChange={(value) => {
@@ -730,18 +730,24 @@ const CreateInvoice = () => {
                     }}
                     description={translate('text_1782219771286e8qwitkefxr')}
                   >
-                    <PO.Title className="min-w-[200px]" variant="caption" color="grey600" />
+                    <PurchaseOrder.Title
+                      className="min-w-[200px]"
+                      variant="caption"
+                      color="grey600"
+                    />
 
                     {formikProps.values.purchaseOrderNumber ? (
                       <div className="flex items-center gap-2">
-                        <PO.Number variant="body" color="grey700" />
-                        <PO.EditButton />
-                        <PO.TrashButton />
+                        <PurchaseOrder.Number variant="body" color="grey700" />
+                        <PurchaseOrder.EditButton />
+                        <PurchaseOrder.TrashButton />
                       </div>
                     ) : (
-                      <PO.AddButton>{translate('text_17822197712864tnvgq76xou')}</PO.AddButton>
+                      <PurchaseOrder.AddButton>
+                        {translate('text_17822197712864tnvgq76xou')}
+                      </PurchaseOrder.AddButton>
                     )}
-                  </PO>
+                  </PurchaseOrder>
                 </div>
 
                 <div className="flex flex-row items-start gap-4">
