@@ -7,7 +7,7 @@ import { renderIntegrationPage } from './integrationTestHelpers'
 import NetsuiteIntegrationDetails from '../NetsuiteIntegrationDetails'
 
 jest.mock('~/components/settings/integrations/AddNetsuiteDialog', () => ({
-  AddNetsuiteDialog: () => null,
+  useAddNetsuiteDialog: () => ({ openAddNetsuiteDialog: jest.fn() }),
 }))
 jest.mock('~/components/settings/integrations/DeleteNetsuiteIntegrationDialog', () => ({
   useDeleteNetsuiteIntegrationDialog: () => ({ openDeleteNetsuiteIntegrationDialog: jest.fn() }),

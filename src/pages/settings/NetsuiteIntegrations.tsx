@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -7,10 +6,7 @@ import { Popper } from '~/components/designSystem/Popper'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import {
-  AddNetsuiteDialog,
-  AddNetsuiteDialogRef,
-} from '~/components/settings/integrations/AddNetsuiteDialog'
+import { useAddNetsuiteDialog } from '~/components/settings/integrations/AddNetsuiteDialog'
 import { useDeleteNetsuiteIntegrationDialog } from '~/components/settings/integrations/DeleteNetsuiteIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { INTEGRATIONS_ROUTE, NETSUITE_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
@@ -55,7 +51,7 @@ gql`
 const NetsuiteIntegrations = () => {
   const navigate = useNavigate()
   const { translate } = useInternationalization()
-  const addNetsuiteDialogRef = useRef<AddNetsuiteDialogRef>(null)
+  const { openAddNetsuiteDialog } = useAddNetsuiteDialog()
   const { openDeleteNetsuiteIntegrationDialog } = useDeleteNetsuiteIntegrationDialog()
   const { data, loading } = useGetNetsuiteIntegrationsListQuery({
     variables: { limit: 1000, types: [IntegrationTypeEnum.Netsuite] },
@@ -99,7 +95,7 @@ const NetsuiteIntegrations = () => {
               label: translate('text_65846763e6140b469140e235'),
               variant: 'primary',
               onClick: () => {
-                addNetsuiteDialogRef.current?.openDialog()
+                openAddNetsuiteDialog()
               },
             },
           ],
@@ -152,13 +148,9 @@ const NetsuiteIntegrations = () => {
                           variant="quaternary"
                           align="left"
                           onClick={() => {
-                            addNetsuiteDialogRef.current?.openDialog({
+                            openAddNetsuiteDialog({
                               provider: connection,
-                              onDelete: (provider) =>
-                                openDeleteNetsuiteIntegrationDialog({
-                                  provider,
-                                  callback: deleteDialogCallback,
-                                }),
+                              deleteDialogCallback,
                             })
                             closePopper()
                           }}
@@ -187,7 +179,6 @@ const NetsuiteIntegrations = () => {
             })}
         </section>
       </IntegrationsPage.Container>
-      <AddNetsuiteDialog ref={addNetsuiteDialogRef} />
     </>
   )
 }

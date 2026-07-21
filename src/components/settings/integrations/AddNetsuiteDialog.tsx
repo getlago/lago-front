@@ -1,28 +1,30 @@
-import { gql } from '@apollo/client'
-import Stack from '@mui/material/Stack'
-import Nango from '@nangohq/frontend'
-import { useFormik } from 'formik'
+import { gql, useApolloClient } from '@apollo/client'
+import { revalidateLogic } from '@tanstack/react-form'
 import { GraphQLFormattedError } from 'graphql'
-import { forwardRef, useId, useImperativeHandle, useRef, useState } from 'react'
+import { useId, useRef, useState } from 'react'
 import { generatePath } from 'react-router-dom'
-import { boolean, object, string } from 'yup'
+import { z } from 'zod'
 
 import { Alert } from '~/components/designSystem/Alert'
-import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'
-import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
 import { Typography } from '~/components/designSystem/Typography'
-import { Checkbox, CheckboxField, TextInputField } from '~/components/form'
+import { useFormDialogOpeningDialog } from '~/components/dialogs/FormDialogOpeningDialog'
+import { DialogResult } from '~/components/dialogs/types'
+import { focusFirstInput } from '~/components/drawers/useFocusTrap'
+import { Checkbox } from '~/components/form'
 import { addToast, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
+import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { NETSUITE_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import {
-  CreateNetsuiteIntegrationInput,
+  GetNetsuiteIntegrationsListDocument,
   NetsuiteForCreateDialogDialogFragment,
   useCreateNetsuiteIntegrationMutation,
+  useDestroyNangoIntegrationMutation,
   useUpdateNetsuiteIntegrationMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm } from '~/hooks/forms/useAppform'
 import { NetsuiteIntegrationDetailsTabs } from '~/pages/settings/NetsuiteIntegrationDetails'
 
 gql`
@@ -54,31 +56,73 @@ gql`
   }
 `
 
-type TAddNetsuiteDialogProps = Partial<{
-  onDelete: (provider: NetsuiteForCreateDialogDialogFragment) => void
-  provider: NetsuiteForCreateDialogDialogFragment
-}>
+const ADD_NETSUITE_FORM_ID = 'form-add-netsuite-integration'
 
-export interface AddNetsuiteDialogRef {
-  openDialog: (props?: TAddNetsuiteDialogProps) => unknown
-  closeDialog: () => unknown
+type AddNetsuiteFormValues = {
+  name: string
+  code: string
+  accountId: string
+  clientId: string
+  clientSecret: string
+  tokenId: string
+  tokenSecret: string
+  scriptEndpointUrl: string
+  syncCreditNotes: boolean
+  syncInvoices: boolean
+  syncPayments: boolean
 }
 
-export const AddNetsuiteDialog = forwardRef<AddNetsuiteDialogRef>((_, ref) => {
+const defaultFormValues: AddNetsuiteFormValues = {
+  name: '',
+  code: '',
+  accountId: '',
+  clientId: '',
+  clientSecret: '',
+  tokenId: '',
+  tokenSecret: '',
+  scriptEndpointUrl: '',
+  syncCreditNotes: false,
+  syncInvoices: false,
+  syncPayments: false,
+}
+
+const validationSchema = z.object({
+  name: z.string().min(1),
+  code: z.string().min(1),
+  accountId: z.string().min(1),
+  clientId: z.string().min(1),
+  clientSecret: z.string().min(1),
+  tokenId: z.string().min(1),
+  tokenSecret: z.string().min(1),
+  scriptEndpointUrl: z.string().min(1).url(),
+  syncCreditNotes: z.boolean(),
+  syncInvoices: z.boolean(),
+  syncPayments: z.boolean(),
+})
+
+type OpenAddNetsuiteDialogData = {
+  provider?: NetsuiteForCreateDialogDialogFragment
+  deleteDialogCallback?: () => void
+}
+
+export const useAddNetsuiteDialog = () => {
   const componentId = useId()
   const { nangoPublicKey } = envGlobalVar()
 
   const { translate } = useInternationalization()
   const navigate = useNavigate()
-  const dialogRef = useRef<DialogRef>(null)
-  const [localData, setLocalData] = useState<TAddNetsuiteDialogProps | undefined>(undefined)
+  const formDialogOpeningDialog = useFormDialogOpeningDialog()
+  const client = useApolloClient()
+
+  const dataRef = useRef<OpenAddNetsuiteDialogData | null>(null)
+  const successRef = useRef(false)
+
   const [showGlobalError, setShowGlobalError] = useState(false)
-  const netsuiteProvider = localData?.provider
-  const isEdition = !!netsuiteProvider
 
   const [createIntegration] = useCreateNetsuiteIntegrationMutation({
     onCompleted({ createNetsuiteIntegration }) {
       if (createNetsuiteIntegration?.id) {
+        successRef.current = true
         navigate(
           generatePath(NETSUITE_INTEGRATION_DETAILS_ROUTE, {
             integrationId: createNetsuiteIntegration.id,
@@ -99,6 +143,7 @@ export const AddNetsuiteDialog = forwardRef<AddNetsuiteDialogRef>((_, ref) => {
   const [updateIntegration] = useUpdateNetsuiteIntegrationMutation({
     onCompleted({ updateNetsuiteIntegration }) {
       if (updateNetsuiteIntegration?.id) {
+        successRef.current = true
         addToast({
           message: translate('text_661ff6e56ef7e1b7c542b2cc'),
           severity: 'success',
@@ -107,43 +152,33 @@ export const AddNetsuiteDialog = forwardRef<AddNetsuiteDialogRef>((_, ref) => {
     },
   })
 
-  const formikProps = useFormik<Omit<CreateNetsuiteIntegrationInput, 'connectionId'>>({
-    initialValues: {
-      name: netsuiteProvider?.name || '',
-      code: netsuiteProvider?.code || '',
-      accountId: netsuiteProvider?.accountId || '',
-      clientId: netsuiteProvider?.clientId || '',
-      clientSecret: netsuiteProvider?.clientSecret || '',
-      tokenId: netsuiteProvider?.tokenId || '',
-      tokenSecret: netsuiteProvider?.tokenSecret || '',
-      scriptEndpointUrl: netsuiteProvider?.scriptEndpointUrl || '',
-      syncCreditNotes: !!netsuiteProvider?.syncCreditNotes,
-      syncInvoices: !!netsuiteProvider?.syncInvoices,
-      syncPayments: !!netsuiteProvider?.syncPayments,
+  const [deleteNetsuite] = useDestroyNangoIntegrationMutation()
+
+  const form = useAppForm({
+    defaultValues: defaultFormValues,
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: validationSchema,
     },
-    validationSchema: object().shape({
-      name: string().required(''),
-      code: string().required(''),
-      accountId: string().required(''),
-      clientId: string().required(''),
-      clientSecret: string().required(''),
-      tokenId: string().required(''),
-      tokenSecret: string().required(''),
-      scriptEndpointUrl: string().url('').required(''),
-      syncCreditNotes: boolean(),
-      syncInvoices: boolean(),
-      syncPayments: boolean(),
-    }),
-    onSubmit: async ({ ...values }, formikBag) => {
+    onSubmit: async ({ value, formApi }) => {
       setShowGlobalError(false)
+
+      const netsuiteProvider = dataRef.current?.provider
+      const isEdition = !!netsuiteProvider
 
       const handleError = (errors: readonly GraphQLFormattedError[]) => {
         if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
-          formikBag.setErrors({
-            code: translate('text_632a2d437e341dcc76817556'),
+          formApi.setErrorMap({
+            onDynamic: {
+              fields: {
+                code: {
+                  message: translate('text_632a2d437e341dcc76817556'),
+                  path: ['code'],
+                },
+              },
+            },
           })
 
-          // Scroll to top of modal container
           const modalContainer = document.getElementsByClassName('MuiDialog-container')[0]
 
           if (modalContainer) {
@@ -156,287 +191,331 @@ export const AddNetsuiteDialog = forwardRef<AddNetsuiteDialogRef>((_, ref) => {
         const res = await updateIntegration({
           variables: {
             input: {
-              ...values,
+              ...value,
               id: netsuiteProvider?.id || '',
             },
           },
         })
 
         if (res.errors) {
-          return handleError(res.errors)
+          handleError(res.errors)
         }
       } else {
         const connectionId = `netsuite-tba-${componentId.replaceAll(':', '')}-${Date.now()}`
-
+        const Nango = (await import('@nangohq/frontend')).default
         const nango = new Nango({ publicKey: nangoPublicKey })
 
         try {
           const nangoAuthResult = await nango.auth('netsuite-tba', connectionId, {
-            params: { accountId: values.accountId },
+            params: { accountId: value.accountId },
             credentials: {
-              token_id: values.tokenId,
-              token_secret: values.tokenSecret,
-              oauth_client_id_override: values.clientId,
-              oauth_client_secret_override: values.clientSecret,
+              token_id: value.tokenId,
+              token_secret: value.tokenSecret,
+              oauth_client_id_override: value.clientId,
+              oauth_client_secret_override: value.clientSecret,
             },
           })
 
           if (!!nangoAuthResult) {
             const res = await createIntegration({
               variables: {
-                input: { ...values, connectionId },
+                input: { ...value, connectionId },
               },
             })
 
             if (res.errors) {
-              return handleError(res.errors)
+              handleError(res.errors)
             }
           }
         } catch {
           setShowGlobalError(true)
-          return
         }
       }
-
-      dialogRef.current?.closeDialog()
     },
-    validateOnMount: true,
-    enableReinitialize: true,
   })
 
-  useImperativeHandle(ref, () => ({
-    openDialog: (data) => {
-      setLocalData(data)
-      dialogRef.current?.openDialog()
-    },
-    closeDialog: () => dialogRef.current?.closeDialog(),
-  }))
+  const handleSubmit = async (): Promise<DialogResult> => {
+    successRef.current = false
+    await form.handleSubmit()
 
-  return (
-    <Dialog
-      ref={dialogRef}
-      title={translate(
-        isEdition ? 'text_661ff6e56ef7e1b7c542b1d0' : 'text_661ff6e56ef7e1b7c542b326',
-        {
-          name: netsuiteProvider?.name,
-        },
-      )}
-      description={translate(
-        isEdition ? 'text_661ff6e56ef7e1b7c542b1da' : 'text_661ff6e56ef7e1b7c542b1d6',
-      )}
-      onClose={formikProps.resetForm}
-      actions={({ closeDialog }) => (
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-          width={isEdition ? '100%' : 'inherit'}
-          spacing={3}
-        >
-          {isEdition && (
-            <Button
-              danger
-              variant="quaternary"
-              onClick={() => {
-                closeDialog()
-                localData?.onDelete?.(netsuiteProvider)
-              }}
-            >
-              {translate('text_65845f35d7d69c3ab4793dad')}
-            </Button>
-          )}
-          <Stack direction="row" spacing={3} alignItems="center">
-            <Button variant="quaternary" onClick={closeDialog}>
-              {translate('text_63eba8c65a6c8043feee2a14')}
-            </Button>
-            <Button
-              variant="primary"
-              disabled={!formikProps.isValid || !formikProps.dirty}
-              onClick={formikProps.submitForm}
-            >
+    if (!successRef.current) {
+      throw new Error('Submit failed')
+    }
+
+    return { reason: 'success' }
+  }
+
+  const openAddNetsuiteDialog = (data?: OpenAddNetsuiteDialogData) => {
+    setShowGlobalError(false)
+    dataRef.current = data ?? null
+    const netsuiteProvider = data?.provider
+    const isEdition = !!netsuiteProvider
+
+    form.reset()
+    if (netsuiteProvider) {
+      form.setFieldValue('name', netsuiteProvider.name || '')
+      form.setFieldValue('code', netsuiteProvider.code || '')
+      form.setFieldValue('accountId', netsuiteProvider.accountId || '')
+      form.setFieldValue('clientId', netsuiteProvider.clientId || '')
+      form.setFieldValue('clientSecret', netsuiteProvider.clientSecret || '')
+      form.setFieldValue('tokenId', netsuiteProvider.tokenId || '')
+      form.setFieldValue('tokenSecret', netsuiteProvider.tokenSecret || '')
+      form.setFieldValue('scriptEndpointUrl', netsuiteProvider.scriptEndpointUrl || '')
+      form.setFieldValue('syncCreditNotes', !!netsuiteProvider.syncCreditNotes)
+      form.setFieldValue('syncInvoices', !!netsuiteProvider.syncInvoices)
+      form.setFieldValue('syncPayments', !!netsuiteProvider.syncPayments)
+    }
+
+    formDialogOpeningDialog
+      .open({
+        title: translate(
+          isEdition ? 'text_661ff6e56ef7e1b7c542b1d0' : 'text_661ff6e56ef7e1b7c542b326',
+          {
+            name: netsuiteProvider?.name,
+          },
+        ),
+        description: translate(
+          isEdition ? 'text_661ff6e56ef7e1b7c542b1da' : 'text_661ff6e56ef7e1b7c542b1d6',
+        ),
+        children: (
+          <div className="flex flex-col gap-8 p-8">
+            {showGlobalError && (
+              <Alert type="danger">{translate('text_1749562792335fy21gc3sxn0')}</Alert>
+            )}
+
+            <div className="flex flex-col gap-6">
+              <div className="flex flex-row items-start gap-6">
+                <form.AppField name="name">
+                  {(field) => (
+                    <field.TextInputField
+                      className="flex-1"
+                      label={translate('text_6419c64eace749372fc72b0f')}
+                      placeholder={translate('text_6584550dc4cec7adf861504f')}
+                    />
+                  )}
+                </form.AppField>
+                <form.AppField name="code">
+                  {(field) => (
+                    <field.TextInputField
+                      className="flex-1"
+                      beforeChangeFormatter="code"
+                      label={translate('text_62876e85e32e0300e1803127')}
+                      placeholder={translate('text_6584550dc4cec7adf8615053')}
+                    />
+                  )}
+                </form.AppField>
+              </div>
+
+              <form.AppField name="accountId">
+                {(field) => (
+                  <field.TextInputField
+                    beforeChangeFormatter={['lowercase', 'trim', 'dashSeparator']}
+                    disabled={isEdition}
+                    label={translate('text_661ff6e56ef7e1b7c542b216')}
+                    placeholder={translate('text_661ff6e56ef7e1b7c542b224')}
+                  />
+                )}
+              </form.AppField>
+              <form.AppField name="clientId">
+                {(field) => (
+                  <field.TextInputField
+                    disabled={isEdition}
+                    label={translate('text_661ff6e56ef7e1b7c542b230')}
+                    placeholder={translate('text_661ff6e56ef7e1b7c542b23b')}
+                  />
+                )}
+              </form.AppField>
+              <form.AppField name="clientSecret">
+                {(field) => (
+                  <field.TextInputField
+                    disabled={isEdition}
+                    label={translate('text_661ff6e56ef7e1b7c542b247')}
+                    placeholder={translate('text_661ff6e56ef7e1b7c542b251')}
+                  />
+                )}
+              </form.AppField>
+              <form.AppField name="tokenId">
+                {(field) => (
+                  <field.TextInputField
+                    disabled={isEdition}
+                    label={translate('text_6683cd0bab4ac0007e913af7')}
+                    placeholder={translate('text_6683cd1bb93b060070e9a596')}
+                  />
+                )}
+              </form.AppField>
+              <form.AppField name="tokenSecret">
+                {(field) => (
+                  <field.TextInputField
+                    disabled={isEdition}
+                    label={translate('text_6683cd29cfb79500e588ee47')}
+                    placeholder={translate('text_6683cd3f33ac8f005b67345c')}
+                  />
+                )}
+              </form.AppField>
+            </div>
+
+            <div className="flex flex-col gap-6">
+              <div>
+                <Typography variant="bodyHl" color="grey700">
+                  {translate('text_661ff6e56ef7e1b7c542b25b')}
+                </Typography>
+                <Typography variant="caption" color="grey600">
+                  {translate('text_661ff6e56ef7e1b7c542b267')}
+                </Typography>
+              </div>
+
+              <form.AppField name="scriptEndpointUrl">
+                {(field) => (
+                  <field.TextInputField
+                    label={translate('text_661ff6e56ef7e1b7c542b271')}
+                    placeholder={translate('text_661ff6e56ef7e1b7c542b27d')}
+                  />
+                )}
+              </form.AppField>
+            </div>
+
+            <div className="flex flex-col gap-6">
+              <div>
+                <Typography variant="bodyHl" color="grey700">
+                  {translate('text_661ff6e56ef7e1b7c542b286')}
+                </Typography>
+                <Typography variant="caption" color="grey600">
+                  {translate('text_661ff6e56ef7e1b7c542b28e')}
+                </Typography>
+              </div>
+
+              <div className="flex flex-col gap-4">
+                <Checkbox
+                  disabled
+                  label={
+                    <NetsuiteSyncLabel
+                      firstPart={translate('text_661ff6e56ef7e1b7c542b296')}
+                      code={translate('text_661ff6e56ef7e1b7c542b2c2')}
+                      lastPart={translate('text_661ff6e56ef7e1b7c542b29e')}
+                    />
+                  }
+                  value={true}
+                />
+                <form.AppField name="syncCreditNotes">
+                  {(field) => (
+                    <field.CheckboxField
+                      label={
+                        <NetsuiteSyncLabel
+                          firstPart={translate('text_661ff6e56ef7e1b7c542b296')}
+                          code={translate('text_661ff6e56ef7e1b7c542b2e9')}
+                          lastPart={translate('text_661ff6e56ef7e1b7c542b29e')}
+                        />
+                      }
+                    />
+                  )}
+                </form.AppField>
+                <form.AppField name="syncInvoices">
+                  {(field) => (
+                    <field.CheckboxField
+                      label={
+                        <NetsuiteSyncLabel
+                          firstPart={translate('text_661ff6e56ef7e1b7c542b296')}
+                          code={translate('text_661ff6e56ef7e1b7c542b2ff')}
+                          lastPart={translate('text_661ff6e56ef7e1b7c542b29e')}
+                        />
+                      }
+                    />
+                  )}
+                </form.AppField>
+                <form.AppField name="syncPayments">
+                  {(field) => (
+                    <field.CheckboxField
+                      label={
+                        <NetsuiteSyncLabel
+                          firstPart={translate('text_661ff6e56ef7e1b7c542b296')}
+                          code={translate('text_661ff6e56ef7e1b7c542b311')}
+                          lastPart={translate('text_661ff6e56ef7e1b7c542b29e')}
+                        />
+                      }
+                    />
+                  )}
+                </form.AppField>
+              </div>
+            </div>
+          </div>
+        ),
+        closeOnError: false,
+        onEntered: isEdition ? undefined : focusFirstInput,
+        mainAction: (
+          <form.AppForm>
+            <form.SubmitButton>
               {translate(
                 isEdition ? 'text_65845f35d7d69c3ab4793dac' : 'text_661ff6e56ef7e1b7c542b326',
               )}
-            </Button>
-          </Stack>
-        </Stack>
-      )}
-    >
-      <Stack spacing={8} marginBottom={8}>
-        {!!showGlobalError && (
-          <Alert type="danger">{translate('text_1749562792335fy21gc3sxn0')}</Alert>
-        )}
+            </form.SubmitButton>
+          </form.AppForm>
+        ),
+        form: {
+          id: ADD_NETSUITE_FORM_ID,
+          submit: handleSubmit,
+        },
+        canOpenDialog: isEdition,
+        openDialogText: translate('text_65845f35d7d69c3ab4793dad'),
+        otherDialogProps: {
+          title: translate('text_658461066530343fe1808cd7', { name: netsuiteProvider?.name }),
+          description: translate('text_661ff6e56ef7e1b7c542b1ec'),
+          colorVariant: 'danger',
+          actionText: translate('text_645d071272418a14c1c76a81'),
+          onAction: async () => {
+            const res = await deleteNetsuite({
+              variables: { input: { id: netsuiteProvider?.id as string } },
+            })
 
-        <Stack spacing={6}>
-          <div className="flex flex-row items-start gap-6">
-            <TextInputField
-              className="flex-1"
-              // eslint-disable-next-line jsx-a11y/no-autofocus
-              autoFocus={!isEdition}
-              name="name"
-              label={translate('text_6419c64eace749372fc72b0f')}
-              placeholder={translate('text_6584550dc4cec7adf861504f')}
-              formikProps={formikProps}
-            />
-            <TextInputField
-              className="flex-1"
-              name="code"
-              beforeChangeFormatter="code"
-              label={translate('text_62876e85e32e0300e1803127')}
-              placeholder={translate('text_6584550dc4cec7adf8615053')}
-              formikProps={formikProps}
-            />
-          </div>
+            const destroyedId = res.data?.destroyIntegration?.id
 
-          <TextInputField
-            name="accountId"
-            beforeChangeFormatter={['lowercase', 'trim', 'dashSeparator']}
-            disabled={isEdition}
-            label={translate('text_661ff6e56ef7e1b7c542b216')}
-            placeholder={translate('text_661ff6e56ef7e1b7c542b224')}
-            formikProps={formikProps}
-          />
-          <TextInputField
-            name="clientId"
-            disabled={isEdition}
-            label={translate('text_661ff6e56ef7e1b7c542b230')}
-            placeholder={translate('text_661ff6e56ef7e1b7c542b23b')}
-            formikProps={formikProps}
-          />
-          <TextInputField
-            name="clientSecret"
-            disabled={isEdition}
-            label={translate('text_661ff6e56ef7e1b7c542b247')}
-            placeholder={translate('text_661ff6e56ef7e1b7c542b251')}
-            formikProps={formikProps}
-          />
-          <TextInputField
-            name="tokenId"
-            disabled={isEdition}
-            label={translate('text_6683cd0bab4ac0007e913af7')}
-            placeholder={translate('text_6683cd1bb93b060070e9a596')}
-            formikProps={formikProps}
-          />
-          <TextInputField
-            name="tokenSecret"
-            disabled={isEdition}
-            label={translate('text_6683cd29cfb79500e588ee47')}
-            placeholder={translate('text_6683cd3f33ac8f005b67345c')}
-            formikProps={formikProps}
-          />
-        </Stack>
+            if (destroyedId) {
+              evictFromCache(client, {
+                id: destroyedId,
+                __typename: 'NetsuiteIntegration',
+                listFieldName: 'integrations',
+                listQueryDocument: GetNetsuiteIntegrationsListDocument,
+              })
 
-        <Stack spacing={6}>
-          <div>
-            <Typography variant="bodyHl" color="grey700">
-              {translate('text_661ff6e56ef7e1b7c542b25b')}
-            </Typography>
-            <Typography variant="caption" color="grey600">
-              {translate('text_661ff6e56ef7e1b7c542b267')}
-            </Typography>
-          </div>
+              data?.deleteDialogCallback?.()
 
-          <TextInputField
-            name="scriptEndpointUrl"
-            label={translate('text_661ff6e56ef7e1b7c542b271')}
-            placeholder={translate('text_661ff6e56ef7e1b7c542b27d')}
-            formikProps={formikProps}
-            error={undefined} // Make sure to remove yup default error
-          />
-        </Stack>
+              addToast({
+                message: translate('text_661ff6e56ef7e1b7c542b2f9'),
+                severity: 'success',
+              })
+            }
+          },
+        },
+      })
+      .then((response) => {
+        if (response.reason === 'close' || response.reason === 'open-other-dialog') {
+          form.reset()
+          dataRef.current = null
+          setShowGlobalError(false)
+        }
+      })
+  }
 
-        <Stack spacing={6}>
-          <div>
-            <Typography variant="bodyHl" color="grey700">
-              {translate('text_661ff6e56ef7e1b7c542b286')}
-            </Typography>
-            <Typography variant="caption" color="grey600">
-              {translate('text_661ff6e56ef7e1b7c542b28e')}
-            </Typography>
-          </div>
+  return { openAddNetsuiteDialog }
+}
 
-          <Stack spacing={4}>
-            <Checkbox
-              disabled
-              label={
-                <Stack spacing={1} direction="row" alignItems="center" flexWrap="wrap">
-                  <Typography variant="body" color="grey700">
-                    {translate('text_661ff6e56ef7e1b7c542b296')}
-                  </Typography>
-                  <Chip
-                    size="small"
-                    label={translate('text_661ff6e56ef7e1b7c542b2c2')}
-                    color="danger600"
-                  />
-                  <Typography variant="body" color="grey700">
-                    {translate('text_661ff6e56ef7e1b7c542b29e')}
-                  </Typography>
-                </Stack>
-              }
-              value={true}
-            />
-            <CheckboxField
-              name="syncCreditNotes"
-              label={
-                <Stack spacing={1} direction="row" alignItems="center" flexWrap="wrap">
-                  <Typography variant="body" color="grey700">
-                    {translate('text_661ff6e56ef7e1b7c542b296')}
-                  </Typography>
-                  <Chip
-                    size="small"
-                    label={translate('text_661ff6e56ef7e1b7c542b2e9')}
-                    color="danger600"
-                  />
-                  <Typography variant="body" color="grey700">
-                    {translate('text_661ff6e56ef7e1b7c542b29e')}
-                  </Typography>
-                </Stack>
-              }
-              formikProps={formikProps}
-            />
-            <CheckboxField
-              name="syncInvoices"
-              label={
-                <Stack spacing={1} direction="row" alignItems="center" flexWrap="wrap">
-                  <Typography variant="body" color="grey700">
-                    {translate('text_661ff6e56ef7e1b7c542b296')}
-                  </Typography>
-                  <Chip
-                    size="small"
-                    label={translate('text_661ff6e56ef7e1b7c542b2ff')}
-                    color="danger600"
-                  />
-                  <Typography variant="body" color="grey700">
-                    {translate('text_661ff6e56ef7e1b7c542b29e')}
-                  </Typography>
-                </Stack>
-              }
-              formikProps={formikProps}
-            />
-            <CheckboxField
-              name="syncPayments"
-              label={
-                <Stack spacing={1} direction="row" alignItems="center" flexWrap="wrap">
-                  <Typography variant="body" color="grey700">
-                    {translate('text_661ff6e56ef7e1b7c542b296')}
-                  </Typography>
-                  <Chip
-                    size="small"
-                    label={translate('text_661ff6e56ef7e1b7c542b311')}
-                    color="danger600"
-                  />
-                  <Typography variant="body" color="grey700">
-                    {translate('text_661ff6e56ef7e1b7c542b29e')}
-                  </Typography>
-                </Stack>
-              }
-              formikProps={formikProps}
-            />
-          </Stack>
-        </Stack>
-      </Stack>
-    </Dialog>
+const NetsuiteSyncLabel = ({
+  firstPart,
+  code,
+  lastPart,
+}: {
+  firstPart: string
+  code: string
+  lastPart: string
+}) => {
+  return (
+    <div className="flex flex-row flex-wrap items-center gap-1">
+      <Typography variant="body" color="grey700">
+        {firstPart}
+      </Typography>
+      <Chip size="small" label={code} color="danger600" />
+      <Typography variant="body" color="grey700">
+        {lastPart}
+      </Typography>
+    </div>
   )
-})
-
-AddNetsuiteDialog.displayName = 'AddNetsuiteDialog'
+}
