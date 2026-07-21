@@ -78,7 +78,11 @@ export const CustomerConnectionsList = ({
           tabIndex={onRowClick ? 0 : undefined}
           onClick={() => onRowClick?.(row)}
           onKeyDown={(e) => {
-            if (onRowClick && (e.key === 'Enter' || e.key === ' ')) {
+            if (
+              onRowClick &&
+              e.target === e.currentTarget &&
+              (e.key === 'Enter' || e.key === ' ')
+            ) {
               e.preventDefault()
               onRowClick(row)
             }
