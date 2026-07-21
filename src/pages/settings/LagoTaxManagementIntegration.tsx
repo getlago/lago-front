@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { Icon, tw } from 'lago-design-system'
-import { FC, useRef } from 'react'
+import { FC } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
@@ -10,10 +10,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import {
-  AddLagoTaxManagementDialog,
-  AddLagoTaxManagementDialogRef,
-} from '~/components/settings/integrations/AddLagoTaxManagementDialog'
+import { useAddLagoTaxManagementDialog } from '~/components/settings/integrations/AddLagoTaxManagementDialog'
 import { addToast } from '~/core/apolloClient'
 import { CountryCodes } from '~/core/constants/countryCodes'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -76,7 +73,7 @@ const LagoTaxManagementIntegration = () => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const centralizedDialog = useCentralizedDialog()
-  const addLagoTaxManagementDialog = useRef<AddLagoTaxManagementDialogRef>(null)
+  const { openAddLagoTaxManagementDialog } = useAddLagoTaxManagementDialog()
 
   const { data: billingEntitiesData, loading: billingEntitiesLoading } =
     useGetBillingEntitiesQuery()
@@ -178,7 +175,7 @@ const LagoTaxManagementIntegration = () => {
             <Button
               variant="inline"
               onClick={() => {
-                addLagoTaxManagementDialog.current?.openDialog()
+                openAddLagoTaxManagementDialog({ isUpdate: true })
               }}
             >
               {translate('text_174669693169993cmj3546tp')}
@@ -248,8 +245,6 @@ const LagoTaxManagementIntegration = () => {
             ))}
         </section>
       </IntegrationsPage.Container>
-
-      <AddLagoTaxManagementDialog isUpdate={true} ref={addLagoTaxManagementDialog} />
     </>
   )
 }
