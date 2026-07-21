@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -7,10 +6,7 @@ import { Popper } from '~/components/designSystem/Popper'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import {
-  AddSalesforceDialog,
-  AddSalesforceDialogRef,
-} from '~/components/settings/integrations/AddSalesforceDialog'
+import { useAddSalesforceDialog } from '~/components/settings/integrations/AddSalesforceDialog'
 import { useDeleteSalesforceIntegrationDialog } from '~/components/settings/integrations/DeleteSalesforceIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
@@ -58,7 +54,7 @@ const SalesforceIntegrations = () => {
   const navigate = useNavigate()
   const { translate } = useInternationalization()
 
-  const addSalesforceDialogRef = useRef<AddSalesforceDialogRef>(null)
+  const { openAddSalesforceDialog } = useAddSalesforceDialog()
   const { openDeleteSalesforceIntegrationDialog } = useDeleteSalesforceIntegrationDialog()
 
   const { data, loading } = useGetSalesforceIntegrationsListQuery({
@@ -104,7 +100,7 @@ const SalesforceIntegrations = () => {
               label: translate('text_65846763e6140b469140e235'),
               variant: 'primary',
               onClick: () => {
-                addSalesforceDialogRef.current?.openDialog()
+                openAddSalesforceDialog()
               },
             },
           ],
@@ -152,13 +148,9 @@ const SalesforceIntegrations = () => {
                           variant="quaternary"
                           align="left"
                           onClick={() => {
-                            addSalesforceDialogRef.current?.openDialog({
+                            openAddSalesforceDialog({
                               provider: connection,
-                              onDelete: (provider) =>
-                                openDeleteSalesforceIntegrationDialog({
-                                  provider,
-                                  callback: deleteDialogCallback,
-                                }),
+                              deleteDialogCallback,
                             })
                             closePopper()
                           }}
@@ -187,8 +179,6 @@ const SalesforceIntegrations = () => {
             })}
         </section>
       </IntegrationsPage.Container>
-
-      <AddSalesforceDialog ref={addSalesforceDialogRef} />
     </>
   )
 }

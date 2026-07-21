@@ -1,26 +1,27 @@
-import { gql } from '@apollo/client'
-import { useFormik } from 'formik'
+import { gql, useApolloClient } from '@apollo/client'
+import { revalidateLogic } from '@tanstack/react-form'
 import { GraphQLFormattedError } from 'graphql'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { generatePath } from 'react-router-dom'
-import { object, string } from 'yup'
+import { z } from 'zod'
 
 import { Alert } from '~/components/designSystem/Alert'
-import { Button } from '~/components/designSystem/Button'
-import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
-import { TextInputField } from '~/components/form'
+import { useFormDialogOpeningDialog } from '~/components/dialogs/FormDialogOpeningDialog'
+import { DialogResult } from '~/components/dialogs/types'
+import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { SALESFORCE_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import {
-  CreateSalesforceIntegrationInput,
-  DeleteSalesforceIntegrationDialogFragmentDoc,
+  GetSalesforceIntegrationsListDocument,
   SalesforceForCreateDialogFragment,
   useCreateSalesforceIntegrationMutation,
+  useDestroyNangoIntegrationMutation,
   useUpdateSalesforceIntegrationMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { tw } from '~/styles/utils'
+import { useAppForm } from '~/hooks/forms/useAppform'
 
 gql`
   fragment SalesforceForCreateDialog on SalesforceIntegration {
@@ -28,7 +29,6 @@ gql`
     name
     code
     instanceId
-    ...DeleteSalesforceIntegrationDialog
   }
 
   mutation createSalesforceIntegration($input: CreateSalesforceIntegrationInput!) {
@@ -42,33 +42,48 @@ gql`
       ...SalesforceForCreateDialog
     }
   }
-
-  ${DeleteSalesforceIntegrationDialogFragmentDoc}
 `
 
-type TAddSalesforceDialogProps = Partial<{
-  onDelete: (provider: SalesforceForCreateDialogFragment) => void
-  provider: SalesforceForCreateDialogFragment
-}>
+const ADD_SALESFORCE_FORM_ID = 'form-add-salesforce-integration'
 
-export interface AddSalesforceDialogRef {
-  openDialog: (props?: TAddSalesforceDialogProps) => unknown
-  closeDialog: () => unknown
+type AddSalesforceFormValues = {
+  name: string
+  code: string
+  instanceId: string
 }
 
-export const AddSalesforceDialog = forwardRef<AddSalesforceDialogRef>((_, ref) => {
+const defaultFormValues: AddSalesforceFormValues = {
+  name: '',
+  code: '',
+  instanceId: '',
+}
+
+const validationSchema = z.object({
+  name: z.string().min(1),
+  code: z.string().min(1),
+  instanceId: z.string().min(1),
+})
+
+type OpenAddSalesforceDialogData = {
+  provider?: SalesforceForCreateDialogFragment
+  deleteDialogCallback?: () => void
+}
+
+export const useAddSalesforceDialog = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
-  const dialogRef = useRef<DialogRef>(null)
-  const [localData, setLocalData] = useState<TAddSalesforceDialogProps | undefined>(undefined)
-  const [showGlobalError, setShowGlobalError] = useState(false)
+  const formDialogOpeningDialog = useFormDialogOpeningDialog()
+  const client = useApolloClient()
 
-  const salesforceProvider = localData?.provider
-  const isEdition = !!salesforceProvider
+  const dataRef = useRef<OpenAddSalesforceDialogData | null>(null)
+  const successRef = useRef(false)
+
+  const [showGlobalError, setShowGlobalError] = useState(false)
 
   const [createIntegration] = useCreateSalesforceIntegrationMutation({
     onCompleted({ createSalesforceIntegration }) {
       if (createSalesforceIntegration?.id) {
+        successRef.current = true
         navigate(
           generatePath(SALESFORCE_INTEGRATION_DETAILS_ROUTE, {
             integrationId: createSalesforceIntegration.id,
@@ -87,6 +102,7 @@ export const AddSalesforceDialog = forwardRef<AddSalesforceDialogRef>((_, ref) =
   const [updateIntegration] = useUpdateSalesforceIntegrationMutation({
     onCompleted({ updateSalesforceIntegration }) {
       if (updateSalesforceIntegration?.id) {
+        successRef.current = true
         addToast({
           message: translate('text_1731510123491t2zwypps84n'),
           severity: 'success',
@@ -95,27 +111,33 @@ export const AddSalesforceDialog = forwardRef<AddSalesforceDialogRef>((_, ref) =
     },
   })
 
-  const formikProps = useFormik<Omit<CreateSalesforceIntegrationInput, 'connectionId'>>({
-    initialValues: {
-      name: salesforceProvider?.name || '',
-      code: salesforceProvider?.code || '',
-      instanceId: salesforceProvider?.instanceId || '',
+  const [deleteSalesforce] = useDestroyNangoIntegrationMutation()
+
+  const form = useAppForm({
+    defaultValues: defaultFormValues,
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: validationSchema,
     },
-    validationSchema: object().shape({
-      name: string().required(''),
-      code: string().required(''),
-      instanceId: string().required(''),
-    }),
-    onSubmit: async (values, formikBag) => {
+    onSubmit: async ({ value, formApi }) => {
       setShowGlobalError(false)
+
+      const salesforceProvider = dataRef.current?.provider
+      const isEdition = !!salesforceProvider
 
       const handleError = (errors: readonly GraphQLFormattedError[]) => {
         if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
-          formikBag.setErrors({
-            code: translate('text_632a2d437e341dcc76817556'),
+          formApi.setErrorMap({
+            onDynamic: {
+              fields: {
+                code: {
+                  message: translate('text_632a2d437e341dcc76817556'),
+                  path: ['code'],
+                },
+              },
+            },
           })
 
-          // Scroll to top of modal container
           const modalContainer = document.getElementsByClassName('MuiDialog-container')[0]
 
           if (modalContainer) {
@@ -129,121 +151,162 @@ export const AddSalesforceDialog = forwardRef<AddSalesforceDialogRef>((_, ref) =
           const res = await updateIntegration({
             variables: {
               input: {
-                ...values,
+                ...value,
                 id: salesforceProvider?.id || '',
               },
             },
           })
 
           if (res.errors) {
-            return handleError(res.errors)
+            handleError(res.errors)
           }
         } else {
           const res = await createIntegration({
             variables: {
-              input: values,
+              input: value,
             },
           })
 
           if (res.errors) {
-            return handleError(res.errors)
+            handleError(res.errors)
           }
         }
       } catch {
         setShowGlobalError(true)
       }
-
-      dialogRef.current?.closeDialog()
     },
-    validateOnMount: true,
-    enableReinitialize: true,
   })
 
-  useImperativeHandle(ref, () => ({
-    openDialog: (data) => {
-      setShowGlobalError(false)
-      setLocalData(data)
-      dialogRef.current?.openDialog()
-    },
-    closeDialog: () => dialogRef.current?.closeDialog(),
-  }))
+  const handleSubmit = async (): Promise<DialogResult> => {
+    successRef.current = false
+    await form.handleSubmit()
 
-  return (
-    <Dialog
-      ref={dialogRef}
-      title={translate(
-        isEdition ? 'text_661ff6e56ef7e1b7c542b1d0' : 'text_1731510123491sksb908hxue',
-        {
-          name: salesforceProvider?.name,
-        },
-      )}
-      description={translate(
-        isEdition ? 'text_1731510123491o9q0fi9aov2' : 'text_1731510123491i56n7tz55bx',
-      )}
-      onClose={formikProps.resetForm}
-      actions={({ closeDialog }) => (
-        <div
-          className={tw('flex flex-row items-center justify-between gap-3', isEdition && 'w-full')}
-        >
-          {isEdition && (
-            <Button
-              danger
-              variant="quaternary"
-              onClick={() => {
-                closeDialog()
-                localData?.onDelete?.(salesforceProvider)
-              }}
-            >
-              {translate('text_65845f35d7d69c3ab4793dad')}
-            </Button>
-          )}
-          <div className="flex flex-row items-center gap-3">
-            <Button variant="quaternary" onClick={closeDialog}>
-              {translate('text_63eba8c65a6c8043feee2a14')}
-            </Button>
-            <Button
-              variant="primary"
-              disabled={!formikProps.isValid || !formikProps.dirty}
-              onClick={formikProps.submitForm}
-            >
+    if (!successRef.current) {
+      throw new Error('Submit failed')
+    }
+
+    return { reason: 'success' }
+  }
+
+  const openAddSalesforceDialog = (data?: OpenAddSalesforceDialogData) => {
+    setShowGlobalError(false)
+    dataRef.current = data ?? null
+    const salesforceProvider = data?.provider
+    const isEdition = !!salesforceProvider
+
+    form.reset()
+    if (salesforceProvider) {
+      form.setFieldValue('name', salesforceProvider.name || '')
+      form.setFieldValue('code', salesforceProvider.code || '')
+      form.setFieldValue('instanceId', salesforceProvider.instanceId || '')
+    }
+
+    formDialogOpeningDialog
+      .open({
+        title: translate(
+          isEdition ? 'text_661ff6e56ef7e1b7c542b1d0' : 'text_1731510123491sksb908hxue',
+          {
+            name: salesforceProvider?.name,
+          },
+        ),
+        description: translate(
+          isEdition ? 'text_1731510123491o9q0fi9aov2' : 'text_1731510123491i56n7tz55bx',
+        ),
+        children: (
+          <div className="flex w-full flex-col gap-8 p-8">
+            {showGlobalError && (
+              <Alert type="danger">{translate('text_1749562792335fy21gc3sxn0')}</Alert>
+            )}
+            <div className="flex w-full flex-row items-start gap-6 *:flex-1">
+              <form.AppField name="name">
+                {(field) => (
+                  <field.TextInputField
+                    label={translate('text_6419c64eace749372fc72b0f')}
+                    placeholder={translate('text_6584550dc4cec7adf861504f')}
+                  />
+                )}
+              </form.AppField>
+              <form.AppField name="code">
+                {(field) => (
+                  <field.TextInputField
+                    beforeChangeFormatter="code"
+                    label={translate('text_62876e85e32e0300e1803127')}
+                    placeholder={translate('text_6584550dc4cec7adf8615053')}
+                  />
+                )}
+              </form.AppField>
+            </div>
+            <form.AppField name="instanceId">
+              {(field) => (
+                <field.TextInputField
+                  label={translate('text_1731510123491s8iyc3roglx')}
+                  placeholder={translate('text_1731510123491bap94avpqyz')}
+                />
+              )}
+            </form.AppField>
+          </div>
+        ),
+        closeOnError: false,
+        onEntered: isEdition ? undefined : focusFirstInput,
+        mainAction: (
+          <form.AppForm>
+            <form.SubmitButton>
               {translate(
                 isEdition ? 'text_65845f35d7d69c3ab4793dac' : 'text_1731510123491sksb908hxue',
               )}
-            </Button>
-          </div>
-        </div>
-      )}
-    >
-      <div className="mb-8 flex w-full flex-col gap-8">
-        {!!showGlobalError && (
-          <Alert type="danger">{translate('text_1749562792335fy21gc3sxn0')}</Alert>
-        )}
-        <div className="flex w-full flex-row items-start gap-6 *:flex-1">
-          <TextInputField
-            // eslint-disable-next-line jsx-a11y/no-autofocus
-            autoFocus={!isEdition}
-            name="name"
-            label={translate('text_6419c64eace749372fc72b0f')}
-            placeholder={translate('text_6584550dc4cec7adf861504f')}
-            formikProps={formikProps}
-          />
-          <TextInputField
-            name="code"
-            beforeChangeFormatter="code"
-            label={translate('text_62876e85e32e0300e1803127')}
-            placeholder={translate('text_6584550dc4cec7adf8615053')}
-            formikProps={formikProps}
-          />
-        </div>
-        <TextInputField
-          name="instanceId"
-          label={translate('text_1731510123491s8iyc3roglx')}
-          placeholder={translate('text_1731510123491bap94avpqyz')}
-          formikProps={formikProps}
-        />
-      </div>
-    </Dialog>
-  )
-})
+            </form.SubmitButton>
+          </form.AppForm>
+        ),
+        form: {
+          id: ADD_SALESFORCE_FORM_ID,
+          submit: handleSubmit,
+        },
+        canOpenDialog: isEdition,
+        openDialogText: translate('text_65845f35d7d69c3ab4793dad'),
+        otherDialogProps: {
+          title: translate('text_658461066530343fe1808cd7', {
+            name: salesforceProvider?.name,
+          }),
+          description: translate('text_1731511951723v0hq5fotjrx'),
+          colorVariant: 'danger',
+          actionText: translate('text_645d071272418a14c1c76a81'),
+          onAction: async () => {
+            const result = await deleteSalesforce({
+              variables: {
+                input: {
+                  id: salesforceProvider?.id as string,
+                },
+              },
+            })
 
-AddSalesforceDialog.displayName = 'AddSalesforceDialog'
+            const destroyedId = result.data?.destroyIntegration?.id
+
+            if (destroyedId) {
+              evictFromCache(client, {
+                id: destroyedId,
+                __typename: 'SalesforceIntegration',
+                listFieldName: 'integrations',
+                listQueryDocument: GetSalesforceIntegrationsListDocument,
+              })
+
+              data?.deleteDialogCallback?.()
+
+              addToast({
+                message: translate('text_661ff6e56ef7e1b7c542b2f9'),
+                severity: 'success',
+              })
+            }
+          },
+        },
+      })
+      .then((response) => {
+        if (response.reason === 'close' || response.reason === 'open-other-dialog') {
+          form.reset()
+          dataRef.current = null
+          setShowGlobalError(false)
+        }
+      })
+  }
+
+  return { openAddSalesforceDialog }
+}
