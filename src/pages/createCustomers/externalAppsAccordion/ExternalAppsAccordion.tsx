@@ -110,15 +110,6 @@ const ExternalAppsAccordion = withForm({
 
     const paymentProvider = getPaymentProvider(paymentProviderCode)
 
-    // Whether each category had a persisted connection at customer load — the
-    // provider is locked for those (matches the legacy accordion behaviour).
-    const hadInitialConnection: Record<ConnectionCategory, boolean> = {
-      [ConnectionCategory.Payment]: !!customer?.paymentProvider,
-      [ConnectionCategory.Accounting]: !!(customer?.netsuiteCustomer || customer?.xeroCustomer),
-      [ConnectionCategory.Tax]: !!(customer?.anrokCustomer || customer?.avalaraCustomer),
-      [ConnectionCategory.Crm]: !!(customer?.hubspotCustomer || customer?.salesforceCustomer),
-    }
-
     // ------- Org-level options fed to the drawer's provider select -------
     const allAccountingIntegrations = useMemo(
       () => [
@@ -161,6 +152,34 @@ const ExternalAppsAccordion = withForm({
       ],
       [crmProviders],
     )
+
+    // Whether each category had a PERSISTED connection at customer load — its
+    // identity fields are locked (baseline hadInitial*/hadPaymentProvider
+    // semantics). Integration categories also require the referenced org
+    // integration to still exist, so a dangling link stays fixable.
+    const hadInitialConnection: Record<ConnectionCategory, boolean> = {
+      [ConnectionCategory.Payment]: !!customer?.providerCustomer?.providerCustomerId,
+      [ConnectionCategory.Accounting]: !!(
+        (customer?.netsuiteCustomer &&
+          allAccountingIntegrations.some(
+            (i) => i.code === customer.netsuiteCustomer?.integrationCode,
+          )) ||
+        (customer?.xeroCustomer &&
+          allAccountingIntegrations.some((i) => i.code === customer.xeroCustomer?.integrationCode))
+      ),
+      [ConnectionCategory.Tax]: !!(
+        (customer?.anrokCustomer &&
+          allTaxIntegrations.some((i) => i.code === customer.anrokCustomer?.integrationCode)) ||
+        (customer?.avalaraCustomer &&
+          allTaxIntegrations.some((i) => i.code === customer.avalaraCustomer?.integrationCode))
+      ),
+      [ConnectionCategory.Crm]: !!(
+        (customer?.hubspotCustomer &&
+          allCrmIntegrations.some((i) => i.code === customer.hubspotCustomer?.integrationCode)) ||
+        (customer?.salesforceCustomer &&
+          allCrmIntegrations.some((i) => i.code === customer.salesforceCustomer?.integrationCode))
+      ),
+    }
 
     const connectionOptions: Partial<Record<ConnectionCategory, ConnectionComboBoxDataItem[]>> =
       useMemo(
@@ -357,10 +376,18 @@ const ExternalAppsAccordion = withForm({
       }
     }
 
-    // Open the drawer in edit: providers persisted at customer load are locked
-    // (read-only Selector); freshly-added ones stay editable (combobox).
+    // Open the drawer in edit. Connections persisted at customer load get a
+    // locked provider (read-only Selector); freshly-added ones stay editable.
+    // Payment locks on the persisted provider itself (its field-level locks
+    // still follow hadInitialConnection = persisted providerCustomerId, so a
+    // sync-only connection keeps the legacy field editability).
     const openConnectionEdit = (row: CustomerConnectionRow) => {
-      const lockedSelection = hadInitialConnection[row.category]
+      const isProviderLocked =
+        row.category === ConnectionCategory.Payment
+          ? !!customer?.paymentProvider
+          : hadInitialConnection[row.category]
+
+      const lockedSelection = isProviderLocked
         ? { title: row.name, subtitle: row.code, icon: row.icon }
         : undefined
 
@@ -453,11 +480,11 @@ const ExternalAppsAccordion = withForm({
             ref={drawerRef}
             connectionOptions={connectionOptions}
             onSave={handleSaveConnection}
-            renderProviderContent={(drawerForm, { category, isEdition: isDrawerEdition }) => (
+            renderProviderContent={(drawerForm, { category }) => (
               <ConnectionDrawerProviderContent
                 form={drawerForm}
                 category={category}
-                isConnectionEdition={isDrawerEdition}
+                hadInitialConnection={hadInitialConnection[category]}
                 isCustomerEdition={isEdition && !!customer}
               />
             )}

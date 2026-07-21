@@ -114,12 +114,18 @@ const DEFAULT_VALUES: ConnectionFormValues = {
 }
 
 const useConnectionDrawerForm = ({
+  defaultValues,
   onSubmit,
 }: {
+  defaultValues: ConnectionFormValues
   onSubmit: (values: ConnectionFormValues) => void | Promise<void>
 }) => {
   return useAppForm({
-    defaultValues: DEFAULT_VALUES,
+    // Must be the CURRENTLY-OPENED values (not static empty defaults): the
+    // react-form binding re-runs `formApi.update(options)` on every render,
+    // and when options.defaultValues differs from the last reset() baseline
+    // it wipes the untouched form state back to options.defaultValues.
+    defaultValues,
     validationLogic: revalidateLogic(),
     validators: {
       onDynamic: connectionValidationSchema,
@@ -202,8 +208,13 @@ export const CustomerConnectionDrawer = forwardRef<
     category: ConnectionCategory.Payment,
     isEdition: false,
   })
+  // The values the drawer was opened with — doubles as the form's
+  // defaultValues so re-renders never wipe the untouched state (see
+  // useConnectionDrawerForm) and the close-warning baseline is correct.
+  const [openedValues, setOpenedValues] = useState<ConnectionFormValues>(DEFAULT_VALUES)
 
   const form = useConnectionDrawerForm({
+    defaultValues: openedValues,
     onSubmit: async (values) => {
       await onSave(context.category, values, { isEdition: context.isEdition })
       drawer.close()
@@ -278,11 +289,13 @@ export const CustomerConnectionDrawer = forwardRef<
   useImperativeHandle(ref, () => ({
     openDrawer: (category, initialValues, lockedSelection) => {
       const isEdition = !!initialValues
+      // Single object shared by state (hook defaultValues) and reset: the
+      // baseline for both the render-time update() comparison and isDirty
+      const opened = { ...DEFAULT_VALUES, ...initialValues }
 
       setContext({ category, isEdition, lockedSelection })
-      // The opened values are the baseline: the close-warning must only fire
-      // on actual user edits, so don't keep the empty defaults as reference
-      form.reset({ ...DEFAULT_VALUES, ...initialValues })
+      setOpenedValues(opened)
+      form.reset(opened)
       openConnectionDrawer(category, isEdition, lockedSelection)
     },
     closeDrawer: () => {
