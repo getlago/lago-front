@@ -29,7 +29,9 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 type DrawerConfig = {
   title: string
   children: ReactNode
-  actions: ReactNode
+  mainAction: ReactNode
+  secondaryAction?: ReactNode
+  form: { id: string; submit: () => void }
   onEntered?: (container: HTMLElement) => void
 }
 let capturedConfig: DrawerConfig | undefined
@@ -39,14 +41,23 @@ const mockOpen = jest.fn((config: DrawerConfig) => {
 const mockClose = jest.fn()
 
 jest.mock('~/components/drawers/useDrawer', () => ({
-  useDrawer: () => ({ open: mockOpen, close: mockClose }),
+  useFormDrawer: () => ({ open: mockOpen, close: mockClose }),
 }))
 
+// Mirrors BaseDrawer: children + actions live inside the <form> whose submit
+// is the captured form.submit, so the type="submit" SubmitButton works.
 const CapturedDrawer = () => (
-  <>
+  <form
+    id={capturedConfig?.form.id}
+    onSubmit={(e) => {
+      e.preventDefault()
+      capturedConfig?.form.submit()
+    }}
+  >
     {capturedConfig?.children}
-    {capturedConfig?.actions}
-  </>
+    {capturedConfig?.secondaryAction}
+    {capturedConfig?.mainAction}
+  </form>
 )
 
 describe('ItemMetadataDrawer', () => {

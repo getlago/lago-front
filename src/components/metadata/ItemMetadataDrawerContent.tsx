@@ -61,11 +61,6 @@ export const ItemMetadataDrawerContent = withForm({
 
     const metadata = useStore(form.store, (state) => state.values.metadata)
 
-    const handleFormSubmit = (event: React.FormEvent) => {
-      event.preventDefault()
-      form.handleSubmit()
-    }
-
     const renderMetadataField = (index: number, kind: 'key' | 'value') => {
       const config = FIELD_CONFIG[kind]
 
@@ -107,64 +102,61 @@ export const ItemMetadataDrawerContent = withForm({
     }
 
     return (
-      <form onSubmit={handleFormSubmit}>
-        <button type="submit" hidden aria-hidden="true" />
-        <CenteredPage.SectionWrapper>
-          <CenteredPage.PageTitle
-            title={translate('text_63fcc3218d35b9377840f59b')}
-            description={description}
-          />
+      <CenteredPage.SectionWrapper>
+        <CenteredPage.PageTitle
+          title={translate('text_63fcc3218d35b9377840f59b')}
+          description={description}
+        />
 
-          <CenteredPage.PageSection>
-            <form.AppField name="metadata" mode="array">
-              {(field) => (
-                <div>
-                  {metadata.length > 0 && (
-                    <div className={`${gridClassName} mb-1`}>
-                      <Typography variant="captionHl" color="grey700">
-                        {translate('text_63fcc3218d35b9377840f5a3')}
-                      </Typography>
-                      <Typography variant="captionHl" color="grey700">
-                        {translate('text_63fcc3218d35b9377840f5ab')}
-                      </Typography>
-                    </div>
-                  )}
-                  <div className={gridClassName}>
-                    {field.state.value.map((_, index) => (
-                      <React.Fragment key={`item-metadata-item-${index}`}>
-                        {renderMetadataField(index, 'key')}
-                        {renderMetadataField(index, 'value')}
-                        <Tooltip
-                          className="flex items-center"
-                          placement="top-end"
-                          title={translate('text_63fcc3218d35b9377840f5e1')}
-                        >
-                          <Button
-                            variant="quaternary"
-                            size="small"
-                            icon="trash"
-                            onClick={() => form.removeFieldValue('metadata', index)}
-                          />
-                        </Tooltip>
-                      </React.Fragment>
-                    ))}
+        <CenteredPage.PageSection>
+          <form.AppField name="metadata" mode="array">
+            {(field) => (
+              <div>
+                {metadata.length > 0 && (
+                  <div className={`${gridClassName} mb-1`}>
+                    <Typography variant="captionHl" color="grey700">
+                      {translate('text_63fcc3218d35b9377840f5a3')}
+                    </Typography>
+                    <Typography variant="captionHl" color="grey700">
+                      {translate('text_63fcc3218d35b9377840f5ab')}
+                    </Typography>
                   </div>
-                  <Button
-                    className={metadata.length > 0 ? 'mt-4' : undefined}
-                    startIcon="plus"
-                    variant="inline"
-                    disabled={metadata.length >= MAX_ITEM_METADATA_COUNT}
-                    onClick={() => form.pushFieldValue('metadata', { key: '', value: '' })}
-                    data-test={ADD_ITEM_METADATA_DRAWER_ROW_TEST_ID}
-                  >
-                    {translate('text_6405cac5c833dcf18cad0196')}
-                  </Button>
+                )}
+                <div className={gridClassName}>
+                  {field.state.value.map((_, index) => (
+                    <React.Fragment key={`item-metadata-item-${index}`}>
+                      {renderMetadataField(index, 'key')}
+                      {renderMetadataField(index, 'value')}
+                      <Tooltip
+                        className="flex items-center"
+                        placement="top-end"
+                        title={translate('text_63fcc3218d35b9377840f5e1')}
+                      >
+                        <Button
+                          variant="quaternary"
+                          size="small"
+                          icon="trash"
+                          onClick={() => form.removeFieldValue('metadata', index)}
+                        />
+                      </Tooltip>
+                    </React.Fragment>
+                  ))}
                 </div>
-              )}
-            </form.AppField>
-          </CenteredPage.PageSection>
-        </CenteredPage.SectionWrapper>
-      </form>
+                <Button
+                  className={metadata.length > 0 ? 'mt-4' : undefined}
+                  startIcon="plus"
+                  variant="inline"
+                  disabled={metadata.length >= MAX_ITEM_METADATA_COUNT}
+                  onClick={() => form.pushFieldValue('metadata', { key: '', value: '' })}
+                  data-test={ADD_ITEM_METADATA_DRAWER_ROW_TEST_ID}
+                >
+                  {translate('text_6405cac5c833dcf18cad0196')}
+                </Button>
+              </div>
+            )}
+          </form.AppField>
+        </CenteredPage.PageSection>
+      </CenteredPage.SectionWrapper>
     )
   },
 })
