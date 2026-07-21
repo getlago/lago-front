@@ -232,9 +232,13 @@ describe('InvoiceCustomerInfos', () => {
       ).toBeInTheDocument()
     })
 
-    it('should render purchase order number for one-off invoices', () => {
+    it.each([
+      InvoiceTypeEnum.OneOff,
+      InvoiceTypeEnum.Subscription,
+      InvoiceTypeEnum.Credit,
+    ])('should render the purchase order number for %s invoices', (invoiceType) => {
       const mockInvoice = createMockInvoice({
-        invoiceType: InvoiceTypeEnum.OneOff,
+        invoiceType,
         purchaseOrderNumber: 'PO-12345',
       })
 
@@ -243,16 +247,15 @@ describe('InvoiceCustomerInfos', () => {
       expect(screen.getByText('PO-12345')).toBeInTheDocument()
     })
 
-    it('should not render the purchase order number row for non one-off invoices', () => {
+    it('should render a dash for the purchase order number when there is no PO number', () => {
       const mockInvoice = createMockInvoice({
         invoiceType: InvoiceTypeEnum.Subscription,
-        purchaseOrderNumber: 'PO-12345',
+        purchaseOrderNumber: null,
       })
 
       render(<InvoiceCustomerInfos invoice={mockInvoice} />)
 
-      expect(screen.queryByText('PO number')).not.toBeInTheDocument()
-      expect(screen.queryByText('PO-12345')).not.toBeInTheDocument()
+      expect(screen.getByText('PO number')).toBeInTheDocument()
     })
 
     it('should handle null invoice gracefully', () => {
