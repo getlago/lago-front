@@ -141,6 +141,41 @@ describe('buildUpdatePlanFormDefaults', () => {
     expect(defaults.payInAdvance).toBe(true)
     expect(defaults.invoiceDisplayName).toBe('Custom name')
   })
+
+  it('hydrates metadata from the plan and coerces null values to empty strings', () => {
+    const defaults = buildUpdatePlanFormDefaults({
+      id: 'p1',
+      name: 'P',
+      code: 'p',
+      interval: PlanInterval.Monthly,
+      amountCurrency: CurrencyEnum.Usd,
+      amountCents: '0',
+      payInAdvance: false,
+      metadata: [
+        { key: 'product_group', value: 'Premium Suite' },
+        { key: 'display_order', value: null },
+      ],
+    } as PlanDetailsV2Fragment)
+
+    expect(defaults.metadata).toEqual([
+      { key: 'product_group', value: 'Premium Suite' },
+      { key: 'display_order', value: '' },
+    ])
+  })
+
+  it('defaults metadata to an empty array when the plan has none', () => {
+    const defaults = buildUpdatePlanFormDefaults({
+      id: 'p1',
+      name: 'P',
+      code: 'p',
+      interval: PlanInterval.Monthly,
+      amountCurrency: CurrencyEnum.Usd,
+      amountCents: '0',
+      payInAdvance: false,
+    } as PlanDetailsV2Fragment)
+
+    expect(defaults.metadata).toEqual([])
+  })
 })
 
 describe('useUpdatePlanWithCascade', () => {
@@ -501,6 +536,70 @@ describe('useUpdatePlanWithCascade', () => {
           config: undefined,
         }),
       )
+    })
+
+    it('includes metadata in the payload when true', async () => {
+      const planWithMetadata = {
+        ...basePlan,
+        metadata: [{ key: 'product_group', value: 'Premium Suite' }],
+      } as PlanDetailsV2Fragment
+
+      const { result } = renderHook(
+        () => useUpdatePlanWithCascade({ plan: planWithMetadata, includeAdvancedFields: true }),
+        { wrapper: wrapper([capturingUpdateMock]) },
+      )
+
+      await act(async () => {
+        await result.current.submit()
+      })
+
+      await waitFor(() => {
+        expect(capturedUpdateInput).toBeDefined()
+      })
+
+      expect(capturedUpdateInput?.metadata).toEqual([
+        { key: 'product_group', value: 'Premium Suite' },
+      ])
+    })
+
+    it('omits metadata from the payload when false (default)', async () => {
+      const { result } = renderHook(() => useUpdatePlanWithCascade({ plan: basePlan }), {
+        wrapper: wrapper([capturingUpdateMock]),
+      })
+
+      await act(async () => {
+        await result.current.submit()
+      })
+
+      await waitFor(() => {
+        expect(capturedUpdateInput).toBeDefined()
+      })
+
+      expect(capturedUpdateInput).not.toHaveProperty('metadata')
+    })
+
+    it('sends metadata: [] when all pairs are cleared so the API clears them', async () => {
+      const planWithMetadata = {
+        ...basePlan,
+        metadata: [{ key: 'product_group', value: 'Premium Suite' }],
+      } as PlanDetailsV2Fragment
+
+      const { result } = renderHook(
+        () => useUpdatePlanWithCascade({ plan: planWithMetadata, includeAdvancedFields: true }),
+        { wrapper: wrapper([capturingUpdateMock]) },
+      )
+
+      await act(async () => {
+        await result.current.applyAndSubmit(() => {
+          result.current.form.setFieldValue('metadata', [])
+        })
+      })
+
+      await waitFor(() => {
+        expect(capturedUpdateInput).toBeDefined()
+      })
+
+      expect(capturedUpdateInput?.metadata).toEqual([])
     })
   })
 })
