@@ -64,7 +64,7 @@ export const MetadataAccordion = ({
 
       {hasMetadata && (
         <SectionAccordion
-          icon="inline-code"
+          icon="brackets"
           title={translate('text_63fcc3218d35b9377840f59b')}
           noContentMargin
           actions={[

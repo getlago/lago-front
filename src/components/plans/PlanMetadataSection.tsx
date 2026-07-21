@@ -79,7 +79,7 @@ export const PlanMetadataSection: FC<PlanMetadataSectionProps> = ({ form }) => {
 
       {hasMetadata && (
         <SectionAccordion
-          icon="inline-code"
+          icon="brackets"
           title={translate('text_63fcc3218d35b9377840f59b')}
           noContentMargin
           dataTest={PLAN_METADATA_ACCORDION_TEST_ID}

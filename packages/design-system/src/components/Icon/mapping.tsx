@@ -19,6 +19,7 @@ import Board from '~/icons/board.svg'
 import Bold from '~/icons/bold.svg'
 import Book from '~/icons/book.svg'
 import Box from '~/icons/box.svg'
+import Brackets from '~/icons/brackets.svg'
 import Bulb from '~/icons/bulb.svg'
 import Burger from '~/icons/burger.svg'
 import Calendar from '~/icons/calendar.svg'
@@ -179,6 +180,7 @@ export const ALL_ICONS = {
   bulb: Bulb,
   burger: Burger,
   box: Box,
+  brackets: Brackets,
   calendar: Calendar,
   'chart-bar': ChartBar,
   checkmark: Checkmark,
