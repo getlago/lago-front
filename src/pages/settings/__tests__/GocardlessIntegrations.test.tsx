@@ -11,7 +11,7 @@ import {
 import GocardlessIntegrations from '../GocardlessIntegrations'
 
 jest.mock('~/components/settings/integrations/AddGocardlessDialog', () => ({
-  AddGocardlessDialog: () => null,
+  useAddGocardlessDialog: () => ({ openAddGocardlessDialog: jest.fn() }),
 }))
 jest.mock('~/components/settings/integrations/DeleteGocardlessIntegrationDialog', () => ({
   useDeleteGocardlessIntegrationDialog: () => ({

@@ -48,7 +48,7 @@ jest.mock('~/components/settings/integrations/AddStripeDialog', () => ({
   useAddStripeDialog: () => ({ openAddStripeDialog: () => null }),
 }))
 jest.mock('~/components/settings/integrations/AddGocardlessDialog', () => ({
-  AddGocardlessDialog: () => null,
+  useAddGocardlessDialog: () => ({ openAddGocardlessDialog: jest.fn() }),
 }))
 jest.mock('~/components/settings/integrations/AddCashfreeDialog', () => ({
   useAddCashfreeDialog: () => ({
