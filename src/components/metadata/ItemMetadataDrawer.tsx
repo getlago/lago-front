@@ -24,7 +24,7 @@ const itemMetadataSchema = z.object({
 })
 
 export interface ItemMetadataDrawerRef {
-  openDrawer: (values?: ItemMetadataFormValues) => void
+  openDrawer: (values?: ItemMetadataFormValues, opts?: { appendEmptyRow?: boolean }) => void
   closeDrawer: () => void
 }
 
@@ -33,7 +33,7 @@ interface ItemMetadataDrawerProps {
   // "Store custom key-value pairs on this plan."
   description: string
   onSave: (values: ItemMetadataFormValues) => void | boolean | Promise<void | boolean>
-  onDelete?: () => void
+  onDelete?: () => void | boolean | Promise<void | boolean>
 }
 
 export const ItemMetadataDrawer = forwardRef<ItemMetadataDrawerRef, ItemMetadataDrawerProps>(
@@ -41,6 +41,7 @@ export const ItemMetadataDrawer = forwardRef<ItemMetadataDrawerRef, ItemMetadata
     const { translate } = useInternationalization()
     const metadataDrawer = useDrawer()
     const isAddModeRef = useRef(true)
+    const focusLastKeyInputRef = useRef(false)
 
     const form = useAppForm({
       defaultValues: DEFAULT_VALUES,
@@ -60,15 +61,28 @@ export const ItemMetadataDrawer = forwardRef<ItemMetadataDrawerRef, ItemMetadata
     const openMetadataDrawer = () => {
       const showDelete = !isAddModeRef.current && !!onDelete
 
-      const handleDelete = () => {
-        metadataDrawer.close()
-        onDelete?.()
+      // Returning the promise lets the Button show its loading state while the
+      // deletion runs; the drawer only closes once it settles.
+      const handleDelete = async () => {
+        const result = await onDelete?.()
+
+        if (result !== false) {
+          metadataDrawer.close()
+        }
       }
 
       metadataDrawer.open({
         title: translate('text_63fcc3218d35b9377840f59b'),
         shouldPromptOnClose: () => form.state.isDirty,
         onClose: () => form.reset(),
+        onEntered: (container) => {
+          if (!focusLastKeyInputRef.current) return
+
+          // "Add" intent: focus the key input of the ready-to-type row
+          const keyInputs = container.querySelectorAll<HTMLInputElement>('input[id$=".key"]')
+
+          keyInputs[keyInputs.length - 1]?.focus()
+        },
         children: <ItemMetadataDrawerContent form={form} description={description} />,
         actions: (
           <div
@@ -79,7 +93,7 @@ export const ItemMetadataDrawer = forwardRef<ItemMetadataDrawerRef, ItemMetadata
           >
             {showDelete && (
               <Button danger variant="quaternary" onClick={handleDelete}>
-                {translate('text_63ea0f84f400488553caa786')}
+                {translate('text_1784637373017e1som6d92em')}
               </Button>
             )}
             <div className="flex items-center gap-3">
@@ -108,11 +122,19 @@ export const ItemMetadataDrawer = forwardRef<ItemMetadataDrawerRef, ItemMetadata
     }
 
     useImperativeHandle(ref, () => ({
-      openDrawer: (values?: ItemMetadataFormValues) => {
+      openDrawer: (values?: ItemMetadataFormValues, opts?: { appendEmptyRow?: boolean }) => {
         isAddModeRef.current = !values?.metadata?.length
+        // Focus the empty row on "Add" intent (empty drawer or appended row)
+        focusLastKeyInputRef.current = isAddModeRef.current || !!opts?.appendEmptyRow
 
         if (values?.metadata?.length) {
-          form.reset(values, { keepDefaultValues: true })
+          // "Add" intent appends a ready-to-type empty row; left empty, it
+          // fails the required validation on save like any other row.
+          const rows = opts?.appendEmptyRow
+            ? [...values.metadata, { key: '', value: '' }]
+            : values.metadata
+
+          form.reset({ metadata: rows }, { keepDefaultValues: true })
         } else {
           // Seed one empty row so the user can start typing right away
           form.reset({ metadata: [{ key: '', value: '' }] }, { keepDefaultValues: true })

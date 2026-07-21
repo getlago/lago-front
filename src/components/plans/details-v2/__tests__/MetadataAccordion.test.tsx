@@ -121,12 +121,15 @@ describe('MetadataAccordion', () => {
 
     await user.click(screen.getByRole('button', { name: 'text_6405cac5c833dcf18cad0196' }))
 
-    expect(mockOpenDrawer).toHaveBeenCalledWith({
-      metadata: [
-        { key: 'product_group', value: 'Premium Suite' },
-        { key: 'display_order', value: '2' },
-      ],
-    })
+    expect(mockOpenDrawer).toHaveBeenCalledWith(
+      {
+        metadata: [
+          { key: 'product_group', value: 'Premium Suite' },
+          { key: 'display_order', value: '2' },
+        ],
+      },
+      { appendEmptyRow: true },
+    )
   })
 
   it('opens the drawer prefilled with existing metadata from the Edit menu action', async () => {
@@ -151,7 +154,7 @@ describe('MetadataAccordion', () => {
     render(<MetadataAccordion plan={planWithMetadata} />, { wrapper: Wrapper })
 
     await user.click(screen.getByRole('button', { name: 'actions' }))
-    await user.click(screen.getByRole('button', { name: 'text_63ea0f84f400488553caa786' }))
+    await user.click(screen.getByRole('button', { name: 'text_1784637373017e1som6d92em' }))
 
     expect(mockApplyAndSubmit).toHaveBeenCalledTimes(1)
     expect(mockSetFieldValue).toHaveBeenCalledWith('metadata', [])

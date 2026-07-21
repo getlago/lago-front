@@ -100,9 +100,10 @@ describe('PlanMetadataSection', () => {
 
         await user.click(screen.getByTestId(ADD_PLAN_METADATA_TEST_ID))
 
-        expect(mockOpenDrawer).toHaveBeenCalledWith({
-          metadata: [{ key: 'product_group', value: 'Premium Suite' }],
-        })
+        expect(mockOpenDrawer).toHaveBeenCalledWith(
+          { metadata: [{ key: 'product_group', value: 'Premium Suite' }] },
+          { appendEmptyRow: true },
+        )
       })
 
       it('THEN should coerce a null value to an empty string', async () => {
@@ -114,9 +115,10 @@ describe('PlanMetadataSection', () => {
 
         await user.click(screen.getByTestId(ADD_PLAN_METADATA_TEST_ID))
 
-        expect(mockOpenDrawer).toHaveBeenCalledWith({
-          metadata: [{ key: 'product_group', value: '' }],
-        })
+        expect(mockOpenDrawer).toHaveBeenCalledWith(
+          { metadata: [{ key: 'product_group', value: '' }] },
+          { appendEmptyRow: true },
+        )
       })
     })
 
@@ -128,7 +130,7 @@ describe('PlanMetadataSection', () => {
 
         await user.click(screen.getByTestId(ADD_PLAN_METADATA_TEST_ID))
 
-        expect(mockOpenDrawer).toHaveBeenCalledWith({ metadata: [] })
+        expect(mockOpenDrawer).toHaveBeenCalledWith({ metadata: [] }, { appendEmptyRow: true })
       })
     })
   })

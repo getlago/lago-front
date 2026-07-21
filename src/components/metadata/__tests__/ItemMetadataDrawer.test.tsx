@@ -14,7 +14,7 @@ const LABELS: Record<string, string> = {
   text_63fcc3218d35b9377840f59b: 'Metadata', // title / add
   text_6405cac5c833dcf18cad0196: 'Add metadata', // save label (add mode)
   text_17295436903260tlyb1gp1i7: 'Save', // save label (edit mode)
-  text_63ea0f84f400488553caa786: 'Delete',
+  text_1784637373017e1som6d92em: 'Delete all',
   text_6411e6b530cb47007488b027: 'Cancel',
 }
 
@@ -26,7 +26,12 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 
 // ── Drawer mock: capture the open() config so we can render its children +
 // actions and drive the real form living inside the component ──────────────
-type DrawerConfig = { title: string; children: ReactNode; actions: ReactNode }
+type DrawerConfig = {
+  title: string
+  children: ReactNode
+  actions: ReactNode
+  onEntered?: (container: HTMLElement) => void
+}
 let capturedConfig: DrawerConfig | undefined
 const mockOpen = jest.fn((config: DrawerConfig) => {
   capturedConfig = config
@@ -106,7 +111,7 @@ describe('ItemMetadataDrawer', () => {
       act(() => ref.current?.openDrawer())
       render(<CapturedDrawer />)
 
-      expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: 'Delete all' })).not.toBeInTheDocument()
     })
   })
 
@@ -138,7 +143,7 @@ describe('ItemMetadataDrawer', () => {
       act(() => ref.current?.openDrawer(values))
       render(<CapturedDrawer />)
 
-      expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Delete all' })).toBeInTheDocument()
     })
   })
 
@@ -193,19 +198,113 @@ describe('ItemMetadataDrawer', () => {
     })
   })
 
-  describe('GIVEN the delete button is clicked', () => {
-    it('THEN should close the drawer and call onDelete', async () => {
+  describe('GIVEN the drawer is opened with appendEmptyRow', () => {
+    const values = { metadata: [{ key: 'product_group', value: 'Premium Suite' }] }
+
+    it('THEN should append one empty ready-to-type row after the existing pairs', () => {
+      const { ref } = renderDrawer()
+
+      act(() => ref.current?.openDrawer(values, { appendEmptyRow: true }))
+      render(<CapturedDrawer />)
+
+      // 1 existing pair + 1 empty row → 4 textboxes
+      expect(screen.getAllByRole('textbox')).toHaveLength(4)
+      expect(screen.getByDisplayValue('product_group')).toBeInTheDocument()
+    })
+
+    it('THEN should block the save with a validation error when the appended row is left empty', async () => {
       const user = userEvent.setup()
-      const onDelete = jest.fn()
+      const { ref, onSave } = renderDrawer({ onSave: jest.fn() })
+
+      act(() => ref.current?.openDrawer(values, { appendEmptyRow: true }))
+      render(<CapturedDrawer />)
+
+      await user.click(screen.getByTestId(SAVE_BUTTON_TEST_ID))
+
+      expect(onSave).not.toHaveBeenCalled()
+      expect(mockClose).not.toHaveBeenCalled()
+    })
+
+    it('THEN should focus the key input of the appended row once the drawer is entered', () => {
+      const { ref } = renderDrawer()
+
+      act(() => ref.current?.openDrawer(values, { appendEmptyRow: true }))
+      render(<CapturedDrawer />)
+
+      act(() => capturedConfig?.onEntered?.(document.body))
+
+      // Last key input = the appended empty row
+      const keyInputs = document.querySelectorAll<HTMLInputElement>('input[id$=".key"]')
+
+      expect(keyInputs[keyInputs.length - 1]).toHaveFocus()
+    })
+
+    it('THEN should not steal the focus when opened from the Edit action', () => {
+      const { ref } = renderDrawer()
+
+      act(() => ref.current?.openDrawer(values))
+      render(<CapturedDrawer />)
+
+      act(() => capturedConfig?.onEntered?.(document.body))
+
+      const keyInputs = document.querySelectorAll<HTMLInputElement>('input[id$=".key"]')
+
+      expect(keyInputs[keyInputs.length - 1]).not.toHaveFocus()
+    })
+
+    it('THEN should save all pairs once the appended row is filled', async () => {
+      const user = userEvent.setup()
+      const { ref, onSave } = renderDrawer({ onSave: jest.fn() })
+
+      act(() => ref.current?.openDrawer(values, { appendEmptyRow: true }))
+      render(<CapturedDrawer />)
+
+      const [, , emptyKey, emptyValue] = screen.getAllByRole('textbox')
+
+      await user.type(emptyKey, 'tier')
+      await user.type(emptyValue, 'Gold')
+      await user.click(screen.getByTestId(SAVE_BUTTON_TEST_ID))
+
+      await waitFor(() => {
+        expect(onSave).toHaveBeenCalledWith({
+          metadata: [...values.metadata, { key: 'tier', value: 'Gold' }],
+        })
+      })
+      expect(mockClose).toHaveBeenCalled()
+    })
+  })
+
+  describe('GIVEN the delete button is clicked', () => {
+    it('THEN should call onDelete and close the drawer once it settles', async () => {
+      const user = userEvent.setup()
+      const onDelete = jest.fn(() => Promise.resolve(true))
       const { ref } = renderDrawer({ onDelete })
 
       act(() => ref.current?.openDrawer({ metadata: [{ key: 'k', value: 'v' }] }))
       render(<CapturedDrawer />)
 
-      await user.click(screen.getByRole('button', { name: 'Delete' }))
+      await user.click(screen.getByRole('button', { name: 'Delete all' }))
 
-      expect(mockClose).toHaveBeenCalled()
       expect(onDelete).toHaveBeenCalledTimes(1)
+      await waitFor(() => {
+        expect(mockClose).toHaveBeenCalled()
+      })
+    })
+
+    it('THEN should keep the drawer open when onDelete returns false', async () => {
+      const user = userEvent.setup()
+      const onDelete = jest.fn(() => Promise.resolve(false))
+      const { ref } = renderDrawer({ onDelete })
+
+      act(() => ref.current?.openDrawer({ metadata: [{ key: 'k', value: 'v' }] }))
+      render(<CapturedDrawer />)
+
+      await user.click(screen.getByRole('button', { name: 'Delete all' }))
+
+      await waitFor(() => {
+        expect(onDelete).toHaveBeenCalledTimes(1)
+      })
+      expect(mockClose).not.toHaveBeenCalled()
     })
   })
 

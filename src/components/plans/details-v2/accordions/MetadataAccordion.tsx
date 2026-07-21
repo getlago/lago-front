@@ -33,10 +33,15 @@ export const MetadataAccordion = ({
 
   // Always open with the existing pairs: the drawer edits the whole metadata
   // map, so an empty start would overwrite the pre-existing entries on save.
-  const openDrawer = () =>
-    drawerRef.current?.openDrawer({
-      metadata: metadata.map(({ key, value }) => ({ key, value: value || '' })),
-    })
+  const currentDrawerValues = () => ({
+    metadata: metadata.map(({ key, value }) => ({ key, value: value || '' })),
+  })
+
+  // "Add" opens with a ready-to-type empty row appended; "Edit" opens as-is.
+  const openAddDrawer = () =>
+    drawerRef.current?.openDrawer(currentDrawerValues(), { appendEmptyRow: true })
+
+  const openEditDrawer = () => drawerRef.current?.openDrawer(currentDrawerValues())
 
   const { form, applyAndSubmit } = useUpdatePlanWithCascade({
     plan,
@@ -56,7 +61,7 @@ export const MetadataAccordion = ({
         description={translate('text_1784536360268d9fpetpsrej')}
         action={{
           label: translate('text_6405cac5c833dcf18cad0196'),
-          onClick: () => openDrawer(),
+          onClick: () => openAddDrawer(),
           hidden: !canCreate,
           startIcon: 'plus',
         }}
@@ -71,11 +76,11 @@ export const MetadataAccordion = ({
             {
               label: translate('text_63e51ef4985f0ebd75c212fc'),
               startIcon: 'pen',
-              onClick: () => openDrawer(),
+              onClick: () => openEditDrawer(),
               hidden: !canUpdate,
             },
             {
-              label: translate('text_63ea0f84f400488553caa786'),
+              label: translate('text_1784637373017e1som6d92em'),
               startIcon: 'trash',
               onClick: () => void handleDelete(),
               hidden: !canDelete,
@@ -90,7 +95,7 @@ export const MetadataAccordion = ({
         ref={drawerRef}
         description={translate('text_1784536360268d9fpetpsrej')}
         onSave={handleSave}
-        onDelete={() => void handleDelete()}
+        onDelete={handleDelete}
       />
     </section>
   )

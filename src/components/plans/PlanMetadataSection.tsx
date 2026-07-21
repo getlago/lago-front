@@ -38,10 +38,17 @@ export const PlanMetadataSection: FC<PlanMetadataSectionProps> = ({ form }) => {
   const metadata = useStore(form.store, (s) => s.values.metadata)
   const hasMetadata = !!metadata?.length
 
-  const openPlanMetadataDrawer = () => {
-    planMetadataDrawerRef.current?.openDrawer({
-      metadata: (metadata || []).map(({ key, value }) => ({ key, value: value || '' })),
-    })
+  const currentDrawerValues = () => ({
+    metadata: (metadata || []).map(({ key, value }) => ({ key, value: value || '' })),
+  })
+
+  // "Add" opens with a ready-to-type empty row appended; "Edit" opens as-is.
+  const openAddMetadataDrawer = () => {
+    planMetadataDrawerRef.current?.openDrawer(currentDrawerValues(), { appendEmptyRow: true })
+  }
+
+  const openEditMetadataDrawer = () => {
+    planMetadataDrawerRef.current?.openDrawer(currentDrawerValues())
   }
 
   const handleDrawerSave = (values: ItemMetadataFormValues) => {
@@ -61,7 +68,7 @@ export const PlanMetadataSection: FC<PlanMetadataSectionProps> = ({ form }) => {
               variant="inline"
               startIcon="plus"
               data-test={ADD_PLAN_METADATA_TEST_ID}
-              onClick={openPlanMetadataDrawer}
+              onClick={openAddMetadataDrawer}
             >
               {translate('text_6405cac5c833dcf18cad0196')}
             </Button>
@@ -87,10 +94,10 @@ export const PlanMetadataSection: FC<PlanMetadataSectionProps> = ({ form }) => {
             {
               label: translate('text_63e51ef4985f0ebd75c212fc'),
               startIcon: 'pen',
-              onClick: () => openPlanMetadataDrawer(),
+              onClick: () => openEditMetadataDrawer(),
             },
             {
-              label: translate('text_63ea0f84f400488553caa786'),
+              label: translate('text_1784637373017e1som6d92em'),
               startIcon: 'trash',
               onClick: () => form.setFieldValue('metadata', []),
             },
@@ -106,7 +113,7 @@ export const PlanMetadataSection: FC<PlanMetadataSectionProps> = ({ form }) => {
           variant="inline"
           startIcon="plus"
           data-test={ADD_PLAN_METADATA_TEST_ID}
-          onClick={openPlanMetadataDrawer}
+          onClick={openAddMetadataDrawer}
         >
           {translate('text_6405cac5c833dcf18cad0196')}
         </Button>
