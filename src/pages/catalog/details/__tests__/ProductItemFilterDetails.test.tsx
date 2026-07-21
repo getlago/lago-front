@@ -18,6 +18,7 @@ import ProductItemFilterDetails, {
 const mockOpenEditProductItemFilterDrawer = jest.fn()
 const mockOpenDeleteProductItemFilterDialog = jest.fn()
 const mockHasPermissions = jest.fn()
+let mockIsPremium = true
 
 jest.mock('~/pages/catalog/drawers/productItemFilter/useProductItemFilterDrawer', () => ({
   useProductItemFilterDrawer: () => ({ openDrawer: mockOpenEditProductItemFilterDrawer }),
@@ -34,8 +35,17 @@ jest.mock('../ProductItemFilterDetailsOverview', () => ({
   default: () => null,
 }))
 
+jest.mock('../ProductItemFilterActivityLogs', () => ({
+  __esModule: true,
+  default: () => null,
+}))
+
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({ hasPermissions: mockHasPermissions }),
+}))
+
+jest.mock('~/hooks/useCurrentUser', () => ({
+  useCurrentUser: () => ({ isPremium: mockIsPremium }),
 }))
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
@@ -90,6 +100,8 @@ describe('ProductItemFilterDetails', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockHasPermissions.mockReturnValue(true)
+    mockIsPremium = true
+    window.history.pushState({}, '', '/')
   })
 
   it('displays the product item filter name and code in the header once loaded', async () => {
@@ -120,6 +132,56 @@ describe('ProductItemFilterDetails', () => {
     expect(screen.getByText('text_1783104239825nxqno33u945')).toBeInTheDocument()
     expect(screen.getByText('text_62442e40cea25600b0b6d85a')).toBeInTheDocument()
     expect(screen.getByText('text_1747314141347qq6rasuxisl')).toBeInTheDocument()
+  })
+
+  it('shows the activity logs tab when premium and permitted', async () => {
+    mockIsPremium = true
+    mockHasPermissions.mockReturnValue(true)
+
+    await act(() => renderPage())
+
+    expect(await screen.findByText('text_628cf761cbe6820138b8f2e4')).toBeInTheDocument()
+    expect(screen.getByText('text_1747314141347qq6rasuxisl')).toBeInTheDocument()
+  })
+
+  it('hides the activity logs tab without premium', async () => {
+    mockIsPremium = false
+
+    await act(() => renderPage())
+
+    expect(await screen.findByText('text_628cf761cbe6820138b8f2e4')).toBeInTheDocument()
+    expect(screen.queryByText('text_1747314141347qq6rasuxisl')).not.toBeInTheDocument()
+  })
+
+  it('hides the activity logs tab without the auditLogsView permission', async () => {
+    mockHasPermissions.mockImplementation(
+      (permissions: string[]) => !permissions.includes('auditLogsView'),
+    )
+
+    await act(() => renderPage())
+
+    expect(await screen.findByText('text_628cf761cbe6820138b8f2e4')).toBeInTheDocument()
+    expect(screen.queryByText('text_1747314141347qq6rasuxisl')).not.toBeInTheDocument()
+  })
+
+  it('renders the rate cards tab stub content when that tab is active', async () => {
+    window.history.pushState({}, '', '/product-catalog/product-item-filters/pif-1/rate-cards')
+
+    await act(() => renderPage())
+
+    await waitFor(() => {
+      expect(screen.getAllByText('text_1783104239825nxqno33u945')).toHaveLength(2)
+    })
+  })
+
+  it('renders the plans tab stub content when that tab is active', async () => {
+    window.history.pushState({}, '', '/product-catalog/product-item-filters/pif-1/plans')
+
+    await act(() => renderPage())
+
+    await waitFor(() => {
+      expect(screen.getAllByText('text_62442e40cea25600b0b6d85a')).toHaveLength(2)
+    })
   })
 
   it('opens the edit drawer with the loaded item filter from the actions dropdown', async () => {

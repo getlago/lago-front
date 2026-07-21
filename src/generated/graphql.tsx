@@ -14904,6 +14904,16 @@ export type GetProductItemForDetailsOverviewQueryVariables = Exact<{
 
 export type GetProductItemForDetailsOverviewQuery = { __typename?: 'Query', productItem?: { __typename?: 'ProductItem', id: string, name: string, code: string, description?: string | null, invoiceDisplayName?: string | null, itemType: ProductItemTypeEnum, attachedToPlanOrSubscription: boolean, product?: { __typename?: 'Product', id: string, name: string, code: string } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, code: string, name: string } | null } | null };
 
+export type ProductItemFilterActivityLogsQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceTypes?: InputMaybe<Array<ResourceTypeEnum> | ResourceTypeEnum>;
+  resourceIds?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+}>;
+
+
+export type ProductItemFilterActivityLogsQuery = { __typename?: 'Query', activityLogs?: { __typename?: 'ActivityLogCollection', collection: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } | null };
+
 export type ProductItemFilterForProductItemFilterDetailsFragment = { __typename?: 'ProductItemFilter', id: string, name: string, code: string, description?: string | null, invoiceDisplayName?: string | null, attachedToPlanOrSubscription: boolean, productItem: { __typename?: 'ProductItem', id: string, name: string, code: string }, values: Array<{ __typename?: 'ProductItemFilterValue', id: string, value: string, billableMetricFilter: { __typename?: 'BillableMetricFilter', id: string, key: string, values: Array<string> } }> };
 
 export type GetProductItemFilterForDetailsQueryVariables = Exact<{
@@ -39257,6 +39267,64 @@ export type GetProductItemForDetailsOverviewQueryHookResult = ReturnType<typeof 
 export type GetProductItemForDetailsOverviewLazyQueryHookResult = ReturnType<typeof useGetProductItemForDetailsOverviewLazyQuery>;
 export type GetProductItemForDetailsOverviewSuspenseQueryHookResult = ReturnType<typeof useGetProductItemForDetailsOverviewSuspenseQuery>;
 export type GetProductItemForDetailsOverviewQueryResult = Apollo.QueryResult<GetProductItemForDetailsOverviewQuery, GetProductItemForDetailsOverviewQueryVariables>;
+export const ProductItemFilterActivityLogsDocument = gql`
+    query ProductItemFilterActivityLogs($page: Int, $limit: Int, $resourceTypes: [ResourceTypeEnum!], $resourceIds: [String!]) {
+  activityLogs(
+    page: $page
+    limit: $limit
+    resourceTypes: $resourceTypes
+    resourceIds: $resourceIds
+  ) {
+    collection {
+      ...ActivityLogsTableData
+    }
+    metadata {
+      currentPage
+      totalPages
+      totalCount
+    }
+  }
+}
+    ${ActivityLogsTableDataFragmentDoc}`;
+
+/**
+ * __useProductItemFilterActivityLogsQuery__
+ *
+ * To run a query within a React component, call `useProductItemFilterActivityLogsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useProductItemFilterActivityLogsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useProductItemFilterActivityLogsQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      resourceTypes: // value for 'resourceTypes'
+ *      resourceIds: // value for 'resourceIds'
+ *   },
+ * });
+ */
+export function useProductItemFilterActivityLogsQuery(baseOptions?: Apollo.QueryHookOptions<ProductItemFilterActivityLogsQuery, ProductItemFilterActivityLogsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ProductItemFilterActivityLogsQuery, ProductItemFilterActivityLogsQueryVariables>(ProductItemFilterActivityLogsDocument, options);
+      }
+export function useProductItemFilterActivityLogsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ProductItemFilterActivityLogsQuery, ProductItemFilterActivityLogsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ProductItemFilterActivityLogsQuery, ProductItemFilterActivityLogsQueryVariables>(ProductItemFilterActivityLogsDocument, options);
+        }
+// @ts-ignore
+export function useProductItemFilterActivityLogsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ProductItemFilterActivityLogsQuery, ProductItemFilterActivityLogsQueryVariables>): Apollo.UseSuspenseQueryResult<ProductItemFilterActivityLogsQuery, ProductItemFilterActivityLogsQueryVariables>;
+export function useProductItemFilterActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProductItemFilterActivityLogsQuery, ProductItemFilterActivityLogsQueryVariables>): Apollo.UseSuspenseQueryResult<ProductItemFilterActivityLogsQuery | undefined, ProductItemFilterActivityLogsQueryVariables>;
+export function useProductItemFilterActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProductItemFilterActivityLogsQuery, ProductItemFilterActivityLogsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ProductItemFilterActivityLogsQuery, ProductItemFilterActivityLogsQueryVariables>(ProductItemFilterActivityLogsDocument, options);
+        }
+export type ProductItemFilterActivityLogsQueryHookResult = ReturnType<typeof useProductItemFilterActivityLogsQuery>;
+export type ProductItemFilterActivityLogsLazyQueryHookResult = ReturnType<typeof useProductItemFilterActivityLogsLazyQuery>;
+export type ProductItemFilterActivityLogsSuspenseQueryHookResult = ReturnType<typeof useProductItemFilterActivityLogsSuspenseQuery>;
+export type ProductItemFilterActivityLogsQueryResult = Apollo.QueryResult<ProductItemFilterActivityLogsQuery, ProductItemFilterActivityLogsQueryVariables>;
 export const GetProductItemFilterForDetailsDocument = gql`
     query getProductItemFilterForDetails($id: ID!) {
   productItemFilter(id: $id) {

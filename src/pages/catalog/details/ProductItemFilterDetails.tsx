@@ -22,9 +22,11 @@ import {
   useGetProductItemFilterForDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 import { usePermissions } from '~/hooks/usePermissions'
 
+import ProductItemFilterActivityLogs from './ProductItemFilterActivityLogs'
 import ProductItemFilterDetailsOverview from './ProductItemFilterDetailsOverview'
 
 import { useDeleteProductItemFilterDialog } from '../dialogs/useDeleteProductItemFilterDialog'
@@ -60,6 +62,7 @@ const ProductItemFilterDetails = () => {
   const navigate = useNavigate()
   const { translate } = useInternationalization()
   const { productItemFilterId } = useParams()
+  const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
   const { openDrawer: openEditProductItemFilterDrawer } = useProductItemFilterDrawer()
   const { openDeleteProductItemFilterDialog } = useDeleteProductItemFilterDialog()
@@ -159,7 +162,7 @@ const ProductItemFilterDetails = () => {
               productItemFilterId: productItemFilterId as string,
               tab: ProductItemFilterDetailsTabsOptionsEnum.rateCards,
             }),
-            content: <DetailsPage.Container />,
+            content: <div className="p-4">{translate('text_1783104239825nxqno33u945')}</div>,
           },
           {
             title: translate('text_62442e40cea25600b0b6d85a'),
@@ -167,18 +170,22 @@ const ProductItemFilterDetails = () => {
               productItemFilterId: productItemFilterId as string,
               tab: ProductItemFilterDetailsTabsOptionsEnum.plans,
             }),
-            content: <DetailsPage.Container />,
+            content: <div className="p-4">{translate('text_62442e40cea25600b0b6d85a')}</div>,
           },
           {
-            // Task 10 gates this tab on premium + auditLogsView, mirroring the
-            // other catalog details pages; left unconditionally visible here so
-            // the shell renders all 4 tabs per Task 8's scope.
             title: translate('text_1747314141347qq6rasuxisl'),
             link: generatePath(PRODUCT_ITEM_FILTER_DETAILS_ROUTE, {
               productItemFilterId: productItemFilterId as string,
               tab: ProductItemFilterDetailsTabsOptionsEnum.activityLogs,
             }),
-            content: <DetailsPage.Container />,
+            content: (
+              <DetailsPage.Container>
+                <ProductItemFilterActivityLogs
+                  productItemFilterId={productItemFilterId as string}
+                />
+              </DetailsPage.Container>
+            ),
+            hidden: !isPremium || !hasPermissions(['auditLogsView']),
           },
         ]}
       />
