@@ -7,6 +7,7 @@ import { generatePath } from 'react-router-dom'
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Status, StatusType } from '~/components/designSystem/Status'
 import { Typography } from '~/components/designSystem/Typography'
+import { PO } from '~/components/purchaseOrder/PO'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { formatAddress } from '~/core/formats/formatAddress'
 import { CUSTOMER_DETAILS_ROUTE, Link } from '~/core/router'
@@ -61,9 +62,18 @@ gql`
 
 interface InvoiceCustomerInfosProps {
   invoice?: InvoiceForInvoiceInfosFragment | null
+  // When provided, the PO number line becomes editable (add/edit/delete + modal).
+  // `purchaseOrderNumber` is the controlled value; omitting `onPurchaseOrderNumberChange`
+  // keeps the line read-only (default everywhere except the regenerate screen).
+  purchaseOrderNumber?: string | null
+  onPurchaseOrderNumberChange?: (value: string | null) => void
 }
 
-export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps) => {
+const InvoiceCustomerInfosComponent = ({
+  invoice,
+  purchaseOrderNumber,
+  onPurchaseOrderNumberChange,
+}: InvoiceCustomerInfosProps) => {
   const { customer } = invoice || {}
   const { formattedDateWithTimezone } = useFormatterDateHelper()
   const { translate } = useInternationalization()
@@ -154,7 +164,28 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
           {!!invoice && (
             <DetailsPage.OverviewLine
               title={translate('text_17822197712867qhfbaf9fpk')}
-              value={invoice.purchaseOrderNumber || '-'}
+              value={
+                onPurchaseOrderNumberChange ? (
+                  <PO
+                    className="flex-row items-center gap-2"
+                    value={purchaseOrderNumber}
+                    onChange={onPurchaseOrderNumberChange}
+                    description={translate('text_1782219771286e8qwitkefxr')}
+                  >
+                    {purchaseOrderNumber ? (
+                      <>
+                        <PO.Number variant="body" color="grey700" />
+                        <PO.EditButton />
+                        <PO.TrashButton />
+                      </>
+                    ) : (
+                      <PO.AddButton>{translate('text_17822197712864tnvgq76xou')}</PO.AddButton>
+                    )}
+                  </PO>
+                ) : (
+                  invoice.purchaseOrderNumber || '-'
+                )
+              }
             />
           )}
           {invoice?.issuingDate && (
@@ -221,6 +252,8 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
       }
     />
   )
-})
+}
+
+export const InvoiceCustomerInfos = memo(InvoiceCustomerInfosComponent)
 
 InvoiceCustomerInfos.displayName = 'InvoiceCustomerInfos'

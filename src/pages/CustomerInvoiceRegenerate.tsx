@@ -9,6 +9,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { EditFeeDrawer, EditFeeDrawerRef } from '~/components/invoices/details/EditFeeDrawer'
 import { InvoiceDetailsTable } from '~/components/invoices/details/InvoiceDetailsTable'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
+import { normalizePurchaseOrderNumber } from '~/components/purchaseOrder/PO'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { LocalTaxProviderErrorsEnum } from '~/core/constants/form'
 import {
@@ -142,6 +143,12 @@ const CustomerInvoiceRegenerate = () => {
       hasInitializedFees.current = true
     }
   }, [fullFees])
+
+  // `undefined` = untouched → fall back to the invoice's current PO number;
+  // `string`/`null` = edited/cleared by the user.
+  const [purchaseOrderNumber, setPurchaseOrderNumber] = useState<string | null>()
+  const effectivePurchaseOrderNumber =
+    purchaseOrderNumber === undefined ? (invoice?.purchaseOrderNumber ?? null) : purchaseOrderNumber
 
   const [taxProviderTaxesResult, setTaxProviderTaxesResult] =
     useState<FetchDraftInvoiceTaxesMutation['fetchDraftInvoiceTaxes']>(null)
@@ -279,6 +286,7 @@ const CustomerInvoiceRegenerate = () => {
         input: {
           voidedInvoiceId: invoiceId,
           fees: feesInput,
+          purchaseOrderNumber: normalizePurchaseOrderNumber(effectivePurchaseOrderNumber),
         },
       },
     })
@@ -380,6 +388,8 @@ const CustomerInvoiceRegenerate = () => {
                 customer={customer}
                 invoice={invoice}
                 billingEntity={billingEntity}
+                purchaseOrderNumber={effectivePurchaseOrderNumber}
+                onPurchaseOrderNumberChange={setPurchaseOrderNumber}
               />
             )}
             {invoice && customer && (
