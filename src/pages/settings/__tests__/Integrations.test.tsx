@@ -64,7 +64,7 @@ jest.mock('~/components/settings/integrations/AddLagoTaxManagementDialog', () =>
   AddLagoTaxManagementDialog: () => null,
 }))
 jest.mock('~/components/settings/integrations/AddFlutterwaveDialog', () => ({
-  AddFlutterwaveDialog: () => null,
+  useAddFlutterwaveDialog: () => ({ openAddFlutterwaveDialog: jest.fn() }),
 }))
 jest.mock('~/components/dialogs/PremiumWarningDialog', () => ({
   usePremiumWarningDialog: () => ({
