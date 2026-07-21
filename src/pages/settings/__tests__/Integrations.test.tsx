@@ -22,7 +22,7 @@ import Integrations from '../Integrations'
 
 // Mock dialog components that transitively import @nangohq/frontend (ESM)
 jest.mock('~/components/settings/integrations/AddAnrokDialog', () => ({
-  AddAnrokDialog: () => null,
+  useAddAnrokDialog: () => ({ openAddAnrokDialog: jest.fn() }),
 }))
 jest.mock('~/components/settings/integrations/AddAvalaraDialog', () => ({
   useAddAvalaraDialog: () => ({

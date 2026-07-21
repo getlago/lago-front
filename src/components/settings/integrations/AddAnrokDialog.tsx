@@ -1,27 +1,29 @@
-import { FetchResult, gql } from '@apollo/client'
-import Stack from '@mui/material/Stack'
-import { useFormik } from 'formik'
-import { forwardRef, useId, useImperativeHandle, useRef, useState } from 'react'
+import { FetchResult, gql, useApolloClient } from '@apollo/client'
+import { revalidateLogic } from '@tanstack/react-form'
+import { useId, useRef } from 'react'
 import { generatePath } from 'react-router-dom'
-import { object, string } from 'yup'
+import { z } from 'zod'
 
-import { Button } from '~/components/designSystem/Button'
-import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
-import { TextInputField } from '~/components/form'
+import { useFormDialogOpeningDialog } from '~/components/dialogs/FormDialogOpeningDialog'
+import { DialogResult } from '~/components/dialogs/types'
+import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { addToast, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
+import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { ANROK_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import {
   AddAnrokIntegrationDialogFragment,
   AnrokIntegrationDetailsFragmentDoc,
-  CreateAnrokIntegrationInput,
   CreateAnrokIntegrationMutation,
+  GetAnrokIntegrationsListDocument,
   LagoApiError,
   UpdateAnrokIntegrationMutation,
   useCreateAnrokIntegrationMutation,
+  useDestroyNangoIntegrationMutation,
   useUpdateAnrokIntegrationMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm } from '~/hooks/forms/useAppform'
 import { AnrokIntegrationDetailsTabs } from '~/pages/settings/AnrokIntegrationDetails'
 
 gql`
@@ -51,29 +53,46 @@ gql`
   ${AnrokIntegrationDetailsFragmentDoc}
 `
 
-type TAddAnrokDialogProps = Partial<{
-  onDelete: (provider: AddAnrokIntegrationDialogFragment) => void
-  integration: AddAnrokIntegrationDialogFragment
-}>
+const ADD_ANROK_FORM_ID = 'form-add-anrok-integration'
 
-export interface AddAnrokDialogRef {
-  openDialog: (props?: TAddAnrokDialogProps) => unknown
-  closeDialog: () => unknown
+type AddAnrokFormValues = {
+  name: string
+  code: string
+  apiKey: string
 }
 
-export const AddAnrokDialog = forwardRef<AddAnrokDialogRef>((_, ref) => {
+const defaultFormValues: AddAnrokFormValues = {
+  name: '',
+  code: '',
+  apiKey: '',
+}
+
+const validationSchema = z.object({
+  name: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
+  code: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
+  apiKey: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
+})
+
+type OpenAddAnrokDialogData = {
+  integration?: AddAnrokIntegrationDialogFragment
+  deleteCallback?: () => void
+}
+
+export const useAddAnrokDialog = () => {
   const componentId = useId()
   const { nangoPublicKey } = envGlobalVar()
   const navigate = useNavigate()
-  const dialogRef = useRef<DialogRef>(null)
+  const formDialogOpeningDialog = useFormDialogOpeningDialog()
   const { translate } = useInternationalization()
-  const [localData, setLocalData] = useState<TAddAnrokDialogProps | undefined>(undefined)
-  const anrokIntegration = localData?.integration
-  const isEdition = !!anrokIntegration
+  const client = useApolloClient()
+
+  const dataRef = useRef<OpenAddAnrokDialogData | null>(null)
+  const successRef = useRef(false)
 
   const [addAnrok] = useCreateAnrokIntegrationMutation({
     onCompleted({ createAnrokIntegration }) {
       if (createAnrokIntegration?.id) {
+        successRef.current = true
         navigate(
           generatePath(ANROK_INTEGRATION_DETAILS_ROUTE, {
             integrationId: createAnrokIntegration.id,
@@ -93,29 +112,29 @@ export const AddAnrokDialog = forwardRef<AddAnrokDialogRef>((_, ref) => {
   const [updateApiKey] = useUpdateAnrokIntegrationMutation({
     onCompleted({ updateAnrokIntegration }) {
       if (updateAnrokIntegration?.id) {
+        successRef.current = true
         addToast({
           message: translate('text_6668821d94e4da4dfd8b38f3'),
           severity: 'success',
         })
-
-        dialogRef.current?.closeDialog()
       }
     },
   })
 
-  const formikProps = useFormik<Omit<CreateAnrokIntegrationInput, 'connectionId'>>({
-    initialValues: {
-      apiKey: anrokIntegration?.apiKey || '',
-      code: anrokIntegration?.code || '',
-      name: anrokIntegration?.name || '',
+  const [deleteAnrok] = useDestroyNangoIntegrationMutation()
+
+  const form = useAppForm({
+    defaultValues: defaultFormValues,
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: validationSchema,
     },
-    validationSchema: object().shape({
-      name: string().required(''),
-      code: string().required(''),
-      apiKey: string().required(''),
-    }),
-    onSubmit: async ({ apiKey, ...values }, formikBag) => {
-      let res
+    onSubmit: async ({ value, formApi }) => {
+      const anrokIntegration = dataRef.current?.integration
+      const isEdition = !!anrokIntegration
+      const { apiKey, ...values } = value
+
+      let res: FetchResult<CreateAnrokIntegrationMutation | UpdateAnrokIntegrationMutation> = {}
 
       if (isEdition) {
         res = await updateApiKey({
@@ -141,118 +160,156 @@ export const AddAnrokDialog = forwardRef<AddAnrokDialogRef>((_, ref) => {
 
           res = await addAnrok({
             variables: {
-              input: { ...values, apiKey, connectionId: nangoApiKeyConnection?.connectionId || '' },
+              input: {
+                ...values,
+                apiKey,
+                connectionId: nangoApiKeyConnection?.connectionId || '',
+              },
             },
             context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
           })
         } catch {
-          // Nothing is supposed to happen here
+          // Nango auth failed — nothing to report to the form
         }
       }
 
-      const { errors } = res as
-        FetchResult<UpdateAnrokIntegrationMutation> | FetchResult<CreateAnrokIntegrationMutation>
-
-      if (!errors) dialogRef.current?.closeDialog()
-
-      if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
-        formikBag.setErrors({
-          code: translate('text_632a2d437e341dcc76817556'),
+      if (hasDefinedGQLError('ValueAlreadyExist', res.errors)) {
+        formApi.setErrorMap({
+          onDynamic: {
+            fields: {
+              code: {
+                message: translate('text_632a2d437e341dcc76817556'),
+                path: ['code'],
+              },
+            },
+          },
         })
       }
     },
-    validateOnMount: true,
-    enableReinitialize: true,
   })
 
-  useImperativeHandle(ref, () => ({
-    openDialog: (data) => {
-      setLocalData(data)
-      dialogRef.current?.openDialog()
-    },
-    closeDialog: () => dialogRef.current?.closeDialog(),
-  }))
+  const handleSubmit = async (): Promise<DialogResult> => {
+    successRef.current = false
+    await form.handleSubmit()
 
-  return (
-    <Dialog
-      ref={dialogRef}
-      title={translate(
-        isEdition ? 'text_658461066530343fe1808cd9' : 'text_666887f6c4d092aa1e1a8477',
-        {
-          name: anrokIntegration?.name,
-        },
-      )}
-      description={translate(
-        isEdition ? 'text_666889d43a2ea34eb2aa3e55' : 'text_666887f6c4d092aa1e1a8478',
-      )}
-      onClose={formikProps.resetForm}
-      actions={({ closeDialog }) => (
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-          width={isEdition ? '100%' : 'inherit'}
-          spacing={3}
-        >
-          {isEdition && (
-            <Button
-              danger
-              variant="quaternary"
-              onClick={() => {
-                closeDialog()
-                localData?.onDelete?.(anrokIntegration)
-              }}
-            >
-              {translate('text_65845f35d7d69c3ab4793dad')}
-            </Button>
-          )}
-          <Stack direction="row" spacing={3} alignItems="center">
-            <Button variant="quaternary" onClick={closeDialog}>
-              {translate('text_62b1edddbf5f461ab971276d')}
-            </Button>
-            <Button
-              variant="primary"
-              disabled={!formikProps.isValid || !formikProps.dirty}
-              onClick={formikProps.submitForm}
-            >
+    if (!successRef.current) {
+      throw new Error('Submit failed')
+    }
+
+    return { reason: 'success' }
+  }
+
+  const openAddAnrokDialog = (data?: OpenAddAnrokDialogData) => {
+    dataRef.current = data ?? null
+    const anrokIntegration = data?.integration
+    const isEdition = !!anrokIntegration
+
+    form.reset()
+    if (anrokIntegration) {
+      form.setFieldValue('name', anrokIntegration.name || '')
+      form.setFieldValue('code', anrokIntegration.code || '')
+      form.setFieldValue('apiKey', anrokIntegration.apiKey || '')
+    }
+
+    formDialogOpeningDialog
+      .open({
+        title: translate(
+          isEdition ? 'text_658461066530343fe1808cd9' : 'text_666887f6c4d092aa1e1a8477',
+          {
+            name: anrokIntegration?.name,
+          },
+        ),
+        description: translate(
+          isEdition ? 'text_666889d43a2ea34eb2aa3e55' : 'text_666887f6c4d092aa1e1a8478',
+        ),
+        children: (
+          <div className="flex flex-col gap-6 p-8">
+            <div className="flex flex-row items-start gap-6">
+              <form.AppField name="name">
+                {(field) => (
+                  <field.TextInputField
+                    className="flex-1"
+                    label={translate('text_6584550dc4cec7adf861504d')}
+                    placeholder={translate('text_6584550dc4cec7adf861504f')}
+                  />
+                )}
+              </form.AppField>
+              <form.AppField name="code">
+                {(field) => (
+                  <field.TextInputField
+                    className="flex-1"
+                    label={translate('text_6584550dc4cec7adf8615051')}
+                    placeholder={translate('text_6584550dc4cec7adf8615053')}
+                  />
+                )}
+              </form.AppField>
+            </div>
+
+            <form.AppField name="apiKey">
+              {(field) => (
+                <field.TextInputField
+                  disabled={isEdition}
+                  label={translate('text_6668821d94e4da4dfd8b38d5')}
+                  placeholder={translate('text_666887f6c4d092aa1e1a847e')}
+                />
+              )}
+            </form.AppField>
+          </div>
+        ),
+        closeOnError: false,
+        onEntered: focusFirstInput,
+        mainAction: (
+          <form.AppForm>
+            <form.SubmitButton>
               {translate(
                 isEdition ? 'text_664c732c264d7eed1c74fdaa' : 'text_666887f6c4d092aa1e1a8477',
               )}
-            </Button>
-          </Stack>
-        </Stack>
-      )}
-    >
-      <div className="mb-8 flex flex-col gap-6">
-        <div className="flex flex-row items-start gap-6">
-          <TextInputField
-            className="flex-1"
-            // eslint-disable-next-line jsx-a11y/no-autofocus
-            autoFocus
-            formikProps={formikProps}
-            name="name"
-            label={translate('text_6584550dc4cec7adf861504d')}
-            placeholder={translate('text_6584550dc4cec7adf861504f')}
-          />
-          <TextInputField
-            className="flex-1"
-            formikProps={formikProps}
-            name="code"
-            label={translate('text_6584550dc4cec7adf8615051')}
-            placeholder={translate('text_6584550dc4cec7adf8615053')}
-          />
-        </div>
+            </form.SubmitButton>
+          </form.AppForm>
+        ),
+        form: {
+          id: ADD_ANROK_FORM_ID,
+          submit: handleSubmit,
+        },
+        canOpenDialog: isEdition,
+        openDialogText: translate('text_65845f35d7d69c3ab4793dad'),
+        otherDialogProps: {
+          title: translate('text_658461066530343fe1808cd7', { name: anrokIntegration?.name }),
+          description: translate('text_6668870bc8bdb352948ffb5f'),
+          colorVariant: 'danger',
+          actionText: translate('text_645d071272418a14c1c76a81'),
+          onAction: async () => {
+            const res = await deleteAnrok({
+              variables: { input: { id: anrokIntegration?.id as string } },
+            })
 
-        <TextInputField
-          name="apiKey"
-          disabled={isEdition}
-          label={translate('text_6668821d94e4da4dfd8b38d5')}
-          placeholder={translate('text_666887f6c4d092aa1e1a847e')}
-          formikProps={formikProps}
-        />
-      </div>
-    </Dialog>
-  )
-})
+            const destroyedId = res.data?.destroyIntegration?.id
 
-AddAnrokDialog.displayName = 'AddAnrokDialog'
+            if (destroyedId) {
+              evictFromCache(client, {
+                id: destroyedId,
+                __typename: 'AnrokIntegration',
+                listFieldName: 'integrations',
+                listQueryDocument: GetAnrokIntegrationsListDocument,
+              })
+
+              data?.deleteCallback?.()
+
+              addToast({
+                message: translate('text_661ff6e56ef7e1b7c542b2f9'),
+                severity: 'success',
+              })
+            }
+          },
+        },
+      })
+      .then((response) => {
+        if (response.reason === 'close' || response.reason === 'open-other-dialog') {
+          form.reset()
+          dataRef.current = null
+        }
+      })
+  }
+
+  return { openAddAnrokDialog }
+}
