@@ -34,10 +34,7 @@ import {
   AddLagoTaxManagementDialogRef,
 } from '~/components/settings/integrations/AddLagoTaxManagementDialog'
 import { useAddMoneyhashDialog } from '~/components/settings/integrations/AddMoneyhashDialog'
-import {
-  AddNetsuiteDialog,
-  AddNetsuiteDialogRef,
-} from '~/components/settings/integrations/AddNetsuiteDialog'
+import { useAddNetsuiteDialog } from '~/components/settings/integrations/AddNetsuiteDialog'
 import {
   AddSalesforceDialog,
   AddSalesforceDialogRef,
@@ -163,7 +160,7 @@ const Integrations = () => {
   const { openAddGocardlessDialog } = useAddGocardlessDialog()
   const { openAddCashfreeDialog } = useAddCashfreeDialog()
   const addLagoTaxManagementDialog = useRef<AddLagoTaxManagementDialogRef>(null)
-  const addNetsuiteDialogRef = useRef<AddNetsuiteDialogRef>(null)
+  const { openAddNetsuiteDialog } = useAddNetsuiteDialog()
   const addSalesforceDialogRef = useRef<AddSalesforceDialogRef>(null)
   const addXeroDialogRef = useRef<AddXeroDialogRef>(null)
   const addHubspotDialogRef = useRef<AddHubspotDialogRef>(null)
@@ -538,7 +535,7 @@ const Integrations = () => {
                               }),
                             )
                           } else {
-                            addNetsuiteDialogRef.current?.openDialog()
+                            openAddNetsuiteDialog()
                           }
                         }}
                       />
@@ -830,7 +827,6 @@ const Integrations = () => {
 
       <AddAnrokDialog ref={addAnrokDialogRef} />
       <AddLagoTaxManagementDialog ref={addLagoTaxManagementDialog} />
-      <AddNetsuiteDialog ref={addNetsuiteDialogRef} />
       <AddXeroDialog ref={addXeroDialogRef} />
       <AddHubspotDialog ref={addHubspotDialogRef} />
       <AddSalesforceDialog ref={addSalesforceDialogRef} />

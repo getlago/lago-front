@@ -30,7 +30,7 @@ jest.mock('~/components/settings/integrations/AddAvalaraDialog', () => ({
   }),
 }))
 jest.mock('~/components/settings/integrations/AddNetsuiteDialog', () => ({
-  AddNetsuiteDialog: () => null,
+  useAddNetsuiteDialog: () => ({ openAddNetsuiteDialog: jest.fn() }),
 }))
 jest.mock('~/components/settings/integrations/AddXeroDialog', () => ({
   AddXeroDialog: () => null,
