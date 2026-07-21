@@ -14,7 +14,6 @@ import {
   CustomerAccountTypeEnum,
   InvoiceForInvoiceInfosFragment,
   InvoiceStatusTypeEnum,
-  InvoiceTypeEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useFormatterDateHelper } from '~/hooks/helpers/useFormatterDateHelper'
@@ -152,10 +151,10 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
               value={invoice?.number}
             />
           )}
-          {invoice?.invoiceType === InvoiceTypeEnum.OneOff && (
+          {!!invoice && (
             <DetailsPage.OverviewLine
               title={translate('text_17822197712867qhfbaf9fpk')}
-              value={invoice?.purchaseOrderNumber || '-'}
+              value={invoice.purchaseOrderNumber || '-'}
             />
           )}
           {invoice?.issuingDate && (
