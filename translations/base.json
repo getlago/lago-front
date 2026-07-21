@@ -4481,5 +4481,6 @@
   "text_1783693954158zdvy0q96esu": "Order executed successfully",
   "text_178410354866260f9hd0qa81": "Execute orders",
   "text_1784189562649n0q3uaf6w9q": "Order {{orderNumber}}",
-  "text_17841895626504bixbm3xbyj": "View the details of this executed order, including its execution settings and content."
+  "text_17841895626504bixbm3xbyj": "View the details of this executed order, including its execution settings and content.",
+  "text_1784536360268d9fpetpsrej": "Store custom key-value pairs on this plan."
 }

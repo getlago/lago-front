@@ -76,6 +76,15 @@ jest.mock('~/components/plans/details-v2/accordions/EntitlementAccordion', () =>
   }
 })
 
+jest.mock('~/components/plans/details-v2/accordions/MetadataAccordion', () => {
+  const React = jest.requireActual('react')
+
+  return {
+    __esModule: true,
+    MetadataAccordion: () => React.createElement('section', { id: 'metadata' }),
+  }
+})
+
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
     translate: (key: string) => key,
