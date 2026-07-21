@@ -17,6 +17,7 @@ import { INTEGRATIONS_ROUTE, NETSUITE_INTEGRATION_DETAILS_ROUTE, useNavigate } f
 import {
   DeleteNetsuiteIntegrationDialogFragmentDoc,
   IntegrationTypeEnum,
+  NetsuiteForCreateDialogDialogFragment,
   NetsuiteForCreateDialogDialogFragmentDoc,
   NetsuiteIntegrationsFragment,
   useGetNetsuiteIntegrationsListQuery,
@@ -72,6 +73,8 @@ const NetsuiteIntegrations = () => {
             }),
           )
       : undefined
+  const handleDeleteFromAddDialog = (provider: NetsuiteForCreateDialogDialogFragment) =>
+    openDeleteNetsuiteIntegrationDialog({ provider, callback: deleteDialogCallback })
 
   return (
     <>
@@ -154,11 +157,7 @@ const NetsuiteIntegrations = () => {
                           onClick={() => {
                             addNetsuiteDialogRef.current?.openDialog({
                               provider: connection,
-                              onDelete: (provider) =>
-                                openDeleteNetsuiteIntegrationDialog({
-                                  provider,
-                                  callback: deleteDialogCallback,
-                                }),
+                              onDelete: handleDeleteFromAddDialog,
                             })
                             closePopper()
                           }}

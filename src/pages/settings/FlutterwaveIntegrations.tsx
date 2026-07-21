@@ -20,6 +20,7 @@ import {
 } from '~/core/router'
 import {
   DeleteFlutterwaveIntegrationDialogFragmentDoc,
+  FlutterwaveIntegrationDetailsFragment,
   FlutterwaveProvider,
   ProviderTypeEnum,
   useGetFlutterwaveIntegrationsListQuery,
@@ -73,6 +74,8 @@ const FlutterwaveIntegrations = () => {
             }),
           )
       : undefined
+  const handleDeleteFromAddDialog = (provider: FlutterwaveIntegrationDetailsFragment) =>
+    openDeleteFlutterwaveIntegrationDialog({ provider, callback: deleteDialogCallback })
 
   const canCreateIntegration = hasPermissions(['organizationIntegrationsCreate'])
   const canEditIntegration = hasPermissions(['organizationIntegrationsUpdate'])
@@ -161,11 +164,7 @@ const FlutterwaveIntegrations = () => {
                               onClick={() => {
                                 addDialogRef.current?.openDialog({
                                   provider: connection,
-                                  onDelete: (provider) =>
-                                    openDeleteFlutterwaveIntegrationDialog({
-                                      provider,
-                                      callback: deleteDialogCallback,
-                                    }),
+                                  onDelete: handleDeleteFromAddDialog,
                                 })
                                 closePopper()
                               }}

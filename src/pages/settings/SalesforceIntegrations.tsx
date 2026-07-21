@@ -21,6 +21,7 @@ import {
 import {
   DeleteSalesforceIntegrationDialogFragmentDoc,
   IntegrationTypeEnum,
+  SalesforceForCreateDialogFragment,
   SalesforceForCreateDialogFragmentDoc,
   SalesforceIntegrationsFragment,
   useGetSalesforceIntegrationsListQuery,
@@ -77,6 +78,8 @@ const SalesforceIntegrations = () => {
             }),
           )
       : undefined
+  const handleDeleteFromAddDialog = (provider: SalesforceForCreateDialogFragment) =>
+    openDeleteSalesforceIntegrationDialog({ provider, callback: deleteDialogCallback })
 
   return (
     <>
@@ -154,11 +157,7 @@ const SalesforceIntegrations = () => {
                           onClick={() => {
                             addSalesforceDialogRef.current?.openDialog({
                               provider: connection,
-                              onDelete: (provider) =>
-                                openDeleteSalesforceIntegrationDialog({
-                                  provider,
-                                  callback: deleteDialogCallback,
-                                }),
+                              onDelete: handleDeleteFromAddDialog,
                             })
                             closePopper()
                           }}

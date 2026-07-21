@@ -23,8 +23,8 @@ export const useDefaultCampaignDialog = () => {
       actionText: translate(
         type === 'setDefault' ? 'text_1728574726495n9jdse2hnrf' : 'text_1728575305796o7kwackkbj6',
       ),
-      onAction: async () => {
-        await onConfirm()
+      onAction: () => {
+        onConfirm()
       },
     })
   }

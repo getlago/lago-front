@@ -15,6 +15,7 @@ import { useDeleteAnrokIntegrationDialog } from '~/components/settings/integrati
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { ANROK_INTEGRATION_DETAILS_ROUTE, INTEGRATIONS_ROUTE, useNavigate } from '~/core/router'
 import {
+  AddAnrokIntegrationDialogFragment,
   AddAnrokIntegrationDialogFragmentDoc,
   AnrokIntegrationsFragment,
   DeleteAnrokIntegrationDialogFragmentDoc,
@@ -72,6 +73,8 @@ const AnrokIntegrations = () => {
             }),
           )
       : undefined
+  const handleDeleteFromAddDialog = (provider: AddAnrokIntegrationDialogFragment) =>
+    openDeleteAnrokIntegrationDialog({ provider, callback: deleteDialogCallback })
 
   return (
     <>
@@ -154,11 +157,7 @@ const AnrokIntegrations = () => {
                           onClick={() => {
                             addAnrokDialogRef.current?.openDialog({
                               integration: connection,
-                              onDelete: (provider) =>
-                                openDeleteAnrokIntegrationDialog({
-                                  provider,
-                                  callback: deleteDialogCallback,
-                                }),
+                              onDelete: handleDeleteFromAddDialog,
                             })
                             closePopper()
                           }}
