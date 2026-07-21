@@ -7,7 +7,7 @@ import { renderIntegrationPage } from './integrationTestHelpers'
 import HubspotIntegrationDetails from '../HubspotIntegrationDetails'
 
 jest.mock('~/components/settings/integrations/AddHubspotDialog', () => ({
-  AddHubspotDialog: () => null,
+  useAddHubspotDialog: () => ({ openAddHubspotDialog: jest.fn() }),
 }))
 jest.mock('~/components/settings/integrations/DeleteHubspotIntegrationDialog', () => ({
   useDeleteHubspotIntegrationDialog: () => ({

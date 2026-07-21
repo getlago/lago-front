@@ -25,10 +25,7 @@ import { useAddAvalaraDialog } from '~/components/settings/integrations/AddAvala
 import { useAddCashfreeDialog } from '~/components/settings/integrations/AddCashfreeDialog'
 import { useAddFlutterwaveDialog } from '~/components/settings/integrations/AddFlutterwaveDialog'
 import { useAddGocardlessDialog } from '~/components/settings/integrations/AddGocardlessDialog'
-import {
-  AddHubspotDialog,
-  AddHubspotDialogRef,
-} from '~/components/settings/integrations/AddHubspotDialog'
+import { useAddHubspotDialog } from '~/components/settings/integrations/AddHubspotDialog'
 import {
   AddLagoTaxManagementDialog,
   AddLagoTaxManagementDialogRef,
@@ -163,9 +160,8 @@ const Integrations = () => {
   const { openAddNetsuiteDialog } = useAddNetsuiteDialog()
   const addSalesforceDialogRef = useRef<AddSalesforceDialogRef>(null)
   const addXeroDialogRef = useRef<AddXeroDialogRef>(null)
-  const addHubspotDialogRef = useRef<AddHubspotDialogRef>(null)
   const { openAddFlutterwaveDialog } = useAddFlutterwaveDialog()
-
+  const { openAddHubspotDialog } = useAddHubspotDialog()
   const { openAddMoneyhashDialog } = useAddMoneyhashDialog()
 
   const { data, loading } = useIntegrationsSettingQuery({
@@ -496,7 +492,7 @@ const Integrations = () => {
                               }),
                             )
                           } else {
-                            addHubspotDialogRef.current?.openDialog()
+                            openAddHubspotDialog()
                           }
                         }}
                         fullWidth
@@ -828,7 +824,6 @@ const Integrations = () => {
       <AddAnrokDialog ref={addAnrokDialogRef} />
       <AddLagoTaxManagementDialog ref={addLagoTaxManagementDialog} />
       <AddXeroDialog ref={addXeroDialogRef} />
-      <AddHubspotDialog ref={addHubspotDialogRef} />
       <AddSalesforceDialog ref={addSalesforceDialogRef} />
     </>
   )
