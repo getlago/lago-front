@@ -200,7 +200,9 @@ describe('InvoiceCustomerInfos', () => {
 
       render(<InvoiceCustomerInfos invoice={mockInvoice} />)
 
-      expect(screen.getByText('-')).toBeInTheDocument()
+      expect(screen.getByText('Payment status').parentElement).toHaveTextContent(
+        /^Payment status-$/,
+      )
     })
 
     it('should format multiple emails with comma and space', () => {
@@ -254,7 +256,7 @@ describe('InvoiceCustomerInfos', () => {
 
       render(<InvoiceCustomerInfos invoice={mockInvoice} />)
 
-      expect(screen.getByText('PO number')).toBeInTheDocument()
+      expect(screen.getByText('PO number').parentElement).toHaveTextContent(/^PO number-$/)
     })
 
     it('should handle null invoice gracefully', () => {
