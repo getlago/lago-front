@@ -64,10 +64,17 @@ jest.mock('~/components/activityLogs/utils', () => ({
 }))
 
 const mockOpenTerminateCustomerWalletDialog = jest.fn()
+const mockOpenVoidWalletDialog = jest.fn()
 
 jest.mock('~/components/wallets/TerminateCustomerWalletDialog', () => ({
   useTerminateCustomerWalletDialog: () => ({
     openTerminateCustomerWalletDialog: mockOpenTerminateCustomerWalletDialog,
+  }),
+}))
+
+jest.mock('~/components/wallets/VoidWalletDialog', () => ({
+  useVoidWalletDialog: () => ({
+    openVoidWalletDialog: mockOpenVoidWalletDialog,
   }),
 }))
 
@@ -95,12 +102,6 @@ describe('useWalletActions', () => {
         const { result } = renderHook(() => useWalletActions(defaultParams))
 
         expect(result.current.actions).toHaveLength(7)
-      })
-
-      it('THEN should return voidDialogRef', () => {
-        const { result } = renderHook(() => useWalletActions(defaultParams))
-
-        expect(result.current.voidDialogRef).toBeDefined()
       })
 
       it('THEN should have all actions visible', () => {
@@ -255,15 +256,9 @@ describe('useWalletActions', () => {
       it('THEN should open the void dialog and close popper', () => {
         const { result } = renderHook(() => useWalletActions(defaultParams))
 
-        const mockOpenDialog = jest.fn()
-
-        ;(
-          result.current.voidDialogRef as unknown as { current: { openDialog: jest.Mock } }
-        ).current = { openDialog: mockOpenDialog }
-
         result.current.actions[3].onAction(closePopper)
 
-        expect(mockOpenDialog).toHaveBeenCalledWith({
+        expect(mockOpenVoidWalletDialog).toHaveBeenCalledWith({
           walletId: 'wallet-1',
           rateAmount: 1,
           creditsBalance: 100,
