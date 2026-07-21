@@ -13,7 +13,6 @@ import { applyExistingCodeError } from '~/core/form/existingCodeError'
 import { PRODUCT_ITEM_FILTER_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import { prependOrgSlug } from '~/core/router/utils/prependOrgSlug'
 import {
-  BillableMetricFilter,
   LagoApiError,
   ProductItemFilterForDrawerFragment,
   useCreateProductItemFilterMutation,
@@ -28,7 +27,11 @@ import {
   PRODUCT_ITEM_FILTER_FORM_ID,
   ProductItemFilterFormValues,
 } from './constants'
-import { ComboboxSeed, ProductItemFilterDrawerContent } from './ProductItemFilterDrawerContent'
+import {
+  ComboboxSeed,
+  ProductItemFilterDrawerContent,
+  SelectableBillableMetricFilter,
+} from './ProductItemFilterDrawerContent'
 
 gql`
   fragment ProductItemFilterForDrawer on ProductItemFilter {
@@ -93,8 +96,6 @@ gql`
   }
 `
 
-type SelectableBillableMetricFilter = Pick<BillableMetricFilter, 'id' | 'key' | 'values'>
-
 const productItemFilterDrawerSchema = z.object({
   name: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
   code: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
@@ -143,7 +144,12 @@ const mapSeededFilters = (
 // escape embedded quotes so a product item filter name cannot break out of it.
 const escapeDoubleQuotes = (value: string) => value.replaceAll('"', '&quot;')
 
-type ProductItemAttachment = { id: string; name: string; code: string }
+type ProductItemAttachment = {
+  id: string
+  name: string
+  code: string
+  billableMetricFilters: SelectableBillableMetricFilter[]
+}
 
 type ProductItemFilterFormSuccess = {
   productItemFilter: ProductItemFilterForDrawerFragment
@@ -336,7 +342,9 @@ export const useProductItemFilterDrawer = () => {
     const productItemSeed: ComboboxSeed = productItemSource
       ? { value: productItemSource.id, label: productItemSource.name }
       : null
-    const seededFilters = productItemFilter ? mapSeededFilters(productItemFilter) : []
+    const seededFilters = productItemFilter
+      ? mapSeededFilters(productItemFilter)
+      : (attachToProductItem?.billableMetricFilters ?? [])
 
     drawer.open({
       title: isEdit

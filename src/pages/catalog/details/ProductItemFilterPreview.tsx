@@ -55,7 +55,9 @@ type ProductItemAttachment = {
   id: string
   name: string
   code: string
-  billableMetric?: { filters?: Array<unknown> | null } | null
+  billableMetric?: {
+    filters?: Array<{ id: string; key: string; values: string[] }> | null
+  } | null
 }
 
 // Inner component so the item-filters query only mounts once the parent product
@@ -192,7 +194,16 @@ const ProductItemFilterPreview = ({ productItem }: { productItem: ProductItemAtt
           <Button
             variant="inline"
             data-test={PRODUCT_ITEM_FILTER_PREVIEW_CREATE_TEST_ID}
-            onClick={() => openProductItemFilterDrawer({ attachToProductItem: productItem })}
+            onClick={() =>
+              openProductItemFilterDrawer({
+                attachToProductItem: {
+                  id: productItem.id,
+                  name: productItem.name,
+                  code: productItem.code,
+                  billableMetricFilters: productItem.billableMetric?.filters ?? [],
+                },
+              })
+            }
           >
             {translate('text_17836220307039rf790f045t')}
           </Button>

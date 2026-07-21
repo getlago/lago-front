@@ -32,7 +32,7 @@ export const PRODUCT_ITEM_FILTER_DRAWER_MISSING_VALUES_ALERT_TEST_ID =
 
 export type ComboboxSeed = { value: string; label: string } | null
 
-type SelectableBillableMetricFilter = Pick<BillableMetricFilter, 'id' | 'key' | 'values'>
+export type SelectableBillableMetricFilter = Pick<BillableMetricFilter, 'id' | 'key' | 'values'>
 
 type ProductItemFilterDrawerSectionsExtraProps = {
   isEdit: boolean

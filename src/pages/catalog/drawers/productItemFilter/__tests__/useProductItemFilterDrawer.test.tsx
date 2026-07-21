@@ -2,7 +2,7 @@ import { MockedProvider, MockedResponse } from '@apollo/client/testing'
 import { act, renderHook, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { GraphQLError } from 'graphql'
-import { ReactNode } from 'react'
+import { ReactElement, ReactNode } from 'react'
 
 import { CREATE_MORE_SWITCH_TEST_ID } from '~/components/drawers/createMore/CreateMoreControl'
 import { addToast } from '~/core/apolloClient'
@@ -243,6 +243,28 @@ describe('useProductItemFilterDrawer', () => {
       expect(mockClose).not.toHaveBeenCalled()
       expect(mockNavigate).not.toHaveBeenCalled()
       expect(addToast).not.toHaveBeenCalled()
+    })
+
+    it('seeds the values editor with the prefilled product item filters (attachToProductItem)', () => {
+      const { result } = renderDrawerHook()
+
+      const billableMetricFilters = [{ id: 'bmf-9', key: 'region', values: ['eu', 'us'] }]
+
+      act(() =>
+        result.current.openDrawer({
+          attachToProductItem: {
+            id: 'pi-9',
+            name: 'Storage',
+            code: 'storage',
+            billableMetricFilters,
+          },
+        }),
+      )
+
+      const contentProps = (lastDrawerArgs?.children as ReactElement)?.props
+
+      expect(contentProps?.productItemSeed).toEqual({ value: 'pi-9', label: 'Storage' })
+      expect(contentProps?.seededFilters).toEqual(billableMetricFilters)
     })
   })
 

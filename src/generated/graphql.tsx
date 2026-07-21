@@ -14886,14 +14886,14 @@ export type GetProductItemsForProductDetailsQueryVariables = Exact<{
 
 export type GetProductItemsForProductDetailsQuery = { __typename?: 'Query', productItems: { __typename?: 'ProductItemCollection', metadata: { __typename?: 'CollectionMetadata', totalCount: number }, collection: Array<{ __typename?: 'ProductItem', id: string, name: string, code: string, invoiceDisplayName?: string | null, itemType: ProductItemTypeEnum, filtersCount: number, createdAt: any, description?: string | null, attachedToPlanOrSubscription: boolean, product?: { __typename?: 'Product', id: string, name: string, code: string } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string } | null }> } };
 
-export type ProductItemForProductItemDetailsFragment = { __typename?: 'ProductItem', id: string, name: string, code: string, description?: string | null, invoiceDisplayName?: string | null, itemType: ProductItemTypeEnum, attachedToPlanOrSubscription: boolean, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, filters?: Array<{ __typename?: 'BillableMetricFilter', id: string }> | null } | null, product?: { __typename?: 'Product', id: string, name: string, code: string } | null };
+export type ProductItemForProductItemDetailsFragment = { __typename?: 'ProductItem', id: string, name: string, code: string, description?: string | null, invoiceDisplayName?: string | null, itemType: ProductItemTypeEnum, attachedToPlanOrSubscription: boolean, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, filters?: Array<{ __typename?: 'BillableMetricFilter', id: string, key: string, values: Array<string> }> | null } | null, product?: { __typename?: 'Product', id: string, name: string, code: string } | null };
 
 export type GetProductItemForDetailsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetProductItemForDetailsQuery = { __typename?: 'Query', productItem?: { __typename?: 'ProductItem', id: string, name: string, code: string, description?: string | null, invoiceDisplayName?: string | null, itemType: ProductItemTypeEnum, attachedToPlanOrSubscription: boolean, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, filters?: Array<{ __typename?: 'BillableMetricFilter', id: string }> | null } | null, product?: { __typename?: 'Product', id: string, name: string, code: string } | null } | null };
+export type GetProductItemForDetailsQuery = { __typename?: 'Query', productItem?: { __typename?: 'ProductItem', id: string, name: string, code: string, description?: string | null, invoiceDisplayName?: string | null, itemType: ProductItemTypeEnum, attachedToPlanOrSubscription: boolean, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, filters?: Array<{ __typename?: 'BillableMetricFilter', id: string, key: string, values: Array<string> }> | null } | null, product?: { __typename?: 'Product', id: string, name: string, code: string } | null } | null };
 
 export type ProductItemForDetailsOverviewFragment = { __typename?: 'ProductItem', id: string, name: string, code: string, description?: string | null, invoiceDisplayName?: string | null, itemType: ProductItemTypeEnum, attachedToPlanOrSubscription: boolean, product?: { __typename?: 'Product', id: string, name: string, code: string } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, code: string, name: string } | null };
 
@@ -21337,6 +21337,8 @@ export const ProductItemForProductItemDetailsFragmentDoc = gql`
     id
     filters {
       id
+      key
+      values
     }
   }
   ...ProductItemForDrawer

@@ -37,6 +37,8 @@ gql`
       id
       filters {
         id
+        key
+        values
       }
     }
     ...ProductItemForDrawer

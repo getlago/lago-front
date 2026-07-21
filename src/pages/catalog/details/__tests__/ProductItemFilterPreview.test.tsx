@@ -47,11 +47,13 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
 
 const PRODUCT_ITEM_ID = 'pi-1'
 
+const billableMetricFilterFixture = { id: 'bmf-1', key: 'region', values: ['eu', 'us'] }
+
 const productItemWithFilters = {
   id: PRODUCT_ITEM_ID,
   name: 'Seats',
   code: 'seats',
-  billableMetric: { filters: [{ id: 'bmf-1' }] },
+  billableMetric: { filters: [billableMetricFilterFixture] },
 }
 
 const productItemWithoutFilters = {
@@ -103,7 +105,9 @@ const renderPreview = (
     id: string
     name: string
     code: string
-    billableMetric?: { filters?: Array<{ id: string }> | null } | null
+    billableMetric?: {
+      filters?: Array<{ id: string; key: string; values: string[] }> | null
+    } | null
   } = productItemWithFilters,
 ) =>
   rtlRender(<ProductItemFilterPreview productItem={productItem} />, {
@@ -196,7 +200,14 @@ describe('ProductItemFilterPreview', () => {
 
     await userEvent.click(screen.getByTestId(PRODUCT_ITEM_FILTER_PREVIEW_CREATE_TEST_ID))
 
-    expect(mockOpenDrawer).toHaveBeenCalledWith({ attachToProductItem: productItemWithFilters })
+    expect(mockOpenDrawer).toHaveBeenCalledWith({
+      attachToProductItem: {
+        id: PRODUCT_ITEM_ID,
+        name: 'Seats',
+        code: 'seats',
+        billableMetricFilters: [billableMetricFilterFixture],
+      },
+    })
   })
 
   it('hides the create button without the create permission', async () => {
