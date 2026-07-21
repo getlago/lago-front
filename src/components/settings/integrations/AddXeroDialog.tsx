@@ -71,8 +71,8 @@ const defaultFormValues: AddXeroFormValues = {
 }
 
 const validationSchema = z.object({
-  name: z.string().min(1),
-  code: z.string().min(1),
+  name: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
+  code: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
   syncCreditNotes: z.boolean(),
   syncInvoices: z.boolean(),
   syncPayments: z.boolean(),
