@@ -27,10 +27,7 @@ import {
   AddFlutterwaveDialog,
   AddFlutterwaveDialogRef,
 } from '~/components/settings/integrations/AddFlutterwaveDialog'
-import {
-  AddGocardlessDialog,
-  AddGocardlessDialogRef,
-} from '~/components/settings/integrations/AddGocardlessDialog'
+import { useAddGocardlessDialog } from '~/components/settings/integrations/AddGocardlessDialog'
 import {
   AddHubspotDialog,
   AddHubspotDialogRef,
@@ -166,7 +163,7 @@ const Integrations = () => {
   const { openAddAvalaraDialog } = useAddAvalaraDialog()
   const { openAddStripeDialog } = useAddStripeDialog()
   const { openAddAdyenDialog } = useAddAdyenDialog()
-  const addGocardlessDialogRef = useRef<AddGocardlessDialogRef>(null)
+  const { openAddGocardlessDialog } = useAddGocardlessDialog()
   const { openAddCashfreeDialog } = useAddCashfreeDialog()
   const addLagoTaxManagementDialog = useRef<AddLagoTaxManagementDialogRef>(null)
   const addNetsuiteDialogRef = useRef<AddNetsuiteDialogRef>(null)
@@ -453,7 +450,7 @@ const Integrations = () => {
                               }),
                             )
                           } else {
-                            addGocardlessDialogRef.current?.openDialog()
+                            openAddGocardlessDialog()
                           }
                         }}
                         fullWidth
@@ -835,7 +832,6 @@ const Integrations = () => {
       <>{activeTabContent}</>
 
       <AddAnrokDialog ref={addAnrokDialogRef} />
-      <AddGocardlessDialog ref={addGocardlessDialogRef} />
       <AddLagoTaxManagementDialog ref={addLagoTaxManagementDialog} />
       <AddNetsuiteDialog ref={addNetsuiteDialogRef} />
       <AddXeroDialog ref={addXeroDialogRef} />
