@@ -16,6 +16,7 @@ import { addToast, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
 import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { NETSUITE_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
+import { zodOptionalUrl } from '~/formValidation/zodCustoms'
 import {
   GetNetsuiteIntegrationsListDocument,
   NetsuiteForCreateDialogDialogFragment,
@@ -94,7 +95,10 @@ const validationSchema = z.object({
   clientSecret: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
   tokenId: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
   tokenSecret: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
-  scriptEndpointUrl: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }).url(),
+  scriptEndpointUrl: z
+    .string()
+    .min(1, { message: 'text_624ea7c29103fd010732ab7d' })
+    .and(zodOptionalUrl),
   syncCreditNotes: z.boolean(),
   syncInvoices: z.boolean(),
   syncPayments: z.boolean(),
