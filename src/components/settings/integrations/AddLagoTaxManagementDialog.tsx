@@ -40,8 +40,8 @@ type AddLagoTaxManagementFormValues = {
 }
 
 const billingEntityItemSchema = z.object({
-  id: z.string().min(1),
-  country: z.string().min(1),
+  id: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
+  country: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
   initialCountry: z.string().nullable().optional(),
 })
 
