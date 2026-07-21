@@ -1,5 +1,6 @@
 import { MockedProvider } from '@apollo/client/testing'
-import { screen, within } from '@testing-library/react'
+import { act, screen, within } from '@testing-library/react'
+import { useEffect } from 'react'
 
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { render } from '~/test-utils'
@@ -31,6 +32,7 @@ type HarnessProps = {
   disableCodeInput?: boolean
   productItemSeed?: ComboboxSeed
   seededFilters?: Array<{ id: string; key: string; values: string[] }>
+  onFormReady?: (setProductItemId: (productItemId: string) => void) => void
 }
 
 const ContentHarness = ({
@@ -39,10 +41,15 @@ const ContentHarness = ({
   disableCodeInput = false,
   productItemSeed = null,
   seededFilters = [],
+  onFormReady,
 }: HarnessProps) => {
   const form = useAppForm({
     defaultValues: { ...PRODUCT_ITEM_FILTER_FORM_DEFAULTS, ...defaultValues },
   })
+
+  useEffect(() => {
+    onFormReady?.((productItemId) => form.setFieldValue('productItemId', productItemId))
+  }, [onFormReady, form])
 
   return (
     <ProductItemFilterDrawerContent
@@ -126,6 +133,36 @@ describe('ProductItemFilterDrawerContent', () => {
       })
 
       expect(getValuesEditorInput()).not.toBeDisabled()
+    })
+  })
+
+  describe('GIVEN switching the selected product item', () => {
+    it('clears the previously selected values', async () => {
+      let setProductItemId: ((productItemId: string) => void) | null = null
+
+      renderContent({
+        productItemSeed: PRODUCT_ITEM_SEED,
+        seededFilters: SEEDED_FILTERS,
+        defaultValues: {
+          productItemId: 'pi-1',
+          values: [{ billableMetricFilterId: 'bmf-1', value: 'card' }],
+        },
+        onFormReady: (setter) => {
+          setProductItemId = setter
+        },
+      })
+
+      // A value is selected, so the "define at least one filter" alert is hidden.
+      expect(
+        screen.queryByTestId(PRODUCT_ITEM_FILTER_DRAWER_MISSING_VALUES_ALERT_TEST_ID),
+      ).not.toBeInTheDocument()
+
+      act(() => setProductItemId?.('pi-2'))
+
+      // The stale values are cleared, so the alert reappears.
+      expect(
+        await screen.findByTestId(PRODUCT_ITEM_FILTER_DRAWER_MISSING_VALUES_ALERT_TEST_ID),
+      ).toBeInTheDocument()
     })
   })
 })

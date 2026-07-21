@@ -195,7 +195,19 @@ const ProductItemFilterDrawerFormSections = withForm({
             </Button>
           )}
 
-          <form.AppField name="productItemId">
+          <form.AppField
+            name="productItemId"
+            listeners={{
+              // Switching the product item invalidates the selected values: they
+              // reference the previous item's billable metric filters, so clear
+              // them to keep the values section scoped to the new selection.
+              onChange: () => {
+                if (form.state.values.values.length) {
+                  form.setFieldValue('values', [])
+                }
+              },
+            }}
+          >
             {(field) => (
               <field.ComboBoxField
                 label={translate('text_17845790210805g4buh2kivc')}
