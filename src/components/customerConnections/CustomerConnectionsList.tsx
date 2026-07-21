@@ -10,6 +10,11 @@ import { MenuPopper } from '~/styles'
 
 import { CONNECTION_CATEGORY_SHORT_LABEL_KEYS, ConnectionCategory } from './types'
 
+export const getCustomerConnectionRowTestId = (category: ConnectionCategory): string =>
+  `customer-connection-row-${category}`
+export const getCustomerConnectionMenuTestId = (category: ConnectionCategory): string =>
+  `customer-connection-menu-${category}`
+
 export type CustomerConnectionRow = {
   /** Stable row key */
   id: string
@@ -87,7 +92,7 @@ export const CustomerConnectionsList = ({
               onRowClick(row)
             }
           }}
-          data-test={`customer-connection-row-${row.category}`}
+          data-test={getCustomerConnectionRowTestId(row.category)}
         >
           <div className="flex flex-1 flex-row items-center gap-3">
             {row.icon && (
@@ -117,7 +122,7 @@ export const CustomerConnectionsList = ({
                 <Button
                   icon="dots-horizontal"
                   variant="quaternary"
-                  data-test={`customer-connection-menu-${row.category}`}
+                  data-test={getCustomerConnectionMenuTestId(row.category)}
                 />
               }
             >
