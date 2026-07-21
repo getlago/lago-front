@@ -8566,6 +8566,7 @@ export type RegenerateInvoiceInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   fees: Array<VoidedInvoiceFeeInput>;
+  purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   voidedInvoiceId: Scalars['ID']['input'];
 };
 
