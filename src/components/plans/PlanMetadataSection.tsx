@@ -11,6 +11,7 @@ import {
   ItemMetadataFormValues,
 } from '~/components/metadata/ItemMetadataDrawer'
 import { MetadataInfo } from '~/components/metadata/MetadataInfo'
+import { useDeleteAllMetadataDialog } from '~/components/metadata/useDeleteAllMetadataDialog'
 import { SectionAccordion } from '~/components/plans/details-v2/shared/SectionAccordion'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { PlanFormType } from '~/hooks/plans/usePlanForm'
@@ -33,6 +34,7 @@ interface PlanMetadataSectionProps {
 
 export const PlanMetadataSection: FC<PlanMetadataSectionProps> = ({ form }) => {
   const { translate } = useInternationalization()
+  const { openDeleteAllMetadataDialog } = useDeleteAllMetadataDialog()
   const planMetadataDrawerRef = useRef<ItemMetadataDrawerRef>(null)
 
   const metadata = useStore(form.store, (s) => s.values.metadata)
@@ -99,7 +101,10 @@ export const PlanMetadataSection: FC<PlanMetadataSectionProps> = ({ form }) => {
             {
               label: translate('text_1784637373017e1som6d92em'),
               startIcon: 'trash',
-              onClick: () => form.setFieldValue('metadata', []),
+              onClick: () =>
+                openDeleteAllMetadataDialog({
+                  onConfirm: () => form.setFieldValue('metadata', []),
+                }),
             },
           ]}
         >

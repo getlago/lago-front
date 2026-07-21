@@ -4484,5 +4484,7 @@
   "text_1784536360268d9fpetpsrej": "Store custom key-value pairs on this plan.",
   "text_1784560679832ncjei0uis94": "Please enter the number of credits to void.",
   "text_1784560679832ird9d8k4iqw": "Credits to void must be greater than 0.",
-  "text_1784637373017e1som6d92em": "Delete all"
+  "text_1784637373017e1som6d92em": "Delete all",
+  "text_1784642866287h7jm6pidh6u": "Delete all metadata",
+  "text_17846428662872wnc279xn2s": "You\u2019re about to delete all metadata. Are you sure?"
 }

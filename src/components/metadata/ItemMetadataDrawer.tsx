@@ -15,6 +15,7 @@ import {
   type ItemMetadataFormValues,
 } from './constants'
 import { ItemMetadataDrawerContent } from './ItemMetadataDrawerContent'
+import { useDeleteAllMetadataDialog } from './useDeleteAllMetadataDialog'
 
 export { type ItemMetadataFormValues } from './constants'
 
@@ -41,6 +42,7 @@ export const ItemMetadataDrawer = forwardRef<ItemMetadataDrawerRef, ItemMetadata
   ({ description, onSave, onDelete }, ref) => {
     const { translate } = useInternationalization()
     const metadataDrawer = useFormDrawer()
+    const { openDeleteAllMetadataDialog } = useDeleteAllMetadataDialog()
     const isAddModeRef = useRef(true)
     const focusLastKeyInputRef = useRef(false)
 
@@ -62,15 +64,18 @@ export const ItemMetadataDrawer = forwardRef<ItemMetadataDrawerRef, ItemMetadata
     const openMetadataDrawer = () => {
       const showDelete = !isAddModeRef.current && !!onDelete
 
-      // Returning the promise lets the Button show its loading state while the
-      // deletion runs; the drawer only closes once it settles.
-      const handleDelete = async () => {
-        const result = await onDelete?.()
+      // The dialog's action button shows its loading state while the deletion
+      // runs; the drawer only closes once it settles.
+      const handleDelete = () =>
+        openDeleteAllMetadataDialog({
+          onConfirm: async () => {
+            const result = await onDelete?.()
 
-        if (result !== false) {
-          metadataDrawer.close()
-        }
-      }
+            if (result !== false) {
+              metadataDrawer.close()
+            }
+          },
+        })
 
       metadataDrawer.open({
         title: translate('text_63fcc3218d35b9377840f59b'),

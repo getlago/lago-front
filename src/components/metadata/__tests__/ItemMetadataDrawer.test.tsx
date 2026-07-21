@@ -44,6 +44,17 @@ jest.mock('~/components/drawers/useDrawer', () => ({
   useFormDrawer: () => ({ open: mockOpen, close: mockClose }),
 }))
 
+// ── Confirmation dialog mock: capture the config so tests can confirm ────────
+type DialogConfig = { onAction: () => Promise<void> }
+let capturedDialogConfig: DialogConfig | undefined
+const mockDialogOpen = jest.fn((config: DialogConfig) => {
+  capturedDialogConfig = config
+})
+
+jest.mock('~/components/dialogs/CentralizedDialog', () => ({
+  useCentralizedDialog: () => ({ open: mockDialogOpen, close: jest.fn() }),
+}))
+
 // Mirrors BaseDrawer: children + actions live inside the <form> whose submit
 // is the captured form.submit, so the type="submit" SubmitButton works.
 const CapturedDrawer = () => (
@@ -63,8 +74,10 @@ const CapturedDrawer = () => (
 describe('ItemMetadataDrawer', () => {
   beforeEach(() => {
     capturedConfig = undefined
+    capturedDialogConfig = undefined
     mockOpen.mockClear()
     mockClose.mockClear()
+    mockDialogOpen.mockClear()
   })
 
   const renderDrawer = ({
@@ -286,7 +299,7 @@ describe('ItemMetadataDrawer', () => {
   })
 
   describe('GIVEN the delete button is clicked', () => {
-    it('THEN should call onDelete and close the drawer once it settles', async () => {
+    it('THEN should ask for confirmation before deleting', async () => {
       const user = userEvent.setup()
       const onDelete = jest.fn(() => Promise.resolve(true))
       const { ref } = renderDrawer({ onDelete })
@@ -295,6 +308,23 @@ describe('ItemMetadataDrawer', () => {
       render(<CapturedDrawer />)
 
       await user.click(screen.getByRole('button', { name: 'Delete all' }))
+
+      // Only the confirmation dialog opened, nothing deleted yet
+      expect(mockDialogOpen).toHaveBeenCalledTimes(1)
+      expect(onDelete).not.toHaveBeenCalled()
+      expect(mockClose).not.toHaveBeenCalled()
+    })
+
+    it('THEN should call onDelete and close the drawer once confirmed', async () => {
+      const user = userEvent.setup()
+      const onDelete = jest.fn(() => Promise.resolve(true))
+      const { ref } = renderDrawer({ onDelete })
+
+      act(() => ref.current?.openDrawer({ metadata: [{ key: 'k', value: 'v' }] }))
+      render(<CapturedDrawer />)
+
+      await user.click(screen.getByRole('button', { name: 'Delete all' }))
+      await act(async () => capturedDialogConfig?.onAction())
 
       expect(onDelete).toHaveBeenCalledTimes(1)
       await waitFor(() => {
@@ -311,6 +341,7 @@ describe('ItemMetadataDrawer', () => {
       render(<CapturedDrawer />)
 
       await user.click(screen.getByRole('button', { name: 'Delete all' }))
+      await act(async () => capturedDialogConfig?.onAction())
 
       await waitFor(() => {
         expect(onDelete).toHaveBeenCalledTimes(1)

@@ -1,6 +1,6 @@
 import { MockedProvider } from '@apollo/client/testing'
 import NiceModal from '@ebay/nice-modal-react'
-import { render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ReactNode } from 'react'
 
@@ -54,6 +54,17 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (key: string) => key }),
 }))
 
+// ── Confirmation dialog mock: capture the config so tests can confirm ────────
+type DialogConfig = { onAction: () => Promise<void> }
+let capturedDialogConfig: DialogConfig | undefined
+const mockDialogOpen = jest.fn((config: DialogConfig) => {
+  capturedDialogConfig = config
+})
+
+jest.mock('~/components/dialogs/CentralizedDialog', () => ({
+  useCentralizedDialog: () => ({ open: mockDialogOpen, close: jest.fn() }),
+}))
+
 // ── Test wrapper ───────────────────────────────────────────────────────────────
 const Wrapper = ({ children }: { children: ReactNode }) => (
   <MockedProvider mocks={[]} addTypename={false}>
@@ -74,6 +85,8 @@ const planWithMetadata = {
 
 describe('MetadataAccordion', () => {
   beforeEach(() => {
+    capturedDialogConfig = undefined
+    mockDialogOpen.mockClear()
     mockOpenDrawer.mockClear()
     mockCloseDrawer.mockClear()
     mockSetFieldValue.mockClear()
@@ -148,13 +161,19 @@ describe('MetadataAccordion', () => {
     })
   })
 
-  it('clears the metadata through applyAndSubmit from the Delete menu action', async () => {
+  it('clears the metadata through applyAndSubmit once the Delete all action is confirmed', async () => {
     const user = userEvent.setup()
 
     render(<MetadataAccordion plan={planWithMetadata} />, { wrapper: Wrapper })
 
     await user.click(screen.getByRole('button', { name: 'actions' }))
     await user.click(screen.getByRole('button', { name: 'text_1784637373017e1som6d92em' }))
+
+    // Only the confirmation dialog opened, nothing deleted yet
+    expect(mockDialogOpen).toHaveBeenCalledTimes(1)
+    expect(mockApplyAndSubmit).not.toHaveBeenCalled()
+
+    await act(async () => capturedDialogConfig?.onAction())
 
     expect(mockApplyAndSubmit).toHaveBeenCalledTimes(1)
     expect(mockSetFieldValue).toHaveBeenCalledWith('metadata', [])

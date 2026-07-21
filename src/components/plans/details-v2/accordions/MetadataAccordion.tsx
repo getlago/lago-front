@@ -6,6 +6,7 @@ import {
   ItemMetadataFormValues,
 } from '~/components/metadata/ItemMetadataDrawer'
 import { MetadataInfo } from '~/components/metadata/MetadataInfo'
+import { useDeleteAllMetadataDialog } from '~/components/metadata/useDeleteAllMetadataDialog'
 import { PlanDetailsV2Fragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAccordionPermissions } from '~/hooks/plans/useAccordionPermissions'
@@ -26,6 +27,7 @@ export const MetadataAccordion = ({
 }: MetadataAccordionProps) => {
   const { translate } = useInternationalization()
   const { canCreate, canUpdate, canDelete } = useAccordionPermissions(isInSubscriptionForm)
+  const { openDeleteAllMetadataDialog } = useDeleteAllMetadataDialog()
   const drawerRef = useRef<ItemMetadataDrawerRef>(null)
 
   const metadata = plan.metadata ?? []
@@ -82,7 +84,7 @@ export const MetadataAccordion = ({
             {
               label: translate('text_1784637373017e1som6d92em'),
               startIcon: 'trash',
-              onClick: () => void handleDelete(),
+              onClick: () => openDeleteAllMetadataDialog({ onConfirm: handleDelete }),
               hidden: !canDelete,
             },
           ]}
