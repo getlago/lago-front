@@ -2,9 +2,6 @@ import { revalidateLogic } from '@tanstack/react-form'
 import { forwardRef, ReactNode, useImperativeHandle, useState } from 'react'
 import { z } from 'zod'
 
-import { Avatar } from '~/components/designSystem/Avatar'
-import { Selector } from '~/components/designSystem/Selector'
-import { Typography } from '~/components/designSystem/Typography'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
@@ -17,12 +14,10 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
-import { buildConnectionComboBoxData, ConnectionComboBoxDataItem } from './ConnectionComboBox'
-import {
-  CONNECTION_CATEGORY_SELECT_TITLE_KEYS,
-  CONNECTION_CATEGORY_SHORT_LABEL_KEYS,
-  ConnectionCategory,
-} from './types'
+import { ConnectionComboBoxDataItem } from './ConnectionComboBox'
+import { ConnectionDrawerSection } from './ConnectionDrawerSection'
+import { LockedConnectionSelection, ProviderSelectionSection } from './ProviderSelectionSection'
+import { CONNECTION_CATEGORY_SHORT_LABEL_KEYS, ConnectionCategory } from './types'
 
 const CUSTOMER_CONNECTION_FORM_ID = 'customer-connection-drawer-form'
 
@@ -92,7 +87,7 @@ const connectionValidationSchema = z
 
       return Object.values(data.providerPaymentMethods).some(Boolean)
     },
-    { message: 'text_1764259518524a0hr3z00m7r', path: ['providerPaymentMethods', 'card'] },
+    { message: 'text_1764259518524a0hr3z00m7r', path: ['providerPaymentMethods'] },
   )
 
 /**
@@ -166,17 +161,6 @@ type CustomerConnectionDrawerProps = {
   ) => ReactNode
 }
 
-/**
- * When set, the provider is locked (edition of an already-persisted
- * connection): the combobox is replaced by a read-only Selector showing the
- * chosen connection.
- */
-export type LockedConnectionSelection = {
-  title: string
-  subtitle?: string
-  icon: ReactNode
-}
-
 export type CustomerConnectionDrawerRef = {
   openDrawer: (
     category: ConnectionCategory,
@@ -240,40 +224,18 @@ export const CustomerConnectionDrawer = forwardRef<
             description={translate('text_1784537967970afggowvwkgz')}
           />
 
-          <CenteredPage.PageSection>
-            {lockedSelection ? (
-              // Locked provider (edition of a persisted connection)
-              <div className="flex flex-col gap-2">
-                <Typography variant="captionHl" color="grey700">
-                  {translate(CONNECTION_CATEGORY_SELECT_TITLE_KEYS[category])}
-                </Typography>
-                <Selector
-                  title={lockedSelection.title}
-                  subtitle={lockedSelection.subtitle}
-                  icon={
-                    <Avatar size="big" variant="connector-full">
-                      {lockedSelection.icon}
-                    </Avatar>
-                  }
-                  disabled
-                />
-              </div>
-            ) : (
-              <form.AppField name="providerCode">
-                {(field) => (
-                  <field.ComboBoxField
-                    data={buildConnectionComboBoxData(connectionOptions[category] ?? [])}
-                    label={translate('text_65940198687ce7b05cd62b61')}
-                    placeholder={translate('text_65940198687ce7b05cd62b62')}
-                    emptyText={translate('text_6645daa0468420011304aded')}
-                    PopperProps={{ displayInDialog: true }}
-                  />
-                )}
-              </form.AppField>
-            )}
+          <div className="flex flex-col">
+            <ConnectionDrawerSection>
+              <ProviderSelectionSection
+                form={form}
+                category={category}
+                options={connectionOptions[category] ?? []}
+                lockedSelection={lockedSelection}
+              />
+            </ConnectionDrawerSection>
 
             {renderProviderContent?.(form, { category, isEdition })}
-          </CenteredPage.PageSection>
+          </div>
         </CenteredPage.SectionWrapper>
       ),
       mainAction: (

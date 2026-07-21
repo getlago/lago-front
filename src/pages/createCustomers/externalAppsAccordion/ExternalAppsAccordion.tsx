@@ -14,7 +14,6 @@ import {
 import { ConnectionCategory } from '~/components/customerConnections/types'
 import { useCustomerConnectionDrawer } from '~/components/customerConnections/useCustomerConnectionDrawer'
 import { Accordion } from '~/components/designSystem/Accordion'
-import { Alert } from '~/components/designSystem/Alert'
 import { Typography } from '~/components/designSystem/Typography'
 import {
   AddCustomerDrawerFragment,
@@ -190,6 +189,9 @@ const ExternalAppsAccordion = withForm({
               label: provider.name,
               subLabel: provider.code,
               group: provider.__typename.toLocaleLowerCase().replace('provider', ''),
+              icon: paymentAvatarMapping[
+                provider.__typename.toLocaleLowerCase().replace('provider', '') as ProviderTypeEnum
+              ],
             }),
           ),
           [ConnectionCategory.Accounting]: allAccountingIntegrations.map((integration) => ({
@@ -489,17 +491,6 @@ const ExternalAppsAccordion = withForm({
               />
             )}
           />
-
-          {!!paymentProviderCustomer &&
-            !!paymentProviderCustomer.syncWithProvider &&
-            (paymentProvider === ProviderTypeEnum.Gocardless ||
-              paymentProvider === ProviderTypeEnum.Adyen) && (
-              <Alert type="info">
-                {paymentProvider === ProviderTypeEnum.Gocardless
-                  ? translate('text_635bdbda84c98758f9bba8ae')
-                  : translate('text_645d0728ea0a5a7bbf76d5c9')}
-              </Alert>
-            )}
         </div>
       </Accordion>
     )

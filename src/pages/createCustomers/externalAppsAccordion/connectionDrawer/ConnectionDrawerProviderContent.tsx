@@ -1,18 +1,19 @@
 import { useStore } from '@tanstack/react-form'
 import { useEffect, useMemo } from 'react'
 
+import { ConnectionComboBoxLabel } from '~/components/customerConnections/ConnectionComboBox'
+import { ConnectionDrawerSection } from '~/components/customerConnections/ConnectionDrawerSection'
 import { CustomerConnectionDrawerFormApi } from '~/components/customerConnections/CustomerConnectionDrawer'
 import { ConnectionCategory } from '~/components/customerConnections/types'
 import { Alert } from '~/components/designSystem/Alert'
+import { Typography } from '~/components/designSystem/Typography'
+import { BasicComboBoxData } from '~/components/form'
+import { getHubspotTargetedObjectTranslationKey } from '~/core/constants/form'
 import {
-  AnrokIntegration,
-  AvalaraIntegration,
-  HubspotIntegration,
+  HubspotTargetedObjectsEnum,
   IntegrationTypeEnum,
   NetsuiteIntegration,
   ProviderTypeEnum,
-  SalesforceIntegration,
-  XeroIntegration,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { getAllIntegrationForAnIntegrationType } from '~/pages/createCustomers/common/getAllIntegrationForAnIntegrationType'
@@ -21,18 +22,14 @@ import { useCrmProviders } from '~/pages/createCustomers/common/useCrmProviders'
 import { usePaymentProviders } from '~/pages/createCustomers/common/usePaymentProviders'
 import { useTaxProviders } from '~/pages/createCustomers/common/useTaxProviders'
 
-import NetsuiteAccountingProviderContent from '../accountingProvidersAccordion/NetsuiteAccountingProviderContent'
-import XeroAccountingProviderContent from '../accountingProvidersAccordion/XeroAccountingProviderContent'
-import HubspotCrmProviderContent from '../crmProvidersAccordion/HubspotCrmProviderContent'
-import SalesforceCrmProviderContent from '../crmProvidersAccordion/SalesforceCrmProviderContent'
+import { useAccountingProvidersSubsidaries } from '../accountingProvidersAccordion/useAccountingProvidersSubsidaries'
 import StripePaymentProviderContent from '../paymentProvidersAccordion/StripePaymentProviderContent'
-import AnrokTaxProviderContent from '../taxProvidersAccordion/AnrokTaxProviderContent'
-import AvalaraTaxProviderContent from '../taxProvidersAccordion/AvalaraTaxProviderContent'
 
-const INTEGRATION_IDENTITY_FIELDS = {
-  externalCustomerId: 'externalCustomerId',
-  syncWithProvider: 'syncWithProvider',
-} as const
+/** Payment providers that don't support linking/creating a provider customer */
+const PROVIDERS_WITHOUT_MAPPING: ProviderTypeEnum[] = [
+  ProviderTypeEnum.Cashfree,
+  ProviderTypeEnum.Flutterwave,
+]
 
 type ConnectionDrawerProviderContentProps = {
   form: CustomerConnectionDrawerFormApi
@@ -50,10 +47,10 @@ type ConnectionDrawerProviderContentProps = {
 
 /**
  * Provider-specific body of the connection drawer, on the customer
- * create/edit surface. Resolves the selected org integration/provider from
- * the drawer's `providerCode` and mounts the matching per-provider field
- * group with an identity `fields` mapping (the drawer form and the groups
- * share the single-connection value shape).
+ * create/edit surface: the provider-specific info alert, the shared
+ * "Customer mapping" section (external customer id + create-automatically
+ * toggle) and the per-provider extras (NetSuite subsidiary, Hubspot targeted
+ * object, Stripe payment methods).
  */
 export const ConnectionDrawerProviderContent = ({
   form,
@@ -63,13 +60,14 @@ export const ConnectionDrawerProviderContent = ({
 }: ConnectionDrawerProviderContentProps) => {
   const { translate } = useInternationalization()
 
-  const { getPaymentProvider } = usePaymentProviders()
+  const { paymentProviders, getPaymentProvider } = usePaymentProviders()
   const { accountingProviders, getAccountingProviderFromCode } = useAccountingProviders()
   const { taxProviders, getTaxProviderFromCode } = useTaxProviders()
   const { crmProviders, getCrmProviderFromCode } = useCrmProviders()
 
   const providerCode = useStore(form.store, (state) => state.values.providerCode)
   const syncWithProvider = useStore(form.store, (state) => state.values.syncWithProvider)
+  const targetedObject = useStore(form.store, (state) => state.values.targetedObject)
 
   const resolvedProviderType: string | undefined = useMemo(() => {
     if (!providerCode) return undefined
@@ -106,8 +104,7 @@ export const ConnectionDrawerProviderContent = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resolvedProviderType, providerCode])
 
-  // Resolve the selected org integration object (feeds the content
-  // components' data-driven copy — e.g. "Synchronise with <name>" — and the
+  // Resolve the selected org integration object (data-driven copy + the
   // NetSuite subsidiaries query)
   const selectedIntegration = useMemo(() => {
     if (!providerCode || !resolvedProviderType) return undefined
@@ -141,158 +138,169 @@ export const ConnectionDrawerProviderContent = ({
     crmProviders,
   ])
 
+  const selectedNetsuiteIntegration =
+    resolvedProviderType === IntegrationTypeEnum.Netsuite
+      ? (selectedIntegration as NetsuiteIntegration | undefined)
+      : undefined
+
+  const { subsidiariesData } = useAccountingProvidersSubsidaries(selectedNetsuiteIntegration?.id)
+
+  const connectedIntegrationSubsidiaries: BasicComboBoxData[] = useMemo(() => {
+    if (!subsidiariesData?.integrationSubsidiaries?.collection.length) return []
+
+    return subsidiariesData.integrationSubsidiaries.collection.map((integrationSubsidiary) => ({
+      value: integrationSubsidiary.externalId,
+      label: `${integrationSubsidiary.externalName} (${integrationSubsidiary.externalId})`,
+      labelNode: (
+        <ConnectionComboBoxLabel
+          label={integrationSubsidiary.externalName ?? ''}
+          subLabel={integrationSubsidiary.externalId}
+        />
+      ),
+    }))
+  }, [subsidiariesData?.integrationSubsidiaries?.collection])
+
   if (!providerCode || !resolvedProviderType) return null
 
-  if (category === ConnectionCategory.Payment) {
-    const isSyncSupported = ![ProviderTypeEnum.Cashfree, ProviderTypeEnum.Flutterwave].includes(
-      resolvedProviderType as ProviderTypeEnum,
-    )
+  const connectionName =
+    category === ConnectionCategory.Payment
+      ? (paymentProviders?.paymentProviders?.collection.find((p) => p.code === providerCode)
+          ?.name ?? providerCode)
+      : (selectedIntegration?.name ?? providerCode)
 
-    const getSyncLabelKey = () => {
-      if (resolvedProviderType === ProviderTypeEnum.Gocardless)
-        return 'text_635bdbda84c98758f9bba8aa'
-      if (resolvedProviderType === ProviderTypeEnum.Adyen) return 'text_645d0728ea0a5a7bbf76d5c7'
-      if (resolvedProviderType === ProviderTypeEnum.Moneyhash)
-        return 'text_1733992108437qlovqhjhqj4'
+  const isIdAndSyncVisible =
+    resolvedProviderType !== IntegrationTypeEnum.Hubspot || !!targetedObject
 
-      return 'text_635bdbda84c98758f9bba89e'
-    }
+  const isMappingSupported = !(
+    category === ConnectionCategory.Payment &&
+    PROVIDERS_WITHOUT_MAPPING.includes(resolvedProviderType as ProviderTypeEnum)
+  )
 
-    return (
-      <>
-        {isSyncSupported && (
-          <>
-            <form.AppField name="externalCustomerId">
+  const getSyncLabelKey = () => {
+    // Anrok creates the customer at invoice creation, not immediately
+    if (resolvedProviderType === IntegrationTypeEnum.Anrok) return 'text_66b4e77677f8c600c8d50ea7'
+    if (resolvedProviderType === ProviderTypeEnum.Gocardless) return 'text_635bdbda84c98758f9bba8aa'
+    if (resolvedProviderType === ProviderTypeEnum.Adyen) return 'text_645d0728ea0a5a7bbf76d5c7'
+    if (resolvedProviderType === ProviderTypeEnum.Moneyhash) return 'text_1733992108437qlovqhjhqj4'
+    if (resolvedProviderType === ProviderTypeEnum.Stripe) return 'text_635bdbda84c98758f9bba89e'
+
+    return 'text_66423cad72bbad009f2f569e'
+  }
+
+  return (
+    <>
+      {isMappingSupported && (
+        <ConnectionDrawerSection>
+          {/* Customer mapping */}
+          <Typography variant="subhead1" color="grey700">
+            {translate('text_1784649473978atfeqnr073f')}
+          </Typography>
+
+          {resolvedProviderType === IntegrationTypeEnum.Hubspot && (
+            <form.AppField name="targetedObject">
               {(field) => (
-                <field.TextInputField
-                  disabled={!!syncWithProvider || hadInitialConnection}
-                  label={translate('text_62b328ead9a4caef81cd9ca0')}
-                  placeholder={translate('text_62b328ead9a4caef81cd9ca2')}
-                />
-              )}
-            </form.AppField>
-
-            <form.AppField
-              name="syncWithProvider"
-              listeners={{
-                onChange: ({ value }) => {
-                  if (!value) return
-                  form.setFieldValue('externalCustomerId', '')
-                },
-              }}
-            >
-              {(field) => (
-                <field.CheckboxField
-                  label={translate(getSyncLabelKey())}
+                <field.ComboBoxField
+                  disableClearable
+                  label={translate('text_17290677918809xyyuizjvtk')}
                   disabled={hadInitialConnection}
+                  data={[
+                    {
+                      label: translate(
+                        getHubspotTargetedObjectTranslationKey[
+                          HubspotTargetedObjectsEnum.Companies
+                        ],
+                      ),
+                      value: HubspotTargetedObjectsEnum.Companies,
+                    },
+                    {
+                      label: translate(
+                        getHubspotTargetedObjectTranslationKey[HubspotTargetedObjectsEnum.Contacts],
+                      ),
+                      value: HubspotTargetedObjectsEnum.Contacts,
+                    },
+                  ]}
+                  PopperProps={{ displayInDialog: true }}
                 />
               )}
             </form.AppField>
-          </>
-        )}
+          )}
 
-        {resolvedProviderType === ProviderTypeEnum.Moneyhash && (
-          <Alert type="info">{translate('text_64aeb7b998c4322918c84214')}</Alert>
-        )}
+          {/* Hubspot: the id/sync pair only makes sense once a targeted object is chosen */}
+          {isIdAndSyncVisible && (
+            <>
+              <form.AppField name="externalCustomerId">
+                {(field) => (
+                  <field.TextInputField
+                    disabled={!!syncWithProvider || hadInitialConnection}
+                    label={translate('text_1784649473978u6kmffzlw0b', { connectionName })}
+                    description={translate('text_1784649473978uuc3oggbf1r', { connectionName })}
+                    placeholder={translate('text_1784649473978i3wq11ccip3')}
+                  />
+                )}
+              </form.AppField>
 
-        {resolvedProviderType === ProviderTypeEnum.Stripe && (
+              <form.AppField
+                name="syncWithProvider"
+                listeners={{
+                  onChange: ({ value }) => {
+                    if (!value) return
+                    // Baseline semantics: payment always clears the typed id;
+                    // integrations keep it during customer edition
+                    if (category !== ConnectionCategory.Payment && isCustomerEdition) return
+                    form.setFieldValue('externalCustomerId', '')
+                  },
+                }}
+              >
+                {(field) => (
+                  <field.CheckboxField
+                    label={translate(getSyncLabelKey(), { connectionName })}
+                    disabled={hadInitialConnection}
+                  />
+                )}
+              </form.AppField>
+            </>
+          )}
+
+          {/* NetSuite requires a subsidiary when creating the customer there */}
+          {resolvedProviderType === IntegrationTypeEnum.Netsuite && !!syncWithProvider && (
+            <form.AppField name="subsidiaryId">
+              {(field) => (
+                <field.ComboBoxField
+                  data={connectedIntegrationSubsidiaries}
+                  disabled={hadInitialConnection}
+                  label={translate('text_66423cad72bbad009f2f56a0')}
+                  placeholder={translate('text_66423cad72bbad009f2f56a2')}
+                  PopperProps={{ displayInDialog: true }}
+                />
+              )}
+            </form.AppField>
+          )}
+
+          {/* Newly-added synced connection on an existing customer */}
+          {isCustomerEdition && !hadInitialConnection && !!syncWithProvider && (
+            <>
+              {resolvedProviderType === IntegrationTypeEnum.Netsuite && (
+                <Alert type="info">{translate('text_66423cad72bbad009f2f56a4')}</Alert>
+              )}
+              {resolvedProviderType === IntegrationTypeEnum.Xero && (
+                <Alert type="info">{translate('text_667d39dc1a765800d28d0607')}</Alert>
+              )}
+              {resolvedProviderType === IntegrationTypeEnum.Hubspot && (
+                <Alert type="info">{translate('text_1729067791880abj1lzd7dn9')}</Alert>
+              )}
+            </>
+          )}
+        </ConnectionDrawerSection>
+      )}
+
+      {resolvedProviderType === ProviderTypeEnum.Stripe && (
+        <ConnectionDrawerSection>
           <StripePaymentProviderContent
             form={form}
             fields={{ providerPaymentMethods: 'providerPaymentMethods' }}
           />
-        )}
-      </>
-    )
-  }
-
-  if (category === ConnectionCategory.Accounting) {
-    return (
-      <>
-        {resolvedProviderType === IntegrationTypeEnum.Netsuite && (
-          <NetsuiteAccountingProviderContent
-            form={form}
-            fields={{ ...INTEGRATION_IDENTITY_FIELDS, subsidiaryId: 'subsidiaryId' }}
-            hadInitialNetsuiteIntegrationCustomer={hadInitialConnection}
-            selectedNetsuiteIntegration={selectedIntegration as NetsuiteIntegration | undefined}
-            isEdition={isCustomerEdition}
-          />
-        )}
-        {resolvedProviderType === IntegrationTypeEnum.Xero && (
-          <XeroAccountingProviderContent
-            form={form}
-            fields={INTEGRATION_IDENTITY_FIELDS}
-            hadInitialXeroIntegrationCustomer={hadInitialConnection}
-            selectedXeroIntegration={selectedIntegration as XeroIntegration | undefined}
-            isEdition={isCustomerEdition}
-          />
-        )}
-        {/* Newly-added synced Xero connection on an existing customer */}
-        {resolvedProviderType === IntegrationTypeEnum.Xero &&
-          isCustomerEdition &&
-          !hadInitialConnection &&
-          syncWithProvider && (
-            <Alert type="info">{translate('text_667d39dc1a765800d28d0607')}</Alert>
-          )}
-      </>
-    )
-  }
-
-  if (category === ConnectionCategory.Tax) {
-    return (
-      <>
-        {resolvedProviderType === IntegrationTypeEnum.Anrok && (
-          <AnrokTaxProviderContent
-            form={form}
-            fields={INTEGRATION_IDENTITY_FIELDS}
-            hadInitialAnrokIntegrationCustomer={hadInitialConnection}
-            selectedAnrokIntegration={selectedIntegration as AnrokIntegration | undefined}
-            isEdition={isCustomerEdition}
-          />
-        )}
-        {resolvedProviderType === IntegrationTypeEnum.Avalara && (
-          <AvalaraTaxProviderContent
-            form={form}
-            fields={INTEGRATION_IDENTITY_FIELDS}
-            hadInitialAvalaraIntegrationCustomer={hadInitialConnection}
-            selectedAvalaraIntegration={selectedIntegration as AvalaraIntegration | undefined}
-            isEdition={isCustomerEdition}
-          />
-        )}
-      </>
-    )
-  }
-
-  if (category === ConnectionCategory.Crm) {
-    return (
-      <>
-        {resolvedProviderType === IntegrationTypeEnum.Hubspot && (
-          <HubspotCrmProviderContent
-            form={form}
-            fields={{ ...INTEGRATION_IDENTITY_FIELDS, targetedObject: 'targetedObject' }}
-            hadInitialHubspotIntegrationCustomer={hadInitialConnection}
-            selectedHubspotIntegration={selectedIntegration as HubspotIntegration | undefined}
-            isEdition={isCustomerEdition}
-          />
-        )}
-        {resolvedProviderType === IntegrationTypeEnum.Salesforce && (
-          <SalesforceCrmProviderContent
-            form={form}
-            fields={INTEGRATION_IDENTITY_FIELDS}
-            hadInitialSalesforceIntegrationCustomer={hadInitialConnection}
-            selectedSalesforceIntegration={selectedIntegration as SalesforceIntegration | undefined}
-            isEdition={isCustomerEdition}
-          />
-        )}
-        {/* Newly-added synced Hubspot connection on an existing customer */}
-        {resolvedProviderType === IntegrationTypeEnum.Hubspot &&
-          isCustomerEdition &&
-          !hadInitialConnection &&
-          syncWithProvider && (
-            <Alert type="info">{translate('text_1729067791880abj1lzd7dn9')}</Alert>
-          )}
-      </>
-    )
-  }
-
-  return null
+        </ConnectionDrawerSection>
+      )}
+    </>
+  )
 }

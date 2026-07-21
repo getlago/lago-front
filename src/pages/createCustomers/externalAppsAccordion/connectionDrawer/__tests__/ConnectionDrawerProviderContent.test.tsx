@@ -51,6 +51,14 @@ jest.mock('~/pages/createCustomers/common/useCrmProviders', () => ({
   }),
 }))
 
+// The NetSuite subsidiaries query hook needs an ApolloProvider — inert here
+jest.mock(
+  '~/pages/createCustomers/externalAppsAccordion/accountingProvidersAccordion/useAccountingProvidersSubsidaries',
+  () => ({
+    useAccountingProvidersSubsidaries: () => ({ subsidiariesData: undefined }),
+  }),
+)
+
 type Values = {
   providerCode: string | undefined
   providerType: string | undefined
@@ -197,7 +205,9 @@ describe('ConnectionDrawerProviderContent — payment', () => {
 
   describe('GIVEN a moneyhash connection', () => {
     describe('WHEN the content is rendered', () => {
-      it('THEN should show the moneyhash info alert', () => {
+      // The provider info alert (moneyhash/gocardless/adyen) lives in the
+      // drawer's selection block (ProviderSelectionSection), not the content
+      it('THEN should not render the provider info alert (owned by the selection block)', () => {
         const { container } = render(
           <Harness
             openedValues={{ ...EMPTY_DEFAULTS, providerCode: 'moneyhash-conn' }}
@@ -205,7 +215,7 @@ describe('ConnectionDrawerProviderContent — payment', () => {
           />,
         )
 
-        expect(infoAlert(container)).toBeInTheDocument()
+        expect(infoAlert(container)).not.toBeInTheDocument()
       })
     })
   })

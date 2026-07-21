@@ -1,10 +1,7 @@
 import { useMemo, useRef } from 'react'
 
-import {
-  ConnectionFormValues,
-  CustomerConnectionDrawerRef,
-  LockedConnectionSelection,
-} from './CustomerConnectionDrawer'
+import { ConnectionFormValues, CustomerConnectionDrawerRef } from './CustomerConnectionDrawer'
+import { LockedConnectionSelection } from './ProviderSelectionSection'
 import { ConnectionCategory } from './types'
 
 /**
