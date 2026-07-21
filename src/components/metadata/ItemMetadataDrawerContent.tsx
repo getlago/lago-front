@@ -19,6 +19,24 @@ import {
 
 export const ADD_ITEM_METADATA_DRAWER_ROW_TEST_ID = 'add-item-metadata-drawer-row'
 
+// Key and value cells share the same markup; only copy and limits differ.
+const FIELD_CONFIG = {
+  key: {
+    placeholder: 'text_63fcc3218d35b9377840f5a7',
+    uniquenessError: 'text_63fcc3218d35b9377840f5dd',
+    maxLengthError: 'text_63fcc3218d35b9377840f5d9',
+    maxLength: ITEM_METADATA_KEY_MAX_LENGTH,
+    requiredError: 'text_1764753433918x3icklnboak',
+  },
+  value: {
+    placeholder: 'text_63fcc3218d35b9377840f5af',
+    uniquenessError: undefined,
+    maxLengthError: 'text_63fcc3218d35b9377840f5e5',
+    maxLength: ITEM_METADATA_VALUE_MAX_LENGTH,
+    requiredError: 'text_1764753433918nlsnvdnwjmo',
+  },
+} as const
+
 interface ItemMetadataDrawerContentExtraProps {
   // Owner-specific copy, e.g. "Store custom key-value pairs on this plan."
   description: string
@@ -48,6 +66,46 @@ export const ItemMetadataDrawerContent = withForm({
       form.handleSubmit()
     }
 
+    const renderMetadataField = (index: number, kind: 'key' | 'value') => {
+      const config = FIELD_CONFIG[kind]
+
+      return (
+        <form.AppField name={`metadata[${index}].${kind}`}>
+          {(subField) => {
+            const error = getMetadataError(subField.state.meta.errors)
+            const hasCustomError = Object.keys(MetadataErrorsEnum).includes(error)
+
+            const getTitle = () => {
+              if (error === MetadataErrorsEnum.uniqueness && config.uniquenessError) {
+                return translate(config.uniquenessError)
+              }
+              if (error === MetadataErrorsEnum.maxLength) {
+                return translate(config.maxLengthError, { max: config.maxLength })
+              }
+              if (error === MetadataErrorsEnum.required) {
+                return translate(config.requiredError)
+              }
+              return undefined
+            }
+
+            return (
+              <Tooltip
+                placement="top-end"
+                title={getTitle()}
+                disableHoverListener={!hasCustomError}
+              >
+                <subField.TextInputField
+                  silentError={!hasCustomError}
+                  placeholder={translate(config.placeholder)}
+                  displayErrorText={false}
+                />
+              </Tooltip>
+            )
+          }}
+        </form.AppField>
+      )
+    }
+
     return (
       <form onSubmit={handleFormSubmit}>
         <button type="submit" hidden aria-hidden="true" />
@@ -74,73 +132,8 @@ export const ItemMetadataDrawerContent = withForm({
                   <div className={gridClassName}>
                     {field.state.value.map((_, index) => (
                       <React.Fragment key={`item-metadata-item-${index}`}>
-                        <form.AppField name={`metadata[${index}].key`}>
-                          {(subField) => {
-                            const error = getMetadataError(subField.state.meta.errors)
-                            const hasCustomError = Object.keys(MetadataErrorsEnum).includes(error)
-
-                            const getTitle = () => {
-                              if (error === MetadataErrorsEnum.uniqueness) {
-                                return translate('text_63fcc3218d35b9377840f5dd')
-                              }
-                              if (error === MetadataErrorsEnum.maxLength) {
-                                return translate('text_63fcc3218d35b9377840f5d9', {
-                                  max: ITEM_METADATA_KEY_MAX_LENGTH,
-                                })
-                              }
-                              if (error === MetadataErrorsEnum.required) {
-                                return translate('text_1764753433918x3icklnboak')
-                              }
-                              return undefined
-                            }
-
-                            return (
-                              <Tooltip
-                                placement="top-end"
-                                title={getTitle()}
-                                disableHoverListener={!hasCustomError}
-                              >
-                                <subField.TextInputField
-                                  silentError={!hasCustomError}
-                                  placeholder={translate('text_63fcc3218d35b9377840f5a7')}
-                                  displayErrorText={false}
-                                />
-                              </Tooltip>
-                            )
-                          }}
-                        </form.AppField>
-                        <form.AppField name={`metadata[${index}].value`}>
-                          {(subField) => {
-                            const error = getMetadataError(subField.state.meta.errors)
-                            const hasCustomError = Object.keys(MetadataErrorsEnum).includes(error)
-
-                            const getTitle = () => {
-                              if (error === MetadataErrorsEnum.maxLength) {
-                                return translate('text_63fcc3218d35b9377840f5e5', {
-                                  max: ITEM_METADATA_VALUE_MAX_LENGTH,
-                                })
-                              }
-                              if (error === MetadataErrorsEnum.required) {
-                                return translate('text_1764753433918nlsnvdnwjmo')
-                              }
-                              return undefined
-                            }
-
-                            return (
-                              <Tooltip
-                                placement="top-end"
-                                title={getTitle()}
-                                disableHoverListener={!hasCustomError}
-                              >
-                                <subField.TextInputField
-                                  silentError={!hasCustomError}
-                                  placeholder={translate('text_63fcc3218d35b9377840f5af')}
-                                  displayErrorText={false}
-                                />
-                              </Tooltip>
-                            )
-                          }}
-                        </form.AppField>
+                        {renderMetadataField(index, 'key')}
+                        {renderMetadataField(index, 'value')}
                         <Tooltip
                           className="flex items-center"
                           placement="top-end"
