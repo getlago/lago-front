@@ -82,29 +82,60 @@ function getStatus(user) {
 
 ### Prefer Logic Out of JSX
 
-Extract any logic above, when it starts to be complex.
+Extract non-trivial conditional rendering out of the JSX into a `renderX()`
+helper declared above the `return`, using early returns. Apply this when a
+ternary is nested (deeper than 1 level) or when a branch spans multiple JSX
+lines. Leave a trivial single-line `cond ? a : b` inline, do not over-extract.
 
 ```tsx
-// ❌ Bad
+// ❌ Bad - nested ternary inlined in JSX
 return (
   <div>
     {score > 80 ? "High" : score > 50 ? "Medium" : "Low"}
   </div>
 );
 
-// ✅ Good
-let label;
-if (score > 80) {
-  label = "High";
-} else if (score > 50) {
-  label = "Medium";
-} else {
-  label = "Low";
+// ✅ Good - helper with early returns
+const getLabel = () => {
+  if (score > 80) return "High"
+  if (score > 50) return "Medium"
+
+  return "Low"
 }
 
+return <div>{getLabel()}</div>
+```
+
+The same applies when the branches return JSX, not just a value. A render
+helper with an early return reads far better than a ternary nested inside a
+prop:
+
+```tsx
+// ❌ Bad - multi-line JSX branches inlined in the render
 return (
-  <div>
-    {label}
-  </div>
-);
+  <Line
+    value={
+      isEditable ? (
+        <Editor value={value} onChange={onChange}>
+          {value ? <Display /> : <AddButton />}
+        </Editor>
+      ) : (
+        value || "-"
+      )
+    }
+  />
+)
+
+// ✅ Good - render helper above the return, early return first
+const renderValue = () => {
+  if (!isEditable) return value || "-"
+
+  return (
+    <Editor value={value} onChange={onChange}>
+      {value ? <Display /> : <AddButton />}
+    </Editor>
+  )
+}
+
+return <Line value={renderValue()} />
 ```
