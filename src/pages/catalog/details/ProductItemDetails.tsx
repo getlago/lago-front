@@ -23,6 +23,7 @@ import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 import { usePermissions } from '~/hooks/usePermissions'
 
 import { ProductItemDetailsOverview } from './ProductItemDetailsOverview'
+import ProductItemFilterPreview from './ProductItemFilterPreview'
 
 import { useDeleteProductItemDialog } from '../dialogs/useDeleteProductItemDialog'
 import { useProductItemDrawer } from '../drawers/productItem/useProductItemDrawer'
@@ -32,6 +33,12 @@ gql`
     id
     name
     code
+    billableMetric {
+      id
+      filters {
+        id
+      }
+    }
     ...ProductItemForDrawer
     ...ProductItemForDeleteProductItemDialog
   }
@@ -158,7 +165,11 @@ const ProductItemDetails = () => {
               productItemId: productItemId as string,
               tab: ProductItemDetailsTabsOptionsEnum.itemFilters,
             }),
-            content: <div className="p-4">{translate('text_1783980718114wkor6aysepe')}</div>,
+            content: productItem ? (
+              <DetailsPage.Container>
+                <ProductItemFilterPreview productItem={productItem} />
+              </DetailsPage.Container>
+            ) : null,
           },
           {
             title: translate('text_62442e40cea25600b0b6d85a'),

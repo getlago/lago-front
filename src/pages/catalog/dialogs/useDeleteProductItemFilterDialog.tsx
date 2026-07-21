@@ -4,6 +4,7 @@ import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
 import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import {
+  GetProductItemFiltersForProductItemDetailsDocument,
   ProductItemFilterForDeleteProductItemFilterDialogFragment,
   ProductItemFiltersDocument,
   useDeleteProductItemFilterMutation,
@@ -62,14 +63,16 @@ export const useDeleteProductItemFilterDialog = () => {
         if (destroyedId) {
           // Evict instead of refetching the list so a still-mounted details
           // query is not driven to a post-delete 404 (see evictFromCache).
-          // Task 11 (nested preview) will append its generated query document
-          // (GetProductItemFiltersForProductItemDetailsDocument) to this array
-          // once that query exists.
+          // Both the standalone list and the product-item-details preview read
+          // the same cached filters, so a delete from either live-updates both.
           evictFromCache(client, {
             id: destroyedId,
             __typename: 'ProductItemFilter',
             listFieldName: 'productItemFilters',
-            listQueryDocument: [ProductItemFiltersDocument],
+            listQueryDocument: [
+              ProductItemFiltersDocument,
+              GetProductItemFiltersForProductItemDetailsDocument,
+            ],
           })
 
           callback?.()

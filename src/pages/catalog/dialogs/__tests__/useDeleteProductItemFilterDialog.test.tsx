@@ -13,6 +13,7 @@ import { addToast } from '~/core/apolloClient'
 import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import {
   DeleteProductItemFilterDocument,
+  GetProductItemFiltersForProductItemDetailsDocument,
   ProductItemFilterForDeleteProductItemFilterDialogFragment,
   ProductItemFiltersDocument,
 } from '~/generated/graphql'
@@ -140,7 +141,10 @@ describe('useDeleteProductItemFilterDialog', () => {
       id: 'pifilter-1',
       __typename: 'ProductItemFilter',
       listFieldName: 'productItemFilters',
-      listQueryDocument: [ProductItemFiltersDocument],
+      listQueryDocument: [
+        ProductItemFiltersDocument,
+        GetProductItemFiltersForProductItemDetailsDocument,
+      ],
     })
     expect(addToast).toHaveBeenCalledWith({
       message: 'text_1784581042201wnl8rlwi1nh',

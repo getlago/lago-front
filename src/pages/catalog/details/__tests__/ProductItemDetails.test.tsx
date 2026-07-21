@@ -16,6 +16,13 @@ const mockOpenDeleteProductItemDialog = jest.fn()
 const mockHasPermissions = jest.fn()
 let mockIsPremium = true
 
+// The real preview pulls in the drawer/delete hooks via the shared columns and
+// actions, which reach import.meta and crash Jest; stub it out.
+jest.mock('../ProductItemFilterPreview', () => ({
+  __esModule: true,
+  default: () => null,
+}))
+
 jest.mock('~/pages/catalog/drawers/productItem/useProductItemDrawer', () => ({
   useProductItemDrawer: () => ({ openDrawer: mockOpenEditProductItemDrawer }),
 }))

@@ -4589,5 +4589,7 @@
   "text_17845908968721vd9etj0npq": "How the item filter functions.",
   "text_1784590896872igg2htzgnso": "Filter by",
   "text_1784590896872hcbug1hthjl": "No product",
-  "text_17845928288679yi8tiutrl4": "Logs reflecting this product item filter's activity."
+  "text_17845928288679yi8tiutrl4": "Logs reflecting this product item filter's activity.",
+  "text_1784593927667g72f4poh3cq": "Item filters added here scope this product item to specific billable metric filter values.",
+  "text_17845939276671s82cze921q": "View all {{count}} item filters"
 }
