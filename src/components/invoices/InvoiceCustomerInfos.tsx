@@ -62,9 +62,6 @@ gql`
 
 interface InvoiceCustomerInfosProps {
   invoice?: InvoiceForInvoiceInfosFragment | null
-  // When provided, the PO number line becomes editable (add/edit/delete + modal).
-  // `purchaseOrderNumber` is the controlled value; omitting `onPurchaseOrderNumberChange`
-  // keeps the line read-only (default everywhere except the regenerate screen).
   purchaseOrderNumber?: string | null
   onPurchaseOrderNumberChange?: (value: string | null) => void
 }
