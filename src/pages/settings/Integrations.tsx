@@ -26,10 +26,7 @@ import { useAddCashfreeDialog } from '~/components/settings/integrations/AddCash
 import { useAddFlutterwaveDialog } from '~/components/settings/integrations/AddFlutterwaveDialog'
 import { useAddGocardlessDialog } from '~/components/settings/integrations/AddGocardlessDialog'
 import { useAddHubspotDialog } from '~/components/settings/integrations/AddHubspotDialog'
-import {
-  AddLagoTaxManagementDialog,
-  AddLagoTaxManagementDialogRef,
-} from '~/components/settings/integrations/AddLagoTaxManagementDialog'
+import { useAddLagoTaxManagementDialog } from '~/components/settings/integrations/AddLagoTaxManagementDialog'
 import { useAddMoneyhashDialog } from '~/components/settings/integrations/AddMoneyhashDialog'
 import { useAddNetsuiteDialog } from '~/components/settings/integrations/AddNetsuiteDialog'
 import { useAddSalesforceDialog } from '~/components/settings/integrations/AddSalesforceDialog'
@@ -153,7 +150,7 @@ const Integrations = () => {
   const { openAddAdyenDialog } = useAddAdyenDialog()
   const { openAddGocardlessDialog } = useAddGocardlessDialog()
   const { openAddCashfreeDialog } = useAddCashfreeDialog()
-  const addLagoTaxManagementDialog = useRef<AddLagoTaxManagementDialogRef>(null)
+  const { openAddLagoTaxManagementDialog } = useAddLagoTaxManagementDialog()
   const { openAddNetsuiteDialog } = useAddNetsuiteDialog()
   const { openAddSalesforceDialog } = useAddSalesforceDialog()
   const addXeroDialogRef = useRef<AddXeroDialogRef>(null)
@@ -776,7 +773,7 @@ const Integrations = () => {
                               }),
                             )
                           } else {
-                            addLagoTaxManagementDialog.current?.openDialog()
+                            openAddLagoTaxManagementDialog()
                           }
                         }}
                       />
@@ -819,7 +816,6 @@ const Integrations = () => {
       <>{activeTabContent}</>
 
       <AddAnrokDialog ref={addAnrokDialogRef} />
-      <AddLagoTaxManagementDialog ref={addLagoTaxManagementDialog} />
       <AddXeroDialog ref={addXeroDialogRef} />
     </>
   )
