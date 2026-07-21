@@ -20,6 +20,11 @@ export interface InvoiceCustomSectionInput {
   skipInvoiceCustomSections: boolean
 }
 
+export interface InvoiceCustomSectionSelection {
+  behavior: InvoiceCustomSectionBehavior
+  selectedSections: InvoiceCustomSectionBasic[]
+}
+
 // Behavior cannot be fully derived from the value alone (an empty "apply"
 // selection is indistinguishable from "fallback"), so callers that must tell
 // them apart track behavior separately. This resolves the unambiguous cases.

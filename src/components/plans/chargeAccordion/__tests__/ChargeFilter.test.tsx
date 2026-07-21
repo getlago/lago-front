@@ -29,7 +29,7 @@ const defaultProps = {
   filterIndex: 0,
   chargeIndex: 0,
   billableMetricFilters: [] as BillableMetricFilter[],
-  existingFilterValues: undefined as Set<string> | undefined,
+  otherFiltersValues: undefined as string[][] | undefined,
   setFilterValues: jest.fn(),
   deleteFilterValue: jest.fn(),
 }
@@ -128,21 +128,21 @@ describe('ChargeFilter', () => {
     })
   })
 
-  describe('GIVEN there are duplicate filter values', () => {
-    describe('WHEN the component renders with duplicates', () => {
-      it('THEN should render the duplicate warning alert', () => {
+  describe('GIVEN another filter has the exact same definition', () => {
+    describe('WHEN the component renders', () => {
+      it('THEN should render the duplicate definition warning alert', () => {
         const filterValue = makeFilterValue('region', 'us-east')
-        const propsWithDuplicates = {
+        const propsWithDuplicateDefinition = {
           ...defaultProps,
           filter: {
             invoiceDisplayName: '',
             properties: {},
             values: [filterValue],
           },
-          existingFilterValues: new Set([filterValue]),
+          otherFiltersValues: [[filterValue]],
         }
 
-        render(<ChargeFilter {...propsWithDuplicates} />)
+        render(<ChargeFilter {...propsWithDuplicateDefinition} />)
 
         // Alert with type="warning" renders with data-test="alert-type-warning"
         expect(screen.getByTestId('alert-type-warning')).toBeInTheDocument()
@@ -150,20 +150,42 @@ describe('ChargeFilter', () => {
     })
   })
 
-  describe('GIVEN there are no duplicate filter values', () => {
+  describe('GIVEN another filter only partially overlaps this filter values', () => {
     describe('WHEN the component renders', () => {
-      it('THEN should not render the duplicate warning alert', () => {
-        const propsWithoutDuplicates = {
+      it('THEN should not render the duplicate definition warning alert', () => {
+        const propsWithPartialOverlap = {
           ...defaultProps,
           filter: {
             invoiceDisplayName: '',
             properties: {},
             values: [makeFilterValue('region', 'us-east')],
           },
-          existingFilterValues: new Set<string>(),
+          otherFiltersValues: [
+            [makeFilterValue('region', 'us-east'), makeFilterValue('plan', 'premium')],
+          ],
         }
 
-        render(<ChargeFilter {...propsWithoutDuplicates} />)
+        render(<ChargeFilter {...propsWithPartialOverlap} />)
+
+        expect(screen.queryByTestId('alert-type-warning')).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN there are no other filters', () => {
+    describe('WHEN the component renders', () => {
+      it('THEN should not render the duplicate definition warning alert', () => {
+        const propsWithoutOtherFilters = {
+          ...defaultProps,
+          filter: {
+            invoiceDisplayName: '',
+            properties: {},
+            values: [makeFilterValue('region', 'us-east')],
+          },
+          otherFiltersValues: [],
+        }
+
+        render(<ChargeFilter {...propsWithoutOtherFilters} />)
 
         expect(screen.queryByTestId('alert-type-warning')).not.toBeInTheDocument()
       })
