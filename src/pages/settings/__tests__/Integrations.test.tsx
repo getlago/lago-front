@@ -39,7 +39,7 @@ jest.mock('~/components/settings/integrations/AddHubspotDialog', () => ({
   useAddHubspotDialog: () => ({ openAddHubspotDialog: jest.fn() }),
 }))
 jest.mock('~/components/settings/integrations/AddSalesforceDialog', () => ({
-  AddSalesforceDialog: () => null,
+  useAddSalesforceDialog: () => ({ openAddSalesforceDialog: jest.fn() }),
 }))
 jest.mock('~/components/settings/integrations/AddAdyenDialog', () => ({
   useAddAdyenDialog: () => ({ openAddAdyenDialog: () => null }),
