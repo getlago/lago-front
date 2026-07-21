@@ -100,9 +100,9 @@ const defaultFormValues: AddCashfreeFormValues = {
 
 const validationSchema = z.object({
   name: z.string(),
-  code: z.string().min(1),
-  clientId: z.string().min(1),
-  clientSecret: z.string().min(1),
+  code: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
+  clientId: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
+  clientSecret: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
   successRedirectUrl: zodOptionalUrl,
 })
 

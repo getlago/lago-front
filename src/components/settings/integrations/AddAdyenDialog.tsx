@@ -104,11 +104,11 @@ const defaultFormValues: AddAdyenPaymentProviderInput = {
 
 const validationSchema = z.object({
   name: z.string(),
-  code: z.string().min(1),
-  apiKey: z.string().min(1),
+  code: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
+  apiKey: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
   hmacKey: z.string().optional(),
   livePrefix: z.string().optional(),
-  merchantAccount: z.string().min(1),
+  merchantAccount: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
 })
 
 export const useAddAdyenDialog = () => {

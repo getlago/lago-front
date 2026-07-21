@@ -78,11 +78,11 @@ const defaultFormValues: AvalaraFormValues = {
 }
 
 const validationSchema = z.object({
-  accountId: z.string().min(1),
-  code: z.string().min(1),
-  companyCode: z.string().min(1),
-  licenseKey: z.string().min(1),
-  name: z.string().min(1),
+  accountId: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
+  code: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
+  companyCode: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
+  licenseKey: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
+  name: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
 })
 
 type NangoErrorHandle = {

@@ -23,10 +23,7 @@ import {
 } from '~/components/settings/integrations/AddAnrokDialog'
 import { useAddAvalaraDialog } from '~/components/settings/integrations/AddAvalaraDialog'
 import { useAddCashfreeDialog } from '~/components/settings/integrations/AddCashfreeDialog'
-import {
-  AddFlutterwaveDialog,
-  AddFlutterwaveDialogRef,
-} from '~/components/settings/integrations/AddFlutterwaveDialog'
+import { useAddFlutterwaveDialog } from '~/components/settings/integrations/AddFlutterwaveDialog'
 import { useAddGocardlessDialog } from '~/components/settings/integrations/AddGocardlessDialog'
 import {
   AddHubspotDialog,
@@ -170,7 +167,7 @@ const Integrations = () => {
   const addSalesforceDialogRef = useRef<AddSalesforceDialogRef>(null)
   const addXeroDialogRef = useRef<AddXeroDialogRef>(null)
   const addHubspotDialogRef = useRef<AddHubspotDialogRef>(null)
-  const addFlutterwaveDialogRef = useRef<AddFlutterwaveDialogRef>(null)
+  const { openAddFlutterwaveDialog } = useAddFlutterwaveDialog()
 
   const { openAddMoneyhashDialog } = useAddMoneyhashDialog()
 
@@ -758,7 +755,7 @@ const Integrations = () => {
                             const element = document.activeElement as HTMLElement
 
                             element.blur && element.blur()
-                            addFlutterwaveDialogRef.current?.openDialog()
+                            openAddFlutterwaveDialog()
                           }
                         }}
                         fullWidth
@@ -837,7 +834,6 @@ const Integrations = () => {
       <AddXeroDialog ref={addXeroDialogRef} />
       <AddHubspotDialog ref={addHubspotDialogRef} />
       <AddSalesforceDialog ref={addSalesforceDialogRef} />
-      <AddFlutterwaveDialog ref={addFlutterwaveDialogRef} />
     </>
   )
 }
