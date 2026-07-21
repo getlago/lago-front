@@ -25,10 +25,10 @@ const CUSTOMER_CONNECTION_FORM_ID = 'customer-connection-drawer-form'
  * Provider types that don't support linking an existing provider customer id
  * (mirrors the customer-form rule for the payment section).
  */
-const PROVIDERS_WITHOUT_EXTERNAL_ID: string[] = [
+const PROVIDERS_WITHOUT_EXTERNAL_ID: ReadonlySet<string> = new Set([
   ProviderTypeEnum.Cashfree,
   ProviderTypeEnum.Flutterwave,
-]
+])
 
 const connectionValidationSchema = z
   .object({
@@ -54,7 +54,7 @@ const connectionValidationSchema = z
   .refine(
     (data) => {
       if (!data.providerType) return true
-      if (PROVIDERS_WITHOUT_EXTERNAL_ID.includes(data.providerType)) return true
+      if (PROVIDERS_WITHOUT_EXTERNAL_ID.has(data.providerType)) return true
       if (data.syncWithProvider) return true
 
       return !!data.externalCustomerId

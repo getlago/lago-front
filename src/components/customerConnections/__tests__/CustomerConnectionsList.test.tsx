@@ -1,4 +1,4 @@
-import { fireEvent, screen, waitFor } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { render } from '~/test-utils'
@@ -94,37 +94,42 @@ describe('CustomerConnectionsList', () => {
 
         render(<CustomerConnectionsList rows={ROWS} onRowClick={onRowClick} />)
 
-        await userEvent.click(
-          screen.getByTestId(getCustomerConnectionRowTestId(ConnectionCategory.Payment)),
-        )
+        const row = screen.getByTestId(getCustomerConnectionRowTestId(ConnectionCategory.Payment))
+        const [contentButton] = within(row).getAllByRole('button')
+
+        await userEvent.click(contentButton)
 
         expect(onRowClick).toHaveBeenCalledWith(ROWS[0])
       })
     })
 
     describe('WHEN Enter is pressed on the focused row', () => {
-      it('THEN should call onRowClick with the row', () => {
+      it('THEN should call onRowClick with the row', async () => {
         const onRowClick = jest.fn()
 
         render(<CustomerConnectionsList rows={ROWS} onRowClick={onRowClick} />)
 
         const row = screen.getByTestId(getCustomerConnectionRowTestId(ConnectionCategory.Payment))
+        const [contentButton] = within(row).getAllByRole('button')
 
-        fireEvent.keyDown(row, { key: 'Enter' })
+        contentButton.focus()
+        await userEvent.keyboard('{Enter}')
 
         expect(onRowClick).toHaveBeenCalledWith(ROWS[0])
       })
     })
 
     describe('WHEN Space is pressed on the focused row', () => {
-      it('THEN should call onRowClick with the row', () => {
+      it('THEN should call onRowClick with the row', async () => {
         const onRowClick = jest.fn()
 
         render(<CustomerConnectionsList rows={ROWS} onRowClick={onRowClick} />)
 
         const row = screen.getByTestId(getCustomerConnectionRowTestId(ConnectionCategory.Payment))
+        const [contentButton] = within(row).getAllByRole('button')
 
-        fireEvent.keyDown(row, { key: ' ' })
+        contentButton.focus()
+        await userEvent.keyboard(' ')
 
         expect(onRowClick).toHaveBeenCalledWith(ROWS[0])
       })

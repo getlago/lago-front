@@ -26,10 +26,10 @@ import { useAccountingProvidersSubsidaries } from '../accountingProvidersAccordi
 import StripePaymentProviderContent from '../paymentProvidersAccordion/StripePaymentProviderContent'
 
 /** Payment providers that don't support linking/creating a provider customer */
-const PROVIDERS_WITHOUT_MAPPING: ProviderTypeEnum[] = [
+const PROVIDERS_WITHOUT_MAPPING: ReadonlySet<ProviderTypeEnum> = new Set([
   ProviderTypeEnum.Cashfree,
   ProviderTypeEnum.Flutterwave,
-]
+])
 
 type ConnectionDrawerProviderContentProps = {
   form: CustomerConnectionDrawerFormApi
@@ -173,7 +173,7 @@ export const ConnectionDrawerProviderContent = ({
 
   const isMappingSupported = !(
     category === ConnectionCategory.Payment &&
-    PROVIDERS_WITHOUT_MAPPING.includes(resolvedProviderType as ProviderTypeEnum)
+    PROVIDERS_WITHOUT_MAPPING.has(resolvedProviderType as ProviderTypeEnum)
   )
 
   const getSyncLabelKey = () => {

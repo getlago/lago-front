@@ -73,28 +73,9 @@ export const CustomerConnectionsList = ({
         <div className="w-10" />
       </div>
 
-      {rows.map((row) => (
-        <div
-          key={row.id}
-          className={`flex flex-row items-center gap-3 border-b border-grey-300 px-2 py-3 ${
-            onRowClick ? 'cursor-pointer hover:bg-grey-100' : ''
-          }`}
-          role={onRowClick ? 'button' : undefined}
-          tabIndex={onRowClick ? 0 : undefined}
-          onClick={() => onRowClick?.(row)}
-          onKeyDown={(e) => {
-            if (
-              onRowClick &&
-              e.target === e.currentTarget &&
-              (e.key === 'Enter' || e.key === ' ')
-            ) {
-              e.preventDefault()
-              onRowClick(row)
-            }
-          }}
-          data-test={getCustomerConnectionRowTestId(row.category)}
-        >
-          <div className="flex flex-1 flex-row items-center gap-3">
+      {rows.map((row) => {
+        const rowContent = (
+          <>
             {row.icon && (
               <Avatar size="big" variant="connector-full">
                 {row.icon}
@@ -106,60 +87,83 @@ export const CustomerConnectionsList = ({
               </Typography>
               {row.code && <Typography variant="caption">{row.code}</Typography>}
             </div>
-          </div>
+          </>
+        )
 
-          {showTypeColumn && (
-            <div className="w-30">
-              <Chip label={translate(CONNECTION_CATEGORY_SHORT_LABEL_KEYS[row.category])} />
+        return (
+          <div
+            key={row.id}
+            className={`relative flex flex-row items-center gap-3 border-b border-grey-300 px-2 py-3 ${
+              onRowClick ? 'hover:bg-grey-100' : ''
+            }`}
+            data-test={getCustomerConnectionRowTestId(row.category)}
+          >
+            {onRowClick ? (
+              // Native button; its ::after overlay stretches the click target
+              // to the whole row (the "…" menu sits above it with z-10)
+              <button
+                type="button"
+                className="flex flex-1 cursor-pointer flex-row items-center gap-3 text-left after:absolute after:inset-0 after:content-['']"
+                onClick={() => onRowClick(row)}
+              >
+                {rowContent}
+              </button>
+            ) : (
+              <div className="flex flex-1 flex-row items-center gap-3">{rowContent}</div>
+            )}
+
+            {showTypeColumn && (
+              <div className="w-30">
+                <Chip label={translate(CONNECTION_CATEGORY_SHORT_LABEL_KEYS[row.category])} />
+              </div>
+            )}
+
+            <div className="relative z-10">
+              <Popper
+                PopperProps={{ placement: 'bottom-end' }}
+                opener={
+                  <Button
+                    icon="dots-horizontal"
+                    variant="quaternary"
+                    data-test={getCustomerConnectionMenuTestId(row.category)}
+                  />
+                }
+              >
+                {({ closePopper }) => (
+                  <MenuPopper>
+                    {!!onEdit && (
+                      <Button
+                        startIcon="pen"
+                        variant="quaternary"
+                        align="left"
+                        onClick={() => {
+                          onEdit(row)
+                          closePopper()
+                        }}
+                      >
+                        {translate('text_65845f35d7d69c3ab4793dac')}
+                      </Button>
+                    )}
+                    {!!onDelete && (
+                      <Button
+                        startIcon="trash"
+                        variant="quaternary"
+                        align="left"
+                        onClick={() => {
+                          onDelete(row)
+                          closePopper()
+                        }}
+                      >
+                        {translate('text_65845f35d7d69c3ab4793dad')}
+                      </Button>
+                    )}
+                  </MenuPopper>
+                )}
+              </Popper>
             </div>
-          )}
-
-          {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events */}
-          <div onClick={(e) => e.stopPropagation()}>
-            <Popper
-              PopperProps={{ placement: 'bottom-end' }}
-              opener={
-                <Button
-                  icon="dots-horizontal"
-                  variant="quaternary"
-                  data-test={getCustomerConnectionMenuTestId(row.category)}
-                />
-              }
-            >
-              {({ closePopper }) => (
-                <MenuPopper>
-                  {!!onEdit && (
-                    <Button
-                      startIcon="pen"
-                      variant="quaternary"
-                      align="left"
-                      onClick={() => {
-                        onEdit(row)
-                        closePopper()
-                      }}
-                    >
-                      {translate('text_65845f35d7d69c3ab4793dac')}
-                    </Button>
-                  )}
-                  {!!onDelete && (
-                    <Button
-                      startIcon="trash"
-                      variant="quaternary"
-                      align="left"
-                      onClick={() => {
-                        onDelete(row)
-                        closePopper()
-                      }}
-                    >
-                      {translate('text_65845f35d7d69c3ab4793dad')}
-                    </Button>
-                  )}
-                </MenuPopper>
-              )}
-            </Popper>
           </div>
-        </div>
-      ))}
+        )
+      })}
     </div>
   )
 }
