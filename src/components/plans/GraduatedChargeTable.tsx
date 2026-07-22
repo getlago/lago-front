@@ -73,9 +73,12 @@ export const GraduatedChargeTable = memo(() => {
                 </Typography>
               ),
               size: 144,
-              content: (row) => (
+              content: (row, i) => (
                 <Typography className="px-4" color="disabled" noWrap>
-                  {row?.fromValue}
+                  {/* Touching model: a tier's fromValue equals the previous tier's toValue.
+                      Display it as fromValue + 1 (like the info bubble and the graduated
+                      percentage table) so the boundary value isn't shown twice. */}
+                  {i === 0 ? row?.fromValue : Number(row?.fromValue) + 1}
                 </Typography>
               ),
             },

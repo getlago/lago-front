@@ -51,7 +51,8 @@ jest.mock('~/hooks/plans/useGraduatedChargeForm', () => ({
         disabledDelete: true,
       },
       {
-        fromValue: '2',
+        // Touching model: the second tier's fromValue equals the first tier's toValue.
+        fromValue: '1',
         toValue: null,
         flatAmount: '20',
         perUnitAmount: '8',
@@ -112,10 +113,13 @@ describe('GraduatedChargeTable', () => {
         expect(screen.getByTestId('row-1')).toBeInTheDocument()
       })
 
-      it('THEN should display the from values for each tier', () => {
+      it('THEN should display the from values for each tier without repeating the boundary', () => {
         render(<GraduatedChargeTable />)
 
+        // First tier starts at its raw fromValue (0).
         expect(screen.getByText('0')).toBeInTheDocument()
+        // Second tier's fromValue (1, touching the first tier's toValue) is displayed
+        // as fromValue + 1 (2) so the boundary value isn't shown twice.
         expect(screen.getByText('2')).toBeInTheDocument()
       })
 
