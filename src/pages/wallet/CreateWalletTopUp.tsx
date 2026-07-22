@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import InputAdornment from '@mui/material/InputAdornment'
 import { getIn, useFormik } from 'formik'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 import { boolean, number, object, string } from 'yup'
 
@@ -173,7 +173,7 @@ const CreateWalletTopUp = () => {
       metadata: undefined,
       ignorePaidTopUpLimits: undefined,
       priority: 50,
-      purchaseOrderNumber: undefined,
+      purchaseOrderNumber: voidedInvoice?.invoice?.purchaseOrderNumber || undefined,
     },
     validationSchema: object().shape({
       paidCredits: string().test({
@@ -265,6 +265,17 @@ const CreateWalletTopUp = () => {
       navigateToCustomerWalletTab(wallet.id)
     },
   })
+
+  useEffect(() => {
+    const prefill = voidedInvoice?.invoice?.purchaseOrderNumber
+
+    if (prefill && !formikProps.dirty && formikProps.values.purchaseOrderNumber !== prefill) {
+      formikProps.resetForm({
+        values: { ...formikProps.values, purchaseOrderNumber: prefill },
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- one-shot prefill, keyed on the fetched value only
+  }, [voidedInvoice?.invoice?.purchaseOrderNumber])
 
   const updateTransactionType = (type: WalletTransactionType) => {
     setTransactionType(type)

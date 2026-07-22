@@ -219,6 +219,7 @@ gql`
     invoice(id: $id) {
       id
       status
+      purchaseOrderNumber
     }
   }
 

@@ -13687,7 +13687,7 @@ export type GetInvoiceStatusQueryVariables = Exact<{
 }>;
 
 
-export type GetInvoiceStatusQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum } | null };
+export type GetInvoiceStatusQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, purchaseOrderNumber?: string | null } | null };
 
 export type IntegrationsListForCustomerInvoiceDetailsQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -35890,6 +35890,7 @@ export const GetInvoiceStatusDocument = gql`
   invoice(id: $id) {
     id
     status
+    purchaseOrderNumber
   }
 }
     `;
