@@ -12,6 +12,7 @@ import { useFormDialogOpeningDialog } from '~/components/dialogs/FormDialogOpeni
 import { DialogResult } from '~/components/dialogs/types'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { Checkbox } from '~/components/form'
+import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
 import { addToast, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
 import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -247,27 +248,19 @@ export const useAddXeroDialog = () => {
               <Alert type="danger">{translate('text_1749562792335fy21gc3sxn0')}</Alert>
             )}
 
-            <div className="flex flex-row items-start gap-6">
-              <form.AppField name="name">
-                {(field) => (
-                  <field.TextInputField
-                    className="flex-1"
-                    label={translate('text_6419c64eace749372fc72b0f')}
-                    placeholder={translate('text_6584550dc4cec7adf861504f')}
-                  />
-                )}
-              </form.AppField>
-              <form.AppField name="code">
-                {(field) => (
-                  <field.TextInputField
-                    className="flex-1"
-                    beforeChangeFormatter="code"
-                    label={translate('text_62876e85e32e0300e1803127')}
-                    placeholder={translate('text_6584550dc4cec7adf8615053')}
-                  />
-                )}
-              </form.AppField>
-            </div>
+            <NameAndCodeGroup
+              form={form}
+              fields={{ name: 'name', code: 'code' }}
+              disableAutoGenerateCode={isEdition}
+              nameProps={{
+                label: translate('text_6419c64eace749372fc72b0f'),
+                placeholder: translate('text_6584550dc4cec7adf861504f'),
+              }}
+              codeProps={{
+                label: translate('text_62876e85e32e0300e1803127'),
+                placeholder: translate('text_6584550dc4cec7adf8615053'),
+              }}
+            />
 
             <div className="flex flex-col gap-6">
               <div>
