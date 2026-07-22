@@ -179,7 +179,7 @@
     "react-router-dom": "6.30.4",
     "recharts": "2.15.4",
     "remark-gfm": "4.0.1",
-    "sanitize-html": "2.17.5",
+    "sanitize-html": "2.17.6",
     "shiki": "4.3.1",
     "tippy.js": "6.3.7",
     "tiptap-markdown": "0.9.0",
