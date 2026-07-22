@@ -6,8 +6,8 @@ import { Typography } from '~/components/designSystem/Typography'
 import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { ComboboxItem } from '~/components/form'
 import {
-  BillableMetricsForCouponsFragment,
-  BillableMetricsForCouponsFragmentDoc,
+  SelectableBillableMetricForCouponsFragment,
+  SelectableBillableMetricForCouponsFragmentDoc,
   useGetBillableMetricsForCouponsLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -16,28 +16,28 @@ import { useAppForm } from '~/hooks/forms/useAppform'
 import { DialogActionButton, useSetDisabledRef } from './DialogActionButton'
 
 gql`
-  fragment BillableMetricsForCoupons on BillableMetric {
+  fragment SelectableBillableMetricForCoupons on SelectableBillableMetric {
     id
     name
     code
   }
 
   query getBillableMetricsForCoupons($page: Int, $limit: Int, $searchTerm: String) {
-    billableMetrics(page: $page, limit: $limit, searchTerm: $searchTerm) {
+    selectableBillableMetrics(page: $page, limit: $limit, searchTerm: $searchTerm) {
       collection {
-        ...BillableMetricsForCoupons
+        ...SelectableBillableMetricForCoupons
       }
     }
   }
 
-  ${BillableMetricsForCouponsFragmentDoc}
+  ${SelectableBillableMetricForCouponsFragmentDoc}
 `
 
 export const ADD_BILLABLE_METRIC_FORM_ID = 'add-billable-metric-to-coupon-form'
 
 interface AddBillableMetricContentProps {
   attachedBillableMetricsIds?: string[]
-  onSelect: (billableMetric: BillableMetricsForCouponsFragment | undefined) => void
+  onSelect: (billableMetric: SelectableBillableMetricForCouponsFragment | undefined) => void
 }
 
 const AddBillableMetricContent = ({
@@ -60,9 +60,10 @@ const AddBillableMetricContent = ({
   }, [getBillableMetrics])
 
   const comboboxBillableMetricsData = useMemo(() => {
-    if (!data || !data?.billableMetrics || !data?.billableMetrics?.collection) return []
+    if (!data || !data?.selectableBillableMetrics || !data?.selectableBillableMetrics?.collection)
+      return []
 
-    return data?.billableMetrics?.collection.map((billableMetric) => {
+    return data?.selectableBillableMetrics?.collection.map((billableMetric) => {
       const { id, name, code } = billableMetric
 
       return {
@@ -89,7 +90,9 @@ const AddBillableMetricContent = ({
         name="selectedBillableMetric"
         listeners={{
           onChange: ({ value }) => {
-            const billableMetric = data?.billableMetrics?.collection.find((b) => b.id === value)
+            const billableMetric = data?.selectableBillableMetrics?.collection.find(
+              (b) => b.id === value,
+            )
 
             onSelect(value ? billableMetric : undefined)
           },
@@ -113,14 +116,14 @@ const AddBillableMetricContent = ({
 }
 
 interface OpenAddBillableMetricToCouponDialogParams {
-  onSubmit: (billableMetric: BillableMetricsForCouponsFragment) => void
+  onSubmit: (billableMetric: SelectableBillableMetricForCouponsFragment) => void
   attachedBillableMetricsIds?: string[]
 }
 
 export const useAddBillableMetricToCouponDialog = () => {
   const formDialog = useFormDialog()
   const { translate } = useInternationalization()
-  const selectedBillableMetricRef = useRef<BillableMetricsForCouponsFragment | undefined>()
+  const selectedBillableMetricRef = useRef<SelectableBillableMetricForCouponsFragment | undefined>()
   const setDisabledRef = useSetDisabledRef()
 
   const openAddBillableMetricToCouponDialog = ({

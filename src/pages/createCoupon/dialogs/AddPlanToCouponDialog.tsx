@@ -5,8 +5,8 @@ import { Typography } from '~/components/designSystem/Typography'
 import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { ComboboxItem } from '~/components/form'
 import {
-  PlansForCouponsFragment,
-  PlansForCouponsFragmentDoc,
+  SelectablePlanForCouponsFragment,
+  SelectablePlanForCouponsFragmentDoc,
   useGetPlansForCouponsLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -15,21 +15,21 @@ import { useAppForm } from '~/hooks/forms/useAppform'
 import { DialogActionButton, useSetDisabledRef } from './DialogActionButton'
 
 gql`
-  fragment PlansForCoupons on Plan {
+  fragment SelectablePlanForCoupons on SelectablePlan {
     id
     name
     code
   }
 
   query getPlansForCoupons($page: Int, $limit: Int, $searchTerm: String) {
-    plans(page: $page, limit: $limit, searchTerm: $searchTerm) {
+    selectablePlans(page: $page, limit: $limit, searchTerm: $searchTerm) {
       collection {
-        ...PlansForCoupons
+        ...SelectablePlanForCoupons
       }
     }
   }
 
-  ${PlansForCouponsFragmentDoc}
+  ${SelectablePlanForCouponsFragmentDoc}
 `
 
 export const ADD_PLAN_FORM_ID = 'add-plan-to-coupon-form'
@@ -37,7 +37,7 @@ const SUBMIT_ADD_PLAN_DIALOG_TEST_ID = 'submit-add-plan-to-coupon-dialog'
 
 interface AddPlanContentProps {
   attachedPlansIds?: string[]
-  onSelect: (plan: PlansForCouponsFragment | undefined) => void
+  onSelect: (plan: SelectablePlanForCouponsFragment | undefined) => void
 }
 
 const AddPlanContent = ({ attachedPlansIds, onSelect }: AddPlanContentProps) => {
@@ -57,9 +57,9 @@ const AddPlanContent = ({ attachedPlansIds, onSelect }: AddPlanContentProps) => 
   }, [getPlans])
 
   const comboboxPlansData = useMemo(() => {
-    if (!data || !data?.plans || !data?.plans?.collection) return []
+    if (!data || !data?.selectablePlans || !data?.selectablePlans?.collection) return []
 
-    return data?.plans?.collection.map((plan) => {
+    return data?.selectablePlans?.collection.map((plan) => {
       const { id, name, code } = plan
 
       return {
@@ -86,7 +86,7 @@ const AddPlanContent = ({ attachedPlansIds, onSelect }: AddPlanContentProps) => 
         name="selectedPlan"
         listeners={{
           onChange: ({ value }) => {
-            const plan = data?.plans?.collection.find((p) => p.id === value)
+            const plan = data?.selectablePlans?.collection.find((p) => p.id === value)
 
             onSelect(value ? plan : undefined)
           },
@@ -108,14 +108,14 @@ const AddPlanContent = ({ attachedPlansIds, onSelect }: AddPlanContentProps) => 
 }
 
 interface OpenAddPlanToCouponDialogParams {
-  onSubmit: (plan: PlansForCouponsFragment) => void
+  onSubmit: (plan: SelectablePlanForCouponsFragment) => void
   attachedPlansIds?: string[]
 }
 
 export const useAddPlanToCouponDialog = () => {
   const formDialog = useFormDialog()
   const { translate } = useInternationalization()
-  const selectedPlanRef = useRef<PlansForCouponsFragment | undefined>()
+  const selectedPlanRef = useRef<SelectablePlanForCouponsFragment | undefined>()
   const setDisabledRef = useSetDisabledRef()
 
   const openAddPlanToCouponDialog = ({

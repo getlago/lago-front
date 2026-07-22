@@ -27,6 +27,12 @@ gql`
     code
   }
 
+  fragment SelectableBillableMetricForWalletScopeSection on SelectableBillableMetric {
+    id
+    name
+    code
+  }
+
   fragment WalletForScopeSection on Wallet {
     id
     appliesTo {
@@ -38,9 +44,9 @@ gql`
   }
 
   query getBillableMetricsForWallet($page: Int, $limit: Int, $searchTerm: String) {
-    billableMetrics(page: $page, limit: $limit, searchTerm: $searchTerm) {
+    selectableBillableMetrics(page: $page, limit: $limit, searchTerm: $searchTerm) {
       collection {
-        ...BillableMetricForWalletScopeSection
+        ...SelectableBillableMetricForWalletScopeSection
       }
       metadata {
         totalCount
@@ -100,9 +106,9 @@ export const ScopeSection = withForm({
     }, [appliedFeeTypes, translate])
 
     const comboboxBillableMetricsData = useMemo(() => {
-      if (!billableMetricsData?.billableMetrics?.collection?.length) return []
+      if (!billableMetricsData?.selectableBillableMetrics?.collection?.length) return []
 
-      return billableMetricsData?.billableMetrics?.collection.map((billableMetric) => {
+      return billableMetricsData?.selectableBillableMetrics?.collection.map((billableMetric) => {
         const { id, name, code } = billableMetric
 
         return {
@@ -121,7 +127,7 @@ export const ScopeSection = withForm({
           disabled: appliedBillableMetrics?.some((bm) => bm.id === id) || false,
         }
       })
-    }, [billableMetricsData?.billableMetrics?.collection, appliedBillableMetrics])
+    }, [billableMetricsData?.selectableBillableMetrics?.collection, appliedBillableMetrics])
 
     const hasSelectedAllFeeTypes = useMemo(
       () => appliedFeeTypes?.length === Object.keys(availableFeeTypesTranslation).length,
@@ -277,7 +283,9 @@ export const ScopeSection = withForm({
                 onChange={(value: string) => {
                   if (!!value) {
                     const addedBillableMetric =
-                      billableMetricsData?.billableMetrics?.collection.find((b) => b.id === value)
+                      billableMetricsData?.selectableBillableMetrics?.collection.find(
+                        (b) => b.id === value,
+                      )
 
                     if (addedBillableMetric) {
                       form.setFieldValue('appliesTo.billableMetrics', [
