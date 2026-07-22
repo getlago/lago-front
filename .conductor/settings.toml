@@ -31,3 +31,12 @@ icon = "container"
 [scripts.run.shell]
 command = "$LAGO_PATH/front/scripts/conductor-front-container.sh shell"
 icon = "square-terminal"
+
+# Run Vite on the HOST instead of in a container: native macOS fsevents give
+# reliable, instant HMR (the in-container watcher relies on polling and drops
+# events under load, breaking hot reload). API is reached over Traefik at
+# api.lago.dev; the script patches the workspace .env accordingly. Use `host`
+# OR `container` for a workspace, not both (same port, strictPort errors).
+[scripts.run.host]
+command = "$LAGO_PATH/front/scripts/conductor-front-container.sh host"
+icon = "flame"
