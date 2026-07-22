@@ -352,6 +352,65 @@ describe('Wallet Utils', () => {
       })
     })
 
+    describe('walletCreatedAt fallback', () => {
+      beforeAll(() => {
+        // "Today" is the 5th — a reachable day. The old behaviour anchored an
+        // absent startedAt to today, so it would render the *reachable* wording.
+        const expectedNow = DateTime.local(2024, 5, 5)
+
+        Settings.now = () => expectedNow.toMillis()
+      })
+
+      it('anchors an interval rule with no startedAt to the wallet createdAt, not today', () => {
+        const alertContent = getWordingForWalletCreationAlert({
+          ...options,
+          // createdAt is the 30th (an unreachable day). If the fallback works,
+          // the wording is the *unreachable* variant; the old "today" behaviour
+          // would have produced the reachable variant (text_...b7b).
+          walletCreatedAt: DateTime.local(2024, 1, 30).toISO(),
+          recurringRulesValues: {
+            trigger: RecurringTransactionTriggerEnum.Interval,
+            interval: RecurringTransactionIntervalEnum.Monthly,
+            method: RecurringTransactionMethodEnum.Fixed,
+          },
+        })
+
+        expect(alertContent).toBe(
+          `${'text_6657be42151661006d2f3b6f'} ${'text_6657be42151661006d2f3b7d'}`,
+        )
+      })
+
+      it('prefers an explicit startedAt over the wallet createdAt', () => {
+        const alertContent = getWordingForWalletCreationAlert({
+          ...options,
+          walletCreatedAt: DateTime.local(2024, 1, 30).toISO(),
+          walletValues: {
+            ...walletValuesFixture,
+            recurringTransactionRules: [
+              {
+                trigger: RecurringTransactionTriggerEnum.Interval,
+                interval: RecurringTransactionIntervalEnum.Monthly,
+                method: RecurringTransactionMethodEnum.Fixed,
+                grantedCredits: '10',
+                paidCredits: '50',
+                // A reachable day — must win over the unreachable createdAt.
+                startedAt: DateTime.local(2024, 2, 5).toISO() ?? undefined,
+              },
+            ],
+          },
+          recurringRulesValues: {
+            trigger: RecurringTransactionTriggerEnum.Interval,
+            interval: RecurringTransactionIntervalEnum.Monthly,
+            method: RecurringTransactionMethodEnum.Fixed,
+          },
+        })
+
+        expect(alertContent).toBe(
+          `${'text_6657be42151661006d2f3b6f'} ${'text_6657be42151661006d2f3b7b'}`,
+        )
+      })
+    })
+
     it('if there are no recurring rules defined : "You are topping up a total of {{totalCreditCount}} credits."', () => {
       const alertContent = getWordingForWalletCreationAlert({
         ...options,
