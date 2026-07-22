@@ -137,6 +137,14 @@ jest.mock('~/components/invoices/EditInvoicePaymentStatusDialog', () => ({
   }),
 }))
 
+const mockOpenResendInvoiceForCollectionDialog = jest.fn()
+
+jest.mock('~/components/invoices/ResendInvoiceForCollectionDialog', () => ({
+  useResendInvoiceForCollectionDialog: () => ({
+    openResendInvoiceForCollectionDialog: mockOpenResendInvoiceForCollectionDialog,
+  }),
+}))
+
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
   useDownloadInvoiceItemMutation: (options: typeof downloadInvoiceCallbacks) => {
@@ -1051,9 +1059,10 @@ describe('InvoicesList', () => {
 
       await waitFor(() => user.click(retryButton))
 
-      // Dialog should be opened - verify by checking for dialog-title test id
       await waitFor(() => {
-        expect(screen.getByTestId('dialog-title')).toBeInTheDocument()
+        expect(mockOpenResendInvoiceForCollectionDialog).toHaveBeenCalledWith(
+          expect.objectContaining({ invoice: expect.objectContaining({ id: 'invoice-1' }) }),
+        )
       })
     })
 
