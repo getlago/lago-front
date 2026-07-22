@@ -50,6 +50,9 @@ services:
       - LAGO_API_PROXY_TARGET=http://api:3000
       - CODEGEN_API=http://api:3000/graphql
       - APP_DOMAIN=https://app.lago.dev
+      # Vite's tab-title helper (vite.config.ts) shows "WT - <name>" in dev when
+      # this is set, so parallel workspaces are distinguishable in the browser.
+      - LAGO_WORKTREE_NAME=${NAME}
       # Bind vite to the SAME port host-side and container-side so vite's own
       # "Local: http://localhost:${PORT}/" log line advertises the host-reachable
       # port. Conductor's browser button scrapes the LAST port seen in run-script
@@ -167,6 +170,9 @@ cmd_host() {
   echo ""
 
   cd "$WS"
+  # Label the browser tab "WT - <name>" (vite.config.ts tab-title helper), same
+  # as the container path, so parallel workspaces are distinguishable.
+  export LAGO_WORKTREE_NAME="$NAME"
   # --port sets the port explicitly instead of writing PORT into the workspace
   # .env (.env is host-only tooling config, see patch_env). The container path
   # gets its port from the compose `environment` overlay, never from .env.
