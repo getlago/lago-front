@@ -151,7 +151,10 @@ describe('ResendInvoiceForCollectionDialog', () => {
     it('renders dialog with title and description when opened', async () => {
       await renderAndOpenDialog()
 
-      expect(screen.getByTestId(DIALOG_TITLE_TEST_ID)).toBeInTheDocument()
+      expect(screen.getByTestId(DIALOG_TITLE_TEST_ID)).toHaveTextContent(
+        'text_17683906296679tuqxj77ou9',
+      )
+      expect(screen.getByText('text_1768390629667tvmfcdlro8l')).toBeInTheDocument()
     })
 
     it('renders payment method combobox', async () => {
