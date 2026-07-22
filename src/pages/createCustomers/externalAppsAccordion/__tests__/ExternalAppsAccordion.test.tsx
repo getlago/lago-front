@@ -293,7 +293,6 @@ describe('ExternalAppsAccordion', () => {
       })
     })
 
-
     describe('WHEN the edit drawer is submitted', () => {
       it('THEN should persist the connection back into the slot and close the drawer', async () => {
         mockFormDrawerOpen.mockClear()
