@@ -56,15 +56,24 @@ export const getDateRef = (
 // fallback for interval rules). Returns undefined only during creation, when
 // neither exists yet — the downstream helpers then default to today, which is
 // correct for a wallet that does not exist server-side yet.
+//
+// Both timestamps are UTC-anchored ISO strings; they are read into the customer
+// timezone so the downstream `.day/.month/.year` extraction reflects the
+// customer's calendar day and not the runtime zone (which would shift the date
+// by ±1 around UTC midnight and differ between local and CI).
 const getRecurrenceAnchor = ({
   startedAt,
   walletCreatedAt,
+  timezone,
 }: {
   startedAt?: string | null
   walletCreatedAt?: string | null
+  timezone: TGetWordingForWalletAlert['customerTimezone']
 }): DateTime | undefined => {
-  if (startedAt) return DateTime.fromISO(startedAt)
-  if (walletCreatedAt) return DateTime.fromISO(walletCreatedAt)
+  const zone = getTimezoneConfig(timezone).name
+
+  if (startedAt) return DateTime.fromISO(startedAt, { zone })
+  if (walletCreatedAt) return DateTime.fromISO(walletCreatedAt, { zone })
 
   return undefined
 }
@@ -109,7 +118,11 @@ const setStartOfSentence = ({
     const totalCreditCount = toNumber(rrule?.paidCredits) + toNumber(rrule?.grantedCredits)
     const recurringStartDate = getRecurringStartDate({
       timezone: customerTimezone,
-      date: getRecurrenceAnchor({ startedAt: rrule?.startedAt, walletCreatedAt }),
+      date: getRecurrenceAnchor({
+        startedAt: rrule?.startedAt,
+        walletCreatedAt,
+        timezone: customerTimezone,
+      }),
     })
 
     if (recurringRulesValues?.method === RecurringTransactionMethodEnum.Fixed) {
@@ -179,7 +192,11 @@ const setEndOfSentence = ({
 
   if (recurringRulesValues?.trigger === RecurringTransactionTriggerEnum.Interval) {
     const rrule = walletValues.recurringTransactionRules?.[0]
-    const startedAt = getRecurrenceAnchor({ startedAt: rrule?.startedAt, walletCreatedAt })
+    const startedAt = getRecurrenceAnchor({
+      startedAt: rrule?.startedAt,
+      walletCreatedAt,
+      timezone: customerTimezone,
+    })
 
     const dateRef = getDateRef(customerTimezone).set({
       day: startedAt?.day,

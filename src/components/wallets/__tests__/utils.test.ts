@@ -353,12 +353,18 @@ describe('Wallet Utils', () => {
     })
 
     describe('walletCreatedAt fallback', () => {
+      const originalNow = Settings.now
+
       beforeAll(() => {
         // "Today" is the 5th — a reachable day. The old behaviour anchored an
         // absent startedAt to today, so it would render the *reachable* wording.
         const expectedNow = DateTime.local(2024, 5, 5)
 
         Settings.now = () => expectedNow.toMillis()
+      })
+
+      afterAll(() => {
+        Settings.now = originalNow
       })
 
       it('anchors an interval rule with no startedAt to the wallet createdAt, not today', () => {
