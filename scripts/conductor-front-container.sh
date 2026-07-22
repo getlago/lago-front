@@ -68,17 +68,21 @@ YAML
 }
 
 patch_env() {
-  # Vite reads these from the .env FILE (loadEnv), not process.env, and the
-  # mounted workspace .env is /app/.env inside the container. Idempotent: drop
-  # the managed keys then re-append. .env is gitignored, so this stays untracked.
+  # Rewrite the API-target keys in the workspace .env. Vite reads these from the
+  # .env FILE (loadEnv), not process.env. The target differs by run mode:
+  #   container (up):  api:3000        (reachable on the lago_dev_default network)
+  #   host (host):     api.lago.dev    (Traefik route, reachable from the host)
+  # Idempotent: drop the managed keys then re-append. .env is gitignored.
+  local proxy_target="$1"
+  local codegen_api="$2"
   local env_file="$WS/.env"
   touch "$env_file"
   sed -i.bak '/^API_URL=/d; /^LAGO_API_PROXY_TARGET=/d; /^CODEGEN_API=/d' "$env_file"
   rm -f "$env_file.bak"
   {
     echo "API_URL=http://localhost:${PORT}/api"
-    echo "LAGO_API_PROXY_TARGET=http://api:3000"
-    echo "CODEGEN_API=http://api:3000/graphql"
+    echo "LAGO_API_PROXY_TARGET=${proxy_target}"
+    echo "CODEGEN_API=${codegen_api}"
   } >> "$env_file"
 }
 
@@ -88,7 +92,7 @@ cmd_up() {
     exit 1
   fi
 
-  patch_env
+  patch_env "http://api:3000" "http://api:3000/graphql"
   gen_compose
 
   # A hard-killed prior run (SIGKILL) can orphan the container or leave a stale
@@ -134,12 +138,41 @@ cmd_shell() {
   exec docker exec -it -w /app "$container" bash
 }
 
+cmd_host() {
+  # Run Vite on the HOST instead of in a container. macOS native fsevents give
+  # instant, reliable HMR with no in-container polling (the in-container watcher
+  # relies on `usePolling` and drops events under multi-container CPU load, which
+  # is what breaks hot reload and forces a manual container restart).
+  #
+  # The API is reached over Traefik at api.lago.dev (routable from the host);
+  # Vite proxies /api there via LAGO_API_PROXY_TARGET. Requires the main Lago
+  # stack running and host deps installed (Conductor `setup` runs pnpm install).
+  # Use host OR container for a workspace, not both: they bind the same port and
+  # strictPort will error loudly on collision.
+  if ! curl -sfo /dev/null --max-time 3 https://api.lago.dev/health 2>/dev/null \
+    && ! docker ps --format '{{.Names}}' | grep -q '^lago_api_dev$'; then
+    echo "Warning: main Lago stack / api.lago.dev not reachable. Start it: lago up -d" >&2
+  fi
+
+  patch_env "http://api.lago.dev" "http://api.lago.dev/graphql"
+
+  echo ""
+  echo "  Front [$NAME] (host vite, native HMR) -> http://localhost:${PORT}"
+  echo ""
+
+  cd "$WS"
+  # --port overrides the config default (8080) without writing PORT into .env,
+  # which would break the container path (Vite reads PORT from the .env FILE).
+  exec pnpm exec vite --port "$PORT"
+}
+
 case "$CMD" in
   up) cmd_up ;;
   down) cmd_down ;;
   shell) cmd_shell ;;
+  host) cmd_host ;;
   *)
-    echo "Usage: conductor-front-container.sh {up|down|shell}" >&2
+    echo "Usage: conductor-front-container.sh {up|down|shell|host}" >&2
     exit 1
     ;;
 esac
