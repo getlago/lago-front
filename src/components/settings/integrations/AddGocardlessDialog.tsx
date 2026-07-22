@@ -7,6 +7,7 @@ import { z } from 'zod'
 import { useFormDialogOpeningDialog } from '~/components/dialogs/FormDialogOpeningDialog'
 import { DialogResult } from '~/components/dialogs/types'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
+import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
 import { addToast, envGlobalVar } from '~/core/apolloClient'
 import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import { buildGocardlessAuthUrl } from '~/core/constants/externalUrls'
@@ -219,25 +220,20 @@ export const useAddGocardlessDialog = () => {
           isEdition ? 'text_658461066530343fe1808cdd' : 'text_658466afe6140b469140e1fb',
         ),
         children: (
-          <div className="flex flex-row items-start gap-6 p-8">
-            <form.AppField name="name">
-              {(field) => (
-                <field.TextInputField
-                  className="flex-1"
-                  label={translate('text_6584550dc4cec7adf861504d')}
-                  placeholder={translate('text_6584550dc4cec7adf861504f')}
-                />
-              )}
-            </form.AppField>
-            <form.AppField name="code">
-              {(field) => (
-                <field.TextInputField
-                  className="flex-1"
-                  label={translate('text_6584550dc4cec7adf8615051')}
-                  placeholder={translate('text_6584550dc4cec7adf8615053')}
-                />
-              )}
-            </form.AppField>
+          <div className="p-8">
+            <NameAndCodeGroup
+              form={form}
+              fields={{ name: 'name', code: 'code' }}
+              disableAutoGenerateCode={isEdition}
+              nameProps={{
+                label: translate('text_6584550dc4cec7adf861504d'),
+                placeholder: translate('text_6584550dc4cec7adf861504f'),
+              }}
+              codeProps={{
+                label: translate('text_6584550dc4cec7adf8615051'),
+                placeholder: translate('text_6584550dc4cec7adf8615053'),
+              }}
+            />
           </div>
         ),
         closeOnError: false,

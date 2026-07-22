@@ -1,5 +1,4 @@
 import { revalidateLogic } from '@tanstack/react-form'
-import { tw } from 'lago-design-system'
 import { useRef } from 'react'
 import { generatePath } from 'react-router-dom'
 import { z } from 'zod'
@@ -170,7 +169,7 @@ export const useAddLagoTaxManagementDialog = () => {
           />
         ),
         children: (
-          <div className="p-8">
+          <div className="flex flex-col gap-6 p-8">
             <BillingEntitiesFormBody
               form={form}
               isUpdate={isUpdate}
@@ -282,8 +281,8 @@ const BillingEntitiesFormBody = ({
 
         return (
           <>
-            <div className="flex flex-col gap-3">
-              {billingEntities.length > 0 && (
+            {billingEntities.length > 0 && (
+              <div className="flex flex-col gap-3">
                 <div className="grid grid-cols-7 gap-3">
                   <div className="col-span-3">
                     <Typography variant="bodyHl" color="grey700">
@@ -297,80 +296,80 @@ const BillingEntitiesFormBody = ({
                     </Typography>
                   </div>
                 </div>
-              )}
 
-              {billingEntities.map((item: BillingEntityFormItem, index: number) => (
-                <div
-                  className="grid grid-cols-7 gap-3"
-                  key={`add-lago-tax-management-billing-entity-${index}`}
-                >
-                  <div className="col-span-3">
-                    <form.AppField name={`billingEntities[${index}].id`}>
-                      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                      {(field: any) => (
-                        <field.ComboBoxField
-                          placeholder={translate('text_174360002513391n72uwg6bb')}
-                          PopperProps={{ displayInDialog: true }}
-                          loading={billingEntitiesLoading}
-                          data={availableBillingEntitiesForEntity(item.id)}
-                          sortValues={false}
-                          customOnChange={(val: string) => {
-                            const entity = billingEntitiesCollection.find((_b) => _b.id === val)
+                {billingEntities.map((item: BillingEntityFormItem, index: number) => (
+                  <div
+                    className="grid grid-cols-7 gap-3"
+                    key={`add-lago-tax-management-billing-entity-${index}`}
+                  >
+                    <div className="col-span-3">
+                      <form.AppField name={`billingEntities[${index}].id`}>
+                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                        {(field: any) => (
+                          <field.ComboBoxField
+                            placeholder={translate('text_174360002513391n72uwg6bb')}
+                            PopperProps={{ displayInDialog: true }}
+                            loading={billingEntitiesLoading}
+                            data={availableBillingEntitiesForEntity(item.id)}
+                            sortValues={false}
+                            customOnChange={(val: string) => {
+                              const entity = billingEntitiesCollection.find((_b) => _b.id === val)
 
-                            if (!val) {
-                              return form.setFieldValue(`billingEntities[${index}]`, {})
-                            }
+                              if (!val) {
+                                return form.setFieldValue(`billingEntities[${index}]`, {})
+                              }
 
-                            if (entity?.country) {
+                              if (entity?.country) {
+                                return form.setFieldValue(`billingEntities[${index}]`, {
+                                  id: entity.id,
+                                  country: entity.country,
+                                  initialCountry: entity.country,
+                                })
+                              }
+
                               return form.setFieldValue(`billingEntities[${index}]`, {
-                                id: entity.id,
-                                country: entity.country,
-                                initialCountry: entity.country,
+                                id: entity?.id,
                               })
-                            }
+                            }}
+                          />
+                        )}
+                      </form.AppField>
+                    </div>
 
-                            return form.setFieldValue(`billingEntities[${index}]`, {
-                              id: entity?.id,
-                            })
-                          }}
-                        />
-                      )}
-                    </form.AppField>
+                    <div className="col-span-3">
+                      <form.AppField name={`billingEntities[${index}].country`}>
+                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                        {(field: any) => (
+                          <field.ComboBoxField
+                            data={countryDataForCombobox}
+                            placeholder={translate('text_657078c28394d6b1ae1b9771')}
+                            PopperProps={{ displayInDialog: true }}
+                            disabled={!!item.initialCountry}
+                            disableClearable={!!item.initialCountry}
+                          />
+                        )}
+                      </form.AppField>
+                    </div>
+
+                    <div className="flex items-center justify-center">
+                      <Button
+                        className="col-span-1"
+                        variant="quaternary"
+                        size="medium"
+                        icon="trash"
+                        onClick={() => {
+                          const next = [...billingEntities]
+
+                          next.splice(index, 1)
+                          form.setFieldValue('billingEntities', next)
+                        }}
+                        disabled={isUpdate && index === 0}
+                      />
+                    </div>
                   </div>
-
-                  <div className="col-span-3">
-                    <form.AppField name={`billingEntities[${index}].country`}>
-                      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                      {(field: any) => (
-                        <field.ComboBoxField
-                          data={countryDataForCombobox}
-                          placeholder={translate('text_657078c28394d6b1ae1b9771')}
-                          PopperProps={{ displayInDialog: true }}
-                          disabled={!!item.initialCountry}
-                          disableClearable={!!item.initialCountry}
-                        />
-                      )}
-                    </form.AppField>
-                  </div>
-
-                  <div className="flex items-center justify-center">
-                    <Button
-                      className="col-span-1"
-                      variant="quaternary"
-                      size="medium"
-                      icon="trash"
-                      onClick={() => {
-                        const next = [...billingEntities]
-
-                        next.splice(index, 1)
-                        form.setFieldValue('billingEntities', next)
-                      }}
-                      disabled={isUpdate && index === 0}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
 
             <Button
               fitContent
@@ -378,10 +377,6 @@ const BillingEntitiesFormBody = ({
               size="medium"
               startIcon="plus"
               disabled={!canCreateBillingEntity}
-              className={tw({
-                'mt-6': billingEntities.length > 0,
-                'mb-6': true,
-              })}
               onClick={() => {
                 if (!canCreateBillingEntity) return
                 form.setFieldValue('billingEntities', billingEntities.concat({}))
