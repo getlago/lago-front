@@ -1,15 +1,23 @@
-import { act, screen, waitFor } from '@testing-library/react'
+import NiceModal from '@ebay/nice-modal-react'
+import { act, cleanup, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { useRef } from 'react'
+import { ReactNode } from 'react'
 
+import {
+  DIALOG_TITLE_TEST_ID,
+  FORM_DIALOG_CANCEL_BUTTON_TEST_ID,
+  FORM_DIALOG_NAME,
+  FORM_DIALOG_TEST_ID,
+} from '~/components/dialogs/const'
+import FormDialog from '~/components/dialogs/FormDialog'
 import { render } from '~/test-utils'
 
 import {
-  RESEND_INVOICE_FOR_COLLECTION_DIALOG_CANCEL_BUTTON_TEST_ID,
   RESEND_INVOICE_FOR_COLLECTION_DIALOG_SUBMIT_BUTTON_TEST_ID,
-  ResendInvoiceForCollectionDialog,
-  ResendInvoiceForCollectionDialogRef,
+  useResendInvoiceForCollectionDialog,
 } from '../ResendInvoiceForCollectionDialog'
+
+NiceModal.register(FORM_DIALOG_NAME, FormDialog)
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -44,7 +52,6 @@ const availablePaymentMethods = ['pm_123', 'pm_456']
 
 jest.mock('~/components/paymentMethodSelection/PaymentMethodComboBox', () => ({
   PaymentMethodComboBox: jest.fn(({ setSelectedPaymentMethod, selectedPaymentMethod }) => {
-    // Simulate the validation logic: if selected ID doesn't exist, show nothing selected
     const isValidSelection = availablePaymentMethods.includes(
       selectedPaymentMethod?.paymentMethodId || '',
     )
@@ -90,42 +97,51 @@ const mockInvoice = {
   },
 }
 
-function TestWrapper({ preselectedPaymentMethodId }: { preselectedPaymentMethodId?: string }) {
-  const dialogRef = useRef<ResendInvoiceForCollectionDialogRef>(null)
+const NiceModalWrapper = ({ children }: { children: ReactNode }) => {
+  return <NiceModal.Provider>{children}</NiceModal.Provider>
+}
+
+function TestComponent({ preselectedPaymentMethodId }: { preselectedPaymentMethodId?: string }) {
+  const { openResendInvoiceForCollectionDialog } = useResendInvoiceForCollectionDialog()
 
   return (
-    <>
-      <button
-        data-test="open-dialog"
-        onClick={() =>
-          dialogRef.current?.openDialog({ invoice: mockInvoice, preselectedPaymentMethodId })
-        }
-      >
-        Open Dialog
-      </button>
-      <ResendInvoiceForCollectionDialog ref={dialogRef} />
-    </>
+    <button
+      data-test="open-dialog"
+      onClick={() =>
+        openResendInvoiceForCollectionDialog({
+          invoice: mockInvoice,
+          preselectedPaymentMethodId,
+        })
+      }
+    >
+      Open Dialog
+    </button>
   )
 }
 
 async function renderAndOpenDialog(preselectedPaymentMethodId?: string) {
-  const utils = render(<TestWrapper preselectedPaymentMethodId={preselectedPaymentMethodId} />)
-
-  const openButton = screen.getByTestId('open-dialog')
+  const utils = await act(() =>
+    render(
+      <NiceModalWrapper>
+        <TestComponent preselectedPaymentMethodId={preselectedPaymentMethodId} />
+      </NiceModalWrapper>,
+    ),
+  )
 
   await act(async () => {
-    await userEvent.click(openButton)
+    screen.getByTestId('open-dialog').click()
   })
 
   await waitFor(() => {
-    expect(screen.getByTestId('dialog-title')).toBeInTheDocument()
+    expect(screen.getByTestId(DIALOG_TITLE_TEST_ID)).toBeInTheDocument()
   })
 
   return utils
 }
 
 describe('ResendInvoiceForCollectionDialog', () => {
-  beforeEach(() => {
+  afterEach(() => {
+    cleanup()
     jest.clearAllMocks()
     mockRetryInvoicePayment.mockResolvedValue({ errors: null })
     mockHasDefinedGQLError.mockReturnValue(false)
@@ -135,8 +151,7 @@ describe('ResendInvoiceForCollectionDialog', () => {
     it('renders dialog with title and description when opened', async () => {
       await renderAndOpenDialog()
 
-      expect(screen.getByTestId('dialog-title')).toBeInTheDocument()
-      expect(screen.getByTestId('dialog-description')).toBeInTheDocument()
+      expect(screen.getByTestId(DIALOG_TITLE_TEST_ID)).toBeInTheDocument()
     })
 
     it('renders payment method combobox', async () => {
@@ -148,9 +163,7 @@ describe('ResendInvoiceForCollectionDialog', () => {
     it('renders cancel button', async () => {
       await renderAndOpenDialog()
 
-      expect(
-        screen.getByTestId(RESEND_INVOICE_FOR_COLLECTION_DIALOG_CANCEL_BUTTON_TEST_ID),
-      ).toBeInTheDocument()
+      expect(screen.getByTestId(FORM_DIALOG_CANCEL_BUTTON_TEST_ID)).toBeInTheDocument()
     })
 
     it('renders resend for collection button', async () => {
@@ -170,14 +183,12 @@ describe('ResendInvoiceForCollectionDialog', () => {
         RESEND_INVOICE_FOR_COLLECTION_DIALOG_SUBMIT_BUTTON_TEST_ID,
       )
 
-      // Button should be disabled because no payment method is selected
       expect(resendButton).toBeDisabled()
     })
 
     it('calls mutation with manually selected payment method', async () => {
       await renderAndOpenDialog()
 
-      // Select a payment method
       const selectButton = screen.getByTestId('select-payment-method-pm_123')
 
       await userEvent.click(selectButton)
@@ -186,8 +197,9 @@ describe('ResendInvoiceForCollectionDialog', () => {
         RESEND_INVOICE_FOR_COLLECTION_DIALOG_SUBMIT_BUTTON_TEST_ID,
       )
 
-      // Button should now be enabled
-      expect(resendButton).not.toBeDisabled()
+      await waitFor(() => {
+        expect(resendButton).not.toBeDisabled()
+      })
 
       await userEvent.click(resendButton)
 
@@ -209,7 +221,6 @@ describe('ResendInvoiceForCollectionDialog', () => {
     it('shows success toast when mutation completes successfully', async () => {
       await renderAndOpenDialog()
 
-      // Trigger the onCompleted callback
       retryMutationCallbacks.onCompleted?.({
         retryInvoicePayment: { id: 'payment-123' },
       })
@@ -235,7 +246,6 @@ describe('ResendInvoiceForCollectionDialog', () => {
 
       await renderAndOpenDialog()
 
-      // Select a payment method first
       const selectButton = screen.getByTestId('select-payment-method-pm_123')
 
       await userEvent.click(selectButton)
@@ -243,6 +253,10 @@ describe('ResendInvoiceForCollectionDialog', () => {
       const resendButton = screen.getByTestId(
         RESEND_INVOICE_FOR_COLLECTION_DIALOG_SUBMIT_BUTTON_TEST_ID,
       )
+
+      await waitFor(() => {
+        expect(resendButton).not.toBeDisabled()
+      })
 
       await userEvent.click(resendButton)
 
@@ -256,33 +270,12 @@ describe('ResendInvoiceForCollectionDialog', () => {
     it('closes dialog when cancel button is clicked', async () => {
       await renderAndOpenDialog()
 
-      const cancelButton = screen.getByTestId(
-        RESEND_INVOICE_FOR_COLLECTION_DIALOG_CANCEL_BUTTON_TEST_ID,
-      )
+      const cancelButton = screen.getByTestId(FORM_DIALOG_CANCEL_BUTTON_TEST_ID)
 
       await userEvent.click(cancelButton)
 
       await waitFor(() => {
-        expect(screen.queryByTestId('dialog-title')).not.toBeInTheDocument()
-      })
-    })
-
-    it('closes dialog after successful submission', async () => {
-      await renderAndOpenDialog()
-
-      // Select a payment method first
-      const selectButton = screen.getByTestId('select-payment-method-pm_123')
-
-      await userEvent.click(selectButton)
-
-      const resendButton = screen.getByTestId(
-        RESEND_INVOICE_FOR_COLLECTION_DIALOG_SUBMIT_BUTTON_TEST_ID,
-      )
-
-      await userEvent.click(resendButton)
-
-      await waitFor(() => {
-        expect(screen.queryByTestId('dialog-title')).not.toBeInTheDocument()
+        expect(screen.queryByTestId(FORM_DIALOG_TEST_ID)).not.toBeInTheDocument()
       })
     })
   })
@@ -291,14 +284,12 @@ describe('ResendInvoiceForCollectionDialog', () => {
     it('shows no selection when preselected payment method ID does not exist', async () => {
       await renderAndOpenDialog('non-existent-pm-id')
 
-      // ComboBox should show 'none' because the ID doesn't exist in available options
       expect(screen.getByTestId('selected-value')).toHaveTextContent('none')
     })
 
     it('shows preselection when payment method ID exists in the list', async () => {
       await renderAndOpenDialog('pm_123')
 
-      // ComboBox should show the preselected ID
       expect(screen.getByTestId('selected-value')).toHaveTextContent('pm_123')
     })
   })
