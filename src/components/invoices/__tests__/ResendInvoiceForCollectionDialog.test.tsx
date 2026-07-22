@@ -119,8 +119,8 @@ function TestComponent({ preselectedPaymentMethodId }: { preselectedPaymentMetho
   )
 }
 
-async function renderAndOpenDialog(preselectedPaymentMethodId?: string) {
-  const utils = await act(() =>
+async function renderAndOpenDialog(preselectedPaymentMethodId?: string): Promise<void> {
+  await act(() =>
     render(
       <NiceModalWrapper>
         <TestComponent preselectedPaymentMethodId={preselectedPaymentMethodId} />
@@ -135,8 +135,6 @@ async function renderAndOpenDialog(preselectedPaymentMethodId?: string) {
   await waitFor(() => {
     expect(screen.getByTestId(DIALOG_TITLE_TEST_ID)).toBeInTheDocument()
   })
-
-  return utils
 }
 
 describe('ResendInvoiceForCollectionDialog', () => {
