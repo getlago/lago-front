@@ -321,6 +321,12 @@ export const SubscriptionInformationFormSection = withForm({
               <PurchaseOrderFormBlock
                 value={field.state.value}
                 description={translate('text_1783511588872qmkjh4n14du')}
+                // PO number is only editable while the subscription is pending or active.
+                disabled={
+                  formType === FORM_TYPE_ENUM.edition &&
+                  subscription?.status !== StatusTypeEnum.Pending &&
+                  subscription?.status !== StatusTypeEnum.Active
+                }
                 onChange={(value) => field.handleChange(value ?? undefined)}
               />
             )}
