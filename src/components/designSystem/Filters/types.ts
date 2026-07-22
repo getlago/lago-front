@@ -87,6 +87,7 @@ export enum AvailableFiltersEnum {
   paymentOverdue = 'paymentOverdue',
   paymentStatus = 'paymentStatus',
   planCode = 'planCode',
+  purchaseOrderNumber = 'purchaseOrderNumber',
   orderFormCreatedAt = 'orderFormCreatedAt',
   orderFormNumber = 'orderFormNumber',
   orderFormStatus = 'orderFormStatus',
@@ -130,6 +131,7 @@ export const CreditNoteAvailableFilters = [
   AvailableFiltersEnum.creditNoteRefundStatus,
   AvailableFiltersEnum.selfBilled,
   AvailableFiltersEnum.billingEntityIds,
+  AvailableFiltersEnum.purchaseOrderNumber,
 ]
 
 export const InvoiceAvailableFilters = [
@@ -146,6 +148,7 @@ export const InvoiceAvailableFilters = [
   AvailableFiltersEnum.amount,
   AvailableFiltersEnum.selfBilled,
   AvailableFiltersEnum.billingEntityIds,
+  AvailableFiltersEnum.purchaseOrderNumber,
 ]
 
 export const RevenueStreamsAvailablePopperFilters = [
@@ -397,6 +400,7 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.paymentOverdue]: 'text_666c5b12fea4aa1e1b26bf55',
   [AvailableFiltersEnum.paymentStatus]: 'text_63eba8c65a6c8043feee2a0f',
   [AvailableFiltersEnum.planCode]: 'text_642d5eb2783a2ad10d670320',
+  [AvailableFiltersEnum.purchaseOrderNumber]: 'text_17822197712867qhfbaf9fpk',
   [AvailableFiltersEnum.orderFormCreatedAt]: 'text_1776870266380s3zbpmnfrhj',
   [AvailableFiltersEnum.orderFormNumber]: 'text_1781624189693d7zcv2vog4c',
   [AvailableFiltersEnum.orderFormStatus]: 'text_63ac86d797f728a87b2f9fa7',
