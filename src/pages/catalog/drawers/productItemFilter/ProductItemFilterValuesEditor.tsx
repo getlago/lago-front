@@ -110,6 +110,7 @@ const ProductItemFilterValuesEditor = ({
           error={hasError}
           data={comboBoxData}
           value={comboBoxValue}
+          placeholder={translate('text_65faba06377c5900f5111c95')}
           onChange={(selectedOptions) => {
             onChange(
               selectedOptions.map((option) => {
