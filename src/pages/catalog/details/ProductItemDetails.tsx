@@ -15,6 +15,7 @@ import {
   LagoApiError,
   ProductItemForDeleteProductItemDialogFragmentDoc,
   ProductItemForDrawerFragmentDoc,
+  ProductItemForFilterPreviewFragmentDoc,
   useGetProductItemForDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -33,14 +34,7 @@ gql`
     id
     name
     code
-    billableMetric {
-      id
-      filters {
-        id
-        key
-        values
-      }
-    }
+    ...ProductItemForFilterPreview
     ...ProductItemForDrawer
     ...ProductItemForDeleteProductItemDialog
   }
@@ -52,6 +46,7 @@ gql`
     }
   }
 
+  ${ProductItemForFilterPreviewFragmentDoc}
   ${ProductItemForDrawerFragmentDoc}
   ${ProductItemForDeleteProductItemDialogFragmentDoc}
 `

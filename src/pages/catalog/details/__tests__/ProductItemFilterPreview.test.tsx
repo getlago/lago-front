@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event'
 import {
   GetProductItemFiltersForProductItemDetailsDocument,
   ProductItemFilterForListFragment,
+  ProductItemForFilterPreviewFragment,
 } from '~/generated/graphql'
 import { AllTheProviders } from '~/test-utils'
 
@@ -49,18 +50,24 @@ const PRODUCT_ITEM_ID = 'pi-1'
 
 const billableMetricFilterFixture = { id: 'bmf-1', key: 'region', values: ['eu', 'us'] }
 
-const productItemWithFilters = {
+const productItemWithFilters: ProductItemForFilterPreviewFragment = {
+  __typename: 'ProductItem',
   id: PRODUCT_ITEM_ID,
   name: 'Seats',
   code: 'seats',
-  billableMetric: { filters: [billableMetricFilterFixture] },
+  billableMetric: {
+    __typename: 'BillableMetric',
+    id: 'bm-1',
+    filters: [billableMetricFilterFixture],
+  },
 }
 
-const productItemWithoutFilters = {
+const productItemWithoutFilters: ProductItemForFilterPreviewFragment = {
+  __typename: 'ProductItem',
   id: PRODUCT_ITEM_ID,
   name: 'Seats',
   code: 'seats',
-  billableMetric: { filters: [] },
+  billableMetric: { __typename: 'BillableMetric', id: 'bm-1', filters: [] },
 }
 
 const buildRow = (index: number): ProductItemFilterForListFragment => ({
@@ -101,14 +108,7 @@ const filtersQueryMock = (
 
 const renderPreview = (
   mocks: MockedResponse[],
-  productItem: {
-    id: string
-    name: string
-    code: string
-    billableMetric?: {
-      filters?: Array<{ id: string; key: string; values: string[] }> | null
-    } | null
-  } = productItemWithFilters,
+  productItem: ProductItemForFilterPreviewFragment = productItemWithFilters,
 ) =>
   rtlRender(<ProductItemFilterPreview productItem={productItem} />, {
     wrapper: ({ children }) => (

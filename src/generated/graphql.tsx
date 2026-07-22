@@ -2219,6 +2219,7 @@ export type CreateRateCardInput = {
   productItemFilterId?: InputMaybe<Scalars['ID']['input']>;
   productItemId: Scalars['ID']['input'];
   proration?: InputMaybe<Scalars['Boolean']['input']>;
+  rates?: InputMaybe<Array<RateCardRateInput>>;
   regroupPaidFees?: InputMaybe<RateCardRegroupPaidFeesEnum>;
   walletTargetable?: InputMaybe<Scalars['Boolean']['input']>;
 };
@@ -9199,6 +9200,17 @@ export type RateCardRateCollection = {
   metadata: CollectionMetadata;
 };
 
+/** Rate card rate input arguments */
+export type RateCardRateInput = {
+  appliedPricingUnitConversionRate?: InputMaybe<Scalars['Float']['input']>;
+  billingIntervalCount?: InputMaybe<Scalars['Int']['input']>;
+  billingIntervalUnit: RateCardRateBillingIntervalUnitEnum;
+  effectiveDatetime: Scalars['ISO8601DateTime']['input'];
+  minAmountCents?: InputMaybe<Scalars['BigInt']['input']>;
+  rateModel: RateCardRateModelEnum;
+  rateProperties: Scalars['JSON']['input'];
+};
+
 export enum RateCardRateModelEnum {
   Custom = 'custom',
   Dynamic = 'dynamic',
@@ -15006,6 +15018,8 @@ export type GetProductItemFilterForDetailsOverviewQueryVariables = Exact<{
 
 
 export type GetProductItemFilterForDetailsOverviewQuery = { __typename?: 'Query', productItemFilter?: { __typename?: 'ProductItemFilter', id: string, name: string, code: string, description?: string | null, invoiceDisplayName?: string | null, attachedToPlanOrSubscription: boolean, productItem: { __typename?: 'ProductItem', id: string, name: string, code: string, invoiceDisplayName?: string | null, product?: { __typename?: 'Product', id: string, name: string, code: string } | null }, values: Array<{ __typename?: 'ProductItemFilterValue', id: string, key: string, value: string, billableMetricFilter: { __typename?: 'BillableMetricFilter', id: string, key: string, values: Array<string> } }> } | null };
+
+export type ProductItemForFilterPreviewFragment = { __typename?: 'ProductItem', id: string, name: string, code: string, billableMetric?: { __typename?: 'BillableMetric', id: string, filters?: Array<{ __typename?: 'BillableMetricFilter', id: string, key: string, values: Array<string> }> | null } | null };
 
 export type GetProductItemFiltersForProductItemDetailsQueryVariables = Exact<{
   productItemId?: InputMaybe<Scalars['ID']['input']>;
@@ -21403,8 +21417,8 @@ export const ProductForProductDetailsOverviewFragmentDoc = gql`
   ...ProductForProductDrawer
 }
     ${ProductForProductDrawerFragmentDoc}`;
-export const ProductItemForProductItemDetailsFragmentDoc = gql`
-    fragment ProductItemForProductItemDetails on ProductItem {
+export const ProductItemForFilterPreviewFragmentDoc = gql`
+    fragment ProductItemForFilterPreview on ProductItem {
   id
   name
   code
@@ -21416,10 +21430,19 @@ export const ProductItemForProductItemDetailsFragmentDoc = gql`
       values
     }
   }
+}
+    `;
+export const ProductItemForProductItemDetailsFragmentDoc = gql`
+    fragment ProductItemForProductItemDetails on ProductItem {
+  id
+  name
+  code
+  ...ProductItemForFilterPreview
   ...ProductItemForDrawer
   ...ProductItemForDeleteProductItemDialog
 }
-    ${ProductItemForDrawerFragmentDoc}
+    ${ProductItemForFilterPreviewFragmentDoc}
+${ProductItemForDrawerFragmentDoc}
 ${ProductItemForDeleteProductItemDialogFragmentDoc}`;
 export const ProductItemForDetailsOverviewFragmentDoc = gql`
     fragment ProductItemForDetailsOverview on ProductItem {

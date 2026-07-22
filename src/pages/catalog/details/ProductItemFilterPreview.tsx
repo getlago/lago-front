@@ -15,6 +15,7 @@ import { ProductCatalogTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { Link, PRODUCT_CATALOG_TAB_ROUTE } from '~/core/router'
 import {
   ProductItemFilterForListFragmentDoc,
+  ProductItemForFilterPreviewFragment,
   useGetProductItemFiltersForProductItemDetailsLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -31,7 +32,26 @@ export const PRODUCT_ITEM_FILTER_PREVIEW_EMPTY_TEST_ID = 'product-item-filter-pr
 
 const PREVIEW_LIMIT = 7
 
+// The parent product item fields this preview consumes: its identity (for the
+// query scope, the create-with-prefill and the "view all" deep-link) and its
+// billable metric filters (to gate the create button and seed the drawer's
+// values editor). ProductItemDetails spreads this fragment so the data is
+// declared where it is used.
 gql`
+  fragment ProductItemForFilterPreview on ProductItem {
+    id
+    name
+    code
+    billableMetric {
+      id
+      filters {
+        id
+        key
+        values
+      }
+    }
+  }
+
   query getProductItemFiltersForProductItemDetails(
     $productItemId: ID
     $limit: Int
@@ -51,18 +71,13 @@ gql`
   ${ProductItemFilterForListFragmentDoc}
 `
 
-type ProductItemAttachment = {
-  id: string
-  name: string
-  code: string
-  billableMetric?: {
-    filters?: Array<{ id: string; key: string; values: string[] }> | null
-  } | null
-}
-
 // Inner component so the item-filters query only mounts once the parent product
 // item has loaded (avoids an initial fetch with an empty productItemId).
-const ProductItemFilterPreviewList = ({ productItem }: { productItem: ProductItemAttachment }) => {
+const ProductItemFilterPreviewList = ({
+  productItem,
+}: {
+  productItem: ProductItemForFilterPreviewFragment
+}) => {
   const { translate } = useInternationalization()
   const { actionColumn, actionColumnTooltip, getRowActionLink } = useProductItemFilterTableActions()
 
@@ -168,7 +183,11 @@ const ProductItemFilterPreviewList = ({ productItem }: { productItem: ProductIte
   )
 }
 
-const ProductItemFilterPreview = ({ productItem }: { productItem: ProductItemAttachment }) => {
+const ProductItemFilterPreview = ({
+  productItem,
+}: {
+  productItem: ProductItemForFilterPreviewFragment
+}) => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const { openDrawer: openProductItemFilterDrawer } = useProductItemFilterDrawer()
