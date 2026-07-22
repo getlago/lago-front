@@ -167,8 +167,9 @@ cmd_host() {
   echo ""
 
   cd "$WS"
-  # --port overrides the config default (8080) without writing PORT into .env,
-  # which would break the container path (Vite reads PORT from the .env FILE).
+  # --port sets the port explicitly instead of writing PORT into the workspace
+  # .env (.env is host-only tooling config, see patch_env). The container path
+  # gets its port from the compose `environment` overlay, never from .env.
   exec pnpm exec vite --port "$PORT"
 }
 
