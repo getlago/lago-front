@@ -33,6 +33,7 @@ import {
   PRODUCT_CATALOG_TAB_ROUTE,
   PRODUCT_DETAILS_ROUTE,
   PRODUCT_ITEM_DETAILS_ROUTE,
+  PRODUCT_ITEM_FILTER_DETAILS_ROUTE,
   QUOTE_DETAILS_ROUTE,
   QUOTES_LIST_ROUTE,
   QUOTES_TAB_ROUTE,
@@ -139,6 +140,7 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
         PRODUCT_CATALOG_TAB_ROUTE,
         PRODUCT_DETAILS_ROUTE,
         PRODUCT_ITEM_DETAILS_ROUTE,
+        PRODUCT_ITEM_FILTER_DETAILS_ROUTE,
       ],
       hidden:
         !hasFeatureFlag(FeatureFlagEnum.ProductCatalog) ||
