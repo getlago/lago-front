@@ -3,7 +3,7 @@ import { gql } from '@apollo/client'
 import { ActivityLogsTable } from '~/components/activityLogs/ActivityLogsTable'
 import { buildLinkToActivityLog } from '~/components/activityLogs/utils'
 import { PaginatedContent } from '~/components/designSystem/Pagination'
-import { PageSectionTitle } from '~/components/layouts/Section'
+import { Typography } from '~/components/designSystem/Typography'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import {
   ActivityLogsTableDataFragmentDoc,
@@ -73,10 +73,16 @@ const ProductItemFilterActivityLogs = ({
   return (
     <section className="flex flex-col gap-12">
       <section>
-        <PageSectionTitle
-          title={translate('text_1747314141347qq6rasuxisl')}
-          subtitle={translate('text_17845928288679yi8tiutrl4')}
-        />
+        <div className="flex h-18 items-center justify-between gap-4">
+          <div className="flex flex-col">
+            <Typography variant="subhead1" color="grey700" noWrap>
+              {translate('text_1747314141347qq6rasuxisl')}
+            </Typography>
+            <Typography variant="caption" color="grey600" noWrap>
+              {translate('text_17845928288679yi8tiutrl4')}
+            </Typography>
+          </div>
+        </div>
 
         <PaginatedContent
           metadata={data?.activityLogs?.metadata}
