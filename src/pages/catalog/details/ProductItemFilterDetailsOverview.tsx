@@ -89,6 +89,71 @@ const ProductItemFilterDetailsOverview = ({
     return <DetailsPage.Skeleton />
   }
 
+  // The details shell redirects on a not-found filter, so render nothing rather
+  // than a grid of empty placeholders during that brief window.
+  if (!productItemFilter) {
+    return null
+  }
+
+  const { productItem, values } = productItemFilter
+
+  const attachedProduct = productItem.product ? (
+    <Link
+      to={generatePath(PRODUCT_DETAILS_ROUTE, {
+        productId: productItem.product.id,
+        tab: ProductDetailsTabsOptionsEnum.overview,
+      })}
+    >
+      <Typography variant="body" color="grey700">
+        {productItem.product.name}
+      </Typography>
+    </Link>
+  ) : (
+    <Typography
+      data-test={PRODUCT_ITEM_FILTER_DETAILS_OVERVIEW_NO_PRODUCT_TEST_ID}
+      variant="body"
+      color="grey700"
+    >
+      {translate('text_1784590896872hcbug1hthjl')}
+    </Typography>
+  )
+
+  const attachedProductItem = (
+    <Link
+      to={generatePath(PRODUCT_ITEM_DETAILS_ROUTE, {
+        productItemId: productItem.id,
+        tab: ProductItemDetailsTabsOptionsEnum.overview,
+      })}
+    >
+      <Typography variant="body" color="grey700">
+        {productItem.invoiceDisplayName || productItem.name}
+      </Typography>
+    </Link>
+  )
+
+  const code = (
+    <TypographyWithCopy variant="body" color="grey700">
+      {productItemFilter.code}
+    </TypographyWithCopy>
+  )
+
+  const filterBy = values.length ? (
+    <div className="flex flex-row flex-wrap items-center gap-2">
+      {values.map((value, index) => (
+        <Fragment key={value.id}>
+          <Chip size="small" label={`${value.key}: ${value.value}`} />
+          {index !== values.length - 1 && (
+            <Typography variant="body" color="grey700">
+              {translate('text_65f8472df7593301061e27d6')}
+            </Typography>
+          )}
+        </Fragment>
+      ))}
+    </div>
+  ) : (
+    '-'
+  )
+
   return (
     <section>
       <div className="flex h-18 items-center justify-between gap-4">
@@ -104,9 +169,7 @@ const ProductItemFilterDetailsOverview = ({
           <Button
             variant="inline"
             data-test={PRODUCT_ITEM_FILTER_DETAILS_OVERVIEW_EDIT_TEST_ID}
-            onClick={() =>
-              productItemFilter && openEditProductItemFilterDrawer({ productItemFilter })
-            }
+            onClick={() => openEditProductItemFilterDrawer({ productItemFilter })}
           >
             {translate('text_625fd39a15394c0117e7d792')}
           </Button>
@@ -116,101 +179,33 @@ const ProductItemFilterDetailsOverview = ({
       <div className="flex flex-col gap-4">
         <DetailsPage.InfoGrid
           grid={[
-            {
-              label: translate('text_17839807181143h6kt2bdiyi'),
-              value: productItemFilter?.productItem.product ? (
-                <Link
-                  to={generatePath(PRODUCT_DETAILS_ROUTE, {
-                    productId: productItemFilter.productItem.product.id,
-                    tab: ProductDetailsTabsOptionsEnum.overview,
-                  })}
-                >
-                  <Typography variant="body" color="grey700">
-                    {productItemFilter.productItem.product.name}
-                  </Typography>
-                </Link>
-              ) : (
-                <Typography
-                  data-test={PRODUCT_ITEM_FILTER_DETAILS_OVERVIEW_NO_PRODUCT_TEST_ID}
-                  variant="body"
-                  color="grey700"
-                >
-                  {translate('text_1784590896872hcbug1hthjl')}
-                </Typography>
-              ),
-            },
-            {
-              label: translate('text_17845790210805g4buh2kivc'),
-              value: productItemFilter?.productItem ? (
-                <Link
-                  to={generatePath(PRODUCT_ITEM_DETAILS_ROUTE, {
-                    productItemId: productItemFilter.productItem.id,
-                    tab: ProductItemDetailsTabsOptionsEnum.overview,
-                  })}
-                >
-                  <Typography variant="body" color="grey700">
-                    {productItemFilter.productItem.invoiceDisplayName ||
-                      productItemFilter.productItem.name}
-                  </Typography>
-                </Link>
-              ) : (
-                '-'
-              ),
-            },
-            {
-              label: translate('text_629728388c4d2300e2d38091'),
-              value: productItemFilter?.name || '-',
-            },
-            {
-              label: translate('text_629728388c4d2300e2d380b7'),
-              value: productItemFilter?.code ? (
-                <TypographyWithCopy variant="body" color="grey700">
-                  {productItemFilter.code}
-                </TypographyWithCopy>
-              ) : (
-                '-'
-              ),
-            },
+            { label: translate('text_17839807181143h6kt2bdiyi'), value: attachedProduct },
+            { label: translate('text_17845790210805g4buh2kivc'), value: attachedProductItem },
+            { label: translate('text_629728388c4d2300e2d38091'), value: productItemFilter.name },
+            { label: translate('text_629728388c4d2300e2d380b7'), value: code },
           ]}
         />
 
-        {!!productItemFilter?.description && (
+        {!!productItemFilter.description && (
           <DetailsPage.InfoGridItem
             className="col-span-2"
             label={translate('text_6388b923e514213fed58331c')}
-            value={productItemFilter?.description || '-'}
+            value={productItemFilter.description}
           />
         )}
 
-        {!!productItemFilter?.invoiceDisplayName && (
+        {!!productItemFilter.invoiceDisplayName && (
           <DetailsPage.InfoGridItem
             className="col-span-2"
             label={translate('text_65018c8e5c6b626f030bcf26')}
-            value={productItemFilter?.invoiceDisplayName}
+            value={productItemFilter.invoiceDisplayName}
           />
         )}
 
         <DetailsPage.InfoGridItem
           className="col-span-2"
           label={translate('text_1784590896872igg2htzgnso')}
-          value={
-            productItemFilter?.values.length ? (
-              <div className="flex flex-row flex-wrap items-center gap-2">
-                {productItemFilter.values.map((value, index) => (
-                  <Fragment key={value.id}>
-                    <Chip size="small" label={`${value.key}: ${value.value}`} />
-                    {index !== productItemFilter.values.length - 1 && (
-                      <Typography variant="body" color="grey700">
-                        {translate('text_65f8472df7593301061e27d6')}
-                      </Typography>
-                    )}
-                  </Fragment>
-                ))}
-              </div>
-            ) : (
-              '-'
-            )
-          }
+          value={filterBy}
         />
       </div>
     </section>
