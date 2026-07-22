@@ -5,10 +5,7 @@ const ProductCatalog = lazyLoad(() => import('~/pages/catalog/ProductCatalog'))
 const ProductDetails = lazyLoad(() => import('~/pages/catalog/details/ProductDetails'))
 const ProductItemDetails = lazyLoad(() => import('~/pages/catalog/details/ProductItemDetails'))
 const ProductItemFilterDetails = lazyLoad(
-  () =>
-    import(
-      /* webpackChunkName: 'product-item-filter-details' */ '~/pages/catalog/details/ProductItemFilterDetails'
-    ),
+  () => import('~/pages/catalog/details/ProductItemFilterDetails'),
 )
 const Plans = lazyLoad(() => import('~/pages/catalog/Plans'))
 
