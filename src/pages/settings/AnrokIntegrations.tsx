@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -7,10 +6,7 @@ import { Popper } from '~/components/designSystem/Popper'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import {
-  AddAnrokDialog,
-  AddAnrokDialogRef,
-} from '~/components/settings/integrations/AddAnrokDialog'
+import { useAddAnrokDialog } from '~/components/settings/integrations/AddAnrokDialog'
 import { useDeleteAnrokIntegrationDialog } from '~/components/settings/integrations/DeleteAnrokIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { ANROK_INTEGRATION_DETAILS_ROUTE, INTEGRATIONS_ROUTE, useNavigate } from '~/core/router'
@@ -55,7 +51,7 @@ gql`
 const AnrokIntegrations = () => {
   const navigate = useNavigate()
   const { translate } = useInternationalization()
-  const addAnrokDialogRef = useRef<AddAnrokDialogRef>(null)
+  const { openAddAnrokDialog } = useAddAnrokDialog()
   const { openDeleteAnrokIntegrationDialog } = useDeleteAnrokIntegrationDialog()
   const { data, loading } = useGetAnrokIntegrationsListQuery({
     variables: { limit: 1000, types: [IntegrationTypeEnum.Anrok] },
@@ -99,7 +95,7 @@ const AnrokIntegrations = () => {
               label: translate('text_65846763e6140b469140e235'),
               variant: 'primary',
               onClick: () => {
-                addAnrokDialogRef.current?.openDialog()
+                openAddAnrokDialog()
               },
             },
           ],
@@ -152,13 +148,9 @@ const AnrokIntegrations = () => {
                           variant="quaternary"
                           align="left"
                           onClick={() => {
-                            addAnrokDialogRef.current?.openDialog({
+                            openAddAnrokDialog({
                               integration: connection,
-                              onDelete: (provider) =>
-                                openDeleteAnrokIntegrationDialog({
-                                  provider,
-                                  callback: deleteDialogCallback,
-                                }),
+                              deleteCallback: deleteDialogCallback,
                             })
                             closePopper()
                           }}
@@ -187,7 +179,6 @@ const AnrokIntegrations = () => {
             })}
         </section>
       </IntegrationsPage.Container>
-      <AddAnrokDialog ref={addAnrokDialogRef} />
     </>
   )
 }

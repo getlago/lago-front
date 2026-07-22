@@ -8,10 +8,7 @@ import {
   AddEditDeleteSuccessRedirectUrlDialog,
   AddEditDeleteSuccessRedirectUrlDialogRef,
 } from '~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog'
-import {
-  AddNetsuiteDialog,
-  AddNetsuiteDialogRef,
-} from '~/components/settings/integrations/AddNetsuiteDialog'
+import { useAddNetsuiteDialog } from '~/components/settings/integrations/AddNetsuiteDialog'
 import { useDeleteNetsuiteIntegrationDialog } from '~/components/settings/integrations/DeleteNetsuiteIntegrationDialog'
 import NetsuiteIntegrationItemsList from '~/components/settings/integrations/NetsuiteIntegrationItemsList'
 import NetsuiteIntegrationSettings from '~/components/settings/integrations/NetsuiteIntegrationSettings'
@@ -80,7 +77,7 @@ gql`
 const NetsuiteIntegrationDetails = () => {
   const navigate = useNavigate()
   const { integrationId = '' } = useParams()
-  const addNetsuiteDialogRef = useRef<AddNetsuiteDialogRef>(null)
+  const { openAddNetsuiteDialog } = useAddNetsuiteDialog()
   const { openDeleteNetsuiteIntegrationDialog } = useDeleteNetsuiteIntegrationDialog()
   const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { translate } = useInternationalization()
@@ -142,13 +139,9 @@ const NetsuiteIntegrationDetails = () => {
                 {
                   label: translate('text_65845f35d7d69c3ab4793dac'),
                   onClick: (closePopper) => {
-                    addNetsuiteDialogRef.current?.openDialog({
+                    openAddNetsuiteDialog({
                       provider: netsuiteIntegration,
-                      onDelete: (provider) =>
-                        openDeleteNetsuiteIntegrationDialog({
-                          provider,
-                          callback: deleteDialogCallback,
-                        }),
+                      deleteDialogCallback,
                     })
                     closePopper()
                   },
@@ -203,7 +196,6 @@ const NetsuiteIntegrationDetails = () => {
 
       <>{activeTabContent}</>
 
-      <AddNetsuiteDialog ref={addNetsuiteDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )

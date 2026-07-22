@@ -1,28 +1,28 @@
-import { gql } from '@apollo/client'
-import Stack from '@mui/material/Stack'
-import { useFormik } from 'formik'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
+import { gql, useApolloClient } from '@apollo/client'
+import { revalidateLogic } from '@tanstack/react-form'
+import { useRef } from 'react'
 import { generatePath } from 'react-router-dom'
-import { object, string } from 'yup'
+import { z } from 'zod'
 
-import { Button } from '~/components/designSystem/Button'
-import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
-import { TextInputField } from '~/components/form'
+import { useFormDialogOpeningDialog } from '~/components/dialogs/FormDialogOpeningDialog'
+import { DialogResult } from '~/components/dialogs/types'
+import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { addToast, envGlobalVar } from '~/core/apolloClient'
+import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import { buildGocardlessAuthUrl } from '~/core/constants/externalUrls'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { GOCARDLESS_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import {
-  AddGocardlessPaymentProviderInput,
   AddGocardlessProviderDialogFragment,
+  GetGocardlessIntegrationsListDocument,
   GocardlessIntegrationDetailsFragmentDoc,
   LagoApiError,
+  useDeleteGocardlessMutation,
   useGetProviderByCodeForGocardlessLazyQuery,
   useUpdateGocardlessApiKeyMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-
-import { useDeleteGocardlessIntegrationDialog } from './DeleteGocardlessIntegrationDialog'
+import { useAppForm } from '~/hooks/forms/useAppform'
 
 gql`
   fragment AddGocardlessProviderDialog on GocardlessProvider {
@@ -65,30 +65,42 @@ gql`
   ${GocardlessIntegrationDetailsFragmentDoc}
 `
 
-type TAddGocardlessDialogProps = Partial<{
-  provider: AddGocardlessProviderDialogFragment
-  deleteDialogCallback: () => void
-}>
+const ADD_GOCARDLESS_FORM_ID = 'form-add-gocardless-integration'
 
-export interface AddGocardlessDialogRef {
-  openDialog: (props?: TAddGocardlessDialogProps) => unknown
-  closeDialog: () => unknown
+type AddGocardlessFormValues = {
+  name: string
+  code: string
 }
 
-export const AddGocardlessDialog = forwardRef<AddGocardlessDialogRef>((_, ref) => {
-  const navigate = useNavigate()
-  const dialogRef = useRef<DialogRef>(null)
-  const { lagoOauthProxyUrl } = envGlobalVar()
+const defaultFormValues: AddGocardlessFormValues = {
+  name: '',
+  code: '',
+}
 
+const validationSchema = z.object({
+  name: z.string(),
+  code: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
+})
+
+type OpenAddGocardlessDialogData = {
+  provider?: AddGocardlessProviderDialogFragment
+  deleteDialogCallback?: () => void
+}
+
+export const useAddGocardlessDialog = () => {
+  const navigate = useNavigate()
+  const formDialogOpeningDialog = useFormDialogOpeningDialog()
+  const { lagoOauthProxyUrl } = envGlobalVar()
   const { translate } = useInternationalization()
-  const [localData, setLocalData] = useState<TAddGocardlessDialogProps | undefined>(undefined)
-  const gocardlessProvider = localData?.provider
-  const isEdition = !!gocardlessProvider
-  const { openDeleteGocardlessIntegrationDialog } = useDeleteGocardlessIntegrationDialog()
+  const client = useApolloClient()
+
+  const dataRef = useRef<OpenAddGocardlessDialogData | null>(null)
+  const successRef = useRef(false)
 
   const [updateApiKey] = useUpdateGocardlessApiKeyMutation({
     onCompleted({ updateGocardlessPaymentProvider }) {
       if (updateGocardlessPaymentProvider?.id) {
+        successRef.current = true
         navigate(
           generatePath(GOCARDLESS_INTEGRATION_DETAILS_ROUTE, {
             integrationId: updateGocardlessPaymentProvider.id,
@@ -96,10 +108,12 @@ export const AddGocardlessDialog = forwardRef<AddGocardlessDialogRef>((_, ref) =
           }),
         )
 
+        const toastKey = dataRef.current?.provider
+          ? 'Edit gocardless success toast'
+          : 'Add gocardless success toast'
+
         addToast({
-          message: translate(
-            isEdition ? 'Edit gocardless success toast' : 'Add gocardless success toast',
-          ),
+          message: translate(toastKey),
           severity: 'success',
         })
       }
@@ -108,20 +122,22 @@ export const AddGocardlessDialog = forwardRef<AddGocardlessDialogRef>((_, ref) =
 
   const [getGocardlessProviderByCode] = useGetProviderByCodeForGocardlessLazyQuery()
 
-  const formikProps = useFormik<AddGocardlessPaymentProviderInput>({
-    initialValues: {
-      code: gocardlessProvider?.code || '',
-      name: gocardlessProvider?.name || '',
+  const [deleteGocardless] = useDeleteGocardlessMutation()
+
+  const form = useAppForm({
+    defaultValues: defaultFormValues,
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: validationSchema,
     },
-    validationSchema: object().shape({
-      name: string(),
-      code: string().required(''),
-    }),
-    onSubmit: async (values, formikBag) => {
+    onSubmit: async ({ value, formApi }) => {
+      const gocardlessProvider = dataRef.current?.provider
+      const isEdition = !!gocardlessProvider
+
       const res = await getGocardlessProviderByCode({
         context: { silentErrorCodes: [LagoApiError.NotFound] },
         variables: {
-          code: values.code,
+          code: value.code,
         },
       })
       const isNotAllowedToMutate =
@@ -131,127 +147,153 @@ export const AddGocardlessDialog = forwardRef<AddGocardlessDialogRef>((_, ref) =
           res.data?.paymentProvider?.id !== gocardlessProvider?.id)
 
       if (isNotAllowedToMutate) {
-        formikBag.setFieldError('code', translate('text_632a2d437e341dcc76817556'))
+        formApi.setErrorMap({
+          onDynamic: {
+            fields: {
+              code: {
+                message: translate('text_632a2d437e341dcc76817556'),
+                path: ['code'],
+              },
+            },
+          },
+        })
         return
       }
 
       if (isEdition) {
         await updateApiKey({
           variables: {
-            input: { ...values, id: gocardlessProvider?.id || '' },
+            input: { ...value, id: gocardlessProvider?.id || '' },
           },
         })
-
-        dialogRef.current?.closeDialog()
       } else {
-        setTimeout(() => {
-          const myWindow = window.open('', '_blank')
+        const myWindow = window.open('', '_blank')
 
-          if (myWindow?.location?.href) {
-            myWindow.location.href = buildGocardlessAuthUrl(
-              lagoOauthProxyUrl,
-              values.name,
-              values.code,
-            )
-            dialogRef.current?.closeDialog()
-            return myWindow?.focus()
-          }
+        if (myWindow?.location?.href) {
+          myWindow.location.href = buildGocardlessAuthUrl(lagoOauthProxyUrl, value.name, value.code)
+          myWindow?.focus()
+          successRef.current = true
+          return
+        }
 
-          myWindow?.close()
-          addToast({
-            severity: 'danger',
-            translateKey: 'text_62b31e1f6a5b8b1b745ece48',
-          })
-        }, 0)
+        myWindow?.close()
+        addToast({
+          severity: 'danger',
+          translateKey: 'text_62b31e1f6a5b8b1b745ece48',
+        })
       }
     },
-    validateOnMount: true,
-    enableReinitialize: true,
   })
 
-  useImperativeHandle(ref, () => ({
-    openDialog: (data) => {
-      setLocalData(data)
-      dialogRef.current?.openDialog()
-    },
-    closeDialog: () => dialogRef.current?.closeDialog(),
-  }))
+  const handleSubmit = async (): Promise<DialogResult> => {
+    successRef.current = false
+    await form.handleSubmit()
 
-  return (
-    <Dialog
-      ref={dialogRef}
-      title={translate(
-        isEdition ? 'text_658461066530343fe1808cd9' : 'text_658466afe6140b469140e1f9',
-        {
-          name: gocardlessProvider?.name,
-        },
-      )}
-      description={translate(
-        isEdition ? 'text_658461066530343fe1808cdd' : 'text_658466afe6140b469140e1fb',
-      )}
-      onClose={() => {
-        formikProps.resetForm()
-      }}
-      actions={({ closeDialog }) => (
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-          width={isEdition ? '100%' : 'inherit'}
-          spacing={3}
-        >
-          {isEdition && (
-            <Button
-              danger
-              variant="quaternary"
-              onClick={() => {
-                closeDialog()
-                openDeleteGocardlessIntegrationDialog({
-                  provider: gocardlessProvider,
-                  callback: localData?.deleteDialogCallback,
-                })
-              }}
-            >
-              {translate('text_65845f35d7d69c3ab4793dad')}
-            </Button>
-          )}
-          <Stack direction="row" spacing={3} alignItems="center">
-            <Button variant="quaternary" onClick={closeDialog}>
-              {translate('text_62b1edddbf5f461ab971276d')}
-            </Button>
-            <Button
-              variant="primary"
-              disabled={!formikProps.isValid || !formikProps.dirty}
-              onClick={formikProps.submitForm}
-            >
+    if (!successRef.current) {
+      throw new Error('Submit failed')
+    }
+
+    return { reason: 'success' }
+  }
+
+  const openAddGocardlessDialog = (data?: OpenAddGocardlessDialogData) => {
+    dataRef.current = data ?? null
+    const gocardlessProvider = data?.provider
+    const isEdition = !!gocardlessProvider
+
+    form.reset()
+    if (gocardlessProvider) {
+      form.setFieldValue('name', gocardlessProvider.name || '')
+      form.setFieldValue('code', gocardlessProvider.code || '')
+    }
+
+    formDialogOpeningDialog
+      .open({
+        title: translate(
+          isEdition ? 'text_658461066530343fe1808cd9' : 'text_658466afe6140b469140e1f9',
+          {
+            name: gocardlessProvider?.name,
+          },
+        ),
+        description: translate(
+          isEdition ? 'text_658461066530343fe1808cdd' : 'text_658466afe6140b469140e1fb',
+        ),
+        children: (
+          <div className="flex flex-row items-start gap-6 p-8">
+            <form.AppField name="name">
+              {(field) => (
+                <field.TextInputField
+                  className="flex-1"
+                  label={translate('text_6584550dc4cec7adf861504d')}
+                  placeholder={translate('text_6584550dc4cec7adf861504f')}
+                />
+              )}
+            </form.AppField>
+            <form.AppField name="code">
+              {(field) => (
+                <field.TextInputField
+                  className="flex-1"
+                  label={translate('text_6584550dc4cec7adf8615051')}
+                  placeholder={translate('text_6584550dc4cec7adf8615053')}
+                />
+              )}
+            </form.AppField>
+          </div>
+        ),
+        closeOnError: false,
+        onEntered: focusFirstInput,
+        mainAction: (
+          <form.AppForm>
+            <form.SubmitButton>
               {translate(
                 isEdition ? 'text_65845f35d7d69c3ab4793dac' : 'text_658466afe6140b469140e207',
               )}
-            </Button>
-          </Stack>
-        </Stack>
-      )}
-    >
-      <div className="mb-8 flex flex-row items-start gap-6">
-        <TextInputField
-          className="flex-1"
-          // eslint-disable-next-line jsx-a11y/no-autofocus
-          autoFocus
-          formikProps={formikProps}
-          name="name"
-          label={translate('text_6584550dc4cec7adf861504d')}
-          placeholder={translate('text_6584550dc4cec7adf861504f')}
-        />
-        <TextInputField
-          className="flex-1"
-          formikProps={formikProps}
-          name="code"
-          label={translate('text_6584550dc4cec7adf8615051')}
-          placeholder={translate('text_6584550dc4cec7adf8615053')}
-        />
-      </div>
-    </Dialog>
-  )
-})
+            </form.SubmitButton>
+          </form.AppForm>
+        ),
+        form: {
+          id: ADD_GOCARDLESS_FORM_ID,
+          submit: handleSubmit,
+        },
+        canOpenDialog: isEdition,
+        openDialogText: translate('text_65845f35d7d69c3ab4793dad'),
+        otherDialogProps: {
+          title: translate('text_658461066530343fe1808cd7', { name: gocardlessProvider?.name }),
+          description: translate('text_65846181a741a1401ecdddb7'),
+          actionText: translate('text_659d5de7c9b7f51394f7f3fd'),
+          colorVariant: 'danger',
+          onAction: async () => {
+            const res = await deleteGocardless({
+              variables: { input: { id: gocardlessProvider?.id as string } },
+            })
 
-AddGocardlessDialog.displayName = 'AddGocardlessDialog'
+            const destroyedId = res.data?.destroyPaymentProvider?.id
+
+            if (destroyedId) {
+              evictFromCache(client, {
+                id: destroyedId,
+                __typename: 'GocardlessProvider',
+                listFieldName: 'paymentProviders',
+                listQueryDocument: GetGocardlessIntegrationsListDocument,
+              })
+
+              data?.deleteDialogCallback?.()
+
+              addToast({
+                message: translate('text_62b1edddbf5f461ab9712758'),
+                severity: 'success',
+              })
+            }
+          },
+        },
+      })
+      .then((response) => {
+        if (response.reason === 'close' || response.reason === 'open-other-dialog') {
+          form.reset()
+          dataRef.current = null
+        }
+      })
+  }
+
+  return { openAddGocardlessDialog }
+}

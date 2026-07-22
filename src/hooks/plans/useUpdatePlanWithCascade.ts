@@ -67,6 +67,10 @@ gql`
         ...FeatureEntitlementPrivilegeForPlan
       }
     }
+    metadata {
+      key
+      value
+    }
   }
 
   ${TaxForPlanSettingsSectionFragmentDoc}
@@ -137,6 +141,7 @@ export const buildUpdatePlanFormDefaults = (plan: PlanDetailsV2Fragment): PlanFo
         ),
         ...rest,
       })) || [],
+    metadata: plan.metadata?.map(({ key, value }) => ({ key, value: value || '' })) || [],
     cascadeUpdates: undefined,
   }
 }
@@ -198,6 +203,7 @@ export const useUpdatePlanWithCascade = ({
                 value.amountCurrency,
               ),
               entitlements: serializeEntitlements(value.entitlements),
+              metadata: value.metadata ?? [],
             }
           : {}),
       }

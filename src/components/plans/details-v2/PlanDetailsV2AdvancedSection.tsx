@@ -4,6 +4,7 @@ import { Ref } from 'react'
 import { PlanDetailsV2Fragment, PlanForUpdateWithCascadeFragmentDoc } from '~/generated/graphql'
 
 import { EntitlementAccordion, EntitlementAccordionRef } from './accordions/EntitlementAccordion'
+import { MetadataAccordion } from './accordions/MetadataAccordion'
 import { MinimumCommitmentAccordion } from './accordions/MinimumCommitmentAccordion'
 import { ProgressiveBillingAccordion } from './accordions/ProgressiveBillingAccordion'
 import { PlanDetailsV2SectionId } from './sidebarSections'
@@ -47,6 +48,9 @@ export const PlanDetailsV2AdvancedSection = ({
         plan={plan}
         isInSubscriptionForm={isInSubscriptionForm}
       />
+    )}
+    {!isInSubscriptionForm && (
+      <MetadataAccordion plan={plan} isInSubscriptionForm={isInSubscriptionForm} />
     )}
   </section>
 )

@@ -22,7 +22,7 @@ import Integrations from '../Integrations'
 
 // Mock dialog components that transitively import @nangohq/frontend (ESM)
 jest.mock('~/components/settings/integrations/AddAnrokDialog', () => ({
-  AddAnrokDialog: () => null,
+  useAddAnrokDialog: () => ({ openAddAnrokDialog: jest.fn() }),
 }))
 jest.mock('~/components/settings/integrations/AddAvalaraDialog', () => ({
   useAddAvalaraDialog: () => ({
@@ -30,16 +30,16 @@ jest.mock('~/components/settings/integrations/AddAvalaraDialog', () => ({
   }),
 }))
 jest.mock('~/components/settings/integrations/AddNetsuiteDialog', () => ({
-  AddNetsuiteDialog: () => null,
+  useAddNetsuiteDialog: () => ({ openAddNetsuiteDialog: jest.fn() }),
 }))
 jest.mock('~/components/settings/integrations/AddXeroDialog', () => ({
-  AddXeroDialog: () => null,
+  useAddXeroDialog: () => ({ openAddXeroDialog: jest.fn() }),
 }))
 jest.mock('~/components/settings/integrations/AddHubspotDialog', () => ({
-  AddHubspotDialog: () => null,
+  useAddHubspotDialog: () => ({ openAddHubspotDialog: jest.fn() }),
 }))
 jest.mock('~/components/settings/integrations/AddSalesforceDialog', () => ({
-  AddSalesforceDialog: () => null,
+  useAddSalesforceDialog: () => ({ openAddSalesforceDialog: jest.fn() }),
 }))
 jest.mock('~/components/settings/integrations/AddAdyenDialog', () => ({
   useAddAdyenDialog: () => ({ openAddAdyenDialog: () => null }),
@@ -48,7 +48,7 @@ jest.mock('~/components/settings/integrations/AddStripeDialog', () => ({
   useAddStripeDialog: () => ({ openAddStripeDialog: () => null }),
 }))
 jest.mock('~/components/settings/integrations/AddGocardlessDialog', () => ({
-  AddGocardlessDialog: () => null,
+  useAddGocardlessDialog: () => ({ openAddGocardlessDialog: jest.fn() }),
 }))
 jest.mock('~/components/settings/integrations/AddCashfreeDialog', () => ({
   useAddCashfreeDialog: () => ({
@@ -61,10 +61,10 @@ jest.mock('~/components/settings/integrations/AddMoneyhashDialog', () => ({
   }),
 }))
 jest.mock('~/components/settings/integrations/AddLagoTaxManagementDialog', () => ({
-  AddLagoTaxManagementDialog: () => null,
+  useAddLagoTaxManagementDialog: () => ({ openAddLagoTaxManagementDialog: jest.fn() }),
 }))
 jest.mock('~/components/settings/integrations/AddFlutterwaveDialog', () => ({
-  AddFlutterwaveDialog: () => null,
+  useAddFlutterwaveDialog: () => ({ openAddFlutterwaveDialog: jest.fn() }),
 }))
 jest.mock('~/components/dialogs/PremiumWarningDialog', () => ({
   usePremiumWarningDialog: () => ({

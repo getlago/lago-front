@@ -11,7 +11,7 @@ import {
 import AnrokIntegrations from '../AnrokIntegrations'
 
 jest.mock('~/components/settings/integrations/AddAnrokDialog', () => ({
-  AddAnrokDialog: () => null,
+  useAddAnrokDialog: () => ({ openAddAnrokDialog: jest.fn() }),
 }))
 jest.mock('~/components/settings/integrations/DeleteAnrokIntegrationDialog', () => ({
   useDeleteAnrokIntegrationDialog: () => ({ openDeleteAnrokIntegrationDialog: jest.fn() }),

@@ -105,6 +105,7 @@ export const buildDefaultValues = (
         ),
         ...restEntitlement,
       })) || [],
+    metadata: plan?.metadata?.map(({ key, value }) => ({ key, value: value || '' })) || [],
     invoiceDisplayName: plan?.invoiceDisplayName || undefined,
     payInAdvance: plan?.payInAdvance || false,
     amountCents: isNaN(plan?.amountCents)

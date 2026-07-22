@@ -9,7 +9,7 @@ import {
   AddEditDeleteSuccessRedirectUrlDialog,
   AddEditDeleteSuccessRedirectUrlDialogRef,
 } from '~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog'
-import { AddXeroDialog, AddXeroDialogRef } from '~/components/settings/integrations/AddXeroDialog'
+import { useAddXeroDialog } from '~/components/settings/integrations/AddXeroDialog'
 import { useDeleteXeroIntegrationDialog } from '~/components/settings/integrations/DeleteXeroIntegrationDialog'
 import XeroIntegrationItemsList from '~/components/settings/integrations/XeroIntegrationItemsList'
 import XeroIntegrationSettings from '~/components/settings/integrations/XeroIntegrationSettings'
@@ -79,7 +79,7 @@ const XeroIntegrationDetails = () => {
   const navigate = useNavigate()
   const { nangoPublicKey } = envGlobalVar()
   const { integrationId = '' } = useParams()
-  const addXeroDialogRef = useRef<AddXeroDialogRef>(null)
+  const { openAddXeroDialog } = useAddXeroDialog()
   const { openDeleteXeroIntegrationDialog } = useDeleteXeroIntegrationDialog()
   const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { translate } = useInternationalization()
@@ -147,9 +147,9 @@ const XeroIntegrationDetails = () => {
                 {
                   label: translate('text_65845f35d7d69c3ab4793dac'),
                   onClick: (closePopper) => {
-                    addXeroDialogRef.current?.openDialog({
+                    openAddXeroDialog({
                       provider: xeroIntegration,
-                      onDelete: openDeleteDialog,
+                      deleteDialogCallback,
                     })
                     closePopper()
                   },
@@ -212,7 +212,6 @@ const XeroIntegrationDetails = () => {
 
       <>{activeTabContent}</>
 
-      <AddXeroDialog ref={addXeroDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )

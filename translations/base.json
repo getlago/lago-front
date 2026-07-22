@@ -1644,7 +1644,6 @@
   "text_62b1edddbf5f461ab97127ad": "Connected",
   "text_62b1edddbf5f461ab9712748": "API secret key",
   "text_62b1edddbf5f461ab9712756": "Type an API secret key",
-  "text_62b1edddbf5f461ab971276d": "Cancel",
   "text_62b1edddbf5f461ab9712773": "Connect to Stripe",
   "text_62b1edddbf5f461ab9712743": "Stripe connection successfully created",
   "text_62b1edddbf5f461ab9712707": "Stripe",
@@ -4469,9 +4468,13 @@
   "text_1784540055704fe0ekxa7yfh": "Select a tax connection",
   "text_1784540055704s7odgggdp3j": "Select a CRM connection",
   "text_1784560679832ncjei0uis94": "Please enter the number of credits to void.",
-  "text_1784560679832ird9d8k4iqw": "Credits to void must be greater than 0.",
   "text_1784649473978atfeqnr073f": "Customer mapping",
   "text_1784649473978u6kmffzlw0b": "Customer ID from {{connectionName}}",
   "text_1784649473978uuc3oggbf1r": "Use an existing customer from {{connectionName}} and specify its ID to link it with this customer.",
-  "text_1784649473978i3wq11ccip3": "Type a provider external ID"
+  "text_1784649473978i3wq11ccip3": "Type a provider external ID",
+  "text_1784536360268d9fpetpsrej": "Store custom key-value pairs on this plan.",
+  "text_1784560679832ird9d8k4iqw": "Credits to void must be greater than 0.",
+  "text_1784637373017e1som6d92em": "Delete all",
+  "text_1784642866287h7jm6pidh6u": "Delete all metadata",
+  "text_17846428662872wnc279xn2s": "You\u2019re about to delete all metadata. Are you sure?"
 }

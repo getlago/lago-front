@@ -1,14 +1,10 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import {
-  AddHubspotDialog,
-  AddHubspotDialogRef,
-} from '~/components/settings/integrations/AddHubspotDialog'
+import { useAddHubspotDialog } from '~/components/settings/integrations/AddHubspotDialog'
 import { useDeleteHubspotIntegrationDialog } from '~/components/settings/integrations/DeleteHubspotIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { HUBSPOT_INTEGRATION_ROUTE, INTEGRATIONS_ROUTE, useNavigate } from '~/core/router'
@@ -66,7 +62,7 @@ const HubspotIntegrationDetails = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
 
-  const addHubspotDialogRef = useRef<AddHubspotDialogRef>(null)
+  const { openAddHubspotDialog } = useAddHubspotDialog()
   const { openDeleteHubspotIntegrationDialog } = useDeleteHubspotIntegrationDialog()
 
   const { data, loading } = useGetHubspotIntegrationsDetailsQuery({
@@ -130,7 +126,7 @@ const HubspotIntegrationDetails = () => {
                 {
                   label: translate('text_65845f35d7d69c3ab4793dac'),
                   onClick: (closePopper) => {
-                    addHubspotDialogRef.current?.openDialog({
+                    openAddHubspotDialog({
                       provider: hubspotIntegration,
                       deleteDialogCallback,
                     })
@@ -164,7 +160,7 @@ const HubspotIntegrationDetails = () => {
               variant="inline"
               disabled={loading}
               onClick={() => {
-                addHubspotDialogRef.current?.openDialog({
+                openAddHubspotDialog({
                   provider: hubspotIntegration,
                   deleteDialogCallback,
                 })
@@ -211,8 +207,6 @@ const HubspotIntegrationDetails = () => {
           )}
         </section>
       </IntegrationsPage.Container>
-
-      <AddHubspotDialog ref={addHubspotDialogRef} />
     </>
   )
 }
