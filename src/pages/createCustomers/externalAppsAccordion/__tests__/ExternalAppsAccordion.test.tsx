@@ -7,6 +7,8 @@ import {
 } from '~/components/customerConnections/CustomerConnectionsList'
 import { ConnectionCategory } from '~/components/customerConnections/types'
 import {
+  AddCustomerDrawerFragment,
+  HubspotTargetedObjectsEnum,
   IntegrationTypeEnum,
   ProviderPaymentMethodsEnum,
   ProviderTypeEnum,
@@ -23,10 +25,11 @@ import ExternalAppsAccordion from '../ExternalAppsAccordion'
 // The drawer stack relies on import.meta (unsupported in jest).
 // Shared spy so tests can assert the connection drawer opens.
 const mockFormDrawerOpen = jest.fn()
+const mockFormDrawerClose = jest.fn()
 
 jest.mock('~/components/drawers/useDrawer', () => ({
   useDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
-  useFormDrawer: () => ({ open: mockFormDrawerOpen, close: jest.fn() }),
+  useFormDrawer: () => ({ open: mockFormDrawerOpen, close: mockFormDrawerClose }),
 }))
 
 // The NetSuite subsidiaries query hook needs an ApolloProvider — inert here
@@ -53,15 +56,27 @@ jest.mock('~/pages/createCustomers/common/usePaymentProviders', () => ({
 
 jest.mock('~/pages/createCustomers/common/useAccountingProviders', () => ({
   useAccountingProviders: () => ({
-    accountingProviders: undefined,
+    accountingProviders: {
+      integrations: {
+        collection: [
+          { __typename: 'NetsuiteIntegration', id: 'ns-id', code: 'ns-1', name: 'NetSuite Prod' },
+        ],
+      },
+    },
     isLoadingAccountProviders: false,
-    getAccountingProviderFromCode: () => null,
+    getAccountingProviderFromCode: (code?: string) => (code === 'ns-1' ? 'netsuite' : null),
   }),
 }))
 
 jest.mock('~/pages/createCustomers/common/useTaxProviders', () => ({
   useTaxProviders: () => ({
-    taxProviders: undefined,
+    taxProviders: {
+      integrations: {
+        collection: [
+          { __typename: 'AnrokIntegration', id: 'anrok-id', code: 'anrok-1', name: 'Anrok Main' },
+        ],
+      },
+    },
     isLoadingTaxProviders: false,
     getTaxProviderFromCode: (code?: string) => (code === 'anrok-1' ? 'anrok' : null),
   }),
@@ -69,9 +84,15 @@ jest.mock('~/pages/createCustomers/common/useTaxProviders', () => ({
 
 jest.mock('~/pages/createCustomers/common/useCrmProviders', () => ({
   useCrmProviders: () => ({
-    crmProviders: undefined,
+    crmProviders: {
+      integrations: {
+        collection: [
+          { __typename: 'HubspotIntegration', id: 'hub-id', code: 'hub-1', name: 'Hubspot Main' },
+        ],
+      },
+    },
     isLoadingCrmProviders: false,
-    getCrmProviderFromCode: () => null,
+    getCrmProviderFromCode: (code?: string) => (code === 'hub-1' ? 'hubspot' : null),
   }),
 }))
 
@@ -94,10 +115,47 @@ const HARNESS_DEFAULT_VALUES: CreateCustomerDefaultValues = {
   },
 }
 
-const Harness = () => {
-  const form = useAppForm({ defaultValues: HARNESS_DEFAULT_VALUES })
+const FULL_SLOTS_DEFAULT_VALUES: CreateCustomerDefaultValues = {
+  ...HARNESS_DEFAULT_VALUES,
+  accountingProviderCode: 'ns-1',
+  accountingCustomer: {
+    id: 'acc-row-id',
+    accountingCustomerId: 'ns_cus_1',
+    syncWithProvider: false,
+    providerType: IntegrationTypeEnum.Netsuite,
+    subsidiaryId: '',
+  },
+  crmProviderCode: 'hub-1',
+  crmCustomer: {
+    id: 'crm-row-id',
+    crmCustomerId: 'hub_cus_1',
+    syncWithProvider: false,
+    providerType: IntegrationTypeEnum.Hubspot,
+    targetedObject: HubspotTargetedObjectsEnum.Companies,
+  },
+}
 
-  return <ExternalAppsAccordion form={form} customer={null} isEdition={false} />
+/** Customer whose four connections were persisted at load (locks the providers) */
+const PERSISTED_CUSTOMER = {
+  paymentProvider: ProviderTypeEnum.Stripe,
+  providerCustomer: { providerCustomerId: 'cus_123' },
+  netsuiteCustomer: { integrationCode: 'ns-1' },
+  anrokCustomer: { integrationCode: 'anrok-1' },
+  hubspotCustomer: { integrationCode: 'hub-1' },
+} as unknown as AddCustomerDrawerFragment
+
+const Harness = ({
+  fullSlots = false,
+  customer = null,
+}: {
+  fullSlots?: boolean
+  customer?: AddCustomerDrawerFragment | null
+}) => {
+  const form = useAppForm({
+    defaultValues: fullSlots ? FULL_SLOTS_DEFAULT_VALUES : HARNESS_DEFAULT_VALUES,
+  })
+
+  return <ExternalAppsAccordion form={form} customer={customer} isEdition={!!customer} />
 }
 
 const openAccordion = async () => {
@@ -179,6 +237,88 @@ describe('ExternalAppsAccordion', () => {
         expect(mockFormDrawerOpen).toHaveBeenCalledWith(
           expect.objectContaining({ title: expect.any(String) }),
         )
+      })
+    })
+
+    describe('WHEN every category is populated and persisted on the customer', () => {
+      it('THEN should open the edit drawer from each row, locked providers included', async () => {
+        mockFormDrawerOpen.mockClear()
+
+        render(<Harness fullSlots customer={PERSISTED_CUSTOMER} />)
+
+        await openAccordion()
+
+        const categories = [
+          ConnectionCategory.Payment,
+          ConnectionCategory.Accounting,
+          ConnectionCategory.Tax,
+          ConnectionCategory.Crm,
+        ]
+
+        for (const category of categories) {
+          const row = screen.getByTestId(getCustomerConnectionRowTestId(category))
+
+          await userEvent.click(within(row).getAllByRole('button')[0])
+        }
+
+        expect(mockFormDrawerOpen).toHaveBeenCalledTimes(categories.length)
+      })
+    })
+
+    describe('WHEN accounting and crm connections are deleted from their row menus', () => {
+      it('THEN should clear only the deleted slots', async () => {
+        render(<Harness fullSlots />)
+
+        await openAccordion()
+
+        for (const category of [ConnectionCategory.Accounting, ConnectionCategory.Crm]) {
+          await userEvent.click(screen.getByTestId(getCustomerConnectionMenuTestId(category)))
+          await waitFor(() => {
+            expect(screen.getByRole('button', { name: /delete connection/i })).toBeVisible()
+          })
+          await userEvent.click(screen.getByRole('button', { name: /delete connection/i }))
+          await waitFor(() => {
+            expect(
+              screen.queryByTestId(getCustomerConnectionRowTestId(category)),
+            ).not.toBeInTheDocument()
+          })
+        }
+
+        expect(
+          screen.getByTestId(getCustomerConnectionRowTestId(ConnectionCategory.Payment)),
+        ).toBeInTheDocument()
+        expect(
+          screen.getByTestId(getCustomerConnectionRowTestId(ConnectionCategory.Tax)),
+        ).toBeInTheDocument()
+      })
+    })
+
+
+    describe('WHEN the edit drawer is submitted', () => {
+      it('THEN should persist the connection back into the slot and close the drawer', async () => {
+        mockFormDrawerOpen.mockClear()
+        mockFormDrawerClose.mockClear()
+
+        render(<Harness />)
+
+        await openAccordion()
+
+        const paymentRow = screen.getByTestId(
+          getCustomerConnectionRowTestId(ConnectionCategory.Payment),
+        )
+
+        await userEvent.click(within(paymentRow).getAllByRole('button')[0])
+
+        // The drawer chrome is mocked: drive its submit through the captured config
+        const drawerConfig = mockFormDrawerOpen.mock.calls[0][0]
+
+        await drawerConfig.form.submit()
+
+        await waitFor(() => {
+          expect(mockFormDrawerClose).toHaveBeenCalled()
+        })
+        // Slot untouched by a same-values save: the row is still derived from it
+        expect(paymentRow).toHaveTextContent('Stripe EU')
       })
     })
 
