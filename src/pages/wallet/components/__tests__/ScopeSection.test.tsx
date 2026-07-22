@@ -44,7 +44,7 @@ const billableMetricsMocks: TestMocksType = [
     },
     result: {
       data: {
-        billableMetrics: {
+        selectableBillableMetrics: {
           __typename: 'BillableMetricCollection',
           collection: [
             { __typename: 'BillableMetric', id: 'bm-1', name: 'API calls', code: 'api_calls' },

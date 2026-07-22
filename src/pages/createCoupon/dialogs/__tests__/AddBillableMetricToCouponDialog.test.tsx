@@ -2,7 +2,7 @@ import { renderHook, screen } from '@testing-library/react'
 import { ReactElement } from 'react'
 
 import {
-  BillableMetricsForCouponsFragment,
+  SelectableBillableMetricForCouponsFragment,
   useGetBillableMetricsForCouponsLazyQuery,
 } from '~/generated/graphql'
 import { render } from '~/test-utils'
@@ -39,20 +39,20 @@ jest.mock('~/generated/graphql', () => ({
 const mockedUseGetBillableMetricsForCouponsLazyQuery =
   useGetBillableMetricsForCouponsLazyQuery as jest.Mock
 
-const mockBillableMetric: BillableMetricsForCouponsFragment = {
+const mockBillableMetric: SelectableBillableMetricForCouponsFragment = {
   id: 'bm-1',
   name: 'API Calls',
   code: 'api_calls',
 }
 
-const mockBillableMetric2: BillableMetricsForCouponsFragment = {
+const mockBillableMetric2: SelectableBillableMetricForCouponsFragment = {
   id: 'bm-2',
   name: 'Storage',
   code: 'storage',
 }
 
 const mockBillableMetricsData = {
-  billableMetrics: {
+  selectableBillableMetrics: {
     collection: [mockBillableMetric, mockBillableMetric2],
   },
 }
