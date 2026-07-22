@@ -168,7 +168,7 @@ const ProductItemDetails = () => {
               tab: ProductItemDetailsTabsOptionsEnum.itemFilters,
             }),
             content: productItem ? (
-              <DetailsPage.Container>
+              <DetailsPage.Container className="pb-0">
                 <ProductItemFilterPreview productItem={productItem} />
               </DetailsPage.Container>
             ) : null,
