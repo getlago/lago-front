@@ -72,21 +72,23 @@ YAML
 }
 
 patch_env() {
-  # Rewrite the API-target keys in the workspace .env. Vite reads these from the
-  # .env FILE (loadEnv), not process.env. The target differs by run mode:
-  #   container (up):  api:3000        (reachable on the lago_dev_default network)
-  #   host (host):     api.lago.dev    (Traefik route, reachable from the host)
-  # Idempotent: drop the managed keys then re-append. .env is gitignored.
-  local proxy_target="$1"
-  local codegen_api="$2"
+  # The workspace .env is only ever consulted by HOST-side tooling: `host` mode's
+  # Vite, and `pnpm codegen` / tests run from the host terminal. Inside the
+  # container these same keys are overridden by the compose `environment` block
+  # (api:3000, on the lago_dev_default network) — container Vite via loadEnv
+  # process.env overlay, in-container codegen via the preset process.env. So .env
+  # ALWAYS carries the HOST-reachable targets: the shared API is reached over
+  # Traefik at api.lago.dev (the worktree runs no API of its own). This is what
+  # makes host `pnpm codegen` resolve; `api:3000` in .env would ENOTFOUND on the
+  # host. Idempotent; .env is gitignored.
   local env_file="$WS/.env"
   touch "$env_file"
   sed -i.bak '/^API_URL=/d; /^LAGO_API_PROXY_TARGET=/d; /^CODEGEN_API=/d' "$env_file"
   rm -f "$env_file.bak"
   {
     echo "API_URL=http://localhost:${PORT}/api"
-    echo "LAGO_API_PROXY_TARGET=${proxy_target}"
-    echo "CODEGEN_API=${codegen_api}"
+    echo "LAGO_API_PROXY_TARGET=http://api.lago.dev"
+    echo "CODEGEN_API=http://api.lago.dev/graphql"
   } >> "$env_file"
 }
 
@@ -96,7 +98,7 @@ cmd_up() {
     exit 1
   fi
 
-  patch_env "http://api:3000" "http://api:3000/graphql"
+  patch_env
   gen_compose
 
   # A hard-killed prior run (SIGKILL) can orphan the container or leave a stale
@@ -158,7 +160,7 @@ cmd_host() {
     echo "Warning: main Lago stack / api.lago.dev not reachable. Start it: lago up -d" >&2
   fi
 
-  patch_env "http://api.lago.dev" "http://api.lago.dev/graphql"
+  patch_env
 
   echo ""
   echo "  Front [$NAME] (host vite, native HMR) -> http://localhost:${PORT}"
