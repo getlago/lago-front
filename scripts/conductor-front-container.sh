@@ -50,9 +50,13 @@ services:
       - LAGO_API_PROXY_TARGET=http://api:3000
       - CODEGEN_API=http://api:3000/graphql
       - APP_DOMAIN=https://app.lago.dev
-      - PORT=8080
+      # Bind vite to the SAME port host-side and container-side so vite's own
+      # "Local: http://localhost:${PORT}/" log line advertises the host-reachable
+      # port. Conductor's browser button scrapes the LAST port seen in run-script
+      # stdout; a mismatched internal port (was 8080) made it flip to the wrong port.
+      - PORT=${PORT}
     ports:
-      - "${PORT}:8080"
+      - "${PORT}:${PORT}"
     networks:
       - lago_net
 
