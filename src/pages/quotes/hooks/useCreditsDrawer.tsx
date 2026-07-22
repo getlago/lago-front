@@ -47,7 +47,10 @@ export const useCreditsDrawer = (
   onCreditsCommand: OnCreditsCommand
   isCreditsDisabled: () => boolean
   entities: Record<string, EntityData>
-  syncCreditsBlocks: (blocks: CreditsBlockAttributes[]) => BillingItemsPayload | undefined
+  syncCreditsBlocks: (
+    blocks: CreditsBlockAttributes[],
+    options?: { prune?: boolean },
+  ) => BillingItemsPayload | undefined
 } => {
   const { translate } = useInternationalization()
   const drawer = useFormDrawer()
@@ -154,8 +157,18 @@ export const useCreditsDrawer = (
   const isCreditsDisabled = useCallback(() => blockCountRef.current >= MAX_WALLETS, [])
 
   const syncCreditsBlocks = useCallback(
-    (blocks: CreditsBlockAttributes[]): BillingItemsPayload | undefined => {
+    (
+      blocks: CreditsBlockAttributes[],
+      syncOptions?: { prune?: boolean },
+    ): BillingItemsPayload | undefined => {
+      // Always refresh the cap count, even on rollback: otherwise a rolled-back
+      // create leaves blockCountRef stale (too high) and wrongly keeps /credits
+      // disabled until the next edit.
       blockCountRef.current = blocks.length
+
+      // Rollback skips pruning so the failed wallet's cached payload survives a
+      // corrected resubmit (see handleCreditsBlocksChange in EditQuote).
+      if (syncOptions?.prune === false) return undefined
 
       const present = new Set(blocks.map((b) => b.localId).filter(Boolean))
       let changed = false

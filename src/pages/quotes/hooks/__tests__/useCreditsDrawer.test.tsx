@@ -124,6 +124,37 @@ describe('useCreditsDrawer', () => {
 
       expect(updated).toBeUndefined()
     })
+
+    it('THEN refreshes the cap but skips pruning when prune is disabled (rollback path)', () => {
+      const { result } = renderHook(
+        () => useCreditsDrawer(withOneWallet, { currency: CurrencyEnum.Usd }),
+        { wrapper },
+      )
+
+      // A fresh insert during a failed create pushed the doc to the 5-wallet cap.
+      act(() => {
+        result.current.syncCreditsBlocks(
+          Array.from({ length: 5 }, (_, i) => ({ localId: `wl_${i}` })),
+        )
+      })
+
+      expect(result.current.isCreditsDisabled()).toBe(true)
+
+      let updated: BillingItemsPayload | undefined = withOneWallet
+
+      // Rollback removes the failed block: recount so the cap frees up, but skip
+      // pruning so wl_1's cached payload survives a corrected resubmit. Returning
+      // undefined keeps the rollback from firing a corrective save.
+      act(() => {
+        updated = result.current.syncCreditsBlocks(
+          Array.from({ length: 4 }, (_, i) => ({ localId: `wl_${i}` })),
+          { prune: false },
+        )
+      })
+
+      expect(result.current.isCreditsDisabled()).toBe(false)
+      expect(updated).toBeUndefined()
+    })
   })
 
   describe('GIVEN onCreditsCommand opens the drawer', () => {

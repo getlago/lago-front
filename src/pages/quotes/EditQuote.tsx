@@ -397,12 +397,15 @@ const EditQuote = () => {
 
   const handleCreditsBlocksChange = useCallback(
     (blocks: CreditsBlockAttributes[]) => {
-      // See handlePricingBlocksChange: skip reconciliation during a rollback so
-      // the failed wallet's cached payload isn't pruned, which would break a
-      // corrected resubmit.
-      if (isRollingBackRef.current) return
-
-      const updated = credits.syncCreditsBlocks(blocks)
+      // Unlike handlePricingBlocksChange, we don't skip the whole reconciliation
+      // during a rollback: syncCreditsBlocks must still refresh the wallet-cap
+      // count, or a rolled-back create leaves it stale and wrongly disables
+      // /credits until the next edit. We only skip the pruning branch during a
+      // rollback so the failed wallet's cached payload survives a corrected
+      // resubmit (prune:false also returns undefined → no corrective save).
+      const updated = credits.syncCreditsBlocks(blocks, {
+        prune: !isRollingBackRef.current,
+      })
 
       if (updated) {
         savePricingBlock(updated)
