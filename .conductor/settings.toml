@@ -24,3 +24,10 @@ run_mode = "concurrent"
 command = "$LAGO_PATH/front/scripts/conductor-front-container.sh up"
 default = true
 icon = "container"
+
+# Open an interactive shell inside this workspace's running container. Run the
+# `container` script first. Commands here (pnpm codegen, pnpm test, node) use the
+# container's node_modules and network, where `api:3000` resolves.
+[scripts.run.shell]
+command = "$LAGO_PATH/front/scripts/conductor-front-container.sh shell"
+icon = "square-terminal"

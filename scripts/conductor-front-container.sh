@@ -120,11 +120,26 @@ cmd_down() {
   echo "Removed front container for '$NAME'."
 }
 
+cmd_shell() {
+  # Open an interactive shell INSIDE this workspace's front container, so
+  # pnpm/node/codegen run with the container's node_modules and network
+  # (api:3000 resolves, unlike on the host). Wired as [scripts.run.shell].
+  local container="lago_front_ct_${SAN}"
+  if ! docker ps --format '{{.Names}}' | grep -q "^${container}\$"; then
+    echo "Container ${container} is not running." >&2
+    echo "Start it first with the 'container' run script (or: conductor-front-container.sh up)." >&2
+    exit 1
+  fi
+  # -w /app lands in the mounted workspace; bash exists in the front_dev image.
+  exec docker exec -it -w /app "$container" bash
+}
+
 case "$CMD" in
   up) cmd_up ;;
   down) cmd_down ;;
+  shell) cmd_shell ;;
   *)
-    echo "Usage: conductor-front-container.sh {up|down}" >&2
+    echo "Usage: conductor-front-container.sh {up|down|shell}" >&2
     exit 1
     ;;
 esac
