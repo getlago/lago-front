@@ -118,6 +118,7 @@ const buildSections = (
           label: entitlement.name || entitlement.code,
         })),
       },
+      { id: PlanDetailsV2SectionId.Metadata, labelKey: 'text_63fcc3218d35b9377840f59b' },
     )
   }
 

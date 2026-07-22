@@ -7,6 +7,7 @@ export enum PlanDetailsV2SectionId {
   MinimumCommitment = 'minimum-commitment',
   ProgressiveBilling = 'progressive-billing',
   Entitlements = 'entitlements',
+  Metadata = 'metadata',
 }
 
 // Scroll-anchor id shared by the sidebar entitlement child item and its
