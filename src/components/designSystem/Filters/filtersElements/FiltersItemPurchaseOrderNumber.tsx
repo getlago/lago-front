@@ -16,7 +16,7 @@ export const FiltersItemPurchaseOrderNumber = ({
 
   return (
     <TextInput
-      placeholder={translate('text_17822197712869ou05y6kwt7')}
+      placeholder={translate('text_1741014096283pwl7a5oa69a')}
       value={value}
       onChange={(val) => setFilterValue(val)}
       inputProps={{ maxLength: 255 }}
