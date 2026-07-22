@@ -98,7 +98,7 @@ export const useWalletFreeAndPaidCreditsDrawer = (
     },
     // handleFormSubmit is stable (closure over form) — safe to omit
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [drawer, form, translate, ctx.currency, ctx.rateAmount, ctx.walletName],
+    [drawer, form, translate, ctx.currency, ctx.rateAmount, ctx.walletName, ctx.min, ctx.max],
   )
 
   return { openDrawer }
