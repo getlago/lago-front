@@ -22,6 +22,8 @@ import { useCrmProviders } from '~/pages/createCustomers/common/useCrmProviders'
 import { usePaymentProviders } from '~/pages/createCustomers/common/usePaymentProviders'
 import { useTaxProviders } from '~/pages/createCustomers/common/useTaxProviders'
 
+import { getSubsidiaryLabel } from './utils'
+
 import { useAccountingProvidersSubsidaries } from '../accountingProvidersAccordion/useAccountingProvidersSubsidaries'
 import StripePaymentProviderContent from '../paymentProvidersAccordion/StripePaymentProviderContent'
 
@@ -150,7 +152,7 @@ export const ConnectionDrawerProviderContent = ({
 
     return subsidiariesData.integrationSubsidiaries.collection.map((integrationSubsidiary) => ({
       value: integrationSubsidiary.externalId,
-      label: `${integrationSubsidiary.externalName} (${integrationSubsidiary.externalId})`,
+      label: getSubsidiaryLabel(integrationSubsidiary),
       labelNode: (
         <ConnectionComboBoxLabel
           label={integrationSubsidiary.externalName ?? ''}

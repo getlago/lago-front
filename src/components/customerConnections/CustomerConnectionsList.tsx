@@ -118,49 +118,51 @@ export const CustomerConnectionsList = ({
               </div>
             )}
 
-            <div className="relative z-10">
-              <Popper
-                PopperProps={{ placement: 'bottom-end' }}
-                opener={
-                  <Button
-                    icon="dots-horizontal"
-                    variant="quaternary"
-                    data-test={getCustomerConnectionMenuTestId(row.category)}
-                  />
-                }
-              >
-                {({ closePopper }) => (
-                  <MenuPopper>
-                    {!!onEdit && (
-                      <Button
-                        startIcon="pen"
-                        variant="quaternary"
-                        align="left"
-                        onClick={() => {
-                          onEdit(row)
-                          closePopper()
-                        }}
-                      >
-                        {translate('text_65845f35d7d69c3ab4793dac')}
-                      </Button>
-                    )}
-                    {!!onDelete && (
-                      <Button
-                        startIcon="trash"
-                        variant="quaternary"
-                        align="left"
-                        onClick={() => {
-                          onDelete(row)
-                          closePopper()
-                        }}
-                      >
-                        {translate('text_65845f35d7d69c3ab4793dad')}
-                      </Button>
-                    )}
-                  </MenuPopper>
-                )}
-              </Popper>
-            </div>
+            {(!!onEdit || !!onDelete) && (
+              <div className="relative z-10">
+                <Popper
+                  PopperProps={{ placement: 'bottom-end' }}
+                  opener={
+                    <Button
+                      icon="dots-horizontal"
+                      variant="quaternary"
+                      data-test={getCustomerConnectionMenuTestId(row.category)}
+                    />
+                  }
+                >
+                  {({ closePopper }) => (
+                    <MenuPopper>
+                      {!!onEdit && (
+                        <Button
+                          startIcon="pen"
+                          variant="quaternary"
+                          align="left"
+                          onClick={() => {
+                            onEdit(row)
+                            closePopper()
+                          }}
+                        >
+                          {translate('text_65845f35d7d69c3ab4793dac')}
+                        </Button>
+                      )}
+                      {!!onDelete && (
+                        <Button
+                          startIcon="trash"
+                          variant="quaternary"
+                          align="left"
+                          onClick={() => {
+                            onDelete(row)
+                            closePopper()
+                          }}
+                        >
+                          {translate('text_65845f35d7d69c3ab4793dad')}
+                        </Button>
+                      )}
+                    </MenuPopper>
+                  )}
+                </Popper>
+              </div>
+            )}
           </div>
         )
       })}

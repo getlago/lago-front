@@ -312,7 +312,10 @@ const ExternalAppsAccordion = withForm({
         case ConnectionCategory.Accounting:
           form.setFieldValue('accountingProviderCode', values.providerCode)
           form.setFieldValue('accountingCustomer', {
-            id: accountingCustomer?.id,
+            // Keep the integration-customer id only when the connection is
+            // unchanged: on a switch the backend must create a new link
+            // instead of updating the stale one
+            id: values.providerCode === accountingProviderCode ? accountingCustomer?.id : undefined,
             accountingCustomerId: values.externalCustomerId ?? '',
             syncWithProvider: values.syncWithProvider ?? false,
             providerType: (values.providerType as IntegrationTypeEnum) || undefined,
@@ -322,7 +325,7 @@ const ExternalAppsAccordion = withForm({
         case ConnectionCategory.Tax:
           form.setFieldValue('taxProviderCode', values.providerCode)
           form.setFieldValue('taxCustomer', {
-            id: taxCustomer?.id,
+            id: values.providerCode === taxProviderCode ? taxCustomer?.id : undefined,
             taxCustomerId: values.externalCustomerId ?? '',
             syncWithProvider: values.syncWithProvider ?? false,
             providerType: (values.providerType as IntegrationTypeEnum) || undefined,
@@ -331,7 +334,7 @@ const ExternalAppsAccordion = withForm({
         case ConnectionCategory.Crm:
           form.setFieldValue('crmProviderCode', values.providerCode)
           form.setFieldValue('crmCustomer', {
-            id: crmCustomer?.id,
+            id: values.providerCode === crmProviderCode ? crmCustomer?.id : undefined,
             crmCustomerId: values.externalCustomerId ?? '',
             syncWithProvider: values.syncWithProvider ?? false,
             providerType: (values.providerType as IntegrationTypeEnum) || undefined,
