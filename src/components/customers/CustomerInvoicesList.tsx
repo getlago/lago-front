@@ -18,10 +18,7 @@ import {
   FinalizeInvoiceDialog,
   FinalizeInvoiceDialogRef,
 } from '~/components/invoices/FinalizeInvoiceDialog'
-import {
-  ResendInvoiceForCollectionDialog,
-  ResendInvoiceForCollectionDialogRef,
-} from '~/components/invoices/ResendInvoiceForCollectionDialog'
+import { useResendInvoiceForCollectionDialog } from '~/components/invoices/ResendInvoiceForCollectionDialog'
 import { getMostRecentPaymentMethodId } from '~/components/invoices/utils/getMostRecentPaymentMethodId'
 import { addToast } from '~/core/apolloClient'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
@@ -184,7 +181,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
   const { translate } = useInternationalization()
   const actions = usePermissionsInvoiceActions()
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
-  const resendInvoiceForCollectionDialogRef = useRef<ResendInvoiceForCollectionDialogRef>(null)
+  const { openResendInvoiceForCollectionDialog } = useResendInvoiceForCollectionDialog()
   const { handleDownloadFile } = useDownloadFile()
   const { showResendEmailDialog } = useResendEmailDialog()
 
@@ -510,7 +507,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                     startIcon: 'push',
                     title: translate('text_63ac86d897f728a87b2fa039'),
                     onAction: () => {
-                      resendInvoiceForCollectionDialogRef.current?.openDialog({
+                      openResendInvoiceForCollectionDialog({
                         invoice,
                         preselectedPaymentMethodId: getMostRecentPaymentMethodId(invoice?.payments),
                       })
@@ -586,7 +583,6 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
         />
       </PaginatedContent>
       <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
-      <ResendInvoiceForCollectionDialog ref={resendInvoiceForCollectionDialogRef} />
     </>
   )
 }
