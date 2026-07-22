@@ -145,6 +145,14 @@ jest.mock('~/components/invoices/ResendInvoiceForCollectionDialog', () => ({
   }),
 }))
 
+const mockOpenFinalizeInvoiceDialog = jest.fn()
+
+jest.mock('~/components/invoices/FinalizeInvoiceDialog', () => ({
+  useFinalizeInvoiceDialog: () => ({
+    openFinalizeInvoiceDialog: mockOpenFinalizeInvoiceDialog,
+  }),
+}))
+
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
   useDownloadInvoiceItemMutation: (options: typeof downloadInvoiceCallbacks) => {

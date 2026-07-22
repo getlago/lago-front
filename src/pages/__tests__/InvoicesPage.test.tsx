@@ -80,7 +80,7 @@ jest.mock('~/components/invoices/InvoicesList', () => ({
 }))
 
 jest.mock('~/components/invoices/FinalizeInvoiceDialog', () => ({
-  FinalizeInvoiceDialog: () => null,
+  useFinalizeInvoiceDialog: () => ({ openFinalizeInvoiceDialog: jest.fn() }),
 }))
 
 jest.mock('~/components/exports/ExportDialog', () => ({
