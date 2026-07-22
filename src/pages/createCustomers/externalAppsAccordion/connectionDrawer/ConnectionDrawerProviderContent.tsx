@@ -3,7 +3,7 @@ import { useEffect, useMemo } from 'react'
 
 import { ConnectionComboBoxLabel } from '~/components/customerConnections/ConnectionComboBox'
 import { ConnectionDrawerSection } from '~/components/customerConnections/ConnectionDrawerSection'
-import { CustomerConnectionDrawerFormApi } from '~/components/customerConnections/CustomerConnectionDrawer'
+import type { CustomerConnectionDrawerFormApi } from '~/components/customerConnections/CustomerConnectionDrawer'
 import { ConnectionCategory } from '~/components/customerConnections/types'
 import { Alert } from '~/components/designSystem/Alert'
 import { Typography } from '~/components/designSystem/Typography'
