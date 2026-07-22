@@ -53,7 +53,7 @@ jest.mock('~/pages/createCustomers/common/useCrmProviders', () => ({
   useCrmProviders: () => ({
     crmProviders: undefined,
     isLoadingCrmProviders: false,
-    getCrmProviderFromCode: () => null,
+    getCrmProviderFromCode: (code?: string) => (code === 'hubspot-conn' ? 'hubspot' : null),
   }),
 }))
 
@@ -284,6 +284,95 @@ describe('ConnectionDrawerProviderContent — accounting', () => {
         fireEvent.click(checkbox)
 
         expect(externalIdInput(container)).toHaveValue('ACC-42')
+      })
+    })
+  })
+})
+
+describe('ConnectionDrawerProviderContent — crm', () => {
+  describe('GIVEN a Hubspot connection without a targeted object', () => {
+    describe('WHEN the content is rendered', () => {
+      it('THEN should show only the targeted-object combobox, hiding id and sync', () => {
+        const { container } = render(
+          <Harness
+            category={ConnectionCategory.Crm}
+            openedValues={{
+              ...EMPTY_DEFAULTS,
+              providerCode: 'hubspot-conn',
+              providerType: 'hubspot',
+            }}
+          />,
+        )
+
+        expect(
+          container.querySelector('input[name="targetedObject"]') as HTMLInputElement | null,
+        ).toBeInTheDocument()
+        expect(externalIdInput(container)).not.toBeInTheDocument()
+        expect(syncCheckbox(container)).not.toBeInTheDocument()
+      })
+    })
+  })
+})
+
+describe('ConnectionDrawerProviderContent — will-be-created alerts', () => {
+  describe('GIVEN a newly-added synced Xero connection on an existing customer', () => {
+    describe('WHEN the content is rendered', () => {
+      it('THEN should display the info alert (and hide it for persisted connections)', () => {
+        const xeroValues: Values = {
+          ...EMPTY_DEFAULTS,
+          providerCode: 'xero-conn',
+          providerType: 'xero',
+          syncWithProvider: true,
+        }
+
+        const { container, unmount } = render(
+          <Harness category={ConnectionCategory.Accounting} openedValues={xeroValues} />,
+        )
+
+        expect(infoAlert(container)).toBeInTheDocument()
+
+        unmount()
+
+        // Persisted at load → no "will be created" alert
+        const { container: lockedContainer } = render(
+          <Harness
+            category={ConnectionCategory.Accounting}
+            openedValues={xeroValues}
+            hadInitialConnection
+          />,
+        )
+
+        expect(infoAlert(lockedContainer)).not.toBeInTheDocument()
+      })
+    })
+  })
+})
+
+describe('ConnectionDrawerProviderContent — stripe payment methods', () => {
+  describe('GIVEN a payment connection', () => {
+    describe('WHEN the provider is Stripe', () => {
+      it('THEN should mount the payment methods section (and not for other providers)', () => {
+        const { container, unmount } = render(<Harness openedValues={stripeValues()} />)
+
+        expect(
+          container.querySelector('[data-test="checkbox-providerPaymentMethods.card"]'),
+        ).toBeInTheDocument()
+
+        unmount()
+
+        const { container: moneyhashContainer } = render(
+          <Harness
+            openedValues={{
+              ...EMPTY_DEFAULTS,
+              providerCode: 'moneyhash-conn',
+              providerType: 'moneyhash',
+            }}
+          />,
+        )
+
+        expect(
+          moneyhashContainer.querySelector('[data-test="checkbox-providerPaymentMethods.card"]'),
+        ).not.toBeInTheDocument()
       })
     })
   })

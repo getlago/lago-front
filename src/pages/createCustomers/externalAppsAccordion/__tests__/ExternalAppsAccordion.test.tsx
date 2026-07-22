@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import {
@@ -20,10 +20,13 @@ import { render } from '~/test-utils'
 
 import ExternalAppsAccordion from '../ExternalAppsAccordion'
 
-// The drawer stack relies on import.meta (unsupported in jest)
+// The drawer stack relies on import.meta (unsupported in jest).
+// Shared spy so tests can assert the connection drawer opens.
+const mockFormDrawerOpen = jest.fn()
+
 jest.mock('~/components/drawers/useDrawer', () => ({
   useDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
-  useFormDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+  useFormDrawer: () => ({ open: mockFormDrawerOpen, close: jest.fn() }),
 }))
 
 // The NetSuite subsidiaries query hook needs an ApolloProvider — inert here
@@ -126,6 +129,56 @@ describe('ExternalAppsAccordion', () => {
         expect(
           screen.queryByTestId(getCustomerConnectionRowTestId(ConnectionCategory.Crm)),
         ).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN opening the "Add a connection" menu', () => {
+      it('THEN should disable the categories already present and keep the others enabled', async () => {
+        render(<Harness />)
+
+        await openAccordion()
+        await userEvent.click(screen.getByRole('button', { name: /add a connection/i }))
+
+        expect(await screen.findByRole('button', { name: /payment provider/i })).toBeDisabled()
+        expect(screen.getByRole('button', { name: /tax provider/i })).toBeDisabled()
+        expect(screen.getByRole('button', { name: /accounting provider/i })).not.toBeDisabled()
+        expect(screen.getByRole('button', { name: /crm connection/i })).not.toBeDisabled()
+      })
+    })
+
+    describe('WHEN a row is clicked', () => {
+      it('THEN should open the connection drawer in edit', async () => {
+        mockFormDrawerOpen.mockClear()
+
+        render(<Harness />)
+
+        await openAccordion()
+
+        const paymentRow = screen.getByTestId(
+          getCustomerConnectionRowTestId(ConnectionCategory.Payment),
+        )
+
+        await userEvent.click(within(paymentRow).getAllByRole('button')[0])
+
+        expect(mockFormDrawerOpen).toHaveBeenCalledWith(
+          expect.objectContaining({ title: expect.any(String) }),
+        )
+      })
+    })
+
+    describe('WHEN an available category is picked from the "Add a connection" menu', () => {
+      it('THEN should open the connection drawer in create', async () => {
+        mockFormDrawerOpen.mockClear()
+
+        render(<Harness />)
+
+        await openAccordion()
+        await userEvent.click(screen.getByRole('button', { name: /add a connection/i }))
+        await userEvent.click(await screen.findByRole('button', { name: /accounting provider/i }))
+
+        expect(mockFormDrawerOpen).toHaveBeenCalledWith(
+          expect.objectContaining({ title: expect.any(String) }),
+        )
       })
     })
 
