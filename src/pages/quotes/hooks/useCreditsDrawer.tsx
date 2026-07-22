@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import type {
@@ -73,6 +73,23 @@ export const useCreditsDrawer = (
   // Working draft for the currently-open wallet + its save target.
   const draftRef = useRef<WalletFormItem>(makeEmptyWalletItem(''))
   const pendingSaveRef = useRef<PendingSave | null>(null)
+
+  // Hydration: the refs above init once, but `billingItems` is undefined on the
+  // first render when the quote query is still loading (cold cache). Re-run
+  // `fromWallets` when it arrives so saved wallet blocks resolve to preview data
+  // and edit opens the persisted wallet (not a blank form). Idempotent post-save:
+  // committed `billingItems` reproduces the same items — the working draft lives
+  // in `draftRef`, so this never clobbers an in-progress edit. Mirrors the
+  // hydration effect in useSubscriptionPricingDrawer.
+  useEffect(() => {
+    if (!billingItems?.walletCredits) return
+
+    const result = fromWallets(billingItems.walletCredits)
+
+    itemsRef.current = Object.fromEntries(result.walletItems.map((w) => [w.localId, w]))
+    blockCountRef.current = result.walletItems.length
+    setEntities(result.entities)
+  }, [billingItems])
 
   const rebuild = useCallback((): BillingItemsPayload => {
     const items = Object.values(itemsRef.current)
