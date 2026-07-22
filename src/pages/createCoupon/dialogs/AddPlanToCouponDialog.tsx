@@ -6,7 +6,6 @@ import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { ComboboxItem } from '~/components/form'
 import {
   SelectablePlanForCouponsFragment,
-  SelectablePlanForCouponsFragmentDoc,
   useGetPlansForCouponsLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -28,8 +27,6 @@ gql`
       }
     }
   }
-
-  ${SelectablePlanForCouponsFragmentDoc}
 `
 
 export const ADD_PLAN_FORM_ID = 'add-plan-to-coupon-form'

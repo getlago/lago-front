@@ -7,7 +7,6 @@ import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { ComboboxItem } from '~/components/form'
 import {
   SelectableBillableMetricForCouponsFragment,
-  SelectableBillableMetricForCouponsFragmentDoc,
   useGetBillableMetricsForCouponsLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -29,8 +28,6 @@ gql`
       }
     }
   }
-
-  ${SelectableBillableMetricForCouponsFragmentDoc}
 `
 
 export const ADD_BILLABLE_METRIC_FORM_ID = 'add-billable-metric-to-coupon-form'
