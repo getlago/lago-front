@@ -1,11 +1,16 @@
 import { MockedProvider } from '@apollo/client/testing'
+import { revalidateLogic } from '@tanstack/react-form'
 import { act, screen, within } from '@testing-library/react'
 import { useEffect } from 'react'
 
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { render } from '~/test-utils'
 
-import { PRODUCT_ITEM_FILTER_FORM_DEFAULTS, ProductItemFilterFormValues } from '../constants'
+import {
+  PRODUCT_ITEM_FILTER_FORM_DEFAULTS,
+  productItemFilterDrawerSchema,
+  ProductItemFilterFormValues,
+} from '../constants'
 import {
   ComboboxSeed,
   PRODUCT_ITEM_FILTER_DRAWER_MISSING_VALUES_ALERT_TEST_ID,
@@ -26,13 +31,21 @@ const PRODUCT_ITEM_COMBOBOX_PLACEHOLDER_KEY = 'text_1784579021080kajutbc14la'
 const SEEDED_FILTERS = [{ id: 'bmf-1', key: 'payment_method', values: ['card', 'cash'] }]
 const PRODUCT_ITEM_SEED: ComboboxSeed = { value: 'pi-1', label: 'Storage' }
 
+// Test-facing handles onto the harness form so cases can drive the real
+// validation lifecycle (submit-first, then dynamic) exactly as the drawer does.
+type FormControls = {
+  setProductItemId: (productItemId: string) => void
+  submit: () => Promise<void>
+  reset: () => void
+}
+
 type HarnessProps = {
   defaultValues?: Partial<ProductItemFilterFormValues>
   isEdit?: boolean
   disableCodeInput?: boolean
   productItemSeed?: ComboboxSeed
   seededFilters?: Array<{ id: string; key: string; values: string[] }>
-  onFormReady?: (setProductItemId: (productItemId: string) => void) => void
+  onFormReady?: (controls: FormControls) => void
 }
 
 const ContentHarness = ({
@@ -43,12 +56,22 @@ const ContentHarness = ({
   seededFilters = [],
   onFormReady,
 }: HarnessProps) => {
+  // Mirror the real drawer's validation config so the "define at least one
+  // filter" alert (gated on the values field's validation errors) behaves here
+  // exactly as in production.
   const form = useAppForm({
     defaultValues: { ...PRODUCT_ITEM_FILTER_FORM_DEFAULTS, ...defaultValues },
+    validationLogic: revalidateLogic(),
+    validators: { onDynamic: productItemFilterDrawerSchema },
+    onSubmit: () => {},
   })
 
   useEffect(() => {
-    onFormReady?.((productItemId) => form.setFieldValue('productItemId', productItemId))
+    onFormReady?.({
+      setProductItemId: (productItemId) => form.setFieldValue('productItemId', productItemId),
+      submit: () => form.handleSubmit(),
+      reset: () => form.reset(PRODUCT_ITEM_FILTER_FORM_DEFAULTS),
+    })
   }, [onFormReady, form])
 
   return (
@@ -68,6 +91,12 @@ const renderContent = (props: HarnessProps = {}) =>
       <ContentHarness {...props} />
     </MockedProvider>,
   )
+
+const queryMissingValuesAlert = () =>
+  screen.queryByTestId(PRODUCT_ITEM_FILTER_DRAWER_MISSING_VALUES_ALERT_TEST_ID)
+
+const findMissingValuesAlert = () =>
+  screen.findByTestId(PRODUCT_ITEM_FILTER_DRAWER_MISSING_VALUES_ALERT_TEST_ID)
 
 const getValuesEditorInput = () =>
   within(screen.getByTestId(PRODUCT_ITEM_FILTER_VALUES_COMBOBOX_TEST_ID)).getByRole('combobox')
@@ -94,27 +123,84 @@ describe('ProductItemFilterDrawerContent', () => {
   })
 
   describe('GIVEN the "define at least one filter" alert', () => {
-    it('shows the alert when no value is selected', () => {
-      renderContent()
+    it('stays hidden before the first submit even when no value is selected', () => {
+      renderContent({
+        productItemSeed: PRODUCT_ITEM_SEED,
+        seededFilters: SEEDED_FILTERS,
+        defaultValues: { productItemId: 'pi-1' },
+      })
 
-      expect(
-        screen.getByTestId(PRODUCT_ITEM_FILTER_DRAWER_MISSING_VALUES_ALERT_TEST_ID),
-      ).toBeInTheDocument()
+      expect(queryMissingValuesAlert()).not.toBeInTheDocument()
     })
 
-    it('hides the alert once at least one value exists', () => {
+    it('shows the alert after a submit with no value selected', async () => {
+      let controls: FormControls | null = null
+
+      renderContent({
+        productItemSeed: PRODUCT_ITEM_SEED,
+        seededFilters: SEEDED_FILTERS,
+        defaultValues: { name: 'Storage EU', code: 'storage_eu', productItemId: 'pi-1' },
+        onFormReady: (readyControls) => {
+          controls = readyControls
+        },
+      })
+
+      await act(async () => {
+        await controls?.submit()
+      })
+
+      expect(await findMissingValuesAlert()).toBeInTheDocument()
+    })
+
+    it('keeps the alert hidden after a submit when at least one value exists', async () => {
+      let controls: FormControls | null = null
+
       renderContent({
         productItemSeed: PRODUCT_ITEM_SEED,
         seededFilters: SEEDED_FILTERS,
         defaultValues: {
+          name: 'Storage EU',
+          code: 'storage_eu',
           productItemId: 'pi-1',
           values: [{ billableMetricFilterId: 'bmf-1', value: 'card' }],
         },
+        onFormReady: (readyControls) => {
+          controls = readyControls
+        },
       })
 
-      expect(
-        screen.queryByTestId(PRODUCT_ITEM_FILTER_DRAWER_MISSING_VALUES_ALERT_TEST_ID),
-      ).not.toBeInTheDocument()
+      await act(async () => {
+        await controls?.submit()
+      })
+
+      expect(queryMissingValuesAlert()).not.toBeInTheDocument()
+    })
+
+    it('hides the alert again after a form reset ("create more") until the next submit', async () => {
+      let controls: FormControls | null = null
+
+      renderContent({
+        productItemSeed: PRODUCT_ITEM_SEED,
+        seededFilters: SEEDED_FILTERS,
+        defaultValues: { name: 'Storage EU', code: 'storage_eu', productItemId: 'pi-1' },
+        onFormReady: (readyControls) => {
+          controls = readyControls
+        },
+      })
+
+      // A failed submit surfaces the validation alert...
+      await act(async () => {
+        await controls?.submit()
+      })
+      expect(await findMissingValuesAlert()).toBeInTheDocument()
+
+      // ...but resetting the form (as "create more" does after a creation) clears
+      // the validation state, so the alert does not fire again until the next submit.
+      await act(async () => {
+        controls?.reset()
+      })
+
+      expect(queryMissingValuesAlert()).not.toBeInTheDocument()
     })
   })
 
@@ -138,31 +224,36 @@ describe('ProductItemFilterDrawerContent', () => {
 
   describe('GIVEN switching the selected product item', () => {
     it('clears the previously selected values', async () => {
-      let setProductItemId: ((productItemId: string) => void) | null = null
+      let controls: FormControls | null = null
 
       renderContent({
         productItemSeed: PRODUCT_ITEM_SEED,
         seededFilters: SEEDED_FILTERS,
         defaultValues: {
+          name: 'Storage EU',
+          code: 'storage_eu',
           productItemId: 'pi-1',
           values: [{ billableMetricFilterId: 'bmf-1', value: 'card' }],
         },
-        onFormReady: (setter) => {
-          setProductItemId = setter
+        onFormReady: (readyControls) => {
+          controls = readyControls
         },
       })
 
-      // A value is selected, so the "define at least one filter" alert is hidden.
-      expect(
-        screen.queryByTestId(PRODUCT_ITEM_FILTER_DRAWER_MISSING_VALUES_ALERT_TEST_ID),
-      ).not.toBeInTheDocument()
+      // Submit once (values are valid, so no alert) to activate dynamic
+      // validation, then switch the product item.
+      await act(async () => {
+        await controls?.submit()
+      })
+      expect(queryMissingValuesAlert()).not.toBeInTheDocument()
 
-      act(() => setProductItemId?.('pi-2'))
+      // Switching clears the stale values, so the values field now fails
+      // validation and the alert reappears.
+      await act(async () => {
+        controls?.setProductItemId('pi-2')
+      })
 
-      // The stale values are cleared, so the alert reappears.
-      expect(
-        await screen.findByTestId(PRODUCT_ITEM_FILTER_DRAWER_MISSING_VALUES_ALERT_TEST_ID),
-      ).toBeInTheDocument()
+      expect(await findMissingValuesAlert()).toBeInTheDocument()
     })
   })
 })

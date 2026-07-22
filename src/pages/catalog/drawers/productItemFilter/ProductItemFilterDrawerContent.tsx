@@ -238,7 +238,7 @@ const ProductItemFilterDrawerFormSections = withForm({
                   hasError={field.state.meta.errors.length > 0}
                 />
 
-                {field.state.value.length === 0 && (
+                {field.state.meta.errors.length > 0 && (
                   <Alert
                     type="danger"
                     data-test={PRODUCT_ITEM_FILTER_DRAWER_MISSING_VALUES_ALERT_TEST_ID}

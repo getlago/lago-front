@@ -2,7 +2,6 @@ import { FetchResult, gql } from '@apollo/client'
 import { revalidateLogic } from '@tanstack/react-form'
 import { useRef } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
-import { z } from 'zod'
 
 import { useCreateMore } from '~/components/drawers/createMore/useCreateMore'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
@@ -25,6 +24,7 @@ import {
   PRODUCT_ITEM_FILTER_DRAWER_SUBMIT_TEST_ID,
   PRODUCT_ITEM_FILTER_FORM_DEFAULTS,
   PRODUCT_ITEM_FILTER_FORM_ID,
+  productItemFilterDrawerSchema,
   ProductItemFilterFormValues,
 } from './constants'
 import {
@@ -95,17 +95,6 @@ gql`
     }
   }
 `
-
-const productItemFilterDrawerSchema = z.object({
-  name: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
-  code: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
-  description: z.string(),
-  invoiceDisplayName: z.string(),
-  productItemId: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
-  values: z
-    .array(z.object({ billableMetricFilterId: z.string(), value: z.string() }))
-    .min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
-})
 
 const mapProductItemFilterToFormValues = (
   productItemFilter: ProductItemFilterForDrawerFragment,
