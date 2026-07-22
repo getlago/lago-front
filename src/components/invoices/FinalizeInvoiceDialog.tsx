@@ -1,8 +1,6 @@
 import { gql, useApolloClient } from '@apollo/client'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
-import { Button } from '~/components/designSystem/Button'
-import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast, LagoGQLError } from '~/core/apolloClient'
 import {
   AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc,
@@ -34,45 +32,20 @@ gql`
   ${AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc}
 `
 
-export interface FinalizeInvoiceDialogRef {
-  openDialog: (
-    invoice: InvoiceForFinalizeInvoiceFragment | null | undefined,
-    callback?: () => void,
-  ) => unknown
-  closeDialog: () => unknown
+type FinalizeInvoiceDialogData = {
+  invoice: InvoiceForFinalizeInvoiceFragment | null | undefined
+  callback?: () => void
 }
 
-export const FinalizeInvoiceDialog = forwardRef<FinalizeInvoiceDialogRef>((_, ref) => {
+export const useFinalizeInvoiceDialog = () => {
+  const centralizedDialog = useCentralizedDialog()
   const { translate } = useInternationalization()
   const { formattedDateWithTimezone } = useFormatterDateHelper()
-  const dialogRef = useRef<DialogRef>(null)
-  const [invoice, setInvoice] = useState<InvoiceForFinalizeInvoiceFragment>()
-  const [callback, setCallback] = useState<(() => void) | null>(null)
-
   const client = useApolloClient()
 
   const [finalizeInvoice] = useFinalizeInvoiceMutation({
-    variables: { input: { id: invoice?.id || '' } },
     context: {
       silentErrorCodes: [LagoApiError.UnprocessableEntity, LagoApiError.InternalError],
-    },
-    onCompleted({ finalizeInvoice: finalizeInvoiceRes }) {
-      const isClosed = finalizeInvoiceRes?.status === InvoiceStatusTypeEnum.Closed
-
-      client.refetchQueries({
-        include: isClosed ? ['getCustomerInvoices'] : ['getCustomerInvoices', 'getInvoiceDetails'],
-      })
-
-      if (finalizeInvoiceRes?.id) {
-        addToast({
-          message: translate('text_63a41b3a01db40c7fff551e1'),
-          severity: 'success',
-        })
-      }
-
-      if (isClosed) {
-        callback?.()
-      }
     },
     onError: ({ graphQLErrors }) => {
       graphQLErrors.forEach((graphQLError) => {
@@ -88,45 +61,47 @@ export const FinalizeInvoiceDialog = forwardRef<FinalizeInvoiceDialogRef>((_, re
     },
   })
 
-  useImperativeHandle(ref, () => ({
-    openDialog: (infos, callbackFn) => {
-      !!infos && setInvoice(infos)
-      callbackFn && setCallback(() => callbackFn)
-      dialogRef.current?.openDialog()
-    },
-    closeDialog: () => dialogRef.current?.closeDialog(),
-  }))
+  const openFinalizeInvoiceDialog = (
+    invoice: InvoiceForFinalizeInvoiceFragment | null | undefined,
+    callback?: () => void,
+  ) => {
+    const data: FinalizeInvoiceDialogData = { invoice, callback }
 
-  return (
-    <Dialog
-      ref={dialogRef}
-      title={translate('text_63a4269f72ead1bda4bed106')}
-      description={translate('text_63a4269f72ead1bda4bed108', {
-        issuingDate: invoice?.issuingDate ? formattedDateWithTimezone(invoice?.issuingDate) : '-',
-      })}
-      actions={({ closeDialog }) => (
-        <>
-          <Button
-            variant="quaternary"
-            onClick={() => {
-              closeDialog()
-            }}
-          >
-            {translate('text_63a4269f72ead1bda4bed10a')}
-          </Button>
-          <Button
-            variant="primary"
-            onClick={async () => {
-              await finalizeInvoice()
-              closeDialog()
-            }}
-          >
-            {translate('text_63a4269f72ead1bda4bed10c')}
-          </Button>
-        </>
-      )}
-    />
-  )
-})
+    centralizedDialog.open({
+      title: translate('text_63a4269f72ead1bda4bed106'),
+      description: translate('text_63a4269f72ead1bda4bed108', {
+        issuingDate: data.invoice?.issuingDate
+          ? formattedDateWithTimezone(data.invoice.issuingDate)
+          : '-',
+      }),
+      actionText: translate('text_63a4269f72ead1bda4bed10c'),
+      onAction: async () => {
+        const result = await finalizeInvoice({
+          variables: { input: { id: data.invoice?.id || '' } },
+        })
 
-FinalizeInvoiceDialog.displayName = 'forwardRef'
+        const finalizeInvoiceRes = result.data?.finalizeInvoice
+        const isClosed = finalizeInvoiceRes?.status === InvoiceStatusTypeEnum.Closed
+
+        client.refetchQueries({
+          include: isClosed
+            ? ['getCustomerInvoices']
+            : ['getCustomerInvoices', 'getInvoiceDetails'],
+        })
+
+        if (finalizeInvoiceRes?.id) {
+          addToast({
+            message: translate('text_63a41b3a01db40c7fff551e1'),
+            severity: 'success',
+          })
+        }
+
+        if (isClosed) {
+          data.callback?.()
+        }
+      },
+    })
+  }
+
+  return { openFinalizeInvoiceDialog }
+}

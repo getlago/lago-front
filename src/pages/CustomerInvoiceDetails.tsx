@@ -12,10 +12,7 @@ import { buildInvoiceDocumentData } from '~/components/emails/buildDocumentData'
 import { AddMetadataDrawer, AddMetadataDrawerRef } from '~/components/invoices/AddMetadataDrawer'
 import { useDisputeInvoiceDialog } from '~/components/invoices/DisputeInvoiceDialog'
 import { useUpdateInvoicePaymentStatusDialog } from '~/components/invoices/EditInvoicePaymentStatusDialog'
-import {
-  FinalizeInvoiceDialog,
-  FinalizeInvoiceDialogRef,
-} from '~/components/invoices/FinalizeInvoiceDialog'
+import { useFinalizeInvoiceDialog } from '~/components/invoices/FinalizeInvoiceDialog'
 import { InvoiceActivityLogs } from '~/components/invoices/InvoiceActivityLogs'
 import { InvoiceCreditNoteList } from '~/components/invoices/InvoiceCreditNoteList'
 import { InvoicePaymentList } from '~/components/invoices/InvoicePaymentList'
@@ -314,7 +311,7 @@ const CustomerInvoiceDetails = () => {
   const { goBack } = useLocationHistory()
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
-  const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
+  const { openFinalizeInvoiceDialog } = useFinalizeInvoiceDialog()
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
   const { openUpdateInvoicePaymentStatusDialog } = useUpdateInvoicePaymentStatusDialog()
   const addMetadataDrawerDialogRef = useRef<AddMetadataDrawerRef>(null)
@@ -770,7 +767,7 @@ const CustomerInvoiceDetails = () => {
           label: translate('text_63a41a8eabb9ae67047c1c08'),
           hidden: !authorizations.canFinalizeInvoice,
           onClick: (closePopper: () => void) => {
-            finalizeInvoiceRef.current?.openDialog(data?.invoice)
+            openFinalizeInvoiceDialog(data?.invoice)
             closePopper()
           },
         },
@@ -1026,7 +1023,6 @@ const CustomerInvoiceDetails = () => {
         <DetailsPage.Container>{activeTabContent}</DetailsPage.Container>
       )}
 
-      <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
       {!!invoice && <AddMetadataDrawer ref={addMetadataDrawerDialogRef} invoiceId={invoice.id} />}
     </>
   )

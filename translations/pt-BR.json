@@ -1306,7 +1306,6 @@
   "text_63a41b3a01db40c7fff551e1": "Fatura finalizada com sucesso",
   "text_63a4269f72ead1bda4bed106": "Finalizar um rascunho de fatura",
   "text_63a4269f72ead1bda4bed108": "Você não poderá mais ajustar os itens, a fatura será gerada instantaneamente. Tem certeza? \n\nCaso contrário, a fatura será gerada automaticamente em {{issuingDate}}.",
-  "text_63a4269f72ead1bda4bed10a": "Cancelar",
   "text_63a4269f72ead1bda4bed10c": "Finalizar fatura",
   "text_63b6f4e9b074e3b8beebb97f": "Cupons, créditos pré-pagos e notas de crédito impactarão a fatura assim que ela for finalizada.",
   "text_634687079be251fdb438338f": "Ações",

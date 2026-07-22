@@ -1,6 +1,6 @@
 import { ApolloError, LazyQueryHookOptions } from '@apollo/client'
 import { IconName } from 'lago-design-system'
-import { useMemo, useRef } from 'react'
+import { useMemo } from 'react'
 import { generatePath, useSearchParams } from 'react-router-dom'
 
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
@@ -15,10 +15,7 @@ import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { buildInvoiceDocumentData } from '~/components/emails/buildDocumentData'
 import { useUpdateInvoicePaymentStatusDialog } from '~/components/invoices/EditInvoicePaymentStatusDialog'
-import {
-  FinalizeInvoiceDialog,
-  FinalizeInvoiceDialogRef,
-} from '~/components/invoices/FinalizeInvoiceDialog'
+import { useFinalizeInvoiceDialog } from '~/components/invoices/FinalizeInvoiceDialog'
 import { useResendInvoiceForCollectionDialog } from '~/components/invoices/ResendInvoiceForCollectionDialog'
 import { getEmptyStateConfig } from '~/components/invoices/utils/emptyStateMapping'
 import { getMostRecentPaymentMethodId } from '~/components/invoices/utils/getMostRecentPaymentMethodId'
@@ -93,7 +90,7 @@ const InvoicesList = ({
 
   const { handleDownloadFile } = useDownloadFile()
 
-  const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
+  const { openFinalizeInvoiceDialog } = useFinalizeInvoiceDialog()
   const { openUpdateInvoicePaymentStatusDialog } = useUpdateInvoicePaymentStatusDialog()
   const { openResendInvoiceForCollectionDialog } = useResendInvoiceForCollectionDialog()
 
@@ -233,7 +230,7 @@ const InvoicesList = ({
             startIcon: 'checkmark',
             title: translate('text_63a41a8eabb9ae67047c1c08'),
             onAction: (item) => {
-              finalizeInvoiceRef.current?.openDialog(item)
+              openFinalizeInvoiceDialog(item)
             },
           }
         : null
@@ -558,8 +555,6 @@ const InvoicesList = ({
           }}
         />
       </PaginatedContent>
-
-      <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
     </>
   )
 }

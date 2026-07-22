@@ -1,8 +1,6 @@
-import { RefObject } from 'react'
-
 import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
-import { FinalizeInvoiceDialogRef } from '~/components/invoices/FinalizeInvoiceDialog'
+import { useFinalizeInvoiceDialog } from '~/components/invoices/FinalizeInvoiceDialog'
 import { envGlobalVar } from '~/core/apolloClient'
 import {
   AllInvoiceDetailsForCustomerInvoiceDetailsFragment,
@@ -30,7 +28,6 @@ interface InvoiceOverviewHeaderButtonsProps {
   retryInvoice: RetryInvoiceMutationFn
   downloadInvoice: DownloadInvoiceItemMutationFn
   downloadInvoiceXml: DownloadInvoiceItemMutationFn
-  finalizeInvoiceRef: RefObject<FinalizeInvoiceDialogRef>
   goToPreviousRoute?: () => void
   invoiceId?: string
 }
@@ -48,11 +45,11 @@ export const InvoiceOverviewHeaderButtons = ({
   retryInvoice,
   downloadInvoice,
   downloadInvoiceXml,
-  finalizeInvoiceRef,
   goToPreviousRoute,
   invoiceId,
 }: InvoiceOverviewHeaderButtonsProps) => {
   const { translate } = useInternationalization()
+  const { openFinalizeInvoiceDialog } = useFinalizeInvoiceDialog()
 
   const isTaxStatusPending = invoice?.taxStatus === InvoiceTaxStatusTypeEnum.Pending
   const canDownloadInvoice = !hasError && !loading && !disablePdfGeneration
@@ -75,7 +72,7 @@ export const InvoiceOverviewHeaderButtons = ({
           variant="quaternary"
           disabled={loading || isTaxStatusPending}
           onClick={() => {
-            finalizeInvoiceRef.current?.openDialog(invoice, goToPreviousRoute)
+            openFinalizeInvoiceDialog(invoice, goToPreviousRoute)
           }}
         >
           {translate('text_638f4d756d899445f18a4a10')}

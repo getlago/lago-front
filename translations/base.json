@@ -1274,7 +1274,6 @@
   "text_63a41b3a01db40c7fff551e1": "Invoice successfully finalized",
   "text_63a4269f72ead1bda4bed106": "Finalize a draft invoice",
   "text_63a4269f72ead1bda4bed108": "You won’t be able to adjust items anymore, the invoice will be generated instantly. Are you sure?   \n\nOtherwise, the invoice will be generated automatically on {{issuingDate}}.",
-  "text_63a4269f72ead1bda4bed10a": "Cancel",
   "text_63a4269f72ead1bda4bed10c": "Finalize invoice",
   "text_63b6f4e9b074e3b8beebb97f": "Coupons, prepaid credits and credit notes will impact the invoice once it’s finalized.",
   "text_634687079be251fdb438338f": "Actions",
