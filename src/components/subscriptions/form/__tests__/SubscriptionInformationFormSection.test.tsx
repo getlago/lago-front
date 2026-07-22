@@ -1,10 +1,11 @@
 import { screen } from '@testing-library/react'
 
+import { PURCHASE_ORDER_ADD_BUTTON_TEST_ID } from '~/components/purchaseOrder/PurchaseOrderButtons'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
-import { BillingTimeEnum, PlanInterval } from '~/generated/graphql'
+import { BillingTimeEnum, PlanInterval, StatusTypeEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import { SubscriptionFormType } from '../buildSubscriptionDefaultValues'
+import { SubscriptionDefaultsSource, SubscriptionFormType } from '../buildSubscriptionDefaultValues'
 import { SubscriptionInformationFormSection } from '../SubscriptionInformationFormSection'
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
@@ -115,6 +116,7 @@ const createMockForm = (values: Record<string, unknown> = {}) => ({
 const renderSection = (
   overrides: Partial<{
     formType: SubscriptionFormType
+    subscription: SubscriptionDefaultsSource
     shouldDisplaySubscriptionExternalId: boolean
     shouldDisplaySubscriptionName: boolean
     selectedPlanInterval: PlanInterval
@@ -125,7 +127,7 @@ const renderSection = (
       // @ts-expect-error — mock form shape
       form={createMockForm()}
       formType={overrides.formType ?? FORM_TYPE_ENUM.creation}
-      subscription={undefined}
+      subscription={overrides.subscription}
       customerTimezone={undefined}
       shouldDisplaySubscriptionExternalId={overrides.shouldDisplaySubscriptionExternalId ?? false}
       setShouldDisplaySubscriptionExternalId={jest.fn()}
@@ -165,5 +167,34 @@ describe('SubscriptionInformationFormSection', () => {
       expect(screen.getByTestId('create-subscription-form-wrapper')).toBeInTheDocument()
       expect(screen.queryByText('text_62ea7cd44cd4b14bb9ac1db7')).not.toBeInTheDocument()
     })
+  })
+
+  describe('PO number editability by subscription status', () => {
+    const subscriptionWith = (status: StatusTypeEnum) =>
+      ({ status }) as unknown as SubscriptionDefaultsSource
+
+    it('THEN keeps the PO field editable during creation (no subscription)', () => {
+      renderSection({ formType: FORM_TYPE_ENUM.creation })
+
+      expect(screen.getByTestId(PURCHASE_ORDER_ADD_BUTTON_TEST_ID)).not.toBeDisabled()
+    })
+
+    it.each([StatusTypeEnum.Pending, StatusTypeEnum.Active])(
+      'THEN keeps the PO field editable when editing a %s subscription',
+      (status) => {
+        renderSection({ formType: FORM_TYPE_ENUM.edition, subscription: subscriptionWith(status) })
+
+        expect(screen.getByTestId(PURCHASE_ORDER_ADD_BUTTON_TEST_ID)).not.toBeDisabled()
+      },
+    )
+
+    it.each([StatusTypeEnum.Terminated, StatusTypeEnum.Canceled, StatusTypeEnum.Incomplete])(
+      'THEN disables the PO field when editing a %s subscription',
+      (status) => {
+        renderSection({ formType: FORM_TYPE_ENUM.edition, subscription: subscriptionWith(status) })
+
+        expect(screen.getByTestId(PURCHASE_ORDER_ADD_BUTTON_TEST_ID)).toBeDisabled()
+      },
+    )
   })
 })

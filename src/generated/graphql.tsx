@@ -8566,6 +8566,7 @@ export type RegenerateInvoiceInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   fees: Array<VoidedInvoiceFeeInput>;
+  purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   voidedInvoiceId: Scalars['ID']['input'];
 };
 
@@ -13686,7 +13687,7 @@ export type GetInvoiceStatusQueryVariables = Exact<{
 }>;
 
 
-export type GetInvoiceStatusQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum } | null };
+export type GetInvoiceStatusQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, purchaseOrderNumber?: string | null } | null };
 
 export type IntegrationsListForCustomerInvoiceDetailsQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -35889,6 +35890,7 @@ export const GetInvoiceStatusDocument = gql`
   invoice(id: $id) {
     id
     status
+    purchaseOrderNumber
   }
 }
     `;

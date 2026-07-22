@@ -2,6 +2,7 @@ import { MockedResponse } from '@apollo/client/testing'
 import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { PURCHASE_ORDER_FORM_BLOCK_INPUT_TEST_ID } from '~/components/purchaseOrder/PurchaseOrderFormBlock'
 import {
   CLOSE_CREATE_TOPUP_BUTTON_DATA_TEST,
   CREATE_WALLET_TOP_UP_FORM_TEST_ID,
@@ -119,7 +120,7 @@ const createMutationMock = (
   },
 })
 
-const createInvoiceStatusMock = (): MockedResponse => ({
+const createInvoiceStatusMock = (purchaseOrderNumber: string | null = null): MockedResponse => ({
   request: {
     query: GetInvoiceStatusDocument,
     variables: { id: 'voided-invoice-1' },
@@ -129,6 +130,7 @@ const createInvoiceStatusMock = (): MockedResponse => ({
       invoice: {
         id: 'voided-invoice-1',
         status: 'finalized',
+        purchaseOrderNumber,
       },
     },
   },
@@ -498,6 +500,64 @@ describe('CreateWalletTopUp', () => {
           expect(
             (createCapturedVars as Record<string, Record<string, unknown>>).input.priority,
           ).toBe(50)
+        })
+      })
+    })
+
+    describe('WHEN regenerating a voided invoice that has a PO number', () => {
+      it('THEN should prefill the PO number and send it in the mutation', async () => {
+        const user = userEvent.setup()
+        let createCapturedVars: Record<string, unknown> | undefined
+
+        const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
+
+        useParamsMock.mockReturnValue({
+          customerId: 'customer-1',
+          walletId: 'wallet-1',
+          voidedInvoiceId: 'voided-invoice-1',
+        })
+
+        const mocks = [
+          createWalletForTopUpMock(),
+          createCustomerInfoMock(),
+          createInvoiceStatusMock('PO-1'),
+          createVoidInvoiceMock(),
+          createMutationMock((vars) => {
+            createCapturedVars = vars
+          }),
+        ] as TestMocksType
+
+        render(<CreateWalletTopUp />, { mocks })
+
+        // The PO number from the voided invoice is prefilled into the input.
+        await waitFor(() => {
+          const poInput = screen
+            .getByTestId(PURCHASE_ORDER_FORM_BLOCK_INPUT_TEST_ID)
+            .querySelector('input') as HTMLInputElement
+
+          expect(poInput).toHaveValue('PO-1')
+        })
+
+        // The prefill must not mark the form dirty — submit stays disabled
+        // until the user actually edits something.
+        expect(screen.getByTestId(SUBMIT_WALLET_DATA_TEST)).toBeDisabled()
+
+        await user.type(getPaidCreditsInput(), '10')
+
+        await waitFor(() => {
+          expect(screen.getByTestId(SUBMIT_WALLET_DATA_TEST)).not.toBeDisabled()
+        })
+
+        await act(async () => {
+          await user.click(screen.getByTestId(SUBMIT_WALLET_DATA_TEST))
+        })
+
+        await waitFor(() => {
+          expect(createCapturedVars).toBeDefined()
+          expect(
+            (createCapturedVars as Record<string, Record<string, unknown>>).input
+              .purchaseOrderNumber,
+          ).toBe('PO-1')
         })
       })
     })

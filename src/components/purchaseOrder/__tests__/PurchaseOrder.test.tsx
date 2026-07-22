@@ -7,7 +7,7 @@ import { FORM_DIALOG_NAME, FORM_DIALOG_TEST_ID } from '~/components/dialogs/cons
 import FormDialog from '~/components/dialogs/FormDialog'
 import { render } from '~/test-utils'
 
-import { normalizePurchaseOrderNumber, PO } from '../PO'
+import { normalizePurchaseOrderNumber, PurchaseOrder } from '../PO'
 import {
   PURCHASE_ORDER_ADD_BUTTON_TEST_ID,
   PURCHASE_ORDER_EDIT_BUTTON_TEST_ID,
@@ -24,7 +24,7 @@ const NiceModalWrapper = ({ children }: { children: ReactNode }) => (
   <NiceModal.Provider>{children}</NiceModal.Provider>
 )
 
-describe('PO compound component', () => {
+describe('PurchaseOrder compound component', () => {
   afterEach(() => {
     cleanup()
     jest.clearAllMocks()
@@ -33,13 +33,13 @@ describe('PO compound component', () => {
   describe('GIVEN the compound API', () => {
     describe('WHEN accessing its parts', () => {
       it.each([
-        ['Title', PO.Title],
-        ['Description', PO.Description],
-        ['Number', PO.Number],
-        ['AddButton', PO.AddButton],
-        ['EditButton', PO.EditButton],
-        ['TrashButton', PO.TrashButton],
-        ['DynamicInputButton', PO.DynamicInputButton],
+        ['Title', PurchaseOrder.Title],
+        ['Description', PurchaseOrder.Description],
+        ['Number', PurchaseOrder.Number],
+        ['AddButton', PurchaseOrder.AddButton],
+        ['EditButton', PurchaseOrder.EditButton],
+        ['TrashButton', PurchaseOrder.TrashButton],
+        ['DynamicInputButton', PurchaseOrder.DynamicInputButton],
       ])('THEN should expose the %s sub-component', (_, part) => {
         expect(part).toBeDefined()
       })
@@ -55,10 +55,10 @@ describe('PO compound component', () => {
       it('THEN should render the root container', () => {
         render(
           <NiceModalWrapper>
-            <PO value="PO-123">
-              <PO.Title />
-              <PO.Number />
-            </PO>
+            <PurchaseOrder value="PO-123">
+              <PurchaseOrder.Title />
+              <PurchaseOrder.Number />
+            </PurchaseOrder>
           </NiceModalWrapper>,
         )
 
@@ -68,9 +68,9 @@ describe('PO compound component', () => {
       it('THEN should render the title', () => {
         render(
           <NiceModalWrapper>
-            <PO value="PO-123">
-              <PO.Title />
-            </PO>
+            <PurchaseOrder value="PO-123">
+              <PurchaseOrder.Title />
+            </PurchaseOrder>
           </NiceModalWrapper>,
         )
 
@@ -80,9 +80,9 @@ describe('PO compound component', () => {
       it('THEN should render the normalized number value', () => {
         render(
           <NiceModalWrapper>
-            <PO value="  PO-123  ">
-              <PO.Number />
-            </PO>
+            <PurchaseOrder value="  PO-123  ">
+              <PurchaseOrder.Number />
+            </PurchaseOrder>
           </NiceModalWrapper>,
         )
 
@@ -96,9 +96,9 @@ describe('PO compound component', () => {
       it('THEN should render the default placeholder', () => {
         render(
           <NiceModalWrapper>
-            <PO value={null}>
-              <PO.Number />
-            </PO>
+            <PurchaseOrder value={null}>
+              <PurchaseOrder.Number />
+            </PurchaseOrder>
           </NiceModalWrapper>,
         )
 
@@ -108,9 +108,9 @@ describe('PO compound component', () => {
       it('THEN should render a custom placeholder when provided', () => {
         render(
           <NiceModalWrapper>
-            <PO value={null}>
-              <PO.Number placeholder="No PO" />
-            </PO>
+            <PurchaseOrder value={null}>
+              <PurchaseOrder.Number placeholder="No PO" />
+            </PurchaseOrder>
           </NiceModalWrapper>,
         )
 
@@ -124,9 +124,9 @@ describe('PO compound component', () => {
       it('THEN should render the root description', () => {
         render(
           <NiceModalWrapper>
-            <PO value={null} description="Displayed on the invoice">
-              <PO.Description />
-            </PO>
+            <PurchaseOrder value={null} description="Displayed on the invoice">
+              <PurchaseOrder.Description />
+            </PurchaseOrder>
           </NiceModalWrapper>,
         )
 
@@ -140,9 +140,9 @@ describe('PO compound component', () => {
       it('THEN should render the children over the root description', () => {
         render(
           <NiceModalWrapper>
-            <PO value={null} description="Root description">
-              <PO.Description>Override description</PO.Description>
-            </PO>
+            <PurchaseOrder value={null} description="Root description">
+              <PurchaseOrder.Description>Override description</PurchaseOrder.Description>
+            </PurchaseOrder>
           </NiceModalWrapper>,
         )
 
@@ -156,9 +156,9 @@ describe('PO compound component', () => {
       it('THEN should render nothing', () => {
         render(
           <NiceModalWrapper>
-            <PO value={null}>
-              <PO.Description />
-            </PO>
+            <PurchaseOrder value={null}>
+              <PurchaseOrder.Description />
+            </PurchaseOrder>
           </NiceModalWrapper>,
         )
 
@@ -172,9 +172,9 @@ describe('PO compound component', () => {
       it('THEN should disable the add button', () => {
         render(
           <NiceModalWrapper>
-            <PO value={null} disabled>
-              <PO.AddButton />
-            </PO>
+            <PurchaseOrder value={null} disabled>
+              <PurchaseOrder.AddButton />
+            </PurchaseOrder>
           </NiceModalWrapper>,
         )
 
@@ -191,9 +191,9 @@ describe('PO compound component', () => {
 
         render(
           <NiceModalWrapper>
-            <PO value="PO-123" onChange={onChange}>
-              <PO.TrashButton />
-            </PO>
+            <PurchaseOrder value="PO-123" onChange={onChange}>
+              <PurchaseOrder.TrashButton />
+            </PurchaseOrder>
           </NiceModalWrapper>,
         )
 
@@ -211,9 +211,9 @@ describe('PO compound component', () => {
 
         render(
           <NiceModalWrapper>
-            <PO value={null}>
-              <PO.AddButton />
-            </PO>
+            <PurchaseOrder value={null}>
+              <PurchaseOrder.AddButton />
+            </PurchaseOrder>
           </NiceModalWrapper>,
         )
 
@@ -231,9 +231,9 @@ describe('PO compound component', () => {
 
         render(
           <NiceModalWrapper>
-            <PO value="PO-123">
-              <PO.EditButton />
-            </PO>
+            <PurchaseOrder value="PO-123">
+              <PurchaseOrder.EditButton />
+            </PurchaseOrder>
           </NiceModalWrapper>,
         )
 
