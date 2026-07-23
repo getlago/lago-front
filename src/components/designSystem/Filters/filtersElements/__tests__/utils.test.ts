@@ -1,4 +1,13 @@
-import { formatMultiFilterValue, parseMultiFilterValue } from '../utils'
+import { filterDataInlineSeparator } from '../../types'
+import { escapeFilterLabel } from '../../utils'
+import {
+  formatMultiFilterValue,
+  parseLabeledMultiFilterValue,
+  parseMultiFilterValue,
+} from '../utils'
+
+const encodeEntry = (id: string, label: string): string =>
+  `${id}${filterDataInlineSeparator}${escapeFilterLabel(label)}`
 
 describe('filtersElements utils', () => {
   describe('parseMultiFilterValue', () => {
@@ -98,6 +107,101 @@ describe('filtersElements utils', () => {
           const result = formatMultiFilterValue([])
 
           expect(result).toBe('')
+        })
+      })
+    })
+  })
+
+  describe('parseLabeledMultiFilterValue', () => {
+    describe('GIVEN encoded `id|separator|label` entries', () => {
+      describe('WHEN a single entry is provided', () => {
+        it('THEN should decode its label and keep the raw value', () => {
+          const value = encodeEntry('prod_1', 'Basic')
+
+          const result = parseLabeledMultiFilterValue({ value })
+
+          expect(result).toEqual([{ label: 'Basic', value }])
+        })
+      })
+
+      describe('WHEN multiple entries are provided', () => {
+        it('THEN should decode every label', () => {
+          const first = encodeEntry('prod_1', 'Basic')
+          const second = encodeEntry('prod_2', 'Premium')
+
+          const result = parseLabeledMultiFilterValue({ value: `${first},${second}` })
+
+          expect(result).toEqual([
+            { label: 'Basic', value: first },
+            { label: 'Premium', value: second },
+          ])
+        })
+      })
+
+      describe('WHEN a label contains a comma', () => {
+        it('THEN should restore the comma from its placeholder', () => {
+          const value = encodeEntry('prod_1', 'Basic, yearly')
+
+          const result = parseLabeledMultiFilterValue({ value })
+
+          expect(result).toEqual([{ label: 'Basic, yearly', value }])
+        })
+      })
+
+      describe('WHEN an entry has no separator', () => {
+        it('THEN should fall back to the raw segment as label', () => {
+          const result = parseLabeledMultiFilterValue({ value: 'prod_1' })
+
+          expect(result).toEqual([{ label: 'prod_1', value: 'prod_1' }])
+        })
+      })
+    })
+
+    describe('GIVEN a `withoutValue` sentinel', () => {
+      describe('WHEN an entry matches it and a label is provided', () => {
+        it('THEN should use `withoutValueLabel` verbatim', () => {
+          const entry = encodeEntry('prod_1', 'Basic')
+
+          const result = parseLabeledMultiFilterValue({
+            value: `__without__,${entry}`,
+            withoutValue: '__without__',
+            withoutValueLabel: 'Not defined',
+          })
+
+          expect(result).toEqual([
+            { label: 'Not defined', value: '__without__' },
+            { label: 'Basic', value: entry },
+          ])
+        })
+      })
+
+      describe('WHEN `withoutValueLabel` is omitted', () => {
+        it('THEN should decode the sentinel like any other entry', () => {
+          const result = parseLabeledMultiFilterValue({
+            value: '__without__',
+            withoutValue: '__without__',
+          })
+
+          expect(result).toEqual([{ label: '__without__', value: '__without__' }])
+        })
+      })
+    })
+
+    describe('GIVEN an empty or nullish input', () => {
+      it.each<string | undefined>(['', undefined])(
+        'THEN should return an empty array for "%s"',
+        (value) => {
+          expect(parseLabeledMultiFilterValue({ value })).toEqual([])
+        },
+      )
+
+      describe('WHEN the string has empty segments', () => {
+        it('THEN should filter them out', () => {
+          const entry = encodeEntry('prod_1', 'Basic')
+
+          const result = parseLabeledMultiFilterValue({ value: `,${entry},` })
+
+          expect(result).toEqual([{ label: 'Basic', value: entry }])
         })
       })
     })

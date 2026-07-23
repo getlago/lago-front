@@ -6,12 +6,14 @@ import { MultipleComboBox } from '~/components/form'
 import { useGetProductItemsForFilterItemProductItemQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+import { formatMultiFilterValue, parseLabeledMultiFilterValue } from './utils'
+
 import {
   filterDataInlineSeparator,
   FiltersFormValues,
   filterWithoutProductItemValue,
 } from '../types'
-import { escapeFilterLabel, unescapeFilterLabel } from '../utils'
+import { escapeFilterLabel } from '../utils'
 
 gql`
   query getProductItemsForFilterItemProductItem($page: Int, $limit: Int) {
@@ -74,18 +76,11 @@ export const FiltersItemProductItemFilterProductItem = ({
 
   const selectedProductItemsValue = useMemo(
     () =>
-      (value ?? '')
-        .split(',')
-        .filter((v) => !!v)
-        .map((v) => ({
-          label:
-            v === filterWithoutProductItemValue
-              ? translate('text_1784214117868fh6rndi4m75')
-              : unescapeFilterLabel(
-                  v.split(filterDataInlineSeparator)[1] || v.split(filterDataInlineSeparator)[0],
-                ),
-          value: v,
-        })),
+      parseLabeledMultiFilterValue({
+        value,
+        withoutValue: filterWithoutProductItemValue,
+        withoutValueLabel: translate('text_1784214117868fh6rndi4m75'),
+      }),
     [value, translate],
   )
 
@@ -98,7 +93,7 @@ export const FiltersItemProductItemFilterProductItem = ({
       placeholder={translate('text_178458736524240wdfikummz')}
       data={comboboxProductItemsData}
       onChange={(productItems) => {
-        setFilterValue(String(productItems.map((v) => v.value).join(',')))
+        setFilterValue(formatMultiFilterValue(productItems))
       }}
       value={selectedProductItemsValue}
     />
