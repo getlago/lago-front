@@ -93,8 +93,10 @@ patch_env() {
   rm -f "$env_file.bak"
   {
     echo "API_URL=http://localhost:${PORT}/api"
-    echo "LAGO_API_PROXY_TARGET=http://api.lago.dev"
-    echo "CODEGEN_API=http://api.lago.dev/graphql"
+    # https to match the api.lago.dev health check and stay robust if Traefik
+    # ever forces http->https (cert is valid; Vite proxy sets secure:false).
+    echo "LAGO_API_PROXY_TARGET=https://api.lago.dev"
+    echo "CODEGEN_API=https://api.lago.dev/graphql"
   } >> "$env_file"
 }
 
