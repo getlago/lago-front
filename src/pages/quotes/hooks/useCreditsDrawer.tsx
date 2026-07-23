@@ -65,7 +65,13 @@ export const useCreditsDrawer = (
   // Latest full payload — spread so sibling categories are never dropped.
   const latestBillingItemsRef = useRef<BillingItemsPayload | undefined>(billingItems ?? undefined)
 
-  latestBillingItemsRef.current = billingItems ?? latestBillingItemsRef.current
+  // Kept in sync via an effect (not a render-time assignment) so it never
+  // retains a stale payload once `billingItems` becomes null/undefined — a
+  // retained older-version payload would make mergeWalletCredits submit the
+  // wrong quote's sibling categories. Mirrors useSubscriptionPricingDrawer.
+  useEffect(() => {
+    latestBillingItemsRef.current = billingItems ?? undefined
+  }, [billingItems])
 
   // Count of creditsBlock nodes in the doc (for the 5-wallet cap).
   const blockCountRef = useRef<number>(initial.walletItems.length)

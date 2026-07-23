@@ -110,6 +110,30 @@ describe('useCreditsDrawer', () => {
       expect(updated?.coupons).toEqual(withOneWallet.coupons)
     })
 
+    it('THEN does not carry a previous payload once billingItems becomes null', () => {
+      const { result, rerender } = renderHook(
+        ({ bi }: { bi: BillingItemsPayload | null }) =>
+          useCreditsDrawer(bi, { currency: CurrencyEnum.Usd }),
+        { wrapper, initialProps: { bi: withOneWallet as BillingItemsPayload | null } },
+      )
+
+      // Simulate a quote/version transition where billingItems briefly nulls out.
+      rerender({ bi: null })
+
+      let updated: BillingItemsPayload | undefined
+
+      act(() => {
+        updated = result.current.syncCreditsBlocks([]) // prune wl_1 → rebuild
+      })
+
+      // The ref must NOT retain the prior payload's siblings, else a save would
+      // submit the wrong quote/version's plans/addOns/coupons.
+      expect(updated?.walletCredits).toEqual([])
+      expect(updated?.plans).toBeUndefined()
+      expect(updated?.addOns).toBeUndefined()
+      expect(updated?.coupons).toBeUndefined()
+    })
+
     it('THEN returns undefined when no block was pruned', () => {
       const { result } = renderHook(
         () => useCreditsDrawer(withOneWallet, { currency: CurrencyEnum.Usd }),
