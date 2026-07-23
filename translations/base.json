@@ -4489,5 +4489,6 @@
   "text_17848001862071abwcvd3b3p": "You are about to delete this draft invoice",
   "text_1784800186207jjeqsv1d0rd": "This draft invoice will be permanently deleted and will never become an accounts receivable. This action can't be undone. Are you sure you want to continue?",
   "text_1784800186207ionjr7ey3jq": "Draft invoice successfully deleted",
-  "text_1784810615801cccx5rzw661": "{{invoiceNumber}} for {{totalAmount}} was deleted"
+  "text_1784810615801cccx5rzw661": "{{invoiceNumber}} for {{totalAmount}} was deleted",
+  "text_178482400457029nb9diwj6m": "Delete a draft invoice"
 }
