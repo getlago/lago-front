@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -418,10 +417,6 @@ const BillingEntityInvoiceSettings = () => {
             ))}
         </SettingsListWrapper>
       </SettingsPaddedContainer>
-
-      {items.map((item) => (
-        <div key={`billing-entity-invoice-settings-dialog-${item.id}`}>{item.dialog}</div>
-      ))}
     </>
   )
 }

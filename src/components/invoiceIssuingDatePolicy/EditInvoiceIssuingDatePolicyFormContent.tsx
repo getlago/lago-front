@@ -13,8 +13,8 @@ export const EDIT_INVOICE_ISSUING_DATE_POLICY_DIALOG_ADJUSTMENT_COMBOBOX_TEST_CL
   'edit-invoice-issuing-date-policy-dialog-adjustment-combobox'
 
 export const EDIT_INVOICE_ISSUING_DATE_POLICY_FORM_DEFAULT_VALUES = {
-  subscriptionInvoiceIssuingDateAnchor: '' as string,
-  subscriptionInvoiceIssuingDateAdjustment: '' as string,
+  subscriptionInvoiceIssuingDateAnchor: '' as string | undefined,
+  subscriptionInvoiceIssuingDateAdjustment: '' as string | undefined,
 }
 
 type EditInvoiceIssuingDatePolicyFormExtraProps = {
@@ -45,9 +45,9 @@ export const EditInvoiceIssuingDatePolicyFormContent = withForm({
 
     const { descriptionCopyAsHtml, expectedIssuingDateCopy } = getIssuingDateInfoForAlert({
       gracePeriod: gracePeriod ?? 0,
-      subscriptionInvoiceIssuingDateAdjustment: adjustmentValue as
+      subscriptionInvoiceIssuingDateAdjustment: (adjustmentValue || undefined) as
         (typeof ALL_ADJUSTMENT_VALUES)[keyof typeof ALL_ADJUSTMENT_VALUES] | undefined,
-      subscriptionInvoiceIssuingDateAnchor: anchorValue as
+      subscriptionInvoiceIssuingDateAnchor: (anchorValue || undefined) as
         (typeof ALL_ANCHOR_VALUES)[keyof typeof ALL_ANCHOR_VALUES] | undefined,
     })
 

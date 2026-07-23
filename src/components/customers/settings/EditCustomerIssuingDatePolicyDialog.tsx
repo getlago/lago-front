@@ -1,7 +1,5 @@
 import { gql } from '@apollo/client'
-import { revalidateLogic } from '@tanstack/react-form'
 import { useRef } from 'react'
-import { z } from 'zod'
 
 import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { DialogResult } from '~/components/dialogs/types'
@@ -41,11 +39,6 @@ gql`
 
 export const EDIT_CUSTOMER_ISSUING_DATE_POLICY_FORM_ID = 'edit-customer-issuing-date-policy-form'
 
-const validationSchema = z.object({
-  subscriptionInvoiceIssuingDateAnchor: z.string(),
-  subscriptionInvoiceIssuingDateAdjustment: z.string(),
-})
-
 type EditCustomerIssuingDatePolicyDialogData = {
   customer: EditCustomerIssuingDatePolicyDialogFragment
 }
@@ -78,10 +71,6 @@ export const useEditCustomerIssuingDatePolicyDialog = () => {
 
   const form = useAppForm({
     defaultValues: EDIT_INVOICE_ISSUING_DATE_POLICY_FORM_DEFAULT_VALUES,
-    validationLogic: revalidateLogic(),
-    validators: {
-      onDynamic: validationSchema,
-    },
     onSubmit: async ({ value }) => {
       const customer = dataRef.current?.customer
 
