@@ -116,7 +116,32 @@ export const walletSettingsSchema = z
     const min = data.paidTopUpMinAmountCents
     const max = data.paidTopUpMaxAmountCents
 
-    if (min && max && Number(min) > Number(max)) {
+    const minNumber = min !== null && min !== '' ? Number(min) : null
+    const maxNumber = max !== null && max !== '' ? Number(max) : null
+
+    if (minNumber !== null && Number.isNaN(minNumber)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'text_624ea7c29103fd010732ab7d',
+        path: ['paidTopUpMinAmountCents'],
+      })
+    }
+
+    if (maxNumber !== null && Number.isNaN(maxNumber)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'text_624ea7c29103fd010732ab7d',
+        path: ['paidTopUpMaxAmountCents'],
+      })
+    }
+
+    if (
+      minNumber !== null &&
+      maxNumber !== null &&
+      !Number.isNaN(minNumber) &&
+      !Number.isNaN(maxNumber) &&
+      minNumber > maxNumber
+    ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'text_175872290080132j1em37b08',
