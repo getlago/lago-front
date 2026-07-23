@@ -32,10 +32,7 @@ import {
   SettingsListWrapper,
   SettingsPaddedContainer,
 } from '~/components/layouts/Settings'
-import {
-  EditFinalizeZeroAmountInvoiceDialog,
-  EditFinalizeZeroAmountInvoiceDialogRef,
-} from '~/components/settings/invoices/EditFinalizeZeroAmountInvoiceDialog'
+import { useEditFinalizeZeroAmountInvoiceDialog } from '~/components/settings/invoices/EditFinalizeZeroAmountInvoiceDialog'
 import { useEditNetPaymentTermDialog } from '~/components/settings/invoices/EditNetPaymentTermDialog'
 import {
   INVOICE_ISSUING_DATE_ADJUSTMENT_SETTING_KEYS,
@@ -198,8 +195,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
   const { openEditNetPaymentTermDialog } = useEditNetPaymentTermDialog()
   const netPaymentTermDialogDescription = translate('text_64c7a89b6c67eb6c988980eb')
   const { openDeleteCustomerNetPaymentTermDialog } = useDeleteCustomerNetPaymentTermDialog()
-  const editFinalizeZeroAmountInvoiceDialogRef =
-    useRef<EditFinalizeZeroAmountInvoiceDialogRef>(null)
+  const { openEditFinalizeZeroAmountInvoiceDialog } = useEditFinalizeZeroAmountInvoiceDialog()
   const { openDeleteCustomerFinalizeZeroAmountInvoiceDialog } =
     useDeleteCustomerFinalizeZeroAmountInvoiceDialog()
 
@@ -504,7 +500,11 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                         disabled={loading}
                         variant="inline"
                         onClick={() =>
-                          editFinalizeZeroAmountInvoiceDialogRef?.current?.openDialog()
+                          customer &&
+                          openEditFinalizeZeroAmountInvoiceDialog({
+                            entity: customer,
+                            finalizeZeroAmountInvoice: customer.finalizeZeroAmountInvoice,
+                          })
                         }
                       >
                         {translate('text_645bb193927b375079d28ad2')}
@@ -524,7 +524,12 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                               variant="quaternary"
                               align="left"
                               onClick={() => {
-                                editFinalizeZeroAmountInvoiceDialogRef?.current?.openDialog()
+                                if (customer) {
+                                  openEditFinalizeZeroAmountInvoiceDialog({
+                                    entity: customer,
+                                    finalizeZeroAmountInvoice: customer.finalizeZeroAmountInvoice,
+                                  })
+                                }
                                 closePopper()
                               }}
                             >
@@ -939,17 +944,10 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
       </SettingsPaddedContainer>
 
       {!!customer && (
-        <>
-          <EditCustomerIssuingDatePolicyDialog
-            ref={editIssuingDatePolicyDialogRef}
-            customer={customer}
-          />
-          <EditFinalizeZeroAmountInvoiceDialog
-            ref={editFinalizeZeroAmountInvoiceDialogRef}
-            entity={customer}
-            finalizeZeroAmountInvoice={customer?.finalizeZeroAmountInvoice}
-          />
-        </>
+        <EditCustomerIssuingDatePolicyDialog
+          ref={editIssuingDatePolicyDialogRef}
+          customer={customer}
+        />
       )}
     </>
   )

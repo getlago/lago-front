@@ -112,13 +112,11 @@ jest.mock('~/components/settings/invoices/EditNetPaymentTermDialog', () => ({
   }),
 }))
 
-jest.mock('~/components/settings/invoices/EditFinalizeZeroAmountInvoiceDialog', () => {
-  const React = jest.requireActual('react')
-  const MockDialog = React.forwardRef(() => null)
-
-  MockDialog.displayName = 'EditFinalizeZeroAmountInvoiceDialog'
-  return { EditFinalizeZeroAmountInvoiceDialog: MockDialog }
-})
+jest.mock('~/components/settings/invoices/EditFinalizeZeroAmountInvoiceDialog', () => ({
+  useEditFinalizeZeroAmountInvoiceDialog: () => ({
+    openEditFinalizeZeroAmountInvoiceDialog: jest.fn(),
+  }),
+}))
 
 jest.mock('~/components/dialogs/PremiumWarningDialog', () => ({
   usePremiumWarningDialog: () => ({ open: jest.fn(), close: jest.fn() }),
