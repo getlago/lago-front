@@ -13,6 +13,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { buildInvoiceDocumentData } from '~/components/emails/buildDocumentData'
+import { useDeleteInvoiceDialog } from '~/components/invoices/DeleteInvoiceDialog'
 import { useUpdateInvoicePaymentStatusDialog } from '~/components/invoices/EditInvoicePaymentStatusDialog'
 import { useFinalizeInvoiceDialog } from '~/components/invoices/FinalizeInvoiceDialog'
 import { useResendInvoiceForCollectionDialog } from '~/components/invoices/ResendInvoiceForCollectionDialog'
@@ -191,6 +192,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
   const { generatePaymentUrl } = useGeneratePaymentUrl()
 
   const { openFinalizeInvoiceDialog } = useFinalizeInvoiceDialog()
+  const { openDeleteInvoiceDialog } = useDeleteInvoiceDialog()
   const { openUpdateInvoicePaymentStatusDialog } = useUpdateInvoicePaymentStatusDialog()
 
   return (
@@ -407,6 +409,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
               canRetryCollect,
               canUpdatePaymentStatus,
               canVoid,
+              canDelete,
               canResendEmail,
             } = actions
 
@@ -571,6 +574,16 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                           invoiceId: invoice.id,
                         }),
                       ),
+                  }
+                : null,
+
+              canDelete(invoice)
+                ? {
+                    startIcon: 'trash',
+                    title: translate('text_17848001862070vhaaoyut3y'),
+                    onAction: (item) => {
+                      openDeleteInvoiceDialog(item)
+                    },
                   }
                 : null,
             ]

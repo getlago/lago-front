@@ -27,6 +27,7 @@ const mockActions = {
   canSyncCRMIntegration: jest.fn(),
   canDispute: jest.fn(),
   canVoid: jest.fn(),
+  canDelete: jest.fn(),
   canRegenerate: jest.fn(),
   canSyncTaxIntegration: jest.fn(),
   canResendEmail: jest.fn(),
@@ -729,6 +730,7 @@ describe('useInvoiceAuthorizations', () => {
       mockActions.canSyncCRMIntegration.mockReturnValue(true)
       mockActions.canDispute.mockReturnValue(true)
       mockActions.canVoid.mockReturnValue(true)
+      mockActions.canDelete.mockReturnValue(false)
       mockActions.canRegenerate.mockReturnValue(false)
       mockActions.canSyncTaxIntegration.mockReturnValue(false)
       mockActions.canResendEmail.mockReturnValue(true)
@@ -753,6 +755,7 @@ describe('useInvoiceAuthorizations', () => {
         canSyncCRMIntegration: true,
         canDispute: true,
         canVoid: true,
+        canDelete: false,
         canRegenerate: false,
         canSyncTaxIntegration: false,
         canResendEmail: true,

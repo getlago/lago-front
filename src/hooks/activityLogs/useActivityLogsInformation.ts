@@ -39,6 +39,7 @@ const activityTypeTranslations: Record<ActivityTypeEnum, string> = {
   [ActivityTypeEnum.FeatureDeleted]: 'text_1754570508183pw3m9k2lv68',
   [ActivityTypeEnum.FeatureUpdated]: 'text_1754570508183pw3m9k2lv69',
   [ActivityTypeEnum.InvoiceCreated]: 'text_174740465663205ip0mama6w',
+  [ActivityTypeEnum.InvoiceDeleted]: 'text_1784810615801cccx5rzw661',
   [ActivityTypeEnum.InvoiceDrafted]: 'text_1747404656632jux35a9cxrt',
   [ActivityTypeEnum.InvoiceFailed]: 'text_1747404656632twxlowkc160',
   [ActivityTypeEnum.InvoiceGenerated]: 'text_174740465663232x0p7cp9d3',
@@ -172,6 +173,7 @@ export const useActivityLogsInformation = () => {
         }
         break
       case ActivityTypeEnum.InvoiceCreated:
+      case ActivityTypeEnum.InvoiceDeleted:
       case ActivityTypeEnum.InvoiceDrafted:
       case ActivityTypeEnum.InvoiceFailed:
       case ActivityTypeEnum.InvoiceGenerated:

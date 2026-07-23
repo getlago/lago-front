@@ -70,6 +70,7 @@ const mockCanRetryCollect = jest.fn(() => false)
 const mockCanGeneratePaymentUrl = jest.fn(() => false)
 const mockCanUpdatePaymentStatus = jest.fn(() => true)
 const mockCanVoid = jest.fn(() => true)
+const mockCanDelete = jest.fn(() => false)
 const mockCanRegenerate = jest.fn(() => false)
 const mockCanIssueCreditNote = jest.fn(() => true)
 const mockCanRecordPayment = jest.fn(() => true)
@@ -84,6 +85,7 @@ jest.mock('~/hooks/usePermissionsInvoiceActions', () => ({
     canGeneratePaymentUrl: mockCanGeneratePaymentUrl,
     canUpdatePaymentStatus: mockCanUpdatePaymentStatus,
     canVoid: mockCanVoid,
+    canDelete: mockCanDelete,
     canRegenerate: mockCanRegenerate,
     canIssueCreditNote: mockCanIssueCreditNote,
     canRecordPayment: mockCanRecordPayment,
@@ -146,6 +148,12 @@ jest.mock('~/components/invoices/ResendInvoiceForCollectionDialog', () => ({
 }))
 
 const mockOpenFinalizeInvoiceDialog = jest.fn()
+
+jest.mock('~/components/invoices/DeleteInvoiceDialog', () => ({
+  useDeleteInvoiceDialog: () => ({
+    openDeleteInvoiceDialog: jest.fn(),
+  }),
+}))
 
 jest.mock('~/components/invoices/FinalizeInvoiceDialog', () => ({
   useFinalizeInvoiceDialog: () => ({

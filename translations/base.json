@@ -4484,5 +4484,10 @@
   "text_1784560679832ird9d8k4iqw": "Credits to void must be greater than 0.",
   "text_1784637373017e1som6d92em": "Delete all",
   "text_1784642866287h7jm6pidh6u": "Delete all metadata",
-  "text_17846428662872wnc279xn2s": "You\u2019re about to delete all metadata. Are you sure?"
+  "text_17846428662872wnc279xn2s": "You\u2019re about to delete all metadata. Are you sure?",
+  "text_17848001862070vhaaoyut3y": "Delete invoice",
+  "text_17848001862071abwcvd3b3p": "You are about to delete this draft invoice",
+  "text_1784800186207jjeqsv1d0rd": "This draft invoice will be permanently deleted and will never become an accounts receivable. This action can't be undone. Are you sure you want to continue?",
+  "text_1784800186207ionjr7ey3jq": "Draft invoice successfully deleted",
+  "text_1784810615801cccx5rzw661": "{{invoiceNumber}} for {{totalAmount}} was deleted"
 }

@@ -76,6 +76,7 @@ type InvoiceAuthorizations = {
   canSyncCRMIntegration: boolean
   canDispute: boolean
   canVoid: boolean
+  canDelete: boolean
   canRegenerate: boolean
   canSyncTaxIntegration: boolean
   canResendEmail: boolean
@@ -150,6 +151,7 @@ export const useInvoiceAuthorizations = ({
       canSyncCRMIntegration: actions.canSyncCRMIntegration({ integrationHubspotSyncable }),
       canDispute: actions.canDispute({ status, paymentDisputeLostAt }),
       canVoid: actions.canVoid({ status }),
+      canDelete: actions.canDelete({ status }),
       canRegenerate: actions.canRegenerate(
         { customer, status, regeneratedInvoiceId, invoiceType },
         hasActiveWallet,
