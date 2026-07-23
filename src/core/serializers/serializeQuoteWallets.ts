@@ -84,7 +84,9 @@ export interface WalletCreditPayload {
 
 export interface BillingItemWallet {
   type: 'wallet_credit'
-  localId: string
+  // Optional: persisted backend data may omit it, so `fromWallets` falls back
+  // to a generated id. `toWallets` always sets it.
+  localId?: string
   payload: WalletCreditPayload
 }
 
