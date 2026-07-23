@@ -68,7 +68,7 @@ export const CreditsBlockSchema = Node.create({
 
     const resolvedEntities: Record<string, EntityData> = this.options.entities ?? {}
     const entity = resolvedEntities[localId]
-    const label = entity?.name ?? 'Select credits'
+    const label = entity?.name || 'Select credits'
 
     return wrapInBlockWrapper('creditsBlock', [
       'div',
