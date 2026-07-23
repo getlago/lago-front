@@ -41,7 +41,9 @@ services:
     stdin_open: true
     restart: unless-stopped
     volumes:
-      - ${WS}:/app:cached
+      # Quoted so a workspace path containing spaces / YAML-special chars can't
+      # break the volume string parsing.
+      - "${WS}:/app:cached"
       - front_nm_ct_${SAN}:/app/node_modules
       - front_dist_ct_${SAN}:/app/dist
     environment:
@@ -96,7 +98,9 @@ patch_env() {
 }
 
 cmd_up() {
-  if ! docker ps --format '{{.Names}}' | grep -q '^lago_front_dev$'; then
+  # Substring match (not anchored) for parity with lago-worktree.sh and to
+  # tolerate any Compose-added prefix/suffix on the main front container name.
+  if ! docker ps --format '{{.Names}}' | grep -q 'lago_front_dev'; then
     echo "Error: main Lago stack is not running. Start it first: lago up -d" >&2
     exit 1
   fi
@@ -127,9 +131,15 @@ cmd_up() {
 }
 
 cmd_down() {
-  [[ -f "$COMPOSE_FILE" ]] || { echo "No front container registered for '$NAME'."; exit 0; }
-  docker compose -f "$COMPOSE_FILE" down -v
-  rm -f "$COMPOSE_FILE"
+  if [[ -f "$COMPOSE_FILE" ]]; then
+    docker compose -f "$COMPOSE_FILE" down -v
+    rm -f "$COMPOSE_FILE"
+  else
+    # No compose file (e.g. deleted manually) — still remove the container and
+    # its named volumes directly so nothing is left orphaned.
+    docker rm -f "lago_front_ct_${SAN}" >/dev/null 2>&1 || true
+    docker volume rm "front_nm_ct_${SAN}" "front_dist_ct_${SAN}" >/dev/null 2>&1 || true
+  fi
   echo "Removed front container for '$NAME'."
 }
 
@@ -148,10 +158,12 @@ cmd_shell() {
 }
 
 cmd_host() {
-  # Run Vite on the HOST instead of in a container. macOS native fsevents give
-  # instant, reliable HMR with no in-container polling (the in-container watcher
-  # relies on `usePolling` and drops events under multi-container CPU load, which
-  # is what breaks hot reload and forces a manual container restart).
+  # Run Vite on the HOST instead of in a container. vite.config.ts enables watch
+  # polling by default (required for the Docker bind-mount case); host mode sets
+  # LAGO_DISABLE_VITE_POLLING=true (below) to turn it off, so the host watcher
+  # uses native macOS fsevents — instant, reliable HMR with none of the
+  # in-container polling that drops events under multi-container CPU load and
+  # forces manual container restarts.
   #
   # The API is reached over Traefik at api.lago.dev (routable from the host);
   # Vite proxies /api there via LAGO_API_PROXY_TARGET. Requires the main Lago
@@ -159,7 +171,7 @@ cmd_host() {
   # Use host OR container for a workspace, not both: they bind the same port and
   # strictPort will error loudly on collision.
   if ! curl -sfo /dev/null --max-time 3 https://api.lago.dev/health 2>/dev/null \
-    && ! docker ps --format '{{.Names}}' | grep -q '^lago_api_dev$'; then
+    && ! docker ps --format '{{.Names}}' | grep -q 'lago_api_dev'; then
     echo "Warning: main Lago stack / api.lago.dev not reachable. Start it: lago up -d" >&2
   fi
 
@@ -173,6 +185,8 @@ cmd_host() {
   # Label the browser tab "WT - <name>" (vite.config.ts tab-title helper), same
   # as the container path, so parallel workspaces are distinguishable.
   export LAGO_WORKTREE_NAME="$NAME"
+  # Turn off Vite's default watch polling → native macOS fsevents for host HMR.
+  export LAGO_DISABLE_VITE_POLLING=true
   # --port sets the port explicitly instead of writing PORT into the workspace
   # .env (.env is host-only tooling config, see patch_env). The container path
   # gets its port from the compose `environment` overlay, never from .env.
