@@ -54,7 +54,8 @@ services:
       - APP_DOMAIN=https://app.lago.dev
       # Vite's tab-title helper (vite.config.ts) shows "WT - <name>" in dev when
       # this is set, so parallel workspaces are distinguishable in the browser.
-      - LAGO_WORKTREE_NAME=${NAME}
+      # Quoted so a name with spaces / YAML-special chars can't break parsing.
+      - "LAGO_WORKTREE_NAME=${NAME}"
       # Bind vite to the SAME port host-side and container-side so vite's own
       # "Local: http://localhost:${PORT}/" log line advertises the host-reachable
       # port. Conductor's browser button scrapes the LAST port seen in run-script
