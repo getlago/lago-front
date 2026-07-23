@@ -50,6 +50,9 @@ gql`
 
 export const EDIT_FINALIZE_ZERO_AMOUNT_INVOICE_FORM_ID = 'edit-finalize-zero-amount-invoice-form'
 
+export const EDIT_FINALIZE_ZERO_AMOUNT_INVOICE_SUBMIT_BUTTON_TEST_ID =
+  'edit-finalize-zero-amount-invoice-submit-button'
+
 const validationSchema = z.object({
   finalizeZeroAmountInvoice: z.string().min(1),
 })
@@ -217,7 +220,9 @@ export const useEditFinalizeZeroAmountInvoiceDialog = () => {
         ),
         mainAction: (
           <form.AppForm>
-            <form.SubmitButton>{translate('text_17432414198706rdwf76ek3u')}</form.SubmitButton>
+            <form.SubmitButton dataTest={EDIT_FINALIZE_ZERO_AMOUNT_INVOICE_SUBMIT_BUTTON_TEST_ID}>
+              {translate('text_17432414198706rdwf76ek3u')}
+            </form.SubmitButton>
           </form.AppForm>
         ),
         form: {

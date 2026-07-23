@@ -500,9 +500,10 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                         disabled={loading}
                         variant="inline"
                         onClick={() =>
+                          customer &&
                           openEditFinalizeZeroAmountInvoiceDialog({
                             entity: customer,
-                            finalizeZeroAmountInvoice: customer?.finalizeZeroAmountInvoice,
+                            finalizeZeroAmountInvoice: customer.finalizeZeroAmountInvoice,
                           })
                         }
                       >
@@ -523,10 +524,12 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                               variant="quaternary"
                               align="left"
                               onClick={() => {
-                                openEditFinalizeZeroAmountInvoiceDialog({
-                                  entity: customer,
-                                  finalizeZeroAmountInvoice: customer?.finalizeZeroAmountInvoice,
-                                })
+                                if (customer) {
+                                  openEditFinalizeZeroAmountInvoiceDialog({
+                                    entity: customer,
+                                    finalizeZeroAmountInvoice: customer.finalizeZeroAmountInvoice,
+                                  })
+                                }
                                 closePopper()
                               }}
                             >

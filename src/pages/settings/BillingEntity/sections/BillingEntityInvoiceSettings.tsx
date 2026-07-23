@@ -205,9 +205,10 @@ const BillingEntityInvoiceSettings = () => {
           variant="inline"
           disabled={!canEditInvoiceSettings}
           onClick={() =>
+            billingEntity &&
             openEditFinalizeZeroAmountInvoiceDialog({
               entity: billingEntity,
-              finalizeZeroAmountInvoice: billingEntity?.finalizeZeroAmountInvoice,
+              finalizeZeroAmountInvoice: billingEntity.finalizeZeroAmountInvoice,
             })
           }
         >
