@@ -28,7 +28,7 @@ const wrapper = ({ children }: { children: React.ReactNode }) => <>{children}</>
 const validSlice: WalletSettingsSlice = {
   name: 'Tokens',
   rateAmount: '1',
-  priority: 50,
+  priority: '50',
   expirationAt: null,
   paidTopUpMinAmountCents: null,
   paidTopUpMaxAmountCents: null,

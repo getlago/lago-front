@@ -9,6 +9,7 @@ import {
   isWalletItemPersistable,
   itemToRecurring,
   recurringToItem,
+  settingsToItem,
   topUpWithinLimits,
   walletFreeAndPaidSchema,
   type WalletRecurringSlice,
@@ -30,7 +31,7 @@ describe('walletFormSchema', () => {
     const result = walletSettingsSchema.safeParse({
       name: '',
       rateAmount: '1',
-      priority: 51,
+      priority: '51',
       expirationAt: null,
       paidTopUpMinAmountCents: null,
       paidTopUpMaxAmountCents: null,
@@ -40,11 +41,40 @@ describe('walletFormSchema', () => {
     expect(result.success).toBe(false)
   })
 
+  it('accepts an in-range string priority from the text input', () => {
+    const result = walletSettingsSchema.safeParse({
+      name: '',
+      rateAmount: '1',
+      priority: '30',
+      expirationAt: null,
+      paidTopUpMinAmountCents: null,
+      paidTopUpMaxAmountCents: null,
+      purchaseOrderNumber: null,
+    })
+
+    expect(result.success).toBe(true)
+  })
+
+  it('settingsToItem coerces a string priority to a number (falls back on NaN)', () => {
+    const item = makeEmptyWalletItem('wl_1')
+    const base = {
+      name: '',
+      rateAmount: '1',
+      expirationAt: null,
+      paidTopUpMinAmountCents: null,
+      paidTopUpMaxAmountCents: null,
+      purchaseOrderNumber: null,
+    }
+
+    expect(settingsToItem(item, { ...base, priority: '30' }).priority).toBe(30)
+    expect(settingsToItem(item, { ...base, priority: 'abc' }).priority).toBe(item.priority)
+  })
+
   it('rejects settings where min > max', () => {
     const result = walletSettingsSchema.safeParse({
       name: '',
       rateAmount: '1',
-      priority: 1,
+      priority: '1',
       expirationAt: null,
       paidTopUpMinAmountCents: '100',
       paidTopUpMaxAmountCents: '10',

@@ -32,7 +32,7 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 const emptySettings: WalletSettingsSlice = {
   name: '',
   rateAmount: '1',
-  priority: 50,
+  priority: '50',
   expirationAt: null,
   paidTopUpMinAmountCents: null,
   paidTopUpMaxAmountCents: null,

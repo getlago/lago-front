@@ -12,7 +12,22 @@ import {
   fromWallets,
   toWallets,
   type WalletFormItem,
+  type WalletRecurringRuleForm,
 } from '../serializeQuoteWallets'
+
+const baseRecurringRule: WalletRecurringRuleForm = {
+  trigger: RecurringTransactionTriggerEnum.Interval,
+  method: RecurringTransactionMethodEnum.Target,
+  interval: RecurringTransactionIntervalEnum.Monthly,
+  paidCredits: '500.0',
+  grantedCredits: '500.0',
+  targetOngoingBalance: '1000.0',
+  thresholdCredits: null,
+  startedAt: null,
+  transactionName: null,
+  invoiceRequiresSuccessfulPayment: false,
+  expirationAt: null,
+}
 
 const baseItem: WalletFormItem = {
   localId: 'wl_1',
@@ -29,19 +44,7 @@ const baseItem: WalletFormItem = {
   paidCredits: '500.0',
   invoiceRequiresSuccessfulPayment: false,
   metadata: [],
-  recurringRule: {
-    trigger: RecurringTransactionTriggerEnum.Interval,
-    method: RecurringTransactionMethodEnum.Target,
-    interval: RecurringTransactionIntervalEnum.Monthly,
-    paidCredits: '500.0',
-    grantedCredits: '500.0',
-    targetOngoingBalance: '1000.0',
-    thresholdCredits: null,
-    startedAt: null,
-    transactionName: null,
-    invoiceRequiresSuccessfulPayment: false,
-    expirationAt: null,
-  },
+  recurringRule: baseRecurringRule,
 }
 
 describe('serializeQuoteWallets', () => {
@@ -67,6 +70,28 @@ describe('serializeQuoteWallets', () => {
     const [entry] = toWallets([{ ...baseItem, recurringRule: null }], CurrencyEnum.Eur)
 
     expect(entry.payload.recurringTransactionRules).toEqual([])
+  })
+
+  it('toWallets normalizes empty-string recurring dates/name to null (add-toggle default)', () => {
+    const [entry] = toWallets(
+      [
+        {
+          ...baseItem,
+          recurringRule: {
+            ...baseRecurringRule,
+            startedAt: '',
+            transactionName: '',
+            expirationAt: '',
+          },
+        },
+      ],
+      CurrencyEnum.Eur,
+    )
+    const [rule] = entry.payload.recurringTransactionRules
+
+    expect(rule.startedAt).toBeNull()
+    expect(rule.transactionName).toBeNull()
+    expect(rule.expirationAt).toBeNull()
   })
 
   it('fromWallets is the inverse of toWallets (round-trip preserves localId + fields)', () => {

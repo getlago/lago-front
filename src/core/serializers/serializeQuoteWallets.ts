@@ -114,10 +114,12 @@ const ruleToPayload = (rule: WalletRecurringRuleForm): RecurringTransactionRuleP
   grantedCredits: rule.grantedCredits || '0',
   targetOngoingBalance: rule.targetOngoingBalance ?? null,
   thresholdCredits: rule.thresholdCredits ?? null,
-  startedAt: rule.startedAt ?? null,
-  transactionName: rule.transactionName ?? null,
+  // `|| null` (not `??`): the recurring "add" toggles set these to '' before a
+  // value is picked; an empty string must serialize to null, not `""`.
+  startedAt: rule.startedAt || null,
+  transactionName: rule.transactionName || null,
   invoiceRequiresSuccessfulPayment: rule.invoiceRequiresSuccessfulPayment,
-  expirationAt: rule.expirationAt ?? null,
+  expirationAt: rule.expirationAt || null,
 })
 
 const payloadToRule = (o: RecurringTransactionRulePayload): WalletRecurringRuleForm => ({
@@ -143,7 +145,9 @@ export const toWallets = (items: WalletFormItem[], currency: CurrencyEnum): Bill
       rateAmount: item.rateAmount || '0',
       paidCredits: item.paidCredits || '0',
       grantedCredits: item.freeCredits || '0',
-      expirationAt: item.expirationAt ?? null,
+      // `|| null` (not `??`): mirror ruleToPayload — never let an empty string
+      // reach the backend as a date value.
+      expirationAt: item.expirationAt || null,
       priority: item.priority,
       invoiceRequiresSuccessfulPayment: item.invoiceRequiresSuccessfulPayment,
       paidTopUpMinAmountCents:

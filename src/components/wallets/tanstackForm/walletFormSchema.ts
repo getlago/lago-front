@@ -16,7 +16,8 @@ import {
 export interface WalletSettingsSlice {
   name: string
   rateAmount: string
-  priority: number
+  // String (like rateAmount/min/max): the priority field is a text input.
+  priority: string
   expirationAt: string | null
   paidTopUpMinAmountCents: string | null
   paidTopUpMaxAmountCents: string | null
@@ -80,7 +81,10 @@ export const walletSettingsSchema = z
   .object({
     name: z.string(),
     rateAmount: z.string().min(1, 'text_624ea7c29103fd010732ab7d'),
-    priority: z.number().min(1).max(50),
+    // String, not `z.coerce.number()`: the field is a text input, and coercing
+    // here would widen the schema input to `unknown` and break the TanStack
+    // validator typing. Range is enforced in the superRefine below.
+    priority: z.string(),
     expirationAt: z.string().nullable(),
     paidTopUpMinAmountCents: z.string().nullable(),
     paidTopUpMaxAmountCents: z.string().nullable(),
@@ -92,6 +96,16 @@ export const walletSettingsSchema = z
         code: z.ZodIssueCode.custom,
         message: 'text_624ea7c29103fd010732ab7d',
         path: ['rateAmount'],
+      })
+    }
+
+    const priority = Number(data.priority)
+
+    if (Number.isNaN(priority) || priority < 1 || priority > 50) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'text_624ea7c29103fd010732ab7d',
+        path: ['priority'],
       })
     }
 
@@ -205,7 +219,7 @@ export const walletRecurringSchema = () =>
 export const itemToSettings = (item: WalletFormItem): WalletSettingsSlice => ({
   name: item.name ?? '',
   rateAmount: item.rateAmount,
-  priority: item.priority,
+  priority: String(item.priority),
   expirationAt: item.expirationAt,
   paidTopUpMinAmountCents: item.paidTopUpMinAmountCents,
   paidTopUpMaxAmountCents: item.paidTopUpMaxAmountCents,
@@ -216,7 +230,9 @@ export const settingsToItem = (item: WalletFormItem, s: WalletSettingsSlice): Wa
   ...item,
   name: s.name || null,
   rateAmount: s.rateAmount,
-  priority: s.priority,
+  // `s.priority` is a string (text input); coerce to number, keeping the
+  // prior value if it isn't parseable.
+  priority: Number.isNaN(Number(s.priority)) ? item.priority : Number(s.priority),
   expirationAt: s.expirationAt,
   paidTopUpMinAmountCents: s.paidTopUpMinAmountCents,
   paidTopUpMaxAmountCents: s.paidTopUpMaxAmountCents,
