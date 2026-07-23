@@ -507,8 +507,8 @@ const EditQuote = () => {
             onDiscountCommand={isSubscriptionOrder ? handleDiscountCommand : undefined}
             onDiscountBlocksChange={handleDiscountBlocksChange}
             onCreditsCommand={isSubscriptionOrder ? handleCreditsCommand : undefined}
-            isCreditsDisabled={credits.isCreditsDisabled}
-            onCreditsBlocksChange={handleCreditsBlocksChange}
+            isCreditsDisabled={isSubscriptionOrder ? credits.isCreditsDisabled : undefined}
+            onCreditsBlocksChange={isSubscriptionOrder ? handleCreditsBlocksChange : undefined}
             customerLocale={customerLocale}
             customerCurrency={quote?.customer?.currency ?? undefined}
             variableItems={mentionItems}
