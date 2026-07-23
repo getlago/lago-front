@@ -419,6 +419,18 @@ const EditQuote = () => {
     onClose()
   }
 
+  // Discount + credits are subscription-only; gate the whole set of commands
+  // once here instead of per-prop, which keeps the JSX (and the component's
+  // cognitive complexity) low.
+  const subscriptionEditorProps = isSubscriptionOrder
+    ? {
+        onDiscountCommand: handleDiscountCommand,
+        onCreditsCommand: handleCreditsCommand,
+        isCreditsDisabled: credits.isCreditsDisabled,
+        onCreditsBlocksChange: handleCreditsBlocksChange,
+      }
+    : {}
+
   return (
     <RightAsidePage.Wrapper>
       <RightAsidePage.Header
@@ -504,11 +516,8 @@ const EditQuote = () => {
             isPricingDisabled={isPricingDisabled}
             entities={mergedEntities}
             onPricingBlocksChange={handlePricingBlocksChange}
-            onDiscountCommand={isSubscriptionOrder ? handleDiscountCommand : undefined}
             onDiscountBlocksChange={handleDiscountBlocksChange}
-            onCreditsCommand={isSubscriptionOrder ? handleCreditsCommand : undefined}
-            isCreditsDisabled={isSubscriptionOrder ? credits.isCreditsDisabled : undefined}
-            onCreditsBlocksChange={isSubscriptionOrder ? handleCreditsBlocksChange : undefined}
+            {...subscriptionEditorProps}
             customerLocale={customerLocale}
             customerCurrency={quote?.customer?.currency ?? undefined}
             variableItems={mentionItems}
