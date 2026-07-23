@@ -16,10 +16,7 @@ import {
 } from '~/components/layouts/Settings'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useEditBillingEntityDocumentLocaleDialog } from '~/components/settings/invoices/EditBillingEntityDocumentLocaleDialog'
-import {
-  EditBillingEntityGracePeriodDialog,
-  EditBillingEntityGracePeriodDialogRef,
-} from '~/components/settings/invoices/EditBillingEntityGracePeriodDialog'
+import { useEditBillingEntityGracePeriodDialog } from '~/components/settings/invoices/EditBillingEntityGracePeriodDialog'
 import {
   EditBillingEntityInvoiceIssuingDatePolicyDialog,
   EditBillingEntityInvoiceIssuingDatePolicyDialogRef,
@@ -125,7 +122,7 @@ const BillingEntityInvoiceSettings = () => {
 
   const editBillingEntityInvoiceIssuingDatePolicyDialogRef =
     useRef<EditBillingEntityInvoiceIssuingDatePolicyDialogRef>(null)
-  const editGracePeriodDialogRef = useRef<EditBillingEntityGracePeriodDialogRef>(null)
+  const { openEditBillingEntityGracePeriodDialog } = useEditBillingEntityGracePeriodDialog()
   const { openEditBillingEntityDocumentLocaleDialog } = useEditBillingEntityDocumentLocaleDialog()
   const { openEditNetPaymentTermDialog } = useEditNetPaymentTermDialog()
   const netPaymentTermDialogDescription = translate('text_64c7a89b6c67eb6c988980eb')
@@ -236,7 +233,10 @@ const BillingEntityInvoiceSettings = () => {
           disabled={!canEditInvoiceSettings}
           onClick={() => {
             isPremium
-              ? editGracePeriodDialogRef?.current?.openDialog()
+              ? openEditBillingEntityGracePeriodDialog({
+                  id: billingEntity?.id as string,
+                  invoiceGracePeriod,
+                })
               : premiumWarningDialog.open()
           }}
         >
@@ -247,13 +247,6 @@ const BillingEntityInvoiceSettings = () => {
         'text_638dc196fb209d551f3d81a2',
         { gracePeriod: invoiceGracePeriod },
         invoiceGracePeriod,
-      ),
-      dialog: (
-        <EditBillingEntityGracePeriodDialog
-          ref={editGracePeriodDialogRef}
-          invoiceGracePeriod={invoiceGracePeriod}
-          id={billingEntity?.id as string}
-        />
       ),
     },
     {
