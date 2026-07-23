@@ -1,0 +1,43 @@
+"$schema" = "https://conductor.build/schemas/settings.repo.schema.json"
+
+# Shared Conductor config for the whole team. Committed, applies to everyone
+# after merge. Personal, per-machine overrides go in .conductor/settings.local.toml
+# (gitignored). See README "Conductor (parallel workspaces)".
+
+# Enterprise privacy: only account data (email, GitHub integration) is stored
+# server-side. Disables features that call external AI providers (AI chat
+# titles, custom MCP servers). Team-wide default.
+enterprise_data_privacy = true
+
+[git]
+delete_branch_on_archive = true
+
+[scripts]
+setup = "pnpm install"
+archive = "$LAGO_PATH/front/scripts/conductor-front-container.sh down"
+run_mode = "concurrent"
+
+# Run the workspace in its own Docker container on the shared lago stack network.
+# Requires the Docker superproject stack: `lago up -d`, the front_dev image, and
+# the $LAGO_PATH env var (same one used by lago-worktree).
+[scripts.run.container]
+command = "$LAGO_PATH/front/scripts/conductor-front-container.sh up"
+default = true
+icon = "container"
+
+# Open an interactive shell inside this workspace's running container. Run the
+# `container` script first. Commands here (pnpm codegen, pnpm test, node) use the
+# container's node_modules and network, where `api:3000` resolves.
+[scripts.run.shell]
+command = "$LAGO_PATH/front/scripts/conductor-front-container.sh shell"
+icon = "square-terminal"
+
+# Run Vite on the HOST instead of in a container: the script disables Vite's
+# watch polling for host runs, so it uses native macOS fsevents for reliable,
+# instant HMR (the in-container watcher polls and drops events under load,
+# breaking hot reload). API is reached over Traefik at api.lago.dev; the script
+# patches the workspace .env accordingly. Use `host` OR `container` for a
+# workspace, not both (same port, strictPort errors).
+[scripts.run.host]
+command = "$LAGO_PATH/front/scripts/conductor-front-container.sh host"
+icon = "flame"
