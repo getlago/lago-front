@@ -209,3 +209,40 @@ describe('MyComponent', () => {
 - Set `Settings.defaultZone = 'UTC'` in `beforeAll` or `beforeEach`
 - Always restore the original timezone in `afterAll` or `afterEach` to avoid affecting other tests
 - This applies to any test involving date formatting, especially snapshot tests
+
+### Premium vs non-premium in Cypress e2e
+
+CI enables premium features by booting the API with the `LAGO_LICENSE` **secret**
+(`.github/workflows/cypress.yml` → `ci/docker-compose.ci.yml`). GitHub does **not**
+expose repo secrets to `pull_request` runs originating from **forks**, so
+community/fork PRs run against a **non-premium** org (`currentUser.premium = false`).
+
+A spec that unconditionally clicks a premium-gated control (graduated-percentage
+charge model, percentage per-transaction min/max, spending minimum, minimum
+commitment, progressive billing, subscription plan-override editing, …) gets the
+`PremiumWarningDialog` instead of the expected input, so the assertion times out
+on forks while passing internally — which is exactly what blocked contributions
+in LAGO-1555.
+
+**Rule: any step touching a premium-gated control must branch on premium.**
+`cy.login()` / `cy.signup()` capture the org's premium state from the
+`getCurrentUserInfos` response; read it via the helpers in `cypress/support/e2e.ts`:
+
+```ts
+// Exercise the premium-only control only when licensed.
+cy.whenPremium(() => {
+  cy.get('[data-test="graduated_percentage"]').click({ force: true })
+  // ... fill the tier table, save, assert ...
+})
+
+// Otherwise assert the gate so coverage is meaningful non-premium too.
+cy.whenNotPremium(() => {
+  cy.get(`[data-test="${DIALOG_TITLE_TEST_ID}"]`).should('exist') // PremiumWarningDialog
+})
+
+// Or read the boolean directly.
+cy.getIsPremium().then((isPremium) => { /* ... */ })
+```
+
+Keep assertions that are true regardless of license (URL, plan name, submit)
+**outside** the branches. See `t40-create-plan.cy.ts` for a worked example.
