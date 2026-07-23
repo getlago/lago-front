@@ -12,7 +12,12 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 import { MenuPopper } from '~/styles'
 
-import { itemToSettings, type WalletSettingsSlice } from './walletFormSchema'
+import {
+  itemToSettings,
+  WALLET_PRIORITY_MAX,
+  WALLET_PRIORITY_MIN,
+  type WalletSettingsSlice,
+} from './walletFormSchema'
 
 const DEFAULTS: WalletSettingsSlice = itemToSettings(makeEmptyWalletItem(''))
 
@@ -93,6 +98,14 @@ export const WalletSettingsFields = withForm({
               beforeChangeFormatter={['positiveNumber', 'int']}
               label={translate('text_1755697949545w7vb1hox4n5')}
               helperText={translate('text_175569794954699gxpjhn4fe')}
+              errorOverride={
+                field.state.meta.errors.length > 0
+                  ? translate('text_1784022064201xi14v3sglp1', {
+                      min: WALLET_PRIORITY_MIN,
+                      max: WALLET_PRIORITY_MAX,
+                    })
+                  : undefined
+              }
             />
           )}
         </form.AppField>

@@ -19,6 +19,24 @@ import {
 const errorKey = (result: ReturnType<ReturnType<typeof walletFreeAndPaidSchema>['safeParse']>) =>
   result.success ? null : result.error.issues[0]?.message
 
+// Message emitted on a given settings field path (undefined when it passed).
+const settingsMessage = (
+  result: ReturnType<typeof walletSettingsSchema.safeParse>,
+  path: string,
+): string | undefined =>
+  result.success ? undefined : result.error.issues.find((issue) => issue.path[0] === path)?.message
+
+const settings = (overrides: Partial<Parameters<typeof walletSettingsSchema.parse>[0]>) => ({
+  name: '',
+  rateAmount: '1',
+  priority: '30',
+  expirationAt: null,
+  paidTopUpMinAmountCents: null,
+  paidTopUpMaxAmountCents: null,
+  purchaseOrderNumber: null,
+  ...overrides,
+})
+
 const freeAndPaid = (paidCredits: string) => ({
   freeCredits: '',
   paidCredits,
@@ -39,20 +57,44 @@ describe('walletFormSchema', () => {
     })
 
     expect(result.success).toBe(false)
+    // out-of-range priority is a bounds error, not a "mandatory" one
+    expect(settingsMessage(result, 'priority')).toBe('text_1784022064201xi14v3sglp1')
   })
 
   it('rejects a non-numeric rateAmount (NaN must not slip past the <= 0 guard)', () => {
-    const result = walletSettingsSchema.safeParse({
-      name: '',
-      rateAmount: 'abc',
-      priority: '30',
-      expirationAt: null,
-      paidTopUpMinAmountCents: null,
-      paidTopUpMaxAmountCents: null,
-      purchaseOrderNumber: null,
-    })
+    const result = walletSettingsSchema.safeParse(settings({ rateAmount: 'abc' }))
 
     expect(result.success).toBe(false)
+    expect(settingsMessage(result, 'rateAmount')).toBe('text_633445d00315a713775f02a6')
+  })
+
+  it('flags a <= 0 rateAmount with the "greater than 0" message', () => {
+    const result = walletSettingsSchema.safeParse(settings({ rateAmount: '0' }))
+
+    expect(settingsMessage(result, 'rateAmount')).toBe('text_633445d00315a713775f02a6')
+  })
+
+  it('keeps the "mandatory" message for an empty rateAmount (not the >0 copy)', () => {
+    const result = walletSettingsSchema.safeParse(settings({ rateAmount: '' }))
+
+    const messages = result.success
+      ? []
+      : result.error.issues.filter((i) => i.path[0] === 'rateAmount').map((i) => i.message)
+
+    expect(messages).toContain('text_624ea7c29103fd010732ab7d')
+    expect(messages).not.toContain('text_633445d00315a713775f02a6')
+  })
+
+  it('flags a non-numeric min/max with their respective messages', () => {
+    const minResult = walletSettingsSchema.safeParse(settings({ paidTopUpMinAmountCents: 'abc' }))
+    const maxResult = walletSettingsSchema.safeParse(settings({ paidTopUpMaxAmountCents: 'abc' }))
+
+    expect(settingsMessage(minResult, 'paidTopUpMinAmountCents')).toBe(
+      'text_175872290080132j1em37b08',
+    )
+    expect(settingsMessage(maxResult, 'paidTopUpMaxAmountCents')).toBe(
+      'text_1758722900801nbox9c5bgnn',
+    )
   })
 
   it('accepts an in-range string priority from the text input', () => {

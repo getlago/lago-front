@@ -77,6 +77,9 @@ export const topUpWithinLimits = ({
 }
 
 // --- Schemas ---
+export const WALLET_PRIORITY_MIN = 1
+export const WALLET_PRIORITY_MAX = 50
+
 export const walletSettingsSchema = z
   .object({
     name: z.string(),
@@ -95,20 +98,26 @@ export const walletSettingsSchema = z
 
     // `Number.isNaN` guard: a non-numeric string ('abc') is NaN, and `NaN <= 0`
     // is false, so it would otherwise slip through (e.g. via form.reset).
-    if (Number.isNaN(rateAmount) || rateAmount <= 0) {
+    // Empty is skipped here: the `.min(1)` above already flags it as mandatory;
+    // this branch is the "entered but invalid" case → "greater than 0" copy.
+    if (data.rateAmount !== '' && (Number.isNaN(rateAmount) || rateAmount <= 0)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'text_624ea7c29103fd010732ab7d',
+        message: 'text_633445d00315a713775f02a6',
         path: ['rateAmount'],
       })
     }
 
     const priority = Number(data.priority)
 
-    if (Number.isNaN(priority) || priority < 1 || priority > 50) {
+    if (
+      Number.isNaN(priority) ||
+      priority < WALLET_PRIORITY_MIN ||
+      priority > WALLET_PRIORITY_MAX
+    ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'text_624ea7c29103fd010732ab7d',
+        message: 'text_1784022064201xi14v3sglp1',
         path: ['priority'],
       })
     }
@@ -122,7 +131,7 @@ export const walletSettingsSchema = z
     if (minNumber !== null && Number.isNaN(minNumber)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'text_624ea7c29103fd010732ab7d',
+        message: 'text_175872290080132j1em37b08',
         path: ['paidTopUpMinAmountCents'],
       })
     }
@@ -130,7 +139,7 @@ export const walletSettingsSchema = z
     if (maxNumber !== null && Number.isNaN(maxNumber)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'text_624ea7c29103fd010732ab7d',
+        message: 'text_1758722900801nbox9c5bgnn',
         path: ['paidTopUpMaxAmountCents'],
       })
     }
