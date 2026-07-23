@@ -1,6 +1,6 @@
 import { ApolloError, LazyQueryHookOptions } from '@apollo/client'
 import { IconName } from 'lago-design-system'
-import { useMemo, useRef } from 'react'
+import { useMemo } from 'react'
 import { generatePath, useSearchParams } from 'react-router-dom'
 
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
@@ -15,14 +15,8 @@ import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { buildInvoiceDocumentData } from '~/components/emails/buildDocumentData'
 import { useUpdateInvoicePaymentStatusDialog } from '~/components/invoices/EditInvoicePaymentStatusDialog'
-import {
-  FinalizeInvoiceDialog,
-  FinalizeInvoiceDialogRef,
-} from '~/components/invoices/FinalizeInvoiceDialog'
-import {
-  ResendInvoiceForCollectionDialog,
-  ResendInvoiceForCollectionDialogRef,
-} from '~/components/invoices/ResendInvoiceForCollectionDialog'
+import { useFinalizeInvoiceDialog } from '~/components/invoices/FinalizeInvoiceDialog'
+import { useResendInvoiceForCollectionDialog } from '~/components/invoices/ResendInvoiceForCollectionDialog'
 import { getEmptyStateConfig } from '~/components/invoices/utils/emptyStateMapping'
 import { getMostRecentPaymentMethodId } from '~/components/invoices/utils/getMostRecentPaymentMethodId'
 import { addToast } from '~/core/apolloClient'
@@ -96,9 +90,9 @@ const InvoicesList = ({
 
   const { handleDownloadFile } = useDownloadFile()
 
-  const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
+  const { openFinalizeInvoiceDialog } = useFinalizeInvoiceDialog()
   const { openUpdateInvoicePaymentStatusDialog } = useUpdateInvoicePaymentStatusDialog()
-  const resendInvoiceForCollectionDialogRef = useRef<ResendInvoiceForCollectionDialogRef>(null)
+  const { openResendInvoiceForCollectionDialog } = useResendInvoiceForCollectionDialog()
 
   const [downloadInvoice] = useDownloadInvoiceItemMutation({
     onCompleted({ downloadInvoice: data }) {
@@ -236,7 +230,7 @@ const InvoicesList = ({
             startIcon: 'checkmark',
             title: translate('text_63a41a8eabb9ae67047c1c08'),
             onAction: (item) => {
-              finalizeInvoiceRef.current?.openDialog(item)
+              openFinalizeInvoiceDialog(item)
             },
           }
         : null
@@ -260,7 +254,7 @@ const InvoicesList = ({
           startIcon: 'push',
           title: translate('text_63ac86d897f728a87b2fa039'),
           onAction: () => {
-            resendInvoiceForCollectionDialogRef.current?.openDialog({
+            openResendInvoiceForCollectionDialog({
               invoice,
               preselectedPaymentMethodId: getMostRecentPaymentMethodId(invoice?.payments),
             })
@@ -561,9 +555,6 @@ const InvoicesList = ({
           }}
         />
       </PaginatedContent>
-
-      <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
-      <ResendInvoiceForCollectionDialog ref={resendInvoiceForCollectionDialogRef} />
     </>
   )
 }

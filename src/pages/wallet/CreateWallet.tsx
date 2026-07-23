@@ -44,6 +44,7 @@ gql`
     id
     billingEntityId
     code
+    createdAt
     currency
     expirationAt
     name
@@ -359,6 +360,7 @@ const CreateWallet = () => {
               form={form}
               formType={formType}
               customerData={customerData}
+              walletCreatedAt={wallet?.createdAt}
               isRecurringTopUpEnabled={isRecurringTopUpEnabled}
               setIsRecurringTopUpEnabled={setIsRecurringTopUpEnabled}
             />

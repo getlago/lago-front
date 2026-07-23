@@ -98,6 +98,7 @@ export const DEFAULT_RULES: TWalletRecurringRule = {
 interface TopUpSectionExtraProps {
   formType: keyof typeof FORM_TYPE_ENUM
   customerData?: GetCustomerInfosForWalletFormQuery
+  walletCreatedAt?: string | null
   isRecurringTopUpEnabled: boolean
   setIsRecurringTopUpEnabled: (value: boolean) => void
 }
@@ -105,6 +106,7 @@ interface TopUpSectionExtraProps {
 const topUpSectionDefaultProps: TopUpSectionExtraProps = {
   formType: FORM_TYPE_ENUM.creation,
   customerData: undefined,
+  walletCreatedAt: undefined,
   isRecurringTopUpEnabled: false,
   setIsRecurringTopUpEnabled: () => {},
 }
@@ -115,6 +117,7 @@ export const TopUpSection = withForm({
   render: function TopUpSectionRender({
     form,
     customerData,
+    walletCreatedAt,
     isRecurringTopUpEnabled,
     setIsRecurringTopUpEnabled,
   }) {
@@ -583,6 +586,7 @@ export const TopUpSection = withForm({
                       translate,
                       currency: walletValues?.currency,
                       customerTimezone: customerData?.customer?.timezone,
+                      walletCreatedAt,
                       recurringRulesValues: recurringTransactionRules,
                       walletValues,
                     })}
