@@ -86,13 +86,11 @@ jest.mock('~/components/customers/EditCustomerInvoiceCustomSectionsDialog', () =
   }),
 }))
 
-jest.mock('~/components/customers/settings/EditCustomerIssuingDatePolicyDialog', () => {
-  const React = jest.requireActual('react')
-  const MockDialog = React.forwardRef(() => null)
-
-  MockDialog.displayName = 'EditCustomerIssuingDatePolicyDialog'
-  return { EditCustomerIssuingDatePolicyDialog: MockDialog }
-})
+jest.mock('~/components/customers/settings/EditCustomerIssuingDatePolicyDialog', () => ({
+  useEditCustomerIssuingDatePolicyDialog: () => ({
+    openEditCustomerIssuingDatePolicyDialog: jest.fn(),
+  }),
+}))
 
 jest.mock('~/components/customers/DeleteCustomerFinalizeZeroAmountInvoiceDialog', () => ({
   useDeleteCustomerFinalizeZeroAmountInvoiceDialog: () => ({
