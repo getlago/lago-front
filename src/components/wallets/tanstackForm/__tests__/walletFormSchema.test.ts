@@ -41,6 +41,20 @@ describe('walletFormSchema', () => {
     expect(result.success).toBe(false)
   })
 
+  it('rejects a non-numeric rateAmount (NaN must not slip past the <= 0 guard)', () => {
+    const result = walletSettingsSchema.safeParse({
+      name: '',
+      rateAmount: 'abc',
+      priority: '30',
+      expirationAt: null,
+      paidTopUpMinAmountCents: null,
+      paidTopUpMaxAmountCents: null,
+      purchaseOrderNumber: null,
+    })
+
+    expect(result.success).toBe(false)
+  })
+
   it('accepts an in-range string priority from the text input', () => {
     const result = walletSettingsSchema.safeParse({
       name: '',

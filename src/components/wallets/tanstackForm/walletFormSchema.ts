@@ -91,7 +91,11 @@ export const walletSettingsSchema = z
     purchaseOrderNumber: z.string().nullable(),
   })
   .superRefine((data, ctx) => {
-    if (Number(data.rateAmount) <= 0) {
+    const rateAmount = Number(data.rateAmount)
+
+    // `Number.isNaN` guard: a non-numeric string ('abc') is NaN, and `NaN <= 0`
+    // is false, so it would otherwise slip through (e.g. via form.reset).
+    if (Number.isNaN(rateAmount) || rateAmount <= 0) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'text_624ea7c29103fd010732ab7d',
