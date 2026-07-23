@@ -44,6 +44,8 @@ import { FiltersItemPaymentOverdue } from '~/components/designSystem/Filters/fil
 import { FiltersItemPaymentStatus } from '~/components/designSystem/Filters/filtersElements/FiltersItemPaymentStatus'
 import { FiltersItemPeriod } from '~/components/designSystem/Filters/filtersElements/FiltersItemPeriod'
 import { FiltersItemPlanCode } from '~/components/designSystem/Filters/filtersElements/FiltersItemPlanCode'
+import { FiltersItemProductItemFilterProduct } from '~/components/designSystem/Filters/filtersElements/FiltersItemProductItemFilterProduct'
+import { FiltersItemProductItemFilterProductItem } from '~/components/designSystem/Filters/filtersElements/FiltersItemProductItemFilterProductItem'
 import { FiltersItemProductItemProduct } from '~/components/designSystem/Filters/filtersElements/FiltersItemProductItemProduct'
 import { FiltersItemProductItemType } from '~/components/designSystem/Filters/filtersElements/FiltersItemProductItemType'
 import { FiltersItemQuoteNumber } from '~/components/designSystem/Filters/filtersElements/FiltersItemQuoteNumber'
@@ -135,6 +137,12 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.planCode]: <FiltersItemPlanCode {...props} />,
     [AvailableFiltersEnum.productItemProduct]: <FiltersItemProductItemProduct {...props} />,
     [AvailableFiltersEnum.productItemType]: <FiltersItemProductItemType {...props} />,
+    [AvailableFiltersEnum.productItemFilterProduct]: (
+      <FiltersItemProductItemFilterProduct {...props} />
+    ),
+    [AvailableFiltersEnum.productItemFilterProductItem]: (
+      <FiltersItemProductItemFilterProductItem {...props} />
+    ),
     [AvailableFiltersEnum.requestPaths]: <FiltersItemRequestPath {...props} />,
     [AvailableFiltersEnum.resourceIds]: <FiltersItemResourceIds {...props} />,
     [AvailableFiltersEnum.resourceTypes]: <FiltersItemResourceTypes {...props} />,

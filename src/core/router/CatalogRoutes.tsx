@@ -4,12 +4,17 @@ import { lazyLoad } from './utils'
 const ProductCatalog = lazyLoad(() => import('~/pages/catalog/ProductCatalog'))
 const ProductDetails = lazyLoad(() => import('~/pages/catalog/details/ProductDetails'))
 const ProductItemDetails = lazyLoad(() => import('~/pages/catalog/details/ProductItemDetails'))
+const ProductItemFilterDetails = lazyLoad(
+  () => import('~/pages/catalog/details/ProductItemFilterDetails'),
+)
 const Plans = lazyLoad(() => import('~/pages/catalog/Plans'))
 
 export const PRODUCT_CATALOG_ROUTE = '/product-catalog'
 export const PRODUCT_CATALOG_TAB_ROUTE = '/product-catalog/:tab'
 export const PRODUCT_DETAILS_ROUTE = '/product-catalog/products/:productId/:tab'
 export const PRODUCT_ITEM_DETAILS_ROUTE = '/product-catalog/product-items/:productItemId/:tab'
+export const PRODUCT_ITEM_FILTER_DETAILS_ROUTE =
+  '/product-catalog/product-item-filters/:productItemFilterId/:tab'
 export const PLAN_PRICING_ROUTE = '/plan-pricing'
 
 export const catalogRoutes: CustomRouteObject[] = [
@@ -24,6 +29,12 @@ export const catalogRoutes: CustomRouteObject[] = [
     private: true,
     element: <ProductItemDetails />,
     permissions: ['productItemsView'],
+  },
+  {
+    path: [PRODUCT_ITEM_FILTER_DETAILS_ROUTE],
+    private: true,
+    element: <ProductItemFilterDetails />,
+    permissions: ['productItemFiltersView'],
   },
   {
     path: [PRODUCT_CATALOG_ROUTE, PRODUCT_CATALOG_TAB_ROUTE],

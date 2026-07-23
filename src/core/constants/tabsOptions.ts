@@ -97,6 +97,13 @@ export enum ProductItemDetailsTabsOptionsEnum {
   activityLogs = 'activity-logs',
 }
 
+export enum ProductItemFilterDetailsTabsOptionsEnum {
+  overview = 'overview',
+  rateCards = 'rate-cards',
+  plans = 'plans',
+  activityLogs = 'activity-logs',
+}
+
 export enum QuoteDetailsTabsOptionsEnum {
   overview = 'overview',
   orderForms = 'order-forms',

@@ -36,6 +36,7 @@ export const queryFieldPolicies: Record<string, FieldPolicy> = {
   pricingUnits: createSinglePageFieldPolicy(),
   products: createSinglePageFieldPolicy(),
   productItems: createSinglePageFieldPolicy(),
+  productItemFilters: createSinglePageFieldPolicy(),
   quotes: createSinglePageFieldPolicy(),
   subscriptions: createSinglePageFieldPolicy(),
   taxes: createSinglePageFieldPolicy(),

@@ -1,4 +1,3 @@
-import { gql } from '@apollo/client'
 import { useMemo } from 'react'
 
 import { useFilters } from '~/components/designSystem/Filters/useFilters'
@@ -11,30 +10,21 @@ import { formatMultiFilterValue, parseLabeledMultiFilterValue } from './utils'
 import { filterDataInlineSeparator, FiltersFormValues, filterWithoutProductValue } from '../types'
 import { escapeFilterLabel } from '../utils'
 
-gql`
-  query getProductsForFilterItemProduct($page: Int, $limit: Int) {
-    products(page: $page, limit: $limit) {
-      metadata {
-        currentPage
-        totalPages
-      }
-      collection {
-        id
-        code
-      }
-    }
-  }
-`
-
-type FiltersItemProductItemProductProps = {
+type FiltersItemProductItemFilterProductProps = {
   value: FiltersFormValues['filters'][0]['value']
   setFilterValue: (value: string) => void
 }
 
-export const FiltersItemProductItemProduct = ({
+// UI-only pending backend support: the `productItemFilters` query only accepts
+// `productItemId` + `searchTerm` today (see formatFiltersForProductItemFiltersQuery,
+// which deliberately excludes this filter), so a selection made here never reaches
+// the API. Built to match the Figma reference, which mirrors the product-item
+// list's Product filter (FiltersItemProductItemProduct) exactly, including reusing
+// the same `products` query.
+export const FiltersItemProductItemFilterProduct = ({
   value,
   setFilterValue,
-}: FiltersItemProductItemProductProps) => {
+}: FiltersItemProductItemFilterProductProps) => {
   const { translate } = useInternationalization()
   const { displayInDialog } = useFilters()
 
@@ -52,7 +42,7 @@ export const FiltersItemProductItemProduct = ({
       .sort((a, b) => a.label.localeCompare(b.label))
 
     // "Not defined" is injected client-side (not returned by the API) and pinned on top of
-    // every product. Selecting it maps to `withoutProduct: true` rather than a product id.
+    // every product, matching the Figma reference. It has no query effect on this list.
     return [
       { label: translate('text_1784214117868fh6rndi4m75'), value: filterWithoutProductValue },
       ...productOptions,

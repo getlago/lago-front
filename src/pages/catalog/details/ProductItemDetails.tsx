@@ -15,6 +15,7 @@ import {
   LagoApiError,
   ProductItemForDeleteProductItemDialogFragmentDoc,
   ProductItemForDrawerFragmentDoc,
+  ProductItemForFilterPreviewFragmentDoc,
   useGetProductItemForDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -23,6 +24,7 @@ import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 import { usePermissions } from '~/hooks/usePermissions'
 
 import { ProductItemDetailsOverview } from './ProductItemDetailsOverview'
+import ProductItemFilterPreview from './ProductItemFilterPreview'
 
 import { useDeleteProductItemDialog } from '../dialogs/useDeleteProductItemDialog'
 import { useProductItemDrawer } from '../drawers/productItem/useProductItemDrawer'
@@ -32,6 +34,7 @@ gql`
     id
     name
     code
+    ...ProductItemForFilterPreview
     ...ProductItemForDrawer
     ...ProductItemForDeleteProductItemDialog
   }
@@ -43,6 +46,7 @@ gql`
     }
   }
 
+  ${ProductItemForFilterPreviewFragmentDoc}
   ${ProductItemForDrawerFragmentDoc}
   ${ProductItemForDeleteProductItemDialogFragmentDoc}
 `
@@ -158,7 +162,11 @@ const ProductItemDetails = () => {
               productItemId: productItemId as string,
               tab: ProductItemDetailsTabsOptionsEnum.itemFilters,
             }),
-            content: <div className="p-4">{translate('text_1783980718114wkor6aysepe')}</div>,
+            content: productItem ? (
+              <DetailsPage.Container className="pb-0">
+                <ProductItemFilterPreview productItem={productItem} />
+              </DetailsPage.Container>
+            ) : null,
           },
           {
             title: translate('text_62442e40cea25600b0b6d85a'),
