@@ -17,10 +17,7 @@ import {
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useEditBillingEntityDocumentLocaleDialog } from '~/components/settings/invoices/EditBillingEntityDocumentLocaleDialog'
 import { useEditBillingEntityGracePeriodDialog } from '~/components/settings/invoices/EditBillingEntityGracePeriodDialog'
-import {
-  EditBillingEntityInvoiceIssuingDatePolicyDialog,
-  EditBillingEntityInvoiceIssuingDatePolicyDialogRef,
-} from '~/components/settings/invoices/EditBillingEntityInvoiceIssuingDatePolicyDialog'
+import { useEditBillingEntityInvoiceIssuingDatePolicyDialog } from '~/components/settings/invoices/EditBillingEntityInvoiceIssuingDatePolicyDialog'
 import { useEditBillingEntityInvoiceNumberingDialog } from '~/components/settings/invoices/EditBillingEntityInvoiceNumberingDialog'
 import { useEditBillingEntityInvoiceTemplateDialog } from '~/components/settings/invoices/EditBillingEntityInvoiceTemplateDialog'
 import { useEditDefaultCurrencyDialog } from '~/components/settings/invoices/EditDefaultCurrencyDialog'
@@ -117,8 +114,8 @@ const BillingEntityInvoiceSettings = () => {
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
 
-  const editBillingEntityInvoiceIssuingDatePolicyDialogRef =
-    useRef<EditBillingEntityInvoiceIssuingDatePolicyDialogRef>(null)
+  const { openEditBillingEntityInvoiceIssuingDatePolicyDialog } =
+    useEditBillingEntityInvoiceIssuingDatePolicyDialog()
   const { openEditBillingEntityGracePeriodDialog } = useEditBillingEntityGracePeriodDialog()
   const { openEditBillingEntityDocumentLocaleDialog } = useEditBillingEntityDocumentLocaleDialog()
   const { openEditNetPaymentTermDialog } = useEditNetPaymentTermDialog()
@@ -323,7 +320,10 @@ const BillingEntityInvoiceSettings = () => {
         <Button
           variant="inline"
           disabled={!canEditInvoiceSettings}
-          onClick={() => editBillingEntityInvoiceIssuingDatePolicyDialogRef?.current?.openDialog()}
+          onClick={() => {
+            if (!billingEntity) return
+            openEditBillingEntityInvoiceIssuingDatePolicyDialog({ billingEntity })
+          }}
         >
           {translate('text_6380d7e60f081e5b777c4b24')}
         </Button>
@@ -349,16 +349,6 @@ const BillingEntityInvoiceSettings = () => {
             </div>
           </Typography>
         </div>
-      ),
-      dialog: (
-        <>
-          {!!billingEntity && (
-            <EditBillingEntityInvoiceIssuingDatePolicyDialog
-              ref={editBillingEntityInvoiceIssuingDatePolicyDialogRef}
-              billingEntity={billingEntity}
-            />
-          )}
-        </>
       ),
     },
     {

@@ -1,17 +1,24 @@
 import { gql } from '@apollo/client'
-import { useFormik } from 'formik'
-import { forwardRef } from 'react'
-import { object, string } from 'yup'
+import { revalidateLogic } from '@tanstack/react-form'
+import { useRef } from 'react'
+import { z } from 'zod'
 
-import { DialogRef } from '~/components/designSystem/Dialog'
-import { EditInvoiceIssuingDatePolicyDialogContentBase } from '~/components/invoiceIssuingDatePolicy/EditInvoiceIssuingDatePolicyDialogContentBase'
-import { addToast } from '~/core/apolloClient'
-import { ALL_ADJUSTMENT_VALUES, ALL_ANCHOR_VALUES } from '~/core/constants/issuingDatePolicy'
+import { useFormDialog } from '~/components/dialogs/FormDialog'
+import { DialogResult } from '~/components/dialogs/types'
+import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import {
+  EDIT_INVOICE_ISSUING_DATE_POLICY_FORM_DEFAULT_VALUES,
+  EditInvoiceIssuingDatePolicyFormContent,
+} from '~/components/invoiceIssuingDatePolicy/EditInvoiceIssuingDatePolicyFormContent'
+import { addToast } from '~/core/apolloClient'
+import {
+  CustomerSubscriptionInvoiceIssuingDateAdjustmentEnum,
+  CustomerSubscriptionInvoiceIssuingDateAnchorEnum,
   EditCustomerIssuingDatePolicyDialogFragment,
   useUpdateCustomerIssuingDatePolicyMutation,
 } from '~/generated/graphql'
-import { useIssuingDatePolicy } from '~/hooks/useIssuingDatePolicy'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm } from '~/hooks/forms/useAppform'
 
 gql`
   fragment EditCustomerIssuingDatePolicyDialog on Customer {
@@ -31,24 +38,32 @@ gql`
     }
   }
 `
-type EditCustomerIssuingDatePolicyDialogProps = {
+
+export const EDIT_CUSTOMER_ISSUING_DATE_POLICY_FORM_ID = 'edit-customer-issuing-date-policy-form'
+
+const validationSchema = z.object({
+  subscriptionInvoiceIssuingDateAnchor: z.string(),
+  subscriptionInvoiceIssuingDateAdjustment: z.string(),
+})
+
+type EditCustomerIssuingDatePolicyDialogData = {
   customer: EditCustomerIssuingDatePolicyDialogFragment
 }
-export type EditCustomerIssuingDatePolicyDialogRef = DialogRef
 
-export const EditCustomerIssuingDatePolicyDialog = forwardRef<
-  EditCustomerIssuingDatePolicyDialogRef,
-  EditCustomerIssuingDatePolicyDialogProps
->(({ customer }: EditCustomerIssuingDatePolicyDialogProps, ref) => {
-  const { getIssuingDateInfoForAlert } = useIssuingDatePolicy()
+export const useEditCustomerIssuingDatePolicyDialog = () => {
+  const formDialog = useFormDialog()
+  const { translate } = useInternationalization()
+  const dataRef = useRef<EditCustomerIssuingDatePolicyDialogData | null>(null)
+  const successRef = useRef(false)
 
   const [updateCustomerIssuingDatePolicy] = useUpdateCustomerIssuingDatePolicyMutation({
     onCompleted(res) {
       if (!res?.updateCustomer) return
 
+      successRef.current = true
       const isDeleting =
-        !formikProps.values.subscriptionInvoiceIssuingDateAdjustment &&
-        !formikProps.values.subscriptionInvoiceIssuingDateAnchor
+        !res.updateCustomer.billingConfiguration?.subscriptionInvoiceIssuingDateAdjustment &&
+        !res.updateCustomer.billingConfiguration?.subscriptionInvoiceIssuingDateAnchor
       const translateKey = isDeleting
         ? 'text_1763407386499oel0dxfrp8i'
         : 'text_1763407386500wkf13gr42tj'
@@ -61,20 +76,17 @@ export const EditCustomerIssuingDatePolicyDialog = forwardRef<
     refetchQueries: ['getCustomerSettings'],
   })
 
-  const formikProps = useFormik({
-    initialValues: {
-      subscriptionInvoiceIssuingDateAdjustment:
-        customer.billingConfiguration?.subscriptionInvoiceIssuingDateAdjustment || undefined,
-      subscriptionInvoiceIssuingDateAnchor:
-        customer.billingConfiguration?.subscriptionInvoiceIssuingDateAnchor || undefined,
+  const form = useAppForm({
+    defaultValues: EDIT_INVOICE_ISSUING_DATE_POLICY_FORM_DEFAULT_VALUES,
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: validationSchema,
     },
-    validationSchema: object().shape({
-      subscriptionInvoiceIssuingDateAdjustment: string().nullable(),
-      subscriptionInvoiceIssuingDateAnchor: string().nullable(),
-    }),
-    enableReinitialize: true,
-    validateOnMount: true,
-    onSubmit: async (values) => {
+    onSubmit: async ({ value }) => {
+      const customer = dataRef.current?.customer
+
+      if (!customer) return
+
       await updateCustomerIssuingDatePolicy({
         variables: {
           input: {
@@ -82,8 +94,11 @@ export const EditCustomerIssuingDatePolicyDialog = forwardRef<
             externalId: customer.externalId,
             billingConfiguration: {
               subscriptionInvoiceIssuingDateAdjustment:
-                values.subscriptionInvoiceIssuingDateAdjustment,
-              subscriptionInvoiceIssuingDateAnchor: values.subscriptionInvoiceIssuingDateAnchor,
+                (value.subscriptionInvoiceIssuingDateAdjustment as
+                  CustomerSubscriptionInvoiceIssuingDateAdjustmentEnum | '') || null,
+              subscriptionInvoiceIssuingDateAnchor:
+                (value.subscriptionInvoiceIssuingDateAnchor as
+                  CustomerSubscriptionInvoiceIssuingDateAnchorEnum | '') || null,
             },
           },
         },
@@ -91,24 +106,60 @@ export const EditCustomerIssuingDatePolicyDialog = forwardRef<
     },
   })
 
-  const { descriptionCopyAsHtml, expectedIssuingDateCopy } = getIssuingDateInfoForAlert({
-    gracePeriod: customer.invoiceGracePeriod || 0,
-    subscriptionInvoiceIssuingDateAdjustment: formikProps.values
-      .subscriptionInvoiceIssuingDateAdjustment as
-      (typeof ALL_ADJUSTMENT_VALUES)[keyof typeof ALL_ADJUSTMENT_VALUES] | undefined,
-    subscriptionInvoiceIssuingDateAnchor: formikProps.values
-      .subscriptionInvoiceIssuingDateAnchor as
-      (typeof ALL_ANCHOR_VALUES)[keyof typeof ALL_ANCHOR_VALUES] | undefined,
-  })
+  const handleSubmit = async (): Promise<DialogResult> => {
+    successRef.current = false
+    await form.handleSubmit()
 
-  return (
-    <EditInvoiceIssuingDatePolicyDialogContentBase
-      formikProps={formikProps}
-      ref={ref}
-      descriptionCopyAsHtml={descriptionCopyAsHtml}
-      expectedIssuingDateCopy={expectedIssuingDateCopy}
-    />
-  )
-})
+    if (!successRef.current) {
+      throw new Error('Submit failed')
+    }
 
-EditCustomerIssuingDatePolicyDialog.displayName = 'forwardRef'
+    return { reason: 'success' }
+  }
+
+  const openEditCustomerIssuingDatePolicyDialog = (
+    data: EditCustomerIssuingDatePolicyDialogData,
+  ) => {
+    dataRef.current = data
+    form.reset()
+    form.setFieldValue(
+      'subscriptionInvoiceIssuingDateAnchor',
+      data.customer.billingConfiguration?.subscriptionInvoiceIssuingDateAnchor ?? '',
+    )
+    form.setFieldValue(
+      'subscriptionInvoiceIssuingDateAdjustment',
+      data.customer.billingConfiguration?.subscriptionInvoiceIssuingDateAdjustment ?? '',
+    )
+
+    formDialog
+      .open({
+        title: translate('text_1763407386500gd23ly5ygu8'),
+        description: translate('text_1763407386500yt8w46cn30c'),
+        closeOnError: false,
+        onEntered: focusFirstInput,
+        children: (
+          <EditInvoiceIssuingDatePolicyFormContent
+            form={form}
+            gracePeriod={data.customer.invoiceGracePeriod}
+          />
+        ),
+        mainAction: (
+          <form.AppForm>
+            <form.SubmitButton>{translate('text_17634073865002q0veaoj93x')}</form.SubmitButton>
+          </form.AppForm>
+        ),
+        form: {
+          id: EDIT_CUSTOMER_ISSUING_DATE_POLICY_FORM_ID,
+          submit: handleSubmit,
+        },
+      })
+      .then((response) => {
+        if (response.reason === 'close') {
+          form.reset()
+          dataRef.current = null
+        }
+      })
+  }
+
+  return { openEditCustomerIssuingDatePolicyDialog }
+}
