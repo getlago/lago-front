@@ -460,7 +460,9 @@ const RichTextEditor = ({
         if (target) return false
 
         const isTargetBlock =
-          (node.type.name === 'discountBlock' || node.type.name === 'pricingBlock') &&
+          (node.type.name === 'discountBlock' ||
+            node.type.name === 'pricingBlock' ||
+            node.type.name === 'creditsBlock') &&
           (node.attrs.localId === localId || node.attrs.localEntityIds?.includes(localId))
 
         if (isTargetBlock) {

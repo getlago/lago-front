@@ -559,6 +559,23 @@ describe('RichTextEditor', () => {
       expect(runSpy).toHaveBeenCalled()
     })
 
+    it('THEN removes a credits block matched by localId via deleteRange', async () => {
+      const removeBlockRef = { current: null } as React.MutableRefObject<
+        ((localId: string) => void) | null
+      >
+
+      const { runSpy, deleteRangeSpy } = setupEditorWith([
+        { type: 'creditsBlock', attrs: { localId: 'wallet-local-1' } },
+      ])
+
+      await act(() => render(<RichTextEditor removeBlockRef={removeBlockRef} />))
+
+      act(() => removeBlockRef.current?.('wallet-local-1'))
+
+      expect(deleteRangeSpy).toHaveBeenCalledWith({ from: 5, to: 8 })
+      expect(runSpy).toHaveBeenCalled()
+    })
+
     it('THEN removes a pricing block matched via localEntityIds', async () => {
       const removeBlockRef = { current: null } as React.MutableRefObject<
         ((localId: string) => void) | null
