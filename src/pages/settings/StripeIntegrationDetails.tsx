@@ -39,6 +39,7 @@ gql`
     secretKey
     successRedirectUrl
     supports3ds
+    requireTermsOfServiceConsent
   }
 
   query getStripeIntegrationsDetails($id: ID!, $limit: Int, $type: ProviderTypeEnum) {
@@ -203,6 +204,15 @@ const StripeIntegrationDetails = () => {
                 label={translate('text_1764107468210ibi78qsrukx')}
                 value={
                   stripePaymentProvider?.supports3ds
+                    ? translate('text_1764160009979jzn4xunn1z8')
+                    : translate('text_176416000997957yqelmt2m2')
+                }
+              />
+              <IntegrationsPage.DetailsItem
+                icon="checkmark"
+                label={translate('text_1784801513985pk4c5o9i14q')}
+                value={
+                  stripePaymentProvider?.requireTermsOfServiceConsent
                     ? translate('text_1764160009979jzn4xunn1z8')
                     : translate('text_176416000997957yqelmt2m2')
                 }

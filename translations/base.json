@@ -3420,6 +3420,8 @@
   "text_1763545922743q5ic2kklick": "The invoices will soon be able to accept payment.",
   "text_1764107468210ibi78qsrukx": "Support 3DSecure",
   "text_1764107468210lbhkj5no1vh": "If 3DSecure is required the invoice will stay pending until the customer completes the action.",
+  "text_1784801513985pk4c5o9i14q": "Consent collection",
+  "text_1784801513985p5jt63f9cnp": "Your customers must accept your terms of service before completing their purchase. A Terms of service URL must be set in your Stripe account (Settings → Business → Public details), otherwise checkout links will fail.",
   "text_1764160009979jzn4xunn1z8": "Yes",
   "text_176416000997957yqelmt2m2": "No",
   "text_1764181883406sg3ir0pbxkt": "It seems you don't have the permission to view activity logs. If you think this is an error contact an admin of your organization or Lago support.",

@@ -306,6 +306,7 @@ export type AddStripePaymentProviderInput = {
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   code: Scalars['String']['input'];
   name: Scalars['String']['input'];
+  requireTermsOfServiceConsent?: InputMaybe<Scalars['Boolean']['input']>;
   secretKey?: InputMaybe<Scalars['String']['input']>;
   successRedirectUrl?: InputMaybe<Scalars['String']['input']>;
   supports3ds?: InputMaybe<Scalars['Boolean']['input']>;
@@ -8955,6 +8956,7 @@ export type StripeProvider = {
   code: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
+  requireTermsOfServiceConsent?: Maybe<Scalars['Boolean']['output']>;
   secretKey?: Maybe<Scalars['ObfuscatedString']['output']>;
   successRedirectUrl?: Maybe<Scalars['String']['output']>;
   supports3ds?: Maybe<Scalars['Boolean']['output']>;
@@ -9580,6 +9582,7 @@ export type UpdateAdyenPaymentProviderInput = {
   flowId?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
+  requireTermsOfServiceConsent?: InputMaybe<Scalars['Boolean']['input']>;
   successRedirectUrl?: InputMaybe<Scalars['String']['input']>;
   supports3ds?: InputMaybe<Scalars['Boolean']['input']>;
 };
@@ -9673,6 +9676,7 @@ export type UpdateCashfreePaymentProviderInput = {
   flowId?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
+  requireTermsOfServiceConsent?: InputMaybe<Scalars['Boolean']['input']>;
   successRedirectUrl?: InputMaybe<Scalars['String']['input']>;
   supports3ds?: InputMaybe<Scalars['Boolean']['input']>;
 };
@@ -9849,6 +9853,7 @@ export type UpdateFlutterwavePaymentProviderInput = {
   flowId?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
+  requireTermsOfServiceConsent?: InputMaybe<Scalars['Boolean']['input']>;
   successRedirectUrl?: InputMaybe<Scalars['String']['input']>;
   supports3ds?: InputMaybe<Scalars['Boolean']['input']>;
 };
@@ -9861,6 +9866,7 @@ export type UpdateGocardlessPaymentProviderInput = {
   flowId?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
+  requireTermsOfServiceConsent?: InputMaybe<Scalars['Boolean']['input']>;
   successRedirectUrl?: InputMaybe<Scalars['String']['input']>;
   supports3ds?: InputMaybe<Scalars['Boolean']['input']>;
 };
@@ -9952,6 +9958,7 @@ export type UpdateMoneyhashPaymentProviderInput = {
   flowId?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
+  requireTermsOfServiceConsent?: InputMaybe<Scalars['Boolean']['input']>;
   successRedirectUrl?: InputMaybe<Scalars['String']['input']>;
   supports3ds?: InputMaybe<Scalars['Boolean']['input']>;
 };
@@ -10138,6 +10145,7 @@ export type UpdateStripePaymentProviderInput = {
   flowId?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
+  requireTermsOfServiceConsent?: InputMaybe<Scalars['Boolean']['input']>;
   successRedirectUrl?: InputMaybe<Scalars['String']['input']>;
   supports3ds?: InputMaybe<Scalars['Boolean']['input']>;
 };
@@ -12311,7 +12319,7 @@ export type UpdateSalesforceIntegrationMutationVariables = Exact<{
 
 export type UpdateSalesforceIntegrationMutation = { __typename?: 'Mutation', updateSalesforceIntegration?: { __typename?: 'SalesforceIntegration', id: string, name: string, code: string, instanceId: string } | null };
 
-export type AddStripeProviderDialogFragment = { __typename?: 'StripeProvider', id: string, name: string, code: string, secretKey?: any | null, supports3ds?: boolean | null };
+export type AddStripeProviderDialogFragment = { __typename?: 'StripeProvider', id: string, name: string, code: string, secretKey?: any | null, supports3ds?: boolean | null, requireTermsOfServiceConsent?: boolean | null };
 
 export type GetProviderByCodeForStripeQueryVariables = Exact<{
   code?: InputMaybe<Scalars['String']['input']>;
@@ -12332,14 +12340,14 @@ export type AddStripeApiKeyMutationVariables = Exact<{
 }>;
 
 
-export type AddStripeApiKeyMutation = { __typename?: 'Mutation', addStripePaymentProvider?: { __typename?: 'StripeProvider', id: string, name: string, code: string, secretKey?: any | null, supports3ds?: boolean | null, successRedirectUrl?: string | null } | null };
+export type AddStripeApiKeyMutation = { __typename?: 'Mutation', addStripePaymentProvider?: { __typename?: 'StripeProvider', id: string, name: string, code: string, secretKey?: any | null, supports3ds?: boolean | null, requireTermsOfServiceConsent?: boolean | null, successRedirectUrl?: string | null } | null };
 
 export type UpdateStripeApiKeyMutationVariables = Exact<{
   input: UpdateStripePaymentProviderInput;
 }>;
 
 
-export type UpdateStripeApiKeyMutation = { __typename?: 'Mutation', updateStripePaymentProvider?: { __typename?: 'StripeProvider', id: string, name: string, code: string, secretKey?: any | null, supports3ds?: boolean | null, successRedirectUrl?: string | null } | null };
+export type UpdateStripeApiKeyMutation = { __typename?: 'Mutation', updateStripePaymentProvider?: { __typename?: 'StripeProvider', id: string, name: string, code: string, secretKey?: any | null, supports3ds?: boolean | null, requireTermsOfServiceConsent?: boolean | null, successRedirectUrl?: string | null } | null };
 
 export type XeroForCreateDialogDialogFragment = { __typename?: 'XeroIntegration', id: string, code: string, connectionId: string, hasMappingsConfigured?: boolean | null, name: string, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null };
 
@@ -15237,7 +15245,7 @@ export type GetSalesforceIntegrationsListQuery = { __typename?: 'Query', integra
       | { __typename?: 'XeroIntegration' }
     > } | null };
 
-export type StripeIntegrationDetailsFragment = { __typename?: 'StripeProvider', id: string, code: string, name: string, secretKey?: any | null, successRedirectUrl?: string | null, supports3ds?: boolean | null };
+export type StripeIntegrationDetailsFragment = { __typename?: 'StripeProvider', id: string, code: string, name: string, secretKey?: any | null, successRedirectUrl?: string | null, supports3ds?: boolean | null, requireTermsOfServiceConsent?: boolean | null };
 
 export type GetStripeIntegrationsDetailsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -15252,7 +15260,7 @@ export type GetStripeIntegrationsDetailsQuery = { __typename?: 'Query', paymentP
     | { __typename?: 'FlutterwaveProvider' }
     | { __typename?: 'GocardlessProvider' }
     | { __typename?: 'MoneyhashProvider' }
-    | { __typename?: 'StripeProvider', id: string, code: string, name: string, secretKey?: any | null, successRedirectUrl?: string | null, supports3ds?: boolean | null }
+    | { __typename?: 'StripeProvider', id: string, code: string, name: string, secretKey?: any | null, successRedirectUrl?: string | null, supports3ds?: boolean | null, requireTermsOfServiceConsent?: boolean | null }
    | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
       | { __typename?: 'AdyenProvider' }
       | { __typename?: 'CashfreeProvider' }
@@ -15276,7 +15284,7 @@ export type GetStripeIntegrationsListQuery = { __typename?: 'Query', paymentProv
       | { __typename?: 'FlutterwaveProvider' }
       | { __typename?: 'GocardlessProvider' }
       | { __typename?: 'MoneyhashProvider' }
-      | { __typename?: 'StripeProvider', id: string, name: string, code: string, secretKey?: any | null, supports3ds?: boolean | null }
+      | { __typename?: 'StripeProvider', id: string, name: string, code: string, secretKey?: any | null, supports3ds?: boolean | null, requireTermsOfServiceConsent?: boolean | null }
     > } | null };
 
 export type TaxItemForTaxSettingsFragment = { __typename?: 'Tax', id: string, code: string, name: string, rate: number, autoGenerated: boolean, customersCount: number };
@@ -18042,6 +18050,7 @@ export const AddStripeProviderDialogFragmentDoc = gql`
   code
   secretKey
   supports3ds
+  requireTermsOfServiceConsent
 }
     `;
 export const AnrokIntegrationItemsListAddonsFragmentDoc = gql`
@@ -21016,6 +21025,7 @@ export const StripeIntegrationDetailsFragmentDoc = gql`
   secretKey
   successRedirectUrl
   supports3ds
+  requireTermsOfServiceConsent
 }
     `;
 export const StripeIntegrationsFragmentDoc = gql`
