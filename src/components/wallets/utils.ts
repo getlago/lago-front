@@ -23,6 +23,10 @@ type TGetWordingForWalletAlert = {
     UpdateRecurringTransactionRuleInput[][0]
   translate: ReturnType<typeof useInternationalization>['translate']
   customerTimezone?: TimezoneEnum | null
+  // Fallback recurrence anchor when a rule has no explicit `startedAt`: the
+  // backend anchors interval rules to the wallet's `createdAt`, so the preview
+  // must mirror that instead of drifting to today on every reopen.
+  walletCreatedAt?: string | null
 }
 
 type GetWordingForWalletCreationAlert = TGetWordingForWalletAlert & {
@@ -45,6 +49,33 @@ export const getDateRef = (
   const dateRefForDisplay = DateTime.fromISO(gmtDateRef).setZone(customerZone).startOf('day')
 
   return dateRefForDisplay.setLocale(locale)
+}
+
+// Resolve the recurrence anchor shown in the preview: the rule's explicit
+// `startedAt` when set, otherwise the wallet's `createdAt` (the backend's own
+// fallback for interval rules). Returns undefined only during creation, when
+// neither exists yet — the downstream helpers then default to today, which is
+// correct for a wallet that does not exist server-side yet.
+//
+// Both timestamps are UTC-anchored ISO strings; they are read into the customer
+// timezone so the downstream `.day/.month/.year` extraction reflects the
+// customer's calendar day and not the runtime zone (which would shift the date
+// by ±1 around UTC midnight and differ between local and CI).
+const getRecurrenceAnchor = ({
+  startedAt,
+  walletCreatedAt,
+  timezone,
+}: {
+  startedAt?: string | null
+  walletCreatedAt?: string | null
+  timezone: TGetWordingForWalletAlert['customerTimezone']
+}): DateTime | undefined => {
+  const zone = getTimezoneConfig(timezone).name
+
+  if (startedAt) return DateTime.fromISO(startedAt, { zone })
+  if (walletCreatedAt) return DateTime.fromISO(walletCreatedAt, { zone })
+
+  return undefined
 }
 
 export const getRecurringStartDate = ({
@@ -73,6 +104,7 @@ const setStartOfSentence = ({
   walletValues,
   translate,
   customerTimezone,
+  walletCreatedAt,
 }: GetWordingForWalletCreationAlert) => {
   let text = ''
 
@@ -86,7 +118,11 @@ const setStartOfSentence = ({
     const totalCreditCount = toNumber(rrule?.paidCredits) + toNumber(rrule?.grantedCredits)
     const recurringStartDate = getRecurringStartDate({
       timezone: customerTimezone,
-      date: rrule?.startedAt ? DateTime.fromISO(rrule?.startedAt) : undefined,
+      date: getRecurrenceAnchor({
+        startedAt: rrule?.startedAt,
+        walletCreatedAt,
+        timezone: customerTimezone,
+      }),
     })
 
     if (recurringRulesValues?.method === RecurringTransactionMethodEnum.Fixed) {
@@ -147,15 +183,20 @@ const setEndOfSentence = ({
   customerTimezone,
   walletValues,
   translate,
+  walletCreatedAt,
 }: Pick<
   GetWordingForWalletCreationAlert,
-  'recurringRulesValues' | 'customerTimezone' | 'walletValues' | 'translate'
+  'recurringRulesValues' | 'customerTimezone' | 'walletValues' | 'translate' | 'walletCreatedAt'
 >) => {
   let text = ''
 
   if (recurringRulesValues?.trigger === RecurringTransactionTriggerEnum.Interval) {
     const rrule = walletValues.recurringTransactionRules?.[0]
-    const startedAt = rrule?.startedAt ? DateTime.fromISO(rrule?.startedAt) : undefined
+    const startedAt = getRecurrenceAnchor({
+      startedAt: rrule?.startedAt,
+      walletCreatedAt,
+      timezone: customerTimezone,
+    })
 
     const dateRef = getDateRef(customerTimezone).set({
       day: startedAt?.day,
@@ -191,6 +232,7 @@ export const getWordingForWalletCreationAlert = ({
   recurringRulesValues,
   walletValues,
   translate,
+  walletCreatedAt,
 }: GetWordingForWalletCreationAlert): string => {
   if (!recurringRulesValues) {
     const text = translate('text_6560809c38fb9de88d8a537a', {
@@ -207,6 +249,7 @@ export const getWordingForWalletCreationAlert = ({
     currency,
     customerTimezone,
     translate,
+    walletCreatedAt,
   })
 
   const endSentence = setEndOfSentence({
@@ -214,6 +257,7 @@ export const getWordingForWalletCreationAlert = ({
     walletValues,
     customerTimezone,
     translate,
+    walletCreatedAt,
   })
 
   return `${startSentence} ${endSentence}`
