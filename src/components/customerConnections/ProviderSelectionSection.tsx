@@ -70,6 +70,8 @@ export const ProviderSelectionSection = ({
 
       {lockedSelection ? (
         // Persisted connection: provider identity is read-only
+        // Pure info display: no onClick makes it non-interactive without
+        // the greyed-out disabled look (same as plan > edit charge)
         <Selector
           data-test={PROVIDER_SELECTION_LOCKED_SELECTOR_TEST_ID}
           title={lockedSelection.title}
@@ -79,7 +81,6 @@ export const ProviderSelectionSection = ({
               {lockedSelection.icon}
             </Avatar>
           }
-          disabled
         />
       ) : (
         <form.AppField name="providerCode">
