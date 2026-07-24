@@ -1,0 +1,156 @@
+import {
+  CurrencyEnum,
+  FeeTypesEnum,
+  RecurringTransactionIntervalEnum,
+  RecurringTransactionMethodEnum,
+  RecurringTransactionTriggerEnum,
+} from '~/generated/graphql'
+
+import { mergeWalletCredits } from '../serializeQuoteBillingItems'
+import {
+  type BillingItemWallet,
+  fromWallets,
+  toWallets,
+  type WalletFormItem,
+  type WalletRecurringRuleForm,
+} from '../serializeQuoteWallets'
+
+const baseRecurringRule: WalletRecurringRuleForm = {
+  trigger: RecurringTransactionTriggerEnum.Interval,
+  method: RecurringTransactionMethodEnum.Target,
+  interval: RecurringTransactionIntervalEnum.Monthly,
+  paidCredits: '500.0',
+  grantedCredits: '500.0',
+  targetOngoingBalance: '1000.0',
+  thresholdCredits: null,
+  startedAt: null,
+  transactionName: null,
+  invoiceRequiresSuccessfulPayment: false,
+  expirationAt: null,
+}
+
+const baseItem: WalletFormItem = {
+  localId: 'wl_1',
+  name: 'Monthly usage credits',
+  rateAmount: '1.5',
+  priority: 1,
+  expirationAt: '2027-03-31T23:59:59Z',
+  paidTopUpMinAmountCents: null,
+  paidTopUpMaxAmountCents: null,
+  purchaseOrderNumber: null,
+  feeTypes: [FeeTypesEnum.Charge],
+  billableMetricCodes: ['cpu', 'storage'],
+  freeCredits: '500.0',
+  paidCredits: '500.0',
+  invoiceRequiresSuccessfulPayment: false,
+  metadata: [],
+  recurringRule: baseRecurringRule,
+}
+
+describe('serializeQuoteWallets', () => {
+  it('toWallets maps a form item into the wallet_credit envelope with payload + position', () => {
+    const [entry] = toWallets([baseItem], CurrencyEnum.Eur)
+
+    expect(entry.type).toBe('wallet_credit')
+    expect(entry.localId).toBe('wl_1')
+    expect(entry.payload.position).toBe(1)
+    expect(entry.payload.currency).toBe('EUR')
+    expect(entry.payload.rateAmount).toBe('1.5')
+    expect(entry.payload.grantedCredits).toBe('500.0')
+    expect(entry.payload.paidCredits).toBe('500.0')
+    expect(entry.payload.appliesTo).toEqual({
+      feeTypes: ['charge'],
+      billableMetricCodes: ['cpu', 'storage'],
+    })
+    expect(entry.payload.recurringTransactionRules).toHaveLength(1)
+    expect(entry.payload.recurringTransactionRules[0].targetOngoingBalance).toBe('1000.0')
+  })
+
+  it('toWallets emits no recurring rules when recurringRule is null', () => {
+    const [entry] = toWallets([{ ...baseItem, recurringRule: null }], CurrencyEnum.Eur)
+
+    expect(entry.payload.recurringTransactionRules).toEqual([])
+  })
+
+  it('toWallets normalizes empty-string recurring dates/name to null (add-toggle default)', () => {
+    const [entry] = toWallets(
+      [
+        {
+          ...baseItem,
+          recurringRule: {
+            ...baseRecurringRule,
+            startedAt: '',
+            transactionName: '',
+            expirationAt: '',
+          },
+        },
+      ],
+      CurrencyEnum.Eur,
+    )
+    const [rule] = entry.payload.recurringTransactionRules
+
+    expect(rule.startedAt).toBeNull()
+    expect(rule.transactionName).toBeNull()
+    expect(rule.expirationAt).toBeNull()
+  })
+
+  it('fromWallets is the inverse of toWallets (round-trip preserves localId + fields)', () => {
+    const wallets = toWallets([baseItem], CurrencyEnum.Eur)
+    const { walletItems, entities } = fromWallets(wallets)
+
+    expect(walletItems).toHaveLength(1)
+    expect(walletItems[0].localId).toBe('wl_1')
+    expect(walletItems[0].name).toBe('Monthly usage credits')
+    expect(walletItems[0].rateAmount).toBe('1.5')
+    expect(walletItems[0].billableMetricCodes).toEqual(['cpu', 'storage'])
+    expect(walletItems[0].recurringRule?.method).toBe(RecurringTransactionMethodEnum.Target)
+    expect(entities['wl_1']).toMatchObject({ entityId: 'wl_1', entityType: 'wallet' })
+  })
+
+  it('fromWallets re-derives ascending positions by stored position', () => {
+    const a: BillingItemWallet = toWallets([{ ...baseItem, localId: 'wl_a' }], CurrencyEnum.Eur)[0]
+    const b: BillingItemWallet = toWallets([{ ...baseItem, localId: 'wl_b' }], CurrencyEnum.Eur)[0]
+
+    b.payload.position = 1
+    a.payload.position = 2
+
+    const { walletItems } = fromWallets([a, b])
+
+    expect(walletItems.map((w) => w.localId)).toEqual(['wl_b', 'wl_a'])
+  })
+})
+
+describe('mergeWalletCredits — never drops sibling categories', () => {
+  const siblings = {
+    plans: [{ type: 'plan' }],
+    addOns: [{ type: 'add_on' }],
+    coupons: [{ type: 'coupon' }],
+  } as never
+
+  it('replaces only walletCredits when creating/editing a wallet', () => {
+    const walletCredits = toWallets([baseItem], CurrencyEnum.Eur)
+    const result = mergeWalletCredits(siblings, walletCredits)
+
+    expect(result.walletCredits).toHaveLength(1)
+    expect(result.plans).toEqual((siblings as { plans: unknown }).plans)
+    expect(result.addOns).toEqual((siblings as { addOns: unknown }).addOns)
+    expect(result.coupons).toEqual((siblings as { coupons: unknown }).coupons)
+  })
+
+  it('replaces only walletCredits when deleting all wallets (empty array)', () => {
+    const result = mergeWalletCredits(
+      { ...(siblings as object), walletCredits: toWallets([baseItem], CurrencyEnum.Eur) },
+      [],
+    )
+
+    expect(result.walletCredits).toEqual([])
+    expect(result.plans).toEqual((siblings as { plans: unknown }).plans)
+    expect(result.addOns).toEqual((siblings as { addOns: unknown }).addOns)
+    expect(result.coupons).toEqual((siblings as { coupons: unknown }).coupons)
+  })
+
+  it('tolerates null/undefined billingItems', () => {
+    expect(mergeWalletCredits(null, []).walletCredits).toEqual([])
+    expect(mergeWalletCredits(undefined, []).plans).toBeUndefined()
+  })
+})

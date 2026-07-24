@@ -9,12 +9,17 @@ set -euo pipefail
 # vars instead of a self-managed worktree layout, so Conductor stays the single
 # owner of worktree create/destroy. Wired from the committed team config
 # .conductor/settings.toml:
-#   [scripts.run.container] command = "$LAGO_PATH/front/scripts/conductor-front-container.sh up"
-#   scripts.archive        = "$LAGO_PATH/front/scripts/conductor-front-container.sh down"
+#   [scripts.run.container] command = "$CONDUCTOR_WORKSPACE_PATH/scripts/conductor-front-container.sh up"
+#   scripts.archive        = "$CONDUCTOR_WORKSPACE_PATH/scripts/conductor-front-container.sh down"
+#
+# The script is located via $CONDUCTOR_WORKSPACE_PATH (set by Conductor for every
+# script, including the headless archive hook) rather than a user shell var like
+# $LAGO_PATH, which is not present in Conductor's non-interactive script env.
 #
 # Prerequisites:
 #   - the main Lago Docker stack is running (`lago up -d`)
-#   - $LAGO_PATH points at the lago superproject (front/ + api/ + docker-compose)
+#   - the workspace lives under the lago superproject (front/ + api/ + docker-compose);
+#     the superproject path is derived here from $CONDUCTOR_ROOT_PATH, not $LAGO_PATH.
 
 CMD="${1:-}"
 

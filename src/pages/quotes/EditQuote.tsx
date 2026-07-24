@@ -6,9 +6,11 @@ import { generatePath, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import type {
+  OnCreditsCommand,
   OnDiscountCommand,
   OnPricingCommand,
 } from '~/components/designSystem/RichTextEditor/common/RichTextEditorContext'
+import { CreditsBlockAttributes } from '~/components/designSystem/RichTextEditor/extensions/CreditsBlock.schema'
 import { DiscountBlockAttributes } from '~/components/designSystem/RichTextEditor/extensions/DiscountBlock.schema'
 import { PricingBlockAttributes } from '~/components/designSystem/RichTextEditor/extensions/PricingBlock.schema'
 import RichTextEditor, {
@@ -28,6 +30,7 @@ import { QUOTE_MENTION_VARIABLES } from '~/pages/quotes/common/mentionVariables'
 
 import EditQuoteAside from './editQuote/EditQuoteAside'
 import { useAddQuoteImage } from './hooks/useAddQuoteImage'
+import { useCreditsDrawer } from './hooks/useCreditsDrawer'
 import { useDiscountDrawer } from './hooks/useDiscountDrawer'
 import { useOneOffPricingDrawer } from './hooks/useOneOffPricingDrawer'
 import { useQuote } from './hooks/useQuote'
@@ -126,7 +129,10 @@ const EditQuote = () => {
   const { onPricingCommand, isPricingDisabled, entities, syncEntitiesWithBlocks } =
     isSubscriptionOrder ? subscriptionPricing : oneOffPricing
 
-  const quoteCurrency = quote?.customer?.currency ?? CurrencyEnum.Usd
+  // Discount + credits drawers price in the quote's own currency (matches the
+  // pricing drawers), not the customer's — the quote version currency is the
+  // source of truth for amounts shown/serialized in this quote.
+  const quoteCurrency = (quote?.currentVersion?.currency as CurrencyEnum) ?? CurrencyEnum.Usd
 
   // Stable ref so useDiscountDrawer can call savePricingBlock without a
   // forward-declaration error (savePricingBlock is defined below).
@@ -144,9 +150,19 @@ const EditQuote = () => {
     },
   })
 
+  const credits = useCreditsDrawer(quote?.currentVersion?.billingItems, {
+    currency: quoteCurrency,
+    onPersist: (billingItems) => savePricingBlockRef.current(billingItems),
+    onRemoveBlock: (localId) => {
+      isRollingBackRef.current = true
+      removeBlockRef.current?.(localId)
+      isRollingBackRef.current = false
+    },
+  })
+
   const mergedEntities = useMemo(
-    () => ({ ...entities, ...discount.entities }),
-    [entities, discount.entities],
+    () => ({ ...entities, ...discount.entities, ...credits.entities }),
+    [entities, discount.entities, credits.entities],
   )
 
   const customerLocale = (quote?.customer?.billingConfiguration?.documentLocale ?? 'en') as Locale
@@ -372,10 +388,48 @@ const EditQuote = () => {
     [discount, savePricingBlock],
   )
 
+  const handleCreditsCommand = useCallback<OnCreditsCommand>(
+    ({ onSave, editData }) => {
+      credits.onCreditsCommand({ onSave, editData })
+    },
+    [credits],
+  )
+
+  const handleCreditsBlocksChange = useCallback(
+    (blocks: CreditsBlockAttributes[]) => {
+      // Unlike handlePricingBlocksChange, we don't skip the whole reconciliation
+      // during a rollback: syncCreditsBlocks must still refresh the wallet-cap
+      // count, or a rolled-back create leaves it stale and wrongly disables
+      // /credits until the next edit. We only skip the pruning branch during a
+      // rollback so the failed wallet's cached payload survives a corrected
+      // resubmit (prune:false also returns undefined → no corrective save).
+      const updated = credits.syncCreditsBlocks(blocks, {
+        prune: !isRollingBackRef.current,
+      })
+
+      if (updated) {
+        savePricingBlock(updated)
+      }
+    },
+    [credits, savePricingBlock],
+  )
+
   const handleClose = () => {
     debouncedSave.cancel()
     onClose()
   }
+
+  // Discount + credits are subscription-only; gate the whole set of commands
+  // once here instead of per-prop, which keeps the JSX (and the component's
+  // cognitive complexity) low.
+  const subscriptionEditorProps = isSubscriptionOrder
+    ? {
+        onDiscountCommand: handleDiscountCommand,
+        onCreditsCommand: handleCreditsCommand,
+        isCreditsDisabled: credits.isCreditsDisabled,
+        onCreditsBlocksChange: handleCreditsBlocksChange,
+      }
+    : {}
 
   return (
     <RightAsidePage.Wrapper>
@@ -462,8 +516,8 @@ const EditQuote = () => {
             isPricingDisabled={isPricingDisabled}
             entities={mergedEntities}
             onPricingBlocksChange={handlePricingBlocksChange}
-            onDiscountCommand={isSubscriptionOrder ? handleDiscountCommand : undefined}
             onDiscountBlocksChange={handleDiscountBlocksChange}
+            {...subscriptionEditorProps}
             customerLocale={customerLocale}
             customerCurrency={quote?.customer?.currency ?? undefined}
             variableItems={mentionItems}

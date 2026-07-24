@@ -52,6 +52,7 @@ export const RESEND_INVOICE_PAYMENT_METHOD_INPUT_CLASSNAME = 'resendInvoicePayme
 // Billing entity
 export const SEARCH_INVOICE_CUSTOM_SECTION_INPUT_CLASSNAME = 'searchInvoiceCustomSectionInput'
 export const SEARCH_DUNNING_CAMPAIGN_INPUT_CLASSNAME = 'searchDunningCampaignInput'
+export const FINALIZE_ZERO_AMOUNT_INVOICE_INPUT_CLASSNAME = 'finalizeZeroAmountInvoiceInput'
 // Customer
 export const SEARCH_TAX_INPUT_FOR_CUSTOMER_CLASSNAME = 'searchTaxForCustomerInput'
 export const SEARCH_COUPON_INPUT_FOR_CUSTOMER_CLASSNAME = 'searchCouponForCustomerInput'

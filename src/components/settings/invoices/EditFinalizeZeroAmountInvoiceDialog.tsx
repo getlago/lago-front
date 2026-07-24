@@ -1,12 +1,15 @@
 import { gql } from '@apollo/client'
-import { useFormik } from 'formik'
-import { forwardRef } from 'react'
-import { object, string } from 'yup'
+import { revalidateLogic } from '@tanstack/react-form'
+import { useRef } from 'react'
+import { z } from 'zod'
 
-import { Button } from '~/components/designSystem/Button'
-import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
-import { ComboBoxField } from '~/components/form'
+import { useFormDialog } from '~/components/dialogs/FormDialog'
+import { DialogResult } from '~/components/dialogs/types'
 import { addToast } from '~/core/apolloClient'
+import {
+  FINALIZE_ZERO_AMOUNT_INVOICE_INPUT_CLASSNAME,
+  MUI_INPUT_BASE_ROOT_CLASSNAME,
+} from '~/core/constants/form'
 import {
   EditBillingEntityFinalizeZeroAmountInvoiceForDialogFragment,
   EditCustomerFinalizeZeroAmountInvoiceForDialogFragment,
@@ -15,6 +18,7 @@ import {
   useUpdateCustomerFinalizeZeroAmountInvoiceMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm } from '~/hooks/forms/useAppform'
 
 gql`
   fragment EditCustomerFinalizeZeroAmountInvoiceForDialog on Customer {
@@ -44,7 +48,22 @@ gql`
   }
 `
 
-type EditFinalizeZeroAmountInvoiceDialogProps = {
+export const EDIT_FINALIZE_ZERO_AMOUNT_INVOICE_FORM_ID = 'edit-finalize-zero-amount-invoice-form'
+
+export const EDIT_FINALIZE_ZERO_AMOUNT_INVOICE_SUBMIT_BUTTON_TEST_ID =
+  'edit-finalize-zero-amount-invoice-submit-button'
+
+const validationSchema = z.object({
+  finalizeZeroAmountInvoice: z.string().min(1),
+})
+
+type FormValues = z.infer<typeof validationSchema>
+
+const initialValues: FormValues = {
+  finalizeZeroAmountInvoice: '',
+}
+
+type EditFinalizeZeroAmountInvoiceDialogData = {
   entity?:
     | EditCustomerFinalizeZeroAmountInvoiceForDialogFragment
     | EditBillingEntityFinalizeZeroAmountInvoiceForDialogFragment
@@ -52,18 +71,29 @@ type EditFinalizeZeroAmountInvoiceDialogProps = {
   finalizeZeroAmountInvoice?: FinalizeZeroAmountInvoiceEnum | boolean | null
 }
 
-export type EditFinalizeZeroAmountInvoiceDialogRef = DialogRef
+const getInitialValue = (data: EditFinalizeZeroAmountInvoiceDialogData): string => {
+  const isCustomer = data.entity?.__typename === 'Customer'
 
-export const EditFinalizeZeroAmountInvoiceDialog = forwardRef<
-  EditFinalizeZeroAmountInvoiceDialogRef,
-  EditFinalizeZeroAmountInvoiceDialogProps
->(({ entity, finalizeZeroAmountInvoice }: EditFinalizeZeroAmountInvoiceDialogProps, dialogRef) => {
+  if (isCustomer) {
+    if (data.finalizeZeroAmountInvoice === FinalizeZeroAmountInvoiceEnum.Inherit) return ''
+
+    return (data.finalizeZeroAmountInvoice as FinalizeZeroAmountInvoiceEnum | undefined) ?? ''
+  }
+
+  return data.finalizeZeroAmountInvoice?.toString() ?? ''
+}
+
+export const useEditFinalizeZeroAmountInvoiceDialog = () => {
+  const formDialog = useFormDialog()
   const { translate } = useInternationalization()
+  const dataRef = useRef<EditFinalizeZeroAmountInvoiceDialogData | null>(null)
+  const successRef = useRef(false)
 
   const [updateCustomerFinalizeZeroAmountInvoice] =
     useUpdateCustomerFinalizeZeroAmountInvoiceMutation({
       onCompleted(res) {
         if (res?.updateCustomer) {
+          successRef.current = true
           addToast({
             severity: 'success',
             translateKey: translate('text_1725549671288cyc585wdz35'),
@@ -76,6 +106,7 @@ export const EditFinalizeZeroAmountInvoiceDialog = forwardRef<
     useUpdateBillingEntityFinalizeZeroAmountInvoiceMutation({
       onCompleted(res) {
         if (res?.updateBillingEntity) {
+          successRef.current = true
           addToast({
             severity: 'success',
             translateKey: translate('text_17255496712882bspi9zp0ii'),
@@ -85,108 +116,127 @@ export const EditFinalizeZeroAmountInvoiceDialog = forwardRef<
       refetchQueries: ['getBillingEntitySettings'],
     })
 
-  const isCustomer = entity?.__typename === 'Customer'
-
-  const getInitialValue = () => {
-    if (isCustomer) {
-      return finalizeZeroAmountInvoice === FinalizeZeroAmountInvoiceEnum.Inherit
-        ? ''
-        : finalizeZeroAmountInvoice
-    }
-    return finalizeZeroAmountInvoice?.toString()
-  }
-
-  const initialValue = getInitialValue()
-
-  const formikProps = useFormik({
-    initialValues: {
-      finalizeZeroAmountInvoice: initialValue,
+  const form = useAppForm({
+    defaultValues: initialValues,
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: validationSchema,
     },
-    validationSchema: object().shape({
-      finalizeZeroAmountInvoice: string().required(),
-    }),
-    validateOnMount: true,
-    enableReinitialize: true,
-    onSubmit: async (values) => {
-      if (!values.finalizeZeroAmountInvoice) {
-        return
-      }
+    onSubmit: async ({ value }) => {
+      const data = dataRef.current
+
+      if (!data?.entity || !value.finalizeZeroAmountInvoice) return
+
+      const isCustomer = data.entity.__typename === 'Customer'
 
       if (isCustomer) {
-        return await updateCustomerFinalizeZeroAmountInvoice({
+        const customer = data.entity as EditCustomerFinalizeZeroAmountInvoiceForDialogFragment
+
+        await updateCustomerFinalizeZeroAmountInvoice({
           variables: {
             input: {
-              id: entity?.id || '',
-              externalId: entity.externalId,
-              name: entity?.name || '',
+              id: customer.id,
+              externalId: customer.externalId,
+              name: customer.name || '',
               finalizeZeroAmountInvoice:
-                values?.finalizeZeroAmountInvoice as FinalizeZeroAmountInvoiceEnum,
+                value.finalizeZeroAmountInvoice as FinalizeZeroAmountInvoiceEnum,
             },
           },
         })
+
+        return
       }
 
-      return await updateBillingEntityFinalizeZeroAmountInvoice({
+      const billingEntity =
+        data.entity as EditBillingEntityFinalizeZeroAmountInvoiceForDialogFragment
+
+      await updateBillingEntityFinalizeZeroAmountInvoice({
         variables: {
           input: {
-            id: (entity as EditBillingEntityFinalizeZeroAmountInvoiceForDialogFragment)?.id,
-            finalizeZeroAmountInvoice: values.finalizeZeroAmountInvoice === 'true',
+            id: billingEntity.id,
+            finalizeZeroAmountInvoice: value.finalizeZeroAmountInvoice === 'true',
           },
         },
       })
     },
   })
 
-  const comboBoxData = isCustomer
-    ? [
-        { value: 'finalize', label: translate('text_1725549671287ancbf00edxx') },
-        { value: 'skip', label: translate('text_1725549671288zkq9sr0y46l') },
-      ]
-    : [
-        { value: 'true', label: translate('text_1725549671287ancbf00edxx') },
-        { value: 'false', label: translate('text_1725549671288zkq9sr0y46l') },
-      ]
+  const handleSubmit = async (): Promise<DialogResult> => {
+    successRef.current = false
+    await form.handleSubmit()
 
-  return (
-    <Dialog
-      ref={dialogRef}
-      title={translate('text_17255383402002zmj6x02fx8')}
-      description={translate('text_1725538340200495slgen6ji')}
-      onClose={() => {
-        formikProps.resetForm()
-      }}
-      actions={({ closeDialog }) => (
-        <>
-          <Button variant="quaternary" onClick={closeDialog}>
-            {translate('text_62bb10ad2a10bd182d002031')}
-          </Button>
-          <Button
-            variant="primary"
-            disabled={!formikProps.isValid || !formikProps.dirty}
-            onClick={async () => {
-              await formikProps.submitForm()
-              closeDialog()
-              formikProps.resetForm()
-            }}
-          >
-            {translate('text_17432414198706rdwf76ek3u')}
-          </Button>
-        </>
-      )}
-    >
-      <div className="mb-8 flex flex-col gap-3">
-        <ComboBoxField
-          disableClearable
-          name="finalizeZeroAmountInvoice"
-          placeholder={translate('text_1725550661207stz6kovtzkp')}
-          label={translate('text_1725549671288gcrvgdn7rml')}
-          data={comboBoxData}
-          PopperProps={{ displayInDialog: true }}
-          formikProps={formikProps}
-        />
-      </div>
-    </Dialog>
-  )
-})
+    if (!successRef.current) {
+      throw new Error('Submit failed')
+    }
 
-EditFinalizeZeroAmountInvoiceDialog.displayName = 'forwardRef'
+    return { reason: 'success' }
+  }
+
+  const openEditFinalizeZeroAmountInvoiceDialog = (
+    data: EditFinalizeZeroAmountInvoiceDialogData,
+  ) => {
+    dataRef.current = data
+    form.reset()
+    form.setFieldValue('finalizeZeroAmountInvoice', getInitialValue(data))
+
+    const isCustomer = data.entity?.__typename === 'Customer'
+    const comboBoxData = isCustomer
+      ? [
+          { value: 'finalize', label: translate('text_1725549671287ancbf00edxx') },
+          { value: 'skip', label: translate('text_1725549671288zkq9sr0y46l') },
+        ]
+      : [
+          { value: 'true', label: translate('text_1725549671287ancbf00edxx') },
+          { value: 'false', label: translate('text_1725549671288zkq9sr0y46l') },
+        ]
+
+    formDialog
+      .open({
+        title: translate('text_17255383402002zmj6x02fx8'),
+        description: translate('text_1725538340200495slgen6ji'),
+        closeOnError: false,
+        onEntered: (container) => {
+          container
+            .querySelector<HTMLElement>(
+              `.${FINALIZE_ZERO_AMOUNT_INVOICE_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
+            )
+            ?.click()
+        },
+        children: (
+          <div className="p-8">
+            <form.AppField name="finalizeZeroAmountInvoice">
+              {(field) => (
+                <field.ComboBoxField
+                  className={FINALIZE_ZERO_AMOUNT_INVOICE_INPUT_CLASSNAME}
+                  disableClearable
+                  placeholder={translate('text_1725550661207stz6kovtzkp')}
+                  label={translate('text_1725549671288gcrvgdn7rml')}
+                  data={comboBoxData}
+                  PopperProps={{ displayInDialog: true }}
+                />
+              )}
+            </form.AppField>
+          </div>
+        ),
+        mainAction: (
+          <form.AppForm>
+            <form.SubmitButton dataTest={EDIT_FINALIZE_ZERO_AMOUNT_INVOICE_SUBMIT_BUTTON_TEST_ID}>
+              {translate('text_17432414198706rdwf76ek3u')}
+            </form.SubmitButton>
+          </form.AppForm>
+        ),
+        form: {
+          id: EDIT_FINALIZE_ZERO_AMOUNT_INVOICE_FORM_ID,
+          submit: handleSubmit,
+        },
+      })
+      .then((response) => {
+        if (response.reason === 'close') {
+          form.reset()
+          dataRef.current = null
+        }
+      })
+  }
+
+  return { openEditFinalizeZeroAmountInvoiceDialog }
+}
