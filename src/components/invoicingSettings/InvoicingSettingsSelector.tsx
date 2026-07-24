@@ -13,7 +13,7 @@ export const INVOICING_SETTINGS_SELECTOR_TEST_ID = 'invoicing-settings-selector'
 export const INVOICING_SUMMARY_KEYS = {
   skip: 'text_1782738644347z3azl4u1f15',
   apply: 'text_1782738644347qh5s13lol1p',
-  none: 'text_1782738644347svkr94bf4aw',
+  fallback: 'text_1782738644347svkr94bf4aw',
 }
 
 interface InvoicingSettingsSelectorProps {
@@ -47,7 +47,7 @@ export const InvoicingSettingsSelector = ({
     if (value?.skipInvoiceCustomSections) return translate(INVOICING_SUMMARY_KEYS.skip)
     if (value?.invoiceCustomSections?.length) return translate(INVOICING_SUMMARY_KEYS.apply)
 
-    return translate(INVOICING_SUMMARY_KEYS.none)
+    return translate(INVOICING_SUMMARY_KEYS.fallback)
   }, [value, translate])
 
   return (
