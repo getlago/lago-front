@@ -62,42 +62,9 @@ export const validationSchema = z.object({
       subsidiaryId: z.string().optional(),
       providerType: z.enum(IntegrationTypeEnum).optional(),
     })
-    .refine(
-      (data) => {
-        if (!data) return true
-
-        // Means we didn't choose any accounting provider
-        if (!data.providerType) {
-          return true
-        }
-
-        if (!data.syncWithProvider) {
-          return !!data.accountingCustomerId
-        }
-
-        return true
-      },
-      {
-        message: 'text_1764236242615sfcc7546vv8',
-        path: ['accountingCustomerId'],
-      },
-    )
-    .refine(
-      (data) => {
-        if (!data) return true
-
-        // Only NetSuite has subsidiaries for now
-        if (data.providerType !== IntegrationTypeEnum.Netsuite) {
-          return true
-        }
-
-        return !!data.subsidiaryId || !data.syncWithProvider
-      },
-      {
-        message: 'text_1764249459826j3tkbn7s5ca',
-        path: ['subsidiaryId'],
-      },
-    )
+    // Connection rules are enforced by the connection drawer (the only entry
+    // point writing this slot); duplicating them here would only produce
+    // invisible submit blocks now that the inline fields are gone
     .optional(),
   taxProviderCode: z.string().optional(),
   taxCustomer: z
@@ -107,26 +74,6 @@ export const validationSchema = z.object({
       syncWithProvider: z.boolean().optional(),
       providerType: z.enum(IntegrationTypeEnum).optional(),
     })
-    .refine(
-      (data) => {
-        if (!data) return true
-
-        // Means we didn't choose any tax provider
-        if (!data.providerType) {
-          return true
-        }
-
-        if (!data.syncWithProvider) {
-          return !!data.taxCustomerId
-        }
-
-        return true
-      },
-      {
-        message: 'text_1764236242615sfcc7546vv8',
-        path: ['taxCustomerId'],
-      },
-    )
     .optional(),
   crmProviderCode: z.string().optional(),
   crmCustomer: z
@@ -137,42 +84,6 @@ export const validationSchema = z.object({
       targetedObject: z.enum(HubspotTargetedObjectsEnum).optional(),
       providerType: z.enum(IntegrationTypeEnum).optional(),
     })
-    .refine(
-      (data) => {
-        if (!data) return true
-
-        // Means we didn't choose any crm provider
-        if (!data.providerType) {
-          return true
-        }
-
-        if (!data.syncWithProvider) {
-          return !!data.crmCustomerId
-        }
-
-        return true
-      },
-      {
-        message: 'text_1764236242615sfcc7546vv8',
-        path: ['crmCustomerId'],
-      },
-    )
-    .refine(
-      (data) => {
-        if (!data) return true
-
-        // Only Hubspot has targeted objects for now
-        if (data.providerType !== IntegrationTypeEnum.Hubspot) {
-          return true
-        }
-
-        return !!data.targetedObject
-      },
-      {
-        message: 'text_1764249563018adc7qy057at',
-        path: ['targetedObject'],
-      },
-    )
     .optional(),
   paymentProviderCode: z.string().optional(),
   paymentProviderCustomer: z
@@ -184,56 +95,6 @@ export const validationSchema = z.object({
         .partialRecord(z.enum(ProviderPaymentMethodsEnum), z.boolean())
         .optional(),
     })
-    .refine(
-      (data) => {
-        if (!data) return true
-
-        // Means we didn't choose any payment provider
-        if (!data.providerType) {
-          return true
-        }
-
-        if ([ProviderTypeEnum.Cashfree, ProviderTypeEnum.Flutterwave].includes(data.providerType)) {
-          return true
-        }
-
-        if (!data.syncWithProvider) {
-          return !!data.providerCustomerId
-        }
-
-        return true
-      },
-      {
-        message: 'text_1764236242615sfcc7546vv8',
-        path: ['providerCustomerId'],
-      },
-    )
-    .refine(
-      (data) => {
-        if (!data) return true
-
-        // Means we didn't choose any payment provider
-        if (!data.providerType) {
-          return true
-        }
-
-        if (data.providerType !== ProviderTypeEnum.Stripe) {
-          return true
-        }
-
-        if (!data.providerPaymentMethods) {
-          return false
-        }
-
-        const atLeastOneEnabled = Object.values(data.providerPaymentMethods).some(Boolean)
-
-        return atLeastOneEnabled
-      },
-      {
-        message: 'text_1764259518524a0hr3z00m7r',
-        path: ['providerPaymentMethods', 'card'],
-      },
-    )
     .optional(),
   metadata: zodMetadataSchema(),
   billingEntityCode: z.string().optional(),

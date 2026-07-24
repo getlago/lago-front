@@ -1,0 +1,379 @@
+import { fireEvent, render } from '@testing-library/react'
+import { useEffect, useState } from 'react'
+
+import { CustomerConnectionDrawerFormApi } from '~/components/customerConnections/CustomerConnectionDrawer'
+import { ConnectionCategory } from '~/components/customerConnections/types'
+import { useAppForm } from '~/hooks/forms/useAppform'
+
+import { ConnectionDrawerProviderContent } from '../ConnectionDrawerProviderContent'
+
+jest.mock('~/hooks/core/useInternationalization', () => ({
+  useInternationalization: () => ({ translate: (key: string) => key }),
+}))
+
+// Payment provider code → provider type. The drawer content resolves the
+// selected provider TYPE from the code via this hook (drives every branch).
+const PAYMENT_PROVIDER_BY_CODE: Record<string, string> = {
+  'stripe-conn': 'stripe',
+  'moneyhash-conn': 'moneyhash',
+  'cashfree-conn': 'cashfree',
+}
+
+jest.mock('~/pages/createCustomers/common/usePaymentProviders', () => ({
+  usePaymentProviders: () => ({
+    paymentProviders: undefined,
+    isLoadingPaymentProviders: false,
+    getPaymentProvider: (code?: string) => (code ? (PAYMENT_PROVIDER_BY_CODE[code] ?? null) : null),
+  }),
+}))
+
+const ACCOUNTING_PROVIDER_BY_CODE: Record<string, string> = {
+  'netsuite-conn': 'netsuite',
+  'xero-conn': 'xero',
+}
+
+jest.mock('~/pages/createCustomers/common/useAccountingProviders', () => ({
+  useAccountingProviders: () => ({
+    accountingProviders: undefined,
+    isLoadingAccountProviders: false,
+    getAccountingProviderFromCode: (code?: string) =>
+      code ? (ACCOUNTING_PROVIDER_BY_CODE[code] ?? null) : null,
+  }),
+}))
+
+jest.mock('~/pages/createCustomers/common/useTaxProviders', () => ({
+  useTaxProviders: () => ({
+    taxProviders: undefined,
+    isLoadingTaxProviders: false,
+    getTaxProviderFromCode: () => null,
+  }),
+}))
+
+jest.mock('~/pages/createCustomers/common/useCrmProviders', () => ({
+  useCrmProviders: () => ({
+    crmProviders: undefined,
+    isLoadingCrmProviders: false,
+    getCrmProviderFromCode: (code?: string) => (code === 'hubspot-conn' ? 'hubspot' : null),
+  }),
+}))
+
+// The NetSuite subsidiaries query hook needs an ApolloProvider — inert here
+jest.mock(
+  '~/pages/createCustomers/externalAppsAccordion/accountingProvidersAccordion/useAccountingProvidersSubsidaries',
+  () => ({
+    useAccountingProvidersSubsidaries: () => ({ subsidiariesData: undefined }),
+  }),
+)
+
+type Values = {
+  providerCode: string | undefined
+  providerType: string | undefined
+  externalCustomerId: string | undefined
+  syncWithProvider: boolean | undefined
+  subsidiaryId: string | undefined
+  targetedObject: undefined
+  providerPaymentMethods: Record<string, boolean> | undefined
+}
+
+const EMPTY_DEFAULTS: Values = {
+  providerCode: undefined,
+  providerType: undefined,
+  externalCustomerId: '',
+  syncWithProvider: false,
+  subsidiaryId: '',
+  targetedObject: undefined,
+  providerPaymentMethods: {},
+}
+
+// Structural selectors: the form fields expose their `name` on the rendered
+// input, and the info alert its `data-test` — no translation-key coupling.
+const externalIdInput = (container: HTMLElement) =>
+  container.querySelector('input[name="externalCustomerId"]') as HTMLInputElement | null
+const syncCheckbox = (container: HTMLElement) =>
+  container.querySelector(
+    '[data-test="checkbox-syncWithProvider"] input',
+  ) as HTMLInputElement | null
+const infoAlert = (container: HTMLElement) =>
+  container.querySelector('[data-test="alert-type-info"]')
+
+const Harness = ({
+  openedValues,
+  hadInitialConnection = false,
+  viaReset = false,
+  category = ConnectionCategory.Payment,
+}: {
+  openedValues: Values
+  hadInitialConnection?: boolean
+  viaReset?: boolean
+  category?: ConnectionCategory
+}) => {
+  // Mirrors the drawer contract: the hook's defaultValues ARE the opened
+  // values (react-form re-runs formApi.update(options) on every render and
+  // wipes untouched state when options.defaultValues differs from the reset
+  // baseline — the drawer open sequence must keep them identical).
+  const form = useAppForm({ defaultValues: openedValues })
+  const [resetDone, setResetDone] = useState(!viaReset)
+
+  useEffect(() => {
+    if (!viaReset) return
+    form.reset(openedValues)
+    setResetDone(true)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viaReset])
+
+  if (!resetDone) return null
+
+  return (
+    <ConnectionDrawerProviderContent
+      form={form as unknown as CustomerConnectionDrawerFormApi}
+      category={category}
+      hadInitialConnection={hadInitialConnection}
+      isCustomerEdition={true}
+    />
+  )
+}
+
+const stripeValues = (overrides: Partial<Values> = {}): Values => ({
+  ...EMPTY_DEFAULTS,
+  providerCode: 'stripe-conn',
+  providerType: 'stripe',
+  externalCustomerId: 'cus_123',
+  providerPaymentMethods: { card: true },
+  ...overrides,
+})
+
+describe('ConnectionDrawerProviderContent — payment', () => {
+  describe('GIVEN a stripe connection is being edited', () => {
+    describe('WHEN the persisted connection is rendered', () => {
+      it('THEN should render the provider customer id field and the sync checkbox', () => {
+        const { container } = render(<Harness openedValues={stripeValues()} hadInitialConnection />)
+
+        expect(externalIdInput(container)).toBeInTheDocument()
+        expect(syncCheckbox(container)).toBeInTheDocument()
+      })
+
+      it('THEN should render when values arrive via form.reset (the drawer open sequence)', () => {
+        const { container } = render(
+          <Harness openedValues={stripeValues()} hadInitialConnection viaReset />,
+        )
+
+        expect(externalIdInput(container)).toBeInTheDocument()
+        expect(syncCheckbox(container)).toBeInTheDocument()
+      })
+
+      it('THEN should lock the identity fields when the connection was persisted at load', () => {
+        const { container } = render(<Harness openedValues={stripeValues()} hadInitialConnection />)
+
+        expect(externalIdInput(container)).toBeDisabled()
+        expect(syncCheckbox(container)).toBeDisabled()
+      })
+    })
+
+    describe('WHEN the connection was added in the current session', () => {
+      it('THEN should keep the identity fields editable', () => {
+        const { container } = render(
+          <Harness openedValues={stripeValues()} hadInitialConnection={false} />,
+        )
+
+        expect(externalIdInput(container)).not.toBeDisabled()
+        expect(syncCheckbox(container)).not.toBeDisabled()
+      })
+    })
+
+    describe('WHEN the user enables "sync with provider"', () => {
+      it('THEN should clear the external customer id', () => {
+        const { container } = render(
+          <Harness openedValues={stripeValues()} hadInitialConnection={false} />,
+        )
+
+        expect(externalIdInput(container)).toHaveValue('cus_123')
+
+        fireEvent.click(syncCheckbox(container) as HTMLInputElement)
+
+        expect(externalIdInput(container)).toHaveValue('')
+      })
+    })
+  })
+
+  describe('GIVEN a provider that does not support external ids (cashfree)', () => {
+    describe('WHEN the content is rendered', () => {
+      it('THEN should not render the external id field nor the sync checkbox', () => {
+        const { container } = render(
+          <Harness
+            openedValues={{ ...EMPTY_DEFAULTS, providerCode: 'cashfree-conn' }}
+            hadInitialConnection={false}
+          />,
+        )
+
+        expect(externalIdInput(container)).not.toBeInTheDocument()
+        expect(syncCheckbox(container)).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a moneyhash connection', () => {
+    describe('WHEN the content is rendered', () => {
+      // The provider info alert (moneyhash/gocardless/adyen) lives in the
+      // drawer's selection block (ProviderSelectionSection), not the content
+      it('THEN should not render the provider info alert (owned by the selection block)', () => {
+        const { container } = render(
+          <Harness
+            openedValues={{ ...EMPTY_DEFAULTS, providerCode: 'moneyhash-conn' }}
+            hadInitialConnection={false}
+          />,
+        )
+
+        expect(infoAlert(container)).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN no provider code is selected', () => {
+    describe('WHEN the content is rendered', () => {
+      it('THEN should render nothing', () => {
+        const { container } = render(
+          <Harness openedValues={EMPTY_DEFAULTS} hadInitialConnection={false} />,
+        )
+
+        expect(container).toBeEmptyDOMElement()
+      })
+    })
+  })
+})
+
+describe('ConnectionDrawerProviderContent — accounting', () => {
+  describe('GIVEN a NetSuite connection with sync enabled', () => {
+    describe('WHEN the content is rendered', () => {
+      it('THEN should display the subsidiary combobox', () => {
+        const { container } = render(
+          <Harness
+            category={ConnectionCategory.Accounting}
+            openedValues={{
+              ...EMPTY_DEFAULTS,
+              providerCode: 'netsuite-conn',
+              providerType: 'netsuite',
+              syncWithProvider: true,
+            }}
+          />,
+        )
+
+        expect(
+          container.querySelector('input[name="subsidiaryId"]') as HTMLInputElement | null,
+        ).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN an integration connection during customer edition', () => {
+    describe('WHEN the user enables "sync with provider"', () => {
+      it('THEN should keep the typed external customer id (only payment clears it)', () => {
+        const { container } = render(
+          <Harness
+            category={ConnectionCategory.Accounting}
+            openedValues={{
+              ...EMPTY_DEFAULTS,
+              providerCode: 'xero-conn',
+              providerType: 'xero',
+              externalCustomerId: 'ACC-42',
+            }}
+          />,
+        )
+
+        const checkbox = syncCheckbox(container) as HTMLInputElement
+
+        fireEvent.click(checkbox)
+
+        expect(externalIdInput(container)).toHaveValue('ACC-42')
+      })
+    })
+  })
+})
+
+describe('ConnectionDrawerProviderContent — crm', () => {
+  describe('GIVEN a Hubspot connection without a targeted object', () => {
+    describe('WHEN the content is rendered', () => {
+      it('THEN should show only the targeted-object combobox, hiding id and sync', () => {
+        const { container } = render(
+          <Harness
+            category={ConnectionCategory.Crm}
+            openedValues={{
+              ...EMPTY_DEFAULTS,
+              providerCode: 'hubspot-conn',
+              providerType: 'hubspot',
+            }}
+          />,
+        )
+
+        expect(
+          container.querySelector('input[name="targetedObject"]') as HTMLInputElement | null,
+        ).toBeInTheDocument()
+        expect(externalIdInput(container)).not.toBeInTheDocument()
+        expect(syncCheckbox(container)).not.toBeInTheDocument()
+      })
+    })
+  })
+})
+
+describe('ConnectionDrawerProviderContent — will-be-created alerts', () => {
+  describe('GIVEN a newly-added synced Xero connection on an existing customer', () => {
+    describe('WHEN the content is rendered', () => {
+      it('THEN should display the info alert (and hide it for persisted connections)', () => {
+        const xeroValues: Values = {
+          ...EMPTY_DEFAULTS,
+          providerCode: 'xero-conn',
+          providerType: 'xero',
+          syncWithProvider: true,
+        }
+
+        const { container, unmount } = render(
+          <Harness category={ConnectionCategory.Accounting} openedValues={xeroValues} />,
+        )
+
+        expect(infoAlert(container)).toBeInTheDocument()
+
+        unmount()
+
+        // Persisted at load → no "will be created" alert
+        const { container: lockedContainer } = render(
+          <Harness
+            category={ConnectionCategory.Accounting}
+            openedValues={xeroValues}
+            hadInitialConnection
+          />,
+        )
+
+        expect(infoAlert(lockedContainer)).not.toBeInTheDocument()
+      })
+    })
+  })
+})
+
+describe('ConnectionDrawerProviderContent — stripe payment methods', () => {
+  describe('GIVEN a payment connection', () => {
+    describe('WHEN the provider is Stripe', () => {
+      it('THEN should mount the payment methods section (and not for other providers)', () => {
+        const { container, unmount } = render(<Harness openedValues={stripeValues()} />)
+
+        expect(
+          container.querySelector('[data-test="checkbox-providerPaymentMethods.card"]'),
+        ).toBeInTheDocument()
+
+        unmount()
+
+        const { container: moneyhashContainer } = render(
+          <Harness
+            openedValues={{
+              ...EMPTY_DEFAULTS,
+              providerCode: 'moneyhash-conn',
+              providerType: 'moneyhash',
+            }}
+          />,
+        )
+
+        expect(
+          moneyhashContainer.querySelector('[data-test="checkbox-providerPaymentMethods.card"]'),
+        ).not.toBeInTheDocument()
+      })
+    })
+  })
+})
