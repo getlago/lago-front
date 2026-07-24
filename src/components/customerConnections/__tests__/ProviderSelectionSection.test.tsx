@@ -112,6 +112,19 @@ describe('ProviderSelectionSection', () => {
         ).not.toBeInTheDocument()
       })
 
+      it('THEN should open the options menu as soon as the combobox is focused (LAGO-1733)', async () => {
+        render(<Harness category={ConnectionCategory.Payment} options={PAYMENT_OPTIONS} />)
+
+        const input = screen.getByRole('combobox') as HTMLInputElement
+
+        input.focus()
+
+        // Options themselves are virtualized (not mounted in jsdom):
+        // the open state is the behaviour under test
+        expect(await screen.findByRole('listbox')).toBeInTheDocument()
+        expect(input).toHaveAttribute('aria-expanded', 'true')
+      })
+
       it('THEN should keep the combobox even when a provider is selected', () => {
         render(
           <Harness

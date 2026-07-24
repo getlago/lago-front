@@ -85,6 +85,7 @@ export const ProviderSelectionSection = ({
         <form.AppField name="providerCode">
           {(field) => (
             <field.ComboBoxField
+              openOnFocus
               data={buildConnectionComboBoxData(options)}
               label={translate('text_65940198687ce7b05cd62b61')}
               placeholder={translate('text_65940198687ce7b05cd62b62')}
