@@ -1,7 +1,10 @@
 import { renderHook, screen } from '@testing-library/react'
 import { ReactElement } from 'react'
 
-import { PlansForCouponsFragment, useGetPlansForCouponsLazyQuery } from '~/generated/graphql'
+import {
+  SelectablePlanForCouponsFragment,
+  useGetPlansForCouponsLazyQuery,
+} from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import { ADD_PLAN_FORM_ID, useAddPlanToCouponDialog } from '../AddPlanToCouponDialog'
@@ -32,20 +35,20 @@ jest.mock('~/generated/graphql', () => ({
 
 const mockedUseGetPlansForCouponsLazyQuery = useGetPlansForCouponsLazyQuery as jest.Mock
 
-const mockPlan: PlansForCouponsFragment = {
+const mockPlan: SelectablePlanForCouponsFragment = {
   id: 'plan-1',
   name: 'Premium Plan',
   code: 'premium_plan',
 }
 
-const mockPlan2: PlansForCouponsFragment = {
+const mockPlan2: SelectablePlanForCouponsFragment = {
   id: 'plan-2',
   name: 'Basic Plan',
   code: 'basic_plan',
 }
 
 const mockPlansData = {
-  plans: {
+  selectablePlans: {
     collection: [mockPlan, mockPlan2],
   },
 }
