@@ -1,6 +1,12 @@
 import { NodeViewProps, NodeViewWrapper } from '@tiptap/react'
 
+import { Locale, LocaleEnum } from '~/core/translations'
+import { CurrencyEnum } from '~/generated/graphql'
+import { useContextualLocale } from '~/hooks/core/useContextualLocale'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+
+import { WalletPreviewTable } from './WalletPreviewTable'
 
 import { useRichTextEditorContext } from '../common/RichTextEditorContext'
 import SlashCommandBlockWrapper from '../SlashCommandBlockWrapper/SlashCommandBlockWrapper'
@@ -9,8 +15,10 @@ export const CREDITS_BLOCK_VIEW_EMPTY_TEST_ID = 'credits-block-view-empty'
 export const CREDITS_BLOCK_VIEW_RESOLVED_TEST_ID = 'credits-block-view-resolved'
 
 export const CreditsBlockView = ({ node, updateAttributes }: NodeViewProps) => {
-  const { entities, onCreditsCommand, mode } = useRichTextEditorContext()
+  const { entities, onCreditsCommand, mode, customerLocale, customerCurrency } =
+    useRichTextEditorContext()
   const { translate } = useInternationalization()
+  const { organization } = useOrganizationInfos()
 
   const localId = (node.attrs.localId ?? '') as string
   const entity = localId ? entities[localId] : undefined
@@ -18,21 +26,32 @@ export const CreditsBlockView = ({ node, updateAttributes }: NodeViewProps) => {
   const blockLabel = translate('text_1783352692386xocpgvrz3na')
   const displayName = entity?.name || blockLabel
 
-  // Preview mode: minimal placeholder, non-interactive (preview table is out of scope).
+  // Preview renders in the customer's locale/currency (matches the discount block).
+  const currency =
+    entity?.wallet?.currency ??
+    customerCurrency ??
+    organization?.defaultCurrency ??
+    CurrencyEnum.Usd
+  const effectiveLocale: Locale = (customerLocale ?? 'en') as Locale
+  const { translateWithContextualLocal } = useContextualLocale(effectiveLocale)
+
+  // Preview mode: render the read-only wallet preview table.
   if (mode === 'preview') {
-    if (!entity) {
-      return <NodeViewWrapper className="spacer" data-type="creditsBlock" />
+    if (entity?.wallet && entity.wallet.rows.length > 0) {
+      return (
+        <NodeViewWrapper className="spacer" data-type="creditsBlock">
+          <WalletPreviewTable
+            data={entity.wallet}
+            translate={translateWithContextualLocal}
+            currency={currency}
+            locale={LocaleEnum[effectiveLocale]}
+          />
+        </NodeViewWrapper>
+      )
     }
 
-    return (
-      <NodeViewWrapper className="spacer" data-type="creditsBlock">
-        <div className="block-wrapper">
-          <div className="pricing-block">
-            <span className="pricing-block__label">{displayName}</span>
-          </div>
-        </div>
-      </NodeViewWrapper>
-    )
+    // Empty or unresolved in preview — render nothing interactive.
+    return <NodeViewWrapper className="spacer" data-type="creditsBlock" />
   }
 
   const handleClick = () => {

@@ -272,5 +272,22 @@
   "text_1783352692386p9bls6f0o76": "Inköpsordernummer",
   "text_1783352692386valktkog1dw": "Lägg till inköpsordernummer",
   "text_17833526923863j848qxkffb": "Plånboksinställningar",
-  "text_17841895626504bixbm3xbyj": "Visa detaljerna för denna utförda order, inklusive dess utförandeinställningar och innehåll."
+  "text_17841895626504bixbm3xbyj": "Visa detaljerna för denna utförda order, inklusive dess utförandeinställningar och innehåll.",
+  "text_17848821795797viukiwsvkd": "Återkommande påfyllning",
+  "text_1784882179579jrpo7xq992a": "Engång",
+  "text_1784882179579muknx9hd8bw": "Gratis",
+  "text_1784882179579v64foe5ytas": "Upphör {{date}}",
+  "text_1784882179580txsoj9pf51f": "Gäller {{scope}}",
+  "text_1784882179580hb24cd5e4jc": "Gäller alla avgifter",
+  "text_17848821795809xtwzsq7ot9": "Vid lågt saldo",
+  "text_178488217958075syit8qyd5": "Upp till {{count}}",
+  "text_1784883525803ne7j9k70cy2": "Gratis krediter",
+  "text_1784883525803oz45f5x0ier": "Användningsavgifter",
+  "text_1784883525803dqcjtvdskqq": "Åtagandeavgifter",
+  "text_1784883525803z2r3s9910of": "Prenumerationsavgifter",
+  "text_1784883525803lunzztlh547": "Månadsvis",
+  "text_1784883525803zcmgdkvi3vd": "Kvartalsvis",
+  "text_1784883525803guz1xdk6ub7": "Veckovis",
+  "text_17848835258036aevge8fx0s": "Halvårsvis",
+  "text_1784883525803ghc0vq94t5u": "Årsvis"
 }

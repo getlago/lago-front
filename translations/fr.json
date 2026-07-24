@@ -272,5 +272,22 @@
   "text_1783352692386p9bls6f0o76": "Numéro de bon de commande",
   "text_1783352692386valktkog1dw": "Ajouter un numéro de bon de commande",
   "text_17833526923863j848qxkffb": "Paramètres du portefeuille",
-  "text_17841895626504bixbm3xbyj": "Consultez les détails de cette commande exécutée, y compris ses paramètres d’exécution et son contenu."
+  "text_17841895626504bixbm3xbyj": "Consultez les détails de cette commande exécutée, y compris ses paramètres d’exécution et son contenu.",
+  "text_17848821795797viukiwsvkd": "Recharge récurrente",
+  "text_1784882179579jrpo7xq992a": "Unique",
+  "text_1784882179579muknx9hd8bw": "Gratuit",
+  "text_1784882179579v64foe5ytas": "Expire le {{date}}",
+  "text_1784882179580txsoj9pf51f": "S'applique à {{scope}}",
+  "text_1784882179580hb24cd5e4jc": "S'applique à tous les frais",
+  "text_17848821795809xtwzsq7ot9": "Sur solde faible",
+  "text_178488217958075syit8qyd5": "Jusqu'à {{count}}",
+  "text_1784883525803ne7j9k70cy2": "Crédits gratuits",
+  "text_1784883525803oz45f5x0ier": "Frais d'usage",
+  "text_1784883525803dqcjtvdskqq": "Frais d'engagement",
+  "text_1784883525803z2r3s9910of": "Frais d'abonnement",
+  "text_1784883525803lunzztlh547": "Mensuel",
+  "text_1784883525803zcmgdkvi3vd": "Trimestriel",
+  "text_1784883525803guz1xdk6ub7": "Hebdomadaire",
+  "text_17848835258036aevge8fx0s": "Semestriel",
+  "text_1784883525803ghc0vq94t5u": "Annuel"
 }
