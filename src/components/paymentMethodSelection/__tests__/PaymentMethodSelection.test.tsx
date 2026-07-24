@@ -5,7 +5,7 @@ import { ReactNode } from 'react'
 
 import { FORM_DIALOG_NAME } from '~/components/dialogs/const'
 import FormDialog from '~/components/dialogs/FormDialog'
-import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
+import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { PaymentMethodsDocument } from '~/generated/graphql'
 import {
   createMockPaymentMethod,

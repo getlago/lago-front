@@ -1,12 +1,12 @@
 import { screen } from '@testing-library/react'
 import { FormikProps } from 'formik'
 
+import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { Customer } from '~/generated/graphql'
 import { SubscriptionFormInput } from '~/pages/subscriptions/types'
 import { render } from '~/test-utils'
 
 import { PaymentMethodsInvoiceSettings } from '../PaymentMethodsInvoiceSettings'
-import { ViewTypeEnum } from '../types'
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({

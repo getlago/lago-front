@@ -1,5 +1,6 @@
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
+import { VIEW_TYPE_TRANSLATION_KEYS } from '~/core/constants/billingObjectViewTypes'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePaymentMethodsList } from '~/hooks/customer/usePaymentMethodsList'
 
@@ -7,8 +8,6 @@ import { useEditPaymentMethodDialog } from './EditPaymentMethodDialog'
 import { PaymentMethodDisplay } from './PaymentMethodDisplay'
 import { PaymentMethodSelectionProps } from './types'
 import { useDisplayedPaymentMethod } from './useDisplayedPaymentMethod'
-
-import { VIEW_TYPE_TRANSLATION_KEYS } from '../paymentMethodsInvoiceSettings/types'
 
 export const EDIT_PAYMENT_METHOD_BUTTON_TEST_ID = 'edit-payment-method-button'
 

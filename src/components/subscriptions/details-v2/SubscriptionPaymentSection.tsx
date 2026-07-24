@@ -1,13 +1,13 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
 
-import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
-import { SectionHeader } from '~/components/plans/details-v2/shared/SectionHeader'
 import {
   PaymentSettingsDrawer,
   PaymentSettingsDrawerRef,
-} from '~/components/subscriptions/form/PaymentSettingsDrawer'
+} from '~/components/paymentSettings/PaymentSettingsDrawer'
+import { SectionHeader } from '~/components/plans/details-v2/shared/SectionHeader'
 import { SubscriptionPaymentMethodDetails } from '~/components/subscriptions/SubscriptionPaymentMethodDetails'
+import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { SubscriptionPaymentSectionFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useUpdateSubscriptionSettings } from '~/hooks/customer/useUpdateSubscriptionSettings'

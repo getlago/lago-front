@@ -1,9 +1,10 @@
+import { screen } from '@testing-library/react'
 import { act, createRef, ReactNode } from 'react'
 
 import { InvoiceCustomSectionBehavior } from '~/components/invoceCustomFooter/types'
+import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { render } from '~/test-utils'
 
-import { ViewTypeEnum } from '../../../paymentMethodsInvoiceSettings/types'
 import { InvoicingSettingsDrawer, InvoicingSettingsDrawerRef } from '../InvoicingSettingsDrawer'
 
 const mockOpen = jest.fn()
@@ -58,6 +59,7 @@ describe('InvoicingSettingsDrawer', () => {
         viewType={ViewTypeEnum.Subscription}
         customerId="cust_1"
         showCustomSection
+        withInvoiceConsolidation
         onSave={onSave}
       />,
     )
@@ -151,5 +153,45 @@ describe('InvoicingSettingsDrawer', () => {
     expect(onSave).not.toHaveBeenCalled()
     expect(mockClose).not.toHaveBeenCalled()
     expect(mockIcsProps.current?.error).toBe('text_624ea7c29103fd010732ab7d')
+  })
+
+  // The consolidation section only exists in the subscription payload, so it is
+  // opt-in via withInvoiceConsolidation (default false for every other object).
+  const openAndMountContent = (withInvoiceConsolidation: boolean) => {
+    const ref = createRef<InvoicingSettingsDrawerRef>()
+
+    render(
+      <InvoicingSettingsDrawer
+        ref={ref}
+        viewType={ViewTypeEnum.WalletTopUp}
+        customerId="cust_1"
+        showCustomSection
+        withInvoiceConsolidation={withInvoiceConsolidation}
+        onSave={jest.fn()}
+      />,
+    )
+
+    act(() => {
+      ref.current?.openDrawer({
+        invoiceCustomSection: { invoiceCustomSections: [], skipInvoiceCustomSections: false },
+      })
+    })
+
+    const opened = mockOpen.mock.calls[0][0] as { children: ReactNode }
+
+    render(<>{opened.children}</>)
+  }
+
+  it('renders the consolidation section when withInvoiceConsolidation is opted in', () => {
+    openAndMountContent(true)
+
+    expect(screen.getByTestId('consolidation')).toBeInTheDocument()
+  })
+
+  it('hides the consolidation section by default while keeping the custom-section fields', () => {
+    openAndMountContent(false)
+
+    expect(screen.queryByTestId('consolidation')).not.toBeInTheDocument()
+    expect(screen.getByTestId('ics-fields')).toBeInTheDocument()
   })
 })
