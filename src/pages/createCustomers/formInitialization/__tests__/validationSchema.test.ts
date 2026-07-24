@@ -299,7 +299,7 @@ describe('validationSchema', () => {
       expect(result.success).toBe(true)
     })
 
-    it('requires accountingCustomerId when syncWithProvider is false', () => {
+    it('does not enforce accountingCustomerId (rule owned by the connection drawer)', () => {
       const result = validationSchema.safeParse({
         externalId: 'customer-123',
         accountingCustomer: {
@@ -310,12 +310,7 @@ describe('validationSchema', () => {
         metadata: [],
       })
 
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        const issue = result.error.issues.find((i) => i.path.at(-1) === 'accountingCustomerId')
-
-        expect(issue?.message).toBe('text_1764236242615sfcc7546vv8')
-      }
+      expect(result.success).toBe(true)
     })
 
     it('accepts accountingCustomerId when syncWithProvider is false', () => {
@@ -332,7 +327,7 @@ describe('validationSchema', () => {
       expect(result.success).toBe(true)
     })
 
-    it('requires subsidiaryId for NetSuite', () => {
+    it('does not enforce subsidiaryId (rule owned by the connection drawer)', () => {
       const result = validationSchema.safeParse({
         externalId: 'customer-123',
         accountingCustomer: {
@@ -343,12 +338,7 @@ describe('validationSchema', () => {
         metadata: [],
       })
 
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        const issue = result.error.issues.find((i) => i.path.at(-1) === 'subsidiaryId')
-
-        expect(issue?.message).toBe('text_1764249459826j3tkbn7s5ca')
-      }
+      expect(result.success).toBe(true)
     })
 
     it('does not require subsidiaryId for non-NetSuite providers', () => {
@@ -392,7 +382,7 @@ describe('validationSchema', () => {
       expect(result.success).toBe(true)
     })
 
-    it('requires taxCustomerId when syncWithProvider is false', () => {
+    it('does not enforce taxCustomerId (rule owned by the connection drawer)', () => {
       const result = validationSchema.safeParse({
         externalId: 'customer-123',
         taxCustomer: {
@@ -403,12 +393,7 @@ describe('validationSchema', () => {
         metadata: [],
       })
 
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        const issue = result.error.issues.find((i) => i.path.at(-1) === 'taxCustomerId')
-
-        expect(issue?.message).toBe('text_1764236242615sfcc7546vv8')
-      }
+      expect(result.success).toBe(true)
     })
 
     it('accepts taxCustomerId when syncWithProvider is false', () => {
@@ -453,7 +438,7 @@ describe('validationSchema', () => {
       expect(result.success).toBe(true)
     })
 
-    it('requires crmCustomerId when syncWithProvider is false', () => {
+    it('does not enforce crmCustomerId (rule owned by the connection drawer)', () => {
       const result = validationSchema.safeParse({
         externalId: 'customer-123',
         crmCustomer: {
@@ -465,12 +450,7 @@ describe('validationSchema', () => {
         metadata: [],
       })
 
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        const issue = result.error.issues.find((i) => i.path.at(-1) === 'crmCustomerId')
-
-        expect(issue?.message).toBe('text_1764236242615sfcc7546vv8')
-      }
+      expect(result.success).toBe(true)
     })
 
     it('accepts crmCustomerId when syncWithProvider is false', () => {
@@ -488,7 +468,7 @@ describe('validationSchema', () => {
       expect(result.success).toBe(true)
     })
 
-    it('requires targetedObject for Hubspot', () => {
+    it('does not enforce targetedObject (rule owned by the connection drawer)', () => {
       const result = validationSchema.safeParse({
         externalId: 'customer-123',
         crmCustomer: {
@@ -499,12 +479,7 @@ describe('validationSchema', () => {
         metadata: [],
       })
 
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        const issue = result.error.issues.find((i) => i.path.at(-1) === 'targetedObject')
-
-        expect(issue?.message).toBe('text_1764249563018adc7qy057at')
-      }
+      expect(result.success).toBe(true)
     })
 
     it('accepts valid targetedObject for Hubspot', () => {
@@ -575,7 +550,7 @@ describe('validationSchema', () => {
       expect(result.success).toBe(true)
     })
 
-    it('requires providerCustomerId for non-Cashfree/Flutterwave when syncWithProvider is false', () => {
+    it('does not enforce providerCustomerId (rule owned by the connection drawer)', () => {
       const result = validationSchema.safeParse({
         externalId: 'customer-123',
         paymentProviderCustomer: {
@@ -589,12 +564,7 @@ describe('validationSchema', () => {
         metadata: [],
       })
 
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        const issue = result.error.issues.find((i) => i.path.at(-1) === 'providerCustomerId')
-
-        expect(issue?.message).toBe('text_1764236242615sfcc7546vv8')
-      }
+      expect(result.success).toBe(true)
     })
 
     it('accepts providerCustomerId when syncWithProvider is false', () => {
@@ -627,7 +597,7 @@ describe('validationSchema', () => {
       expect(result.success).toBe(true)
     })
 
-    it('requires at least one payment method for Stripe', () => {
+    it('does not enforce payment methods (rule owned by the connection drawer)', () => {
       const result = validationSchema.safeParse({
         externalId: 'customer-123',
         paymentProviderCustomer: {
@@ -638,16 +608,7 @@ describe('validationSchema', () => {
         metadata: [],
       })
 
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        const issue = result.error.issues.find((i) => {
-          const path = i.path as (string | number)[]
-
-          return path[0] === 'paymentProviderCustomer' && path[1] === 'providerPaymentMethods'
-        })
-
-        expect(issue?.message).toBe('text_1764259518524a0hr3z00m7r')
-      }
+      expect(result.success).toBe(true)
     })
 
     it('accepts Stripe with at least one payment method enabled', () => {
