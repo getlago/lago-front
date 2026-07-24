@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
-import { useMemo, useRef } from 'react'
+import { useMemo } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { Alert } from '~/components/designSystem/Alert'
@@ -11,12 +11,12 @@ import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import {
-  AddEditDeleteSuccessRedirectUrlDialog,
-  AddEditDeleteSuccessRedirectUrlDialogRef,
-} from '~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog'
 import { useAddFlutterwaveDialog } from '~/components/settings/integrations/AddFlutterwaveDialog'
 import { useDeleteFlutterwaveIntegrationDialog } from '~/components/settings/integrations/DeleteFlutterwaveIntegrationDialog'
+import {
+  useAddEditSuccessRedirectUrlDialog,
+  useDeleteSuccessRedirectUrlDialog,
+} from '~/components/settings/integrations/SuccessRedirectUrlDialogs'
 import { addToast, envGlobalVar } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { FLUTTERWAVE_INTEGRATION_ROUTE, INTEGRATIONS_ROUTE, useNavigate } from '~/core/router'
@@ -68,7 +68,8 @@ const FlutterwaveIntegrationDetails = () => {
   const { hasPermissions } = usePermissions()
   const { openAddFlutterwaveDialog } = useAddFlutterwaveDialog()
   const { openDeleteFlutterwaveIntegrationDialog } = useDeleteFlutterwaveIntegrationDialog()
-  const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
+  const { openAddEditSuccessRedirectUrlDialog } = useAddEditSuccessRedirectUrlDialog()
+  const { openDeleteSuccessRedirectUrlDialog } = useDeleteSuccessRedirectUrlDialog()
   const { apiUrl } = envGlobalVar()
   // CRITICAL: this organizationId is baked into a webhook URL the user copies
   // into the third-party provider's dashboard. If we read it from
@@ -287,7 +288,7 @@ const FlutterwaveIntegrationDetails = () => {
                 variant="quaternary"
                 disabled={!!flutterwavePaymentProvider?.successRedirectUrl}
                 onClick={() => {
-                  successRedirectUrlDialogRef.current?.openDialog({
+                  openAddEditSuccessRedirectUrlDialog({
                     mode: 'Add',
                     type: 'Flutterwave',
                     provider: flutterwavePaymentProvider,
@@ -338,7 +339,7 @@ const FlutterwaveIntegrationDetails = () => {
                           fullWidth
                           align="left"
                           onClick={() => {
-                            successRedirectUrlDialogRef.current?.openDialog({
+                            openAddEditSuccessRedirectUrlDialog({
                               mode: 'Edit',
                               type: 'Flutterwave',
                               provider: flutterwavePaymentProvider,
@@ -357,8 +358,7 @@ const FlutterwaveIntegrationDetails = () => {
                           align="left"
                           fullWidth
                           onClick={() => {
-                            successRedirectUrlDialogRef.current?.openDialog({
-                              mode: 'Delete',
+                            openDeleteSuccessRedirectUrlDialog({
                               type: 'Flutterwave',
                               provider: flutterwavePaymentProvider,
                             })
@@ -376,8 +376,6 @@ const FlutterwaveIntegrationDetails = () => {
           )}
         </section>
       </div>
-
-      <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </div>
   )
 }

@@ -1,14 +1,9 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import { useAddAvalaraDialog } from '~/components/settings/integrations/AddAvalaraDialog'
-import {
-  AddEditDeleteSuccessRedirectUrlDialog,
-  AddEditDeleteSuccessRedirectUrlDialogRef,
-} from '~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog'
 import AvalaraIntegrationItemsList from '~/components/settings/integrations/AvalaraIntegrationItemsList'
 import AvalaraIntegrationSettings from '~/components/settings/integrations/AvalaraIntegrationSettings'
 import { useDeleteAvalaraIntegrationDialog } from '~/components/settings/integrations/DeleteAvalaraIntegrationDialog'
@@ -74,7 +69,6 @@ const AvalaraIntegrationDetails = () => {
   const { integrationId = '' } = useParams()
   const { openAddAvalaraDialog } = useAddAvalaraDialog()
   const { openDeleteAvalaraIntegrationDialog } = useDeleteAvalaraIntegrationDialog()
-  const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { translate } = useInternationalization()
   const { data, loading } = useGetAvalaraIntegrationsDetailsQuery({
     variables: {
@@ -178,7 +172,6 @@ const AvalaraIntegrationDetails = () => {
         ]}
       />
       <>{activeTabContent}</>
-      <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )
 }

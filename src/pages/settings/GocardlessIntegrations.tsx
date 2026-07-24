@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -7,10 +6,6 @@ import { Popper } from '~/components/designSystem/Popper'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import {
-  AddEditDeleteSuccessRedirectUrlDialog,
-  AddEditDeleteSuccessRedirectUrlDialogRef,
-} from '~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog'
 import { useAddGocardlessDialog } from '~/components/settings/integrations/AddGocardlessDialog'
 import { useDeleteGocardlessIntegrationDialog } from '~/components/settings/integrations/DeleteGocardlessIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -62,7 +57,6 @@ const GocardlessIntegrations = () => {
   const { hasPermissions } = usePermissions()
   const { openAddGocardlessDialog } = useAddGocardlessDialog()
   const { openDeleteGocardlessIntegrationDialog } = useDeleteGocardlessIntegrationDialog()
-  const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { translate } = useInternationalization()
   const { data, loading } = useGetGocardlessIntegrationsListQuery({
     variables: { limit: 1000, type: ProviderTypeEnum.Gocardless },
@@ -199,8 +193,6 @@ const GocardlessIntegrations = () => {
             })}
         </section>
       </IntegrationsPage.Container>
-
-      <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )
 }

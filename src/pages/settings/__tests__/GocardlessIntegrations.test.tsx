@@ -18,9 +18,6 @@ jest.mock('~/components/settings/integrations/DeleteGocardlessIntegrationDialog'
     openDeleteGocardlessIntegrationDialog: jest.fn(),
   }),
 }))
-jest.mock('~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog', () => ({
-  AddEditDeleteSuccessRedirectUrlDialog: () => null,
-}))
 
 describe('GocardlessIntegrations', () => {
   afterEach(cleanup)

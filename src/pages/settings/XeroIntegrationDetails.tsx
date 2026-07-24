@@ -1,14 +1,9 @@
 import { gql } from '@apollo/client'
 import Nango from '@nangohq/frontend'
-import { useRef } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
-import {
-  AddEditDeleteSuccessRedirectUrlDialog,
-  AddEditDeleteSuccessRedirectUrlDialogRef,
-} from '~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog'
 import { useAddXeroDialog } from '~/components/settings/integrations/AddXeroDialog'
 import { useDeleteXeroIntegrationDialog } from '~/components/settings/integrations/DeleteXeroIntegrationDialog'
 import XeroIntegrationItemsList from '~/components/settings/integrations/XeroIntegrationItemsList'
@@ -81,7 +76,6 @@ const XeroIntegrationDetails = () => {
   const { integrationId = '' } = useParams()
   const { openAddXeroDialog } = useAddXeroDialog()
   const { openDeleteXeroIntegrationDialog } = useDeleteXeroIntegrationDialog()
-  const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { translate } = useInternationalization()
   const { data, loading } = useGetXeroIntegrationsDetailsQuery({
     variables: {
@@ -211,8 +205,6 @@ const XeroIntegrationDetails = () => {
       />
 
       <>{activeTabContent}</>
-
-      <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )
 }

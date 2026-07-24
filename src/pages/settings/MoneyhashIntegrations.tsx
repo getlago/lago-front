@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -7,10 +6,6 @@ import { Popper } from '~/components/designSystem/Popper'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import {
-  AddEditDeleteSuccessRedirectUrlDialog,
-  AddEditDeleteSuccessRedirectUrlDialogRef,
-} from '~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog'
 import { useAddMoneyhashDialog } from '~/components/settings/integrations/AddMoneyhashDialog'
 import { useDeleteMoneyhashIntegrationDialog } from '~/components/settings/integrations/DeleteMoneyhashIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -54,7 +49,6 @@ gql`
 const MoneyhashIntegrations = () => {
   const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
-  const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { openAddMoneyhashDialog } = useAddMoneyhashDialog()
   const { openDeleteMoneyhashIntegrationDialog } = useDeleteMoneyhashIntegrationDialog()
   const { translate } = useInternationalization()
@@ -192,7 +186,6 @@ const MoneyhashIntegrations = () => {
             })}
         </section>
       </IntegrationsPage.Container>
-      <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )
 }
