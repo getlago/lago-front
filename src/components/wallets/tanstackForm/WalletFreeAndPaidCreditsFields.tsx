@@ -1,0 +1,236 @@
+import { useStore } from '@tanstack/react-form'
+import { useState } from 'react'
+
+import { Accordion } from '~/components/designSystem/Accordion'
+import { Button } from '~/components/designSystem/Button'
+import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
+import { CenteredPage } from '~/components/layouts/CenteredPage'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { CurrencyEnum } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { withForm } from '~/hooks/forms/useAppform'
+import { topUpAmountError } from '~/pages/wallet/form'
+
+import type { WalletFreeAndPaidSlice } from './walletFormSchema'
+
+const DEFAULTS: WalletFreeAndPaidSlice = {
+  freeCredits: '',
+  paidCredits: '',
+  invoiceRequiresSuccessfulPayment: false,
+  metadata: [],
+}
+
+export const WALLET_FREE_PAID_METADATA_ROW_TEST_ID = 'wallet-free-paid-metadata-row'
+export const WALLET_FREE_PAID_METADATA_ADD_BUTTON_TEST_ID = 'wallet-free-paid-metadata-add-button'
+export const WALLET_FREE_PAID_METADATA_DELETE_BUTTON_TEST_ID =
+  'wallet-free-paid-metadata-delete-button'
+export const WALLET_FREE_PAID_INVOICE_SWITCH_TEST_ID = 'wallet-free-paid-invoice-switch'
+
+const MetadataRows = withForm({
+  defaultValues: DEFAULTS,
+  render: function Render({ form }) {
+    const { translate } = useInternationalization()
+    const metadata = useStore(form.store, (state) => state.values.metadata || [])
+
+    // Stable per-row keys: metadata items carry no id, and their key/value can be
+    // empty or duplicated, so a client-side id list is kept in sync with add/remove.
+    const [rowIds, setRowIds] = useState<string[]>(() => metadata.map(() => crypto.randomUUID()))
+
+    const addMetadata = () => {
+      form.pushFieldValue('metadata', { key: '', value: '' })
+      setRowIds((ids) => [...ids, crypto.randomUUID()])
+    }
+
+    const removeMetadata = (index: number) => {
+      form.removeFieldValue('metadata', index)
+      setRowIds((ids) => ids.filter((_, i) => i !== index))
+    }
+
+    return (
+      <div className="flex flex-col gap-4">
+        {rowIds.map((rowId, index) => (
+          <div
+            key={rowId}
+            className="flex items-start gap-3"
+            data-test={WALLET_FREE_PAID_METADATA_ROW_TEST_ID}
+          >
+            <form.AppField name={`metadata[${index}].key`}>
+              {(field) => (
+                <field.TextInputField
+                  className="flex-1"
+                  label={translate('text_63fcc3218d35b9377840f5a3')}
+                  placeholder={translate('text_63fcc3218d35b9377840f5a7')}
+                />
+              )}
+            </form.AppField>
+            <form.AppField name={`metadata[${index}].value`}>
+              {(field) => (
+                <field.TextInputField
+                  className="flex-1"
+                  label={translate('text_63fcc3218d35b9377840f5ab')}
+                  placeholder={translate('text_63fcc3218d35b9377840f5af')}
+                />
+              )}
+            </form.AppField>
+            <Tooltip
+              className="mt-7"
+              placement="top-end"
+              title={translate('text_63fcc3218d35b9377840f5e1')}
+            >
+              <Button
+                data-test={WALLET_FREE_PAID_METADATA_DELETE_BUTTON_TEST_ID}
+                icon="trash"
+                variant="quaternary"
+                onClick={() => removeMetadata(index)}
+              />
+            </Tooltip>
+          </div>
+        ))}
+
+        <Button
+          data-test={WALLET_FREE_PAID_METADATA_ADD_BUTTON_TEST_ID}
+          className="self-start"
+          startIcon="plus"
+          variant="inline"
+          onClick={addMetadata}
+        >
+          {translate('text_63fcc3218d35b9377840f5bb')}
+        </Button>
+      </div>
+    )
+  },
+})
+
+export const WalletFreeAndPaidCreditsFields = withForm({
+  defaultValues: DEFAULTS,
+  props: {
+    currency: CurrencyEnum.Usd as CurrencyEnum,
+    rateAmount: '1',
+    walletName: '',
+    min: null as string | null,
+    max: null as string | null,
+  },
+  render: function Render({ form, currency, rateAmount, walletName, min, max }) {
+    const { translate } = useInternationalization()
+    const rateLabel = intlFormatNumber(Number(rateAmount || 0), { currency })
+    const toCurrency = (credits: string) =>
+      intlFormatNumber(Number(credits || 0) * Number(rateAmount || 0), { currency })
+
+    return (
+      <div className="flex flex-col gap-8">
+        <CenteredPage.PageTitle
+          title={translate('text_1783352692385e6ttj3xne6k')}
+          description={translate('text_17833526923856caxxme9l8x')}
+        />
+
+        {/* Read-only wallet summary */}
+        <div className="flex flex-col gap-3 border-b border-grey-200 pb-8">
+          <Typography variant="subhead1">{translate('text_17833526923863j848qxkffb')}</Typography>
+          <Typography variant="caption" color="grey600">
+            {translate('text_1784552920236w7zteb5dk1y')}
+          </Typography>
+          <div className="flex flex-col gap-2">
+            <div className="flex gap-3">
+              <Typography className="w-40 shrink-0" variant="caption" color="grey600">
+                {translate('text_62d18855b22699e5cf55f875')}
+              </Typography>
+              <Typography variant="body" color="grey700">
+                {walletName || '-'}
+              </Typography>
+            </div>
+            <div className="flex gap-3">
+              <Typography className="w-40 shrink-0" variant="caption" color="grey600">
+                {translate('text_62d18855b22699e5cf55f879')}
+              </Typography>
+              <Typography variant="body" color="grey700">{`1 credit = ${rateLabel}`}</Typography>
+            </div>
+          </div>
+        </div>
+
+        <form.AppField name="freeCredits">
+          {(field) => (
+            <field.TextInputField
+              beforeChangeFormatter={['positiveNumber', 'decimal']}
+              label={translate('text_1784552920237ss68mgdwkmt')}
+              helperText={translate('text_1784552920237jisdtu6bwqy', {
+                freeCredits: toCurrency(String(field.state.value)),
+              })}
+              InputProps={{
+                endAdornment: (
+                  <Typography className="mr-4" variant="body" color="textSecondary">
+                    {translate('text_62d18855b22699e5cf55f889')}
+                  </Typography>
+                ),
+              }}
+            />
+          )}
+        </form.AppField>
+
+        <form.AppField name="paidCredits">
+          {(field) => {
+            // The schema's top-up-range message keys carry translate variables
+            // ({{minCredits}}/{{minAmount}}/…) that the field's auto-translate can't
+            // interpolate. Resolve the label here (shared with the Formik wallet form)
+            // and feed it through errorOverride, which is built for exactly this case.
+            // topUpAmountError returns null/undefined when the amount is empty or in
+            // range, so errorOverride only surfaces once an out-of-range value is entered.
+            const topUpError = topUpAmountError({
+              rateAmount,
+              paidCredits: String(field.state.value),
+              paidTopUpMinAmountCents: min ?? undefined,
+              paidTopUpMaxAmountCents: max ?? undefined,
+              currency,
+              translate,
+            })
+
+            return (
+              <field.TextInputField
+                beforeChangeFormatter={['positiveNumber', 'decimal']}
+                label={translate('text_1784552920237g89fvc8lki5')}
+                helperText={translate('text_62d18855b22699e5cf55f88b', {
+                  paidCredits: toCurrency(String(field.state.value)),
+                })}
+                errorOverride={topUpError?.label ?? undefined}
+                InputProps={{
+                  endAdornment: (
+                    <Typography className="mr-4" variant="body" color="textSecondary">
+                      {translate('text_62d18855b22699e5cf55f889')}
+                    </Typography>
+                  ),
+                }}
+              />
+            )
+          }}
+        </form.AppField>
+
+        <form.AppField name="invoiceRequiresSuccessfulPayment">
+          {(field) => (
+            <field.SwitchField
+              dataTest={WALLET_FREE_PAID_INVOICE_SWITCH_TEST_ID}
+              label={translate('text_66a8aed1c3e07b277ec3990d')}
+              subLabel={translate('text_66a8aed1c3e07b277ec3990f')}
+            />
+          )}
+        </form.AppField>
+
+        {/* Metadata accordion — minimal key/value rows editor over the metadata slice. */}
+        <Accordion
+          variant="borderless"
+          summary={
+            <div className="flex flex-col gap-1">
+              <Typography variant="bodyHl" color="grey700">
+                {translate('text_63fcc3218d35b9377840f59b')}
+              </Typography>
+              <Typography variant="caption" color="grey600">
+                {translate('text_1784552920236qoa5zheiakw')}
+              </Typography>
+            </div>
+          }
+        >
+          <MetadataRows form={form} />
+        </Accordion>
+      </div>
+    )
+  },
+})

@@ -16,6 +16,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import BlockToolbar from './BlockControls/BlockToolbar'
 import {
   type EntityData,
+  type OnCreditsCommand,
   type OnDiscountCommand,
   type OnPricingCommand,
   RichTextEditorProvider,
@@ -26,6 +27,8 @@ import {
   RICH_TEXT_EDITOR_TOOLBAR_TEST_ID,
 } from './constants'
 import { getBaseExtensions } from './extensions/baseExtensions'
+import { CreditsBlock } from './extensions/CreditsBlock'
+import { type CreditsBlockAttributes } from './extensions/CreditsBlock.schema'
 import { DiscountBlock } from './extensions/DiscountBlock'
 import { type DiscountBlockAttributes } from './extensions/DiscountBlock.schema'
 import { DragHandle } from './extensions/DragHandle'
@@ -65,6 +68,9 @@ interface RichTextEditorProps {
   onPricingBlocksChange?: (blocks: PricingBlockAttributes[]) => void
   onDiscountCommand?: OnDiscountCommand
   onDiscountBlocksChange?: (blocks: DiscountBlockAttributes[]) => void
+  onCreditsCommand?: OnCreditsCommand
+  isCreditsDisabled?: () => boolean
+  onCreditsBlocksChange?: (blocks: CreditsBlockAttributes[]) => void
   customerLocale?: Locale
   customerCurrency?: CurrencyEnum
   images?: Record<string, string>
@@ -180,6 +186,18 @@ const collectDiscountBlocks = (editorInstance: Editor): DiscountBlockAttributes[
   return discountBlocks
 }
 
+const collectCreditsBlocks = (editorInstance: Editor): CreditsBlockAttributes[] => {
+  const creditsBlocks: CreditsBlockAttributes[] = []
+
+  editorInstance.state.doc.descendants((node) => {
+    if (node.type.name === 'creditsBlock') {
+      creditsBlocks.push({ localId: node.attrs.localId })
+    }
+  })
+
+  return creditsBlocks
+}
+
 const readMarkdownFromEditor = (editor: Editor | null | undefined): string | undefined => {
   if (!editor || !editor.storage || !('markdown' in editor.storage)) return undefined
 
@@ -206,6 +224,10 @@ const buildSlashCommandsOptions = ({
   isPricingDisabledRef,
   onDiscountCommand,
   onDiscountCommandRef,
+  onCreditsCommand,
+  onCreditsCommandRef,
+  isCreditsDisabled,
+  isCreditsDisabledRef,
 }: {
   translate: (key: string) => string
   onPricingCommand?: OnPricingCommand
@@ -214,6 +236,10 @@ const buildSlashCommandsOptions = ({
   isPricingDisabledRef: MutableRefObject<(() => boolean) | undefined>
   onDiscountCommand?: OnDiscountCommand
   onDiscountCommandRef: MutableRefObject<OnDiscountCommand | undefined>
+  onCreditsCommand?: OnCreditsCommand
+  onCreditsCommandRef: MutableRefObject<OnCreditsCommand | undefined>
+  isCreditsDisabled?: () => boolean
+  isCreditsDisabledRef: MutableRefObject<(() => boolean) | undefined>
 }) => ({
   translate,
   onPricingCommand: onPricingCommand
@@ -224,6 +250,12 @@ const buildSlashCommandsOptions = ({
     : undefined,
   onDiscountCommand: onDiscountCommand
     ? (params: Parameters<OnDiscountCommand>[0]) => onDiscountCommandRef.current?.(params)
+    : undefined,
+  onCreditsCommand: onCreditsCommand
+    ? (params: Parameters<OnCreditsCommand>[0]) => onCreditsCommandRef.current?.(params)
+    : undefined,
+  isCreditsDisabled: isCreditsDisabled
+    ? () => isCreditsDisabledRef.current?.() ?? false
     : undefined,
 })
 
@@ -240,6 +272,9 @@ const RichTextEditor = ({
   onPricingBlocksChange,
   onDiscountCommand,
   onDiscountBlocksChange,
+  onCreditsCommand,
+  isCreditsDisabled,
+  onCreditsBlocksChange,
   onChange,
   customerLocale,
   customerCurrency,
@@ -256,6 +291,9 @@ const RichTextEditor = ({
   const isPricingDisabledRef = useRef(isPricingDisabled)
   const onDiscountCommandRef = useRef(onDiscountCommand)
   const onDiscountBlocksChangeRef = useRef(onDiscountBlocksChange)
+  const onCreditsCommandRef = useRef(onCreditsCommand)
+  const isCreditsDisabledRef = useRef(isCreditsDisabled)
+  const onCreditsBlocksChangeRef = useRef(onCreditsBlocksChange)
 
   onChangeRef.current = onChange
   onPricingBlocksChangeRef.current = onPricingBlocksChange
@@ -263,6 +301,9 @@ const RichTextEditor = ({
   isPricingDisabledRef.current = isPricingDisabled
   onDiscountCommandRef.current = onDiscountCommand
   onDiscountBlocksChangeRef.current = onDiscountBlocksChange
+  onCreditsCommandRef.current = onCreditsCommand
+  isCreditsDisabledRef.current = isCreditsDisabled
+  onCreditsBlocksChangeRef.current = onCreditsBlocksChange
 
   const mentionSuggestion = useMemo(() => createMentionSuggestion(variableItems), [variableItems])
 
@@ -294,6 +335,7 @@ const RichTextEditor = ({
         },
       }).configure({ images }),
       DiscountBlock.configure({ entities: entitiesFromProps }),
+      CreditsBlock.configure({ entities: entitiesFromProps }),
       SlashCommands.configure(
         buildSlashCommandsOptions({
           translate,
@@ -303,6 +345,10 @@ const RichTextEditor = ({
           isPricingDisabledRef,
           onDiscountCommand,
           onDiscountCommandRef,
+          onCreditsCommand,
+          onCreditsCommandRef,
+          isCreditsDisabled,
+          isCreditsDisabledRef,
         }),
       ),
       LinkPasteHandler,
@@ -325,6 +371,10 @@ const RichTextEditor = ({
 
       if (onDiscountBlocksChangeRef.current) {
         onDiscountBlocksChangeRef.current(collectDiscountBlocks(editorInstance))
+      }
+
+      if (onCreditsBlocksChangeRef.current) {
+        onCreditsBlocksChangeRef.current(collectCreditsBlocks(editorInstance))
       }
     },
   })
@@ -368,6 +418,7 @@ const RichTextEditor = ({
       onPricingCommand,
       onImageUpload,
       onDiscountCommand,
+      onCreditsCommand,
       customerLocale,
       customerCurrency,
     }),
@@ -379,6 +430,7 @@ const RichTextEditor = ({
       onImageUpload,
       onPricingCommand,
       onDiscountCommand,
+      onCreditsCommand,
       customerLocale,
       customerCurrency,
     ],
@@ -408,7 +460,9 @@ const RichTextEditor = ({
         if (target) return false
 
         const isTargetBlock =
-          (node.type.name === 'discountBlock' || node.type.name === 'pricingBlock') &&
+          (node.type.name === 'discountBlock' ||
+            node.type.name === 'pricingBlock' ||
+            node.type.name === 'creditsBlock') &&
           (node.attrs.localId === localId || node.attrs.localEntityIds?.includes(localId))
 
         if (isTargetBlock) {
