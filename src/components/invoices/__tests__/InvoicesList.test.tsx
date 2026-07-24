@@ -148,10 +148,11 @@ jest.mock('~/components/invoices/ResendInvoiceForCollectionDialog', () => ({
 }))
 
 const mockOpenFinalizeInvoiceDialog = jest.fn()
+const mockOpenDeleteInvoiceDialog = jest.fn()
 
 jest.mock('~/components/invoices/DeleteInvoiceDialog', () => ({
   useDeleteInvoiceDialog: () => ({
-    openDeleteInvoiceDialog: jest.fn(),
+    openDeleteInvoiceDialog: mockOpenDeleteInvoiceDialog,
   }),
 }))
 
@@ -1128,6 +1129,26 @@ describe('InvoicesList', () => {
       await waitFor(() => user.click(voidButton))
 
       expect(testMockNavigateFn).toHaveBeenCalled()
+    })
+
+    it('opens the delete dialog when the delete action is clicked', async () => {
+      const user = userEvent.setup()
+
+      mockCanDelete.mockReturnValue(true)
+
+      await renderInvoicesList({
+        invoices: [createMockInvoice({ status: InvoiceStatusTypeEnum.Draft })],
+      })
+
+      const actionButton = screen.getByTestId('open-action-button')
+
+      await waitFor(() => user.click(actionButton))
+
+      const deleteButton = screen.getByRole('button', { name: 'text_17848001862070vhaaoyut3y' })
+
+      await waitFor(() => user.click(deleteButton))
+
+      expect(mockOpenDeleteInvoiceDialog).toHaveBeenCalled()
     })
 
     it('shows regenerate action for voided invoice and navigates', async () => {
