@@ -14,14 +14,15 @@ delete_branch_on_archive = true
 
 [scripts]
 setup = "pnpm install"
-archive = "$LAGO_PATH/front/scripts/conductor-front-container.sh down"
+archive = "$CONDUCTOR_WORKSPACE_PATH/scripts/conductor-front-container.sh down"
 run_mode = "concurrent"
 
 # Run the workspace in its own Docker container on the shared lago stack network.
-# Requires the Docker superproject stack: `lago up -d`, the front_dev image, and
-# the $LAGO_PATH env var (same one used by lago-worktree).
+# Requires the Docker superproject stack: `lago up -d` and the front_dev image.
+# The superproject path is derived from Conductor's $CONDUCTOR_ROOT_PATH, so no
+# $LAGO_PATH shell var is needed (Conductor's script env doesn't source it).
 [scripts.run.container]
-command = "$LAGO_PATH/front/scripts/conductor-front-container.sh up"
+command = "$CONDUCTOR_WORKSPACE_PATH/scripts/conductor-front-container.sh up"
 default = true
 icon = "container"
 
@@ -29,7 +30,7 @@ icon = "container"
 # `container` script first. Commands here (pnpm codegen, pnpm test, node) use the
 # container's node_modules and network, where `api:3000` resolves.
 [scripts.run.shell]
-command = "$LAGO_PATH/front/scripts/conductor-front-container.sh shell"
+command = "$CONDUCTOR_WORKSPACE_PATH/scripts/conductor-front-container.sh shell"
 icon = "square-terminal"
 
 # Run Vite on the HOST instead of in a container: the script disables Vite's
@@ -39,5 +40,5 @@ icon = "square-terminal"
 # patches the workspace .env accordingly. Use `host` OR `container` for a
 # workspace, not both (same port, strictPort errors).
 [scripts.run.host]
-command = "$LAGO_PATH/front/scripts/conductor-front-container.sh host"
+command = "$CONDUCTOR_WORKSPACE_PATH/scripts/conductor-front-container.sh host"
 icon = "flame"
