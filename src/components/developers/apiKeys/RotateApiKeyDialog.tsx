@@ -7,6 +7,7 @@ import { z } from 'zod'
 
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
+import { ROTATE_API_KEY_DIALOG_SUBMIT_BUTTON_TEST_ID } from '~/components/developers/apiKeys/dataTestConstants'
 import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { DialogResult } from '~/components/dialogs/types'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
@@ -22,8 +23,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-
-export const ROTATE_API_KEY_DIALOG_SUBMIT_BUTTON_TEST_ID = 'rotate-api-key-submit-button'
 
 const ROTATE_API_KEY_FORM_ID = 'rotate-api-key-form'
 
