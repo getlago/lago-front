@@ -525,6 +525,42 @@ describe('buildPreviewEntities', () => {
     expect(entities['plan-1'].entityType).toBe('plan')
     expect(entities['plan-1'].plan?.rows.length).toBeGreaterThan(0)
   })
+
+  it('includes wallet entities (with WalletPreviewData) from walletCredits, keyed by localId', () => {
+    const billingItems = {
+      addOns: [],
+      walletCredits: [
+        {
+          type: 'wallet_credit',
+          localId: 'wallet-local-1',
+          payload: {
+            position: 0,
+            name: 'Prepaid credits',
+            currency: 'USD',
+            rateAmount: '1',
+            paidCredits: '100',
+            grantedCredits: '20',
+            expirationAt: null,
+            priority: 50,
+            invoiceRequiresSuccessfulPayment: false,
+            paidTopUpMinAmountCents: null,
+            paidTopUpMaxAmountCents: null,
+            purchaseOrderNumber: null,
+            metadata: [],
+            appliesTo: { feeTypes: [], billableMetricCodes: [] },
+            recurringTransactionRules: [],
+          },
+        },
+      ],
+    } as any
+
+    const entities = buildPreviewEntities(billingItems)
+
+    expect(entities['wallet-local-1']).toBeDefined()
+    expect(entities['wallet-local-1'].entityType).toBe('wallet')
+    // paid (100) + free (20) rows
+    expect(entities['wallet-local-1'].wallet?.rows.length).toBe(2)
+  })
 })
 
 // ---------------------------------------------------------------------------

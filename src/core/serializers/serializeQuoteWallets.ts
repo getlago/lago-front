@@ -7,6 +7,7 @@ import {
   RecurringTransactionTriggerEnum,
 } from '~/generated/graphql'
 
+import { buildWalletPreviewData } from './buildWalletPreviewData'
 import { deserializeAmount, serializeAmount } from './serializeAmount'
 
 // --- UI/form shape (camelCase) ---
@@ -216,6 +217,7 @@ export const fromWallets = (
       entityType: 'wallet',
       name: payload.name ?? '',
       code: '',
+      wallet: buildWalletPreviewData(payload),
     }
   }
 
