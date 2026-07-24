@@ -70,6 +70,10 @@ export const usePermissionsInvoiceActions = () => {
     return invoice.status === InvoiceStatusTypeEnum.Finalized && hasPermissions(['invoicesVoid'])
   }
 
+  const canDelete = (invoice: Pick<Invoice, 'status'>): boolean => {
+    return invoice.status === InvoiceStatusTypeEnum.Draft && hasPermissions(['invoicesDelete'])
+  }
+
   const canRegenerate = (
     invoice: Pick<Invoice, 'status' | 'regeneratedInvoiceId' | 'invoiceType'> & {
       customer?: {
@@ -153,6 +157,7 @@ export const usePermissionsInvoiceActions = () => {
     canGeneratePaymentUrl,
     canUpdatePaymentStatus,
     canVoid,
+    canDelete,
     canRegenerate,
     canIssueCreditNote,
     canRecordPayment,

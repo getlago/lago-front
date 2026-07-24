@@ -10,6 +10,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { buildInvoiceDocumentData } from '~/components/emails/buildDocumentData'
 import { AddMetadataDrawer, AddMetadataDrawerRef } from '~/components/invoices/AddMetadataDrawer'
+import { useDeleteInvoiceDialog } from '~/components/invoices/DeleteInvoiceDialog'
 import { useDisputeInvoiceDialog } from '~/components/invoices/DisputeInvoiceDialog'
 import { useUpdateInvoicePaymentStatusDialog } from '~/components/invoices/EditInvoicePaymentStatusDialog'
 import { useFinalizeInvoiceDialog } from '~/components/invoices/FinalizeInvoiceDialog'
@@ -312,6 +313,7 @@ const CustomerInvoiceDetails = () => {
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
   const { openFinalizeInvoiceDialog } = useFinalizeInvoiceDialog()
+  const { openDeleteInvoiceDialog } = useDeleteInvoiceDialog()
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
   const { openUpdateInvoicePaymentStatusDialog } = useUpdateInvoicePaymentStatusDialog()
   const addMetadataDrawerDialogRef = useRef<AddMetadataDrawerRef>(null)
@@ -947,6 +949,14 @@ const CustomerInvoiceDetails = () => {
                 }),
               )
             }
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_17848001862070vhaaoyut3y'),
+          hidden: !authorizations.canDelete,
+          onClick: (closePopper: () => void) => {
+            openDeleteInvoiceDialog(data?.invoice, goToPreviousRoute)
             closePopper()
           },
         },
