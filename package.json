@@ -121,7 +121,7 @@
     "@mui/material": "5.18.0",
     "@mui/x-date-pickers": "6.20.2",
     "@nangohq/frontend": "0.71.0",
-    "@sentry/react": "10.65.0",
+    "@sentry/react": "10.66.0",
     "@superset-ui/embedded-sdk": "0.3.0",
     "@tanstack/react-form": "1.33.0",
     "@tanstack/react-virtual": "3.14.5",
