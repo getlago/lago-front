@@ -54,8 +54,8 @@ export const SubscriptionDetailsV2Overview = ({ subscriptionId }: Props) => {
     <div className="pt-6">
       <CenteredPage.SubsectionWrapper>
         <SubscriptionInformationSection subscription={subscription} />
-        <SubscriptionPaymentSection subscription={subscription} />
         <SubscriptionInvoiceSection subscription={subscription} />
+        <SubscriptionPaymentSection subscription={subscription} />
       </CenteredPage.SubsectionWrapper>
     </div>
   )

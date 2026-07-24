@@ -95,7 +95,7 @@ describe('InvoicingSettingsSelector', () => {
       it.each([
         ['skip', SKIP_VALUE, INVOICING_SUMMARY_KEYS.skip],
         ['apply', APPLY_VALUE, INVOICING_SUMMARY_KEYS.apply],
-        ['none (default)', undefined, INVOICING_SUMMARY_KEYS.none],
+        ['fallback (default)', undefined, INVOICING_SUMMARY_KEYS.fallback],
       ])('THEN should show the %s summary', (_, value, expectedKey) => {
         renderSelector({ value: value as InvoiceCustomSectionInput })
 
