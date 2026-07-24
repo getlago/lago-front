@@ -12,9 +12,6 @@ jest.mock('~/components/settings/integrations/AddNetsuiteDialog', () => ({
 jest.mock('~/components/settings/integrations/DeleteNetsuiteIntegrationDialog', () => ({
   useDeleteNetsuiteIntegrationDialog: () => ({ openDeleteNetsuiteIntegrationDialog: jest.fn() }),
 }))
-jest.mock('~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog', () => ({
-  AddEditDeleteSuccessRedirectUrlDialog: () => null,
-}))
 jest.mock('~/components/settings/integrations/NetsuiteIntegrationSettings', () => ({
   __esModule: true,
   default: () => null,

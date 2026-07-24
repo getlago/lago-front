@@ -16,9 +16,6 @@ jest.mock('~/components/settings/integrations/AddStripeDialog', () => ({
 jest.mock('~/components/settings/integrations/DeleteStripeIntegrationDialog', () => ({
   useDeleteStripeIntegrationDialog: () => ({ openDeleteStripeIntegrationDialog: jest.fn() }),
 }))
-jest.mock('~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog', () => ({
-  AddEditDeleteSuccessRedirectUrlDialog: () => null,
-}))
 
 describe('StripeIntegrations', () => {
   afterEach(cleanup)

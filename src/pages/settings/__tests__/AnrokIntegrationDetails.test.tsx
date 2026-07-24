@@ -12,9 +12,6 @@ jest.mock('~/components/settings/integrations/AddAnrokDialog', () => ({
 jest.mock('~/components/settings/integrations/DeleteAnrokIntegrationDialog', () => ({
   useDeleteAnrokIntegrationDialog: () => ({ openDeleteAnrokIntegrationDialog: jest.fn() }),
 }))
-jest.mock('~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog', () => ({
-  AddEditDeleteSuccessRedirectUrlDialog: () => null,
-}))
 jest.mock('~/components/settings/integrations/AnrokIntegrationSettings', () => ({
   __esModule: true,
   default: () => null,

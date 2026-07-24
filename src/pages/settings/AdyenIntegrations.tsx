@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -8,10 +7,6 @@ import { Tooltip } from '~/components/designSystem/Tooltip'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useAddAdyenDialog } from '~/components/settings/integrations/AddAdyenDialog'
-import {
-  AddEditDeleteSuccessRedirectUrlDialog,
-  AddEditDeleteSuccessRedirectUrlDialogRef,
-} from '~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { ADYEN_INTEGRATION_DETAILS_ROUTE, INTEGRATIONS_ROUTE, useNavigate } from '~/core/router'
 import {
@@ -53,7 +48,6 @@ const AdyenIntegrations = () => {
   const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
   const { openAddAdyenDialog } = useAddAdyenDialog()
-  const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { translate } = useInternationalization()
   const { data, loading } = useGetAdyenIntegrationsListQuery({
     variables: { limit: 1000, type: ProviderTypeEnum.Adyen },
@@ -190,7 +184,6 @@ const AdyenIntegrations = () => {
             })}
         </section>
       </IntegrationsPage.Container>
-      <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )
 }
