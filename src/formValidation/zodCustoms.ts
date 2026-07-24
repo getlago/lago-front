@@ -67,6 +67,11 @@ export const zodRequiredEmail = z
   .min(1, { message: 'text_620bc4d4269a55014d493f3d' })
   .refine((val) => EMAIL_REGEX.test(val), 'text_620bc4d4269a55014d493fc3')
 
+export const zodRequiredUrl = z
+  .string()
+  .min(1, { message: 'text_624ea7c29103fd010732ab7d' })
+  .and(zodOptionalUrl)
+
 // Password validation error messages
 export const PASSWORD_VALIDATION_ERRORS = {
   REQUIRED: 'text_620bc4d4269a55014d493f61',

@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -10,9 +9,9 @@ import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useAddAdyenDialog } from '~/components/settings/integrations/AddAdyenDialog'
 import {
-  AddEditDeleteSuccessRedirectUrlDialog,
-  AddEditDeleteSuccessRedirectUrlDialogRef,
-} from '~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog'
+  useAddEditSuccessRedirectUrlDialog,
+  useDeleteSuccessRedirectUrlDialog,
+} from '~/components/settings/integrations/SuccessRedirectUrlDialogs'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { ADYEN_INTEGRATION_ROUTE, INTEGRATIONS_ROUTE, useNavigate } from '~/core/router'
 import {
@@ -68,7 +67,8 @@ const AdyenIntegrationDetails = () => {
   const navigate = useNavigate()
   const { integrationId } = useParams()
   const { openAddAdyenDialog } = useAddAdyenDialog()
-  const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
+  const { openAddEditSuccessRedirectUrlDialog } = useAddEditSuccessRedirectUrlDialog()
+  const { openDeleteSuccessRedirectUrlDialog } = useDeleteSuccessRedirectUrlDialog()
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const { data, loading } = useGetAdyenIntegrationsDetailsQuery({
@@ -225,7 +225,7 @@ const AdyenIntegrationDetails = () => {
                 variant="inline"
                 disabled={!!adyenPaymentProvider?.successRedirectUrl}
                 onClick={() => {
-                  successRedirectUrlDialogRef.current?.openDialog({
+                  openAddEditSuccessRedirectUrlDialog({
                     mode: 'Add',
                     type: 'Adyen',
                     provider: adyenPaymentProvider,
@@ -276,7 +276,7 @@ const AdyenIntegrationDetails = () => {
                           fullWidth
                           align="left"
                           onClick={() => {
-                            successRedirectUrlDialogRef.current?.openDialog({
+                            openAddEditSuccessRedirectUrlDialog({
                               mode: 'Edit',
                               type: 'Adyen',
                               provider: adyenPaymentProvider,
@@ -295,8 +295,7 @@ const AdyenIntegrationDetails = () => {
                           align="left"
                           fullWidth
                           onClick={() => {
-                            successRedirectUrlDialogRef.current?.openDialog({
-                              mode: 'Delete',
+                            openDeleteSuccessRedirectUrlDialog({
                               type: 'Adyen',
                               provider: adyenPaymentProvider,
                             })
@@ -314,8 +313,6 @@ const AdyenIntegrationDetails = () => {
           )}
         </section>
       </IntegrationsPage.Container>
-
-      <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )
 }

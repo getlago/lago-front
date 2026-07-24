@@ -1,14 +1,9 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import { useAddAnrokDialog } from '~/components/settings/integrations/AddAnrokDialog'
-import {
-  AddEditDeleteSuccessRedirectUrlDialog,
-  AddEditDeleteSuccessRedirectUrlDialogRef,
-} from '~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog'
 import AnrokIntegrationItemsList from '~/components/settings/integrations/AnrokIntegrationItemsList'
 import AnrokIntegrationSettings from '~/components/settings/integrations/AnrokIntegrationSettings'
 import { useDeleteAnrokIntegrationDialog } from '~/components/settings/integrations/DeleteAnrokIntegrationDialog'
@@ -77,7 +72,6 @@ const AnrokIntegrationDetails = () => {
   const { integrationId = '' } = useParams()
   const { openAddAnrokDialog } = useAddAnrokDialog()
   const { openDeleteAnrokIntegrationDialog } = useDeleteAnrokIntegrationDialog()
-  const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { translate } = useInternationalization()
   const { data, loading } = useGetAnrokIntegrationsDetailsQuery({
     variables: {
@@ -181,7 +175,6 @@ const AnrokIntegrationDetails = () => {
         ]}
       />
       <>{activeTabContent}</>
-      <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )
 }
