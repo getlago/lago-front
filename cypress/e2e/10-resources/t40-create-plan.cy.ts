@@ -1,8 +1,10 @@
+import { DIALOG_TITLE_TEST_ID } from '~/components/dialogs/const'
 import { ACTIONS_BLOCK_TEST_ID } from '~/components/MainHeader/mainHeaderTestIds'
 import {
   CHARGE_PERCENTAGE_ADD_FIXED_FEE_TEST_ID,
   CHARGE_PERCENTAGE_REMOVE_FIXED_FEE_TEST_ID,
   GRADUATED_CHARGE_TABLE_ADD_TIER_TEST_ID,
+  GRADUATED_PERCENTAGE_CHARGE_TABLE_ADD_TIER_TEST_ID,
   VOLUME_CHARGE_TABLE_ADD_TIER_TEST_ID,
 } from '~/components/plans/chargeTestIds'
 import { SEARCH_BILLABLE_METRIC_IN_USAGE_CHARGE_DRAWER_INPUT_CLASSNAME } from '~/core/constants/form'
@@ -144,6 +146,52 @@ describe('Create plan', () => {
     cy.get('[data-test="submit"]').click({ force: true })
     cy.url().should('include', '/overview')
     cy.contains(planWithChargesName).should('exist')
+  })
+
+  it('should gate the graduated-percentage charge model behind premium', () => {
+    const randomId = Math.round(Math.random() * 1000)
+    const planName = `plan graduated pct ${randomId}`
+
+    cy.get(`[data-test="${ACTIONS_BLOCK_TEST_ID}"] [data-test="create-plan"]`).click({
+      force: true,
+    })
+    cy.get('input[name="name"]').type(planName)
+
+    // Add a usage charge and open the charge-model dropdown, then pick the
+    // graduated-percentage model.
+    cy.get('[data-test="add-usage-charge"]').scrollIntoView()
+    cy.get('[data-test="add-usage-charge"]').click()
+    selectMeteredBillableMetric('bm count')
+    cy.get('[data-test="charge-model-wrapper"] input[name="chargeModel"]').click({ force: true })
+    cy.get('[data-test="graduated_percentage"]').click({ force: true })
+
+    // Graduated-percentage is premium-only. On non-premium orgs — including
+    // fork/community CI runs, where the LAGO_LICENSE secret is unavailable
+    // (GitHub withholds secrets from fork `pull_request` runs) — selecting it
+    // opens the PremiumWarningDialog and leaves the model unchanged, so the
+    // tier table never renders. On premium orgs the tier table appears and the
+    // charge saves. Branching keeps fork CI green regardless of license.
+    cy.whenNotPremium(() => {
+      cy.get(`[data-test="${DIALOG_TITLE_TEST_ID}"]`).should('exist')
+      cy.get('[data-test="cell-rate-0"]').should('not.exist')
+    })
+
+    cy.whenPremium(() => {
+      cy.get(`[data-test="${GRADUATED_PERCENTAGE_CHARGE_TABLE_ADD_TIER_TEST_ID}"]`).click({
+        force: true,
+      })
+      cy.get('[data-test="cell-rate-0"]').type('1')
+      cy.get('[data-test="cell-rate-1"]').type('1')
+      cy.get('[data-test="cell-rate-2"]').type('1')
+      cy.get('[data-test="usage-charge-drawer-save"]').should('not.be.disabled').click()
+      cy.get('[data-test="base-drawer-paper"]', { timeout: 10000 }).should('not.exist')
+      cy.get('[data-test="usage-charge-selector-0"]', { timeout: 10000 }).should('exist')
+
+      cy.get('[data-test="submit"]', { timeout: 10000 }).should('not.be.disabled')
+      cy.get('[data-test="submit"]').click({ force: true })
+      cy.url().should('include', '/overview')
+      cy.contains(planName).should('exist')
+    })
   })
 
   it('should be able to edit percentage charge without data loss', () => {

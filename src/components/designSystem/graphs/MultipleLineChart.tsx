@@ -68,8 +68,7 @@ type MultipleLineChartLineHiddenFromGraph<T> = {
   strokeDasharray?: string
 }
 export type MultipleLineChartLine<T> =
-  | MultipleLineChartLineVisibleOnGraph<T>
-  | MultipleLineChartLineHiddenFromGraph<T>
+  MultipleLineChartLineVisibleOnGraph<T> | MultipleLineChartLineHiddenFromGraph<T>
 
 type MultipleLineChartProps<T> = {
   blur?: boolean

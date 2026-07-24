@@ -221,7 +221,7 @@ export const objectCreationRoutes: CustomRouteObject[] = [
     path: [CREATE_API_KEYS_ROUTE, UPDATE_API_KEYS_ROUTE],
     private: true,
     element: <ApiKeysForm />,
-    permissions: ['developersManage', 'developersKeysManage'],
+    permissions: ['developersKeysManage'],
   },
   {
     path: [CREATE_WEBHOOK_ROUTE, UPDATE_WEBHOOK_ROUTE],

@@ -8,19 +8,12 @@ import { Alert } from '~/components/designSystem/Alert'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
-import {
-  DeleteAdjustedFeeDialog,
-  DeleteAdjustedFeeDialogRef,
-} from '~/components/invoices/details/DeleteAdjustedFeeDialog'
 import { EditFeeDrawer, EditFeeDrawerRef } from '~/components/invoices/details/EditFeeDrawer'
 import {
   InvoiceDetailsTable,
   InvoiceTableSection,
 } from '~/components/invoices/details/InvoiceDetailsTable'
-import {
-  FinalizeInvoiceDialog,
-  FinalizeInvoiceDialogRef,
-} from '~/components/invoices/FinalizeInvoiceDialog'
+import { ViewFeeDetailsDrawerProvider } from '~/components/invoices/details/ViewFeeDetailsDrawer'
 import { InvoiceCustomerInfos } from '~/components/invoices/InvoiceCustomerInfos'
 import { InvoiceOverviewHeaderButtons } from '~/components/invoices/InvoiceOverviewHeaderButtons'
 import { Metadatas } from '~/components/invoices/Metadatas'
@@ -46,6 +39,7 @@ import {
   FeeDetailsForInvoiceOverviewFragment,
   FeeForInvoiceDetailsTableBodyLineFragmentDoc,
   FeeForInvoiceDetailsTableFooterFragmentDoc,
+  FeeForViewFeeDetailsDrawerFragmentDoc,
   HubspotIntegrationInfosForInvoiceOverviewFragment,
   InvoiceStatusTypeEnum,
   LagoApiError,
@@ -145,6 +139,7 @@ gql`
 
     ...FeeForInvoiceDetailsTableBodyLine
     ...FeeForInvoiceDetailsTableFooter
+    ...FeeForViewFeeDetailsDrawer
   }
 
   fragment CustomerForInvoiceOverview on Customer {
@@ -196,6 +191,7 @@ gql`
 
   ${FeeForInvoiceDetailsTableBodyLineFragmentDoc}
   ${FeeForInvoiceDetailsTableFooterFragmentDoc}
+  ${FeeForViewFeeDetailsDrawerFragmentDoc}
 `
 
 interface InvoiceOverviewProps {
@@ -381,8 +377,6 @@ const InvoiceOverview = memo(
     const { invoiceId } = useParams()
 
     const billingEntity = invoice?.billingEntity
-    const deleteAdjustedFeeDialogRef = useRef<DeleteAdjustedFeeDialogRef>(null)
-    const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
     const editFeeDrawerRef = useRef<EditFeeDrawerRef>(null)
 
     if (hasError) {
@@ -449,7 +443,7 @@ const InvoiceOverview = memo(
     const isDraft = invoice?.status === InvoiceStatusTypeEnum.Draft
 
     return (
-      <>
+      <ViewFeeDetailsDrawerProvider>
         <SectionHeader variant="subhead1">
           {translate('text_634687079be251fdb43833bf')}
           <div className="flex gap-3">
@@ -466,7 +460,6 @@ const InvoiceOverview = memo(
               retryInvoice={retryInvoice}
               downloadInvoice={downloadInvoice}
               downloadInvoiceXml={downloadInvoiceXml}
-              finalizeInvoiceRef={finalizeInvoiceRef}
               goToPreviousRoute={goToPreviousRoute}
               invoiceId={invoiceId}
             />
@@ -555,7 +548,6 @@ const InvoiceOverview = memo(
                 customer={customer}
                 invoice={invoice}
                 editFeeDrawerRef={editFeeDrawerRef}
-                deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
                 fees={fees}
               />
               {showExternalAppsSection && (
@@ -817,10 +809,8 @@ const InvoiceOverview = memo(
             </>
           )}
         </>
-        <DeleteAdjustedFeeDialog ref={deleteAdjustedFeeDialogRef} />
-        <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
         <EditFeeDrawer ref={editFeeDrawerRef} />
-      </>
+      </ViewFeeDetailsDrawerProvider>
     )
   },
 )

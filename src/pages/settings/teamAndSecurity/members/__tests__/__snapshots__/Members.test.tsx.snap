@@ -3,13 +3,13 @@
 exports[`Members Snapshot matches snapshot 1`] = `
 <div>
   <div
-    class="flex flex-col gap-12 px-4 pb-20 pt-10 md:px-12"
+    class="flex flex-col gap-12 px-4 pt-10 md:px-12 min-h-0 flex-1 pb-0"
   >
     <div
-      class="flex flex-col gap-12"
+      class="flex flex-col gap-12 min-h-0 flex-1"
     >
       <div
-        class="flex flex-col gap-4 pb-12 shadow-b last:pb-0 last:[box-shadow:none] [box-shadow:none]"
+        class="flex flex-col gap-4 pb-12 shadow-b last:pb-0 last:[box-shadow:none] min-h-0 flex-1 [box-shadow:none]"
       >
         <div
           class="flex min-h-12 flex-row items-baseline justify-between gap-4"
@@ -99,6 +99,7 @@ exports[`Members Snapshot matches snapshot 1`] = `
         </div>
         <div
           aria-labelledby="simple-tab-0"
+          class="min-h-0 flex-1 flex-col [&:not([hidden])]:flex"
           id="simple-tabpanel-0"
           role="tabpanel"
         >
@@ -110,6 +111,7 @@ exports[`Members Snapshot matches snapshot 1`] = `
         </div>
         <div
           aria-labelledby="simple-tab-1"
+          class="min-h-0 flex-1 flex-col [&:not([hidden])]:flex"
           hidden=""
           id="simple-tabpanel-1"
           role="tabpanel"

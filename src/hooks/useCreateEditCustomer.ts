@@ -140,6 +140,7 @@ gql`
       id
       code
       name
+      euTaxManagement
     }
 
     ...CustomerForExternalAppsAccordion

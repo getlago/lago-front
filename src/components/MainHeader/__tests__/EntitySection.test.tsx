@@ -139,6 +139,25 @@ describe('EntitySection', () => {
     })
   })
 
+  describe('GIVEN an entity with a ReactNode metadata', () => {
+    const NODE_METADATA_TEST_ID = 'node-metadata-content'
+    const entity: MainHeaderEntityConfig = {
+      viewName: 'Customer',
+      metadata: <span data-test={NODE_METADATA_TEST_ID}>copyable-ext-id</span>,
+    }
+
+    describe('WHEN the component renders', () => {
+      it('THEN should render the node as-is inside the metadata slot', () => {
+        render(<EntitySection entity={entity} />)
+
+        const metadata = screen.getByTestId(ENTITY_SECTION_METADATA_TEST_ID)
+
+        expect(metadata).toBeInTheDocument()
+        expect(screen.getByTestId(NODE_METADATA_TEST_ID)).toHaveTextContent('copyable-ext-id')
+      })
+    })
+  })
+
   describe('GIVEN an entity with badges', () => {
     const entity: MainHeaderEntityConfig = {
       viewName: 'Customer',

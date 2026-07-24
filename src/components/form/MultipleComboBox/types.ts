@@ -57,7 +57,7 @@ interface GroupedMultipleComboBoxProps extends Omit<
 
 export type MultipleComboBoxProps = BasicMultipleComboBoxProps | GroupedMultipleComboBoxProps
 
-export type MultipleComboBoxInputProps = Pick<
+type MultipleComboBoxInputProps = Pick<
   TextInputProps,
   | 'error'
   | 'label'

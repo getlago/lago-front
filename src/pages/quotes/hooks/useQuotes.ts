@@ -1,5 +1,6 @@
 import { FetchMoreQueryOptions, gql, OperationVariables } from '@apollo/client'
 
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import {
   GetQuotesQuery,
   GetQuotesQueryVariables,
@@ -20,7 +21,7 @@ gql`
     createdAt
     customer {
       id
-      name
+      displayName
     }
   }
 
@@ -72,10 +73,11 @@ interface UseQuotesReturn {
 
 export const useQuotes = (
   variables?: Omit<GetQuotesQueryVariables, 'limit' | 'page'>,
+  pageSize: number = DEFAULT_PAGE_SIZE,
 ): UseQuotesReturn => {
   const { data, loading, error, fetchMore } = useGetQuotesQuery({
     variables: {
-      limit: 20,
+      limit: pageSize,
       ...variables,
     },
     notifyOnNetworkStatusChange: true,

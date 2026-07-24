@@ -31,7 +31,7 @@ interface AiAgentContextType extends UsePanelReturn<AIPanelEnum> {
   resetConversation: () => void
 }
 
-export const AiAgentContext = createContext<AiAgentContextType | undefined>(undefined)
+const AiAgentContext = createContext<AiAgentContextType | undefined>(undefined)
 
 export const PANEL_OPEN = 33
 export const PANEL_CLOSED = 0

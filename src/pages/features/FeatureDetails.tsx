@@ -1,11 +1,7 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
-import {
-  DeleteFeatureDialog,
-  DeleteFeatureDialogRef,
-} from '~/components/features/DeleteFeatureDialog'
+import { useDeleteFeatureDialog } from '~/components/features/DeleteFeatureDialog'
 import { FeatureDetailsActivityLogs } from '~/components/features/FeatureDetailsActivityLogs'
 import { FeatureDetailsOverview } from '~/components/features/FeatureDetailsOverview'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
@@ -49,7 +45,7 @@ const FeatureDetails = () => {
   const { isPremium } = useCurrentUser()
   const { featureId } = useParams()
 
-  const deleteDialogRef = useRef<DeleteFeatureDialogRef>(null)
+  const { openDeleteFeatureDialog } = useDeleteFeatureDialog()
 
   const {
     data: featureResult,
@@ -92,7 +88,7 @@ const FeatureDetails = () => {
               label: translate('text_1752693359315sd2ms0qxvi3'),
               hidden: !hasPermissions(['featuresDelete']),
               onClick: (closePopper) => {
-                deleteDialogRef.current?.openDialog({
+                openDeleteFeatureDialog({
                   feature,
                   callback: () => {
                     navigate(FEATURES_ROUTE)
@@ -145,8 +141,6 @@ const FeatureDetails = () => {
       />
 
       <>{activeTabContent}</>
-
-      <DeleteFeatureDialog ref={deleteDialogRef} />
     </>
   )
 }

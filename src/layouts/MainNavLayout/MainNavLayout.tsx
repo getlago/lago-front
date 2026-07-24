@@ -34,12 +34,8 @@ const MainNavLayout = () => {
   const client = useApolloClient()
   const [open, setOpen] = useState(false)
 
-  const { currentUser, loading: currentUserLoading, refetchCurrentUserInfos } = useCurrentUser()
-  const {
-    organization,
-    loading: currentOrganizationLoading,
-    refetchOrganizationInfos,
-  } = useOrganizationInfos()
+  const { currentUser, loading: currentUserLoading } = useCurrentUser()
+  const { organization, loading: currentOrganizationLoading } = useOrganizationInfos()
   const { data, loading: versionLoading } = useSideNavInfosQuery({
     errorPolicy: 'all',
     notifyOnNetworkStatusChange: true,
@@ -75,8 +71,6 @@ const MainNavLayout = () => {
               currentVersion={data?.currentVersion}
               isLoading={isLoading}
               isVersionLoading={versionLoading}
-              refetchCurrentUserInfos={refetchCurrentUserInfos}
-              refetchOrganizationInfos={refetchOrganizationInfos}
             />
 
             <MainNavMenuSections isLoading={isLoading} onItemClick={handleNavItemClick} />

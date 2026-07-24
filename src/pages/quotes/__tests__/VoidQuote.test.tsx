@@ -1,8 +1,8 @@
-import { screen, waitFor } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { addToast } from '~/core/apolloClient'
-import { OrderTypeEnum, StatusEnum, VoidReasonEnum } from '~/generated/graphql'
+import { CurrencyEnum, OrderTypeEnum, StatusEnum } from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import { useQuote } from '../hooks/useQuote'
@@ -10,6 +10,7 @@ import VoidQuote, {
   VOID_QUOTE_ALERT_TEST_ID,
   VOID_QUOTE_CANCEL_BUTTON_TEST_ID,
   VOID_QUOTE_CLOSE_BUTTON_TEST_ID,
+  VOID_QUOTE_PREVIEW_TEST_ID,
   VOID_QUOTE_VOID_AND_GENERATE_BUTTON_TEST_ID,
   VOID_QUOTE_VOID_BUTTON_TEST_ID,
 } from '../VoidQuote'
@@ -65,11 +66,26 @@ jest.mock('~/core/apolloClient', () => ({
   addToast: jest.fn(),
 }))
 
+let capturedRichTextEditorProps: Record<string, unknown> = {}
+
+jest.mock('~/components/designSystem/RichTextEditor/RichTextEditor', () => ({
+  __esModule: true,
+  default: (props: Record<string, unknown>) => {
+    capturedRichTextEditorProps = props
+    return <div data-test="rich-text-editor" />
+  },
+}))
+
+jest.mock('~/core/serializers/serializeQuoteBillingItems', () => ({
+  buildPreviewEntities: jest.fn(() => ({})),
+}))
+
 const mockUseQuote = useQuote as jest.MockedFunction<typeof useQuote>
 
 const mockQuote = {
   id: 'quote-123',
   number: 'QT-2026-0042',
+  images: {},
   orderType: OrderTypeEnum.SubscriptionCreation,
   createdAt: '2026-04-09T10:00:00Z',
   versions: [
@@ -79,19 +95,36 @@ const mockQuote = {
     id: 'version-123',
     status: StatusEnum.Draft,
     version: 2,
-    content: null,
+    content: '<p>Quote body</p>',
+    currency: null,
+    startDate: null,
+    endDate: null,
+    billingItems: {},
     createdAt: '2026-04-09T10:00:00Z',
+    mentionVariables: {},
   },
   customer: {
     id: 'customer-001',
-    name: 'Acme Corp',
+    name: 'Acme',
+    displayName: 'Acme',
     externalId: 'ext-acme-001',
+    netPaymentTerm: null,
+    billingConfiguration: { documentLocale: 'en' },
+    currency: CurrencyEnum.Usd,
+    billingEntity: {
+      __typename: 'BillingEntity' as const,
+      id: 'be-1',
+      code: 'default',
+      name: 'Default Entity',
+      netPaymentTerm: 0,
+    },
   },
 }
 
 describe('VoidQuote', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    capturedRichTextEditorProps = {}
     const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
 
     useParamsMock.mockReturnValue({ quoteId: 'quote-123' })
@@ -100,6 +133,7 @@ describe('VoidQuote', () => {
       quote: mockQuote,
       loading: false,
       error: undefined,
+      refetch: jest.fn(),
     })
 
     mockHasPermissions.mockReturnValue(true)
@@ -171,7 +205,6 @@ describe('VoidQuote', () => {
             variables: {
               input: {
                 id: 'version-123',
-                reason: VoidReasonEnum.Manual,
               },
             },
           })
@@ -219,7 +252,6 @@ describe('VoidQuote', () => {
             variables: {
               input: {
                 id: 'version-123',
-                reason: VoidReasonEnum.Manual,
               },
             },
           })
@@ -271,6 +303,7 @@ describe('VoidQuote', () => {
           quote: undefined,
           loading: true,
           error: undefined,
+          refetch: jest.fn(),
         })
 
         render(<VoidQuote />)
@@ -287,6 +320,7 @@ describe('VoidQuote', () => {
           quote: undefined,
           loading: false,
           error: new Error('Something went wrong') as never,
+          refetch: jest.fn(),
         })
 
         render(<VoidQuote />)
@@ -371,6 +405,34 @@ describe('VoidQuote', () => {
 
         expect(testMockNavigateFn).not.toHaveBeenCalledWith(expect.stringContaining('/edit'))
       })
+    })
+  })
+
+  describe('GIVEN a quote with content', () => {
+    it('THEN renders the side RTE preview', () => {
+      render(<VoidQuote />)
+
+      const preview = screen.getByTestId(VOID_QUOTE_PREVIEW_TEST_ID)
+
+      expect(preview).toBeInTheDocument()
+      expect(within(preview).getByTestId('rich-text-editor')).toBeInTheDocument()
+      expect(capturedRichTextEditorProps.mode).toBe('preview')
+    })
+  })
+
+  describe('GIVEN a quote without content', () => {
+    it('THEN renders the empty placeholder instead of the editor', () => {
+      mockUseQuote.mockReturnValue({
+        quote: { ...mockQuote, currentVersion: { ...mockQuote.currentVersion, content: '' } },
+        loading: false,
+        error: undefined,
+      } as unknown as ReturnType<typeof useQuote>)
+
+      render(<VoidQuote />)
+
+      const preview = screen.getByTestId(VOID_QUOTE_PREVIEW_TEST_ID)
+
+      expect(within(preview).queryByTestId('rich-text-editor')).not.toBeInTheDocument()
     })
   })
 })

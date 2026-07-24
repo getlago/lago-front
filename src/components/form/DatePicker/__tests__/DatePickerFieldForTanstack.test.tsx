@@ -80,6 +80,14 @@ describe('DatePickerFieldForTanstack', () => {
 
         expect(mockedUseFieldContext).toHaveBeenCalled()
       })
+
+      it('THEN should render the description when provided', () => {
+        mockedUseFieldContext.mockReturnValue(createMockField())
+
+        const { getByText } = render(<DatePickerField description="Pick a date" />)
+
+        expect(getByText('Pick a date')).toBeInTheDocument()
+      })
     })
 
     describe('WHEN there are validation errors', () => {
@@ -210,6 +218,38 @@ describe('DatePickerFieldForTanstack', () => {
 
         expect(container).toBeInTheDocument()
       })
+    })
+  })
+
+  describe('errorOverride', () => {
+    it('replaces the field errors with the override string', () => {
+      ;(useFieldContext as jest.Mock).mockReturnValue(
+        createMockField('', [{ message: 'wrongFormat' }]),
+      )
+
+      const { getByText } = render(<DatePickerField errorOverride="Custom date error" />)
+
+      expect(getByText('Custom date error')).toBeInTheDocument()
+    })
+
+    it('suppresses the field errors entirely when false', () => {
+      ;(useFieldContext as jest.Mock).mockReturnValue(
+        createMockField('', [{ message: 'wrongFormat' }]),
+      )
+
+      const { queryByText } = render(<DatePickerField errorOverride={false} />)
+
+      expect(queryByText('translated_wrongFormat')).not.toBeInTheDocument()
+    })
+
+    it('falls back to the translated field errors when omitted', () => {
+      ;(useFieldContext as jest.Mock).mockReturnValue(
+        createMockField('', [{ message: 'wrongFormat' }]),
+      )
+
+      render(<DatePickerField />)
+
+      expect(mockTranslate).toHaveBeenCalledWith('wrongFormat')
     })
   })
 })

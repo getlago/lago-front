@@ -1,11 +1,10 @@
 import { gql } from '@apollo/client'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
 import { Typography } from '~/components/designSystem/Typography'
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
 import { TExtendedRemainingFee } from '~/core/formats/formatInvoiceItemsMap'
-import { useDestroyAdjustedFeeMutation, useGetInvoiceDetailsQuery } from '~/generated/graphql'
+import { useDestroyAdjustedFeeMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
@@ -21,32 +20,18 @@ gql`
   }
 `
 
-interface DeleteAdjustedFeeDialogProps {
+interface DeleteAdjustedFeeDialogData {
   fee: TExtendedRemainingFee | undefined
   onDelete?: (id: string) => void
 }
 
-export interface DeleteAdjustedFeeDialogRef {
-  openDialog: (dialogData: DeleteAdjustedFeeDialogProps) => unknown
-  closeDialog: () => unknown
-}
-
-export const DeleteAdjustedFeeDialog = forwardRef<DeleteAdjustedFeeDialogRef>((_, ref) => {
+export const useDeleteAdjustedFeeDialog = () => {
   const { translate } = useInternationalization()
-  const dialogRef = useRef<WarningDialogRef>(null)
-  const [dialogData, setDialogData] = useState<DeleteAdjustedFeeDialogProps | undefined>(undefined)
-
-  // Skip this query in regenerate mode (when onDelete is provided) since we manage local state
-  useGetInvoiceDetailsQuery({
-    variables: { id: dialogData?.fee?.invoiceId || '' },
-    skip: !dialogData?.fee?.invoiceId || !!dialogData?.onDelete,
-  })
+  const centralizedDialog = useCentralizedDialog()
 
   const [destroyFee] = useDestroyAdjustedFeeMutation({
     onCompleted({ destroyAdjustedFee }) {
       if (destroyAdjustedFee?.id) {
-        dialogRef.current?.closeDialog()
-
         addToast({
           message: translate('text_1738084927595tzdnuy6oxyu'),
           severity: 'success',
@@ -56,38 +41,28 @@ export const DeleteAdjustedFeeDialog = forwardRef<DeleteAdjustedFeeDialogRef>((_
     refetchQueries: ['getInvoiceDetails', 'getInvoiceFees'],
   })
 
-  useImperativeHandle(ref, () => ({
-    openDialog: (data) => {
-      setDialogData(data)
-      dialogRef.current?.openDialog()
-    },
-    closeDialog: () => dialogRef.current?.closeDialog(),
-  }))
-
-  return (
-    <WarningDialog
-      ref={dialogRef}
-      title={translate('text_65a6b4e2cb38d9b70ec54035')}
-      description={<Typography>{translate('text_65a6b4e2cb38d9b70ec53c55')}</Typography>}
-      onContinue={async () => {
-        if (dialogData?.onDelete) {
-          dialogData.onDelete(dialogData?.fee?.id || '')
-          dialogRef.current?.closeDialog()
-          setDialogData(undefined)
+  const openDeleteAdjustedFeeDialog = (data: DeleteAdjustedFeeDialogData) => {
+    centralizedDialog.open({
+      title: translate('text_65a6b4e2cb38d9b70ec54035'),
+      description: <Typography>{translate('text_65a6b4e2cb38d9b70ec53c55')}</Typography>,
+      colorVariant: 'danger',
+      actionText: translate('text_65a6b4e2cb38d9b70ec54035'),
+      onAction: async () => {
+        if (data.onDelete) {
+          data.onDelete(data.fee?.id || '')
           return
         }
 
         await destroyFee({
           variables: {
             input: {
-              id: dialogData?.fee?.id || '',
+              id: data.fee?.id || '',
             },
           },
         })
-      }}
-      continueText={translate('text_65a6b4e2cb38d9b70ec54035')}
-    />
-  )
-})
+      },
+    })
+  }
 
-DeleteAdjustedFeeDialog.displayName = 'DeleteAdjustedFeeDialog'
+  return { openDeleteAdjustedFeeDialog }
+}

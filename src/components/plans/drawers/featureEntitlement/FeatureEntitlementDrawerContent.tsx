@@ -69,7 +69,7 @@ const featureEntitlementDrawerContentDefaultProps: FeatureEntitlementDrawerConte
 export const FeatureEntitlementDrawerContent = withForm({
   defaultValues: DEFAULT_VALUES,
   props: featureEntitlementDrawerContentDefaultProps,
-  render: function FeatureEntitlementDrawerContent({ form, existingFeatureCodes }) {
+  render: function FeatureEntitlementDrawerContentRender({ form, existingFeatureCodes }) {
     const { translate } = useInternationalization()
     const [displayAddPrivilegeInput, setDisplayAddPrivilegeInput] = useState(false)
 

@@ -344,9 +344,7 @@ describe('isDefaultMappingInMappableContext', () => {
       }
 
       const testData: (
-        | NetsuiteIntegrationMapItemDrawerProps
-        | AnrokIntegrationMapItemDrawerProps
-        | undefined
+        NetsuiteIntegrationMapItemDrawerProps | AnrokIntegrationMapItemDrawerProps | undefined
       )[] = [netsuiteData, anrokData, undefined]
 
       testData.forEach((data) => {

@@ -1,181 +1,178 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
-import { Dialog } from '~/components/designSystem/Dialog'
-import { MultipleComboBox } from '~/components/form'
-import { Radio } from '~/components/form/Radio/Radio'
+import { Button } from '~/components/designSystem/Button'
+import { useFormDialog } from '~/components/dialogs/FormDialog'
+import { DialogResult } from '~/components/dialogs/types'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useInvoiceCustomSections } from '~/hooks/useInvoiceCustomSections'
 
-import { EditInvoiceCustomSectionDialogActions } from './EditInvoiceCustomSectionDialogActions'
-import { InvoiceCustomSectionBasic } from './types'
+import { InvoiceCustomSectionFields } from './InvoiceCustomSectionFields'
+import {
+  deriveInvoiceCustomSectionBehavior,
+  InvoiceCustomSectionBasic,
+  InvoiceCustomSectionBehavior,
+  InvoiceCustomSectionInput,
+  InvoiceCustomSectionSelection,
+} from './types'
 
 import { VIEW_TYPE_TRANSLATION_KEYS, ViewTypeEnum } from '../paymentMethodsInvoiceSettings/types'
 
-export const EDIT_ICS_DIALOG_FALLBACK_RADIO_TEST_ID =
-  'edit-invoice-custom-section-dialog-fallback-radio'
-export const EDIT_ICS_DIALOG_APPLY_RADIO_TEST_ID = 'edit-invoice-custom-section-dialog-apply-radio'
-export const EDIT_ICS_DIALOG_NONE_RADIO_TEST_ID = 'edit-invoice-custom-section-dialog-none-radio'
+export const EDIT_INVOICE_CUSTOM_SECTION_FORM_ID = 'edit-invoice-custom-section-form'
 
-export enum InvoiceCustomSectionBehavior {
-  FALLBACK = 'fallback',
-  APPLY = 'apply',
-  NONE = 'none',
-}
+export const EDIT_ICS_DIALOG_SAVE_BUTTON_TEST_ID = 'edit-invoice-custom-section-dialog-save-button'
 
-export interface InvoiceCustomSectionSelection {
-  behavior: InvoiceCustomSectionBehavior
-  selectedSections: InvoiceCustomSectionBasic[]
-}
-
-interface EditInvoiceCustomSectionDialogProps {
-  open: boolean
-  onClose: () => void
+type OpenEditInvoiceCustomSectionDialogParams = {
+  customerId: string
   selectedSections: InvoiceCustomSectionBasic[]
   skipInvoiceCustomSections: boolean
   onSave: (selection: InvoiceCustomSectionSelection) => void
   viewType: ViewTypeEnum
 }
 
-export const EditInvoiceCustomSectionDialog = ({
-  open,
-  onClose,
-  selectedSections,
-  skipInvoiceCustomSections,
-  onSave,
-  viewType,
-}: EditInvoiceCustomSectionDialogProps) => {
-  const { translate } = useInternationalization()
-  const { data: orgInvoiceCustomSections, loading } = useInvoiceCustomSections()
+type SetDisabledRef = React.MutableRefObject<(disabled: boolean) => void>
 
-  const [behavior, setBehavior] = useState<InvoiceCustomSectionBehavior>(
-    InvoiceCustomSectionBehavior.FALLBACK,
+const EditInvoiceCustomSectionSaveButton = ({
+  setDisabledRef,
+}: {
+  setDisabledRef: SetDisabledRef
+}) => {
+  const { translate } = useInternationalization()
+  // The legacy dialog blocked save when "apply" was picked with no selection.
+  // Match that: start disabled, and let the content wire the setter to react
+  // to the internal draft state.
+  const [disabled, setDisabled] = useState(true)
+
+  useEffect(() => {
+    setDisabledRef.current = setDisabled
+  }, [setDisabledRef])
+
+  return (
+    <Button
+      variant="primary"
+      type="submit"
+      disabled={disabled}
+      data-test={EDIT_ICS_DIALOG_SAVE_BUTTON_TEST_ID}
+    >
+      {translate('text_1764327933607yodbve95igk')}
+    </Button>
   )
-  const [localSelectedSections, setLocalSelectedSections] = useState<InvoiceCustomSectionBasic[]>(
-    [],
+}
+
+type EditInvoiceCustomSectionDialogContentProps = {
+  customerId: string
+  seedValue: InvoiceCustomSectionInput
+  viewType: ViewTypeEnum
+  onDraftChange: (draft: InvoiceCustomSectionInput, behavior: InvoiceCustomSectionBehavior) => void
+}
+
+const EditInvoiceCustomSectionDialogContent = ({
+  customerId,
+  seedValue,
+  viewType,
+  onDraftChange,
+}: EditInvoiceCustomSectionDialogContentProps) => {
+  const [draft, setDraft] = useState<InvoiceCustomSectionInput>(seedValue)
+  const [behavior, setBehavior] = useState<InvoiceCustomSectionBehavior>(
+    deriveInvoiceCustomSectionBehavior(seedValue),
   )
 
   useEffect(() => {
-    if (open) {
-      let initialBehavior: InvoiceCustomSectionBehavior = InvoiceCustomSectionBehavior.FALLBACK
-
-      if (skipInvoiceCustomSections) {
-        initialBehavior = InvoiceCustomSectionBehavior.NONE
-      } else if (selectedSections.length > 0) {
-        initialBehavior = InvoiceCustomSectionBehavior.APPLY
-      }
-
-      setBehavior(initialBehavior)
-      setLocalSelectedSections(selectedSections)
-    }
-  }, [open, selectedSections, skipInvoiceCustomSections])
-
-  const options = useMemo(() => {
-    if (!orgInvoiceCustomSections) return []
-
-    return orgInvoiceCustomSections.map((section) => ({
-      label: section.name,
-      labelNode: section.name,
-      value: section.id,
-    }))
-  }, [orgInvoiceCustomSections])
-
-  const handleSave = (): void => {
-    onSave({
-      behavior,
-      selectedSections:
-        behavior === InvoiceCustomSectionBehavior.APPLY ? localSelectedSections : [],
-    })
-    onClose()
-  }
-
-  const isSaveDisabled = (): boolean => {
-    if (behavior === InvoiceCustomSectionBehavior.APPLY) {
-      return localSelectedSections.length === 0
-    }
-    return false
-  }
-
-  const viewTypeLabel = translate(VIEW_TYPE_TRANSLATION_KEYS[viewType])
-
-  const handleComboboxChange = (
-    selectedOptions: { value: string; label?: string | null }[],
-  ): void => {
-    const mappedSections: InvoiceCustomSectionBasic[] = selectedOptions.map((option) => ({
-      id: option.value,
-      name: option.label || '',
-    }))
-
-    setLocalSelectedSections(mappedSections)
-  }
+    onDraftChange(draft, behavior)
+  }, [draft, behavior, onDraftChange])
 
   return (
-    <Dialog
-      open={open}
-      title={translate('text_1765363318309snvsqc74nit', { object: viewTypeLabel })}
-      description={translate('text_1765363318310io596s2cy1y', { object: viewTypeLabel })}
-      onClose={onClose}
-      actions={({ closeDialog }) => (
-        <EditInvoiceCustomSectionDialogActions
-          closeDialog={closeDialog}
-          onSave={handleSave}
-          isSaveDisabled={isSaveDisabled()}
-          translate={translate}
-        />
-      )}
-    >
-      <div className="mb-8 flex flex-col gap-4">
-        <div data-test={EDIT_ICS_DIALOG_FALLBACK_RADIO_TEST_ID}>
-          <Radio
-            name="invoiceCustomSectionBehavior"
-            value={InvoiceCustomSectionBehavior.FALLBACK}
-            checked={behavior === InvoiceCustomSectionBehavior.FALLBACK}
-            onChange={(value) => setBehavior(value as InvoiceCustomSectionBehavior)}
-            label={translate('text_1765363318310pzphmmbc95r')}
-            labelVariant="body"
-          />
-        </div>
-        <div>
-          <div data-test={EDIT_ICS_DIALOG_APPLY_RADIO_TEST_ID}>
-            <Radio
-              name="invoiceCustomSectionBehavior"
-              value={InvoiceCustomSectionBehavior.APPLY}
-              checked={behavior === InvoiceCustomSectionBehavior.APPLY}
-              onChange={(value) => setBehavior(value as InvoiceCustomSectionBehavior)}
-              label={translate('text_1765363318310cus5jjpugdm', { object: viewTypeLabel })}
-              labelVariant="body"
-            />
-          </div>
-          {behavior === InvoiceCustomSectionBehavior.APPLY && (
-            <div className="mt-4">
-              <MultipleComboBox
-                hideTags={false}
-                forcePopupIcon
-                disabled={loading}
-                name="invoiceCustomSections"
-                data={options}
-                onChange={handleComboboxChange}
-                value={localSelectedSections.map((section) => ({
-                  value: section.id,
-                  label: section.name,
-                }))}
-                placeholder={translate('text_17653633183105vrys5z3tvj')}
-                PopperProps={{ displayInDialog: true }}
-                emptyText={translate('text_173642092241713ws50zg9v4')}
-              />
-            </div>
-          )}
-        </div>
-        <div data-test={EDIT_ICS_DIALOG_NONE_RADIO_TEST_ID}>
-          <Radio
-            name="invoiceCustomSectionBehavior"
-            value={InvoiceCustomSectionBehavior.NONE}
-            checked={behavior === InvoiceCustomSectionBehavior.NONE}
-            onChange={(value) => setBehavior(value as InvoiceCustomSectionBehavior)}
-            label={translate('text_1765363318310e0gyrs2ijkn', { object: viewTypeLabel })}
-            labelVariant="body"
-          />
-        </div>
-      </div>
-    </Dialog>
+    <div className="p-8">
+      <InvoiceCustomSectionFields
+        viewType={viewType}
+        customerId={customerId}
+        value={seedValue}
+        onChange={setDraft}
+        onBehaviorChange={setBehavior}
+      />
+    </div>
   )
+}
+
+export const useEditInvoiceCustomSectionDialog = () => {
+  const formDialog = useFormDialog()
+  const { translate } = useInternationalization()
+  const draftRef = useRef<InvoiceCustomSectionInput | null>(null)
+  const behaviorRef = useRef<InvoiceCustomSectionBehavior | null>(null)
+  const onSaveRef = useRef<((selection: InvoiceCustomSectionSelection) => void) | null>(null)
+  const setDisabledRef: SetDisabledRef = useRef<(disabled: boolean) => void>(() => {})
+
+  const handleSubmit = async (): Promise<DialogResult> => {
+    const draft = draftRef.current
+    const onSave = onSaveRef.current
+
+    if (!draft || !onSave) {
+      throw new Error('Submit failed')
+    }
+
+    onSave({
+      behavior: deriveInvoiceCustomSectionBehavior(draft),
+      selectedSections: draft.invoiceCustomSections,
+    })
+
+    return { reason: 'success' }
+  }
+
+  const openEditInvoiceCustomSectionDialog = ({
+    customerId,
+    selectedSections,
+    skipInvoiceCustomSections,
+    onSave,
+    viewType,
+  }: OpenEditInvoiceCustomSectionDialogParams) => {
+    const seedValue: InvoiceCustomSectionInput = {
+      invoiceCustomSections: selectedSections,
+      skipInvoiceCustomSections,
+    }
+
+    draftRef.current = seedValue
+    behaviorRef.current = deriveInvoiceCustomSectionBehavior(seedValue)
+    onSaveRef.current = onSave
+
+    const handleDraftChange = (
+      nextDraft: InvoiceCustomSectionInput,
+      nextBehavior: InvoiceCustomSectionBehavior,
+    ) => {
+      draftRef.current = nextDraft
+      behaviorRef.current = nextBehavior
+      // Picking "apply" without any section must block save (legacy guard).
+      const isSaveDisabled =
+        nextBehavior === InvoiceCustomSectionBehavior.APPLY &&
+        nextDraft.invoiceCustomSections.length === 0
+
+      setDisabledRef.current(isSaveDisabled)
+    }
+
+    const viewTypeLabel = translate(VIEW_TYPE_TRANSLATION_KEYS[viewType])
+
+    formDialog
+      .open({
+        title: translate('text_1765363318309snvsqc74nit', { object: viewTypeLabel }),
+        description: translate('text_1765363318310io596s2cy1y', { object: viewTypeLabel }),
+        closeOnError: false,
+        children: (
+          <EditInvoiceCustomSectionDialogContent
+            customerId={customerId}
+            seedValue={seedValue}
+            viewType={viewType}
+            onDraftChange={handleDraftChange}
+          />
+        ),
+        mainAction: <EditInvoiceCustomSectionSaveButton setDisabledRef={setDisabledRef} />,
+        form: {
+          id: EDIT_INVOICE_CUSTOM_SECTION_FORM_ID,
+          submit: handleSubmit,
+        },
+      })
+      .then(() => {
+        draftRef.current = null
+        behaviorRef.current = null
+        onSaveRef.current = null
+      })
+  }
+
+  return { openEditInvoiceCustomSectionDialog }
 }

@@ -181,6 +181,7 @@ describe('ActivityLogDetails', () => {
         })
 
         const closeButton = screen.getByTestId(ACTIVITY_LOG_DETAILS_CLOSE_BUTTON_TEST_ID)
+
         await user.click(closeButton)
 
         expect(mockGoBack).toHaveBeenCalledTimes(1)
@@ -202,6 +203,7 @@ describe('ActivityLogDetails', () => {
         })
 
         const customerLink = screen.getByTestId(ACTIVITY_LOG_DETAILS_CUSTOMER_LINK_TEST_ID)
+
         await user.click(customerLink)
 
         expect(mockSetMainRouterUrl).toHaveBeenCalledWith(
@@ -228,6 +230,7 @@ describe('ActivityLogDetails', () => {
         })
 
         const subscriptionLink = screen.getByTestId(ACTIVITY_LOG_DETAILS_SUBSCRIPTION_LINK_TEST_ID)
+
         await user.click(subscriptionLink)
 
         expect(mockSetMainRouterUrl).toHaveBeenCalledWith(

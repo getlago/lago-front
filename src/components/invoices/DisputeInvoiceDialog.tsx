@@ -1,8 +1,6 @@
 import { gql } from '@apollo/client'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
-import { DialogRef } from '~/components/designSystem/Dialog'
-import { WarningDialog } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
 import {
   AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc,
@@ -27,49 +25,34 @@ type DisputeInvoiceDialogProps = {
   id: string
 }
 
-export interface DisputeInvoiceDialogRef {
-  openDialog: (dialogData: DisputeInvoiceDialogProps) => unknown
-  closeDialog: () => unknown
-}
-
-export const DisputeInvoiceDialog = forwardRef<DisputeInvoiceDialogRef>((_, ref) => {
-  const dialogRef = useRef<DialogRef>(null)
+export const useDisputeInvoiceDialog = () => {
+  const centralizedDialog = useCentralizedDialog()
   const { translate } = useInternationalization()
-  const [dialogData, setDialogData] = useState<DisputeInvoiceDialogProps | undefined>(undefined)
 
   const [disputeInvoice] = useDisputeInvoiceMutation({
-    onCompleted(data) {
-      if (data && data.loseInvoiceDispute) {
-        addToast({
-          message: translate('text_66141e9feef09978ae251222'),
-          severity: 'success',
-        })
-      }
-    },
     refetchQueries: ['getInvoiceDetails'],
   })
 
-  useImperativeHandle(ref, () => ({
-    openDialog: (data) => {
-      setDialogData(data)
-      dialogRef.current?.openDialog()
-    },
-    closeDialog: () => dialogRef.current?.closeDialog(),
-  }))
-
-  return (
-    <WarningDialog
-      ref={dialogRef}
-      title={translate('text_66141e30699a0631f0b2ec59')}
-      description={translate('text_66141e30699a0631f0b2ec61')}
-      onContinue={async () =>
-        await disputeInvoice({
-          variables: { input: { id: dialogData?.id as string } },
+  const openDisputeInvoiceDialog = ({ id }: DisputeInvoiceDialogProps) => {
+    centralizedDialog.open({
+      title: translate('text_66141e30699a0631f0b2ec59'),
+      description: translate('text_66141e30699a0631f0b2ec61'),
+      colorVariant: 'danger',
+      actionText: translate('text_66141e30699a0631f0b2ec71'),
+      onAction: async () => {
+        const result = await disputeInvoice({
+          variables: { input: { id } },
         })
-      }
-      continueText={translate('text_66141e30699a0631f0b2ec71')}
-    />
-  )
-})
 
-DisputeInvoiceDialog.displayName = 'DisputeInvoiceDialog'
+        if (result.data?.loseInvoiceDispute) {
+          addToast({
+            message: translate('text_66141e9feef09978ae251222'),
+            severity: 'success',
+          })
+        }
+      },
+    })
+  }
+
+  return { openDisputeInvoiceDialog }
+}

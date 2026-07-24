@@ -35,7 +35,7 @@ const mockInvitations = [
 const invitesListMock = {
   request: {
     query: GetInvitesDocument,
-    variables: { limit: 20 },
+    variables: { limit: 20, page: 1 },
   },
   result: {
     data: {
@@ -111,7 +111,7 @@ describe('useGetMembersInvitationList', () => {
     const emptyMock = {
       request: {
         query: GetInvitesDocument,
-        variables: { limit: 20 },
+        variables: { limit: 20, page: 1 },
       },
       result: {
         data: {
@@ -144,7 +144,7 @@ describe('useGetMembersInvitationList', () => {
     const errorMock = {
       request: {
         query: GetInvitesDocument,
-        variables: { limit: 20 },
+        variables: { limit: 20, page: 1 },
       },
       error: new Error('Failed to fetch invitations'),
     }

@@ -1,4 +1,5 @@
 import { renderHook } from '@testing-library/react'
+import { isValidElement, ReactElement } from 'react'
 
 import { CustomerAccountTypeEnum, CustomerDetailsFragment } from '~/generated/graphql'
 
@@ -32,9 +33,11 @@ describe('useCustomerDetailsHeaderEntity', () => {
         expect(result.current).toEqual(
           expect.objectContaining({
             viewName: 'Acme Corp',
-            metadata: 'ext-1',
           }),
         )
+        // metadata is now a click-to-copy element wrapping the externalId
+        expect(isValidElement(result.current?.metadata)).toBe(true)
+        expect((result.current?.metadata as ReactElement).props.children).toBe('ext-1')
       })
     })
 
@@ -47,9 +50,10 @@ describe('useCustomerDetailsHeaderEntity', () => {
         expect(result.current).toEqual(
           expect.objectContaining({
             viewName: expect.any(String),
-            metadata: 'ext-1',
           }),
         )
+        expect(isValidElement(result.current?.metadata)).toBe(true)
+        expect((result.current?.metadata as ReactElement).props.children).toBe('ext-1')
       })
     })
 

@@ -40,10 +40,14 @@ export const MentionSchema = Mention.extend({
   renderHTML({ node }) {
     const id = node.attrs.id as string
     const label = (node.attrs.label as string | undefined) ?? id
-    const resolvedValue = (this.options as { mentionValues?: Record<string, string> })
-      .mentionValues?.[id]
+    const mentionValues = (this.options as { mentionValues?: Record<string, string> }).mentionValues
+    // Resolution is keyed on the variable being present in mentionValues: a
+    // present-but-empty/null value resolves to nothing (empty variables
+    // disappear), while an absent id (unknown variable, or edit mode with no
+    // configured values) keeps the @label token.
+    const isResolved = !!mentionValues && Object.hasOwn(mentionValues, id)
 
-    if (resolvedValue) {
+    if (isResolved) {
       return [
         'span',
         {
@@ -51,7 +55,7 @@ export const MentionSchema = Mention.extend({
           'data-id': id,
           class: 'variable-mention variable-mention--resolved',
         },
-        resolvedValue,
+        mentionValues[id] ?? '',
       ]
     }
 

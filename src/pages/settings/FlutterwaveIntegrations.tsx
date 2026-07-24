@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -7,14 +6,8 @@ import { Popper } from '~/components/designSystem/Popper'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import {
-  AddFlutterwaveDialog,
-  AddFlutterwaveDialogRef,
-} from '~/components/settings/integrations/AddFlutterwaveDialog'
-import {
-  DeleteFlutterwaveIntegrationDialog,
-  DeleteFlutterwaveIntegrationDialogRef,
-} from '~/components/settings/integrations/DeleteFlutterwaveIntegrationDialog'
+import { useAddFlutterwaveDialog } from '~/components/settings/integrations/AddFlutterwaveDialog'
+import { useDeleteFlutterwaveIntegrationDialog } from '~/components/settings/integrations/DeleteFlutterwaveIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   FLUTTERWAVE_INTEGRATION_DETAILS_ROUTE,
@@ -57,8 +50,8 @@ gql`
 const FlutterwaveIntegrations = () => {
   const navigate = useNavigate()
   const { translate } = useInternationalization()
-  const addDialogRef = useRef<AddFlutterwaveDialogRef>(null)
-  const deleteDialogRef = useRef<DeleteFlutterwaveIntegrationDialogRef>(null)
+  const { openAddFlutterwaveDialog } = useAddFlutterwaveDialog()
+  const { openDeleteFlutterwaveIntegrationDialog } = useDeleteFlutterwaveIntegrationDialog()
   const { hasPermissions } = usePermissions()
 
   const { data, loading } = useGetFlutterwaveIntegrationsListQuery({
@@ -108,7 +101,7 @@ const FlutterwaveIntegrations = () => {
               variant: 'primary',
               hidden: !canCreateIntegration,
               onClick: () => {
-                addDialogRef.current?.openDialog()
+                openAddFlutterwaveDialog()
               },
             },
           ],
@@ -162,10 +155,9 @@ const FlutterwaveIntegrations = () => {
                               variant="quaternary"
                               align="left"
                               onClick={() => {
-                                addDialogRef.current?.openDialog({
+                                openAddFlutterwaveDialog({
                                   provider: connection,
-                                  deleteModalRef: deleteDialogRef,
-                                  deleteDialogCallback,
+                                  deleteCallback: deleteDialogCallback,
                                 })
                                 closePopper()
                               }}
@@ -180,7 +172,7 @@ const FlutterwaveIntegrations = () => {
                               variant="quaternary"
                               align="left"
                               onClick={() => {
-                                deleteDialogRef.current?.openDialog({
+                                openDeleteFlutterwaveIntegrationDialog({
                                   provider: connection,
                                   callback: deleteDialogCallback,
                                 })
@@ -199,9 +191,6 @@ const FlutterwaveIntegrations = () => {
             })}
         </section>
       </IntegrationsPage.Container>
-
-      <AddFlutterwaveDialog ref={addDialogRef} />
-      <DeleteFlutterwaveIntegrationDialog ref={deleteDialogRef} />
     </>
   )
 }

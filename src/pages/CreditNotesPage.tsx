@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useMemo, useRef } from 'react'
+import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import CreditNotesTable from '~/components/creditNote/CreditNotesTable'
@@ -8,18 +8,22 @@ import {
   Filters,
   formatFiltersForCreditNotesQuery,
 } from '~/components/designSystem/Filters'
-import { ExportDialog, ExportDialogRef, ExportValues } from '~/components/exports/ExportDialog'
+import { usePageSearchParam } from '~/components/designSystem/Pagination'
+import { useExportDialog } from '~/components/exports/ExportDialog'
+import { ExportValues } from '~/components/exports/types'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
 import { addToast } from '~/core/apolloClient'
 import { CREDIT_NOTE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CreditNoteExportTypeEnum,
   CreditNotesForTableFragmentDoc,
   CreditNoteTableItemFragmentDoc,
   CurrencyEnum,
+  type DataExportCreditNoteFiltersInput,
   PremiumIntegrationTypeEnum,
   useCreateCreditNotesDataExportMutation,
   useGetCreditNotesListLazyQuery,
@@ -80,26 +84,24 @@ gql`
 `
 
 // TODO: This is a temporary workaround
-const formatAmountCurrency = (
-  filters: Record<string, string | string[] | boolean | number>,
+const formatAmountCurrency = <T extends { amountFrom?: unknown; amountTo?: unknown }>(
+  filters: T,
   amountCurrency?: CurrencyEnum | null,
-) => {
-  const _filters = {
-    ...filters,
-  }
+): T => {
+  const _filters = { ...filters } as T
 
   if (_filters.amountFrom) {
     _filters.amountFrom = serializeAmount(
       Number(_filters.amountFrom),
       amountCurrency || CurrencyEnum.Usd,
-    )
+    ) as T['amountFrom']
   }
 
   if (_filters.amountTo) {
     _filters.amountTo = serializeAmount(
       Number(_filters.amountTo),
       amountCurrency || CurrencyEnum.Usd,
-    )
+    ) as T['amountTo']
   }
 
   return _filters
@@ -115,7 +117,10 @@ const CreditNotesPage = () => {
     PremiumIntegrationTypeEnum.RevenueShare,
   )
 
-  const exportCreditNotesDialogRef = useRef<ExportDialogRef>(null)
+  const { openExportDialog } = useExportDialog()
+
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+  const { page, goToPage } = usePageSearchParam()
 
   const filtersForCreditNotesQuery = useMemo(() => {
     return formatFiltersForCreditNotesQuery(searchParams)
@@ -135,7 +140,8 @@ const CreditNotesPage = () => {
     fetchPolicy: 'network-only',
     nextFetchPolicy: 'network-only',
     variables: {
-      limit: 20,
+      limit: pageSize,
+      page,
       ...formatAmountCurrency(filtersForCreditNotesQuery, amountCurrency),
     },
   })
@@ -158,7 +164,7 @@ const CreditNotesPage = () => {
     const filters = {
       ...formatAmountCurrency(formatFiltersForCreditNotesQuery(searchParams), amountCurrency),
       searchTerm: variableCreditNotes?.searchTerm,
-    }
+    } as DataExportCreditNoteFiltersInput
 
     const res = await triggerCreateCreditNotesDataExport({
       variables: {
@@ -180,7 +186,7 @@ const CreditNotesPage = () => {
         entity={{
           viewName: translate('text_66461ada56a84401188e8c63'),
           metadata: formatCountToMetadata(creditNotesTotalCount, translate),
-          metadataLoading: creditNoteIsLoading,
+          metadataLoading: creditNoteIsLoading && creditNotesTotalCount === undefined,
         }}
         actions={{
           loading: creditNoteIsLoading,
@@ -191,7 +197,27 @@ const CreditNotesPage = () => {
               variant: 'secondary',
               disabled: !dataCreditNotes?.creditNotes?.metadata.totalCount,
               onClick: () => {
-                exportCreditNotesDialogRef.current?.openDialog()
+                openExportDialog({
+                  totalCountLabel: translate(
+                    'text_17346987416277yx1mf6nau2',
+                    { creditNotesTotalCount },
+                    creditNotesTotalCount,
+                  ),
+                  onExport: onCreditNotesExport,
+                  disableExport: creditNotesTotalCount === 0,
+                  resourceTypeOptions: [
+                    {
+                      label: translate('text_1734698741627bges5xz01la'),
+                      sublabel: translate('text_173469874162761dxr57rvw7'),
+                      value: CreditNoteExportTypeEnum.CreditNotes,
+                    },
+                    {
+                      label: translate('text_1734698741627449t5wdghef'),
+                      sublabel: translate('text_1734698875217ppgrrmd10q2'),
+                      value: CreditNoteExportTypeEnum.CreditNoteItems,
+                    },
+                  ],
+                })
               },
             },
           ],
@@ -215,7 +241,10 @@ const CreditNotesPage = () => {
           >
             <div className="flex flex-col gap-3 md:flex-row md:items-center">
               <SearchInput
-                onChange={creditNoteDebounceSearch}
+                onChange={(value) => {
+                  goToPage(1)
+                  creditNoteDebounceSearch?.(value)
+                }}
                 placeholder={translate('text_63c6edd80c57d0dfaae3898e')}
               />
               <Filters.Component />
@@ -231,33 +260,16 @@ const CreditNotesPage = () => {
         isLoading={creditNoteIsLoading}
         metadata={dataCreditNotes?.creditNotes?.metadata}
         variables={variableCreditNotes}
+        pageSize={pageSize}
+        onPageChange={goToPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size)
+          goToPage(1)
+        }}
         tableContainerSize={{
           default: 16,
           md: 48,
         }}
-      />
-
-      <ExportDialog
-        ref={exportCreditNotesDialogRef}
-        totalCountLabel={translate(
-          'text_17346987416277yx1mf6nau2',
-          { creditNotesTotalCount },
-          creditNotesTotalCount,
-        )}
-        onExport={onCreditNotesExport}
-        disableExport={creditNotesTotalCount === 0}
-        resourceTypeOptions={[
-          {
-            label: translate('text_1734698741627bges5xz01la'),
-            sublabel: translate('text_173469874162761dxr57rvw7'),
-            value: CreditNoteExportTypeEnum.CreditNotes,
-          },
-          {
-            label: translate('text_1734698741627449t5wdghef'),
-            sublabel: translate('text_1734698875217ppgrrmd10q2'),
-            value: CreditNoteExportTypeEnum.CreditNoteItems,
-          },
-        ]}
       />
     </>
   )

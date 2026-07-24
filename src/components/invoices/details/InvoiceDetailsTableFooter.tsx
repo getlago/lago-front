@@ -78,11 +78,17 @@ const computeSubtotal = (
     const subTotalIncludingTaxesAmountCents =
       subTotalExcludingTax + applyTaxRateToAmount(subTotalExcludingTax, { taxRate: totalRate })
 
+    const progressiveBillingCreditAmountCents = Number(
+      invoice?.progressiveBillingCreditAmountCents || 0,
+    )
+
+    const totalAmountCents = subTotalIncludingTaxesAmountCents - progressiveBillingCreditAmountCents
+
     return {
       subTotalExcludingTax,
       subTotalIncludingTaxesAmountCents,
-      totalAmountCents: subTotalIncludingTaxesAmountCents,
-      totalDueAmountCents: subTotalIncludingTaxesAmountCents - invoice?.totalSettledAmountCents,
+      totalAmountCents,
+      totalDueAmountCents: totalAmountCents - invoice?.totalSettledAmountCents,
     }
   }
 

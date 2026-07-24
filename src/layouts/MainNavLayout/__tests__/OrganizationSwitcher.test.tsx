@@ -13,9 +13,6 @@ import {
   OrganizationSwitcher,
 } from '../OrganizationSwitcher'
 
-const mockRefetchCurrentUserInfos = jest.fn()
-const mockRefetchOrganizationInfos = jest.fn()
-
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
     translate: (key: string) => key,
@@ -84,8 +81,6 @@ describe('OrganizationSwitcher', () => {
     },
     isLoading: false,
     isVersionLoading: false,
-    refetchCurrentUserInfos: mockRefetchCurrentUserInfos,
-    refetchOrganizationInfos: mockRefetchOrganizationInfos,
   }
 
   beforeEach(() => {

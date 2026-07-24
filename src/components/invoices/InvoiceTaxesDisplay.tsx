@@ -10,8 +10,6 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-export { INVOICE_TAX_ITEM, INVOICE_TAX_ITEM_NO_TAX } from '~/components/invoices/dataTestConstants'
-
 export type TaxMapType = Map<
   string,
   {

@@ -1,13 +1,13 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 import { array, boolean, number, object, string } from 'yup'
 
 import AlertThresholds, { isThresholdValueValid } from '~/components/alerts/Thresholds'
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { ComboBox, TextInput, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
@@ -64,7 +64,7 @@ const WalletAlertForm = () => {
   const { alertId = '', customerId = '', walletId = '' } = useParams()
   const { translate } = useInternationalization()
   const navigate = useNavigate()
-  const warningDirtyAttributesDialogRef = useRef<WarningDialogRef>(null)
+  const centralizedDialog = useCentralizedDialog()
   const isEdition = !!alertId
 
   const { data, loading } = useGetWalletDetailsQuery({
@@ -121,6 +121,15 @@ const WalletAlertForm = () => {
     },
     [customerId, navigate, walletId],
   )
+
+  const openDirtyAttributesWarning = () =>
+    centralizedDialog.open({
+      title: translate('text_6244277fe0975300fe3fb940'),
+      description: translate('text_1746623860224gh7o1exyjch'),
+      actionText: translate('text_6244277fe0975300fe3fb94c'),
+      colorVariant: 'danger',
+      onAction: () => onLeave(),
+    })
 
   // Redirect to alerts list if alert is not found (e.g., deleted while on edit page)
   useEffect(() => {
@@ -302,155 +311,139 @@ const WalletAlertForm = () => {
   }, [defaultTypesData, existingAlertsTypes])
 
   return (
-    <>
-      <CenteredPage.Wrapper>
-        <CenteredPage.Header>
-          <div className="flex gap-3">
-            <Typography variant="bodyHl" color="textSecondary" noWrap>
-              {translate(
-                isEdition ? 'text_1773051593208zapkd7kjz1d' : 'text_1773051593208nq2x0gbp83t',
-              )}
-            </Typography>
-          </div>
-
-          <Button
-            variant="quaternary"
-            icon="close"
-            onClick={() =>
-              formikProps.dirty ? warningDirtyAttributesDialogRef.current?.openDialog() : onLeave()
-            }
-          />
-        </CenteredPage.Header>
-
-        <CenteredPage.Container>
-          {isLoading && <FormLoadingSkeleton id="create-wallet-alert" />}
-
-          {!isLoading && (
-            <>
-              <div className="not-last-child:mb-1">
-                <Typography variant="headline" color="grey700">
-                  {translate('text_1773051593208ufsg18ai0y0')}
-                </Typography>
-
-                <Typography variant="body" color="grey600">
-                  {translate('text_17465238490260r2325jwada')}
-                </Typography>
-              </div>
-
-              <div className="flex flex-col gap-12">
-                <section className="pb-12 shadow-b not-last-child:mb-6">
-                  <div className="not-last-child:mb-2">
-                    <Typography variant="subhead1">
-                      {translate('text_1746629929876zz4937djyc8')}
-                    </Typography>
-                    <Typography variant="caption">
-                      {translate('text_1746629929876gdgxt1v86eq')}
-                    </Typography>
-                  </div>
-                  <div className="flex gap-6 *:flex-1">
-                    <TextInput
-                      name="name"
-                      label={translate('text_1773063868176dy5v3kvne2l')}
-                      placeholder={translate('text_62876e85e32e0300e1803121')}
-                      value={formikProps.values.name || ''}
-                      onChange={(name) => {
-                        updateNameAndMaybeCode({ name, formikProps })
-                      }}
-                    />
-                    <TextInputField
-                      name="code"
-                      label={translate('text_62876e85e32e0300e1803127')}
-                      placeholder={translate('text_623b42ff8ee4e000ba87d0c4')}
-                      formikProps={formikProps}
-                      error={formikProps.errors.code}
-                    />
-                  </div>
-                </section>
-
-                <section className="not-last-child:mb-6">
-                  <div className="not-last-child:mb-2">
-                    <Typography variant="subhead1">
-                      {translate('text_17466299298762alw9zr25tb')}
-                    </Typography>
-                    <Typography variant="caption">
-                      {translate('text_1746631350477wjvnr6ty57q')}
-                    </Typography>
-                  </div>
-                  <div className="flex flex-col gap-6 *:flex-1">
-                    <ComboBox
-                      name="alertType"
-                      label={translate('text_1746631350478jqk347d5dy4')}
-                      placeholder={translate('text_1746631350478bwa1swfpwky')}
-                      disabled={isEdition}
-                      disableClearable={isEdition}
-                      value={formikProps.values.alertType}
-                      data={comboboxData}
-                      onChange={(value) => {
-                        const newFormikValues = {
-                          ...formikProps.values,
-                          alertType: value as AlertTypeEnum,
-                        }
-
-                        formikProps.setValues(newFormikValues)
-                      }}
-                    />
-
-                    {formikProps?.values?.alertType && (
-                      <AlertThresholds
-                        thresholds={formikProps.values.thresholds}
-                        setThresholds={setThresholds}
-                        setThresholdValue={setThresholdValue}
-                        currency={currency}
-                        shouldHandleUnits={isCreditsAlert(formikProps.values.alertType)}
-                        unitsLabel={translate('text_62d18855b22699e5cf55f889')}
-                        unitsTitle={translate('text_1773063868176jh122suh1lx')}
-                        reversedThreshold={true}
-                        allowNegativeValues={isOngoingAlert(formikProps.values.alertType)}
-                      />
-                    )}
-                  </div>
-                </section>
-              </div>
-            </>
-          )}
-        </CenteredPage.Container>
-
-        <CenteredPage.StickyFooter>
-          <Button
-            variant="quaternary"
-            size="large"
-            onClick={() =>
-              formikProps.dirty ? warningDirtyAttributesDialogRef.current?.openDialog() : onLeave()
-            }
-          >
-            {translate('text_6411e6b530cb47007488b027')}
-          </Button>
-          <Button
-            variant="primary"
-            size="large"
-            disabled={
-              !formikProps.isValid ||
-              !formikProps.dirty ||
-              isLoading ||
-              hasAnyNonRecurringThresholdError
-            }
-            onClick={formikProps.submitForm}
-          >
+    <CenteredPage.Wrapper>
+      <CenteredPage.Header>
+        <div className="flex gap-3">
+          <Typography variant="bodyHl" color="textSecondary" noWrap>
             {translate(
-              isEdition ? 'text_17432414198706rdwf76ek3u' : 'text_1747917472538el8fg31n3i8',
+              isEdition ? 'text_1773051593208zapkd7kjz1d' : 'text_1773051593208nq2x0gbp83t',
             )}
-          </Button>
-        </CenteredPage.StickyFooter>
-      </CenteredPage.Wrapper>
+          </Typography>
+        </div>
 
-      <WarningDialog
-        ref={warningDirtyAttributesDialogRef}
-        title={translate('text_6244277fe0975300fe3fb940')}
-        description={translate('text_1746623860224gh7o1exyjch')}
-        continueText={translate('text_6244277fe0975300fe3fb94c')}
-        onContinue={onLeave}
-      />
-    </>
+        <Button
+          variant="quaternary"
+          icon="close"
+          onClick={() => (formikProps.dirty ? openDirtyAttributesWarning() : onLeave())}
+        />
+      </CenteredPage.Header>
+
+      <CenteredPage.Container>
+        {isLoading && <FormLoadingSkeleton id="create-wallet-alert" />}
+
+        {!isLoading && (
+          <>
+            <div className="not-last-child:mb-1">
+              <Typography variant="headline" color="grey700">
+                {translate('text_1773051593208ufsg18ai0y0')}
+              </Typography>
+
+              <Typography variant="body" color="grey600">
+                {translate('text_17465238490260r2325jwada')}
+              </Typography>
+            </div>
+
+            <div className="flex flex-col gap-12">
+              <section className="pb-12 shadow-b not-last-child:mb-6">
+                <div className="not-last-child:mb-2">
+                  <Typography variant="subhead1">
+                    {translate('text_1746629929876zz4937djyc8')}
+                  </Typography>
+                  <Typography variant="caption">
+                    {translate('text_1746629929876gdgxt1v86eq')}
+                  </Typography>
+                </div>
+                <div className="flex gap-6 *:flex-1">
+                  <TextInput
+                    name="name"
+                    label={translate('text_1773063868176dy5v3kvne2l')}
+                    placeholder={translate('text_62876e85e32e0300e1803121')}
+                    value={formikProps.values.name || ''}
+                    onChange={(name) => {
+                      updateNameAndMaybeCode({ name, formikProps })
+                    }}
+                  />
+                  <TextInputField
+                    name="code"
+                    label={translate('text_62876e85e32e0300e1803127')}
+                    placeholder={translate('text_623b42ff8ee4e000ba87d0c4')}
+                    formikProps={formikProps}
+                    error={formikProps.errors.code}
+                  />
+                </div>
+              </section>
+
+              <section className="not-last-child:mb-6">
+                <div className="not-last-child:mb-2">
+                  <Typography variant="subhead1">
+                    {translate('text_17466299298762alw9zr25tb')}
+                  </Typography>
+                  <Typography variant="caption">
+                    {translate('text_1746631350477wjvnr6ty57q')}
+                  </Typography>
+                </div>
+                <div className="flex flex-col gap-6 *:flex-1">
+                  <ComboBox
+                    name="alertType"
+                    label={translate('text_1746631350478jqk347d5dy4')}
+                    placeholder={translate('text_1746631350478bwa1swfpwky')}
+                    disabled={isEdition}
+                    disableClearable={isEdition}
+                    value={formikProps.values.alertType}
+                    data={comboboxData}
+                    onChange={(value) => {
+                      const newFormikValues = {
+                        ...formikProps.values,
+                        alertType: value as AlertTypeEnum,
+                      }
+
+                      formikProps.setValues(newFormikValues)
+                    }}
+                  />
+
+                  {formikProps?.values?.alertType && (
+                    <AlertThresholds
+                      thresholds={formikProps.values.thresholds}
+                      setThresholds={setThresholds}
+                      setThresholdValue={setThresholdValue}
+                      currency={currency}
+                      shouldHandleUnits={isCreditsAlert(formikProps.values.alertType)}
+                      unitsLabel={translate('text_62d18855b22699e5cf55f889')}
+                      unitsTitle={translate('text_1773063868176jh122suh1lx')}
+                      reversedThreshold={true}
+                      allowNegativeValues={isOngoingAlert(formikProps.values.alertType)}
+                    />
+                  )}
+                </div>
+              </section>
+            </div>
+          </>
+        )}
+      </CenteredPage.Container>
+
+      <CenteredPage.StickyFooter>
+        <Button
+          variant="quaternary"
+          size="large"
+          onClick={() => (formikProps.dirty ? openDirtyAttributesWarning() : onLeave())}
+        >
+          {translate('text_6411e6b530cb47007488b027')}
+        </Button>
+        <Button
+          variant="primary"
+          size="large"
+          disabled={
+            !formikProps.isValid ||
+            !formikProps.dirty ||
+            isLoading ||
+            hasAnyNonRecurringThresholdError
+          }
+          onClick={formikProps.submitForm}
+        >
+          {translate(isEdition ? 'text_17432414198706rdwf76ek3u' : 'text_1747917472538el8fg31n3i8')}
+        </Button>
+      </CenteredPage.StickyFooter>
+    </CenteredPage.Wrapper>
   )
 }
 

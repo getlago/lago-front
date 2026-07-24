@@ -27,7 +27,7 @@ const progressiveBillingDrawerContentDefaultProps: ProgressiveBillingDrawerConte
 export const ProgressiveBillingDrawerContent = withForm({
   defaultValues: DEFAULT_VALUES,
   props: progressiveBillingDrawerContentDefaultProps,
-  render: function ProgressiveBillingDrawerContent({ form, initialDisplayRecurring }) {
+  render: function ProgressiveBillingDrawerContentRender({ form, initialDisplayRecurring }) {
     const { translate } = useInternationalization()
     const { currency } = usePlanFormContext()
     const [displayRecurring, setDisplayRecurring] = useState(initialDisplayRecurring)

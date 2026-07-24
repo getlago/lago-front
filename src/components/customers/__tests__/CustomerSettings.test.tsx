@@ -38,119 +38,87 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
   }),
 }))
 
-// Mock dialog components that use useParams() internally
-// Using require('react').forwardRef inside each mock factory to avoid hoisting issues
-jest.mock('~/components/customers/EditCustomerInvoiceGracePeriodDialog', () => {
-  const React = jest.requireActual('react')
-  const MockDialog = React.forwardRef(() => null)
+jest.mock('~/components/customers/EditCustomerInvoiceGracePeriodDialog', () => ({
+  useEditCustomerInvoiceGracePeriodDialog: () => ({
+    openEditCustomerInvoiceGracePeriodDialog: jest.fn(),
+  }),
+}))
 
-  MockDialog.displayName = 'EditCustomerInvoiceGracePeriodDialog'
-  return { EditCustomerInvoiceGracePeriodDialog: MockDialog }
-})
+jest.mock('~/components/customers/DeleteCustomerGracePeriodeDialog', () => ({
+  useDeleteCustomerGracePeriodeDialog: () => ({
+    openDeleteCustomerGracePeriodeDialog: jest.fn(),
+  }),
+}))
 
-jest.mock('~/components/customers/DeleteCustomerGracePeriodeDialog', () => {
-  const React = jest.requireActual('react')
-  const MockDialog = React.forwardRef(() => null)
+jest.mock('~/components/customers/EditCustomerDocumentLocaleDialog', () => ({
+  useEditCustomerDocumentLocaleDialog: () => ({
+    openEditCustomerDocumentLocaleDialog: jest.fn(),
+  }),
+}))
 
-  MockDialog.displayName = 'DeleteCustomerGracePeriodeDialog'
-  return { DeleteCustomerGracePeriodeDialog: MockDialog }
-})
+jest.mock('~/components/customers/DeleteCustomerDocumentLocaleDialog', () => ({
+  useDeleteCustomerDocumentLocaleDialog: () => ({
+    openDeleteCustomerDocumentLocaleDialog: jest.fn(),
+  }),
+}))
 
-jest.mock('~/components/customers/EditCustomerDocumentLocaleDialog', () => {
-  const React = jest.requireActual('react')
-  const MockDialog = React.forwardRef(() => null)
+jest.mock('~/components/customers/EditCustomerVatRateDialog', () => ({
+  useEditCustomerVatRateDialog: () => ({
+    openEditCustomerVatRateDialog: jest.fn(),
+  }),
+}))
 
-  MockDialog.displayName = 'EditCustomerDocumentLocaleDialog'
-  return { EditCustomerDocumentLocaleDialog: MockDialog }
-})
+jest.mock('~/components/customers/DeleteCustomerVatRateDialog', () => ({
+  useDeleteCustomerVatRateDialog: () => ({
+    openDeleteCustomerVatRateDialog: jest.fn(),
+  }),
+}))
 
-jest.mock('~/components/customers/DeleteCustomerDocumentLocaleDialog', () => {
-  const React = jest.requireActual('react')
-  const MockDialog = React.forwardRef(() => null)
+jest.mock('~/components/customers/EditCustomerDunningCampaignDialog', () => ({
+  useEditCustomerDunningCampaignDialog: () => ({
+    openEditCustomerDunningCampaignDialog: jest.fn(),
+  }),
+}))
 
-  MockDialog.displayName = 'DeleteCustomerDocumentLocaleDialog'
-  return { DeleteCustomerDocumentLocaleDialog: MockDialog }
-})
+jest.mock('~/components/customers/EditCustomerInvoiceCustomSectionsDialog', () => ({
+  useEditCustomerInvoiceCustomSectionsDialog: () => ({
+    openEditCustomerInvoiceCustomSectionsDialog: jest.fn(),
+  }),
+}))
 
-jest.mock('~/components/customers/EditCustomerVatRateDialog', () => {
-  const React = jest.requireActual('react')
-  const MockDialog = React.forwardRef(() => null)
+jest.mock('~/components/customers/settings/EditCustomerIssuingDatePolicyDialog', () => ({
+  useEditCustomerIssuingDatePolicyDialog: () => ({
+    openEditCustomerIssuingDatePolicyDialog: jest.fn(),
+  }),
+}))
 
-  MockDialog.displayName = 'EditCustomerVatRateDialog'
-  return { EditCustomerVatRateDialog: MockDialog }
-})
+jest.mock('~/components/customers/DeleteCustomerFinalizeZeroAmountInvoiceDialog', () => ({
+  useDeleteCustomerFinalizeZeroAmountInvoiceDialog: () => ({
+    openDeleteCustomerFinalizeZeroAmountInvoiceDialog: jest.fn(),
+  }),
+}))
 
-jest.mock('~/components/customers/DeleteCustomerVatRateDialog', () => {
-  const React = jest.requireActual('react')
-  const MockDialog = React.forwardRef(() => null)
+jest.mock('~/components/customers/DeleteCustomerNetPaymentTermDialog', () => ({
+  useDeleteCustomerNetPaymentTermDialog: () => ({
+    openDeleteCustomerNetPaymentTermDialog: jest.fn(),
+  }),
+}))
 
-  MockDialog.displayName = 'DeleteCustomerVatRateDialog'
-  return { DeleteCustomerVatRateDialog: MockDialog }
-})
+jest.mock('~/components/settings/invoices/EditNetPaymentTermDialog', () => ({
+  useEditNetPaymentTermDialog: () => ({
+    openEditNetPaymentTermDialog: jest.fn(),
+  }),
+}))
 
-jest.mock('~/components/customers/EditCustomerDunningCampaignDialog', () => {
-  const React = jest.requireActual('react')
-  const MockDialog = React.forwardRef(() => null)
+jest.mock('~/components/settings/invoices/EditFinalizeZeroAmountInvoiceDialog', () => ({
+  useEditFinalizeZeroAmountInvoiceDialog: () => ({
+    openEditFinalizeZeroAmountInvoiceDialog: jest.fn(),
+  }),
+}))
 
-  MockDialog.displayName = 'EditCustomerDunningCampaignDialog'
-  return { EditCustomerDunningCampaignDialog: MockDialog }
-})
-
-jest.mock('~/components/customers/EditCustomerInvoiceCustomSectionsDialog', () => {
-  const React = jest.requireActual('react')
-  const MockDialog = React.forwardRef(() => null)
-
-  MockDialog.displayName = 'EditCustomerInvoiceCustomSectionsDialog'
-  return { EditCustomerInvoiceCustomSectionsDialog: MockDialog }
-})
-
-jest.mock('~/components/customers/settings/EditCustomerIssuingDatePolicyDialog', () => {
-  const React = jest.requireActual('react')
-  const MockDialog = React.forwardRef(() => null)
-
-  MockDialog.displayName = 'EditCustomerIssuingDatePolicyDialog'
-  return { EditCustomerIssuingDatePolicyDialog: MockDialog }
-})
-
-jest.mock('~/components/customers/DeleteCustomerFinalizeZeroAmountInvoiceDialog', () => {
-  const React = jest.requireActual('react')
-  const MockDialog = React.forwardRef(() => null)
-
-  MockDialog.displayName = 'DeleteCustomerFinalizeZeroAmountInvoiceDialog'
-  return { DeleteCustomerFinalizeZeroAmountInvoiceDialog: MockDialog }
-})
-
-jest.mock('~/components/customers/DeleteCustomerNetPaymentTermDialog', () => {
-  const React = jest.requireActual('react')
-  const MockDialog = React.forwardRef(() => null)
-
-  MockDialog.displayName = 'DeleteOrganizationNetPaymentTermDialog'
-  return { DeleteOrganizationNetPaymentTermDialog: MockDialog }
-})
-
-jest.mock('~/components/settings/invoices/EditNetPaymentTermDialog', () => {
-  const React = jest.requireActual('react')
-  const MockDialog = React.forwardRef(() => null)
-
-  MockDialog.displayName = 'EditNetPaymentTermDialog'
-  return { EditNetPaymentTermDialog: MockDialog }
-})
-
-jest.mock('~/components/settings/invoices/EditFinalizeZeroAmountInvoiceDialog', () => {
-  const React = jest.requireActual('react')
-  const MockDialog = React.forwardRef(() => null)
-
-  MockDialog.displayName = 'EditFinalizeZeroAmountInvoiceDialog'
-  return { EditFinalizeZeroAmountInvoiceDialog: MockDialog }
-})
-
-jest.mock('~/components/PremiumWarningDialog', () => {
-  const React = jest.requireActual('react')
-  const MockDialog = React.forwardRef(() => null)
-
-  MockDialog.displayName = 'PremiumWarningDialog'
-  return { PremiumWarningDialog: MockDialog }
-})
+jest.mock('~/components/dialogs/PremiumWarningDialog', () => ({
+  usePremiumWarningDialog: () => ({ open: jest.fn(), close: jest.fn() }),
+}))
 
 const createCustomerSettingsMock = (overrides = {}) => ({
   request: {

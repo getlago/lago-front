@@ -11,10 +11,12 @@ import {
 import FlutterwaveIntegrations from '../FlutterwaveIntegrations'
 
 jest.mock('~/components/settings/integrations/AddFlutterwaveDialog', () => ({
-  AddFlutterwaveDialog: () => null,
+  useAddFlutterwaveDialog: () => ({ openAddFlutterwaveDialog: jest.fn() }),
 }))
 jest.mock('~/components/settings/integrations/DeleteFlutterwaveIntegrationDialog', () => ({
-  DeleteFlutterwaveIntegrationDialog: () => null,
+  useDeleteFlutterwaveIntegrationDialog: () => ({
+    openDeleteFlutterwaveIntegrationDialog: () => null,
+  }),
 }))
 
 describe('FlutterwaveIntegrations', () => {

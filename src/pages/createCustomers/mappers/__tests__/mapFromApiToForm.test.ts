@@ -63,6 +63,7 @@ describe('mapFromApiToForm', () => {
       id: 'billing-entity-1',
       code: 'default-entity',
       name: 'Default Entity',
+      euTaxManagement: false,
     },
     canEditAttributes: true,
     applicableTimezone: TimezoneEnum.TzAmericaLosAngeles,
@@ -188,6 +189,7 @@ describe('mapFromApiToForm', () => {
         id: 'billing-entity-1',
         code: 'default-entity',
         name: 'Default Entity',
+        euTaxManagement: false,
       },
       canEditAttributes: true,
       applicableTimezone: TimezoneEnum.TzAmericaLosAngeles,
@@ -284,6 +286,7 @@ describe('mapFromApiToForm', () => {
           code: 'custom-entity',
           __typename: 'BillingEntity',
           name: 'Custom Entity',
+          euTaxManagement: false,
         },
       }
 
@@ -354,6 +357,7 @@ describe('mapFromApiToForm', () => {
         id: 'billing-entity-1',
         code: 'default-entity',
         name: 'Default Entity',
+        euTaxManagement: false,
       },
       canEditAttributes: true,
       applicableTimezone: TimezoneEnum.TzAmericaLosAngeles,
@@ -893,6 +897,7 @@ describe('mapFromApiToForm', () => {
           id: 'billing-entity-1',
           code: 'complete-entity',
           name: 'Complete Entity',
+          euTaxManagement: false,
         },
         metadata: [
           { key: 'segment', value: 'enterprise', displayInInvoice: true, id: 'meta-1' },

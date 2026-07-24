@@ -44,10 +44,7 @@ const getHasItemValues = (
 const getParameterKeyFromInitialMappingKey = (
   key: string,
 ):
-  | keyof AvalaraAndAnrokParameters
-  | keyof NetsuiteParameters
-  | keyof XeroParameters
-  | undefined => {
+  keyof AvalaraAndAnrokParameters | keyof NetsuiteParameters | keyof XeroParameters | undefined => {
   switch (key) {
     case 'itemExternalId':
       return 'externalId'
@@ -67,10 +64,7 @@ const getParameterKeyFromInitialMappingKey = (
 export const handleIntegrationMappingCreateUpdateDelete = async <FormValues>(
   inputValues: FormValues,
   initialMapping:
-    | ItemMappingForTaxMapping
-    | ItemMappingForNonTaxMapping
-    | ItemMappingForMappable
-    | undefined,
+    ItemMappingForTaxMapping | ItemMappingForNonTaxMapping | ItemMappingForMappable | undefined,
   formType: MappingTypeEnum | MappableTypeEnum,
   integrationId: string,
   {

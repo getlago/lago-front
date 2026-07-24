@@ -59,9 +59,6 @@ const createMockInvoice = (
   paymentDisputeLostAt: null,
   taxProviderVoidable: false,
   invoiceType: InvoiceTypeEnum.Subscription,
-  creditableAmountCents: '10000',
-  refundableAmountCents: '0',
-  offsettableAmountCents: '0',
   associatedActiveWalletPresent: false,
   voidedInvoiceId: null,
   regeneratedInvoiceId: null,
@@ -130,12 +127,13 @@ describe('CustomerInvoicesList', () => {
   })
 
   describe('GIVEN loading state', () => {
-    it('THEN should show loading rows', () => {
+    it('THEN should render the full-list skeleton on the first load', () => {
       renderComponent({ isLoading: true, invoiceData: createMockInvoiceData([]) })
 
       const bodyRows = screen.queryAllByRole('rowgroup')[1]
 
-      expect(bodyRows?.querySelectorAll('tr').length).toBeGreaterThan(0)
+      // First load with no data → skeleton rows fill the list
+      expect(bodyRows?.querySelectorAll('tr').length ?? 0).toBeGreaterThan(0)
     })
   })
 })

@@ -51,6 +51,14 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
   }),
 }))
 
+const mockOpenResetProgressiveBillingDialog = jest.fn()
+
+jest.mock('~/components/subscriptions/ResetProgressiveBillingDialog', () => ({
+  useResetProgressiveBillingDialog: () => ({
+    openResetProgressiveBillingDialog: mockOpenResetProgressiveBillingDialog,
+  }),
+}))
+
 const createMockSubscription = (
   overrides?: Partial<SubscriptionForProgressiveBillingTabFragment>,
 ): SubscriptionForProgressiveBillingTabFragment => ({
@@ -700,9 +708,8 @@ describe('SubscriptionProgressiveBillingTab', () => {
         await user.click(screen.getByTestId(PROGRESSIVE_BILLING_RESET_BUTTON_TEST_ID))
       })
 
-      // Dialog should be opened (check for dialog content)
-      await waitFor(() => {
-        expect(screen.getByRole('dialog')).toBeInTheDocument()
+      expect(mockOpenResetProgressiveBillingDialog).toHaveBeenCalledWith({
+        subscriptionId: 'subscription-123',
       })
     })
   })

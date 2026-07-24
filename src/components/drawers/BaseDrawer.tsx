@@ -23,7 +23,7 @@ export type BaseDrawerProps = {
   children: ReactNode
   onClose: () => void
   onExited?: () => void
-  onEntered?: () => void
+  onEntered?: (container: HTMLElement) => void
   className?: string
   actions?: ReactNode
   actionsClassName?: string
@@ -227,7 +227,7 @@ export const BaseDrawer = ({
       role="presentation"
       data-test={BASE_DRAWER_TEST_ID}
     >
-      {/* Backdrop — only the first drawer dims the page */}
+      {/* Backdrop - only the first drawer dims the page */}
       <div
         className={tw(
           'absolute inset-0 transition-opacity duration-300',

@@ -20,14 +20,7 @@ export type ButtonVariant = keyof typeof ButtonVariantEnum
 type MuiVariant = 'text' | 'outlined' | 'contained'
 type ButtonAlign = 'center' | 'left' | 'space-between'
 type MuiColor =
-  | 'inherit'
-  | 'primary'
-  | 'secondary'
-  | 'success'
-  | 'error'
-  | 'info'
-  | 'warning'
-  | undefined
+  'inherit' | 'primary' | 'secondary' | 'success' | 'error' | 'info' | 'warning' | undefined
 
 export interface SimpleButtonProps extends Pick<
   MuiButtonProps,

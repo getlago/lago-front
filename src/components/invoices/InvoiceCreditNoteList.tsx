@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import CreditNotesTable from '~/components/creditNote/CreditNotesTable'
@@ -9,7 +8,8 @@ import { ButtonLink } from '~/components/designSystem/ButtonLink'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE } from '~/core/router'
 import {
   CreditNotesForTableFragmentDoc,
@@ -56,9 +56,10 @@ export const InvoiceCreditNoteList = () => {
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
   const canIssueCreditNote = hasPermissions(['creditNotesCreate'])
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const premiumWarningDialog = usePremiumWarningDialog()
   const { data, loading, error, fetchMore, variables } = useGetInvoiceCreditNotesQuery({
-    variables: { invoiceId: invoiceId as string, limit: 20 },
+    notifyOnNetworkStatusChange: true,
+    variables: { invoiceId: invoiceId as string, limit: DEFAULT_PAGE_SIZE },
     skip: !invoiceId || !customerId,
   })
   const creditNotes = data?.invoiceCreditNotes?.collection
@@ -68,9 +69,6 @@ export const InvoiceCreditNoteList = () => {
   const { disabledIssueCreditNoteButton, disabledIssueCreditNoteButtonLabel } =
     createCreditNoteForInvoiceButtonProps({
       invoiceType: invoice?.invoiceType,
-      creditableAmountCents: invoice?.creditableAmountCents,
-      refundableAmountCents: invoice?.refundableAmountCents,
-      offsettableAmountCents: invoice?.offsettableAmountCents,
       associatedActiveWalletPresent: invoice?.associatedActiveWalletPresent,
     })
 
@@ -106,7 +104,7 @@ export const InvoiceCreditNoteList = () => {
                   ) : (
                     <Button
                       variant="quaternary"
-                      onClick={() => premiumWarningDialogRef.current?.openDialog()}
+                      onClick={() => premiumWarningDialog.open()}
                       endIcon="sparkles"
                     >
                       {translate('text_636bdef6565341dcb9cfb127')}
@@ -143,11 +141,10 @@ export const InvoiceCreditNoteList = () => {
             customerTimezone={data?.invoice?.customer.applicableTimezone || TimezoneEnum.TzUtc}
             error={error}
             variables={variables}
+            sticky={false}
           />
         )}
       </>
-
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </div>
   )
 }

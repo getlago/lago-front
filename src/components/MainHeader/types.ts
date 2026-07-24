@@ -15,6 +15,13 @@ import { NavigationTabBarItem } from './NavigationTabBar'
  */
 export type MainHeaderTab = NavigationTabBarItem & {
   content: ReactNode
+  /**
+   * Serializable value included in the config snapshot. `content` (ReactNode) is
+   * stripped from the snapshot, so a tab whose content reflects reactive state
+   * (e.g. a toggle the user flips while staying on the page) must encode that
+   * state here, otherwise the stale content stays in context until a full reload.
+   */
+  snapshotKey?: string | number | boolean
 }
 
 // ─── Action types ───────────────────────────────────────────────
@@ -27,7 +34,7 @@ export interface MainHeaderDropdownAction {
   dataTest?: string
 }
 
-export interface MainHeaderDropdownItem {
+interface MainHeaderDropdownItem {
   label: string
   onClick: (closePopper: () => void) => void | Promise<void>
   disabled?: boolean
@@ -53,7 +60,7 @@ export interface MainHeaderInPageAction {
 }
 
 /** Arbitrary ReactNode rendered as-is in the actions area */
-export interface MainHeaderCustomAction {
+interface MainHeaderCustomAction {
   type: 'custom'
   label: string
   content: ReactNode
@@ -63,9 +70,7 @@ export interface MainHeaderCustomAction {
 }
 
 export type MainHeaderAction =
-  | MainHeaderDropdownAction
-  | MainHeaderInPageAction
-  | MainHeaderCustomAction
+  MainHeaderDropdownAction | MainHeaderInPageAction | MainHeaderCustomAction
 
 // ─── Actions config ─────────────────────────────────────────────
 
@@ -78,7 +83,7 @@ export interface MainHeaderActionsConfig {
 
 // ─── Entity config ──────────────────────────────────────────────
 
-export type MainHeaderBadge = Pick<StatusProps, 'label' | 'labelVariables' | 'endIcon'> & {
+type MainHeaderBadge = Pick<StatusProps, 'label' | 'labelVariables' | 'endIcon'> & {
   /** Accepts both the StatusType enum and string literals like 'default', 'success', etc. */
   type: `${StatusType}`
 }
@@ -88,8 +93,12 @@ export interface MainHeaderEntityConfig {
   viewName: string
   /** Show a skeleton instead of the title + badges row */
   viewNameLoading?: boolean
-  /** Secondary text below the name (e.g. externalId, amount) */
-  metadata?: string
+  /**
+   * Secondary line below the name (e.g. externalId, amount). A plain string is
+   * wrapped in a Typography; pass a ReactNode to render custom content as-is
+   * (e.g. a TypographyWithCopy, or copy button composed next to text).
+   */
+  metadata?: ReactNode
   /** Show a skeleton instead of the metadata line */
   metadataLoading?: boolean
   /** Status badges displayed next to the entity name */
@@ -105,6 +114,8 @@ export interface BreadcrumbItem {
   label: string
   /** Route path — the item is rendered as a clickable link */
   path: string
+  /** Show a skeleton instead of the label (e.g. while an async label loads) */
+  loading?: boolean
 }
 
 // ─── Main config ────────────────────────────────────────────────
@@ -124,4 +135,12 @@ export interface MainHeaderConfig {
 
   /** Filter — pages include their own providers */
   filtersSection?: ReactNode
+
+  /**
+   * Serializable value included in the config snapshot. The snapshot strips the tabs'
+   * `content` ReactNode (to avoid re-render loops), so pages whose content reflects
+   * mutable data must bump this key when that data changes, otherwise the header keeps
+   * showing stale content (e.g. a wallet balance after a top-up/void).
+   */
+  snapshotKey?: string | number | boolean
 }

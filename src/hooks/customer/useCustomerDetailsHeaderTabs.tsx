@@ -40,8 +40,8 @@ export function useCustomerDetailsHeaderTabs({
   const { isPremium } = useCurrentUser()
 
   const {
-    creditNotesCreditsAvailableCount,
-    creditNotesBalanceAmountCents,
+    billingEntity: customerBillingEntity,
+    creditNotesBalances,
     externalId,
     hasCreditNotes,
     applicableTimezone: safeTimezone,
@@ -65,7 +65,12 @@ export function useCustomerDetailsHeaderTabs({
         }),
         generatePath(CUSTOMER_DETAILS_ROUTE, { customerId }),
       ],
-      content: <CustomerSubscriptionsList />,
+      content: (
+        <CustomerSubscriptionsList
+          customerExternalId={externalId}
+          customerTimezone={safeTimezone}
+        />
+      ),
     },
     {
       title: translate('text_62865498824cc10126ab2956'),
@@ -112,6 +117,7 @@ export function useCustomerDetailsHeaderTabs({
           userCurrency={customer?.currency || undefined}
           customerId={customerId}
           customerTimezone={safeTimezone}
+          customerBillingEntity={customerBillingEntity}
           isPartner={isPartner}
         />
       ),
@@ -134,8 +140,8 @@ export function useCustomerDetailsHeaderTabs({
       content: (
         <CustomerCreditNotesList
           customerId={customerId}
-          creditNotesCreditsAvailableCount={creditNotesCreditsAvailableCount}
-          creditNotesBalanceAmountCents={creditNotesBalanceAmountCents}
+          customerBillingEntity={customerBillingEntity}
+          creditNotesBalances={creditNotesBalances}
           userCurrency={customer?.currency || undefined}
           customerTimezone={safeTimezone}
         />

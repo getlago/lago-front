@@ -79,24 +79,12 @@ jest.mock('~/components/invoices/InvoicesList', () => ({
   default: () => <div data-test="invoices-list-mock">InvoicesList</div>,
 }))
 
-jest.mock('~/components/PremiumWarningDialog', () => ({
-  PremiumWarningDialog: () => null,
-}))
-
 jest.mock('~/components/invoices/FinalizeInvoiceDialog', () => ({
-  FinalizeInvoiceDialog: () => null,
-}))
-
-jest.mock('~/components/invoices/EditInvoicePaymentStatusDialog', () => ({
-  UpdateInvoicePaymentStatusDialog: () => null,
-}))
-
-jest.mock('~/components/invoices/VoidInvoiceDialog', () => ({
-  VoidInvoiceDialog: () => null,
+  useFinalizeInvoiceDialog: () => ({ openFinalizeInvoiceDialog: jest.fn() }),
 }))
 
 jest.mock('~/components/exports/ExportDialog', () => ({
-  ExportDialog: () => null,
+  useExportDialog: () => ({ openExportDialog: jest.fn() }),
 }))
 
 describe('InvoicesPage', () => {

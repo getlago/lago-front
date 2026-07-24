@@ -1,14 +1,17 @@
-import { revalidateLogic } from '@tanstack/react-form'
 import { Editor } from '@tiptap/react'
-import { z } from 'zod'
+import { useState } from 'react'
 
-import { serializeUrl } from '~/core/serializers/serializeUrl'
-import { zodOptionalUrl } from '~/formValidation/zodCustoms'
+import { Typography } from '~/components/designSystem/Typography'
+import { DocumentUploader } from '~/components/form/DocumentUploader/DocumentUploader'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useAppForm } from '~/hooks/forms/useAppform'
 
-export const TOOLBAR_IMAGE_INPUT_TEST_ID = 'toolbar-image-input'
-export const TOOLBAR_IMAGE_INSERT_BUTTON_TEST_ID = 'toolbar-image-insert-button'
+import { useRichTextEditorContext } from '../common/RichTextEditorContext'
+
+export const TOOLBAR_IMAGE_ERROR_TEST_ID = 'toolbar-image-error'
+
+const IMAGE_MIME_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif']
+const IMAGE_ACCEPT = IMAGE_MIME_TYPES.join(',')
+const IMAGE_MAX_SIZE = 5 * 1024 * 1024
 
 type ImagePopperFormProps = {
   editor: Editor
@@ -17,68 +20,49 @@ type ImagePopperFormProps = {
 
 const ImagePopperForm = ({ editor, closePopper }: ImagePopperFormProps) => {
   const { translate } = useInternationalization()
+  const { onImageUpload } = useRichTextEditorContext()
+  const [uploading, setUploading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const schemaValidation = z.object({
-    url: zodOptionalUrl,
-  })
+  const handleChange = async (base64: string | null) => {
+    if (!base64 || !onImageUpload) return
 
-  const form = useAppForm({
-    defaultValues: { url: '' },
-    validationLogic: revalidateLogic(),
-    validators: {
-      onDynamic: schemaValidation,
-    },
-    onSubmit: async ({ value, formApi }) => {
-      if (!value.url) {
-        return
-      }
-      const serializedUrl = serializeUrl(value.url)
+    setError(null)
+    setUploading(true)
 
-      if (!serializedUrl) {
-        formApi.setErrorMap({
-          onDynamic: {
-            fields: {
-              url: {
-                message: 'text_1764239804026ca61hwr3pp9',
-                path: ['url'],
-              },
-            },
-          },
-        })
-        return
-      }
+    try {
+      const id = await onImageUpload(base64)
 
-      editor.chain().focus().setImage({ src: serializedUrl }).run()
-
-      form.reset()
+      editor.chain().focus().setImage({ src: id }).run()
       closePopper()
-    },
-  })
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    form.handleSubmit()
+    } catch {
+      setError(translate('text_1782918544840f0jput31j5k'))
+    } finally {
+      setUploading(false)
+    }
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div className="flex flex-col gap-2 p-3">
-        <form.AppField name="url">
-          {(field) => (
-            <field.TextInputField
-              inputProps={{ 'data-test': TOOLBAR_IMAGE_INPUT_TEST_ID }}
-              placeholder={translate('text_17744355868512phwom4fz1i')}
-              label={translate('text_1774435622012yosb9iv7b29')}
-            />
-          )}
-        </form.AppField>
-        <form.AppForm>
-          <form.SubmitButton dataTest={TOOLBAR_IMAGE_INSERT_BUTTON_TEST_ID}>
-            {translate('text_1774434870566u3tjbykw5hp')}
-          </form.SubmitButton>
-        </form.AppForm>
-      </div>
-    </form>
+    <div className="flex w-90 flex-col gap-2 p-3">
+      <DocumentUploader
+        value={null}
+        onChange={handleChange}
+        accept={IMAGE_ACCEPT}
+        acceptedMimeTypes={IMAGE_MIME_TYPES}
+        maxSize={IMAGE_MAX_SIZE}
+        description={translate('text_1782997762645ugjob60lzff')}
+      />
+      {uploading && (
+        <Typography variant="caption" color="grey600">
+          {translate('text_1779268404389431dgsiiysk')}
+        </Typography>
+      )}
+      {error && (
+        <Typography variant="caption" color="danger600" data-test={TOOLBAR_IMAGE_ERROR_TEST_ID}>
+          {error}
+        </Typography>
+      )}
+    </div>
   )
 }
 

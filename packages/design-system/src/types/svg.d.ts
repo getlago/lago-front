@@ -23,3 +23,5 @@ declare module '*.jpeg' {
 
   export default value
 }
+
+declare module '*.css'

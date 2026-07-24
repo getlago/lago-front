@@ -56,7 +56,7 @@ const renderMentionNodeView = ({
   mentionValues = {} as Record<string, string>,
 } = {}) => {
   return render(
-    <RichTextEditorProvider value={{ mode, mentionValues, plans: {}, setPlan: () => {} }}>
+    <RichTextEditorProvider value={{ mode, mentionValues, entities: {}, images: {} }}>
       <MentionNodeView {...defaultProps} node={node} />
     </RichTextEditorProvider>,
   )
@@ -114,6 +114,64 @@ describe('MentionNodeView', () => {
         const element = screen.getByTestId(MENTION_NODE_VIEW_TEST_ID)
 
         expect(element).toHaveTextContent('@Customer Name')
+      })
+    })
+  })
+
+  describe('GIVEN the component is in preview mode', () => {
+    describe('WHEN mentionValues has a value for the id', () => {
+      it('THEN should display the resolved value instead of @label', () => {
+        renderMentionNodeView({
+          mode: 'preview',
+          mentionValues: { customerName: 'Acme Corp' },
+        })
+
+        const element = screen.getByTestId(MENTION_NODE_VIEW_TEST_ID)
+
+        expect(element).toHaveTextContent('Acme Corp')
+        expect(element).not.toHaveTextContent('@Customer Name')
+        expect(element).toHaveClass('variable-mention--resolved')
+      })
+    })
+
+    describe('WHEN mentionValues has no value for the id', () => {
+      it('THEN should fall back to @label', () => {
+        renderMentionNodeView({
+          mode: 'preview',
+          mentionValues: {},
+        })
+
+        const element = screen.getByTestId(MENTION_NODE_VIEW_TEST_ID)
+
+        expect(element).toHaveTextContent('@Customer Name')
+      })
+    })
+
+    describe('WHEN the resolved value is an empty string', () => {
+      it('THEN should render nothing instead of the @label', () => {
+        renderMentionNodeView({
+          mode: 'preview',
+          mentionValues: { customerName: '' },
+        })
+
+        const element = screen.getByTestId(MENTION_NODE_VIEW_TEST_ID)
+
+        expect(element).not.toHaveTextContent('@Customer Name')
+        expect(element).toBeEmptyDOMElement()
+      })
+    })
+
+    describe('WHEN the resolved value is null', () => {
+      it('THEN should render nothing instead of the @label', () => {
+        renderMentionNodeView({
+          mode: 'preview',
+          mentionValues: { customerName: null as unknown as string },
+        })
+
+        const element = screen.getByTestId(MENTION_NODE_VIEW_TEST_ID)
+
+        expect(element).not.toHaveTextContent('@Customer Name')
+        expect(element).toBeEmptyDOMElement()
       })
     })
   })

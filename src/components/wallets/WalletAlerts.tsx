@@ -52,7 +52,8 @@ type WalletAlertsProps = {
   wallet: WalletDetailsFragment
 }
 
-export const WALLET_ALERT_ACTIONS_DATA_TEST = 'wallet-alert-actions-data-test'
+const WALLET_ALERT_ACTIONS_DATA_TEST = 'wallet-alert-actions-data-test'
+
 export const WALLET_ALERTS_LOADING_TEST_ID = 'wallet-alerts-loading'
 export const WALLET_ALERTS_EMPTY_TEST_ID = 'wallet-alerts-empty'
 export const WALLET_ALERTS_LIST_TEST_ID = 'wallet-alerts-list'

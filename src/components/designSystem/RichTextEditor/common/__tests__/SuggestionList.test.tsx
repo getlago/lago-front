@@ -120,6 +120,60 @@ describe('SuggestionList', () => {
     })
   })
 
+  describe('GIVEN items carry an icon property', () => {
+    interface IconItem extends TestItem {
+      icon: string
+    }
+
+    const createIconItems = (): IconItem[] => [
+      { id: '1', name: 'Heading', icon: 'h1' },
+      { id: '2', name: 'Bullet', icon: 'list-bullet' },
+    ]
+
+    describe('WHEN each item has an icon', () => {
+      it('THEN should render the icon as a start icon on each item', async () => {
+        const items = createIconItems()
+
+        await act(() =>
+          render(
+            <SuggestionList
+              items={items}
+              command={mockCommand}
+              getKey={(item) => item.id}
+              getLabel={(item) => item.name}
+            />,
+          ),
+        )
+
+        expect(screen.getByTestId(`${SUGGESTION_LIST_ITEM_TEST_ID}-0`)).toContainElement(
+          screen.getByTestId('h1/medium'),
+        )
+        expect(screen.getByTestId(`${SUGGESTION_LIST_ITEM_TEST_ID}-1`)).toContainElement(
+          screen.getByTestId('list-bullet/medium'),
+        )
+      })
+    })
+
+    describe('WHEN items have no icon property', () => {
+      it('THEN should not render any start icon', async () => {
+        await act(() =>
+          render(
+            <SuggestionList
+              items={createMockItems()}
+              command={mockCommand}
+              getKey={getKey}
+              getLabel={getLabel}
+            />,
+          ),
+        )
+
+        expect(
+          screen.getByTestId(`${SUGGESTION_LIST_ITEM_TEST_ID}-0`).querySelector('svg'),
+        ).toBeNull()
+      })
+    })
+  })
+
   describe('GIVEN the user clicks on an item', () => {
     describe('WHEN an item is clicked', () => {
       it('THEN should call command with the clicked item', async () => {
@@ -268,6 +322,145 @@ describe('SuggestionList', () => {
         })
 
         expect(result).toBe(false)
+      })
+    })
+  })
+
+  describe('GIVEN items with getDisabled', () => {
+    const createMockItemsWithDisabled = () => [
+      { id: '1', name: 'Alpha' },
+      { id: '2', name: 'Beta' },
+      { id: '3', name: 'Gamma' },
+    ]
+
+    const getDisabled = (item: TestItem) => item.id === '2'
+
+    const renderWithDisabled = async () => {
+      const ref = createRef<SuggestionListRef>()
+      const items = createMockItemsWithDisabled()
+
+      await act(() =>
+        render(
+          <SuggestionList
+            ref={ref}
+            items={items}
+            command={mockCommand}
+            getKey={getKey}
+            getLabel={getLabel}
+            getDisabled={getDisabled}
+          />,
+        ),
+      )
+
+      return { ref, items }
+    }
+
+    const simulateKeyDown = (ref: React.RefObject<SuggestionListRef | null>, key: string) => {
+      return ref.current?.onKeyDown({
+        event: new KeyboardEvent('keydown', { key }),
+      } as unknown as Parameters<SuggestionListRef['onKeyDown']>[0])
+    }
+
+    describe('WHEN rendering items', () => {
+      it('THEN should render disabled items with disabled attribute', async () => {
+        await renderWithDisabled()
+
+        const disabledItem = screen.getByTestId(`${SUGGESTION_LIST_ITEM_TEST_ID}-1`)
+
+        expect(disabledItem).toBeDisabled()
+      })
+
+      it('THEN should render enabled items without disabled attribute', async () => {
+        await renderWithDisabled()
+
+        const enabledItem = screen.getByTestId(`${SUGGESTION_LIST_ITEM_TEST_ID}-0`)
+
+        expect(enabledItem).not.toBeDisabled()
+      })
+    })
+
+    describe('WHEN ArrowDown is pressed and next item is disabled', () => {
+      it('THEN should skip the disabled item and select the next enabled one', async () => {
+        const { ref } = await renderWithDisabled()
+
+        // From index 0, ArrowDown should skip index 1 (disabled) and go to index 2
+        act(() => {
+          simulateKeyDown(ref, 'ArrowDown')
+        })
+        act(() => {
+          simulateKeyDown(ref, 'Enter')
+        })
+
+        expect(mockCommand).toHaveBeenCalledWith(
+          expect.objectContaining({ id: '3', name: 'Gamma' }),
+        )
+      })
+    })
+
+    describe('WHEN ArrowUp is pressed and previous item is disabled', () => {
+      it('THEN should skip the disabled item and select the next enabled one', async () => {
+        const { ref } = await renderWithDisabled()
+
+        // From index 0, ArrowUp wraps to index 2 (Gamma is enabled)
+        act(() => {
+          simulateKeyDown(ref, 'ArrowUp')
+        })
+        act(() => {
+          simulateKeyDown(ref, 'Enter')
+        })
+
+        expect(mockCommand).toHaveBeenCalledWith(
+          expect.objectContaining({ id: '3', name: 'Gamma' }),
+        )
+      })
+
+      it('THEN should skip disabled item when navigating backwards through it', async () => {
+        const { ref } = await renderWithDisabled()
+
+        // Move to Gamma (index 2) first
+        act(() => {
+          simulateKeyDown(ref, 'ArrowDown')
+        })
+        // From Gamma (index 2), ArrowUp should skip Beta (index 1) and go to Alpha (index 0)
+        act(() => {
+          simulateKeyDown(ref, 'ArrowUp')
+        })
+        act(() => {
+          simulateKeyDown(ref, 'Enter')
+        })
+
+        expect(mockCommand).toHaveBeenCalledWith(
+          expect.objectContaining({ id: '1', name: 'Alpha' }),
+        )
+      })
+    })
+
+    describe('WHEN Enter is pressed on a disabled item', () => {
+      it('THEN should not call command', async () => {
+        const ref = createRef<SuggestionListRef>()
+        const allDisabledItems = [{ id: '1', name: 'Alpha' }]
+        const allDisabled = () => true
+
+        await act(() =>
+          render(
+            <SuggestionList
+              ref={ref}
+              items={allDisabledItems}
+              command={mockCommand}
+              getKey={getKey}
+              getLabel={getLabel}
+              getDisabled={allDisabled}
+            />,
+          ),
+        )
+
+        act(() => {
+          ref.current?.onKeyDown({
+            event: new KeyboardEvent('keydown', { key: 'Enter' }),
+          } as unknown as Parameters<SuggestionListRef['onKeyDown']>[0])
+        })
+
+        expect(mockCommand).not.toHaveBeenCalled()
       })
     })
   })

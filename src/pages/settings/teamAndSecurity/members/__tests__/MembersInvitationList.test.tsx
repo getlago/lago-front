@@ -108,7 +108,7 @@ const mockInvitations = [
 const invitesListMock = {
   request: {
     query: GetInvitesDocument,
-    variables: { limit: 20 },
+    variables: { limit: 20, page: 1 },
   },
   result: {
     data: {
@@ -210,7 +210,7 @@ describe('MembersInvitationList', () => {
       const loadingMock = {
         request: {
           query: GetInvitesDocument,
-          variables: { limit: 20 },
+          variables: { limit: 20, page: 1 },
         },
         delay: Infinity,
         result: {
@@ -234,7 +234,7 @@ describe('MembersInvitationList', () => {
       const emptyMock = {
         request: {
           query: GetInvitesDocument,
-          variables: { limit: 20 },
+          variables: { limit: 20, page: 1 },
         },
         result: {
           data: {
@@ -266,7 +266,7 @@ describe('MembersInvitationList', () => {
       const errorMock = {
         request: {
           query: GetInvitesDocument,
-          variables: { limit: 20 },
+          variables: { limit: 20, page: 1 },
         },
         error: new Error('Failed to fetch invitations'),
       }
@@ -283,7 +283,7 @@ describe('MembersInvitationList', () => {
       const errorMock = {
         request: {
           query: GetInvitesDocument,
-          variables: { limit: 20 },
+          variables: { limit: 20, page: 1 },
         },
         error: new Error('Failed to fetch invitations'),
       }
@@ -300,7 +300,7 @@ describe('MembersInvitationList', () => {
       const errorMock = {
         request: {
           query: GetInvitesDocument,
-          variables: { limit: 20 },
+          variables: { limit: 20, page: 1 },
         },
         error: new Error('Failed to fetch invitations'),
       }
@@ -430,7 +430,7 @@ describe('MembersInvitationList', () => {
       const emptyMock = {
         request: {
           query: GetInvitesDocument,
-          variables: { limit: 20 },
+          variables: { limit: 20, page: 1 },
         },
         result: {
           data: {
@@ -460,7 +460,7 @@ describe('MembersInvitationList', () => {
       const emptyMock = {
         request: {
           query: GetInvitesDocument,
-          variables: { limit: 20 },
+          variables: { limit: 20, page: 1 },
         },
         result: {
           data: {
@@ -490,7 +490,7 @@ describe('MembersInvitationList', () => {
       const emptyMock = {
         request: {
           query: GetInvitesDocument,
-          variables: { limit: 20 },
+          variables: { limit: 20, page: 1 },
         },
         result: {
           data: {
@@ -539,7 +539,7 @@ describe('MembersInvitationList', () => {
       const paginatedMock = {
         request: {
           query: GetInvitesDocument,
-          variables: { limit: 20 },
+          variables: { limit: 20, page: 1 },
         },
         result: {
           data: {
@@ -579,7 +579,7 @@ describe('MembersInvitationList', () => {
       const singleInviteMock = {
         request: {
           query: GetInvitesDocument,
-          variables: { limit: 20 },
+          variables: { limit: 20, page: 1 },
         },
         result: {
           data: {

@@ -7,6 +7,7 @@ import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
 import { Typography } from '~/components/designSystem/Typography'
 import { SearchInput } from '~/components/SearchInput'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import {
   MappableTypeEnum,
   NetsuiteIntegrationItemsListAddonsFragmentDoc,
@@ -65,6 +66,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
       }
       collection {
         id
@@ -84,6 +86,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
       }
       collection {
         id
@@ -139,7 +142,7 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
   ] = useGetAddOnsForNetsuiteItemsListLazyQuery({
     notifyOnNetworkStatusChange: true,
     variables: {
-      limit: 20,
+      limit: DEFAULT_PAGE_SIZE,
       integrationId,
     },
   })
@@ -156,7 +159,7 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
   ] = useGetBillableMetricsForNetsuiteItemsListLazyQuery({
     notifyOnNetworkStatusChange: true,
     variables: {
-      limit: 20,
+      limit: DEFAULT_PAGE_SIZE,
       integrationId,
     },
   })

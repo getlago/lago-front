@@ -1,9 +1,9 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
+import { useState } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import {
@@ -13,10 +13,8 @@ import {
   SettingsPaddedContainer,
 } from '~/components/layouts/Settings'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import {
-  DeleteCustomSectionDialog,
-  DeleteCustomSectionDialogRef,
-} from '~/components/settings/invoices/DeleteCustomSectionDialog'
+import { useDeleteCustomSectionDialog } from '~/components/settings/invoices/DeleteCustomSectionDialog'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import {
   CREATE_INVOICE_CUSTOM_SECTION,
   CREATE_PRICING_UNIT,
@@ -46,6 +44,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
       }
     }
   }
@@ -60,6 +59,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
       }
     }
   }
@@ -71,33 +71,42 @@ const InvoiceSections = () => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const navigate = useNavigate()
-  const deleteCustomSectionDialogRef = useRef<DeleteCustomSectionDialogRef>(null)
+  const { openDeleteCustomSectionDialog } = useDeleteCustomSectionDialog()
 
   const canCreatePricingUnits = hasPermissions(['pricingUnitsCreate'])
   const canEditPricingUnits = hasPermissions(['pricingUnitsUpdate'])
   const canViewPricingUnits = hasPermissions(['pricingUnitsView'])
 
+  const [customSectionsPageSize, setCustomSectionsPageSize] = useState(DEFAULT_PAGE_SIZE)
+  const [pricingUnitsPageSize, setPricingUnitsPageSize] = useState(DEFAULT_PAGE_SIZE)
+  const { page: customSectionsPage, goToPage: goToCustomSectionsPage } =
+    usePageSearchParam('custom_sections')
+  const { page: pricingUnitsPage, goToPage: goToPricingUnitsPage } =
+    usePageSearchParam('pricing_units')
+
   const {
     data: invoiceCustomSectionsData,
     error: invoiceCustomSectionsError,
     loading: invoiceCustomSectionsLoading,
-    fetchMore: invoiceCustomSectionsFetchMore,
   } = useGetOrganizationSettingsInvoiceSectionsQuery({
     variables: {
-      limit: 100,
+      limit: customSectionsPageSize,
+      page: customSectionsPage,
     },
+    notifyOnNetworkStatusChange: true,
   })
 
   const {
     data: pricingUnitsData,
     error: pricingUnitsError,
     loading: pricingUnitsLoading,
-    fetchMore: pricingUnitsFetchMore,
   } = useGetOrganizationSettingsPricingUnitsQuery({
     variables: {
-      limit: 100,
+      limit: pricingUnitsPageSize,
+      page: pricingUnitsPage,
     },
     skip: !canViewPricingUnits,
+    notifyOnNetworkStatusChange: true,
   })
 
   const hasPricingUnits = !!pricingUnitsData?.pricingUnits?.collection?.length
@@ -131,23 +140,24 @@ const InvoiceSections = () => {
               />
 
               {hasPricingUnits && (
-                <InfiniteScroll
-                  onBottom={() => {
-                    const { currentPage = 0, totalPages = 0 } =
-                      pricingUnitsData?.pricingUnits?.metadata || {}
-
-                    currentPage < totalPages &&
-                      !pricingUnitsLoading &&
-                      pricingUnitsFetchMore?.({
-                        variables: { page: currentPage + 1 },
-                      })
+                <PaginatedContent
+                  metadata={pricingUnitsData?.pricingUnits?.metadata}
+                  loading={pricingUnitsLoading}
+                  pageSize={pricingUnitsPageSize}
+                  onPageChange={goToPricingUnitsPage}
+                  onPageSizeChange={(size) => {
+                    setPricingUnitsPageSize(size)
+                    goToPricingUnitsPage(1)
                   }}
+                  sticky={false}
                 >
                   <Table
                     name="pricing-units"
+                    containerClassName="h-auto"
                     containerSize={{ default: 4 }}
-                    data={pricingUnitsData?.pricingUnits?.collection || []}
+                    data={pricingUnitsData?.pricingUnits?.collection ?? []}
                     isLoading={pricingUnitsLoading}
+                    loadingRowCount={pricingUnitsPageSize}
                     hasError={!!pricingUnitsError}
                     columns={[
                       {
@@ -194,7 +204,7 @@ const InvoiceSections = () => {
                       },
                     ]}
                   />
-                </InfiniteScroll>
+                </PaginatedContent>
               )}
             </SettingsListItem>
           )}
@@ -216,23 +226,28 @@ const InvoiceSections = () => {
             />
 
             {hasCustomSections && (
-              <InfiniteScroll
-                onBottom={() => {
-                  const { currentPage = 0, totalPages = 0 } =
-                    invoiceCustomSectionsData?.invoiceCustomSections?.metadata || {}
-
-                  currentPage < totalPages &&
-                    !invoiceCustomSectionsLoading &&
-                    invoiceCustomSectionsFetchMore?.({
-                      variables: { page: currentPage + 1 },
-                    })
+              <PaginatedContent
+                metadata={invoiceCustomSectionsData?.invoiceCustomSections?.metadata}
+                loading={invoiceCustomSectionsLoading}
+                pageSize={customSectionsPageSize}
+                onPageChange={goToCustomSectionsPage}
+                onPageSizeChange={(size) => {
+                  setCustomSectionsPageSize(size)
+                  goToCustomSectionsPage(1)
                 }}
+                sticky={false}
               >
                 <Table
                   name="invoice-custom-section"
+                  containerClassName="h-auto"
                   containerSize={{ default: 0 }}
-                  data={invoiceCustomSectionsData?.invoiceCustomSections?.collection || []}
+                  data={
+                    invoiceCustomSectionsLoading
+                      ? []
+                      : (invoiceCustomSectionsData?.invoiceCustomSections?.collection ?? [])
+                  }
                   isLoading={invoiceCustomSectionsLoading}
+                  loadingRowCount={customSectionsPageSize}
                   hasError={!!invoiceCustomSectionsError}
                   columns={[
                     {
@@ -261,20 +276,18 @@ const InvoiceSections = () => {
                       startIcon: 'trash',
                       title: translate('text_1732638001460kdzkctjfegi'),
                       onAction: () => {
-                        deleteCustomSectionDialogRef.current?.openDialog({
+                        openDeleteCustomSectionDialog({
                           id: section.id,
                         })
                       },
                     },
                   ]}
                 />
-              </InfiniteScroll>
+              </PaginatedContent>
             )}
           </SettingsListItem>
         </SettingsListWrapper>
       </SettingsPaddedContainer>
-
-      <DeleteCustomSectionDialog ref={deleteCustomSectionDialogRef} />
     </>
   )
 }

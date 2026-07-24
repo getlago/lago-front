@@ -40,7 +40,7 @@ describe('PaymentMethodsInvoiceSettings', () => {
       const { container } = render(
         <PaymentMethodsInvoiceSettings
           customer={null}
-          formikProps={mockFormikProps}
+          form={mockFormikProps}
           viewType={ViewTypeEnum.Subscription}
         />,
       )
@@ -59,7 +59,7 @@ describe('PaymentMethodsInvoiceSettings', () => {
       const { container } = render(
         <PaymentMethodsInvoiceSettings
           customer={customer}
-          formikProps={mockFormikProps}
+          form={mockFormikProps}
           viewType={ViewTypeEnum.Subscription}
         />,
       )
@@ -76,7 +76,7 @@ describe('PaymentMethodsInvoiceSettings', () => {
       const { container } = render(
         <PaymentMethodsInvoiceSettings
           customer={customer}
-          formikProps={mockFormikProps}
+          form={mockFormikProps}
           viewType={ViewTypeEnum.Subscription}
         />,
       )
@@ -95,7 +95,7 @@ describe('PaymentMethodsInvoiceSettings', () => {
       render(
         <PaymentMethodsInvoiceSettings
           customer={customer}
-          formikProps={mockFormikProps}
+          form={mockFormikProps}
           viewType={ViewTypeEnum.Subscription}
         />,
       )
@@ -115,7 +115,7 @@ describe('PaymentMethodsInvoiceSettings', () => {
       render(
         <PaymentMethodsInvoiceSettings
           customer={customer}
-          formikProps={mockFormikProps}
+          form={mockFormikProps}
           viewType={ViewTypeEnum.Subscription}
         />,
       )
@@ -135,7 +135,7 @@ describe('PaymentMethodsInvoiceSettings', () => {
       render(
         <PaymentMethodsInvoiceSettings
           customer={customer}
-          formikProps={mockFormikProps}
+          form={mockFormikProps}
           viewType={ViewTypeEnum.Subscription}
         />,
       )
@@ -153,7 +153,7 @@ describe('PaymentMethodsInvoiceSettings', () => {
       render(
         <PaymentMethodsInvoiceSettings
           customer={customer}
-          formikProps={mockFormikProps}
+          form={mockFormikProps}
           viewType={ViewTypeEnum.Subscription}
         />,
       )

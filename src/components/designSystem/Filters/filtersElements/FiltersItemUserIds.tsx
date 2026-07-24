@@ -6,6 +6,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useGetAllMembers } from '~/hooks/useGetAllMembers'
 
 import { filterDataInlineSeparator, FiltersFormValues } from '../types'
+import { escapeFilterLabel, unescapeFilterLabel } from '../utils'
 
 type FiltersItemUserIdsProps = {
   value: FiltersFormValues['filters'][0]['value']
@@ -24,7 +25,9 @@ export const FiltersItemUserIds = ({ value, setFilterValue }: FiltersItemUserIds
       .filter((membership) => !!membership.user.email)
       .map((membership) => ({
         label: membership.user.email as string,
-        value: `${membership.user.id}${filterDataInlineSeparator}${membership.user.email}`,
+        value: `${membership.user.id}${filterDataInlineSeparator}${escapeFilterLabel(
+          membership.user.email ?? '',
+        )}`,
       }))
   }, [memberships])
 
@@ -42,7 +45,9 @@ export const FiltersItemUserIds = ({ value, setFilterValue }: FiltersItemUserIds
         .split(',')
         .filter((v) => !!v)
         .map((v) => ({
-          label: v.split(filterDataInlineSeparator)[1] || v.split(filterDataInlineSeparator)[0],
+          label: unescapeFilterLabel(
+            v.split(filterDataInlineSeparator)[1] || v.split(filterDataInlineSeparator)[0],
+          ),
           value: v,
         }))}
     />

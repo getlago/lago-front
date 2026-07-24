@@ -31,18 +31,27 @@ export const padAndTransformDataOverLastTwelveMonth = (
 ) => {
   const monthsArray = getLastTwelveMonthsNumbersUntilNow()
 
-  // Create an array of 12 months and replace the values with the data if it exists, based on the month
-  // Or create a new object with the month and the amountCents set to 0
-  return monthsArray.map((month) => {
-    const item = data.find(
-      (d) => DateTime.fromISO(d.month as string).toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT) === month,
-    )
+  // Analytics endpoints can emit multiple rows per calendar month when results
+  // are split across billing entities, so sum amountCents per month before
+  // mapping onto the chart axis.
+  const totalsByMonth = data.reduce<
+    Record<string, { amountCents: number; currency?: CurrencyEnum | null }>
+  >((acc, item) => {
+    const key = DateTime.fromISO(item.month as string).toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT)
 
-    return item
-      ? {
-          ...item,
-          month: DateTime.fromISO(item.month as string).toFormat(GRAPH_YEAR_MONTH_DATE_FORMAT),
-        }
+    acc[key] = {
+      amountCents: (acc[key]?.amountCents ?? 0) + Number(item.amountCents),
+      currency: acc[key]?.currency ?? item.currency,
+    }
+
+    return acc
+  }, {})
+
+  return monthsArray.map((month) => {
+    const aggregated = totalsByMonth[month]
+
+    return aggregated
+      ? { month, amountCents: aggregated.amountCents, currency: aggregated.currency }
       : { currency, month, amountCents: 0 }
   })
 }

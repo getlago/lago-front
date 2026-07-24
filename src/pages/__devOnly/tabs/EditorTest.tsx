@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
-import { downloadMarkdownPdf } from '~/components/designSystem/RichTextEditor/common/downloadMarkdownPdf'
 import RichTextEditor, {
   type RichTextEditorMode,
 } from '~/components/designSystem/RichTextEditor/RichTextEditor'
@@ -19,6 +18,12 @@ const mentionValues: Record<string, string> = {
   dueDate: 'March 25, 2026',
   companyName: 'Lago Inc.',
 }
+
+const demoVariableItems = [
+  { id: 'customer_name', label: 'Customer name' },
+  { id: 'quote_number', label: 'Quote number' },
+  { id: 'quote_currency', label: 'Quote currency' },
+]
 
 // Simulates a GraphQL fetch: GET /api/templates
 const fetchTemplates = (): Promise<EditorTemplate[]> =>
@@ -47,20 +52,14 @@ interface EditorControlsProps {
   mode: RichTextEditorMode
   onToggleMode: () => void
   onSave?: () => void
-  onDownloadPdf?: () => void
 }
 
-const EditorControls = ({ mode, onToggleMode, onSave, onDownloadPdf }: EditorControlsProps) => (
+const EditorControls = ({ mode, onToggleMode, onSave }: EditorControlsProps) => (
   <div className="mb-4 flex items-center gap-4">
     <Button variant={mode === 'edit' ? 'primary' : 'secondary'} onClick={onToggleMode}>
       {mode === 'edit' ? 'Preview' : 'Edit'}
     </Button>
     {onSave && <Button onClick={onSave}>Save</Button>}
-    {onDownloadPdf && (
-      <Button variant="secondary" onClick={onDownloadPdf}>
-        Download PDF
-      </Button>
-    )}
   </div>
 )
 
@@ -70,13 +69,10 @@ const EditorTest = () => {
   const [mode3, setMode3] = useState<RichTextEditorMode>('edit')
 
   const getMarkdownRef1 = useRef<(() => string) | null>(null)
-  const downloadPdfRef1 = useRef<(() => void) | null>(null)
 
   const getMarkdownRef2 = useRef<(() => string) | null>(null)
-  const downloadPdfRef2 = useRef<(() => void) | null>(null)
 
   const getMarkdownRef3 = useRef<(() => string) | null>(null)
-  const downloadPdfRef3 = useRef<(() => void) | null>(null)
 
   const [templates, setTemplates] = useState<EditorTemplate[]>([])
   const [templatesLoading, setTemplatesLoading] = useState(true)
@@ -130,14 +126,13 @@ Best,
         mode={mode1}
         onToggleMode={() => setMode1(mode1 === 'edit' ? 'preview' : 'edit')}
         onSave={() => handleSave(getMarkdownRef1)}
-        onDownloadPdf={() => downloadPdfRef1.current?.()}
       />
       <Block>
         <RichTextEditor
           mode={mode1}
           mentionValues={mentionValues}
           getMarkdownRef={getMarkdownRef1}
-          downloadPdfRef={downloadPdfRef1}
+          variableItems={demoVariableItems}
         />
       </Block>
 
@@ -148,7 +143,6 @@ Best,
         mode={mode2}
         onToggleMode={() => setMode2(mode2 === 'edit' ? 'preview' : 'edit')}
         onSave={() => handleSave(getMarkdownRef2)}
-        onDownloadPdf={() => downloadPdfRef2.current?.()}
       />
       <Block>
         {templatesLoading ? (
@@ -159,7 +153,7 @@ Best,
             mentionValues={mentionValues}
             templates={templates}
             getMarkdownRef={getMarkdownRef2}
-            downloadPdfRef={downloadPdfRef2}
+            variableItems={demoVariableItems}
           />
         )}
       </Block>
@@ -171,7 +165,6 @@ Best,
         mode={mode3}
         onToggleMode={() => setMode3(mode3 === 'edit' ? 'preview' : 'edit')}
         onSave={() => handleSave(getMarkdownRef3)}
-        onDownloadPdf={() => downloadPdfRef3.current?.()}
       />
       <Block>
         <RichTextEditor
@@ -179,24 +172,9 @@ Best,
           mentionValues={mentionValues}
           content={preSavedContent}
           getMarkdownRef={getMarkdownRef3}
-          downloadPdfRef={downloadPdfRef3}
+          variableItems={demoVariableItems}
         />
       </Block>
-
-      <div className="mt-4 flex items-center gap-4">
-        <Typography variant="subhead1">Standalone PDF download (no editor)</Typography>
-        <Button
-          variant="secondary"
-          onClick={() =>
-            downloadMarkdownPdf({
-              markdown: preSavedContent,
-              mentionValues,
-            })
-          }
-        >
-          Download PDF from Markdown
-        </Button>
-      </div>
     </Container>
   )
 }

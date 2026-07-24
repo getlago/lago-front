@@ -18,7 +18,7 @@ let mockIsEdition = false
 let mockLoading = false
 let mockPlan: Record<string, unknown> | undefined
 let mockType = 'creation'
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 let mockCachedForm: any
 
 jest.mock('~/hooks/plans/usePlanForm', () => ({
@@ -134,6 +134,15 @@ jest.mock('~/components/plans/FeatureEntitlementSection', () => {
   }
 })
 
+jest.mock('~/components/plans/PlanMetadataSection', () => {
+  const React = jest.requireActual('react')
+
+  return {
+    PlanMetadataSection: () =>
+      React.createElement('div', { 'data-test': 'plan-metadata-section-mock' }),
+  }
+})
+
 jest.mock('~/components/designSystem/WarningDialog', () => {
   const React = jest.requireActual('react')
   const mockOpenDialog = jest.fn()
@@ -154,47 +163,17 @@ jest.mock('~/components/designSystem/WarningDialog', () => {
   return { WarningDialog: MockWarningDialog, WarningDialogRef: {} }
 })
 
-jest.mock('~/components/plans/ImpactOverriddenSubscriptionsDialog', () => {
-  const React = jest.requireActual('react')
+jest.mock('~/components/plans/details-v2/shared/useCascadeFormDialog', () => ({
+  useCascadeFormDialog: () => ({
+    openCascadeDialog: jest.fn(),
+  }),
+}))
 
-  const MockDialog = React.forwardRef((_props: unknown, ref: unknown) => {
-    React.useImperativeHandle(ref, () => ({ openDialog: jest.fn() }))
-
-    return React.createElement('div', { 'data-test': 'impact-dialog-mock' })
-  })
-
-  MockDialog.displayName = 'ImpactOverriddenSubscriptionsDialog'
-
-  return { ImpactOverriddenSubscriptionsDialog: MockDialog }
-})
-
-jest.mock('~/components/invoices/EditInvoiceDisplayNameDialog', () => {
-  const React = jest.requireActual('react')
-
-  const MockDialog = React.forwardRef((_props: unknown, ref: unknown) => {
-    React.useImperativeHandle(ref, () => ({ openDialog: jest.fn() }))
-
-    return React.createElement('div', { 'data-test': 'edit-invoice-name-dialog-mock' })
-  })
-
-  MockDialog.displayName = 'EditInvoiceDisplayNameDialog'
-
-  return { EditInvoiceDisplayNameDialog: MockDialog }
-})
-
-jest.mock('~/components/PremiumWarningDialog', () => {
-  const React = jest.requireActual('react')
-
-  const MockDialog = React.forwardRef((_props: unknown, ref: unknown) => {
-    React.useImperativeHandle(ref, () => ({ openDialog: jest.fn() }))
-
-    return React.createElement('div', { 'data-test': 'premium-warning-dialog-mock' })
-  })
-
-  MockDialog.displayName = 'PremiumWarningDialog'
-
-  return { PremiumWarningDialog: MockDialog }
-})
+jest.mock('~/components/invoices/useEditInvoiceDisplayName', () => ({
+  useEditInvoiceDisplayNameDialog: () => ({
+    openEditInvoiceDisplayNameDialog: jest.fn(),
+  }),
+}))
 
 jest.mock('~/styles/mainObjectsForm', () => {
   const React = jest.requireActual('react')
@@ -250,6 +229,7 @@ describe('CreatePlan', () => {
         ['ProgressiveBillingSection', 'progressive-billing-section-mock'],
         ['CommitmentsSection', 'commitments-section-mock'],
         ['FeatureEntitlementSection', 'feature-entitlement-section-mock'],
+        ['PlanMetadataSection', 'plan-metadata-section-mock'],
       ])('THEN should render %s', (_, testId) => {
         render(<CreatePlan />)
 

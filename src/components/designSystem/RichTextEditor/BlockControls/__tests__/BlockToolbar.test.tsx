@@ -315,7 +315,6 @@ describe('BlockToolbar', () => {
   })
 
   describe('GIVEN the useEditorState selector', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let capturedSelector: any = null
 
     const captureSelectorAndRender = () => {
@@ -531,6 +530,36 @@ describe('BlockToolbar', () => {
             },
             view: { dragging: { slice: {}, move: true } },
             storage: { dragHandle: { selectedBlock: null } },
+          },
+        })
+
+        expect(result).toBeNull()
+      })
+    })
+
+    describe('WHEN hideMenu is true in DragHandle storage', () => {
+      it('THEN should return null even with a node selected', () => {
+        captureSelectorAndRender()
+
+        const { NodeSelection } = jest.requireActual('@tiptap/pm/state')
+        const mockNode = { attrs: { backgroundColor: '#dbeafe', textColor: '#1d4ed8' } }
+        const mockSelection = Object.create(NodeSelection.prototype, {
+          from: { value: 5 },
+          node: { value: mockNode },
+        })
+
+        const result = capturedSelector?.({
+          editor: {
+            isDestroyed: false,
+            state: {
+              selection: mockSelection,
+              doc: {
+                resolve: () => ({ index: () => 0 }),
+                childCount: 3,
+              },
+            },
+            view: { dragging: null },
+            storage: { dragHandle: { selectedBlock: null, hideMenu: true } },
           },
         })
 

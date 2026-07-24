@@ -35,6 +35,20 @@ export const propertiesZodSchema = z.object({
   perTransactionMinAmount: z.string().optional().nullable(),
   perTransactionMaxAmount: z.string().optional().nullable(),
   pricingGroupKeys: z.array(z.string()).optional().nullable(),
+  presentationGroupKeys: z
+    .array(
+      z.object({
+        value: z.string().min(1, { message: 'text_1777466316764zx64sbfshro' }),
+        options: z.object({
+          displayInInvoice: z.enum(['true', 'false'], {
+            message: 'text_1777466316764ao0o7elsjut',
+          }),
+        }),
+      }),
+    )
+    .max(2)
+    .optional()
+    .nullable(),
   customProperties: z.unknown().optional().nullable(),
   graduatedRanges: z.array(graduatedRangeSchema).optional().nullable(),
   graduatedPercentageRanges: z.array(graduatedPercentageRangeSchema).optional().nullable(),
@@ -286,6 +300,69 @@ const validators: Partial<Record<ChargeModelEnum, (context: ValidationContext) =
   [ChargeModelEnum.Custom]: validateCustom,
 }
 
+// Returns the set of indices that are part of a duplicate (case-sensitive,
+// trimmed) value group. Empty rows are skipped — they get the "value is
+// required" error instead of a misleading duplicate error.
+function findDuplicatePresentationGroupKeyIndices(
+  presentationGroupKeys: NonNullable<PropertiesZodInput['presentationGroupKeys']>,
+): Set<number> {
+  const seen = new Map<string, number>()
+  const duplicateIndices = new Set<number>()
+
+  presentationGroupKeys.forEach((group, i) => {
+    const v = (group.value ?? '').trim()
+
+    if (!v) return
+
+    const firstIndex = seen.get(v)
+
+    if (firstIndex !== undefined) {
+      // Mark BOTH the first occurrence and the current one — the user should
+      // be able to fix either side, so highlighting both rows reads better
+      // than silently blaming the second.
+      duplicateIndices.add(firstIndex)
+      duplicateIndices.add(i)
+    } else {
+      seen.set(v, i)
+    }
+  })
+
+  return duplicateIndices
+}
+
+// Validate presentationGroupKeys for all charge models.
+function validatePresentationGroupKeys(
+  presentationGroupKeys: NonNullable<PropertiesZodInput['presentationGroupKeys']>,
+  ctx: z.RefinementCtx,
+  pathPrefix: string[],
+) {
+  const duplicateIndices = findDuplicatePresentationGroupKeyIndices(presentationGroupKeys)
+
+  presentationGroupKeys.forEach((group, i) => {
+    if (!group.value) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'text_1777466316764zx64sbfshro',
+        path: [...pathPrefix, 'presentationGroupKeys', String(i), 'value'],
+      })
+    } else if (duplicateIndices.has(i)) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'text_17791906642738j2tip131uw',
+        path: [...pathPrefix, 'presentationGroupKeys', String(i), 'value'],
+      })
+    }
+
+    if (group.options?.displayInInvoice !== 'true' && group.options?.displayInInvoice !== 'false') {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'text_1777466316764ao0o7elsjut',
+        path: [...pathPrefix, 'presentationGroupKeys', String(i), 'options', 'displayInInvoice'],
+      })
+    }
+  })
+}
+
 export function validateChargeProperties(
   chargeModel: AnyChargeModel,
   props: PropertiesZodInput | undefined,
@@ -295,4 +372,8 @@ export function validateChargeProperties(
   if (!props) return
 
   validators[chargeModel as ChargeModelEnum]?.({ props, ctx, pathPrefix })
+
+  if (props.presentationGroupKeys) {
+    validatePresentationGroupKeys(props.presentationGroupKeys, ctx, pathPrefix)
+  }
 }

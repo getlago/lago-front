@@ -13,6 +13,11 @@ export const subscriptionStatusMapping = (status?: StatusTypeEnum | null): Statu
         type: StatusType.default,
         label: 'pending',
       }
+    case StatusTypeEnum.Incomplete:
+      return {
+        type: StatusType.warning,
+        label: 'incomplete',
+      }
     case StatusTypeEnum.Canceled:
       return {
         type: StatusType.disabled,

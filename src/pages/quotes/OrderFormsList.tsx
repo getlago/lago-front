@@ -1,15 +1,64 @@
-import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import EmptyImage from '~/public/images/maneki/empty.svg'
+import { useMemo, useState } from 'react'
+import { generatePath, useSearchParams } from 'react-router-dom'
 
-const OrderFormsList = (): JSX.Element => {
+import { formatFiltersForOrderFormsQuery } from '~/components/designSystem/Filters'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
+import { ORDER_FORM_DETAILS_ROUTE, SIGN_ORDER_FORM_ROUTE } from '~/core/router'
+import { OrderFormListItemFragment, OrderFormStatusEnum } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+
+import { QuotesSectionTable } from './common/QuotesSectionTable'
+import { useOrderFormsColumns } from './common/useOrderFormsColumns'
+import { useOrderFormActions } from './hooks/useOrderFormActions'
+import { useOrderForms } from './hooks/useOrderForms'
+
+interface OrderFormsListProps {
+  quoteNumber?: string
+}
+
+const OrderFormsList = ({ quoteNumber }: OrderFormsListProps): JSX.Element => {
   const { translate } = useInternationalization()
+  const [searchParams] = useSearchParams()
+
+  const filtersForOrderFormsQuery = useMemo(
+    () => formatFiltersForOrderFormsQuery(searchParams),
+    [searchParams],
+  )
+
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+
+  const { orderForms, loading, error, fetchMore, metadata } = useOrderForms(
+    {
+      ...filtersForOrderFormsQuery,
+      ...(quoteNumber ? { quoteNumber: [quoteNumber] } : {}),
+    },
+    pageSize,
+  )
+  const { getActions } = useOrderFormActions()
+  const columns = useOrderFormsColumns()
+
+  const getRowLink = (orderForm: OrderFormListItemFragment): string =>
+    orderForm.status === OrderFormStatusEnum.Generated
+      ? generatePath(SIGN_ORDER_FORM_ROUTE, { orderFormId: orderForm.id })
+      : generatePath(ORDER_FORM_DETAILS_ROUTE, { orderFormId: orderForm.id })
 
   return (
-    <GenericPlaceholder
-      title={translate('text_17757461968258p4ij8g74zp')}
-      subtitle={translate('text_1775746196826qogq3id888u')}
-      image={<EmptyImage width="136" height="104" />}
+    <QuotesSectionTable
+      name="order-forms-list"
+      data={orderForms}
+      isLoading={loading}
+      hasError={!!error}
+      metadata={metadata}
+      fetchMore={fetchMore}
+      columns={columns}
+      pageSize={pageSize}
+      onPageSizeChange={setPageSize}
+      getActions={(orderForm) => getActions(orderForm)}
+      onRowActionLink={getRowLink}
+      emptyState={{
+        title: translate('text_1776697938480e54yje9i5aa'),
+        subtitle: translate('text_17766979384803pz48gknynl'),
+      }}
     />
   )
 }

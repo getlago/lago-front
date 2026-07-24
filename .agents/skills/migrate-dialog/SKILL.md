@@ -49,22 +49,24 @@ Before starting, gather context by reading these reference files:
 1. Read the target dialog file completely
 2. Identify:
    - Whether it's a **form dialog** (has form fields + submit) or a **simple dialog** (just actions/display)
+   - Whether it's a **deletion dialog** (mutation destroys a resource). If so, see [Deletion dialogs: cache eviction](#deletion-dialogs-cache-eviction) - the migration must also fix cache handling, not just the dialog system. This is especially common for integration delete dialogs (`destroyPaymentProvider`, etc.).
    - The imperative ref interface (`openDialog`, `closeDialog`)
    - Internal state managed via `useState` (typically `localData`)
    - Form setup (if any): `useAppForm`, validation schema, `onSubmit` handler
    - What data is passed via `openDialog(data)`
    - The dialog's JSX content (children)
+   - **The type of the first editable field** (plain input vs `ComboBox`) — determines the `onEntered` branch (see section 2). A combo-box-first dialog must open its dropdown on enter, not just focus it.
    - The dialog's actions (submit button, cancel button)
 
 #### Step 1.2: Determine Target Dialog Type
 
-| Old Dialog Pattern                             | New Dialog Type                                     | When to Use                                             |
-| ---------------------------------------------- | --------------------------------------------------- | ------------------------------------------------------- |
-| Has form fields + submit button                | `useFormDialog`                                     | Dialog contains a form with validation                  |
-| Has a single action button (confirm/copy/etc.) | `useCentralizedDialog`                              | Dialog is for confirmation or simple action             |
-| Uses `useCentralizedDialog`                    | Confirmation/warning dialogs with danger/info modes |
-| Chains to another dialog after success         | Both                                                | Use FormDialog for the form, chain to CentralizedDialog |
-| Form dialog + optional secondary action button (e.g., delete from edit) | `useFormDialogOpeningDialog` | Form dialog with a danger/action button that opens a CentralizedDialog |
+| Old Dialog Pattern                                                      | New Dialog Type                                     | When to Use                                                            |
+| ----------------------------------------------------------------------- | --------------------------------------------------- | ---------------------------------------------------------------------- |
+| Has form fields + submit button                                         | `useFormDialog`                                     | Dialog contains a form with validation                                 |
+| Has a single action button (confirm/copy/etc.)                          | `useCentralizedDialog`                              | Dialog is for confirmation or simple action                            |
+| Uses `useCentralizedDialog`                                             | Confirmation/warning dialogs with danger/info modes |
+| Chains to another dialog after success                                  | Both                                                | Use FormDialog for the form, chain to CentralizedDialog                |
+| Form dialog + optional secondary action button (e.g., delete from edit) | `useFormDialogOpeningDialog`                        | Form dialog with a danger/action button that opens a CentralizedDialog |
 
 #### Step 1.3: Find All Usages
 
@@ -160,11 +162,16 @@ export const useMyDialog = () => {
       .open({
         title: translate('...'),
         children: (
-          <div className="...">
+          <div className="p-8">
             {/* Dialog content */}
           </div>
         ),
         closeOnError: false,
+        // onEntered: CLASSIFY THE FIRST FIELD FIRST (see section 2, decision table). Do NOT
+        // default to focusFirstInput. Pick exactly one branch:
+        //   2a plain-input-first  → onEntered: focusFirstInput
+        //   2b combobox-first/only → onEntered clicks the combobox MuiInputBase-root (opens dropdown)
+        onEntered: /* branch 2a or 2b — see section 2 */ focusFirstInput,
         mainAction: (
           <form.AppForm>
             <form.SubmitButton>{translate('...')}</form.SubmitButton>
@@ -186,6 +193,109 @@ export const useMyDialog = () => {
   return { openMyDialog }
 }
 ```
+
+**Which success signal to use in `handleSubmit`:**
+
+`FormDialog` only keeps the dialog open when `handleSubmit` **throws** (with `closeOnError: false`); returning any value closes it. So `handleSubmit` must throw on failure — the question is how it detects failure:
+
+- **`onSubmit` runs an operation that can fail _without throwing_** (e.g. a mutation that returns GraphQL errors instead of rejecting) → track success with a manual flag (`successRef`) set inside `onSubmit` only on real success, as shown above. `form.state.isSubmitSuccessful` can't see a soft failure — it's `true` whenever `onSubmit` didn't throw, even if the mutation returned errors.
+- **`onSubmit` has no failure mode beyond validation** (e.g. it just calls a callback — no mutation) → drop the `successRef` and read the built-in **`form.state.isSubmitSuccessful`** directly:
+
+```typescript
+const handleSubmit = async (): Promise<DialogResult> => {
+  await form.handleSubmit()
+
+  // isSubmitSuccessful: reset to false at the start of each submit, stays false if
+  // validation fails (onSubmit never runs), true only after onSubmit resolves
+  // without throwing. Throw to keep the dialog open (closeOnError: false).
+  if (!form.state.isSubmitSuccessful) {
+    throw new Error('Submit failed')
+  }
+
+  return { reason: 'success' }
+}
+```
+
+Do **not** drop `validationLogic` to "simplify" — without `revalidateLogic()` the `onDynamic` validator never runs and the schema is silently skipped. Keep `revalidateLogic()` (the default, submit-first); do not use `revalidateLogic({ mode: 'change' })` unless a field genuinely needs live validation feedback.
+
+#### Content padding and initial focus — REQUIRED for every migration
+
+Two things are easy to drop during migration and both produce visible regressions. Apply them to **every** `FormDialog` / `FormDialogOpeningDialog` you migrate.
+
+**1. Wrap `children` in a padding container (`p-8`).**
+
+`BaseDialog` only auto-pads content when `children` is a plain **string**. JSX children get **no** padding, so the content renders flush against the left/right edges while the header (`p-8`) and footer stay inset — a broken, misaligned layout. The legacy `Dialog` padded content for you; the new system does not.
+
+Always wrap the JSX children in a padding container so the content's left edge aligns with the header title:
+
+```tsx
+children: (
+  <div className="p-8">
+    {/* dialog content */}
+  </div>
+),
+```
+
+Use `p-8` to match the header/footer gutter. If the content is a nested form component (e.g. a `withForm` render), put the `p-8` on that component's outer wrapper instead. Never leave the children unwrapped.
+
+**2. Focus on enter (`onEntered`) — REQUIRED. First, classify the first field.**
+
+> **STOP — mandatory decision before writing `onEntered`.** Open the dialog's `children` JSX and look at the **first editable field** (top to bottom). Decide which branch applies. Do NOT default to `focusFirstInput` without doing this check — a combo-box-first dialog needs branch 2b, and skipping the check ships a dialog that opens with a closed dropdown (a known, repeated regression).
+>
+> | First field is…                                                            | Use branch                 |
+> | -------------------------------------------------------------------------- | -------------------------- |
+> | A text/amount/plain input                                                  | 2a (`focusFirstInput`)     |
+> | A `ComboBox` (or `field.ComboBoxField`), OR the dialog has only a combobox | **2b (open the dropdown)** |
+
+**2a. Plain input first → focus it (`onEntered: focusFirstInput`).**
+
+The legacy `Dialog` auto-focused the first field. `FormDialog` exposes an `onEntered?: (container: HTMLElement) => void` callback (fired after the enter transition) but does nothing by default, so the migrated dialog opens with nothing focused. Wire the shared helper:
+
+```tsx
+import { focusFirstInput } from '~/components/drawers/useFocusTrap'
+
+// inside the .open({ ... }) call, as a sibling of `children` / `closeOnError`:
+onEntered: focusFirstInput,
+```
+
+`focusFirstInput(container)` scopes its lookup to the dialog's own container and focuses the first editable input (skipping hidden/disabled), so it works regardless of dialog-stack position. It's the same helper the plan and charge drawers use. For a dialog whose first field is not the desired target, pass a custom selector via a wrapper: `onEntered: (c) => focusFirstInput(c, '#my-field')`.
+
+**2b. When the first field is a `ComboBox` / `ComboBoxField`, open its dropdown instead of just focusing it.**
+
+`focusFirstInput` only focuses the underlying `<input>`, leaving the dropdown closed - the user still has to click/type to see the options. When the combobox is the dialog's primary (or only) field, the expected UX is to open the menu on enter. This applies to **both** the raw design-system `<ComboBox>` and the TanStack `<field.ComboBoxField>` (the wrapper spreads `...props` to `ComboBox`, so `className` passes straight through). Match the charge-drawer pattern: give the combobox a known className, then in `onEntered` click its `MuiInputBase-root` to pop the dropdown open.
+
+**Add a dedicated className constant** in `src/core/constants/form.ts` for this combobox - do **not** reuse an unrelated feature's constant (e.g. `SEARCH_TAX_INPUT_FOR_CUSTOMER_CLASSNAME` belongs to the customer VAT flow; borrowing it makes the selector lie and collides if both dialogs mount). Name it after the field, grouped under the relevant feature comment:
+
+```ts
+// Billing entity
+export const SEARCH_INVOICE_CUSTOM_SECTION_INPUT_CLASSNAME = 'searchInvoiceCustomSectionInput'
+```
+
+Then wire it in the dialog:
+
+```tsx
+import {
+  MUI_INPUT_BASE_ROOT_CLASSNAME,
+  SEARCH_INVOICE_CUSTOM_SECTION_INPUT_CLASSNAME,
+} from '~/core/constants/form'
+
+// raw ComboBox:
+<ComboBox className={SEARCH_INVOICE_CUSTOM_SECTION_INPUT_CLASSNAME} ... />
+
+// or TanStack field.ComboBoxField (className is forwarded to the inner ComboBox):
+<field.ComboBoxField className={SEARCH_INVOICE_CUSTOM_SECTION_INPUT_CLASSNAME} ... />
+
+// inside the .open({ ... }) call - replaces `onEntered: focusFirstInput`:
+onEntered: (container) => {
+  container
+    .querySelector<HTMLElement>(
+      `.${SEARCH_INVOICE_CUSTOM_SECTION_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
+    )
+    ?.click()
+},
+```
+
+Clicking the `MuiInputBase-root` both focuses the field and opens the menu, so it replaces `focusFirstInput` entirely (don't call both, and drop the now-unused `focusFirstInput` import). Reference: `ApplyInvoiceCustomSectionDialog.tsx` (TanStack `field.ComboBoxField`), `EditCustomerVatRateDialog.tsx` (raw `ComboBox`), and the plan/charge drawers (`FixedChargeDrawer.tsx`, `UsageChargeDrawer.tsx`) which gate the same click behind a `shouldFocusComboBoxRef` when the combobox should only auto-open in create mode - a dialog whose combobox is always the entry point can click unconditionally.
 
 **New Pattern (hook-based with CentralizedDialog):**
 
@@ -210,6 +320,61 @@ export const useMyDialog = () => {
   return { openMyDialog }
 }
 ```
+
+#### Deletion dialogs: cache eviction
+
+If the dialog's mutation **destroys a resource** (delete customer, delete an integration/payment provider, etc.), the migration must also fix Apollo cache handling. Do **not** carry over a legacy `refetchQueries` + bare `cache.evict()` combo.
+
+**Why:** a bare `cache.evict()` broadcasts to **all** active `watchQuery` subscriptions. A still-mounted (or Apollo-retained `cache-and-network`) detail-page query then refires, gets a **404** for the just-deleted entity, and the global error link shows a danger toast. `refetchQueries` with named queries makes it worse by refetching every cached query that referenced the dead entity. This is a recurring bug, especially for **integration delete dialogs**.
+
+**Use the `evictFromCache` helper** (`src/core/apolloClient/evictFromCache.ts`). It removes the entity from paginated list fields, nulls single-reference root fields (keeps retained detail queries' cache diff complete so they don't refetch), and suppresses all watchers except the named list query - then evicts + `gc()`.
+
+```typescript
+import { gql, useApolloClient } from '@apollo/client'
+import { evictFromCache } from '~/core/apolloClient/evictFromCache'
+import { GetMyListDocument, useDeleteMyEntityMutation } from '~/generated/graphql'
+
+export const useDeleteMyEntityDialog = () => {
+  const centralizedDialog = useCentralizedDialog()
+  const { translate } = useInternationalization()
+  const client = useApolloClient()
+
+  // No refetchQueries, no inline update/evict here
+  const [deleteMyEntity] = useDeleteMyEntityMutation()
+
+  const openDeleteMyEntityDialog = (data: { entity: MyEntity | null; callback?: () => void }) => {
+    centralizedDialog.open({
+      title: translate('...'),
+      description: translate('...'),
+      actionText: translate('...'),
+      colorVariant: 'danger',
+      onAction: async () => {
+        const res = await deleteMyEntity({
+          variables: { input: { id: data.entity?.id as string } },
+        })
+
+        const destroyedId = res.data?.destroyMyEntity?.id
+
+        if (destroyedId) {
+          evictFromCache(client, {
+            id: destroyedId,
+            __typename: 'MyEntity',
+            listFieldName: 'myEntities', // root query field with { collection, metadata }
+            listQueryDocument: GetMyListDocument,
+          })
+
+          data.callback?.()
+          addToast({ message: translate('...'), severity: 'success' })
+        }
+      },
+    })
+  }
+
+  return { openDeleteMyEntityDialog }
+}
+```
+
+**Canonical example:** `src/components/settings/integrations/DeleteAdyenIntegrationDialog.tsx`. The `__typename` (e.g. `CashfreeProvider`), `listFieldName` (e.g. `paymentProviders`), and `listQueryDocument` come from the list page's query. For entities in multiple lists, pass arrays to `listFieldName`/`listQueryDocument` (see the helper's JSDoc).
 
 **New Pattern (hook-based with FormDialogOpeningDialog):**
 
@@ -272,13 +437,17 @@ export const useMyFormDialog = () => {
         title: translate(isEdition ? '...' : '...'),
         description: translate('...'),
         children: (
-          <div className="...">
+          <div className="p-8">
             <form.AppField name="fieldName">
               {(field) => <field.TextInputField label={translate('...')} />}
             </form.AppField>
           </div>
         ),
         closeOnError: false,
+        // onEntered: CLASSIFY THE FIRST FIELD FIRST (see section 2, decision table). This example's
+        // first field is a TextInputField, so branch 2a (focusFirstInput) applies. A combobox-first
+        // dialog needs branch 2b (click the combobox MuiInputBase-root to open its dropdown).
+        onEntered: focusFirstInput,
         mainAction: (
           <form.AppForm>
             <form.SubmitButton>{translate('...')}</form.SubmitButton>
@@ -379,6 +548,10 @@ Add (for FormDialog):
 import { useRef } from 'react'
 import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { DialogResult } from '~/components/dialogs/types'
+// Only for branch 2a (plain-input-first). Branch 2b (combobox-first/only) does NOT import
+// focusFirstInput — it imports MUI_INPUT_BASE_ROOT_CLASSNAME + a field className from
+// ~/core/constants/form and clicks the combobox MuiInputBase-root in onEntered. See section 2.
+import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 ```
 
 Or (for CentralizedDialog):
@@ -393,6 +566,10 @@ Or (for FormDialogOpeningDialog):
 import { useRef } from 'react'
 import { useFormDialogOpeningDialog } from '~/components/dialogs/FormDialogOpeningDialog'
 import { DialogResult } from '~/components/dialogs/types'
+// Only for branch 2a (plain-input-first). Branch 2b (combobox-first/only) does NOT import
+// focusFirstInput — it imports MUI_INPUT_BASE_ROOT_CLASSNAME + a field className from
+// ~/core/constants/form and clicks the combobox MuiInputBase-root in onEntered. See section 2.
+import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 ```
 
 #### Step 2.4: Remove Old Exports
@@ -553,6 +730,7 @@ type FormDialogOpeningDialogProps = FormDialogProps & {
 - [ ] Find all usages of the dialog (parent components)
 - [ ] Identify data passed via `openDialog`
 - [ ] Identify any props passed to the dialog component
+- [ ] Identify if it's a **deletion dialog** (destroy mutation) - if so, plan the `evictFromCache` migration
 - [ ] (FormDialogOpeningDialog) Identify if the dialog has a secondary action button (e.g., delete from edit) that opens another dialog
 
 ### Phase 2: Implementation
@@ -561,8 +739,13 @@ type FormDialogOpeningDialogProps = FormDialogProps & {
 - [ ] Replace `useState(localData)` with `useRef` (for FormDialog/FormDialogOpeningDialog) or function parameter (for CentralizedDialog)
 - [ ] Replace `Dialog`/`WarningDialog` with `useFormDialog()`, `useCentralizedDialog()`, or `useFormDialogOpeningDialog()`
 - [ ] Implement `handleSubmit` returning `Promise<DialogResult>` (for FormDialog/FormDialogOpeningDialog)
+- [ ] Wrap `children` JSX in a `p-8` padding container (BaseDialog does NOT pad JSX children → flush/misaligned layout otherwise)
+- [ ] **Classify the first editable field before writing `onEntered`** (see section 2 decision table) — this check is mandatory, not optional:
+  - [ ] First field is a plain input → `onEntered: focusFirstInput` (branch 2a)
+  - [ ] First field is a `ComboBox` / `field.ComboBoxField`, OR the dialog has only a combobox → give it a className and `.click()` its `MuiInputBase-root` in `onEntered` to open the dropdown; do NOT also call `focusFirstInput` (branch 2b)
 - [ ] Handle form reset and cleanup in `.then()` callback (for FormDialog/FormDialogOpeningDialog)
 - [ ] Remove old exports (`forwardRef`, `DialogRef` interface, `displayName`)
+- [ ] (Deletion dialog) Replace `refetchQueries` / bare `cache.evict()` with the `evictFromCache` helper
 - [ ] Update parent components (replace ref with hook, remove JSX rendering)
 - [ ] Move any component props to open function data
 - [ ] (FormDialogOpeningDialog) Configure `canOpenDialog`, `openDialogText`, and `otherDialogProps`

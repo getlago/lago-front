@@ -1,8 +1,6 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { createRef } from 'react'
 
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { AggregationTypeEnum, ChargeModelEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 import { createMockPlanForm } from '~/test-utils/createMockPlanForm'
@@ -32,22 +30,11 @@ jest.mock('~/components/plans/drawers/usageCharge/UsageChargeDrawer', () => {
   return { UsageChargeDrawer: MockedDrawer }
 })
 
-jest.mock('~/components/plans/RemoveChargeWarningDialog', () => {
-  const React = jest.requireActual('react')
-
-  const MockedDialog = React.forwardRef((_props: unknown, ref: unknown) => {
-    React.useImperativeHandle(ref, () => ({
-      openDialog: jest.fn(),
-      closeDialog: jest.fn(),
-    }))
-
-    return React.createElement('div', { 'data-test': 'remove-charge-warning-dialog-mock' })
-  })
-
-  MockedDialog.displayName = 'RemoveChargeWarningDialog'
-
-  return { RemoveChargeWarningDialog: MockedDialog, RemoveChargeWarningDialogRef: {} }
-})
+jest.mock('~/components/plans/RemoveChargeWarningDialog', () => ({
+  useRemoveChargeWarningDialog: () => ({
+    openRemoveChargeWarningDialog: jest.fn(),
+  }),
+}))
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -64,6 +51,27 @@ jest.mock('~/core/apolloClient', () => ({
 jest.mock('~/core/apolloClient/reactiveVars/duplicatePlanVar', () => ({
   useDuplicatePlanVar: () => ({ type: '' }),
 }))
+
+// jsdom has no layout; stub the virtualizer to yield every row so the virtualized
+// branch is exercised. The plain (<= threshold) branch ignores it.
+jest.mock('@tanstack/react-virtual', () => ({
+  useVirtualizer: ({ count }: { count: number }) => ({
+    getTotalSize: () => count * 76,
+    getVirtualItems: () =>
+      Array.from({ length: count }, (_, index) => ({ index, start: index * 76, key: index })),
+    measureElement: () => {},
+  }),
+}))
+
+class ResizeObserverMock {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
+beforeAll(() => {
+  global.ResizeObserver = ResizeObserverMock
+})
 
 // --- Helpers ---
 
@@ -89,8 +97,6 @@ const createMockCharge = (overrides: Partial<LocalUsageChargeInput> = {}): Local
 
 const createForm = (overrides: Partial<PlanFormInput> = {}) => createMockPlanForm(overrides)
 
-const premiumWarningDialogRef = createRef<PremiumWarningDialogRef>()
-
 // --- Tests ---
 
 describe('UsageChargesSection', () => {
@@ -103,13 +109,7 @@ describe('UsageChargesSection', () => {
       it('THEN should render the add usage charge button', () => {
         const form = createForm()
 
-        render(
-          <UsageChargesSection
-            form={form}
-            isEdition={false}
-            premiumWarningDialogRef={premiumWarningDialogRef}
-          />,
-        )
+        render(<UsageChargesSection form={form} isEdition={false} />)
 
         expect(screen.getByTestId(USAGE_CHARGES_ADD_BUTTON_TEST_ID)).toBeInTheDocument()
       })
@@ -117,13 +117,7 @@ describe('UsageChargesSection', () => {
       it('THEN should render the mocked drawer', () => {
         const form = createForm()
 
-        render(
-          <UsageChargesSection
-            form={form}
-            isEdition={false}
-            premiumWarningDialogRef={premiumWarningDialogRef}
-          />,
-        )
+        render(<UsageChargesSection form={form} isEdition={false} />)
 
         expect(screen.getByTestId('usage-charge-drawer-mock')).toBeInTheDocument()
       })
@@ -134,12 +128,7 @@ describe('UsageChargesSection', () => {
         const form = createForm()
 
         const { container } = render(
-          <UsageChargesSection
-            form={form}
-            isEdition={false}
-            isInSubscriptionForm
-            premiumWarningDialogRef={premiumWarningDialogRef}
-          />,
+          <UsageChargesSection form={form} isEdition={false} isInSubscriptionForm />,
         )
 
         expect(screen.queryByTestId(USAGE_CHARGES_ADD_BUTTON_TEST_ID)).not.toBeInTheDocument()
@@ -156,13 +145,7 @@ describe('UsageChargesSection', () => {
       it('THEN should render charge selectors', () => {
         const form = createForm({ charges: [charge] })
 
-        render(
-          <UsageChargesSection
-            form={form}
-            isEdition={false}
-            premiumWarningDialogRef={premiumWarningDialogRef}
-          />,
-        )
+        render(<UsageChargesSection form={form} isEdition={false} />)
 
         expect(screen.getByTestId('usage-charge-selector-0')).toBeInTheDocument()
       })
@@ -182,13 +165,7 @@ describe('UsageChargesSection', () => {
         })
         const form = createForm({ charges: [meteredCharge, recurringCharge] })
 
-        render(
-          <UsageChargesSection
-            form={form}
-            isEdition={false}
-            premiumWarningDialogRef={premiumWarningDialogRef}
-          />,
-        )
+        render(<UsageChargesSection form={form} isEdition={false} />)
 
         expect(screen.getByTestId('usage-charge-selector-0')).toBeInTheDocument()
         expect(screen.getByTestId('usage-charge-selector-1')).toBeInTheDocument()
@@ -202,13 +179,7 @@ describe('UsageChargesSection', () => {
         const user = userEvent.setup()
         const form = createForm()
 
-        render(
-          <UsageChargesSection
-            form={form}
-            isEdition={false}
-            premiumWarningDialogRef={premiumWarningDialogRef}
-          />,
-        )
+        render(<UsageChargesSection form={form} isEdition={false} />)
 
         await user.click(screen.getByTestId(USAGE_CHARGES_ADD_BUTTON_TEST_ID))
 
@@ -225,13 +196,7 @@ describe('UsageChargesSection', () => {
         const charge = createMockCharge()
         const form = createForm({ charges: [charge] })
 
-        render(
-          <UsageChargesSection
-            form={form}
-            isEdition={false}
-            premiumWarningDialogRef={premiumWarningDialogRef}
-          />,
-        )
+        render(<UsageChargesSection form={form} isEdition={false} />)
 
         await user.click(screen.getByTestId('usage-charge-selector-0'))
 
@@ -241,6 +206,45 @@ describe('UsageChargesSection', () => {
           initialCharge: undefined,
           isUsedInSubscription: false,
         })
+      })
+    })
+  })
+
+  describe('GIVEN the charge list crosses the virtualization threshold', () => {
+    const buildCharges = (count: number) =>
+      Array.from({ length: count }, (_, i) =>
+        createMockCharge({
+          id: `charge-${i}`,
+          billableMetric: {
+            id: `bm-${i}`,
+            name: `Metric ${i}`,
+            code: `metric_${i}`,
+            aggregationType: AggregationTypeEnum.CountAgg,
+            recurring: false,
+            filters: [],
+          },
+        } as Partial<LocalUsageChargeInput>),
+      )
+
+    describe('WHEN there are more charges than the threshold', () => {
+      it('THEN should render the charge list through the virtualized path', () => {
+        const form = createForm({ charges: buildCharges(51) })
+
+        const { container } = render(<UsageChargesSection form={form} isEdition={false} />)
+
+        // Virtualized rows carry data-index inside the positioned spacer.
+        expect(container.querySelector('[data-index="0"]')).not.toBeNull()
+      })
+    })
+
+    describe('WHEN there are at or below the threshold', () => {
+      it('THEN should render the charge list as a plain list (no virtual rows)', () => {
+        const form = createForm({ charges: buildCharges(3) })
+
+        const { container } = render(<UsageChargesSection form={form} isEdition={false} />)
+
+        expect(container.querySelector('[data-index]')).toBeNull()
+        expect(screen.getByTestId('usage-charge-selector-0')).toBeInTheDocument()
       })
     })
   })

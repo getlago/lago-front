@@ -4,18 +4,15 @@ import { DateTime } from 'luxon'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { generatePath, useParams, useSearchParams } from 'react-router-dom'
 
+import { BillingEntityFormPicker } from '~/components/billingEntity/BillingEntityFormPicker'
 import { Alert } from '~/components/designSystem/Alert'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
 import { Selector } from '~/components/designSystem/Selector'
 import { Typography } from '~/components/designSystem/Typography'
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { BasicComboBoxData, ComboboxItem } from '~/components/form'
 import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
-import {
-  EditInvoiceDisplayNameDialog,
-  EditInvoiceDisplayNameDialogRef,
-} from '~/components/invoices/EditInvoiceDisplayNameDialog'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
 import { FixedChargesSection } from '~/components/plans/form/FixedChargesSection'
@@ -24,10 +21,10 @@ import { SubscriptionFeeSection } from '~/components/plans/SubscriptionFeeSectio
 import { LocalUsageChargeInput } from '~/components/plans/types'
 import { UsageChargesSection } from '~/components/plans/UsageChargesSection'
 import PremiumFeature from '~/components/premium/PremiumFeature'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { FeatureEntitlementSection } from '~/components/subscriptions/FeatureEntitlementSection'
 import { buildSubscriptionDefaultValues } from '~/components/subscriptions/form/buildSubscriptionDefaultValues'
-import { InvoicingPaymentsFormSection } from '~/components/subscriptions/form/InvoicingPaymentsFormSection'
+import { InvoicingSettingsSection } from '~/components/subscriptions/form/InvoicingSettingsSection'
+import { PaymentSettingsSection } from '~/components/subscriptions/form/PaymentSettingsSection'
 import { SubscriptionInformationFormSection } from '~/components/subscriptions/form/SubscriptionInformationFormSection'
 import { ProgressiveBillingSection } from '~/components/subscriptions/ProgressiveBillingSection'
 import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
@@ -41,15 +38,15 @@ import {
   useLocation,
   useNavigate,
 } from '~/core/router'
+import { serializeActivationRules } from '~/core/serializers'
 import { getTimezoneConfig } from '~/core/timezone'
 import { subscriptionFormSchema } from '~/formValidation/subscriptionFormSchema'
 import {
-  AddSubscriptionPlanFragmentDoc,
   CurrencyEnum,
-  FeatureEntitlementForPlanFragmentDoc,
   FeatureFlagEnum,
   PlanInterval,
   StatusTypeEnum,
+  SubscriptionForSubscriptionEditFormFragmentDoc,
   TimezoneEnum,
   useGetCustomerForCreateSubscriptionQuery,
   useGetPlansLazyQuery,
@@ -58,10 +55,12 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAddSubscription } from '~/hooks/customer/useAddSubscription'
 import { useAppForm } from '~/hooks/forms/useAppform'
-import { usePlanForm } from '~/hooks/plans/usePlanForm'
+import { useCustomPricingUnits } from '~/hooks/plans/useCustomPricingUnits'
+import { buildDefaultValues, usePlanForm } from '~/hooks/plans/usePlanForm'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useIframeConfig } from '~/hooks/useIframeConfig'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { useRedirectIncompleteSubscription } from '~/hooks/useRedirectIncompleteSubscription'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 import { tw } from '~/styles/utils'
 
@@ -90,42 +89,20 @@ gql`
       name
       displayName
       externalId
+      billingEntity {
+        id
+      }
+      paymentProvider
     }
   }
 
   query getSubscriptionForCreateSubscription($id: ID!) {
     subscription(id: $id) {
-      id
-      name
-      externalId
-      subscriptionAt
-      endingAt
-      billingTime
-      periodEndDate
-      status
-      startedAt
-      paymentMethodType
-      paymentMethod {
-        id
-      }
-      skipInvoiceCustomSections
-      selectedInvoiceCustomSections {
-        id
-        name
-        code
-      }
-      plan {
-        id
-        parent {
-          id
-        }
-        ...AddSubscriptionPlan
-      }
+      ...SubscriptionForSubscriptionEditForm
     }
   }
 
-  ${AddSubscriptionPlanFragmentDoc}
-  ${FeatureEntitlementForPlanFragmentDoc}
+  ${SubscriptionForSubscriptionEditFormFragmentDoc}
 `
 
 const CreateSubscription = () => {
@@ -138,11 +115,10 @@ const CreateSubscription = () => {
   const { hasFeatureFlag, intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const { isRunningInSalesForceIframe, isRunningInIframeContext } = useIframeConfig()
 
-  const editInvoiceDisplayNameDialogRef = useRef<EditInvoiceDisplayNameDialogRef>(null)
-  const warningDialogRef = useRef<WarningDialogRef>(null)
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const centralizedDialog = useCentralizedDialog()
   const [showCurrencyError, setShowCurrencyError] = useState<boolean>(false)
-  const hasAccessToMultiPaymentFlow = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)
+
+  const hasMultiEntityBilling = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
 
   const [getPlans, { loading: planLoading, data: planData }] = useGetPlansLazyQuery({
     variables: { limit: 1000 },
@@ -176,11 +152,19 @@ const CreateSubscription = () => {
       onDynamic: subscriptionFormSchema,
     },
     onSubmit: async ({ value }) => {
-      const { invoiceCustomSection, ...restValues } = value
+      const {
+        activationRuleTimeoutHours,
+        activationRuleType,
+        invoiceCustomSection,
+        ...restValues
+      } = value
 
       const localValues = {
-        id: formType === FORM_TYPE_ENUM.edition ? subscription?.id : undefined,
         ...restValues,
+        activationRules: serializeActivationRules({
+          activationRuleTimeoutHours,
+          activationRuleType,
+        }),
         invoiceCustomSection: toInvoiceCustomSectionReference(invoiceCustomSection),
       }
       const rootElement = document.getElementById('root')
@@ -189,6 +173,7 @@ const CreateSubscription = () => {
         localValues,
         planForm.state.values,
         planFormIsDirty,
+        planBaselineValues,
       )
 
       if (errorsString === 'CurrenciesDoesNotMatch') {
@@ -212,11 +197,70 @@ const CreateSubscription = () => {
   const subscriptionIsDirty = useStore(subscriptionForm.store, (s) => s.isDirty)
   const subscriptionCanSubmit = useStore(subscriptionForm.store, (s) => s.canSubmit)
   const subscriptionIsSubmitting = useStore(subscriptionForm.store, (s) => s.isSubmitting)
+  const subscriptionBillingEntityId = useStore(
+    subscriptionForm.store,
+    (s) => s.values.billingEntityId,
+  )
+  const isEditingSubscription = formType === FORM_TYPE_ENUM.edition
+
+  // Default billingEntityId on first load only:
+  // - edit / upgrade / downgrade flow → preserve the existing subscription's
+  //   explicit entity (Decision 5.6: explicit bindings are sticky and must
+  //   survive subscription mutations)
+  // - pure creation flow → use the customer's current default entity
+  //
+  // Latched with a ref so the default fires *once* per mount. Without the
+  // latch, clearing the picker would immediately re-trigger the default
+  // because `subscriptionBillingEntityId` is back to falsy.
+  const hasInitializedBillingEntityDefaultRef = useRef(false)
+
+  useEffect(() => {
+    if (!hasMultiEntityBilling) return
+    if (hasInitializedBillingEntityDefaultRef.current) return
+    if (subscriptionBillingEntityId) {
+      hasInitializedBillingEntityDefaultRef.current = true
+      return
+    }
+    const hasExistingSubscription =
+      formType === FORM_TYPE_ENUM.edition || formType === FORM_TYPE_ENUM.upgradeDowngrade
+    const defaultEntityId =
+      (hasExistingSubscription ? subscription?.billingEntityId : null) ??
+      customer?.billingEntity?.id
+
+    if (defaultEntityId) {
+      subscriptionForm.setFieldValue('billingEntityId', defaultEntityId)
+      hasInitializedBillingEntityDefaultRef.current = true
+    }
+  }, [
+    hasMultiEntityBilling,
+    formType,
+    subscription?.billingEntityId,
+    customer?.billingEntity?.id,
+    subscriptionBillingEntityId,
+    subscriptionForm,
+  ])
 
   const { form: planForm, plan } = usePlanForm({
     planIdToFetch: subscriptionPlanId,
     isUsedInSubscriptionForm: true,
   })
+
+  const { hasAnyPricingUnitConfigured } = useCustomPricingUnits()
+
+  // The plan's unedited baseline, rebuilt the same way the plan form is
+  // initialized (usePlanFormSetup → buildDefaultValues). Diffed against the
+  // edited values in useAddSubscription so a units-only fixed-charge change
+  // sends a minimal planOverrides instead of cloning the whole plan.
+  const planBaselineValues = useMemo(
+    () =>
+      buildDefaultValues(
+        plan,
+        FORM_TYPE_ENUM.creation,
+        (plan?.amountCurrency as CurrencyEnum) || CurrencyEnum.Usd,
+        hasAnyPricingUnitConfigured,
+      ),
+    [plan, hasAnyPricingUnitConfigured],
+  )
 
   const alreadyExistingPlanFixedChargesIds =
     plan?.fixedCharges?.map((fixedCharge) => fixedCharge.id) || []
@@ -252,6 +296,12 @@ const CreateSubscription = () => {
       !!(formType !== FORM_TYPE_ENUM.upgradeDowngrade && subscription?.name),
     )
   }, [subscription?.name, formType])
+
+  useRedirectIncompleteSubscription({
+    customerId,
+    subscriptionId: subscription?.id,
+    subscriptionStatus: subscription?.status,
+  })
 
   // Remove currency error is value changes
   useEffect(() => {
@@ -380,13 +430,23 @@ const CreateSubscription = () => {
     }
   }, [searchParams, navigate, plan?.id, customerId])
 
+  const openDirtyAttributesWarning = useCallback(() => {
+    centralizedDialog.open({
+      title: translate('text_65118a52df984447c18694ee'),
+      description: translate('text_65118a52df984447c18694fe'),
+      actionText: translate('text_645388d5bdbd7b00abffa033'),
+      colorVariant: 'danger',
+      onAction: () => navigateBack(),
+    })
+  }, [centralizedDialog, navigateBack, translate])
+
   const handleClose = useCallback(() => {
     if (subscriptionIsDirty || planFormIsDirty) {
-      warningDialogRef.current?.openDialog()
+      openDirtyAttributesWarning()
     } else {
       navigateBack()
     }
-  }, [subscriptionIsDirty, planFormIsDirty, navigateBack])
+  }, [subscriptionIsDirty, planFormIsDirty, navigateBack, openDirtyAttributesWarning])
 
   const pageHeaderTitle = useMemo(() => {
     if (formType === FORM_TYPE_ENUM.edition) {
@@ -459,6 +519,19 @@ const CreateSubscription = () => {
                       )}
                     </subscriptionForm.AppField>
 
+                    {!!subscriptionPlanId && (
+                      <BillingEntityFormPicker
+                        label={translate('text_1743611497157teaa1zu8l24')}
+                        value={subscriptionBillingEntityId}
+                        onChange={(id) => subscriptionForm.setFieldValue('billingEntityId', id)}
+                        helperText={translate(
+                          isEditingSubscription
+                            ? 'text_1779457001221h9zixqumknp'
+                            : 'text_17800541562349k15h7ik07c',
+                        )}
+                      />
+                    )}
+
                     {!!showCurrencyError ? (
                       <Alert type="danger">{translate('text_632dbaf1d577afb32ae751f5')}</Alert>
                     ) : (
@@ -500,15 +573,36 @@ const CreateSubscription = () => {
                         shouldDisplaySubscriptionName={shouldDisplaySubscriptionName}
                         setShouldDisplaySubscriptionName={setShouldDisplaySubscriptionName}
                         selectedPlanInterval={selectedPlan?.interval}
+                        customerExternalId={customer?.externalId}
                       />
 
-                      {/* Section: Invoicing & payments */}
-                      {hasAccessToMultiPaymentFlow && (
-                        <InvoicingPaymentsFormSection
-                          form={subscriptionForm}
-                          customer={customer ?? null}
+                      {/* Section: Payments */}
+                      <CenteredPage.PageSection>
+                        <CenteredPage.PageSectionTitle
+                          title={translate('text_17828013737948943pe3k8nc')}
+                          description={translate('text_17828013737955532qxu3wq4')}
                         />
-                      )}
+
+                        {/* Payment method lives in a drawer */}
+                        <PaymentSettingsSection
+                          form={subscriptionForm}
+                          externalCustomerId={customer?.externalId ?? ''}
+                        />
+                      </CenteredPage.PageSection>
+
+                      {/* Section: Invoicing */}
+                      <CenteredPage.PageSection>
+                        <CenteredPage.PageSectionTitle
+                          title={translate('text_17423672025282dl7iozy1ru')}
+                          description={translate('text_1782738644346p066xtwa8yj')}
+                        />
+
+                        {/* Invoice consolidation + custom sections live in a drawer */}
+                        <InvoicingSettingsSection
+                          form={subscriptionForm}
+                          customerId={customer?.id}
+                        />
+                      </CenteredPage.PageSection>
                     </>
                   )}
                 </CenteredPage.SubsectionWrapper>
@@ -516,11 +610,11 @@ const CreateSubscription = () => {
                 {!!subscriptionPlanId && (
                   <>
                     {/* Premium "Override plan" full-width divider */}
-                    <div className="relative my-20 flex flex-col items-center gap-3">
+                    <div className="relative mb-8 mt-20 flex flex-col items-center gap-3">
                       <div className="absolute left-1/2 top-0 h-[2px] w-[100vw] -translate-x-1/2 bg-purple-100" />
                       <div className="rounded-b bg-purple-100 px-4 py-1">
                         <Typography variant="captionHl" color="info600">
-                          {translate('text_65118a52df984447c18694d0')}
+                          {translate('text_65118a52df984447c18694d1')}
                         </Typography>
                       </div>
                     </div>
@@ -528,7 +622,7 @@ const CreateSubscription = () => {
                     {/* Premium upsell (non-premium users) */}
                     {!isPremium && (
                       <PremiumFeature
-                        feature={translate('text_65118a52df984447c18694d0')}
+                        feature={translate('text_65118a52df984447c18694d1')}
                         title={translate('text_65118a52df984447c18694d0')}
                         description={translate('text_65118a52df984447c18694da')}
                       />
@@ -583,7 +677,6 @@ const CreateSubscription = () => {
                                   form={planForm}
                                   isEdition={formType === FORM_TYPE_ENUM.edition}
                                   isInSubscriptionForm={isInSubscriptionForm}
-                                  premiumWarningDialogRef={premiumWarningDialogRef}
                                   subscriptionFormType={formType}
                                 />
                               </CenteredPage.SubsectionWrapper>
@@ -624,17 +717,6 @@ const CreateSubscription = () => {
           </CenteredPage.StickyFooter>
         </CenteredPage.Wrapper>
       </form>
-
-      <WarningDialog
-        ref={warningDialogRef}
-        title={translate('text_65118a52df984447c18694ee')}
-        description={translate('text_65118a52df984447c18694fe')}
-        continueText={translate('text_645388d5bdbd7b00abffa033')}
-        onContinue={() => navigateBack()}
-      />
-
-      <EditInvoiceDisplayNameDialog ref={editInvoiceDisplayNameDialogRef} />
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </>
   )
 }

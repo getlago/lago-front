@@ -1,9 +1,14 @@
+import NiceModal from '@ebay/nice-modal-react'
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import CentralizedDialog from '~/components/dialogs/CentralizedDialog'
+import { CENTRALIZED_DIALOG_NAME } from '~/components/dialogs/const'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import CreateSubscription from '../CreateSubscription'
+
+NiceModal.register(CENTRALIZED_DIALOG_NAME, CentralizedDialog)
 
 // --- Mock state ---
 
@@ -78,6 +83,11 @@ jest.mock('~/hooks/plans/usePlanForm', () => ({
     loading: false,
     type: 'creation',
   }),
+  buildDefaultValues: jest.fn(() => ({})),
+}))
+
+jest.mock('~/hooks/plans/useCustomPricingUnits', () => ({
+  useCustomPricingUnits: () => ({ hasAnyPricingUnitConfigured: false }),
 }))
 
 const mockSubscriptionFormIsDirty = false
@@ -163,6 +173,24 @@ jest.mock('~/hooks/forms/useAppform', () => ({
       WithFormWrapper.displayName = 'WithFormWrapper'
 
       return WithFormWrapper
+    },
+  ),
+  withFieldGroup: jest.fn(
+    ({
+      render: RenderComponent,
+      props: defaultProps,
+    }: {
+      render: React.FC<Record<string, unknown>>
+      defaultValues: Record<string, unknown>
+      props?: Record<string, unknown>
+    }) => {
+      const WithFieldGroupWrapper = (receivedProps: Record<string, unknown>) => {
+        return <RenderComponent {...(defaultProps ?? {})} {...receivedProps} />
+      }
+
+      WithFieldGroupWrapper.displayName = 'WithFieldGroupWrapper'
+
+      return WithFieldGroupWrapper
     },
   ),
 }))
@@ -263,16 +291,18 @@ jest.mock('~/components/subscriptions/FeatureEntitlementSection', () => ({
   FeatureEntitlementSection: () => <div data-test="feature-entitlement-section" />,
 }))
 
-jest.mock('~/components/PremiumWarningDialog', () => ({
-  PremiumWarningDialog: () => <div data-test="premium-warning-dialog" />,
+jest.mock('~/components/invoices/useEditInvoiceDisplayName', () => ({
+  useEditInvoiceDisplayNameDialog: () => ({
+    openEditInvoiceDisplayNameDialog: jest.fn(),
+  }),
 }))
 
-jest.mock('~/components/invoices/EditInvoiceDisplayNameDialog', () => ({
-  EditInvoiceDisplayNameDialog: () => <div data-test="edit-invoice-display-name-dialog" />,
+jest.mock('~/components/subscriptions/form/PaymentSettingsSection', () => ({
+  PaymentSettingsSection: () => <div data-test="payment-settings-section" />,
 }))
 
-jest.mock('~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings', () => ({
-  PaymentMethodsInvoiceSettings: () => <div data-test="payment-methods-settings" />,
+jest.mock('~/components/subscriptions/form/InvoicingSettingsSection', () => ({
+  InvoicingSettingsSection: () => <div data-test="invoicing-settings-section" />,
 }))
 
 jest.mock('~/contexts/PlanFormContext', () => ({
@@ -286,9 +316,14 @@ jest.mock('~/components/customers/subscriptions/SubscriptionDatesOffsetHelperCom
 // --- Helpers ---
 
 const renderCreateSubscription = () =>
-  render(<CreateSubscription />, {
-    mocks: [],
-  })
+  render(
+    <NiceModal.Provider>
+      <CreateSubscription />
+    </NiceModal.Provider>,
+    {
+      mocks: [],
+    },
+  )
 
 // --- Tests ---
 

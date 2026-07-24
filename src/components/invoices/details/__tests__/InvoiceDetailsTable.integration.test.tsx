@@ -17,6 +17,16 @@ import {
 } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
+// Stub the drawer hook so the transitive `drawerStack.ts` (Vite-only `import.meta.hot`)
+// is never loaded when this integration test mounts BodyLine through the table.
+jest.mock('~/components/invoices/details/ViewFeeDetailsDrawer', () => ({
+  useViewFeeDetailsDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+}))
+
+jest.mock('~/components/invoices/details/DeleteAdjustedFeeDialog', () => ({
+  useDeleteAdjustedFeeDialog: () => ({ openDeleteAdjustedFeeDialog: jest.fn() }),
+}))
+
 describe('InvoiceDetailsTable - Integration Tests', () => {
   const mockCustomer = {
     id: 'customer-1',
@@ -24,7 +34,6 @@ describe('InvoiceDetailsTable - Integration Tests', () => {
   }
 
   const mockEditFeeDrawerRef = { current: null }
-  const mockDeleteAdjustedFeeDialogRef = { current: null }
 
   describe('Invoice with 1 subscription', () => {
     it('should render invoice with single subscription and fees correctly', () => {
@@ -108,7 +117,6 @@ describe('InvoiceDetailsTable - Integration Tests', () => {
           customer={mockCustomer}
           invoice={mockInvoice}
           editFeeDrawerRef={mockEditFeeDrawerRef}
-          deleteAdjustedFeeDialogRef={mockDeleteAdjustedFeeDialogRef}
           fees={mockInvoice.fees as FeeDetailsForInvoiceOverviewFragment[]}
         />,
       )
@@ -218,7 +226,6 @@ describe('InvoiceDetailsTable - Integration Tests', () => {
           customer={mockCustomer}
           invoice={mockInvoice}
           editFeeDrawerRef={mockEditFeeDrawerRef}
-          deleteAdjustedFeeDialogRef={mockDeleteAdjustedFeeDialogRef}
           fees={mockInvoice.fees as FeeDetailsForInvoiceOverviewFragment[]}
         />,
       )
@@ -322,7 +329,6 @@ describe('InvoiceDetailsTable - Integration Tests', () => {
           customer={mockCustomer}
           invoice={mockInvoice}
           editFeeDrawerRef={mockEditFeeDrawerRef}
-          deleteAdjustedFeeDialogRef={mockDeleteAdjustedFeeDialogRef}
           fees={mockInvoice.fees as FeeDetailsForInvoiceOverviewFragment[]}
         />,
       )
@@ -471,7 +477,6 @@ describe('InvoiceDetailsTable - Integration Tests', () => {
           customer={mockCustomer}
           invoice={mockInvoice}
           editFeeDrawerRef={mockEditFeeDrawerRef}
-          deleteAdjustedFeeDialogRef={mockDeleteAdjustedFeeDialogRef}
           fees={mockInvoice.fees as FeeDetailsForInvoiceOverviewFragment[]}
         />,
       )
@@ -597,7 +602,6 @@ describe('InvoiceDetailsTable - Integration Tests', () => {
           customer={mockCustomer}
           invoice={mockInvoice}
           editFeeDrawerRef={mockEditFeeDrawerRef}
-          deleteAdjustedFeeDialogRef={mockDeleteAdjustedFeeDialogRef}
           fees={mockInvoice.fees as FeeDetailsForInvoiceOverviewFragment[]}
         />,
       )
@@ -660,7 +664,6 @@ describe('InvoiceDetailsTable - Integration Tests', () => {
           customer={mockCustomer}
           invoice={mockInvoice}
           editFeeDrawerRef={mockEditFeeDrawerRef}
-          deleteAdjustedFeeDialogRef={mockDeleteAdjustedFeeDialogRef}
           fees={[]}
         />,
       )
@@ -693,7 +696,6 @@ describe('InvoiceDetailsTable - Integration Tests', () => {
           customer={mockCustomer}
           invoice={mockInvoice}
           editFeeDrawerRef={mockEditFeeDrawerRef}
-          deleteAdjustedFeeDialogRef={mockDeleteAdjustedFeeDialogRef}
           fees={[]}
         />,
       )
@@ -770,7 +772,6 @@ describe('InvoiceDetailsTable - Integration Tests', () => {
           customer={mockCustomer}
           invoice={mockInvoice}
           editFeeDrawerRef={mockEditFeeDrawerRef}
-          deleteAdjustedFeeDialogRef={mockDeleteAdjustedFeeDialogRef}
           fees={mockInvoice.fees as FeeDetailsForInvoiceOverviewFragment[]}
         />,
       )
@@ -848,7 +849,6 @@ describe('InvoiceDetailsTable - Integration Tests', () => {
           customer={mockCustomer}
           invoice={mockInvoice}
           editFeeDrawerRef={mockEditFeeDrawerRef}
-          deleteAdjustedFeeDialogRef={mockDeleteAdjustedFeeDialogRef}
           fees={mockInvoice.fees as FeeDetailsForInvoiceOverviewFragment[]}
         />,
       )
@@ -920,7 +920,6 @@ describe('InvoiceDetailsTable - Integration Tests', () => {
           customer={mockCustomer}
           invoice={mockInvoice}
           editFeeDrawerRef={mockEditFeeDrawerRef}
-          deleteAdjustedFeeDialogRef={mockDeleteAdjustedFeeDialogRef}
           fees={mockInvoice.fees as FeeDetailsForInvoiceOverviewFragment[]}
         />,
       )
@@ -940,7 +939,6 @@ describe('InvoiceDetailsTable - Integration Tests', () => {
           customer={mockCustomer}
           invoice={null}
           editFeeDrawerRef={mockEditFeeDrawerRef}
-          deleteAdjustedFeeDialogRef={mockDeleteAdjustedFeeDialogRef}
           fees={[]}
         />,
       )
@@ -955,7 +953,6 @@ describe('InvoiceDetailsTable - Integration Tests', () => {
           customer={mockCustomer}
           invoice={undefined}
           editFeeDrawerRef={mockEditFeeDrawerRef}
-          deleteAdjustedFeeDialogRef={mockDeleteAdjustedFeeDialogRef}
           fees={[]}
         />,
       )
@@ -1032,7 +1029,6 @@ describe('InvoiceDetailsTable - Integration Tests', () => {
           customer={mockCustomer}
           invoice={mockInvoice}
           editFeeDrawerRef={mockEditFeeDrawerRef}
-          deleteAdjustedFeeDialogRef={mockDeleteAdjustedFeeDialogRef}
           fees={mockInvoice.fees as FeeDetailsForInvoiceOverviewFragment[]}
         />,
       )
@@ -1109,7 +1105,6 @@ describe('InvoiceDetailsTable - Integration Tests', () => {
           customer={mockCustomer}
           invoice={mockInvoice}
           editFeeDrawerRef={mockEditFeeDrawerRef}
-          deleteAdjustedFeeDialogRef={mockDeleteAdjustedFeeDialogRef}
           fees={mockInvoice.fees as FeeDetailsForInvoiceOverviewFragment[]}
         />,
       )
@@ -1186,7 +1181,6 @@ describe('InvoiceDetailsTable - Integration Tests', () => {
           customer={mockCustomer}
           invoice={mockInvoice}
           editFeeDrawerRef={mockEditFeeDrawerRef}
-          deleteAdjustedFeeDialogRef={mockDeleteAdjustedFeeDialogRef}
           fees={mockInvoice.fees as FeeDetailsForInvoiceOverviewFragment[]}
         />,
       )
@@ -1280,7 +1274,6 @@ describe('InvoiceDetailsTable - Integration Tests', () => {
           customer={mockCustomer}
           invoice={mockInvoice}
           editFeeDrawerRef={mockEditFeeDrawerRef}
-          deleteAdjustedFeeDialogRef={mockDeleteAdjustedFeeDialogRef}
           fees={mockInvoice.fees as FeeDetailsForInvoiceOverviewFragment[]}
         />,
       )
@@ -1420,7 +1413,6 @@ describe('InvoiceDetailsTable - Integration Tests', () => {
           customer={mockCustomer}
           invoice={mockInvoice}
           editFeeDrawerRef={mockEditFeeDrawerRef}
-          deleteAdjustedFeeDialogRef={mockDeleteAdjustedFeeDialogRef}
           fees={mockInvoice.fees as FeeDetailsForInvoiceOverviewFragment[]}
         />,
       )
@@ -1451,7 +1443,6 @@ describe('InvoiceDetailsTable - Integration Tests', () => {
           customer={mockCustomer}
           invoice={mockInvoice}
           editFeeDrawerRef={mockEditFeeDrawerRef}
-          deleteAdjustedFeeDialogRef={mockDeleteAdjustedFeeDialogRef}
           fees={[]}
         />,
       )

@@ -3,16 +3,18 @@ import { generatePath } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Status, StatusType } from '~/components/designSystem/Status'
 import { Table, TableColumn } from '~/components/designSystem/Table'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { formatAmount, formatCredits } from '~/components/wallets/utils'
 import { CREATE_WALLET_DATA_TEST } from '~/components/wallets/utils/dataTestConstants'
 import WalletActions from '~/components/wallets/WalletActions'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CREATE_WALLET_ROUTE, useNavigate, WALLET_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -36,6 +38,7 @@ const ACTIVE_WALLET_COUNT_LIMIT = 6
 gql`
   fragment WalletAccordion on Wallet {
     id
+    code
     balanceCents
     consumedAmountCents
     consumedCredits
@@ -68,6 +71,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
         customerActiveWalletsCount
       }
       collection {
@@ -76,8 +80,8 @@ gql`
     }
   }
 
-  ${WalletForUpdateFragmentDoc}
   ${WalletInfosForTransactionsFragmentDoc}
+  ${WalletForUpdateFragmentDoc}
 `
 
 export const CUSTOMER_WALLET_LIST_LOADING_TEST_ID = 'customer-wallet-list-loading'
@@ -93,9 +97,12 @@ export const CustomerWalletsList = ({ customerId }: CustomerWalletListProps) => 
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
+  const { page, goToPage } = usePageSearchParam()
 
-  const { data, error, loading, fetchMore } = useGetCustomerWalletListQuery({
-    variables: { customerId, page: 0, limit: 10 },
+  const { data, error, loading } = useGetCustomerWalletListQuery({
+    variables: { customerId, page, limit: DEFAULT_PAGE_SIZE },
+    notifyOnNetworkStatusChange: true,
+    fetchPolicy: 'network-only',
   })
   const walletsCollection = data?.wallets?.collection || []
   const hasMoreThanActiveWalletsLimit =
@@ -121,24 +128,39 @@ export const CustomerWalletsList = ({ customerId }: CustomerWalletListProps) => 
       key: 'id',
       maxSpace: true,
       title: translate('text_1772536695408sddzumtfq2t'),
-      content: ({ createdAt, currency, name, rateAmount }) => (
-        <div className="flex flex-col">
-          <Typography variant="bodyHl" color="grey700">
-            {name ||
-              translate('text_62da6ec24a8e24e44f8128b2', {
-                createdAt: intlFormatDateTimeOrgaTZ(createdAt).date,
-              })}
-          </Typography>
-          <Typography variant="caption" color="grey600">
-            {`${translate('text_62da6ec24a8e24e44f812872', {
-              rateAmount: intlFormatNumber(Number(rateAmount) || 0, {
-                currencyDisplay: 'symbol',
-                currency,
-              }),
-            })}`}
-          </Typography>
-        </div>
-      ),
+      content: ({ code, createdAt, currency, name, rateAmount }) => {
+        const rateLabel = translate('text_62da6ec24a8e24e44f812872', {
+          rateAmount: intlFormatNumber(Number(rateAmount) || 0, {
+            currencyDisplay: 'symbol',
+            currency,
+          }),
+        })
+
+        return (
+          <div className="flex flex-col">
+            <Typography variant="bodyHl" color="grey700">
+              {name ||
+                translate('text_62da6ec24a8e24e44f8128b2', {
+                  createdAt: intlFormatDateTimeOrgaTZ(createdAt).date,
+                })}
+            </Typography>
+            {code ? (
+              <div className="flex items-baseline gap-1">
+                <TypographyWithCopy className="shrink-0" compact noWrap variant="caption">
+                  {code}
+                </TypographyWithCopy>
+                <Typography className="min-w-0" variant="caption" color="grey600" noWrap>
+                  {`• ${rateLabel}`}
+                </Typography>
+              </div>
+            ) : (
+              <Typography variant="caption" color="grey600">
+                {rateLabel}
+              </Typography>
+            )}
+          </div>
+        )
+      },
     },
     {
       key: 'balanceCents',
@@ -274,7 +296,7 @@ export const CustomerWalletsList = ({ customerId }: CustomerWalletListProps) => 
         }
       />
 
-      {loading && (
+      {loading && !walletsCollection.length && (
         <div data-test={CUSTOMER_WALLET_LIST_LOADING_TEST_ID} className="flex flex-col gap-4">
           {[1, 2, 3].map((i) => (
             <Skeleton key={`customer-wallet-list-${i}`} variant="text" />
@@ -288,17 +310,12 @@ export const CustomerWalletsList = ({ customerId }: CustomerWalletListProps) => 
         </Typography>
       )}
 
-      {!loading && !!walletsCollection.length && (
-        <InfiniteScroll
-          onBottom={() => {
-            const { currentPage = 0, totalPages = 0 } = data?.wallets?.metadata || {}
-
-            currentPage < totalPages &&
-              !loading &&
-              fetchMore({
-                variables: { page: currentPage + 1 },
-              })
-          }}
+      {!!walletsCollection.length && (
+        <PaginatedContent
+          metadata={data?.wallets?.metadata}
+          loading={loading}
+          onPageChange={goToPage}
+          sticky={false}
         >
           <Table
             name="customer-wallet-list"
@@ -328,7 +345,7 @@ export const CustomerWalletsList = ({ customerId }: CustomerWalletListProps) => 
               )
             }}
           />
-        </InfiniteScroll>
+        </PaginatedContent>
       )}
     </>
   )

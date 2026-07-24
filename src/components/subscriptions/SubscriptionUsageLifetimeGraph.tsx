@@ -34,7 +34,6 @@ import { tw } from '~/styles/utils'
 
 import { getLifetimeGraphPercentages } from './utils'
 
-export const LAST_USAGE_GRAPH_LINE_KEY_NAME = 'Others'
 export const REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE = 'subscriptionUsage'
 
 gql`

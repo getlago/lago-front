@@ -12,14 +12,9 @@ import { DropdownItem } from './types'
 import { GROUP_NAMES, GroupName, useToolbarOverflow } from './useToolbarOverflow'
 
 import ColorPicker from '../BlockControls/ColorPicker'
+import { useRichTextEditorContext } from '../common/RichTextEditorContext'
 import ImagePopperForm from '../forms/ImagePopperForm'
 import LinkPopperForm from '../forms/LinkPopperForm'
-
-export {
-  TOOLBAR_LINK_INPUT_TEST_ID,
-  TOOLBAR_LINK_APPLY_BUTTON_TEST_ID,
-  TOOLBAR_LINK_REMOVE_BUTTON_TEST_ID,
-} from '../forms/LinkPopperForm'
 
 export const TOOLBAR_CONTAINER_TEST_ID = 'toolbar-container'
 export const TOOLBAR_UNDO_BUTTON_TEST_ID = 'toolbar-undo-button'
@@ -45,7 +40,7 @@ export const TOOLBAR_ALIGN_RIGHT_BUTTON_TEST_ID = 'toolbar-align-right-button'
 export const TOOLBAR_ALIGN_JUSTIFY_BUTTON_TEST_ID = 'toolbar-align-justify-button'
 
 type ToolbarProps = {
-  editor: Editor
+  editor: Editor | null
 }
 
 const Separator = () => <div className="w-px shrink-0 bg-grey-300" />
@@ -62,6 +57,7 @@ ToolbarGroup.displayName = 'ToolbarGroup'
 
 const Toolbar = ({ editor }: ToolbarProps) => {
   const { translate } = useInternationalization()
+  const { onImageUpload } = useRichTextEditorContext()
   const containerRef = useRef<HTMLDivElement>(null)
   const kebabRef = useRef<HTMLDivElement>(null)
   const groupRefs = useMemo(
@@ -86,32 +82,34 @@ const Toolbar = ({ editor }: ToolbarProps) => {
   const editorState = useEditorState({
     editor,
     selector: ({ editor: e }) => ({
-      isBold: e.isActive('bold'),
-      isItalic: e.isActive('italic'),
-      isUnderline: e.isActive('underline'),
-      isStrike: e.isActive('strike'),
-      isParagraph: e.isActive('paragraph'),
-      isBulletList: e.isActive('bulletList'),
-      isOrderedList: e.isActive('orderedList'),
-      isCode: e.isActive('code'),
-      isCodeBlock: e.isActive('codeBlock'),
-      isH1: e.isActive('heading', { level: 1 }),
-      isH2: e.isActive('heading', { level: 2 }),
-      isH3: e.isActive('heading', { level: 3 }),
-      isH4: e.isActive('heading', { level: 4 }),
-      isLink: e.isActive('link'),
-      isSuperscript: e.isActive('superscript'),
-      isSubscript: e.isActive('subscript'),
-      highlightColor: (e.getAttributes('highlight').color as string) || null,
-      textColor: (e.getAttributes('textStyle').color as string) || null,
-      isAlignLeft: e.isActive({ textAlign: 'left' }),
-      isAlignCenter: e.isActive({ textAlign: 'center' }),
-      isAlignRight: e.isActive({ textAlign: 'right' }),
-      isAlignJustify: e.isActive({ textAlign: 'justify' }),
-      canUndo: e.can().undo(),
-      canRedo: e.can().redo(),
+      isBold: e?.isActive('bold') ?? false,
+      isItalic: e?.isActive('italic') ?? false,
+      isUnderline: e?.isActive('underline') ?? false,
+      isStrike: e?.isActive('strike') ?? false,
+      isParagraph: e?.isActive('paragraph') ?? true,
+      isBulletList: e?.isActive('bulletList') ?? false,
+      isOrderedList: e?.isActive('orderedList') ?? false,
+      isCode: e?.isActive('code') ?? false,
+      isCodeBlock: e?.isActive('codeBlock') ?? false,
+      isH1: e?.isActive('heading', { level: 1 }) ?? false,
+      isH2: e?.isActive('heading', { level: 2 }) ?? false,
+      isH3: e?.isActive('heading', { level: 3 }) ?? false,
+      isH4: e?.isActive('heading', { level: 4 }) ?? false,
+      isLink: e?.isActive('link') ?? false,
+      isSuperscript: e?.isActive('superscript') ?? false,
+      isSubscript: e?.isActive('subscript') ?? false,
+      highlightColor: (e?.getAttributes('highlight').color as string) || null,
+      textColor: (e?.getAttributes('textStyle').color as string) || null,
+      isAlignLeft: e?.isActive({ textAlign: 'left' }) ?? true,
+      isAlignCenter: e?.isActive({ textAlign: 'center' }) ?? false,
+      isAlignRight: e?.isActive({ textAlign: 'right' }) ?? false,
+      isAlignJustify: e?.isActive({ textAlign: 'justify' }) ?? false,
+      canUndo: e && !e.isDestroyed ? e.can().undo() : false,
+      canRedo: e && !e.isDestroyed ? e.can().redo() : false,
     }),
   })
+
+  if (!editor || !editorState) return null
 
   const textStylings: DropdownItem[] = [
     {
@@ -251,6 +249,10 @@ const Toolbar = ({ editor }: ToolbarProps) => {
     },
   ]
 
+  const activeTextStyle = textStylings.find((s) => s.isActive)
+  const hasNoActiveStyle = !activeTextStyle // selection spans mixed styles
+  const isTextStyleActive = !editorState.isParagraph && !!activeTextStyle
+
   const renderGroup = (name: GroupName) => {
     switch (name) {
       case 'undoRedo':
@@ -287,7 +289,8 @@ const Toolbar = ({ editor }: ToolbarProps) => {
                 <ToolbarButton
                   testId={TOOLBAR_TEXT_STYLING_DROPDOWN_TEST_ID}
                   tooltip={translate('text_1774862470019c5cxqnwghwv')}
-                  isActive={false}
+                  isActive={isTextStyleActive}
+                  isDisabled={hasNoActiveStyle}
                 >
                   <Icon name="h1" />
                 </ToolbarButton>
@@ -421,24 +424,26 @@ const Toolbar = ({ editor }: ToolbarProps) => {
             </ToolbarButton>
 
             {/* Image */}
-            <Popper
-              PopperProps={{ placement: 'bottom-start' }}
-              opener={
-                <ToolbarButton
-                  testId={TOOLBAR_IMAGE_BUTTON_TEST_ID}
-                  tooltip={translate('text_1774862470019f83anhhatsg')}
-                  isActive={false}
-                >
-                  <Icon name="image" />
-                </ToolbarButton>
-              }
-            >
-              {({ closePopper }) => (
-                <MenuPopper>
-                  <ImagePopperForm editor={editor} closePopper={closePopper} />
-                </MenuPopper>
-              )}
-            </Popper>
+            {onImageUpload && (
+              <Popper
+                PopperProps={{ placement: 'bottom-start' }}
+                opener={
+                  <ToolbarButton
+                    testId={TOOLBAR_IMAGE_BUTTON_TEST_ID}
+                    tooltip={translate('text_1774862470019f83anhhatsg')}
+                    isActive={false}
+                  >
+                    <Icon name="image" />
+                  </ToolbarButton>
+                }
+              >
+                {({ closePopper }) => (
+                  <MenuPopper>
+                    <ImagePopperForm editor={editor} closePopper={closePopper} />
+                  </MenuPopper>
+                )}
+              </Popper>
+            )}
           </ToolbarGroup>
         )
     }
@@ -448,7 +453,7 @@ const Toolbar = ({ editor }: ToolbarProps) => {
     <div
       ref={containerRef}
       data-test={TOOLBAR_CONTAINER_TEST_ID}
-      className="sticky top-0 z-10 flex w-full min-w-0 gap-2 overflow-hidden bg-white py-3 shadow-b"
+      className="sticky top-0 z-10 flex w-full min-w-0 gap-2 overflow-hidden bg-white py-3 pl-12 shadow-b"
     >
       {/* Visible groups */}
       {GROUP_NAMES.filter((name) => visibleGroups.has(name)).map((name, index) => (

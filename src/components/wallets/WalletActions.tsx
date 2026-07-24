@@ -1,9 +1,7 @@
 import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
 import { Tooltip } from '~/components/designSystem/Tooltip'
-import { TerminateCustomerWalletDialog } from '~/components/wallets/TerminateCustomerWalletDialog'
 import { WALLET_ACTIONS_DATA_TEST } from '~/components/wallets/utils/dataTestConstants'
-import { VoidWalletDialog } from '~/components/wallets/VoidWalletDialog'
 import { CurrencyEnum, WalletStatusEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useWalletActions } from '~/hooks/wallet/useWalletActions'
@@ -31,7 +29,7 @@ const WalletActions = ({
   currency,
 }: WalletActionsProps) => {
   const { translate } = useInternationalization()
-  const { actions, terminateDialogRef, voidDialogRef } = useWalletActions({
+  const { actions } = useWalletActions({
     walletId,
     customerId,
     status,
@@ -100,9 +98,6 @@ const WalletActions = ({
           )}
         </Popper>
       )}
-
-      <TerminateCustomerWalletDialog ref={terminateDialogRef} />
-      <VoidWalletDialog ref={voidDialogRef} />
     </div>
   )
 }

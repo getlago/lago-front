@@ -3,28 +3,41 @@ import { useEffect } from 'react'
 
 import { Accordion } from '~/components/designSystem/Accordion'
 import { Typography } from '~/components/designSystem/Typography'
-import { AddCustomerDrawerFragment, CurrencyEnum } from '~/generated/graphql'
+import { AddCustomerDrawerFragment, CurrencyEnum, FeatureFlagEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
 
 import BillingFields from './BillingFields'
 
 type BillingAccordionProps = {
-  isEdition?: boolean
   customer?: AddCustomerDrawerFragment | null
 }
 
 const defaultProps: BillingAccordionProps = {
-  isEdition: false,
   customer: null,
 }
 
 const BillingAccordion = withForm({
   defaultValues: emptyCreateCustomerDefaultValues,
   props: defaultProps,
-  render: function Render({ form, isEdition, customer }) {
+  render: function Render({ form, customer }) {
     const { translate } = useInternationalization()
+    const { hasFeatureFlag } = useOrganizationInfos()
+
+    const isCustomerLocked = !!customer && !customer?.canEditAttributes
+    const hasMultiCurrency = hasFeatureFlag(FeatureFlagEnum.MultiCurrency)
+    const isCurrencyDisabled = isCustomerLocked && !hasMultiCurrency
+
+    // When the multi_currency flag is on, the currency never locks → no warning.
+    // When the flag is off, mirror pre-epic behaviour: show the locked message
+    // if the field is disabled, otherwise show the forward-looking warning.
+    const getCurrencyInfoText = () => {
+      if (hasMultiCurrency) return undefined
+      if (isCurrencyDisabled) return translate('text_632c6e59b73f9a54d4c7223d')
+      return translate('text_632c6e59b73f9a54d4c7223f')
+    }
 
     const billingAddress = useStore(form.store, (state) => state.values.billingAddress)
     const isShippingEqualBillingAddress = useStore(
@@ -58,14 +71,10 @@ const BillingAccordion = withForm({
             <form.AppField name="currency">
               {(field) => (
                 <field.ComboBoxField
-                  disabled={!!customer && !customer?.canEditAttributes}
+                  disabled={isCurrencyDisabled}
                   label={translate('text_632c6e59b73f9a54d4c72247')}
                   placeholder={translate('text_632c6e59b73f9a54d4c7224b')}
-                  infoText={translate(
-                    !customer?.canEditAttributes && isEdition
-                      ? 'text_632c6e59b73f9a54d4c7223d'
-                      : 'text_632c6e59b73f9a54d4c7223f',
-                  )}
+                  infoText={getCurrencyInfoText()}
                   data={currencyDataForCombobox}
                   disableClearable
                 />

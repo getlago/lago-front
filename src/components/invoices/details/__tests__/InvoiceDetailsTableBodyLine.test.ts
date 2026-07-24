@@ -2,6 +2,12 @@ import { calculateIfDetailsShouldBeDisplayed } from '~/components/invoices/detai
 import { TExtendedRemainingFee } from '~/core/formats/formatInvoiceItemsMap'
 import { AdjustedFeeTypeEnum, ChargeModelEnum, FeeTypesEnum } from '~/generated/graphql'
 
+// Stub the drawer hook so the transitive `drawerStack.ts` (Vite-only `import.meta.hot`)
+// is never loaded when this helper-only test imports BodyLine.
+jest.mock('~/components/invoices/details/ViewFeeDetailsDrawer', () => ({
+  useViewFeeDetailsDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+}))
+
 type TPrepare = {
   fee?: TExtendedRemainingFee
   isTrueUpFee?: boolean

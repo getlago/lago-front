@@ -1,6 +1,7 @@
 import { render } from '@testing-library/react'
 import { createRef } from 'react'
 
+import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import { validateChargeProperties } from '~/formValidation/chargePropertiesSchema'
 
 import { UsageChargeDrawerFormValues } from '../constants'
@@ -21,9 +22,15 @@ jest.mock('../UsageChargeDrawerContent', () => ({
   UsageChargeDrawerContent: () => <div data-test="usage-charge-drawer-content" />,
 }))
 
+const mockFormDrawerOpen = jest.fn()
+
 jest.mock('~/components/drawers/useDrawer', () => ({
   useDrawer: () => ({
     open: jest.fn(),
+    close: jest.fn(),
+  }),
+  useFormDrawer: () => ({
+    open: mockFormDrawerOpen,
     close: jest.fn(),
   }),
 }))
@@ -324,6 +331,28 @@ describe('UsageChargeDrawer', () => {
     })
   })
 
+  // Guards the migration to the shared form drawer + form.SubmitButton: the
+  // drawer must keep owning its own close (close on success, stay open on a
+  // failed mutation) by opting out of the form drawer's auto-close.
+  describe('GIVEN the drawer is opened', () => {
+    describe('WHEN the form drawer is wired', () => {
+      it('THEN passes a form id, a submit handler and keeps its own close ownership', () => {
+        render(<UsageChargeDrawer ref={drawerRef} onSave={mockOnSave} />)
+
+        drawerRef.current?.openDrawer()
+
+        expect(mockFormDrawerOpen).toHaveBeenCalledTimes(1)
+
+        const openArgs = mockFormDrawerOpen.mock.calls[0][0]
+
+        expect(openArgs.form?.id).toBe('usage-charge-drawer-form')
+        expect(typeof openArgs.form?.submit).toBe('function')
+        expect(openArgs.closeOnSubmitSuccess).toBe(false)
+        expect(openArgs.mainAction).toBeDefined()
+      })
+    })
+  })
+
   describe('GIVEN the onSubmit handler', () => {
     describe('WHEN the form is submitted with valid data', () => {
       it('THEN should call onSave with the form values', () => {
@@ -340,6 +369,7 @@ describe('UsageChargeDrawer', () => {
             recurring: false,
           },
           chargeModel: 'standard' as UsageChargeDrawerFormValues['chargeModel'],
+          code: 'calls',
           invoiceDisplayName: 'Test',
           invoiceable: true,
           minAmountCents: '100',
@@ -356,11 +386,33 @@ describe('UsageChargeDrawer', () => {
         expect(mockOnSave).toHaveBeenCalledWith(
           expect.objectContaining({
             chargeModel: 'standard',
+            code: 'calls',
             invoiceable: true,
             payInAdvance: false,
           }),
           -1,
         )
+      })
+    })
+
+    describe('WHEN onSave reports a duplicate code', () => {
+      it('THEN surfaces the error under the Code field (and keeps the drawer open)', async () => {
+        mockOnSave.mockResolvedValueOnce(FORM_ERRORS_ENUM.existingCode)
+        const setFieldMeta = jest.fn()
+
+        render(<UsageChargeDrawer ref={drawerRef} onSave={mockOnSave} showCode />)
+
+        const submit = capturedOnSubmit as unknown as (args: {
+          value: Record<string, unknown>
+          formApi: { setFieldMeta: jest.Mock }
+        }) => Promise<void>
+
+        await submit({
+          value: { ...capturedDefaultValues, code: 'dup_code' },
+          formApi: { setFieldMeta },
+        })
+
+        expect(setFieldMeta).toHaveBeenCalledWith('code', expect.any(Function))
       })
     })
 
@@ -451,6 +503,7 @@ describe('UsageChargeDrawer', () => {
         recurring: false,
       },
       chargeModel: 'standard',
+      code: 'api_calls',
       invoiceDisplayName: '',
       invoiceable: true,
       minAmountCents: '',

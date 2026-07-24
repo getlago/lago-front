@@ -5,7 +5,6 @@ import CodeBlock from '@tiptap/extension-code-block'
 import Color from '@tiptap/extension-color'
 import Heading from '@tiptap/extension-heading'
 import Highlight from '@tiptap/extension-highlight'
-import Image from '@tiptap/extension-image'
 import Link from '@tiptap/extension-link'
 import OrderedList from '@tiptap/extension-ordered-list'
 import Paragraph from '@tiptap/extension-paragraph'
@@ -194,14 +193,6 @@ const WrappedCodeBlock = CodeBlock.extend({
   },
 })
 
-const WrappedImage = Image.extend({
-  renderHTML(props) {
-    const inner = this.parent ? this.parent(props) : (['img'] satisfies DOMOutputSpec)
-
-    return wrapInBlockWrapper('image', inner)
-  },
-})
-
 // -- Extension list -----------------------------------------------------------
 
 interface BaseExtensionsOptions {
@@ -211,9 +202,9 @@ interface BaseExtensionsOptions {
 /**
  * Extensions shared between the interactive editor and headless consumers.
  *
- * Does NOT include Mention or PlanBlock — those require different configurations
+ * Does NOT include Mention or PricingBlock — those require different configurations
  * (node views, suggestion) depending on the consumer. Each consumer adds them separately
- * using MentionSchema/PlanBlockSchema from their respective .schema.ts files.
+ * using MentionSchema/PricingBlockSchema from their respective .schema.ts files.
  */
 export const getBaseExtensions = (options?: BaseExtensionsOptions): Extensions => [
   StarterKit.configure({
@@ -233,7 +224,6 @@ export const getBaseExtensions = (options?: BaseExtensionsOptions): Extensions =
   WrappedOrderedList,
   WrappedBlockquote,
   WrappedCodeBlock,
-  WrappedImage.configure(Image.options),
   Link.configure({ openOnClick: false }),
   Underline,
   Superscript,
@@ -252,5 +242,5 @@ export const getBaseExtensions = (options?: BaseExtensionsOptions): Extensions =
   LinkCard,
   BlockColors,
   BlockMove,
-  Markdown.configure({ html: true }),
+  Markdown.configure({ html: true, transformPastedText: true }),
 ]

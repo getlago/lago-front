@@ -18,6 +18,12 @@ function configSnapshot(config: MainHeaderConfig): string {
     if (key === 'icon' && typeof value !== 'string') return undefined
     if (key === 'snapshotKey') return value
 
+    // ReactNode values (e.g. a node passed as `metadata`) are non-serializable:
+    // dev-mode React elements carry a circular `_owner` Fiber that links back to
+    // a DOM node, which crashes JSON.stringify. Strip any React element/portal,
+    // mirroring how `content` and non-string `icon` nodes are already dropped.
+    if (value && typeof value === 'object' && '$$typeof' in value) return undefined
+
     return value
   })
 }

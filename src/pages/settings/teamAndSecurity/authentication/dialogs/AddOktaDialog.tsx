@@ -47,7 +47,8 @@ gql`
   ${DeleteOktaIntegrationDialogFragmentDoc}
 `
 
-export const ADD_OKTA_FORM_ID = 'form-add-okta-integration'
+const ADD_OKTA_FORM_ID = 'form-add-okta-integration'
+
 export const OKTA_INTEGRATION_SUBMIT_BTN = 'add-okta-dialog-submit-button'
 
 type OpenAddOktaDialogData = {

@@ -1,18 +1,19 @@
 import { revalidateLogic } from '@tanstack/react-form'
 import { Icon } from 'lago-design-system'
-import { useMemo, useRef } from 'react'
+import { useCallback } from 'react'
 
 import { SUBMIT_CUSTOMER_DATA_TEST } from '~/components/customers/utils/dataTestConstants'
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { extractThirdPartyErrorMessage, hasDefinedGQLError } from '~/core/apolloClient'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
-import { PremiumIntegrationTypeEnum, useGetBillingEntitiesQuery } from '~/generated/graphql'
+import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
+import { useBillingEntitiesOptions } from '~/hooks/useBillingEntitiesOptions'
 import { useCreateEditCustomer } from '~/hooks/useCreateEditCustomer'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
@@ -33,8 +34,8 @@ const STRIPE_CUSTOMER_ERROR_MESSAGE_DETAILS = 'Stripe: resource_missing'
 
 const CreateCustomer = () => {
   const { translate } = useInternationalization()
-  const warningDialogRef = useRef<WarningDialogRef>(null)
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
+  const centralizedDialog = useCentralizedDialog()
+  const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
   const { getPaymentProvider } = usePaymentProviders()
   const { taxProviders } = useTaxProviders()
@@ -47,33 +48,17 @@ const CreateCustomer = () => {
 
   const { isEdition, onSave, customer, loading, onClose } = useCreateEditCustomer()
 
-  const { data: billingEntitiesData, loading: isLoadingBillingEntities } =
-    useGetBillingEntitiesQuery({
-      fetchPolicy: 'network-only',
-    })
+  const {
+    options: billingEntitiesList,
+    isLoading: isLoadingBillingEntities,
+    defaultEntityCode,
+  } = useBillingEntitiesOptions()
 
   const isFormReady = !isLoadingBillingEntities && !loading
 
-  const billingEntitiesList = useMemo(
-    () =>
-      billingEntitiesData?.billingEntities?.collection
-        ?.map((billingEntity) => {
-          const isDefaultString = billingEntity.isDefault
-            ? ` (${translate('text_1744018116743pwoqp40bkhp')})`
-            : ''
-          const label = `${billingEntity.name || billingEntity.code}${isDefaultString}`
-
-          return {
-            label,
-            value: billingEntity.code,
-            isDefault: billingEntity.isDefault,
-          }
-        })
-        .sort((a) => (a.isDefault ? -1 : 1)) || [],
-    [billingEntitiesData, translate],
+  const defaultBillingEntity = billingEntitiesList.find(
+    (option) => option.value === defaultEntityCode,
   )
-
-  const defaultBillingEntity = billingEntitiesList.find((b) => b.isDefault)
 
   const canEditAccountType =
     hasAccessToRevenueShare && (isEdition ? customer?.canEditAttributes : true)
@@ -133,10 +118,20 @@ const CreateCustomer = () => {
     },
   })
 
+  const openDirtyAttributesWarning = useCallback(() => {
+    centralizedDialog.open({
+      title: translate('text_665deda4babaf700d603ea13'),
+      description: translate('text_665dedd557dc3c00c62eb83d'),
+      actionText: translate('text_645388d5bdbd7b00abffa033'),
+      colorVariant: 'danger',
+      onAction: () => onClose(),
+    })
+  }, [centralizedDialog, onClose, translate])
+
   const handleAbort = () => {
     const isDirty = form.store.state.isDirty
 
-    isDirty ? warningDialogRef.current?.openDialog() : onClose()
+    isDirty ? openDirtyAttributesWarning() : onClose()
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -202,7 +197,7 @@ const CreateCustomer = () => {
                   type="button"
                   className="flex items-center justify-between"
                   onClick={() => {
-                    premiumWarningDialogRef.current?.openDialog()
+                    openPremiumWarningDialog()
                   }}
                 >
                   <form.AppField name="isPartner">
@@ -226,7 +221,7 @@ const CreateCustomer = () => {
                 customer={customer}
                 billingEntitiesList={billingEntitiesList}
               />
-              <BillingAccordion form={form} isEdition={isEdition} customer={customer} />
+              <BillingAccordion form={form} customer={customer} />
               <MetadataAccordion form={form} />
               <ExternalAppsAccordion form={form} isEdition={isEdition} customer={customer} />
             </div>
@@ -244,16 +239,6 @@ const CreateCustomer = () => {
           </form.AppForm>
         </CenteredPage.StickyFooter>
       </form>
-
-      <WarningDialog
-        ref={warningDialogRef}
-        title={translate('text_665deda4babaf700d603ea13')}
-        description={translate('text_665dedd557dc3c00c62eb83d')}
-        continueText={translate('text_645388d5bdbd7b00abffa033')}
-        onContinue={onClose}
-      />
-
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </CenteredPage.Wrapper>
   )
 }

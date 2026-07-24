@@ -22,7 +22,7 @@ import {
 } from '../ChargeFilterDrawerContent'
 
 // Cast to strip the strict form generic — we pass a real form instance
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 const ChargeFilterDrawerContent = OriginalChargeFilterDrawerContent as React.FC<any>
 
 // --- Mocks (UI only — form logic is real) ---

@@ -1,8 +1,6 @@
 import { gql } from '@apollo/client'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
-import { DialogRef } from '~/components/designSystem/Dialog'
-import { WarningDialog } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -29,13 +27,10 @@ type CreditNoteForVoid = {
   currency: CurrencyEnum
 }
 
-export interface VoidCreditNoteDialogRef {
-  openDialog: (creditNoteInfos: CreditNoteForVoid) => unknown
-  closeDialog: () => unknown
-}
+export const useVoidCreditNoteDialog = () => {
+  const centralizedDialog = useCentralizedDialog()
+  const { translate } = useInternationalization()
 
-export const VoidCreditNoteDialog = forwardRef<VoidCreditNoteDialogRef>((_, ref) => {
-  const dialogRef = useRef<DialogRef>(null)
   const [voidCreditNote] = useVoidCreditNoteMutation({
     onCompleted({ voidCreditNote: voidedCreditNote }) {
       if (!!voidedCreditNote) {
@@ -46,42 +41,29 @@ export const VoidCreditNoteDialog = forwardRef<VoidCreditNoteDialogRef>((_, ref)
       }
     },
   })
-  const [creditNote, seCreditNote] = useState<CreditNoteForVoid | undefined>(undefined)
-  const { translate } = useInternationalization()
 
-  useImperativeHandle(ref, () => ({
-    openDialog: (infos) => {
-      seCreditNote(infos)
-      dialogRef.current?.openDialog()
-    },
-    closeDialog: () => dialogRef.current?.closeDialog(),
-  }))
-
-  return (
-    <WarningDialog
-      ref={dialogRef}
-      title={translate('text_63720bd734e1344aea75b7db')}
-      description={translate('text_63720bd734e1344aea75b7e1', {
+  const openVoidCreditNoteDialog = (creditNote: CreditNoteForVoid) => {
+    centralizedDialog.open({
+      title: translate('text_63720bd734e1344aea75b7db'),
+      description: translate('text_63720bd734e1344aea75b7e1', {
         amount: intlFormatNumber(
-          deserializeAmount(
-            creditNote?.totalAmountCents || 0,
-            creditNote?.currency || CurrencyEnum.Usd,
-          ),
+          deserializeAmount(creditNote.totalAmountCents || 0, creditNote.currency),
           {
             currencyDisplay: 'symbol',
-            currency: creditNote?.currency || CurrencyEnum.Usd,
+            currency: creditNote.currency,
           },
         ),
-      })}
-      onContinue={async () =>
+      }),
+      colorVariant: 'danger',
+      actionText: translate('text_63720bd734e1344aea75b7e9'),
+      onAction: async () => {
         await voidCreditNote({
-          variables: { input: { id: creditNote?.id as string } },
+          variables: { input: { id: creditNote.id } },
           refetchQueries: ['getCustomer', 'getCreditNote'],
         })
-      }
-      continueText={translate('text_63720bd734e1344aea75b7e9')}
-    />
-  )
-})
+      },
+    })
+  }
 
-VoidCreditNoteDialog.displayName = 'VoidCreditNoteDialog'
+  return { openVoidCreditNoteDialog }
+}

@@ -1,8 +1,6 @@
-import { RefObject } from 'react'
 import { generatePath } from 'react-router-dom'
 
-import { AddCouponToCustomerDialogRef } from '~/components/customers/AddCouponToCustomerDialog'
-import { DeleteCustomerDialogRef } from '~/components/customers/DeleteCustomerDialog'
+import { useDeleteCustomerDialog } from '~/components/customers/DeleteCustomerDialog'
 import { MainHeaderAction } from '~/components/MainHeader/types'
 import {
   CREATE_INVOICE_ROUTE,
@@ -19,26 +17,25 @@ import { useDownloadFile } from '~/hooks/useDownloadFile'
 import { useIsCustomerReadyForOverduePayment } from '~/hooks/useIsCustomerReadyForOverduePayment'
 import { usePermissions } from '~/hooks/usePermissions'
 
-export const REQUEST_OVERDUE_PAYMENT_BUTTON_TEST_ID = 'request-overdue-payment-button'
-export const CUSTOMER_ACTIONS_BUTTON_TEST_ID = 'customer-actions'
+const REQUEST_OVERDUE_PAYMENT_BUTTON_TEST_ID = 'request-overdue-payment-button'
+const CUSTOMER_ACTIONS_BUTTON_TEST_ID = 'customer-actions'
 
 interface UseCustomerDetailsHeaderActionsParams {
   customerId: string
   customer: CustomerDetailsFragment | undefined | null
-  deleteDialogRef: RefObject<DeleteCustomerDialogRef>
-  addCouponDialogRef: RefObject<AddCouponToCustomerDialogRef>
+  openAddCouponToCustomerDialog: () => void
 }
 
 export function useCustomerDetailsHeaderActions({
   customerId,
   customer,
-  deleteDialogRef,
-  addCouponDialogRef,
+  openAddCouponToCustomerDialog,
 }: UseCustomerDetailsHeaderActionsParams): MainHeaderAction[] {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const navigate = useNavigate()
   const { handleDownloadFile } = useDownloadFile()
+  const { openDeleteCustomerDialog } = useDeleteCustomerDialog()
 
   const { isCustomerReadyForOverduePayment, loading: isPaymentProcessingStatusLoading } =
     useIsCustomerReadyForOverduePayment()
@@ -100,7 +97,7 @@ export function useCustomerDetailsHeaderActions({
           hidden: !hasPermissions(['couponsAttach']),
           dataTest: 'apply-coupon-action',
           onClick: (closePopper) => {
-            addCouponDialogRef.current?.openDialog()
+            openAddCouponToCustomerDialog()
             closePopper()
           },
         },
@@ -125,7 +122,7 @@ export function useCustomerDetailsHeaderActions({
           label: translate('text_626162c62f790600f850b726'),
           hidden: !hasPermissions(['customersDelete']),
           onClick: (closePopper) => {
-            deleteDialogRef.current?.openDialog({
+            openDeleteCustomerDialog({
               onDeleted: () => navigate(CUSTOMERS_LIST_ROUTE),
               customer: customer ?? undefined,
             })

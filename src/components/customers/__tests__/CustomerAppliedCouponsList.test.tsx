@@ -51,13 +51,9 @@ jest.mock('~/components/dialogs/CentralizedDialog', () => ({
   }),
 }))
 
-jest.mock('~/components/customers/AddCouponToCustomerDialog', () => {
-  const React = jest.requireActual('react')
-  const MockDialog = React.forwardRef(() => <div data-testid="add-coupon-dialog" />)
-
-  MockDialog.displayName = 'AddCouponToCustomerDialog'
-  return { AddCouponToCustomerDialog: MockDialog }
-})
+jest.mock('~/components/customers/AddCouponToCustomerDialog', () => ({
+  useAddCouponToCustomerDialog: () => ({ openAddCouponToCustomerDialog: jest.fn() }),
+}))
 
 const mockAppliedCoupon = {
   __typename: 'AppliedCoupon' as const,
@@ -82,12 +78,17 @@ const mockAppliedCoupon = {
 
 const createQueryMock = (
   collection = [mockAppliedCoupon],
-  metadata = { __typename: 'CollectionMetadata' as const, currentPage: 1, totalPages: 1 },
+  metadata = {
+    __typename: 'CollectionMetadata' as const,
+    currentPage: 1,
+    totalPages: 1,
+    totalCount: 1,
+  },
 ): TestMocksType => [
   {
     request: {
       query: GetAppliedCouponsForCustomerDocument,
-      variables: { externalCustomerId: 'ext-customer-1', page: 0, limit: 20 },
+      variables: { externalCustomerId: 'ext-customer-1', page: 1, limit: 20 },
     },
     result: {
       data: {

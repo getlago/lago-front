@@ -1,7 +1,6 @@
 import { ApolloClient, ApolloError } from '@apollo/client'
 import { captureException } from '@sentry/react'
 import { ConditionalWrapper, Icon } from 'lago-design-system'
-import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
@@ -11,7 +10,7 @@ import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { VerticalMenuSectionTitle } from '~/components/designSystem/VerticalMenu'
-import { addToast, logOut, switchCurrentOrganization } from '~/core/apolloClient'
+import { addToast, logOut } from '~/core/apolloClient'
 import { authenticationMethodsMapping } from '~/core/constants/authenticationMethodsMapping'
 import { HOME_ROUTE, useNavigate } from '~/core/router'
 import {
@@ -43,8 +42,6 @@ interface OrganizationSwitcherProps {
   currentVersion: SideNavInfosQuery['currentVersion'] | null | undefined
   isLoading: boolean
   isVersionLoading: boolean
-  refetchCurrentUserInfos: () => void
-  refetchOrganizationInfos: () => void
 }
 
 export const OrganizationSwitcher = ({
@@ -54,13 +51,10 @@ export const OrganizationSwitcher = ({
   currentVersion,
   isLoading,
   isVersionLoading,
-  refetchCurrentUserInfos,
-  refetchOrganizationInfos,
 }: OrganizationSwitcherProps) => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { organizationSlug } = useParams<{ organizationSlug: string }>()
-  const [isSwitchingOrg, setIsSwitchingOrg] = useState(false)
 
   const organizationList: OrganizationFromMembership[] | undefined = currentUser?.memberships.map(
     (membership) => membership.organization,
@@ -81,23 +75,19 @@ export const OrganizationSwitcher = ({
   )?.organization
 
   /**
-   * Switches the current organization context.
+   * Switches the current organization by navigating to its slug.
    *
-   * Operation sequence is critical:
-   * 1. Switch organization context (displays app-wide loading state)
-   * 2. Navigate to home route
-   * 3. Refetch organization and user info
+   * The URL slug is the single source of truth for the current org: we only
+   * navigate to `/${newSlug}/` here and let `OrganizationLayout`'s slug-driven
+   * effect detect the change and run `switchCurrentOrganization` (clear cache +
+   * set the org var + refetch) exactly once.
    *
-   * This order ensures the home page queries fire with the correct organization context.
-   * Navigating before refetching would cause home queries to execute with stale data,
-   * leading to incorrect redirects. The loading state during context switch provides
-   * a seamless UX without visible intermediate states.
+   * We deliberately do NOT set the org var here: setting it ahead of the URL
+   * slug makes `OrganizationLayout`'s switch detection see "var ≠ slug-org" and
+   * ping-pong the org back and forth (each bounce re-clears the cache and
+   * refetches the whole page). Letting the var follow the slug avoids that.
    */
-  const handleOrganizationSwitch = async (organizationId: string): Promise<void> => {
-    if (isSwitchingOrg) return
-
-    setIsSwitchingOrg(true)
-
+  const handleOrganizationSwitch = (organizationId: string): void => {
     try {
       const targetOrg = organizationList?.find((org) => org.id === organizationId)
 
@@ -108,15 +98,9 @@ export const OrganizationSwitcher = ({
         throw new Error('Organization switch aborted: missing target org slug')
       }
 
-      await switchCurrentOrganization(client, organizationId)
-
       // `skipSlugPrepend` — the target slug is the NEW org, different from the
       // one currently in `useParams()`, so we must bypass the wrapper's auto-prepend.
       navigate(`/${targetOrg.slug}${HOME_ROUTE}`, { skipSlugPrepend: true })
-
-      const refetchPromises = [refetchOrganizationInfos(), refetchCurrentUserInfos()]
-
-      await Promise.allSettled(refetchPromises)
     } catch (error) {
       // Apollo/GraphQL errors are automatically captured by the errorLink in apolloClient/init.ts
       // Only capture non-Apollo errors manually to avoid duplicates
@@ -133,8 +117,6 @@ export const OrganizationSwitcher = ({
           translateKey: 'text_622f7a3dc32ce100c46a5154',
         })
       }
-    } finally {
-      setIsSwitchingOrg(false)
     }
   }
 
@@ -236,11 +218,11 @@ export const OrganizationSwitcher = ({
                         size="small"
                         fullWidth
                         variant={id === currentOrgFromSlug?.id ? 'secondary' : 'quaternary'}
-                        disabled={!accessibleByCurrentSession || isSwitchingOrg}
+                        disabled={!accessibleByCurrentSession}
                         endIcon={accessibleByCurrentSession ? undefined : 'lock'}
                         data-test={ORGANIZATION_SWITCHER_ORG_ITEM_TEST_ID}
-                        onClick={async () => {
-                          await handleOrganizationSwitch(id)
+                        onClick={() => {
+                          handleOrganizationSwitch(id)
                           closePopper()
                         }}
                       >

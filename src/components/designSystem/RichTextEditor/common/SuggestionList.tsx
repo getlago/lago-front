@@ -1,4 +1,5 @@
 import type { SuggestionKeyDownProps } from '@tiptap/suggestion'
+import { IconName } from 'lago-design-system'
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
@@ -19,6 +20,7 @@ interface SuggestionListProps<T> {
   command: (item: T) => void
   getKey: (item: T) => string
   getLabel: (item: T) => string
+  getDisabled?: (item: T) => boolean
   containerTestId?: string
   itemTestId?: string
 }
@@ -29,6 +31,7 @@ function SuggestionListInner<T>(
     command,
     getKey,
     getLabel,
+    getDisabled,
     containerTestId = SUGGESTION_LIST_CONTAINER_TEST_ID,
     itemTestId = SUGGESTION_LIST_ITEM_TEST_ID,
   }: SuggestionListProps<T>,
@@ -50,17 +53,33 @@ function SuggestionListInner<T>(
     [],
   )
 
+  const findNextEnabled = useCallback(
+    (from: number, direction: 1 | -1) => {
+      let next = (from + direction + items.length) % items.length
+      let attempts = 0
+
+      while (getDisabled?.(items[next]) && attempts < items.length) {
+        next = (next + direction + items.length) % items.length
+        attempts++
+      }
+
+      return next
+    },
+    [items, getDisabled],
+  )
+
   useImperativeHandle(ref, () => ({
     onKeyDown: ({ event }: { event: KeyboardEvent }) => {
       if (event.key === 'ArrowUp') {
-        setSelectedIndex((prev) => (prev - 1 + items.length) % items.length)
+        setSelectedIndex((prev) => findNextEnabled(prev, -1))
         return true
       }
       if (event.key === 'ArrowDown') {
-        setSelectedIndex((prev) => (prev + 1) % items.length)
+        setSelectedIndex((prev) => findNextEnabled(prev, 1))
         return true
       }
       if (event.key === 'Enter') {
+        if (getDisabled?.(items[selectedIndex])) return true
         command(items[selectedIndex])
         return true
       }
@@ -80,10 +99,16 @@ function SuggestionListInner<T>(
             data-test={`${itemTestId}-${index}`}
             variant={index === selectedIndex ? 'secondary' : 'quaternary'}
             align="left"
+            startIcon={
+              item && typeof item === 'object' && 'icon' in item
+                ? (item.icon as IconName)
+                : undefined
+            }
             fullWidth
+            disabled={getDisabled?.(item)}
             onClick={() => command(item)}
           >
-            <Typography variant="bodyHl" color="grey700">
+            <Typography variant="bodyHl" color={getDisabled?.(item) ? 'grey400' : 'grey700'}>
               {getLabel(item)}
             </Typography>
           </Button>

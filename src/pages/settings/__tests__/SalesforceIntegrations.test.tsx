@@ -11,10 +11,12 @@ import {
 import SalesforceIntegrations from '../SalesforceIntegrations'
 
 jest.mock('~/components/settings/integrations/AddSalesforceDialog', () => ({
-  AddSalesforceDialog: () => null,
+  useAddSalesforceDialog: () => ({ openAddSalesforceDialog: jest.fn() }),
 }))
 jest.mock('~/components/settings/integrations/DeleteSalesforceIntegrationDialog', () => ({
-  DeleteSalesforceIntegrationDialog: () => null,
+  useDeleteSalesforceIntegrationDialog: () => ({
+    openDeleteSalesforceIntegrationDialog: jest.fn(),
+  }),
 }))
 
 describe('SalesforceIntegrations', () => {

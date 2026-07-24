@@ -2,7 +2,7 @@ import { gql, useLazyQuery } from '@apollo/client'
 import { generatePath } from 'react-router-dom'
 
 import { Chip } from '~/components/designSystem/Chip'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
@@ -55,17 +55,26 @@ const ADMIN_ORGANIZATIONS_QUERY = gql`
   }
 `
 
+const PAGE_SIZE = 20
+
 const AdminOrganizations = () => {
   const navigate = useNavigate()
-  const [getOrganizations, { data, error, loading, fetchMore, variables }] =
+  const { page, goToPage } = usePageSearchParam()
+  const [getOrganizations, { data, error, loading, variables }] =
     useLazyQuery<AdminOrganizationsQueryResult>(ADMIN_ORGANIZATIONS_QUERY, {
       notifyOnNetworkStatusChange: true,
       variables: {
-        limit: 20,
+        limit: PAGE_SIZE,
+        page,
       },
     })
 
   const { debouncedSearch, isLoading } = useDebouncedSearch(getOrganizations, loading)
+
+  const searchAndResetPage = (value: string) => {
+    goToPage(1)
+    debouncedSearch?.(value)
+  }
 
   const organizations = data?.adminOrganizations?.collection || []
   const metadata = data?.adminOrganizations?.metadata
@@ -90,20 +99,16 @@ const AdminOrganizations = () => {
           ],
         }}
         filtersSection={
-          <SearchInput onChange={debouncedSearch} placeholder="Search organizations..." />
+          <SearchInput onChange={searchAndResetPage} placeholder="Search organizations..." />
         }
       />
 
-      <InfiniteScroll
-        onBottom={() => {
-          const { currentPage = 0, totalPages = 0 } = metadata || {}
-
-          currentPage < totalPages &&
-            !isLoading &&
-            fetchMore?.({
-              variables: { page: currentPage + 1 },
-            })
-        }}
+      <PaginatedContent
+        insetPager
+        metadata={metadata}
+        loading={isLoading}
+        pageSize={PAGE_SIZE}
+        onPageChange={goToPage}
       >
         <Table<AdminOrganizationItem>
           name="admin-organizations-list"
@@ -199,7 +204,7 @@ const AdminOrganizations = () => {
             },
           ]}
         />
-      </InfiniteScroll>
+      </PaginatedContent>
     </>
   )
 }

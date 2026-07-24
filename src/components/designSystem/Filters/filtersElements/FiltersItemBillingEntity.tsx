@@ -5,6 +5,7 @@ import { useGetBillingEntitiesQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { filterDataInlineSeparator, FiltersFormValues } from '../types'
+import { escapeFilterLabel, unescapeFilterLabel } from '../utils'
 
 type FiltersItemBillingEntityProps = {
   value: FiltersFormValues['filters'][0]['value']
@@ -23,7 +24,9 @@ export const FiltersItemBillingEntity = ({
 
     return data.billingEntities.collection.map((billingEntity) => ({
       label: billingEntity.name || billingEntity.code,
-      value: `${billingEntity.id}${filterDataInlineSeparator}${billingEntity.name || billingEntity.code}`,
+      value: `${billingEntity.id}${filterDataInlineSeparator}${escapeFilterLabel(
+        billingEntity.name || billingEntity.code,
+      )}`,
     }))
   }, [data])
 
@@ -39,7 +42,9 @@ export const FiltersItemBillingEntity = ({
         ?.split(',')
         .filter((v) => !!v)
         .map((v) => ({
-          label: v.split(filterDataInlineSeparator)[1] || v.split(filterDataInlineSeparator)[0],
+          label: unescapeFilterLabel(
+            v.split(filterDataInlineSeparator)[1] || v.split(filterDataInlineSeparator)[0],
+          ),
           value: v,
         }))}
     />

@@ -1,10 +1,11 @@
-import { gql } from '@apollo/client'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
+import { gql, useApolloClient } from '@apollo/client'
 
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
+import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import {
   DeleteXeroIntegrationDialogFragment,
+  GetXeroIntegrationsListDocument,
   useDestroyNangoIntegrationMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -27,56 +28,47 @@ type TDeleteXeroIntegrationDialogProps = {
   callback?: () => void
 }
 
-export interface DeleteXeroIntegrationDialogRef {
-  openDialog: ({ provider, callback }: TDeleteXeroIntegrationDialogProps) => unknown
-  closeDialog: () => unknown
-}
-
-export const DeleteXeroIntegrationDialog = forwardRef<DeleteXeroIntegrationDialogRef>((_, ref) => {
+export const useDeleteXeroIntegrationDialog = () => {
+  const centralizedDialog = useCentralizedDialog()
   const { translate } = useInternationalization()
+  const client = useApolloClient()
 
-  const dialogRef = useRef<WarningDialogRef>(null)
-  const [localData, setLocalData] = useState<TDeleteXeroIntegrationDialogProps | undefined>(
-    undefined,
-  )
-  const xeroProvider = localData?.provider
+  const [deleteXero] = useDestroyNangoIntegrationMutation()
 
-  const [deleteXero] = useDestroyNangoIntegrationMutation({
-    onCompleted(data) {
-      if (data && data.destroyIntegration) {
-        dialogRef.current?.closeDialog()
-        localData?.callback?.()
-        addToast({
-          message: translate('text_661ff6e56ef7e1b7c542b2f9'),
-          severity: 'success',
+  const openDeleteXeroIntegrationDialog = ({
+    provider,
+    callback,
+  }: TDeleteXeroIntegrationDialogProps) => {
+    centralizedDialog.open({
+      title: translate('text_658461066530343fe1808cd7', { name: provider?.name }),
+      description: translate('text_6672ebb8b1b50be550eccada'),
+      colorVariant: 'danger',
+      actionText: translate('text_645d071272418a14c1c76a81'),
+      onAction: async () => {
+        const result = await deleteXero({
+          variables: { input: { id: provider?.id as string } },
         })
-      }
-    },
-    update(cache) {
-      cache.evict({ id: `XeroIntegration:${xeroProvider?.id}` })
-    },
-    refetchQueries: ['getXeroIntegrationsList'],
-  })
 
-  useImperativeHandle(ref, () => ({
-    openDialog: (data) => {
-      setLocalData(data)
-      dialogRef.current?.openDialog()
-    },
-    closeDialog: () => dialogRef.current?.closeDialog(),
-  }))
+        const destroyedId = result.data?.destroyIntegration?.id
 
-  return (
-    <WarningDialog
-      ref={dialogRef}
-      title={translate('text_658461066530343fe1808cd7', { name: xeroProvider?.name })}
-      description={translate('text_6672ebb8b1b50be550eccada')}
-      onContinue={async () =>
-        await deleteXero({ variables: { input: { id: xeroProvider?.id as string } } })
-      }
-      continueText={translate('text_645d071272418a14c1c76a81')}
-    />
-  )
-})
+        if (destroyedId) {
+          evictFromCache(client, {
+            id: destroyedId,
+            __typename: 'XeroIntegration',
+            listFieldName: 'integrations',
+            listQueryDocument: GetXeroIntegrationsListDocument,
+          })
 
-DeleteXeroIntegrationDialog.displayName = 'DeleteXeroIntegrationDialog'
+          callback?.()
+
+          addToast({
+            message: translate('text_661ff6e56ef7e1b7c542b2f9'),
+            severity: 'success',
+          })
+        }
+      },
+    })
+  }
+
+  return { openDeleteXeroIntegrationDialog }
+}

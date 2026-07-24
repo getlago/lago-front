@@ -50,14 +50,14 @@ const chargeFilterDefaultValues: ChargeFilterFormValues = {
 
 interface ChargeFilterDrawerContentExtraProps {
   billableMetricFilters: BillableMetricFilter[]
-  existingFilterValues?: Set<string>
+  otherFiltersValues?: LocalChargeFilterInput['values'][]
   chargeIndex: number
   filterIndex: number
 }
 
 const chargeFilterDrawerContentDefaultProps: ChargeFilterDrawerContentExtraProps = {
   billableMetricFilters: [],
-  existingFilterValues: undefined,
+  otherFiltersValues: undefined,
   chargeIndex: 0,
   filterIndex: 0,
 }
@@ -65,10 +65,10 @@ const chargeFilterDrawerContentDefaultProps: ChargeFilterDrawerContentExtraProps
 export const ChargeFilterDrawerContent = withForm({
   defaultValues: chargeFilterDefaultValues,
   props: chargeFilterDrawerContentDefaultProps,
-  render: function ChargeFilterDrawerContent({
+  render: function ChargeFilterDrawerContentRender({
     form,
     billableMetricFilters,
-    existingFilterValues,
+    otherFiltersValues,
     chargeIndex,
     filterIndex,
   }) {
@@ -108,7 +108,7 @@ export const ChargeFilterDrawerContent = withForm({
                 chargeIndex={chargeIndex}
                 filterIndex={filterIndex}
                 billableMetricFilters={billableMetricFilters}
-                existingFilterValues={existingFilterValues}
+                otherFiltersValues={otherFiltersValues}
                 setFilterValues={(values) => {
                   form.setFieldValue('values', values)
                 }}
@@ -146,6 +146,7 @@ export const ChargeFilterDrawerContent = withForm({
                 currency={currency}
                 form={form}
                 isEdition={isEdition}
+                isFilterForm
                 localCharge={{ chargeModel } as LocalUsageChargeInput}
                 propertyCursor="properties"
               />

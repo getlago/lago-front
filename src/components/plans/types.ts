@@ -39,6 +39,7 @@ export type LocalChargeFilterInput = Omit<ChargeFilterInput, 'properties' | 'val
 
 export type LocalFixedChargeInput = Omit<FixedChargeInput, 'addOnId'> & {
   id?: string
+  code?: string | null
   // NOTE: used for display purpose, replaced by taxCodes[] on save
   taxes?: TaxForTaxesSelectorSectionFragment[] | null
   // NOTE: used for display purpose, replaced by addOnId on save
@@ -52,6 +53,7 @@ export type LocalUsageChargeInput = Omit<
   appliedPricingUnit?: LocalPricingUnitInput
   billableMetric: BillableMetricForPlanFragment
   id?: string
+  code?: string | null
   properties?: PropertiesInput
   filters?: LocalChargeFilterInput[]
   // NOTE: this is used for display purpose but will be replaced by taxCodes[] on save

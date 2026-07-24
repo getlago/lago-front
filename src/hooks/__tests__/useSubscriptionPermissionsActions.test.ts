@@ -64,6 +64,12 @@ describe('useSubscriptionPermissionsActions', () => {
       expect(result.current.isStatusEditable(StatusTypeEnum.Canceled)).toBe(false)
     })
 
+    it('should return false for incomplete subscription', () => {
+      const { result } = prepare()
+
+      expect(result.current.isStatusEditable(StatusTypeEnum.Incomplete)).toBe(false)
+    })
+
     it('should return false for null status', () => {
       const { result } = prepare()
 
@@ -106,6 +112,12 @@ describe('useSubscriptionPermissionsActions', () => {
       const { result } = prepare({ subscriptionsUpdate: true })
 
       expect(result.current.canEditSubscription(StatusTypeEnum.Canceled)).toBe(false)
+    })
+
+    it('should return false when user has permission but status is incomplete', () => {
+      const { result } = prepare({ subscriptionsUpdate: true })
+
+      expect(result.current.canEditSubscription(StatusTypeEnum.Incomplete)).toBe(false)
     })
 
     it('should return false when user does not have permission even if status is active', () => {

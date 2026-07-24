@@ -4,9 +4,7 @@ import type { NetsuiteIntegrationMapItemDrawerProps } from '~/pages/settings/int
 
 export const isDefaultMappingInMappableContext = (
   dataToTest:
-    | NetsuiteIntegrationMapItemDrawerProps
-    | AnrokIntegrationMapItemDrawerProps
-    | undefined,
+    NetsuiteIntegrationMapItemDrawerProps | AnrokIntegrationMapItemDrawerProps | undefined,
 ): dataToTest is (NetsuiteIntegrationMapItemDrawerProps | AnrokIntegrationMapItemDrawerProps) & {
   itemMappings: { default: ItemMappingForMappable }
 } => {

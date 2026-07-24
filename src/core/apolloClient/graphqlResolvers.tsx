@@ -25,6 +25,8 @@ export const typeDefs = gql`
     invite_already_exists
     invite_email_mistmatch
     invite_not_found
+    invoices_have_different_billing_entities
+    invoices_have_different_currencies
     invoices_not_overdue
     invoices_not_ready_for_payment_processing
     no_active_subscription

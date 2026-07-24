@@ -1,16 +1,14 @@
-import { useState } from 'react'
-
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
-import {
-  EditInvoiceCustomSectionDialog,
-  InvoiceCustomSectionBehavior,
-  InvoiceCustomSectionSelection,
-} from '~/components/invoceCustomFooter/EditInvoiceCustomSectionDialog'
+import { useEditInvoiceCustomSectionDialog } from '~/components/invoceCustomFooter/EditInvoiceCustomSectionDialog'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { InvoiceCustomSectionDisplay } from './InvoiceCustomSectionDisplay'
-import { InvoiceCustomSectionInput } from './types'
+import {
+  InvoiceCustomSectionBehavior,
+  InvoiceCustomSectionInput,
+  InvoiceCustomSectionSelection,
+} from './types'
 
 import { VIEW_TYPE_TRANSLATION_KEYS, ViewTypeEnum } from '../paymentMethodsInvoiceSettings/types'
 
@@ -30,7 +28,7 @@ export const InvoceCustomFooter = ({
   setInvoiceCustomSection,
 }: InvoceCustomFooterProps) => {
   const { translate } = useInternationalization()
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const { openEditInvoiceCustomSectionDialog } = useEditInvoiceCustomSectionDialog()
 
   const selectedSections = invoiceCustomSection?.invoiceCustomSections || []
   const skipSections = invoiceCustomSection?.skipInvoiceCustomSections || false
@@ -80,22 +78,21 @@ export const InvoceCustomFooter = ({
           <Button
             variant="inline"
             startIcon="pen"
-            onClick={() => setIsDialogOpen(true)}
+            onClick={() =>
+              openEditInvoiceCustomSectionDialog({
+                customerId,
+                selectedSections,
+                skipInvoiceCustomSections: skipSections,
+                onSave: handleDialogSave,
+                viewType,
+              })
+            }
             data-test={EDIT_BUTTON}
           >
             {translate('text_1765363318310jm7wdrj7zzk')}
           </Button>
         </div>
       </div>
-
-      <EditInvoiceCustomSectionDialog
-        open={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
-        selectedSections={selectedSections}
-        skipInvoiceCustomSections={skipSections}
-        onSave={handleDialogSave}
-        viewType={viewType}
-      />
     </div>
   )
 }

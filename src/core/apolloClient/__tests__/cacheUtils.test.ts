@@ -1,17 +1,22 @@
 import { ApolloClient } from '@apollo/client'
 
-import { onLogIn, switchCurrentOrganization } from '../cacheUtils'
+import { logOut, onLogIn, switchCurrentOrganization } from '../cacheUtils'
 
-const mockGetCurrentOrganizationId = jest.fn()
 const mockSetCurrentOrganizationId = jest.fn()
 const mockUpdateAuthTokenVar = jest.fn()
 const mockAddToast = jest.fn()
+const mockResetPersistedCache = jest.fn().mockResolvedValue(undefined)
+const mockPurgePersistedCache = jest.fn().mockResolvedValue(undefined)
+
+jest.mock('../cachePersistor', () => ({
+  resetPersistedCache: (...args: unknown[]) => mockResetPersistedCache(...args),
+  purgePersistedCache: (...args: unknown[]) => mockPurgePersistedCache(...args),
+}))
 
 jest.mock('../reactiveVars', () => ({
   addToast: (...args: unknown[]) => mockAddToast(...args),
   AUTH_TOKEN_LS_KEY: 'auth_token',
   TMP_AUTH_TOKEN_LS_KEY: 'tmp_auth_token',
-  getCurrentOrganizationId: (...args: unknown[]) => mockGetCurrentOrganizationId(...args),
   setCurrentOrganizationId: (...args: unknown[]) => mockSetCurrentOrganizationId(...args),
   resetLocationHistoryVar: jest.fn(),
   updateAuthTokenVar: (...args: unknown[]) => mockUpdateAuthTokenVar(...args),
@@ -89,6 +94,14 @@ describe('switchCurrentOrganization', () => {
           'reFetchObservableQueries',
         ])
       })
+
+      it('THEN should purge the persisted blob without awaiting it (fire-and-forget keeps switch timing flash-free)', async () => {
+        const client = createMockClient()
+
+        await switchCurrentOrganization(client, 'org-456')
+
+        expect(mockPurgePersistedCache).toHaveBeenCalledTimes(1)
+      })
     })
   })
 })
@@ -97,96 +110,73 @@ describe('onLogIn', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     localStorage.clear()
-    mockGetCurrentOrganizationId.mockReturnValue(null)
   })
 
-  describe('GIVEN no previous organization stored', () => {
-    describe('WHEN login succeeds with accessible organizations', () => {
-      it('THEN should set the first accessible organization id via the reactive var', async () => {
-        const client = createMockClient({
-          data: {
-            currentUser: {
-              id: 'user-1',
-              organizations: [
-                createMockOrg({ id: 'org-a', name: 'Alpha Corp' }),
-                createMockOrg({ id: 'org-b', name: 'Beta Inc' }),
-              ],
-            },
+  describe('WHEN login succeeds', () => {
+    it('THEN sets the auth token and does NOT select/set a current org (RootRedirect owns landing)', async () => {
+      const client = createMockClient({
+        data: {
+          currentUser: {
+            id: 'user-1',
+            organizations: [
+              createMockOrg({ id: 'org-a', name: 'Alpha Corp' }),
+              createMockOrg({ id: 'org-b', name: 'Beta Inc' }),
+            ],
           },
-        })
-
-        await onLogIn(client, 'token-123')
-
-        expect(mockSetCurrentOrganizationId).toHaveBeenCalledWith('org-a')
+        },
       })
+
+      await onLogIn(client, 'token-123')
+
+      expect(mockUpdateAuthTokenVar).toHaveBeenCalledWith('token-123')
+      expect(mockSetCurrentOrganizationId).not.toHaveBeenCalled()
     })
   })
 
-  describe('GIVEN a previous organization stored via reactive var', () => {
-    describe('WHEN the previous org is still accessible', () => {
-      it('THEN should keep the previous organization', async () => {
-        mockGetCurrentOrganizationId.mockReturnValue('org-prev')
+  describe('WHEN the current user cannot be fetched', () => {
+    it('THEN shows a danger toast and does not set the auth token', async () => {
+      const client = createMockClient()
 
-        const client = createMockClient({
-          data: {
-            currentUser: {
-              id: 'user-1',
-              organizations: [
-                createMockOrg({ id: 'org-prev', name: 'Previous Org' }),
-                createMockOrg({ id: 'org-other', name: 'Other Org' }),
-              ],
-            },
-          },
-        })
+      ;(client.query as jest.Mock).mockRejectedValue(new Error('Network error'))
 
-        await onLogIn(client, 'token-123')
+      await onLogIn(client, 'token-123')
 
-        expect(mockSetCurrentOrganizationId).toHaveBeenCalledWith('org-prev')
-      })
-    })
-
-    describe('WHEN the previous org is no longer accessible', () => {
-      it('THEN should clear the previous org and fall back to the first accessible one', async () => {
-        mockGetCurrentOrganizationId.mockReturnValue('org-revoked')
-
-        const client = createMockClient({
-          data: {
-            currentUser: {
-              id: 'user-1',
-              organizations: [
-                createMockOrg({
-                  id: 'org-revoked',
-                  name: 'Revoked Org',
-                  accessibleByCurrentSession: false,
-                }),
-                createMockOrg({ id: 'org-fallback', name: 'Fallback Org' }),
-              ],
-            },
-          },
-        })
-
-        await onLogIn(client, 'token-123')
-
-        // First call: clears the revoked org
-        expect(mockSetCurrentOrganizationId).toHaveBeenNthCalledWith(1, null)
-        // Second call: sets the fallback org
-        expect(mockSetCurrentOrganizationId).toHaveBeenNthCalledWith(2, 'org-fallback')
-      })
+      expect(mockAddToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
+      expect(mockUpdateAuthTokenVar).not.toHaveBeenCalledWith('token-123')
     })
   })
+})
 
-  describe('GIVEN the query fails', () => {
-    describe('WHEN an error occurs during login', () => {
-      it('THEN should clear the organization id via the reactive var and show a toast', async () => {
-        const client = createMockClient()
+describe('logOut', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+    localStorage.clear()
+  })
 
-        ;(client.query as jest.Mock).mockRejectedValue(new Error('Network error'))
+  describe('WHEN logging out', () => {
+    it('THEN should reset both the in-memory and the persisted cache, then clear the auth token', async () => {
+      const client = createMockClient()
 
-        await onLogIn(client, 'token-123')
+      await logOut(client)
 
-        expect(mockSetCurrentOrganizationId).toHaveBeenCalledWith(null)
-        expect(mockAddToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
+      expect(mockResetPersistedCache).toHaveBeenCalledWith(client)
+      expect(mockUpdateAuthTokenVar).toHaveBeenCalled()
+    })
+
+    it('THEN should stop the client BEFORE resetting the cache', async () => {
+      const client = createMockClient()
+      const callOrder: string[] = []
+
+      ;(client.stop as jest.Mock).mockImplementation(() => {
+        callOrder.push('stop')
       })
+      mockResetPersistedCache.mockImplementation(async () => {
+        callOrder.push('resetPersistedCache')
+      })
+
+      await logOut(client)
+
+      expect(callOrder).toEqual(['stop', 'resetPersistedCache'])
     })
   })
 })

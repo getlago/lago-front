@@ -4,7 +4,7 @@ import { createRef } from 'react'
 
 import { render } from '~/test-utils'
 
-import { Popper } from '../Popper'
+import { isPopperGroupTracked, Popper } from '../Popper'
 
 async function prepare({
   children,
@@ -412,6 +412,70 @@ describe('Popper', () => {
 
       // Second should still be closed
       expect(screen.queryByTestId('content-2')).toBeNull()
+    })
+
+    it('closes other poppers sharing the same popperGroupName when one opens', async () => {
+      await act(() =>
+        render(
+          <div>
+            <Popper
+              popperGroupName="test-group"
+              opener={<button data-test="opener-1">Opener 1</button>}
+            >
+              <div data-test="content-1">Content 1</div>
+            </Popper>
+            <Popper
+              popperGroupName="test-group"
+              opener={<button data-test="opener-2">Opener 2</button>}
+            >
+              <div data-test="content-2">Content 2</div>
+            </Popper>
+          </div>,
+        ),
+      )
+
+      // Open first popper
+      await userEvent.click(screen.getByTestId('opener-1'))
+      await waitFor(() => {
+        expect(screen.getByTestId('content-1')).toBeVisible()
+      })
+
+      // Opening the second popper closes the first (single-open per group)
+      await userEvent.click(screen.getByTestId('opener-2'))
+      await waitFor(() => {
+        expect(screen.getByTestId('content-2')).toBeVisible()
+      })
+      expect(screen.queryByTestId('content-1')).toBeNull()
+    })
+
+    it('drops the registry entry when an open grouped popper unmounts', async () => {
+      const { unmount } = await act(() =>
+        render(
+          <Popper
+            popperGroupName="unmount-cleanup-group"
+            opener={<button data-test="opener-a">Opener A</button>}
+          >
+            <div data-test="content-a">Content A</div>
+          </Popper>,
+        ),
+      )
+
+      await userEvent.click(screen.getByTestId('opener-a'))
+      await waitFor(() => {
+        expect(screen.getByTestId('content-a')).toBeVisible()
+      })
+
+      // Open popper is tracked in the group registry.
+      expect(isPopperGroupTracked('unmount-cleanup-group')).toBe(true)
+
+      // Unmounting while open must run the cleanup effect and drop the entry —
+      // asserting the registry directly (a stale close on an unmounted popper is
+      // a DOM no-op, so this is the only way to discriminate the cleanup).
+      await act(() => {
+        unmount()
+      })
+
+      expect(isPopperGroupTracked('unmount-cleanup-group')).toBe(false)
     })
 
     it('matches snapshot with nested content', async () => {

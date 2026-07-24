@@ -1,3 +1,4 @@
+import { MainHeaderTab } from '~/components/MainHeader/types'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import PlanDetails from '../PlanDetails'
@@ -26,8 +27,8 @@ jest.mock('~/components/layouts/DetailsPage', () => ({
   },
 }))
 
-jest.mock('~/components/plans/details/PlanDetailsOverview', () => ({
-  PlanDetailsOverview: () => null,
+jest.mock('~/components/plans/details-v2/PlanDetailsV2', () => ({
+  PlanDetailsV2: () => null,
 }))
 
 jest.mock('~/components/plans/details/PlanDetailsActivityLogs', () => ({
@@ -40,7 +41,7 @@ jest.mock('~/components/plans/details/PlanSubscriptionList', () => ({
 }))
 
 jest.mock('~/components/plans/DeletePlanDialog', () => ({
-  DeletePlanDialog: () => null,
+  useDeletePlanDialog: () => ({ openDeletePlanDialog: jest.fn() }),
 }))
 
 jest.mock('~/hooks/usePermissions', () => ({
@@ -66,21 +67,9 @@ jest.mock('~/generated/graphql', () => ({
     mockUseGetPlanForDetailsQuery(options),
 }))
 
-const mockIsFeatureFlagActive = jest.fn().mockReturnValue(false)
-
-jest.mock('~/core/utils/featureFlags', () => ({
-  ...jest.requireActual('~/core/utils/featureFlags'),
-  isFeatureFlagActive: (flag: string) => mockIsFeatureFlagActive(flag),
-}))
-
 interface MainHeaderDropdownAction {
   type: string
   items: { hidden?: boolean; label: string }[]
-}
-
-interface MainHeaderTabConfig {
-  title: string
-  hidden?: boolean
 }
 
 describe('PlanDetails', () => {
@@ -90,7 +79,6 @@ describe('PlanDetails', () => {
 
     useParamsMock.mockReturnValue({ planId: 'plan-123' })
     mockIsPremium.mockReturnValue(true)
-    mockIsFeatureFlagActive.mockReturnValue(false)
     mockUseGetPlanForDetailsQuery.mockReturnValue({
       data: {
         plan: {
@@ -132,7 +120,10 @@ describe('PlanDetails', () => {
           expect.objectContaining({
             entity: expect.objectContaining({
               viewName: expect.any(String),
-              metadata: 'test-plan',
+              // metadata is a click-to-copy element wrapping the plan code
+              metadata: expect.objectContaining({
+                props: expect.objectContaining({ children: 'test-plan' }),
+              }),
             }),
           }),
         )
@@ -155,7 +146,7 @@ describe('PlanDetails', () => {
 
         render(<PlanDetails />)
 
-        const tabs = mockMainHeaderConfigure.mock.calls[0]?.[0]?.tabs as MainHeaderTabConfig[]
+        const tabs = mockMainHeaderConfigure.mock.calls[0]?.[0]?.tabs as MainHeaderTab[]
 
         expect(tabs.length).toBeGreaterThanOrEqual(2)
       })
@@ -164,7 +155,7 @@ describe('PlanDetails', () => {
 
   describe('GIVEN user has all permissions', () => {
     describe('WHEN actions are configured', () => {
-      it('THEN should include dropdown with edit, duplicate, and delete items', () => {
+      it('THEN should include dropdown with duplicate and delete items', () => {
         mockHasPermissions.mockReturnValue(true)
 
         render(<PlanDetails />)
@@ -177,23 +168,7 @@ describe('PlanDetails', () => {
 
         const visibleItems = actions[0]?.items.filter((i) => !i.hidden)
 
-        expect(visibleItems).toHaveLength(3)
-      })
-    })
-  })
-
-  describe('GIVEN user has no plansUpdate permission', () => {
-    describe('WHEN actions are configured', () => {
-      it('THEN should hide the edit action', () => {
-        mockHasPermissions.mockImplementation((perms: string[]) => !perms.includes('plansUpdate'))
-
-        render(<PlanDetails />)
-
-        const actions = mockMainHeaderConfigure.mock.calls[0]?.[0]?.actions
-          ?.items as MainHeaderDropdownAction[]
-        const editItem = actions[0]?.items[0]
-
-        expect(editItem?.hidden).toBe(true)
+        expect(visibleItems).toHaveLength(2)
       })
     })
   })
@@ -207,7 +182,7 @@ describe('PlanDetails', () => {
 
         const actions = mockMainHeaderConfigure.mock.calls[0]?.[0]?.actions
           ?.items as MainHeaderDropdownAction[]
-        const duplicateItem = actions[0]?.items[1]
+        const duplicateItem = actions[0]?.items[0]
 
         expect(duplicateItem?.hidden).toBe(true)
       })
@@ -223,7 +198,7 @@ describe('PlanDetails', () => {
 
         const actions = mockMainHeaderConfigure.mock.calls[0]?.[0]?.actions
           ?.items as MainHeaderDropdownAction[]
-        const deleteItem = actions[0]?.items[2]
+        const deleteItem = actions[0]?.items[1]
 
         expect(deleteItem?.hidden).toBe(true)
       })
@@ -253,33 +228,19 @@ describe('PlanDetails', () => {
     })
   })
 
-  describe('GIVEN the EDIT_DETAILS_PAGE feature flag', () => {
-    describe('WHEN the flag is off', () => {
-      it('THEN should hide the edit overview tab', () => {
+  describe('GIVEN the v2 overview tab', () => {
+    describe('WHEN the component renders', () => {
+      it('THEN should always serve the v2 overview at /overview', () => {
         mockHasPermissions.mockReturnValue(true)
-        mockIsFeatureFlagActive.mockReturnValue(false)
 
         render(<PlanDetails />)
 
-        const tabs = mockMainHeaderConfigure.mock.calls[0]?.[0]?.tabs as MainHeaderTabConfig[]
-        const editOverviewTab = tabs.find((t) => t.title === 'text_17792001643312864fz7j4gq')
+        const tabs = mockMainHeaderConfigure.mock.calls[0]?.[0]?.tabs as MainHeaderTab[]
+        const overviewTab = tabs.find((t) => t.title === 'text_628cf761cbe6820138b8f2e4')
 
-        expect(editOverviewTab?.hidden).toBe(true)
-      })
-    })
-
-    describe('WHEN the flag is on', () => {
-      it('THEN should render the edit overview tab as visible', () => {
-        mockHasPermissions.mockReturnValue(true)
-        mockIsFeatureFlagActive.mockReturnValue(true)
-
-        render(<PlanDetails />)
-
-        const tabs = mockMainHeaderConfigure.mock.calls[0]?.[0]?.tabs as MainHeaderTabConfig[]
-        const editOverviewTab = tabs.find((t) => t.title === 'text_17792001643312864fz7j4gq')
-
-        expect(editOverviewTab).toBeDefined()
-        expect(editOverviewTab?.hidden).toBe(false)
+        expect(overviewTab).toBeDefined()
+        expect(overviewTab?.hidden).toBeFalsy()
+        expect(overviewTab?.link).toContain('/overview')
       })
     })
   })

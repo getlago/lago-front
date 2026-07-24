@@ -7,28 +7,18 @@ import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/u
 import { Alert } from '~/components/designSystem/Alert'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Typography } from '~/components/designSystem/Typography'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { buildInvoiceDocumentData } from '~/components/emails/buildDocumentData'
 import { AddMetadataDrawer, AddMetadataDrawerRef } from '~/components/invoices/AddMetadataDrawer'
-import {
-  DisputeInvoiceDialog,
-  DisputeInvoiceDialogRef,
-} from '~/components/invoices/DisputeInvoiceDialog'
-import {
-  UpdateInvoicePaymentStatusDialog,
-  UpdateInvoicePaymentStatusDialogRef,
-} from '~/components/invoices/EditInvoicePaymentStatusDialog'
-import {
-  FinalizeInvoiceDialog,
-  FinalizeInvoiceDialogRef,
-} from '~/components/invoices/FinalizeInvoiceDialog'
+import { useDisputeInvoiceDialog } from '~/components/invoices/DisputeInvoiceDialog'
+import { useUpdateInvoicePaymentStatusDialog } from '~/components/invoices/EditInvoicePaymentStatusDialog'
+import { useFinalizeInvoiceDialog } from '~/components/invoices/FinalizeInvoiceDialog'
 import { InvoiceActivityLogs } from '~/components/invoices/InvoiceActivityLogs'
 import { InvoiceCreditNoteList } from '~/components/invoices/InvoiceCreditNoteList'
 import { InvoicePaymentList } from '~/components/invoices/InvoicePaymentList'
-import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { addToast, LagoGQLError } from '~/core/apolloClient'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import {
@@ -109,6 +99,7 @@ gql`
     taxStatus
     totalAmountCents
     currency
+    purchaseOrderNumber
     refundableAmountCents
     creditableAmountCents
     offsettableAmountCents
@@ -136,6 +127,20 @@ gql`
     ...InvoiceForInvoiceInfos
     ...InvoiceForFinalizeInvoice
     ...InvoiceForUpdateInvoicePaymentStatus
+  }
+
+  fragment FeeAppliedTaxesForInvoiceDetails on Fee {
+    appliedTaxes {
+      id
+      taxCode
+      taxRate
+      tax {
+        id
+        code
+        name
+        rate
+      }
+    }
   }
 
   fragment CustomerForInvoiceDetails on Customer {
@@ -170,6 +175,10 @@ gql`
     invoice(id: $id) {
       id
       ...AllInvoiceDetailsForCustomerInvoiceDetails
+      fees {
+        id
+        ...FeeAppliedTaxesForInvoiceDetails
+      }
     }
   }
 
@@ -183,6 +192,7 @@ gql`
         ...FeeDetailsForInvoiceOverview
         ...FeeForInvoiceDetailsTable
         ...FeeForInvoiceDetailsTableFooter
+        ...FeeAppliedTaxesForInvoiceDetails
       }
     }
   }
@@ -301,18 +311,19 @@ const CustomerInvoiceDetails = () => {
   const { goBack } = useLocationHistory()
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
-  const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
-  const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
+  const { openFinalizeInvoiceDialog } = useFinalizeInvoiceDialog()
+  const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
+  const { openUpdateInvoicePaymentStatusDialog } = useUpdateInvoicePaymentStatusDialog()
   const addMetadataDrawerDialogRef = useRef<AddMetadataDrawerRef>(null)
-  const voidInvoiceDialogRef = useRef<VoidInvoiceDialogRef>(null)
-  const disputeInvoiceDialogRef = useRef<DisputeInvoiceDialogRef>(null)
+  const { openDisputeInvoiceDialog } = useDisputeInvoiceDialog()
   const activeTabContent = useMainHeaderTabContent()
 
   const { data, loading, error, refetch } = useGetInvoiceDetailsQuery({
     variables: { id: invoiceId as string },
     skip: !invoiceId,
     context: { silentErrorCodes: [LagoApiError.NotFound] },
+    fetchPolicy: 'cache-and-network',
+    notifyOnNetworkStatusChange: true,
   })
 
   useNotFoundRedirect({
@@ -329,6 +340,8 @@ const CustomerInvoiceDetails = () => {
     variables: { id: invoiceId as string },
     skip: !invoiceId,
     context: { silentErrorCodes: [LagoApiError.NotFound] },
+    fetchPolicy: 'cache-and-network',
+    notifyOnNetworkStatusChange: true,
   })
   const invoice = data?.invoice
   const invoiceFees = feesData?.invoice?.fees
@@ -505,9 +518,6 @@ const CustomerInvoiceDetails = () => {
     currency,
     status,
     taxStatus,
-    creditableAmountCents,
-    refundableAmountCents,
-    offsettableAmountCents,
     taxProviderVoidable,
     associatedActiveWalletPresent,
     paymentDisputeLostAt,
@@ -520,9 +530,6 @@ const CustomerInvoiceDetails = () => {
   const { disabledIssueCreditNoteButton, disabledIssueCreditNoteButtonLabel } =
     createCreditNoteForInvoiceButtonProps({
       invoiceType,
-      creditableAmountCents,
-      refundableAmountCents,
-      offsettableAmountCents,
       associatedActiveWalletPresent,
     })
 
@@ -760,7 +767,7 @@ const CustomerInvoiceDetails = () => {
           label: translate('text_63a41a8eabb9ae67047c1c08'),
           hidden: !authorizations.canFinalizeInvoice,
           onClick: (closePopper: () => void) => {
-            finalizeInvoiceRef.current?.openDialog(data?.invoice)
+            openFinalizeInvoiceDialog(data?.invoice)
             closePopper()
           },
         },
@@ -832,7 +839,7 @@ const CustomerInvoiceDetails = () => {
                 }),
               )
             } else {
-              premiumWarningDialogRef.current?.openDialog()
+              openPremiumWarningDialog()
             }
             closePopper()
           },
@@ -849,7 +856,7 @@ const CustomerInvoiceDetails = () => {
                 }),
               )
             } else {
-              premiumWarningDialogRef.current?.openDialog()
+              openPremiumWarningDialog()
             }
             closePopper()
           },
@@ -881,7 +888,7 @@ const CustomerInvoiceDetails = () => {
           hidden: !authorizations.canUpdatePaymentStatus,
           onClick: (closePopper: () => void) => {
             if (invoice) {
-              updateInvoicePaymentStatusDialog?.current?.openDialog(invoice)
+              openUpdateInvoicePaymentStatusDialog(invoice)
             }
             closePopper()
           },
@@ -920,7 +927,7 @@ const CustomerInvoiceDetails = () => {
           label: translate('text_66141e30699a0631f0b2ec71'),
           hidden: !authorizations.canDispute,
           onClick: (closePopper: () => void) => {
-            disputeInvoiceDialogRef.current?.openDialog({
+            openDisputeInvoiceDialog({
               id: data?.invoice?.id || '',
             })
             closePopper()
@@ -1016,11 +1023,6 @@ const CustomerInvoiceDetails = () => {
         <DetailsPage.Container>{activeTabContent}</DetailsPage.Container>
       )}
 
-      <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
-      <UpdateInvoicePaymentStatusDialog ref={updateInvoicePaymentStatusDialog} />
-      <VoidInvoiceDialog ref={voidInvoiceDialogRef} />
-      <DisputeInvoiceDialog ref={disputeInvoiceDialogRef} />
       {!!invoice && <AddMetadataDrawer ref={addMetadataDrawerDialogRef} invoiceId={invoice.id} />}
     </>
   )

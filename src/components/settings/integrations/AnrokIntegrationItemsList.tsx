@@ -7,6 +7,7 @@ import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
 import { Typography } from '~/components/designSystem/Typography'
 import { SearchInput } from '~/components/SearchInput'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import {
   AnrokIntegrationItemsListAddonsFragmentDoc,
   AnrokIntegrationItemsListBillableMetricsFragmentDoc,
@@ -65,6 +66,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
       }
       collection {
         id
@@ -84,6 +86,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
       }
       collection {
         id
@@ -138,7 +141,7 @@ const AnrokIntegrationItemsList = ({ integrationId }: { integrationId: string })
   ] = useGetAddOnsForAnrokItemsListLazyQuery({
     notifyOnNetworkStatusChange: true,
     variables: {
-      limit: 20,
+      limit: DEFAULT_PAGE_SIZE,
       integrationId,
     },
   })
@@ -155,7 +158,7 @@ const AnrokIntegrationItemsList = ({ integrationId }: { integrationId: string })
   ] = useGetBillableMetricsForAnrokItemsListLazyQuery({
     notifyOnNetworkStatusChange: true,
     variables: {
-      limit: 20,
+      limit: DEFAULT_PAGE_SIZE,
       integrationId,
     },
   })

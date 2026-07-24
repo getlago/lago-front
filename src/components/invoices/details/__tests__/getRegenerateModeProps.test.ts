@@ -1,5 +1,11 @@
 import { getRegenerateModeProps } from '../InvoiceDetailsTableBodyLine'
 
+// Stub the drawer hook so the transitive `drawerStack.ts` (Vite-only `import.meta.hot`)
+// is never loaded when this helper-only test imports BodyLine.
+jest.mock('~/components/invoices/details/ViewFeeDetailsDrawer', () => ({
+  useViewFeeDetailsDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+}))
+
 describe('getRegenerateModeProps', () => {
   const mockOnAdd = jest.fn()
   const mockOnDelete = jest.fn()

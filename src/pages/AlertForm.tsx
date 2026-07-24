@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 import { array, boolean, number, object, string } from 'yup'
 
@@ -8,7 +8,7 @@ import AlertThresholds, { isThresholdValueValid } from '~/components/alerts/Thre
 import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'
 import { Typography } from '~/components/designSystem/Typography'
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { ComboBox, ComboBoxField, ComboboxItem, TextInput, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
@@ -140,7 +140,7 @@ const AlertForm = () => {
   const { alertId = '', customerId = '', planId = '', subscriptionId = '' } = useParams()
   const { translate } = useInternationalization()
   const navigate = useNavigate()
-  const warningDirtyAttributesDialogRef = useRef<WarningDialogRef>(null)
+  const centralizedDialog = useCentralizedDialog()
   const isEdition = !!alertId
 
   const { data: subscriptionData, loading: subscriptionLoading } = useGetSubscriptionInfosQuery({
@@ -217,6 +217,16 @@ const AlertForm = () => {
     },
     [customerId, navigate, planId, subscriptionId],
   )
+
+  const warnLeaving = useCallback(() => {
+    centralizedDialog.open({
+      title: translate('text_6244277fe0975300fe3fb940'),
+      description: translate('text_1746623860224gh7o1exyjch'),
+      actionText: translate('text_6244277fe0975300fe3fb94c'),
+      colorVariant: 'danger',
+      onAction: onLeave,
+    })
+  }, [centralizedDialog, onLeave, translate])
 
   // Redirect to alerts list if alert is not found (e.g., deleted while on edit page)
   useEffect(() => {
@@ -446,9 +456,7 @@ const AlertForm = () => {
           <Button
             variant="quaternary"
             icon="close"
-            onClick={() =>
-              formikProps.dirty ? warningDirtyAttributesDialogRef.current?.openDialog() : onLeave()
-            }
+            onClick={() => (formikProps.dirty ? warnLeaving() : onLeave())}
           />
         </CenteredPage.Header>
 
@@ -580,9 +588,7 @@ const AlertForm = () => {
         <CenteredPage.StickyFooter>
           <Button
             variant="quaternary"
-            onClick={() =>
-              formikProps.dirty ? warningDirtyAttributesDialogRef.current?.openDialog() : onLeave()
-            }
+            onClick={() => (formikProps.dirty ? warnLeaving() : onLeave())}
           >
             {translate('text_6411e6b530cb47007488b027')}
           </Button>
@@ -602,14 +608,6 @@ const AlertForm = () => {
           </Button>
         </CenteredPage.StickyFooter>
       </CenteredPage.Wrapper>
-
-      <WarningDialog
-        ref={warningDirtyAttributesDialogRef}
-        title={translate('text_6244277fe0975300fe3fb940')}
-        description={translate('text_1746623860224gh7o1exyjch')}
-        continueText={translate('text_6244277fe0975300fe3fb94c')}
-        onContinue={onLeave}
-      />
     </>
   )
 }

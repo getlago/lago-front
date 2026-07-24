@@ -1,13 +1,13 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
-import { useMemo, useRef } from 'react'
+import { useMemo, useState } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
 import { ButtonLink } from '~/components/designSystem/ButtonLink'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import {
@@ -18,10 +18,7 @@ import {
   SettingsPaddedContainer,
 } from '~/components/layouts/Settings'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import {
-  DeleteCampaignDialog,
-  DeleteCampaignDialogRef,
-} from '~/components/settings/dunnings/DeleteCampaignDialog'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { CREATE_DUNNING_ROUTE, UPDATE_DUNNING_ROUTE, useNavigate } from '~/core/router'
 import {
   DeleteCampaignFragmentDoc,
@@ -32,6 +29,8 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
+
+import { useDeleteCampaignDialog } from './dialogs/DeleteCampaignDialog'
 
 gql`
   fragment DunningCampaignItem on DunningCampaign {
@@ -46,6 +45,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
       }
       collection {
         id
@@ -69,14 +69,19 @@ const Dunnings = () => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const navigate = useNavigate()
-  const deleteCampaignDialogRef = useRef<DeleteCampaignDialogRef>(null)
+  const { openDeleteCampaignDialog } = useDeleteCampaignDialog()
 
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
 
-  const { data, loading, error, fetchMore } = useGetDunningCampaignsQuery({
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+  const { page, goToPage } = usePageSearchParam()
+
+  const { data, loading, error } = useGetDunningCampaignsQuery({
     variables: {
-      limit: 20,
+      limit: pageSize,
+      page,
     },
+    notifyOnNetworkStatusChange: true,
   })
 
   const hasAccessToFeature = premiumIntegrations?.includes(PremiumIntegrationTypeEnum.AutoDunning)
@@ -112,13 +117,13 @@ const Dunnings = () => {
         }}
       />
 
-      <SettingsPaddedContainer>
-        {!!loading ? (
+      <SettingsPaddedContainer className="min-h-0 flex-1 pb-0">
+        {loading && !data ? (
           <SettingsListItemLoadingSkeleton count={2} />
         ) : (
           <>
-            <SettingsListWrapper>
-              <SettingsListItem>
+            <SettingsListWrapper className="min-h-0 flex-1">
+              <SettingsListItem className="min-h-0 flex-1">
                 <SettingsListItemHeader
                   label={translate('text_1728574726495w5aylnynne9')}
                   sublabel={translate('text_1728574726495kqlx1l8crvp')}
@@ -172,25 +177,24 @@ const Dunnings = () => {
                     )}
 
                     {!!data?.dunningCampaigns.collection.length && (
-                      <InfiniteScroll
-                        onBottom={() => {
-                          const { currentPage, totalPages } = data.dunningCampaigns.metadata
-
-                          currentPage < totalPages &&
-                            !loading &&
-                            fetchMore({
-                              variables: {
-                                page: currentPage + 1,
-                              },
-                            })
+                      <PaginatedContent
+                        metadata={data?.dunningCampaigns.metadata}
+                        loading={loading}
+                        pageSize={pageSize}
+                        onPageChange={goToPage}
+                        onPageSizeChange={(newPageSize) => {
+                          setPageSize(newPageSize)
+                          goToPage(1)
                         }}
                       >
                         <Table
                           name="dunnings-settings-list"
+                          containerClassName="h-auto shrink-0"
                           containerSize={{ default: 0 }}
                           rowSize={72}
                           isLoading={loading}
                           data={sortedTable}
+                          loadingRowCount={pageSize}
                           columns={[
                             {
                               key: 'name',
@@ -233,13 +237,13 @@ const Dunnings = () => {
                                 title: translate('text_1732187313660we30lb9kg57'),
                                 disabled: !hasPermissions(['dunningCampaignsDelete']),
                                 onAction: () => {
-                                  deleteCampaignDialogRef.current?.openDialog(campaign)
+                                  openDeleteCampaignDialog(campaign)
                                 },
                               },
                             ]
                           }}
                         />
-                      </InfiniteScroll>
+                      </PaginatedContent>
                     )}
                   </>
                 )}
@@ -248,8 +252,6 @@ const Dunnings = () => {
           </>
         )}
       </SettingsPaddedContainer>
-
-      <DeleteCampaignDialog ref={deleteCampaignDialogRef} />
     </>
   )
 }

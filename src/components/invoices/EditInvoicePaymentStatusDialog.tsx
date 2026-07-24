@@ -1,21 +1,20 @@
 import { gql } from '@apollo/client'
-import { useFormik } from 'formik'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
-import { object, string } from 'yup'
+import { revalidateLogic } from '@tanstack/react-form'
+import { useRef } from 'react'
+import { z } from 'zod'
 
-import { Button } from '~/components/designSystem/Button'
-import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
-import { ComboBoxField } from '~/components/form'
+import { useFormDialog } from '~/components/dialogs/FormDialog'
+import { DialogResult } from '~/components/dialogs/types'
 import { addToast } from '~/core/apolloClient'
 import {
   AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc,
   InvoiceForUpdateInvoicePaymentStatusFragment,
   InvoiceListItemFragmentDoc,
   InvoicePaymentStatusTypeEnum,
-  UpdateInvoiceInput,
   useUpdateInvoicePaymentStatusMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm } from '~/hooks/forms/useAppform'
 
 gql`
   fragment InvoiceForUpdateInvoicePaymentStatus on Invoice {
@@ -36,105 +35,119 @@ gql`
   ${InvoiceListItemFragmentDoc}
 `
 
-export interface UpdateInvoicePaymentStatusDialogRef {
-  openDialog: (invoice: InvoiceForUpdateInvoicePaymentStatusFragment) => unknown
-  closeDialog: () => unknown
-}
+export const UPDATE_INVOICE_PAYMENT_STATUS_FORM_ID = 'update-invoice-payment-status-form'
 
-export const UpdateInvoicePaymentStatusDialog = forwardRef<UpdateInvoicePaymentStatusDialogRef>(
-  (_, ref) => {
-    const { translate } = useInternationalization()
-    const dialogRef = useRef<DialogRef>(null)
-    const [invoice, setInvoice] = useState<InvoiceForUpdateInvoicePaymentStatusFragment>()
-    const [updateInvoice] = useUpdateInvoicePaymentStatusMutation({
-      onCompleted({ updateInvoice: updateInvoiceRes }) {
-        if (updateInvoiceRes?.id) {
-          addToast({
-            message: translate('text_63eba8c65a6c8043feee2a02'),
-            severity: 'success',
-          })
-        }
-      },
-    })
-    const formikProps = useFormik<Omit<UpdateInvoiceInput, 'id'>>({
-      initialValues: {
-        paymentStatus: invoice?.paymentStatus || undefined,
-      },
-      validationSchema: object().shape({
-        paymentStatus: string().required(''),
-      }),
-      validateOnMount: true,
-      enableReinitialize: true,
-      onSubmit: async (values, formikBag) => {
-        if (!invoice?.id) return
+const updateInvoicePaymentStatusValidationSchema = z.object({
+  paymentStatus: z
+    .string({ message: 'text_624ea7c29103fd010732ab7d' })
+    .min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
+})
 
-        const res = await updateInvoice({
-          variables: {
-            input: {
-              id: invoice.id,
-              ...values,
-            },
-          },
+export const useUpdateInvoicePaymentStatusDialog = () => {
+  const formDialog = useFormDialog()
+  const { translate } = useInternationalization()
+  const invoiceRef = useRef<InvoiceForUpdateInvoicePaymentStatusFragment | null>(null)
+  const successRef = useRef(false)
+
+  const [updateInvoice] = useUpdateInvoicePaymentStatusMutation({
+    onCompleted({ updateInvoice: updateInvoiceRes }) {
+      if (updateInvoiceRes?.id) {
+        addToast({
+          message: translate('text_63eba8c65a6c8043feee2a02'),
+          severity: 'success',
         })
+      }
+    },
+  })
 
-        if (res.data?.updateInvoice) {
-          dialogRef?.current?.closeDialog()
-          formikBag.resetForm()
+  const form = useAppForm({
+    defaultValues: {
+      paymentStatus: '' as string,
+    },
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: updateInvoicePaymentStatusValidationSchema,
+    },
+    onSubmit: async ({ value }) => {
+      const invoice = invoiceRef.current
+
+      if (!invoice?.id) {
+        return
+      }
+
+      const res = await updateInvoice({
+        variables: {
+          input: {
+            id: invoice.id,
+            paymentStatus: value.paymentStatus as InvoicePaymentStatusTypeEnum,
+          },
+        },
+      })
+
+      if (res.data?.updateInvoice) {
+        successRef.current = true
+      }
+    },
+  })
+
+  const handleSubmit = async (): Promise<DialogResult> => {
+    successRef.current = false
+    await form.handleSubmit()
+
+    if (!successRef.current) {
+      throw new Error('Submit failed')
+    }
+
+    return { reason: 'success' }
+  }
+
+  const openUpdateInvoicePaymentStatusDialog = (
+    invoice: InvoiceForUpdateInvoicePaymentStatusFragment,
+  ) => {
+    invoiceRef.current = invoice
+    form.reset()
+    form.setFieldValue('paymentStatus', invoice.paymentStatus ?? '')
+
+    formDialog
+      .open({
+        title: translate('text_63eba8c65a6c8043feee2a0d'),
+        description: translate('text_63eba8c65a6c8043feee2a0e'),
+        cancelOrCloseText: 'cancel',
+        children: (
+          <div className="p-8">
+            <form.AppField name="paymentStatus">
+              {(field) => (
+                <field.ComboBoxField
+                  disableClearable
+                  label={translate('text_63eba8c65a6c8043feee2a0f')}
+                  data={Object.values(InvoicePaymentStatusTypeEnum).map((status) => ({
+                    label: status.charAt(0).toUpperCase() + status.slice(1),
+                    value: status,
+                  }))}
+                  PopperProps={{ displayInDialog: true }}
+                />
+              )}
+            </form.AppField>
+          </div>
+        ),
+        closeOnError: false,
+        mainAction: (
+          <form.AppForm>
+            <form.SubmitButton>{translate('text_63eba8c65a6c8043feee2a15')}</form.SubmitButton>
+          </form.AppForm>
+        ),
+        form: {
+          id: UPDATE_INVOICE_PAYMENT_STATUS_FORM_ID,
+          submit: handleSubmit,
+        },
+      })
+      .then((response) => {
+        if (response.reason === 'close') {
+          form.reset()
+          invoiceRef.current = null
         }
-      },
-    })
+      })
+  }
 
-    useImperativeHandle(ref, () => ({
-      openDialog: (data) => {
-        setInvoice(data)
-        dialogRef.current?.openDialog()
-      },
-      closeDialog: () => dialogRef.current?.closeDialog(),
-    }))
-
-    return (
-      <Dialog
-        ref={dialogRef}
-        title={translate('text_63eba8c65a6c8043feee2a0d')}
-        description={translate('text_63eba8c65a6c8043feee2a0e')}
-        onClose={() => {
-          formikProps.resetForm()
-          formikProps.validateForm()
-        }}
-        actions={({ closeDialog }) => (
-          <>
-            <Button variant="quaternary" onClick={closeDialog}>
-              {translate('text_63eba8c65a6c8043feee2a14')}
-            </Button>
-            <Button
-              variant="primary"
-              disabled={!formikProps.isValid || !formikProps.dirty}
-              onClick={async () => {
-                await formikProps.submitForm()
-                closeDialog()
-              }}
-            >
-              {translate('text_63eba8c65a6c8043feee2a15')}
-            </Button>
-          </>
-        )}
-      >
-        <ComboBoxField
-          className="mb-8"
-          name="paymentStatus"
-          label={translate('text_63eba8c65a6c8043feee2a0f')}
-          data={Object.values(InvoicePaymentStatusTypeEnum).map((status) => ({
-            label: status.charAt(0).toUpperCase() + status.slice(1),
-            value: status,
-          }))}
-          isEmptyNull={false}
-          disableClearable
-          formikProps={formikProps}
-          PopperProps={{ displayInDialog: true }}
-        />
-      </Dialog>
-    )
-  },
-)
-
-UpdateInvoicePaymentStatusDialog.displayName = 'forwardRef'
+  return { openUpdateInvoicePaymentStatusDialog }
+}

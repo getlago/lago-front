@@ -4,6 +4,7 @@ import { useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import { formatFiltersForSecurityLogsQuery } from '~/components/designSystem/Filters'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { LagoApiError, useGetSecurityLogsQuery } from '~/generated/graphql'
 
 import { SecurityLogs, SecurityLogWithId } from '../common/securityLogsTypes'
@@ -40,6 +41,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
       }
       collection {
         ...SecurityLogItem
@@ -48,37 +50,22 @@ gql`
   }
 `
 
-type FilterForSecurityLogsQuery = {
-  [key: string]: string | string[] | boolean
-  toDate: string
-}
-
 export const formatSecurityLogs = (securityLogs: SecurityLogs): Array<SecurityLogWithId> => {
   return securityLogs.map((securityLog) => ({ id: securityLog.logId, ...securityLog }))
 }
 
-const isFilterForSecurityLogsQuery = (
-  filter: Record<string, string | string[] | boolean>,
-): filter is FilterForSecurityLogsQuery => {
-  if (!filter.toDate || typeof filter.toDate !== 'string') return false
-  return true
-}
-
-export const useSecurityLogs = () => {
+export const useSecurityLogs = (pageSize: number = DEFAULT_PAGE_SIZE, page: number = 1) => {
   const [searchParams] = useSearchParams()
   const defaultToDateTime = DateTime.now().endOf('day').toISO()
 
   const filtersForSecurityLogsQuery = useMemo(() => {
     const formattedFilters = formatFiltersForSecurityLogsQuery(searchParams)
 
-    if (!isFilterForSecurityLogsQuery(formattedFilters)) {
-      return {
-        ...formattedFilters,
-        toDate: defaultToDateTime,
-      }
+    // The security logs query requires a toDate; fall back to the default when none is set.
+    return {
+      ...formattedFilters,
+      toDate: formattedFilters.toDate ?? defaultToDateTime,
     }
-
-    return formattedFilters
   }, [defaultToDateTime, searchParams])
 
   const {
@@ -88,7 +75,7 @@ export const useSecurityLogs = () => {
     refetch,
     error,
   } = useGetSecurityLogsQuery({
-    variables: { limit: 20, ...filtersForSecurityLogsQuery },
+    variables: { page, limit: pageSize, ...filtersForSecurityLogsQuery },
     notifyOnNetworkStatusChange: true,
     context: {
       silentErrorCodes: [LagoApiError.FeatureUnavailable],
@@ -97,7 +84,7 @@ export const useSecurityLogs = () => {
 
   const refetchSecurityLogs = async () => {
     await refetch({
-      limit: 20,
+      limit: pageSize,
       ...filtersForSecurityLogsQuery,
       page: 1,
     })

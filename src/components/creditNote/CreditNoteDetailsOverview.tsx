@@ -26,6 +26,7 @@ import {
   DownloadCreditNoteMutationVariables,
   DownloadCreditNoteXmlMutation,
   DownloadCreditNoteXmlMutationVariables,
+  InvoiceTypeEnum,
   useGetCreditNoteForDetailsOverviewQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -230,6 +231,14 @@ export const CreditNoteDetailsOverview: FC<CreditNoteDetailsOverviewProps> = ({
                 )}
               </>
             )}
+
+            {creditNote?.invoice?.invoiceType === InvoiceTypeEnum.OneOff && (
+              <DetailsPage.OverviewLine
+                title={translate('text_17822197712867qhfbaf9fpk')}
+                value={creditNote?.invoice?.purchaseOrderNumber || '-'}
+              />
+            )}
+
             {creditNote?.createdAt && (
               <DetailsPage.OverviewLine
                 title={translate('text_637655cb50f04bf1c8379d06')}

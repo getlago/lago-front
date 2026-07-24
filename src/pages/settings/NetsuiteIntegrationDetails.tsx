@@ -8,14 +8,8 @@ import {
   AddEditDeleteSuccessRedirectUrlDialog,
   AddEditDeleteSuccessRedirectUrlDialogRef,
 } from '~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog'
-import {
-  AddNetsuiteDialog,
-  AddNetsuiteDialogRef,
-} from '~/components/settings/integrations/AddNetsuiteDialog'
-import {
-  DeleteNetsuiteIntegrationDialog,
-  DeleteNetsuiteIntegrationDialogRef,
-} from '~/components/settings/integrations/DeleteNetsuiteIntegrationDialog'
+import { useAddNetsuiteDialog } from '~/components/settings/integrations/AddNetsuiteDialog'
+import { useDeleteNetsuiteIntegrationDialog } from '~/components/settings/integrations/DeleteNetsuiteIntegrationDialog'
 import NetsuiteIntegrationItemsList from '~/components/settings/integrations/NetsuiteIntegrationItemsList'
 import NetsuiteIntegrationSettings from '~/components/settings/integrations/NetsuiteIntegrationSettings'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -83,8 +77,8 @@ gql`
 const NetsuiteIntegrationDetails = () => {
   const navigate = useNavigate()
   const { integrationId = '' } = useParams()
-  const addNetsuiteDialogRef = useRef<AddNetsuiteDialogRef>(null)
-  const deleteDialogRef = useRef<DeleteNetsuiteIntegrationDialogRef>(null)
+  const { openAddNetsuiteDialog } = useAddNetsuiteDialog()
+  const { openDeleteNetsuiteIntegrationDialog } = useDeleteNetsuiteIntegrationDialog()
   const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { translate } = useInternationalization()
   const { data, loading } = useGetNetsuiteIntegrationsDetailsQuery({
@@ -145,9 +139,8 @@ const NetsuiteIntegrationDetails = () => {
                 {
                   label: translate('text_65845f35d7d69c3ab4793dac'),
                   onClick: (closePopper) => {
-                    addNetsuiteDialogRef.current?.openDialog({
+                    openAddNetsuiteDialog({
                       provider: netsuiteIntegration,
-                      deleteModalRef: deleteDialogRef,
                       deleteDialogCallback,
                     })
                     closePopper()
@@ -157,7 +150,7 @@ const NetsuiteIntegrationDetails = () => {
                   label: translate('text_65845f35d7d69c3ab4793dad'),
                   onClick: (closePopper) => {
                     if (netsuiteIntegration) {
-                      deleteDialogRef.current?.openDialog({
+                      openDeleteNetsuiteIntegrationDialog({
                         provider: netsuiteIntegration,
                         callback: deleteDialogCallback,
                       })
@@ -203,8 +196,6 @@ const NetsuiteIntegrationDetails = () => {
 
       <>{activeTabContent}</>
 
-      <AddNetsuiteDialog ref={addNetsuiteDialogRef} />
-      <DeleteNetsuiteIntegrationDialog ref={deleteDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )

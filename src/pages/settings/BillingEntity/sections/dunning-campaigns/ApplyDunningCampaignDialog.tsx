@@ -1,17 +1,23 @@
 import { gql } from '@apollo/client'
-import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react'
+import { revalidateLogic } from '@tanstack/react-form'
+import { useMemo, useRef } from 'react'
+import { z } from 'zod'
 
-import { Button } from '~/components/designSystem/Button'
-import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
 import { Typography } from '~/components/designSystem/Typography'
-import { ComboBox } from '~/components/form'
+import { useFormDialog } from '~/components/dialogs/FormDialog'
+import { DialogResult } from '~/components/dialogs/types'
 import { addToast } from '~/core/apolloClient'
+import {
+  MUI_INPUT_BASE_ROOT_CLASSNAME,
+  SEARCH_DUNNING_CAMPAIGN_INPUT_CLASSNAME,
+} from '~/core/constants/form'
 import {
   BillingEntity,
   useApplyBillingEntityDunningCampaignMutation,
   useGetDunningCampaignsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm } from '~/hooks/forms/useAppform'
 
 gql`
   mutation applyBillingEntityDunningCampaign(
@@ -23,50 +29,19 @@ gql`
   }
 `
 
-export type ApplyDunningCampaignDialogRef = {
-  openDialog: (billingEntity: BillingEntity) => unknown
-  closeDialog: () => unknown
-}
+export const APPLY_DUNNING_CAMPAIGN_FORM_ID = 'apply-dunning-campaign-form'
 
-export const ApplyDunningCampaignDialog = forwardRef<ApplyDunningCampaignDialogRef>((_, ref) => {
+const applyDunningCampaignValidationSchema = z.object({
+  appliedDunningCampaignId: z.string().min(1),
+})
+
+export const useApplyDunningCampaignDialog = () => {
+  const formDialog = useFormDialog()
   const { translate } = useInternationalization()
-  const dialogRef = useRef<DialogRef>(null)
-  const [billingEntity, setBillingEntity] = useState<BillingEntity | null>(null)
-  const [appliedDunningCampaignId, setAppliedDunningCampaignId] = useState<string | null>(null)
+  const billingEntityRef = useRef<BillingEntity | null>(null)
+  const successRef = useRef(false)
 
   const { data, loading } = useGetDunningCampaignsQuery()
-
-  const clear = () => {
-    setAppliedDunningCampaignId(null)
-    setBillingEntity(null)
-  }
-
-  const [applyBillingEntityDunningCampaign] = useApplyBillingEntityDunningCampaignMutation({
-    onCompleted(_data) {
-      if (_data) {
-        addToast({
-          message: translate('text_1750663218390945tme6j9he'),
-          severity: 'success',
-        })
-      }
-    },
-    refetchQueries: ['getBillingEntity'],
-  })
-
-  useImperativeHandle(ref, () => ({
-    openDialog: (_billingEntity) => {
-      clear()
-
-      setBillingEntity(_billingEntity)
-
-      dialogRef.current?.openDialog()
-    },
-    closeDialog: () => {
-      clear()
-
-      dialogRef.current?.closeDialog()
-    },
-  }))
 
   const dunningCampaigns = useMemo(
     () =>
@@ -78,54 +53,104 @@ export const ApplyDunningCampaignDialog = forwardRef<ApplyDunningCampaignDialogR
     [data],
   )
 
-  return (
-    <Dialog
-      ref={dialogRef}
-      title={translate('text_17506632183903il25h0wuik')}
-      description={<Typography>{translate('text_1750663218390ndvitukei2q')}</Typography>}
-      actions={({ closeDialog }) => (
-        <>
-          <Button variant="quaternary" onClick={closeDialog}>
-            {translate('text_63eba8c65a6c8043feee2a14')}
-          </Button>
+  const [applyBillingEntityDunningCampaign] = useApplyBillingEntityDunningCampaignMutation({
+    onCompleted(_data) {
+      if (_data?.billingEntityUpdateAppliedDunningCampaign) {
+        successRef.current = true
+        addToast({
+          message: translate('text_1750663218390945tme6j9he'),
+          severity: 'success',
+        })
+      }
+    },
+    refetchQueries: ['getBillingEntity'],
+  })
 
-          <Button
-            variant="primary"
-            disabled={!appliedDunningCampaignId}
-            onClick={async () => {
-              if (billingEntity && appliedDunningCampaignId) {
-                applyBillingEntityDunningCampaign({
-                  variables: {
-                    input: {
-                      appliedDunningCampaignId: appliedDunningCampaignId,
-                      billingEntityId: billingEntity.id,
-                    },
-                  },
-                })
-              }
+  const form = useAppForm({
+    defaultValues: {
+      appliedDunningCampaignId: '',
+    },
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: applyDunningCampaignValidationSchema,
+    },
+    onSubmit: async ({ value }) => {
+      const billingEntity = billingEntityRef.current
 
-              closeDialog()
-            }}
-          >
-            {translate('text_1750663218390xxlt86n0fhu')}
-          </Button>
-        </>
-      )}
-    >
-      <ComboBox
-        name="billingEntityApplyDunningCampaign"
-        label={translate('text_1750663218390lixhj94mgbp')}
-        className="mb-8"
-        loading={loading}
-        data={dunningCampaigns}
-        value={appliedDunningCampaignId || ''}
-        onChange={(t) => setAppliedDunningCampaignId(t)}
-        placeholder={translate('text_1750663218390emesat7jusk')}
-        PopperProps={{ displayInDialog: true }}
-        emptyText={translate('text_1750663218390rdqsn5fzioi')}
-      />
-    </Dialog>
-  )
-})
+      if (!billingEntity) return
 
-ApplyDunningCampaignDialog.displayName = 'ApplyDunningCampaignDialog'
+      await applyBillingEntityDunningCampaign({
+        variables: {
+          input: {
+            appliedDunningCampaignId: value.appliedDunningCampaignId,
+            billingEntityId: billingEntity.id,
+          },
+        },
+      })
+    },
+  })
+
+  const handleSubmit = async (): Promise<DialogResult> => {
+    successRef.current = false
+    await form.handleSubmit()
+
+    if (!successRef.current) {
+      throw new Error('Submit failed')
+    }
+
+    return { reason: 'success' }
+  }
+
+  const openApplyDunningCampaignDialog = (billingEntity: BillingEntity) => {
+    billingEntityRef.current = billingEntity
+    form.reset()
+
+    formDialog
+      .open({
+        title: translate('text_17506632183903il25h0wuik'),
+        description: <Typography>{translate('text_1750663218390ndvitukei2q')}</Typography>,
+        closeOnError: false,
+        onEntered: (container) => {
+          container
+            .querySelector<HTMLElement>(
+              `.${SEARCH_DUNNING_CAMPAIGN_INPUT_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
+            )
+            ?.click()
+        },
+        children: (
+          <div className="p-8">
+            <form.AppField name="appliedDunningCampaignId">
+              {(field) => (
+                <field.ComboBoxField
+                  className={SEARCH_DUNNING_CAMPAIGN_INPUT_CLASSNAME}
+                  label={translate('text_1750663218390lixhj94mgbp')}
+                  loading={loading}
+                  data={dunningCampaigns}
+                  placeholder={translate('text_1750663218390emesat7jusk')}
+                  PopperProps={{ displayInDialog: true }}
+                  emptyText={translate('text_1750663218390rdqsn5fzioi')}
+                />
+              )}
+            </form.AppField>
+          </div>
+        ),
+        mainAction: (
+          <form.AppForm>
+            <form.SubmitButton>{translate('text_1750663218390xxlt86n0fhu')}</form.SubmitButton>
+          </form.AppForm>
+        ),
+        form: {
+          id: APPLY_DUNNING_CAMPAIGN_FORM_ID,
+          submit: handleSubmit,
+        },
+      })
+      .then((response) => {
+        if (response.reason === 'close') {
+          form.reset()
+          billingEntityRef.current = null
+        }
+      })
+  }
+
+  return { openApplyDunningCampaignDialog }
+}

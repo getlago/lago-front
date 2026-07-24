@@ -37,7 +37,7 @@ const NavBurgerButton = ({
   return (
     <Button
       {...(dataTest ? { 'data-test': dataTest } : {})}
-      className="absolute left-4 top-2 z-drawer !w-[36px] !p-[10px] md:hidden"
+      className="absolute left-4 top-2 z-drawer !w-[36px] !bg-white !p-[10px] md:hidden"
       icon="burger"
       variant="quaternary"
       onClick={(e) => {
@@ -88,7 +88,7 @@ const NavSection = ({
 const ContentWrapper = forwardRef<HTMLDivElement, PropsWithChildren<{ 'data-test'?: string }>>(
   ({ children, 'data-test': dataTest }, ref) => {
     return (
-      <div className="flex-1 overflow-y-auto" ref={ref} data-test={dataTest}>
+      <div className="flex flex-1 flex-col overflow-y-auto" ref={ref} data-test={dataTest}>
         {children}
       </div>
     )

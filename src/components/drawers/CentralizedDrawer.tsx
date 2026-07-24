@@ -16,7 +16,7 @@ export type CentralizedDrawerProps = {
   fullContentHeight?: boolean
   className?: string
   onClose?: () => void
-  onEntered?: () => void
+  onEntered?: (container: HTMLElement) => void
   shouldPromptOnClose?: () => boolean
 }
 

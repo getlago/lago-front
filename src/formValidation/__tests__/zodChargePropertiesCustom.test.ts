@@ -12,9 +12,8 @@ function validate(
   props: Partial<PropertiesZodInput>,
   pathPrefix: string[],
 ) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const issues: any[] = []
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   const ctx = { addIssue: (issue: any) => issues.push(issue), path: [] } as any as z.RefinementCtx
 
   validateChargeProperties(chargeModel, props as PropertiesZodInput, ctx, pathPrefix)

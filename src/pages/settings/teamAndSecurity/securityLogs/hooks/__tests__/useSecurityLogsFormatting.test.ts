@@ -447,6 +447,79 @@ describe('useSecurityLogsFormatting', () => {
           }),
         )
       })
+
+      it('THEN should call translate for WebhookEndpointUpdated with the algorithm copy when only the signature algorithm changed', () => {
+        // Regression test for FRONT-15Y: the backend sends webhook_url as a
+        // plain string when unchanged, alongside a signature_algo diff.
+        const { result } = renderHook(() => useSecurityLogsFormatting())
+        const log = createMockSecurityLog({
+          logEvent: LogEventEnum.WebhookEndpointUpdated,
+          resources: {
+            webhook_url: 'https://example.com/webhook',
+            signature_algo: { deleted: 'hmac', added: 'jwt' },
+          },
+        })
+
+        result.current.getSecurityLogDescription(log)
+
+        expect(mockTranslate).toHaveBeenCalledWith('text_17810792697743rdztc0hzsn', {
+          algoFrom: 'hmac',
+          algoTo: 'jwt',
+        })
+      })
+
+      it('THEN should call translate for WebhookEndpointUpdated with the combined copy when both url and signature algorithm changed', () => {
+        const { result } = renderHook(() => useSecurityLogsFormatting())
+        const log = createMockSecurityLog({
+          logEvent: LogEventEnum.WebhookEndpointUpdated,
+          resources: {
+            webhook_url: {
+              deleted: 'https://old.example.com/webhook',
+              added: 'https://new.example.com/webhook',
+            },
+            signature_algo: { deleted: 'hmac', added: 'jwt' },
+          },
+        })
+
+        result.current.getSecurityLogDescription(log)
+
+        expect(mockTranslate).toHaveBeenCalledWith('text_1781079269774kur4mhrgipy', {
+          urlFrom: 'https://old.example.com/webhook',
+          urlTo: 'https://new.example.com/webhook',
+          algoFrom: 'hmac',
+          algoTo: 'jwt',
+        })
+      })
+
+      it('THEN falls back to unknown for WebhookEndpointUpdated when the url is unchanged and no algorithm change is present', () => {
+        const { result } = renderHook(() => useSecurityLogsFormatting())
+        const log = createMockSecurityLog({
+          logEvent: LogEventEnum.WebhookEndpointUpdated,
+          resources: { webhook_url: 'https://example.com/webhook' },
+        })
+
+        result.current.getSecurityLogDescription(log)
+
+        expect(mockTranslate).toHaveBeenCalledWith('text_1771937987062rw8agotc8gs', {
+          urlFrom: 'unknown',
+          urlTo: 'unknown',
+        })
+      })
+
+      it('THEN falls back to unknown for WebhookEndpointUpdated when the payload shape is not recognized', () => {
+        const { result } = renderHook(() => useSecurityLogsFormatting())
+        const log = createMockSecurityLog({
+          logEvent: LogEventEnum.WebhookEndpointUpdated,
+          resources: { webhook_url: 123 },
+        })
+
+        result.current.getSecurityLogDescription(log)
+
+        expect(mockTranslate).toHaveBeenCalledWith('text_1771937987062rw8agotc8gs', {
+          urlFrom: 'unknown',
+          urlTo: 'unknown',
+        })
+      })
     })
 
     describe('GIVEN an unknown event', () => {

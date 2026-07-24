@@ -1,179 +1,146 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
-import { Dialog } from '~/components/designSystem/Dialog'
-import { Radio } from '~/components/form/Radio/Radio'
-import { PaymentMethodTypeEnum } from '~/generated/graphql'
+import { useFormDialog } from '~/components/dialogs/FormDialog'
+import { DialogResult } from '~/components/dialogs/types'
+import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { PaymentMethodList } from '~/hooks/customer/usePaymentMethodsList'
 
-import { PaymentMethodComboBox } from './PaymentMethodComboBox'
-import { SelectedPaymentMethod } from './types'
+import { EDIT_PM_DIALOG_SAVE_BUTTON_TEST_ID } from './dataTestConstants'
+import { PaymentMethodFields } from './PaymentMethodFields'
+import { deriveBehavior, PaymentMethodBehavior, SelectedPaymentMethod } from './types'
 
 import { VIEW_TYPE_TRANSLATION_KEYS, ViewTypeEnum } from '../paymentMethodsInvoiceSettings/types'
 
-export const EDIT_PM_DIALOG_CANCEL_BUTTON_TEST_ID = 'edit-payment-method-dialog-cancel-button'
-export const EDIT_PM_DIALOG_SAVE_BUTTON_TEST_ID = 'edit-payment-method-dialog-save-button'
-export const EDIT_PM_DIALOG_FALLBACK_RADIO_TEST_ID = 'edit-payment-method-dialog-fallback-radio'
-export const EDIT_PM_DIALOG_SPECIFIC_RADIO_TEST_ID = 'edit-payment-method-dialog-specific-radio'
-export const EDIT_PM_DIALOG_MANUAL_RADIO_TEST_ID = 'edit-payment-method-dialog-manual-radio'
+export const EDIT_PAYMENT_METHOD_FORM_ID = 'edit-payment-method-form'
 
-enum PaymentMethodBehavior {
-  FALLBACK = 'fallback',
-  SPECIFIC = 'specific',
-  MANUAL = 'manual',
-}
-
-interface EditPaymentMethodDialogProps {
-  open: boolean
-  onClose: () => void
+type OpenEditPaymentMethodDialogParams = {
+  externalCustomerId: string
   selectedPaymentMethod: SelectedPaymentMethod
   setSelectedPaymentMethod: (value: SelectedPaymentMethod) => void
-  paymentMethodsList: PaymentMethodList
   viewType: ViewTypeEnum
 }
 
-export const EditPaymentMethodDialog = ({
-  open,
-  onClose,
-  selectedPaymentMethod,
-  setSelectedPaymentMethod,
-  paymentMethodsList,
-  viewType,
-}: EditPaymentMethodDialogProps) => {
-  const { translate } = useInternationalization()
+type SetDisabledRef = React.MutableRefObject<(disabled: boolean) => void>
 
-  const [behavior, setBehavior] = useState<PaymentMethodBehavior>(PaymentMethodBehavior.FALLBACK)
-  const [paymentMethodId, setPaymentMethodId] = useState<string>('')
+const EditPaymentMethodSaveButton = ({ setDisabledRef }: { setDisabledRef: SetDisabledRef }) => {
+  const { translate } = useInternationalization()
+  const [disabled, setDisabled] = useState(false)
 
   useEffect(() => {
-    if (open) {
-      let initialBehavior: PaymentMethodBehavior
-
-      if (selectedPaymentMethod?.paymentMethodType === PaymentMethodTypeEnum.Manual) {
-        initialBehavior = PaymentMethodBehavior.MANUAL
-      } else if (selectedPaymentMethod?.paymentMethodId) {
-        initialBehavior = PaymentMethodBehavior.SPECIFIC
-      } else {
-        initialBehavior = PaymentMethodBehavior.FALLBACK
-      }
-
-      setBehavior(initialBehavior)
-      setPaymentMethodId(selectedPaymentMethod?.paymentMethodId || '')
-    }
-  }, [open, selectedPaymentMethod])
-
-  const handleSave = (): void => {
-    let newPaymentMethod: SelectedPaymentMethod
-
-    switch (behavior) {
-      case PaymentMethodBehavior.FALLBACK:
-        newPaymentMethod = {
-          paymentMethodId: null,
-          paymentMethodType: PaymentMethodTypeEnum.Provider,
-        }
-        break
-      case PaymentMethodBehavior.SPECIFIC:
-        newPaymentMethod = {
-          paymentMethodId: paymentMethodId || undefined,
-          paymentMethodType: PaymentMethodTypeEnum.Provider,
-        }
-        break
-      case PaymentMethodBehavior.MANUAL:
-        newPaymentMethod = {
-          paymentMethodId: null,
-          paymentMethodType: PaymentMethodTypeEnum.Manual,
-        }
-        break
-    }
-    setSelectedPaymentMethod(newPaymentMethod)
-    onClose()
-  }
-
-  const isSaveDisabled = (): boolean => {
-    if (behavior === PaymentMethodBehavior.SPECIFIC) {
-      return !paymentMethodId
-    }
-    return false
-  }
-
-  const viewTypeLabel = translate(VIEW_TYPE_TRANSLATION_KEYS[viewType])
+    setDisabledRef.current = setDisabled
+  }, [setDisabledRef])
 
   return (
-    <Dialog
-      open={open}
-      title={translate('text_1764327933607ccgjo6zvcqe', { object: viewTypeLabel })}
-      description={translate('text_1764327933607muwda2648vk', { object: viewTypeLabel })}
-      onClose={onClose}
-      actions={({ closeDialog }) => (
-        <>
-          <Button
-            variant="quaternary"
-            onClick={closeDialog}
-            data-test={EDIT_PM_DIALOG_CANCEL_BUTTON_TEST_ID}
-          >
-            {translate('text_63ea0f84f400488553caa6a5')}
-          </Button>
-          <Button
-            variant="primary"
-            disabled={isSaveDisabled()}
-            onClick={handleSave}
-            data-test={EDIT_PM_DIALOG_SAVE_BUTTON_TEST_ID}
-          >
-            {translate('text_1764327933607yodbve95igk')}
-          </Button>
-        </>
-      )}
+    <Button
+      variant="primary"
+      type="submit"
+      disabled={disabled}
+      data-test={EDIT_PM_DIALOG_SAVE_BUTTON_TEST_ID}
     >
-      <div className="mb-8 flex flex-col gap-4">
-        <div data-test={EDIT_PM_DIALOG_FALLBACK_RADIO_TEST_ID}>
-          <Radio
-            name="behavior"
-            value={PaymentMethodBehavior.FALLBACK}
-            checked={behavior === PaymentMethodBehavior.FALLBACK}
-            onChange={(value) => setBehavior(value as PaymentMethodBehavior)}
-            label={translate('text_1764327933607vaxp26hr987')}
-            labelVariant="body"
-          />
-        </div>
-        <div>
-          <div data-test={EDIT_PM_DIALOG_SPECIFIC_RADIO_TEST_ID}>
-            <Radio
-              name="behavior"
-              value={PaymentMethodBehavior.SPECIFIC}
-              checked={behavior === PaymentMethodBehavior.SPECIFIC}
-              onChange={(value) => setBehavior(value as PaymentMethodBehavior)}
-              label={translate('text_1764327933607k8rsl1pzong', { object: viewTypeLabel })}
-              labelVariant="body"
-            />
-          </div>
-          {behavior === PaymentMethodBehavior.SPECIFIC && (
-            <div className="mt-4">
-              <PaymentMethodComboBox
-                paymentMethodsList={paymentMethodsList}
-                selectedPaymentMethod={{
-                  paymentMethodId: paymentMethodId || undefined,
-                  paymentMethodType: PaymentMethodTypeEnum.Provider,
-                }}
-                setSelectedPaymentMethod={(value) => {
-                  setPaymentMethodId(value?.paymentMethodId || '')
-                }}
-                PopperProps={{ displayInDialog: true }}
-              />
-            </div>
-          )}
-        </div>
-        <div data-test={EDIT_PM_DIALOG_MANUAL_RADIO_TEST_ID}>
-          <Radio
-            name="behavior"
-            value={PaymentMethodBehavior.MANUAL}
-            checked={behavior === PaymentMethodBehavior.MANUAL}
-            onChange={(value) => setBehavior(value as PaymentMethodBehavior)}
-            label={translate('text_1764327933607gcy9fzbfkcs')}
-            labelVariant="body"
-          />
-        </div>
-      </div>
-    </Dialog>
+      {translate('text_1764327933607yodbve95igk')}
+    </Button>
   )
+}
+
+type EditPaymentMethodDialogContentProps = {
+  externalCustomerId: string
+  seedValue: SelectedPaymentMethod
+  viewType: ViewTypeEnum
+  onDraftChange: (draft: SelectedPaymentMethod, behavior: PaymentMethodBehavior) => void
+}
+
+const EditPaymentMethodDialogContent = ({
+  externalCustomerId,
+  seedValue,
+  viewType,
+  onDraftChange,
+}: EditPaymentMethodDialogContentProps) => {
+  const [draft, setDraft] = useState<SelectedPaymentMethod>(seedValue)
+  const [behavior, setBehavior] = useState<PaymentMethodBehavior>(() => deriveBehavior(seedValue))
+
+  useEffect(() => {
+    onDraftChange(draft, behavior)
+  }, [draft, behavior, onDraftChange])
+
+  return (
+    <div className="p-8">
+      <PaymentMethodFields
+        viewType={viewType}
+        externalCustomerId={externalCustomerId}
+        value={seedValue}
+        onChange={setDraft}
+        onBehaviorChange={setBehavior}
+      />
+    </div>
+  )
+}
+
+export const useEditPaymentMethodDialog = () => {
+  const formDialog = useFormDialog()
+  const { translate } = useInternationalization()
+  const draftRef = useRef<SelectedPaymentMethod>(undefined)
+  const setSelectedPaymentMethodRef = useRef<((value: SelectedPaymentMethod) => void) | null>(null)
+  const setDisabledRef: SetDisabledRef = useRef<(disabled: boolean) => void>(() => {})
+
+  const handleSubmit = async (): Promise<DialogResult> => {
+    if (!setSelectedPaymentMethodRef.current) {
+      throw new Error('Submit failed')
+    }
+
+    setSelectedPaymentMethodRef.current(draftRef.current)
+
+    return { reason: 'success' }
+  }
+
+  const openEditPaymentMethodDialog = ({
+    externalCustomerId,
+    selectedPaymentMethod,
+    setSelectedPaymentMethod,
+    viewType,
+  }: OpenEditPaymentMethodDialogParams) => {
+    draftRef.current = selectedPaymentMethod
+    setSelectedPaymentMethodRef.current = setSelectedPaymentMethod
+
+    const handleDraftChange = (
+      nextDraft: SelectedPaymentMethod,
+      nextBehavior: PaymentMethodBehavior,
+    ) => {
+      draftRef.current = nextDraft
+      // Picking "specific" without a payment method must block save (legacy guard).
+      const isSaveDisabled =
+        nextBehavior === PaymentMethodBehavior.SPECIFIC && !nextDraft?.paymentMethodId
+
+      setDisabledRef.current(isSaveDisabled)
+    }
+
+    const viewTypeLabel = translate(VIEW_TYPE_TRANSLATION_KEYS[viewType])
+
+    formDialog
+      .open({
+        title: translate('text_1764327933607ccgjo6zvcqe', { object: viewTypeLabel }),
+        description: translate('text_1764327933607muwda2648vk', { object: viewTypeLabel }),
+        closeOnError: false,
+        onEntered: focusFirstInput,
+        children: (
+          <EditPaymentMethodDialogContent
+            externalCustomerId={externalCustomerId}
+            seedValue={selectedPaymentMethod}
+            viewType={viewType}
+            onDraftChange={handleDraftChange}
+          />
+        ),
+        mainAction: <EditPaymentMethodSaveButton setDisabledRef={setDisabledRef} />,
+        form: {
+          id: EDIT_PAYMENT_METHOD_FORM_ID,
+          submit: handleSubmit,
+        },
+      })
+      .then(() => {
+        draftRef.current = undefined
+        setSelectedPaymentMethodRef.current = null
+      })
+  }
+
+  return { openEditPaymentMethodDialog }
 }

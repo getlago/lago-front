@@ -1,13 +1,14 @@
 import { renderHook, waitFor } from '@testing-library/react'
 
-import { REDIRECT_AFTER_LOGIN_LS_KEY } from '~/core/constants/localStorageKeys'
+import { getItemFromLS, removeItemFromLS } from '~/core/utils/localStorage'
+import { REDIRECT_AFTER_LOGIN_LS_KEY } from '~/core/utils/localStorageKeys'
 
 // Import after mocks
 import OktaAuthCallback from '../OktaAuthCallback'
 
 const mockNavigate = jest.fn()
-const mockGetItemFromLS = jest.fn()
-const mockRemoveItemFromLS = jest.fn()
+const mockGetItemFromLS = getItemFromLS as jest.Mock
+const mockRemoveItemFromLS = removeItemFromLS as jest.Mock
 const mockOnLogIn = jest.fn()
 const mockOktaLoginUser = jest.fn()
 const mockUseSearchParams = jest.fn()
@@ -33,8 +34,12 @@ jest.mock('~/core/apolloClient', () => ({
     errors?.some((e) => e.extensions?.code === code),
   ),
   onLogIn: (...args: unknown[]) => mockOnLogIn(...args),
-  getItemFromLS: (key: string) => mockGetItemFromLS(key),
-  removeItemFromLS: (key: string) => mockRemoveItemFromLS(key),
+}))
+
+jest.mock('~/core/utils/localStorage', () => ({
+  ...jest.requireActual('~/core/utils/localStorage'),
+  getItemFromLS: jest.fn(),
+  removeItemFromLS: jest.fn(),
 }))
 
 jest.mock('~/generated/graphql', () => ({

@@ -1,10 +1,11 @@
-import { gql } from '@apollo/client'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
+import { gql, useApolloClient } from '@apollo/client'
 
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
+import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import {
   DeleteCashfreeIntegrationDialogFragment,
+  GetCashfreeIntegrationsListDocument,
   useDeleteCashfreeMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -22,65 +23,51 @@ gql`
   }
 `
 
-type TDeleteCashfreeIntegrationDialogProps = {
+type OpenDeleteCashfreeIntegrationDialogData = {
   provider: DeleteCashfreeIntegrationDialogFragment | null
   callback?: () => void
 }
 
-export interface DeleteCashfreeIntegrationDialogRef {
-  openDialog: ({ provider, callback }: TDeleteCashfreeIntegrationDialogProps) => unknown
-  closeDialog: () => unknown
-}
+export const useDeleteCashfreeIntegrationDialog = () => {
+  const centralizedDialog = useCentralizedDialog()
+  const { translate } = useInternationalization()
+  const client = useApolloClient()
 
-export const DeleteCashfreeIntegrationDialog = forwardRef<DeleteCashfreeIntegrationDialogRef>(
-  (_, ref) => {
-    const { translate } = useInternationalization()
+  const [deleteCashfree] = useDeleteCashfreeMutation()
 
-    const dialogRef = useRef<WarningDialogRef>(null)
-    const [localData, setLocalData] = useState<TDeleteCashfreeIntegrationDialogProps | undefined>(
-      undefined,
-    )
+  const openDeleteCashfreeIntegrationDialog = (data: OpenDeleteCashfreeIntegrationDialogData) => {
+    const provider = data.provider
 
-    const cashfreeProvider = localData?.provider
+    centralizedDialog.open({
+      title: translate('text_658461066530343fe1808cd7', { name: provider?.name }),
+      description: translate('text_1727621816788cygs13tsdyv'),
+      actionText: translate('text_659d5de7c9b7f51394f7f3fd'),
+      colorVariant: 'danger',
+      onAction: async () => {
+        const res = await deleteCashfree({
+          variables: { input: { id: provider?.id as string } },
+        })
 
-    const [deleteCashfree] = useDeleteCashfreeMutation({
-      onCompleted(data) {
-        if (data && data.destroyPaymentProvider) {
-          dialogRef.current?.closeDialog()
-          localData?.callback?.()
+        const destroyedId = res.data?.destroyPaymentProvider?.id
+
+        if (destroyedId) {
+          evictFromCache(client, {
+            id: destroyedId,
+            __typename: 'CashfreeProvider',
+            listFieldName: 'paymentProviders',
+            listQueryDocument: GetCashfreeIntegrationsListDocument,
+          })
+
+          data.callback?.()
+
           addToast({
             message: translate('text_1727621949511zk6kkl99pzk'),
             severity: 'success',
           })
         }
       },
-      update(cache) {
-        cache.evict({ id: `CashfreeProvider:${cashfreeProvider?.id}` })
-      },
-      refetchQueries: ['getCashfreeIntegrationsList'],
     })
+  }
 
-    useImperativeHandle(ref, () => ({
-      openDialog: (data) => {
-        setLocalData(data)
-        dialogRef.current?.openDialog()
-      },
-      closeDialog: () => dialogRef.current?.closeDialog(),
-    }))
-
-    return (
-      <WarningDialog
-        mode="danger"
-        ref={dialogRef}
-        title={translate('text_658461066530343fe1808cd7', { name: cashfreeProvider?.name })}
-        description={translate('text_1727621816788cygs13tsdyv')}
-        onContinue={async () =>
-          await deleteCashfree({ variables: { input: { id: cashfreeProvider?.id as string } } })
-        }
-        continueText={translate('text_659d5de7c9b7f51394f7f3fd')}
-      />
-    )
-  },
-)
-
-DeleteCashfreeIntegrationDialog.displayName = 'DeleteCashfreeIntegrationDialog'
+  return { openDeleteCashfreeIntegrationDialog }
+}

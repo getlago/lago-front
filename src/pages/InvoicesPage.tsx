@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useMemo, useRef } from 'react'
+import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import {
@@ -9,26 +9,20 @@ import {
   formatFiltersForInvoiceQuery,
   isOutstandingUrlParams,
 } from '~/components/designSystem/Filters'
-import { ExportDialog, ExportDialogRef, ExportValues } from '~/components/exports/ExportDialog'
-import {
-  UpdateInvoicePaymentStatusDialog,
-  UpdateInvoicePaymentStatusDialogRef,
-} from '~/components/invoices/EditInvoicePaymentStatusDialog'
-import {
-  FinalizeInvoiceDialog,
-  FinalizeInvoiceDialogRef,
-} from '~/components/invoices/FinalizeInvoiceDialog'
+import { usePageSearchParam } from '~/components/designSystem/Pagination'
+import { useExportDialog } from '~/components/exports/ExportDialog'
+import { ExportValues } from '~/components/exports/types'
 import InvoicesList from '~/components/invoices/InvoicesList'
-import { VoidInvoiceDialog, VoidInvoiceDialogRef } from '~/components/invoices/VoidInvoiceDialog'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { SearchInput } from '~/components/SearchInput'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { INVOICE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,
+  type DataExportInvoiceFiltersInput,
   InvoiceExportTypeEnum,
   InvoiceListItemFragmentDoc,
   InvoiceStatusTypeEnum,
@@ -114,26 +108,24 @@ gql`
 `
 
 // TODO: This is a temporary workaround
-const formatAmountCurrency = (
-  filters: Record<string, string | string[] | boolean | number>,
+const formatAmountCurrency = <T extends { amountFrom?: unknown; amountTo?: unknown }>(
+  filters: T,
   amountCurrency?: CurrencyEnum | null,
-) => {
-  const _filters = {
-    ...filters,
-  }
+): T => {
+  const _filters = { ...filters } as T
 
   if (_filters.amountFrom) {
     _filters.amountFrom = serializeAmount(
       Number(_filters.amountFrom),
       amountCurrency || CurrencyEnum.Usd,
-    )
+    ) as T['amountFrom']
   }
 
   if (_filters.amountTo) {
     _filters.amountTo = serializeAmount(
       Number(_filters.amountTo),
       amountCurrency || CurrencyEnum.Usd,
-    )
+    ) as T['amountTo']
   }
 
   return _filters
@@ -150,11 +142,10 @@ const InvoicesPage = () => {
     PremiumIntegrationTypeEnum.RevenueShare,
   )
 
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
-  const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
-  const updateInvoicePaymentStatusDialog = useRef<UpdateInvoicePaymentStatusDialogRef>(null)
-  const voidInvoiceDialogRef = useRef<VoidInvoiceDialogRef>(null)
-  const exportInvoicesDialogRef = useRef<ExportDialogRef>(null)
+  const { openExportDialog } = useExportDialog()
+
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+  const { page, goToPage } = usePageSearchParam()
 
   const filtersForInvoiceQuery = useMemo(() => {
     return formatFiltersForInvoiceQuery(searchParams)
@@ -166,7 +157,8 @@ const InvoicesPage = () => {
       fetchPolicy: 'network-only',
       nextFetchPolicy: 'network-only',
       variables: {
-        limit: 20,
+        limit: pageSize,
+        page,
         status: [
           InvoiceStatusTypeEnum.Draft,
           InvoiceStatusTypeEnum.Failed,
@@ -198,7 +190,7 @@ const InvoicesPage = () => {
     const filters = {
       ...formatAmountCurrency(formatFiltersForInvoiceQuery(searchParams), amountCurrency),
       searchTerm: variables?.searchTerm,
-    }
+    } as DataExportInvoiceFiltersInput
 
     const res = await triggerCreateInvoicesDataExport({
       variables: {
@@ -231,7 +223,7 @@ const InvoicesPage = () => {
         entity={{
           viewName: translate('text_63ac86d797f728a87b2f9f85'),
           metadata: formatCountToMetadata(invoicesTotalCount, translate),
-          metadataLoading: invoiceIsLoading,
+          metadataLoading: invoiceIsLoading && invoicesTotalCount === undefined,
         }}
         actions={{
           loading: invoiceIsLoading,
@@ -242,7 +234,27 @@ const InvoicesPage = () => {
               variant: 'secondary',
               disabled: !invoicesTotalCount,
               onClick: () => {
-                exportInvoicesDialogRef.current?.openDialog()
+                openExportDialog({
+                  totalCountLabel: translate(
+                    'text_66b21236c939426d07ff9937',
+                    { invoicesTotalCount },
+                    invoicesTotalCount,
+                  ),
+                  onExport: onInvoicesExport,
+                  disableExport: invoicesTotalCount === 0,
+                  resourceTypeOptions: [
+                    {
+                      label: translate('text_66b21236c939426d07ff993b'),
+                      sublabel: translate('text_66b21236c939426d07ff993c'),
+                      value: InvoiceExportTypeEnum.Invoices,
+                    },
+                    {
+                      label: translate('text_66b21236c939426d07ff993d'),
+                      sublabel: translate('text_66b21236c939426d07ff993e'),
+                      value: InvoiceExportTypeEnum.InvoiceFees,
+                    },
+                  ],
+                })
               },
             },
             {
@@ -289,7 +301,10 @@ const InvoicesPage = () => {
               <Filters.QuickFilters />
               <div className="flex flex-col gap-3 md:flex-row md:items-center">
                 <SearchInput
-                  onChange={invoiceDebounceSearch}
+                  onChange={(value) => {
+                    goToPage(1)
+                    invoiceDebounceSearch?.(value)
+                  }}
                   placeholder={translate('text_63c68131568d582a38233e84')}
                 />
                 <Filters.Component />
@@ -306,33 +321,12 @@ const InvoicesPage = () => {
         isLoading={invoiceIsLoading}
         metadata={data?.invoices?.metadata}
         variables={variables}
-      />
-
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
-      <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
-      <UpdateInvoicePaymentStatusDialog ref={updateInvoicePaymentStatusDialog} />
-      <VoidInvoiceDialog ref={voidInvoiceDialogRef} />
-      <ExportDialog
-        ref={exportInvoicesDialogRef}
-        totalCountLabel={translate(
-          'text_66b21236c939426d07ff9937',
-          { invoicesTotalCount },
-          invoicesTotalCount,
-        )}
-        onExport={onInvoicesExport}
-        disableExport={invoicesTotalCount === 0}
-        resourceTypeOptions={[
-          {
-            label: translate('text_66b21236c939426d07ff993b'),
-            sublabel: translate('text_66b21236c939426d07ff993c'),
-            value: InvoiceExportTypeEnum.Invoices,
-          },
-          {
-            label: translate('text_66b21236c939426d07ff993d'),
-            sublabel: translate('text_66b21236c939426d07ff993e'),
-            value: InvoiceExportTypeEnum.InvoiceFees,
-          },
-        ]}
+        pageSize={pageSize}
+        onPageChange={goToPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size)
+          goToPage(1)
+        }}
       />
     </>
   )

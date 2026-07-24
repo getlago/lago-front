@@ -1,5 +1,5 @@
 import { useFormik } from 'formik'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 import { number, object, string } from 'yup'
 
@@ -10,7 +10,7 @@ import { Card } from '~/components/designSystem/Card'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { AmountInputField, ComboBoxField, TextInput, TextInputField } from '~/components/form'
 import { TaxesSelectorSection } from '~/components/taxes/TaxesSelectorSection'
 import { FORM_ERRORS_ENUM, SEARCH_TAX_INPUT_FOR_ADD_ON_CLASSNAME } from '~/core/constants/form'
@@ -31,7 +31,7 @@ const CreateAddOn = () => {
   const { organization } = useOrganizationInfos()
   const { addOnId } = useParams()
   const { isEdition, loading, addOn, errorCode, onSave } = useCreateEditAddOn()
-  const warningDialogRef = useRef<WarningDialogRef>(null)
+  const centralizedDialog = useCentralizedDialog()
 
   const onCloseRedirection = () => {
     if (isEdition && !!addOnId) {
@@ -94,7 +94,15 @@ const CreateAddOn = () => {
           variant="quaternary"
           icon="close"
           onClick={() => {
-            if (formikProps.dirty) return warningDialogRef.current?.openDialog()
+            if (formikProps.dirty) {
+              return centralizedDialog.open({
+                title: translate('text_665deda4babaf700d603ea13'),
+                description: translate('text_665dedd557dc3c00c62eb83d'),
+                actionText: translate('text_645388d5bdbd7b00abffa033'),
+                colorVariant: 'danger',
+                onAction: onCloseRedirection,
+              })
+            }
 
             onCloseRedirection()
           }}
@@ -347,13 +355,6 @@ const CreateAddOn = () => {
           <AddOnCodeSnippet loading={loading} addOn={formikProps.values} />
         </Side>
       </div>
-      <WarningDialog
-        ref={warningDialogRef}
-        title={translate('text_665deda4babaf700d603ea13')}
-        description={translate('text_665dedd557dc3c00c62eb83d')}
-        continueText={translate('text_645388d5bdbd7b00abffa033')}
-        onContinue={onCloseRedirection}
-      />
     </div>
   )
 }

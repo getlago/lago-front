@@ -134,10 +134,7 @@ export const AvalaraIntegrationMapItemDrawer = forwardRef<AvalaraIntegrationMapI
     const handleDataMutation = async (
       inputValues: FormValuesType['values'],
       initialMapping:
-        | ItemMappingForTaxMapping
-        | ItemMappingForNonTaxMapping
-        | ItemMappingForMappable
-        | undefined,
+        ItemMappingForTaxMapping | ItemMappingForNonTaxMapping | ItemMappingForMappable | undefined,
       formType: MappingTypeEnum | MappableTypeEnum,
       integrationId: string,
 

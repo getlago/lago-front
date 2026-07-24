@@ -10,6 +10,7 @@ import { render, testMockNavigateFn, TestMocksType } from '~/test-utils'
 
 import {
   PROGRESSIVE_BILLING_EDIT_BUTTON_TEST_ID,
+  PROGRESSIVE_BILLING_LIFETIME_CHIP_TEST_ID,
   PROGRESSIVE_BILLING_MENU_BUTTON_TEST_ID,
   PROGRESSIVE_BILLING_OVERRIDDEN_CHIP_TEST_ID,
   PROGRESSIVE_BILLING_RESET_BUTTON_TEST_ID,
@@ -86,6 +87,40 @@ describe('SubscriptionProgressiveBillingTabThresholdsHeader', () => {
       )
 
       expect(screen.getByText('text_17696267549792unv7l25frt')).toBeInTheDocument()
+    })
+  })
+
+  describe('lifetime badge', () => {
+    it('always shows the lifetime chip', () => {
+      render(
+        <SubscriptionProgressiveBillingTabThresholdsHeader
+          subscription={createMockSubscription()}
+        />,
+      )
+
+      expect(screen.getByTestId(PROGRESSIVE_BILLING_LIFETIME_CHIP_TEST_ID)).toHaveTextContent(
+        'text_1780512470285ql6s1rc7wjr',
+      )
+    })
+
+    it('shows the lifetime chip even when there are no thresholds', () => {
+      render(
+        <SubscriptionProgressiveBillingTabThresholdsHeader
+          subscription={createMockSubscription({
+            progressiveBillingDisabled: false,
+            usageThresholds: [],
+            plan: { id: 'plan-123', applicableUsageThresholds: [] },
+          })}
+        />,
+      )
+
+      expect(screen.getByTestId(PROGRESSIVE_BILLING_LIFETIME_CHIP_TEST_ID)).toBeInTheDocument()
+    })
+
+    it('shows the lifetime chip when subscription is null', () => {
+      render(<SubscriptionProgressiveBillingTabThresholdsHeader subscription={null} />)
+
+      expect(screen.getByTestId(PROGRESSIVE_BILLING_LIFETIME_CHIP_TEST_ID)).toBeInTheDocument()
     })
   })
 

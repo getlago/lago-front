@@ -1,11 +1,12 @@
 import { gql } from '@apollo/client'
 import { useStore } from '@tanstack/react-form'
-import { RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'
 import { Selector, SelectorActions } from '~/components/designSystem/Selector'
 import { Tooltip } from '~/components/designSystem/Tooltip'
+import { VirtualFilterList } from '~/components/designSystem/VirtualList/VirtualFilterList'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import {
   UsageChargeDrawer,
@@ -16,17 +17,13 @@ import {
   getFormattedChargeSelectorSubtitle,
   mapChargeIntervalCopy,
 } from '~/components/plans/utils'
-import { PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { useDuplicatePlanVar } from '~/core/apolloClient/reactiveVars/duplicatePlanVar'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { PlanInterval } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { PlanFormType } from '~/hooks/plans/usePlanForm'
 
-import {
-  RemoveChargeWarningDialog,
-  RemoveChargeWarningDialogRef,
-} from './RemoveChargeWarningDialog'
+import { useRemoveChargeWarningDialog } from './RemoveChargeWarningDialog'
 import { LocalUsageChargeInput } from './types'
 
 gql`
@@ -41,7 +38,6 @@ export const USAGE_CHARGES_ADD_BUTTON_TEST_ID = 'add-usage-charge'
 interface UsageChargesSectionProps {
   form: PlanFormType
   alreadyExistingCharges?: LocalUsageChargeInput[] | null
-  premiumWarningDialogRef: RefObject<PremiumWarningDialogRef>
   canBeEdited?: boolean
   isInSubscriptionForm?: boolean
   isEdition: boolean
@@ -54,7 +50,6 @@ export const UsageChargesSection = ({
   canBeEdited,
   isInSubscriptionForm,
   isEdition,
-  premiumWarningDialogRef,
   subscriptionFormType,
 }: UsageChargesSectionProps) => {
   const { translate } = useInternationalization()
@@ -67,7 +62,7 @@ export const UsageChargesSection = ({
   const amountCurrency = useStore(form.store, (s) => s.values.amountCurrency)
 
   const hasAnyCharge = !!charges.length
-  const removeChargeWarningDialogRef = useRef<RemoveChargeWarningDialogRef>(null)
+  const { openRemoveChargeWarningDialog } = useRemoveChargeWarningDialog()
   const usageChargeDrawerRef = useRef<UsageChargeDrawerRef>(null)
   const [alreadyUsedBmsIds, setAlreadyUsedBmsIds] = useState<Map<string, number>>(new Map())
 
@@ -169,7 +164,7 @@ export const UsageChargesSection = ({
               showWarningOnDelete: actionType !== 'duplicate' && isUsedInSubscription,
               onDelete: () => handleChargeDelete(i),
               onEdit: openUsageChargeDrawer,
-              removeChargeWarningDialogRef,
+              openRemoveChargeWarningDialog,
               translate,
             })}
           />
@@ -188,11 +183,14 @@ export const UsageChargesSection = ({
         />
 
         {!!hasAnyCharge && (
-          <div className="flex flex-col gap-4">
-            {charges.map((charge, i) => {
-              return renderChargeSelector(charge, i)
-            })}
-          </div>
+          <VirtualFilterList
+            className="flex flex-col gap-4"
+            gap={16}
+            items={charges}
+            estimateItemHeight={76}
+            getItemKey={(charge, i) => `usage-charge-${charge.billableMetric.id}-${i}`}
+            renderItem={(charge, i) => renderChargeSelector(charge, i)}
+          />
         )}
 
         {/* Single add button at the bottom */}
@@ -216,15 +214,12 @@ export const UsageChargesSection = ({
         disabled={isEdition && !canBeEdited}
         isEdition={isEdition}
         isInSubscriptionForm={isInSubscriptionForm}
-        premiumWarningDialogRef={premiumWarningDialogRef}
         subscriptionFormType={subscriptionFormType}
         onSave={handleDrawerSave}
         onDelete={handleChargeDelete}
-        removeChargeWarningDialogRef={removeChargeWarningDialogRef}
+        openRemoveChargeWarningDialog={openRemoveChargeWarningDialog}
         amountCurrency={amountCurrency}
       />
-
-      <RemoveChargeWarningDialog ref={removeChargeWarningDialogRef} />
     </>
   )
 }

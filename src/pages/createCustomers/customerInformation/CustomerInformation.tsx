@@ -1,12 +1,21 @@
+import { useStore } from '@tanstack/react-form'
 import { useMemo } from 'react'
 
+import { BillingEntityTaxAlerts } from '~/components/billingEntity/BillingEntityTaxAlerts'
 import { TRANSLATIONS_MAP_CUSTOMER_TYPE } from '~/components/customers/utils'
 import { Typography } from '~/components/designSystem/Typography'
 import { getTimezoneConfig } from '~/core/timezone'
-import { AddCustomerDrawerFragment, CustomerTypeEnum, TimezoneEnum } from '~/generated/graphql'
+import {
+  AddCustomerDrawerFragment,
+  CustomerTypeEnum,
+  FeatureFlagEnum,
+  TimezoneEnum,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
+import { BillingEntityOption } from '~/hooks/useBillingEntitiesOptions'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
 
 import HelperText from './HelperText'
@@ -14,7 +23,7 @@ import HelperText from './HelperText'
 type CustomerInformationProps = {
   isEdition?: boolean
   customer?: AddCustomerDrawerFragment | null
-  billingEntitiesList: { value: string; label: string }[]
+  billingEntitiesList: BillingEntityOption[]
   isLoadingBillingEntities: boolean
 }
 
@@ -40,6 +49,18 @@ const CustomerInformation = withForm({
   }) {
     const { translate } = useInternationalization()
     const { isPremium } = useCurrentUser()
+    const { hasFeatureFlag } = useOrganizationInfos()
+
+    const canEditBillingEntity =
+      !isEdition ||
+      customer?.canEditAttributes ||
+      hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
+
+    const hasMultiEntityBilling = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
+    const selectedBillingEntityCode = useStore(
+      form.store,
+      (state) => state.values.billingEntityCode,
+    )
 
     const timezoneComboboxData = useMemo(
       () =>
@@ -76,15 +97,23 @@ const CustomerInformation = withForm({
             <field.ComboBoxField
               label={translate('text_1743611497157teaa1zu8l24')}
               placeholder={translate('text_174360002513391n72uwg6bb')}
-              disabled={isEdition && !customer?.canEditAttributes}
+              disabled={!canEditBillingEntity}
               PopperProps={{ displayInDialog: true }}
               loading={isLoadingBillingEntities}
               data={billingEntitiesList}
-              disableClearable={isEdition && !customer?.canEditAttributes}
+              disableClearable
               sortValues={false}
             />
           )}
         </form.AppField>
+
+        {hasMultiEntityBilling && (
+          <BillingEntityTaxAlerts
+            currentBillingEntity={customer?.billingEntity}
+            selectedBillingEntityCode={selectedBillingEntityCode}
+            billingEntities={billingEntitiesList}
+          />
+        )}
 
         <form.AppField name="externalId">
           {(field) => (

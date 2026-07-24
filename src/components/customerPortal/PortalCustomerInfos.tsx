@@ -8,12 +8,8 @@ import { Typography } from '~/components/designSystem/Typography'
 import { formatAddress } from '~/core/formats/formatAddress'
 import { CustomerAddressInput, CustomerPortalCustomer, CustomerTypeEnum } from '~/generated/graphql'
 
-export const PORTAL_CUSTOMER_INFOS_TEST_ID = 'portal-customer-infos'
 export const PORTAL_CUSTOMER_INFOS_ERROR_TEST_ID = 'portal-customer-infos-error'
-export const PORTAL_CUSTOMER_INFOS_LOADING_TEST_ID = 'portal-customer-infos-loading'
 export const PORTAL_CUSTOMER_INFOS_CONTENT_TEST_ID = 'portal-customer-infos-content'
-export const PORTAL_CUSTOMER_INFOS_IDENTICAL_ADDRESSES_TEST_ID =
-  'portal-customer-infos-identical-addresses'
 
 const FieldTitle = ({ title }: { title: string }) => (
   <Typography variant="body" color="grey600">

@@ -19,6 +19,27 @@ export const simpleFeeSchema = (maxAmount: number, currency: CurrencyEnum) =>
       }),
   })
 
+const creditFeeItemSchema = (fees: FromFee[], currency: CurrencyEnum) =>
+  object().shape({
+    checked: boolean(),
+    value: number()
+      .default(0)
+      .when('checked', {
+        is: true,
+        then: (schema) =>
+          schema
+            .min(0.0000000000000001, CreditNoteFeeErrorEnum.minZero)
+            .test('max-amount', CreditNoteFeeErrorEnum.overMax, function (value) {
+              const fee = fees.find((f) => f.id === this.parent.id)
+              const maxAmount = deserializeAmount(fee?.maxAmount || 0, currency)
+
+              return value ? value <= maxAmount : true
+            })
+            .required(''),
+        otherwise: (schema) => schema,
+      }),
+  })
+
 export const generateFeesSchema = (formikInitialFees: FeesPerInvoice, currency: CurrencyEnum) =>
   object().shape(
     Object.keys(formikInitialFees || {}).reduce((accSub, subKey) => {
@@ -27,27 +48,7 @@ export const generateFeesSchema = (formikInitialFees: FeesPerInvoice, currency: 
       accSub = {
         ...accSub,
         [subKey]: object().shape({
-          fees: array().of(
-            object().shape({
-              checked: boolean(),
-              value: number()
-                .default(0)
-                .when('checked', {
-                  is: true,
-                  then: (schema) =>
-                    schema
-                      .min(0.0000000000000001, CreditNoteFeeErrorEnum.minZero)
-                      .test('max-amount', CreditNoteFeeErrorEnum.overMax, function (value) {
-                        const fee = fees.find((f) => f.id === this.parent.id)
-                        const maxAmount = deserializeAmount(fee?.maxAmount || 0, currency)
-
-                        return value ? value <= maxAmount : true
-                      })
-                      .required(''),
-                  otherwise: (schema) => schema,
-                }),
-            }),
-          ),
+          fees: array().of(creditFeeItemSchema(fees, currency)),
         }),
       }
       return accSub

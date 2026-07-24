@@ -63,6 +63,27 @@ jest.mock('~/core/router/SettingRoutes', () => ({
   ] as CustomRouteObject[],
 }))
 
+jest.mock('~/core/router/QuotesRoutes', () => ({
+  quotesModificationRoutes: [
+    {
+      path: '/quote/create',
+      private: true,
+    },
+    {
+      path: '/quote/:quoteId/version/:versionId/edit',
+      private: true,
+    },
+    {
+      path: '/quote/:quoteId/version/:versionId/void',
+      private: true,
+    },
+    {
+      path: '/quote/:quoteId/version/:versionId/approve',
+      private: true,
+    },
+  ] as CustomRouteObject[],
+}))
+
 jest.mock('~/core/router/index', () => ({
   ERROR_404_ROUTE: '/404',
   FORBIDDEN_ROUTE: '/forbidden',
@@ -72,7 +93,7 @@ describe('getHiddenAiAgentPaths', () => {
   it('should transform all routes into path objects', () => {
     const result = getHiddenAiAgentPaths()
 
-    expect(result).toHaveLength(21)
+    expect(result).toHaveLength(25)
     expect(result).toEqual([
       { path: '/create/plans' },
       { path: '/update/plan/:planId' },
@@ -93,6 +114,10 @@ describe('getHiddenAiAgentPaths', () => {
       { path: '/customer-portal/:token/usage/:itemId' },
       { path: '/customer-portal/:token/wallet/:walletId' },
       { path: '/customer-portal/:token/customer-edit-information' },
+      { path: '/quote/create' },
+      { path: '/quote/:quoteId/version/:versionId/edit' },
+      { path: '/quote/:quoteId/version/:versionId/void' },
+      { path: '/quote/:quoteId/version/:versionId/approve' },
       { path: '/404' },
       { path: '/forbidden' },
     ])

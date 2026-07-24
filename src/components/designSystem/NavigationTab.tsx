@@ -15,7 +15,7 @@ export enum TabManagedBy {
   INDEX = 'index',
 }
 
-export type NavigationTabItem = {
+type NavigationTabItem = {
   link?: string
   title: string
   match?: string[]

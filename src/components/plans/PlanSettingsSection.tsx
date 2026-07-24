@@ -12,7 +12,7 @@ import {
   getIntervalTranslationKey,
   SEARCH_TAX_INPUT_FOR_PLAN_CLASSNAME,
 } from '~/core/constants/form'
-import { CurrencyEnum, PlanInterval, TaxForPlanSettingsSectionFragment } from '~/generated/graphql'
+import { CurrencyEnum, PlanInterval } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { PlanFormType } from '~/hooks/plans/usePlanForm'
 
@@ -51,15 +51,6 @@ gql`
     }
   }
 `
-
-export interface PlanSettingsFormValues {
-  name: string
-  code: string
-  description: string
-  interval: PlanInterval
-  amountCurrency: CurrencyEnum
-  taxes: TaxForPlanSettingsSectionFragment[]
-}
 
 const INTERVAL_OPTIONS = [
   PlanInterval.Weekly,
@@ -118,7 +109,7 @@ export const PlanSettingsSection = ({
       <NameAndCodeGroup
         form={form}
         fields={{ name: 'name', code: 'code' }}
-        isDisabled={isInSubscriptionForm || (isEdition && !canBeEdited)}
+        disableCodeInput={isInSubscriptionForm || (isEdition && !canBeEdited)}
         nameProps={{ autoFocus: !isInSubscriptionForm }}
         codeProps={{
           infoText: translate('text_6661fc17337de3591e29e3cd'),

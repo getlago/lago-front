@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { OrderTypeEnum } from '~/generated/graphql'
+import { CurrencyEnum, OrderTypeEnum } from '~/generated/graphql'
 
 export const createQuoteSchema = z
   .object({
@@ -8,6 +8,7 @@ export const createQuoteSchema = z
     orderType: z.nativeEnum(OrderTypeEnum),
     subscriptionId: z.string(),
     owners: z.array(z.looseObject({ value: z.string() })).optional(),
+    currency: z.nativeEnum(CurrencyEnum).optional(),
   })
   .refine(
     (data) => {

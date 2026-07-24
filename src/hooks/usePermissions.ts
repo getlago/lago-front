@@ -44,6 +44,7 @@ gql`
       developersKeysManage
       developersManage
       dunningCampaignsCreate
+      dunningCampaignsDelete
       dunningCampaignsUpdate
       dunningCampaignsView
       featuresCreate
@@ -88,6 +89,12 @@ gql`
       quotesUpdate
       quotesView
       quotesVoid
+      orderFormsSign
+      orderFormsView
+      orderFormsVoid
+      ordersExecute
+      ordersUpdate
+      ordersView
       pricingUnitsCreate
       pricingUnitsUpdate
       pricingUnitsView

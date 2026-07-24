@@ -21,9 +21,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 export const ADD_PAYMENT_METHOD_TEST_ID = 'add-payment-method-dialog'
-export const ELIGIBLE_PAYMENT_METHODS_TEST_ID = 'eligible-payment-methods-text'
 export const INELIGIBLE_PAYMENT_METHODS_TEST_ID = 'ineligible-payment-methods-text'
-export const EMPTY_STATE_TEST_ID = 'no-payment-methods-available-text'
 export const GENERATE_CHECKOUT_URL_BUTTON_TEST_ID = 'generate-checkout-url-button'
 export const CANCEL_DIALOG_BUTTON_TEST_ID = 'cancel-dialog-button'
 export const ERROR_ALERT_TEST_ID = 'error-alert'

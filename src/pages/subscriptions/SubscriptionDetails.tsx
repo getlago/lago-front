@@ -3,14 +3,15 @@ import { useMemo } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { useTerminateCustomerSubscriptionDialog } from '~/components/customers/subscriptions/TerminateCustomerSubscriptionDialog'
-import { Typography } from '~/components/designSystem/Typography'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
+import { SubscriptionDetailsV2Overview } from '~/components/subscriptions/details-v2/SubscriptionDetailsV2Overview'
+import { SubscriptionDetailsV2Plan } from '~/components/subscriptions/details-v2/SubscriptionDetailsV2Plan'
 import { SubscriptionActivityLogs } from '~/components/subscriptions/SubscriptionActivityLogs'
 import { SubscriptionAlertsList } from '~/components/subscriptions/SubscriptionAlertsList'
-import { SubscriptionDetailsOverview } from '~/components/subscriptions/SubscriptionDetailsOverview'
 import { SubscriptionEntitlementsTabContent } from '~/components/subscriptions/SubscriptionEntitlementsTabContent'
 import { SubscriptionProgressiveBillingTab } from '~/components/subscriptions/SubscriptionProgressiveBillingTab/SubscriptionProgressiveBillingTab'
 import { SubscriptionUsageTabContent } from '~/components/subscriptions/SubscriptionUsageTabContent'
@@ -23,12 +24,10 @@ import {
   CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
   PLAN_SUBSCRIPTION_DETAILS_ROUTE,
   SUBSCRIPTIONS_ROUTE,
-  UPDATE_SUBSCRIPTION,
   UPGRADE_DOWNGRADE_SUBSCRIPTION,
   useNavigate,
 } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import {
   LagoApiError,
   StatusTypeEnum,
@@ -70,7 +69,6 @@ gql`
 `
 
 export const SUBSCRIPTION_DETAILS_ACTIONS_TEST_ID = 'subscription-details-actions'
-export const SUBSCRIPTION_DETAILS_UPDATE_TEST_ID = 'subscription-details-update'
 export const SUBSCRIPTION_DETAILS_UPGRADE_DOWNGRADE_TEST_ID =
   'subscription-details-upgrade-downgrade'
 export const SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID = 'subscription-details-terminate'
@@ -156,7 +154,30 @@ const SubscriptionDetails = () => {
         ],
         content: (
           <DetailsPage.Container>
-            <SubscriptionDetailsOverview />
+            <SubscriptionDetailsV2Overview subscriptionId={subscriptionId as string} />
+          </DetailsPage.Container>
+        ),
+      },
+      {
+        title: translate('text_17792001643316pbexygvpu2'),
+        link: !!customerId
+          ? getCustomerSubscriptionDetailsRoute(
+              CustomerSubscriptionDetailsTabsOptionsEnum.subscriptionPlan,
+            )
+          : getPlanSubscriptionDetailsRoute(
+              CustomerSubscriptionDetailsTabsOptionsEnum.subscriptionPlan,
+            ),
+        match: [
+          getCustomerSubscriptionDetailsRoute(
+            CustomerSubscriptionDetailsTabsOptionsEnum.subscriptionPlan,
+          ),
+          getPlanSubscriptionDetailsRoute(
+            CustomerSubscriptionDetailsTabsOptionsEnum.subscriptionPlan,
+          ),
+        ],
+        content: (
+          <DetailsPage.Container className="pb-0">
+            <SubscriptionDetailsV2Plan subscriptionId={subscriptionId as string} />
           </DetailsPage.Container>
         ),
       },
@@ -177,6 +198,11 @@ const SubscriptionDetails = () => {
             CustomerSubscriptionDetailsTabsOptionsEnum.progressiveBilling,
           ),
         ],
+        // The MainHeader config snapshot strips `content` (ReactNode), so content-only
+        // changes don't re-push to context. This tab's content reflects reactive
+        // subscription state (progressive billing toggle, threshold reset), so encode
+        // those bits in snapshotKey to force a refresh when they change.
+        snapshotKey: `${isSubscriptionLoading}-${!!subscription?.progressiveBillingDisabled}-${subscription?.usageThresholds?.length ?? 0}`,
         content: (
           <DetailsPage.Container>
             <SubscriptionProgressiveBillingTab
@@ -260,52 +286,6 @@ const SubscriptionDetails = () => {
         ),
         hidden: !subscription?.externalId || !isPremium || !hasPermissions(['auditLogsView']),
       },
-      {
-        title: translate('text_17792001643312864fz7j4gq'),
-        link: !!customerId
-          ? getCustomerSubscriptionDetailsRoute(
-              CustomerSubscriptionDetailsTabsOptionsEnum.editOverview,
-            )
-          : getPlanSubscriptionDetailsRoute(
-              CustomerSubscriptionDetailsTabsOptionsEnum.editOverview,
-            ),
-        match: [
-          getCustomerSubscriptionDetailsRoute(
-            CustomerSubscriptionDetailsTabsOptionsEnum.editOverview,
-          ),
-          getPlanSubscriptionDetailsRoute(CustomerSubscriptionDetailsTabsOptionsEnum.editOverview),
-        ],
-        content: (
-          <DetailsPage.Container>
-            <Typography variant="body">{translate('text_17792001643312864fz7j4gq')}</Typography>
-          </DetailsPage.Container>
-        ),
-        hidden: !isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE),
-      },
-      {
-        title: translate('text_17792001643316pbexygvpu2'),
-        link: !!customerId
-          ? getCustomerSubscriptionDetailsRoute(
-              CustomerSubscriptionDetailsTabsOptionsEnum.subscriptionPlan,
-            )
-          : getPlanSubscriptionDetailsRoute(
-              CustomerSubscriptionDetailsTabsOptionsEnum.subscriptionPlan,
-            ),
-        match: [
-          getCustomerSubscriptionDetailsRoute(
-            CustomerSubscriptionDetailsTabsOptionsEnum.subscriptionPlan,
-          ),
-          getPlanSubscriptionDetailsRoute(
-            CustomerSubscriptionDetailsTabsOptionsEnum.subscriptionPlan,
-          ),
-        ],
-        content: (
-          <DetailsPage.Container>
-            <Typography variant="body">{translate('text_17792001643316pbexygvpu2')}</Typography>
-          </DetailsPage.Container>
-        ),
-        hidden: !isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE),
-      },
     ]
   }, [
     translate,
@@ -324,7 +304,9 @@ const SubscriptionDetails = () => {
       planName: subscription?.plan.name,
     }),
     viewNameLoading: isSubscriptionLoading,
-    metadata: subscription?.plan.code || '',
+    metadata: subscription?.plan.code ? (
+      <TypographyWithCopy>{subscription.plan.code}</TypographyWithCopy>
+    ) : undefined,
     metadataLoading: isSubscriptionLoading,
   }
 
@@ -334,20 +316,6 @@ const SubscriptionDetails = () => {
       label: translate('text_626162c62f790600f850b6fe'),
       dataTest: SUBSCRIPTION_DETAILS_ACTIONS_TEST_ID,
       items: [
-        {
-          label: translate('text_62d7f6178ec94cd09370e63c'),
-          dataTest: SUBSCRIPTION_DETAILS_UPDATE_TEST_ID,
-          hidden: !canEditSubscription(subscription?.status),
-          onClick: (closePopper) => {
-            navigate(
-              generatePath(UPDATE_SUBSCRIPTION, {
-                customerId: subscription?.customer?.id as string,
-                subscriptionId: subscriptionId as string,
-              }),
-            )
-            closePopper()
-          },
-        },
         {
           label: translate('text_62d7f6178ec94cd09370e64a'),
           dataTest: SUBSCRIPTION_DETAILS_UPGRADE_DOWNGRADE_TEST_ID,

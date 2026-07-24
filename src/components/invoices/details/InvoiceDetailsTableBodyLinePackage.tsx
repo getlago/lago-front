@@ -1,12 +1,16 @@
 import { gql } from '@apollo/client'
+import { tw } from 'lago-design-system'
 import { memo } from 'react'
 
 import { Typography } from '~/components/designSystem/Typography'
+import { useViewFeeDetailsDrawer } from '~/components/invoices/details/ViewFeeDetailsDrawer'
 import { FeeMetadata } from '~/core/formats/formatInvoiceItemsMap'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { CurrencyEnum, FeeForInvoiceDetailsTableBodyLineFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+
+import { FeeActionsCell } from './FeeActionsCell'
 
 gql`
   fragment FeeForInvoiceDetailsTableBodyLinePackage on Fee {
@@ -33,19 +37,27 @@ gql`
 type InvoiceDetailsTableBodyLinePackageProps = {
   currency: CurrencyEnum
   fee: (FeeForInvoiceDetailsTableBodyLineFragment & { metadata: FeeMetadata }) | undefined
-  isDraftInvoice: boolean
   hideVat?: boolean
 }
 
 export const InvoiceDetailsTableBodyLinePackage = memo(
-  ({ currency, fee, isDraftInvoice, hideVat }: InvoiceDetailsTableBodyLinePackageProps) => {
+  ({ currency, fee, hideVat }: InvoiceDetailsTableBodyLinePackageProps) => {
     const { translate } = useInternationalization()
     const amountDetails = fee?.amountDetails
+
+    const viewFeeDetails = useViewFeeDetailsDrawer()
+    const handleRowClick = () => {
+      if (fee) viewFeeDetails.open(fee)
+    }
+    const rowClickableClass = fee ? 'cursor-pointer hover:bg-grey-100' : undefined
 
     return (
       <>
         {Number(amountDetails?.freeUnits || 0) > 0 && (
-          <tr className="details-line">
+          <tr
+            className={tw('details-line', rowClickableClass)}
+            onClick={fee ? handleRowClick : undefined}
+          >
             <td>
               <Typography variant="body" color="grey600">
                 {translate('text_659e67cd63512ef53284303c', {
@@ -95,11 +107,14 @@ export const InvoiceDetailsTableBodyLinePackage = memo(
                 })}
               </Typography>
             </td>
-            {isDraftInvoice && <td>{/* Action column */}</td>}
+            <FeeActionsCell fee={fee} />
           </tr>
         )}
 
-        <tr className="details-line">
+        <tr
+          className={tw('details-line', rowClickableClass)}
+          onClick={fee ? handleRowClick : undefined}
+        >
           <td>
             <Typography variant="body" color="grey600">
               {translate('text_659e67cd63512ef532843064')}
@@ -161,7 +176,7 @@ export const InvoiceDetailsTableBodyLinePackage = memo(
               )}
             </Typography>
           </td>
-          {isDraftInvoice && <td>{/* Action column */}</td>}
+          <FeeActionsCell fee={fee} />
         </tr>
       </>
     )

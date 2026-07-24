@@ -1,20 +1,17 @@
 import { gql } from '@apollo/client'
-import { useFormik } from 'formik'
-import { forwardRef } from 'react'
-import { object, string } from 'yup'
+import { revalidateLogic } from '@tanstack/react-form'
+import { useRef } from 'react'
+import { z } from 'zod'
 
-import { Button } from '~/components/designSystem/Button'
-import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
 import { Typography } from '~/components/designSystem/Typography'
-import { ComboBoxField } from '~/components/form'
+import { useFormDialog } from '~/components/dialogs/FormDialog'
+import { DialogResult } from '~/components/dialogs/types'
+import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { addToast } from '~/core/apolloClient'
 import { documentLocalesDataForComboBox } from '~/core/translations/documentLocales'
-import {
-  LagoApiError,
-  UpdateBillingEntityInput,
-  useUpdateDocumentLocaleBillingEntityMutation,
-} from '~/generated/graphql'
+import { LagoApiError, useUpdateDocumentLocaleBillingEntityMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm } from '~/hooks/forms/useAppform'
 
 gql`
   mutation updateDocumentLocaleBillingEntity($input: UpdateBillingEntityInput!) {
@@ -28,22 +25,33 @@ gql`
   }
 `
 
-export type EditBillingEntityDocumentLocaleDialogRef = DialogRef
+const editBillingEntityDocumentLocaleValidationSchema = z.object({
+  // The combobox emits `undefined` when cleared, so cover both the missing
+  // (invalid_type) and empty-string cases with the same "required" message.
+  documentLocale: z
+    .string({ message: 'text_624ea7c29103fd010732ab7d' })
+    .min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
+})
 
-interface EditBillingEntityDocumentLocaleDialogProps {
+type OpenEditBillingEntityDocumentLocaleDialogProps = {
   id: string
   documentLocale: string
 }
 
-export const EditBillingEntityDocumentLocaleDialog = forwardRef<
-  DialogRef,
-  EditBillingEntityDocumentLocaleDialogProps
->(({ id, documentLocale }: EditBillingEntityDocumentLocaleDialogProps, ref) => {
+export const EDIT_BILLING_ENTITY_DOCUMENT_LOCALE_FORM_ID =
+  'edit-billing-entity-document-locale-form'
+
+export const useEditBillingEntityDocumentLocaleDialog = () => {
+  const formDialog = useFormDialog()
   const { translate } = useInternationalization()
+  const dataRef = useRef<OpenEditBillingEntityDocumentLocaleDialogProps | null>(null)
+  const successRef = useRef(false)
+
   const [updateDocumentLocale] = useUpdateDocumentLocaleBillingEntityMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     onCompleted(res) {
       if (res?.updateBillingEntity) {
+        successRef.current = true
         addToast({
           severity: 'success',
           translateKey: 'text_63e51ef4985f0ebd75c21349',
@@ -53,73 +61,89 @@ export const EditBillingEntityDocumentLocaleDialog = forwardRef<
     refetchQueries: ['getBillingEntitySettings'],
   })
 
-  const formikProps = useFormik<UpdateBillingEntityInput>({
-    initialValues: {
-      id,
-      billingConfiguration: {
-        documentLocale,
-      },
+  const form = useAppForm({
+    defaultValues: {
+      documentLocale: '',
     },
-    validationSchema: object().shape({
-      billingConfiguration: object().shape({
-        documentLocale: string().required(''),
-      }),
-    }),
-    enableReinitialize: true,
-    validateOnMount: true,
-    onSubmit: async (values) => {
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: editBillingEntityDocumentLocaleValidationSchema,
+    },
+    onSubmit: async ({ value }) => {
       await updateDocumentLocale({
         variables: {
           input: {
-            ...values,
+            id: dataRef.current?.id as string,
+            billingConfiguration: {
+              documentLocale: value.documentLocale,
+            },
           },
         },
       })
     },
   })
 
-  return (
-    <Dialog
-      ref={ref}
-      title={translate('text_63e51ef4985f0ebd75c2130e')}
-      description={translate('text_63e51ef4985f0ebd75c2130f')}
-      onClose={() => {
-        formikProps.resetForm()
-        formikProps.validateForm()
-      }}
-      actions={({ closeDialog }) => (
-        <>
-          <Button variant="quaternary" onClick={closeDialog}>
-            {translate('text_63e51ef4985f0ebd75c21313')}
-          </Button>
-          <Button
-            variant="primary"
-            disabled={!formikProps.isValid || !formikProps.dirty}
-            onClick={async () => {
-              await formikProps.submitForm()
-              closeDialog()
-            }}
-          >
-            {translate('text_17432414198706rdwf76ek3u')}
-          </Button>
-        </>
-      )}
-    >
-      <div className="mb-8">
-        <ComboBoxField
-          disableClearable
-          name="billingConfiguration.documentLocale"
-          label={translate('text_63e51ef4985f0ebd75c21310')}
-          helperText={
-            <Typography variant="caption" html={translate('text_63e51ef4985f0ebd75c21312')} />
-          }
-          formikProps={formikProps}
-          data={documentLocalesDataForComboBox}
-          PopperProps={{ displayInDialog: true }}
-        />
-      </div>
-    </Dialog>
-  )
-})
+  const handleSubmit = async (): Promise<DialogResult> => {
+    successRef.current = false
+    await form.handleSubmit()
 
-EditBillingEntityDocumentLocaleDialog.displayName = 'forwardRef'
+    if (!successRef.current) {
+      throw new Error('Submit failed')
+    }
+
+    return { reason: 'success' }
+  }
+
+  const openEditBillingEntityDocumentLocaleDialog = (
+    props: OpenEditBillingEntityDocumentLocaleDialogProps,
+  ) => {
+    dataRef.current = props
+    form.reset()
+    form.setFieldValue('documentLocale', props.documentLocale)
+
+    formDialog
+      .open({
+        title: translate('text_63e51ef4985f0ebd75c2130e'),
+        description: translate('text_63e51ef4985f0ebd75c2130f'),
+        closeOnError: false,
+        onEntered: focusFirstInput,
+        children: (
+          <div className="p-8">
+            <form.AppField name="documentLocale">
+              {(field) => (
+                <field.ComboBoxField
+                  disableClearable
+                  label={translate('text_63e51ef4985f0ebd75c21310')}
+                  helperText={
+                    <Typography
+                      variant="caption"
+                      html={translate('text_63e51ef4985f0ebd75c21312')}
+                    />
+                  }
+                  data={documentLocalesDataForComboBox}
+                  PopperProps={{ displayInDialog: true }}
+                />
+              )}
+            </form.AppField>
+          </div>
+        ),
+        mainAction: (
+          <form.AppForm>
+            <form.SubmitButton>{translate('text_17432414198706rdwf76ek3u')}</form.SubmitButton>
+          </form.AppForm>
+        ),
+        form: {
+          id: EDIT_BILLING_ENTITY_DOCUMENT_LOCALE_FORM_ID,
+          submit: handleSubmit,
+        },
+      })
+      .then((response) => {
+        if (response.reason === 'close') {
+          form.reset()
+          dataRef.current = null
+        }
+      })
+  }
+
+  return { openEditBillingEntityDocumentLocaleDialog }
+}

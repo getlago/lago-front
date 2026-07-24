@@ -16,7 +16,6 @@ export const TRANSACTION_REMAINING_CREDITS_DATA_TEST = 'remaining-credits'
 
 // WalletTransactionItems
 export const WALLET_TRANSACTION_ITEMS_LOADING_TEST_ID = 'wallet-transaction-items-loading'
-export const WALLET_TRANSACTION_ITEMS_ERROR_TEST_ID = 'wallet-transaction-items-error'
 export const WALLET_TRANSACTION_ITEMS_LIST_TEST_ID = 'wallet-transaction-items-list'
 export const WALLET_TRANSACTION_ITEM_ROW_TEST_ID = 'wallet-transaction-item-row'
 
@@ -37,6 +36,7 @@ export const RECURRING_IGNORE_PAID_TOPUP_LIMITS_SWITCH_DATA_TEST =
   'recurring-ignore-paid-topup-limits-switch'
 export const RECURRING_INVOICE_REQUIRES_SUCCESSFUL_PAYMENT_SWITCH_DATA_TEST =
   'recurring-invoice-requires-successful-payment-switch'
+export const RECURRING_TOPUP_TYPE_DATA_TEST = 'recurring-topup-type'
 export const SHOW_RECURRING_EXPIRATION_AT_DATA_TEST = 'show-recurring-expiration-at'
 
 // SettingsSection

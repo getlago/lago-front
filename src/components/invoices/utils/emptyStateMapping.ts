@@ -11,7 +11,7 @@ import { INVOICE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { INVOICE_SETTINGS_ROUTE } from '~/core/router'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
-export const URL_PARAMS_TYPE = {
+const URL_PARAMS_TYPE = {
   succeeded: 'succeeded',
   draft: 'draft',
   outstanding: 'outstanding',
@@ -21,7 +21,7 @@ export const URL_PARAMS_TYPE = {
   default: 'default',
 } as const
 
-export type UrlParamsType = (typeof URL_PARAMS_TYPE)[keyof typeof URL_PARAMS_TYPE]
+type UrlParamsType = (typeof URL_PARAMS_TYPE)[keyof typeof URL_PARAMS_TYPE]
 
 type TranslationConfig = readonly [string, Record<string, string>?]
 
@@ -79,7 +79,7 @@ const TRANSLATION_KEYS: TranslationKeysType = {
  * @param searchParams - The URL search params to get the URL params type from.
  * @returns The URL params type, based on URL_PARAMS_TYPE
  */
-export const getUrlParamsType = (searchParams: URLSearchParams): UrlParamsType => {
+const getUrlParamsType = (searchParams: URLSearchParams): UrlParamsType => {
   if (isSucceededUrlParams({ searchParams, prefix: INVOICE_LIST_FILTER_PREFIX })) {
     return URL_PARAMS_TYPE.succeeded
   }

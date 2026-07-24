@@ -27,10 +27,7 @@ import {
   ApplyTaxDialogRef,
 } from '~/pages/settings/BillingEntity/sections/taxes/ApplyTaxDialog'
 import { APPLY_TAX_BUTTON_TEST_ID } from '~/pages/settings/BillingEntity/sections/taxes/dataTestConstants'
-import {
-  RemoveTaxDialog,
-  RemoveTaxDialogRef,
-} from '~/pages/settings/BillingEntity/sections/taxes/RemoveTaxDialog'
+import { useRemoveTaxDialog } from '~/pages/settings/BillingEntity/sections/taxes/RemoveTaxDialog'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
 gql`
@@ -51,7 +48,7 @@ const BillingEntityTaxesSettings = () => {
   const { translate } = useInternationalization()
 
   const applyTaxDialogRef = useRef<ApplyTaxDialogRef>(null)
-  const removeTaxDialogRef = useRef<RemoveTaxDialogRef>(null)
+  const { openRemoveTaxDialog } = useRemoveTaxDialog()
 
   const { billingEntityCode } = useParams()
 
@@ -192,10 +189,10 @@ const BillingEntityTaxesSettings = () => {
                             variant="quaternary"
                             onClick={() => {
                               if (billingEntity?.id && tax) {
-                                removeTaxDialogRef?.current?.openDialog(
-                                  billingEntity?.id,
-                                  tax as Tax,
-                                )
+                                openRemoveTaxDialog({
+                                  billingEntityId: billingEntity.id,
+                                  tax: tax as Tax,
+                                })
                               }
                             }}
                           />
@@ -211,7 +208,6 @@ const BillingEntityTaxesSettings = () => {
       </SettingsPaddedContainer>
 
       <ApplyTaxDialog ref={applyTaxDialogRef} />
-      <RemoveTaxDialog ref={removeTaxDialogRef} />
     </>
   )
 }

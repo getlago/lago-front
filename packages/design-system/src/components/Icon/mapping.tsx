@@ -19,6 +19,7 @@ import Board from '~/icons/board.svg'
 import Bold from '~/icons/bold.svg'
 import Book from '~/icons/book.svg'
 import Box from '~/icons/box.svg'
+import Brackets from '~/icons/brackets.svg'
 import Bulb from '~/icons/bulb.svg'
 import Burger from '~/icons/burger.svg'
 import Calendar from '~/icons/calendar.svg'
@@ -57,9 +58,12 @@ import ErrorFilled from '~/icons/error-filled.svg'
 import ErrorUnfilled from '~/icons/error-unfilled.svg'
 import EyeHidden from '~/icons/eye-hidden.svg'
 import Eye from '~/icons/eye.svg'
+import File from '~/icons/file.svg'
 import Filter from '~/icons/filter.svg'
 import FlashFilled from '~/icons/flash-filled.svg'
 import Flash from '~/icons/flash.svg'
+import FolderClose from '~/icons/folder-close.svg'
+import FolderOpen from '~/icons/folder-open.svg'
 import Forecast from '~/icons/forecast.svg'
 import Formulas from '~/icons/formulas.svg'
 import Globe from '~/icons/globe.svg'
@@ -141,6 +145,7 @@ import Text from '~/icons/text.svg'
 import Trash from '~/icons/trash.svg'
 import Underline from '~/icons/underline.svg'
 import Unlock from '~/icons/unlock.svg'
+import Upload from '~/icons/upload.svg'
 import UserAdd from '~/icons/user-add.svg'
 import UserMultiple from '~/icons/user-multiple.svg'
 import User from '~/icons/user.svg'
@@ -175,6 +180,7 @@ export const ALL_ICONS = {
   bulb: Bulb,
   burger: Burger,
   box: Box,
+  brackets: Brackets,
   calendar: Calendar,
   'chart-bar': ChartBar,
   checkmark: Checkmark,
@@ -211,9 +217,12 @@ export const ALL_ICONS = {
   'error-unfilled': ErrorUnfilled,
   'eye-hidden': EyeHidden,
   eye: Eye,
+  file: File,
   filter: Filter,
   flash: Flash,
   'flash-filled': FlashFilled,
+  'folder-close': FolderClose,
+  'folder-open': FolderOpen,
   forecast: Forecast,
   formulas: Formulas,
   globe: Globe,
@@ -295,6 +304,7 @@ export const ALL_ICONS = {
   trash: Trash,
   underline: Underline,
   unlock: Unlock,
+  upload: Upload,
   'user-add': UserAdd,
   user: User,
   'user-multiple': UserMultiple,

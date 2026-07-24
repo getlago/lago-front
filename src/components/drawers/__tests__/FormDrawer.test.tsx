@@ -153,6 +153,69 @@ describe('FormDrawer', () => {
           expect(mockSubmit).toHaveBeenCalled()
         })
       })
+
+      it('THEN should auto-close the drawer once submit settles (default)', async () => {
+        const { mockSubmit } = await showDrawer()
+
+        await waitFor(() => {
+          expect(screen.getByTestId(BASE_DRAWER_TEST_ID)).toBeInTheDocument()
+        })
+
+        const form = document.getElementById('test-form') as HTMLFormElement
+
+        await act(async () => {
+          form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
+        })
+
+        act(() => {
+          jest.advanceTimersByTime(500)
+        })
+
+        await waitFor(() => {
+          expect(mockSubmit).toHaveBeenCalled()
+          expect(screen.queryByTestId(BASE_DRAWER_TEST_ID)).not.toBeInTheDocument()
+        })
+      })
+    })
+
+    // Guards keep-open-on-error: drawers that own their close (close on success,
+    // stay open on a failed mutation) pass closeOnSubmitSuccess=false. The form
+    // drawer must then forward the submit raw and never auto-close.
+    describe('WHEN closeOnSubmitSuccess is false and the form is submitted', () => {
+      it('THEN should call submit but leave the drawer open', async () => {
+        const { mockSubmit } = await showDrawer({ closeOnSubmitSuccess: false })
+
+        await waitFor(() => {
+          expect(screen.getByTestId(BASE_DRAWER_TEST_ID)).toBeInTheDocument()
+        })
+
+        const form = document.getElementById('test-form') as HTMLFormElement
+
+        await act(async () => {
+          form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
+        })
+
+        act(() => {
+          jest.advanceTimersByTime(500)
+        })
+
+        await waitFor(() => {
+          expect(mockSubmit).toHaveBeenCalled()
+        })
+        expect(screen.getByTestId(BASE_DRAWER_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN a secondaryAction is provided', () => {
+      it('THEN should render it in the actions bar', async () => {
+        await showDrawer({
+          secondaryAction: <button data-test="form-drawer-secondary-action">Delete</button>,
+        })
+
+        await waitFor(() => {
+          expect(screen.getByTestId('form-drawer-secondary-action')).toBeInTheDocument()
+        })
+      })
     })
   })
 })

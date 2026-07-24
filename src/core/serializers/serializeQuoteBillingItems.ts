@@ -1,0 +1,241 @@
+import type { EntityData } from '~/components/designSystem/RichTextEditor/common/RichTextEditorContext'
+import type { AddOnItem } from '~/components/designSystem/RichTextEditor/PricingBlock/constants'
+import { CurrencyEnum } from '~/generated/graphql'
+
+import { deserializeAmount, serializeAmount } from './serializeAmount'
+import { type BillingItemCoupon, fromCoupons } from './serializeQuoteCoupons'
+import { type BillingItemPlan, fromPlanBillingItems } from './serializeQuotePlanBillingItems'
+import type { BillingItemWallet } from './serializeQuoteWallets'
+
+// --- Backend contract types (snake_case) ---
+
+export interface AddOnPayload {
+  position: number
+  code: string
+  name: string
+  description: string
+  units: number
+  unitAmountCents: number
+  totalAmountCents: number
+  invoiceDisplayName: string
+  fromDatetime: string | null
+  toDatetime: string | null
+  taxCodes: string[]
+}
+
+// position, code, and taxCodes are not overridable
+type OverridableFields = Omit<AddOnPayload, 'position' | 'code' | 'taxCodes'>
+
+interface BillingItemAddon {
+  type: 'add_on'
+  id: string
+  localId?: string
+  payload: AddOnPayload
+  overrides: Partial<OverridableFields>
+}
+
+export interface BillingItemsPayload {
+  addOns?: BillingItemAddon[]
+  plans?: BillingItemPlan[]
+  coupons?: BillingItemCoupon[]
+  walletCredits?: BillingItemWallet[]
+}
+
+/**
+ * Replace ONLY the walletCredits slice, preserving every sibling category
+ * (plans/addOns/coupons) untouched.
+ *
+ * Callers should use this helper whenever mutating wallet credits to avoid
+ * accidentally dropping unrelated billingItems categories.
+ */
+export const mergeWalletCredits = (
+  billingItems: BillingItemsPayload | null | undefined,
+  walletCredits: BillingItemWallet[],
+): BillingItemsPayload => ({ ...billingItems, walletCredits })
+
+// --- Serialization helpers ---
+
+/**
+ * Convert form empty string to null for datetime fields to match payload baseline.
+ */
+const normalizeDateTime = (value: string): string | null => (value === '' ? null : value)
+
+/**
+ * Build the billingItems JSON payload from form state and original API payloads.
+ */
+export const toBillingItems = (
+  addOnItems: AddOnItem[],
+  originalPayloads: Record<string, AddOnPayload>,
+  currency: CurrencyEnum = CurrencyEnum.Usd,
+): Required<Pick<BillingItemsPayload, 'addOns'>> => {
+  const addons: BillingItemAddon[] = addOnItems.map((item, index) => {
+    const original = originalPayloads[item.localId] ?? originalPayloads[item.addOnId]
+    const payload: AddOnPayload = { ...original, position: index + 1 }
+
+    const overrides: Partial<OverridableFields> = {}
+
+    // Compare each overridable field. The form holds amounts in currency units
+    // (e.g. "10" for $10); the payload/overrides store cents per the backend
+    // contract, so convert with the quote currency before diffing.
+    const formUnits = Number(item.units)
+    const formUnitAmountCents = serializeAmount(item.unitAmountCents, currency)
+    const formTotalAmountCents = serializeAmount(item.totalAmount, currency)
+    const formFromDatetime = normalizeDateTime(item.fromDatetime)
+    const formToDatetime = normalizeDateTime(item.toDatetime)
+
+    if (item.name !== original.name) {
+      overrides.name = item.name
+    }
+    if (item.description !== original.description) {
+      overrides.description = item.description
+    }
+    if (formUnits !== original.units) {
+      overrides.units = formUnits
+    }
+    if (formUnitAmountCents !== original.unitAmountCents) {
+      overrides.unitAmountCents = formUnitAmountCents
+    }
+    if (formTotalAmountCents !== original.totalAmountCents) {
+      overrides.totalAmountCents = formTotalAmountCents
+    }
+    if (item.invoiceDisplayName !== original.invoiceDisplayName) {
+      overrides.invoiceDisplayName = item.invoiceDisplayName
+    }
+    if (formFromDatetime !== original.fromDatetime) {
+      overrides.fromDatetime = formFromDatetime
+    }
+    if (formToDatetime !== original.toDatetime) {
+      overrides.toDatetime = formToDatetime
+    }
+
+    return {
+      type: 'add_on' as const,
+      id: item.addOnId,
+      localId: item.localId,
+      payload,
+      overrides,
+    }
+  })
+
+  return { addOns: addons }
+}
+
+// --- Deserialization ---
+
+interface FromBillingItemsResult {
+  entities: Record<string, EntityData>
+  addOnItems: AddOnItem[]
+  originalPayloads: Record<string, AddOnPayload>
+}
+
+export const fromBillingItems = (
+  billingItems: BillingItemsPayload,
+  currency?: CurrencyEnum,
+): FromBillingItemsResult => {
+  const entities: Record<string, EntityData> = {}
+  const addOnItems: AddOnItem[] = []
+  const originalPayloads: Record<string, AddOnPayload> = {}
+
+  const sorted = [...(billingItems.addOns ?? [])].sort(
+    (a, b) => a.payload.position - b.payload.position,
+  )
+
+  for (const addon of sorted) {
+    const { payload, overrides, id, localId: savedLocalId } = addon
+    const localId = savedLocalId ?? crypto.randomUUID()
+
+    // Merge: overrides win over payload
+    const effective = {
+      name: overrides.name ?? payload.name,
+      description: overrides.description ?? payload.description,
+      units: overrides.units ?? payload.units,
+      unitAmountCents: overrides.unitAmountCents ?? payload.unitAmountCents,
+      totalAmountCents: overrides.totalAmountCents ?? payload.totalAmountCents,
+      invoiceDisplayName: overrides.invoiceDisplayName ?? payload.invoiceDisplayName,
+      fromDatetime: overrides.fromDatetime ?? payload.fromDatetime,
+      toDatetime: overrides.toDatetime ?? payload.toDatetime,
+    }
+
+    // Payload stores cents; the form and preview expect currency units. With no
+    // currency we can't know the decimal precision, so we leave the amounts empty
+    // rather than fabricate a wrong-scaled value under a default currency.
+    const unitAmountCents = currency
+      ? String(deserializeAmount(effective.unitAmountCents, currency))
+      : ''
+    const totalAmount = currency
+      ? String(deserializeAmount(effective.totalAmountCents, currency))
+      : ''
+
+    entities[localId] = {
+      entityId: localId,
+      entityType: 'addOn',
+      name: effective.name,
+      invoiceDisplayName: effective.invoiceDisplayName,
+      code: payload.code,
+      description: effective.description,
+      units: String(effective.units),
+      unitAmountCents,
+      totalAmount,
+      fromDatetime: effective.fromDatetime ?? '',
+      toDatetime: effective.toDatetime ?? '',
+    }
+
+    addOnItems.push({
+      localId,
+      addOnId: id,
+      name: effective.name,
+      invoiceDisplayName: effective.invoiceDisplayName,
+      code: payload.code,
+      description: effective.description,
+      units: String(effective.units),
+      unitAmountCents,
+      totalAmount,
+      fromDatetime: effective.fromDatetime ?? '',
+      toDatetime: effective.toDatetime ?? '',
+    })
+
+    originalPayloads[localId] = payload
+  }
+
+  return { entities, addOnItems, originalPayloads }
+}
+
+/**
+ * Build the entity map used to render a saved quote preview (read-only flows
+ * such as ApproveQuote, where the pricing drawer is not mounted).
+ *
+ * Entries are dual-keyed: by the generated/saved `localId` AND by the catalog
+ * `addOnId`. Saved content blocks reference add-ons by `localEntityIds` (newer)
+ * or, when those were never persisted, by catalog `entityIds` (legacy). Keying
+ * both ways lets the preview resolve either reference — matching the
+ * backward-compat behavior of `usePricingDrawer` used by the EditQuote flow.
+ */
+export const buildPreviewEntities = (
+  billingItems: BillingItemsPayload,
+  currency?: CurrencyEnum,
+): Record<string, EntityData> => {
+  const { entities, addOnItems } = fromBillingItems(billingItems, currency)
+  const previewEntities: Record<string, EntityData> = { ...entities }
+
+  for (const item of addOnItems) {
+    previewEntities[item.addOnId] = entities[item.localId]
+  }
+
+  if (billingItems.plans && billingItems.plans.length > 0) {
+    const { entityData } = fromPlanBillingItems(billingItems.plans)
+
+    Object.assign(previewEntities, entityData)
+  }
+
+  if (billingItems.coupons && billingItems.coupons.length > 0) {
+    const { entities: couponEntities } = fromCoupons(billingItems.coupons)
+
+    Object.assign(previewEntities, couponEntities)
+    // also key by couponId for legacy entityIds resolution
+    for (const c of billingItems.coupons) {
+      previewEntities[c.id] = couponEntities[c.localId]
+    }
+  }
+
+  return previewEntities
+}

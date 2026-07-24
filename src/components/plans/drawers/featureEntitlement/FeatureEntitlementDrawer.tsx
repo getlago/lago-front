@@ -17,7 +17,7 @@ import { useAppForm } from '~/hooks/forms/useAppform'
 import { DEFAULT_VALUES, type FeatureEntitlementFormValues } from './constants'
 import { FeatureEntitlementDrawerContent } from './FeatureEntitlementDrawerContent'
 
-export { type FeatureEntitlementFormValues, DEFAULT_VALUES } from './constants'
+export { type FeatureEntitlementFormValues } from './constants'
 
 const privilegeSchema = z.object({
   privilegeCode: z.string().min(1),
@@ -41,7 +41,7 @@ export interface FeatureEntitlementDrawerRef {
 }
 
 interface FeatureEntitlementDrawerProps {
-  onSave: (values: FeatureEntitlementFormValues) => void
+  onSave: (values: FeatureEntitlementFormValues) => void | boolean | Promise<void | boolean>
   onDelete?: (featureCode: string) => void
   existingFeatureCodes: string[]
 }
@@ -61,12 +61,15 @@ export const FeatureEntitlementDrawer = forwardRef<
     validators: {
       onDynamic: featureEntitlementSchema,
     },
-    onSubmit: ({ value }) => {
-      onSave({
+    onSubmit: async ({ value }) => {
+      const result = await onSave({
         ...value,
         privileges: value.privileges || [],
       })
-      entitlementDrawer.close()
+
+      if (result !== false) {
+        entitlementDrawer.close()
+      }
     },
   })
 

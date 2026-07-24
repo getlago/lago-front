@@ -48,13 +48,9 @@ const EXPECTED_ISSUING_DATE_MATRIX: ExpectedIssuingDateMatrix = {
 type GetIssuingDateInfoForAlertProps = {
   gracePeriod: number | undefined
   subscriptionInvoiceIssuingDateAdjustment:
-    | (typeof ALL_ADJUSTMENT_VALUES)[keyof typeof ALL_ADJUSTMENT_VALUES]
-    | undefined
-    | null
+    (typeof ALL_ADJUSTMENT_VALUES)[keyof typeof ALL_ADJUSTMENT_VALUES] | undefined | null
   subscriptionInvoiceIssuingDateAnchor:
-    | (typeof ALL_ANCHOR_VALUES)[keyof typeof ALL_ANCHOR_VALUES]
-    | undefined
-    | null
+    (typeof ALL_ANCHOR_VALUES)[keyof typeof ALL_ANCHOR_VALUES] | undefined | null
 }
 
 const getExpectedIssuingDateFromMatrix = ({
@@ -66,13 +62,9 @@ const getExpectedIssuingDateFromMatrix = ({
   periodEndDate: DateTime
   finalizationDate: DateTime
   subscriptionInvoiceIssuingDateAdjustment:
-    | (typeof ALL_ADJUSTMENT_VALUES)[keyof typeof ALL_ADJUSTMENT_VALUES]
-    | undefined
-    | null
+    (typeof ALL_ADJUSTMENT_VALUES)[keyof typeof ALL_ADJUSTMENT_VALUES] | undefined | null
   subscriptionInvoiceIssuingDateAnchor:
-    | (typeof ALL_ANCHOR_VALUES)[keyof typeof ALL_ANCHOR_VALUES]
-    | undefined
-    | null
+    (typeof ALL_ANCHOR_VALUES)[keyof typeof ALL_ANCHOR_VALUES] | undefined | null
 }): DateTime => {
   const normalizedAdjustment =
     subscriptionInvoiceIssuingDateAdjustment ?? ALL_ADJUSTMENT_VALUES.AlignWithFinalizationDate

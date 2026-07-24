@@ -132,7 +132,7 @@ export const LoaderSidebarOrganization = () => (
   </div>
 )
 
-export const SectionLoading = () => {
+const SectionLoading = () => {
   return (
     <div className="flex flex-col gap-2">
       <Skeleton variant="text" className="w-30" />

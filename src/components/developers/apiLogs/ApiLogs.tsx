@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { generatePath, useParams, useSearchParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -14,6 +14,7 @@ import { ApiLogsTable } from '~/components/developers/apiLogs/ApiLogsTable'
 import { API_LOG_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { ListSectionRef, LogsLayout } from '~/components/developers/LogsLayout'
 import { API_LOGS_FILTER_PREFIX } from '~/core/constants/filters'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { useNavigate } from '~/core/router'
 import { getCurrentBreakpoint } from '~/core/utils/getCurrentBreakpoint'
 import { ApiLogItemFragment, useGetApiLogsQuery } from '~/generated/graphql'
@@ -56,6 +57,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
       }
     }
   }
@@ -68,12 +70,14 @@ export const ApiLogs = () => {
   const [searchParams] = useSearchParams()
   const logListRef = useRef<ListSectionRef>(null)
 
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+
   const filtersForApiLogsQuery = useMemo(() => {
     return formatFiltersForApiLogsQuery(searchParams)
   }, [searchParams])
 
   const getApiLogsResult = useGetApiLogsQuery({
-    variables: { limit: 20, ...filtersForApiLogsQuery },
+    variables: { limit: pageSize, ...filtersForApiLogsQuery },
     notifyOnNetworkStatusChange: true,
   })
 
@@ -161,7 +165,14 @@ export const ApiLogs = () => {
 
       <LogsLayout.ListSection
         ref={logListRef}
-        leftSide={<ApiLogsTable getApiLogsResult={getApiLogsResult} logListRef={logListRef} />}
+        leftSide={
+          <ApiLogsTable
+            getApiLogsResult={getApiLogsResult}
+            logListRef={logListRef}
+            pageSize={pageSize}
+            onPageSizeChange={setPageSize}
+          />
+        }
         rightSide={<ApiLogDetails goBack={() => logListRef.current?.updateView('backward')} />}
         shouldDisplayRightSide={shouldDisplayLogDetails}
       />

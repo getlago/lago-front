@@ -1,18 +1,16 @@
 import { gql } from '@apollo/client'
 import InputAdornment from '@mui/material/InputAdornment'
-import { useFormik } from 'formik'
-import { forwardRef } from 'react'
-import { number, object } from 'yup'
+import { revalidateLogic } from '@tanstack/react-form'
+import { useRef } from 'react'
+import { z } from 'zod'
 
-import { Button } from '~/components/designSystem/Button'
-import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
-import { TextInputField } from '~/components/form'
+import { useFormDialog } from '~/components/dialogs/FormDialog'
+import { DialogResult } from '~/components/dialogs/types'
+import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { addToast } from '~/core/apolloClient'
-import {
-  UpdateBillingEntityInput,
-  useUpdateBillingEntityGracePeriodMutation,
-} from '~/generated/graphql'
+import { useUpdateBillingEntityGracePeriodMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm } from '~/hooks/forms/useAppform'
 
 gql`
   mutation updateBillingEntityGracePeriod($input: UpdateBillingEntityInput!) {
@@ -26,21 +24,30 @@ gql`
   }
 `
 
-export type EditBillingEntityGracePeriodDialogRef = DialogRef
+const editBillingEntityGracePeriodValidationSchema = z.object({
+  invoiceGracePeriod: z.union([
+    z.number().max(365, { message: 'text_63bed78ae69de9cad5c348e4' }),
+    z.literal(''),
+  ]),
+})
 
-interface EditBillingEntityGracePeriodDialogProps {
+export const EDIT_BILLING_ENTITY_GRACE_PERIOD_FORM_ID = 'edit-billing-entity-grace-period-form'
+
+type EditBillingEntityGracePeriodDialogData = {
   id: string
   invoiceGracePeriod: number
 }
 
-export const EditBillingEntityGracePeriodDialog = forwardRef<
-  DialogRef,
-  EditBillingEntityGracePeriodDialogProps
->(({ id, invoiceGracePeriod }: EditBillingEntityGracePeriodDialogProps, ref) => {
+export const useEditBillingEntityGracePeriodDialog = () => {
+  const formDialog = useFormDialog()
   const { translate } = useInternationalization()
+  const dataRef = useRef<EditBillingEntityGracePeriodDialogData | null>(null)
+  const successRef = useRef(false)
+
   const [updateBillingEntityGracePeriod] = useUpdateBillingEntityGracePeriodMutation({
     onCompleted(res) {
       if (res?.updateBillingEntity) {
+        successRef.current = true
         addToast({
           severity: 'success',
           translateKey: 'text_638dc196fb209d551f3d81ba',
@@ -49,73 +56,88 @@ export const EditBillingEntityGracePeriodDialog = forwardRef<
     },
     refetchQueries: ['getBillingEntitySettings'],
   })
-  const formikProps = useFormik<UpdateBillingEntityInput>({
-    initialValues: {
-      id,
-      billingConfiguration: {
-        invoiceGracePeriod,
-      },
+
+  const form = useAppForm({
+    defaultValues: {
+      invoiceGracePeriod: '' as number | '',
     },
-    validationSchema: object().shape({
-      billingConfiguration: object().shape({
-        invoiceGracePeriod: number().required('').max(365, 'text_63bed78ae69de9cad5c348e4'),
-      }),
-    }),
-    enableReinitialize: true,
-    validateOnMount: true,
-    onSubmit: async (values) => {
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: editBillingEntityGracePeriodValidationSchema,
+    },
+    onSubmit: async ({ value }) => {
       await updateBillingEntityGracePeriod({
         variables: {
           input: {
-            ...values,
+            id: dataRef.current?.id as string,
+            billingConfiguration: {
+              invoiceGracePeriod: Number(value.invoiceGracePeriod) || 0,
+            },
           },
         },
       })
     },
   })
 
-  return (
-    <Dialog
-      ref={ref}
-      title={translate('text_638dc196fb209d551f3d8139')}
-      description={translate('text_638dc196fb209d551f3d813b')}
-      onClose={() => formikProps.resetForm()}
-      actions={({ closeDialog }) => (
-        <>
-          <Button variant="quaternary" onClick={closeDialog}>
-            {translate('text_62bb10ad2a10bd182d002031')}
-          </Button>
-          <Button
-            variant="primary"
-            disabled={!formikProps.isValid || !formikProps.dirty}
-            onClick={async () => {
-              await formikProps.submitForm()
-              closeDialog()
-            }}
-          >
-            {translate('text_17432414198706rdwf76ek3u')}
-          </Button>
-        </>
-      )}
-    >
-      <div className="mb-8">
-        <TextInputField
-          name="billingConfiguration.invoiceGracePeriod"
-          beforeChangeFormatter={['positiveNumber', 'int']}
-          label={translate('text_638dc196fb209d551f3d819d')}
-          placeholder={translate('text_638dc196fb209d551f3d8147')}
-          formikProps={formikProps}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                {translate('text_638dc196fb209d551f3d814d')}
-              </InputAdornment>
-            ),
-          }}
-        />
-      </div>
-    </Dialog>
-  )
-})
+  const handleSubmit = async (): Promise<DialogResult> => {
+    successRef.current = false
+    await form.handleSubmit()
 
-EditBillingEntityGracePeriodDialog.displayName = 'forwardRef'
+    if (!successRef.current) {
+      throw new Error('Submit failed')
+    }
+
+    return { reason: 'success' }
+  }
+
+  const openEditBillingEntityGracePeriodDialog = (data: EditBillingEntityGracePeriodDialogData) => {
+    dataRef.current = data
+    form.reset()
+    form.setFieldValue('invoiceGracePeriod', (data.invoiceGracePeriod ?? '') as number | '')
+
+    formDialog
+      .open({
+        title: translate('text_638dc196fb209d551f3d8139'),
+        description: translate('text_638dc196fb209d551f3d813b'),
+        closeOnError: false,
+        onEntered: focusFirstInput,
+        children: (
+          <div className="p-8">
+            <form.AppField name="invoiceGracePeriod">
+              {(field) => (
+                <field.TextInputField
+                  beforeChangeFormatter={['positiveNumber', 'int']}
+                  label={translate('text_638dc196fb209d551f3d819d')}
+                  placeholder={translate('text_638dc196fb209d551f3d8147')}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        {translate('text_638dc196fb209d551f3d814d')}
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              )}
+            </form.AppField>
+          </div>
+        ),
+        mainAction: (
+          <form.AppForm>
+            <form.SubmitButton>{translate('text_17432414198706rdwf76ek3u')}</form.SubmitButton>
+          </form.AppForm>
+        ),
+        form: {
+          id: EDIT_BILLING_ENTITY_GRACE_PERIOD_FORM_ID,
+          submit: handleSubmit,
+        },
+      })
+      .then((response) => {
+        if (response.reason === 'close') {
+          form.reset()
+          dataRef.current = null
+        }
+      })
+  }
+
+  return { openEditBillingEntityGracePeriodDialog }
+}

@@ -1,6 +1,12 @@
 // By convention, we use value then metadata (usually display value) on each side of the separator.
 export const filterDataInlineSeparator = '|-_-|'
 
+// Multiple-value filters join their selections with a comma. Display labels (customer/entity
+// names, emails) embedded after the separator can themselves contain commas, which would
+// over-split a single selection into several. Encode such commas with this placeholder and
+// decode them back only for display — see escapeFilterLabel / unescapeFilterLabel in utils.
+export const filterDataLabelCommaPlaceholder = '|-COMMA-|'
+
 export enum AvailableQuickFilters {
   invoiceStatus = 'invoiceStatus',
   customerAccountType = 'customerAccountType',
@@ -48,6 +54,7 @@ export enum AvailableFiltersEnum {
   apiKeyIds = 'apiKeyIds',
   billableMetricCode = 'billableMetricCode',
   billingEntityIds = 'billingEntityIds',
+  billingEntityId = 'billingEntityId',
   billingEntityCode = 'billingEntityCode',
   country = 'country',
   countries = 'countries',
@@ -60,6 +67,7 @@ export enum AvailableFiltersEnum {
   customerType = 'customerType',
   customerAccountType = 'accountType',
   customerExternalId = 'customerExternalId',
+  externalId = 'externalId',
   isCustomerTinEmpty = 'isCustomerTinEmpty',
   date = 'date',
   hasCustomerType = 'hasCustomerType',
@@ -79,6 +87,13 @@ export enum AvailableFiltersEnum {
   paymentOverdue = 'paymentOverdue',
   paymentStatus = 'paymentStatus',
   planCode = 'planCode',
+  orderFormCreatedAt = 'orderFormCreatedAt',
+  orderFormNumber = 'orderFormNumber',
+  orderFormStatus = 'orderFormStatus',
+  orderStatus = 'orderStatus',
+  orderNumber = 'orderNumber',
+  orderExecutedAt = 'orderExecutedAt',
+  orderExecutionMode = 'orderExecutionMode',
   quoteCreatedAt = 'quoteCreatedAt',
   quoteNumber = 'quoteNumber',
   quoteOrderType = 'quoteOrderType',
@@ -152,6 +167,7 @@ export const CustomerAvailableFilters = [
   AvailableFiltersEnum.customerType,
   AvailableFiltersEnum.countries,
   AvailableFiltersEnum.currencies,
+  AvailableFiltersEnum.externalId,
   AvailableFiltersEnum.states,
   AvailableFiltersEnum.zipcodes,
   AvailableFiltersEnum.isCustomerTinEmpty,
@@ -281,10 +297,29 @@ export const ApiLogsAvailableFilters = [
 ]
 
 export const SubscriptionAvailableFilters = [
+  AvailableFiltersEnum.billingEntityIds,
   AvailableFiltersEnum.customerExternalId,
+  AvailableFiltersEnum.externalId,
   AvailableFiltersEnum.overriden,
   AvailableFiltersEnum.planCode,
   AvailableFiltersEnum.subscriptionStatus,
+]
+
+export const CustomerAnalyticsAvailableFilters = [
+  AvailableFiltersEnum.currency,
+  AvailableFiltersEnum.billingEntityId,
+]
+
+export const CustomerInvoicesAvailableFilters = [
+  AvailableFiltersEnum.currency,
+  AvailableFiltersEnum.billingEntityId,
+]
+
+export const CustomerPaymentsAvailableFilters = [AvailableFiltersEnum.currency]
+
+export const CustomerCreditNotesAvailableFilters = [
+  AvailableFiltersEnum.currency,
+  AvailableFiltersEnum.billingEntityId,
 ]
 
 export const SecurityLogsAvailableFilters = [
@@ -303,6 +338,23 @@ export const QuoteAvailableFilters = [
   AvailableFiltersEnum.userIds,
 ]
 
+export const OrderFormAvailableFilters = [
+  AvailableFiltersEnum.orderFormStatus,
+  AvailableFiltersEnum.multipleCustomers,
+  AvailableFiltersEnum.orderFormNumber,
+  AvailableFiltersEnum.orderFormCreatedAt,
+  AvailableFiltersEnum.userIds,
+]
+
+export const OrderAvailableFilters = [
+  AvailableFiltersEnum.orderStatus,
+  AvailableFiltersEnum.multipleCustomers,
+  AvailableFiltersEnum.orderNumber,
+  AvailableFiltersEnum.orderExecutedAt,
+  AvailableFiltersEnum.orderExecutionMode,
+  AvailableFiltersEnum.userIds,
+]
+
 const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.activityIds]: 'text_1747666154075d10admbnf16',
   [AvailableFiltersEnum.activitySources]: 'text_1747666154075g4ceq9ii0xm',
@@ -312,6 +364,7 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.apiKeyIds]: 'text_645d071272418a14c1c76aa4',
   [AvailableFiltersEnum.billableMetricCode]: 'text_1761553933730mc7ttuol4be',
   [AvailableFiltersEnum.billingEntityIds]: 'text_17436114971570doqrwuwhf0',
+  [AvailableFiltersEnum.billingEntityId]: 'text_17791856837133nbboq5tcxi',
   [AvailableFiltersEnum.billingEntityCode]: 'text_1747986368158jgf5jdvfsey',
   [AvailableFiltersEnum.country]: 'text_62ab2d0396dd6b0361614da0',
   [AvailableFiltersEnum.countries]: 'text_17599097360429zjcfmkb9oi',
@@ -324,6 +377,7 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.customerType]: 'text_1726128938631ioz4orixel3',
   [AvailableFiltersEnum.customerAccountType]: 'text_1744108096469xz5cnvtoixf',
   [AvailableFiltersEnum.customerExternalId]: 'text_65201c5a175a4b0238abf29a',
+  [AvailableFiltersEnum.externalId]: 'text_6250304370f0f700a8fdc283',
   [AvailableFiltersEnum.isCustomerTinEmpty]: 'text_1751629285990kftdtjbv2dc',
   [AvailableFiltersEnum.date]: 'text_664cb90097bfa800e6efa3f5',
   [AvailableFiltersEnum.hasCustomerType]: 'text_1759932717174x6ajk3qawwl',
@@ -343,6 +397,13 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.paymentOverdue]: 'text_666c5b12fea4aa1e1b26bf55',
   [AvailableFiltersEnum.paymentStatus]: 'text_63eba8c65a6c8043feee2a0f',
   [AvailableFiltersEnum.planCode]: 'text_642d5eb2783a2ad10d670320',
+  [AvailableFiltersEnum.orderFormCreatedAt]: 'text_1776870266380s3zbpmnfrhj',
+  [AvailableFiltersEnum.orderFormNumber]: 'text_1781624189693d7zcv2vog4c',
+  [AvailableFiltersEnum.orderFormStatus]: 'text_63ac86d797f728a87b2f9fa7',
+  [AvailableFiltersEnum.orderStatus]: 'text_63ac86d797f728a87b2f9fa7',
+  [AvailableFiltersEnum.orderNumber]: 'text_1782392058759pmmuy0h997w',
+  [AvailableFiltersEnum.orderExecutedAt]: 'text_1782489945765vho6glo5dtv',
+  [AvailableFiltersEnum.orderExecutionMode]: 'text_17823920587599ha9n3uhfuj',
   [AvailableFiltersEnum.quoteCreatedAt]: 'text_1776870266380s3zbpmnfrhj',
   [AvailableFiltersEnum.quoteNumber]: 'text_1776870266380lnc721e4opb',
   [AvailableFiltersEnum.quoteOrderType]: 'text_1776870266380ydi5pjfjcqq',

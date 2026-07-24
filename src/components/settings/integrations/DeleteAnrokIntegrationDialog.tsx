@@ -1,10 +1,11 @@
-import { gql } from '@apollo/client'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
+import { gql, useApolloClient } from '@apollo/client'
 
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
+import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import {
   DeleteAnrokIntegrationDialogFragment,
+  GetAnrokIntegrationsListDocument,
   useDestroyNangoIntegrationMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -27,58 +28,47 @@ type TDeleteAnrokIntegrationDialogProps = {
   callback?: () => void
 }
 
-export interface DeleteAnrokIntegrationDialogRef {
-  openDialog: ({ provider, callback }: TDeleteAnrokIntegrationDialogProps) => unknown
-  closeDialog: () => unknown
-}
+export const useDeleteAnrokIntegrationDialog = () => {
+  const centralizedDialog = useCentralizedDialog()
+  const { translate } = useInternationalization()
+  const client = useApolloClient()
 
-export const DeleteAnrokIntegrationDialog = forwardRef<DeleteAnrokIntegrationDialogRef>(
-  (_, ref) => {
-    const { translate } = useInternationalization()
+  const [deleteAnrok] = useDestroyNangoIntegrationMutation()
 
-    const dialogRef = useRef<WarningDialogRef>(null)
-    const [localData, setLocalData] = useState<TDeleteAnrokIntegrationDialogProps | undefined>(
-      undefined,
-    )
-    const anrokProvider = localData?.provider
+  const openDeleteAnrokIntegrationDialog = ({
+    provider,
+    callback,
+  }: TDeleteAnrokIntegrationDialogProps) => {
+    centralizedDialog.open({
+      title: translate('text_658461066530343fe1808cd7', { name: provider?.name }),
+      description: translate('text_6668870bc8bdb352948ffb5f'),
+      colorVariant: 'danger',
+      actionText: translate('text_645d071272418a14c1c76a81'),
+      onAction: async () => {
+        const result = await deleteAnrok({
+          variables: { input: { id: provider?.id as string } },
+        })
 
-    const [deleteAnrok] = useDestroyNangoIntegrationMutation({
-      onCompleted(data) {
-        if (data && data.destroyIntegration) {
-          dialogRef.current?.closeDialog()
-          localData?.callback?.()
+        const destroyedId = result.data?.destroyIntegration?.id
+
+        if (destroyedId) {
+          evictFromCache(client, {
+            id: destroyedId,
+            __typename: 'AnrokIntegration',
+            listFieldName: 'integrations',
+            listQueryDocument: GetAnrokIntegrationsListDocument,
+          })
+
+          callback?.()
+
           addToast({
             message: translate('text_661ff6e56ef7e1b7c542b2f9'),
             severity: 'success',
           })
         }
       },
-      update(cache) {
-        cache.evict({ id: `AnrokIntegration:${anrokProvider?.id}` })
-      },
-      refetchQueries: ['getAnrokIntegrationsList'],
     })
+  }
 
-    useImperativeHandle(ref, () => ({
-      openDialog: (data) => {
-        setLocalData(data)
-        dialogRef.current?.openDialog()
-      },
-      closeDialog: () => dialogRef.current?.closeDialog(),
-    }))
-
-    return (
-      <WarningDialog
-        ref={dialogRef}
-        title={translate('text_658461066530343fe1808cd7', { name: anrokProvider?.name })}
-        description={translate('text_6668870bc8bdb352948ffb5f')}
-        onContinue={async () =>
-          await deleteAnrok({ variables: { input: { id: anrokProvider?.id as string } } })
-        }
-        continueText={translate('text_645d071272418a14c1c76a81')}
-      />
-    )
-  },
-)
-
-DeleteAnrokIntegrationDialog.displayName = 'DeleteAnrokIntegrationDialog'
+  return { openDeleteAnrokIntegrationDialog }
+}

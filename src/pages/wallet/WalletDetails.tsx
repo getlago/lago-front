@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useMemo, useRef } from 'react'
+import { useMemo } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { ButtonLink } from '~/components/designSystem/ButtonLink'
@@ -9,9 +9,6 @@ import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
-import { TerminateCustomerWalletDialog } from '~/components/wallets/TerminateCustomerWalletDialog'
-import { VoidWalletDialog } from '~/components/wallets/VoidWalletDialog'
 import WalletAlerts from '~/components/wallets/WalletAlerts'
 import WalletInformations from '~/components/wallets/WalletInformations'
 import { WalletTransactions } from '~/components/wallets/WalletTransactions'
@@ -23,6 +20,7 @@ import {
   EDIT_WALLET_ROUTE,
   WALLET_DETAILS_ROUTE,
 } from '~/core/router'
+import { getCustomerDisplayName } from '~/core/utils/getCustomerDisplayName'
 import {
   useGetWalletDetailsQuery,
   WalletInfosForTransactionsFragmentDoc,
@@ -59,12 +57,27 @@ gql`
     paidTopUpMaxAmountCents
     paymentMethodType
     paymentMethod {
+      id
       details {
         type
         brand
         last4
       }
     }
+    billingEntityId
+    customer {
+      id
+      name
+      firstname
+      lastname
+      externalId
+      billingEntity {
+        id
+        code
+        name
+      }
+    }
+    skipInvoiceCustomSections
     selectedInvoiceCustomSections {
       id
       name
@@ -78,14 +91,33 @@ gql`
       }
     }
     recurringTransactionRules {
+      lagoId
       method
       transactionName
       paidCredits
       grantedCredits
+      grantsTargetTopUp
+      targetOngoingBalance
       trigger
       thresholdCredits
       expirationAt
       interval
+      startedAt
+      invoiceRequiresSuccessfulPayment
+      ignorePaidTopUpLimits
+      transactionMetadata {
+        key
+        value
+      }
+      paymentMethodType
+      paymentMethod {
+        id
+      }
+      skipInvoiceCustomSections
+      selectedInvoiceCustomSections {
+        id
+        name
+      }
     }
 
     ...WalletInfosForTransactions
@@ -128,7 +160,6 @@ const WalletDetails = () => {
   const { translate } = useInternationalization()
   const { walletId, customerId } = useParams()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const { hasPermissions } = usePermissions()
   const activeTabContent = useMainHeaderTabContent()
 
@@ -139,11 +170,12 @@ const WalletDetails = () => {
 
   const wallet = data?.wallet
 
-  const {
-    actions: walletActionItems,
-    terminateDialogRef,
-    voidDialogRef,
-  } = useWalletActions({
+  const customerName = getCustomerDisplayName({
+    customer: wallet?.customer,
+    fallback: wallet?.customer?.externalId,
+  })
+
+  const { actions: walletActionItems } = useWalletActions({
     walletId,
     customerId,
     status: wallet?.status,
@@ -155,6 +187,18 @@ const WalletDetails = () => {
   const createdAtTitle = translate('text_62da6ec24a8e24e44f8128b2', {
     createdAt: intlFormatDateTimeOrgaTZ(wallet?.createdAt).date,
   })
+
+  // The MainHeader config snapshot strips the tabs' `content` ReactNode, so a balance
+  // change alone would not re-push the config and the header would keep stale values.
+  // Bumping this key on balance changes forces the fresh content through (credits fields
+  // are derived from their *Cents counterparts, so the cents alone are enough).
+  const walletSnapshotKey = [
+    wallet?.balanceCents,
+    wallet?.ongoingBalanceCents,
+    wallet?.ongoingUsageBalanceCents,
+    wallet?.consumedAmountCents,
+    wallet?.status,
+  ].join('|')
 
   const tabs = useMemo(() => {
     return [
@@ -209,13 +253,7 @@ const WalletDetails = () => {
               description={translate('text_1773043324342ka1zcxto0pg')}
             />
 
-            {!!wallet && (
-              <WalletTransactions
-                wallet={wallet}
-                premiumWarningDialogRef={premiumWarningDialogRef}
-                loading={loading}
-              />
-            )}
+            {!!wallet && <WalletTransactions wallet={wallet} loading={loading} />}
           </DetailsPage.Container>
         ),
       },
@@ -257,7 +295,7 @@ const WalletDetails = () => {
         ),
       },
     ]
-  }, [translate, walletId, customerId, wallet, loading, hasPermissions, premiumWarningDialogRef])
+  }, [translate, walletId, customerId, wallet, loading, hasPermissions])
 
   const headerActions: MainHeaderAction[] = [
     {
@@ -294,11 +332,12 @@ const WalletDetails = () => {
             path: CUSTOMERS_LIST_ROUTE,
           },
           {
-            label: translate('text_62d175066d2dbf1d50bc937c'),
+            label: customerName,
             path: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
               customerId: customerId as string,
               tab: CustomerDetailsTabsOptions.wallet,
             }),
+            loading,
           },
         ]}
         entity={{
@@ -309,13 +348,10 @@ const WalletDetails = () => {
         }}
         actions={{ items: headerActions, loading }}
         tabs={tabs}
+        snapshotKey={walletSnapshotKey}
       />
 
       <>{activeTabContent}</>
-
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
-      <TerminateCustomerWalletDialog ref={terminateDialogRef} />
-      <VoidWalletDialog ref={voidDialogRef} />
     </>
   )
 }

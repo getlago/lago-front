@@ -3,9 +3,23 @@ import { gql } from '@apollo/client'
 import { QuoteDetailItemFragment, useGetQuoteQuery } from '~/generated/graphql'
 
 gql`
+  fragment QuotePreviewVersion on QuoteVersion {
+    content
+    billingItems
+    mentionVariables
+  }
+
+  fragment QuotePreviewCustomer on Customer {
+    currency
+    billingConfiguration {
+      documentLocale
+    }
+  }
+
   fragment QuoteDetailItem on Quote {
     id
     number
+    images
     versions {
       id
       status
@@ -16,19 +30,40 @@ gql`
     createdAt
     customer {
       id
-      name
+      displayName
       externalId
+      netPaymentTerm
+      ...QuotePreviewCustomer
+      billingEntity {
+        id
+        code
+        name
+        netPaymentTerm
+      }
     }
     owners {
       id
       email
     }
+    subscription {
+      id
+      name
+      externalId
+      subscriptionAt
+      plan {
+        id
+        name
+      }
+    }
     currentVersion {
       id
       status
       version
-      content
+      currency
+      startDate
+      endDate
       createdAt
+      ...QuotePreviewVersion
     }
   }
 
@@ -43,10 +78,11 @@ interface UseQuoteReturn {
   quote: QuoteDetailItemFragment | null | undefined
   loading: boolean
   error: Error | undefined
+  refetch: ReturnType<typeof useGetQuoteQuery>['refetch']
 }
 
 export const useQuote = (id?: string): UseQuoteReturn => {
-  const { data, loading, error } = useGetQuoteQuery({
+  const { data, loading, error, refetch } = useGetQuoteQuery({
     variables: { id: id || '' },
     skip: !id,
   })
@@ -55,5 +91,6 @@ export const useQuote = (id?: string): UseQuoteReturn => {
     quote: data?.quote,
     loading,
     error,
+    refetch,
   }
 }

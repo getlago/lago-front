@@ -26,11 +26,7 @@ import {
   AddEditDeleteSuccessRedirectUrlDialog,
   AddEditDeleteSuccessRedirectUrlDialogRef,
 } from './AddEditDeleteSuccessRedirectUrlDialog'
-import { AddXeroDialog, AddXeroDialogRef } from './AddXeroDialog'
-import {
-  DeleteXeroIntegrationDialog,
-  DeleteXeroIntegrationDialogRef,
-} from './DeleteXeroIntegrationDialog'
+import { useAddXeroDialog } from './AddXeroDialog'
 
 const PROVIDER_CONNECTION_LIMIT = 2
 
@@ -98,8 +94,7 @@ const buildEnabledSynchronizedLabelKeys = (integration?: XeroIntegrationSettings
 const XeroIntegrationSettings = () => {
   const navigate = useNavigate()
   const { integrationId = '' } = useParams()
-  const addXeroDialogRef = useRef<AddXeroDialogRef>(null)
-  const deleteDialogRef = useRef<DeleteXeroIntegrationDialogRef>(null)
+  const { openAddXeroDialog } = useAddXeroDialog()
   const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { translate } = useInternationalization()
   const { data, loading } = useGetXeroIntegrationsSettingsQuery({
@@ -154,9 +149,8 @@ const XeroIntegrationSettings = () => {
               variant="inline"
               disabled={loading}
               onClick={() => {
-                addXeroDialogRef.current?.openDialog({
+                openAddXeroDialog({
                   provider: xeroIntegration,
-                  deleteModalRef: deleteDialogRef,
                   deleteDialogCallback,
                 })
               }}
@@ -195,8 +189,6 @@ const XeroIntegrationSettings = () => {
           </>
         </section>
       </IntegrationsPage.Container>
-      <AddXeroDialog ref={addXeroDialogRef} />
-      <DeleteXeroIntegrationDialog ref={deleteDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )

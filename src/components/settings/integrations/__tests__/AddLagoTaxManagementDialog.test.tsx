@@ -1,15 +1,10 @@
-import { act, cleanup, screen, waitFor } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+import { act, cleanup, waitFor } from '@testing-library/react'
 
-import { DIALOG_TITLE_TEST_ID } from '~/components/designSystem/Dialog'
+import { FormDialogProps } from '~/components/dialogs/FormDialog'
 import { CountryCode, LagoApiError } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import {
-  ADD_LAGO_TAX_MANAGEMENT_SUBMIT_BUTTON_TEST_ID,
-  AddLagoTaxManagementDialog,
-  AddLagoTaxManagementDialogRef,
-} from '../AddLagoTaxManagementDialog'
+import { useAddLagoTaxManagementDialog } from '../AddLagoTaxManagementDialog'
 
 const mockNavigate = jest.fn()
 const mockAddToast = jest.fn()
@@ -35,6 +30,19 @@ jest.mock('~/hooks/useIntegrations', () => ({
   useIntegrations: () => ({
     hasTaxProvider: false,
     loading: false,
+  }),
+}))
+
+let capturedOpenArgs: FormDialogProps | null = null
+
+jest.mock('~/components/dialogs/FormDialog', () => ({
+  ...jest.requireActual('~/components/dialogs/FormDialog'),
+  useFormDialog: () => ({
+    open: (args: FormDialogProps) => {
+      capturedOpenArgs = args
+      return Promise.resolve({ reason: 'close' as const })
+    },
+    close: jest.fn(),
   }),
 }))
 
@@ -68,24 +76,53 @@ jest.mock('~/generated/graphql', () => ({
   useUpdateBillingEntityMutation: jest.fn(() => [mockUpdate]),
 }))
 
-describe('AddLagoTaxManagementDialog', () => {
-  const dialogRef = {
-    current: null,
-  } as React.MutableRefObject<AddLagoTaxManagementDialogRef | null>
+const HarnessComponent = ({ isUpdate = true }: { isUpdate?: boolean }) => {
+  const { openAddLagoTaxManagementDialog } = useAddLagoTaxManagementDialog()
 
+  return (
+    <button
+      type="button"
+      data-test="open-add-lago-tax-management-dialog"
+      onClick={() => openAddLagoTaxManagementDialog({ isUpdate })}
+    >
+      open
+    </button>
+  )
+}
+
+describe('AddLagoTaxManagementDialog', () => {
   beforeEach(() => {
+    capturedOpenArgs = null
     jest.clearAllMocks()
   })
 
   afterEach(cleanup)
 
-  const renderAndOpenDialog = async (isUpdate = true) => {
-    await act(async () => {
-      render(<AddLagoTaxManagementDialog ref={dialogRef} isUpdate={isUpdate} />)
-    })
+  const openAndSubmit = async (isUpdate = true) => {
+    const result: { current: null | ReturnType<typeof render> } = { current: null }
 
     await act(async () => {
-      dialogRef.current?.openDialog()
+      result.current = render(<HarnessComponent isUpdate={isUpdate} />)
+    })
+
+    const trigger = result.current?.getByTestId('open-add-lago-tax-management-dialog')
+
+    if (!trigger) throw new Error('trigger button not found')
+
+    await act(async () => {
+      trigger.click()
+    })
+
+    if (!capturedOpenArgs) throw new Error('open() was not called')
+
+    await act(async () => {
+      // handleSubmit throws to keep the dialog open on mutation errors; swallow that
+      // here since the assertions target the side effects that ran before the throw.
+      try {
+        await capturedOpenArgs?.form.submit()
+      } catch {
+        /* expected on error paths */
+      }
     })
   }
 
@@ -94,7 +131,9 @@ describe('AddLagoTaxManagementDialog', () => {
       it('THEN should pass silentErrorCodes with UnprocessableEntity', async () => {
         const { useUpdateBillingEntityMutation } = jest.requireMock('~/generated/graphql')
 
-        await renderAndOpenDialog()
+        await act(async () => {
+          render(<HarnessComponent isUpdate={true} />)
+        })
 
         expect(useUpdateBillingEntityMutation).toHaveBeenCalledWith(
           expect.objectContaining({
@@ -124,13 +163,7 @@ describe('AddLagoTaxManagementDialog', () => {
       it('THEN should show a danger toast with the EU-specific message', async () => {
         mockUpdate.mockResolvedValue(nonEuError)
 
-        const user = userEvent.setup()
-
-        await renderAndOpenDialog()
-
-        const submitButton = screen.getByTestId(ADD_LAGO_TAX_MANAGEMENT_SUBMIT_BUTTON_TEST_ID)
-
-        await user.click(submitButton)
+        await openAndSubmit()
 
         await waitFor(() => {
           expect(mockAddToast).toHaveBeenCalledWith(
@@ -145,37 +178,13 @@ describe('AddLagoTaxManagementDialog', () => {
       it('THEN should NOT navigate away', async () => {
         mockUpdate.mockResolvedValue(nonEuError)
 
-        const user = userEvent.setup()
-
-        await renderAndOpenDialog()
-
-        const submitButton = screen.getByTestId(ADD_LAGO_TAX_MANAGEMENT_SUBMIT_BUTTON_TEST_ID)
-
-        await user.click(submitButton)
+        await openAndSubmit()
 
         await waitFor(() => {
           expect(mockAddToast).toHaveBeenCalled()
         })
 
         expect(mockNavigate).not.toHaveBeenCalled()
-      })
-
-      it('THEN should keep the dialog open', async () => {
-        mockUpdate.mockResolvedValue(nonEuError)
-
-        const user = userEvent.setup()
-
-        await renderAndOpenDialog()
-
-        const submitButton = screen.getByTestId(ADD_LAGO_TAX_MANAGEMENT_SUBMIT_BUTTON_TEST_ID)
-
-        await user.click(submitButton)
-
-        await waitFor(() => {
-          expect(mockAddToast).toHaveBeenCalled()
-        })
-
-        expect(screen.getByTestId(DIALOG_TITLE_TEST_ID)).toBeInTheDocument()
       })
     })
   })
@@ -194,13 +203,7 @@ describe('AddLagoTaxManagementDialog', () => {
       it('THEN should NOT show the EU-specific danger toast', async () => {
         mockUpdate.mockResolvedValue(genericError)
 
-        const user = userEvent.setup()
-
-        await renderAndOpenDialog()
-
-        const submitButton = screen.getByTestId(ADD_LAGO_TAX_MANAGEMENT_SUBMIT_BUTTON_TEST_ID)
-
-        await user.click(submitButton)
+        await openAndSubmit()
 
         await waitFor(() => {
           expect(mockUpdate).toHaveBeenCalled()
@@ -212,13 +215,7 @@ describe('AddLagoTaxManagementDialog', () => {
       it('THEN should NOT navigate away', async () => {
         mockUpdate.mockResolvedValue(genericError)
 
-        const user = userEvent.setup()
-
-        await renderAndOpenDialog()
-
-        const submitButton = screen.getByTestId(ADD_LAGO_TAX_MANAGEMENT_SUBMIT_BUTTON_TEST_ID)
-
-        await user.click(submitButton)
+        await openAndSubmit()
 
         await waitFor(() => {
           expect(mockUpdate).toHaveBeenCalled()
@@ -236,13 +233,7 @@ describe('AddLagoTaxManagementDialog', () => {
           data: { updateBillingEntity: { id: 'be-1' } },
         })
 
-        const user = userEvent.setup()
-
-        await renderAndOpenDialog()
-
-        const submitButton = screen.getByTestId(ADD_LAGO_TAX_MANAGEMENT_SUBMIT_BUTTON_TEST_ID)
-
-        await user.click(submitButton)
+        await openAndSubmit()
 
         await waitFor(() => {
           expect(mockNavigate).toHaveBeenCalled()
@@ -254,13 +245,7 @@ describe('AddLagoTaxManagementDialog', () => {
           data: { updateBillingEntity: { id: 'be-1' } },
         })
 
-        const user = userEvent.setup()
-
-        await renderAndOpenDialog()
-
-        const submitButton = screen.getByTestId(ADD_LAGO_TAX_MANAGEMENT_SUBMIT_BUTTON_TEST_ID)
-
-        await user.click(submitButton)
+        await openAndSubmit()
 
         await waitFor(() => {
           expect(mockAddToast).toHaveBeenCalledWith(

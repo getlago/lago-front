@@ -5,7 +5,6 @@ import { addToast } from '~/core/apolloClient'
 import {
   CUSTOMER_DETAILS_ROUTE,
   SUBSCRIPTIONS_ROUTE,
-  UPDATE_SUBSCRIPTION,
   UPGRADE_DOWNGRADE_SUBSCRIPTION,
 } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
@@ -14,7 +13,6 @@ import { render, testMockNavigateFn } from '~/test-utils'
 
 import SubscriptionDetails, {
   SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID,
-  SUBSCRIPTION_DETAILS_UPDATE_TEST_ID,
   SUBSCRIPTION_DETAILS_UPGRADE_DOWNGRADE_TEST_ID,
 } from '../SubscriptionDetails'
 
@@ -76,6 +74,14 @@ jest.mock('~/components/customers/subscriptions/TerminateCustomerSubscriptionDia
   }),
 }))
 
+jest.mock('~/components/subscriptions/details-v2/SubscriptionDetailsV2Plan', () => ({
+  SubscriptionDetailsV2Plan: () => null,
+}))
+
+jest.mock('~/components/subscriptions/details-v2/SubscriptionDetailsV2Overview', () => ({
+  SubscriptionDetailsV2Overview: () => null,
+}))
+
 const mockSubscription = {
   id: 'subscription-1',
   name: 'Test Subscription',
@@ -110,13 +116,6 @@ jest.mock('~/hooks/useSubscriptionPermissionsActions', () => ({
   }),
 }))
 
-const mockIsFeatureFlagActive = jest.fn().mockReturnValue(false)
-
-jest.mock('~/core/utils/featureFlags', () => ({
-  ...jest.requireActual('~/core/utils/featureFlags'),
-  isFeatureFlagActive: (flag: string) => mockIsFeatureFlagActive(flag),
-}))
-
 describe('SubscriptionDetails', () => {
   beforeEach(() => {
     jest.clearAllMocks()
@@ -125,7 +124,6 @@ describe('SubscriptionDetails', () => {
     mockCanEditSubscription.mockReturnValue(true)
     mockIsStatusEditable.mockReturnValue(true)
     mockUseCurrentUser.mockReturnValue({ isPremium: true })
-    mockIsFeatureFlagActive.mockReturnValue(false)
 
     const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
 
@@ -153,7 +151,10 @@ describe('SubscriptionDetails', () => {
         render(<SubscriptionDetails />)
 
         expect(capturedConfig?.entity?.viewName).toBeDefined()
-        expect(capturedConfig?.entity?.metadata).toBe('test-plan')
+        // metadata is a click-to-copy element wrapping the plan code
+        expect(
+          (capturedConfig?.entity?.metadata as { props: { children: unknown } })?.props.children,
+        ).toBe('test-plan')
       })
 
       it('THEN should configure MainHeader with a dropdown action', () => {
@@ -177,10 +178,6 @@ describe('SubscriptionDetails', () => {
     })
 
     it.each([
-      {
-        buttonTestId: SUBSCRIPTION_DETAILS_UPDATE_TEST_ID,
-        buttonName: 'update',
-      },
       {
         buttonTestId: SUBSCRIPTION_DETAILS_UPGRADE_DOWNGRADE_TEST_ID,
         buttonName: 'upgrade/downgrade',
@@ -215,10 +212,6 @@ describe('SubscriptionDetails', () => {
     })
 
     it.each([
-      {
-        buttonTestId: SUBSCRIPTION_DETAILS_UPDATE_TEST_ID,
-        buttonName: 'update',
-      },
       {
         buttonTestId: SUBSCRIPTION_DETAILS_UPGRADE_DOWNGRADE_TEST_ID,
         buttonName: 'upgrade/downgrade',
@@ -333,10 +326,10 @@ describe('SubscriptionDetails', () => {
 
   describe('GIVEN tab configuration', () => {
     describe('WHEN all conditions are met (premium, permissions, active status)', () => {
-      it('THEN should configure 8 tabs', () => {
+      it('THEN should configure 7 tabs', () => {
         render(<SubscriptionDetails />)
 
-        expect(capturedConfig?.tabs).toHaveLength(8)
+        expect(capturedConfig?.tabs).toHaveLength(7)
       })
     })
 
@@ -348,8 +341,8 @@ describe('SubscriptionDetails', () => {
       it('THEN should hide the usage tab', () => {
         render(<SubscriptionDetails />)
 
-        // Usage tab is at index 3
-        const usageTab = capturedConfig?.tabs?.[3]
+        // Usage tab is at index 4
+        const usageTab = capturedConfig?.tabs?.[4]
 
         expect(usageTab?.hidden).toBe(true)
       })
@@ -363,8 +356,8 @@ describe('SubscriptionDetails', () => {
       it('THEN should hide the activity logs tab', () => {
         render(<SubscriptionDetails />)
 
-        // Activity logs tab is at index 5
-        const activityLogsTab = capturedConfig?.tabs?.[5]
+        // Activity logs tab is at index 6
+        const activityLogsTab = capturedConfig?.tabs?.[6]
 
         expect(activityLogsTab?.hidden).toBe(true)
       })
@@ -378,7 +371,7 @@ describe('SubscriptionDetails', () => {
       it('THEN should hide the activity logs tab', () => {
         render(<SubscriptionDetails />)
 
-        const activityLogsTab = capturedConfig?.tabs?.[5]
+        const activityLogsTab = capturedConfig?.tabs?.[6]
 
         expect(activityLogsTab?.hidden).toBe(true)
       })
@@ -398,7 +391,7 @@ describe('SubscriptionDetails', () => {
       it('THEN should hide the activity logs tab', () => {
         render(<SubscriptionDetails />)
 
-        const activityLogsTab = capturedConfig?.tabs?.[5]
+        const activityLogsTab = capturedConfig?.tabs?.[6]
 
         expect(activityLogsTab?.hidden).toBe(true)
       })
@@ -406,29 +399,6 @@ describe('SubscriptionDetails', () => {
   })
 
   describe('GIVEN the dropdown actions', () => {
-    describe('WHEN clicking the update subscription item', () => {
-      it('THEN should navigate to the update subscription route', () => {
-        render(<SubscriptionDetails />)
-
-        const dropdownAction = capturedConfig?.actions?.items[0]
-
-        if (dropdownAction?.type === 'dropdown') {
-          const updateItem = dropdownAction.items.find(
-            (i) => i.dataTest === SUBSCRIPTION_DETAILS_UPDATE_TEST_ID,
-          )
-
-          updateItem?.onClick(jest.fn())
-
-          expect(testMockNavigateFn).toHaveBeenCalledWith(
-            UPDATE_SUBSCRIPTION.replace(':customerId', 'customer-1').replace(
-              ':subscriptionId',
-              'subscription-1',
-            ),
-          )
-        }
-      })
-    })
-
     describe('WHEN clicking the upgrade/downgrade item', () => {
       it('THEN should navigate to the upgrade/downgrade route', () => {
         render(<SubscriptionDetails />)
@@ -492,7 +462,7 @@ describe('SubscriptionDetails', () => {
       it('THEN should still configure tabs', () => {
         render(<SubscriptionDetails />)
 
-        expect(capturedConfig?.tabs).toHaveLength(8)
+        expect(capturedConfig?.tabs).toHaveLength(7)
       })
 
       it('THEN should still display the active tab content', () => {
@@ -503,50 +473,20 @@ describe('SubscriptionDetails', () => {
     })
   })
 
-  describe('GIVEN the EDIT_DETAILS_PAGE feature flag', () => {
-    describe('WHEN the flag is off', () => {
-      it('THEN should hide the edit overview tab', () => {
-        mockIsFeatureFlagActive.mockReturnValue(false)
-
+  describe('GIVEN the v2 tabs', () => {
+    describe('WHEN the component renders', () => {
+      it('THEN should render the v2 overview tab as visible', () => {
         render(<SubscriptionDetails />)
 
-        const editOverviewTab = capturedConfig?.tabs?.find(
-          (t) => t.title === 'text_17792001643312864fz7j4gq',
+        const overviewTab = capturedConfig?.tabs?.find(
+          (t) => t.title === 'text_628cf761cbe6820138b8f2e4',
         )
 
-        expect(editOverviewTab?.hidden).toBe(true)
-      })
-
-      it('THEN should hide the subscription plan tab', () => {
-        mockIsFeatureFlagActive.mockReturnValue(false)
-
-        render(<SubscriptionDetails />)
-
-        const subPlanTab = capturedConfig?.tabs?.find(
-          (t) => t.title === 'text_17792001643316pbexygvpu2',
-        )
-
-        expect(subPlanTab?.hidden).toBe(true)
-      })
-    })
-
-    describe('WHEN the flag is on', () => {
-      it('THEN should render the edit overview tab as visible', () => {
-        mockIsFeatureFlagActive.mockReturnValue(true)
-
-        render(<SubscriptionDetails />)
-
-        const editOverviewTab = capturedConfig?.tabs?.find(
-          (t) => t.title === 'text_17792001643312864fz7j4gq',
-        )
-
-        expect(editOverviewTab).toBeDefined()
-        expect(editOverviewTab?.hidden).toBe(false)
+        expect(overviewTab).toBeDefined()
+        expect(overviewTab?.hidden).toBeFalsy()
       })
 
       it('THEN should render the subscription plan tab as visible', () => {
-        mockIsFeatureFlagActive.mockReturnValue(true)
-
         render(<SubscriptionDetails />)
 
         const subPlanTab = capturedConfig?.tabs?.find(
@@ -554,7 +494,7 @@ describe('SubscriptionDetails', () => {
         )
 
         expect(subPlanTab).toBeDefined()
-        expect(subPlanTab?.hidden).toBe(false)
+        expect(subPlanTab?.hidden).toBeFalsy()
       })
     })
   })

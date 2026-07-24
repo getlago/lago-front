@@ -1,13 +1,20 @@
 import { screen } from '@testing-library/react'
 
 import {
+  ActivationRuleStatusEnum,
+  ActivationRuleTypeEnum,
+  CancellationReasonEnum,
   NextSubscriptionTypeEnum,
   StatusTypeEnum,
-  SubscriptionForSubscriptionInformationsFragment,
+  SubscriptionInformationFieldsFragment,
 } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import { SubscriptionDowngradeAlert } from '../SubscriptionInformations'
+import {
+  SubscriptionDetailAlerts,
+  SubscriptionDowngradeAlert,
+} from '../SubscriptionInformationFields'
+import { SubscriptionInformations } from '../SubscriptionInformations'
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -22,16 +29,18 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
       time: '',
       timezone: '',
     }),
+    hasFeatureFlag: () => false,
   }),
 }))
 
 const baseSubscription = (
-  overrides: Partial<SubscriptionForSubscriptionInformationsFragment> = {},
-): SubscriptionForSubscriptionInformationsFragment =>
+  overrides: Partial<SubscriptionInformationFieldsFragment> = {},
+): SubscriptionInformationFieldsFragment =>
   ({
     id: 'sub-1',
     externalId: 'ext-1',
     status: StatusTypeEnum.Active,
+    cancellationReason: null,
     subscriptionAt: '2026-01-01',
     endingAt: null,
     terminatedAt: null,
@@ -42,6 +51,7 @@ const baseSubscription = (
     nextPlan: null,
     previousPlan: null,
     previousSubscription: null,
+    activationRules: [],
     customer: {
       id: 'cust-1',
       name: 'Acme',
@@ -51,7 +61,7 @@ const baseSubscription = (
     },
     plan: { id: 'plan-1', name: 'Current', parent: null },
     ...overrides,
-  }) as SubscriptionForSubscriptionInformationsFragment
+  }) as SubscriptionInformationFieldsFragment
 
 describe('SubscriptionDowngradeAlert', () => {
   it('renders nothing when subscription is null', () => {
@@ -101,7 +111,7 @@ describe('SubscriptionDowngradeAlert', () => {
         previousSubscription: {
           id: 'sub-0',
           downgradePlanDate: '2026-05-22',
-        } as SubscriptionForSubscriptionInformationsFragment['previousSubscription'],
+        } as SubscriptionInformationFieldsFragment['previousSubscription'],
       })
 
       render(<SubscriptionDowngradeAlert subscription={subscription} />)
@@ -116,7 +126,7 @@ describe('SubscriptionDowngradeAlert', () => {
         previousSubscription: {
           id: 'sub-0',
           downgradePlanDate: '2026-05-22',
-        } as SubscriptionForSubscriptionInformationsFragment['previousSubscription'],
+        } as SubscriptionInformationFieldsFragment['previousSubscription'],
       })
 
       const { container } = render(<SubscriptionDowngradeAlert subscription={subscription} />)
@@ -136,7 +146,7 @@ describe('SubscriptionDowngradeAlert', () => {
         previousSubscription: {
           id: 'sub-0',
           downgradePlanDate: '2026-04-22',
-        } as SubscriptionForSubscriptionInformationsFragment['previousSubscription'],
+        } as SubscriptionInformationFieldsFragment['previousSubscription'],
       })
 
       render(<SubscriptionDowngradeAlert subscription={subscription} />)
@@ -144,5 +154,77 @@ describe('SubscriptionDowngradeAlert', () => {
       expect(screen.getByText('text_62681c60582e4f00aa82938a')).toBeInTheDocument()
       expect(screen.queryByText('text_1776951742342o96gqg8qg8j')).not.toBeInTheDocument()
     })
+  })
+})
+
+describe('SubscriptionDetailAlerts', () => {
+  it('renders the incomplete payment-gated warning', () => {
+    render(
+      <SubscriptionDetailAlerts
+        subscription={baseSubscription({ status: StatusTypeEnum.Incomplete })}
+      />,
+    )
+
+    expect(screen.getByText('text_1779882021466ft5t6uhchje')).toBeInTheDocument()
+  })
+
+  it('renders the timeout cancellation message from cancelation reason', () => {
+    render(
+      <SubscriptionDetailAlerts
+        subscription={baseSubscription({
+          status: StatusTypeEnum.Canceled,
+          cancellationReason: CancellationReasonEnum.Timeout,
+        })}
+      />,
+    )
+
+    expect(screen.getByText('text_17798820214667pspf9fl978')).toBeInTheDocument()
+  })
+
+  it('renders the timeout cancellation message from expired activation rule', () => {
+    render(
+      <SubscriptionDetailAlerts
+        subscription={baseSubscription({
+          status: StatusTypeEnum.Canceled,
+          activationRules: [
+            {
+              id: 'activation-rule-1',
+              type: ActivationRuleTypeEnum.Payment,
+              timeoutHours: 24,
+              status: ActivationRuleStatusEnum.Expired,
+              expiresAt: '2026-01-02T00:00:00Z',
+            },
+          ],
+        })}
+      />,
+    )
+
+    expect(screen.getByText('text_17798820214667pspf9fl978')).toBeInTheDocument()
+  })
+})
+
+describe('SubscriptionInformations payment activation fields', () => {
+  it('renders activation rule and timeout fields for incomplete payment-gated subscriptions', () => {
+    render(
+      <SubscriptionInformations
+        subscription={baseSubscription({
+          status: StatusTypeEnum.Incomplete,
+          activationRules: [
+            {
+              id: 'activation-rule-1',
+              type: ActivationRuleTypeEnum.Payment,
+              timeoutHours: 0,
+              status: ActivationRuleStatusEnum.Pending,
+              expiresAt: null,
+            },
+          ],
+        })}
+      />,
+    )
+
+    expect(screen.getByText('text_1779882021466qvd6vq3z01j')).toBeInTheDocument()
+    expect(screen.getByText('text_17798820214664cmfymurz59')).toBeInTheDocument()
+    expect(screen.getByText('text_1779882021466w19mlm8mn8b')).toBeInTheDocument()
+    expect(screen.getByText('text_17798820214660s59bjuztra')).toBeInTheDocument()
   })
 })

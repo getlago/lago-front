@@ -1,195 +1,35 @@
-import { gql } from '@apollo/client'
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
 
+import { ChargeSummarySection } from '~/components/customers/usage/sections/ChargeSummarySection'
+import { FiltersOnlyTable } from '~/components/customers/usage/sections/FiltersOnlyTable'
+import { GroupedUsageTable } from '~/components/customers/usage/sections/GroupedUsageTable'
+import { GroupedUsageWithFiltersTable } from '~/components/customers/usage/sections/GroupedUsageWithFiltersTable'
+import { SubscriptionUsageDetailDrawerUsage } from '~/components/customers/usage/usageDetailsHelpers'
+import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { Drawer, DrawerRef } from '~/components/designSystem/Drawer'
 import { NavigationTab, TabManagedBy } from '~/components/designSystem/NavigationTab'
-import { Table } from '~/components/designSystem/Table/Table'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
-import {
-  getPricingUnitAmountCents,
-  MixedCharge,
-} from '~/components/subscriptions/SubscriptionCurrentUsageTable'
-import {
-  composeChargeFilterDisplayName,
-  composeGroupedByDisplayName,
-  composeMultipleValuesWithSepator,
-} from '~/core/formats/formatInvoiceItemsMap'
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
 import { LocaleEnum } from '~/core/translations'
-import {
-  ChargeUsage,
-  CurrencyEnum,
-  GroupedChargeUsage,
-  ProjectedChargeFilterUsage,
-  ProjectedChargeUsage,
-  TimezoneEnum,
-} from '~/generated/graphql'
+import { CurrencyEnum, ProjectedChargeUsage, TimezoneEnum } from '~/generated/graphql'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
-const NO_ID_FILTER_DEFAULT_VALUE = 'NO_ID_FILTER_DEFAULT_VALUE'
+// Side-effect import: registers the `CustomerUsageForUsageDetails` and
+// `CustomerProjectedUsageForUsageDetails` fragments with codegen so the
+// generated `FragmentDoc` exports stay in sync.
+import './usageDetailsFragments'
 
-type AmountCentsCellProps = {
-  row: {
-    amountCents?: string | number
-    pricingUnitAmountCents?: string | number
-    pricingUnitProjectedAmountCents?: string | number
-    projectedAmountCents?: string | number
-  }
-  currency: CurrencyEnum
-  locale?: LocaleEnum
-  pricingUnitShortName?: string
-  showProjected?: boolean
-}
-
-const AmountCentsCell = ({
-  row,
-  currency,
-  locale,
-  pricingUnitShortName,
-  showProjected,
-}: AmountCentsCellProps) => (
-  <div className="flex flex-col items-end">
-    <Typography variant="bodyHl" color="grey700">
-      {intlFormatNumber(
-        deserializeAmount(getPricingUnitAmountCents(row, showProjected) || 0, currency) || 0,
-        {
-          currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
-          currency,
-          locale,
-          pricingUnitShortName,
-        },
-      )}
-    </Typography>
-
-    {!!pricingUnitShortName && (
-      <Typography variant="caption" color="grey600">
-        {intlFormatNumber(
-          deserializeAmount(
-            showProjected ? row.amountCents : (row as ProjectedChargeUsage).projectedAmountCents,
-            currency,
-          ),
-          {
-            currency,
-            locale,
-            currencyDisplay: locale ? 'narrowSymbol' : 'symbol',
-          },
-        )}
-      </Typography>
-    )}
-  </div>
-)
-
-gql`
-  fragment CustomerUsageForUsageDetails on CustomerUsage {
-    fromDatetime
-    toDatetime
-    chargesUsage {
-      id
-      pricingUnitAmountCents
-      charge {
-        id
-        invoiceDisplayName
-        appliedPricingUnit {
-          id
-          pricingUnit {
-            id
-            shortName
-          }
-        }
-      }
-      billableMetric {
-        name
-      }
-      filters {
-        id
-        amountCents
-        units
-        values
-        invoiceDisplayName
-        pricingUnitAmountCents
-      }
-      groupedUsage {
-        id
-        amountCents
-        groupedBy
-        eventsCount
-        units
-        pricingUnitAmountCents
-        filters {
-          id
-          amountCents
-          units
-          values
-          invoiceDisplayName
-          pricingUnitAmountCents
-        }
-      }
-    }
-  }
-
-  fragment CustomerProjectedUsageForUsageDetails on CustomerProjectedUsage {
-    fromDatetime
-    toDatetime
-    chargesUsage {
-      id
-      pricingUnitAmountCents
-      pricingUnitProjectedAmountCents
-      charge {
-        id
-        invoiceDisplayName
-        appliedPricingUnit {
-          id
-          pricingUnit {
-            id
-            shortName
-          }
-        }
-      }
-      billableMetric {
-        name
-      }
-      filters {
-        id
-        amountCents
-        units
-        values
-        invoiceDisplayName
-        pricingUnitAmountCents
-        projectedAmountCents
-        pricingUnitProjectedAmountCents
-        projectedUnits
-      }
-      groupedUsage {
-        id
-        amountCents
-        groupedBy
-        eventsCount
-        units
-        pricingUnitAmountCents
-        projectedAmountCents
-        pricingUnitProjectedAmountCents
-        projectedUnits
-        filters {
-          id
-          amountCents
-          units
-          values
-          invoiceDisplayName
-          pricingUnitAmountCents
-          projectedAmountCents
-          pricingUnitProjectedAmountCents
-          projectedUnits
-        }
-      }
-    }
-  }
-`
-
-export type SubscriptionUsageDetailDrawerUsage = ChargeUsage | ProjectedChargeUsage
+// Re-export helpers + types for callers and tests that depend on them through
+// this module's surface.
+export {
+  isBreakdownRow,
+  makeBreakdownRows,
+  sumBreakdownUnits,
+  type PresentationBreakdownRow,
+  type SubscriptionUsageDetailDrawerUsage,
+} from '~/components/customers/usage/usageDetailsHelpers'
 
 export interface SubscriptionUsageDetailDrawerRef {
   openDrawer: (
@@ -249,24 +89,35 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
       f()
     }, [fetchedProjected, refreshFunction, showProjected])
 
-    const TRANSLATION_MAP = showProjected
-      ? {
-          unitsHeader: translate('text_17531019276915hby502cvzy'),
-          amountHeader: translate('text_1753101927691j5chrkhmoma'),
-        }
-      : {
-          unitsHeader: translate('text_1753095789277t9kbe8y5pmh'),
-          amountHeader: translate('text_1753101927691fbbwyk7p39q'),
-        }
-
-    const unitsKey = showProjected ? 'projectedUnits' : 'units'
+    const unitsHeader = showProjected
+      ? translate('text_17531019276915hby502cvzy')
+      : translate('text_1753095789277t9kbe8y5pmh')
+    const amountHeader = showProjected
+      ? translate('text_1753101927691j5chrkhmoma')
+      : translate('text_1753101927691fbbwyk7p39q')
 
     const displayName = usage?.charge.invoiceDisplayName || usage?.billableMetric.name
     const hasAnyFilterInGroupUsage = usage?.groupedUsage?.some(
       (u) => (u?.filters || [])?.length > 0,
     )
     const hasAnyUnitsInGroupUsage = usage?.groupedUsage?.some((u) => u?.units > 0)
-    const pricingUnitShortName = usage?.charge.appliedPricingUnit?.pricingUnit?.shortName
+
+    // Section 2 ("Usage linked to charge filters and pricing groups") renders
+    // a breakdown table when there are charge filters or grouped usage entries
+    // to break down. Otherwise it shows the info alert.
+    const hasFiltersOrGroups =
+      (usage?.filters?.length ?? 0) > 0 || (usage?.groupedUsage?.length ?? 0) > 0
+    // Charge-level presentation breakdowns are already rendered in Section 1.
+    // When that's the only thing this charge has, suppress Section 2 entirely
+    // so the user doesn't see a contradictory "no filters / no PGK" alert next
+    // to the breakdowns that ARE displayed above. Account for both the current
+    // and projected breakdown fields — either set indicates Section 1 will
+    // have breakdowns under it on its respective tab.
+    const hasChargeLevelBreakdowns =
+      (usage?.presentationBreakdowns?.length ?? 0) > 0 ||
+      ((usage as ProjectedChargeUsage | undefined)?.projectedPresentationBreakdowns?.length ?? 0) >
+        0
+    const showSection2 = hasFiltersOrGroups || !hasChargeLevelBreakdowns
 
     useImperativeHandle(ref, () => ({
       openDrawer: (data, refreshData, defaultTab) => {
@@ -283,47 +134,50 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
     return (
       <Drawer
         ref={drawerRef}
-        title={translate('text_633dae57ca9a923dd53c208f', {
-          billableMetricName: displayName,
-        })}
+        title={
+          <div className="flex flex-1 items-center justify-between gap-4 pr-3">
+            <Typography variant="bodyHl" color="textSecondary" noWrap>
+              {translate('text_1778836980285mhlwwvofsqm', {
+                billableMetricName: displayName,
+              })}
+            </Typography>
+            <Tooltip placement="bottom-end" title={translate('text_62d7f6178ec94cd09370e4b3')}>
+              <Button
+                variant="quaternary"
+                icon="reload"
+                onClick={async () => {
+                  const updatedUsage = await refreshFunction?.()
+
+                  setUsage(updatedUsage)
+                }}
+              />
+            </Tooltip>
+          </div>
+        }
         stickyBottomBar={({ closeDrawer }) => (
-          <Button size="large" onClick={closeDrawer}>
+          <Button size="medium" onClick={closeDrawer}>
             {translate('text_1726044816685r61awuydvji')}
           </Button>
         )}
       >
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            <Typography variant="headline">
-              {translate('text_633dae57ca9a923dd53c208f', {
-                billableMetricName: displayName,
-              })}
-            </Typography>
-            <Typography>
-              {translate('text_633dae57ca9a923dd53c2097', {
-                fromDate: intlFormatDateTime(fromDatetime, {
-                  locale,
-                  timezone: customerTimezone,
-                }).date,
-                toDate: intlFormatDateTime(toDatetime, {
-                  locale,
-                  timezone: customerTimezone,
-                }).date,
-              })}
-            </Typography>
-          </div>
-          <Tooltip placement="top-start" title={translate('text_62d7f6178ec94cd09370e4b3')}>
-            <Button
-              variant="quaternary"
-              icon="reload"
-              size="small"
-              onClick={async () => {
-                const updatedUsage = await refreshFunction?.()
-
-                setUsage(updatedUsage)
-              }}
-            />
-          </Tooltip>
+        <div className="mb-6">
+          <Typography variant="headline">
+            {translate('text_1778836980285mhlwwvofsqm', {
+              billableMetricName: displayName,
+            })}
+          </Typography>
+          <Typography>
+            {translate('text_633dae57ca9a923dd53c2097', {
+              fromDate: intlFormatDateTime(fromDatetime, {
+                locale,
+                timezone: customerTimezone,
+              }).date,
+              toDate: intlFormatDateTime(toDatetime, {
+                locale,
+                timezone: customerTimezone,
+              }).date,
+            })}
+          </Typography>
         </div>
 
         <NavigationTab
@@ -340,202 +194,60 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
           ]}
         />
 
-        {hasAnyFilterInGroupUsage && (
-          <div className="[&_table:not(#table-grouped-usage-with-filters-table-0)_thead]:hidden">
-            {/* NOTE: We have to make a copy of the array here, otherwise we got an error after usage reload while opening the Drawer */}
-            {[...(usage?.groupedUsage || [])]
-              ?.sort((a, b) => {
-                if (a.filters?.some((f) => !f.id)) return -1
-                if (b.filters?.some((f) => !!f.id)) return 1
-                return 0
-              })
-              ?.map((groupedUsage, groupedUsageIndex) => {
-                const currentGroupedByDisplayName = composeGroupedByDisplayName(
-                  groupedUsage?.groupedBy,
-                )
+        <ChargeSummarySection
+          usage={usage}
+          currency={currency}
+          locale={locale}
+          showProjected={showProjected}
+          translate={translate}
+          unitsHeader={unitsHeader}
+          amountHeader={amountHeader}
+        />
 
-                return (
-                  <Table
-                    key={`grouped-usage-${groupedUsageIndex}`}
-                    name={`grouped-usage-with-filters-table-${groupedUsageIndex}`}
-                    containerSize={0}
-                    rowSize={!!pricingUnitShortName ? 72 : 48}
-                    data={
-                      groupedUsage.filters?.map((f) => {
-                        return {
-                          ...f,
-                          // Table component expect all elements to have an ID
-                          id: f.id || NO_ID_FILTER_DEFAULT_VALUE,
-                        }
-                      }) || []
-                    }
-                    columns={[
-                      {
-                        key: 'invoiceDisplayName',
-                        title: translate('text_1726158292600r2xetfumq5t'),
-                        truncateOverflow: true,
-                        maxSpace: true,
-                        content: (row) => {
-                          const mappedFilterDisplayName = composeMultipleValuesWithSepator([
-                            currentGroupedByDisplayName,
-                            row.id === NO_ID_FILTER_DEFAULT_VALUE
-                              ? translate('text_64e620bca31226337ffc62ad')
-                              : composeChargeFilterDisplayName(row),
-                          ])
-
-                          return (
-                            <Typography variant="body" color="grey700" noWrap>
-                              {mappedFilterDisplayName}
-                            </Typography>
-                          )
-                        },
-                      },
-                      {
-                        key: 'units',
-                        title: TRANSLATION_MAP.unitsHeader,
-                        textAlign: 'right',
-                        minWidth: 70,
-                        content: (row) => (
-                          <Typography variant="body" color="grey700">
-                            {showProjected
-                              ? (row as ProjectedChargeFilterUsage).projectedUnits
-                              : row.units}
-                          </Typography>
-                        ),
-                      },
-                      {
-                        key: 'amountCents',
-                        title: TRANSLATION_MAP.amountHeader,
-                        textAlign: 'right',
-                        minWidth: 100,
-                        content: (row) => (
-                          <AmountCentsCell
-                            row={row}
-                            currency={currency}
-                            locale={locale}
-                            pricingUnitShortName={pricingUnitShortName}
-                            showProjected={showProjected}
-                          />
-                        ),
-                      },
-                    ]}
-                  />
-                )
-              })}
-          </div>
-        )}
-        {!hasAnyFilterInGroupUsage && hasAnyUnitsInGroupUsage && (
-          <Table
-            name="grouped-usage-table"
-            containerSize={0}
-            rowSize={!!pricingUnitShortName ? 72 : 48}
-            data={(usage?.groupedUsage as GroupedChargeUsage[]) || []}
-            columns={[
-              {
-                key: 'id',
-                title: translate('text_1726158292600r2xetfumq5t'),
-                maxSpace: true,
-                truncateOverflow: true,
-                content: (row) => {
-                  const currentGroupedByDisplayName = composeGroupedByDisplayName(row?.groupedBy)
-
-                  return (
-                    <Typography variant="body" color="grey700" noWrap>
-                      {currentGroupedByDisplayName || displayName}
-                    </Typography>
-                  )
-                },
-              },
-              {
-                key: 'units',
-                title: TRANSLATION_MAP.unitsHeader,
-                textAlign: 'right',
-                minWidth: 70,
-                content: (row) => (
-                  <Typography variant="body" color="grey700">
-                    {(row as MixedCharge)[unitsKey]}
-                  </Typography>
-                ),
-              },
-              {
-                key: 'amountCents',
-                title: TRANSLATION_MAP.amountHeader,
-                textAlign: 'right',
-                minWidth: 100,
-                content: (row) => (
-                  <AmountCentsCell
-                    row={row}
-                    currency={currency}
-                    locale={locale}
-                    pricingUnitShortName={pricingUnitShortName}
-                    showProjected={showProjected}
-                  />
-                ),
-              },
-            ]}
-          />
-        )}
-        {!hasAnyFilterInGroupUsage && !hasAnyUnitsInGroupUsage && (
-          <Table
-            name="filters-table"
-            containerSize={0}
-            rowSize={!!pricingUnitShortName ? 72 : 48}
-            data={
-              usage?.filters?.map((f) => {
-                return {
-                  ...f,
-                  // Table component expect all elements to have an ID
-                  id: f.id || NO_ID_FILTER_DEFAULT_VALUE,
-                }
-              }) || []
-            }
-            columns={[
-              {
-                key: 'invoiceDisplayName',
-                title: translate('text_1726158292600r2xetfumq5t'),
-                maxSpace: true,
-                truncateOverflow: true,
-                content: (row) => {
-                  const mappedFilterDisplayName =
-                    row.id === NO_ID_FILTER_DEFAULT_VALUE
-                      ? translate('text_64e620bca31226337ffc62ad')
-                      : composeChargeFilterDisplayName(row)
-
-                  return (
-                    <Typography variant="body" color="grey700" noWrap>
-                      {row.invoiceDisplayName || mappedFilterDisplayName || displayName}
-                    </Typography>
-                  )
-                },
-              },
-              {
-                key: 'units',
-                title: TRANSLATION_MAP.unitsHeader,
-                textAlign: 'right',
-                minWidth: 70,
-                content: (row) => (
-                  <Typography variant="body" color="grey700">
-                    {(row as MixedCharge)[unitsKey]}
-                  </Typography>
-                ),
-              },
-              {
-                key: 'amountCents',
-                title: TRANSLATION_MAP.amountHeader,
-                textAlign: 'right',
-                minWidth: 100,
-                content: (row) => (
-                  <AmountCentsCell
-                    row={row}
-                    currency={currency}
-                    locale={locale}
-                    pricingUnitShortName={pricingUnitShortName}
-                    showProjected={showProjected}
-                  />
-                ),
-              },
-            ]}
-          />
+        {showSection2 && (
+          <section className="mt-12 flex flex-col gap-4">
+            <Typography variant="subhead1" color="grey700">
+              {translate('text_17786802483174e1d300blik')}
+            </Typography>
+            {!hasFiltersOrGroups && (
+              <Alert type="info">{translate('text_17786802483175q57751skt9')}</Alert>
+            )}
+            {hasAnyFilterInGroupUsage && (
+              <GroupedUsageWithFiltersTable
+                usage={usage}
+                currency={currency}
+                locale={locale}
+                showProjected={showProjected}
+                translate={translate}
+                unitsHeader={unitsHeader}
+                amountHeader={amountHeader}
+              />
+            )}
+            {!hasAnyFilterInGroupUsage && hasAnyUnitsInGroupUsage && (
+              <GroupedUsageTable
+                usage={usage}
+                currency={currency}
+                locale={locale}
+                showProjected={showProjected}
+                translate={translate}
+                unitsHeader={unitsHeader}
+                amountHeader={amountHeader}
+              />
+            )}
+            {!hasAnyFilterInGroupUsage &&
+              !hasAnyUnitsInGroupUsage &&
+              (usage?.filters?.length ?? 0) > 0 && (
+                <FiltersOnlyTable
+                  usage={usage}
+                  currency={currency}
+                  locale={locale}
+                  showProjected={showProjected}
+                  translate={translate}
+                  unitsHeader={unitsHeader}
+                  amountHeader={amountHeader}
+                />
+              )}
+          </section>
         )}
       </Drawer>
     )

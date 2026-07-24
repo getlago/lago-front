@@ -1,144 +1,159 @@
-import { useFormik } from 'formik'
-import { forwardRef } from 'react'
-import { object, string } from 'yup'
+import { revalidateLogic } from '@tanstack/react-form'
+import { useRef } from 'react'
+import { z } from 'zod'
 
-import { Button } from '~/components/designSystem/Button'
-import { Dialog } from '~/components/designSystem/Dialog'
 import { Typography } from '~/components/designSystem/Typography'
-import { RadioGroupField } from '~/components/form'
+import { useFormDialog } from '~/components/dialogs/FormDialog'
+import { DialogResult } from '~/components/dialogs/types'
+import { focusFirstInput } from '~/components/drawers/useFocusTrap'
+import { ExportValues } from '~/components/exports/types'
 import {
   CreditNoteExportTypeEnum,
   DataExportFormatTypeEnum,
   InvoiceExportTypeEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm } from '~/hooks/forms/useAppform'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 
 type ExportTypeEnum = CreditNoteExportTypeEnum | InvoiceExportTypeEnum
 
-type ExportForm = {
-  format: DataExportFormatTypeEnum
-  resourceType: ExportTypeEnum
-}
-
-export type ExportValues<T> = {
-  clientMutationId?: string
-  format: DataExportFormatTypeEnum
-  resourceType: T
-}
-
-type ExportDialogProps = {
+export type OpenExportDialogArgs<T extends ExportTypeEnum = ExportTypeEnum> = {
   totalCountLabel: string
-  // TODO: Fix this type
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-  onExport: Function
+  onExport: (values: ExportValues<T>) => void | Promise<void>
   disableExport?: boolean
   resourceTypeOptions: {
     label: string
     sublabel: string
-    value: ExportForm['resourceType']
+    value: T
   }[]
 }
 
-export interface ExportDialogRef {
-  openDialog: () => unknown
-  closeDialog: () => unknown
-}
+const FORM_ID = 'export-form'
 
-export const ExportDialog = forwardRef<ExportDialogRef, ExportDialogProps>(
-  (
-    { totalCountLabel, onExport, disableExport = false, resourceTypeOptions }: ExportDialogProps,
-    ref,
-  ) => {
-    const { translate } = useInternationalization()
-    const { currentUser } = useCurrentUser()
+const exportValidationSchema = z.object({
+  format: z.enum(DataExportFormatTypeEnum),
+  resourceType: z.union([z.enum(CreditNoteExportTypeEnum), z.enum(InvoiceExportTypeEnum)]),
+})
 
-    const formikProps = useFormik<Omit<ExportForm, 'filters'>>({
-      initialValues: {
-        format: DataExportFormatTypeEnum.Csv,
-        resourceType: resourceTypeOptions[0].value,
-      },
-      validationSchema: object().shape({
-        format: string().required(''),
-      }),
-      validateOnMount: true,
-      enableReinitialize: true,
-      onSubmit: (values) => onExport(values),
-    })
+export const useExportDialog = () => {
+  const formDialog = useFormDialog()
+  const { translate } = useInternationalization()
+  const { currentUser } = useCurrentUser()
+  const onExportRef = useRef<
+    ((values: ExportValues<ExportTypeEnum>) => void | Promise<void>) | null
+  >(null)
 
-    return (
-      <Dialog
-        ref={ref}
-        title={translate('text_66b21236c939426d07ff9930')}
-        description={translate('text_66b21236c939426d07ff9932')}
-        onClose={() => {
-          formikProps.resetForm()
-          formikProps.validateForm()
-        }}
-        actions={({ closeDialog }) => (
-          <>
-            <Button variant="quaternary" onClick={closeDialog}>
-              {translate('text_63eba8c65a6c8043feee2a14')}
-            </Button>
-            <Button
-              variant="primary"
-              disabled={!formikProps.isValid || disableExport}
-              onClick={async () => {
-                await formikProps.submitForm()
-                closeDialog()
-              }}
-            >
+  const form = useAppForm({
+    defaultValues: {
+      format: DataExportFormatTypeEnum.Csv as DataExportFormatTypeEnum,
+      resourceType: InvoiceExportTypeEnum.Invoices as ExportTypeEnum,
+    },
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: exportValidationSchema,
+    },
+    onSubmit: async ({ value }) => {
+      await onExportRef.current?.({
+        format: value.format,
+        resourceType: value.resourceType,
+      })
+    },
+  })
+
+  const handleSubmit = async (): Promise<DialogResult> => {
+    await form.handleSubmit()
+
+    if (!form.state.isSubmitSuccessful) {
+      throw new Error('Submit failed')
+    }
+
+    return { reason: 'success' }
+  }
+
+  const openExportDialog = <T extends ExportTypeEnum>({
+    totalCountLabel,
+    onExport,
+    disableExport = false,
+    resourceTypeOptions,
+  }: OpenExportDialogArgs<T>) => {
+    onExportRef.current = onExport as (values: ExportValues<ExportTypeEnum>) => void | Promise<void>
+    form.reset()
+    form.setFieldValue('format', DataExportFormatTypeEnum.Csv)
+    form.setFieldValue('resourceType', resourceTypeOptions[0].value)
+
+    formDialog
+      .open({
+        title: translate('text_66b21236c939426d07ff9930'),
+        description: translate('text_66b21236c939426d07ff9932'),
+        children: (
+          <div>
+            <div className="grid grid-cols-[140px_1fr] items-center gap-3 p-6">
+              <Typography variant="caption" color="grey600">
+                {translate('text_6419c64eace749372fc72b27')}
+              </Typography>
+              <Typography variant="body" color="grey700">
+                {currentUser?.email}
+              </Typography>
+
+              <Typography variant="caption" color="grey600">
+                {translate('text_66b21236c939426d07ff9936')}
+              </Typography>
+              <Typography variant="body" color="grey700">
+                {translate('text_66b21236c939426d07ff9935')}
+              </Typography>
+
+              <Typography variant="caption" color="grey600">
+                {translate('text_66b21236c939426d07ff9938')}
+              </Typography>
+              <Typography variant="body" color="grey700">
+                {totalCountLabel}
+              </Typography>
+            </div>
+
+            <div className="w-full border-b border-grey-300" />
+
+            <div className="p-6">
+              <div className="mb-4">
+                <Typography variant="bodyHl" color="grey700">
+                  {translate('text_66b21236c939426d07ff9939')}
+                </Typography>
+                <Typography variant="caption" color="grey600">
+                  {translate('text_66b21236c939426d07ff993a')}
+                </Typography>
+              </div>
+
+              <form.AppField name="resourceType">
+                {(field) => (
+                  <field.RadioGroupField
+                    optionsGapSpacing={4}
+                    optionLabelVariant="body"
+                    options={resourceTypeOptions}
+                  />
+                )}
+              </form.AppField>
+            </div>
+          </div>
+        ),
+        closeOnError: false,
+        onEntered: focusFirstInput,
+        mainAction: (
+          <form.AppForm>
+            <form.SubmitButton variant="primary" disabled={disableExport}>
               {translate('text_66b21236c939426d07ff9940')}
-            </Button>
-          </>
-        )}
-      >
-        <div className="mb-8">
-          <div className="grid grid-cols-[140px_1fr] items-center gap-3">
-            <Typography variant="caption" color="grey600">
-              {translate('text_6419c64eace749372fc72b27')}
-            </Typography>
-            <Typography variant="body" color="grey700">
-              {currentUser?.email}
-            </Typography>
+            </form.SubmitButton>
+          </form.AppForm>
+        ),
+        form: {
+          id: FORM_ID,
+          submit: handleSubmit,
+        },
+      })
+      .then(() => {
+        form.reset()
+        onExportRef.current = null
+      })
+  }
 
-            <Typography variant="caption" color="grey600">
-              {translate('text_66b21236c939426d07ff9936')}
-            </Typography>
-            <Typography variant="body" color="grey700">
-              {translate('text_66b21236c939426d07ff9935')}
-            </Typography>
-
-            <Typography variant="caption" color="grey600">
-              {translate('text_66b21236c939426d07ff9938')}
-            </Typography>
-            <Typography variant="body" color="grey700">
-              {totalCountLabel}
-            </Typography>
-          </div>
-
-          <div className="my-8 w-full border-b border-grey-300" />
-
-          <div className="mb-4">
-            <Typography variant="bodyHl" color="grey700">
-              {translate('text_66b21236c939426d07ff9939')}
-            </Typography>
-            <Typography variant="caption" color="grey600">
-              {translate('text_66b21236c939426d07ff993a')}
-            </Typography>
-          </div>
-
-          <RadioGroupField
-            name="resourceType"
-            optionsGapSpacing={4}
-            optionLabelVariant="body"
-            options={resourceTypeOptions}
-            formikProps={formikProps}
-          />
-        </div>
-      </Dialog>
-    )
-  },
-)
-
-ExportDialog.displayName = 'ExportDialog'
+  return { openExportDialog }
+}

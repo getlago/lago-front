@@ -8,6 +8,7 @@ import {
   InvoiceForInvoiceInfosFragment,
   InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
+  InvoiceTypeEnum,
   TimezoneEnum,
 } from '~/generated/graphql'
 import { render } from '~/test-utils'
@@ -27,6 +28,7 @@ describe('InvoiceCustomerInfos', () => {
     overrides?: Partial<InvoiceForInvoiceInfosFragment>,
   ): InvoiceForInvoiceInfosFragment => ({
     number: 'INV-001',
+    invoiceType: InvoiceTypeEnum.OneOff,
     issuingDate: '2024-01-15',
     paymentDueDate: '2024-02-15',
     paymentOverdue: false,
@@ -192,6 +194,7 @@ describe('InvoiceCustomerInfos', () => {
 
     it('should render dash for payment status when invoice is draft', () => {
       const mockInvoice = createMockInvoice({
+        invoiceType: InvoiceTypeEnum.Subscription,
         status: InvoiceStatusTypeEnum.Draft,
       })
 
@@ -227,6 +230,29 @@ describe('InvoiceCustomerInfos', () => {
       expect(
         screen.getByText('email1@test.com, email2@test.com, email3@test.com'),
       ).toBeInTheDocument()
+    })
+
+    it('should render purchase order number for one-off invoices', () => {
+      const mockInvoice = createMockInvoice({
+        invoiceType: InvoiceTypeEnum.OneOff,
+        purchaseOrderNumber: 'PO-12345',
+      })
+
+      render(<InvoiceCustomerInfos invoice={mockInvoice} />)
+
+      expect(screen.getByText('PO-12345')).toBeInTheDocument()
+    })
+
+    it('should not render the purchase order number row for non one-off invoices', () => {
+      const mockInvoice = createMockInvoice({
+        invoiceType: InvoiceTypeEnum.Subscription,
+        purchaseOrderNumber: 'PO-12345',
+      })
+
+      render(<InvoiceCustomerInfos invoice={mockInvoice} />)
+
+      expect(screen.queryByText('PO number')).not.toBeInTheDocument()
+      expect(screen.queryByText('PO-12345')).not.toBeInTheDocument()
     })
 
     it('should handle null invoice gracefully', () => {

@@ -1,15 +1,15 @@
 import { gql } from '@apollo/client'
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
-import { Typography } from '~/components/designSystem/Typography'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
-import { DeletePlanDialog, DeletePlanDialogRef } from '~/components/plans/DeletePlanDialog'
+import { useDeletePlanDialog } from '~/components/plans/DeletePlanDialog'
+import { PlanDetailsV2 } from '~/components/plans/details-v2/PlanDetailsV2'
 import { PlanDetailsActivityLogs } from '~/components/plans/details/PlanDetailsActivityLogs'
-import { PlanDetailsOverview } from '~/components/plans/details/PlanDetailsOverview'
 import PlanSubscriptionList from '~/components/plans/details/PlanSubscriptionList'
 import { updateDuplicatePlanVar } from '~/core/apolloClient'
 import { PlanDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -18,10 +18,8 @@ import {
   CUSTOMER_SUBSCRIPTION_PLAN_DETAILS,
   PLAN_DETAILS_ROUTE,
   PLANS_ROUTE,
-  UPDATE_PLAN_ROUTE,
   useNavigate,
 } from '~/core/router'
-import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import {
   DeletePlanDialogFragment,
   DeletePlanDialogFragmentDoc,
@@ -56,7 +54,7 @@ const PlanDetails = () => {
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
 
-  const deletePlanDialogRef = useRef<DeletePlanDialogRef>(null)
+  const { openDeletePlanDialog } = useDeletePlanDialog()
   const {
     data: planResult,
     loading: isPlanLoading,
@@ -87,15 +85,8 @@ const PlanDetails = () => {
     {
       type: 'dropdown',
       label: translate('text_626162c62f790600f850b6fe'),
+      dataTest: 'plan-details-actions',
       items: [
-        {
-          label: translate('text_65281f686a80b400c8e2f6b3'),
-          hidden: !hasPermissions(['plansUpdate']),
-          onClick: (closePopper) => {
-            navigate(generatePath(UPDATE_PLAN_ROUTE, { planId: plan?.id as string }))
-            closePopper()
-          },
-        },
         {
           label: translate('text_65281f686a80b400c8e2f6b6'),
           hidden: !hasPermissions(['plansCreate']),
@@ -112,7 +103,7 @@ const PlanDetails = () => {
           label: translate('text_625fd165963a7b00c8f597b5'),
           hidden: !hasPermissions(['plansDelete']),
           onClick: (closePopper) => {
-            deletePlanDialogRef.current?.openDialog({
+            openDeletePlanDialog({
               plan: plan as DeletePlanDialogFragment,
               callback: () => {
                 navigate(PLANS_ROUTE)
@@ -134,7 +125,7 @@ const PlanDetails = () => {
         entity={{
           viewName: translate('text_65281f686a80b400c8e2f6ad', { planName: plan?.name }),
           viewNameLoading: isPlanLoading,
-          metadata: plan?.code || '',
+          metadata: plan?.code ? <TypographyWithCopy>{plan.code}</TypographyWithCopy> : undefined,
           metadataLoading: isPlanLoading,
         }}
         actions={{ items: actions, loading: isPlanLoading }}
@@ -158,8 +149,8 @@ const PlanDetails = () => {
               }),
             ],
             content: (
-              <DetailsPage.Container>
-                <PlanDetailsOverview planId={planId} />
+              <DetailsPage.Container className="pb-0">
+                <PlanDetailsV2 planId={planId as string} />
               </DetailsPage.Container>
             ),
           },
@@ -190,37 +181,10 @@ const PlanDetails = () => {
             content: <PlanDetailsActivityLogs planId={planId as string} />,
             hidden: !isPremium || !hasPermissions(['auditLogsView']),
           },
-          {
-            title: translate('text_17792001643312864fz7j4gq'),
-            link: generatePath(PLAN_DETAILS_ROUTE, {
-              planId: planId as string,
-              tab: PlanDetailsTabsOptionsEnum.editOverview,
-            }),
-            match: [
-              generatePath(PLAN_DETAILS_ROUTE, {
-                planId: planId as string,
-                tab: PlanDetailsTabsOptionsEnum.editOverview,
-              }),
-              generatePath(CUSTOMER_SUBSCRIPTION_PLAN_DETAILS, {
-                customerId: customerId || '',
-                subscriptionId: subscriptionId || '',
-                planId: planId as string,
-                tab: PlanDetailsTabsOptionsEnum.editOverview,
-              }),
-            ],
-            content: (
-              <DetailsPage.Container>
-                <Typography variant="body">{translate('text_17792001643312864fz7j4gq')}</Typography>
-              </DetailsPage.Container>
-            ),
-            hidden: !isFeatureFlagActive(FeatureFlags.EDIT_DETAILS_PAGE),
-          },
         ]}
       />
 
       <>{activeTabContent}</>
-
-      <DeletePlanDialog ref={deletePlanDialogRef} />
     </>
   )
 }

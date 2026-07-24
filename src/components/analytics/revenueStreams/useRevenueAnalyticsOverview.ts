@@ -101,7 +101,7 @@ export const useRevenueAnalyticsOverview = (): RevenueAnalyticsOverviewReturn =>
     return `${now.minus({ month: 12 }).startOf('day').toISO()},${now.endOf('day').toISO()}`
   }, [hasAccessToAnalyticsDashboardsFeature])
 
-  const getDefaultStaticTimeGranularityFilter = useCallback((): string => {
+  const getDefaultStaticTimeGranularityFilter = useCallback((): TimeGranularityEnum => {
     if (!hasAccessToAnalyticsDashboardsFeature) {
       return TimeGranularityEnum.Daily
     }

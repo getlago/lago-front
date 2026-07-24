@@ -3,7 +3,7 @@ import { debounce } from 'lodash'
 import { useCallback, useEffect, useState } from 'react'
 
 import { AuditLogEntry, AuditLogTable } from '~/components/admin/AuditLogTable'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
 
@@ -49,16 +49,17 @@ const ADMIN_ROLLBACK_CHANGE_MUTATION = gql`
   }
 `
 
+const PAGE_SIZE = 20
+
 const AdminAuditLog = () => {
-  const [getAuditLogs, { data, error, loading, fetchMore, refetch }] = useLazyQuery(
-    ADMIN_AUDIT_LOGS_QUERY,
-    {
-      notifyOnNetworkStatusChange: true,
-      variables: {
-        limit: 20,
-      },
+  const { page, goToPage } = usePageSearchParam()
+  const [getAuditLogs, { data, error, loading, refetch }] = useLazyQuery(ADMIN_AUDIT_LOGS_QUERY, {
+    notifyOnNetworkStatusChange: true,
+    variables: {
+      limit: PAGE_SIZE,
+      page,
     },
-  )
+  })
 
   const [rollbackChange] = useMutation(ADMIN_ROLLBACK_CHANGE_MUTATION)
   const [featureKey, setFeatureKey] = useState<string>('')
@@ -75,6 +76,11 @@ const AdminAuditLog = () => {
     }, 500),
     [],
   )
+
+  const searchAndResetPage = (value: string) => {
+    goToPage(1)
+    debouncedSearch(value)
+  }
 
   // Trigger initial load
   useEffect(() => {
@@ -108,20 +114,16 @@ const AdminAuditLog = () => {
           metadataLoading: isLoading,
         }}
         filtersSection={
-          <SearchInput onChange={debouncedSearch} placeholder="Search by feature key..." />
+          <SearchInput onChange={searchAndResetPage} placeholder="Search by feature key..." />
         }
       />
 
-      <InfiniteScroll
-        onBottom={() => {
-          const { currentPage = 0, totalPages = 0 } = metadata || {}
-
-          currentPage < totalPages &&
-            !isLoading &&
-            fetchMore?.({
-              variables: { page: currentPage + 1 },
-            })
-        }}
+      <PaginatedContent
+        insetPager
+        metadata={metadata}
+        loading={isLoading}
+        pageSize={PAGE_SIZE}
+        onPageChange={goToPage}
       >
         <AuditLogTable
           data={auditLogs}
@@ -130,7 +132,7 @@ const AdminAuditLog = () => {
           featureKey={featureKey || undefined}
           onRollback={handleRollback}
         />
-      </InfiniteScroll>
+      </PaginatedContent>
     </>
   )
 }

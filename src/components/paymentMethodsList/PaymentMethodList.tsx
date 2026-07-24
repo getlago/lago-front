@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useCallback, useRef } from 'react'
+import { useCallback } from 'react'
 
 import { Table } from '~/components/designSystem/Table'
 import { addToast } from '~/core/apolloClient'
@@ -12,10 +12,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { PaymentMethodItem, usePaymentMethodsList } from '~/hooks/customer/usePaymentMethodsList'
 
-import {
-  DeletePaymentMethodDialog,
-  DeletePaymentMethodDialogRef,
-} from './DeletePaymentMethodDialog'
+import { useDeletePaymentMethodDialog } from './DeletePaymentMethodDialog'
 import { usePaymentMethodsTableColumns } from './usePaymentMethodsTableColumns'
 
 gql`
@@ -38,7 +35,7 @@ interface Props {
 
 export const PaymentMethodsList = ({ externalCustomerId }: Props) => {
   const { translate } = useInternationalization()
-  const deletePaymentMethodDialogRef = useRef<DeletePaymentMethodDialogRef>(null)
+  const { openDeletePaymentMethodDialog } = useDeletePaymentMethodDialog()
 
   const [setPaymentMethodAsDefaultMutation, { error: errorSetAsDefault }] =
     useSetPaymentMethodAsDefaultMutation()
@@ -63,7 +60,7 @@ export const PaymentMethodsList = ({ externalCustomerId }: Props) => {
 
   const onDeletePaymentMethod = useCallback(
     (item: PaymentMethodItem) => {
-      deletePaymentMethodDialogRef.current?.openDialog({
+      openDeletePaymentMethodDialog({
         paymentMethod: item,
         onConfirm: async (input: DestroyPaymentMethodInput) => {
           const res = await destroyPaymentMethodMutation({ variables: { input } })
@@ -79,7 +76,7 @@ export const PaymentMethodsList = ({ externalCustomerId }: Props) => {
         },
       })
     },
-    [destroyPaymentMethodMutation, refetch, translate],
+    [destroyPaymentMethodMutation, refetch, translate, openDeletePaymentMethodDialog],
   )
 
   const { columns, actionColumn } = usePaymentMethodsTableColumns({
@@ -90,25 +87,22 @@ export const PaymentMethodsList = ({ externalCustomerId }: Props) => {
   const hasError = hasErrorPaymentMethods || errorSetAsDefault || errorDestroyPaymentMethod
 
   return (
-    <>
-      <Table
-        name="payment-methods-list"
-        containerSize={0}
-        rowSize={72}
-        data={paymentMethodsList}
-        placeholder={{
-          emptyState: {
-            title: translate('text_17624373282988xkhppid3at'),
-            subtitle: translate('text_1762437344178ud4kecr8cz9'),
-          },
-        }}
-        actionColumnTooltip={() => translate('text_634687079be251fdb438338f')}
-        actionColumn={actionColumn}
-        columns={columns}
-        isLoading={loading}
-        hasError={!!hasError}
-      />
-      <DeletePaymentMethodDialog ref={deletePaymentMethodDialogRef} />
-    </>
+    <Table
+      name="payment-methods-list"
+      containerSize={0}
+      rowSize={72}
+      data={paymentMethodsList}
+      placeholder={{
+        emptyState: {
+          title: translate('text_17624373282988xkhppid3at'),
+          subtitle: translate('text_1762437344178ud4kecr8cz9'),
+        },
+      }}
+      actionColumnTooltip={() => translate('text_634687079be251fdb438338f')}
+      actionColumn={actionColumn}
+      columns={columns}
+      isLoading={loading}
+      hasError={!!hasError}
+    />
   )
 }

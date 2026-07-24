@@ -1,29 +1,22 @@
 import { gql } from '@apollo/client'
 import { useStore } from '@tanstack/react-form'
-import { useCallback, useRef } from 'react'
+import { useCallback } from 'react'
 import { generatePath, useSearchParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
-import {
-  EditInvoiceDisplayNameDialog,
-  EditInvoiceDisplayNameDialogRef,
-} from '~/components/invoices/EditInvoiceDisplayNameDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
+import { useCascadeFormDialog } from '~/components/plans/details-v2/shared/useCascadeFormDialog'
 import { FeatureEntitlementSection } from '~/components/plans/FeatureEntitlementSection'
 import { FixedChargesSection } from '~/components/plans/form/FixedChargesSection'
-import {
-  ImpactOverriddenSubscriptionsDialog,
-  ImpactOverriddenSubscriptionsDialogRef,
-} from '~/components/plans/ImpactOverriddenSubscriptionsDialog'
+import { PlanMetadataSection } from '~/components/plans/PlanMetadataSection'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
 import { ProgressiveBillingSection } from '~/components/plans/ProgressiveBillingSection'
 import { SubscriptionFeeSection } from '~/components/plans/SubscriptionFeeSection'
 import { LocalUsageChargeInput } from '~/components/plans/types'
 import { UsageChargesSection } from '~/components/plans/UsageChargesSection'
-import { PremiumWarningDialog, PremiumWarningDialogRef } from '~/components/PremiumWarningDialog'
 import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
 import { PlanFormProvider } from '~/contexts/PlanFormContext'
 import { useDuplicatePlanVar } from '~/core/apolloClient'
@@ -47,6 +40,7 @@ import {
   PlanForSubscriptionFeeSectionFragmentDoc,
   PlanForUsageChargeAccordionFragmentDoc,
   PlanInterval,
+  PlanMetadataForPlanFragmentDoc,
   UsageChargeForDrawerFragmentDoc,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -138,6 +132,7 @@ gql`
     ...PlanForSubscriptionFeeSection
     ...FeatureEntitlementForPlan
     ...FixedChargesOnPlanForm
+    ...PlanMetadataForPlan
   }
 
   ${UsageChargeForDrawerFragmentDoc}
@@ -146,6 +141,7 @@ gql`
   ${PlanForSubscriptionFeeSectionFragmentDoc}
   ${FeatureEntitlementForPlanFragmentDoc}
   ${FixedChargesOnPlanFormFragmentDoc}
+  ${PlanMetadataForPlanFragmentDoc}
 `
 
 const CreatePlan = () => {
@@ -153,12 +149,9 @@ const CreatePlan = () => {
   const { translate } = useInternationalization()
   const { type: actionType } = useDuplicatePlanVar()
   const [searchParams] = useSearchParams()
-  const premiumWarningDialogRef = useRef<PremiumWarningDialogRef>(null)
   const { form, isEdition, loading, plan, type } = usePlanForm({})
-  const warningDialogRef = useRef<WarningDialogRef>(null)
-  const impactOverriddenSubscriptionsDialogRef =
-    useRef<ImpactOverriddenSubscriptionsDialogRef>(null)
-  const editInvoiceDisplayNameDialogRef = useRef<EditInvoiceDisplayNameDialogRef>(null)
+  const centralizedDialog = useCentralizedDialog()
+  const { openCascadeDialog } = useCascadeFormDialog()
 
   const canBeEdited = !plan?.subscriptionsCount
   const alreadyExistingFixedChargesIds =
@@ -204,27 +197,39 @@ const CreatePlan = () => {
     }
   }, [navigate, plan?.id, searchParams, actionType])
 
+  const openDirtyAttributesWarning = useCallback(() => {
+    centralizedDialog.open({
+      title: translate('text_665deda4babaf700d603ea13'),
+      description: translate('text_665dedd557dc3c00c62eb83d'),
+      actionText: translate('text_645388d5bdbd7b00abffa033'),
+      colorVariant: 'danger',
+      onAction: () => planCloseRedirection(),
+    })
+  }, [centralizedDialog, planCloseRedirection, translate])
+
   const onLeave = useCallback(() => {
     if (isDirty) {
-      return warningDialogRef.current?.openDialog()
+      return openDirtyAttributesWarning()
     }
 
     return planCloseRedirection()
-  }, [isDirty, planCloseRedirection])
+  }, [isDirty, openDirtyAttributesWarning, planCloseRedirection])
 
   const handleFormSubmit = useCallback(() => {
-    if (plan?.hasOverriddenPlans && isEdition) {
-      return impactOverriddenSubscriptionsDialogRef.current?.openDialog({
-        onSave: async (cascadeUpdates) => {
+    if (isEdition && plan?.hasOverriddenPlans) {
+      return openCascadeDialog({
+        title: translate('text_1729604107534r3hsj7i64gp'),
+        mainActionLabel: translate('text_1729604107534dfyz8j53ho5'),
+        hasOverriddenPlans: true,
+        onConfirm: async (cascadeUpdates) => {
           form.setFieldValue('cascadeUpdates', cascadeUpdates)
-
           return form.handleSubmit()
         },
       })
     }
 
     return form.handleSubmit()
-  }, [form, plan?.hasOverriddenPlans, isEdition])
+  }, [form, plan?.hasOverriddenPlans, isEdition, openCascadeDialog, translate])
 
   const pageTitle = isEdition
     ? translate('text_625fd165963a7b00c8f59767')
@@ -296,7 +301,6 @@ const CreatePlan = () => {
                       form={form}
                       canBeEdited={canBeEdited}
                       isEdition={isEdition}
-                      premiumWarningDialogRef={premiumWarningDialogRef}
                       alreadyExistingCharges={plan?.charges as LocalUsageChargeInput[]}
                     />
                   </CenteredPage.SubsectionWrapper>
@@ -314,6 +318,8 @@ const CreatePlan = () => {
                     <CommitmentsSection form={form} />
 
                     <FeatureEntitlementSection form={form} isEdition={isEdition} />
+
+                    <PlanMetadataSection form={form} />
                   </CenteredPage.SubsectionWrapper>
                 </CenteredPage.SectionWrapper>
               </>
@@ -351,17 +357,6 @@ const CreatePlan = () => {
           )}
         </CenteredPage.Wrapper>
       </form>
-
-      <WarningDialog
-        ref={warningDialogRef}
-        title={translate('text_665deda4babaf700d603ea13')}
-        description={translate('text_665dedd557dc3c00c62eb83d')}
-        continueText={translate('text_645388d5bdbd7b00abffa033')}
-        onContinue={() => planCloseRedirection()}
-      />
-      <ImpactOverriddenSubscriptionsDialog ref={impactOverriddenSubscriptionsDialogRef} />
-      <EditInvoiceDisplayNameDialog ref={editInvoiceDisplayNameDialogRef} />
-      <PremiumWarningDialog ref={premiumWarningDialogRef} />
     </PlanFormProvider>
   )
 }

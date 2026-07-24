@@ -1,9 +1,7 @@
 import { gql } from '@apollo/client'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
-import { DialogRef } from '~/components/designSystem/Dialog'
 import { Typography } from '~/components/designSystem/Typography'
-import { WarningDialog } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
 import { DeleteAddOnFragment, useDeleteAddOnMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -21,62 +19,41 @@ gql`
   }
 `
 
-interface DeleteAddOnDialogProps {
+type DeleteAddOnDialogData = {
   addOn: DeleteAddOnFragment
   callback?: () => void
 }
 
-export interface DeleteAddOnDialogRef {
-  openDialog: ({ addOn, callback }: DeleteAddOnDialogProps) => unknown
-  closeDialog: () => unknown
-}
-
-export const DeleteAddOnDialog = forwardRef<DeleteAddOnDialogRef>((_, ref) => {
+export const useDeleteAddOnDialog = () => {
+  const centralizedDialog = useCentralizedDialog()
   const { translate } = useInternationalization()
-  const dialogRef = useRef<DialogRef>(null)
-  const [localData, setLocalData] = useState<DeleteAddOnDialogProps | undefined>(undefined)
-
-  const { id = '', name = '' } = localData?.addOn || {}
 
   const [deleteAddOn] = useDeleteAddOnMutation({
-    onCompleted(data) {
-      if (data && data.destroyAddOn) {
-        addToast({
-          message: translate('text_629728388c4d2300e2d3815f'),
-          severity: 'success',
-        })
-
-        localData?.callback && localData.callback()
-      }
-    },
     refetchQueries: ['addOns'],
   })
 
-  useImperativeHandle(ref, () => ({
-    openDialog: (data) => {
-      setLocalData(data)
-      dialogRef.current?.openDialog()
-    },
-    closeDialog: () => {
-      dialogRef.current?.closeDialog()
-    },
-  }))
-
-  return (
-    <WarningDialog
-      ref={dialogRef}
-      title={translate('text_629728388c4d2300e2d380ad', {
-        addOnName: name,
-      })}
-      description={<Typography html={translate('text_629728388c4d2300e2d380c5')} />}
-      onContinue={async () =>
-        await deleteAddOn({
-          variables: { input: { id: id || '' } },
+  const openDeleteAddOnDialog = ({ addOn, callback }: DeleteAddOnDialogData) => {
+    centralizedDialog.open({
+      title: translate('text_629728388c4d2300e2d380ad', { addOnName: addOn.name }),
+      description: <Typography html={translate('text_629728388c4d2300e2d380c5')} />,
+      colorVariant: 'danger',
+      actionText: translate('text_629728388c4d2300e2d380f5'),
+      onAction: async () => {
+        const result = await deleteAddOn({
+          variables: { input: { id: addOn.id } },
         })
-      }
-      continueText={translate('text_629728388c4d2300e2d380f5')}
-    />
-  )
-})
 
-DeleteAddOnDialog.displayName = 'DeleteAddOnDialog'
+        if (result.data?.destroyAddOn) {
+          addToast({
+            message: translate('text_629728388c4d2300e2d3815f'),
+            severity: 'success',
+          })
+
+          callback?.()
+        }
+      },
+    })
+  }
+
+  return { openDeleteAddOnDialog }
+}

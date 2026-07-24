@@ -151,15 +151,40 @@ export const useSecurityLogsFormatting = () => {
     }
   }
 
-  const getWebhookEditedResources = (securityLog: SecurityLogWithId) => {
+  const getWebhookEditedDescription = (securityLog: SecurityLogWithId) => {
     const parsed = parseSecurityLogResource(webhookEditedResourceSchema, securityLog)
 
-    if (!parsed) return { urlFrom: 'unknown', urlTo: 'unknown' }
+    if (!parsed)
+      return translate('text_1771937987062rw8agotc8gs', { urlFrom: 'unknown', urlTo: 'unknown' })
 
-    return {
-      urlFrom: parsed.webhook_url.deleted,
-      urlTo: parsed.webhook_url.added,
+    const { webhook_url, signature_algo } = parsed
+    const urlDiff = typeof webhook_url === 'object' ? webhook_url : null
+
+    if (urlDiff && signature_algo) {
+      return translate('text_1781079269774kur4mhrgipy', {
+        urlFrom: urlDiff.deleted,
+        urlTo: urlDiff.added,
+        algoFrom: signature_algo.deleted,
+        algoTo: signature_algo.added,
+      })
     }
+
+    if (signature_algo) {
+      return translate('text_17810792697743rdztc0hzsn', {
+        algoFrom: signature_algo.deleted,
+        algoTo: signature_algo.added,
+      })
+    }
+
+    if (urlDiff) {
+      return translate('text_1771937987062rw8agotc8gs', {
+        urlFrom: urlDiff.deleted,
+        urlTo: urlDiff.added,
+      })
+    }
+
+    // webhook_url is a string and no signature_algo change — nothing meaningful to show
+    return translate('text_1771937987062rw8agotc8gs', { urlFrom: 'unknown', urlTo: 'unknown' })
   }
 
   const getSecurityLogDescription = (securityLog: SecurityLogWithId) => {
@@ -217,7 +242,7 @@ export const useSecurityLogsFormatting = () => {
       case LogEventEnum.WebhookEndpointDeleted:
         return translate('text_177193798706284nfb2tmxkb', getWebhookResources(securityLog))
       case LogEventEnum.WebhookEndpointUpdated:
-        return translate('text_1771937987062rw8agotc8gs', getWebhookEditedResources(securityLog))
+        return getWebhookEditedDescription(securityLog)
       case LogEventEnum.UserNewDeviceLoggedIn:
         return translate('text_1773415705134l01iamqr6fk', {
           email: securityLog.userEmail,

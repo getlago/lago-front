@@ -8,8 +8,12 @@ import { BasicComboBoxData, ComboBox, ComboboxDataGrouped, ComboBoxProps } from 
 const ComboBoxField = ({
   data,
   renderGroupHeader,
+  displayErrorText = true,
   ...props
-}: Omit<ComboBoxProps, 'name' | 'onChange' | 'value' | 'error'> & { dataTest?: string }) => {
+}: Omit<ComboBoxProps, 'name' | 'onChange' | 'value' | 'error'> & {
+  dataTest?: string
+  displayErrorText?: boolean
+}) => {
   const field = useFieldContext<string | undefined>()
 
   const error = useStore(field.store, (state) => state.meta.errors)
@@ -21,6 +25,7 @@ const ComboBoxField = ({
   const finalError = getErrorToDisplay({
     error,
     errorMap,
+    displayErrorText,
   })
 
   const onChange = (value: string) => {

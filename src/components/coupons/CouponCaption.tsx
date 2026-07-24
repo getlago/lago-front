@@ -12,7 +12,7 @@ import {
   CouponTypeEnum,
   CurrencyEnum,
 } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
   fragment CouponCaption on Coupon {
@@ -43,6 +43,123 @@ interface CouponCaptionProps {
   className?: string
 }
 
+type FixedAmountCaptionValues = {
+  amountCents?: unknown
+  amountCentsRemaining?: unknown
+  amountCurrency?: CurrencyEnum | null
+  frequency: CouponFrequency
+  frequencyDuration?: number | null
+  frequencyDurationRemaining?: number | null
+}
+
+type PercentageCaptionValues = {
+  percentageRate?: number | null
+  frequency: CouponFrequency
+  frequencyDuration?: number | null
+  frequencyDurationRemaining?: number | null
+}
+
+const getFixedAmountCaption = (
+  translate: TranslateFunc,
+  {
+    amountCents,
+    amountCentsRemaining,
+    amountCurrency,
+    frequency,
+    frequencyDuration,
+    frequencyDurationRemaining,
+  }: FixedAmountCaptionValues,
+): string | undefined => {
+  if (frequency === CouponFrequency.Once) {
+    return translate(
+      amountCentsRemaining ? 'text_637b4da08cd0118cd0c4486f' : 'text_632d68358f1fedc68eed3e70',
+      {
+        amount: intlFormatNumber(
+          deserializeAmount(
+            Number(amountCentsRemaining) || Number(amountCents),
+            amountCurrency || CurrencyEnum.Usd,
+          ) || 0,
+          {
+            currencyDisplay: 'symbol',
+            currency: amountCurrency || undefined,
+          },
+        ),
+      },
+    )
+  }
+
+  if (frequency === CouponFrequency.Recurring) {
+    return translate(
+      'text_632d68358f1fedc68eed3ede',
+      {
+        amount: intlFormatNumber(
+          deserializeAmount(
+            Number(amountCentsRemaining) || Number(amountCents),
+            amountCurrency || CurrencyEnum.Usd,
+          ) || 0,
+          {
+            currencyDisplay: 'symbol',
+            currency: amountCurrency || undefined,
+          },
+        ),
+        duration: frequencyDurationRemaining || frequencyDuration,
+      },
+      frequencyDurationRemaining || frequencyDuration || 1,
+    )
+  }
+
+  if (frequency === CouponFrequency.Forever) {
+    return translate('text_63c946e8bef768ead2fee35c', {
+      amount: intlFormatNumber(
+        deserializeAmount(Number(amountCents), amountCurrency || CurrencyEnum.Usd) || 0,
+        {
+          currencyDisplay: 'symbol',
+          currency: amountCurrency || undefined,
+        },
+      ),
+    })
+  }
+}
+
+const getPercentageCaption = (
+  translate: TranslateFunc,
+  {
+    percentageRate,
+    frequency,
+    frequencyDuration,
+    frequencyDurationRemaining,
+  }: PercentageCaptionValues,
+): string | undefined => {
+  if (frequency === CouponFrequency.Once) {
+    return translate('text_632d68358f1fedc68eed3eb5', {
+      rate: intlFormatNumber(Number(percentageRate) / 100 || 0, {
+        style: 'percent',
+      }),
+    })
+  }
+
+  if (frequency === CouponFrequency.Recurring) {
+    return translate(
+      'text_632d68358f1fedc68eed3ef9',
+      {
+        rate: intlFormatNumber(Number(percentageRate) / 100 || 0, {
+          style: 'percent',
+        }),
+        duration: frequencyDurationRemaining || frequencyDuration,
+      },
+      frequencyDurationRemaining || frequencyDuration || 1,
+    )
+  }
+
+  if (frequency === CouponFrequency.Forever) {
+    return translate('text_63c96b18bfbf40e9ef600e99', {
+      rate: intlFormatNumber(Number(percentageRate) / 100 || 0, {
+        style: 'percent',
+      }),
+    })
+  }
+}
+
 export const CouponCaption = memo(
   ({ coupon, variant = 'caption', className }: CouponCaptionProps) => {
     const { translate } = useInternationalization()
@@ -55,86 +172,21 @@ export const CouponCaption = memo(
         'frequencyDurationRemaining' in coupon ? coupon.frequencyDurationRemaining : undefined
       const couponType = amountCents ? CouponTypeEnum.FixedAmount : CouponTypeEnum.Percentage
 
-      if (couponType === CouponTypeEnum.FixedAmount && frequency === CouponFrequency.Once) {
-        return translate(
-          amountCentsRemaining ? 'text_637b4da08cd0118cd0c4486f' : 'text_632d68358f1fedc68eed3e70',
-          {
-            amount: intlFormatNumber(
-              deserializeAmount(
-                Number(amountCentsRemaining) || Number(amountCents),
-                amountCurrency || CurrencyEnum.Usd,
-              ) || 0,
-              {
-                currencyDisplay: 'symbol',
-                currency: amountCurrency || undefined,
-              },
-            ),
-          },
-        )
-      } else if (couponType === CouponTypeEnum.Percentage && frequency === CouponFrequency.Once) {
-        return translate('text_632d68358f1fedc68eed3eb5', {
-          rate: intlFormatNumber(Number(percentageRate) / 100 || 0, {
-            style: 'percent',
-          }),
-        })
-      } else if (
-        couponType === CouponTypeEnum.FixedAmount &&
-        frequency === CouponFrequency.Recurring
-      ) {
-        return translate(
-          'text_632d68358f1fedc68eed3ede',
-          {
-            amount: intlFormatNumber(
-              deserializeAmount(
-                Number(amountCentsRemaining) || Number(amountCents),
-                amountCurrency || CurrencyEnum.Usd,
-              ) || 0,
-              {
-                currencyDisplay: 'symbol',
-                currency: amountCurrency || undefined,
-              },
-            ),
-            duration: frequencyDurationRemaining || frequencyDuration,
-          },
-          frequencyDurationRemaining || frequencyDuration || 1,
-        )
-      } else if (
-        couponType === CouponTypeEnum.Percentage &&
-        frequency === CouponFrequency.Recurring
-      ) {
-        return translate(
-          'text_632d68358f1fedc68eed3ef9',
-          {
-            rate: intlFormatNumber(Number(percentageRate) / 100 || 0, {
-              style: 'percent',
-            }),
-            duration: frequencyDurationRemaining || frequencyDuration,
-          },
-          frequencyDurationRemaining || frequencyDuration || 1,
-        )
-      } else if (
-        couponType === CouponTypeEnum.FixedAmount &&
-        frequency === CouponFrequency.Forever
-      ) {
-        return translate('text_63c946e8bef768ead2fee35c', {
-          amount: intlFormatNumber(
-            deserializeAmount(Number(amountCents), amountCurrency || CurrencyEnum.Usd) || 0,
-            {
-              currencyDisplay: 'symbol',
-              currency: amountCurrency || undefined,
-            },
-          ),
-        })
-      } else if (
-        couponType === CouponTypeEnum.Percentage &&
-        frequency === CouponFrequency.Forever
-      ) {
-        return translate('text_63c96b18bfbf40e9ef600e99', {
-          rate: intlFormatNumber(Number(percentageRate) / 100 || 0, {
-            style: 'percent',
-          }),
-        })
-      }
+      return couponType === CouponTypeEnum.FixedAmount
+        ? getFixedAmountCaption(translate, {
+            amountCents,
+            amountCentsRemaining,
+            amountCurrency,
+            frequency,
+            frequencyDuration,
+            frequencyDurationRemaining,
+          })
+        : getPercentageCaption(translate, {
+            percentageRate,
+            frequency,
+            frequencyDuration,
+            frequencyDurationRemaining,
+          })
     }
 
     return (

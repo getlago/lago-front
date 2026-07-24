@@ -43,6 +43,14 @@ jest.mock('~/generated/graphql', () => ({
   useSwitchProgressiveBillingDisabledValueMutation: () => [mockSwitchMutation, { loading: false }],
 }))
 
+const mockOpenResetProgressiveBillingDialog = jest.fn()
+
+jest.mock('~/components/subscriptions/ResetProgressiveBillingDialog', () => ({
+  useResetProgressiveBillingDialog: () => ({
+    openResetProgressiveBillingDialog: mockOpenResetProgressiveBillingDialog,
+  }),
+}))
+
 const createMockSubscription = (overrides?: {
   id?: string
   progressiveBillingDisabled?: boolean
@@ -269,15 +277,33 @@ describe('useSubscriptionProgressiveBillingTabThresholdsHeader', () => {
     })
   })
 
-  describe('resetDialogRef', () => {
-    it('returns a ref object', () => {
+  describe('openResetDialog', () => {
+    it('opens the reset progressive billing dialog with the subscription id', () => {
       const { result } = renderHook(() =>
         useSubscriptionProgressiveBillingTabThresholdsHeader({
           subscription: createMockSubscription(),
         }),
       )
 
-      expect(result.current.resetDialogRef).toHaveProperty('current')
+      act(() => {
+        result.current.openResetDialog()
+      })
+
+      expect(mockOpenResetProgressiveBillingDialog).toHaveBeenCalledWith({
+        subscriptionId: 'subscription-123',
+      })
+    })
+
+    it('does not open the dialog when subscription is null', () => {
+      const { result } = renderHook(() =>
+        useSubscriptionProgressiveBillingTabThresholdsHeader({ subscription: null }),
+      )
+
+      act(() => {
+        result.current.openResetDialog()
+      })
+
+      expect(mockOpenResetProgressiveBillingDialog).not.toHaveBeenCalled()
     })
   })
 

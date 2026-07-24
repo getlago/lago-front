@@ -60,6 +60,30 @@ Before starting, gather context by reading these reference files:
 
 **This step is critical. Document ALL validations before proceeding.**
 
+> **⛔ CRITICAL — Formik does NOT validate raw values (`prepareDataForValidation`)**
+>
+> Formik runs Yup on `prepareDataForValidation(values)`, which **recursively converts
+> every empty string (`''`) to `undefined`** (arrays and nested objects included), and
+> passes the PREPARED values as the Yup `context` too. A literal Yup→Zod translation
+> silently diverges on every `''`-sensitive check:
+>
+> - `Number('') === 0` (passes `!isNaN`) while `Number(undefined)` is `NaN` (fails it)
+>   → "at least one of X/Y" rules stop firing on emptied fields
+> - `min <= max` cross-checks run against `0` instead of being skipped
+> - optional numeric fields (`yup.number().min().max()`) accepted an emptied input
+>   (`''` → `undefined` → not required); a raw-`''` port wrongly rejects it
+>
+> **Rule:** in the Zod schema, treat `''` as ABSENT wherever the Yup rule relied on
+> presence/`isNaN`/numeric casts. Use a tiny helper and apply it inside each check:
+>
+> ```typescript
+> const prepared = <T,>(value: T): T | undefined =>
+>   value === ('' as unknown as T) ? undefined : value
+> ```
+>
+> Reference implementation: `src/pages/wallet/formInitialization/validationSchema.ts`.
+
+
 1. **Locate validation sources** - Search for:
 
    ```typescript
@@ -171,16 +195,31 @@ Before writing any code, create a plan document:
 
 Search for `setFieldError`, `setErrors`, `setStatus` in the onSubmit handler. These are server-side errors set AFTER a mutation response and must be migrated to `formApi.setErrorMap`.
 
-| Formik Call | GQL Error | Target Field | Error Message Key | TanStack `setErrorMap` |
-| ----------- | --------- | ------------ | ----------------- | ---------------------- |
-| `formikBag.setFieldError('email', ...)` | `NotFound` | `email` | `text_xxx` | See Pattern 4 below |
+| Formik Call                             | GQL Error  | Target Field | Error Message Key | TanStack `setErrorMap` |
+| --------------------------------------- | ---------- | ------------ | ----------------- | ---------------------- |
+| `formikBag.setFieldError('email', ...)` | `NotFound` | `email`      | `text_xxx`        | See Pattern 4 below    |
 
 **If no `setFieldError`/`setErrors`/`setStatus` calls are found, write "None" and move on.**
 
 ### Submit Button Disabled Logic
 
 Current: `disabled={!formikProps.isValid || !formikProps.dirty || loading}`
-TanStack: `form.SubmitButton` handles isValid + dirty automatically
+
+TanStack: `form.SubmitButton` handles validity (`canSubmit`) + `isSubmitting` automatically.
+
+**⛔ DO NOT re-introduce a `dirty` gate.** The Formik forms commonly disabled submit on a pristine form (`!dirty`). **Do not preserve this.** The TanStack convention in this codebase is: **the submit button is enabled by default and only becomes disabled when the form has validation errors** (handled automatically by `canSubmit`). Gating on `!isDirty` is wrong — it blocks submitting a dialog when the user hasn't changed anything (e.g., re-confirming a pre-filled value), which diverges from every other migrated TanStack form. Just use a bare `<form.SubmitButton>` and let `canSubmit` do the gating.
+
+```tsx
+// ❌ WRONG — do not gate on dirty
+<form.Subscribe selector={(state) => state.isDirty}>
+  {(isDirty) => <form.SubmitButton disabled={!isDirty}>{label}</form.SubmitButton>}
+</form.Subscribe>
+
+// ✅ CORRECT — enabled by default, disabled only on validation errors (canSubmit)
+<form.SubmitButton>{label}</form.SubmitButton>
+```
+
+(Only pass `disabled` for a genuinely external concern, e.g. an unrelated loading state — never for dirtiness.)
 
 ### Validation Timing
 
@@ -408,11 +447,11 @@ When you need to **react to a field value change** (e.g., propagate a selection,
 
 **When to use `listeners` vs `useStore`:**
 
-| Use case | Tool |
-|----------|------|
-| Read a value for conditional rendering in JSX | `useStore` |
-| Execute a side-effect when a value changes | `listeners.onChange` |
-| Derive another field's value from a change | `listeners.onChange` |
+| Use case                                      | Tool                 |
+| --------------------------------------------- | -------------------- |
+| Read a value for conditional rendering in JSX | `useStore`           |
+| Execute a side-effect when a value changes    | `listeners.onChange` |
+| Derive another field's value from a change    | `listeners.onChange` |
 
 > **Reference**: See `AddBillableMetricToCouponDialog.tsx` and `NameAndCodeGroup.tsx` for real-world examples of listeners.
 
@@ -428,6 +467,7 @@ import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGrou
 ```
 
 This component:
+
 - Renders name and code fields in a 2-column grid
 - Auto-generates the `code` from `name` using `formatCodeFromName` (until the user manually edits the code field)
 - Uses the `withFieldGroup` HOC (different from `withForm` — see Advanced Patterns)
@@ -492,6 +532,8 @@ return (
 
 **Replace submit button:**
 
+Always prefer the registered `form.SubmitButton` over a manually-wired `<Button type="submit">` with `useStore` subscriptions — it internally subscribes to `canSubmit` + `isSubmitting` and adds a `loading` state for free.
+
 ```diff
 - <Button
 -   onClick={formikProps.submitForm}
@@ -504,7 +546,22 @@ return (
 + </form.AppForm>
 ```
 
-Note: `form.SubmitButton` handles `canSubmit` (validity + dirty state) automatically.
+Notes:
+
+- `form.SubmitButton` must be wrapped in `<form.AppForm>` — it reads the form via `useFormContext()`.
+- In TanStack, `canSubmit` = no validation errors + not submitting + not validating. **It does NOT include `isDirty`, and that is intentional — do NOT add a dirty gate.** Even if the original Formik code disabled on pristine forms (`!dirty`), do **not** preserve that. The codebase convention is: submit is enabled by default and only disabled when the form has validation errors (via `canSubmit`). Use a bare `<form.SubmitButton>`. See **Submit Button Disabled Logic** above.
+
+**Common mistake (do not do this):** hand-wiring a `<Button type="submit">` when the registered component already exists.
+
+```diff
+- const canSubmit = useStore(form.store, (s) => s.canSubmit)
+- <Button variant="primary" type="submit" disabled={!canSubmit}>
+-   {submitLabel}
+- </Button>
++ <form.AppForm>
++   <form.SubmitButton variant="primary">{submitLabel}</form.SubmitButton>
++ </form.AppForm>
+```
 
 #### Step 2.9: Update Field Value Changes
 
@@ -574,13 +631,41 @@ Go back to your Validation Migration Plan and verify:
 **CRITICAL: The UI before and after the migration MUST be visually identical** (unless changes are intentional UI/UX improvements).
 
 Verify:
+
 1. **Layout**: The `<form>` wrapper hasn't broken flex/grid layouts, sticky footers, or spacing
 2. **Field alignment**: All form fields maintain their original positioning and sizing
 3. **Error messages**: Error states display in the same position and style as before
 4. **Loading state**: Loading skeleton renders correctly (if using `FormLoadingSkeleton`)
 5. **Responsive behavior**: The form looks correct on different viewport sizes
 
-#### Step 3.3: Test Validation Behavior
+#### Step 3.3: Empirical Validation Parity Audit (RECOMMENDED for complex schemas)
+
+Do not trust a by-eye Yup→Zod translation — verify it EMPIRICALLY with a throwaway
+differential test before deleting the old schema:
+
+```typescript
+import { validateYupSchema } from 'formik' // the EXACT runtime path Formik used
+import { ValidationError } from 'yup'
+
+const oldErrorPaths = (values: unknown): string[] => {
+  try {
+    // sync=true; context defaults to the PREPARED values, exactly like Formik
+    validateYupSchema(values, oldYupSchema(), true)
+    return []
+  } catch (error) {
+    if (error instanceof ValidationError) return error.inner.map((e) => e.path || '')
+    throw error
+  }
+}
+// Compare against newZodSchema.safeParse(values) issue paths (normalize [0] vs .0)
+```
+
+Build a scenario matrix that includes **a `''`-variant of every string field** (plus the
+bound/cross-field combos), assert old and new produce the same invalid-field sets, then
+delete the harness. Never call `schema.validateSync` directly — it skips
+`prepareDataForValidation` and will falsely report parity.
+
+#### Step 3.4: Test Validation Behavior
 
 Manually test each validation case:
 
@@ -753,9 +838,9 @@ Many forms set server-side errors on specific fields after a mutation fails (e.g
 
 **Formik → TanStack mapping:**
 
-| Formik | TanStack Form |
-|--------|---------------|
-| `formikBag.setFieldError('email', errorMsg)` | `formApi.setErrorMap({ onDynamic: { fields: { email: { message: errorMsg, path: ['email'] } } } })` |
+| Formik                                             | TanStack Form                                                                                                                            |
+| -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `formikBag.setFieldError('email', errorMsg)`       | `formApi.setErrorMap({ onDynamic: { fields: { email: { message: errorMsg, path: ['email'] } } } })`                                      |
 | `formikBag.setErrors({ email: msg1, name: msg2 })` | `formApi.setErrorMap({ onDynamic: { fields: { email: { message: msg1, path: ['email'] }, name: { message: msg2, path: ['name'] } } } })` |
 
 **⚠️ CRITICAL: Error value format**
@@ -915,12 +1000,12 @@ Use `listeners` on `form.AppField` to react to field value changes. This is pref
 
 **When to use `listeners` vs `useStore`:**
 
-| Use case | Tool |
-|----------|------|
-| Read a value for conditional rendering in JSX | `useStore(form.store, ...)` |
-| Execute a side-effect when a value changes | `listeners={{ onChange }}` |
-| Derive another field's value from a change | `listeners={{ onChange }}` |
-| Update external state (refs, callbacks) on change | `listeners={{ onChange }}` |
+| Use case                                          | Tool                        |
+| ------------------------------------------------- | --------------------------- |
+| Read a value for conditional rendering in JSX     | `useStore(form.store, ...)` |
+| Execute a side-effect when a value changes        | `listeners={{ onChange }}`  |
+| Derive another field's value from a change        | `listeners={{ onChange }}`  |
+| Update external state (refs, callbacks) on change | `listeners={{ onChange }}`  |
 
 ### Pattern 8: `withFieldGroup` for Reusable Field Groups
 
@@ -990,12 +1075,12 @@ const NameAndCodeGroup = withFieldGroup({
 
 **Key differences: `withForm` vs `withFieldGroup`:**
 
-| Aspect | `withForm` | `withFieldGroup` |
-|--------|-----------|-----------------|
-| Purpose | Sub-component of a specific form | Reusable field group across multiple forms |
-| Receives | `form` prop | `group` prop |
-| Usage | `<MySection form={form} />` | `<NameAndCodeGroup group={form} />` |
-| Scope | Specific to one form's structure | Generic, works with any form that has matching fields |
+| Aspect   | `withForm`                       | `withFieldGroup`                                      |
+| -------- | -------------------------------- | ----------------------------------------------------- |
+| Purpose  | Sub-component of a specific form | Reusable field group across multiple forms            |
+| Receives | `form` prop                      | `group` prop                                          |
+| Usage    | `<MySection form={form} />`      | `<NameAndCodeGroup group={form} />`                   |
+| Scope    | Specific to one form's structure | Generic, works with any form that has matching fields |
 
 ### Pattern 9: Dialog with Independent Form
 
@@ -1079,6 +1164,7 @@ export const useAddItemDialog = () => {
 ```
 
 **Key points:**
+
 - The dialog has its own `useAppForm`, separate from the parent form
 - Data flows to the parent via callback (`onSelect` prop) and `useRef`
 - `useFormDialog` + `DialogActionButton` + `useSetDisabledRef` handle dialog UX
@@ -1217,6 +1303,7 @@ The `/make-tests` skill will automatically:
 - [ ] Read target form file completely
 - [ ] Identify all form fields and types
 - [ ] **Validation Analysis (CRITICAL):**
+  - [ ] **Account for `prepareDataForValidation`** — Formik validated `''` as `undefined`; map every `isNaN`/presence/numeric check with `''`-as-absent semantics
   - [ ] Locate Yup schema / validate function / field-level validations
   - [ ] Create Validation Mapping Table (Field → Yup → Zod)
   - [ ] Document cross-field validations (`.when()`, `.test()`)
@@ -1320,6 +1407,13 @@ The `/make-tests` skill will automatically:
 16. **Field shows `0` instead of placeholder**: If `defaultValues` is `0`, the field displays `0` as a value. Use `''` as default when the original form showed `0` as placeholder (visually empty field). See Pattern 11.
 17. **Dialog closes even when validation fails**: `closeDialog()` after `await form.handleSubmit()` runs unconditionally because `handleSubmit` doesn't throw on validation failure. Use the `closeDialogRef` pattern (Pattern 12) to call `closeDialog` only from inside `onSubmit`.
 18. **Translation keys added manually cause inconsistent IDs**: Always use `pnpm translations:add <count>` to generate keys. See Pattern 13.
+19. **Setting an array item on an undefined base corrupts the value**: `form.setFieldValue('rules[0]', item)` when `rules` is `undefined` creates a plain OBJECT (`{0: item}`), not an array (Formik/lodash created an array). Any `.forEach`/`Array.isArray` consumer then breaks. **Always set the whole array instead** (`form.setFieldValue('rules', [item])`); bracket-index paths are safe only on an EXISTING array.
+20. **Submit stuck in loading forever (no errors shown, no mutation fired)**: an exception thrown INSIDE the validation phase (e.g. a `superRefine` crashing on malformed data) fires after `isSubmitting=true` but before the reset — the button spins forever. `superRefine` must NEVER throw: guard array shapes with `Array.isArray`, optional chains everywhere. This symptom triad (infinite loading + zero validation errors + no network call) = throwing validator.
+21. **Zod v4 replaces empty messages with "Invalid input"**: the Yup `required('')` pattern (mark invalid without visible text) cannot be ported as `message: ''` — Zod substitutes its default "Invalid input" which then renders. Use a real translation key (generic required key: `text_1771342994699klxu2paz7g8` "Field is required") or suppress display via the wrapper's `errorOverride`/`silentError`.
+22. **Error labels needing translate variables**: the `*ForTanstack` wrappers translate message KEYS without variables — a `{{min}}/{{max}}` label renders raw placeholders. Emit the key from the schema, and let the COMPONENT translate with variables via the wrapper's `errorOverride` prop (`errorOverride={hasError ? translate(key, { min, max }) : undefined}`). `TextInputField`, `AmountInputField` and `DatePickerField` all support `errorOverride` (string replaces the error, `false` suppresses it).
+23. **Validation timing changes reviewer perception**: Formik's `validateOnMount` disabled the submit instantly; `revalidateLogic()` surfaces errors at the FIRST submit attempt, then live. Same rules, different moment — warn reviewers/QA or they will report "missing validations".
+24. **The `<form>` wrapper enables Enter-key submission**: a native form submits on Enter inside inputs — behavior the Formik version did not have. Usually desirable; flag it in the visual/UX check.
+25. **Section validity for UNMOUNTED fields**: Formik's `errors.someArray` reflected schema errors regardless of what was rendered. The TanStack equivalent for an accordion validity icon is the form-level error map, not `fieldMeta` (which only covers mounted fields). Validator-produced errors live DIRECTLY on `errorMap.onDynamic`, keyed by field path (e.g. `someArray[0].prop`) — the `.fields` sub-shape does NOT exist there; it only appears for errors set manually via `form.setErrorMap({ onDynamic: { fields: ... } })` (server errors). Read it as: `useStore(form.store, (s) => { const dynamicErrors = (s.errorMap as { onDynamic?: Record<string, unknown> })?.onDynamic ?? {}; return Object.entries(dynamicErrors).some(([k, v]) => k.startsWith('someArray') && !!v) })`.
 
 ## Usage
 

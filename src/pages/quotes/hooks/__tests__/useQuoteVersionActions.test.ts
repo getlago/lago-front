@@ -47,7 +47,7 @@ const createMockQuote = (
     number: 'QT-001',
     orderType: 'SubscriptionCreation' as QuoteListItemFragment['orderType'],
     createdAt: '2026-04-01T10:00:00Z',
-    customer: { id: 'cust-1', name: 'Acme' },
+    customer: { id: 'cust-1', displayName: 'Acme' },
     versions: [{ id: versionId, status, version }],
     ...rest,
   }
@@ -184,7 +184,7 @@ describe('useQuoteVersionActions', () => {
           number: 'QT-001',
           orderType: 'SubscriptionCreation' as QuoteListItemFragment['orderType'],
           createdAt: '2026-04-01T10:00:00Z',
-          customer: { id: 'cust-1', name: 'Acme' },
+          customer: { id: 'cust-1', displayName: 'Acme' },
           versions: [
             { id: 'v2', status: StatusEnum.Approved, version: 2 },
             { id: 'v1', status: StatusEnum.Voided, version: 1 },
@@ -210,7 +210,7 @@ describe('useQuoteVersionActions', () => {
           number: 'QT-001',
           orderType: 'SubscriptionCreation' as QuoteListItemFragment['orderType'],
           createdAt: '2026-04-01T10:00:00Z',
-          customer: { id: 'cust-1', name: 'Acme' },
+          customer: { id: 'cust-1', displayName: 'Acme' },
           versions: [
             { id: 'v2', status: StatusEnum.Approved, version: 2 },
             { id: 'v1', status: StatusEnum.Draft, version: 1 },

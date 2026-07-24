@@ -34,7 +34,12 @@ export const getCleanKey = (key: string) => {
 }
 
 const getShortcutId = (keys: string[]): string => {
-  return keys.join('').split('').sort().join('').toLowerCase()
+  return keys
+    .join('')
+    .split('')
+    .sort((a, b) => a.localeCompare(b))
+    .join('')
+    .toLowerCase()
 }
 
 type UseShortcutReturn = (shortcuts: Shortcut[]) => { isMac: boolean }

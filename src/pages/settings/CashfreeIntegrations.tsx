@@ -7,18 +7,12 @@ import { Popper } from '~/components/designSystem/Popper'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import {
-  AddCashfreeDialog,
-  AddCashfreeDialogRef,
-} from '~/components/settings/integrations/AddCashfreeDialog'
+import { useAddCashfreeDialog } from '~/components/settings/integrations/AddCashfreeDialog'
 import {
   AddEditDeleteSuccessRedirectUrlDialog,
   AddEditDeleteSuccessRedirectUrlDialogRef,
 } from '~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog'
-import {
-  DeleteCashfreeIntegrationDialog,
-  DeleteCashfreeIntegrationDialogRef,
-} from '~/components/settings/integrations/DeleteCashfreeIntegrationDialog'
+import { useDeleteCashfreeIntegrationDialog } from '~/components/settings/integrations/DeleteCashfreeIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CASHFREE_INTEGRATION_DETAILS_ROUTE, INTEGRATIONS_ROUTE, useNavigate } from '~/core/router'
 import {
@@ -61,8 +55,8 @@ gql`
 const CashfreeIntegrations = () => {
   const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
-  const addCashfreeDialogRef = useRef<AddCashfreeDialogRef>(null)
-  const deleteDialogRef = useRef<DeleteCashfreeIntegrationDialogRef>(null)
+  const { openAddCashfreeDialog } = useAddCashfreeDialog()
+  const { openDeleteCashfreeIntegrationDialog } = useDeleteCashfreeIntegrationDialog()
   const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { translate } = useInternationalization()
   const { data, loading } = useGetCashfreeIntegrationsListQuery({
@@ -110,7 +104,7 @@ const CashfreeIntegrations = () => {
               variant: 'primary',
               hidden: !canCreateIntegration,
               onClick: () => {
-                addCashfreeDialogRef.current?.openDialog()
+                openAddCashfreeDialog()
               },
             },
           ],
@@ -165,10 +159,9 @@ const CashfreeIntegrations = () => {
                               variant="quaternary"
                               align="left"
                               onClick={() => {
-                                addCashfreeDialogRef.current?.openDialog({
+                                openAddCashfreeDialog({
                                   provider: connection,
-                                  deleteModalRef: deleteDialogRef,
-                                  deleteDialogCallback,
+                                  deleteCallback: deleteDialogCallback,
                                 })
                                 closePopper()
                               }}
@@ -183,7 +176,7 @@ const CashfreeIntegrations = () => {
                               variant="quaternary"
                               align="left"
                               onClick={() => {
-                                deleteDialogRef.current?.openDialog({
+                                openDeleteCashfreeIntegrationDialog({
                                   provider: connection,
                                   callback: deleteDialogCallback,
                                 })
@@ -203,8 +196,6 @@ const CashfreeIntegrations = () => {
         </section>
       </IntegrationsPage.Container>
 
-      <AddCashfreeDialog ref={addCashfreeDialogRef} />
-      <DeleteCashfreeIntegrationDialog ref={deleteDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )

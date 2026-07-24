@@ -47,18 +47,7 @@ export default defineConfig(({ mode }) => {
     svgr({
       include: '**/*.svg',
       svgrOptions: {
-        plugins: ['@svgr/plugin-svgo', '@svgr/plugin-jsx'],
-        svgoConfig: {
-          plugins: [
-            {
-              name: 'prefixIds',
-              params: {
-                prefixIds: false,
-                prefixClassNames: false,
-              },
-            },
-          ],
-        },
+        plugins: ['@svgr/plugin-jsx'],
       },
     }),
 
@@ -149,7 +138,11 @@ export default defineConfig(({ mode }) => {
       strictPort: true,
       allowedHosts: ['app.lago.dev'],
       watch: {
-        usePolling: true,
+        // Polling is required when Vite runs inside the Docker container (bind
+        // mount doesn't deliver native fs events reliably). Host runs opt out
+        // via LAGO_DISABLE_VITE_POLLING=true to use native fsevents (instant,
+        // no polling CPU). Default (unset) keeps polling on.
+        usePolling: env.LAGO_DISABLE_VITE_POLLING !== 'true',
         interval: 1000,
         ignored: [
           '**/node_modules/**',

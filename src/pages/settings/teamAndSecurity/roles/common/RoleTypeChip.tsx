@@ -2,7 +2,7 @@ import { Status, StatusType } from '~/components/designSystem/Status'
 import { RoleItem, systemRoles } from '~/core/constants/roles'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-export type RoleTypeChipProps = {
+type RoleTypeChipProps = {
   role?: RoleItem
 }
 

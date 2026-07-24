@@ -1,8 +1,5 @@
 import { renderHook } from '@testing-library/react'
-import { RefObject } from 'react'
 
-import { AddCouponToCustomerDialogRef } from '~/components/customers/AddCouponToCustomerDialog'
-import { DeleteCustomerDialogRef } from '~/components/customers/DeleteCustomerDialog'
 import { MainHeaderDropdownAction, MainHeaderInPageAction } from '~/components/MainHeader/types'
 import { CustomerAccountTypeEnum, CustomerDetailsFragment } from '~/generated/graphql'
 
@@ -13,6 +10,7 @@ const mockTranslate = jest.fn((key: string) => key)
 const mockHasPermissions = jest.fn(() => true)
 const mockHandleDownloadFile = jest.fn()
 const mockGeneratePortalUrl = jest.fn()
+const mockOpenDeleteCustomerDialog = jest.fn()
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -58,6 +56,12 @@ jest.mock('~/generated/graphql', () => ({
   useGenerateCustomerPortalUrlMutation: () => [mockGeneratePortalUrl],
 }))
 
+jest.mock('~/components/customers/DeleteCustomerDialog', () => ({
+  useDeleteCustomerDialog: () => ({
+    openDeleteCustomerDialog: mockOpenDeleteCustomerDialog,
+  }),
+}))
+
 const createMockCustomer = (
   overrides: Partial<CustomerDetailsFragment> = {},
 ): CustomerDetailsFragment =>
@@ -71,15 +75,12 @@ const createMockCustomer = (
     ...overrides,
   }) as unknown as CustomerDetailsFragment
 
+const mockOpenAddCouponToCustomerDialog = jest.fn()
+
 const defaultParams = {
   customerId: 'cust-1',
   customer: createMockCustomer(),
-  deleteDialogRef: {
-    current: { openDialog: jest.fn() },
-  } as unknown as RefObject<DeleteCustomerDialogRef>,
-  addCouponDialogRef: {
-    current: { openDialog: jest.fn() },
-  } as unknown as RefObject<AddCouponToCustomerDialogRef>,
+  openAddCouponToCustomerDialog: mockOpenAddCouponToCustomerDialog,
 }
 
 describe('useCustomerDetailsHeaderActions', () => {
@@ -249,19 +250,15 @@ describe('useCustomerDetailsHeaderActions', () => {
       })
 
       it('THEN should navigate to customers list after delete', () => {
-        const onDeletedCapture = { fn: jest.fn() as (() => void) | undefined }
+        let capturedOnDeleted: (() => void) | undefined
 
-        const deleteDialogRef = {
-          current: {
-            openDialog: jest.fn(({ onDeleted }: { onDeleted: () => void }) => {
-              onDeletedCapture.fn = onDeleted
-            }),
+        mockOpenDeleteCustomerDialog.mockImplementationOnce(
+          ({ onDeleted }: { onDeleted: () => void }) => {
+            capturedOnDeleted = onDeleted
           },
-        } as unknown as RefObject<DeleteCustomerDialogRef>
-
-        const { result } = renderHook(() =>
-          useCustomerDetailsHeaderActions({ ...defaultParams, deleteDialogRef }),
         )
+
+        const { result } = renderHook(() => useCustomerDetailsHeaderActions(defaultParams))
 
         const dropdownAction = result.current[1] as MainHeaderDropdownAction
         const closePopper = jest.fn()
@@ -269,7 +266,7 @@ describe('useCustomerDetailsHeaderActions', () => {
         dropdownAction.items[6].onClick(closePopper)
 
         // Simulate the onDeleted callback
-        onDeletedCapture.fn?.()
+        capturedOnDeleted?.()
 
         expect(mockNavigate).toHaveBeenCalledWith('/customers')
       })
@@ -282,10 +279,7 @@ describe('useCustomerDetailsHeaderActions', () => {
 
         dropdownAction.items[6].onClick(closePopper)
 
-        expect(
-          (defaultParams.deleteDialogRef.current as unknown as { openDialog: jest.Mock })
-            .openDialog,
-        ).toHaveBeenCalled()
+        expect(mockOpenDeleteCustomerDialog).toHaveBeenCalled()
         expect(closePopper).toHaveBeenCalled()
       })
 
@@ -297,10 +291,7 @@ describe('useCustomerDetailsHeaderActions', () => {
 
         dropdownAction.items[3].onClick(closePopper)
 
-        expect(
-          (defaultParams.addCouponDialogRef.current as unknown as { openDialog: jest.Mock })
-            .openDialog,
-        ).toHaveBeenCalled()
+        expect(mockOpenAddCouponToCustomerDialog).toHaveBeenCalled()
         expect(closePopper).toHaveBeenCalled()
       })
     })

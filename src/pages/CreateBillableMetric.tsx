@@ -19,7 +19,7 @@ import { Chip } from '~/components/designSystem/Chip'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import {
   BasicMultipleComboBoxData,
   ButtonSelector,
@@ -91,7 +91,7 @@ const CreateBillableMetric = () => {
     isDuplicate,
   })
 
-  const warningDirtyAttributesDialogRef = useRef<WarningDialogRef>(null)
+  const centralizedDialog = useCentralizedDialog()
   const customExpressionDrawerRef = useRef<CustomExpressionDrawerRef>(null)
   const canBeEdited =
     isDuplicate || (!billableMetric?.hasSubscriptions && !billableMetric?.hasPlans)
@@ -248,7 +248,19 @@ const CreateBillableMetric = () => {
           icon="close"
           onClick={() =>
             formikProps.dirty
-              ? warningDirtyAttributesDialogRef.current?.openDialog()
+              ? centralizedDialog.open({
+                  title: translate(
+                    isEdition ? 'text_62583bbb86abcf01654f693f' : 'text_6244277fe0975300fe3fb940',
+                  ),
+                  description: translate(
+                    isEdition ? 'text_62583bbb86abcf01654f6943' : 'text_6244277fe0975300fe3fb946',
+                  ),
+                  actionText: translate(
+                    isEdition ? 'text_62583bbb86abcf01654f694b' : 'text_6244277fe0975300fe3fb94c',
+                  ),
+                  colorVariant: 'danger',
+                  onAction: () => navigate(BILLABLE_METRICS_ROUTE),
+                })
               : navigate(BILLABLE_METRICS_ROUTE)
           }
         />
@@ -865,19 +877,6 @@ const CreateBillableMetric = () => {
       <CustomExpressionDrawer
         ref={customExpressionDrawerRef}
         onSave={(expression: string) => formikProps.setFieldValue('expression', expression)}
-      />
-      <WarningDialog
-        ref={warningDirtyAttributesDialogRef}
-        title={translate(
-          isEdition ? 'text_62583bbb86abcf01654f693f' : 'text_6244277fe0975300fe3fb940',
-        )}
-        description={translate(
-          isEdition ? 'text_62583bbb86abcf01654f6943' : 'text_6244277fe0975300fe3fb946',
-        )}
-        continueText={translate(
-          isEdition ? 'text_62583bbb86abcf01654f694b' : 'text_6244277fe0975300fe3fb94c',
-        )}
-        onContinue={() => navigate(BILLABLE_METRICS_ROUTE)}
       />
     </div>
   )

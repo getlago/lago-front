@@ -58,6 +58,54 @@ describe('TypographyWithCopy', () => {
     })
   })
 
+  describe('GIVEN the compact prop', () => {
+    describe('WHEN compact is not set', () => {
+      it('THEN should keep the default negative-margin button layout', () => {
+        render(<TypographyWithCopy>some-code</TypographyWithCopy>)
+
+        const button = screen.getByTestId(TYPOGRAPHY_WITH_COPY_BUTTON_TEST_ID)
+
+        expect(button).toHaveClass('-ml-1')
+        expect(button).not.toHaveClass('!items-baseline')
+      })
+
+      it('THEN should not apply the baseline line-height nudge to the text', () => {
+        render(<TypographyWithCopy>some-code</TypographyWithCopy>)
+
+        expect(screen.getByText('some-code')).not.toHaveClass('!leading-[26px]')
+      })
+    })
+
+    describe('WHEN compact is set', () => {
+      it('THEN should hug its content and baseline-align via important utilities', () => {
+        render(<TypographyWithCopy compact>some-code</TypographyWithCopy>)
+
+        const button = screen.getByTestId(TYPOGRAPHY_WITH_COPY_BUTTON_TEST_ID)
+
+        expect(button).toHaveClass('-ml-1')
+        expect(button).not.toHaveClass('!ml-0')
+        expect(button).toHaveClass('!h-auto')
+        expect(button).toHaveClass('!items-baseline')
+      })
+
+      it('THEN should apply the line-height nudge to the text for baseline alignment', () => {
+        render(<TypographyWithCopy compact>some-code</TypographyWithCopy>)
+
+        expect(screen.getByText('some-code')).toHaveClass('!leading-[26px]')
+      })
+
+      it('THEN should still copy the value when clicked', async () => {
+        const user = userEvent.setup()
+
+        render(<TypographyWithCopy compact>compact-code</TypographyWithCopy>)
+
+        await user.click(screen.getByTestId(TYPOGRAPHY_WITH_COPY_BUTTON_TEST_ID))
+
+        expect(copyToClipboard).toHaveBeenCalledWith('compact-code')
+      })
+    })
+  })
+
   describe('GIVEN the component is rendered with masked props', () => {
     describe('WHEN masked with maskOptions', () => {
       it('THEN should display the masked text', () => {

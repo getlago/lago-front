@@ -4,28 +4,6 @@ import { InvoiceTypeEnum } from '~/generated/graphql'
 
 export const INVOICE_FIXTURE_ID = '1234'
 
-export const fourOFourInvoiceMock = () => ({
-  mock: {
-    invoice: {
-      id: INVOICE_FIXTURE_ID,
-      refundableAmountCents: '0',
-      creditableAmountCents: '0',
-      paymentDisputeLostAt: null,
-      invoiceType: InvoiceTypeEnum.Subscription,
-      fees: [],
-      invoiceSubscriptions: [],
-      currency: 'EUR',
-      number: 'HOO-AFA3-004-002',
-      paymentStatus: 'pending',
-      subTotalIncludingTaxesAmountCents: '0',
-      couponsAmountCents: '0',
-      feesAmountCents: '0',
-      versionNumber: 3,
-      __typename: 'Invoice',
-    },
-  },
-})
-
 export const fullSubscriptionInvoiceMockAndExpect = () => ({
   mock: {
     invoice: {
@@ -84,6 +62,7 @@ export const fullSubscriptionInvoiceMockAndExpect = () => ({
               creditableAmountCents: '100',
               trueUpFee: null,
               pricingGroupKeys: [],
+              presentationGroupKeys: [],
               charge: null,
               chargeFilter: null,
               __typename: 'Fee',
@@ -98,6 +77,7 @@ export const fullSubscriptionInvoiceMockAndExpect = () => ({
               creditableAmountCents: '2699900',
               trueUpFee: null,
               pricingGroupKeys: [],
+              presentationGroupKeys: [],
               charge: {
                 id: 'invoice-subscription-fee-2-charge-id',
                 billableMetric: {
@@ -147,6 +127,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
           appliedTaxes: [],
           trueUpFee: null,
           pricingGroupKeys: [],
+          presentationGroupKeys: [],
           charge: null,
           chargeFilter: null,
           __typename: 'Fee',
@@ -165,6 +146,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
             __typename: 'Fee',
           },
           pricingGroupKeys: [],
+          presentationGroupKeys: [],
           charge: null,
           chargeFilter: null,
           __typename: 'Fee',
@@ -180,6 +162,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
           appliedTaxes: [],
           trueUpFee: null,
           pricingGroupKeys: [],
+          presentationGroupKeys: [],
           charge: null,
           chargeFilter: null,
           __typename: 'Fee',
@@ -195,6 +178,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
           appliedTaxes: [],
           trueUpFee: null,
           pricingGroupKeys: [],
+          presentationGroupKeys: [],
           charge: null,
           chargeFilter: null,
           __typename: 'Fee',
@@ -210,6 +194,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
           appliedTaxes: [],
           trueUpFee: null,
           pricingGroupKeys: [],
+          presentationGroupKeys: [],
           charge: null,
           chargeFilter: null,
           __typename: 'Fee',
@@ -225,6 +210,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
           appliedTaxes: [],
           trueUpFee: null,
           pricingGroupKeys: [],
+          presentationGroupKeys: [],
           charge: null,
           chargeFilter: null,
           __typename: 'Fee',
@@ -240,6 +226,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
           appliedTaxes: [],
           trueUpFee: null,
           pricingGroupKeys: [],
+          presentationGroupKeys: [],
           charge: null,
           chargeFilter: null,
           __typename: 'Fee',
@@ -255,6 +242,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
           appliedTaxes: [],
           trueUpFee: null,
           pricingGroupKeys: [],
+          presentationGroupKeys: [],
           charge: null,
           chargeFilter: null,
           __typename: 'Fee',
@@ -270,6 +258,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
           appliedTaxes: [],
           trueUpFee: null,
           pricingGroupKeys: [],
+          presentationGroupKeys: [],
           charge: null,
           chargeFilter: null,
           __typename: 'Fee',
@@ -299,6 +288,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
               invoiceDisplayName: 'Invoice custom name',
               trueUpFee: null,
               pricingGroupKeys: [],
+              presentationGroupKeys: [],
               charge: null,
               chargeFilter: null,
               __typename: 'Fee',
@@ -316,6 +306,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
                 __typename: 'Fee',
               },
               pricingGroupKeys: [],
+              presentationGroupKeys: [],
               charge: {
                 id: '5ff24500-2c67-4872-9808-746c59e94d38',
                 billableMetric: {
@@ -345,6 +336,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
               invoiceDisplayName: 'Invoice custom name',
               trueUpFee: null,
               pricingGroupKeys: [],
+              presentationGroupKeys: [],
               charge: {
                 id: '5ff24500-2c67-4872-9808-746c59e94d38',
                 billableMetric: {
@@ -374,6 +366,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
               invoiceDisplayName: null,
               trueUpFee: null,
               pricingGroupKeys: [],
+              presentationGroupKeys: [],
               charge: {
                 id: '5ff24500-2c67-4872-9808-746c59e94d38',
                 billableMetric: {
@@ -403,6 +396,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
               invoiceDisplayName: null,
               trueUpFee: null,
               pricingGroupKeys: [],
+              presentationGroupKeys: [],
               charge: {
                 id: '5ff24500-2c67-4872-9808-746c59e94d38',
                 billableMetric: {
@@ -425,6 +419,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
               invoiceDisplayName: null,
               trueUpFee: null,
               pricingGroupKeys: [],
+              presentationGroupKeys: [],
               charge: {
                 id: '594fe1d1-69f1-4b47-8cae-9c76fd409f76',
                 billableMetric: {
@@ -484,6 +479,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
               invoiceDisplayName: 'Invoice custom name',
               trueUpFee: null,
               pricingGroupKeys: [],
+              presentationGroupKeys: [],
               charge: {
                 id: '2030bb05-e627-40a5-b420-538fb6fbecab',
                 billableMetric: {
@@ -506,6 +502,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
               invoiceDisplayName: 'Invoice custom name',
               trueUpFee: null,
               pricingGroupKeys: [],
+              presentationGroupKeys: [],
               charge: {
                 id: '2030bb05-e627-40a5-b420-538fb6fbecac',
                 billableMetric: {

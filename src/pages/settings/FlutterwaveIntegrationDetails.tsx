@@ -15,14 +15,8 @@ import {
   AddEditDeleteSuccessRedirectUrlDialog,
   AddEditDeleteSuccessRedirectUrlDialogRef,
 } from '~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog'
-import {
-  AddFlutterwaveDialog,
-  AddFlutterwaveDialogRef,
-} from '~/components/settings/integrations/AddFlutterwaveDialog'
-import {
-  DeleteFlutterwaveIntegrationDialog,
-  DeleteFlutterwaveIntegrationDialogRef,
-} from '~/components/settings/integrations/DeleteFlutterwaveIntegrationDialog'
+import { useAddFlutterwaveDialog } from '~/components/settings/integrations/AddFlutterwaveDialog'
+import { useDeleteFlutterwaveIntegrationDialog } from '~/components/settings/integrations/DeleteFlutterwaveIntegrationDialog'
 import { addToast, envGlobalVar } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { FLUTTERWAVE_INTEGRATION_ROUTE, INTEGRATIONS_ROUTE, useNavigate } from '~/core/router'
@@ -72,8 +66,8 @@ const FlutterwaveIntegrationDetails = () => {
   const navigate = useNavigate()
   const { integrationId } = useParams()
   const { hasPermissions } = usePermissions()
-  const addDialogRef = useRef<AddFlutterwaveDialogRef>(null)
-  const deleteDialogRef = useRef<DeleteFlutterwaveIntegrationDialogRef>(null)
+  const { openAddFlutterwaveDialog } = useAddFlutterwaveDialog()
+  const { openDeleteFlutterwaveIntegrationDialog } = useDeleteFlutterwaveIntegrationDialog()
   const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { apiUrl } = envGlobalVar()
   // CRITICAL: this organizationId is baked into a webhook URL the user copies
@@ -159,10 +153,9 @@ const FlutterwaveIntegrationDetails = () => {
                   label: translate('text_65845f35d7d69c3ab4793dac'),
                   hidden: !canEditIntegration,
                   onClick: (closePopper) => {
-                    addDialogRef.current?.openDialog({
+                    openAddFlutterwaveDialog({
                       provider: flutterwavePaymentProvider,
-                      deleteModalRef: deleteDialogRef,
-                      deleteDialogCallback,
+                      deleteCallback: deleteDialogCallback,
                     })
                     closePopper()
                   },
@@ -171,7 +164,7 @@ const FlutterwaveIntegrationDetails = () => {
                   label: translate('text_65845f35d7d69c3ab4793dad'),
                   hidden: !canDeleteIntegration,
                   onClick: (closePopper) => {
-                    deleteDialogRef.current?.openDialog({
+                    openDeleteFlutterwaveIntegrationDialog({
                       provider: flutterwavePaymentProvider,
                       callback: deleteDialogCallback,
                     })
@@ -199,10 +192,9 @@ const FlutterwaveIntegrationDetails = () => {
                 variant="quaternary"
                 align="left"
                 onClick={() => {
-                  addDialogRef.current?.openDialog({
+                  openAddFlutterwaveDialog({
                     provider: flutterwavePaymentProvider,
-                    deleteModalRef: deleteDialogRef,
-                    deleteDialogCallback,
+                    deleteCallback: deleteDialogCallback,
                   })
                 }}
               >
@@ -385,8 +377,6 @@ const FlutterwaveIntegrationDetails = () => {
         </section>
       </div>
 
-      <AddFlutterwaveDialog ref={addDialogRef} />
-      <DeleteFlutterwaveIntegrationDialog ref={deleteDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </div>
   )

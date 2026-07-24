@@ -1,6 +1,11 @@
 import { defineConfig } from 'cypress'
+import vitePreprocessor from 'cypress-vite'
 import dotenv from 'dotenv'
 import fs from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 dotenv.config({ path: '../.env' })
 
@@ -11,6 +16,7 @@ export default defineConfig({
     baseUrl: process.env.CYPRESS_APP_URL,
     experimentalRunAllSpecs: true,
     setupNodeEvents(on) {
+      on('file:preprocessor', vitePreprocessor(path.resolve(__dirname, 'vite.config.ts')))
       on('after:spec', (_spec, results) => {
         if (results && results.video) {
           // Do we have failures for any retry attempts?

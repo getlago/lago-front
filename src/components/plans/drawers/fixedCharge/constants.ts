@@ -11,6 +11,7 @@ export interface FixedChargeDrawerFormValues {
   addOn: AddOnForFixedChargesSectionFragment
   applyUnitsImmediately: boolean
   chargeModel: FixedChargeChargeModelEnum
+  code: string
   id?: string
   invoiceDisplayName: string
   payInAdvance: boolean
@@ -25,6 +26,7 @@ export const DEFAULT_VALUES: FixedChargeDrawerFormValues = {
   addOn: { id: '', name: '', code: '' },
   applyUnitsImmediately: false,
   chargeModel: FixedChargeChargeModelEnum.Standard,
+  code: '',
   id: undefined,
   invoiceDisplayName: '',
   payInAdvance: false,

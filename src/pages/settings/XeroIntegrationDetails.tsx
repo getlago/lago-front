@@ -9,11 +9,8 @@ import {
   AddEditDeleteSuccessRedirectUrlDialog,
   AddEditDeleteSuccessRedirectUrlDialogRef,
 } from '~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog'
-import { AddXeroDialog, AddXeroDialogRef } from '~/components/settings/integrations/AddXeroDialog'
-import {
-  DeleteXeroIntegrationDialog,
-  DeleteXeroIntegrationDialogRef,
-} from '~/components/settings/integrations/DeleteXeroIntegrationDialog'
+import { useAddXeroDialog } from '~/components/settings/integrations/AddXeroDialog'
+import { useDeleteXeroIntegrationDialog } from '~/components/settings/integrations/DeleteXeroIntegrationDialog'
 import XeroIntegrationItemsList from '~/components/settings/integrations/XeroIntegrationItemsList'
 import XeroIntegrationSettings from '~/components/settings/integrations/XeroIntegrationSettings'
 import { addToast, envGlobalVar } from '~/core/apolloClient'
@@ -82,8 +79,8 @@ const XeroIntegrationDetails = () => {
   const navigate = useNavigate()
   const { nangoPublicKey } = envGlobalVar()
   const { integrationId = '' } = useParams()
-  const addXeroDialogRef = useRef<AddXeroDialogRef>(null)
-  const deleteDialogRef = useRef<DeleteXeroIntegrationDialogRef>(null)
+  const { openAddXeroDialog } = useAddXeroDialog()
+  const { openDeleteXeroIntegrationDialog } = useDeleteXeroIntegrationDialog()
   const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { translate } = useInternationalization()
   const { data, loading } = useGetXeroIntegrationsDetailsQuery({
@@ -108,6 +105,12 @@ const XeroIntegrationDetails = () => {
         generatePath(INTEGRATIONS_ROUTE, { integrationGroup: IntegrationsTabsOptionsEnum.Lago }),
       )
     }
+  }
+  const openDeleteDialog = () => {
+    openDeleteXeroIntegrationDialog({
+      provider: xeroIntegration,
+      callback: deleteDialogCallback,
+    })
   }
 
   return (
@@ -144,9 +147,8 @@ const XeroIntegrationDetails = () => {
                 {
                   label: translate('text_65845f35d7d69c3ab4793dac'),
                   onClick: (closePopper) => {
-                    addXeroDialogRef.current?.openDialog({
+                    openAddXeroDialog({
                       provider: xeroIntegration,
-                      deleteModalRef: deleteDialogRef,
                       deleteDialogCallback,
                     })
                     closePopper()
@@ -177,10 +179,7 @@ const XeroIntegrationDetails = () => {
                 {
                   label: translate('text_65845f35d7d69c3ab4793dad'),
                   onClick: (closePopper) => {
-                    deleteDialogRef.current?.openDialog({
-                      provider: xeroIntegration,
-                      callback: deleteDialogCallback,
-                    })
+                    openDeleteDialog()
                     closePopper()
                   },
                 },
@@ -213,8 +212,6 @@ const XeroIntegrationDetails = () => {
 
       <>{activeTabContent}</>
 
-      <AddXeroDialog ref={addXeroDialogRef} />
-      <DeleteXeroIntegrationDialog ref={deleteDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )

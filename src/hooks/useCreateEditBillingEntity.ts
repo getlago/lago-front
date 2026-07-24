@@ -33,6 +33,7 @@ gql`
     legalNumber
     taxIdentificationNumber
     email
+    phone
     addressLine1
     addressLine2
     zipcode

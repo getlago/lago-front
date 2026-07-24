@@ -16,7 +16,7 @@ type SupportedFormFormat = {
   }>
 }
 
-export type MetadataFormProps<T extends SupportedFormFormat = SupportedFormFormat> = {
+type MetadataFormProps<T extends SupportedFormFormat = SupportedFormFormat> = {
   formikProps: FormikProps<T>
   maxMetadataCount?: number
   maxKeyLength?: number

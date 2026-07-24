@@ -123,6 +123,7 @@ describe('useNotFoundRedirect', () => {
 
         await waitFor(() => {
           expect(captureException).toHaveBeenCalledWith(notFoundError, {
+            level: 'warning',
             tags: {
               errorType: 'NotFoundRedirect',
               fromPath: window.location.pathname,

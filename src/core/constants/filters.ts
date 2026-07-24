@@ -33,3 +33,17 @@ export const SUBSCRIPTION_LIST_FILTER_PREFIX = 'sub'
 export const SECURITY_LOGS_FILTER_PREFIX = 'secul'
 
 export const QUOTE_LIST_FILTER_PREFIX = 'qu'
+
+export const ORDER_FORM_LIST_FILTER_PREFIX = 'of'
+
+export const ORDER_LIST_FILTER_PREFIX = 'or'
+
+export const CUSTOMER_ANALYTICS_FILTER_PREFIX = 'cua'
+
+export const CUSTOMER_INVOICES_DRAFT_FILTER_PREFIX = 'cid'
+
+export const CUSTOMER_INVOICES_FINALIZED_FILTER_PREFIX = 'cif'
+
+export const CUSTOMER_PAYMENTS_FILTER_PREFIX = 'cpa'
+
+export const CUSTOMER_CREDIT_NOTES_FILTER_PREFIX = 'ccn'

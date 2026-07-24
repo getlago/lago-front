@@ -86,6 +86,33 @@ describe('printHtmlContent', () => {
         expect(mockDoc.head.appendChild).toHaveBeenCalled()
       })
 
+      it('THEN should reset html/body overflow so long content paginates', () => {
+        const mockDoc = createMockIframeDoc()
+        const mockPrint = jest.fn()
+
+        jest.spyOn(document, 'createElement').mockReturnValueOnce({
+          style: {} as CSSStyleDeclaration,
+          contentDocument: mockDoc,
+          contentWindow: { print: mockPrint, onafterprint: null },
+          remove: removeSpy,
+        } as unknown as HTMLIFrameElement)
+
+        printHtmlContent('<p>Hello</p>')
+
+        const appendedStyles = (mockDoc.head.appendChild as jest.Mock).mock.calls
+          .map((call) => call[0] as HTMLElement)
+          .filter((el) => el.tagName === 'STYLE')
+        const printReset = appendedStyles.find((el) =>
+          el.textContent?.includes('overflow: visible !important'),
+        )
+
+        // Without this reset, the SPA's copied `html, body { overflow: hidden }`
+        // clips the print to a single page.
+        expect(printReset).toBeDefined()
+        expect(printReset?.textContent).toContain('html, body')
+        expect(printReset?.textContent).toContain('height: auto !important')
+      })
+
       it('THEN should call print on the iframe contentWindow', async () => {
         const mockDoc = createMockIframeDoc()
         const mockPrint = jest.fn()
@@ -103,6 +130,26 @@ describe('printHtmlContent', () => {
         await jest.runAllTimersAsync()
 
         expect(mockPrint).toHaveBeenCalledTimes(1)
+      })
+
+      it('THEN should give the iframe a sane off-screen page-sized layout box', () => {
+        const mockDoc = createMockIframeDoc()
+        const mockPrint = jest.fn()
+        const mockIframe = {
+          style: {} as CSSStyleDeclaration,
+          contentDocument: mockDoc,
+          contentWindow: { print: mockPrint, onafterprint: null },
+          remove: removeSpy,
+        } as unknown as HTMLIFrameElement
+
+        jest.spyOn(document, 'createElement').mockReturnValueOnce(mockIframe)
+
+        printHtmlContent('<p>Hello</p>')
+
+        expect(mockIframe.style.width).toBeTruthy()
+        expect(mockIframe.style.width).not.toBe('0')
+        expect(mockIframe.style.height).toBeTruthy()
+        expect(mockIframe.style.height).not.toBe('0')
       })
     })
   })
@@ -173,9 +220,9 @@ describe('printHtmlContent', () => {
 
         printHtmlContent('<p>Hello</p>')
 
-        // Flush only the microtask queue (promise chain) without advancing timers
-        await Promise.resolve()
-        await Promise.resolve()
+        // Drain the microtask queue (resource-wait promise chain) without
+        // advancing to the safety/fallback timers.
+        await jest.advanceTimersByTimeAsync(0)
 
         expect(mockPrint).toHaveBeenCalled()
         expect(captured.onafterprint).toBeDefined()
@@ -315,6 +362,186 @@ describe('printHtmlContent', () => {
         await jest.runAllTimersAsync()
 
         expect(mockPrint).toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN a title option', () => {
+    describe('WHEN printHtmlContent is called', () => {
+      it('THEN should swap the parent document title to it and restore it after printing', async () => {
+        const originalTitle = document.title
+
+        document.title = 'Lago - Local'
+
+        const mockDoc = createMockIframeDoc()
+        const captured: { onafterprint: (() => void) | null } = { onafterprint: null }
+        const mockPrint = jest.fn()
+
+        const contentWindow = {
+          print: mockPrint,
+          set onafterprint(cb: (() => void) | null) {
+            captured.onafterprint = cb
+          },
+          get onafterprint() {
+            return captured.onafterprint
+          },
+        }
+
+        jest.spyOn(document, 'createElement').mockReturnValueOnce({
+          style: {} as CSSStyleDeclaration,
+          contentDocument: mockDoc,
+          contentWindow,
+          remove: removeSpy,
+        } as unknown as HTMLIFrameElement)
+
+        printHtmlContent('<p>Hello</p>', { title: 'OF-2026-0012' })
+
+        // Drain microtasks (not the fake timers) so the resource-wait chain
+        // settles and the finally block runs, without firing the safety timeout.
+        await jest.advanceTimersByTimeAsync(0)
+
+        // Before printing finishes, the parent title is the requested filename.
+        expect(document.title).toBe('OF-2026-0012')
+
+        // After printing finishes, the original parent title is restored.
+        captured.onafterprint?.()
+        expect(document.title).toBe('Lago - Local')
+
+        document.title = originalTitle
+      })
+
+      it('THEN should set the iframe document title', () => {
+        const mockDoc = createMockIframeDoc()
+        const mockPrint = jest.fn()
+
+        jest.spyOn(document, 'createElement').mockReturnValueOnce({
+          style: {} as CSSStyleDeclaration,
+          contentDocument: mockDoc,
+          contentWindow: { print: mockPrint, onafterprint: null },
+          remove: removeSpy,
+        } as unknown as HTMLIFrameElement)
+
+        printHtmlContent('<p>Hello</p>', { title: 'OF-2026-0012' })
+
+        expect((mockDoc as unknown as { title: string }).title).toBe('OF-2026-0012')
+      })
+    })
+  })
+
+  describe('GIVEN images in the print content (e.g. uploaded quote images via signed URLs)', () => {
+    const mockIframeWith = (mockDoc: ReturnType<typeof createMockIframeDoc>, print: jest.Mock) => {
+      jest.spyOn(document, 'createElement').mockReturnValueOnce({
+        style: {} as CSSStyleDeclaration,
+        contentDocument: mockDoc,
+        contentWindow: { print, onafterprint: null },
+        remove: removeSpy,
+      } as unknown as HTMLIFrameElement)
+    }
+
+    const imgWithComplete = (complete: boolean) => {
+      const img = document.createElement('img')
+
+      Object.defineProperty(img, 'complete', { value: complete, configurable: true })
+
+      return img
+    }
+
+    describe('WHEN an image has not finished loading', () => {
+      it('THEN should NOT print until the image fires load, THEN prints', async () => {
+        const mockDoc = createMockIframeDoc()
+        const img = imgWithComplete(false)
+
+        mockDoc.querySelectorAll = jest.fn((selector: string) =>
+          selector === 'img' ? [img] : [],
+        ) as unknown as typeof mockDoc.querySelectorAll
+
+        const mockPrint = jest.fn()
+
+        mockIframeWith(mockDoc, mockPrint)
+
+        printHtmlContent('<img src="https://signed/blob-1" />')
+
+        // Flush microtasks only (not fake timers): the empty stylesheet wait
+        // resolves, but the still-loading image must keep printing blocked.
+        await Promise.resolve()
+        await Promise.resolve()
+        expect(mockPrint).not.toHaveBeenCalled()
+
+        // Image finishes loading → printing proceeds.
+        img.dispatchEvent(new Event('load'))
+        await jest.runAllTimersAsync()
+        expect(mockPrint).toHaveBeenCalledTimes(1)
+      })
+
+      it('THEN should proceed to print when the image errors (broken src)', async () => {
+        const mockDoc = createMockIframeDoc()
+        const img = imgWithComplete(false)
+
+        mockDoc.querySelectorAll = jest.fn((selector: string) =>
+          selector === 'img' ? [img] : [],
+        ) as unknown as typeof mockDoc.querySelectorAll
+
+        const mockPrint = jest.fn()
+
+        mockIframeWith(mockDoc, mockPrint)
+
+        printHtmlContent('<img src="https://signed/broken" />')
+
+        await Promise.resolve()
+        await Promise.resolve()
+        expect(mockPrint).not.toHaveBeenCalled()
+
+        img.dispatchEvent(new Event('error'))
+        await jest.runAllTimersAsync()
+        expect(mockPrint).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    describe('WHEN an image is already complete', () => {
+      it('THEN should print without waiting for a load event', async () => {
+        const mockDoc = createMockIframeDoc()
+        const img = imgWithComplete(true)
+        const addSpy = jest.spyOn(img, 'addEventListener')
+
+        mockDoc.querySelectorAll = jest.fn((selector: string) =>
+          selector === 'img' ? [img] : [],
+        ) as unknown as typeof mockDoc.querySelectorAll
+
+        const mockPrint = jest.fn()
+
+        mockIframeWith(mockDoc, mockPrint)
+
+        printHtmlContent('<img src="https://signed/blob-1" />')
+        await jest.runAllTimersAsync()
+
+        expect(addSpy).not.toHaveBeenCalledWith('load', expect.any(Function))
+        expect(mockPrint).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    describe('WHEN an image never loads', () => {
+      it('THEN should still print after the safety timeout so it never hangs', async () => {
+        const mockDoc = createMockIframeDoc()
+        const img = imgWithComplete(false)
+
+        mockDoc.querySelectorAll = jest.fn((selector: string) =>
+          selector === 'img' ? [img] : [],
+        ) as unknown as typeof mockDoc.querySelectorAll
+
+        const mockPrint = jest.fn()
+
+        mockIframeWith(mockDoc, mockPrint)
+
+        printHtmlContent('<img src="https://signed/stalled" />')
+
+        await Promise.resolve()
+        await Promise.resolve()
+        expect(mockPrint).not.toHaveBeenCalled()
+
+        // No load/error ever fires; advancing timers past the bounded wait must
+        // still print (never hang the download).
+        await jest.runAllTimersAsync()
+        expect(mockPrint).toHaveBeenCalledTimes(1)
       })
     })
   })

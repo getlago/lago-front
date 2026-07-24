@@ -6,10 +6,6 @@ import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Typography } from '~/components/designSystem/Typography'
-import {
-  DeleteAdjustedFeeDialog,
-  DeleteAdjustedFeeDialogRef,
-} from '~/components/invoices/details/DeleteAdjustedFeeDialog'
 import { EditFeeDrawer, EditFeeDrawerRef } from '~/components/invoices/details/EditFeeDrawer'
 import { InvoiceDetailsTable } from '~/components/invoices/details/InvoiceDetailsTable'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
@@ -39,8 +35,6 @@ import {
   LagoApiError,
   useFetchDraftInvoiceTaxesMutation,
   useGetCustomerQuery,
-  useGetInvoiceDetailsQuery,
-  useGetInvoiceFeesQuery,
   usePreviewAdjustedFeeMutation,
   useRegenerateInvoiceMutation,
   useVoidInvoiceMutation,
@@ -48,19 +42,12 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
+import { useInvoiceBuildRegenerationPreview } from '~/pages/invoiceDetails/common/useInvoiceBuildRegenerationPreview'
 import { InvoiceQuickInfo } from '~/pages/InvoiceOverview'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
 gql`
-  fragment FeeForCustomerInvoiceRegenerate on Fee {
-    id
-    appliedTaxes {
-      id
-      taxCode
-    }
-  }
-
   mutation regenerateInvoice($input: RegenerateInvoiceInput!) {
     regenerateFromVoided(input: $input) {
       id
@@ -115,29 +102,23 @@ const CustomerInvoiceRegenerate = () => {
   const { customerId, invoiceId } = useParams()
   const navigate = useNavigate()
 
-  const deleteAdjustedFeeDialogRef = useRef<DeleteAdjustedFeeDialogRef>(null)
   const editFeeDrawerRef = useRef<EditFeeDrawerRef>(null)
 
-  const { data, loading, error } = useGetInvoiceDetailsQuery({
-    variables: { id: invoiceId as string },
-    skip: !invoiceId,
-  })
+  const {
+    invoiceBuildRegenerationPreview: invoice,
+    loading,
+    error,
+  } = useInvoiceBuildRegenerationPreview(invoiceId)
 
   const { data: fullCustomer } = useGetCustomerQuery({
     variables: {
-      id: data?.invoice?.customer?.id as string,
+      id: invoice?.customer?.id as string,
     },
-    skip: !data?.invoice?.customer?.id,
+    skip: !invoice?.customer?.id,
   })
 
-  const { data: fullFeesInvoice } = useGetInvoiceFeesQuery({
-    variables: { id: invoiceId as string },
-    skip: !invoiceId,
-  })
+  const fullFees = invoice?.fees
 
-  const fullFees = fullFeesInvoice?.invoice?.fees
-
-  const invoice = data?.invoice
   const customer = invoice?.customer
   const billingEntity = invoice?.billingEntity
   const hasTaxProvider =
@@ -406,7 +387,6 @@ const CustomerInvoiceRegenerate = () => {
                 customer={customer}
                 invoice={invoice}
                 editFeeDrawerRef={editFeeDrawerRef}
-                deleteAdjustedFeeDialogRef={deleteAdjustedFeeDialogRef}
                 isDraftOverride={true}
                 onAdd={onAdd}
                 onDelete={onDelete}
@@ -561,7 +541,6 @@ const CustomerInvoiceRegenerate = () => {
         </Button>
       </CenteredPage.StickyFooter>
 
-      <DeleteAdjustedFeeDialog ref={deleteAdjustedFeeDialogRef} />
       <EditFeeDrawer ref={editFeeDrawerRef} />
     </CenteredPage.Wrapper>
   )

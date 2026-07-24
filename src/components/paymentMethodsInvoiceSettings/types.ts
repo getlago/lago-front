@@ -1,7 +1,5 @@
-import { FormikProps } from 'formik'
-
 import { InvoiceFormInput } from '~/components/invoices/types'
-import { CreateCustomerWalletTransactionInput, Customer, Maybe } from '~/generated/graphql'
+import { CreateCustomerWalletTransactionInput, Customer } from '~/generated/graphql'
 import { SubscriptionFormInput } from '~/pages/subscriptions/types'
 import { TWalletDataForm } from '~/pages/wallet/types'
 
@@ -29,11 +27,18 @@ type FormTypeMap = {
   [ViewTypeEnum.OneOffInvoice]: InvoiceFormInput
 }
 
-type CustomerForPaymentMethods = Maybe<Partial<Pick<Customer, 'id' | 'externalId'>>>
+type CustomerForPaymentMethods = Partial<Pick<Customer, 'id' | 'externalId'>> | null | undefined
 
-export interface PaymentMethodsInvoiceSettingsProps<T extends ViewTypeEnum = ViewTypeEnum> {
+export interface PaymentMethodsForm<T extends ViewTypeEnum = ViewTypeEnum> {
+  values: Partial<FormTypeMap[T]>
+  setFieldValue(field: string, value: unknown): unknown
+}
+
+// Shared by both single-purpose settings components and the composite — they
+// only differ in which child (and customer field) they render.
+export interface SettingsComponentProps<T extends ViewTypeEnum = ViewTypeEnum> {
   customer: CustomerForPaymentMethods
-  formikProps: FormikProps<FormTypeMap[T]>
+  form: PaymentMethodsForm<T>
   viewType: T
   formFieldBasePath?: string
 }

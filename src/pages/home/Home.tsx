@@ -1,9 +1,9 @@
 import { useEffect, useRef } from 'react'
 
 import { Spinner } from '~/components/designSystem/Spinner'
-import { getItemFromLS, removeItemFromLS } from '~/core/apolloClient'
-import { REDIRECT_AFTER_LOGIN_LS_KEY } from '~/core/constants/localStorageKeys'
 import { useLocation, useNavigate } from '~/core/router'
+import { getItemFromLS, removeItemFromLS } from '~/core/utils/localStorage'
+import { REDIRECT_AFTER_LOGIN_LS_KEY } from '~/core/utils/localStorageKeys'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -35,9 +35,7 @@ const Home = () => {
     if (hasNavigatedRef.current) return
 
     const routerState = location.state as
-      | { from?: { pathname: string; search?: string; hash?: string } }
-      | null
-      | undefined
+      { from?: { pathname: string; search?: string; hash?: string } } | null | undefined
 
     const target = resolveRedirectTarget({
       currentUser,

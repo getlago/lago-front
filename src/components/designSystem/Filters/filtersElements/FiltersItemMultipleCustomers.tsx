@@ -8,6 +8,7 @@ import { useGetCustomersForFilterItemMultipleCustomersQuery } from '~/generated/
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { filterDataInlineSeparator, FiltersFormValues } from '../types'
+import { escapeFilterLabel, unescapeFilterLabel } from '../utils'
 
 gql`
   query getCustomersForFilterItemMultipleCustomers($page: Int, $limit: Int) {
@@ -67,7 +68,7 @@ export const FiltersItemMultipleCustomers = ({
             )}
           </ComboboxItem>
         ),
-        value: `${customer.id}${filterDataInlineSeparator}${customerName}`,
+        value: `${customer.id}${filterDataInlineSeparator}${escapeFilterLabel(customerName ?? '')}`,
       }
     })
   }, [data?.customers?.collection, translate])
@@ -86,7 +87,9 @@ export const FiltersItemMultipleCustomers = ({
         .split(',')
         .filter((v) => !!v)
         .map((v) => ({
-          label: v.split(filterDataInlineSeparator)[1] || v.split(filterDataInlineSeparator)[0],
+          label: unescapeFilterLabel(
+            v.split(filterDataInlineSeparator)[1] || v.split(filterDataInlineSeparator)[0],
+          ),
           value: v,
         }))}
     />

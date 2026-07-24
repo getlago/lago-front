@@ -1,6 +1,6 @@
 import MUITable from '@mui/material/Table'
 import MUITableBody from '@mui/material/TableBody'
-import MUITableCell, { type TableCellProps } from '@mui/material/TableCell'
+import { type TableCellProps } from '@mui/material/TableCell'
 import MUITableHead from '@mui/material/TableHead'
 import MUITableRow, { type TableRowProps } from '@mui/material/TableRow'
 import { MouseEvent, PropsWithChildren, ReactNode, useRef } from 'react'
@@ -15,6 +15,7 @@ import { Popper } from '~/components/designSystem/Popper'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { useNavigate } from '~/core/router'
 import { prependOrgSlug } from '~/core/router/utils/prependOrgSlug'
 import { ResponsiveStyleValue, setResponsiveProperty } from '~/core/utils/responsiveProps'
@@ -25,10 +26,10 @@ import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper, PopperOpener, theme } from '~/styles'
 import { tw } from '~/styles/utils'
 
+import { PADDING_SPACING_RIGHT_PX } from './const'
+import TableCell from './TableCell'
 import TableInnerCell from './TableInnerCell'
 import type { ActionColumn, ActionItem, Align } from './types'
-
-const PADDING_SPACING_RIGHT_PX = 32
 
 type DotPrefix<T extends string> = T extends '' ? '' : `.${T}`
 
@@ -88,7 +89,28 @@ export interface TableProps<T> {
 }
 
 const ACTION_COLUMN_ID = 'actionColumn'
-const LOADING_ROW_COUNT = 3
+const LOADING_ROW_COUNT = DEFAULT_PAGE_SIZE
+
+const MIN_CONTAINER_PADDING_PX = 4
+
+// The outer columns' padding follows the table's exterior gutter
+// (`containerSize`), but never drops below 4px so both edges keep the same small
+// gutter even when `containerSize` is 0 (e.g. dialog/usage tables). On the left
+// this also keeps the inline copy button's -4px overhang clear of the boundary.
+const clampContainerPadding = (
+  value: ResponsiveStyleValue<TableContainerSize>,
+): ResponsiveStyleValue<number> => {
+  if (typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value).map(([breakpoint, size]) => [
+        breakpoint,
+        size === undefined ? size : Math.max(size, MIN_CONTAINER_PADDING_PX),
+      ]),
+    )
+  }
+
+  return Math.max(value, MIN_CONTAINER_PADDING_PX)
+}
 
 const countMaxSpaceColumns = <T,>(columns: TableColumn<T>[]) =>
   columns.reduce((acc, column) => {
@@ -136,48 +158,6 @@ const TableRow = ({
     >
       {children}
     </MUITableRow>
-  )
-}
-
-const TableCell = ({
-  children,
-  className,
-  hasPlaceholderDisplayed,
-  isBlurred,
-  maxSpace,
-  tdCellClassName,
-  ...props
-}: PropsWithChildren &
-  TableCellProps & {
-    className?: string
-    isBlurred?: boolean
-    hasPlaceholderDisplayed?: boolean
-    maxSpace?: number
-    tdCellClassName?: string
-  }) => {
-  return (
-    <MUITableCell
-      className={tw('lago-table-cell', 'w-auto whitespace-nowrap p-0', className, tdCellClassName)}
-      style={{
-        width: !!maxSpace ? `${maxSpace}%` : 'auto',
-        borderBottom: !!hasPlaceholderDisplayed ? 'none' : `1px solid ${theme.palette.grey[300]}`,
-        boxShadow: !!isBlurred ? theme.shadows[7] : 'none',
-      }}
-      sx={{
-        '& > div': {
-          paddingRight: `${PADDING_SPACING_RIGHT_PX}px`,
-        },
-        '&:first-of-type > div': {
-          paddingLeft: 0,
-        },
-        '&:last-of-type > div': {
-          paddingRight: 0,
-        },
-      }}
-      {...props}
-    >
-      {children}
-    </MUITableCell>
   )
 }
 
@@ -368,6 +348,13 @@ export const Table = <T extends DataItem>({
   const handleRowClick = (e: MouseEvent<HTMLTableRowElement>, item: T) => {
     if (!onRowActionLink && !onRowActionClick) return
 
+    // Ignore clicks bubbling up from portaled content (dialogs, poppers) rendered
+    // inside a cell: they are React descendants of the row but live outside its DOM
+    // subtree, so they would otherwise trigger the row navigation.
+    if (e.target instanceof Node && !e.currentTarget.contains(e.target)) {
+      return
+    }
+
     // Prevent row action when clicking on button or link in cell
     if (e.target instanceof HTMLAnchorElement || e.target instanceof HTMLButtonElement) {
       return
@@ -491,10 +478,10 @@ export const Table = <T extends DataItem>({
         ref={tableRef}
         sx={{
           '& .lago-table-cell:first-of-type .lago-table-inner-cell': {
-            ...setResponsiveProperty('paddingLeft', containerSize),
+            ...setResponsiveProperty('paddingLeft', clampContainerPadding(containerSize)),
           },
           '& .lago-table-cell:last-of-type .lago-table-inner-cell': {
-            ...setResponsiveProperty('paddingRight', containerSize),
+            ...setResponsiveProperty('paddingRight', clampContainerPadding(containerSize)),
           },
           '& tbody .lago-table-inner-cell': {
             minHeight: rowSize,
@@ -532,7 +519,8 @@ export const Table = <T extends DataItem>({
 
         <MUITableBody>
           {renderPlaceholder() ??
-            (data.length > 0 &&
+            (!isLoading &&
+              data.length > 0 &&
               data.map((item, i) => (
                 <TableRow
                   key={`${TABLE_ID}-row-${i}`}
@@ -557,7 +545,9 @@ export const Table = <T extends DataItem>({
                         minWidth={column.minWidth}
                         truncateOverflow={column.truncateOverflow}
                       >
-                        <Typography noWrap>{column.content(item)}</Typography>
+                        <Typography className="-ml-1 pl-1" noWrap>
+                          {column.content(item)}
+                        </Typography>
                       </TableInnerCell>
                     </TableCell>
                   ))}

@@ -4,6 +4,7 @@ import { Editor } from '@tiptap/core'
 
 import { render } from '~/test-utils'
 
+import { RichTextEditorProvider } from '../../common/RichTextEditorContext'
 import Toolbar, {
   TOOLBAR_ALIGN_CENTER_BUTTON_TEST_ID,
   TOOLBAR_ALIGN_JUSTIFY_BUTTON_TEST_ID,
@@ -174,7 +175,21 @@ describe('Toolbar', () => {
       ])('THEN should render the %s button', async (_, testId) => {
         const { editor } = createMockEditor()
 
-        await act(() => render(<Toolbar editor={editor} />))
+        await act(() =>
+          render(
+            <RichTextEditorProvider
+              value={{
+                mode: 'edit',
+                mentionValues: {},
+                entities: {},
+                images: {},
+                onImageUpload: jest.fn().mockResolvedValue('id'),
+              }}
+            >
+              <Toolbar editor={editor} />
+            </RichTextEditorProvider>,
+          ),
+        )
 
         expect(screen.getByTestId(testId)).toBeInTheDocument()
       })
@@ -308,6 +323,44 @@ describe('Toolbar', () => {
       expect(editor.chain).toHaveBeenCalled()
       expect(runMock).toHaveBeenCalled()
     })
+
+    describe('WHEN a heading is active', () => {
+      it('THEN should show the text style button with secondary variant (active)', async () => {
+        const { editor } = createMockEditor({ 'heading-1': true, paragraph: false })
+
+        await act(() => render(<Toolbar editor={editor} />))
+
+        const button = screen.getByTestId(TOOLBAR_TEXT_STYLING_DROPDOWN_TEST_ID)
+
+        // secondary variant maps to MUI contained
+        expect(button.classList.contains('MuiButton-contained')).toBe(true)
+      })
+    })
+
+    describe('WHEN paragraph is active (default text)', () => {
+      it('THEN should show the text style button with quaternary variant (inactive)', async () => {
+        const { editor } = createMockEditor({ paragraph: true })
+
+        await act(() => render(<Toolbar editor={editor} />))
+
+        const button = screen.getByTestId(TOOLBAR_TEXT_STYLING_DROPDOWN_TEST_ID)
+
+        // quaternary variant maps to MUI text
+        expect(button.classList.contains('MuiButton-text')).toBe(true)
+      })
+    })
+
+    describe('WHEN no text style is active (mixed selection)', () => {
+      it('THEN should disable the text style button', async () => {
+        const { editor } = createMockEditor({ paragraph: false })
+
+        await act(() => render(<Toolbar editor={editor} />))
+
+        const button = screen.getByTestId(TOOLBAR_TEXT_STYLING_DROPDOWN_TEST_ID)
+
+        expect(button).toBeDisabled()
+      })
+    })
   })
 
   describe('GIVEN tooltips on toolbar buttons', () => {
@@ -336,7 +389,21 @@ describe('Toolbar', () => {
         const user = userEvent.setup({ pointerEventsCheck: 0 })
         const { editor } = createMockEditor()
 
-        await act(() => render(<Toolbar editor={editor} />))
+        await act(() =>
+          render(
+            <RichTextEditorProvider
+              value={{
+                mode: 'edit',
+                mentionValues: {},
+                entities: {},
+                images: {},
+                onImageUpload: jest.fn().mockResolvedValue('id'),
+              }}
+            >
+              <Toolbar editor={editor} />
+            </RichTextEditorProvider>,
+          ),
+        )
         await user.hover(screen.getByTestId(testId))
 
         expect(await screen.findByRole('tooltip')).toBeInTheDocument()
@@ -352,6 +419,18 @@ describe('Toolbar', () => {
         await act(() => render(<Toolbar editor={editor} />))
 
         expect(screen.queryByTestId(TOOLBAR_OVERFLOW_BUTTON_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN no onImageUpload in context', () => {
+    describe('WHEN the toolbar renders', () => {
+      it('THEN the image button is not rendered', async () => {
+        const { editor } = createMockEditor()
+
+        await act(() => render(<Toolbar editor={editor} />))
+
+        expect(screen.queryByTestId(TOOLBAR_IMAGE_BUTTON_TEST_ID)).not.toBeInTheDocument()
       })
     })
   })

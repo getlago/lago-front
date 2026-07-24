@@ -11,10 +11,10 @@ import {
 import StripeIntegrations from '../StripeIntegrations'
 
 jest.mock('~/components/settings/integrations/AddStripeDialog', () => ({
-  AddStripeDialog: () => null,
+  useAddStripeDialog: () => ({ openAddStripeDialog: jest.fn() }),
 }))
 jest.mock('~/components/settings/integrations/DeleteStripeIntegrationDialog', () => ({
-  DeleteStripeIntegrationDialog: () => null,
+  useDeleteStripeIntegrationDialog: () => ({ openDeleteStripeIntegrationDialog: jest.fn() }),
 }))
 jest.mock('~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog', () => ({
   AddEditDeleteSuccessRedirectUrlDialog: () => null,

@@ -1,3 +1,4 @@
+import { gql } from '@apollo/client'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { Alert } from '~/components/designSystem/Alert'
@@ -17,10 +18,12 @@ import { intlFormatDateTime } from '~/core/timezone'
 import { isPrepaidCredit } from '~/core/utils/invoiceUtils'
 import { regeneratePath } from '~/core/utils/regenerateUtils'
 import {
+  AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc,
   CurrencyEnum,
   Invoice,
   InvoiceForVoidInvoiceDialogFragment,
   InvoiceForVoidInvoiceDialogFragmentDoc,
+  InvoiceListItemFragmentDoc,
   useGetInvoiceDetailsQuery,
   useVoidInvoiceMutation,
   VoidInvoiceInput,
@@ -32,6 +35,26 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
+
+gql`
+  fragment InvoiceForVoidInvoiceDialog on Invoice {
+    id
+    number
+  }
+
+  mutation voidInvoice($input: VoidInvoiceInput!) {
+    voidInvoice(input: $input) {
+      id
+      status
+      ...InvoiceListItem
+      ...AllInvoiceDetailsForCustomerInvoiceDetails
+    }
+  }
+
+  # Fragments needed to refresh data from other parts of the UI
+  ${InvoiceListItemFragmentDoc}
+  ${AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc}
+`
 
 const CustomerInvoiceVoid = () => {
   const { translate } = useInternationalization()

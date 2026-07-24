@@ -1,8 +1,6 @@
 import { gql } from '@apollo/client'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
-import { DialogRef } from '~/components/designSystem/Dialog'
-import { WarningDialog } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
 import {
   CustomerAppliedTaxRatesForSettingsFragmentDoc,
@@ -37,22 +35,14 @@ gql`
   ${CustomerAppliedTaxRatesForSettingsFragmentDoc}
 `
 
-interface DeleteCustomerVatRateDialogProps {
+type DeleteCustomerVatRateDialogData = {
   customer: EditCustomerVatRateFragment
+  taxRate: TaxRateForDeleteCustomerVatRateDialogFragment
 }
 
-export interface DeleteCustomerVatRateDialogRef {
-  openDialog: (taxRate: TaxRateForDeleteCustomerVatRateDialogFragment) => unknown
-  closeDialog: () => unknown
-}
-
-export const DeleteCustomerVatRateDialog = forwardRef<
-  DeleteCustomerVatRateDialogRef,
-  DeleteCustomerVatRateDialogProps
->(({ customer }: DeleteCustomerVatRateDialogProps, ref) => {
+export const useDeleteCustomerVatRateDialog = () => {
   const { translate } = useInternationalization()
-  const dialogRef = useRef<DialogRef>(null)
-  const [taxRate, setTaxRate] = useState<TaxRateForDeleteCustomerVatRateDialogFragment>()
+  const centralizedDialog = useCentralizedDialog()
   const [removeAppliedTaxRateOnCustomer] = useRemoveAppliedTaxRateOnCustomerMutation({
     onCompleted({ updateCustomer }) {
       if (updateCustomer?.id) {
@@ -65,42 +55,34 @@ export const DeleteCustomerVatRateDialog = forwardRef<
     refetchQueries: ['getCustomerSettings'],
   })
 
-  useImperativeHandle(ref, () => ({
-    openDialog: (taxRateData) => {
-      setTaxRate(taxRateData)
-      dialogRef.current?.openDialog()
-    },
-    closeDialog: () => {
-      dialogRef.current?.closeDialog()
-    },
-  }))
-
-  return (
-    <WarningDialog
-      ref={dialogRef}
-      title={translate('text_64639f5e63a5cc0076779d37', {
-        name: taxRate?.name,
-      })}
-      description={translate('text_64639f5e63a5cc0076779d3b')}
-      onContinue={async () =>
+  const openDeleteCustomerVatRateDialog = ({
+    customer,
+    taxRate,
+  }: DeleteCustomerVatRateDialogData) => {
+    centralizedDialog.open({
+      title: translate('text_64639f5e63a5cc0076779d37', {
+        name: taxRate.name,
+      }),
+      description: translate('text_64639f5e63a5cc0076779d3b'),
+      colorVariant: 'danger',
+      actionText: translate('text_64639f5e63a5cc0076779d43'),
+      onAction: async () => {
         await removeAppliedTaxRateOnCustomer({
           variables: {
             input: {
-              id: customer?.id as string,
+              id: customer.id,
               taxCodes:
-                customer?.taxes?.filter((tax) => tax.id !== taxRate?.id).map((tax) => tax.code) ||
-                [],
+                customer.taxes?.filter((tax) => tax.id !== taxRate.id).map((tax) => tax.code) || [],
               // NOTE: API should not require those fields on customer update
               // To be tackled as improvement
-              externalId: customer?.externalId || '',
-              name: customer?.name || '',
+              externalId: customer.externalId || '',
+              name: customer.name || '',
             },
           },
         })
-      }
-      continueText={translate('text_64639f5e63a5cc0076779d43')}
-    />
-  )
-})
+      },
+    })
+  }
 
-DeleteCustomerVatRateDialog.displayName = 'forwardRef'
+  return { openDeleteCustomerVatRateDialog }
+}

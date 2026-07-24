@@ -4,7 +4,7 @@ import { forwardRef } from 'react'
 export const TABLE_CONTROLS_ROW_MENU_BUTTON_TEST_ID = 'table-controls-row-menu-button'
 export const TABLE_CONTROLS_COL_MENU_BUTTON_TEST_ID = 'table-controls-col-menu-button'
 
-export type TableMenuOpenerProps = {
+type TableMenuOpenerProps = {
   variant: 'row' | 'col'
   isSelected: boolean
   index: number
@@ -13,7 +13,7 @@ export type TableMenuOpenerProps = {
 }
 
 const TableMenuOpener = forwardRef<HTMLButtonElement, TableMenuOpenerProps>(
-  function TableMenuOpener({ variant, isSelected, index, onSelect, onClick }, ref) {
+  function TableMenuOpenerRender({ variant, isSelected, index, onSelect, onClick }, ref) {
     return (
       <button
         ref={ref}

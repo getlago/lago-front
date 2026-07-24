@@ -171,7 +171,6 @@ jest.mock('@tiptap/pm/state', () => ({
 }))
 
 jest.mock('@tiptap/pm/tables', () => {
-  // eslint-disable-next-line @typescript-eslint/no-extraneous-class
   function CellSelection() {}
 
   ;(CellSelection as unknown as Record<string, jest.Mock>).rowSelection = jest.fn()

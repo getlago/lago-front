@@ -35,7 +35,7 @@ jest.mock('~/components/billableMetrics/BillableMetricDetailsActivityLogs', () =
 }))
 
 jest.mock('~/components/billableMetrics/DeleteBillableMetricDialog', () => ({
-  DeleteBillableMetricDialog: () => null,
+  useDeleteBillableMetricDialog: () => ({ openDeleteBillableMetricDialog: jest.fn() }),
 }))
 
 jest.mock('~/hooks/usePermissions', () => ({

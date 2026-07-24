@@ -1,11 +1,14 @@
-import { gql } from '@apollo/client'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
+import { gql, useApolloClient } from '@apollo/client'
 
-import { DialogRef } from '~/components/designSystem/Dialog'
 import { Typography } from '~/components/designSystem/Typography'
-import { WarningDialog } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
-import { DeleteCustomerDialogFragment, useDeleteCustomerMutation } from '~/generated/graphql'
+import { evictFromCache } from '~/core/apolloClient/evictFromCache'
+import {
+  CustomersDocument,
+  DeleteCustomerDialogFragment,
+  useDeleteCustomerMutation,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
@@ -22,76 +25,63 @@ gql`
   }
 `
 
-type TDeleteCustomerDialogProps = {
+type OpenDeleteCustomerDialogData = {
   customer?: DeleteCustomerDialogFragment
   onDeleted?: () => void
 }
 
-export interface DeleteCustomerDialogRef {
-  openDialog: (props: TDeleteCustomerDialogProps) => unknown
-  closeDialog: () => unknown
-}
-
-export const DeleteCustomerDialog = forwardRef<DeleteCustomerDialogRef, unknown>((_props, ref) => {
+export const useDeleteCustomerDialog = () => {
+  const centralizedDialog = useCentralizedDialog()
   const { translate } = useInternationalization()
-  const dialogRef = useRef<DialogRef>(null)
-  const [localData, setLocalData] = useState<TDeleteCustomerDialogProps>()
+  const client = useApolloClient()
 
-  useImperativeHandle(ref, () => ({
-    openDialog: (props) => {
-      setLocalData(props)
-      dialogRef.current?.openDialog()
-    },
-    closeDialog: () => {
-      setLocalData(undefined)
-      dialogRef.current?.closeDialog()
-    },
-  }))
+  const [deleteCustomer] = useDeleteCustomerMutation()
 
-  const [deleteCustomer] = useDeleteCustomerMutation({
-    onCompleted(data) {
-      if (data && data.destroyCustomer) {
-        localData?.onDeleted?.()
-        addToast({
-          message: translate('text_626162c62f790600f850b814'),
-          severity: 'success',
+  const openDeleteCustomerDialog = (data: OpenDeleteCustomerDialogData) => {
+    const customer = data.customer
+
+    centralizedDialog.open({
+      title: translate('text_626162c62f790600f850b6e8', {
+        customerFullName: customer?.displayName || translate('text_651a8ab50fd34e005d1c1dc7'),
+      }),
+      description: <Typography html={translate('text_626162c62f790600f850b6f8')} />,
+      actionText: translate('text_626162c62f790600f850b712'),
+      colorVariant: 'danger',
+      onAction: async () => {
+        const res = await deleteCustomer({
+          variables: { input: { id: customer?.id ?? '' } },
         })
-      }
-    },
-    update(cache) {
-      // Clear subscriptions cache to prevent stale customer references
-      // We use cache.modify with DELETE to avoid triggering refetches for active watchers
-      cache.modify({
-        fields: {
-          subscriptions(_, { DELETE }) {
-            return DELETE
-          },
-        },
-      })
-    },
-    refetchQueries: ['customers'],
-  })
 
-  return (
-    <WarningDialog
-      ref={dialogRef}
-      title={translate('text_626162c62f790600f850b6e8', {
-        customerFullName:
-          localData?.customer?.displayName || translate('text_651a8ab50fd34e005d1c1dc7'),
-      })}
-      description={<Typography html={translate('text_626162c62f790600f850b6f8')} />}
-      onContinue={async () =>
-        await deleteCustomer({
-          variables: {
-            input: {
-              id: localData?.customer?.id || '',
+        const destroyedId = res.data?.destroyCustomer?.id
+
+        if (destroyedId) {
+          evictFromCache(client, {
+            id: destroyedId,
+            __typename: 'Customer',
+            listFieldName: 'customers',
+            listQueryDocument: CustomersDocument,
+          })
+
+          // Clear the root subscriptions field so stale references to the
+          // just-deleted customer are dropped from cached subscription lists.
+          client.cache.modify({
+            fields: {
+              subscriptions(_, { DELETE }) {
+                return DELETE
+              },
             },
-          },
-        })
-      }
-      continueText={translate('text_626162c62f790600f850b712')}
-    />
-  )
-})
+          })
 
-DeleteCustomerDialog.displayName = 'DeleteCustomerDialog'
+          data.onDeleted?.()
+
+          addToast({
+            message: translate('text_626162c62f790600f850b814'),
+            severity: 'success',
+          })
+        }
+      },
+    })
+  }
+
+  return { openDeleteCustomerDialog }
+}

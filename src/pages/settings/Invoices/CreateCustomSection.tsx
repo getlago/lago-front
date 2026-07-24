@@ -5,7 +5,7 @@ import { object, string } from 'yup'
 import { Button } from '~/components/designSystem/Button'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { TextInput, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import {
@@ -25,11 +25,20 @@ const CreateInvoiceCustomSection = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
 
-  const warningDirtyAttributesDialogRef = useRef<WarningDialogRef>(null)
+  const centralizedDialog = useCentralizedDialog()
   const previewCustomSectionDrawerRef = useRef<PreviewCustomSectionDrawerRef>(null)
 
   const { loading, isEdition, invoiceCustomSection, onSave, errorCode } =
     useCreateEditInvoiceCustomSection()
+
+  const openDirtyAttributesWarning = () =>
+    centralizedDialog.open({
+      title: translate('text_6244277fe0975300fe3fb940'),
+      description: translate('text_6244277fe0975300fe3fb946'),
+      actionText: translate('text_6244277fe0975300fe3fb94c'),
+      colorVariant: 'danger',
+      onAction: () => navigate(INVOICE_SETTINGS_ROUTE),
+    })
 
   const formikProps = useFormik<CreateInvoiceCustomSectionInput>({
     initialValues: {
@@ -81,9 +90,7 @@ const CreateInvoiceCustomSection = () => {
             variant="quaternary"
             icon="close"
             onClick={() =>
-              formikProps.dirty
-                ? warningDirtyAttributesDialogRef.current?.openDialog()
-                : navigate(INVOICE_SETTINGS_ROUTE)
+              formikProps.dirty ? openDirtyAttributesWarning() : navigate(INVOICE_SETTINGS_ROUTE)
             }
           />
         </CenteredPage.Header>
@@ -213,9 +220,7 @@ const CreateInvoiceCustomSection = () => {
           <Button
             variant="quaternary"
             onClick={() =>
-              formikProps.dirty
-                ? warningDirtyAttributesDialogRef.current?.openDialog()
-                : navigate(INVOICE_SETTINGS_ROUTE)
+              formikProps.dirty ? openDirtyAttributesWarning() : navigate(INVOICE_SETTINGS_ROUTE)
             }
           >
             {translate('text_6411e6b530cb47007488b027')}
@@ -232,13 +237,6 @@ const CreateInvoiceCustomSection = () => {
         </CenteredPage.StickyFooter>
       </CenteredPage.Wrapper>
 
-      <WarningDialog
-        ref={warningDirtyAttributesDialogRef}
-        title={translate('text_6244277fe0975300fe3fb940')}
-        description={translate('text_6244277fe0975300fe3fb946')}
-        continueText={translate('text_6244277fe0975300fe3fb94c')}
-        onContinue={() => navigate(INVOICE_SETTINGS_ROUTE)}
-      />
       <PreviewCustomSectionDrawer ref={previewCustomSectionDrawerRef} />
     </>
   )

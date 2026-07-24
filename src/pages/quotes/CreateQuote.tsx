@@ -9,6 +9,7 @@ import { ComboboxItem } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { QUOTES_LIST_ROUTE, useNavigate } from '~/core/router'
 import {
+  CurrencyEnum,
   OrderTypeEnum,
   StatusTypeEnum,
   useGetCustomersForCreateQuoteLazyQuery,
@@ -25,6 +26,7 @@ import { useCreateQuote } from './hooks/useCreateQuote'
 
 export const CREATE_QUOTE_CUSTOMER_COMBOBOX_TEST_ID = 'create-quote-customer-combobox'
 export const CREATE_QUOTE_ORDER_TYPE_TEST_ID = 'create-quote-order-type'
+export const CREATE_QUOTE_CURRENCY_COMBOBOX_TEST_ID = 'create-quote-currency-combobox'
 export const CREATE_QUOTE_SUBSCRIPTION_COMBOBOX_TEST_ID = 'create-quote-subscription-combobox'
 export const CREATE_QUOTE_OWNERS_COMBOBOX_TEST_ID = 'create-quote-owners-combobox'
 export const CREATE_QUOTE_SUBMIT_BUTTON_TEST_ID = 'create-quote-submit-button'
@@ -36,6 +38,7 @@ gql`
         id
         displayName
         externalId
+        currency
       }
     }
   }
@@ -75,6 +78,7 @@ const defaultValues: CreateQuoteFormValues = {
   orderType: OrderTypeEnum.SubscriptionCreation,
   subscriptionId: '',
   owners: undefined,
+  currency: undefined,
 }
 
 const CreateQuote = (): JSX.Element => {
@@ -107,6 +111,9 @@ const CreateQuote = (): JSX.Element => {
         orderType: value.orderType,
         subscriptionId: value.subscriptionId || undefined,
         owners: value.owners?.map((owner) => owner.value),
+        currency: value.currency,
+        customerExternalId: selectedCustomer?.externalId ?? '',
+        hasCustomerCurrency,
       })
     },
   })
@@ -135,6 +142,20 @@ const CreateQuote = (): JSX.Element => {
       value: customer.id,
     }))
   }, [customersData?.customers?.collection])
+
+  const selectedCustomer = useMemo(() => {
+    if (!customerId || !customersData?.customers?.collection) return null
+    return customersData.customers.collection.find((c) => c.id === customerId) ?? null
+  }, [customerId, customersData?.customers?.collection])
+
+  const hasCustomerCurrency = !!selectedCustomer?.currency
+
+  const currencyOptions = useMemo(() => {
+    if (!selectedCustomer?.currency) {
+      return Object.values(CurrencyEnum).map((currencyType) => ({ value: currencyType }))
+    }
+    return [{ value: selectedCustomer.currency }]
+  }, [selectedCustomer?.currency])
 
   const comboboxOwnersData = useMemo(() => {
     if (!membersData?.memberships?.collection) return []
@@ -257,6 +278,13 @@ const CreateQuote = (): JSX.Element => {
 
                       if (value) {
                         getCustomerSubscriptions({ variables: { customerId: value } })
+                        const customer = customersData?.customers?.collection?.find(
+                          (c) => c.id === value,
+                        )
+
+                        form.setFieldValue('currency', customer?.currency ?? undefined)
+                      } else {
+                        form.setFieldValue('currency', undefined)
                       }
                     },
                   }}
@@ -272,6 +300,20 @@ const CreateQuote = (): JSX.Element => {
                     />
                   )}
                 </form.AppField>
+
+                {customerId && (
+                  <form.AppField name="currency">
+                    {(field) => (
+                      <field.ComboBoxField
+                        dataTest={CREATE_QUOTE_CURRENCY_COMBOBOX_TEST_ID}
+                        disabled={hasCustomerCurrency}
+                        disableClearable
+                        label={translate('text_632b4acf0c41206cbcb8c324')}
+                        data={currencyOptions}
+                      />
+                    )}
+                  </form.AppField>
+                )}
 
                 <form.AppField
                   name="orderType"

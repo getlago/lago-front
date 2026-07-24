@@ -1,7 +1,7 @@
 import { FC } from 'react'
 import { generatePath, useParams, useSearchParams } from 'react-router-dom'
 
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { Status } from '~/components/designSystem/Status'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
@@ -17,40 +17,41 @@ type WebhookLogTableProps = {
   getWebhookLogsResult: GetWebhookLogQueryResult
   logListRef: React.RefObject<ListSectionRef>
   isLoading: boolean
+  pageSize?: number
+  onPageSizeChange?: (pageSize: number) => void
 }
 
 export const WebhookLogTable: FC<WebhookLogTableProps> = ({
   getWebhookLogsResult,
   logListRef,
   isLoading,
+  pageSize,
+  onPageSizeChange,
 }) => {
   const { webhookId = '' } = useParams<{ webhookId: string; logId?: string }>()
   const [searchParams] = useSearchParams()
   const { formattedDateTimeWithSecondsOrgaTZ } = useFormatterDateHelper()
   const { translate } = useInternationalization()
 
-  const { data, error, loading, fetchMore, variables } = getWebhookLogsResult
+  const { data, error, fetchMore, variables } = getWebhookLogsResult
 
   return (
-    <InfiniteScroll
-      onBottom={async () => {
-        const { currentPage = 0, totalPages = 0 } = data?.webhooks?.metadata || {}
-
-        if (currentPage < totalPages && !isLoading) {
-          await fetchMore({
-            variables: { page: currentPage + 1 },
-          })
-        }
-      }}
+    <PaginatedContent
+      metadata={data?.webhooks?.metadata}
+      loading={isLoading}
+      pageSize={pageSize}
+      onPageChange={(page) => fetchMore({ variables: { page } })}
+      onPageSizeChange={onPageSizeChange}
     >
       <Table
         name="webhook-logs"
         containerClassName="h-full md:h-auto"
         containerSize={16}
         rowSize={48}
-        data={data?.webhooks.collection || []}
+        data={data?.webhooks.collection ?? []}
         hasError={!!error}
-        isLoading={loading}
+        isLoading={isLoading}
+        loadingRowCount={pageSize}
         onRowActionLink={({ id }) => {
           const currentParams = searchParams.toString()
           const path = generatePath(WEBHOOK_LOGS_ROUTE, {
@@ -106,6 +107,6 @@ export const WebhookLogTable: FC<WebhookLogTableProps> = ({
           },
         }}
       />
-    </InfiniteScroll>
+    </PaginatedContent>
   )
 }

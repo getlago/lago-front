@@ -8,6 +8,7 @@ import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
+import { useViewFeeDetailsDrawer } from '~/components/invoices/details/ViewFeeDetailsDrawer'
 import { FeeMetadata } from '~/core/formats/formatInvoiceItemsMap'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
@@ -25,19 +26,22 @@ import {
   FeeForInvoiceDetailsTableBodyLinePackageFragmentDoc,
   FeeForInvoiceDetailsTableBodyLinePercentageFragmentDoc,
   FeeForInvoiceDetailsTableBodyLineVolumeFragmentDoc,
+  FeeForViewFeeDetailsDrawerFragmentDoc,
   FeeTypesEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { OnRegeneratedFeeAdd } from '~/pages/CustomerInvoiceRegenerate'
 import { MenuPopper, PopperOpener } from '~/styles'
 
-import { DeleteAdjustedFeeDialogRef } from './DeleteAdjustedFeeDialog'
+import { useDeleteAdjustedFeeDialog } from './DeleteAdjustedFeeDialog'
 import { EditFeeDrawerRef } from './EditFeeDrawer'
+import { CopyFeeIdButton, FeeActionsCell, ViewFeeDetailsButton } from './FeeActionsCell'
 import { InvoiceDetailsTableBodyLineGraduated } from './InvoiceDetailsTableBodyLineGraduated'
 import { InvoiceDetailsTableBodyLineGraduatedPercentage } from './InvoiceDetailsTableBodyLineGraduatedPercentage'
 import { InvoiceDetailsTableBodyLinePackage } from './InvoiceDetailsTableBodyLinePackage'
 import { InvoiceDetailsTableBodyLinePercentage } from './InvoiceDetailsTableBodyLinePercentage'
 import { InvoiceDetailsTableBodyLineVolume } from './InvoiceDetailsTableBodyLineVolume'
+import { FEE_ROW_TEST_ID_PREFIX } from './invoiceDetailsTestIds'
 
 gql`
   fragment FeeForInvoiceDetailsTableBodyLine on Fee {
@@ -81,6 +85,12 @@ gql`
     appliedTaxes {
       id
       taxRate
+      tax {
+        id
+        name
+        code
+        rate
+      }
     }
     amountDetails {
       freeUnits # for package charge model
@@ -101,6 +111,7 @@ gql`
     ...FeeForInvoiceDetailsTableBodyLinePercentage
     ...FeeForEditfeeDrawer
     ...FeeForDeleteAdjustmentFeeDialog
+    ...FeeForViewFeeDetailsDrawer
   }
 
   ${FeeForInvoiceDetailsTableBodyLineGraduatedFragmentDoc}
@@ -110,6 +121,7 @@ gql`
   ${FeeForInvoiceDetailsTableBodyLinePercentageFragmentDoc}
   ${FeeForEditfeeDrawerFragmentDoc}
   ${FeeForDeleteAdjustmentFeeDialogFragmentDoc}
+  ${FeeForViewFeeDetailsDrawerFragmentDoc}
 `
 
 type InvoiceDetailsTableBodyLineBaseProps = {
@@ -121,7 +133,6 @@ type InvoiceDetailsTableBodyLineBaseProps = {
   hideVat?: boolean
   displayFeeBoundaries?: boolean
   editFeeDrawerRef?: RefObject<EditFeeDrawerRef>
-  deleteAdjustedFeeDialogRef?: RefObject<DeleteAdjustedFeeDialogRef>
   succeededDate?: string
   hasTaxProviderError?: boolean
 }
@@ -217,7 +228,6 @@ export const InvoiceDetailsTableBodyLine = memo(
   ({
     canHaveUnitPrice,
     currency,
-    deleteAdjustedFeeDialogRef,
     displayName,
     editFeeDrawerRef,
     fee,
@@ -233,6 +243,8 @@ export const InvoiceDetailsTableBodyLine = memo(
   }: InvoiceDetailsTableBodyLineProps) => {
     const { invoiceId = '' } = useParams()
     const { translate } = useInternationalization()
+    const viewFeeDetails = useViewFeeDetailsDrawer()
+    const { openDeleteAdjustedFeeDialog } = useDeleteAdjustedFeeDialog()
     const chargeModel = fee?.charge?.chargeModel
     const isTrueUpFee = !!fee?.metadata?.isTrueUpFee
     const isCommitmentFee = !!fee?.metadata?.isCommitmentFee
@@ -290,13 +302,22 @@ export const InvoiceDetailsTableBodyLine = memo(
       return '0%'
     }, [fee, hasTaxProviderError])
 
+    const FeeActions = () => <FeeActionsCell fee={fee} />
+
+    const handleRowClick = () => {
+      if (fee) viewFeeDetails.open(fee)
+    }
+    const rowClickableClass = fee ? 'cursor-pointer hover:bg-grey-100' : undefined
+
     return (
       <>
         <tr
-          className={tw({
+          data-test={fee ? `${FEE_ROW_TEST_ID_PREFIX}-${fee.id}` : undefined}
+          className={tw(rowClickableClass, {
             'has-details': shouldDisplayFeeDetail || !!pricingUnitUsage,
             '[&_td:last-child]:!pr-0': !!pricingUnitUsage && !isDraftInvoice,
           })}
+          onClick={fee ? handleRowClick : undefined}
         >
           <td colSpan={shouldDisplayFeeDetail ? 5 : 1}>
             <Stack direction="row" spacing={1} alignItems="center">
@@ -391,7 +412,7 @@ export const InvoiceDetailsTableBodyLine = memo(
           )}
 
           {isDraftInvoice && (
-            <td>
+            <td onClick={(e) => e.stopPropagation()}>
               {!isTrueUpFee && !isCommitmentFee && (
                 <Popper
                   PopperProps={{ placement: 'bottom-end' }}
@@ -419,7 +440,7 @@ export const InvoiceDetailsTableBodyLine = memo(
                         align="left"
                         onClick={() => {
                           if (isAdjustedFee) {
-                            deleteAdjustedFeeDialogRef?.current?.openDialog({ fee, onDelete })
+                            openDeleteAdjustedFeeDialog({ fee, onDelete })
                           } else if (fee) {
                             if (onAdd && invoiceSubscriptionId) {
                               editFeeDrawerRef?.current?.openDrawer({
@@ -447,13 +468,19 @@ export const InvoiceDetailsTableBodyLine = memo(
                             : 'text_65a6b4e3cb38d9b70ec54092',
                         )}
                       </Button>
+
+                      <CopyFeeIdButton fee={fee} closePopper={closePopper} />
+                      <ViewFeeDetailsButton fee={fee} closePopper={closePopper} />
                     </MenuPopper>
                   )}
                 </Popper>
               )}
             </td>
           )}
+
+          {!isDraftInvoice && <FeeActions />}
         </tr>
+
         {shouldDisplayFeeDetail && (
           <>
             {chargeModel === ChargeModelEnum.Graduated && (
@@ -461,7 +488,6 @@ export const InvoiceDetailsTableBodyLine = memo(
                 currency={currency}
                 fee={fee}
                 hideVat={hideVat}
-                isDraftInvoice={isDraftInvoice}
               />
             )}
             {chargeModel === ChargeModelEnum.GraduatedPercentage && (
@@ -469,37 +495,26 @@ export const InvoiceDetailsTableBodyLine = memo(
                 currency={currency}
                 fee={fee}
                 hideVat={hideVat}
-                isDraftInvoice={isDraftInvoice}
               />
             )}
             {chargeModel === ChargeModelEnum.Volume && (
-              <InvoiceDetailsTableBodyLineVolume
-                currency={currency}
-                fee={fee}
-                hideVat={hideVat}
-                isDraftInvoice={isDraftInvoice}
-              />
+              <InvoiceDetailsTableBodyLineVolume currency={currency} fee={fee} hideVat={hideVat} />
             )}
             {chargeModel === ChargeModelEnum.Package && (
-              <InvoiceDetailsTableBodyLinePackage
-                currency={currency}
-                fee={fee}
-                hideVat={hideVat}
-                isDraftInvoice={isDraftInvoice}
-              />
+              <InvoiceDetailsTableBodyLinePackage currency={currency} fee={fee} hideVat={hideVat} />
             )}
             {chargeModel === ChargeModelEnum.Percentage && (
               <InvoiceDetailsTableBodyLinePercentage
                 currency={currency}
                 fee={fee}
                 hideVat={hideVat}
-                isDraftInvoice={isDraftInvoice}
               />
             )}
             <tr
-              className={tw('details-line', {
+              className={tw('details-line', rowClickableClass, {
                 subtotal: !pricingUnitUsage,
               })}
+              onClick={fee ? handleRowClick : undefined}
             >
               <td colSpan={hideVat && !isDraftInvoice ? 3 : 4}>
                 <Typography variant="body" color="grey700">
@@ -521,12 +536,16 @@ export const InvoiceDetailsTableBodyLine = memo(
                   )}
                 </Typography>
               </td>
-              {isDraftInvoice && <td>{/* Action column */}</td>}
+
+              <FeeActions />
             </tr>
           </>
         )}
         {!!pricingUnitUsage && (
-          <tr className="details-line subtotal">
+          <tr
+            className={tw('details-line subtotal', rowClickableClass)}
+            onClick={fee ? handleRowClick : undefined}
+          >
             <td colSpan={hideVat && !isDraftInvoice ? 3 : 4}>
               <Typography variant="body" color="grey700">
                 {translate('text_1751039646310obdq6n385sc', {
@@ -546,7 +565,7 @@ export const InvoiceDetailsTableBodyLine = memo(
                 })}
               </Typography>
             </td>
-            {isDraftInvoice && <td>{/* Action column */}</td>}
+            <FeeActions />
           </tr>
         )}
       </>

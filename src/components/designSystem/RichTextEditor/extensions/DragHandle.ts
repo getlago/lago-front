@@ -8,18 +8,19 @@ import { createRoot } from 'react-dom/client'
 
 const dragHandlePluginKey = new PluginKey('dragHandle')
 
-const renderGripIcon = (container: HTMLElement): void => {
+const renderIcon = (container: HTMLElement, icon: keyof typeof ALL_ICONS): void => {
   // Defer to avoid "triggering nested component updates from render" warning.
   // ProseMirror creates decoration widgets synchronously during React's render cycle.
   queueMicrotask(() => {
     const root = createRoot(container)
 
-    root.render(createElement(ALL_ICONS['double-dots-vertical'], { width: 16, height: 16 }))
+    root.render(createElement(ALL_ICONS[icon], { width: 16, height: 16 }))
   })
 }
 
 export type DragHandleStorage = {
   selectedBlock: { pos: number } | null
+  hideMenu: boolean
 }
 
 const isDragHandleStorage = (value: unknown): value is DragHandleStorage =>
@@ -30,7 +31,7 @@ export const getDragHandleStorage = (editor: Editor): DragHandleStorage => {
     return editor.storage.dragHandle
   }
 
-  return { selectedBlock: null }
+  return { selectedBlock: null, hideMenu: false }
 }
 
 export const DragHandle = Extension.create({
@@ -42,6 +43,7 @@ export const DragHandle = Extension.create({
        *  to CellSelection, so BlockToolbar can't detect it. We store the selected block
        *  info here so BlockToolbar can fall back to it. */
       selectedBlock: null as { pos: number } | null,
+      hideMenu: false,
     }
   },
 
@@ -74,6 +76,7 @@ export const DragHandle = Extension.create({
     const storage = getDragHandleStorage(editor)
 
     function selectBlock(pos: number) {
+      storage.hideMenu = false
       const node = editor.view.state.doc.nodeAt(pos)
 
       // For tables, avoid NodeSelection entirely — prosemirror-tables converts it
@@ -103,17 +106,44 @@ export const DragHandle = Extension.create({
     }
 
     function createHandleElement(pos: number): HTMLElement {
-      const handle = document.createElement('div')
+      const group = document.createElement('div')
 
-      handle.className = 'block-drag-handle'
-      handle.draggable = true
-      handle.contentEditable = 'false'
-      const iconContainer = document.createElement('span')
+      group.className = 'block-handle-group'
+      group.contentEditable = 'false'
 
-      handle.appendChild(iconContainer)
-      renderGripIcon(iconContainer)
+      // Plus button — opens slash command menu
+      const plusButton = document.createElement('div')
 
-      handle.addEventListener('dragstart', (e) => {
+      plusButton.className = 'block-handle-button block-handle-plus'
+      const plusIconContainer = document.createElement('span')
+
+      plusButton.appendChild(plusIconContainer)
+      renderIcon(plusIconContainer, 'plus')
+
+      plusButton.addEventListener('click', (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+
+        if ('slashCommands' in editor.storage) {
+          const { triggerMenu } = editor.storage.slashCommands as {
+            triggerMenu?: (clientRect: () => DOMRect) => void
+          }
+
+          triggerMenu?.(() => plusButton.getBoundingClientRect())
+        }
+      })
+
+      // Grip button — drag handle and block selection
+      const gripButton = document.createElement('div')
+
+      gripButton.className = 'block-handle-button block-handle-grip'
+      gripButton.draggable = true
+      const gripIconContainer = document.createElement('span')
+
+      gripButton.appendChild(gripIconContainer)
+      renderIcon(gripIconContainer, 'double-dots-vertical')
+
+      gripButton.addEventListener('dragstart', (e) => {
         selectBlock(pos)
 
         editor.view.dragging = {
@@ -134,17 +164,20 @@ export const DragHandle = Extension.create({
         editor.view.dom.classList.add('is-dragging')
       })
 
-      handle.addEventListener('dragend', () => {
+      gripButton.addEventListener('dragend', () => {
         editor.view.dom.classList.remove('is-dragging')
       })
 
-      handle.addEventListener('click', (e) => {
+      gripButton.addEventListener('click', (e) => {
         e.preventDefault()
         e.stopPropagation()
         selectBlock(pos)
       })
 
-      return handle
+      group.appendChild(plusButton)
+      group.appendChild(gripButton)
+
+      return group
     }
 
     function buildDecorations(doc: PmNode): DecorationSet {
@@ -166,6 +199,47 @@ export const DragHandle = Extension.create({
     return [
       new Plugin({
         key: dragHandlePluginKey,
+        view(editorView) {
+          const handleOutsideClick = (event: MouseEvent) => {
+            const target = event.target as HTMLElement
+
+            // Editor-owned floating UI (e.g. the block toolbar's color picker)
+            // renders in a Popper portaled to document.body — outside
+            // .rich-text-editor. Clicking it must not count as an outside click,
+            // or the active block NodeSelection would be cleared on mousedown
+            // before the toolbar command runs, so the color is never applied
+            // (LAGO-1671).
+            if (target.closest('[data-rte-preserve-selection]')) return
+
+            const editorContainer = editorView.dom.closest('.rich-text-editor')
+
+            if (!editorContainer || editorContainer.contains(target)) return
+
+            const { selection } = editorView.state
+            const isNodeSelected = selection instanceof NodeSelection
+            const isTableSelected = storage.selectedBlock !== null
+
+            if (!isNodeSelected && !isTableSelected) return
+
+            storage.selectedBlock = null
+            storage.hideMenu = false
+
+            const $pos = editorView.state.doc.resolve(
+              Math.min(selection.from, editorView.state.doc.content.size),
+            )
+            const textSel = TextSelection.near($pos)
+
+            editorView.dispatch(editorView.state.tr.setSelection(textSel))
+          }
+
+          document.addEventListener('mousedown', handleOutsideClick)
+
+          return {
+            destroy() {
+              document.removeEventListener('mousedown', handleOutsideClick)
+            },
+          }
+        },
         state: {
           init(_, state) {
             return buildDecorations(state.doc)
@@ -235,6 +309,38 @@ export const DragHandle = Extension.create({
             storage.selectedBlock = null
 
             return false // don't consume the event
+          },
+          handleKeyDown(view, event) {
+            if (event.key !== 'Escape') return false
+
+            const { selection } = view.state
+            const isNodeSelected = selection instanceof NodeSelection
+            const isTableSelected = storage.selectedBlock !== null
+
+            if (!isNodeSelected && !isTableSelected) return false
+
+            // First ESC: hide the block menu (BlockToolbar)
+            if (!storage.hideMenu) {
+              storage.hideMenu = true
+              view.dispatch(view.state.tr.setMeta('hideBlockMenu', true))
+
+              return true
+            }
+
+            // Second ESC: deselect the block
+            storage.hideMenu = false
+
+            if (isNodeSelected) {
+              const $pos = view.state.doc.resolve(selection.to)
+              const textSel = TextSelection.near($pos)
+
+              view.dispatch(view.state.tr.setSelection(textSel))
+            } else if (isTableSelected) {
+              storage.selectedBlock = null
+              view.dispatch(view.state.tr.setMeta('clearBlockSelection', true))
+            }
+
+            return true
           },
         },
       }),

@@ -193,7 +193,7 @@ const RoleCreateEdit = () => {
               <NameAndCodeGroup
                 form={form}
                 fields={{ name: 'name', code: 'code' }}
-                isDisabled={isEdition}
+                disableCodeInput={isEdition}
               />
               <form.AppField name="description">
                 {(field) => (

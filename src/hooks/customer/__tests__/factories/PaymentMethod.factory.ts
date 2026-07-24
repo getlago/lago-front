@@ -56,7 +56,7 @@ const DEFAULT_PAYMENT_METHODS: PaymentMethodItem[] = [
   }),
 ]
 
-export const createMockPaymentMethodsData = (
+const createMockPaymentMethodsData = (
   paymentMethods: PaymentMethodItem[] = DEFAULT_PAYMENT_METHODS,
 ): PaymentMethodsQuery['paymentMethods'] => {
   return {

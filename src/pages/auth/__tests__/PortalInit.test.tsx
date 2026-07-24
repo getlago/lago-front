@@ -15,9 +15,13 @@ jest.mock('@apollo/client', () => ({
 }))
 
 const mockOnAccessCustomerPortal = jest.fn()
+const mockPausePersistence = jest.fn()
+const mockPurgePersistedCache = jest.fn()
 
 jest.mock('~/core/apolloClient', () => ({
   onAccessCustomerPortal: (...args: unknown[]) => mockOnAccessCustomerPortal(...args),
+  pausePersistence: (...args: unknown[]) => mockPausePersistence(...args),
+  purgePersistedCache: (...args: unknown[]) => mockPurgePersistedCache(...args),
 }))
 
 jest.mock('~/pages/customerPortal/CustomerPortal', () => ({
@@ -84,10 +88,19 @@ describe('PortalInit', () => {
           expect(mockOnAccessCustomerPortal).toHaveBeenCalledWith('test-token')
         })
       })
+
+      it('THEN should pause persistence and never purge the admin blob', async () => {
+        renderWithToken()
+
+        await waitFor(() => {
+          expect(mockPausePersistence).toHaveBeenCalled()
+        })
+        expect(mockPurgePersistedCache).not.toHaveBeenCalled()
+      })
     })
 
     describe('WHEN the store clear fails', () => {
-      it('THEN should still render CustomerPortal via .finally()', async () => {
+      it('THEN should still render CustomerPortal', async () => {
         mockClearStore.mockRejectedValue(new Error('Store clear failed'))
 
         renderWithToken()

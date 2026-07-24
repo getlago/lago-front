@@ -44,7 +44,7 @@ export const ToastContainer = () => {
   }, [])
 
   return (
-    <div className="fixed bottom-0 left-0 z-toast mb-4 ml-4 cursor-default">
+    <div className="pointer-events-none fixed bottom-0 left-0 z-toast mb-4 ml-4 cursor-default">
       {toasts.map((toast) => (
         <Toast key={toast.id} ref={elementsRefs.current[toast.id]} toast={toast} />
       ))}

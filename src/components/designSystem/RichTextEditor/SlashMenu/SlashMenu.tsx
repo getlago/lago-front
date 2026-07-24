@@ -20,6 +20,7 @@ export const SlashMenu = forwardRef<SlashMenuRef, SlashMenuProps>(({ items, comm
     command={command}
     getKey={(item) => item.title}
     getLabel={(item) => item.title}
+    getDisabled={(item) => !!item.disabled}
     containerTestId={SLASH_MENU_CONTAINER_TEST_ID}
     itemTestId={SLASH_MENU_ITEM_TEST_ID}
   />

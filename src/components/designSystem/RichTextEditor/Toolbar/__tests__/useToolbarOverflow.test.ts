@@ -87,6 +87,10 @@ function renderOverflowHook({
 describe('GIVEN the useToolbarOverflow hook', () => {
   beforeEach(() => {
     jest.useFakeTimers()
+    jest.spyOn(window, 'getComputedStyle').mockReturnValue({
+      paddingLeft: '0',
+      paddingRight: '0',
+    } as CSSStyleDeclaration)
   })
 
   afterEach(() => {

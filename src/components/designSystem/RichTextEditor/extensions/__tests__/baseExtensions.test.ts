@@ -8,9 +8,7 @@ const createEditor = (content = '') =>
     content,
   })
 
-const getMarkdown = (editor: Editor): string =>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (editor.storage as any).markdown.getMarkdown()
+const getMarkdown = (editor: Editor): string => (editor.storage as any).markdown.getMarkdown()
 
 describe('getBaseExtensions', () => {
   describe('GIVEN no options are provided', () => {
@@ -25,8 +23,7 @@ describe('getBaseExtensions', () => {
       it('THEN should include StarterKit with link and underline disabled', () => {
         const extensions = getBaseExtensions()
         const starterKit = extensions.find((ext) => 'name' in ext && ext.name === 'starterKit') as
-          | { name: string; options: Record<string, unknown> }
-          | undefined
+          { name: string; options: Record<string, unknown> } | undefined
 
         expect(starterKit).toBeDefined()
         expect(starterKit?.options.link).toBe(false)
@@ -40,7 +37,6 @@ describe('getBaseExtensions', () => {
         ['subscript'],
         ['highlight'],
         ['textAlign'],
-        ['image'],
         ['table'],
         ['tableRow'],
         ['tableCell'],
@@ -60,8 +56,7 @@ describe('getBaseExtensions', () => {
       it('THEN should configure Table with resizable false by default', () => {
         const extensions = getBaseExtensions()
         const table = extensions.find((ext) => 'name' in ext && ext.name === 'table') as
-          | { name: string; options: { resizable: boolean } }
-          | undefined
+          { name: string; options: { resizable: boolean } } | undefined
 
         expect(table).toBeDefined()
         expect(table?.options.resizable).toBe(false)
@@ -70,8 +65,7 @@ describe('getBaseExtensions', () => {
       it('THEN should configure Link with openOnClick false', () => {
         const extensions = getBaseExtensions()
         const link = extensions.find((ext) => 'name' in ext && ext.name === 'link') as
-          | { name: string; options: { openOnClick: boolean } }
-          | undefined
+          { name: string; options: { openOnClick: boolean } } | undefined
 
         expect(link).toBeDefined()
         expect(link?.options.openOnClick).toBe(false)
@@ -84,8 +78,7 @@ describe('getBaseExtensions', () => {
       it('THEN should configure Table with resizable true', () => {
         const extensions = getBaseExtensions({ tableResizable: true })
         const table = extensions.find((ext) => 'name' in ext && ext.name === 'table') as
-          | { name: string; options: { resizable: boolean } }
-          | undefined
+          { name: string; options: { resizable: boolean } } | undefined
 
         expect(table).toBeDefined()
         expect(table?.options.resizable).toBe(true)
@@ -98,8 +91,7 @@ describe('getBaseExtensions', () => {
       it('THEN should configure Table with resizable false', () => {
         const extensions = getBaseExtensions({ tableResizable: false })
         const table = extensions.find((ext) => 'name' in ext && ext.name === 'table') as
-          | { name: string; options: { resizable: boolean } }
-          | undefined
+          { name: string; options: { resizable: boolean } } | undefined
 
         expect(table).toBeDefined()
         expect(table?.options.resizable).toBe(false)
@@ -249,8 +241,7 @@ describe('getBaseExtensions', () => {
       it('THEN should disable paragraph and heading in StarterKit', () => {
         const extensions = getBaseExtensions()
         const starterKit = extensions.find((ext) => 'name' in ext && ext.name === 'starterKit') as
-          | { name: string; options: Record<string, unknown> }
-          | undefined
+          { name: string; options: Record<string, unknown> } | undefined
 
         expect(starterKit?.options.paragraph).toBe(false)
         expect(starterKit?.options.heading).toBe(false)
@@ -259,8 +250,7 @@ describe('getBaseExtensions', () => {
       it('THEN should configure dropcursor with blue color', () => {
         const extensions = getBaseExtensions()
         const starterKit = extensions.find((ext) => 'name' in ext && ext.name === 'starterKit') as
-          | { name: string; options: Record<string, unknown> }
-          | undefined
+          { name: string; options: Record<string, unknown> } | undefined
 
         expect(starterKit?.options.dropcursor).toEqual({ color: '#dbeafe', width: 4 })
       })
@@ -279,6 +269,23 @@ describe('getBaseExtensions', () => {
 
         expect(names.length).toBe(uniqueNames.size)
       })
+    })
+  })
+
+  describe('GIVEN the Markdown extension', () => {
+    const findMarkdown = () => getBaseExtensions().find((ext) => ext.name === 'markdown')
+
+    it('THEN is configured to transform pasted plain text as markdown', () => {
+      const markdown = findMarkdown()
+
+      expect(markdown).toBeDefined()
+      expect(markdown?.options.transformPastedText).toBe(true)
+    })
+
+    it('THEN still allows inline HTML (existing behavior preserved)', () => {
+      const markdown = findMarkdown()
+
+      expect(markdown?.options.html).toBe(true)
     })
   })
 })

@@ -1,12 +1,6 @@
 import { Location, matchPath, NavigateOptions, useParams } from 'react-router-dom'
 
-import {
-  addLocationToHistory,
-  authTokenVar,
-  getItemFromLS,
-  locationHistoryVar,
-} from '~/core/apolloClient'
-import { ORGANIZATION_LS_KEY_ID } from '~/core/constants/localStorageKeys'
+import { addLocationToHistory, authTokenVar, locationHistoryVar } from '~/core/apolloClient'
 import {
   CustomRouteObject,
   FORBIDDEN_ROUTE,
@@ -118,6 +112,35 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
     locationHistoryVar(remainingHistory || [])
   }
 
+  const handleAuthenticatedRouteEnter = (routeConfig: CustomRouteObject, location: Location) => {
+    const hasRequiredPermissions = checkRoutePermissions(
+      routeConfig,
+      hasPermissions,
+      hasPermissionsOr,
+    )
+
+    if (!hasRequiredPermissions) {
+      /**
+       * In case of navigation to a private route while authenticated but without permission
+       * Redirect to forbidden page
+       */
+      navigate(FORBIDDEN_ROUTE)
+    } else if (routeConfig.featureFlag && !hasFeatureFlag(routeConfig.featureFlag)) {
+      /**
+       * In case of navigation to a route gated by a feature flag that is not active
+       * Redirect to home page
+       */
+      navigate(HOME_ROUTE, { replace: true })
+    } else if (!routeConfig?.children && !routeConfig.onlyPublic) {
+      /**
+       * We add the current location to the history only if :
+       * - Current route has no children (to avoid adding Layout route which will result in duplicates)
+       * - Current route is not an only public route
+       */
+      addLocationToHistory(location)
+    }
+  }
+
   return {
     goBack,
     onRouteEnter: (routeConfig, location) => {
@@ -148,37 +171,11 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
         navigate(loginPath, {
           state: {
             from: location,
-            orgId: getItemFromLS(ORGANIZATION_LS_KEY_ID),
           },
           replace: true,
         })
       } else if (isAuthenticated && !isCurrentUserLoading) {
-        const hasRequiredPermissions = checkRoutePermissions(
-          routeConfig,
-          hasPermissions,
-          hasPermissionsOr,
-        )
-
-        if (!hasRequiredPermissions) {
-          /**
-           * In case of navigation to a private route while authenticated but without permission
-           * Redirect to forbidden page
-           */
-          navigate(FORBIDDEN_ROUTE)
-        } else if (routeConfig.featureFlag && !hasFeatureFlag(routeConfig.featureFlag)) {
-          /**
-           * In case of navigation to a route gated by a feature flag that is not active
-           * Redirect to home page
-           */
-          navigate(HOME_ROUTE, { replace: true })
-        } else if (!routeConfig?.children && !routeConfig.onlyPublic) {
-          /**
-           * We add the current location to the history only if :
-           * - Current route has no children (to avoid adding Layout route which will result in duplicates)
-           * - Current route is not an only public route
-           */
-          addLocationToHistory(location)
-        }
+        handleAuthenticatedRouteEnter(routeConfig, location)
       } else if (!routeConfig?.children && !routeConfig.onlyPublic) {
         // In the invitation for page, once users are logged in, we redirect them to the home page
         if (routeConfig.invitation && isAuthenticated) {

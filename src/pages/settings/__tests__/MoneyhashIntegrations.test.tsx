@@ -11,10 +11,14 @@ import {
 import MoneyhashIntegrations from '../MoneyhashIntegrations'
 
 jest.mock('~/components/settings/integrations/AddMoneyhashDialog', () => ({
-  AddMoneyhashDialog: () => null,
+  useAddMoneyhashDialog: () => ({
+    openAddMoneyhashDialog: jest.fn(),
+  }),
 }))
 jest.mock('~/components/settings/integrations/DeleteMoneyhashIntegrationDialog', () => ({
-  DeleteMoneyhashIntegrationDialog: () => null,
+  useDeleteMoneyhashIntegrationDialog: () => ({
+    openDeleteMoneyhashIntegrationDialog: jest.fn(),
+  }),
 }))
 jest.mock('~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog', () => ({
   AddEditDeleteSuccessRedirectUrlDialog: () => null,

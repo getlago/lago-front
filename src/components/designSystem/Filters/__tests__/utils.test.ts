@@ -3,21 +3,27 @@ import { DateTime } from 'luxon'
 import { AvailableFiltersEnum, filterDataInlineSeparator } from '../types'
 import {
   defineDefaultToDateValue,
+  escapeFilterLabel,
   FILTER_VALUE_MAP,
   formatActiveFilterValueDisplay,
   formatFiltersForCreditNotesQuery,
+  formatFiltersForCustomerQuery,
   formatFiltersForInvoiceQuery,
   formatFiltersForMrrQuery,
+  formatFiltersForOrderFormsQuery,
+  formatFiltersForOrdersQuery,
   formatFiltersForQuery,
   formatFiltersForQuotesQuery,
   formatFiltersForRevenueStreamsQuery,
   formatFiltersForSecurityLogsQuery,
+  formatFiltersForSubscriptionQuery,
   formatFiltersForWebhookLogsQuery,
   formatMetadataFilter,
   getFilterValue,
   keyWithPrefix,
   parseFromToValue,
   parseMetadataFilter,
+  unescapeFilterLabel,
 } from '../utils'
 
 describe('Filters utils', () => {
@@ -161,6 +167,103 @@ describe('Filters utils', () => {
     })
   })
 
+  describe('formatFiltersForCustomerQuery', () => {
+    it('should format filters for customer query', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('cu_externalId', 'customer_external_id_123')
+      searchParams.set('cu_customerType', 'company')
+      searchParams.set('cu_countries', 'US,FR')
+      searchParams.set('cu_currencies', 'USD,EUR')
+      searchParams.set('cu_zipcodes', '12345,67890')
+
+      const result = formatFiltersForCustomerQuery(searchParams)
+
+      expect(result).toEqual({
+        externalId: 'customer_external_id_123',
+        customerType: 'company',
+        countries: ['US', 'FR'],
+        currencies: ['USD', 'EUR'],
+        zipcodes: ['12345', '67890'],
+      })
+    })
+
+    it('should rename activeSubscriptions keys for customer query', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('cu_activeSubscriptions', 'isBetween,2,5')
+
+      const result = formatFiltersForCustomerQuery(searchParams)
+
+      expect(result).toEqual({
+        activeSubscriptionsCountFrom: 2,
+        activeSubscriptionsCountTo: 5,
+      })
+    })
+
+    it('should map isCustomerTinEmpty ("Customer has Tax ID") onto hasTaxIdentificationNumber', () => {
+      const searchParams = new URLSearchParams()
+
+      // The URL value reflects the "Customer has Tax ID" label: 'true' means the customer has one
+      searchParams.set('cu_isCustomerTinEmpty', 'true')
+
+      expect(formatFiltersForCustomerQuery(searchParams)).toEqual({
+        hasTaxIdentificationNumber: true,
+      })
+
+      searchParams.set('cu_isCustomerTinEmpty', 'false')
+
+      expect(formatFiltersForCustomerQuery(searchParams)).toEqual({
+        hasTaxIdentificationNumber: false,
+      })
+    })
+
+    it('should return empty object when filters are not valid', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('invalidFilter', 'value')
+
+      const result = formatFiltersForCustomerQuery(searchParams)
+
+      expect(result).toEqual({})
+    })
+  })
+
+  describe('formatFiltersForSubscriptionQuery', () => {
+    it('should format filters for subscription query', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('sub_externalId', 'subscription_external_id_123')
+      searchParams.set('sub_planCode', 'planCodeValue')
+      searchParams.set('sub_overriden', 'true')
+      searchParams.set('sub_subscriptionStatus', 'active,pending')
+      searchParams.set(
+        'sub_customerExternalId',
+        `externalCustomerIdValue${filterDataInlineSeparator}my name to be displayed`,
+      )
+
+      const result = formatFiltersForSubscriptionQuery(searchParams)
+
+      expect(result).toEqual({
+        externalId: 'subscription_external_id_123',
+        planCode: 'planCodeValue',
+        overriden: true,
+        status: ['active', 'pending'],
+        externalCustomerId: 'externalCustomerIdValue',
+      })
+    })
+
+    it('should return empty object when filters are not valid', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('invalidFilter', 'value')
+
+      const result = formatFiltersForSubscriptionQuery(searchParams)
+
+      expect(result).toEqual({})
+    })
+  })
+
   describe('formatFiltersForMrrQuery', () => {
     it('should format filters for MRR query', () => {
       const searchParams = new URLSearchParams()
@@ -273,6 +376,14 @@ describe('Filters utils', () => {
       )
 
       expect(result).toBe('1234')
+    })
+    it('should format active filter externalId value display keeping the raw value', () => {
+      const result = formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.externalId,
+        'external_id_123',
+      )
+
+      expect(result).toBe('external_id_123')
     })
     it('should format active filter timeGranularity value display', () => {
       const result = formatActiveFilterValueDisplay(AvailableFiltersEnum.timeGranularity, 'daily')
@@ -1298,6 +1409,245 @@ describe('Filters utils', () => {
         }),
       )
       expect(result).not.toHaveProperty('logTypes')
+    })
+  })
+
+  describe('formatFiltersForOrderFormsQuery', () => {
+    it('should format order form status filter with prefix', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('of_orderFormStatus', 'generated,signed')
+
+      const result = formatFiltersForOrderFormsQuery(searchParams)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          status: ['generated', 'signed'],
+        }),
+      )
+    })
+
+    it('should format order form number filter as number', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('of_orderFormNumber', 'OF-001,OF-002')
+
+      const result = formatFiltersForOrderFormsQuery(searchParams)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          number: ['OF-001', 'OF-002'],
+        }),
+      )
+    })
+
+    it('should format multipleCustomers filter as customerId extracting ids', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set(
+        'of_multipleCustomers',
+        `cust-1${filterDataInlineSeparator}Acme Corp,cust-2${filterDataInlineSeparator}Beta Inc`,
+      )
+
+      const result = formatFiltersForOrderFormsQuery(searchParams)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          customerId: ['cust-1', 'cust-2'],
+        }),
+      )
+    })
+
+    it('should format orderFormCreatedAt into createdAtFrom and createdAtTo', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('of_orderFormCreatedAt', '2026-01-01,2026-01-31')
+
+      const result = formatFiltersForOrderFormsQuery(searchParams)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          createdAtFrom: '2026-01-01',
+          createdAtTo: '2026-01-31',
+        }),
+      )
+    })
+
+    it('should format userIds filter as ownerId', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set(
+        'of_userIds',
+        `user-1${filterDataInlineSeparator}alice@example.com,user-2${filterDataInlineSeparator}bob@example.com`,
+      )
+
+      const result = formatFiltersForOrderFormsQuery(searchParams)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          ownerId: ['user-1', 'user-2'],
+        }),
+      )
+    })
+
+    it('should ignore filters with a different prefix', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('qu_quoteStatus', 'draft')
+      searchParams.set('of_orderFormStatus', 'signed')
+
+      const result = formatFiltersForOrderFormsQuery(searchParams)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          status: ['signed'],
+        }),
+      )
+      expect(result).not.toHaveProperty('statuses')
+    })
+  })
+
+  describe('formatFiltersForOrdersQuery', () => {
+    it('should format order status filter with prefix', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('or_orderStatus', 'created,executed')
+
+      const result = formatFiltersForOrdersQuery(searchParams)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          status: ['created', 'executed'],
+        }),
+      )
+    })
+
+    it('should format order number filter as number', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('or_orderNumber', 'OR-001,OR-002')
+
+      const result = formatFiltersForOrdersQuery(searchParams)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          number: ['OR-001', 'OR-002'],
+        }),
+      )
+    })
+
+    it('should format execution mode filter', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('or_orderExecutionMode', 'execute_in_lago,order_only')
+
+      const result = formatFiltersForOrdersQuery(searchParams)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          executionMode: ['execute_in_lago', 'order_only'],
+        }),
+      )
+    })
+
+    it('should format multipleCustomers filter as customerId extracting ids', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set(
+        'or_multipleCustomers',
+        `cust-1${filterDataInlineSeparator}Acme Corp,cust-2${filterDataInlineSeparator}Beta Inc`,
+      )
+
+      const result = formatFiltersForOrdersQuery(searchParams)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          customerId: ['cust-1', 'cust-2'],
+        }),
+      )
+    })
+
+    it('should format userIds filter as ownerId extracting ids', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set(
+        'or_userIds',
+        `user-1${filterDataInlineSeparator}Alice,user-2${filterDataInlineSeparator}Bob`,
+      )
+
+      const result = formatFiltersForOrdersQuery(searchParams)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          ownerId: ['user-1', 'user-2'],
+        }),
+      )
+    })
+
+    it('should format orderExecutedAt into executedAtFrom and executedAtTo', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('or_orderExecutedAt', '2026-01-01,2026-01-31')
+
+      const result = formatFiltersForOrdersQuery(searchParams)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          executedAtFrom: '2026-01-01',
+          executedAtTo: '2026-01-31',
+        }),
+      )
+    })
+
+    it('should ignore unknown params', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('or_orderStatus', 'created')
+      searchParams.set('randomSearchUrlParam', 'anditsvalue')
+
+      const result = formatFiltersForOrdersQuery(searchParams)
+
+      expect(result).toEqual({ status: ['created'] })
+    })
+  })
+
+  describe('comma-safe filter labels (escapeFilterLabel / unescapeFilterLabel)', () => {
+    it('escapes and unescapes a label containing commas, round-tripping exactly', () => {
+      const label = 'Bernhard, Strosin & Rolfson'
+      const escaped = escapeFilterLabel(label)
+
+      expect(escaped).not.toContain(',')
+      expect(unescapeFilterLabel(escaped)).toBe(label)
+    })
+
+    it('is a no-op for labels without commas', () => {
+      expect(escapeFilterLabel('Acme Corp')).toBe('Acme Corp')
+      expect(unescapeFilterLabel('Acme Corp')).toBe('Acme Corp')
+    })
+
+    it('keeps a comma-named customer as a single multipleCustomers chip with the real name', () => {
+      const value = `cust-1${filterDataInlineSeparator}${escapeFilterLabel('Bernhard, Strosin & Rolfson')}`
+
+      expect(formatActiveFilterValueDisplay(AvailableFiltersEnum.multipleCustomers, value)).toBe(
+        'Bernhard, Strosin & Rolfson',
+      )
+    })
+
+    it('extracts a single customer id from a comma-named customer in the query filters', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set(
+        'qu_multipleCustomers',
+        `cust-1${filterDataInlineSeparator}${escapeFilterLabel('Bernhard, Strosin & Rolfson')}`,
+      )
+
+      const result = formatFiltersForQuotesQuery(searchParams)
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          customers: ['cust-1'],
+        }),
+      )
     })
   })
 })

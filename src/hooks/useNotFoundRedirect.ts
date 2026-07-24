@@ -25,6 +25,7 @@ export const useNotFoundRedirect = ({
     if (loading || !isNotFoundError) return
 
     captureException(error, {
+      level: 'warning',
       tags: {
         errorType: 'NotFoundRedirect',
         fromPath: window.location.pathname,

@@ -6,6 +6,7 @@ import { currentOrganizationVar } from '~/core/apolloClient/reactiveVars'
 import {
   CurrentUserInfosFragment,
   MembershipPermissionsFragmentDoc,
+  OrgSlugResolverDataFragmentDoc,
   useGetCurrentUserInfosQuery,
 } from '~/generated/graphql'
 
@@ -17,14 +18,12 @@ gql`
     email
     premium
     csAdmin
+    ...OrgSlugResolverData
     memberships {
-      id
       roles
       ...MembershipPermissions
       organization {
-        id
         name
-        slug
         logoUrl
         accessibleByCurrentSession
       }
@@ -38,6 +37,7 @@ gql`
   }
 
   ${MembershipPermissionsFragmentDoc}
+  ${OrgSlugResolverDataFragmentDoc}
 `
 
 type UseCurrentUser = () => {
@@ -82,14 +82,23 @@ export const useCurrentUser: UseCurrentUser = () => {
     return memberships?.find((membership) => membership.organization.id === currentOrganizationId)
   }, [data?.currentUser?.memberships, currentOrganizationId, organizationSlug])
 
-  // Make sure we refetch the current user infos on some specific cases
-  // - When the current organization changes but the user is still pointing to the old organization
-  // - When the user is authenticated but the current membership is not set yet
+  // Recover from a stale cached `currentUser` on a hard reload: `cache-first` can
+  // serve a persisted user whose `memberships` don't include the URL slug's org,
+  // leaving `currentMembership` undefined and `OrganizationLayout` stuck on
+  // Error404. Keyed off the slug (not just the org var, which is null until
+  // `OrganizationLayout` resolves the org — a deadlock when no membership matches)
+  // so the refetch reconciles against the network.
   useEffect(() => {
-    if (currentOrganizationId && isAuthenticated && !currentMembership) {
+    if (isAuthenticated && !currentMembership && (organizationSlug || currentOrganizationId)) {
       refetchCurrentUserInfos()
     }
-  }, [currentOrganizationId, isAuthenticated, currentMembership, refetchCurrentUserInfos])
+  }, [
+    organizationSlug,
+    currentOrganizationId,
+    isAuthenticated,
+    currentMembership,
+    refetchCurrentUserInfos,
+  ])
 
   return {
     currentMembership,

@@ -9,7 +9,7 @@ import { focusCellAndRun } from './tableUtils'
 
 import ColorPicker from '../BlockControls/ColorPicker'
 
-export type ColMenuContentProps = {
+type ColMenuContentProps = {
   cellPos: number
   colIndex: number
   totalCols: number
