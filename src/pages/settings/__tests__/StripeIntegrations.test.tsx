@@ -11,7 +11,7 @@ import {
 import StripeIntegrations from '../StripeIntegrations'
 
 jest.mock('~/components/settings/integrations/AddStripeDialog', () => ({
-  AddStripeDialog: () => null,
+  useAddStripeDialog: () => ({ openAddStripeDialog: jest.fn() }),
 }))
 jest.mock('~/components/settings/integrations/DeleteStripeIntegrationDialog', () => ({
   useDeleteStripeIntegrationDialog: () => ({ openDeleteStripeIntegrationDialog: jest.fn() }),

@@ -64,6 +64,7 @@ const addExpirationIssue = (
 export const walletFormValidationSchema = z.custom<TWalletDataForm>().superRefine((data, ctx) => {
   const {
     currency,
+    code,
     rateAmount,
     paidCredits,
     paidTopUpMinAmountCents,
@@ -72,10 +73,16 @@ export const walletFormValidationSchema = z.custom<TWalletDataForm>().superRefin
     priority,
   } = data
 
-  // rateAmount — the only unconditionally-required top-level field
+  // rateAmount — unconditionally-required top-level field
   if (!rateAmount) {
     // "Field is required"
     ctx.addIssue({ code: 'custom', message: 'text_1771342994699klxu2paz7g8', path: ['rateAmount'] })
+  }
+
+  // code — required, `required('')` parity: the field turns invalid without
+  // rendering an error text (a blank code would otherwise be stored as is)
+  if (!code) {
+    ctx.addIssue({ code: 'custom', message: '', path: ['code'] })
   }
 
   // expirationAt — valid ISO + in the future

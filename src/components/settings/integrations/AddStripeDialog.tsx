@@ -1,26 +1,30 @@
-import { gql } from '@apollo/client'
-import Stack from '@mui/material/Stack'
-import { useFormik } from 'formik'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
+import { gql, useApolloClient } from '@apollo/client'
+import { revalidateLogic } from '@tanstack/react-form'
+import { useRef } from 'react'
 import { generatePath } from 'react-router-dom'
-import { object, string } from 'yup'
+import { z } from 'zod'
 
-import { Button } from '~/components/designSystem/Button'
-import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
-import { SwitchField, TextInputField } from '~/components/form'
+import { useFormDialogOpeningDialog } from '~/components/dialogs/FormDialogOpeningDialog'
+import { DialogResult } from '~/components/dialogs/types'
+import { focusFirstInput } from '~/components/drawers/useFocusTrap'
+import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
 import { addToast } from '~/core/apolloClient'
+import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { STRIPE_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import {
   AddStripePaymentProviderInput,
   AddStripeProviderDialogFragment,
+  GetStripeIntegrationsListDocument,
   LagoApiError,
   StripeIntegrationDetailsFragmentDoc,
   useAddStripeApiKeyMutation,
+  useDeleteStripeMutation,
   useGetProviderByCodeForStripeLazyQuery,
   useUpdateStripeApiKeyMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm } from '~/hooks/forms/useAppform'
 
 gql`
   fragment AddStripeProviderDialog on StripeProvider {
@@ -73,27 +77,40 @@ gql`
   ${StripeIntegrationDetailsFragmentDoc}
 `
 
-type TAddStripeDialogProps = Partial<{
-  onDelete: (provider: AddStripeProviderDialogFragment) => void
-  provider: AddStripeProviderDialogFragment
-}>
+const ADD_STRIPE_FORM_ID = 'form-add-stripe-integration'
 
-export interface AddStripeDialogRef {
-  openDialog: (props?: TAddStripeDialogProps) => unknown
-  closeDialog: () => unknown
+type OpenAddStripeDialogData = {
+  provider?: AddStripeProviderDialogFragment
+  deleteCallback?: () => void
 }
 
-export const AddStripeDialog = forwardRef<AddStripeDialogRef>((_, ref) => {
-  const navigate = useNavigate()
-  const dialogRef = useRef<DialogRef>(null)
+const defaultFormValues: AddStripePaymentProviderInput = {
+  name: '',
+  code: '',
+  secretKey: '',
+  supports3ds: false,
+}
+
+const validationSchema = z.object({
+  name: z.string(),
+  code: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
+  secretKey: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
+  supports3ds: z.boolean().optional(),
+})
+
+export const useAddStripeDialog = () => {
+  const formDialogOpeningDialog = useFormDialogOpeningDialog()
   const { translate } = useInternationalization()
-  const [localData, setLocalData] = useState<TAddStripeDialogProps | undefined>(undefined)
-  const stripeProvider = localData?.provider
-  const isEdition = !!stripeProvider
+  const navigate = useNavigate()
+  const client = useApolloClient()
+
+  const dataRef = useRef<OpenAddStripeDialogData | null>(null)
+  const successRef = useRef(false)
 
   const [addApiKey] = useAddStripeApiKeyMutation({
     onCompleted({ addStripePaymentProvider }) {
       if (addStripePaymentProvider?.id) {
+        successRef.current = true
         navigate(
           generatePath(STRIPE_INTEGRATION_DETAILS_ROUTE, {
             integrationId: addStripePaymentProvider.id,
@@ -112,35 +129,33 @@ export const AddStripeDialog = forwardRef<AddStripeDialogRef>((_, ref) => {
   const [updateApiKey] = useUpdateStripeApiKeyMutation({
     onCompleted({ updateStripePaymentProvider }) {
       if (updateStripePaymentProvider?.id) {
+        successRef.current = true
         addToast({
           message: translate('text_62b1edddbf5f461ab97126f6'),
           severity: 'success',
         })
-
-        dialogRef.current?.closeDialog()
       }
     },
   })
 
   const [getStripeProviderByCode] = useGetProviderByCodeForStripeLazyQuery()
 
-  const formikProps = useFormik<AddStripePaymentProviderInput>({
-    initialValues: {
-      secretKey: stripeProvider?.secretKey || '',
-      code: stripeProvider?.code || '',
-      name: stripeProvider?.name || '',
-      supports3ds: stripeProvider?.supports3ds || false,
+  const [deleteStripe] = useDeleteStripeMutation()
+
+  const form = useAppForm({
+    defaultValues: defaultFormValues,
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: validationSchema,
     },
-    validationSchema: object().shape({
-      name: string(),
-      code: string().required(''),
-      secretKey: string().required(''),
-    }),
-    onSubmit: async ({ secretKey, ...values }, formikBag) => {
+    onSubmit: async ({ value, formApi }) => {
+      const stripeProvider = dataRef.current?.provider
+      const isEdition = !!stripeProvider
+
       const res = await getStripeProviderByCode({
         context: { silentErrorCodes: [LagoApiError.NotFound] },
         variables: {
-          code: values.code,
+          code: value.code,
         },
       })
       const isNotAllowedToMutate =
@@ -150,129 +165,166 @@ export const AddStripeDialog = forwardRef<AddStripeDialogRef>((_, ref) => {
           res.data?.paymentProvider?.id !== stripeProvider?.id)
 
       if (isNotAllowedToMutate) {
-        formikBag.setFieldError('code', translate('text_632a2d437e341dcc76817556'))
+        formApi.setErrorMap({
+          onDynamic: {
+            fields: {
+              code: {
+                message: translate('text_632a2d437e341dcc76817556'),
+                path: ['code'],
+              },
+            },
+          },
+        })
         return
       }
+
+      const { secretKey, ...rest } = value
 
       if (isEdition) {
         await updateApiKey({
           variables: {
             input: {
+              ...rest,
               id: stripeProvider?.id || '',
-              ...values,
             },
           },
         })
       } else {
         await addApiKey({
           variables: {
-            input: { secretKey, ...values },
+            input: { ...rest, secretKey },
           },
         })
       }
-
-      dialogRef.current?.closeDialog()
     },
-    validateOnMount: true,
-    enableReinitialize: true,
   })
 
-  useImperativeHandle(ref, () => ({
-    openDialog: (data) => {
-      setLocalData(data)
-      dialogRef.current?.openDialog()
-    },
-    closeDialog: () => dialogRef.current?.closeDialog(),
-  }))
+  const handleSubmit = async (): Promise<DialogResult> => {
+    successRef.current = false
+    await form.handleSubmit()
 
-  return (
-    <Dialog
-      ref={dialogRef}
-      title={translate(
-        isEdition ? 'text_658461066530343fe1808cd9' : 'text_6584550dc4cec7adf8615049',
-        {
-          name: stripeProvider?.name,
-        },
-      )}
-      description={translate(
-        isEdition ? 'text_6584697bc905b246e70e5528' : 'text_6584550dc4cec7adf861504b',
-      )}
-      onClose={formikProps.resetForm}
-      actions={({ closeDialog }) => (
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-          width={isEdition ? '100%' : 'inherit'}
-          spacing={3}
-        >
-          {isEdition && (
-            <Button
-              danger
-              variant="quaternary"
-              onClick={() => {
-                closeDialog()
-                localData?.onDelete?.(stripeProvider)
+    if (!successRef.current) {
+      throw new Error('Submit failed')
+    }
+
+    return { reason: 'success' }
+  }
+
+  const openAddStripeDialog = (data?: OpenAddStripeDialogData) => {
+    dataRef.current = data ?? null
+    const stripeProvider = data?.provider
+    const isEdition = !!stripeProvider
+
+    form.reset()
+    if (stripeProvider) {
+      form.setFieldValue('name', stripeProvider.name || '')
+      form.setFieldValue('code', stripeProvider.code || '')
+      form.setFieldValue('secretKey', stripeProvider.secretKey || '')
+      form.setFieldValue('supports3ds', stripeProvider.supports3ds || false)
+    }
+
+    formDialogOpeningDialog
+      .open({
+        title: translate(
+          isEdition ? 'text_658461066530343fe1808cd9' : 'text_6584550dc4cec7adf8615049',
+          {
+            name: stripeProvider?.name,
+          },
+        ),
+        description: translate(
+          isEdition ? 'text_6584697bc905b246e70e5528' : 'text_6584550dc4cec7adf861504b',
+        ),
+        children: (
+          <div className="flex flex-col gap-6 p-8">
+            <NameAndCodeGroup
+              form={form}
+              fields={{ name: 'name', code: 'code' }}
+              disableAutoGenerateCode={isEdition}
+              nameProps={{
+                label: translate('text_6584550dc4cec7adf861504d'),
+                placeholder: translate('text_6584550dc4cec7adf861504f'),
               }}
-            >
-              {translate('text_65845f35d7d69c3ab4793dad')}
-            </Button>
-          )}
-          <Stack direction="row" spacing={3} alignItems="center">
-            <Button variant="quaternary" onClick={closeDialog}>
-              {translate('text_62b1edddbf5f461ab971276d')}
-            </Button>
-            <Button
-              variant="primary"
-              disabled={!formikProps.isValid || !formikProps.dirty}
-              onClick={formikProps.submitForm}
-            >
+              codeProps={{
+                label: translate('text_6584550dc4cec7adf8615051'),
+                placeholder: translate('text_6584550dc4cec7adf8615053'),
+              }}
+            />
+
+            <form.AppField name="secretKey">
+              {(field) => (
+                <field.TextInputField
+                  disabled={isEdition}
+                  description={isEdition ? translate('text_637f813d31381b1ed90ab30e') : undefined}
+                  label={translate('text_62b1edddbf5f461ab9712748')}
+                  placeholder={translate('text_62b1edddbf5f461ab9712756')}
+                />
+              )}
+            </form.AppField>
+
+            <form.AppField name="supports3ds">
+              {(field) => (
+                <field.SwitchField
+                  label={translate('text_1764107468210ibi78qsrukx')}
+                  subLabel={translate('text_1764107468210lbhkj5no1vh')}
+                />
+              )}
+            </form.AppField>
+          </div>
+        ),
+        closeOnError: false,
+        onEntered: focusFirstInput,
+        mainAction: (
+          <form.AppForm>
+            <form.SubmitButton>
               {translate(
                 isEdition ? 'text_62b1edddbf5f461ab9712769' : 'text_62b1edddbf5f461ab9712773',
               )}
-            </Button>
-          </Stack>
-        </Stack>
-      )}
-    >
-      <div className="mb-8 flex flex-col gap-6">
-        <div className="flex flex-row items-start gap-6">
-          <TextInputField
-            className="flex-1"
-            // eslint-disable-next-line jsx-a11y/no-autofocus
-            autoFocus
-            formikProps={formikProps}
-            name="name"
-            label={translate('text_6584550dc4cec7adf861504d')}
-            placeholder={translate('text_6584550dc4cec7adf861504f')}
-          />
-          <TextInputField
-            className="flex-1"
-            formikProps={formikProps}
-            name="code"
-            label={translate('text_6584550dc4cec7adf8615051')}
-            placeholder={translate('text_6584550dc4cec7adf8615053')}
-          />
-        </div>
+            </form.SubmitButton>
+          </form.AppForm>
+        ),
+        form: {
+          id: ADD_STRIPE_FORM_ID,
+          submit: handleSubmit,
+        },
+        canOpenDialog: isEdition,
+        openDialogText: translate('text_65845f35d7d69c3ab4793dad'),
+        otherDialogProps: {
+          title: translate('text_658461066530343fe1808cd7', { name: stripeProvider?.name }),
+          description: translate('text_658461066530343fe1808cdb'),
+          colorVariant: 'danger',
+          actionText: translate('text_645d071272418a14c1c76a81'),
+          onAction: async () => {
+            const result = await deleteStripe({
+              variables: { input: { id: stripeProvider?.id as string } },
+            })
 
-        <TextInputField
-          name="secretKey"
-          disabled={isEdition}
-          description={isEdition ? translate('text_637f813d31381b1ed90ab30e') : undefined}
-          label={translate('text_62b1edddbf5f461ab9712748')}
-          placeholder={translate('text_62b1edddbf5f461ab9712756')}
-          formikProps={formikProps}
-        />
+            const destroyedId = result.data?.destroyPaymentProvider?.id
 
-        <SwitchField
-          name="supports3ds"
-          label={translate('text_1764107468210ibi78qsrukx')}
-          subLabel={translate('text_1764107468210lbhkj5no1vh')}
-          formikProps={formikProps}
-        />
-      </div>
-    </Dialog>
-  )
-})
+            if (destroyedId) {
+              evictFromCache(client, {
+                id: destroyedId,
+                __typename: 'StripeProvider',
+                listFieldName: 'paymentProviders',
+                listQueryDocument: GetStripeIntegrationsListDocument,
+              })
 
-AddStripeDialog.displayName = 'AddStripeDialog'
+              data?.deleteCallback?.()
+
+              addToast({
+                message: translate('text_62b1edddbf5f461ab9712758'),
+                severity: 'success',
+              })
+            }
+          },
+        },
+      })
+      .then((response) => {
+        if (response.reason === 'close' || response.reason === 'open-other-dialog') {
+          form.reset()
+          dataRef.current = null
+        }
+      })
+  }
+
+  return { openAddStripeDialog }
+}

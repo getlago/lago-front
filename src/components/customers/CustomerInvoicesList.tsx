@@ -1,6 +1,6 @@
 import { FetchMoreQueryOptions, gql } from '@apollo/client'
 import { IconName } from 'lago-design-system'
-import { FC, useRef } from 'react'
+import { FC } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
@@ -14,14 +14,8 @@ import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { buildInvoiceDocumentData } from '~/components/emails/buildDocumentData'
 import { useUpdateInvoicePaymentStatusDialog } from '~/components/invoices/EditInvoicePaymentStatusDialog'
-import {
-  FinalizeInvoiceDialog,
-  FinalizeInvoiceDialogRef,
-} from '~/components/invoices/FinalizeInvoiceDialog'
-import {
-  ResendInvoiceForCollectionDialog,
-  ResendInvoiceForCollectionDialogRef,
-} from '~/components/invoices/ResendInvoiceForCollectionDialog'
+import { useFinalizeInvoiceDialog } from '~/components/invoices/FinalizeInvoiceDialog'
+import { useResendInvoiceForCollectionDialog } from '~/components/invoices/ResendInvoiceForCollectionDialog'
 import { getMostRecentPaymentMethodId } from '~/components/invoices/utils/getMostRecentPaymentMethodId'
 import { addToast } from '~/core/apolloClient'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
@@ -184,7 +178,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
   const { translate } = useInternationalization()
   const actions = usePermissionsInvoiceActions()
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
-  const resendInvoiceForCollectionDialogRef = useRef<ResendInvoiceForCollectionDialogRef>(null)
+  const { openResendInvoiceForCollectionDialog } = useResendInvoiceForCollectionDialog()
   const { handleDownloadFile } = useDownloadFile()
   const { showResendEmailDialog } = useResendEmailDialog()
 
@@ -196,7 +190,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
 
   const { generatePaymentUrl } = useGeneratePaymentUrl()
 
-  const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
+  const { openFinalizeInvoiceDialog } = useFinalizeInvoiceDialog()
   const { openUpdateInvoicePaymentStatusDialog } = useUpdateInvoicePaymentStatusDialog()
 
   return (
@@ -455,9 +449,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                   startIcon: 'checkmark' as IconName,
                   title: translate('text_63a41a8eabb9ae67047c1c08'),
                   onAction: (item) => {
-                    finalizeInvoiceRef.current?.openDialog(
-                      item as InvoiceForFinalizeInvoiceFragment,
-                    )
+                    openFinalizeInvoiceDialog(item as InvoiceForFinalizeInvoiceFragment)
                   },
                 }
               }
@@ -510,7 +502,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                     startIcon: 'push',
                     title: translate('text_63ac86d897f728a87b2fa039'),
                     onAction: () => {
-                      resendInvoiceForCollectionDialogRef.current?.openDialog({
+                      openResendInvoiceForCollectionDialog({
                         invoice,
                         preselectedPaymentMethodId: getMostRecentPaymentMethodId(invoice?.payments),
                       })
@@ -585,8 +577,6 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
           }}
         />
       </PaginatedContent>
-      <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
-      <ResendInvoiceForCollectionDialog ref={resendInvoiceForCollectionDialogRef} />
     </>
   )
 }

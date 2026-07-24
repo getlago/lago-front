@@ -26,24 +26,33 @@ jest.mock('~/hooks/useInvoiceCustomSections', () => ({
 let capturedOnSave:
   | ((selection: { behavior: string; selectedSections: InvoiceCustomSectionBasic[] }) => void)
   | undefined
-
-jest.mock('~/components/invoceCustomFooter/EditInvoiceCustomSectionDialog', () => ({
-  EditInvoiceCustomSectionDialog: jest.fn(
-    ({
-      onSave,
-    }: {
-      onSave?: (selection: {
+let lastOpenParams:
+  | {
+      customerId: string
+      selectedSections: InvoiceCustomSectionBasic[]
+      skipInvoiceCustomSections: boolean
+      onSave: (selection: {
         behavior: string
         selectedSections: InvoiceCustomSectionBasic[]
       }) => void
-    }) => {
-      // Capture onSave for testing
-      if (onSave) {
-        capturedOnSave = onSave
-      }
-      return null
-    },
-  ),
+    }
+  | undefined
+const mockOpenEditInvoiceCustomSectionDialog = jest.fn(
+  (params: {
+    customerId: string
+    selectedSections: InvoiceCustomSectionBasic[]
+    skipInvoiceCustomSections: boolean
+    onSave: (selection: { behavior: string; selectedSections: InvoiceCustomSectionBasic[] }) => void
+  }) => {
+    lastOpenParams = params
+    capturedOnSave = params.onSave
+  },
+)
+
+jest.mock('~/components/invoceCustomFooter/EditInvoiceCustomSectionDialog', () => ({
+  useEditInvoiceCustomSectionDialog: () => ({
+    openEditInvoiceCustomSectionDialog: mockOpenEditInvoiceCustomSectionDialog,
+  }),
   InvoiceCustomSectionBehavior: {
     FALLBACK: 'fallback',
     APPLY: 'apply',
@@ -141,14 +150,8 @@ describe('InvoceCustomFooter', () => {
 
       await userEvent.click(editButton)
 
-      // Verify dialog receives the selected sections (mapped from IDs to { id, name })
-      const { EditInvoiceCustomSectionDialog } = jest.requireMock(
-        '~/components/invoceCustomFooter/EditInvoiceCustomSectionDialog',
-      )
-
-      const dialogCall = EditInvoiceCustomSectionDialog.mock.calls[0]?.[0]
-
-      expect(dialogCall?.selectedSections).toEqual([
+      expect(mockOpenEditInvoiceCustomSectionDialog).toHaveBeenCalled()
+      expect(lastOpenParams?.selectedSections).toEqual([
         { id: 'section-1', name: 'Section 1' },
         { id: 'section-2', name: 'Section 2' },
       ])
@@ -318,6 +321,8 @@ describe('InvoceCustomFooter', () => {
   describe('WHEN dialog interaction occurs', () => {
     beforeEach(() => {
       capturedOnSave = undefined
+      lastOpenParams = undefined
+      mockOpenEditInvoiceCustomSectionDialog.mockClear()
     })
 
     it('THEN opens dialog when edit button is clicked', async () => {
@@ -327,17 +332,7 @@ describe('InvoceCustomFooter', () => {
 
       await userEvent.click(editButton)
 
-      // Verify dialog is called with open=true
-      const { EditInvoiceCustomSectionDialog } = jest.requireMock(
-        '~/components/invoceCustomFooter/EditInvoiceCustomSectionDialog',
-      )
-
-      expect(EditInvoiceCustomSectionDialog).toHaveBeenCalledWith(
-        expect.objectContaining({
-          open: true,
-        }),
-        expect.anything(),
-      )
+      expect(mockOpenEditInvoiceCustomSectionDialog).toHaveBeenCalledTimes(1)
     })
 
     it('THEN passes correct props to dialog based on current behavior', async () => {
@@ -352,16 +347,14 @@ describe('InvoceCustomFooter', () => {
         />,
       )
 
-      const { EditInvoiceCustomSectionDialog } = jest.requireMock(
-        '~/components/invoceCustomFooter/EditInvoiceCustomSectionDialog',
-      )
+      const editButton = screen.getByTestId(EDIT_BUTTON)
 
-      const dialogCall = EditInvoiceCustomSectionDialog.mock.calls[0]?.[0]
+      await userEvent.click(editButton)
 
-      expect(dialogCall?.skipInvoiceCustomSections).toBe(true)
+      expect(lastOpenParams?.skipInvoiceCustomSections).toBe(true)
       // The component passes selectedSections to the dialog regardless of skipInvoiceCustomSections
       // The dialog will determine the initial behavior based on skipInvoiceCustomSections
-      expect(dialogCall?.selectedSections).toEqual([{ id: 'section-1', name: 'Section 1' }])
+      expect(lastOpenParams?.selectedSections).toEqual([{ id: 'section-1', name: 'Section 1' }])
     })
 
     it('THEN displays default title and description', async () => {
@@ -375,6 +368,8 @@ describe('InvoceCustomFooter', () => {
   describe('WHEN handleDialogSave is called', () => {
     beforeEach(() => {
       capturedOnSave = undefined
+      lastOpenParams = undefined
+      mockOpenEditInvoiceCustomSectionDialog.mockClear()
     })
 
     it('THEN calls setInvoiceCustomSection with FALLBACK behavior values', async () => {

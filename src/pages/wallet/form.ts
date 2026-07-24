@@ -9,7 +9,7 @@ export const walletFormErrorCodes = {
   thresholdShouldBeLessThanTargetOngoingBalance: 'thresholdShouldBeLessThanTargetOngoingBalance',
 } as const
 
-enum TopUpAmountError {
+export enum TopUpAmountError {
   BelowMin = 'top-up-below-min',
   AboveMax = 'top-up-above-max',
   NotBetween = 'top-up-not-between',

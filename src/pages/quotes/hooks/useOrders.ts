@@ -14,7 +14,7 @@ gql`
     number
     status
     executionMode
-    executedAt
+    executeAt
     customer {
       id
       displayName

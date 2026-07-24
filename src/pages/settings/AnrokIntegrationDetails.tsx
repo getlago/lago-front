@@ -4,10 +4,7 @@ import { generatePath, useParams } from 'react-router-dom'
 
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
-import {
-  AddAnrokDialog,
-  AddAnrokDialogRef,
-} from '~/components/settings/integrations/AddAnrokDialog'
+import { useAddAnrokDialog } from '~/components/settings/integrations/AddAnrokDialog'
 import {
   AddEditDeleteSuccessRedirectUrlDialog,
   AddEditDeleteSuccessRedirectUrlDialogRef,
@@ -78,7 +75,7 @@ gql`
 const AnrokIntegrationDetails = () => {
   const navigate = useNavigate()
   const { integrationId = '' } = useParams()
-  const addAnrokDialogRef = useRef<AddAnrokDialogRef>(null)
+  const { openAddAnrokDialog } = useAddAnrokDialog()
   const { openDeleteAnrokIntegrationDialog } = useDeleteAnrokIntegrationDialog()
   const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { translate } = useInternationalization()
@@ -140,13 +137,9 @@ const AnrokIntegrationDetails = () => {
                 {
                   label: translate('text_65845f35d7d69c3ab4793dac'),
                   onClick: (closePopper) => {
-                    addAnrokDialogRef.current?.openDialog({
+                    openAddAnrokDialog({
                       integration: anrokIntegration,
-                      onDelete: (provider) =>
-                        openDeleteAnrokIntegrationDialog({
-                          provider,
-                          callback: deleteDialogCallback,
-                        }),
+                      deleteCallback: deleteDialogCallback,
                     })
                     closePopper()
                   },
@@ -188,7 +181,6 @@ const AnrokIntegrationDetails = () => {
         ]}
       />
       <>{activeTabContent}</>
-      <AddAnrokDialog ref={addAnrokDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )

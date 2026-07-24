@@ -2,21 +2,28 @@ import { Extension } from '@tiptap/core'
 import { NodeSelection } from '@tiptap/pm/state'
 import { Editor, Range, ReactRenderer } from '@tiptap/react'
 import Suggestion, { SuggestionKeyDownProps, SuggestionProps } from '@tiptap/suggestion'
+import { IconName } from 'lago-design-system'
 import tippy, { type Instance as TippyInstance } from 'tippy.js'
 
-import type { OnDiscountCommand, OnPricingCommand } from '../common/RichTextEditorContext'
+import type {
+  OnCreditsCommand,
+  OnDiscountCommand,
+  OnPricingCommand,
+} from '../common/RichTextEditorContext'
 import { SlashMenu, type SlashMenuRef } from '../SlashMenu/SlashMenu'
 
 export interface SlashCommandItem {
   title: string
   description: string
   command: (editor: Editor) => void
+  icon: IconName
   disabled?: boolean
 }
 
 interface SlashCommandDefinition {
   titleKey: string
   descriptionKey: string
+  icon: IconName
   command: (editor: Editor) => void
 }
 
@@ -24,32 +31,38 @@ export const slashCommandDefinitions: SlashCommandDefinition[] = [
   {
     titleKey: 'text_1774281559656dn2u208gh80',
     descriptionKey: 'text_1774281559656pla0xamsvmf',
+    icon: 'h1',
     command: (editor) => editor.chain().focus().toggleHeading({ level: 1 }).run(),
   },
   {
     titleKey: 'text_1774281559657ec0exeaqqd3',
     descriptionKey: 'text_1774281559657q7h8pu6455p',
+    icon: 'h2',
     command: (editor) => editor.chain().focus().toggleHeading({ level: 2 }).run(),
   },
   {
     titleKey: 'text_1774281559657t0kkn628zdy',
     descriptionKey: 'text_1774281559657o48ilt0rq5y',
+    icon: 'h3',
     command: (editor) => editor.chain().focus().toggleHeading({ level: 3 }).run(),
   },
   {
     titleKey: 'text_1774281559657cbz20fzcjka',
+    icon: 'list-bullet',
     descriptionKey: 'text_17742815596575m8mqwrg1qy',
     command: (editor) => editor.chain().focus().toggleBulletList().run(),
   },
   {
     titleKey: 'text_1774281559657yc3z031hm6x',
     descriptionKey: 'text_1774281559657y9saycc2aev',
+    icon: 'table-horizontale',
     command: (editor) =>
       editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run(),
   },
   {
     titleKey: 'text_1774281559657l4kkx9ws4mz',
     descriptionKey: 'text_1774281559657qdknwsvn5ka',
+    icon: 'code',
     command: (editor) => editor.chain().focus().toggleCodeBlock().run(),
   },
 ]
@@ -69,6 +82,8 @@ export const SlashCommands = Extension.create({
       onPricingCommand: undefined as OnPricingCommand | undefined,
       isPricingDisabled: undefined as (() => boolean) | undefined,
       onDiscountCommand: undefined as OnDiscountCommand | undefined,
+      onCreditsCommand: undefined as OnCreditsCommand | undefined,
+      isCreditsDisabled: undefined as (() => boolean) | undefined,
       suggestion: {
         char: '/',
         command: ({
@@ -130,11 +145,19 @@ export const SlashCommands = Extension.create({
   },
 
   addProseMirrorPlugins() {
-    const { translate, onPricingCommand, isPricingDisabled, onDiscountCommand } = this.options
+    const {
+      translate,
+      onPricingCommand,
+      isPricingDisabled,
+      onDiscountCommand,
+      onCreditsCommand,
+      isCreditsDisabled,
+    } = this.options
 
     const resolvedItems: SlashCommandItem[] = slashCommandDefinitions.map((def) => ({
       title: translate(def.titleKey),
       description: translate(def.descriptionKey),
+      icon: def.icon,
       command: def.command,
     }))
 
@@ -144,6 +167,7 @@ export const SlashCommands = Extension.create({
       pricingItem = {
         title: translate('text_1779802343219a1cl5ckvtrn'),
         description: translate('text_1779802343219rul1jvs7170'),
+        icon: 'board',
         command: (editor) => {
           onPricingCommand({
             onSave: (attrs) => {
@@ -167,6 +191,7 @@ export const SlashCommands = Extension.create({
       const discountItem: SlashCommandItem = {
         title: translate('text_1782889379261hdcd0jhzdm6'),
         description: translate('text_178288937926153opd9g5cwg'),
+        icon: 'coupon',
         command: (editor) => {
           onDiscountCommand({
             onSave: (attrs) => {
@@ -185,6 +210,45 @@ export const SlashCommands = Extension.create({
       }
 
       resolvedItems.push(discountItem)
+    }
+
+    let creditsItem: SlashCommandItem | undefined
+
+    if (onCreditsCommand) {
+      creditsItem = {
+        title: translate('text_1783352692386xocpgvrz3na'),
+        description: translate('text_1783352692386nm1wsx38b6v'),
+        icon: 'wallet',
+        command: (editor) => {
+          onCreditsCommand({
+            onSave: (attrs) => {
+              editor.chain().focus().insertContent({ type: 'creditsBlock', attrs }).run()
+
+              // After inserting an atom node, ProseMirror may create a NodeSelection
+              // which triggers the BlockToolbar overlay. Move to a text selection.
+              const { selection } = editor.state
+
+              if (selection instanceof NodeSelection) {
+                editor.commands.setTextSelection(selection.from + selection.node.nodeSize)
+              }
+            },
+          })
+        },
+      }
+
+      resolvedItems.push(creditsItem)
+    }
+
+    const getRendererIsDisabled = (selectedItem: SlashCommandItem) => {
+      if (selectedItem === pricingItem) {
+        return isPricingDisabled?.() ?? false
+      }
+
+      if (selectedItem === creditsItem) {
+        return isCreditsDisabled?.() ?? false
+      }
+
+      return false
     }
 
     const editorRef = this.editor
@@ -227,7 +291,7 @@ export const SlashCommands = Extension.create({
         props: {
           items: resolvedItems.map((item) => ({
             ...item,
-            disabled: item === pricingItem ? (isPricingDisabled?.() ?? false) : false,
+            disabled: getRendererIsDisabled(item),
           })),
           command: (item: SlashCommandItem) => {
             if (item.disabled) return
@@ -261,7 +325,7 @@ export const SlashCommands = Extension.create({
             .filter((item) => item.title.toLowerCase().includes(query.toLowerCase()))
             .map((item) => ({
               ...item,
-              disabled: item === pricingItem ? (isPricingDisabled?.() ?? false) : false,
+              disabled: getRendererIsDisabled(item),
             }))
         },
       }),

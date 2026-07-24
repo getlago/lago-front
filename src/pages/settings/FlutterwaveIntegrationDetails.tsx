@@ -15,10 +15,7 @@ import {
   AddEditDeleteSuccessRedirectUrlDialog,
   AddEditDeleteSuccessRedirectUrlDialogRef,
 } from '~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog'
-import {
-  AddFlutterwaveDialog,
-  AddFlutterwaveDialogRef,
-} from '~/components/settings/integrations/AddFlutterwaveDialog'
+import { useAddFlutterwaveDialog } from '~/components/settings/integrations/AddFlutterwaveDialog'
 import { useDeleteFlutterwaveIntegrationDialog } from '~/components/settings/integrations/DeleteFlutterwaveIntegrationDialog'
 import { addToast, envGlobalVar } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -69,7 +66,7 @@ const FlutterwaveIntegrationDetails = () => {
   const navigate = useNavigate()
   const { integrationId } = useParams()
   const { hasPermissions } = usePermissions()
-  const addDialogRef = useRef<AddFlutterwaveDialogRef>(null)
+  const { openAddFlutterwaveDialog } = useAddFlutterwaveDialog()
   const { openDeleteFlutterwaveIntegrationDialog } = useDeleteFlutterwaveIntegrationDialog()
   const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { apiUrl } = envGlobalVar()
@@ -156,13 +153,9 @@ const FlutterwaveIntegrationDetails = () => {
                   label: translate('text_65845f35d7d69c3ab4793dac'),
                   hidden: !canEditIntegration,
                   onClick: (closePopper) => {
-                    addDialogRef.current?.openDialog({
+                    openAddFlutterwaveDialog({
                       provider: flutterwavePaymentProvider,
-                      onDelete: (provider) =>
-                        openDeleteFlutterwaveIntegrationDialog({
-                          provider,
-                          callback: deleteDialogCallback,
-                        }),
+                      deleteCallback: deleteDialogCallback,
                     })
                     closePopper()
                   },
@@ -199,13 +192,9 @@ const FlutterwaveIntegrationDetails = () => {
                 variant="quaternary"
                 align="left"
                 onClick={() => {
-                  addDialogRef.current?.openDialog({
+                  openAddFlutterwaveDialog({
                     provider: flutterwavePaymentProvider,
-                    onDelete: (provider) =>
-                      openDeleteFlutterwaveIntegrationDialog({
-                        provider,
-                        callback: deleteDialogCallback,
-                      }),
+                    deleteCallback: deleteDialogCallback,
                   })
                 }}
               >
@@ -388,7 +377,6 @@ const FlutterwaveIntegrationDetails = () => {
         </section>
       </div>
 
-      <AddFlutterwaveDialog ref={addDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </div>
   )

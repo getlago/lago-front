@@ -7,6 +7,7 @@ import { z } from 'zod'
 import { useFormDialogOpeningDialog } from '~/components/dialogs/FormDialogOpeningDialog'
 import { DialogResult } from '~/components/dialogs/types'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
+import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
 import { addToast } from '~/core/apolloClient'
 import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -87,10 +88,10 @@ const defaultFormValues: AddMoneyhashPaymentProviderInput = {
 }
 
 const validationSchema = z.object({
-  name: z.string().min(1),
-  code: z.string().min(1),
-  apiKey: z.string().min(1),
-  flowId: z.string().min(1),
+  name: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
+  code: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
+  apiKey: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
+  flowId: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
 })
 
 export const useAddMoneyhashDialog = () => {
@@ -238,26 +239,19 @@ export const useAddMoneyhashDialog = () => {
         ),
         children: (
           <div className="flex flex-col gap-6 p-6">
-            <div className="flex items-start gap-6">
-              <form.AppField name="name">
-                {(field) => (
-                  <field.TextInputField
-                    className="flex-1"
-                    label={translate('text_6584550dc4cec7adf861504d')}
-                    placeholder={translate('text_6584550dc4cec7adf861504f')}
-                  />
-                )}
-              </form.AppField>
-              <form.AppField name="code">
-                {(field) => (
-                  <field.TextInputField
-                    className="flex-1"
-                    label={translate('text_6584550dc4cec7adf8615051')}
-                    placeholder={translate('text_6584550dc4cec7adf8615053')}
-                  />
-                )}
-              </form.AppField>
-            </div>
+            <NameAndCodeGroup
+              form={form}
+              fields={{ name: 'name', code: 'code' }}
+              disableAutoGenerateCode={isEdition}
+              nameProps={{
+                label: translate('text_6584550dc4cec7adf861504d'),
+                placeholder: translate('text_6584550dc4cec7adf861504f'),
+              }}
+              codeProps={{
+                label: translate('text_6584550dc4cec7adf8615051'),
+                placeholder: translate('text_6584550dc4cec7adf8615053'),
+              }}
+            />
             <form.AppField name="apiKey">
               {(field) => (
                 <field.TextInputField

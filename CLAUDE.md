@@ -263,11 +263,16 @@ and Apollo cache automatically).
   probing legacy-URL behavior (e.g. testing the auth-guard redirect from a
   slug-less path to `/login`). Always add an inline comment explaining why.
 
-## Detailed Guidelines (read on demand)
+## Detailed Guidelines
 
-When working on these areas, read the relevant file first:
+TypeScript conventions are small and broadly applicable, so they are imported
+automatically into every session (bare `@` reference, not backtick-wrapped):
 
-- **TypeScript conventions**: `@.agents/docs/typescript-conventions.md`
+@.agents/docs/typescript-conventions.md
+
+Read these on demand when working on the relevant area (backtick-wrapped so they
+are referenced, not auto-loaded):
+
 - **Folder architecture**: `@.agents/docs/folder-architecture.md`
 - **Library documentation**: `@.agents/docs/documentation.md`
 - **GraphQL fragments & type safety**: `@.agents/docs/graphql-fragments.md`

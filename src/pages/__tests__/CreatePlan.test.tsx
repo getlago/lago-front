@@ -134,6 +134,15 @@ jest.mock('~/components/plans/FeatureEntitlementSection', () => {
   }
 })
 
+jest.mock('~/components/plans/PlanMetadataSection', () => {
+  const React = jest.requireActual('react')
+
+  return {
+    PlanMetadataSection: () =>
+      React.createElement('div', { 'data-test': 'plan-metadata-section-mock' }),
+  }
+})
+
 jest.mock('~/components/designSystem/WarningDialog', () => {
   const React = jest.requireActual('react')
   const mockOpenDialog = jest.fn()
@@ -220,6 +229,7 @@ describe('CreatePlan', () => {
         ['ProgressiveBillingSection', 'progressive-billing-section-mock'],
         ['CommitmentsSection', 'commitments-section-mock'],
         ['FeatureEntitlementSection', 'feature-entitlement-section-mock'],
+        ['PlanMetadataSection', 'plan-metadata-section-mock'],
       ])('THEN should render %s', (_, testId) => {
         render(<CreatePlan />)
 

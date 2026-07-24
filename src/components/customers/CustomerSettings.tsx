@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
-import { useMemo, useRef } from 'react'
+import { useMemo } from 'react'
 
 import { useDeleteCustomerDocumentLocaleDialog } from '~/components/customers/DeleteCustomerDocumentLocaleDialog'
 import { useDeleteCustomerFinalizeZeroAmountInvoiceDialog } from '~/components/customers/DeleteCustomerFinalizeZeroAmountInvoiceDialog'
@@ -9,19 +9,10 @@ import { useDeleteCustomerNetPaymentTermDialog } from '~/components/customers/De
 import { useDeleteCustomerVatRateDialog } from '~/components/customers/DeleteCustomerVatRateDialog'
 import { useEditCustomerDocumentLocaleDialog } from '~/components/customers/EditCustomerDocumentLocaleDialog'
 import { useEditCustomerDunningCampaignDialog } from '~/components/customers/EditCustomerDunningCampaignDialog'
-import {
-  EditCustomerInvoiceCustomSectionsDialog,
-  EditCustomerInvoiceCustomSectionsDialogRef,
-} from '~/components/customers/EditCustomerInvoiceCustomSectionsDialog'
-import {
-  EditCustomerInvoiceGracePeriodDialog,
-  EditCustomerInvoiceGracePeriodDialogRef,
-} from '~/components/customers/EditCustomerInvoiceGracePeriodDialog'
+import { useEditCustomerInvoiceCustomSectionsDialog } from '~/components/customers/EditCustomerInvoiceCustomSectionsDialog'
+import { useEditCustomerInvoiceGracePeriodDialog } from '~/components/customers/EditCustomerInvoiceGracePeriodDialog'
 import { useEditCustomerVatRateDialog } from '~/components/customers/EditCustomerVatRateDialog'
-import {
-  EditCustomerIssuingDatePolicyDialog,
-  EditCustomerIssuingDatePolicyDialogRef,
-} from '~/components/customers/settings/EditCustomerIssuingDatePolicyDialog'
+import { useEditCustomerIssuingDatePolicyDialog } from '~/components/customers/settings/EditCustomerIssuingDatePolicyDialog'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'
@@ -38,14 +29,8 @@ import {
   SettingsListWrapper,
   SettingsPaddedContainer,
 } from '~/components/layouts/Settings'
-import {
-  EditFinalizeZeroAmountInvoiceDialog,
-  EditFinalizeZeroAmountInvoiceDialogRef,
-} from '~/components/settings/invoices/EditFinalizeZeroAmountInvoiceDialog'
-import {
-  EditNetPaymentTermDialog,
-  EditNetPaymentTermDialogRef,
-} from '~/components/settings/invoices/EditNetPaymentTermDialog'
+import { useEditFinalizeZeroAmountInvoiceDialog } from '~/components/settings/invoices/EditFinalizeZeroAmountInvoiceDialog'
+import { useEditNetPaymentTermDialog } from '~/components/settings/invoices/EditNetPaymentTermDialog'
 import {
   INVOICE_ISSUING_DATE_ADJUSTMENT_SETTING_KEYS,
   INVOICE_ISSUING_DATE_ANCHOR_SETTING_KEYS,
@@ -193,21 +178,21 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
   })
   const customer = data?.customer
   const billingEntity = data?.customer?.billingEntity
-  const editIssuingDatePolicyDialogRef = useRef<EditCustomerIssuingDatePolicyDialogRef>(null)
+  const { openEditCustomerIssuingDatePolicyDialog } = useEditCustomerIssuingDatePolicyDialog()
   const { openEditCustomerVatRateDialog } = useEditCustomerVatRateDialog()
   const { openDeleteCustomerVatRateDialog } = useDeleteCustomerVatRateDialog()
-  const editInvoiceGracePeriodDialogRef = useRef<EditCustomerInvoiceGracePeriodDialogRef>(null)
+  const { openEditCustomerInvoiceGracePeriodDialog } = useEditCustomerInvoiceGracePeriodDialog()
   const { openDeleteCustomerGracePeriodeDialog } = useDeleteCustomerGracePeriodeDialog()
   const { openEditCustomerDocumentLocaleDialog } = useEditCustomerDocumentLocaleDialog()
   const { openEditCustomerDunningCampaignDialog } = useEditCustomerDunningCampaignDialog()
-  const editCustomerInvoiceCustomSectionsDialogRef =
-    useRef<EditCustomerInvoiceCustomSectionsDialogRef>(null)
+  const { openEditCustomerInvoiceCustomSectionsDialog } =
+    useEditCustomerInvoiceCustomSectionsDialog(customerId)
   const { openDeleteCustomerDocumentLocaleDialog } = useDeleteCustomerDocumentLocaleDialog()
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
-  const editNetPaymentTermDialogRef = useRef<EditNetPaymentTermDialogRef>(null)
+  const { openEditNetPaymentTermDialog } = useEditNetPaymentTermDialog()
+  const netPaymentTermDialogDescription = translate('text_64c7a89b6c67eb6c988980eb')
   const { openDeleteCustomerNetPaymentTermDialog } = useDeleteCustomerNetPaymentTermDialog()
-  const editFinalizeZeroAmountInvoiceDialogRef =
-    useRef<EditFinalizeZeroAmountInvoiceDialogRef>(null)
+  const { openEditFinalizeZeroAmountInvoiceDialog } = useEditFinalizeZeroAmountInvoiceDialog()
   const { openDeleteCustomerFinalizeZeroAmountInvoiceDialog } =
     useDeleteCustomerFinalizeZeroAmountInvoiceDialog()
 
@@ -512,7 +497,11 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                         disabled={loading}
                         variant="inline"
                         onClick={() =>
-                          editFinalizeZeroAmountInvoiceDialogRef?.current?.openDialog()
+                          customer &&
+                          openEditFinalizeZeroAmountInvoiceDialog({
+                            entity: customer,
+                            finalizeZeroAmountInvoice: customer.finalizeZeroAmountInvoice,
+                          })
                         }
                       >
                         {translate('text_645bb193927b375079d28ad2')}
@@ -532,7 +521,12 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                               variant="quaternary"
                               align="left"
                               onClick={() => {
-                                editFinalizeZeroAmountInvoiceDialogRef?.current?.openDialog()
+                                if (customer) {
+                                  openEditFinalizeZeroAmountInvoiceDialog({
+                                    entity: customer,
+                                    finalizeZeroAmountInvoice: customer.finalizeZeroAmountInvoice,
+                                  })
+                                }
                                 closePopper()
                               }}
                             >
@@ -593,7 +587,10 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                             endIcon={isPremium ? undefined : 'sparkles'}
                             onClick={() =>
                               isPremium
-                                ? editInvoiceGracePeriodDialogRef?.current?.openDialog()
+                                ? openEditCustomerInvoiceGracePeriodDialog({
+                                    customerId,
+                                    invoiceGracePeriod: customer?.invoiceGracePeriod,
+                                  })
                                 : openPremiumWarningDialog()
                             }
                           >
@@ -618,7 +615,10 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                                   variant="quaternary"
                                   align="left"
                                   onClick={() => {
-                                    editInvoiceGracePeriodDialogRef.current?.openDialog()
+                                    openEditCustomerInvoiceGracePeriodDialog({
+                                      customerId,
+                                      invoiceGracePeriod: customer?.invoiceGracePeriod,
+                                    })
                                     closePopper()
                                   }}
                                 >
@@ -684,9 +684,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                         disabled={loading}
                         variant="inline"
                         endIcon={isPremium ? undefined : 'sparkles'}
-                        onClick={() =>
-                          editCustomerInvoiceCustomSectionsDialogRef?.current?.openDialog()
-                        }
+                        onClick={openEditCustomerInvoiceCustomSectionsDialog}
                       >
                         {translate('text_63e51ef4985f0ebd75c212fc')}
                       </Button>
@@ -740,7 +738,10 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                             disabled={loading}
                             variant="inline"
                             onClick={() =>
-                              editNetPaymentTermDialogRef?.current?.openDialog(customer)
+                              openEditNetPaymentTermDialog({
+                                model: customer,
+                                description: netPaymentTermDialogDescription,
+                              })
                             }
                           >
                             {translate('text_645bb193927b375079d28ad2')}
@@ -764,7 +765,10 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                                   variant="quaternary"
                                   align="left"
                                   onClick={() => {
-                                    editNetPaymentTermDialogRef?.current?.openDialog(customer)
+                                    openEditNetPaymentTermDialog({
+                                      model: customer,
+                                      description: netPaymentTermDialogDescription,
+                                    })
                                     closePopper()
                                   }}
                                 >
@@ -811,7 +815,10 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                       <Button
                         variant="inline"
                         disabled={loading}
-                        onClick={() => editIssuingDatePolicyDialogRef?.current?.openDialog()}
+                        onClick={() => {
+                          if (!customer) return
+                          openEditCustomerIssuingDatePolicyDialog({ customer })
+                        }}
                         data-test="add-issuing-date-policy-button"
                       >
                         {translate('text_645bb193927b375079d28ad2')}
@@ -935,32 +942,6 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
           )}
         </SettingsListWrapper>
       </SettingsPaddedContainer>
-
-      {!!customer && (
-        <>
-          <EditCustomerInvoiceGracePeriodDialog
-            ref={editInvoiceGracePeriodDialogRef}
-            invoiceGracePeriod={customer?.invoiceGracePeriod}
-          />
-          <EditCustomerIssuingDatePolicyDialog
-            ref={editIssuingDatePolicyDialogRef}
-            customer={customer}
-          />
-          <EditCustomerInvoiceCustomSectionsDialog
-            ref={editCustomerInvoiceCustomSectionsDialogRef}
-            customerId={customerId}
-          />
-          <EditNetPaymentTermDialog
-            ref={editNetPaymentTermDialogRef}
-            description={translate('text_64c7a89b6c67eb6c988980eb')}
-          />
-          <EditFinalizeZeroAmountInvoiceDialog
-            ref={editFinalizeZeroAmountInvoiceDialogRef}
-            entity={customer}
-            finalizeZeroAmountInvoice={customer?.finalizeZeroAmountInvoice}
-          />
-        </>
-      )}
     </>
   )
 }

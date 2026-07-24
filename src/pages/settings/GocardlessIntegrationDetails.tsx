@@ -14,10 +14,7 @@ import {
   AddEditDeleteSuccessRedirectUrlDialog,
   AddEditDeleteSuccessRedirectUrlDialogRef,
 } from '~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog'
-import {
-  AddGocardlessDialog,
-  AddGocardlessDialogRef,
-} from '~/components/settings/integrations/AddGocardlessDialog'
+import { useAddGocardlessDialog } from '~/components/settings/integrations/AddGocardlessDialog'
 import { useDeleteGocardlessIntegrationDialog } from '~/components/settings/integrations/DeleteGocardlessIntegrationDialog'
 import { addToast, envGlobalVar } from '~/core/apolloClient'
 import { buildGocardlessAuthUrl } from '~/core/constants/externalUrls'
@@ -75,7 +72,7 @@ const GocardlessIntegrationDetails = () => {
   const { integrationId } = useParams()
   const { lagoOauthProxyUrl } = envGlobalVar()
   const { hasPermissions } = usePermissions()
-  const addDialogRef = useRef<AddGocardlessDialogRef>(null)
+  const { openAddGocardlessDialog } = useAddGocardlessDialog()
   const { openDeleteGocardlessIntegrationDialog } = useDeleteGocardlessIntegrationDialog()
   const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { translate } = useInternationalization()
@@ -145,7 +142,7 @@ const GocardlessIntegrationDetails = () => {
                   label: translate('text_65845f35d7d69c3ab4793dac'),
                   hidden: !canEditIntegration,
                   onClick: (closePopper) => {
-                    addDialogRef.current?.openDialog({
+                    openAddGocardlessDialog({
                       provider: gocardlessPaymentProvider,
                       deleteDialogCallback,
                     })
@@ -203,7 +200,7 @@ const GocardlessIntegrationDetails = () => {
                 variant="inline"
                 align="left"
                 onClick={() => {
-                  addDialogRef.current?.openDialog({
+                  openAddGocardlessDialog({
                     provider: gocardlessPaymentProvider,
                     deleteDialogCallback,
                   })
@@ -364,7 +361,6 @@ const GocardlessIntegrationDetails = () => {
           )}
         </section>
       </IntegrationsPage.Container>
-      <AddGocardlessDialog ref={addDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </div>
   )

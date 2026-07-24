@@ -37,7 +37,14 @@ const TestStripePaymentProviderContentWrapper = ({
     } as typeof emptyCreateCustomerDefaultValues,
   })
 
-  return <StripePaymentProviderContent form={form} />
+  return (
+    <StripePaymentProviderContent
+      form={form}
+      fields={{
+        providerPaymentMethods: 'paymentProviderCustomer.providerPaymentMethods',
+      }}
+    />
+  )
 }
 
 describe('StripePaymentProviderContent Integration Tests', () => {

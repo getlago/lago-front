@@ -12,10 +12,7 @@ import {
   AddEditDeleteSuccessRedirectUrlDialog,
   AddEditDeleteSuccessRedirectUrlDialogRef,
 } from '~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog'
-import {
-  AddStripeDialog,
-  AddStripeDialogRef,
-} from '~/components/settings/integrations/AddStripeDialog'
+import { useAddStripeDialog } from '~/components/settings/integrations/AddStripeDialog'
 import { useDeleteStripeIntegrationDialog } from '~/components/settings/integrations/DeleteStripeIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { INTEGRATIONS_ROUTE, STRIPE_INTEGRATION_ROUTE, useNavigate } from '~/core/router'
@@ -73,7 +70,7 @@ const StripeIntegrationDetails = () => {
   const navigate = useNavigate()
   const { integrationId } = useParams()
   const { hasPermissions } = usePermissions()
-  const addDialogRef = useRef<AddStripeDialogRef>(null)
+  const { openAddStripeDialog } = useAddStripeDialog()
   const { openDeleteStripeIntegrationDialog } = useDeleteStripeIntegrationDialog()
   const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { translate } = useInternationalization()
@@ -138,13 +135,9 @@ const StripeIntegrationDetails = () => {
                   label: translate('text_65845f35d7d69c3ab4793dac'),
                   hidden: !canEditIntegration,
                   onClick: (closePopper) => {
-                    addDialogRef.current?.openDialog({
+                    openAddStripeDialog({
                       provider: stripePaymentProvider,
-                      onDelete: (provider) =>
-                        openDeleteStripeIntegrationDialog({
-                          provider,
-                          callback: deleteDialogCallback,
-                        }),
+                      deleteCallback: deleteDialogCallback,
                     })
                     closePopper()
                   },
@@ -175,13 +168,9 @@ const StripeIntegrationDetails = () => {
                 variant="inline"
                 disabled={loading}
                 onClick={() => {
-                  addDialogRef.current?.openDialog({
+                  openAddStripeDialog({
                     provider: stripePaymentProvider,
-                    onDelete: (provider) =>
-                      openDeleteStripeIntegrationDialog({
-                        provider,
-                        callback: deleteDialogCallback,
-                      }),
+                    deleteCallback: deleteDialogCallback,
                   })
                 }}
               >
@@ -322,7 +311,6 @@ const StripeIntegrationDetails = () => {
         </section>
       </IntegrationsPage.Container>
 
-      <AddStripeDialog ref={addDialogRef} />
       <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )

@@ -9,6 +9,7 @@ import { Alert } from '~/components/designSystem/Alert'
 import { useFormDialogOpeningDialog } from '~/components/dialogs/FormDialogOpeningDialog'
 import { DialogResult } from '~/components/dialogs/types'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
+import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
 import { addToast, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
 import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -78,11 +79,11 @@ const defaultFormValues: AvalaraFormValues = {
 }
 
 const validationSchema = z.object({
-  accountId: z.string().min(1),
-  code: z.string().min(1),
-  companyCode: z.string().min(1),
-  licenseKey: z.string().min(1),
-  name: z.string().min(1),
+  accountId: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
+  code: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
+  companyCode: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
+  licenseKey: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
+  name: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
 })
 
 type NangoErrorHandle = {
@@ -280,26 +281,19 @@ export const useAddAvalaraDialog = () => {
           <div className="flex flex-col gap-6 p-6">
             <NangoErrorAlert ref={nangoErrorRef} />
 
-            <div className="flex flex-row items-start gap-6">
-              <form.AppField name="name">
-                {(field) => (
-                  <field.TextInputField
-                    className="flex-1"
-                    label={translate('text_6584550dc4cec7adf861504d')}
-                    placeholder={translate('text_6584550dc4cec7adf861504f')}
-                  />
-                )}
-              </form.AppField>
-              <form.AppField name="code">
-                {(field) => (
-                  <field.TextInputField
-                    className="flex-1"
-                    label={translate('text_6584550dc4cec7adf8615051')}
-                    placeholder={translate('text_6584550dc4cec7adf8615053')}
-                  />
-                )}
-              </form.AppField>
-            </div>
+            <NameAndCodeGroup
+              form={form}
+              fields={{ name: 'name', code: 'code' }}
+              disableAutoGenerateCode={isEdition}
+              nameProps={{
+                label: translate('text_6584550dc4cec7adf861504d'),
+                placeholder: translate('text_6584550dc4cec7adf861504f'),
+              }}
+              codeProps={{
+                label: translate('text_6584550dc4cec7adf8615051'),
+                placeholder: translate('text_6584550dc4cec7adf8615053'),
+              }}
+            />
 
             <form.AppField name="accountId">
               {(field) => (

@@ -11,6 +11,7 @@ import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
 import { useCascadeFormDialog } from '~/components/plans/details-v2/shared/useCascadeFormDialog'
 import { FeatureEntitlementSection } from '~/components/plans/FeatureEntitlementSection'
 import { FixedChargesSection } from '~/components/plans/form/FixedChargesSection'
+import { PlanMetadataSection } from '~/components/plans/PlanMetadataSection'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
 import { ProgressiveBillingSection } from '~/components/plans/ProgressiveBillingSection'
 import { SubscriptionFeeSection } from '~/components/plans/SubscriptionFeeSection'
@@ -39,6 +40,7 @@ import {
   PlanForSubscriptionFeeSectionFragmentDoc,
   PlanForUsageChargeAccordionFragmentDoc,
   PlanInterval,
+  PlanMetadataForPlanFragmentDoc,
   UsageChargeForDrawerFragmentDoc,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -130,6 +132,7 @@ gql`
     ...PlanForSubscriptionFeeSection
     ...FeatureEntitlementForPlan
     ...FixedChargesOnPlanForm
+    ...PlanMetadataForPlan
   }
 
   ${UsageChargeForDrawerFragmentDoc}
@@ -138,6 +141,7 @@ gql`
   ${PlanForSubscriptionFeeSectionFragmentDoc}
   ${FeatureEntitlementForPlanFragmentDoc}
   ${FixedChargesOnPlanFormFragmentDoc}
+  ${PlanMetadataForPlanFragmentDoc}
 `
 
 const CreatePlan = () => {
@@ -314,6 +318,8 @@ const CreatePlan = () => {
                     <CommitmentsSection form={form} />
 
                     <FeatureEntitlementSection form={form} isEdition={isEdition} />
+
+                    <PlanMetadataSection form={form} />
                   </CenteredPage.SubsectionWrapper>
                 </CenteredPage.SectionWrapper>
               </>

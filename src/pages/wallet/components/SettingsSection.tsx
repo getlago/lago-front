@@ -8,6 +8,7 @@ import { Popper } from '~/components/designSystem/Popper'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { TextInput } from '~/components/form'
+import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
 import {
   ADD_MAX_TOPUP_OPTION_DATA_TEST,
   ADD_MIN_MAX_AMOUNT_DATA_TEST,
@@ -96,16 +97,16 @@ export const SettingsSection = withForm({
           )}
         </form.AppField>
 
-        <form.AppField name="name">
-          {(field) => (
-            <field.TextInputField
-              // eslint-disable-next-line jsx-a11y/no-autofocus
-              autoFocus
-              label={translate('text_62d18855b22699e5cf55f875')}
-              placeholder={translate('text_62d18855b22699e5cf55f877')}
-            />
-          )}
-        </form.AppField>
+        <NameAndCodeGroup
+          form={form}
+          fields={{ name: 'name', code: 'code' }}
+          disableAutoGenerateCode={formType === FORM_TYPE_ENUM.edition}
+          nameProps={{
+            autoFocus: true,
+            label: translate('text_62d18855b22699e5cf55f875'),
+            placeholder: translate('text_62d18855b22699e5cf55f877'),
+          }}
+        />
 
         <div
           className={tw('grid grid-cols-[48px_48px_1fr_120px] items-end gap-3', {

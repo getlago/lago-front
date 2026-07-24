@@ -1,8 +1,12 @@
+import NiceModal from '@ebay/nice-modal-react'
 import { useForm, useStore } from '@tanstack/react-form'
 import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { ReactNode } from 'react'
 
-import { EDIT_PM_DIALOG_SAVE_BUTTON_TEST_ID } from '~/components/paymentMethodSelection/EditPaymentMethodDialog'
+import { FORM_DIALOG_NAME } from '~/components/dialogs/const'
+import FormDialog from '~/components/dialogs/FormDialog'
+import { EDIT_PM_DIALOG_SAVE_BUTTON_TEST_ID } from '~/components/paymentMethodSelection/dataTestConstants'
 import {
   INHERITED_BADGE_TEST_ID,
   MANUAL_PAYMENT_METHOD_TEST_ID,
@@ -46,6 +50,12 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
     locale: 'en',
   }),
 }))
+
+NiceModal.register(FORM_DIALOG_NAME, FormDialog)
+
+const NiceModalWrapper = ({ children }: { children: ReactNode }) => (
+  <NiceModal.Provider>{children}</NiceModal.Provider>
+)
 
 const EXTERNAL_CUSTOMER_ID = 'customer_ext_123'
 
@@ -97,16 +107,18 @@ const ReactiveHarness = () => {
   const invoiceCustomSection = useStore(form.store, (s) => s.values.invoiceCustomSection)
 
   return (
-    <PaymentMethodsInvoiceSettings
-      customer={customer}
-      viewType={ViewTypeEnum.Subscription}
-      form={
-        {
-          values: { paymentMethod, invoiceCustomSection },
-          setFieldValue: form.setFieldValue,
-        } as SettingsComponentProps<ViewTypeEnum.Subscription>['form']
-      }
-    />
+    <NiceModalWrapper>
+      <PaymentMethodsInvoiceSettings
+        customer={customer}
+        viewType={ViewTypeEnum.Subscription}
+        form={
+          {
+            values: { paymentMethod, invoiceCustomSection },
+            setFieldValue: form.setFieldValue,
+          } as SettingsComponentProps<ViewTypeEnum.Subscription>['form']
+        }
+      />
+    </NiceModalWrapper>
   )
 }
 
@@ -123,16 +135,18 @@ const SnapshotHarness = () => {
   useStore(form.store, (s) => s.isDirty)
 
   return (
-    <PaymentMethodsInvoiceSettings
-      customer={customer}
-      viewType={ViewTypeEnum.Subscription}
-      form={
-        {
-          values: form.state.values,
-          setFieldValue: form.setFieldValue,
-        } as SettingsComponentProps<ViewTypeEnum.Subscription>['form']
-      }
-    />
+    <NiceModalWrapper>
+      <PaymentMethodsInvoiceSettings
+        customer={customer}
+        viewType={ViewTypeEnum.Subscription}
+        form={
+          {
+            values: form.state.values,
+            setFieldValue: form.setFieldValue,
+          } as SettingsComponentProps<ViewTypeEnum.Subscription>['form']
+        }
+      />
+    </NiceModalWrapper>
   )
 }
 
@@ -156,6 +170,11 @@ const openDialogAndSelect = async (radioTestId: string) => {
 }
 
 describe('PaymentMethodsInvoiceSettings — TanStack form reactivity (subscription form wiring)', () => {
+  afterEach(() => {
+    // NiceModal keeps open modals in module-level state that survives cleanup().
+    NiceModal.remove(FORM_DIALOG_NAME)
+  })
+
   describe('GIVEN reactive store wiring (the fix)', () => {
     describe('WHEN the payment method is changed repeatedly through the dialog', () => {
       it('THEN the displayed selection reflects EVERY change, not just the first', async () => {

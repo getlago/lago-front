@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client'
-import { useMemo, useRef } from 'react'
+import { useMemo } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
-import { ResetProgressiveBillingDialogRef } from '~/components/subscriptions/ResetProgressiveBillingDialog'
+import { useResetProgressiveBillingDialog } from '~/components/subscriptions/ResetProgressiveBillingDialog'
 import {
   EDIT_PROGRESSIVE_BILLING_CUSTOMER_SUBSCRIPTION_ROUTE,
   EDIT_PROGRESSIVE_BILLING_PLAN_SUBSCRIPTION_ROUTE,
@@ -50,7 +50,7 @@ export const useSubscriptionProgressiveBillingTabThresholdsHeader = ({
   const { hasPermissions } = usePermissions()
   const { customerId = '', planId = '' } = useParams()
 
-  const resetDialogRef = useRef<ResetProgressiveBillingDialogRef>(null)
+  const { openResetProgressiveBillingDialog } = useResetProgressiveBillingDialog()
   const canEditSubscription = hasPermissions(['subscriptionsUpdate'])
 
   const hasSubscriptionThresholds = (subscription?.usageThresholds?.length || 0) > 0
@@ -108,7 +108,7 @@ export const useSubscriptionProgressiveBillingTabThresholdsHeader = ({
 
   const openResetDialog = () => {
     if (subscription?.id) {
-      resetDialogRef.current?.openDialog({
+      openResetProgressiveBillingDialog({
         subscriptionId: subscription.id,
       })
     }
@@ -125,9 +125,6 @@ export const useSubscriptionProgressiveBillingTabThresholdsHeader = ({
     shouldDisplayOverriddenBadge,
     tooltipTitle,
     switchingProgressiveBillingDisabledValueLoading,
-
-    // Refs
-    resetDialogRef,
 
     // Actions
     navigateToEditForm,

@@ -1,8 +1,10 @@
 import { useMemo, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { generatePath, useSearchParams } from 'react-router-dom'
 
 import { formatFiltersForOrdersQuery } from '~/components/designSystem/Filters'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
+import { EXECUTE_ORDER_ROUTE, ORDER_DETAILS_ROUTE } from '~/core/router'
+import { OrderListItemFragment, OrderStatusEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { QuotesSectionTable } from './common/QuotesSectionTable'
@@ -37,6 +39,11 @@ const OrdersList = ({ quoteNumber }: OrdersListProps): JSX.Element => {
 
   const columns = useOrdersColumns({ hideSourceQuote: !!quoteNumber })
 
+  const getRowLink = (order: OrderListItemFragment): string =>
+    order.status === OrderStatusEnum.Created
+      ? generatePath(EXECUTE_ORDER_ROUTE, { orderId: order.id })
+      : generatePath(ORDER_DETAILS_ROUTE, { orderId: order.id })
+
   return (
     <QuotesSectionTable
       name="orders-list"
@@ -53,6 +60,7 @@ const OrdersList = ({ quoteNumber }: OrdersListProps): JSX.Element => {
         subtitle: translate('text_1782392058759ee7h86svmtj'),
       }}
       getActions={(order) => getActions(order)}
+      onRowActionLink={getRowLink}
     />
   )
 }

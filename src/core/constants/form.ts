@@ -47,8 +47,15 @@ export const SEARCH_TAX_INPUT_FOR_ADD_ON_CLASSNAME = 'searchTaxForAddOnInput'
 // Invoices
 export const SEARCH_TAX_INPUT_FOR_INVOICE_ADD_ON_CLASSNAME = 'searchTaxForInvoiceAddOnInput'
 export const ADD_ITEM_FOR_INVOICE_INPUT_NAME = 'addItemInput'
+export const NET_PAYMENT_TERM_INPUT_CLASSNAME = 'netPaymentTermInput'
+export const RESEND_INVOICE_PAYMENT_METHOD_INPUT_CLASSNAME = 'resendInvoicePaymentMethodInput'
+// Billing entity
+export const SEARCH_INVOICE_CUSTOM_SECTION_INPUT_CLASSNAME = 'searchInvoiceCustomSectionInput'
+export const SEARCH_DUNNING_CAMPAIGN_INPUT_CLASSNAME = 'searchDunningCampaignInput'
+export const FINALIZE_ZERO_AMOUNT_INVOICE_INPUT_CLASSNAME = 'finalizeZeroAmountInvoiceInput'
 // Customer
 export const SEARCH_TAX_INPUT_FOR_CUSTOMER_CLASSNAME = 'searchTaxForCustomerInput'
+export const SEARCH_COUPON_INPUT_FOR_CUSTOMER_CLASSNAME = 'searchCouponForCustomerInput'
 export const ADD_CUSTOMER_PAYMENT_PROVIDER_ACCORDION = 'addCustomerPaymentProviderAccordion'
 export const ADD_CUSTOMER_ACCOUNTING_PROVIDER_ACCORDION = 'addCustomerAccountingProviderAccordion'
 export const ADD_CUSTOMER_TAX_PROVIDER_ACCORDION = 'addCustomerTaxProviderAccordion'

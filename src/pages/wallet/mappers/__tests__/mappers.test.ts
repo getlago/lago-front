@@ -69,6 +69,7 @@ const baseForm = (overrides: Partial<TWalletDataForm> = {}): TWalletDataForm => 
   expirationAt: undefined,
   grantedCredits: '',
   name: 'My wallet',
+  code: '',
   transactionName: undefined,
   appliesTo: { feeTypes: [], billableMetrics: [] },
   paidCredits: '',
@@ -197,7 +198,7 @@ describe('mapFormToCreateInput', () => {
     expect(input.appliesTo).toEqual({ feeTypes: [], billableMetricIds: ['bm-1', 'bm-2'] })
   })
 
-  it('formats Interval rules: threshold nulled, startedAt defaulted, credits zeroed, no lagoId', () => {
+  it('formats Interval rules: threshold nulled, startedAt left null when unset, credits zeroed, no lagoId', () => {
     const input = mapFormToCreateInput(
       baseForm({
         recurringTransactionRules: [
@@ -218,7 +219,9 @@ describe('mapFormToCreateInput', () => {
 
     expect(rule?.interval).toBe(RecurringTransactionIntervalEnum.Monthly)
     expect(rule?.thresholdCredits).toBeNull()
-    expect(rule?.startedAt).toEqual(expect.any(String))
+    // No explicit start date → null, so the backend keeps anchoring the
+    // recurrence to the wallet's createdAt instead of today.
+    expect(rule?.startedAt).toBeNull()
     expect(rule?.paidCredits).toBe('0')
     expect(rule?.grantedCredits).toBe('5')
     expect(rule?.grantsTargetTopUp).toBeNull()

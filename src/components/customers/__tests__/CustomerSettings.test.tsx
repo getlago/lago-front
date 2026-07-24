@@ -38,15 +38,11 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
   }),
 }))
 
-// Mock dialog components that use useParams() internally
-// Using require('react').forwardRef inside each mock factory to avoid hoisting issues
-jest.mock('~/components/customers/EditCustomerInvoiceGracePeriodDialog', () => {
-  const React = jest.requireActual('react')
-  const MockDialog = React.forwardRef(() => null)
-
-  MockDialog.displayName = 'EditCustomerInvoiceGracePeriodDialog'
-  return { EditCustomerInvoiceGracePeriodDialog: MockDialog }
-})
+jest.mock('~/components/customers/EditCustomerInvoiceGracePeriodDialog', () => ({
+  useEditCustomerInvoiceGracePeriodDialog: () => ({
+    openEditCustomerInvoiceGracePeriodDialog: jest.fn(),
+  }),
+}))
 
 jest.mock('~/components/customers/DeleteCustomerGracePeriodeDialog', () => ({
   useDeleteCustomerGracePeriodeDialog: () => ({
@@ -84,21 +80,17 @@ jest.mock('~/components/customers/EditCustomerDunningCampaignDialog', () => ({
   }),
 }))
 
-jest.mock('~/components/customers/EditCustomerInvoiceCustomSectionsDialog', () => {
-  const React = jest.requireActual('react')
-  const MockDialog = React.forwardRef(() => null)
+jest.mock('~/components/customers/EditCustomerInvoiceCustomSectionsDialog', () => ({
+  useEditCustomerInvoiceCustomSectionsDialog: () => ({
+    openEditCustomerInvoiceCustomSectionsDialog: jest.fn(),
+  }),
+}))
 
-  MockDialog.displayName = 'EditCustomerInvoiceCustomSectionsDialog'
-  return { EditCustomerInvoiceCustomSectionsDialog: MockDialog }
-})
-
-jest.mock('~/components/customers/settings/EditCustomerIssuingDatePolicyDialog', () => {
-  const React = jest.requireActual('react')
-  const MockDialog = React.forwardRef(() => null)
-
-  MockDialog.displayName = 'EditCustomerIssuingDatePolicyDialog'
-  return { EditCustomerIssuingDatePolicyDialog: MockDialog }
-})
+jest.mock('~/components/customers/settings/EditCustomerIssuingDatePolicyDialog', () => ({
+  useEditCustomerIssuingDatePolicyDialog: () => ({
+    openEditCustomerIssuingDatePolicyDialog: jest.fn(),
+  }),
+}))
 
 jest.mock('~/components/customers/DeleteCustomerFinalizeZeroAmountInvoiceDialog', () => ({
   useDeleteCustomerFinalizeZeroAmountInvoiceDialog: () => ({
@@ -112,21 +104,17 @@ jest.mock('~/components/customers/DeleteCustomerNetPaymentTermDialog', () => ({
   }),
 }))
 
-jest.mock('~/components/settings/invoices/EditNetPaymentTermDialog', () => {
-  const React = jest.requireActual('react')
-  const MockDialog = React.forwardRef(() => null)
+jest.mock('~/components/settings/invoices/EditNetPaymentTermDialog', () => ({
+  useEditNetPaymentTermDialog: () => ({
+    openEditNetPaymentTermDialog: jest.fn(),
+  }),
+}))
 
-  MockDialog.displayName = 'EditNetPaymentTermDialog'
-  return { EditNetPaymentTermDialog: MockDialog }
-})
-
-jest.mock('~/components/settings/invoices/EditFinalizeZeroAmountInvoiceDialog', () => {
-  const React = jest.requireActual('react')
-  const MockDialog = React.forwardRef(() => null)
-
-  MockDialog.displayName = 'EditFinalizeZeroAmountInvoiceDialog'
-  return { EditFinalizeZeroAmountInvoiceDialog: MockDialog }
-})
+jest.mock('~/components/settings/invoices/EditFinalizeZeroAmountInvoiceDialog', () => ({
+  useEditFinalizeZeroAmountInvoiceDialog: () => ({
+    openEditFinalizeZeroAmountInvoiceDialog: jest.fn(),
+  }),
+}))
 
 jest.mock('~/components/dialogs/PremiumWarningDialog', () => ({
   usePremiumWarningDialog: () => ({ open: jest.fn(), close: jest.fn() }),

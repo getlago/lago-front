@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Alert } from '~/components/designSystem/Alert'
@@ -17,42 +16,18 @@ import {
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import { useAddAdyenDialog } from '~/components/settings/integrations/AddAdyenDialog'
-import {
-  AddAnrokDialog,
-  AddAnrokDialogRef,
-} from '~/components/settings/integrations/AddAnrokDialog'
+import { useAddAnrokDialog } from '~/components/settings/integrations/AddAnrokDialog'
 import { useAddAvalaraDialog } from '~/components/settings/integrations/AddAvalaraDialog'
 import { useAddCashfreeDialog } from '~/components/settings/integrations/AddCashfreeDialog'
-import {
-  AddFlutterwaveDialog,
-  AddFlutterwaveDialogRef,
-} from '~/components/settings/integrations/AddFlutterwaveDialog'
-import {
-  AddGocardlessDialog,
-  AddGocardlessDialogRef,
-} from '~/components/settings/integrations/AddGocardlessDialog'
-import {
-  AddHubspotDialog,
-  AddHubspotDialogRef,
-} from '~/components/settings/integrations/AddHubspotDialog'
-import {
-  AddLagoTaxManagementDialog,
-  AddLagoTaxManagementDialogRef,
-} from '~/components/settings/integrations/AddLagoTaxManagementDialog'
+import { useAddFlutterwaveDialog } from '~/components/settings/integrations/AddFlutterwaveDialog'
+import { useAddGocardlessDialog } from '~/components/settings/integrations/AddGocardlessDialog'
+import { useAddHubspotDialog } from '~/components/settings/integrations/AddHubspotDialog'
+import { useAddLagoTaxManagementDialog } from '~/components/settings/integrations/AddLagoTaxManagementDialog'
 import { useAddMoneyhashDialog } from '~/components/settings/integrations/AddMoneyhashDialog'
-import {
-  AddNetsuiteDialog,
-  AddNetsuiteDialogRef,
-} from '~/components/settings/integrations/AddNetsuiteDialog'
-import {
-  AddSalesforceDialog,
-  AddSalesforceDialogRef,
-} from '~/components/settings/integrations/AddSalesforceDialog'
-import {
-  AddStripeDialog,
-  AddStripeDialogRef,
-} from '~/components/settings/integrations/AddStripeDialog'
-import { AddXeroDialog, AddXeroDialogRef } from '~/components/settings/integrations/AddXeroDialog'
+import { useAddNetsuiteDialog } from '~/components/settings/integrations/AddNetsuiteDialog'
+import { useAddSalesforceDialog } from '~/components/settings/integrations/AddSalesforceDialog'
+import { useAddStripeDialog } from '~/components/settings/integrations/AddStripeDialog'
+import { useAddXeroDialog } from '~/components/settings/integrations/AddXeroDialog'
 import {
   DOCUMENTATION_AIRBYTE,
   DOCUMENTATION_HIGHTTOUCH,
@@ -165,19 +140,18 @@ const Integrations = () => {
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
 
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
-  const addAnrokDialogRef = useRef<AddAnrokDialogRef>(null)
+  const { openAddAnrokDialog } = useAddAnrokDialog()
   const { openAddAvalaraDialog } = useAddAvalaraDialog()
-  const addStripeDialogRef = useRef<AddStripeDialogRef>(null)
+  const { openAddStripeDialog } = useAddStripeDialog()
   const { openAddAdyenDialog } = useAddAdyenDialog()
-  const addGocardlessDialogRef = useRef<AddGocardlessDialogRef>(null)
+  const { openAddGocardlessDialog } = useAddGocardlessDialog()
   const { openAddCashfreeDialog } = useAddCashfreeDialog()
-  const addLagoTaxManagementDialog = useRef<AddLagoTaxManagementDialogRef>(null)
-  const addNetsuiteDialogRef = useRef<AddNetsuiteDialogRef>(null)
-  const addSalesforceDialogRef = useRef<AddSalesforceDialogRef>(null)
-  const addXeroDialogRef = useRef<AddXeroDialogRef>(null)
-  const addHubspotDialogRef = useRef<AddHubspotDialogRef>(null)
-  const addFlutterwaveDialogRef = useRef<AddFlutterwaveDialogRef>(null)
-
+  const { openAddLagoTaxManagementDialog } = useAddLagoTaxManagementDialog()
+  const { openAddNetsuiteDialog } = useAddNetsuiteDialog()
+  const { openAddSalesforceDialog } = useAddSalesforceDialog()
+  const { openAddXeroDialog } = useAddXeroDialog()
+  const { openAddFlutterwaveDialog } = useAddFlutterwaveDialog()
+  const { openAddHubspotDialog } = useAddHubspotDialog()
   const { openAddMoneyhashDialog } = useAddMoneyhashDialog()
 
   const { data, loading } = useIntegrationsSettingQuery({
@@ -375,7 +349,7 @@ const Integrations = () => {
                               }),
                             )
                           } else {
-                            addAnrokDialogRef.current?.openDialog()
+                            openAddAnrokDialog()
                           }
                         }}
                       />
@@ -456,7 +430,7 @@ const Integrations = () => {
                               }),
                             )
                           } else {
-                            addGocardlessDialogRef.current?.openDialog()
+                            openAddGocardlessDialog()
                           }
                         }}
                         fullWidth
@@ -508,7 +482,7 @@ const Integrations = () => {
                               }),
                             )
                           } else {
-                            addHubspotDialogRef.current?.openDialog()
+                            openAddHubspotDialog()
                           }
                         }}
                         fullWidth
@@ -547,7 +521,7 @@ const Integrations = () => {
                               }),
                             )
                           } else {
-                            addNetsuiteDialogRef.current?.openDialog()
+                            openAddNetsuiteDialog()
                           }
                         }}
                       />
@@ -585,7 +559,7 @@ const Integrations = () => {
                               }),
                             )
                           } else {
-                            addSalesforceDialogRef.current?.openDialog()
+                            openAddSalesforceDialog()
                           }
                         }}
                       />
@@ -631,7 +605,7 @@ const Integrations = () => {
                             const element = document.activeElement as HTMLElement
 
                             element.blur && element.blur()
-                            addStripeDialogRef.current?.openDialog()
+                            openAddStripeDialog()
                           }
                         }}
                         fullWidth
@@ -670,7 +644,7 @@ const Integrations = () => {
                               }),
                             )
                           } else {
-                            addXeroDialogRef.current?.openDialog()
+                            openAddXeroDialog()
                           }
                         }}
                       />
@@ -764,7 +738,7 @@ const Integrations = () => {
                             const element = document.activeElement as HTMLElement
 
                             element.blur && element.blur()
-                            addFlutterwaveDialogRef.current?.openDialog()
+                            openAddFlutterwaveDialog()
                           }
                         }}
                         fullWidth
@@ -795,7 +769,7 @@ const Integrations = () => {
                               }),
                             )
                           } else {
-                            addLagoTaxManagementDialog.current?.openDialog()
+                            openAddLagoTaxManagementDialog()
                           }
                         }}
                       />
@@ -836,16 +810,6 @@ const Integrations = () => {
       />
 
       <>{activeTabContent}</>
-
-      <AddAnrokDialog ref={addAnrokDialogRef} />
-      <AddStripeDialog ref={addStripeDialogRef} />
-      <AddGocardlessDialog ref={addGocardlessDialogRef} />
-      <AddLagoTaxManagementDialog ref={addLagoTaxManagementDialog} />
-      <AddNetsuiteDialog ref={addNetsuiteDialogRef} />
-      <AddXeroDialog ref={addXeroDialogRef} />
-      <AddHubspotDialog ref={addHubspotDialogRef} />
-      <AddSalesforceDialog ref={addSalesforceDialogRef} />
-      <AddFlutterwaveDialog ref={addFlutterwaveDialogRef} />
     </>
   )
 }

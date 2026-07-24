@@ -11,9 +11,10 @@ import {
   CLOSE_CREATE_WALLET_BUTTON_DATA_TEST,
   SUBMIT_WALLET_DATA_TEST,
 } from '~/components/wallets/utils/dataTestConstants'
-import { addToast } from '~/core/apolloClient'
+import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
+import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { CUSTOMER_DETAILS_TAB_ROUTE, useNavigate, WALLET_DETAILS_ROUTE } from '~/core/router'
 import {
   CurrencyEnum,
@@ -42,6 +43,8 @@ gql`
   fragment WalletForUpdate on Wallet {
     id
     billingEntityId
+    code
+    createdAt
     currency
     expirationAt
     name
@@ -250,22 +253,28 @@ const CreateWallet = () => {
     validators: {
       onDynamic: walletFormValidationSchema,
     },
-    onSubmit: async ({ value }) => {
-      // NOTE: there is no field-level server-error mapping on this form —
-      // both mutations silence UnprocessableEntity and surface errors via
-      // toast only; we simply abort the navigation when the mutation fails.
-      if (formType === FORM_TYPE_ENUM.edition) {
-        const { errors } = await updateWallet({
-          variables: { input: mapFormToUpdateInput(value, walletId) },
-        })
+    onSubmit: async ({ value, formApi }) => {
+      // Both mutations silence UnprocessableEntity: a duplicate code
+      // (ValueAlreadyExist) is mapped back onto the code field, any other
+      // failure surfaces via toast only and simply aborts the navigation.
+      const { errors } =
+        formType === FORM_TYPE_ENUM.edition
+          ? await updateWallet({
+              variables: { input: mapFormToUpdateInput(value, walletId) },
+            })
+          : await createWallet({
+              variables: { input: mapFormToCreateInput(value, customerId) },
+            })
 
-        if (!!errors?.length) return
-      } else {
-        const { errors } = await createWallet({
-          variables: { input: mapFormToCreateInput(value, customerId) },
-        })
+      if (!!errors?.length) {
+        if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
+          const codeError = { code: { message: 'text_632a2d437e341dcc76817556', path: ['code'] } }
 
-        if (!!errors?.length) return
+          formApi.setErrorMap({ onDynamic: { fields: codeError } })
+          scrollToFirstInputError('create-wallet', codeError)
+        }
+
+        return
       }
 
       navigateToCustomerWalletTab(walletId)
@@ -351,6 +360,7 @@ const CreateWallet = () => {
               form={form}
               formType={formType}
               customerData={customerData}
+              walletCreatedAt={wallet?.createdAt}
               isRecurringTopUpEnabled={isRecurringTopUpEnabled}
               setIsRecurringTopUpEnabled={setIsRecurringTopUpEnabled}
             />

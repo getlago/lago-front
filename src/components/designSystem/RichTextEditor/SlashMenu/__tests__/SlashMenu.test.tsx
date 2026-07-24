@@ -10,8 +10,8 @@ import { SLASH_MENU_CONTAINER_TEST_ID, SLASH_MENU_ITEM_TEST_ID, SlashMenu } from
 Element.prototype.scrollIntoView = jest.fn()
 
 const createMockItems = (): SlashCommandItem[] => [
-  { title: 'Heading 1', description: 'Large heading', command: jest.fn() },
-  { title: 'Bullet List', description: 'Unordered list', command: jest.fn() },
+  { title: 'Heading 1', description: 'Large heading', icon: 'h1', command: jest.fn() },
+  { title: 'Bullet List', description: 'Unordered list', icon: 'list-bullet', command: jest.fn() },
 ]
 
 const mockCommand = jest.fn()
@@ -42,6 +42,17 @@ describe('SlashMenu', () => {
 
         expect(screen.getByTestId(`${SLASH_MENU_ITEM_TEST_ID}-0`)).toHaveTextContent('Heading 1')
         expect(screen.getByTestId(`${SLASH_MENU_ITEM_TEST_ID}-1`)).toHaveTextContent('Bullet List')
+      })
+
+      it('THEN should render each item icon as a start icon', async () => {
+        await act(() => render(<SlashMenu items={createMockItems()} command={mockCommand} />))
+
+        expect(screen.getByTestId(`${SLASH_MENU_ITEM_TEST_ID}-0`)).toContainElement(
+          screen.getByTestId('h1/medium'),
+        )
+        expect(screen.getByTestId(`${SLASH_MENU_ITEM_TEST_ID}-1`)).toContainElement(
+          screen.getByTestId('list-bullet/medium'),
+        )
       })
     })
   })

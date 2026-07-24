@@ -1,17 +1,19 @@
+import NiceModal from '@ebay/nice-modal-react'
 import { act, cleanup, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { createRef } from 'react'
+import { ReactNode } from 'react'
 
-import {
-  EditCustomerInvoiceCustomSectionsDialog,
-  EditCustomerInvoiceCustomSectionsDialogRef,
-} from '~/components/customers/EditCustomerInvoiceCustomSectionsDialog'
+import { useEditCustomerInvoiceCustomSectionsDialog } from '~/components/customers/EditCustomerInvoiceCustomSectionsDialog'
+import { DIALOG_TITLE_TEST_ID, FORM_DIALOG_NAME } from '~/components/dialogs/const'
+import FormDialog from '~/components/dialogs/FormDialog'
 import {
   EditCustomerInvoiceCustomSectionDocument,
   GetCustomerInvoiceCustomSectionsDocument,
   GetInvoiceCustomSectionsDocument,
 } from '~/generated/graphql'
 import { render, TestMocksType } from '~/test-utils'
+
+NiceModal.register(FORM_DIALOG_NAME, FormDialog)
 
 const CUSTOMER_ID = 'customer-123'
 const CUSTOMER_EXTERNAL_ID = 'ext-customer-123'
@@ -82,6 +84,21 @@ const mockCustomerCustomSections = {
   },
 }
 
+const NiceModalWrapper = ({ children }: { children: ReactNode }) => (
+  <NiceModal.Provider>{children}</NiceModal.Provider>
+)
+
+const TestComponent = () => {
+  const { openEditCustomerInvoiceCustomSectionsDialog } =
+    useEditCustomerInvoiceCustomSectionsDialog(CUSTOMER_ID)
+
+  return (
+    <button data-test="open-dialog" onClick={openEditCustomerInvoiceCustomSectionsDialog}>
+      Open Dialog
+    </button>
+  )
+}
+
 async function prepare({
   customerMock = mockCustomerFallback,
   mocks = [],
@@ -111,25 +128,27 @@ async function prepare({
     ...mocks,
   ]
 
-  const ref = createRef<EditCustomerInvoiceCustomSectionsDialogRef>()
-
   await act(() =>
-    render(<EditCustomerInvoiceCustomSectionsDialog ref={ref} customerId={CUSTOMER_ID} />, {
-      mocks: defaultMocks,
-    } as { mocks: TestMocksType }),
+    render(
+      <NiceModalWrapper>
+        <TestComponent />
+      </NiceModalWrapper>,
+      { mocks: defaultMocks } as { mocks: TestMocksType },
+    ),
   )
 
-  // Open the dialog
-  await act(() => {
-    ref.current?.openDialog()
+  // Wait for the customer sections query to resolve so the seed uses fresh data.
+  await act(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 0))
   })
 
-  // Wait for lazy query to complete
+  await act(async () => {
+    screen.getByTestId('open-dialog').click()
+  })
+
   await waitFor(() => {
-    expect(screen.getByTestId('dialog-title')).toBeInTheDocument()
+    expect(screen.getByTestId(DIALOG_TITLE_TEST_ID)).toBeInTheDocument()
   })
-
-  return { ref }
 }
 
 describe('EditCustomerInvoiceCustomSectionsDialog', () => {
@@ -205,11 +224,12 @@ describe('EditCustomerInvoiceCustomSectionsDialog', () => {
       await prepare({ customerMock: mockCustomerCustomSections, mocks: [mutationMock] })
 
       const radioButtons = screen.getAllByRole('radio')
-      const buttons = screen.getAllByRole('button')
-      const submitButton = buttons[buttons.length - 1]
 
-      // Change from APPLY to FALLBACK
+      // Change from APPLY (seeded) to FALLBACK
       await user.click(radioButtons[0])
+
+      // The submit button is labelled "Edit behavior".
+      const submitButton = screen.getByRole('button', { name: /edit behavior/i })
 
       await waitFor(() => {
         expect(submitButton).not.toBeDisabled()

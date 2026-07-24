@@ -1,7 +1,5 @@
-import { RefObject } from 'react'
 import { generatePath } from 'react-router-dom'
 
-import { AddCouponToCustomerDialogRef } from '~/components/customers/AddCouponToCustomerDialog'
 import { useDeleteCustomerDialog } from '~/components/customers/DeleteCustomerDialog'
 import { MainHeaderAction } from '~/components/MainHeader/types'
 import {
@@ -25,13 +23,13 @@ const CUSTOMER_ACTIONS_BUTTON_TEST_ID = 'customer-actions'
 interface UseCustomerDetailsHeaderActionsParams {
   customerId: string
   customer: CustomerDetailsFragment | undefined | null
-  addCouponDialogRef: RefObject<AddCouponToCustomerDialogRef>
+  openAddCouponToCustomerDialog: () => void
 }
 
 export function useCustomerDetailsHeaderActions({
   customerId,
   customer,
-  addCouponDialogRef,
+  openAddCouponToCustomerDialog,
 }: UseCustomerDetailsHeaderActionsParams): MainHeaderAction[] {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
@@ -99,7 +97,7 @@ export function useCustomerDetailsHeaderActions({
           hidden: !hasPermissions(['couponsAttach']),
           dataTest: 'apply-coupon-action',
           onClick: (closePopper) => {
-            addCouponDialogRef.current?.openDialog()
+            openAddCouponToCustomerDialog()
             closePopper()
           },
         },

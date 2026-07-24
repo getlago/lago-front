@@ -61,11 +61,10 @@ describe('Coupons', () => {
       .click()
     cy.get(`[data-test="${ACTIONS_BLOCK_TEST_ID}"] [data-test="customer-actions"]`).click()
     cy.get('[data-test="apply-coupon-action"]').click()
-    cy.get('input[name="selectCoupon"]').click()
+    // The dialog auto-opens the coupon dropdown on entry, so select directly
     cy.get('[data-option-index="0"]').click({ force: true })
     cy.get(`[data-test="plan-limitation-section"]`).should('exist')
 
-    cy.pause()
     cy.get('[data-test="submit"]')
       .click()
       .then(() => {
@@ -85,8 +84,8 @@ describe('Coupons', () => {
       .click()
     cy.get(`[data-test="${ACTIONS_BLOCK_TEST_ID}"] [data-test="customer-actions"]`).click()
     cy.get('[data-test="apply-coupon-action"]').click()
-    cy.get('input[name="selectCoupon"]').click()
-    cy.get('[data-option-index="0"]').click()
+    // The dialog auto-opens the coupon dropdown on entry, so select directly
+    cy.get('[data-option-index="0"]').click({ force: true })
     cy.get('[data-test="submit"]').click()
     cy.get(`[data-test="alert-type-danger"]`).should('exist', 1)
   })

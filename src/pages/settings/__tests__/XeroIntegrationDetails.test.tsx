@@ -11,7 +11,7 @@ jest.mock('@nangohq/frontend', () => ({
   default: jest.fn(),
 }))
 jest.mock('~/components/settings/integrations/AddXeroDialog', () => ({
-  AddXeroDialog: () => null,
+  useAddXeroDialog: () => ({ openAddXeroDialog: jest.fn() }),
 }))
 jest.mock('~/components/settings/integrations/DeleteXeroIntegrationDialog', () => ({
   useDeleteXeroIntegrationDialog: () => ({ openDeleteXeroIntegrationDialog: jest.fn() }),
