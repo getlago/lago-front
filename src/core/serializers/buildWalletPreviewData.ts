@@ -45,7 +45,10 @@ export type WalletPreviewData = {
 }
 
 const num = (v: unknown): number => {
-  const n = typeof v === 'number' ? v : Number.parseFloat(typeof v === 'string' ? v : '')
+  if (typeof v === 'number') return Number.isFinite(v) ? v : 0
+  if (typeof v !== 'string') return 0
+
+  const n = Number.parseFloat(v)
 
   return Number.isFinite(n) ? n : 0
 }
