@@ -273,5 +273,10 @@
   "text_1783352692386valktkog1dw": "Ajouter un numéro de bon de commande",
   "text_17833526923863j848qxkffb": "Paramètres du portefeuille",
   "text_17841895626504bixbm3xbyj": "Consultez les détails de cette commande exécutée, y compris ses paramètres d’exécution et son contenu.",
-  "text_17842142209100wegryv1st3": "La facture {{invoiceNumber}} a été supprimée"
+  "text_17842142209100wegryv1st3": "La facture {{invoiceNumber}} a été supprimée",
+  "text_17848001862070vhaaoyut3y": "Supprimer la facture",
+  "text_17848001862071abwcvd3b3p": "Vous êtes sur le point de supprimer cette facture en brouillon",
+  "text_1784800186207jjeqsv1d0rd": "Cette facture en brouillon sera définitivement supprimée et ne deviendra jamais une créance client. Cette action est irréversible. Voulez-vous continuer ?",
+  "text_1784800186207ionjr7ey3jq": "Facture en brouillon supprimée",
+  "text_178482400457029nb9diwj6m": "Supprimer une facture en brouillon"
 }
