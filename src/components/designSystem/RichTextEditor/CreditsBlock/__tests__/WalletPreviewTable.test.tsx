@@ -29,6 +29,8 @@ const translate = ((key: string, data?: Record<string, unknown>) => {
     // wallet-owned interval + fee-type keys
     text_1784883525803lunzztlh547: 'Monthly',
     text_1784883525803oz45f5x0ier: 'Usage charges',
+    // block label — empty-name fallback
+    text_1783352692386xocpgvrz3na: 'Credits',
   }
 
   return map[key] ?? key
@@ -143,5 +145,11 @@ describe('WalletPreviewTable', () => {
     })
 
     expect(screen.getByText('Applies to all fees')).toBeInTheDocument()
+  })
+
+  it('falls back to the block label when the wallet name is empty', () => {
+    renderTable({ ...fullData, name: '' })
+
+    expect(screen.getByText('Credits')).toBeInTheDocument()
   })
 })

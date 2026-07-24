@@ -36,6 +36,9 @@ const K = {
   appliesToAll: 'text_1784882179580hb24cd5e4jc',
   onLowBalance: 'text_17848821795809xtwzsq7ot9',
   upTo: 'text_178488217958075syit8qyd5',
+  // Block label ("Credits") — fallback when the wallet name is empty, matching
+  // CreditsBlockView's edit-mode displayName fallback. Present in all 9 locales.
+  walletName: 'text_1783352692386xocpgvrz3na',
 } as const
 
 type ScopedFeeType = FeeTypesEnum.Charge | FeeTypesEnum.Commitment | FeeTypesEnum.Subscription
@@ -127,7 +130,7 @@ export const WalletPreviewTable = ({
         : translate(K.recurringTopUp)
     }
 
-    return data.name
+    return data.name || translate(K.walletName)
   }
 
   const renderName = (row: WalletPreviewRow) => {
@@ -135,7 +138,7 @@ export const WalletPreviewTable = ({
       return (
         <div className="flex flex-col gap-1">
           <Typography variant="bodyHl" color="grey700">
-            {data.name}
+            {data.name || translate(K.walletName)}
           </Typography>
           <Typography variant="caption" color="grey600">
             {captionText()}

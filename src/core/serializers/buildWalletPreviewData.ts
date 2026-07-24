@@ -96,36 +96,28 @@ export const buildWalletPreviewData = (payload: WalletCreditPayload): WalletPrev
     const billed: WalletBilled = isThreshold
       ? { type: 'threshold' }
       : { type: 'interval', interval: rule.interval ?? '' }
+    const transactionName = rule.transactionName ?? undefined
 
-    const resolveAmounts = (): { units: WalletUnits; price: WalletPrice } => {
-      if (isTarget) {
-        return {
-          units: { type: 'upTo', value: num(rule.targetOngoingBalance) },
-          price: { type: 'empty' },
-        }
-      }
-
-      if (rulePaid > 0) {
-        return {
-          units: { type: 'count', value: rulePaid },
-          price: { type: 'displayAmount', amount: money(rulePaid, rate) },
-        }
-      }
-
-      // Fixed method funding only granted (free) credits.
-      return { units: { type: 'count', value: ruleGranted }, price: { type: 'free' } }
+    const pushRecurring = (units: WalletUnits, price: WalletPrice): void => {
+      rows.push({ kind: 'recurring', isPrimary: false, transactionName, billed, units, price })
     }
 
-    const { units, price } = resolveAmounts()
+    if (isTarget) {
+      pushRecurring({ type: 'upTo', value: num(rule.targetOngoingBalance) }, { type: 'empty' })
+      continue
+    }
 
-    rows.push({
-      kind: 'recurring',
-      isPrimary: false,
-      transactionName: rule.transactionName ?? undefined,
-      billed,
-      units,
-      price,
-    })
+    // Fixed method can fund paid and/or granted (free) credits — the form allows
+    // both — so emit one row per non-zero credit type instead of dropping either.
+    if (rulePaid > 0) {
+      pushRecurring(
+        { type: 'count', value: rulePaid },
+        { type: 'displayAmount', amount: money(rulePaid, rate) },
+      )
+    }
+    if (ruleGranted > 0) {
+      pushRecurring({ type: 'count', value: ruleGranted }, { type: 'free' })
+    }
   }
 
   if (rows.length > 0) {

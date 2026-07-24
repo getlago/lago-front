@@ -87,6 +87,45 @@ describe('buildWalletPreviewData', () => {
     })
   })
 
+  it('emits two rows for a fixed rule funding both paid and granted credits', () => {
+    const data = buildWalletPreviewData(
+      basePayload({
+        rateAmount: '2',
+        recurringTransactionRules: [
+          {
+            trigger: 'interval',
+            method: 'fixed',
+            interval: 'monthly',
+            paidCredits: '50',
+            grantedCredits: '10',
+            targetOngoingBalance: null,
+            thresholdCredits: null,
+            startedAt: null,
+            transactionName: 'Monthly refill',
+            invoiceRequiresSuccessfulPayment: false,
+            expirationAt: null,
+          },
+        ],
+      }),
+    )
+
+    expect(data.rows).toHaveLength(2)
+    expect(data.rows[0]).toMatchObject({
+      kind: 'recurring',
+      transactionName: 'Monthly refill',
+      billed: { type: 'interval', interval: 'monthly' },
+      units: { type: 'count', value: 50 },
+      price: { type: 'displayAmount', amount: '100' },
+    })
+    expect(data.rows[1]).toMatchObject({
+      kind: 'recurring',
+      transactionName: 'Monthly refill',
+      billed: { type: 'interval', interval: 'monthly' },
+      units: { type: 'count', value: 10 },
+      price: { type: 'free' },
+    })
+  })
+
   it('maps a threshold trigger to a threshold billed descriptor', () => {
     const data = buildWalletPreviewData(
       basePayload({
