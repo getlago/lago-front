@@ -86,7 +86,10 @@ export const ProviderSelectionSection = ({
         <form.AppField name="providerCode">
           {(field) => (
             <field.ComboBoxField
-              openOnFocus
+              // Auto-open on the drawer's initial focus — only while nothing
+              // is selected (an edit reopen must not pop the menu over the
+              // prefilled value)
+              openOnFocus={!providerCode}
               data={buildConnectionComboBoxData(options)}
               label={translate('text_65940198687ce7b05cd62b61')}
               placeholder={translate('text_65940198687ce7b05cd62b62')}

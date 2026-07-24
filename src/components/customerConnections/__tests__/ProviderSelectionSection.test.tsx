@@ -125,6 +125,22 @@ describe('ProviderSelectionSection', () => {
         expect(input).toHaveAttribute('aria-expanded', 'true')
       })
 
+      it('THEN should not auto-open the menu on focus when a provider is already selected', () => {
+        render(
+          <Harness
+            category={ConnectionCategory.Payment}
+            options={PAYMENT_OPTIONS}
+            providerCode="stripe-conn"
+          />,
+        )
+
+        const input = screen.getByRole('combobox') as HTMLInputElement
+
+        input.focus()
+
+        expect(input).toHaveAttribute('aria-expanded', 'false')
+      })
+
       it('THEN should keep the combobox even when a provider is selected', () => {
         render(
           <Harness

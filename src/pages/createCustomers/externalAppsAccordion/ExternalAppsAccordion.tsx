@@ -152,32 +152,52 @@ const ExternalAppsAccordion = withForm({
       [crmProviders],
     )
 
-    // Whether each category had a PERSISTED connection at customer load — its
-    // identity fields are locked (baseline hadInitial*/hadPaymentProvider
-    // semantics). Integration categories also require the referenced org
-    // integration to still exist, so a dangling link stays fixable.
+    // A slot is "persisted" only when the connection CURRENTLY in the form
+    // slot is the one saved on the customer (same code): a connection deleted
+    // and re-added in-session is a new link and must stay fully editable.
+    // Integration categories also require the referenced org integration to
+    // still exist, so a dangling link stays fixable.
+    const isPersistedIntegrationSlot = (
+      integrationCustomer: { integrationCode?: string | null } | null | undefined,
+      slotCode: string | undefined,
+      orgIntegrations: { code: string }[],
+    ): boolean => {
+      if (!integrationCustomer?.integrationCode || !slotCode) return false
+      if (integrationCustomer.integrationCode !== slotCode) return false
+
+      return orgIntegrations.some((i) => i.code === integrationCustomer.integrationCode)
+    }
+
     const hadInitialConnection: Record<ConnectionCategory, boolean> = {
-      [ConnectionCategory.Payment]: !!customer?.providerCustomer?.providerCustomerId,
-      [ConnectionCategory.Accounting]: !!(
-        (customer?.netsuiteCustomer &&
-          allAccountingIntegrations.some(
-            (i) => i.code === customer.netsuiteCustomer?.integrationCode,
-          )) ||
-        (customer?.xeroCustomer &&
-          allAccountingIntegrations.some((i) => i.code === customer.xeroCustomer?.integrationCode))
-      ),
-      [ConnectionCategory.Tax]: !!(
-        (customer?.anrokCustomer &&
-          allTaxIntegrations.some((i) => i.code === customer.anrokCustomer?.integrationCode)) ||
-        (customer?.avalaraCustomer &&
-          allTaxIntegrations.some((i) => i.code === customer.avalaraCustomer?.integrationCode))
-      ),
-      [ConnectionCategory.Crm]: !!(
-        (customer?.hubspotCustomer &&
-          allCrmIntegrations.some((i) => i.code === customer.hubspotCustomer?.integrationCode)) ||
-        (customer?.salesforceCustomer &&
-          allCrmIntegrations.some((i) => i.code === customer.salesforceCustomer?.integrationCode))
-      ),
+      [ConnectionCategory.Payment]:
+        !!customer?.providerCustomer?.providerCustomerId &&
+        !!paymentProviderCode &&
+        customer?.paymentProviderCode === paymentProviderCode,
+      [ConnectionCategory.Accounting]:
+        isPersistedIntegrationSlot(
+          customer?.netsuiteCustomer,
+          accountingProviderCode,
+          allAccountingIntegrations,
+        ) ||
+        isPersistedIntegrationSlot(
+          customer?.xeroCustomer,
+          accountingProviderCode,
+          allAccountingIntegrations,
+        ),
+      [ConnectionCategory.Tax]:
+        isPersistedIntegrationSlot(customer?.anrokCustomer, taxProviderCode, allTaxIntegrations) ||
+        isPersistedIntegrationSlot(customer?.avalaraCustomer, taxProviderCode, allTaxIntegrations),
+      [ConnectionCategory.Crm]:
+        isPersistedIntegrationSlot(
+          customer?.hubspotCustomer,
+          crmProviderCode,
+          allCrmIntegrations,
+        ) ||
+        isPersistedIntegrationSlot(
+          customer?.salesforceCustomer,
+          crmProviderCode,
+          allCrmIntegrations,
+        ),
     }
 
     const connectionOptions: Partial<Record<ConnectionCategory, ConnectionComboBoxDataItem[]>> =
@@ -389,7 +409,7 @@ const ExternalAppsAccordion = withForm({
     const openConnectionEdit = (row: CustomerConnectionRow) => {
       const isProviderLocked =
         row.category === ConnectionCategory.Payment
-          ? !!customer?.paymentProvider
+          ? !!customer?.paymentProvider && customer?.paymentProviderCode === paymentProviderCode
           : hadInitialConnection[row.category]
 
       const lockedSelection = isProviderLocked
