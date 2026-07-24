@@ -1,6 +1,8 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { INVOICING_SETTINGS_SELECTOR_TEST_ID } from '~/components/invoicingSettings/InvoicingSettingsSelector'
+import { PAYMENT_SETTINGS_SELECTOR_TEST_ID } from '~/components/paymentSettings/PaymentSettingsSelector'
 import {
   CurrencyEnum,
   CustomerAccountTypeEnum,
@@ -408,6 +410,48 @@ describe('CreateInvoice - form behavior', () => {
         })
         expect(screen.getByTestId(CREATE_INVOICE_SUBMIT_BUTTON_TEST_ID)).toBeDisabled()
         expect(mockCreateInvoice).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the customer billing settings card', () => {
+    const renderWithCustomer = (customerOverride: Record<string, unknown>) => {
+      ;(useGetInfosForCreateInvoiceQuery as jest.Mock).mockReturnValue({
+        data: {
+          ...customerQueryData,
+          customer: { ...customerQueryData.customer, ...customerOverride },
+        },
+        loading: false,
+        error: undefined,
+      })
+
+      render(<CreateInvoice />, { useParams: { customerId: 'cus_1' } })
+    }
+
+    describe('WHEN the customer has both an id and an externalId', () => {
+      it('THEN should render both the invoicing and payment settings selectors', () => {
+        renderWithCustomer({ id: 'cus_1', externalId: 'ext_1' })
+
+        expect(screen.getByTestId(INVOICING_SETTINGS_SELECTOR_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByTestId(PAYMENT_SETTINGS_SELECTOR_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the customer has only an id', () => {
+      it('THEN should render only the invoicing settings selector', () => {
+        renderWithCustomer({ id: 'cus_1', externalId: null })
+
+        expect(screen.getByTestId(INVOICING_SETTINGS_SELECTOR_TEST_ID)).toBeInTheDocument()
+        expect(screen.queryByTestId(PAYMENT_SETTINGS_SELECTOR_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the customer has only an externalId', () => {
+      it('THEN should render only the payment settings selector', () => {
+        renderWithCustomer({ id: null, externalId: 'ext_1' })
+
+        expect(screen.getByTestId(PAYMENT_SETTINGS_SELECTOR_TEST_ID)).toBeInTheDocument()
+        expect(screen.queryByTestId(INVOICING_SETTINGS_SELECTOR_TEST_ID)).not.toBeInTheDocument()
       })
     })
   })

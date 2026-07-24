@@ -1,5 +1,5 @@
 import { revalidateLogic, useStore } from '@tanstack/react-form'
-import { screen, waitFor } from '@testing-library/react'
+import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useState } from 'react'
 
@@ -9,6 +9,7 @@ import {
   RECURRING_TOPUP_TYPE_DATA_TEST,
   SHOW_RECURRING_EXPIRATION_AT_DATA_TEST,
 } from '~/components/wallets/utils/dataTestConstants'
+import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import {
   CurrencyEnum,
@@ -42,6 +43,28 @@ jest.mock('~/components/dialogs/PremiumWarningDialog', () => ({
   usePremiumWarningDialog: () => ({
     open: mockOpenPremiumWarningDialog,
   }),
+}))
+
+// Capture the props passed to the settings selectors so we can assert the
+// per-object wiring (viewType, customer ids, data-test) and — crucially — the
+// bracket field paths for the recurring rule round-trip through the real form.
+const mockInvoicingSelector: jest.Mock<null, [Record<string, unknown>]> = jest.fn()
+const mockPaymentSelector: jest.Mock<null, [Record<string, unknown>]> = jest.fn()
+
+jest.mock('~/components/invoicingSettings/InvoicingSettingsSelector', () => ({
+  InvoicingSettingsSelector: (props: Record<string, unknown>) => {
+    mockInvoicingSelector(props)
+
+    return null
+  },
+}))
+
+jest.mock('~/components/paymentSettings/PaymentSettingsSelector', () => ({
+  PaymentSettingsSelector: (props: Record<string, unknown>) => {
+    mockPaymentSelector(props)
+
+    return null
+  },
 }))
 
 const customerData = {
@@ -129,6 +152,24 @@ const withRule = (overrides: Record<string, unknown> = {}): Partial<TWalletDataF
     { ...DEFAULT_RULES, ...overrides },
   ] as TWalletDataForm['recurringTransactionRules'],
 })
+
+type CapturedSelectorProps = {
+  viewType?: ViewTypeEnum
+  customerId?: string
+  externalCustomerId?: string
+  value?: unknown
+  onChange?: (value: unknown) => void
+  'data-test'?: string
+}
+
+const lastSelectorCall = (
+  mock: jest.Mock<null, [Record<string, unknown>]>,
+  viewType: ViewTypeEnum,
+): CapturedSelectorProps | undefined =>
+  mock.mock.calls
+    .map((call) => call[0] as CapturedSelectorProps)
+    .filter((props) => props.viewType === viewType)
+    .at(-1)
 
 describe('TopUpSection', () => {
   beforeEach(() => {
@@ -374,6 +415,94 @@ describe('TopUpSection', () => {
         // The submit failed (rateAmount required), but no error is keyed
         // under recurringTransactionRules → the rule indicator stays valid
         expect(validityIcon()).toHaveClass('text-green-600')
+      })
+    })
+  })
+
+  describe('GIVEN the wallet-level settings selectors', () => {
+    describe('WHEN the customer has an id and an externalId', () => {
+      it('THEN should wire the invoicing selector to the customer id', () => {
+        render(<TestWrapper />)
+
+        const props = lastSelectorCall(mockInvoicingSelector, ViewTypeEnum.WalletTopUp)
+
+        expect(props).toBeDefined()
+        expect(props?.customerId).toBe('customer-id')
+      })
+
+      it('THEN should wire the payment selector to the external customer id', () => {
+        render(<TestWrapper />)
+
+        const props = lastSelectorCall(mockPaymentSelector, ViewTypeEnum.WalletTopUp)
+
+        expect(props).toBeDefined()
+        expect(props?.externalCustomerId).toBe('ext-1')
+      })
+    })
+  })
+
+  describe('GIVEN an enabled recurring rule', () => {
+    describe('WHEN the rule settings selectors mount', () => {
+      it.each([
+        ['invoicing', () => mockInvoicingSelector, 'rule-invoicing-settings-selector'],
+        ['payment', () => mockPaymentSelector, 'rule-payment-settings-selector'],
+      ])(
+        'THEN should tag the rule %s selector with its data-test',
+        async (_, getMock, dataTest) => {
+          const user = userEvent.setup()
+
+          render(<TestWrapper initiallyEnabled defaultsOverride={withRule()} />)
+          await openAccordion(user)
+
+          const props = lastSelectorCall(getMock(), ViewTypeEnum.WalletRecurringTopUp)
+
+          expect(props?.['data-test']).toBe(dataTest)
+        },
+      )
+    })
+
+    describe('WHEN the rule invoicing selector reports a change', () => {
+      it('THEN should round-trip the value through the recurringTransactionRules[0] field path', async () => {
+        const user = userEvent.setup()
+
+        render(<TestWrapper initiallyEnabled defaultsOverride={withRule()} />)
+        await openAccordion(user)
+
+        const before = lastSelectorCall(mockInvoicingSelector, ViewTypeEnum.WalletRecurringTopUp)
+
+        const next = {
+          invoiceCustomSections: [{ id: 'cs_rule', name: 'Rule footer' }],
+          skipInvoiceCustomSections: false,
+        }
+
+        act(() => {
+          before?.onChange?.(next)
+        })
+
+        const after = lastSelectorCall(mockInvoicingSelector, ViewTypeEnum.WalletRecurringTopUp)
+
+        expect(after?.value).toEqual(next)
+      })
+    })
+
+    describe('WHEN the rule payment selector reports a change', () => {
+      it('THEN should round-trip the value through the recurringTransactionRules[0] field path', async () => {
+        const user = userEvent.setup()
+
+        render(<TestWrapper initiallyEnabled defaultsOverride={withRule()} />)
+        await openAccordion(user)
+
+        const before = lastSelectorCall(mockPaymentSelector, ViewTypeEnum.WalletRecurringTopUp)
+
+        const next = { paymentMethodId: 'pm_rule', paymentMethodType: 'provider' }
+
+        act(() => {
+          before?.onChange?.(next)
+        })
+
+        const after = lastSelectorCall(mockPaymentSelector, ViewTypeEnum.WalletRecurringTopUp)
+
+        expect(after?.value).toEqual(next)
       })
     })
   })

@@ -2,6 +2,8 @@ import { MockedResponse } from '@apollo/client/testing'
 import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { INVOICING_SETTINGS_SELECTOR_TEST_ID } from '~/components/invoicingSettings/InvoicingSettingsSelector'
+import { PAYMENT_SETTINGS_SELECTOR_TEST_ID } from '~/components/paymentSettings/PaymentSettingsSelector'
 import {
   ADD_METADATA_DATA_TEST,
   CLOSE_CREATE_TOPUP_BUTTON_DATA_TEST,
@@ -579,6 +581,64 @@ describe('CreateWalletTopUp', () => {
           expect(getPaidCreditsInput()).toHaveAttribute('aria-invalid', 'false')
         })
         expect(screen.getByTestId(SUBMIT_WALLET_DATA_TEST)).not.toBeDisabled()
+      })
+    })
+  })
+
+  describe('GIVEN the customer billing settings sections', () => {
+    const customerInfoMockWith = (customerOverride: Record<string, unknown>): MockedResponse => ({
+      request: {
+        query: GetCustomerInfosForWalletFormDocument,
+        variables: { id: 'customer-1' },
+      },
+      result: {
+        data: { customer: { ...mockCustomerData.customer, ...customerOverride } },
+      },
+    })
+
+    const mocksWithCustomer = (customerOverride: Record<string, unknown>): TestMocksType =>
+      [
+        createWalletForTopUpMock(),
+        customerInfoMockWith(customerOverride),
+        createMutationMock(),
+      ] as TestMocksType
+
+    describe('WHEN the customer has both an id and an externalId', () => {
+      it('THEN should render both the invoicing and payment settings selectors', async () => {
+        render(<CreateWalletTopUp />, { mocks: mocksWithCustomer({}) })
+
+        await waitFor(() => {
+          expect(screen.getByTestId(CREATE_WALLET_TOP_UP_FORM_TEST_ID)).toBeInTheDocument()
+        })
+
+        expect(screen.getByTestId(INVOICING_SETTINGS_SELECTOR_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByTestId(PAYMENT_SETTINGS_SELECTOR_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the customer has only an id', () => {
+      it('THEN should render only the invoicing settings selector', async () => {
+        render(<CreateWalletTopUp />, { mocks: mocksWithCustomer({ externalId: null }) })
+
+        await waitFor(() => {
+          expect(screen.getByTestId(CREATE_WALLET_TOP_UP_FORM_TEST_ID)).toBeInTheDocument()
+        })
+
+        expect(screen.getByTestId(INVOICING_SETTINGS_SELECTOR_TEST_ID)).toBeInTheDocument()
+        expect(screen.queryByTestId(PAYMENT_SETTINGS_SELECTOR_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the customer has only an externalId', () => {
+      it('THEN should render only the payment settings selector', async () => {
+        render(<CreateWalletTopUp />, { mocks: mocksWithCustomer({ id: null }) })
+
+        await waitFor(() => {
+          expect(screen.getByTestId(CREATE_WALLET_TOP_UP_FORM_TEST_ID)).toBeInTheDocument()
+        })
+
+        expect(screen.getByTestId(PAYMENT_SETTINGS_SELECTOR_TEST_ID)).toBeInTheDocument()
+        expect(screen.queryByTestId(INVOICING_SETTINGS_SELECTOR_TEST_ID)).not.toBeInTheDocument()
       })
     })
   })

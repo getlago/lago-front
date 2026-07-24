@@ -8,6 +8,14 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { InvoicingSettingsDrawer, InvoicingSettingsDrawerRef } from './InvoicingSettingsDrawer'
 
+export const INVOICING_SETTINGS_SELECTOR_TEST_ID = 'invoicing-settings-selector'
+
+export const INVOICING_SUMMARY_KEYS = {
+  skip: 'text_1782738644347z3azl4u1f15',
+  apply: 'text_1782738644347qh5s13lol1p',
+  none: 'text_1782738644347svkr94bf4aw',
+}
+
 interface InvoicingSettingsSelectorProps {
   viewType: ViewTypeEnum
   customerId?: string
@@ -28,7 +36,7 @@ export const InvoicingSettingsSelector = ({
   customerId,
   value,
   onChange,
-  'data-test': dataTest = 'invoicing-settings-selector',
+  'data-test': dataTest = INVOICING_SETTINGS_SELECTOR_TEST_ID,
 }: InvoicingSettingsSelectorProps) => {
   const { translate } = useInternationalization()
   const drawerRef = useRef<InvoicingSettingsDrawerRef>(null)
@@ -36,10 +44,10 @@ export const InvoicingSettingsSelector = ({
   const showCustomSection = !!customerId
 
   const summary = useMemo(() => {
-    if (value?.skipInvoiceCustomSections) return translate('text_1782738644347z3azl4u1f15')
-    if (value?.invoiceCustomSections?.length) return translate('text_1782738644347qh5s13lol1p')
+    if (value?.skipInvoiceCustomSections) return translate(INVOICING_SUMMARY_KEYS.skip)
+    if (value?.invoiceCustomSections?.length) return translate(INVOICING_SUMMARY_KEYS.apply)
 
-    return translate('text_1782738644347svkr94bf4aw')
+    return translate(INVOICING_SUMMARY_KEYS.none)
   }, [value, translate])
 
   return (

@@ -46,6 +46,7 @@ import TopUpTypeSelector, {
 } from '~/pages/wallet/components/TopUpTypeSelector'
 import { TransactionMetadataGroup } from '~/pages/wallet/components/TransactionMetadataGroup'
 import { topUpAmountError } from '~/pages/wallet/form'
+import { CREATE_ACTIVE_WALLET_TOP_UP_ID } from '~/pages/wallet/topUp/constants'
 import {
   getTopUpFormValidationSchema,
   topUpFormErrorLabels,
@@ -91,8 +92,6 @@ gql`
 
   ${WalletDetailsFragmentDoc}
 `
-
-export const CREATE_ACTIVE_WALLET_TOP_UP_ID = 'active-wallet'
 
 const CreateWalletTopUp = () => {
   const { translate } = useInternationalization()

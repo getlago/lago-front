@@ -12,7 +12,9 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { PaymentSettingsDrawer, PaymentSettingsDrawerRef } from './PaymentSettingsDrawer'
 
-const SUMMARY_KEY_BY_BEHAVIOR: Record<PaymentMethodBehavior, string> = {
+export const PAYMENT_SETTINGS_SELECTOR_TEST_ID = 'payment-settings-selector'
+
+export const SUMMARY_KEY_BY_BEHAVIOR: Record<PaymentMethodBehavior, string> = {
   [PaymentMethodBehavior.FALLBACK]: 'text_1782801373795rfpcgchgkv2',
   [PaymentMethodBehavior.SPECIFIC]: 'text_1782801373795gxafl6ekcte',
   [PaymentMethodBehavior.MANUAL]: 'text_1782801373795pwkwintj6s8',
@@ -38,7 +40,7 @@ export const PaymentSettingsSelector = ({
   externalCustomerId,
   value,
   onChange,
-  'data-test': dataTest = 'payment-settings-selector',
+  'data-test': dataTest = PAYMENT_SETTINGS_SELECTOR_TEST_ID,
 }: PaymentSettingsSelectorProps) => {
   const { translate } = useInternationalization()
   const drawerRef = useRef<PaymentSettingsDrawerRef>(null)
