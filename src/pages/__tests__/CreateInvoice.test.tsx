@@ -22,6 +22,12 @@ jest.mock('~/pages/invoiceDetails/common/useInvoiceBuildRegenerationPreview', ()
   useInvoiceBuildRegenerationPreview: jest.fn(),
 }))
 
+// drawerStack relies on import.meta, which jest cannot parse
+jest.mock('~/components/drawers/useDrawer', () => ({
+  useDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+  useFormDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+}))
+
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (key: string) => key }),
 }))

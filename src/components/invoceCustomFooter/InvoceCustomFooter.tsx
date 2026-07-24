@@ -1,6 +1,7 @@
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import { useEditInvoiceCustomSectionDialog } from '~/components/invoceCustomFooter/EditInvoiceCustomSectionDialog'
+import { VIEW_TYPE_TRANSLATION_KEYS, ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { InvoiceCustomSectionDisplay } from './InvoiceCustomSectionDisplay'
@@ -9,8 +10,6 @@ import {
   InvoiceCustomSectionInput,
   InvoiceCustomSectionSelection,
 } from './types'
-
-import { VIEW_TYPE_TRANSLATION_KEYS, ViewTypeEnum } from '../paymentMethodsInvoiceSettings/types'
 
 export const EDIT_BUTTON = 'invoice-custom-footer-edit-button'
 

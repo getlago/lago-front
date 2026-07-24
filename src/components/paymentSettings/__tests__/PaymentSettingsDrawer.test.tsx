@@ -1,10 +1,10 @@
 import { act, createRef, ReactNode } from 'react'
 
-import { InvoiceCustomSectionBehavior } from '~/components/invoceCustomFooter/types'
+import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
+import { PaymentMethodTypeEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import { ViewTypeEnum } from '../../../paymentMethodsInvoiceSettings/types'
-import { InvoicingSettingsDrawer, InvoicingSettingsDrawerRef } from '../InvoicingSettingsDrawer'
+import { PaymentSettingsDrawer, PaymentSettingsDrawerRef } from '../PaymentSettingsDrawer'
 
 const mockOpen = jest.fn()
 const mockClose = jest.fn()
@@ -21,43 +21,30 @@ jest.mock('~/components/drawers/useFocusTrap', () => ({
   focusFirstInput: jest.fn(),
 }))
 
-jest.mock('~/components/subscriptions/SubscriptionInvoiceConsolidationSection', () => ({
-  SubscriptionInvoiceConsolidationSection: () => <div data-test="consolidation" />,
-}))
+const mockFieldsProps: { current: { error?: string } | null } = { current: null }
 
-const mockIcsProps: {
-  current: {
-    error?: string
-    onBehaviorChange?: (behavior: InvoiceCustomSectionBehavior) => void
-  } | null
-} = { current: null }
+jest.mock('~/components/paymentMethodSelection/PaymentMethodFields', () => ({
+  PaymentMethodFields: (props: { error?: string }) => {
+    mockFieldsProps.current = props
 
-jest.mock('~/components/invoceCustomFooter/InvoiceCustomSectionFields', () => ({
-  InvoiceCustomSectionFields: (props: {
-    error?: string
-    onBehaviorChange?: (behavior: InvoiceCustomSectionBehavior) => void
-  }) => {
-    mockIcsProps.current = props
-
-    return <div data-test="ics-fields" />
+    return <div data-test="pm-fields" />
   },
 }))
 
-describe('InvoicingSettingsDrawer', () => {
+describe('PaymentSettingsDrawer', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    mockIcsProps.current = null
+    mockFieldsProps.current = null
   })
 
   const renderDrawer = (onSave = jest.fn()) => {
-    const ref = createRef<InvoicingSettingsDrawerRef>()
+    const ref = createRef<PaymentSettingsDrawerRef>()
 
     render(
-      <InvoicingSettingsDrawer
+      <PaymentSettingsDrawer
         ref={ref}
         viewType={ViewTypeEnum.Subscription}
-        customerId="cust_1"
-        showCustomSection
+        externalCustomerId="ext_1"
         onSave={onSave}
       />,
     )
@@ -67,10 +54,9 @@ describe('InvoicingSettingsDrawer', () => {
 
   it('renders nothing until opened', () => {
     const { container } = render(
-      <InvoicingSettingsDrawer
+      <PaymentSettingsDrawer
         viewType={ViewTypeEnum.Subscription}
-        customerId="cust_1"
-        showCustomSection
+        externalCustomerId="ext_1"
         onSave={jest.fn()}
       />,
     )
@@ -79,19 +65,18 @@ describe('InvoicingSettingsDrawer', () => {
     expect(mockOpen).not.toHaveBeenCalled()
   })
 
-  it('opens the drawer with the Invoicing settings title', () => {
+  it('opens the drawer with the Payment settings title', () => {
     const { ref } = renderDrawer()
 
     act(() => {
       ref.current?.openDrawer({
-        consolidateInvoice: true,
-        invoiceCustomSection: { invoiceCustomSections: [], skipInvoiceCustomSections: false },
+        paymentMethod: { paymentMethodId: null, paymentMethodType: PaymentMethodTypeEnum.Provider },
       })
     })
 
     expect(mockOpen).toHaveBeenCalledTimes(1)
     expect(mockOpen).toHaveBeenCalledWith(
-      expect.objectContaining({ title: 'text_17423672025282dl7iozy1ru' }),
+      expect.objectContaining({ title: 'text_17828013737948943pe3k8nc' }),
     )
   })
 
@@ -99,11 +84,7 @@ describe('InvoicingSettingsDrawer', () => {
     const { ref, onSave } = renderDrawer()
 
     const seeded = {
-      consolidateInvoice: false,
-      invoiceCustomSection: {
-        invoiceCustomSections: [{ id: 'cs_1', name: 'Bank details' }],
-        skipInvoiceCustomSections: false,
-      },
+      paymentMethod: { paymentMethodId: 'pm_1', paymentMethodType: PaymentMethodTypeEnum.Provider },
     }
 
     act(() => {
@@ -120,13 +101,15 @@ describe('InvoicingSettingsDrawer', () => {
     expect(mockClose).toHaveBeenCalled()
   })
 
-  it('blocks submit and surfaces the error when "apply" is picked with no section', async () => {
+  it('blocks submit and surfaces the error when "specific" is picked with no method', async () => {
     const { ref, onSave } = renderDrawer()
 
     act(() => {
       ref.current?.openDrawer({
-        consolidateInvoice: true,
-        invoiceCustomSection: { invoiceCustomSections: [], skipInvoiceCustomSections: false },
+        paymentMethod: {
+          paymentMethodId: undefined,
+          paymentMethodType: PaymentMethodTypeEnum.Provider,
+        },
       })
     })
 
@@ -139,17 +122,12 @@ describe('InvoicingSettingsDrawer', () => {
     // fields (drawer.open is mocked, so children isn't rendered otherwise).
     render(<>{opened.children}</>)
 
-    // User picks "apply" without selecting any section (value stays empty).
-    act(() => {
-      mockIcsProps.current?.onBehaviorChange?.(InvoiceCustomSectionBehavior.APPLY)
-    })
-
     await act(async () => {
       await opened.form.submit()
     })
 
     expect(onSave).not.toHaveBeenCalled()
     expect(mockClose).not.toHaveBeenCalled()
-    expect(mockIcsProps.current?.error).toBe('text_624ea7c29103fd010732ab7d')
+    expect(mockFieldsProps.current?.error).toBe('text_624ea7c29103fd010732ab7d')
   })
 })

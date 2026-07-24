@@ -3,13 +3,16 @@ import { useMemo, useRef } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Selector } from '~/components/designSystem/Selector'
-import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
+import {
+  InvoicingSettingsDrawer,
+  InvoicingSettingsDrawerRef,
+} from '~/components/invoicingSettings/InvoicingSettingsDrawer'
+import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 
 import { buildSubscriptionDefaultValues } from './buildSubscriptionDefaultValues'
-import { InvoicingSettingsDrawer, InvoicingSettingsDrawerRef } from './InvoicingSettingsDrawer'
 
 const TYPING_PLACEHOLDER_DATE = '2026-01-01'
 
@@ -86,6 +89,7 @@ export const InvoicingSettingsSection = withForm({
           viewType={ViewTypeEnum.Subscription}
           customerId={customerId}
           showCustomSection={showCustomSection}
+          withInvoiceConsolidation
           onSave={({
             consolidateInvoice: nextConsolidateInvoice,
             invoiceCustomSection: nextIcs,

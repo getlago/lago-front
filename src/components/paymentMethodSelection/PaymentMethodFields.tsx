@@ -1,13 +1,12 @@
 import { useState } from 'react'
 
 import { Radio } from '~/components/form/Radio/Radio'
+import { VIEW_TYPE_TRANSLATION_KEYS, ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { PaymentMethodTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { PaymentMethodComboBox } from './PaymentMethodComboBox'
 import { deriveBehavior, PaymentMethodBehavior, SelectedPaymentMethod } from './types'
-
-import { VIEW_TYPE_TRANSLATION_KEYS, ViewTypeEnum } from '../paymentMethodsInvoiceSettings/types'
 
 export const PM_FIELDS_FALLBACK_RADIO_TEST_ID = 'payment-method-fields-fallback-radio'
 export const PM_FIELDS_SPECIFIC_RADIO_TEST_ID = 'payment-method-fields-specific-radio'

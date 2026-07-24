@@ -6,8 +6,15 @@ import {
   WalletForScopeSectionFragment,
 } from '~/generated/graphql'
 
-export type TWalletDataForm = Omit<CreateCustomerWalletInput, 'customerId' | 'name' | 'code'> &
-  Omit<UpdateCustomerWalletInput, 'id' | 'name' | 'code'> & {
+type TWalletRecurringRuleInput = NonNullable<
+  CreateCustomerWalletInput['recurringTransactionRules']
+>[number]
+
+export type TWalletDataForm = Omit<
+  CreateCustomerWalletInput,
+  'customerId' | 'name' | 'code' | 'recurringTransactionRules'
+> &
+  Omit<UpdateCustomerWalletInput, 'id' | 'name' | 'code' | 'recurringTransactionRules'> & {
     // Always strings in the form ('' when unset) so they stay compatible
     // with NameAndCodeGroup's field mapping.
     name: string
@@ -15,4 +22,13 @@ export type TWalletDataForm = Omit<CreateCustomerWalletInput, 'customerId' | 'na
     appliesTo?: WalletForScopeSectionFragment['appliesTo']
     paymentMethod?: SelectedPaymentMethod
     invoiceCustomSection?: InvoiceCustomSectionInput
+    // Rules carry the FE-shaped payment/invoicing values at runtime
+    // (transformRecurringTransactionRule), not the raw GQL reference inputs
+    recurringTransactionRules?: Array<
+      Omit<TWalletRecurringRuleInput, 'paymentMethod' | 'invoiceCustomSection'> & {
+        lagoId?: string | null
+        paymentMethod?: SelectedPaymentMethod
+        invoiceCustomSection?: InvoiceCustomSectionInput
+      }
+    > | null
   }

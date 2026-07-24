@@ -24,6 +24,12 @@ import { render, TestMocksType } from '~/test-utils'
 
 // jsdom measures a 0-height scroll element, so the real virtualizer renders no
 // options — render them all instead (same mock as BaseComboBoxVirtualizedList.test.tsx)
+// The drawer stack relies on import.meta (unsupported in jest)
+jest.mock('~/components/drawers/useDrawer', () => ({
+  useDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+  useFormDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+}))
+
 jest.mock('@tanstack/react-virtual', () => ({
   useVirtualizer: jest.fn((config) => {
     const items = Array.from({ length: config.count }, (_, i) => ({

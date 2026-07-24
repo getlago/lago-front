@@ -24,6 +24,12 @@ import { render } from '~/test-utils'
 
 const mockIsPremium = jest.fn(() => true)
 
+// The drawer stack relies on import.meta (unsupported in jest)
+jest.mock('~/components/drawers/useDrawer', () => ({
+  useDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+  useFormDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+}))
+
 jest.mock('~/hooks/useCurrentUser', () => ({
   useCurrentUser: () => ({
     isPremium: mockIsPremium(),
@@ -36,11 +42,6 @@ jest.mock('~/components/dialogs/PremiumWarningDialog', () => ({
   usePremiumWarningDialog: () => ({
     open: mockOpenPremiumWarningDialog,
   }),
-}))
-
-// Owns its own queries/tests — stub it to keep this suite focused.
-jest.mock('~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings', () => ({
-  PaymentMethodsInvoiceSettings: () => <div data-test="payment-methods-settings-stub" />,
 }))
 
 const customerData = {
@@ -144,7 +145,7 @@ describe('TopUpSection', () => {
 
         render(<TestWrapper />)
 
-        await user.click(screen.getByRole('button'))
+        await user.click(screen.getByTestId('add-recurring-rule-button'))
 
         expect(mockOpenPremiumWarningDialog).toHaveBeenCalled()
         expect(queryInput('recurringTransactionRules[0].transactionName')).not.toBeInTheDocument()
@@ -159,7 +160,7 @@ describe('TopUpSection', () => {
 
         render(<TestWrapper />)
 
-        await user.click(screen.getByRole('button'))
+        await user.click(screen.getByTestId('add-recurring-rule-button'))
 
         await waitFor(() => {
           expect(queryInput('recurringTransactionRules[0].transactionName')).toBeInTheDocument()

@@ -15,7 +15,7 @@ jest.mock('~/components/designSystem/Selector', () => ({
   },
 }))
 
-jest.mock('../PaymentSettingsDrawer', () => ({
+jest.mock('~/components/paymentSettings/PaymentSettingsDrawer', () => ({
   PaymentSettingsDrawer: function MockPaymentSettingsDrawer(props: Record<string, unknown>) {
     mockDrawer(props)
 

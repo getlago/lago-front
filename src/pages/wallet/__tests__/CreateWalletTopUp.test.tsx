@@ -23,6 +23,12 @@ import { render, TestMocksType } from '~/test-utils'
 import CreateWalletTopUp from '../CreateWalletTopUp'
 
 // Mock dependencies
+// The drawer stack relies on import.meta (unsupported in jest)
+jest.mock('~/components/drawers/useDrawer', () => ({
+  useDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+  useFormDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+}))
+
 jest.mock('~/core/apolloClient', () => ({
   ...jest.requireActual('~/core/apolloClient'),
   addToast: jest.fn(),

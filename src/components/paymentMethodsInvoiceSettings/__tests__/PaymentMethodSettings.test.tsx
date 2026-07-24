@@ -1,11 +1,12 @@
 import { screen } from '@testing-library/react'
 import { ReactElement } from 'react'
 
+import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { Customer } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import { PaymentMethodSettings } from '../PaymentMethodSettings'
-import { PaymentMethodsForm, ViewTypeEnum } from '../types'
+import { PaymentMethodsForm } from '../types'
 
 const mockPaymentMethodSelection = jest.fn<ReactElement, [Record<string, unknown>]>(() => (
   <div data-test="payment-method-selection" />

@@ -1,9 +1,9 @@
 import { fireEvent, screen, within } from '@testing-library/react'
 import { useState } from 'react'
 
+import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { render } from '~/test-utils'
 
-import { ViewTypeEnum } from '../../paymentMethodsInvoiceSettings/types'
 import {
   ICS_FIELDS_APPLY_RADIO_TEST_ID,
   ICS_FIELDS_CUSTOMER_DEFAULT_CHIPS_TEST_ID,

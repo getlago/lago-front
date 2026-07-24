@@ -1,11 +1,11 @@
 import { DetailsPage } from '~/components/layouts/DetailsPage'
+import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCustomerInvoiceCustomSections } from '~/hooks/useCustomerInvoiceCustomSections'
 
 import { InvoiceCustomSectionDisplay } from '../invoceCustomFooter/InvoiceCustomSectionDisplay'
 import { InvoiceCustomSectionBasic } from '../invoceCustomFooter/types'
 import { hasInvoiceCustomSectionsContent } from '../invoceCustomFooter/utils'
-import { ViewTypeEnum } from '../paymentMethodsInvoiceSettings/types'
 
 export const INVOICE_CUSTOM_FOOTER_SECTION = 'invoice-custom-footer-section'
 
