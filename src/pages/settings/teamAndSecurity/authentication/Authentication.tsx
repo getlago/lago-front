@@ -76,6 +76,7 @@ type SSOProviderConfig = {
   titleKey: string
   subtitleKey: string
   editLabelKey: string
+  deleteLabelKey: string
   route: string
   icon: ReactNode
   shouldSee: boolean
@@ -136,6 +137,7 @@ const Authentication = () => {
       titleKey: 'text_664c732c264d7eed1c74fda2',
       subtitleKey: 'text_664c732c264d7eed1c74fda8',
       editLabelKey: 'text_664c8fa719b5e7ad81c86018',
+      deleteLabelKey: 'text_17522481192202remk2eytrr',
       route: OKTA_AUTHENTICATION_ROUTE,
       icon: <Okta />,
       shouldSee: shouldSeeOktaIntegration,
@@ -148,6 +150,7 @@ const Authentication = () => {
       titleKey: 'text_17843073442548zt904xoinv',
       subtitleKey: 'text_1784307344254qdygzl3hxxa',
       editLabelKey: 'text_1784307344255fc26gfvrmb5',
+      deleteLabelKey: 'text_1784307344255dltentracon',
       route: ENTRA_ID_AUTHENTICATION_ROUTE,
       icon: <MicrosoftEntraId />,
       shouldSee: shouldSeeEntraIdIntegration,
@@ -338,7 +341,7 @@ const Authentication = () => {
                             })
                           }}
                         >
-                          {translate('text_17522481192202remk2eytrr')}
+                          {translate(providerConfig.deleteLabelKey)}
                         </Button>
                       </ConditionalWrapper>
                     </>

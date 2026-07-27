@@ -4560,6 +4560,7 @@
   "text_1784307344255fc26gfvrmb5": "Edit Microsoft Entra ID connection",
   "text_17843073442551nurtvrqz3y": "To edit Microsoft Entra ID connection, please edit the following information",
   "text_1784307344255lgty3uwoghl": "Delete connection to Microsoft Entra ID",
+  "text_1784307344255dltentracon": "Delete Microsoft Entra ID connection",
   "text_17843073442556cjrcl7drw6": "By deleting the connection, it will not be used anymore and you’ll be not able to access to your Lago organization via Microsoft Entra ID SSO. Are you sure?",
   "text_17843073442559jjt3vfrvmk": "Delete connection",
   "text_17843073442557vlbdr7do0l": "{{integration}} integration successfully connected",
