@@ -22,12 +22,24 @@ import { TWalletDataForm, TWalletRecurringRule } from '~/pages/wallet/types'
  *   NOT future-checked) — unlike `expirationAt` which is future-checked.
  * - empty-string messages (`''`) mark the Yup `required('')` /
  *   message-less `createError()` intent: the field turns invalid, the label is
- *   computed separately in the UI. NOTE zod replaces `''` with its own
+ *   computed separately in the UI. zod v4 replaces `''` with its own
  *   "Invalid input" default, so a field left to render the schema message shows
- *   that string — only pass `''` where the UI supplies an `errorOverride`.
- *   The rule "at least one of paid/granted credits" therefore carries a real
- *   message: no UI-side label covers it, and the old `silentError` on both
- *   inputs blocked the submit with nothing rendered under either one.
+ *   that raw string — `''` is only safe where the consuming input never renders
+ *   it. Audited per remaining `''` path:
+ *   - `paidTopUpMin/MaxAmountCents` — SettingsSection passes a translated
+ *     bounds label as `errorOverride`, which wins over the field error.
+ *   - rule `paidCredits` BOUNDS — RecurringRuleDrawer computes that label
+ *     itself (needs translate() + currency formatting) and feeds it the
+ *     same way.
+ *   - top-level `paidCredits` — unreachable in the wallet form: no input
+ *     renders it (the initial top-up lives in its own flow), the value stays
+ *     `''` from mapFromApiToForm and `topUpAmountError` bails on `''`.
+ *   Every other path carries a real translation key — including two that were
+ *   message-less by copy-paste rather than by Yup parity: `code` (added after
+ *   this migration, so it never had a `required('')` to mirror) and the rule
+ *   "at least one of paid/granted credits". Neither input supplies an
+ *   `errorOverride`, so both rendered the raw "Invalid input"; the credits one
+ *   had also blocked the submit with nothing rendered under either input.
  *
  * Rule paths are emitted as `['recurringTransactionRules', index, field]`,
  * matching bracket field names (`recurringTransactionRules[0].field`) the
@@ -298,10 +310,16 @@ export const walletFormValidationSchema = z.custom<TWalletDataForm>().superRefin
     ctx.addIssue({ code: 'custom', message: 'text_1771342994699klxu2paz7g8', path: ['rateAmount'] })
   }
 
-  // code — required, `required('')` parity: the field turns invalid without
-  // rendering an error text (a blank code would otherwise be stored as is)
+  // code — required: it reaches the API through the mappers' `...values` rest
+  // spread, so a blank one would be stored as is rather than omitted.
+  // NOT a Yup parity case despite what the neighbours below look like — this
+  // field was added after the zod migration, so it never had a `required('')`
+  // to mirror. It shipped message-less by copy-paste, and since
+  // NameAndCodeGroup renders it as a plain TextInputField with no
+  // `errorOverride`, that surfaced zod's raw "Invalid input" under the input.
+  // Same "Field is required" key as rateAmount.
   if (!code) {
-    ctx.addIssue({ code: 'custom', message: '', path: ['code'] })
+    ctx.addIssue({ code: 'custom', message: 'text_1771342994699klxu2paz7g8', path: ['code'] })
   }
 
   // expirationAt — valid ISO + in the future
@@ -310,6 +328,10 @@ export const walletFormValidationSchema = z.custom<TWalletDataForm>().superRefin
   // paidCredits (initial top-up) vs wallet min/max bounds.
   // Values are passed through untouched (null → undefined only), exactly
   // like the Yup test passed `this.parent` values to topUpAmountError.
+  // The message-less issue is safe here because it is unreachable: the wallet
+  // form has no paidCredits input (initial top-up is its own flow), so the
+  // value stays `''` and topUpAmountError returns early on `''`. Kept for
+  // parity — add a real message if an input for it ever comes back.
   if (
     topUpAmountError({
       skip: !!ignorePaidTopUpLimitsOnCreation,
@@ -329,6 +351,9 @@ export const walletFormValidationSchema = z.custom<TWalletDataForm>().superRefin
 
   // paidTopUpMin <= paidTopUpMax — two-way: BOTH fields fail.
   // An emptied side ('') skips the check (old runtime: '' → undefined → NaN).
+  // Message-less on purpose: SettingsSection renders both inputs with
+  // `errorOverride={hasError ? input.errorLabel : false}`, so the translated
+  // per-side label wins and zod's "Invalid input" default never shows.
   if (
     !isNaN(Number(prepared(paidTopUpMinAmountCents))) &&
     !isNaN(Number(prepared(paidTopUpMaxAmountCents))) &&

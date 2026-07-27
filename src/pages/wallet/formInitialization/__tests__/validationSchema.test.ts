@@ -59,6 +59,11 @@ const issuePaths = (result: ParseResult) =>
 const issueFor = (result: ParseResult, path: string) =>
   (result.error?.issues ?? []).find((i) => i.path.join('.') === path)
 
+// zod v4 swaps a message-less issue (`message: ''`) for this default, and the
+// inputs render it verbatim — so `''` is only safe on a path whose input
+// supplies an `errorOverride`.
+const ZOD_DEFAULT_MESSAGE = 'Invalid input'
+
 describe('walletFormValidationSchema', () => {
   describe('top-level fields', () => {
     it('validates a minimal valid wallet form', () => {
@@ -77,6 +82,37 @@ describe('walletFormValidationSchema', () => {
       const result = walletFormValidationSchema.safeParse(baseForm({ code: '' }))
 
       expect(issuePaths(result)).toContain('code')
+    })
+
+    it('carries a renderable message on code — its input has no errorOverride', () => {
+      const result = walletFormValidationSchema.safeParse(baseForm({ code: '' }))
+      const message = issueFor(result, 'code')?.message
+
+      expect(message).toEqual(expect.stringMatching(/.+/))
+      expect(message).not.toBe(ZOD_DEFAULT_MESSAGE)
+    })
+
+    it('leaves the min/max cross-check message-less — SettingsSection supplies the label', () => {
+      const result = walletFormValidationSchema.safeParse(
+        baseForm({ paidTopUpMinAmountCents: '100', paidTopUpMaxAmountCents: '50' }),
+      )
+
+      expect(issueFor(result, 'paidTopUpMinAmountCents')?.message).toBe(ZOD_DEFAULT_MESSAGE)
+      expect(issueFor(result, 'paidTopUpMaxAmountCents')?.message).toBe(ZOD_DEFAULT_MESSAGE)
+    })
+
+    it('keeps the top-level paidCredits bounds issue unreachable from the wallet form', () => {
+      // No input renders paidCredits here, so the mapper value stays '' and
+      // topUpAmountError bails — which is why that issue can stay message-less.
+      const result = walletFormValidationSchema.safeParse(
+        baseForm({
+          rateAmount: '1',
+          paidTopUpMinAmountCents: '10',
+          paidTopUpMaxAmountCents: '100',
+        }),
+      )
+
+      expect(issuePaths(result)).not.toContain('paidCredits')
     })
 
     it('rejects a badly formatted expirationAt', () => {
