@@ -26,6 +26,12 @@ jest.mock('~/core/apolloClient', () => ({
   addToast: jest.fn(),
 }))
 
+const mockEvictFromCache = jest.fn()
+
+jest.mock('~/core/apolloClient/evictFromCache', () => ({
+  evictFromCache: (...args: unknown[]) => mockEvictFromCache(...args),
+}))
+
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
     translate: (key: string) => key,
@@ -100,6 +106,10 @@ describe('useDeleteInvoiceDialog', () => {
         await mockDialogOpen.mock.calls[0][0].onAction()
       })
 
+      expect(mockEvictFromCache).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ id: 'invoice-1', __typename: 'Invoice' }),
+      )
       expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
       expect(callback).toHaveBeenCalled()
     })
@@ -120,6 +130,7 @@ describe('useDeleteInvoiceDialog', () => {
         await mockDialogOpen.mock.calls[0][0].onAction()
       })
 
+      expect(mockEvictFromCache).not.toHaveBeenCalled()
       expect(addToast).not.toHaveBeenCalled()
       expect(callback).not.toHaveBeenCalled()
     })

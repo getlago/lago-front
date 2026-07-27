@@ -2,14 +2,15 @@ import { gql, useApolloClient } from '@apollo/client'
 
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
-import { InvoiceForDeleteInvoiceFragment, useDeleteInvoiceMutation } from '~/generated/graphql'
+import { evictFromCache } from '~/core/apolloClient/evictFromCache'
+import {
+  GetCustomerInvoicesDocument,
+  GetInvoicesListDocument,
+  useDeleteInvoiceMutation,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
-  fragment InvoiceForDeleteInvoice on Invoice {
-    id
-  }
-
   mutation deleteInvoice($input: DeleteInvoiceInput!) {
     deleteInvoice(input: $input) {
       id
@@ -25,7 +26,7 @@ export const useDeleteInvoiceDialog = () => {
   const [deleteInvoice] = useDeleteInvoiceMutation()
 
   const openDeleteInvoiceDialog = (
-    invoice: InvoiceForDeleteInvoiceFragment | null | undefined,
+    invoice: { id: string } | null | undefined,
     callback?: () => void,
   ) => {
     centralizedDialog.open({
@@ -40,8 +41,11 @@ export const useDeleteInvoiceDialog = () => {
         })
 
         if (result.data?.deleteInvoice?.id) {
-          client.refetchQueries({
-            include: ['getCustomerInvoices', 'getInvoicesList'],
+          evictFromCache(client, {
+            id: result.data.deleteInvoice.id,
+            __typename: 'Invoice',
+            listFieldName: ['invoices', 'customerInvoices'],
+            listQueryDocument: [GetInvoicesListDocument, GetCustomerInvoicesDocument],
           })
 
           addToast({

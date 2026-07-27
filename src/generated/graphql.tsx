@@ -11737,8 +11737,6 @@ export type GetInvoiceMetadataForEditionQueryVariables = Exact<{
 
 export type GetInvoiceMetadataForEditionQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, metadata?: Array<{ __typename?: 'InvoiceMetadata', id: string, key: string, value: string }> | null } | null };
 
-export type InvoiceForDeleteInvoiceFragment = { __typename?: 'Invoice', id: string };
-
 export type DeleteInvoiceMutationVariables = Exact<{
   input: DeleteInvoiceInput;
 }>;
@@ -16963,11 +16961,6 @@ export const InvoiceMetadatasForMetadataDrawerFragmentDoc = gql`
     key
     value
   }
-}
-    `;
-export const InvoiceForDeleteInvoiceFragmentDoc = gql`
-    fragment InvoiceForDeleteInvoice on Invoice {
-  id
 }
     `;
 export const TaxForInvoiceEditTaxDialogFragmentDoc = gql`
