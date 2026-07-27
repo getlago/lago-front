@@ -1,7 +1,6 @@
 import InputAdornment from '@mui/material/InputAdornment'
 import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { DateTime } from 'luxon'
-import { forwardRef, useImperativeHandle } from 'react'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
@@ -40,7 +39,7 @@ import { TWalletDataForm, TWalletRecurringRule } from '~/pages/wallet/types'
 
 const RECURRING_RULE_FORM_ID = 'recurring-rule-drawer-form'
 
-export const RECURRING_RULE_DRAWER_SAVE_TEST_ID = 'recurring-rule-drawer-save'
+const RECURRING_RULE_DRAWER_SAVE_TEST_ID = 'recurring-rule-drawer-save'
 
 export const DEFAULT_RULES: TWalletRecurringRule = {
   lagoId: undefined,
@@ -526,17 +525,16 @@ const RecurringRuleDrawerContent = withForm({
   },
 })
 
-export interface RecurringRuleDrawerRef {
-  /** No values = create flow (defaults); values = edit flow (seeded copy) */
-  openDrawer: (values?: TWalletRecurringRule) => void
-  closeDrawer: () => void
-}
-
-interface RecurringRuleDrawerProps {
+interface UseRecurringRuleDrawerProps {
   customerData?: GetCustomerInfosForWalletFormQuery
   walletCreatedAt?: string | null
   walletValues: TWalletDataForm
   onSave: (rule: TWalletRecurringRule) => void | Promise<void>
+}
+
+interface UseRecurringRuleDrawerReturn {
+  /** No values = create flow (defaults); values = edit flow (seeded copy) */
+  openDrawer: (values?: TWalletRecurringRule) => void
 }
 
 /**
@@ -544,69 +542,62 @@ interface RecurringRuleDrawerProps {
  * wallet form on save (drawer-local draft) — cancelling never mutates
  * recurringTransactionRules, so the create CTA stays untouched on abort.
  */
-export const RecurringRuleDrawer = forwardRef<RecurringRuleDrawerRef, RecurringRuleDrawerProps>(
-  ({ customerData, walletCreatedAt, walletValues, onSave }, ref) => {
-    const { translate } = useInternationalization()
-    const drawer = useFormDrawer()
+export const useRecurringRuleDrawer = ({
+  customerData,
+  walletCreatedAt,
+  walletValues,
+  onSave,
+}: UseRecurringRuleDrawerProps): UseRecurringRuleDrawerReturn => {
+  const { translate } = useInternationalization()
+  const drawer = useFormDrawer()
 
-    const form = useAppForm({
-      defaultValues: DEFAULT_RULES,
-      validationLogic: revalidateLogic(),
-      validators: {
-        // Wallet-level bounds are frozen while the drawer is open (modal)
-        onDynamic: recurringRuleValidationSchema({
-          rateAmount: walletValues.rateAmount,
-          paidTopUpMinAmountCents: walletValues.paidTopUpMinAmountCents,
-          paidTopUpMaxAmountCents: walletValues.paidTopUpMaxAmountCents,
-          currency: walletValues.currency,
-        }),
-      },
-      onSubmit: async ({ value }) => {
-        await onSave(value)
-        drawer.close()
-      },
+  const form = useAppForm({
+    defaultValues: DEFAULT_RULES,
+    validationLogic: revalidateLogic(),
+    validators: {
+      // Wallet-level bounds are frozen while the drawer is open (modal)
+      onDynamic: recurringRuleValidationSchema({
+        rateAmount: walletValues.rateAmount,
+        paidTopUpMinAmountCents: walletValues.paidTopUpMinAmountCents,
+        paidTopUpMaxAmountCents: walletValues.paidTopUpMaxAmountCents,
+        currency: walletValues.currency,
+      }),
+    },
+    onSubmit: async ({ value }) => {
+      await onSave(value)
+      drawer.close()
+    },
+  })
+
+  const openDrawer = (values?: TWalletRecurringRule): void => {
+    // Spread over the defaults so a partially-shaped rule (edit mode)
+    // still seeds every field — lagoId rides along untouched.
+    form.reset({ ...DEFAULT_RULES, ...values }, { keepDefaultValues: true })
+
+    drawer.open({
+      title: translate('text_6657c29c84ad4500ad764ed6'),
+      form: { id: RECURRING_RULE_FORM_ID, submit: form.handleSubmit },
+      closeOnSubmitSuccess: false,
+      shouldPromptOnClose: () => form.state.isDirty,
+      onClose: () => form.reset(),
+      onEntered: (container) => focusFirstInput(container),
+      children: (
+        <RecurringRuleDrawerContent
+          form={form}
+          customerData={customerData}
+          walletCreatedAt={walletCreatedAt}
+          walletValues={walletValues}
+        />
+      ),
+      mainAction: (
+        <form.AppForm>
+          <form.SubmitButton dataTest={RECURRING_RULE_DRAWER_SAVE_TEST_ID}>
+            {translate('text_17295436903260tlyb1gp1i7')}
+          </form.SubmitButton>
+        </form.AppForm>
+      ),
     })
+  }
 
-    const openRecurringRuleDrawer = (): void => {
-      drawer.open({
-        title: translate('text_6657c29c84ad4500ad764ed6'),
-        form: { id: RECURRING_RULE_FORM_ID, submit: form.handleSubmit },
-        closeOnSubmitSuccess: false,
-        shouldPromptOnClose: () => form.state.isDirty,
-        onClose: () => form.reset(),
-        onEntered: (container) => focusFirstInput(container),
-        children: (
-          <RecurringRuleDrawerContent
-            form={form}
-            customerData={customerData}
-            walletCreatedAt={walletCreatedAt}
-            walletValues={walletValues}
-          />
-        ),
-        mainAction: (
-          <form.AppForm>
-            <form.SubmitButton dataTest={RECURRING_RULE_DRAWER_SAVE_TEST_ID}>
-              {translate('text_17295436903260tlyb1gp1i7')}
-            </form.SubmitButton>
-          </form.AppForm>
-        ),
-      })
-    }
-
-    useImperativeHandle(ref, () => ({
-      openDrawer: (values) => {
-        // Spread over the defaults so a partially-shaped rule (edit mode)
-        // still seeds every field — lagoId rides along untouched.
-        form.reset({ ...DEFAULT_RULES, ...values }, { keepDefaultValues: true })
-        openRecurringRuleDrawer()
-      },
-      closeDrawer: () => {
-        drawer.close()
-      },
-    }))
-
-    return null
-  },
-)
-
-RecurringRuleDrawer.displayName = 'RecurringRuleDrawer'
+  return { openDrawer }
+}

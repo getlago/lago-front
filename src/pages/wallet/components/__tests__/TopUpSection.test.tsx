@@ -79,20 +79,14 @@ const capturedDrawerProps: { current: CapturedDrawerProps | null } = { current: 
 
 jest.mock('~/pages/wallet/components/RecurringRuleDrawer', () => {
   const actual = jest.requireActual('~/pages/wallet/components/RecurringRuleDrawer')
-  const { forwardRef, useImperativeHandle } = jest.requireActual('react')
 
   return {
     ...actual,
-    RecurringRuleDrawer: forwardRef((props: CapturedDrawerProps, ref: unknown) => {
+    useRecurringRuleDrawer: (props: CapturedDrawerProps) => {
       capturedDrawerProps.current = props
 
-      useImperativeHandle(ref, () => ({
-        openDrawer: mockOpenRuleDrawer,
-        closeDrawer: jest.fn(),
-      }))
-
-      return null
-    }),
+      return { openDrawer: mockOpenRuleDrawer }
+    },
   }
 })
 

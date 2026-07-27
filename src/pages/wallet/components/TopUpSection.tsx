@@ -1,6 +1,5 @@
 import Box from '@mui/material/Box'
 import { useStore } from '@tanstack/react-form'
-import { useRef } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Selector, SelectorActions } from '~/components/designSystem/Selector'
@@ -14,10 +13,7 @@ import { GetCustomerInfosForWalletFormQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-import {
-  RecurringRuleDrawer,
-  RecurringRuleDrawerRef,
-} from '~/pages/wallet/components/RecurringRuleDrawer'
+import { useRecurringRuleDrawer } from '~/pages/wallet/components/RecurringRuleDrawer'
 import { emptyWalletFormDefaultValues } from '~/pages/wallet/mappers/mapFromApiToForm'
 
 export const RECURRING_RULE_SELECTOR_TEST_ID = 'recurring-rule-selector'
@@ -52,7 +48,6 @@ export const TopUpSection = withForm({
     const { isPremium } = useCurrentUser()
     const { translate } = useInternationalization()
     const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
-    const drawerRef = useRef<RecurringRuleDrawerRef>(null)
 
     const recurringTransactionRules = useStore(
       form.store,
@@ -77,7 +72,20 @@ export const TopUpSection = withForm({
       )
     })
 
-    const openRuleDrawer = () => drawerRef.current?.openDrawer(recurringTransactionRules)
+    const { openDrawer } = useRecurringRuleDrawer({
+      customerData,
+      walletCreatedAt,
+      walletValues,
+      onSave: (rule) => {
+        // Set the WHOLE array: a bracket-index set on an undefined base
+        // would create a plain object ({0: ...}) instead of an array
+        // and break validation.
+        form.setFieldValue('recurringTransactionRules', [rule])
+        setIsRecurringTopUpEnabled(true)
+      },
+    })
+
+    const openRuleDrawer = () => openDrawer(recurringTransactionRules)
 
     return (
       <>
@@ -97,7 +105,7 @@ export const TopUpSection = withForm({
                   if (isPremium) {
                     // Create flow: the rule only reaches the form when the
                     // drawer saves — cancelling leaves the CTA untouched.
-                    drawerRef.current?.openDrawer()
+                    openDrawer()
                   } else {
                     openPremiumWarningDialog()
                   }
@@ -150,20 +158,6 @@ export const TopUpSection = withForm({
               )}
             </div>
           )}
-
-          <RecurringRuleDrawer
-            ref={drawerRef}
-            customerData={customerData}
-            walletCreatedAt={walletCreatedAt}
-            walletValues={walletValues}
-            onSave={(rule) => {
-              // Set the WHOLE array: a bracket-index set on an undefined base
-              // would create a plain object ({0: ...}) instead of an array
-              // and break validation.
-              form.setFieldValue('recurringTransactionRules', [rule])
-              setIsRecurringTopUpEnabled(true)
-            }}
-          />
         </section>
 
         {customerData?.customer?.id && (

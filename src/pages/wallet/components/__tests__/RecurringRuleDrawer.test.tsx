@@ -1,7 +1,7 @@
 import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { DateTime } from 'luxon'
-import { createRef, ReactNode } from 'react'
+import { createRef, MutableRefObject, ReactNode } from 'react'
 
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import {
@@ -21,8 +21,7 @@ import {
 } from '~/generated/graphql'
 import {
   DEFAULT_RULES,
-  RecurringRuleDrawer,
-  RecurringRuleDrawerRef,
+  useRecurringRuleDrawer,
 } from '~/pages/wallet/components/RecurringRuleDrawer'
 import { TWalletDataForm, TWalletRecurringRule } from '~/pages/wallet/types'
 import { render } from '~/test-utils'
@@ -112,6 +111,8 @@ const selectComboBoxOption = async (
   await user.click(option)
 }
 
+type OpenDrawer = (values?: TWalletRecurringRule) => void
+
 type OpenedDrawer = {
   form: { id: string; submit: () => Promise<void> | void }
   children: ReactNode
@@ -125,6 +126,8 @@ describe('RecurringRuleDrawer', () => {
     jest.clearAllMocks()
   })
 
+  // The hook has to run inside a component; this host exposes its openDrawer
+  // through a ref so the tests can drive it.
   const renderDrawer = ({
     onSave = jest.fn(),
     values = walletValues,
@@ -132,25 +135,30 @@ describe('RecurringRuleDrawer', () => {
     onSave?: jest.Mock
     values?: TWalletDataForm
   } = {}) => {
-    const ref = createRef<RecurringRuleDrawerRef>()
+    const open = createRef<OpenDrawer>() as MutableRefObject<OpenDrawer | null>
 
-    render(
-      <RecurringRuleDrawer
-        ref={ref}
-        customerData={customerData}
-        walletValues={values}
-        onSave={onSave}
-      />,
-    )
+    const DrawerHost = () => {
+      const { openDrawer } = useRecurringRuleDrawer({
+        customerData,
+        walletValues: values,
+        onSave,
+      })
 
-    return { ref, onSave }
+      open.current = openDrawer
+
+      return null
+    }
+
+    render(<DrawerHost />)
+
+    return { open, onSave }
   }
 
   // drawer.open is mocked, so the content children never mount on their own —
   // render them explicitly like a drawer body would.
-  const openAndMount = (ref: React.RefObject<RecurringRuleDrawerRef>, rule?: unknown) => {
+  const openAndMount = (open: MutableRefObject<OpenDrawer | null>, rule?: unknown) => {
     act(() => {
-      ref.current?.openDrawer(rule as TWalletRecurringRule | undefined)
+      open.current?.(rule as TWalletRecurringRule | undefined)
     })
 
     const opened = mockOpen.mock.calls.at(-1)?.[0] as OpenedDrawer
@@ -163,9 +171,9 @@ describe('RecurringRuleDrawer', () => {
   describe('GIVEN the create flow (no seed)', () => {
     describe('WHEN the drawer opens', () => {
       it('THEN should mount the Fixed-method fields from the defaults', () => {
-        const { ref } = renderDrawer()
+        const { open } = renderDrawer()
 
-        openAndMount(ref)
+        openAndMount(open)
 
         expect(queryInput('paidCredits')).toBeInTheDocument()
         expect(queryInput('grantedCredits')).toBeInTheDocument()
@@ -175,9 +183,9 @@ describe('RecurringRuleDrawer', () => {
 
     describe('WHEN submitting with the invalid defaults (threshold credits missing)', () => {
       it('THEN should not save nor close', async () => {
-        const { ref, onSave } = renderDrawer()
+        const { open, onSave } = renderDrawer()
 
-        const opened = openAndMount(ref)
+        const opened = openAndMount(open)
 
         await act(async () => {
           await opened.form.submit()
@@ -190,9 +198,9 @@ describe('RecurringRuleDrawer', () => {
 
     describe('WHEN submitting a valid draft', () => {
       it('THEN should commit the values through onSave and close', async () => {
-        const { ref, onSave } = renderDrawer()
+        const { open, onSave } = renderDrawer()
 
-        const opened = openAndMount(ref, {
+        const opened = openAndMount(open, {
           ...DEFAULT_RULES,
           thresholdCredits: '100',
           paidCredits: '50',
@@ -213,9 +221,9 @@ describe('RecurringRuleDrawer', () => {
   describe('GIVEN the edit flow (seeded rule)', () => {
     describe('WHEN saving without touching anything', () => {
       it('THEN should round-trip lagoId untouched (update, not create)', async () => {
-        const { ref, onSave } = renderDrawer()
+        const { open, onSave } = renderDrawer()
 
-        const opened = openAndMount(ref, {
+        const opened = openAndMount(open, {
           ...DEFAULT_RULES,
           lagoId: 'rule-lago-id',
           thresholdCredits: '100',
@@ -230,7 +238,7 @@ describe('RecurringRuleDrawer', () => {
       })
 
       it('THEN should preserve every seeded value verbatim — nulls must not fall back to defaults', async () => {
-        const { ref, onSave } = renderDrawer()
+        const { open, onSave } = renderDrawer()
 
         // API-hydrated shape: startedAt null (recurrence anchored to the
         // wallet's createdAt — resurrecting the now() default would silently
@@ -249,7 +257,7 @@ describe('RecurringRuleDrawer', () => {
           ignorePaidTopUpLimits: true,
         }
 
-        const opened = openAndMount(ref, seeded)
+        const opened = openAndMount(open, seeded)
 
         await act(async () => {
           await opened.form.submit()
@@ -272,9 +280,9 @@ describe('RecurringRuleDrawer', () => {
   describe('GIVEN a Target method rule', () => {
     describe('WHEN the drawer renders', () => {
       it('THEN should display the top-up type selector and target balance input only', () => {
-        const { ref } = renderDrawer()
+        const { open } = renderDrawer()
 
-        openAndMount(ref, {
+        openAndMount(open, {
           ...DEFAULT_RULES,
           method: RecurringTransactionMethodEnum.Target,
           targetOngoingBalance: '',
@@ -294,7 +302,7 @@ describe('RecurringRuleDrawer', () => {
   describe('GIVEN a wallet with paid top-up bounds', () => {
     describe('WHEN paid credits are set', () => {
       it('THEN should display the ignore-limits switch', () => {
-        const { ref } = renderDrawer({
+        const { open } = renderDrawer({
           values: {
             ...walletValues,
             paidTopUpMinAmountCents: '10',
@@ -302,7 +310,7 @@ describe('RecurringRuleDrawer', () => {
           } as TWalletDataForm,
         })
 
-        openAndMount(ref, { ...DEFAULT_RULES, paidCredits: '50' })
+        openAndMount(open, { ...DEFAULT_RULES, paidCredits: '50' })
 
         expect(
           document.querySelector(
@@ -317,9 +325,9 @@ describe('RecurringRuleDrawer', () => {
     describe('WHEN clicking add expiration date', () => {
       it('THEN should display the expiration date picker', async () => {
         const user = userEvent.setup()
-        const { ref } = renderDrawer()
+        const { open } = renderDrawer()
 
-        openAndMount(ref)
+        openAndMount(open)
 
         expect(queryInput('expirationAt')).toBeNull()
 
@@ -336,9 +344,9 @@ describe('RecurringRuleDrawer', () => {
     describe('WHEN clicking add new field twice', () => {
       it('THEN should display two key/value rows', async () => {
         const user = userEvent.setup()
-        const { ref } = renderDrawer()
+        const { open } = renderDrawer()
 
-        openAndMount(ref)
+        openAndMount(open)
 
         await user.click(screen.getByTestId(ADD_METADATA_DATA_TEST))
         await user.click(screen.getByTestId(ADD_METADATA_DATA_TEST))
@@ -352,9 +360,9 @@ describe('RecurringRuleDrawer', () => {
     describe('WHEN deleting a metadata row', () => {
       it('THEN should remove the row', async () => {
         const user = userEvent.setup()
-        const { ref } = renderDrawer()
+        const { open } = renderDrawer()
 
-        openAndMount(ref, {
+        openAndMount(open, {
           ...DEFAULT_RULES,
           transactionMetadata: [{ key: 'existing', value: 'row' }],
         })
@@ -381,9 +389,9 @@ describe('RecurringRuleDrawer', () => {
         ['invoicing', () => mockInvoicingSelector, 'rule-invoicing-settings-selector'],
         ['payment', () => mockPaymentSelector, 'rule-payment-settings-selector'],
       ])('THEN should tag the rule %s selector with its data-test', (_, getMock, dataTest) => {
-        const { ref } = renderDrawer()
+        const { open } = renderDrawer()
 
-        openAndMount(ref)
+        openAndMount(open)
 
         const props = getMock().mock.calls.at(-1)?.[0] as Record<string, unknown>
 
@@ -394,9 +402,9 @@ describe('RecurringRuleDrawer', () => {
 
     describe('WHEN the invoicing selector reports a change', () => {
       it('THEN should carry the value into the saved rule', async () => {
-        const { ref, onSave } = renderDrawer()
+        const { open, onSave } = renderDrawer()
 
-        const opened = openAndMount(ref, {
+        const opened = openAndMount(open, {
           ...DEFAULT_RULES,
           thresholdCredits: '100',
           paidCredits: '50',
@@ -425,9 +433,9 @@ describe('RecurringRuleDrawer', () => {
 
     describe('WHEN the payment selector reports a change', () => {
       it('THEN should carry the value into the saved rule', async () => {
-        const { ref, onSave } = renderDrawer()
+        const { open, onSave } = renderDrawer()
 
-        const opened = openAndMount(ref, {
+        const opened = openAndMount(open, {
           ...DEFAULT_RULES,
           thresholdCredits: '100',
           paidCredits: '50',
@@ -456,9 +464,9 @@ describe('RecurringRuleDrawer', () => {
     describe('WHEN switching the method to Target and back to Fixed', () => {
       it('THEN should reset the credit fields to their defaults', async () => {
         const user = userEvent.setup()
-        const { ref } = renderDrawer()
+        const { open } = renderDrawer()
 
-        openAndMount(ref, { ...DEFAULT_RULES, paidCredits: '50', grantedCredits: '20' })
+        openAndMount(open, { ...DEFAULT_RULES, paidCredits: '50', grantedCredits: '20' })
 
         await selectComboBoxOption(user, 'method', RecurringTransactionMethodEnum.Target)
 
@@ -482,9 +490,9 @@ describe('RecurringRuleDrawer', () => {
     describe('WHEN switching the trigger to Interval', () => {
       it('THEN should mount the interval and start-date fields and drop the threshold', async () => {
         const user = userEvent.setup()
-        const { ref } = renderDrawer()
+        const { open } = renderDrawer()
 
-        openAndMount(ref, { ...DEFAULT_RULES, thresholdCredits: '100', paidCredits: '50' })
+        openAndMount(open, { ...DEFAULT_RULES, thresholdCredits: '100', paidCredits: '50' })
 
         await selectComboBoxOption(user, 'trigger', RecurringTransactionTriggerEnum.Interval)
 
@@ -501,9 +509,9 @@ describe('RecurringRuleDrawer', () => {
     describe('WHEN switching the trigger to Threshold', () => {
       it('THEN should mount the threshold field and drop the interval fields', async () => {
         const user = userEvent.setup()
-        const { ref } = renderDrawer()
+        const { open } = renderDrawer()
 
-        openAndMount(ref, {
+        openAndMount(open, {
           ...DEFAULT_RULES,
           trigger: RecurringTransactionTriggerEnum.Interval,
           paidCredits: '50',
@@ -535,7 +543,7 @@ describe('RecurringRuleDrawer', () => {
         ],
       ])('THEN should carry the %s flag into the saved rule', async (_, dataTest, field) => {
         const user = userEvent.setup()
-        const { ref, onSave } = renderDrawer({
+        const { open, onSave } = renderDrawer({
           values: {
             ...walletValues,
             paidTopUpMinAmountCents: '10',
@@ -543,7 +551,7 @@ describe('RecurringRuleDrawer', () => {
           } as TWalletDataForm,
         })
 
-        const opened = openAndMount(ref, {
+        const opened = openAndMount(open, {
           ...DEFAULT_RULES,
           thresholdCredits: '100',
           paidCredits: '50',
@@ -564,9 +572,9 @@ describe('RecurringRuleDrawer', () => {
     describe('WHEN toggling the top-up type and the requires-successful-payment switch', () => {
       it('THEN should carry both values into the saved rule', async () => {
         const user = userEvent.setup()
-        const { ref, onSave } = renderDrawer()
+        const { open, onSave } = renderDrawer()
 
-        const opened = openAndMount(ref, {
+        const opened = openAndMount(open, {
           ...DEFAULT_RULES,
           method: RecurringTransactionMethodEnum.Target,
           targetOngoingBalance: '100',
@@ -595,9 +603,9 @@ describe('RecurringRuleDrawer', () => {
 
     describe('WHEN the target balance is below the threshold', () => {
       it('THEN should flag the target balance as invalid and block the save', async () => {
-        const { ref, onSave } = renderDrawer()
+        const { open, onSave } = renderDrawer()
 
-        const opened = openAndMount(ref, {
+        const opened = openAndMount(open, {
           ...DEFAULT_RULES,
           method: RecurringTransactionMethodEnum.Target,
           targetOngoingBalance: '100',
@@ -623,9 +631,9 @@ describe('RecurringRuleDrawer', () => {
     describe('WHEN clicking the delete expiration button', () => {
       it('THEN should drop the date picker back to the add button', async () => {
         const user = userEvent.setup()
-        const { ref } = renderDrawer()
+        const { open } = renderDrawer()
 
-        openAndMount(ref, { ...DEFAULT_RULES, expirationAt: '' })
+        openAndMount(open, { ...DEFAULT_RULES, expirationAt: '' })
 
         await user.click(screen.getByTestId(DELETE_RECURRING_EXPIRATION_AT_DATA_TEST))
 
@@ -638,9 +646,9 @@ describe('RecurringRuleDrawer', () => {
 
     describe('WHEN the expiration date is in the past', () => {
       it('THEN should flag the expiration date as invalid and block the save', async () => {
-        const { ref, onSave } = renderDrawer()
+        const { open, onSave } = renderDrawer()
 
-        const opened = openAndMount(ref, {
+        const opened = openAndMount(open, {
           ...DEFAULT_RULES,
           thresholdCredits: '100',
           paidCredits: '50',
@@ -664,9 +672,9 @@ describe('RecurringRuleDrawer', () => {
   describe('GIVEN the drawer stack configuration', () => {
     describe('WHEN the drawer is opened', () => {
       it('THEN should focus the first input once entered', () => {
-        const { ref } = renderDrawer()
+        const { open } = renderDrawer()
 
-        const opened = openAndMount(ref)
+        const opened = openAndMount(open)
         const container = document.createElement('div')
 
         opened.onEntered(container)
@@ -676,9 +684,9 @@ describe('RecurringRuleDrawer', () => {
 
       it('THEN should only prompt on close once the draft is dirty', async () => {
         const user = userEvent.setup()
-        const { ref } = renderDrawer()
+        const { open } = renderDrawer()
 
-        const opened = openAndMount(ref)
+        const opened = openAndMount(open)
 
         expect(opened.shouldPromptOnClose()).toBe(false)
 
@@ -691,9 +699,9 @@ describe('RecurringRuleDrawer', () => {
 
       it('THEN should reset the draft on close', async () => {
         const user = userEvent.setup()
-        const { ref } = renderDrawer()
+        const { open } = renderDrawer()
 
-        const opened = openAndMount(ref)
+        const opened = openAndMount(open)
 
         await user.type(queryInput('paidCredits'), '50')
 
@@ -708,20 +716,6 @@ describe('RecurringRuleDrawer', () => {
         await waitFor(() => {
           expect(queryInput('paidCredits')).toHaveValue('')
         })
-      })
-    })
-
-    describe('WHEN closeDrawer is called through the ref', () => {
-      it('THEN should close the drawer', () => {
-        const { ref } = renderDrawer()
-
-        openAndMount(ref)
-
-        act(() => {
-          ref.current?.closeDrawer()
-        })
-
-        expect(mockClose).toHaveBeenCalled()
       })
     })
   })
