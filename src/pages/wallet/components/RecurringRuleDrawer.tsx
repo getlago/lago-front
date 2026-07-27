@@ -125,6 +125,7 @@ const RecurringRuleDrawerContent = withForm({
 
         <CenteredPage.SubsectionWrapper>
           <CenteredPage.PageSection>
+            <CenteredPage.PageSectionTitle title={translate('text_1785163793184lh4wkomad6h')} />
             <ComboBox
               name="method"
               disableClearable
