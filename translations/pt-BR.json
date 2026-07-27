@@ -131,7 +131,6 @@
   "text_63e51ef4985f0ebd75c2130f": "Idioma usado para todas as faturas, e-mails e portais do cliente.",
   "text_63e51ef4985f0ebd75c21310": "Idioma do documento",
   "text_63e51ef4985f0ebd75c21312": "Não consegue encontrar um idioma? Por favor, <a rel=\"external\" target=\"_blank\" href=\"https://www.getlago.com/slack\">entre em contato com a equipe Lago</a> para adicionar um novo.",
-  "text_63e51ef4985f0ebd75c21313": "Cancelar",
   "text_63e51ef4985f0ebd75c21349": "Idioma do documento editado com sucesso",
   "text_63ea0f84f400488553caa678": "Adicionar idioma de preferência",
   "text_63ea0f84f400488553caa680": "Defina o idioma dos documentos gerados pelo Lago para {{customerName}}. Note que isso afetará todas as faturas que já estão em rascunho.",
