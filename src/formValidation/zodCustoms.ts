@@ -64,6 +64,7 @@ export const zodOneOfPermissions = z.string().refine((value) => {
 
 export const zodRequiredEmail = z
   .string()
+  .trim()
   .min(1, { message: 'text_620bc4d4269a55014d493f3d' })
   .refine((val) => EMAIL_REGEX.test(val), 'text_620bc4d4269a55014d493fc3')
 

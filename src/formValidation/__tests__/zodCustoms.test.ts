@@ -283,6 +283,7 @@ describe('zodCustoms', () => {
         ['user+tag@example.com', 'email with plus'],
         ['name.surname@domain.co.uk', 'email with dots and multi-part TLD'],
         ['u@d.io', 'minimal email'],
+        ['  user@example.com  ', 'email with surrounding whitespace'],
       ])('accepts "%s" (%s)', (value) => {
         const result = zodRequiredEmail.safeParse(value)
 
@@ -291,8 +292,11 @@ describe('zodCustoms', () => {
     })
 
     describe('invalid', () => {
-      it('rejects empty string with required error', () => {
-        const result = zodRequiredEmail.safeParse('')
+      it.each([
+        ['', 'empty string'],
+        ['   ', 'whitespace-only string'],
+      ])('rejects "%s" (%s) with required error', (value) => {
+        const result = zodRequiredEmail.safeParse(value)
 
         expect(result.success).toBe(false)
 
@@ -305,6 +309,7 @@ describe('zodCustoms', () => {
         ['not-an-email', 'plain string'],
         ['user@', 'missing domain'],
         ['@example.com', 'missing local part'],
+        ['a b@example.com', 'internal space'],
       ])('rejects "%s" (%s) with format error', (value) => {
         const result = zodRequiredEmail.safeParse(value)
 
