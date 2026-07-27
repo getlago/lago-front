@@ -9,7 +9,7 @@ import {
 import { walletFormErrorCodes } from '~/pages/wallet/form'
 import { TWalletDataForm } from '~/pages/wallet/types'
 
-import { walletFormValidationSchema } from '../validationSchema'
+import { recurringRuleValidationSchema, walletFormValidationSchema } from '../validationSchema'
 
 const baseForm = (overrides: Partial<TWalletDataForm> = {}): TWalletDataForm => ({
   currency: CurrencyEnum.Usd,
@@ -414,5 +414,46 @@ describe('malformed recurringTransactionRules shape', () => {
         }),
       ),
     ).not.toThrow()
+  })
+
+  it('does not throw when the rules array holds a non-object element', () => {
+    // Array.isArray guards the container, not the elements: a null element
+    // still reaches the rule destructure.
+    expect(() =>
+      walletFormValidationSchema.safeParse(
+        baseForm({
+          recurringTransactionRules: [
+            null,
+          ] as unknown as TWalletDataForm['recurringTransactionRules'],
+        }),
+      ),
+    ).not.toThrow()
+  })
+})
+
+describe('malformed recurring rule shape (drawer schema)', () => {
+  const drawerSchema = recurringRuleValidationSchema({
+    rateAmount: '1',
+    currency: CurrencyEnum.Usd,
+  })
+
+  // z.custom() accepts any value, so the drawer schema can be handed something
+  // that is not a rule at all — it must report invalid rather than throw.
+  it.each([
+    ['undefined', undefined],
+    ['null', null],
+    ['a string', 'not-a-rule'],
+  ])('does not throw and reports invalid when the rule is %s', (_, value) => {
+    let result: ReturnType<typeof drawerSchema.safeParse> | undefined
+
+    expect(() => {
+      result = drawerSchema.safeParse(value)
+    }).not.toThrow()
+
+    expect(result?.success).toBe(false)
+  })
+
+  it('still validates a well-formed rule', () => {
+    expect(drawerSchema.safeParse(baseRule({ thresholdCredits: '100' })).success).toBe(true)
   })
 })

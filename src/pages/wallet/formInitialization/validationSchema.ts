@@ -81,6 +81,23 @@ const addRecurringRuleIssues = (
   ctx: z.RefinementCtx,
   rulePath: (field: string) => (string | number)[],
 ) => {
+  // Same invariant as the Array.isArray guard below: superRefine must NEVER
+  // throw. Both entry points reach this destructure through a z.custom(), which
+  // accepts any value — the drawer schema unguarded, and the wallet schema with
+  // a container check that says nothing about the elements. A non-object here
+  // (null element, malformed mapper output) would crash the validator and leave
+  // the form stuck in isSubmitting, so bail instead: the field-level `required`
+  // issues below cannot describe a rule that isn't a rule.
+  if (typeof rule !== 'object' || rule === null) {
+    ctx.addIssue({
+      code: 'custom',
+      message: 'text_1771342994699klxu2paz7g8',
+      path: rulePath('method'),
+    })
+
+    return
+  }
+
   const {
     trigger,
     method,
