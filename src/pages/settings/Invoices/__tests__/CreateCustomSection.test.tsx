@@ -73,6 +73,8 @@ jest.mock('~/components/settings/invoices/PreviewCustomSectionDrawer', () => {
   }
 })
 
+const renderPage = () => act(() => render(<CreateInvoiceCustomSection />))
+
 describe('CreateCustomSection', () => {
   beforeEach(() => {
     jest.clearAllMocks()
@@ -87,7 +89,7 @@ describe('CreateCustomSection', () => {
       it('THEN should not display the form fields', async () => {
         mockLoading = true
 
-        await act(() => render(<CreateInvoiceCustomSection />))
+        await renderPage()
 
         expect(screen.queryByPlaceholderText(NAME_PLACEHOLDER)).not.toBeInTheDocument()
       })
@@ -105,19 +107,19 @@ describe('CreateCustomSection', () => {
         ['details input', CREATE_CUSTOM_SECTION_DETAILS_INPUT_TEST_ID],
         ['preview button', CREATE_CUSTOM_SECTION_PREVIEW_BUTTON_TEST_ID],
       ])('THEN should display the %s', async (_, testId) => {
-        await act(() => render(<CreateInvoiceCustomSection />))
+        await renderPage()
 
         expect(screen.getByTestId(testId)).toBeInTheDocument()
       })
 
       it('THEN should render the form element with the correct id', async () => {
-        const { container } = await act(() => render(<CreateInvoiceCustomSection />))
+        const { container } = await renderPage()
 
         expect(container.querySelector(`form#${CREATE_CUSTOM_SECTION_FORM_ID}`)).toBeInTheDocument()
       })
 
       it('THEN should not display the description input by default', async () => {
-        await act(() => render(<CreateInvoiceCustomSection />))
+        await renderPage()
 
         expect(
           screen.queryByTestId(CREATE_CUSTOM_SECTION_DESCRIPTION_INPUT_TEST_ID),
@@ -125,7 +127,7 @@ describe('CreateCustomSection', () => {
       })
 
       it('THEN should render the name and code inputs empty', async () => {
-        await act(() => render(<CreateInvoiceCustomSection />))
+        await renderPage()
 
         expect(screen.getByPlaceholderText(NAME_PLACEHOLDER)).toHaveValue('')
         expect(screen.getByPlaceholderText(CODE_PLACEHOLDER)).toHaveValue('')
@@ -136,7 +138,7 @@ describe('CreateCustomSection', () => {
       it('THEN should display the description input', async () => {
         const user = userEvent.setup()
 
-        await act(() => render(<CreateInvoiceCustomSection />))
+        await renderPage()
 
         await user.click(screen.getByTestId(CREATE_CUSTOM_SECTION_SHOW_DESCRIPTION_BUTTON_TEST_ID))
 
@@ -150,7 +152,7 @@ describe('CreateCustomSection', () => {
       it('THEN should hide the description input and clear its value', async () => {
         const user = userEvent.setup()
 
-        await act(() => render(<CreateInvoiceCustomSection />))
+        await renderPage()
 
         await user.click(screen.getByTestId(CREATE_CUSTOM_SECTION_SHOW_DESCRIPTION_BUTTON_TEST_ID))
 
@@ -175,7 +177,7 @@ describe('CreateCustomSection', () => {
       it('THEN should auto-generate the code field', async () => {
         const user = userEvent.setup()
 
-        await act(() => render(<CreateInvoiceCustomSection />))
+        await renderPage()
 
         const nameInput = screen.getByPlaceholderText(NAME_PLACEHOLDER)
 
@@ -191,7 +193,7 @@ describe('CreateCustomSection', () => {
       it('THEN should open the preview drawer with the current displayName and details values', async () => {
         const user = userEvent.setup()
 
-        await act(() => render(<CreateInvoiceCustomSection />))
+        await renderPage()
 
         const displayNameContainer = screen.getByTestId(
           CREATE_CUSTOM_SECTION_DISPLAY_NAME_INPUT_TEST_ID,
@@ -215,7 +217,7 @@ describe('CreateCustomSection', () => {
         it('THEN should navigate away without opening a warning dialog', async () => {
           const user = userEvent.setup()
 
-          await act(() => render(<CreateInvoiceCustomSection />))
+          await renderPage()
 
           await user.click(screen.getByTestId(CREATE_CUSTOM_SECTION_CLOSE_BUTTON_TEST_ID))
 
@@ -232,7 +234,7 @@ describe('CreateCustomSection', () => {
         it('THEN should open the dirty attributes warning dialog', async () => {
           const user = userEvent.setup()
 
-          await act(() => render(<CreateInvoiceCustomSection />))
+          await renderPage()
 
           await user.type(screen.getByPlaceholderText(NAME_PLACEHOLDER), 'My Section')
 
@@ -256,7 +258,7 @@ describe('CreateCustomSection', () => {
         it('THEN should open the dirty attributes warning dialog', async () => {
           const user = userEvent.setup()
 
-          await act(() => render(<CreateInvoiceCustomSection />))
+          await renderPage()
 
           await user.type(screen.getByPlaceholderText(NAME_PLACEHOLDER), 'My Section')
 
@@ -273,7 +275,7 @@ describe('CreateCustomSection', () => {
       it('THEN should not call onSave', async () => {
         const user = userEvent.setup()
 
-        await act(() => render(<CreateInvoiceCustomSection />))
+        await renderPage()
 
         await user.click(screen.getByTestId(CREATE_CUSTOM_SECTION_SUBMIT_BUTTON_TEST_ID))
 
@@ -287,7 +289,7 @@ describe('CreateCustomSection', () => {
       it('THEN should not call onSave', async () => {
         const user = userEvent.setup()
 
-        await act(() => render(<CreateInvoiceCustomSection />))
+        await renderPage()
 
         await user.type(screen.getByPlaceholderText(NAME_PLACEHOLDER), 'My Section')
 
@@ -303,7 +305,7 @@ describe('CreateCustomSection', () => {
       it('THEN should call onSave with the expected values', async () => {
         const user = userEvent.setup()
 
-        await act(() => render(<CreateInvoiceCustomSection />))
+        await renderPage()
 
         await user.type(screen.getByPlaceholderText(NAME_PLACEHOLDER), 'My Section')
 
@@ -341,14 +343,14 @@ describe('CreateCustomSection', () => {
 
     describe('WHEN rendering the page', () => {
       it('THEN should pre-fill the name and code fields', async () => {
-        await act(() => render(<CreateInvoiceCustomSection />))
+        await renderPage()
 
         expect(screen.getByPlaceholderText(NAME_PLACEHOLDER)).toHaveValue('Existing section')
         expect(screen.getByPlaceholderText(CODE_PLACEHOLDER)).toHaveValue('existing_section')
       })
 
       it('THEN should display the description input since a description already exists', async () => {
-        await act(() => render(<CreateInvoiceCustomSection />))
+        await renderPage()
 
         expect(
           screen.getByTestId(CREATE_CUSTOM_SECTION_DESCRIPTION_INPUT_TEST_ID),
@@ -360,7 +362,7 @@ describe('CreateCustomSection', () => {
       it('THEN should not override the existing code', async () => {
         const user = userEvent.setup()
 
-        await act(() => render(<CreateInvoiceCustomSection />))
+        await renderPage()
 
         const nameInput = screen.getByPlaceholderText(NAME_PLACEHOLDER)
 
@@ -379,10 +381,36 @@ describe('CreateCustomSection', () => {
 
     describe('WHEN rendering the page', () => {
       it('THEN should scroll to the top', async () => {
-        await act(() => render(<CreateInvoiceCustomSection />))
+        await renderPage()
 
         await waitFor(() => {
           expect(mockScrollToTop).toHaveBeenCalled()
+        })
+      })
+
+      it('THEN should display an error on the code field', async () => {
+        await renderPage()
+
+        await waitFor(() => {
+          expect(screen.getByTestId('text-field-error')).toBeInTheDocument()
+        })
+      })
+    })
+
+    describe('WHEN editing the code field', () => {
+      it('THEN should clear the server error without leaving a stale error behind', async () => {
+        const user = userEvent.setup()
+
+        await renderPage()
+
+        await waitFor(() => {
+          expect(screen.getByTestId('text-field-error')).toBeInTheDocument()
+        })
+
+        await user.type(screen.getByPlaceholderText(CODE_PLACEHOLDER), 'x')
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('text-field-error')).not.toBeInTheDocument()
         })
       })
     })
