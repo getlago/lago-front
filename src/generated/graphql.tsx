@@ -308,6 +308,7 @@ export type AddStripePaymentProviderInput = {
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   code: Scalars['String']['input'];
   name: Scalars['String']['input'];
+  requireTermsOfServiceConsent?: InputMaybe<Scalars['Boolean']['input']>;
   secretKey?: InputMaybe<Scalars['String']['input']>;
   successRedirectUrl?: InputMaybe<Scalars['String']['input']>;
   supports3ds?: InputMaybe<Scalars['Boolean']['input']>;
@@ -8974,6 +8975,7 @@ export type StripeProvider = {
   code: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
+  requireTermsOfServiceConsent?: Maybe<Scalars['Boolean']['output']>;
   secretKey?: Maybe<Scalars['ObfuscatedString']['output']>;
   successRedirectUrl?: Maybe<Scalars['String']['output']>;
   supports3ds?: Maybe<Scalars['Boolean']['output']>;
@@ -9599,6 +9601,7 @@ export type UpdateAdyenPaymentProviderInput = {
   flowId?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
+  requireTermsOfServiceConsent?: InputMaybe<Scalars['Boolean']['input']>;
   successRedirectUrl?: InputMaybe<Scalars['String']['input']>;
   supports3ds?: InputMaybe<Scalars['Boolean']['input']>;
 };
@@ -9692,6 +9695,7 @@ export type UpdateCashfreePaymentProviderInput = {
   flowId?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
+  requireTermsOfServiceConsent?: InputMaybe<Scalars['Boolean']['input']>;
   successRedirectUrl?: InputMaybe<Scalars['String']['input']>;
   supports3ds?: InputMaybe<Scalars['Boolean']['input']>;
 };
@@ -9868,6 +9872,7 @@ export type UpdateFlutterwavePaymentProviderInput = {
   flowId?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
+  requireTermsOfServiceConsent?: InputMaybe<Scalars['Boolean']['input']>;
   successRedirectUrl?: InputMaybe<Scalars['String']['input']>;
   supports3ds?: InputMaybe<Scalars['Boolean']['input']>;
 };
@@ -9880,6 +9885,7 @@ export type UpdateGocardlessPaymentProviderInput = {
   flowId?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
+  requireTermsOfServiceConsent?: InputMaybe<Scalars['Boolean']['input']>;
   successRedirectUrl?: InputMaybe<Scalars['String']['input']>;
   supports3ds?: InputMaybe<Scalars['Boolean']['input']>;
 };
@@ -9971,6 +9977,7 @@ export type UpdateMoneyhashPaymentProviderInput = {
   flowId?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
+  requireTermsOfServiceConsent?: InputMaybe<Scalars['Boolean']['input']>;
   successRedirectUrl?: InputMaybe<Scalars['String']['input']>;
   supports3ds?: InputMaybe<Scalars['Boolean']['input']>;
 };
@@ -10157,6 +10164,7 @@ export type UpdateStripePaymentProviderInput = {
   flowId?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
+  requireTermsOfServiceConsent?: InputMaybe<Scalars['Boolean']['input']>;
   successRedirectUrl?: InputMaybe<Scalars['String']['input']>;
   supports3ds?: InputMaybe<Scalars['Boolean']['input']>;
 };
@@ -10665,12 +10673,26 @@ export type ListAiConversationsQueryVariables = Exact<{
 
 export type ListAiConversationsQuery = { __typename?: 'Query', aiConversations?: { __typename?: 'AiConversationCollection', collection: Array<{ __typename?: 'AiConversation', id: string, name: string, updatedAt: any }> } | null };
 
+export type AskFinanceAssistantMutationVariables = Exact<{
+  input: AskFinanceAssistantInput;
+}>;
+
+
+export type AskFinanceAssistantMutation = { __typename?: 'Mutation', askFinanceAssistant?: { __typename?: 'FinanceAssistantAnswer', explanation: string, messageId: string, results: string, sessionExpired: boolean, sessionId: string, sqlQuery?: string | null } | null };
+
 export type CreateAiConversationMutationVariables = Exact<{
   input: CreateAiConversationInput;
 }>;
 
 
 export type CreateAiConversationMutation = { __typename?: 'Mutation', createAiConversation?: { __typename?: 'AiConversation', id: string, name: string } | null };
+
+export type ExportFinanceAssistantResultMutationVariables = Exact<{
+  input: ExportFinanceAssistantResultInput;
+}>;
+
+
+export type ExportFinanceAssistantResultMutation = { __typename?: 'Mutation', exportFinanceAssistantResult?: { __typename?: 'FinanceAssistantExport', fileUrl: string, filename: string } | null };
 
 export type OnConversationSubscriptionVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -21661,6 +21683,44 @@ export type ListAiConversationsQueryHookResult = ReturnType<typeof useListAiConv
 export type ListAiConversationsLazyQueryHookResult = ReturnType<typeof useListAiConversationsLazyQuery>;
 export type ListAiConversationsSuspenseQueryHookResult = ReturnType<typeof useListAiConversationsSuspenseQuery>;
 export type ListAiConversationsQueryResult = Apollo.QueryResult<ListAiConversationsQuery, ListAiConversationsQueryVariables>;
+export const AskFinanceAssistantDocument = gql`
+    mutation askFinanceAssistant($input: AskFinanceAssistantInput!) {
+  askFinanceAssistant(input: $input) {
+    explanation
+    messageId
+    results
+    sessionExpired
+    sessionId
+    sqlQuery
+  }
+}
+    `;
+export type AskFinanceAssistantMutationFn = Apollo.MutationFunction<AskFinanceAssistantMutation, AskFinanceAssistantMutationVariables>;
+
+/**
+ * __useAskFinanceAssistantMutation__
+ *
+ * To run a mutation, you first call `useAskFinanceAssistantMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAskFinanceAssistantMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [askFinanceAssistantMutation, { data, loading, error }] = useAskFinanceAssistantMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAskFinanceAssistantMutation(baseOptions?: Apollo.MutationHookOptions<AskFinanceAssistantMutation, AskFinanceAssistantMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AskFinanceAssistantMutation, AskFinanceAssistantMutationVariables>(AskFinanceAssistantDocument, options);
+      }
+export type AskFinanceAssistantMutationHookResult = ReturnType<typeof useAskFinanceAssistantMutation>;
+export type AskFinanceAssistantMutationResult = Apollo.MutationResult<AskFinanceAssistantMutation>;
+export type AskFinanceAssistantMutationOptions = Apollo.BaseMutationOptions<AskFinanceAssistantMutation, AskFinanceAssistantMutationVariables>;
 export const CreateAiConversationDocument = gql`
     mutation createAiConversation($input: CreateAiConversationInput!) {
   createAiConversation(input: $input) {
@@ -21695,6 +21755,40 @@ export function useCreateAiConversationMutation(baseOptions?: Apollo.MutationHoo
 export type CreateAiConversationMutationHookResult = ReturnType<typeof useCreateAiConversationMutation>;
 export type CreateAiConversationMutationResult = Apollo.MutationResult<CreateAiConversationMutation>;
 export type CreateAiConversationMutationOptions = Apollo.BaseMutationOptions<CreateAiConversationMutation, CreateAiConversationMutationVariables>;
+export const ExportFinanceAssistantResultDocument = gql`
+    mutation exportFinanceAssistantResult($input: ExportFinanceAssistantResultInput!) {
+  exportFinanceAssistantResult(input: $input) {
+    fileUrl
+    filename
+  }
+}
+    `;
+export type ExportFinanceAssistantResultMutationFn = Apollo.MutationFunction<ExportFinanceAssistantResultMutation, ExportFinanceAssistantResultMutationVariables>;
+
+/**
+ * __useExportFinanceAssistantResultMutation__
+ *
+ * To run a mutation, you first call `useExportFinanceAssistantResultMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useExportFinanceAssistantResultMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [exportFinanceAssistantResultMutation, { data, loading, error }] = useExportFinanceAssistantResultMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useExportFinanceAssistantResultMutation(baseOptions?: Apollo.MutationHookOptions<ExportFinanceAssistantResultMutation, ExportFinanceAssistantResultMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ExportFinanceAssistantResultMutation, ExportFinanceAssistantResultMutationVariables>(ExportFinanceAssistantResultDocument, options);
+      }
+export type ExportFinanceAssistantResultMutationHookResult = ReturnType<typeof useExportFinanceAssistantResultMutation>;
+export type ExportFinanceAssistantResultMutationResult = Apollo.MutationResult<ExportFinanceAssistantResultMutation>;
+export type ExportFinanceAssistantResultMutationOptions = Apollo.BaseMutationOptions<ExportFinanceAssistantResultMutation, ExportFinanceAssistantResultMutationVariables>;
 export const OnConversationDocument = gql`
     subscription onConversation($id: ID!) {
   aiConversationStreamed(id: $id) {

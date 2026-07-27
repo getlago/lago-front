@@ -291,6 +291,7 @@ export const WalletRecurringTopUpFields = withForm({
                     {(field) => (
                       <field.DatePickerField
                         className="flex-1"
+                        placement="top-end"
                         label={translate('text_66599bfb69fba1010535c5c2')}
                         placeholder={translate('text_62d18855b22699e5cf55f899')}
                       />
@@ -346,17 +347,18 @@ export const WalletRecurringTopUpFields = withForm({
 
             return (
               <div
-                className="flex items-end gap-3 [&>*:first-child]:flex-1"
+                className="flex gap-3 [&>*:first-child]:flex-1"
                 data-test={WALLET_RECURRING_EXPIRATION_SECTION_TEST_ID}
               >
                 <field.DatePickerField
                   disablePast
+                  placement="top-end"
                   label={translate('text_62d18855b22699e5cf55f897')}
                   placeholder={translate('text_62d18855b22699e5cf55f899')}
                   helperText={translate('text_1741689608703zttwsl2nnq2')}
                 />
                 <Tooltip
-                  className="mb-1 h-fit"
+                  className="mt-8 h-fit"
                   placement="top-end"
                   title={translate('text_63aa085d28b8510cd46443ff')}
                 >

@@ -18,6 +18,12 @@ const mockUpdateWallet = jest.fn(() => Promise.resolve({ errors: undefined }))
 let mockWalletData: unknown = undefined
 let mockWalletLoading = false
 
+// The drawer stack relies on import.meta (unsupported in jest)
+jest.mock('~/components/drawers/useDrawer', () => ({
+  useDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+  useFormDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+}))
+
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useParams: () => ({
@@ -48,10 +54,6 @@ jest.mock('~/hooks/useCurrentUser', () => ({
 
 jest.mock('~/components/billingEntity/BillingEntityFormPicker', () => ({
   BillingEntityFormPicker: () => <div data-test="billing-entity-form-picker-stub" />,
-}))
-
-jest.mock('~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings', () => ({
-  PaymentMethodsInvoiceSettings: () => <div data-test="payment-methods-settings-stub" />,
 }))
 
 jest.mock('~/generated/graphql', () => ({

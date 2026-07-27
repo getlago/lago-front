@@ -116,7 +116,7 @@ const NetsuiteIntegrationDetails = () => {
             }),
           },
           {
-            label: translate('text_67db6a10cb0b8031ca538909'),
+            label: translate('text_661ff6e56ef7e1b7c542b239'),
             path: generatePath(NETSUITE_INTEGRATION_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
             }),

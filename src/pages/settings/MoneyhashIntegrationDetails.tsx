@@ -107,7 +107,7 @@ const MoneyhashIntegrationDetails = () => {
             }),
           },
           {
-            label: translate('text_67db6a10cb0b8031ca538909'),
+            label: translate('text_1733427981129n3wxjui0bex'),
             path: generatePath(MONEYHASH_INTEGRATION_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Community,
             }),

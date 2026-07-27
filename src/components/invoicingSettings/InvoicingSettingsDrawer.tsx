@@ -11,11 +11,8 @@ import {
   InvoiceCustomSectionInput,
 } from '~/components/invoceCustomFooter/types'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
-import {
-  VIEW_TYPE_TRANSLATION_KEYS,
-  ViewTypeEnum,
-} from '~/components/paymentMethodsInvoiceSettings/types'
 import { SubscriptionInvoiceConsolidationSection } from '~/components/subscriptions/SubscriptionInvoiceConsolidationSection'
+import { VIEW_TYPE_TRANSLATION_KEYS, ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm, withForm } from '~/hooks/forms/useAppform'
 
@@ -59,12 +56,15 @@ interface InvoicingSettingsDrawerContentExtraProps {
   viewType: ViewTypeEnum
   customerId?: string
   showCustomSection: boolean
+  /** Subscription-only: other billing objects have no consolidation in their payload */
+  withInvoiceConsolidation: boolean
 }
 
 const invoicingSettingsDrawerContentDefaultProps: InvoicingSettingsDrawerContentExtraProps = {
   viewType: ViewTypeEnum.Subscription,
   customerId: undefined,
   showCustomSection: false,
+  withInvoiceConsolidation: false,
 }
 
 const InvoicingSettingsDrawerContent = withForm({
@@ -75,6 +75,7 @@ const InvoicingSettingsDrawerContent = withForm({
     viewType,
     customerId,
     showCustomSection,
+    withInvoiceConsolidation,
   }) {
     const { translate } = useInternationalization()
     const viewTypeLabel = translate(VIEW_TYPE_TRANSLATION_KEYS[viewType])
@@ -92,16 +93,18 @@ const InvoicingSettingsDrawerContent = withForm({
         />
 
         <CenteredPage.SubsectionWrapper>
-          <CenteredPage.PageSection>
-            <CenteredPage.PageSectionTitle
-              title={translate('text_177874535109128tmqdq682k')}
-              description={translate('text_17827386443477iuks0kxmx5')}
-            />
-            <SubscriptionInvoiceConsolidationSection
-              form={form}
-              fields={{ consolidateInvoice: 'consolidateInvoice' }}
-            />
-          </CenteredPage.PageSection>
+          {withInvoiceConsolidation && (
+            <CenteredPage.PageSection>
+              <CenteredPage.PageSectionTitle
+                title={translate('text_177874535109128tmqdq682k')}
+                description={translate('text_17827386443477iuks0kxmx5')}
+              />
+              <SubscriptionInvoiceConsolidationSection
+                form={form}
+                fields={{ consolidateInvoice: 'consolidateInvoice' }}
+              />
+            </CenteredPage.PageSection>
+          )}
 
           {showCustomSection && customerId && (
             <CenteredPage.PageSection>
@@ -129,7 +132,7 @@ const InvoicingSettingsDrawerContent = withForm({
 
 export interface InvoicingSettingsDrawerRef {
   openDrawer: (values: {
-    consolidateInvoice: boolean
+    consolidateInvoice?: boolean
     invoiceCustomSection?: InvoiceCustomSectionInput | null
   }) => void
   closeDrawer: () => void
@@ -139,13 +142,14 @@ interface InvoicingSettingsDrawerProps {
   viewType: ViewTypeEnum
   customerId?: string
   showCustomSection: boolean
+  withInvoiceConsolidation?: boolean
   onSave: (values: InvoicingSettingsValues) => void | Promise<void>
 }
 
 export const InvoicingSettingsDrawer = forwardRef<
   InvoicingSettingsDrawerRef,
   InvoicingSettingsDrawerProps
->(({ viewType, customerId, showCustomSection, onSave }, ref) => {
+>(({ viewType, customerId, showCustomSection, withInvoiceConsolidation = false, onSave }, ref) => {
   const { translate } = useInternationalization()
   const drawer = useFormDrawer()
 
@@ -178,6 +182,7 @@ export const InvoicingSettingsDrawer = forwardRef<
           viewType={viewType}
           customerId={customerId}
           showCustomSection={showCustomSection}
+          withInvoiceConsolidation={withInvoiceConsolidation}
         />
       ),
       mainAction: (
@@ -197,7 +202,7 @@ export const InvoicingSettingsDrawer = forwardRef<
 
       form.reset(
         {
-          consolidateInvoice: values.consolidateInvoice,
+          consolidateInvoice: values.consolidateInvoice ?? DEFAULT_VALUES.consolidateInvoice,
           invoiceCustomSection,
           invoiceCustomSectionBehavior: deriveInvoiceCustomSectionBehavior(invoiceCustomSection),
         },

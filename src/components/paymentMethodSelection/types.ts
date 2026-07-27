@@ -1,8 +1,7 @@
 import { ComboBoxProps } from '~/components/form/ComboBox/types'
+import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { PaymentMethodReferenceInput, PaymentMethodTypeEnum } from '~/generated/graphql'
 import { PaymentMethodList } from '~/hooks/customer/usePaymentMethodsList'
-
-import { ViewTypeEnum } from '../paymentMethodsInvoiceSettings/types'
 
 export type SelectedPaymentMethod = PaymentMethodReferenceInput | null | undefined
 
