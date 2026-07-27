@@ -9,6 +9,8 @@ import {
   DELETE_RECURRING_EXPIRATION_AT_DATA_TEST,
   RECURRING_IGNORE_PAID_TOPUP_LIMITS_SWITCH_DATA_TEST,
   RECURRING_INVOICE_REQUIRES_SUCCESSFUL_PAYMENT_SWITCH_DATA_TEST,
+  RECURRING_RULE_INVOICING_SETTINGS_SELECTOR_DATA_TEST,
+  RECURRING_RULE_PAYMENT_SETTINGS_SELECTOR_DATA_TEST,
   RECURRING_TOPUP_TYPE_DATA_TEST,
   SHOW_RECURRING_EXPIRATION_AT_DATA_TEST,
 } from '~/components/wallets/utils/dataTestConstants'
@@ -386,8 +388,12 @@ describe('RecurringRuleDrawer', () => {
   describe('GIVEN the nested settings selectors', () => {
     describe('WHEN the drawer content mounts', () => {
       it.each([
-        ['invoicing', () => mockInvoicingSelector, 'rule-invoicing-settings-selector'],
-        ['payment', () => mockPaymentSelector, 'rule-payment-settings-selector'],
+        [
+          'invoicing',
+          () => mockInvoicingSelector,
+          RECURRING_RULE_INVOICING_SETTINGS_SELECTOR_DATA_TEST,
+        ],
+        ['payment', () => mockPaymentSelector, RECURRING_RULE_PAYMENT_SETTINGS_SELECTOR_DATA_TEST],
       ])('THEN should tag the rule %s selector with its data-test', (_, getMock, dataTest) => {
         const { open } = renderDrawer()
 

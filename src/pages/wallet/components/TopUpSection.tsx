@@ -7,6 +7,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { InvoicingSettingsSelector } from '~/components/invoicingSettings/InvoicingSettingsSelector'
 import { PaymentSettingsSelector } from '~/components/paymentSettings/PaymentSettingsSelector'
+import { ADD_RECURRING_RULE_BUTTON_DATA_TEST } from '~/components/wallets/utils/dataTestConstants'
 import { VIEW_TYPE_TRANSLATION_KEYS, ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { GetCustomerInfosForWalletFormQuery } from '~/generated/graphql'
@@ -97,7 +98,7 @@ export const TopUpSection = withForm({
           {!isRecurringTopUpEnabled ? (
             <Box>
               <Button
-                data-test="add-recurring-rule-button"
+                data-test={ADD_RECURRING_RULE_BUTTON_DATA_TEST}
                 variant="inline"
                 startIcon="plus"
                 endIcon={isPremium ? undefined : 'sparkles'}

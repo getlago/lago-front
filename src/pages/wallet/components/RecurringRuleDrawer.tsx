@@ -16,6 +16,8 @@ import {
   DELETE_RECURRING_EXPIRATION_AT_DATA_TEST,
   RECURRING_IGNORE_PAID_TOPUP_LIMITS_SWITCH_DATA_TEST,
   RECURRING_INVOICE_REQUIRES_SUCCESSFUL_PAYMENT_SWITCH_DATA_TEST,
+  RECURRING_RULE_INVOICING_SETTINGS_SELECTOR_DATA_TEST,
+  RECURRING_RULE_PAYMENT_SETTINGS_SELECTOR_DATA_TEST,
   RECURRING_TOPUP_TYPE_DATA_TEST,
   SHOW_RECURRING_EXPIRATION_AT_DATA_TEST,
 } from '~/components/wallets/utils/dataTestConstants'
@@ -497,7 +499,7 @@ const RecurringRuleDrawerContent = withForm({
                 customerId={customerData.customer.id}
                 value={rule.invoiceCustomSection}
                 onChange={(value) => form.setFieldValue('invoiceCustomSection', value)}
-                data-test="rule-invoicing-settings-selector"
+                data-test={RECURRING_RULE_INVOICING_SETTINGS_SELECTOR_DATA_TEST}
               />
             </CenteredPage.PageSection>
           )}
@@ -515,7 +517,7 @@ const RecurringRuleDrawerContent = withForm({
                 externalCustomerId={customerData.customer.externalId}
                 value={rule.paymentMethod}
                 onChange={(value) => form.setFieldValue('paymentMethod', value)}
-                data-test="rule-payment-settings-selector"
+                data-test={RECURRING_RULE_PAYMENT_SETTINGS_SELECTOR_DATA_TEST}
               />
             </CenteredPage.PageSection>
           )}

@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { useState } from 'react'
 
 import { SELECTOR_HOVER_ACTIONS_TEST_ID } from '~/components/designSystem/Selector'
+import { ADD_RECURRING_RULE_BUTTON_DATA_TEST } from '~/components/wallets/utils/dataTestConstants'
 import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import {
@@ -66,7 +67,7 @@ jest.mock('~/components/paymentSettings/PaymentSettingsSelector', () => ({
   },
 }))
 
-// Stub the rule drawer: the parent only needs its imperative ref + onSave —
+// Stub the rule drawer hook: the parent only needs openDrawer + onSave —
 // the drawer's own behaviour is covered by RecurringRuleDrawer.test.tsx.
 const mockOpenRuleDrawer = jest.fn()
 
@@ -201,7 +202,7 @@ describe('TopUpSection', () => {
 
         render(<TestWrapper />)
 
-        await user.click(screen.getByTestId('add-recurring-rule-button'))
+        await user.click(screen.getByTestId(ADD_RECURRING_RULE_BUTTON_DATA_TEST))
 
         expect(mockOpenPremiumWarningDialog).toHaveBeenCalled()
         expect(mockOpenRuleDrawer).not.toHaveBeenCalled()
@@ -216,7 +217,7 @@ describe('TopUpSection', () => {
 
         render(<TestWrapper />)
 
-        await user.click(screen.getByTestId('add-recurring-rule-button'))
+        await user.click(screen.getByTestId(ADD_RECURRING_RULE_BUTTON_DATA_TEST))
 
         // Called with no seed → create mode (drawer falls back to defaults)
         expect(mockOpenRuleDrawer).toHaveBeenCalledTimes(1)
@@ -233,7 +234,7 @@ describe('TopUpSection', () => {
 
         render(<TestWrapper />)
 
-        await user.click(screen.getByTestId('add-recurring-rule-button'))
+        await user.click(screen.getByTestId(ADD_RECURRING_RULE_BUTTON_DATA_TEST))
 
         const savedRule = { ...DEFAULT_RULES, thresholdCredits: '100', paidCredits: '50' }
 
@@ -296,7 +297,7 @@ describe('TopUpSection', () => {
         await user.click(actions[0])
 
         await waitFor(() => {
-          expect(screen.getByTestId('add-recurring-rule-button')).toBeInTheDocument()
+          expect(screen.getByTestId(ADD_RECURRING_RULE_BUTTON_DATA_TEST)).toBeInTheDocument()
         })
         expect(formValuesProbe.current?.recurringTransactionRules).toBeUndefined()
         expect(mockOpenRuleDrawer).not.toHaveBeenCalled()
@@ -412,7 +413,7 @@ describe('TopUpSection', () => {
 
         render(<TestWrapper />)
 
-        await user.click(screen.getByTestId('add-recurring-rule-button'))
+        await user.click(screen.getByTestId(ADD_RECURRING_RULE_BUTTON_DATA_TEST))
 
         const targetRule = {
           ...DEFAULT_RULES,
