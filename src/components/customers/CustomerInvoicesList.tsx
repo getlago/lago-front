@@ -40,6 +40,7 @@ import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
   BillingEntityEmailSettingsEnum,
   CurrencyEnum,
+  InvoiceForDeleteInvoiceFragmentDoc,
   InvoiceForFinalizeInvoiceFragment,
   InvoiceForFinalizeInvoiceFragmentDoc,
   InvoiceForInvoiceListFragment,
@@ -108,6 +109,7 @@ gql`
     ...InvoiceForFinalizeInvoice
     ...InvoiceForUpdateInvoicePaymentStatus
     ...InvoiceForResendInvoiceForCollectionDialog
+    ...InvoiceForDeleteInvoice
   }
 
   fragment InvoiceForInvoiceList on InvoiceCollection {
@@ -149,6 +151,7 @@ gql`
   ${InvoiceForFinalizeInvoiceFragmentDoc}
   ${InvoiceForUpdateInvoicePaymentStatusFragmentDoc}
   ${InvoiceForResendInvoiceForCollectionDialogFragmentDoc}
+  ${InvoiceForDeleteInvoiceFragmentDoc}
 `
 
 interface CustomerInvoicesListProps {

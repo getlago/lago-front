@@ -6,11 +6,16 @@ import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import {
   GetCustomerInvoicesDocument,
   GetInvoicesListDocument,
+  InvoiceForDeleteInvoiceFragment,
   useDeleteInvoiceMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
+  fragment InvoiceForDeleteInvoice on Invoice {
+    id
+  }
+
   mutation deleteInvoice($input: DeleteInvoiceInput!) {
     deleteInvoice(input: $input) {
       id
@@ -26,7 +31,7 @@ export const useDeleteInvoiceDialog = () => {
   const [deleteInvoice] = useDeleteInvoiceMutation()
 
   const openDeleteInvoiceDialog = (
-    invoice: { id: string } | null | undefined,
+    invoice: InvoiceForDeleteInvoiceFragment,
     callback?: () => void,
   ) => {
     centralizedDialog.open({
@@ -37,7 +42,7 @@ export const useDeleteInvoiceDialog = () => {
       cancelOrCloseText: 'cancel',
       onAction: async () => {
         const result = await deleteInvoice({
-          variables: { input: { id: invoice?.id || '' } },
+          variables: { input: { id: invoice.id } },
         })
 
         if (result.data?.deleteInvoice?.id) {

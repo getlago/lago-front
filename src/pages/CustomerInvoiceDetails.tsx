@@ -55,6 +55,7 @@ import {
   HubspotIntegrationInfosForInvoiceOverviewFragmentDoc,
   Invoice,
   InvoiceDetailsForInvoiceOverviewFragmentDoc,
+  InvoiceForDeleteInvoiceFragmentDoc,
   InvoiceForDetailsTableFragmentDoc,
   InvoiceForFinalizeInvoiceFragmentDoc,
   InvoiceForFormatInvoiceItemMapFragmentDoc,
@@ -128,6 +129,7 @@ gql`
     ...InvoiceForInvoiceInfos
     ...InvoiceForFinalizeInvoice
     ...InvoiceForUpdateInvoicePaymentStatus
+    ...InvoiceForDeleteInvoice
   }
 
   fragment FeeAppliedTaxesForInvoiceDetails on Fee {
@@ -295,6 +297,7 @@ gql`
   ${AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc}
   ${InvoiceForFinalizeInvoiceFragmentDoc}
   ${InvoiceForUpdateInvoicePaymentStatusFragmentDoc}
+  ${InvoiceForDeleteInvoiceFragmentDoc}
   ${NetsuiteIntegrationInfosForInvoiceOverviewFragmentDoc}
   ${HubspotIntegrationInfosForInvoiceOverviewFragmentDoc}
   ${SalesforceIntegrationInfosForInvoiceOverviewFragmentDoc}
@@ -956,7 +959,9 @@ const CustomerInvoiceDetails = () => {
           label: translate('text_17848001862070vhaaoyut3y'),
           hidden: !authorizations.canDelete,
           onClick: (closePopper: () => void) => {
-            openDeleteInvoiceDialog(data?.invoice, goToPreviousRoute)
+            if (data?.invoice) {
+              openDeleteInvoiceDialog(data.invoice, goToPreviousRoute)
+            }
             closePopper()
           },
         },

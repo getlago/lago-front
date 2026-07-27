@@ -135,22 +135,4 @@ describe('useDeleteInvoiceDialog', () => {
       expect(callback).not.toHaveBeenCalled()
     })
   })
-
-  it('falls back to an empty id when no invoice is passed', async () => {
-    mockDeleteInvoice.mockResolvedValueOnce(successResult)
-
-    const { result } = renderHook(() => useDeleteInvoiceDialog(), { wrapper })
-
-    act(() => {
-      result.current.openDeleteInvoiceDialog(null)
-    })
-
-    await act(async () => {
-      await mockDialogOpen.mock.calls[0][0].onAction()
-    })
-
-    expect(mockDeleteInvoice).toHaveBeenCalledWith({
-      variables: { input: { id: '' } },
-    })
-  })
 })

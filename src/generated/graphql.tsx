@@ -11759,6 +11759,8 @@ export type GetInvoiceMetadataForEditionQueryVariables = Exact<{
 
 export type GetInvoiceMetadataForEditionQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, metadata?: Array<{ __typename?: 'InvoiceMetadata', id: string, key: string, value: string }> | null } | null };
 
+export type InvoiceForDeleteInvoiceFragment = { __typename?: 'Invoice', id: string };
+
 export type DeleteInvoiceMutationVariables = Exact<{
   input: DeleteInvoiceInput;
 }>;
@@ -16358,6 +16360,11 @@ export const InvoiceForResendInvoiceForCollectionDialogFragmentDoc = gql`
   }
 }
     `;
+export const InvoiceForDeleteInvoiceFragmentDoc = gql`
+    fragment InvoiceForDeleteInvoice on Invoice {
+  id
+}
+    `;
 export const InvoiceListItemFragmentDoc = gql`
     fragment InvoiceListItem on Invoice {
   id
@@ -16408,10 +16415,12 @@ export const InvoiceListItemFragmentDoc = gql`
   ...InvoiceForFinalizeInvoice
   ...InvoiceForUpdateInvoicePaymentStatus
   ...InvoiceForResendInvoiceForCollectionDialog
+  ...InvoiceForDeleteInvoice
 }
     ${InvoiceForFinalizeInvoiceFragmentDoc}
 ${InvoiceForUpdateInvoicePaymentStatusFragmentDoc}
-${InvoiceForResendInvoiceForCollectionDialogFragmentDoc}`;
+${InvoiceForResendInvoiceForCollectionDialogFragmentDoc}
+${InvoiceForDeleteInvoiceFragmentDoc}`;
 export const InvoiceForInvoiceListFragmentDoc = gql`
     fragment InvoiceForInvoiceList on InvoiceCollection {
   collection {
@@ -20018,12 +20027,14 @@ export const AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc = gql`
   ...InvoiceForInvoiceInfos
   ...InvoiceForFinalizeInvoice
   ...InvoiceForUpdateInvoicePaymentStatus
+  ...InvoiceForDeleteInvoice
 }
     ${InvoiceDetailsForInvoiceOverviewFragmentDoc}
 ${InvoiceForDetailsTableFragmentDoc}
 ${InvoiceForInvoiceInfosFragmentDoc}
 ${InvoiceForFinalizeInvoiceFragmentDoc}
-${InvoiceForUpdateInvoicePaymentStatusFragmentDoc}`;
+${InvoiceForUpdateInvoicePaymentStatusFragmentDoc}
+${InvoiceForDeleteInvoiceFragmentDoc}`;
 export const FeeAppliedTaxesForInvoiceDetailsFragmentDoc = gql`
     fragment FeeAppliedTaxesForInvoiceDetails on Fee {
   appliedTaxes {
