@@ -228,6 +228,44 @@ describe('RecurringRuleDrawer', () => {
 
         expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ lagoId: 'rule-lago-id' }))
       })
+
+      it('THEN should preserve every seeded value verbatim — nulls must not fall back to defaults', async () => {
+        const { ref, onSave } = renderDrawer()
+
+        // API-hydrated shape: startedAt null (recurrence anchored to the
+        // wallet's createdAt — resurrecting the now() default would silently
+        // move the anchor, cf. ING-489), interval null (threshold rule),
+        // metadata and name persisted.
+        const seeded = {
+          ...DEFAULT_RULES,
+          lagoId: 'rule-lago-id',
+          thresholdCredits: '100',
+          paidCredits: '50',
+          startedAt: null,
+          interval: null,
+          expirationAt: null,
+          transactionName: 'My rule',
+          transactionMetadata: [{ key: 'k1', value: 'v1' }],
+          ignorePaidTopUpLimits: true,
+        }
+
+        const opened = openAndMount(ref, seeded)
+
+        await act(async () => {
+          await opened.form.submit()
+        })
+
+        expect(onSave).toHaveBeenCalledWith(
+          expect.objectContaining({
+            startedAt: null,
+            interval: null,
+            expirationAt: null,
+            transactionName: 'My rule',
+            transactionMetadata: [{ key: 'k1', value: 'v1' }],
+            ignorePaidTopUpLimits: true,
+          }),
+        )
+      })
     })
   })
 
