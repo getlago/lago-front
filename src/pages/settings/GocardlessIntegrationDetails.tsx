@@ -116,7 +116,7 @@ const GocardlessIntegrationDetails = () => {
             }),
           },
           {
-            label: translate('text_67db6a10cb0b8031ca538909'),
+            label: translate('text_634ea0ecc6147de10ddb6648'),
             path: generatePath(GOCARDLESS_INTEGRATION_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
             }),
