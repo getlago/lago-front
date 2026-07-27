@@ -118,6 +118,62 @@ describe('useDiscountDrawer', () => {
     expect(result.current).toHaveProperty('syncDiscountBlocks')
   })
 
+  it('hydrates entities when billingItems arrives late (cold-cache load)', () => {
+    // Cold cache: billingItems is undefined on first render while the quote query
+    // loads, then arrives once it resolves. EditQuote is not remounted, so the hook
+    // must rehydrate its refs/entities from the late billingItems.
+    const savedBillingItems: BillingItemsPayload = {
+      addOns: [],
+      coupons: [
+        {
+          type: 'coupon',
+          id: 'cpn_edit',
+          localId: 'saved-local',
+          payload: {
+            position: 1,
+            code: 'EDIT',
+            id: 'cpn_edit',
+            name: 'Edit Coupon',
+            type: 'fixed_amount',
+            amountCents: 5000,
+            percentageRate: null,
+            currency: CurrencyEnum.Usd,
+            frequency: 'forever',
+            frequencyDuration: null,
+            expirationAt: null,
+            limitedPlans: false,
+            planCodes: [],
+            limitedBillableMetrics: false,
+            billableMetricCodes: [],
+            couponOverrides: null,
+            catalogSnapshot: null,
+            resolvedPayload: null,
+          },
+          overrides: {
+            amountCents: 5000,
+            percentageRate: null,
+            frequency: 'forever',
+            frequencyDuration: null,
+          },
+        },
+      ],
+    }
+
+    const { result, rerender } = renderHook(
+      ({ bi }: { bi: BillingItemsPayload | undefined }) => useDiscountDrawer(bi, options),
+      { initialProps: { bi: undefined as BillingItemsPayload | undefined } },
+    )
+
+    // First render (query still loading): nothing to hydrate.
+    expect(result.current.entities).toEqual({})
+
+    // billingItems resolves → entities rehydrate from the saved coupon.
+    rerender({ bi: savedBillingItems })
+
+    expect(result.current.entities).toHaveProperty('saved-local')
+    expect(result.current.entities['saved-local'].entityType).toBe('coupon')
+  })
+
   it('opens the drawer when onDiscountCommand is called', () => {
     const { result } = renderHook(() => useDiscountDrawer(undefined, options))
 
