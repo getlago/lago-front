@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { revalidateLogic } from '@tanstack/react-form'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { z } from 'zod'
 
 import { Button } from '~/components/designSystem/Button'
@@ -351,6 +351,25 @@ export const useDiscountDrawer = (
   // Ref bridge: a single stable onSubmit reads the pending save target set right
   // before drawer.open, instead of mutating form.options.onSubmit per open.
   const pendingSaveRef = useRef<PendingSave | null>(null)
+
+  // Hydration: the refs above init once, but `billingItems` is undefined on the
+  // first render when the quote query is still loading (cold cache). Re-run
+  // `fromCoupons` when it arrives so saved coupon blocks resolve to preview data
+  // and edit opens the persisted coupon (not a blank form). Idempotent post-save:
+  // committed `billingItems` reproduces the same items — the in-progress edit lives
+  // in TanStack form state (populated by `form.reset` in `onDiscountCommand`), and
+  // `itemsRef`/`originalPayloadsRef` only commit after a successful save, so this
+  // never clobbers an active edit. Mirrors useCreditsDrawer / useSubscriptionPricingDrawer.
+  useEffect(() => {
+    if (!billingItems?.coupons) return
+
+    const result = fromCoupons(billingItems.coupons)
+
+    itemsRef.current = Object.fromEntries(result.discountItems.map((i) => [i.localId, i]))
+    originalPayloadsRef.current = result.originalPayloads
+    entitiesRef.current = result.entities
+    setEntities(result.entities)
+  }, [billingItems])
 
   const rebuild = useCallback((): BillingItemsPayload => {
     const items = Object.values(itemsRef.current)
