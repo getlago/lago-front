@@ -63,20 +63,22 @@ const CreateInvoiceCustomSection = () => {
       onAction: () => navigate(INVOICE_SETTINGS_ROUTE),
     })
 
+  const defaultValues: CreateCustomSectionValues = {
+    name: invoiceCustomSection?.name || '',
+    code: invoiceCustomSection?.code || '',
+    description: invoiceCustomSection?.description || '',
+    displayName: invoiceCustomSection?.displayName || '',
+    details: invoiceCustomSection?.details || '',
+  }
+
   const form = useAppForm({
-    defaultValues: {
-      name: invoiceCustomSection?.name || '',
-      code: invoiceCustomSection?.code || '',
-      description: invoiceCustomSection?.description || '',
-      displayName: invoiceCustomSection?.displayName || '',
-      details: invoiceCustomSection?.details || '',
-    } as CreateCustomSectionValues,
+    defaultValues,
     validationLogic: revalidateLogic(),
     validators: {
       onDynamic: createCustomSectionValidationSchema,
     },
     onSubmit: async ({ value }) => {
-      onSave(value)
+      await onSave(value)
     },
   })
 

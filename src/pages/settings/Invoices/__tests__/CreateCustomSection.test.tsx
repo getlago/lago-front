@@ -1,6 +1,7 @@
 import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { InvoiceCustomSectionFormFragment } from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import CreateInvoiceCustomSection, {
@@ -26,7 +27,7 @@ const mockScrollToTop = jest.fn()
 
 let mockLoading = false
 let mockIsEdition = false
-let mockInvoiceCustomSection: Record<string, unknown> | undefined = undefined
+let mockInvoiceCustomSection: InvoiceCustomSectionFormFragment | undefined = undefined
 let mockErrorCode: string | undefined = undefined
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
