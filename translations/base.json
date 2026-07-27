@@ -4497,8 +4497,6 @@
   "text_1784552920237g89fvc8lki5": "Paid credits",
   "text_1784552920237jisdtu6bwqy": "This quote includes {{freeCredits}} free credits",
   "text_1784888105056o78z8t3kjrg": "Payments apps and settings",
-  "text_17848881050572bq1s5uguni": "Define how the {{object}} is paid.",
-  "text_17848881050570gm2uu5e7sz": "Define how invoices are generated for this {{object}}.",
   "text_1780562979519nd49yg82e20": "AI Billing Assistant",
   "text_17805629795197990fik8a0f": "AI Finance Assistant",
   "text_1780562979519a6i8bacevvs": "Need insights on your financial data?",
@@ -4522,5 +4520,13 @@
   "text_1783590769660p6nhcqws986": "Lago AI",
   "text_1785143466690l5iq4bovlq2": "This rule contains errors",
   "text_178515906443966dwzkfejqu": "Enter at least one of the two amounts",
-  "text_1785163793184lh4wkomad6h": "Rule settings"
+  "text_1785163793184lh4wkomad6h": "Rule settings",
+  "text_1785164421080j4ohbewttiq": "Define how invoices are generated for this one-off invoice.",
+  "text_17851644210801zgw4bfuqv5": "Define how the one-off invoice is paid.",
+  "text_1785164421080mvdaqb17yzp": "Define how the wallet invoices are generated.",
+  "text_1785164421080e3ku2v2stj6": "Define how the wallet invoices are paid.",
+  "text_17851644210806680b9rdlpa": "Define how the wallet recurring rule invoices are generated.",
+  "text_1785164421080tk7v5844l7t": "Define how the wallet recurring rule invoices are paid.",
+  "text_17851644210809yu9jgh0zsr": "Define how invoices are generated for this wallet transaction top-up.",
+  "text_1785164421080k7xsvr02s6q": "Define how the wallet transaction top-up is paid."
 }

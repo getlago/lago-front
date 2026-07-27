@@ -18,7 +18,11 @@ import { InvoicingSettingsSelector } from '~/components/invoicingSettings/Invoic
 import { PaymentSettingsSelector } from '~/components/paymentSettings/PaymentSettingsSelector'
 import { PO } from '~/components/purchaseOrder/PO'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
-import { VIEW_TYPE_TRANSLATION_KEYS, ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
+import {
+  VIEW_TYPE_INVOICING_CAPTION_KEYS,
+  VIEW_TYPE_PAYMENT_CAPTION_KEYS,
+  ViewTypeEnum,
+} from '~/core/constants/billingObjectViewTypes'
 import {
   appliedTaxEnumedTaxCodeTranslationKey,
   LocalTaxProviderErrorsEnum,
@@ -846,9 +850,7 @@ const CreateInvoice = () => {
                       {translate('text_17423672025282dl7iozy1ru')}
                     </Typography>
                     <Typography variant="caption">
-                      {translate('text_17848881050570gm2uu5e7sz', {
-                        object: translate(VIEW_TYPE_TRANSLATION_KEYS[ViewTypeEnum.OneOffInvoice]),
-                      })}
+                      {translate(VIEW_TYPE_INVOICING_CAPTION_KEYS[ViewTypeEnum.OneOffInvoice])}
                     </Typography>
                   </div>
                   <InvoicingSettingsSelector
@@ -867,9 +869,7 @@ const CreateInvoice = () => {
                       {translate('text_1784888105056o78z8t3kjrg')}
                     </Typography>
                     <Typography variant="caption">
-                      {translate('text_17848881050572bq1s5uguni', {
-                        object: translate(VIEW_TYPE_TRANSLATION_KEYS[ViewTypeEnum.OneOffInvoice]),
-                      })}
+                      {translate(VIEW_TYPE_PAYMENT_CAPTION_KEYS[ViewTypeEnum.OneOffInvoice])}
                     </Typography>
                   </div>
                   <PaymentSettingsSelector

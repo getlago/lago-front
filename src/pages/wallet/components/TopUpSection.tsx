@@ -8,7 +8,11 @@ import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDial
 import { InvoicingSettingsSelector } from '~/components/invoicingSettings/InvoicingSettingsSelector'
 import { PaymentSettingsSelector } from '~/components/paymentSettings/PaymentSettingsSelector'
 import { ADD_RECURRING_RULE_BUTTON_DATA_TEST } from '~/components/wallets/utils/dataTestConstants'
-import { VIEW_TYPE_TRANSLATION_KEYS, ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
+import {
+  VIEW_TYPE_INVOICING_CAPTION_KEYS,
+  VIEW_TYPE_PAYMENT_CAPTION_KEYS,
+  ViewTypeEnum,
+} from '~/core/constants/billingObjectViewTypes'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { GetCustomerInfosForWalletFormQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -180,9 +184,7 @@ export const TopUpSection = withForm({
                 {translate('text_17423672025282dl7iozy1ru')}
               </Typography>
               <Typography variant="caption">
-                {translate('text_17848881050570gm2uu5e7sz', {
-                  object: translate(VIEW_TYPE_TRANSLATION_KEYS[ViewTypeEnum.WalletTopUp]),
-                })}
+                {translate(VIEW_TYPE_INVOICING_CAPTION_KEYS[ViewTypeEnum.WalletTopUp])}
               </Typography>
             </div>
             <InvoicingSettingsSelector
@@ -201,9 +203,7 @@ export const TopUpSection = withForm({
                 {translate('text_1784888105056o78z8t3kjrg')}
               </Typography>
               <Typography variant="caption">
-                {translate('text_17848881050572bq1s5uguni', {
-                  object: translate(VIEW_TYPE_TRANSLATION_KEYS[ViewTypeEnum.WalletTopUp]),
-                })}
+                {translate(VIEW_TYPE_PAYMENT_CAPTION_KEYS[ViewTypeEnum.WalletTopUp])}
               </Typography>
             </div>
             <PaymentSettingsSelector

@@ -21,7 +21,11 @@ import {
   RECURRING_TOPUP_TYPE_DATA_TEST,
   SHOW_RECURRING_EXPIRATION_AT_DATA_TEST,
 } from '~/components/wallets/utils/dataTestConstants'
-import { VIEW_TYPE_TRANSLATION_KEYS, ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
+import {
+  VIEW_TYPE_INVOICING_CAPTION_KEYS,
+  VIEW_TYPE_PAYMENT_CAPTION_KEYS,
+  ViewTypeEnum,
+} from '~/core/constants/billingObjectViewTypes'
 import { dateErrorCodes, getIntervalTranslationKey } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { intlFormatDateTime } from '~/core/timezone'
@@ -489,9 +493,9 @@ const RecurringRuleDrawerContent = withForm({
             <CenteredPage.PageSection>
               <CenteredPage.PageSectionTitle
                 title={translate('text_17423672025282dl7iozy1ru')}
-                description={translate('text_17848881050570gm2uu5e7sz', {
-                  object: translate(VIEW_TYPE_TRANSLATION_KEYS[ViewTypeEnum.WalletRecurringTopUp]),
-                })}
+                description={translate(
+                  VIEW_TYPE_INVOICING_CAPTION_KEYS[ViewTypeEnum.WalletRecurringTopUp],
+                )}
               />
               <InvoicingSettingsSelector
                 viewType={ViewTypeEnum.WalletRecurringTopUp}
@@ -507,9 +511,9 @@ const RecurringRuleDrawerContent = withForm({
             <CenteredPage.PageSection>
               <CenteredPage.PageSectionTitle
                 title={translate('text_1784888105056o78z8t3kjrg')}
-                description={translate('text_17848881050572bq1s5uguni', {
-                  object: translate(VIEW_TYPE_TRANSLATION_KEYS[ViewTypeEnum.WalletRecurringTopUp]),
-                })}
+                description={translate(
+                  VIEW_TYPE_PAYMENT_CAPTION_KEYS[ViewTypeEnum.WalletRecurringTopUp],
+                )}
               />
               <PaymentSettingsSelector
                 viewType={ViewTypeEnum.WalletRecurringTopUp}

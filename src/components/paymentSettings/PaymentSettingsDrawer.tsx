@@ -7,7 +7,10 @@ import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PaymentMethodFields } from '~/components/paymentMethodSelection/PaymentMethodFields'
 import { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types'
-import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
+import {
+  VIEW_TYPE_PAYMENT_CAPTION_KEYS,
+  ViewTypeEnum,
+} from '~/core/constants/billingObjectViewTypes'
 import { PaymentMethodTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm, withForm } from '~/hooks/forms/useAppform'
@@ -58,7 +61,7 @@ const PaymentSettingsDrawerContent = withForm({
       <CenteredPage.SectionWrapper>
         <CenteredPage.PageTitle
           title={translate('text_17828013737948943pe3k8nc')}
-          description={translate('text_17828013737955532qxu3wq4')}
+          description={translate(VIEW_TYPE_PAYMENT_CAPTION_KEYS[viewType])}
         />
 
         <CenteredPage.PageSection>

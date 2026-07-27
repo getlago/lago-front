@@ -20,7 +20,11 @@ import {
   SUBMIT_WALLET_DATA_TEST,
 } from '~/components/wallets/utils/dataTestConstants'
 import { addToast } from '~/core/apolloClient'
-import { VIEW_TYPE_TRANSLATION_KEYS, ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
+import {
+  VIEW_TYPE_INVOICING_CAPTION_KEYS,
+  VIEW_TYPE_PAYMENT_CAPTION_KEYS,
+  ViewTypeEnum,
+} from '~/core/constants/billingObjectViewTypes'
 import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_DETAILS_TAB_ROUTE, useNavigate, WALLET_DETAILS_ROUTE } from '~/core/router'
@@ -541,11 +545,9 @@ const CreateWalletTopUp = () => {
                     {translate('text_17423672025282dl7iozy1ru')}
                   </Typography>
                   <Typography variant="caption">
-                    {translate('text_17848881050570gm2uu5e7sz', {
-                      object: translate(
-                        VIEW_TYPE_TRANSLATION_KEYS[ViewTypeEnum.WalletTransactionTopUp],
-                      ),
-                    })}
+                    {translate(
+                      VIEW_TYPE_INVOICING_CAPTION_KEYS[ViewTypeEnum.WalletTransactionTopUp],
+                    )}
                   </Typography>
                 </div>
                 <InvoicingSettingsSelector
@@ -564,11 +566,7 @@ const CreateWalletTopUp = () => {
                     {translate('text_1784888105056o78z8t3kjrg')}
                   </Typography>
                   <Typography variant="caption">
-                    {translate('text_17848881050572bq1s5uguni', {
-                      object: translate(
-                        VIEW_TYPE_TRANSLATION_KEYS[ViewTypeEnum.WalletTransactionTopUp],
-                      ),
-                    })}
+                    {translate(VIEW_TYPE_PAYMENT_CAPTION_KEYS[ViewTypeEnum.WalletTransactionTopUp])}
                   </Typography>
                 </div>
                 <PaymentSettingsSelector
