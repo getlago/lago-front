@@ -247,6 +247,65 @@ describe('TopUpSection', () => {
         })
         expect(formValuesProbe.current?.recurringTransactionRules).toEqual([savedRule])
       })
+
+      it('THEN should produce a real array, not an index-keyed object', async () => {
+        const user = userEvent.setup()
+
+        render(<TestWrapper />)
+
+        await user.click(screen.getByTestId(ADD_RECURRING_RULE_BUTTON_DATA_TEST))
+
+        act(() => {
+          capturedDrawerProps.current?.onSave?.(DEFAULT_RULES as TWalletRecurringRule)
+        })
+
+        await waitFor(() => {
+          expect(Array.isArray(formValuesProbe.current?.recurringTransactionRules)).toBe(true)
+        })
+        expect(formValuesProbe.current?.recurringTransactionRules).toHaveLength(1)
+      })
+    })
+
+    describe('WHEN the drawer saves while the wallet holds several rules', () => {
+      // The UI only ever edits rule 0, but a wallet can hold more through the
+      // API and the backend terminates every rule missing from the payload —
+      // so the tail has to survive the save.
+      it('THEN should replace only the first rule and keep the others untouched', async () => {
+        const secondRule = {
+          ...DEFAULT_RULES,
+          lagoId: 'rule-2',
+          thresholdCredits: '999',
+        } as TWalletRecurringRule
+
+        render(
+          <TestWrapper
+            initiallyEnabled
+            defaultsOverride={{
+              recurringTransactionRules: [
+                { ...DEFAULT_RULES, lagoId: 'rule-1' },
+                secondRule,
+              ] as TWalletDataForm['recurringTransactionRules'],
+            }}
+          />,
+        )
+
+        const savedRule = {
+          ...DEFAULT_RULES,
+          lagoId: 'rule-1',
+          thresholdCredits: '100',
+        } as TWalletRecurringRule
+
+        act(() => {
+          capturedDrawerProps.current?.onSave?.(savedRule)
+        })
+
+        await waitFor(() => {
+          expect(formValuesProbe.current?.recurringTransactionRules).toEqual([
+            savedRule,
+            secondRule,
+          ])
+        })
+      })
     })
   })
 

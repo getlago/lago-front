@@ -78,10 +78,16 @@ export const TopUpSection = withForm({
       walletCreatedAt,
       walletValues,
       onSave: (rule) => {
-        // Set the WHOLE array: a bracket-index set on an undefined base
-        // would create a plain object ({0: ...}) instead of an array
-        // and break validation.
-        form.setFieldValue('recurringTransactionRules', [rule])
+        // Rebuild the WHOLE array rather than setting an index: a bracket-index
+        // set on an undefined base would create a plain object ({0: ...})
+        // instead of an array and break validation.
+        // Only element 0 is editable here (the UI is single-rule), so the tail
+        // must be carried over: a wallet can hold several rules through the API
+        // and the backend deletes every rule missing from the payload.
+        form.setFieldValue('recurringTransactionRules', (previousRules) => [
+          rule,
+          ...(previousRules ?? []).slice(1),
+        ])
         setIsRecurringTopUpEnabled(true)
       },
     })
