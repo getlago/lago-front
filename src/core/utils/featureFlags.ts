@@ -1,5 +1,6 @@
 export enum FeatureFlags {
   SUPERSET_PERSISTENT_FILTERS = 'superset_persistent_filters',
+  AI_FINANCE_ASSISTANT = 'ai_finance_assistant',
 }
 
 const FF_KEY = 'featureFlags'
