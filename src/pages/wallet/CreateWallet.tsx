@@ -255,8 +255,9 @@ const CreateWallet = () => {
     },
     onSubmit: async ({ value, formApi }) => {
       // Both mutations silence UnprocessableEntity: a duplicate code
-      // (ValueAlreadyExist) is mapped back onto the code field, any other
-      // failure surfaces via toast only and simply aborts the navigation.
+      // (ValueAlreadyExist) is mapped back onto the code field; any other
+      // 422 would otherwise die silently, so surface a generic toast and
+      // abort the navigation.
       const { errors } =
         formType === FORM_TYPE_ENUM.edition
           ? await updateWallet({
@@ -272,7 +273,11 @@ const CreateWallet = () => {
 
           formApi.setErrorMap({ onDynamic: { fields: codeError } })
           scrollToFirstInputError('create-wallet', codeError)
+
+          return
         }
+
+        addToast({ severity: 'danger', translateKey: 'text_622f7a3dc32ce100c46a5154' })
 
         return
       }

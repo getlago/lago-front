@@ -8,7 +8,7 @@ import {
   RecurringTransactionTriggerEnum,
 } from '~/generated/graphql'
 import { topUpAmountError, walletFormErrorCodes } from '~/pages/wallet/form'
-import { TWalletDataForm } from '~/pages/wallet/types'
+import { TWalletDataForm, TWalletRecurringRule } from '~/pages/wallet/types'
 
 /**
  * Zod re-map of the legacy Yup `walletFormSchema` (removed — see git history
@@ -60,6 +60,189 @@ const addExpirationIssue = (
     ctx.addIssue({ code: 'custom', message: dateErrorCodes.shouldBeInFuture, path })
   }
 }
+
+/** Wallet-level values the rule checks depend on (bounds fed as context). */
+export interface RecurringRuleBoundsCtx {
+  rateAmount: TWalletDataForm['rateAmount']
+  paidTopUpMinAmountCents?: TWalletDataForm['paidTopUpMinAmountCents']
+  paidTopUpMaxAmountCents?: TWalletDataForm['paidTopUpMaxAmountCents']
+  currency?: TWalletDataForm['currency']
+}
+
+/**
+ * Shared rule checks: the wallet form's superRefine runs them per array item
+ * (paths under recurringTransactionRules[index]) while the rule drawer's own
+ * schema runs them on its flat rule form (paths at the root). Single source
+ * so both surfaces can never drift.
+ */
+const addRecurringRuleIssues = (
+  rule: TWalletRecurringRule,
+  bounds: RecurringRuleBoundsCtx,
+  ctx: z.RefinementCtx,
+  rulePath: (field: string) => (string | number)[],
+) => {
+  const {
+    trigger,
+    method,
+    interval,
+    thresholdCredits,
+    targetOngoingBalance,
+    startedAt,
+    paidCredits: rulePaidCredits,
+    grantedCredits: ruleGrantedCredits,
+    ignorePaidTopUpLimits,
+  } = rule
+
+  // trigger + method are required
+  if (!trigger) {
+    ctx.addIssue({
+      code: 'custom',
+      message: 'text_1771342994699klxu2paz7g8',
+      path: rulePath('trigger'),
+    })
+  }
+  if (!method) {
+    ctx.addIssue({
+      code: 'custom',
+      message: 'text_1771342994699klxu2paz7g8',
+      path: rulePath('method'),
+    })
+  }
+
+  // interval — required unless trigger is set to something else than Interval
+  if ((!trigger || trigger === RecurringTransactionTriggerEnum.Interval) && !interval) {
+    ctx.addIssue({
+      code: 'custom',
+      message: 'text_1771342994699klxu2paz7g8',
+      path: rulePath('interval'),
+    })
+  }
+
+  // thresholdCredits — required unless trigger is set to something else
+  // than Threshold + must be < targetOngoingBalance when method=Target
+  if (!trigger || trigger === RecurringTransactionTriggerEnum.Threshold) {
+    if (
+      !!thresholdCredits &&
+      method === RecurringTransactionMethodEnum.Target &&
+      !!targetOngoingBalance &&
+      Number(targetOngoingBalance) < Number(thresholdCredits)
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        message: walletFormErrorCodes.thresholdShouldBeLessThanTargetOngoingBalance,
+        path: rulePath('thresholdCredits'),
+      })
+    } else if (!thresholdCredits) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'text_1771342994699klxu2paz7g8',
+        path: rulePath('thresholdCredits'),
+      })
+    }
+  }
+
+  // rule paidCredits — bounds run against the WALLET-LEVEL values
+  // (min/max/rate/currency), skip flag is the PER-RULE ignorePaidTopUpLimits
+  const ruleBoundsError = topUpAmountError({
+    skip: !!ignorePaidTopUpLimits,
+    paidCredits: (rulePaidCredits ?? undefined) as string | undefined,
+    rateAmount: bounds.rateAmount,
+    paidTopUpMinAmountCents: (prepared(bounds.paidTopUpMinAmountCents) ?? undefined) as
+      string | undefined,
+    paidTopUpMaxAmountCents: (prepared(bounds.paidTopUpMaxAmountCents) ?? undefined) as
+      string | undefined,
+    currency: bounds.currency,
+  })?.error
+
+  // method=Fixed → at least one of paidCredits/grantedCredits must be set.
+  // Empty strings count as MISSING (old runtime: '' → undefined → NaN),
+  // which is what blocked the submit with both credits left empty.
+  const missingBothCredits =
+    (!method || method === RecurringTransactionMethodEnum.Fixed) &&
+    isNaN(Number(prepared(rulePaidCredits))) &&
+    isNaN(Number(prepared(ruleGrantedCredits)))
+
+  if (ruleBoundsError) {
+    ctx.addIssue({ code: 'custom', message: '', path: rulePath('paidCredits') })
+  } else if (missingBothCredits) {
+    ctx.addIssue({ code: 'custom', message: '', path: rulePath('paidCredits') })
+  }
+
+  // grantedCredits — same "at least one" rule for method=Fixed
+  if (missingBothCredits) {
+    ctx.addIssue({ code: 'custom', message: '', path: rulePath('grantedCredits') })
+  }
+
+  // targetOngoingBalance — required when method=Target + must be
+  // > thresholdCredits when trigger=Threshold
+  if (!method || method === RecurringTransactionMethodEnum.Target) {
+    if (!targetOngoingBalance && method === RecurringTransactionMethodEnum.Target) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'text_1771342994699klxu2paz7g8',
+        path: rulePath('targetOngoingBalance'),
+      })
+    } else if (
+      !!thresholdCredits &&
+      trigger === RecurringTransactionTriggerEnum.Threshold &&
+      !!targetOngoingBalance &&
+      Number(targetOngoingBalance) < Number(thresholdCredits)
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        message: walletFormErrorCodes.targetOngoingBalanceShouldBeGreaterThanThreshold,
+        path: rulePath('targetOngoingBalance'),
+      })
+    } else if (isNaN(Number(targetOngoingBalance))) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'text_1771342994699klxu2paz7g8',
+        path: rulePath('targetOngoingBalance'),
+      })
+    }
+  }
+
+  // startedAt — ISO-format-only when trigger=Interval (NOT required, NOT future-checked)
+  if (
+    (!trigger || trigger === RecurringTransactionTriggerEnum.Interval) &&
+    !!startedAt &&
+    !DateTime.fromISO(startedAt).isValid
+  ) {
+    ctx.addIssue({
+      code: 'custom',
+      message: dateErrorCodes.wrongFormat,
+      path: rulePath('startedAt'),
+    })
+  }
+
+  // rule expirationAt — valid ISO + in the future (unlike startedAt)
+  addExpirationIssue(ctx, rule.expirationAt, rulePath('expirationAt'))
+
+  // transactionMetadata — key unique & <= 20 chars, value <= 100 chars
+  if (rule.transactionMetadata?.length) {
+    const metadataResult = zodMetadataSchema().safeParse(rule.transactionMetadata)
+
+    if (!metadataResult.success) {
+      metadataResult.error.issues.forEach((issue) => {
+        ctx.addIssue({
+          code: 'custom',
+          message: issue.message,
+          path: [...rulePath('transactionMetadata'), ...issue.path],
+        })
+      })
+    }
+  }
+}
+
+/**
+ * Standalone schema for the recurring-rule drawer form (flat rule paths).
+ * Wallet-level bounds are frozen at drawer-open time — the drawer is modal,
+ * so they cannot change during the editing session.
+ */
+export const recurringRuleValidationSchema = (bounds: RecurringRuleBoundsCtx) =>
+  z
+    .custom<TWalletRecurringRule>()
+    .superRefine((rule, ctx) => addRecurringRuleIssues(rule, bounds, ctx, (field) => [field]))
 
 export const walletFormValidationSchema = z.custom<TWalletDataForm>().superRefine((data, ctx) => {
   const {
@@ -142,159 +325,12 @@ export const walletFormValidationSchema = z.custom<TWalletDataForm>().superRefin
   // crash .forEach.
   const rules = Array.isArray(data.recurringTransactionRules) ? data.recurringTransactionRules : []
 
-  rules.forEach((rule, index) => {
-    const rulePath = (field: string) => ['recurringTransactionRules', index, field]
-    const {
-      trigger,
-      method,
-      interval,
-      thresholdCredits,
-      targetOngoingBalance,
-      startedAt,
-      paidCredits: rulePaidCredits,
-      grantedCredits: ruleGrantedCredits,
-      ignorePaidTopUpLimits,
-    } = rule
-
-    // trigger + method are required
-    if (!trigger) {
-      ctx.addIssue({
-        code: 'custom',
-        message: 'text_1771342994699klxu2paz7g8',
-        path: rulePath('trigger'),
-      })
-    }
-    if (!method) {
-      ctx.addIssue({
-        code: 'custom',
-        message: 'text_1771342994699klxu2paz7g8',
-        path: rulePath('method'),
-      })
-    }
-
-    // interval — required unless trigger is set to something else than Interval
-    if ((!trigger || trigger === RecurringTransactionTriggerEnum.Interval) && !interval) {
-      ctx.addIssue({
-        code: 'custom',
-        message: 'text_1771342994699klxu2paz7g8',
-        path: rulePath('interval'),
-      })
-    }
-
-    // thresholdCredits — required unless trigger is set to something else
-    // than Threshold + must be < targetOngoingBalance when method=Target
-    if (!trigger || trigger === RecurringTransactionTriggerEnum.Threshold) {
-      if (
-        !!thresholdCredits &&
-        method === RecurringTransactionMethodEnum.Target &&
-        !!targetOngoingBalance &&
-        Number(targetOngoingBalance) < Number(thresholdCredits)
-      ) {
-        ctx.addIssue({
-          code: 'custom',
-          message: walletFormErrorCodes.thresholdShouldBeLessThanTargetOngoingBalance,
-          path: rulePath('thresholdCredits'),
-        })
-      } else if (!thresholdCredits) {
-        ctx.addIssue({
-          code: 'custom',
-          message: 'text_1771342994699klxu2paz7g8',
-          path: rulePath('thresholdCredits'),
-        })
-      }
-    }
-
-    // rule paidCredits — bounds run against the TOP-LEVEL wallet values
-    // (min/max/rate/currency), skip flag is the PER-RULE ignorePaidTopUpLimits
-    const ruleBoundsError = topUpAmountError({
-      skip: !!ignorePaidTopUpLimits,
-      paidCredits: (rulePaidCredits ?? undefined) as string | undefined,
-      rateAmount,
-      // same '' → absent semantics as the top-level bounds check above
-      paidTopUpMinAmountCents: (prepared(paidTopUpMinAmountCents) ?? undefined) as
-        string | undefined,
-      paidTopUpMaxAmountCents: (prepared(paidTopUpMaxAmountCents) ?? undefined) as
-        string | undefined,
-      currency,
-    })?.error
-
-    // method=Fixed → at least one of paidCredits/grantedCredits must be set.
-    // Empty strings count as MISSING (old runtime: '' → undefined → NaN),
-    // which is what blocked the submit with both credits left empty.
-    const missingBothCredits =
-      (!method || method === RecurringTransactionMethodEnum.Fixed) &&
-      isNaN(Number(prepared(rulePaidCredits))) &&
-      isNaN(Number(prepared(ruleGrantedCredits)))
-
-    if (ruleBoundsError) {
-      ctx.addIssue({ code: 'custom', message: '', path: rulePath('paidCredits') })
-    } else if (missingBothCredits) {
-      ctx.addIssue({ code: 'custom', message: '', path: rulePath('paidCredits') })
-    }
-
-    // grantedCredits — same "at least one" rule for method=Fixed
-    if (missingBothCredits) {
-      ctx.addIssue({ code: 'custom', message: '', path: rulePath('grantedCredits') })
-    }
-
-    // targetOngoingBalance — required when method=Target + must be
-    // > thresholdCredits when trigger=Threshold
-    if (!method || method === RecurringTransactionMethodEnum.Target) {
-      if (!targetOngoingBalance && method === RecurringTransactionMethodEnum.Target) {
-        ctx.addIssue({
-          code: 'custom',
-          message: 'text_1771342994699klxu2paz7g8',
-          path: rulePath('targetOngoingBalance'),
-        })
-      } else if (
-        !!thresholdCredits &&
-        trigger === RecurringTransactionTriggerEnum.Threshold &&
-        !!targetOngoingBalance &&
-        Number(targetOngoingBalance) < Number(thresholdCredits)
-      ) {
-        ctx.addIssue({
-          code: 'custom',
-          message: walletFormErrorCodes.targetOngoingBalanceShouldBeGreaterThanThreshold,
-          path: rulePath('targetOngoingBalance'),
-        })
-      } else if (isNaN(Number(targetOngoingBalance))) {
-        ctx.addIssue({
-          code: 'custom',
-          message: 'text_1771342994699klxu2paz7g8',
-          path: rulePath('targetOngoingBalance'),
-        })
-      }
-    }
-
-    // startedAt — ISO-format-only when trigger=Interval (NOT required, NOT future-checked)
-    if (
-      (!trigger || trigger === RecurringTransactionTriggerEnum.Interval) &&
-      !!startedAt &&
-      !DateTime.fromISO(startedAt).isValid
-    ) {
-      ctx.addIssue({
-        code: 'custom',
-        message: dateErrorCodes.wrongFormat,
-        path: rulePath('startedAt'),
-      })
-    }
-
-    // rule expirationAt — valid ISO + in the future (unlike startedAt)
-    addExpirationIssue(ctx, rule.expirationAt, rulePath('expirationAt'))
-
-    // transactionMetadata — key unique & <= 20 chars, value <= 100 chars
-    if (rule.transactionMetadata?.length) {
-      const metadataResult = zodMetadataSchema().safeParse(rule.transactionMetadata)
-
-      if (!metadataResult.success) {
-        metadataResult.error.issues.forEach((issue) => {
-          ctx.addIssue({
-            code: 'custom',
-            message: issue.message,
-            path: [...rulePath('transactionMetadata'), ...issue.path],
-          })
-        })
-      }
-    }
-  })
+  rules.forEach((rule, index) =>
+    addRecurringRuleIssues(
+      rule,
+      { rateAmount, paidTopUpMinAmountCents, paidTopUpMaxAmountCents, currency },
+      ctx,
+      (field) => ['recurringTransactionRules', index, field],
+    ),
+  )
 })
