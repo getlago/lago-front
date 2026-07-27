@@ -210,7 +210,7 @@ const CreateWalletTopUp = () => {
         notifyOnNetworkStatusChange: true,
       })
 
-      navigateToCustomerWalletTab(wallet.id)
+      navigateToCustomerWalletTab(wallet.id, WalletDetailsTabsOptionsEnum.transactions)
     },
   })
 
@@ -251,13 +251,13 @@ const CreateWalletTopUp = () => {
   )
 
   const navigateToCustomerWalletTab = useCallback(
-    (id?: string) => {
+    (id?: string, tab: WalletDetailsTabsOptionsEnum = WalletDetailsTabsOptionsEnum.overview) => {
       if (id) {
         return navigate(
           generatePath(WALLET_DETAILS_ROUTE, {
             walletId: id,
             customerId: customerId,
-            tab: WalletDetailsTabsOptionsEnum.overview,
+            tab,
           }),
         )
       }
