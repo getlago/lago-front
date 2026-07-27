@@ -1,10 +1,14 @@
 import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { DateTime } from 'luxon'
 import { createRef, ReactNode } from 'react'
 
+import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import {
   ADD_METADATA_DATA_TEST,
+  DELETE_RECURRING_EXPIRATION_AT_DATA_TEST,
   RECURRING_IGNORE_PAID_TOPUP_LIMITS_SWITCH_DATA_TEST,
+  RECURRING_INVOICE_REQUIRES_SUCCESSFUL_PAYMENT_SWITCH_DATA_TEST,
   RECURRING_TOPUP_TYPE_DATA_TEST,
   SHOW_RECURRING_EXPIRATION_AT_DATA_TEST,
 } from '~/components/wallets/utils/dataTestConstants'
@@ -13,6 +17,7 @@ import {
   CurrencyEnum,
   GetCustomerInfosForWalletFormQuery,
   RecurringTransactionMethodEnum,
+  RecurringTransactionTriggerEnum,
 } from '~/generated/graphql'
 import {
   DEFAULT_RULES,
@@ -33,6 +38,13 @@ jest.mock('~/components/drawers/useDrawer', () => ({
 
 jest.mock('~/components/drawers/useFocusTrap', () => ({
   focusFirstInput: jest.fn(),
+}))
+
+// The ComboBox option list is virtualized: @tanstack/react-virtual measures a
+// 0px-tall scroll container in jsdom and renders no option at all, so flatten it.
+jest.mock('~/components/form/ComboBox/ComboBoxVirtualizedList', () => ({
+  GROUP_ITEM_KEY: 'combobox-group-by',
+  ComboBoxVirtualizedList: ({ elements }: { elements: ReactNode[] }) => <>{elements}</>,
 }))
 
 // Capture the nested settings selectors (their drawers stack on their own —
@@ -76,9 +88,36 @@ const walletValues = {
 const queryInput = (name: string) =>
   document.querySelector(`input[name="${name}"]`) as HTMLInputElement
 
+// ButtonSelector tags every option with its own value
+const buttonSelectorOption = (value: boolean) => `button-selector-${value}`
+
+// Clearing widens the list back to every option (a selected ComboBox otherwise
+// filters itself down to the current one) and the chevron adornment is what
+// opens the popup. Each option row carries its enum value as data-test.
+const selectComboBoxOption = async (
+  user: ReturnType<typeof userEvent.setup>,
+  name: string,
+  optionValue: string,
+) => {
+  const input = queryInput(name)
+  const chevron = input.parentElement?.querySelector('[data-test^="chevron-up-down"]') as SVGElement
+
+  await user.clear(input)
+  await user.click(chevron.closest('button') as HTMLButtonElement)
+
+  // Poppers are portalled and a closing one can still linger, so take the row
+  // from the last rendered list.
+  const option = await waitFor(() => screen.getAllByTestId(optionValue).at(-1) as HTMLElement)
+
+  await user.click(option)
+}
+
 type OpenedDrawer = {
   form: { id: string; submit: () => Promise<void> | void }
   children: ReactNode
+  shouldPromptOnClose: () => boolean
+  onClose: () => void
+  onEntered: (container: HTMLElement) => void
 }
 
 describe('RecurringRuleDrawer', () => {
@@ -371,6 +410,280 @@ describe('RecurringRuleDrawer', () => {
         })
 
         expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ paymentMethod: next }))
+      })
+    })
+  })
+
+  describe('GIVEN a Fixed rule with credits already filled', () => {
+    describe('WHEN switching the method to Target and back to Fixed', () => {
+      it('THEN should reset the credit fields to their defaults', async () => {
+        const user = userEvent.setup()
+        const { ref } = renderDrawer()
+
+        openAndMount(ref, { ...DEFAULT_RULES, paidCredits: '50', grantedCredits: '20' })
+
+        await selectComboBoxOption(user, 'method', RecurringTransactionMethodEnum.Target)
+
+        await waitFor(() => {
+          expect(screen.getByTestId(RECURRING_TOPUP_TYPE_DATA_TEST)).toBeInTheDocument()
+        })
+        expect(queryInput('paidCredits')).toBeNull()
+
+        await selectComboBoxOption(user, 'method', RecurringTransactionMethodEnum.Fixed)
+
+        await waitFor(() => {
+          expect(queryInput('paidCredits')).toBeInTheDocument()
+        })
+        expect(queryInput('paidCredits')).toHaveValue('')
+        expect(queryInput('grantedCredits')).toHaveValue('')
+      })
+    })
+  })
+
+  describe('GIVEN a Threshold-triggered rule', () => {
+    describe('WHEN switching the trigger to Interval', () => {
+      it('THEN should mount the interval and start-date fields and drop the threshold', async () => {
+        const user = userEvent.setup()
+        const { ref } = renderDrawer()
+
+        openAndMount(ref, { ...DEFAULT_RULES, thresholdCredits: '100', paidCredits: '50' })
+
+        await selectComboBoxOption(user, 'trigger', RecurringTransactionTriggerEnum.Interval)
+
+        await waitFor(() => {
+          expect(queryInput('interval')).toBeInTheDocument()
+        })
+        expect(queryInput('startedAt')).toBeInTheDocument()
+        expect(queryInput('thresholdCredits')).toBeNull()
+      })
+    })
+  })
+
+  describe('GIVEN an Interval-triggered rule', () => {
+    describe('WHEN switching the trigger to Threshold', () => {
+      it('THEN should mount the threshold field and drop the interval fields', async () => {
+        const user = userEvent.setup()
+        const { ref } = renderDrawer()
+
+        openAndMount(ref, {
+          ...DEFAULT_RULES,
+          trigger: RecurringTransactionTriggerEnum.Interval,
+          paidCredits: '50',
+        })
+
+        await selectComboBoxOption(user, 'trigger', RecurringTransactionTriggerEnum.Threshold)
+
+        await waitFor(() => {
+          expect(queryInput('thresholdCredits')).toBeInTheDocument()
+        })
+        expect(queryInput('interval')).toBeNull()
+        expect(queryInput('startedAt')).toBeNull()
+      })
+    })
+  })
+
+  describe('GIVEN paid credits on a wallet with top-up bounds', () => {
+    describe('WHEN toggling one of the paid-credits switches', () => {
+      it.each([
+        [
+          'ignore-limits',
+          RECURRING_IGNORE_PAID_TOPUP_LIMITS_SWITCH_DATA_TEST,
+          'ignorePaidTopUpLimits',
+        ],
+        [
+          'requires-successful-payment',
+          RECURRING_INVOICE_REQUIRES_SUCCESSFUL_PAYMENT_SWITCH_DATA_TEST,
+          'invoiceRequiresSuccessfulPayment',
+        ],
+      ])('THEN should carry the %s flag into the saved rule', async (_, dataTest, field) => {
+        const user = userEvent.setup()
+        const { ref, onSave } = renderDrawer({
+          values: {
+            ...walletValues,
+            paidTopUpMinAmountCents: '10',
+            paidTopUpMaxAmountCents: '100',
+          } as TWalletDataForm,
+        })
+
+        const opened = openAndMount(ref, {
+          ...DEFAULT_RULES,
+          thresholdCredits: '100',
+          paidCredits: '50',
+        })
+
+        await user.click(screen.getByTestId(dataTest))
+
+        await act(async () => {
+          await opened.form.submit()
+        })
+
+        expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ [field]: true }))
+      })
+    })
+  })
+
+  describe('GIVEN a Target rule with a target balance', () => {
+    describe('WHEN toggling the top-up type and the requires-successful-payment switch', () => {
+      it('THEN should carry both values into the saved rule', async () => {
+        const user = userEvent.setup()
+        const { ref, onSave } = renderDrawer()
+
+        const opened = openAndMount(ref, {
+          ...DEFAULT_RULES,
+          method: RecurringTransactionMethodEnum.Target,
+          targetOngoingBalance: '100',
+          grantsTargetTopUp: false,
+          thresholdCredits: '10',
+        })
+
+        // `true` is the "grants credits" option of the top-up type selector
+        await user.click(screen.getByTestId(buttonSelectorOption(true)))
+        await user.click(
+          screen.getByTestId(RECURRING_INVOICE_REQUIRES_SUCCESSFUL_PAYMENT_SWITCH_DATA_TEST),
+        )
+
+        await act(async () => {
+          await opened.form.submit()
+        })
+
+        expect(onSave).toHaveBeenCalledWith(
+          expect.objectContaining({
+            grantsTargetTopUp: true,
+            invoiceRequiresSuccessfulPayment: true,
+          }),
+        )
+      })
+    })
+
+    describe('WHEN the target balance is below the threshold', () => {
+      it('THEN should flag the target balance as invalid and block the save', async () => {
+        const { ref, onSave } = renderDrawer()
+
+        const opened = openAndMount(ref, {
+          ...DEFAULT_RULES,
+          method: RecurringTransactionMethodEnum.Target,
+          targetOngoingBalance: '100',
+          grantsTargetTopUp: false,
+          thresholdCredits: '200',
+        })
+
+        expect(queryInput('targetOngoingBalance')).toHaveAttribute('aria-invalid', 'false')
+
+        await act(async () => {
+          await opened.form.submit()
+        })
+
+        await waitFor(() => {
+          expect(queryInput('targetOngoingBalance')).toHaveAttribute('aria-invalid', 'true')
+        })
+        expect(onSave).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN a rule expiration date already set', () => {
+    describe('WHEN clicking the delete expiration button', () => {
+      it('THEN should drop the date picker back to the add button', async () => {
+        const user = userEvent.setup()
+        const { ref } = renderDrawer()
+
+        openAndMount(ref, { ...DEFAULT_RULES, expirationAt: '' })
+
+        await user.click(screen.getByTestId(DELETE_RECURRING_EXPIRATION_AT_DATA_TEST))
+
+        await waitFor(() => {
+          expect(queryInput('expirationAt')).toBeNull()
+        })
+        expect(screen.getByTestId(SHOW_RECURRING_EXPIRATION_AT_DATA_TEST)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the expiration date is in the past', () => {
+      it('THEN should flag the expiration date as invalid and block the save', async () => {
+        const { ref, onSave } = renderDrawer()
+
+        const opened = openAndMount(ref, {
+          ...DEFAULT_RULES,
+          thresholdCredits: '100',
+          paidCredits: '50',
+          expirationAt: DateTime.now().minus({ days: 2 }).toISO(),
+        })
+
+        expect(queryInput('expirationAt')).toHaveAttribute('aria-invalid', 'false')
+
+        await act(async () => {
+          await opened.form.submit()
+        })
+
+        await waitFor(() => {
+          expect(queryInput('expirationAt')).toHaveAttribute('aria-invalid', 'true')
+        })
+        expect(onSave).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the drawer stack configuration', () => {
+    describe('WHEN the drawer is opened', () => {
+      it('THEN should focus the first input once entered', () => {
+        const { ref } = renderDrawer()
+
+        const opened = openAndMount(ref)
+        const container = document.createElement('div')
+
+        opened.onEntered(container)
+
+        expect(focusFirstInput).toHaveBeenCalledWith(container)
+      })
+
+      it('THEN should only prompt on close once the draft is dirty', async () => {
+        const user = userEvent.setup()
+        const { ref } = renderDrawer()
+
+        const opened = openAndMount(ref)
+
+        expect(opened.shouldPromptOnClose()).toBe(false)
+
+        await user.type(queryInput('paidCredits'), '50')
+
+        await waitFor(() => {
+          expect(opened.shouldPromptOnClose()).toBe(true)
+        })
+      })
+
+      it('THEN should reset the draft on close', async () => {
+        const user = userEvent.setup()
+        const { ref } = renderDrawer()
+
+        const opened = openAndMount(ref)
+
+        await user.type(queryInput('paidCredits'), '50')
+
+        await waitFor(() => {
+          expect(queryInput('paidCredits')).toHaveValue('50')
+        })
+
+        act(() => {
+          opened.onClose()
+        })
+
+        await waitFor(() => {
+          expect(queryInput('paidCredits')).toHaveValue('')
+        })
+      })
+    })
+
+    describe('WHEN closeDrawer is called through the ref', () => {
+      it('THEN should close the drawer', () => {
+        const { ref } = renderDrawer()
+
+        openAndMount(ref)
+
+        act(() => {
+          ref.current?.closeDrawer()
+        })
+
+        expect(mockClose).toHaveBeenCalled()
       })
     })
   })

@@ -14,6 +14,7 @@ import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PaymentSettingsSelector } from '~/components/paymentSettings/PaymentSettingsSelector'
 import { getWordingForWalletCreationAlert } from '~/components/wallets/utils'
 import {
+  DELETE_RECURRING_EXPIRATION_AT_DATA_TEST,
   RECURRING_IGNORE_PAID_TOPUP_LIMITS_SWITCH_DATA_TEST,
   RECURRING_INVOICE_REQUIRES_SUCCESSFUL_PAYMENT_SWITCH_DATA_TEST,
   RECURRING_TOPUP_TYPE_DATA_TEST,
@@ -291,6 +292,7 @@ const RecurringRuleDrawerContent = withForm({
                     }
                     label={translate('text_66a8aed1c3e07b277ec3990d')}
                     subLabel={translate('text_66a8aed1c3e07b277ec3990f')}
+                    data-test={RECURRING_INVOICE_REQUIRES_SUCCESSFUL_PAYMENT_SWITCH_DATA_TEST}
                   />
                 )}
               </>
@@ -458,6 +460,7 @@ const RecurringRuleDrawerContent = withForm({
                     onClick={() => {
                       form.setFieldValue('expirationAt', null)
                     }}
+                    data-test={DELETE_RECURRING_EXPIRATION_AT_DATA_TEST}
                   />
                 </Tooltip>
               </div>
