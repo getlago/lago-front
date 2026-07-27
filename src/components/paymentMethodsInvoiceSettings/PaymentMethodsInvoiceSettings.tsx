@@ -1,6 +1,8 @@
+import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
+
 import { InvoiceCustomSectionSettings } from './InvoiceCustomSectionSettings'
 import { PaymentMethodSettings } from './PaymentMethodSettings'
-import { SettingsComponentProps, ViewTypeEnum } from './types'
+import { SettingsComponentProps } from './types'
 
 // Thin composite of the two single-purpose settings components. Each child owns
 // its own customer guard (externalId for payment method, id for custom section)

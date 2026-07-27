@@ -13,8 +13,8 @@ import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { ButtonSelector, ComboBox, Switch } from '~/components/form'
-import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
-import { PaymentMethodsForm, ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
+import { InvoicingSettingsSelector } from '~/components/invoicingSettings/InvoicingSettingsSelector'
+import { PaymentSettingsSelector } from '~/components/paymentSettings/PaymentSettingsSelector'
 import { getWordingForWalletCreationAlert } from '~/components/wallets/utils'
 import {
   RECURRING_IGNORE_PAID_TOPUP_LIMITS_SWITCH_DATA_TEST,
@@ -22,6 +22,7 @@ import {
   RECURRING_TOPUP_TYPE_DATA_TEST,
   SHOW_RECURRING_EXPIRATION_AT_DATA_TEST,
 } from '~/components/wallets/utils/dataTestConstants'
+import { VIEW_TYPE_TRANSLATION_KEYS, ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { dateErrorCodes, FORM_TYPE_ENUM, getIntervalTranslationKey } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { intlFormatDateTime } from '~/core/timezone'
@@ -169,18 +170,6 @@ export const TopUpSection = withForm({
 
     const hasMinMax = !!paidTopUpMinAmountCents || !!paidTopUpMaxAmountCents
 
-    // Structural adapter for PaymentMethodsInvoiceSettings: its children only
-    // need live `values` + a `setFieldValue(path, value)` — form-core resolves
-    // the dot-index paths (`recurringTransactionRules.0.*`) it produces to the
-    // same segments as our bracket field names.
-    const paymentMethodsFormAdapter: PaymentMethodsForm<
-      ViewTypeEnum.WalletTopUp | ViewTypeEnum.WalletRecurringTopUp
-    > = {
-      values: walletValues,
-      setFieldValue: (field, value) =>
-        form.setFieldValue(field as Parameters<typeof form.setFieldValue>[0], value as never),
-    }
-
     const canDisplayAccordionAlert =
       !!recurringTransactionRules?.method &&
       ((recurringTransactionRules?.trigger === RecurringTransactionTriggerEnum.Interval &&
@@ -190,17 +179,44 @@ export const TopUpSection = withForm({
 
     return (
       <>
-        {(customerData?.customer?.externalId || customerData?.customer?.id) && (
+        {customerData?.customer?.id && (
           <section className="flex w-full flex-col gap-6 pb-12 shadow-b">
             <div className="flex flex-col gap-1">
               <Typography variant="subhead1">
-                {translate('text_17634566456760qoj7hs7jrh')}
+                {translate('text_17423672025282dl7iozy1ru')}
+              </Typography>
+              <Typography variant="caption">
+                {translate('text_17848881050570gm2uu5e7sz', {
+                  object: translate(VIEW_TYPE_TRANSLATION_KEYS[ViewTypeEnum.WalletTopUp]),
+                })}
               </Typography>
             </div>
-            <PaymentMethodsInvoiceSettings
-              customer={customerData?.customer}
-              form={paymentMethodsFormAdapter}
+            <InvoicingSettingsSelector
               viewType={ViewTypeEnum.WalletTopUp}
+              customerId={customerData.customer.id}
+              value={walletValues.invoiceCustomSection}
+              onChange={(value) => form.setFieldValue('invoiceCustomSection', value)}
+            />
+          </section>
+        )}
+
+        {customerData?.customer?.externalId && (
+          <section className="flex w-full flex-col gap-6 pb-12 shadow-b">
+            <div className="flex flex-col gap-1">
+              <Typography variant="subhead1">
+                {translate('text_1784888105056o78z8t3kjrg')}
+              </Typography>
+              <Typography variant="caption">
+                {translate('text_17848881050572bq1s5uguni', {
+                  object: translate(VIEW_TYPE_TRANSLATION_KEYS[ViewTypeEnum.WalletTopUp]),
+                })}
+              </Typography>
+            </div>
+            <PaymentSettingsSelector
+              viewType={ViewTypeEnum.WalletTopUp}
+              externalCustomerId={customerData.customer.externalId}
+              value={walletValues.paymentMethod}
+              onChange={(value) => form.setFieldValue('paymentMethod', value)}
             />
           </section>
         )}
@@ -213,6 +229,7 @@ export const TopUpSection = withForm({
           {!isRecurringTopUpEnabled ? (
             <Box>
               <Button
+                data-test="add-recurring-rule-button"
                 variant="inline"
                 startIcon="plus"
                 endIcon={isPremium ? undefined : 'sparkles'}
@@ -247,7 +264,7 @@ export const TopUpSection = withForm({
                 />
               }
             >
-              <div className="flex flex-col gap-6 p-4 shadow-b">
+              <div className="flex flex-col gap-6 p-4 pb-12 shadow-b">
                 <ComboBox
                   name="recurringTransactionRules[0].method"
                   disableClearable
@@ -642,20 +659,9 @@ export const TopUpSection = withForm({
                 )}
               </div>
 
-              {(customerData?.customer?.externalId || customerData?.customer?.id) && (
-                <div className="flex flex-col gap-6 p-4 shadow-b">
-                  <PaymentMethodsInvoiceSettings
-                    customer={customerData?.customer}
-                    form={paymentMethodsFormAdapter}
-                    formFieldBasePath="recurringTransactionRules.0"
-                    viewType={ViewTypeEnum.WalletRecurringTopUp}
-                  />
-                </div>
-              )}
-
-              <div className="flex flex-col gap-6 p-4">
-                <div>
-                  <Typography variant="bodyHl" color="textSecondary">
+              <div className="flex flex-col gap-6 px-4 py-12 shadow-b">
+                <div className="flex flex-col gap-1">
+                  <Typography variant="subhead1">
                     {translate('text_63fcc3218d35b9377840f59b')}
                   </Typography>
                   <Typography variant="caption">
@@ -668,6 +674,57 @@ export const TopUpSection = withForm({
                   fields={{ metadata: 'recurringTransactionRules[0].transactionMetadata' }}
                 />
               </div>
+
+              {customerData?.customer?.id && (
+                <div className="flex flex-col gap-6 px-4 py-12 shadow-b">
+                  <div className="flex flex-col gap-1">
+                    <Typography variant="subhead1">
+                      {translate('text_17423672025282dl7iozy1ru')}
+                    </Typography>
+                    <Typography variant="caption">
+                      {translate('text_17848881050570gm2uu5e7sz', {
+                        object: translate(
+                          VIEW_TYPE_TRANSLATION_KEYS[ViewTypeEnum.WalletRecurringTopUp],
+                        ),
+                      })}
+                    </Typography>
+                  </div>
+                  <InvoicingSettingsSelector
+                    viewType={ViewTypeEnum.WalletRecurringTopUp}
+                    customerId={customerData.customer.id}
+                    value={recurringTransactionRules?.invoiceCustomSection}
+                    onChange={(value) =>
+                      form.setFieldValue('recurringTransactionRules[0].invoiceCustomSection', value)
+                    }
+                    data-test="rule-invoicing-settings-selector"
+                  />
+                </div>
+              )}
+              {customerData?.customer?.externalId && (
+                <div className="flex flex-col gap-6 px-4 pb-4 pt-12">
+                  <div className="flex flex-col gap-1">
+                    <Typography variant="subhead1">
+                      {translate('text_1784888105056o78z8t3kjrg')}
+                    </Typography>
+                    <Typography variant="caption">
+                      {translate('text_17848881050572bq1s5uguni', {
+                        object: translate(
+                          VIEW_TYPE_TRANSLATION_KEYS[ViewTypeEnum.WalletRecurringTopUp],
+                        ),
+                      })}
+                    </Typography>
+                  </div>
+                  <PaymentSettingsSelector
+                    viewType={ViewTypeEnum.WalletRecurringTopUp}
+                    externalCustomerId={customerData.customer.externalId}
+                    value={recurringTransactionRules?.paymentMethod}
+                    onChange={(value) =>
+                      form.setFieldValue('recurringTransactionRules[0].paymentMethod', value)
+                    }
+                    data-test="rule-payment-settings-selector"
+                  />
+                </div>
+              )}
             </Accordion>
           )}
         </section>

@@ -3366,7 +3366,6 @@
   "text_1762159805730r5zfutgdloi": "Mapping per billing entities",
   "text_1762159805730hqzi614r672": "Adjust values for each billing entity if required.",
   "text_17628623882713knw0jtohiw": "Invoice custom footer",
-  "text_17634566456760qoj7hs7jrh": "Payment & invoicing settings",
   "text_1760101157939jviogsjfcsn": "E-invoicing",
   "text_1760101157939mnmlyzbp7ao": "Automatically generates compliant e-invoices, credit notes, and receipts.",
   "text_176010285376748i8jr0rwn2": "Entity’s country is unset or not in the list of supported jurisdictions — see the <a rel=\"external\" target=\"_blank\" href=\"{{href}}\">e-invoicing documentation</a> for details.",
@@ -4475,7 +4474,7 @@
   "text_1784560679832ird9d8k4iqw": "Credits to void must be greater than 0.",
   "text_1784637373017e1som6d92em": "Delete all",
   "text_1784642866287h7jm6pidh6u": "Delete all metadata",
-  "text_17846428662872wnc279xn2s": "You\u2019re about to delete all metadata. Are you sure?",
+  "text_17846428662872wnc279xn2s": "You’re about to delete all metadata. Are you sure?",
   "text_1783352692385rxn8gajgtw4": "Prepaid credits",
   "text_1783352692385djf5dxfo8l5": "Include free or paid credits in this quote. Configure how credits are applied and consumed.",
   "text_17833526923851igosmn1oar": "Credits and wallet settings",
@@ -4497,5 +4496,8 @@
   "text_1784552920236qoa5zheiakw": "Include metadata for this top-up transaction.",
   "text_1784552920237ss68mgdwkmt": "Free credits",
   "text_1784552920237g89fvc8lki5": "Paid credits",
-  "text_1784552920237jisdtu6bwqy": "This quote includes {{freeCredits}} free credits"
+  "text_1784552920237jisdtu6bwqy": "This quote includes {{freeCredits}} free credits",
+  "text_1784888105056o78z8t3kjrg": "Payments apps and settings",
+  "text_17848881050572bq1s5uguni": "Define how the {{object}} is paid.",
+  "text_17848881050570gm2uu5e7sz": "Define how invoices are generated for this {{object}}."
 }

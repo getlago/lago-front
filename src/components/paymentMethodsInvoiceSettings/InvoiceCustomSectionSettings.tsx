@@ -1,8 +1,9 @@
 import { InvoceCustomFooter } from '~/components/invoceCustomFooter/InvoceCustomFooter'
 import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
+import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { getFieldPath, getFieldValue } from '~/core/form/fieldPathUtils'
 
-import { SettingsComponentProps, ViewTypeEnum } from './types'
+import { SettingsComponentProps } from './types'
 
 // Standalone invoice custom-section settings: renders only when the customer has
 // an id. Owns the `invoiceCustomSection` form field via the optional

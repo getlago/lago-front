@@ -16,6 +16,7 @@ import {
   PM_FIELDS_MANUAL_RADIO_TEST_ID,
 } from '~/components/paymentMethodSelection/PaymentMethodFields'
 import { EDIT_PAYMENT_METHOD_BUTTON_TEST_ID } from '~/components/paymentMethodSelection/PaymentMethodSelection'
+import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { Customer, PaymentMethodsDocument } from '~/generated/graphql'
 import {
   createMockPaymentMethod,
@@ -24,7 +25,7 @@ import {
 import { render } from '~/test-utils'
 
 import { PaymentMethodsInvoiceSettings } from '../PaymentMethodsInvoiceSettings'
-import { SettingsComponentProps, ViewTypeEnum } from '../types'
+import { SettingsComponentProps } from '../types'
 
 /**
  * Regression guard for the bug where editing the payment method through the

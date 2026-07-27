@@ -4,13 +4,12 @@ import { Button } from '~/components/designSystem/Button'
 import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { DialogResult } from '~/components/dialogs/types'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
+import { VIEW_TYPE_TRANSLATION_KEYS, ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { EDIT_PM_DIALOG_SAVE_BUTTON_TEST_ID } from './dataTestConstants'
 import { PaymentMethodFields } from './PaymentMethodFields'
 import { deriveBehavior, PaymentMethodBehavior, SelectedPaymentMethod } from './types'
-
-import { VIEW_TYPE_TRANSLATION_KEYS, ViewTypeEnum } from '../paymentMethodsInvoiceSettings/types'
 
 export const EDIT_PAYMENT_METHOD_FORM_ID = 'edit-payment-method-form'
 
