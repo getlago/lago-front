@@ -25,6 +25,18 @@ import {
 } from './createCustomSection/validationSchema'
 
 export const CREATE_CUSTOM_SECTION_FORM_ID = 'create-custom-section-form'
+export const CREATE_CUSTOM_SECTION_CLOSE_BUTTON_TEST_ID = 'create-custom-section-close-button'
+export const CREATE_CUSTOM_SECTION_CANCEL_BUTTON_TEST_ID = 'create-custom-section-cancel-button'
+export const CREATE_CUSTOM_SECTION_SUBMIT_BUTTON_TEST_ID = 'create-custom-section-submit-button'
+export const CREATE_CUSTOM_SECTION_DESCRIPTION_INPUT_TEST_ID =
+  'create-custom-section-description-input'
+export const CREATE_CUSTOM_SECTION_DESCRIPTION_DELETE_TEST_ID =
+  'create-custom-section-description-delete-button'
+export const CREATE_CUSTOM_SECTION_SHOW_DESCRIPTION_BUTTON_TEST_ID = 'show-description'
+export const CREATE_CUSTOM_SECTION_DISPLAY_NAME_INPUT_TEST_ID =
+  'create-custom-section-display-name-input'
+export const CREATE_CUSTOM_SECTION_DETAILS_INPUT_TEST_ID = 'create-custom-section-details-input'
+export const CREATE_CUSTOM_SECTION_PREVIEW_BUTTON_TEST_ID = 'create-custom-section-preview-button'
 
 const CreateInvoiceCustomSection = () => {
   const { translate } = useInternationalization()
@@ -133,6 +145,7 @@ const CreateInvoiceCustomSection = () => {
             <Button
               variant="quaternary"
               icon="close"
+              data-test={CREATE_CUSTOM_SECTION_CLOSE_BUTTON_TEST_ID}
               onClick={() =>
                 isDirty ? openDirtyAttributesWarning() : navigate(INVOICE_SETTINGS_ROUTE)
               }
@@ -183,6 +196,7 @@ const CreateInvoiceCustomSection = () => {
                           {(field) => (
                             <field.TextInputField
                               className="flex-1"
+                              data-test={CREATE_CUSTOM_SECTION_DESCRIPTION_INPUT_TEST_ID}
                               label={translate('text_623b42ff8ee4e000ba87d0c8')}
                               placeholder={translate('text_1750257831368ae3rtaclhjy')}
                               rows="3"
@@ -198,6 +212,7 @@ const CreateInvoiceCustomSection = () => {
                           <Button
                             icon="trash"
                             variant="quaternary"
+                            data-test={CREATE_CUSTOM_SECTION_DESCRIPTION_DELETE_TEST_ID}
                             onClick={() => {
                               form.setFieldValue('description', '')
                               setShouldDisplayDescription(false)
@@ -210,7 +225,7 @@ const CreateInvoiceCustomSection = () => {
                         startIcon="plus"
                         variant="inline"
                         onClick={() => setShouldDisplayDescription(true)}
-                        data-test="show-description"
+                        data-test={CREATE_CUSTOM_SECTION_SHOW_DESCRIPTION_BUTTON_TEST_ID}
                       >
                         {translate('text_642d5eb2783a2ad10d670324')}
                       </Button>
@@ -229,6 +244,7 @@ const CreateInvoiceCustomSection = () => {
                     <form.AppField name="displayName">
                       {(field) => (
                         <field.TextInputField
+                          data-test={CREATE_CUSTOM_SECTION_DISPLAY_NAME_INPUT_TEST_ID}
                           label={translate('text_65018c8e5c6b626f030bcf26')}
                           placeholder={translate('text_65a6b4e2cb38d9b70ec53d41')}
                         />
@@ -237,6 +253,7 @@ const CreateInvoiceCustomSection = () => {
                     <form.AppField name="details">
                       {(field) => (
                         <field.TextInputField
+                          data-test={CREATE_CUSTOM_SECTION_DETAILS_INPUT_TEST_ID}
                           label={translate('text_1732553358445fhl5zibpn2l')}
                           placeholder={translate('text_1732553358446t0zh79g9ruk')}
                           rows="3"
@@ -247,6 +264,7 @@ const CreateInvoiceCustomSection = () => {
                     <Button
                       startIcon="eye"
                       variant="quaternary"
+                      data-test={CREATE_CUSTOM_SECTION_PREVIEW_BUTTON_TEST_ID}
                       onClick={() =>
                         previewCustomSectionDrawerRef.current?.openDrawer({
                           displayName: form.state.values.displayName,
@@ -265,6 +283,7 @@ const CreateInvoiceCustomSection = () => {
           <CenteredPage.StickyFooter>
             <Button
               variant="quaternary"
+              data-test={CREATE_CUSTOM_SECTION_CANCEL_BUTTON_TEST_ID}
               onClick={() =>
                 isDirty ? openDirtyAttributesWarning() : navigate(INVOICE_SETTINGS_ROUTE)
               }
@@ -272,7 +291,7 @@ const CreateInvoiceCustomSection = () => {
               {translate('text_6411e6b530cb47007488b027')}
             </Button>
             <form.AppForm>
-              <form.SubmitButton>
+              <form.SubmitButton dataTest={CREATE_CUSTOM_SECTION_SUBMIT_BUTTON_TEST_ID}>
                 {isEdition
                   ? translate('text_17295436903260tlyb1gp1i7')
                   : translate('text_17325538899488ftsvph8ko5')}
