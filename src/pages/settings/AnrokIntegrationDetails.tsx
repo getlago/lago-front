@@ -114,7 +114,7 @@ const AnrokIntegrationDetails = () => {
             }),
           },
           {
-            label: translate('text_67db6a10cb0b8031ca538909'),
+            label: translate('text_6668821d94e4da4dfd8b3834'),
             path: generatePath(ANROK_INTEGRATION_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
             }),

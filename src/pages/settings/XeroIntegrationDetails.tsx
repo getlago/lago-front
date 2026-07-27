@@ -124,7 +124,7 @@ const XeroIntegrationDetails = () => {
             }),
           },
           {
-            label: translate('text_67db6a10cb0b8031ca538909'),
+            label: translate('text_6672ebb8b1b50be550eccaf8'),
             path: generatePath(XERO_INTEGRATION_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
             }),

@@ -118,7 +118,7 @@ const CashfreeIntegrationDetails = () => {
             }),
           },
           {
-            label: translate('text_67db6a10cb0b8031ca538909'),
+            label: translate('text_17367626793434wkg1rk0114'),
             path: generatePath(CASHFREE_INTEGRATION_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Community,
             }),
