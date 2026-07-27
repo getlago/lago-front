@@ -129,7 +129,7 @@ const FlutterwaveIntegrationDetails = () => {
             }),
           },
           {
-            label: translate('text_67db6a10cb0b8031ca538909'),
+            label: translate('text_1749724395108m0swrna0zt4'),
             path: generatePath(FLUTTERWAVE_INTEGRATION_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Community,
             }),

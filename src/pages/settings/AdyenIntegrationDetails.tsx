@@ -107,7 +107,7 @@ const AdyenIntegrationDetails = () => {
             }),
           },
           {
-            label: translate('text_67db6a10cb0b8031ca538909'),
+            label: translate('text_645d071272418a14c1c76a6d'),
             path: generatePath(ADYEN_INTEGRATION_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
             }),

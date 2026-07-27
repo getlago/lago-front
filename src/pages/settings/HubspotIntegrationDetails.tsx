@@ -103,7 +103,7 @@ const HubspotIntegrationDetails = () => {
             }),
           },
           {
-            label: translate('text_67db6a10cb0b8031ca538909'),
+            label: translate('text_1727189568053s79ks5q07tr'),
             path: generatePath(HUBSPOT_INTEGRATION_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
             }),

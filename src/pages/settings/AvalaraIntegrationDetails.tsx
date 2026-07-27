@@ -111,7 +111,7 @@ const AvalaraIntegrationDetails = () => {
             }),
           },
           {
-            label: translate('text_67db6a10cb0b8031ca538909'),
+            label: translate('text_1744293609277s53zn6jcoq4'),
             path: generatePath(AVALARA_INTEGRATION_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
             }),

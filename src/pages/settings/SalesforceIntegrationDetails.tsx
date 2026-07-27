@@ -103,7 +103,7 @@ const SalesforceIntegrationDetails = () => {
             }),
           },
           {
-            label: translate('text_67db6a10cb0b8031ca538909'),
+            label: translate('text_1731507195246vu9kt6xnhv6'),
             path: generatePath(SALESFORCE_INTEGRATION_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
             }),

@@ -111,7 +111,7 @@ const StripeIntegrationDetails = () => {
             }),
           },
           {
-            label: translate('text_67db6a10cb0b8031ca538909'),
+            label: translate('text_62b1edddbf5f461ab971277d'),
             path: generatePath(STRIPE_INTEGRATION_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
             }),
