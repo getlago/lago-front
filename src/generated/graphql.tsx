@@ -136,6 +136,8 @@ export enum ActivityTypeEnum {
   FeatureUpdated = 'feature_updated',
   /** invoice.created */
   InvoiceCreated = 'invoice_created',
+  /** invoice.deleted */
+  InvoiceDeleted = 'invoice_deleted',
   /** invoice.drafted */
   InvoiceDrafted = 'invoice_drafted',
   /** invoice.failed */
@@ -3876,6 +3878,7 @@ export enum EventTypeEnum {
   FeeTaxProviderError = 'fee_tax_provider_error',
   IntegrationProviderError = 'integration_provider_error',
   InvoiceCreated = 'invoice_created',
+  InvoiceDeleted = 'invoice_deleted',
   InvoiceDrafted = 'invoice_drafted',
   InvoiceGenerated = 'invoice_generated',
   InvoiceOneOffCreated = 'invoice_one_off_created',

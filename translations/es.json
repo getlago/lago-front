@@ -272,5 +272,6 @@
   "text_1783352692386p9bls6f0o76": "Número de orden de compra",
   "text_1783352692386valktkog1dw": "Añadir número de orden de compra",
   "text_17833526923863j848qxkffb": "Configuración del monedero",
-  "text_17841895626504bixbm3xbyj": "Consulta los detalles de este pedido ejecutado, incluidos sus ajustes de ejecución y su contenido."
+  "text_17841895626504bixbm3xbyj": "Consulta los detalles de este pedido ejecutado, incluidos sus ajustes de ejecución y su contenido.",
+  "text_17842142209100wegryv1st3": "La factura {{invoiceNumber}} fue eliminada"
 }

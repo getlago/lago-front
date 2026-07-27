@@ -38,7 +38,7 @@ const basePlan = {
   description: null,
   interval: PlanInterval.Monthly,
   amountCurrency: CurrencyEnum.Usd,
-  amountCents: '0',
+  amountCents: '3000',
   payInAdvance: false,
   trialPeriod: 0,
   invoiceDisplayName: null,
@@ -106,6 +106,33 @@ describe('buildUpdatePlanFormDefaults', () => {
     expect(defaults.entitlements[0]).toEqual(
       expect.objectContaining({ featureCode: 'seats', featureName: 'Seats' }),
     )
+  })
+
+  it('hydrates amountCents from the plan in display units', () => {
+    const defaults = buildUpdatePlanFormDefaults({
+      id: 'p1',
+      name: 'P',
+      code: 'p',
+      interval: PlanInterval.Monthly,
+      amountCurrency: CurrencyEnum.Usd,
+      amountCents: '3000',
+      payInAdvance: false,
+    } as PlanDetailsV2Fragment)
+
+    expect(defaults.amountCents).toBe('30')
+  })
+
+  it('falls back to a zero amountCents when the plan has none', () => {
+    const defaults = buildUpdatePlanFormDefaults({
+      id: 'p1',
+      name: 'P',
+      code: 'p',
+      interval: PlanInterval.Monthly,
+      amountCurrency: CurrencyEnum.Usd,
+      payInAdvance: false,
+    } as PlanDetailsV2Fragment)
+
+    expect(defaults.amountCents).toBe('0')
   })
 
   it('defaults to empty advanced fields when the plan has none', () => {
@@ -472,6 +499,62 @@ describe('useUpdatePlanWithCascade', () => {
       })
 
       expect(capturedUpdateInput?.usageThresholds).toEqual([])
+    })
+
+    it('preserves the plan subscription fee when a threshold-only edit is submitted', async () => {
+      const planWithThresholds = {
+        ...basePlan,
+        usageThresholds: [
+          { id: 'u1', amountCents: 10000, recurring: false, thresholdDisplayName: null },
+        ],
+      } as PlanDetailsV2Fragment
+
+      const { result } = renderHook(
+        () => useUpdatePlanWithCascade({ plan: planWithThresholds, includeAdvancedFields: true }),
+        { wrapper: wrapper([capturingUpdateMock]) },
+      )
+
+      await act(async () => {
+        await result.current.applyAndSubmit(() => {
+          result.current.form.setFieldValue('nonRecurringUsageThresholds', [
+            { amountCents: 100, recurring: false, thresholdDisplayName: null },
+            { amountCents: 250, recurring: false, thresholdDisplayName: null },
+          ])
+        })
+      })
+
+      await waitFor(() => {
+        expect(capturedUpdateInput).toBeDefined()
+      })
+
+      expect(capturedUpdateInput?.amountCents).toBe(3000)
+    })
+
+    it('preserves the plan subscription fee when all thresholds are deleted', async () => {
+      const planWithThresholds = {
+        ...basePlan,
+        usageThresholds: [
+          { id: 'u1', amountCents: 10000, recurring: false, thresholdDisplayName: null },
+        ],
+      } as PlanDetailsV2Fragment
+
+      const { result } = renderHook(
+        () => useUpdatePlanWithCascade({ plan: planWithThresholds, includeAdvancedFields: true }),
+        { wrapper: wrapper([capturingUpdateMock]) },
+      )
+
+      await act(async () => {
+        await result.current.applyAndSubmit(() => {
+          result.current.form.setFieldValue('nonRecurringUsageThresholds', undefined)
+          result.current.form.setFieldValue('recurringUsageThreshold', undefined)
+        })
+      })
+
+      await waitFor(() => {
+        expect(capturedUpdateInput).toBeDefined()
+      })
+
+      expect(capturedUpdateInput?.amountCents).toBe(3000)
     })
 
     it('strips display-only entitlement fields from the payload when included', async () => {
