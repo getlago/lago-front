@@ -1,4 +1,4 @@
-import { act, cleanup, screen } from '@testing-library/react'
+import { act, cleanup, fireEvent, screen } from '@testing-library/react'
 import { Markdown } from 'tiptap-markdown'
 
 import { render } from '~/test-utils'
@@ -52,6 +52,9 @@ const mockEditor = {
   setEditable: jest.fn(),
   on: jest.fn(),
   off: jest.fn(),
+  commands: {
+    focus: jest.fn(),
+  },
   state: { selection: { from: 0 } },
   view: {
     domAtPos: jest.fn().mockReturnValue({ node: document.createElement('div') }),
@@ -985,6 +988,48 @@ describe('RichTextEditor', () => {
         await act(() => onUpdate?.({ editor: mockDocEmpty }))
 
         expect(onCreditsBlocksChange).toHaveBeenCalledWith([])
+      })
+    })
+  })
+
+  describe('GIVEN a click on the editor background', () => {
+    beforeEach(() => {
+      mockEditor.commands.focus.mockClear()
+    })
+
+    describe('WHEN clicking the container background in edit mode', () => {
+      it('THEN should focus the editor at the end', async () => {
+        await act(() => render(<RichTextEditor />))
+
+        const container = screen.getByTestId(RICH_TEXT_EDITOR_TEST_ID)
+
+        fireEvent.mouseDown(container)
+
+        expect(mockEditor.commands.focus).toHaveBeenCalledWith('end')
+      })
+    })
+
+    describe('WHEN clicking a child element (content) in edit mode', () => {
+      it('THEN should not focus the editor', async () => {
+        await act(() => render(<RichTextEditor />))
+
+        const content = screen.getByTestId(RICH_TEXT_EDITOR_CONTENT_TEST_ID)
+
+        fireEvent.mouseDown(content)
+
+        expect(mockEditor.commands.focus).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN clicking the container background in preview mode', () => {
+      it('THEN should not focus the editor', async () => {
+        await act(() => render(<RichTextEditor mode="preview" />))
+
+        const container = screen.getByTestId(RICH_TEXT_EDITOR_TEST_ID)
+
+        fireEvent.mouseDown(container)
+
+        expect(mockEditor.commands.focus).not.toHaveBeenCalled()
       })
     })
   })
