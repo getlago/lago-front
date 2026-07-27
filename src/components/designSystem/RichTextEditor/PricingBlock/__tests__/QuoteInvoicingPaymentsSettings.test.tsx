@@ -2,6 +2,7 @@ import { configure, render, screen } from '@testing-library/react'
 
 import type { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
 import type { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types'
+import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 
 import { QuoteInvoicingPaymentsSettings } from '../QuoteInvoicingPaymentsSettings'
 
@@ -14,18 +15,29 @@ configure({ testIdAttribute: 'data-test' })
 let paymentSelectorProps: {
   value: SelectedPaymentMethod
   onChange: (v: SelectedPaymentMethod) => void
+  viewType: ViewTypeEnum
+  externalCustomerId: string
 } | null = null
 let invoicingSelectorProps: {
   value: InvoiceCustomSectionInput | undefined
   onChange: (v: InvoiceCustomSectionInput) => void
+  viewType: ViewTypeEnum
+  customerId: string
 } | null = null
 
 jest.mock('~/components/paymentSettings/PaymentSettingsSelector', () => ({
   PaymentSettingsSelector: (props: {
     value: SelectedPaymentMethod
     onChange: (v: SelectedPaymentMethod) => void
+    viewType: ViewTypeEnum
+    externalCustomerId: string
   }) => {
-    paymentSelectorProps = { value: props.value, onChange: props.onChange }
+    paymentSelectorProps = {
+      value: props.value,
+      onChange: props.onChange,
+      viewType: props.viewType,
+      externalCustomerId: props.externalCustomerId,
+    }
 
     return <div data-test="payment-settings-selector" />
   },
@@ -35,8 +47,15 @@ jest.mock('~/components/invoicingSettings/InvoicingSettingsSelector', () => ({
   InvoicingSettingsSelector: (props: {
     value: InvoiceCustomSectionInput | undefined
     onChange: (v: InvoiceCustomSectionInput) => void
+    viewType: ViewTypeEnum
+    customerId: string
   }) => {
-    invoicingSelectorProps = { value: props.value, onChange: props.onChange }
+    invoicingSelectorProps = {
+      value: props.value,
+      onChange: props.onChange,
+      viewType: props.viewType,
+      customerId: props.customerId,
+    }
 
     return <div data-test="invoicing-settings-selector" />
   },
@@ -127,6 +146,21 @@ describe('QuoteInvoicingPaymentsSettings', () => {
     paymentSelectorProps?.onChange(null)
 
     expect(onChange).toHaveBeenCalledWith({ paymentMethodId: '', invoiceCustomFooter: '' })
+  })
+
+  it('passes customerId/externalCustomerId and viewType to the respective selectors', () => {
+    render(
+      <QuoteInvoicingPaymentsSettings
+        customer={customer}
+        value={{ paymentMethodId: '', invoiceCustomFooter: '' }}
+        onChange={jest.fn()}
+      />,
+    )
+
+    expect(invoicingSelectorProps?.customerId).toBe('cust-1')
+    expect(invoicingSelectorProps?.viewType).toBe(ViewTypeEnum.Subscription)
+    expect(paymentSelectorProps?.externalCustomerId).toBe('ext-1')
+    expect(paymentSelectorProps?.viewType).toBe(ViewTypeEnum.Subscription)
   })
 
   it('maps invoicing selector change OUT to JSON string, preserving the other field', () => {

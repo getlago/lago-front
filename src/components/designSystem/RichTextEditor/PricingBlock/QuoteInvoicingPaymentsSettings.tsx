@@ -24,9 +24,9 @@ const parseInvoiceCustomFooter = (raw: string): InvoiceCustomSectionInput | unde
  * Bridges the quote's flat invoicing state (`paymentMethodId` +
  * `invoiceCustomFooter` JSON string) with the shared ING-497 selectors, which
  * are controlled with rich object shapes. Renders the two selector cards inside
- * the existing "Invoicing & payments settings" section. `withInvoice
- * consolidation` is intentionally omitted — the quote payload has no
- * `consolidateInvoice`.
+ * the existing "Invoicing & payments settings" section.
+ * `withInvoiceConsolidation` is intentionally omitted — the quote payload
+ * has no `consolidateInvoice`.
  */
 export const QuoteInvoicingPaymentsSettings = ({
   customer,
