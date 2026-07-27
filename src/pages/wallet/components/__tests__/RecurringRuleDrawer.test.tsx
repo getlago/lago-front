@@ -574,6 +574,58 @@ describe('RecurringRuleDrawer', () => {
     })
   })
 
+  describe('GIVEN a Fixed rule submitted with both credit fields empty', () => {
+    describe('WHEN the schema blocks the submit', () => {
+      // Regression: both inputs used to render silentError, so the submit was
+      // refused with nothing at all shown under either field.
+      it.each([['paidCredits'], ['grantedCredits']])(
+        'THEN should mark the %s input invalid',
+        async (name) => {
+          const { open, onSave } = renderDrawer()
+
+          const opened = openAndMount(open, {
+            ...DEFAULT_RULES,
+            thresholdCredits: '100',
+            paidCredits: '',
+            grantedCredits: '',
+          })
+
+          await act(async () => {
+            await opened.form.submit()
+          })
+
+          expect(onSave).not.toHaveBeenCalled()
+          await waitFor(() => expect(queryInput(name)).toHaveAttribute('aria-invalid', 'true'))
+        },
+      )
+    })
+  })
+
+  describe('GIVEN a wallet with a paid top-up max bound', () => {
+    describe('WHEN the paid credits exceed it', () => {
+      it('THEN should mark only the paid credits input invalid', async () => {
+        const { open } = renderDrawer({
+          values: { ...walletValues, paidTopUpMaxAmountCents: '100' } as TWalletDataForm,
+        })
+
+        const opened = openAndMount(open, {
+          ...DEFAULT_RULES,
+          thresholdCredits: '100',
+          paidCredits: '200',
+        })
+
+        await act(async () => {
+          await opened.form.submit()
+        })
+
+        await waitFor(() =>
+          expect(queryInput('paidCredits')).toHaveAttribute('aria-invalid', 'true'),
+        )
+        expect(queryInput('grantedCredits')).not.toHaveAttribute('aria-invalid', 'true')
+      })
+    })
+  })
+
   describe('GIVEN a Target rule with a target balance', () => {
     describe('WHEN toggling the top-up type and the requires-successful-payment switch', () => {
       it('THEN should carry both values into the saved rule', async () => {

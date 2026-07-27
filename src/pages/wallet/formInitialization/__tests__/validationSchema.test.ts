@@ -46,11 +46,18 @@ const baseRule = (
     ...overrides,
   }) as NonNullable<TWalletDataForm['recurringTransactionRules']>[number]
 
-const issuePaths = (result: ReturnType<typeof walletFormValidationSchema.safeParse>) =>
-  result.success ? [] : result.error.issues.map((issue) => issue.path.join('.'))
+// Loose shape so the same helpers read both the wallet schema (nested rule
+// paths) and the drawer schema (flat rule paths) results.
+type ParseResult = {
+  success: boolean
+  error?: { issues: ReadonlyArray<{ path: ReadonlyArray<PropertyKey>; message: string }> }
+}
 
-const issueFor = (result: ReturnType<typeof walletFormValidationSchema.safeParse>, path: string) =>
-  result.success ? undefined : result.error.issues.find((i) => i.path.join('.') === path)
+const issuePaths = (result: ParseResult) =>
+  (result.error?.issues ?? []).map((issue) => issue.path.join('.'))
+
+const issueFor = (result: ParseResult, path: string) =>
+  (result.error?.issues ?? []).find((i) => i.path.join('.') === path)
 
 describe('walletFormValidationSchema', () => {
   describe('top-level fields', () => {
@@ -293,6 +300,40 @@ describe('walletFormValidationSchema', () => {
       },
     )
 
+    it.each([
+      ['paidCredits', 'recurringTransactionRules.0.paidCredits'],
+      ['grantedCredits', 'recurringTransactionRules.0.grantedCredits'],
+    ])(
+      'carries a renderable message on %s when both credits are missing — no UI-side label covers this case',
+      (_, path) => {
+        const result = walletFormValidationSchema.safeParse(
+          baseForm({
+            recurringTransactionRules: [baseRule({ paidCredits: '', grantedCredits: '' })],
+          }),
+        )
+
+        expect(issueFor(result, path)?.message).toEqual(expect.stringMatching(/.+/))
+      },
+    )
+
+    it('does not reuse that message for the BOUNDS issue — the drawer computes that label itself', () => {
+      const outOfBounds = walletFormValidationSchema.safeParse(
+        baseForm({
+          rateAmount: '1',
+          paidTopUpMaxAmountCents: '100',
+          recurringTransactionRules: [baseRule({ paidCredits: '200' })],
+        }),
+      )
+      const missingBoth = walletFormValidationSchema.safeParse(
+        baseForm({
+          recurringTransactionRules: [baseRule({ paidCredits: '', grantedCredits: '' })],
+        }),
+      )
+      const path = 'recurringTransactionRules.0.paidCredits'
+
+      expect(issueFor(outOfBounds, path)?.message).not.toBe(issueFor(missingBoth, path)?.message)
+    })
+
     it('accepts a Fixed rule when only one of the credits is filled', () => {
       const result = walletFormValidationSchema.safeParse(
         baseForm({
@@ -456,4 +497,15 @@ describe('malformed recurring rule shape (drawer schema)', () => {
   it('still validates a well-formed rule', () => {
     expect(drawerSchema.safeParse(baseRule({ thresholdCredits: '100' })).success).toBe(true)
   })
+
+  it.each([['paidCredits'], ['grantedCredits']])(
+    'carries a renderable message on the flat %s path when both credits are missing',
+    (path) => {
+      const result = drawerSchema.safeParse(
+        baseRule({ thresholdCredits: '100', paidCredits: '', grantedCredits: '' }),
+      )
+
+      expect(issueFor(result, path)?.message).toEqual(expect.stringMatching(/.+/))
+    },
+  )
 })

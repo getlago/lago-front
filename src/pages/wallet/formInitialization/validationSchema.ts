@@ -20,9 +20,14 @@ import { TWalletDataForm, TWalletRecurringRule } from '~/pages/wallet/types'
  *   (was fed via Yup validation context) — here we read them from `data`.
  * - rule `startedAt` is ISO-format-only when trigger=Interval (NOT required,
  *   NOT future-checked) — unlike `expirationAt` which is future-checked.
- * - empty-string messages (`''`) mirror the Yup `required('')` /
- *   message-less `createError()` behaviour: the field turns invalid without
- *   rendering an error text (labels are computed separately in the UI).
+ * - empty-string messages (`''`) mark the Yup `required('')` /
+ *   message-less `createError()` intent: the field turns invalid, the label is
+ *   computed separately in the UI. NOTE zod replaces `''` with its own
+ *   "Invalid input" default, so a field left to render the schema message shows
+ *   that string — only pass `''` where the UI supplies an `errorOverride`.
+ *   The rule "at least one of paid/granted credits" therefore carries a real
+ *   message: no UI-side label covers it, and the old `silentError` on both
+ *   inputs blocked the submit with nothing rendered under either one.
  *
  * Rule paths are emitted as `['recurringTransactionRules', index, field]`,
  * matching bracket field names (`recurringTransactionRules[0].field`) the
@@ -179,15 +184,29 @@ const addRecurringRuleIssues = (
     isNaN(Number(prepared(rulePaidCredits))) &&
     isNaN(Number(prepared(ruleGrantedCredits)))
 
+  // Bounds keep the message-less parity: the human-readable label needs
+  // translate() + currency formatting, so the drawer computes it itself and
+  // feeds it as `errorOverride` (which wins over the field error).
   if (ruleBoundsError) {
     ctx.addIssue({ code: 'custom', message: '', path: rulePath('paidCredits') })
   } else if (missingBothCredits) {
-    ctx.addIssue({ code: 'custom', message: '', path: rulePath('paidCredits') })
+    // Deliberate divergence from the Yup parity: with a message-less issue the
+    // submit was blocked with nothing rendered under either input, and no
+    // `errorOverride` covers this case (topUpAmountError bails on empty credits).
+    ctx.addIssue({
+      code: 'custom',
+      message: 'text_178515906443966dwzkfejqu',
+      path: rulePath('paidCredits'),
+    })
   }
 
   // grantedCredits — same "at least one" rule for method=Fixed
   if (missingBothCredits) {
-    ctx.addIssue({ code: 'custom', message: '', path: rulePath('grantedCredits') })
+    ctx.addIssue({
+      code: 'custom',
+      message: 'text_178515906443966dwzkfejqu',
+      path: rulePath('grantedCredits'),
+    })
   }
 
   // targetOngoingBalance — required when method=Target + must be

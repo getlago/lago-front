@@ -175,7 +175,6 @@ const RecurringRuleDrawerContent = withForm({
                       currency={currency}
                       beforeChangeFormatter={['positiveNumber']}
                       label={translate('text_62e79671d23ae6ff149de944')}
-                      silentError={true}
                       errorOverride={recurringPaidCreditsError?.label}
                       helperText={translate('text_62d18855b22699e5cf55f88b', {
                         paidCredits: formatCreditsToCurrency(
@@ -226,7 +225,6 @@ const RecurringRuleDrawerContent = withForm({
                       currency={currency}
                       beforeChangeFormatter={['positiveNumber']}
                       label={translate('text_62e79671d23ae6ff149de954')}
-                      silentError={true}
                       helperText={translate('text_62d18855b22699e5cf55f893', {
                         grantedCredits: formatCreditsToCurrency(
                           rateAmount,
