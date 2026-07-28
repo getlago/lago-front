@@ -246,22 +246,6 @@ jest.mock('~/generated/graphql', () => {
   }
 })
 
-jest.mock('~/components/designSystem/WarningDialog', () => ({
-  WarningDialog: () => <div data-test="warning-dialog" />,
-  ...((): any => {
-    // Capture ref via mock
-    const actual = jest.requireActual('react')
-    const originalUseRef = actual.useRef
-
-    jest.spyOn(actual, 'useRef').mockImplementation((initialValue: unknown) => {
-      // Restore immediately to not break other useRef calls
-      return originalUseRef(initialValue)
-    })
-
-    return {}
-  })(),
-}))
-
 // Mock heavy child components to avoid deep rendering
 jest.mock('~/components/plans/PlanSettingsSection', () => ({
   PlanSettingsSection: () => <div data-test="plan-settings-section" />,
