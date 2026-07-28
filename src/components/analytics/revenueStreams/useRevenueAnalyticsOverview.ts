@@ -5,11 +5,11 @@ import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import { formatRevenueStreamsData } from '~/components/analytics/revenueStreams/utils'
-import { AvailableFiltersEnum } from '~/components/designSystem/Filters'
+import { AvailableFiltersEnum } from '~/components/Filters'
 import {
   formatFiltersForRevenueStreamsQuery,
   getFilterValue,
-} from '~/components/designSystem/Filters/utils'
+} from '~/components/Filters/graphql/utils'
 import { REVENUE_STREAMS_OVERVIEW_FILTER_PREFIX } from '~/core/constants/filters'
 import { getTimezoneConfig } from '~/core/timezone'
 import {

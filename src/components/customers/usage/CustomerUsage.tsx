@@ -3,8 +3,8 @@ import { useState } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
 
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
-import { Filters } from '~/components/designSystem/Filters'
-import { formatFiltersForCustomerAnalyticsQuery } from '~/components/designSystem/Filters/utils'
+import { Filters } from '~/components/Filters'
+import { formatFiltersForCustomerAnalyticsQuery } from '~/components/Filters/graphql/utils'
 import Gross from '~/components/graphs/Gross'
 import MonthSelectorDropdown, {
   AnalyticsPeriodScopeEnum,

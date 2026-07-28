@@ -1,4 +1,4 @@
-import { AvailableFiltersEnum } from '~/components/designSystem/Filters'
+import { AvailableFiltersEnum } from '~/components/Filters'
 import {
   ActivityTypeEnum,
   BillingEntity,

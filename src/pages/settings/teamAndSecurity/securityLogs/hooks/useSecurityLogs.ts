@@ -3,7 +3,7 @@ import { DateTime } from 'luxon'
 import { useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import { formatFiltersForSecurityLogsQuery } from '~/components/designSystem/Filters'
+import { formatFiltersForSecurityLogsQuery } from '~/components/Filters'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { LagoApiError, useGetSecurityLogsQuery } from '~/generated/graphql'
 

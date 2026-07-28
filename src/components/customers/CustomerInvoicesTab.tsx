@@ -4,9 +4,9 @@ import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import { CustomerOverview } from '~/components/customers/overview/CustomerOverview'
-import { Filters } from '~/components/designSystem/Filters'
-import { formatFiltersForCustomerInvoicesQuery } from '~/components/designSystem/Filters/utils'
 import { usePageSearchParam } from '~/components/designSystem/Pagination'
+import { Filters } from '~/components/Filters'
+import { formatFiltersForCustomerInvoicesQuery } from '~/components/Filters/graphql/utils'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { SearchInput } from '~/components/SearchInput'
 import {

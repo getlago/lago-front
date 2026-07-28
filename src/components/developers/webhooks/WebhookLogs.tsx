@@ -3,15 +3,15 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { generatePath, useParams, useSearchParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
-import {
-  Filters,
-  formatFiltersForWebhookLogsQuery,
-  WebhookLogsAvailableFilters,
-} from '~/components/designSystem/Filters'
 import { WEBHOOK_LOGS_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { ListSectionRef, LogsLayout } from '~/components/developers/LogsLayout'
 import { WebhookLogDetails } from '~/components/developers/webhooks/WebhookLogDetails'
 import { WebhookLogTable } from '~/components/developers/webhooks/WebhookLogTable'
+import {
+  Filters,
+  formatFiltersForWebhookLogsQuery,
+  WebhookLogsAvailableFilters,
+} from '~/components/Filters'
 import { SearchInput } from '~/components/SearchInput'
 import { WEBHOOK_LOGS_FILTER_PREFIX } from '~/core/constants/filters'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
