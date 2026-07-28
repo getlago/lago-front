@@ -7,17 +7,40 @@ Slack tools so the fallback is actually callable.
 The format below is transcribed from the channel's actual posts. Match it. Posts that
 follow the house style get read; posts that invent their own get skimmed.
 
+One caveat on that transcription: what `slack_read_channel` returns is Slack's stored
+mrkdwn, which is not what you pass back in. See the bold rule immediately below before
+copying anything you read out of the channel.
+
+## Bold: send `**`, read `*`
+
+`slack_send_message` takes **standard markdown**, not Slack's own mrkdwn. Bold is
+therefore `**double asterisk**`. A single `*x*` is markdown *italic* and posts as
+italic, which is wrong and visibly out of step with every other post in the channel.
+
+Reading the channel back shows the opposite, because Slack stores mrkdwn:
+
+| Layer                             | Bold looks like |
+| --------------------------------- | ----------------- |
+| What you pass to `slack_send_message` | `**text**`      |
+| What `slack_read_channel` returns | `*text*`        |
+
+Do not "correct" a composed message to match what the read tool shows. That inverts it
+and posts italic.
+
 ## Base shape
 
 Bold title on line one, `:pr:` and the link on line two.
 
 ```
-*fix(auth): trim email to prevent whitespace validation failure*
+**fix(auth): trim email to prevent whitespace validation failure**
 :pr::ladybug: <https://github.com/getlago/lago-front/pull/4019|github.com/getlago/lago-front/pull/4019>
 ```
 
 The link label drops `https://` while the target keeps it. That is deliberate and it
 is what keeps the posts compact.
+
+Links stay in Slack's `<url|label>` form even though the rest is markdown, and they
+work. Do not convert them to `[label](url)`.
 
 ## Optional lines
 
@@ -56,7 +79,7 @@ verbatim, slug included.
 ## Full example
 
 ```
-*refactor(multi-connections): port payment & invoicing settings drawers*
+**refactor(multi-connections): port payment & invoicing settings drawers**
 :pr: <https://github.com/getlago/lago-front/pull/4003|github.com/getlago/lago-front/pull/4003>
 :admission_tickets: <https://linear.app/getlago/issue/ING-497/slug|linear.app/getlago/issue/ING-497/slug>
 :link: <https://recurring-rule-form-drawer-app.staging.getlago.com/>

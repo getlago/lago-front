@@ -321,21 +321,40 @@ is not yet announced, re-run the Phase 4 gate as part of every round.**
 Foreground `sleep` is blocked by the harness, so pick the waiting tool by how many
 notifications the wait produces. Do not mix the two idioms.
 
+**What wakes a round.** `Monitor` runs bash, so it can poll GitHub but **cannot call
+the Slack tools**. A reply in the announcement thread therefore does not wake anything
+by itself. Two things close that gap:
+
+- The poll loop emits a heartbeat every third quiet cycle (about hourly). Read the
+  Slack thread on **every** wake, heartbeat included, not just on GitHub deltas.
+- A reviewer replying in the thread has usually also touched the PR, which fires a
+  real delta anyway.
+
+So Slack feedback is always acted on, but a Slack-only reply during an active watch can
+sit up to an hour before it is seen. Follow-up mode has no such lag: a fresh
+`/babysit <n>` reads the thread immediately.
+
 - **`Monitor`** for a stream of one event per change. Give it a poll loop that prints a
-  line only when something moved, so quiet rounds cost nothing:
+  line only when something moved, plus the heartbeat, so quiet rounds stay cheap:
 
   ```bash
-  prev=""
+  prev=""; quiet=0
   while true; do
-    cur=$(gh pr view <n> --json headRefOid,mergeStateStatus,reviewDecision \
-            --jq '"\(.headRefOid) \(.mergeStateStatus) \(.reviewDecision)"' || true)
-    [ -n "$cur" ] && [ "$cur" != "$prev" ] && echo "changed: $cur"
-    prev=$cur
+    cur=$(gh pr view <n> --json headRefOid,state,mergeStateStatus,reviewDecision \
+            --jq '"\(.headRefOid[0:8]) \(.state) \(.mergeStateStatus) \(.reviewDecision)"' 2>/dev/null || true)
+    if [ -n "$cur" ]; then
+      if [ -z "$prev" ]; then echo "ARMED: $cur"
+      elif [ "$cur" != "$prev" ]; then echo "CHANGED: $cur"; quiet=0
+      else quiet=$((quiet+1)); [ $((quiet % 3)) -eq 0 ] && echo "QUIET x$quiet: $cur"
+      fi
+      prev=$cur
+    fi
     sleep 1200
   done
   ```
 
-  Set `persistent: true`; the watch is session-length.
+  Set `persistent: true`; the watch is session-length. Guard the `gh` calls with
+  `|| true` so one flaky request does not kill the monitor.
 
 - **`Bash` with `run_in_background`** for a single wake, using an `until` loop that
   exits once the condition holds. One notification, then done.
@@ -348,9 +367,11 @@ round.
 
 ### Slack thread as a second feedback source
 
-Read the announcement thread with `slack_read_thread(C04DJLU0KHD, ts)`. Replies are
-humans, so they follow the human rules exactly: always queued, never auto-applied, and
-disagreement escalates. Anything newer than babysit's own last reply is new.
+Read the announcement thread with `slack_read_thread(C04DJLU0KHD, ts)` on every wake,
+heartbeat rounds included, since no Slack reply can wake the monitor on its own.
+Replies are humans, so they follow the human rules exactly: always queued, never
+auto-applied, and disagreement escalates. Anything newer than babysit's own last reply
+is new.
 
 After fixes land, post one batched reply in the thread with the commit sha. One per
 round, not one per comment.
