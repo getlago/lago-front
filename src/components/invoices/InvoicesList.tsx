@@ -14,6 +14,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { buildInvoiceDocumentData } from '~/components/emails/buildDocumentData'
+import { useDeleteInvoiceDialog } from '~/components/invoices/DeleteInvoiceDialog'
 import { useUpdateInvoicePaymentStatusDialog } from '~/components/invoices/EditInvoicePaymentStatusDialog'
 import { useFinalizeInvoiceDialog } from '~/components/invoices/FinalizeInvoiceDialog'
 import { useResendInvoiceForCollectionDialog } from '~/components/invoices/ResendInvoiceForCollectionDialog'
@@ -91,6 +92,7 @@ const InvoicesList = ({
   const { handleDownloadFile } = useDownloadFile()
 
   const { openFinalizeInvoiceDialog } = useFinalizeInvoiceDialog()
+  const { openDeleteInvoiceDialog } = useDeleteInvoiceDialog()
   const { openUpdateInvoicePaymentStatusDialog } = useUpdateInvoicePaymentStatusDialog()
   const { openResendInvoiceForCollectionDialog } = useResendInvoiceForCollectionDialog()
 
@@ -308,6 +310,16 @@ const InvoicesList = ({
         }
       : null
 
+    const deleteAction: ActionItem<InvoiceItem> | null = actions.canDelete(invoice)
+      ? {
+          startIcon: 'trash',
+          title: translate('text_17848001862070vhaaoyut3y'),
+          onAction: (item) => {
+            openDeleteInvoiceDialog(item)
+          },
+        }
+      : null
+
     const regenerateAction: ActionItem<InvoiceItem> | null = actions.canRegenerate(
       invoice,
       hasActiveWallet,
@@ -330,6 +342,7 @@ const InvoicesList = ({
       updatePaymentStatusAction,
       issueCreditNoteAction,
       voidInvoiceAction,
+      deleteAction,
       regenerateAction,
     ].filter(Boolean) as Array<ActionItem<InvoiceItem>>
   }
