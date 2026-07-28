@@ -4,7 +4,7 @@ import { TextInput } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { PURCHASE_ORDER_NUMBER_MAX_LENGTH, PURCHASE_ORDER_TRANSLATIONS } from './constants'
-import { PO } from './PO'
+import { PurchaseOrder } from './PO'
 import { PurchaseOrderRootProps } from './types'
 import { normalizePurchaseOrderNumber } from './utils'
 
@@ -35,48 +35,62 @@ export const PurchaseOrderFormBlock = ({
     }
   }, [value])
 
-  return (
-    <PO className="gap-3" value={value} onChange={onChange} disabled={disabled} {...props}>
-      <div className="flex flex-col gap-1">
-        <PO.Title />
-        <PO.Description />
-      </div>
-      {showInput ? (
-        // Mirrors the metrics of sibling input+trash rows (e.g. the subscription
-        // name row): medium trash button so both inputs end at the same width.
-        <div className="flex items-center gap-3">
-          <TextInput
-            className="grow"
-            // eslint-disable-next-line jsx-a11y/no-autofocus
-            autoFocus={focusOnReveal}
-            value={value || ''}
-            placeholder={translate(PURCHASE_ORDER_TRANSLATIONS.placeholder)}
-            disabled={disabled}
-            error={
-              (value?.length ?? 0) > PURCHASE_ORDER_NUMBER_MAX_LENGTH
-                ? translate(PURCHASE_ORDER_TRANSLATIONS.maxLength)
-                : undefined
-            }
-            onChange={(newValue) => onChange?.(newValue)}
-            data-test={PURCHASE_ORDER_FORM_BLOCK_INPUT_TEST_ID}
-          />
-          <PO.TrashButton
-            size="medium"
-            onClick={() => {
-              onChange?.(null)
-              setShowInput(false)
-              setFocusOnReveal(false)
-            }}
-          />
-        </div>
-      ) : (
-        <PO.AddButton
+  const renderInputOrAddButton = () => {
+    if (!showInput) {
+      return (
+        <PurchaseOrder.AddButton
           onClick={() => {
             setFocusOnReveal(true)
             setShowInput(true)
           }}
         />
-      )}
-    </PO>
+      )
+    }
+
+    // Mirrors the metrics of sibling input+trash rows (e.g. the subscription
+    // name row): medium trash button so both inputs end at the same width.
+    return (
+      <div className="flex items-center gap-3">
+        <TextInput
+          className="grow"
+          // eslint-disable-next-line jsx-a11y/no-autofocus
+          autoFocus={focusOnReveal}
+          value={value || ''}
+          placeholder={translate(PURCHASE_ORDER_TRANSLATIONS.placeholder)}
+          disabled={disabled}
+          error={
+            (value?.length ?? 0) > PURCHASE_ORDER_NUMBER_MAX_LENGTH
+              ? translate(PURCHASE_ORDER_TRANSLATIONS.maxLength)
+              : undefined
+          }
+          onChange={(newValue) => onChange?.(newValue)}
+          data-test={PURCHASE_ORDER_FORM_BLOCK_INPUT_TEST_ID}
+        />
+        <PurchaseOrder.TrashButton
+          size="medium"
+          onClick={() => {
+            onChange?.(null)
+            setShowInput(false)
+            setFocusOnReveal(false)
+          }}
+        />
+      </div>
+    )
+  }
+
+  return (
+    <PurchaseOrder
+      className="gap-3"
+      value={value}
+      onChange={onChange}
+      disabled={disabled}
+      {...props}
+    >
+      <div className="flex flex-col gap-1">
+        <PurchaseOrder.Title />
+        <PurchaseOrder.Description />
+      </div>
+      {renderInputOrAddButton()}
+    </PurchaseOrder>
   )
 }

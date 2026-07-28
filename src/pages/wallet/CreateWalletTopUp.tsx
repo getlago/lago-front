@@ -179,8 +179,13 @@ const CreateWalletTopUp = () => {
 
   const form = useAppForm({
     // Recomputed inline on every render: TanStack re-seeds an untouched form
-    // when defaults deep-change as the wallet query resolves.
-    defaultValues: mapFromApiToForm({ wallet }),
+    // when defaults deep-change as the wallet query resolves — the same
+    // mechanism prefills the PO number once the voided invoice resolves
+    // (regenerate flow: carry the voided invoice's PO over to the top-up).
+    defaultValues: mapFromApiToForm({
+      wallet,
+      purchaseOrderNumber: voidedInvoice?.invoice?.purchaseOrderNumber,
+    }),
     validationLogic: revalidateLogic(),
     validators: {
       onDynamic: validationSchema,

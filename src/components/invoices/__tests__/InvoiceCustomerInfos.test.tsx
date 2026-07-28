@@ -3,6 +3,11 @@ import { Settings } from 'luxon'
 
 import { InvoiceCustomerInfos } from '~/components/invoices/InvoiceCustomerInfos'
 import {
+  PURCHASE_ORDER_ADD_BUTTON_TEST_ID,
+  PURCHASE_ORDER_EDIT_BUTTON_TEST_ID,
+  PURCHASE_ORDER_TRASH_BUTTON_TEST_ID,
+} from '~/components/purchaseOrder/PurchaseOrderButtons'
+import {
   CountryCode,
   CustomerAccountTypeEnum,
   InvoiceForInvoiceInfosFragment,
@@ -257,6 +262,32 @@ describe('InvoiceCustomerInfos', () => {
       render(<InvoiceCustomerInfos invoice={mockInvoice} />)
 
       expect(screen.getByText('PO number').parentElement).toHaveTextContent(/^PO number-$/)
+    })
+
+    it('should render an editable "add" button for the PO number when a change handler is provided and there is no value', () => {
+      const mockInvoice = createMockInvoice({ purchaseOrderNumber: null })
+
+      render(<InvoiceCustomerInfos invoice={mockInvoice} onPurchaseOrderNumberChange={jest.fn()} />)
+
+      expect(screen.getByTestId(PURCHASE_ORDER_ADD_BUTTON_TEST_ID)).toBeInTheDocument()
+      expect(screen.queryByTestId(PURCHASE_ORDER_EDIT_BUTTON_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    it('should render the PO number with edit/delete controls when a change handler and value are provided', () => {
+      const mockInvoice = createMockInvoice()
+
+      render(
+        <InvoiceCustomerInfos
+          invoice={mockInvoice}
+          purchaseOrderNumber="PO-EDITABLE"
+          onPurchaseOrderNumberChange={jest.fn()}
+        />,
+      )
+
+      expect(screen.getByText('PO-EDITABLE')).toBeInTheDocument()
+      expect(screen.getByTestId(PURCHASE_ORDER_EDIT_BUTTON_TEST_ID)).toBeInTheDocument()
+      expect(screen.getByTestId(PURCHASE_ORDER_TRASH_BUTTON_TEST_ID)).toBeInTheDocument()
+      expect(screen.queryByTestId(PURCHASE_ORDER_ADD_BUTTON_TEST_ID)).not.toBeInTheDocument()
     })
 
     it('should handle null invoice gracefully', () => {
