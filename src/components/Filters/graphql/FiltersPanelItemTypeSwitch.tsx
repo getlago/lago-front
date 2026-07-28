@@ -69,6 +69,12 @@ import { AvailableFiltersEnum, FiltersFormValues } from '~/components/Filters/pr
 import { LogEventEnum, LogTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+export const FILTERS_PANEL_ITEM_TYPE_SWITCH_PLACEHOLDER_TEST_ID =
+  'filters-panel-item-type-switch-placeholder'
+export const FILTERS_PANEL_ITEM_TYPE_SWITCH_DATE_HELP_TEST_ID =
+  'filters-panel-item-type-switch-date-help'
+export const FILTERS_PANEL_ITEM_TYPE_SWITCH_HELP_TEST_ID = 'filters-panel-item-type-switch-help'
+
 type FiltersPanelItemTypeSwitchProps = {
   filterType: AvailableFiltersEnum | undefined
   value: FiltersFormValues['filters'][0]['value']
@@ -82,7 +88,12 @@ export const FiltersPanelItemTypeSwitch = ({
   const { translate } = useInternationalization()
 
   if (!filterType) {
-    return <div className="h-[46px] rounded-xl border border-dashed border-grey-300 lg:flex-1" />
+    return (
+      <div
+        data-test={FILTERS_PANEL_ITEM_TYPE_SWITCH_PLACEHOLDER_TEST_ID}
+        className="h-[46px] rounded-xl border border-dashed border-grey-300 lg:flex-1"
+      />
+    )
   }
 
   const filterTypeMap: Record<AvailableFiltersEnum, React.ReactNode> = {
@@ -165,7 +176,11 @@ export const FiltersPanelItemTypeSwitch = ({
   return (
     <>
       {FiltersItemDates.includes(filterType) ? (
-        <Typography variant="body" color="grey700">
+        <Typography
+          data-test={FILTERS_PANEL_ITEM_TYPE_SWITCH_DATE_HELP_TEST_ID}
+          variant="body"
+          color="grey700"
+        >
           {translate('text_66ab42d4ece7e6b7078993e2')}
         </Typography>
       ) : (
@@ -174,7 +189,11 @@ export const FiltersPanelItemTypeSwitch = ({
          * for that specific filter type
          */
         filterType !== 'metadata' && (
-          <Typography variant="body" color="grey700">
+          <Typography
+            data-test={FILTERS_PANEL_ITEM_TYPE_SWITCH_HELP_TEST_ID}
+            variant="body"
+            color="grey700"
+          >
             {translate('text_66ab42d4ece7e6b7078993d0')}
           </Typography>
         )
