@@ -24,8 +24,12 @@ References, read on demand rather than up front:
 
 - `references/gh-cookbook.md` - every `gh` and GraphQL call used below
 - `references/ci-playbook.md` - CI check to local `pnpm` command
-- `references/review-focus.md` - Lago focus areas passed to `/review`
 - `references/slack-format.md` - `#frontend` announcement format
+
+These three describe babysit's own mechanics. **No file in this skill restates a coding
+rule.** The repo's conventions have exactly one home, `CLAUDE.md` and `.agents/docs/`,
+and the review points at those rather than copying them. A copy would drift, and a
+stale copy enforced during review is worse than no review at all.
 
 ## The two durable-state rules
 
@@ -81,13 +85,44 @@ the user already triaged it; re-running would re-litigate settled decisions.
 ## Phase 1 - Review, report, triage
 
 First run only. Do not write a review from scratch here. Delegate to the built-in
-`/review`, which takes a PR number:
+`/review`, which takes a PR number.
+
+**Point it at the repo's conventions; never restate them.** `CLAUDE.md` and
+`.agents/docs/` are the single source of truth, and they are what coding sessions
+already load. The review reads the same files, so a rule can never be enforced in
+review while being absent from the guidance the code was written against.
+
+Work out which docs the diff touches, then pass their paths:
+
+| Diff touches                                    | Also read                             |
+| ----------------------------------------------- | --------------------------------------- |
+| anything                                        | `CLAUDE.md`                           |
+| tests, `__tests__/`, `cypress/`                 | `.agents/docs/testing-practices.md`   |
+| `.graphql`, fragments, `src/generated/`         | `.agents/docs/graphql-fragments.md`   |
+| new files or directories                        | `.agents/docs/folder-architecture.md` |
+| a new or unfamiliar library                     | `.agents/docs/documentation.md`       |
+
+`CLAUDE.md` already pulls in `.agents/docs/typescript-conventions.md` itself, and its
+own sections cover drawers, pagination, router imports, MUI imports, translations, and
+the organization-slug rules. Nothing there needs repeating here.
 
 ```
-Skill(skill: "review", args: "<n>\n\nFocus areas:\n<contents of references/review-focus.md>")
+Skill(skill: "review", args: `<n>
+
+Review against this repo's conventions. Read these files and treat them as the
+authority, in this order:
+  CLAUDE.md
+  <the .agents/docs paths selected above>
+
+Weight violations of those documented rules above generic code-review findings.
+Do not report anything CI already catches: formatting, type errors, failing tests,
+lint. Do not report pre-existing issues on lines this PR did not touch.`)
 ```
 
-Then turn its findings into a triage list:
+If a listed path does not exist, say so in the run output rather than reviewing
+without it. A renamed doc should fail loudly, not silently narrow the review.
+
+Then turn the findings into a triage list:
 
 1. Drop anything CI already covers (formatting, type errors, failing tests, lint). Those
    are the loop's job, not a decision for the user.
