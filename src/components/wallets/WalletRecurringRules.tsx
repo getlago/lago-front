@@ -64,22 +64,26 @@ const RecurringRuleBlock = ({
     paymentMethodsList,
   )
 
-  const formatCredits = (credits?: string | null, { zeroAsEmpty = true } = {}) =>
-    credits && (!zeroAsEmpty || Number(credits) !== 0)
+  const formatCredits = (credits?: string | null, { zeroAsEmpty = true } = {}) => {
+    const creditsAmount = Number(credits)
+    // A non-numeric amount converts to 0 rather than rendering "NaN"
+    const convertedAmount = Number.isNaN(creditsAmount)
+      ? 0
+      : creditsAmount * Number(wallet.rateAmount)
+
+    return credits && (!zeroAsEmpty || creditsAmount !== 0)
       ? `${translate(
           'text_62da6ec24a8e24e44f812896',
           {
-            amount: Number(credits),
+            amount: creditsAmount,
           },
-          Number(credits),
-        )} • ${intlFormatNumber(
-          isNaN(Number(credits)) ? 0 : Number(credits) * Number(wallet.rateAmount),
-          {
-            currencyDisplay: 'symbol',
-            currency: wallet.currency,
-          },
-        )}`
+          creditsAmount,
+        )} • ${intlFormatNumber(convertedAmount, {
+          currencyDisplay: 'symbol',
+          currency: wallet.currency,
+        })}`
       : '-'
+  }
 
   const yesNo = (value?: boolean | null) =>
     translate(value ? YES_TRANSLATION_KEY : NO_TRANSLATION_KEY)
