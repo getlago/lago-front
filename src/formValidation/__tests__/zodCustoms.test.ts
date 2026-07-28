@@ -9,6 +9,7 @@ import {
   zodOptionalUrl,
   zodRequiredEmail,
   zodRequiredPassword,
+  zodRequiredUrl,
 } from '~/formValidation/zodCustoms'
 
 describe('zodCustoms', () => {
@@ -240,6 +241,47 @@ describe('zodCustoms', () => {
     describe('error message', () => {
       it('returns the correct error key on failure', () => {
         const result = zodOptionalUrl.safeParse('invalid')
+
+        expect(result.success).toBe(false)
+
+        if (!result.success) {
+          expect(result.error.issues[0].message).toBe('text_1764239804026ca61hwr3pp9')
+        }
+      })
+    })
+  })
+
+  describe('zodRequiredUrl', () => {
+    describe('valid', () => {
+      it.each([
+        ['https://example.com', 'https URL'],
+        ['http://example.com', 'http URL'],
+        ['https://example.com/path?query=1', 'URL with path and query'],
+        ['https://sub.domain.com:8080/path', 'URL with port and path'],
+      ])('accepts "%s" (%s)', (value) => {
+        const result = zodRequiredUrl.safeParse(value)
+
+        expect(result.success).toBe(true)
+      })
+    })
+
+    describe('invalid', () => {
+      it('rejects empty string with required error', () => {
+        const result = zodRequiredUrl.safeParse('')
+
+        expect(result.success).toBe(false)
+
+        if (!result.success) {
+          expect(result.error.issues[0].message).toBe('text_624ea7c29103fd010732ab7d')
+        }
+      })
+
+      it.each([
+        ['not-a-url', 'plain string'],
+        ['example.com', 'missing protocol'],
+        ['://missing-scheme.com', 'missing scheme'],
+      ])('rejects "%s" (%s) with format error', (value) => {
+        const result = zodRequiredUrl.safeParse(value)
 
         expect(result.success).toBe(false)
 
