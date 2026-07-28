@@ -1332,7 +1332,6 @@
   "text_63eba8c65a6c8043feee2a0d": "Atualizar status do pagamento",
   "text_63eba8c65a6c8043feee2a0e": "Observe que a atualização do status de pagamento de uma fatura não acionará novamente o processo de cobrança.",
   "text_63eba8c65a6c8043feee2a0f": "Status do pagamento",
-  "text_63eba8c65a6c8043feee2a14": "Cancelar",
   "text_63eba8c65a6c8043feee2a15": "Atualizar status",
   "text_63aa085d28b8510cd464440d": "{{invoiceGracePeriod}} dia (herdar da entidade de faturamento)|{{invoiceGracePeriod}} dias (herdar da entidade de faturamento)",
   "text_638dff9779fb99299bee9126": "Configurações",

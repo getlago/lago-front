@@ -1300,7 +1300,6 @@
   "text_63eba8c65a6c8043feee2a0d": "Update payment status",
   "text_63eba8c65a6c8043feee2a0e": "Please note that updating the payment status of an invoice will not re-trigger the payment collection process.",
   "text_63eba8c65a6c8043feee2a0f": "Payment status",
-  "text_63eba8c65a6c8043feee2a14": "Cancel",
   "text_63eba8c65a6c8043feee2a15": "Update status",
   "text_63aa085d28b8510cd464440d": "{{invoiceGracePeriod}} day (inherit from billing entity)|{{invoiceGracePeriod}} days (inherit from billing entity)",
   "text_638dff9779fb99299bee9126": "Settings",
