@@ -1,7 +1,8 @@
 # Slack announcement format
 
-Channel `#frontend`, id `C04DJLU0KHD`. Look the id up with `slack_search_channels` if
-it ever changes.
+Channel `#frontend`, id `C04DJLU0KHD`. If that id ever stops resolving, look it up with
+`slack_search_channels`, which the Setup step in `SKILL.md` loads alongside the other
+Slack tools so the fallback is actually callable.
 
 The format below is transcribed from the channel's actual posts. Match it. Posts that
 follow the house style get read; posts that invent their own get skimmed.

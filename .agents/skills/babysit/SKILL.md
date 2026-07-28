@@ -17,7 +17,7 @@ Never merge unless the user explicitly asks.
 The Slack tools are deferred. Load them in one call before starting:
 
 ```
-ToolSearch(query: "select:mcp__claude_ai_Slack__slack_search_public,mcp__claude_ai_Slack__slack_read_thread,mcp__claude_ai_Slack__slack_send_message")
+ToolSearch(query: "select:mcp__claude_ai_Slack__slack_search_public,mcp__claude_ai_Slack__slack_read_thread,mcp__claude_ai_Slack__slack_send_message,mcp__claude_ai_Slack__slack_search_channels")
 ```
 
 References, read on demand rather than up front:
@@ -47,7 +47,10 @@ Never replace either with a file in the repo or in a scratch directory.
 
 ## Phase 0 - Identify or open the PR
 
-1. Argument given (`/babysit 4020`) -> use it. Otherwise find the current branch's PR:
+1. **Parse the argument.** Strip any flags first, then treat what remains as the PR
+   number or URL. The only flag is `--review`, which forces Phase 1 to run even in
+   follow-up mode; record it and remove it before touching `gh`. No number left over
+   -> find the current branch's PR with
    `gh pr view --json number,url,title,body,headRefName,...`.
 2. Closed or merged -> report and stop.
 3. **No PR for the branch -> open one, ready for review.**
@@ -99,7 +102,7 @@ Work out which docs the diff touches, then pass their paths:
 | anything                                        | `CLAUDE.md`                           |
 | tests, `__tests__/`, `cypress/`                 | `.agents/docs/testing-practices.md`   |
 | `.graphql`, fragments, `src/generated/`         | `.agents/docs/graphql-fragments.md`   |
-| new files or directories                        | `.agents/docs/folder-architecture.md` |
+| new files or directories **under `src/`**       | `.agents/docs/folder-architecture.md` |
 | a new or unfamiliar library                     | `.agents/docs/documentation.md`       |
 
 `CLAUDE.md` already pulls in `.agents/docs/typescript-conventions.md` itself, and its
@@ -210,16 +213,27 @@ Round 4 | 14:22
 
 ## Phase 3 - Comment triage
 
-For each unresolved thread whose first comment is from a bot
-(`copilot-pull-request-reviewer[bot]`, or any `*[bot]`):
+Take **every** unresolved review thread from the `reviewThreads` query, then split it
+by the login of its first comment. Both piles must be worked every round: a thread that
+matches neither rule below has been dropped, which is a bug.
 
-### A. Dedup against the ledger
+| First comment author                                | Pile      | Handling                                                     |
+| ----------------------------------------------------- | --------- | -------------------------------------------------------------- |
+| `copilot-pull-request-reviewer[bot]`, any `*[bot]`  | **Bot**   | Sections A to C below: dedup, then APPLY / DECLINE / ESCALATE |
+| Anyone else                                         | **Human** | Section D. Always queued, never declined, never auto-resolved |
+
+### A. Dedup against the ledger (bot threads only)
 
 This is what stops Copilot re-posting a comment already settled.
 
 Fingerprint: first 6 hex of `sha1(path + "|" + normalised_body)`, where the body is
-lowercased, code fences and `suggestion` blocks stripped, **all digits removed** so
-line-number drift does not change it, whitespace collapsed.
+lowercased, code fences and `suggestion` blocks stripped, and whitespace collapsed.
+
+**Do not strip digits.** Line numbers live in the thread's own fields, not in the
+comment body, and `path` is the only positional value hashed, so drift cannot move the
+fingerprint anyway. Removing digits buys nothing and actively collides: "limit should
+be 20" and "limit should be 50" on one file normalise to the same string, and the
+second, genuinely new comment gets silently resolved as a duplicate without being read.
 
 - **Exact fingerprint in the ledger** -> resolve the thread immediately with a one-line
   reply linking the original decline. No re-analysis. One line in the round summary,
@@ -251,9 +265,25 @@ Not applying: <one or two sentences of concrete reasoning, citing a rule or file
 Then resolve the thread. The marker does not render in GitHub's UI but is present in
 the API body, which is what makes the ledger work.
 
-**Human reviewers are never auto-declined.** Disagreeing with a human "changes
-requested" is always an ESCALATE. Report the disagreement with reasoning and let the
-user answer the reviewer.
+### D. Human threads
+
+Every unresolved thread from a non-bot author becomes a pending queue item, one per
+thread, carrying the reviewer's login, the `path`, and the comment text. Nothing here
+is ever auto-applied, auto-declined, or auto-resolved, however mechanical it looks: a
+human comment can carry intent the diff does not show.
+
+- Skip the ledger entirely. Fingerprints and decline markers are a bot-duplication
+  defence and have no meaning for a person who wrote the comment once.
+- Disagreeing with a reviewer is an ESCALATE. Report the disagreement with reasoning
+  and let the user answer the reviewer; babysit does not argue with humans on the PR.
+- A thread stays queued until the user answers. Only the user's answer closes it, and
+  resolving the thread is the user's call, not babysit's.
+- Applied fixes get a reply with the commit sha, and nothing else.
+
+A reviewer leaving "changes requested" must therefore always show up in the round
+summary. If a round reports an empty queue while `reviewDecision` is
+`CHANGES_REQUESTED`, the split above was not applied. Treat that as a bug in the run,
+not as a quiet PR.
 
 ## Phase 4 - Announce in #frontend
 
@@ -274,20 +304,47 @@ the run's output shows exactly what went out. Keep the returned `ts` as the thre
 anchor.
 
 Gate not met -> skip the announce, say which condition failed, and carry on watching.
+**The gate is re-evaluated every Phase 5 round until the PR is announced**, so the
+common case of arriving here while Run Test E2E is still pending resolves itself the
+moment it goes green. Announcing is not a one-shot checkpoint.
 
 ## Phase 5 - Keep watching
 
 Announcing is not the end. Keep looping until the PR is ready to merge, now on a
 **20 minute** interval, because it is waiting on humans rather than CI.
 
-Wait with the `Monitor` tool in an until-loop. Foreground `sleep` is blocked by the
-harness. `gh pr checks --watch --interval 30` still covers the short CI waits inside a
-round.
-
 Each round is a delta check, not a full re-read. Compare head sha, check conclusions,
 review-thread count, and the Slack thread's latest reply `ts` against the previous
-round. Nothing changed and nothing pending -> one line, back to waiting. This is what
-makes a multi-hour watch affordable.
+round. Nothing changed and nothing pending -> one line, back to waiting. **If the PR
+is not yet announced, re-run the Phase 4 gate as part of every round.**
+
+Foreground `sleep` is blocked by the harness, so pick the waiting tool by how many
+notifications the wait produces. Do not mix the two idioms.
+
+- **`Monitor`** for a stream of one event per change. Give it a poll loop that prints a
+  line only when something moved, so quiet rounds cost nothing:
+
+  ```bash
+  prev=""
+  while true; do
+    cur=$(gh pr view <n> --json headRefOid,mergeStateStatus,reviewDecision \
+            --jq '"\(.headRefOid) \(.mergeStateStatus) \(.reviewDecision)"' || true)
+    [ -n "$cur" ] && [ "$cur" != "$prev" ] && echo "changed: $cur"
+    prev=$cur
+    sleep 1200
+  done
+  ```
+
+  Set `persistent: true`; the watch is session-length.
+
+- **`Bash` with `run_in_background`** for a single wake, using an `until` loop that
+  exits once the condition holds. One notification, then done.
+
+An `until` loop handed to `Monitor` prints nothing and so notifies nothing: it sits
+armed until timeout while the round never fires. That is the failure to avoid.
+
+`gh pr checks <n> --watch --interval 30` still covers the short CI waits inside a
+round.
 
 ### Slack thread as a second feedback source
 
