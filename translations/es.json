@@ -273,5 +273,10 @@
   "text_1783352692386valktkog1dw": "Añadir número de orden de compra",
   "text_17833526923863j848qxkffb": "Configuración del monedero",
   "text_17841895626504bixbm3xbyj": "Consulta los detalles de este pedido ejecutado, incluidos sus ajustes de ejecución y su contenido.",
-  "text_17842142209100wegryv1st3": "La factura {{invoiceNumber}} fue eliminada"
+  "text_17842142209100wegryv1st3": "La factura {{invoiceNumber}} fue eliminada",
+  "text_17848001862070vhaaoyut3y": "Eliminar factura",
+  "text_17848001862071abwcvd3b3p": "Está a punto de eliminar esta factura en borrador",
+  "text_1784800186207jjeqsv1d0rd": "Esta factura en borrador se eliminará de forma permanente y nunca se convertirá en una cuenta por cobrar. Esta acción no se puede deshacer. ¿Seguro que quieres continuar?",
+  "text_1784800186207ionjr7ey3jq": "Factura en borrador eliminada",
+  "text_178482400457029nb9diwj6m": "Eliminar una factura en borrador"
 }

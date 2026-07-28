@@ -273,5 +273,10 @@
   "text_1783352692386valktkog1dw": "Lägg till inköpsordernummer",
   "text_17833526923863j848qxkffb": "Plånboksinställningar",
   "text_17841895626504bixbm3xbyj": "Visa detaljerna för denna utförda order, inklusive dess utförandeinställningar och innehåll.",
-  "text_17842142209100wegryv1st3": "Faktura {{invoiceNumber}} har raderats"
+  "text_17842142209100wegryv1st3": "Faktura {{invoiceNumber}} har raderats",
+  "text_17848001862070vhaaoyut3y": "Ta bort faktura",
+  "text_17848001862071abwcvd3b3p": "Du är på väg att ta bort detta fakturautkast",
+  "text_1784800186207jjeqsv1d0rd": "Detta fakturautkast raderas permanent och blir aldrig en kundfordran. Denna åtgärd kan inte ångras. Är du säker på att du vill fortsätta?",
+  "text_1784800186207ionjr7ey3jq": "Fakturautkast borttaget",
+  "text_178482400457029nb9diwj6m": "Ta bort ett fakturautkast"
 }

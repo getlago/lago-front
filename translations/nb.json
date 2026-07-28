@@ -273,5 +273,10 @@
   "text_1783352692386valktkog1dw": "Legg til innkjøpsordrenummer",
   "text_17833526923863j848qxkffb": "Lommebokinnstillinger",
   "text_17841895626504bixbm3xbyj": "Se detaljene for denne utførte ordren, inkludert utførelsesinnstillinger og innhold.",
-  "text_17842142209100wegryv1st3": "Faktura {{invoiceNumber}} ble slettet"
+  "text_17842142209100wegryv1st3": "Faktura {{invoiceNumber}} ble slettet",
+  "text_17848001862070vhaaoyut3y": "Slett faktura",
+  "text_17848001862071abwcvd3b3p": "Du er i ferd med å slette dette fakturautkastet",
+  "text_1784800186207jjeqsv1d0rd": "Dette fakturautkastet slettes permanent og blir aldri en kundefordring. Denne handlingen kan ikke angres. Er du sikker på at du vil fortsette?",
+  "text_1784800186207ionjr7ey3jq": "Fakturautkast slettet",
+  "text_178482400457029nb9diwj6m": "Slette et fakturautkast"
 }

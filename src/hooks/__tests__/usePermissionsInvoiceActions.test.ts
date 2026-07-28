@@ -36,6 +36,7 @@ const DEFAULT_PERMISSIONS = {
   draftInvoicesUpdate: true,
   invoicesSend: true,
   invoicesVoid: true,
+  invoicesDelete: true,
   creditNotesCreate: true,
   paymentsCreate: true,
 }
@@ -509,6 +510,26 @@ describe('usePermissionsInvoiceActions', () => {
       const { result } = await prepare({ invoicesVoid: false })
 
       expect(result.current.canVoid({ status: InvoiceStatusTypeEnum.Finalized })).toBe(false)
+    })
+  })
+
+  describe('canDelete', () => {
+    it('should return true when invoice is draft and has permission', async () => {
+      const { result } = await prepare()
+
+      expect(result.current.canDelete({ status: InvoiceStatusTypeEnum.Draft })).toBe(true)
+    })
+
+    it('should return false when invoice is not draft', async () => {
+      const { result } = await prepare()
+
+      expect(result.current.canDelete({ status: InvoiceStatusTypeEnum.Finalized })).toBe(false)
+    })
+
+    it('should return false when user does not have invoicesDelete permission', async () => {
+      const { result } = await prepare({ invoicesDelete: false })
+
+      expect(result.current.canDelete({ status: InvoiceStatusTypeEnum.Draft })).toBe(false)
     })
   })
 
