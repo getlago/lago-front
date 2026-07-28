@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { revalidateLogic } from '@tanstack/react-form'
-import { useEffect, useMemo, useRef } from 'react'
+import { useMemo, useRef } from 'react'
 import { z } from 'zod'
 
 import { Typography } from '~/components/designSystem/Typography'
@@ -79,12 +79,6 @@ const ApplyTaxDialogContent = withForm({
       },
       notifyOnNetworkStatusChange: true,
     })
-
-    // Eagerly load the taxes on mount so the dropdown has options when the
-    // dialog auto-opens it (searchQuery only fires on typing, not on open).
-    useEffect(() => {
-      getTaxes()
-    }, [getTaxes])
 
     const taxes = useMemo(
       () =>
