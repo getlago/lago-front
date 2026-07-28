@@ -70,7 +70,7 @@ const inputAdornment = (endLabel: string) => {
 }
 
 const formatCreditsToCurrency = (rate: string, credits?: string, currency?: CurrencyEnum) => {
-  return intlFormatNumber(isNaN(Number(credits)) ? 0 : Number(credits) * Number(rate), {
+  return intlFormatNumber(Number.isNaN(Number(credits)) ? 0 : Number(credits) * Number(rate), {
     currencyDisplay: 'symbol',
     currency: currency || CurrencyEnum.Usd,
   })
@@ -560,7 +560,8 @@ export const useRecurringRuleDrawer = ({
     defaultValues: DEFAULT_RULES,
     validationLogic: revalidateLogic(),
     validators: {
-      // Wallet-level bounds are frozen while the drawer is open (modal)
+      // Rebuilt on every render, so these bounds are the LIVE wallet values —
+      // unlike the drawer body below, which captures them when it opens.
       onDynamic: recurringRuleValidationSchema({
         rateAmount: walletValues.rateAmount,
         paidTopUpMinAmountCents: walletValues.paidTopUpMinAmountCents,

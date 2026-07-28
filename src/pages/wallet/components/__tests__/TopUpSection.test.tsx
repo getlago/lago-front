@@ -109,10 +109,12 @@ const TestWrapper = ({
   defaultsOverride,
   initiallyEnabled = false,
   withValidation = false,
+  autoOpenRuleDrawer = false,
 }: {
   defaultsOverride?: Partial<TWalletDataForm>
   initiallyEnabled?: boolean
   withValidation?: boolean
+  autoOpenRuleDrawer?: boolean
 }) => {
   const form = useAppForm({
     defaultValues: {
@@ -147,6 +149,7 @@ const TestWrapper = ({
         customerData={customerData}
         isRecurringTopUpEnabled={isRecurringTopUpEnabled}
         setIsRecurringTopUpEnabled={setIsRecurringTopUpEnabled}
+        autoOpenRuleDrawer={autoOpenRuleDrawer}
       />
       {withValidation && (
         <button
@@ -489,6 +492,56 @@ describe('TopUpSection', () => {
         expect(formValuesProbe.current?.recurringTransactionRules?.[0]?.method).toBe(
           RecurringTransactionMethodEnum.Target,
         )
+      })
+    })
+  })
+
+  describe('GIVEN the auto-open intent flag (details-tab Edit bridge)', () => {
+    describe('WHEN autoOpenRuleDrawer is true for a premium user', () => {
+      it('THEN should open the drawer on mount seeded with the current rule', () => {
+        render(
+          <TestWrapper
+            autoOpenRuleDrawer
+            initiallyEnabled
+            defaultsOverride={withRule({ paidCredits: '42' })}
+          />,
+        )
+
+        expect(mockOpenRuleDrawer).toHaveBeenCalledTimes(1)
+        expect(mockOpenRuleDrawer).toHaveBeenCalledWith(
+          expect.objectContaining({ paidCredits: '42' }),
+        )
+      })
+
+      it('THEN should not reopen when the flag re-triggers after the first open', () => {
+        const { rerender } = render(<TestWrapper autoOpenRuleDrawer />)
+
+        expect(mockOpenRuleDrawer).toHaveBeenCalledTimes(1)
+
+        // Flag flips off and on again (e.g. a loading gate cycling) — the
+        // once-guard must hold, otherwise the drawer pops over the user's work
+        rerender(<TestWrapper autoOpenRuleDrawer={false} />)
+        rerender(<TestWrapper autoOpenRuleDrawer />)
+
+        expect(mockOpenRuleDrawer).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    describe('WHEN autoOpenRuleDrawer is false', () => {
+      it('THEN should not open the drawer', () => {
+        render(<TestWrapper autoOpenRuleDrawer={false} />)
+
+        expect(mockOpenRuleDrawer).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the user is not premium', () => {
+      it('THEN should not open the drawer', () => {
+        mockIsPremium.mockReturnValue(false)
+
+        render(<TestWrapper autoOpenRuleDrawer />)
+
+        expect(mockOpenRuleDrawer).not.toHaveBeenCalled()
       })
     })
   })

@@ -1,5 +1,6 @@
 import Box from '@mui/material/Box'
 import { useStore } from '@tanstack/react-form'
+import { useEffect, useRef } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Selector, SelectorActions } from '~/components/designSystem/Selector'
@@ -30,6 +31,12 @@ interface TopUpSectionExtraProps {
   walletCreatedAt?: string | null
   isRecurringTopUpEnabled: boolean
   setIsRecurringTopUpEnabled: (value: boolean) => void
+  /**
+   * Opens the rule drawer as soon as the form is ready — bridge for the
+   * wallet-details "Recurring rule" tab Edit until the dedicated rule
+   * mutations exist (ING-529). Only pass it once the wallet data is loaded.
+   */
+  autoOpenRuleDrawer?: boolean
 }
 
 const topUpSectionDefaultProps: TopUpSectionExtraProps = {
@@ -38,6 +45,7 @@ const topUpSectionDefaultProps: TopUpSectionExtraProps = {
   walletCreatedAt: undefined,
   isRecurringTopUpEnabled: false,
   setIsRecurringTopUpEnabled: () => {},
+  autoOpenRuleDrawer: false,
 }
 
 export const TopUpSection = withForm({
@@ -49,6 +57,7 @@ export const TopUpSection = withForm({
     walletCreatedAt,
     isRecurringTopUpEnabled,
     setIsRecurringTopUpEnabled,
+    autoOpenRuleDrawer,
   }) {
     const { isPremium } = useCurrentUser()
     const { translate } = useInternationalization()
@@ -97,6 +106,18 @@ export const TopUpSection = withForm({
     })
 
     const openRuleDrawer = () => openDrawer(recurringTransactionRules)
+
+    // Auto-open on landing (once): entering the form via the details-tab Edit
+    // means "edit the rule", so skip the scroll-and-click.
+    const hasAutoOpenedRuleDrawer = useRef(false)
+
+    useEffect(() => {
+      if (!autoOpenRuleDrawer || hasAutoOpenedRuleDrawer.current || !isPremium) return
+
+      hasAutoOpenedRuleDrawer.current = true
+      openDrawer(recurringTransactionRules)
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [autoOpenRuleDrawer, isPremium])
 
     return (
       <>
