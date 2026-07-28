@@ -24,8 +24,8 @@ const buildTopUpErrorLabel = (
 export const topUpAmountError = ({
   rateAmount,
   paidCredits,
-  paidTopUpMinAmountCents,
-  paidTopUpMaxAmountCents,
+  paidTopUpMinAmountCents: rawPaidTopUpMinAmountCents,
+  paidTopUpMaxAmountCents: rawPaidTopUpMaxAmountCents,
   currency,
   translate,
   skip,
@@ -47,6 +47,17 @@ export const topUpAmountError = ({
   if (skip) return
   if (!rateAmount || typeof paidCredits === 'undefined' || paidCredits === '') return
   if (Number(paidCredits) === 0) return
+
+  // An emptied bound field ('') means "no bound", never a bound of 0 —
+  // otherwise Number('') = 0 makes hasMax true and turns every positive amount
+  // into a false "above max". The validation schemas normalize this with
+  // `prepared` before calling in; the UI callers pass raw form values straight
+  // through, so normalizing here is what keeps the inline error in agreement
+  // with what the schema actually enforces.
+  const paidTopUpMinAmountCents =
+    rawPaidTopUpMinAmountCents === '' ? undefined : rawPaidTopUpMinAmountCents
+  const paidTopUpMaxAmountCents =
+    rawPaidTopUpMaxAmountCents === '' ? undefined : rawPaidTopUpMaxAmountCents
 
   const paidCreditsAmount = Number(rateAmount) * Number(paidCredits)
   const minCredits = Number(paidTopUpMinAmountCents) / Number(rateAmount)

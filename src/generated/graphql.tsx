@@ -3299,6 +3299,7 @@ export type DataExportCreditNoteFiltersInput = {
   invoiceNumber?: InputMaybe<Scalars['String']['input']>;
   issuingDateFrom?: InputMaybe<Scalars['ISO8601Date']['input']>;
   issuingDateTo?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   reason?: InputMaybe<Array<CreditNoteReasonEnum>>;
   refundStatus?: InputMaybe<Array<CreditNoteRefundStatusEnum>>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
@@ -3323,6 +3324,7 @@ export type DataExportInvoiceFiltersInput = {
   paymentDisputeLost?: InputMaybe<Scalars['Boolean']['input']>;
   paymentOverdue?: InputMaybe<Scalars['Boolean']['input']>;
   paymentStatus?: InputMaybe<Array<InvoicePaymentStatusTypeEnum>>;
+  purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
   selfBilled?: InputMaybe<Scalars['Boolean']['input']>;
   status?: InputMaybe<Array<InvoiceStatusTypeEnum>>;
@@ -7823,6 +7825,7 @@ export type QueryCreditNotesArgs = {
   issuingDateTo?: InputMaybe<Scalars['ISO8601Date']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
+  purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   reason?: InputMaybe<Array<CreditNoteReasonEnum>>;
   refundStatus?: InputMaybe<Array<CreditNoteRefundStatusEnum>>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
@@ -8221,6 +8224,7 @@ export type QueryInvoicesArgs = {
   paymentOverdue?: InputMaybe<Scalars['Boolean']['input']>;
   paymentStatus?: InputMaybe<Array<InvoicePaymentStatusTypeEnum>>;
   positiveDueAmount?: InputMaybe<Scalars['Boolean']['input']>;
+  purchaseOrderNumber?: InputMaybe<Scalars['String']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
   selfBilled?: InputMaybe<Scalars['Boolean']['input']>;
   settlements?: InputMaybe<Array<InvoiceSettlementTypeEnum>>;

@@ -1,22 +1,33 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { StrictMode } from 'react'
+import { generatePath } from 'react-router-dom'
 
 import {
   CLOSE_CREATE_WALLET_BUTTON_DATA_TEST,
   SUBMIT_WALLET_DATA_TEST,
 } from '~/components/wallets/utils/dataTestConstants'
+import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
+import {
+  CREATE_WALLET_ROUTE,
+  CUSTOMER_DETAILS_TAB_ROUTE,
+  EDIT_WALLET_ROUTE,
+  WALLET_DETAILS_ROUTE,
+} from '~/core/router'
 import { CurrencyEnum } from '~/generated/graphql'
 import CreateWallet from '~/pages/wallet/CreateWallet'
+import { WalletDetailsTabsOptionsEnum } from '~/pages/wallet/WalletDetails'
 import { render } from '~/test-utils'
 
-const mockNavigate = jest.fn()
+const mockGoBack = jest.fn()
 const mockDialogOpen = jest.fn()
 const mockCreateWallet = jest.fn(() => Promise.resolve({ errors: undefined }))
 const mockUpdateWallet = jest.fn(() => Promise.resolve({ errors: undefined }))
+const mockOpenRuleDrawer = jest.fn()
 
 let mockWalletData: unknown = undefined
 let mockWalletLoading = false
+let mockLocationState: Record<string, unknown> | null = null
 
 // The drawer stack relies on import.meta (unsupported in jest)
 jest.mock('~/components/drawers/useDrawer', () => ({
@@ -34,8 +45,31 @@ jest.mock('react-router-dom', () => ({
 
 jest.mock('~/core/router', () => ({
   ...jest.requireActual('~/core/router'),
-  useNavigate: () => mockNavigate,
+  // The intent flag (auto-open rule drawer) travels through router state
+  useLocation: () => ({
+    pathname: '/',
+    strippedPathname: '/',
+    state: mockLocationState,
+  }),
 }))
+
+jest.mock('~/hooks/core/useLocationHistory', () => ({
+  useLocationHistory: () => ({
+    goBack: mockGoBack,
+    onRouteEnter: jest.fn(),
+  }),
+}))
+
+// Stub the rule drawer hook so the auto-open wiring (location.state →
+// autoOpenRuleDrawer → effect) can be asserted end-to-end at the page level
+jest.mock('~/pages/wallet/components/RecurringRuleDrawer', () => {
+  const actual = jest.requireActual('~/pages/wallet/components/RecurringRuleDrawer')
+
+  return {
+    ...actual,
+    useRecurringRuleDrawer: () => ({ openDrawer: mockOpenRuleDrawer }),
+  }
+})
 
 jest.mock('~/components/dialogs/CentralizedDialog', () => ({
   useCentralizedDialog: () => ({ open: mockDialogOpen }),
@@ -91,6 +125,7 @@ describe('CreateWallet', () => {
     jest.clearAllMocks()
     mockWalletData = undefined
     mockWalletLoading = false
+    mockLocationState = null
   })
 
   describe('GIVEN the creation mode', () => {
@@ -123,7 +158,15 @@ describe('CreateWallet', () => {
             },
           })
         })
-        expect(mockNavigate).toHaveBeenCalled()
+        // Creation has no walletId → return through history with the customer
+        // wallet-tab fallback, never landing back on the form routes
+        expect(mockGoBack).toHaveBeenCalledWith(
+          generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+            customerId: 'customer-id',
+            tab: CustomerDetailsTabsOptions.wallet,
+          }),
+          { exclude: [CREATE_WALLET_ROUTE, EDIT_WALLET_ROUTE] },
+        )
       })
     })
 
@@ -138,7 +181,7 @@ describe('CreateWallet', () => {
         await waitFor(() => {
           expect(mockCreateWallet).not.toHaveBeenCalled()
         })
-        expect(mockNavigate).not.toHaveBeenCalled()
+        expect(mockGoBack).not.toHaveBeenCalled()
       })
     })
 
@@ -155,7 +198,7 @@ describe('CreateWallet', () => {
           expect(document.querySelector('[data-test="text-field-error"]')).toBeInTheDocument()
         })
         expect(mockCreateWallet).not.toHaveBeenCalled()
-        expect(mockNavigate).not.toHaveBeenCalled()
+        expect(mockGoBack).not.toHaveBeenCalled()
       })
     })
 
@@ -171,12 +214,12 @@ describe('CreateWallet', () => {
         expect(mockDialogOpen).toHaveBeenCalledWith(
           expect.objectContaining({ colorVariant: 'danger' }),
         )
-        expect(mockNavigate).not.toHaveBeenCalled()
+        expect(mockGoBack).not.toHaveBeenCalled()
       })
     })
 
     describe('WHEN closing without changes', () => {
-      it('THEN should navigate away without a warning', async () => {
+      it('THEN should return through history without a warning', async () => {
         const user = userEvent.setup()
 
         render(<CreateWallet />)
@@ -184,7 +227,9 @@ describe('CreateWallet', () => {
         await user.click(screen.getByTestId(CLOSE_CREATE_WALLET_BUTTON_DATA_TEST))
 
         expect(mockDialogOpen).not.toHaveBeenCalled()
-        expect(mockNavigate).toHaveBeenCalled()
+        expect(mockGoBack).toHaveBeenCalledWith(expect.any(String), {
+          exclude: [CREATE_WALLET_ROUTE, EDIT_WALLET_ROUTE],
+        })
       })
     })
   })
@@ -294,6 +339,56 @@ describe('CreateWallet', () => {
         expect(input).not.toHaveProperty('customerId')
         expect(input).not.toHaveProperty('transactionName')
         expect(input).not.toHaveProperty('ignorePaidTopUpLimitsOnCreation')
+      })
+
+      it('THEN should return through history with the wallet overview fallback', async () => {
+        const user = userEvent.setup()
+
+        render(<CreateWallet />)
+
+        await user.click(screen.getByTestId(SUBMIT_WALLET_DATA_TEST))
+
+        await waitFor(() => {
+          expect(mockGoBack).toHaveBeenCalledWith(
+            generatePath(WALLET_DETAILS_ROUTE, {
+              walletId: 'wallet-id',
+              customerId: 'customer-id',
+              tab: WalletDetailsTabsOptionsEnum.overview,
+            }),
+            { exclude: [CREATE_WALLET_ROUTE, EDIT_WALLET_ROUTE] },
+          )
+        })
+      })
+    })
+
+    describe('WHEN entered from the details-tab Edit (auto-open intent flag)', () => {
+      beforeEach(() => {
+        mockLocationState = { openRecurringRuleDrawer: true }
+      })
+
+      it('THEN should auto-open the rule drawer once the wallet is loaded', async () => {
+        render(<CreateWallet />)
+
+        await waitFor(() => {
+          expect(mockOpenRuleDrawer).toHaveBeenCalledTimes(1)
+        })
+      })
+
+      it('THEN should not open the drawer while the wallet query is in flight', () => {
+        mockWalletData = undefined
+        mockWalletLoading = true
+
+        render(<CreateWallet />)
+
+        expect(mockOpenRuleDrawer).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN entered without the auto-open intent flag', () => {
+      it('THEN should not open the rule drawer on its own', () => {
+        render(<CreateWallet />)
+
+        expect(mockOpenRuleDrawer).not.toHaveBeenCalled()
       })
     })
   })

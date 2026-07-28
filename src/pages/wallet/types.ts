@@ -32,3 +32,5 @@ export type TWalletDataForm = Omit<
       }
     > | null
   }
+
+export type TWalletRecurringRule = NonNullable<TWalletDataForm['recurringTransactionRules']>[number]

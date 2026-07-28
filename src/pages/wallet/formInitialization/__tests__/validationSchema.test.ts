@@ -9,7 +9,7 @@ import {
 import { walletFormErrorCodes } from '~/pages/wallet/form'
 import { TWalletDataForm } from '~/pages/wallet/types'
 
-import { walletFormValidationSchema } from '../validationSchema'
+import { recurringRuleValidationSchema, walletFormValidationSchema } from '../validationSchema'
 
 const baseForm = (overrides: Partial<TWalletDataForm> = {}): TWalletDataForm => ({
   currency: CurrencyEnum.Usd,
@@ -46,11 +46,23 @@ const baseRule = (
     ...overrides,
   }) as NonNullable<TWalletDataForm['recurringTransactionRules']>[number]
 
-const issuePaths = (result: ReturnType<typeof walletFormValidationSchema.safeParse>) =>
-  result.success ? [] : result.error.issues.map((issue) => issue.path.join('.'))
+// Loose shape so the same helpers read both the wallet schema (nested rule
+// paths) and the drawer schema (flat rule paths) results.
+type ParseResult = {
+  success: boolean
+  error?: { issues: ReadonlyArray<{ path: ReadonlyArray<PropertyKey>; message: string }> }
+}
 
-const issueFor = (result: ReturnType<typeof walletFormValidationSchema.safeParse>, path: string) =>
-  result.success ? undefined : result.error.issues.find((i) => i.path.join('.') === path)
+const issuePaths = (result: ParseResult) =>
+  (result.error?.issues ?? []).map((issue) => issue.path.join('.'))
+
+const issueFor = (result: ParseResult, path: string) =>
+  (result.error?.issues ?? []).find((i) => i.path.join('.') === path)
+
+// zod v4 swaps a message-less issue (`message: ''`) for this default, and the
+// inputs render it verbatim — so `''` is only safe on a path whose input
+// supplies an `errorOverride`.
+const ZOD_DEFAULT_MESSAGE = 'Invalid input'
 
 describe('walletFormValidationSchema', () => {
   describe('top-level fields', () => {
@@ -70,6 +82,37 @@ describe('walletFormValidationSchema', () => {
       const result = walletFormValidationSchema.safeParse(baseForm({ code: '' }))
 
       expect(issuePaths(result)).toContain('code')
+    })
+
+    it('carries a renderable message on code — its input has no errorOverride', () => {
+      const result = walletFormValidationSchema.safeParse(baseForm({ code: '' }))
+      const message = issueFor(result, 'code')?.message
+
+      expect(message).toEqual(expect.stringMatching(/.+/))
+      expect(message).not.toBe(ZOD_DEFAULT_MESSAGE)
+    })
+
+    it('leaves the min/max cross-check message-less — SettingsSection supplies the label', () => {
+      const result = walletFormValidationSchema.safeParse(
+        baseForm({ paidTopUpMinAmountCents: '100', paidTopUpMaxAmountCents: '50' }),
+      )
+
+      expect(issueFor(result, 'paidTopUpMinAmountCents')?.message).toBe(ZOD_DEFAULT_MESSAGE)
+      expect(issueFor(result, 'paidTopUpMaxAmountCents')?.message).toBe(ZOD_DEFAULT_MESSAGE)
+    })
+
+    it('keeps the top-level paidCredits bounds issue unreachable from the wallet form', () => {
+      // No input renders paidCredits here, so the mapper value stays '' and
+      // topUpAmountError bails — which is why that issue can stay message-less.
+      const result = walletFormValidationSchema.safeParse(
+        baseForm({
+          rateAmount: '1',
+          paidTopUpMinAmountCents: '10',
+          paidTopUpMaxAmountCents: '100',
+        }),
+      )
+
+      expect(issuePaths(result)).not.toContain('paidCredits')
     })
 
     it('rejects a badly formatted expirationAt', () => {
@@ -293,6 +336,40 @@ describe('walletFormValidationSchema', () => {
       },
     )
 
+    it.each([
+      ['paidCredits', 'recurringTransactionRules.0.paidCredits'],
+      ['grantedCredits', 'recurringTransactionRules.0.grantedCredits'],
+    ])(
+      'carries a renderable message on %s when both credits are missing — no UI-side label covers this case',
+      (_, path) => {
+        const result = walletFormValidationSchema.safeParse(
+          baseForm({
+            recurringTransactionRules: [baseRule({ paidCredits: '', grantedCredits: '' })],
+          }),
+        )
+
+        expect(issueFor(result, path)?.message).toEqual(expect.stringMatching(/.+/))
+      },
+    )
+
+    it('does not reuse that message for the BOUNDS issue — the drawer computes that label itself', () => {
+      const outOfBounds = walletFormValidationSchema.safeParse(
+        baseForm({
+          rateAmount: '1',
+          paidTopUpMaxAmountCents: '100',
+          recurringTransactionRules: [baseRule({ paidCredits: '200' })],
+        }),
+      )
+      const missingBoth = walletFormValidationSchema.safeParse(
+        baseForm({
+          recurringTransactionRules: [baseRule({ paidCredits: '', grantedCredits: '' })],
+        }),
+      )
+      const path = 'recurringTransactionRules.0.paidCredits'
+
+      expect(issueFor(outOfBounds, path)?.message).not.toBe(issueFor(missingBoth, path)?.message)
+    })
+
     it('accepts a Fixed rule when only one of the credits is filled', () => {
       const result = walletFormValidationSchema.safeParse(
         baseForm({
@@ -415,4 +492,56 @@ describe('malformed recurringTransactionRules shape', () => {
       ),
     ).not.toThrow()
   })
+
+  it('does not throw when the rules array holds a non-object element', () => {
+    // Array.isArray guards the container, not the elements: a null element
+    // still reaches the rule destructure.
+    expect(() =>
+      walletFormValidationSchema.safeParse(
+        baseForm({
+          recurringTransactionRules: [
+            null,
+          ] as unknown as TWalletDataForm['recurringTransactionRules'],
+        }),
+      ),
+    ).not.toThrow()
+  })
+})
+
+describe('malformed recurring rule shape (drawer schema)', () => {
+  const drawerSchema = recurringRuleValidationSchema({
+    rateAmount: '1',
+    currency: CurrencyEnum.Usd,
+  })
+
+  // z.custom() accepts any value, so the drawer schema can be handed something
+  // that is not a rule at all — it must report invalid rather than throw.
+  it.each([
+    ['undefined', undefined],
+    ['null', null],
+    ['a string', 'not-a-rule'],
+  ])('does not throw and reports invalid when the rule is %s', (_, value) => {
+    let result: ReturnType<typeof drawerSchema.safeParse> | undefined
+
+    expect(() => {
+      result = drawerSchema.safeParse(value)
+    }).not.toThrow()
+
+    expect(result?.success).toBe(false)
+  })
+
+  it('still validates a well-formed rule', () => {
+    expect(drawerSchema.safeParse(baseRule({ thresholdCredits: '100' })).success).toBe(true)
+  })
+
+  it.each([['paidCredits'], ['grantedCredits']])(
+    'carries a renderable message on the flat %s path when both credits are missing',
+    (path) => {
+      const result = drawerSchema.safeParse(
+        baseRule({ thresholdCredits: '100', paidCredits: '', grantedCredits: '' }),
+      )
+
+      expect(issueFor(result, path)?.message).toEqual(expect.stringMatching(/.+/))
+    },
+  )
 })

@@ -1,14 +1,10 @@
 import { revalidateLogic, useStore } from '@tanstack/react-form'
-import { act, screen, waitFor } from '@testing-library/react'
+import { act, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useState } from 'react'
 
-import {
-  ADD_METADATA_DATA_TEST,
-  RECURRING_IGNORE_PAID_TOPUP_LIMITS_SWITCH_DATA_TEST,
-  RECURRING_TOPUP_TYPE_DATA_TEST,
-  SHOW_RECURRING_EXPIRATION_AT_DATA_TEST,
-} from '~/components/wallets/utils/dataTestConstants'
+import { SELECTOR_HOVER_ACTIONS_TEST_ID } from '~/components/designSystem/Selector'
+import { ADD_RECURRING_RULE_BUTTON_DATA_TEST } from '~/components/wallets/utils/dataTestConstants'
 import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import {
@@ -17,10 +13,15 @@ import {
   RecurringTransactionMethodEnum,
 } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
-import { DEFAULT_RULES, TopUpSection } from '~/pages/wallet/components/TopUpSection'
+import { DEFAULT_RULES } from '~/pages/wallet/components/RecurringRuleDrawer'
+import {
+  RECURRING_RULE_ERROR_TEST_ID,
+  RECURRING_RULE_SELECTOR_TEST_ID,
+  TopUpSection,
+} from '~/pages/wallet/components/TopUpSection'
 import { walletFormValidationSchema } from '~/pages/wallet/formInitialization/validationSchema'
 import { mapFromApiToForm } from '~/pages/wallet/mappers/mapFromApiToForm'
-import { TWalletDataForm } from '~/pages/wallet/types'
+import { TWalletDataForm, TWalletRecurringRule } from '~/pages/wallet/types'
 import { render } from '~/test-utils'
 
 const mockIsPremium = jest.fn(() => true)
@@ -46,8 +47,7 @@ jest.mock('~/components/dialogs/PremiumWarningDialog', () => ({
 }))
 
 // Capture the props passed to the settings selectors so we can assert the
-// per-object wiring (viewType, customer ids, data-test) and — crucially — the
-// bracket field paths for the recurring rule round-trip through the real form.
+// per-object wiring (viewType, customer ids) at the wallet level.
 const mockInvoicingSelector: jest.Mock<null, [Record<string, unknown>]> = jest.fn()
 const mockPaymentSelector: jest.Mock<null, [Record<string, unknown>]> = jest.fn()
 
@@ -67,6 +67,30 @@ jest.mock('~/components/paymentSettings/PaymentSettingsSelector', () => ({
   },
 }))
 
+// Stub the rule drawer hook: the parent only needs openDrawer + onSave —
+// the drawer's own behaviour is covered by RecurringRuleDrawer.test.tsx.
+const mockOpenRuleDrawer = jest.fn()
+
+type CapturedDrawerProps = {
+  onSave?: (rule: TWalletRecurringRule) => void
+  walletValues?: TWalletDataForm
+}
+
+const capturedDrawerProps: { current: CapturedDrawerProps | null } = { current: null }
+
+jest.mock('~/pages/wallet/components/RecurringRuleDrawer', () => {
+  const actual = jest.requireActual('~/pages/wallet/components/RecurringRuleDrawer')
+
+  return {
+    ...actual,
+    useRecurringRuleDrawer: (props: CapturedDrawerProps) => {
+      capturedDrawerProps.current = props
+
+      return { openDrawer: mockOpenRuleDrawer }
+    },
+  }
+})
+
 const customerData = {
   customer: {
     id: 'customer-id',
@@ -79,14 +103,18 @@ const customerData = {
 
 const SUBMIT_BUTTON_DATA_TEST = 'submit-wallet-form'
 
+const formValuesProbe: { current: TWalletDataForm | null } = { current: null }
+
 const TestWrapper = ({
   defaultsOverride,
   initiallyEnabled = false,
   withValidation = false,
+  autoOpenRuleDrawer = false,
 }: {
   defaultsOverride?: Partial<TWalletDataForm>
   initiallyEnabled?: boolean
   withValidation?: boolean
+  autoOpenRuleDrawer?: boolean
 }) => {
   const form = useAppForm({
     defaultValues: {
@@ -108,6 +136,8 @@ const TestWrapper = ({
 
   const [isRecurringTopUpEnabled, setIsRecurringTopUpEnabled] = useState(initiallyEnabled)
 
+  formValuesProbe.current = useStore(form.store, (state) => state.values)
+
   // Lets tests wait until a submit attempt (and its validation) completed
   const submissionAttempts = useStore(form.store, (state) => state.submissionAttempts)
 
@@ -119,6 +149,7 @@ const TestWrapper = ({
         customerData={customerData}
         isRecurringTopUpEnabled={isRecurringTopUpEnabled}
         setIsRecurringTopUpEnabled={setIsRecurringTopUpEnabled}
+        autoOpenRuleDrawer={autoOpenRuleDrawer}
       />
       {withValidation && (
         <button
@@ -131,20 +162,6 @@ const TestWrapper = ({
       )}
     </>
   )
-}
-
-const queryInput = (name: string) =>
-  document.querySelector(`input[name="${name}"]`) as HTMLInputElement
-
-// The accordion starts collapsed when the rule comes from existing data —
-// expand it the same way a user would, by clicking its summary.
-const openAccordion = async (user: ReturnType<typeof userEvent.setup>) => {
-  const summary = document.querySelector('.MuiAccordionSummary-root') as HTMLElement
-
-  await user.click(summary)
-  await waitFor(() => {
-    expect(document.querySelector('.MuiCollapse-entered')).toBeInTheDocument()
-  })
 }
 
 const withRule = (overrides: Record<string, unknown> = {}): Partial<TWalletDataForm> => ({
@@ -175,222 +192,212 @@ describe('TopUpSection', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockIsPremium.mockReturnValue(true)
+    capturedDrawerProps.current = null
+    formValuesProbe.current = null
   })
 
   describe('GIVEN a non-premium user', () => {
     describe('WHEN clicking the add recurring rule button', () => {
-      it('THEN should open the premium warning dialog and not enable the rule', async () => {
+      it('THEN should open the premium warning dialog and not the drawer', async () => {
         const user = userEvent.setup()
 
         mockIsPremium.mockReturnValue(false)
 
         render(<TestWrapper />)
 
-        await user.click(screen.getByTestId('add-recurring-rule-button'))
+        await user.click(screen.getByTestId(ADD_RECURRING_RULE_BUTTON_DATA_TEST))
 
         expect(mockOpenPremiumWarningDialog).toHaveBeenCalled()
-        expect(queryInput('recurringTransactionRules[0].transactionName')).not.toBeInTheDocument()
+        expect(mockOpenRuleDrawer).not.toHaveBeenCalled()
       })
     })
   })
 
   describe('GIVEN a premium user', () => {
     describe('WHEN clicking the add recurring rule button', () => {
-      it('THEN should enable the rule as a proper array and open the accordion', async () => {
+      it('THEN should open the drawer in create mode without committing a rule', async () => {
         const user = userEvent.setup()
 
         render(<TestWrapper />)
 
-        await user.click(screen.getByTestId('add-recurring-rule-button'))
+        await user.click(screen.getByTestId(ADD_RECURRING_RULE_BUTTON_DATA_TEST))
+
+        // Called with no seed → create mode (drawer falls back to defaults)
+        expect(mockOpenRuleDrawer).toHaveBeenCalledTimes(1)
+        expect(mockOpenRuleDrawer.mock.calls[0]).toHaveLength(0)
+        expect(mockOpenPremiumWarningDialog).not.toHaveBeenCalled()
+        // Nothing committed until the drawer saves — cancelling keeps the CTA
+        expect(formValuesProbe.current?.recurringTransactionRules).toBeUndefined()
+      })
+    })
+
+    describe('WHEN the drawer saves a rule', () => {
+      it('THEN should commit it as a proper array and show the rule card', async () => {
+        const user = userEvent.setup()
+
+        render(<TestWrapper />)
+
+        await user.click(screen.getByTestId(ADD_RECURRING_RULE_BUTTON_DATA_TEST))
+
+        const savedRule = { ...DEFAULT_RULES, thresholdCredits: '100', paidCredits: '50' }
+
+        act(() => {
+          capturedDrawerProps.current?.onSave?.(savedRule as TWalletRecurringRule)
+        })
 
         await waitFor(() => {
-          expect(queryInput('recurringTransactionRules[0].transactionName')).toBeInTheDocument()
+          expect(screen.getByTestId(RECURRING_RULE_SELECTOR_TEST_ID)).toBeInTheDocument()
         })
-        expect(mockOpenPremiumWarningDialog).not.toHaveBeenCalled()
-      })
-    })
-  })
-
-  describe('GIVEN a Fixed method rule', () => {
-    describe('WHEN the accordion renders', () => {
-      it.each([
-        ['paid credits', 'recurringTransactionRules[0].paidCredits'],
-        ['granted credits', 'recurringTransactionRules[0].grantedCredits'],
-      ])('THEN should display the %s input', async (_, name) => {
-        const user = userEvent.setup()
-
-        render(<TestWrapper initiallyEnabled defaultsOverride={withRule()} />)
-        await openAccordion(user)
-
-        expect(queryInput(name)).toBeInTheDocument()
+        expect(formValuesProbe.current?.recurringTransactionRules).toEqual([savedRule])
       })
 
-      it('THEN should not display the target ongoing balance input', async () => {
+      it('THEN should produce a real array, not an index-keyed object', async () => {
         const user = userEvent.setup()
 
-        render(<TestWrapper initiallyEnabled defaultsOverride={withRule()} />)
-        await openAccordion(user)
+        render(<TestWrapper />)
 
-        expect(queryInput('recurringTransactionRules[0].targetOngoingBalance')).toBeNull()
+        await user.click(screen.getByTestId(ADD_RECURRING_RULE_BUTTON_DATA_TEST))
+
+        act(() => {
+          capturedDrawerProps.current?.onSave?.(DEFAULT_RULES as TWalletRecurringRule)
+        })
+
+        await waitFor(() => {
+          expect(Array.isArray(formValuesProbe.current?.recurringTransactionRules)).toBe(true)
+        })
+        expect(formValuesProbe.current?.recurringTransactionRules).toHaveLength(1)
       })
     })
 
-    describe('WHEN paid credits are set and the wallet has bounds', () => {
-      it('THEN should display the ignore-limits switch', async () => {
-        const user = userEvent.setup()
+    describe('WHEN the drawer saves while the wallet holds several rules', () => {
+      // The UI only ever edits rule 0, but a wallet can hold more through the
+      // API and the backend terminates every rule missing from the payload —
+      // so the tail has to survive the save.
+      it('THEN should replace only the first rule and keep the others untouched', async () => {
+        const secondRule = {
+          ...DEFAULT_RULES,
+          lagoId: 'rule-2',
+          thresholdCredits: '999',
+        } as TWalletRecurringRule
 
         render(
           <TestWrapper
             initiallyEnabled
             defaultsOverride={{
-              paidTopUpMinAmountCents: '10',
-              paidTopUpMaxAmountCents: '100',
-              ...withRule({ paidCredits: '50' }),
+              recurringTransactionRules: [
+                { ...DEFAULT_RULES, lagoId: 'rule-1' },
+                secondRule,
+              ] as TWalletDataForm['recurringTransactionRules'],
             }}
           />,
         )
-        await openAccordion(user)
 
-        expect(
-          document.querySelector(
-            `[data-test="${RECURRING_IGNORE_PAID_TOPUP_LIMITS_SWITCH_DATA_TEST}"]`,
-          ),
-        ).toBeInTheDocument()
-      })
-    })
-  })
+        const savedRule = {
+          ...DEFAULT_RULES,
+          lagoId: 'rule-1',
+          thresholdCredits: '100',
+        } as TWalletRecurringRule
 
-  describe('GIVEN a Target method rule', () => {
-    const targetRule = withRule({
-      method: RecurringTransactionMethodEnum.Target,
-      targetOngoingBalance: '',
-      grantsTargetTopUp: false,
-    })
-
-    describe('WHEN the accordion renders', () => {
-      it('THEN should display the top-up type selector and target balance input', async () => {
-        const user = userEvent.setup()
-
-        render(<TestWrapper initiallyEnabled defaultsOverride={targetRule} />)
-        await openAccordion(user)
-
-        expect(
-          document.querySelector(`[data-test="${RECURRING_TOPUP_TYPE_DATA_TEST}"]`),
-        ).toBeInTheDocument()
-        expect(queryInput('recurringTransactionRules[0].targetOngoingBalance')).toBeInTheDocument()
-      })
-
-      it('THEN should not display the fixed credits inputs', async () => {
-        const user = userEvent.setup()
-
-        render(<TestWrapper initiallyEnabled defaultsOverride={targetRule} />)
-        await openAccordion(user)
-
-        expect(queryInput('recurringTransactionRules[0].paidCredits')).toBeNull()
-        expect(queryInput('recurringTransactionRules[0].grantedCredits')).toBeNull()
-      })
-    })
-  })
-
-  describe('GIVEN the rule expiration toggle', () => {
-    describe('WHEN clicking add expiration date', () => {
-      it('THEN should display the expiration date picker', async () => {
-        const user = userEvent.setup()
-
-        render(<TestWrapper initiallyEnabled defaultsOverride={withRule()} />)
-        await openAccordion(user)
-
-        expect(queryInput('recurringTransactionRules[0].expirationAt')).toBeNull()
-
-        await user.click(screen.getByTestId(SHOW_RECURRING_EXPIRATION_AT_DATA_TEST))
+        act(() => {
+          capturedDrawerProps.current?.onSave?.(savedRule)
+        })
 
         await waitFor(() => {
-          expect(queryInput('recurringTransactionRules[0].expirationAt')).toBeInTheDocument()
+          expect(formValuesProbe.current?.recurringTransactionRules).toEqual([
+            savedRule,
+            secondRule,
+          ])
         })
       })
     })
   })
 
-  describe('GIVEN the transaction metadata rows', () => {
-    describe('WHEN clicking add new field twice', () => {
-      it('THEN should display two key/value rows', async () => {
+  describe('GIVEN an existing rule card', () => {
+    describe('WHEN clicking the card', () => {
+      it('THEN should open the drawer seeded with the current rule', async () => {
         const user = userEvent.setup()
 
-        render(<TestWrapper initiallyEnabled defaultsOverride={withRule()} />)
-        await openAccordion(user)
+        render(<TestWrapper initiallyEnabled defaultsOverride={withRule({ paidCredits: '42' })} />)
 
-        await user.click(screen.getByTestId(ADD_METADATA_DATA_TEST))
-        await user.click(screen.getByTestId(ADD_METADATA_DATA_TEST))
+        await user.click(screen.getByTestId(RECURRING_RULE_SELECTOR_TEST_ID))
 
-        await waitFor(() => {
-          expect(
-            queryInput('recurringTransactionRules[0].transactionMetadata[1].key'),
-          ).toBeInTheDocument()
-        })
+        expect(mockOpenRuleDrawer).toHaveBeenCalledWith(
+          expect.objectContaining({ paidCredits: '42' }),
+        )
       })
     })
 
-    describe('WHEN deleting a metadata row', () => {
-      it('THEN should remove the row', async () => {
+    describe('WHEN clicking the hover edit action', () => {
+      it('THEN should open the drawer seeded with the current rule', async () => {
+        const user = userEvent.setup()
+
+        render(<TestWrapper initiallyEnabled defaultsOverride={withRule({ paidCredits: '42' })} />)
+
+        const actions = within(screen.getByTestId(SELECTOR_HOVER_ACTIONS_TEST_ID)).getAllByRole(
+          'button',
+        )
+
+        // [0] = trash, [1] = pen
+        await user.click(actions[1])
+
+        expect(mockOpenRuleDrawer).toHaveBeenCalledWith(
+          expect.objectContaining({ paidCredits: '42' }),
+        )
+      })
+    })
+
+    describe('WHEN clicking the hover delete action', () => {
+      it('THEN should clear the rule and fall back to the create CTA', async () => {
+        const user = userEvent.setup()
+
+        render(<TestWrapper initiallyEnabled defaultsOverride={withRule()} />)
+
+        const actions = within(screen.getByTestId(SELECTOR_HOVER_ACTIONS_TEST_ID)).getAllByRole(
+          'button',
+        )
+
+        await user.click(actions[0])
+
+        await waitFor(() => {
+          expect(screen.getByTestId(ADD_RECURRING_RULE_BUTTON_DATA_TEST)).toBeInTheDocument()
+        })
+        expect(formValuesProbe.current?.recurringTransactionRules).toBeUndefined()
+        expect(mockOpenRuleDrawer).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the rule error caption under the card', () => {
+    describe('WHEN submitting with a rule invalidated by the wallet bounds', () => {
+      it('THEN should surface the drawer-scoped error under the card', async () => {
         const user = userEvent.setup()
 
         render(
           <TestWrapper
             initiallyEnabled
-            defaultsOverride={withRule({
-              transactionMetadata: [{ key: 'existing', value: 'row' }],
-            })}
+            withValidation
+            defaultsOverride={{
+              // Bounds changed AFTER the rule was committed: 50 is out of range
+              paidTopUpMinAmountCents: '100',
+              paidTopUpMaxAmountCents: '200',
+              ...withRule({ thresholdCredits: '100', paidCredits: '50' }),
+            }}
           />,
         )
-        await openAccordion(user)
-
-        expect(queryInput('recurringTransactionRules[0].transactionMetadata[0].key')).toHaveValue(
-          'existing',
-        )
-
-        // The delete button is the trash button inside the metadata row
-        const metadataKeyInput = queryInput(
-          'recurringTransactionRules[0].transactionMetadata[0].key',
-        )
-        const row = metadataKeyInput.closest('.flex.w-full.flex-row') as HTMLElement
-        const deleteButton = row.querySelector('button:last-of-type') as HTMLButtonElement
-
-        await user.click(deleteButton)
-
-        await waitFor(() => {
-          expect(queryInput('recurringTransactionRules[0].transactionMetadata[0].key')).toBeNull()
-        })
-      })
-    })
-  })
-
-  describe('GIVEN the accordion validity indicator', () => {
-    // Icon renders as `<svg data-test="validate-filled/medium">` with
-    // text-green-600 (success) or text-grey-400 (disabled = invalid)
-    const validityIcon = () =>
-      document.querySelector('[data-test="validate-filled/medium"]') as SVGElement
-
-    describe('WHEN submitting with an invalid rule (threshold credits missing)', () => {
-      it('THEN should flip the indicator to invalid', async () => {
-        const user = userEvent.setup()
-
-        // DEFAULT_RULES: trigger=Threshold with thresholdCredits '' → schema
-        // errors on recurringTransactionRules[0].thresholdCredits at submit
-        render(<TestWrapper initiallyEnabled withValidation defaultsOverride={withRule()} />)
 
         // revalidateLogic: no error surfaces before the first submit attempt
-        expect(validityIcon()).toHaveClass('text-green-600')
+        expect(screen.queryByTestId(RECURRING_RULE_ERROR_TEST_ID)).toBeNull()
 
         await user.click(screen.getByTestId(SUBMIT_BUTTON_DATA_TEST))
 
         await waitFor(() => {
-          expect(validityIcon()).toHaveClass('text-grey-400')
+          expect(screen.getByTestId(RECURRING_RULE_ERROR_TEST_ID)).toBeInTheDocument()
         })
       })
     })
 
-    describe('WHEN submitting with a valid rule but errors elsewhere in the form', () => {
-      it('THEN should keep the indicator valid', async () => {
+    describe('WHEN submitting with a valid rule but errors on wallet-level fields', () => {
+      it('THEN should keep the caption hidden (wallet fields show their own errors)', async () => {
         const user = userEvent.setup()
 
         render(
@@ -412,9 +419,7 @@ describe('TopUpSection', () => {
           expect(screen.getByTestId(SUBMIT_BUTTON_DATA_TEST)).toHaveTextContent('submit (1)')
         })
 
-        // The submit failed (rateAmount required), but no error is keyed
-        // under recurringTransactionRules → the rule indicator stays valid
-        expect(validityIcon()).toHaveClass('text-green-600')
+        expect(screen.queryByTestId(RECURRING_RULE_ERROR_TEST_ID)).toBeNull()
       })
     })
   })
@@ -441,68 +446,102 @@ describe('TopUpSection', () => {
     })
   })
 
-  describe('GIVEN an enabled recurring rule', () => {
-    describe('WHEN the rule settings selectors mount', () => {
-      it.each([
-        ['invoicing', () => mockInvoicingSelector, 'rule-invoicing-settings-selector'],
-        ['payment', () => mockPaymentSelector, 'rule-payment-settings-selector'],
-      ])(
-        'THEN should tag the rule %s selector with its data-test',
-        async (_, getMock, dataTest) => {
-          const user = userEvent.setup()
+  describe('GIVEN the drawer wiring', () => {
+    describe('WHEN the section renders', () => {
+      it('THEN should feed the drawer the live wallet values (bounds context)', () => {
+        render(
+          <TestWrapper
+            defaultsOverride={{
+              paidTopUpMinAmountCents: '10',
+              paidTopUpMaxAmountCents: '100',
+            }}
+          />,
+        )
 
-          render(<TestWrapper initiallyEnabled defaultsOverride={withRule()} />)
-          await openAccordion(user)
-
-          const props = lastSelectorCall(getMock(), ViewTypeEnum.WalletRecurringTopUp)
-
-          expect(props?.['data-test']).toBe(dataTest)
-        },
-      )
+        expect(capturedDrawerProps.current?.walletValues).toEqual(
+          expect.objectContaining({
+            paidTopUpMinAmountCents: '10',
+            paidTopUpMaxAmountCents: '100',
+          }),
+        )
+      })
     })
+  })
 
-    describe('WHEN the rule invoicing selector reports a change', () => {
-      it('THEN should round-trip the value through the recurringTransactionRules[0] field path', async () => {
+  describe('GIVEN a Target method rule committed through the drawer', () => {
+    describe('WHEN the drawer saves it', () => {
+      it('THEN should keep the method in the committed array', async () => {
         const user = userEvent.setup()
 
-        render(<TestWrapper initiallyEnabled defaultsOverride={withRule()} />)
-        await openAccordion(user)
+        render(<TestWrapper />)
 
-        const before = lastSelectorCall(mockInvoicingSelector, ViewTypeEnum.WalletRecurringTopUp)
+        await user.click(screen.getByTestId(ADD_RECURRING_RULE_BUTTON_DATA_TEST))
 
-        const next = {
-          invoiceCustomSections: [{ id: 'cs_rule', name: 'Rule footer' }],
-          skipInvoiceCustomSections: false,
+        const targetRule = {
+          ...DEFAULT_RULES,
+          method: RecurringTransactionMethodEnum.Target,
+          targetOngoingBalance: '200',
+          thresholdCredits: '100',
+          grantsTargetTopUp: false,
         }
 
         act(() => {
-          before?.onChange?.(next)
+          capturedDrawerProps.current?.onSave?.(targetRule as TWalletRecurringRule)
         })
 
-        const after = lastSelectorCall(mockInvoicingSelector, ViewTypeEnum.WalletRecurringTopUp)
+        expect(formValuesProbe.current?.recurringTransactionRules?.[0]?.method).toBe(
+          RecurringTransactionMethodEnum.Target,
+        )
+      })
+    })
+  })
 
-        expect(after?.value).toEqual(next)
+  describe('GIVEN the auto-open intent flag (details-tab Edit bridge)', () => {
+    describe('WHEN autoOpenRuleDrawer is true for a premium user', () => {
+      it('THEN should open the drawer on mount seeded with the current rule', () => {
+        render(
+          <TestWrapper
+            autoOpenRuleDrawer
+            initiallyEnabled
+            defaultsOverride={withRule({ paidCredits: '42' })}
+          />,
+        )
+
+        expect(mockOpenRuleDrawer).toHaveBeenCalledTimes(1)
+        expect(mockOpenRuleDrawer).toHaveBeenCalledWith(
+          expect.objectContaining({ paidCredits: '42' }),
+        )
+      })
+
+      it('THEN should not reopen when the flag re-triggers after the first open', () => {
+        const { rerender } = render(<TestWrapper autoOpenRuleDrawer />)
+
+        expect(mockOpenRuleDrawer).toHaveBeenCalledTimes(1)
+
+        // Flag flips off and on again (e.g. a loading gate cycling) — the
+        // once-guard must hold, otherwise the drawer pops over the user's work
+        rerender(<TestWrapper autoOpenRuleDrawer={false} />)
+        rerender(<TestWrapper autoOpenRuleDrawer />)
+
+        expect(mockOpenRuleDrawer).toHaveBeenCalledTimes(1)
       })
     })
 
-    describe('WHEN the rule payment selector reports a change', () => {
-      it('THEN should round-trip the value through the recurringTransactionRules[0] field path', async () => {
-        const user = userEvent.setup()
+    describe('WHEN autoOpenRuleDrawer is false', () => {
+      it('THEN should not open the drawer', () => {
+        render(<TestWrapper autoOpenRuleDrawer={false} />)
 
-        render(<TestWrapper initiallyEnabled defaultsOverride={withRule()} />)
-        await openAccordion(user)
+        expect(mockOpenRuleDrawer).not.toHaveBeenCalled()
+      })
+    })
 
-        const before = lastSelectorCall(mockPaymentSelector, ViewTypeEnum.WalletRecurringTopUp)
+    describe('WHEN the user is not premium', () => {
+      it('THEN should not open the drawer', () => {
+        mockIsPremium.mockReturnValue(false)
 
-        const next = { paymentMethodId: 'pm_rule', paymentMethodType: 'provider' }
+        render(<TestWrapper autoOpenRuleDrawer />)
 
-        act(() => {
-          before?.onChange?.(next)
-        })
-
-        const after = lastSelectorCall(mockPaymentSelector, ViewTypeEnum.WalletRecurringTopUp)
-
-        expect(after?.value).toEqual(next)
+        expect(mockOpenRuleDrawer).not.toHaveBeenCalled()
       })
     })
   })
