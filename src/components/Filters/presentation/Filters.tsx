@@ -9,6 +9,8 @@ interface FiltersProps {
   className?: string
 }
 
+export const FILTERS_RESET_BUTTON_TEST_ID = 'filters-reset-button'
+
 export const Filters = ({ className }: FiltersProps) => {
   const { translate } = useInternationalization()
 
@@ -20,7 +22,12 @@ export const Filters = ({ className }: FiltersProps) => {
       <ActiveFiltersList />
 
       {hasAppliedFilters && (
-        <Button variant="quaternary" size="small" onClick={resetFilters}>
+        <Button
+          data-test={FILTERS_RESET_BUTTON_TEST_ID}
+          variant="quaternary"
+          size="small"
+          onClick={resetFilters}
+        >
           {translate('text_66ab4886cc65a6006ee7258c')}
         </Button>
       )}

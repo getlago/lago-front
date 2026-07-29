@@ -10,6 +10,8 @@ import {
 } from '~/components/Filters/presentation/types'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+export const FILTERS_ACTIVE_FILTER_ITEM_TEST_ID = 'active-filter-item'
+
 export const ActiveFiltersList = () => {
   const { translate } = useInternationalization()
   const [searchParams] = useSearchParams()
@@ -51,6 +53,7 @@ export const ActiveFiltersList = () => {
     <>
       {activeFilters.map(({ label, value }, index) => (
         <div
+          data-test={FILTERS_ACTIVE_FILTER_ITEM_TEST_ID}
           className="flex h-8 items-center rounded-[100px] bg-grey-100 px-3 py-0"
           key={`active-filter-${index}`}
         >

@@ -19,6 +19,15 @@ import {
 import { ComboBox } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+export const FILTERS_PANEL_OPENER_TEST_ID = 'filters-panel-opener'
+export const FILTERS_PANEL_TEST_ID = 'filters-panel'
+export const FILTERS_PANEL_CLEAR_ALL_TEST_ID = 'filters-panel-clear-all'
+export const FILTERS_PANEL_FILTER_ITEM_TEST_ID = 'filters-panel-filter-item'
+export const FILTERS_PANEL_REMOVE_FILTER_TEST_ID = 'filters-panel-remove-filter'
+export const FILTERS_PANEL_ADD_FILTER_TEST_ID = 'filters-panel-add-filter'
+export const FILTERS_PANEL_CANCEL_TEST_ID = 'filters-panel-cancel'
+export const FILTERS_PANEL_APPLY_TEST_ID = 'filters-panel-apply'
+
 export const FiltersPanelPopper = () => {
   const { translate } = useInternationalization()
   const {
@@ -125,7 +134,12 @@ export const FiltersPanelPopper = () => {
       PopperProps={{ placement: 'bottom-start' }}
       opener={
         buttonOpener || (
-          <Button startIcon="filter" size="small" variant="quaternary">
+          <Button
+            data-test={FILTERS_PANEL_OPENER_TEST_ID}
+            startIcon="filter"
+            size="small"
+            variant="quaternary"
+          >
             {translate('text_66ab42d4ece7e6b7078993ad')}
           </Button>
         )
@@ -134,12 +148,16 @@ export const FiltersPanelPopper = () => {
       {({ closePopper }) => (
         /* About w-[calc(100vw_-_2px)], we needed to force the container to stick on max-width */
         /* Also, need to remove 2px to prevent border to get out of screen view, and trigger underlying elements scroll to be trigger by scroll on the popper element: https://linear.app/getlago/issue/LAGO-180/when-panel-touch-screen-borders-window-can-scroll-horizontally */
-        <div className="grid max-h-[480px] w-[calc(100vw_-_2px)] max-w-[864px] grid-rows-[64px_1fr_72px]">
+        <div
+          data-test={FILTERS_PANEL_TEST_ID}
+          className="grid max-h-[480px] w-[calc(100vw_-_2px)] max-w-[864px] grid-rows-[64px_1fr_72px]"
+        >
           <div className="flex h-16 items-center justify-between px-4 py-0 shadow-b lg:px-6">
             <Typography variant="bodyHl" color="grey700">
               {translate('text_66ab42d4ece7e6b7078993ad')}
             </Typography>
             <Button
+              data-test={FILTERS_PANEL_CLEAR_ALL_TEST_ID}
               onClick={() => {
                 formikProps.setFieldValue(
                   'filters',
@@ -157,6 +175,7 @@ export const FiltersPanelPopper = () => {
           >
             {formikProps.values.filters.map((filter, filterIndex) => (
               <div
+                data-test={FILTERS_PANEL_FILTER_ITEM_TEST_ID}
                 key={`filter-item-${filterIndex}`}
                 className="border-1 flex flex-col justify-start gap-4 rounded-xl border border-solid border-grey-300 p-4 lg:flex-1 lg:flex-row lg:border-none lg:p-0"
               >
@@ -246,6 +265,7 @@ export const FiltersPanelPopper = () => {
                         disableHoverListener={formikProps.values.filters.length === 1}
                       >
                         <Button
+                          data-test={FILTERS_PANEL_REMOVE_FILTER_TEST_ID}
                           icon="trash"
                           variant="quaternary"
                           disabled={formikProps.values.filters.length === 1}
@@ -260,6 +280,7 @@ export const FiltersPanelPopper = () => {
           </div>
           <div className="flex h-18 items-center justify-between px-4 py-0 shadow-t lg:px-6">
             <Button
+              data-test={FILTERS_PANEL_ADD_FILTER_TEST_ID}
               startIcon="plus"
               disabled={formikProps.values.filters.length === availableFilters.length}
               onClick={() => {
@@ -280,6 +301,7 @@ export const FiltersPanelPopper = () => {
 
             <Stack direction="row" spacing={2}>
               <Button
+                data-test={FILTERS_PANEL_CANCEL_TEST_ID}
                 onClick={() => {
                   closePopper()
                   formikProps.resetForm()
@@ -289,6 +311,7 @@ export const FiltersPanelPopper = () => {
                 {translate('text_6411e6b530cb47007488b027')}
               </Button>
               <Button
+                data-test={FILTERS_PANEL_APPLY_TEST_ID}
                 disabled={!formikProps.dirty || !formikProps.isValid}
                 onClick={() => {
                   formikProps.submitForm()
