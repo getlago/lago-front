@@ -1,4 +1,5 @@
 import { dateErrorCodes } from '~/core/constants/form'
+import { DEFAULT_ZOD_ERROR_MESSAGE } from '~/formValidation/initializeZod'
 import { MetadataErrorsEnum } from '~/formValidation/metadataSchema'
 import {
   CurrencyEnum,
@@ -59,11 +60,6 @@ const issuePaths = (result: ParseResult) =>
 const issueFor = (result: ParseResult, path: string) =>
   (result.error?.issues ?? []).find((i) => i.path.join('.') === path)
 
-// zod v4 swaps a message-less issue (`message: ''`) for this default, and the
-// inputs render it verbatim — so `''` is only safe on a path whose input
-// supplies an `errorOverride`.
-const ZOD_DEFAULT_MESSAGE = 'Invalid input'
-
 describe('walletFormValidationSchema', () => {
   describe('top-level fields', () => {
     it('validates a minimal valid wallet form', () => {
@@ -89,16 +85,19 @@ describe('walletFormValidationSchema', () => {
       const message = issueFor(result, 'code')?.message
 
       expect(message).toEqual(expect.stringMatching(/.+/))
-      expect(message).not.toBe(ZOD_DEFAULT_MESSAGE)
+      expect(message).not.toBe(DEFAULT_ZOD_ERROR_MESSAGE)
     })
 
     it('leaves the min/max cross-check message-less — SettingsSection supplies the label', () => {
+      // A message-less issue falls back to the app-wide default registered by
+      // `initializeZod`, and the inputs render it verbatim — so leaving the message out
+      // is only safe on a path whose input supplies an `errorOverride`.
       const result = walletFormValidationSchema.safeParse(
         baseForm({ paidTopUpMinAmountCents: '100', paidTopUpMaxAmountCents: '50' }),
       )
 
-      expect(issueFor(result, 'paidTopUpMinAmountCents')?.message).toBe(ZOD_DEFAULT_MESSAGE)
-      expect(issueFor(result, 'paidTopUpMaxAmountCents')?.message).toBe(ZOD_DEFAULT_MESSAGE)
+      expect(issueFor(result, 'paidTopUpMinAmountCents')?.message).toBe(DEFAULT_ZOD_ERROR_MESSAGE)
+      expect(issueFor(result, 'paidTopUpMaxAmountCents')?.message).toBe(DEFAULT_ZOD_ERROR_MESSAGE)
     })
 
     it('keeps the top-level paidCredits bounds issue unreachable from the wallet form', () => {
