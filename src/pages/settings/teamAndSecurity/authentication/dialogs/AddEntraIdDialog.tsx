@@ -118,12 +118,12 @@ export const useAddEntraIdDialog = () => {
       createDescription: 'text_1784307344255lwooki6f5o9',
       editDescription: 'text_17843073442551nurtvrqz3y',
       createSubmit: 'text_17843073442559h8ul6r7wf1',
-      createSuccess: 'text_17843073442557vlbdr7do0l',
-      updateSuccess: 'text_1784307344255zrzb2qqjiig',
+      createSuccess: 'text_664c732c264d7eed1c74fde6',
+      updateSuccess: 'text_664c732c264d7eed1c74fde8',
       integrationName: 'text_17843073442548zt904xoinv',
       deleteDialogTitle: 'text_1784307344255lgty3uwoghl',
       deleteDialogDescription: 'text_17843073442556cjrcl7drw6',
-      deleteSuccess: 'text_17843073442557u380a217wd',
+      deleteSuccess: 'text_664c732c264d7eed1c74fdb4',
     },
   })
 

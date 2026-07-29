@@ -157,7 +157,7 @@ const Authentication = () => {
       titleKey: 'text_17843073442548zt904xoinv',
       subtitleKey: 'text_1784307344254qdygzl3hxxa',
       editLabelKey: 'text_1784307344255fc26gfvrmb5',
-      deleteLabelKey: 'text_1784307344255dltentracon',
+      deleteLabelKey: 'text_1785339647668vsn4wyo0j7n',
       route: ENTRA_ID_AUTHENTICATION_ROUTE,
       icon: <MicrosoftEntraId />,
       shouldSee: shouldSeeEntraIdIntegration,

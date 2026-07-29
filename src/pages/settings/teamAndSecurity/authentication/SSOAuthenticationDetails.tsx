@@ -21,7 +21,6 @@ export type SSOAuthenticationDetailsProps<TIntegration extends { id: string }> =
   icon: ReactNode
   viewNameKey: string
   metadataKey: string
-  deleteMenuLabelKey: string
   getDetailRows: (integration: TIntegration) => SSOAuthenticationDetailsRow[]
   openAddDialog: (data: {
     integration: TIntegration
@@ -39,7 +38,6 @@ export const SSOAuthenticationDetails = <TIntegration extends { id: string }>({
   icon,
   viewNameKey,
   metadataKey,
-  deleteMenuLabelKey,
   getDetailRows,
   openAddDialog,
   openDeleteDialog,
@@ -116,7 +114,8 @@ export const SSOAuthenticationDetails = <TIntegration extends { id: string }>({
                   },
                 },
                 {
-                  label: translate(deleteMenuLabelKey),
+                  // Provider-agnostic "Delete connection" label, shared by all SSO details pages.
+                  label: translate('text_664c732c264d7eed1c74fdb0'),
                   onClick: (closePopper) => {
                     closePopper()
 

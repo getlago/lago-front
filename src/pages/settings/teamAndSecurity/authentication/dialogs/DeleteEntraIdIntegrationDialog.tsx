@@ -23,7 +23,7 @@ export const useDeleteEntraIdIntegrationDialog = () => {
     integrationTypename: 'EntraIdIntegration',
     titleKey: 'text_1784307344255lgty3uwoghl',
     descriptionKey: 'text_17843073442556cjrcl7drw6',
-    successToastKey: 'text_17843073442557u380a217wd',
+    successToastKey: 'text_664c732c264d7eed1c74fdb4',
     integrationNameKey: 'text_17843073442548zt904xoinv',
   })
 

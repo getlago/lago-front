@@ -72,7 +72,6 @@ const OktaAuthenticationDetails = () => {
       icon={<Okta />}
       viewNameKey={'text_664c732c264d7eed1c74fda2'}
       metadataKey={'text_664c732c264d7eed1c74fdbd'}
-      deleteMenuLabelKey={'text_664c732c264d7eed1c74fdb0'}
       openAddDialog={openAddOktaDialog}
       openDeleteDialog={openDeleteOktaIntegrationDialog}
       getDetailRows={(currentIntegration) => [

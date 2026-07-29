@@ -71,8 +71,7 @@ const EntraIdAuthenticationDetails = () => {
       hasOtherAuthenticationMethods={hasOtherAuthenticationMethodsThanEntraId}
       icon={<MicrosoftEntraId />}
       viewNameKey={'text_17843073442548zt904xoinv'}
-      metadataKey={'text_1784307344255xnl91ujbf4g'}
-      deleteMenuLabelKey={'text_17843073442559jjt3vfrvmk'}
+      metadataKey={'text_664c732c264d7eed1c74fdbd'}
       openAddDialog={openAddEntraIdDialog}
       openDeleteDialog={openDeleteEntraIdIntegrationDialog}
       getDetailRows={(currentIntegration) => [
