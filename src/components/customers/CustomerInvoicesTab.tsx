@@ -132,7 +132,10 @@ export const CustomerInvoicesTab = ({
       )}
 
       <div>
-        <PageSectionTitle title={translate('text_6250304370f0f700a8fdc291')} />
+        <PageSectionTitle
+          title={translate('text_6250304370f0f700a8fdc291')}
+          subtitle={translate('text_1785339249327oh5sazpm82d')}
+        />
 
         <div className="mb-4 flex items-center gap-3">
           <SearchInput
