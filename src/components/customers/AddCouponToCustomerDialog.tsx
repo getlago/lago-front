@@ -90,14 +90,33 @@ gql`
 
 export const ADD_COUPON_TO_CUSTOMER_FORM_ID = 'add-coupon-to-customer-form'
 
+// The amount, rate and duration fields are text inputs, so `TextInput` hands
+// back a string as soon as the user edits one (its `onChange` is typed
+// `(value: string)`), while the coupon selection seeds them as numbers. Accept
+// both shapes and range-check the coerced number below — same approach as
+// `couponValidationSchema` (src/pages/createCoupon/validationSchema.ts).
+type NumericInputValue = string | number | null | undefined
+
+const numericInputSchema = z.union([z.string(), z.number()]).optional()
+
+const isBelowMinimum = (value: NumericInputValue, minimum: number): boolean => {
+  if (value === undefined || value === null || value === '') return true
+
+  const parsed = Number(value)
+
+  // `Number.isNaN` guard: a non-numeric string ('abc') is NaN, and `NaN < min`
+  // is false, so it would otherwise slip through as valid.
+  return Number.isNaN(parsed) || parsed < minimum
+}
+
 const defaultFormValues = {
   couponId: '',
   couponType: CouponTypeEnum.FixedAmount as CouponTypeEnum,
-  amountCents: undefined as number | undefined,
+  amountCents: undefined as NumericInputValue,
   amountCurrency: undefined as CurrencyEnum | undefined,
-  percentageRate: undefined as number | undefined,
+  percentageRate: undefined as NumericInputValue,
   frequency: undefined as CouponFrequency | undefined,
-  frequencyDuration: undefined as number | undefined,
+  frequencyDuration: undefined as NumericInputValue,
   plans: undefined as CouponPlansForCustomerFragment[] | undefined,
   billableMetrics: undefined as CouponBillableMetricsForCustomerFragment[] | undefined,
 }
@@ -106,21 +125,17 @@ const validationSchema = z
   .object({
     couponId: z.string().min(1),
     couponType: z.enum([CouponTypeEnum.FixedAmount, CouponTypeEnum.Percentage]),
-    amountCents: z.number().optional(),
+    amountCents: numericInputSchema,
     amountCurrency: z.string().optional(),
-    percentageRate: z.number().optional(),
+    percentageRate: numericInputSchema,
     frequency: z.enum([CouponFrequency.Once, CouponFrequency.Recurring, CouponFrequency.Forever]),
-    frequencyDuration: z.number().optional(),
+    frequencyDuration: numericInputSchema,
     plans: z.any().optional(),
     billableMetrics: z.any().optional(),
   })
   .superRefine((value, ctx) => {
     if (value.couponType === CouponTypeEnum.FixedAmount) {
-      if (
-        value.amountCents === undefined ||
-        value.amountCents === null ||
-        value.amountCents < 0.001
-      ) {
+      if (isBelowMinimum(value.amountCents, 0.001)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: 'text_632d68358f1fedc68eed3e91',
@@ -136,11 +151,7 @@ const validationSchema = z
       }
     }
     if (value.couponType === CouponTypeEnum.Percentage) {
-      if (
-        value.percentageRate === undefined ||
-        value.percentageRate === null ||
-        value.percentageRate < 0.001
-      ) {
+      if (isBelowMinimum(value.percentageRate, 0.001)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: 'text_633445d00315a713775f02a6',
@@ -149,11 +160,7 @@ const validationSchema = z
       }
     }
     if (value.frequency === CouponFrequency.Recurring) {
-      if (
-        value.frequencyDuration === undefined ||
-        value.frequencyDuration === null ||
-        value.frequencyDuration < 1
-      ) {
+      if (isBelowMinimum(value.frequencyDuration, 1)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: 'text_63314cfeb607e57577d894c9',
@@ -445,13 +452,13 @@ export const useAddCouponToCustomerDialog = () => {
             frequency: frequency as CouponFrequency,
             amountCents:
               couponType === CouponTypeEnum.FixedAmount
-                ? serializeAmount(amountCents || 0, amountCurrency || CurrencyEnum.Usd)
+                ? serializeAmount(Number(amountCents) || 0, amountCurrency || CurrencyEnum.Usd)
                 : undefined,
             amountCurrency: couponType === CouponTypeEnum.FixedAmount ? amountCurrency : undefined,
             percentageRate:
               couponType === CouponTypeEnum.Percentage ? Number(percentageRate) : undefined,
             frequencyDuration:
-              frequency === CouponFrequency.Recurring ? frequencyDuration : undefined,
+              frequency === CouponFrequency.Recurring ? Number(frequencyDuration) : undefined,
           },
         },
       })
