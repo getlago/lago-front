@@ -1,4 +1,4 @@
-import { MutationHookOptions, MutationTuple, OperationVariables } from '@apollo/client'
+import { MutationHookOptions, MutationTuple } from '@apollo/client'
 import Stack from '@mui/material/Stack'
 import { revalidateLogic } from '@tanstack/react-form'
 import { useEffect, useState } from 'react'
@@ -28,22 +28,22 @@ const loginSSODefaultValues: z.infer<typeof loginSSOValidationSchema> = {
 
 type SSOAuthorizeVariables = { input: { email: string } }
 
-export type LoginSSOProps<TData, TVariables extends SSOAuthorizeVariables & OperationVariables> = {
+export type LoginSSOProps<TData> = {
   /** Provider authorize mutation hook (e.g. useFetchOktaAuthorizeUrlMutation). */
   useAuthorizeMutation: (
-    baseOptions?: MutationHookOptions<TData, TVariables>,
-  ) => MutationTuple<TData, TVariables>
+    baseOptions?: MutationHookOptions<TData, SSOAuthorizeVariables>,
+  ) => MutationTuple<TData, SSOAuthorizeVariables>
   /** Selects the authorize url from the mutation data (e.g. data.oktaAuthorize.url). */
   getAuthorizeUrl: (data: TData | null | undefined) => string | null | undefined
-  /** Maps an error code to the translation key to display. */
-  getErrorKey: (code: LagoApiError) => string
+  /** Maps a lago_error_code (raw URL value) to the translation key to display. */
+  getErrorKey: (code: string) => string
   titleKey: string
   subtitleKey: string
   footerKey: string
   errorAlertDataTest: string
 }
 
-export const LoginSSO = <TData, TVariables extends SSOAuthorizeVariables & OperationVariables>({
+export const LoginSSO = <TData,>({
   useAuthorizeMutation,
   getAuthorizeUrl,
   getErrorKey,
@@ -51,12 +51,12 @@ export const LoginSSO = <TData, TVariables extends SSOAuthorizeVariables & Opera
   subtitleKey,
   footerKey,
   errorAlertDataTest,
-}: LoginSSOProps<TData, TVariables>) => {
+}: LoginSSOProps<TData>) => {
   const { translate } = useInternationalization()
   const location = useLocation()
   const [searchParams] = useSearchParams()
   const previousLocation = (location.state as { from?: Location } | null)?.from?.pathname
-  const [errorAlert, setErrorAlert] = useState<LagoApiError>()
+  const [errorAlert, setErrorAlert] = useState<string>()
 
   const lagoErrorCode = searchParams.get('lago_error_code')
 
@@ -67,10 +67,14 @@ export const LoginSSO = <TData, TVariables extends SSOAuthorizeVariables & Opera
 
   useEffect(() => {
     if (lagoErrorCode) {
-      setErrorAlert(lagoErrorCode as LagoApiError)
+      setErrorAlert(lagoErrorCode)
 
-      // Remove the error code from the URL, so it disappears on page reload
-      history.replaceState({}, '', window.location.pathname)
+      // Remove only the error code from the URL so it disappears on reload,
+      // while preserving any other query params.
+      const url = new URL(window.location.href)
+
+      url.searchParams.delete('lago_error_code')
+      history.replaceState({}, '', `${url.pathname}${url.search}`)
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -88,7 +92,7 @@ export const LoginSSO = <TData, TVariables extends SSOAuthorizeVariables & Opera
           input: {
             email: value.email,
           },
-        } as TVariables,
+        },
       })
 
       const { errors, data } = answer

@@ -7,6 +7,12 @@ import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { AUTHENTICATION_ROUTE, useNavigate } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+/** Stable test ids for the SSO details page action menu, shared by all providers. */
+export const SSO_DETAILS_ACTIONS_TEST_ID = 'sso-details-actions'
+export const SSO_DETAILS_EDIT_TEST_ID = 'sso-details-edit'
+export const SSO_DETAILS_DELETE_TEST_ID = 'sso-details-delete'
+export const SSO_DETAILS_INLINE_EDIT_TEST_ID = 'sso-details-inline-edit'
+
 export type SSOAuthenticationDetailsRow = {
   icon: ComponentProps<typeof IntegrationsPage.DetailsItem>['icon']
   labelKey: string
@@ -104,10 +110,12 @@ export const SSOAuthenticationDetails = <TIntegration extends { id: string }>({
           items: [
             {
               type: 'dropdown',
+              dataTest: SSO_DETAILS_ACTIONS_TEST_ID,
               label: translate('text_626162c62f790600f850b6fe'),
               items: [
                 {
                   label: translate('text_664c732c264d7eed1c74fdaa'),
+                  dataTest: SSO_DETAILS_EDIT_TEST_ID,
                   onClick: (closePopper) => {
                     closePopper()
                     openEditDialog()
@@ -116,6 +124,7 @@ export const SSOAuthenticationDetails = <TIntegration extends { id: string }>({
                 {
                   // Provider-agnostic "Delete connection" label, shared by all SSO details pages.
                   label: translate('text_664c732c264d7eed1c74fdb0'),
+                  dataTest: SSO_DETAILS_DELETE_TEST_ID,
                   onClick: (closePopper) => {
                     closePopper()
 
@@ -140,7 +149,12 @@ export const SSOAuthenticationDetails = <TIntegration extends { id: string }>({
       <IntegrationsPage.Container>
         <section>
           <IntegrationsPage.Headline label={translate('text_664c732c264d7eed1c74fdc5')}>
-            <Button variant="inline" disabled={loading} onClick={openEditDialog}>
+            <Button
+              variant="inline"
+              data-test={SSO_DETAILS_INLINE_EDIT_TEST_ID}
+              disabled={loading}
+              onClick={openEditDialog}
+            >
               {translate('text_62b1edddbf5f461ab9712787')}
             </Button>
           </IntegrationsPage.Headline>

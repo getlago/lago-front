@@ -4,7 +4,7 @@ import { LagoApiError, useFetchEntraIdAuthorizeUrlMutation } from '~/generated/g
 
 import { LoginSSO } from './components/LoginSSO'
 
-const getErrorKey = (code: LagoApiError): string => {
+const getErrorKey = (code: string): string => {
   switch (code) {
     case LagoApiError.EntraIdUserinfoError:
       return 'text_178430734425582hoo5w7p20'

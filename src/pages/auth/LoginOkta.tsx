@@ -4,7 +4,7 @@ import { LagoApiError, useFetchOktaAuthorizeUrlMutation } from '~/generated/grap
 
 import { LoginSSO } from './components/LoginSSO'
 
-const getErrorKey = (code: LagoApiError): string => {
+const getErrorKey = (code: string): string => {
   switch (code) {
     case LagoApiError.OktaUserinfoError:
       return 'text_664c98989d08a3f733357f73'

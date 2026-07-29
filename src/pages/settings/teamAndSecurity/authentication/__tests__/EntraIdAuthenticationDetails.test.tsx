@@ -15,6 +15,12 @@ import { GetEntraIdIntegrationDocument } from '~/generated/graphql'
 import { render, TestMocksType } from '~/test-utils'
 
 import EntraIdAuthenticationDetails from '../EntraIdAuthenticationDetails'
+import {
+  SSO_DETAILS_ACTIONS_TEST_ID,
+  SSO_DETAILS_DELETE_TEST_ID,
+  SSO_DETAILS_EDIT_TEST_ID,
+  SSO_DETAILS_INLINE_EDIT_TEST_ID,
+} from '../SSOAuthenticationDetails'
 
 const mockNavigateFn = jest.fn()
 const mockUseParams = jest.fn().mockReturnValue({ integrationId: 'integration-123' })
@@ -223,14 +229,10 @@ describe('EntraIdAuthenticationDetails', () => {
       expect(screen.getByText('test.example.com')).toBeInTheDocument()
     })
 
-    // Find the chevron-down button (actions dropdown)
-    const actionButtons = document.querySelectorAll('button')
-
-    // The actions button should be present
-    expect(actionButtons.length).toBeGreaterThan(0)
+    expect(screen.getByTestId(SSO_DETAILS_ACTIONS_TEST_ID)).toBeInTheDocument()
   })
 
-  it('opens popper menu when actions button is clicked', async () => {
+  it('opens the actions popper with edit and delete entries', async () => {
     const user = userEvent.setup()
 
     await prepare()
@@ -239,25 +241,10 @@ describe('EntraIdAuthenticationDetails', () => {
       expect(screen.getByText('test.example.com')).toBeInTheDocument()
     })
 
-    // The actions button in the header contains an endIcon (chevron-down)
-    const allButtons = screen.getAllByRole('button')
+    await user.click(screen.getByTestId(SSO_DETAILS_ACTIONS_TEST_ID))
 
-    // Click the first button that could be the actions dropdown
-    // It should be the button with endIcon in PageHeader.Wrapper
-    for (const btn of allButtons) {
-      if (btn.querySelector('[class*="endIcon"]')) {
-        await user.click(btn)
-        break
-      }
-    }
-
-    // After clicking, the popper should render additional buttons
-    await waitFor(() => {
-      const buttonsAfterClick = screen.getAllByRole('button')
-
-      // More buttons should appear from the popper menu
-      expect(buttonsAfterClick.length).toBeGreaterThan(allButtons.length)
-    })
+    expect(await screen.findByTestId(SSO_DETAILS_EDIT_TEST_ID)).toBeInTheDocument()
+    expect(screen.getByTestId(SSO_DETAILS_DELETE_TEST_ID)).toBeInTheDocument()
   })
 
   it('has all 5 detail items visible', async () => {
@@ -283,38 +270,11 @@ describe('EntraIdAuthenticationDetails', () => {
       expect(screen.getByText('test.example.com')).toBeInTheDocument()
     })
 
-    // Find and click the actions button (has endIcon chevron-down)
-    const allButtons = screen.getAllByRole('button')
+    await user.click(screen.getByTestId(SSO_DETAILS_ACTIONS_TEST_ID))
+    await user.click(await screen.findByTestId(SSO_DETAILS_EDIT_TEST_ID))
 
-    for (const btn of allButtons) {
-      if (btn.querySelector('[class*="endIcon"]')) {
-        await user.click(btn)
-        break
-      }
-    }
-
-    // Wait for popper menu buttons to appear
     await waitFor(() => {
-      const buttonsAfterClick = screen.getAllByRole('button')
-
-      expect(buttonsAfterClick.length).toBeGreaterThan(allButtons.length)
-    })
-
-    // Click the first button in the popper (edit)
-    const buttonsAfterClick = screen.getAllByRole('button')
-    const popperButtons = buttonsAfterClick.filter(
-      (btn) => !allButtons.includes(btn) && btn.textContent,
-    )
-
-    expect(popperButtons.length).toBeGreaterThan(0)
-
-    await user.click(popperButtons[0])
-
-    // Edit dialog should open
-    await waitFor(() => {
-      const dialog = document.querySelector('[class*="MuiDialog"]')
-
-      expect(dialog).toBeInTheDocument()
+      expect(document.querySelector('[class*="MuiDialog"]')).toBeInTheDocument()
     })
   })
 
@@ -327,37 +287,11 @@ describe('EntraIdAuthenticationDetails', () => {
       expect(screen.getByText('test.example.com')).toBeInTheDocument()
     })
 
-    // Find and click the actions button
-    const allButtons = screen.getAllByRole('button')
-
-    for (const btn of allButtons) {
-      if (btn.querySelector('[class*="endIcon"]')) {
-        await user.click(btn)
-        break
-      }
-    }
+    await user.click(screen.getByTestId(SSO_DETAILS_ACTIONS_TEST_ID))
+    await user.click(await screen.findByTestId(SSO_DETAILS_DELETE_TEST_ID))
 
     await waitFor(() => {
-      const buttonsAfterClick = screen.getAllByRole('button')
-
-      expect(buttonsAfterClick.length).toBeGreaterThan(allButtons.length)
-    })
-
-    // Click the second button in the popper (delete)
-    const buttonsAfterClick = screen.getAllByRole('button')
-    const popperButtons = buttonsAfterClick.filter(
-      (btn) => !allButtons.includes(btn) && btn.textContent,
-    )
-
-    expect(popperButtons.length).toBeGreaterThan(1)
-
-    await user.click(popperButtons[1])
-
-    // Delete dialog should open
-    await waitFor(() => {
-      const dialog = document.querySelector('[class*="MuiDialog"]')
-
-      expect(dialog).toBeInTheDocument()
+      expect(document.querySelector('[class*="MuiDialog"]')).toBeInTheDocument()
     })
   })
 
@@ -370,21 +304,10 @@ describe('EntraIdAuthenticationDetails', () => {
       expect(screen.getByText('test.example.com')).toBeInTheDocument()
     })
 
-    // Find the inline edit button (variant="inline") in the details section
-    const allButtons = screen.getAllByRole('button')
-    const inlineButtons = allButtons.filter(
-      (btn) => btn.className.includes('inline') || btn.className.includes('Inline'),
-    )
+    await user.click(screen.getByTestId(SSO_DETAILS_INLINE_EDIT_TEST_ID))
 
-    expect(inlineButtons.length).toBeGreaterThan(0)
-
-    await user.click(inlineButtons[0])
-
-    // Edit dialog should open
     await waitFor(() => {
-      const dialog = document.querySelector('[class*="MuiDialog"]')
-
-      expect(dialog).toBeInTheDocument()
+      expect(document.querySelector('[class*="MuiDialog"]')).toBeInTheDocument()
     })
   })
 })

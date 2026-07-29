@@ -49,6 +49,11 @@ const SUPPRESSED_PATTERNS: string[][] = [
 
   // React ref warnings on mocked components
   ['Function components cannot be given refs'],
+
+  // jsdom does not implement navigation; components that redirect via
+  // `window.location.href = ...` (SSO login, invitations, Google auth) emit a
+  // "Not implemented: navigation" error that is expected behavior, not an app bug.
+  ['Not implemented: navigation'],
 ]
 
 /**
