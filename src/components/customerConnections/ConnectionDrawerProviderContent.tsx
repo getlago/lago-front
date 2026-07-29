@@ -4,7 +4,12 @@ import { useEffect, useMemo } from 'react'
 import { ConnectionComboBoxLabel } from '~/components/customerConnections/ConnectionComboBox'
 import { ConnectionDrawerSection } from '~/components/customerConnections/ConnectionDrawerSection'
 import type { CustomerConnectionDrawerFormApi } from '~/components/customerConnections/CustomerConnectionDrawer'
+import { getAllIntegrationForAnIntegrationType } from '~/components/customerConnections/getAllIntegrationForAnIntegrationType'
 import { ConnectionCategory } from '~/components/customerConnections/types'
+import { useAccountingProviders } from '~/components/customerConnections/useAccountingProviders'
+import { useCrmProviders } from '~/components/customerConnections/useCrmProviders'
+import { usePaymentProviders } from '~/components/customerConnections/usePaymentProviders'
+import { useTaxProviders } from '~/components/customerConnections/useTaxProviders'
 import { Alert } from '~/components/designSystem/Alert'
 import { Typography } from '~/components/designSystem/Typography'
 import { BasicComboBoxData } from '~/components/form'
@@ -16,16 +21,10 @@ import {
   ProviderTypeEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { getAllIntegrationForAnIntegrationType } from '~/pages/createCustomers/common/getAllIntegrationForAnIntegrationType'
-import { useAccountingProviders } from '~/pages/createCustomers/common/useAccountingProviders'
-import { useCrmProviders } from '~/pages/createCustomers/common/useCrmProviders'
-import { usePaymentProviders } from '~/pages/createCustomers/common/usePaymentProviders'
-import { useTaxProviders } from '~/pages/createCustomers/common/useTaxProviders'
 
-import { getSubsidiaryLabel } from './utils'
-
-import { useAccountingProvidersSubsidaries } from '../accountingProvidersAccordion/useAccountingProvidersSubsidaries'
-import StripePaymentProviderContent from '../paymentProvidersAccordion/StripePaymentProviderContent'
+import { getSubsidiaryLabel } from './getSubsidiaryLabel'
+import StripePaymentProviderContent from './StripePaymentProviderContent'
+import { useAccountingProvidersSubsidaries } from './useAccountingProvidersSubsidaries'
 
 /** Payment providers that don't support linking/creating a provider customer */
 const PROVIDERS_WITHOUT_MAPPING: ReadonlySet<ProviderTypeEnum> = new Set([
@@ -43,8 +42,19 @@ type ConnectionDrawerProviderContentProps = {
    * stay fully editable on re-open.
    */
   hadInitialConnection: boolean
-  /** The customer itself is being edited (drives the "will be created after editing" alerts) */
+  /**
+   * The connection is edited on an EXISTING customer: enabling the sync keeps
+   * a typed external customer id for integration categories (payment always
+   * clears it).
+   */
   isCustomerEdition: boolean
+  /**
+   * Show the "this customer will be created in <provider> after editing in
+   * Lago" notice. Only true on the customer create/edit form, where the
+   * connection is saved together with the customer — the customer
+   * information view persists immediately, so the notice would be wrong.
+   */
+  showDeferredSyncNotice: boolean
 }
 
 /**
@@ -59,6 +69,7 @@ export const ConnectionDrawerProviderContent = ({
   category,
   hadInitialConnection,
   isCustomerEdition,
+  showDeferredSyncNotice,
 }: ConnectionDrawerProviderContentProps) => {
   const { translate } = useInternationalization()
 
@@ -279,7 +290,7 @@ export const ConnectionDrawerProviderContent = ({
           )}
 
           {/* Newly-added synced connection on an existing customer */}
-          {isCustomerEdition && !hadInitialConnection && !!syncWithProvider && (
+          {showDeferredSyncNotice && !hadInitialConnection && !!syncWithProvider && (
             <>
               {resolvedProviderType === IntegrationTypeEnum.Netsuite && (
                 <Alert type="info">{translate('text_66423cad72bbad009f2f56a4')}</Alert>

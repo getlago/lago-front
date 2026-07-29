@@ -10986,6 +10986,75 @@ export type CreditNoteEstimateQueryVariables = Exact<{
 
 export type CreditNoteEstimateQuery = { __typename?: 'Query', creditNoteEstimate: { __typename?: 'CreditNoteEstimate', couponsAdjustmentAmountCents: any, currency: CurrencyEnum, maxCreditableAmountCents: any, maxRefundableAmountCents: any, maxOffsettableAmountCents: any, subTotalExcludingTaxesAmountCents: any, taxesAmountCents: any, taxesRate: number, appliedTaxes: Array<{ __typename?: 'CreditNoteAppliedTax', taxCode: string, taxName: string, taxRate: number, amountCents: any }>, items: Array<{ __typename?: 'CreditNoteItemEstimate', amountCents: any, fee: { __typename?: 'Fee', id: string } }> } };
 
+export type GetAccountingIntegrationsForExternalAppsAccordionQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetAccountingIntegrationsForExternalAppsAccordionQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<
+      | { __typename?: 'AnrokIntegration' }
+      | { __typename?: 'AvalaraIntegration' }
+      | { __typename?: 'HubspotIntegration' }
+      | { __typename: 'NetsuiteIntegration', id: string, code: string, name: string }
+      | { __typename?: 'OktaIntegration' }
+      | { __typename?: 'SalesforceIntegration' }
+      | { __typename: 'XeroIntegration', id: string, code: string, name: string }
+    > } | null };
+
+export type SubsidiariesListForExternalAppsAccordionQueryVariables = Exact<{
+  integrationId?: InputMaybe<Scalars['ID']['input']>;
+}>;
+
+
+export type SubsidiariesListForExternalAppsAccordionQuery = { __typename?: 'Query', integrationSubsidiaries?: { __typename?: 'SubsidiaryCollection', collection: Array<{ __typename?: 'Subsidiary', externalId: string, externalName?: string | null }> } | null };
+
+export type GetCrmIntegrationsForExternalAppsAccordionQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetCrmIntegrationsForExternalAppsAccordionQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<
+      | { __typename?: 'AnrokIntegration' }
+      | { __typename?: 'AvalaraIntegration' }
+      | { __typename: 'HubspotIntegration', id: string, code: string, name: string, defaultTargetedObject: HubspotTargetedObjectsEnum }
+      | { __typename?: 'NetsuiteIntegration' }
+      | { __typename?: 'OktaIntegration' }
+      | { __typename: 'SalesforceIntegration', id: string, code: string, name: string }
+      | { __typename?: 'XeroIntegration' }
+    > } | null };
+
+export type PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
+      | { __typename: 'AdyenProvider', id: string, name: string, code: string }
+      | { __typename: 'CashfreeProvider', id: string, name: string, code: string }
+      | { __typename: 'FlutterwaveProvider', id: string, name: string, code: string }
+      | { __typename: 'GocardlessProvider', id: string, name: string, code: string }
+      | { __typename: 'MoneyhashProvider', id: string, name: string, code: string }
+      | { __typename: 'StripeProvider', id: string, name: string, code: string }
+    > } | null };
+
+export type GetTaxIntegrationsForExternalAppsAccordionQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetTaxIntegrationsForExternalAppsAccordionQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<
+      | { __typename: 'AnrokIntegration', id: string, code: string, name: string }
+      | { __typename: 'AvalaraIntegration', id: string, code: string, name: string }
+      | { __typename?: 'HubspotIntegration' }
+      | { __typename?: 'NetsuiteIntegration' }
+      | { __typename?: 'OktaIntegration' }
+      | { __typename?: 'SalesforceIntegration' }
+      | { __typename?: 'XeroIntegration' }
+    > } | null };
+
 export type PortalInvoiceListItemFragment = { __typename?: 'Invoice', id: string, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, paymentDisputeLostAt?: any | null, number: string, issuingDate: any, totalAmountCents: any, totalDueAmountCents: any, currency?: CurrencyEnum | null, invoiceType: InvoiceTypeEnum };
 
 export type CustomerPortalInvoicesQueryVariables = Exact<{
@@ -11137,21 +11206,6 @@ export type GetCustomerCreditNotesQueryVariables = Exact<{
 
 export type GetCustomerCreditNotesQuery = { __typename?: 'Query', creditNotes: { __typename?: 'CreditNoteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'CreditNote', id: string, number: string, totalAmountCents: any, refundAmountCents: any, creditAmountCents: any, offsetAmountCents: any, currency: CurrencyEnum, createdAt: any, canBeVoided: boolean, voidedAt?: any | null, taxProviderSyncable: boolean, errorDetails?: Array<{ __typename?: 'ErrorDetail', id: string, errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, invoice?: { __typename?: 'Invoice', id: string, number: string, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum } } | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, email?: string | null, einvoicing: boolean, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null }, customer: { __typename?: 'Customer', id: string, email?: string | null } }> } };
 
-export type IntegrationsListForCustomerMainInfosQueryVariables = Exact<{
-  limit?: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-export type IntegrationsListForCustomerMainInfosQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<
-      | { __typename: 'AnrokIntegration', id: string, name: string, apiKey: any, externalAccountId?: string | null }
-      | { __typename: 'AvalaraIntegration', id: string, name: string, accountId?: string | null }
-      | { __typename: 'HubspotIntegration', id: string, name: string, portalId?: string | null }
-      | { __typename: 'NetsuiteIntegration', id: string, name: string, accountId?: string | null }
-      | { __typename?: 'OktaIntegration' }
-      | { __typename: 'SalesforceIntegration', id: string, name: string, instanceId: string }
-      | { __typename: 'XeroIntegration', id: string, name: string }
-    > } | null };
-
 export type InvoiceListItemFragment = { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, totalDueAmountCents: any, totalPaidAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, invoiceType: InvoiceTypeEnum, associatedActiveWalletPresent: boolean, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, customer: { __typename?: 'Customer', id: string, externalId: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum, paymentProvider?: ProviderTypeEnum | null, hasActiveWallet: boolean, email?: string | null, deletedAt?: any | null }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, email?: string | null, einvoicing: boolean, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null }, payments?: Array<{ __typename?: 'Payment', createdAt: any, paymentMethodId?: string | null }> | null };
 
 export type InvoiceForInvoiceListFragment = { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, totalDueAmountCents: any, totalPaidAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, invoiceType: InvoiceTypeEnum, associatedActiveWalletPresent: boolean, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, customer: { __typename?: 'Customer', id: string, externalId: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum, paymentProvider?: ProviderTypeEnum | null, hasActiveWallet: boolean, email?: string | null, deletedAt?: any | null }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, email?: string | null, einvoicing: boolean, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null }, payments?: Array<{ __typename?: 'Payment', createdAt: any, paymentMethodId?: string | null }> | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalCount: number, totalPages: number } };
@@ -11191,27 +11245,6 @@ export type GetCustomerInvoicesQueryVariables = Exact<{
 export type GetCustomerInvoicesQuery = { __typename?: 'Query', customerInvoices: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, totalDueAmountCents: any, totalPaidAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, invoiceType: InvoiceTypeEnum, associatedActiveWalletPresent: boolean, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, customer: { __typename?: 'Customer', id: string, externalId: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum, paymentProvider?: ProviderTypeEnum | null, hasActiveWallet: boolean, email?: string | null, deletedAt?: any | null }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, email?: string | null, einvoicing: boolean, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null }, payments?: Array<{ __typename?: 'Payment', createdAt: any, paymentMethodId?: string | null }> | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalCount: number, totalPages: number } } };
 
 export type CustomerMainInfosFragment = { __typename?: 'Customer', id: string, customerType?: CustomerTypeEnum | null, name?: string | null, firstname?: string | null, lastname?: string | null, externalId: string, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, phone?: string | null, email?: string | null, currency?: CurrencyEnum | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, url?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, timezone?: TimezoneEnum | null, paymentProviderCode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, anrokCustomer?: { __typename?: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, avalaraCustomer?: { __typename?: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, netsuiteCustomer?: { __typename?: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, xeroCustomer?: { __typename?: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, hubspotCustomer?: { __typename?: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, targetedObject?: HubspotTargetedObjectsEnum | null } | null, salesforceCustomer?: { __typename?: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string } };
-
-export type PaymentProvidersListForCustomerMainInfosQueryVariables = Exact<{
-  limit?: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-export type PaymentProvidersListForCustomerMainInfosQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
-      | { __typename?: 'AdyenProvider', id: string, name: string, code: string }
-      | { __typename?: 'CashfreeProvider', id: string, name: string, code: string }
-      | { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string }
-      | { __typename?: 'GocardlessProvider', id: string, name: string, code: string }
-      | { __typename?: 'MoneyhashProvider', id: string, name: string, code: string }
-      | { __typename?: 'StripeProvider', id: string, name: string, code: string }
-    > } | null };
-
-export type GenerateCheckoutUrlMutationVariables = Exact<{
-  input: GenerateCheckoutUrlInput;
-}>;
-
-
-export type GenerateCheckoutUrlMutation = { __typename?: 'Mutation', generateCheckoutUrl?: { __typename?: 'GenerateCheckoutUrlPayload', checkoutUrl: string } | null };
 
 export type CustomerAppliedTaxRatesForSettingsFragment = { __typename?: 'Customer', id: string, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number, autoGenerated: boolean }> | null };
 
@@ -11341,6 +11374,21 @@ export type CreateCustomerAppliedTaxMutationVariables = Exact<{
 
 export type CreateCustomerAppliedTaxMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number, autoGenerated: boolean }> | null } | null };
 
+export type IntegrationsListForCustomerMainInfosQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type IntegrationsListForCustomerMainInfosQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<
+      | { __typename: 'AnrokIntegration', id: string, name: string, apiKey: any, externalAccountId?: string | null }
+      | { __typename: 'AvalaraIntegration', id: string, name: string, accountId?: string | null }
+      | { __typename: 'HubspotIntegration', id: string, name: string, portalId?: string | null }
+      | { __typename: 'NetsuiteIntegration', id: string, name: string, accountId?: string | null }
+      | { __typename?: 'OktaIntegration' }
+      | { __typename: 'SalesforceIntegration', id: string, name: string, instanceId: string }
+      | { __typename: 'XeroIntegration', id: string, name: string }
+    > } | null };
+
 export type CreditNoteForVoidCreditNoteDialogFragment = { __typename?: 'CreditNote', id: string, totalAmountCents: any, currency: CurrencyEnum };
 
 export type VoidCreditNoteMutationVariables = Exact<{
@@ -11412,6 +11460,13 @@ export type GetCustomerSubscriptionForUsageQuery = { __typename?: 'Query', custo
 export type CustomerUsageForUsageDetailsFragment = { __typename?: 'CustomerUsage', fromDatetime: any, toDatetime: any, chargesUsage: Array<{ __typename?: 'ChargeUsage', id: string, pricingUnitAmountCents?: any | null, charge: { __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, appliedPricingUnit?: { __typename?: 'AppliedPricingUnit', id: string, pricingUnit: { __typename?: 'PricingUnit', id: string, shortName: string } } | null }, billableMetric: { __typename?: 'BillableMetric', code: string, name: string }, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null, pricingUnitAmountCents?: any | null, presentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null }> | null, groupedUsage: Array<{ __typename?: 'GroupedChargeUsage', id: string, amountCents: any, groupedBy?: any | null, eventsCount: number, units: number, pricingUnitAmountCents?: any | null, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null, pricingUnitAmountCents?: any | null, presentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null }> | null, presentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null }>, presentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null }> };
 
 export type CustomerProjectedUsageForUsageDetailsFragment = { __typename?: 'CustomerProjectedUsage', fromDatetime: any, toDatetime: any, chargesUsage: Array<{ __typename?: 'ProjectedChargeUsage', id: string, pricingUnitAmountCents?: any | null, pricingUnitProjectedAmountCents?: any | null, charge: { __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, appliedPricingUnit?: { __typename?: 'AppliedPricingUnit', id: string, pricingUnit: { __typename?: 'PricingUnit', id: string, shortName: string } } | null }, billableMetric: { __typename?: 'BillableMetric', code: string, name: string }, filters?: Array<{ __typename?: 'ProjectedChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null, pricingUnitAmountCents?: any | null, projectedAmountCents: any, pricingUnitProjectedAmountCents?: any | null, projectedUnits: number, presentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null, projectedPresentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null }> | null, groupedUsage: Array<{ __typename?: 'ProjectedGroupedChargeUsage', id: string, amountCents: any, groupedBy?: any | null, eventsCount: number, units: number, pricingUnitAmountCents?: any | null, projectedAmountCents: any, pricingUnitProjectedAmountCents?: any | null, projectedUnits: number, filters?: Array<{ __typename?: 'ProjectedChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null, pricingUnitAmountCents?: any | null, projectedAmountCents: any, pricingUnitProjectedAmountCents?: any | null, projectedUnits: number, presentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null, projectedPresentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null }> | null, presentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null, projectedPresentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null }>, presentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null, projectedPresentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null }> };
+
+export type GenerateCheckoutUrlMutationVariables = Exact<{
+  input: GenerateCheckoutUrlInput;
+}>;
+
+
+export type GenerateCheckoutUrlMutation = { __typename?: 'Mutation', generateCheckoutUrl?: { __typename?: 'GenerateCheckoutUrlPayload', checkoutUrl: string } | null };
 
 export type GetApiKeyIdsForFilterItemApiKeyIdsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -14203,75 +14258,6 @@ export type CreateCreditNoteMutationVariables = Exact<{
 
 
 export type CreateCreditNoteMutation = { __typename?: 'Mutation', createCreditNote?: { __typename?: 'CreditNote', id: string, number: string, totalAmountCents: any, refundAmountCents: any, creditAmountCents: any, offsetAmountCents: any, currency: CurrencyEnum, createdAt: any, canBeVoided: boolean, voidedAt?: any | null, taxProviderSyncable: boolean, errorDetails?: Array<{ __typename?: 'ErrorDetail', id: string, errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, invoice?: { __typename?: 'Invoice', id: string, number: string, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum } } | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, email?: string | null, einvoicing: boolean, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null }, customer: { __typename?: 'Customer', id: string, email?: string | null } } | null };
-
-export type GetAccountingIntegrationsForExternalAppsAccordionQueryVariables = Exact<{
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  page?: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-export type GetAccountingIntegrationsForExternalAppsAccordionQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<
-      | { __typename?: 'AnrokIntegration' }
-      | { __typename?: 'AvalaraIntegration' }
-      | { __typename?: 'HubspotIntegration' }
-      | { __typename: 'NetsuiteIntegration', id: string, code: string, name: string }
-      | { __typename?: 'OktaIntegration' }
-      | { __typename?: 'SalesforceIntegration' }
-      | { __typename: 'XeroIntegration', id: string, code: string, name: string }
-    > } | null };
-
-export type GetCrmIntegrationsForExternalAppsAccordionQueryVariables = Exact<{
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  page?: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-export type GetCrmIntegrationsForExternalAppsAccordionQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<
-      | { __typename?: 'AnrokIntegration' }
-      | { __typename?: 'AvalaraIntegration' }
-      | { __typename: 'HubspotIntegration', id: string, code: string, name: string, defaultTargetedObject: HubspotTargetedObjectsEnum }
-      | { __typename?: 'NetsuiteIntegration' }
-      | { __typename?: 'OktaIntegration' }
-      | { __typename: 'SalesforceIntegration', id: string, code: string, name: string }
-      | { __typename?: 'XeroIntegration' }
-    > } | null };
-
-export type PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables = Exact<{
-  limit?: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-export type PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
-      | { __typename: 'AdyenProvider', id: string, name: string, code: string }
-      | { __typename: 'CashfreeProvider', id: string, name: string, code: string }
-      | { __typename: 'FlutterwaveProvider', id: string, name: string, code: string }
-      | { __typename: 'GocardlessProvider', id: string, name: string, code: string }
-      | { __typename: 'MoneyhashProvider', id: string, name: string, code: string }
-      | { __typename: 'StripeProvider', id: string, name: string, code: string }
-    > } | null };
-
-export type GetTaxIntegrationsForExternalAppsAccordionQueryVariables = Exact<{
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  page?: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-export type GetTaxIntegrationsForExternalAppsAccordionQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<
-      | { __typename: 'AnrokIntegration', id: string, code: string, name: string }
-      | { __typename: 'AvalaraIntegration', id: string, code: string, name: string }
-      | { __typename?: 'HubspotIntegration' }
-      | { __typename?: 'NetsuiteIntegration' }
-      | { __typename?: 'OktaIntegration' }
-      | { __typename?: 'SalesforceIntegration' }
-      | { __typename?: 'XeroIntegration' }
-    > } | null };
-
-export type SubsidiariesListForExternalAppsAccordionQueryVariables = Exact<{
-  integrationId?: InputMaybe<Scalars['ID']['input']>;
-}>;
-
-
-export type SubsidiariesListForExternalAppsAccordionQuery = { __typename?: 'Query', integrationSubsidiaries?: { __typename?: 'SubsidiaryCollection', collection: Array<{ __typename?: 'Subsidiary', externalId: string, externalName?: string | null }> } | null };
 
 export type GetAddonListForInfoiceQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -23201,6 +23187,304 @@ export type CreditNoteEstimateQueryHookResult = ReturnType<typeof useCreditNoteE
 export type CreditNoteEstimateLazyQueryHookResult = ReturnType<typeof useCreditNoteEstimateLazyQuery>;
 export type CreditNoteEstimateSuspenseQueryHookResult = ReturnType<typeof useCreditNoteEstimateSuspenseQuery>;
 export type CreditNoteEstimateQueryResult = Apollo.QueryResult<CreditNoteEstimateQuery, CreditNoteEstimateQueryVariables>;
+export const GetAccountingIntegrationsForExternalAppsAccordionDocument = gql`
+    query getAccountingIntegrationsForExternalAppsAccordion($limit: Int, $page: Int) {
+  integrations(limit: $limit, page: $page) {
+    collection {
+      ... on NetsuiteIntegration {
+        __typename
+        id
+        code
+        name
+      }
+      ... on XeroIntegration {
+        __typename
+        id
+        code
+        name
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetAccountingIntegrationsForExternalAppsAccordionQuery__
+ *
+ * To run a query within a React component, call `useGetAccountingIntegrationsForExternalAppsAccordionQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAccountingIntegrationsForExternalAppsAccordionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAccountingIntegrationsForExternalAppsAccordionQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *      page: // value for 'page'
+ *   },
+ * });
+ */
+export function useGetAccountingIntegrationsForExternalAppsAccordionQuery(baseOptions?: Apollo.QueryHookOptions<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>(GetAccountingIntegrationsForExternalAppsAccordionDocument, options);
+      }
+export function useGetAccountingIntegrationsForExternalAppsAccordionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>(GetAccountingIntegrationsForExternalAppsAccordionDocument, options);
+        }
+// @ts-ignore
+export function useGetAccountingIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>;
+export function useGetAccountingIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<GetAccountingIntegrationsForExternalAppsAccordionQuery | undefined, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>;
+export function useGetAccountingIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>(GetAccountingIntegrationsForExternalAppsAccordionDocument, options);
+        }
+export type GetAccountingIntegrationsForExternalAppsAccordionQueryHookResult = ReturnType<typeof useGetAccountingIntegrationsForExternalAppsAccordionQuery>;
+export type GetAccountingIntegrationsForExternalAppsAccordionLazyQueryHookResult = ReturnType<typeof useGetAccountingIntegrationsForExternalAppsAccordionLazyQuery>;
+export type GetAccountingIntegrationsForExternalAppsAccordionSuspenseQueryHookResult = ReturnType<typeof useGetAccountingIntegrationsForExternalAppsAccordionSuspenseQuery>;
+export type GetAccountingIntegrationsForExternalAppsAccordionQueryResult = Apollo.QueryResult<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>;
+export const SubsidiariesListForExternalAppsAccordionDocument = gql`
+    query subsidiariesListForExternalAppsAccordion($integrationId: ID) {
+  integrationSubsidiaries(integrationId: $integrationId) {
+    collection {
+      externalId
+      externalName
+    }
+  }
+}
+    `;
+
+/**
+ * __useSubsidiariesListForExternalAppsAccordionQuery__
+ *
+ * To run a query within a React component, call `useSubsidiariesListForExternalAppsAccordionQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSubsidiariesListForExternalAppsAccordionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSubsidiariesListForExternalAppsAccordionQuery({
+ *   variables: {
+ *      integrationId: // value for 'integrationId'
+ *   },
+ * });
+ */
+export function useSubsidiariesListForExternalAppsAccordionQuery(baseOptions?: Apollo.QueryHookOptions<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>(SubsidiariesListForExternalAppsAccordionDocument, options);
+      }
+export function useSubsidiariesListForExternalAppsAccordionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>(SubsidiariesListForExternalAppsAccordionDocument, options);
+        }
+// @ts-ignore
+export function useSubsidiariesListForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>;
+export function useSubsidiariesListForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<SubsidiariesListForExternalAppsAccordionQuery | undefined, SubsidiariesListForExternalAppsAccordionQueryVariables>;
+export function useSubsidiariesListForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>(SubsidiariesListForExternalAppsAccordionDocument, options);
+        }
+export type SubsidiariesListForExternalAppsAccordionQueryHookResult = ReturnType<typeof useSubsidiariesListForExternalAppsAccordionQuery>;
+export type SubsidiariesListForExternalAppsAccordionLazyQueryHookResult = ReturnType<typeof useSubsidiariesListForExternalAppsAccordionLazyQuery>;
+export type SubsidiariesListForExternalAppsAccordionSuspenseQueryHookResult = ReturnType<typeof useSubsidiariesListForExternalAppsAccordionSuspenseQuery>;
+export type SubsidiariesListForExternalAppsAccordionQueryResult = Apollo.QueryResult<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>;
+export const GetCrmIntegrationsForExternalAppsAccordionDocument = gql`
+    query getCrmIntegrationsForExternalAppsAccordion($limit: Int, $page: Int) {
+  integrations(limit: $limit, page: $page) {
+    collection {
+      ... on HubspotIntegration {
+        __typename
+        id
+        code
+        name
+        defaultTargetedObject
+      }
+      ... on SalesforceIntegration {
+        __typename
+        id
+        code
+        name
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetCrmIntegrationsForExternalAppsAccordionQuery__
+ *
+ * To run a query within a React component, call `useGetCrmIntegrationsForExternalAppsAccordionQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCrmIntegrationsForExternalAppsAccordionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCrmIntegrationsForExternalAppsAccordionQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *      page: // value for 'page'
+ *   },
+ * });
+ */
+export function useGetCrmIntegrationsForExternalAppsAccordionQuery(baseOptions?: Apollo.QueryHookOptions<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>(GetCrmIntegrationsForExternalAppsAccordionDocument, options);
+      }
+export function useGetCrmIntegrationsForExternalAppsAccordionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>(GetCrmIntegrationsForExternalAppsAccordionDocument, options);
+        }
+// @ts-ignore
+export function useGetCrmIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>;
+export function useGetCrmIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<GetCrmIntegrationsForExternalAppsAccordionQuery | undefined, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>;
+export function useGetCrmIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>(GetCrmIntegrationsForExternalAppsAccordionDocument, options);
+        }
+export type GetCrmIntegrationsForExternalAppsAccordionQueryHookResult = ReturnType<typeof useGetCrmIntegrationsForExternalAppsAccordionQuery>;
+export type GetCrmIntegrationsForExternalAppsAccordionLazyQueryHookResult = ReturnType<typeof useGetCrmIntegrationsForExternalAppsAccordionLazyQuery>;
+export type GetCrmIntegrationsForExternalAppsAccordionSuspenseQueryHookResult = ReturnType<typeof useGetCrmIntegrationsForExternalAppsAccordionSuspenseQuery>;
+export type GetCrmIntegrationsForExternalAppsAccordionQueryResult = Apollo.QueryResult<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>;
+export const PaymentProvidersListForCustomerCreateEditExternalAppsAccordionDocument = gql`
+    query paymentProvidersListForCustomerCreateEditExternalAppsAccordion($limit: Int) {
+  paymentProviders(limit: $limit) {
+    collection {
+      ... on CashfreeProvider {
+        __typename
+        id
+        name
+        code
+      }
+      ... on FlutterwaveProvider {
+        __typename
+        id
+        name
+        code
+      }
+      ... on StripeProvider {
+        __typename
+        id
+        name
+        code
+      }
+      ... on GocardlessProvider {
+        __typename
+        id
+        name
+        code
+      }
+      ... on AdyenProvider {
+        __typename
+        id
+        name
+        code
+      }
+      ... on MoneyhashProvider {
+        __typename
+        id
+        name
+        code
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery__
+ *
+ * To run a query within a React component, call `usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery(baseOptions?: Apollo.QueryHookOptions<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>(PaymentProvidersListForCustomerCreateEditExternalAppsAccordionDocument, options);
+      }
+export function usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>(PaymentProvidersListForCustomerCreateEditExternalAppsAccordionDocument, options);
+        }
+// @ts-ignore
+export function usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>;
+export function usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery | undefined, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>;
+export function usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>(PaymentProvidersListForCustomerCreateEditExternalAppsAccordionDocument, options);
+        }
+export type PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryHookResult = ReturnType<typeof usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery>;
+export type PaymentProvidersListForCustomerCreateEditExternalAppsAccordionLazyQueryHookResult = ReturnType<typeof usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionLazyQuery>;
+export type PaymentProvidersListForCustomerCreateEditExternalAppsAccordionSuspenseQueryHookResult = ReturnType<typeof usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionSuspenseQuery>;
+export type PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryResult = Apollo.QueryResult<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>;
+export const GetTaxIntegrationsForExternalAppsAccordionDocument = gql`
+    query getTaxIntegrationsForExternalAppsAccordion($limit: Int, $page: Int) {
+  integrations(limit: $limit, page: $page) {
+    collection {
+      ... on AnrokIntegration {
+        __typename
+        id
+        code
+        name
+      }
+      ... on AvalaraIntegration {
+        __typename
+        id
+        code
+        name
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetTaxIntegrationsForExternalAppsAccordionQuery__
+ *
+ * To run a query within a React component, call `useGetTaxIntegrationsForExternalAppsAccordionQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetTaxIntegrationsForExternalAppsAccordionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetTaxIntegrationsForExternalAppsAccordionQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *      page: // value for 'page'
+ *   },
+ * });
+ */
+export function useGetTaxIntegrationsForExternalAppsAccordionQuery(baseOptions?: Apollo.QueryHookOptions<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>(GetTaxIntegrationsForExternalAppsAccordionDocument, options);
+      }
+export function useGetTaxIntegrationsForExternalAppsAccordionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>(GetTaxIntegrationsForExternalAppsAccordionDocument, options);
+        }
+// @ts-ignore
+export function useGetTaxIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>;
+export function useGetTaxIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<GetTaxIntegrationsForExternalAppsAccordionQuery | undefined, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>;
+export function useGetTaxIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>(GetTaxIntegrationsForExternalAppsAccordionDocument, options);
+        }
+export type GetTaxIntegrationsForExternalAppsAccordionQueryHookResult = ReturnType<typeof useGetTaxIntegrationsForExternalAppsAccordionQuery>;
+export type GetTaxIntegrationsForExternalAppsAccordionLazyQueryHookResult = ReturnType<typeof useGetTaxIntegrationsForExternalAppsAccordionLazyQuery>;
+export type GetTaxIntegrationsForExternalAppsAccordionSuspenseQueryHookResult = ReturnType<typeof useGetTaxIntegrationsForExternalAppsAccordionSuspenseQuery>;
+export type GetTaxIntegrationsForExternalAppsAccordionQueryResult = Apollo.QueryResult<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>;
 export const CustomerPortalInvoicesDocument = gql`
     query customerPortalInvoices($limit: Int, $page: Int, $searchTerm: String, $status: [InvoiceStatusTypeEnum!]) {
   customerPortalInvoices(
@@ -24096,86 +24380,6 @@ export type GetCustomerCreditNotesQueryHookResult = ReturnType<typeof useGetCust
 export type GetCustomerCreditNotesLazyQueryHookResult = ReturnType<typeof useGetCustomerCreditNotesLazyQuery>;
 export type GetCustomerCreditNotesSuspenseQueryHookResult = ReturnType<typeof useGetCustomerCreditNotesSuspenseQuery>;
 export type GetCustomerCreditNotesQueryResult = Apollo.QueryResult<GetCustomerCreditNotesQuery, GetCustomerCreditNotesQueryVariables>;
-export const IntegrationsListForCustomerMainInfosDocument = gql`
-    query integrationsListForCustomerMainInfos($limit: Int) {
-  integrations(limit: $limit) {
-    collection {
-      ... on NetsuiteIntegration {
-        __typename
-        id
-        name
-        accountId
-      }
-      ... on AnrokIntegration {
-        __typename
-        id
-        name
-        apiKey
-        externalAccountId
-      }
-      ... on AvalaraIntegration {
-        __typename
-        id
-        name
-        accountId
-      }
-      ... on XeroIntegration {
-        __typename
-        id
-        name
-      }
-      ... on HubspotIntegration {
-        __typename
-        id
-        name
-        portalId
-      }
-      ... on SalesforceIntegration {
-        __typename
-        id
-        name
-        instanceId
-      }
-    }
-  }
-}
-    `;
-
-/**
- * __useIntegrationsListForCustomerMainInfosQuery__
- *
- * To run a query within a React component, call `useIntegrationsListForCustomerMainInfosQuery` and pass it any options that fit your needs.
- * When your component renders, `useIntegrationsListForCustomerMainInfosQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useIntegrationsListForCustomerMainInfosQuery({
- *   variables: {
- *      limit: // value for 'limit'
- *   },
- * });
- */
-export function useIntegrationsListForCustomerMainInfosQuery(baseOptions?: Apollo.QueryHookOptions<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>(IntegrationsListForCustomerMainInfosDocument, options);
-      }
-export function useIntegrationsListForCustomerMainInfosLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>(IntegrationsListForCustomerMainInfosDocument, options);
-        }
-// @ts-ignore
-export function useIntegrationsListForCustomerMainInfosSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>): Apollo.UseSuspenseQueryResult<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>;
-export function useIntegrationsListForCustomerMainInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>): Apollo.UseSuspenseQueryResult<IntegrationsListForCustomerMainInfosQuery | undefined, IntegrationsListForCustomerMainInfosQueryVariables>;
-export function useIntegrationsListForCustomerMainInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>(IntegrationsListForCustomerMainInfosDocument, options);
-        }
-export type IntegrationsListForCustomerMainInfosQueryHookResult = ReturnType<typeof useIntegrationsListForCustomerMainInfosQuery>;
-export type IntegrationsListForCustomerMainInfosLazyQueryHookResult = ReturnType<typeof useIntegrationsListForCustomerMainInfosLazyQuery>;
-export type IntegrationsListForCustomerMainInfosSuspenseQueryHookResult = ReturnType<typeof useIntegrationsListForCustomerMainInfosSuspenseQuery>;
-export type IntegrationsListForCustomerMainInfosQueryResult = Apollo.QueryResult<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>;
 export const DownloadInvoiceItemDocument = gql`
     mutation downloadInvoiceItem($input: DownloadInvoiceInput!) {
   downloadInvoice(input: $input) {
@@ -24334,113 +24538,6 @@ export type GetCustomerInvoicesQueryHookResult = ReturnType<typeof useGetCustome
 export type GetCustomerInvoicesLazyQueryHookResult = ReturnType<typeof useGetCustomerInvoicesLazyQuery>;
 export type GetCustomerInvoicesSuspenseQueryHookResult = ReturnType<typeof useGetCustomerInvoicesSuspenseQuery>;
 export type GetCustomerInvoicesQueryResult = Apollo.QueryResult<GetCustomerInvoicesQuery, GetCustomerInvoicesQueryVariables>;
-export const PaymentProvidersListForCustomerMainInfosDocument = gql`
-    query paymentProvidersListForCustomerMainInfos($limit: Int) {
-  paymentProviders(limit: $limit) {
-    collection {
-      ... on StripeProvider {
-        id
-        name
-        code
-      }
-      ... on GocardlessProvider {
-        id
-        name
-        code
-      }
-      ... on FlutterwaveProvider {
-        id
-        name
-        code
-      }
-      ... on CashfreeProvider {
-        id
-        name
-        code
-      }
-      ... on MoneyhashProvider {
-        id
-        name
-        code
-      }
-      ... on AdyenProvider {
-        id
-        name
-        code
-      }
-    }
-  }
-}
-    `;
-
-/**
- * __usePaymentProvidersListForCustomerMainInfosQuery__
- *
- * To run a query within a React component, call `usePaymentProvidersListForCustomerMainInfosQuery` and pass it any options that fit your needs.
- * When your component renders, `usePaymentProvidersListForCustomerMainInfosQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = usePaymentProvidersListForCustomerMainInfosQuery({
- *   variables: {
- *      limit: // value for 'limit'
- *   },
- * });
- */
-export function usePaymentProvidersListForCustomerMainInfosQuery(baseOptions?: Apollo.QueryHookOptions<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>(PaymentProvidersListForCustomerMainInfosDocument, options);
-      }
-export function usePaymentProvidersListForCustomerMainInfosLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>(PaymentProvidersListForCustomerMainInfosDocument, options);
-        }
-// @ts-ignore
-export function usePaymentProvidersListForCustomerMainInfosSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>): Apollo.UseSuspenseQueryResult<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>;
-export function usePaymentProvidersListForCustomerMainInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>): Apollo.UseSuspenseQueryResult<PaymentProvidersListForCustomerMainInfosQuery | undefined, PaymentProvidersListForCustomerMainInfosQueryVariables>;
-export function usePaymentProvidersListForCustomerMainInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>(PaymentProvidersListForCustomerMainInfosDocument, options);
-        }
-export type PaymentProvidersListForCustomerMainInfosQueryHookResult = ReturnType<typeof usePaymentProvidersListForCustomerMainInfosQuery>;
-export type PaymentProvidersListForCustomerMainInfosLazyQueryHookResult = ReturnType<typeof usePaymentProvidersListForCustomerMainInfosLazyQuery>;
-export type PaymentProvidersListForCustomerMainInfosSuspenseQueryHookResult = ReturnType<typeof usePaymentProvidersListForCustomerMainInfosSuspenseQuery>;
-export type PaymentProvidersListForCustomerMainInfosQueryResult = Apollo.QueryResult<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>;
-export const GenerateCheckoutUrlDocument = gql`
-    mutation generateCheckoutUrl($input: GenerateCheckoutUrlInput!) {
-  generateCheckoutUrl(input: $input) {
-    checkoutUrl
-  }
-}
-    `;
-export type GenerateCheckoutUrlMutationFn = Apollo.MutationFunction<GenerateCheckoutUrlMutation, GenerateCheckoutUrlMutationVariables>;
-
-/**
- * __useGenerateCheckoutUrlMutation__
- *
- * To run a mutation, you first call `useGenerateCheckoutUrlMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useGenerateCheckoutUrlMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [generateCheckoutUrlMutation, { data, loading, error }] = useGenerateCheckoutUrlMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useGenerateCheckoutUrlMutation(baseOptions?: Apollo.MutationHookOptions<GenerateCheckoutUrlMutation, GenerateCheckoutUrlMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<GenerateCheckoutUrlMutation, GenerateCheckoutUrlMutationVariables>(GenerateCheckoutUrlDocument, options);
-      }
-export type GenerateCheckoutUrlMutationHookResult = ReturnType<typeof useGenerateCheckoutUrlMutation>;
-export type GenerateCheckoutUrlMutationResult = Apollo.MutationResult<GenerateCheckoutUrlMutation>;
-export type GenerateCheckoutUrlMutationOptions = Apollo.BaseMutationOptions<GenerateCheckoutUrlMutation, GenerateCheckoutUrlMutationVariables>;
 export const GetCustomerSettingsDocument = gql`
     query getCustomerSettings($id: ID!) {
   customer(id: $id) {
@@ -25021,6 +25118,86 @@ export function useCreateCustomerAppliedTaxMutation(baseOptions?: Apollo.Mutatio
 export type CreateCustomerAppliedTaxMutationHookResult = ReturnType<typeof useCreateCustomerAppliedTaxMutation>;
 export type CreateCustomerAppliedTaxMutationResult = Apollo.MutationResult<CreateCustomerAppliedTaxMutation>;
 export type CreateCustomerAppliedTaxMutationOptions = Apollo.BaseMutationOptions<CreateCustomerAppliedTaxMutation, CreateCustomerAppliedTaxMutationVariables>;
+export const IntegrationsListForCustomerMainInfosDocument = gql`
+    query integrationsListForCustomerMainInfos($limit: Int) {
+  integrations(limit: $limit) {
+    collection {
+      ... on NetsuiteIntegration {
+        __typename
+        id
+        name
+        accountId
+      }
+      ... on AnrokIntegration {
+        __typename
+        id
+        name
+        apiKey
+        externalAccountId
+      }
+      ... on AvalaraIntegration {
+        __typename
+        id
+        name
+        accountId
+      }
+      ... on XeroIntegration {
+        __typename
+        id
+        name
+      }
+      ... on HubspotIntegration {
+        __typename
+        id
+        name
+        portalId
+      }
+      ... on SalesforceIntegration {
+        __typename
+        id
+        name
+        instanceId
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useIntegrationsListForCustomerMainInfosQuery__
+ *
+ * To run a query within a React component, call `useIntegrationsListForCustomerMainInfosQuery` and pass it any options that fit your needs.
+ * When your component renders, `useIntegrationsListForCustomerMainInfosQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useIntegrationsListForCustomerMainInfosQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useIntegrationsListForCustomerMainInfosQuery(baseOptions?: Apollo.QueryHookOptions<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>(IntegrationsListForCustomerMainInfosDocument, options);
+      }
+export function useIntegrationsListForCustomerMainInfosLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>(IntegrationsListForCustomerMainInfosDocument, options);
+        }
+// @ts-ignore
+export function useIntegrationsListForCustomerMainInfosSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>): Apollo.UseSuspenseQueryResult<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>;
+export function useIntegrationsListForCustomerMainInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>): Apollo.UseSuspenseQueryResult<IntegrationsListForCustomerMainInfosQuery | undefined, IntegrationsListForCustomerMainInfosQueryVariables>;
+export function useIntegrationsListForCustomerMainInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>(IntegrationsListForCustomerMainInfosDocument, options);
+        }
+export type IntegrationsListForCustomerMainInfosQueryHookResult = ReturnType<typeof useIntegrationsListForCustomerMainInfosQuery>;
+export type IntegrationsListForCustomerMainInfosLazyQueryHookResult = ReturnType<typeof useIntegrationsListForCustomerMainInfosLazyQuery>;
+export type IntegrationsListForCustomerMainInfosSuspenseQueryHookResult = ReturnType<typeof useIntegrationsListForCustomerMainInfosSuspenseQuery>;
+export type IntegrationsListForCustomerMainInfosQueryResult = Apollo.QueryResult<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>;
 export const VoidCreditNoteDocument = gql`
     mutation voidCreditNote($input: VoidCreditNoteInput!) {
   voidCreditNote(input: $input) {
@@ -25432,6 +25609,39 @@ export type GetCustomerSubscriptionForUsageQueryHookResult = ReturnType<typeof u
 export type GetCustomerSubscriptionForUsageLazyQueryHookResult = ReturnType<typeof useGetCustomerSubscriptionForUsageLazyQuery>;
 export type GetCustomerSubscriptionForUsageSuspenseQueryHookResult = ReturnType<typeof useGetCustomerSubscriptionForUsageSuspenseQuery>;
 export type GetCustomerSubscriptionForUsageQueryResult = Apollo.QueryResult<GetCustomerSubscriptionForUsageQuery, GetCustomerSubscriptionForUsageQueryVariables>;
+export const GenerateCheckoutUrlDocument = gql`
+    mutation generateCheckoutUrl($input: GenerateCheckoutUrlInput!) {
+  generateCheckoutUrl(input: $input) {
+    checkoutUrl
+  }
+}
+    `;
+export type GenerateCheckoutUrlMutationFn = Apollo.MutationFunction<GenerateCheckoutUrlMutation, GenerateCheckoutUrlMutationVariables>;
+
+/**
+ * __useGenerateCheckoutUrlMutation__
+ *
+ * To run a mutation, you first call `useGenerateCheckoutUrlMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useGenerateCheckoutUrlMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [generateCheckoutUrlMutation, { data, loading, error }] = useGenerateCheckoutUrlMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useGenerateCheckoutUrlMutation(baseOptions?: Apollo.MutationHookOptions<GenerateCheckoutUrlMutation, GenerateCheckoutUrlMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<GenerateCheckoutUrlMutation, GenerateCheckoutUrlMutationVariables>(GenerateCheckoutUrlDocument, options);
+      }
+export type GenerateCheckoutUrlMutationHookResult = ReturnType<typeof useGenerateCheckoutUrlMutation>;
+export type GenerateCheckoutUrlMutationResult = Apollo.MutationResult<GenerateCheckoutUrlMutation>;
+export type GenerateCheckoutUrlMutationOptions = Apollo.BaseMutationOptions<GenerateCheckoutUrlMutation, GenerateCheckoutUrlMutationVariables>;
 export const GetApiKeyIdsForFilterItemApiKeyIdsDocument = gql`
     query getApiKeyIdsForFilterItemApiKeyIds {
   apiKeys {
@@ -37902,304 +38112,6 @@ export function useCreateCreditNoteMutation(baseOptions?: Apollo.MutationHookOpt
 export type CreateCreditNoteMutationHookResult = ReturnType<typeof useCreateCreditNoteMutation>;
 export type CreateCreditNoteMutationResult = Apollo.MutationResult<CreateCreditNoteMutation>;
 export type CreateCreditNoteMutationOptions = Apollo.BaseMutationOptions<CreateCreditNoteMutation, CreateCreditNoteMutationVariables>;
-export const GetAccountingIntegrationsForExternalAppsAccordionDocument = gql`
-    query getAccountingIntegrationsForExternalAppsAccordion($limit: Int, $page: Int) {
-  integrations(limit: $limit, page: $page) {
-    collection {
-      ... on NetsuiteIntegration {
-        __typename
-        id
-        code
-        name
-      }
-      ... on XeroIntegration {
-        __typename
-        id
-        code
-        name
-      }
-    }
-  }
-}
-    `;
-
-/**
- * __useGetAccountingIntegrationsForExternalAppsAccordionQuery__
- *
- * To run a query within a React component, call `useGetAccountingIntegrationsForExternalAppsAccordionQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetAccountingIntegrationsForExternalAppsAccordionQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetAccountingIntegrationsForExternalAppsAccordionQuery({
- *   variables: {
- *      limit: // value for 'limit'
- *      page: // value for 'page'
- *   },
- * });
- */
-export function useGetAccountingIntegrationsForExternalAppsAccordionQuery(baseOptions?: Apollo.QueryHookOptions<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>(GetAccountingIntegrationsForExternalAppsAccordionDocument, options);
-      }
-export function useGetAccountingIntegrationsForExternalAppsAccordionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>(GetAccountingIntegrationsForExternalAppsAccordionDocument, options);
-        }
-// @ts-ignore
-export function useGetAccountingIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>;
-export function useGetAccountingIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<GetAccountingIntegrationsForExternalAppsAccordionQuery | undefined, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>;
-export function useGetAccountingIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>(GetAccountingIntegrationsForExternalAppsAccordionDocument, options);
-        }
-export type GetAccountingIntegrationsForExternalAppsAccordionQueryHookResult = ReturnType<typeof useGetAccountingIntegrationsForExternalAppsAccordionQuery>;
-export type GetAccountingIntegrationsForExternalAppsAccordionLazyQueryHookResult = ReturnType<typeof useGetAccountingIntegrationsForExternalAppsAccordionLazyQuery>;
-export type GetAccountingIntegrationsForExternalAppsAccordionSuspenseQueryHookResult = ReturnType<typeof useGetAccountingIntegrationsForExternalAppsAccordionSuspenseQuery>;
-export type GetAccountingIntegrationsForExternalAppsAccordionQueryResult = Apollo.QueryResult<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>;
-export const GetCrmIntegrationsForExternalAppsAccordionDocument = gql`
-    query getCrmIntegrationsForExternalAppsAccordion($limit: Int, $page: Int) {
-  integrations(limit: $limit, page: $page) {
-    collection {
-      ... on HubspotIntegration {
-        __typename
-        id
-        code
-        name
-        defaultTargetedObject
-      }
-      ... on SalesforceIntegration {
-        __typename
-        id
-        code
-        name
-      }
-    }
-  }
-}
-    `;
-
-/**
- * __useGetCrmIntegrationsForExternalAppsAccordionQuery__
- *
- * To run a query within a React component, call `useGetCrmIntegrationsForExternalAppsAccordionQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetCrmIntegrationsForExternalAppsAccordionQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetCrmIntegrationsForExternalAppsAccordionQuery({
- *   variables: {
- *      limit: // value for 'limit'
- *      page: // value for 'page'
- *   },
- * });
- */
-export function useGetCrmIntegrationsForExternalAppsAccordionQuery(baseOptions?: Apollo.QueryHookOptions<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>(GetCrmIntegrationsForExternalAppsAccordionDocument, options);
-      }
-export function useGetCrmIntegrationsForExternalAppsAccordionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>(GetCrmIntegrationsForExternalAppsAccordionDocument, options);
-        }
-// @ts-ignore
-export function useGetCrmIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>;
-export function useGetCrmIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<GetCrmIntegrationsForExternalAppsAccordionQuery | undefined, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>;
-export function useGetCrmIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>(GetCrmIntegrationsForExternalAppsAccordionDocument, options);
-        }
-export type GetCrmIntegrationsForExternalAppsAccordionQueryHookResult = ReturnType<typeof useGetCrmIntegrationsForExternalAppsAccordionQuery>;
-export type GetCrmIntegrationsForExternalAppsAccordionLazyQueryHookResult = ReturnType<typeof useGetCrmIntegrationsForExternalAppsAccordionLazyQuery>;
-export type GetCrmIntegrationsForExternalAppsAccordionSuspenseQueryHookResult = ReturnType<typeof useGetCrmIntegrationsForExternalAppsAccordionSuspenseQuery>;
-export type GetCrmIntegrationsForExternalAppsAccordionQueryResult = Apollo.QueryResult<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>;
-export const PaymentProvidersListForCustomerCreateEditExternalAppsAccordionDocument = gql`
-    query paymentProvidersListForCustomerCreateEditExternalAppsAccordion($limit: Int) {
-  paymentProviders(limit: $limit) {
-    collection {
-      ... on CashfreeProvider {
-        __typename
-        id
-        name
-        code
-      }
-      ... on FlutterwaveProvider {
-        __typename
-        id
-        name
-        code
-      }
-      ... on StripeProvider {
-        __typename
-        id
-        name
-        code
-      }
-      ... on GocardlessProvider {
-        __typename
-        id
-        name
-        code
-      }
-      ... on AdyenProvider {
-        __typename
-        id
-        name
-        code
-      }
-      ... on MoneyhashProvider {
-        __typename
-        id
-        name
-        code
-      }
-    }
-  }
-}
-    `;
-
-/**
- * __usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery__
- *
- * To run a query within a React component, call `usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery` and pass it any options that fit your needs.
- * When your component renders, `usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery({
- *   variables: {
- *      limit: // value for 'limit'
- *   },
- * });
- */
-export function usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery(baseOptions?: Apollo.QueryHookOptions<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>(PaymentProvidersListForCustomerCreateEditExternalAppsAccordionDocument, options);
-      }
-export function usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>(PaymentProvidersListForCustomerCreateEditExternalAppsAccordionDocument, options);
-        }
-// @ts-ignore
-export function usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>;
-export function usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery | undefined, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>;
-export function usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>(PaymentProvidersListForCustomerCreateEditExternalAppsAccordionDocument, options);
-        }
-export type PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryHookResult = ReturnType<typeof usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery>;
-export type PaymentProvidersListForCustomerCreateEditExternalAppsAccordionLazyQueryHookResult = ReturnType<typeof usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionLazyQuery>;
-export type PaymentProvidersListForCustomerCreateEditExternalAppsAccordionSuspenseQueryHookResult = ReturnType<typeof usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionSuspenseQuery>;
-export type PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryResult = Apollo.QueryResult<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>;
-export const GetTaxIntegrationsForExternalAppsAccordionDocument = gql`
-    query getTaxIntegrationsForExternalAppsAccordion($limit: Int, $page: Int) {
-  integrations(limit: $limit, page: $page) {
-    collection {
-      ... on AnrokIntegration {
-        __typename
-        id
-        code
-        name
-      }
-      ... on AvalaraIntegration {
-        __typename
-        id
-        code
-        name
-      }
-    }
-  }
-}
-    `;
-
-/**
- * __useGetTaxIntegrationsForExternalAppsAccordionQuery__
- *
- * To run a query within a React component, call `useGetTaxIntegrationsForExternalAppsAccordionQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetTaxIntegrationsForExternalAppsAccordionQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetTaxIntegrationsForExternalAppsAccordionQuery({
- *   variables: {
- *      limit: // value for 'limit'
- *      page: // value for 'page'
- *   },
- * });
- */
-export function useGetTaxIntegrationsForExternalAppsAccordionQuery(baseOptions?: Apollo.QueryHookOptions<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>(GetTaxIntegrationsForExternalAppsAccordionDocument, options);
-      }
-export function useGetTaxIntegrationsForExternalAppsAccordionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>(GetTaxIntegrationsForExternalAppsAccordionDocument, options);
-        }
-// @ts-ignore
-export function useGetTaxIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>;
-export function useGetTaxIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<GetTaxIntegrationsForExternalAppsAccordionQuery | undefined, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>;
-export function useGetTaxIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>(GetTaxIntegrationsForExternalAppsAccordionDocument, options);
-        }
-export type GetTaxIntegrationsForExternalAppsAccordionQueryHookResult = ReturnType<typeof useGetTaxIntegrationsForExternalAppsAccordionQuery>;
-export type GetTaxIntegrationsForExternalAppsAccordionLazyQueryHookResult = ReturnType<typeof useGetTaxIntegrationsForExternalAppsAccordionLazyQuery>;
-export type GetTaxIntegrationsForExternalAppsAccordionSuspenseQueryHookResult = ReturnType<typeof useGetTaxIntegrationsForExternalAppsAccordionSuspenseQuery>;
-export type GetTaxIntegrationsForExternalAppsAccordionQueryResult = Apollo.QueryResult<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>;
-export const SubsidiariesListForExternalAppsAccordionDocument = gql`
-    query subsidiariesListForExternalAppsAccordion($integrationId: ID) {
-  integrationSubsidiaries(integrationId: $integrationId) {
-    collection {
-      externalId
-      externalName
-    }
-  }
-}
-    `;
-
-/**
- * __useSubsidiariesListForExternalAppsAccordionQuery__
- *
- * To run a query within a React component, call `useSubsidiariesListForExternalAppsAccordionQuery` and pass it any options that fit your needs.
- * When your component renders, `useSubsidiariesListForExternalAppsAccordionQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useSubsidiariesListForExternalAppsAccordionQuery({
- *   variables: {
- *      integrationId: // value for 'integrationId'
- *   },
- * });
- */
-export function useSubsidiariesListForExternalAppsAccordionQuery(baseOptions?: Apollo.QueryHookOptions<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>(SubsidiariesListForExternalAppsAccordionDocument, options);
-      }
-export function useSubsidiariesListForExternalAppsAccordionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>(SubsidiariesListForExternalAppsAccordionDocument, options);
-        }
-// @ts-ignore
-export function useSubsidiariesListForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>;
-export function useSubsidiariesListForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<SubsidiariesListForExternalAppsAccordionQuery | undefined, SubsidiariesListForExternalAppsAccordionQueryVariables>;
-export function useSubsidiariesListForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>(SubsidiariesListForExternalAppsAccordionDocument, options);
-        }
-export type SubsidiariesListForExternalAppsAccordionQueryHookResult = ReturnType<typeof useSubsidiariesListForExternalAppsAccordionQuery>;
-export type SubsidiariesListForExternalAppsAccordionLazyQueryHookResult = ReturnType<typeof useSubsidiariesListForExternalAppsAccordionLazyQuery>;
-export type SubsidiariesListForExternalAppsAccordionSuspenseQueryHookResult = ReturnType<typeof useSubsidiariesListForExternalAppsAccordionSuspenseQuery>;
-export type SubsidiariesListForExternalAppsAccordionQueryResult = Apollo.QueryResult<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>;
 export const GetAddonListForInfoiceDocument = gql`
     query getAddonListForInfoice($page: Int, $limit: Int, $searchTerm: String) {
   addOns(page: $page, limit: $limit, searchTerm: $searchTerm) {

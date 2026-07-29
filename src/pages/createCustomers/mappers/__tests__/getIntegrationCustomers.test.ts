@@ -16,14 +16,14 @@ import { CreateCustomerDefaultValues } from '~/pages/createCustomers/formInitial
 import { getIntegrationCustomers } from '../getIntegrationCustomers'
 
 // Mock the getAllIntegrationForAnIntegrationType function
-jest.mock('~/pages/createCustomers/common/getAllIntegrationForAnIntegrationType', () => ({
+jest.mock('~/components/customerConnections/getAllIntegrationForAnIntegrationType', () => ({
   getAllIntegrationForAnIntegrationType: jest.fn(),
 }))
 
 describe('getIntegrationCustomers', () => {
   // Useful to specify return type or assert specific calls
   const getAllIntegrationForAnIntegrationTypeMock = jest.requireMock(
-    '~/pages/createCustomers/common/getAllIntegrationForAnIntegrationType',
+    '~/components/customerConnections/getAllIntegrationForAnIntegrationType',
   ).getAllIntegrationForAnIntegrationType
 
   beforeEach(() => {

@@ -1,9 +1,9 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import StripePaymentProviderContent from '~/components/customerConnections/StripePaymentProviderContent'
 import { ProviderPaymentMethodsEnum } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
-import StripePaymentProviderContent from '~/pages/createCustomers/externalAppsAccordion/paymentProvidersAccordion/StripePaymentProviderContent'
 import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
 import { render } from '~/test-utils'
 

@@ -1,8 +1,9 @@
 import { useStore } from '@tanstack/react-form'
-import { ReactNode, useMemo } from 'react'
+import { useMemo } from 'react'
 
+import { integrationAvatarMapping, paymentAvatarMapping } from '~/components/avatarMappings'
 import { AddConnectionMenu } from '~/components/customerConnections/AddConnectionMenu'
-import { ConnectionComboBoxDataItem } from '~/components/customerConnections/ConnectionComboBox'
+import { ConnectionDrawerProviderContent } from '~/components/customerConnections/ConnectionDrawerProviderContent'
 import {
   ConnectionFormValues,
   CustomerConnectionDrawer,
@@ -11,63 +12,22 @@ import {
   CustomerConnectionRow,
   CustomerConnectionsList,
 } from '~/components/customerConnections/CustomerConnectionsList'
+import { getConnectionRowId } from '~/components/customerConnections/getConnectionRowId'
 import { ConnectionCategory } from '~/components/customerConnections/types'
+import { useConnectionOptions } from '~/components/customerConnections/useConnectionOptions'
 import { useCustomerConnectionDrawer } from '~/components/customerConnections/useCustomerConnectionDrawer'
 import { Accordion } from '~/components/designSystem/Accordion'
 import { Typography } from '~/components/designSystem/Typography'
 import {
   AddCustomerDrawerFragment,
-  AnrokIntegration,
-  AvalaraIntegration,
   CurrencyEnum,
-  HubspotIntegration,
   IntegrationTypeEnum,
-  NetsuiteIntegration,
   ProviderPaymentMethodsEnum,
   ProviderTypeEnum,
-  SalesforceIntegration,
-  XeroIntegration,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
-import { getAllIntegrationForAnIntegrationType } from '~/pages/createCustomers/common/getAllIntegrationForAnIntegrationType'
-import { useAccountingProviders } from '~/pages/createCustomers/common/useAccountingProviders'
-import { useCrmProviders } from '~/pages/createCustomers/common/useCrmProviders'
-import { usePaymentProviders } from '~/pages/createCustomers/common/usePaymentProviders'
-import { useTaxProviders } from '~/pages/createCustomers/common/useTaxProviders'
 import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
-import Adyen from '~/public/images/adyen.svg'
-import Anrok from '~/public/images/anrok.svg'
-import Avalara from '~/public/images/avalara.svg'
-import Cashfree from '~/public/images/cashfree.svg'
-import Flutterwave from '~/public/images/flutterwave.svg'
-import GoCardless from '~/public/images/gocardless.svg'
-import Hubspot from '~/public/images/hubspot.svg'
-import Moneyhash from '~/public/images/moneyhash.svg'
-import Netsuite from '~/public/images/netsuite.svg'
-import Salesforce from '~/public/images/salesforce.svg'
-import Stripe from '~/public/images/stripe.svg'
-import Xero from '~/public/images/xero.svg'
-
-import { ConnectionDrawerProviderContent } from './connectionDrawer/ConnectionDrawerProviderContent'
-
-const paymentAvatarMapping: Record<ProviderTypeEnum, ReactNode> = {
-  [ProviderTypeEnum.Adyen]: <Adyen />,
-  [ProviderTypeEnum.Cashfree]: <Cashfree />,
-  [ProviderTypeEnum.Flutterwave]: <Flutterwave />,
-  [ProviderTypeEnum.Gocardless]: <GoCardless />,
-  [ProviderTypeEnum.Stripe]: <Stripe />,
-  [ProviderTypeEnum.Moneyhash]: <Moneyhash />,
-}
-
-const integrationAvatarMapping: Partial<Record<IntegrationTypeEnum, ReactNode>> = {
-  [IntegrationTypeEnum.Netsuite]: <Netsuite />,
-  [IntegrationTypeEnum.Xero]: <Xero />,
-  [IntegrationTypeEnum.Anrok]: <Anrok />,
-  [IntegrationTypeEnum.Avalara]: <Avalara />,
-  [IntegrationTypeEnum.Hubspot]: <Hubspot />,
-  [IntegrationTypeEnum.Salesforce]: <Salesforce />,
-}
 
 type ExternalAppsAccordionProps = {
   isEdition: boolean
@@ -85,10 +45,14 @@ const ExternalAppsAccordion = withForm({
   render: function Render({ form, customer, isEdition }) {
     const { translate } = useInternationalization()
 
-    const { paymentProviders, getPaymentProvider } = usePaymentProviders()
-    const { accountingProviders } = useAccountingProviders()
-    const { taxProviders } = useTaxProviders()
-    const { crmProviders } = useCrmProviders()
+    const {
+      connectionOptions,
+      paymentProviders,
+      getPaymentProvider,
+      allAccountingIntegrations,
+      allTaxIntegrations,
+      allCrmIntegrations,
+    } = useConnectionOptions()
 
     const { drawerRef, openCreate, openEdit } = useCustomerConnectionDrawer()
 
@@ -108,49 +72,6 @@ const ExternalAppsAccordion = withForm({
     const crmCustomer = useStore(form.store, (state) => state.values.crmCustomer)
 
     const paymentProvider = getPaymentProvider(paymentProviderCode)
-
-    // ------- Org-level options fed to the drawer's provider select -------
-    const allAccountingIntegrations = useMemo(
-      () => [
-        ...(getAllIntegrationForAnIntegrationType<NetsuiteIntegration>({
-          integrationType: IntegrationTypeEnum.Netsuite,
-          allIntegrationsData: accountingProviders,
-        }) || []),
-        ...(getAllIntegrationForAnIntegrationType<XeroIntegration>({
-          integrationType: IntegrationTypeEnum.Xero,
-          allIntegrationsData: accountingProviders,
-        }) || []),
-      ],
-      [accountingProviders],
-    )
-
-    const allTaxIntegrations = useMemo(
-      () => [
-        ...(getAllIntegrationForAnIntegrationType<AnrokIntegration>({
-          integrationType: IntegrationTypeEnum.Anrok,
-          allIntegrationsData: taxProviders,
-        }) || []),
-        ...(getAllIntegrationForAnIntegrationType<AvalaraIntegration>({
-          integrationType: IntegrationTypeEnum.Avalara,
-          allIntegrationsData: taxProviders,
-        }) || []),
-      ],
-      [taxProviders],
-    )
-
-    const allCrmIntegrations = useMemo(
-      () => [
-        ...(getAllIntegrationForAnIntegrationType<HubspotIntegration>({
-          integrationType: IntegrationTypeEnum.Hubspot,
-          allIntegrationsData: crmProviders,
-        }) || []),
-        ...(getAllIntegrationForAnIntegrationType<SalesforceIntegration>({
-          integrationType: IntegrationTypeEnum.Salesforce,
-          allIntegrationsData: crmProviders,
-        }) || []),
-      ],
-      [crmProviders],
-    )
 
     // A slot is "persisted" only when the connection CURRENTLY in the form
     // slot is the one saved on the customer (same code): a connection deleted
@@ -200,47 +121,6 @@ const ExternalAppsAccordion = withForm({
         ),
     }
 
-    const connectionOptions: Partial<Record<ConnectionCategory, ConnectionComboBoxDataItem[]>> =
-      useMemo(
-        () => ({
-          [ConnectionCategory.Payment]: (paymentProviders?.paymentProviders?.collection || []).map(
-            (provider) => ({
-              value: provider.code,
-              label: provider.name,
-              subLabel: provider.code,
-              group: provider.__typename.toLocaleLowerCase().replace('provider', ''),
-              icon: paymentAvatarMapping[
-                provider.__typename.toLocaleLowerCase().replace('provider', '') as ProviderTypeEnum
-              ],
-            }),
-          ),
-          [ConnectionCategory.Accounting]: allAccountingIntegrations.map((integration) => ({
-            value: integration.code,
-            label: integration.name,
-            subLabel: integration.code,
-            group: integration.__typename?.replace('Integration', '') || '',
-          })),
-          [ConnectionCategory.Tax]: allTaxIntegrations.map((integration) => ({
-            value: integration.code,
-            label: integration.name,
-            subLabel: integration.code,
-            group: integration.__typename?.replace('Integration', '') || '',
-          })),
-          [ConnectionCategory.Crm]: allCrmIntegrations.map((integration) => ({
-            value: integration.code,
-            label: integration.name,
-            subLabel: integration.code,
-            group: integration.__typename?.replace('Integration', '') || '',
-          })),
-        }),
-        [
-          paymentProviders?.paymentProviders?.collection,
-          allAccountingIntegrations,
-          allTaxIntegrations,
-          allCrmIntegrations,
-        ],
-      )
-
     // ------- Rows derived from the (one-per-type) customer form slots -------
     const rows: CustomerConnectionRow[] = useMemo(() => {
       const result: CustomerConnectionRow[] = []
@@ -251,7 +131,7 @@ const ExternalAppsAccordion = withForm({
         )
 
         result.push({
-          id: `payment-${paymentProviderCode}`,
+          id: getConnectionRowId(ConnectionCategory.Payment, paymentProviderCode),
           category: ConnectionCategory.Payment,
           name: provider?.name ?? paymentProviderCode,
           code: paymentProviderCode,
@@ -263,7 +143,7 @@ const ExternalAppsAccordion = withForm({
         const integration = allAccountingIntegrations.find((i) => i.code === accountingProviderCode)
 
         result.push({
-          id: `accounting-${accountingProviderCode}`,
+          id: getConnectionRowId(ConnectionCategory.Accounting, accountingProviderCode),
           category: ConnectionCategory.Accounting,
           name: integration?.name ?? accountingProviderCode,
           code: accountingProviderCode,
@@ -277,7 +157,7 @@ const ExternalAppsAccordion = withForm({
         const integration = allTaxIntegrations.find((i) => i.code === taxProviderCode)
 
         result.push({
-          id: `tax-${taxProviderCode}`,
+          id: getConnectionRowId(ConnectionCategory.Tax, taxProviderCode),
           category: ConnectionCategory.Tax,
           name: integration?.name ?? taxProviderCode,
           code: taxProviderCode,
@@ -291,7 +171,7 @@ const ExternalAppsAccordion = withForm({
         const integration = allCrmIntegrations.find((i) => i.code === crmProviderCode)
 
         result.push({
-          id: `crm-${crmProviderCode}`,
+          id: getConnectionRowId(ConnectionCategory.Crm, crmProviderCode),
           category: ConnectionCategory.Crm,
           name: integration?.name ?? crmProviderCode,
           code: crmProviderCode,
@@ -511,6 +391,7 @@ const ExternalAppsAccordion = withForm({
                 category={category}
                 hadInitialConnection={hadInitialConnection[category]}
                 isCustomerEdition={isEdition && !!customer}
+                showDeferredSyncNotice={isEdition && !!customer}
               />
             )}
           />
