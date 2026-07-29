@@ -143,7 +143,6 @@ import { z } from 'zod'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Typography } from '~/components/designSystem/Typography'
 import { useFormDialog } from '~/components/dialogs/FormDialog'
-import { DialogResult } from '~/components/dialogs/types'
 import { InviteForEditRoleForDialogFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
@@ -192,15 +191,12 @@ export const useEditInviteRoleDialog = () => {
     },
   })
 
-  const handleSubmit = async (): Promise<DialogResult> => {
+  // The mutation reports failure through its payload instead of rejecting, so success is
+  // tracked manually and handed to FormDialog via didSubmitSucceed. A form whose onSubmit
+  // can only fail on validation uses dialogFormProps(id, form) instead.
+  const submit = async (): Promise<void> => {
     successRef.current = false
     await form.handleSubmit()
-
-    if (!successRef.current) {
-      throw new Error('Submit failed')
-    }
-
-    return { reason: 'success' }
   }
 
   const openEditInviteRoleDialog = (invite: InviteForEditRoleForDialogFragment) => {
@@ -234,7 +230,8 @@ export const useEditInviteRoleDialog = () => {
         ),
         form: {
           id: EDIT_INVITE_ROLE_FORM_ID,
-          submit: handleSubmit,
+          submit,
+          didSubmitSucceed: () => successRef.current,
         },
       })
       .then((response) => {
