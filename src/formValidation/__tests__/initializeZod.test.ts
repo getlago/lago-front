@@ -27,6 +27,26 @@ describe('initializeZod', () => {
     })
   })
 
+  describe('GIVEN the module is freshly imported', () => {
+    describe('WHEN nothing calls the init function', () => {
+      it('THEN should already have registered the default message', () => {
+        jest.isolateModules(() => {
+          // A module registry of its own, so this is a pristine Zod whose config can
+          // only come from importing the module under test.
+          // eslint-disable-next-line @typescript-eslint/no-require-imports
+          const isolatedZod = require('zod').z
+
+          // eslint-disable-next-line @typescript-eslint/no-require-imports
+          require('~/formValidation/initializeZod')
+
+          const result = isolatedZod.string().min(1).safeParse('')
+
+          expect(result.error?.issues[0]?.message).toBe(DEFAULT_ZOD_ERROR_MESSAGE)
+        })
+      })
+    })
+  })
+
   describe('GIVEN Zod has been initialized', () => {
     beforeEach(() => {
       initializeZod()

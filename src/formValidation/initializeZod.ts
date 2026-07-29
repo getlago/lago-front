@@ -14,7 +14,16 @@ export const DEFAULT_ZOD_ERROR_MESSAGE = 'text_624ea7c29103fd010732ab7d'
  *
  * Messages set explicitly on a schema still win, so only validations left without a
  * message fall back to {@link DEFAULT_ZOD_ERROR_MESSAGE}.
+ *
+ * Exported so a test can re-register the config after resetting it; app code gets it
+ * from the module-level call below.
  */
 export const initializeZod = (): void => {
   z.config({ customError: () => DEFAULT_ZOD_ERROR_MESSAGE })
 }
+
+// Registered on import rather than from an init function: schemas are declared at module
+// load all over the app, so importing this module for its side effect (see `App.tsx`) is
+// what guarantees the default is in place before anything parses — with no entry point
+// left to forget the call.
+initializeZod()
