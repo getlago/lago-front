@@ -10,7 +10,6 @@ import { usePageSearchParam } from '~/components/designSystem/Pagination'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { SearchInput } from '~/components/SearchInput'
 import { CUSTOMER_INVOICES_FILTER_PREFIX } from '~/core/constants/filters'
-import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import {
   CurrencyEnum,
   InvoiceForInvoiceListFragmentDoc,
@@ -23,6 +22,8 @@ import { useCustomerFilterDefaults } from '~/hooks/useCustomerFilterDefaults'
 import { DEBOUNCE_SEARCH_MS } from '~/hooks/useDebouncedSearch'
 
 import { CustomerInvoicesList } from './CustomerInvoicesList'
+
+const INVOICES_ITEMS_PER_PAGE = 10
 
 gql`
   query getCustomerInvoices(
@@ -92,7 +93,7 @@ export const CustomerInvoicesTab = ({
     notifyOnNetworkStatusChange: true,
     variables: {
       customerId,
-      limit: DEFAULT_PAGE_SIZE,
+      limit: INVOICES_ITEMS_PER_PAGE,
       page,
       status: [
         InvoiceStatusTypeEnum.Draft,
@@ -156,6 +157,7 @@ export const CustomerInvoicesTab = ({
           customerId={customerId}
           invoiceData={data?.customerInvoices}
           onPageChange={goToPage}
+          pageSize={INVOICES_ITEMS_PER_PAGE}
         />
       </div>
     </div>

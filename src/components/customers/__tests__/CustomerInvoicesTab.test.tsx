@@ -1,7 +1,6 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { CurrencyEnum, InvoiceStatusTypeEnum, TimezoneEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
@@ -162,7 +161,7 @@ describe('CustomerInvoicesTab', () => {
             notifyOnNetworkStatusChange: true,
             variables: expect.objectContaining({
               customerId: 'cust-1',
-              limit: DEFAULT_PAGE_SIZE,
+              limit: 10,
               page: 1,
               status: [
                 InvoiceStatusTypeEnum.Draft,
