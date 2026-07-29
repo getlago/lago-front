@@ -75,7 +75,14 @@ export const getSSOSelectorTestId = (method: AuthenticationMethodsEnum) => `sso-
 export const getSSOSelectorDotsTestId = (method: AuthenticationMethodsEnum) =>
   `sso-selector-dots-${method}`
 
-/** Provider-specific configuration shared by the Okta and Entra ID SSO cards. */
+/**
+ * Provider-specific configuration shared by the Okta and Entra ID SSO cards.
+ *
+ * Each entry binds its own (correctly-typed) integration into the dialog
+ * openers, so the array element type stays uniform and provider-agnostic. That
+ * keeps each entry internally consistent without casting an Okta opener to an
+ * Entra one (or handing the wrong integration to a dialog).
+ */
 type SSOProviderConfig = {
   method: AuthenticationMethodsEnum
   titleKey: string
@@ -85,15 +92,9 @@ type SSOProviderConfig = {
   route: string
   icon: ReactNode
   shouldSee: boolean
-  integration: OktaIntegration | EntraIdIntegration | undefined
-  openAddDialog: (data: {
-    integration?: OktaIntegration | EntraIdIntegration
-    callback?: (id: string) => void
-  }) => void
-  openDeleteDialog: (data: {
-    integration?: OktaIntegration | EntraIdIntegration
-    callback?: () => void
-  }) => void
+  integrationId: string | undefined
+  openAddDialog: (callback?: (id: string) => void) => void
+  openDeleteDialog: (callback?: () => void) => void
 }
 
 const Authentication = () => {
@@ -146,9 +147,10 @@ const Authentication = () => {
       route: OKTA_AUTHENTICATION_ROUTE,
       icon: <Okta />,
       shouldSee: shouldSeeOktaIntegration,
-      integration: oktaIntegration,
-      openAddDialog: openAddOktaDialog as SSOProviderConfig['openAddDialog'],
-      openDeleteDialog: openDeleteOktaIntegrationDialog as SSOProviderConfig['openDeleteDialog'],
+      integrationId: oktaIntegration?.id,
+      openAddDialog: (callback) => openAddOktaDialog({ integration: oktaIntegration, callback }),
+      openDeleteDialog: (callback) =>
+        openDeleteOktaIntegrationDialog({ integration: oktaIntegration, callback }),
     },
     {
       method: AuthenticationMethodsEnum.EntraId,
@@ -159,9 +161,11 @@ const Authentication = () => {
       route: ENTRA_ID_AUTHENTICATION_ROUTE,
       icon: <MicrosoftEntraId />,
       shouldSee: shouldSeeEntraIdIntegration,
-      integration: entraIdIntegration,
-      openAddDialog: openAddEntraIdDialog as SSOProviderConfig['openAddDialog'],
-      openDeleteDialog: openDeleteEntraIdIntegrationDialog as SSOProviderConfig['openDeleteDialog'],
+      integrationId: entraIdIntegration?.id,
+      openAddDialog: (callback) =>
+        openAddEntraIdDialog({ integration: entraIdIntegration, callback }),
+      openDeleteDialog: (callback) =>
+        openDeleteEntraIdIntegrationDialog({ integration: entraIdIntegration, callback }),
     },
   ]
 
@@ -185,7 +189,7 @@ const Authentication = () => {
     if (providerConfig && !providerConfig.shouldSee) {
       isPopperVisible = false
       icon = <Icon name="sparkles" size="medium" />
-    } else if (providerConfig && !providerConfig.integration?.id) {
+    } else if (providerConfig && !providerConfig.integrationId) {
       isPopperVisible = false
       icon = undefined
     } else if (type === 'enabled') {
@@ -221,7 +225,7 @@ const Authentication = () => {
         <div className="flex items-center gap-2">
           {icon}
 
-          {providerConfig && providerConfig.shouldSee && !providerConfig.integration?.id && (
+          {providerConfig && providerConfig.shouldSee && !providerConfig.integrationId && (
             <Button
               size="small"
               startIcon="link"
@@ -232,11 +236,9 @@ const Authentication = () => {
                   return premiumWarningDialog.open()
                 }
 
-                return providerConfig.openAddDialog({
-                  integration: providerConfig.integration,
-                  callback: (id) =>
-                    navigate(generatePath(providerConfig.route, { integrationId: id })),
-                })
+                return providerConfig.openAddDialog((id) =>
+                  navigate(generatePath(providerConfig.route, { integrationId: id })),
+                )
               }}
             >
               {translate('text_657078c28394d6b1ae1b9789')}
@@ -298,7 +300,7 @@ const Authentication = () => {
                       {translate('text_1752158016616mbk432yu9oz')}
                     </Button>
                   )}
-                  {providerConfig?.integration?.id && (
+                  {providerConfig?.integrationId && (
                     <>
                       <Button
                         startIcon="pen"
@@ -308,11 +310,8 @@ const Authentication = () => {
                         onClick={(e) => {
                           e.stopPropagation()
 
-                          providerConfig.openAddDialog({
-                            integration: providerConfig.integration,
-                            callback: () => {
-                              refetchOrganizationInfos()
-                            },
+                          providerConfig.openAddDialog(() => {
+                            refetchOrganizationInfos()
                           })
                         }}
                       >
@@ -339,11 +338,8 @@ const Authentication = () => {
                           onClick={(e) => {
                             e.stopPropagation()
 
-                            providerConfig.openDeleteDialog({
-                              integration: providerConfig.integration,
-                              callback: () => {
-                                refetchOrganizationInfos()
-                              },
+                            providerConfig.openDeleteDialog(() => {
+                              refetchOrganizationInfos()
                             })
                           }}
                         >
@@ -420,18 +416,17 @@ const Authentication = () => {
                     return premiumWarningDialog.open()
                   }
 
-                  if (provider.integration?.id) {
+                  if (provider.integrationId) {
                     return navigate(
                       generatePath(provider.route, {
-                        integrationId: provider.integration.id,
+                        integrationId: provider.integrationId,
                       }),
                     )
                   }
 
-                  return provider.openAddDialog({
-                    integration: provider.integration,
-                    callback: (id) => navigate(generatePath(provider.route, { integrationId: id })),
-                  })
+                  return provider.openAddDialog((id) =>
+                    navigate(generatePath(provider.route, { integrationId: id })),
+                  )
                 }}
                 endContent={getEndContent({
                   method: provider.method,

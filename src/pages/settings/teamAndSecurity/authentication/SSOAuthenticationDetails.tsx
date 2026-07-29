@@ -146,22 +146,21 @@ export const SSOAuthenticationDetails = <TIntegration extends { id: string }>({
             </Button>
           </IntegrationsPage.Headline>
 
-          {loading ? (
+          {loading &&
             [0, 1, 2, 3].map((i) => (
               <IntegrationsPage.ItemSkeleton key={`item-skeleton-item-${i}`} />
-            ))
-          ) : integration ? (
-            <>
-              {getDetailRows(integration).map((row) => (
-                <IntegrationsPage.DetailsItem
-                  key={`sso-details-item-${row.labelKey}`}
-                  icon={row.icon}
-                  label={translate(row.labelKey)}
-                  value={row.value}
-                />
-              ))}
-            </>
-          ) : null}
+            ))}
+
+          {!loading &&
+            integration &&
+            getDetailRows(integration).map((row) => (
+              <IntegrationsPage.DetailsItem
+                key={`sso-details-item-${row.labelKey}`}
+                icon={row.icon}
+                label={translate(row.labelKey)}
+                value={row.value}
+              />
+            ))}
         </section>
       </IntegrationsPage.Container>
     </>

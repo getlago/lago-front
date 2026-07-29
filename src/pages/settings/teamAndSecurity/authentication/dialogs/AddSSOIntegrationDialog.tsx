@@ -2,7 +2,7 @@ import { MutationHookOptions, MutationTuple, OperationVariables } from '@apollo/
 import InputAdornment from '@mui/material/InputAdornment'
 import { revalidateLogic } from '@tanstack/react-form'
 import { useRef } from 'react'
-import { ZodTypeAny } from 'zod'
+import { ZodType } from 'zod'
 
 import { useFormDialogOpeningDialog } from '~/components/dialogs/FormDialogOpeningDialog'
 import { DialogResult } from '~/components/dialogs/types'
@@ -38,7 +38,6 @@ export type UseAddSSOIntegrationDialogConfig<
   TFormValues extends Record<string, unknown>,
   TIntegration extends { id: string },
   TCreateData,
-  TCreateVars extends OperationVariables,
   TUpdateData,
   TUpdateVars extends OperationVariables,
 > = {
@@ -48,9 +47,9 @@ export type UseAddSSOIntegrationDialogConfig<
   /** GraphQL __typename used to evict the deleted integration from the cache. */
   integrationTypename: 'OktaIntegration' | 'EntraIdIntegration'
   defaultFormValues: TFormValues
-  validationSchema: ZodTypeAny
+  validationSchema: ZodType<TFormValues>
   fields: SSOIntegrationField<TFormValues>[]
-  useCreateIntegrationMutation: IntegrationMutationHook<TCreateData, TCreateVars>
+  useCreateIntegrationMutation: IntegrationMutationHook<TCreateData, { input: TFormValues }>
   useUpdateIntegrationMutation: IntegrationMutationHook<TUpdateData, TUpdateVars>
   getCreatedIntegrationId: (data: TCreateData) => string | undefined
   getUpdatedIntegrationId: (data: TUpdateData) => string | undefined
@@ -77,7 +76,6 @@ export const useAddSSOIntegrationDialog = <
   TFormValues extends Record<string, unknown>,
   TIntegration extends { id: string },
   TCreateData,
-  TCreateVars extends OperationVariables,
   TUpdateData,
   TUpdateVars extends OperationVariables,
 >(
@@ -85,7 +83,6 @@ export const useAddSSOIntegrationDialog = <
     TFormValues,
     TIntegration,
     TCreateData,
-    TCreateVars,
     TUpdateData,
     TUpdateVars
   >,
@@ -161,6 +158,9 @@ export const useAddSSOIntegrationDialog = <
       const integration = dataRef.current?.integration
 
       if (integration) {
+        // The update input is a distinct generated type from the form values
+        // (partial fields + id), so the variables shape can't be inferred from
+        // TFormValues and is cast to the mutation's own variables type.
         await updateIntegration({
           variables: {
             input: {
@@ -170,7 +170,7 @@ export const useAddSSOIntegrationDialog = <
           } as unknown as TUpdateVars,
         })
       } else {
-        await createIntegration({ variables: { input: value } as unknown as TCreateVars })
+        await createIntegration({ variables: { input: value } })
       }
     },
   })
