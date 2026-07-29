@@ -131,4 +131,3 @@ Machine-specific tweaks go in `.conductor/settings.local.toml` (gitignored). It 
 ## License
 
 Lago is open-source under the GNU Affero General Public License Version 3 (AGPLv3) or any later version.
-
