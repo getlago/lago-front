@@ -1,3 +1,4 @@
+import { SEARCH_APPLY_TAX_INPUT_CLASSNAME } from '~/core/constants/form'
 import {
   APPLY_TAX_BUTTON_TEST_ID,
   APPLY_TAX_DIALOG_SUBMIT_BUTTON_TEST_ID,
@@ -64,10 +65,15 @@ describe('Create taxes', () => {
       cy.get(`[data-test="${APPLY_TAX_BUTTON_TEST_ID}"]`).click()
       cy.get(`[data-test="${APPLY_TAX_DIALOG_SUBMIT_BUTTON_TEST_ID}"]`).should('exist')
 
-      // Search and select the tax in the ComboBox
-      cy.get('input[name="billingEntityApplyTaxes"]').click()
-      cy.get('input[name="billingEntityApplyTaxes"]').type(TAX_TWENTY_NAME)
-      cy.get('[data-option-index="0"]').click()
+      // The dialog auto-opens the ComboBox on entry, so wait for the options
+      // instead of clicking the input (a click would toggle the dropdown shut)
+      cy.get('[data-option-index="0"]', { timeout: 30000 }).should('exist')
+      cy.get(`.${SEARCH_APPLY_TAX_INPUT_CLASSNAME} input`).type(TAX_TWENTY_NAME)
+      // Wait until the search refetch has narrowed the list down to the tax we
+      // typed, so we never click a stale option from the unfiltered list
+      cy.contains('[data-option-index="0"]', TAX_TWENTY_NAME, { timeout: 15000 }).click({
+        force: true,
+      })
 
       // Submit the dialog
       cy.get(`[data-test="${APPLY_TAX_DIALOG_SUBMIT_BUTTON_TEST_ID}"]`).click()

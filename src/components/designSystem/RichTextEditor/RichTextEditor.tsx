@@ -6,7 +6,14 @@ import {
   ReactRenderer,
   useEditor,
 } from '@tiptap/react'
-import { type MutableRefObject, useCallback, useEffect, useMemo, useRef } from 'react'
+import {
+  type MouseEvent,
+  type MutableRefObject,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react'
 import tippy, { type Instance as TippyInstance } from 'tippy.js'
 
 import type { Locale } from '~/core/translations'
@@ -488,11 +495,27 @@ const RichTextEditor = ({
 
   if (!editor) return null
 
+  const handleContainerMouseDown = (e: MouseEvent<HTMLDivElement>): void => {
+    if (isPreview) return
+    // Only when clicking the container's own empty background, not a child
+    // (ProseMirror content, toolbars, table controls all bubble up as children).
+    if (e.target !== e.currentTarget) return
+
+    e.preventDefault()
+    editor.commands.focus('end')
+  }
+
   return (
     <RichTextEditorProvider value={contextValue}>
+      {/*
+        onMouseDown forwards background clicks to the real contenteditable below;
+        keyboard users tab straight into the editor, so no key handler is needed.
+      */}
+      {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
       <div
         className={`rich-text-editor relative size-full overflow-auto ${isPreview ? '' : 'group/editor'}`}
         data-test={RICH_TEXT_EDITOR_TEST_ID}
+        onMouseDown={handleContainerMouseDown}
       >
         {!isPreview && <Toolbar editor={editor} data-test={RICH_TEXT_EDITOR_TOOLBAR_TEST_ID} />}
         <div className="relative">

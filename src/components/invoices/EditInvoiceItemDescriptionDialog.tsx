@@ -2,8 +2,8 @@ import { revalidateLogic } from '@tanstack/react-form'
 import { useRef } from 'react'
 import { z } from 'zod'
 
+import { dialogFormProps } from '~/components/dialogs/dialogFormProps'
 import { useFormDialog } from '~/components/dialogs/FormDialog'
-import { DialogResult } from '~/components/dialogs/types'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
@@ -39,19 +39,6 @@ export const useEditInvoiceItemDescriptionDialog = () => {
       }
     },
   })
-
-  const handleSubmit = async (): Promise<DialogResult> => {
-    await form.handleSubmit()
-
-    // On validation error onSubmit never runs and isSubmitSuccessful stays false:
-    // throw to keep the dialog open (closeOnError: false swallows the error, inline
-    // field errors stay visible). Returning a result would let FormDialog close it.
-    if (!form.state.isSubmitSuccessful) {
-      throw new Error('Submit failed')
-    }
-
-    return { reason: 'success' }
-  }
 
   const openEditInvoiceItemDescriptionDialog = ({
     description,
@@ -96,10 +83,7 @@ export const useEditInvoiceItemDescriptionDialog = () => {
             <form.SubmitButton>{translate('text_6453819268763979024ad041')}</form.SubmitButton>
           </form.AppForm>
         ),
-        form: {
-          id: EDIT_INVOICE_ITEM_DESCRIPTION_FORM_ID,
-          submit: handleSubmit,
-        },
+        form: dialogFormProps(EDIT_INVOICE_ITEM_DESCRIPTION_FORM_ID, form),
       })
       .then((response) => {
         if (response.reason === 'close') {

@@ -1,6 +1,6 @@
 import { screen } from '@testing-library/react'
 
-import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
+import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCustomerInvoiceCustomSections } from '~/hooks/useCustomerInvoiceCustomSections'
 import { useInvoiceCustomSections } from '~/hooks/useInvoiceCustomSections'

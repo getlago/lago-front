@@ -117,6 +117,7 @@ import Reload from '~/icons/reload.svg'
 import Requested from '~/icons/requested.svg'
 import ResizeExpand from '~/icons/resize-expand.svg'
 import ResizeReduce from '~/icons/resize-reduce.svg'
+import Robot from '~/icons/robot.svg'
 import Rocket from '~/icons/rocket.svg'
 import Rotate from '~/icons/rotate.svg'
 import Schema from '~/icons/schema.svg'
@@ -276,6 +277,7 @@ export const ALL_ICONS = {
   requested: Requested,
   'resize-expand': ResizeExpand,
   'resize-reduce': ResizeReduce,
+  robot: Robot,
   rocket: Rocket,
   rotate: Rotate,
   scissor: Scissor,

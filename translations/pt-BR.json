@@ -131,7 +131,6 @@
   "text_63e51ef4985f0ebd75c2130f": "Idioma usado para todas as faturas, e-mails e portais do cliente.",
   "text_63e51ef4985f0ebd75c21310": "Idioma do documento",
   "text_63e51ef4985f0ebd75c21312": "Não consegue encontrar um idioma? Por favor, <a rel=\"external\" target=\"_blank\" href=\"https://www.getlago.com/slack\">entre em contato com a equipe Lago</a> para adicionar um novo.",
-  "text_63e51ef4985f0ebd75c21313": "Cancelar",
   "text_63e51ef4985f0ebd75c21349": "Idioma do documento editado com sucesso",
   "text_63ea0f84f400488553caa678": "Adicionar idioma de preferência",
   "text_63ea0f84f400488553caa680": "Defina o idioma dos documentos gerados pelo Lago para {{customerName}}. Note que isso afetará todas as faturas que já estão em rascunho.",
@@ -1333,7 +1332,6 @@
   "text_63eba8c65a6c8043feee2a0d": "Atualizar status do pagamento",
   "text_63eba8c65a6c8043feee2a0e": "Observe que a atualização do status de pagamento de uma fatura não acionará novamente o processo de cobrança.",
   "text_63eba8c65a6c8043feee2a0f": "Status do pagamento",
-  "text_63eba8c65a6c8043feee2a14": "Cancelar",
   "text_63eba8c65a6c8043feee2a15": "Atualizar status",
   "text_63aa085d28b8510cd464440d": "{{invoiceGracePeriod}} dia (herdar da entidade de faturamento)|{{invoiceGracePeriod}} dias (herdar da entidade de faturamento)",
   "text_638dff9779fb99299bee9126": "Configurações",
@@ -3155,6 +3153,12 @@
   "text_1783352692386valktkog1dw": "Adicionar número do pedido de compra",
   "text_17833526923863j848qxkffb": "Configurações da carteira",
   "text_17841895626504bixbm3xbyj": "Visualize os detalhes deste pedido executado, incluindo suas configurações de execução e conteúdo.",
+  "text_17842142209100wegryv1st3": "A fatura {{invoiceNumber}} foi excluída",
+  "text_17848001862070vhaaoyut3y": "Excluir fatura",
+  "text_17848001862071abwcvd3b3p": "Você está prestes a excluir este rascunho de fatura",
+  "text_1784800186207jjeqsv1d0rd": "Este rascunho de fatura será excluído permanentemente e nunca se tornará uma conta a receber. Esta ação não pode ser desfeita. Tem certeza de que deseja continuar?",
+  "text_1784800186207ionjr7ey3jq": "Rascunho de fatura excluído",
+  "text_178482400457029nb9diwj6m": "Excluir um rascunho de fatura",
   "text_17848821795797viukiwsvkd": "Recarga recorrente",
   "text_1784882179579jrpo7xq992a": "Única",
   "text_1784882179579muknx9hd8bw": "Grátis",
@@ -3171,6 +3175,5 @@
   "text_1784883525803zcmgdkvi3vd": "Trimestral",
   "text_1784883525803guz1xdk6ub7": "Semanal",
   "text_17848835258036aevge8fx0s": "Semestral",
-  "text_1784883525803ghc0vq94t5u": "Anual",
-  "text_17842142209100wegryv1st3": "A fatura {{invoiceNumber}} foi excluída"
+  "text_1784883525803ghc0vq94t5u": "Anual"
 }

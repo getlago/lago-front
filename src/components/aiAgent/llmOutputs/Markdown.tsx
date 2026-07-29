@@ -5,12 +5,14 @@ import remarkGfm from 'remark-gfm'
 
 import './markdown.css'
 
-export const Markdown: LLMOutputComponent = ({ blockMatch }) => {
-  const markdown = blockMatch.output
-
+export const MarkdownContent = ({ children }: { children: string }) => {
   return (
     <div className="markdown">
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>{markdown}</ReactMarkdown>
+      <ReactMarkdown remarkPlugins={[remarkGfm]}>{children}</ReactMarkdown>
     </div>
   )
+}
+
+export const Markdown: LLMOutputComponent = ({ blockMatch }) => {
+  return <MarkdownContent>{blockMatch.output}</MarkdownContent>
 }

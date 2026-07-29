@@ -165,18 +165,15 @@ describe('useEditInvoiceItemTaxDialog', () => {
     })
 
     describe('WHEN a tax row has no id', () => {
-      it('THEN should not invoke the callback and should throw to keep the dialog open', async () => {
+      it('THEN should not invoke the callback and should report the submit as unsuccessful', async () => {
         const callback = jest.fn()
-        let submitThrew = false
+        let didSubmitSucceed: boolean | undefined
 
-        // Mirror FormDialog's handleContinue: it wraps form.submit() in try/catch,
-        // and with closeOnError: false a throw keeps the dialog open.
+        // Mirror FormDialog's handleContinue: it awaits form.submit(), then asks
+        // didSubmitSucceed whether the dialog may close.
         mockFormDialogOpen.mockImplementation(async (config) => {
-          try {
-            await config.form.submit()
-          } catch {
-            submitThrew = true
-          }
+          await config.form.submit()
+          didSubmitSucceed = config.form.didSubmitSucceed?.()
 
           return { reason: 'close' }
         })
@@ -190,7 +187,7 @@ describe('useEditInvoiceItemTaxDialog', () => {
         })
 
         expect(callback).not.toHaveBeenCalled()
-        expect(submitThrew).toBe(true)
+        expect(didSubmitSucceed).toBe(false)
       })
     })
 
@@ -224,11 +221,7 @@ describe('useEditInvoiceItemTaxDialog', () => {
         expect(screen.queryByText('text_1782385268545ex9rk4gx0rf')).not.toBeInTheDocument()
 
         await act(async () => {
-          try {
-            await captured.form.submit()
-          } catch {
-            // handleSubmit throws on invalid input to keep the dialog open.
-          }
+          await captured.form.submit()
         })
 
         expect(screen.getByText('text_1782385268545ex9rk4gx0rf')).toBeInTheDocument()

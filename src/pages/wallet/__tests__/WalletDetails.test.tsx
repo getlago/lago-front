@@ -1,9 +1,11 @@
 import { screen } from '@testing-library/react'
 
+import { ButtonLinkBaseProps } from '~/components/designSystem/ButtonLink'
 import { GENERIC_PLACEHOLDER_TEST_ID } from '~/components/designSystem/GenericPlaceholder'
+import { MainHeaderTab } from '~/components/MainHeader/types'
 import { render } from '~/test-utils'
 
-import WalletDetails from '../WalletDetails'
+import WalletDetails, { WalletDetailsTabsOptionsEnum } from '../WalletDetails'
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -37,15 +39,29 @@ jest.mock('~/components/MainHeader/useMainHeaderTabContent', () => ({
 }))
 
 let capturedBreadcrumb: Array<{ label: string; path?: string; loading?: boolean }> | undefined
+let capturedTabs: MainHeaderTab[] | undefined
 
 jest.mock('~/components/MainHeader/MainHeader', () => ({
   MainHeader: {
     Configure: (props: {
       breadcrumb?: Array<{ label: string; path?: string; loading?: boolean }>
+      tabs?: MainHeaderTab[]
     }) => {
       capturedBreadcrumb = props.breadcrumb
+      capturedTabs = props.tabs
       return null
     },
+  },
+}))
+
+// Capture the props each tab's action link receives — routerState (the
+// auto-open intent flag) never reaches the DOM, so it can only be asserted here
+const mockButtonLink = jest.fn()
+
+jest.mock('~/components/designSystem/ButtonLink', () => ({
+  ButtonLink: (props: ButtonLinkBaseProps) => {
+    mockButtonLink(props)
+    return null
   },
 }))
 
@@ -58,6 +74,11 @@ jest.mock('~/components/wallets/WalletAlerts', () => ({
 jest.mock('~/components/wallets/WalletInformations', () => ({
   __esModule: true,
   default: () => <div data-test="mock-wallet-informations" />,
+}))
+
+jest.mock('~/components/wallets/WalletRecurringRules', () => ({
+  __esModule: true,
+  default: () => <div data-test="mock-wallet-recurring-rules" />,
 }))
 
 jest.mock('~/components/wallets/WalletTransactions', () => ({
@@ -235,6 +256,65 @@ describe('WalletDetails', () => {
 
         expect(item?.loading).toBe(true)
         expect(item?.label).toBe('')
+      })
+    })
+  })
+
+  describe('GIVEN the recurring rule tab', () => {
+    const renderAndGetTab = (tab: WalletDetailsTabsOptionsEnum) => {
+      mockUseGetWalletDetailsQuery.mockReturnValue({
+        data: { wallet: mockWallet },
+        error: undefined,
+        loading: false,
+      })
+
+      render(<WalletDetails />)
+
+      return capturedTabs?.find(({ link }) => link?.includes(tab))
+    }
+
+    describe('WHEN the tabs are configured', () => {
+      it('THEN should expose a dedicated recurring-rule tab', () => {
+        expect(renderAndGetTab(WalletDetailsTabsOptionsEnum.recurringRule)).toBeDefined()
+      })
+    })
+
+    describe('WHEN its content renders', () => {
+      it('THEN should show the recurring rules read view', () => {
+        const tab = renderAndGetTab(WalletDetailsTabsOptionsEnum.recurringRule)
+
+        render(<>{tab?.content}</>)
+
+        expect(screen.getByTestId('mock-wallet-recurring-rules')).toBeInTheDocument()
+      })
+
+      it('THEN its Edit link should carry the auto-open drawer intent flag', () => {
+        const tab = renderAndGetTab(WalletDetailsTabsOptionsEnum.recurringRule)
+
+        mockButtonLink.mockClear()
+        render(<>{tab?.content}</>)
+
+        expect(mockButtonLink).toHaveBeenCalledTimes(1)
+        expect(mockButtonLink).toHaveBeenCalledWith(
+          expect.objectContaining({
+            routerState: { openRecurringRuleDrawer: true },
+          }),
+        )
+      })
+    })
+
+    describe('WHEN the overview tab content renders', () => {
+      it('THEN its Edit link should not carry the auto-open flag', () => {
+        const tab = renderAndGetTab(WalletDetailsTabsOptionsEnum.overview)
+
+        mockButtonLink.mockClear()
+        render(<>{tab?.content}</>)
+
+        expect(mockButtonLink).toHaveBeenCalledTimes(1)
+
+        const props = mockButtonLink.mock.calls[0][0] as ButtonLinkBaseProps
+
+        expect(props.routerState).toBeUndefined()
       })
     })
   })

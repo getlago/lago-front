@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { Chip } from '~/components/designSystem/Chip'
 import { MultipleComboBox } from '~/components/form'
 import { Radio } from '~/components/form/Radio/Radio'
+import { VIEW_TYPE_TRANSLATION_KEYS, ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCustomerInvoiceCustomSections } from '~/hooks/useCustomerInvoiceCustomSections'
 import { useInvoiceCustomSections } from '~/hooks/useInvoiceCustomSections'
@@ -13,8 +14,6 @@ import {
   InvoiceCustomSectionBehavior,
   InvoiceCustomSectionInput,
 } from './types'
-
-import { VIEW_TYPE_TRANSLATION_KEYS, ViewTypeEnum } from '../paymentMethodsInvoiceSettings/types'
 
 export const ICS_FIELDS_FALLBACK_RADIO_TEST_ID = 'invoice-custom-section-fields-fallback-radio'
 export const ICS_FIELDS_APPLY_RADIO_TEST_ID = 'invoice-custom-section-fields-apply-radio'

@@ -273,6 +273,12 @@
   "text_1783352692386valktkog1dw": "Lägg till inköpsordernummer",
   "text_17833526923863j848qxkffb": "Plånboksinställningar",
   "text_17841895626504bixbm3xbyj": "Visa detaljerna för denna utförda order, inklusive dess utförandeinställningar och innehåll.",
+  "text_17842142209100wegryv1st3": "Faktura {{invoiceNumber}} har raderats",
+  "text_17848001862070vhaaoyut3y": "Ta bort faktura",
+  "text_17848001862071abwcvd3b3p": "Du är på väg att ta bort detta fakturautkast",
+  "text_1784800186207jjeqsv1d0rd": "Detta fakturautkast raderas permanent och blir aldrig en kundfordran. Denna åtgärd kan inte ångras. Är du säker på att du vill fortsätta?",
+  "text_1784800186207ionjr7ey3jq": "Fakturautkast borttaget",
+  "text_178482400457029nb9diwj6m": "Ta bort ett fakturautkast",
   "text_17848821795797viukiwsvkd": "Återkommande påfyllning",
   "text_1784882179579jrpo7xq992a": "Engång",
   "text_1784882179579muknx9hd8bw": "Gratis",
@@ -289,6 +295,5 @@
   "text_1784883525803zcmgdkvi3vd": "Kvartalsvis",
   "text_1784883525803guz1xdk6ub7": "Veckovis",
   "text_17848835258036aevge8fx0s": "Halvårsvis",
-  "text_1784883525803ghc0vq94t5u": "Årsvis",
-  "text_17842142209100wegryv1st3": "Faktura {{invoiceNumber}} har raderats"
+  "text_1784883525803ghc0vq94t5u": "Årsvis"
 }
