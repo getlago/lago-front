@@ -1,14 +1,11 @@
 import { screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
-import { CurrencyEnum, TimezoneEnum } from '~/generated/graphql'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
+import { CurrencyEnum, InvoiceStatusTypeEnum, TimezoneEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import {
-  CustomerInvoicesTab,
-  INVOICES_TAB_CONTAINER,
-  INVOICES_TAB_DRAFT_SECTION,
-  INVOICES_TAB_FINALIZED_SECTION,
-} from '../CustomerInvoicesTab'
+import { CustomerInvoicesTab, INVOICES_TAB_CONTAINER } from '../CustomerInvoicesTab'
 
 // --- Mocks ---
 
@@ -25,6 +22,12 @@ jest.mock('~/hooks/useCustomerFilterDefaults', () => ({
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useSearchParams: () => [new URLSearchParams(), jest.fn()],
+}))
+
+const mockGoToPage = jest.fn()
+
+jest.mock('~/components/designSystem/Pagination', () => ({
+  usePageSearchParam: jest.fn(() => ({ page: 1, goToPage: mockGoToPage })),
 }))
 
 jest.mock('~/components/designSystem/Filters/utils', () => ({
@@ -58,6 +61,10 @@ const { useGetCustomerInvoicesQuery } = jest.requireMock('~/generated/graphql') 
   useGetCustomerInvoicesQuery: jest.Mock
 }
 
+const { usePageSearchParam } = jest.requireMock('~/components/designSystem/Pagination') as {
+  usePageSearchParam: jest.Mock
+}
+
 // --- Helpers ---
 
 const defaultProps = {
@@ -69,28 +76,17 @@ const defaultProps = {
   isPartner: false,
 }
 
-/**
- * The component calls `useGetCustomerInvoicesQuery` twice — once for drafts,
- * once for finalized — so we feed two sequential return values.
- */
-const setupMocks = (draftTotalCount = 0) => {
-  const draftResult = {
+const setupMocks = () => {
+  useGetCustomerInvoicesQuery.mockReturnValue({
     data: {
       customerInvoices: {
-        metadata: { totalCount: draftTotalCount },
+        collection: [],
+        metadata: { currentPage: 1, totalCount: 0, totalPages: 1 },
       },
     },
     loading: false,
     error: null,
-  }
-  const finalizedResult = {
-    data: null,
-    loading: false,
-    error: null,
-    fetchMore: jest.fn(),
-  }
-
-  useGetCustomerInvoicesQuery.mockReturnValueOnce(draftResult).mockReturnValueOnce(finalizedResult)
+  })
 }
 
 const renderComponent = (overrides = {}) =>
@@ -101,6 +97,7 @@ const renderComponent = (overrides = {}) =>
 describe('CustomerInvoicesTab', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    usePageSearchParam.mockReturnValue({ page: 1, goToPage: mockGoToPage })
   })
 
   describe('GIVEN the user is not a partner', () => {
@@ -127,55 +124,92 @@ describe('CustomerInvoicesTab', () => {
     })
   })
 
-  describe('GIVEN the customer has no draft invoices and no filter is active', () => {
+  describe('GIVEN the merged invoices list', () => {
     describe('WHEN the component renders', () => {
-      it('THEN should hide the Draft section entirely', () => {
-        setupMocks(0)
-
-        renderComponent()
-
-        expect(screen.queryByTestId(INVOICES_TAB_DRAFT_SECTION)).not.toBeInTheDocument()
-      })
-
-      it('THEN should still render the Finalized section', () => {
-        setupMocks(0)
-
-        renderComponent()
-
-        expect(screen.getByTestId(INVOICES_TAB_FINALIZED_SECTION)).toBeInTheDocument()
-      })
-    })
-  })
-
-  describe('GIVEN the customer has at least one draft invoice', () => {
-    describe('WHEN the component renders as non-partner', () => {
-      it('THEN should render the overview section', () => {
-        setupMocks(1)
-
-        renderComponent({ isPartner: false })
-
-        expect(screen.getByTestId('mock-customer-overview')).toBeInTheDocument()
-      })
-
-      it('THEN should render both draft and finalized sections', () => {
-        setupMocks(1)
-
-        renderComponent({ isPartner: false })
-
-        expect(screen.getByTestId(INVOICES_TAB_DRAFT_SECTION)).toBeInTheDocument()
-        expect(screen.getByTestId(INVOICES_TAB_FINALIZED_SECTION)).toBeInTheDocument()
-      })
-    })
-  })
-
-  describe('GIVEN the tab renders with drafts present', () => {
-    describe('WHEN the component mounts', () => {
       it('THEN should render the container', () => {
-        setupMocks(1)
+        setupMocks()
 
         renderComponent()
 
         expect(screen.getByTestId(INVOICES_TAB_CONTAINER)).toBeInTheDocument()
+      })
+
+      it('THEN should render a single invoices list', () => {
+        setupMocks()
+
+        renderComponent()
+
+        expect(screen.getAllByTestId('mock-invoices-list')).toHaveLength(1)
+      })
+
+      it('THEN should render a single search input', () => {
+        setupMocks()
+
+        renderComponent()
+
+        expect(screen.getAllByTestId('mock-search-input')).toHaveLength(1)
+      })
+
+      it('THEN should query invoices once with the merged status union and standard pagination', () => {
+        setupMocks()
+
+        renderComponent()
+
+        expect(useGetCustomerInvoicesQuery).toHaveBeenCalledTimes(1)
+        expect(useGetCustomerInvoicesQuery).toHaveBeenCalledWith(
+          expect.objectContaining({
+            fetchPolicy: 'network-only',
+            notifyOnNetworkStatusChange: true,
+            variables: expect.objectContaining({
+              customerId: 'cust-1',
+              limit: DEFAULT_PAGE_SIZE,
+              page: 1,
+              status: [
+                InvoiceStatusTypeEnum.Draft,
+                InvoiceStatusTypeEnum.Finalized,
+                InvoiceStatusTypeEnum.Voided,
+                InvoiceStatusTypeEnum.Failed,
+                InvoiceStatusTypeEnum.Pending,
+              ],
+            }),
+          }),
+        )
+      })
+
+      it('THEN should read the page from the un-prefixed page search param', () => {
+        setupMocks()
+
+        renderComponent()
+
+        expect(usePageSearchParam).toHaveBeenCalledWith()
+      })
+    })
+
+    describe('WHEN the URL points to a later page', () => {
+      it('THEN should query that page', () => {
+        setupMocks()
+        usePageSearchParam.mockReturnValue({ page: 3, goToPage: mockGoToPage })
+
+        renderComponent()
+
+        expect(useGetCustomerInvoicesQuery).toHaveBeenCalledWith(
+          expect.objectContaining({
+            variables: expect.objectContaining({ page: 3 }),
+          }),
+        )
+      })
+    })
+
+    describe('WHEN the user types in the search input', () => {
+      it('THEN should reset pagination to page 1', async () => {
+        setupMocks()
+        const user = userEvent.setup()
+
+        renderComponent()
+
+        await user.type(screen.getByTestId('mock-search-input'), 'inv')
+
+        expect(mockGoToPage).toHaveBeenCalledWith(1)
       })
     })
   })
