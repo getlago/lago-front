@@ -1,13 +1,8 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
-import {
-  AddEditDeleteSuccessRedirectUrlDialog,
-  AddEditDeleteSuccessRedirectUrlDialogRef,
-} from '~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog'
 import { useAddNetsuiteDialog } from '~/components/settings/integrations/AddNetsuiteDialog'
 import { useDeleteNetsuiteIntegrationDialog } from '~/components/settings/integrations/DeleteNetsuiteIntegrationDialog'
 import NetsuiteIntegrationItemsList from '~/components/settings/integrations/NetsuiteIntegrationItemsList'
@@ -79,7 +74,6 @@ const NetsuiteIntegrationDetails = () => {
   const { integrationId = '' } = useParams()
   const { openAddNetsuiteDialog } = useAddNetsuiteDialog()
   const { openDeleteNetsuiteIntegrationDialog } = useDeleteNetsuiteIntegrationDialog()
-  const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { translate } = useInternationalization()
   const { data, loading } = useGetNetsuiteIntegrationsDetailsQuery({
     variables: {
@@ -195,8 +189,6 @@ const NetsuiteIntegrationDetails = () => {
       />
 
       <>{activeTabContent}</>
-
-      <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )
 }

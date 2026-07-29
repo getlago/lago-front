@@ -42,11 +42,6 @@ jest.mock('~/components/taxes/TaxCodeSnippet', () => ({
   TaxCodeSnippet: jest.fn(() => <div data-test="tax-code-snippet" />),
 }))
 
-jest.mock('~/components/designSystem/WarningDialog', () => ({
-  WarningDialog: jest.fn(() => null),
-  WarningDialogRef: {},
-}))
-
 jest.mock('~/core/utils/domUtils', () => ({
   scrollToTop: jest.fn(),
 }))

@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -8,10 +7,6 @@ import { Tooltip } from '~/components/designSystem/Tooltip'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useAddCashfreeDialog } from '~/components/settings/integrations/AddCashfreeDialog'
-import {
-  AddEditDeleteSuccessRedirectUrlDialog,
-  AddEditDeleteSuccessRedirectUrlDialogRef,
-} from '~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog'
 import { useDeleteCashfreeIntegrationDialog } from '~/components/settings/integrations/DeleteCashfreeIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CASHFREE_INTEGRATION_DETAILS_ROUTE, INTEGRATIONS_ROUTE, useNavigate } from '~/core/router'
@@ -57,7 +52,6 @@ const CashfreeIntegrations = () => {
   const { hasPermissions } = usePermissions()
   const { openAddCashfreeDialog } = useAddCashfreeDialog()
   const { openDeleteCashfreeIntegrationDialog } = useDeleteCashfreeIntegrationDialog()
-  const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { translate } = useInternationalization()
   const { data, loading } = useGetCashfreeIntegrationsListQuery({
     variables: { limit: 1000, type: ProviderTypeEnum.Cashfree },
@@ -195,8 +189,6 @@ const CashfreeIntegrations = () => {
             })}
         </section>
       </IntegrationsPage.Container>
-
-      <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )
 }
