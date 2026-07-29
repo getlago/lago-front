@@ -187,7 +187,7 @@ describe('OktaAuthenticationDetails', () => {
     })
   })
 
-  it('navigates away when no cached integration on initial render', async () => {
+  it('does not navigate away while the integration query is still loading', async () => {
     const delayedMocks: TestMocksType = [
       {
         request: {
@@ -212,7 +212,8 @@ describe('OktaAuthenticationDetails', () => {
       ),
     )
 
-    expect(mockNavigateFn).toHaveBeenCalled()
+    // Query is still in flight (1s delay): the page must not bounce back to the list.
+    expect(mockNavigateFn).not.toHaveBeenCalled()
   })
 
   it('renders the actions dropdown button', async () => {
