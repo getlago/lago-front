@@ -1,7 +1,12 @@
 // Console suppression is handled in jest-setup-early.ts (runs before imports)
 import '@testing-library/jest-dom'
 
+import { initializeZod } from './src/formValidation/initializeZod'
 import muiSnapshotSerializer from './src/test-utils/snapshotSerializer'
+
+// Schemas are often parsed outside of `test-utils` (pure schema suites), so register the
+// default Zod error message globally to mirror what `App` does at boot.
+initializeZod()
 
 // jsdom has no ResizeObserver; components that observe layout (virtualized lists, the
 // plan-details sidebar) reference it on mount. Provide a global no-op so any test that

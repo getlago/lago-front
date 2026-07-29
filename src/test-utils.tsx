@@ -8,6 +8,7 @@ import Router, { BrowserRouter } from 'react-router-dom'
 import { MainHeaderProvider } from '~/components/MainHeader/MainHeaderContext'
 import { initializeTranslations } from '~/core/apolloClient'
 import { initializeYup } from '~/formValidation/initializeYup'
+import { initializeZod } from '~/formValidation/initializeZod'
 import { theme } from '~/styles'
 
 configure({ testIdAttribute: 'data-test' })
@@ -35,6 +36,7 @@ export const AllTheProviders = ({
   useEffect(() => {
     initializeTranslations()
     initializeYup()
+    initializeZod()
   }, [])
   // Get Apollo error messages explicitely
   loadDevMessages()

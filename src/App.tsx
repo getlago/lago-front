@@ -26,6 +26,7 @@ import {
 import { AppEnvEnum } from '~/core/constants/globalTypes'
 import '~/core/overlays/registeredDialogs'
 import { initializeYup } from '~/formValidation/initializeYup'
+import { initializeZod } from '~/formValidation/initializeZod'
 import { AiAgentProvider } from '~/hooks/aiAgent/useAiAgent'
 import { DeveloperToolProvider, DEVTOOL_AUTO_SAVE_ID } from '~/hooks/useDeveloperTool'
 import { QuotePdfProvider } from '~/pages/quotes/common/QuotePdfProvider'
@@ -43,6 +44,7 @@ const App = () => {
       try {
         // Initialize synchronous services first
         initializeYup()
+        initializeZod()
 
         // Initialize async services in parallel
         const [apolloClient] = await Promise.all([
