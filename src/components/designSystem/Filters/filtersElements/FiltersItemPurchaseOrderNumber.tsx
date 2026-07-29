@@ -1,4 +1,8 @@
 import { TextInput } from '~/components/form'
+import {
+  PURCHASE_ORDER_NUMBER_MAX_LENGTH,
+  PURCHASE_ORDER_TRANSLATIONS,
+} from '~/components/purchaseOrder/constants'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { FiltersFormValues } from '../types'
@@ -16,10 +20,10 @@ export const FiltersItemPurchaseOrderNumber = ({
 
   return (
     <TextInput
-      placeholder={translate('text_1741014096283pwl7a5oa69a')}
+      placeholder={translate(PURCHASE_ORDER_TRANSLATIONS.placeholder)}
       value={value}
       onChange={(val) => setFilterValue(val)}
-      inputProps={{ maxLength: 255 }}
+      inputProps={{ maxLength: PURCHASE_ORDER_NUMBER_MAX_LENGTH }}
     />
   )
 }

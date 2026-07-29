@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 
+import { PURCHASE_ORDER_NUMBER_MAX_LENGTH } from '~/components/purchaseOrder/constants'
 import { AllTheProviders } from '~/test-utils'
 
 import { FiltersItemPurchaseOrderNumber } from '../FiltersItemPurchaseOrderNumber'
@@ -52,11 +53,14 @@ describe('FiltersItemPurchaseOrderNumber', () => {
     })
   })
 
-  it('THEN caps the input at 255 characters', async () => {
+  it('THEN caps the input at the purchase order number max length', async () => {
     renderComponent()
 
     await waitFor(() => {
-      expect(screen.getByRole('textbox')).toHaveAttribute('maxlength', '255')
+      expect(screen.getByRole('textbox')).toHaveAttribute(
+        'maxlength',
+        String(PURCHASE_ORDER_NUMBER_MAX_LENGTH),
+      )
     })
   })
 })
