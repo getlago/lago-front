@@ -65,7 +65,7 @@ describe('LoginEntraId', () => {
         state: {
           from: { pathname: protectedPath, search: '', hash: '', state: null, key: 'test' },
         },
-        pathname: '/auth/entra',
+        pathname: '/login/entra',
         search: '',
         hash: '',
         key: 'default',
@@ -90,9 +90,7 @@ describe('LoginEntraId', () => {
           )
         })
 
-        const emailInput = screen.getByTestId('submit').closest('form')
-          ? (document.querySelector('input[name="email"]') as HTMLInputElement)
-          : (document.querySelector('input') as HTMLInputElement)
+        const emailInput = screen.getByRole('textbox') as HTMLInputElement
 
         await user.type(emailInput, 'user@example.com')
 
@@ -119,7 +117,7 @@ describe('LoginEntraId', () => {
     beforeEach(() => {
       mockUseLocation.mockReturnValue({
         state: null,
-        pathname: '/auth/entra',
+        pathname: '/login/entra',
         search: '',
         hash: '',
         key: 'default',
@@ -144,7 +142,7 @@ describe('LoginEntraId', () => {
           )
         })
 
-        const emailInput = document.querySelector('input') as HTMLInputElement
+        const emailInput = screen.getByRole('textbox') as HTMLInputElement
 
         await user.type(emailInput, 'user@example.com')
 
@@ -168,7 +166,7 @@ describe('LoginEntraId', () => {
     beforeEach(() => {
       mockUseLocation.mockReturnValue({
         state: null,
-        pathname: '/auth/entra',
+        pathname: '/login/entra',
         search: '?lago_error_code=entra_id_userinfo_error',
         hash: '',
         key: 'default',
@@ -178,7 +176,7 @@ describe('LoginEntraId', () => {
     it('THEN should display the matching error alert', async () => {
       await act(async () => {
         render(
-          <MemoryRouter initialEntries={['/auth/entra?lago_error_code=entra_id_userinfo_error']}>
+          <MemoryRouter initialEntries={['/login/entra?lago_error_code=entra_id_userinfo_error']}>
             <LoginEntraId />
           </MemoryRouter>,
         )
@@ -195,7 +193,7 @@ describe('LoginEntraId', () => {
     beforeEach(() => {
       mockUseLocation.mockReturnValue({
         state: null,
-        pathname: '/auth/entra',
+        pathname: '/login/entra',
         search: '',
         hash: '',
         key: 'default',
@@ -214,7 +212,7 @@ describe('LoginEntraId', () => {
         )
       })
 
-      const emailInput = document.querySelector('input') as HTMLInputElement
+      const emailInput = screen.getByRole('textbox') as HTMLInputElement
 
       await user.type(emailInput, 'user@example.com')
       await user.click(screen.getByTestId('submit'))

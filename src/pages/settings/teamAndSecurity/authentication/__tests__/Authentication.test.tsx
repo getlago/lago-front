@@ -26,7 +26,7 @@ import {
 } from '~/generated/graphql'
 import { AllTheProviders, testMockNavigateFn, TestMocksType } from '~/test-utils'
 
-import Authentication from '../Authentication'
+import Authentication, { getSSOSelectorDotsTestId, getSSOSelectorTestId } from '../Authentication'
 
 const mockRefetch = jest.fn()
 let mockIsPremium = true
@@ -626,9 +626,9 @@ describe('Authentication', () => {
     await prepare()
 
     await waitFor(() => {
-      const selectors = screen.getAllByRole('button').filter((el) => el.tagName === 'DIV')
-
-      expect(selectors.length).toBeGreaterThanOrEqual(4)
+      expect(
+        screen.getByTestId(getSSOSelectorTestId(AuthenticationMethodsEnum.EntraId)),
+      ).toBeInTheDocument()
     })
   })
 
@@ -667,10 +667,8 @@ describe('Authentication', () => {
       expect(screen.getAllByTestId(/dots-horizontal/).length).toBe(3)
     })
 
-    const selectorButtons = screen.getAllByRole('button').filter((el) => el.tagName === 'DIV')
-
-    // Click the Entra ID selector (4th one)
-    await user.click(selectorButtons[3])
+    // Click the Entra ID selector explicitly by its test id
+    await user.click(screen.getByTestId(getSSOSelectorTestId(AuthenticationMethodsEnum.EntraId)))
 
     await waitFor(() => {
       expect(testMockNavigateFn).toHaveBeenCalled()
@@ -688,15 +686,13 @@ describe('Authentication', () => {
     await prepare({ mocks: emptyIntegrationsMock })
 
     await waitFor(() => {
-      const selectors = screen.getAllByRole('button').filter((el) => el.tagName === 'DIV')
-
-      expect(selectors.length).toBeGreaterThanOrEqual(4)
+      expect(
+        screen.getByTestId(getSSOSelectorTestId(AuthenticationMethodsEnum.EntraId)),
+      ).toBeInTheDocument()
     })
 
-    const selectorButtons = screen.getAllByRole('button').filter((el) => el.tagName === 'DIV')
-
-    // Click the Entra ID selector (4th one)
-    await user.click(selectorButtons[3])
+    // Click the Entra ID selector explicitly by its test id
+    await user.click(screen.getByTestId(getSSOSelectorTestId(AuthenticationMethodsEnum.EntraId)))
 
     await waitFor(() => {
       const dialog = document.querySelector('[class*="MuiDialog"]')
@@ -713,15 +709,13 @@ describe('Authentication', () => {
     await prepare()
 
     await waitFor(() => {
-      const selectors = screen.getAllByRole('button').filter((el) => el.tagName === 'DIV')
-
-      expect(selectors.length).toBeGreaterThanOrEqual(4)
+      expect(
+        screen.getByTestId(getSSOSelectorTestId(AuthenticationMethodsEnum.EntraId)),
+      ).toBeInTheDocument()
     })
 
-    const selectorButtons = screen.getAllByRole('button').filter((el) => el.tagName === 'DIV')
-
-    // Click the Entra ID selector (4th one)
-    await user.click(selectorButtons[3])
+    // Click the Entra ID selector explicitly by its test id
+    await user.click(screen.getByTestId(getSSOSelectorTestId(AuthenticationMethodsEnum.EntraId)))
 
     // Premium warning dialog should appear
     await waitFor(() => {
@@ -750,11 +744,10 @@ describe('Authentication', () => {
       expect(screen.getAllByTestId(/dots-horizontal/).length).toBe(3)
     })
 
-    // Click the Entra ID dots button (3rd one)
-    const dotsIcons = screen.getAllByTestId(/dots-horizontal/)
-    const entraIdDotsButton = dotsIcons[2].closest('button') as HTMLElement
-
-    await user.click(entraIdDotsButton)
+    // Click the Entra ID dots button explicitly by its test id
+    await user.click(
+      screen.getByTestId(getSSOSelectorDotsTestId(AuthenticationMethodsEnum.EntraId)),
+    )
 
     // Should see pen (edit) and trash (delete) icons in the Entra ID popper
     await waitFor(() => {

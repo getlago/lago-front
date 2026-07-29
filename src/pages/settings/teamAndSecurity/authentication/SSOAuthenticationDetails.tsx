@@ -1,4 +1,4 @@
-import { ComponentProps, ReactNode } from 'react'
+import { ComponentProps, ReactNode, useEffect } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { StatusType } from '~/components/designSystem/Status'
@@ -55,17 +55,30 @@ export const SSOAuthenticationDetails = <TIntegration extends { id: string }>({
     refetch()
   }
 
-  if (!integration) {
-    navigate(AUTHENTICATION_ROUTE)
+  // Redirect only once the query has resolved with no integration. Doing this
+  // during loading (when `integration` is transiently undefined) bounced users
+  // out on deep-link / hard-refresh, and navigating during render also warns.
+  useEffect(() => {
+    if (!loading && !integration) {
+      navigate(AUTHENTICATION_ROUTE)
+    }
+  }, [loading, integration, navigate])
+
+  if (!loading && !integration) {
     return null
   }
 
-  const openEditDialog = () =>
+  const openEditDialog = () => {
+    if (!integration) {
+      return
+    }
+
     openAddDialog({
       integration,
       callback: onEditCallback,
       deleteCallback: onDeleteCallback,
     })
+  }
 
   return (
     <>
@@ -106,6 +119,11 @@ export const SSOAuthenticationDetails = <TIntegration extends { id: string }>({
                   label: translate(deleteMenuLabelKey),
                   onClick: (closePopper) => {
                     closePopper()
+
+                    if (!integration) {
+                      return
+                    }
+
                     openDeleteDialog({
                       integration,
                       callback: onDeleteCallback,
@@ -132,7 +150,7 @@ export const SSOAuthenticationDetails = <TIntegration extends { id: string }>({
             [0, 1, 2, 3].map((i) => (
               <IntegrationsPage.ItemSkeleton key={`item-skeleton-item-${i}`} />
             ))
-          ) : (
+          ) : integration ? (
             <>
               {getDetailRows(integration).map((row) => (
                 <IntegrationsPage.DetailsItem
@@ -143,7 +161,7 @@ export const SSOAuthenticationDetails = <TIntegration extends { id: string }>({
                 />
               ))}
             </>
-          )}
+          ) : null}
         </section>
       </IntegrationsPage.Container>
     </>

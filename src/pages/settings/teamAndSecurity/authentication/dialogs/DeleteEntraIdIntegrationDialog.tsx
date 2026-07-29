@@ -27,9 +27,9 @@ export const useDeleteEntraIdIntegrationDialog = () => {
     integrationNameKey: 'text_17843073442548zt904xoinv',
   })
 
-  const openDeleteEntraIdIntegrationDialog = (data: DeleteEntraIdIntegrationDialogData) => {
-    openDeleteSSOIntegrationDialog(data)
-  }
+  // Direct pass-through; the alias keeps the fragment-typed `integration`.
+  const openDeleteEntraIdIntegrationDialog: (data: DeleteEntraIdIntegrationDialogData) => void =
+    openDeleteSSOIntegrationDialog
 
   return { openDeleteEntraIdIntegrationDialog }
 }

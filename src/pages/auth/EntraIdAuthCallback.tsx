@@ -27,8 +27,19 @@ const EntraIdAuthCallback = () => {
 
   const [searchParams] = useSearchParams()
   const code = searchParams.get('code') || ''
-  const state = JSON.parse(searchParams.get('state') || '{}')
 
+  // The IdP echoes `state` back as a URL param. Guard the parse: a non-JSON
+  // value would otherwise throw during render and blank the page instead of
+  // falling through to the login redirect.
+  const parseState = (raw: string | null): { state?: string; invitationToken?: string } => {
+    try {
+      return JSON.parse(raw || '{}')
+    } catch {
+      return {}
+    }
+  }
+
+  const state = parseState(searchParams.get('state'))
   const entraIdState = state.state || ''
   const invitationToken = state.invitationToken || undefined
 

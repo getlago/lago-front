@@ -70,6 +70,11 @@ gql`
   }
 `
 
+/** Stable test ids for the SSO selector cards and their action menus. */
+export const getSSOSelectorTestId = (method: AuthenticationMethodsEnum) => `sso-selector-${method}`
+export const getSSOSelectorDotsTestId = (method: AuthenticationMethodsEnum) =>
+  `sso-selector-dots-${method}`
+
 /** Provider-specific configuration shared by the Okta and Entra ID SSO cards. */
 type SSOProviderConfig = {
   method: AuthenticationMethodsEnum
@@ -245,6 +250,7 @@ const Authentication = () => {
                 <Button
                   icon="dots-horizontal"
                   variant="quaternary"
+                  data-test={getSSOSelectorDotsTestId(method)}
                   onClick={(e) => {
                     e.stopPropagation()
                     onClick()
@@ -401,6 +407,7 @@ const Authentication = () => {
             {ssoProviders.map((provider) => (
               <Selector
                 key={provider.method}
+                data-test={getSSOSelectorTestId(provider.method)}
                 title={translate(provider.titleKey)}
                 subtitle={translate(provider.subtitleKey)}
                 icon={

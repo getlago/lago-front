@@ -115,7 +115,7 @@ describe('EntraIdAuthenticationDetails', () => {
     expect(backButton).toBeInTheDocument()
   })
 
-  it('shows N/A for missing host', async () => {
+  it('shows the default host when host is missing', async () => {
     const noHostMocks: TestMocksType = [
       {
         request: {
@@ -136,7 +136,7 @@ describe('EntraIdAuthenticationDetails', () => {
     await prepare({ mocks: noHostMocks })
 
     await waitFor(() => {
-      expect(screen.getByText('N/A')).toBeInTheDocument()
+      expect(screen.getByText('login.microsoftonline.com')).toBeInTheDocument()
     })
   })
 
@@ -187,7 +187,7 @@ describe('EntraIdAuthenticationDetails', () => {
     })
   })
 
-  it('navigates away when no cached integration on initial render', async () => {
+  it('does not navigate away while the integration query is still loading', async () => {
     const delayedMocks: TestMocksType = [
       {
         request: {
@@ -212,7 +212,8 @@ describe('EntraIdAuthenticationDetails', () => {
       ),
     )
 
-    expect(mockNavigateFn).toHaveBeenCalled()
+    // Query is still in flight (1s delay): the page must not bounce back to the list.
+    expect(mockNavigateFn).not.toHaveBeenCalled()
   })
 
   it('renders the actions dropdown button', async () => {
@@ -305,16 +306,16 @@ describe('EntraIdAuthenticationDetails', () => {
       (btn) => !allButtons.includes(btn) && btn.textContent,
     )
 
-    if (popperButtons.length > 0) {
-      await user.click(popperButtons[0])
+    expect(popperButtons.length).toBeGreaterThan(0)
 
-      // Edit dialog should open
-      await waitFor(() => {
-        const dialog = document.querySelector('[class*="MuiDialog"]')
+    await user.click(popperButtons[0])
 
-        expect(dialog).toBeInTheDocument()
-      })
-    }
+    // Edit dialog should open
+    await waitFor(() => {
+      const dialog = document.querySelector('[class*="MuiDialog"]')
+
+      expect(dialog).toBeInTheDocument()
+    })
   })
 
   it('clicks delete button in actions popper to open delete dialog', async () => {
@@ -348,16 +349,16 @@ describe('EntraIdAuthenticationDetails', () => {
       (btn) => !allButtons.includes(btn) && btn.textContent,
     )
 
-    if (popperButtons.length > 1) {
-      await user.click(popperButtons[1])
+    expect(popperButtons.length).toBeGreaterThan(1)
 
-      // Delete dialog should open
-      await waitFor(() => {
-        const dialog = document.querySelector('[class*="MuiDialog"]')
+    await user.click(popperButtons[1])
 
-        expect(dialog).toBeInTheDocument()
-      })
-    }
+    // Delete dialog should open
+    await waitFor(() => {
+      const dialog = document.querySelector('[class*="MuiDialog"]')
+
+      expect(dialog).toBeInTheDocument()
+    })
   })
 
   it('shows inline edit button and opens dialog when clicked', async () => {
@@ -375,15 +376,15 @@ describe('EntraIdAuthenticationDetails', () => {
       (btn) => btn.className.includes('inline') || btn.className.includes('Inline'),
     )
 
-    if (inlineButtons.length > 0) {
-      await user.click(inlineButtons[0])
+    expect(inlineButtons.length).toBeGreaterThan(0)
 
-      // Edit dialog should open
-      await waitFor(() => {
-        const dialog = document.querySelector('[class*="MuiDialog"]')
+    await user.click(inlineButtons[0])
 
-        expect(dialog).toBeInTheDocument()
-      })
-    }
+    // Edit dialog should open
+    await waitFor(() => {
+      const dialog = document.querySelector('[class*="MuiDialog"]')
+
+      expect(dialog).toBeInTheDocument()
+    })
   })
 })

@@ -84,7 +84,7 @@ const EntraIdAuthenticationDetails = () => {
         {
           icon: 'globe',
           labelKey: 'text_1784307344255fan2blwpos6',
-          value: currentIntegration.host || 'N/A',
+          value: currentIntegration.host || 'login.microsoftonline.com',
         },
         {
           icon: 'key',

@@ -22,7 +22,7 @@ const EntraIdAuthCallback = lazyLoad(() => import('~/pages/auth/EntraIdAuthCallb
 // ----------- Routes -----------
 export const LOGIN_ROUTE = '/login'
 export const LOGIN_OKTA = `${LOGIN_ROUTE}/okta`
-export const LOGIN_ENTRA_ID_ROUTE = '/auth/entra'
+export const LOGIN_ENTRA_ID_ROUTE = '/login/entra'
 export const FORGOT_PASSWORD_ROUTE = '/forgot-password'
 const RESET_PASSWORD_ROUTE = '/reset-password/:token'
 

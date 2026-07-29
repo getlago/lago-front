@@ -36,7 +36,7 @@ const defaultIntegration = {
 }
 
 const TestComponent = ({
-  integration = defaultIntegration,
+  integration,
   callback,
 }: {
   integration?: typeof defaultIntegration
@@ -82,7 +82,7 @@ async function prepare({
   await act(() =>
     render(
       <NiceModalWrapper>
-        <TestComponent callback={callback} />
+        <TestComponent integration={defaultIntegration} callback={callback} />
       </NiceModalWrapper>,
       { mocks },
     ),
@@ -218,7 +218,7 @@ describe('DeleteEntraIdIntegrationDialog', () => {
     await act(() =>
       render(
         <NiceModalWrapper>
-          <TestComponent integration={undefined as any} />
+          <TestComponent integration={undefined} />
         </NiceModalWrapper>,
         { mocks: undefinedIntegrationMocks },
       ),

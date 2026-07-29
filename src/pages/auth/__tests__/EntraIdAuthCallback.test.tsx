@@ -170,7 +170,7 @@ describe('EntraIdAuthCallback', () => {
         await waitFor(() => {
           expect(mockNavigate).toHaveBeenCalledWith(
             expect.objectContaining({
-              pathname: '/auth/entra',
+              pathname: '/login/entra',
               search: expect.stringContaining('lago_error_code'),
             }),
           )
