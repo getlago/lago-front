@@ -7,7 +7,7 @@ import { z } from 'zod'
  * string to have >=1 characters"), which are not translation keys and therefore leak
  * raw into the UI.
  */
-export const DEFAULT_ZOD_ERROR_MESSAGE = 'text_624ea7c29103fd010732ab7d'
+export const DEFAULT_ZOD_ERROR_MESSAGE = 'text_17853320146634gaqpptxi0y'
 
 /**
  * Registers the default error message used by every Zod schema of the app.

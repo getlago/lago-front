@@ -4530,5 +4530,6 @@
   "text_17851644210806680b9rdlpa": "Define how the wallet recurring rule invoices are generated.",
   "text_1785164421080tk7v5844l7t": "Define how the wallet recurring rule invoices are paid.",
   "text_17851644210809yu9jgh0zsr": "Define how invoices are generated for this wallet transaction top-up.",
-  "text_1785164421080k7xsvr02s6q": "Define how the wallet transaction top-up is paid."
+  "text_1785164421080k7xsvr02s6q": "Define how the wallet transaction top-up is paid.",
+  "text_17853320146634gaqpptxi0y": "This value is not valid"
 }
