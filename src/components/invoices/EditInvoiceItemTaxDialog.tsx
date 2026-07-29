@@ -6,8 +6,8 @@ import { z } from 'zod'
 import { Button } from '~/components/designSystem/Button'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
+import { dialogFormProps } from '~/components/dialogs/dialogFormProps'
 import { useFormDialog } from '~/components/dialogs/FormDialog'
-import { DialogResult } from '~/components/dialogs/types'
 import { ComboBox, ComboboxItem } from '~/components/form'
 import { SEARCH_TAX_INPUT_FOR_INVOICE_ADD_ON_CLASSNAME } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -206,19 +206,6 @@ export const useEditInvoiceItemTaxDialog = () => {
     },
   })
 
-  const handleSubmit = async (): Promise<DialogResult> => {
-    await form.handleSubmit()
-
-    // On validation error onSubmit never runs and isSubmitSuccessful stays false:
-    // throw to keep the dialog open (closeOnError: false swallows the error, inline
-    // field errors stay visible). Returning a result would let FormDialog close it.
-    if (!form.state.isSubmitSuccessful) {
-      throw new Error('Submit failed')
-    }
-
-    return { reason: 'success' }
-  }
-
   const openEditInvoiceItemTaxDialog = ({
     taxes,
     callback,
@@ -240,10 +227,7 @@ export const useEditInvoiceItemTaxDialog = () => {
             </form.SubmitButton>
           </form.AppForm>
         ),
-        form: {
-          id: EDIT_INVOICE_ITEM_TAX_FORM_ID,
-          submit: handleSubmit,
-        },
+        form: dialogFormProps(EDIT_INVOICE_ITEM_TAX_FORM_ID, form),
       })
       .then((response) => {
         if (response.reason === 'close') {

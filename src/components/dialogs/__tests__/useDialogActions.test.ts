@@ -70,6 +70,100 @@ describe('useDialogActions', () => {
       expect(mockModal.hide).toHaveBeenCalled()
     })
 
+    it('keeps modal open and does not resolve when didSubmitSucceed returns false', async () => {
+      const mockModal = createMockModal()
+      const mockOnAction = jest.fn().mockResolvedValue(undefined)
+
+      const { result } = renderHook(() =>
+        useDialogActions({
+          modal: mockModal,
+          onAction: mockOnAction,
+          cancelOrCloseText: 'close',
+          closeOnError: true,
+          didSubmitSucceed: () => false,
+        }),
+      )
+
+      await result.current.handleContinue()
+
+      expect(mockOnAction).toHaveBeenCalled()
+      expect(mockModal.resolve).not.toHaveBeenCalled()
+      expect(mockModal.reject).not.toHaveBeenCalled()
+      expect(mockModal.hide).not.toHaveBeenCalled()
+    })
+
+    it('resolves and hides modal when didSubmitSucceed returns true', async () => {
+      const mockModal = createMockModal()
+      const mockOnAction = jest.fn().mockResolvedValue(undefined)
+
+      const { result } = renderHook(() =>
+        useDialogActions({
+          modal: mockModal,
+          onAction: mockOnAction,
+          cancelOrCloseText: 'close',
+          closeOnError: true,
+          didSubmitSucceed: () => true,
+        }),
+      )
+
+      await result.current.handleContinue()
+
+      expect(mockModal.resolve).toHaveBeenCalledWith({ reason: 'success' })
+      expect(mockModal.hide).toHaveBeenCalled()
+    })
+
+    it('evaluates didSubmitSucceed only after onAction settled', async () => {
+      const mockModal = createMockModal()
+      const callOrder: string[] = []
+      const mockOnAction = jest.fn().mockImplementation(async () => {
+        callOrder.push('onAction')
+      })
+      const didSubmitSucceed = jest.fn().mockImplementation(() => {
+        callOrder.push('didSubmitSucceed')
+
+        return true
+      })
+
+      const { result } = renderHook(() =>
+        useDialogActions({
+          modal: mockModal,
+          onAction: mockOnAction,
+          cancelOrCloseText: 'close',
+          closeOnError: true,
+          didSubmitSucceed,
+        }),
+      )
+
+      await result.current.handleContinue()
+
+      expect(callOrder).toEqual(['onAction', 'didSubmitSucceed'])
+    })
+
+    it('does not evaluate didSubmitSucceed when onAction throws', async () => {
+      const mockModal = createMockModal()
+      const mockError = new Error('Test error')
+      const mockOnAction = jest.fn().mockRejectedValue(mockError)
+      const didSubmitSucceed = jest.fn().mockReturnValue(true)
+
+      const { result } = renderHook(() =>
+        useDialogActions({
+          modal: mockModal,
+          onAction: mockOnAction,
+          cancelOrCloseText: 'close',
+          closeOnError: true,
+          didSubmitSucceed,
+        }),
+      )
+
+      await result.current.handleContinue()
+
+      expect(didSubmitSucceed).not.toHaveBeenCalled()
+      expect(mockModal.reject).toHaveBeenCalledWith({
+        reason: 'error',
+        error: mockError,
+      })
+    })
+
     it('rejects with error object when onAction throws', async () => {
       const mockModal = createMockModal()
       const mockError = new Error('Test error')
