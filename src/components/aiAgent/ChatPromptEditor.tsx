@@ -6,7 +6,6 @@ import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
 import { Typography } from '~/components/designSystem/Typography'
 import { TextInputField } from '~/components/form'
-import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import { CreateAiConversationInput } from '~/generated/graphql'
 import { AGENT_TYPE_LABELS, AiAgentTypeEnum, useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -68,15 +67,10 @@ export const ChatPromptEditor: FC<ChatPromptEditorProps> = ({
   const isWaitingForResponse = state.isLoading || state.isStreaming
   const canSubmit = !!formikProps.values.message && !isWaitingForResponse && !disabled
 
-  const agentOptions = Object.values(AiAgentTypeEnum)
-    .filter(
-      (value) =>
-        value !== AiAgentTypeEnum.finance || isFeatureFlagActive(FeatureFlags.AI_FINANCE_ASSISTANT),
-    )
-    .map((value) => ({
-      value,
-      label: translate(AGENT_TYPE_LABELS[value]),
-    }))
+  const agentOptions = Object.values(AiAgentTypeEnum).map((value) => ({
+    value,
+    label: translate(AGENT_TYPE_LABELS[value]),
+  }))
   const selectedAgentLabel = agentOptions.find((option) => option.value === agentType)?.label
   const showAgentSelector = agentOptions.length > 1
 
