@@ -149,6 +149,33 @@ describe('EntraIdAuthCallback', () => {
     })
   })
 
+  describe('GIVEN a malformed (non-JSON) state param', () => {
+    beforeEach(() => {
+      mockUseSearchParams.mockReturnValue(
+        buildSearchParams({
+          code: 'entra-auth-code',
+          state: 'not-json',
+        }),
+      )
+      mockEntraIdLoginUser.mockResolvedValue({
+        data: { entraIdLogin: { token: 'test-token' } },
+      })
+      mockGetItemFromLS.mockReturnValue(undefined)
+    })
+
+    // Pins the parseState try/catch in useSSOAuthCallback: without the guard the
+    // JSON.parse throws during render and the login mutation is never reached.
+    it('THEN should fall through and call login with an empty state instead of throwing', async () => {
+      renderHook(() => EntraIdAuthCallback())
+
+      await waitFor(() => {
+        expect(mockEntraIdLoginUser).toHaveBeenCalledWith({
+          variables: { input: { code: 'entra-auth-code', state: '' } },
+        })
+      })
+    })
+  })
+
   describe('GIVEN Entra ID login returns an error', () => {
     beforeEach(() => {
       mockUseSearchParams.mockReturnValue(

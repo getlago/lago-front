@@ -74,6 +74,8 @@ gql`
 export const getSSOSelectorTestId = (method: AuthenticationMethodsEnum) => `sso-selector-${method}`
 export const getSSOSelectorDotsTestId = (method: AuthenticationMethodsEnum) =>
   `sso-selector-dots-${method}`
+export const getSSOSelectorEditTestId = (method: AuthenticationMethodsEnum) =>
+  `sso-selector-edit-${method}`
 
 /**
  * Provider-specific configuration shared by the Okta and Entra ID SSO cards.
@@ -306,6 +308,7 @@ const Authentication = () => {
                         startIcon="pen"
                         variant="quaternary"
                         align="left"
+                        data-test={getSSOSelectorEditTestId(providerConfig.method)}
                         loading={authIntegrationsLoading}
                         onClick={(e) => {
                           e.stopPropagation()

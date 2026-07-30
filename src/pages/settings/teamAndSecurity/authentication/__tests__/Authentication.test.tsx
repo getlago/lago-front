@@ -26,7 +26,12 @@ import {
 } from '~/generated/graphql'
 import { AllTheProviders, testMockNavigateFn, TestMocksType } from '~/test-utils'
 
-import Authentication, { getSSOSelectorDotsTestId, getSSOSelectorTestId } from '../Authentication'
+import Authentication, {
+  getSSOSelectorDotsTestId,
+  getSSOSelectorEditTestId,
+  getSSOSelectorTestId,
+} from '../Authentication'
+import { ENTRA_ID_INTEGRATION_SUBMIT_BTN } from '../dialogs/AddEntraIdDialog'
 
 const mockRefetch = jest.fn()
 let mockIsPremium = true
@@ -694,11 +699,10 @@ describe('Authentication', () => {
     // Click the Entra ID selector explicitly by its test id
     await user.click(screen.getByTestId(getSSOSelectorTestId(AuthenticationMethodsEnum.EntraId)))
 
-    await waitFor(() => {
-      const dialog = document.querySelector('[class*="MuiDialog"]')
-
-      expect(dialog).toBeInTheDocument()
-    })
+    // Assert the Entra add dialog specifically (its submit button): swapping the
+    // Entra entry's opener for another provider's would open a different dialog
+    // and fail here.
+    expect(await screen.findByTestId(ENTRA_ID_INTEGRATION_SUBMIT_BTN)).toBeInTheDocument()
   })
 
   it('opens premium warning when non-premium clicks Entra ID', async () => {
@@ -754,6 +758,34 @@ describe('Authentication', () => {
       expect(screen.queryAllByTestId(/pen\//).length).toBeGreaterThanOrEqual(1)
       expect(screen.queryAllByTestId(/trash\//).length).toBeGreaterThanOrEqual(1)
     })
+  })
+
+  it('opens the Entra edit dialog prefilled from the Entra integration', async () => {
+    const user = userEvent.setup()
+
+    mockOrganizationData = {
+      premiumIntegrations: [PremiumIntegrationTypeEnum.EntraId],
+      authenticationMethods: [
+        AuthenticationMethodsEnum.EmailPassword,
+        AuthenticationMethodsEnum.EntraId,
+      ],
+    }
+
+    await prepare({ mocks: entraIdIntegrationsMock })
+
+    await user.click(
+      await screen.findByTestId(getSSOSelectorDotsTestId(AuthenticationMethodsEnum.EntraId)),
+    )
+    await user.click(
+      await screen.findByTestId(getSSOSelectorEditTestId(AuthenticationMethodsEnum.EntraId)),
+    )
+
+    // Pins the Entra pairing: the opener must open the Entra dialog (its submit
+    // button) prefilled from the Entra integration (its domain + tenant). A wrong
+    // opener or a wrong integration in the ssoProviders config would fail here.
+    expect(await screen.findByTestId(ENTRA_ID_INTEGRATION_SUBMIT_BTN)).toBeInTheDocument()
+    expect(screen.getByDisplayValue('test.example.com')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('test-tenant-id')).toBeInTheDocument()
   })
 
   it('clicks delete button in Okta popper to open delete dialog', async () => {
