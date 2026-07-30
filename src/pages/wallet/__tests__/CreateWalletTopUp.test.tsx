@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event'
 
 import { INVOICING_SETTINGS_SELECTOR_TEST_ID } from '~/components/invoicingSettings/InvoicingSettingsSelector'
 import { PAYMENT_SETTINGS_SELECTOR_TEST_ID } from '~/components/paymentSettings/PaymentSettingsSelector'
+import { PURCHASE_ORDER_ADD_BUTTON_TEST_ID } from '~/components/purchaseOrder/PurchaseOrderButtons'
 import { PURCHASE_ORDER_FORM_BLOCK_INPUT_TEST_ID } from '~/components/purchaseOrder/PurchaseOrderFormBlock'
 import {
   ADD_METADATA_DATA_TEST,
@@ -11,6 +12,7 @@ import {
   CREATE_WALLET_TOP_UP_FORM_TEST_ID,
   SUBMIT_WALLET_DATA_TEST,
   TOPUP_TYPE_FREE_CREDITS_DATA_TEST,
+  TOPUP_TYPE_PREPAID_CREDITS_DATA_TEST,
 } from '~/components/wallets/utils/dataTestConstants'
 import { addToast } from '~/core/apolloClient'
 import {
@@ -323,6 +325,78 @@ describe('CreateWalletTopUp', () => {
 
         // paidCredits input should be gone
         expect(document.querySelector('input[name="paidCredits"]')).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN a PO number was set in prepaid mode', () => {
+      const revealAndTypePurchaseOrderNumber = async (user: ReturnType<typeof userEvent.setup>) => {
+        await user.click(screen.getByTestId(PURCHASE_ORDER_ADD_BUTTON_TEST_ID))
+        await user.type(
+          screen
+            .getByTestId(PURCHASE_ORDER_FORM_BLOCK_INPUT_TEST_ID)
+            .querySelector('input') as HTMLInputElement,
+          'PO-PREPAID',
+        )
+      }
+
+      it('THEN should not send the PO number when submitting as free credits', async () => {
+        const user = userEvent.setup()
+        let capturedVars: Record<string, unknown> | undefined
+
+        render(<CreateWalletTopUp />, {
+          mocks: getDefaultMocks((vars) => {
+            capturedVars = vars
+          }),
+        })
+
+        await waitFor(() => {
+          expect(screen.getByTestId(CREATE_WALLET_TOP_UP_FORM_TEST_ID)).toBeInTheDocument()
+        })
+
+        await revealAndTypePurchaseOrderNumber(user)
+        await user.click(screen.getByTestId(TOPUP_TYPE_FREE_CREDITS_DATA_TEST))
+
+        // Free credits never generate an invoice — the PO section is gone.
+        expect(
+          screen.queryByTestId(PURCHASE_ORDER_FORM_BLOCK_INPUT_TEST_ID),
+        ).not.toBeInTheDocument()
+
+        await user.type(
+          document.querySelector('input[name="grantedCredits"]') as HTMLInputElement,
+          '10',
+        )
+
+        await act(async () => {
+          await user.click(screen.getByTestId(SUBMIT_WALLET_DATA_TEST))
+        })
+
+        await waitFor(() => {
+          expect(capturedVars).toBeDefined()
+          expect(
+            (capturedVars as Record<string, Record<string, unknown>>).input.purchaseOrderNumber,
+          ).toBeNull()
+        })
+      })
+
+      it('THEN should not resurrect the PO number when switching back to prepaid', async () => {
+        const user = userEvent.setup()
+
+        render(<CreateWalletTopUp />, { mocks: getDefaultMocks() })
+
+        await waitFor(() => {
+          expect(screen.getByTestId(CREATE_WALLET_TOP_UP_FORM_TEST_ID)).toBeInTheDocument()
+        })
+
+        await revealAndTypePurchaseOrderNumber(user)
+        await user.click(screen.getByTestId(TOPUP_TYPE_FREE_CREDITS_DATA_TEST))
+        await user.click(screen.getByTestId(TOPUP_TYPE_PREPAID_CREDITS_DATA_TEST))
+
+        // The section is back, but collapsed to the add button — the cleared
+        // value must not reappear.
+        expect(screen.getByTestId(PURCHASE_ORDER_ADD_BUTTON_TEST_ID)).toBeInTheDocument()
+        expect(
+          screen.queryByTestId(PURCHASE_ORDER_FORM_BLOCK_INPUT_TEST_ID),
+        ).not.toBeInTheDocument()
       })
     })
   })

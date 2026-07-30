@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 import { TextInput } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -22,18 +22,15 @@ export const PurchaseOrderFormBlock = ({
   ...props
 }: PurchaseOrderFormBlockProps) => {
   const { translate } = useInternationalization()
-  const [showInput, setShowInput] = useState(!!normalizePurchaseOrderNumber(value))
+  // `revealed` tracks a user interaction (add click, typing) that keeps the
+  // input open even while the value is empty; a non-empty value (e.g. an
+  // async prefill landing after mount) reveals it on its own, so the value
+  // stays the single source of truth for whether content exists.
+  const [revealed, setRevealed] = useState(false)
   // Only focus the input when it was revealed by a click on the add button,
   // not when it shows up because a prefilled value loaded.
   const [focusOnReveal, setFocusOnReveal] = useState(false)
-
-  // Prefilled values load asynchronously (e.g. the edit-wallet query resolving
-  // after mount) — reveal the input once a value lands.
-  useEffect(() => {
-    if (normalizePurchaseOrderNumber(value)) {
-      setShowInput(true)
-    }
-  }, [value])
+  const showInput = revealed || !!normalizePurchaseOrderNumber(value)
 
   const renderInputOrAddButton = () => {
     if (!showInput) {
@@ -41,7 +38,7 @@ export const PurchaseOrderFormBlock = ({
         <PurchaseOrder.AddButton
           onClick={() => {
             setFocusOnReveal(true)
-            setShowInput(true)
+            setRevealed(true)
           }}
         />
       )
@@ -58,19 +55,28 @@ export const PurchaseOrderFormBlock = ({
           value={value || ''}
           placeholder={translate(PURCHASE_ORDER_TRANSLATIONS.placeholder)}
           disabled={disabled}
+          // Typing is hard-capped (same behaviour as the PO number filter);
+          // the error only surfaces for programmatically-seeded overlong
+          // values, and the shared schema issue gates the submit.
+          inputProps={{ maxLength: PURCHASE_ORDER_NUMBER_MAX_LENGTH }}
           error={
             (value?.length ?? 0) > PURCHASE_ORDER_NUMBER_MAX_LENGTH
               ? translate(PURCHASE_ORDER_TRANSLATIONS.maxLength)
               : undefined
           }
-          onChange={(newValue) => onChange?.(newValue)}
+          onChange={(newValue) => {
+            // Typing counts as revealing: without this, deleting the last
+            // character of a prefilled value would collapse the input mid-edit.
+            setRevealed(true)
+            onChange?.(newValue)
+          }}
           data-test={PURCHASE_ORDER_FORM_BLOCK_INPUT_TEST_ID}
         />
         <PurchaseOrder.TrashButton
           size="medium"
           onClick={() => {
             onChange?.(null)
-            setShowInput(false)
+            setRevealed(false)
             setFocusOnReveal(false)
           }}
         />
@@ -79,13 +85,7 @@ export const PurchaseOrderFormBlock = ({
   }
 
   return (
-    <PurchaseOrder
-      className="gap-3"
-      value={value}
-      onChange={onChange}
-      disabled={disabled}
-      {...props}
-    >
+    <PurchaseOrder value={value} onChange={onChange} disabled={disabled} {...props}>
       <div className="flex flex-col gap-1">
         <PurchaseOrder.Title />
         <PurchaseOrder.Description />

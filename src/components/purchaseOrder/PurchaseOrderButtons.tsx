@@ -1,3 +1,5 @@
+import { ComponentProps } from 'react'
+
 import { Button } from '~/components/designSystem/Button'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -75,7 +77,9 @@ export const PurchaseOrderTrashButton = ({
   disabled,
   onClick,
   size = 'small',
-}: Omit<PurchaseOrderButtonProps, 'children'> & { size?: 'small' | 'medium' | 'large' }) => {
+}: Omit<PurchaseOrderButtonProps, 'children'> & {
+  size?: ComponentProps<typeof Button>['size']
+}) => {
   const { translate } = useInternationalization()
   const { clearPurchaseOrderNumber, disabled: contextDisabled } = usePurchaseOrderContext()
 

@@ -110,7 +110,7 @@ const CreateWalletTopUp = () => {
 
   const [transactionType, setTransactionType] = useState(WalletTransactionType.PrepaidCredits)
 
-  const { data: voidedInvoice } = useGetInvoiceStatusQuery({
+  const { data: voidedInvoice, loading: voidedInvoiceLoading } = useGetInvoiceStatusQuery({
     variables: {
       id: voidedInvoiceId as string,
     },
@@ -182,6 +182,9 @@ const CreateWalletTopUp = () => {
     // when defaults deep-change as the wallet query resolves — the same
     // mechanism prefills the PO number once the voided invoice resolves
     // (regenerate flow: carry the voided invoice's PO over to the top-up).
+    // The reseed only lands while the form is untouched, so the form is not
+    // rendered until both queries resolve (see the skeleton gate below) —
+    // otherwise an early keystroke would silently drop the PO prefill.
     defaultValues: mapFromApiToForm({
       wallet,
       purchaseOrderNumber: voidedInvoice?.invoice?.purchaseOrderNumber,
@@ -335,13 +338,13 @@ const CreateWalletTopUp = () => {
           />
         </CenteredPage.Header>
 
-        {loading && !wallet && (
+        {((loading && !wallet) || voidedInvoiceLoading) && (
           <CenteredPage.Container>
             <FormLoadingSkeleton id="create-wallet" />
           </CenteredPage.Container>
         )}
 
-        {!loading && wallet && (
+        {!loading && wallet && !voidedInvoiceLoading && (
           <CenteredPage.Container>
             <CenteredPage.PageTitle
               title={translate('text_62e79671d23ae6ff149de924')}
