@@ -11,6 +11,7 @@ import { MainHeaderAction } from '~/components/MainHeader/types'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import WalletAlerts from '~/components/wallets/WalletAlerts'
 import WalletInformations from '~/components/wallets/WalletInformations'
+import WalletRecurringRules from '~/components/wallets/WalletRecurringRules'
 import { WalletTransactions } from '~/components/wallets/WalletTransactions'
 import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
 import {
@@ -133,6 +134,7 @@ gql`
 `
 export enum WalletDetailsTabsOptionsEnum {
   overview = 'overview',
+  recurringRule = 'recurring-rule',
   transactions = 'transactions',
   alerts = 'alerts',
 }
@@ -236,6 +238,43 @@ const WalletDetails = () => {
             />
 
             <WalletInformations wallet={wallet} />
+          </DetailsPage.Container>
+        ),
+      },
+      {
+        title: translate('text_1772536695409spdoskvq4w5'),
+        link: generatePath(WALLET_DETAILS_ROUTE, {
+          walletId: walletId as string,
+          customerId: customerId as string,
+          tab: WalletDetailsTabsOptionsEnum.recurringRule,
+        }),
+        content: (
+          <DetailsPage.Container className="mt-12 gap-6">
+            <SectionTitle
+              title={translate('text_1772536695409spdoskvq4w5')}
+              description={translate('text_1783584917380so6uufk82e0')}
+              action={
+                <>
+                  {hasPermissions(['walletsUpdate']) && (
+                    <ButtonLink
+                      buttonProps={{
+                        variant: 'quaternary',
+                      }}
+                      type="button"
+                      to={generatePath(EDIT_WALLET_ROUTE, {
+                        walletId: walletId as string,
+                        customerId: customerId ?? null,
+                      })}
+                      routerState={{ openRecurringRuleDrawer: true }}
+                    >
+                      {translate('text_62e161ceb87c201025388aa2')}
+                    </ButtonLink>
+                  )}
+                </>
+              }
+            />
+
+            <WalletRecurringRules wallet={wallet} />
           </DetailsPage.Container>
         ),
       },

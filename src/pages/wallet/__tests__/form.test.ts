@@ -110,6 +110,43 @@ describe('topUpAmountError', () => {
     })
   })
 
+  describe('GIVEN a bound field the user emptied', () => {
+    describe('WHEN a bound is an empty string', () => {
+      // Number('') is 0, so without normalizing, an emptied max would flag every
+      // positive amount as above max — an error the schema does not enforce.
+      it.each([
+        ['max', { paidTopUpMaxAmountCents: '' }],
+        ['min', { paidTopUpMinAmountCents: '' }],
+        ['both', { paidTopUpMinAmountCents: '', paidTopUpMaxAmountCents: '' }],
+      ])('THEN should treat the %s bound as absent', (_, bounds) => {
+        expect(
+          topUpAmountError({
+            rateAmount: '1',
+            paidCredits: '200',
+            currency: CurrencyEnum.Usd,
+            translate,
+            ...bounds,
+          }),
+        ).toBeNull()
+      })
+    })
+
+    describe('WHEN only one of the two bounds is emptied', () => {
+      it('THEN should still enforce the bound that is set', () => {
+        const result = topUpAmountError({
+          rateAmount: '1',
+          paidCredits: '200',
+          paidTopUpMinAmountCents: '',
+          paidTopUpMaxAmountCents: '100',
+          currency: CurrencyEnum.Usd,
+          translate,
+        })
+
+        expect(result?.error).toBe('top-up-above-max')
+      })
+    })
+  })
+
   describe('GIVEN the rate multiplies the credits', () => {
     describe('WHEN rate is 2 and credits amount exceeds the max', () => {
       it('THEN should compare credits × rate against the bounds', () => {

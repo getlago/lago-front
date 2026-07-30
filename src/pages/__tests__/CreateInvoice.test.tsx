@@ -91,10 +91,6 @@ jest.mock('~/generated/graphql', () => {
   }
 })
 
-jest.mock('~/components/designSystem/WarningDialog', () => ({
-  WarningDialog: jest.fn(() => null),
-}))
-
 jest.mock('~/components/invoices/EditFeeBillingPeriod', () => ({
   useEditFeeBillingPeriodDialog: () => ({
     openEditFeeBillingPeriodDialog: jest.fn(),

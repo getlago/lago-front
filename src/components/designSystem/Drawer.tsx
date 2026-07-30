@@ -5,7 +5,6 @@ import {
   ReactElement,
   ReactNode,
   useImperativeHandle,
-  useRef,
   useState,
 } from 'react'
 
@@ -13,10 +12,7 @@ import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import { tw } from '~/styles/utils'
 
-import {
-  PreventClosingDrawerDialog,
-  PreventClosingDrawerDialogRef,
-} from './PreventClosingDrawerDialog'
+import { usePreventClosingDrawerDialog } from './PreventClosingDrawerDialog'
 
 const DRAWER_TRANSITION_DURATION = 250
 
@@ -60,7 +56,7 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
     }: DrawerProps,
     ref,
   ) => {
-    const preventClosingDrawerDialogRef = useRef<PreventClosingDrawerDialogRef>(null)
+    const { openPreventClosingDrawerDialog } = usePreventClosingDrawerDialog()
     const [isOpen, setIsOpen] = useState(forceOpen)
 
     const closeAction = () => {
@@ -70,10 +66,8 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
       }
 
       if (showCloseWarningDialog) {
-        preventClosingDrawerDialogRef.current?.openDialog({
-          onContinue: () => {
-            _closeAndHideDrawer()
-          },
+        openPreventClosingDrawerDialog({
+          onContinue: _closeAndHideDrawer,
         })
       } else {
         _closeAndHideDrawer()
@@ -144,8 +138,6 @@ export const Drawer = forwardRef<DrawerRef, DrawerProps>(
             </div>
           )}
         </MuiDrawer>
-
-        <PreventClosingDrawerDialog ref={preventClosingDrawerDialogRef} />
       </>
     )
   },

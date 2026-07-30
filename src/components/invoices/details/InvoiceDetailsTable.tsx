@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 import { tw } from 'lago-design-system'
-import { DateTime } from 'luxon'
 import { FC, Fragment, memo, ReactNode, RefObject } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
@@ -316,7 +315,7 @@ export const InvoiceDetailsTable = memo(
                     displayName={feeDisplayName}
                     succeededDate={
                       invoice.invoiceType === InvoiceTypeEnum.AdvanceCharges
-                        ? DateTime.fromISO(fee.succeededAt).toFormat('LLL. dd, yyyy')
+                        ? intlFormatDateTime(fee.succeededAt).date
                         : undefined
                     }
                     editFeeDrawerRef={editFeeDrawerRef}
@@ -466,7 +465,7 @@ export const InvoiceDetailsTable = memo(
                           />
                           {boundary.fees.map((fee) => {
                             const succeededDate = fee.succeededAt
-                              ? DateTime.fromISO(fee.succeededAt).toLocaleString(DateTime.DATE_MED)
+                              ? intlFormatDateTime(fee.succeededAt).date
                               : undefined
 
                             return (

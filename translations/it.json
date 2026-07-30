@@ -273,5 +273,10 @@
   "text_1783352692386valktkog1dw": "Aggiungi numero d’ordine d’acquisto",
   "text_17833526923863j848qxkffb": "Impostazioni del wallet",
   "text_17841895626504bixbm3xbyj": "Visualizza i dettagli di questo ordine eseguito, incluse le sue impostazioni di esecuzione e il suo contenuto.",
-  "text_17842142209100wegryv1st3": "La fattura {{invoiceNumber}} è stata eliminata"
+  "text_17842142209100wegryv1st3": "La fattura {{invoiceNumber}} è stata eliminata",
+  "text_17848001862070vhaaoyut3y": "Elimina fattura",
+  "text_17848001862071abwcvd3b3p": "Stai per eliminare questa bozza di fattura",
+  "text_1784800186207jjeqsv1d0rd": "Questa bozza di fattura verrà eliminata definitivamente e non diventerà mai un credito. Questa azione non può essere annullata. Vuoi continuare?",
+  "text_1784800186207ionjr7ey3jq": "Bozza di fattura eliminata",
+  "text_178482400457029nb9diwj6m": "Eliminare una bozza di fattura"
 }

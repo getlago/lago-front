@@ -20,9 +20,6 @@ jest.mock('~/components/settings/integrations/DeleteCashfreeIntegrationDialog', 
     openDeleteCashfreeIntegrationDialog: jest.fn(),
   }),
 }))
-jest.mock('~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog', () => ({
-  AddEditDeleteSuccessRedirectUrlDialog: () => null,
-}))
 
 describe('CashfreeIntegrations', () => {
   afterEach(cleanup)

@@ -187,7 +187,6 @@ export default [
             {
               group: [
                 '~/components/designSystem/Dialog',
-                '~/components/designSystem/WarningDialog',
                 '~/components/designSystem/PreventClosingDrawerDialog',
                 '~/components/PremiumWarningDialog',
                 '~/components/addOns/*Dialog*',

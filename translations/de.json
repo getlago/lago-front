@@ -273,5 +273,10 @@
   "text_1783352692386valktkog1dw": "Bestellnummer hinzufügen",
   "text_17833526923863j848qxkffb": "Wallet-Einstellungen",
   "text_17841895626504bixbm3xbyj": "Sehen Sie sich die Details dieses ausgeführten Auftrags an, einschließlich seiner Ausführungseinstellungen und seines Inhalts.",
-  "text_17842142209100wegryv1st3": "Rechnung {{invoiceNumber}} wurde gelöscht"
+  "text_17842142209100wegryv1st3": "Rechnung {{invoiceNumber}} wurde gelöscht",
+  "text_17848001862070vhaaoyut3y": "Rechnung löschen",
+  "text_17848001862071abwcvd3b3p": "Sie sind dabei, diesen Rechnungsentwurf zu löschen",
+  "text_1784800186207jjeqsv1d0rd": "Dieser Rechnungsentwurf wird dauerhaft gelöscht und wird niemals zu einer Forderung. Diese Aktion kann nicht rückgängig gemacht werden. Möchten Sie fortfahren?",
+  "text_1784800186207ionjr7ey3jq": "Rechnungsentwurf gelöscht",
+  "text_178482400457029nb9diwj6m": "Rechnungsentwurf löschen"
 }

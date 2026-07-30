@@ -79,6 +79,10 @@ jest.mock('~/components/invoices/InvoicesList', () => ({
   default: () => <div data-test="invoices-list-mock">InvoicesList</div>,
 }))
 
+jest.mock('~/components/invoices/DeleteInvoiceDialog', () => ({
+  useDeleteInvoiceDialog: () => ({ openDeleteInvoiceDialog: jest.fn() }),
+}))
+
 jest.mock('~/components/invoices/FinalizeInvoiceDialog', () => ({
   useFinalizeInvoiceDialog: () => ({ openFinalizeInvoiceDialog: jest.fn() }),
 }))

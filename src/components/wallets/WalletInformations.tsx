@@ -6,36 +6,17 @@ import { InvoiceCustomSectionDisplay } from '~/components/invoceCustomFooter/Inv
 import { hasInvoiceCustomSectionsContent } from '~/components/invoceCustomFooter/utils'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { useResolvedPaymentMethodValue } from '~/components/paymentMethodSelection/useResolvedPaymentMethodDisplay'
-import PremiumFeature from '~/components/premium/PremiumFeature'
 import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
-import { getIntervalTranslationKey } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount, getCurrencyPrecision } from '~/core/serializers/serializeAmount'
-import {
-  CurrencyEnum,
-  FeatureFlagEnum,
-  RecurringTransactionMethodEnum,
-  RecurringTransactionTriggerEnum,
-  WalletDetailsFragment,
-} from '~/generated/graphql'
+import { CurrencyEnum, FeatureFlagEnum, WalletDetailsFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { PaymentMethodList, usePaymentMethodsList } from '~/hooks/customer/usePaymentMethodsList'
-import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { usePaymentMethodsList } from '~/hooks/customer/usePaymentMethodsList'
 import { useCustomerInvoiceCustomSections } from '~/hooks/useCustomerInvoiceCustomSections'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { tw } from '~/styles/utils'
 
 export const WALLET_INFORMATIONS_CONTAINER_TEST_ID = 'wallet-informations-container'
-export const WALLET_INFORMATIONS_NO_RECURRING_TEST_ID = 'wallet-informations-no-recurring'
-export const WALLET_INFORMATIONS_RECURRING_RULE_TEST_ID = (index: number) =>
-  `wallet-informations-recurring-rule-${index}`
-const WALLET_INFORMATIONS_TOPUP_TYPE_TEST_ID = 'wallet-informations-topup-type'
-
-const YES_TRANSLATION_KEY = 'text_1764160009979jzn4xunn1z8'
-const NO_TRANSLATION_KEY = 'text_176416000997957yqelmt2m2'
-
-type WalletRecurringRule = NonNullable<WalletDetailsFragment['recurringTransactionRules']>[number]
-type CustomerIcsData = ReturnType<typeof useCustomerInvoiceCustomSections>['data']
 
 type WalletInformationsProps = {
   wallet?: WalletDetailsFragment | null
@@ -53,198 +34,6 @@ const SectionTitle = ({ title, subtitle }: { title: string; subtitle: string }) 
   </div>
 )
 
-const RecurringRuleInfoGrid = ({
-  rule,
-  wallet,
-  paymentMethodsList,
-  customerIcsData,
-}: {
-  rule: WalletRecurringRule
-  wallet: WalletDetailsFragment
-  paymentMethodsList?: PaymentMethodList
-  customerIcsData: CustomerIcsData
-}) => {
-  const { translate } = useInternationalization()
-  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
-
-  const paymentMethodValue = useResolvedPaymentMethodValue(
-    {
-      paymentMethodType: rule.paymentMethodType,
-      paymentMethodId: rule.paymentMethod?.id,
-    },
-    paymentMethodsList,
-  )
-
-  const formatCredits = (credits?: string | null, { zeroAsEmpty = true } = {}) =>
-    credits && (!zeroAsEmpty || Number(credits) !== 0)
-      ? `${translate(
-          'text_62da6ec24a8e24e44f812896',
-          {
-            amount: Number(credits),
-          },
-          Number(credits),
-        )} • ${intlFormatNumber(
-          isNaN(Number(credits)) ? 0 : Number(credits) * Number(wallet.rateAmount),
-          {
-            currencyDisplay: 'symbol',
-            currency: wallet.currency,
-          },
-        )}`
-      : '-'
-
-  const yesNo = (value?: boolean | null) =>
-    translate(value ? YES_TRANSLATION_KEY : NO_TRANSLATION_KEY)
-
-  const isTargetMethod = rule.method === RecurringTransactionMethodEnum.Target
-
-  const invoiceRequiresSuccessfulPaymentRow = {
-    label: translate('text_66a8aed1c3e07b277ec3990d'),
-    value: yesNo(rule.invoiceRequiresSuccessfulPayment),
-  }
-
-  // Mirror the form's conditional visibility (TopUpSection): both toggles only
-  // exist once a paid amount is set, and the ignore-limits one additionally
-  // requires the wallet to define paid top-up limits.
-  const hasPaidCredits = Number(rule.paidCredits) > 0
-  const hasWalletTopUpLimits = !!wallet.paidTopUpMinAmountCents || !!wallet.paidTopUpMaxAmountCents
-
-  const showInvoiceCustomSectionsRow = hasInvoiceCustomSectionsContent({
-    skipInvoiceCustomSections: rule.skipInvoiceCustomSections,
-    selectedInvoiceCustomSections: rule.selectedInvoiceCustomSections,
-    customerIcsData,
-  })
-
-  return (
-    <>
-      <DetailsPage.InfoGrid
-        grid={[
-          {
-            label: translate('text_6657c29c84ad4500ad764ed7'),
-            value: isTargetMethod
-              ? translate('text_6657c34670561c0127132da4')
-              : translate('text_6657cdd8cea6bf010e1ce128'),
-          },
-          {
-            label: translate('text_1773043324341gpkiojxh628'),
-            value: rule.transactionName || '-',
-          },
-          ...(isTargetMethod
-            ? [
-                {
-                  label: translate('text_1780047483204bk0fhgkeisn'),
-                  value: (
-                    <span data-test={WALLET_INFORMATIONS_TOPUP_TYPE_TEST_ID}>
-                      {translate(
-                        rule.grantsTargetTopUp
-                          ? 'text_17800474832056s97uz7bjy7'
-                          : 'text_178004748320594nw5fau04a',
-                      )}
-                    </span>
-                  ),
-                },
-                {
-                  label: translate('text_6657c34670561c0127132da5'),
-                  // A configured target of 0 is a valid value — only null/empty is "-"
-                  value: formatCredits(rule.targetOngoingBalance, { zeroAsEmpty: false }),
-                },
-                ...(rule.targetOngoingBalance ? [invoiceRequiresSuccessfulPaymentRow] : []),
-              ]
-            : [
-                {
-                  label: translate('text_1773043324341q5g4muycilq'),
-                  value: formatCredits(rule.paidCredits),
-                },
-                ...(hasWalletTopUpLimits && hasPaidCredits
-                  ? [
-                      {
-                        label: translate('text_1758285686646ty4gyil56oi'),
-                        value: yesNo(rule.ignorePaidTopUpLimits),
-                      },
-                    ]
-                  : []),
-                ...(hasPaidCredits ? [invoiceRequiresSuccessfulPaymentRow] : []),
-                {
-                  label: translate('text_1773043324341cnkdf7j5dmp'),
-                  value: formatCredits(rule.grantedCredits),
-                },
-              ]),
-          ...(rule.trigger === RecurringTransactionTriggerEnum.Interval
-            ? [
-                {
-                  label: translate('text_6657c29c84ad4500ad764ee1'),
-                  value: translate('text_1773043324341kgvvw9ykx6a'),
-                },
-                {
-                  label: translate('text_1773043324341ht718cwl1ub'),
-                  value: rule.interval ? translate(getIntervalTranslationKey[rule.interval]) : '-',
-                },
-                {
-                  label: translate('text_66599bfb69fba1010535c5c2'),
-                  value: rule.startedAt ? intlFormatDateTimeOrgaTZ(rule.startedAt)?.date : '-',
-                },
-              ]
-            : [
-                {
-                  label: translate('text_6657c29c84ad4500ad764ee1'),
-                  value: translate('text_1773043324341dd9c0u4ilhg'),
-                },
-                {
-                  label: translate('text_6560809c38fb9de88d8a5315'),
-                  value: rule.thresholdCredits
-                    ? translate(
-                        'text_62da6ec24a8e24e44f812896',
-                        {
-                          amount: Number(rule.thresholdCredits),
-                        },
-                        Number(rule.thresholdCredits),
-                      )
-                    : '-',
-                },
-              ]),
-          {
-            label: translate('text_1772536695408pz0actopowa'),
-            value: rule.expirationAt ? intlFormatDateTimeOrgaTZ(rule.expirationAt)?.date : '-',
-          },
-          {
-            label: translate('text_1773043324341qj7t72i7qnk'),
-            value: paymentMethodValue,
-          },
-          ...(showInvoiceCustomSectionsRow
-            ? [
-                {
-                  label: translate('text_1773043324342n1x2iltnxvw'),
-                  value: (
-                    <InvoiceCustomSectionDisplay
-                      selectedSections={rule.selectedInvoiceCustomSections}
-                      skipSections={rule.skipInvoiceCustomSections}
-                      customerId={wallet.customer?.id}
-                      viewType={ViewTypeEnum.WalletRecurringTopUp}
-                    />
-                  ),
-                },
-              ]
-            : []),
-        ]}
-      />
-
-      {!!rule.transactionMetadata?.length && (
-        <div className="flex flex-col gap-4">
-          <Typography variant="captionHl" color="grey600">
-            {translate('text_63fcc3218d35b9377840f59b')}
-          </Typography>
-
-          <DetailsPage.InfoGrid
-            grid={rule.transactionMetadata.map((metadata) => ({
-              label: metadata.key,
-              value: metadata.value,
-            }))}
-          />
-        </div>
-      )}
-    </>
-  )
-}
-
 const WalletInformations = ({ wallet }: WalletInformationsProps) => {
   const { translate } = useInternationalization()
   const {
@@ -252,7 +41,6 @@ const WalletInformations = ({ wallet }: WalletInformationsProps) => {
     hasFeatureFlag,
     organization: { defaultCurrency } = {},
   } = useOrganizationInfos()
-  const { isPremium } = useCurrentUser()
 
   const showBillingEntityRow = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
 
@@ -286,8 +74,6 @@ const WalletInformations = ({ wallet }: WalletInformationsProps) => {
     return
   }
 
-  const recurringRules = wallet?.recurringTransactionRules || []
-
   const currency = wallet?.currency || defaultCurrency || CurrencyEnum.Usd
 
   const paidTopUpMinAmountCents = formatAmount(wallet?.paidTopUpMinAmountCents)
@@ -303,9 +89,18 @@ const WalletInformations = ({ wallet }: WalletInformationsProps) => {
     customerIcsData,
   })
 
+  const showAppliesToSection =
+    !!wallet?.appliesTo?.feeTypes?.length || !!wallet?.appliesTo?.billableMetrics?.length
+  const showPaymentSection = paymentMethodValue !== '-' || showWalletInvoiceCustomSectionsRow
+
   return (
     <div data-test={WALLET_INFORMATIONS_CONTAINER_TEST_ID} className="flex flex-col gap-12">
-      <section className={sectionClassName}>
+      <section
+        className={tw(
+          sectionClassName,
+          !showAppliesToSection && !showPaymentSection && 'shadow-b-none',
+        )}
+      >
         <SectionTitle
           title={translate('text_1772536695408sm7gfyxpi58')}
           subtitle={translate('text_1783584917380ry4fb4b5tpv')}
@@ -367,8 +162,8 @@ const WalletInformations = ({ wallet }: WalletInformationsProps) => {
         />
       </section>
 
-      {(!!wallet?.appliesTo?.feeTypes?.length || !!wallet?.appliesTo?.billableMetrics?.length) && (
-        <section className={sectionClassName}>
+      {showAppliesToSection && (
+        <section className={tw(sectionClassName, !showPaymentSection && 'shadow-b-none')}>
           <SectionTitle
             title={translate('text_1772536695408hukog0udwpx')}
             subtitle={translate('text_17835849173808iwx5j9uoz4')}
@@ -413,8 +208,8 @@ const WalletInformations = ({ wallet }: WalletInformationsProps) => {
         </section>
       )}
 
-      {(paymentMethodValue !== '-' || showWalletInvoiceCustomSectionsRow) && (
-        <section className={sectionClassName}>
+      {showPaymentSection && (
+        <section className={tw(sectionClassName, 'shadow-b-none')}>
           <SectionTitle
             title={translate('text_1772536695408rpehpvkgn9s')}
             subtitle={translate('text_1772536695408eev9wm37z9t')}
@@ -446,53 +241,6 @@ const WalletInformations = ({ wallet }: WalletInformationsProps) => {
           />
         </section>
       )}
-
-      <section className={tw(sectionClassName, 'shadow-b-none')}>
-        <SectionTitle
-          title={translate('text_1772536695409spdoskvq4w5')}
-          subtitle={translate('text_1783584917380so6uufk82e0')}
-        />
-
-        {!isPremium && (
-          <PremiumFeature
-            title={translate('text_1773043324341b2vsoaxinkl')}
-            description={translate('text_17730433243413krwjwou222')}
-            feature={translate('text_1773043324341c2yyjb2fjwu')}
-          />
-        )}
-
-        {isPremium && !recurringRules.length && (
-          <Typography
-            data-test={WALLET_INFORMATIONS_NO_RECURRING_TEST_ID}
-            variant="caption"
-            color="grey600"
-          >
-            {translate('text_1773043324341vyv0cdxzlys')}
-          </Typography>
-        )}
-
-        {isPremium &&
-          recurringRules.map((rule, index) => (
-            <div
-              key={rule.lagoId}
-              className="flex flex-col gap-4"
-              data-test={WALLET_INFORMATIONS_RECURRING_RULE_TEST_ID(index)}
-            >
-              {recurringRules.length > 1 && (
-                <Typography variant="captionHl" color="grey600">
-                  {translate('text_1783584917380z3uuxa0ey02', { number: index + 1 })}
-                </Typography>
-              )}
-
-              <RecurringRuleInfoGrid
-                rule={rule}
-                wallet={wallet}
-                paymentMethodsList={paymentMethodsList}
-                customerIcsData={customerIcsData}
-              />
-            </div>
-          ))}
-      </section>
     </div>
   )
 }

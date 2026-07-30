@@ -12,7 +12,11 @@ import {
 } from '~/components/invoceCustomFooter/types'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { SubscriptionInvoiceConsolidationSection } from '~/components/subscriptions/SubscriptionInvoiceConsolidationSection'
-import { VIEW_TYPE_TRANSLATION_KEYS, ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
+import {
+  VIEW_TYPE_INVOICING_CAPTION_KEYS,
+  VIEW_TYPE_TRANSLATION_KEYS,
+  ViewTypeEnum,
+} from '~/core/constants/billingObjectViewTypes'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm, withForm } from '~/hooks/forms/useAppform'
 
@@ -89,7 +93,7 @@ const InvoicingSettingsDrawerContent = withForm({
       <CenteredPage.SectionWrapper>
         <CenteredPage.PageTitle
           title={translate('text_17423672025282dl7iozy1ru')}
-          description={translate('text_1782738644346p066xtwa8yj')}
+          description={translate(VIEW_TYPE_INVOICING_CAPTION_KEYS[viewType])}
         />
 
         <CenteredPage.SubsectionWrapper>
