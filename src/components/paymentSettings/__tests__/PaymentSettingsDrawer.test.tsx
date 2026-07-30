@@ -1,9 +1,9 @@
 import { act, createRef, ReactNode } from 'react'
 
+import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { PaymentMethodTypeEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import { ViewTypeEnum } from '../../../paymentMethodsInvoiceSettings/types'
 import { PaymentSettingsDrawer, PaymentSettingsDrawerRef } from '../PaymentSettingsDrawer'
 
 const mockOpen = jest.fn()

@@ -530,6 +530,29 @@ return (
 >
 > **The UI before and after the migration MUST be visually identical**, unless the change is an intentional UI/UX improvement. Always compare the rendered page before and after the migration to catch layout regressions.
 
+**⚠️ CRITICAL — `await` every async call inside `onSubmit`:**
+
+`isSubmitting` (which drives `form.SubmitButton`'s spinner) flips back to `false` as soon as
+the `onSubmit` callback's own promise resolves — NOT when a fire-and-forget call inside it
+finishes. If the save/mutation call isn't awaited, `onSubmit` returns on the next microtask and
+the spinner vanishes instantly instead of covering the actual network request.
+
+```typescript
+// ❌ WRONG — onSave's promise is dropped, isSubmitting flips false almost immediately
+onSubmit: async ({ value }) => {
+  onSave(value)
+},
+
+// ✅ CORRECT — isSubmitting stays true until the mutation settles
+onSubmit: async ({ value }) => {
+  await onSave(value)
+},
+```
+
+This applies to every async call inside `onSubmit`: mutation calls, `onSave`/`onCreate`/`onUpdate`
+callback props, etc. Grep the finished `onSubmit` body for any bare (non-`await`ed) call to a
+function whose return type is `Promise<...>`.
+
 **Replace submit button:**
 
 Always prefer the registered `form.SubmitButton` over a manually-wired `<Button type="submit">` with `useStore` subscriptions — it internally subscribes to `canSubmit` + `isSubmitting` and adds a `loading` state for free.
@@ -1327,6 +1350,7 @@ The `/make-tests` skill will automatically:
 - [ ] Use `NameAndCodeGroup` for name + code fields (if applicable)
 - [ ] Wrap content in `<form>` element with `onSubmit`
 - [ ] Verify `<form>` wrapper doesn't break CSS layout (add `className="flex min-h-full flex-col"` if needed)
+- [ ] `await` every async call inside `onSubmit` (mutation calls, `onSave`/`onCreate`/`onUpdate` props) — a dropped `await` makes the submit spinner vanish before the request settles
 - [ ] Update each field to use `form.AppField` pattern
 - [ ] Replace submit button with `form.SubmitButton`
 - [ ] Update `setFieldValue` calls
@@ -1413,7 +1437,12 @@ The `/make-tests` skill will automatically:
 22. **Error labels needing translate variables**: the `*ForTanstack` wrappers translate message KEYS without variables — a `{{min}}/{{max}}` label renders raw placeholders. Emit the key from the schema, and let the COMPONENT translate with variables via the wrapper's `errorOverride` prop (`errorOverride={hasError ? translate(key, { min, max }) : undefined}`). `TextInputField`, `AmountInputField` and `DatePickerField` all support `errorOverride` (string replaces the error, `false` suppresses it).
 23. **Validation timing changes reviewer perception**: Formik's `validateOnMount` disabled the submit instantly; `revalidateLogic()` surfaces errors at the FIRST submit attempt, then live. Same rules, different moment — warn reviewers/QA or they will report "missing validations".
 24. **The `<form>` wrapper enables Enter-key submission**: a native form submits on Enter inside inputs — behavior the Formik version did not have. Usually desirable; flag it in the visual/UX check.
-25. **Section validity for UNMOUNTED fields**: Formik's `errors.someArray` reflected schema errors regardless of what was rendered. The TanStack equivalent for an accordion validity icon is the form-level error map, not `fieldMeta` (which only covers mounted fields). Validator-produced errors live DIRECTLY on `errorMap.onDynamic`, keyed by field path (e.g. `someArray[0].prop`) — the `.fields` sub-shape does NOT exist there; it only appears for errors set manually via `form.setErrorMap({ onDynamic: { fields: ... } })` (server errors). Read it as: `useStore(form.store, (s) => { const dynamicErrors = (s.errorMap as { onDynamic?: Record<string, unknown> })?.onDynamic ?? {}; return Object.entries(dynamicErrors).some(([k, v]) => k.startsWith('someArray') && !!v) })`.
+25. **Submit spinner disappears instantly / doesn't cover the network request**: an un-awaited
+async call inside `onSubmit` (`onSave(value)` instead of `await onSave(value)`) lets the
+`onSubmit` promise resolve on the next microtask, so `isSubmitting` — and `form.SubmitButton`'s
+`loading` prop — flips back to `false` before the mutation actually settles. Always `await` the
+save/mutation call.
+26. **Section validity for UNMOUNTED fields**: Formik's `errors.someArray` reflected schema errors regardless of what was rendered. The TanStack equivalent for an accordion validity icon is the form-level error map, not `fieldMeta` (which only covers mounted fields). Validator-produced errors live DIRECTLY on `errorMap.onDynamic`, keyed by field path (e.g. `someArray[0].prop`) — the `.fields` sub-shape does NOT exist there; it only appears for errors set manually via `form.setErrorMap({ onDynamic: { fields: ... } })` (server errors). Read it as: `useStore(form.store, (s) => { const dynamicErrors = (s.errorMap as { onDynamic?: Record<string, unknown> })?.onDynamic ?? {}; return Object.entries(dynamicErrors).some(([k, v]) => k.startsWith('someArray') && !!v) })`.
 
 ## Usage
 

@@ -9,9 +9,9 @@ import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
+import { InvoicingSettingsSelector } from '~/components/invoicingSettings/InvoicingSettingsSelector'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
-import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
-import { PaymentMethodsForm, ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
+import { PaymentSettingsSelector } from '~/components/paymentSettings/PaymentSettingsSelector'
 import {
   CLOSE_CREATE_TOPUP_BUTTON_DATA_TEST,
   CREATE_WALLET_TOP_UP_FORM_TEST_ID,
@@ -20,6 +20,11 @@ import {
   SUBMIT_WALLET_DATA_TEST,
 } from '~/components/wallets/utils/dataTestConstants'
 import { addToast } from '~/core/apolloClient'
+import {
+  VIEW_TYPE_INVOICING_CAPTION_KEYS,
+  VIEW_TYPE_PAYMENT_CAPTION_KEYS,
+  ViewTypeEnum,
+} from '~/core/constants/billingObjectViewTypes'
 import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_DETAILS_TAB_ROUTE, useNavigate, WALLET_DETAILS_ROUTE } from '~/core/router'
@@ -45,6 +50,7 @@ import TopUpTypeSelector, {
 } from '~/pages/wallet/components/TopUpTypeSelector'
 import { TransactionMetadataGroup } from '~/pages/wallet/components/TransactionMetadataGroup'
 import { topUpAmountError } from '~/pages/wallet/form'
+import { CREATE_ACTIVE_WALLET_TOP_UP_ID } from '~/pages/wallet/topUp/constants'
 import {
   getTopUpFormValidationSchema,
   topUpFormErrorLabels,
@@ -90,8 +96,6 @@ gql`
 
   ${WalletDetailsFragmentDoc}
 `
-
-export const CREATE_ACTIVE_WALLET_TOP_UP_ID = 'active-wallet'
 
 const CreateWalletTopUp = () => {
   const { translate } = useInternationalization()
@@ -210,7 +214,7 @@ const CreateWalletTopUp = () => {
         notifyOnNetworkStatusChange: true,
       })
 
-      navigateToCustomerWalletTab(wallet.id)
+      navigateToCustomerWalletTab(wallet.id, WalletDetailsTabsOptionsEnum.transactions)
     },
   })
 
@@ -232,12 +236,6 @@ const CreateWalletTopUp = () => {
     form.handleSubmit()
   }
 
-  const paymentMethodsFormAdapter: PaymentMethodsForm<ViewTypeEnum.WalletTransactionTopUp> = {
-    values: formValues,
-    setFieldValue: (field, value) =>
-      form.setFieldValue(field as Parameters<typeof form.setFieldValue>[0], value as never),
-  }
-
   const updateTransactionType = (type: WalletTransactionType) => {
     setTransactionType(type)
 
@@ -257,13 +255,13 @@ const CreateWalletTopUp = () => {
   )
 
   const navigateToCustomerWalletTab = useCallback(
-    (id?: string) => {
+    (id?: string, tab: WalletDetailsTabsOptionsEnum = WalletDetailsTabsOptionsEnum.overview) => {
       if (id) {
         return navigate(
           generatePath(WALLET_DETAILS_ROUTE, {
             walletId: id,
             customerId: customerId,
-            tab: WalletDetailsTabsOptionsEnum.overview,
+            tab,
           }),
         )
       }
@@ -540,17 +538,42 @@ const CreateWalletTopUp = () => {
               </form.AppField>
             </section>
 
-            {(customerData?.customer?.externalId || customerData?.customer?.id) && (
+            {customerData?.customer?.id && (
               <section className="flex flex-col gap-6 pb-12 shadow-b">
                 <div className="flex flex-col gap-1">
                   <Typography variant="subhead1">
-                    {translate('text_17634566456760qoj7hs7jrh')}
+                    {translate('text_17423672025282dl7iozy1ru')}
+                  </Typography>
+                  <Typography variant="caption">
+                    {translate(
+                      VIEW_TYPE_INVOICING_CAPTION_KEYS[ViewTypeEnum.WalletTransactionTopUp],
+                    )}
                   </Typography>
                 </div>
-                <PaymentMethodsInvoiceSettings
-                  customer={customerData?.customer}
-                  form={paymentMethodsFormAdapter}
+                <InvoicingSettingsSelector
                   viewType={ViewTypeEnum.WalletTransactionTopUp}
+                  customerId={customerData.customer.id}
+                  value={formValues.invoiceCustomSection ?? undefined}
+                  onChange={(value) => form.setFieldValue('invoiceCustomSection', value)}
+                />
+              </section>
+            )}
+
+            {customerData?.customer?.externalId && (
+              <section className="flex flex-col gap-6 pb-12 shadow-b">
+                <div className="flex flex-col gap-1">
+                  <Typography variant="subhead1">
+                    {translate('text_1784888105056o78z8t3kjrg')}
+                  </Typography>
+                  <Typography variant="caption">
+                    {translate(VIEW_TYPE_PAYMENT_CAPTION_KEYS[ViewTypeEnum.WalletTransactionTopUp])}
+                  </Typography>
+                </div>
+                <PaymentSettingsSelector
+                  viewType={ViewTypeEnum.WalletTransactionTopUp}
+                  externalCustomerId={customerData.customer.externalId}
+                  value={formValues.paymentMethod ?? undefined}
+                  onChange={(value) => form.setFieldValue('paymentMethod', value)}
                 />
               </section>
             )}

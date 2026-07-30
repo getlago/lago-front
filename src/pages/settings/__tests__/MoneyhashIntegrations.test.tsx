@@ -20,9 +20,6 @@ jest.mock('~/components/settings/integrations/DeleteMoneyhashIntegrationDialog',
     openDeleteMoneyhashIntegrationDialog: jest.fn(),
   }),
 }))
-jest.mock('~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog', () => ({
-  AddEditDeleteSuccessRedirectUrlDialog: () => null,
-}))
 
 describe('MoneyhashIntegrations', () => {
   afterEach(cleanup)

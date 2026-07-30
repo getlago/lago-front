@@ -1,8 +1,9 @@
 import { PaymentMethodSelection } from '~/components/paymentMethodSelection/PaymentMethodSelection'
 import { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types'
+import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { getFieldPath, getFieldValue } from '~/core/form/fieldPathUtils'
 
-import { SettingsComponentProps, ViewTypeEnum } from './types'
+import { SettingsComponentProps } from './types'
 
 // Standalone payment-method settings: renders only when the customer has an
 // externalId (the payment methods list is keyed by external id). Owns the

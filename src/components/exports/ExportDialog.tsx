@@ -3,8 +3,8 @@ import { useRef } from 'react'
 import { z } from 'zod'
 
 import { Typography } from '~/components/designSystem/Typography'
+import { dialogFormProps } from '~/components/dialogs/dialogFormProps'
 import { useFormDialog } from '~/components/dialogs/FormDialog'
-import { DialogResult } from '~/components/dialogs/types'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { ExportValues } from '~/components/exports/types'
 import {
@@ -60,16 +60,6 @@ export const useExportDialog = () => {
       })
     },
   })
-
-  const handleSubmit = async (): Promise<DialogResult> => {
-    await form.handleSubmit()
-
-    if (!form.state.isSubmitSuccessful) {
-      throw new Error('Submit failed')
-    }
-
-    return { reason: 'success' }
-  }
 
   const openExportDialog = <T extends ExportTypeEnum>({
     totalCountLabel,
@@ -144,10 +134,7 @@ export const useExportDialog = () => {
             </form.SubmitButton>
           </form.AppForm>
         ),
-        form: {
-          id: FORM_ID,
-          submit: handleSubmit,
-        },
+        form: dialogFormProps(FORM_ID, form),
       })
       .then(() => {
         form.reset()

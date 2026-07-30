@@ -10833,7 +10833,7 @@ export type XeroIntegration = {
 export type UserIdentifierQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type UserIdentifierQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, email?: string | null, premium: boolean, csAdmin: boolean, memberships: Array<{ __typename?: 'Membership', roles: Array<string>, id: string, organization: { __typename?: 'Organization', name: string, logoUrl?: string | null, accessibleByCurrentSession: boolean, id: string, slug: string }, permissions: { __typename?: 'Permissions', aiConversationsView: boolean, aiConversationsCreate: boolean, addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, auditLogsView: boolean, authenticationMethodsView: boolean, authenticationMethodsUpdate: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, billingEntitiesView: boolean, billingEntitiesCreate: boolean, billingEntitiesUpdate: boolean, billingEntitiesDelete: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, creditNotesSend: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, dataApiView: boolean, developersKeysManage: boolean, developersManage: boolean, dunningCampaignsCreate: boolean, dunningCampaignsDelete: boolean, dunningCampaignsUpdate: boolean, dunningCampaignsView: boolean, featuresCreate: boolean, featuresDelete: boolean, featuresUpdate: boolean, featuresView: boolean, invoiceCustomSectionsCreate: boolean, invoiceCustomSectionsUpdate: boolean, invoicesCreate: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, paymentsCreate: boolean, paymentsView: boolean, paymentReceiptsView: boolean, paymentReceiptsSend: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, quotesApprove: boolean, quotesClone: boolean, quotesCreate: boolean, quotesUpdate: boolean, quotesView: boolean, quotesVoid: boolean, orderFormsSign: boolean, orderFormsView: boolean, orderFormsVoid: boolean, ordersExecute: boolean, ordersUpdate: boolean, ordersView: boolean, pricingUnitsCreate: boolean, pricingUnitsUpdate: boolean, pricingUnitsView: boolean, rolesCreate: boolean, rolesDelete: boolean, rolesUpdate: boolean, rolesView: boolean, securityLogsView: boolean, subscriptionsCreate: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } }> }, organization?: { __typename?: 'CurrentOrganization', id: string, name: string, slug: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, defaultCurrency: CurrencyEnum, featureFlags: Array<FeatureFlagEnum>, premiumIntegrations: Array<PremiumIntegrationTypeEnum>, canCreateBillingEntity: boolean, authenticationMethods: Array<AuthenticationMethodsEnum>, authenticatedMethod: AuthenticationMethodsEnum } | null };
+export type UserIdentifierQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, email?: string | null, premium: boolean, csAdmin: boolean, memberships: Array<{ __typename?: 'Membership', roles: Array<string>, id: string, organization: { __typename?: 'Organization', name: string, logoUrl?: string | null, accessibleByCurrentSession: boolean, id: string, slug: string }, permissions: { __typename?: 'Permissions', aiConversationsView: boolean, aiConversationsCreate: boolean, addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, auditLogsView: boolean, authenticationMethodsView: boolean, authenticationMethodsUpdate: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, billingEntitiesView: boolean, billingEntitiesCreate: boolean, billingEntitiesUpdate: boolean, billingEntitiesDelete: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, creditNotesSend: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, dataApiView: boolean, developersKeysManage: boolean, developersManage: boolean, dunningCampaignsCreate: boolean, dunningCampaignsDelete: boolean, dunningCampaignsUpdate: boolean, dunningCampaignsView: boolean, featuresCreate: boolean, featuresDelete: boolean, featuresUpdate: boolean, featuresView: boolean, invoiceCustomSectionsCreate: boolean, invoiceCustomSectionsUpdate: boolean, invoicesCreate: boolean, invoicesDelete: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, paymentsCreate: boolean, paymentsView: boolean, paymentReceiptsView: boolean, paymentReceiptsSend: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, quotesApprove: boolean, quotesClone: boolean, quotesCreate: boolean, quotesUpdate: boolean, quotesView: boolean, quotesVoid: boolean, orderFormsSign: boolean, orderFormsView: boolean, orderFormsVoid: boolean, ordersExecute: boolean, ordersUpdate: boolean, ordersView: boolean, pricingUnitsCreate: boolean, pricingUnitsUpdate: boolean, pricingUnitsView: boolean, rolesCreate: boolean, rolesDelete: boolean, rolesUpdate: boolean, rolesView: boolean, securityLogsView: boolean, subscriptionsCreate: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } }> }, organization?: { __typename?: 'CurrentOrganization', id: string, name: string, slug: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, defaultCurrency: CurrencyEnum, featureFlags: Array<FeatureFlagEnum>, premiumIntegrations: Array<PremiumIntegrationTypeEnum>, canCreateBillingEntity: boolean, authenticationMethods: Array<AuthenticationMethodsEnum>, authenticatedMethod: AuthenticationMethodsEnum } | null };
 
 export type ActivityLogsTableDataFragment = { __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null };
 
@@ -10860,12 +10860,26 @@ export type ListAiConversationsQueryVariables = Exact<{
 
 export type ListAiConversationsQuery = { __typename?: 'Query', aiConversations?: { __typename?: 'AiConversationCollection', collection: Array<{ __typename?: 'AiConversation', id: string, name: string, updatedAt: any }> } | null };
 
+export type AskFinanceAssistantMutationVariables = Exact<{
+  input: AskFinanceAssistantInput;
+}>;
+
+
+export type AskFinanceAssistantMutation = { __typename?: 'Mutation', askFinanceAssistant?: { __typename?: 'FinanceAssistantAnswer', explanation: string, messageId: string, results: string, sessionExpired: boolean, sessionId: string, sqlQuery?: string | null } | null };
+
 export type CreateAiConversationMutationVariables = Exact<{
   input: CreateAiConversationInput;
 }>;
 
 
 export type CreateAiConversationMutation = { __typename?: 'Mutation', createAiConversation?: { __typename?: 'AiConversation', id: string, name: string } | null };
+
+export type ExportFinanceAssistantResultMutationVariables = Exact<{
+  input: ExportFinanceAssistantResultInput;
+}>;
+
+
+export type ExportFinanceAssistantResultMutation = { __typename?: 'Mutation', exportFinanceAssistantResult?: { __typename?: 'FinanceAssistantExport', fileUrl: string, filename: string } | null };
 
 export type OnConversationSubscriptionVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -11375,13 +11389,6 @@ export type PaymentProvidersListForCustomerMainInfosQuery = { __typename?: 'Quer
       | { __typename?: 'StripeProvider', id: string, name: string, code: string }
     > } | null };
 
-export type GenerateCheckoutUrlMutationVariables = Exact<{
-  input: GenerateCheckoutUrlInput;
-}>;
-
-
-export type GenerateCheckoutUrlMutation = { __typename?: 'Mutation', generateCheckoutUrl?: { __typename?: 'GenerateCheckoutUrlPayload', checkoutUrl: string } | null };
-
 export type CustomerAppliedTaxRatesForSettingsFragment = { __typename?: 'Customer', id: string, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number, autoGenerated: boolean }> | null };
 
 export type CustomerAppliedDunningCampaignForSettingsFragment = { __typename?: 'Customer', currency?: CurrencyEnum | null, excludeFromDunningCampaign: boolean, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string, appliedToOrganization: boolean, code: string, name: string, thresholds: Array<{ __typename?: 'DunningCampaignThreshold', currency: CurrencyEnum }> } | null };
@@ -11581,6 +11588,13 @@ export type GetCustomerSubscriptionForUsageQuery = { __typename?: 'Query', custo
 export type CustomerUsageForUsageDetailsFragment = { __typename?: 'CustomerUsage', fromDatetime: any, toDatetime: any, chargesUsage: Array<{ __typename?: 'ChargeUsage', id: string, pricingUnitAmountCents?: any | null, charge: { __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, appliedPricingUnit?: { __typename?: 'AppliedPricingUnit', id: string, pricingUnit: { __typename?: 'PricingUnit', id: string, shortName: string } } | null }, billableMetric: { __typename?: 'BillableMetric', code: string, name: string }, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null, pricingUnitAmountCents?: any | null, presentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null }> | null, groupedUsage: Array<{ __typename?: 'GroupedChargeUsage', id: string, amountCents: any, groupedBy?: any | null, eventsCount: number, units: number, pricingUnitAmountCents?: any | null, filters?: Array<{ __typename?: 'ChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null, pricingUnitAmountCents?: any | null, presentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null }> | null, presentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null }>, presentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null }> };
 
 export type CustomerProjectedUsageForUsageDetailsFragment = { __typename?: 'CustomerProjectedUsage', fromDatetime: any, toDatetime: any, chargesUsage: Array<{ __typename?: 'ProjectedChargeUsage', id: string, pricingUnitAmountCents?: any | null, pricingUnitProjectedAmountCents?: any | null, charge: { __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, appliedPricingUnit?: { __typename?: 'AppliedPricingUnit', id: string, pricingUnit: { __typename?: 'PricingUnit', id: string, shortName: string } } | null }, billableMetric: { __typename?: 'BillableMetric', code: string, name: string }, filters?: Array<{ __typename?: 'ProjectedChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null, pricingUnitAmountCents?: any | null, projectedAmountCents: any, pricingUnitProjectedAmountCents?: any | null, projectedUnits: number, presentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null, projectedPresentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null }> | null, groupedUsage: Array<{ __typename?: 'ProjectedGroupedChargeUsage', id: string, amountCents: any, groupedBy?: any | null, eventsCount: number, units: number, pricingUnitAmountCents?: any | null, projectedAmountCents: any, pricingUnitProjectedAmountCents?: any | null, projectedUnits: number, filters?: Array<{ __typename?: 'ProjectedChargeFilterUsage', id?: string | null, amountCents: any, units: number, values: any, invoiceDisplayName?: string | null, pricingUnitAmountCents?: any | null, projectedAmountCents: any, pricingUnitProjectedAmountCents?: any | null, projectedUnits: number, presentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null, projectedPresentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null }> | null, presentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null, projectedPresentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null }>, presentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null, projectedPresentationBreakdowns?: Array<{ __typename?: 'PresentationBreakdownUsage', presentationBy: any, units: string }> | null }> };
+
+export type GenerateCheckoutUrlMutationVariables = Exact<{
+  input: GenerateCheckoutUrlInput;
+}>;
+
+
+export type GenerateCheckoutUrlMutation = { __typename?: 'Mutation', generateCheckoutUrl?: { __typename?: 'GenerateCheckoutUrlPayload', checkoutUrl: string } | null };
 
 export type GetApiKeyIdsForFilterItemApiKeyIdsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -11931,6 +11945,15 @@ export type GetInvoiceMetadataForEditionQueryVariables = Exact<{
 
 
 export type GetInvoiceMetadataForEditionQuery = { __typename?: 'Query', invoice?: { __typename?: 'Invoice', id: string, metadata?: Array<{ __typename?: 'InvoiceMetadata', id: string, key: string, value: string }> | null } | null };
+
+export type InvoiceForDeleteInvoiceFragment = { __typename?: 'Invoice', id: string };
+
+export type DeleteInvoiceMutationVariables = Exact<{
+  input: DeleteInvoiceInput;
+}>;
+
+
+export type DeleteInvoiceMutation = { __typename?: 'Mutation', deleteInvoice?: { __typename?: 'Invoice', id: string } | null };
 
 export type DisputeInvoiceMutationVariables = Exact<{
   input: LoseInvoiceDisputeInput;
@@ -12339,60 +12362,6 @@ export type UpdateCashfreeApiKeyMutationVariables = Exact<{
 
 
 export type UpdateCashfreeApiKeyMutation = { __typename?: 'Mutation', updateCashfreePaymentProvider?: { __typename?: 'CashfreeProvider', id: string, name: string, code: string, clientId?: string | null, clientSecret?: string | null, successRedirectUrl?: string | null } | null };
-
-export type AdyenForCreateAndEditSuccessRedirectUrlFragment = { __typename?: 'AdyenProvider', id: string, successRedirectUrl?: string | null };
-
-export type CashfreeForCreateAndEditSuccessRedirectUrlFragment = { __typename?: 'CashfreeProvider', id: string, successRedirectUrl?: string | null };
-
-export type FlutterwaveForCreateAndEditSuccessRedirectUrlFragment = { __typename?: 'FlutterwaveProvider', id: string, successRedirectUrl?: string | null };
-
-export type GocardlessForCreateAndEditSuccessRedirectUrlFragment = { __typename?: 'GocardlessProvider', id: string, successRedirectUrl?: string | null };
-
-export type StripeForCreateAndEditSuccessRedirectUrlFragment = { __typename?: 'StripeProvider', id: string, successRedirectUrl?: string | null };
-
-export type MoneyhashForCreateAndEditSuccessRedirectUrlFragment = { __typename?: 'MoneyhashProvider', id: string, flowId?: string | null, successRedirectUrl?: string | null };
-
-export type UpdateAdyenPaymentProviderMutationVariables = Exact<{
-  input: UpdateAdyenPaymentProviderInput;
-}>;
-
-
-export type UpdateAdyenPaymentProviderMutation = { __typename?: 'Mutation', updateAdyenPaymentProvider?: { __typename?: 'AdyenProvider', id: string, successRedirectUrl?: string | null } | null };
-
-export type UpdateCashfreePaymentProviderMutationVariables = Exact<{
-  input: UpdateCashfreePaymentProviderInput;
-}>;
-
-
-export type UpdateCashfreePaymentProviderMutation = { __typename?: 'Mutation', updateCashfreePaymentProvider?: { __typename?: 'CashfreeProvider', id: string, successRedirectUrl?: string | null } | null };
-
-export type UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutationVariables = Exact<{
-  input: UpdateFlutterwavePaymentProviderInput;
-}>;
-
-
-export type UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation = { __typename?: 'Mutation', updateFlutterwavePaymentProvider?: { __typename?: 'FlutterwaveProvider', id: string, successRedirectUrl?: string | null } | null };
-
-export type UpdateGocardlessPaymentProviderMutationVariables = Exact<{
-  input: UpdateGocardlessPaymentProviderInput;
-}>;
-
-
-export type UpdateGocardlessPaymentProviderMutation = { __typename?: 'Mutation', updateGocardlessPaymentProvider?: { __typename?: 'GocardlessProvider', id: string, successRedirectUrl?: string | null } | null };
-
-export type UpdateStripePaymentProviderMutationVariables = Exact<{
-  input: UpdateStripePaymentProviderInput;
-}>;
-
-
-export type UpdateStripePaymentProviderMutation = { __typename?: 'Mutation', updateStripePaymentProvider?: { __typename?: 'StripeProvider', id: string, successRedirectUrl?: string | null } | null };
-
-export type UpdateMoneyhashPaymentProviderMutationVariables = Exact<{
-  input: UpdateMoneyhashPaymentProviderInput;
-}>;
-
-
-export type UpdateMoneyhashPaymentProviderMutation = { __typename?: 'Mutation', updateMoneyhashPaymentProvider?: { __typename?: 'MoneyhashProvider', id: string, flowId?: string | null } | null };
 
 export type AddFlutterwaveProviderDialogFragment = { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string, secretKey?: any | null, webhookSecret?: string | null, successRedirectUrl?: string | null };
 
@@ -12839,6 +12808,60 @@ export type GetNetsuiteIntegrationsSettingsQuery = { __typename?: 'Query', integ
       | { __typename?: 'SalesforceIntegration' }
       | { __typename?: 'XeroIntegration' }
     > } | null };
+
+export type AdyenForCreateAndEditSuccessRedirectUrlFragment = { __typename?: 'AdyenProvider', id: string, successRedirectUrl?: string | null };
+
+export type CashfreeForCreateAndEditSuccessRedirectUrlFragment = { __typename?: 'CashfreeProvider', id: string, successRedirectUrl?: string | null };
+
+export type FlutterwaveForCreateAndEditSuccessRedirectUrlFragment = { __typename?: 'FlutterwaveProvider', id: string, successRedirectUrl?: string | null };
+
+export type GocardlessForCreateAndEditSuccessRedirectUrlFragment = { __typename?: 'GocardlessProvider', id: string, successRedirectUrl?: string | null };
+
+export type StripeForCreateAndEditSuccessRedirectUrlFragment = { __typename?: 'StripeProvider', id: string, successRedirectUrl?: string | null };
+
+export type MoneyhashForCreateAndEditSuccessRedirectUrlFragment = { __typename?: 'MoneyhashProvider', id: string, flowId?: string | null, successRedirectUrl?: string | null };
+
+export type UpdateAdyenPaymentProviderMutationVariables = Exact<{
+  input: UpdateAdyenPaymentProviderInput;
+}>;
+
+
+export type UpdateAdyenPaymentProviderMutation = { __typename?: 'Mutation', updateAdyenPaymentProvider?: { __typename?: 'AdyenProvider', id: string, successRedirectUrl?: string | null } | null };
+
+export type UpdateCashfreePaymentProviderMutationVariables = Exact<{
+  input: UpdateCashfreePaymentProviderInput;
+}>;
+
+
+export type UpdateCashfreePaymentProviderMutation = { __typename?: 'Mutation', updateCashfreePaymentProvider?: { __typename?: 'CashfreeProvider', id: string, successRedirectUrl?: string | null } | null };
+
+export type UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutationVariables = Exact<{
+  input: UpdateFlutterwavePaymentProviderInput;
+}>;
+
+
+export type UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation = { __typename?: 'Mutation', updateFlutterwavePaymentProvider?: { __typename?: 'FlutterwaveProvider', id: string, successRedirectUrl?: string | null } | null };
+
+export type UpdateGocardlessPaymentProviderMutationVariables = Exact<{
+  input: UpdateGocardlessPaymentProviderInput;
+}>;
+
+
+export type UpdateGocardlessPaymentProviderMutation = { __typename?: 'Mutation', updateGocardlessPaymentProvider?: { __typename?: 'GocardlessProvider', id: string, successRedirectUrl?: string | null } | null };
+
+export type UpdateStripePaymentProviderMutationVariables = Exact<{
+  input: UpdateStripePaymentProviderInput;
+}>;
+
+
+export type UpdateStripePaymentProviderMutation = { __typename?: 'Mutation', updateStripePaymentProvider?: { __typename?: 'StripeProvider', id: string, successRedirectUrl?: string | null } | null };
+
+export type UpdateMoneyhashPaymentProviderMutationVariables = Exact<{
+  input: UpdateMoneyhashPaymentProviderInput;
+}>;
+
+
+export type UpdateMoneyhashPaymentProviderMutation = { __typename?: 'Mutation', updateMoneyhashPaymentProvider?: { __typename?: 'MoneyhashProvider', id: string, flowId?: string | null } | null };
 
 export type XeroIntegrationItemsFragment = { __typename?: 'XeroIntegration', id: string };
 
@@ -13598,12 +13621,12 @@ export type UpdateTaxMutationVariables = Exact<{
 
 export type UpdateTaxMutation = { __typename?: 'Mutation', updateTax?: { __typename?: 'Tax', id: string, code: string, description?: string | null, name: string, rate: number, customersCount: number } | null };
 
-export type CurrentUserInfosFragment = { __typename?: 'User', id: string, email?: string | null, premium: boolean, csAdmin: boolean, memberships: Array<{ __typename?: 'Membership', roles: Array<string>, id: string, organization: { __typename?: 'Organization', name: string, logoUrl?: string | null, accessibleByCurrentSession: boolean, id: string, slug: string }, permissions: { __typename?: 'Permissions', aiConversationsView: boolean, aiConversationsCreate: boolean, addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, auditLogsView: boolean, authenticationMethodsView: boolean, authenticationMethodsUpdate: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, billingEntitiesView: boolean, billingEntitiesCreate: boolean, billingEntitiesUpdate: boolean, billingEntitiesDelete: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, creditNotesSend: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, dataApiView: boolean, developersKeysManage: boolean, developersManage: boolean, dunningCampaignsCreate: boolean, dunningCampaignsDelete: boolean, dunningCampaignsUpdate: boolean, dunningCampaignsView: boolean, featuresCreate: boolean, featuresDelete: boolean, featuresUpdate: boolean, featuresView: boolean, invoiceCustomSectionsCreate: boolean, invoiceCustomSectionsUpdate: boolean, invoicesCreate: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, paymentsCreate: boolean, paymentsView: boolean, paymentReceiptsView: boolean, paymentReceiptsSend: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, quotesApprove: boolean, quotesClone: boolean, quotesCreate: boolean, quotesUpdate: boolean, quotesView: boolean, quotesVoid: boolean, orderFormsSign: boolean, orderFormsView: boolean, orderFormsVoid: boolean, ordersExecute: boolean, ordersUpdate: boolean, ordersView: boolean, pricingUnitsCreate: boolean, pricingUnitsUpdate: boolean, pricingUnitsView: boolean, rolesCreate: boolean, rolesDelete: boolean, rolesUpdate: boolean, rolesView: boolean, securityLogsView: boolean, subscriptionsCreate: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } }> };
+export type CurrentUserInfosFragment = { __typename?: 'User', id: string, email?: string | null, premium: boolean, csAdmin: boolean, memberships: Array<{ __typename?: 'Membership', roles: Array<string>, id: string, organization: { __typename?: 'Organization', name: string, logoUrl?: string | null, accessibleByCurrentSession: boolean, id: string, slug: string }, permissions: { __typename?: 'Permissions', aiConversationsView: boolean, aiConversationsCreate: boolean, addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, auditLogsView: boolean, authenticationMethodsView: boolean, authenticationMethodsUpdate: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, billingEntitiesView: boolean, billingEntitiesCreate: boolean, billingEntitiesUpdate: boolean, billingEntitiesDelete: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, creditNotesSend: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, dataApiView: boolean, developersKeysManage: boolean, developersManage: boolean, dunningCampaignsCreate: boolean, dunningCampaignsDelete: boolean, dunningCampaignsUpdate: boolean, dunningCampaignsView: boolean, featuresCreate: boolean, featuresDelete: boolean, featuresUpdate: boolean, featuresView: boolean, invoiceCustomSectionsCreate: boolean, invoiceCustomSectionsUpdate: boolean, invoicesCreate: boolean, invoicesDelete: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, paymentsCreate: boolean, paymentsView: boolean, paymentReceiptsView: boolean, paymentReceiptsSend: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, quotesApprove: boolean, quotesClone: boolean, quotesCreate: boolean, quotesUpdate: boolean, quotesView: boolean, quotesVoid: boolean, orderFormsSign: boolean, orderFormsView: boolean, orderFormsVoid: boolean, ordersExecute: boolean, ordersUpdate: boolean, ordersView: boolean, pricingUnitsCreate: boolean, pricingUnitsUpdate: boolean, pricingUnitsView: boolean, rolesCreate: boolean, rolesDelete: boolean, rolesUpdate: boolean, rolesView: boolean, securityLogsView: boolean, subscriptionsCreate: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } }> };
 
 export type GetCurrentUserInfosQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetCurrentUserInfosQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, email?: string | null, premium: boolean, csAdmin: boolean, memberships: Array<{ __typename?: 'Membership', roles: Array<string>, id: string, organization: { __typename?: 'Organization', name: string, logoUrl?: string | null, accessibleByCurrentSession: boolean, id: string, slug: string }, permissions: { __typename?: 'Permissions', aiConversationsView: boolean, aiConversationsCreate: boolean, addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, auditLogsView: boolean, authenticationMethodsView: boolean, authenticationMethodsUpdate: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, billingEntitiesView: boolean, billingEntitiesCreate: boolean, billingEntitiesUpdate: boolean, billingEntitiesDelete: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, creditNotesSend: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, dataApiView: boolean, developersKeysManage: boolean, developersManage: boolean, dunningCampaignsCreate: boolean, dunningCampaignsDelete: boolean, dunningCampaignsUpdate: boolean, dunningCampaignsView: boolean, featuresCreate: boolean, featuresDelete: boolean, featuresUpdate: boolean, featuresView: boolean, invoiceCustomSectionsCreate: boolean, invoiceCustomSectionsUpdate: boolean, invoicesCreate: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, paymentsCreate: boolean, paymentsView: boolean, paymentReceiptsView: boolean, paymentReceiptsSend: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, quotesApprove: boolean, quotesClone: boolean, quotesCreate: boolean, quotesUpdate: boolean, quotesView: boolean, quotesVoid: boolean, orderFormsSign: boolean, orderFormsView: boolean, orderFormsVoid: boolean, ordersExecute: boolean, ordersUpdate: boolean, ordersView: boolean, pricingUnitsCreate: boolean, pricingUnitsUpdate: boolean, pricingUnitsView: boolean, rolesCreate: boolean, rolesDelete: boolean, rolesUpdate: boolean, rolesView: boolean, securityLogsView: boolean, subscriptionsCreate: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } }> } };
+export type GetCurrentUserInfosQuery = { __typename?: 'Query', currentUser: { __typename?: 'User', id: string, email?: string | null, premium: boolean, csAdmin: boolean, memberships: Array<{ __typename?: 'Membership', roles: Array<string>, id: string, organization: { __typename?: 'Organization', name: string, logoUrl?: string | null, accessibleByCurrentSession: boolean, id: string, slug: string }, permissions: { __typename?: 'Permissions', aiConversationsView: boolean, aiConversationsCreate: boolean, addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, auditLogsView: boolean, authenticationMethodsView: boolean, authenticationMethodsUpdate: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, billingEntitiesView: boolean, billingEntitiesCreate: boolean, billingEntitiesUpdate: boolean, billingEntitiesDelete: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, creditNotesSend: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, dataApiView: boolean, developersKeysManage: boolean, developersManage: boolean, dunningCampaignsCreate: boolean, dunningCampaignsDelete: boolean, dunningCampaignsUpdate: boolean, dunningCampaignsView: boolean, featuresCreate: boolean, featuresDelete: boolean, featuresUpdate: boolean, featuresView: boolean, invoiceCustomSectionsCreate: boolean, invoiceCustomSectionsUpdate: boolean, invoicesCreate: boolean, invoicesDelete: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, paymentsCreate: boolean, paymentsView: boolean, paymentReceiptsView: boolean, paymentReceiptsSend: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, quotesApprove: boolean, quotesClone: boolean, quotesCreate: boolean, quotesUpdate: boolean, quotesView: boolean, quotesVoid: boolean, orderFormsSign: boolean, orderFormsView: boolean, orderFormsVoid: boolean, ordersExecute: boolean, ordersUpdate: boolean, ordersView: boolean, pricingUnitsCreate: boolean, pricingUnitsUpdate: boolean, pricingUnitsView: boolean, rolesCreate: boolean, rolesDelete: boolean, rolesUpdate: boolean, rolesView: boolean, securityLogsView: boolean, subscriptionsCreate: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } }> } };
 
 export type EditCustomerInvoiceCustomSectionFragment = { __typename?: 'Customer', id: string, externalId: string, hasOverwrittenInvoiceCustomSectionsSelection?: boolean | null, skipInvoiceCustomSections?: boolean | null, configurableInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null };
 
@@ -13664,7 +13687,7 @@ export type GetOrganizationInfosQueryVariables = Exact<{ [key: string]: never; }
 
 export type GetOrganizationInfosQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, name: string, slug: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, defaultCurrency: CurrencyEnum, featureFlags: Array<FeatureFlagEnum>, premiumIntegrations: Array<PremiumIntegrationTypeEnum>, canCreateBillingEntity: boolean, authenticationMethods: Array<AuthenticationMethodsEnum>, authenticatedMethod: AuthenticationMethodsEnum } | null };
 
-export type MembershipPermissionsFragment = { __typename?: 'Membership', id: string, permissions: { __typename?: 'Permissions', aiConversationsView: boolean, aiConversationsCreate: boolean, addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, auditLogsView: boolean, authenticationMethodsView: boolean, authenticationMethodsUpdate: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, billingEntitiesView: boolean, billingEntitiesCreate: boolean, billingEntitiesUpdate: boolean, billingEntitiesDelete: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, creditNotesSend: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, dataApiView: boolean, developersKeysManage: boolean, developersManage: boolean, dunningCampaignsCreate: boolean, dunningCampaignsDelete: boolean, dunningCampaignsUpdate: boolean, dunningCampaignsView: boolean, featuresCreate: boolean, featuresDelete: boolean, featuresUpdate: boolean, featuresView: boolean, invoiceCustomSectionsCreate: boolean, invoiceCustomSectionsUpdate: boolean, invoicesCreate: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, paymentsCreate: boolean, paymentsView: boolean, paymentReceiptsView: boolean, paymentReceiptsSend: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, quotesApprove: boolean, quotesClone: boolean, quotesCreate: boolean, quotesUpdate: boolean, quotesView: boolean, quotesVoid: boolean, orderFormsSign: boolean, orderFormsView: boolean, orderFormsVoid: boolean, ordersExecute: boolean, ordersUpdate: boolean, ordersView: boolean, pricingUnitsCreate: boolean, pricingUnitsUpdate: boolean, pricingUnitsView: boolean, rolesCreate: boolean, rolesDelete: boolean, rolesUpdate: boolean, rolesView: boolean, securityLogsView: boolean, subscriptionsCreate: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } };
+export type MembershipPermissionsFragment = { __typename?: 'Membership', id: string, permissions: { __typename?: 'Permissions', aiConversationsView: boolean, aiConversationsCreate: boolean, addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, auditLogsView: boolean, authenticationMethodsView: boolean, authenticationMethodsUpdate: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, billingEntitiesView: boolean, billingEntitiesCreate: boolean, billingEntitiesUpdate: boolean, billingEntitiesDelete: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, creditNotesSend: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, dataApiView: boolean, developersKeysManage: boolean, developersManage: boolean, dunningCampaignsCreate: boolean, dunningCampaignsDelete: boolean, dunningCampaignsUpdate: boolean, dunningCampaignsView: boolean, featuresCreate: boolean, featuresDelete: boolean, featuresUpdate: boolean, featuresView: boolean, invoiceCustomSectionsCreate: boolean, invoiceCustomSectionsUpdate: boolean, invoicesCreate: boolean, invoicesDelete: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, paymentsCreate: boolean, paymentsView: boolean, paymentReceiptsView: boolean, paymentReceiptsSend: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, quotesApprove: boolean, quotesClone: boolean, quotesCreate: boolean, quotesUpdate: boolean, quotesView: boolean, quotesVoid: boolean, orderFormsSign: boolean, orderFormsView: boolean, orderFormsVoid: boolean, ordersExecute: boolean, ordersUpdate: boolean, ordersView: boolean, pricingUnitsCreate: boolean, pricingUnitsUpdate: boolean, pricingUnitsView: boolean, rolesCreate: boolean, rolesDelete: boolean, rolesUpdate: boolean, rolesView: boolean, securityLogsView: boolean, subscriptionsCreate: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } };
 
 export type ResendCreditNoteEmailMutationVariables = Exact<{
   input: ResendCreditNoteEmailInput;
@@ -15940,7 +15963,7 @@ export type GetInvitesQueryVariables = Exact<{
 
 export type GetInvitesQuery = { __typename?: 'Query', invites: { __typename?: 'InviteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Invite', id: string, email: string, token: string, roles: Array<string>, organization: { __typename?: 'Organization', id: string, name: string } }> } };
 
-export type MembershipItemForMembershipSettingsFragment = { __typename?: 'Membership', id: string, roles: Array<string>, user: { __typename?: 'User', id: string, email?: string | null }, organization: { __typename?: 'Organization', id: string, name: string }, permissions: { __typename?: 'Permissions', aiConversationsView: boolean, aiConversationsCreate: boolean, addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, auditLogsView: boolean, authenticationMethodsView: boolean, authenticationMethodsUpdate: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, billingEntitiesView: boolean, billingEntitiesCreate: boolean, billingEntitiesUpdate: boolean, billingEntitiesDelete: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, creditNotesSend: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, dataApiView: boolean, developersKeysManage: boolean, developersManage: boolean, dunningCampaignsCreate: boolean, dunningCampaignsDelete: boolean, dunningCampaignsUpdate: boolean, dunningCampaignsView: boolean, featuresCreate: boolean, featuresDelete: boolean, featuresUpdate: boolean, featuresView: boolean, invoiceCustomSectionsCreate: boolean, invoiceCustomSectionsUpdate: boolean, invoicesCreate: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, paymentsCreate: boolean, paymentsView: boolean, paymentReceiptsView: boolean, paymentReceiptsSend: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, quotesApprove: boolean, quotesClone: boolean, quotesCreate: boolean, quotesUpdate: boolean, quotesView: boolean, quotesVoid: boolean, orderFormsSign: boolean, orderFormsView: boolean, orderFormsVoid: boolean, ordersExecute: boolean, ordersUpdate: boolean, ordersView: boolean, pricingUnitsCreate: boolean, pricingUnitsUpdate: boolean, pricingUnitsView: boolean, rolesCreate: boolean, rolesDelete: boolean, rolesUpdate: boolean, rolesView: boolean, securityLogsView: boolean, subscriptionsCreate: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } };
+export type MembershipItemForMembershipSettingsFragment = { __typename?: 'Membership', id: string, roles: Array<string>, user: { __typename?: 'User', id: string, email?: string | null }, organization: { __typename?: 'Organization', id: string, name: string }, permissions: { __typename?: 'Permissions', aiConversationsView: boolean, aiConversationsCreate: boolean, addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, auditLogsView: boolean, authenticationMethodsView: boolean, authenticationMethodsUpdate: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, billingEntitiesView: boolean, billingEntitiesCreate: boolean, billingEntitiesUpdate: boolean, billingEntitiesDelete: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, creditNotesSend: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, dataApiView: boolean, developersKeysManage: boolean, developersManage: boolean, dunningCampaignsCreate: boolean, dunningCampaignsDelete: boolean, dunningCampaignsUpdate: boolean, dunningCampaignsView: boolean, featuresCreate: boolean, featuresDelete: boolean, featuresUpdate: boolean, featuresView: boolean, invoiceCustomSectionsCreate: boolean, invoiceCustomSectionsUpdate: boolean, invoicesCreate: boolean, invoicesDelete: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, paymentsCreate: boolean, paymentsView: boolean, paymentReceiptsView: boolean, paymentReceiptsSend: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, quotesApprove: boolean, quotesClone: boolean, quotesCreate: boolean, quotesUpdate: boolean, quotesView: boolean, quotesVoid: boolean, orderFormsSign: boolean, orderFormsView: boolean, orderFormsVoid: boolean, ordersExecute: boolean, ordersUpdate: boolean, ordersView: boolean, pricingUnitsCreate: boolean, pricingUnitsUpdate: boolean, pricingUnitsView: boolean, rolesCreate: boolean, rolesDelete: boolean, rolesUpdate: boolean, rolesView: boolean, securityLogsView: boolean, subscriptionsCreate: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } };
 
 export type GetMembersQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -15948,7 +15971,7 @@ export type GetMembersQueryVariables = Exact<{
 }>;
 
 
-export type GetMembersQuery = { __typename?: 'Query', memberships: { __typename?: 'MembershipCollection', metadata: { __typename?: 'Metadata', currentPage: number, totalPages: number, totalCount: number, adminCount: number }, collection: Array<{ __typename?: 'Membership', id: string, roles: Array<string>, user: { __typename?: 'User', id: string, email?: string | null }, organization: { __typename?: 'Organization', id: string, name: string }, permissions: { __typename?: 'Permissions', aiConversationsView: boolean, aiConversationsCreate: boolean, addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, auditLogsView: boolean, authenticationMethodsView: boolean, authenticationMethodsUpdate: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, billingEntitiesView: boolean, billingEntitiesCreate: boolean, billingEntitiesUpdate: boolean, billingEntitiesDelete: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, creditNotesSend: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, dataApiView: boolean, developersKeysManage: boolean, developersManage: boolean, dunningCampaignsCreate: boolean, dunningCampaignsDelete: boolean, dunningCampaignsUpdate: boolean, dunningCampaignsView: boolean, featuresCreate: boolean, featuresDelete: boolean, featuresUpdate: boolean, featuresView: boolean, invoiceCustomSectionsCreate: boolean, invoiceCustomSectionsUpdate: boolean, invoicesCreate: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, paymentsCreate: boolean, paymentsView: boolean, paymentReceiptsView: boolean, paymentReceiptsSend: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, quotesApprove: boolean, quotesClone: boolean, quotesCreate: boolean, quotesUpdate: boolean, quotesView: boolean, quotesVoid: boolean, orderFormsSign: boolean, orderFormsView: boolean, orderFormsVoid: boolean, ordersExecute: boolean, ordersUpdate: boolean, ordersView: boolean, pricingUnitsCreate: boolean, pricingUnitsUpdate: boolean, pricingUnitsView: boolean, rolesCreate: boolean, rolesDelete: boolean, rolesUpdate: boolean, rolesView: boolean, securityLogsView: boolean, subscriptionsCreate: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } }> } };
+export type GetMembersQuery = { __typename?: 'Query', memberships: { __typename?: 'MembershipCollection', metadata: { __typename?: 'Metadata', currentPage: number, totalPages: number, totalCount: number, adminCount: number }, collection: Array<{ __typename?: 'Membership', id: string, roles: Array<string>, user: { __typename?: 'User', id: string, email?: string | null }, organization: { __typename?: 'Organization', id: string, name: string }, permissions: { __typename?: 'Permissions', aiConversationsView: boolean, aiConversationsCreate: boolean, addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, auditLogsView: boolean, authenticationMethodsView: boolean, authenticationMethodsUpdate: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, billingEntitiesView: boolean, billingEntitiesCreate: boolean, billingEntitiesUpdate: boolean, billingEntitiesDelete: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, creditNotesSend: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, dataApiView: boolean, developersKeysManage: boolean, developersManage: boolean, dunningCampaignsCreate: boolean, dunningCampaignsDelete: boolean, dunningCampaignsUpdate: boolean, dunningCampaignsView: boolean, featuresCreate: boolean, featuresDelete: boolean, featuresUpdate: boolean, featuresView: boolean, invoiceCustomSectionsCreate: boolean, invoiceCustomSectionsUpdate: boolean, invoicesCreate: boolean, invoicesDelete: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, paymentsCreate: boolean, paymentsView: boolean, paymentReceiptsView: boolean, paymentReceiptsSend: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, quotesApprove: boolean, quotesClone: boolean, quotesCreate: boolean, quotesUpdate: boolean, quotesView: boolean, quotesVoid: boolean, orderFormsSign: boolean, orderFormsView: boolean, orderFormsVoid: boolean, ordersExecute: boolean, ordersUpdate: boolean, ordersView: boolean, pricingUnitsCreate: boolean, pricingUnitsUpdate: boolean, pricingUnitsView: boolean, rolesCreate: boolean, rolesDelete: boolean, rolesUpdate: boolean, rolesView: boolean, securityLogsView: boolean, subscriptionsCreate: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } }> } };
 
 export type InviteForEditRoleForDialogFragment = { __typename?: 'Invite', id: string, roles: Array<string>, email: string };
 
@@ -15973,14 +15996,14 @@ export type RevokeInviteMutationVariables = Exact<{
 
 export type RevokeInviteMutation = { __typename?: 'Mutation', revokeInvite?: { __typename?: 'Invite', id: string } | null };
 
-export type MemberForEditRoleForDialogFragment = { __typename?: 'Membership', id: string, roles: Array<string>, user: { __typename?: 'User', id: string, email?: string | null }, permissions: { __typename?: 'Permissions', aiConversationsView: boolean, aiConversationsCreate: boolean, addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, auditLogsView: boolean, authenticationMethodsView: boolean, authenticationMethodsUpdate: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, billingEntitiesView: boolean, billingEntitiesCreate: boolean, billingEntitiesUpdate: boolean, billingEntitiesDelete: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, creditNotesSend: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, dataApiView: boolean, developersKeysManage: boolean, developersManage: boolean, dunningCampaignsCreate: boolean, dunningCampaignsDelete: boolean, dunningCampaignsUpdate: boolean, dunningCampaignsView: boolean, featuresCreate: boolean, featuresDelete: boolean, featuresUpdate: boolean, featuresView: boolean, invoiceCustomSectionsCreate: boolean, invoiceCustomSectionsUpdate: boolean, invoicesCreate: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, paymentsCreate: boolean, paymentsView: boolean, paymentReceiptsView: boolean, paymentReceiptsSend: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, quotesApprove: boolean, quotesClone: boolean, quotesCreate: boolean, quotesUpdate: boolean, quotesView: boolean, quotesVoid: boolean, orderFormsSign: boolean, orderFormsView: boolean, orderFormsVoid: boolean, ordersExecute: boolean, ordersUpdate: boolean, ordersView: boolean, pricingUnitsCreate: boolean, pricingUnitsUpdate: boolean, pricingUnitsView: boolean, rolesCreate: boolean, rolesDelete: boolean, rolesUpdate: boolean, rolesView: boolean, securityLogsView: boolean, subscriptionsCreate: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } };
+export type MemberForEditRoleForDialogFragment = { __typename?: 'Membership', id: string, roles: Array<string>, user: { __typename?: 'User', id: string, email?: string | null }, permissions: { __typename?: 'Permissions', aiConversationsView: boolean, aiConversationsCreate: boolean, addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, auditLogsView: boolean, authenticationMethodsView: boolean, authenticationMethodsUpdate: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, billingEntitiesView: boolean, billingEntitiesCreate: boolean, billingEntitiesUpdate: boolean, billingEntitiesDelete: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, creditNotesSend: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, dataApiView: boolean, developersKeysManage: boolean, developersManage: boolean, dunningCampaignsCreate: boolean, dunningCampaignsDelete: boolean, dunningCampaignsUpdate: boolean, dunningCampaignsView: boolean, featuresCreate: boolean, featuresDelete: boolean, featuresUpdate: boolean, featuresView: boolean, invoiceCustomSectionsCreate: boolean, invoiceCustomSectionsUpdate: boolean, invoicesCreate: boolean, invoicesDelete: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, paymentsCreate: boolean, paymentsView: boolean, paymentReceiptsView: boolean, paymentReceiptsSend: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, quotesApprove: boolean, quotesClone: boolean, quotesCreate: boolean, quotesUpdate: boolean, quotesView: boolean, quotesVoid: boolean, orderFormsSign: boolean, orderFormsView: boolean, orderFormsVoid: boolean, ordersExecute: boolean, ordersUpdate: boolean, ordersView: boolean, pricingUnitsCreate: boolean, pricingUnitsUpdate: boolean, pricingUnitsView: boolean, rolesCreate: boolean, rolesDelete: boolean, rolesUpdate: boolean, rolesView: boolean, securityLogsView: boolean, subscriptionsCreate: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } };
 
 export type UpdateMembershipRoleMutationVariables = Exact<{
   input: UpdateMembershipInput;
 }>;
 
 
-export type UpdateMembershipRoleMutation = { __typename?: 'Mutation', updateMembership?: { __typename?: 'Membership', id: string, roles: Array<string>, user: { __typename?: 'User', id: string, email?: string | null }, permissions: { __typename?: 'Permissions', aiConversationsView: boolean, aiConversationsCreate: boolean, addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, auditLogsView: boolean, authenticationMethodsView: boolean, authenticationMethodsUpdate: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, billingEntitiesView: boolean, billingEntitiesCreate: boolean, billingEntitiesUpdate: boolean, billingEntitiesDelete: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, creditNotesSend: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, dataApiView: boolean, developersKeysManage: boolean, developersManage: boolean, dunningCampaignsCreate: boolean, dunningCampaignsDelete: boolean, dunningCampaignsUpdate: boolean, dunningCampaignsView: boolean, featuresCreate: boolean, featuresDelete: boolean, featuresUpdate: boolean, featuresView: boolean, invoiceCustomSectionsCreate: boolean, invoiceCustomSectionsUpdate: boolean, invoicesCreate: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, paymentsCreate: boolean, paymentsView: boolean, paymentReceiptsView: boolean, paymentReceiptsSend: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, quotesApprove: boolean, quotesClone: boolean, quotesCreate: boolean, quotesUpdate: boolean, quotesView: boolean, quotesVoid: boolean, orderFormsSign: boolean, orderFormsView: boolean, orderFormsVoid: boolean, ordersExecute: boolean, ordersUpdate: boolean, ordersView: boolean, pricingUnitsCreate: boolean, pricingUnitsUpdate: boolean, pricingUnitsView: boolean, rolesCreate: boolean, rolesDelete: boolean, rolesUpdate: boolean, rolesView: boolean, securityLogsView: boolean, subscriptionsCreate: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } } | null };
+export type UpdateMembershipRoleMutation = { __typename?: 'Mutation', updateMembership?: { __typename?: 'Membership', id: string, roles: Array<string>, user: { __typename?: 'User', id: string, email?: string | null }, permissions: { __typename?: 'Permissions', aiConversationsView: boolean, aiConversationsCreate: boolean, addonsCreate: boolean, addonsDelete: boolean, addonsUpdate: boolean, addonsView: boolean, analyticsView: boolean, auditLogsView: boolean, authenticationMethodsView: boolean, authenticationMethodsUpdate: boolean, billableMetricsCreate: boolean, billableMetricsDelete: boolean, billableMetricsUpdate: boolean, billableMetricsView: boolean, billingEntitiesView: boolean, billingEntitiesCreate: boolean, billingEntitiesUpdate: boolean, billingEntitiesDelete: boolean, couponsAttach: boolean, couponsCreate: boolean, couponsDelete: boolean, couponsDetach: boolean, couponsUpdate: boolean, couponsView: boolean, creditNotesCreate: boolean, creditNotesView: boolean, creditNotesVoid: boolean, creditNotesSend: boolean, customersCreate: boolean, customersDelete: boolean, customersUpdate: boolean, customersView: boolean, dataApiView: boolean, developersKeysManage: boolean, developersManage: boolean, dunningCampaignsCreate: boolean, dunningCampaignsDelete: boolean, dunningCampaignsUpdate: boolean, dunningCampaignsView: boolean, featuresCreate: boolean, featuresDelete: boolean, featuresUpdate: boolean, featuresView: boolean, invoiceCustomSectionsCreate: boolean, invoiceCustomSectionsUpdate: boolean, invoicesCreate: boolean, invoicesDelete: boolean, invoicesSend: boolean, invoicesUpdate: boolean, invoicesView: boolean, invoicesVoid: boolean, organizationEmailsUpdate: boolean, organizationEmailsView: boolean, organizationIntegrationsCreate: boolean, organizationIntegrationsDelete: boolean, organizationIntegrationsUpdate: boolean, organizationIntegrationsView: boolean, organizationInvoicesUpdate: boolean, organizationInvoicesView: boolean, organizationMembersCreate: boolean, organizationMembersDelete: boolean, organizationMembersUpdate: boolean, organizationMembersView: boolean, organizationTaxesUpdate: boolean, organizationTaxesView: boolean, organizationUpdate: boolean, organizationView: boolean, paymentsCreate: boolean, paymentsView: boolean, paymentReceiptsView: boolean, paymentReceiptsSend: boolean, plansCreate: boolean, plansDelete: boolean, plansUpdate: boolean, plansView: boolean, quotesApprove: boolean, quotesClone: boolean, quotesCreate: boolean, quotesUpdate: boolean, quotesView: boolean, quotesVoid: boolean, orderFormsSign: boolean, orderFormsView: boolean, orderFormsVoid: boolean, ordersExecute: boolean, ordersUpdate: boolean, ordersView: boolean, pricingUnitsCreate: boolean, pricingUnitsUpdate: boolean, pricingUnitsView: boolean, rolesCreate: boolean, rolesDelete: boolean, rolesUpdate: boolean, rolesView: boolean, securityLogsView: boolean, subscriptionsCreate: boolean, subscriptionsUpdate: boolean, subscriptionsView: boolean, walletsCreate: boolean, walletsTerminate: boolean, walletsTopUp: boolean, walletsUpdate: boolean } } | null };
 
 export type RevokeMembershipMutationVariables = Exact<{
   input: RevokeMembershipInput;
@@ -16585,6 +16608,11 @@ export const InvoiceForResendInvoiceForCollectionDialogFragmentDoc = gql`
   }
 }
     `;
+export const InvoiceForDeleteInvoiceFragmentDoc = gql`
+    fragment InvoiceForDeleteInvoice on Invoice {
+  id
+}
+    `;
 export const InvoiceListItemFragmentDoc = gql`
     fragment InvoiceListItem on Invoice {
   id
@@ -16635,10 +16663,12 @@ export const InvoiceListItemFragmentDoc = gql`
   ...InvoiceForFinalizeInvoice
   ...InvoiceForUpdateInvoicePaymentStatus
   ...InvoiceForResendInvoiceForCollectionDialog
+  ...InvoiceForDeleteInvoice
 }
     ${InvoiceForFinalizeInvoiceFragmentDoc}
 ${InvoiceForUpdateInvoicePaymentStatusFragmentDoc}
-${InvoiceForResendInvoiceForCollectionDialogFragmentDoc}`;
+${InvoiceForResendInvoiceForCollectionDialogFragmentDoc}
+${InvoiceForDeleteInvoiceFragmentDoc}`;
 export const InvoiceForInvoiceListFragmentDoc = gql`
     fragment InvoiceForInvoiceList on InvoiceCollection {
   collection {
@@ -18247,43 +18277,6 @@ export const AddCashfreeProviderDialogFragmentDoc = gql`
   successRedirectUrl
 }
     `;
-export const AdyenForCreateAndEditSuccessRedirectUrlFragmentDoc = gql`
-    fragment AdyenForCreateAndEditSuccessRedirectUrl on AdyenProvider {
-  id
-  successRedirectUrl
-}
-    `;
-export const CashfreeForCreateAndEditSuccessRedirectUrlFragmentDoc = gql`
-    fragment CashfreeForCreateAndEditSuccessRedirectUrl on CashfreeProvider {
-  id
-  successRedirectUrl
-}
-    `;
-export const FlutterwaveForCreateAndEditSuccessRedirectUrlFragmentDoc = gql`
-    fragment FlutterwaveForCreateAndEditSuccessRedirectUrl on FlutterwaveProvider {
-  id
-  successRedirectUrl
-}
-    `;
-export const GocardlessForCreateAndEditSuccessRedirectUrlFragmentDoc = gql`
-    fragment gocardlessForCreateAndEditSuccessRedirectUrl on GocardlessProvider {
-  id
-  successRedirectUrl
-}
-    `;
-export const StripeForCreateAndEditSuccessRedirectUrlFragmentDoc = gql`
-    fragment StripeForCreateAndEditSuccessRedirectUrl on StripeProvider {
-  id
-  successRedirectUrl
-}
-    `;
-export const MoneyhashForCreateAndEditSuccessRedirectUrlFragmentDoc = gql`
-    fragment MoneyhashForCreateAndEditSuccessRedirectUrl on MoneyhashProvider {
-  id
-  flowId
-  successRedirectUrl
-}
-    `;
 export const AddFlutterwaveProviderDialogFragmentDoc = gql`
     fragment AddFlutterwaveProviderDialog on FlutterwaveProvider {
   id
@@ -18512,6 +18505,43 @@ export const NetsuiteIntegrationSettingsFragmentDoc = gql`
   syncCreditNotes
   syncInvoices
   syncPayments
+}
+    `;
+export const AdyenForCreateAndEditSuccessRedirectUrlFragmentDoc = gql`
+    fragment AdyenForCreateAndEditSuccessRedirectUrl on AdyenProvider {
+  id
+  successRedirectUrl
+}
+    `;
+export const CashfreeForCreateAndEditSuccessRedirectUrlFragmentDoc = gql`
+    fragment CashfreeForCreateAndEditSuccessRedirectUrl on CashfreeProvider {
+  id
+  successRedirectUrl
+}
+    `;
+export const FlutterwaveForCreateAndEditSuccessRedirectUrlFragmentDoc = gql`
+    fragment FlutterwaveForCreateAndEditSuccessRedirectUrl on FlutterwaveProvider {
+  id
+  successRedirectUrl
+}
+    `;
+export const GocardlessForCreateAndEditSuccessRedirectUrlFragmentDoc = gql`
+    fragment gocardlessForCreateAndEditSuccessRedirectUrl on GocardlessProvider {
+  id
+  successRedirectUrl
+}
+    `;
+export const StripeForCreateAndEditSuccessRedirectUrlFragmentDoc = gql`
+    fragment StripeForCreateAndEditSuccessRedirectUrl on StripeProvider {
+  id
+  successRedirectUrl
+}
+    `;
+export const MoneyhashForCreateAndEditSuccessRedirectUrlFragmentDoc = gql`
+    fragment MoneyhashForCreateAndEditSuccessRedirectUrl on MoneyhashProvider {
+  id
+  flowId
+  successRedirectUrl
 }
     `;
 export const XeroIntegrationItemsListAddonsFragmentDoc = gql`
@@ -19435,6 +19465,7 @@ export const MembershipPermissionsFragmentDoc = gql`
     invoiceCustomSectionsCreate
     invoiceCustomSectionsUpdate
     invoicesCreate
+    invoicesDelete
     invoicesSend
     invoicesUpdate
     invoicesView
@@ -20245,12 +20276,14 @@ export const AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc = gql`
   ...InvoiceForInvoiceInfos
   ...InvoiceForFinalizeInvoice
   ...InvoiceForUpdateInvoicePaymentStatus
+  ...InvoiceForDeleteInvoice
 }
     ${InvoiceDetailsForInvoiceOverviewFragmentDoc}
 ${InvoiceForDetailsTableFragmentDoc}
 ${InvoiceForInvoiceInfosFragmentDoc}
 ${InvoiceForFinalizeInvoiceFragmentDoc}
-${InvoiceForUpdateInvoicePaymentStatusFragmentDoc}`;
+${InvoiceForUpdateInvoicePaymentStatusFragmentDoc}
+${InvoiceForDeleteInvoiceFragmentDoc}`;
 export const FeeAppliedTaxesForInvoiceDetailsFragmentDoc = gql`
     fragment FeeAppliedTaxesForInvoiceDetails on Fee {
   appliedTaxes {
@@ -21910,6 +21943,44 @@ export type ListAiConversationsQueryHookResult = ReturnType<typeof useListAiConv
 export type ListAiConversationsLazyQueryHookResult = ReturnType<typeof useListAiConversationsLazyQuery>;
 export type ListAiConversationsSuspenseQueryHookResult = ReturnType<typeof useListAiConversationsSuspenseQuery>;
 export type ListAiConversationsQueryResult = Apollo.QueryResult<ListAiConversationsQuery, ListAiConversationsQueryVariables>;
+export const AskFinanceAssistantDocument = gql`
+    mutation askFinanceAssistant($input: AskFinanceAssistantInput!) {
+  askFinanceAssistant(input: $input) {
+    explanation
+    messageId
+    results
+    sessionExpired
+    sessionId
+    sqlQuery
+  }
+}
+    `;
+export type AskFinanceAssistantMutationFn = Apollo.MutationFunction<AskFinanceAssistantMutation, AskFinanceAssistantMutationVariables>;
+
+/**
+ * __useAskFinanceAssistantMutation__
+ *
+ * To run a mutation, you first call `useAskFinanceAssistantMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAskFinanceAssistantMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [askFinanceAssistantMutation, { data, loading, error }] = useAskFinanceAssistantMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAskFinanceAssistantMutation(baseOptions?: Apollo.MutationHookOptions<AskFinanceAssistantMutation, AskFinanceAssistantMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AskFinanceAssistantMutation, AskFinanceAssistantMutationVariables>(AskFinanceAssistantDocument, options);
+      }
+export type AskFinanceAssistantMutationHookResult = ReturnType<typeof useAskFinanceAssistantMutation>;
+export type AskFinanceAssistantMutationResult = Apollo.MutationResult<AskFinanceAssistantMutation>;
+export type AskFinanceAssistantMutationOptions = Apollo.BaseMutationOptions<AskFinanceAssistantMutation, AskFinanceAssistantMutationVariables>;
 export const CreateAiConversationDocument = gql`
     mutation createAiConversation($input: CreateAiConversationInput!) {
   createAiConversation(input: $input) {
@@ -21944,6 +22015,40 @@ export function useCreateAiConversationMutation(baseOptions?: Apollo.MutationHoo
 export type CreateAiConversationMutationHookResult = ReturnType<typeof useCreateAiConversationMutation>;
 export type CreateAiConversationMutationResult = Apollo.MutationResult<CreateAiConversationMutation>;
 export type CreateAiConversationMutationOptions = Apollo.BaseMutationOptions<CreateAiConversationMutation, CreateAiConversationMutationVariables>;
+export const ExportFinanceAssistantResultDocument = gql`
+    mutation exportFinanceAssistantResult($input: ExportFinanceAssistantResultInput!) {
+  exportFinanceAssistantResult(input: $input) {
+    fileUrl
+    filename
+  }
+}
+    `;
+export type ExportFinanceAssistantResultMutationFn = Apollo.MutationFunction<ExportFinanceAssistantResultMutation, ExportFinanceAssistantResultMutationVariables>;
+
+/**
+ * __useExportFinanceAssistantResultMutation__
+ *
+ * To run a mutation, you first call `useExportFinanceAssistantResultMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useExportFinanceAssistantResultMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [exportFinanceAssistantResultMutation, { data, loading, error }] = useExportFinanceAssistantResultMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useExportFinanceAssistantResultMutation(baseOptions?: Apollo.MutationHookOptions<ExportFinanceAssistantResultMutation, ExportFinanceAssistantResultMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ExportFinanceAssistantResultMutation, ExportFinanceAssistantResultMutationVariables>(ExportFinanceAssistantResultDocument, options);
+      }
+export type ExportFinanceAssistantResultMutationHookResult = ReturnType<typeof useExportFinanceAssistantResultMutation>;
+export type ExportFinanceAssistantResultMutationResult = Apollo.MutationResult<ExportFinanceAssistantResultMutation>;
+export type ExportFinanceAssistantResultMutationOptions = Apollo.BaseMutationOptions<ExportFinanceAssistantResultMutation, ExportFinanceAssistantResultMutationVariables>;
 export const OnConversationDocument = gql`
     subscription onConversation($id: ID!) {
   aiConversationStreamed(id: $id) {
@@ -24548,39 +24653,6 @@ export type PaymentProvidersListForCustomerMainInfosQueryHookResult = ReturnType
 export type PaymentProvidersListForCustomerMainInfosLazyQueryHookResult = ReturnType<typeof usePaymentProvidersListForCustomerMainInfosLazyQuery>;
 export type PaymentProvidersListForCustomerMainInfosSuspenseQueryHookResult = ReturnType<typeof usePaymentProvidersListForCustomerMainInfosSuspenseQuery>;
 export type PaymentProvidersListForCustomerMainInfosQueryResult = Apollo.QueryResult<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>;
-export const GenerateCheckoutUrlDocument = gql`
-    mutation generateCheckoutUrl($input: GenerateCheckoutUrlInput!) {
-  generateCheckoutUrl(input: $input) {
-    checkoutUrl
-  }
-}
-    `;
-export type GenerateCheckoutUrlMutationFn = Apollo.MutationFunction<GenerateCheckoutUrlMutation, GenerateCheckoutUrlMutationVariables>;
-
-/**
- * __useGenerateCheckoutUrlMutation__
- *
- * To run a mutation, you first call `useGenerateCheckoutUrlMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useGenerateCheckoutUrlMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [generateCheckoutUrlMutation, { data, loading, error }] = useGenerateCheckoutUrlMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useGenerateCheckoutUrlMutation(baseOptions?: Apollo.MutationHookOptions<GenerateCheckoutUrlMutation, GenerateCheckoutUrlMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<GenerateCheckoutUrlMutation, GenerateCheckoutUrlMutationVariables>(GenerateCheckoutUrlDocument, options);
-      }
-export type GenerateCheckoutUrlMutationHookResult = ReturnType<typeof useGenerateCheckoutUrlMutation>;
-export type GenerateCheckoutUrlMutationResult = Apollo.MutationResult<GenerateCheckoutUrlMutation>;
-export type GenerateCheckoutUrlMutationOptions = Apollo.BaseMutationOptions<GenerateCheckoutUrlMutation, GenerateCheckoutUrlMutationVariables>;
 export const GetCustomerSettingsDocument = gql`
     query getCustomerSettings($id: ID!) {
   customer(id: $id) {
@@ -25572,6 +25644,39 @@ export type GetCustomerSubscriptionForUsageQueryHookResult = ReturnType<typeof u
 export type GetCustomerSubscriptionForUsageLazyQueryHookResult = ReturnType<typeof useGetCustomerSubscriptionForUsageLazyQuery>;
 export type GetCustomerSubscriptionForUsageSuspenseQueryHookResult = ReturnType<typeof useGetCustomerSubscriptionForUsageSuspenseQuery>;
 export type GetCustomerSubscriptionForUsageQueryResult = Apollo.QueryResult<GetCustomerSubscriptionForUsageQuery, GetCustomerSubscriptionForUsageQueryVariables>;
+export const GenerateCheckoutUrlDocument = gql`
+    mutation generateCheckoutUrl($input: GenerateCheckoutUrlInput!) {
+  generateCheckoutUrl(input: $input) {
+    checkoutUrl
+  }
+}
+    `;
+export type GenerateCheckoutUrlMutationFn = Apollo.MutationFunction<GenerateCheckoutUrlMutation, GenerateCheckoutUrlMutationVariables>;
+
+/**
+ * __useGenerateCheckoutUrlMutation__
+ *
+ * To run a mutation, you first call `useGenerateCheckoutUrlMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useGenerateCheckoutUrlMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [generateCheckoutUrlMutation, { data, loading, error }] = useGenerateCheckoutUrlMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useGenerateCheckoutUrlMutation(baseOptions?: Apollo.MutationHookOptions<GenerateCheckoutUrlMutation, GenerateCheckoutUrlMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<GenerateCheckoutUrlMutation, GenerateCheckoutUrlMutationVariables>(GenerateCheckoutUrlDocument, options);
+      }
+export type GenerateCheckoutUrlMutationHookResult = ReturnType<typeof useGenerateCheckoutUrlMutation>;
+export type GenerateCheckoutUrlMutationResult = Apollo.MutationResult<GenerateCheckoutUrlMutation>;
+export type GenerateCheckoutUrlMutationOptions = Apollo.BaseMutationOptions<GenerateCheckoutUrlMutation, GenerateCheckoutUrlMutationVariables>;
 export const GetApiKeyIdsForFilterItemApiKeyIdsDocument = gql`
     query getApiKeyIdsForFilterItemApiKeyIds {
   apiKeys {
@@ -27246,6 +27351,39 @@ export type GetInvoiceMetadataForEditionQueryHookResult = ReturnType<typeof useG
 export type GetInvoiceMetadataForEditionLazyQueryHookResult = ReturnType<typeof useGetInvoiceMetadataForEditionLazyQuery>;
 export type GetInvoiceMetadataForEditionSuspenseQueryHookResult = ReturnType<typeof useGetInvoiceMetadataForEditionSuspenseQuery>;
 export type GetInvoiceMetadataForEditionQueryResult = Apollo.QueryResult<GetInvoiceMetadataForEditionQuery, GetInvoiceMetadataForEditionQueryVariables>;
+export const DeleteInvoiceDocument = gql`
+    mutation deleteInvoice($input: DeleteInvoiceInput!) {
+  deleteInvoice(input: $input) {
+    id
+  }
+}
+    `;
+export type DeleteInvoiceMutationFn = Apollo.MutationFunction<DeleteInvoiceMutation, DeleteInvoiceMutationVariables>;
+
+/**
+ * __useDeleteInvoiceMutation__
+ *
+ * To run a mutation, you first call `useDeleteInvoiceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteInvoiceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteInvoiceMutation, { data, loading, error }] = useDeleteInvoiceMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDeleteInvoiceMutation(baseOptions?: Apollo.MutationHookOptions<DeleteInvoiceMutation, DeleteInvoiceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteInvoiceMutation, DeleteInvoiceMutationVariables>(DeleteInvoiceDocument, options);
+      }
+export type DeleteInvoiceMutationHookResult = ReturnType<typeof useDeleteInvoiceMutation>;
+export type DeleteInvoiceMutationResult = Apollo.MutationResult<DeleteInvoiceMutation>;
+export type DeleteInvoiceMutationOptions = Apollo.BaseMutationOptions<DeleteInvoiceMutation, DeleteInvoiceMutationVariables>;
 export const DisputeInvoiceDocument = gql`
     mutation disputeInvoice($input: LoseInvoiceDisputeInput!) {
   loseInvoiceDispute(input: $input) {
@@ -28718,210 +28856,6 @@ export function useUpdateCashfreeApiKeyMutation(baseOptions?: Apollo.MutationHoo
 export type UpdateCashfreeApiKeyMutationHookResult = ReturnType<typeof useUpdateCashfreeApiKeyMutation>;
 export type UpdateCashfreeApiKeyMutationResult = Apollo.MutationResult<UpdateCashfreeApiKeyMutation>;
 export type UpdateCashfreeApiKeyMutationOptions = Apollo.BaseMutationOptions<UpdateCashfreeApiKeyMutation, UpdateCashfreeApiKeyMutationVariables>;
-export const UpdateAdyenPaymentProviderDocument = gql`
-    mutation updateAdyenPaymentProvider($input: UpdateAdyenPaymentProviderInput!) {
-  updateAdyenPaymentProvider(input: $input) {
-    id
-    successRedirectUrl
-  }
-}
-    `;
-export type UpdateAdyenPaymentProviderMutationFn = Apollo.MutationFunction<UpdateAdyenPaymentProviderMutation, UpdateAdyenPaymentProviderMutationVariables>;
-
-/**
- * __useUpdateAdyenPaymentProviderMutation__
- *
- * To run a mutation, you first call `useUpdateAdyenPaymentProviderMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateAdyenPaymentProviderMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateAdyenPaymentProviderMutation, { data, loading, error }] = useUpdateAdyenPaymentProviderMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUpdateAdyenPaymentProviderMutation(baseOptions?: Apollo.MutationHookOptions<UpdateAdyenPaymentProviderMutation, UpdateAdyenPaymentProviderMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateAdyenPaymentProviderMutation, UpdateAdyenPaymentProviderMutationVariables>(UpdateAdyenPaymentProviderDocument, options);
-      }
-export type UpdateAdyenPaymentProviderMutationHookResult = ReturnType<typeof useUpdateAdyenPaymentProviderMutation>;
-export type UpdateAdyenPaymentProviderMutationResult = Apollo.MutationResult<UpdateAdyenPaymentProviderMutation>;
-export type UpdateAdyenPaymentProviderMutationOptions = Apollo.BaseMutationOptions<UpdateAdyenPaymentProviderMutation, UpdateAdyenPaymentProviderMutationVariables>;
-export const UpdateCashfreePaymentProviderDocument = gql`
-    mutation updateCashfreePaymentProvider($input: UpdateCashfreePaymentProviderInput!) {
-  updateCashfreePaymentProvider(input: $input) {
-    id
-    successRedirectUrl
-  }
-}
-    `;
-export type UpdateCashfreePaymentProviderMutationFn = Apollo.MutationFunction<UpdateCashfreePaymentProviderMutation, UpdateCashfreePaymentProviderMutationVariables>;
-
-/**
- * __useUpdateCashfreePaymentProviderMutation__
- *
- * To run a mutation, you first call `useUpdateCashfreePaymentProviderMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateCashfreePaymentProviderMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateCashfreePaymentProviderMutation, { data, loading, error }] = useUpdateCashfreePaymentProviderMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUpdateCashfreePaymentProviderMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCashfreePaymentProviderMutation, UpdateCashfreePaymentProviderMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateCashfreePaymentProviderMutation, UpdateCashfreePaymentProviderMutationVariables>(UpdateCashfreePaymentProviderDocument, options);
-      }
-export type UpdateCashfreePaymentProviderMutationHookResult = ReturnType<typeof useUpdateCashfreePaymentProviderMutation>;
-export type UpdateCashfreePaymentProviderMutationResult = Apollo.MutationResult<UpdateCashfreePaymentProviderMutation>;
-export type UpdateCashfreePaymentProviderMutationOptions = Apollo.BaseMutationOptions<UpdateCashfreePaymentProviderMutation, UpdateCashfreePaymentProviderMutationVariables>;
-export const UpdateFlutterwavePaymentProviderSuccessRedirectUrlDocument = gql`
-    mutation updateFlutterwavePaymentProviderSuccessRedirectUrl($input: UpdateFlutterwavePaymentProviderInput!) {
-  updateFlutterwavePaymentProvider(input: $input) {
-    id
-    successRedirectUrl
-  }
-}
-    `;
-export type UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutationFn = Apollo.MutationFunction<UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation, UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutationVariables>;
-
-/**
- * __useUpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation__
- *
- * To run a mutation, you first call `useUpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateFlutterwavePaymentProviderSuccessRedirectUrlMutation, { data, loading, error }] = useUpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation(baseOptions?: Apollo.MutationHookOptions<UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation, UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation, UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutationVariables>(UpdateFlutterwavePaymentProviderSuccessRedirectUrlDocument, options);
-      }
-export type UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutationHookResult = ReturnType<typeof useUpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation>;
-export type UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutationResult = Apollo.MutationResult<UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation>;
-export type UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutationOptions = Apollo.BaseMutationOptions<UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation, UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutationVariables>;
-export const UpdateGocardlessPaymentProviderDocument = gql`
-    mutation updateGocardlessPaymentProvider($input: UpdateGocardlessPaymentProviderInput!) {
-  updateGocardlessPaymentProvider(input: $input) {
-    id
-    successRedirectUrl
-  }
-}
-    `;
-export type UpdateGocardlessPaymentProviderMutationFn = Apollo.MutationFunction<UpdateGocardlessPaymentProviderMutation, UpdateGocardlessPaymentProviderMutationVariables>;
-
-/**
- * __useUpdateGocardlessPaymentProviderMutation__
- *
- * To run a mutation, you first call `useUpdateGocardlessPaymentProviderMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateGocardlessPaymentProviderMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateGocardlessPaymentProviderMutation, { data, loading, error }] = useUpdateGocardlessPaymentProviderMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUpdateGocardlessPaymentProviderMutation(baseOptions?: Apollo.MutationHookOptions<UpdateGocardlessPaymentProviderMutation, UpdateGocardlessPaymentProviderMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateGocardlessPaymentProviderMutation, UpdateGocardlessPaymentProviderMutationVariables>(UpdateGocardlessPaymentProviderDocument, options);
-      }
-export type UpdateGocardlessPaymentProviderMutationHookResult = ReturnType<typeof useUpdateGocardlessPaymentProviderMutation>;
-export type UpdateGocardlessPaymentProviderMutationResult = Apollo.MutationResult<UpdateGocardlessPaymentProviderMutation>;
-export type UpdateGocardlessPaymentProviderMutationOptions = Apollo.BaseMutationOptions<UpdateGocardlessPaymentProviderMutation, UpdateGocardlessPaymentProviderMutationVariables>;
-export const UpdateStripePaymentProviderDocument = gql`
-    mutation updateStripePaymentProvider($input: UpdateStripePaymentProviderInput!) {
-  updateStripePaymentProvider(input: $input) {
-    id
-    successRedirectUrl
-  }
-}
-    `;
-export type UpdateStripePaymentProviderMutationFn = Apollo.MutationFunction<UpdateStripePaymentProviderMutation, UpdateStripePaymentProviderMutationVariables>;
-
-/**
- * __useUpdateStripePaymentProviderMutation__
- *
- * To run a mutation, you first call `useUpdateStripePaymentProviderMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateStripePaymentProviderMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateStripePaymentProviderMutation, { data, loading, error }] = useUpdateStripePaymentProviderMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUpdateStripePaymentProviderMutation(baseOptions?: Apollo.MutationHookOptions<UpdateStripePaymentProviderMutation, UpdateStripePaymentProviderMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateStripePaymentProviderMutation, UpdateStripePaymentProviderMutationVariables>(UpdateStripePaymentProviderDocument, options);
-      }
-export type UpdateStripePaymentProviderMutationHookResult = ReturnType<typeof useUpdateStripePaymentProviderMutation>;
-export type UpdateStripePaymentProviderMutationResult = Apollo.MutationResult<UpdateStripePaymentProviderMutation>;
-export type UpdateStripePaymentProviderMutationOptions = Apollo.BaseMutationOptions<UpdateStripePaymentProviderMutation, UpdateStripePaymentProviderMutationVariables>;
-export const UpdateMoneyhashPaymentProviderDocument = gql`
-    mutation updateMoneyhashPaymentProvider($input: UpdateMoneyhashPaymentProviderInput!) {
-  updateMoneyhashPaymentProvider(input: $input) {
-    id
-    flowId
-  }
-}
-    `;
-export type UpdateMoneyhashPaymentProviderMutationFn = Apollo.MutationFunction<UpdateMoneyhashPaymentProviderMutation, UpdateMoneyhashPaymentProviderMutationVariables>;
-
-/**
- * __useUpdateMoneyhashPaymentProviderMutation__
- *
- * To run a mutation, you first call `useUpdateMoneyhashPaymentProviderMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateMoneyhashPaymentProviderMutation` returns a tuple that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - An object with fields that represent the current status of the mutation's execution
- *
- * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
- *
- * @example
- * const [updateMoneyhashPaymentProviderMutation, { data, loading, error }] = useUpdateMoneyhashPaymentProviderMutation({
- *   variables: {
- *      input: // value for 'input'
- *   },
- * });
- */
-export function useUpdateMoneyhashPaymentProviderMutation(baseOptions?: Apollo.MutationHookOptions<UpdateMoneyhashPaymentProviderMutation, UpdateMoneyhashPaymentProviderMutationVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useMutation<UpdateMoneyhashPaymentProviderMutation, UpdateMoneyhashPaymentProviderMutationVariables>(UpdateMoneyhashPaymentProviderDocument, options);
-      }
-export type UpdateMoneyhashPaymentProviderMutationHookResult = ReturnType<typeof useUpdateMoneyhashPaymentProviderMutation>;
-export type UpdateMoneyhashPaymentProviderMutationResult = Apollo.MutationResult<UpdateMoneyhashPaymentProviderMutation>;
-export type UpdateMoneyhashPaymentProviderMutationOptions = Apollo.BaseMutationOptions<UpdateMoneyhashPaymentProviderMutation, UpdateMoneyhashPaymentProviderMutationVariables>;
 export const GetProviderByCodeForFlutterwaveDocument = gql`
     query getProviderByCodeForFlutterwave($code: String) {
   paymentProvider(code: $code) {
@@ -30612,6 +30546,210 @@ export type GetNetsuiteIntegrationsSettingsQueryHookResult = ReturnType<typeof u
 export type GetNetsuiteIntegrationsSettingsLazyQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationsSettingsLazyQuery>;
 export type GetNetsuiteIntegrationsSettingsSuspenseQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationsSettingsSuspenseQuery>;
 export type GetNetsuiteIntegrationsSettingsQueryResult = Apollo.QueryResult<GetNetsuiteIntegrationsSettingsQuery, GetNetsuiteIntegrationsSettingsQueryVariables>;
+export const UpdateAdyenPaymentProviderDocument = gql`
+    mutation updateAdyenPaymentProvider($input: UpdateAdyenPaymentProviderInput!) {
+  updateAdyenPaymentProvider(input: $input) {
+    id
+    successRedirectUrl
+  }
+}
+    `;
+export type UpdateAdyenPaymentProviderMutationFn = Apollo.MutationFunction<UpdateAdyenPaymentProviderMutation, UpdateAdyenPaymentProviderMutationVariables>;
+
+/**
+ * __useUpdateAdyenPaymentProviderMutation__
+ *
+ * To run a mutation, you first call `useUpdateAdyenPaymentProviderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateAdyenPaymentProviderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateAdyenPaymentProviderMutation, { data, loading, error }] = useUpdateAdyenPaymentProviderMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateAdyenPaymentProviderMutation(baseOptions?: Apollo.MutationHookOptions<UpdateAdyenPaymentProviderMutation, UpdateAdyenPaymentProviderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateAdyenPaymentProviderMutation, UpdateAdyenPaymentProviderMutationVariables>(UpdateAdyenPaymentProviderDocument, options);
+      }
+export type UpdateAdyenPaymentProviderMutationHookResult = ReturnType<typeof useUpdateAdyenPaymentProviderMutation>;
+export type UpdateAdyenPaymentProviderMutationResult = Apollo.MutationResult<UpdateAdyenPaymentProviderMutation>;
+export type UpdateAdyenPaymentProviderMutationOptions = Apollo.BaseMutationOptions<UpdateAdyenPaymentProviderMutation, UpdateAdyenPaymentProviderMutationVariables>;
+export const UpdateCashfreePaymentProviderDocument = gql`
+    mutation updateCashfreePaymentProvider($input: UpdateCashfreePaymentProviderInput!) {
+  updateCashfreePaymentProvider(input: $input) {
+    id
+    successRedirectUrl
+  }
+}
+    `;
+export type UpdateCashfreePaymentProviderMutationFn = Apollo.MutationFunction<UpdateCashfreePaymentProviderMutation, UpdateCashfreePaymentProviderMutationVariables>;
+
+/**
+ * __useUpdateCashfreePaymentProviderMutation__
+ *
+ * To run a mutation, you first call `useUpdateCashfreePaymentProviderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCashfreePaymentProviderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCashfreePaymentProviderMutation, { data, loading, error }] = useUpdateCashfreePaymentProviderMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateCashfreePaymentProviderMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCashfreePaymentProviderMutation, UpdateCashfreePaymentProviderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateCashfreePaymentProviderMutation, UpdateCashfreePaymentProviderMutationVariables>(UpdateCashfreePaymentProviderDocument, options);
+      }
+export type UpdateCashfreePaymentProviderMutationHookResult = ReturnType<typeof useUpdateCashfreePaymentProviderMutation>;
+export type UpdateCashfreePaymentProviderMutationResult = Apollo.MutationResult<UpdateCashfreePaymentProviderMutation>;
+export type UpdateCashfreePaymentProviderMutationOptions = Apollo.BaseMutationOptions<UpdateCashfreePaymentProviderMutation, UpdateCashfreePaymentProviderMutationVariables>;
+export const UpdateFlutterwavePaymentProviderSuccessRedirectUrlDocument = gql`
+    mutation updateFlutterwavePaymentProviderSuccessRedirectUrl($input: UpdateFlutterwavePaymentProviderInput!) {
+  updateFlutterwavePaymentProvider(input: $input) {
+    id
+    successRedirectUrl
+  }
+}
+    `;
+export type UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutationFn = Apollo.MutationFunction<UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation, UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutationVariables>;
+
+/**
+ * __useUpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation__
+ *
+ * To run a mutation, you first call `useUpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateFlutterwavePaymentProviderSuccessRedirectUrlMutation, { data, loading, error }] = useUpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation(baseOptions?: Apollo.MutationHookOptions<UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation, UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation, UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutationVariables>(UpdateFlutterwavePaymentProviderSuccessRedirectUrlDocument, options);
+      }
+export type UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutationHookResult = ReturnType<typeof useUpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation>;
+export type UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutationResult = Apollo.MutationResult<UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation>;
+export type UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutationOptions = Apollo.BaseMutationOptions<UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutation, UpdateFlutterwavePaymentProviderSuccessRedirectUrlMutationVariables>;
+export const UpdateGocardlessPaymentProviderDocument = gql`
+    mutation updateGocardlessPaymentProvider($input: UpdateGocardlessPaymentProviderInput!) {
+  updateGocardlessPaymentProvider(input: $input) {
+    id
+    successRedirectUrl
+  }
+}
+    `;
+export type UpdateGocardlessPaymentProviderMutationFn = Apollo.MutationFunction<UpdateGocardlessPaymentProviderMutation, UpdateGocardlessPaymentProviderMutationVariables>;
+
+/**
+ * __useUpdateGocardlessPaymentProviderMutation__
+ *
+ * To run a mutation, you first call `useUpdateGocardlessPaymentProviderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateGocardlessPaymentProviderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateGocardlessPaymentProviderMutation, { data, loading, error }] = useUpdateGocardlessPaymentProviderMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateGocardlessPaymentProviderMutation(baseOptions?: Apollo.MutationHookOptions<UpdateGocardlessPaymentProviderMutation, UpdateGocardlessPaymentProviderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateGocardlessPaymentProviderMutation, UpdateGocardlessPaymentProviderMutationVariables>(UpdateGocardlessPaymentProviderDocument, options);
+      }
+export type UpdateGocardlessPaymentProviderMutationHookResult = ReturnType<typeof useUpdateGocardlessPaymentProviderMutation>;
+export type UpdateGocardlessPaymentProviderMutationResult = Apollo.MutationResult<UpdateGocardlessPaymentProviderMutation>;
+export type UpdateGocardlessPaymentProviderMutationOptions = Apollo.BaseMutationOptions<UpdateGocardlessPaymentProviderMutation, UpdateGocardlessPaymentProviderMutationVariables>;
+export const UpdateStripePaymentProviderDocument = gql`
+    mutation updateStripePaymentProvider($input: UpdateStripePaymentProviderInput!) {
+  updateStripePaymentProvider(input: $input) {
+    id
+    successRedirectUrl
+  }
+}
+    `;
+export type UpdateStripePaymentProviderMutationFn = Apollo.MutationFunction<UpdateStripePaymentProviderMutation, UpdateStripePaymentProviderMutationVariables>;
+
+/**
+ * __useUpdateStripePaymentProviderMutation__
+ *
+ * To run a mutation, you first call `useUpdateStripePaymentProviderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateStripePaymentProviderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateStripePaymentProviderMutation, { data, loading, error }] = useUpdateStripePaymentProviderMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateStripePaymentProviderMutation(baseOptions?: Apollo.MutationHookOptions<UpdateStripePaymentProviderMutation, UpdateStripePaymentProviderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateStripePaymentProviderMutation, UpdateStripePaymentProviderMutationVariables>(UpdateStripePaymentProviderDocument, options);
+      }
+export type UpdateStripePaymentProviderMutationHookResult = ReturnType<typeof useUpdateStripePaymentProviderMutation>;
+export type UpdateStripePaymentProviderMutationResult = Apollo.MutationResult<UpdateStripePaymentProviderMutation>;
+export type UpdateStripePaymentProviderMutationOptions = Apollo.BaseMutationOptions<UpdateStripePaymentProviderMutation, UpdateStripePaymentProviderMutationVariables>;
+export const UpdateMoneyhashPaymentProviderDocument = gql`
+    mutation updateMoneyhashPaymentProvider($input: UpdateMoneyhashPaymentProviderInput!) {
+  updateMoneyhashPaymentProvider(input: $input) {
+    id
+    flowId
+  }
+}
+    `;
+export type UpdateMoneyhashPaymentProviderMutationFn = Apollo.MutationFunction<UpdateMoneyhashPaymentProviderMutation, UpdateMoneyhashPaymentProviderMutationVariables>;
+
+/**
+ * __useUpdateMoneyhashPaymentProviderMutation__
+ *
+ * To run a mutation, you first call `useUpdateMoneyhashPaymentProviderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateMoneyhashPaymentProviderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateMoneyhashPaymentProviderMutation, { data, loading, error }] = useUpdateMoneyhashPaymentProviderMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateMoneyhashPaymentProviderMutation(baseOptions?: Apollo.MutationHookOptions<UpdateMoneyhashPaymentProviderMutation, UpdateMoneyhashPaymentProviderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateMoneyhashPaymentProviderMutation, UpdateMoneyhashPaymentProviderMutationVariables>(UpdateMoneyhashPaymentProviderDocument, options);
+      }
+export type UpdateMoneyhashPaymentProviderMutationHookResult = ReturnType<typeof useUpdateMoneyhashPaymentProviderMutation>;
+export type UpdateMoneyhashPaymentProviderMutationResult = Apollo.MutationResult<UpdateMoneyhashPaymentProviderMutation>;
+export type UpdateMoneyhashPaymentProviderMutationOptions = Apollo.BaseMutationOptions<UpdateMoneyhashPaymentProviderMutation, UpdateMoneyhashPaymentProviderMutationVariables>;
 export const GetXeroIntegrationCollectionMappingsDocument = gql`
     query getXeroIntegrationCollectionMappings($integrationId: ID!) {
   integrationCollectionMappings(integrationId: $integrationId) {

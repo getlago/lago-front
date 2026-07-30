@@ -1,5 +1,11 @@
 name: "Lago Internal"
 on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Git ref to build from lago-api (SHA, tag, or branch). Defaults to main."
+        required: false
+        default: "main"
   push:
     branches:
       - main

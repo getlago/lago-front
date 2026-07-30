@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
-import { DateTime } from 'luxon'
 import { memo } from 'react'
 import { generatePath } from 'react-router-dom'
 
@@ -10,6 +9,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { formatAddress } from '~/core/formats/formatAddress'
 import { CUSTOMER_DETAILS_ROUTE, Link } from '~/core/router'
+import { intlFormatDateTime } from '~/core/timezone'
 import {
   CustomerAccountTypeEnum,
   InvoiceForInvoiceInfosFragment,
@@ -212,7 +212,7 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
                 <div className="flex flex-wrap items-center gap-2">
                   <Icon name="warning-filled" color="warning" />
                   {translate('text_66141e30699a0631f0b2ed2c', {
-                    date: DateTime.fromISO(invoice?.paymentDisputeLostAt).toFormat('LLL. dd, yyyy'),
+                    date: intlFormatDateTime(invoice?.paymentDisputeLostAt).date,
                   })}
                 </div>
               }

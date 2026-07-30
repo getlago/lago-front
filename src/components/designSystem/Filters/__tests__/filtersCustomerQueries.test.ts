@@ -1,7 +1,6 @@
 import {
   CUSTOMER_CREDIT_NOTES_FILTER_PREFIX,
-  CUSTOMER_INVOICES_DRAFT_FILTER_PREFIX,
-  CUSTOMER_INVOICES_FINALIZED_FILTER_PREFIX,
+  CUSTOMER_INVOICES_FILTER_PREFIX,
   CUSTOMER_PAYMENTS_FILTER_PREFIX,
 } from '~/core/constants/filters'
 
@@ -110,58 +109,65 @@ describe('Customer query filter formatters', () => {
   })
 
   describe('GIVEN formatFiltersForCustomerInvoicesQuery', () => {
-    const prefixes = [
-      { name: 'draft', prefix: CUSTOMER_INVOICES_DRAFT_FILTER_PREFIX },
-      { name: 'finalized', prefix: CUSTOMER_INVOICES_FINALIZED_FILTER_PREFIX },
-    ]
-
     describe('WHEN search params are empty', () => {
-      it.each(prefixes)('THEN should return an empty object for $name prefix', ({ prefix }) => {
+      it('THEN should return an empty object', () => {
         const searchParams = new URLSearchParams()
-        const result = formatFiltersForCustomerInvoicesQuery(searchParams, prefix)
+        const result = formatFiltersForCustomerInvoicesQuery(
+          searchParams,
+          CUSTOMER_INVOICES_FILTER_PREFIX,
+        )
 
         expect(result).toEqual({})
       })
     })
 
     describe('WHEN search params contain currency with the correct prefix', () => {
-      it.each(prefixes)('THEN should return the currency value for $name prefix', ({ prefix }) => {
+      it('THEN should return the currency value', () => {
         const searchParams = new URLSearchParams()
 
-        searchParams.set(`${prefix}_currency`, 'GBP')
+        searchParams.set(`${CUSTOMER_INVOICES_FILTER_PREFIX}_currency`, 'GBP')
 
-        const result = formatFiltersForCustomerInvoicesQuery(searchParams, prefix)
+        const result = formatFiltersForCustomerInvoicesQuery(
+          searchParams,
+          CUSTOMER_INVOICES_FILTER_PREFIX,
+        )
 
         expect(result).toEqual({ currency: 'GBP' })
       })
     })
 
     describe('WHEN search params contain billingEntityId with inline separator', () => {
-      it.each(prefixes)('THEN should extract the ID for $name prefix', ({ prefix }) => {
+      it('THEN should extract the ID', () => {
         const searchParams = new URLSearchParams()
 
         searchParams.set(
-          `${prefix}_billingEntityId`,
+          `${CUSTOMER_INVOICES_FILTER_PREFIX}_billingEntityId`,
           `inv-be-id${filterDataInlineSeparator}Entity Name`,
         )
 
-        const result = formatFiltersForCustomerInvoicesQuery(searchParams, prefix)
+        const result = formatFiltersForCustomerInvoicesQuery(
+          searchParams,
+          CUSTOMER_INVOICES_FILTER_PREFIX,
+        )
 
         expect(result).toEqual({ billingEntityId: 'inv-be-id' })
       })
     })
 
     describe('WHEN search params contain both currency and billingEntityId', () => {
-      it.each(prefixes)('THEN should return both values for $name prefix', ({ prefix }) => {
+      it('THEN should return both values', () => {
         const searchParams = new URLSearchParams()
 
-        searchParams.set(`${prefix}_currency`, 'JPY')
+        searchParams.set(`${CUSTOMER_INVOICES_FILTER_PREFIX}_currency`, 'JPY')
         searchParams.set(
-          `${prefix}_billingEntityId`,
+          `${CUSTOMER_INVOICES_FILTER_PREFIX}_billingEntityId`,
           `inv-be-id-2${filterDataInlineSeparator}Label`,
         )
 
-        const result = formatFiltersForCustomerInvoicesQuery(searchParams, prefix)
+        const result = formatFiltersForCustomerInvoicesQuery(
+          searchParams,
+          CUSTOMER_INVOICES_FILTER_PREFIX,
+        )
 
         expect(result).toEqual({
           currency: 'JPY',
@@ -178,7 +184,7 @@ describe('Customer query filter formatters', () => {
 
         const result = formatFiltersForCustomerInvoicesQuery(
           searchParams,
-          CUSTOMER_INVOICES_DRAFT_FILTER_PREFIX,
+          CUSTOMER_INVOICES_FILTER_PREFIX,
         )
 
         expect(result).toEqual({})

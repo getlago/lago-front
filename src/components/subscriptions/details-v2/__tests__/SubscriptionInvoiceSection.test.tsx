@@ -34,7 +34,7 @@ jest.mock('~/components/subscriptions/SubscriptionInvoiceCustomSectionDetails', 
   },
 }))
 
-jest.mock('~/components/subscriptions/form/InvoicingSettingsDrawer', () => ({
+jest.mock('~/components/invoicingSettings/InvoicingSettingsDrawer', () => ({
   InvoicingSettingsDrawer: (props: Record<string, unknown>) => {
     mockDrawer(props)
 

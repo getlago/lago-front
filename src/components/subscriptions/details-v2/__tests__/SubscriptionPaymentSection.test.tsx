@@ -24,7 +24,7 @@ jest.mock('~/components/subscriptions/SubscriptionPaymentMethodDetails', () => (
   },
 }))
 
-jest.mock('~/components/subscriptions/form/PaymentSettingsDrawer', () => ({
+jest.mock('~/components/paymentSettings/PaymentSettingsDrawer', () => ({
   PaymentSettingsDrawer: (props: Record<string, unknown>) => {
     mockDrawer(props)
 
