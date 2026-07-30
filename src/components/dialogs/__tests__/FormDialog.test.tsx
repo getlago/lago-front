@@ -281,6 +281,66 @@ describe('FormDialog', () => {
     })
   })
 
+  describe('Submit Validation Guard', () => {
+    it('keeps the dialog open when didSubmitSucceed returns false', async () => {
+      const user = userEvent.setup()
+
+      render(
+        <NiceModalWrapper>
+          <TestComponent
+            dialogProps={{
+              ...defaultProps,
+              form: {
+                id: 'test-form-dialog',
+                submit: jest.fn(),
+                didSubmitSucceed: () => false,
+              },
+              mainAction: <button type="submit">Submit Form</button>,
+            }}
+          />
+        </NiceModalWrapper>,
+      )
+
+      await waitFor(() => {
+        expect(screen.getByText('Submit Form')).toBeInTheDocument()
+      })
+
+      await user.click(screen.getByText('Submit Form'))
+
+      expect(screen.getByTestId(FORM_DIALOG_TEST_ID)).toBeInTheDocument()
+    })
+
+    it('closes the dialog when didSubmitSucceed returns true', async () => {
+      const user = userEvent.setup()
+
+      render(
+        <NiceModalWrapper>
+          <TestComponent
+            dialogProps={{
+              ...defaultProps,
+              form: {
+                id: 'test-form-dialog',
+                submit: jest.fn(),
+                didSubmitSucceed: () => true,
+              },
+              mainAction: <button type="submit">Submit Form</button>,
+            }}
+          />
+        </NiceModalWrapper>,
+      )
+
+      await waitFor(() => {
+        expect(screen.getByText('Submit Form')).toBeInTheDocument()
+      })
+
+      await user.click(screen.getByText('Submit Form'))
+
+      await waitFor(() => {
+        expect(screen.queryByTestId(FORM_DIALOG_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+  })
+
   describe('Cancel/Close Button', () => {
     it('renders close button by default', async () => {
       render(

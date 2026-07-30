@@ -4,7 +4,6 @@ import { FormEvent, useState } from 'react'
 import { useAskFinanceAssistant } from '~/components/aiAgent/hooks/useAskFinanceAssistant'
 import { AiBadge } from '~/components/designSystem/AiBadge'
 import { Typography } from '~/components/designSystem/Typography'
-import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import { AiAgentTypeEnum, useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -24,9 +23,7 @@ export const FinanceAssistantAnalyticsCta = () => {
   const [isVisible, setIsVisible] = useState(true)
 
   const hasAccessToAiAgent =
-    isFeatureFlagActive(FeatureFlags.AI_FINANCE_ASSISTANT) &&
-    isPremium &&
-    hasPermissions(['aiConversationsView', 'aiConversationsCreate'])
+    isPremium && hasPermissions(['aiConversationsView', 'aiConversationsCreate'])
 
   if (!hasAccessToAiAgent) {
     return null
