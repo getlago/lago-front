@@ -17,7 +17,11 @@ interface QuoteInvoicingPaymentsSettingsProps {
 const parseInvoiceCustomFooter = (raw: string): InvoiceCustomSectionInput | undefined => {
   if (!raw) return undefined
 
-  return JSON.parse(raw) as InvoiceCustomSectionInput
+  try {
+    return JSON.parse(raw) as InvoiceCustomSectionInput
+  } catch {
+    return undefined
+  }
 }
 
 /**

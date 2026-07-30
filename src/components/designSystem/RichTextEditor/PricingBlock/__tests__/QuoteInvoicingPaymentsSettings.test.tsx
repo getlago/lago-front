@@ -163,6 +163,20 @@ describe('QuoteInvoicingPaymentsSettings', () => {
     expect(paymentSelectorProps?.viewType).toBe(ViewTypeEnum.Subscription)
   })
 
+  it('maps a malformed invoiceCustomFooter to undefined without throwing', () => {
+    expect(() =>
+      render(
+        <QuoteInvoicingPaymentsSettings
+          customer={customer}
+          value={{ paymentMethodId: '', invoiceCustomFooter: '{bad' }}
+          onChange={jest.fn()}
+        />,
+      ),
+    ).not.toThrow()
+
+    expect(invoicingSelectorProps?.value).toBeUndefined()
+  })
+
   it('maps invoicing selector change OUT to JSON string, preserving the other field', () => {
     const onChange = jest.fn()
 
