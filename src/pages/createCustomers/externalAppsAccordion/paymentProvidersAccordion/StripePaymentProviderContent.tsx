@@ -52,13 +52,22 @@ const StripePaymentProviderContent = withFieldGroup({
     }
 
     return (
-      <div className="flex flex-col gap-6 p-4 shadow-t">
+      <div className="flex flex-col gap-6">
         <div>
-          <Typography variant="bodyHl" color="grey700">
+          <Typography variant="subhead1" color="grey700">
             {translate('text_64aeb7b998c4322918c84204')}
           </Typography>
           <Typography variant="caption">{translate('text_64aeb7b998c4322918c84210')}</Typography>
         </div>
+
+        {/* Mandatory-selection error surfaces as a block alert, not under a checkbox */}
+        <group.AppField name="providerPaymentMethods">
+          {(field) =>
+            field.state.meta.errors.length > 0 ? (
+              <Alert type="danger">{translate('text_1764259518524a0hr3z00m7r')}</Alert>
+            ) : null
+          }
+        </group.AppField>
 
         <div className="flex flex-col gap-1">
           <Typography variant="captionHl" color="grey700">

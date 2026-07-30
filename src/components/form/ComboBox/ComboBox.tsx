@@ -38,6 +38,7 @@ export const ComboBox = ({
   virtualized = true,
   renderGroupInputStartAdornment,
   onOpen,
+  openOnFocus = false,
   onChange,
   variant = 'default',
   'data-test': dataTest,
@@ -96,6 +97,7 @@ export const ComboBox = ({
       className={containerClassName}
       options={data}
       disabled={disabled}
+      openOnFocus={openOnFocus}
       onOpen={() => {
         if (isLoading) return
         onOpen?.()

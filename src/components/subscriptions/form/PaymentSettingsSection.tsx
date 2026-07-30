@@ -4,13 +4,16 @@ import { useMemo, useRef } from 'react'
 import { Button } from '~/components/designSystem/Button'
 import { Selector } from '~/components/designSystem/Selector'
 import { deriveBehavior, PaymentMethodBehavior } from '~/components/paymentMethodSelection/types'
-import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
+import {
+  PaymentSettingsDrawer,
+  PaymentSettingsDrawerRef,
+} from '~/components/paymentSettings/PaymentSettingsDrawer'
+import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 
 import { buildSubscriptionDefaultValues } from './buildSubscriptionDefaultValues'
-import { PaymentSettingsDrawer, PaymentSettingsDrawerRef } from './PaymentSettingsDrawer'
 
 const TYPING_PLACEHOLDER_DATE = '2026-01-01'
 

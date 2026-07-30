@@ -7,7 +7,7 @@ import type { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import type { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types'
 import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
-import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
+import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import type { QuoteCustomer } from '~/pages/quotes/hooks/useSubscriptionPricingDrawer'
 

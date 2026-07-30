@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import {
@@ -12,10 +12,6 @@ import {
 import { usePageSearchParam } from '~/components/designSystem/Pagination'
 import { useExportDialog } from '~/components/exports/ExportDialog'
 import { ExportValues } from '~/components/exports/types'
-import {
-  FinalizeInvoiceDialog,
-  FinalizeInvoiceDialogRef,
-} from '~/components/invoices/FinalizeInvoiceDialog'
 import InvoicesList from '~/components/invoices/InvoicesList'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
@@ -146,7 +142,6 @@ const InvoicesPage = () => {
     PremiumIntegrationTypeEnum.RevenueShare,
   )
 
-  const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
   const { openExportDialog } = useExportDialog()
 
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
@@ -333,8 +328,6 @@ const InvoicesPage = () => {
           goToPage(1)
         }}
       />
-
-      <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
     </>
   )
 }

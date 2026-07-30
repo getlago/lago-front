@@ -63,6 +63,7 @@ export const permissionGroupMapping: PermissionGroupMapping = {
     'InvoicesUpdate',
     'InvoicesView',
     'InvoicesVoid',
+    'InvoicesDelete',
     'InvoicesExport',
   ],
   organization: [
@@ -238,6 +239,7 @@ export const permissionDescriptionMapping: Partial<Record<PermissionName, string
   InvoicesUpdate: 'text_1766047581849kg8h3krio7b',
   InvoicesView: 'text_17660475818496eb8mnaygrc',
   InvoicesVoid: 'text_1766047581850xfdxud1g9ic',
+  InvoicesDelete: 'text_178482400457029nb9diwj6m',
 
   // Organization
   OrganizationView: 'text_1766047581850c4xikdtb4v6',

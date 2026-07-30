@@ -1,6 +1,6 @@
 import { FetchMoreQueryOptions, gql } from '@apollo/client'
 import { IconName } from 'lago-design-system'
-import { FC, useRef } from 'react'
+import { FC } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
@@ -13,15 +13,10 @@ import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { buildInvoiceDocumentData } from '~/components/emails/buildDocumentData'
+import { useDeleteInvoiceDialog } from '~/components/invoices/DeleteInvoiceDialog'
 import { useUpdateInvoicePaymentStatusDialog } from '~/components/invoices/EditInvoicePaymentStatusDialog'
-import {
-  FinalizeInvoiceDialog,
-  FinalizeInvoiceDialogRef,
-} from '~/components/invoices/FinalizeInvoiceDialog'
-import {
-  ResendInvoiceForCollectionDialog,
-  ResendInvoiceForCollectionDialogRef,
-} from '~/components/invoices/ResendInvoiceForCollectionDialog'
+import { useFinalizeInvoiceDialog } from '~/components/invoices/FinalizeInvoiceDialog'
+import { useResendInvoiceForCollectionDialog } from '~/components/invoices/ResendInvoiceForCollectionDialog'
 import { getMostRecentPaymentMethodId } from '~/components/invoices/utils/getMostRecentPaymentMethodId'
 import { addToast } from '~/core/apolloClient'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
@@ -45,6 +40,7 @@ import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
   BillingEntityEmailSettingsEnum,
   CurrencyEnum,
+  InvoiceForDeleteInvoiceFragmentDoc,
   InvoiceForFinalizeInvoiceFragment,
   InvoiceForFinalizeInvoiceFragmentDoc,
   InvoiceForInvoiceListFragment,
@@ -113,6 +109,7 @@ gql`
     ...InvoiceForFinalizeInvoice
     ...InvoiceForUpdateInvoicePaymentStatus
     ...InvoiceForResendInvoiceForCollectionDialog
+    ...InvoiceForDeleteInvoice
   }
 
   fragment InvoiceForInvoiceList on InvoiceCollection {
@@ -154,6 +151,7 @@ gql`
   ${InvoiceForFinalizeInvoiceFragmentDoc}
   ${InvoiceForUpdateInvoicePaymentStatusFragmentDoc}
   ${InvoiceForResendInvoiceForCollectionDialogFragmentDoc}
+  ${InvoiceForDeleteInvoiceFragmentDoc}
 `
 
 interface CustomerInvoicesListProps {
@@ -184,7 +182,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
   const { translate } = useInternationalization()
   const actions = usePermissionsInvoiceActions()
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
-  const resendInvoiceForCollectionDialogRef = useRef<ResendInvoiceForCollectionDialogRef>(null)
+  const { openResendInvoiceForCollectionDialog } = useResendInvoiceForCollectionDialog()
   const { handleDownloadFile } = useDownloadFile()
   const { showResendEmailDialog } = useResendEmailDialog()
 
@@ -196,7 +194,8 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
 
   const { generatePaymentUrl } = useGeneratePaymentUrl()
 
-  const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
+  const { openFinalizeInvoiceDialog } = useFinalizeInvoiceDialog()
+  const { openDeleteInvoiceDialog } = useDeleteInvoiceDialog()
   const { openUpdateInvoicePaymentStatusDialog } = useUpdateInvoicePaymentStatusDialog()
 
   return (
@@ -413,6 +412,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
               canRetryCollect,
               canUpdatePaymentStatus,
               canVoid,
+              canDelete,
               canResendEmail,
             } = actions
 
@@ -455,9 +455,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                   startIcon: 'checkmark' as IconName,
                   title: translate('text_63a41a8eabb9ae67047c1c08'),
                   onAction: (item) => {
-                    finalizeInvoiceRef.current?.openDialog(
-                      item as InvoiceForFinalizeInvoiceFragment,
-                    )
+                    openFinalizeInvoiceDialog(item as InvoiceForFinalizeInvoiceFragment)
                   },
                 }
               }
@@ -510,7 +508,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                     startIcon: 'push',
                     title: translate('text_63ac86d897f728a87b2fa039'),
                     onAction: () => {
-                      resendInvoiceForCollectionDialogRef.current?.openDialog({
+                      openResendInvoiceForCollectionDialog({
                         invoice,
                         preselectedPaymentMethodId: getMostRecentPaymentMethodId(invoice?.payments),
                       })
@@ -581,12 +579,20 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                       ),
                   }
                 : null,
+
+              canDelete(invoice)
+                ? {
+                    startIcon: 'trash',
+                    title: translate('text_17848001862070vhaaoyut3y'),
+                    onAction: (item) => {
+                      openDeleteInvoiceDialog(item)
+                    },
+                  }
+                : null,
             ]
           }}
         />
       </PaginatedContent>
-      <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
-      <ResendInvoiceForCollectionDialog ref={resendInvoiceForCollectionDialogRef} />
     </>
   )
 }

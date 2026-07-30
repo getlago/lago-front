@@ -12,6 +12,7 @@ import {
 import { printHtmlContent } from '~/components/designSystem/RichTextEditor/common/printHtmlContent'
 import RichTextEditor from '~/components/designSystem/RichTextEditor/RichTextEditor'
 import { addToast } from '~/core/apolloClient'
+import { preloadContextualLocale } from '~/hooks/core/useContextualLocale'
 
 import type { QuotePreviewProps } from './buildQuotePreviewProps'
 import { QuotePdfHeader } from './QuotePdfHeader'
@@ -50,28 +51,34 @@ export const QuotePdfProvider = ({ children }: { children: ReactNode }) => {
   const download = useCallback((previewProps: QuotePreviewProps): Promise<void> => {
     if (!previewProps.content) return Promise.resolve()
 
-    const promise = new Promise<void>((resolve, reject) => {
-      requestIdRef.current += 1
-      const request: PendingRequest = {
-        id: requestIdRef.current,
-        props: previewProps,
-        resolve,
-        reject,
-      }
+    // Warm the customer-locale translation bundle before mounting the off-screen
+    // preview editor. The editor snapshots its DOM two animation frames after mount,
+    // which is faster than the async locale import resolves — so without this, a
+    // first-time non-English render captures empty pricing-table headers (LAGO-1686).
+    const result = preloadContextualLocale(previewProps.customerLocale).then(() => {
+      return new Promise<void>((resolve, reject) => {
+        requestIdRef.current += 1
+        const request: PendingRequest = {
+          id: requestIdRef.current,
+          props: previewProps,
+          resolve,
+          reject,
+        }
 
-      if (currentRef.current) {
-        queueRef.current.push(request)
-      } else {
-        currentRef.current = request
-        setCurrent(request)
-      }
+        if (currentRef.current) {
+          queueRef.current.push(request)
+        } else {
+          currentRef.current = request
+          setCurrent(request)
+        }
+      })
     })
 
     // Mark the rejection handled so fire-and-forget callers don't trigger an
     // unhandled-rejection warning; callers that await still receive it.
-    promise.catch(() => {})
+    result.catch(() => {})
 
-    return promise
+    return result
   }, [])
 
   const handleReady = useCallback(

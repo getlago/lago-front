@@ -143,26 +143,6 @@ jest.mock('~/components/plans/PlanMetadataSection', () => {
   }
 })
 
-jest.mock('~/components/designSystem/WarningDialog', () => {
-  const React = jest.requireActual('react')
-  const mockOpenDialog = jest.fn()
-
-  const MockWarningDialog = React.forwardRef((props: { onContinue?: () => void }, ref: unknown) => {
-    React.useImperativeHandle(ref, () => ({
-      openDialog: () => {
-        mockOpenDialog()
-        props.onContinue?.()
-      },
-    }))
-
-    return React.createElement('div', { 'data-test': 'warning-dialog-mock' })
-  })
-
-  MockWarningDialog.displayName = 'WarningDialog'
-
-  return { WarningDialog: MockWarningDialog, WarningDialogRef: {} }
-})
-
 jest.mock('~/components/plans/details-v2/shared/useCascadeFormDialog', () => ({
   useCascadeFormDialog: () => ({
     openCascadeDialog: jest.fn(),

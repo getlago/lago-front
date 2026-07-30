@@ -1,14 +1,14 @@
 import { gql } from '@apollo/client'
 import { useRef } from 'react'
 
-import { DetailsPage } from '~/components/layouts/DetailsPage'
-import { ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
-import { SectionHeader } from '~/components/plans/details-v2/shared/SectionHeader'
 import {
   InvoicingSettingsDrawer,
   InvoicingSettingsDrawerRef,
-} from '~/components/subscriptions/form/InvoicingSettingsDrawer'
+} from '~/components/invoicingSettings/InvoicingSettingsDrawer'
+import { DetailsPage } from '~/components/layouts/DetailsPage'
+import { SectionHeader } from '~/components/plans/details-v2/shared/SectionHeader'
 import { SubscriptionInvoiceCustomSectionDetails } from '~/components/subscriptions/SubscriptionInvoiceCustomSectionDetails'
+import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { SubscriptionInvoiceSectionFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useUpdateSubscriptionSettings } from '~/hooks/customer/useUpdateSubscriptionSettings'
@@ -86,6 +86,7 @@ export const SubscriptionInvoiceSection = ({ subscription }: SubscriptionInvoice
         viewType={ViewTypeEnum.Subscription}
         customerId={subscription.customer?.id}
         showCustomSection={showCustomSection}
+        withInvoiceConsolidation
         onSave={saveInvoicing}
       />
     </section>

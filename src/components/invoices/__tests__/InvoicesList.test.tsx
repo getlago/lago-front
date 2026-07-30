@@ -70,6 +70,7 @@ const mockCanRetryCollect = jest.fn(() => false)
 const mockCanGeneratePaymentUrl = jest.fn(() => false)
 const mockCanUpdatePaymentStatus = jest.fn(() => true)
 const mockCanVoid = jest.fn(() => true)
+const mockCanDelete = jest.fn(() => false)
 const mockCanRegenerate = jest.fn(() => false)
 const mockCanIssueCreditNote = jest.fn(() => true)
 const mockCanRecordPayment = jest.fn(() => true)
@@ -84,6 +85,7 @@ jest.mock('~/hooks/usePermissionsInvoiceActions', () => ({
     canGeneratePaymentUrl: mockCanGeneratePaymentUrl,
     canUpdatePaymentStatus: mockCanUpdatePaymentStatus,
     canVoid: mockCanVoid,
+    canDelete: mockCanDelete,
     canRegenerate: mockCanRegenerate,
     canIssueCreditNote: mockCanIssueCreditNote,
     canRecordPayment: mockCanRecordPayment,
@@ -134,6 +136,29 @@ const mockOpenUpdateInvoicePaymentStatusDialog = jest.fn()
 jest.mock('~/components/invoices/EditInvoicePaymentStatusDialog', () => ({
   useUpdateInvoicePaymentStatusDialog: () => ({
     openUpdateInvoicePaymentStatusDialog: mockOpenUpdateInvoicePaymentStatusDialog,
+  }),
+}))
+
+const mockOpenResendInvoiceForCollectionDialog = jest.fn()
+
+jest.mock('~/components/invoices/ResendInvoiceForCollectionDialog', () => ({
+  useResendInvoiceForCollectionDialog: () => ({
+    openResendInvoiceForCollectionDialog: mockOpenResendInvoiceForCollectionDialog,
+  }),
+}))
+
+const mockOpenFinalizeInvoiceDialog = jest.fn()
+const mockOpenDeleteInvoiceDialog = jest.fn()
+
+jest.mock('~/components/invoices/DeleteInvoiceDialog', () => ({
+  useDeleteInvoiceDialog: () => ({
+    openDeleteInvoiceDialog: mockOpenDeleteInvoiceDialog,
+  }),
+}))
+
+jest.mock('~/components/invoices/FinalizeInvoiceDialog', () => ({
+  useFinalizeInvoiceDialog: () => ({
+    openFinalizeInvoiceDialog: mockOpenFinalizeInvoiceDialog,
   }),
 }))
 
@@ -1051,9 +1076,10 @@ describe('InvoicesList', () => {
 
       await waitFor(() => user.click(retryButton))
 
-      // Dialog should be opened - verify by checking for dialog-title test id
       await waitFor(() => {
-        expect(screen.getByTestId('dialog-title')).toBeInTheDocument()
+        expect(mockOpenResendInvoiceForCollectionDialog).toHaveBeenCalledWith(
+          expect.objectContaining({ invoice: expect.objectContaining({ id: 'invoice-1' }) }),
+        )
       })
     })
 
@@ -1103,6 +1129,26 @@ describe('InvoicesList', () => {
       await waitFor(() => user.click(voidButton))
 
       expect(testMockNavigateFn).toHaveBeenCalled()
+    })
+
+    it('opens the delete dialog when the delete action is clicked', async () => {
+      const user = userEvent.setup()
+
+      mockCanDelete.mockReturnValue(true)
+
+      await renderInvoicesList({
+        invoices: [createMockInvoice({ status: InvoiceStatusTypeEnum.Draft })],
+      })
+
+      const actionButton = screen.getByTestId('open-action-button')
+
+      await waitFor(() => user.click(actionButton))
+
+      const deleteButton = screen.getByRole('button', { name: 'text_17848001862070vhaaoyut3y' })
+
+      await waitFor(() => user.click(deleteButton))
+
+      expect(mockOpenDeleteInvoiceDialog).toHaveBeenCalled()
     })
 
     it('shows regenerate action for voided invoice and navigates', async () => {

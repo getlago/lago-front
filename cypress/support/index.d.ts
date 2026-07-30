@@ -48,6 +48,37 @@ declare namespace Cypress {
      * cy.visitApp('/login')                // → /login (public, unchanged)
      */
     visitApp(path: string): Chainable<Cypress.AUTWindow>
+
+    /**
+     * Yields the running org's premium state, captured from the
+     * `getCurrentUserInfos` response during `cy.login()` / `cy.signup()`.
+     * Defaults to `false` if neither has run.
+     *
+     * Premium is off on fork/community PRs because CI enables it via the
+     * `LAGO_LICENSE` secret and GitHub does not pass secrets to fork
+     * `pull_request` runs. Branch premium-gated steps on this so fork CI
+     * stays green regardless of license.
+     * @example
+     * cy.getIsPremium().then((isPremium) => { ... })
+     */
+    getIsPremium(): Chainable<boolean>
+
+    /**
+     * Runs `fn` only when the org is premium. Wrap e2e steps that click a
+     * premium-gated control (graduated-percentage model, percentage min/max,
+     * spending minimum, minimum commitment, progressive billing, …).
+     * @example
+     * cy.whenPremium(() => { cy.get('[data-test="graduated-percentage"]').click() })
+     */
+    whenPremium(fn: () => void): Chainable<unknown>
+
+    /**
+     * Runs `fn` only when the org is NOT premium — typically to assert the
+     * premium gate / `PremiumWarningDialog` shows instead of the control.
+     * @example
+     * cy.whenNotPremium(() => { cy.get('[data-test="premium-warning-dialog"]').should('exist') })
+     */
+    whenNotPremium(fn: () => void): Chainable<unknown>
   }
 
   interface Cypress {

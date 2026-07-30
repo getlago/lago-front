@@ -15,6 +15,13 @@ import { AllTheProviders, TestMocksType } from '~/test-utils'
 
 import CreateCustomer from '../CreateCustomer'
 
+// The drawer stack relies on import.meta (unsupported in jest) — mock the
+// drawer hooks like every other drawer-consuming test does
+jest.mock('~/components/drawers/useDrawer', () => ({
+  useDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+  useFormDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+}))
+
 // Mock data for required queries
 const defaultMocks: TestMocksType = [
   {

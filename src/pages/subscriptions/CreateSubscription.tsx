@@ -576,20 +576,6 @@ const CreateSubscription = () => {
                         customerExternalId={customer?.externalId}
                       />
 
-                      {/* Section: Payments */}
-                      <CenteredPage.PageSection>
-                        <CenteredPage.PageSectionTitle
-                          title={translate('text_17828013737948943pe3k8nc')}
-                          description={translate('text_17828013737955532qxu3wq4')}
-                        />
-
-                        {/* Payment method lives in a drawer */}
-                        <PaymentSettingsSection
-                          form={subscriptionForm}
-                          externalCustomerId={customer?.externalId ?? ''}
-                        />
-                      </CenteredPage.PageSection>
-
                       {/* Section: Invoicing */}
                       <CenteredPage.PageSection>
                         <CenteredPage.PageSectionTitle
@@ -601,6 +587,20 @@ const CreateSubscription = () => {
                         <InvoicingSettingsSection
                           form={subscriptionForm}
                           customerId={customer?.id}
+                        />
+                      </CenteredPage.PageSection>
+
+                      {/* Section: Payments */}
+                      <CenteredPage.PageSection>
+                        <CenteredPage.PageSectionTitle
+                          title={translate('text_17828013737948943pe3k8nc')}
+                          description={translate('text_17828013737955532qxu3wq4')}
+                        />
+
+                        {/* Payment method lives in a drawer */}
+                        <PaymentSettingsSection
+                          form={subscriptionForm}
+                          externalCustomerId={customer?.externalId ?? ''}
                         />
                       </CenteredPage.PageSection>
                     </>

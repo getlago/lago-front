@@ -247,6 +247,62 @@ describe('FormDialogOpeningDialog', () => {
         expect(submitFn).toHaveBeenCalled()
       })
     })
+
+    it('keeps the dialog open when didSubmitSucceed returns false', async () => {
+      const user = userEvent.setup()
+
+      render(
+        <NiceModalWrapper>
+          <TestComponent
+            dialogProps={{
+              ...defaultProps,
+              form: {
+                id: 'invalid-test-form',
+                submit: jest.fn(),
+                didSubmitSucceed: () => false,
+              },
+            }}
+          />
+        </NiceModalWrapper>,
+      )
+
+      await waitFor(() => {
+        expect(screen.getByTestId(MAIN_ACTION_TEST_ID)).toBeInTheDocument()
+      })
+
+      await user.click(screen.getByTestId(MAIN_ACTION_TEST_ID))
+
+      expect(screen.getByTestId(FORM_DIALOG_OPENING_DIALOG_TEST_ID)).toBeInTheDocument()
+    })
+
+    it('closes the dialog when didSubmitSucceed returns true', async () => {
+      const user = userEvent.setup()
+
+      render(
+        <NiceModalWrapper>
+          <TestComponent
+            dialogProps={{
+              ...defaultProps,
+              form: {
+                id: 'valid-test-form',
+                submit: jest.fn(),
+                didSubmitSucceed: () => true,
+              },
+            }}
+          />
+        </NiceModalWrapper>,
+      )
+
+      await waitFor(() => {
+        expect(screen.getByTestId(MAIN_ACTION_TEST_ID)).toBeInTheDocument()
+      })
+
+      await user.click(screen.getByTestId(MAIN_ACTION_TEST_ID))
+
+      await waitFor(() => {
+        expect(screen.queryByTestId(FORM_DIALOG_OPENING_DIALOG_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
   })
 
   describe('Open Other Dialog Button', () => {

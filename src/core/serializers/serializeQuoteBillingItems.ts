@@ -5,6 +5,7 @@ import { CurrencyEnum } from '~/generated/graphql'
 import { deserializeAmount, serializeAmount } from './serializeAmount'
 import { type BillingItemCoupon, fromCoupons } from './serializeQuoteCoupons'
 import { type BillingItemPlan, fromPlanBillingItems } from './serializeQuotePlanBillingItems'
+import type { BillingItemWallet } from './serializeQuoteWallets'
 
 // --- Backend contract types (snake_case) ---
 
@@ -37,7 +38,20 @@ export interface BillingItemsPayload {
   addOns?: BillingItemAddon[]
   plans?: BillingItemPlan[]
   coupons?: BillingItemCoupon[]
+  walletCredits?: BillingItemWallet[]
 }
+
+/**
+ * Replace ONLY the walletCredits slice, preserving every sibling category
+ * (plans/addOns/coupons) untouched.
+ *
+ * Callers should use this helper whenever mutating wallet credits to avoid
+ * accidentally dropping unrelated billingItems categories.
+ */
+export const mergeWalletCredits = (
+  billingItems: BillingItemsPayload | null | undefined,
+  walletCredits: BillingItemWallet[],
+): BillingItemsPayload => ({ ...billingItems, walletCredits })
 
 // --- Serialization helpers ---
 

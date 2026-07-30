@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Button } from '~/components/designSystem/Button'
 import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { DialogResult } from '~/components/dialogs/types'
+import { VIEW_TYPE_TRANSLATION_KEYS, ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { InvoiceCustomSectionFields } from './InvoiceCustomSectionFields'
@@ -13,8 +14,6 @@ import {
   InvoiceCustomSectionInput,
   InvoiceCustomSectionSelection,
 } from './types'
-
-import { VIEW_TYPE_TRANSLATION_KEYS, ViewTypeEnum } from '../paymentMethodsInvoiceSettings/types'
 
 export const EDIT_INVOICE_CUSTOM_SECTION_FORM_ID = 'edit-invoice-custom-section-form'
 

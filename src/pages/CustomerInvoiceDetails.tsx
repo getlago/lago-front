@@ -10,12 +10,10 @@ import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { buildInvoiceDocumentData } from '~/components/emails/buildDocumentData'
 import { AddMetadataDrawer, AddMetadataDrawerRef } from '~/components/invoices/AddMetadataDrawer'
+import { useDeleteInvoiceDialog } from '~/components/invoices/DeleteInvoiceDialog'
 import { useDisputeInvoiceDialog } from '~/components/invoices/DisputeInvoiceDialog'
 import { useUpdateInvoicePaymentStatusDialog } from '~/components/invoices/EditInvoicePaymentStatusDialog'
-import {
-  FinalizeInvoiceDialog,
-  FinalizeInvoiceDialogRef,
-} from '~/components/invoices/FinalizeInvoiceDialog'
+import { useFinalizeInvoiceDialog } from '~/components/invoices/FinalizeInvoiceDialog'
 import { InvoiceActivityLogs } from '~/components/invoices/InvoiceActivityLogs'
 import { InvoiceCreditNoteList } from '~/components/invoices/InvoiceCreditNoteList'
 import { InvoicePaymentList } from '~/components/invoices/InvoicePaymentList'
@@ -57,6 +55,7 @@ import {
   HubspotIntegrationInfosForInvoiceOverviewFragmentDoc,
   Invoice,
   InvoiceDetailsForInvoiceOverviewFragmentDoc,
+  InvoiceForDeleteInvoiceFragmentDoc,
   InvoiceForDetailsTableFragmentDoc,
   InvoiceForFinalizeInvoiceFragmentDoc,
   InvoiceForFormatInvoiceItemMapFragmentDoc,
@@ -130,6 +129,7 @@ gql`
     ...InvoiceForInvoiceInfos
     ...InvoiceForFinalizeInvoice
     ...InvoiceForUpdateInvoicePaymentStatus
+    ...InvoiceForDeleteInvoice
   }
 
   fragment FeeAppliedTaxesForInvoiceDetails on Fee {
@@ -297,6 +297,7 @@ gql`
   ${AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc}
   ${InvoiceForFinalizeInvoiceFragmentDoc}
   ${InvoiceForUpdateInvoicePaymentStatusFragmentDoc}
+  ${InvoiceForDeleteInvoiceFragmentDoc}
   ${NetsuiteIntegrationInfosForInvoiceOverviewFragmentDoc}
   ${HubspotIntegrationInfosForInvoiceOverviewFragmentDoc}
   ${SalesforceIntegrationInfosForInvoiceOverviewFragmentDoc}
@@ -314,7 +315,8 @@ const CustomerInvoiceDetails = () => {
   const { goBack } = useLocationHistory()
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
-  const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
+  const { openFinalizeInvoiceDialog } = useFinalizeInvoiceDialog()
+  const { openDeleteInvoiceDialog } = useDeleteInvoiceDialog()
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
   const { openUpdateInvoicePaymentStatusDialog } = useUpdateInvoicePaymentStatusDialog()
   const addMetadataDrawerDialogRef = useRef<AddMetadataDrawerRef>(null)
@@ -770,7 +772,7 @@ const CustomerInvoiceDetails = () => {
           label: translate('text_63a41a8eabb9ae67047c1c08'),
           hidden: !authorizations.canFinalizeInvoice,
           onClick: (closePopper: () => void) => {
-            finalizeInvoiceRef.current?.openDialog(data?.invoice)
+            openFinalizeInvoiceDialog(data?.invoice)
             closePopper()
           },
         },
@@ -954,6 +956,16 @@ const CustomerInvoiceDetails = () => {
           },
         },
         {
+          label: translate('text_17848001862070vhaaoyut3y'),
+          hidden: !authorizations.canDelete,
+          onClick: (closePopper: () => void) => {
+            if (data?.invoice) {
+              openDeleteInvoiceDialog(data.invoice, goToPreviousRoute)
+            }
+            closePopper()
+          },
+        },
+        {
           label: translate('text_1750678506388oynw9hd01l9'),
           hidden: !authorizations.canRegenerate,
           onClick: (closePopper: () => void) => {
@@ -1026,7 +1038,6 @@ const CustomerInvoiceDetails = () => {
         <DetailsPage.Container>{activeTabContent}</DetailsPage.Container>
       )}
 
-      <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
       {!!invoice && <AddMetadataDrawer ref={addMetadataDrawerDialogRef} invoiceId={invoice.id} />}
     </>
   )

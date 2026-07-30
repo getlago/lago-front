@@ -2,13 +2,12 @@ import { useMemo } from 'react'
 
 import { Chip } from '~/components/designSystem/Chip'
 import { Typography } from '~/components/designSystem/Typography'
+import { VIEW_TYPE_TRANSLATION_KEYS, ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCustomerInvoiceCustomSections } from '~/hooks/useCustomerInvoiceCustomSections'
 
 import { InvoiceCustomSectionBasic } from './types'
 import { computeInvoiceCustomSectionsDisplayState } from './utils'
-
-import { VIEW_TYPE_TRANSLATION_KEYS, ViewTypeEnum } from '../paymentMethodsInvoiceSettings/types'
 
 export const SECTION_CHIP = (sectionId: string) =>
   `invoice-custom-section-display-chip-${sectionId}`

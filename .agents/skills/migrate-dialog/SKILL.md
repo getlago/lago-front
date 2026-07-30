@@ -141,15 +141,9 @@ export const useMyDialog = () => {
     },
   })
 
-  const handleSubmit = async (): Promise<DialogResult> => {
+  const submit = async (): Promise<void> => {
     successRef.current = false
     await form.handleSubmit()
-
-    if (!successRef.current) {
-      throw new Error('Submit failed')
-    }
-
-    return { reason: 'success' }
   }
 
   const openMyDialog = (data: MyData) => {
@@ -179,7 +173,8 @@ export const useMyDialog = () => {
         ),
         form: {
           id: MY_FORM_ID,
-          submit: handleSubmit,
+          submit,
+          didSubmitSucceed: () => successRef.current,
         },
       })
       .then((response) => {
@@ -194,27 +189,26 @@ export const useMyDialog = () => {
 }
 ```
 
-**Which success signal to use in `handleSubmit`:**
+**Which success signal to use:**
 
-`FormDialog` only keeps the dialog open when `handleSubmit` **throws** (with `closeOnError: false`); returning any value closes it. So `handleSubmit` must throw on failure — the question is how it detects failure:
+`FormDialog` asks the optional `form.didSubmitSucceed()` once `submit` settles; returning `false` keeps the dialog open (it neither resolves nor hides), so validation errors stay visible. Never throw a synthetic error to keep a dialog open — that path is for real failures only. Two cases:
 
-- **`onSubmit` runs an operation that can fail _without throwing_** (e.g. a mutation that returns GraphQL errors instead of rejecting) → track success with a manual flag (`successRef`) set inside `onSubmit` only on real success, as shown above. `form.state.isSubmitSuccessful` can't see a soft failure — it's `true` whenever `onSubmit` didn't throw, even if the mutation returned errors.
-- **`onSubmit` has no failure mode beyond validation** (e.g. it just calls a callback — no mutation) → drop the `successRef` and read the built-in **`form.state.isSubmitSuccessful`** directly:
+- **`onSubmit` runs an operation that can fail _without throwing_** (e.g. a mutation that returns GraphQL errors instead of rejecting) → track success with a manual flag (`successRef`) set inside `onSubmit` only on real success, and expose it as `didSubmitSucceed`, as shown above. `form.state.isSubmitSuccessful` can't see a soft failure — it's `true` whenever `onSubmit` didn't throw, even if the mutation returned errors. Reset the flag in the `submit` wrapper, not inside `onSubmit`: on a validation failure `onSubmit` never runs, so a stale `true` from an earlier submit would let the dialog close.
+- **`onSubmit` has no failure mode beyond validation** (e.g. it just calls a callback — no mutation) → drop the `successRef` and use the **`dialogFormProps`** helper, which wires `submit` and `didSubmitSucceed` from the form's own state:
 
 ```typescript
-const handleSubmit = async (): Promise<DialogResult> => {
-  await form.handleSubmit()
+import { dialogFormProps } from '~/components/dialogs/dialogFormProps'
 
+formDialog.open({
+  // …
   // isSubmitSuccessful: reset to false at the start of each submit, stays false if
   // validation fails (onSubmit never runs), true only after onSubmit resolves
-  // without throwing. Throw to keep the dialog open (closeOnError: false).
-  if (!form.state.isSubmitSuccessful) {
-    throw new Error('Submit failed')
-  }
-
-  return { reason: 'success' }
-}
+  // without throwing.
+  form: dialogFormProps(MY_FORM_ID, form),
+})
 ```
+
+`closeOnError: false` is unrelated to validation: keep it only when a submit that genuinely **throws** (a rejecting mutation) should leave the dialog open instead of rejecting the `open()` promise.
 
 Do **not** drop `validationLogic` to "simplify" — without `revalidateLogic()` the `onDynamic` validator never runs and the schema is silently skipped. Keep `revalidateLogic()` (the default, submit-first); do not use `revalidateLogic({ mode: 'change' })` unless a field genuinely needs live validation feedback.
 
@@ -412,15 +406,9 @@ export const useMyFormDialog = () => {
     },
   })
 
-  const handleSubmit = async (): Promise<DialogResult> => {
+  const submit = async (): Promise<void> => {
     successRef.current = false
     await form.handleSubmit()
-
-    if (!successRef.current) {
-      throw new Error('Submit failed')
-    }
-
-    return { reason: 'success' }
   }
 
   const openMyFormDialog = (data: MyData) => {
@@ -455,7 +443,8 @@ export const useMyFormDialog = () => {
         ),
         form: {
           id: MY_FORM_ID,
-          submit: handleSubmit,
+          submit,
+          didSubmitSucceed: () => successRef.current,
         },
         // Secondary action button (conditionally shown)
         canOpenDialog: isEdition && !!data.deleteCallback && someCondition,
@@ -519,7 +508,7 @@ export const useMyFormDialog = () => {
 **Handling form submission:**
 
 - Old: `handleSubmit` called `e.preventDefault()` + `form.handleSubmit()`; dialog closed by calling `dialogRef.current?.closeDialog()` inside `onSubmit`
-- New: `handleSubmit` returns a `Promise<DialogResult>`. Use a `successRef` to track whether the mutation succeeded. The dialog auto-closes on success (when the promise resolves). Throw an error to keep the dialog open on failure.
+- New: pass `submit` plus `didSubmitSucceed` in the `form` prop (or `dialogFormProps(id, form)` when validation is the only failure mode). The dialog auto-closes once `submit` settles, unless `didSubmitSucceed()` returns `false` — that keeps it open with the errors visible. Use a `successRef` only when the mutation signals failure without rejecting.
 
 **Handling dialog close/cleanup:**
 
@@ -546,8 +535,8 @@ Add (for FormDialog):
 
 ```typescript
 import { useRef } from 'react'
+import { dialogFormProps } from '~/components/dialogs/dialogFormProps'
 import { useFormDialog } from '~/components/dialogs/FormDialog'
-import { DialogResult } from '~/components/dialogs/types'
 // Only for branch 2a (plain-input-first). Branch 2b (combobox-first/only) does NOT import
 // focusFirstInput — it imports MUI_INPUT_BASE_ROOT_CLASSNAME + a field className from
 // ~/core/constants/form and clicks the combobox MuiInputBase-root in onEntered. See section 2.
@@ -564,8 +553,8 @@ Or (for FormDialogOpeningDialog):
 
 ```typescript
 import { useRef } from 'react'
+import { dialogFormProps } from '~/components/dialogs/dialogFormProps'
 import { useFormDialogOpeningDialog } from '~/components/dialogs/FormDialogOpeningDialog'
-import { DialogResult } from '~/components/dialogs/types'
 // Only for branch 2a (plain-input-first). Branch 2b (combobox-first/only) does NOT import
 // focusFirstInput — it imports MUI_INPUT_BASE_ROOT_CLASSNAME + a field className from
 // ~/core/constants/form and clicks the combobox MuiInputBase-root in onEntered. See section 2.
@@ -687,7 +676,7 @@ type FormDialogProps = {
   cancelOrCloseText?: 'close' | 'cancel'
   closeOnError?: boolean
   onError?: (error: Error) => void
-  form: FormProps  // { id: string; submit: (e: React.FormEvent) => void }
+  form: FormProps // { id: string; submit: () => void; didSubmitSucceed?: () => boolean }
 }
 ```
 
@@ -738,7 +727,7 @@ type FormDialogOpeningDialogProps = FormDialogProps & {
 - [ ] Convert `forwardRef` component to custom hook (`useMyDialog`)
 - [ ] Replace `useState(localData)` with `useRef` (for FormDialog/FormDialogOpeningDialog) or function parameter (for CentralizedDialog)
 - [ ] Replace `Dialog`/`WarningDialog` with `useFormDialog()`, `useCentralizedDialog()`, or `useFormDialogOpeningDialog()`
-- [ ] Implement `handleSubmit` returning `Promise<DialogResult>` (for FormDialog/FormDialogOpeningDialog)
+- [ ] Wire the `form` prop with `dialogFormProps(id, form)`, or with `submit` + `didSubmitSucceed` when a `successRef` is needed (for FormDialog/FormDialogOpeningDialog)
 - [ ] Wrap `children` JSX in a `p-8` padding container (BaseDialog does NOT pad JSX children → flush/misaligned layout otherwise)
 - [ ] **Classify the first editable field before writing `onEntered`** (see section 2 decision table) — this check is mandatory, not optional:
   - [ ] First field is a plain input → `onEntered: focusFirstInput` (branch 2a)

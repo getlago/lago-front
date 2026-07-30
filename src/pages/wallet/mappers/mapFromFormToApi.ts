@@ -1,5 +1,3 @@
-import { DateTime } from 'luxon'
-
 import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
 import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
@@ -73,10 +71,10 @@ const formatRecurringTransactionRules = (
       method: method as RecurringTransactionMethodEnum,
       trigger: trigger as RecurringTransactionTriggerEnum,
       interval: trigger === RecurringTransactionTriggerEnum.Interval ? interval : null,
-      startedAt:
-        trigger === RecurringTransactionTriggerEnum.Interval
-          ? (startedAt ?? DateTime.now().toISO())
-          : null,
+      // Leave `startedAt` null when the user did not pick one: the backend
+      // anchors interval rules to the wallet's `createdAt`. Defaulting to today
+      // here would silently move the recurrence anchor on every save.
+      startedAt: trigger === RecurringTransactionTriggerEnum.Interval ? startedAt || null : null,
       thresholdCredits:
         trigger === RecurringTransactionTriggerEnum.Threshold ? thresholdCredits : null,
       paidCredits: rulePaidCredit === '' ? '0' : String(rulePaidCredit),

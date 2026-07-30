@@ -9,6 +9,7 @@ import { Alert } from '~/components/designSystem/Alert'
 import { useFormDialogOpeningDialog } from '~/components/dialogs/FormDialogOpeningDialog'
 import { DialogResult } from '~/components/dialogs/types'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
+import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -217,25 +218,19 @@ export const useAddSalesforceDialog = () => {
             {showGlobalError && (
               <Alert type="danger">{translate('text_1749562792335fy21gc3sxn0')}</Alert>
             )}
-            <div className="flex w-full flex-row items-start gap-6 *:flex-1">
-              <form.AppField name="name">
-                {(field) => (
-                  <field.TextInputField
-                    label={translate('text_6419c64eace749372fc72b0f')}
-                    placeholder={translate('text_6584550dc4cec7adf861504f')}
-                  />
-                )}
-              </form.AppField>
-              <form.AppField name="code">
-                {(field) => (
-                  <field.TextInputField
-                    beforeChangeFormatter="code"
-                    label={translate('text_62876e85e32e0300e1803127')}
-                    placeholder={translate('text_6584550dc4cec7adf8615053')}
-                  />
-                )}
-              </form.AppField>
-            </div>
+            <NameAndCodeGroup
+              form={form}
+              fields={{ name: 'name', code: 'code' }}
+              disableAutoGenerateCode={isEdition}
+              nameProps={{
+                label: translate('text_6419c64eace749372fc72b0f'),
+                placeholder: translate('text_6584550dc4cec7adf861504f'),
+              }}
+              codeProps={{
+                label: translate('text_62876e85e32e0300e1803127'),
+                placeholder: translate('text_6584550dc4cec7adf8615053'),
+              }}
+            />
             <form.AppField name="instanceId">
               {(field) => (
                 <field.TextInputField

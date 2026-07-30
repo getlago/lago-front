@@ -54,6 +54,7 @@ gql`
       invoiceCustomSectionsCreate
       invoiceCustomSectionsUpdate
       invoicesCreate
+      invoicesDelete
       invoicesSend
       invoicesUpdate
       invoicesView
