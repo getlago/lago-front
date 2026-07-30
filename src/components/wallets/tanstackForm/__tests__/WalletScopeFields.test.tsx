@@ -23,6 +23,20 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
+// The billable-metric combobox reads its options from the lazy query; stub it so
+// tests can feed a loaded `selectableBillableMetrics` payload (undefined by default,
+// matching the pre-fetch state the other cases rely on).
+let mockBillableMetricsData: unknown = undefined
+const mockGetBillableMetrics = jest.fn()
+
+jest.mock('~/generated/graphql', () => ({
+  ...jest.requireActual('~/generated/graphql'),
+  useGetBillableMetricsForWalletLazyQuery: () => [
+    mockGetBillableMetrics,
+    { data: mockBillableMetricsData, loading: false },
+  ],
+}))
+
 const emptyScope: WalletScopeSlice = { feeTypes: [], billableMetricCodes: [] }
 
 const TestWrapper = ({ initialValues = emptyScope }: { initialValues?: WalletScopeSlice }) => {
@@ -35,6 +49,10 @@ const TestWrapper = ({ initialValues = emptyScope }: { initialValues?: WalletSco
 const FEE_TYPE_ALERT_TEST_ID = 'alert-type-info'
 
 describe('WalletScopeFields', () => {
+  beforeEach(() => {
+    mockBillableMetricsData = undefined
+  })
+
   describe('GIVEN the scope slice is empty', () => {
     describe('WHEN the component renders', () => {
       it('THEN should show both add buttons and no chips', () => {
@@ -170,6 +188,46 @@ describe('WalletScopeFields', () => {
         expect(
           screen.getByTestId(WALLET_SCOPE_BILLABLE_METRIC_COMBOBOX_TEST_ID),
         ).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the billable-metric query has loaded data', () => {
+    const loadedData = {
+      selectableBillableMetrics: {
+        collection: [
+          { id: 'bm-1', name: 'API calls', code: 'api_calls' },
+          { id: 'bm-2', name: 'Storage', code: 'storage' },
+        ],
+      },
+    }
+
+    describe('WHEN a selected code matches a loaded metric', () => {
+      it('THEN should label the chip with the metric name', () => {
+        mockBillableMetricsData = loadedData
+
+        render(
+          <TestWrapper initialValues={{ ...emptyScope, billableMetricCodes: ['api_calls'] }} />,
+        )
+
+        const chips = screen.getByTestId(WALLET_SCOPE_BILLABLE_METRIC_CHIPS_TEST_ID)
+
+        expect(chips.children).toHaveLength(1)
+        expect(within(chips).getByText('API calls')).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN a selected code does not match any loaded metric', () => {
+      it('THEN should fall back to the raw code as the chip label', () => {
+        mockBillableMetricsData = loadedData
+
+        render(
+          <TestWrapper initialValues={{ ...emptyScope, billableMetricCodes: ['unknown_code'] }} />,
+        )
+
+        const chips = screen.getByTestId(WALLET_SCOPE_BILLABLE_METRIC_CHIPS_TEST_ID)
+
+        expect(within(chips).getByText('unknown_code')).toBeInTheDocument()
       })
     })
   })
