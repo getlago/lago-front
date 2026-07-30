@@ -11,8 +11,11 @@ export const WALLET_TOP_UP_DEFAULT_PRIORITY = '50'
  */
 export const mapFromApiToForm = ({
   wallet,
+  purchaseOrderNumber,
 }: {
   wallet: GetWalletForTopUpQuery['wallet'] | undefined
+  /** Prefill for the regenerate flow: the voided invoice's PO number. */
+  purchaseOrderNumber?: string | null
 }): TWalletTopUpDataForm => ({
   grantedCredits: '',
   invoiceRequiresSuccessfulPayment: wallet?.invoiceRequiresSuccessfulPayment,
@@ -21,6 +24,7 @@ export const mapFromApiToForm = ({
   metadata: undefined,
   ignorePaidTopUpLimits: undefined,
   priority: 50,
+  purchaseOrderNumber: purchaseOrderNumber || undefined,
 })
 
 // Static empty defaults — for `withForm` section typing only.

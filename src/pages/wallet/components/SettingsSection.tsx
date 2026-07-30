@@ -9,6 +9,7 @@ import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { TextInput } from '~/components/form'
 import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
+import { PurchaseOrderFormBlock } from '~/components/purchaseOrder/PurchaseOrderFormBlock'
 import {
   ADD_MAX_TOPUP_OPTION_DATA_TEST,
   ADD_MIN_MAX_AMOUNT_DATA_TEST,
@@ -359,6 +360,16 @@ export const SettingsSection = withForm({
             )}
           </Popper>
         </div>
+
+        <form.AppField name="purchaseOrderNumber">
+          {(field) => (
+            <PurchaseOrderFormBlock
+              value={field.state.value}
+              description={translate('text_1783511588872okv9237slg5')}
+              onChange={(value) => field.handleChange(value)}
+            />
+          )}
+        </form.AppField>
       </section>
     )
   },

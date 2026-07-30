@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+import { addPurchaseOrderNumberMaxLengthIssue } from '~/components/purchaseOrder/validation'
 import { zodMetadataSchema } from '~/formValidation/metadataSchema'
 import { CurrencyEnum } from '~/generated/graphql'
 import { topUpAmountError } from '~/pages/wallet/form'
@@ -80,6 +81,8 @@ export const getTopUpFormValidationSchema = ({
         path: ['grantedCredits'],
       })
     }
+
+    addPurchaseOrderNumberMaxLengthIssue(ctx, data.purchaseOrderNumber, ['purchaseOrderNumber'])
 
     if (Array.isArray(data.metadata) && data.metadata.length) {
       const metadataResult = zodMetadataSchema().safeParse(data.metadata)
