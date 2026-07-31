@@ -5,7 +5,7 @@ import { CurrencyEnum } from '~/generated/graphql'
 import { deserializeAmount, serializeAmount } from './serializeAmount'
 import { type BillingItemCoupon, fromCoupons } from './serializeQuoteCoupons'
 import { type BillingItemPlan, fromPlanBillingItems } from './serializeQuotePlanBillingItems'
-import type { BillingItemWallet } from './serializeQuoteWallets'
+import { type BillingItemWallet, fromWallets } from './serializeQuoteWallets'
 
 // --- Backend contract types (snake_case) ---
 
@@ -235,6 +235,14 @@ export const buildPreviewEntities = (
     for (const c of billingItems.coupons) {
       previewEntities[c.id] = couponEntities[c.localId]
     }
+  }
+
+  // Wallet/credits blocks reference wallets solely by localId (no catalog id), so
+  // single-keying is enough — unlike coupons/add-ons there is no legacy id fallback.
+  if (billingItems.walletCredits && billingItems.walletCredits.length > 0) {
+    const { entities: walletEntities } = fromWallets(billingItems.walletCredits)
+
+    Object.assign(previewEntities, walletEntities)
   }
 
   return previewEntities
