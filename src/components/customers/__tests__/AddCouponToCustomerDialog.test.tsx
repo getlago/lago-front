@@ -1,7 +1,7 @@
-import { act, renderHook } from '@testing-library/react'
+import { act, fireEvent, renderHook } from '@testing-library/react'
 
 import { CouponFrequency, CouponTypeEnum, CurrencyEnum } from '~/generated/graphql'
-import { AllTheProviders } from '~/test-utils'
+import { AllTheProviders, render } from '~/test-utils'
 
 import { useAddCouponToCustomerDialog } from '../AddCouponToCustomerDialog'
 
@@ -48,6 +48,12 @@ const mockCustomer = { id: 'customer-1', displayName: 'Acme' }
 
 type DialogForm = {
   setFieldValue: (name: string, value: unknown) => void
+  getFieldValue: (name: string) => unknown
+}
+
+type DialogConfig = {
+  children: React.ReactElement<{ form: DialogForm }>
+  form: { submit: () => Promise<unknown> }
 }
 
 type FormValues = {
@@ -59,28 +65,35 @@ type FormValues = {
   frequencyDuration?: string | number
 }
 
-const customWrapper = ({ children }: { children: React.ReactNode }) => AllTheProviders({ children })
-
 /**
- * Opens the dialog, applies `values` to the real form instance (as the text
- * inputs would), then runs the dialog's submit handler. Returns the submit
- * error, if any, so invalid cases can be asserted without failing the test.
+ * Opens the dialog and hands back the config it was opened with, so tests can
+ * drive the real form instance and render the real dialog body.
  *
  * `mockFormDialogOpen` returns a never-resolving promise on purpose: the real
  * `open()` promise resolving would run the hook's `.then()` cleanup, which
  * clears the customer ref and would short-circuit the submit.
  */
-const submitWithValues = async (values: FormValues): Promise<{ submitError: unknown }> => {
+const openDialog = async (): Promise<{ config: DialogConfig; form: DialogForm }> => {
   mockFormDialogOpen.mockReturnValue(new Promise<never>(() => {}))
 
-  const { result } = renderHook(() => useAddCouponToCustomerDialog(), { wrapper: customWrapper })
+  const { result } = renderHook(() => useAddCouponToCustomerDialog(), { wrapper: AllTheProviders })
 
   await act(async () => {
     result.current.openAddCouponToCustomerDialog({ customer: mockCustomer })
   })
 
-  const config = mockFormDialogOpen.mock.calls[0][0]
-  const form = config.children.props.form as DialogForm
+  const config = mockFormDialogOpen.mock.calls[0][0] as DialogConfig
+
+  return { config, form: config.children.props.form }
+}
+
+/**
+ * Applies `values` to the real form instance (as the text inputs would), then
+ * runs the dialog's submit handler. Returns the submit error, if any, so
+ * invalid cases can be asserted without failing the test.
+ */
+const submitWithValues = async (values: FormValues): Promise<{ submitError: unknown }> => {
+  const { config, form } = await openDialog()
 
   await act(async () => {
     form.setFieldValue('couponId', 'coupon-1')
@@ -174,6 +187,44 @@ describe('useAddCouponToCustomerDialog', () => {
       })
     })
 
+    // A 0-decimal currency makes `AmountInput` push the `int` formatter
+    // (AmountInput.tsx:50), so the input itself emits a number here — this is
+    // one of the two cases that make the `string | number` union load-bearing.
+    describe('WHEN the currency has 0 decimals, so the input emits a number', () => {
+      it('THEN should submit it serialized as a number', async () => {
+        await submitWithValues({
+          couponType: CouponTypeEnum.FixedAmount,
+          amountCents: 1200,
+          amountCurrency: CurrencyEnum.Jpy,
+          frequency: CouponFrequency.Once,
+        })
+
+        expect(mockAddCoupon).toHaveBeenCalledWith(
+          expect.objectContaining({
+            variables: expect.objectContaining({
+              input: expect.objectContaining({
+                amountCents: 1200,
+                amountCurrency: CurrencyEnum.Jpy,
+              }),
+            }),
+          }),
+        )
+      })
+    })
+
+    describe('WHEN the currency is missing', () => {
+      it('THEN should not call the mutation', async () => {
+        const { submitError } = await submitWithValues({
+          couponType: CouponTypeEnum.FixedAmount,
+          amountCents: '20',
+          frequency: CouponFrequency.Once,
+        })
+
+        expect(mockAddCoupon).not.toHaveBeenCalled()
+        expect(submitError).toBeInstanceOf(Error)
+      })
+    })
+
     describe.each([
       ['empty', ''],
       ['not a number', 'abc'],
@@ -216,11 +267,15 @@ describe('useAddCouponToCustomerDialog', () => {
       })
     })
 
-    describe('WHEN the rate is not a number', () => {
+    describe.each([
+      ['not a number', 'abc'],
+      ['below the minimum', '0.0001'],
+      ['empty', ''],
+    ])('WHEN the rate is %s', (_label, percentageRate) => {
       it('THEN should not call the mutation', async () => {
         const { submitError } = await submitWithValues({
           couponType: CouponTypeEnum.Percentage,
-          percentageRate: 'abc',
+          percentageRate,
           frequency: CouponFrequency.Once,
         })
 
@@ -251,6 +306,28 @@ describe('useAddCouponToCustomerDialog', () => {
       })
     })
 
+    // The `int` formatter runs `parseInt` (TextInput.tsx:85), so the duration
+    // input always emits a number — the other half of why the union is needed.
+    describe('WHEN the duration is a number, as the `int` formatter produces', () => {
+      it('THEN should submit it unchanged', async () => {
+        await submitWithValues({
+          couponType: CouponTypeEnum.FixedAmount,
+          amountCents: '20',
+          amountCurrency: CurrencyEnum.Usd,
+          frequency: CouponFrequency.Recurring,
+          frequencyDuration: 12,
+        })
+
+        expect(mockAddCoupon).toHaveBeenCalledWith(
+          expect.objectContaining({
+            variables: expect.objectContaining({
+              input: expect.objectContaining({ frequencyDuration: 12 }),
+            }),
+          }),
+        )
+      })
+    })
+
     describe('WHEN the duration is below the minimum', () => {
       it('THEN should not call the mutation', async () => {
         const { submitError } = await submitWithValues({
@@ -263,6 +340,34 @@ describe('useAddCouponToCustomerDialog', () => {
 
         expect(mockAddCoupon).not.toHaveBeenCalled()
         expect(submitError).toBeInstanceOf(Error)
+      })
+    })
+  })
+
+  // The cases above inject values with `setFieldValue`, which pins the schema
+  // and submit contract but not the premise the schema rests on: what the
+  // rendered input actually stores. This types into it instead.
+  describe('GIVEN the rendered duration input', () => {
+    describe('WHEN the user types a duration', () => {
+      it('THEN should store a number, since the `int` formatter runs parseInt', async () => {
+        const { config, form } = await openDialog()
+
+        await act(async () => {
+          form.setFieldValue('couponId', 'coupon-1')
+          form.setFieldValue('couponType', CouponTypeEnum.FixedAmount)
+          form.setFieldValue('frequency', CouponFrequency.Recurring)
+        })
+
+        const { container } = render(config.children)
+        const input = container.querySelector<HTMLInputElement>('input[name="frequencyDuration"]')
+
+        expect(input).not.toBeNull()
+
+        await act(async () => {
+          fireEvent.change(input as HTMLInputElement, { target: { value: '12' } })
+        })
+
+        expect(form.getFieldValue('frequencyDuration')).toBe(12)
       })
     })
   })

@@ -90,24 +90,23 @@ gql`
 
 export const ADD_COUPON_TO_CUSTOMER_FORM_ID = 'add-coupon-to-customer-form'
 
-// The amount, rate and duration fields are text inputs, so `TextInput` hands
-// back a string as soon as the user edits one (its `onChange` is typed
-// `(value: string)`), while the coupon selection seeds them as numbers. Accept
-// both shapes and range-check the coerced number below — same approach as
-// `couponValidationSchema` (src/pages/createCoupon/validationSchema.ts).
-type NumericInputValue = string | number | null | undefined
+// These three fields can hold either shape, because `formatValue` is not
+// type-consistent (src/components/form/TextInput/TextInput.tsx:59):
+//   - `percentageRate` (`quadDecimal`)      -> always a string
+//   - `frequencyDuration` (`int`)           -> always a number, the `int`
+//     branch is `parseInt` (TextInput.tsx:85) under an `as string` cast
+//   - `amountCents` (`AmountInput`)         -> string, or a number when the
+//     currency has 0 decimals, since AmountInput.tsx:50 pushes `int` then
+// plus a number from the coupon seed below. Accept both and range-check the
+// coerced value. Same call as `useDiscountDrawer` (src/pages/quotes/hooks/
+// useDiscountDrawer.tsx:83-89). Removing the union needs the input layer
+// normalized first: LAGO-1759.
+type NumericInputValue = string | number | undefined
 
 const numericInputSchema = z.union([z.string(), z.number()]).optional()
 
-const isBelowMinimum = (value: NumericInputValue, minimum: number): boolean => {
-  if (value === undefined || value === null || value === '') return true
-
-  const parsed = Number(value)
-
-  // `Number.isNaN` guard: a non-numeric string ('abc') is NaN, and `NaN < min`
-  // is false, so it would otherwise slip through as valid.
-  return Number.isNaN(parsed) || parsed < minimum
-}
+const isAtLeast = (value: NumericInputValue, minimum: number): boolean =>
+  Number(value ?? '') >= minimum
 
 const defaultFormValues = {
   couponId: '',
@@ -135,7 +134,7 @@ const validationSchema = z
   })
   .superRefine((value, ctx) => {
     if (value.couponType === CouponTypeEnum.FixedAmount) {
-      if (isBelowMinimum(value.amountCents, 0.001)) {
+      if (!isAtLeast(value.amountCents, 0.001)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: 'text_632d68358f1fedc68eed3e91',
@@ -151,7 +150,7 @@ const validationSchema = z
       }
     }
     if (value.couponType === CouponTypeEnum.Percentage) {
-      if (isBelowMinimum(value.percentageRate, 0.001)) {
+      if (!isAtLeast(value.percentageRate, 0.001)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: 'text_633445d00315a713775f02a6',
@@ -160,7 +159,7 @@ const validationSchema = z
       }
     }
     if (value.frequency === CouponFrequency.Recurring) {
-      if (isBelowMinimum(value.frequencyDuration, 1)) {
+      if (!isAtLeast(value.frequencyDuration, 1)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: 'text_63314cfeb607e57577d894c9',
@@ -452,7 +451,7 @@ export const useAddCouponToCustomerDialog = () => {
             frequency: frequency as CouponFrequency,
             amountCents:
               couponType === CouponTypeEnum.FixedAmount
-                ? serializeAmount(Number(amountCents) || 0, amountCurrency || CurrencyEnum.Usd)
+                ? serializeAmount(amountCents || 0, amountCurrency || CurrencyEnum.Usd)
                 : undefined,
             amountCurrency: couponType === CouponTypeEnum.FixedAmount ? amountCurrency : undefined,
             percentageRate:
