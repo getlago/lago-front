@@ -432,12 +432,15 @@ export enum AlertTypeEnum {
 
 export type AnrokCustomer = {
   __typename?: 'AnrokCustomer';
+  category?: Maybe<IntegrationConnectionCategoryEnum>;
+  code?: Maybe<Scalars['String']['output']>;
   externalAccountId?: Maybe<Scalars['String']['output']>;
   externalCustomerId?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   integrationCode?: Maybe<Scalars['String']['output']>;
   integrationId?: Maybe<Scalars['ID']['output']>;
   integrationType?: Maybe<IntegrationTypeEnum>;
+  isDefault: Scalars['Boolean']['output'];
   syncWithProvider?: Maybe<Scalars['Boolean']['output']>;
 };
 
@@ -649,11 +652,14 @@ export type Authorize = {
 
 export type AvalaraCustomer = {
   __typename?: 'AvalaraCustomer';
+  category?: Maybe<IntegrationConnectionCategoryEnum>;
+  code?: Maybe<Scalars['String']['output']>;
   externalCustomerId?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   integrationCode?: Maybe<Scalars['String']['output']>;
   integrationId?: Maybe<Scalars['ID']['output']>;
   integrationType?: Maybe<IntegrationTypeEnum>;
+  isDefault: Scalars['Boolean']['output'];
   syncWithProvider?: Maybe<Scalars['Boolean']['output']>;
 };
 
@@ -4462,11 +4468,14 @@ export enum HttpMethodEnum {
 
 export type HubspotCustomer = {
   __typename?: 'HubspotCustomer';
+  category?: Maybe<IntegrationConnectionCategoryEnum>;
+  code?: Maybe<Scalars['String']['output']>;
   externalCustomerId?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   integrationCode?: Maybe<Scalars['String']['output']>;
   integrationId?: Maybe<Scalars['ID']['output']>;
   integrationType?: Maybe<IntegrationTypeEnum>;
+  isDefault: Scalars['Boolean']['output'];
   syncWithProvider?: Maybe<Scalars['Boolean']['output']>;
   targetedObject?: Maybe<HubspotTargetedObjectsEnum>;
 };
@@ -4500,6 +4509,15 @@ export type IntegrationCollection = {
   /** Pagination Metadata for navigating the Pagination */
   metadata: CollectionMetadata;
 };
+
+export enum IntegrationConnectionCategoryEnum {
+  Accounting = 'accounting',
+  Crm = 'crm',
+  Payment = 'payment',
+  Tax = 'tax'
+}
+
+export type IntegrationCustomer = AnrokCustomer | AvalaraCustomer | HubspotCustomer | NetsuiteCustomer | SalesforceCustomer | XeroCustomer;
 
 export type IntegrationCustomerInput = {
   externalCustomerId?: InputMaybe<Scalars['String']['input']>;
@@ -5369,8 +5387,12 @@ export type Mutation = {
   revokeMembership?: Maybe<Membership>;
   /** Create new ApiKey while expiring provided */
   rotateApiKey?: Maybe<ApiKey>;
+  /** Set an integration connection as the default for its category */
+  setIntegrationCustomerAsDefault?: Maybe<IntegrationCustomer>;
   /** Set payment method as default */
   setPaymentMethodAsDefault?: Maybe<PaymentMethod>;
+  /** Set a payment connection as the default for the customer */
+  setPaymentProviderCustomerAsDefault?: Maybe<ProviderCustomer>;
   /** Sync hubspot integration invoice */
   syncHubspotIntegrationInvoice?: Maybe<SyncHubspotInvoicePayload>;
   /** Sync integration credit note */
@@ -5454,6 +5476,8 @@ export type Mutation = {
   updateOrder?: Maybe<Order>;
   /** Updates an Organization */
   updateOrganization?: Maybe<CurrentOrganization>;
+  /** Updates a payment provider customer connection */
+  updatePaymentProviderCustomer?: Maybe<ProviderCustomer>;
   /** Updates an existing Plan */
   updatePlan?: Maybe<Plan>;
   updatePricingUnit?: Maybe<PricingUnit>;
@@ -6149,8 +6173,18 @@ export type MutationRotateApiKeyArgs = {
 };
 
 
+export type MutationSetIntegrationCustomerAsDefaultArgs = {
+  input: SetIntegrationCustomerAsDefaultInput;
+};
+
+
 export type MutationSetPaymentMethodAsDefaultArgs = {
   input: SetAsDefaultInput;
+};
+
+
+export type MutationSetPaymentProviderCustomerAsDefaultArgs = {
+  input: SetPaymentProviderCustomerAsDefaultInput;
 };
 
 
@@ -6364,6 +6398,11 @@ export type MutationUpdateOrganizationArgs = {
 };
 
 
+export type MutationUpdatePaymentProviderCustomerArgs = {
+  input: UpdatePaymentProviderCustomerInput;
+};
+
+
 export type MutationUpdatePlanArgs = {
   input: UpdatePlanInput;
 };
@@ -6460,11 +6499,14 @@ export type MutationVoidQuoteVersionArgs = {
 
 export type NetsuiteCustomer = {
   __typename?: 'NetsuiteCustomer';
+  category?: Maybe<IntegrationConnectionCategoryEnum>;
+  code?: Maybe<Scalars['String']['output']>;
   externalCustomerId?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   integrationCode?: Maybe<Scalars['String']['output']>;
   integrationId?: Maybe<Scalars['ID']['output']>;
   integrationType?: Maybe<IntegrationTypeEnum>;
+  isDefault: Scalars['Boolean']['output'];
   subsidiaryId?: Maybe<Scalars['String']['output']>;
   syncWithProvider?: Maybe<Scalars['Boolean']['output']>;
 };
@@ -7384,7 +7426,9 @@ export type PropertiesInput = {
 
 export type ProviderCustomer = {
   __typename?: 'ProviderCustomer';
+  code?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
+  isDefault: Scalars['Boolean']['output'];
   providerCustomerId?: Maybe<Scalars['ID']['output']>;
   providerPaymentMethods?: Maybe<Array<ProviderPaymentMethodsEnum>>;
   syncWithProvider?: Maybe<Scalars['Boolean']['output']>;
@@ -7620,6 +7664,10 @@ export type Query = {
   securityLog?: Maybe<SecurityLog>;
   /** Query security logs of an organization */
   securityLogs?: Maybe<SecurityLogCollection>;
+  /** Query billable metrics of an organization for selection inputs */
+  selectableBillableMetrics: SelectableBillableMetricCollection;
+  /** Query plans of an organization for selection inputs */
+  selectablePlans: SelectablePlanCollection;
   /** Query a single subscription of an organization */
   subscription?: Maybe<Subscription>;
   /** Query a single subscription alert */
@@ -8418,6 +8466,20 @@ export type QuerySecurityLogsArgs = {
 };
 
 
+export type QuerySelectableBillableMetricsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QuerySelectablePlansArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 export type QuerySubscriptionArgs = {
   externalId?: InputMaybe<Scalars['ID']['input']>;
   id?: InputMaybe<Scalars['ID']['input']>;
@@ -8895,11 +8957,14 @@ export enum RoundingFunctionEnum {
 
 export type SalesforceCustomer = {
   __typename?: 'SalesforceCustomer';
+  category?: Maybe<IntegrationConnectionCategoryEnum>;
+  code?: Maybe<Scalars['String']['output']>;
   externalCustomerId?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   integrationCode?: Maybe<Scalars['String']['output']>;
   integrationId?: Maybe<Scalars['ID']['output']>;
   integrationType?: Maybe<IntegrationTypeEnum>;
+  isDefault: Scalars['Boolean']['output'];
   syncWithProvider?: Maybe<Scalars['Boolean']['output']>;
 };
 
@@ -8953,8 +9018,56 @@ export type SecurityLogCollection = {
   metadata: CollectionMetadata;
 };
 
+/** Minimal billable metric fields for selection inputs */
+export type SelectableBillableMetric = {
+  __typename?: 'SelectableBillableMetric';
+  code: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+};
+
+/** SelectableBillableMetricCollection type */
+export type SelectableBillableMetricCollection = {
+  __typename?: 'SelectableBillableMetricCollection';
+  /** A collection of paginated SelectableBillableMetricCollection */
+  collection: Array<SelectableBillableMetric>;
+  /** Pagination Metadata for navigating the Pagination */
+  metadata: CollectionMetadata;
+};
+
+/** Minimal plan fields for selection inputs */
+export type SelectablePlan = {
+  __typename?: 'SelectablePlan';
+  code: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+};
+
+/** SelectablePlanCollection type */
+export type SelectablePlanCollection = {
+  __typename?: 'SelectablePlanCollection';
+  /** A collection of paginated SelectablePlanCollection */
+  collection: Array<SelectablePlan>;
+  /** Pagination Metadata for navigating the Pagination */
+  metadata: CollectionMetadata;
+};
+
 /** Autogenerated input type of SetAsDefault */
 export type SetAsDefaultInput = {
+  /** A unique identifier for the client performing the mutation. */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
+};
+
+/** Autogenerated input type of SetIntegrationCustomerAsDefault */
+export type SetIntegrationCustomerAsDefaultInput = {
+  /** A unique identifier for the client performing the mutation. */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
+};
+
+/** Autogenerated input type of SetPaymentProviderCustomerAsDefault */
+export type SetPaymentProviderCustomerAsDefaultInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
@@ -10055,6 +10168,17 @@ export type UpdateOrganizationInput = {
   zipcode?: InputMaybe<Scalars['String']['input']>;
 };
 
+/** Update payment provider customer input arguments */
+export type UpdatePaymentProviderCustomerInput = {
+  /** A unique identifier for the client performing the mutation. */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  code?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
+  providerCustomerId?: InputMaybe<Scalars['ID']['input']>;
+  providerPaymentMethods?: InputMaybe<Array<ProviderPaymentMethodsEnum>>;
+  syncWithProvider?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
 /** Autogenerated input type of UpdatePlan */
 export type UpdatePlanInput = {
   amountCents: Scalars['BigInt']['input'];
@@ -10627,11 +10751,14 @@ export enum WeightedIntervalEnum {
 
 export type XeroCustomer = {
   __typename?: 'XeroCustomer';
+  category?: Maybe<IntegrationConnectionCategoryEnum>;
+  code?: Maybe<Scalars['String']['output']>;
   externalCustomerId?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   integrationCode?: Maybe<Scalars['String']['output']>;
   integrationId?: Maybe<Scalars['ID']['output']>;
   integrationType?: Maybe<IntegrationTypeEnum>;
+  isDefault: Scalars['Boolean']['output'];
   syncWithProvider?: Maybe<Scalars['Boolean']['output']>;
 };
 
@@ -13307,6 +13434,10 @@ export type UpdateBillingEntityMutationVariables = Exact<{
 
 export type UpdateBillingEntityMutation = { __typename?: 'Mutation', updateBillingEntity?: { __typename?: 'BillingEntity', id: string, code: string, documentNumbering: BillingEntityDocumentNumberingEnum, documentNumberPrefix: string, logoUrl?: string | null, name: string, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, email?: string | null, phone?: string | null, addressLine1?: string | null, addressLine2?: string | null, zipcode?: string | null, city?: string | null, state?: string | null, country?: CountryCode | null, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null, timezone?: TimezoneEnum | null, isDefault: boolean, defaultCurrency: CurrencyEnum, euTaxManagement: boolean, einvoicing: boolean, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, appliedDunningCampaign?: { __typename?: 'DunningCampaign', id: string, name: string, code: string } | null } | null };
 
+export type PlansForCouponsFragment = { __typename?: 'Plan', id: string, name: string, code: string };
+
+export type BillableMetricsForCouponsFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string };
+
 export type EditCouponFragment = { __typename?: 'Coupon', id: string, amountCents?: any | null, amountCurrency?: CurrencyEnum | null, appliedCouponsCount: number, code: string, couponType: CouponTypeEnum, description?: string | null, expiration: CouponExpiration, expirationAt?: any | null, frequency: CouponFrequency, frequencyDuration?: number | null, limitedBillableMetrics: boolean, limitedPlans: boolean, name: string, percentageRate?: number | null, reusable: boolean, plans?: Array<{ __typename?: 'Plan', id: string, name: string, code: string }> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null };
 
 export type GetSingleCouponQueryVariables = Exact<{
@@ -14164,7 +14295,7 @@ export type GoogleRegisterMutationVariables = Exact<{
 
 export type GoogleRegisterMutation = { __typename?: 'Mutation', googleRegisterUser?: { __typename?: 'RegisterUser', token: string } | null };
 
-export type BillableMetricsForCouponsFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string };
+export type SelectableBillableMetricForCouponsFragment = { __typename?: 'SelectableBillableMetric', id: string, name: string, code: string };
 
 export type GetBillableMetricsForCouponsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -14173,9 +14304,9 @@ export type GetBillableMetricsForCouponsQueryVariables = Exact<{
 }>;
 
 
-export type GetBillableMetricsForCouponsQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> } };
+export type GetBillableMetricsForCouponsQuery = { __typename?: 'Query', selectableBillableMetrics: { __typename?: 'SelectableBillableMetricCollection', collection: Array<{ __typename?: 'SelectableBillableMetric', id: string, name: string, code: string }> } };
 
-export type PlansForCouponsFragment = { __typename?: 'Plan', id: string, name: string, code: string };
+export type SelectablePlanForCouponsFragment = { __typename?: 'SelectablePlan', id: string, name: string, code: string };
 
 export type GetPlansForCouponsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -14184,7 +14315,7 @@ export type GetPlansForCouponsQueryVariables = Exact<{
 }>;
 
 
-export type GetPlansForCouponsQuery = { __typename?: 'Query', plans: { __typename?: 'PlanCollection', collection: Array<{ __typename?: 'Plan', id: string, name: string, code: string }> } };
+export type GetPlansForCouponsQuery = { __typename?: 'Query', selectablePlans: { __typename?: 'SelectablePlanCollection', collection: Array<{ __typename?: 'SelectablePlan', id: string, name: string, code: string }> } };
 
 export type InvoiceFeeFragment = { __typename?: 'Fee', id: string, amountCurrency: CurrencyEnum, feeType: FeeTypesEnum, invoiceName?: string | null, invoiceDisplayName?: string | null, groupedBy: any, succeededAt?: any | null, creditableAmountCents: any, offsettableAmountCents: any, appliedTaxes?: Array<{ __typename?: 'FeeAppliedTax', id: string, taxName: string, taxRate: number }> | null, trueUpFee?: { __typename?: 'Fee', id: string } | null, charge?: { __typename?: 'Charge', id: string, billableMetric: { __typename?: 'BillableMetric', id: string, name: string } } | null, chargeFilter?: { __typename?: 'ChargeFilter', id: string, invoiceDisplayName?: string | null, values: any } | null };
 
@@ -15965,6 +16096,8 @@ export type GetWalletDetailsQuery = { __typename?: 'Query', wallet?: { __typenam
 
 export type BillableMetricForWalletScopeSectionFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string };
 
+export type SelectableBillableMetricForWalletScopeSectionFragment = { __typename?: 'SelectableBillableMetric', id: string, name: string, code: string };
+
 export type WalletForScopeSectionFragment = { __typename?: 'Wallet', id: string, appliesTo?: { __typename?: 'WalletAppliesTo', feeTypes?: Array<FeeTypesEnum> | null, billableMetrics?: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }> | null } | null };
 
 export type GetBillableMetricsForWalletQueryVariables = Exact<{
@@ -15974,7 +16107,7 @@ export type GetBillableMetricsForWalletQueryVariables = Exact<{
 }>;
 
 
-export type GetBillableMetricsForWalletQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string }>, metadata: { __typename?: 'CollectionMetadata', totalCount: number } } };
+export type GetBillableMetricsForWalletQuery = { __typename?: 'Query', selectableBillableMetrics: { __typename?: 'SelectableBillableMetricCollection', collection: Array<{ __typename?: 'SelectableBillableMetric', id: string, name: string, code: string }>, metadata: { __typename?: 'CollectionMetadata', totalCount: number } } };
 
 export const ActivityLogsTableDataFragmentDoc = gql`
     fragment ActivityLogsTableData on ActivityLog {
@@ -20325,6 +20458,20 @@ export const SubscriptionForSubscriptionsListFragmentDoc = gql`
   }
 }
     `;
+export const SelectableBillableMetricForCouponsFragmentDoc = gql`
+    fragment SelectableBillableMetricForCoupons on SelectableBillableMetric {
+  id
+  name
+  code
+}
+    `;
+export const SelectablePlanForCouponsFragmentDoc = gql`
+    fragment SelectablePlanForCoupons on SelectablePlan {
+  id
+  name
+  code
+}
+    `;
 export const InvoiceFeeFragmentDoc = gql`
     fragment InvoiceFee on Fee {
   id
@@ -21531,6 +21678,13 @@ export const WalletDetailsFragmentDoc = gql`
   ...WalletInfosForTransactions
 }
     ${WalletInfosForTransactionsFragmentDoc}`;
+export const SelectableBillableMetricForWalletScopeSectionFragmentDoc = gql`
+    fragment SelectableBillableMetricForWalletScopeSection on SelectableBillableMetric {
+  id
+  name
+  code
+}
+    `;
 export const UserIdentifierDocument = gql`
     query UserIdentifier {
   me: currentUser {
@@ -37749,13 +37903,13 @@ export type GoogleRegisterMutationResult = Apollo.MutationResult<GoogleRegisterM
 export type GoogleRegisterMutationOptions = Apollo.BaseMutationOptions<GoogleRegisterMutation, GoogleRegisterMutationVariables>;
 export const GetBillableMetricsForCouponsDocument = gql`
     query getBillableMetricsForCoupons($page: Int, $limit: Int, $searchTerm: String) {
-  billableMetrics(page: $page, limit: $limit, searchTerm: $searchTerm) {
+  selectableBillableMetrics(page: $page, limit: $limit, searchTerm: $searchTerm) {
     collection {
-      ...BillableMetricsForCoupons
+      ...SelectableBillableMetricForCoupons
     }
   }
 }
-    ${BillableMetricsForCouponsFragmentDoc}`;
+    ${SelectableBillableMetricForCouponsFragmentDoc}`;
 
 /**
  * __useGetBillableMetricsForCouponsQuery__
@@ -37796,13 +37950,13 @@ export type GetBillableMetricsForCouponsSuspenseQueryHookResult = ReturnType<typ
 export type GetBillableMetricsForCouponsQueryResult = Apollo.QueryResult<GetBillableMetricsForCouponsQuery, GetBillableMetricsForCouponsQueryVariables>;
 export const GetPlansForCouponsDocument = gql`
     query getPlansForCoupons($page: Int, $limit: Int, $searchTerm: String) {
-  plans(page: $page, limit: $limit, searchTerm: $searchTerm) {
+  selectablePlans(page: $page, limit: $limit, searchTerm: $searchTerm) {
     collection {
-      ...PlansForCoupons
+      ...SelectablePlanForCoupons
     }
   }
 }
-    ${PlansForCouponsFragmentDoc}`;
+    ${SelectablePlanForCouponsFragmentDoc}`;
 
 /**
  * __useGetPlansForCouponsQuery__
@@ -45354,16 +45508,16 @@ export type GetWalletDetailsSuspenseQueryHookResult = ReturnType<typeof useGetWa
 export type GetWalletDetailsQueryResult = Apollo.QueryResult<GetWalletDetailsQuery, GetWalletDetailsQueryVariables>;
 export const GetBillableMetricsForWalletDocument = gql`
     query getBillableMetricsForWallet($page: Int, $limit: Int, $searchTerm: String) {
-  billableMetrics(page: $page, limit: $limit, searchTerm: $searchTerm) {
+  selectableBillableMetrics(page: $page, limit: $limit, searchTerm: $searchTerm) {
     collection {
-      ...BillableMetricForWalletScopeSection
+      ...SelectableBillableMetricForWalletScopeSection
     }
     metadata {
       totalCount
     }
   }
 }
-    ${BillableMetricForWalletScopeSectionFragmentDoc}`;
+    ${SelectableBillableMetricForWalletScopeSectionFragmentDoc}`;
 
 /**
  * __useGetBillableMetricsForWalletQuery__

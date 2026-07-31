@@ -16,6 +16,8 @@ const IGNORED_DIRECTORIES = new Set(['generated', '__tests__', '__mocks__', 'nod
 const FIELDS_WITHOUT_FETCH_MORE = new Set([
   // XeroIntegrationMapItemDrawer combobox searchQuery, always a fresh page-1 lazy query
   'integrationItems',
+  // ScopeSection combobox lazy query, single page of 50, no fetchMore
+  'selectableBillableMetrics',
 ])
 
 const listSourceFiles = (directory: string): string[] => {

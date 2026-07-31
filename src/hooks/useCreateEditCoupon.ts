@@ -8,8 +8,6 @@ import { CouponDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { COUPON_DETAILS_ROUTE, ERROR_404_ROUTE, useNavigate } from '~/core/router'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
-  BillableMetricsForCouponsFragment,
-  BillableMetricsForCouponsFragmentDoc,
   CouponExpiration,
   CouponFrequency,
   CouponItemFragmentDoc,
@@ -19,7 +17,6 @@ import {
   EditCouponFragment,
   LagoApiError,
   PlansForCouponsFragment,
-  PlansForCouponsFragmentDoc,
   UpdateCouponInput,
   useCreateCouponMutation,
   useGetSingleCouponQuery,
@@ -27,6 +24,18 @@ import {
 } from '~/generated/graphql'
 
 gql`
+  fragment PlansForCoupons on Plan {
+    id
+    name
+    code
+  }
+
+  fragment BillableMetricsForCoupons on BillableMetric {
+    id
+    name
+    code
+  }
+
   fragment EditCoupon on Coupon {
     id
     amountCents
@@ -71,16 +80,19 @@ gql`
   }
 
   ${CouponItemFragmentDoc}
-  ${PlansForCouponsFragmentDoc}
-  ${BillableMetricsForCouponsFragmentDoc}
 `
+
+// Coupon-limit items come from two sources with identical minimal shapes: the
+// existing coupon (`Plan` / `BillableMetric`) and the selection dialogs
+// (`SelectablePlan` / `SelectableBillableMetric`). Only id/name/code are ever read.
+export type CouponLimitItem = Pick<PlansForCouponsFragment, 'id' | 'name' | 'code'>
 
 type CouponFormInput = CreateCouponInput &
   UpdateCouponInput & {
     hasPlanLimit?: boolean
-    limitPlansList?: PlansForCouponsFragment[]
+    limitPlansList?: CouponLimitItem[]
     hasBillableMetricLimit?: boolean
-    limitBillableMetricsList?: BillableMetricsForCouponsFragment[]
+    limitBillableMetricsList?: CouponLimitItem[]
   }
 
 type UseCreateEditCouponReturn = {

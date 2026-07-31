@@ -153,7 +153,7 @@ export const WalletScopeFields = withForm({
             const selected = field.state.value as string[]
 
             const comboboxBillableMetricsData = (
-              billableMetricsData?.billableMetrics?.collection ?? []
+              billableMetricsData?.selectableBillableMetrics?.collection ?? []
             ).map(({ name, code }) => ({
               label: `${name} (${code})`,
               labelNode: (
@@ -191,9 +191,10 @@ export const WalletScopeFields = withForm({
                     data-test={WALLET_SCOPE_BILLABLE_METRIC_CHIPS_TEST_ID}
                   >
                     {selected.map((code) => {
-                      const matched = billableMetricsData?.billableMetrics?.collection.find(
-                        (billableMetric) => billableMetric.code === code,
-                      )
+                      const matched =
+                        billableMetricsData?.selectableBillableMetrics?.collection.find(
+                          (billableMetric) => billableMetric.code === code,
+                        )
 
                       return (
                         <Chip
