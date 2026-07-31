@@ -8,6 +8,7 @@ import { ReasonModalProps } from '~/components/admin/ReasonModal'
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
+import { ComboBox } from '~/components/form/ComboBox/ComboBox'
 import { MultipleComboBox } from '~/components/form/MultipleComboBox/MultipleComboBox'
 import { TextInput } from '~/components/form/TextInput/TextInput'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
@@ -17,8 +18,10 @@ import {
   ADMIN_ORGANIZATIONS_ROUTE,
   useNavigate,
 } from '~/core/router'
+import { getTimezoneConfig } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { FeatureFlagEnum, PremiumIntegrationTypeEnum } from '~/generated/graphql'
+import { FeatureFlagEnum, PremiumIntegrationTypeEnum, TimezoneEnum } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 const ADMIN_CREATE_ORGANIZATION_MUTATION = gql`
   mutation AdminCreateOrganization($input: AdminCreateOrganizationInput!) {
@@ -38,6 +41,8 @@ const KNOWN_FEATURE_FLAGS = Object.values(FeatureFlagEnum)
 const AdminOrganizationCreate = () => {
   const navigate = useNavigate()
   const inviteLinkDialog = useCentralizedDialog()
+
+  const { translate } = useInternationalization()
 
   const [orgName, setOrgName] = useState('')
   const [ownerEmail, setOwnerEmail] = useState('')
@@ -154,10 +159,17 @@ const AdminOrganizationCreate = () => {
             required
           />
 
-          <TextInput
+          <ComboBox
             label="Timezone"
             placeholder="UTC (optional)"
             value={timezone}
+            data={Object.values(TimezoneEnum).map((timezoneValue) => ({
+              value: timezoneValue,
+              label: translate('text_638f743fa9a2a9545ee6409a', {
+                zone: translate(timezoneValue),
+                offset: getTimezoneConfig(timezoneValue).offset,
+              }),
+            }))}
             onChange={(value) => setTimezone(value)}
           />
 
