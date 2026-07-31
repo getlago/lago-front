@@ -290,10 +290,14 @@ export const InvoiceQuickInfo = ({
   invoice,
   billingEntity,
   customer,
+  purchaseOrderNumber,
+  onPurchaseOrderNumberChange,
 }: {
   invoice: AllInvoiceDetailsForCustomerInvoiceDetailsFragment | null | undefined
   billingEntity: Pick<BillingEntity, 'id' | 'name' | 'code' | 'einvoicing'> | null | undefined
   customer?: CustomerForInvoiceOverviewFragment | null
+  purchaseOrderNumber?: string | null
+  onPurchaseOrderNumberChange?: (value: string | null) => void
 }) => {
   const { translate } = useInternationalization()
   const isDraft = invoice?.status === InvoiceStatusTypeEnum.Draft
@@ -339,7 +343,11 @@ export const InvoiceQuickInfo = ({
           </Typography>
         </div>
       )}
-      <InvoiceCustomerInfos invoice={invoice} />
+      <InvoiceCustomerInfos
+        invoice={invoice}
+        purchaseOrderNumber={purchaseOrderNumber}
+        onPurchaseOrderNumberChange={onPurchaseOrderNumberChange}
+      />
     </>
   )
 }

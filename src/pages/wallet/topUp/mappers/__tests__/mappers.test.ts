@@ -54,6 +54,22 @@ describe('mapFromApiToForm', () => {
       })
     })
   })
+
+  describe('GIVEN a regenerate-flow PO number prefill', () => {
+    describe('WHEN building the default values', () => {
+      it('THEN should seed the PO number from the voided invoice', () => {
+        expect(mapFromApiToForm({ wallet, purchaseOrderNumber: 'PO-1' }).purchaseOrderNumber).toBe(
+          'PO-1',
+        )
+      })
+
+      it('THEN should leave the PO number undefined when the invoice has none', () => {
+        expect(
+          mapFromApiToForm({ wallet, purchaseOrderNumber: null }).purchaseOrderNumber,
+        ).toBeUndefined()
+      })
+    })
+  })
 })
 
 describe('mapFormToCreateInput', () => {
@@ -115,6 +131,31 @@ describe('mapFormToCreateInput', () => {
 
       it('THEN should keep an explicit priority', () => {
         expect(mapFormToCreateInput(baseForm({ priority: 7 }), { walletId: 'w' }).priority).toBe(7)
+      })
+    })
+  })
+
+  describe('GIVEN a purchase order number', () => {
+    describe('WHEN mapping to the create input', () => {
+      it('THEN should trim the value on the way out', () => {
+        const input = mapFormToCreateInput(baseForm({ purchaseOrderNumber: '  PO-9  ' }), {
+          walletId: 'wallet_1',
+        })
+
+        expect(input.purchaseOrderNumber).toBe('PO-9')
+      })
+
+      // `null` (not `undefined`) on clear → BE erases the stored value.
+      it.each([
+        ['undefined', undefined],
+        ['emptied to ""', ''],
+        ['whitespace-only', '   '],
+      ])('THEN should send an explicit null when cleared (%s)', (_, purchaseOrderNumber) => {
+        const input = mapFormToCreateInput(baseForm({ purchaseOrderNumber }), {
+          walletId: 'wallet_1',
+        })
+
+        expect(input.purchaseOrderNumber).toBeNull()
       })
     })
   })

@@ -1,5 +1,6 @@
 import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
 import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
+import { normalizePurchaseOrderNumber } from '~/components/purchaseOrder/PO'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
@@ -88,6 +89,8 @@ const formatRecurringTransactionRules = (
       invoiceCustomSection: toInvoiceCustomSectionReference(
         ruleInvoiceCustomSection as InvoiceCustomSectionInput,
       ),
+      // `null` (not `undefined`) on clear → BE erases the stored value.
+      purchaseOrderNumber: normalizePurchaseOrderNumber(rule.purchaseOrderNumber),
     }
   })
 }
@@ -117,6 +120,7 @@ export const mapFormToCreateInput = (
 
   return {
     ...values,
+    purchaseOrderNumber: normalizePurchaseOrderNumber(values.purchaseOrderNumber),
     customerId,
     // `null` (not `undefined`) on clear → BE stores NULL on the
     // wallet column, meaning "inherit from customer".
@@ -166,6 +170,8 @@ export const mapFormToUpdateInput = (
 
   return {
     ...values,
+    // `null` (not `undefined`) on clear → BE erases the stored value.
+    purchaseOrderNumber: normalizePurchaseOrderNumber(values.purchaseOrderNumber),
     recurringTransactionRules: formatRecurringTransactionRules(
       recurringTransactionRules,
       FORM_TYPE_ENUM.edition,

@@ -53,6 +53,7 @@ gql`
     ongoingBalanceCents
     creditsOngoingBalance
     priority
+    purchaseOrderNumber
     paidTopUpMinAmountCents
     paidTopUpMinCredits
     paidTopUpMaxAmountCents
@@ -119,6 +120,7 @@ gql`
         id
         name
       }
+      purchaseOrderNumber
     }
 
     ...WalletInfosForTransactions

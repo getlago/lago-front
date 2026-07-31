@@ -3,6 +3,7 @@ import { z } from 'zod'
 
 import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
 import { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types'
+import { addPurchaseOrderNumberMaxLengthIssue } from '~/components/purchaseOrder/validation'
 import { ActivationRuleFormTypeEnum } from '~/core/constants/subscriptionActivationRules'
 import { BillingTimeEnum } from '~/generated/graphql'
 
@@ -17,6 +18,7 @@ export interface SubscriptionFormValues {
   invoiceCustomSection?: InvoiceCustomSectionInput
   billingEntityId?: string
   consolidateInvoice: boolean
+  purchaseOrderNumber?: string | null
   activationRuleType?: ActivationRuleFormTypeEnum
   activationRuleTimeoutHours?: string
 }
@@ -39,6 +41,8 @@ export const subscriptionFormSchema = z
         path: ['subscriptionAt'],
       })
     }
+
+    addPurchaseOrderNumberMaxLengthIssue(ctx, data.purchaseOrderNumber, ['purchaseOrderNumber'])
 
     if (data.activationRuleType === ActivationRuleFormTypeEnum.OnPayment) {
       // An empty timeout is valid and means "no timeout" (sent as null to the BE).

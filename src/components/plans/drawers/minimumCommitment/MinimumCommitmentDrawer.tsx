@@ -8,6 +8,7 @@ import { useFormDrawer } from '~/components/drawers/useDrawer'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PlanBillingPeriodInfoSection } from '~/components/plans/drawers/common/PlanBillingPeriodInfoSection'
+import { mapChargeIntervalCopy } from '~/components/plans/utils'
 import { TaxesSelectorSection } from '~/components/taxes/TaxesSelectorSection'
 import { PlanFormProvider, usePlanFormContext } from '~/contexts/PlanFormContext'
 import { SEARCH_TAX_INPUT_FOR_MIN_COMMITMENT_CLASSNAME } from '~/core/constants/form'
@@ -98,7 +99,9 @@ export const MinimumCommitmentDrawer = forwardRef<
           <CenteredPage.SectionWrapper>
             <CenteredPage.PageTitle
               title={translate('text_65d601bffb11e0f9d1d9f569')}
-              description={translate('text_177334593394555w48sxw5na')}
+              description={translate('text_6661fc17337de3591e29e451', {
+                interval: translate(mapChargeIntervalCopy(interval, false)).toLocaleLowerCase(),
+              })}
             />
 
             <CenteredPage.SubsectionWrapper>
