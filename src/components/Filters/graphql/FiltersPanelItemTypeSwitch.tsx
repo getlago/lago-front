@@ -45,6 +45,7 @@ import { FiltersItemPaymentOverdue } from '~/components/Filters/graphql/filtersE
 import { FiltersItemPaymentStatus } from '~/components/Filters/graphql/filtersElements/FiltersItemPaymentStatus'
 import { FiltersItemPeriod } from '~/components/Filters/graphql/filtersElements/FiltersItemPeriod'
 import { FiltersItemPlanCode } from '~/components/Filters/graphql/filtersElements/FiltersItemPlanCode'
+import { FiltersItemPurchaseOrderNumber } from '~/components/Filters/graphql/filtersElements/FiltersItemPurchaseOrderNumber'
 import { FiltersItemQuoteNumber } from '~/components/Filters/graphql/filtersElements/FiltersItemQuoteNumber'
 import { FiltersItemQuoteOrderType } from '~/components/Filters/graphql/filtersElements/FiltersItemQuoteOrderType'
 import { FiltersItemQuoteStatus } from '~/components/Filters/graphql/filtersElements/FiltersItemQuoteStatus'
@@ -161,6 +162,7 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.orderFormStatus]: <FiltersItemOrderFormStatus {...props} />,
     [AvailableFiltersEnum.orderStatus]: <FiltersItemOrderStatus {...props} />,
     [AvailableFiltersEnum.orderNumber]: <FiltersItemOrderNumber {...props} />,
+    [AvailableFiltersEnum.purchaseOrderNumber]: <FiltersItemPurchaseOrderNumber {...props} />,
     [AvailableFiltersEnum.orderExecutionMode]: <FiltersItemOrderExecutionMode {...props} />,
     [AvailableFiltersEnum.orderExecutedAt]: <FiltersItemDate {...props} />,
     [AvailableFiltersEnum.quoteCreatedAt]: <FiltersItemDate {...props} />,

@@ -255,6 +255,42 @@ describe('mapFormToCreateInput', () => {
     expect(rule?.targetOngoingBalance).toBe('0')
     expect(rule?.grantsTargetTopUp).toBe(true)
   })
+
+  // `null` (not `undefined`) on clear → BE erases the stored value.
+  it('normalizes the wallet purchaseOrderNumber: trimmed when set, explicit null when cleared', () => {
+    expect(
+      mapFormToCreateInput(baseForm({ purchaseOrderNumber: '  PO-9  ' }), 'customer-id')
+        .purchaseOrderNumber,
+    ).toBe('PO-9')
+    expect(
+      mapFormToCreateInput(baseForm({ purchaseOrderNumber: '   ' }), 'customer-id')
+        .purchaseOrderNumber,
+    ).toBeNull()
+    expect(mapFormToCreateInput(baseForm(), 'customer-id').purchaseOrderNumber).toBeNull()
+  })
+
+  it('normalizes the rule purchaseOrderNumber: trimmed when set, explicit null when cleared', () => {
+    const buildRuleInput = (purchaseOrderNumber?: string) =>
+      mapFormToCreateInput(
+        baseForm({
+          recurringTransactionRules: [
+            {
+              trigger: RecurringTransactionTriggerEnum.Interval,
+              method: RecurringTransactionMethodEnum.Fixed,
+              interval: RecurringTransactionIntervalEnum.Monthly,
+              paidCredits: '10',
+              grantedCredits: '',
+              purchaseOrderNumber,
+            },
+          ] as TWalletDataForm['recurringTransactionRules'],
+        }),
+        'customer-id',
+      ).recurringTransactionRules?.[0]
+
+    expect(buildRuleInput('  PO-RULE  ')?.purchaseOrderNumber).toBe('PO-RULE')
+    expect(buildRuleInput('')?.purchaseOrderNumber).toBeNull()
+    expect(buildRuleInput(undefined)?.purchaseOrderNumber).toBeNull()
+  })
 })
 
 describe('mapFormToUpdateInput', () => {
@@ -307,6 +343,18 @@ describe('mapFormToUpdateInput', () => {
 
     expect(input.recurringTransactionRules?.[0]?.lagoId).toBe('rule-lago-id')
     expect(input.recurringTransactionRules?.[0]?.startedAt).toBe('2024-01-01T00:00:00Z')
+  })
+
+  // `null` (not `undefined`) on clear → BE erases the stored value.
+  it('normalizes the wallet purchaseOrderNumber: trimmed when set, explicit null when cleared', () => {
+    expect(
+      mapFormToUpdateInput(baseForm({ purchaseOrderNumber: '  PO-9  ' }), 'wallet-id')
+        .purchaseOrderNumber,
+    ).toBe('PO-9')
+    expect(
+      mapFormToUpdateInput(baseForm({ purchaseOrderNumber: '' }), 'wallet-id').purchaseOrderNumber,
+    ).toBeNull()
+    expect(mapFormToUpdateInput(baseForm(), 'wallet-id').purchaseOrderNumber).toBeNull()
   })
 })
 

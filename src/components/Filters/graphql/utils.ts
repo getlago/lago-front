@@ -241,6 +241,7 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.paymentOverdue]: (value: string) => value === 'true',
   [AvailableFiltersEnum.paymentStatus]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.planCode]: (value: string) => value,
+  [AvailableFiltersEnum.purchaseOrderNumber]: (value: string) => value,
   [AvailableFiltersEnum.orderFormCreatedAt]: (value: string) => {
     return {
       createdAtFrom: value.split(',')[0],
@@ -402,6 +403,7 @@ type CreditNotesQueryFilters = Partial<
     | 'types'
     | 'selfBilled'
     | 'billingEntityIds'
+    | 'purchaseOrderNumber'
   >
 >
 
@@ -441,6 +443,7 @@ type InvoiceQueryFilters = Partial<
     | 'amountTo'
     | 'selfBilled'
     | 'billingEntityIds'
+    | 'purchaseOrderNumber'
   >
 >
 
@@ -993,6 +996,8 @@ export const formatActiveFilterValueDisplay = (
     case AvailableFiltersEnum.billingEntityCode:
       return value
     case AvailableFiltersEnum.externalId:
+      return value
+    case AvailableFiltersEnum.purchaseOrderNumber:
       return value
     default:
       return value

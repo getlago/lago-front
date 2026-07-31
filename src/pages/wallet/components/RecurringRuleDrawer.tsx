@@ -11,6 +11,7 @@ import { ButtonSelector, ComboBox, Switch } from '~/components/form'
 import { InvoicingSettingsSelector } from '~/components/invoicingSettings/InvoicingSettingsSelector'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PaymentSettingsSelector } from '~/components/paymentSettings/PaymentSettingsSelector'
+import { PurchaseOrderFormBlock } from '~/components/purchaseOrder/PurchaseOrderFormBlock'
 import { getWordingForWalletCreationAlert } from '~/components/wallets/utils'
 import {
   DELETE_RECURRING_EXPIRATION_AT_DATA_TEST,
@@ -59,6 +60,7 @@ export const DEFAULT_RULES: TWalletRecurringRule = {
   grantsTargetTopUp: null,
   startedAt: DateTime.now().toISO(),
   invoiceRequiresSuccessfulPayment: false,
+  purchaseOrderNumber: undefined,
 }
 
 const inputAdornment = (endLabel: string) => {
@@ -524,6 +526,18 @@ const RecurringRuleDrawerContent = withForm({
               />
             </CenteredPage.PageSection>
           )}
+
+          <CenteredPage.PageSection>
+            <form.AppField name="purchaseOrderNumber">
+              {(field) => (
+                <PurchaseOrderFormBlock
+                  value={field.state.value}
+                  description={translate('text_1783511588872okv9237slg5')}
+                  onChange={(value) => field.handleChange(value)}
+                />
+              )}
+            </form.AppField>
+          </CenteredPage.PageSection>
         </CenteredPage.SubsectionWrapper>
       </CenteredPage.SectionWrapper>
     )

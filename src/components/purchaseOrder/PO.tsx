@@ -11,7 +11,7 @@ import { PurchaseOrderTitle } from './PurchaseOrderTitle'
 
 export { normalizePurchaseOrderNumber } from './utils'
 
-export const PO = Object.assign(PurchaseOrderRoot, {
+export const PurchaseOrder = Object.assign(PurchaseOrderRoot, {
   Title: PurchaseOrderTitle,
   Description: PurchaseOrderDescription,
   Number: PurchaseOrderNumber,

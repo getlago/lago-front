@@ -60,6 +60,7 @@ gql`
     paidTopUpMinAmountCents
     paidTopUpMaxAmountCents
     priority
+    purchaseOrderNumber
     paymentMethodType
     paymentMethod {
       id
@@ -84,6 +85,7 @@ gql`
       lagoId
       method
       paidCredits
+      purchaseOrderNumber
       startedAt
       targetOngoingBalance
       thresholdCredits

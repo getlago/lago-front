@@ -3,6 +3,11 @@ import { Settings } from 'luxon'
 
 import { InvoiceCustomerInfos } from '~/components/invoices/InvoiceCustomerInfos'
 import {
+  PURCHASE_ORDER_ADD_BUTTON_TEST_ID,
+  PURCHASE_ORDER_EDIT_BUTTON_TEST_ID,
+  PURCHASE_ORDER_TRASH_BUTTON_TEST_ID,
+} from '~/components/purchaseOrder/PurchaseOrderButtons'
+import {
   CountryCode,
   CustomerAccountTypeEnum,
   InvoiceForInvoiceInfosFragment,
@@ -200,7 +205,9 @@ describe('InvoiceCustomerInfos', () => {
 
       render(<InvoiceCustomerInfos invoice={mockInvoice} />)
 
-      expect(screen.getByText('-')).toBeInTheDocument()
+      expect(screen.getByText('Payment status').parentElement).toHaveTextContent(
+        /^Payment status-$/,
+      )
     })
 
     it('should format multiple emails with comma and space', () => {
@@ -232,27 +239,55 @@ describe('InvoiceCustomerInfos', () => {
       ).toBeInTheDocument()
     })
 
-    it('should render purchase order number for one-off invoices', () => {
-      const mockInvoice = createMockInvoice({
-        invoiceType: InvoiceTypeEnum.OneOff,
-        purchaseOrderNumber: 'PO-12345',
-      })
+    it.each(Object.values(InvoiceTypeEnum))(
+      'should render the purchase order number for %s invoices',
+      (invoiceType) => {
+        const mockInvoice = createMockInvoice({
+          invoiceType,
+          purchaseOrderNumber: 'PO-12345',
+        })
 
-      render(<InvoiceCustomerInfos invoice={mockInvoice} />)
+        render(<InvoiceCustomerInfos invoice={mockInvoice} />)
 
-      expect(screen.getByText('PO-12345')).toBeInTheDocument()
-    })
+        expect(screen.getByText('PO-12345')).toBeInTheDocument()
+      },
+    )
 
-    it('should not render the purchase order number row for non one-off invoices', () => {
+    it('should render a dash for the purchase order number when there is no PO number', () => {
       const mockInvoice = createMockInvoice({
         invoiceType: InvoiceTypeEnum.Subscription,
-        purchaseOrderNumber: 'PO-12345',
+        purchaseOrderNumber: null,
       })
 
       render(<InvoiceCustomerInfos invoice={mockInvoice} />)
 
-      expect(screen.queryByText('PO number')).not.toBeInTheDocument()
-      expect(screen.queryByText('PO-12345')).not.toBeInTheDocument()
+      expect(screen.getByText('PO number').parentElement).toHaveTextContent(/^PO number-$/)
+    })
+
+    it('should render an editable "add" button for the PO number when a change handler is provided and there is no value', () => {
+      const mockInvoice = createMockInvoice({ purchaseOrderNumber: null })
+
+      render(<InvoiceCustomerInfos invoice={mockInvoice} onPurchaseOrderNumberChange={jest.fn()} />)
+
+      expect(screen.getByTestId(PURCHASE_ORDER_ADD_BUTTON_TEST_ID)).toBeInTheDocument()
+      expect(screen.queryByTestId(PURCHASE_ORDER_EDIT_BUTTON_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    it('should render the PO number with edit/delete controls when a change handler and value are provided', () => {
+      const mockInvoice = createMockInvoice()
+
+      render(
+        <InvoiceCustomerInfos
+          invoice={mockInvoice}
+          purchaseOrderNumber="PO-EDITABLE"
+          onPurchaseOrderNumberChange={jest.fn()}
+        />,
+      )
+
+      expect(screen.getByText('PO-EDITABLE')).toBeInTheDocument()
+      expect(screen.getByTestId(PURCHASE_ORDER_EDIT_BUTTON_TEST_ID)).toBeInTheDocument()
+      expect(screen.getByTestId(PURCHASE_ORDER_TRASH_BUTTON_TEST_ID)).toBeInTheDocument()
+      expect(screen.queryByTestId(PURCHASE_ORDER_ADD_BUTTON_TEST_ID)).not.toBeInTheDocument()
     })
 
     it('should handle null invoice gracefully', () => {
