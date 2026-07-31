@@ -99,7 +99,12 @@ describe('useCurrentUser — stale-cache refetch safety net', () => {
     expect(mockRefetch).not.toHaveBeenCalled()
   })
 
-  it('still refetches via the org var on slug-less routes (legacy fallback)', () => {
+  // Regression for the admin-panel "list jumps to top on every toggle" bug: slug-less routes
+  // (admin panel, customer portal) must NOT refetch off the org var. There is no slug to
+  // reconcile, and because MainNavLayout unmounts the route subtree during the refetch, the
+  // remount re-runs this hook and refetches again — an infinite loop that resets scroll and
+  // wipes in-progress local state on every render.
+  it('does NOT refetch on a slug-less route even when the org var has no matching membership', () => {
     mockUseParams.mockReturnValue({})
     currentOrganizationVar('org-x') // var set, but no membership matches it
     mockUseGetCurrentUserInfosQuery.mockReturnValue({
@@ -110,6 +115,6 @@ describe('useCurrentUser — stale-cache refetch safety net', () => {
 
     renderHook(() => useCurrentUser())
 
-    expect(mockRefetch).toHaveBeenCalled()
+    expect(mockRefetch).not.toHaveBeenCalled()
   })
 })
