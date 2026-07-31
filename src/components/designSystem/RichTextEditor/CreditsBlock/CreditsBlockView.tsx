@@ -1,10 +1,8 @@
 import { NodeViewProps, NodeViewWrapper } from '@tiptap/react'
 
 import { Locale, LocaleEnum } from '~/core/translations'
-import { CurrencyEnum } from '~/generated/graphql'
 import { useContextualLocale } from '~/hooks/core/useContextualLocale'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 import { WalletPreviewTable } from './WalletPreviewTable'
 
@@ -15,10 +13,8 @@ export const CREDITS_BLOCK_VIEW_EMPTY_TEST_ID = 'credits-block-view-empty'
 export const CREDITS_BLOCK_VIEW_RESOLVED_TEST_ID = 'credits-block-view-resolved'
 
 export const CreditsBlockView = ({ node, updateAttributes }: NodeViewProps) => {
-  const { entities, onCreditsCommand, mode, customerLocale, customerCurrency } =
-    useRichTextEditorContext()
+  const { entities, onCreditsCommand, mode, customerLocale } = useRichTextEditorContext()
   const { translate } = useInternationalization()
-  const { organization } = useOrganizationInfos()
 
   const localId = (node.attrs.localId ?? '') as string
   const entity = localId ? entities[localId] : undefined
@@ -26,12 +22,10 @@ export const CreditsBlockView = ({ node, updateAttributes }: NodeViewProps) => {
   const blockLabel = translate('text_1783352692386xocpgvrz3na')
   const displayName = entity?.name || blockLabel
 
-  // Preview renders in the customer's locale/currency (matches the discount block).
-  const currency =
-    entity?.wallet?.currency ??
-    customerCurrency ??
-    organization?.defaultCurrency ??
-    CurrencyEnum.Usd
+  // Preview renders in the customer's locale (matches the discount block). The
+  // amounts are denominated in the wallet's own currency, so we read it straight
+  // off the resolved preview data rather than falling back to a customer/org
+  // default — see entity.wallet.currency in the preview branch below.
   const effectiveLocale: Locale = (customerLocale ?? 'en') as Locale
   const { translateWithContextualLocal } = useContextualLocale(effectiveLocale)
 
@@ -43,7 +37,7 @@ export const CreditsBlockView = ({ node, updateAttributes }: NodeViewProps) => {
           <WalletPreviewTable
             data={entity.wallet}
             translate={translateWithContextualLocal}
-            currency={currency}
+            currency={entity.wallet.currency}
             locale={LocaleEnum[effectiveLocale]}
           />
         </NodeViewWrapper>
