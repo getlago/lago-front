@@ -432,12 +432,15 @@ export enum AlertTypeEnum {
 
 export type AnrokCustomer = {
   __typename?: 'AnrokCustomer';
+  category?: Maybe<IntegrationConnectionCategoryEnum>;
+  code?: Maybe<Scalars['String']['output']>;
   externalAccountId?: Maybe<Scalars['String']['output']>;
   externalCustomerId?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   integrationCode?: Maybe<Scalars['String']['output']>;
   integrationId?: Maybe<Scalars['ID']['output']>;
   integrationType?: Maybe<IntegrationTypeEnum>;
+  isDefault: Scalars['Boolean']['output'];
   syncWithProvider?: Maybe<Scalars['Boolean']['output']>;
 };
 
@@ -649,11 +652,14 @@ export type Authorize = {
 
 export type AvalaraCustomer = {
   __typename?: 'AvalaraCustomer';
+  category?: Maybe<IntegrationConnectionCategoryEnum>;
+  code?: Maybe<Scalars['String']['output']>;
   externalCustomerId?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   integrationCode?: Maybe<Scalars['String']['output']>;
   integrationId?: Maybe<Scalars['ID']['output']>;
   integrationType?: Maybe<IntegrationTypeEnum>;
+  isDefault: Scalars['Boolean']['output'];
   syncWithProvider?: Maybe<Scalars['Boolean']['output']>;
 };
 
@@ -4462,11 +4468,14 @@ export enum HttpMethodEnum {
 
 export type HubspotCustomer = {
   __typename?: 'HubspotCustomer';
+  category?: Maybe<IntegrationConnectionCategoryEnum>;
+  code?: Maybe<Scalars['String']['output']>;
   externalCustomerId?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   integrationCode?: Maybe<Scalars['String']['output']>;
   integrationId?: Maybe<Scalars['ID']['output']>;
   integrationType?: Maybe<IntegrationTypeEnum>;
+  isDefault: Scalars['Boolean']['output'];
   syncWithProvider?: Maybe<Scalars['Boolean']['output']>;
   targetedObject?: Maybe<HubspotTargetedObjectsEnum>;
 };
@@ -4500,6 +4509,15 @@ export type IntegrationCollection = {
   /** Pagination Metadata for navigating the Pagination */
   metadata: CollectionMetadata;
 };
+
+export enum IntegrationConnectionCategoryEnum {
+  Accounting = 'accounting',
+  Crm = 'crm',
+  Payment = 'payment',
+  Tax = 'tax'
+}
+
+export type IntegrationCustomer = AnrokCustomer | AvalaraCustomer | HubspotCustomer | NetsuiteCustomer | SalesforceCustomer | XeroCustomer;
 
 export type IntegrationCustomerInput = {
   externalCustomerId?: InputMaybe<Scalars['String']['input']>;
@@ -5369,8 +5387,12 @@ export type Mutation = {
   revokeMembership?: Maybe<Membership>;
   /** Create new ApiKey while expiring provided */
   rotateApiKey?: Maybe<ApiKey>;
+  /** Set an integration connection as the default for its category */
+  setIntegrationCustomerAsDefault?: Maybe<IntegrationCustomer>;
   /** Set payment method as default */
   setPaymentMethodAsDefault?: Maybe<PaymentMethod>;
+  /** Set a payment connection as the default for the customer */
+  setPaymentProviderCustomerAsDefault?: Maybe<ProviderCustomer>;
   /** Sync hubspot integration invoice */
   syncHubspotIntegrationInvoice?: Maybe<SyncHubspotInvoicePayload>;
   /** Sync integration credit note */
@@ -5454,6 +5476,8 @@ export type Mutation = {
   updateOrder?: Maybe<Order>;
   /** Updates an Organization */
   updateOrganization?: Maybe<CurrentOrganization>;
+  /** Updates a payment provider customer connection */
+  updatePaymentProviderCustomer?: Maybe<ProviderCustomer>;
   /** Updates an existing Plan */
   updatePlan?: Maybe<Plan>;
   updatePricingUnit?: Maybe<PricingUnit>;
@@ -6149,8 +6173,18 @@ export type MutationRotateApiKeyArgs = {
 };
 
 
+export type MutationSetIntegrationCustomerAsDefaultArgs = {
+  input: SetIntegrationCustomerAsDefaultInput;
+};
+
+
 export type MutationSetPaymentMethodAsDefaultArgs = {
   input: SetAsDefaultInput;
+};
+
+
+export type MutationSetPaymentProviderCustomerAsDefaultArgs = {
+  input: SetPaymentProviderCustomerAsDefaultInput;
 };
 
 
@@ -6364,6 +6398,11 @@ export type MutationUpdateOrganizationArgs = {
 };
 
 
+export type MutationUpdatePaymentProviderCustomerArgs = {
+  input: UpdatePaymentProviderCustomerInput;
+};
+
+
 export type MutationUpdatePlanArgs = {
   input: UpdatePlanInput;
 };
@@ -6460,11 +6499,14 @@ export type MutationVoidQuoteVersionArgs = {
 
 export type NetsuiteCustomer = {
   __typename?: 'NetsuiteCustomer';
+  category?: Maybe<IntegrationConnectionCategoryEnum>;
+  code?: Maybe<Scalars['String']['output']>;
   externalCustomerId?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   integrationCode?: Maybe<Scalars['String']['output']>;
   integrationId?: Maybe<Scalars['ID']['output']>;
   integrationType?: Maybe<IntegrationTypeEnum>;
+  isDefault: Scalars['Boolean']['output'];
   subsidiaryId?: Maybe<Scalars['String']['output']>;
   syncWithProvider?: Maybe<Scalars['Boolean']['output']>;
 };
@@ -7384,7 +7426,9 @@ export type PropertiesInput = {
 
 export type ProviderCustomer = {
   __typename?: 'ProviderCustomer';
+  code?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
+  isDefault: Scalars['Boolean']['output'];
   providerCustomerId?: Maybe<Scalars['ID']['output']>;
   providerPaymentMethods?: Maybe<Array<ProviderPaymentMethodsEnum>>;
   syncWithProvider?: Maybe<Scalars['Boolean']['output']>;
@@ -8895,11 +8939,14 @@ export enum RoundingFunctionEnum {
 
 export type SalesforceCustomer = {
   __typename?: 'SalesforceCustomer';
+  category?: Maybe<IntegrationConnectionCategoryEnum>;
+  code?: Maybe<Scalars['String']['output']>;
   externalCustomerId?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   integrationCode?: Maybe<Scalars['String']['output']>;
   integrationId?: Maybe<Scalars['ID']['output']>;
   integrationType?: Maybe<IntegrationTypeEnum>;
+  isDefault: Scalars['Boolean']['output'];
   syncWithProvider?: Maybe<Scalars['Boolean']['output']>;
 };
 
@@ -8955,6 +9002,20 @@ export type SecurityLogCollection = {
 
 /** Autogenerated input type of SetAsDefault */
 export type SetAsDefaultInput = {
+  /** A unique identifier for the client performing the mutation. */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
+};
+
+/** Autogenerated input type of SetIntegrationCustomerAsDefault */
+export type SetIntegrationCustomerAsDefaultInput = {
+  /** A unique identifier for the client performing the mutation. */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
+};
+
+/** Autogenerated input type of SetPaymentProviderCustomerAsDefault */
+export type SetPaymentProviderCustomerAsDefaultInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
@@ -10055,6 +10116,17 @@ export type UpdateOrganizationInput = {
   zipcode?: InputMaybe<Scalars['String']['input']>;
 };
 
+/** Update payment provider customer input arguments */
+export type UpdatePaymentProviderCustomerInput = {
+  /** A unique identifier for the client performing the mutation. */
+  clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  code?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
+  providerCustomerId?: InputMaybe<Scalars['ID']['input']>;
+  providerPaymentMethods?: InputMaybe<Array<ProviderPaymentMethodsEnum>>;
+  syncWithProvider?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
 /** Autogenerated input type of UpdatePlan */
 export type UpdatePlanInput = {
   amountCents: Scalars['BigInt']['input'];
@@ -10627,11 +10699,14 @@ export enum WeightedIntervalEnum {
 
 export type XeroCustomer = {
   __typename?: 'XeroCustomer';
+  category?: Maybe<IntegrationConnectionCategoryEnum>;
+  code?: Maybe<Scalars['String']['output']>;
   externalCustomerId?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   integrationCode?: Maybe<Scalars['String']['output']>;
   integrationId?: Maybe<Scalars['ID']['output']>;
   integrationType?: Maybe<IntegrationTypeEnum>;
+  isDefault: Scalars['Boolean']['output'];
   syncWithProvider?: Maybe<Scalars['Boolean']['output']>;
 };
 
@@ -11245,20 +11320,6 @@ export type GetCustomerInvoicesQueryVariables = Exact<{
 export type GetCustomerInvoicesQuery = { __typename?: 'Query', customerInvoices: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, totalDueAmountCents: any, totalPaidAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, invoiceType: InvoiceTypeEnum, associatedActiveWalletPresent: boolean, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, customer: { __typename?: 'Customer', id: string, externalId: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum, paymentProvider?: ProviderTypeEnum | null, hasActiveWallet: boolean, email?: string | null, deletedAt?: any | null }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, email?: string | null, einvoicing: boolean, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null }, payments?: Array<{ __typename?: 'Payment', createdAt: any, paymentMethodId?: string | null }> | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalCount: number, totalPages: number } } };
 
 export type CustomerMainInfosFragment = { __typename?: 'Customer', id: string, customerType?: CustomerTypeEnum | null, name?: string | null, firstname?: string | null, lastname?: string | null, externalId: string, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, phone?: string | null, email?: string | null, currency?: CurrencyEnum | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, url?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, timezone?: TimezoneEnum | null, paymentProviderCode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, anrokCustomer?: { __typename?: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, avalaraCustomer?: { __typename?: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, netsuiteCustomer?: { __typename?: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, xeroCustomer?: { __typename?: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, hubspotCustomer?: { __typename?: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, targetedObject?: HubspotTargetedObjectsEnum | null } | null, salesforceCustomer?: { __typename?: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string } };
-
-export type PaymentProvidersListForCustomerMainInfosQueryVariables = Exact<{
-  limit?: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-export type PaymentProvidersListForCustomerMainInfosQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
-      | { __typename?: 'AdyenProvider', id: string, name: string, code: string }
-      | { __typename?: 'CashfreeProvider', id: string, name: string, code: string }
-      | { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string }
-      | { __typename?: 'GocardlessProvider', id: string, name: string, code: string }
-      | { __typename?: 'MoneyhashProvider', id: string, name: string, code: string }
-      | { __typename?: 'StripeProvider', id: string, name: string, code: string }
-    > } | null };
 
 export type CustomerAppliedTaxRatesForSettingsFragment = { __typename?: 'Customer', id: string, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number, autoGenerated: boolean }> | null };
 
@@ -24561,80 +24622,6 @@ export type GetCustomerInvoicesQueryHookResult = ReturnType<typeof useGetCustome
 export type GetCustomerInvoicesLazyQueryHookResult = ReturnType<typeof useGetCustomerInvoicesLazyQuery>;
 export type GetCustomerInvoicesSuspenseQueryHookResult = ReturnType<typeof useGetCustomerInvoicesSuspenseQuery>;
 export type GetCustomerInvoicesQueryResult = Apollo.QueryResult<GetCustomerInvoicesQuery, GetCustomerInvoicesQueryVariables>;
-export const PaymentProvidersListForCustomerMainInfosDocument = gql`
-    query paymentProvidersListForCustomerMainInfos($limit: Int) {
-  paymentProviders(limit: $limit) {
-    collection {
-      ... on StripeProvider {
-        id
-        name
-        code
-      }
-      ... on GocardlessProvider {
-        id
-        name
-        code
-      }
-      ... on FlutterwaveProvider {
-        id
-        name
-        code
-      }
-      ... on CashfreeProvider {
-        id
-        name
-        code
-      }
-      ... on MoneyhashProvider {
-        id
-        name
-        code
-      }
-      ... on AdyenProvider {
-        id
-        name
-        code
-      }
-    }
-  }
-}
-    `;
-
-/**
- * __usePaymentProvidersListForCustomerMainInfosQuery__
- *
- * To run a query within a React component, call `usePaymentProvidersListForCustomerMainInfosQuery` and pass it any options that fit your needs.
- * When your component renders, `usePaymentProvidersListForCustomerMainInfosQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = usePaymentProvidersListForCustomerMainInfosQuery({
- *   variables: {
- *      limit: // value for 'limit'
- *   },
- * });
- */
-export function usePaymentProvidersListForCustomerMainInfosQuery(baseOptions?: Apollo.QueryHookOptions<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>(PaymentProvidersListForCustomerMainInfosDocument, options);
-      }
-export function usePaymentProvidersListForCustomerMainInfosLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>(PaymentProvidersListForCustomerMainInfosDocument, options);
-        }
-// @ts-ignore
-export function usePaymentProvidersListForCustomerMainInfosSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>): Apollo.UseSuspenseQueryResult<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>;
-export function usePaymentProvidersListForCustomerMainInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>): Apollo.UseSuspenseQueryResult<PaymentProvidersListForCustomerMainInfosQuery | undefined, PaymentProvidersListForCustomerMainInfosQueryVariables>;
-export function usePaymentProvidersListForCustomerMainInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>(PaymentProvidersListForCustomerMainInfosDocument, options);
-        }
-export type PaymentProvidersListForCustomerMainInfosQueryHookResult = ReturnType<typeof usePaymentProvidersListForCustomerMainInfosQuery>;
-export type PaymentProvidersListForCustomerMainInfosLazyQueryHookResult = ReturnType<typeof usePaymentProvidersListForCustomerMainInfosLazyQuery>;
-export type PaymentProvidersListForCustomerMainInfosSuspenseQueryHookResult = ReturnType<typeof usePaymentProvidersListForCustomerMainInfosSuspenseQuery>;
-export type PaymentProvidersListForCustomerMainInfosQueryResult = Apollo.QueryResult<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>;
 export const GetCustomerSettingsDocument = gql`
     query getCustomerSettings($id: ID!) {
   customer(id: $id) {
