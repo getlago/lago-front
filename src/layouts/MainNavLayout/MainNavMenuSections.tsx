@@ -35,6 +35,7 @@ import {
   SUBSCRIPTIONS_ROUTE,
   WALLET_DETAILS_ROUTE,
 } from '~/core/router'
+import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
 import { FeatureFlagEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -83,7 +84,9 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
       icon: 'table-horizontale',
       link: REVENUE_RECOGNITION_ROUTE,
       match: [REVENUE_RECOGNITION_ROUTE],
-      hidden: !hasPermissions(['analyticsView']),
+      hidden:
+        !hasPermissions(['analyticsView']) ||
+        !isFeatureFlagActive(FeatureFlags.REVENUE_RECOGNITION),
     },
   ]
 
