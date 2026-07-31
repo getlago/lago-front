@@ -278,5 +278,11 @@
   "text_17848001862071abwcvd3b3p": "Stai per eliminare questa bozza di fattura",
   "text_1784800186207jjeqsv1d0rd": "Questa bozza di fattura verrà eliminata definitivamente e non diventerà mai un credito. Questa azione non può essere annullata. Vuoi continuare?",
   "text_1784800186207ionjr7ey3jq": "Bozza di fattura eliminata",
-  "text_178482400457029nb9diwj6m": "Eliminare una bozza di fattura"
+  "text_178482400457029nb9diwj6m": "Eliminare una bozza di fattura",
+  "text_1731423623190elua4pl3ccr": "Questo abbonamento non è ancora attivo. L'utilizzo cumulato viene mostrato solo per gli abbonamenti attivi.",
+  "text_636d023ce11a9d038819b579": "Qualcosa è andato storto",
+  "text_636d023ce11a9d038819b57b": "Ti preghiamo di aggiornare la pagina o di contattarci se l'errore persiste.",
+  "text_1739804207625v7faokht1cq": "Nessun utilizzo cumulato è stato registrato",
+  "text_1739804207625nkct7jhmmwh": "Si è verificato un errore durante il recupero dell'utilizzo cumulato. Riprova.",
+  "text_1778680248317x4cg78xappu": "Consumo collegato all'addebito"
 }
