@@ -6,17 +6,17 @@ import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateCon
 import { UsageBreakdownType } from '~/components/analytics/usage/types'
 import { useUsageAnalyticsBillableMetric } from '~/components/analytics/usage/useUsageAnalyticsBillableMetric'
 import { Button } from '~/components/designSystem/Button'
-import {
-  AvailableQuickFilters,
-  Filters,
-  UsageBillableMetricAvailableFilters,
-} from '~/components/designSystem/Filters'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import StackedBarChart from '~/components/designSystem/graphs/StackedBarChart'
 import { getItemDateFormatedByTimeGranularity } from '~/components/designSystem/graphs/utils'
 import { HorizontalDataTable } from '~/components/designSystem/Table/HorizontalDataTable'
 import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
+import {
+  AvailableQuickFilters,
+  Filters,
+  UsageBillableMetricAvailableFilters,
+} from '~/components/Filters'
 import { PageBannerHeaderWithBurgerMenu } from '~/components/layouts/CenteredPage'
 import { FullscreenPage } from '~/components/layouts/FullscreenPage'
 import { ANALYTICS_USAGE_BILLABLE_METRIC_FILTER_PREFIX } from '~/core/constants/filters'

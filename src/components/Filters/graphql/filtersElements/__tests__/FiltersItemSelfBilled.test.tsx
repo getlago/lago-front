@@ -1,0 +1,38 @@
+import { render, screen, waitFor } from '@testing-library/react'
+
+import { FiltersItemSelfBilled } from '~/components/Filters/graphql/filtersElements/FiltersItemSelfBilled'
+import { AllTheProviders } from '~/test-utils'
+
+const mockSetFilterValue = jest.fn()
+
+const renderComponent = (value?: string) => {
+  return render(<FiltersItemSelfBilled value={value} setFilterValue={mockSetFilterValue} />, {
+    wrapper: AllTheProviders,
+  })
+}
+
+describe('FiltersItemSelfBilled', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  describe('GIVEN no initial value', () => {
+    it('THEN displays the combobox', async () => {
+      renderComponent()
+
+      await waitFor(() => {
+        expect(screen.getByRole('combobox')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a true value', () => {
+    it('THEN renders the combobox', async () => {
+      renderComponent('true')
+
+      await waitFor(() => {
+        expect(screen.getByRole('combobox')).toBeInTheDocument()
+      })
+    })
+  })
+})

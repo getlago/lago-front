@@ -9,9 +9,9 @@ import {
   formattedMrrDataLoadingFixture,
 } from '~/components/analytics/mrr/fixture'
 import { formatMrrData, formatMrrDataForAreaChart } from '~/components/analytics/mrr/utils'
-import { AvailableFiltersEnum } from '~/components/designSystem/Filters'
-import { formatFiltersForMrrQuery, getFilterValue } from '~/components/designSystem/Filters/utils'
 import { AreaChartDataType } from '~/components/designSystem/graphs/types'
+import { AvailableFiltersEnum } from '~/components/Filters'
+import { formatFiltersForMrrQuery, getFilterValue } from '~/components/Filters/graphql/utils'
 import { MRR_BREAKDOWN_OVERVIEW_FILTER_PREFIX } from '~/core/constants/filters'
 import { getTimezoneConfig } from '~/core/timezone'
 import {

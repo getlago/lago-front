@@ -37,7 +37,7 @@ jest.mock('~/core/utils/getCurrentBreakpoint', () => ({
   getCurrentBreakpoint: () => 'md',
 }))
 
-jest.mock('~/components/designSystem/Filters', () => ({
+jest.mock('~/components/Filters', () => ({
   Filters: {
     Provider: ({ children }: { children: React.ReactNode }) => (
       <div data-test="filters-provider-mock">{children}</div>

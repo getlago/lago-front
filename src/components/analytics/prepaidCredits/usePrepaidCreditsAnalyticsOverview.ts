@@ -5,11 +5,11 @@ import { useSearchParams } from 'react-router-dom'
 
 import { formattedPrepaidCreditsDataLoadingFixture } from '~/components/analytics/prepaidCredits/fixture'
 import { formatPrepaidCreditsData } from '~/components/analytics/prepaidCredits/utils'
-import { AvailableFiltersEnum } from '~/components/designSystem/Filters'
+import { AvailableFiltersEnum } from '~/components/Filters'
 import {
   formatFiltersForPrepaidCreditsQuery,
   getFilterValue,
-} from '~/components/designSystem/Filters/utils'
+} from '~/components/Filters/graphql/utils'
 import { PREPAID_CREDITS_OVERVIEW_FILTER_PREFIX } from '~/core/constants/filters'
 import { getTimezoneConfig } from '~/core/timezone'
 import {

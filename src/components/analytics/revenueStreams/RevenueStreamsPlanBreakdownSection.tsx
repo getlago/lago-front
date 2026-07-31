@@ -3,15 +3,15 @@ import { useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
-import {
-  Filters,
-  formatFiltersForRevenueStreamsPlansQuery,
-  RevenueStreamsPlansAvailableFilters,
-} from '~/components/designSystem/Filters'
 import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
+import {
+  Filters,
+  formatFiltersForRevenueStreamsPlansQuery,
+  RevenueStreamsPlansAvailableFilters,
+} from '~/components/Filters'
 import { REVENUE_STREAMS_BREAKDOWN_PLAN_FILTER_PREFIX } from '~/core/constants/filters'
 import { getIntervalTranslationKey } from '~/core/constants/form'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'

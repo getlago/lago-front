@@ -3,16 +3,16 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { generatePath, useParams, useSearchParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
-import {
-  ActivityLogsAvailableFilters,
-  Filters,
-  formatFiltersForActivityLogsQuery,
-} from '~/components/designSystem/Filters'
 import { Typography } from '~/components/designSystem/Typography'
 import { ActivityLogDetails } from '~/components/developers/activityLogs/ActivityLogDetails'
 import { ActivityLogTable } from '~/components/developers/activityLogs/ActivityLogTable'
 import { ACTIVITY_LOG_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { ListSectionRef, LogsLayout } from '~/components/developers/LogsLayout'
+import {
+  ActivityLogsAvailableFilters,
+  Filters,
+  formatFiltersForActivityLogsQuery,
+} from '~/components/Filters'
 import { ACTIVITY_LOG_FILTER_PREFIX } from '~/core/constants/filters'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { useNavigate } from '~/core/router'

@@ -2,7 +2,7 @@ import { IconName } from 'lago-design-system'
 import { generatePath } from 'react-router-dom'
 
 import { buildLinkToActivityLog } from '~/components/activityLogs/utils'
-import { AvailableFiltersEnum } from '~/components/designSystem/Filters'
+import { AvailableFiltersEnum } from '~/components/Filters'
 import { useTerminateCustomerWalletDialog } from '~/components/wallets/TerminateCustomerWalletDialog'
 import { useVoidWalletDialog } from '~/components/wallets/VoidWalletDialog'
 import { addToast } from '~/core/apolloClient'

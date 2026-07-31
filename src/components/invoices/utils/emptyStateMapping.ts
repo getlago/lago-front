@@ -1,3 +1,4 @@
+import { GenericPlaceholderProps } from '~/components/designSystem/GenericPlaceholder'
 import {
   isDraftUrlParams,
   isOutstandingUrlParams,
@@ -5,8 +6,7 @@ import {
   isPaymentOverdueUrlParams,
   isSucceededUrlParams,
   isVoidedUrlParams,
-} from '~/components/designSystem/Filters'
-import { GenericPlaceholderProps } from '~/components/designSystem/GenericPlaceholder'
+} from '~/components/Filters'
 import { INVOICE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { INVOICE_SETTINGS_ROUTE } from '~/core/router'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
