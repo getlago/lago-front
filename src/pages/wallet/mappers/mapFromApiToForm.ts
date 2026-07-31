@@ -44,6 +44,7 @@ export const mapFromApiToForm = ({
     billableMetrics: [],
   },
   paidCredits: '',
+  purchaseOrderNumber: wallet?.purchaseOrderNumber || undefined,
   rateAmount: intlFormatNumber(wallet?.rateAmount ?? 1, {
     currency,
     style: 'decimal',

@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon'
 
+import { normalizePurchaseOrderNumber } from '~/components/purchaseOrder/PO'
 import {
   SubscriptionUpdateFormOptions,
   useUpdateSubscriptionForm,
@@ -20,5 +21,6 @@ export const useUpdateSubscriptionInformation = ({
       name: value.name || null,
       subscriptionAt: DateTime.fromISO(value.subscriptionAt).toUTC().toISO(),
       endingAt: value.endingAt ? DateTime.fromISO(value.endingAt).toUTC().toISO() : null,
+      purchaseOrderNumber: normalizePurchaseOrderNumber(value.purchaseOrderNumber),
     }),
   })

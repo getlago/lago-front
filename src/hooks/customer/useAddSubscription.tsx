@@ -39,6 +39,7 @@ gql`
       subscriptionAt
       endingAt
       name
+      purchaseOrderNumber
       externalId
       activationRules {
         id
@@ -80,6 +81,7 @@ gql`
       subscriptionAt
       endingAt
       name
+      purchaseOrderNumber
       externalId
       activationRules {
         id
