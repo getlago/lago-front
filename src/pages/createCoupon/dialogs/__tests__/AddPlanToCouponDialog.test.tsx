@@ -1,4 +1,5 @@
 import { renderHook, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { ReactElement } from 'react'
 
 import {
@@ -31,6 +32,29 @@ jest.mock('~/generated/graphql', () => ({
   useGetPlansForCouponsLazyQuery: jest
     .fn()
     .mockReturnValue([jest.fn(), { loading: false, data: undefined }]),
+}))
+
+// jsdom measures a 0-height scroll element, so the real virtualizer renders no
+// combobox options — render them all instead (same mock as ScopeSection.test.tsx).
+jest.mock('@tanstack/react-virtual', () => ({
+  useVirtualizer: jest.fn((config) => {
+    const items = Array.from({ length: config.count }, (_, i) => ({
+      index: i,
+      key: i,
+      size: config.estimateSize(i),
+      start: Array.from({ length: i }, (__, j) => config.estimateSize(j)).reduce(
+        (acc, val) => acc + val,
+        0,
+      ),
+    }))
+
+    return {
+      getVirtualItems: () => items,
+      getTotalSize: () => items.reduce((acc, item) => acc + item.size, 0),
+      scrollToIndex: jest.fn(),
+      measureElement: jest.fn(),
+    }
+  }),
 }))
 
 const mockedUseGetPlansForCouponsLazyQuery = useGetPlansForCouponsLazyQuery as jest.Mock
@@ -67,6 +91,11 @@ const openDialogAndGetChildren = () => {
 }
 
 describe('useAddPlanToCouponDialog', () => {
+  beforeAll(() => {
+    // jsdom does not implement scrollIntoView (used when opening the combobox popup)
+    Element.prototype.scrollIntoView = jest.fn()
+  })
+
   beforeEach(() => {
     jest.clearAllMocks()
   })
@@ -262,6 +291,71 @@ describe('useAddPlanToCouponDialog', () => {
         render(children)
 
         expect(screen.getByRole('combobox')).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN opening the combobox with loaded plans', () => {
+      it('THEN should render an option per plan and disable already-attached ones', async () => {
+        const user = userEvent.setup()
+
+        mockedUseGetPlansForCouponsLazyQuery.mockReturnValue([
+          mockGetPlans,
+          { loading: false, data: mockPlansData },
+        ])
+
+        // openDialogAndGetChildren attaches plan-2, so its option must be disabled
+        const children = openDialogAndGetChildren()
+
+        render(children)
+
+        await user.click(screen.getByRole('combobox'))
+
+        const options = await screen.findAllByRole('option')
+
+        expect(options).toHaveLength(2)
+
+        const premiumOption = options.find((option) => option.textContent?.includes('premium_plan'))
+        const basicOption = options.find((option) => option.textContent?.includes('basic_plan'))
+
+        expect(premiumOption).toHaveTextContent('Premium Plan')
+        // plan-1 is not attached, plan-2 is → only the latter is disabled
+        expect(premiumOption).toHaveAttribute('aria-disabled', 'false')
+        expect(basicOption).toHaveAttribute('aria-disabled', 'true')
+      })
+    })
+
+    describe('WHEN selecting a plan from the combobox', () => {
+      it('THEN should resolve the selected plan and submit it', async () => {
+        const user = userEvent.setup()
+
+        mockedUseGetPlansForCouponsLazyQuery.mockReturnValue([
+          mockGetPlans,
+          { loading: false, data: mockPlansData },
+        ])
+
+        const onSubmit = jest.fn()
+
+        const { result } = renderHook(() => useAddPlanToCouponDialog())
+
+        result.current.openAddPlanToCouponDialog({ onSubmit })
+
+        const { children, form } = mockFormDialogOpen.mock.calls[0][0]
+
+        render(children)
+
+        await user.click(screen.getByRole('combobox'))
+
+        const options = await screen.findAllByRole('option')
+        const premiumOption = options.find((option) =>
+          option.textContent?.includes('premium_plan'),
+        ) as HTMLElement
+
+        await user.click(premiumOption)
+
+        form.submit()
+
+        expect(onSubmit).toHaveBeenCalledTimes(1)
+        expect(onSubmit).toHaveBeenCalledWith(mockPlan)
       })
     })
   })

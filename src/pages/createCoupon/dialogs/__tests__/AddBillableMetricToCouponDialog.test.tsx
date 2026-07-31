@@ -1,4 +1,5 @@
 import { renderHook, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { ReactElement } from 'react'
 
 import {
@@ -36,6 +37,29 @@ jest.mock('~/generated/graphql', () => ({
     .mockReturnValue([jest.fn(), { loading: false, data: undefined }]),
 }))
 
+// jsdom measures a 0-height scroll element, so the real virtualizer renders no
+// combobox options — render them all instead (same mock as ScopeSection.test.tsx).
+jest.mock('@tanstack/react-virtual', () => ({
+  useVirtualizer: jest.fn((config) => {
+    const items = Array.from({ length: config.count }, (_, i) => ({
+      index: i,
+      key: i,
+      size: config.estimateSize(i),
+      start: Array.from({ length: i }, (__, j) => config.estimateSize(j)).reduce(
+        (acc, val) => acc + val,
+        0,
+      ),
+    }))
+
+    return {
+      getVirtualItems: () => items,
+      getTotalSize: () => items.reduce((acc, item) => acc + item.size, 0),
+      scrollToIndex: jest.fn(),
+      measureElement: jest.fn(),
+    }
+  }),
+}))
+
 const mockedUseGetBillableMetricsForCouponsLazyQuery =
   useGetBillableMetricsForCouponsLazyQuery as jest.Mock
 
@@ -71,6 +95,11 @@ const openDialogAndGetChildren = () => {
 }
 
 describe('useAddBillableMetricToCouponDialog', () => {
+  beforeAll(() => {
+    // jsdom does not implement scrollIntoView (used when opening the combobox popup)
+    Element.prototype.scrollIntoView = jest.fn()
+  })
+
   beforeEach(() => {
     jest.clearAllMocks()
   })
@@ -295,6 +324,71 @@ describe('useAddBillableMetricToCouponDialog', () => {
 
         expect(children.props.onSelect).toBeDefined()
         expect(typeof children.props.onSelect).toBe('function')
+      })
+    })
+
+    describe('WHEN opening the combobox with loaded billable metrics', () => {
+      it('THEN should render an option per metric and disable already-attached ones', async () => {
+        const user = userEvent.setup()
+
+        mockedUseGetBillableMetricsForCouponsLazyQuery.mockReturnValue([
+          mockGetBillableMetrics,
+          { loading: false, data: mockBillableMetricsData },
+        ])
+
+        // openDialogAndGetChildren attaches bm-2, so its option must be disabled
+        const children = openDialogAndGetChildren()
+
+        render(children)
+
+        await user.click(screen.getByRole('combobox'))
+
+        const options = await screen.findAllByRole('option')
+
+        expect(options).toHaveLength(2)
+
+        const apiCallsOption = options.find((option) => option.textContent?.includes('api_calls'))
+        const storageOption = options.find((option) => option.textContent?.includes('storage'))
+
+        expect(apiCallsOption).toHaveTextContent('API Calls')
+        // bm-1 is not attached, bm-2 is → only the latter is disabled
+        expect(apiCallsOption).toHaveAttribute('aria-disabled', 'false')
+        expect(storageOption).toHaveAttribute('aria-disabled', 'true')
+      })
+    })
+
+    describe('WHEN selecting a billable metric from the combobox', () => {
+      it('THEN should resolve the selected billable metric and submit it', async () => {
+        const user = userEvent.setup()
+
+        mockedUseGetBillableMetricsForCouponsLazyQuery.mockReturnValue([
+          mockGetBillableMetrics,
+          { loading: false, data: mockBillableMetricsData },
+        ])
+
+        const onSubmit = jest.fn()
+
+        const { result } = renderHook(() => useAddBillableMetricToCouponDialog())
+
+        result.current.openAddBillableMetricToCouponDialog({ onSubmit })
+
+        const { children, form } = mockFormDialogOpen.mock.calls[0][0]
+
+        render(children)
+
+        await user.click(screen.getByRole('combobox'))
+
+        const options = await screen.findAllByRole('option')
+        const apiCallsOption = options.find((option) =>
+          option.textContent?.includes('api_calls'),
+        ) as HTMLElement
+
+        await user.click(apiCallsOption)
+
+        form.submit()
+
+        expect(onSubmit).toHaveBeenCalledTimes(1)
+        expect(onSubmit).toHaveBeenCalledWith(mockBillableMetric)
       })
     })
   })

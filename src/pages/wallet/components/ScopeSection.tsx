@@ -8,7 +8,10 @@ import { Chip } from '~/components/designSystem/Chip'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { ComboBox, ComboboxItem } from '~/components/form'
-import { SHOW_LIMIT_INPUT_DATA_TEST } from '~/components/wallets/utils/dataTestConstants'
+import {
+  SHOW_BILLABLE_METRIC_LIMIT_INPUT_DATA_TEST,
+  SHOW_LIMIT_INPUT_DATA_TEST,
+} from '~/components/wallets/utils/dataTestConstants'
 import {
   MUI_INPUT_BASE_ROOT_CLASSNAME,
   SEARCH_APPLIES_TO_BILLABLE_METRIC_CLASSNAME,
@@ -321,6 +324,7 @@ export const ScopeSection = withForm({
                   selector: `.${SEARCH_APPLIES_TO_BILLABLE_METRIC_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
                 })
               }}
+              data-test={SHOW_BILLABLE_METRIC_LIMIT_INPUT_DATA_TEST}
             >
               {translate('text_17532150168286lki5kmbqfo')}
             </Button>

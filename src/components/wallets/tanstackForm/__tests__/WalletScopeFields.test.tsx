@@ -1,4 +1,4 @@
-import { screen, within } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { FeeTypesEnum } from '~/generated/graphql'
@@ -37,6 +37,29 @@ jest.mock('~/generated/graphql', () => ({
   ],
 }))
 
+// jsdom measures a 0-height scroll element, so the real virtualizer renders no
+// combobox options — render them all instead (same mock as ScopeSection.test.tsx).
+jest.mock('@tanstack/react-virtual', () => ({
+  useVirtualizer: jest.fn((config) => {
+    const items = Array.from({ length: config.count }, (_, i) => ({
+      index: i,
+      key: i,
+      size: config.estimateSize(i),
+      start: Array.from({ length: i }, (__, j) => config.estimateSize(j)).reduce(
+        (acc, val) => acc + val,
+        0,
+      ),
+    }))
+
+    return {
+      getVirtualItems: () => items,
+      getTotalSize: () => items.reduce((acc, item) => acc + item.size, 0),
+      scrollToIndex: jest.fn(),
+      measureElement: jest.fn(),
+    }
+  }),
+}))
+
 const emptyScope: WalletScopeSlice = { feeTypes: [], billableMetricCodes: [] }
 
 const TestWrapper = ({ initialValues = emptyScope }: { initialValues?: WalletScopeSlice }) => {
@@ -49,6 +72,11 @@ const TestWrapper = ({ initialValues = emptyScope }: { initialValues?: WalletSco
 const FEE_TYPE_ALERT_TEST_ID = 'alert-type-info'
 
 describe('WalletScopeFields', () => {
+  beforeAll(() => {
+    // jsdom does not implement scrollIntoView (used when opening the combobox popup)
+    Element.prototype.scrollIntoView = jest.fn()
+  })
+
   beforeEach(() => {
     mockBillableMetricsData = undefined
   })
@@ -228,6 +256,117 @@ describe('WalletScopeFields', () => {
         const chips = screen.getByTestId(WALLET_SCOPE_BILLABLE_METRIC_CHIPS_TEST_ID)
 
         expect(within(chips).getByText('unknown_code')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the billable-metric combobox is open with loaded options', () => {
+    const loadedData = {
+      selectableBillableMetrics: {
+        collection: [
+          { id: 'bm-1', name: 'API calls', code: 'api_calls' },
+          { id: 'bm-2', name: 'Storage', code: 'storage' },
+        ],
+      },
+    }
+
+    const openCombobox = async (user: ReturnType<typeof userEvent.setup>): Promise<void> => {
+      await user.click(screen.getByTestId(WALLET_SCOPE_BILLABLE_METRIC_ADD_BUTTON_TEST_ID))
+
+      const combobox = screen.getByTestId(WALLET_SCOPE_BILLABLE_METRIC_COMBOBOX_TEST_ID)
+      const input = combobox.querySelector('input') as HTMLInputElement
+
+      await user.click(input)
+    }
+
+    describe('WHEN opening the combobox', () => {
+      it('THEN should render one option per selectable billable metric', async () => {
+        const user = userEvent.setup()
+
+        mockBillableMetricsData = loadedData
+
+        render(<TestWrapper />)
+
+        await openCombobox(user)
+
+        const options = await screen.findAllByRole('option')
+
+        expect(options).toHaveLength(2)
+        expect(options[0]).toHaveTextContent('API calls')
+        expect(options[0]).toHaveTextContent('api_calls')
+      })
+    })
+
+    describe('WHEN a code is already selected', () => {
+      it('THEN should render that option as disabled', async () => {
+        const user = userEvent.setup()
+
+        mockBillableMetricsData = loadedData
+
+        render(
+          <TestWrapper initialValues={{ ...emptyScope, billableMetricCodes: ['api_calls'] }} />,
+        )
+
+        await openCombobox(user)
+
+        const options = await screen.findAllByRole('option')
+
+        expect(options[0]).toHaveAttribute('aria-disabled', 'true')
+        expect(options[1]).toHaveAttribute('aria-disabled', 'false')
+      })
+    })
+
+    describe('WHEN selecting an available option', () => {
+      it('THEN should add its code and render a chip labelled with the metric name', async () => {
+        const user = userEvent.setup()
+
+        mockBillableMetricsData = loadedData
+
+        render(<TestWrapper />)
+
+        await openCombobox(user)
+
+        const options = await screen.findAllByRole('option')
+
+        await user.click(options[1])
+
+        const chips = await screen.findByTestId(WALLET_SCOPE_BILLABLE_METRIC_CHIPS_TEST_ID)
+
+        expect(within(chips).getByText('Storage')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a billable-metric chip is rendered', () => {
+    describe('WHEN clicking its delete control', () => {
+      it('THEN should remove that code from the selection', async () => {
+        const user = userEvent.setup()
+
+        mockBillableMetricsData = {
+          selectableBillableMetrics: {
+            collection: [{ id: 'bm-1', name: 'API calls', code: 'api_calls' }],
+          },
+        }
+
+        render(
+          <TestWrapper initialValues={{ ...emptyScope, billableMetricCodes: ['api_calls'] }} />,
+        )
+
+        const chips = screen.getByTestId(WALLET_SCOPE_BILLABLE_METRIC_CHIPS_TEST_ID)
+
+        expect(chips.children).toHaveLength(1)
+
+        // Chip root carries role="button"; its delete control is the nested
+        // <button data-test="button">, so target that rather than the chip itself.
+        const [deleteButton] = within(chips).getAllByTestId('button')
+
+        await user.click(deleteButton)
+
+        await waitFor(() => {
+          expect(
+            screen.queryByTestId(WALLET_SCOPE_BILLABLE_METRIC_CHIPS_TEST_ID),
+          ).not.toBeInTheDocument()
+        })
       })
     })
   })

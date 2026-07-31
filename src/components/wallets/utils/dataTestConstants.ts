@@ -56,3 +56,4 @@ export const TOPUP_TYPE_FREE_CREDITS_DATA_TEST = 'topup-type-free-credits'
 
 // ScopeSection
 export const SHOW_LIMIT_INPUT_DATA_TEST = 'show-limit-input'
+export const SHOW_BILLABLE_METRIC_LIMIT_INPUT_DATA_TEST = 'show-billable-metric-limit-input'
