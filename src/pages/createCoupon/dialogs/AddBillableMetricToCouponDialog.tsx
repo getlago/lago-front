@@ -57,8 +57,7 @@ const AddBillableMetricContent = ({
   }, [getBillableMetrics])
 
   const comboboxBillableMetricsData = useMemo(() => {
-    if (!data || !data?.selectableBillableMetrics || !data?.selectableBillableMetrics?.collection)
-      return []
+    if (!data?.selectableBillableMetrics?.collection) return []
 
     return data?.selectableBillableMetrics?.collection.map((billableMetric) => {
       const { id, name, code } = billableMetric

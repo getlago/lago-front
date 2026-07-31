@@ -54,7 +54,7 @@ const AddPlanContent = ({ attachedPlansIds, onSelect }: AddPlanContentProps) => 
   }, [getPlans])
 
   const comboboxPlansData = useMemo(() => {
-    if (!data || !data?.selectablePlans || !data?.selectablePlans?.collection) return []
+    if (!data?.selectablePlans?.collection) return []
 
     return data?.selectablePlans?.collection.map((plan) => {
       const { id, name, code } = plan
