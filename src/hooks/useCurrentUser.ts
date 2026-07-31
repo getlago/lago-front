@@ -88,17 +88,16 @@ export const useCurrentUser: UseCurrentUser = () => {
   // Error404. Keyed off the slug (not just the org var, which is null until
   // `OrganizationLayout` resolves the org — a deadlock when no membership matches)
   // so the refetch reconciles against the network.
+  // Only reconcile against the network on `/:organizationSlug` routes: there a stale cached
+  // user whose memberships don't include the URL slug leaves `currentMembership` undefined and
+  // must be recovered. Slug-less routes (admin panel, customer portal, login) have no slug to
+  // reconcile — firing the refetch there would loop forever, because MainNavLayout unmounts the
+  // route subtree during the refetch, remounting this hook, which refetches again.
   useEffect(() => {
-    if (isAuthenticated && !currentMembership && (organizationSlug || currentOrganizationId)) {
+    if (isAuthenticated && !currentMembership && organizationSlug) {
       refetchCurrentUserInfos()
     }
-  }, [
-    organizationSlug,
-    currentOrganizationId,
-    isAuthenticated,
-    currentMembership,
-    refetchCurrentUserInfos,
-  ])
+  }, [organizationSlug, isAuthenticated, currentMembership, refetchCurrentUserInfos])
 
   return {
     currentMembership,
