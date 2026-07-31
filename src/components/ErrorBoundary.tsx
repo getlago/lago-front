@@ -1,25 +1,42 @@
 import { ApolloError } from '@apollo/client'
 import * as Sentry from '@sentry/react'
-import { ReactNode } from 'react'
+import { ReactElement, ReactNode } from 'react'
 
-import { addToast } from '~/core/apolloClient'
+import { ErrorFallback } from '~/components/ErrorFallback'
+import { addToast } from '~/core/apolloClient/reactiveVars/toastVar'
 
 interface ErrorBoundaryProps {
   children: ReactNode
+  /** Value of the `errorBoundary` Sentry tag, to tell scopes apart. */
+  name?: string
+  /** Rendered in place of the crashed subtree. Defaults to the full-screen placeholder. */
+  fallback?: ReactElement
+  /** Disable the danger toast where the fallback already communicates the failure. */
+  showToast?: boolean
 }
 
-export const ErrorBoundary = ({ children }: ErrorBoundaryProps) => {
+export const ErrorBoundary = ({
+  children,
+  name = 'App',
+  fallback,
+  showToast = true,
+}: ErrorBoundaryProps) => {
   return (
     <Sentry.ErrorBoundary
       beforeCapture={(scope) => {
         scope.setTag('component', 'ErrorBoundary')
       }}
       showDialog={false}
+      fallback={fallback ?? <ErrorFallback />}
+      // Sentry derives `handled` from `!!fallback`. Setting it explicitly keeps
+      // caught errors reported as unhandled, as they were before we added a
+      // fallback, so crash-rate numbers stay comparable.
+      handled={false}
       onError={(error, componentStack, eventId) => {
         // Add detailed error info to Sentry context
         Sentry.withScope((scope) => {
           scope.setLevel('error')
-          scope.setTag('errorBoundary', 'App')
+          scope.setTag('errorBoundary', name)
           scope.setTag('errorCategory', 'global')
 
           // Type guard for Error objects
@@ -47,7 +64,7 @@ export const ErrorBoundary = ({ children }: ErrorBoundaryProps) => {
 
         // Only show toast notification if not an Apollo/GraphQL error
         // Apollo errors are already handled in apollo init.ts
-        if (!(error instanceof ApolloError)) {
+        if (showToast && !(error instanceof ApolloError)) {
           addToast({
             severity: 'danger',
             translateKey: 'text_622f7a3dc32ce100c46a5154',
