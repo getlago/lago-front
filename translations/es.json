@@ -278,5 +278,11 @@
   "text_17848001862071abwcvd3b3p": "Está a punto de eliminar esta factura en borrador",
   "text_1784800186207jjeqsv1d0rd": "Esta factura en borrador se eliminará de forma permanente y nunca se convertirá en una cuenta por cobrar. Esta acción no se puede deshacer. ¿Seguro que quieres continuar?",
   "text_1784800186207ionjr7ey3jq": "Factura en borrador eliminada",
-  "text_178482400457029nb9diwj6m": "Eliminar una factura en borrador"
+  "text_178482400457029nb9diwj6m": "Eliminar una factura en borrador",
+  "text_1731423623190elua4pl3ccr": "Esta suscripción aún no está activa. El uso acumulado solo se muestra para las suscripciones activas.",
+  "text_636d023ce11a9d038819b579": "Algo salió mal",
+  "text_636d023ce11a9d038819b57b": "Actualice la página o póngase en contacto con nosotros si el error persiste.",
+  "text_1739804207625v7faokht1cq": "No se ha reportado ningún uso acumulado",
+  "text_1739804207625nkct7jhmmwh": "Se produjo un error al obtener el uso acumulado. Inténtelo de nuevo.",
+  "text_1778680248317x4cg78xappu": "Uso vinculado al cargo"
 }

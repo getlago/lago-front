@@ -35,6 +35,7 @@ export const buildSubscriptionDefaultValues = (
       skipInvoiceCustomSections: subscription?.skipInvoiceCustomSections || false,
     },
     consolidateInvoice: subscription?.consolidateInvoice ?? true,
+    purchaseOrderNumber: subscription?.purchaseOrderNumber || undefined,
     ...activationRuleValues,
   }
 }
