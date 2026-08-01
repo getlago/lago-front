@@ -161,7 +161,7 @@
     "decimal.js": "10.6.0",
     "formik": "2.4.9",
     "graphql": "16.14.2",
-    "graphql-ruby-client": "1.15.1",
+    "graphql-ruby-client": "1.15.2",
     "html-react-parser": "6.1.5",
     "lago-configs": "workspace:*",
     "lago-design-system": "workspace:*",
