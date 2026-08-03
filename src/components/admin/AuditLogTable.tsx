@@ -37,6 +37,24 @@ const ACTION_CHIP_MAP: Record<string, ActionChipConfig> = {
   rollback: { label: 'Rollback', color: 'warning700' },
 }
 
+// A feature toggle carries its key in exactly one of the two feature-type columns; every other
+// entry (e.g. org_created) shows "-" in both. Splitting the columns removes the ambiguous
+// Integration/Flag type chip entirely.
+const renderFeatureKeyCell = (
+  entry: AuditLogEntry,
+  type: 'premium_integration' | 'feature_flag',
+) => {
+  if (entry.featureType !== type || !entry.featureKey) {
+    return <Typography color="grey600">-</Typography>
+  }
+
+  return (
+    <Typography variant="body" noWrap>
+      {entry.featureKey}
+    </Typography>
+  )
+}
+
 type AuditLogTableProps = {
   data: AuditLogEntry[]
   isLoading: boolean
@@ -117,33 +135,16 @@ export const AuditLogTable = ({
           },
         },
         {
-          key: 'featureKey',
-          title: 'Feature',
+          key: 'featureType',
+          title: 'Premium integration',
           minWidth: 180,
-          content: (entry) => {
-            // Only feature toggles (premium integration / feature flag) carry a feature key.
-            // Org-level entries (e.g. org_created) set an unrelated featureKey/featureType and
-            // must not render a feature key or a type chip.
-            const isFeatureEntry =
-              entry.featureType === 'premium_integration' || entry.featureType === 'feature_flag'
-
-            if (!isFeatureEntry || !entry.featureKey) {
-              return <Typography color="grey600">-</Typography>
-            }
-
-            return (
-              <div className="flex flex-col gap-0.5">
-                <Typography variant="body" noWrap>
-                  {entry.featureKey}
-                </Typography>
-                <Chip
-                  label={entry.featureType === 'premium_integration' ? 'Integration' : 'Flag'}
-                  size="small"
-                  color={entry.featureType === 'premium_integration' ? 'info600' : 'purple600'}
-                />
-              </div>
-            )
-          },
+          content: (entry) => renderFeatureKeyCell(entry, 'premium_integration'),
+        },
+        {
+          key: 'featureKey',
+          title: 'Feature flag',
+          minWidth: 180,
+          content: (entry) => renderFeatureKeyCell(entry, 'feature_flag'),
         },
         {
           key: 'organizationName',
