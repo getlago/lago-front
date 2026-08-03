@@ -436,7 +436,7 @@ export type AdminCreateOrganizationInput = {
   ownerEmail: Scalars['String']['input'];
   premiumIntegrations?: InputMaybe<Array<Scalars['String']['input']>>;
   reason: Scalars['String']['input'];
-  timezone?: InputMaybe<Scalars['String']['input']>;
+  timezone?: InputMaybe<TimezoneEnum>;
 };
 
 export type AdminCreateOrganizationPayload = {
@@ -448,6 +448,8 @@ export type AdminCreateOrganizationPayload = {
 export enum AdminFeatureTypeEnum {
   /** Feature flag toggle */
   FeatureFlag = 'feature_flag',
+  /** Organization creation */
+  Organization = 'organization',
   /** Premium integration toggle */
   PremiumIntegration = 'premium_integration'
 }
@@ -8643,6 +8645,8 @@ export type Query = {
   addOns: AddOnCollection;
   /** Query admin audit logs with filters */
   adminAuditLogs: AdminAuditLogCollection;
+  /** List CS admin users (admin only) */
+  adminCsAdmins: Array<User>;
   /** Get a single organization by ID (admin only) */
   adminOrganization?: Maybe<AdminOrganization>;
   /** Search organizations (admin only) */
@@ -8959,12 +8963,13 @@ export type QueryAddOnsArgs = {
 
 
 export type QueryAdminAuditLogsArgs = {
-  actorUserId?: InputMaybe<Scalars['ID']['input']>;
+  actions?: InputMaybe<Array<AdminActionEnum>>;
+  actorUserIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   featureKey?: InputMaybe<Scalars['String']['input']>;
   featureType?: InputMaybe<AdminFeatureTypeEnum>;
   fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
-  organizationId?: InputMaybe<Scalars['ID']['input']>;
+  organizationIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   page?: InputMaybe<Scalars['Int']['input']>;
   toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
 };
@@ -16221,14 +16226,25 @@ export type GetSubscriptionsListQueryVariables = Exact<{
 export type GetSubscriptionsListQuery = { __typename?: 'Query', subscriptions: { __typename?: 'SubscriptionCollection', collection: Array<{ __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, startedAt?: any | null, nextSubscriptionAt?: any | null, nextSubscriptionType?: NextSubscriptionTypeEnum | null, name?: string | null, nextName?: string | null, externalId: string, subscriptionAt?: any | null, endingAt?: any | null, terminatedAt?: any | null, billingEntityId?: string | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string } }, plan: { __typename?: 'Plan', id: string, isOverridden: boolean, payInAdvance?: boolean | null, amountCurrency: CurrencyEnum, name: string, interval?: PlanInterval | null }, nextPlan?: { __typename?: 'Plan', id: string, name: string, code: string, interval?: PlanInterval | null } | null, nextSubscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, status?: StatusTypeEnum | null } | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
 export type AdminAuditLogsQueryVariables = Exact<{
-  organizationId?: InputMaybe<Scalars['ID']['input']>;
+  organizationIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
   featureKey?: InputMaybe<Scalars['String']['input']>;
+  featureType?: InputMaybe<AdminFeatureTypeEnum>;
+  actions?: InputMaybe<Array<AdminActionEnum> | AdminActionEnum>;
+  fromDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  toDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
 }>;
 
 
 export type AdminAuditLogsQuery = { __typename?: 'Query', adminAuditLogs: { __typename?: 'AdminAuditLogCollection', collection: Array<{ __typename?: 'AdminAuditLog', id: string, actorEmail: string, action: AdminActionEnum, organizationId: string, organizationName: string, featureType: AdminFeatureTypeEnum, featureKey: string, beforeValue?: boolean | null, afterValue: boolean, reason: string, batchId?: string | null, rollbackOfId?: string | null, createdAt: any }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalCount: number, totalPages: number } } };
+
+export type AdminAuditLogOrganizationsQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type AdminAuditLogOrganizationsQuery = { __typename?: 'Query', adminOrganizations: { __typename?: 'AdminOrganizationCollection', collection: Array<{ __typename?: 'AdminOrganization', id: string, name: string }> } };
 
 export type AdminRollbackChangeMutationVariables = Exact<{
   input: AdminRollbackChangeInput;
@@ -41604,10 +41620,14 @@ export type GetSubscriptionsListLazyQueryHookResult = ReturnType<typeof useGetSu
 export type GetSubscriptionsListSuspenseQueryHookResult = ReturnType<typeof useGetSubscriptionsListSuspenseQuery>;
 export type GetSubscriptionsListQueryResult = Apollo.QueryResult<GetSubscriptionsListQuery, GetSubscriptionsListQueryVariables>;
 export const AdminAuditLogsDocument = gql`
-    query AdminAuditLogs($organizationId: ID, $featureKey: String, $page: Int, $limit: Int) {
+    query AdminAuditLogs($organizationIds: [ID!], $featureKey: String, $featureType: AdminFeatureTypeEnum, $actions: [AdminActionEnum!], $fromDate: ISO8601Date, $toDate: ISO8601Date, $page: Int, $limit: Int) {
   adminAuditLogs(
-    organizationId: $organizationId
+    organizationIds: $organizationIds
     featureKey: $featureKey
+    featureType: $featureType
+    actions: $actions
+    fromDate: $fromDate
+    toDate: $toDate
     page: $page
     limit: $limit
   ) {
@@ -41647,8 +41667,12 @@ export const AdminAuditLogsDocument = gql`
  * @example
  * const { data, loading, error } = useAdminAuditLogsQuery({
  *   variables: {
- *      organizationId: // value for 'organizationId'
+ *      organizationIds: // value for 'organizationIds'
  *      featureKey: // value for 'featureKey'
+ *      featureType: // value for 'featureType'
+ *      actions: // value for 'actions'
+ *      fromDate: // value for 'fromDate'
+ *      toDate: // value for 'toDate'
  *      page: // value for 'page'
  *      limit: // value for 'limit'
  *   },
@@ -41673,6 +41697,52 @@ export type AdminAuditLogsQueryHookResult = ReturnType<typeof useAdminAuditLogsQ
 export type AdminAuditLogsLazyQueryHookResult = ReturnType<typeof useAdminAuditLogsLazyQuery>;
 export type AdminAuditLogsSuspenseQueryHookResult = ReturnType<typeof useAdminAuditLogsSuspenseQuery>;
 export type AdminAuditLogsQueryResult = Apollo.QueryResult<AdminAuditLogsQuery, AdminAuditLogsQueryVariables>;
+export const AdminAuditLogOrganizationsDocument = gql`
+    query AdminAuditLogOrganizations($limit: Int) {
+  adminOrganizations(limit: $limit) {
+    collection {
+      id
+      name
+    }
+  }
+}
+    `;
+
+/**
+ * __useAdminAuditLogOrganizationsQuery__
+ *
+ * To run a query within a React component, call `useAdminAuditLogOrganizationsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAdminAuditLogOrganizationsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAdminAuditLogOrganizationsQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useAdminAuditLogOrganizationsQuery(baseOptions?: Apollo.QueryHookOptions<AdminAuditLogOrganizationsQuery, AdminAuditLogOrganizationsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<AdminAuditLogOrganizationsQuery, AdminAuditLogOrganizationsQueryVariables>(AdminAuditLogOrganizationsDocument, options);
+      }
+export function useAdminAuditLogOrganizationsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AdminAuditLogOrganizationsQuery, AdminAuditLogOrganizationsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<AdminAuditLogOrganizationsQuery, AdminAuditLogOrganizationsQueryVariables>(AdminAuditLogOrganizationsDocument, options);
+        }
+// @ts-ignore
+export function useAdminAuditLogOrganizationsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<AdminAuditLogOrganizationsQuery, AdminAuditLogOrganizationsQueryVariables>): Apollo.UseSuspenseQueryResult<AdminAuditLogOrganizationsQuery, AdminAuditLogOrganizationsQueryVariables>;
+export function useAdminAuditLogOrganizationsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AdminAuditLogOrganizationsQuery, AdminAuditLogOrganizationsQueryVariables>): Apollo.UseSuspenseQueryResult<AdminAuditLogOrganizationsQuery | undefined, AdminAuditLogOrganizationsQueryVariables>;
+export function useAdminAuditLogOrganizationsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<AdminAuditLogOrganizationsQuery, AdminAuditLogOrganizationsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<AdminAuditLogOrganizationsQuery, AdminAuditLogOrganizationsQueryVariables>(AdminAuditLogOrganizationsDocument, options);
+        }
+export type AdminAuditLogOrganizationsQueryHookResult = ReturnType<typeof useAdminAuditLogOrganizationsQuery>;
+export type AdminAuditLogOrganizationsLazyQueryHookResult = ReturnType<typeof useAdminAuditLogOrganizationsLazyQuery>;
+export type AdminAuditLogOrganizationsSuspenseQueryHookResult = ReturnType<typeof useAdminAuditLogOrganizationsSuspenseQuery>;
+export type AdminAuditLogOrganizationsQueryResult = Apollo.QueryResult<AdminAuditLogOrganizationsQuery, AdminAuditLogOrganizationsQueryVariables>;
 export const AdminRollbackChangeDocument = gql`
     mutation AdminRollbackChange($input: AdminRollbackChangeInput!) {
   adminRollbackChange(input: $input) {
