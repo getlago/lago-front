@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+import { addPurchaseOrderNumberMaxLengthIssue } from '~/components/purchaseOrder/validation'
 import type {
   WalletFormItem,
   WalletMetadataItem,
@@ -107,6 +108,8 @@ export const walletSettingsSchema = z
         path: ['rateAmount'],
       })
     }
+
+    addPurchaseOrderNumberMaxLengthIssue(ctx, data.purchaseOrderNumber, ['purchaseOrderNumber'])
 
     const priority = Number(data.priority)
 
