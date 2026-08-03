@@ -195,7 +195,14 @@ export const useCustomerConnectionsPersistence = ({
 
       if (succeeded) void refreshCustomer()
     } else {
-      if (!values.providerCode) {
+      const integrationType = (values.providerType as IntegrationTypeEnum) || undefined
+
+      // The backend resolves the target integration from the code AND the type
+      // together, and silently skips any entry it cannot resolve — a save
+      // without a type would report success while changing nothing. The
+      // drawer's own type is optional (it is derived from the selected code),
+      // so guard it here, as the payment branch does.
+      if (!values.providerCode || !integrationType) {
         addToast({ severity: 'danger', translateKey: 'text_622f7a3dc32ce100c46a5154' })
 
         return false
@@ -210,7 +217,7 @@ export const useCustomerConnectionsPersistence = ({
         integrationCustomers: buildIntegrationCustomersInput(customer, category, {
           id: isSameConnection ? existing?.id : undefined,
           integrationCode: values.providerCode,
-          integrationType: (values.providerType as IntegrationTypeEnum) || undefined,
+          integrationType,
           syncWithProvider: values.syncWithProvider ?? false,
           externalCustomerId: values.externalCustomerId ?? '',
           ...(category === ConnectionCategory.Accounting && values.subsidiaryId

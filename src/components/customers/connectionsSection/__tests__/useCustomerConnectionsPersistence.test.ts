@@ -391,6 +391,30 @@ describe('useCustomerConnectionsPersistence', () => {
     })
   })
 
+  describe('GIVEN an integration save whose provider type could not be resolved', () => {
+    describe('WHEN saving', () => {
+      // The backend skips entries it cannot resolve, so sending one would
+      // report success while changing nothing
+      it('THEN should abort without calling the mutation', async () => {
+        const result = setup()
+
+        const succeeded = await result.current.saveConnection(
+          ConnectionCategory.Tax,
+          {
+            providerCode: 'anrok-1',
+            providerType: undefined,
+            externalCustomerId: 'anrok_cus_1',
+          } as ConnectionFormValues,
+          { isEdition: false },
+        )
+
+        expect(succeeded).toBe(false)
+        expect(mockUpdateCustomer).not.toHaveBeenCalled()
+        expect(mockAddToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
+      })
+    })
+  })
+
   describe('GIVEN an integration connection delete', () => {
     describe('WHEN deleting the CRM connection', () => {
       it('THEN should resend only the remaining links, ids preserved', async () => {
