@@ -1,6 +1,7 @@
 import { gql, useMutation } from '@apollo/client'
 import NiceModal from '@ebay/nice-modal-react'
-import { useState } from 'react'
+import { revalidateLogic } from '@tanstack/react-form'
+import { FormEvent } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { REASON_MODAL_NAME } from '~/components/admin/const'
@@ -8,9 +9,6 @@ import { ReasonModalProps } from '~/components/admin/ReasonModal'
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
-import { ComboBox } from '~/components/form/ComboBox/ComboBox'
-import { MultipleComboBox } from '~/components/form/MultipleComboBox/MultipleComboBox'
-import { TextInput } from '~/components/form/TextInput/TextInput'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { addToast } from '~/core/apolloClient'
 import {
@@ -22,6 +20,12 @@ import { getTimezoneConfig } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { FeatureFlagEnum, PremiumIntegrationTypeEnum, TimezoneEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm } from '~/hooks/forms/useAppform'
+
+import {
+  AdminOrganizationCreateFormValues,
+  adminOrganizationCreateValidationSchema,
+} from './adminOrganizationCreate/validationSchema'
 
 const ADMIN_CREATE_ORGANIZATION_MUTATION = gql`
   mutation AdminCreateOrganization($input: AdminCreateOrganizationInput!) {
@@ -44,21 +48,13 @@ const AdminOrganizationCreate = () => {
 
   const { translate } = useInternationalization()
 
-  const [orgName, setOrgName] = useState('')
-  const [ownerEmail, setOwnerEmail] = useState('')
-  const [timezone, setTimezone] = useState('')
-  const [selectedIntegrations, setSelectedIntegrations] = useState<string[]>([])
-  const [selectedFeatureFlags, setSelectedFeatureFlags] = useState<string[]>([])
-
   const [createOrganization] = useMutation(ADMIN_CREATE_ORGANIZATION_MUTATION)
 
-  const isValid = orgName.trim().length > 0 && ownerEmail.trim().length > 0
-
-  const showInviteLinkDialog = (inviteUrl: string, organizationId: string) => {
+  const showInviteLinkDialog = (inviteUrl: string, organizationId: string, ownerEmail: string) => {
     inviteLinkDialog
       .open({
         title: 'Organization Created',
-        description: `Share this invite link with the organization owner (${ownerEmail.trim()}).`,
+        description: `Share this invite link with the organization owner (${ownerEmail}).`,
         actionText: 'Copy invite link',
         children: (
           <div className="flex flex-col gap-6 p-8">
@@ -67,7 +63,7 @@ const AdminOrganizationCreate = () => {
                 Email
               </Typography>
               <Typography variant="body" color="grey700" noWrap>
-                {ownerEmail.trim()}
+                {ownerEmail}
               </Typography>
             </div>
             <div className="flex items-baseline">
@@ -95,20 +91,23 @@ const AdminOrganizationCreate = () => {
       })
   }
 
-  const handleCreate = () => {
+  const openReasonModal = (value: AdminOrganizationCreateFormValues) => {
+    const name = value.name.trim()
+    const ownerEmail = value.ownerEmail.trim()
+
     NiceModal.show<void, ReasonModalProps>(REASON_MODAL_NAME, {
       title: 'Create Organization',
-      description: `Please provide a reason for creating organization "${orgName.trim()}".`,
+      description: `Please provide a reason for creating organization "${name}".`,
       showNotifyCheckbox: false,
       onConfirm: async (reason: string) => {
         const result = await createOrganization({
           variables: {
             input: {
-              name: orgName.trim(),
-              ownerEmail: ownerEmail.trim(),
-              ...(timezone.trim() ? { timezone: timezone.trim() } : {}),
-              premiumIntegrations: selectedIntegrations,
-              featureFlags: selectedFeatureFlags,
+              name,
+              ownerEmail,
+              ...(value.timezone ? { timezone: value.timezone } : {}),
+              premiumIntegrations: value.premiumIntegrations.map((item) => item.value),
+              featureFlags: value.featureFlags.map((item) => item.value),
               reason,
             },
           },
@@ -117,7 +116,7 @@ const AdminOrganizationCreate = () => {
         const payload = result.data?.adminCreateOrganization
 
         if (payload?.organization?.id) {
-          showInviteLinkDialog(payload.inviteUrl, payload.organization.id)
+          showInviteLinkDialog(payload.inviteUrl, payload.organization.id, ownerEmail)
         } else {
           addToast({
             severity: 'danger',
@@ -128,82 +127,108 @@ const AdminOrganizationCreate = () => {
     })
   }
 
+  const form = useAppForm({
+    defaultValues: {
+      name: '',
+      ownerEmail: '',
+      timezone: undefined,
+      premiumIntegrations: [],
+      featureFlags: [],
+    } as AdminOrganizationCreateFormValues,
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: adminOrganizationCreateValidationSchema,
+    },
+    onSubmit: async ({ value }) => {
+      openReasonModal(value)
+    },
+  })
+
+  const handleSubmit = (event: FormEvent) => {
+    event.preventDefault()
+    form.handleSubmit()
+  }
+
   return (
     <CenteredPage.Wrapper>
-      <CenteredPage.Header>
-        <Typography variant="bodyHl" color="textSecondary">
-          Create Organization
-        </Typography>
-        <Button
-          variant="quaternary"
-          icon="close"
-          onClick={() => navigate(ADMIN_ORGANIZATIONS_ROUTE, { skipSlugPrepend: true })}
-        />
-      </CenteredPage.Header>
-
-      <CenteredPage.Container>
-        <div className="flex flex-col gap-6">
-          <TextInput
-            label="Organization Name"
-            placeholder="Acme Corp"
-            value={orgName}
-            onChange={(value) => setOrgName(value)}
-            required
+      <form className="flex min-h-full flex-col" onSubmit={handleSubmit}>
+        <CenteredPage.Header>
+          <Typography variant="bodyHl" color="textSecondary">
+            Create Organization
+          </Typography>
+          <Button
+            variant="quaternary"
+            icon="close"
+            onClick={() => navigate(ADMIN_ORGANIZATIONS_ROUTE, { skipSlugPrepend: true })}
           />
+        </CenteredPage.Header>
 
-          <TextInput
-            label="Owner Email"
-            placeholder="owner@example.com"
-            value={ownerEmail}
-            onChange={(value) => setOwnerEmail(value)}
-            required
-          />
+        <CenteredPage.Container>
+          <div className="flex flex-col gap-6">
+            <form.AppField name="name">
+              {(field) => (
+                <field.TextInputField label="Organization Name" placeholder="Acme Corp" />
+              )}
+            </form.AppField>
 
-          <ComboBox
-            label="Timezone"
-            placeholder="UTC (optional)"
-            value={timezone}
-            data={Object.values(TimezoneEnum).map((timezoneValue) => ({
-              value: timezoneValue,
-              label: translate('text_638f743fa9a2a9545ee6409a', {
-                zone: translate(timezoneValue),
-                offset: getTimezoneConfig(timezoneValue).offset,
-              }),
-            }))}
-            onChange={(value) => setTimezone(value)}
-          />
+            <form.AppField name="ownerEmail">
+              {(field) => (
+                <field.TextInputField label="Owner Email" placeholder="owner@example.com" />
+              )}
+            </form.AppField>
 
-          <MultipleComboBox
-            disableCloseOnSelect
-            label="Premium Integrations"
-            placeholder="Select integrations..."
-            data={KNOWN_PREMIUM_INTEGRATIONS.map((key) => ({ value: key }))}
-            value={selectedIntegrations.map((key) => ({ value: key }))}
-            onChange={(newValue) => setSelectedIntegrations(newValue.map((item) => item.value))}
-          />
+            <form.AppField name="timezone">
+              {(field) => (
+                <field.ComboBoxField
+                  label="Timezone"
+                  placeholder="UTC (optional)"
+                  data={Object.values(TimezoneEnum).map((timezoneValue) => ({
+                    value: timezoneValue,
+                    label: translate('text_638f743fa9a2a9545ee6409a', {
+                      zone: translate(timezoneValue),
+                      offset: getTimezoneConfig(timezoneValue).offset,
+                    }),
+                  }))}
+                />
+              )}
+            </form.AppField>
 
-          <MultipleComboBox
-            disableCloseOnSelect
-            label="Feature Flags"
-            placeholder="Select feature flags..."
-            data={KNOWN_FEATURE_FLAGS.map((key) => ({ value: key }))}
-            value={selectedFeatureFlags.map((key) => ({ value: key }))}
-            onChange={(newValue) => setSelectedFeatureFlags(newValue.map((item) => item.value))}
-          />
-        </div>
-      </CenteredPage.Container>
+            <form.AppField name="premiumIntegrations">
+              {(field) => (
+                <field.MultipleComboBoxField
+                  disableCloseOnSelect
+                  label="Premium Integrations"
+                  placeholder="Select integrations..."
+                  data={KNOWN_PREMIUM_INTEGRATIONS.map((key) => ({ value: key }))}
+                />
+              )}
+            </form.AppField>
 
-      <CenteredPage.StickyFooter>
-        <Button
-          variant="quaternary"
-          onClick={() => navigate(ADMIN_ORGANIZATIONS_ROUTE, { skipSlugPrepend: true })}
-        >
-          Cancel
-        </Button>
-        <Button disabled={!isValid} onClick={handleCreate}>
-          Create Organization
-        </Button>
-      </CenteredPage.StickyFooter>
+            <form.AppField name="featureFlags">
+              {(field) => (
+                <field.MultipleComboBoxField
+                  disableCloseOnSelect
+                  label="Feature Flags"
+                  placeholder="Select feature flags..."
+                  data={KNOWN_FEATURE_FLAGS.map((key) => ({ value: key }))}
+                />
+              )}
+            </form.AppField>
+          </div>
+        </CenteredPage.Container>
+
+        <CenteredPage.StickyFooter>
+          <Button
+            variant="quaternary"
+            onClick={() => navigate(ADMIN_ORGANIZATIONS_ROUTE, { skipSlugPrepend: true })}
+          >
+            Cancel
+          </Button>
+          <form.AppForm>
+            <form.SubmitButton>Create Organization</form.SubmitButton>
+          </form.AppForm>
+        </CenteredPage.StickyFooter>
+      </form>
     </CenteredPage.Wrapper>
   )
 }
