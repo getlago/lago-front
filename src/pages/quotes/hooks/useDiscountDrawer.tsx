@@ -348,6 +348,14 @@ export const useDiscountDrawer = (
   const [entities, setEntities] = useState<Record<string, EntityData>>(initial.entities)
   const entitiesRef = useRef<Record<string, EntityData>>(initial.entities)
 
+  // Session cache of coupon items removed from the doc, keyed by localId, so a
+  // Cmd+Z that re-inserts the discount block restores the coupon (with its
+  // overrides) instead of dropping it. Captured at prune time, before the
+  // rebuild-autosave clears the coupon from the persisted billingItems.
+  const removedItemsRef = useRef<
+    Record<string, { item: DiscountFormItem; payload: CouponPayload }>
+  >({})
+
   // Ref bridge: a single stable onSubmit reads the pending save target set right
   // before drawer.open, instead of mutating form.options.onSubmit per open.
   const pendingSaveRef = useRef<PendingSave | null>(null)
@@ -568,10 +576,27 @@ export const useDiscountDrawer = (
       const present = new Set(blocks.map((b) => b.localId))
       let changed = false
 
+      // Prune: stash the coupon item + payload before removing, so a later undo
+      // can rebuild them without re-fetching.
       for (const key of Object.keys(itemsRef.current)) {
         if (!present.has(key)) {
+          removedItemsRef.current[key] = {
+            item: itemsRef.current[key],
+            payload: originalPayloadsRef.current[key],
+          }
           delete itemsRef.current[key]
           delete originalPayloadsRef.current[key]
+          changed = true
+        }
+      }
+
+      // Restore: a coupon whose block re-appeared (Cmd+Z) comes back from the
+      // cache with its overrides intact.
+      for (const key of present) {
+        if (key && !itemsRef.current[key] && removedItemsRef.current[key]) {
+          itemsRef.current[key] = removedItemsRef.current[key].item
+          originalPayloadsRef.current[key] = removedItemsRef.current[key].payload
+          delete removedItemsRef.current[key]
           changed = true
         }
       }

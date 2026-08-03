@@ -334,6 +334,75 @@ describe('useDiscountDrawer', () => {
     expect(payload?.coupons).toEqual([])
   })
 
+  it('re-hydrates a pruned coupon (with overrides) when its block re-appears (undo)', () => {
+    const initialBillingItems: BillingItemsPayload = {
+      addOns: [],
+      coupons: [
+        {
+          type: 'coupon',
+          id: 'cpn_edit',
+          localId: 'saved-local',
+          payload: {
+            position: 1,
+            code: 'EDIT',
+            id: 'cpn_edit',
+            name: 'Edit Coupon',
+            type: 'fixed_amount',
+            amountCents: 5000,
+            percentageRate: null,
+            currency: CurrencyEnum.Usd,
+            frequency: 'recurring',
+            frequencyDuration: 3,
+            expirationAt: null,
+            limitedPlans: false,
+            planCodes: [],
+            limitedBillableMetrics: false,
+            billableMetricCodes: [],
+            couponOverrides: null,
+            catalogSnapshot: null,
+            resolvedPayload: null,
+          },
+          overrides: {
+            amountCents: 4200,
+            percentageRate: null,
+            frequency: 'recurring',
+            frequencyDuration: 6,
+          },
+        },
+      ],
+    }
+
+    const { result } = renderHook(() => useDiscountDrawer(initialBillingItems, options))
+
+    expect(result.current.entities).toHaveProperty('saved-local')
+
+    let payload: BillingItemsPayload | undefined
+
+    // Delete: no block references the coupon, so it is pruned (and cached).
+    act(() => {
+      payload = result.current.syncDiscountBlocks([])
+    })
+
+    expect(payload?.coupons).toEqual([])
+    expect(result.current.entities).not.toHaveProperty('saved-local')
+
+    // Undo: the block re-appears referencing the same localId.
+    act(() => {
+      payload = result.current.syncDiscountBlocks([
+        { couponId: 'cpn_edit', localId: 'saved-local' },
+      ])
+    })
+
+    // Coupon is rehydrated and re-persisted with its overrides intact.
+    expect(result.current.entities).toHaveProperty('saved-local')
+    expect(payload?.coupons).toEqual([
+      expect.objectContaining({
+        localId: 'saved-local',
+        overrides: expect.objectContaining({ amountCents: 4200, frequencyDuration: 6 }),
+      }),
+    ])
+  })
+
   it('calls onPersist with billingItems containing coupon overrides on add', async () => {
     const onPersist = jest.fn()
     const { result } = renderHook(() =>

@@ -69,6 +69,24 @@ export const useOneOffPricingDrawer = (
   const [entities, setEntities] = useState<Record<string, EntityData>>({})
   const payloadsRef = useRef<Record<string, AddOnPayload>>({})
   const catalogIdMapRef = useRef<Record<string, string>>({})
+
+  // Session cache of add-ons removed from the doc, keyed by localId, so a Cmd+Z
+  // that re-inserts the pricing block can re-hydrate the entity, its catalog
+  // payload and alias — preserving the user's overrides (rebuilt from the cached
+  // entity/payload, never re-fetched from the catalog). Captured at prune time,
+  // before the delete-autosave clears the add-on from the persisted billingItems.
+  const removedAddOnsRef = useRef<
+    Record<
+      string,
+      {
+        addOnId: string
+        entity: EntityData
+        aliasEntity?: EntityData
+        payload?: AddOnPayload
+        aliasPayload?: AddOnPayload
+      }
+    >
+  >({})
   const onSaveRef = useRef<
     | ((
         attrs: PricingBlockAttributes,
@@ -384,20 +402,61 @@ export const useOneOffPricingDrawer = (
           !activeRefIds.has(localId) && !activeRefIds.has(catalogIdMapRef.current[localId]),
       )
 
-      if (removedLocalIds.length === 0) return null
+      // A Cmd+Z can re-insert a block whose add-on was previously pruned; it is
+      // referenced by its localId or its catalog alias but is no longer active.
+      const restoredLocalIds = Object.keys(removedAddOnsRef.current).filter(
+        (localId) =>
+          activeRefIds.has(localId) || activeRefIds.has(removedAddOnsRef.current[localId].addOnId),
+      )
 
-      // Prune the deleted add-ons (and their alias keys) from local state.
+      if (removedLocalIds.length === 0 && restoredLocalIds.length === 0) return null
+
       const updatedEntities = { ...entitiesRef.current }
       const updatedPayloads = { ...payloadsRef.current }
 
+      // Prune the deleted add-ons (and their alias keys) from local state, but
+      // stash them (entity + payload + alias) so a later undo can rebuild them.
       for (const localId of removedLocalIds) {
         const addOnId = catalogIdMapRef.current[localId]
+
+        removedAddOnsRef.current[localId] = {
+          addOnId,
+          entity: updatedEntities[localId],
+          aliasEntity: updatedEntities[addOnId],
+          payload: updatedPayloads[localId],
+          aliasPayload: updatedPayloads[addOnId],
+        }
 
         delete updatedEntities[localId]
         delete updatedEntities[addOnId]
         delete updatedPayloads[localId]
         delete updatedPayloads[addOnId]
         delete catalogIdMapRef.current[localId]
+      }
+
+      // Restore add-ons whose block re-appeared: re-key the entity, payload and
+      // alias from the removed cache. Overrides survive because both the entity
+      // (edited values) and payload (baseline) come from the cache, not catalog.
+      for (const localId of restoredLocalIds) {
+        const { addOnId, entity, aliasEntity, payload, aliasPayload } =
+          removedAddOnsRef.current[localId]
+
+        catalogIdMapRef.current[localId] = addOnId
+        updatedEntities[localId] = entity
+
+        if (aliasEntity) {
+          updatedEntities[addOnId] = aliasEntity
+        }
+
+        if (payload) {
+          updatedPayloads[localId] = payload
+        }
+
+        if (aliasPayload) {
+          updatedPayloads[addOnId] = aliasPayload
+        }
+
+        delete removedAddOnsRef.current[localId]
       }
 
       entitiesRef.current = updatedEntities

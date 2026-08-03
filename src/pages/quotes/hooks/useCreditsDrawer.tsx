@@ -61,6 +61,11 @@ export const useCreditsDrawer = (
   const itemsRef = useRef<Record<string, WalletFormItem>>(
     Object.fromEntries(initial.walletItems.map((w) => [w.localId, w])),
   )
+  // Session cache of wallet items removed from the doc, keyed by localId, so a
+  // Cmd+Z that re-inserts the credits block restores the wallet (with its
+  // overrides) instead of dropping it. Captured at prune time, before the
+  // rebuild-autosave clears the wallet from the persisted billingItems.
+  const removedItemsRef = useRef<Record<string, WalletFormItem>>({})
   const [entities, setEntities] = useState<Record<string, EntityData>>(initial.entities)
   // Latest full payload — spread so sibling categories are never dropped.
   const latestBillingItemsRef = useRef<BillingItemsPayload | undefined>(billingItems ?? undefined)
@@ -196,9 +201,22 @@ export const useCreditsDrawer = (
       const present = new Set(blocks.map((b) => b.localId).filter(Boolean))
       let changed = false
 
+      // Prune: stash the wallet item before removing, so a later undo can rebuild
+      // it without re-fetching.
       for (const key of Object.keys(itemsRef.current)) {
         if (!present.has(key)) {
+          removedItemsRef.current[key] = itemsRef.current[key]
           delete itemsRef.current[key]
+          changed = true
+        }
+      }
+
+      // Restore: a wallet whose block re-appeared (Cmd+Z) comes back from the
+      // cache with its overrides intact.
+      for (const key of present) {
+        if (key && !itemsRef.current[key] && removedItemsRef.current[key]) {
+          itemsRef.current[key] = removedItemsRef.current[key]
+          delete removedItemsRef.current[key]
           changed = true
         }
       }

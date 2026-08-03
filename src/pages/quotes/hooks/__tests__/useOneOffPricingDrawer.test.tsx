@@ -624,6 +624,89 @@ describe('useOneOffPricingDrawer', () => {
       })
     })
 
+    describe('WHEN a deleted add-on block re-appears (undo / Cmd+Z)', () => {
+      it('THEN should re-hydrate the add-on from the removed cache, preserving overrides', () => {
+        mockedFromBillingItems.mockReturnValue({
+          entities: {
+            'local-uuid-1': {
+              entityId: 'local-uuid-1',
+              entityType: 'addOn',
+              name: 'Setup Fee',
+              code: 'setup',
+              units: '2',
+              unitAmountCents: '2000',
+              totalAmount: '4000',
+            },
+          },
+          originalPayloads: {
+            'local-uuid-1': mockAddOnPayload,
+          },
+          addOnItems: [
+            { localId: 'local-uuid-1', addOnId: 'addon-1', name: 'Setup Fee', code: 'setup' },
+          ],
+        })
+
+        // Delete rebuild has no survivors; undo rebuild carries the restored add-on.
+        mockedToBillingItems
+          .mockReturnValueOnce({ addOns: [] })
+          .mockReturnValueOnce({ addOns: [{ type: 'add_on', id: 'addon-1' }] })
+
+        const billingItemsWithOne = {
+          addOns: [
+            {
+              type: 'add_on' as const,
+              id: 'addon-1',
+              payload: mockAddOnPayload,
+              overrides: {},
+            },
+          ],
+        }
+
+        const { result } = renderHook(() => useOneOffPricingDrawer(billingItemsWithOne), {
+          wrapper,
+        })
+
+        // Delete: no block references the add-on, so it is pruned (and cached).
+        act(() => {
+          result.current.syncEntitiesWithBlocks([
+            { pricingType: 'addOns' as const, entityIds: [], localEntityIds: [] },
+          ])
+        })
+
+        expect(result.current.entities).not.toHaveProperty('local-uuid-1')
+        expect(result.current.entities).not.toHaveProperty('addon-1')
+
+        // Undo: TipTap re-inserts the block referencing local-uuid-1.
+        act(() => {
+          result.current.syncEntitiesWithBlocks([
+            {
+              pricingType: 'addOns' as const,
+              entityIds: ['addon-1'],
+              localEntityIds: ['local-uuid-1'],
+            },
+          ])
+        })
+
+        // Entity is back (NodeView resolves again) and the rebuild ran with the
+        // restored add-on carrying its edited overrides, not catalog defaults.
+        expect(result.current.entities).toHaveProperty('local-uuid-1')
+
+        const lastCall = mockedToBillingItems.mock.calls.at(-1)
+        const survivingItems = lastCall?.[0]
+        const payloads = lastCall?.[1]
+
+        expect(survivingItems).toHaveLength(1)
+        expect(survivingItems[0]).toMatchObject({
+          localId: 'local-uuid-1',
+          addOnId: 'addon-1',
+          units: '2',
+          unitAmountCents: '2000',
+          totalAmount: '4000',
+        })
+        expect(payloads).toHaveProperty('local-uuid-1')
+      })
+    })
+
     describe('WHEN there are no entities at all', () => {
       it('THEN should return null', () => {
         const { result } = renderHook(() => useOneOffPricingDrawer(), { wrapper })

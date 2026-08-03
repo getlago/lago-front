@@ -110,6 +110,32 @@ describe('useCreditsDrawer', () => {
       expect(updated?.coupons).toEqual(withOneWallet.coupons)
     })
 
+    it('THEN re-hydrates a pruned wallet (with overrides) when its block re-appears (undo)', () => {
+      const { result } = renderHook(
+        () => useCreditsDrawer(withOneWallet, { currency: CurrencyEnum.Usd }),
+        { wrapper },
+      )
+
+      let updated: BillingItemsPayload | undefined
+
+      // Delete: no block references wl_1, so it is pruned (and cached).
+      act(() => {
+        updated = result.current.syncCreditsBlocks([])
+      })
+
+      expect(updated?.walletCredits).toEqual([])
+      expect(result.current.entities).not.toHaveProperty('wl_1')
+
+      // Undo: the block re-appears referencing the same localId.
+      act(() => {
+        updated = result.current.syncCreditsBlocks([{ localId: 'wl_1' }])
+      })
+
+      // Wallet is rehydrated and re-persisted identically (overrides round-trip).
+      expect(result.current.entities).toHaveProperty('wl_1')
+      expect(updated?.walletCredits).toEqual(withOneWallet.walletCredits)
+    })
+
     it('THEN does not carry a previous payload once billingItems becomes null', () => {
       const { result, rerender } = renderHook(
         ({ bi }: { bi: BillingItemsPayload | null }) =>
