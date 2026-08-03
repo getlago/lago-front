@@ -278,12 +278,13 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
   const billingTabs = getNavTabs(getBillingTabs())
   const adminTabs = getNavTabs(getAdminTabs())
 
-  // Don't render the section group if all sections are hidden
+  // Keep the group visible when the admin section is the only accessible section.
   if (
     reportsTabs.allTabsHidden &&
     configurationTabs.allTabsHidden &&
     catalogTabs.allTabsHidden &&
-    billingTabs.allTabsHidden
+    billingTabs.allTabsHidden &&
+    adminTabs.allTabsHidden
   ) {
     return null
   }
