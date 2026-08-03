@@ -121,21 +121,26 @@ export const AuditLogTable = ({
           title: 'Feature',
           minWidth: 180,
           content: (entry) => {
-            if (!entry.featureKey) return <Typography color="grey600">-</Typography>
+            // Only feature toggles (premium integration / feature flag) carry a feature key.
+            // Org-level entries (e.g. org_created) set an unrelated featureKey/featureType and
+            // must not render a feature key or a type chip.
+            const isFeatureEntry =
+              entry.featureType === 'premium_integration' || entry.featureType === 'feature_flag'
+
+            if (!isFeatureEntry || !entry.featureKey) {
+              return <Typography color="grey600">-</Typography>
+            }
 
             return (
               <div className="flex flex-col gap-0.5">
                 <Typography variant="body" noWrap>
                   {entry.featureKey}
                 </Typography>
-                {(entry.featureType === 'premium_integration' ||
-                  entry.featureType === 'feature_flag') && (
-                  <Chip
-                    label={entry.featureType === 'premium_integration' ? 'Integration' : 'Flag'}
-                    size="small"
-                    color={entry.featureType === 'premium_integration' ? 'info600' : 'purple600'}
-                  />
-                )}
+                <Chip
+                  label={entry.featureType === 'premium_integration' ? 'Integration' : 'Flag'}
+                  size="small"
+                  color={entry.featureType === 'premium_integration' ? 'info600' : 'purple600'}
+                />
               </div>
             )
           },
