@@ -116,6 +116,10 @@ export enum AvailableFiltersEnum {
   userIds = 'userIds',
   webhookStatus = 'webhookStatus',
   zipcodes = 'zipcodes',
+  featureType = 'featureType',
+  adminActions = 'adminActions',
+  adminOrganizations = 'adminOrganizations',
+  adminAuditDate = 'adminAuditDate',
 }
 
 export const CreditNoteAvailableFilters = [
@@ -329,6 +333,13 @@ export const SecurityLogsAvailableFilters = [
   AvailableFiltersEnum.userIds,
 ]
 
+export const AdminAuditLogAvailableFilters = [
+  AvailableFiltersEnum.adminAuditDate,
+  AvailableFiltersEnum.featureType,
+  AvailableFiltersEnum.adminActions,
+  AvailableFiltersEnum.adminOrganizations,
+]
+
 export const QuoteAvailableFilters = [
   AvailableFiltersEnum.quoteStatus,
   AvailableFiltersEnum.multipleCustomers,
@@ -426,6 +437,10 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.userIds]: 'text_1772026899880swtnqcqd6s3',
   [AvailableFiltersEnum.webhookStatus]: 'text_63ac86d797f728a87b2f9fa7',
   [AvailableFiltersEnum.zipcodes]: 'text_1759909828496sof33smekse',
+  [AvailableFiltersEnum.featureType]: 'text_1785749891671fvuzzbn493l',
+  [AvailableFiltersEnum.adminActions]: 'text_1785749891671nskw23dl0z4',
+  [AvailableFiltersEnum.adminOrganizations]: 'text_1785749891671s8vuun26gew',
+  [AvailableFiltersEnum.adminAuditDate]: 'text_1785749891671rk4ofmy881a',
 }
 
 export type FiltersFormValues = {

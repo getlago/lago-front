@@ -2,6 +2,8 @@ import { FiltersItemActiveSubscriptions } from '~/components/designSystem/Filter
 import { FiltersItemActivityIds } from '~/components/designSystem/Filters/filtersElements/FiltersItemActivityIds'
 import { FiltersItemActivitySources } from '~/components/designSystem/Filters/filtersElements/FiltersItemActivitySources'
 import { FiltersItemActivityTypes } from '~/components/designSystem/Filters/filtersElements/FiltersItemActivityTypes'
+import { FiltersItemAdminActions } from '~/components/designSystem/Filters/filtersElements/FiltersItemAdminActions'
+import { FiltersItemAdminOrganizations } from '~/components/designSystem/Filters/filtersElements/FiltersItemAdminOrganizations'
 import { FiltersItemAmount } from '~/components/designSystem/Filters/filtersElements/FiltersItemAmount'
 import { FiltersItemApiKeyIds } from '~/components/designSystem/Filters/filtersElements/FiltersItemApiKeyIds'
 import { FiltersItemBillableMetricCode } from '~/components/designSystem/Filters/filtersElements/FiltersItemBillableMetricCode'
@@ -21,6 +23,7 @@ import { FiltersItemCustomerAccountType } from '~/components/designSystem/Filter
 import { FiltersItemCustomerType } from '~/components/designSystem/Filters/filtersElements/FiltersItemCustomerType'
 import { FiltersItemDate } from '~/components/designSystem/Filters/filtersElements/FiltersItemDate'
 import { FiltersItemExternalId } from '~/components/designSystem/Filters/filtersElements/FiltersItemExternalId'
+import { FiltersItemFeatureType } from '~/components/designSystem/Filters/filtersElements/FiltersItemFeatureType'
 import { FiltersItemHasCustomerType } from '~/components/designSystem/Filters/filtersElements/FiltersItemHasCustomerType'
 import { FiltersItemHttpMethods } from '~/components/designSystem/Filters/filtersElements/FiltersItemHttpMethods'
 import { FiltersItemHttpStatuses } from '~/components/designSystem/Filters/filtersElements/FiltersItemHttpStatuses'
@@ -161,6 +164,10 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.isCustomerTinEmpty]: <FiltersItemIsCustomerTinEmpty {...props} />,
     [AvailableFiltersEnum.zipcodes]: <FiltersItemZipcodes {...props} />,
     [AvailableFiltersEnum.billableMetricCode]: <FiltersItemBillableMetricCode {...props} />,
+    [AvailableFiltersEnum.featureType]: <FiltersItemFeatureType {...props} />,
+    [AvailableFiltersEnum.adminActions]: <FiltersItemAdminActions {...props} />,
+    [AvailableFiltersEnum.adminOrganizations]: <FiltersItemAdminOrganizations {...props} />,
+    [AvailableFiltersEnum.adminAuditDate]: <FiltersItemDate {...props} />,
   }
 
   return (

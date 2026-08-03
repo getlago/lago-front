@@ -11680,6 +11680,13 @@ export type GenerateCheckoutUrlMutationVariables = Exact<{
 
 export type GenerateCheckoutUrlMutation = { __typename?: 'Mutation', generateCheckoutUrl?: { __typename?: 'GenerateCheckoutUrlPayload', checkoutUrl: string } | null };
 
+export type GetAdminOrganizationsForFilterItemQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetAdminOrganizationsForFilterItemQuery = { __typename?: 'Query', adminOrganizations: { __typename?: 'AdminOrganizationCollection', collection: Array<{ __typename?: 'AdminOrganization', id: string, name: string }> } };
+
 export type GetApiKeyIdsForFilterItemApiKeyIdsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -25772,6 +25779,52 @@ export function useGenerateCheckoutUrlMutation(baseOptions?: Apollo.MutationHook
 export type GenerateCheckoutUrlMutationHookResult = ReturnType<typeof useGenerateCheckoutUrlMutation>;
 export type GenerateCheckoutUrlMutationResult = Apollo.MutationResult<GenerateCheckoutUrlMutation>;
 export type GenerateCheckoutUrlMutationOptions = Apollo.BaseMutationOptions<GenerateCheckoutUrlMutation, GenerateCheckoutUrlMutationVariables>;
+export const GetAdminOrganizationsForFilterItemDocument = gql`
+    query getAdminOrganizationsForFilterItem($limit: Int) {
+  adminOrganizations(limit: $limit) {
+    collection {
+      id
+      name
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetAdminOrganizationsForFilterItemQuery__
+ *
+ * To run a query within a React component, call `useGetAdminOrganizationsForFilterItemQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAdminOrganizationsForFilterItemQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAdminOrganizationsForFilterItemQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetAdminOrganizationsForFilterItemQuery(baseOptions?: Apollo.QueryHookOptions<GetAdminOrganizationsForFilterItemQuery, GetAdminOrganizationsForFilterItemQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAdminOrganizationsForFilterItemQuery, GetAdminOrganizationsForFilterItemQueryVariables>(GetAdminOrganizationsForFilterItemDocument, options);
+      }
+export function useGetAdminOrganizationsForFilterItemLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAdminOrganizationsForFilterItemQuery, GetAdminOrganizationsForFilterItemQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAdminOrganizationsForFilterItemQuery, GetAdminOrganizationsForFilterItemQueryVariables>(GetAdminOrganizationsForFilterItemDocument, options);
+        }
+// @ts-ignore
+export function useGetAdminOrganizationsForFilterItemSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAdminOrganizationsForFilterItemQuery, GetAdminOrganizationsForFilterItemQueryVariables>): Apollo.UseSuspenseQueryResult<GetAdminOrganizationsForFilterItemQuery, GetAdminOrganizationsForFilterItemQueryVariables>;
+export function useGetAdminOrganizationsForFilterItemSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAdminOrganizationsForFilterItemQuery, GetAdminOrganizationsForFilterItemQueryVariables>): Apollo.UseSuspenseQueryResult<GetAdminOrganizationsForFilterItemQuery | undefined, GetAdminOrganizationsForFilterItemQueryVariables>;
+export function useGetAdminOrganizationsForFilterItemSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAdminOrganizationsForFilterItemQuery, GetAdminOrganizationsForFilterItemQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetAdminOrganizationsForFilterItemQuery, GetAdminOrganizationsForFilterItemQueryVariables>(GetAdminOrganizationsForFilterItemDocument, options);
+        }
+export type GetAdminOrganizationsForFilterItemQueryHookResult = ReturnType<typeof useGetAdminOrganizationsForFilterItemQuery>;
+export type GetAdminOrganizationsForFilterItemLazyQueryHookResult = ReturnType<typeof useGetAdminOrganizationsForFilterItemLazyQuery>;
+export type GetAdminOrganizationsForFilterItemSuspenseQueryHookResult = ReturnType<typeof useGetAdminOrganizationsForFilterItemSuspenseQuery>;
+export type GetAdminOrganizationsForFilterItemQueryResult = Apollo.QueryResult<GetAdminOrganizationsForFilterItemQuery, GetAdminOrganizationsForFilterItemQueryVariables>;
 export const GetApiKeyIdsForFilterItemApiKeyIdsDocument = gql`
     query getApiKeyIdsForFilterItemApiKeyIds {
   apiKeys {
