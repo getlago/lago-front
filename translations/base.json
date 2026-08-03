@@ -4556,5 +4556,8 @@
   "text_1784883525803zcmgdkvi3vd": "Quarterly",
   "text_1784883525803guz1xdk6ub7": "Weekly",
   "text_17848835258036aevge8fx0s": "Semiannual",
-  "text_1784883525803ghc0vq94t5u": "Yearly"
+  "text_1784883525803ghc0vq94t5u": "Yearly",
+  "text_1785753711141yk91407ohum": "Unable to link this customer to your provider. Review the integration settings and try again",
+  "text_1785753711141igxsly7fb5n": "The provider customer ID will be available after the first invoice is created.",
+  "text_1785759690733l7pmkg66hx1": "The provider customer ID is being created and will appear shortly."
 }

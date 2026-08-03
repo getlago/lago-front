@@ -13,7 +13,11 @@ import {
 import { render } from '~/test-utils'
 
 import { ConnectionDetailsPanel } from '../ConnectionDetailsPanel'
-import { CONNECTION_DETAILS_PANEL_TEST_ID, CONNECTION_EXTERNAL_LINK_TEST_ID } from '../constants'
+import {
+  CONNECTION_DETAILS_PANEL_TEST_ID,
+  CONNECTION_EXTERNAL_LINK_TEST_ID,
+  CONNECTION_PROVIDER_ID_PLACEHOLDER_TEST_ID,
+} from '../constants'
 
 const PAYMENT_ROW: CustomerConnectionRow = {
   id: 'payment-stripe-eu',
@@ -232,6 +236,140 @@ describe('ConnectionDetailsPanel', () => {
         )
 
         expect(screen.getByTestId(CONNECTION_EXTERNAL_LINK_TEST_ID)).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a connection whose provider customer id is missing', () => {
+    describe('WHEN an Anrok tax connection is selected', () => {
+      // Anrok always syncs with its provider, so its own copy must win over
+      // the generic "sync in progress" one
+      it('THEN should explain the id lands with the first invoice', () => {
+        render(
+          <ConnectionDetailsPanel
+            row={{ ...ACCOUNTING_ROW, category: ConnectionCategory.Tax, id: 'tax-anrok-1' }}
+            customer={buildCustomer({
+              netsuiteCustomer: null,
+              anrokCustomer: {
+                id: 'ac-1',
+                integrationId: 'int-anrok',
+                integrationCode: 'anrok-1',
+                integrationType: IntegrationTypeEnum.Anrok,
+                externalCustomerId: null,
+                syncWithProvider: true,
+              },
+            })}
+            integrationsData={INTEGRATIONS_DATA}
+            integrationsLoading={false}
+          />,
+        )
+
+        expect(screen.getByTestId(CONNECTION_PROVIDER_ID_PLACEHOLDER_TEST_ID)).toHaveTextContent(
+          /after the first invoice/i,
+        )
+      })
+    })
+
+    describe('WHEN a NetSuite connection is still syncing with its provider', () => {
+      it('THEN should say the id is on its way rather than blame the settings', () => {
+        render(
+          <ConnectionDetailsPanel
+            row={ACCOUNTING_ROW}
+            customer={buildCustomer({
+              netsuiteCustomer: {
+                id: 'nc-1',
+                integrationId: 'int-ns',
+                integrationCode: 'ns-1',
+                integrationType: IntegrationTypeEnum.Netsuite,
+                externalCustomerId: null,
+                syncWithProvider: true,
+              },
+            })}
+            integrationsData={INTEGRATIONS_DATA}
+            integrationsLoading={false}
+          />,
+        )
+
+        expect(screen.getByTestId(CONNECTION_PROVIDER_ID_PLACEHOLDER_TEST_ID)).toHaveTextContent(
+          /being created and will appear shortly/i,
+        )
+      })
+    })
+
+    describe('WHEN a NetSuite connection has nothing pending', () => {
+      it('THEN should point the user back to the integration settings', () => {
+        render(
+          <ConnectionDetailsPanel
+            row={ACCOUNTING_ROW}
+            customer={buildCustomer({
+              netsuiteCustomer: {
+                id: 'nc-1',
+                integrationId: 'int-ns',
+                integrationCode: 'ns-1',
+                integrationType: IntegrationTypeEnum.Netsuite,
+                externalCustomerId: null,
+                syncWithProvider: false,
+              },
+            })}
+            integrationsData={INTEGRATIONS_DATA}
+            integrationsLoading={false}
+          />,
+        )
+
+        expect(screen.getByTestId(CONNECTION_PROVIDER_ID_PLACEHOLDER_TEST_ID)).toHaveTextContent(
+          /unable to link this customer/i,
+        )
+      })
+    })
+
+    describe('WHEN a payment connection is still syncing with its provider', () => {
+      it('THEN should say the id is on its way rather than blame the settings', () => {
+        render(
+          <ConnectionDetailsPanel
+            row={PAYMENT_ROW}
+            customer={buildCustomer({
+              providerCustomer: {
+                id: 'pc-1',
+                providerCustomerId: null,
+                syncWithProvider: true,
+                providerPaymentMethods: ['card'],
+              },
+            })}
+            integrationsLoading={false}
+          />,
+        )
+
+        expect(screen.getByTestId(CONNECTION_PROVIDER_ID_PLACEHOLDER_TEST_ID)).toHaveTextContent(
+          /being created and will appear shortly/i,
+        )
+      })
+    })
+
+    describe('WHEN a payment connection is selected', () => {
+      it('THEN should point the user back to the integration settings', () => {
+        render(
+          <ConnectionDetailsPanel
+            row={PAYMENT_ROW}
+            customer={buildCustomer({ providerCustomer: null })}
+            integrationsLoading={false}
+          />,
+        )
+
+        expect(screen.getByTestId(CONNECTION_PROVIDER_ID_PLACEHOLDER_TEST_ID)).toHaveTextContent(
+          /unable to link this customer/i,
+        )
+      })
+
+      it('THEN should keep the Provider customer ID row visible', () => {
+        render(
+          <ConnectionDetailsPanel
+            row={PAYMENT_ROW}
+            customer={buildCustomer({ providerCustomer: null })}
+            integrationsLoading={false}
+          />,
+        )
+
+        expect(screen.getByText('Provider customer ID')).toBeInTheDocument()
       })
     })
   })

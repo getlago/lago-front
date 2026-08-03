@@ -4,6 +4,7 @@ export const CUSTOMER_CONNECTIONS_SECTION_TEST_ID = 'customer-connections-sectio
 export const CONNECTION_DETAILS_PANEL_TEST_ID = 'connection-details-panel'
 export const CONNECTION_DETAILS_EDIT_TEST_ID = 'connection-details-edit'
 export const CONNECTION_EXTERNAL_LINK_TEST_ID = 'external-integration-link'
+export const CONNECTION_PROVIDER_ID_PLACEHOLDER_TEST_ID = 'connection-provider-id-placeholder'
 
 export const ADD_PAYMENT_METHOD_TEST_ID = 'add-payment-method-dialog'
 export const INELIGIBLE_PAYMENT_METHODS_TEST_ID = 'ineligible-payment-methods-text'

@@ -260,8 +260,8 @@ export const CustomerConnectionsSection = ({ customer }: CustomerConnectionsSect
     }
 
     return (
-      <div className="flex flex-row gap-8">
-        <div className="w-1/3 border-r border-grey-300 pr-8">
+      <div className="flex flex-row">
+        <div className="w-1/3 border-r border-grey-300">
           <CustomerConnectionsList
             rows={rows}
             grouped
@@ -274,7 +274,7 @@ export const CustomerConnectionsSection = ({ customer }: CustomerConnectionsSect
           />
         </div>
 
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1 pl-8">
           <div className={tw(isProviderPaymentSelected && 'pb-12 shadow-b')}>
             <PageSectionTitle
               title={translate('text_645d071272418a14c1c76a9a')}

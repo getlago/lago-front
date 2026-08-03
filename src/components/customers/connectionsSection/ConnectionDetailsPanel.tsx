@@ -6,13 +6,13 @@ import { ConnectionCategory } from '~/components/customerConnections/types'
 import {
   CONNECTION_DETAILS_PANEL_TEST_ID,
   CONNECTION_EXTERNAL_LINK_TEST_ID,
+  CONNECTION_PROVIDER_ID_PLACEHOLDER_TEST_ID,
   PaymentProviderMethodTranslationsLookup,
 } from '~/components/customers/connectionsSection/constants'
 import { getIntegrationCustomerForCategory } from '~/components/customers/connectionsSection/utils'
 import { getConnectedIntegrations } from '~/components/customers/utils'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
-import { InlineLink } from '~/components/InlineLink'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import {
   buildAnrokCustomerUrl,
@@ -23,6 +23,7 @@ import {
   buildStripeCustomerUrl,
   buildXeroCustomerUrl,
 } from '~/core/constants/externalUrls'
+import { Link } from '~/core/router'
 import {
   CustomerDetailsFragment,
   IntegrationsListForCustomerMainInfosQuery,
@@ -38,13 +39,63 @@ type ConnectionDetailsPanelProps = {
   integrationsLoading: boolean
 }
 
-const ExternalIdValue = ({ externalId, url }: { externalId: string; url?: string }) => {
+/** Why the provider-side customer id is not there (yet) */
+type MissingProviderIdReason = 'firstInvoiceSync' | 'syncInProgress' | 'unavailable'
+
+const MISSING_PROVIDER_ID_COPY: Record<MissingProviderIdReason, string> = {
+  firstInvoiceSync: 'text_1785753711141igxsly7fb5n',
+  syncInProgress: 'text_1785759690733l7pmkg66hx1',
+  unavailable: 'text_1785753711141yk91407ohum',
+}
+
+/**
+ * An empty provider customer id is only an error when nothing is pending:
+ * Anrok fills it on the first document sync, and a connection syncing with
+ * its provider gets it from a background job moments after being created.
+ * Anrok is checked first — it always syncs with its provider.
+ */
+const getMissingProviderIdReason = ({
+  syncsOnFirstInvoice,
+  syncWithProvider,
+}: {
+  syncsOnFirstInvoice: boolean
+  syncWithProvider?: boolean | null
+}): MissingProviderIdReason => {
+  if (syncsOnFirstInvoice) return 'firstInvoiceSync'
+  if (syncWithProvider) return 'syncInProgress'
+
+  return 'unavailable'
+}
+
+/** The provider-side customer id, or an explanation of why it is missing */
+const ProviderCustomerIdValue = ({
+  externalId,
+  url,
+  missingIdReason,
+}: {
+  externalId?: string | null
+  url?: string
+  missingIdReason: MissingProviderIdReason
+}): JSX.Element => {
+  const { translate } = useInternationalization()
+
+  if (!externalId) {
+    return (
+      <Typography color="grey500" data-test={CONNECTION_PROVIDER_ID_PLACEHOLDER_TEST_ID}>
+        {translate(MISSING_PROVIDER_ID_COPY[missingIdReason])}
+      </Typography>
+    )
+  }
+
   if (!url) {
     return <Typography color="grey700">{externalId}</Typography>
   }
 
+  // Not `InlineLink`: it prefixes its content with a `•` separator, which only
+  // reads correctly when the link trails another inline value
   return (
-    <InlineLink
+    <Link
+      className="flex w-fit flex-row !shadow-none line-break-anywhere hover:no-underline focus:ring-0"
       target="_blank"
       rel="noopener noreferrer"
       to={url}
@@ -53,7 +104,7 @@ const ExternalIdValue = ({ externalId, url }: { externalId: string; url?: string
       <Typography className="flex items-center gap-1" color="primary600">
         {externalId} <Icon name="outside" />
       </Typography>
-    </InlineLink>
+    </Link>
   )
 }
 
@@ -93,16 +144,20 @@ export const ConnectionDetailsPanel = ({
         <DetailsPage.InfoGrid
           grid={[
             ...identityGrid,
-            !!providerCustomer?.providerCustomerId && {
+            {
               label: translate('text_1785242578759umo02bzreln'),
               value: (
-                <ExternalIdValue
-                  externalId={providerCustomer.providerCustomerId}
+                <ProviderCustomerIdValue
+                  externalId={providerCustomer?.providerCustomerId}
                   url={
-                    isStripe
+                    isStripe && providerCustomer?.providerCustomerId
                       ? buildStripeCustomerUrl(providerCustomer.providerCustomerId)
                       : undefined
                   }
+                  missingIdReason={getMissingProviderIdReason({
+                    syncsOnFirstInvoice: false,
+                    syncWithProvider: providerCustomer?.syncWithProvider,
+                  })}
                 />
               ),
             },
@@ -204,9 +259,19 @@ export const ConnectionDetailsPanel = ({
       <DetailsPage.InfoGrid
         grid={[
           ...identityGrid,
-          !!externalCustomerId && {
+          {
             label: translate('text_1785242578759umo02bzreln'),
-            value: <ExternalIdValue externalId={externalCustomerId} url={buildExternalUrl()} />,
+            value: (
+              <ProviderCustomerIdValue
+                externalId={externalCustomerId}
+                url={buildExternalUrl()}
+                missingIdReason={getMissingProviderIdReason({
+                  syncsOnFirstInvoice:
+                    integrationCustomer?.integrationType === IntegrationTypeEnum.Anrok,
+                  syncWithProvider: integrationCustomer?.syncWithProvider,
+                })}
+              />
+            ),
           },
         ]}
       />
