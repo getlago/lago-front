@@ -60,6 +60,8 @@ const AdminComparison = () => {
 
   const allOrgs: OrgData[] = data?.adminOrganizations?.collection ?? []
 
+  const hasReachedMaxOrgs = selectedOrgIds.length >= MAX_ORGS
+
   const selectedOrgs: OrgData[] = selectedOrgIds
     .map((id) => allOrgs.find((o) => o.id === id))
     .filter(Boolean) as OrgData[]
@@ -141,8 +143,14 @@ const AdminComparison = () => {
         <div className="mb-6 flex items-center gap-6">
           <div className="w-120">
             <MultipleComboBox
-              placeholder="Search organizations to add..."
-              data={comboBoxData}
+              placeholder={
+                hasReachedMaxOrgs
+                  ? `Maximum of ${MAX_ORGS} organizations selected`
+                  : 'Search organizations to add...'
+              }
+              // At the cap, offer no options so no more can be added — while keeping the
+              // selected tags removable (a hard `disabled` would also block removal).
+              data={hasReachedMaxOrgs ? [] : comboBoxData}
               value={comboBoxValue}
               loading={isLoadingOrgs}
               onChange={handleOrgSelectionChange}
