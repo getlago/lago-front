@@ -1,3 +1,6 @@
+import { FiltersItemFeatureType } from '~/components/Filters/graphql/filtersElements/FiltersItemFeatureType'
+import { FiltersItemAdminOrganizations } from '~/components/Filters/graphql/filtersElements/FiltersItemAdminOrganizations'
+import { FiltersItemAdminActions } from '~/components/Filters/graphql/filtersElements/FiltersItemAdminActions'
 import { Typography } from '~/components/designSystem/Typography'
 import { FiltersItemActiveSubscriptions } from '~/components/Filters/graphql/filtersElements/FiltersItemActiveSubscriptions'
 import { FiltersItemActivityIds } from '~/components/Filters/graphql/filtersElements/FiltersItemActivityIds'
@@ -105,6 +108,9 @@ export const FiltersPanelItemTypeSwitch = ({
   }
 
   const filterTypeMap: Record<AvailableFiltersEnum, React.ReactNode> = {
+    [AvailableFiltersEnum.featureType]: <FiltersItemFeatureType {...props} />,
+    [AvailableFiltersEnum.adminOrganizations]: <FiltersItemAdminOrganizations {...props} />,
+    [AvailableFiltersEnum.adminActions]: <FiltersItemAdminActions {...props} />,
     [AvailableFiltersEnum.activityIds]: <FiltersItemActivityIds {...props} />,
     [AvailableFiltersEnum.activitySources]: <FiltersItemActivitySources {...props} />,
     [AvailableFiltersEnum.activityTypes]: <FiltersItemActivityTypes {...props} />,
