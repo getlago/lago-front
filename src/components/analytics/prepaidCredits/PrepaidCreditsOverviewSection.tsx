@@ -4,17 +4,17 @@ import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateCon
 import { usePrepaidCreditsAnalyticsOverview } from '~/components/analytics/prepaidCredits/usePrepaidCreditsAnalyticsOverview'
 import { toAmountCents } from '~/components/analytics/prepaidCredits/utils'
 import { Button } from '~/components/designSystem/Button'
-import {
-  AvailableQuickFilters,
-  Filters,
-  PrepaidCreditsOverviewAvailableFilters,
-} from '~/components/designSystem/Filters'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import StackedBarChart from '~/components/designSystem/graphs/StackedBarChart'
 import { getItemDateFormatedByTimeGranularity } from '~/components/designSystem/graphs/utils'
 import { HorizontalDataTable } from '~/components/designSystem/Table/HorizontalDataTable'
 import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
+import {
+  AvailableQuickFilters,
+  Filters,
+  PrepaidCreditsOverviewAvailableFilters,
+} from '~/components/Filters'
 import { PREPAID_CREDITS_OVERVIEW_FILTER_PREFIX } from '~/core/constants/filters'
 import { CurrencyEnum, TimeGranularityEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'

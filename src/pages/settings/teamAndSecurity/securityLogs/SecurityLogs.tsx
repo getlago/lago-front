@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
-import { Filters, SecurityLogsAvailableFilters } from '~/components/designSystem/Filters'
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Table, TableColumn, TablePlaceholder } from '~/components/designSystem/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { LogsLayout } from '~/components/developers/LogsLayout'
+import { Filters, SecurityLogsAvailableFilters } from '~/components/Filters'
 import { SettingsListItemHeader } from '~/components/layouts/Settings'
 import { hasDefinedGQLError } from '~/core/apolloClient'
 import { SECURITY_LOGS_FILTER_PREFIX } from '~/core/constants/filters'

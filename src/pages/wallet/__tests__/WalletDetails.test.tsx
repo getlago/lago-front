@@ -2,7 +2,8 @@ import { screen } from '@testing-library/react'
 
 import { ButtonLinkBaseProps } from '~/components/designSystem/ButtonLink'
 import { GENERIC_PLACEHOLDER_TEST_ID } from '~/components/designSystem/GenericPlaceholder'
-import { MainHeaderTab } from '~/components/MainHeader/types'
+import { MainHeaderEntityConfig, MainHeaderTab } from '~/components/MainHeader/types'
+import { WalletStatusEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import WalletDetails, { WalletDetailsTabsOptionsEnum } from '../WalletDetails'
@@ -40,15 +41,18 @@ jest.mock('~/components/MainHeader/useMainHeaderTabContent', () => ({
 
 let capturedBreadcrumb: Array<{ label: string; path?: string; loading?: boolean }> | undefined
 let capturedTabs: MainHeaderTab[] | undefined
+let capturedEntity: MainHeaderEntityConfig | undefined
 
 jest.mock('~/components/MainHeader/MainHeader', () => ({
   MainHeader: {
     Configure: (props: {
       breadcrumb?: Array<{ label: string; path?: string; loading?: boolean }>
       tabs?: MainHeaderTab[]
+      entity?: MainHeaderEntityConfig
     }) => {
       capturedBreadcrumb = props.breadcrumb
       capturedTabs = props.tabs
+      capturedEntity = props.entity
       return null
     },
   },
@@ -315,6 +319,81 @@ describe('WalletDetails', () => {
         const props = mockButtonLink.mock.calls[0][0] as ButtonLinkBaseProps
 
         expect(props.routerState).toBeUndefined()
+      })
+    })
+  })
+
+  describe('GIVEN the wallet status', () => {
+    const renderWithStatus = (status: WalletStatusEnum) => {
+      mockUseGetWalletDetailsQuery.mockReturnValue({
+        data: { wallet: { ...mockWallet, status } },
+        error: undefined,
+        loading: false,
+      })
+
+      render(<WalletDetails />)
+    }
+
+    const renderTabContent = (status: WalletStatusEnum, tab: WalletDetailsTabsOptionsEnum) => {
+      renderWithStatus(status)
+
+      const foundTab = capturedTabs?.find(({ link }) => link?.includes(tab))
+
+      mockButtonLink.mockClear()
+      render(<>{foundTab?.content}</>)
+    }
+
+    describe('WHEN the wallet is terminated', () => {
+      it('THEN should surface a terminated badge in the header', () => {
+        renderWithStatus(WalletStatusEnum.Terminated)
+
+        expect(capturedEntity?.badges).toEqual([
+          { type: 'danger', label: 'text_62e2a2f2a79d60429eff3035' },
+        ])
+      })
+
+      it('THEN should not render the Edit wallet link on the overview tab', () => {
+        renderTabContent(WalletStatusEnum.Terminated, WalletDetailsTabsOptionsEnum.overview)
+
+        expect(mockButtonLink).not.toHaveBeenCalled()
+      })
+
+      it('THEN should not render the Edit link on the recurring-rule tab', () => {
+        renderTabContent(WalletStatusEnum.Terminated, WalletDetailsTabsOptionsEnum.recurringRule)
+
+        expect(mockButtonLink).not.toHaveBeenCalled()
+      })
+
+      it('THEN should not render the alert creation link on the alerts tab', () => {
+        renderTabContent(WalletStatusEnum.Terminated, WalletDetailsTabsOptionsEnum.alerts)
+
+        expect(mockButtonLink).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the wallet is active', () => {
+      it('THEN should not surface any header badge', () => {
+        renderWithStatus(WalletStatusEnum.Active)
+
+        expect(capturedEntity?.badges).toEqual([])
+      })
+
+      it('THEN should render the Edit wallet link on the overview tab', () => {
+        renderTabContent(WalletStatusEnum.Active, WalletDetailsTabsOptionsEnum.overview)
+
+        expect(mockButtonLink).toHaveBeenCalledTimes(1)
+      })
+
+      it('THEN should render the Edit link on the recurring-rule tab', () => {
+        renderTabContent(WalletStatusEnum.Active, WalletDetailsTabsOptionsEnum.recurringRule)
+
+        expect(mockButtonLink).toHaveBeenCalledTimes(1)
+      })
+
+      it('THEN should render the alert creation link on the alerts tab', () => {
+        renderTabContent(WalletStatusEnum.Active, WalletDetailsTabsOptionsEnum.alerts)
+
+        expect(mockButtonLink).toHaveBeenCalledTimes(1)
       })
     })
   })

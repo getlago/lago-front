@@ -3,11 +3,8 @@ import { DateTime } from 'luxon'
 import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import { AvailableFiltersEnum } from '~/components/designSystem/Filters'
-import {
-  formatFiltersForForecastsQuery,
-  getFilterValue,
-} from '~/components/designSystem/Filters/utils'
+import { AvailableFiltersEnum } from '~/components/Filters'
+import { formatFiltersForForecastsQuery, getFilterValue } from '~/components/Filters/graphql/utils'
 import { FORECASTS_FILTER_PREFIX } from '~/core/constants/filters'
 import { getTimezoneConfig } from '~/core/timezone'
 import {

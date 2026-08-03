@@ -1,6 +1,7 @@
 import { createContext, useContext } from 'react'
 
 import type { PlanPreviewData } from '~/core/serializers/buildPlanPreviewData'
+import type { WalletPreviewData } from '~/core/serializers/buildWalletPreviewData'
 import type { BillingItemsPayload } from '~/core/serializers/serializeQuoteBillingItems'
 import type { Locale } from '~/core/translations'
 import { type CouponFrequency, type CouponTypeEnum, type CurrencyEnum } from '~/generated/graphql'
@@ -23,6 +24,8 @@ export type EntityData = {
   fromDatetime?: string
   toDatetime?: string
   plan?: PlanPreviewData
+  // wallet-only display data (credits preview)
+  wallet?: WalletPreviewData
   // coupon-only display fields
   couponType?: CouponTypeEnum
   amountCents?: string

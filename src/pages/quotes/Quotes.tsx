@@ -6,7 +6,7 @@ import {
   OrderAvailableFilters,
   OrderFormAvailableFilters,
   QuoteAvailableFilters,
-} from '~/components/designSystem/Filters'
+} from '~/components/Filters'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'

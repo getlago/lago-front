@@ -3,16 +3,12 @@ import { Icon } from 'lago-design-system'
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
 import { useUsageAnalyticsOverview } from '~/components/analytics/usage/useUsageAnalyticsOverview'
 import { Button } from '~/components/designSystem/Button'
-import {
-  AvailableQuickFilters,
-  Filters,
-  UsageOverviewAvailableFilters,
-} from '~/components/designSystem/Filters'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import AreaChart from '~/components/designSystem/graphs/AreaChart'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
+import { AvailableQuickFilters, Filters, UsageOverviewAvailableFilters } from '~/components/Filters'
 import { ANALYTICS_USAGE_OVERVIEW_FILTER_PREFIX } from '~/core/constants/filters'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
