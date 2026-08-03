@@ -128,7 +128,8 @@ export const AuditLogTable = ({
                 <Typography variant="body" noWrap>
                   {entry.featureKey}
                 </Typography>
-                {entry.featureType && (
+                {(entry.featureType === 'premium_integration' ||
+                  entry.featureType === 'feature_flag') && (
                   <Chip
                     label={entry.featureType === 'premium_integration' ? 'Integration' : 'Flag'}
                     size="small"
