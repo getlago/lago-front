@@ -12,6 +12,7 @@ import {
 } from '~/components/form/MultipleComboBox/types'
 import { Switch } from '~/components/form/Switch/Switch'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { addToast } from '~/core/apolloClient'
 
 const ADMIN_ORGANIZATIONS_QUERY = gql`
   query AdminOrganizationsComparison($limit: Int) {
@@ -42,9 +43,11 @@ const AdminComparison = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const [showDifferencesOnly, setShowDifferencesOnly] = useState(true)
 
-  // Parse selected org IDs from URL
+  // Parse selected org IDs from URL, capped at MAX_ORGS (defends against a hand-crafted URL)
   const rawOrgs = searchParams.get('orgs')
-  const selectedOrgIds: string[] = rawOrgs ? rawOrgs.split(',').filter(Boolean) : []
+  const selectedOrgIds: string[] = rawOrgs
+    ? rawOrgs.split(',').filter(Boolean).slice(0, MAX_ORGS)
+    : []
 
   // Fetch all orgs in a single query
   const {
@@ -83,6 +86,17 @@ const AdminComparison = () => {
 
   const handleOrgSelectionChange = (newValue: MultipleComboBoxData[]) => {
     const ids = newValue.map((item) => item.value)
+
+    if (ids.length > MAX_ORGS) {
+      // Keep the first MAX_ORGS and drop the just-added extra (appended last by the combobox)
+      addToast({
+        severity: 'info',
+        message: `You can compare up to ${MAX_ORGS} organizations at once.`,
+      })
+      setSearchParams({ orgs: ids.slice(0, MAX_ORGS).join(',') })
+
+      return
+    }
 
     if (ids.length === 0) {
       setSearchParams({})
