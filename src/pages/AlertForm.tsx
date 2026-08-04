@@ -5,6 +5,7 @@ import { generatePath, useParams } from 'react-router-dom'
 import { array, boolean, number, object, string } from 'yup'
 
 import AlertThresholds, { isThresholdValueValid } from '~/components/alerts/Thresholds'
+import { sortAndFormatThresholds } from '~/components/alerts/utils'
 import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'
 import { Typography } from '~/components/designSystem/Typography'
@@ -18,10 +19,9 @@ import {
   PLAN_SUBSCRIPTION_DETAILS_ROUTE,
   useNavigate,
 } from '~/core/router'
-import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
+import { serializeAmount } from '~/core/serializers/serializeAmount'
 import { updateNameAndMaybeCode } from '~/core/utils/updateNameAndMaybeCode'
 import {
-  AlertThreshold,
   AlertTypeEnum,
   CreateSubscriptionAlertInput,
   CurrencyEnum,
@@ -36,32 +36,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
-
-export const sortAndFormatThresholds = (
-  thresholds: AlertThreshold[],
-  currency: CurrencyEnum,
-  shouldHandleUnits: boolean,
-): AlertThreshold[] => {
-  const formattedThresholds = thresholds.map((threshold) => ({
-    ...threshold,
-    value: shouldHandleUnits
-      ? threshold.value.split('.')[0]
-      : String(deserializeAmount(threshold.value, currency)),
-  }))
-
-  const recurringThreshold = formattedThresholds.find((threshold) => threshold.recurring)
-  const nonRecurringThresholds = formattedThresholds.filter((threshold) => !threshold.recurring)
-
-  // Sort the non-recurring thresholds by value
-  const sortedNonRecurringThresholds = nonRecurringThresholds.sort((a, b) => {
-    if (a.value && !b.value) return -1
-    if (!a.value && b.value) return 1
-    return 0
-  })
-
-  // Combine the recurring threshold with the sorted non-recurring thresholds
-  return [...sortedNonRecurringThresholds, ...(!!recurringThreshold ? [recurringThreshold] : [])]
-}
 
 gql`
   query getSubscriptionInfos($id: ID!) {
