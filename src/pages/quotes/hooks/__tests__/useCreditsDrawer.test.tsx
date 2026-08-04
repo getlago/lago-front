@@ -136,6 +136,36 @@ describe('useCreditsDrawer', () => {
       expect(updated?.walletCredits).toEqual(withOneWallet.walletCredits)
     })
 
+    it('THEN re-persists restored wallets in document order (position follows the doc)', () => {
+      const withTwoWallets: BillingItemsPayload = {
+        walletCredits: toWallets(
+          [persistableWallet('wl_a'), persistableWallet('wl_b')],
+          CurrencyEnum.Usd,
+        ),
+      }
+
+      const { result } = renderHook(
+        () => useCreditsDrawer(withTwoWallets, { currency: CurrencyEnum.Usd }),
+        { wrapper },
+      )
+
+      let updated: BillingItemsPayload | undefined
+
+      // Delete the FIRST wallet; only wl_b remains referenced.
+      act(() => {
+        updated = result.current.syncCreditsBlocks([{ localId: 'wl_b' }])
+      })
+
+      // Undo re-inserts wl_a ahead of wl_b (document order).
+      act(() => {
+        updated = result.current.syncCreditsBlocks([{ localId: 'wl_a' }, { localId: 'wl_b' }])
+      })
+
+      // Positions follow the doc order, not the restore-append order.
+      expect(updated?.walletCredits?.map((w) => w.localId)).toEqual(['wl_a', 'wl_b'])
+      expect(updated?.walletCredits?.map((w) => w.payload.position)).toEqual([1, 2])
+    })
+
     it('THEN does not carry a previous payload once billingItems becomes null', () => {
       const { result, rerender } = renderHook(
         ({ bi }: { bi: BillingItemsPayload | null }) =>

@@ -403,6 +403,70 @@ describe('useDiscountDrawer', () => {
     ])
   })
 
+  it('re-persists restored coupons in document order (position follows the doc)', () => {
+    const makeCoupon = (
+      id: string,
+      localId: string,
+      position: number,
+    ): NonNullable<BillingItemsPayload['coupons']>[number] => ({
+      type: 'coupon',
+      id,
+      localId,
+      payload: {
+        position,
+        code: 'C',
+        id,
+        name: 'Coupon',
+        type: 'fixed_amount',
+        amountCents: 5000,
+        percentageRate: null,
+        currency: CurrencyEnum.Usd,
+        frequency: 'once',
+        frequencyDuration: null,
+        expirationAt: null,
+        limitedPlans: false,
+        planCodes: [],
+        limitedBillableMetrics: false,
+        billableMetricCodes: [],
+        couponOverrides: null,
+        catalogSnapshot: null,
+        resolvedPayload: null,
+      },
+      overrides: {
+        amountCents: 5000,
+        percentageRate: null,
+        frequency: 'once',
+        frequencyDuration: null,
+      },
+    })
+
+    const initialBillingItems: BillingItemsPayload = {
+      addOns: [],
+      coupons: [makeCoupon('cpn_a', 'local-a', 1), makeCoupon('cpn_b', 'local-b', 2)],
+    }
+
+    const { result } = renderHook(() => useDiscountDrawer(initialBillingItems, options))
+
+    let payload: BillingItemsPayload | undefined
+
+    // Delete the FIRST coupon; only local-b remains referenced.
+    act(() => {
+      payload = result.current.syncDiscountBlocks([{ couponId: 'cpn_b', localId: 'local-b' }])
+    })
+
+    // Undo re-inserts local-a ahead of local-b (document order).
+    act(() => {
+      payload = result.current.syncDiscountBlocks([
+        { couponId: 'cpn_a', localId: 'local-a' },
+        { couponId: 'cpn_b', localId: 'local-b' },
+      ])
+    })
+
+    // Positions follow the doc order, not the restore-append order.
+    expect(payload?.coupons?.map((c) => c.localId)).toEqual(['local-a', 'local-b'])
+    expect(payload?.coupons?.map((c) => c.payload.position)).toEqual([1, 2])
+  })
+
   it('calls onPersist with billingItems containing coupon overrides on add', async () => {
     const onPersist = jest.fn()
     const { result } = renderHook(() =>

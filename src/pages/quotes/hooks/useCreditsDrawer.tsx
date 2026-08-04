@@ -223,6 +223,19 @@ export const useCreditsDrawer = (
 
       if (!changed) return undefined
 
+      // Re-key itemsRef in document order so toWallets assigns positions that
+      // match the block order — a restored wallet would otherwise land at the
+      // end of the map and persist a different ordering than the doc.
+      const orderedItems: Record<string, WalletFormItem> = {}
+
+      for (const { localId } of blocks) {
+        if (localId && itemsRef.current[localId]) {
+          orderedItems[localId] = itemsRef.current[localId]
+        }
+      }
+
+      itemsRef.current = orderedItems
+
       return rebuild()
     },
     [rebuild],

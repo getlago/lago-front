@@ -603,6 +603,22 @@ export const useDiscountDrawer = (
 
       if (!changed) return undefined
 
+      // Re-key the refs in document order so toCoupons assigns positions that
+      // match the block order — a restored coupon would otherwise land at the
+      // end of the map and persist a different ordering than the doc.
+      const orderedItems: Record<string, DiscountFormItem> = {}
+      const orderedPayloads: Record<string, CouponPayload> = {}
+
+      for (const { localId } of blocks) {
+        if (localId && itemsRef.current[localId]) {
+          orderedItems[localId] = itemsRef.current[localId]
+          orderedPayloads[localId] = originalPayloadsRef.current[localId]
+        }
+      }
+
+      itemsRef.current = orderedItems
+      originalPayloadsRef.current = orderedPayloads
+
       return rebuild()
     },
     [rebuild],

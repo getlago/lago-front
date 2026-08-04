@@ -463,6 +463,37 @@ export const useOneOffPricingDrawer = (
       payloadsRef.current = updatedPayloads
       setEntities(updatedEntities)
 
+      // Re-key catalogIdMapRef in document order so toBillingItems assigns
+      // positions matching the block order — a restored add-on would otherwise
+      // land at the end of the map and persist a different ordering than the doc.
+      const orderedCatalogIdMap: Record<string, string> = {}
+
+      for (const block of blocks) {
+        const refIds = block.localEntityIds?.length ? block.localEntityIds : block.entityIds
+
+        for (const refId of refIds ?? []) {
+          const localId = catalogIdMapRef.current[refId]
+            ? refId
+            : Object.keys(catalogIdMapRef.current).find(
+                (key) => catalogIdMapRef.current[key] === refId,
+              )
+
+          if (localId && catalogIdMapRef.current[localId] && !orderedCatalogIdMap[localId]) {
+            orderedCatalogIdMap[localId] = catalogIdMapRef.current[localId]
+          }
+        }
+      }
+
+      // Safety net: keep any residual keys (there should be none post-prune) so a
+      // survivor is never silently dropped from the rebuild.
+      for (const localId of Object.keys(catalogIdMapRef.current)) {
+        if (!orderedCatalogIdMap[localId]) {
+          orderedCatalogIdMap[localId] = catalogIdMapRef.current[localId]
+        }
+      }
+
+      catalogIdMapRef.current = orderedCatalogIdMap
+
       // Rebuild the surviving billing items through toBillingItems so the user's
       // overrides (units, unit price, dates, names) are preserved — rebuilding
       // straight from the catalog payloads would reset them to catalog defaults.
