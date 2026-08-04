@@ -1,14 +1,15 @@
 import { gql } from '@apollo/client'
 import { revalidateLogic, useStore } from '@tanstack/react-form'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
+import { AlertNameAndCodeSection } from '~/components/alerts/AlertNameAndCodeSection'
 import AlertThresholds, { isThresholdValueValid } from '~/components/alerts/Thresholds'
-import { patchThreshold } from '~/components/alerts/utils'
+import { useAlertFormLeaveGuards } from '~/components/alerts/useAlertFormLeaveGuards'
+import { createThresholdSetters, setCodeAlreadyExistsError } from '~/components/alerts/utils'
 import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'
 import { Typography } from '~/components/designSystem/Typography'
-import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { ComboBox, ComboboxItem } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
@@ -18,12 +19,10 @@ import {
   PLAN_SUBSCRIPTION_DETAILS_ROUTE,
   useNavigate,
 } from '~/core/router'
-import { formatCodeFromName } from '~/core/utils/formatCodeFromName'
 import {
   AlertTypeEnum,
   CurrencyEnum,
   LagoApiError,
-  ThresholdInput,
   useCreateSubscriptionAlertMutation,
   useGetExistingAlertsOfSubscriptionQuery,
   useGetSubscriptionAlertToEditQuery,
@@ -117,7 +116,6 @@ const AlertForm = () => {
   const { alertId = '', customerId = '', planId = '', subscriptionId = '' } = useParams()
   const { translate } = useInternationalization()
   const navigate = useNavigate()
-  const centralizedDialog = useCentralizedDialog()
   const isEdition = !!alertId
 
   const { data: subscriptionData, loading: subscriptionLoading } = useGetSubscriptionInfosQuery({
@@ -195,26 +193,12 @@ const AlertForm = () => {
     [customerId, navigate, planId, subscriptionId],
   )
 
-  const openDirtyAttributesWarning = () =>
-    centralizedDialog.open({
-      title: translate('text_6244277fe0975300fe3fb940'),
-      description: translate('text_1746623860224gh7o1exyjch'),
-      actionText: translate('text_6244277fe0975300fe3fb94c'),
-      colorVariant: 'danger',
-      onAction: () => onLeave(),
-    })
-
-  // Redirect to alerts list if alert is not found (e.g., deleted while on edit page)
-  useEffect(() => {
-    if (isEdition && !alertLoading && hasDefinedGQLError('NotFound', alertError)) {
-      addToast({
-        severity: 'info',
-        translateKey: 'text_1737477631498hwm4np3kbnd',
-      })
-      // Use replace to prevent back button from returning to this deleted alert page
-      onLeave({ replace: true })
-    }
-  }, [isEdition, alertLoading, alertError, onLeave])
+  const { openDirtyAttributesWarning } = useAlertFormLeaveGuards({
+    isEdition,
+    alertLoading,
+    alertError,
+    onLeave,
+  })
 
   const [updateAlert] = useUpdateSubscriptionAlertMutation()
   const [createAlert] = useCreateSubscriptionAlertMutation()
@@ -242,16 +226,6 @@ const AlertForm = () => {
 
       const validatedValues = { ...value, alertType: valueAlertType }
 
-      const onCodeAlreadyExists = () => {
-        formApi.setErrorMap({
-          onDynamic: {
-            fields: { code: { message: 'text_632a2d437e341dcc76817556', path: ['code'] } },
-          },
-        })
-
-        document.getElementById('root')?.scrollTo({ top: 0 })
-      }
-
       if (!!existingAlert?.id) {
         const { data: updateData, errors } = await updateAlert({
           variables: {
@@ -260,7 +234,7 @@ const AlertForm = () => {
         })
 
         if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
-          onCodeAlreadyExists()
+          setCodeAlreadyExistsError(formApi)
 
           return
         }
@@ -279,7 +253,7 @@ const AlertForm = () => {
         })
 
         if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
-          onCodeAlreadyExists()
+          setCodeAlreadyExistsError(formApi)
 
           return
         }
@@ -367,35 +341,7 @@ const AlertForm = () => {
     )
   }, [thresholds])
 
-  const setThresholds = (newThresholds: ThresholdInput[]) => {
-    form.setFieldValue('thresholds', newThresholds)
-  }
-
-  // Always rewrite the whole array: a bracket-index write would turn it into a
-  // plain object if the base value were ever missing
-  const setThresholdValue = ({
-    index,
-    key,
-    newValue,
-  }: {
-    index: number
-    key: keyof ThresholdInput
-    newValue: unknown
-  }) => {
-    form.setFieldValue('thresholds', (currentThresholds) =>
-      currentThresholds.map((threshold, i) =>
-        i === index ? patchThreshold(threshold, key, newValue) : threshold,
-      ),
-    )
-  }
-
-  // The code is derived from the name until the user takes ownership of it,
-  // and never on an alert that already had one (`updateNameAndMaybeCode` parity)
-  const onNameChange = ({ value }: { value: string }) => {
-    if (form.getFieldMeta('code')?.isBlurred || !!existingAlert?.code) return
-
-    form.setFieldValue('code', formatCodeFromName(value))
-  }
+  const { setThresholds, setThresholdValue } = useMemo(() => createThresholdSetters(form), [form])
 
   const onAbort = () => (isDirty ? openDirtyAttributesWarning() : onLeave())
 
@@ -443,34 +389,12 @@ const AlertForm = () => {
               </div>
 
               <div className="flex flex-col gap-12">
-                <section className="pb-12 shadow-b not-last-child:mb-6">
-                  <div className="not-last-child:mb-2">
-                    <Typography variant="subhead1">
-                      {translate('text_1746629929876zz4937djyc8')}
-                    </Typography>
-                    <Typography variant="caption">
-                      {translate('text_1746629929876gdgxt1v86eq')}
-                    </Typography>
-                  </div>
-                  <div className="flex gap-6 *:flex-1">
-                    <form.AppField name="name" listeners={{ onChange: onNameChange }}>
-                      {(field) => (
-                        <field.TextInputField
-                          label={translate('text_1732286530467zstzwbegfiq')}
-                          placeholder={translate('text_62876e85e32e0300e1803121')}
-                        />
-                      )}
-                    </form.AppField>
-                    <form.AppField name="code">
-                      {(field) => (
-                        <field.TextInputField
-                          label={translate('text_62876e85e32e0300e1803127')}
-                          placeholder={translate('text_623b42ff8ee4e000ba87d0c4')}
-                        />
-                      )}
-                    </form.AppField>
-                  </div>
-                </section>
+                <AlertNameAndCodeSection
+                  form={form}
+                  fields={{ name: 'name', code: 'code' }}
+                  nameLabel={translate('text_1732286530467zstzwbegfiq')}
+                  hasExistingCode={!!existingAlert?.code}
+                />
 
                 <section className="not-last-child:mb-6">
                   <div className="not-last-child:mb-2">
