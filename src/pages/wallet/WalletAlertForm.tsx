@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import AlertThresholds, { isThresholdValueValid } from '~/components/alerts/Thresholds'
+import { patchThreshold } from '~/components/alerts/utils'
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
@@ -35,11 +36,7 @@ import {
   mapFormToUpdateInput,
   mapFromApiToForm,
 } from '~/pages/wallet/walletAlertForm/mappers'
-import {
-  isWalletCreditsAlert,
-  isWalletOngoingAlert,
-  patchThreshold,
-} from '~/pages/wallet/walletAlertForm/utils'
+import { isWalletCreditsAlert, isWalletOngoingAlert } from '~/pages/wallet/walletAlertForm/utils'
 import { walletAlertValidationSchema } from '~/pages/wallet/walletAlertForm/validationSchema'
 import { WalletDetailsTabsOptionsEnum } from '~/pages/wallet/WalletDetails'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
