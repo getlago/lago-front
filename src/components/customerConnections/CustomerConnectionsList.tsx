@@ -206,7 +206,7 @@ export const CustomerConnectionsList = ({
       (category) => (
         <div key={category} className="flex flex-col">
           <div
-            className="border-b border-grey-300 bg-grey-100 p-2"
+            className="border-b border-grey-300 bg-grey-000 p-2"
             data-test={getCustomerConnectionGroupTestId(category)}
           >
             <Typography variant="captionHl" color="grey600">
