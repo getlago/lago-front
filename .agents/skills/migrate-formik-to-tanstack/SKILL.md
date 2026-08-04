@@ -940,25 +940,27 @@ const form = useAppForm({
 
 ### Pattern 5: Scroll to First Error on Invalid Submit
 
-Use `onSubmitInvalid` to improve UX:
+> ⚠️ **Commonly skipped — evaluate it explicitly on every migration, even flat/simple forms.** It was missed entirely in the wallet alert migration and came back as review feedback (lago-front#4061). Ask: can the form be taller than the viewport, or can an errored field be off-screen on submit? If yes, wire it.
+
+Do NOT hand-roll the scrolling: use the shared `scrollToFirstInputError` helper (`~/core/form/scrollToFirstInputError`), which finds the first errored input inside the form element, scrolls it into view and focuses it.
 
 ```typescript
+import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
+
+const MY_FORM_ID = 'my-form'
+
 const form = useAppForm({
   // ...
-  onSubmitInvalid: ({ formApi }) => {
-    // Get the first field with an error
-    const firstErrorField = Object.keys(formApi.state.fieldMeta).find(
-      (key) => formApi.state.fieldMeta[key]?.errors?.length > 0,
-    )
-
-    if (firstErrorField) {
-      // Scroll to the error field
-      const element = document.querySelector(`[name="${firstErrorField}"]`)
-      element?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    }
+  onSubmitInvalid({ formApi }) {
+    scrollToFirstInputError(MY_FORM_ID, formApi.state.errorMap.onDynamic || {})
   },
 })
+
+// The id MUST be on the <form> element — the helper queries `#${formId} input`
+return <form id={MY_FORM_ID} onSubmit={...}>
 ```
+
+> **Reference**: `src/pages/createCustomers/CreateCustomer.tsx`, `src/pages/auth/SignUp.tsx`, `src/pages/wallet/WalletAlertForm.tsx`.
 
 ### Pattern 6: Conditional Field Rendering
 
@@ -1363,7 +1365,7 @@ The `/make-tests` skill will automatically:
 - [ ] Update sub-components to use `withForm` HOC
 - [ ] Use `withFieldGroup` for reusable field groups shared across forms
 - [ ] Add `.refine()` validations for cross-field dependencies
-- [ ] Implement `onSubmitInvalid` for error scrolling
+- [ ] **Implement `onSubmitInvalid` for error scrolling (Pattern 5 — commonly skipped: evaluate even on simple forms, don't gate it on "complex")**
 - [ ] Add `formApi.setErrorMap` for server-side errors
 - [ ] Migrate dialogs with forms to independent TanStack forms (Pattern 9)
 - [ ] Derive boolean state from form values instead of separate flags (Pattern 10)
