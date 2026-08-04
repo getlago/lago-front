@@ -156,6 +156,68 @@ describe('useSubscriptionPricingDrawer', () => {
     expect(result.current.entities).not.toHaveProperty('plan_123')
   })
 
+  it('syncEntitiesWithBlocks re-hydrates a pruned plan when its block re-appears (undo)', () => {
+    const initialBillingItems: BillingItemsPayload = {
+      addOns: [],
+      plans: [
+        {
+          type: 'plan',
+          id: 'plan_123',
+          payload: {
+            position: 1,
+            code: 'enterprise',
+            name: 'Enterprise Plan',
+            description: '',
+            subscriptionExternalId: null,
+            subscriptionName: null,
+            billingTime: 'anniversary',
+            startDate: '2023-07-26',
+            endDate: null,
+            paymentMethodId: null,
+            invoiceCustomFooter: null,
+          },
+          overrides: {},
+        },
+      ],
+    }
+
+    const { result } = renderHook(() => useSubscriptionPricingDrawer(initialBillingItems))
+
+    // Delete: the block leaves the doc, so the plan is pruned and the payload
+    // clears the plan slice for the autosave.
+    let afterDelete: BillingItemsPayload | null = null
+
+    act(() => {
+      afterDelete = result.current.syncEntitiesWithBlocks([])
+    })
+
+    expect(afterDelete).toEqual(expect.objectContaining({ plans: [] }))
+    expect(result.current.entities).not.toHaveProperty('plan_123')
+
+    // Undo: TipTap re-inserts the block, so the same id re-appears in the doc.
+    let afterUndo: BillingItemsPayload | null = null
+
+    act(() => {
+      afterUndo = result.current.syncEntitiesWithBlocks([
+        { pricingType: 'plan', entityIds: ['plan_123'] },
+      ])
+    })
+
+    // Entity is rehydrated (NodeView resolves again) and the plan item — with its
+    // overrides — is re-persisted, restoring server state.
+    expect(result.current.entities).toHaveProperty('plan_123')
+    expect(afterUndo).toEqual(
+      expect.objectContaining({
+        plans: [
+          expect.objectContaining({
+            id: 'plan_123',
+            payload: expect.objectContaining({ name: 'Enterprise Plan' }),
+          }),
+        ],
+      }),
+    )
+  })
+
   it('commits entities and propagates dates on success', async () => {
     mockInjectedState = {
       planId: 'plan_123',
