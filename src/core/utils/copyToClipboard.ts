@@ -27,6 +27,14 @@ const unsecuredCopyToClipboard = (text: string) => {
   }
 }
 
+const fallbackCopyToClipboard = (value: string) => {
+  unsecuredCopyToClipboard(value)
+  addToast({
+    severity: 'info',
+    translateKey: 'text_63a5ba11eb4e7e17ef88e9f0',
+  })
+}
+
 export const copyToClipboard: (value: string, options?: { ignoreComment?: boolean }) => void = (
   value,
   ignoreComment,
@@ -34,12 +42,18 @@ export const copyToClipboard: (value: string, options?: { ignoreComment?: boolea
   const serializedValue = ignoreComment ? filterComment(value) : value
 
   try {
-    navigator.clipboard.writeText(serializedValue)
-  } catch {
-    unsecuredCopyToClipboard(serializedValue)
-    addToast({
-      severity: 'info',
-      translateKey: 'text_63a5ba11eb4e7e17ef88e9f0',
+    // `writeText` rejects asynchronously (eg. `NotAllowedError` when the document is not
+    // focused), so the rejection has to be caught on the promise itself: a synchronous
+    // try/catch alone lets it escape as an unhandled rejection.
+    navigator.clipboard.writeText(serializedValue).catch(() => {
+      try {
+        fallbackCopyToClipboard(serializedValue)
+      } catch {
+        // `unsecuredCopyToClipboard` already warned the user before throwing. Swallow it here
+        // so the failure does not bubble up as an unhandled rejection either.
+      }
     })
+  } catch {
+    fallbackCopyToClipboard(serializedValue)
   }
 }
