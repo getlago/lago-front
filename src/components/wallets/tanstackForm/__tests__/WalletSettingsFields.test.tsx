@@ -1,6 +1,12 @@
 import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import {
+  PURCHASE_ORDER_ADD_BUTTON_TEST_ID,
+  PURCHASE_ORDER_TRASH_BUTTON_TEST_ID,
+} from '~/components/purchaseOrder/PurchaseOrderButtons'
+import { PURCHASE_ORDER_FORM_BLOCK_INPUT_TEST_ID } from '~/components/purchaseOrder/PurchaseOrderFormBlock'
+import { PURCHASE_ORDER_TITLE_TEST_ID } from '~/components/purchaseOrder/PurchaseOrderTitle'
 import { CurrencyEnum } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { render } from '~/test-utils'
@@ -17,9 +23,6 @@ import {
   WALLET_SETTINGS_MIN_MAX_ADD_BUTTON_TEST_ID,
   WALLET_SETTINGS_MIN_OPTION_TEST_ID,
   WALLET_SETTINGS_MIN_SECTION_TEST_ID,
-  WALLET_SETTINGS_PO_ADD_BUTTON_TEST_ID,
-  WALLET_SETTINGS_PO_DELETE_BUTTON_TEST_ID,
-  WALLET_SETTINGS_PO_SECTION_TEST_ID,
   WalletSettingsFields,
 } from '../WalletSettingsFields'
 
@@ -60,7 +63,7 @@ describe('WalletSettingsFields', () => {
     describe('WHEN the component renders', () => {
       it.each([
         ['expiration', WALLET_SETTINGS_EXPIRATION_ADD_BUTTON_TEST_ID],
-        ['purchase order', WALLET_SETTINGS_PO_ADD_BUTTON_TEST_ID],
+        ['purchase order', PURCHASE_ORDER_ADD_BUTTON_TEST_ID],
       ])('THEN should show the collapsed add button for %s', (_, testId) => {
         render(<TestWrapper />)
 
@@ -69,7 +72,7 @@ describe('WalletSettingsFields', () => {
 
       it.each([
         ['expiration', WALLET_SETTINGS_EXPIRATION_SECTION_TEST_ID],
-        ['purchase order', WALLET_SETTINGS_PO_SECTION_TEST_ID],
+        ['purchase order', PURCHASE_ORDER_FORM_BLOCK_INPUT_TEST_ID],
       ])('THEN should not show the %s section', (_, testId) => {
         render(<TestWrapper />)
 
@@ -115,21 +118,44 @@ describe('WalletSettingsFields', () => {
 
   describe('GIVEN the purchase order toggle', () => {
     describe('WHEN clicking the add button then the delete button', () => {
-      it('THEN should open and then collapse the section', async () => {
+      it('THEN should open and then collapse the shared purchase order block', async () => {
         const user = userEvent.setup()
 
         render(<TestWrapper />)
 
-        await user.click(screen.getByTestId(WALLET_SETTINGS_PO_ADD_BUTTON_TEST_ID))
+        await user.click(screen.getByTestId(PURCHASE_ORDER_ADD_BUTTON_TEST_ID))
 
-        const poSection = screen.getByTestId(WALLET_SETTINGS_PO_SECTION_TEST_ID)
+        const poInput = screen.getByTestId(PURCHASE_ORDER_FORM_BLOCK_INPUT_TEST_ID)
 
-        expect(poSection).toBeInTheDocument()
-        // Seeded to an empty string (not null) so the input mounts controlled from the start.
-        expect(within(poSection).getByRole('textbox')).toHaveValue('')
+        expect(poInput).toBeInTheDocument()
+        // The shared block renders `value || ''`, so the input mounts controlled
+        // even though the slice value is still null.
+        expect(within(poInput).getByRole('textbox')).toHaveValue('')
 
-        await user.click(screen.getByTestId(WALLET_SETTINGS_PO_DELETE_BUTTON_TEST_ID))
-        expect(screen.queryByTestId(WALLET_SETTINGS_PO_SECTION_TEST_ID)).not.toBeInTheDocument()
+        await user.click(screen.getByTestId(PURCHASE_ORDER_TRASH_BUTTON_TEST_ID))
+        expect(
+          screen.queryByTestId(PURCHASE_ORDER_FORM_BLOCK_INPUT_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN typing in the revealed input', () => {
+      it('THEN should write the value into the form field', async () => {
+        const user = userEvent.setup()
+
+        render(<TestWrapper />)
+
+        await user.click(screen.getByTestId(PURCHASE_ORDER_ADD_BUTTON_TEST_ID))
+
+        const input = within(screen.getByTestId(PURCHASE_ORDER_FORM_BLOCK_INPUT_TEST_ID)).getByRole(
+          'textbox',
+        )
+
+        await user.type(input, 'PO-42')
+
+        // The block is uncontrolled by itself: the value only survives keystrokes
+        // because `onChange` writes it back into the `purchaseOrderNumber` field.
+        expect(input).toHaveValue('PO-42')
       })
     })
   })
@@ -152,10 +178,12 @@ describe('WalletSettingsFields', () => {
     })
 
     describe('WHEN a purchase order number is set', () => {
-      it('THEN should open the purchase order section on mount', () => {
+      it('THEN should open the purchase order block on mount', () => {
         render(<TestWrapper initialValues={{ ...emptySettings, purchaseOrderNumber: 'PO-1' }} />)
 
-        expect(screen.getByTestId(WALLET_SETTINGS_PO_SECTION_TEST_ID)).toBeInTheDocument()
+        expect(
+          within(screen.getByTestId(PURCHASE_ORDER_FORM_BLOCK_INPUT_TEST_ID)).getByRole('textbox'),
+        ).toHaveValue('PO-1')
       })
     })
   })
@@ -165,7 +193,7 @@ describe('WalletSettingsFields', () => {
       render(<TestWrapper />)
       expect(screen.getByText('text_1748422458559n8iqcz37i2z')).toBeInTheDocument()
       expect(screen.getByText('text_1758285686646sieyihhzwak')).toBeInTheDocument()
-      expect(screen.getByText('text_1783352692386p9bls6f0o76')).toBeInTheDocument()
+      expect(screen.getByTestId(PURCHASE_ORDER_TITLE_TEST_ID)).toBeInTheDocument()
     })
   })
 

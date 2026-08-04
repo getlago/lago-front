@@ -6,6 +6,7 @@ import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { TextInput } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
+import { PurchaseOrderFormBlock } from '~/components/purchaseOrder/PurchaseOrderFormBlock'
 import { makeEmptyWalletItem } from '~/core/serializers/serializeQuoteWallets'
 import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -32,9 +33,6 @@ export const WALLET_SETTINGS_MIN_SECTION_TEST_ID = 'wallet-settings-min-section'
 export const WALLET_SETTINGS_MAX_SECTION_TEST_ID = 'wallet-settings-max-section'
 export const WALLET_SETTINGS_MIN_DELETE_BUTTON_TEST_ID = 'wallet-settings-min-delete-button'
 export const WALLET_SETTINGS_MAX_DELETE_BUTTON_TEST_ID = 'wallet-settings-max-delete-button'
-export const WALLET_SETTINGS_PO_ADD_BUTTON_TEST_ID = 'wallet-settings-po-add-button'
-export const WALLET_SETTINGS_PO_SECTION_TEST_ID = 'wallet-settings-po-section'
-export const WALLET_SETTINGS_PO_DELETE_BUTTON_TEST_ID = 'wallet-settings-po-delete-button'
 
 export const WalletSettingsFields = withForm({
   defaultValues: DEFAULTS,
@@ -47,7 +45,6 @@ export const WalletSettingsFields = withForm({
     const [showExpiration, setShowExpiration] = useState(!!initialValues.expirationAt)
     const [showMin, setShowMin] = useState(!!initialValues.paidTopUpMinAmountCents)
     const [showMax, setShowMax] = useState(!!initialValues.paidTopUpMaxAmountCents)
-    const [showPO, setShowPO] = useState(!!initialValues.purchaseOrderNumber)
 
     return (
       <div className="flex flex-col gap-6">
@@ -290,57 +287,15 @@ export const WalletSettingsFields = withForm({
           </Popper>
         </div>
 
-        {/* Purchase order number (toggle) */}
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1">
-            <Typography variant="captionHl" color="grey700">
-              {translate('text_1783352692386p9bls6f0o76')}
-            </Typography>
-            <Typography variant="caption" color="grey600">
-              {translate('text_1784552920236s8nbmvhxn9i')}
-            </Typography>
-          </div>
-          {showPO ? (
-            <div
-              className="flex items-end gap-3 [&>*:first-child]:flex-1"
-              data-test={WALLET_SETTINGS_PO_SECTION_TEST_ID}
-            >
-              <form.AppField name="purchaseOrderNumber">
-                {(field) => <field.TextInputField />}
-              </form.AppField>
-              <Tooltip
-                className="mb-1 h-fit"
-                placement="top-end"
-                title={translate('text_63aa085d28b8510cd46443ff')}
-              >
-                <Button
-                  data-test={WALLET_SETTINGS_PO_DELETE_BUTTON_TEST_ID}
-                  icon="trash"
-                  variant="quaternary"
-                  onClick={() => {
-                    form.setFieldValue('purchaseOrderNumber', '')
-                    setShowPO(false)
-                  }}
-                />
-              </Tooltip>
-            </div>
-          ) : (
-            <Button
-              data-test={WALLET_SETTINGS_PO_ADD_BUTTON_TEST_ID}
-              className="self-start"
-              startIcon="plus"
-              variant="inline"
-              onClick={() => {
-                if (form.getFieldValue('purchaseOrderNumber') === null) {
-                  form.setFieldValue('purchaseOrderNumber', '')
-                }
-                setShowPO(true)
-              }}
-            >
-              {translate('text_1783352692386valktkog1dw')}
-            </Button>
+        <form.AppField name="purchaseOrderNumber">
+          {(field) => (
+            <PurchaseOrderFormBlock
+              value={field.state.value}
+              description={translate('text_1783511588872okv9237slg5')}
+              onChange={(value) => field.handleChange(value)}
+            />
           )}
-        </div>
+        </form.AppField>
       </div>
     )
   },
