@@ -57,7 +57,7 @@ export const useDeleteCoupon = () => {
         )}
       />
     ) : (
-      <Typography html={translate('text_628b432fd8f2bc0105b973f6')} />
+      translate('text_628b432fd8f2bc0105b973f6')
     )
 
     const onAction = async () => {
