@@ -1,3 +1,7 @@
+import {
+  PURCHASE_ORDER_NUMBER_MAX_LENGTH,
+  PURCHASE_ORDER_TRANSLATIONS,
+} from '~/components/purchaseOrder/constants'
 import { makeEmptyWalletItem } from '~/core/serializers/serializeQuoteWallets'
 import {
   RecurringTransactionIntervalEnum,
@@ -83,6 +87,25 @@ describe('walletFormSchema', () => {
 
     expect(messages).toContain('text_624ea7c29103fd010732ab7d')
     expect(messages).not.toContain('text_633445d00315a713775f02a6')
+  })
+
+  it('rejects a purchase order number longer than the shared max length', () => {
+    const result = walletSettingsSchema.safeParse(
+      settings({ purchaseOrderNumber: 'a'.repeat(PURCHASE_ORDER_NUMBER_MAX_LENGTH + 1) }),
+    )
+
+    expect(result.success).toBe(false)
+    expect(settingsMessage(result, 'purchaseOrderNumber')).toBe(
+      PURCHASE_ORDER_TRANSLATIONS.maxLength,
+    )
+  })
+
+  it('accepts a purchase order number at the max length', () => {
+    const result = walletSettingsSchema.safeParse(
+      settings({ purchaseOrderNumber: 'a'.repeat(PURCHASE_ORDER_NUMBER_MAX_LENGTH) }),
+    )
+
+    expect(result.success).toBe(true)
   })
 
   it('flags a non-numeric min/max with their respective messages', () => {
