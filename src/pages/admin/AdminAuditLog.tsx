@@ -48,6 +48,7 @@ const ADMIN_AUDIT_LOGS_QUERY = gql`
         reason
         batchId
         rollbackOfId
+        rolledBack
         createdAt
       }
       metadata {

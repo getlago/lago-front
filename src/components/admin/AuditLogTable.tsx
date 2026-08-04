@@ -22,6 +22,7 @@ export type AuditLogEntry = {
   reason: string | null
   batchId: string | null
   rollbackOfId: string | null
+  rolledBack: boolean
   createdAt: string
 }
 
@@ -182,7 +183,8 @@ export const AuditLogTable = ({
           title: 'Actions',
           minWidth: 100,
           content: (entry) => {
-            if (entry.action === 'rollback') return null
+            // Hide for rollback entries themselves, and for changes already rolled back
+            if (entry.action === 'rollback' || entry.rolledBack) return null
 
             return (
               <Button
