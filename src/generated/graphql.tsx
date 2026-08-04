@@ -345,6 +345,7 @@ export type AdminAuditLog = {
   organizationName: Scalars['String']['output'];
   reason: Scalars['String']['output'];
   rollbackOfId?: Maybe<Scalars['ID']['output']>;
+  rolledBack: Scalars['Boolean']['output'];
 };
 
 /** AdminAuditLogCollection type */
@@ -14430,7 +14431,7 @@ export type AdminAuditLogsQueryVariables = Exact<{
 }>;
 
 
-export type AdminAuditLogsQuery = { __typename?: 'Query', adminAuditLogs: { __typename?: 'AdminAuditLogCollection', collection: Array<{ __typename?: 'AdminAuditLog', id: string, actorEmail: string, action: AdminActionEnum, organizationId: string, organizationName: string, featureType: AdminFeatureTypeEnum, featureKey: string, beforeValue?: boolean | null, afterValue: boolean, reason: string, batchId?: string | null, rollbackOfId?: string | null, createdAt: any }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalCount: number, totalPages: number } } };
+export type AdminAuditLogsQuery = { __typename?: 'Query', adminAuditLogs: { __typename?: 'AdminAuditLogCollection', collection: Array<{ __typename?: 'AdminAuditLog', id: string, actorEmail: string, action: AdminActionEnum, organizationId: string, organizationName: string, featureType: AdminFeatureTypeEnum, featureKey: string, beforeValue?: boolean | null, afterValue: boolean, reason: string, batchId?: string | null, rollbackOfId?: string | null, rolledBack: boolean, createdAt: any }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalCount: number, totalPages: number } } };
 
 export type AdminRollbackChangeMutationVariables = Exact<{
   input: AdminRollbackChangeInput;
@@ -37846,6 +37847,7 @@ export const AdminAuditLogsDocument = gql`
       reason
       batchId
       rollbackOfId
+      rolledBack
       createdAt
     }
     metadata {
