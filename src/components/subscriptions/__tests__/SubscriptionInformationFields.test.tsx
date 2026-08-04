@@ -59,6 +59,7 @@ describe('SubscriptionInformationFields', () => {
   // "Start date" label key and the new "Billing anchor date" label key
   const START_DATE_LABEL = 'text_65201c5a175a4b0238abf29e'
   const BILLING_ANCHOR_LABEL = 'text_1781859135627z59hpfpa8pt'
+  const END_DATE_LABEL = 'text_65201c5a175a4b0238abf2a0'
 
   const getValueUnderLabel = (labelKey: string) =>
     within(screen.getByText(labelKey).parentElement as HTMLElement)
@@ -98,7 +99,7 @@ describe('SubscriptionInformationFields', () => {
   it('shows "-" for the end date when the subscription is active without an ending date', () => {
     render(<SubscriptionInformationFields subscription={baseSubscription()} />)
 
-    expect(screen.getByText('-')).toBeInTheDocument()
+    expect(getValueUnderLabel(END_DATE_LABEL).getByText('-')).toBeInTheDocument()
   })
 
   it('renders the ending date when set on an active subscription', () => {

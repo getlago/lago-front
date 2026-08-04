@@ -10,7 +10,7 @@ import {
   AvailableFiltersEnum,
   formatFiltersForUsageBillableMetricQuery,
   getFilterValue,
-} from '~/components/designSystem/Filters'
+} from '~/components/Filters'
 import { ANALYTICS_USAGE_BILLABLE_METRIC_FILTER_PREFIX } from '~/core/constants/filters'
 import { getTimezoneConfig } from '~/core/timezone'
 import {

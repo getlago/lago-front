@@ -52,7 +52,7 @@ jest.mock('react-router-dom', () => ({
   useSearchParams: () => [new URLSearchParams(), jest.fn()],
 }))
 
-jest.mock('~/components/designSystem/Filters/utils', () => ({
+jest.mock('~/components/Filters/graphql/utils', () => ({
   formatFiltersForCustomerCreditNotesQuery: () => ({
     currency: undefined,
     billingEntityId: undefined,

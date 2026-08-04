@@ -1,5 +1,6 @@
 import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
 import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
+import { normalizePurchaseOrderNumber } from '~/components/purchaseOrder/PO'
 import { CreateCustomerWalletTransactionInput } from '~/generated/graphql'
 import { WALLET_TOP_UP_DEFAULT_PRIORITY } from '~/pages/wallet/topUp/mappers/mapFromApiToForm'
 import { TWalletTopUpDataForm } from '~/pages/wallet/topUp/types'
@@ -21,12 +22,14 @@ export const mapFormToCreateInput = (
     invoiceCustomSection,
     paymentMethod,
     priority,
+    purchaseOrderNumber,
     ...rest
   } = formValues
 
   return {
     ...rest,
     walletId,
+    purchaseOrderNumber: normalizePurchaseOrderNumber(purchaseOrderNumber),
     priority: Number(priority) || Number(WALLET_TOP_UP_DEFAULT_PRIORITY),
     grantedCredits: grantedCredits === '' ? '0' : String(grantedCredits),
     paidCredits: paidCredits === '' ? '0' : String(paidCredits),

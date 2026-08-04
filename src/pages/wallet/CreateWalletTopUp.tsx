@@ -12,6 +12,7 @@ import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { InvoicingSettingsSelector } from '~/components/invoicingSettings/InvoicingSettingsSelector'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { PaymentSettingsSelector } from '~/components/paymentSettings/PaymentSettingsSelector'
+import { PurchaseOrderFormBlock } from '~/components/purchaseOrder/PurchaseOrderFormBlock'
 import {
   CLOSE_CREATE_TOPUP_BUTTON_DATA_TEST,
   CREATE_WALLET_TOP_UP_FORM_TEST_ID,
@@ -109,7 +110,7 @@ const CreateWalletTopUp = () => {
 
   const [transactionType, setTransactionType] = useState(WalletTransactionType.PrepaidCredits)
 
-  const { data: voidedInvoice } = useGetInvoiceStatusQuery({
+  const { data: voidedInvoice, loading: voidedInvoiceLoading } = useGetInvoiceStatusQuery({
     variables: {
       id: voidedInvoiceId as string,
     },
@@ -178,8 +179,16 @@ const CreateWalletTopUp = () => {
 
   const form = useAppForm({
     // Recomputed inline on every render: TanStack re-seeds an untouched form
-    // when defaults deep-change as the wallet query resolves.
-    defaultValues: mapFromApiToForm({ wallet }),
+    // when defaults deep-change as the wallet query resolves — the same
+    // mechanism prefills the PO number once the voided invoice resolves
+    // (regenerate flow: carry the voided invoice's PO over to the top-up).
+    // The reseed only lands while the form is untouched, so the form is not
+    // rendered until both queries resolve (see the skeleton gate below) —
+    // otherwise an early keystroke would silently drop the PO prefill.
+    defaultValues: mapFromApiToForm({
+      wallet,
+      purchaseOrderNumber: voidedInvoice?.invoice?.purchaseOrderNumber,
+    }),
     validationLogic: revalidateLogic(),
     validators: {
       onDynamic: validationSchema,
@@ -241,6 +250,12 @@ const CreateWalletTopUp = () => {
 
     form.setFieldValue('grantedCredits', '')
     form.setFieldValue('paidCredits', '')
+
+    // Free credits never generate an invoice, so a PO number set while in
+    // prepaid mode must not survive the switch.
+    if (type === WalletTransactionType.FreeCredits) {
+      form.setFieldValue('purchaseOrderNumber', undefined)
+    }
   }
 
   const navigateBack = useCallback(
@@ -323,13 +338,13 @@ const CreateWalletTopUp = () => {
           />
         </CenteredPage.Header>
 
-        {loading && !wallet && (
+        {((loading && !wallet) || voidedInvoiceLoading) && (
           <CenteredPage.Container>
             <FormLoadingSkeleton id="create-wallet" />
           </CenteredPage.Container>
         )}
 
-        {!loading && wallet && (
+        {!loading && wallet && !voidedInvoiceLoading && (
           <CenteredPage.Container>
             <CenteredPage.PageTitle
               title={translate('text_62e79671d23ae6ff149de924')}
@@ -524,6 +539,18 @@ const CreateWalletTopUp = () => {
                   })}
                 </Typography>
               </Alert>
+
+              {transactionType === WalletTransactionType.PrepaidCredits && (
+                <form.AppField name="purchaseOrderNumber">
+                  {(field) => (
+                    <PurchaseOrderFormBlock
+                      value={field.state.value}
+                      description={translate('text_1783511588872okv9237slg5')}
+                      onChange={(value) => field.handleChange(value)}
+                    />
+                  )}
+                </form.AppField>
+              )}
 
               <form.AppField name="priority">
                 {(field) => (

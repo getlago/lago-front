@@ -8,7 +8,10 @@ import { Chip } from '~/components/designSystem/Chip'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { ComboBox, ComboboxItem } from '~/components/form'
-import { SHOW_LIMIT_INPUT_DATA_TEST } from '~/components/wallets/utils/dataTestConstants'
+import {
+  SHOW_BILLABLE_METRIC_LIMIT_INPUT_DATA_TEST,
+  SHOW_LIMIT_INPUT_DATA_TEST,
+} from '~/components/wallets/utils/dataTestConstants'
 import {
   MUI_INPUT_BASE_ROOT_CLASSNAME,
   SEARCH_APPLIES_TO_BILLABLE_METRIC_CLASSNAME,
@@ -27,6 +30,12 @@ gql`
     code
   }
 
+  fragment SelectableBillableMetricForWalletScopeSection on SelectableBillableMetric {
+    id
+    name
+    code
+  }
+
   fragment WalletForScopeSection on Wallet {
     id
     appliesTo {
@@ -38,9 +47,9 @@ gql`
   }
 
   query getBillableMetricsForWallet($page: Int, $limit: Int, $searchTerm: String) {
-    billableMetrics(page: $page, limit: $limit, searchTerm: $searchTerm) {
+    selectableBillableMetrics(page: $page, limit: $limit, searchTerm: $searchTerm) {
       collection {
-        ...BillableMetricForWalletScopeSection
+        ...SelectableBillableMetricForWalletScopeSection
       }
       metadata {
         totalCount
@@ -100,9 +109,9 @@ export const ScopeSection = withForm({
     }, [appliedFeeTypes, translate])
 
     const comboboxBillableMetricsData = useMemo(() => {
-      if (!billableMetricsData?.billableMetrics?.collection?.length) return []
+      if (!billableMetricsData?.selectableBillableMetrics?.collection?.length) return []
 
-      return billableMetricsData?.billableMetrics?.collection.map((billableMetric) => {
+      return billableMetricsData?.selectableBillableMetrics?.collection.map((billableMetric) => {
         const { id, name, code } = billableMetric
 
         return {
@@ -121,7 +130,7 @@ export const ScopeSection = withForm({
           disabled: appliedBillableMetrics?.some((bm) => bm.id === id) || false,
         }
       })
-    }, [billableMetricsData?.billableMetrics?.collection, appliedBillableMetrics])
+    }, [billableMetricsData?.selectableBillableMetrics?.collection, appliedBillableMetrics])
 
     const hasSelectedAllFeeTypes = useMemo(
       () => appliedFeeTypes?.length === Object.keys(availableFeeTypesTranslation).length,
@@ -277,7 +286,9 @@ export const ScopeSection = withForm({
                 onChange={(value: string) => {
                   if (!!value) {
                     const addedBillableMetric =
-                      billableMetricsData?.billableMetrics?.collection.find((b) => b.id === value)
+                      billableMetricsData?.selectableBillableMetrics?.collection.find(
+                        (b) => b.id === value,
+                      )
 
                     if (addedBillableMetric) {
                       form.setFieldValue('appliesTo.billableMetrics', [
@@ -313,6 +324,7 @@ export const ScopeSection = withForm({
                   selector: `.${SEARCH_APPLIES_TO_BILLABLE_METRIC_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
                 })
               }}
+              data-test={SHOW_BILLABLE_METRIC_LIMIT_INPUT_DATA_TEST}
             >
               {translate('text_17532150168286lki5kmbqfo')}
             </Button>

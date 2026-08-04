@@ -21,17 +21,15 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { endOfDayIso } from '~/core/utils/dateUtils'
 import { scrollToTop } from '~/core/utils/domUtils'
 import {
-  BillableMetricsForCouponsFragment,
   CouponExpiration,
   CouponFrequency,
   CouponTypeEnum,
   CreateCouponInput,
   CurrencyEnum,
-  PlansForCouponsFragment,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
-import { useCreateEditCoupon } from '~/hooks/useCreateEditCoupon'
+import { CouponLimitItem, useCreateEditCoupon } from '~/hooks/useCreateEditCoupon'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { useAddBillableMetricToCouponDialog } from '~/pages/createCoupon/dialogs/AddBillableMetricToCouponDialog'
 import { useAddPlanToCouponDialog } from '~/pages/createCoupon/dialogs/AddPlanToCouponDialog'
@@ -122,14 +120,14 @@ const CreateCoupon = () => {
   // Get all form values for the code snippet
   const formValues = useStore(form.store, (state) => state.values)
 
-  const attachPlanToCoupon = (plan: PlansForCouponsFragment) => {
+  const attachPlanToCoupon = (plan: CouponLimitItem) => {
     if (limitPlansList.length === 0) {
       form.setFieldValue('hasBillableMetricLimit', false)
     }
     form.setFieldValue('limitPlansList', [...limitPlansList, plan])
   }
 
-  const attachBillableMetricToCoupon = (billableMetric: BillableMetricsForCouponsFragment) => {
+  const attachBillableMetricToCoupon = (billableMetric: CouponLimitItem) => {
     if (limitBillableMetricsList.length === 0) {
       form.setFieldValue('hasPlanLimit', false)
     }

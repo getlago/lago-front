@@ -2,16 +2,16 @@ import { gql } from '@apollo/client'
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
+import { usePageSearchParam } from '~/components/designSystem/Pagination'
+import { useExportDialog } from '~/components/exports/ExportDialog'
+import { ExportValues } from '~/components/exports/types'
 import {
   AvailableFiltersEnum,
   AvailableQuickFilters,
   Filters,
   formatFiltersForInvoiceQuery,
   isOutstandingUrlParams,
-} from '~/components/designSystem/Filters'
-import { usePageSearchParam } from '~/components/designSystem/Pagination'
-import { useExportDialog } from '~/components/exports/ExportDialog'
-import { ExportValues } from '~/components/exports/types'
+} from '~/components/Filters'
 import InvoicesList from '~/components/invoices/InvoicesList'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
@@ -50,6 +50,7 @@ gql`
     $paymentDisputeLost: Boolean
     $paymentOverdue: Boolean
     $paymentStatus: [InvoicePaymentStatusTypeEnum!]
+    $purchaseOrderNumber: String
     $searchTerm: String
     $settlements: [InvoiceSettlementTypeEnum!]
     $status: [InvoiceStatusTypeEnum!]
@@ -70,6 +71,7 @@ gql`
       paymentDisputeLost: $paymentDisputeLost
       paymentOverdue: $paymentOverdue
       paymentStatus: $paymentStatus
+      purchaseOrderNumber: $purchaseOrderNumber
       searchTerm: $searchTerm
       settlements: $settlements
       status: $status
@@ -294,6 +296,7 @@ const InvoicesPage = () => {
               AvailableFiltersEnum.paymentDisputeLost,
               AvailableFiltersEnum.paymentOverdue,
               AvailableFiltersEnum.settlementType,
+              AvailableFiltersEnum.purchaseOrderNumber,
               ...(hasAccessToRevenueShare ? [AvailableFiltersEnum.selfBilled] : []),
             ]}
           >

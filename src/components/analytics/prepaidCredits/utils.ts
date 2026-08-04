@@ -1,6 +1,6 @@
 import { DateTime, DateTimeUnit, Duration, DurationUnit, Interval } from 'luxon'
 
-import { AvailableFiltersEnum, getFilterValue } from '~/components/designSystem/Filters'
+import { AvailableFiltersEnum, getFilterValue } from '~/components/Filters'
 import { PREPAID_CREDITS_OVERVIEW_FILTER_PREFIX } from '~/core/constants/filters'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { getCurrencyPrecision } from '~/core/serializers/serializeAmount'

@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { generatePath, useSearchParams } from 'react-router-dom'
 
-import { formatFiltersForOrdersQuery } from '~/components/designSystem/Filters'
+import { formatFiltersForOrdersQuery } from '~/components/Filters'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { EXECUTE_ORDER_ROUTE, ORDER_DETAILS_ROUTE } from '~/core/router'
 import { OrderListItemFragment, OrderStatusEnum } from '~/generated/graphql'
