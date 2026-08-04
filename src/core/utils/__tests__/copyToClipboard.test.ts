@@ -31,6 +31,14 @@ describe('copyToClipboard', () => {
     )
   })
 
+  it('should keep comments when ignoreComment is false', () => {
+    const value = `# comment
+    the text that needs to be copied`
+
+    copyToClipboard(value, { ignoreComment: false })
+    expect(window.navigator.clipboard.writeText).toHaveBeenCalledWith(value)
+  })
+
   it('should be able to copy when navigator.clipboard is not available', () => {
     // Mock navigator.clipboard to throw error
     const originalClipboard = { ...navigator.clipboard }

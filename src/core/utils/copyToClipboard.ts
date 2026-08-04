@@ -34,9 +34,9 @@ const notifyCopyFailure = (): void => {
 
 export const copyToClipboard: (value: string, options?: { ignoreComment?: boolean }) => void = (
   value,
-  ignoreComment,
+  options,
 ) => {
-  const serializedValue = ignoreComment ? filterComment(value) : value
+  const serializedValue = options?.ignoreComment ? filterComment(value) : value
 
   try {
     // `writeText` rejects asynchronously — with a NotAllowedError when the document is not
