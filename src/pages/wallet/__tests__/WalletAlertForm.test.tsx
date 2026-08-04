@@ -8,10 +8,11 @@ import {
   WALLET_ALERT_TYPE_COMBOBOX_DATA_TEST,
 } from '~/components/wallets/utils/dataTestConstants'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { AlertTypeEnum } from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
-import WalletAlertForm from '../WalletAlertForm'
+import WalletAlertForm, { WALLET_ALERT_FORM_ID } from '../WalletAlertForm'
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -23,6 +24,11 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
     organization: { id: 'org-1', defaultCurrency: 'USD' },
   }),
+}))
+
+// jsdom has no scrollIntoView, and the scroll target is out of scope here
+jest.mock('~/core/form/scrollToFirstInputError', () => ({
+  scrollToFirstInputError: jest.fn(),
 }))
 
 // The combobox list is virtualized, so jsdom renders no option. Swap the field
@@ -411,6 +417,22 @@ describe('WalletAlertForm', () => {
           expect(screen.getByTestId(SUBMIT_WALLET_ALERT_DATA_TEST)).toBeDisabled()
         })
         expect(mockCreateWalletAlert).not.toHaveBeenCalled()
+      })
+
+      it('THEN should scroll to the first field in error', async () => {
+        const user = userEvent.setup()
+
+        mockLoadedQueries()
+        render(<WalletAlertForm />)
+
+        await user.click(screen.getByTestId(SUBMIT_WALLET_ALERT_DATA_TEST))
+
+        await waitFor(() => {
+          expect(scrollToFirstInputError).toHaveBeenCalledWith(
+            WALLET_ALERT_FORM_ID,
+            expect.any(Object),
+          )
+        })
       })
     })
 

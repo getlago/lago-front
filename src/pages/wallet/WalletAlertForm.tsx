@@ -15,6 +15,7 @@ import {
   WALLET_ALERT_TYPE_COMBOBOX_DATA_TEST,
 } from '~/components/wallets/utils/dataTestConstants'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { useNavigate, WALLET_DETAILS_ROUTE } from '~/core/router'
 import { formatCodeFromName } from '~/core/utils/formatCodeFromName'
 import {
@@ -44,7 +45,7 @@ import { walletAlertValidationSchema } from '~/pages/wallet/walletAlertForm/vali
 import { WalletDetailsTabsOptionsEnum } from '~/pages/wallet/WalletDetails'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
-const WALLET_ALERT_FORM_ID = 'create-wallet-alert'
+export const WALLET_ALERT_FORM_ID = 'create-wallet-alert'
 
 gql`
   query getWalletAlertToEdit($id: ID!) {
@@ -168,6 +169,9 @@ const WalletAlertForm = () => {
     validationLogic: revalidateLogic(),
     validators: {
       onDynamic: walletAlertValidationSchema,
+    },
+    onSubmitInvalid({ formApi }) {
+      scrollToFirstInputError(WALLET_ALERT_FORM_ID, formApi.state.errorMap.onDynamic || {})
     },
     onSubmit: async ({ value, formApi }) => {
       const { alertType } = value
