@@ -32,7 +32,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePlanFormSetup } from '~/hooks/plans/usePlanFormSetup'
 import type { QuoteCustomer } from '~/pages/quotes/hooks/useSubscriptionPricingDrawer'
 
-import { useInvoicingPaymentsSettingsDrawer } from './useInvoicingPaymentsSettingsDrawer'
+import { QuoteInvoicingPaymentsSettings } from './QuoteInvoicingPaymentsSettings'
 import { useQuotePlanSettingsDrawer } from './useQuotePlanSettingsDrawer'
 import { useSubscriptionSettingsDrawer } from './useSubscriptionSettingsDrawer'
 
@@ -119,11 +119,7 @@ export function SubscriptionPricingContent({
     (values) => setSubscriptionSettings(values),
     !!subscriptionId,
   )
-  const invoicingSettingsDrawer = useInvoicingPaymentsSettingsDrawer(
-    (values) => setInvoicingSettings(values),
-    customer,
-  )
-  const showInvoicingSection = invoicingSettingsDrawer.showSection
+  const showInvoicingSection = Boolean(customer?.externalId || customer?.id)
   const planSettingsDrawer = useQuotePlanSettingsDrawer(planForm)
 
   // Subscription fee drawer (grouped with plan settings section)
@@ -231,8 +227,6 @@ export function SubscriptionPricingContent({
   // Drawer open handlers
   const openSubscriptionSettings = () => subscriptionSettingsDrawer.openDrawer(subscriptionSettings)
 
-  const openInvoicingSettings = () => invoicingSettingsDrawer.openDrawer(invoicingSettings)
-
   const openPlanSettings = () => planSettingsDrawer.openDrawer()
 
   const openSubscriptionFeeDrawer = () =>
@@ -297,21 +291,13 @@ export function SubscriptionPricingContent({
             />
           </CenteredPage.PageSection>
 
-          {/* 3. Invoicing & payments settings (feature-flagged) */}
-          {showInvoicingSection && (
-            <CenteredPage.PageSection>
-              <CenteredPage.PageSectionTitle
-                title={translate('text_17791987800309g2j0x3t2n0')}
-                description={translate('text_1781099100337xfqzt0jxvj5')}
-              />
-              <Selector
-                icon="receipt"
-                title={translate('text_17791987800309g2j0x3t2n0')}
-                endContent={buildEndContent()}
-                hoverActions={buildHoverActions(openInvoicingSettings)}
-                onClick={openInvoicingSettings}
-              />
-            </CenteredPage.PageSection>
+          {/* 3. Invoicing & payments settings */}
+          {showInvoicingSection && customer && (
+            <QuoteInvoicingPaymentsSettings
+              customer={customer}
+              value={invoicingSettings}
+              onChange={setInvoicingSettings}
+            />
           )}
 
           {/* 4. Plan settings + Subscription fee */}

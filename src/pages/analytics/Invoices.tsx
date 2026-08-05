@@ -4,18 +4,18 @@ import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
-import {
-  AnalyticsInvoicesAvailableFilters,
-  buildUrlForInvoicesWithFilters,
-  Filters,
-  formatFiltersForAnalyticsInvoicesQuery,
-} from '~/components/designSystem/Filters'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import InlineBarsChart from '~/components/designSystem/graphs/InlineBarsChart'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
+import {
+  AnalyticsInvoicesAvailableFilters,
+  buildUrlForInvoicesWithFilters,
+  Filters,
+  formatFiltersForAnalyticsInvoicesQuery,
+} from '~/components/Filters'
 import {
   AnalyticsPeriodScopeEnum,
   TPeriodScopeTranslationLookupValue,
@@ -96,9 +96,6 @@ gql`
     }
   }
 `
-
-export type TInvoiceCollectionsDataResult =
-  GetInvoiceCollectionsForAnalyticsQuery['invoiceCollections']['collection']
 
 const GRAPH_COLORS = [
   theme.palette.success[400],

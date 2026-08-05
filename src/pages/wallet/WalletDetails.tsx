@@ -4,10 +4,11 @@ import { generatePath, useParams } from 'react-router-dom'
 
 import { ButtonLink } from '~/components/designSystem/ButtonLink'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
+import { StatusType } from '~/components/designSystem/Status'
 import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import { MainHeaderAction } from '~/components/MainHeader/types'
+import { MainHeaderAction, MainHeaderEntityConfig } from '~/components/MainHeader/types'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import WalletAlerts from '~/components/wallets/WalletAlerts'
 import WalletInformations from '~/components/wallets/WalletInformations'
@@ -25,6 +26,7 @@ import { getCustomerDisplayName } from '~/core/utils/getCustomerDisplayName'
 import {
   useGetWalletDetailsQuery,
   WalletInfosForTransactionsFragmentDoc,
+  WalletStatusEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -53,6 +55,7 @@ gql`
     ongoingBalanceCents
     creditsOngoingBalance
     priority
+    purchaseOrderNumber
     paidTopUpMinAmountCents
     paidTopUpMinCredits
     paidTopUpMaxAmountCents
@@ -119,6 +122,7 @@ gql`
         id
         name
       }
+      purchaseOrderNumber
     }
 
     ...WalletInfosForTransactions
@@ -190,6 +194,17 @@ const WalletDetails = () => {
     createdAt: intlFormatDateTimeOrgaTZ(wallet?.createdAt).date,
   })
 
+  // A terminated wallet is read-only, so every write entry point (edit wallet, create
+  // alert) is hidden the same way the wallet actions menu is (see WalletActions), and the
+  // terminated status is surfaced as a header badge since the page otherwise never shows it.
+  const isWalletActive = wallet?.status === WalletStatusEnum.Active
+  const canEditWallet = hasPermissions(['walletsUpdate']) && isWalletActive
+
+  const headerBadges: MainHeaderEntityConfig['badges'] =
+    wallet?.status === WalletStatusEnum.Terminated
+      ? [{ type: StatusType.danger, label: translate('text_62e2a2f2a79d60429eff3035') }]
+      : []
+
   // The MainHeader config snapshot strips the tabs' `content` ReactNode, so a balance
   // change alone would not re-push the config and the header would keep stale values.
   // Bumping this key on balance changes forces the fresh content through (credits fields
@@ -218,7 +233,7 @@ const WalletDetails = () => {
               description={translate('text_177304332434241ihblh0jyp')}
               action={
                 <>
-                  {hasPermissions(['walletsUpdate']) && (
+                  {canEditWallet && (
                     <ButtonLink
                       buttonProps={{
                         variant: 'quaternary',
@@ -255,7 +270,7 @@ const WalletDetails = () => {
               description={translate('text_1783584917380so6uufk82e0')}
               action={
                 <>
-                  {hasPermissions(['walletsUpdate']) && (
+                  {canEditWallet && (
                     <ButtonLink
                       buttonProps={{
                         variant: 'quaternary',
@@ -310,7 +325,7 @@ const WalletDetails = () => {
               description={translate('text_1773043324342mrttreav4qk')}
               action={
                 <>
-                  {hasPermissions(['walletsUpdate']) && (
+                  {canEditWallet && (
                     <ButtonLink
                       buttonProps={{
                         variant: 'quaternary',
@@ -334,7 +349,7 @@ const WalletDetails = () => {
         ),
       },
     ]
-  }, [translate, walletId, customerId, wallet, loading, hasPermissions])
+  }, [translate, walletId, customerId, wallet, loading, canEditWallet])
 
   const headerActions: MainHeaderAction[] = [
     {
@@ -384,6 +399,7 @@ const WalletDetails = () => {
           viewNameLoading: loading,
           metadata: wallet?.id || '',
           metadataLoading: loading,
+          badges: headerBadges,
         }}
         actions={{ items: headerActions, loading }}
         tabs={tabs}

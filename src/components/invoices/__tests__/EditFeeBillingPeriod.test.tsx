@@ -151,21 +151,43 @@ describe('useEditFeeBillingPeriodDialog', () => {
 
         expect(callback).toHaveBeenCalledWith(FROM_DATETIME, TO_DATETIME)
       })
+
+      it('THEN should report the submit as successful so the dialog can close', async () => {
+        let didSubmitSucceed: boolean | undefined
+
+        mockFormDialogOpen.mockImplementation(async (config) => {
+          await config.form.submit()
+          didSubmitSucceed = config.form.didSubmitSucceed?.()
+
+          return { reason: 'success' }
+        })
+
+        const { result } = renderHook(() => useEditFeeBillingPeriodDialog(), {
+          wrapper: customWrapper,
+        })
+
+        await act(async () => {
+          result.current.openEditFeeBillingPeriodDialog({
+            fromDatetime: FROM_DATETIME,
+            toDatetime: TO_DATETIME,
+            callback: jest.fn(),
+          })
+        })
+
+        expect(didSubmitSucceed).toBe(true)
+      })
     })
 
     describe('WHEN the to datetime is before the from datetime', () => {
-      it('THEN should not invoke the callback and should throw to keep the dialog open', async () => {
+      it('THEN should not invoke the callback and should report the submit as unsuccessful', async () => {
         const callback = jest.fn()
-        let submitThrew = false
+        let didSubmitSucceed: boolean | undefined
 
-        // Mirror FormDialog's handleContinue: it wraps form.submit() in try/catch,
-        // and with closeOnError: false a throw keeps the dialog open.
+        // Mirror FormDialog's handleContinue: it awaits form.submit(), then asks
+        // didSubmitSucceed whether the dialog may close.
         mockFormDialogOpen.mockImplementation(async (config) => {
-          try {
-            await config.form.submit()
-          } catch {
-            submitThrew = true
-          }
+          await config.form.submit()
+          didSubmitSucceed = config.form.didSubmitSucceed?.()
 
           return { reason: 'close' }
         })
@@ -183,7 +205,7 @@ describe('useEditFeeBillingPeriodDialog', () => {
         })
 
         expect(callback).not.toHaveBeenCalled()
-        expect(submitThrew).toBe(true)
+        expect(didSubmitSucceed).toBe(false)
       })
     })
   })

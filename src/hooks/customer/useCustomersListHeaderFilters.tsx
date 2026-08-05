@@ -5,7 +5,7 @@ import {
   AvailableQuickFilters,
   CustomerAvailableFilters,
   Filters,
-} from '~/components/designSystem/Filters'
+} from '~/components/Filters'
 import { SearchInput } from '~/components/SearchInput'
 import { CUSTOMER_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'

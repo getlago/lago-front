@@ -1,8 +1,8 @@
 import { DateTime, DateTimeUnit, Duration, DurationUnit, Interval } from 'luxon'
 
-import { AvailableFiltersEnum, getFilterValue } from '~/components/designSystem/Filters'
 import { AreaChartDataType } from '~/components/designSystem/graphs/types'
 import { getItemDateFormatedByTimeGranularity } from '~/components/designSystem/graphs/utils'
+import { AvailableFiltersEnum, getFilterValue } from '~/components/Filters'
 import { ANALYTICS_USAGE_OVERVIEW_FILTER_PREFIX } from '~/core/constants/filters'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'

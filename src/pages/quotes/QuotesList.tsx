@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { generatePath, useSearchParams } from 'react-router-dom'
 
-import { formatFiltersForQuotesQuery } from '~/components/designSystem/Filters'
+import { formatFiltersForQuotesQuery } from '~/components/Filters'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { QuoteDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { QUOTE_DETAILS_ROUTE } from '~/core/router'

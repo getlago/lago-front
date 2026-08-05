@@ -3,15 +3,15 @@ import { useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
-import {
-  Filters,
-  formatFiltersForMrrPlansQuery,
-  MrrBreakdownPlansAvailableFilters,
-} from '~/components/designSystem/Filters'
 import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
+import {
+  Filters,
+  formatFiltersForMrrPlansQuery,
+  MrrBreakdownPlansAvailableFilters,
+} from '~/components/Filters'
 import { MRR_BREAKDOWN_PLANS_FILTER_PREFIX } from '~/core/constants/filters'
 import { getIntervalTranslationKey } from '~/core/constants/form'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'

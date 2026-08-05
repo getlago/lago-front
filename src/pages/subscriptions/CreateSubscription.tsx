@@ -21,6 +21,7 @@ import { SubscriptionFeeSection } from '~/components/plans/SubscriptionFeeSectio
 import { LocalUsageChargeInput } from '~/components/plans/types'
 import { UsageChargesSection } from '~/components/plans/UsageChargesSection'
 import PremiumFeature from '~/components/premium/PremiumFeature'
+import { normalizePurchaseOrderNumber } from '~/components/purchaseOrder/PO'
 import { FeatureEntitlementSection } from '~/components/subscriptions/FeatureEntitlementSection'
 import { buildSubscriptionDefaultValues } from '~/components/subscriptions/form/buildSubscriptionDefaultValues'
 import { InvoicingSettingsSection } from '~/components/subscriptions/form/InvoicingSettingsSection'
@@ -166,6 +167,7 @@ const CreateSubscription = () => {
           activationRuleType,
         }),
         invoiceCustomSection: toInvoiceCustomSectionReference(invoiceCustomSection),
+        purchaseOrderNumber: normalizePurchaseOrderNumber(value.purchaseOrderNumber),
       }
       const rootElement = document.getElementById('root')
       const errorsString = await onSave(

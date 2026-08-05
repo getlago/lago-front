@@ -103,19 +103,17 @@ jest.mock('~/hooks/plans/usePlanFormSetup', () => {
 
 // Mock hook-based drawers with spies
 const mockOpenSubscriptionSettings = jest.fn()
-const mockOpenInvoicingSettings = jest.fn()
 const mockOpenPlanSettings = jest.fn()
-let mockShowInvoicingSection = false
 
 jest.mock('../useSubscriptionSettingsDrawer', () => ({
   useSubscriptionSettingsDrawer: () => ({ openDrawer: mockOpenSubscriptionSettings }),
 }))
 
-jest.mock('../useInvoicingPaymentsSettingsDrawer', () => ({
-  useInvoicingPaymentsSettingsDrawer: () => ({
-    openDrawer: mockOpenInvoicingSettings,
-    showSection: mockShowInvoicingSection,
-  }),
+// Mock the new invoicing/payments settings component with a visibility marker.
+jest.mock('../QuoteInvoicingPaymentsSettings', () => ({
+  QuoteInvoicingPaymentsSettings: () => (
+    <div data-test="quote-invoicing-payments-settings">Invoicing & payments</div>
+  ),
 }))
 
 jest.mock('../useQuotePlanSettingsDrawer', () => ({
@@ -148,9 +146,7 @@ jest.mock('~/components/plans/drawers/subscriptionFee/SubscriptionFeeDrawer', ()
 describe('SubscriptionPricingContent', () => {
   beforeEach(() => {
     mockFormOverrides = {}
-    mockShowInvoicingSection = false
     mockOpenSubscriptionSettings.mockClear()
-    mockOpenInvoicingSettings.mockClear()
     mockOpenPlanSettings.mockClear()
   })
 
@@ -366,22 +362,39 @@ describe('SubscriptionPricingContent', () => {
     })
   })
 
-  describe('GIVEN showInvoicingSection is true', () => {
-    it('WHEN a plan is selected THEN the invoicing & payments section is rendered', async () => {
-      mockShowInvoicingSection = true
+  describe('GIVEN a customer is provided', () => {
+    const initialState: SubscriptionPricingState = {
+      planId: 'plan_1',
+      planCode: 'starter',
+      planName: 'Starter',
+      planDescription: '',
+      subscriptionSettings: DEFAULT_SUBSCRIPTION_SETTINGS,
+      invoicingSettings: DEFAULT_INVOICING_SETTINGS,
+      overrides: {},
+    }
+    const mockCustomer = { id: 'cust-1', externalId: 'ext-1', name: 'Acme' }
 
+    it('WHEN a plan is selected THEN the invoicing & payments component is rendered', async () => {
       const stateRef = { current: null as SubscriptionPricingState | null }
       const formValuesRef = { current: null as PlanFormInput | null }
 
-      const initialState: SubscriptionPricingState = {
-        planId: 'plan_1',
-        planCode: 'starter',
-        planName: 'Starter',
-        planDescription: '',
-        subscriptionSettings: DEFAULT_SUBSCRIPTION_SETTINGS,
-        invoicingSettings: DEFAULT_INVOICING_SETTINGS,
-        overrides: {},
-      }
+      await act(() =>
+        render(
+          <SubscriptionPricingContent
+            stateRef={stateRef}
+            formValuesRef={formValuesRef}
+            initialState={initialState}
+            customer={mockCustomer}
+          />,
+        ),
+      )
+
+      expect(screen.getByTestId('quote-invoicing-payments-settings')).toBeInTheDocument()
+    })
+
+    it('WHEN no customer is provided THEN the invoicing & payments component is hidden', async () => {
+      const stateRef = { current: null as SubscriptionPricingState | null }
+      const formValuesRef = { current: null as PlanFormInput | null }
 
       await act(() =>
         render(
@@ -393,12 +406,7 @@ describe('SubscriptionPricingContent', () => {
         ),
       )
 
-      // Line 358: showInvoicingSection conditional — the invoicing selector has icon="receipt"
-      // Count the Selector buttons: subscription settings, invoicing, plan settings, subscription fee = 4
-      const selectorButtons = screen.getAllByRole('button')
-
-      // The invoicing section title text appears when showSection is true (line 297)
-      expect(selectorButtons.length).toBeGreaterThanOrEqual(4)
+      expect(screen.queryByTestId('quote-invoicing-payments-settings')).not.toBeInTheDocument()
     })
   })
 
@@ -442,37 +450,6 @@ describe('SubscriptionPricingContent', () => {
       await user.click(subscriptionSettingsSelector as HTMLElement)
 
       expect(mockOpenSubscriptionSettings).toHaveBeenCalledWith(DEFAULT_SUBSCRIPTION_SETTINGS)
-    })
-
-    it('WHEN clicking the invoicing settings selector THEN opens the invoicing settings drawer', async () => {
-      mockShowInvoicingSection = true
-      const user = userEvent.setup()
-      const stateRef = { current: null as SubscriptionPricingState | null }
-      const formValuesRef = { current: null as PlanFormInput | null }
-
-      await act(() =>
-        render(
-          <SubscriptionPricingContent
-            stateRef={stateRef}
-            formValuesRef={formValuesRef}
-            initialState={initialState}
-          />,
-        ),
-      )
-
-      // Find all clickable Selector divs (div[role="button"][tabindex="0"])
-      const allButtons = screen.getAllByRole('button')
-      const clickableSelectors = allButtons.filter(
-        (el) => el.tagName === 'DIV' && el.getAttribute('tabindex') === '0',
-      )
-
-      // With invoicing section visible: subscription settings (0), invoicing (1), plan settings (2), subscription fee (3)
-      const invoicingSelector = clickableSelectors[1]
-
-      expect(invoicingSelector).toBeDefined()
-      await user.click(invoicingSelector)
-
-      expect(mockOpenInvoicingSettings).toHaveBeenCalledWith(DEFAULT_INVOICING_SETTINGS)
     })
   })
 

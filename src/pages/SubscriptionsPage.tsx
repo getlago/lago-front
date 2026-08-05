@@ -4,15 +4,15 @@ import { useMemo, useState } from 'react'
 import { generatePath, useSearchParams } from 'react-router-dom'
 
 import { BillingEntityLabel } from '~/components/billingEntity/BillingEntityLabel'
+import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
+import { Status, StatusType } from '~/components/designSystem/Status'
+import { Typography } from '~/components/designSystem/Typography'
 import {
   AvailableFiltersEnum,
   Filters,
   formatFiltersForSubscriptionQuery,
   SubscriptionAvailableFilters,
-} from '~/components/designSystem/Filters'
-import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
-import { Status, StatusType } from '~/components/designSystem/Status'
-import { Typography } from '~/components/designSystem/Typography'
+} from '~/components/Filters'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'

@@ -203,6 +203,10 @@ const RecurringRuleBlock = ({
               label: translate('text_1772536695408pz0actopowa'),
               value: rule.expirationAt ? intlFormatDateTimeOrgaTZ(rule.expirationAt)?.date : '-',
             },
+            {
+              label: translate('text_17822197712865r9iwe3lgel'),
+              value: rule.purchaseOrderNumber || '-',
+            },
           ]}
         />
 
