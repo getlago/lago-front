@@ -11767,6 +11767,62 @@ export type IntegrationsListForCustomerMainInfosQuery = { __typename?: 'Query', 
       | { __typename: 'XeroIntegration', id: string, name: string }
     > } | null };
 
+export type CreateCustomerPaymentConnectionMutationVariables = Exact<{
+  input: CreatePaymentProviderCustomerInput;
+}>;
+
+
+export type CreateCustomerPaymentConnectionMutation = { __typename?: 'Mutation', createPaymentProviderCustomer?: { __typename?: 'ProviderCustomer', id: string } | null };
+
+export type UpdateCustomerPaymentConnectionMutationVariables = Exact<{
+  input: UpdatePaymentProviderCustomerInput;
+}>;
+
+
+export type UpdateCustomerPaymentConnectionMutation = { __typename?: 'Mutation', updatePaymentProviderCustomer?: { __typename?: 'ProviderCustomer', id: string } | null };
+
+export type DestroyCustomerPaymentConnectionMutationVariables = Exact<{
+  input: DestroyPaymentProviderCustomerInput;
+}>;
+
+
+export type DestroyCustomerPaymentConnectionMutation = { __typename?: 'Mutation', destroyPaymentProviderCustomer?: { __typename?: 'DestroyPaymentProviderCustomerPayload', id?: string | null } | null };
+
+export type CreateCustomerIntegrationConnectionMutationVariables = Exact<{
+  input: CreateIntegrationCustomerInput;
+}>;
+
+
+export type CreateCustomerIntegrationConnectionMutation = { __typename?: 'Mutation', createIntegrationCustomer?:
+    | { __typename: 'AnrokCustomer' }
+    | { __typename: 'AvalaraCustomer' }
+    | { __typename: 'HubspotCustomer' }
+    | { __typename: 'NetsuiteCustomer' }
+    | { __typename: 'SalesforceCustomer' }
+    | { __typename: 'XeroCustomer' }
+   | null };
+
+export type UpdateCustomerIntegrationConnectionMutationVariables = Exact<{
+  input: UpdateIntegrationCustomerInput;
+}>;
+
+
+export type UpdateCustomerIntegrationConnectionMutation = { __typename?: 'Mutation', updateIntegrationCustomer?:
+    | { __typename: 'AnrokCustomer' }
+    | { __typename: 'AvalaraCustomer' }
+    | { __typename: 'HubspotCustomer' }
+    | { __typename: 'NetsuiteCustomer' }
+    | { __typename: 'SalesforceCustomer' }
+    | { __typename: 'XeroCustomer' }
+   | null };
+
+export type DestroyCustomerIntegrationConnectionMutationVariables = Exact<{
+  input: DestroyIntegrationCustomerInput;
+}>;
+
+
+export type DestroyCustomerIntegrationConnectionMutation = { __typename?: 'Mutation', destroyIntegrationCustomer?: { __typename?: 'DestroyIntegrationCustomerPayload', id?: string | null } | null };
+
 export type CreditNoteForVoidCreditNoteDialogFragment = { __typename?: 'CreditNote', id: string, totalAmountCents: any, currency: CurrencyEnum };
 
 export type VoidCreditNoteMutationVariables = Exact<{
@@ -25951,6 +26007,204 @@ export type IntegrationsListForCustomerMainInfosQueryHookResult = ReturnType<typ
 export type IntegrationsListForCustomerMainInfosLazyQueryHookResult = ReturnType<typeof useIntegrationsListForCustomerMainInfosLazyQuery>;
 export type IntegrationsListForCustomerMainInfosSuspenseQueryHookResult = ReturnType<typeof useIntegrationsListForCustomerMainInfosSuspenseQuery>;
 export type IntegrationsListForCustomerMainInfosQueryResult = Apollo.QueryResult<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>;
+export const CreateCustomerPaymentConnectionDocument = gql`
+    mutation createCustomerPaymentConnection($input: CreatePaymentProviderCustomerInput!) {
+  createPaymentProviderCustomer(input: $input) {
+    id
+  }
+}
+    `;
+export type CreateCustomerPaymentConnectionMutationFn = Apollo.MutationFunction<CreateCustomerPaymentConnectionMutation, CreateCustomerPaymentConnectionMutationVariables>;
+
+/**
+ * __useCreateCustomerPaymentConnectionMutation__
+ *
+ * To run a mutation, you first call `useCreateCustomerPaymentConnectionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateCustomerPaymentConnectionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createCustomerPaymentConnectionMutation, { data, loading, error }] = useCreateCustomerPaymentConnectionMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateCustomerPaymentConnectionMutation(baseOptions?: Apollo.MutationHookOptions<CreateCustomerPaymentConnectionMutation, CreateCustomerPaymentConnectionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateCustomerPaymentConnectionMutation, CreateCustomerPaymentConnectionMutationVariables>(CreateCustomerPaymentConnectionDocument, options);
+      }
+export type CreateCustomerPaymentConnectionMutationHookResult = ReturnType<typeof useCreateCustomerPaymentConnectionMutation>;
+export type CreateCustomerPaymentConnectionMutationResult = Apollo.MutationResult<CreateCustomerPaymentConnectionMutation>;
+export type CreateCustomerPaymentConnectionMutationOptions = Apollo.BaseMutationOptions<CreateCustomerPaymentConnectionMutation, CreateCustomerPaymentConnectionMutationVariables>;
+export const UpdateCustomerPaymentConnectionDocument = gql`
+    mutation updateCustomerPaymentConnection($input: UpdatePaymentProviderCustomerInput!) {
+  updatePaymentProviderCustomer(input: $input) {
+    id
+  }
+}
+    `;
+export type UpdateCustomerPaymentConnectionMutationFn = Apollo.MutationFunction<UpdateCustomerPaymentConnectionMutation, UpdateCustomerPaymentConnectionMutationVariables>;
+
+/**
+ * __useUpdateCustomerPaymentConnectionMutation__
+ *
+ * To run a mutation, you first call `useUpdateCustomerPaymentConnectionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCustomerPaymentConnectionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCustomerPaymentConnectionMutation, { data, loading, error }] = useUpdateCustomerPaymentConnectionMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateCustomerPaymentConnectionMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCustomerPaymentConnectionMutation, UpdateCustomerPaymentConnectionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateCustomerPaymentConnectionMutation, UpdateCustomerPaymentConnectionMutationVariables>(UpdateCustomerPaymentConnectionDocument, options);
+      }
+export type UpdateCustomerPaymentConnectionMutationHookResult = ReturnType<typeof useUpdateCustomerPaymentConnectionMutation>;
+export type UpdateCustomerPaymentConnectionMutationResult = Apollo.MutationResult<UpdateCustomerPaymentConnectionMutation>;
+export type UpdateCustomerPaymentConnectionMutationOptions = Apollo.BaseMutationOptions<UpdateCustomerPaymentConnectionMutation, UpdateCustomerPaymentConnectionMutationVariables>;
+export const DestroyCustomerPaymentConnectionDocument = gql`
+    mutation destroyCustomerPaymentConnection($input: DestroyPaymentProviderCustomerInput!) {
+  destroyPaymentProviderCustomer(input: $input) {
+    id
+  }
+}
+    `;
+export type DestroyCustomerPaymentConnectionMutationFn = Apollo.MutationFunction<DestroyCustomerPaymentConnectionMutation, DestroyCustomerPaymentConnectionMutationVariables>;
+
+/**
+ * __useDestroyCustomerPaymentConnectionMutation__
+ *
+ * To run a mutation, you first call `useDestroyCustomerPaymentConnectionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDestroyCustomerPaymentConnectionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [destroyCustomerPaymentConnectionMutation, { data, loading, error }] = useDestroyCustomerPaymentConnectionMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDestroyCustomerPaymentConnectionMutation(baseOptions?: Apollo.MutationHookOptions<DestroyCustomerPaymentConnectionMutation, DestroyCustomerPaymentConnectionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DestroyCustomerPaymentConnectionMutation, DestroyCustomerPaymentConnectionMutationVariables>(DestroyCustomerPaymentConnectionDocument, options);
+      }
+export type DestroyCustomerPaymentConnectionMutationHookResult = ReturnType<typeof useDestroyCustomerPaymentConnectionMutation>;
+export type DestroyCustomerPaymentConnectionMutationResult = Apollo.MutationResult<DestroyCustomerPaymentConnectionMutation>;
+export type DestroyCustomerPaymentConnectionMutationOptions = Apollo.BaseMutationOptions<DestroyCustomerPaymentConnectionMutation, DestroyCustomerPaymentConnectionMutationVariables>;
+export const CreateCustomerIntegrationConnectionDocument = gql`
+    mutation createCustomerIntegrationConnection($input: CreateIntegrationCustomerInput!) {
+  createIntegrationCustomer(input: $input) {
+    __typename
+  }
+}
+    `;
+export type CreateCustomerIntegrationConnectionMutationFn = Apollo.MutationFunction<CreateCustomerIntegrationConnectionMutation, CreateCustomerIntegrationConnectionMutationVariables>;
+
+/**
+ * __useCreateCustomerIntegrationConnectionMutation__
+ *
+ * To run a mutation, you first call `useCreateCustomerIntegrationConnectionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateCustomerIntegrationConnectionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createCustomerIntegrationConnectionMutation, { data, loading, error }] = useCreateCustomerIntegrationConnectionMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateCustomerIntegrationConnectionMutation(baseOptions?: Apollo.MutationHookOptions<CreateCustomerIntegrationConnectionMutation, CreateCustomerIntegrationConnectionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateCustomerIntegrationConnectionMutation, CreateCustomerIntegrationConnectionMutationVariables>(CreateCustomerIntegrationConnectionDocument, options);
+      }
+export type CreateCustomerIntegrationConnectionMutationHookResult = ReturnType<typeof useCreateCustomerIntegrationConnectionMutation>;
+export type CreateCustomerIntegrationConnectionMutationResult = Apollo.MutationResult<CreateCustomerIntegrationConnectionMutation>;
+export type CreateCustomerIntegrationConnectionMutationOptions = Apollo.BaseMutationOptions<CreateCustomerIntegrationConnectionMutation, CreateCustomerIntegrationConnectionMutationVariables>;
+export const UpdateCustomerIntegrationConnectionDocument = gql`
+    mutation updateCustomerIntegrationConnection($input: UpdateIntegrationCustomerInput!) {
+  updateIntegrationCustomer(input: $input) {
+    __typename
+  }
+}
+    `;
+export type UpdateCustomerIntegrationConnectionMutationFn = Apollo.MutationFunction<UpdateCustomerIntegrationConnectionMutation, UpdateCustomerIntegrationConnectionMutationVariables>;
+
+/**
+ * __useUpdateCustomerIntegrationConnectionMutation__
+ *
+ * To run a mutation, you first call `useUpdateCustomerIntegrationConnectionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCustomerIntegrationConnectionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCustomerIntegrationConnectionMutation, { data, loading, error }] = useUpdateCustomerIntegrationConnectionMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateCustomerIntegrationConnectionMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCustomerIntegrationConnectionMutation, UpdateCustomerIntegrationConnectionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateCustomerIntegrationConnectionMutation, UpdateCustomerIntegrationConnectionMutationVariables>(UpdateCustomerIntegrationConnectionDocument, options);
+      }
+export type UpdateCustomerIntegrationConnectionMutationHookResult = ReturnType<typeof useUpdateCustomerIntegrationConnectionMutation>;
+export type UpdateCustomerIntegrationConnectionMutationResult = Apollo.MutationResult<UpdateCustomerIntegrationConnectionMutation>;
+export type UpdateCustomerIntegrationConnectionMutationOptions = Apollo.BaseMutationOptions<UpdateCustomerIntegrationConnectionMutation, UpdateCustomerIntegrationConnectionMutationVariables>;
+export const DestroyCustomerIntegrationConnectionDocument = gql`
+    mutation destroyCustomerIntegrationConnection($input: DestroyIntegrationCustomerInput!) {
+  destroyIntegrationCustomer(input: $input) {
+    id
+  }
+}
+    `;
+export type DestroyCustomerIntegrationConnectionMutationFn = Apollo.MutationFunction<DestroyCustomerIntegrationConnectionMutation, DestroyCustomerIntegrationConnectionMutationVariables>;
+
+/**
+ * __useDestroyCustomerIntegrationConnectionMutation__
+ *
+ * To run a mutation, you first call `useDestroyCustomerIntegrationConnectionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDestroyCustomerIntegrationConnectionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [destroyCustomerIntegrationConnectionMutation, { data, loading, error }] = useDestroyCustomerIntegrationConnectionMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDestroyCustomerIntegrationConnectionMutation(baseOptions?: Apollo.MutationHookOptions<DestroyCustomerIntegrationConnectionMutation, DestroyCustomerIntegrationConnectionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DestroyCustomerIntegrationConnectionMutation, DestroyCustomerIntegrationConnectionMutationVariables>(DestroyCustomerIntegrationConnectionDocument, options);
+      }
+export type DestroyCustomerIntegrationConnectionMutationHookResult = ReturnType<typeof useDestroyCustomerIntegrationConnectionMutation>;
+export type DestroyCustomerIntegrationConnectionMutationResult = Apollo.MutationResult<DestroyCustomerIntegrationConnectionMutation>;
+export type DestroyCustomerIntegrationConnectionMutationOptions = Apollo.BaseMutationOptions<DestroyCustomerIntegrationConnectionMutation, DestroyCustomerIntegrationConnectionMutationVariables>;
 export const VoidCreditNoteDocument = gql`
     mutation voidCreditNote($input: VoidCreditNoteInput!) {
   voidCreditNote(input: $input) {

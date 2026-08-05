@@ -17,7 +17,8 @@ import { CustomerConnectionsSection } from '../CustomerConnectionsSection'
 const mockOpenCreate = jest.fn()
 const mockOpenEdit = jest.fn()
 const mockDialogOpen = jest.fn()
-const mockUpdateCustomer = jest.fn(() => Promise.resolve({ errors: undefined }))
+const mockUpdatePayment = jest.fn(() => Promise.resolve({ errors: undefined }))
+const mockDestroyIntegration = jest.fn(() => Promise.resolve({ errors: undefined }))
 const mockOpenAddPaymentMethodDialog = jest.fn()
 
 type CapturedDrawerProps = {
@@ -145,7 +146,20 @@ jest.mock('~/generated/graphql', () => ({
     },
     loading: false,
   }),
-  useUpdateCustomerMutation: () => [mockUpdateCustomer],
+  useCreateCustomerPaymentConnectionMutation: () => [
+    jest.fn(() => Promise.resolve({ errors: undefined })),
+  ],
+  useUpdateCustomerPaymentConnectionMutation: () => [mockUpdatePayment],
+  useDestroyCustomerPaymentConnectionMutation: () => [
+    jest.fn(() => Promise.resolve({ errors: undefined })),
+  ],
+  useCreateCustomerIntegrationConnectionMutation: () => [
+    jest.fn(() => Promise.resolve({ errors: undefined })),
+  ],
+  useUpdateCustomerIntegrationConnectionMutation: () => [
+    jest.fn(() => Promise.resolve({ errors: undefined })),
+  ],
+  useDestroyCustomerIntegrationConnectionMutation: () => [mockDestroyIntegration],
 }))
 
 /** Customer with a Stripe payment connection and an Anrok tax link persisted */
@@ -179,7 +193,8 @@ describe('CustomerConnectionsSection', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     capturedDrawerProps.current = null
-    mockUpdateCustomer.mockResolvedValue({ errors: undefined })
+    mockUpdatePayment.mockResolvedValue({ errors: undefined })
+    mockDestroyIntegration.mockResolvedValue({ errors: undefined })
   })
 
   describe('GIVEN a customer with connections', () => {
@@ -335,14 +350,8 @@ describe('CustomerConnectionsSection', () => {
           await mockDialogOpen.mock.calls[0][0].onAction()
         })
 
-        expect(mockUpdateCustomer).toHaveBeenCalledWith({
-          variables: {
-            input: expect.objectContaining({
-              id: 'cust-1',
-              externalId: 'ext-1',
-              integrationCustomers: [],
-            }),
-          },
+        expect(mockDestroyIntegration).toHaveBeenCalledWith({
+          variables: { input: { id: 'ac-1' } },
         })
       })
     })
@@ -364,7 +373,7 @@ describe('CustomerConnectionsSection', () => {
           )
         })
 
-        expect(mockUpdateCustomer).toHaveBeenCalled()
+        expect(mockUpdatePayment).toHaveBeenCalled()
         await waitFor(() => {
           expect(
             screen.getByTestId(getCustomerConnectionRowTestId('payment-stripe-eu')),
@@ -373,7 +382,7 @@ describe('CustomerConnectionsSection', () => {
       })
 
       it('THEN should keep the drawer open when the mutation fails', async () => {
-        mockUpdateCustomer.mockResolvedValue({ errors: [{}] } as never)
+        mockUpdatePayment.mockResolvedValue({ errors: [{}] } as never)
 
         render(<CustomerConnectionsSection customer={customer} />)
 

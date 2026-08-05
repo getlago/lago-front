@@ -90,10 +90,9 @@ type CustomerConnectionsSectionProps = {
  * "Connections to external apps" — the customer-information master-detail:
  * category-grouped connection list on the left, settings of the selected
  * connection on the right, and the payment-methods block scoped to the
- * payment connection. Add / edit / delete persist immediately via
- * updateCustomer (useCustomerConnectionsPersistence — the bridge strategy
- * until the per-connection mutations land). The hardcoded manual-payment row
- * lands with the default flow.
+ * payment connection. Add / edit / delete persist immediately through the
+ * dedicated per-connection mutations (useCustomerConnectionsPersistence).
+ * The hardcoded manual-payment row lands with the default flow.
  */
 export const CustomerConnectionsSection = ({ customer }: CustomerConnectionsSectionProps) => {
   const { translate } = useInternationalization()
@@ -101,7 +100,10 @@ export const CustomerConnectionsSection = ({ customer }: CustomerConnectionsSect
 
   const connectionOptions = useConnectionOptions()
   const { drawerRef, openCreate, openEdit } = useCustomerConnectionDrawer()
-  const { saveConnection, deleteConnection } = useCustomerConnectionsPersistence({ customer })
+  const { saveConnection, deleteConnection } = useCustomerConnectionsPersistence({
+    customer,
+    connectionOptions,
+  })
 
   const { data: integrationsData, loading: integrationsLoading } =
     useIntegrationsListForCustomerMainInfosQuery({

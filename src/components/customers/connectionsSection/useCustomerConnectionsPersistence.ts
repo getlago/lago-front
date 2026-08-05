@@ -1,66 +1,61 @@
-import { useApolloClient } from '@apollo/client'
+import { gql, useApolloClient } from '@apollo/client'
 
 import { ConnectionFormValues } from '~/components/customerConnections/CustomerConnectionDrawer'
 import { ConnectionCategory } from '~/components/customerConnections/types'
-import {
-  FragmentIntegrationCustomer,
-  getIntegrationCustomerForCategory,
-  INTEGRATION_CATEGORIES,
-} from '~/components/customers/connectionsSection/utils'
+import { useConnectionOptions } from '~/components/customerConnections/useConnectionOptions'
+import { getIntegrationCustomerForCategory } from '~/components/customers/connectionsSection/utils'
 import { addToast } from '~/core/apolloClient'
-import {
-  INTEGRATION_POLLING_INTERVAL,
-  MAX_INTEGRATION_POLLING_ATTEMPTS,
-} from '~/core/constants/integrationPolling'
 import {
   AddCustomerDrawerFragment,
   GetCustomerDocument,
   GetCustomerQuery,
-  IntegrationCustomerInput,
-  IntegrationTypeEnum,
   ProviderPaymentMethodsEnum,
   ProviderTypeEnum,
-  UpdateCustomerInput,
-  useUpdateCustomerMutation,
+  useCreateCustomerIntegrationConnectionMutation,
+  useCreateCustomerPaymentConnectionMutation,
+  useDestroyCustomerIntegrationConnectionMutation,
+  useDestroyCustomerPaymentConnectionMutation,
+  useUpdateCustomerIntegrationConnectionMutation,
+  useUpdateCustomerPaymentConnectionMutation,
 } from '~/generated/graphql'
 
-// Verbatim fragment → input mapping: the untouched categories MUST be echoed
-// with their persisted ids — the backend destroys every integration customer
-// whose id is missing from a submitted integrationCustomers list
-// (IntegrationCustomers::CreateOrUpdateBatchService#sanitize_integration_customers).
-const toIntegrationInput = (
-  integrationCustomer: FragmentIntegrationCustomer,
-): IntegrationCustomerInput => ({
-  id: integrationCustomer.id,
-  integrationCode: integrationCustomer.integrationCode,
-  integrationType: integrationCustomer.integrationType,
-  syncWithProvider: integrationCustomer.syncWithProvider,
-  externalCustomerId: integrationCustomer.externalCustomerId,
-  ...('subsidiaryId' in integrationCustomer && integrationCustomer.subsidiaryId
-    ? { subsidiaryId: integrationCustomer.subsidiaryId }
-    : {}),
-  ...('targetedObject' in integrationCustomer && integrationCustomer.targetedObject
-    ? { targetedObject: integrationCustomer.targetedObject }
-    : {}),
-})
+gql`
+  mutation createCustomerPaymentConnection($input: CreatePaymentProviderCustomerInput!) {
+    createPaymentProviderCustomer(input: $input) {
+      id
+    }
+  }
 
-/**
- * The full-replace integrationCustomers list: every untouched category echoed
- * verbatim from the customer fragment, the changed category replaced by
- * `editedEntry` (or dropped on delete when null).
- */
-const buildIntegrationCustomersInput = (
-  customer: AddCustomerDrawerFragment,
-  changedCategory: ConnectionCategory,
-  editedEntry: IntegrationCustomerInput | null,
-): IntegrationCustomerInput[] =>
-  INTEGRATION_CATEGORIES.flatMap((category) => {
-    if (category === changedCategory) return editedEntry ? [editedEntry] : []
+  mutation updateCustomerPaymentConnection($input: UpdatePaymentProviderCustomerInput!) {
+    updatePaymentProviderCustomer(input: $input) {
+      id
+    }
+  }
 
-    const existing = getIntegrationCustomerForCategory(customer, category)
+  mutation destroyCustomerPaymentConnection($input: DestroyPaymentProviderCustomerInput!) {
+    destroyPaymentProviderCustomer(input: $input) {
+      id
+    }
+  }
 
-    return existing ? [toIntegrationInput(existing)] : []
-  })
+  mutation createCustomerIntegrationConnection($input: CreateIntegrationCustomerInput!) {
+    createIntegrationCustomer(input: $input) {
+      __typename
+    }
+  }
+
+  mutation updateCustomerIntegrationConnection($input: UpdateIntegrationCustomerInput!) {
+    updateIntegrationCustomer(input: $input) {
+      __typename
+    }
+  }
+
+  mutation destroyCustomerIntegrationConnection($input: DestroyIntegrationCustomerInput!) {
+    destroyIntegrationCustomer(input: $input) {
+      id
+    }
+  }
+`
 
 const getEnabledPaymentMethods = (
   providerPaymentMethods: ConnectionFormValues['providerPaymentMethods'],
@@ -73,6 +68,7 @@ const getEnabledPaymentMethods = (
 
 type UseCustomerConnectionsPersistenceProps = {
   customer: AddCustomerDrawerFragment
+  connectionOptions: ReturnType<typeof useConnectionOptions>
 }
 
 type UseCustomerConnectionsPersistenceReturn = {
@@ -85,73 +81,169 @@ type UseCustomerConnectionsPersistenceReturn = {
 }
 
 /**
- * Immediate-save persistence for the customer-information connections view.
+ * Immediate-save persistence for the customer-information connections view,
+ * on the dedicated per-connection mutations: one connection, one call, its
+ * own id. Editing keeps the link and updates it in place; switching to
+ * another provider of the same category destroys the old link and creates a
+ * new one (the update mutations expose no provider/code change).
  *
- * Bridge strategy: every add/edit/delete goes through the existing
- * updateCustomer mutation with a MINIMAL input — base `{ id, externalId }`
- * (externalId is the only other required field; omitted fields are left
- * untouched by the backend) plus only the payment keys or the rebuilt
- * integrationCustomers list. The dedicated per-connection mutations later
- * replace this hook without touching the view.
+ * The mutations return the connection object, not the customer, so the
+ * page's normalized cache does not pick the change up on its own: every
+ * write is followed by a silent standalone customer query. Never refetch the
+ * page's ACTIVE getCustomer observer instead (notifyOnNetworkStatusChange +
+ * network-only would flip it to loading → the whole section unmounts, losing
+ * the selection).
  */
 export const useCustomerConnectionsPersistence = ({
   customer,
+  connectionOptions,
 }: UseCustomerConnectionsPersistenceProps): UseCustomerConnectionsPersistenceReturn => {
   const client = useApolloClient()
 
-  // The mutation response carries the full connection fragment, so the
-  // normalized cache updates the page on its own. Never refetch the page's
-  // ACTIVE getCustomer observer (notifyOnNetworkStatusChange + network-only
-  // would flip it to loading → the whole section unmounts, losing the
-  // selection). A standalone client.query writes the fresh customer into the
-  // cache and broadcasts it silently instead.
-  const refreshCustomer = async (): Promise<AddCustomerDrawerFragment | undefined> => {
+  const [createPaymentConnection] = useCreateCustomerPaymentConnectionMutation()
+  const [updatePaymentConnection] = useUpdateCustomerPaymentConnectionMutation()
+  const [destroyPaymentConnection] = useDestroyCustomerPaymentConnectionMutation()
+  const [createIntegrationConnection] = useCreateCustomerIntegrationConnectionMutation()
+  const [updateIntegrationConnection] = useUpdateCustomerIntegrationConnectionMutation()
+  const [destroyIntegrationConnection] = useDestroyCustomerIntegrationConnectionMutation()
+
+  const refreshCustomer = async (): Promise<void> => {
     try {
-      const { data } = await client.query<GetCustomerQuery>({
+      await client.query<GetCustomerQuery>({
         query: GetCustomerDocument,
         variables: { id: customer.id },
         fetchPolicy: 'network-only',
       })
-
-      return (data?.customer as AddCustomerDrawerFragment | null) ?? undefined
     } catch {
-      // Consistency refresh only — the mutation itself already succeeded
-      return undefined
+      // Consistency refresh only — the write outcome is reported separately
     }
   }
 
-  const hasIntegrationCode = (
-    refreshed: AddCustomerDrawerFragment | undefined,
-    integrationCode: string,
-  ): boolean =>
-    !!refreshed &&
-    INTEGRATION_CATEGORIES.some(
-      (category) =>
-        getIntegrationCustomerForCategory(refreshed, category)?.integrationCode === integrationCode,
-    )
-
-  const [updateCustomer] = useUpdateCustomerMutation()
-
-  // Bounded background poll until the async-created link lands on the customer
-  const pollForIntegrationCode = async (integrationCode: string): Promise<void> => {
-    for (let attempt = 0; attempt < MAX_INTEGRATION_POLLING_ATTEMPTS; attempt++) {
-      await new Promise((resolve) => setTimeout(resolve, INTEGRATION_POLLING_INTERVAL))
-
-      if (hasIntegrationCode(await refreshCustomer(), integrationCode)) return
+  /** The org integration behind a category slot's connection code */
+  const resolveOrgIntegration = (
+    category: Exclude<ConnectionCategory, ConnectionCategory.Payment>,
+    code: string,
+  ): { id: string } | undefined => {
+    const pools = {
+      [ConnectionCategory.Accounting]: connectionOptions.allAccountingIntegrations,
+      [ConnectionCategory.Tax]: connectionOptions.allTaxIntegrations,
+      [ConnectionCategory.Crm]: connectionOptions.allCrmIntegrations,
     }
+
+    return pools[category].find((integration) => integration.code === code)
   }
 
-  const runUpdate = async (
-    input: Omit<UpdateCustomerInput, 'id' | 'externalId'>,
-  ): Promise<boolean> => {
-    const { errors } = await updateCustomer({
+  const savePaymentConnection = async (values: ConnectionFormValues): Promise<boolean> => {
+    const paymentProvider = (values.providerType as ProviderTypeEnum) || undefined
+
+    // The create mutation pairs the code with its provider type — without a
+    // resolved type the input cannot be built. Abort instead of guessing.
+    if (!paymentProvider || !values.providerCode) {
+      addToast({ severity: 'danger', translateKey: 'text_622f7a3dc32ce100c46a5154' })
+
+      return false
+    }
+
+    const existingId = customer.providerCustomer?.id
+    const isSameConnection = customer.paymentProviderCode === values.providerCode
+
+    if (existingId && isSameConnection) {
+      const { errors } = await updatePaymentConnection({
+        variables: {
+          input: {
+            id: existingId,
+            providerCustomerId: values.externalCustomerId || null,
+            syncWithProvider: values.syncWithProvider ?? false,
+            providerPaymentMethods: getEnabledPaymentMethods(values.providerPaymentMethods),
+          },
+        },
+      })
+
+      return !errors?.length
+    }
+
+    // Provider switch: the old link goes first (along with its saved payment
+    // methods — replacing the provider always had that effect), then the new
+    // connection is created
+    if (existingId) {
+      const { errors: destroyErrors } = await destroyPaymentConnection({
+        variables: { input: { id: existingId } },
+      })
+
+      if (destroyErrors?.length) return false
+    }
+
+    const { errors } = await createPaymentConnection({
       variables: {
         input: {
-          id: customer.id,
-          // Only required UpdateCustomerInput field besides id; the backend
-          // applies it solely on editable customers, echoing it back is a no-op
-          externalId: customer.externalId,
-          ...input,
+          customerId: customer.id,
+          paymentProvider,
+          paymentProviderCode: values.providerCode,
+          providerCustomerId: values.externalCustomerId || null,
+          syncWithProvider: values.syncWithProvider ?? false,
+          providerPaymentMethods: getEnabledPaymentMethods(values.providerPaymentMethods),
+        },
+      },
+    })
+
+    return !errors?.length
+  }
+
+  const saveIntegrationConnection = async (
+    category: Exclude<ConnectionCategory, ConnectionCategory.Payment>,
+    values: ConnectionFormValues,
+  ): Promise<boolean> => {
+    const orgIntegration = values.providerCode
+      ? resolveOrgIntegration(category, values.providerCode)
+      : undefined
+
+    // The create mutation targets the org integration by id; an unresolvable
+    // code (org lists still loading, or the integration was deleted) cannot
+    // be saved.
+    if (!orgIntegration) {
+      addToast({ severity: 'danger', translateKey: 'text_622f7a3dc32ce100c46a5154' })
+
+      return false
+    }
+
+    const existing = getIntegrationCustomerForCategory(customer, category)
+    const isSameConnection = existing?.integrationCode === values.providerCode
+
+    const linkInput = {
+      externalCustomerId: values.externalCustomerId || null,
+      syncWithProvider: values.syncWithProvider ?? false,
+      ...(category === ConnectionCategory.Accounting && values.subsidiaryId
+        ? { subsidiaryId: values.subsidiaryId }
+        : {}),
+      ...(category === ConnectionCategory.Crm && values.targetedObject
+        ? { targetedObject: values.targetedObject }
+        : {}),
+    }
+
+    if (existing?.id && isSameConnection) {
+      const { errors } = await updateIntegrationConnection({
+        variables: { input: { id: existing.id, ...linkInput } },
+      })
+
+      return !errors?.length
+    }
+
+    // Provider switch within the category: destroy the old link, then create
+    // the new one (the update mutation cannot re-target another integration)
+    if (existing?.id) {
+      const { errors: destroyErrors } = await destroyIntegrationConnection({
+        variables: { input: { id: existing.id } },
+      })
+
+      if (destroyErrors?.length) return false
+    }
+
+    const { errors } = await createIntegrationConnection({
+      variables: {
+        input: {
+          customerId: customer.id,
+          integrationId: orgIntegration.id,
+          ...linkInput,
         },
       },
     })
@@ -164,86 +256,14 @@ export const useCustomerConnectionsPersistence = ({
     values: ConnectionFormValues,
     { isEdition }: { isEdition: boolean },
   ): Promise<boolean> => {
-    let succeeded = false
+    const succeeded =
+      category === ConnectionCategory.Payment
+        ? await savePaymentConnection(values)
+        : await saveIntegrationConnection(category, values)
 
-    if (category === ConnectionCategory.Payment) {
-      const paymentProvider = (values.providerType as ProviderTypeEnum) || undefined
-
-      // Without the provider type the input would either corrupt the provider
-      // pairing (code without provider) or — with an explicit null — DELETE
-      // the connection (backend removal semantics). Abort instead.
-      if (!paymentProvider || !values.providerCode) {
-        addToast({ severity: 'danger', translateKey: 'text_622f7a3dc32ce100c46a5154' })
-
-        return false
-      }
-
-      succeeded = await runUpdate({
-        paymentProvider,
-        paymentProviderCode: values.providerCode,
-        // Same rule as the create/edit mapper: no mapping and no sync → null
-        // (Cashfree/Flutterwave have no provider-side customer)
-        providerCustomer:
-          values.externalCustomerId || values.syncWithProvider
-            ? {
-                providerCustomerId: values.externalCustomerId,
-                syncWithProvider: values.syncWithProvider ?? false,
-                providerPaymentMethods: getEnabledPaymentMethods(values.providerPaymentMethods),
-              }
-            : null,
-      })
-
-      if (succeeded) void refreshCustomer()
-    } else {
-      const integrationType = (values.providerType as IntegrationTypeEnum) || undefined
-
-      // The backend resolves the target integration from the code AND the type
-      // together, and silently skips any entry it cannot resolve — a save
-      // without a type would report success while changing nothing. The
-      // drawer's own type is optional (it is derived from the selected code),
-      // so guard it here, as the payment branch does.
-      if (!values.providerCode || !integrationType) {
-        addToast({ severity: 'danger', translateKey: 'text_622f7a3dc32ce100c46a5154' })
-
-        return false
-      }
-
-      const existing = getIntegrationCustomerForCategory(customer, category)
-      // Keep the link id only when the connection is unchanged: on a provider
-      // switch the backend must create a new link instead of updating the old
-      const isSameConnection = existing?.integrationCode === values.providerCode
-
-      succeeded = await runUpdate({
-        integrationCustomers: buildIntegrationCustomersInput(customer, category, {
-          id: isSameConnection ? existing?.id : undefined,
-          integrationCode: values.providerCode,
-          integrationType,
-          syncWithProvider: values.syncWithProvider ?? false,
-          externalCustomerId: values.externalCustomerId ?? '',
-          ...(category === ConnectionCategory.Accounting && values.subsidiaryId
-            ? { subsidiaryId: values.subsidiaryId }
-            : {}),
-          ...(category === ConnectionCategory.Crm && values.targetedObject
-            ? { targetedObject: values.targetedObject }
-            : {}),
-        }),
-      })
-
-      if (succeeded) {
-        if (isSameConnection) {
-          void refreshCustomer()
-        } else {
-          // A NEW link is created asynchronously backend-side — the mutation
-          // response cannot carry it yet: refresh once, then keep polling in
-          // the background (silently, no loading state) until it shows up
-          const refreshed = await refreshCustomer()
-
-          if (!hasIntegrationCode(refreshed, values.providerCode)) {
-            void pollForIntegrationCode(values.providerCode)
-          }
-        }
-      }
-    }
+    // Refresh even on failure: a provider switch may have landed its destroy
+    // half, and the section must show the real state
+    await refreshCustomer()
 
     if (succeeded) {
       addToast({
@@ -258,21 +278,30 @@ export const useCustomerConnectionsPersistence = ({
   }
 
   const deleteConnection = async (category: ConnectionCategory): Promise<boolean> => {
-    const succeeded =
+    const existingId =
       category === ConnectionCategory.Payment
-        ? // Removal semantics: the key must be PRESENT and null. The backend
-          // also clears the code and destroys the customer's payment methods.
-          await runUpdate({ paymentProvider: null, providerCustomer: null })
-        : await runUpdate({
-            integrationCustomers: buildIntegrationCustomersInput(customer, category, null),
-          })
+        ? customer.providerCustomer?.id
+        : getIntegrationCustomerForCategory(customer, category)?.id
 
-    if (succeeded) {
-      void refreshCustomer()
-      addToast({ severity: 'success', translateKey: 'text_661ff6e56ef7e1b7c542b2f9' })
+    // Nothing to destroy: the link never made it to the backend (or the
+    // fragment is stale) — surface an error instead of a silent no-op
+    if (!existingId) {
+      addToast({ severity: 'danger', translateKey: 'text_622f7a3dc32ce100c46a5154' })
+
+      return false
     }
 
-    return succeeded
+    const { errors } =
+      category === ConnectionCategory.Payment
+        ? await destroyPaymentConnection({ variables: { input: { id: existingId } } })
+        : await destroyIntegrationConnection({ variables: { input: { id: existingId } } })
+
+    if (errors?.length) return false
+
+    await refreshCustomer()
+    addToast({ severity: 'success', translateKey: 'text_661ff6e56ef7e1b7c542b2f9' })
+
+    return true
   }
 
   return { saveConnection, deleteConnection }
