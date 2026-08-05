@@ -50,9 +50,12 @@ describe('CreateBillableMetric.utils', () => {
       expect(hasRemovedFilterValues(original, current)).toBe(true)
     })
 
-    it('returns false for empty or undefined inputs', () => {
+    it('returns false when both inputs are empty or undefined', () => {
       expect(hasRemovedFilterValues()).toBe(false)
       expect(hasRemovedFilterValues([], [])).toBe(false)
+    })
+
+    it('returns true when the current filters are emptied out', () => {
       expect(hasRemovedFilterValues(original, [])).toBe(true)
     })
   })
