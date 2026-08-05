@@ -6,11 +6,7 @@ import { generatePath, useParams } from 'react-router-dom'
 import { AlertNameAndCodeSection } from '~/components/alerts/AlertNameAndCodeSection'
 import AlertThresholds, { isThresholdValueValid } from '~/components/alerts/Thresholds'
 import { useAlertFormLeaveGuards } from '~/components/alerts/useAlertFormLeaveGuards'
-import {
-  createThresholdSetters,
-  setCodeAlreadyExistsError,
-  showUnhandledSubmitErrorToast,
-} from '~/components/alerts/utils'
+import { createThresholdSetters, setCodeAlreadyExistsError } from '~/components/alerts/utils'
 import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'
 import { Typography } from '~/components/designSystem/Typography'
@@ -205,10 +201,10 @@ const AlertForm = () => {
   })
 
   const [updateAlert] = useUpdateSubscriptionAlertMutation({
-    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
+    context: { silentErrorDetails: [LagoApiError.ValueAlreadyExist] },
   })
   const [createAlert] = useCreateSubscriptionAlertMutation({
-    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
+    context: { silentErrorDetails: [LagoApiError.ValueAlreadyExist] },
   })
 
   const defaultValues = useMemo(
@@ -247,12 +243,6 @@ const AlertForm = () => {
           return
         }
 
-        if (errors?.length) {
-          showUnhandledSubmitErrorToast(errors)
-
-          return
-        }
-
         if (!updateData?.updateSubscriptionAlert?.id) return
 
         addToast({
@@ -268,12 +258,6 @@ const AlertForm = () => {
 
         if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
           setCodeAlreadyExistsError(formApi)
-
-          return
-        }
-
-        if (errors?.length) {
-          showUnhandledSubmitErrorToast(errors)
 
           return
         }

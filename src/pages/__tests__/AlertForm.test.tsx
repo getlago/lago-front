@@ -626,8 +626,8 @@ describe('AlertForm', () => {
       })
     })
 
-    describe('WHEN the API rejects the submit with an unhandled 422', () => {
-      it('THEN should show the generic error toast and keep the user on the form', async () => {
+    describe('WHEN the API rejects the submit with a 422 the form does not handle', () => {
+      it('THEN should leave the feedback to the global error link and keep the user on the form', async () => {
         const user = userEvent.setup()
 
         mockLoadedQueries()
@@ -653,9 +653,10 @@ describe('AlertForm', () => {
         await user.click(screen.getByTestId(SUBMIT_SUBSCRIPTION_ALERT_TEST_ID))
 
         await waitFor(() => {
-          expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
+          expect(mockCreateSubscriptionAlert).toHaveBeenCalled()
         })
         expect(testMockNavigateFn).not.toHaveBeenCalled()
+        expect(addToast).not.toHaveBeenCalled()
       })
     })
   })
