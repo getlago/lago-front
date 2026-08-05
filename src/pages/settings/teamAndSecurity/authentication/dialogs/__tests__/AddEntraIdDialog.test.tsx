@@ -88,6 +88,12 @@ describe('AddEntraIdDialog', () => {
     expect(screen.getByLabelText(/Entra ID tenant ID/i)).toBeInTheDocument()
   })
 
+  it('masks the client secret input', async () => {
+    await prepare()
+
+    expect(screen.getByLabelText(/Entra ID client secret/i)).toHaveAttribute('type', 'password')
+  })
+
   it('should accept valid host without protocol', async () => {
     const mocks: TestMocksType = [
       {
