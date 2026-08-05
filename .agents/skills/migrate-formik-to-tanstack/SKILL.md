@@ -83,6 +83,53 @@ Before starting, gather context by reading these reference files:
 >
 > Reference implementation: `src/pages/wallet/formInitialization/validationSchema.ts`.
 
+> **⛔ CRITICAL — the schema must validate what the WRAPPER stores, not what Formik stored**
+>
+> Formik forms often bind raw components manually, with an `onChange` that TRANSFORMS the
+> value before it reaches form state:
+>
+> ```tsx
+> // Formik: onChange is a shape ADAPTER — options in, bare id strings stored
+> <MultipleComboBox
+>   name="sectionIds"
+>   onChange={(options) => formikProps.setFieldValue('sectionIds', options.map(({ value }) => value))}
+> />
+> ```
+>
+> The registered `field.*Field` wrappers call `field.handleChange(rawComponentValue)` — they
+> store the component's NATIVE value, and the manual adapter silently dies in the migration.
+> Port the Yup schema 1:1 and it now validates a shape that no longer exists. Zod rejects on
+> every change, `canSubmit` stays `false` forever: **submit button disabled, no visible error,
+> no network request** (the BIL-410 regression signature, lago-front#3932 → #4067). Seeding is
+> broken the same way: `defaultValues` written in the OLD shape (bare ids) don't match the
+> combobox options, so an existing selection renders no tags.
+>
+> The Step 3.3 differential Yup↔Zod audit does NOT catch this — old and new schema agree with
+> each other while both disagree with the new runtime value. Value-shape parity is a separate
+> check from validation-semantics parity.
+>
+> **Rule — for EVERY field being migrated:**
+>
+> 1. Grep the Formik JSX for custom `onChange` / `setFieldValue` transforms — each one is a
+>    shape adapter that the registered wrapper will NOT reproduce.
+> 2. Read the wrapper (`src/components/form/**/*ForTanstack.tsx`) and note the type it passes
+>    to `field.handleChange` / expects in `useFieldContext<...>()`.
+> 3. Write the Zod schema against the WRAPPER's shape; move id-extraction/mapping into
+>    `onSubmit` (the API contract doesn't change).
+> 4. Seed `defaultValues` in the wrapper's shape too (e.g. build `{ value, label }` options
+>    from the existing selection).
+> 5. Derive `FormValues` with `z.infer<typeof schema>` so the schema and the type cannot drift.
+>
+> **Known wrapper shapes:**
+>
+> | Wrapper                  | Stores in form state                                                       | Schema                                                                     |
+> | ------------------------ | -------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+> | `MultipleComboBoxField`  | WHOLE options: `MultipleComboBoxData[]` (`{ value, label, … }`)             | `z.array(z.looseObject({ value: z.string() }))` + map to ids in `onSubmit`   |
+> | `ComboBoxField`          | the option's `value` as `string \| undefined` (clearing sets `undefined`)  | requiredness is a BUSINESS rule, not UI clearability: required → `z.string().min(1)` (a cleared field correctly fails); optional → `z.string().optional()` |
+> | `TextInputField` (`int`) | `number \| ''` (see Pattern 11)                                             | `z.union([z.number(), z.literal('')])` + `.refine((v) => v !== '')` when required (Pattern 11) |
+>
+> Reference: `src/components/customers/editCustomerInvoiceCustomSections/validationSchema.ts`
+> (the BIL-410 fix) and `CreateQuote` for the MultipleComboBox convention.
 
 1. **Locate validation sources** - Search for:
 
@@ -172,6 +219,17 @@ Before writing any code, create a plan document:
 | Field | Yup Validation | Zod Equivalent | Custom Message |
 | ----- | -------------- | -------------- | -------------- |
 | ...   | ...            | ...            | ...            |
+
+### Field Value-Shape Map (REQUIRED — do not skip, see BIL-410)
+
+One row PER FIELD. "Formik transform" = any custom `onChange`/`setFieldValue` mapping.
+
+| Field | Formik stored shape | Formik transform? | TanStack wrapper | Wrapper stored shape | Zod shape |
+| ----- | ------------------- | ----------------- | ---------------- | -------------------- | --------- |
+| ...   | ...                 | ...               | ...              | ...                  | ...       |
+
+**If any row's "Formik stored shape" ≠ "Wrapper stored shape": schema follows the wrapper,
+`onSubmit` maps back to the API shape, `defaultValues` seed in the wrapper shape.**
 
 ### Cross-Field Validations
 
@@ -697,6 +755,12 @@ Manually test each validation case:
 3. **Range validations**: Enter out-of-range values, verify error
 4. **Cross-field validations**: Test dependent field combinations
 5. **Conditional validations**: Toggle conditions, verify validation changes
+6. **Happy-path submit through EVERY field** (CRITICAL — BIL-410): interact with each field —
+   including fields hidden behind radios/conditionals (reveal → fill → submit) — and verify the
+   submit button enables AND the mutation fires with the expected payload. A field whose stored
+   shape mismatches the schema fails SILENTLY: button stays disabled, no error, no request.
+   The migrated jest suite must include at least one select-then-submit test per
+   combobox/multi-select field asserting the mutation variables.
 
 ---
 
@@ -1329,6 +1393,7 @@ The `/make-tests` skill will automatically:
 - [ ] Identify all form fields and types
 - [ ] **Validation Analysis (CRITICAL):**
   - [ ] **Account for `prepareDataForValidation`** — Formik validated `''` as `undefined`; map every `isNaN`/presence/numeric check with `''`-as-absent semantics
+  - [ ] **Field Value-Shape Map (CRITICAL — BIL-410)** — one row per field: inventory custom `onChange`/`setFieldValue` transforms (shape adapters the wrapper won't reproduce), read each `*ForTanstack` wrapper's stored type, write the Zod shape against the WRAPPER
   - [ ] Locate Yup schema / validate function / field-level validations
   - [ ] Create Validation Mapping Table (Field → Yup → Zod)
   - [ ] Document cross-field validations (`.when()`, `.test()`)
@@ -1345,6 +1410,7 @@ The `/make-tests` skill will automatically:
 - [ ] Check `src/formValidation/zodCustoms.ts` for reusable shared validators before creating new ones
 - [ ] Create validation schema file, reusing shared validators where possible
 - [ ] Verify Zod schema matches Yup validation behavior
+- [ ] Schema follows each wrapper's stored shape (Value-Shape Map); id/API mapping lives in `onSubmit`; `defaultValues` seeded in wrapper shape; `FormValues` derived via `z.infer`
 - [ ] Update imports (remove Formik/Yup, add TanStack)
 - [ ] Replace `useFormik` with `useAppForm`
 - [ ] Add `useStore` for form state subscriptions (if needed)
@@ -1386,6 +1452,7 @@ The `/make-tests` skill will automatically:
   - [ ] Test all range validations (min, max)
   - [ ] Test all cross-field validations
   - [ ] Test all conditional validations
+  - [ ] **Happy-path submit through every field** (incl. conditionally-rendered ones): reveal → fill → submit → mutation fires with expected payload (BIL-410)
   - [ ] Test all server-side errors (trigger mutation errors, verify field error displays)
   - [ ] Verify error messages match original
 - [ ] Run `pnpm prettier --write <file>`
@@ -1444,7 +1511,8 @@ async call inside `onSubmit` (`onSave(value)` instead of `await onSave(value)`) 
 `onSubmit` promise resolve on the next microtask, so `isSubmitting` — and `form.SubmitButton`'s
 `loading` prop — flips back to `false` before the mutation actually settles. Always `await` the
 save/mutation call.
-26. **Section validity for UNMOUNTED fields**: Formik's `errors.someArray` reflected schema errors regardless of what was rendered. The TanStack equivalent for an accordion validity icon is the form-level error map, not `fieldMeta` (which only covers mounted fields). Validator-produced errors live DIRECTLY on `errorMap.onDynamic`, keyed by field path (e.g. `someArray[0].prop`) — the `.fields` sub-shape does NOT exist there; it only appears for errors set manually via `form.setErrorMap({ onDynamic: { fields: ... } })` (server errors). Read it as: `useStore(form.store, (s) => { const dynamicErrors = (s.errorMap as { onDynamic?: Record<string, unknown> })?.onDynamic ?? {}; return Object.entries(dynamicErrors).some(([k, v]) => k.startsWith('someArray') && !!v) })`.
+26. **Submit button permanently disabled after selecting in a MultipleComboBox (no error shown, no request sent)**: the schema declares `z.array(z.string())` (the OLD Formik shape, produced by a manual `onChange` adapter that the migration dropped) but `MultipleComboBoxField` stores WHOLE option objects (`{ value, label, … }[]`). Zod rejects every selection → `canSubmit` never turns true; seeding bare ids also renders no tags. Fix: `z.array(z.looseObject({ value: z.string() }))`, map to ids in `onSubmit`, seed `defaultValues` as `{ value, label }` options, derive `FormValues` via `z.infer`. This was the BIL-410 regression (lago-front#3932 → #4067); see the Field Value-Shape Map in Phase 1.
+27. **Section validity for UNMOUNTED fields**: Formik's `errors.someArray` reflected schema errors regardless of what was rendered. The TanStack equivalent for an accordion validity icon is the form-level error map, not `fieldMeta` (which only covers mounted fields). Validator-produced errors live DIRECTLY on `errorMap.onDynamic`, keyed by field path (e.g. `someArray[0].prop`) — the `.fields` sub-shape does NOT exist there; it only appears for errors set manually via `form.setErrorMap({ onDynamic: { fields: ... } })` (server errors). Read it as: `useStore(form.store, (s) => { const dynamicErrors = (s.errorMap as { onDynamic?: Record<string, unknown> })?.onDynamic ?? {}; return Object.entries(dynamicErrors).some(([k, v]) => k.startsWith('someArray') && !!v) })`.
 
 ## Usage
 

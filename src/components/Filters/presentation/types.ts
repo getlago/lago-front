@@ -226,16 +226,6 @@ export const UsageOverviewAvailableFilters = [
   AvailableFiltersEnum.isCustomerTinEmpty,
 ]
 
-export const UsageBreakdownAvailableFilters = [
-  AvailableFiltersEnum.date,
-  AvailableFiltersEnum.country,
-  AvailableFiltersEnum.currency,
-  AvailableFiltersEnum.customerAccountType,
-  AvailableFiltersEnum.customerExternalId,
-  AvailableFiltersEnum.planCode,
-  AvailableFiltersEnum.subscriptionExternalId,
-]
-
 export const UsageBreakdownMeteredAvailableFilters = [
   AvailableFiltersEnum.date,
   AvailableFiltersEnum.country,

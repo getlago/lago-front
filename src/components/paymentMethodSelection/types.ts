@@ -1,5 +1,4 @@
 import { ComboBoxProps } from '~/components/form/ComboBox/types'
-import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { PaymentMethodReferenceInput, PaymentMethodTypeEnum } from '~/generated/graphql'
 import { PaymentMethodList } from '~/hooks/customer/usePaymentMethodsList'
 
@@ -28,13 +27,4 @@ export interface PaymentMethodComboBoxProps {
   name?: string
   error?: string
   PopperProps?: ComboBoxProps['PopperProps']
-}
-
-export interface PaymentMethodSelectionProps {
-  externalCustomerId: string
-  selectedPaymentMethod: SelectedPaymentMethod
-  setSelectedPaymentMethod: (value: SelectedPaymentMethod) => void
-  viewType: ViewTypeEnum
-  className?: string
-  disabled?: boolean
 }
