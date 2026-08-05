@@ -11,6 +11,7 @@ const mockNavigate = jest.fn()
 const mockClosePanel = jest.fn()
 const mockHasDefinedGQLError = jest.fn()
 const mockLoginUser = jest.fn()
+const mockOnLogIn = jest.fn()
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -41,6 +42,7 @@ jest.mock('~/components/auth/GoogleAuthButton', () => ({
 jest.mock('~/core/apolloClient', () => ({
   ...jest.requireActual('~/core/apolloClient'),
   hasDefinedGQLError: (...args: unknown[]) => mockHasDefinedGQLError(...args),
+  onLogIn: (...args: unknown[]) => mockOnLogIn(...args),
 }))
 
 jest.mock('~/generated/graphql', () => ({
