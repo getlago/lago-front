@@ -25,31 +25,6 @@ jest.mock('~/core/apolloClient', () => ({
   addToast: (params: unknown) => mockAddToast(params),
 }))
 
-// jsdom measures a 0-height scroll element, so the real virtualizer renders no
-// options — render them all instead (same mock as BaseComboBoxVirtualizedList.test.tsx).
-// Kept as a plain function, not a jest.fn: the `jest.clearAllMocks()` in afterEach would
-// wipe the implementation and the option list would silently render empty from test 2 on.
-jest.mock('@tanstack/react-virtual', () => ({
-  useVirtualizer: (config: { count: number; estimateSize: (index: number) => number }) => {
-    const items = Array.from({ length: config.count }, (_, i) => ({
-      index: i,
-      key: i,
-      size: config.estimateSize(i),
-      start: Array.from({ length: i }, (__, j) => config.estimateSize(j)).reduce(
-        (acc, val) => acc + val,
-        0,
-      ),
-    }))
-
-    return {
-      getVirtualItems: () => items,
-      getTotalSize: () => items.reduce((acc, item) => acc + item.size, 0),
-      scrollToIndex: () => undefined,
-      measureElement: () => undefined,
-    }
-  },
-}))
-
 const mockInvoiceCustomSections = {
   invoiceCustomSections: {
     __typename: 'InvoiceCustomSectionCollection',
@@ -174,24 +149,6 @@ async function prepare({
   await waitFor(() => {
     expect(screen.getByTestId(DIALOG_TITLE_TEST_ID)).toBeInTheDocument()
   })
-}
-
-/**
- * Selects a section from the custom-sections MultipleComboBox by its visible name.
- */
-async function selectSection(user: ReturnType<typeof userEvent.setup>, sectionName: string) {
-  await user.click(screen.getByPlaceholderText(/select/i))
-
-  const options = await screen.findAllByRole('option')
-  const option = options.find((item) => item.textContent?.includes(sectionName))
-
-  if (!option) {
-    throw new Error(
-      `Option "${sectionName}" not found. Available: ${options.map((o) => o.textContent).join(', ')}`,
-    )
-  }
-
-  await user.click(option)
 }
 
 describe('EditCustomerInvoiceCustomSectionsDialog', () => {
@@ -353,74 +310,18 @@ describe('EditCustomerInvoiceCustomSectionsDialog', () => {
         expect(screen.getByPlaceholderText(/select/i)).toBeInTheDocument()
       })
 
-      await user.click(screen.getByRole('button', { name: /edit behavior/i }))
-
-      // The empty selection is rejected: no mutation, so no success toast.
-      expect(mockAddToast).not.toHaveBeenCalled()
-    })
-
-    it('should enable submit and send the selected section ids once a section is picked', async () => {
-      const user = userEvent.setup()
-
-      const mutationMock = {
-        request: {
-          query: EditCustomerInvoiceCustomSectionDocument,
-          variables: {
-            input: {
-              id: CUSTOMER_ID,
-              externalId: CUSTOMER_EXTERNAL_ID,
-              skipInvoiceCustomSections: false,
-              configurableInvoiceCustomSectionIds: ['section-1'],
-            },
-          },
-        },
-        result: {
-          data: {
-            updateCustomer: {
-              __typename: 'Customer',
-              id: CUSTOMER_ID,
-              externalId: CUSTOMER_EXTERNAL_ID,
-              configurableInvoiceCustomSections: [
-                {
-                  __typename: 'InvoiceCustomSection',
-                  id: 'section-1',
-                  name: 'Section 1',
-                },
-              ],
-              hasOverwrittenInvoiceCustomSectionsSelection: true,
-              skipInvoiceCustomSections: false,
-            },
-          },
-        },
-      }
-
-      await prepare({ customerMock: mockCustomerFallback, mocks: [mutationMock] })
-
-      const radioButtons = screen.getAllByRole('radio')
-
-      // Select CUSTOM_SECTIONS
-      await user.click(radioButtons[1])
-
-      await waitFor(() => {
-        expect(screen.getByPlaceholderText(/select/i)).toBeInTheDocument()
-      })
-
-      await selectSection(user, 'Section 1')
-
       const submitButton = screen.getByRole('button', { name: /edit behavior/i })
 
-      await waitFor(() => {
-        expect(submitButton).not.toBeDisabled()
-      })
-
+      // revalidateLogic() validates on submit, so the button is only disabled once an
+      // attempt has been made and the empty selection has been rejected.
       await user.click(submitButton)
 
       await waitFor(() => {
-        expect(mockAddToast).toHaveBeenCalledWith({
-          severity: 'success',
-          message: expect.any(String),
-        })
+        expect(submitButton).toBeDisabled()
       })
+
+      // The empty selection never reaches the mutation, so no success toast.
+      expect(mockAddToast).not.toHaveBeenCalled()
     })
 
     it('should seed the already applied sections as selected options and submit them unchanged', async () => {

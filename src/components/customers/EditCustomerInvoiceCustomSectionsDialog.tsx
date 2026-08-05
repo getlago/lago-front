@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { useEffect, useMemo, useRef } from 'react'
-import { z } from 'zod'
 
 import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { DialogResult } from '~/components/dialogs/types'
@@ -17,6 +16,12 @@ import { useAppForm, withForm } from '~/hooks/forms/useAppform'
 import { useCustomerInvoiceCustomSections } from '~/hooks/useCustomerInvoiceCustomSections'
 import { useInvoiceCustomSectionsLazy } from '~/hooks/useInvoiceCustomSections'
 
+import {
+  BehaviorType,
+  editCustomerInvoiceCustomSectionsDefaultValues,
+  editCustomerInvoiceCustomSectionsSchema,
+} from './editCustomerInvoiceCustomSections/validationSchema'
+
 export const EDIT_CUSTOMER_INVOICE_CUSTOM_SECTIONS_FORM_ID =
   'edit-customer-invoice-custom-sections-form'
 
@@ -31,35 +36,8 @@ gql`
   }
 `
 
-export enum BehaviorType {
-  FALLBACK = 'fallback',
-  CUSTOM_SECTIONS = 'customSections',
-  DEACTIVATE = 'deactivate',
-}
-
-const validationSchema = z
-  .object({
-    behavior: z.enum(BehaviorType),
-    // The MultipleComboBox stores whole options, not plain ids: keep the option shape here and
-    // map back to ids on submit.
-    configurableInvoiceCustomSections: z.array(z.looseObject({ value: z.string() })),
-  })
-  .refine(
-    (data) =>
-      data.behavior !== BehaviorType.CUSTOM_SECTIONS ||
-      data.configurableInvoiceCustomSections.length > 0,
-    { path: ['configurableInvoiceCustomSections'], message: '' },
-  )
-
-type FormValues = z.infer<typeof validationSchema>
-
-const initialValues: FormValues = {
-  behavior: BehaviorType.FALLBACK,
-  configurableInvoiceCustomSections: [],
-}
-
 const DialogContent = withForm({
-  defaultValues: initialValues,
+  defaultValues: editCustomerInvoiceCustomSectionsDefaultValues,
   render: function Render({ form }) {
     const { translate } = useInternationalization()
     const { getInvoiceCustomSections, data: orgInvoiceCustomSections } =
@@ -150,9 +128,9 @@ export const useEditCustomerInvoiceCustomSectionsDialog = (customerId: string) =
   })
 
   const form = useAppForm({
-    defaultValues: initialValues,
+    defaultValues: editCustomerInvoiceCustomSectionsDefaultValues,
     validationLogic: revalidateLogic(),
-    validators: { onDynamic: validationSchema },
+    validators: { onDynamic: editCustomerInvoiceCustomSectionsSchema },
     onSubmit: async ({ value }) => {
       if (!customer) return
 
