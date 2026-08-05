@@ -125,8 +125,8 @@ Before starting, gather context by reading these reference files:
 > | Wrapper                  | Stores in form state                                                       | Schema                                                                     |
 > | ------------------------ | -------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
 > | `MultipleComboBoxField`  | WHOLE options: `MultipleComboBoxData[]` (`{ value, label, … }`)             | `z.array(z.looseObject({ value: z.string() }))` + map to ids in `onSubmit`   |
-> | `ComboBoxField`          | the option's `value` as `string \| undefined` (clearing sets `undefined`)  | `z.string()` — add `.optional()` if the field is clearable                   |
-> | `TextInputField` (`int`) | `number \| ''` (see Pattern 11)                                             | `z.union([z.number(), z.literal('')])`                                       |
+> | `ComboBoxField`          | the option's `value` as `string \| undefined` (clearing sets `undefined`)  | requiredness is a BUSINESS rule, not UI clearability: required → `z.string().min(1)` (a cleared field correctly fails); optional → `z.string().optional()` |
+> | `TextInputField` (`int`) | `number \| ''` (see Pattern 11)                                             | `z.union([z.number(), z.literal('')])` + `.refine((v) => v !== '')` when required (Pattern 11) |
 >
 > Reference: `src/components/customers/editCustomerInvoiceCustomSections/validationSchema.ts`
 > (the BIL-410 fix) and `CreateQuote` for the MultipleComboBox convention.
