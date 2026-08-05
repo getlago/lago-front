@@ -33,6 +33,7 @@ gql`
     code
     secretKey
     supports3ds
+    requireTermsOfServiceConsent
   }
 
   query getProviderByCodeForStripe($code: String) {
@@ -89,6 +90,7 @@ const defaultFormValues: AddStripePaymentProviderInput = {
   code: '',
   secretKey: '',
   supports3ds: false,
+  requireTermsOfServiceConsent: false,
 }
 
 const validationSchema = z.object({
@@ -96,6 +98,7 @@ const validationSchema = z.object({
   code: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
   secretKey: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
   supports3ds: z.boolean().optional(),
+  requireTermsOfServiceConsent: z.boolean().optional(),
 })
 
 export const useAddStripeDialog = () => {
@@ -221,6 +224,10 @@ export const useAddStripeDialog = () => {
       form.setFieldValue('code', stripeProvider.code || '')
       form.setFieldValue('secretKey', stripeProvider.secretKey || '')
       form.setFieldValue('supports3ds', stripeProvider.supports3ds || false)
+      form.setFieldValue(
+        'requireTermsOfServiceConsent',
+        stripeProvider.requireTermsOfServiceConsent || false,
+      )
     }
 
     formDialogOpeningDialog
@@ -266,6 +273,15 @@ export const useAddStripeDialog = () => {
                 <field.SwitchField
                   label={translate('text_1764107468210ibi78qsrukx')}
                   subLabel={translate('text_1764107468210lbhkj5no1vh')}
+                />
+              )}
+            </form.AppField>
+
+            <form.AppField name="requireTermsOfServiceConsent">
+              {(field) => (
+                <field.SwitchField
+                  label={translate('text_1784801513985pk4c5o9i14q')}
+                  subLabel={translate('text_1784801513985p5jt63f9cnp')}
                 />
               )}
             </form.AppField>

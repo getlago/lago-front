@@ -3,9 +3,21 @@ import { act } from '@testing-library/react'
 import { lazyLoad } from '../utils'
 
 const mockAddToast = jest.fn()
+const mockReloadWithCacheBust = jest.fn()
+const mockCaptureException = jest.fn()
+const mockCaptureMessage = jest.fn()
 
 jest.mock('~/core/apolloClient/reactiveVars/toastVar', () => ({
   addToast: mockAddToast,
+}))
+
+jest.mock('~/core/utils/reloadWithCacheBust', () => ({
+  reloadWithCacheBust: () => mockReloadWithCacheBust(),
+}))
+
+jest.mock('@sentry/react', () => ({
+  captureException: (...args: unknown[]) => mockCaptureException(...args),
+  captureMessage: (...args: unknown[]) => mockCaptureMessage(...args),
 }))
 
 const DummyComponent = () => <div>loaded</div>
@@ -60,6 +72,9 @@ describe('lazyLoad / retry', () => {
         expect(resolved).toBe(true)
         expect(sessionStorage.getItem('lago_chunk_reload')).toBeNull()
         expect(mockAddToast).not.toHaveBeenCalled()
+        expect(mockReloadWithCacheBust).not.toHaveBeenCalled()
+        expect(mockCaptureMessage).not.toHaveBeenCalled()
+        expect(mockCaptureException).not.toHaveBeenCalled()
       })
     })
   })
@@ -91,13 +106,14 @@ describe('lazyLoad / retry', () => {
 
         expect(resolved).toBe(true)
         expect(sessionStorage.getItem('lago_chunk_reload')).toBeNull()
+        expect(mockReloadWithCacheBust).not.toHaveBeenCalled()
       })
     })
   })
 
   describe('GIVEN all retries fail and no previous reload', () => {
     describe('WHEN retries are exhausted', () => {
-      it('THEN should mark the reload flag in sessionStorage', async () => {
+      it('THEN should mark the reload flag and navigate with a cache-busting URL', async () => {
         const loader = () => Promise.reject(new Error('chunk failed'))
         const LazyComponent = lazyLoad(loader)
 
@@ -110,9 +126,33 @@ describe('lazyLoad / retry', () => {
         })
 
         // sessionStorage timestamp proves the reload branch was taken.
-        // Clock advanced 3s (retries), so markReloaded() wrote FAKE_NOW + 3000.
+        // Clock advanced 2s (retries), so markReloaded() wrote FAKE_NOW + 2000.
         expect(sessionStorage.getItem('lago_chunk_reload')).toBe(String(FAKE_NOW + 2000))
+        expect(mockReloadWithCacheBust).toHaveBeenCalledTimes(1)
         expect(mockAddToast).not.toHaveBeenCalled()
+      })
+
+      it('THEN should report the reload to Sentry', async () => {
+        const loader = () => Promise.reject(new Error('chunk failed'))
+        const LazyComponent = lazyLoad(loader)
+
+        act(() => {
+          triggerLazy(LazyComponent)
+        })
+
+        await act(async () => {
+          await jest.advanceTimersByTimeAsync(3000)
+        })
+
+        expect(mockCaptureMessage).toHaveBeenCalledWith(
+          expect.any(String),
+          expect.objectContaining({
+            level: 'warning',
+            tags: { chunkLoad: true, phase: 'reload' },
+            fingerprint: ['chunk-load-failure'],
+          }),
+        )
+        expect(mockCaptureException).not.toHaveBeenCalled()
       })
     })
   })
@@ -126,7 +166,7 @@ describe('lazyLoad / retry', () => {
         const LazyComponent = lazyLoad(loader)
 
         act(() => {
-          triggerLazy(LazyComponent)
+          triggerLazy(LazyComponent).catch(() => {})
         })
 
         await act(async () => {
@@ -137,6 +177,53 @@ describe('lazyLoad / retry', () => {
           expect.objectContaining({
             severity: 'info',
             autoDismiss: false,
+          }),
+        )
+        expect(mockReloadWithCacheBust).not.toHaveBeenCalled()
+      })
+
+      it('THEN should reject with the original error so the boundary can render', async () => {
+        sessionStorage.setItem('lago_chunk_reload', Date.now().toString())
+
+        const chunkError = new Error('chunk failed')
+        const loader = () => Promise.reject(chunkError)
+        const LazyComponent = lazyLoad(loader)
+        let rejection: unknown
+
+        act(() => {
+          triggerLazy(LazyComponent).catch((error) => {
+            rejection = error
+          })
+        })
+
+        await act(async () => {
+          await jest.advanceTimersByTimeAsync(3000)
+        })
+
+        expect(rejection).toBe(chunkError)
+      })
+
+      it('THEN should report the dead-end to Sentry', async () => {
+        sessionStorage.setItem('lago_chunk_reload', Date.now().toString())
+
+        const chunkError = new Error('chunk failed')
+        const loader = () => Promise.reject(chunkError)
+        const LazyComponent = lazyLoad(loader)
+
+        act(() => {
+          triggerLazy(LazyComponent).catch(() => {})
+        })
+
+        await act(async () => {
+          await jest.advanceTimersByTimeAsync(3000)
+        })
+
+        expect(mockCaptureException).toHaveBeenCalledWith(
+          chunkError,
+          expect.objectContaining({
+            tags: { chunkLoad: true, phase: 'dead-end' },
+            fingerprint: ['chunk-load-failure'],
+            extra: expect.objectContaining({ appVersion: '1.0.0' }),
           }),
         )
       })
@@ -162,6 +249,7 @@ describe('lazyLoad / retry', () => {
 
         // Should take the reload branch — markReloaded() wrote a fresh timestamp
         expect(sessionStorage.getItem('lago_chunk_reload')).toBe(String(FAKE_NOW + 2000))
+        expect(mockReloadWithCacheBust).toHaveBeenCalledTimes(1)
         expect(mockAddToast).not.toHaveBeenCalled()
       })
     })
@@ -178,7 +266,7 @@ describe('lazyLoad / retry', () => {
         const LazyComponent = lazyLoad(loader)
 
         act(() => {
-          triggerLazy(LazyComponent)
+          triggerLazy(LazyComponent).catch(() => {})
         })
 
         await act(async () => {
@@ -191,6 +279,7 @@ describe('lazyLoad / retry', () => {
             autoDismiss: false,
           }),
         )
+        expect(mockReloadWithCacheBust).not.toHaveBeenCalled()
       })
     })
   })
@@ -217,6 +306,7 @@ describe('lazyLoad / retry', () => {
 
         // Toast should NOT be called — we took the reload path, not the toast path
         expect(mockAddToast).not.toHaveBeenCalled()
+        expect(mockReloadWithCacheBust).toHaveBeenCalledTimes(1)
       })
     })
   })

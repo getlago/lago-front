@@ -16,11 +16,3 @@ export const createCustomSectionValidationSchema = z
   })
 
 export type CreateCustomSectionValues = z.infer<typeof createCustomSectionValidationSchema>
-
-export const emptyCreateCustomSectionDefaultValues: CreateCustomSectionValues = {
-  name: '',
-  code: '',
-  description: '',
-  displayName: '',
-  details: '',
-}
