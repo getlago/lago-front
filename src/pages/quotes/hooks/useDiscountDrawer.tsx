@@ -87,6 +87,14 @@ interface DiscountFormValues {
   percentageRate: string
   frequency: CouponFrequency
   frequencyDuration: string | number
+  // Base catalog values captured from the selected coupon at selection time.
+  // They feed the `payload` snapshot (the faithful catalog reference), kept
+  // separate from the user-editable amount/percentageRate/frequency fields that
+  // feed `overrides`. Raw units — baseAmountCents stays in cents (no serialize).
+  baseAmountCents: number | null
+  basePercentageRate: number | null
+  baseFrequency: CouponFrequency
+  baseFrequencyDuration: number | null
 }
 
 const makeDefaults = (currency: CurrencyEnum): DiscountFormValues => ({
@@ -99,6 +107,10 @@ const makeDefaults = (currency: CurrencyEnum): DiscountFormValues => ({
   percentageRate: '',
   frequency: CouponFrequency.Forever,
   frequencyDuration: '',
+  baseAmountCents: null,
+  basePercentageRate: null,
+  baseFrequency: CouponFrequency.Forever,
+  baseFrequencyDuration: null,
 })
 
 const schema = z
@@ -113,6 +125,11 @@ const schema = z
     frequency: z.nativeEnum(CouponFrequency),
     // number when set via the `int` input formatter, string on prefill/default
     frequencyDuration: z.union([z.string(), z.number()]),
+    // Base catalog values — not user-editable, carried through to the payload snapshot.
+    baseAmountCents: z.number().nullable(),
+    basePercentageRate: z.number().nullable(),
+    baseFrequency: z.nativeEnum(CouponFrequency),
+    baseFrequencyDuration: z.number().nullable(),
   })
   .superRefine((data, ctx) => {
     if (data.couponType === CouponTypeEnum.FixedAmount && !data.amount) {
@@ -181,6 +198,10 @@ const DiscountDrawerContent = withForm({
 
                   if (!coupon) {
                     form.setFieldValue('couponId', '')
+                    form.setFieldValue('baseAmountCents', null)
+                    form.setFieldValue('basePercentageRate', null)
+                    form.setFieldValue('baseFrequency', CouponFrequency.Forever)
+                    form.setFieldValue('baseFrequencyDuration', null)
                     return
                   }
 
@@ -206,6 +227,20 @@ const DiscountDrawerContent = withForm({
                       ? String(coupon.frequencyDuration)
                       : '',
                   )
+
+                  // Capture the coupon's base catalog values for the payload
+                  // snapshot (kept separate from the editable fields above, which
+                  // feed overrides). amountCents is a BigInt scalar (a STRING at
+                  // runtime), so coerce to a number — the payload keeps raw cents.
+                  form.setFieldValue(
+                    'baseAmountCents',
+                    coupon.amountCents !== null && coupon.amountCents !== undefined
+                      ? Number(coupon.amountCents)
+                      : null,
+                  )
+                  form.setFieldValue('basePercentageRate', coupon.percentageRate ?? null)
+                  form.setFieldValue('baseFrequency', coupon.frequency)
+                  form.setFieldValue('baseFrequencyDuration', coupon.frequencyDuration ?? null)
                 }}
               />
 
@@ -447,11 +482,11 @@ export const useDiscountDrawer = (
               id: value.couponId,
               name: value.name,
               type: value.couponType === CouponTypeEnum.Percentage ? 'percentage' : 'fixed_amount',
-              amountCents: null,
-              percentageRate: null,
+              amountCents: value.baseAmountCents,
+              percentageRate: value.basePercentageRate,
               currency,
-              frequency: 'forever',
-              frequencyDuration: null,
+              frequency: value.baseFrequency as CouponPayload['frequency'],
+              frequencyDuration: value.baseFrequencyDuration,
               expirationAt: null,
               limitedPlans: false,
               planCodes: [],
@@ -512,6 +547,7 @@ export const useDiscountDrawer = (
     ({ onSave, editData }) => {
       const localId = editData?.localId ?? crypto.randomUUID()
       const existing = editData ? itemsRef.current[localId] : undefined
+      const existingSnapshot = editData ? originalPayloadsRef.current[localId] : undefined
 
       pendingSaveRef.current = { onSave, localId, isEdit: !!editData }
 
@@ -533,6 +569,18 @@ export const useDiscountDrawer = (
                 existing.frequencyDuration !== null && existing.frequencyDuration !== undefined
                   ? String(existing.frequencyDuration)
                   : '',
+              // Seed base values from the stored snapshot so a later coupon change
+              // rebuilds the payload consistently. Coerce amountCents — a saved
+              // snapshot may carry it as a BigInt string.
+              baseAmountCents:
+                existingSnapshot?.amountCents !== null &&
+                existingSnapshot?.amountCents !== undefined
+                  ? Number(existingSnapshot.amountCents)
+                  : null,
+              basePercentageRate: existingSnapshot?.percentageRate ?? null,
+              baseFrequency:
+                (existingSnapshot?.frequency as CouponFrequency) ?? CouponFrequency.Forever,
+              baseFrequencyDuration: existingSnapshot?.frequencyDuration ?? null,
             }
           : makeDefaults(currency),
         { keepDefaultValues: true },

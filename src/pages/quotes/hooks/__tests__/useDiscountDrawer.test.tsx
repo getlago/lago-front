@@ -61,7 +61,9 @@ jest.mock('~/generated/graphql', () => {
     name: 'Ten Off',
     code: 'COUPON_CODE',
     amountCurrency: actual.CurrencyEnum.Eur,
-    amountCents: 1000,
+    // Real API returns amountCents as a BigInt scalar => a STRING at runtime,
+    // not a number. Mirror that so validation/coercion is exercised faithfully.
+    amountCents: '1000',
     couponType: actual.CouponTypeEnum.FixedAmount,
     percentageRate: null,
     frequency: actual.CouponFrequency.Once,
@@ -538,6 +540,164 @@ describe('useDiscountDrawer', () => {
       frequency: 'once',
       frequencyDuration: null,
     })
+  })
+
+  it('sends the coupon base value in payload while overrides carries the edited value (LAGO-1770)', async () => {
+    const onPersist = jest.fn()
+    const { result } = renderHook(() =>
+      useDiscountDrawer(undefined, { currency: CurrencyEnum.Usd, onPersist }),
+    )
+
+    act(() => {
+      result.current.onDiscountCommand({ onSave: jest.fn() })
+    })
+
+    const openArgs = mockDrawerOpen.mock.calls[0][0]
+
+    render(
+      <>
+        {openArgs.children}
+        {openArgs.actions}
+      </>,
+    )
+
+    const comboBoxInput = screen.getByRole('combobox') as HTMLInputElement
+
+    await userEvent.type(comboBoxInput, 'Ten')
+
+    await waitFor(() => {
+      expect(comboBoxInput.getAttribute('aria-controls')).toBeTruthy()
+    })
+
+    const listboxId = comboBoxInput.getAttribute('aria-controls') as string
+    const listbox = document.getElementById(listboxId) as HTMLElement
+
+    await userEvent.click(within(listbox).getByText('Ten Off'))
+
+    // Amount prefills to the base value (1000 cents -> "10"); override it to 50.
+    const amountInput = await screen.findByDisplayValue('10')
+
+    await userEvent.clear(amountInput)
+    await userEvent.type(amountInput, '50')
+
+    const saveButton = screen.getByTestId(DISCOUNT_DRAWER_SAVE_TEST_ID)
+
+    await waitFor(() => {
+      expect(saveButton).not.toBeDisabled()
+    })
+
+    await userEvent.click(saveButton)
+
+    await waitFor(() => {
+      expect(onPersist).toHaveBeenCalledTimes(1)
+    })
+
+    const persistedPayload = onPersist.mock.calls[0][0] as {
+      coupons: Array<{
+        payload: {
+          amountCents: number | null
+          percentageRate: number | null
+          frequency: string
+          frequencyDuration: number | null
+        }
+        overrides: { amountCents: number | null }
+      }>
+    }
+
+    const [coupon] = persistedPayload.coupons
+
+    // payload = faithful catalog snapshot (base value, raw cents from the API)
+    expect(coupon.payload.amountCents).toBe(1000)
+    expect(coupon.payload.percentageRate).toBeNull()
+    expect(coupon.payload.frequency).toBe('once')
+    expect(coupon.payload.frequencyDuration).toBeNull()
+
+    // overrides = the user-edited value (50 USD -> 5000 cents)
+    expect(coupon.overrides.amountCents).toBe(5000)
+
+    // Drawer must close on a successful save.
+    expect(mockDrawerClose).toHaveBeenCalled()
+  })
+
+  it('closes the drawer when editing an existing coupon and changing the override', async () => {
+    const initialBillingItems: BillingItemsPayload = {
+      addOns: [],
+      coupons: [
+        {
+          type: 'coupon',
+          id: 'cpn_fixed',
+          localId: 'saved-local',
+          payload: {
+            position: 1,
+            code: 'COUPON_CODE',
+            id: 'cpn_fixed',
+            name: 'Ten Off',
+            type: 'fixed_amount',
+            amountCents: 1000,
+            percentageRate: null,
+            currency: CurrencyEnum.Usd,
+            frequency: 'once',
+            frequencyDuration: null,
+            expirationAt: null,
+            limitedPlans: false,
+            planCodes: [],
+            limitedBillableMetrics: false,
+            billableMetricCodes: [],
+            couponOverrides: null,
+            catalogSnapshot: null,
+            resolvedPayload: null,
+          },
+          overrides: {
+            amountCents: 1000,
+            percentageRate: null,
+            frequency: 'once',
+            frequencyDuration: null,
+          },
+        },
+      ],
+    }
+
+    const onPersist = jest.fn()
+    const { result } = renderHook(() =>
+      useDiscountDrawer(initialBillingItems, { currency: CurrencyEnum.Usd, onPersist }),
+    )
+
+    act(() => {
+      result.current.onDiscountCommand({
+        onSave: jest.fn(),
+        editData: { couponId: 'cpn_fixed', localId: 'saved-local' },
+      })
+    })
+
+    const openArgs = mockDrawerOpen.mock.calls[0][0]
+
+    render(
+      <>
+        {openArgs.children}
+        {openArgs.actions}
+      </>,
+    )
+
+    // Prefilled override amount is 10 (1000 cents). Change it to 75.
+    const amountInput = await screen.findByDisplayValue('10')
+
+    await userEvent.clear(amountInput)
+    await userEvent.type(amountInput, '75')
+
+    const allSaveButtons = screen.getAllByTestId(DISCOUNT_DRAWER_SAVE_TEST_ID)
+    const saveButton = allSaveButtons[allSaveButtons.length - 1]
+
+    await waitFor(() => {
+      expect(saveButton).not.toBeDisabled()
+    })
+
+    await userEvent.click(saveButton)
+
+    await waitFor(() => {
+      expect(onPersist).toHaveBeenCalledTimes(1)
+    })
+
+    expect(mockDrawerClose).toHaveBeenCalled()
   })
 
   it('persists a typed recurring duration (int formatter yields a number, not a string)', async () => {
@@ -1158,6 +1318,48 @@ describe('useDiscountDrawer', () => {
       await waitFor(() => {
         expect(result.current.entities).toHaveProperty('mock-uuid-1')
       })
+    })
+  })
+
+  it('clears the coupon and its captured base value when the selection is cleared', async () => {
+    const { result } = renderHook(() => useDiscountDrawer(undefined, options))
+
+    act(() => {
+      result.current.onDiscountCommand({ onSave: jest.fn() })
+    })
+
+    const openArgs = mockDrawerOpen.mock.calls[0][0]
+
+    render(
+      <>
+        {openArgs.children}
+        {openArgs.actions}
+      </>,
+    )
+
+    const comboBoxInput = screen.getByRole('combobox') as HTMLInputElement
+
+    await userEvent.type(comboBoxInput, 'Ten')
+
+    await waitFor(() => {
+      expect(comboBoxInput.getAttribute('aria-controls')).toBeTruthy()
+    })
+
+    const listboxId = comboBoxInput.getAttribute('aria-controls') as string
+    const listbox = document.getElementById(listboxId) as HTMLElement
+
+    await userEvent.click(within(listbox).getByText('Ten Off'))
+
+    // Selecting captures the base value and surfaces it as the prefilled amount.
+    expect(await screen.findByDisplayValue('10')).toBeInTheDocument()
+
+    // Clearing the combobox runs the `!coupon` branch: couponId and the four
+    // captured base fields reset, so the coupon-dependent amount field unmounts.
+    await userEvent.clear(comboBoxInput)
+    comboBoxInput.blur()
+
+    await waitFor(() => {
+      expect(screen.queryByDisplayValue('10')).not.toBeInTheDocument()
     })
   })
 })
