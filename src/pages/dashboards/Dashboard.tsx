@@ -33,7 +33,7 @@ gql`
 
 export const DASHBOARD_MOUNT_TEST_ID = 'superset-dashboard-mount'
 
-type DashboardProps = {
+export type DashboardProps = {
   contentTitle: string
   dashboardTitle: string
   dashboardTitleTestKey: string
