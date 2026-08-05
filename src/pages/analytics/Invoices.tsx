@@ -97,9 +97,6 @@ gql`
   }
 `
 
-export type TInvoiceCollectionsDataResult =
-  GetInvoiceCollectionsForAnalyticsQuery['invoiceCollections']['collection']
-
 const GRAPH_COLORS = [
   theme.palette.success[400],
   theme.palette.secondary[400],
