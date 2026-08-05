@@ -1320,4 +1320,46 @@ describe('useDiscountDrawer', () => {
       })
     })
   })
+
+  it('clears the coupon and its captured base value when the selection is cleared', async () => {
+    const { result } = renderHook(() => useDiscountDrawer(undefined, options))
+
+    act(() => {
+      result.current.onDiscountCommand({ onSave: jest.fn() })
+    })
+
+    const openArgs = mockDrawerOpen.mock.calls[0][0]
+
+    render(
+      <>
+        {openArgs.children}
+        {openArgs.actions}
+      </>,
+    )
+
+    const comboBoxInput = screen.getByRole('combobox') as HTMLInputElement
+
+    await userEvent.type(comboBoxInput, 'Ten')
+
+    await waitFor(() => {
+      expect(comboBoxInput.getAttribute('aria-controls')).toBeTruthy()
+    })
+
+    const listboxId = comboBoxInput.getAttribute('aria-controls') as string
+    const listbox = document.getElementById(listboxId) as HTMLElement
+
+    await userEvent.click(within(listbox).getByText('Ten Off'))
+
+    // Selecting captures the base value and surfaces it as the prefilled amount.
+    expect(await screen.findByDisplayValue('10')).toBeInTheDocument()
+
+    // Clearing the combobox runs the `!coupon` branch: couponId and the four
+    // captured base fields reset, so the coupon-dependent amount field unmounts.
+    await userEvent.clear(comboBoxInput)
+    comboBoxInput.blur()
+
+    await waitFor(() => {
+      expect(screen.queryByDisplayValue('10')).not.toBeInTheDocument()
+    })
+  })
 })
