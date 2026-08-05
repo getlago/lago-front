@@ -4562,5 +4562,9 @@
   "text_1784307344255lgty3uwoghl": "Delete connection to Microsoft Entra ID",
   "text_17843073442556cjrcl7drw6": "By deleting the connection, it will not be used anymore and you’ll be not able to access to your Lago organization via Microsoft Entra ID SSO. Are you sure?",
   "text_1784307344255fan2blwpos6": "Host",
-  "text_1785339647668vsn4wyo0j7n": "Delete Microsoft Entra ID connection"
+  "text_1785339647668vsn4wyo0j7n": "Delete Microsoft Entra ID connection",
+  "text_1785937424540jyldwaxzp6s": "This metric is used in active plans or subscriptions. Removing filter values may change or delete existing plan charge filters and may require manual review of the affected plans.",
+  "text_1785937424540rcpk2gtmvcw": "Remove filter values?",
+  "text_17859374245407eq5b0eujux": "You're removing one or more filter values from a metric used in active plans or subscriptions. This may change or delete existing plan charge filters and may require manual review of the affected plans. Do you want to continue?",
+  "text_1785937424540njszxyvj0rx": "Continue"
 }
