@@ -27,11 +27,10 @@ Check the wiki [guide](https://github.com/getlago/lago-front/wiki)
 
 This project includes a set of custom skills for Claude Code that automate common migration and testing workflows. Skills are invoked via slash commands.
 
-| Skill                          | Command                              | Description                                                                                                                                                                                                |
-| ------------------------------ | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Make Tests**                 | `/make-tests <pr-number \| branch>`  | Detects modified component files from a PR or branch, adds `data-test` attributes, and creates or migrates tests following project testing conventions.                                                    |
-| **Migrate Dialog**             | `/migrate-dialog <path>`             | Migrates a dialog component from the legacy imperative ref-based `Dialog` system (`forwardRef` + `useImperativeHandle`) to the new hook-based NiceModal system (`useFormDialog` / `useCentralizedDialog`). |
-| **Migrate Formik to TanStack** | `/migrate-formik-to-tanstack <path>` | Migrates a React form from Formik (`useFormik` + Yup) to TanStack Form (`useAppForm` + Zod), following project conventions.                                                                                |
+| Skill                          | Command                              | Description                                                                                                                                             |
+| ------------------------------ | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Make Tests**                 | `/make-tests <pr-number \| branch>`  | Detects modified component files from a PR or branch, adds `data-test` attributes, and creates or migrates tests following project testing conventions. |
+| **Migrate Formik to TanStack** | `/migrate-formik-to-tanstack <path>` | Migrates a React form from Formik (`useFormik` + Yup) to TanStack Form (`useAppForm` + Zod), following project conventions.                             |
 
 ### Skill files
 
