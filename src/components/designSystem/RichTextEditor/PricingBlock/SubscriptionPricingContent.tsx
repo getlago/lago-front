@@ -151,6 +151,12 @@ export function SubscriptionPricingContent({
   const displayCurrency = currency ?? CurrencyEnum.Usd
   const displayInterval = formInterval || PlanInterval.Monthly
 
+  // Base (original) plan name for the payload. On a fresh selection it comes from the
+  // freshly-fetched plan; when editing an existing quote plan the plan query is skipped
+  // (planData is undefined), so fall back to the already-stored base name.
+  const basePlanName =
+    planData?.name ?? billingItemPlan?.payload.name ?? initialState?.basePlanName ?? formName
+
   // Sync to stateRef + formValuesRef. Overrides are no longer computed here:
   // toPlanBillingItems() derives them from formValuesRef (see buildPlanOverrides).
   useEffect(() => {
@@ -163,6 +169,7 @@ export function SubscriptionPricingContent({
       planId: planData?.id ?? selectedPlanId,
       planCode: formCode,
       planName: formName,
+      basePlanName,
       planDescription: formDescription ?? '',
       subscriptionSettings,
       invoicingSettings,
@@ -176,6 +183,7 @@ export function SubscriptionPricingContent({
     subscriptionSettings,
     invoicingSettings,
     formName,
+    basePlanName,
     formDescription,
     formCode,
     formValues,
