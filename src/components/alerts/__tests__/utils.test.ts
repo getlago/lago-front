@@ -1,5 +1,14 @@
-import { patchThreshold, sortAndFormatThresholds } from '~/components/alerts/utils'
-import { AlertThreshold, CurrencyEnum, ThresholdInput } from '~/generated/graphql'
+import {
+  patchThreshold,
+  showUnhandledSubmitErrorToast,
+  sortAndFormatThresholds,
+} from '~/components/alerts/utils'
+import { addToast } from '~/core/apolloClient'
+import { AlertThreshold, CurrencyEnum, LagoApiError, ThresholdInput } from '~/generated/graphql'
+
+jest.mock('~/core/apolloClient', () => ({
+  addToast: jest.fn(),
+}))
 
 const threshold = (overrides: Partial<AlertThreshold> = {}): AlertThreshold => ({
   code: 'threshold-code',
@@ -133,6 +142,54 @@ describe('patchThreshold', () => {
         patchThreshold(baseThreshold, 'value', '999')
 
         expect(baseThreshold.value).toBe('100')
+      })
+    })
+  })
+})
+
+describe('showUnhandledSubmitErrorToast', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  describe('GIVEN errors holding a silenced 422', () => {
+    describe('WHEN the fallback runs', () => {
+      it('THEN should show the generic danger toast', () => {
+        showUnhandledSubmitErrorToast([
+          {
+            message: 'Unprocessable Entity',
+            extensions: {
+              code: LagoApiError.UnprocessableEntity,
+              details: { value: ['invalid_value'] },
+            },
+          },
+        ])
+
+        expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
+      })
+    })
+  })
+
+  describe('GIVEN errors the global error link already toasted', () => {
+    describe('WHEN the fallback runs', () => {
+      it('THEN should not toast a non-422 error again', () => {
+        showUnhandledSubmitErrorToast([
+          { message: 'Internal error', extensions: { code: LagoApiError.InternalError } },
+        ])
+
+        expect(addToast).not.toHaveBeenCalled()
+      })
+
+      it('THEN should not toast an error without extensions', () => {
+        showUnhandledSubmitErrorToast([{ message: 'Unknown' }])
+
+        expect(addToast).not.toHaveBeenCalled()
+      })
+
+      it('THEN should not toast when there is no error at all', () => {
+        showUnhandledSubmitErrorToast([])
+
+        expect(addToast).not.toHaveBeenCalled()
       })
     })
   })

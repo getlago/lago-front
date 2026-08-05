@@ -1,5 +1,8 @@
+import { GraphQLFormattedError } from 'graphql'
+
+import { addToast } from '~/core/apolloClient'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
-import { AlertThreshold, CurrencyEnum, ThresholdInput } from '~/generated/graphql'
+import { AlertThreshold, CurrencyEnum, LagoApiError, ThresholdInput } from '~/generated/graphql'
 
 /**
  * Turns the API thresholds of an alert into the shape the thresholds table
@@ -110,4 +113,21 @@ export const setCodeAlreadyExistsError = (formApi: CodeErrorFormApi): void => {
   })
 
   document.getElementById('root')?.scrollTo({ top: 0 })
+}
+
+/**
+ * The alert mutations silence UnprocessableEntity (via their `context`), so a
+ * handled 422 — the duplicate code — no longer fires the global toast and the
+ * Sentry capture. A 422 whose details the submit does not handle must still
+ * surface a failure signal, hence the generic toast here. Errors with any
+ * other code were never silenced: the global error link already toasted them.
+ */
+export const showUnhandledSubmitErrorToast = (errors: readonly GraphQLFormattedError[]): void => {
+  const hasSilencedError = errors.some(
+    (error) => error.extensions?.code === LagoApiError.UnprocessableEntity,
+  )
+
+  if (!hasSilencedError) return
+
+  addToast({ severity: 'danger', translateKey: 'text_622f7a3dc32ce100c46a5154' })
 }

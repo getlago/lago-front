@@ -6,7 +6,11 @@ import { generatePath, useParams } from 'react-router-dom'
 import { AlertNameAndCodeSection } from '~/components/alerts/AlertNameAndCodeSection'
 import AlertThresholds, { isThresholdValueValid } from '~/components/alerts/Thresholds'
 import { useAlertFormLeaveGuards } from '~/components/alerts/useAlertFormLeaveGuards'
-import { createThresholdSetters, setCodeAlreadyExistsError } from '~/components/alerts/utils'
+import {
+  createThresholdSetters,
+  setCodeAlreadyExistsError,
+  showUnhandledSubmitErrorToast,
+} from '~/components/alerts/utils'
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
@@ -132,8 +136,12 @@ const WalletAlertForm = () => {
     onLeave,
   })
 
-  const [updateAlert] = useUpdateWalletAlertMutation()
-  const [createAlert] = useCreateWalletAlertMutation()
+  const [updateAlert] = useUpdateWalletAlertMutation({
+    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
+  })
+  const [createAlert] = useCreateWalletAlertMutation({
+    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
+  })
 
   const defaultValues = useMemo(
     () =>
@@ -175,6 +183,12 @@ const WalletAlertForm = () => {
           return
         }
 
+        if (errors?.length) {
+          showUnhandledSubmitErrorToast(errors)
+
+          return
+        }
+
         if (!updateData?.updateCustomerWalletAlert?.id) return
 
         addToast({
@@ -190,6 +204,12 @@ const WalletAlertForm = () => {
 
         if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
           setCodeAlreadyExistsError(formApi)
+
+          return
+        }
+
+        if (errors?.length) {
+          showUnhandledSubmitErrorToast(errors)
 
           return
         }

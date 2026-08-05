@@ -2,7 +2,7 @@ import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
-import { AlertTypeEnum } from '~/generated/graphql'
+import { AlertTypeEnum, LagoApiError } from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import AlertForm, {
@@ -623,6 +623,39 @@ describe('AlertForm', () => {
         })
         expect(testMockNavigateFn).not.toHaveBeenCalled()
         expect(addToast).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the API rejects the submit with an unhandled 422', () => {
+      it('THEN should show the generic error toast and keep the user on the form', async () => {
+        const user = userEvent.setup()
+
+        mockLoadedQueries()
+        ;(hasDefinedGQLError as jest.Mock).mockImplementation(() => false)
+        mockCreateSubscriptionAlert.mockResolvedValue({
+          data: undefined,
+          errors: [
+            {
+              message: 'Unprocessable Entity',
+              extensions: {
+                code: LagoApiError.UnprocessableEntity,
+                details: { value: ['invalid_value'] },
+              },
+            },
+          ],
+        })
+
+        render(<AlertForm />)
+
+        await user.type(getInput('code'), 'my-alert')
+        await pickAlertType(user, AlertTypeEnum.CurrentUsageAmount)
+        await user.click(screen.getByTestId(SET_THRESHOLDS_BUTTON))
+        await user.click(screen.getByTestId(SUBMIT_SUBSCRIPTION_ALERT_TEST_ID))
+
+        await waitFor(() => {
+          expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
+        })
+        expect(testMockNavigateFn).not.toHaveBeenCalled()
       })
     })
   })
