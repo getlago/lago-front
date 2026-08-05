@@ -37,27 +37,26 @@ export enum BehaviorType {
   DEACTIVATE = 'deactivate',
 }
 
-type FormValues = {
-  behavior: BehaviorType
-  configurableInvoiceCustomSectionIds: string[]
-}
-
-const initialValues: FormValues = {
-  behavior: BehaviorType.FALLBACK,
-  configurableInvoiceCustomSectionIds: [],
-}
-
 const validationSchema = z
   .object({
     behavior: z.enum(BehaviorType),
-    configurableInvoiceCustomSectionIds: z.array(z.string()),
+    // The MultipleComboBox stores whole options, not plain ids: keep the option shape here and
+    // map back to ids on submit.
+    configurableInvoiceCustomSections: z.array(z.looseObject({ value: z.string() })),
   })
   .refine(
     (data) =>
       data.behavior !== BehaviorType.CUSTOM_SECTIONS ||
-      data.configurableInvoiceCustomSectionIds.length > 0,
-    { path: ['configurableInvoiceCustomSectionIds'], message: '' },
+      data.configurableInvoiceCustomSections.length > 0,
+    { path: ['configurableInvoiceCustomSections'], message: '' },
   )
+
+type FormValues = z.infer<typeof validationSchema>
+
+const initialValues: FormValues = {
+  behavior: BehaviorType.FALLBACK,
+  configurableInvoiceCustomSections: [],
+}
 
 const DialogContent = withForm({
   defaultValues: initialValues,
@@ -104,7 +103,7 @@ const DialogContent = withForm({
           )}
         </form.AppField>
         {behavior === BehaviorType.CUSTOM_SECTIONS && (
-          <form.AppField name="configurableInvoiceCustomSectionIds">
+          <form.AppField name="configurableInvoiceCustomSections">
             {(field) => (
               <field.MultipleComboBoxField
                 hideTags={false}
@@ -174,7 +173,9 @@ export const useEditCustomerInvoiceCustomSectionsDialog = (customerId: string) =
           formattedValues = {
             ...formattedValues,
             skipInvoiceCustomSections: false,
-            configurableInvoiceCustomSectionIds: value.configurableInvoiceCustomSectionIds,
+            configurableInvoiceCustomSectionIds: value.configurableInvoiceCustomSections.map(
+              (section) => section.value,
+            ),
           }
           break
         case BehaviorType.DEACTIVATE:
@@ -207,8 +208,11 @@ export const useEditCustomerInvoiceCustomSectionsDialog = (customerId: string) =
     if (customerData?.hasOverwrittenInvoiceCustomSectionsSelection) {
       form.setFieldValue('behavior', BehaviorType.CUSTOM_SECTIONS)
       form.setFieldValue(
-        'configurableInvoiceCustomSectionIds',
-        customerData.configurableInvoiceCustomSections.map((section) => section.id),
+        'configurableInvoiceCustomSections',
+        customerData.configurableInvoiceCustomSections.map((section) => ({
+          value: section.id,
+          label: section.name,
+        })),
       )
     } else if (customerData?.skipInvoiceCustomSections) {
       form.setFieldValue('behavior', BehaviorType.DEACTIVATE)
