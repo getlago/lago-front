@@ -31,6 +31,9 @@ const mockUpdateIntegration = jest.fn(() =>
 const mockDestroyIntegration = jest.fn(() =>
   Promise.resolve({ data: { destroyIntegrationCustomer: { id: 'link-1' } } }),
 )
+const mockClearPaymentProvider = jest.fn(() =>
+  Promise.resolve({ data: { updateCustomer: { id: 'cust-1' } } }),
+)
 const mockClientQuery = jest.fn(() => Promise.resolve({ data: { customer: null } }))
 const mockAddToast = jest.fn()
 
@@ -42,6 +45,7 @@ jest.mock('~/generated/graphql', () => ({
   useCreateCustomerIntegrationConnectionMutation: () => [mockCreateIntegration],
   useUpdateCustomerIntegrationConnectionMutation: () => [mockUpdateIntegration],
   useDestroyCustomerIntegrationConnectionMutation: () => [mockDestroyIntegration],
+  useClearCustomerPaymentProviderMutation: () => [mockClearPaymentProvider],
 }))
 
 jest.mock('@apollo/client', () => ({
@@ -425,6 +429,35 @@ describe('useCustomerConnectionsPersistence', () => {
         expect(mockDestroyIntegration).toHaveBeenCalledWith({
           variables: { input: { id: 'hc-1' } },
         })
+      })
+    })
+
+    describe('WHEN the payment connection has no provider-customer link', () => {
+      it('THEN should clear the payment provider with explicit nulls instead of aborting', async () => {
+        const linklessCustomer = {
+          ...customer,
+          providerCustomer: null,
+        } as unknown as AddCustomerDrawerFragment
+
+        const result = renderHook(() =>
+          useCustomerConnectionsPersistence({ customer: linklessCustomer, connectionOptions }),
+        ).result
+
+        const succeeded = await result.current.deleteConnection(ConnectionCategory.Payment)
+
+        expect(succeeded).toBe(true)
+        expect(mockClearPaymentProvider).toHaveBeenCalledWith({
+          variables: {
+            input: {
+              id: 'cust-1',
+              externalId: 'ext-1',
+              paymentProvider: null,
+              providerCustomer: null,
+            },
+          },
+        })
+        expect(mockDestroyPayment).not.toHaveBeenCalled()
+        expect(mockAddToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
       })
     })
 

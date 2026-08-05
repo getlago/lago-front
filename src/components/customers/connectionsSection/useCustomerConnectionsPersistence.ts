@@ -11,6 +11,7 @@ import {
   GetCustomerQuery,
   ProviderPaymentMethodsEnum,
   ProviderTypeEnum,
+  useClearCustomerPaymentProviderMutation,
   useCreateCustomerIntegrationConnectionMutation,
   useCreateCustomerPaymentConnectionMutation,
   useDestroyCustomerIntegrationConnectionMutation,
@@ -52,6 +53,15 @@ gql`
 
   mutation destroyCustomerIntegrationConnection($input: DestroyIntegrationCustomerInput!) {
     destroyIntegrationCustomer(input: $input) {
+      id
+    }
+  }
+
+  # Fallback only: removing a payment connection that has no provider-customer
+  # link (nothing for the dedicated destroy to target) is only expressible
+  # through the customer's explicit-null removal semantics
+  mutation clearCustomerPaymentProvider($input: UpdateCustomerInput!) {
+    updateCustomer(input: $input) {
       id
     }
   }
@@ -106,6 +116,7 @@ export const useCustomerConnectionsPersistence = ({
   const [createIntegrationConnection] = useCreateCustomerIntegrationConnectionMutation()
   const [updateIntegrationConnection] = useUpdateCustomerIntegrationConnectionMutation()
   const [destroyIntegrationConnection] = useDestroyCustomerIntegrationConnectionMutation()
+  const [clearPaymentProvider] = useClearCustomerPaymentProviderMutation()
 
   const refreshCustomer = async (): Promise<void> => {
     try {
@@ -315,6 +326,35 @@ export const useCustomerConnectionsPersistence = ({
       category === ConnectionCategory.Payment
         ? customer.providerCustomer?.id
         : getIntegrationCustomerForCategory(customer, category)?.id
+
+    // A payment connection can exist on paymentProvider/paymentProviderCode
+    // with no provider-customer link (Cashfree/Flutterwave, or sync off with
+    // no external id) — its row is still listed, so it must stay deletable:
+    // clear the customer's payment provider directly (explicit nulls are the
+    // removal semantics; omitted fields stay untouched)
+    if (category === ConnectionCategory.Payment && !existingId) {
+      const cleared = await runMutation(
+        () =>
+          clearPaymentProvider({
+            variables: {
+              input: {
+                id: customer.id,
+                externalId: customer.externalId,
+                paymentProvider: null,
+                providerCustomer: null,
+              },
+            },
+          }),
+        (data) => data.updateCustomer,
+      )
+
+      if (!cleared) return false
+
+      await refreshCustomer()
+      addToast({ severity: 'success', translateKey: 'text_661ff6e56ef7e1b7c542b2f9' })
+
+      return true
+    }
 
     // Nothing to destroy: the link never made it to the backend (or the
     // fragment is stale) — surface an error instead of a silent no-op

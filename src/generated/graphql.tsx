@@ -11823,6 +11823,13 @@ export type DestroyCustomerIntegrationConnectionMutationVariables = Exact<{
 
 export type DestroyCustomerIntegrationConnectionMutation = { __typename?: 'Mutation', destroyIntegrationCustomer?: { __typename?: 'DestroyIntegrationCustomerPayload', id?: string | null } | null };
 
+export type ClearCustomerPaymentProviderMutationVariables = Exact<{
+  input: UpdateCustomerInput;
+}>;
+
+
+export type ClearCustomerPaymentProviderMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string } | null };
+
 export type CreditNoteForVoidCreditNoteDialogFragment = { __typename?: 'CreditNote', id: string, totalAmountCents: any, currency: CurrencyEnum };
 
 export type VoidCreditNoteMutationVariables = Exact<{
@@ -26205,6 +26212,39 @@ export function useDestroyCustomerIntegrationConnectionMutation(baseOptions?: Ap
 export type DestroyCustomerIntegrationConnectionMutationHookResult = ReturnType<typeof useDestroyCustomerIntegrationConnectionMutation>;
 export type DestroyCustomerIntegrationConnectionMutationResult = Apollo.MutationResult<DestroyCustomerIntegrationConnectionMutation>;
 export type DestroyCustomerIntegrationConnectionMutationOptions = Apollo.BaseMutationOptions<DestroyCustomerIntegrationConnectionMutation, DestroyCustomerIntegrationConnectionMutationVariables>;
+export const ClearCustomerPaymentProviderDocument = gql`
+    mutation clearCustomerPaymentProvider($input: UpdateCustomerInput!) {
+  updateCustomer(input: $input) {
+    id
+  }
+}
+    `;
+export type ClearCustomerPaymentProviderMutationFn = Apollo.MutationFunction<ClearCustomerPaymentProviderMutation, ClearCustomerPaymentProviderMutationVariables>;
+
+/**
+ * __useClearCustomerPaymentProviderMutation__
+ *
+ * To run a mutation, you first call `useClearCustomerPaymentProviderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useClearCustomerPaymentProviderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [clearCustomerPaymentProviderMutation, { data, loading, error }] = useClearCustomerPaymentProviderMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useClearCustomerPaymentProviderMutation(baseOptions?: Apollo.MutationHookOptions<ClearCustomerPaymentProviderMutation, ClearCustomerPaymentProviderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ClearCustomerPaymentProviderMutation, ClearCustomerPaymentProviderMutationVariables>(ClearCustomerPaymentProviderDocument, options);
+      }
+export type ClearCustomerPaymentProviderMutationHookResult = ReturnType<typeof useClearCustomerPaymentProviderMutation>;
+export type ClearCustomerPaymentProviderMutationResult = Apollo.MutationResult<ClearCustomerPaymentProviderMutation>;
+export type ClearCustomerPaymentProviderMutationOptions = Apollo.BaseMutationOptions<ClearCustomerPaymentProviderMutation, ClearCustomerPaymentProviderMutationVariables>;
 export const VoidCreditNoteDocument = gql`
     mutation voidCreditNote($input: VoidCreditNoteInput!) {
   voidCreditNote(input: $input) {
