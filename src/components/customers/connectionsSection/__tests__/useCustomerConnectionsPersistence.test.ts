@@ -13,12 +13,24 @@ import {
 
 import { useCustomerConnectionsPersistence } from '../useCustomerConnectionsPersistence'
 
-const mockCreatePayment = jest.fn(() => Promise.resolve({ errors: undefined }))
-const mockUpdatePayment = jest.fn(() => Promise.resolve({ errors: undefined }))
-const mockDestroyPayment = jest.fn(() => Promise.resolve({ errors: undefined }))
-const mockCreateIntegration = jest.fn(() => Promise.resolve({ errors: undefined }))
-const mockUpdateIntegration = jest.fn(() => Promise.resolve({ errors: undefined }))
-const mockDestroyIntegration = jest.fn(() => Promise.resolve({ errors: undefined }))
+const mockCreatePayment = jest.fn(() =>
+  Promise.resolve({ data: { createPaymentProviderCustomer: { id: 'pc-new' } } }),
+)
+const mockUpdatePayment = jest.fn(() =>
+  Promise.resolve({ data: { updatePaymentProviderCustomer: { id: 'pc-1' } } }),
+)
+const mockDestroyPayment = jest.fn(() =>
+  Promise.resolve({ data: { destroyPaymentProviderCustomer: { id: 'pc-1' } } }),
+)
+const mockCreateIntegration = jest.fn(() =>
+  Promise.resolve({ data: { createIntegrationCustomer: { __typename: 'AnrokCustomer' } } }),
+)
+const mockUpdateIntegration = jest.fn(() =>
+  Promise.resolve({ data: { updateIntegrationCustomer: { __typename: 'NetsuiteCustomer' } } }),
+)
+const mockDestroyIntegration = jest.fn(() =>
+  Promise.resolve({ data: { destroyIntegrationCustomer: { id: 'link-1' } } }),
+)
 const mockClientQuery = jest.fn(() => Promise.resolve({ data: { customer: null } }))
 const mockAddToast = jest.fn()
 
@@ -472,6 +484,68 @@ describe('useCustomerConnectionsPersistence', () => {
         expect(mockAddToast).not.toHaveBeenCalledWith(
           expect.objectContaining({ severity: 'success' }),
         )
+      })
+    })
+  })
+
+  describe('GIVEN a mutation that throws (network error)', () => {
+    describe('WHEN deleting a connection', () => {
+      it('THEN should resolve false instead of bubbling an unhandled rejection', async () => {
+        mockDestroyIntegration.mockRejectedValueOnce(new Error('network'))
+
+        const result = setup()
+
+        const succeeded = await result.current.deleteConnection(ConnectionCategory.Crm)
+
+        expect(succeeded).toBe(false)
+        expect(mockAddToast).not.toHaveBeenCalledWith(
+          expect.objectContaining({ severity: 'success' }),
+        )
+      })
+    })
+
+    describe('WHEN saving a connection', () => {
+      it('THEN should resolve false and show no success toast', async () => {
+        mockUpdateIntegration.mockRejectedValueOnce(new Error('network'))
+
+        const result = setup()
+
+        const succeeded = await result.current.saveConnection(
+          ConnectionCategory.Accounting,
+          {
+            providerCode: 'ns-1',
+            providerType: IntegrationTypeEnum.Netsuite,
+            externalCustomerId: 'ns_cus_1',
+          } as ConnectionFormValues,
+          { isEdition: true },
+        )
+
+        expect(succeeded).toBe(false)
+        expect(mockAddToast).not.toHaveBeenCalledWith(
+          expect.objectContaining({ severity: 'success' }),
+        )
+      })
+    })
+  })
+
+  describe('GIVEN a mutation that resolves without its payload', () => {
+    describe('WHEN saving', () => {
+      it('THEN should treat the write as failed', async () => {
+        mockUpdateIntegration.mockResolvedValueOnce({ data: {} } as never)
+
+        const result = setup()
+
+        const succeeded = await result.current.saveConnection(
+          ConnectionCategory.Accounting,
+          {
+            providerCode: 'ns-1',
+            providerType: IntegrationTypeEnum.Netsuite,
+            externalCustomerId: 'ns_cus_1',
+          } as ConnectionFormValues,
+          { isEdition: true },
+        )
+
+        expect(succeeded).toBe(false)
       })
     })
   })

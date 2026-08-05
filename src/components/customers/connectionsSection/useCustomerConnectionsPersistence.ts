@@ -119,6 +119,26 @@ export const useCustomerConnectionsPersistence = ({
     }
   }
 
+  /**
+   * True only when the mutation returned its payload. Apollo THROWS on
+   * network and GraphQL errors (default errorPolicy) — without the catch a
+   * failure would bubble as an unhandled rejection from the delete
+   * confirmation dialog. No toast here: the global error link already
+   * surfaces non-silenced errors.
+   */
+  const runMutation = async <TData>(
+    mutate: () => Promise<{ data?: TData | null; errors?: readonly unknown[] }>,
+    getPayload: (data: TData) => unknown,
+  ): Promise<boolean> => {
+    try {
+      const { data, errors } = await mutate()
+
+      return !errors?.length && !!data && !!getPayload(data)
+    } catch {
+      return false
+    }
+  }
+
   /** The org integration behind a category slot's connection code */
   const resolveOrgIntegration = (
     category: Exclude<ConnectionCategory, ConnectionCategory.Payment>,
@@ -148,45 +168,50 @@ export const useCustomerConnectionsPersistence = ({
     const isSameConnection = customer.paymentProviderCode === values.providerCode
 
     if (existingId && isSameConnection) {
-      const { errors } = await updatePaymentConnection({
-        variables: {
-          input: {
-            id: existingId,
-            providerCustomerId: values.externalCustomerId || null,
-            syncWithProvider: values.syncWithProvider ?? false,
-            providerPaymentMethods: getEnabledPaymentMethods(values.providerPaymentMethods),
-          },
-        },
-      })
-
-      return !errors?.length
+      return runMutation(
+        () =>
+          updatePaymentConnection({
+            variables: {
+              input: {
+                id: existingId,
+                providerCustomerId: values.externalCustomerId || null,
+                syncWithProvider: values.syncWithProvider ?? false,
+                providerPaymentMethods: getEnabledPaymentMethods(values.providerPaymentMethods),
+              },
+            },
+          }),
+        (data) => data.updatePaymentProviderCustomer,
+      )
     }
 
     // Provider switch: the old link goes first (along with its saved payment
     // methods — replacing the provider always had that effect), then the new
     // connection is created
     if (existingId) {
-      const { errors: destroyErrors } = await destroyPaymentConnection({
-        variables: { input: { id: existingId } },
-      })
+      const destroyed = await runMutation(
+        () => destroyPaymentConnection({ variables: { input: { id: existingId } } }),
+        (data) => data.destroyPaymentProviderCustomer,
+      )
 
-      if (destroyErrors?.length) return false
+      if (!destroyed) return false
     }
 
-    const { errors } = await createPaymentConnection({
-      variables: {
-        input: {
-          customerId: customer.id,
-          paymentProvider,
-          paymentProviderCode: values.providerCode,
-          providerCustomerId: values.externalCustomerId || null,
-          syncWithProvider: values.syncWithProvider ?? false,
-          providerPaymentMethods: getEnabledPaymentMethods(values.providerPaymentMethods),
-        },
-      },
-    })
-
-    return !errors?.length
+    return runMutation(
+      () =>
+        createPaymentConnection({
+          variables: {
+            input: {
+              customerId: customer.id,
+              paymentProvider,
+              paymentProviderCode: values.providerCode,
+              providerCustomerId: values.externalCustomerId || null,
+              syncWithProvider: values.syncWithProvider ?? false,
+              providerPaymentMethods: getEnabledPaymentMethods(values.providerPaymentMethods),
+            },
+          },
+        }),
+      (data) => data.createPaymentProviderCustomer,
+    )
   }
 
   const saveIntegrationConnection = async (
@@ -221,34 +246,42 @@ export const useCustomerConnectionsPersistence = ({
     }
 
     if (existing?.id && isSameConnection) {
-      const { errors } = await updateIntegrationConnection({
-        variables: { input: { id: existing.id, ...linkInput } },
-      })
+      const existingId = existing.id
 
-      return !errors?.length
+      return runMutation(
+        () =>
+          updateIntegrationConnection({
+            variables: { input: { id: existingId, ...linkInput } },
+          }),
+        (data) => data.updateIntegrationCustomer,
+      )
     }
 
     // Provider switch within the category: destroy the old link, then create
     // the new one (the update mutation cannot re-target another integration)
     if (existing?.id) {
-      const { errors: destroyErrors } = await destroyIntegrationConnection({
-        variables: { input: { id: existing.id } },
-      })
+      const existingId = existing.id
+      const destroyed = await runMutation(
+        () => destroyIntegrationConnection({ variables: { input: { id: existingId } } }),
+        (data) => data.destroyIntegrationCustomer,
+      )
 
-      if (destroyErrors?.length) return false
+      if (!destroyed) return false
     }
 
-    const { errors } = await createIntegrationConnection({
-      variables: {
-        input: {
-          customerId: customer.id,
-          integrationId: orgIntegration.id,
-          ...linkInput,
-        },
-      },
-    })
-
-    return !errors?.length
+    return runMutation(
+      () =>
+        createIntegrationConnection({
+          variables: {
+            input: {
+              customerId: customer.id,
+              integrationId: orgIntegration.id,
+              ...linkInput,
+            },
+          },
+        }),
+      (data) => data.createIntegrationCustomer,
+    )
   }
 
   const saveConnection = async (
@@ -291,12 +324,18 @@ export const useCustomerConnectionsPersistence = ({
       return false
     }
 
-    const { errors } =
+    const succeeded =
       category === ConnectionCategory.Payment
-        ? await destroyPaymentConnection({ variables: { input: { id: existingId } } })
-        : await destroyIntegrationConnection({ variables: { input: { id: existingId } } })
+        ? await runMutation(
+            () => destroyPaymentConnection({ variables: { input: { id: existingId } } }),
+            (data) => data.destroyPaymentProviderCustomer,
+          )
+        : await runMutation(
+            () => destroyIntegrationConnection({ variables: { input: { id: existingId } } }),
+            (data) => data.destroyIntegrationCustomer,
+          )
 
-    if (errors?.length) return false
+    if (!succeeded) return false
 
     await refreshCustomer()
     addToast({ severity: 'success', translateKey: 'text_661ff6e56ef7e1b7c542b2f9' })

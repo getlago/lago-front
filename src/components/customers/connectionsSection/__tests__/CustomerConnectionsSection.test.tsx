@@ -17,8 +17,12 @@ import { CustomerConnectionsSection } from '../CustomerConnectionsSection'
 const mockOpenCreate = jest.fn()
 const mockOpenEdit = jest.fn()
 const mockDialogOpen = jest.fn()
-const mockUpdatePayment = jest.fn(() => Promise.resolve({ errors: undefined }))
-const mockDestroyIntegration = jest.fn(() => Promise.resolve({ errors: undefined }))
+const mockUpdatePayment = jest.fn(() =>
+  Promise.resolve({ data: { updatePaymentProviderCustomer: { id: 'pc-1' } } }),
+)
+const mockDestroyIntegration = jest.fn(() =>
+  Promise.resolve({ data: { destroyIntegrationCustomer: { id: 'ac-1' } } }),
+)
 const mockOpenAddPaymentMethodDialog = jest.fn()
 
 type CapturedDrawerProps = {
@@ -193,8 +197,12 @@ describe('CustomerConnectionsSection', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     capturedDrawerProps.current = null
-    mockUpdatePayment.mockResolvedValue({ errors: undefined })
-    mockDestroyIntegration.mockResolvedValue({ errors: undefined })
+    mockUpdatePayment.mockResolvedValue({
+      data: { updatePaymentProviderCustomer: { id: 'pc-1' } },
+    } as never)
+    mockDestroyIntegration.mockResolvedValue({
+      data: { destroyIntegrationCustomer: { id: 'ac-1' } },
+    } as never)
   })
 
   describe('GIVEN a customer with connections', () => {
