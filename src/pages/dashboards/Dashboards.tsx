@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql, useApolloClient } from '@apollo/client'
 import { embedDashboard, EmbeddedDashboard } from '@superset-ui/embedded-sdk'
 import { debounce } from 'lodash'
 import { useEffect, useMemo, useRef } from 'react'
@@ -16,6 +16,7 @@ import { useSupersetDashboardsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import '~/main.css'
+import { createFetchSupersetGuestToken } from '~/pages/dashboards/fetchSupersetGuestToken'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { PageHeader } from '~/styles'
 
@@ -38,6 +39,7 @@ gql`
 const Dashboards = () => {
   const { translate } = useInternationalization()
   const { currentMembership } = useCurrentUser()
+  const client = useApolloClient()
 
   const dashboardRef = useRef<string>('')
 
@@ -98,7 +100,7 @@ const Dashboards = () => {
         id: dashboard.embeddedId,
         supersetDomain: lagoSupersetUrl,
         mountPoint,
-        fetchGuestToken: async () => dashboard?.guestToken,
+        fetchGuestToken: createFetchSupersetGuestToken(client, dashboard.id),
         dashboardUiConfig: {
           hideTitle: true,
           emitDataMasks: persistFilters,
@@ -124,7 +126,7 @@ const Dashboards = () => {
       embedded?.unmount()
       dashboardRef.current = ''
     }
-  }, [dashboard, currentMembership?.organization.id])
+  }, [dashboard, currentMembership?.organization.id, client])
 
   return (
     <>
