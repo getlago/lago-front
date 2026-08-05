@@ -1,16 +1,16 @@
 import { gql } from '@apollo/client'
-import { useFormik } from 'formik'
-import { useCallback, useEffect, useMemo } from 'react'
+import { revalidateLogic, useStore } from '@tanstack/react-form'
+import { useCallback, useMemo } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
-import { array, boolean, number, object, string } from 'yup'
 
+import { AlertNameAndCodeSection } from '~/components/alerts/AlertNameAndCodeSection'
 import AlertThresholds, { isThresholdValueValid } from '~/components/alerts/Thresholds'
-import { sortAndFormatThresholds } from '~/components/alerts/utils'
+import { useAlertFormLeaveGuards } from '~/components/alerts/useAlertFormLeaveGuards'
+import { createThresholdSetters, setCodeAlreadyExistsError } from '~/components/alerts/utils'
 import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'
 import { Typography } from '~/components/designSystem/Typography'
-import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
-import { ComboBox, ComboBoxField, ComboboxItem, TextInput, TextInputField } from '~/components/form'
+import { ComboBox, ComboboxItem } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -19,14 +19,10 @@ import {
   PLAN_SUBSCRIPTION_DETAILS_ROUTE,
   useNavigate,
 } from '~/core/router'
-import { serializeAmount } from '~/core/serializers/serializeAmount'
-import { updateNameAndMaybeCode } from '~/core/utils/updateNameAndMaybeCode'
 import {
   AlertTypeEnum,
-  CreateSubscriptionAlertInput,
   CurrencyEnum,
   LagoApiError,
-  ThresholdInput,
   useCreateSubscriptionAlertMutation,
   useGetExistingAlertsOfSubscriptionQuery,
   useGetSubscriptionAlertToEditQuery,
@@ -35,7 +31,22 @@ import {
   useUpdateSubscriptionAlertMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm } from '~/hooks/forms/useAppform'
+import {
+  mapFormToCreateInput,
+  mapFormToUpdateInput,
+  mapFromApiToForm,
+} from '~/pages/alertForm/mappers'
+import { isBillableMetricAlertType, isUnitsAlertType } from '~/pages/alertForm/utils'
+import { subscriptionAlertValidationSchema } from '~/pages/alertForm/validationSchema'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
+
+const SUBSCRIPTION_ALERT_FORM_ID = 'create-alert'
+
+export const SUBSCRIPTION_ALERT_FORM_TEST_ID = 'subscription-alert-form'
+export const SUBSCRIPTION_ALERT_TYPE_COMBOBOX_TEST_ID = 'subscription-alert-type-combobox'
+export const CLOSE_SUBSCRIPTION_ALERT_BUTTON_TEST_ID = 'close-subscription-alert-button'
+export const SUBMIT_SUBSCRIPTION_ALERT_TEST_ID = 'submit-subscription-alert'
 
 gql`
   query getSubscriptionInfos($id: ID!) {
@@ -101,20 +112,10 @@ gql`
   }
 `
 
-const isUnitsAlertType = (type?: AlertTypeEnum | string): boolean =>
-  type === AlertTypeEnum.BillableMetricCurrentUsageUnits ||
-  type === AlertTypeEnum.BillableMetricLifetimeUsageUnits
-
-const isBillableMetricAlertType = (type?: AlertTypeEnum | string): boolean =>
-  type === AlertTypeEnum.BillableMetricCurrentUsageUnits ||
-  type === AlertTypeEnum.BillableMetricCurrentUsageAmount ||
-  type === AlertTypeEnum.BillableMetricLifetimeUsageUnits
-
 const AlertForm = () => {
   const { alertId = '', customerId = '', planId = '', subscriptionId = '' } = useParams()
   const { translate } = useInternationalization()
   const navigate = useNavigate()
-  const centralizedDialog = useCentralizedDialog()
   const isEdition = !!alertId
 
   const { data: subscriptionData, loading: subscriptionLoading } = useGetSubscriptionInfosQuery({
@@ -192,150 +193,94 @@ const AlertForm = () => {
     [customerId, navigate, planId, subscriptionId],
   )
 
-  const warnLeaving = useCallback(() => {
-    centralizedDialog.open({
-      title: translate('text_6244277fe0975300fe3fb940'),
-      description: translate('text_1746623860224gh7o1exyjch'),
-      actionText: translate('text_6244277fe0975300fe3fb94c'),
-      colorVariant: 'danger',
-      onAction: onLeave,
-    })
-  }, [centralizedDialog, onLeave, translate])
+  const { openDirtyAttributesWarning } = useAlertFormLeaveGuards({
+    isEdition,
+    alertLoading,
+    alertError,
+    onLeave,
+  })
 
-  // Redirect to alerts list if alert is not found (e.g., deleted while on edit page)
-  useEffect(() => {
-    if (isEdition && !alertLoading && hasDefinedGQLError('NotFound', alertError)) {
-      addToast({
-        severity: 'info',
-        translateKey: 'text_1737477631498hwm4np3kbnd',
-      })
-      // Use replace to prevent back button from returning to this deleted alert page
-      onLeave({ replace: true })
-    }
-  }, [isEdition, alertLoading, alertError, onLeave])
+  const [updateAlert] = useUpdateSubscriptionAlertMutation()
+  const [createAlert] = useCreateSubscriptionAlertMutation()
 
-  const [updateAlert, { error: updateError }] = useUpdateSubscriptionAlertMutation({
-    onCompleted({ updateSubscriptionAlert }) {
-      if (!!updateSubscriptionAlert?.id) {
+  const defaultValues = useMemo(
+    () =>
+      mapFromApiToForm({
+        currency,
+        alert: existingAlert,
+      }),
+    [currency, existingAlert],
+  )
+
+  const form = useAppForm({
+    defaultValues,
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: subscriptionAlertValidationSchema,
+    },
+    onSubmit: async ({ value, formApi }) => {
+      const { alertType: valueAlertType } = value
+
+      // Guaranteed by the schema, narrows the type for the mappers
+      if (!valueAlertType) return
+
+      const validatedValues = { ...value, alertType: valueAlertType }
+
+      if (!!existingAlert?.id) {
+        const { data: updateData, errors } = await updateAlert({
+          variables: {
+            input: mapFormToUpdateInput(validatedValues, existingAlert.id, currency),
+          },
+        })
+
+        if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
+          setCodeAlreadyExistsError(formApi)
+
+          return
+        }
+
+        if (!updateData?.updateSubscriptionAlert?.id) return
+
         addToast({
           severity: 'success',
           translateKey: 'text_1746623860224qwhtxyuophr',
         })
+      } else {
+        const { data: createData, errors } = await createAlert({
+          variables: {
+            input: mapFormToCreateInput(validatedValues, subscriptionId, currency),
+          },
+        })
 
-        onLeave()
-      }
-    },
-  })
+        if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
+          setCodeAlreadyExistsError(formApi)
 
-  const [createAlert, { error: createError }] = useCreateSubscriptionAlertMutation({
-    onCompleted({ createSubscriptionAlert }) {
-      if (!!createSubscriptionAlert?.id) {
+          return
+        }
+
+        if (!createData?.createSubscriptionAlert?.id) return
+
         addToast({
           severity: 'success',
           translateKey: 'text_1746611635509ov7jepx55bz',
         })
-
-        onLeave()
       }
+
+      onLeave()
     },
   })
 
-  const formikProps = useFormik<CreateSubscriptionAlertInput>({
-    initialValues: {
-      name: existingAlert?.name || '',
-      code: existingAlert?.code || '',
-      // @ts-expect-error alertType is mandatory but default value should be empty string
-      alertType: existingAlert?.alertType || '',
-      billableMetricId: existingAlert?.billableMetric?.id || '',
-      // Note: we need to sort the thresholds by value and recuring last.
-      // We don't really know how the backend will return the thresholds as we don't check the order if they are saved via API
-      thresholds: !!existingAlert?.thresholds?.length
-        ? sortAndFormatThresholds(
-            existingAlert?.thresholds,
-            currency,
-            isUnitsAlertType(existingAlert?.alertType),
-          )
-        : [
-            {
-              code: '',
-              recurring: false,
-              value: '',
-            },
-          ],
-    },
-    validationSchema: object().shape({
-      name: string(),
-      code: string().required(''),
-      alertType: string().required(''),
-      billableMetricId: string(),
-      thresholds: array()
-        .of(
-          object().shape({
-            code: string(),
-            recurring: boolean().required(''),
-            value: number().required(''),
-          }),
-        )
-        .nullable(),
-    }),
-    enableReinitialize: true,
-    validateOnMount: true,
-    onSubmit: async ({ billableMetricId, alertType, thresholds, ...values }) => {
-      const formattedThresholds = thresholds?.map((threshold) => ({
-        ...threshold,
-        value: isUnitsAlertType(alertType)
-          ? threshold.value.split('.')[0]
-          : String(serializeAmount(threshold.value, currency)),
-      }))
-
-      // Edition
-      if (!!existingAlert?.id) {
-        await updateAlert({
-          variables: {
-            input: {
-              ...values,
-              id: existingAlert.id,
-              billableMetricId: billableMetricId || undefined,
-              thresholds: formattedThresholds || undefined,
-            },
-          },
-        })
-      } else {
-        await createAlert({
-          variables: {
-            input: {
-              ...values,
-              alertType,
-              subscriptionId: subscriptionId,
-              billableMetricId: billableMetricId || undefined,
-              thresholds: formattedThresholds || undefined,
-            },
-          },
-        })
-      }
-    },
-  })
-
-  useEffect(() => {
-    if (hasDefinedGQLError('ValueAlreadyExist', createError || updateError)) {
-      formikProps.setFieldError('code', 'text_632a2d437e341dcc76817556')
-      const rootElement = document.getElementById('root')
-
-      if (!rootElement) return
-      rootElement.scrollTo({ top: 0 })
-    }
-
-    return undefined
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [createError, formikProps.setFieldError, updateError])
+  const isDirty = useStore(form.store, (state) => state.isDirty)
+  const alertType = useStore(form.store, (state) => state.values.alertType)
+  const billableMetricId = useStore(form.store, (state) => state.values.billableMetricId)
+  const thresholds = useStore(form.store, (state) => state.values.thresholds)
 
   const showThresholdTable = useMemo(
     () =>
-      formikProps.values.alertType === AlertTypeEnum.CurrentUsageAmount ||
-      formikProps.values.alertType === AlertTypeEnum.LifetimeUsageAmount ||
-      (isBillableMetricAlertType(formikProps.values.alertType) &&
-        !!formikProps.values.billableMetricId),
-    [formikProps.values.alertType, formikProps.values.billableMetricId],
+      alertType === AlertTypeEnum.CurrentUsageAmount ||
+      alertType === AlertTypeEnum.LifetimeUsageAmount ||
+      (isBillableMetricAlertType(alertType) && !!billableMetricId),
+    [alertType, billableMetricId],
   )
 
   const comboboxData = useMemo(() => {
@@ -343,8 +288,7 @@ const AlertForm = () => {
       const { id, code, name } = item
 
       const hasAlertOnBillableMetric = existingAlertsData?.subscriptionAlerts?.collection.some(
-        (alert) =>
-          alert.billableMetricId === id && alert.alertType === formikProps.values.alertType,
+        (alert) => alert.billableMetricId === id && alert.alertType === alertType,
       )
 
       return {
@@ -366,7 +310,7 @@ const AlertForm = () => {
   }, [
     subscriptionBillableMetricsData?.billableMetrics?.collection,
     existingAlertsData?.subscriptionAlerts?.collection,
-    formikProps.values.alertType,
+    alertType,
   ])
 
   const { hasUsageAmountAlert, hasLifetimeUsageAmountAlert } = useMemo(() => {
@@ -390,34 +334,30 @@ const AlertForm = () => {
   }, [existingAlertsData?.subscriptionAlerts?.collection])
 
   const hasAnyNonRecurringThresholdError = useMemo(() => {
-    const localNonRecurringThresholds = formikProps.values.thresholds.filter(
-      (threshold) => !threshold.recurring,
-    )
+    const localNonRecurringThresholds = thresholds.filter((threshold) => !threshold.recurring)
 
     return localNonRecurringThresholds.some((threshold, i) =>
       isThresholdValueValid(i, threshold.value, localNonRecurringThresholds),
     )
-  }, [formikProps.values.thresholds])
+  }, [thresholds])
 
-  const setThresholds = (thresholds: ThresholdInput[]) => {
-    formikProps.setFieldValue('thresholds', thresholds)
-  }
+  const { setThresholds, setThresholdValue } = useMemo(() => createThresholdSetters(form), [form])
 
-  const setThresholdValue = ({
-    index,
-    key,
-    newValue,
-  }: {
-    index: number
-    key: keyof ThresholdInput
-    newValue: unknown
-  }) => {
-    formikProps.setFieldValue(`thresholds.${index}.${key}`, newValue)
+  const onAbort = () => (isDirty ? openDirtyAttributesWarning() : onLeave())
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault()
+    form.handleSubmit()
   }
 
   return (
-    <>
-      <CenteredPage.Wrapper>
+    <CenteredPage.Wrapper>
+      <form
+        id={SUBSCRIPTION_ALERT_FORM_ID}
+        className="flex size-full min-h-full flex-col overflow-auto"
+        onSubmit={handleSubmit}
+        data-test={SUBSCRIPTION_ALERT_FORM_TEST_ID}
+      >
         <CenteredPage.Header>
           <div className="flex gap-3">
             <Typography variant="bodyHl" color="textSecondary" noWrap>
@@ -430,12 +370,13 @@ const AlertForm = () => {
           <Button
             variant="quaternary"
             icon="close"
-            onClick={() => (formikProps.dirty ? warnLeaving() : onLeave())}
+            onClick={onAbort}
+            data-test={CLOSE_SUBSCRIPTION_ALERT_BUTTON_TEST_ID}
           />
         </CenteredPage.Header>
 
         <CenteredPage.Container>
-          {isLoading && <FormLoadingSkeleton id="create-alert" />}
+          {isLoading && <FormLoadingSkeleton id={SUBSCRIPTION_ALERT_FORM_ID} />}
           {!isLoading && (
             <>
               <div className="not-last-child:mb-1">
@@ -448,34 +389,12 @@ const AlertForm = () => {
               </div>
 
               <div className="flex flex-col gap-12">
-                <section className="pb-12 shadow-b not-last-child:mb-6">
-                  <div className="not-last-child:mb-2">
-                    <Typography variant="subhead1">
-                      {translate('text_1746629929876zz4937djyc8')}
-                    </Typography>
-                    <Typography variant="caption">
-                      {translate('text_1746629929876gdgxt1v86eq')}
-                    </Typography>
-                  </div>
-                  <div className="flex gap-6 *:flex-1">
-                    <TextInput
-                      name="name"
-                      label={translate('text_1732286530467zstzwbegfiq')}
-                      placeholder={translate('text_62876e85e32e0300e1803121')}
-                      value={formikProps.values.name || ''}
-                      onChange={(name) => {
-                        updateNameAndMaybeCode({ name, formikProps })
-                      }}
-                    />
-                    <TextInputField
-                      name="code"
-                      label={translate('text_62876e85e32e0300e1803127')}
-                      placeholder={translate('text_623b42ff8ee4e000ba87d0c4')}
-                      formikProps={formikProps}
-                      error={formikProps.errors.code}
-                    />
-                  </div>
-                </section>
+                <AlertNameAndCodeSection
+                  form={form}
+                  fields={{ name: 'name', code: 'code' }}
+                  nameLabel={translate('text_1732286530467zstzwbegfiq')}
+                  hasExistingCode={!!existingAlert?.code}
+                />
 
                 <section className="not-last-child:mb-6">
                   <div className="not-last-child:mb-2">
@@ -493,7 +412,7 @@ const AlertForm = () => {
                       placeholder={translate('text_1746631350478bwa1swfpwky')}
                       disabled={isEdition}
                       disableClearable={isEdition}
-                      value={formikProps.values.alertType}
+                      value={alertType}
                       data={[
                         {
                           label: translate('text_1748418710304kqjnk1owpeq'),
@@ -519,37 +438,33 @@ const AlertForm = () => {
                         },
                       ]}
                       onChange={(value) => {
-                        const newFormikValues = {
-                          ...formikProps.values,
-                          alertType: value as AlertTypeEnum,
-                          // Reset billableMetricId when alertType is changed
-                          billableMetricId: '',
-                        }
-
-                        formikProps.setValues(newFormikValues)
+                        form.setFieldValue('alertType', value as AlertTypeEnum)
+                        // Reset billableMetricId when alertType is changed
+                        form.setFieldValue('billableMetricId', '')
                       }}
+                      data-test={SUBSCRIPTION_ALERT_TYPE_COMBOBOX_TEST_ID}
                     />
 
-                    {isBillableMetricAlertType(formikProps.values.alertType) && (
-                      <>
-                        <ComboBoxField
-                          name="billableMetricId"
-                          label={translate('text_1746780648463scppfjbhd1b')}
-                          placeholder={translate('text_1746780648463n39xfvr772k')}
-                          disabled={isEdition}
-                          data={comboboxData}
-                          formikProps={formikProps}
-                        />
-                      </>
+                    {isBillableMetricAlertType(alertType) && (
+                      <form.AppField name="billableMetricId">
+                        {(field) => (
+                          <field.ComboBoxField
+                            label={translate('text_1746780648463scppfjbhd1b')}
+                            placeholder={translate('text_1746780648463n39xfvr772k')}
+                            disabled={isEdition}
+                            data={comboboxData}
+                          />
+                        )}
+                      </form.AppField>
                     )}
 
                     {showThresholdTable && (
                       <AlertThresholds
-                        thresholds={formikProps.values.thresholds}
+                        thresholds={thresholds}
                         setThresholds={setThresholds}
                         setThresholdValue={setThresholdValue}
                         currency={currency}
-                        shouldHandleUnits={isUnitsAlertType(formikProps.values.alertType)}
+                        shouldHandleUnits={isUnitsAlertType(alertType)}
                       />
                     )}
                   </div>
@@ -560,29 +475,23 @@ const AlertForm = () => {
         </CenteredPage.Container>
 
         <CenteredPage.StickyFooter>
-          <Button
-            variant="quaternary"
-            onClick={() => (formikProps.dirty ? warnLeaving() : onLeave())}
-          >
+          <Button variant="quaternary" onClick={onAbort}>
             {translate('text_6411e6b530cb47007488b027')}
           </Button>
-          <Button
-            variant="primary"
-            disabled={
-              !formikProps.isValid ||
-              !formikProps.dirty ||
-              isLoading ||
-              hasAnyNonRecurringThresholdError
-            }
-            onClick={formikProps.submitForm}
-          >
-            {translate(
-              isEdition ? 'text_17432414198706rdwf76ek3u' : 'text_1747917472538el8fg31n3i8',
-            )}
-          </Button>
+          <form.AppForm>
+            <form.SubmitButton
+              variant="primary"
+              disabled={isLoading || hasAnyNonRecurringThresholdError}
+              dataTest={SUBMIT_SUBSCRIPTION_ALERT_TEST_ID}
+            >
+              {translate(
+                isEdition ? 'text_17432414198706rdwf76ek3u' : 'text_1747917472538el8fg31n3i8',
+              )}
+            </form.SubmitButton>
+          </form.AppForm>
         </CenteredPage.StickyFooter>
-      </CenteredPage.Wrapper>
-    </>
+      </form>
+    </CenteredPage.Wrapper>
   )
 }
 
