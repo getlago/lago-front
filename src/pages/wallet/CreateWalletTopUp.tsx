@@ -9,9 +9,10 @@ import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
+import { InvoicingSettingsSelector } from '~/components/invoicingSettings/InvoicingSettingsSelector'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
-import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
-import { PaymentMethodsForm, ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
+import { PaymentSettingsSelector } from '~/components/paymentSettings/PaymentSettingsSelector'
+import { PurchaseOrderFormBlock } from '~/components/purchaseOrder/PurchaseOrderFormBlock'
 import {
   CLOSE_CREATE_TOPUP_BUTTON_DATA_TEST,
   CREATE_WALLET_TOP_UP_FORM_TEST_ID,
@@ -20,6 +21,11 @@ import {
   SUBMIT_WALLET_DATA_TEST,
 } from '~/components/wallets/utils/dataTestConstants'
 import { addToast } from '~/core/apolloClient'
+import {
+  VIEW_TYPE_INVOICING_CAPTION_KEYS,
+  VIEW_TYPE_PAYMENT_CAPTION_KEYS,
+  ViewTypeEnum,
+} from '~/core/constants/billingObjectViewTypes'
 import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CUSTOMER_DETAILS_TAB_ROUTE, useNavigate, WALLET_DETAILS_ROUTE } from '~/core/router'
@@ -45,6 +51,7 @@ import TopUpTypeSelector, {
 } from '~/pages/wallet/components/TopUpTypeSelector'
 import { TransactionMetadataGroup } from '~/pages/wallet/components/TransactionMetadataGroup'
 import { topUpAmountError } from '~/pages/wallet/form'
+import { CREATE_ACTIVE_WALLET_TOP_UP_ID } from '~/pages/wallet/topUp/constants'
 import {
   getTopUpFormValidationSchema,
   topUpFormErrorLabels,
@@ -91,8 +98,6 @@ gql`
   ${WalletDetailsFragmentDoc}
 `
 
-export const CREATE_ACTIVE_WALLET_TOP_UP_ID = 'active-wallet'
-
 const CreateWalletTopUp = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
@@ -105,7 +110,7 @@ const CreateWalletTopUp = () => {
 
   const [transactionType, setTransactionType] = useState(WalletTransactionType.PrepaidCredits)
 
-  const { data: voidedInvoice } = useGetInvoiceStatusQuery({
+  const { data: voidedInvoice, loading: voidedInvoiceLoading } = useGetInvoiceStatusQuery({
     variables: {
       id: voidedInvoiceId as string,
     },
@@ -174,8 +179,16 @@ const CreateWalletTopUp = () => {
 
   const form = useAppForm({
     // Recomputed inline on every render: TanStack re-seeds an untouched form
-    // when defaults deep-change as the wallet query resolves.
-    defaultValues: mapFromApiToForm({ wallet }),
+    // when defaults deep-change as the wallet query resolves — the same
+    // mechanism prefills the PO number once the voided invoice resolves
+    // (regenerate flow: carry the voided invoice's PO over to the top-up).
+    // The reseed only lands while the form is untouched, so the form is not
+    // rendered until both queries resolve (see the skeleton gate below) —
+    // otherwise an early keystroke would silently drop the PO prefill.
+    defaultValues: mapFromApiToForm({
+      wallet,
+      purchaseOrderNumber: voidedInvoice?.invoice?.purchaseOrderNumber,
+    }),
     validationLogic: revalidateLogic(),
     validators: {
       onDynamic: validationSchema,
@@ -210,7 +223,7 @@ const CreateWalletTopUp = () => {
         notifyOnNetworkStatusChange: true,
       })
 
-      navigateToCustomerWalletTab(wallet.id)
+      navigateToCustomerWalletTab(wallet.id, WalletDetailsTabsOptionsEnum.transactions)
     },
   })
 
@@ -232,17 +245,17 @@ const CreateWalletTopUp = () => {
     form.handleSubmit()
   }
 
-  const paymentMethodsFormAdapter: PaymentMethodsForm<ViewTypeEnum.WalletTransactionTopUp> = {
-    values: formValues,
-    setFieldValue: (field, value) =>
-      form.setFieldValue(field as Parameters<typeof form.setFieldValue>[0], value as never),
-  }
-
   const updateTransactionType = (type: WalletTransactionType) => {
     setTransactionType(type)
 
     form.setFieldValue('grantedCredits', '')
     form.setFieldValue('paidCredits', '')
+
+    // Free credits never generate an invoice, so a PO number set while in
+    // prepaid mode must not survive the switch.
+    if (type === WalletTransactionType.FreeCredits) {
+      form.setFieldValue('purchaseOrderNumber', undefined)
+    }
   }
 
   const navigateBack = useCallback(
@@ -257,13 +270,13 @@ const CreateWalletTopUp = () => {
   )
 
   const navigateToCustomerWalletTab = useCallback(
-    (id?: string) => {
+    (id?: string, tab: WalletDetailsTabsOptionsEnum = WalletDetailsTabsOptionsEnum.overview) => {
       if (id) {
         return navigate(
           generatePath(WALLET_DETAILS_ROUTE, {
             walletId: id,
             customerId: customerId,
-            tab: WalletDetailsTabsOptionsEnum.overview,
+            tab,
           }),
         )
       }
@@ -325,13 +338,13 @@ const CreateWalletTopUp = () => {
           />
         </CenteredPage.Header>
 
-        {loading && !wallet && (
+        {((loading && !wallet) || voidedInvoiceLoading) && (
           <CenteredPage.Container>
             <FormLoadingSkeleton id="create-wallet" />
           </CenteredPage.Container>
         )}
 
-        {!loading && wallet && (
+        {!loading && wallet && !voidedInvoiceLoading && (
           <CenteredPage.Container>
             <CenteredPage.PageTitle
               title={translate('text_62e79671d23ae6ff149de924')}
@@ -527,6 +540,18 @@ const CreateWalletTopUp = () => {
                 </Typography>
               </Alert>
 
+              {transactionType === WalletTransactionType.PrepaidCredits && (
+                <form.AppField name="purchaseOrderNumber">
+                  {(field) => (
+                    <PurchaseOrderFormBlock
+                      value={field.state.value}
+                      description={translate('text_1783511588872okv9237slg5')}
+                      onChange={(value) => field.handleChange(value)}
+                    />
+                  )}
+                </form.AppField>
+              )}
+
               <form.AppField name="priority">
                 {(field) => (
                   <field.TextInputField
@@ -540,17 +565,42 @@ const CreateWalletTopUp = () => {
               </form.AppField>
             </section>
 
-            {(customerData?.customer?.externalId || customerData?.customer?.id) && (
+            {customerData?.customer?.id && (
               <section className="flex flex-col gap-6 pb-12 shadow-b">
                 <div className="flex flex-col gap-1">
                   <Typography variant="subhead1">
-                    {translate('text_17634566456760qoj7hs7jrh')}
+                    {translate('text_17423672025282dl7iozy1ru')}
+                  </Typography>
+                  <Typography variant="caption">
+                    {translate(
+                      VIEW_TYPE_INVOICING_CAPTION_KEYS[ViewTypeEnum.WalletTransactionTopUp],
+                    )}
                   </Typography>
                 </div>
-                <PaymentMethodsInvoiceSettings
-                  customer={customerData?.customer}
-                  form={paymentMethodsFormAdapter}
+                <InvoicingSettingsSelector
                   viewType={ViewTypeEnum.WalletTransactionTopUp}
+                  customerId={customerData.customer.id}
+                  value={formValues.invoiceCustomSection ?? undefined}
+                  onChange={(value) => form.setFieldValue('invoiceCustomSection', value)}
+                />
+              </section>
+            )}
+
+            {customerData?.customer?.externalId && (
+              <section className="flex flex-col gap-6 pb-12 shadow-b">
+                <div className="flex flex-col gap-1">
+                  <Typography variant="subhead1">
+                    {translate('text_1784888105056o78z8t3kjrg')}
+                  </Typography>
+                  <Typography variant="caption">
+                    {translate(VIEW_TYPE_PAYMENT_CAPTION_KEYS[ViewTypeEnum.WalletTransactionTopUp])}
+                  </Typography>
+                </div>
+                <PaymentSettingsSelector
+                  viewType={ViewTypeEnum.WalletTransactionTopUp}
+                  externalCustomerId={customerData.customer.externalId}
+                  value={formValues.paymentMethod ?? undefined}
+                  onChange={(value) => form.setFieldValue('paymentMethod', value)}
                 />
               </section>
             )}

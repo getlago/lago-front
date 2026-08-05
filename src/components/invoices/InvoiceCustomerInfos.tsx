@@ -1,20 +1,20 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
-import { DateTime } from 'luxon'
 import { memo } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Status, StatusType } from '~/components/designSystem/Status'
 import { Typography } from '~/components/designSystem/Typography'
+import { PurchaseOrder } from '~/components/purchaseOrder/PO'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { formatAddress } from '~/core/formats/formatAddress'
 import { CUSTOMER_DETAILS_ROUTE, Link } from '~/core/router'
+import { intlFormatDateTime } from '~/core/timezone'
 import {
   CustomerAccountTypeEnum,
   InvoiceForInvoiceInfosFragment,
   InvoiceStatusTypeEnum,
-  InvoiceTypeEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useFormatterDateHelper } from '~/hooks/helpers/useFormatterDateHelper'
@@ -62,9 +62,15 @@ gql`
 
 interface InvoiceCustomerInfosProps {
   invoice?: InvoiceForInvoiceInfosFragment | null
+  purchaseOrderNumber?: string | null
+  onPurchaseOrderNumberChange?: (value: string | null) => void
 }
 
-export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps) => {
+const InvoiceCustomerInfosComponent = ({
+  invoice,
+  purchaseOrderNumber,
+  onPurchaseOrderNumberChange,
+}: InvoiceCustomerInfosProps) => {
   const { customer } = invoice || {}
   const { formattedDateWithTimezone } = useFormatterDateHelper()
   const { translate } = useInternationalization()
@@ -80,6 +86,33 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
     state: customer?.state,
     zipcode: customer?.zipcode,
   })
+
+  const renderPurchaseOrderValue = () => {
+    if (!onPurchaseOrderNumberChange) {
+      return invoice?.purchaseOrderNumber || '-'
+    }
+
+    return (
+      <PurchaseOrder
+        className="flex-row items-center gap-2"
+        value={purchaseOrderNumber}
+        onChange={onPurchaseOrderNumberChange}
+        description={translate('text_1782219771286e8qwitkefxr')}
+      >
+        {purchaseOrderNumber ? (
+          <>
+            <PurchaseOrder.Number variant="body" color="grey700" />
+            <PurchaseOrder.EditButton />
+            <PurchaseOrder.TrashButton />
+          </>
+        ) : (
+          <PurchaseOrder.AddButton>
+            {translate('text_17822197712864tnvgq76xou')}
+          </PurchaseOrder.AddButton>
+        )}
+      </PurchaseOrder>
+    )
+  }
 
   return (
     <DetailsPage.Overview
@@ -152,10 +185,10 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
               value={invoice?.number}
             />
           )}
-          {invoice?.invoiceType === InvoiceTypeEnum.OneOff && (
+          {!!invoice && (
             <DetailsPage.OverviewLine
               title={translate('text_17822197712867qhfbaf9fpk')}
-              value={invoice?.purchaseOrderNumber || '-'}
+              value={renderPurchaseOrderValue()}
             />
           )}
           {invoice?.issuingDate && (
@@ -212,7 +245,7 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
                 <div className="flex flex-wrap items-center gap-2">
                   <Icon name="warning-filled" color="warning" />
                   {translate('text_66141e30699a0631f0b2ed2c', {
-                    date: DateTime.fromISO(invoice?.paymentDisputeLostAt).toFormat('LLL. dd, yyyy'),
+                    date: intlFormatDateTime(invoice?.paymentDisputeLostAt).date,
                   })}
                 </div>
               }
@@ -222,6 +255,8 @@ export const InvoiceCustomerInfos = memo(({ invoice }: InvoiceCustomerInfosProps
       }
     />
   )
-})
+}
+
+export const InvoiceCustomerInfos = memo(InvoiceCustomerInfosComponent)
 
 InvoiceCustomerInfos.displayName = 'InvoiceCustomerInfos'

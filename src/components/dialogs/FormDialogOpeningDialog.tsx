@@ -47,6 +47,7 @@ const FormDialogOpeningDialog = create(
       cancelOrCloseText,
       closeOnError,
       onError,
+      didSubmitSucceed: form.didSubmitSucceed,
     })
 
     const formActions = {

@@ -3,14 +3,7 @@ import { Popper } from '~/components/designSystem/Popper'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { MenuPopper } from '~/styles'
 
-import { ConnectionCategory } from './types'
-
-const CATEGORY_LABEL_KEYS: Record<ConnectionCategory, string> = {
-  [ConnectionCategory.Payment]: 'text_634ea0ecc6147de10ddb6631',
-  [ConnectionCategory.Accounting]: 'text_66423cad72bbad009f2f568f',
-  [ConnectionCategory.Tax]: 'text_6668821d94e4da4dfd8b3840',
-  [ConnectionCategory.Crm]: 'text_1728658962985xpfdvl5ru8a',
-}
+import { CONNECTION_CATEGORY_LABEL_KEYS, ConnectionCategory } from './types'
 
 const MENU_ORDER: ConnectionCategory[] = [
   ConnectionCategory.Payment,
@@ -59,7 +52,7 @@ export const AddConnectionMenu = ({
               disabled={disabledCategories?.includes(category)}
               onClick={() => onSelect(category, { closePopper })}
             >
-              {translate(CATEGORY_LABEL_KEYS[category])}
+              {translate(CONNECTION_CATEGORY_LABEL_KEYS[category])}
             </Button>
           ))}
         </MenuPopper>

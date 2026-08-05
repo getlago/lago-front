@@ -38,6 +38,11 @@ export const RECURRING_INVOICE_REQUIRES_SUCCESSFUL_PAYMENT_SWITCH_DATA_TEST =
   'recurring-invoice-requires-successful-payment-switch'
 export const RECURRING_TOPUP_TYPE_DATA_TEST = 'recurring-topup-type'
 export const SHOW_RECURRING_EXPIRATION_AT_DATA_TEST = 'show-recurring-expiration-at'
+export const DELETE_RECURRING_EXPIRATION_AT_DATA_TEST = 'delete-recurring-expiration-at'
+export const ADD_RECURRING_RULE_BUTTON_DATA_TEST = 'add-recurring-rule-button'
+export const RECURRING_RULE_INVOICING_SETTINGS_SELECTOR_DATA_TEST =
+  'rule-invoicing-settings-selector'
+export const RECURRING_RULE_PAYMENT_SETTINGS_SELECTOR_DATA_TEST = 'rule-payment-settings-selector'
 
 // SettingsSection
 export const SHOW_EXPIRATION_AT_DATA_TEST = 'show-expiration-at'
@@ -51,3 +56,4 @@ export const TOPUP_TYPE_FREE_CREDITS_DATA_TEST = 'topup-type-free-credits'
 
 // ScopeSection
 export const SHOW_LIMIT_INPUT_DATA_TEST = 'show-limit-input'
+export const SHOW_BILLABLE_METRIC_LIMIT_INPUT_DATA_TEST = 'show-billable-metric-limit-input'

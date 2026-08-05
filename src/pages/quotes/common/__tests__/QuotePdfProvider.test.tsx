@@ -32,6 +32,16 @@ jest.mock('~/components/designSystem/RichTextEditor/common/printHtmlContent', ()
   printHtmlContent: jest.fn(),
 }))
 
+// Controllable preload mock so tests can hold back the editor mount until the
+// locale bundle "resolves" and assert the preload-before-mount ordering.
+const mockPreloadContextualLocale = jest.fn<Promise<void>, [locale: string]>(() =>
+  Promise.resolve(),
+)
+
+jest.mock('~/hooks/core/useContextualLocale', () => ({
+  preloadContextualLocale: (locale: string) => mockPreloadContextualLocale(locale),
+}))
+
 jest.mock('~/core/apolloClient', () => ({
   ...jest.requireActual('~/core/apolloClient'),
   addToast: jest.fn(),
@@ -104,7 +114,7 @@ describe('QuotePdfProvider', () => {
     expect(printHtmlContent).not.toHaveBeenCalled()
   })
 
-  it('shows an error toast and tears down the preview on timeout', () => {
+  it('shows an error toast and tears down the preview on timeout', async () => {
     jest.useFakeTimers()
 
     try {
@@ -117,6 +127,8 @@ describe('QuotePdfProvider', () => {
       act(() => {
         screen.getByTestId('trigger').click()
       })
+      // Flush the locale-preload microtask that now gates the editor mount.
+      await act(async () => {})
 
       expect(screen.getByTestId('hidden-preview')).toBeInTheDocument()
 
@@ -168,6 +180,8 @@ describe('QuotePdfProvider', () => {
     act(() => {
       screen.getByTestId('trigger').click()
     })
+    // Flush the locale-preload microtask that now gates the editor mount.
+    await act(async () => {})
 
     await act(async () => {
       ;(capturedEditorProps.onPreviewReady as (html: string) => void)('<p>rendered</p>')
@@ -234,5 +248,125 @@ describe('QuotePdfProvider', () => {
     )
 
     expect(mockMountedContents).toEqual(['<p>A</p>', '<p>B</p>'])
+  })
+
+  it('waits for the customer-locale bundle before mounting the preview editor', async () => {
+    let resolvePreload = () => {}
+
+    mockPreloadContextualLocale.mockImplementationOnce(
+      () =>
+        new Promise<void>((resolve) => {
+          resolvePreload = resolve
+        }),
+    )
+
+    render(
+      <QuotePdfProvider>
+        <Consumer props={{ ...PROPS, customerLocale: 'fr' }} />
+      </QuotePdfProvider>,
+    )
+
+    await userEvent.click(screen.getByTestId('trigger'))
+
+    expect(mockPreloadContextualLocale).toHaveBeenCalledWith('fr')
+    // The bundle is still loading: the off-screen editor must not mount yet,
+    // otherwise its DOM snapshot would capture untranslated (empty) headers.
+    expect(screen.queryByTestId('hidden-preview')).not.toBeInTheDocument()
+
+    await act(async () => {
+      resolvePreload()
+    })
+
+    expect(screen.getByTestId('hidden-preview')).toBeInTheDocument()
+  })
+
+  it('does not preload a locale when the content is empty', async () => {
+    render(
+      <QuotePdfProvider>
+        <Consumer props={{ ...PROPS, content: '' }} />
+      </QuotePdfProvider>,
+    )
+
+    await userEvent.click(screen.getByTestId('trigger'))
+
+    expect(mockPreloadContextualLocale).not.toHaveBeenCalled()
+  })
+
+  it('rejects the promise returned to awaiting callers when the render times out', async () => {
+    jest.useFakeTimers()
+
+    let downloadPromise: Promise<void> | undefined
+
+    const Capture = () => {
+      const { download } = useDownloadQuotePdf()
+
+      return (
+        <button
+          data-test="trigger"
+          onClick={() => {
+            downloadPromise = download(PROPS)
+          }}
+        >
+          download
+        </button>
+      )
+    }
+
+    try {
+      render(
+        <QuotePdfProvider>
+          <Capture />
+        </QuotePdfProvider>,
+      )
+
+      act(() => {
+        screen.getByTestId('trigger').click()
+      })
+      await act(async () => {})
+
+      act(() => {
+        jest.advanceTimersByTime(5000)
+      })
+
+      await expect(downloadPromise).rejects.toThrow('Quote preview render timed out')
+    } finally {
+      jest.useRealTimers()
+    }
+  })
+
+  it('does not surface an unhandled rejection when a fire-and-forget download times out', async () => {
+    const onUnhandledRejection = jest.fn()
+
+    process.on('unhandledRejection', onUnhandledRejection)
+    jest.useFakeTimers()
+
+    try {
+      render(
+        <QuotePdfProvider>
+          <Consumer props={PROPS} />
+        </QuotePdfProvider>,
+      )
+
+      // Fire-and-forget: the consumer ignores the returned promise, mirroring the
+      // `void download(...)` call sites in useOrderActions/useOrderFormActions.
+      act(() => {
+        screen.getByTestId('trigger').click()
+      })
+      await act(async () => {})
+
+      act(() => {
+        jest.advanceTimersByTime(5000)
+      })
+
+      jest.useRealTimers()
+      // Give node a macrotask tick to emit `unhandledRejection` if the returned
+      // promise's rejection were left unhandled.
+      await new Promise((resolve) => setTimeout(resolve, 0))
+
+      expect(onUnhandledRejection).not.toHaveBeenCalled()
+    } finally {
+      jest.useRealTimers()
+      process.removeListener('unhandledRejection', onUnhandledRejection)
+    }
   })
 })

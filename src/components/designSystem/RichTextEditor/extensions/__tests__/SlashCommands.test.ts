@@ -53,6 +53,8 @@ const mockTranslate = (key: string): string => {
     text_1774281559657qdknwsvn5ka: 'Insert a code block',
     text_1782889379261hdcd0jhzdm6: 'Discount',
     text_178288937926153opd9g5cwg: 'Apply a coupon discount to this quote',
+    text_1783352692386xocpgvrz3na: 'Credits',
+    text_1783352692386nm1wsx38b6v: 'Add prepaid credits to this quote',
   }
 
   return translations[key] ?? key
@@ -1342,6 +1344,316 @@ describe('SlashCommands', () => {
         expect(discountItem).toBeDefined()
         expect(discountItem?.disabled).toBe(false)
 
+        editor.destroy()
+      })
+    })
+  })
+
+  describe('GIVEN onCreditsCommand is configured', () => {
+    beforeEach(() => {
+      jest.clearAllMocks()
+    })
+
+    describe('WHEN onCreditsCommand is provided', () => {
+      it('THEN the resolved items should include a credits item', () => {
+        const ReactRendererMock = jest.requireMock('@tiptap/react').ReactRenderer as jest.Mock
+        const mockOnCreditsCommand = jest.fn()
+        const editor = new Editor({
+          extensions: [
+            StarterKit,
+            SlashCommands.configure({
+              translate: mockTranslate,
+              onCreditsCommand: mockOnCreditsCommand,
+              isCreditsDisabled: () => false,
+            }),
+          ],
+          content: '<p>Hello</p>',
+        })
+
+        const storage = (editor.storage as any).slashCommands as {
+          triggerMenu: (clientRect: () => DOMRect) => void
+        }
+
+        ReactRendererMock.mockClear()
+        storage.triggerMenu(() => new DOMRect())
+
+        const rendererProps = ReactRendererMock.mock.calls[0][1].props as {
+          items: Array<{
+            title: string
+            icon: string
+            disabled: boolean
+            command: (editor: Editor) => void
+          }>
+        }
+        const creditsItem = rendererProps.items.find(
+          (item) => item.title === mockTranslate('text_1783352692386xocpgvrz3na'),
+        )
+
+        expect(creditsItem).toBeDefined()
+        expect(creditsItem?.icon).toBe('wallet')
+        expect(creditsItem?.disabled).toBe(false)
+
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+        editor.destroy()
+      })
+    })
+
+    describe('WHEN onCreditsCommand is omitted', () => {
+      it('THEN the resolved items should not include a credits item', () => {
+        const ReactRendererMock = jest.requireMock('@tiptap/react').ReactRenderer as jest.Mock
+        const editor = new Editor({
+          extensions: [
+            StarterKit,
+            SlashCommands.configure({
+              translate: mockTranslate,
+            }),
+          ],
+          content: '<p>Hello</p>',
+        })
+
+        const storage = (editor.storage as any).slashCommands as {
+          triggerMenu: (clientRect: () => DOMRect) => void
+        }
+
+        ReactRendererMock.mockClear()
+        storage.triggerMenu(() => new DOMRect())
+
+        const rendererProps = ReactRendererMock.mock.calls[0][1].props as {
+          items: Array<{ title: string; command: (editor: Editor) => void }>
+        }
+        const creditsItem = rendererProps.items.find(
+          (item) => item.title === mockTranslate('text_1783352692386xocpgvrz3na'),
+        )
+
+        expect(creditsItem).toBeUndefined()
+
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+        editor.destroy()
+      })
+    })
+
+    describe('WHEN the credits command is executed via triggerMenu', () => {
+      it('THEN should call onCreditsCommand with an onSave callback', () => {
+        const ReactRendererMock = jest.requireMock('@tiptap/react').ReactRenderer as jest.Mock
+        const mockOnCreditsCommand = jest.fn()
+        const editor = new Editor({
+          extensions: [
+            StarterKit,
+            SlashCommands.configure({
+              translate: mockTranslate,
+              onCreditsCommand: mockOnCreditsCommand,
+            }),
+          ],
+          content: '<p>Hello</p>',
+        })
+
+        const storage = (editor.storage as any).slashCommands as {
+          triggerMenu: (clientRect: () => DOMRect) => void
+        }
+
+        ReactRendererMock.mockClear()
+        storage.triggerMenu(() => new DOMRect())
+
+        const rendererProps = ReactRendererMock.mock.calls[0][1].props as {
+          items: Array<{ title: string; command: (editor: Editor) => void }>
+          command: (item: { title: string; command: (editor: Editor) => void }) => void
+        }
+        const creditsItem = rendererProps.items.find(
+          (item) => item.title === mockTranslate('text_1783352692386xocpgvrz3na'),
+        )
+
+        expect(creditsItem).toBeDefined()
+
+        rendererProps.command(
+          creditsItem as { title: string; disabled: boolean; command: jest.Mock },
+        )
+
+        expect(mockOnCreditsCommand).toHaveBeenCalledWith({ onSave: expect.any(Function) })
+
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+        editor.destroy()
+      })
+    })
+
+    describe('WHEN onSave is invoked from the credits command callback', () => {
+      it('THEN should call editor.chain().focus().insertContent() with the creditsBlock node', () => {
+        const ReactRendererMock = jest.requireMock('@tiptap/react').ReactRenderer as jest.Mock
+        const mockOnCreditsCommand = jest.fn()
+        const editor = new Editor({
+          extensions: [
+            StarterKit,
+            SlashCommands.configure({
+              translate: mockTranslate,
+              onCreditsCommand: mockOnCreditsCommand,
+            }),
+          ],
+          content: '<p>Hello</p>',
+        })
+
+        const storage = (editor.storage as any).slashCommands as {
+          triggerMenu: (clientRect: () => DOMRect) => void
+        }
+
+        ReactRendererMock.mockClear()
+        storage.triggerMenu(() => new DOMRect())
+
+        const rendererProps = ReactRendererMock.mock.calls[0][1].props as {
+          items: Array<{ title: string; command: (editor: Editor) => void }>
+          command: (item: { title: string; command: (editor: Editor) => void }) => void
+        }
+        const creditsItem = rendererProps.items.find(
+          (item) => item.title === mockTranslate('text_1783352692386xocpgvrz3na'),
+        )
+
+        // Spy on the editor's chain to track calls
+        const runMock = jest.fn()
+        const chainMethods: Record<string, jest.Mock> = {}
+        const handler: ProxyHandler<Record<string, jest.Mock>> = {
+          get: (_target, prop: string) => {
+            if (prop === 'run') return runMock
+            if (!chainMethods[prop]) {
+              chainMethods[prop] = jest.fn().mockReturnValue(new Proxy({}, handler))
+            }
+
+            return chainMethods[prop]
+          },
+        }
+
+        const mockEditorForCommand = {
+          chain: jest.fn().mockReturnValue(new Proxy({}, handler)),
+          commands: { setTextSelection: jest.fn() },
+          state: { selection: {} },
+        } as unknown as Editor
+
+        // Execute the credits item's command directly with our mock editor
+        ;(creditsItem as { command: (e: Editor) => void }).command(mockEditorForCommand)
+
+        // Capture the onSave callback
+        const capturedParams = mockOnCreditsCommand.mock.calls[0][0] as {
+          onSave: (attrs: { localId: string }) => void
+        }
+
+        const attrs = { localId: 'local-1' }
+
+        capturedParams.onSave(attrs)
+
+        expect(mockEditorForCommand.chain).toHaveBeenCalled()
+        expect(chainMethods['insertContent']).toHaveBeenCalledWith({
+          type: 'creditsBlock',
+          attrs,
+        })
+        expect(runMock).toHaveBeenCalled()
+
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+        editor.destroy()
+      })
+    })
+
+    describe('WHEN isCreditsDisabled returns true', () => {
+      it('THEN should mark the credits item as disabled in the Suggestion items', () => {
+        const SuggestionMock = jest.requireMock('@tiptap/suggestion').default as jest.Mock
+        const mockOnCreditsCommand = jest.fn()
+        const editor = new Editor({
+          extensions: [
+            StarterKit,
+            SlashCommands.configure({
+              translate: mockTranslate,
+              onCreditsCommand: mockOnCreditsCommand,
+              isCreditsDisabled: () => true,
+            }),
+          ],
+          content: '<p>Hello</p>',
+        })
+
+        const lastCallIndex = SuggestionMock.mock.calls.length - 1
+        const suggestionConfig = SuggestionMock.mock.calls[lastCallIndex][0] as {
+          items: (params: { query: string }) => Array<{ title: string; disabled: boolean }>
+        }
+        const items = suggestionConfig.items({ query: '' })
+
+        const creditsItem = items.find(
+          (item) => item.title === mockTranslate('text_1783352692386xocpgvrz3na'),
+        )
+
+        expect(creditsItem?.disabled).toBe(true)
+
+        // Non-credits items should not be disabled
+        const nonCreditsItems = items.filter(
+          (item) => item.title !== mockTranslate('text_1783352692386xocpgvrz3na'),
+        )
+
+        nonCreditsItems.forEach((item) => {
+          expect(item.disabled).toBe(false)
+        })
+
+        editor.destroy()
+      })
+    })
+
+    describe('WHEN isCreditsDisabled returns false', () => {
+      it('THEN should not mark the credits item as disabled in the Suggestion items', () => {
+        const SuggestionMock = jest.requireMock('@tiptap/suggestion').default as jest.Mock
+        const mockOnCreditsCommand = jest.fn()
+        const editor = new Editor({
+          extensions: [
+            StarterKit,
+            SlashCommands.configure({
+              translate: mockTranslate,
+              onCreditsCommand: mockOnCreditsCommand,
+              isCreditsDisabled: () => false,
+            }),
+          ],
+          content: '<p>Hello</p>',
+        })
+
+        const lastCallIndex = SuggestionMock.mock.calls.length - 1
+        const suggestionConfig = SuggestionMock.mock.calls[lastCallIndex][0] as {
+          items: (params: { query: string }) => Array<{ title: string; disabled: boolean }>
+        }
+        const items = suggestionConfig.items({ query: '' })
+
+        const creditsItem = items.find(
+          (item) => item.title === mockTranslate('text_1783352692386xocpgvrz3na'),
+        )
+
+        expect(creditsItem?.disabled).toBe(false)
+
+        editor.destroy()
+      })
+    })
+
+    describe('WHEN isCreditsDisabled is not provided', () => {
+      it('THEN should default the credits item disabled state to false', () => {
+        const ReactRendererMock = jest.requireMock('@tiptap/react').ReactRenderer as jest.Mock
+        const mockOnCreditsCommand = jest.fn()
+        const editor = new Editor({
+          extensions: [
+            StarterKit,
+            SlashCommands.configure({
+              translate: mockTranslate,
+              onCreditsCommand: mockOnCreditsCommand,
+            }),
+          ],
+          content: '<p>Hello</p>',
+        })
+
+        const storage = (editor.storage as any).slashCommands as {
+          triggerMenu: (clientRect: () => DOMRect) => void
+        }
+
+        ReactRendererMock.mockClear()
+        storage.triggerMenu(() => new DOMRect())
+
+        const rendererProps = ReactRendererMock.mock.calls[0][1].props as {
+          items: Array<{ title: string; disabled: boolean }>
+        }
+        const creditsItem = rendererProps.items.find(
+          (item) => item.title === mockTranslate('text_1783352692386xocpgvrz3na'),
+        )
+
+        expect(creditsItem?.disabled).toBe(false)
+
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
         editor.destroy()
       })
     })

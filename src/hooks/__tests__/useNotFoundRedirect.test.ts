@@ -109,7 +109,7 @@ describe('useNotFoundRedirect', () => {
         })
       })
 
-      it('THEN should report the error to Sentry', async () => {
+      it('THEN should NOT report the error to Sentry', async () => {
         const notFoundError = createNotFoundError()
 
         renderHook(
@@ -122,15 +122,10 @@ describe('useNotFoundRedirect', () => {
         )
 
         await waitFor(() => {
-          expect(captureException).toHaveBeenCalledWith(notFoundError, {
-            level: 'warning',
-            tags: {
-              errorType: 'NotFoundRedirect',
-              fromPath: window.location.pathname,
-              redirectTo: '/resources',
-            },
-          })
+          expect(mockNavigate).toHaveBeenCalledWith('/resources', { replace: true })
         })
+
+        expect(captureException).not.toHaveBeenCalled()
       })
 
       it('THEN should show an info toast with the provided translateKey', async () => {

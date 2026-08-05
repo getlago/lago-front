@@ -118,6 +118,62 @@ describe('useDiscountDrawer', () => {
     expect(result.current).toHaveProperty('syncDiscountBlocks')
   })
 
+  it('hydrates entities when billingItems arrives late (cold-cache load)', () => {
+    // Cold cache: billingItems is undefined on first render while the quote query
+    // loads, then arrives once it resolves. EditQuote is not remounted, so the hook
+    // must rehydrate its refs/entities from the late billingItems.
+    const savedBillingItems: BillingItemsPayload = {
+      addOns: [],
+      coupons: [
+        {
+          type: 'coupon',
+          id: 'cpn_edit',
+          localId: 'saved-local',
+          payload: {
+            position: 1,
+            code: 'EDIT',
+            id: 'cpn_edit',
+            name: 'Edit Coupon',
+            type: 'fixed_amount',
+            amountCents: 5000,
+            percentageRate: null,
+            currency: CurrencyEnum.Usd,
+            frequency: 'forever',
+            frequencyDuration: null,
+            expirationAt: null,
+            limitedPlans: false,
+            planCodes: [],
+            limitedBillableMetrics: false,
+            billableMetricCodes: [],
+            couponOverrides: null,
+            catalogSnapshot: null,
+            resolvedPayload: null,
+          },
+          overrides: {
+            amountCents: 5000,
+            percentageRate: null,
+            frequency: 'forever',
+            frequencyDuration: null,
+          },
+        },
+      ],
+    }
+
+    const { result, rerender } = renderHook(
+      ({ bi }: { bi: BillingItemsPayload | undefined }) => useDiscountDrawer(bi, options),
+      { initialProps: { bi: undefined as BillingItemsPayload | undefined } },
+    )
+
+    // First render (query still loading): nothing to hydrate.
+    expect(result.current.entities).toEqual({})
+
+    // billingItems resolves → entities rehydrate from the saved coupon.
+    rerender({ bi: savedBillingItems })
+
+    expect(result.current.entities).toHaveProperty('saved-local')
+    expect(result.current.entities['saved-local'].entityType).toBe('coupon')
+  })
+
   it('opens the drawer when onDiscountCommand is called', () => {
     const { result } = renderHook(() => useDiscountDrawer(undefined, options))
 
@@ -276,6 +332,139 @@ describe('useDiscountDrawer', () => {
 
     expect(payload).toBeDefined()
     expect(payload?.coupons).toEqual([])
+  })
+
+  it('re-hydrates a pruned coupon (with overrides) when its block re-appears (undo)', () => {
+    const initialBillingItems: BillingItemsPayload = {
+      addOns: [],
+      coupons: [
+        {
+          type: 'coupon',
+          id: 'cpn_edit',
+          localId: 'saved-local',
+          payload: {
+            position: 1,
+            code: 'EDIT',
+            id: 'cpn_edit',
+            name: 'Edit Coupon',
+            type: 'fixed_amount',
+            amountCents: 5000,
+            percentageRate: null,
+            currency: CurrencyEnum.Usd,
+            frequency: 'recurring',
+            frequencyDuration: 3,
+            expirationAt: null,
+            limitedPlans: false,
+            planCodes: [],
+            limitedBillableMetrics: false,
+            billableMetricCodes: [],
+            couponOverrides: null,
+            catalogSnapshot: null,
+            resolvedPayload: null,
+          },
+          overrides: {
+            amountCents: 4200,
+            percentageRate: null,
+            frequency: 'recurring',
+            frequencyDuration: 6,
+          },
+        },
+      ],
+    }
+
+    const { result } = renderHook(() => useDiscountDrawer(initialBillingItems, options))
+
+    expect(result.current.entities).toHaveProperty('saved-local')
+
+    let payload: BillingItemsPayload | undefined
+
+    // Delete: no block references the coupon, so it is pruned (and cached).
+    act(() => {
+      payload = result.current.syncDiscountBlocks([])
+    })
+
+    expect(payload?.coupons).toEqual([])
+    expect(result.current.entities).not.toHaveProperty('saved-local')
+
+    // Undo: the block re-appears referencing the same localId.
+    act(() => {
+      payload = result.current.syncDiscountBlocks([
+        { couponId: 'cpn_edit', localId: 'saved-local' },
+      ])
+    })
+
+    // Coupon is rehydrated and re-persisted with its overrides intact.
+    expect(result.current.entities).toHaveProperty('saved-local')
+    expect(payload?.coupons).toEqual([
+      expect.objectContaining({
+        localId: 'saved-local',
+        overrides: expect.objectContaining({ amountCents: 4200, frequencyDuration: 6 }),
+      }),
+    ])
+  })
+
+  it('re-persists restored coupons in document order (position follows the doc)', () => {
+    const makeCoupon = (
+      id: string,
+      localId: string,
+      position: number,
+    ): NonNullable<BillingItemsPayload['coupons']>[number] => ({
+      type: 'coupon',
+      id,
+      localId,
+      payload: {
+        position,
+        code: 'C',
+        id,
+        name: 'Coupon',
+        type: 'fixed_amount',
+        amountCents: 5000,
+        percentageRate: null,
+        currency: CurrencyEnum.Usd,
+        frequency: 'once',
+        frequencyDuration: null,
+        expirationAt: null,
+        limitedPlans: false,
+        planCodes: [],
+        limitedBillableMetrics: false,
+        billableMetricCodes: [],
+        couponOverrides: null,
+        catalogSnapshot: null,
+        resolvedPayload: null,
+      },
+      overrides: {
+        amountCents: 5000,
+        percentageRate: null,
+        frequency: 'once',
+        frequencyDuration: null,
+      },
+    })
+
+    const initialBillingItems: BillingItemsPayload = {
+      addOns: [],
+      coupons: [makeCoupon('cpn_a', 'local-a', 1), makeCoupon('cpn_b', 'local-b', 2)],
+    }
+
+    const { result } = renderHook(() => useDiscountDrawer(initialBillingItems, options))
+
+    let payload: BillingItemsPayload | undefined
+
+    // Delete the FIRST coupon; only local-b remains referenced.
+    act(() => {
+      payload = result.current.syncDiscountBlocks([{ couponId: 'cpn_b', localId: 'local-b' }])
+    })
+
+    // Undo re-inserts local-a ahead of local-b (document order).
+    act(() => {
+      payload = result.current.syncDiscountBlocks([
+        { couponId: 'cpn_a', localId: 'local-a' },
+        { couponId: 'cpn_b', localId: 'local-b' },
+      ])
+    })
+
+    // Positions follow the doc order, not the restore-append order.
+    expect(payload?.coupons?.map((c) => c.localId)).toEqual(['local-a', 'local-b'])
+    expect(payload?.coupons?.map((c) => c.payload.position)).toEqual([1, 2])
   })
 
   it('calls onPersist with billingItems containing coupon overrides on add', async () => {

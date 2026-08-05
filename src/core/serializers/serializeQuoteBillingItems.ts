@@ -5,6 +5,7 @@ import { CurrencyEnum } from '~/generated/graphql'
 import { deserializeAmount, serializeAmount } from './serializeAmount'
 import { type BillingItemCoupon, fromCoupons } from './serializeQuoteCoupons'
 import { type BillingItemPlan, fromPlanBillingItems } from './serializeQuotePlanBillingItems'
+import { type BillingItemWallet, fromWallets } from './serializeQuoteWallets'
 
 // --- Backend contract types (snake_case) ---
 
@@ -37,7 +38,20 @@ export interface BillingItemsPayload {
   addOns?: BillingItemAddon[]
   plans?: BillingItemPlan[]
   coupons?: BillingItemCoupon[]
+  walletCredits?: BillingItemWallet[]
 }
+
+/**
+ * Replace ONLY the walletCredits slice, preserving every sibling category
+ * (plans/addOns/coupons) untouched.
+ *
+ * Callers should use this helper whenever mutating wallet credits to avoid
+ * accidentally dropping unrelated billingItems categories.
+ */
+export const mergeWalletCredits = (
+  billingItems: BillingItemsPayload | null | undefined,
+  walletCredits: BillingItemWallet[],
+): BillingItemsPayload => ({ ...billingItems, walletCredits })
 
 // --- Serialization helpers ---
 
@@ -221,6 +235,14 @@ export const buildPreviewEntities = (
     for (const c of billingItems.coupons) {
       previewEntities[c.id] = couponEntities[c.localId]
     }
+  }
+
+  // Wallet/credits blocks reference wallets solely by localId (no catalog id), so
+  // single-keying is enough — unlike coupons/add-ons there is no legacy id fallback.
+  if (billingItems.walletCredits && billingItems.walletCredits.length > 0) {
+    const { entities: walletEntities } = fromWallets(billingItems.walletCredits)
+
+    Object.assign(previewEntities, walletEntities)
   }
 
   return previewEntities

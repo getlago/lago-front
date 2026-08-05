@@ -1,7 +1,7 @@
 import {
   AvailableFiltersEnum,
   filterDataInlineSeparator,
-} from '~/components/designSystem/Filters/types'
+} from '~/components/Filters/presentation/types'
 import { CurrencyEnum, FeatureFlagEnum } from '~/generated/graphql'
 
 import { useBillingEntitiesOptions } from './useBillingEntitiesOptions'

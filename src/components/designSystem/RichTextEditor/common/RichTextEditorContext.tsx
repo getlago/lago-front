@@ -1,17 +1,19 @@
 import { createContext, useContext } from 'react'
 
 import type { PlanPreviewData } from '~/core/serializers/buildPlanPreviewData'
+import type { WalletPreviewData } from '~/core/serializers/buildWalletPreviewData'
 import type { BillingItemsPayload } from '~/core/serializers/serializeQuoteBillingItems'
 import type { Locale } from '~/core/translations'
 import { type CouponFrequency, type CouponTypeEnum, type CurrencyEnum } from '~/generated/graphql'
 
+import type { CreditsBlockAttributes } from '../extensions/CreditsBlock.schema'
 import type { DiscountBlockAttributes } from '../extensions/DiscountBlock.schema'
 import type { PricingBlockAttributes, PricingType } from '../extensions/PricingBlock.schema'
 import type { RichTextEditorMode } from '../RichTextEditor'
 
 export type EntityData = {
   entityId: string
-  entityType: 'plan' | 'addOn' | 'coupon'
+  entityType: 'plan' | 'addOn' | 'coupon' | 'wallet'
   name: string
   invoiceDisplayName?: string
   code: string
@@ -22,6 +24,8 @@ export type EntityData = {
   fromDatetime?: string
   toDatetime?: string
   plan?: PlanPreviewData
+  // wallet-only display data (credits preview)
+  wallet?: WalletPreviewData
   // coupon-only display fields
   couponType?: CouponTypeEnum
   amountCents?: string
@@ -49,6 +53,13 @@ export interface DiscountCommandParams {
 
 export type OnDiscountCommand = (params: DiscountCommandParams) => void
 
+export interface CreditsCommandParams {
+  onSave: (attrs: CreditsBlockAttributes) => void
+  editData?: { localId: string }
+}
+
+export type OnCreditsCommand = (params: CreditsCommandParams) => void
+
 interface RichTextEditorContextValue {
   mode: RichTextEditorMode
   mentionValues: Record<string, string>
@@ -57,6 +68,7 @@ interface RichTextEditorContextValue {
   onPricingCommand?: OnPricingCommand
   onImageUpload?: (base64: string) => Promise<string>
   onDiscountCommand?: OnDiscountCommand
+  onCreditsCommand?: OnCreditsCommand
   customerLocale?: Locale
   customerCurrency?: CurrencyEnum
 }

@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -16,21 +15,12 @@ import {
 } from '~/components/layouts/Settings'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useEditBillingEntityDocumentLocaleDialog } from '~/components/settings/invoices/EditBillingEntityDocumentLocaleDialog'
-import {
-  EditBillingEntityGracePeriodDialog,
-  EditBillingEntityGracePeriodDialogRef,
-} from '~/components/settings/invoices/EditBillingEntityGracePeriodDialog'
-import {
-  EditBillingEntityInvoiceIssuingDatePolicyDialog,
-  EditBillingEntityInvoiceIssuingDatePolicyDialogRef,
-} from '~/components/settings/invoices/EditBillingEntityInvoiceIssuingDatePolicyDialog'
+import { useEditBillingEntityGracePeriodDialog } from '~/components/settings/invoices/EditBillingEntityGracePeriodDialog'
+import { useEditBillingEntityInvoiceIssuingDatePolicyDialog } from '~/components/settings/invoices/EditBillingEntityInvoiceIssuingDatePolicyDialog'
 import { useEditBillingEntityInvoiceNumberingDialog } from '~/components/settings/invoices/EditBillingEntityInvoiceNumberingDialog'
 import { useEditBillingEntityInvoiceTemplateDialog } from '~/components/settings/invoices/EditBillingEntityInvoiceTemplateDialog'
 import { useEditDefaultCurrencyDialog } from '~/components/settings/invoices/EditDefaultCurrencyDialog'
-import {
-  EditFinalizeZeroAmountInvoiceDialog,
-  EditFinalizeZeroAmountInvoiceDialogRef,
-} from '~/components/settings/invoices/EditFinalizeZeroAmountInvoiceDialog'
+import { useEditFinalizeZeroAmountInvoiceDialog } from '~/components/settings/invoices/EditFinalizeZeroAmountInvoiceDialog'
 import { useEditNetPaymentTermDialog } from '~/components/settings/invoices/EditNetPaymentTermDialog'
 import {
   INVOICE_ISSUING_DATE_ADJUSTMENT_SETTING_KEYS,
@@ -123,14 +113,13 @@ const BillingEntityInvoiceSettings = () => {
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
 
-  const editBillingEntityInvoiceIssuingDatePolicyDialogRef =
-    useRef<EditBillingEntityInvoiceIssuingDatePolicyDialogRef>(null)
-  const editGracePeriodDialogRef = useRef<EditBillingEntityGracePeriodDialogRef>(null)
+  const { openEditBillingEntityInvoiceIssuingDatePolicyDialog } =
+    useEditBillingEntityInvoiceIssuingDatePolicyDialog()
+  const { openEditBillingEntityGracePeriodDialog } = useEditBillingEntityGracePeriodDialog()
   const { openEditBillingEntityDocumentLocaleDialog } = useEditBillingEntityDocumentLocaleDialog()
   const { openEditNetPaymentTermDialog } = useEditNetPaymentTermDialog()
   const netPaymentTermDialogDescription = translate('text_64c7a89b6c67eb6c988980eb')
-  const editFinalizeZeroAmountInvoiceDialogRef =
-    useRef<EditFinalizeZeroAmountInvoiceDialogRef>(null)
+  const { openEditFinalizeZeroAmountInvoiceDialog } = useEditFinalizeZeroAmountInvoiceDialog()
   const premiumWarningDialog = usePremiumWarningDialog()
   const { openEditDefaultCurrencyDialog } = useEditDefaultCurrencyDialog()
   const { openEditBillingEntityInvoiceTemplateDialog } = useEditBillingEntityInvoiceTemplateDialog()
@@ -208,7 +197,13 @@ const BillingEntityInvoiceSettings = () => {
         <Button
           variant="inline"
           disabled={!canEditInvoiceSettings}
-          onClick={() => editFinalizeZeroAmountInvoiceDialogRef?.current?.openDialog()}
+          onClick={() =>
+            billingEntity &&
+            openEditFinalizeZeroAmountInvoiceDialog({
+              entity: billingEntity,
+              finalizeZeroAmountInvoice: billingEntity.finalizeZeroAmountInvoice,
+            })
+          }
         >
           {translate('text_637f819eff19cd55a56d55e4')}
         </Button>
@@ -216,14 +211,6 @@ const BillingEntityInvoiceSettings = () => {
       content: billingEntity?.finalizeZeroAmountInvoice
         ? translate('text_1725549671287ancbf00edxx')
         : translate('text_1725549671288zkq9sr0y46l'),
-
-      dialog: (
-        <EditFinalizeZeroAmountInvoiceDialog
-          ref={editFinalizeZeroAmountInvoiceDialogRef}
-          entity={billingEntity}
-          finalizeZeroAmountInvoice={billingEntity?.finalizeZeroAmountInvoice}
-        />
-      ),
     },
     {
       id: 'invoice-settings-grace-period',
@@ -236,7 +223,10 @@ const BillingEntityInvoiceSettings = () => {
           disabled={!canEditInvoiceSettings}
           onClick={() => {
             isPremium
-              ? editGracePeriodDialogRef?.current?.openDialog()
+              ? openEditBillingEntityGracePeriodDialog({
+                  id: billingEntity?.id as string,
+                  invoiceGracePeriod,
+                })
               : premiumWarningDialog.open()
           }}
         >
@@ -247,13 +237,6 @@ const BillingEntityInvoiceSettings = () => {
         'text_638dc196fb209d551f3d81a2',
         { gracePeriod: invoiceGracePeriod },
         invoiceGracePeriod,
-      ),
-      dialog: (
-        <EditBillingEntityGracePeriodDialog
-          ref={editGracePeriodDialogRef}
-          invoiceGracePeriod={invoiceGracePeriod}
-          id={billingEntity?.id as string}
-        />
       ),
     },
     {
@@ -336,7 +319,10 @@ const BillingEntityInvoiceSettings = () => {
         <Button
           variant="inline"
           disabled={!canEditInvoiceSettings}
-          onClick={() => editBillingEntityInvoiceIssuingDatePolicyDialogRef?.current?.openDialog()}
+          onClick={() => {
+            if (!billingEntity) return
+            openEditBillingEntityInvoiceIssuingDatePolicyDialog({ billingEntity })
+          }}
         >
           {translate('text_6380d7e60f081e5b777c4b24')}
         </Button>
@@ -362,16 +348,6 @@ const BillingEntityInvoiceSettings = () => {
             </div>
           </Typography>
         </div>
-      ),
-      dialog: (
-        <>
-          {!!billingEntity && (
-            <EditBillingEntityInvoiceIssuingDatePolicyDialog
-              ref={editBillingEntityInvoiceIssuingDatePolicyDialogRef}
-              billingEntity={billingEntity}
-            />
-          )}
-        </>
       ),
     },
     {
@@ -441,10 +417,6 @@ const BillingEntityInvoiceSettings = () => {
             ))}
         </SettingsListWrapper>
       </SettingsPaddedContainer>
-
-      {items.map((item) => (
-        <div key={`billing-entity-invoice-settings-dialog-${item.id}`}>{item.dialog}</div>
-      ))}
     </>
   )
 }

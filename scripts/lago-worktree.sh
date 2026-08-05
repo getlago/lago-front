@@ -291,6 +291,10 @@ services:
     container_name: lago_front_wt_${san}
     stdin_open: true
     restart: unless-stopped
+    # Clear the vite dep-optimizer cache on every container start: the
+    # node_modules volume outlives the mounted worktree sources, so a stale
+    # cache causes "Outdated Optimize Dep" compilation errors in the browser.
+    command: bash -c "rm -rf /app/node_modules/.vite && ./start.dev.sh"
     volumes:
       - ${wt_path}:/app:cached
       - front_nm_wt_${san}:/app/node_modules

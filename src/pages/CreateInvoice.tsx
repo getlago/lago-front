@@ -14,10 +14,15 @@ import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { InvoiceTaxesDisplay, TaxMapType } from '~/components/invoices/InvoiceTaxesDisplay'
-import { PaymentMethodsInvoiceSettings } from '~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings'
-import { PaymentMethodsForm, ViewTypeEnum } from '~/components/paymentMethodsInvoiceSettings/types'
-import { PO } from '~/components/purchaseOrder/PO'
+import { InvoicingSettingsSelector } from '~/components/invoicingSettings/InvoicingSettingsSelector'
+import { PaymentSettingsSelector } from '~/components/paymentSettings/PaymentSettingsSelector'
+import { PurchaseOrder } from '~/components/purchaseOrder/PO'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import {
+  VIEW_TYPE_INVOICING_CAPTION_KEYS,
+  VIEW_TYPE_PAYMENT_CAPTION_KEYS,
+  ViewTypeEnum,
+} from '~/core/constants/billingObjectViewTypes'
 import {
   appliedTaxEnumedTaxCodeTranslationKey,
   LocalTaxProviderErrorsEnum,
@@ -378,12 +383,6 @@ const CreateInvoice = () => {
     form.handleSubmit()
   }
 
-  const paymentMethodsFormAdapter: PaymentMethodsForm<ViewTypeEnum.OneOffInvoice> = {
-    values: formValues,
-    setFieldValue: (field, value) =>
-      form.setFieldValue(field as Parameters<typeof form.setFieldValue>[0], value as never),
-  }
-
   const currency = formValues.currency || CurrencyEnum.Usd
   const hasAnyFee = formValues.fees.length > 0
 
@@ -644,7 +643,7 @@ const CreateInvoice = () => {
                     </Typography>
                   </div>
 
-                  <PO
+                  <PurchaseOrder
                     className="flex-row items-center gap-4"
                     value={formValues.purchaseOrderNumber}
                     onChange={(value) => {
@@ -652,18 +651,24 @@ const CreateInvoice = () => {
                     }}
                     description={translate('text_1782219771286e8qwitkefxr')}
                   >
-                    <PO.Title className="min-w-[200px]" variant="caption" color="grey600" />
+                    <PurchaseOrder.Title
+                      className="min-w-[200px]"
+                      variant="caption"
+                      color="grey600"
+                    />
 
                     {formValues.purchaseOrderNumber ? (
                       <div className="flex items-center gap-2">
-                        <PO.Number variant="body" color="grey700" />
-                        <PO.EditButton />
-                        <PO.TrashButton />
+                        <PurchaseOrder.Number variant="body" color="grey700" />
+                        <PurchaseOrder.EditButton />
+                        <PurchaseOrder.TrashButton />
                       </div>
                     ) : (
-                      <PO.AddButton>{translate('text_17822197712864tnvgq76xou')}</PO.AddButton>
+                      <PurchaseOrder.AddButton>
+                        {translate('text_17822197712864tnvgq76xou')}
+                      </PurchaseOrder.AddButton>
                     )}
-                  </PO>
+                  </PurchaseOrder>
                 </div>
 
                 <div className="flex flex-row items-start gap-4">
@@ -840,18 +845,47 @@ const CreateInvoice = () => {
             )}
           </Card>
 
-          {(customer?.externalId || customer?.id) && (
-            <Card>
-              <div className="flex flex-col gap-1">
-                <Typography variant="subhead1">
-                  {translate('text_17634566456760qoj7hs7jrh')}
-                </Typography>
-              </div>
-              <PaymentMethodsInvoiceSettings
-                customer={customer}
-                form={paymentMethodsFormAdapter}
-                viewType={ViewTypeEnum.OneOffInvoice}
-              />
+          {(customer?.id || customer?.externalId) && (
+            <Card className="gap-0">
+              {customer?.id && (
+                <section
+                  className={`flex flex-col gap-6 ${customer?.externalId ? 'border-b border-grey-300 pb-12' : ''}`}
+                >
+                  <div className="flex flex-col gap-1">
+                    <Typography variant="subhead1">
+                      {translate('text_17423672025282dl7iozy1ru')}
+                    </Typography>
+                    <Typography variant="caption">
+                      {translate(VIEW_TYPE_INVOICING_CAPTION_KEYS[ViewTypeEnum.OneOffInvoice])}
+                    </Typography>
+                  </div>
+                  <InvoicingSettingsSelector
+                    viewType={ViewTypeEnum.OneOffInvoice}
+                    customerId={customer.id}
+                    value={formValues.invoiceCustomSection}
+                    onChange={(value) => form.setFieldValue('invoiceCustomSection', value)}
+                  />
+                </section>
+              )}
+
+              {customer?.externalId && (
+                <section className={`flex flex-col gap-6 ${customer?.id ? 'pt-12' : ''}`}>
+                  <div className="flex flex-col gap-1">
+                    <Typography variant="subhead1">
+                      {translate('text_1784888105056o78z8t3kjrg')}
+                    </Typography>
+                    <Typography variant="caption">
+                      {translate(VIEW_TYPE_PAYMENT_CAPTION_KEYS[ViewTypeEnum.OneOffInvoice])}
+                    </Typography>
+                  </div>
+                  <PaymentSettingsSelector
+                    viewType={ViewTypeEnum.OneOffInvoice}
+                    externalCustomerId={customer.externalId}
+                    value={formValues.paymentMethod}
+                    onChange={(value) => form.setFieldValue('paymentMethod', value)}
+                  />
+                </section>
+              )}
             </Card>
           )}
         </div>

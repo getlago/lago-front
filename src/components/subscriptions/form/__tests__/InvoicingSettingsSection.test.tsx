@@ -13,7 +13,7 @@ jest.mock('~/components/designSystem/Selector', () => ({
   },
 }))
 
-jest.mock('../InvoicingSettingsDrawer', () => ({
+jest.mock('~/components/invoicingSettings/InvoicingSettingsDrawer', () => ({
   InvoicingSettingsDrawer: function MockInvoicingSettingsDrawer(props: Record<string, unknown>) {
     mockDrawer(props)
 

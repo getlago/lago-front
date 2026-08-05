@@ -68,6 +68,7 @@ export const Metadatas = memo(() => {
     variables: {
       id: invoiceId || '',
     },
+    skip: !invoiceId,
   })
 
   const invoice = data?.invoice

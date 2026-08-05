@@ -26,7 +26,12 @@ import {
 } from '~/generated/graphql'
 import { AllTheProviders, testMockNavigateFn, TestMocksType } from '~/test-utils'
 
-import Authentication from '../Authentication'
+import Authentication, {
+  getSSOSelectorDotsTestId,
+  getSSOSelectorEditTestId,
+  getSSOSelectorTestId,
+} from '../Authentication'
+import { ENTRA_ID_INTEGRATION_SUBMIT_BTN } from '../dialogs/AddEntraIdDialog'
 
 const mockRefetch = jest.fn()
 let mockIsPremium = true
@@ -101,6 +106,34 @@ const oktaIntegrationsMock: TestMocksType = [
               organizationName: 'test-org',
               host: 'okta.example.com',
               name: 'Test Okta',
+            },
+          ],
+        },
+      },
+    },
+  },
+]
+
+const entraIdIntegrationsMock: TestMocksType = [
+  {
+    request: {
+      query: GetAuthIntegrationsDocument,
+      variables: { limit: 10 },
+    },
+    result: {
+      data: {
+        integrations: {
+          __typename: 'IntegrationCollection',
+          collection: [
+            {
+              __typename: 'EntraIdIntegration',
+              id: 'entra-id-123',
+              domain: 'test.example.com',
+              clientId: 'test-client-id',
+              clientSecret: 'test-secret',
+              tenantId: 'test-tenant-id',
+              host: 'login.microsoftonline.com',
+              name: 'Test Entra ID',
             },
           ],
         },
@@ -592,6 +625,167 @@ describe('Authentication', () => {
 
       expect(dialog).toBeInTheDocument()
     })
+  })
+
+  it('renders a selector for Entra ID', async () => {
+    await prepare()
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId(getSSOSelectorTestId(AuthenticationMethodsEnum.EntraId)),
+      ).toBeInTheDocument()
+    })
+  })
+
+  it('shows sparkle icon for Entra ID when no Entra ID premium integration', async () => {
+    mockOrganizationData = {
+      premiumIntegrations: [PremiumIntegrationTypeEnum.Okta],
+      authenticationMethods: [AuthenticationMethodsEnum.EmailPassword],
+    }
+
+    await prepare()
+
+    await waitFor(() => {
+      const sparkleIcons = screen.queryAllByTestId(/sparkles/)
+
+      expect(sparkleIcons.length).toBeGreaterThanOrEqual(1)
+    })
+  })
+
+  it('navigates to Entra ID details when clicking Entra ID selector with existing integration', async () => {
+    const user = userEvent.setup()
+
+    mockOrganizationData = {
+      premiumIntegrations: [PremiumIntegrationTypeEnum.EntraId],
+      authenticationMethods: [
+        AuthenticationMethodsEnum.EmailPassword,
+        AuthenticationMethodsEnum.EntraId,
+      ],
+    }
+
+    await prepare({ mocks: entraIdIntegrationsMock })
+
+    // Wait for the GraphQL query to resolve - 3 dots-horizontal icons appear
+    // (EmailPassword + GoogleOauth get theirs immediately, Entra ID only after query resolves;
+    // Okta shows the sparkles icon since it is not part of the premium integrations)
+    await waitFor(() => {
+      expect(screen.getAllByTestId(/dots-horizontal/).length).toBe(3)
+    })
+
+    // Click the Entra ID selector explicitly by its test id
+    await user.click(screen.getByTestId(getSSOSelectorTestId(AuthenticationMethodsEnum.EntraId)))
+
+    await waitFor(() => {
+      expect(testMockNavigateFn).toHaveBeenCalled()
+    })
+  })
+
+  it('opens Entra ID add dialog when clicking Entra ID without integration', async () => {
+    const user = userEvent.setup()
+
+    mockOrganizationData = {
+      premiumIntegrations: [PremiumIntegrationTypeEnum.EntraId],
+      authenticationMethods: [AuthenticationMethodsEnum.EmailPassword],
+    }
+
+    await prepare({ mocks: emptyIntegrationsMock })
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId(getSSOSelectorTestId(AuthenticationMethodsEnum.EntraId)),
+      ).toBeInTheDocument()
+    })
+
+    // Click the Entra ID selector explicitly by its test id
+    await user.click(screen.getByTestId(getSSOSelectorTestId(AuthenticationMethodsEnum.EntraId)))
+
+    // Assert the Entra add dialog specifically (its submit button): swapping the
+    // Entra entry's opener for another provider's would open a different dialog
+    // and fail here.
+    expect(await screen.findByTestId(ENTRA_ID_INTEGRATION_SUBMIT_BTN)).toBeInTheDocument()
+  })
+
+  it('opens premium warning when non-premium clicks Entra ID', async () => {
+    const user = userEvent.setup()
+
+    mockIsPremium = false
+
+    await prepare()
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId(getSSOSelectorTestId(AuthenticationMethodsEnum.EntraId)),
+      ).toBeInTheDocument()
+    })
+
+    // Click the Entra ID selector explicitly by its test id
+    await user.click(screen.getByTestId(getSSOSelectorTestId(AuthenticationMethodsEnum.EntraId)))
+
+    // Premium warning dialog should appear
+    await waitFor(() => {
+      const dialog = document.querySelector('[class*="MuiDialog"]')
+
+      expect(dialog).toBeInTheDocument()
+    })
+  })
+
+  it('shows edit and delete in Entra ID popper when integration exists', async () => {
+    const user = userEvent.setup()
+
+    mockOrganizationData = {
+      premiumIntegrations: [PremiumIntegrationTypeEnum.EntraId],
+      authenticationMethods: [
+        AuthenticationMethodsEnum.EmailPassword,
+        AuthenticationMethodsEnum.EntraId,
+      ],
+    }
+
+    await prepare({ mocks: entraIdIntegrationsMock })
+
+    // Wait for all 3 dots-horizontal icons (Entra ID's appears after query resolves,
+    // Okta shows the sparkles icon since it is not part of the premium integrations)
+    await waitFor(() => {
+      expect(screen.getAllByTestId(/dots-horizontal/).length).toBe(3)
+    })
+
+    // Click the Entra ID dots button explicitly by its test id
+    await user.click(
+      screen.getByTestId(getSSOSelectorDotsTestId(AuthenticationMethodsEnum.EntraId)),
+    )
+
+    // Should see pen (edit) and trash (delete) icons in the Entra ID popper
+    await waitFor(() => {
+      expect(screen.queryAllByTestId(/pen\//).length).toBeGreaterThanOrEqual(1)
+      expect(screen.queryAllByTestId(/trash\//).length).toBeGreaterThanOrEqual(1)
+    })
+  })
+
+  it('opens the Entra edit dialog prefilled from the Entra integration', async () => {
+    const user = userEvent.setup()
+
+    mockOrganizationData = {
+      premiumIntegrations: [PremiumIntegrationTypeEnum.EntraId],
+      authenticationMethods: [
+        AuthenticationMethodsEnum.EmailPassword,
+        AuthenticationMethodsEnum.EntraId,
+      ],
+    }
+
+    await prepare({ mocks: entraIdIntegrationsMock })
+
+    await user.click(
+      await screen.findByTestId(getSSOSelectorDotsTestId(AuthenticationMethodsEnum.EntraId)),
+    )
+    await user.click(
+      await screen.findByTestId(getSSOSelectorEditTestId(AuthenticationMethodsEnum.EntraId)),
+    )
+
+    // Pins the Entra pairing: the opener must open the Entra dialog (its submit
+    // button) prefilled from the Entra integration (its domain + tenant). A wrong
+    // opener or a wrong integration in the ssoProviders config would fail here.
+    expect(await screen.findByTestId(ENTRA_ID_INTEGRATION_SUBMIT_BTN)).toBeInTheDocument()
+    expect(screen.getByDisplayValue('test.example.com')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('test-tenant-id')).toBeInTheDocument()
   })
 
   it('clicks delete button in Okta popper to open delete dialog', async () => {

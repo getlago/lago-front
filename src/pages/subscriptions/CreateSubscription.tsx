@@ -21,6 +21,7 @@ import { SubscriptionFeeSection } from '~/components/plans/SubscriptionFeeSectio
 import { LocalUsageChargeInput } from '~/components/plans/types'
 import { UsageChargesSection } from '~/components/plans/UsageChargesSection'
 import PremiumFeature from '~/components/premium/PremiumFeature'
+import { normalizePurchaseOrderNumber } from '~/components/purchaseOrder/PO'
 import { FeatureEntitlementSection } from '~/components/subscriptions/FeatureEntitlementSection'
 import { buildSubscriptionDefaultValues } from '~/components/subscriptions/form/buildSubscriptionDefaultValues'
 import { InvoicingSettingsSection } from '~/components/subscriptions/form/InvoicingSettingsSection'
@@ -166,6 +167,7 @@ const CreateSubscription = () => {
           activationRuleType,
         }),
         invoiceCustomSection: toInvoiceCustomSectionReference(invoiceCustomSection),
+        purchaseOrderNumber: normalizePurchaseOrderNumber(value.purchaseOrderNumber),
       }
       const rootElement = document.getElementById('root')
       const errorsString = await onSave(
@@ -576,20 +578,6 @@ const CreateSubscription = () => {
                         customerExternalId={customer?.externalId}
                       />
 
-                      {/* Section: Payments */}
-                      <CenteredPage.PageSection>
-                        <CenteredPage.PageSectionTitle
-                          title={translate('text_17828013737948943pe3k8nc')}
-                          description={translate('text_17828013737955532qxu3wq4')}
-                        />
-
-                        {/* Payment method lives in a drawer */}
-                        <PaymentSettingsSection
-                          form={subscriptionForm}
-                          externalCustomerId={customer?.externalId ?? ''}
-                        />
-                      </CenteredPage.PageSection>
-
                       {/* Section: Invoicing */}
                       <CenteredPage.PageSection>
                         <CenteredPage.PageSectionTitle
@@ -601,6 +589,20 @@ const CreateSubscription = () => {
                         <InvoicingSettingsSection
                           form={subscriptionForm}
                           customerId={customer?.id}
+                        />
+                      </CenteredPage.PageSection>
+
+                      {/* Section: Payments */}
+                      <CenteredPage.PageSection>
+                        <CenteredPage.PageSectionTitle
+                          title={translate('text_17828013737948943pe3k8nc')}
+                          description={translate('text_17828013737955532qxu3wq4')}
+                        />
+
+                        {/* Payment method lives in a drawer */}
+                        <PaymentSettingsSection
+                          form={subscriptionForm}
+                          externalCustomerId={customer?.externalId ?? ''}
                         />
                       </CenteredPage.PageSection>
                     </>

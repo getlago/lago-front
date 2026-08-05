@@ -30,19 +30,16 @@ const mockFiltersProvider = jest.fn(({ children }: { children: React.ReactNode }
 const mockQuickFilters = jest.fn(() => <div data-test="quick-filters" />)
 const mockFiltersComponent = jest.fn(() => <div data-test="filters-component" />)
 
-jest.mock('~/components/designSystem/Filters', () => ({
-  ...jest.requireActual('~/components/designSystem/Filters'),
+jest.mock('~/components/Filters', () => ({
+  ...jest.requireActual('~/components/Filters'),
   Filters: {
     Provider: (props: Record<string, unknown>) => mockFiltersProvider(props as never),
     QuickFilters: () => mockQuickFilters(),
     Component: () => mockFiltersComponent(),
   },
-  AvailableFiltersEnum: jest.requireActual('~/components/designSystem/Filters')
-    .AvailableFiltersEnum,
-  AvailableQuickFilters: jest.requireActual('~/components/designSystem/Filters')
-    .AvailableQuickFilters,
-  CustomerAvailableFilters: jest.requireActual('~/components/designSystem/Filters')
-    .CustomerAvailableFilters,
+  AvailableFiltersEnum: jest.requireActual('~/components/Filters').AvailableFiltersEnum,
+  AvailableQuickFilters: jest.requireActual('~/components/Filters').AvailableQuickFilters,
+  CustomerAvailableFilters: jest.requireActual('~/components/Filters').CustomerAvailableFilters,
 }))
 
 jest.mock('~/components/SearchInput', () => ({

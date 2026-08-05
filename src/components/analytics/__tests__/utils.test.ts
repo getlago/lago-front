@@ -1,4 +1,4 @@
-import { AvailableFiltersEnum } from '~/components/designSystem/Filters'
+import { AvailableFiltersEnum } from '~/components/Filters'
 import { REVENUE_STREAMS_OVERVIEW_FILTER_PREFIX } from '~/core/constants/filters'
 import {
   RevenueStreamDataForOverviewSectionFragment,
@@ -7,7 +7,7 @@ import {
 
 import { formatRevenueStreamsData } from '../revenueStreams/utils'
 
-jest.mock('~/components/designSystem/Filters', () => ({
+jest.mock('~/components/Filters', () => ({
   AvailableFiltersEnum: {
     date: 'date',
     timeGranularity: 'timeGranularity',

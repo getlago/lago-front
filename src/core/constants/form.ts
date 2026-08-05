@@ -52,13 +52,12 @@ export const RESEND_INVOICE_PAYMENT_METHOD_INPUT_CLASSNAME = 'resendInvoicePayme
 // Billing entity
 export const SEARCH_INVOICE_CUSTOM_SECTION_INPUT_CLASSNAME = 'searchInvoiceCustomSectionInput'
 export const SEARCH_DUNNING_CAMPAIGN_INPUT_CLASSNAME = 'searchDunningCampaignInput'
+export const FINALIZE_ZERO_AMOUNT_INVOICE_INPUT_CLASSNAME = 'finalizeZeroAmountInvoiceInput'
+export const SEARCH_APPLY_TAX_INPUT_CLASSNAME = 'searchApplyTaxInput'
 // Customer
+export const ADD_PAYMENT_METHOD_PROVIDER_INPUT_CLASSNAME = 'addPaymentMethodProviderInput'
 export const SEARCH_TAX_INPUT_FOR_CUSTOMER_CLASSNAME = 'searchTaxForCustomerInput'
 export const SEARCH_COUPON_INPUT_FOR_CUSTOMER_CLASSNAME = 'searchCouponForCustomerInput'
-export const ADD_CUSTOMER_PAYMENT_PROVIDER_ACCORDION = 'addCustomerPaymentProviderAccordion'
-export const ADD_CUSTOMER_ACCOUNTING_PROVIDER_ACCORDION = 'addCustomerAccountingProviderAccordion'
-export const ADD_CUSTOMER_TAX_PROVIDER_ACCORDION = 'addCustomerTaxProviderAccordion'
-export const ADD_CUSTOMER_CRM_PROVIDER_ACCORDION = 'addCustomerCrmProviderAccordion'
 // Wallets
 export const SEARCH_APPLIES_TO_FEE_TYPE_CLASSNAME = 'searchAppliesToFeeTypeInput'
 export const SEARCH_APPLIES_TO_BILLABLE_METRIC_CLASSNAME = 'searchAppliesToBillableMetricInput'

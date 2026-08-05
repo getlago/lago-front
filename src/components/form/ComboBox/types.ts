@@ -48,6 +48,8 @@ interface BasicComboboxProps extends Omit<ComboBoxInputProps, 'params' | 'search
   renderGroupHeader?: never
   onChange: (value: string) => unknown
   onOpen?: () => void
+  /** Open the options menu as soon as the input receives focus */
+  openOnFocus?: boolean
   searchQuery?: LazyQueryExecFunction<
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     any,

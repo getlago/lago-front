@@ -1,7 +1,10 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { SHOW_LIMIT_INPUT_DATA_TEST } from '~/components/wallets/utils/dataTestConstants'
+import {
+  SHOW_BILLABLE_METRIC_LIMIT_INPUT_DATA_TEST,
+  SHOW_LIMIT_INPUT_DATA_TEST,
+} from '~/components/wallets/utils/dataTestConstants'
 import {
   CurrencyEnum,
   FeeTypesEnum,
@@ -44,7 +47,7 @@ const billableMetricsMocks: TestMocksType = [
     },
     result: {
       data: {
-        billableMetrics: {
+        selectableBillableMetrics: {
           __typename: 'BillableMetricCollection',
           collection: [
             { __typename: 'BillableMetric', id: 'bm-1', name: 'API calls', code: 'api_calls' },
@@ -55,6 +58,24 @@ const billableMetricsMocks: TestMocksType = [
     },
   },
 ]
+
+// The billable-metric combobox reads its options from the lazy query. MockedProvider
+// resolves asynchronously, so the popup would open before the options arrive; stub the
+// hook to feed a loaded `selectableBillableMetrics` payload synchronously (same pattern
+// as WalletScopeFields.test.tsx). Defaults to undefined so existing cases keep the
+// pre-fetch state they rely on.
+let mockBillableMetricsData: unknown = undefined
+const mockGetBillableMetricsForWallet = jest.fn()
+
+jest.mock('~/generated/graphql', () => ({
+  ...jest.requireActual('~/generated/graphql'),
+  useGetBillableMetricsForWalletLazyQuery: () => [
+    mockGetBillableMetricsForWallet,
+    { data: mockBillableMetricsData, loading: false },
+  ],
+}))
+
+const billableMetricOption = { id: 'bm-1', name: 'API calls', code: 'api_calls' }
 
 // captures the live form so tests can assert values after interactions
 let lastForm: { state: { values: TWalletDataForm } } | undefined
@@ -80,6 +101,10 @@ describe('ScopeSection', () => {
   beforeAll(() => {
     // jsdom does not implement scrollIntoView (used by scrollToAndClickElement)
     Element.prototype.scrollIntoView = jest.fn()
+  })
+
+  beforeEach(() => {
+    mockBillableMetricsData = undefined
   })
 
   describe('GIVEN no limitation is applied', () => {
@@ -253,6 +278,99 @@ describe('ScopeSection', () => {
         expect(screen.getByText('Storage')).toBeInTheDocument()
         expect(lastForm?.state.values.appliesTo?.billableMetrics).toHaveLength(1)
         expect(lastForm?.state.values.appliesTo?.billableMetrics?.[0]?.id).toBe('bm-2')
+      })
+    })
+  })
+
+  describe('GIVEN the billable-metric combobox', () => {
+    describe('WHEN opening it with selectable billable metrics available', () => {
+      it('THEN should render one option per selectable billable metric', async () => {
+        const user = userEvent.setup()
+
+        mockBillableMetricsData = {
+          selectableBillableMetrics: { collection: [billableMetricOption] },
+        }
+
+        render(<TestWrapper />, { mocks: billableMetricsMocks })
+
+        await user.click(screen.getByTestId(SHOW_BILLABLE_METRIC_LIMIT_INPUT_DATA_TEST))
+
+        const options = await screen.findAllByRole('option')
+
+        expect(options).toHaveLength(1)
+        expect(options[0]).toHaveTextContent('API calls')
+        expect(options[0]).toHaveTextContent('api_calls')
+      })
+    })
+
+    describe('WHEN selecting an available billable metric', () => {
+      it('THEN should add it to the form values and render its chip', async () => {
+        const user = userEvent.setup()
+
+        mockBillableMetricsData = {
+          selectableBillableMetrics: { collection: [billableMetricOption] },
+        }
+
+        const { container } = render(<TestWrapper />, { mocks: billableMetricsMocks })
+
+        await user.click(screen.getByTestId(SHOW_BILLABLE_METRIC_LIMIT_INPUT_DATA_TEST))
+
+        const option = (await screen.findAllByRole('option'))[0]
+
+        await user.click(option)
+
+        await waitFor(() => {
+          expect(lastForm?.state.values.appliesTo?.billableMetrics).toHaveLength(1)
+        })
+        expect(lastForm?.state.values.appliesTo?.billableMetrics?.[0]?.id).toBe('bm-1')
+        expect(container.querySelector('.MuiChip-root')).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN a billable metric is already applied', () => {
+      it('THEN should render its option as disabled', async () => {
+        const user = userEvent.setup()
+
+        mockBillableMetricsData = {
+          selectableBillableMetrics: { collection: [billableMetricOption] },
+        }
+
+        render(
+          <TestWrapper
+            appliesTo={
+              {
+                feeTypes: [],
+                billableMetrics: [billableMetricOption],
+              } as unknown as TWalletDataForm['appliesTo']
+            }
+          />,
+          { mocks: billableMetricsMocks },
+        )
+
+        await user.click(screen.getByTestId(SHOW_BILLABLE_METRIC_LIMIT_INPUT_DATA_TEST))
+
+        const option = (await screen.findAllByRole('option'))[0]
+
+        expect(option).toHaveAttribute('aria-disabled', 'true')
+      })
+    })
+
+    describe('WHEN no selectable billable metrics are returned', () => {
+      it('THEN should open the combobox without any option', async () => {
+        const user = userEvent.setup()
+
+        mockBillableMetricsData = {
+          selectableBillableMetrics: { collection: [] },
+        }
+
+        const { container } = render(<TestWrapper />, { mocks: billableMetricsMocks })
+
+        await user.click(screen.getByTestId(SHOW_BILLABLE_METRIC_LIMIT_INPUT_DATA_TEST))
+
+        await waitFor(() => {
+          expect(container.querySelector('.MuiAutocomplete-root')).toBeInTheDocument()
+        })
+        expect(screen.queryAllByRole('option')).toHaveLength(0)
       })
     })
   })

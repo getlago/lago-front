@@ -3,12 +3,12 @@
 exports[`StripePaymentProviderContent Integration Tests WHEN rendering the component THEN should render a matching snapshot 1`] = `
 <div>
   <div
-    class="flex flex-col gap-6 p-4 shadow-t"
+    class="flex flex-col gap-6"
   >
     <div>
       <div
-        class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
-        data-test="bodyHl"
+        class=MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-hash-MuiTypography-root
+        data-test="subhead1"
       >
         Payment methods
       </div>
@@ -545,12 +545,12 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
 exports[`StripePaymentProviderContent Integration Tests WHEN rendering the component THEN should render with customer balance enabled 1`] = `
 <div>
   <div
-    class="flex flex-col gap-6 p-4 shadow-t"
+    class="flex flex-col gap-6"
   >
     <div>
       <div
-        class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
-        data-test="bodyHl"
+        class=MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-hash-MuiTypography-root
+        data-test="subhead1"
       >
         Payment methods
       </div>
@@ -1093,12 +1093,12 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
 exports[`StripePaymentProviderContent Integration Tests WHEN rendering the component THEN should render with multiple payment methods enabled 1`] = `
 <div>
   <div
-    class="flex flex-col gap-6 p-4 shadow-t"
+    class="flex flex-col gap-6"
   >
     <div>
       <div
-        class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
-        data-test="bodyHl"
+        class=MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-hash-MuiTypography-root
+        data-test="subhead1"
       >
         Payment methods
       </div>
@@ -1671,12 +1671,12 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
 exports[`StripePaymentProviderContent Integration Tests WHEN testing edge cases and validation THEN should handle all payment methods enabled scenario 1`] = `
 <div>
   <div
-    class="flex flex-col gap-6 p-4 shadow-t"
+    class="flex flex-col gap-6"
   >
     <div>
       <div
-        class=MuiTypography-root MuiTypography-bodyHl whitespace-pre-line css-hash-MuiTypography-root
-        data-test="bodyHl"
+        class=MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-hash-MuiTypography-root
+        data-test="subhead1"
       >
         Payment methods
       </div>

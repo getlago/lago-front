@@ -1,10 +1,10 @@
 import { fireEvent, screen, within } from '@testing-library/react'
 import { useState } from 'react'
 
+import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { PaymentMethodTypeEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import { ViewTypeEnum } from '../../paymentMethodsInvoiceSettings/types'
 import {
   PaymentMethodFields,
   PM_FIELDS_FALLBACK_RADIO_TEST_ID,

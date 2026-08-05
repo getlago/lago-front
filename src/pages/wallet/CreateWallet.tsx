@@ -15,7 +15,13 @@ import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
-import { CUSTOMER_DETAILS_TAB_ROUTE, useNavigate, WALLET_DETAILS_ROUTE } from '~/core/router'
+import {
+  CREATE_WALLET_ROUTE,
+  CUSTOMER_DETAILS_TAB_ROUTE,
+  EDIT_WALLET_ROUTE,
+  useLocation,
+  WALLET_DETAILS_ROUTE,
+} from '~/core/router'
 import {
   CurrencyEnum,
   GetWalletInfosForWalletFormQuery,
@@ -28,6 +34,7 @@ import {
   WalletForUpdateFragmentDoc,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { ScopeSection } from '~/pages/wallet/components/ScopeSection'
@@ -53,6 +60,7 @@ gql`
     paidTopUpMinAmountCents
     paidTopUpMaxAmountCents
     priority
+    purchaseOrderNumber
     paymentMethodType
     paymentMethod {
       id
@@ -77,6 +85,7 @@ gql`
       lagoId
       method
       paidCredits
+      purchaseOrderNumber
       startedAt
       targetOngoingBalance
       thresholdCredits
@@ -147,7 +156,13 @@ function hasWalletRecurringTopUpEnabled(
 }
 
 const CreateWallet = () => {
-  const navigate = useNavigate()
+  const { goBack } = useLocationHistory()
+  const location = useLocation()
+
+  // Intent flag from the details-tab Edit link: open the rule drawer as soon
+  // as the wallet data is ready (bridge until the dedicated rule mutations,
+  // ING-529, allow editing straight from the detail view).
+  const autoOpenRuleDrawer = location.state?.openRecurringRuleDrawer === true
 
   const { customerId = '', walletId = '' } = useParams()
   const { translate } = useInternationalization()
@@ -197,26 +212,24 @@ const CreateWallet = () => {
     organization?.defaultCurrency ||
     CurrencyEnum.Usd
 
+  // Return the user wherever they came from (wallet-details tab, customer
+  // wallet list, …) — the fallback only kicks in without history (deep link).
   const navigateToCustomerWalletTab = useCallback(
     (id?: string) => {
-      if (id) {
-        return navigate(
-          generatePath(WALLET_DETAILS_ROUTE, {
+      const fallback = id
+        ? generatePath(WALLET_DETAILS_ROUTE, {
             walletId: id,
             customerId: customerId,
             tab: WalletDetailsTabsOptionsEnum.overview,
-          }),
-        )
-      }
+          })
+        : generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+            customerId: customerId,
+            tab: CustomerDetailsTabsOptions.wallet,
+          })
 
-      return navigate(
-        generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-          customerId: customerId,
-          tab: CustomerDetailsTabsOptions.wallet,
-        }),
-      )
+      return goBack(fallback, { exclude: [CREATE_WALLET_ROUTE, EDIT_WALLET_ROUTE] })
     },
-    [customerId, navigate],
+    [customerId, goBack],
   )
 
   const [createWallet] = useCreateCustomerWalletMutation({
@@ -255,8 +268,9 @@ const CreateWallet = () => {
     },
     onSubmit: async ({ value, formApi }) => {
       // Both mutations silence UnprocessableEntity: a duplicate code
-      // (ValueAlreadyExist) is mapped back onto the code field, any other
-      // failure surfaces via toast only and simply aborts the navigation.
+      // (ValueAlreadyExist) is mapped back onto the code field; any other
+      // 422 would otherwise die silently, so surface a generic toast and
+      // abort the navigation.
       const { errors } =
         formType === FORM_TYPE_ENUM.edition
           ? await updateWallet({
@@ -272,7 +286,11 @@ const CreateWallet = () => {
 
           formApi.setErrorMap({ onDynamic: { fields: codeError } })
           scrollToFirstInputError('create-wallet', codeError)
+
+          return
         }
+
+        addToast({ severity: 'danger', translateKey: 'text_622f7a3dc32ce100c46a5154' })
 
         return
       }
@@ -363,6 +381,7 @@ const CreateWallet = () => {
               walletCreatedAt={wallet?.createdAt}
               isRecurringTopUpEnabled={isRecurringTopUpEnabled}
               setIsRecurringTopUpEnabled={setIsRecurringTopUpEnabled}
+              autoOpenRuleDrawer={autoOpenRuleDrawer && !isLoading}
             />
           </CenteredPage.Container>
         )}

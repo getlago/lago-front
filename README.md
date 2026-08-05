@@ -113,6 +113,21 @@ lago-worktree up LAGO-1234
 lago-worktree destroy LAGO-1234
 ```
 
+## Conductor (parallel workspaces)
+
+[Conductor](https://www.conductor.build) runs multiple Claude Code agents in parallel git worktrees. The project's shared Conductor config is committed at `.conductor/settings.toml`, so the whole team gets the same workflow automatically — no per-person setup.
+
+What the shared config provides:
+
+- **`enterprise_data_privacy = true`** — only account data (email, GitHub integration) is stored server-side. Disables features that call external AI providers (AI chat titles, custom MCP servers).
+- **Setup**: `pnpm install` on every new workspace.
+- **Run (`container`)**: runs the workspace in its own Docker container on the shared lago stack network, via `scripts/conductor-front-container.sh`. Requires the Docker superproject stack: `lago up -d` and the `front_dev` image. The script locates itself and the superproject via Conductor's `$CONDUCTOR_WORKSPACE_PATH` / `$CONDUCTOR_ROOT_PATH`, so no `$LAGO_PATH` shell var is needed (Conductor's headless script env doesn't source your `.zshrc`).
+- **Git**: deletes the branch when a workspace is archived.
+
+### Personal overrides
+
+Machine-specific tweaks go in `.conductor/settings.local.toml` (gitignored). It overrides the shared config on your Mac only. Leave it empty unless you need to change something locally.
+
 ## License
 
 Lago is open-source under the GNU Affero General Public License Version 3 (AGPLv3) or any later version.

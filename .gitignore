@@ -19,3 +19,4 @@ docker-compose.worktree.yml
 .claude/scheduled_tasks.lock
 docs/
 .playwright-mcp/
+.conductor/settings.local.toml

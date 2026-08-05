@@ -3,10 +3,8 @@ import { act, cleanup, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ReactNode } from 'react'
 
-import {
-  ROTATE_API_KEY_DIALOG_SUBMIT_BUTTON_TEST_ID,
-  useRotateApiKeyDialog,
-} from '~/components/developers/apiKeys/RotateApiKeyDialog'
+import { ROTATE_API_KEY_DIALOG_SUBMIT_BUTTON_TEST_ID } from '~/components/developers/apiKeys/dataTestConstants'
+import { useRotateApiKeyDialog } from '~/components/developers/apiKeys/RotateApiKeyDialog'
 import { DIALOG_TITLE_TEST_ID, FORM_DIALOG_NAME } from '~/components/dialogs/const'
 import FormDialog from '~/components/dialogs/FormDialog'
 import { ApiKeyForRotateApiKeyDialogFragment } from '~/generated/graphql'

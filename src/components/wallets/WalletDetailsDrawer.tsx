@@ -68,6 +68,7 @@ gql`
     source
     invoiceRequiresSuccessfulPayment
     priority
+    purchaseOrderNumber
     remainingAmountCents
     remainingCreditAmount
     metadata {
@@ -265,6 +266,7 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
       invoice,
       invoiceRequiresSuccessfulPayment,
       priority,
+      purchaseOrderNumber,
       remainingAmountCents,
       remainingCreditAmount,
       metadata,
@@ -567,6 +569,10 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
                                     {id}
                                   </TypographyWithCopy>
                                 }
+                              />
+                              <DetailRow
+                                label={translate('text_17822197712865r9iwe3lgel')}
+                                value={purchaseOrderNumber}
                               />
                             </div>
                           </section>
