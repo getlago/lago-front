@@ -3,11 +3,12 @@ import { screen } from '@testing-library/react'
 
 import { GENERIC_PLACEHOLDER_TEST_ID } from '~/components/designSystem/GenericPlaceholder'
 import WalletAlerts, {
+  WALLET_ALERT_ACTIONS_DATA_TEST,
   WALLET_ALERTS_EMPTY_TEST_ID,
   WALLET_ALERTS_LIST_TEST_ID,
   WALLET_ALERTS_LOADING_TEST_ID,
 } from '~/components/wallets/WalletAlerts'
-import { AlertTypeEnum } from '~/generated/graphql'
+import { AlertTypeEnum, WalletStatusEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 let mockIsPremium = true
@@ -44,7 +45,17 @@ jest.mock('~/generated/graphql', () => ({
 const mockWallet = {
   id: 'wallet-1',
   currency: 'USD',
+  status: WalletStatusEnum.Active,
 } as any
+
+const mockAlert = {
+  id: 'alert-1',
+  alertType: AlertTypeEnum.WalletBalanceAmount,
+  walletId: 'wallet-1',
+  code: 'low-balance',
+  name: 'Low Balance Alert',
+  thresholds: [{ code: 'threshold-1', recurring: false, value: '1000' }],
+}
 
 describe('WalletAlerts', () => {
   beforeEach(() => {
@@ -96,20 +107,7 @@ describe('WalletAlerts', () => {
     describe('WHEN isPremium is true and loading is finished', () => {
       it('THEN should display the alerts list', () => {
         mockUseGetWalletAlertsQuery.mockReturnValue({
-          data: {
-            walletAlerts: {
-              collection: [
-                {
-                  id: 'alert-1',
-                  alertType: AlertTypeEnum.WalletBalanceAmount,
-                  walletId: 'wallet-1',
-                  code: 'low-balance',
-                  name: 'Low Balance Alert',
-                  thresholds: [{ code: 'threshold-1', recurring: false, value: '1000' }],
-                },
-              ],
-            },
-          },
+          data: { walletAlerts: { collection: [mockAlert] } },
           error: undefined,
           loading: false,
         })
@@ -119,6 +117,35 @@ describe('WalletAlerts', () => {
         expect(screen.getByTestId(WALLET_ALERTS_LIST_TEST_ID)).toBeInTheDocument()
         expect(screen.queryByTestId(WALLET_ALERTS_EMPTY_TEST_ID)).not.toBeInTheDocument()
         expect(screen.queryByTestId(WALLET_ALERTS_LOADING_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the wallet status', () => {
+    const renderWithStatus = (status: WalletStatusEnum) => {
+      mockUseGetWalletAlertsQuery.mockReturnValue({
+        data: { walletAlerts: { collection: [mockAlert] } },
+        error: undefined,
+        loading: false,
+      })
+
+      render(<WalletAlerts wallet={{ ...mockWallet, status }} />)
+    }
+
+    describe('WHEN the wallet is terminated', () => {
+      it('THEN should still list the alerts but drop the per-alert actions menu', () => {
+        renderWithStatus(WalletStatusEnum.Terminated)
+
+        expect(screen.getByTestId(WALLET_ALERTS_LIST_TEST_ID)).toBeInTheDocument()
+        expect(screen.queryByTestId(WALLET_ALERT_ACTIONS_DATA_TEST)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the wallet is active', () => {
+      it('THEN should offer the per-alert actions menu', () => {
+        renderWithStatus(WalletStatusEnum.Active)
+
+        expect(screen.getByTestId(WALLET_ALERT_ACTIONS_DATA_TEST)).toBeInTheDocument()
       })
     })
   })

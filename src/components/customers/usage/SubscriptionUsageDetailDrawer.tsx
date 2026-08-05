@@ -27,7 +27,6 @@ export {
   isBreakdownRow,
   makeBreakdownRows,
   sumBreakdownUnits,
-  type PresentationBreakdownRow,
   type SubscriptionUsageDetailDrawerUsage,
 } from '~/components/customers/usage/usageDetailsHelpers'
 
