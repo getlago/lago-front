@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client'
 import { ConditionalWrapper, Icon } from 'lago-design-system'
+import { ReactNode } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
@@ -16,11 +17,18 @@ import {
   SettingsListWrapper,
   SettingsWithTabsPaddedContainer,
 } from '~/components/layouts/Settings'
-import { OKTA_AUTHENTICATION_ROUTE, useNavigate } from '~/core/router'
 import {
+  ENTRA_ID_AUTHENTICATION_ROUTE,
+  OKTA_AUTHENTICATION_ROUTE,
+  useNavigate,
+} from '~/core/router'
+import {
+  AddEntraIdIntegrationDialogFragmentDoc,
   AddOktaIntegrationDialogFragmentDoc,
   AuthenticationMethodsEnum,
+  DeleteEntraIdIntegrationDialogFragmentDoc,
   DeleteOktaIntegrationDialogFragmentDoc,
+  EntraIdIntegration,
   OktaIntegration,
   PremiumIntegrationTypeEnum,
   useGetAuthIntegrationsQuery,
@@ -28,10 +36,13 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import MicrosoftEntraId from '~/public/images/microsoft-entra-id.svg'
 import Okta from '~/public/images/okta.svg'
 import { MenuPopper } from '~/styles'
 
+import { useAddEntraIdDialog } from './dialogs/AddEntraIdDialog'
 import { useAddOktaDialog } from './dialogs/AddOktaDialog'
+import { useDeleteEntraIdIntegrationDialog } from './dialogs/DeleteEntraIdIntegrationDialog'
 import { useDeleteOktaIntegrationDialog } from './dialogs/DeleteOktaIntegrationDialog'
 import { useUpdateLoginMethodDialog } from './dialogs/UpdateLoginMethodDialog'
 
@@ -44,13 +55,49 @@ gql`
           ...AddOktaIntegrationDialog
           ...DeleteOktaIntegrationDialog
         }
+        ... on EntraIdIntegration {
+          id
+          ...AddEntraIdIntegrationDialog
+          ...DeleteEntraIdIntegrationDialog
+        }
       }
     }
 
     ${AddOktaIntegrationDialogFragmentDoc}
     ${DeleteOktaIntegrationDialogFragmentDoc}
+    ${AddEntraIdIntegrationDialogFragmentDoc}
+    ${DeleteEntraIdIntegrationDialogFragmentDoc}
   }
 `
+
+/** Stable test ids for the SSO selector cards and their action menus. */
+export const getSSOSelectorTestId = (method: AuthenticationMethodsEnum) => `sso-selector-${method}`
+export const getSSOSelectorDotsTestId = (method: AuthenticationMethodsEnum) =>
+  `sso-selector-dots-${method}`
+export const getSSOSelectorEditTestId = (method: AuthenticationMethodsEnum) =>
+  `sso-selector-edit-${method}`
+
+/**
+ * Provider-specific configuration shared by the Okta and Entra ID SSO cards.
+ *
+ * Each entry binds its own (correctly-typed) integration into the dialog
+ * openers, so the array element type stays uniform and provider-agnostic. That
+ * keeps each entry internally consistent without casting an Okta opener to an
+ * Entra one (or handing the wrong integration to a dialog).
+ */
+type SSOProviderConfig = {
+  method: AuthenticationMethodsEnum
+  titleKey: string
+  subtitleKey: string
+  editLabelKey: string
+  deleteLabelKey: string
+  route: string
+  icon: ReactNode
+  shouldSee: boolean
+  integrationId: string | undefined
+  openAddDialog: (callback?: (id: string) => void) => void
+  openDeleteDialog: (callback?: () => void) => void
+}
 
 const Authentication = () => {
   const { isPremium } = useCurrentUser()
@@ -65,6 +112,8 @@ const Authentication = () => {
   const premiumWarningDialog = usePremiumWarningDialog()
   const { openAddOktaDialog } = useAddOktaDialog()
   const { openDeleteOktaIntegrationDialog } = useDeleteOktaIntegrationDialog()
+  const { openAddEntraIdDialog } = useAddEntraIdDialog()
+  const { openDeleteEntraIdIntegrationDialog } = useDeleteEntraIdIntegrationDialog()
   const { openUpdateLoginMethodDialog } = useUpdateLoginMethodDialog()
 
   const { data: authIntegrationsData, loading: authIntegrationsLoading } =
@@ -74,11 +123,56 @@ const Authentication = () => {
     PremiumIntegrationTypeEnum.Okta,
   )
 
+  const hasAccessToEntraIdPremiumIntegration = !!premiumIntegrations?.includes(
+    PremiumIntegrationTypeEnum.EntraId,
+  )
+
   const oktaIntegration = authIntegrationsData?.integrations?.collection.find(
     (integration) => integration.__typename === 'OktaIntegration',
   ) as OktaIntegration | undefined
 
+  const entraIdIntegration = authIntegrationsData?.integrations?.collection.find(
+    (integration) => integration.__typename === 'EntraIdIntegration',
+  ) as EntraIdIntegration | undefined
+
   const shouldSeeOktaIntegration = hasAccessToOktaPremiumIntegration && isPremium
+
+  const shouldSeeEntraIdIntegration = hasAccessToEntraIdPremiumIntegration && isPremium
+
+  const ssoProviders: SSOProviderConfig[] = [
+    {
+      method: AuthenticationMethodsEnum.Okta,
+      titleKey: 'text_664c732c264d7eed1c74fda2',
+      subtitleKey: 'text_664c732c264d7eed1c74fda8',
+      editLabelKey: 'text_664c8fa719b5e7ad81c86018',
+      deleteLabelKey: 'text_17522481192202remk2eytrr',
+      route: OKTA_AUTHENTICATION_ROUTE,
+      icon: <Okta />,
+      shouldSee: shouldSeeOktaIntegration,
+      integrationId: oktaIntegration?.id,
+      openAddDialog: (callback) => openAddOktaDialog({ integration: oktaIntegration, callback }),
+      openDeleteDialog: (callback) =>
+        openDeleteOktaIntegrationDialog({ integration: oktaIntegration, callback }),
+    },
+    {
+      method: AuthenticationMethodsEnum.EntraId,
+      titleKey: 'text_17843073442548zt904xoinv',
+      subtitleKey: 'text_1784307344254qdygzl3hxxa',
+      editLabelKey: 'text_1784307344255fc26gfvrmb5',
+      deleteLabelKey: 'text_1785339647668vsn4wyo0j7n',
+      route: ENTRA_ID_AUTHENTICATION_ROUTE,
+      icon: <MicrosoftEntraId />,
+      shouldSee: shouldSeeEntraIdIntegration,
+      integrationId: entraIdIntegration?.id,
+      openAddDialog: (callback) =>
+        openAddEntraIdDialog({ integration: entraIdIntegration, callback }),
+      openDeleteDialog: (callback) =>
+        openDeleteEntraIdIntegrationDialog({ integration: entraIdIntegration, callback }),
+    },
+  ]
+
+  const getSSOProviderConfig = (method: AuthenticationMethodsEnum) =>
+    ssoProviders.find((provider) => provider.method === method)
 
   const getEndContent = ({
     type,
@@ -92,10 +186,12 @@ const Authentication = () => {
     const isUniqueAuthenticationMethodEnabled =
       authenticationMethods?.length === 1 && authenticationMethods?.includes(method)
 
-    if (method === AuthenticationMethodsEnum.Okta && !shouldSeeOktaIntegration) {
+    const providerConfig = getSSOProviderConfig(method)
+
+    if (providerConfig && !providerConfig.shouldSee) {
       isPopperVisible = false
       icon = <Icon name="sparkles" size="medium" />
-    } else if (method === AuthenticationMethodsEnum.Okta && !oktaIntegration?.id) {
+    } else if (providerConfig && !providerConfig.integrationId) {
       isPopperVisible = false
       icon = undefined
     } else if (type === 'enabled') {
@@ -120,7 +216,7 @@ const Authentication = () => {
 
     return (
       <ConditionalWrapper
-        condition={isUniqueAuthenticationMethodEnabled && method !== AuthenticationMethodsEnum.Okta}
+        condition={isUniqueAuthenticationMethodEnabled && !providerConfig}
         validWrapper={(children) => (
           <Tooltip title={translate('text_1752158016615ah5wceoz1ed')} placement="top">
             {children}
@@ -131,29 +227,25 @@ const Authentication = () => {
         <div className="flex items-center gap-2">
           {icon}
 
-          {method === AuthenticationMethodsEnum.Okta &&
-            shouldSeeOktaIntegration &&
-            !oktaIntegration?.id && (
-              <Button
-                size="small"
-                startIcon="link"
-                variant="primary"
-                loading={authIntegrationsLoading}
-                onClick={() => {
-                  if (!shouldSeeOktaIntegration) {
-                    return premiumWarningDialog.open()
-                  }
+          {providerConfig && providerConfig.shouldSee && !providerConfig.integrationId && (
+            <Button
+              size="small"
+              startIcon="link"
+              variant="primary"
+              loading={authIntegrationsLoading}
+              onClick={() => {
+                if (!providerConfig.shouldSee) {
+                  return premiumWarningDialog.open()
+                }
 
-                  return openAddOktaDialog({
-                    integration: oktaIntegration,
-                    callback: (id) =>
-                      navigate(generatePath(OKTA_AUTHENTICATION_ROUTE, { integrationId: id })),
-                  })
-                }}
-              >
-                {translate('text_657078c28394d6b1ae1b9789')}
-              </Button>
-            )}
+                return providerConfig.openAddDialog((id) =>
+                  navigate(generatePath(providerConfig.route, { integrationId: id })),
+                )
+              }}
+            >
+              {translate('text_657078c28394d6b1ae1b9789')}
+            </Button>
+          )}
 
           {isPopperVisible && (
             <Popper
@@ -162,6 +254,7 @@ const Authentication = () => {
                 <Button
                   icon="dots-horizontal"
                   variant="quaternary"
+                  data-test={getSSOSelectorDotsTestId(method)}
                   onClick={(e) => {
                     e.stopPropagation()
                     onClick()
@@ -209,25 +302,23 @@ const Authentication = () => {
                       {translate('text_1752158016616mbk432yu9oz')}
                     </Button>
                   )}
-                  {method === AuthenticationMethodsEnum.Okta && oktaIntegration?.id && (
+                  {providerConfig?.integrationId && (
                     <>
                       <Button
                         startIcon="pen"
                         variant="quaternary"
                         align="left"
+                        data-test={getSSOSelectorEditTestId(providerConfig.method)}
                         loading={authIntegrationsLoading}
                         onClick={(e) => {
                           e.stopPropagation()
 
-                          openAddOktaDialog({
-                            integration: oktaIntegration,
-                            callback: () => {
-                              refetchOrganizationInfos()
-                            },
+                          providerConfig.openAddDialog(() => {
+                            refetchOrganizationInfos()
                           })
                         }}
                       >
-                        {translate('text_664c8fa719b5e7ad81c86018')}
+                        {translate(providerConfig.editLabelKey)}
                       </Button>
                       <ConditionalWrapper
                         condition={isUniqueAuthenticationMethodEnabled}
@@ -250,15 +341,12 @@ const Authentication = () => {
                           onClick={(e) => {
                             e.stopPropagation()
 
-                            openDeleteOktaIntegrationDialog({
-                              integration: oktaIntegration,
-                              callback: () => {
-                                refetchOrganizationInfos()
-                              },
+                            providerConfig.openDeleteDialog(() => {
+                              refetchOrganizationInfos()
                             })
                           }}
                         >
-                          {translate('text_17522481192202remk2eytrr')}
+                          {translate(providerConfig.deleteLabelKey)}
                         </Button>
                       </ConditionalWrapper>
                     </>
@@ -315,40 +403,40 @@ const Authentication = () => {
               })}
             />
 
-            <Selector
-              title={translate('text_664c732c264d7eed1c74fda2')}
-              subtitle={translate('text_664c732c264d7eed1c74fda8')}
-              icon={
-                <Avatar size="big" variant="connector-full">
-                  <Okta />
-                </Avatar>
-              }
-              onClick={() => {
-                if (!shouldSeeOktaIntegration) {
-                  return premiumWarningDialog.open()
+            {ssoProviders.map((provider) => (
+              <Selector
+                key={provider.method}
+                data-test={getSSOSelectorTestId(provider.method)}
+                title={translate(provider.titleKey)}
+                subtitle={translate(provider.subtitleKey)}
+                icon={
+                  <Avatar size="big" variant="connector-full">
+                    {provider.icon}
+                  </Avatar>
                 }
+                onClick={() => {
+                  if (!provider.shouldSee) {
+                    return premiumWarningDialog.open()
+                  }
 
-                if (oktaIntegration?.id) {
-                  return navigate(
-                    generatePath(OKTA_AUTHENTICATION_ROUTE, {
-                      integrationId: oktaIntegration.id,
-                    }),
+                  if (provider.integrationId) {
+                    return navigate(
+                      generatePath(provider.route, {
+                        integrationId: provider.integrationId,
+                      }),
+                    )
+                  }
+
+                  return provider.openAddDialog((id) =>
+                    navigate(generatePath(provider.route, { integrationId: id })),
                   )
-                }
-
-                return openAddOktaDialog({
-                  integration: oktaIntegration,
-                  callback: (id) =>
-                    navigate(generatePath(OKTA_AUTHENTICATION_ROUTE, { integrationId: id })),
-                })
-              }}
-              endContent={getEndContent({
-                method: AuthenticationMethodsEnum.Okta,
-                type: authenticationMethods?.includes(AuthenticationMethodsEnum.Okta)
-                  ? 'enabled'
-                  : 'disabled',
-              })}
-            />
+                }}
+                endContent={getEndContent({
+                  method: provider.method,
+                  type: authenticationMethods?.includes(provider.method) ? 'enabled' : 'disabled',
+                })}
+              />
+            ))}
           </SettingsListItem>
         )}
       </SettingsListWrapper>

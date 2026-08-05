@@ -50,6 +50,136 @@ export interface UseOneOffPricingDrawerReturn {
   syncEntitiesWithBlocks: (blocks: PricingBlockAttributes[]) => BillingItemsPayload | null
 }
 
+// One entry of the removed-add-on session cache (see removedAddOnsRef). Holds
+// both the localId-keyed entity/payload and their backward-compat alias copies.
+type RemovedAddOn = {
+  addOnId: string
+  entity: EntityData
+  aliasEntity?: EntityData
+  payload?: AddOnPayload
+  aliasPayload?: AddOnPayload
+}
+
+// Prune deleted add-ons from local state, stashing each (entity + payload +
+// alias) in the removed cache so a later undo can rebuild them. Mutates the
+// passed-in maps in place.
+const stashRemovedAddOns = (
+  removedLocalIds: string[],
+  catalogIdMap: Record<string, string>,
+  entities: Record<string, EntityData>,
+  payloads: Record<string, AddOnPayload>,
+  removedCache: Record<string, RemovedAddOn>,
+): void => {
+  for (const localId of removedLocalIds) {
+    const addOnId = catalogIdMap[localId]
+
+    removedCache[localId] = {
+      addOnId,
+      entity: entities[localId],
+      aliasEntity: entities[addOnId],
+      payload: payloads[localId],
+      aliasPayload: payloads[addOnId],
+    }
+
+    delete entities[localId]
+    delete entities[addOnId]
+    delete payloads[localId]
+    delete payloads[addOnId]
+    delete catalogIdMap[localId]
+  }
+}
+
+// Restore add-ons whose block re-appeared (undo): re-key the entity, payload and
+// alias from the removed cache. Overrides survive because both the entity (edited
+// values) and payload (baseline) come from the cache, not the catalog.
+const restoreAddOns = (
+  restoredLocalIds: string[],
+  catalogIdMap: Record<string, string>,
+  entities: Record<string, EntityData>,
+  payloads: Record<string, AddOnPayload>,
+  removedCache: Record<string, RemovedAddOn>,
+): void => {
+  for (const localId of restoredLocalIds) {
+    const { addOnId, entity, aliasEntity, payload, aliasPayload } = removedCache[localId]
+
+    catalogIdMap[localId] = addOnId
+    entities[localId] = entity
+
+    if (aliasEntity) entities[addOnId] = aliasEntity
+    if (payload) payloads[localId] = payload
+    if (aliasPayload) payloads[addOnId] = aliasPayload
+
+    delete removedCache[localId]
+  }
+}
+
+// Re-key a catalog-id map in document (block) order so downstream position
+// assignment (index + 1 in toBillingItems) follows the doc, not insertion order.
+// A restored add-on would otherwise land at the end of the map.
+const orderCatalogIdMapByBlocks = (
+  catalogIdMap: Record<string, string>,
+  blocks: PricingBlockAttributes[],
+): Record<string, string> => {
+  const ordered: Record<string, string> = {}
+
+  // A block references an add-on by its localId or its catalog alias.
+  const resolveLocalId = (refId: string): string | undefined =>
+    catalogIdMap[refId]
+      ? refId
+      : Object.keys(catalogIdMap).find((key) => catalogIdMap[key] === refId)
+
+  for (const block of blocks) {
+    const refIds = block.localEntityIds?.length ? block.localEntityIds : block.entityIds
+
+    for (const refId of refIds ?? []) {
+      const localId = resolveLocalId(refId)
+
+      if (localId && catalogIdMap[localId] && !ordered[localId]) {
+        ordered[localId] = catalogIdMap[localId]
+      }
+    }
+  }
+
+  // Safety net: keep any residual keys (there should be none post-prune) so a
+  // survivor is never silently dropped from the rebuild.
+  for (const localId of Object.keys(catalogIdMap)) {
+    if (!ordered[localId]) {
+      ordered[localId] = catalogIdMap[localId]
+    }
+  }
+
+  return ordered
+}
+
+// Rebuild the surviving add-on items from the (ordered) catalog map, carrying
+// each entity's user overrides so toBillingItems doesn't reset them to catalog
+// defaults. Items whose entity is gone are dropped.
+const buildSurvivingAddOnItems = (
+  catalogIdMap: Record<string, string>,
+  entities: Record<string, EntityData>,
+): AddOnItem[] =>
+  Object.keys(catalogIdMap)
+    .map((localId): AddOnItem | null => {
+      const entity = entities[localId]
+
+      if (!entity) return null
+
+      return {
+        localId,
+        addOnId: catalogIdMap[localId],
+        name: entity.name,
+        invoiceDisplayName: entity.invoiceDisplayName ?? '',
+        code: entity.code,
+        description: entity.description ?? '',
+        units: entity.units ?? '',
+        unitAmountCents: entity.unitAmountCents ?? '',
+        totalAmount: entity.totalAmount ?? '',
+        fromDatetime: entity.fromDatetime ?? '',
+        toDatetime: entity.toDatetime ?? '',
+      }
+    })
+    .filter((item): item is AddOnItem => item !== null)
+
 export const useOneOffPricingDrawer = (
   initialBillingItems?: unknown,
   quoteCurrency?: CurrencyEnum | null,
@@ -69,6 +199,13 @@ export const useOneOffPricingDrawer = (
   const [entities, setEntities] = useState<Record<string, EntityData>>({})
   const payloadsRef = useRef<Record<string, AddOnPayload>>({})
   const catalogIdMapRef = useRef<Record<string, string>>({})
+
+  // Session cache of add-ons removed from the doc, keyed by localId, so a Cmd+Z
+  // that re-inserts the pricing block can re-hydrate the entity, its catalog
+  // payload and alias — preserving the user's overrides (rebuilt from the cached
+  // entity/payload, never re-fetched from the catalog). Captured at prune time,
+  // before the delete-autosave clears the add-on from the persisted billingItems.
+  const removedAddOnsRef = useRef<Record<string, RemovedAddOn>>({})
   const onSaveRef = useRef<
     | ((
         attrs: PricingBlockAttributes,
@@ -384,50 +521,46 @@ export const useOneOffPricingDrawer = (
           !activeRefIds.has(localId) && !activeRefIds.has(catalogIdMapRef.current[localId]),
       )
 
-      if (removedLocalIds.length === 0) return null
+      // A Cmd+Z can re-insert a block whose add-on was previously pruned; it is
+      // referenced by its localId or its catalog alias but is no longer active.
+      const restoredLocalIds = Object.keys(removedAddOnsRef.current).filter(
+        (localId) =>
+          activeRefIds.has(localId) || activeRefIds.has(removedAddOnsRef.current[localId].addOnId),
+      )
 
-      // Prune the deleted add-ons (and their alias keys) from local state.
+      if (removedLocalIds.length === 0 && restoredLocalIds.length === 0) return null
+
       const updatedEntities = { ...entitiesRef.current }
       const updatedPayloads = { ...payloadsRef.current }
 
-      for (const localId of removedLocalIds) {
-        const addOnId = catalogIdMapRef.current[localId]
-
-        delete updatedEntities[localId]
-        delete updatedEntities[addOnId]
-        delete updatedPayloads[localId]
-        delete updatedPayloads[addOnId]
-        delete catalogIdMapRef.current[localId]
-      }
+      // Prune deleted add-ons (stashing them for undo), then restore any whose
+      // block re-appeared. Both mutate the working copies + shared refs in place.
+      stashRemovedAddOns(
+        removedLocalIds,
+        catalogIdMapRef.current,
+        updatedEntities,
+        updatedPayloads,
+        removedAddOnsRef.current,
+      )
+      restoreAddOns(
+        restoredLocalIds,
+        catalogIdMapRef.current,
+        updatedEntities,
+        updatedPayloads,
+        removedAddOnsRef.current,
+      )
 
       entitiesRef.current = updatedEntities
       payloadsRef.current = updatedPayloads
       setEntities(updatedEntities)
 
-      // Rebuild the surviving billing items through toBillingItems so the user's
-      // overrides (units, unit price, dates, names) are preserved — rebuilding
-      // straight from the catalog payloads would reset them to catalog defaults.
-      const survivingItems: AddOnItem[] = Object.keys(catalogIdMapRef.current)
-        .map((localId): AddOnItem | null => {
-          const entity = updatedEntities[localId]
+      // Re-key catalogIdMapRef in document order so toBillingItems assigns
+      // positions matching the block order (a restored add-on would otherwise
+      // land at the end of the map), then rebuild the surviving items — carrying
+      // overrides — through toBillingItems.
+      catalogIdMapRef.current = orderCatalogIdMapByBlocks(catalogIdMapRef.current, blocks)
 
-          if (!entity) return null
-
-          return {
-            localId,
-            addOnId: catalogIdMapRef.current[localId],
-            name: entity.name,
-            invoiceDisplayName: entity.invoiceDisplayName ?? '',
-            code: entity.code,
-            description: entity.description ?? '',
-            units: entity.units ?? '',
-            unitAmountCents: entity.unitAmountCents ?? '',
-            totalAmount: entity.totalAmount ?? '',
-            fromDatetime: entity.fromDatetime ?? '',
-            toDatetime: entity.toDatetime ?? '',
-          }
-        })
-        .filter((item): item is AddOnItem => item !== null)
+      const survivingItems = buildSurvivingAddOnItems(catalogIdMapRef.current, updatedEntities)
 
       return toBillingItems(survivingItems, payloadsRef.current, currencyRef.current)
     },

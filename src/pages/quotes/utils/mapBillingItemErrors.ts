@@ -105,8 +105,3 @@ export const COUPONS_ERROR_CONFIG: BillingItemErrorConfig = {
     frequencyDuration: 'frequencyDuration',
   },
 }
-
-export const PLANS_ERROR_CONFIG: BillingItemErrorConfig = {
-  category: ['plans'],
-  fieldMap: {},
-}

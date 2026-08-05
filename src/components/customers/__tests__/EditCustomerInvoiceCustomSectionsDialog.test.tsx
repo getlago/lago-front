@@ -155,6 +155,7 @@ describe('EditCustomerInvoiceCustomSectionsDialog', () => {
   afterEach(() => {
     cleanup()
     jest.clearAllMocks()
+    NiceModal.remove(FORM_DIALOG_NAME)
   })
 
   describe('Form interaction and MultipleComboBox visibility', () => {
@@ -246,8 +247,56 @@ describe('EditCustomerInvoiceCustomSectionsDialog', () => {
     })
   })
 
+  describe('Submit with DEACTIVATE behavior', () => {
+    it('should call mutation with skipInvoiceCustomSections and null ids', async () => {
+      const user = userEvent.setup()
+
+      const mutationMock = {
+        request: {
+          query: EditCustomerInvoiceCustomSectionDocument,
+          variables: {
+            input: {
+              id: CUSTOMER_ID,
+              externalId: CUSTOMER_EXTERNAL_ID,
+              skipInvoiceCustomSections: true,
+              configurableInvoiceCustomSectionIds: null,
+            },
+          },
+        },
+        result: {
+          data: {
+            updateCustomer: {
+              __typename: 'Customer',
+              id: CUSTOMER_ID,
+              externalId: CUSTOMER_EXTERNAL_ID,
+              configurableInvoiceCustomSections: [],
+              hasOverwrittenInvoiceCustomSectionsSelection: false,
+              skipInvoiceCustomSections: true,
+            },
+          },
+        },
+      }
+
+      await prepare({ customerMock: mockCustomerFallback, mocks: [mutationMock] })
+
+      const radioButtons = screen.getAllByRole('radio')
+
+      // Select DEACTIVATE
+      await user.click(radioButtons[2])
+
+      await user.click(screen.getByRole('button', { name: /edit behavior/i }))
+
+      await waitFor(() => {
+        expect(mockAddToast).toHaveBeenCalledWith({
+          severity: 'success',
+          message: expect.any(String),
+        })
+      })
+    })
+  })
+
   describe('Submit with APPLY behavior', () => {
-    it('should require at least one section when CUSTOM_SECTIONS is selected', async () => {
+    it('should keep submit disabled while CUSTOM_SECTIONS is selected without any section', async () => {
       const user = userEvent.setup()
 
       await prepare({ customerMock: mockCustomerFallback })
@@ -259,6 +308,72 @@ describe('EditCustomerInvoiceCustomSectionsDialog', () => {
 
       await waitFor(() => {
         expect(screen.getByPlaceholderText(/select/i)).toBeInTheDocument()
+      })
+
+      const submitButton = screen.getByRole('button', { name: /edit behavior/i })
+
+      // revalidateLogic() validates on submit, so the button is only disabled once an
+      // attempt has been made and the empty selection has been rejected.
+      await user.click(submitButton)
+
+      await waitFor(() => {
+        expect(submitButton).toBeDisabled()
+      })
+
+      // The empty selection never reaches the mutation, so no success toast.
+      expect(mockAddToast).not.toHaveBeenCalled()
+    })
+
+    it('should seed the already applied sections as selected options and submit them unchanged', async () => {
+      const user = userEvent.setup()
+
+      const mutationMock = {
+        request: {
+          query: EditCustomerInvoiceCustomSectionDocument,
+          variables: {
+            input: {
+              id: CUSTOMER_ID,
+              externalId: CUSTOMER_EXTERNAL_ID,
+              skipInvoiceCustomSections: false,
+              configurableInvoiceCustomSectionIds: ['section-1', 'section-2'],
+            },
+          },
+        },
+        result: {
+          data: {
+            updateCustomer: {
+              __typename: 'Customer',
+              id: CUSTOMER_ID,
+              externalId: CUSTOMER_EXTERNAL_ID,
+              configurableInvoiceCustomSections:
+                mockCustomerCustomSections.customer.configurableInvoiceCustomSections,
+              hasOverwrittenInvoiceCustomSectionsSelection: true,
+              skipInvoiceCustomSections: false,
+            },
+          },
+        },
+      }
+
+      await prepare({ customerMock: mockCustomerCustomSections, mocks: [mutationMock] })
+
+      // The seeded selection is rendered as tags, which only works if the seed uses the
+      // option shape the MultipleComboBox expects.
+      expect(screen.getByText('Section 1')).toBeInTheDocument()
+      expect(screen.getByText('Section 2')).toBeInTheDocument()
+
+      const submitButton = screen.getByRole('button', { name: /edit behavior/i })
+
+      await waitFor(() => {
+        expect(submitButton).not.toBeDisabled()
+      })
+
+      await user.click(submitButton)
+
+      await waitFor(() => {
+        expect(mockAddToast).toHaveBeenCalledWith({
+          severity: 'success',
+          message: expect.any(String),
+        })
       })
     })
   })
