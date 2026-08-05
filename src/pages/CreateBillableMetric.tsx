@@ -56,6 +56,8 @@ import { Main, Side, Subtitle, Title } from '~/styles/mainObjectsForm'
 
 const NOT_UNIQUE_KEY_ERROR = 'key_not_unique'
 
+export const FILTER_VALUE_WARNING_ALERT_TEST_ID = 'billable-metric-filter-value-warning'
+
 gql`
   fragment EditBillableMetric on BillableMetric {
     id
@@ -706,7 +708,9 @@ const CreateBillableMetric = () => {
                     </div>
 
                     {isInUse && (
-                      <Alert type="warning">{translate('text_1785937424540jyldwaxzp6s')}</Alert>
+                      <Alert type="warning" data-test={FILTER_VALUE_WARNING_ALERT_TEST_ID}>
+                        {translate('text_1785937424540jyldwaxzp6s')}
+                      </Alert>
                     )}
 
                     {formikProps.values.filters?.map((filter, filterIndex) => {
