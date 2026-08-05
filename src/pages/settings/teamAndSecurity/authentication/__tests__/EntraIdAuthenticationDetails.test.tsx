@@ -11,10 +11,10 @@ import {
 import FormDialogOpeningDialog from '~/components/dialogs/FormDialogOpeningDialog'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { initializeTranslations } from '~/core/apolloClient'
-import { GetOktaIntegrationDocument } from '~/generated/graphql'
+import { GetEntraIdIntegrationDocument } from '~/generated/graphql'
 import { render, TestMocksType } from '~/test-utils'
 
-import OktaAuthenticationDetails from '../OktaAuthenticationDetails'
+import EntraIdAuthenticationDetails from '../EntraIdAuthenticationDetails'
 import {
   SSO_DETAILS_ACTIONS_TEST_ID,
   SSO_DETAILS_DELETE_TEST_ID,
@@ -34,7 +34,7 @@ jest.mock('react-router-dom', () => ({
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
     organization: {
-      authenticationMethods: ['email_password', 'okta'],
+      authenticationMethods: ['email_password', 'entra_id'],
     },
   }),
 }))
@@ -50,18 +50,18 @@ const integrationData = {
   id: 'integration-123',
   clientId: 'test-client-id',
   clientSecret: 'test-client-secret',
-  code: 'okta',
-  organizationName: 'test-org',
+  code: 'entra_id',
+  tenantId: 'test-tenant-id',
   domain: 'test.example.com',
-  name: 'My Okta Integration',
-  host: 'okta.example.com',
-  __typename: 'OktaIntegration' as const,
+  name: 'My Entra ID Integration',
+  host: 'login.microsoftonline.com',
+  __typename: 'EntraIdIntegration' as const,
 }
 
 const successMocks: TestMocksType = [
   {
     request: {
-      query: GetOktaIntegrationDocument,
+      query: GetEntraIdIntegrationDocument,
       variables: { id: 'integration-123' },
     },
     result: {
@@ -77,14 +77,14 @@ async function prepare({ mocks = successMocks }: { mocks?: TestMocksType } = {})
     render(
       <NiceModalWrapper>
         <MainHeader />
-        <OktaAuthenticationDetails />
+        <EntraIdAuthenticationDetails />
       </NiceModalWrapper>,
       { mocks },
     ),
   )
 }
 
-describe('OktaAuthenticationDetails', () => {
+describe('EntraIdAuthenticationDetails', () => {
   beforeAll(async () => {
     await initializeTranslations()
   })
@@ -103,10 +103,10 @@ describe('OktaAuthenticationDetails', () => {
       expect(screen.getByText('test.example.com')).toBeInTheDocument()
     })
 
-    expect(screen.getByText('okta.example.com')).toBeInTheDocument()
+    expect(screen.getByText('login.microsoftonline.com')).toBeInTheDocument()
     expect(screen.getByText('test-client-id')).toBeInTheDocument()
     expect(screen.getByText('test-client-secret')).toBeInTheDocument()
-    expect(screen.getByText('test-org')).toBeInTheDocument()
+    expect(screen.getByText('test-tenant-id')).toBeInTheDocument()
   })
 
   it('renders the page header with back button', async () => {
@@ -121,11 +121,11 @@ describe('OktaAuthenticationDetails', () => {
     expect(backButton).toBeInTheDocument()
   })
 
-  it('shows N/A for missing host', async () => {
+  it('shows the default host when host is missing', async () => {
     const noHostMocks: TestMocksType = [
       {
         request: {
-          query: GetOktaIntegrationDocument,
+          query: GetEntraIdIntegrationDocument,
           variables: { id: 'integration-123' },
         },
         result: {
@@ -142,7 +142,7 @@ describe('OktaAuthenticationDetails', () => {
     await prepare({ mocks: noHostMocks })
 
     await waitFor(() => {
-      expect(screen.getByText('N/A')).toBeInTheDocument()
+      expect(screen.getByText('login.microsoftonline.com')).toBeInTheDocument()
     })
   })
 
@@ -150,7 +150,7 @@ describe('OktaAuthenticationDetails', () => {
     const noClientIdMocks: TestMocksType = [
       {
         request: {
-          query: GetOktaIntegrationDocument,
+          query: GetEntraIdIntegrationDocument,
           variables: { id: 'integration-123' },
         },
         result: {
@@ -175,7 +175,7 @@ describe('OktaAuthenticationDetails', () => {
     const emptyMocks: TestMocksType = [
       {
         request: {
-          query: GetOktaIntegrationDocument,
+          query: GetEntraIdIntegrationDocument,
           variables: { id: 'integration-123' },
         },
         result: {
@@ -197,7 +197,7 @@ describe('OktaAuthenticationDetails', () => {
     const delayedMocks: TestMocksType = [
       {
         request: {
-          query: GetOktaIntegrationDocument,
+          query: GetEntraIdIntegrationDocument,
           variables: { id: 'integration-123' },
         },
         result: {
@@ -212,7 +212,7 @@ describe('OktaAuthenticationDetails', () => {
     await act(() =>
       render(
         <NiceModalWrapper>
-          <OktaAuthenticationDetails />
+          <EntraIdAuthenticationDetails />
         </NiceModalWrapper>,
         { mocks: delayedMocks },
       ),
@@ -255,10 +255,10 @@ describe('OktaAuthenticationDetails', () => {
     })
 
     // All detail items should be present
-    expect(screen.getByText('okta.example.com')).toBeInTheDocument()
+    expect(screen.getByText('login.microsoftonline.com')).toBeInTheDocument()
     expect(screen.getByText('test-client-id')).toBeInTheDocument()
     expect(screen.getByText('test-client-secret')).toBeInTheDocument()
-    expect(screen.getByText('test-org')).toBeInTheDocument()
+    expect(screen.getByText('test-tenant-id')).toBeInTheDocument()
   })
 
   it('clicks edit button in actions popper to open edit dialog', async () => {
