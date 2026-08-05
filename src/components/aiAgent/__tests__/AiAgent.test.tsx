@@ -1,7 +1,7 @@
 import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { AI_AGENT_NAV_TEST_ID, AiAgent } from '~/components/aiAgent/AiAgent'
+import { AI_AGENT_ERROR_TEST_ID, AI_AGENT_NAV_TEST_ID, AiAgent } from '~/components/aiAgent/AiAgent'
 import { CHAT_CONVERSATION_TEST_ID } from '~/components/aiAgent/ChatConversation'
 import { CHAT_HISTORY_ITEM_TEST_ID, CHAT_HISTORY_TEST_ID } from '~/components/aiAgent/ChatHistory'
 import { PANEL_AI_AGENT_WELCOME_TEST_ID } from '~/components/aiAgent/PanelAiAgent'
@@ -13,10 +13,31 @@ jest.mock('~/components/aiAgent/llmOutputs', () => ({
   Message: ({ message }: { message: { message: string } }) => <span>{message.message}</span>,
 }))
 
+const PANEL_TEST_ID = 'ai-panel-element'
+
 jest.mock('react-resizable-panels', () => ({
-  Panel: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  Panel: ({ children }: { children: React.ReactNode }) => (
+    <div data-test="ai-panel-element">{children}</div>
+  ),
   PanelGroup: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }))
+
+let mockPanelShouldThrow = false
+
+jest.mock('~/components/aiAgent/PanelWrapper', () => {
+  const actual = jest.requireActual('~/components/aiAgent/PanelWrapper')
+
+  return {
+    ...actual,
+    PanelWrapper: (props: Parameters<typeof actual.PanelWrapper>[0]) => {
+      if (mockPanelShouldThrow) {
+        throw new Error('panel exploded')
+      }
+
+      return actual.PanelWrapper(props)
+    },
+  }
+})
 
 jest.mock('~/hooks/useCurrentUser', () => ({
   useCurrentUser: () => ({
@@ -118,6 +139,7 @@ describe('AiAgent', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     localStorage.clear()
+    mockPanelShouldThrow = false
     window.history.pushState({}, '', '/test-org/analytics')
   })
 
@@ -172,6 +194,21 @@ describe('AiAgent', () => {
 
         expect(screen.getByTestId(PANEL_AI_AGENT_WELCOME_TEST_ID)).toBeInTheDocument()
         expect(getHistoryButton()).toBeUndefined()
+      })
+    })
+  })
+
+  describe('GIVEN the panel body crashes while rendering', () => {
+    describe('WHEN the panel is opened', () => {
+      it('THEN should keep the nav rail and the panel mounted with an in-panel fallback', async () => {
+        mockPanelShouldThrow = true
+
+        await renderAiAgent()
+        await openPanel()
+
+        expect(screen.getByTestId(AI_AGENT_ERROR_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByTestId(AI_AGENT_NAV_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByTestId(PANEL_TEST_ID)).toBeInTheDocument()
       })
     })
   })

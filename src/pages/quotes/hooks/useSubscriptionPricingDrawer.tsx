@@ -21,6 +21,8 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import type { SavePricingResult } from '~/pages/quotes/EditQuote'
 import { QUOTE_SAVE_FAILED_TOAST_KEY } from '~/pages/quotes/utils/quoteSaveErrorKeys'
 
+type PlanBillingItem = NonNullable<BillingItemsPayload['plans']>[number]
+
 interface UseSubscriptionPricingDrawerReturn {
   onPricingCommand: OnPricingCommand
   isPricingDisabled: () => boolean
@@ -59,6 +61,13 @@ export const useSubscriptionPricingDrawer = (
   // sibling categories (coupons, addons) instead of overwriting billingItems and
   // dropping them — each drawer only owns its own slice of billingItems.
   const latestBillingItemsRef = useRef<BillingItemsPayload | undefined>(undefined)
+
+  // Session cache of entities/plan-items removed from the doc, so a Cmd+Z that
+  // re-inserts the pricing block can re-hydrate them (with the user's overrides)
+  // instead of leaving the restored node unresolved. Captured at prune time,
+  // before the delete-autosave clears the plan from `latestBillingItemsRef`.
+  const removedEntitiesRef = useRef<Record<string, EntityData>>({})
+  const removedPlanItemsRef = useRef<Record<string, PlanBillingItem>>({})
 
   useEffect(() => {
     latestBillingItemsRef.current =
@@ -192,22 +201,60 @@ export const useSubscriptionPricingDrawer = (
     (blocks: PricingBlockAttributes[]): BillingItemsPayload | null => {
       const activeEntityIds = new Set(blocks.flatMap((b) => b.entityIds))
       const currentKeys = Object.keys(entitiesRef.current)
-      const orphanedKeys = currentKeys.filter((id) => !activeEntityIds.has(id))
 
-      if (orphanedKeys.length === 0) return null
+      // Ids that left the doc (deleted) vs. ids that re-appeared in the doc but
+      // are no longer active (a Cmd+Z re-inserting a previously-removed block).
+      const orphanedKeys = currentKeys.filter((id) => !activeEntityIds.has(id))
+      const restoredKeys = [...activeEntityIds].filter(
+        (id) => !entitiesRef.current[id] && removedEntitiesRef.current[id],
+      )
+
+      if (orphanedKeys.length === 0 && restoredKeys.length === 0) return null
 
       const updatedEntities = { ...entitiesRef.current }
+      // Plan items indexed by id: the current saved slice, plus anything we
+      // restore below (whose item lives only in the removed cache once the
+      // delete-autosave has cleared it from `latestBillingItemsRef`).
+      const planItemsById: Record<string, PlanBillingItem> = {}
 
+      for (const item of latestBillingItemsRef.current?.plans ?? []) {
+        planItemsById[item.id] = item
+      }
+
+      // Prune: stash the entity + its plan item (with overrides) before removing,
+      // so a later undo can rebuild them without re-fetching.
       for (const key of orphanedKeys) {
+        removedEntitiesRef.current[key] = updatedEntities[key]
+
+        if (planItemsById[key]) {
+          removedPlanItemsRef.current[key] = planItemsById[key]
+        }
+
         delete updatedEntities[key]
+      }
+
+      // Restore: pull the entity + plan item back out of the removed cache.
+      for (const key of restoredKeys) {
+        updatedEntities[key] = removedEntitiesRef.current[key]
+
+        if (removedPlanItemsRef.current[key]) {
+          planItemsById[key] = removedPlanItemsRef.current[key]
+        }
+
+        delete removedEntitiesRef.current[key]
+        delete removedPlanItemsRef.current[key]
       }
 
       entitiesRef.current = updatedEntities
       setEntities(updatedEntities)
 
-      // Only the plan is this drawer's responsibility; sibling categories
-      // (coupons, addons) are carried through untouched.
-      return { ...latestBillingItemsRef.current, plans: [] }
+      // Rebuild the plan slice from the active set; sibling categories
+      // (coupons, addons) are carried through untouched via the spread.
+      const activePlans = Object.keys(updatedEntities)
+        .map((id) => planItemsById[id])
+        .filter((item): item is PlanBillingItem => Boolean(item))
+
+      return { ...latestBillingItemsRef.current, plans: activePlans }
     },
     [],
   )

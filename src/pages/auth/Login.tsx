@@ -15,6 +15,7 @@ import { authenticationMethodsMapping } from '~/core/constants/authenticationMet
 import {
   FORGOT_PASSWORD_ROUTE,
   Link,
+  LOGIN_ENTRA_ID_ROUTE,
   LOGIN_OKTA,
   SIGN_UP_ROUTE,
   useLocation,
@@ -25,6 +26,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useShortcuts } from '~/hooks/ui/useShortcuts'
 import { useDeveloperTool } from '~/hooks/useDeveloperTool'
 import { useIframeConfig } from '~/hooks/useIframeConfig'
+import MicrosoftEntraId from '~/public/images/microsoft-entra-id.svg'
 import { Card, Page, StyledLogo } from '~/styles/auth'
 
 const { disableSignUp } = envGlobalVar()
@@ -50,10 +52,14 @@ const Login = () => {
   const lagoErrorCode = searchParams.get('lago_error_code')
 
   useEffect(() => {
-    // Okta login method not authorized
+    // Okta and Entra ID login methods not authorized
     // Google login method is handled in GoogleAuthButton
     if (lagoErrorCode === LagoApiError.OktaLoginMethodNotAuthorized) {
       setAuthMethodError(AuthenticationMethodsEnum.Okta)
+    }
+
+    if (lagoErrorCode === LagoApiError.EntraIdLoginMethodNotAuthorized) {
+      setAuthMethodError(AuthenticationMethodsEnum.EntraId)
     }
   }, [lagoErrorCode])
 
@@ -152,6 +158,15 @@ const Login = () => {
                   onClick={() => navigate(LOGIN_OKTA, { state: location.state })}
                 >
                   {translate('text_664c90c9b2b6c2012aa50bce')}
+                </Button>
+                <Button
+                  fullWidth
+                  size="large"
+                  variant="tertiary"
+                  onClick={() => navigate(LOGIN_ENTRA_ID_ROUTE, { state: location.state })}
+                >
+                  <MicrosoftEntraId className="mr-2 size-4" />
+                  {translate('text_1784307344254zepa808t6gd')}
                 </Button>
               </Stack>
 

@@ -5,12 +5,12 @@ import { UsageBreakdownType } from '~/components/analytics/usage/types'
 import UsageBreakdownBillableMetrics from '~/components/analytics/usage/UsageBreakdownBillableMetrics'
 import { useUsageAnalyticsBreakdown } from '~/components/analytics/usage/useUsageAnalyticsBreakdown'
 import { Button } from '~/components/designSystem/Button'
+import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import {
   AvailableFiltersEnum,
   Filters,
   formatFiltersForUsageOverviewQuery,
-} from '~/components/designSystem/Filters'
-import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
+} from '~/components/Filters'
 import { TimeGranularityEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 

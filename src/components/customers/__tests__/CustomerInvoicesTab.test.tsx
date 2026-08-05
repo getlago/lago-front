@@ -29,7 +29,7 @@ jest.mock('~/components/designSystem/Pagination', () => ({
   usePageSearchParam: jest.fn(() => ({ page: 1, goToPage: mockGoToPage })),
 }))
 
-jest.mock('~/components/designSystem/Filters/utils', () => ({
+jest.mock('~/components/Filters/graphql/utils', () => ({
   formatFiltersForCustomerInvoicesQuery: () => ({
     currency: undefined,
     billingEntityId: undefined,

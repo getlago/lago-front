@@ -12,7 +12,7 @@ import {
   AvailableFiltersEnum,
   formatFiltersForUsageOverviewQuery,
   getFilterValue,
-} from '~/components/designSystem/Filters'
+} from '~/components/Filters'
 import { ANALYTICS_USAGE_OVERVIEW_FILTER_PREFIX } from '~/core/constants/filters'
 import { getTimezoneConfig } from '~/core/timezone'
 import {

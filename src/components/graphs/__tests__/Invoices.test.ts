@@ -11,7 +11,7 @@ import { AnalyticsPeriodScopeEnum } from '~/components/graphs/MonthSelectorDropd
 import { GRAPH_YEAR_MONTH_DATE_FORMAT } from '~/components/graphs/utils'
 import { CurrencyEnum, InvoicePaymentStatusTypeEnum } from '~/generated/graphql'
 
-jest.mock('~/components/designSystem/Filters', () => ({
+jest.mock('~/components/Filters', () => ({
   buildUrlForInvoicesWithFilters: jest.fn(),
 }))
 

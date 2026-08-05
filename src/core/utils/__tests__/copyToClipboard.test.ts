@@ -31,6 +31,14 @@ describe('copyToClipboard', () => {
     )
   })
 
+  it('should keep comments when ignoreComment is false', () => {
+    const value = `# comment
+    the text that needs to be copied`
+
+    copyToClipboard(value, { ignoreComment: false })
+    expect(window.navigator.clipboard.writeText).toHaveBeenCalledWith(value)
+  })
+
   it('should be able to copy when navigator.clipboard is not available', () => {
     // Mock navigator.clipboard to throw error
     const originalClipboard = { ...navigator.clipboard }
@@ -117,5 +125,140 @@ describe('copyToClipboard', () => {
     Object.assign(navigator.clipboard, originalClipboard)
     mockCreateElement.mockRestore()
     jest.restoreAllMocks()
+  })
+
+  describe('GIVEN navigator.clipboard.writeText rejects', () => {
+    const originalClipboard = { ...navigator.clipboard }
+
+    const mockRejectedWriteText = (): void => {
+      Object.assign(navigator.clipboard, {
+        writeText: jest
+          .fn()
+          .mockRejectedValue(
+            new DOMException(
+              "Failed to execute 'writeText' on 'Clipboard': Document is not focused.",
+              'NotAllowedError',
+            ),
+          ),
+      })
+    }
+
+    // The rejection is handled asynchronously: give node a macrotask tick so a leftover
+    // rejection would have time to be reported.
+    const flushRejection = (): Promise<void> =>
+      new Promise((resolve) => {
+        setTimeout(resolve, 0)
+      })
+
+    beforeEach(() => {
+      jest.clearAllMocks()
+      mockRejectedWriteText()
+    })
+
+    afterEach(() => {
+      Object.assign(navigator.clipboard, originalClipboard)
+      jest.restoreAllMocks()
+    })
+
+    describe('WHEN the fallback succeeds', () => {
+      it('THEN should copy the value through the fallback', async () => {
+        document.execCommand = jest.fn().mockImplementation(() => true)
+
+        const textArea = document.createElement('textarea')
+
+        jest.spyOn(document, 'createElement').mockReturnValue(textArea)
+
+        copyToClipboard('async fallback text')
+        await flushRejection()
+
+        expect(document.execCommand).toHaveBeenCalledWith('copy')
+        expect(textArea.value).toBe('async fallback text')
+      })
+
+      it('THEN should not display any toast', async () => {
+        document.execCommand = jest.fn().mockImplementation(() => true)
+
+        copyToClipboard('async fallback text')
+        await flushRejection()
+
+        expect(addToast).not.toHaveBeenCalled()
+      })
+
+      it('THEN should filter out comments', async () => {
+        document.execCommand = jest.fn().mockImplementation(() => true)
+
+        const textArea = document.createElement('textarea')
+
+        jest.spyOn(document, 'createElement').mockReturnValue(textArea)
+
+        const value = `# comment
+    the text that needs to be copied`
+
+        copyToClipboard(value, { ignoreComment: true })
+        await flushRejection()
+
+        expect(textArea.value).toBe('the text that needs to be copied')
+      })
+    })
+
+    describe('WHEN the fallback throws', () => {
+      it('THEN should display the error toast', async () => {
+        document.execCommand = jest.fn().mockImplementation(() => {
+          throw new Error('execCommand failed')
+        })
+
+        copyToClipboard('failing async text')
+        await flushRejection()
+
+        expect(addToast).toHaveBeenCalledWith({
+          severity: 'danger',
+          translateKey: 'text_1745919770448pvibiukolis',
+        })
+      })
+    })
+
+    describe('WHEN the fallback silently fails', () => {
+      it('THEN should treat a false execCommand result as a failure', async () => {
+        document.execCommand = jest.fn().mockImplementation(() => false)
+
+        copyToClipboard('silently failing text')
+        await flushRejection()
+
+        expect(addToast).toHaveBeenCalledWith({
+          severity: 'danger',
+          translateKey: 'text_1745919770448pvibiukolis',
+        })
+      })
+    })
+
+    describe('WHEN the rejection is handled', () => {
+      it.each([
+        ['the fallback succeeds', (): boolean => true],
+        [
+          'the fallback throws',
+          (): boolean => {
+            throw new Error('execCommand failed')
+          },
+        ],
+        ['the fallback returns false', (): boolean => false],
+      ])('THEN should not surface an unhandled rejection when %s', async (_, execCommandImpl) => {
+        const onUnhandledRejection = jest.fn()
+
+        process.on('unhandledRejection', onUnhandledRejection)
+        document.execCommand = jest.fn().mockImplementation(execCommandImpl)
+
+        try {
+          expect(() => {
+            copyToClipboard('unhandled rejection text')
+          }).not.toThrow()
+
+          await flushRejection()
+
+          expect(onUnhandledRejection).not.toHaveBeenCalled()
+        } finally {
+          process.removeListener('unhandledRejection', onUnhandledRejection)
+        }
+      })
+    })
   })
 })

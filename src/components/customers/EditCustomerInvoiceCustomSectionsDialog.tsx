@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
 import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { useEffect, useMemo, useRef } from 'react'
-import { z } from 'zod'
 
 import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { DialogResult } from '~/components/dialogs/types'
@@ -17,6 +16,12 @@ import { useAppForm, withForm } from '~/hooks/forms/useAppform'
 import { useCustomerInvoiceCustomSections } from '~/hooks/useCustomerInvoiceCustomSections'
 import { useInvoiceCustomSectionsLazy } from '~/hooks/useInvoiceCustomSections'
 
+import {
+  BehaviorType,
+  editCustomerInvoiceCustomSectionsDefaultValues,
+  editCustomerInvoiceCustomSectionsSchema,
+} from './editCustomerInvoiceCustomSections/validationSchema'
+
 export const EDIT_CUSTOMER_INVOICE_CUSTOM_SECTIONS_FORM_ID =
   'edit-customer-invoice-custom-sections-form'
 
@@ -31,36 +36,8 @@ gql`
   }
 `
 
-export enum BehaviorType {
-  FALLBACK = 'fallback',
-  CUSTOM_SECTIONS = 'customSections',
-  DEACTIVATE = 'deactivate',
-}
-
-type FormValues = {
-  behavior: BehaviorType
-  configurableInvoiceCustomSectionIds: string[]
-}
-
-const initialValues: FormValues = {
-  behavior: BehaviorType.FALLBACK,
-  configurableInvoiceCustomSectionIds: [],
-}
-
-const validationSchema = z
-  .object({
-    behavior: z.enum(BehaviorType),
-    configurableInvoiceCustomSectionIds: z.array(z.string()),
-  })
-  .refine(
-    (data) =>
-      data.behavior !== BehaviorType.CUSTOM_SECTIONS ||
-      data.configurableInvoiceCustomSectionIds.length > 0,
-    { path: ['configurableInvoiceCustomSectionIds'], message: '' },
-  )
-
 const DialogContent = withForm({
-  defaultValues: initialValues,
+  defaultValues: editCustomerInvoiceCustomSectionsDefaultValues,
   render: function Render({ form }) {
     const { translate } = useInternationalization()
     const { getInvoiceCustomSections, data: orgInvoiceCustomSections } =
@@ -104,7 +81,7 @@ const DialogContent = withForm({
           )}
         </form.AppField>
         {behavior === BehaviorType.CUSTOM_SECTIONS && (
-          <form.AppField name="configurableInvoiceCustomSectionIds">
+          <form.AppField name="configurableInvoiceCustomSections">
             {(field) => (
               <field.MultipleComboBoxField
                 hideTags={false}
@@ -151,9 +128,9 @@ export const useEditCustomerInvoiceCustomSectionsDialog = (customerId: string) =
   })
 
   const form = useAppForm({
-    defaultValues: initialValues,
+    defaultValues: editCustomerInvoiceCustomSectionsDefaultValues,
     validationLogic: revalidateLogic(),
-    validators: { onDynamic: validationSchema },
+    validators: { onDynamic: editCustomerInvoiceCustomSectionsSchema },
     onSubmit: async ({ value }) => {
       if (!customer) return
 
@@ -174,7 +151,9 @@ export const useEditCustomerInvoiceCustomSectionsDialog = (customerId: string) =
           formattedValues = {
             ...formattedValues,
             skipInvoiceCustomSections: false,
-            configurableInvoiceCustomSectionIds: value.configurableInvoiceCustomSectionIds,
+            configurableInvoiceCustomSectionIds: value.configurableInvoiceCustomSections.map(
+              (section) => section.value,
+            ),
           }
           break
         case BehaviorType.DEACTIVATE:
@@ -207,8 +186,11 @@ export const useEditCustomerInvoiceCustomSectionsDialog = (customerId: string) =
     if (customerData?.hasOverwrittenInvoiceCustomSectionsSelection) {
       form.setFieldValue('behavior', BehaviorType.CUSTOM_SECTIONS)
       form.setFieldValue(
-        'configurableInvoiceCustomSectionIds',
-        customerData.configurableInvoiceCustomSections.map((section) => section.id),
+        'configurableInvoiceCustomSections',
+        customerData.configurableInvoiceCustomSections.map((section) => ({
+          value: section.id,
+          label: section.name,
+        })),
       )
     } else if (customerData?.skipInvoiceCustomSections) {
       form.setFieldValue('behavior', BehaviorType.DEACTIVATE)

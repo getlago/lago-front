@@ -9,7 +9,6 @@ import BillingEntityMain from '~/pages/settings/BillingEntity/sections/BillingEn
 
 export const BILLING_ENTITY_HEADER_TEST_ID = 'billing-entity-header'
 export const BILLING_ENTITY_MAIN_TEST_ID = 'billing-entity-main'
-export const BILLING_ENTITY_LOADING_TEST_ID = 'billing-entity-loading'
 
 const BillingEntityPage = () => {
   const { billingEntityCode } = useParams()

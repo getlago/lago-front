@@ -624,6 +624,179 @@ describe('useOneOffPricingDrawer', () => {
       })
     })
 
+    describe('WHEN a deleted add-on block re-appears (undo / Cmd+Z)', () => {
+      it('THEN should re-hydrate the add-on from the removed cache, preserving overrides', () => {
+        mockedFromBillingItems.mockReturnValue({
+          entities: {
+            'local-uuid-1': {
+              entityId: 'local-uuid-1',
+              entityType: 'addOn',
+              name: 'Setup Fee',
+              code: 'setup',
+              units: '2',
+              unitAmountCents: '2000',
+              totalAmount: '4000',
+            },
+          },
+          originalPayloads: {
+            'local-uuid-1': mockAddOnPayload,
+          },
+          addOnItems: [
+            { localId: 'local-uuid-1', addOnId: 'addon-1', name: 'Setup Fee', code: 'setup' },
+          ],
+        })
+
+        // Delete rebuild has no survivors; undo rebuild carries the restored add-on.
+        mockedToBillingItems
+          .mockReturnValueOnce({ addOns: [] })
+          .mockReturnValueOnce({ addOns: [{ type: 'add_on', id: 'addon-1' }] })
+
+        const billingItemsWithOne = {
+          addOns: [
+            {
+              type: 'add_on' as const,
+              id: 'addon-1',
+              payload: mockAddOnPayload,
+              overrides: {},
+            },
+          ],
+        }
+
+        const { result } = renderHook(() => useOneOffPricingDrawer(billingItemsWithOne), {
+          wrapper,
+        })
+
+        // Delete: no block references the add-on, so it is pruned (and cached).
+        act(() => {
+          result.current.syncEntitiesWithBlocks([
+            { pricingType: 'addOns' as const, entityIds: [], localEntityIds: [] },
+          ])
+        })
+
+        expect(result.current.entities).not.toHaveProperty('local-uuid-1')
+        expect(result.current.entities).not.toHaveProperty('addon-1')
+
+        // Undo: TipTap re-inserts the block referencing local-uuid-1.
+        act(() => {
+          result.current.syncEntitiesWithBlocks([
+            {
+              pricingType: 'addOns' as const,
+              entityIds: ['addon-1'],
+              localEntityIds: ['local-uuid-1'],
+            },
+          ])
+        })
+
+        // Entity is back (NodeView resolves again) and the rebuild ran with the
+        // restored add-on carrying its edited overrides, not catalog defaults.
+        expect(result.current.entities).toHaveProperty('local-uuid-1')
+
+        const lastCall = mockedToBillingItems.mock.calls.at(-1)
+        const survivingItems = lastCall?.[0]
+        const payloads = lastCall?.[1]
+
+        expect(survivingItems).toHaveLength(1)
+        expect(survivingItems[0]).toMatchObject({
+          localId: 'local-uuid-1',
+          addOnId: 'addon-1',
+          units: '2',
+          unitAmountCents: '2000',
+          totalAmount: '4000',
+        })
+        expect(payloads).toHaveProperty('local-uuid-1')
+      })
+    })
+
+    describe('WHEN a restored add-on block re-appears ahead of a survivor (undo)', () => {
+      it('THEN should rebuild add-ons in document order (position follows the doc)', () => {
+        const secondPayload = {
+          ...mockAddOnPayload,
+          position: 2,
+          code: 'onboarding',
+          name: 'Onboarding Fee',
+        }
+
+        mockedFromBillingItems.mockReturnValue({
+          entities: {
+            'local-uuid-1': {
+              entityId: 'local-uuid-1',
+              entityType: 'addOn',
+              name: 'Setup Fee',
+              code: 'setup',
+            },
+            'local-uuid-2': {
+              entityId: 'local-uuid-2',
+              entityType: 'addOn',
+              name: 'Onboarding Fee',
+              code: 'onboarding',
+            },
+          },
+          originalPayloads: {
+            'local-uuid-1': mockAddOnPayload,
+            'local-uuid-2': secondPayload,
+          },
+          addOnItems: [
+            { localId: 'local-uuid-1', addOnId: 'addon-1', name: 'Setup Fee', code: 'setup' },
+            {
+              localId: 'local-uuid-2',
+              addOnId: 'addon-2',
+              name: 'Onboarding Fee',
+              code: 'onboarding',
+            },
+          ],
+        })
+
+        // Once (not persistent) so the return does not leak into sibling tests.
+        mockedToBillingItems.mockReturnValueOnce({ addOns: [] }).mockReturnValueOnce({ addOns: [] })
+
+        const billingItemsWithTwo = {
+          addOns: [
+            { type: 'add_on' as const, id: 'addon-1', payload: mockAddOnPayload, overrides: {} },
+            { type: 'add_on' as const, id: 'addon-2', payload: secondPayload, overrides: {} },
+          ],
+        }
+
+        const { result } = renderHook(() => useOneOffPricingDrawer(billingItemsWithTwo), {
+          wrapper,
+        })
+
+        // Delete the FIRST add-on; only local-uuid-2 remains referenced.
+        act(() => {
+          result.current.syncEntitiesWithBlocks([
+            {
+              pricingType: 'addOns' as const,
+              entityIds: ['addon-2'],
+              localEntityIds: ['local-uuid-2'],
+            },
+          ])
+        })
+
+        // Undo re-inserts local-uuid-1 ahead of local-uuid-2 (document order).
+        act(() => {
+          result.current.syncEntitiesWithBlocks([
+            {
+              pricingType: 'addOns' as const,
+              entityIds: ['addon-1'],
+              localEntityIds: ['local-uuid-1'],
+            },
+            {
+              pricingType: 'addOns' as const,
+              entityIds: ['addon-2'],
+              localEntityIds: ['local-uuid-2'],
+            },
+          ])
+        })
+
+        // survivingItems passed to toBillingItems follow doc order, not append order.
+        const survivingItems = mockedToBillingItems.mock.calls.at(-1)?.[0]
+
+        expect(survivingItems.map((i: { localId: string }) => i.localId)).toEqual([
+          'local-uuid-1',
+          'local-uuid-2',
+        ])
+      })
+    })
+
     describe('WHEN there are no entities at all', () => {
       it('THEN should return null', () => {
         const { result } = renderHook(() => useOneOffPricingDrawer(), { wrapper })

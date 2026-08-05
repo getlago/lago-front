@@ -1117,7 +1117,7 @@ describe('EditQuote', () => {
     describe('WHEN discount blocks change and syncDiscountBlocks returns billing items', () => {
       it('THEN should save the updated billing items', async () => {
         // The discount drawer owns only the `coupons` key and returns a partial
-        // without `addOns`; savePricingBlock normalizes `addOns` back in.
+        // without `addOns`; savePricingBlock sends that partial as-is.
         const mockBillingItems = { coupons: [{ id: 'coupon-1', position: 1 }] }
 
         mockSyncDiscountBlocks.mockReturnValue(mockBillingItems)
@@ -1138,7 +1138,7 @@ describe('EditQuote', () => {
         await waitFor(() => {
           expect(mockUpdateQuoteVersion).toHaveBeenCalledWith(
             expect.objectContaining({
-              billingItems: { addOns: [], coupons: [{ id: 'coupon-1', position: 1 }] },
+              billingItems: { coupons: [{ id: 'coupon-1', position: 1 }] },
             }),
             false,
           )

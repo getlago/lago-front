@@ -2,7 +2,7 @@ import { CurrencyEnum, TimeGranularityEnum } from '~/generated/graphql'
 
 import { formatMrrData, formatMrrDataForAreaChart } from '../utils'
 
-jest.mock('~/components/designSystem/Filters', () => ({
+jest.mock('~/components/Filters', () => ({
   AvailableFiltersEnum: {
     currency: 'currency',
     date: 'date',
@@ -198,7 +198,7 @@ describe('formatMrrData', () => {
     },
   ]
 
-  const getFilterValueMock = jest.requireMock('~/components/designSystem/Filters').getFilterValue
+  const getFilterValueMock = jest.requireMock('~/components/Filters').getFilterValue
 
   beforeEach(() => {
     jest.clearAllMocks()

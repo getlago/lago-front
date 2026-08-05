@@ -1,6 +1,6 @@
 import { screen } from '@testing-library/react'
 
-import { filterDataInlineSeparator } from '~/components/designSystem/Filters/types'
+import { filterDataInlineSeparator } from '~/components/Filters/presentation/types'
 import { OrderTypeEnum, StatusEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
