@@ -81,6 +81,7 @@ const fields: SSOIntegrationField<CreateOktaIntegrationInput>[] = [
     name: 'clientSecret',
     labelKey: 'text_664c732c264d7eed1c74fdb2',
     placeholderKey: 'text_664c732c264d7eed1c74fdb7',
+    password: true,
   },
   {
     name: 'organizationName',

@@ -26,6 +26,8 @@ export type SSOIntegrationField<TFormValues> = {
   helperKey?: string
   autoFocus?: boolean
   endAdornmentKey?: string
+  /** Renders the input as a masked secret field with a show/hide toggle. */
+  password?: boolean
 }
 
 export type AddSSOIntegrationDialogData<TIntegration> = {
@@ -216,6 +218,7 @@ export const useAddSSOIntegrationDialog = <
                   <field.TextInputField
                     // eslint-disable-next-line jsx-a11y/no-autofocus
                     autoFocus={fieldConfig.autoFocus}
+                    password={fieldConfig.password}
                     label={translate(fieldConfig.labelKey)}
                     placeholder={translate(fieldConfig.placeholderKey)}
                     helperText={
