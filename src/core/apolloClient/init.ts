@@ -26,6 +26,7 @@ import { buildAuthHeaders } from './authHeaders'
 import { cache } from './cache'
 import { setupCachePersistor } from './cachePersistor'
 import { omitDeep } from './cacheUtils'
+import { buildGraphQLErrorFingerprint, getGraphQLErrorCode } from './errorUtils'
 import { resolvers, typeDefs } from './graphqlResolvers'
 
 const AUTH_ERRORS = [
@@ -220,14 +221,17 @@ export const initializeApolloClient = async () => {
 
           graphQLError.name = 'GraphQLError'
 
+          const errorCode = getGraphQLErrorCode(extensions)
+
           // Capture in Sentry with operation details
           captureException(graphQLError, {
             tags: {
               errorType: 'GraphQLError',
               operation: operationType,
               operationName: operation.operationName || 'unknown',
-              errorCode: typeof extensions?.code === 'string' ? extensions.code : 'unknown',
+              errorCode,
             },
+            fingerprint: buildGraphQLErrorFingerprint(operation.operationName, errorCode),
             extra: {
               path,
               locations,
