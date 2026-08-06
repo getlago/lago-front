@@ -5,6 +5,7 @@ import {
   INELIGIBLE_PAYMENT_METHODS_TEST_ID,
   PAYMENT_METHODS_LIST_TEST_ID,
 } from '~/components/customers/connectionsSection/constants'
+import { getProviderPaymentConnection } from '~/components/customers/connectionsSection/utils'
 import { LinkedPaymentProvider } from '~/components/customers/types'
 import { useAddPaymentMethodDialog } from '~/components/customers/useAddPaymentMethodDialog'
 import { Typography } from '~/components/designSystem/Typography'
@@ -37,12 +38,12 @@ export const PaymentConnectionPaymentMethods = ({
 
   // Bank Transfer / Crypto only: the provider can't register a new method
   const hasOnlyIneligiblePaymentMethods = useMemo(() => {
-    const methods = customer.providerCustomer?.providerPaymentMethods
+    const methods = getProviderPaymentConnection(customer)?.providerPaymentMethods
 
     if (!methods?.length) return false
 
     return methods.every((method) => INELIGIBLE_PAYMENT_METHODS.includes(method))
-  }, [customer.providerCustomer])
+  }, [customer])
 
   return (
     <>

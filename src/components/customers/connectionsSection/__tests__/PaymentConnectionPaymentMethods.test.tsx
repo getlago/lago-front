@@ -1,6 +1,7 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { MANUAL_CONNECTION_CODE } from '~/components/customerConnections/customerIntegrationConst'
 import { LinkedPaymentProvider } from '~/components/customers/types'
 import { CustomerDetailsFragment, ProviderPaymentMethodsEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
@@ -31,17 +32,40 @@ const LINKED_PROVIDER = {
   code: 'stripe-eu',
 } as unknown as LinkedPaymentProvider
 
+/** The backend's non-persisted manual placeholder, prepended to the array */
+const MANUAL_PLACEHOLDER_CONNECTION = {
+  __typename: 'ProviderCustomer',
+  id: 'cust-1-manual',
+  code: MANUAL_CONNECTION_CODE,
+  isDefault: false,
+}
+
 const buildCustomer = (
   providerPaymentMethods: ProviderPaymentMethodsEnum[],
 ): CustomerDetailsFragment =>
   ({
     id: 'cust-1',
     externalId: 'ext-1',
-    providerCustomer: {
-      id: 'pc-1',
-      providerCustomerId: 'cus_123',
-      providerPaymentMethods,
-    },
+    // The manual row comes first: the block must read the provider row
+    paymentProviderCustomers: [
+      MANUAL_PLACEHOLDER_CONNECTION,
+      {
+        __typename: 'ProviderCustomer',
+        id: 'pc-1',
+        code: 'stripe',
+        isDefault: true,
+        providerCustomerId: 'cus_123',
+        providerPaymentMethods,
+      },
+    ],
+  }) as unknown as CustomerDetailsFragment
+
+/** Customer whose payment array holds nothing but the manual placeholder */
+const buildManualOnlyCustomer = (): CustomerDetailsFragment =>
+  ({
+    id: 'cust-1',
+    externalId: 'ext-1',
+    paymentProviderCustomers: [MANUAL_PLACEHOLDER_CONNECTION],
   }) as unknown as CustomerDetailsFragment
 
 describe('PaymentConnectionPaymentMethods', () => {
@@ -101,6 +125,23 @@ describe('PaymentConnectionPaymentMethods', () => {
         expect(screen.getByTestId(ADD_PAYMENT_METHOD_TEST_ID)).toBeDisabled()
         expect(screen.getByTestId(INELIGIBLE_PAYMENT_METHODS_TEST_ID)).toBeInTheDocument()
         expect(screen.queryByTestId(PAYMENT_METHODS_LIST_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a payment array holding nothing but a manual row', () => {
+    describe('WHEN the block renders', () => {
+      it('THEN should keep the list and the add action available', () => {
+        render(
+          <PaymentConnectionPaymentMethods
+            customer={buildManualOnlyCustomer()}
+            linkedPaymentProvider={LINKED_PROVIDER}
+          />,
+        )
+
+        expect(screen.getByTestId(PAYMENT_METHODS_LIST_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByTestId(ADD_PAYMENT_METHOD_TEST_ID)).not.toBeDisabled()
+        expect(screen.queryByTestId(INELIGIBLE_PAYMENT_METHODS_TEST_ID)).not.toBeInTheDocument()
       })
     })
   })

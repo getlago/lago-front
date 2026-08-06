@@ -39,42 +39,59 @@ gql`
     }
     paymentProvider
     timezone
-    anrokCustomer {
-      id
-      integrationId
-      externalCustomerId
-    }
-    avalaraCustomer {
-      id
-      integrationId
-      externalCustomerId
-    }
-    netsuiteCustomer {
-      id
-      integrationId
-      externalCustomerId
-    }
     paymentProviderCode
-    providerCustomer {
+    paymentProviderCustomers {
       id
+      code
+      isDefault
       providerCustomerId
       providerPaymentMethods
+      syncWithProvider
     }
-    xeroCustomer {
-      id
-      integrationId
-      externalCustomerId
-    }
-    hubspotCustomer {
-      id
-      integrationId
-      externalCustomerId
-      targetedObject
-    }
-    salesforceCustomer {
-      id
-      integrationId
-      externalCustomerId
+    integrationCustomers {
+      ... on NetsuiteCustomer {
+        __typename
+        id
+        integrationId
+        externalCustomerId
+        integrationType
+      }
+      ... on AnrokCustomer {
+        __typename
+        id
+        integrationId
+        externalCustomerId
+        integrationType
+      }
+      ... on AvalaraCustomer {
+        __typename
+        id
+        integrationId
+        externalCustomerId
+        integrationType
+      }
+      ... on XeroCustomer {
+        __typename
+        id
+        integrationId
+        externalCustomerId
+        integrationType
+      }
+      ... on HubspotCustomer {
+        __typename
+        id
+        integrationId
+        externalCustomerId
+        integrationType
+        targetedObject
+      }
+      ... on SalesforceCustomer {
+        __typename
+        id
+        integrationId
+        externalCustomerId
+        integrationType
+      }
     }
     metadata {
       id

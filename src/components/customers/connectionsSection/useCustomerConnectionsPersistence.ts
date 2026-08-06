@@ -3,7 +3,10 @@ import { gql, useApolloClient } from '@apollo/client'
 import { ConnectionFormValues } from '~/components/customerConnections/CustomerConnectionDrawer'
 import { ConnectionCategory } from '~/components/customerConnections/types'
 import { useConnectionOptions } from '~/components/customerConnections/useConnectionOptions'
-import { getIntegrationCustomerForCategory } from '~/components/customers/connectionsSection/utils'
+import {
+  getIntegrationCustomerForCategory,
+  getProviderPaymentConnection,
+} from '~/components/customers/connectionsSection/utils'
 import { addToast } from '~/core/apolloClient'
 import {
   INTEGRATION_POLLING_INTERVAL,
@@ -196,7 +199,7 @@ export const useCustomerConnectionsPersistence = ({
       return false
     }
 
-    const existingId = customer.providerCustomer?.id
+    const existingId = getProviderPaymentConnection(customer)?.id
     const isSameConnection = customer.paymentProviderCode === values.providerCode
 
     if (existingId && isSameConnection) {
@@ -355,7 +358,7 @@ export const useCustomerConnectionsPersistence = ({
   const deleteConnection = async (category: ConnectionCategory): Promise<boolean> => {
     const existingId =
       category === ConnectionCategory.Payment
-        ? customer.providerCustomer?.id
+        ? getProviderPaymentConnection(customer)?.id
         : getIntegrationCustomerForCategory(customer, category)?.id
 
     // A payment connection can exist on paymentProvider/paymentProviderCode

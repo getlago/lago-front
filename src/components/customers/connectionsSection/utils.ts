@@ -1,3 +1,7 @@
+import {
+  INTEGRATION_TYPE_TO_CATEGORY,
+  MANUAL_CONNECTION_CODE,
+} from '~/components/customerConnections/customerIntegrationConst'
 import { ConnectionCategory } from '~/components/customerConnections/types'
 import { AddCustomerDrawerFragment } from '~/generated/graphql'
 
@@ -9,27 +13,35 @@ export const INTEGRATION_CATEGORIES = [
 ] as const
 
 export type FragmentIntegrationCustomer = NonNullable<
-  | AddCustomerDrawerFragment['netsuiteCustomer']
-  | AddCustomerDrawerFragment['xeroCustomer']
-  | AddCustomerDrawerFragment['anrokCustomer']
-  | AddCustomerDrawerFragment['avalaraCustomer']
-  | AddCustomerDrawerFragment['hubspotCustomer']
-  | AddCustomerDrawerFragment['salesforceCustomer']
->
+  AddCustomerDrawerFragment['integrationCustomers']
+>[number]
+
+export type FragmentPaymentProviderCustomer = NonNullable<
+  AddCustomerDrawerFragment['paymentProviderCustomers']
+>[number]
+
+/**
+ * The customer's provider-backed payment connection, if any. Manual rows
+ * (persisted or the backend's non-persisted placeholder) carry the reserved
+ * "manual" code and are never surfaced as a provider connection.
+ */
+export const getProviderPaymentConnection = (
+  customer: AddCustomerDrawerFragment,
+): FragmentPaymentProviderCustomer | undefined =>
+  customer.paymentProviderCustomers?.find(
+    (connection) => connection.code !== MANUAL_CONNECTION_CODE,
+  )
 
 /** The (one-per-type) integration customer persisted for a category, if any */
 export const getIntegrationCustomerForCategory = (
   customer: AddCustomerDrawerFragment,
   category: ConnectionCategory,
 ): FragmentIntegrationCustomer | undefined => {
-  switch (category) {
-    case ConnectionCategory.Accounting:
-      return customer.netsuiteCustomer ?? customer.xeroCustomer ?? undefined
-    case ConnectionCategory.Tax:
-      return customer.anrokCustomer ?? customer.avalaraCustomer ?? undefined
-    case ConnectionCategory.Crm:
-      return customer.hubspotCustomer ?? customer.salesforceCustomer ?? undefined
-    default:
-      return undefined
-  }
+  if (category === ConnectionCategory.Payment) return undefined
+
+  return customer.integrationCustomers?.find(
+    (integrationCustomer) =>
+      integrationCustomer.integrationType &&
+      INTEGRATION_TYPE_TO_CATEGORY[integrationCustomer.integrationType] === category,
+  )
 }

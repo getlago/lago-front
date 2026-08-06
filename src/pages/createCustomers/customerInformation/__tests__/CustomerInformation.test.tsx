@@ -52,6 +52,10 @@ const mockCustomer: AddCustomerDrawerFragment = {
     // Customer's saved entity does NOT use EU tax management by default.
     euTaxManagement: false,
   },
+  // Connections are owned by ExternalAppsAccordion — the information section
+  // only needs the fragment's required arrays to be present
+  paymentProviderCustomers: [],
+  integrationCustomers: [],
 }
 
 // TBE → no EU tax; ABE → uses EU tax. Lets tests drive both banner cases.

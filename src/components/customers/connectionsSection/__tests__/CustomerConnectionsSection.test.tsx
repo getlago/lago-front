@@ -6,9 +6,15 @@ import {
   getCustomerConnectionMenuTestId,
   getCustomerConnectionRowTestId,
 } from '~/components/customerConnections/CustomerConnectionsList'
+import { MANUAL_CONNECTION_CODE } from '~/components/customerConnections/customerIntegrationConst'
 import { ConnectionCategory } from '~/components/customerConnections/types'
 import { GENERIC_PLACEHOLDER_TEST_ID } from '~/components/designSystem/GenericPlaceholder'
-import { CustomerDetailsFragment, IntegrationTypeEnum, ProviderTypeEnum } from '~/generated/graphql'
+import {
+  CustomerDetailsFragment,
+  IntegrationTypeEnum,
+  ProviderPaymentMethodsEnum,
+  ProviderTypeEnum,
+} from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import { CONNECTION_DETAILS_EDIT_TEST_ID, PAYMENT_METHODS_LIST_TEST_ID } from '../constants'
@@ -166,31 +172,48 @@ jest.mock('~/generated/graphql', () => ({
   useDestroyCustomerIntegrationConnectionMutation: () => [mockDestroyIntegration],
 }))
 
-/** Customer with a Stripe payment connection and an Anrok tax link persisted */
+const ANY_ROW_TEST_ID = new RegExp(`^${getCustomerConnectionRowTestId('')}`)
+
+/** The backend's non-persisted manual placeholder, prepended to the array */
+const MANUAL_PLACEHOLDER_CONNECTION = {
+  __typename: 'ProviderCustomer',
+  id: 'cust-1-manual',
+  code: MANUAL_CONNECTION_CODE,
+  isDefault: false,
+}
+
+/**
+ * Customer with a Stripe payment connection (behind the manual placeholder)
+ * and an Anrok tax link persisted, both in the connection arrays.
+ */
 const customer = {
   id: 'cust-1',
   externalId: 'ext-1',
   paymentProvider: ProviderTypeEnum.Stripe,
   paymentProviderCode: 'stripe-eu',
-  providerCustomer: {
-    id: 'pc-1',
-    providerCustomerId: 'cus_123',
-    syncWithProvider: false,
-    providerPaymentMethods: ['card'],
-  },
-  anrokCustomer: {
-    id: 'ac-1',
-    integrationId: 'int-anrok',
-    integrationCode: 'anrok-1',
-    integrationType: IntegrationTypeEnum.Anrok,
-    externalCustomerId: 'anrok_cus_1',
-    syncWithProvider: false,
-  },
-  netsuiteCustomer: null,
-  xeroCustomer: null,
-  avalaraCustomer: null,
-  hubspotCustomer: null,
-  salesforceCustomer: null,
+  paymentProviderCustomers: [
+    MANUAL_PLACEHOLDER_CONNECTION,
+    {
+      __typename: 'ProviderCustomer',
+      id: 'pc-1',
+      code: 'stripe',
+      isDefault: true,
+      providerCustomerId: 'cus_123',
+      syncWithProvider: false,
+      providerPaymentMethods: [ProviderPaymentMethodsEnum.Card],
+    },
+  ],
+  integrationCustomers: [
+    {
+      __typename: 'AnrokCustomer',
+      id: 'ac-1',
+      integrationId: 'int-anrok',
+      integrationCode: 'anrok-1',
+      integrationType: IntegrationTypeEnum.Anrok,
+      externalCustomerId: 'anrok_cus_1',
+      syncWithProvider: false,
+    },
+  ],
 } as unknown as CustomerDetailsFragment
 
 describe('CustomerConnectionsSection', () => {
@@ -230,9 +253,18 @@ describe('CustomerConnectionsSection', () => {
 
         expect(screen.getByTestId(PAYMENT_METHODS_LIST_TEST_ID)).toBeInTheDocument()
       })
+
+      it('THEN should never list a manual payment row', () => {
+        render(<CustomerConnectionsSection customer={customer} />)
+
+        expect(screen.getAllByTestId(ANY_ROW_TEST_ID)).toHaveLength(2)
+        expect(
+          screen.queryByTestId(getCustomerConnectionRowTestId('payment-manual')),
+        ).not.toBeInTheDocument()
+      })
     })
 
-    describe('WHEN the customer has no connection at all', () => {
+    describe('WHEN the customer has no connection but the manual placeholder', () => {
       it('THEN should show the empty state (manual default view lands with the default flow)', () => {
         render(
           <CustomerConnectionsSection
@@ -241,14 +273,15 @@ describe('CustomerConnectionsSection', () => {
                 ...customer,
                 paymentProvider: null,
                 paymentProviderCode: null,
-                providerCustomer: null,
-                anrokCustomer: null,
+                paymentProviderCustomers: [MANUAL_PLACEHOLDER_CONNECTION],
+                integrationCustomers: [],
               } as unknown as CustomerDetailsFragment
             }
           />,
         )
 
         expect(screen.getByTestId(GENERIC_PLACEHOLDER_TEST_ID)).toBeInTheDocument()
+        expect(screen.queryByTestId(ANY_ROW_TEST_ID)).not.toBeInTheDocument()
         expect(screen.queryByTestId(CONNECTION_DETAILS_EDIT_TEST_ID)).not.toBeInTheDocument()
       })
     })
@@ -336,6 +369,26 @@ describe('CustomerConnectionsSection', () => {
             externalCustomerId: 'anrok_cus_1',
           }),
           expect.objectContaining({ title: 'Anrok Main', subtitle: 'anrok-1' }),
+        )
+      })
+
+      it('THEN should prefill the payment values from the provider row of the array', async () => {
+        const user = userEvent.setup()
+
+        render(<CustomerConnectionsSection customer={customer} />)
+
+        await user.click(screen.getByTestId(CONNECTION_DETAILS_EDIT_TEST_ID))
+
+        expect(mockOpenEdit).toHaveBeenCalledWith(
+          ConnectionCategory.Payment,
+          expect.objectContaining({
+            providerCode: 'stripe-eu',
+            providerType: ProviderTypeEnum.Stripe,
+            externalCustomerId: 'cus_123',
+            syncWithProvider: false,
+            providerPaymentMethods: { [ProviderPaymentMethodsEnum.Card]: true },
+          }),
+          expect.objectContaining({ title: 'Stripe EU', subtitle: 'stripe-eu' }),
         )
       })
     })

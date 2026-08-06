@@ -167,13 +167,8 @@ export function useCustomerDetailsHeaderTabs({
       snapshotKey: JSON.stringify([
         customer?.paymentProvider,
         customer?.paymentProviderCode,
-        customer?.providerCustomer,
-        customer?.netsuiteCustomer,
-        customer?.xeroCustomer,
-        customer?.anrokCustomer,
-        customer?.avalaraCustomer,
-        customer?.hubspotCustomer,
-        customer?.salesforceCustomer,
+        customer?.paymentProviderCustomers,
+        customer?.integrationCustomers,
       ]),
     },
     {
