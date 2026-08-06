@@ -78,7 +78,13 @@ No free-text feedback given → default to the unanswered external PR comments a
    - Never leave an external comment unanswered; never be dismissive — the reason must be technical, one or two lines max.
 
 9. **Journal & flywheel — SILENT bookkeeping, before the report:**
-   - Append a row to `$LOOP_STATE_DIR/_journal.md` (same table format as loop-run; outcome = `revised` / `stopped-ci`; iters column = feedback points applied).
+   - Append a row to `$LOOP_STATE_DIR/_journal.md`. It shares loop-run's table, so it must have EXACTLY 7 cells in this order — a misaligned row makes the whole table unreadable:
+
+     ```markdown
+     | <date> | <ISSUE-ID> | <N> points | <charged>/<max> | <gates that went red, or none> | revised | <one short phrase> |
+     ```
+
+     Column 3 is how many feedback points were applied (not build↔review iterations, which this phase does not run). Column 4 is the `ci-revise` budget as `N/3`, or `0/3` if CI never went red. Column 6 is `revised` or `stopped-ci`. Everything narrative belongs in column 7 and nowhere else.
    - **Flywheel**: the operator's feedback is the highest-value signal — for each point raised, ask *"would a better instruction in loop-spec / loop-build / loop-review have prevented the loop from producing this in the first place?"* If yes, append a dated proposal to `$LOOP_STATE_DIR/_flywheel.md` (target skill, evidence, proposed edit — quoted). Proposals ONLY: never edit skill files, never ping the operator about it. Nothing avoidable → append nothing.
 
 10. **Report**: what changed per feedback point, replies posted, commit SHA, CI status. **NO new #frontend post** — the PR was already announced; colleagues see the update on GitHub.
