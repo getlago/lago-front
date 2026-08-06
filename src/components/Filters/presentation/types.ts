@@ -16,7 +16,7 @@ export const filterWithoutProductCategoryValue = '__without_productCategory__'
 // Sentinel entry for the "Not defined" option of the product-item-filters list's
 // ProductCategory item filter. Matches the Figma reference for visual parity with the
 // product-item list's ProductCategory filter, but has no backend meaning here: a
-// ProductFilter always belongs to exactly one productCategory item, so selecting it
+// ProductFilter always belongs to exactly one product, so selecting it
 // never contributes a `productId` (see formatFiltersForProductFiltersQuery).
 export const filterWithoutProductValue = '__without_productCategory_item__'
 

@@ -144,7 +144,7 @@ describe('ProductFilterDetailsOverview', () => {
     })
   })
 
-  describe('GIVEN a filter attached to a productCategory item with a productCategory', () => {
+  describe('GIVEN a filter attached to a product with a productCategory', () => {
     describe('WHEN the overview loads', () => {
       it('THEN displays the name, code, description and invoice display name', async () => {
         await act(() => renderOverview())
@@ -161,7 +161,7 @@ describe('ProductFilterDetailsOverview', () => {
         expect(await screen.findByRole('link', { name: 'Object storage' })).toBeInTheDocument()
       })
 
-      it('THEN links to the attached productCategory item', async () => {
+      it('THEN links to the attached product', async () => {
         await act(() => renderOverview())
 
         expect(await screen.findByRole('link', { name: 'Seat charge' })).toBeInTheDocument()
@@ -184,7 +184,7 @@ describe('ProductFilterDetailsOverview', () => {
     })
   })
 
-  describe('GIVEN a filter whose productCategory item has no attached productCategory', () => {
+  describe('GIVEN a filter whose product has no attached productCategory', () => {
     describe('WHEN the overview loads', () => {
       it('THEN shows the no-productCategory fallback', async () => {
         await act(() => renderOverview(noProductCategoryProductFilter))
@@ -200,7 +200,7 @@ describe('ProductFilterDetailsOverview', () => {
 
   describe('GIVEN the update permission', () => {
     describe('WHEN the edit button is clicked', () => {
-      it('THEN opens the drawer with the loaded productCategory item filter', async () => {
+      it('THEN opens the drawer with the loaded product filter', async () => {
         await act(() => renderOverview())
 
         await userEvent.click(

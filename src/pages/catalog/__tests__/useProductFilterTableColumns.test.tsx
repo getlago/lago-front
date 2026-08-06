@@ -62,7 +62,7 @@ const getColumnContent = (
 describe('useProductFilterTableColumns', () => {
   describe('GIVEN the attached-product-item column is requested', () => {
     describe('WHEN the hook runs', () => {
-      it('THEN returns the name, attached productCategory item and created columns', () => {
+      it('THEN returns the name, attached product and created columns', () => {
         const columns = renderColumns(true)
 
         expect(columns.filter(Boolean).map((column) => column?.key)).toEqual([
@@ -84,7 +84,7 @@ describe('useProductFilterTableColumns', () => {
     })
   })
 
-  describe('GIVEN a productCategory item filter row', () => {
+  describe('GIVEN a product filter row', () => {
     describe('WHEN the name column content renders', () => {
       it('THEN prefers the invoice display name and shows the code', () => {
         const columns = renderColumns(true)
@@ -108,8 +108,8 @@ describe('useProductFilterTableColumns', () => {
       })
     })
 
-    describe('WHEN the attached productCategory item column content renders', () => {
-      it('THEN shows the attached productCategory item invoice display name in a chip', () => {
+    describe('WHEN the attached product column content renders', () => {
+      it('THEN shows the attached product invoice display name in a chip', () => {
         const columns = renderColumns(true)
 
         render(<>{getColumnContent(columns, 'product.name')(buildProductFilter())}</>)
@@ -117,7 +117,7 @@ describe('useProductFilterTableColumns', () => {
         expect(screen.getByText('Seat charge')).toBeInTheDocument()
       })
 
-      it('THEN falls back to the attached productCategory item name when there is no invoice display name', () => {
+      it('THEN falls back to the attached product name when there is no invoice display name', () => {
         const columns = renderColumns(true)
 
         render(

@@ -105,7 +105,7 @@ describe('useDeleteProductFilterDialog', () => {
     jest.clearAllMocks()
   })
 
-  it('opens a danger dialog naming the productCategory item filter with a real confirm button', async () => {
+  it('opens a danger dialog naming the product filter with a real confirm button', async () => {
     renderDialog()
 
     await userEvent.click(screen.getByTestId(OPEN_DIALOG_BUTTON_TEST_ID))

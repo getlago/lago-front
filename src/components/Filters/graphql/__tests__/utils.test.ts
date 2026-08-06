@@ -1492,7 +1492,7 @@ describe('Filters utils', () => {
       expect(formatFiltersForProductFiltersQuery(params)).toEqual({ productId: 'pi-1' })
     })
 
-    it('keeps only the first productCategory item when multiple are selected', () => {
+    it('keeps only the first product when multiple are selected', () => {
       const params = new URLSearchParams()
 
       params.set(

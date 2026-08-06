@@ -9,8 +9,8 @@ export type ProductFilterFormValues = {
   code: string
   description: string
   invoiceDisplayName: string
-  // Empty string = "no productCategory item selected"; omitted from the create input and
-  // never sent on update (the attached productCategory item is create-only).
+  // Empty string = "no product selected"; omitted from the create input and
+  // never sent on update (the attached product is create-only).
   productId: string
   // The billable metric filter values that define this item filter; each entry
   // pairs a billable metric filter with one of its selectable values. A missing

@@ -73,7 +73,7 @@ describe('useDeleteProductDialog', () => {
     lastDialogArgs = null
   })
 
-  it('opens a danger dialog naming the productCategory item', () => {
+  it('opens a danger dialog naming the product', () => {
     const { result } = renderDialogHook()
 
     act(() => result.current.openDeleteProductDialog({ product: productFixture }))

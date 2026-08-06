@@ -40,7 +40,7 @@ type FiltersItemProductFilterProductProps = {
 // `productId`: formatFiltersForProductFiltersQuery keeps only the first
 // real selection made here. The "Not defined" option matches the Figma reference
 // for visual parity with FiltersItemProductFilterProductCategory, but has no backend
-// meaning: a ProductFilter always belongs to exactly one productCategory item, so
+// meaning: a ProductFilter always belongs to exactly one product, so
 // selecting it never contributes a productId.
 export const FiltersItemProductFilterProduct = ({
   value,

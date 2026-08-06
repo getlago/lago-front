@@ -92,7 +92,7 @@ describe('ProductDetails', () => {
     mockIsPremium = true
   })
 
-  it('displays the productCategory item name and code in the header once loaded', async () => {
+  it('displays the product name and code in the header once loaded', async () => {
     await act(() => renderPage())
 
     await waitFor(() => {
@@ -101,7 +101,7 @@ describe('ProductDetails', () => {
     expect(screen.getAllByTestId(ENTITY_SECTION_METADATA_TEST_ID)[0]).toHaveTextContent('seats')
   })
 
-  it('renders the catalog breadcrumb link and the static grey productCategory item crumb', async () => {
+  it('renders the catalog breadcrumb link and the static grey product crumb', async () => {
     await act(() => renderPage())
 
     const catalogCrumb = await screen.findByRole('link', {
@@ -144,7 +144,7 @@ describe('ProductDetails', () => {
     )
   })
 
-  it('opens the delete dialog whose callback navigates back to the productCategory items list', async () => {
+  it('opens the delete dialog whose callback navigates back to the products list', async () => {
     await act(() => renderPage())
 
     await userEvent.click((await screen.findAllByTestId('product-item-details-actions'))[0])

@@ -114,7 +114,7 @@ const mapProductFilterToFormValues = (
 
 // The edit fragment only carries the billable metric filters that already have a
 // selected value; deduplicate them into the "available filters" seed the values
-// editor renders while the productCategory item combobox stays disabled.
+// editor renders while the product combobox stays disabled.
 const mapSeededFilters = (
   productFilter: ProductFilterForDrawerFragment,
 ): SelectableBillableMetricFilter[] => {
@@ -132,7 +132,7 @@ const mapSeededFilters = (
 }
 
 // `data-text` is a double-quoted HTML attribute in the linked-toast template;
-// escape embedded quotes so a productCategory item filter name cannot break out of it.
+// escape embedded quotes so a product filter name cannot break out of it.
 const escapeDoubleQuotes = (value: string) => value.replaceAll('"', '&quot;')
 
 type ProductAttachment = {
@@ -260,8 +260,8 @@ type OpenProductFilterDrawerArgs = {
 }
 
 // Dual-mode drawer: `openDrawer()` creates an item filter, `openDrawer({ productFilter })`
-// edits it, and `openDrawer({ attachToProduct })` (used from the productCategory item details tab)
-// prefills the attached productCategory item. Create mode carries the "Create more" footer toggle
+// edits it, and `openDrawer({ attachToProduct })` (used from the product details tab)
+// prefills the attached product. Create mode carries the "Create more" footer toggle
 // that keeps the drawer open, resets the form, and links the new filter in the toast.
 export const useProductFilterDrawer = () => {
   const { translate } = useInternationalization()
@@ -271,7 +271,7 @@ export const useProductFilterDrawer = () => {
   const { createMoreControl, isCreateMoreEnabled, resetCreateMore, resetSignal, notifyReset } =
     useCreateMore()
 
-  // Remembers the productCategory item to attach for the whole drawer session so the
+  // Remembers the product to attach for the whole drawer session so the
   // "create more" reset (fired from onSuccess, outside openDrawer's scope) can
   // re-seed it instead of clearing the selection.
   const attachToProductRef = useRef<ProductAttachment | undefined>(undefined)
@@ -293,8 +293,8 @@ export const useProductFilterDrawer = () => {
       })
 
       if (isCreateMoreEnabled()) {
-        // Re-seed the attached productCategory item (if any) so the next filter stays
-        // scoped to the same productCategory item instead of resetting to none.
+        // Re-seed the attached product (if any) so the next filter stays
+        // scoped to the same product instead of resetting to none.
         resetForm(undefined, attachToProductRef.current)
         notifyReset()
         // The drawer renders outside the matched-route context, so the router
@@ -335,7 +335,7 @@ export const useProductFilterDrawer = () => {
     drawer.open({
       title: isEdit
         ? translate('text_1784579021079qarjon667xy')
-        : translate('text_17836220307039rf790f045t'),
+        : translate('text_178603116671032mnf3wr3e3'),
       form: { id: PRODUCT_ITEM_FILTER_FORM_ID, submit: form.handleSubmit },
       closeOnSubmitSuccess: false,
       onEntered: focusFirstInput,
