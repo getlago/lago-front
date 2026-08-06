@@ -6,6 +6,7 @@ import { SubscriptionDatesOffsetHelperComponent } from '~/components/customers/s
 import { Button } from '~/components/designSystem/Button'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
+import { isSubscriptionPurchaseOrderNumberEditable } from '~/components/purchaseOrder/PO'
 import { PurchaseOrderFormBlock } from '~/components/purchaseOrder/PurchaseOrderFormBlock'
 import { SubscriptionActivationRuleSection } from '~/components/subscriptions/SubscriptionActivationRuleSection'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
@@ -324,8 +325,7 @@ export const SubscriptionInformationFormSection = withForm({
                 // PO number is only editable while the subscription is pending or active.
                 disabled={
                   formType === FORM_TYPE_ENUM.edition &&
-                  subscription?.status !== StatusTypeEnum.Pending &&
-                  subscription?.status !== StatusTypeEnum.Active
+                  !isSubscriptionPurchaseOrderNumberEditable(subscription?.status)
                 }
                 onChange={(value) => field.handleChange(value ?? undefined)}
               />
