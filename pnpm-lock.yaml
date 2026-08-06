@@ -187,8 +187,8 @@ importers:
         specifier: 18.3.1
         version: 18.3.1
       react-ace:
-        specifier: 14.0.1
-        version: 14.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 14.1.0
+        version: 14.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
@@ -6465,14 +6465,6 @@ packages:
   lodash.debounce@4.0.8:
     resolution: {integrity: sha512-FT1yDzDYEoYWhnSGnpE/4Kj1fLZkDFyqRb7fNt6FdYOSxlUWAtp42Eh6Wb0rGIv/m9Bgo7x4GhQbm5Ys4SG5ow==}
 
-  lodash.get@4.4.2:
-    resolution: {integrity: sha512-z+Uw/vLuy6gQe8cfaFWD7p0wVv8fJl3mbzXh33RS+0oW2wvUqiRXiQ69gLWSLpgB5/6sU+r6BlQR0MBILadqTQ==}
-    deprecated: This package is deprecated. Use the optional chaining (?.) operator instead.
-
-  lodash.isequal@4.5.0:
-    resolution: {integrity: sha512-pDo3lu8Jhfjqls6GkMgpahsF9kCyayhgykjyLMNFTKWrpVdAQtYyB4muAMWozBB4ig/dtWAmsMxLEI8wuz+DYQ==}
-    deprecated: This package is deprecated. Use require('node:util').isDeepStrictEqual instead.
-
   lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
 
@@ -7658,8 +7650,8 @@ packages:
   queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
 
-  react-ace@14.0.1:
-    resolution: {integrity: sha512-z6YAZ20PNf/FqmYEic//G/UK6uw0rn21g58ASgHJHl9rfE4nITQLqthr9rHMVQK4ezwohJbp2dGrZpkq979PYQ==}
+  react-ace@14.1.0:
+    resolution: {integrity: sha512-H+Tuw1oa3uP6zRoLBOayPVaMy5Le4G33OpEmLOfSVks75ajmrmFGbyWWEHfBYLCCpu5KfyFlod9jCEUc7i5ekw==}
     peerDependencies:
       react: ^0.13.0 || ^0.14.0 || ^15.0.1 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^0.13.0 || ^0.14.0 || ^15.0.1 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -11371,7 +11363,7 @@ snapshots:
       clsx: 2.1.1
       prop-types: 15.8.1
       react: 18.3.1
-      react-is: 19.2.0
+      react-is: 19.2.8
     optionalDependencies:
       '@types/react': 18.3.31
 
@@ -15519,10 +15511,6 @@ snapshots:
 
   lodash.debounce@4.0.8: {}
 
-  lodash.get@4.4.2: {}
-
-  lodash.isequal@4.5.0: {}
-
   lodash.merge@4.6.2: {}
 
   lodash.once@4.1.1: {}
@@ -16924,12 +16912,11 @@ snapshots:
 
   queue-microtask@1.2.3: {}
 
-  react-ace@14.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  react-ace@14.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       ace-builds: 1.44.0
       diff-match-patch: 1.0.5
-      lodash.get: 4.4.2
-      lodash.isequal: 4.5.0
+      fast-equals: 5.4.0
       prop-types: 15.8.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
