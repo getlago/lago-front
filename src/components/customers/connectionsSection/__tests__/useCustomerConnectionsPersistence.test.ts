@@ -4,6 +4,10 @@ import { ConnectionFormValues } from '~/components/customerConnections/CustomerC
 import { ConnectionCategory } from '~/components/customerConnections/types'
 import { useConnectionOptions } from '~/components/customerConnections/useConnectionOptions'
 import {
+  INTEGRATION_POLLING_INTERVAL,
+  MAX_INTEGRATION_POLLING_ATTEMPTS,
+} from '~/core/constants/integrationPolling'
+import {
   AddCustomerDrawerFragment,
   HubspotTargetedObjectsEnum,
   IntegrationTypeEnum,
@@ -517,6 +521,61 @@ describe('useCustomerConnectionsPersistence', () => {
         expect(mockAddToast).not.toHaveBeenCalledWith(
           expect.objectContaining({ severity: 'success' }),
         )
+      })
+    })
+
+    describe('WHEN the backend has not created the integration link yet', () => {
+      afterEach(() => {
+        jest.useRealTimers()
+      })
+
+      const saveTaxConnection = (result: ReturnType<typeof setup>) =>
+        result.current.saveConnection(
+          ConnectionCategory.Tax,
+          {
+            providerCode: 'anrok-1',
+            providerType: IntegrationTypeEnum.Anrok,
+            externalCustomerId: 'anrok_cus_1',
+          } as ConnectionFormValues,
+          { isEdition: false },
+        )
+
+      it('THEN should read again until the saved link shows up', async () => {
+        jest.useFakeTimers()
+
+        // The first read still misses the link, the second carries it
+        mockClientQuery
+          .mockResolvedValueOnce({ data: { customer } } as never)
+          .mockResolvedValueOnce({
+            data: {
+              customer: { ...customer, anrokCustomer: { id: 'an-1', integrationCode: 'anrok-1' } },
+            },
+          } as never)
+
+        const saving = saveTaxConnection(setup())
+
+        await jest.advanceTimersByTimeAsync(INTEGRATION_POLLING_INTERVAL)
+
+        expect(await saving).toBe(true)
+        expect(mockClientQuery).toHaveBeenCalledTimes(2)
+      })
+
+      it('THEN should give up after the shared attempt budget', async () => {
+        jest.useFakeTimers()
+
+        // The link never lands: every read comes back without it
+        for (let attempt = 0; attempt < MAX_INTEGRATION_POLLING_ATTEMPTS; attempt++) {
+          mockClientQuery.mockResolvedValueOnce({ data: { customer } } as never)
+        }
+
+        const saving = saveTaxConnection(setup())
+
+        await jest.advanceTimersByTimeAsync(
+          INTEGRATION_POLLING_INTERVAL * MAX_INTEGRATION_POLLING_ATTEMPTS,
+        )
+
+        expect(await saving).toBe(true)
+        expect(mockClientQuery).toHaveBeenCalledTimes(MAX_INTEGRATION_POLLING_ATTEMPTS)
       })
     })
   })

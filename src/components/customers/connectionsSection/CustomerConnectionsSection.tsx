@@ -220,18 +220,19 @@ export const CustomerConnectionsSection = ({ customer }: CustomerConnectionsSect
     category: ConnectionCategory,
     values: ConnectionFormValues,
     { isEdition }: { isEdition: boolean },
-  ) => {
+  ): Promise<boolean> => {
     const succeeded = await saveConnection(category, values, { isEdition })
 
-    // The drawer only closes once onSave resolves — reject to keep it open
-    // (and its values intact) when the mutation fails
-    if (!succeeded) {
-      throw new Error('Connection save failed')
-    }
+    // The drawer closes on a truthy onSave — report the failure instead of
+    // throwing, so it stays open (with its values intact) without raising an
+    // unhandled rejection through the uncaught `form.handleSubmit`
+    if (!succeeded) return false
 
     if (values.providerCode) {
       setUserSelectedId(getConnectionRowId(category, values.providerCode))
     }
+
+    return true
   }
 
   // The org-integration query only feeds the right pane's deep links: it must

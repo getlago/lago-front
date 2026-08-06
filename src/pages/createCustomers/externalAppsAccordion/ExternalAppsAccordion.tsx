@@ -198,7 +198,10 @@ const ExternalAppsAccordion = withForm({
     ])
 
     // ------- Drawer persistence: write back into the customer form slots -------
-    const handleSaveConnection = (category: ConnectionCategory, values: ConnectionFormValues) => {
+    const handleSaveConnection = (
+      category: ConnectionCategory,
+      values: ConnectionFormValues,
+    ): boolean => {
       switch (category) {
         case ConnectionCategory.Payment:
           form.setFieldValue('paymentProviderCode', values.providerCode)
@@ -242,6 +245,9 @@ const ExternalAppsAccordion = withForm({
           })
           break
       }
+
+      // Local form state only — nothing can fail, the drawer always closes
+      return true
     }
 
     // ------- Edit prefill: read the slot back into single-connection values -------

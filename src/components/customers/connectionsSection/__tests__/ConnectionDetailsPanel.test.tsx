@@ -373,4 +373,26 @@ describe('ConnectionDetailsPanel', () => {
       })
     })
   })
+
+  describe('GIVEN a payment provider that has no provider-customer mapping', () => {
+    describe.each([
+      ['Cashfree', ProviderTypeEnum.Cashfree],
+      ['Flutterwave', ProviderTypeEnum.Flutterwave],
+    ])('WHEN the %s connection is selected', (_, paymentProvider) => {
+      it('THEN should drop the Provider customer ID row instead of reporting a broken connection', () => {
+        render(
+          <ConnectionDetailsPanel
+            row={PAYMENT_ROW}
+            customer={buildCustomer({ paymentProvider, providerCustomer: null })}
+            integrationsLoading={false}
+          />,
+        )
+
+        expect(screen.queryByText('Provider customer ID')).not.toBeInTheDocument()
+        expect(
+          screen.queryByTestId(CONNECTION_PROVIDER_ID_PLACEHOLDER_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+    })
+  })
 })

@@ -394,6 +394,9 @@ describe('CustomerConnectionsSection', () => {
 
         render(<CustomerConnectionsSection customer={customer} />)
 
+        // Resolves false rather than rejecting: BaseDrawer calls form.submit()
+        // without catching, so throwing here would escape as an unhandled
+        // promise rejection on every failed save
         await expect(
           capturedDrawerProps.current?.onSave?.(
             ConnectionCategory.Payment,
@@ -404,7 +407,7 @@ describe('CustomerConnectionsSection', () => {
             } as ConnectionFormValues,
             { isEdition: true },
           ),
-        ).rejects.toThrow()
+        ).resolves.toBe(false)
       })
     })
   })

@@ -50,7 +50,7 @@ type CustomerConnectionsListProps = {
    * the default flow lands and fills them with the Default badge.
    */
   showStatusColumn?: boolean
-  /** Renders grey category header rows (Payment / Accounting / CRM / Tax) */
+  /** Renders category header rows (Payment / Accounting / CRM / Tax) */
   grouped?: boolean
   /** Highlights the selected row (information master-detail) */
   selectedRowId?: string
@@ -206,7 +206,7 @@ export const CustomerConnectionsList = ({
       (category) => (
         <div key={category} className="flex flex-col">
           <div
-            className="border-b border-grey-300 bg-grey-000 p-2"
+            className="border-b border-grey-300 bg-white p-2"
             data-test={getCustomerConnectionGroupTestId(category)}
           >
             <Typography variant="captionHl" color="grey600">

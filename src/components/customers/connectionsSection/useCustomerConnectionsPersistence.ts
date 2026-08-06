@@ -6,6 +6,10 @@ import { useConnectionOptions } from '~/components/customerConnections/useConnec
 import { getIntegrationCustomerForCategory } from '~/components/customers/connectionsSection/utils'
 import { addToast } from '~/core/apolloClient'
 import {
+  INTEGRATION_POLLING_INTERVAL,
+  MAX_INTEGRATION_POLLING_ATTEMPTS,
+} from '~/core/constants/integrationPolling'
+import {
   AddCustomerDrawerFragment,
   GetCustomerDocument,
   GetCustomerQuery,
@@ -118,15 +122,32 @@ export const useCustomerConnectionsPersistence = ({
   const [destroyIntegrationConnection] = useDestroyCustomerIntegrationConnectionMutation()
   const [clearPaymentProvider] = useClearCustomerPaymentProviderMutation()
 
-  const refreshCustomer = async (): Promise<void> => {
-    try {
-      await client.query<GetCustomerQuery>({
-        query: GetCustomerDocument,
-        variables: { id: customer.id },
-        fetchPolicy: 'network-only',
-      })
-    } catch {
-      // Consistency refresh only — the write outcome is reported separately
+  /**
+   * Silent standalone customer read after a write. Integration customers are
+   * created asynchronously by the backend, so the first read can still miss a
+   * link that was just saved: `isSettled` retries the read on the same budget
+   * as the customer-details post-edit poll until the expected state shows up.
+   */
+  const refreshCustomer = async (
+    isSettled?: (refreshed: GetCustomerQuery['customer']) => boolean,
+  ): Promise<void> => {
+    for (let attempt = 0; attempt < MAX_INTEGRATION_POLLING_ATTEMPTS; attempt++) {
+      if (attempt > 0) {
+        await new Promise((resolve) => setTimeout(resolve, INTEGRATION_POLLING_INTERVAL))
+      }
+
+      try {
+        const { data } = await client.query<GetCustomerQuery>({
+          query: GetCustomerDocument,
+          variables: { id: customer.id },
+          fetchPolicy: 'network-only',
+        })
+
+        if (!isSettled || isSettled(data.customer)) return
+      } catch {
+        // Consistency refresh only — the write outcome is reported separately
+        return
+      }
     }
   }
 
@@ -305,9 +326,19 @@ export const useCustomerConnectionsPersistence = ({
         ? await savePaymentConnection(values)
         : await saveIntegrationConnection(category, values)
 
+    // The link the write was supposed to leave behind — an integration
+    // customer is created asynchronously, so the refresh waits for it instead
+    // of leaving the new row out until a manual reload
+    const isSavedLinkVisible = (refreshed: GetCustomerQuery['customer']): boolean =>
+      !refreshed ||
+      getIntegrationCustomerForCategory(refreshed, category)?.integrationCode ===
+        values.providerCode
+
     // Refresh even on failure: a provider switch may have landed its destroy
     // half, and the section must show the real state
-    await refreshCustomer()
+    await refreshCustomer(
+      succeeded && category !== ConnectionCategory.Payment ? isSavedLinkVisible : undefined,
+    )
 
     if (succeeded) {
       addToast({

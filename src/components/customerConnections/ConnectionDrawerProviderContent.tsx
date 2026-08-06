@@ -4,6 +4,7 @@ import { useEffect, useMemo } from 'react'
 import { ConnectionComboBoxLabel } from '~/components/customerConnections/ConnectionComboBox'
 import { ConnectionDrawerSection } from '~/components/customerConnections/ConnectionDrawerSection'
 import type { CustomerConnectionDrawerFormApi } from '~/components/customerConnections/CustomerConnectionDrawer'
+import { PROVIDERS_WITHOUT_CUSTOMER_MAPPING } from '~/components/customerConnections/customerIntegrationConst'
 import { getAllIntegrationForAnIntegrationType } from '~/components/customerConnections/getAllIntegrationForAnIntegrationType'
 import { ConnectionCategory } from '~/components/customerConnections/types'
 import { useAccountingProviders } from '~/components/customerConnections/useAccountingProviders'
@@ -25,12 +26,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { getSubsidiaryLabel } from './getSubsidiaryLabel'
 import StripePaymentProviderContent from './StripePaymentProviderContent'
 import { useAccountingProvidersSubsidaries } from './useAccountingProvidersSubsidaries'
-
-/** Payment providers that don't support linking/creating a provider customer */
-const PROVIDERS_WITHOUT_MAPPING: ReadonlySet<ProviderTypeEnum> = new Set([
-  ProviderTypeEnum.Cashfree,
-  ProviderTypeEnum.Flutterwave,
-])
 
 type ConnectionDrawerProviderContentProps = {
   form: CustomerConnectionDrawerFormApi
@@ -186,7 +181,7 @@ export const ConnectionDrawerProviderContent = ({
 
   const isMappingSupported = !(
     category === ConnectionCategory.Payment &&
-    PROVIDERS_WITHOUT_MAPPING.has(resolvedProviderType as ProviderTypeEnum)
+    PROVIDERS_WITHOUT_CUSTOMER_MAPPING.has(resolvedProviderType as ProviderTypeEnum)
   )
 
   const getSyncLabelKey = () => {

@@ -2,6 +2,7 @@ import { Icon } from 'lago-design-system'
 import { ReactNode } from 'react'
 
 import { CustomerConnectionRow } from '~/components/customerConnections/CustomerConnectionsList'
+import { PROVIDERS_WITHOUT_CUSTOMER_MAPPING } from '~/components/customerConnections/customerIntegrationConst'
 import { ConnectionCategory } from '~/components/customerConnections/types'
 import {
   CONNECTION_DETAILS_PANEL_TEST_ID,
@@ -139,12 +140,18 @@ export const ConnectionDetailsPanel = ({
     if (row.category === ConnectionCategory.Payment) {
       const { providerCustomer } = customer
       const isStripe = customer.paymentProvider === ProviderTypeEnum.Stripe
+      // Cashfree and Flutterwave have no provider-customer mapping at all, so
+      // the id is always empty for them: the row would permanently claim a
+      // healthy connection is broken. Drop it instead.
+      const hasProviderMapping =
+        !customer.paymentProvider ||
+        !PROVIDERS_WITHOUT_CUSTOMER_MAPPING.has(customer.paymentProvider)
 
       return (
         <DetailsPage.InfoGrid
           grid={[
             ...identityGrid,
-            {
+            hasProviderMapping && {
               label: translate('text_1785242578759umo02bzreln'),
               value: (
                 <ProviderCustomerIdValue
