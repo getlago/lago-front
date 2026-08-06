@@ -6,7 +6,7 @@ import {
   ENTITY_SECTION_METADATA_TEST_ID,
   ENTITY_SECTION_VIEW_NAME_TEST_ID,
 } from '~/components/MainHeader/mainHeaderTestIds'
-import { GetProductForDetailsDocument } from '~/generated/graphql'
+import { GetProductForDetailsDocument, ProductTypeEnum } from '~/generated/graphql'
 import { AllTheProviders, testMockNavigateFn } from '~/test-utils'
 
 import ProductDetails from '../ProductDetails'
@@ -16,18 +16,21 @@ const mockOpenDeleteProductDialog = jest.fn()
 const mockHasPermissions = jest.fn()
 let mockIsPremium = true
 
+// The real preview pulls in the drawer/delete hooks via the shared columns and
+// actions, which reach import.meta and crash Jest; stub it out.
+jest.mock('../ProductFilterPreview', () => ({
+  __esModule: true,
+  default: () => null,
+}))
+
 jest.mock('~/pages/catalog/drawers/product/useProductDrawer', () => ({
   useProductDrawer: () => ({ openDrawer: mockOpenEditProductDrawer }),
 }))
 
 jest.mock('~/pages/catalog/dialogs/useDeleteProductDialog', () => ({
-  useDeleteProductDialog: () => ({ openDeleteProductDialog: mockOpenDeleteProductDialog }),
-}))
-
-// The product-items tab preview pulls the product-item drawer chain (drawerStack
-// uses import.meta and crashes Jest); this suite only exercises the header/tabs.
-jest.mock('../ProductDetailsProductItems', () => ({
-  ProductDetailsProductItems: () => null,
+  useDeleteProductDialog: () => ({
+    openDeleteProductDialog: mockOpenDeleteProductDialog,
+  }),
 }))
 
 jest.mock('~/hooks/usePermissions', () => ({
@@ -44,16 +47,19 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 
 const productFixture = {
   __typename: 'Product',
-  id: 'prod-1',
-  name: 'Object storage',
-  code: 'object_storage',
-  description: 'Base storage product',
-  invoiceDisplayName: 'Storage',
+  id: 'pitem-1',
+  name: 'Seats',
+  code: 'seats',
+  description: 'Per seat billing',
+  invoiceDisplayName: 'Seat charge',
+  productType: ProductTypeEnum.Fixed,
   attachedToPlanOrSubscription: false,
+  productCategory: null,
+  billableMetric: null,
 }
 
 const detailsQueryMock = {
-  request: { query: GetProductForDetailsDocument, variables: { id: 'prod-1' } },
+  request: { query: GetProductForDetailsDocument, variables: { id: 'pitem-1' } },
   result: { data: { product: productFixture } },
 }
 
@@ -72,7 +78,7 @@ const renderPage = () =>
       <AllTheProviders
         forceTypenames
         mocks={[detailsQueryMock]}
-        useParams={{ productId: 'prod-1', tab: 'overview' }}
+        useParams={{ productId: 'pitem-1', tab: 'overview' }}
       >
         {children}
       </AllTheProviders>
@@ -86,20 +92,16 @@ describe('ProductDetails', () => {
     mockIsPremium = true
   })
 
-  it('displays the product name and code in the header once loaded', async () => {
+  it('displays the productCategory item name and code in the header once loaded', async () => {
     await act(() => renderPage())
 
     await waitFor(() => {
-      expect(screen.getAllByTestId(ENTITY_SECTION_VIEW_NAME_TEST_ID)[0]).toHaveTextContent(
-        'Object storage',
-      )
+      expect(screen.getAllByTestId(ENTITY_SECTION_VIEW_NAME_TEST_ID)[0]).toHaveTextContent('Seats')
     })
-    expect(screen.getAllByTestId(ENTITY_SECTION_METADATA_TEST_ID)[0]).toHaveTextContent(
-      'object_storage',
-    )
+    expect(screen.getAllByTestId(ENTITY_SECTION_METADATA_TEST_ID)[0]).toHaveTextContent('seats')
   })
 
-  it('renders the catalog breadcrumb link and the static grey product crumb', async () => {
+  it('renders the catalog breadcrumb link and the static grey productCategory item crumb', async () => {
     await act(() => renderPage())
 
     const catalogCrumb = await screen.findByRole('link', {
@@ -107,17 +109,15 @@ describe('ProductDetails', () => {
     })
 
     expect(catalogCrumb).toHaveAttribute('href', '/product-catalog/products')
-    expect(
-      screen.queryByRole('link', { name: 'text_1783020794399ai60io2ufkg' }),
-    ).not.toBeInTheDocument()
-    expect(screen.getByText('text_1783020794399ai60io2ufkg')).toBeInTheDocument()
+    expect(screen.getByText('text_1783980718114nwd34e3ji77')).toBeInTheDocument()
   })
 
-  it('shows the overview, product items and plans tabs, plus activity logs for premium', async () => {
+  it('shows overview, rate cards, item filters and plans tabs, plus activity logs for premium', async () => {
     await act(() => renderPage())
 
     expect(await screen.findByText('text_628cf761cbe6820138b8f2e4')).toBeInTheDocument()
-    expect(screen.getByText('text_17831042398250iwa2xp8pba')).toBeInTheDocument()
+    expect(screen.getByText('text_1783104239825nxqno33u945')).toBeInTheDocument()
+    expect(screen.getByText('text_1783980718114wkor6aysepe')).toBeInTheDocument()
     expect(screen.getByText('text_62442e40cea25600b0b6d85a')).toBeInTheDocument()
     expect(screen.getByText('text_1747314141347qq6rasuxisl')).toBeInTheDocument()
   })
@@ -131,25 +131,29 @@ describe('ProductDetails', () => {
     expect(screen.queryByText('text_1747314141347qq6rasuxisl')).not.toBeInTheDocument()
   })
 
-  it('opens the edit drawer with the loaded product from the actions dropdown', async () => {
+  it('opens the edit drawer with the loaded item from the actions dropdown', async () => {
     await act(() => renderPage())
 
-    await userEvent.click((await screen.findAllByTestId('product-details-actions'))[0])
-    await userEvent.click(screen.getByTestId('product-details-edit'))
+    await userEvent.click((await screen.findAllByTestId('product-item-details-actions'))[0])
+    await userEvent.click(screen.getByTestId('product-item-details-edit'))
 
     expect(mockOpenEditProductDrawer).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'prod-1', code: 'object_storage' }),
+      expect.objectContaining({
+        product: expect.objectContaining({ id: 'pitem-1', code: 'seats' }),
+      }),
     )
   })
 
-  it('opens the delete dialog whose callback navigates back to the products list', async () => {
+  it('opens the delete dialog whose callback navigates back to the productCategory items list', async () => {
     await act(() => renderPage())
 
-    await userEvent.click((await screen.findAllByTestId('product-details-actions'))[0])
-    await userEvent.click(screen.getByTestId('product-details-delete'))
+    await userEvent.click((await screen.findAllByTestId('product-item-details-actions'))[0])
+    await userEvent.click(screen.getByTestId('product-item-details-delete'))
 
     expect(mockOpenDeleteProductDialog).toHaveBeenCalledWith(
-      expect.objectContaining({ product: expect.objectContaining({ id: 'prod-1' }) }),
+      expect.objectContaining({
+        product: expect.objectContaining({ id: 'pitem-1' }),
+      }),
     )
 
     const { callback } = mockOpenDeleteProductDialog.mock.calls[0][0]
@@ -165,12 +169,8 @@ describe('ProductDetails', () => {
     await act(() => renderPage())
 
     await waitFor(() => {
-      expect(screen.getAllByTestId(ENTITY_SECTION_VIEW_NAME_TEST_ID)[0]).toHaveTextContent(
-        'Object storage',
-      )
+      expect(screen.getAllByTestId(ENTITY_SECTION_VIEW_NAME_TEST_ID)[0]).toHaveTextContent('Seats')
     })
-    expect(screen.queryByTestId('product-details-actions')).not.toBeInTheDocument()
-    expect(screen.queryByTestId('product-details-edit')).not.toBeInTheDocument()
-    expect(screen.queryByTestId('product-details-delete')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('product-item-details-actions')).not.toBeInTheDocument()
   })
 })

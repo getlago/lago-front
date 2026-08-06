@@ -1,13 +1,20 @@
 import { gql } from '@apollo/client'
-import { useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
+import { Chip } from '~/components/designSystem/Chip'
 import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import {
+  BillableMetricDetailsTabsOptionsEnum,
+  ProductCategoryDetailsTabsOptionsEnum,
+} from '~/core/constants/tabsOptions'
+import { BILLABLE_METRIC_DETAILS_ROUTE, Link, PRODUCT_CATEGORY_DETAILS_ROUTE } from '~/core/router'
+import {
   LagoApiError,
-  ProductForProductDrawerFragmentDoc,
+  ProductForDrawerFragmentDoc,
+  ProductTypeEnum,
   useGetProductForDetailsOverviewQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -15,26 +22,42 @@ import { usePermissions } from '~/hooks/usePermissions'
 
 import { useProductDrawer } from '../drawers/product/useProductDrawer'
 
-export const PRODUCT_OVERVIEW_EDIT_TEST_ID = 'product-overview-edit'
+export const PRODUCT_ITEM_OVERVIEW_EDIT_TEST_ID = 'product-item-overview-edit'
+
+const ITEM_TYPE_TRANSLATION_KEY: Record<ProductTypeEnum, string> = {
+  [ProductTypeEnum.Fixed]: 'text_1783980718113ritmy7z94je',
+  [ProductTypeEnum.Usage]: 'text_17839807181133l3z83156s6',
+}
 
 gql`
-  fragment ProductForProductDetailsOverview on Product {
+  fragment ProductForDetailsOverview on Product {
     id
     name
     code
     description
     invoiceDisplayName
-    ...ProductForProductDrawer
+    productType
+    productCategory {
+      id
+      name
+      code
+    }
+    billableMetric {
+      id
+      name
+      code
+    }
+    ...ProductForDrawer
   }
 
   query getProductForDetailsOverview($id: ID!) {
     product(id: $id) {
       id
-      ...ProductForProductDetailsOverview
+      ...ProductForDetailsOverview
     }
   }
 
-  ${ProductForProductDrawerFragmentDoc}
+  ${ProductForDrawerFragmentDoc}
 `
 
 export const ProductDetailsOverview = () => {
@@ -59,17 +82,17 @@ export const ProductDetailsOverview = () => {
       <div className="flex h-18 items-center justify-between gap-4">
         <div className="flex flex-col">
           <Typography variant="subhead1" color="grey700" noWrap>
-            {translate('text_17836270312826gyudi4ayy2')}
+            {translate('text_1783980718114jzmq5e6getf')}
           </Typography>
           <Typography variant="caption" color="grey600" noWrap>
-            {translate('text_1783627031283826817cnqcb')}
+            {translate('text_17839807181145a6o0mukpar')}
           </Typography>
         </div>
         {hasPermissions(['productsUpdate']) && (
           <Button
             variant="inline"
-            data-test={PRODUCT_OVERVIEW_EDIT_TEST_ID}
-            onClick={() => product && openEditProductDrawer(product)}
+            data-test={PRODUCT_ITEM_OVERVIEW_EDIT_TEST_ID}
+            onClick={() => product && openEditProductDrawer({ product })}
           >
             {translate('text_625fd39a15394c0117e7d792')}
           </Button>
@@ -80,15 +103,60 @@ export const ProductDetailsOverview = () => {
         <DetailsPage.InfoGrid
           grid={[
             {
-              label: translate('text_17836270312835eta073ys1k'),
+              label: translate('text_17839807181143h6kt2bdiyi'),
+              value: product?.productCategory ? (
+                <Link
+                  to={generatePath(PRODUCT_CATEGORY_DETAILS_ROUTE, {
+                    productCategoryId: product.productCategory.id,
+                    tab: ProductCategoryDetailsTabsOptionsEnum.overview,
+                  })}
+                >
+                  <Typography variant="body" color="grey700">
+                    {product.productCategory.name}
+                  </Typography>
+                </Link>
+              ) : (
+                '-'
+              ),
+            },
+            {
+              label: translate('text_1783980718113na6t9imp2k0'),
+              value: product?.productType ? (
+                <Chip
+                  size="small"
+                  label={translate(ITEM_TYPE_TRANSLATION_KEY[product.productType])}
+                />
+              ) : (
+                '-'
+              ),
+            },
+            {
+              label: translate('text_17839807181150t4xkvfjefv'),
               value: product?.name || '-',
             },
             {
-              label: translate('text_1783627031283sxwy8pmklj5'),
+              label: translate('text_1783980718114rdgmz1gtpm2'),
               value: product?.code ? (
                 <TypographyWithCopy variant="body" color="grey700">
                   {product.code}
                 </TypographyWithCopy>
+              ) : (
+                '-'
+              ),
+            },
+            product?.productType === ProductTypeEnum.Usage && {
+              label: translate('text_178398071811327xropcsqmr'),
+              value: product?.billableMetric ? (
+                <Link
+                  to={generatePath(BILLABLE_METRIC_DETAILS_ROUTE, {
+                    billableMetricId: product.billableMetric.id,
+                    tab: BillableMetricDetailsTabsOptionsEnum.overview,
+                  })}
+                >
+                  <Typography variant="body" color="grey700">
+                    {product.billableMetric.name}
+                  </Typography>
+                </Link>
               ) : (
                 '-'
               ),

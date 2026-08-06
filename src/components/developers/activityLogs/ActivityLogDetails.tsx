@@ -102,13 +102,13 @@ gql`
       ... on PaymentReceipt {
         id
       }
+      ... on ProductCategory {
+        id
+      }
       ... on Product {
         id
       }
-      ... on ProductItem {
-        id
-      }
-      ... on ProductItemFilter {
+      ... on ProductFilter {
         id
       }
       ... on RateCard {

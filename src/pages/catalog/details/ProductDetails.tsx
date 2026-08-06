@@ -14,7 +14,8 @@ import { PRODUCT_CATALOG_TAB_ROUTE, PRODUCT_DETAILS_ROUTE, useNavigate } from '~
 import {
   LagoApiError,
   ProductForDeleteProductDialogFragmentDoc,
-  ProductForProductDrawerFragmentDoc,
+  ProductForDrawerFragmentDoc,
+  ProductForFilterPreviewFragmentDoc,
   useGetProductForDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -23,7 +24,7 @@ import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 import { usePermissions } from '~/hooks/usePermissions'
 
 import { ProductDetailsOverview } from './ProductDetailsOverview'
-import { ProductDetailsProductItems } from './ProductDetailsProductItems'
+import ProductFilterPreview from './ProductFilterPreview'
 
 import { useDeleteProductDialog } from '../dialogs/useDeleteProductDialog'
 import { useProductDrawer } from '../drawers/product/useProductDrawer'
@@ -33,7 +34,8 @@ gql`
     id
     name
     code
-    ...ProductForProductDrawer
+    ...ProductForFilterPreview
+    ...ProductForDrawer
     ...ProductForDeleteProductDialog
   }
 
@@ -44,11 +46,12 @@ gql`
     }
   }
 
-  ${ProductForProductDrawerFragmentDoc}
+  ${ProductForFilterPreviewFragmentDoc}
+  ${ProductForDrawerFragmentDoc}
   ${ProductForDeleteProductDialogFragmentDoc}
 `
 
-const PRODUCTS_LIST_PATH = generatePath(PRODUCT_CATALOG_TAB_ROUTE, {
+const PRODUCT_ITEMS_LIST_PATH = generatePath(PRODUCT_CATALOG_TAB_ROUTE, {
   tab: ProductCatalogTabsOptionsEnum.products,
 })
 
@@ -70,8 +73,8 @@ const ProductDetails = () => {
   useNotFoundRedirect({
     error,
     loading,
-    redirectTo: PRODUCTS_LIST_PATH,
-    translateKey: 'text_1783627031283wmx6cxubagw',
+    redirectTo: PRODUCT_ITEMS_LIST_PATH,
+    translateKey: 'text_1783980718114522760cy1qb',
   })
 
   const product = data?.product
@@ -80,26 +83,26 @@ const ProductDetails = () => {
     {
       type: 'dropdown',
       label: translate('text_626162c62f790600f850b6fe'),
-      dataTest: 'product-details-actions',
+      dataTest: 'product-item-details-actions',
       items: [
         {
           label: translate('text_625fd39a15394c0117e7d792'),
-          dataTest: 'product-details-edit',
+          dataTest: 'product-item-details-edit',
           hidden: !hasPermissions(['productsUpdate']),
           onClick: (closePopper) => {
-            if (product) openEditProductDrawer(product)
+            if (product) openEditProductDrawer({ product })
             closePopper()
           },
         },
         {
           label: translate('text_629728388c4d2300e2d38182'),
-          dataTest: 'product-details-delete',
+          dataTest: 'product-item-details-delete',
           hidden: !hasPermissions(['productsDelete']),
           onClick: (closePopper) => {
             if (product) {
               openDeleteProductDialog({
                 product,
-                callback: () => navigate(PRODUCTS_LIST_PATH),
+                callback: () => navigate(PRODUCT_ITEMS_LIST_PATH),
               })
             }
             closePopper()
@@ -120,8 +123,8 @@ const ProductDetails = () => {
         // so an edit touching only those re-pushes fresh closures.
         snapshotKey={`${product?.description}|${product?.invoiceDisplayName}|${product?.attachedToPlanOrSubscription}`}
         breadcrumb={[
-          { label: translate('text_1783019143196z1oi70j03vt'), path: PRODUCTS_LIST_PATH },
-          { label: translate('text_1783020794399ai60io2ufkg') },
+          { label: translate('text_1783019143196z1oi70j03vt'), path: PRODUCT_ITEMS_LIST_PATH },
+          { label: translate('text_1783980718114nwd34e3ji77') },
         ]}
         entity={{
           viewName: product?.name || '',
@@ -146,20 +149,24 @@ const ProductDetails = () => {
             ),
           },
           {
-            title: translate('text_17831042398250iwa2xp8pba'),
+            title: translate('text_1783104239825nxqno33u945'),
             link: generatePath(PRODUCT_DETAILS_ROUTE, {
               productId: productId as string,
-              tab: ProductDetailsTabsOptionsEnum.productItems,
+              tab: ProductDetailsTabsOptionsEnum.rateCards,
             }),
-            content: (
-              <DetailsPage.Container>
-                <ProductDetailsProductItems
-                  product={
-                    product ? { id: product.id, name: product.name, code: product.code } : undefined
-                  }
-                />
+            content: <div className="p-4">{translate('text_1783104239825nxqno33u945')}</div>,
+          },
+          {
+            title: translate('text_1783980718114wkor6aysepe'),
+            link: generatePath(PRODUCT_DETAILS_ROUTE, {
+              productId: productId as string,
+              tab: ProductDetailsTabsOptionsEnum.filters,
+            }),
+            content: product ? (
+              <DetailsPage.Container className="pb-0">
+                <ProductFilterPreview product={product} />
               </DetailsPage.Container>
-            ),
+            ) : null,
           },
           {
             title: translate('text_62442e40cea25600b0b6d85a'),

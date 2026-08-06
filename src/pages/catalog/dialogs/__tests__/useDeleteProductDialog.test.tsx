@@ -5,7 +5,11 @@ import { ReactNode } from 'react'
 
 import { addToast } from '~/core/apolloClient'
 import { evictFromCache } from '~/core/apolloClient/evictFromCache'
-import { DeleteProductDocument, ProductsDocument } from '~/generated/graphql'
+import {
+  DeleteProductDocument,
+  GetProductsForProductCategoryDetailsDocument,
+  ProductsDocument,
+} from '~/generated/graphql'
 
 import { useDeleteProductDialog } from '../useDeleteProductDialog'
 
@@ -42,11 +46,11 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
-const productFixture = { id: 'prod-1', name: 'Object storage' }
+const productFixture = { id: 'pitem-1', name: 'Seats' }
 
 const deleteMockFactory = (result: MockedResponse['result']): MockedResponse => ({
   request: { query: DeleteProductDocument },
-  variableMatcher: (vars) => vars?.input?.id === 'prod-1',
+  variableMatcher: (vars) => vars?.input?.id === 'pitem-1',
   result,
 })
 
@@ -69,22 +73,22 @@ describe('useDeleteProductDialog', () => {
     lastDialogArgs = null
   })
 
-  it('opens a danger dialog naming the product', () => {
+  it('opens a danger dialog naming the productCategory item', () => {
     const { result } = renderDialogHook()
 
     act(() => result.current.openDeleteProductDialog({ product: productFixture }))
 
     expect(mockDialogOpen).toHaveBeenCalledTimes(1)
-    expect(lastDialogArgs?.title).toBe('text_1783627031283dfpxgl9r41e|Object storage')
-    expect(lastDialogArgs?.description).toBe('text_178362703128385dvkieytgl')
+    expect(lastDialogArgs?.title).toBe('text_1783980718114rgp3b8u2b8y|Seats')
+    expect(lastDialogArgs?.description).toBe('text_1783980718114rt2un11i7wa')
     expect(lastDialogArgs?.colorVariant).toBe('danger')
-    expect(lastDialogArgs?.actionText).toBe('text_1783627031283vpb5h6gacvj')
+    expect(lastDialogArgs?.actionText).toBe('text_17839807181152ujl4fo6wyy')
   })
 
-  it('destroys the product then evicts it, runs the callback and toasts', async () => {
+  it('destroys the item then evicts it, runs the callback and toasts', async () => {
     const callback = jest.fn()
     const { result } = renderDialogHook([
-      deleteMockFactory({ data: { destroyProduct: { id: 'prod-1' } } }),
+      deleteMockFactory({ data: { destroyProduct: { id: 'pitem-1' } } }),
     ])
 
     act(() => result.current.openDeleteProductDialog({ product: productFixture, callback }))
@@ -94,14 +98,14 @@ describe('useDeleteProductDialog', () => {
     })
 
     expect(evictFromCache).toHaveBeenCalledWith(expect.anything(), {
-      id: 'prod-1',
+      id: 'pitem-1',
       __typename: 'Product',
       listFieldName: 'products',
-      listQueryDocument: ProductsDocument,
+      listQueryDocument: [ProductsDocument, GetProductsForProductCategoryDetailsDocument],
     })
     expect(callback).toHaveBeenCalledTimes(1)
     expect(addToast).toHaveBeenCalledWith({
-      message: 'text_17836270312831a7f7gdaxir',
+      message: 'text_1783980718115h8wwdamd5di',
       severity: 'success',
     })
   })

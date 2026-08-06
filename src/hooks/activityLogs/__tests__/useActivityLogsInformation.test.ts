@@ -573,17 +573,17 @@ describe('useActivityLogsInformation', () => {
       expect(description).toContain('"totalAmount"')
     })
 
-    describe('catalog product activities', () => {
+    describe('catalog productCategory activities', () => {
       it.each([
+        ActivityTypeEnum.ProductCategoryCreated,
+        ActivityTypeEnum.ProductCategoryUpdated,
+        ActivityTypeEnum.ProductCategoryDeleted,
         ActivityTypeEnum.ProductCreated,
         ActivityTypeEnum.ProductUpdated,
         ActivityTypeEnum.ProductDeleted,
-        ActivityTypeEnum.ProductItemCreated,
-        ActivityTypeEnum.ProductItemUpdated,
-        ActivityTypeEnum.ProductItemDeleted,
-        ActivityTypeEnum.ProductItemFilterCreated,
-        ActivityTypeEnum.ProductItemFilterUpdated,
-        ActivityTypeEnum.ProductItemFilterDeleted,
+        ActivityTypeEnum.ProductFilterCreated,
+        ActivityTypeEnum.ProductFilterUpdated,
+        ActivityTypeEnum.ProductFilterDeleted,
         ActivityTypeEnum.RateCardCreated,
         ActivityTypeEnum.RateCardUpdated,
         ActivityTypeEnum.RateCardDeleted,
@@ -600,7 +600,7 @@ describe('useActivityLogsInformation', () => {
   })
 
   describe('getResourceType for catalog resources', () => {
-    it.each(['Product', 'ProductItem', 'ProductItemFilter', 'RateCard'])(
+    it.each(['ProductCategory', 'Product', 'ProductFilter', 'RateCard'])(
       'should map %s to a translated resource label rather than the raw fallback',
       (resourceType) => {
         const { result } = renderHook(() => useActivityLogsInformation())
