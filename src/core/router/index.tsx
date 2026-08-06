@@ -2,6 +2,7 @@ import { envGlobalVar } from '~/core/apolloClient'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
 
 import { authRoutes } from './AuthRoutes'
+import { catalogRoutes } from './CatalogRoutes'
 import { customerPortalRoutes } from './CustomerPortalRoutes'
 import { customerObjectCreationRoutes, customerRoutes, customerVoidRoutes } from './CustomerRoutes'
 import { objectCreationRoutes, objectDetailsRoutes, objectListRoutes } from './ObjectsRoutes'
@@ -143,6 +144,7 @@ export const routes: CustomRouteObject[] = [
           ...makeRelative(analyticsInlineRoutes),
           ...makeRelative(customerRoutes),
           ...makeRelative(objectListRoutes),
+          ...makeRelative(catalogRoutes),
           ...makeRelative(objectDetailsRoutes),
           ...makeRelative(quotesRoutes),
           ...makeRelative(devOnlyInlineRoutes),
@@ -166,6 +168,7 @@ export const routes: CustomRouteObject[] = [
 ]
 
 export * from './AuthRoutes'
+export * from './CatalogRoutes'
 export * from './CustomerRoutes'
 export * from './ObjectsRoutes'
 export * from './QuotesRoutes'
