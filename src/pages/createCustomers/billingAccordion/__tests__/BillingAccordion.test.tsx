@@ -33,6 +33,10 @@ const mockCustomer: AddCustomerDrawerFragment = {
     code: 'TBE',
     euTaxManagement: false,
   },
+  // Connections are owned by ExternalAppsAccordion — the billing accordion only
+  // needs the fragment's required arrays to be present
+  paymentProviderCustomers: [],
+  integrationCustomers: [],
 }
 
 // Create a test wrapper component that properly initializes the form

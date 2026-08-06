@@ -1,4 +1,9 @@
 import {
+  INTEGRATION_TYPE_TO_CATEGORY,
+  MANUAL_CONNECTION_CODE,
+} from '~/components/customerConnections/customerIntegrationConst'
+import { ConnectionCategory } from '~/components/customerConnections/types'
+import {
   AddCustomerDrawerFragment,
   CurrencyEnum,
   CustomerAccountTypeEnum,
@@ -9,25 +14,122 @@ import { BillingEntityItem } from './types'
 
 import { CreateCustomerDefaultValues } from '../formInitialization/validationSchema'
 
+type FormPaymentConnections = NonNullable<CreateCustomerDefaultValues['paymentProviderCustomers']>
+type FormIntegrationConnections = NonNullable<CreateCustomerDefaultValues['integrationCustomers']>
+
+const getProviderPaymentMethodsRecord = (
+  providerPaymentMethods: ProviderPaymentMethodsEnum[] | null | undefined,
+  currency: CurrencyEnum | null | undefined,
+): Partial<Record<ProviderPaymentMethodsEnum, boolean>> => {
+  if (!providerPaymentMethods?.length) {
+    return currency === CurrencyEnum.Eur
+      ? { [ProviderPaymentMethodsEnum.Card]: true, [ProviderPaymentMethodsEnum.SepaDebit]: true }
+      : { [ProviderPaymentMethodsEnum.Card]: true }
+  }
+
+  return providerPaymentMethods.reduce(
+    (acc, method) => {
+      acc[method] = true
+      return acc
+    },
+    {} as Record<ProviderPaymentMethodsEnum, boolean>,
+  )
+}
+
+const mapPaymentProviderCustomers = (
+  customer: AddCustomerDrawerFragment | undefined,
+): FormPaymentConnections => {
+  if (!customer) return []
+
+  const connections: FormPaymentConnections = (customer.paymentProviderCustomers ?? [])
+    // The backend prepends a NON-persisted manual placeholder (id
+    // "<customerId>-manual") when no manual row is persisted: echoing it back
+    // would silently create a manual connection on the next save
+    .filter((connection) => connection.id !== `${customer.id}-manual`)
+    .map((connection) => {
+      // A persisted manual row stays in the model (hidden from the UI) so its
+      // id round-trips and the diff-by-id reconciliation leaves it untouched
+      if (connection.code === MANUAL_CONNECTION_CODE) {
+        return {
+          id: connection.id,
+          code: connection.code,
+          isDefault: connection.isDefault,
+        }
+      }
+
+      return {
+        id: connection.id,
+        code: connection.code ?? undefined,
+        isDefault: connection.isDefault,
+        // The ProviderCustomer type carries no provider identity: with the
+        // one-per-type cap it comes from the customer's top-level fields
+        providerCode: customer.paymentProviderCode ?? '',
+        providerType: customer.paymentProvider ?? undefined,
+        providerCustomerId: connection.providerCustomerId ?? '',
+        syncWithProvider: connection.syncWithProvider ?? false,
+        providerPaymentMethods: getProviderPaymentMethodsRecord(
+          connection.providerPaymentMethods,
+          customer.currency,
+        ),
+      }
+    })
+
+  const hasProviderConnection = connections.some(
+    (connection) => connection.code !== MANUAL_CONNECTION_CODE,
+  )
+
+  // Cashfree/Flutterwave never get a connection row: they have no provider
+  // customer to map, so the backend creates none and the customer-level
+  // scalars are the connection's only record. Rebuilding an id-less row from
+  // them keeps the connection visible and re-emitted — without it, the next
+  // unrelated customer edit would send `paymentProvider: null` and destroy it.
+  if (!hasProviderConnection && customer.paymentProvider && customer.paymentProviderCode) {
+    connections.push({
+      providerCode: customer.paymentProviderCode,
+      providerType: customer.paymentProvider,
+      providerCustomerId: '',
+      syncWithProvider: false,
+      providerPaymentMethods: getProviderPaymentMethodsRecord(undefined, customer.currency),
+    })
+  }
+
+  return connections
+}
+
+const mapIntegrationCustomers = (
+  customer: AddCustomerDrawerFragment | undefined,
+): FormIntegrationConnections => {
+  return (customer?.integrationCustomers ?? []).flatMap((integrationCustomer) => {
+    const category = integrationCustomer.integrationType
+      ? INTEGRATION_TYPE_TO_CATEGORY[integrationCustomer.integrationType]
+      : undefined
+
+    if (!category || category === ConnectionCategory.Payment) return []
+
+    return [
+      {
+        id: integrationCustomer.id,
+        category,
+        providerCode: integrationCustomer.integrationCode ?? '',
+        providerType: integrationCustomer.integrationType ?? undefined,
+        externalCustomerId: integrationCustomer.externalCustomerId ?? '',
+        syncWithProvider: integrationCustomer.syncWithProvider ?? false,
+        ...('subsidiaryId' in integrationCustomer &&
+        typeof integrationCustomer.subsidiaryId === 'string'
+          ? { subsidiaryId: integrationCustomer.subsidiaryId }
+          : {}),
+        ...('targetedObject' in integrationCustomer && integrationCustomer.targetedObject
+          ? { targetedObject: integrationCustomer.targetedObject }
+          : {}),
+      },
+    ]
+  })
+}
+
 export const mapFromApiToForm = (
   customer: AddCustomerDrawerFragment | undefined,
   defaultBillingEntity: BillingEntityItem | undefined,
 ): CreateCustomerDefaultValues => {
-  const getCustomerProviderMethod = () => {
-    if (!customer?.providerCustomer?.providerPaymentMethods?.length) {
-      return customer?.currency === CurrencyEnum.Eur
-        ? { [ProviderPaymentMethodsEnum.Card]: true, [ProviderPaymentMethodsEnum.SepaDebit]: true }
-        : { [ProviderPaymentMethodsEnum.Card]: true }
-    }
-    return customer?.providerCustomer?.providerPaymentMethods.reduce(
-      (acc, method) => {
-        acc[method] = true
-        return acc
-      },
-      {} as Record<ProviderPaymentMethodsEnum, boolean>,
-    )
-  }
-
   const compareBillingAddressWithShippingAddress = () => {
     if (!customer) return false
     const billingAddress = [
@@ -48,26 +150,6 @@ export const mapFromApiToForm = (
     ]
 
     return billingAddress.every((value, index) => value === shippingAddress[index])
-  }
-
-  // Should only have one between xero and netsuite
-  const accountingProvider =
-    [customer?.xeroCustomer, customer?.netsuiteCustomer].find(Boolean) || undefined
-
-  // Should only have one between hubspot and salesforce
-  const crmProvider =
-    [customer?.hubspotCustomer, customer?.salesforceCustomer].find(Boolean) || undefined
-
-  // Should only have one between anrok and avalara
-  const taxProvider =
-    [customer?.anrokCustomer, customer?.avalaraCustomer].find(Boolean) || undefined
-
-  const getTargetedObject = () => {
-    if (!crmProvider) return {}
-    if ('targetedObject' in crmProvider) {
-      return crmProvider.targetedObject ? { targetedObject: crmProvider.targetedObject } : {}
-    }
-    return {}
   }
 
   return {
@@ -104,44 +186,8 @@ export const mapFromApiToForm = (
     },
     timezone: customer?.timezone ?? undefined,
     url: customer?.url ?? undefined,
-    accountingProviderCode: accountingProvider?.integrationCode ?? '',
-    accountingCustomer: {
-      id: accountingProvider?.id ?? undefined,
-      providerType: accountingProvider?.integrationType ?? undefined,
-      accountingCustomerId: accountingProvider?.externalCustomerId ?? '',
-      syncWithProvider: accountingProvider?.syncWithProvider ?? false,
-      subsidiaryId:
-        accountingProvider &&
-        'subsidiaryId' in accountingProvider &&
-        typeof accountingProvider.subsidiaryId === 'string'
-          ? accountingProvider.subsidiaryId
-          : undefined,
-    },
-    crmProviderCode: crmProvider?.integrationCode ?? '',
-    crmCustomer: {
-      id: crmProvider?.id ?? undefined,
-      crmCustomerId: crmProvider?.externalCustomerId ?? '',
-      syncWithProvider: crmProvider?.syncWithProvider ?? false,
-      providerType: crmProvider?.integrationType ?? undefined,
-      ...getTargetedObject(),
-    },
-    taxProviderCode: taxProvider?.integrationCode ?? '',
-    taxCustomer: {
-      id: taxProvider?.id ?? undefined,
-      taxCustomerId: taxProvider?.externalCustomerId ?? '',
-      syncWithProvider: taxProvider?.syncWithProvider ?? false,
-      providerType: taxProvider?.integrationType ?? undefined,
-    },
-    paymentProviderCode:
-      customer?.paymentProvider && customer?.paymentProviderCode
-        ? customer?.paymentProviderCode
-        : '',
-    paymentProviderCustomer: {
-      providerCustomerId: customer?.providerCustomer?.providerCustomerId ?? '',
-      syncWithProvider: customer?.providerCustomer?.syncWithProvider ?? false,
-      providerPaymentMethods: getCustomerProviderMethod(),
-      providerType: customer?.paymentProvider ?? undefined,
-    },
+    integrationCustomers: mapIntegrationCustomers(customer),
+    paymentProviderCustomers: mapPaymentProviderCustomers(customer),
     metadata:
       customer?.metadata?.map((meta) => ({
         id: meta.id,

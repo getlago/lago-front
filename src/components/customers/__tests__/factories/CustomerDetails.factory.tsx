@@ -1,4 +1,8 @@
-import { CustomerMainInfosFragment, ProviderPaymentMethodsEnum } from '~/generated/graphql'
+import {
+  CustomerMainInfosFragment,
+  IntegrationTypeEnum,
+  ProviderPaymentMethodsEnum,
+} from '~/generated/graphql'
 
 export const createMockCustomerDetails = (
   overrides: Partial<CustomerMainInfosFragment> = {},
@@ -47,49 +51,44 @@ export const createMockCustomerDetails = (
       country: 'IT',
       zipcode: '80133',
     },
-    anrokCustomer: {
-      __typename: 'AnrokCustomer',
-      id: 'anrok_001',
-      integrationId: 'AnrokIntegration',
-      externalCustomerId: 'ext_anrok_001',
-    },
-    avalaraCustomer: {
-      __typename: 'AvalaraCustomer',
-      id: 'avalara_001',
-      integrationId: 'AvalaraIntegration',
-      externalCustomerId: 'ext_avalara_001',
-    },
-    netsuiteCustomer: {
-      __typename: 'NetsuiteCustomer',
-      id: 'netsuite_001',
-      integrationId: 'NetsuiteIntegration',
-      externalCustomerId: 'ext_netsuite_001',
-    },
-    xeroCustomer: {
-      __typename: 'XeroCustomer',
-      id: 'xero_001',
-      integrationId: 'XeroIntegration',
-      externalCustomerId: 'ext_xero_001',
-    },
-    hubspotCustomer: {
-      __typename: 'HubspotCustomer',
-      id: 'hubspot_001',
-      integrationId: 'HubspotIntegration',
-      externalCustomerId: 'ext_hubspot_001',
-      targetedObject: 'COMPANY',
-    },
-    salesforceCustomer: {
-      __typename: 'SalesforceCustomer',
-      id: 'sf_001',
-      integrationId: 'SalesforceIntegration',
-      externalCustomerId: 'ext_sf_001',
-    },
-    providerCustomer: {
-      __typename: 'ProviderCustomer',
-      id: 'prov_cust_001',
-      providerCustomerId: 'ProviderCustomer',
-      providerPaymentMethods: [ProviderPaymentMethodsEnum.Card],
-    },
+    // One connection per category (the cap of this milestone): tax, accounting, CRM
+    integrationCustomers: [
+      {
+        __typename: 'AnrokCustomer',
+        id: 'anrok_001',
+        integrationId: 'AnrokIntegration',
+        integrationType: IntegrationTypeEnum.Anrok,
+        integrationCode: 'anrok',
+        externalCustomerId: 'ext_anrok_001',
+      },
+      {
+        __typename: 'NetsuiteCustomer',
+        id: 'netsuite_001',
+        integrationId: 'NetsuiteIntegration',
+        integrationType: IntegrationTypeEnum.Netsuite,
+        integrationCode: 'netsuite',
+        externalCustomerId: 'ext_netsuite_001',
+      },
+      {
+        __typename: 'HubspotCustomer',
+        id: 'hubspot_001',
+        integrationId: 'HubspotIntegration',
+        integrationType: IntegrationTypeEnum.Hubspot,
+        integrationCode: 'hubspot',
+        externalCustomerId: 'ext_hubspot_001',
+        targetedObject: 'COMPANY',
+      },
+    ],
+    paymentProviderCustomers: [
+      {
+        __typename: 'ProviderCustomer',
+        id: 'prov_cust_001',
+        code: 'stripe',
+        isDefault: true,
+        providerCustomerId: 'ProviderCustomer',
+        providerPaymentMethods: [ProviderPaymentMethodsEnum.Card],
+      },
+    ],
     ...overrides,
   } as unknown as CustomerMainInfosFragment
 }

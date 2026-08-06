@@ -4,11 +4,17 @@ import { ReactElement } from 'react'
 
 import { PspErrorCode } from '~/core/apolloClient/errorUtils'
 import {
+  AddCustomerDrawerFragment,
+  CustomerAccountTypeEnum,
   GetAccountingIntegrationsForExternalAppsAccordionDocument,
   GetBillingEntitiesDocument,
   GetCrmIntegrationsForExternalAppsAccordionDocument,
   GetTaxIntegrationsForExternalAppsAccordionDocument,
   PaymentProvidersListForCustomerCreateEditExternalAppsAccordionDocument,
+  ProviderPaymentMethodsEnum,
+  ProviderTypeEnum,
+  TimezoneEnum,
+  UpdateCustomerInput,
 } from '~/generated/graphql'
 import * as useCreateEditCustomerModule from '~/hooks/useCreateEditCustomer'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
@@ -122,6 +128,44 @@ const defaultMocks: TestMocksType = [
     },
   },
 ]
+
+// Edited customer whose Stripe connection points at a customer id Stripe does
+// not know: a PERSISTED manual row precedes the provider row in the array
+const customerWithStripeConnection: AddCustomerDrawerFragment = {
+  __typename: 'Customer',
+  id: 'customer-with-stripe',
+  externalId: 'test-customer',
+  accountType: CustomerAccountTypeEnum.Customer,
+  canEditAttributes: true,
+  applicableTimezone: TimezoneEnum.TzUtc,
+  paymentProvider: ProviderTypeEnum.Stripe,
+  paymentProviderCode: 'stripe-eu',
+  billingEntity: {
+    __typename: 'BillingEntity',
+    id: '1',
+    code: 'default',
+    name: 'Default Entity',
+    euTaxManagement: false,
+  },
+  paymentProviderCustomers: [
+    {
+      __typename: 'ProviderCustomer',
+      id: 'manual-row-id',
+      code: 'manual',
+      isDefault: false,
+    },
+    {
+      __typename: 'ProviderCustomer',
+      id: 'stripe-row-id',
+      code: 'stripe',
+      isDefault: true,
+      providerCustomerId: 'cus_missing',
+      providerPaymentMethods: [ProviderPaymentMethodsEnum.Card],
+      syncWithProvider: false,
+    },
+  ],
+  integrationCustomers: [],
+}
 
 // Custom render function for CreateCustomer component (create mode)
 const renderCreateCustomer = (
@@ -525,6 +569,64 @@ describe('CreateCustomer Integration Tests', () => {
       // Form should have been reset — non-Stripe error falls through
       await waitFor(() => {
         expect(externalIdInput).toHaveValue('')
+      })
+    })
+
+    it('THEN should target the first non-manual payment row when a Stripe resource_missing error is returned', async () => {
+      const user = userEvent.setup()
+
+      hookSpy.mockReturnValue({
+        isEdition: true,
+        loading: false,
+        customer: customerWithStripeConnection,
+        onClose: mockOnClose,
+        onSave: mockOnSave,
+      })
+
+      mockOnSave.mockResolvedValue({
+        errors: [
+          {
+            message: 'Unprocessable Entity',
+            extensions: {
+              status: 422,
+              code: PspErrorCode.ThirdPartyError,
+              details: {
+                error: "Stripe: resource_missing - No such customer: 'cus_missing'",
+              },
+            },
+          },
+        ],
+      })
+
+      renderCreateCustomer(<CreateCustomer />)
+
+      const submitButton = await screen.findByTestId('submit-customer')
+
+      await waitFor(() => {
+        expect(submitButton).toBeEnabled()
+      })
+
+      await user.click(submitButton)
+
+      await waitFor(() => {
+        expect(mockOnSave).toHaveBeenCalled()
+      })
+
+      // The persisted manual row precedes the provider row, so the error path
+      // has to scan for the first NON-MANUAL row (index 1) instead of index 0
+      const input = mockOnSave.mock.calls[0][0] as UpdateCustomerInput
+
+      expect(input.paymentProviderCustomers?.map((row) => row.id)).toEqual([
+        'manual-row-id',
+        'stripe-row-id',
+      ])
+      expect(input.paymentProviderCustomers?.[1]).toEqual(
+        expect.objectContaining({ code: 'stripe', providerCustomerId: 'cus_missing' }),
+      )
+
+      // The error was caught and returned early: the form keeps its values
+      await waitFor(() => {
+        expect(screen.getByLabelText(/customer external id/i)).toHaveValue('test-customer')
       })
     })
   })

@@ -1,6 +1,7 @@
 import { renderHook } from '@testing-library/react'
 
 import { ConnectionFormValues } from '~/components/customerConnections/CustomerConnectionDrawer'
+import { MANUAL_CONNECTION_CODE } from '~/components/customerConnections/customerIntegrationConst'
 import { ConnectionCategory } from '~/components/customerConnections/types'
 import { useConnectionOptions } from '~/components/customerConnections/useConnectionOptions'
 import {
@@ -62,45 +63,57 @@ jest.mock('~/core/apolloClient', () => ({
   addToast: (...args: unknown[]) => mockAddToast(...args),
 }))
 
+/** The backend's non-persisted manual placeholder, prepended to the array */
+const MANUAL_PLACEHOLDER_CONNECTION = {
+  __typename: 'ProviderCustomer',
+  id: 'cust-1-manual',
+  code: MANUAL_CONNECTION_CODE,
+  isDefault: false,
+}
+
 /**
- * Customer with a Stripe payment connection, a NetSuite accounting link and a
- * Hubspot CRM link persisted — tax slot empty.
+ * Customer with a Stripe payment connection (behind the manual placeholder), a
+ * NetSuite accounting link and a Hubspot CRM link persisted — no tax link.
  */
 const customer = {
   id: 'cust-1',
   externalId: 'ext-1',
   paymentProvider: ProviderTypeEnum.Stripe,
   paymentProviderCode: 'stripe-eu',
-  providerCustomer: {
-    id: 'pc-1',
-    providerCustomerId: 'cus_123',
-    syncWithProvider: false,
-    providerPaymentMethods: [ProviderPaymentMethodsEnum.Card],
-  },
-  netsuiteCustomer: {
-    __typename: 'NetsuiteCustomer',
-    id: 'nc-1',
-    integrationId: 'int-ns',
-    integrationCode: 'ns-1',
-    integrationType: IntegrationTypeEnum.Netsuite,
-    externalCustomerId: 'ns_cus_1',
-    syncWithProvider: false,
-    subsidiaryId: 'sub-1',
-  },
-  hubspotCustomer: {
-    __typename: 'HubspotCustomer',
-    id: 'hc-1',
-    integrationId: 'int-hub',
-    integrationCode: 'hub-1',
-    integrationType: IntegrationTypeEnum.Hubspot,
-    externalCustomerId: 'hub_cus_1',
-    syncWithProvider: true,
-    targetedObject: HubspotTargetedObjectsEnum.Companies,
-  },
-  xeroCustomer: null,
-  anrokCustomer: null,
-  avalaraCustomer: null,
-  salesforceCustomer: null,
+  paymentProviderCustomers: [
+    MANUAL_PLACEHOLDER_CONNECTION,
+    {
+      __typename: 'ProviderCustomer',
+      id: 'pc-1',
+      code: 'stripe',
+      isDefault: true,
+      providerCustomerId: 'cus_123',
+      syncWithProvider: false,
+      providerPaymentMethods: [ProviderPaymentMethodsEnum.Card],
+    },
+  ],
+  integrationCustomers: [
+    {
+      __typename: 'NetsuiteCustomer',
+      id: 'nc-1',
+      integrationId: 'int-ns',
+      integrationCode: 'ns-1',
+      integrationType: IntegrationTypeEnum.Netsuite,
+      externalCustomerId: 'ns_cus_1',
+      syncWithProvider: false,
+      subsidiaryId: 'sub-1',
+    },
+    {
+      __typename: 'HubspotCustomer',
+      id: 'hc-1',
+      integrationId: 'int-hub',
+      integrationCode: 'hub-1',
+      integrationType: IntegrationTypeEnum.Hubspot,
+      externalCustomerId: 'hub_cus_1',
+      syncWithProvider: true,
+      targetedObject: HubspotTargetedObjectsEnum.Companies,
+    },
+  ],
 } as unknown as AddCustomerDrawerFragment
 
 /** Org lists resolving each connection code to its integration id */
@@ -217,13 +230,13 @@ describe('useCustomerConnectionsPersistence', () => {
       })
     })
 
-    describe('WHEN the customer has no payment connection yet', () => {
+    describe('WHEN the customer has only the manual placeholder in its payment array', () => {
       it('THEN should create without destroying anything', async () => {
         const bareCustomer = {
           ...customer,
           paymentProvider: null,
           paymentProviderCode: null,
-          providerCustomer: null,
+          paymentProviderCustomers: [MANUAL_PLACEHOLDER_CONNECTION],
         } as unknown as AddCustomerDrawerFragment
 
         const result = renderHook(() =>
@@ -411,12 +424,13 @@ describe('useCustomerConnectionsPersistence', () => {
 
   describe('GIVEN a connection delete', () => {
     describe('WHEN deleting the payment connection', () => {
-      it('THEN should destroy the link by its id', async () => {
+      it('THEN should destroy the provider link by its id, never the manual row', async () => {
         const result = setup()
 
         const succeeded = await result.current.deleteConnection(ConnectionCategory.Payment)
 
         expect(succeeded).toBe(true)
+        expect(mockDestroyPayment).toHaveBeenCalledTimes(1)
         expect(mockDestroyPayment).toHaveBeenCalledWith({
           variables: { input: { id: 'pc-1' } },
         })
@@ -436,11 +450,11 @@ describe('useCustomerConnectionsPersistence', () => {
       })
     })
 
-    describe('WHEN the payment connection has no provider-customer link', () => {
-      it('THEN should clear the payment provider with explicit nulls instead of aborting', async () => {
+    describe('WHEN the payment array holds nothing but a manual row', () => {
+      it('THEN should clear the payment provider with explicit nulls instead of destroying the manual row', async () => {
         const linklessCustomer = {
           ...customer,
-          providerCustomer: null,
+          paymentProviderCustomers: [MANUAL_PLACEHOLDER_CONNECTION],
         } as unknown as AddCustomerDrawerFragment
 
         const result = renderHook(() =>
@@ -551,7 +565,17 @@ describe('useCustomerConnectionsPersistence', () => {
           .mockResolvedValueOnce({ data: { customer } } as never)
           .mockResolvedValueOnce({
             data: {
-              customer: { ...customer, anrokCustomer: { id: 'an-1', integrationCode: 'anrok-1' } },
+              customer: {
+                ...customer,
+                integrationCustomers: [
+                  {
+                    __typename: 'AnrokCustomer',
+                    id: 'an-1',
+                    integrationCode: 'anrok-1',
+                    integrationType: IntegrationTypeEnum.Anrok,
+                  },
+                ],
+              },
             },
           } as never)
 

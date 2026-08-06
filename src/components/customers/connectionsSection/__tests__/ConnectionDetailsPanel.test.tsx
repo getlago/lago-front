@@ -1,6 +1,7 @@
 import { screen } from '@testing-library/react'
 
 import { CustomerConnectionRow } from '~/components/customerConnections/CustomerConnectionsList'
+import { MANUAL_CONNECTION_CODE } from '~/components/customerConnections/customerIntegrationConst'
 import { ConnectionCategory } from '~/components/customerConnections/types'
 import { buildNetsuiteCustomerUrl, buildStripeCustomerUrl } from '~/core/constants/externalUrls'
 import {
@@ -8,6 +9,7 @@ import {
   HubspotTargetedObjectsEnum,
   IntegrationsListForCustomerMainInfosQuery,
   IntegrationTypeEnum,
+  ProviderPaymentMethodsEnum,
   ProviderTypeEnum,
 } from '~/generated/graphql'
 import { render } from '~/test-utils'
@@ -40,32 +42,44 @@ const CRM_ROW: CustomerConnectionRow = {
   code: 'hub-1',
 }
 
+/** The backend's non-persisted manual placeholder, prepended to the array */
+const MANUAL_PLACEHOLDER_CONNECTION = {
+  __typename: 'ProviderCustomer',
+  id: 'cust-1-manual',
+  code: MANUAL_CONNECTION_CODE,
+  isDefault: false,
+}
+
+const STRIPE_PAYMENT_CONNECTION = {
+  __typename: 'ProviderCustomer',
+  id: 'pc-1',
+  code: 'stripe',
+  isDefault: true,
+  providerCustomerId: 'cus_123',
+  syncWithProvider: false,
+  providerPaymentMethods: [ProviderPaymentMethodsEnum.Card],
+}
+
+const NETSUITE_INTEGRATION_CONNECTION = {
+  __typename: 'NetsuiteCustomer',
+  id: 'nc-1',
+  integrationId: 'int-ns',
+  integrationCode: 'ns-1',
+  integrationType: IntegrationTypeEnum.Netsuite,
+  externalCustomerId: 'ns_cus_1',
+  syncWithProvider: false,
+  subsidiaryId: 'sub-1',
+}
+
 const buildCustomer = (overrides: Record<string, unknown> = {}): CustomerDetailsFragment =>
   ({
     id: 'cust-1',
     externalId: 'ext-1',
     paymentProvider: ProviderTypeEnum.Stripe,
     paymentProviderCode: 'stripe-eu',
-    providerCustomer: {
-      id: 'pc-1',
-      providerCustomerId: 'cus_123',
-      syncWithProvider: false,
-      providerPaymentMethods: ['card'],
-    },
-    netsuiteCustomer: {
-      id: 'nc-1',
-      integrationId: 'int-ns',
-      integrationCode: 'ns-1',
-      integrationType: IntegrationTypeEnum.Netsuite,
-      externalCustomerId: 'ns_cus_1',
-      syncWithProvider: false,
-      subsidiaryId: 'sub-1',
-    },
-    hubspotCustomer: null,
-    xeroCustomer: null,
-    anrokCustomer: null,
-    avalaraCustomer: null,
-    salesforceCustomer: null,
+    // The manual row comes first: the panel must read the provider row
+    paymentProviderCustomers: [MANUAL_PLACEHOLDER_CONNECTION, STRIPE_PAYMENT_CONNECTION],
+    integrationCustomers: [NETSUITE_INTEGRATION_CONNECTION],
     ...overrides,
   }) as unknown as CustomerDetailsFragment
 
@@ -116,6 +130,24 @@ describe('ConnectionDetailsPanel', () => {
         )
 
         expect(screen.getByText('Card')).toBeInTheDocument()
+      })
+
+      it('THEN should read the provider row, never the manual one', () => {
+        render(
+          <ConnectionDetailsPanel
+            row={PAYMENT_ROW}
+            // Manual row last this time: the lookup is code-based, not positional
+            customer={buildCustomer({
+              paymentProviderCustomers: [STRIPE_PAYMENT_CONNECTION, MANUAL_PLACEHOLDER_CONNECTION],
+            })}
+            integrationsLoading={false}
+          />,
+        )
+
+        expect(screen.getByTestId(CONNECTION_EXTERNAL_LINK_TEST_ID)).toHaveTextContent('cus_123')
+        expect(
+          screen.queryByTestId(CONNECTION_PROVIDER_ID_PLACEHOLDER_TEST_ID),
+        ).not.toBeInTheDocument()
       })
     })
 
@@ -192,15 +224,18 @@ describe('ConnectionDetailsPanel', () => {
           <ConnectionDetailsPanel
             row={CRM_ROW}
             customer={buildCustomer({
-              hubspotCustomer: {
-                id: 'hc-1',
-                integrationId: 'int-hub',
-                integrationCode: 'hub-1',
-                integrationType: IntegrationTypeEnum.Hubspot,
-                externalCustomerId: 'hub_cus_1',
-                syncWithProvider: false,
-                targetedObject: null,
-              },
+              integrationCustomers: [
+                {
+                  __typename: 'HubspotCustomer',
+                  id: 'hc-1',
+                  integrationId: 'int-hub',
+                  integrationCode: 'hub-1',
+                  integrationType: IntegrationTypeEnum.Hubspot,
+                  externalCustomerId: 'hub_cus_1',
+                  syncWithProvider: false,
+                  targetedObject: null,
+                },
+              ],
             })}
             integrationsData={INTEGRATIONS_DATA}
             integrationsLoading={false}
@@ -220,15 +255,18 @@ describe('ConnectionDetailsPanel', () => {
           <ConnectionDetailsPanel
             row={CRM_ROW}
             customer={buildCustomer({
-              hubspotCustomer: {
-                id: 'hc-1',
-                integrationId: 'int-hub',
-                integrationCode: 'hub-1',
-                integrationType: IntegrationTypeEnum.Hubspot,
-                externalCustomerId: 'hub_cus_1',
-                syncWithProvider: false,
-                targetedObject: HubspotTargetedObjectsEnum.Companies,
-              },
+              integrationCustomers: [
+                {
+                  __typename: 'HubspotCustomer',
+                  id: 'hc-1',
+                  integrationId: 'int-hub',
+                  integrationCode: 'hub-1',
+                  integrationType: IntegrationTypeEnum.Hubspot,
+                  externalCustomerId: 'hub_cus_1',
+                  syncWithProvider: false,
+                  targetedObject: HubspotTargetedObjectsEnum.Companies,
+                },
+              ],
             })}
             integrationsData={INTEGRATIONS_DATA}
             integrationsLoading={false}
@@ -249,15 +287,17 @@ describe('ConnectionDetailsPanel', () => {
           <ConnectionDetailsPanel
             row={{ ...ACCOUNTING_ROW, category: ConnectionCategory.Tax, id: 'tax-anrok-1' }}
             customer={buildCustomer({
-              netsuiteCustomer: null,
-              anrokCustomer: {
-                id: 'ac-1',
-                integrationId: 'int-anrok',
-                integrationCode: 'anrok-1',
-                integrationType: IntegrationTypeEnum.Anrok,
-                externalCustomerId: null,
-                syncWithProvider: true,
-              },
+              integrationCustomers: [
+                {
+                  __typename: 'AnrokCustomer',
+                  id: 'ac-1',
+                  integrationId: 'int-anrok',
+                  integrationCode: 'anrok-1',
+                  integrationType: IntegrationTypeEnum.Anrok,
+                  externalCustomerId: null,
+                  syncWithProvider: true,
+                },
+              ],
             })}
             integrationsData={INTEGRATIONS_DATA}
             integrationsLoading={false}
@@ -276,14 +316,13 @@ describe('ConnectionDetailsPanel', () => {
           <ConnectionDetailsPanel
             row={ACCOUNTING_ROW}
             customer={buildCustomer({
-              netsuiteCustomer: {
-                id: 'nc-1',
-                integrationId: 'int-ns',
-                integrationCode: 'ns-1',
-                integrationType: IntegrationTypeEnum.Netsuite,
-                externalCustomerId: null,
-                syncWithProvider: true,
-              },
+              integrationCustomers: [
+                {
+                  ...NETSUITE_INTEGRATION_CONNECTION,
+                  externalCustomerId: null,
+                  syncWithProvider: true,
+                },
+              ],
             })}
             integrationsData={INTEGRATIONS_DATA}
             integrationsLoading={false}
@@ -302,14 +341,13 @@ describe('ConnectionDetailsPanel', () => {
           <ConnectionDetailsPanel
             row={ACCOUNTING_ROW}
             customer={buildCustomer({
-              netsuiteCustomer: {
-                id: 'nc-1',
-                integrationId: 'int-ns',
-                integrationCode: 'ns-1',
-                integrationType: IntegrationTypeEnum.Netsuite,
-                externalCustomerId: null,
-                syncWithProvider: false,
-              },
+              integrationCustomers: [
+                {
+                  ...NETSUITE_INTEGRATION_CONNECTION,
+                  externalCustomerId: null,
+                  syncWithProvider: false,
+                },
+              ],
             })}
             integrationsData={INTEGRATIONS_DATA}
             integrationsLoading={false}
@@ -328,12 +366,14 @@ describe('ConnectionDetailsPanel', () => {
           <ConnectionDetailsPanel
             row={PAYMENT_ROW}
             customer={buildCustomer({
-              providerCustomer: {
-                id: 'pc-1',
-                providerCustomerId: null,
-                syncWithProvider: true,
-                providerPaymentMethods: ['card'],
-              },
+              paymentProviderCustomers: [
+                MANUAL_PLACEHOLDER_CONNECTION,
+                {
+                  ...STRIPE_PAYMENT_CONNECTION,
+                  providerCustomerId: null,
+                  syncWithProvider: true,
+                },
+              ],
             })}
             integrationsLoading={false}
           />,
@@ -350,7 +390,9 @@ describe('ConnectionDetailsPanel', () => {
         render(
           <ConnectionDetailsPanel
             row={PAYMENT_ROW}
-            customer={buildCustomer({ providerCustomer: null })}
+            customer={buildCustomer({
+              paymentProviderCustomers: [MANUAL_PLACEHOLDER_CONNECTION],
+            })}
             integrationsLoading={false}
           />,
         )
@@ -364,7 +406,9 @@ describe('ConnectionDetailsPanel', () => {
         render(
           <ConnectionDetailsPanel
             row={PAYMENT_ROW}
-            customer={buildCustomer({ providerCustomer: null })}
+            customer={buildCustomer({
+              paymentProviderCustomers: [MANUAL_PLACEHOLDER_CONNECTION],
+            })}
             integrationsLoading={false}
           />,
         )
@@ -383,7 +427,8 @@ describe('ConnectionDetailsPanel', () => {
         render(
           <ConnectionDetailsPanel
             row={PAYMENT_ROW}
-            customer={buildCustomer({ paymentProvider, providerCustomer: null })}
+            // No provider connection at all: these providers never get one
+            customer={buildCustomer({ paymentProvider, paymentProviderCustomers: [] })}
             integrationsLoading={false}
           />,
         )

@@ -86,12 +86,7 @@ const CustomerDetails = () => {
   })
 
   const customer = data?.customer
-  const hasAnyIntegrationCustomer =
-    !!customer?.netsuiteCustomer ||
-    !!customer?.anrokCustomer ||
-    !!customer?.xeroCustomer ||
-    !!customer?.hubspotCustomer ||
-    !!customer?.salesforceCustomer
+  const hasAnyIntegrationCustomer = !!customer?.integrationCustomers?.length
 
   // Start polling when coming from edit page with integrations (backend may process them async)
   useEffect(() => {
