@@ -137,7 +137,7 @@ export const PlanDetailsV2FixedChargesSection = forwardRef<
 
   const { handleSaveCharge, handleDeleteCharge } = fixedChargeMutations
 
-  const fixedCharges = plan.fixedCharges ?? []
+  const fixedCharges = useMemo(() => plan.fixedCharges ?? [], [plan.fixedCharges])
   const isEmpty = fixedCharges.length === 0
   // ISO with the plan form: existing charges lock once the plan has subscriptions.
   // Sub mode keeps its own gating (driven by isInSubscriptionForm), so the
