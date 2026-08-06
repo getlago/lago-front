@@ -31,6 +31,7 @@ interface PlanUsageThresholdOverride {
 }
 
 export interface PlanOverrides {
+  name?: string
   amountCents?: number
   invoiceDisplayName?: string
   minimumCommitment?: PlanMinimumCommitmentOverride
@@ -197,7 +198,11 @@ export const DEFAULT_INVOICING_SETTINGS: InvoicingSettings = {
 export interface SubscriptionPricingState {
   planId: string
   planCode: string
+  // Effective/display name shown in the quote doc: the override when set, else the base name.
   planName: string
+  // Original plan name, persisted verbatim to `payload.name`. Optional for backward
+  // compatibility with callers that only carry the effective `planName`.
+  basePlanName?: string
   planDescription: string
   subscriptionSettings: SubscriptionSettings
   invoicingSettings: InvoicingSettings
@@ -364,14 +369,25 @@ export const toPlanBillingItems = (
   const { planId, planCode, planName, planDescription, subscriptionSettings, invoicingSettings } =
     state
 
+  // The base (original) plan name lives in the payload; the effective `planName`
+  // is used only for display. Fall back to `planName` for callers that don't carry a base.
+  const base = state.basePlanName ?? planName
+
   // Derive overrides from the form values (single source of truth). Fall back to
   // any pre-built overrides on the state for callers that serialize without form values.
   const overrides = formValues ? buildPlanOverrides(formValues) : (state.overrides ?? {})
 
+  // The renamed plan goes into `overrides.name` (backend applies plan changes from
+  // `overrides`), and only when it actually differs from the base — mirroring the
+  // conditional handling of the other override fields.
+  if (formValues?.name && formValues.name !== base) {
+    overrides.name = formValues.name
+  }
+
   const payload: PlanPayload = {
     position: 1,
     code: planCode,
-    name: planName,
+    name: base,
     description: planDescription,
     subscriptionExternalId: normalizeOptional(subscriptionSettings.externalId),
     subscriptionName: normalizeOptional(subscriptionSettings.subscriptionName),
@@ -440,7 +456,10 @@ export const toPlanBillingItems = (
 interface FromPlanBillingItemsResult {
   planId: string
   planCode: string
+  // Effective/display name: the override when set, else the base name.
   planName: string
+  // Original plan name (payload.name), used to seed the base for re-serialization.
+  basePlanName: string
   planDescription: string
   subscriptionSettings: SubscriptionSettings
   invoicingSettings: InvoicingSettings
@@ -520,6 +539,9 @@ export const fromPlanBillingItems = (plans: BillingItemPlan[]): FromPlanBillingI
   const plan = plans[0]
   const { payload, overrides, id } = plan
 
+  // Effective/display name: the override takes precedence over the base plan name.
+  const effectiveName = overrides.name ?? payload.name
+
   const subscriptionSettings: SubscriptionSettings = {
     externalId: denormalizeOptional(payload.subscriptionExternalId),
     subscriptionName: denormalizeOptional(payload.subscriptionName),
@@ -589,7 +611,7 @@ export const fromPlanBillingItems = (plans: BillingItemPlan[]): FromPlanBillingI
           }
         : undefined,
       entitlements: [],
-      name: payload.name,
+      name: effectiveName,
       code: payload.code,
       description: payload.description,
     }
@@ -599,7 +621,7 @@ export const fromPlanBillingItems = (plans: BillingItemPlan[]): FromPlanBillingI
     [id]: {
       entityId: id,
       entityType: 'plan',
-      name: payload.name,
+      name: effectiveName,
       code: payload.code,
       plan: buildPlanPreviewData(formValues),
     },
@@ -608,7 +630,8 @@ export const fromPlanBillingItems = (plans: BillingItemPlan[]): FromPlanBillingI
   return {
     planId: id,
     planCode: payload.code,
-    planName: payload.name,
+    planName: effectiveName,
+    basePlanName: payload.name,
     planDescription: payload.description,
     subscriptionSettings,
     invoicingSettings,

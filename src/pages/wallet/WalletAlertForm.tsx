@@ -1,25 +1,28 @@
 import { gql } from '@apollo/client'
-import { useFormik } from 'formik'
-import { useCallback, useEffect, useMemo } from 'react'
+import { revalidateLogic, useStore } from '@tanstack/react-form'
+import { useCallback, useMemo } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
-import { array, boolean, number, object, string } from 'yup'
 
+import { AlertNameAndCodeSection } from '~/components/alerts/AlertNameAndCodeSection'
 import AlertThresholds, { isThresholdValueValid } from '~/components/alerts/Thresholds'
+import { useAlertFormLeaveGuards } from '~/components/alerts/useAlertFormLeaveGuards'
+import { createThresholdSetters, setCodeAlreadyExistsError } from '~/components/alerts/utils'
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
-import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
-import { ComboBox, TextInput, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
+import {
+  CLOSE_WALLET_ALERT_BUTTON_DATA_TEST,
+  SUBMIT_WALLET_ALERT_DATA_TEST,
+  WALLET_ALERT_FORM_TEST_ID,
+  WALLET_ALERT_TYPE_COMBOBOX_DATA_TEST,
+} from '~/components/wallets/utils/dataTestConstants'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { useNavigate, WALLET_DETAILS_ROUTE } from '~/core/router'
-import { serializeAmount } from '~/core/serializers/serializeAmount'
-import { updateNameAndMaybeCode } from '~/core/utils/updateNameAndMaybeCode'
 import {
   AlertTypeEnum,
-  CreateCustomerWalletAlertInput,
   CurrencyEnum,
   LagoApiError,
-  ThresholdInput,
   useCreateWalletAlertMutation,
   useGetWalletAlertsQuery,
   useGetWalletAlertToEditQuery,
@@ -27,9 +30,18 @@ import {
   useUpdateWalletAlertMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { sortAndFormatThresholds } from '~/pages/AlertForm'
+import { useAppForm } from '~/hooks/forms/useAppform'
+import {
+  mapFormToCreateInput,
+  mapFormToUpdateInput,
+  mapFromApiToForm,
+} from '~/pages/wallet/walletAlertForm/mappers'
+import { isWalletCreditsAlert, isWalletOngoingAlert } from '~/pages/wallet/walletAlertForm/utils'
+import { walletAlertValidationSchema } from '~/pages/wallet/walletAlertForm/validationSchema'
 import { WalletDetailsTabsOptionsEnum } from '~/pages/wallet/WalletDetails'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
+
+export const WALLET_ALERT_FORM_ID = 'create-wallet-alert'
 
 gql`
   query getWalletAlertToEdit($id: ID!) {
@@ -64,7 +76,6 @@ const WalletAlertForm = () => {
   const { alertId = '', customerId = '', walletId = '' } = useParams()
   const { translate } = useInternationalization()
   const navigate = useNavigate()
-  const centralizedDialog = useCentralizedDialog()
   const isEdition = !!alertId
 
   const { data, loading } = useGetWalletDetailsQuery({
@@ -98,14 +109,6 @@ const WalletAlertForm = () => {
   const existingAlert = alertData?.walletAlert
   const currency = data?.wallet?.currency || CurrencyEnum.Usd
 
-  const isCreditsAlert = (alertType: AlertTypeEnum) =>
-    alertType === AlertTypeEnum.WalletCreditsBalance ||
-    alertType === AlertTypeEnum.WalletCreditsOngoingBalance
-
-  const isOngoingAlert = (alertType: AlertTypeEnum) =>
-    alertType === AlertTypeEnum.WalletOngoingBalanceAmount ||
-    alertType === AlertTypeEnum.WalletCreditsOngoingBalance
-
   const onLeave = useCallback(
     ({ replace = false }: { replace?: boolean } = {}) => {
       if (!!customerId) {
@@ -122,167 +125,104 @@ const WalletAlertForm = () => {
     [customerId, navigate, walletId],
   )
 
-  const openDirtyAttributesWarning = () =>
-    centralizedDialog.open({
-      title: translate('text_6244277fe0975300fe3fb940'),
-      description: translate('text_1746623860224gh7o1exyjch'),
-      actionText: translate('text_6244277fe0975300fe3fb94c'),
-      colorVariant: 'danger',
-      onAction: () => onLeave(),
-    })
+  const { openDirtyAttributesWarning } = useAlertFormLeaveGuards({
+    isEdition,
+    alertLoading,
+    alertError,
+    onLeave,
+  })
 
-  // Redirect to alerts list if alert is not found (e.g., deleted while on edit page)
-  useEffect(() => {
-    if (isEdition && !alertLoading && hasDefinedGQLError('NotFound', alertError)) {
-      addToast({
-        severity: 'info',
-        translateKey: 'text_1737477631498hwm4np3kbnd',
-      })
-      // Use replace to prevent back button from returning to this deleted alert page
-      onLeave({ replace: true })
-    }
-  }, [isEdition, alertLoading, alertError, onLeave])
+  const [updateAlert] = useUpdateWalletAlertMutation({
+    context: { silentErrorDetails: [LagoApiError.ValueAlreadyExist] },
+  })
+  const [createAlert] = useCreateWalletAlertMutation({
+    context: { silentErrorDetails: [LagoApiError.ValueAlreadyExist] },
+  })
 
-  const [updateAlert, { error: updateError }] = useUpdateWalletAlertMutation({
-    onCompleted({ updateCustomerWalletAlert }) {
-      if (!!updateCustomerWalletAlert?.id) {
+  const defaultValues = useMemo(
+    () =>
+      mapFromApiToForm({
+        walletId: data?.wallet?.id || '',
+        currency,
+        alert: existingAlert,
+      }),
+    [currency, data?.wallet?.id, existingAlert],
+  )
+
+  const form = useAppForm({
+    defaultValues,
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: walletAlertValidationSchema,
+    },
+    onSubmitInvalid({ formApi }) {
+      scrollToFirstInputError(WALLET_ALERT_FORM_ID, formApi.state.errorMap.onDynamic || {})
+    },
+    onSubmit: async ({ value, formApi }) => {
+      const { alertType } = value
+
+      // Guaranteed by the schema, narrows the type for the mappers
+      if (!alertType) return
+
+      const validatedValues = { ...value, alertType }
+
+      if (!!existingAlert?.id) {
+        const { data: updateData, errors } = await updateAlert({
+          variables: {
+            input: mapFormToUpdateInput(validatedValues, existingAlert.id, currency),
+          },
+        })
+
+        if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
+          setCodeAlreadyExistsError(formApi)
+
+          return
+        }
+
+        if (!updateData?.updateCustomerWalletAlert?.id) return
+
         addToast({
           severity: 'success',
           translateKey: 'text_1746623860224qwhtxyuophr',
         })
+      } else {
+        const { data: createData, errors } = await createAlert({
+          variables: {
+            input: mapFormToCreateInput(validatedValues, currency),
+          },
+        })
 
-        onLeave()
-      }
-    },
-  })
+        if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
+          setCodeAlreadyExistsError(formApi)
 
-  const [createAlert, { error: createError }] = useCreateWalletAlertMutation({
-    onCompleted({ createCustomerWalletAlert }) {
-      if (!!createCustomerWalletAlert?.id) {
+          return
+        }
+
+        if (!createData?.createCustomerWalletAlert?.id) return
+
         addToast({
           severity: 'success',
           translateKey: 'text_1746611635509ov7jepx55bz',
         })
-
-        onLeave()
       }
+
+      onLeave()
     },
   })
 
-  const formikProps = useFormik<CreateCustomerWalletAlertInput>({
-    initialValues: {
-      walletId: data?.wallet?.id || '',
-      name: existingAlert?.name || '',
-      code: existingAlert?.code || '',
-      alertType: existingAlert?.alertType || ('' as AlertTypeEnum),
-      thresholds: !!existingAlert?.thresholds?.length
-        ? sortAndFormatThresholds(
-            existingAlert?.thresholds,
-            currency,
-            isCreditsAlert(existingAlert?.alertType),
-          )
-        : [
-            {
-              code: '',
-              recurring: false,
-              value: '',
-            },
-          ],
-    },
-    validationSchema: object().shape({
-      name: string(),
-      code: string().required(''),
-      alertType: string().required(''),
-      thresholds: array()
-        .of(
-          object().shape({
-            code: string(),
-            recurring: boolean().required(''),
-            value: number().required(''),
-          }),
-        )
-        .nullable(),
-    }),
-    enableReinitialize: true,
-    validateOnMount: true,
-    onSubmit: async ({ alertType, thresholds, walletId: currentWalletId, ...values }) => {
-      const thresholdValue = (threshold: ThresholdInput) => {
-        if (isCreditsAlert(alertType)) {
-          return threshold.value.split('.')[0]
-        }
-
-        return String(serializeAmount(threshold.value, currency))
-      }
-
-      const formattedThresholds = thresholds?.map((threshold) => ({
-        ...threshold,
-        value: thresholdValue(threshold),
-      }))
-
-      // Edition
-      if (!!existingAlert?.id) {
-        await updateAlert({
-          variables: {
-            input: {
-              ...values,
-              id: existingAlert.id,
-              thresholds: formattedThresholds || undefined,
-            },
-          },
-        })
-      } else {
-        await createAlert({
-          variables: {
-            input: {
-              ...values,
-              alertType,
-              walletId: currentWalletId,
-              thresholds: formattedThresholds || undefined,
-            },
-          },
-        })
-      }
-    },
-  })
-
-  useEffect(() => {
-    if (hasDefinedGQLError('ValueAlreadyExist', createError || updateError)) {
-      formikProps.setFieldError('code', 'text_632a2d437e341dcc76817556')
-      const rootElement = document.getElementById('root')
-
-      if (!rootElement) return
-      rootElement.scrollTo({ top: 0 })
-    }
-
-    return undefined
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [createError, formikProps.setFieldError, updateError])
+  const isDirty = useStore(form.store, (state) => state.isDirty)
+  const alertType = useStore(form.store, (state) => state.values.alertType)
+  const thresholds = useStore(form.store, (state) => state.values.thresholds)
 
   const hasAnyNonRecurringThresholdError = useMemo(() => {
-    const localNonRecurringThresholds = formikProps.values.thresholds.filter(
-      (threshold) => !threshold.recurring,
-    )
+    const localNonRecurringThresholds = thresholds.filter((threshold) => !threshold.recurring)
 
     return localNonRecurringThresholds.some((threshold, i) =>
       isThresholdValueValid(i, threshold.value, localNonRecurringThresholds, true),
     )
-  }, [formikProps.values.thresholds])
+  }, [thresholds])
 
-  const setThresholds = (thresholds: ThresholdInput[]) => {
-    formikProps.setFieldValue('thresholds', thresholds)
-  }
-
-  const setThresholdValue = ({
-    index,
-    key,
-    newValue,
-  }: {
-    index: number
-    key: keyof ThresholdInput
-    newValue: unknown
-  }) => {
-    formikProps.setFieldValue(`thresholds.${index}.${key}`, newValue)
-  }
+  const { setThresholds, setThresholdValue } = useMemo(() => createThresholdSetters(form), [form])
 
   const defaultTypesData = useMemo(
     () => [
@@ -310,139 +250,122 @@ const WalletAlertForm = () => {
     return defaultTypesData?.filter((item) => !existingAlertsTypes?.includes(item.value))
   }, [defaultTypesData, existingAlertsTypes])
 
+  const onAbort = () => (isDirty ? openDirtyAttributesWarning() : onLeave())
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault()
+    form.handleSubmit()
+  }
+
   return (
     <CenteredPage.Wrapper>
-      <CenteredPage.Header>
-        <div className="flex gap-3">
-          <Typography variant="bodyHl" color="textSecondary" noWrap>
-            {translate(
-              isEdition ? 'text_1773051593208zapkd7kjz1d' : 'text_1773051593208nq2x0gbp83t',
-            )}
-          </Typography>
-        </div>
+      <form
+        id={WALLET_ALERT_FORM_ID}
+        className="flex size-full min-h-full flex-col overflow-auto"
+        onSubmit={handleSubmit}
+        data-test={WALLET_ALERT_FORM_TEST_ID}
+      >
+        <CenteredPage.Header>
+          <div className="flex gap-3">
+            <Typography variant="bodyHl" color="textSecondary" noWrap>
+              {translate(
+                isEdition ? 'text_1773051593208zapkd7kjz1d' : 'text_1773051593208nq2x0gbp83t',
+              )}
+            </Typography>
+          </div>
 
-        <Button
-          variant="quaternary"
-          icon="close"
-          onClick={() => (formikProps.dirty ? openDirtyAttributesWarning() : onLeave())}
-        />
-      </CenteredPage.Header>
+          <Button
+            variant="quaternary"
+            icon="close"
+            onClick={onAbort}
+            data-test={CLOSE_WALLET_ALERT_BUTTON_DATA_TEST}
+          />
+        </CenteredPage.Header>
 
-      <CenteredPage.Container>
-        {isLoading && <FormLoadingSkeleton id="create-wallet-alert" />}
+        <CenteredPage.Container>
+          {isLoading && <FormLoadingSkeleton id={WALLET_ALERT_FORM_ID} />}
 
-        {!isLoading && (
-          <>
-            <div className="not-last-child:mb-1">
-              <Typography variant="headline" color="grey700">
-                {translate('text_1773051593208ufsg18ai0y0')}
-              </Typography>
+          {!isLoading && (
+            <>
+              <div className="not-last-child:mb-1">
+                <Typography variant="headline" color="grey700">
+                  {translate('text_1773051593208ufsg18ai0y0')}
+                </Typography>
 
-              <Typography variant="body" color="grey600">
-                {translate('text_17465238490260r2325jwada')}
-              </Typography>
-            </div>
+                <Typography variant="body" color="grey600">
+                  {translate('text_17465238490260r2325jwada')}
+                </Typography>
+              </div>
 
-            <div className="flex flex-col gap-12">
-              <section className="pb-12 shadow-b not-last-child:mb-6">
-                <div className="not-last-child:mb-2">
-                  <Typography variant="subhead1">
-                    {translate('text_1746629929876zz4937djyc8')}
-                  </Typography>
-                  <Typography variant="caption">
-                    {translate('text_1746629929876gdgxt1v86eq')}
-                  </Typography>
-                </div>
-                <div className="flex gap-6 *:flex-1">
-                  <TextInput
-                    name="name"
-                    label={translate('text_1773063868176dy5v3kvne2l')}
-                    placeholder={translate('text_62876e85e32e0300e1803121')}
-                    value={formikProps.values.name || ''}
-                    onChange={(name) => {
-                      updateNameAndMaybeCode({ name, formikProps })
-                    }}
-                  />
-                  <TextInputField
-                    name="code"
-                    label={translate('text_62876e85e32e0300e1803127')}
-                    placeholder={translate('text_623b42ff8ee4e000ba87d0c4')}
-                    formikProps={formikProps}
-                    error={formikProps.errors.code}
-                  />
-                </div>
-              </section>
+              <div className="flex flex-col gap-12">
+                <AlertNameAndCodeSection
+                  form={form}
+                  fields={{ name: 'name', code: 'code' }}
+                  nameLabel={translate('text_1773063868176dy5v3kvne2l')}
+                  hasExistingCode={!!existingAlert?.code}
+                />
 
-              <section className="not-last-child:mb-6">
-                <div className="not-last-child:mb-2">
-                  <Typography variant="subhead1">
-                    {translate('text_17466299298762alw9zr25tb')}
-                  </Typography>
-                  <Typography variant="caption">
-                    {translate('text_1746631350477wjvnr6ty57q')}
-                  </Typography>
-                </div>
-                <div className="flex flex-col gap-6 *:flex-1">
-                  <ComboBox
-                    name="alertType"
-                    label={translate('text_1746631350478jqk347d5dy4')}
-                    placeholder={translate('text_1746631350478bwa1swfpwky')}
-                    disabled={isEdition}
-                    disableClearable={isEdition}
-                    value={formikProps.values.alertType}
-                    data={comboboxData}
-                    onChange={(value) => {
-                      const newFormikValues = {
-                        ...formikProps.values,
-                        alertType: value as AlertTypeEnum,
-                      }
+                <section className="not-last-child:mb-6">
+                  <div className="not-last-child:mb-2">
+                    <Typography variant="subhead1">
+                      {translate('text_17466299298762alw9zr25tb')}
+                    </Typography>
+                    <Typography variant="caption">
+                      {translate('text_1746631350477wjvnr6ty57q')}
+                    </Typography>
+                  </div>
+                  <div className="flex flex-col gap-6 *:flex-1">
+                    <form.AppField name="alertType">
+                      {(field) => (
+                        <field.ComboBoxField
+                          label={translate('text_1746631350478jqk347d5dy4')}
+                          placeholder={translate('text_1746631350478bwa1swfpwky')}
+                          disabled={isEdition}
+                          disableClearable={isEdition}
+                          data={comboboxData}
+                          dataTest={WALLET_ALERT_TYPE_COMBOBOX_DATA_TEST}
+                        />
+                      )}
+                    </form.AppField>
 
-                      formikProps.setValues(newFormikValues)
-                    }}
-                  />
+                    {!!alertType && (
+                      <AlertThresholds
+                        thresholds={thresholds}
+                        setThresholds={setThresholds}
+                        setThresholdValue={setThresholdValue}
+                        currency={currency}
+                        shouldHandleUnits={isWalletCreditsAlert(alertType)}
+                        unitsLabel={translate('text_62d18855b22699e5cf55f889')}
+                        unitsTitle={translate('text_1773063868176jh122suh1lx')}
+                        reversedThreshold={true}
+                        allowNegativeValues={isWalletOngoingAlert(alertType)}
+                      />
+                    )}
+                  </div>
+                </section>
+              </div>
+            </>
+          )}
+        </CenteredPage.Container>
 
-                  {formikProps?.values?.alertType && (
-                    <AlertThresholds
-                      thresholds={formikProps.values.thresholds}
-                      setThresholds={setThresholds}
-                      setThresholdValue={setThresholdValue}
-                      currency={currency}
-                      shouldHandleUnits={isCreditsAlert(formikProps.values.alertType)}
-                      unitsLabel={translate('text_62d18855b22699e5cf55f889')}
-                      unitsTitle={translate('text_1773063868176jh122suh1lx')}
-                      reversedThreshold={true}
-                      allowNegativeValues={isOngoingAlert(formikProps.values.alertType)}
-                    />
-                  )}
-                </div>
-              </section>
-            </div>
-          </>
-        )}
-      </CenteredPage.Container>
-
-      <CenteredPage.StickyFooter>
-        <Button
-          variant="quaternary"
-          size="large"
-          onClick={() => (formikProps.dirty ? openDirtyAttributesWarning() : onLeave())}
-        >
-          {translate('text_6411e6b530cb47007488b027')}
-        </Button>
-        <Button
-          variant="primary"
-          size="large"
-          disabled={
-            !formikProps.isValid ||
-            !formikProps.dirty ||
-            isLoading ||
-            hasAnyNonRecurringThresholdError
-          }
-          onClick={formikProps.submitForm}
-        >
-          {translate(isEdition ? 'text_17432414198706rdwf76ek3u' : 'text_1747917472538el8fg31n3i8')}
-        </Button>
-      </CenteredPage.StickyFooter>
+        <CenteredPage.StickyFooter>
+          <Button variant="quaternary" size="large" onClick={onAbort}>
+            {translate('text_6411e6b530cb47007488b027')}
+          </Button>
+          <form.AppForm>
+            <form.SubmitButton
+              variant="primary"
+              size="large"
+              disabled={isLoading || hasAnyNonRecurringThresholdError}
+              dataTest={SUBMIT_WALLET_ALERT_DATA_TEST}
+            >
+              {translate(
+                isEdition ? 'text_17432414198706rdwf76ek3u' : 'text_1747917472538el8fg31n3i8',
+              )}
+            </form.SubmitButton>
+          </form.AppForm>
+        </CenteredPage.StickyFooter>
+      </form>
     </CenteredPage.Wrapper>
   )
 }

@@ -4,6 +4,8 @@ import { RouteObject, useRoutes } from 'react-router-dom'
 import { Spinner } from '~/components/designSystem/Spinner'
 import { DEVTOOL_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { drawerStack } from '~/components/drawers/drawerStack'
+import { ErrorBoundary } from '~/components/ErrorBoundary'
+import { ErrorFallback } from '~/components/ErrorFallback'
 import { CustomRouteObject, routes, useLocation, useNavigate } from '~/core/router'
 import { NEVER_SLUG_PREFIXES } from '~/core/router/slugPrefixes'
 import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
@@ -49,10 +51,15 @@ const routesFormatter: (routesToFormat: CustomRouteObject[], loggedIn: boolean) 
   loggedIn,
 ) => {
   return routesToFormat.reduce<RouteObject[]>((acc, route) => {
+    // A route chunk that cannot be downloaded rejects instead of hanging, so the
+    // boundary turns a blank shell into a recoverable placeholder. The toast is
+    // off: the placeholder already says what happened.
     const routeConfig = {
       element: (
         <PageWrapper routeConfig={route}>
-          <Suspense fallback={<Spinner />}>{route.element}</Suspense>
+          <ErrorBoundary name="Route" fallback={<ErrorFallback />} showToast={false}>
+            <Suspense fallback={<Spinner />}>{route.element}</Suspense>
+          </ErrorBoundary>
         </PageWrapper>
       ),
       ...(route?.children ? { children: routesFormatter(route.children, loggedIn) } : {}),

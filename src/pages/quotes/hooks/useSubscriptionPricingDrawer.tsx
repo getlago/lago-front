@@ -104,6 +104,7 @@ export const useSubscriptionPricingDrawer = (
       planId: result.planId,
       planCode: result.planCode,
       planName: result.planName,
+      basePlanName: result.basePlanName,
       planDescription: result.planDescription,
       subscriptionSettings: result.subscriptionSettings,
       invoicingSettings: result.invoicingSettings,

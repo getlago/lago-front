@@ -26,6 +26,7 @@ import { buildAuthHeaders } from './authHeaders'
 import { cache } from './cache'
 import { setupCachePersistor } from './cachePersistor'
 import { omitDeep } from './cacheUtils'
+import { buildGraphQLErrorFingerprint, getGraphQLErrorCode, isSilencedGQLError } from './errorUtils'
 import { resolvers, typeDefs } from './graphqlResolvers'
 
 const AUTH_ERRORS = [
@@ -179,7 +180,11 @@ export const initializeApolloClient = async () => {
   })
 
   const errorLink = onError(({ graphQLErrors, operation }) => {
-    const { silentError = false, silentErrorCodes = [] } = operation.getContext()
+    const {
+      silentError = false,
+      silentErrorCodes = [],
+      silentErrorDetails = [],
+    } = operation.getContext()
 
     // Silent auth and permissions related errors by default
     silentErrorCodes.push(...AUTH_ERRORS, LagoApiError.Forbidden)
@@ -211,7 +216,7 @@ export const initializeApolloClient = async () => {
         // Capture non-silent GraphQL errors with Sentry
         if (
           !silentError &&
-          !silentErrorCodes.includes(extensions?.code) &&
+          !isSilencedGQLError({ extensions, silentErrorCodes, silentErrorDetails }) &&
           !isUnauthorized &&
           message !== 'PersistedQueryNotFound'
         ) {
@@ -220,14 +225,17 @@ export const initializeApolloClient = async () => {
 
           graphQLError.name = 'GraphQLError'
 
+          const errorCode = getGraphQLErrorCode(extensions)
+
           // Capture in Sentry with operation details
           captureException(graphQLError, {
             tags: {
               errorType: 'GraphQLError',
               operation: operationType,
               operationName: operation.operationName || 'unknown',
-              errorCode: typeof extensions?.code === 'string' ? extensions.code : 'unknown',
+              errorCode,
             },
+            fingerprint: buildGraphQLErrorFingerprint(operation.operationName, errorCode),
             extra: {
               path,
               locations,

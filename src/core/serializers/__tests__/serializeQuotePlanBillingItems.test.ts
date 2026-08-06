@@ -30,6 +30,7 @@ const basePricingState: SubscriptionPricingState = {
   planId: 'plan_123',
   planCode: 'enterprise',
   planName: 'Enterprise Plan',
+  basePlanName: 'Enterprise Plan',
   planDescription: 'Custom enterprise offering',
   subscriptionSettings: {
     ...DEFAULT_SUBSCRIPTION_SETTINGS,
@@ -156,6 +157,25 @@ describe('toPlanBillingItems', () => {
       amountCents: 85000,
       minimumCommitment: { amountCents: 8000000, invoiceDisplayName: undefined },
     })
+  })
+
+  it('keeps the base name in payload.name and sends the renamed plan in overrides.name', () => {
+    const formValues: PlanFormInput = {
+      ...baseFormValues,
+      name: 'Enterprise Plan - Acme',
+    }
+    const result = toPlanBillingItems(basePricingState, formValues)
+
+    // Base (original) name stays in the payload; the override lives in overrides.
+    expect(result.plans[0].payload.name).toBe('Enterprise Plan')
+    expect(result.plans[0].overrides.name).toBe('Enterprise Plan - Acme')
+  })
+
+  it('does not send overrides.name when the plan name is unchanged', () => {
+    const result = toPlanBillingItems(basePricingState, baseFormValues)
+
+    expect(result.plans[0].payload.name).toBe('Enterprise Plan')
+    expect(result.plans[0].overrides.name).toBeUndefined()
   })
 
   it('falls back to state.overrides when no form values are provided', () => {
@@ -299,8 +319,22 @@ describe('fromPlanBillingItems', () => {
     expect(result.planId).toBe('plan_123')
     expect(result.planCode).toBe('enterprise')
     expect(result.planName).toBe('Enterprise Plan')
+    expect(result.basePlanName).toBe('Enterprise Plan')
     expect(result.planDescription).toBe('Custom enterprise offering')
     expect(result.overrides).toEqual({})
+  })
+
+  it('uses overrides.name as the effective name and payload.name as the base', () => {
+    const plan: BillingItemPlan = {
+      ...baseBillingItemPlan,
+      overrides: { name: 'Enterprise Plan - Acme' },
+    }
+    const result = fromPlanBillingItems([plan])
+
+    // Effective/display name is the override; base stays the original payload name.
+    expect(result.planName).toBe('Enterprise Plan - Acme')
+    expect(result.basePlanName).toBe('Enterprise Plan')
+    expect(result.entityData.plan_123.name).toBe('Enterprise Plan - Acme')
   })
 
   it('deserializes subscription settings from payload', () => {
@@ -528,6 +562,24 @@ describe('round-trip: toPlanBillingItems → fromPlanBillingItems', () => {
     expect(recurring?.amountCents).toBe(100000)
     expect(recurring?.thresholdDisplayName).toBe('Monthly Cap')
     expect(recurring?.recurring).toBe(true)
+  })
+
+  it('round-trips an overridden plan name (base in payload, override in overrides)', () => {
+    const formValues: PlanFormInput = {
+      ...baseFormValues,
+      name: 'Enterprise Plan - Acme',
+    }
+
+    const serialized = toPlanBillingItems(basePricingState, formValues)
+
+    expect(serialized.plans[0].payload.name).toBe('Enterprise Plan')
+    expect(serialized.plans[0].overrides.name).toBe('Enterprise Plan - Acme')
+
+    const deserialized = fromPlanBillingItems(serialized.plans)
+
+    expect(deserialized.basePlanName).toBe('Enterprise Plan')
+    expect(deserialized.planName).toBe('Enterprise Plan - Acme')
+    expect(deserialized.formValues?.name).toBe('Enterprise Plan - Acme')
   })
 
   it('backward compat: legacy payload without interval/charges returns null formValues', () => {
