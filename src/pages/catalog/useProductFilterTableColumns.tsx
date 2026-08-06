@@ -7,8 +7,8 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 // Shared between the full product-item-filters list and the product-item-details
-// preview (Task 11): the preview drops the "Attached productCategory item" column since it
-// is already scoped to a single productCategory item (mirrors the product-item columns hook
+// preview (Task 11): the preview drops the "Attached product" column since it
+// is already scoped to a single product (mirrors the product-item columns hook
 // dropping its attached-productCategory column via `withAttachedProductCategory`).
 export const useProductFilterTableColumns = ({
   withAttachedProduct,

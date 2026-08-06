@@ -149,7 +149,7 @@ describe('ProductsList', () => {
     expect(screen.getByText('-')).toBeInTheDocument()
   })
 
-  it('links each row to the productCategory item details overview tab', () => {
+  it('links each row to the product details overview tab', () => {
     render(<ProductsList />)
 
     expect(getTableProps().onRowActionLink?.({ id: 'pitem-1' } as ProductForListFragment)).toBe(

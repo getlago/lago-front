@@ -111,7 +111,7 @@ describe('useProductDrawer', () => {
     lastDrawerArgs = null
   })
 
-  describe('GIVEN create mode (no productCategory item argument)', () => {
+  describe('GIVEN create mode (no product argument)', () => {
     it('opens with the create title, form id, create-more control and create label', () => {
       const { result } = renderDrawerHook()
 
@@ -132,7 +132,7 @@ describe('useProductDrawer', () => {
     })
   })
 
-  describe('GIVEN edit mode (a productCategory item argument)', () => {
+  describe('GIVEN edit mode (a product argument)', () => {
     it('opens with the edit title, no create-more control and the save label', () => {
       const { result } = renderDrawerHook()
 
@@ -149,7 +149,7 @@ describe('useProductDrawer', () => {
       )
     })
 
-    it('prefills the form with the productCategory item values', async () => {
+    it('prefills the form with the product values', async () => {
       const { result } = renderDrawerHook()
 
       act(() => result.current.openDrawer({ product: productFixture }))

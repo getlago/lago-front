@@ -102,14 +102,14 @@ describe('ProductCategoryDetailsProducts', () => {
 
   describe('GIVEN no productCategory is loaded yet', () => {
     describe('WHEN the section renders', () => {
-      it('THEN does not render the preview nor fire the productCategory items query', () => {
+      it('THEN does not render the preview nor fire the products query', () => {
         render(<ProductCategoryDetailsProducts />)
 
         expect(mockUseProductsLazyQuery).not.toHaveBeenCalled()
         expect(mockTableProps).not.toHaveBeenCalled()
       })
 
-      it('THEN hides the create productCategory item button', () => {
+      it('THEN hides the create product button', () => {
         render(<ProductCategoryDetailsProducts />)
 
         expect(
@@ -135,7 +135,7 @@ describe('ProductCategoryDetailsProducts', () => {
 
   describe('GIVEN a loaded productCategory without the create permission', () => {
     describe('WHEN the section renders', () => {
-      it('THEN hides the create productCategory item button', () => {
+      it('THEN hides the create product button', () => {
         mockHasPermissions.mockReturnValue(false)
 
         render(<ProductCategoryDetailsProducts productCategory={productCategory} />)
@@ -202,7 +202,7 @@ describe('ProductCategoryDetailsProducts', () => {
         expect(getTableProps().data).toEqual(collection)
       })
 
-      it('THEN links each row to the productCategory item overview tab', () => {
+      it('THEN links each row to the product overview tab', () => {
         render(<ProductCategoryDetailsProducts productCategory={productCategory} />)
 
         expect(getTableProps().onRowActionLink?.({ id: 'pitem-1' } as ProductForListFragment)).toBe(

@@ -59,9 +59,9 @@ describe('FiltersItemProductFilterProduct', () => {
     })
   })
 
-  describe('GIVEN a value encoded with the productCategory item id and name', () => {
-    describe('WHEN a single productCategory item is selected', () => {
-      it('THEN displays the productCategory item name chip', async () => {
+  describe('GIVEN a value encoded with the product id and name', () => {
+    describe('WHEN a single product is selected', () => {
+      it('THEN displays the product name chip', async () => {
         const value = `pi-1${filterDataInlineSeparator}Seats`
 
         renderComponent(value)
@@ -72,8 +72,8 @@ describe('FiltersItemProductFilterProduct', () => {
       })
     })
 
-    describe('WHEN multiple productCategory items are selected', () => {
-      it('THEN displays every productCategory item name chip', async () => {
+    describe('WHEN multiple products are selected', () => {
+      it('THEN displays every product name chip', async () => {
         const value = `pi-1${filterDataInlineSeparator}Seats,pi-2${filterDataInlineSeparator}Extra seat`
 
         renderComponent(value)

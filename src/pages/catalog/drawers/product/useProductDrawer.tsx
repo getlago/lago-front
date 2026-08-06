@@ -99,7 +99,7 @@ const mapProductToFormValues = (product: ProductForDrawerFragment): ProductFormV
 })
 
 // `data-text` is a double-quoted HTML attribute in the linked-toast template;
-// escape embedded quotes so a productCategory item name cannot break out of it.
+// escape embedded quotes so a product name cannot break out of it.
 const escapeDoubleQuotes = (value: string) => value.replaceAll('"', '&quot;')
 
 type ProductCategoryAttachment = { id: string; name: string; code: string }
@@ -215,7 +215,7 @@ type OpenProductDrawerArgs = {
   attachToProductCategory?: ProductCategoryAttachment
 }
 
-// Dual-mode drawer: `openDrawer()` creates a productCategory item, `openDrawer({ product })`
+// Dual-mode drawer: `openDrawer()` creates a product, `openDrawer({ product })`
 // edits it, and `openDrawer({ attachToProductCategory })` (used from the productCategory details tab)
 // prefills the attached productCategory. Create mode carries the "Create more" footer toggle
 // that keeps the drawer open, resets the form, and links the new item in the toast.

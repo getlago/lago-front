@@ -32,7 +32,7 @@ export const PRODUCT_ITEM_FILTER_PREVIEW_EMPTY_TEST_ID = 'product-item-filter-pr
 
 const PREVIEW_LIMIT = 7
 
-// The parent productCategory item fields this preview consumes: its identity (for the
+// The parent product fields this preview consumes: its identity (for the
 // query scope, the create-with-prefill and the "view all" deep-link) and its
 // billable metric filters (to gate the create button and seed the drawer's
 // values editor). ProductDetails spreads this fragment so the data is
@@ -114,7 +114,7 @@ const ProductFilterPreviewList = ({ product }: { product: ProductForFilterPrevie
         },
   }
 
-  // The productCategory item filter value is id-encoded (the chip shows the name); the
+  // The product filter value is id-encoded (the chip shows the name); the
   // "View all" link deep-links to the standalone list pre-filtered on this item.
   const productFilterValue = `${product.id}${filterDataInlineSeparator}${escapeFilterLabel(product.name)}`
   const viewAllTo = `${generatePath(PRODUCT_CATALOG_TAB_ROUTE, {
@@ -180,7 +180,7 @@ const ProductFilterPreview = ({ product }: { product: ProductForFilterPreviewFra
   const { hasPermissions } = usePermissions()
   const { openDrawer: openProductFilterDrawer } = useProductFilterDrawer()
 
-  // A productCategory item with no billable-metric filters cannot have item filters, so
+  // A product with no billable-metric filters cannot have item filters, so
   // the create action is hidden when there are none to scope against.
   const canCreateProductFilters =
     hasPermissions(['productFiltersCreate']) && (product.billableMetric?.filters?.length ?? 0) > 0

@@ -23,7 +23,7 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (key: string) => key }),
 }))
 
-// The code input placeholder / productCategory item combobox placeholder keys, used to
+// The code input placeholder / product combobox placeholder keys, used to
 // find the inputs (the translate mock echoes the key back).
 const CODE_INPUT_PLACEHOLDER_KEY = 'text_629728388c4d2300e2d380d9'
 const PRODUCT_ITEM_COMBOBOX_PLACEHOLDER_KEY = 'text_1784579021080kajutbc14la'
@@ -103,7 +103,7 @@ const getValuesEditorInput = () =>
 
 describe('ProductFilterDrawerContent', () => {
   describe('GIVEN edit mode with an attached filter', () => {
-    it('locks the code input and the attached productCategory item selector', () => {
+    it('locks the code input and the attached product selector', () => {
       renderContent({
         isEdit: true,
         disableCodeInput: true,
@@ -205,13 +205,13 @@ describe('ProductFilterDrawerContent', () => {
   })
 
   describe('GIVEN the filter values editor', () => {
-    it('is disabled until a productCategory item is selected', () => {
+    it('is disabled until a product is selected', () => {
       renderContent()
 
       expect(getValuesEditorInput()).toBeDisabled()
     })
 
-    it('is enabled once a productCategory item is selected', () => {
+    it('is enabled once a product is selected', () => {
       renderContent({
         productSeed: PRODUCT_ITEM_SEED,
         seededFilters: SEEDED_FILTERS,
@@ -222,7 +222,7 @@ describe('ProductFilterDrawerContent', () => {
     })
   })
 
-  describe('GIVEN switching the selected productCategory item', () => {
+  describe('GIVEN switching the selected product', () => {
     it('clears the previously selected values', async () => {
       let controls: FormControls | null = null
 
@@ -241,7 +241,7 @@ describe('ProductFilterDrawerContent', () => {
       })
 
       // Submit once (values are valid, so no alert) to activate dynamic
-      // validation, then switch the productCategory item.
+      // validation, then switch the product.
       await act(async () => {
         await controls?.submit()
       })

@@ -155,7 +155,7 @@ describe('ProductFilterPreview', () => {
     expect(await screen.findByText('Searched region', {}, { timeout: 3000 })).toBeInTheDocument()
   })
 
-  it('shows the view-all link deep-linked to this productCategory item when the total exceeds the preview limit', async () => {
+  it('shows the view-all link deep-linked to this product when the total exceeds the preview limit', async () => {
     const collection = Array.from({ length: 7 }, (_, index) => buildRow(index + 1))
 
     await act(() =>
@@ -187,7 +187,7 @@ describe('ProductFilterPreview', () => {
     ).not.toBeInTheDocument()
   })
 
-  it('opens the drawer prefilled with this productCategory item when the create button is clicked', async () => {
+  it('opens the drawer prefilled with this product when the create button is clicked', async () => {
     await act(() =>
       renderPreview([filtersQueryMock({ productId: PRODUCT_ITEM_ID, limit: 7 }, [], 0)]),
     )
@@ -214,7 +214,7 @@ describe('ProductFilterPreview', () => {
     expect(screen.queryByTestId(PRODUCT_ITEM_FILTER_PREVIEW_CREATE_TEST_ID)).not.toBeInTheDocument()
   })
 
-  it('hides the create button when the productCategory item has no billable metric filters', async () => {
+  it('hides the create button when the product has no billable metric filters', async () => {
     await act(() =>
       renderPreview(
         [filtersQueryMock({ productId: PRODUCT_ITEM_ID, limit: 7 }, [], 0)],

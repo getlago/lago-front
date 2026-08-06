@@ -91,7 +91,7 @@ describe('ProductDetailsOverview', () => {
     mockHasPermissions.mockReturnValue(true)
   })
 
-  describe('GIVEN a fixed productCategory item attached to a productCategory', () => {
+  describe('GIVEN a fixed product attached to a productCategory', () => {
     describe('WHEN the overview loads', () => {
       it('THEN displays the item name, code, description and invoice display name', async () => {
         await act(() => renderOverview())
@@ -110,7 +110,7 @@ describe('ProductDetailsOverview', () => {
     })
   })
 
-  describe('GIVEN a usage productCategory item with a billable metric', () => {
+  describe('GIVEN a usage product with a billable metric', () => {
     describe('WHEN the overview loads', () => {
       it('THEN links to the billable metric details', async () => {
         await act(() => renderOverview(usageProduct))
@@ -122,7 +122,7 @@ describe('ProductDetailsOverview', () => {
 
   describe('GIVEN the update permission', () => {
     describe('WHEN the edit button is clicked', () => {
-      it('THEN opens the drawer with the loaded productCategory item', async () => {
+      it('THEN opens the drawer with the loaded product', async () => {
         await act(() => renderOverview())
 
         await userEvent.click(await screen.findByTestId(PRODUCT_ITEM_OVERVIEW_EDIT_TEST_ID))

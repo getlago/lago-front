@@ -104,7 +104,7 @@ describe('ProductFilterDetails', () => {
     window.history.pushState({}, '', '/')
   })
 
-  it('displays the productCategory item filter name and code in the header once loaded', async () => {
+  it('displays the product filter name and code in the header once loaded', async () => {
     await act(() => renderPage())
 
     await waitFor(() => {
@@ -115,7 +115,7 @@ describe('ProductFilterDetails', () => {
     )
   })
 
-  it('renders the catalog breadcrumb link and the static grey productCategory item filter crumb', async () => {
+  it('renders the catalog breadcrumb link and the static grey product filter crumb', async () => {
     await act(() => renderPage())
 
     const catalogCrumb = await screen.findByRole('link', {
@@ -199,7 +199,7 @@ describe('ProductFilterDetails', () => {
     )
   })
 
-  it('opens the delete dialog whose callback navigates back to the productCategory item filters list', async () => {
+  it('opens the delete dialog whose callback navigates back to the product filters list', async () => {
     await act(() => renderPage())
 
     await userEvent.click(
@@ -233,7 +233,7 @@ describe('ProductFilterDetails', () => {
     ).not.toBeInTheDocument()
   })
 
-  it('redirects to the productCategory item filters list when the item filter is not found', async () => {
+  it('redirects to the product filters list when the item filter is not found', async () => {
     const notFoundMock = {
       request: { query: GetProductFilterForDetailsDocument, variables: { id: 'pif-1' } },
       result: {

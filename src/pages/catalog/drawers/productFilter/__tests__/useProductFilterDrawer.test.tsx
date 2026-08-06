@@ -171,7 +171,7 @@ describe('useProductFilterDrawer', () => {
     lastDrawerArgs = null
   })
 
-  describe('GIVEN create mode (no productCategory item filter argument)', () => {
+  describe('GIVEN create mode (no product filter argument)', () => {
     it('opens with the create title, form id, create-more control and create label', () => {
       const { result } = renderDrawerHook()
 
@@ -243,7 +243,7 @@ describe('useProductFilterDrawer', () => {
       expect(addToast).not.toHaveBeenCalled()
     })
 
-    it('seeds the values editor with the prefilled productCategory item filters (attachToProduct)', () => {
+    it('seeds the values editor with the prefilled product filters (attachToProduct)', () => {
       const { result } = renderDrawerHook()
 
       const billableMetricFilters = [{ id: 'bmf-9', key: 'region', values: ['eu', 'us'] }]
@@ -266,7 +266,7 @@ describe('useProductFilterDrawer', () => {
     })
   })
 
-  describe('GIVEN edit mode (a productCategory item filter argument)', () => {
+  describe('GIVEN edit mode (a product filter argument)', () => {
     it('opens with the edit title, no create-more control and the save label', () => {
       const { result } = renderDrawerHook()
 
@@ -283,7 +283,7 @@ describe('useProductFilterDrawer', () => {
       )
     })
 
-    it('seeds the form from the productCategory item filter', () => {
+    it('seeds the form from the product filter', () => {
       const { result } = renderDrawerHook()
 
       act(() => result.current.openDrawer({ productFilter: productFilterFixture }))
