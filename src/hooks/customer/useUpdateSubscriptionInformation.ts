@@ -1,6 +1,9 @@
 import { DateTime } from 'luxon'
 
-import { normalizePurchaseOrderNumber } from '~/components/purchaseOrder/PO'
+import {
+  isSubscriptionPurchaseOrderNumberEditable,
+  normalizePurchaseOrderNumber,
+} from '~/components/purchaseOrder/PO'
 import {
   SubscriptionUpdateFormOptions,
   useUpdateSubscriptionForm,
@@ -21,6 +24,11 @@ export const useUpdateSubscriptionInformation = ({
       name: value.name || null,
       subscriptionAt: DateTime.fromISO(value.subscriptionAt).toUTC().toISO(),
       endingAt: value.endingAt ? DateTime.fromISO(value.endingAt).toUTC().toISO() : null,
-      purchaseOrderNumber: normalizePurchaseOrderNumber(value.purchaseOrderNumber),
+      // Omitted entirely when not editable, otherwise the BE rejects the whole
+      // update and name/dates can no longer be edited. When editable the key
+      // must stay even as `null` — that is the clear mechanism.
+      ...(isSubscriptionPurchaseOrderNumberEditable(subscription?.status)
+        ? { purchaseOrderNumber: normalizePurchaseOrderNumber(value.purchaseOrderNumber) }
+        : {}),
     }),
   })

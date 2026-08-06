@@ -9,7 +9,7 @@ import { PurchaseOrderNumber } from './PurchaseOrderNumber'
 import { PurchaseOrderRoot } from './PurchaseOrderRoot'
 import { PurchaseOrderTitle } from './PurchaseOrderTitle'
 
-export { normalizePurchaseOrderNumber } from './utils'
+export { isSubscriptionPurchaseOrderNumberEditable, normalizePurchaseOrderNumber } from './utils'
 
 export const PurchaseOrder = Object.assign(PurchaseOrderRoot, {
   Title: PurchaseOrderTitle,

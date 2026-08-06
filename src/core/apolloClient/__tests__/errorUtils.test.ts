@@ -2,7 +2,9 @@ import { ApolloError } from '@apollo/client'
 import { GraphQLFormattedError } from 'graphql'
 
 import {
+  buildGraphQLErrorFingerprint,
   extractThirdPartyErrorMessage,
+  getGraphQLErrorCode,
   hasDefinedGQLError,
   isSilencedGQLError,
   LagoGQLError,
@@ -243,6 +245,62 @@ describe('Test apollo utils', () => {
       })
 
       expect(result).toBe(false)
+    })
+  })
+})
+
+describe('getGraphQLErrorCode', () => {
+  describe('GIVEN a GraphQL error extensions object', () => {
+    describe('WHEN it carries a string code', () => {
+      it('THEN should return that code', () => {
+        expect(getGraphQLErrorCode({ code: 'purchase_order_number_not_editable' })).toBe(
+          'purchase_order_number_not_editable',
+        )
+      })
+    })
+
+    describe('WHEN the code is missing or not a string', () => {
+      it.each([
+        ['undefined extensions', undefined],
+        ['empty extensions', {}],
+        ['numeric code', { code: 405 }],
+        ['null code', { code: null }],
+      ])('THEN should return "unknown" for %s', (_, extensions) => {
+        expect(getGraphQLErrorCode(extensions)).toBe('unknown')
+      })
+    })
+  })
+})
+
+describe('buildGraphQLErrorFingerprint', () => {
+  describe('GIVEN an operation name and an error code', () => {
+    describe('WHEN both are known', () => {
+      // Two failures sharing the generic "Method Not Allowed" message must not
+      // collapse into a single Sentry issue.
+      it('THEN should build a fingerprint scoped to the operation and the code', () => {
+        expect(
+          buildGraphQLErrorFingerprint('updateSubscription', 'purchase_order_number_not_editable'),
+        ).toEqual(['graphql-error', 'updateSubscription', 'purchase_order_number_not_editable'])
+      })
+
+      it('THEN should build a different fingerprint for another operation with the same code', () => {
+        expect(buildGraphQLErrorFingerprint('voidInvoice', 'not_voidable')).not.toEqual(
+          buildGraphQLErrorFingerprint('updateSubscription', 'not_voidable'),
+        )
+      })
+    })
+
+    describe('WHEN the operation name is missing', () => {
+      it.each([
+        ['undefined', undefined],
+        ['empty string', ''],
+      ])('THEN should fall back to "unknown" for %s', (_, operationName) => {
+        expect(buildGraphQLErrorFingerprint(operationName, 'not_voidable')).toEqual([
+          'graphql-error',
+          'unknown',
+          'not_voidable',
+        ])
+      })
     })
   })
 })

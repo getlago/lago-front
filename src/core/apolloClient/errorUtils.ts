@@ -34,6 +34,21 @@ export const extractThirdPartyErrorMessage = (
   return Array.isArray(errorDetail) ? errorDetail[0] : errorDetail
 }
 
+const UNKNOWN_ERROR_IDENTIFIER = 'unknown'
+
+// `extensions.code` is untyped by the GraphQL spec, so narrow it before using it
+// as a Sentry tag or fingerprint component.
+export const getGraphQLErrorCode = (extensions?: GraphQLFormattedError['extensions']): string =>
+  typeof extensions?.code === 'string' ? extensions.code : UNKNOWN_ERROR_IDENTIFIER
+
+// Sentry groups by the error message by default, so the generic HTTP messages the
+// API returns ("Method Not Allowed", "Unprocessable Entity", ...) collapse unrelated
+// failures into a single issue. Group per operation + error code instead.
+export const buildGraphQLErrorFingerprint = (
+  operationName: string | undefined,
+  errorCode: string,
+): Array<string> => ['graphql-error', operationName || UNKNOWN_ERROR_IDENTIFIER, errorCode]
+
 /**
  * Whether a GraphQL error was declared silent by the operation's context:
  * either its top-level code is listed in `silentErrorCodes`, or one of its
