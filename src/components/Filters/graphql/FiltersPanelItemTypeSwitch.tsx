@@ -45,6 +45,10 @@ import { FiltersItemPaymentOverdue } from '~/components/Filters/graphql/filtersE
 import { FiltersItemPaymentStatus } from '~/components/Filters/graphql/filtersElements/FiltersItemPaymentStatus'
 import { FiltersItemPeriod } from '~/components/Filters/graphql/filtersElements/FiltersItemPeriod'
 import { FiltersItemPlanCode } from '~/components/Filters/graphql/filtersElements/FiltersItemPlanCode'
+import { FiltersItemProductItemFilterProduct } from '~/components/Filters/graphql/filtersElements/FiltersItemProductItemFilterProduct'
+import { FiltersItemProductItemFilterProductItem } from '~/components/Filters/graphql/filtersElements/FiltersItemProductItemFilterProductItem'
+import { FiltersItemProductItemProduct } from '~/components/Filters/graphql/filtersElements/FiltersItemProductItemProduct'
+import { FiltersItemProductItemType } from '~/components/Filters/graphql/filtersElements/FiltersItemProductItemType'
 import { FiltersItemPurchaseOrderNumber } from '~/components/Filters/graphql/filtersElements/FiltersItemPurchaseOrderNumber'
 import { FiltersItemQuoteNumber } from '~/components/Filters/graphql/filtersElements/FiltersItemQuoteNumber'
 import { FiltersItemQuoteOrderType } from '~/components/Filters/graphql/filtersElements/FiltersItemQuoteOrderType'
@@ -142,6 +146,14 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.paymentStatus]: <FiltersItemPaymentStatus {...props} />,
     [AvailableFiltersEnum.period]: <FiltersItemPeriod {...props} />,
     [AvailableFiltersEnum.planCode]: <FiltersItemPlanCode {...props} />,
+    [AvailableFiltersEnum.productItemProduct]: <FiltersItemProductItemProduct {...props} />,
+    [AvailableFiltersEnum.productItemType]: <FiltersItemProductItemType {...props} />,
+    [AvailableFiltersEnum.productItemFilterProduct]: (
+      <FiltersItemProductItemFilterProduct {...props} />
+    ),
+    [AvailableFiltersEnum.productItemFilterProductItem]: (
+      <FiltersItemProductItemFilterProductItem {...props} />
+    ),
     [AvailableFiltersEnum.requestPaths]: <FiltersItemRequestPath {...props} />,
     [AvailableFiltersEnum.resourceIds]: <FiltersItemResourceIds {...props} />,
     [AvailableFiltersEnum.resourceTypes]: <FiltersItemResourceTypes {...props} />,
