@@ -460,9 +460,6 @@ export const useAddSubscription: UseAddSubscription = ({
                   // subscription column, meaning "inherit from customer".
                   billingEntityId: billingEntityId || null,
                   paymentMethod: parsedPaymentMethod,
-                  // Always sent, whatever the status: the BE only rejects an
-                  // actual value change on a non-editable subscription. The key
-                  // must stay even as `null` — that is the clear mechanism.
                   purchaseOrderNumber,
                   planOverrides,
                 },

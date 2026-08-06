@@ -21,9 +21,6 @@ export const useUpdateSubscriptionInformation = ({
       name: value.name || null,
       subscriptionAt: DateTime.fromISO(value.subscriptionAt).toUTC().toISO(),
       endingAt: value.endingAt ? DateTime.fromISO(value.endingAt).toUTC().toISO() : null,
-      // Always sent, whatever the status: the BE only rejects an actual value
-      // change on a non-editable subscription. The key must stay even as `null`
-      // — that is the clear mechanism, `undefined` gets stripped.
       purchaseOrderNumber: normalizePurchaseOrderNumber(value.purchaseOrderNumber),
     }),
   })
