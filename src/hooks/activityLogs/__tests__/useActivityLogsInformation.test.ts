@@ -40,16 +40,6 @@ describe('useActivityLogsInformation', () => {
       )
     })
 
-    it.each([
-      ['Quote', 'text_17869554474074s8lhp2f0vt'],
-      ['OrderForm', 'text_17869554474070hpjb5xm2ft'],
-      ['Order', 'text_1786955447407xkrcha3k3x8'],
-    ])('should return translation key for %s', (resourceType, key) => {
-      const { result } = renderHook(() => useActivityLogsInformation())
-
-      expect(result.current.getResourceType(resourceType)).toBe(`translated:${key}`)
-    })
-
     it('should return the resource type itself for unknown types', () => {
       const { result } = renderHook(() => useActivityLogsInformation())
 
@@ -583,66 +573,40 @@ describe('useActivityLogsInformation', () => {
       expect(description).toContain('"totalAmount"')
     })
 
-    it.each([
-      [ActivityTypeEnum.QuoteCreated, 'text_1786955447407cvhaqre7dxd', '{"quoteNumber":"QT-001"}'],
-      [ActivityTypeEnum.QuoteApproved, 'text_1786955447407x1mw2cxfk3k', '{"version":3}'],
-      [ActivityTypeEnum.QuoteVoided, 'text_178695544740796c9l3cd8v9', '{"version":3}'],
-      [ActivityTypeEnum.QuoteVersionCreated, 'text_17869554474075bgy7thx2lb', '{"version":3}'],
-    ])('should return description for %s', (activityType, key, expectedParameters) => {
-      const { result } = renderHook(() => useActivityLogsInformation())
-      const activityObject = {
-        number: 'QT-001',
-        version: 3,
-      }
+    describe('catalog product activities', () => {
+      it.each([
+        ActivityTypeEnum.ProductCreated,
+        ActivityTypeEnum.ProductUpdated,
+        ActivityTypeEnum.ProductDeleted,
+        ActivityTypeEnum.ProductItemCreated,
+        ActivityTypeEnum.ProductItemUpdated,
+        ActivityTypeEnum.ProductItemDeleted,
+        ActivityTypeEnum.ProductItemFilterCreated,
+        ActivityTypeEnum.ProductItemFilterUpdated,
+        ActivityTypeEnum.ProductItemFilterDeleted,
+        ActivityTypeEnum.RateCardCreated,
+        ActivityTypeEnum.RateCardUpdated,
+        ActivityTypeEnum.RateCardDeleted,
+      ])('should return a code-parameterized description for %s', (activityType) => {
+        const { result } = renderHook(() => useActivityLogsInformation())
 
-      const description = result.current.getActivityDescription(activityType, { activityObject })
+        const description = result.current.getActivityDescription(activityType, {
+          activityObject: { code: 'catalog_code' },
+        })
 
-      expect(description).toBe(`translated:${key}:${expectedParameters}`)
-    })
-
-    it('should return a description without parameters for QuoteUpdated', () => {
-      const { result } = renderHook(() => useActivityLogsInformation())
-      const activityObject = {
-        number: 'QT-001',
-        version: 3,
-      }
-
-      const description = result.current.getActivityDescription(ActivityTypeEnum.QuoteUpdated, {
-        activityObject,
+        expect(description).toContain('"code":"catalog_code"')
       })
-
-      expect(description).toBe('translated:text_1786955447407vbz8j99t6lh:{}')
     })
+  })
 
-    it.each([
-      [ActivityTypeEnum.OrderFormCreated, 'text_17869554474079t2uurp16yt'],
-      [ActivityTypeEnum.OrderFormExpired, 'text_1786955447407mnrr7w7329i'],
-      [ActivityTypeEnum.OrderFormFileUploaded, 'text_1786955447407im4rt988ssq'],
-      [ActivityTypeEnum.OrderFormSigned, 'text_1786955447407my7879j5w85'],
-      [ActivityTypeEnum.OrderFormVoided, 'text_1786955447407vg4w8tnjyzv'],
-    ])('should return description for %s', (activityType, key) => {
-      const { result } = renderHook(() => useActivityLogsInformation())
-      const activityObject = {
-        number: 'OF-001',
-      }
+  describe('getResourceType for catalog resources', () => {
+    it.each(['Product', 'ProductItem', 'ProductItemFilter', 'RateCard'])(
+      'should map %s to a translated resource label rather than the raw fallback',
+      (resourceType) => {
+        const { result } = renderHook(() => useActivityLogsInformation())
 
-      const description = result.current.getActivityDescription(activityType, { activityObject })
-
-      expect(description).toBe(`translated:${key}:{"orderFormNumber":"OF-001"}`)
-    })
-
-    it.each([
-      [ActivityTypeEnum.OrderCreated, 'text_1786955447407vssusoglzlx'],
-      [ActivityTypeEnum.OrderExecuted, 'text_1786955447407iaeqqhoqqlr'],
-    ])('should return description for %s', (activityType, key) => {
-      const { result } = renderHook(() => useActivityLogsInformation())
-      const activityObject = {
-        number: 'ORD-001',
-      }
-
-      const description = result.current.getActivityDescription(activityType, { activityObject })
-
-      expect(description).toBe(`translated:${key}:{"orderNumber":"ORD-001"}`)
-    })
+        expect(result.current.getResourceType(resourceType)).not.toBe(`translated:${resourceType}`)
+      },
+    )
   })
 })

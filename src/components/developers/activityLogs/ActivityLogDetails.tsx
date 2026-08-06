@@ -111,6 +111,15 @@ gql`
       ... on PaymentReceipt {
         id
       }
+      ... on Product {
+        id
+      }
+      ... on ProductItem {
+        id
+      }
+      ... on ProductItemFilter {
+        id
+      }
       ... on RateCard {
         id
       }
