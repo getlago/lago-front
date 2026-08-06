@@ -19,7 +19,7 @@ import {
   CustomerPaymentsAvailableFilters,
   filterDataInlineSeparator,
   filterDataLabelCommaPlaceholder,
-  filterWithoutProductItemValue,
+  filterWithoutProductCategoryValue,
   filterWithoutProductValue,
   ForecastsAvailableFilters,
   InvoiceAvailableFilters,
@@ -27,7 +27,7 @@ import {
   MrrOverviewAvailableFilters,
   OrderAvailableFilters,
   OrderFormAvailableFilters,
-  ProductItemAvailableFilters,
+  ProductAvailableFilters,
   QuoteAvailableFilters,
   RevenueStreamsAvailablePopperFilters,
   RevenueStreamsCustomersAvailableFilters,
@@ -60,8 +60,8 @@ import {
   ORDER_FORM_LIST_FILTER_PREFIX,
   ORDER_LIST_FILTER_PREFIX,
   PREPAID_CREDITS_OVERVIEW_FILTER_PREFIX,
-  PRODUCT_ITEM_FILTER_LIST_FILTER_PREFIX,
-  PRODUCT_ITEM_LIST_FILTER_PREFIX,
+  PRODUCT_FILTER_LIST_FILTER_PREFIX,
+  PRODUCT_LIST_FILTER_PREFIX,
   QUOTE_LIST_FILTER_PREFIX,
   REVENUE_STREAMS_BREAKDOWN_CUSTOMER_FILTER_PREFIX,
   REVENUE_STREAMS_BREAKDOWN_PLAN_FILTER_PREFIX,
@@ -96,8 +96,8 @@ import {
   type GetWebhookLogQueryVariables,
   InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
-  type ProductItemFiltersQueryVariables,
-  type ProductItemsQueryVariables,
+  type ProductFiltersQueryVariables,
+  type ProductsQueryVariables,
 } from '~/generated/graphql'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
@@ -249,52 +249,52 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.paymentStatus]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.planCode]: (value: string) => value,
   [AvailableFiltersEnum.purchaseOrderNumber]: (value: string) => value,
-  [AvailableFiltersEnum.productItemProduct]: (value: string) => {
-    // Multi-select: real products go to `productIds`; the synthetic "Not defined" entry
-    // maps to the standalone `withoutProduct` arg instead of polluting the id array.
+  [AvailableFiltersEnum.productProductCategory]: (value: string) => {
+    // Multi-select: real productCategories go to `productCategoryIds`; the synthetic "Not defined" entry
+    // maps to the standalone `withoutProductCategory` arg instead of polluting the id array.
     // Returning an object lets formatFiltersForQuery spread both keys into the query vars.
     const parts = value.split(',').filter(Boolean)
-    const withoutProduct = parts.includes(filterWithoutProductValue)
-    const productIds = parts
-      .filter((part) => part !== filterWithoutProductValue)
+    const withoutProductCategory = parts.includes(filterWithoutProductCategoryValue)
+    const productCategoryIds = parts
+      .filter((part) => part !== filterWithoutProductCategoryValue)
       .map((part) => part.split(filterDataInlineSeparator)[0])
 
     return {
-      ...(productIds.length > 0 && { productIds }),
-      ...(withoutProduct && { withoutProduct: true }),
+      ...(productCategoryIds.length > 0 && { productCategoryIds }),
+      ...(withoutProductCategory && { withoutProductCategory: true }),
     }
   },
-  [AvailableFiltersEnum.productItemType]: (value: string) => value,
-  [AvailableFiltersEnum.productItemFilterProduct]: (value: string) => {
-    // Same shape as productItemProduct (real ids -> `productIds`, the synthetic
-    // "Not defined" entry -> `withoutProduct`). Kept here for shape-consistency and
-    // active-filter chip rendering only: formatFiltersForProductItemFiltersQuery
+  [AvailableFiltersEnum.productType]: (value: string) => value,
+  [AvailableFiltersEnum.productFilterProductCategory]: (value: string) => {
+    // Same shape as productProductCategory (real ids -> `productCategoryIds`, the synthetic
+    // "Not defined" entry -> `withoutProductCategory`). Kept here for shape-consistency and
+    // active-filter chip rendering only: formatFiltersForProductFiltersQuery
     // deliberately excludes this filter from its availableFilters allow-list, so
-    // this entry never actually reaches the `productItemFilters` query - the
+    // this entry never actually reaches the `productFilters` query - the
     // backend has no product-level argument on that query today.
     const parts = value.split(',').filter(Boolean)
-    const withoutProduct = parts.includes(filterWithoutProductValue)
-    const productIds = parts
-      .filter((part) => part !== filterWithoutProductValue)
+    const withoutProductCategory = parts.includes(filterWithoutProductCategoryValue)
+    const productCategoryIds = parts
+      .filter((part) => part !== filterWithoutProductCategoryValue)
       .map((part) => part.split(filterDataInlineSeparator)[0])
 
     return {
-      ...(productIds.length > 0 && { productIds }),
-      ...(withoutProduct && { withoutProduct: true }),
+      ...(productCategoryIds.length > 0 && { productCategoryIds }),
+      ...(withoutProductCategory && { withoutProductCategory: true }),
     }
   },
-  [AvailableFiltersEnum.productItemFilterProductItem]: (value: string) => {
-    // Multi-select in the UI, but the `productItemFilters` query only accepts a
-    // single `productItemId`: keep the first real selection (skip the synthetic
+  [AvailableFiltersEnum.productFilterProduct]: (value: string) => {
+    // Multi-select in the UI, but the `productFilters` query only accepts a
+    // single `productId`: keep the first real selection (skip the synthetic
     // "Not defined" entry, which has no backend meaning here) and drop the rest.
     // Returning an object lets formatFiltersForQuery spread it directly, matching
-    // the productItemProduct convention above.
+    // the productProductCategory convention above.
     const [firstId] = value
       .split(',')
-      .filter((part) => !!part && part !== filterWithoutProductItemValue)
+      .filter((part) => !!part && part !== filterWithoutProductValue)
       .map((part) => part.split(filterDataInlineSeparator)[0])
 
-    return firstId ? { productItemId: firstId } : {}
+    return firstId ? { productId: firstId } : {}
   },
   [AvailableFiltersEnum.orderFormCreatedAt]: (value: string) => {
     return {
@@ -479,44 +479,42 @@ export const formatFiltersForCreditNotesQuery = (
   })
 }
 
-type ProductItemsQueryFilters = Partial<
-  Pick<ProductItemsQueryVariables, 'productIds' | 'itemType' | 'withoutProduct'>
+type ProductsQueryFilters = Partial<
+  Pick<ProductsQueryVariables, 'productCategoryIds' | 'productType' | 'withoutProductCategory'>
 >
 
-export const formatFiltersForProductItemsQuery = (
+export const formatFiltersForProductsQuery = (
   searchParams: URLSearchParams,
-): ProductItemsQueryFilters => {
-  // productItemProduct is intentionally absent: its FILTER_VALUE_MAP entry returns an object
-  // ({ productIds?, withoutProduct? }) that formatFiltersForQuery spreads directly, so it
+): ProductsQueryFilters => {
+  // productProductCategory is intentionally absent: its FILTER_VALUE_MAP entry returns an object
+  // ({ productCategoryIds?, withoutProductCategory? }) that formatFiltersForQuery spreads directly, so it
   // maps to two keys at once and can't go through the single-key keyMap.
-  const keyMap: Partial<Record<AvailableFiltersEnum, keyof ProductItemsQueryFilters & string>> = {
-    [AvailableFiltersEnum.productItemType]: 'itemType',
+  const keyMap: Partial<Record<AvailableFiltersEnum, keyof ProductsQueryFilters & string>> = {
+    [AvailableFiltersEnum.productType]: 'productType',
   }
 
-  return formatFiltersForQuery<ProductItemsQueryFilters>({
+  return formatFiltersForQuery<ProductsQueryFilters>({
     searchParams,
     keyMap,
-    availableFilters: ProductItemAvailableFilters,
-    filtersNamePrefix: PRODUCT_ITEM_LIST_FILTER_PREFIX,
+    availableFilters: ProductAvailableFilters,
+    filtersNamePrefix: PRODUCT_LIST_FILTER_PREFIX,
   })
 }
 
-type ProductItemFiltersQueryFilters = Partial<
-  Pick<ProductItemFiltersQueryVariables, 'productItemId'>
->
+type ProductFiltersQueryFilters = Partial<Pick<ProductFiltersQueryVariables, 'productId'>>
 
-export const formatFiltersForProductItemFiltersQuery = (
+export const formatFiltersForProductFiltersQuery = (
   searchParams: URLSearchParams,
-): ProductItemFiltersQueryFilters => {
-  // productItemFilterProduct is intentionally omitted from availableFilters: the
-  // backend `productItemFilters` query only accepts `productItemId` + `searchTerm`
-  // today, so the Product filter is UI-only pending backend support and must never
+): ProductFiltersQueryFilters => {
+  // productFilterProductCategory is intentionally omitted from availableFilters: the
+  // backend `productFilters` query only accepts `productId` + `searchTerm`
+  // today, so the ProductCategory filter is UI-only pending backend support and must never
   // contribute to the query variables, even though it's selectable in the panel
-  // (see ProductItemFilterAvailableFilters).
-  return formatFiltersForQuery<ProductItemFiltersQueryFilters>({
+  // (see ProductFilterAvailableFilters).
+  return formatFiltersForQuery<ProductFiltersQueryFilters>({
     searchParams,
-    availableFilters: [AvailableFiltersEnum.productItemFilterProductItem],
-    filtersNamePrefix: PRODUCT_ITEM_FILTER_LIST_FILTER_PREFIX,
+    availableFilters: [AvailableFiltersEnum.productFilterProduct],
+    filtersNamePrefix: PRODUCT_FILTER_LIST_FILTER_PREFIX,
   })
 }
 
@@ -1047,17 +1045,17 @@ export const formatActiveFilterValueDisplay = (
       return unescapeFilterLabel(
         value.split(filterDataInlineSeparator)[1] || value.split(filterDataInlineSeparator)[0],
       )
-    case AvailableFiltersEnum.productItemProduct:
-    case AvailableFiltersEnum.productItemFilterProduct:
-    case AvailableFiltersEnum.productItemFilterProductItem:
+    case AvailableFiltersEnum.productProductCategory:
+    case AvailableFiltersEnum.productFilterProductCategory:
+    case AvailableFiltersEnum.productFilterProduct:
       // Multi-select with a synthetic "Not defined" entry; render its translated label.
-      // productItemFilterProductItem is lossily mapped to a single productItemId by
-      // formatFiltersForProductItemFiltersQuery, but every selected chip still renders here.
+      // productFilterProduct is lossily mapped to a single productId by
+      // formatFiltersForProductFiltersQuery, but every selected chip still renders here.
       return value
         .split(',')
         .filter(Boolean)
         .map((entry) =>
-          entry === filterWithoutProductValue || entry === filterWithoutProductItemValue
+          entry === filterWithoutProductCategoryValue || entry === filterWithoutProductValue
             ? translate?.('text_1784214117868fh6rndi4m75') || ''
             : unescapeFilterLabel(
                 entry.split(filterDataInlineSeparator)[1] ||

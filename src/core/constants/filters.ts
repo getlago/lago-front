@@ -29,9 +29,9 @@ export const API_LOGS_FILTER_PREFIX = 'apil'
 
 export const SUBSCRIPTION_LIST_FILTER_PREFIX = 'sub'
 
-export const PRODUCT_ITEM_LIST_FILTER_PREFIX = 'pit'
+export const PRODUCT_LIST_FILTER_PREFIX = 'pit'
 
-export const PRODUCT_ITEM_FILTER_LIST_FILTER_PREFIX = 'pif'
+export const PRODUCT_FILTER_LIST_FILTER_PREFIX = 'pif'
 
 export const SECURITY_LOGS_FILTER_PREFIX = 'secul'
 

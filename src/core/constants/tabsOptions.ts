@@ -76,28 +76,28 @@ export enum QuotesTabsOptionsEnum {
 }
 
 export enum ProductCatalogTabsOptionsEnum {
+  productCategories = 'product-categories',
   products = 'products',
-  productItems = 'product-items',
-  productItemFilters = 'product-item-filters',
+  productFilters = 'product-filters',
   rateCards = 'rate-cards',
+}
+
+export enum ProductCategoryDetailsTabsOptionsEnum {
+  overview = 'overview',
+  products = 'products',
+  plans = 'plans',
+  activityLogs = 'activity-logs',
 }
 
 export enum ProductDetailsTabsOptionsEnum {
   overview = 'overview',
-  productItems = 'product-items',
-  plans = 'plans',
-  activityLogs = 'activity-logs',
-}
-
-export enum ProductItemDetailsTabsOptionsEnum {
-  overview = 'overview',
   rateCards = 'rate-cards',
-  itemFilters = 'item-filters',
+  filters = 'filters',
   plans = 'plans',
   activityLogs = 'activity-logs',
 }
 
-export enum ProductItemFilterDetailsTabsOptionsEnum {
+export enum ProductFilterDetailsTabsOptionsEnum {
   overview = 'overview',
   rateCards = 'rate-cards',
   plans = 'plans',

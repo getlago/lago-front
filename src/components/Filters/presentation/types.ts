@@ -7,18 +7,18 @@ export const filterDataInlineSeparator = '|-_-|'
 // decode them back only for display — see escapeFilterLabel / unescapeFilterLabel in utils.
 export const filterDataLabelCommaPlaceholder = '|-COMMA-|'
 
-// Sentinel entry for the "Not defined" option of the product-item Product filter.
-// Selected alongside real product ids in the same multi-select, it is NOT a product id:
-// it maps to the standalone `withoutProduct: true` query arg. Kept free of the comma and
-// `filterDataInlineSeparator` so it can never collide with an encoded product selection.
-export const filterWithoutProductValue = '__without_product__'
+// Sentinel entry for the "Not defined" option of the product-item ProductCategory filter.
+// Selected alongside real productCategory ids in the same multi-select, it is NOT a productCategory id:
+// it maps to the standalone `withoutProductCategory: true` query arg. Kept free of the comma and
+// `filterDataInlineSeparator` so it can never collide with an encoded productCategory selection.
+export const filterWithoutProductCategoryValue = '__without_productCategory__'
 
 // Sentinel entry for the "Not defined" option of the product-item-filters list's
-// Product item filter. Matches the Figma reference for visual parity with the
-// product-item list's Product filter, but has no backend meaning here: a
-// ProductItemFilter always belongs to exactly one product item, so selecting it
-// never contributes a `productItemId` (see formatFiltersForProductItemFiltersQuery).
-export const filterWithoutProductItemValue = '__without_product_item__'
+// ProductCategory item filter. Matches the Figma reference for visual parity with the
+// product-item list's ProductCategory filter, but has no backend meaning here: a
+// ProductFilter always belongs to exactly one productCategory item, so selecting it
+// never contributes a `productId` (see formatFiltersForProductFiltersQuery).
+export const filterWithoutProductValue = '__without_productCategory_item__'
 
 export enum AvailableQuickFilters {
   invoiceStatus = 'invoiceStatus',
@@ -101,10 +101,10 @@ export enum AvailableFiltersEnum {
   paymentStatus = 'paymentStatus',
   planCode = 'planCode',
   purchaseOrderNumber = 'purchaseOrderNumber',
-  productItemProduct = 'productItemProduct',
-  productItemType = 'productItemType',
-  productItemFilterProduct = 'productItemFilterProduct',
-  productItemFilterProductItem = 'productItemFilterProductItem',
+  productProductCategory = 'productProductCategory',
+  productType = 'productType',
+  productFilterProductCategory = 'productFilterProductCategory',
+  productFilterProduct = 'productFilterProduct',
   orderFormCreatedAt = 'orderFormCreatedAt',
   orderFormNumber = 'orderFormNumber',
   orderFormStatus = 'orderFormStatus',
@@ -315,14 +315,14 @@ export const SubscriptionAvailableFilters = [
   AvailableFiltersEnum.subscriptionStatus,
 ]
 
-export const ProductItemAvailableFilters = [
-  AvailableFiltersEnum.productItemProduct,
-  AvailableFiltersEnum.productItemType,
+export const ProductAvailableFilters = [
+  AvailableFiltersEnum.productProductCategory,
+  AvailableFiltersEnum.productType,
 ]
 
-export const ProductItemFilterAvailableFilters = [
-  AvailableFiltersEnum.productItemFilterProduct,
-  AvailableFiltersEnum.productItemFilterProductItem,
+export const ProductFilterAvailableFilters = [
+  AvailableFiltersEnum.productFilterProductCategory,
+  AvailableFiltersEnum.productFilterProduct,
 ]
 
 export const CustomerAnalyticsAvailableFilters = [
@@ -418,12 +418,12 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.paymentStatus]: 'text_63eba8c65a6c8043feee2a0f',
   [AvailableFiltersEnum.planCode]: 'text_642d5eb2783a2ad10d670320',
   [AvailableFiltersEnum.purchaseOrderNumber]: 'text_17822197712867qhfbaf9fpk',
-  [AvailableFiltersEnum.productItemProduct]: 'text_1783020794399ai60io2ufkg',
-  [AvailableFiltersEnum.productItemType]: 'text_632d68358f1fedc68eed3e5a',
-  // Reuses the "Product" / "Product item" resource-name labels (same words shown
+  [AvailableFiltersEnum.productProductCategory]: 'text_1783020794399ai60io2ufkg',
+  [AvailableFiltersEnum.productType]: 'text_632d68358f1fedc68eed3e5a',
+  // Reuses the "ProductCategory" / "ProductCategory item" resource-name labels (same words shown
   // elsewhere for the entity types) rather than minting new filter-specific copy.
-  [AvailableFiltersEnum.productItemFilterProduct]: 'text_1783020794399ai60io2ufkg',
-  [AvailableFiltersEnum.productItemFilterProductItem]: 'text_1783020794400si0ioidu0m5',
+  [AvailableFiltersEnum.productFilterProductCategory]: 'text_1783020794399ai60io2ufkg',
+  [AvailableFiltersEnum.productFilterProduct]: 'text_1783020794400si0ioidu0m5',
   [AvailableFiltersEnum.orderFormCreatedAt]: 'text_1776870266380s3zbpmnfrhj',
   [AvailableFiltersEnum.orderFormNumber]: 'text_1781624189693d7zcv2vog4c',
   [AvailableFiltersEnum.orderFormStatus]: 'text_63ac86d797f728a87b2f9fa7',

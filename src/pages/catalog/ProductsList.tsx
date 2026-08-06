@@ -1,45 +1,65 @@
 import { gql } from '@apollo/client'
 import { tw } from 'lago-design-system'
-import { useCallback } from 'react'
-import { generatePath } from 'react-router-dom'
+import { useCallback, useMemo } from 'react'
+import { useSearchParams } from 'react-router-dom'
 
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
-import { Table, TableColumn, TablePlaceholder } from '~/components/designSystem/Table/Table'
-import { ActionColumn, ActionItem } from '~/components/designSystem/Table/types'
-import { Typography } from '~/components/designSystem/Typography'
-import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
+import { Table, TablePlaceholder } from '~/components/designSystem/Table/Table'
+import {
+  Filters,
+  formatFiltersForProductsQuery,
+  ProductAvailableFilters,
+} from '~/components/Filters'
 import { SearchInput } from '~/components/SearchInput'
+import { PRODUCT_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
-import { ProductDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { PRODUCT_DETAILS_ROUTE } from '~/core/router'
 import {
   ProductForDeleteProductDialogFragmentDoc,
-  ProductForProductDrawerFragmentDoc,
-  ProductListItemFragment,
+  ProductForDrawerFragmentDoc,
   useProductsLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 
-import { useDeleteProductDialog } from './dialogs/useDeleteProductDialog'
 import { useProductDrawer } from './drawers/product/useProductDrawer'
+import { useProductTableActions } from './useProductTableActions'
+import { useProductTableColumns } from './useProductTableColumns'
 
 gql`
-  fragment ProductListItem on Product {
+  fragment ProductForList on Product {
     id
     name
     code
     invoiceDisplayName
-    productItemsCount
+    productType
+    filtersCount
     createdAt
-    ...ProductForProductDrawer
+    productCategory {
+      id
+      name
+      code
+    }
+    ...ProductForDrawer
     ...ProductForDeleteProductDialog
   }
 
-  query products($page: Int, $limit: Int, $searchTerm: String) {
-    products(page: $page, limit: $limit, searchTerm: $searchTerm) {
+  query products(
+    $page: Int
+    $limit: Int
+    $searchTerm: String
+    $productCategoryIds: [ID!]
+    $productType: ProductTypeEnum
+    $withoutProductCategory: Boolean
+  ) {
+    products(
+      page: $page
+      limit: $limit
+      searchTerm: $searchTerm
+      productCategoryIds: $productCategoryIds
+      productType: $productType
+      withoutProductCategory: $withoutProductCategory
+    ) {
       metadata {
         currentPage
         totalPages
@@ -47,27 +67,33 @@ gql`
       }
       collection {
         id
-        ...ProductListItem
+        ...ProductForList
       }
     }
   }
 
-  ${ProductForProductDrawerFragmentDoc}
+  ${ProductForDrawerFragmentDoc}
   ${ProductForDeleteProductDialogFragmentDoc}
 `
 
 const ProductsList = () => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
-  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const { openDrawer: openProductDrawer } = useProductDrawer()
-  const { openDeleteProductDialog } = useDeleteProductDialog()
+  const { actionColumn, actionColumnTooltip, getRowActionLink } = useProductTableActions()
+  const [searchParams] = useSearchParams()
   const { page, goToPage } = usePageSearchParam()
+
+  const filtersForProductsQuery = useMemo(
+    () => formatFiltersForProductsQuery(searchParams),
+    [searchParams],
+  )
+
   // network-only: tabs are route-based so this component remounts on tab switch
   // and `?page` is dropped; a cache-first read would flash the previously viewed
   // page before the page-1 refetch.
   const [getProducts, { data, error, loading, variables }] = useProductsLazyQuery({
-    variables: { limit: DEFAULT_PAGE_SIZE, page },
+    variables: { limit: DEFAULT_PAGE_SIZE, page, ...filtersForProductsQuery },
     notifyOnNetworkStatusChange: true,
     fetchPolicy: 'network-only',
     nextFetchPolicy: 'network-only',
@@ -75,25 +101,6 @@ const ProductsList = () => {
   const { debouncedSearch, isLoading } = useDebouncedSearch(getProducts, loading)
 
   const canCreateProducts = hasPermissions(['productsCreate'])
-  const canUpdateProducts = hasPermissions(['productsUpdate'])
-  const canDeleteProducts = hasPermissions(['productsDelete'])
-
-  const composeTooltipLabel = useCallback((): string => {
-    const editLabel = translate('text_629728388c4d2300e2d3816a')
-    const deleteLabel = translate('text_629728388c4d2300e2d38182')
-
-    let tooltipLabel = [
-      canUpdateProducts && editLabel.toLowerCase(),
-      canDeleteProducts && deleteLabel.toLowerCase(),
-    ]
-      .filter(Boolean)
-      .join(', ')
-
-    // uppercase first letter
-    tooltipLabel = tooltipLabel.charAt(0).toUpperCase() + tooltipLabel.slice(1)
-
-    return tooltipLabel
-  }, [canUpdateProducts, canDeleteProducts, translate])
 
   const searchInputOnChange = useCallback(
     (value: string) => {
@@ -103,80 +110,7 @@ const ProductsList = () => {
     [goToPage, debouncedSearch],
   )
 
-  const getRowActionLink = useCallback(
-    ({ id }: { id: string }) =>
-      generatePath(PRODUCT_DETAILS_ROUTE, {
-        productId: id,
-        tab: ProductDetailsTabsOptionsEnum.overview,
-      }),
-    [],
-  )
-
-  const actionColumn: ActionColumn<ProductListItemFragment> = (product) => {
-    const actions: ActionItem<ProductListItemFragment>[] = []
-
-    if (canUpdateProducts) {
-      actions.push({
-        startIcon: 'pen',
-        title: translate('text_629728388c4d2300e2d3816a'),
-        onAction: () => openProductDrawer(product),
-      })
-    }
-
-    if (canDeleteProducts) {
-      actions.push({
-        startIcon: 'trash',
-        title: translate('text_629728388c4d2300e2d38182'),
-        // No callback: the dialog evicts the product from the cached
-        // list optimistically, so the row disappears without waiting
-        // for a refetch.
-        onAction: () => openDeleteProductDialog({ product }),
-      })
-    }
-
-    return actions
-  }
-
-  const columns: TableColumn<ProductListItemFragment>[] = [
-    {
-      key: 'name',
-      title: translate('text_6419c64eace749372fc72b0f'),
-      minWidth: 200,
-      maxSpace: true,
-      content: ({ name, invoiceDisplayName, code }) => (
-        <>
-          <Typography color="textSecondary" variant="bodyHl" noWrap>
-            {invoiceDisplayName || name}
-          </Typography>
-          <TypographyWithCopy compact noWrap variant="caption">
-            {code}
-          </TypographyWithCopy>
-        </>
-      ),
-    },
-    {
-      key: 'productItemsCount',
-      title: translate('text_1783622030703zfer3z2fn5y'),
-      textAlign: 'right',
-      minWidth: 112,
-      content: ({ productItemsCount }) => (
-        <Typography color="grey600" variant="body" noWrap>
-          {productItemsCount}
-        </Typography>
-      ),
-    },
-    {
-      key: 'createdAt',
-      title: translate('text_629728388c4d2300e2d380e3'),
-      textAlign: 'right',
-      minWidth: 140,
-      content: ({ createdAt }) => (
-        <Typography color="grey600" variant="body" noWrap>
-          {intlFormatDateTimeOrgaTZ(createdAt).date}
-        </Typography>
-      ),
-    },
-  ]
+  const columns = useProductTableColumns({ withAttachedProductCategory: true })
 
   const placeholder: TablePlaceholder = {
     errorState: variables?.searchTerm
@@ -193,14 +127,14 @@ const ProductsList = () => {
         },
     emptyState: variables?.searchTerm
       ? {
-          title: translate('text_1783622030703xtzifa6nivi'),
+          title: translate('text_1783980718114wya9wp01m5i'),
           subtitle: translate('text_63bee4e10e2d53912bfe4da7'),
         }
       : {
-          title: translate('text_1783622030703gf47xn4zdit'),
-          subtitle: translate('text_1783622030703a20cxlyb5xr'),
+          title: translate('text_1783980718114bqx4jce32fv'),
+          subtitle: translate('text_1783980718114kj0fch41rw4'),
           ...(canCreateProducts && {
-            buttonTitle: translate('text_1783622030703h5vhmp73muk'),
+            buttonTitle: translate('text_1783622030703m9jlurg4jsn'),
             buttonVariant: 'primary',
             buttonAction: () => openProductDrawer(),
           }),
@@ -213,13 +147,19 @@ const ProductsList = () => {
   // 4px cell gutter.
   return (
     <div className="px-4 md:px-12">
-      <div className="py-4">
-        <SearchInput
-          onChange={searchInputOnChange}
-          placeholder={translate('text_1783622030703pw6jb43diri')}
-          data-test="products-search-input"
-        />
-      </div>
+      <Filters.Provider
+        filtersNamePrefix={PRODUCT_LIST_FILTER_PREFIX}
+        availableFilters={ProductAvailableFilters}
+      >
+        <div className="flex flex-col gap-3 py-4 md:flex-row md:items-center">
+          <SearchInput
+            onChange={searchInputOnChange}
+            placeholder={translate('text_1783980718114714izppxdwq')}
+            data-test="product-items-search-input"
+          />
+          <Filters.Component />
+        </div>
+      </Filters.Provider>
       <PaginatedContent
         metadata={data?.products?.metadata}
         loading={isLoading}
@@ -227,7 +167,7 @@ const ProductsList = () => {
         sticky={false}
       >
         <Table
-          name="products-list"
+          name="product-items-list"
           data={data?.products?.collection ?? []}
           containerSize={4}
           containerClassName={tw('border-t border-grey-300')}
@@ -236,7 +176,7 @@ const ProductsList = () => {
           hasError={!!error}
           rowDataTestId={(product) => `${product.name}`}
           onRowActionLink={getRowActionLink}
-          actionColumnTooltip={composeTooltipLabel}
+          actionColumnTooltip={actionColumnTooltip}
           actionColumn={actionColumn}
           columns={columns}
           placeholder={placeholder}

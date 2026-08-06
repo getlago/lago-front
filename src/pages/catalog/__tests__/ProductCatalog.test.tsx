@@ -20,9 +20,9 @@ const renderPage = () =>
   )
 
 const mockHasPermissions = jest.fn()
+const mockOpenCreateProductCategoryDrawer = jest.fn()
 const mockOpenCreateProductDrawer = jest.fn()
-const mockOpenCreateProductItemDrawer = jest.fn()
-const mockOpenCreateProductItemFilterDrawer = jest.fn()
+const mockOpenCreateProductFilterDrawer = jest.fn()
 
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({
@@ -39,23 +39,23 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 
 // Mock the drawer hooks: the real ones load the NiceModal drawer stack
 // (drawerStack.ts uses import.meta and crashes Jest).
+jest.mock('../drawers/productCategory/useProductCategoryDrawer', () => ({
+  useProductCategoryDrawer: () => ({ openDrawer: mockOpenCreateProductCategoryDrawer }),
+}))
+
 jest.mock('../drawers/product/useProductDrawer', () => ({
   useProductDrawer: () => ({ openDrawer: mockOpenCreateProductDrawer }),
 }))
 
-jest.mock('../drawers/productItem/useProductItemDrawer', () => ({
-  useProductItemDrawer: () => ({ openDrawer: mockOpenCreateProductItemDrawer }),
+jest.mock('../drawers/productFilter/useProductFilterDrawer', () => ({
+  useProductFilterDrawer: () => ({ openDrawer: mockOpenCreateProductFilterDrawer }),
 }))
 
-jest.mock('../drawers/productItemFilter/useProductItemFilterDrawer', () => ({
-  useProductItemFilterDrawer: () => ({ openDrawer: mockOpenCreateProductItemFilterDrawer }),
-}))
-
-// The real ProductsList fires its products query on mount; this suite only
+// The real ProductCategoriesList fires its productCategories query on mount; this suite only
 // covers tab and header wiring.
-jest.mock('../ProductsList', () => ({
+jest.mock('../ProductCategoriesList', () => ({
   __esModule: true,
-  default: () => <div>products-list-stub</div>,
+  default: () => <div>productCategories-list-stub</div>,
 }))
 
 const PRODUCTS_TAB = 'text_17831042398244jk9iv71lra'
@@ -76,13 +76,13 @@ describe('ProductCatalog', () => {
     expect(screen.getByText(PRODUCT_ITEM_FILTERS_TAB)).toBeInTheDocument()
     expect(screen.getByText(RATE_CARDS_TAB)).toBeInTheDocument()
     expect(screen.getByText(PRODUCTS_TAB)).toBeInTheDocument()
-    // Products is the default active tab, so its content renders
-    expect(screen.getByText('products-list-stub')).toBeInTheDocument()
+    // ProductCategories is the default active tab, so its content renders
+    expect(screen.getByText('productCategories-list-stub')).toBeInTheDocument()
   })
 
   it('hides a tab when its view permission is missing', () => {
     mockHasPermissions.mockImplementation(
-      (permissions: string[]) => !permissions.includes('productItemFiltersView'),
+      (permissions: string[]) => !permissions.includes('productFiltersView'),
     )
 
     renderPage()
@@ -94,9 +94,9 @@ describe('ProductCatalog', () => {
   it('gates each tab on its own view permission', () => {
     renderPage()
 
+    expect(mockHasPermissions).toHaveBeenCalledWith(['productCategoriesView'])
     expect(mockHasPermissions).toHaveBeenCalledWith(['productsView'])
-    expect(mockHasPermissions).toHaveBeenCalledWith(['productItemsView'])
-    expect(mockHasPermissions).toHaveBeenCalledWith(['productItemFiltersView'])
+    expect(mockHasPermissions).toHaveBeenCalledWith(['productFiltersView'])
     expect(mockHasPermissions).toHaveBeenCalledWith(['rateCardsView'])
   })
 
@@ -114,9 +114,9 @@ describe('ProductCatalog', () => {
     })
 
     it.each([
-      [CREATE_PRODUCT_TEST_ID, () => mockOpenCreateProductDrawer],
-      [CREATE_PRODUCT_ITEM_TEST_ID, () => mockOpenCreateProductItemDrawer],
-      [CREATE_PRODUCT_ITEM_FILTER_TEST_ID, () => mockOpenCreateProductItemFilterDrawer],
+      [CREATE_PRODUCT_TEST_ID, () => mockOpenCreateProductCategoryDrawer],
+      [CREATE_PRODUCT_ITEM_TEST_ID, () => mockOpenCreateProductDrawer],
+      [CREATE_PRODUCT_ITEM_FILTER_TEST_ID, () => mockOpenCreateProductFilterDrawer],
     ])('opens the matching drawer from the %s entry', async (itemTestId, getOpenDrawerMock) => {
       const user = userEvent.setup()
 
@@ -130,7 +130,7 @@ describe('ProductCatalog', () => {
 
     it('hides an entry when its create permission is missing', async () => {
       mockHasPermissions.mockImplementation(
-        (permissions: string[]) => !permissions.includes('productItemsCreate'),
+        (permissions: string[]) => !permissions.includes('productsCreate'),
       )
       const user = userEvent.setup()
 
@@ -144,7 +144,11 @@ describe('ProductCatalog', () => {
     })
 
     it('hides the whole dropdown when no create permission is granted', () => {
-      const createPermissions = ['productsCreate', 'productItemsCreate', 'productItemFiltersCreate']
+      const createPermissions = [
+        'productCategoriesCreate',
+        'productsCreate',
+        'productFiltersCreate',
+      ]
 
       mockHasPermissions.mockImplementation(
         (permissions: string[]) =>
