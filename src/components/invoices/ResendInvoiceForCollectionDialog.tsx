@@ -22,8 +22,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
-export const RESEND_INVOICE_FOR_COLLECTION_DIALOG_CANCEL_BUTTON_TEST_ID =
-  'resend-invoice-for-collection-dialog-cancel-button'
 export const RESEND_INVOICE_FOR_COLLECTION_DIALOG_SUBMIT_BUTTON_TEST_ID =
   'resend-invoice-for-collection-dialog-submit-button'
 export const RESEND_INVOICE_FOR_COLLECTION_FORM_ID = 'resend-invoice-for-collection-form'

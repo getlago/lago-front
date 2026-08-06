@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/react'
 import { tw } from 'lago-design-system'
 import { useState } from 'react'
 import { Panel } from 'react-resizable-panels'
@@ -8,6 +9,7 @@ import { NavigationBar } from '~/components/aiAgent/NavigationBar'
 import { PanelAiAgent } from '~/components/aiAgent/PanelAiAgent'
 import { PanelWrapper } from '~/components/aiAgent/PanelWrapper'
 import { getHiddenAiAgentPaths } from '~/components/aiAgent/utils'
+import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { useLocation } from '~/core/router'
 import {
   AGENT_TYPE_SHOW_HISTORY,
@@ -19,8 +21,10 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
+import ErrorImage from '~/public/images/maneki/error.svg'
 
 export const AI_AGENT_NAV_TEST_ID = 'ai-agent-nav'
+export const AI_AGENT_ERROR_TEST_ID = 'ai-agent-error'
 
 export const AiAgent = () => {
   const { agentType, panelRef, currentPanelOpened, panelOpen, state, resetConversation } =
@@ -86,6 +90,22 @@ export const AiAgent = () => {
     setIsFullscreen((f) => !f)
   }
 
+  // Scoped to the panel body so an assistant crash cannot blank the app. The
+  // `<Panel>` itself keeps rendering: react-resizable-panels throws when the
+  // panel count stops matching the stored layout.
+  const renderPanelError = ({ resetError }: { resetError: () => void }) => (
+    <div className="flex size-full items-center justify-center" data-test={AI_AGENT_ERROR_TEST_ID}>
+      <GenericPlaceholder
+        title={translate('text_6250304370f0f700a8fdc270')}
+        subtitle={translate('text_6250304370f0f700a8fdc274')}
+        buttonTitle={translate('text_63e27c56dfe64b846474efa3')}
+        buttonVariant="primary"
+        buttonAction={() => resetError()}
+        image={<ErrorImage width="136" height="104" />}
+      />
+    </div>
+  )
+
   return (
     <>
       <div className="relative" data-test={AI_AGENT_NAV_TEST_ID}>
@@ -110,35 +130,47 @@ export const AiAgent = () => {
         )}
       >
         {currentPanelOpened === AIPanelEnum.ai && (
-          <PanelWrapper
-            title={
-              showHistory
-                ? translate('text_17574172258513wv8yozezoz')
-                : (state.messages[0]?.message ?? translate('text_1783590769660p6nhcqws986'))
-            }
-            isBeta={shouldDisplayWelcomeMessage && !showHistory}
-            showBackButton={!shouldDisplayWelcomeMessage || showHistory}
-            onBackButton={onBackButton}
-            showHistoryButton={
-              agentHasHistory && shouldDisplayWelcomeMessage && !showHistory && hasAccessToAiAgent
-            }
-            onShowHistory={() => setShowHistory(true)}
-            onFullscreen={() => onFullscreen()}
-            isFullscreen={isFullscreen}
+          <Sentry.ErrorBoundary
+            beforeCapture={(scope) => {
+              scope.setTag('errorBoundary', 'AiAgent')
+            }}
+            handled={false}
+            showDialog={false}
+            fallback={renderPanelError}
           >
-            <div className="size-full max-w-5xl">
-              {showHistory && (
-                <ChatHistory
-                  isFullscreen={isFullscreen}
-                  hideHistory={() => setShowHistory(false)}
-                />
-              )}
+            <PanelWrapper
+              title={
+                showHistory
+                  ? translate('text_17574172258513wv8yozezoz')
+                  : (state.messages[0]?.message ?? translate('text_1783590769660p6nhcqws986'))
+              }
+              isBeta={shouldDisplayWelcomeMessage && !showHistory}
+              showBackButton={!shouldDisplayWelcomeMessage || showHistory}
+              onBackButton={onBackButton}
+              showHistoryButton={
+                agentHasHistory && shouldDisplayWelcomeMessage && !showHistory && hasAccessToAiAgent
+              }
+              onShowHistory={() => setShowHistory(true)}
+              onFullscreen={() => onFullscreen()}
+              isFullscreen={isFullscreen}
+            >
+              <div className="size-full max-w-5xl">
+                {showHistory && (
+                  <ChatHistory
+                    isFullscreen={isFullscreen}
+                    hideHistory={() => setShowHistory(false)}
+                  />
+                )}
 
-              {!showHistory && (
-                <PanelAiAgent isFullscreen={isFullscreen} hasAccessToAiAgent={hasAccessToAiAgent} />
-              )}
-            </div>
-          </PanelWrapper>
+                {!showHistory && (
+                  <PanelAiAgent
+                    isFullscreen={isFullscreen}
+                    hasAccessToAiAgent={hasAccessToAiAgent}
+                  />
+                )}
+              </div>
+            </PanelWrapper>
+          </Sentry.ErrorBoundary>
         )}
       </Panel>
     </>

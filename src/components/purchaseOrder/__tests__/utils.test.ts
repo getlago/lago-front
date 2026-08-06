@@ -1,4 +1,6 @@
-import { normalizePurchaseOrderNumber } from '../utils'
+import { StatusTypeEnum } from '~/generated/graphql'
+
+import { isSubscriptionPurchaseOrderNumberEditable, normalizePurchaseOrderNumber } from '../utils'
 
 describe('normalizePurchaseOrderNumber', () => {
   describe('GIVEN an empty-ish value', () => {
@@ -26,6 +28,31 @@ describe('normalizePurchaseOrderNumber', () => {
         ['inner whitespace preserved', '  PO 123 456  ', 'PO 123 456'],
       ])('THEN should return the trimmed value for %s', (_, input, expected) => {
         expect(normalizePurchaseOrderNumber(input)).toBe(expected)
+      })
+    })
+  })
+})
+
+describe('isSubscriptionPurchaseOrderNumberEditable', () => {
+  describe('GIVEN a subscription status', () => {
+    describe('WHEN the subscription is pending or active', () => {
+      it.each([
+        ['pending', StatusTypeEnum.Pending],
+        ['active', StatusTypeEnum.Active],
+      ])('THEN should return true for %s', (_, status) => {
+        expect(isSubscriptionPurchaseOrderNumberEditable(status)).toBe(true)
+      })
+    })
+
+    describe('WHEN the subscription is in any other state', () => {
+      it.each([
+        ['terminated', StatusTypeEnum.Terminated],
+        ['canceled', StatusTypeEnum.Canceled],
+        ['incomplete', StatusTypeEnum.Incomplete],
+        ['undefined', undefined],
+        ['null', null],
+      ])('THEN should return false for %s', (_, status) => {
+        expect(isSubscriptionPurchaseOrderNumberEditable(status)).toBe(false)
       })
     })
   })

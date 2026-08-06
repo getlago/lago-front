@@ -51,16 +51,21 @@ const expectedInput = {
   purchaseOrderNumber: null,
 }
 
-const renderUpdateHook = (mocks: MockedResponse[], onSuccess: () => void) => {
+const renderUpdateHook = (
+  mocks: MockedResponse[],
+  onSuccess: () => void,
+  subscriptionOverride: SubscriptionForSubscriptionEditFormFragment = subscription,
+) => {
   const wrapper = ({ children }: { children: ReactNode }) => (
     <MockedProvider mocks={mocks} addTypename={false}>
       {children}
     </MockedProvider>
   )
 
-  return renderHook(() => useUpdateSubscriptionInformation({ subscription, onSuccess }), {
-    wrapper,
-  })
+  return renderHook(
+    () => useUpdateSubscriptionInformation({ subscription: subscriptionOverride, onSuccess }),
+    { wrapper },
+  )
 }
 
 describe('useUpdateSubscriptionInformation', () => {
@@ -138,5 +143,48 @@ describe('useUpdateSubscriptionInformation', () => {
 
     expect(mockAddToast).not.toHaveBeenCalled()
     expect(onSuccess).not.toHaveBeenCalled()
+  })
+
+  // The API rejects the `purchaseOrderNumber` only when the value actually
+  // changes on a subscription that is neither pending nor active
+  // (`purchase_order_number_not_editable`, 405), so the client always sends the
+  // key and lets the API decide. An explicit `null` is the clear mechanism:
+  // `undefined` would be stripped from the payload and the previous value would
+  // persist.
+  describe('GIVEN the subscription information form is submitted with an empty purchase order number', () => {
+    describe.each([
+      ['pending', StatusTypeEnum.Pending],
+      ['active', StatusTypeEnum.Active],
+      ['terminated', StatusTypeEnum.Terminated],
+      ['canceled', StatusTypeEnum.Canceled],
+    ])('WHEN the subscription is %s', (_, status) => {
+      it('THEN should send purchaseOrderNumber as null in the mutation input', async () => {
+        let capturedVariables: Record<string, unknown> | undefined
+
+        const mocks: MockedResponse[] = [
+          {
+            request: { query: UpdateSubscriptionDocument },
+            variableMatcher: (variables: Record<string, unknown>) => {
+              capturedVariables = variables
+
+              return true
+            },
+            result: { data: { updateSubscription: null } },
+          },
+        ]
+
+        const { result } = renderUpdateHook(mocks, jest.fn(), { ...subscription, status })
+
+        await act(async () => {
+          await result.current.form.handleSubmit()
+        })
+
+        await waitFor(() => expect(capturedVariables).toBeDefined())
+
+        expect((capturedVariables as { input: Record<string, unknown> }).input).toEqual(
+          expectedInput,
+        )
+      })
+    })
   })
 })

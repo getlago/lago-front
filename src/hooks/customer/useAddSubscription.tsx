@@ -388,6 +388,7 @@ export const useAddSubscription: UseAddSubscription = ({
         billingTime,
         paymentMethod,
         billingEntityId,
+        purchaseOrderNumber,
         ...values
       },
       { ...planValues },
@@ -441,6 +442,7 @@ export const useAddSubscription: UseAddSubscription = ({
                   name: name || undefined,
                   externalId: externalId || undefined,
                   paymentMethod: parsedPaymentMethod,
+                  purchaseOrderNumber,
                   ...values,
                   planOverrides,
                 },
@@ -458,6 +460,7 @@ export const useAddSubscription: UseAddSubscription = ({
                   // subscription column, meaning "inherit from customer".
                   billingEntityId: billingEntityId || null,
                   paymentMethod: parsedPaymentMethod,
+                  purchaseOrderNumber,
                   planOverrides,
                 },
               },

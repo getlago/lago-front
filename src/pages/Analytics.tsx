@@ -3,7 +3,7 @@ import { envGlobalVar } from '~/core/apolloClient'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import NewAnalytics from '~/pages/analytics/NewAnalytics'
-import Dashboards from '~/pages/dashboards/Dashboards'
+import AnalyticsDashboard from '~/pages/dashboards/AnalyticsDashboard'
 import OldAnalytics from '~/pages/OldAnalytics'
 
 const { lagoSupersetUrl } = envGlobalVar()
@@ -25,7 +25,7 @@ const Analytics = () => {
 
   if (hasAccessToAnalyticsDashboardsFeature) {
     if (lagoSupersetUrl) {
-      return <Dashboards />
+      return <AnalyticsDashboard />
     }
 
     return <NewAnalytics />
