@@ -1,7 +1,7 @@
 import NiceModal from '@ebay/nice-modal-react'
 
 import { Button } from '~/components/designSystem/Button'
-import { Chip } from '~/components/designSystem/Chip'
+import { Status, StatusType } from '~/components/designSystem/Status'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { DateFormat, intlFormatDateTime } from '~/core/timezone'
@@ -26,16 +26,16 @@ export type AuditLogEntry = {
   createdAt: string
 }
 
-type ActionChipConfig = {
+type ActionStatusConfig = {
   label: string
-  color: 'success600' | 'danger600' | 'grey700' | 'warning700'
+  type: StatusType
 }
 
-const ACTION_CHIP_MAP: Record<string, ActionChipConfig> = {
-  toggle_on: { label: 'Toggle On', color: 'success600' },
-  toggle_off: { label: 'Toggle Off', color: 'danger600' },
-  org_created: { label: 'Org Created', color: 'grey700' },
-  rollback: { label: 'Rollback', color: 'warning700' },
+const ACTION_STATUS_MAP: Record<string, ActionStatusConfig> = {
+  toggle_on: { label: 'Toggle On', type: StatusType.success },
+  toggle_off: { label: 'Toggle Off', type: StatusType.danger },
+  org_created: { label: 'Org Created', type: StatusType.default },
+  rollback: { label: 'Rollback', type: StatusType.warning },
 }
 
 // A feature toggle carries its key in exactly one of the two feature-type columns; every other
@@ -127,12 +127,12 @@ export const AuditLogTable = ({
           title: 'Action',
           minWidth: 130,
           content: (entry) => {
-            const chip = ACTION_CHIP_MAP[entry.action] ?? {
+            const status = ACTION_STATUS_MAP[entry.action] ?? {
               label: entry.action,
-              color: 'grey700' as const,
+              type: StatusType.default,
             }
 
-            return <Chip label={chip.label} size="small" color={chip.color} />
+            return <Status type={status.type} label={status.label} />
           },
         },
         {
