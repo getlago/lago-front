@@ -4,6 +4,10 @@ import { useMemo, useState } from 'react'
 import { AddConnectionMenu } from '~/components/customerConnections/AddConnectionMenu'
 import { ConnectionDrawerProviderContent } from '~/components/customerConnections/ConnectionDrawerProviderContent'
 import {
+  hasPersistedPaymentMapping,
+  isConnectionProviderPersisted,
+} from '~/components/customerConnections/connectionLockRules'
+import {
   ConnectionFormValues,
   CustomerConnectionDrawer,
 } from '~/components/customerConnections/CustomerConnectionDrawer'
@@ -136,28 +140,33 @@ export const CustomerConnectionsSection = ({ customer }: CustomerConnectionsSect
   // One connection per type: connected categories are disabled in the add menu
   const presentCategories = useMemo(() => rows.map((row) => row.category), [rows])
 
-  // Same "persisted slot" rule as the customer create/edit accordion, so the
-  // drawer locks exactly the same fields on both surfaces: a payment
-  // connection without a provider customer id (sync-only, or a provider that
-  // has none) and a dangling integration link (its org integration was
-  // deleted) both stay editable instead of being frozen.
-  const isPersistedConnection = (category: ConnectionCategory): boolean => {
-    if (category === ConnectionCategory.Payment) {
-      return !!customer.providerCustomer?.providerCustomerId
-    }
-
-    const existing = getIntegrationCustomerForCategory(customer, category)
-
-    if (!existing?.integrationCode) return false
-
-    const orgIntegrations = {
+  const orgIntegrationsFor = (category: ConnectionCategory): { code: string }[] | undefined =>
+    ({
+      [ConnectionCategory.Payment]: undefined,
       [ConnectionCategory.Accounting]: connectionOptions.allAccountingIntegrations,
       [ConnectionCategory.Tax]: connectionOptions.allTaxIntegrations,
       [ConnectionCategory.Crm]: connectionOptions.allCrmIntegrations,
-    }[category as Exclude<ConnectionCategory, ConnectionCategory.Payment>]
+    })[category]
 
-    return orgIntegrations.some((integration) => integration.code === existing.integrationCode)
-  }
+  /** Locks the drawer's provider selector — shared with the create/edit form */
+  const isProviderPersisted = (category: ConnectionCategory, slotCode: string | undefined) =>
+    isConnectionProviderPersisted({
+      category,
+      customer,
+      slotCode,
+      integrationCustomer: getIntegrationCustomerForCategory(customer, category),
+      orgIntegrations: orgIntegrationsFor(category),
+    })
+
+  /**
+   * Locks the drawer's mapping fields. Stricter than the selector rule for
+   * payment (a sync-only connection keeps them editable); for integrations
+   * the two conditions coincide.
+   */
+  const hasPersistedMapping = (category: ConnectionCategory, slotCode: string | undefined) =>
+    category === ConnectionCategory.Payment
+      ? hasPersistedPaymentMapping({ customer, slotCode })
+      : isProviderPersisted(category, slotCode)
 
   const getInitialValues = (category: ConnectionCategory): Partial<ConnectionFormValues> => {
     if (category === ConnectionCategory.Payment) {
@@ -192,7 +201,7 @@ export const CustomerConnectionsSection = ({ customer }: CustomerConnectionsSect
   // A persisted slot gets a locked provider (read-only Selector); a dangling
   // link keeps it editable so the connection can be re-pointed
   const openConnectionEdit = (row: CustomerConnectionRow) => {
-    const lockedSelection = isPersistedConnection(row.category)
+    const lockedSelection = isProviderPersisted(row.category, row.code)
       ? { title: row.name, subtitle: row.code, icon: row.icon ?? null }
       : undefined
 
@@ -337,7 +346,10 @@ export const CustomerConnectionsSection = ({ customer }: CustomerConnectionsSect
           <ConnectionDrawerProviderContent
             form={drawerForm}
             category={category}
-            hadInitialConnection={isPersistedConnection(category)}
+            hadInitialConnection={hasPersistedMapping(
+              category,
+              drawerForm.state.values.providerCode,
+            )}
             isCustomerEdition
             // Saves are immediate here: the "created after editing in Lago"
             // notice belongs to the customer create/edit form only

@@ -5,6 +5,10 @@ import { integrationAvatarMapping, paymentAvatarMapping } from '~/components/ava
 import { AddConnectionMenu } from '~/components/customerConnections/AddConnectionMenu'
 import { ConnectionDrawerProviderContent } from '~/components/customerConnections/ConnectionDrawerProviderContent'
 import {
+  hasPersistedPaymentMapping,
+  isConnectionProviderPersisted,
+} from '~/components/customerConnections/connectionLockRules'
+import {
   ConnectionFormValues,
   CustomerConnectionDrawer,
 } from '~/components/customerConnections/CustomerConnectionDrawer'
@@ -33,6 +37,8 @@ type ExternalAppsAccordionProps = {
   isEdition: boolean
   customer: AddCustomerDrawerFragment | null | undefined
 }
+
+type PersistedIntegrationCandidate = { integrationCode?: string | null } | null | undefined
 
 const defaultProps: ExternalAppsAccordionProps = {
   isEdition: false,
@@ -73,52 +79,45 @@ const ExternalAppsAccordion = withForm({
 
     const paymentProvider = getPaymentProvider(paymentProviderCode)
 
-    // A slot is "persisted" only when the connection CURRENTLY in the form
-    // slot is the one saved on the customer (same code): a connection deleted
-    // and re-added in-session is a new link and must stay fully editable.
-    // Integration categories also require the referenced org integration to
-    // still exist, so a dangling link stays fixable.
-    const isPersistedIntegrationSlot = (
-      integrationCustomer: { integrationCode?: string | null } | null | undefined,
+    const isIntegrationSlotPersisted = (
+      category: ConnectionCategory,
       slotCode: string | undefined,
+      candidates: PersistedIntegrationCandidate[],
       orgIntegrations: { code: string }[],
-    ): boolean => {
-      if (!integrationCustomer?.integrationCode || !slotCode) return false
-      if (integrationCustomer.integrationCode !== slotCode) return false
-
-      return orgIntegrations.some((i) => i.code === integrationCustomer.integrationCode)
-    }
+    ): boolean =>
+      candidates.some((integrationCustomer) =>
+        isConnectionProviderPersisted({
+          category,
+          customer,
+          slotCode,
+          integrationCustomer,
+          orgIntegrations,
+        }),
+      )
 
     const hadInitialConnection: Record<ConnectionCategory, boolean> = {
-      [ConnectionCategory.Payment]:
-        !!customer?.providerCustomer?.providerCustomerId &&
-        !!paymentProviderCode &&
-        customer?.paymentProviderCode === paymentProviderCode,
-      [ConnectionCategory.Accounting]:
-        isPersistedIntegrationSlot(
-          customer?.netsuiteCustomer,
-          accountingProviderCode,
-          allAccountingIntegrations,
-        ) ||
-        isPersistedIntegrationSlot(
-          customer?.xeroCustomer,
-          accountingProviderCode,
-          allAccountingIntegrations,
-        ),
-      [ConnectionCategory.Tax]:
-        isPersistedIntegrationSlot(customer?.anrokCustomer, taxProviderCode, allTaxIntegrations) ||
-        isPersistedIntegrationSlot(customer?.avalaraCustomer, taxProviderCode, allTaxIntegrations),
-      [ConnectionCategory.Crm]:
-        isPersistedIntegrationSlot(
-          customer?.hubspotCustomer,
-          crmProviderCode,
-          allCrmIntegrations,
-        ) ||
-        isPersistedIntegrationSlot(
-          customer?.salesforceCustomer,
-          crmProviderCode,
-          allCrmIntegrations,
-        ),
+      [ConnectionCategory.Payment]: hasPersistedPaymentMapping({
+        customer,
+        slotCode: paymentProviderCode,
+      }),
+      [ConnectionCategory.Accounting]: isIntegrationSlotPersisted(
+        ConnectionCategory.Accounting,
+        accountingProviderCode,
+        [customer?.netsuiteCustomer, customer?.xeroCustomer],
+        allAccountingIntegrations,
+      ),
+      [ConnectionCategory.Tax]: isIntegrationSlotPersisted(
+        ConnectionCategory.Tax,
+        taxProviderCode,
+        [customer?.anrokCustomer, customer?.avalaraCustomer],
+        allTaxIntegrations,
+      ),
+      [ConnectionCategory.Crm]: isIntegrationSlotPersisted(
+        ConnectionCategory.Crm,
+        crmProviderCode,
+        [customer?.hubspotCustomer, customer?.salesforceCustomer],
+        allCrmIntegrations,
+      ),
     }
 
     // ------- Rows derived from the (one-per-type) customer form slots -------
@@ -295,7 +294,11 @@ const ExternalAppsAccordion = withForm({
     const openConnectionEdit = (row: CustomerConnectionRow) => {
       const isProviderLocked =
         row.category === ConnectionCategory.Payment
-          ? !!customer?.paymentProvider && customer?.paymentProviderCode === paymentProviderCode
+          ? isConnectionProviderPersisted({
+              category: ConnectionCategory.Payment,
+              customer,
+              slotCode: paymentProviderCode,
+            })
           : hadInitialConnection[row.category]
 
       const lockedSelection = isProviderLocked
