@@ -450,12 +450,15 @@ describe('useCustomerConnectionsPersistence', () => {
         const succeeded = await result.current.deleteConnection(ConnectionCategory.Payment)
 
         expect(succeeded).toBe(true)
+        // paymentProviderCode must be nulled too: with no provider customer to
+        // discard, the backend leaves it behind as a dangling code
         expect(mockClearPaymentProvider).toHaveBeenCalledWith({
           variables: {
             input: {
               id: 'cust-1',
               externalId: 'ext-1',
               paymentProvider: null,
+              paymentProviderCode: null,
               providerCustomer: null,
             },
           },

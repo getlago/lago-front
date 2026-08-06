@@ -362,7 +362,11 @@ export const useCustomerConnectionsPersistence = ({
     // with no provider-customer link (Cashfree/Flutterwave, or sync off with
     // no external id) — its row is still listed, so it must stay deletable:
     // clear the customer's payment provider directly (explicit nulls are the
-    // removal semantics; omitted fields stay untouched)
+    // removal semantics; omitted fields stay untouched).
+    // paymentProviderCode must be nulled explicitly: the backend only clears
+    // it on its own when the customer HAD a provider customer, which is
+    // exactly what this branch does not have — it would otherwise survive the
+    // removal as a dangling code.
     if (category === ConnectionCategory.Payment && !existingId) {
       const cleared = await runMutation(
         () =>
@@ -372,6 +376,7 @@ export const useCustomerConnectionsPersistence = ({
                 id: customer.id,
                 externalId: customer.externalId,
                 paymentProvider: null,
+                paymentProviderCode: null,
                 providerCustomer: null,
               },
             },
