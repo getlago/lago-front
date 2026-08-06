@@ -1,5 +1,7 @@
 import NiceModal from '@ebay/nice-modal-react'
 
+import { REASON_MODAL_NAME } from '~/components/admin/const'
+import ReasonModal from '~/components/admin/ReasonModal'
 import CentralizedDialog from '~/components/dialogs/CentralizedDialog'
 import {
   CENTRALIZED_DIALOG_NAME,
@@ -18,3 +20,4 @@ NiceModal.register(PREMIUM_WARNING_DIALOG_NAME, PremiumWarningDialog)
 NiceModal.register(DIALOG_OPENING_DIALOG_NAME, DialogOpeningDialog)
 NiceModal.register(FORM_DIALOG_NAME, FormDialog)
 NiceModal.register(FORM_DIALOG_OPENING_DIALOG_NAME, FormDialogOpeningDialog)
+NiceModal.register(REASON_MODAL_NAME, ReasonModal)

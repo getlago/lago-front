@@ -31,6 +31,8 @@ export const SUBSCRIPTION_LIST_FILTER_PREFIX = 'sub'
 
 export const SECURITY_LOGS_FILTER_PREFIX = 'secul'
 
+export const ADMIN_AUDIT_LOG_FILTER_PREFIX = 'aal'
+
 export const QUOTE_LIST_FILTER_PREFIX = 'qu'
 
 export const ORDER_FORM_LIST_FILTER_PREFIX = 'of'
