@@ -93,7 +93,7 @@ describe('useProductTableColumns', () => {
     })
   })
 
-  describe('GIVEN a productCategory item row', () => {
+  describe('GIVEN a product row', () => {
     describe('WHEN the name column content renders', () => {
       it('THEN prefers the invoice display name and shows the code', () => {
         const columns = renderColumns(true)

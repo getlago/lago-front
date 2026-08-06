@@ -115,7 +115,7 @@ describe('ProductCategoryDetails', () => {
     expect(screen.getByText('text_1783020794399ai60io2ufkg')).toBeInTheDocument()
   })
 
-  it('shows the overview, productCategory items and plans tabs, plus activity logs for premium', async () => {
+  it('shows the overview, products and plans tabs, plus activity logs for premium', async () => {
     await act(() => renderPage())
 
     expect(await screen.findByText('text_628cf761cbe6820138b8f2e4')).toBeInTheDocument()

@@ -59,7 +59,7 @@ describe('useProductFilterTableActions', () => {
     jest.clearAllMocks()
   })
 
-  describe('GIVEN a productCategory item filter row', () => {
+  describe('GIVEN a product filter row', () => {
     describe('WHEN getRowActionLink is called', () => {
       it('THEN returns the details overview path', () => {
         mockHasPermissions.mockReturnValue(true)

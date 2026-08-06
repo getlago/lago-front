@@ -162,7 +162,7 @@ describe('ProductFiltersList', () => {
     expect(getTableProps().data).toEqual([productFilter])
   })
 
-  it('renders the name, attached productCategory item and created columns', () => {
+  it('renders the name, attached product and created columns', () => {
     render(<ProductFiltersList />)
 
     const { columns } = getTableProps()
@@ -174,7 +174,7 @@ describe('ProductFiltersList', () => {
     ])
   })
 
-  it('links each row to the productCategory item filter details overview tab', () => {
+  it('links each row to the product filter details overview tab', () => {
     render(<ProductFiltersList />)
 
     expect(

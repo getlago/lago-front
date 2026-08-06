@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { Tooltip } from '~/components/designSystem/Tooltip'
+import { Typography } from '~/components/designSystem/Typography'
 import { BASE_DRAWER_CONTENT_ATTR } from '~/components/drawers/const'
 import {
   CreateMoreResetSignal,
@@ -57,7 +58,7 @@ const mergeSeededOptions = (
   return [seed, ...options.filter((option) => option.value !== seed.value)]
 }
 
-// Holds the reactive form state (description reveal + the selected productCategory item's
+// Holds the reactive form state (description reveal + the selected product's
 // available filters) so it resets alongside the form when the keyed wrapper
 // remounts after a "create more" save.
 const ProductFilterDrawerFormSections = withForm({
@@ -80,7 +81,7 @@ const ProductFilterDrawerFormSections = withForm({
     const [getProducts, { data: productsData, loading: productsLoading }] =
       useProductsForItemFilterDrawerLazyQuery({ variables: { page: 1, limit: 20 } })
 
-    // Only productCategory items whose billable metric exposes filters can carry an item
+    // Only products whose billable metric exposes filters can carry an item
     // filter, so restrict the combobox options to those.
     const selectableProducts = useMemo(
       () =>
@@ -102,7 +103,7 @@ const ProductFilterDrawerFormSections = withForm({
       [productSeed, selectableProducts],
     )
 
-    // Accumulate the selectable filters per productCategory item from the query results
+    // Accumulate the selectable filters per product from the query results
     // (and the edit seed), then read the currently selected item's filters so the
     // values editor can offer them. The seed keeps the disabled edit combobox
     // working before any query runs.
@@ -139,6 +140,15 @@ const ProductFilterDrawerFormSections = withForm({
 
     return (
       <>
+        <div className="flex flex-col gap-2">
+          <Typography variant="headline" color="grey700">
+            {translate(isEdit ? 'text_1784579021079qarjon667xy' : 'text_178603116671032mnf3wr3e3')}
+          </Typography>
+          <Typography variant="body" color="grey600">
+            {translate('text_17860311667104powasrjvad')}
+          </Typography>
+        </div>
+
         <CenteredPage.PageSection>
           <CenteredPage.PageSectionTitle
             title={translate('text_1784579021080ysbidm753z8')}
@@ -195,7 +205,7 @@ const ProductFilterDrawerFormSections = withForm({
           <form.AppField
             name="productId"
             listeners={{
-              // Switching the productCategory item invalidates the selected values: they
+              // Switching the product invalidates the selected values: they
               // reference the previous item's billable metric filters, so clear
               // them to keep the values section scoped to the new selection.
               onChange: () => {
