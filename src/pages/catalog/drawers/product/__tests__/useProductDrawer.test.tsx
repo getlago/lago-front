@@ -1,21 +1,19 @@
 import { MockedProvider, MockedResponse } from '@apollo/client/testing'
 import { act, renderHook, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { GraphQLError } from 'graphql'
 import { ReactNode } from 'react'
 
-import { CREATE_MORE_SWITCH_TEST_ID } from '~/components/drawers/createMore/CreateMoreControl'
 import { addToast } from '~/core/apolloClient'
 import {
-  CreateProductDocument,
-  ProductForProductDrawerFragment,
+  ProductForDrawerFragment,
+  ProductTypeEnum,
   UpdateProductDocument,
 } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import {
-  PRODUCT_DRAWER_REMOVE_DESCRIPTION_TEST_ID,
-  PRODUCT_DRAWER_SHOW_DESCRIPTION_TEST_ID,
+  PRODUCT_ITEM_DRAWER_REMOVE_DESCRIPTION_TEST_ID,
+  PRODUCT_ITEM_DRAWER_SHOW_DESCRIPTION_TEST_ID,
 } from '../ProductDrawerContent'
 import { useProductDrawer } from '../useProductDrawer'
 
@@ -58,8 +56,6 @@ jest.mock('react-router-dom', () => ({
   useParams: () => ({ organizationSlug: 'acme' }),
 }))
 
-// Vars-aware translate: keys resolve to themselves, interpolated values are
-// appended so assertions can check what landed in the message.
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
     translate: (key: string, vars?: Record<string, unknown>) =>
@@ -67,38 +63,23 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
-const productFixture: ProductForProductDrawerFragment = {
-  id: 'prod-1',
-  name: 'Object storage',
-  code: 'object_storage',
-  description: 'Base storage product',
-  invoiceDisplayName: 'Storage',
+const productFixture: ProductForDrawerFragment = {
+  id: 'pitem-1',
+  name: 'Seats',
+  code: 'seats',
+  description: 'Per seat billing',
+  invoiceDisplayName: 'Seat charge',
+  productType: ProductTypeEnum.Fixed,
   attachedToPlanOrSubscription: false,
+  productCategory: { id: 'prod-1', name: 'Object storage', code: 'object_storage' },
+  billableMetric: null,
 }
 
-const createProductMockFactory = (
-  overrides: Partial<MockedResponse['result']> = {},
-): MockedResponse => ({
-  request: { query: CreateProductDocument },
-  variableMatcher: (vars) => vars?.input?.name === 'Storage' && vars?.input?.code === 'storage',
-  result: {
-    data: {
-      createProduct: {
-        id: 'prod-1',
-        name: 'Storage',
-        code: 'storage',
-        description: null,
-        invoiceDisplayName: null,
-        attachedToPlanOrSubscription: false,
-      },
-    },
-    ...overrides,
-  },
-})
-
-const duplicateCodeError = new GraphQLError('Value already exists', {
-  extensions: { code: 'value_already_exist', details: { code: ['value_already_exist'] } },
-})
+const usageProductFixture: ProductForDrawerFragment = {
+  ...productFixture,
+  productType: ProductTypeEnum.Usage,
+  billableMetric: { id: 'bm-1', name: 'API calls', code: 'api_calls' },
+}
 
 const renderDrawerHook = (mocks: MockedResponse[] = []) =>
   renderHook(() => useProductDrawer(), {
@@ -130,154 +111,34 @@ describe('useProductDrawer', () => {
     lastDrawerArgs = null
   })
 
-  describe('GIVEN create mode (no product argument)', () => {
+  describe('GIVEN create mode (no productCategory item argument)', () => {
     it('opens with the create title, form id, create-more control and create label', () => {
       const { result } = renderDrawerHook()
 
       act(() => result.current.openDrawer())
 
       expect(mockOpen).toHaveBeenCalledTimes(1)
-      expect(lastDrawerArgs?.title).toBe('text_1783622030703h5vhmp73muk')
-      expect(lastDrawerArgs?.form?.id).toBe('product-drawer-form')
+      expect(lastDrawerArgs?.title).toBe('text_1783622030703m9jlurg4jsn')
+      expect(lastDrawerArgs?.form?.id).toBe('product-item-drawer-form')
       expect(lastDrawerArgs?.closeOnSubmitSuccess).toBe(false)
       expect(lastDrawerArgs?.secondaryAction).toBeDefined()
 
       render(<>{lastDrawerArgs?.mainAction}</>)
 
-      expect(screen.getByRole('button', { name: 'text_1783627031283r77bfefzbi7' })).toHaveAttribute(
+      expect(screen.getByRole('button', { name: 'text_1783980718113c63agwciyi5' })).toHaveAttribute(
         'type',
         'submit',
       )
     })
-
-    it('creates the product then closes, navigates to its details and toasts', async () => {
-      const { result } = renderDrawerHook([createProductMockFactory()])
-
-      act(() => result.current.openDrawer())
-      renderDrawerBody()
-
-      await userEvent.type(screen.getByPlaceholderText('text_17836270312839ylvd3gjr17'), 'Storage')
-
-      await waitFor(() => expect(screen.getByDisplayValue('storage')).toBeInTheDocument())
-
-      await act(async () => {
-        await lastDrawerArgs?.form?.submit()
-      })
-
-      await waitFor(() => expect(mockClose).toHaveBeenCalledTimes(1))
-      expect(mockNavigate).toHaveBeenCalledWith('/product-catalog/products/prod-1/overview')
-      expect(addToast).toHaveBeenCalledWith({
-        severity: 'success',
-        message: 'text_1783627031283k41jtu4styo',
-      })
-    })
-
-    it('keeps the drawer open, resets the form and links the product when create more is on', async () => {
-      const { result } = renderDrawerHook([createProductMockFactory()])
-
-      act(() => result.current.openDrawer())
-
-      render(<>{lastDrawerArgs?.secondaryAction}</>)
-      await userEvent.click(screen.getByTestId(CREATE_MORE_SWITCH_TEST_ID))
-
-      renderDrawerBody()
-
-      const nameInput = screen.getByPlaceholderText('text_17836270312839ylvd3gjr17')
-
-      await userEvent.type(nameInput, 'Storage')
-      await waitFor(() => expect(screen.getByDisplayValue('storage')).toBeInTheDocument())
-
-      await act(async () => {
-        await lastDrawerArgs?.form?.submit()
-      })
-
-      await waitFor(() =>
-        expect(addToast).toHaveBeenCalledWith({
-          severity: 'success',
-          message:
-            'text_17836270312838hlfh44gw4i|Storage|/acme/product-catalog/products/prod-1/overview',
-        }),
-      )
-      expect(mockClose).not.toHaveBeenCalled()
-      expect(mockNavigate).not.toHaveBeenCalled()
-
-      // The form was reset for the next entry.
-      await waitFor(() => expect(screen.queryByDisplayValue('Storage')).not.toBeInTheDocument())
-    })
-
-    it('escapes double quotes in the product name interpolated into the linked toast', async () => {
-      const { result } = renderDrawerHook([
-        {
-          request: { query: CreateProductDocument },
-          variableMatcher: (vars) => vars?.input?.name === 'Storage "EU"',
-          result: {
-            data: {
-              createProduct: {
-                id: 'prod-1',
-                name: 'Storage "EU"',
-                code: 'storage_eu',
-                description: null,
-                invoiceDisplayName: null,
-                attachedToPlanOrSubscription: false,
-              },
-            },
-          },
-        },
-      ])
-
-      act(() => result.current.openDrawer())
-
-      render(<>{lastDrawerArgs?.secondaryAction}</>)
-      await userEvent.click(screen.getByTestId(CREATE_MORE_SWITCH_TEST_ID))
-
-      renderDrawerBody()
-
-      await userEvent.type(
-        screen.getByPlaceholderText('text_17836270312839ylvd3gjr17'),
-        'Storage "EU"',
-      )
-
-      await act(async () => {
-        await lastDrawerArgs?.form?.submit()
-      })
-
-      await waitFor(() => {
-        const [{ message }] = (addToast as jest.Mock).mock.calls[0]
-
-        expect(message).toContain('Storage &quot;EU&quot;')
-      })
-    })
-
-    it('surfaces a duplicate code under the code input and keeps the drawer open', async () => {
-      const { result } = renderDrawerHook([
-        createProductMockFactory({ data: null, errors: [duplicateCodeError] }),
-      ])
-
-      act(() => result.current.openDrawer())
-      renderDrawerBody()
-
-      await userEvent.type(screen.getByPlaceholderText('text_17836270312839ylvd3gjr17'), 'Storage')
-      await waitFor(() => expect(screen.getByDisplayValue('storage')).toBeInTheDocument())
-
-      await act(async () => {
-        await lastDrawerArgs?.form?.submit()
-      })
-
-      await waitFor(() =>
-        expect(screen.getByText('text_632a2d437e341dcc76817556')).toBeInTheDocument(),
-      )
-      expect(mockClose).not.toHaveBeenCalled()
-      expect(addToast).not.toHaveBeenCalled()
-    })
   })
 
-  describe('GIVEN edit mode (a product argument)', () => {
+  describe('GIVEN edit mode (a productCategory item argument)', () => {
     it('opens with the edit title, no create-more control and the save label', () => {
       const { result } = renderDrawerHook()
 
-      act(() => result.current.openDrawer(productFixture))
+      act(() => result.current.openDrawer({ product: productFixture }))
 
-      expect(lastDrawerArgs?.title).toBe('text_1783627031283awv8tgambrd')
+      expect(lastDrawerArgs?.title).toBe('text_1783980718113x99ykq6zvpi')
       expect(lastDrawerArgs?.secondaryAction).toBeUndefined()
 
       render(<>{lastDrawerArgs?.mainAction}</>)
@@ -288,111 +149,73 @@ describe('useProductDrawer', () => {
       )
     })
 
-    it('prefills the form with the product values', async () => {
+    it('prefills the form with the productCategory item values', async () => {
       const { result } = renderDrawerHook()
 
-      act(() => result.current.openDrawer(productFixture))
+      act(() => result.current.openDrawer({ product: productFixture }))
       renderDrawerBody()
 
-      await waitFor(() => expect(screen.getByDisplayValue('Object storage')).toBeInTheDocument())
-      expect(screen.getByDisplayValue('object_storage')).toBeInTheDocument()
-      expect(screen.getByDisplayValue('Base storage product')).toBeInTheDocument()
-      expect(screen.getByDisplayValue('Storage')).toBeInTheDocument()
+      await waitFor(() => expect(screen.getByDisplayValue('Seats')).toBeInTheDocument())
+      expect(screen.getByDisplayValue('seats')).toBeInTheDocument()
+      expect(screen.getByDisplayValue('Per seat billing')).toBeInTheDocument()
     })
 
-    it('locks the code input when the product is attached to a plan or subscription', async () => {
+    it('locks the code input when the item is attached to a plan or subscription', async () => {
       const { result } = renderDrawerHook()
 
       act(() =>
-        result.current.openDrawer({ ...productFixture, attachedToPlanOrSubscription: true }),
+        result.current.openDrawer({
+          product: { ...productFixture, attachedToPlanOrSubscription: true },
+        }),
       )
       renderDrawerBody()
 
-      await waitFor(() => expect(screen.getByDisplayValue('object_storage')).toBeDisabled())
+      await waitFor(() => expect(screen.getByDisplayValue('seats')).toBeDisabled())
     })
 
-    it('keeps the code input editable when the product is not attached', async () => {
-      const { result } = renderDrawerHook()
-
-      act(() => result.current.openDrawer(productFixture))
-      renderDrawerBody()
-
-      await waitFor(() => expect(screen.getByDisplayValue('object_storage')).not.toBeDisabled())
-    })
-
-    it('updates the product, closes the drawer and toasts without navigating', async () => {
-      const { result } = renderDrawerHook([
-        {
-          request: { query: UpdateProductDocument },
-          variableMatcher: (vars) =>
-            vars?.input?.id === 'prod-1' &&
-            vars?.input?.name === 'Object storage EU' &&
-            vars?.input?.code === 'object_storage' &&
-            vars?.input?.description === 'Base storage product' &&
-            vars?.input?.invoiceDisplayName === 'Storage',
-          result: {
-            data: {
-              updateProduct: { ...productFixture, name: 'Object storage EU' },
-            },
-          },
-        },
-      ])
-
-      act(() => result.current.openDrawer(productFixture))
-      renderDrawerBody()
-
-      const nameInput = await screen.findByDisplayValue('Object storage')
-
-      await userEvent.clear(nameInput)
-      await userEvent.type(nameInput, 'Object storage EU')
-
-      await act(async () => {
-        await lastDrawerArgs?.form?.submit()
-      })
-
-      await waitFor(() => expect(mockClose).toHaveBeenCalledTimes(1))
-      expect(addToast).toHaveBeenCalledWith({
-        severity: 'success',
-        message: 'text_1783627031283gttzuphzl2o',
-      })
-      expect(mockNavigate).not.toHaveBeenCalled()
-    })
-
-    it('clears an emptied description by sending null instead of undefined', async () => {
+    it('updates the item, closes and toasts without navigating or sending create-only fields', async () => {
       const updateVars = jest.fn()
       const { result } = renderDrawerHook([
         {
           request: { query: UpdateProductDocument },
           variableMatcher: (vars) => {
             updateVars(vars)
-            return vars?.input?.id === 'prod-1'
+            return vars?.input?.id === 'pitem-1'
           },
           result: {
             data: {
-              updateProduct: { ...productFixture, description: null },
+              updateProduct: { ...productFixture, name: 'Seats EU' },
             },
           },
         },
       ])
 
-      act(() => result.current.openDrawer(productFixture))
+      act(() => result.current.openDrawer({ product: productFixture }))
       renderDrawerBody()
 
-      const descriptionInput = await screen.findByDisplayValue('Base storage product')
+      const nameInput = await screen.findByDisplayValue('Seats')
 
-      await userEvent.clear(descriptionInput)
+      await userEvent.clear(nameInput)
+      await userEvent.type(nameInput, 'Seats EU')
 
       await act(async () => {
         await lastDrawerArgs?.form?.submit()
       })
 
-      await waitFor(() =>
-        expect(updateVars).toHaveBeenCalledWith(
-          expect.objectContaining({
-            input: expect.objectContaining({ description: null }),
-          }),
-        ),
-      )
+      await waitFor(() => expect(mockClose).toHaveBeenCalledTimes(1))
+
+      const [{ input }] = updateVars.mock.calls[updateVars.mock.calls.length - 1]
+
+      expect(input).toMatchObject({ id: 'pitem-1', name: 'Seats EU', code: 'seats' })
+      // productType / productCategory / billable metric are create-only and must not be sent.
+      expect(input).not.toHaveProperty('productType')
+      expect(input).not.toHaveProperty('productCategoryId')
+      expect(input).not.toHaveProperty('billableMetricId')
+      expect(addToast).toHaveBeenCalledWith({
+        severity: 'success',
+        message: 'text_1783980718114jtotg0hluib',
+      })
+      expect(mockNavigate).not.toHaveBeenCalled()
     })
   })
 
@@ -400,36 +223,44 @@ describe('useProductDrawer', () => {
     it('reveals and removes a prefilled description in edit mode', async () => {
       const { result } = renderDrawerHook()
 
-      act(() => result.current.openDrawer(productFixture))
+      act(() => result.current.openDrawer({ product: productFixture }))
       renderDrawerBody()
 
-      const removeButton = await screen.findByTestId(PRODUCT_DRAWER_REMOVE_DESCRIPTION_TEST_ID)
+      const removeButton = await screen.findByTestId(PRODUCT_ITEM_DRAWER_REMOVE_DESCRIPTION_TEST_ID)
 
-      expect(screen.getByDisplayValue('Base storage product')).toBeInTheDocument()
+      expect(screen.getByDisplayValue('Per seat billing')).toBeInTheDocument()
 
       await userEvent.click(removeButton)
 
-      expect(screen.queryByDisplayValue('Base storage product')).not.toBeInTheDocument()
-      expect(screen.getByTestId(PRODUCT_DRAWER_SHOW_DESCRIPTION_TEST_ID)).toBeInTheDocument()
+      expect(screen.queryByDisplayValue('Per seat billing')).not.toBeInTheDocument()
+      expect(screen.getByTestId(PRODUCT_ITEM_DRAWER_SHOW_DESCRIPTION_TEST_ID)).toBeInTheDocument()
 
-      await userEvent.click(screen.getByTestId(PRODUCT_DRAWER_SHOW_DESCRIPTION_TEST_ID))
+      await userEvent.click(screen.getByTestId(PRODUCT_ITEM_DRAWER_SHOW_DESCRIPTION_TEST_ID))
 
-      expect(screen.getByTestId(PRODUCT_DRAWER_REMOVE_DESCRIPTION_TEST_ID)).toBeInTheDocument()
+      expect(screen.getByTestId(PRODUCT_ITEM_DRAWER_REMOVE_DESCRIPTION_TEST_ID)).toBeInTheDocument()
     })
+  })
 
-    it('toggles the description on then off in create mode', async () => {
+  describe('GIVEN a usage item in edit mode', () => {
+    it('reveals the billable metric selector prefilled from the item', async () => {
       const { result } = renderDrawerHook()
 
-      act(() => result.current.openDrawer())
+      act(() => result.current.openDrawer({ product: usageProductFixture }))
       renderDrawerBody()
 
-      await userEvent.click(await screen.findByTestId(PRODUCT_DRAWER_SHOW_DESCRIPTION_TEST_ID))
+      await waitFor(() => expect(screen.getByDisplayValue('API calls')).toBeInTheDocument())
+    })
+  })
 
-      expect(screen.getByTestId(PRODUCT_DRAWER_REMOVE_DESCRIPTION_TEST_ID)).toBeInTheDocument()
+  describe('GIVEN a fixed item in edit mode', () => {
+    it('hides the billable metric selector', async () => {
+      const { result } = renderDrawerHook()
 
-      await userEvent.click(screen.getByTestId(PRODUCT_DRAWER_REMOVE_DESCRIPTION_TEST_ID))
+      act(() => result.current.openDrawer({ product: productFixture }))
+      renderDrawerBody()
 
-      expect(screen.getByTestId(PRODUCT_DRAWER_SHOW_DESCRIPTION_TEST_ID)).toBeInTheDocument()
+      await waitFor(() => expect(screen.getByDisplayValue('Seats')).toBeInTheDocument())
+      expect(screen.queryByDisplayValue('API calls')).not.toBeInTheDocument()
     })
   })
 })

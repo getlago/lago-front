@@ -1,4 +1,5 @@
-import { filterDataInlineSeparator } from '../types'
+import { filterDataInlineSeparator } from '~/components/Filters/presentation/types'
+
 import { unescapeFilterLabel } from '../utils'
 
 /**
