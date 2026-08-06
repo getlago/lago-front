@@ -1,9 +1,6 @@
 import { DateTime } from 'luxon'
 
-import {
-  isSubscriptionPurchaseOrderNumberEditable,
-  normalizePurchaseOrderNumber,
-} from '~/components/purchaseOrder/PO'
+import { normalizePurchaseOrderNumber } from '~/components/purchaseOrder/PO'
 import {
   SubscriptionUpdateFormOptions,
   useUpdateSubscriptionForm,
@@ -24,11 +21,9 @@ export const useUpdateSubscriptionInformation = ({
       name: value.name || null,
       subscriptionAt: DateTime.fromISO(value.subscriptionAt).toUTC().toISO(),
       endingAt: value.endingAt ? DateTime.fromISO(value.endingAt).toUTC().toISO() : null,
-      // Omitted entirely when not editable, otherwise the BE rejects the whole
-      // update and name/dates can no longer be edited. When editable the key
-      // must stay even as `null` — that is the clear mechanism.
-      ...(isSubscriptionPurchaseOrderNumberEditable(subscription?.status)
-        ? { purchaseOrderNumber: normalizePurchaseOrderNumber(value.purchaseOrderNumber) }
-        : {}),
+      // Always sent, whatever the status: the BE only rejects an actual value
+      // change on a non-editable subscription. The key must stay even as `null`
+      // — that is the clear mechanism, `undefined` gets stripped.
+      purchaseOrderNumber: normalizePurchaseOrderNumber(value.purchaseOrderNumber),
     }),
   })
