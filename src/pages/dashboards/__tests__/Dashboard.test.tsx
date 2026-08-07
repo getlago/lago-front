@@ -21,7 +21,9 @@ const mockAttachDashboardStateSync = jest.fn()
 const mockDetachStateSync = jest.fn()
 
 jest.mock('~/pages/dashboards/dashboardStateSync', () => ({
-  DASHBOARD_STATE_SEARCH_PARAM: 'dashboard_state',
+  // Spread the real module so a rename of DASHBOARD_STATE_SEARCH_PARAM cannot
+  // leave this suite green against a stale hardcoded name.
+  ...jest.requireActual('~/pages/dashboards/dashboardStateSync'),
   attachDashboardStateSync: (...args: unknown[]) => mockAttachDashboardStateSync(...args),
 }))
 
@@ -160,6 +162,16 @@ describe('Dashboard', () => {
         permalink_key: 'AbCd1234',
       })
     })
+
+    it('THEN seeds the state sync with it so reverting does not rewrite the url', async () => {
+      setUrl('?dashboard_state=AbCd1234')
+
+      renderAnalytics()
+
+      await waitFor(() => expect(mockAttachDashboardStateSync).toHaveBeenCalledTimes(1))
+
+      expect(mockAttachDashboardStateSync.mock.calls[0][0].initialKey).toBe('AbCd1234')
+    })
   })
 
   describe('GIVEN the state sync reports a new key', () => {
@@ -206,6 +218,37 @@ describe('Dashboard', () => {
 
       expect(mockDetachStateSync).toHaveBeenCalled()
       expect(mockUnmount).toHaveBeenCalled()
+    })
+  })
+
+  describe('GIVEN the component unmounts before the embed resolves', () => {
+    it('THEN unmounts the late instance and never attaches the state sync', async () => {
+      let resolveEmbed: (value: unknown) => void = () => undefined
+
+      mockEmbedDashboard.mockReturnValue(
+        new Promise((resolve) => {
+          resolveEmbed = resolve
+        }),
+      )
+
+      const { unmount } = renderAnalytics()
+
+      await waitFor(() => expect(mockEmbedDashboard).toHaveBeenCalledTimes(1))
+
+      unmount()
+
+      resolveEmbed({
+        unmount: mockUnmount,
+        observeDataMask: jest.fn(),
+        getActiveTabs: jest.fn(),
+        getDashboardPermalink: jest.fn(),
+      })
+
+      // Without it, the continuation would attach a 1 Hz poll onto an iframe
+      // the cleanup could not reach, and nothing would ever clear it.
+      await waitFor(() => expect(mockUnmount).toHaveBeenCalled())
+
+      expect(mockAttachDashboardStateSync).not.toHaveBeenCalled()
     })
   })
 })

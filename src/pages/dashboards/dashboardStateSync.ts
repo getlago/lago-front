@@ -24,6 +24,11 @@ export const extractPermalinkKey = (url: string): string | null => {
 type AttachDashboardStateSyncParams = {
   embedded: EmbeddedDashboard
   onStateKey: (key: string) => void
+  /**
+   * Key the page was loaded with, if any. Seeding it stops a revert back to
+   * that state from re-emitting the key already present in the url.
+   */
+  initialKey?: string | null
   debounceMs?: number
   pollIntervalMs?: number
 }
@@ -42,17 +47,26 @@ type AttachDashboardStateSyncParams = {
 export const attachDashboardStateSync = ({
   embedded,
   onStateKey,
+  initialKey = null,
   debounceMs = DEFAULT_DEBOUNCE_MS,
   pollIntervalMs = DEFAULT_POLL_INTERVAL_MS,
 }: AttachDashboardStateSyncParams): (() => void) => {
   let disabled = false
-  let lastEmittedKey: string | null = null
+  let polling = false
+  let pollTimer: ReturnType<typeof setInterval> | undefined
+  let lastEmittedKey: string | null = initialKey
   let knownActiveTabs: string | null = null
+
+  function stopPolling(): void {
+    if (pollTimer) clearInterval(pollTimer)
+
+    pollTimer = undefined
+  }
 
   function disableSync(): void {
     disabled = true
     syncStateKey.cancel()
-    clearInterval(pollTimer)
+    stopPolling()
   }
 
   const syncStateKey = debounce(async (): Promise<void> => {
@@ -81,14 +95,33 @@ export const attachDashboardStateSync = ({
   }, debounceMs)
 
   const pollActiveTabs = async (): Promise<void> => {
-    if (disabled || document.hidden) return
+    // A poll slower than the interval would otherwise overlap with the next
+    // one, and two readings racing on a null baseline make the second look
+    // like a user change.
+    if (disabled || polling || document.hidden) return
+
+    polling = true
 
     try {
-      const activeTabs = (await embedded.getActiveTabs()).join(',')
+      // The sdk types this `string[]`, but the value is an unvalidated
+      // `postMessage` result: before the dashboard hydrates it can be
+      // anything, including undefined.
+      const tabs = await embedded.getActiveTabs()
+      const activeTabs = Array.isArray(tabs) ? tabs.join(',') : null
 
-      // The first reading is whatever hydration selected, not a user action.
+      if (activeTabs === null) return
+
       if (knownActiveTabs === null) {
+        // `embedDashboard` resolves on the iframe load event, before the
+        // dashboard hydrates, so an empty reading is not a real baseline.
+        // Accepting it would make the first hydrated reading look like a
+        // user action and write a state key nobody asked for.
+        if (!activeTabs) return
+
+        // The first real reading is whatever hydration selected, not a user
+        // action either.
         knownActiveTabs = activeTabs
+
         return
       }
 
@@ -97,13 +130,17 @@ export const attachDashboardStateSync = ({
       knownActiveTabs = activeTabs
       syncStateKey()
     } catch (error) {
-      disableSync()
+      // Only the pull-only tab channel stops here. Filters keep persisting
+      // through `observeDataMask`, which does not depend on this rpc.
+      stopPolling()
       // eslint-disable-next-line no-console
       console.warn('[superset] dashboard tab tracking disabled', error)
+    } finally {
+      polling = false
     }
   }
 
-  const pollTimer = setInterval(pollActiveTabs, pollIntervalMs)
+  pollTimer = setInterval(pollActiveTabs, pollIntervalMs)
 
   embedded.observeDataMask(({ crossFiltersChanged, nativeFiltersChanged }) => {
     // Superset reports both as false for the initial hydration emission, so a

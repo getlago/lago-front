@@ -65,6 +65,20 @@ describe('extractPermalinkKey', () => {
     )
   })
 
+  it('THEN drops a query string appended to the key', () => {
+    expect(
+      extractPermalinkKey(
+        'https://superset.example.com/superset/dashboard/p/AbCd1234?native_filters_key=xyz',
+      ),
+    ).toBe('AbCd1234')
+  })
+
+  it('THEN drops a hash appended to the key', () => {
+    expect(
+      extractPermalinkKey('https://superset.example.com/superset/dashboard/p/AbCd1234#chart-12'),
+    ).toBe('AbCd1234')
+  })
+
   it('THEN returns null when the url has no key segment', () => {
     expect(extractPermalinkKey('https://superset.example.com/superset/dashboard/p/')).toBeNull()
   })
@@ -180,6 +194,76 @@ describe('attachDashboardStateSync', () => {
 
       hidden.mockRestore()
     })
+
+    it('THEN ignores an empty reading instead of taking it as the baseline', async () => {
+      // The iframe load event fires before the dashboard hydrates, so the
+      // first readings can come back empty.
+      double.getActiveTabs.mockResolvedValue([])
+
+      await advance(1000)
+
+      double.getActiveTabs.mockResolvedValue(['TAB-one'])
+
+      await advance(1000)
+      await advance(800)
+
+      expect(double.getDashboardPermalink).not.toHaveBeenCalled()
+      expect(onStateKey).not.toHaveBeenCalled()
+    })
+
+    it('THEN syncs on a real change once the hydrated baseline is set', async () => {
+      double.getActiveTabs.mockResolvedValue([])
+
+      await advance(1000)
+
+      double.getActiveTabs.mockResolvedValue(['TAB-one'])
+
+      await advance(1000)
+
+      double.getActiveTabs.mockResolvedValue(['TAB-two'])
+
+      await advance(1000)
+      await advance(800)
+
+      expect(onStateKey).toHaveBeenCalledWith('AbCd1234')
+    })
+  })
+
+  describe('GIVEN the active tabs rpc resolves to an unexpected value', () => {
+    it('THEN neither throws nor stops persisting filters', async () => {
+      // The sdk types the result `string[]`, but it is an unvalidated
+      // cross-origin postMessage payload.
+      double.getActiveTabs.mockResolvedValue(undefined)
+
+      await advance(1000)
+      await advance(1000)
+
+      expect(double.getActiveTabs).toHaveBeenCalledTimes(2)
+
+      double.emitDataMask({ crossFiltersChanged: false, nativeFiltersChanged: true })
+      await advance(800)
+
+      expect(onStateKey).toHaveBeenCalledWith('AbCd1234')
+    })
+  })
+
+  describe('GIVEN the active tabs rpc fails', () => {
+    it('THEN stops polling but keeps persisting filters', async () => {
+      double.getActiveTabs.mockRejectedValue(new Error('no reply'))
+
+      await advance(1000)
+
+      double.getActiveTabs.mockClear()
+
+      await advance(2000)
+
+      expect(double.getActiveTabs).not.toHaveBeenCalled()
+
+      double.emitDataMask({ crossFiltersChanged: false, nativeFiltersChanged: true })
+      await advance(800)
+
+      expect(onStateKey).toHaveBeenCalledWith('AbCd1234')
+    })
   })
 
   describe('GIVEN the permalink request fails', () => {
@@ -209,6 +293,52 @@ describe('attachDashboardStateSync', () => {
 
       expect(double.getDashboardPermalink).not.toHaveBeenCalled()
       expect(double.getActiveTabs).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('GIVEN the sync is seeded with the key the page loaded with', () => {
+    it('THEN does not re-emit that key when the state reverts to it', async () => {
+      detach()
+
+      const seeded = buildEmbeddedDouble()
+      const seededOnStateKey = jest.fn()
+      const detachSeeded = attachDashboardStateSync({
+        embedded: seeded.embedded,
+        onStateKey: seededOnStateKey,
+        initialKey: 'AbCd1234',
+      })
+
+      seeded.emitDataMask({ crossFiltersChanged: false, nativeFiltersChanged: true })
+      await advance(800)
+
+      expect(seeded.getDashboardPermalink).toHaveBeenCalledTimes(1)
+      expect(seededOnStateKey).not.toHaveBeenCalled()
+
+      detachSeeded()
+    })
+
+    it('THEN still emits a key that differs from the seed', async () => {
+      detach()
+
+      const seeded = buildEmbeddedDouble()
+      const seededOnStateKey = jest.fn()
+
+      seeded.getDashboardPermalink.mockResolvedValue(
+        'https://superset.example.com/superset/dashboard/p/EfGh5678/',
+      )
+
+      const detachSeeded = attachDashboardStateSync({
+        embedded: seeded.embedded,
+        onStateKey: seededOnStateKey,
+        initialKey: 'AbCd1234',
+      })
+
+      seeded.emitDataMask({ crossFiltersChanged: false, nativeFiltersChanged: true })
+      await advance(800)
+
+      expect(seededOnStateKey).toHaveBeenCalledWith('EfGh5678')
+
+      detachSeeded()
     })
   })
 

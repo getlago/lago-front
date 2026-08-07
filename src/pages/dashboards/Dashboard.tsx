@@ -76,6 +76,7 @@ const Dashboard = ({ contentTitle, dashboardTitle, dashboardTitleTestKey }: Dash
       return
     }
 
+    let cancelled = false
     let embedded: null | EmbeddedDashboard = null
     let detachStateSync: (() => void) | null = null
 
@@ -89,14 +90,14 @@ const Dashboard = ({ contentTitle, dashboardTitle, dashboardTitleTestKey }: Dash
       navigateRef.current({ search: `?${search.toString()}` }, { replace: true })
     }
 
-    const mount = async () => {
+    const mount = async (): Promise<void> => {
       const mountPoint = document.getElementById(mountId)
 
       if (!mountPoint) {
         return
       }
 
-      embedded = await embedDashboard({
+      const instance = await embedDashboard({
         id: dashboard.embeddedId,
         supersetDomain: lagoSupersetUrl,
         mountPoint,
@@ -112,9 +113,20 @@ const Dashboard = ({ contentTitle, dashboardTitle, dashboardTitleTestKey }: Dash
         iframeSandboxExtras: ['allow-top-navigation', 'allow-popups-to-escape-sandbox'],
       })
 
+      // Teardown may have run while the embed was in flight. Attaching the
+      // sync here would strand its poll on a destroyed iframe, since the
+      // cleanup already read a null `detachStateSync`.
+      if (cancelled) {
+        instance.unmount()
+
+        return
+      }
+
+      embedded = instance
       detachStateSync = attachDashboardStateSync({
-        embedded,
+        embedded: instance,
         onStateKey: writeStateKeyToUrl,
+        initialKey: initialStateKey,
       })
 
       dashboardRef.current = dashboard.id
@@ -123,6 +135,7 @@ const Dashboard = ({ contentTitle, dashboardTitle, dashboardTitleTestKey }: Dash
     mount()
 
     return () => {
+      cancelled = true
       detachStateSync?.()
       embedded?.unmount()
       dashboardRef.current = ''
