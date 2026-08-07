@@ -4572,5 +4572,21 @@
   "text_1785937424540jyldwaxzp6s": "This metric is used by active plans or subscriptions. Removing filter values may modify or remove existing pricing filters and require manual review of affected plans.",
   "text_1785937424540rcpk2gtmvcw": "Remove filter values?",
   "text_17859374245407eq5b0eujux": "You're removing one or more filter values from a metric used in active plans or subscriptions. This may change or delete existing plan charge filters and may require manual review of the affected plans. Do you want to continue?",
-  "text_1785937424540njszxyvj0rx": "Continue"
+  "text_1785937424540njszxyvj0rx": "Continue",
+  "text_1786091733039nnb1h4pi72ma": "Product category {{productCategoryCode}} was created",
+  "text_178609173304159xh504rz1ft": "Product category {{productCategoryCode}} was deleted",
+  "text_1786091733044na86etjemkqu": "Product category {{productCategoryCode}} was updated",
+  "text_1786091733046g3b92p319w62": "Product {{productCode}} was created",
+  "text_1786091733049o18s7aoyl5r4": "Product {{productCode}} was deleted",
+  "text_17860917330516y1biphaeo15": "Product filter {{productFilterCode}} was created",
+  "text_17860917330544tvqk6vicfn8": "Product filter {{productFilterCode}} was deleted",
+  "text_1786091733056r14b2wvkqako": "Product filter {{productFilterCode}} was updated",
+  "text_1786091733059hiktqgnywvoj": "Product {{productCode}} was updated",
+  "text_1786091733061jsdqvdtvhh5t": "Product",
+  "text_1786091733064ylrve06n4u2o": "Product category",
+  "text_1786091733066uc0p6228z0oi": "Product filter",
+  "text_1786092176156yo311nnjo7ao": "Rate card {{rateCardCode}} was created",
+  "text_1786092176162ynjwyyfdd6e5": "Rate card {{rateCardCode}} was deleted",
+  "text_17860921761633on7rwl6cpn9": "Rate card {{rateCardCode}} was updated",
+  "text_1786092176164htj7ooyl4bgs": "Rate card"
 }
