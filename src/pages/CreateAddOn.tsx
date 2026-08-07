@@ -5,7 +5,6 @@ import { generatePath, useParams } from 'react-router-dom'
 import { AddOnCodeSnippet } from '~/components/addOns/AddOnCodeSnippet'
 import { Button } from '~/components/designSystem/Button'
 import { Card } from '~/components/designSystem/Card'
-import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
@@ -21,7 +20,7 @@ import { useAppForm } from '~/hooks/forms/useAppform'
 import { useCreateEditAddOn } from '~/hooks/useCreateEditAddOn'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { PageHeader } from '~/styles'
-import { Main, Side, Subtitle, Title } from '~/styles/mainObjectsForm'
+import { FormLoadingSkeleton, Main, Side, Subtitle, Title } from '~/styles/mainObjectsForm'
 
 import { addOnFormSchema, AddOnFormValues } from './createAddOn/validationSchema'
 
@@ -99,15 +98,16 @@ const CreateAddOn = () => {
     setShouldDisplayDescription(!!addOn?.description)
   }, [addOn?.description])
 
+  const setCodeExistsError = (message: string | undefined): void => {
+    form.setFieldMeta('code', (meta) => ({
+      ...meta,
+      errorMap: { ...meta.errorMap, onDynamic: message ? { message } : undefined },
+    }))
+  }
+
   useEffect(() => {
     if (errorCode === FORM_ERRORS_ENUM.existingCode) {
-      form.setFieldMeta('code', (meta) => ({
-        ...meta,
-        errorMap: {
-          ...meta.errorMap,
-          onDynamic: { message: 'text_632a2d437e341dcc76817556' },
-        },
-      }))
+      setCodeExistsError('text_632a2d437e341dcc76817556')
       scrollToTop()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -116,11 +116,9 @@ const CreateAddOn = () => {
   const codeValue = useStore(form.store, (state) => state.values.code)
 
   useEffect(() => {
+    // Clear the server "code already exists" error once the user edits the code
     if (errorCode === FORM_ERRORS_ENUM.existingCode) {
-      form.setFieldMeta('code', (meta) => ({
-        ...meta,
-        errorMap: { ...meta.errorMap, onDynamic: undefined },
-      }))
+      setCodeExistsError(undefined)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [codeValue])
@@ -164,21 +162,7 @@ const CreateAddOn = () => {
         <Main>
           <div>
             {loading ? (
-              <>
-                <div className="px-8">
-                  <Skeleton variant="text" className="mb-5 w-70" />
-                  <Skeleton variant="text" className="mb-4" />
-                  <Skeleton variant="text" className="w-30" />
-                </div>
-
-                {[0, 1].map((skeletonCard) => (
-                  <Card key={`skeleton-${skeletonCard}`}>
-                    <Skeleton variant="text" className="w-70" />
-                    <Skeleton variant="text" />
-                    <Skeleton variant="text" className="w-30" />
-                  </Card>
-                ))}
-              </>
+              <FormLoadingSkeleton id="create-add-on" />
             ) : (
               <>
                 <div>
