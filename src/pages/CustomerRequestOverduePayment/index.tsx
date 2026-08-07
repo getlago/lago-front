@@ -318,6 +318,11 @@ const CustomerRequestOverduePayment: FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isCustomerReadyForOverduePayment, isPaymentProcessingStatusLoading, isUnscopedAccess])
 
+  // Render nothing while the unscoped guard is redirecting: the query is
+  // skipped, so the body would mount with no customer and no invoices and
+  // flash an error placeholder for the frame before the navigate lands.
+  if (isUnscopedAccess) return null
+
   return (
     <>
       <PageHeader.Wrapper>

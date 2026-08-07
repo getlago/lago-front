@@ -214,6 +214,19 @@ describe('CustomerRequestOverduePayment', () => {
         expect(mockNavigate).not.toHaveBeenCalledWith(ERROR_404_ROUTE)
       })
 
+      it('THEN should render nothing instead of flashing the page body', async () => {
+        mockSearchParams = new URLSearchParams()
+
+        let container: HTMLElement | undefined
+
+        await act(async () => {
+          container = render(<CustomerRequestOverduePayment />).container
+        })
+
+        expect(container?.firstChild).toBeNull()
+        expect(screen.queryByTestId(SUBMIT_PAYMENT_REQUEST_TEST_ID)).not.toBeInTheDocument()
+      })
+
       it('THEN should not stack a danger toast on top of the info toast', async () => {
         mockSearchParams = new URLSearchParams()
         jest
