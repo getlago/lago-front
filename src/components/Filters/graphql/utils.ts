@@ -29,6 +29,7 @@ import {
   OrderFormAvailableFilters,
   ProductAvailableFilters,
   QuoteAvailableFilters,
+  RateCardAvailableFilters,
   RevenueStreamsAvailablePopperFilters,
   RevenueStreamsCustomersAvailableFilters,
   RevenueStreamsPlansAvailableFilters,
@@ -63,6 +64,7 @@ import {
   PRODUCT_FILTER_LIST_FILTER_PREFIX,
   PRODUCT_LIST_FILTER_PREFIX,
   QUOTE_LIST_FILTER_PREFIX,
+  RATE_CARD_LIST_FILTER_PREFIX,
   REVENUE_STREAMS_BREAKDOWN_CUSTOMER_FILTER_PREFIX,
   REVENUE_STREAMS_BREAKDOWN_PLAN_FILTER_PREFIX,
   REVENUE_STREAMS_OVERVIEW_FILTER_PREFIX,
@@ -296,6 +298,30 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
 
     return firstId ? { productId: firstId } : {}
   },
+  // Rate card list filters are built array-native: every dimension is a plain multi-select
+  // producing an array of ids under a plural key (productCategoryIds / productIds /
+  // productFilterIds). See mapRateCardFilterVars below for the schema-gap adapter
+  // down-mapping these arrays to today's singular rateCards query args.
+  //
+  // The ProductCategory dimension pins a synthetic "Not defined" sentinel (filterWithoutProductValue),
+  // mirroring productProductCategory/productFilterProductCategory: filter it out before mapping so it
+  // never pollutes the productCategoryIds array. ProductCategory is UI-only via the adapter today, but
+  // this future-proofs the array for when the backend ships a productCategory-level arg on rateCards.
+  [AvailableFiltersEnum.rateCardProductCategory]: (value: string) =>
+    value
+      .split(',')
+      .filter((part) => !!part && part !== filterWithoutProductValue)
+      .map((v) => v.split(filterDataInlineSeparator)[0]),
+  [AvailableFiltersEnum.rateCardProduct]: (value: string) =>
+    value
+      .split(',')
+      .filter(Boolean)
+      .map((v) => v.split(filterDataInlineSeparator)[0]),
+  [AvailableFiltersEnum.rateCardProductFilter]: (value: string) =>
+    value
+      .split(',')
+      .filter(Boolean)
+      .map((v) => v.split(filterDataInlineSeparator)[0]),
   [AvailableFiltersEnum.orderFormCreatedAt]: (value: string) => {
     return {
       createdAtFrom: value.split(',')[0],
@@ -516,6 +542,54 @@ export const formatFiltersForProductFiltersQuery = (
     availableFilters: [AvailableFiltersEnum.productFilterProduct],
     filtersNamePrefix: PRODUCT_FILTER_LIST_FILTER_PREFIX,
   })
+}
+
+// Array-native shape of the rate card list filters: every dimension resolves to a plural
+// id array, matching the multi-select UI 1:1. Codegen validates queries against the live
+// schema, and the `rateCards` query doesn't accept these plural args today (only singular
+// `productId` / `productFilterId`, and no productCategory arg at all) - so this type
+// intentionally does NOT match the generated `RateCardsQueryVariables` type. See
+// mapRateCardFilterVars for the adapter that bridges this to today's singular query args.
+export type RateCardsQueryFilters = {
+  productCategoryIds?: string[]
+  productIds?: string[]
+  productFilterIds?: string[]
+}
+
+export const formatFiltersForRateCardsQuery = (
+  searchParams: URLSearchParams,
+): RateCardsQueryFilters => {
+  const keyMap: Partial<Record<AvailableFiltersEnum, keyof RateCardsQueryFilters & string>> = {
+    [AvailableFiltersEnum.rateCardProductCategory]: 'productCategoryIds',
+    [AvailableFiltersEnum.rateCardProduct]: 'productIds',
+    [AvailableFiltersEnum.rateCardProductFilter]: 'productFilterIds',
+  }
+
+  return formatFiltersForQuery<RateCardsQueryFilters>({
+    searchParams,
+    keyMap,
+    availableFilters: RateCardAvailableFilters,
+    filtersNamePrefix: RATE_CARD_LIST_FILTER_PREFIX,
+  })
+}
+
+// TODO(backend plural filter args): drop this down-mapping and pass plurals straight through
+// once rateCards accepts productCategoryIds/productIds/productFilterIds.
+//
+// The `rateCards` query only accepts singular `productId` / `productFilterId` today,
+// and has no productCategory arg at all. This adapter bridges the array-native filter state
+// (formatFiltersForRateCardsQuery) down to what the query can actually accept: it keeps only
+// the first selected id per dimension, and silently drops `productCategoryIds` - the ProductCategory
+// filter is UI-only until the backend exposes a productCategory-level arg on `rateCards`.
+export const mapRateCardFilterVars = (
+  plurals: RateCardsQueryFilters,
+): { productId?: string; productFilterId?: string } => {
+  return {
+    ...(plurals.productIds?.[0] && { productId: plurals.productIds[0] }),
+    ...(plurals.productFilterIds?.[0] && {
+      productFilterId: plurals.productFilterIds[0],
+    }),
+  }
 }
 
 type InvoiceQueryFilters = Partial<
@@ -1048,6 +1122,7 @@ export const formatActiveFilterValueDisplay = (
     case AvailableFiltersEnum.productProductCategory:
     case AvailableFiltersEnum.productFilterProductCategory:
     case AvailableFiltersEnum.productFilterProduct:
+    case AvailableFiltersEnum.rateCardProductCategory:
       // Multi-select with a synthetic "Not defined" entry; render its translated label.
       // productFilterProduct is lossily mapped to a single productId by
       // formatFiltersForProductFiltersQuery, but every selected chip still renders here.
@@ -1092,6 +1167,8 @@ export const formatActiveFilterValueDisplay = (
     case AvailableFiltersEnum.billingEntityIds:
     case AvailableFiltersEnum.userIds:
     case AvailableFiltersEnum.multipleCustomers:
+    case AvailableFiltersEnum.rateCardProduct:
+    case AvailableFiltersEnum.rateCardProductFilter:
       return value
         .split(',')
         .map((v) =>
