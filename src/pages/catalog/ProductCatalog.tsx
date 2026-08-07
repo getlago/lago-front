@@ -16,6 +16,10 @@ import { usePermissions } from '~/hooks/usePermissions'
 import { useProductDrawer } from './drawers/product/useProductDrawer'
 import { useProductCategoryDrawer } from './drawers/productCategory/useProductCategoryDrawer'
 import { useProductFilterDrawer } from './drawers/productFilter/useProductFilterDrawer'
+import {
+  RATE_CARD_DRAWER_TITLE_CREATE_KEY,
+  useRateCardDrawer,
+} from './drawers/rateCard/useRateCardDrawer'
 import ProductCategoriesList from './ProductCategoriesList'
 import ProductFiltersList from './ProductFiltersList'
 import ProductsList from './ProductsList'
@@ -25,6 +29,7 @@ export const PRODUCT_CATALOG_CREATE_TEST_ID = 'product-catalog-create'
 export const CREATE_PRODUCT_TEST_ID = 'create-productCategory'
 export const CREATE_PRODUCT_ITEM_TEST_ID = 'create-product-item'
 export const CREATE_PRODUCT_ITEM_FILTER_TEST_ID = 'create-product-item-filter'
+export const CREATE_RATE_CARD_TEST_ID = 'create-rate-card'
 
 const ProductCatalog = () => {
   const { translate } = useInternationalization()
@@ -34,6 +39,7 @@ const ProductCatalog = () => {
   const { openDrawer: openCreateProductCategoryDrawer } = useProductCategoryDrawer()
   const { openDrawer: openCreateProductDrawer } = useProductDrawer()
   const { openDrawer: openCreateProductFilterDrawer } = useProductFilterDrawer()
+  const { openDrawer: openCreateRateCardDrawer } = useRateCardDrawer()
 
   const tabs = useMemo(
     () => [
@@ -126,6 +132,15 @@ const ProductCatalog = () => {
                   dataTest: CREATE_PRODUCT_ITEM_FILTER_TEST_ID,
                   onClick: (closePopper) => {
                     openCreateProductFilterDrawer()
+                    closePopper()
+                  },
+                },
+                {
+                  label: translate(RATE_CARD_DRAWER_TITLE_CREATE_KEY),
+                  hidden: !hasPermissions(['rateCardsCreate']),
+                  dataTest: CREATE_RATE_CARD_TEST_ID,
+                  onClick: (closePopper) => {
+                    openCreateRateCardDrawer()
                     closePopper()
                   },
                 },

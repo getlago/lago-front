@@ -110,3 +110,10 @@ export enum QuoteDetailsTabsOptionsEnum {
   orders = 'orders',
   activityLogs = 'activity-logs',
 }
+
+export enum RateCardDetailsTabsOptionsEnum {
+  overview = 'overview',
+  rates = 'rates',
+  plans = 'plans',
+  activityLogs = 'activity-logs',
+}

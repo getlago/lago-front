@@ -16,6 +16,7 @@ import {
   ProductForDeleteProductDialogFragmentDoc,
   ProductForDrawerFragmentDoc,
   ProductForFilterPreviewFragmentDoc,
+  RateCardForPreviewProductFragmentDoc,
   useGetProductForDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -25,6 +26,7 @@ import { usePermissions } from '~/hooks/usePermissions'
 
 import { ProductDetailsOverview } from './ProductDetailsOverview'
 import ProductFilterPreview from './ProductFilterPreview'
+import RateCardPreview from './RateCardPreview'
 
 import { useDeleteProductDialog } from '../dialogs/useDeleteProductDialog'
 import { useProductDrawer } from '../drawers/product/useProductDrawer'
@@ -34,6 +36,7 @@ gql`
     id
     name
     code
+    ...RateCardForPreviewProduct
     ...ProductForFilterPreview
     ...ProductForDrawer
     ...ProductForDeleteProductDialog
@@ -46,6 +49,7 @@ gql`
     }
   }
 
+  ${RateCardForPreviewProductFragmentDoc}
   ${ProductForFilterPreviewFragmentDoc}
   ${ProductForDrawerFragmentDoc}
   ${ProductForDeleteProductDialogFragmentDoc}
@@ -154,7 +158,11 @@ const ProductDetails = () => {
               productId: productId as string,
               tab: ProductDetailsTabsOptionsEnum.rateCards,
             }),
-            content: <div className="p-4">{translate('text_1783104239825nxqno33u945')}</div>,
+            content: product ? (
+              <DetailsPage.Container>
+                <RateCardPreview scope={{ product }} />
+              </DetailsPage.Container>
+            ) : null,
           },
           {
             title: translate('text_1783980718114wkor6aysepe'),
