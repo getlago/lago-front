@@ -2,7 +2,7 @@ import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
-import { AlertTypeEnum, LagoApiError } from '~/generated/graphql'
+import { AlertTypeEnum, LagoApiError, PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import AlertForm, {
@@ -10,6 +10,7 @@ import AlertForm, {
   SUBMIT_SUBSCRIPTION_ALERT_TEST_ID,
   SUBSCRIPTION_ALERT_FORM_TEST_ID,
   SUBSCRIPTION_ALERT_TYPE_COMBOBOX_TEST_ID,
+  SUBSCRIPTION_ALERT_TYPE_PREMIUM_OPTION_TEST_ID,
 } from '../AlertForm'
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
@@ -30,25 +31,32 @@ jest.mock('~/components/form/ComboBox/ComboBox', () => ({
     onChange,
     'data-test': dataTest,
   }: {
-    data: { value: string; label: string; disabled?: boolean }[]
+    data: { value: string; label: string; disabled?: boolean; labelNode?: React.ReactNode }[]
     value?: string
     disabled?: boolean
     onChange: (value: string) => void
     'data-test'?: string
   }) => (
-    <select
-      data-test={dataTest}
-      disabled={disabled}
-      value={value ?? ''}
-      onChange={(event) => onChange(event.target.value)}
-    >
-      <option value="" />
-      {data.map(({ value: optionValue, label, disabled: optionDisabled }) => (
-        <option key={optionValue} value={optionValue} disabled={optionDisabled}>
-          {label}
-        </option>
-      ))}
-    </select>
+    <>
+      <select
+        data-test={dataTest}
+        disabled={disabled}
+        value={value ?? ''}
+        onChange={(event) => onChange(event.target.value)}
+      >
+        <option value="" />
+        {data.map(({ value: optionValue, label, disabled: optionDisabled }) => (
+          <option key={optionValue} value={optionValue} disabled={optionDisabled}>
+            {label}
+          </option>
+        ))}
+      </select>
+      {/* `<option>` cannot host the rich option row, so the label nodes are rendered
+          aside to keep their premium affordance assertable */}
+      {data.map(({ value: optionValue, labelNode }) =>
+        labelNode ? <div key={`label-node-${optionValue}`}>{labelNode}</div> : null,
+      )}
+    </>
   ),
 }))
 
@@ -95,6 +103,20 @@ const mockDialogOpen = jest.fn()
 
 jest.mock('~/components/dialogs/CentralizedDialog', () => ({
   useCentralizedDialog: () => ({ open: mockDialogOpen }),
+}))
+
+const mockOpenPremiumWarningDialog = jest.fn()
+
+jest.mock('~/components/dialogs/PremiumWarningDialog', () => ({
+  usePremiumWarningDialog: () => ({ open: mockOpenPremiumWarningDialog }),
+}))
+
+const mockOrganization: { premiumIntegrations: PremiumIntegrationTypeEnum[] } = {
+  premiumIntegrations: [],
+}
+
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  useOrganizationInfos: () => ({ organization: mockOrganization }),
 }))
 
 // The thresholds table stays form-library agnostic, so it is stubbed down to
@@ -250,6 +272,7 @@ describe('AlertForm', () => {
       errors: undefined,
     })
     setParams({ subscriptionId: 'subscription-1', customerId: 'customer-1' })
+    mockOrganization.premiumIntegrations = []
   })
 
   describe('GIVEN loading state', () => {
@@ -412,6 +435,126 @@ describe('AlertForm', () => {
           AlertTypeEnum.CurrentUsageAmount,
         ])
       })
+    })
+
+    describe('WHEN the organization has none of the lifetime usage addons', () => {
+      beforeEach(() => {
+        mockLoadedQueries()
+      })
+
+      it.each([
+        ['lifetime usage amount', AlertTypeEnum.LifetimeUsageAmount],
+        ['billable metric lifetime usage units', AlertTypeEnum.BillableMetricLifetimeUsageUnits],
+      ])('THEN should flag the %s type as premium', (_, alertType) => {
+        render(<AlertForm />)
+
+        expect(
+          screen.getByTestId(`${SUBSCRIPTION_ALERT_TYPE_PREMIUM_OPTION_TEST_ID}-${alertType}`),
+        ).toBeInTheDocument()
+      })
+
+      it.each([
+        ['current usage amount', AlertTypeEnum.CurrentUsageAmount],
+        ['billable metric current usage units', AlertTypeEnum.BillableMetricCurrentUsageUnits],
+        ['billable metric current usage amount', AlertTypeEnum.BillableMetricCurrentUsageAmount],
+      ])('THEN should not flag the %s type as premium', (_, alertType) => {
+        render(<AlertForm />)
+
+        expect(
+          screen.queryByTestId(`${SUBSCRIPTION_ALERT_TYPE_PREMIUM_OPTION_TEST_ID}-${alertType}`),
+        ).not.toBeInTheDocument()
+      })
+
+      it.each([
+        ['lifetime usage amount', AlertTypeEnum.LifetimeUsageAmount],
+        ['billable metric lifetime usage units', AlertTypeEnum.BillableMetricLifetimeUsageUnits],
+      ])(
+        'THEN should open the premium warning dialog instead of picking the %s type',
+        async (_, alertType) => {
+          const user = userEvent.setup()
+
+          render(<AlertForm />)
+
+          await pickAlertType(user, alertType)
+
+          expect(mockOpenPremiumWarningDialog).toHaveBeenCalled()
+          expect(getAlertTypeSelect()).toHaveValue('')
+          expect(screen.queryByTestId(THRESHOLDS_TABLE_TEST_ID)).not.toBeInTheDocument()
+        },
+      )
+
+      it('THEN should keep the ungated types selectable', async () => {
+        const user = userEvent.setup()
+
+        render(<AlertForm />)
+
+        await pickAlertType(user, AlertTypeEnum.CurrentUsageAmount)
+
+        expect(mockOpenPremiumWarningDialog).not.toHaveBeenCalled()
+        expect(getAlertTypeSelect()).toHaveValue(AlertTypeEnum.CurrentUsageAmount)
+      })
+    })
+
+    describe('WHEN the organization has the granular lifetime usage addon', () => {
+      beforeEach(() => {
+        mockOrganization.premiumIntegrations = [PremiumIntegrationTypeEnum.GranularLifetimeUsage]
+        mockLoadedQueries()
+      })
+
+      it('THEN should let the billable metric lifetime usage units type be picked', async () => {
+        const user = userEvent.setup()
+
+        render(<AlertForm />)
+
+        expect(
+          screen.queryByTestId(
+            `${SUBSCRIPTION_ALERT_TYPE_PREMIUM_OPTION_TEST_ID}-${AlertTypeEnum.BillableMetricLifetimeUsageUnits}`,
+          ),
+        ).not.toBeInTheDocument()
+
+        await pickAlertType(user, AlertTypeEnum.BillableMetricLifetimeUsageUnits)
+
+        expect(mockOpenPremiumWarningDialog).not.toHaveBeenCalled()
+        expect(getBillableMetricSelect()).toBeInTheDocument()
+      })
+
+      it('THEN should keep the lifetime usage amount type gated', () => {
+        render(<AlertForm />)
+
+        expect(
+          screen.getByTestId(
+            `${SUBSCRIPTION_ALERT_TYPE_PREMIUM_OPTION_TEST_ID}-${AlertTypeEnum.LifetimeUsageAmount}`,
+          ),
+        ).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the organization uses lifetime usage', () => {
+      it.each([
+        PremiumIntegrationTypeEnum.LifetimeUsage,
+        PremiumIntegrationTypeEnum.ProgressiveBilling,
+      ])(
+        'THEN should let the lifetime usage amount type be picked with the %s addon',
+        async (addon) => {
+          const user = userEvent.setup()
+
+          mockOrganization.premiumIntegrations = [addon]
+          mockLoadedQueries()
+          render(<AlertForm />)
+
+          expect(
+            screen.queryByTestId(
+              `${SUBSCRIPTION_ALERT_TYPE_PREMIUM_OPTION_TEST_ID}-${AlertTypeEnum.LifetimeUsageAmount}`,
+            ),
+          ).not.toBeInTheDocument()
+
+          await pickAlertType(user, AlertTypeEnum.LifetimeUsageAmount)
+
+          expect(mockOpenPremiumWarningDialog).not.toHaveBeenCalled()
+          expect(getAlertTypeSelect()).toHaveValue(AlertTypeEnum.LifetimeUsageAmount)
+          expect(screen.getByTestId(THRESHOLDS_TABLE_TEST_ID)).toBeInTheDocument()
+        },
+      )
     })
 
     describe('WHEN a metric already has an alert of the picked type', () => {
