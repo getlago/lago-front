@@ -14,7 +14,7 @@ import { FORM_ERRORS_ENUM, SEARCH_TAX_INPUT_FOR_ADD_ON_CLASSNAME } from '~/core/
 import { ADD_ON_DETAILS_ROUTE, ADD_ONS_ROUTE, useNavigate } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { scrollToTop } from '~/core/utils/domUtils'
-import { CreateAddOnInput, CurrencyEnum } from '~/generated/graphql'
+import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { useCreateEditAddOn } from '~/hooks/useCreateEditAddOn'
@@ -304,7 +304,7 @@ const CreateAddOn = () => {
           </div>
         </Main>
         <Side>
-          <AddOnCodeSnippet loading={loading} addOn={formValues as unknown as CreateAddOnInput} />
+          <AddOnCodeSnippet loading={loading} addOn={formValues} />
         </Side>
       </form>
     </div>
