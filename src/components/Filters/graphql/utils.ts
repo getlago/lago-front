@@ -19,12 +19,15 @@ import {
   CustomerPaymentsAvailableFilters,
   filterDataInlineSeparator,
   filterDataLabelCommaPlaceholder,
+  filterWithoutProductCategoryValue,
+  filterWithoutProductValue,
   ForecastsAvailableFilters,
   InvoiceAvailableFilters,
   MrrBreakdownPlansAvailableFilters,
   MrrOverviewAvailableFilters,
   OrderAvailableFilters,
   OrderFormAvailableFilters,
+  ProductAvailableFilters,
   QuoteAvailableFilters,
   RevenueStreamsAvailablePopperFilters,
   RevenueStreamsCustomersAvailableFilters,
@@ -57,6 +60,8 @@ import {
   ORDER_FORM_LIST_FILTER_PREFIX,
   ORDER_LIST_FILTER_PREFIX,
   PREPAID_CREDITS_OVERVIEW_FILTER_PREFIX,
+  PRODUCT_FILTER_LIST_FILTER_PREFIX,
+  PRODUCT_LIST_FILTER_PREFIX,
   QUOTE_LIST_FILTER_PREFIX,
   REVENUE_STREAMS_BREAKDOWN_CUSTOMER_FILTER_PREFIX,
   REVENUE_STREAMS_BREAKDOWN_PLAN_FILTER_PREFIX,
@@ -91,6 +96,8 @@ import {
   type GetWebhookLogQueryVariables,
   InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
+  type ProductFiltersQueryVariables,
+  type ProductsQueryVariables,
 } from '~/generated/graphql'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
@@ -242,6 +249,53 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.paymentStatus]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.planCode]: (value: string) => value,
   [AvailableFiltersEnum.purchaseOrderNumber]: (value: string) => value,
+  [AvailableFiltersEnum.productProductCategory]: (value: string) => {
+    // Multi-select: real productCategories go to `productCategoryIds`; the synthetic "Not defined" entry
+    // maps to the standalone `withoutProductCategory` arg instead of polluting the id array.
+    // Returning an object lets formatFiltersForQuery spread both keys into the query vars.
+    const parts = value.split(',').filter(Boolean)
+    const withoutProductCategory = parts.includes(filterWithoutProductCategoryValue)
+    const productCategoryIds = parts
+      .filter((part) => part !== filterWithoutProductCategoryValue)
+      .map((part) => part.split(filterDataInlineSeparator)[0])
+
+    return {
+      ...(productCategoryIds.length > 0 && { productCategoryIds }),
+      ...(withoutProductCategory && { withoutProductCategory: true }),
+    }
+  },
+  [AvailableFiltersEnum.productType]: (value: string) => value,
+  [AvailableFiltersEnum.productFilterProductCategory]: (value: string) => {
+    // Same shape as productProductCategory (real ids -> `productCategoryIds`, the synthetic
+    // "Not defined" entry -> `withoutProductCategory`). Kept here for shape-consistency and
+    // active-filter chip rendering only: formatFiltersForProductFiltersQuery
+    // deliberately excludes this filter from its availableFilters allow-list, so
+    // this entry never actually reaches the `productFilters` query - the
+    // backend has no product-level argument on that query today.
+    const parts = value.split(',').filter(Boolean)
+    const withoutProductCategory = parts.includes(filterWithoutProductCategoryValue)
+    const productCategoryIds = parts
+      .filter((part) => part !== filterWithoutProductCategoryValue)
+      .map((part) => part.split(filterDataInlineSeparator)[0])
+
+    return {
+      ...(productCategoryIds.length > 0 && { productCategoryIds }),
+      ...(withoutProductCategory && { withoutProductCategory: true }),
+    }
+  },
+  [AvailableFiltersEnum.productFilterProduct]: (value: string) => {
+    // Multi-select in the UI, but the `productFilters` query only accepts a
+    // single `productId`: keep the first real selection (skip the synthetic
+    // "Not defined" entry, which has no backend meaning here) and drop the rest.
+    // Returning an object lets formatFiltersForQuery spread it directly, matching
+    // the productProductCategory convention above.
+    const [firstId] = value
+      .split(',')
+      .filter((part) => !!part && part !== filterWithoutProductValue)
+      .map((part) => part.split(filterDataInlineSeparator)[0])
+
+    return firstId ? { productId: firstId } : {}
+  },
   [AvailableFiltersEnum.orderFormCreatedAt]: (value: string) => {
     return {
       createdAtFrom: value.split(',')[0],
@@ -422,6 +476,45 @@ export const formatFiltersForCreditNotesQuery = (
     keyMap,
     availableFilters: CreditNoteAvailableFilters,
     filtersNamePrefix: CREDIT_NOTE_LIST_FILTER_PREFIX,
+  })
+}
+
+type ProductsQueryFilters = Partial<
+  Pick<ProductsQueryVariables, 'productCategoryIds' | 'productType' | 'withoutProductCategory'>
+>
+
+export const formatFiltersForProductsQuery = (
+  searchParams: URLSearchParams,
+): ProductsQueryFilters => {
+  // productProductCategory is intentionally absent: its FILTER_VALUE_MAP entry returns an object
+  // ({ productCategoryIds?, withoutProductCategory? }) that formatFiltersForQuery spreads directly, so it
+  // maps to two keys at once and can't go through the single-key keyMap.
+  const keyMap: Partial<Record<AvailableFiltersEnum, keyof ProductsQueryFilters & string>> = {
+    [AvailableFiltersEnum.productType]: 'productType',
+  }
+
+  return formatFiltersForQuery<ProductsQueryFilters>({
+    searchParams,
+    keyMap,
+    availableFilters: ProductAvailableFilters,
+    filtersNamePrefix: PRODUCT_LIST_FILTER_PREFIX,
+  })
+}
+
+type ProductFiltersQueryFilters = Partial<Pick<ProductFiltersQueryVariables, 'productId'>>
+
+export const formatFiltersForProductFiltersQuery = (
+  searchParams: URLSearchParams,
+): ProductFiltersQueryFilters => {
+  // productFilterProductCategory is intentionally omitted from availableFilters: the
+  // backend `productFilters` query only accepts `productId` + `searchTerm`
+  // today, so the ProductCategory filter is UI-only pending backend support and must never
+  // contribute to the query variables, even though it's selectable in the panel
+  // (see ProductFilterAvailableFilters).
+  return formatFiltersForQuery<ProductFiltersQueryFilters>({
+    searchParams,
+    availableFilters: [AvailableFiltersEnum.productFilterProduct],
+    filtersNamePrefix: PRODUCT_FILTER_LIST_FILTER_PREFIX,
   })
 }
 
@@ -952,6 +1045,24 @@ export const formatActiveFilterValueDisplay = (
       return unescapeFilterLabel(
         value.split(filterDataInlineSeparator)[1] || value.split(filterDataInlineSeparator)[0],
       )
+    case AvailableFiltersEnum.productProductCategory:
+    case AvailableFiltersEnum.productFilterProductCategory:
+    case AvailableFiltersEnum.productFilterProduct:
+      // Multi-select with a synthetic "Not defined" entry; render its translated label.
+      // productFilterProduct is lossily mapped to a single productId by
+      // formatFiltersForProductFiltersQuery, but every selected chip still renders here.
+      return value
+        .split(',')
+        .filter(Boolean)
+        .map((entry) =>
+          entry === filterWithoutProductCategoryValue || entry === filterWithoutProductValue
+            ? translate?.('text_1784214117868fh6rndi4m75') || ''
+            : unescapeFilterLabel(
+                entry.split(filterDataInlineSeparator)[1] ||
+                  entry.split(filterDataInlineSeparator)[0],
+              ),
+        )
+        .join(', ')
     case AvailableFiltersEnum.isCustomerTinEmpty:
       return (
         translate?.(
