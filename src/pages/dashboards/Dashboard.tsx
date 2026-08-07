@@ -1,20 +1,20 @@
 import { gql } from '@apollo/client'
 import { embedDashboard, EmbeddedDashboard } from '@superset-ui/embedded-sdk'
-import { debounce } from 'lodash'
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { FinanceAssistantAnalyticsCta } from '~/components/aiAgent/FinanceAssistantAnalyticsCta'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Typography } from '~/components/designSystem/Typography'
 import { envGlobalVar } from '~/core/apolloClient'
-import { FeatureFlags, isFeatureFlagActive } from '~/core/utils/featureFlags'
-import { getItemFromLS, removeItemFromLS, setItemFromLS } from '~/core/utils/localStorage'
-import { encodeRison } from '~/core/utils/risonEncoder'
-import { extractNativeFilters, getSupersetFiltersLsKey } from '~/core/utils/supersetFilters'
+import { useNavigate } from '~/core/router'
+import { getItemFromLS } from '~/core/utils/localStorage'
 import { useSupersetDashboardsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useCurrentUser } from '~/hooks/useCurrentUser'
 import '~/main.css'
+import {
+  attachDashboardStateSync,
+  DASHBOARD_STATE_SEARCH_PARAM,
+} from '~/pages/dashboards/dashboardStateSync'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { PageHeader } from '~/styles'
 
@@ -41,11 +41,25 @@ export type DashboardProps = {
 
 const Dashboard = ({ contentTitle, dashboardTitle, dashboardTitleTestKey }: DashboardProps) => {
   const { translate } = useInternationalization()
-  const { currentMembership } = useCurrentUser()
+  const navigate = useNavigate()
 
   const dashboardRef = useRef<string>('')
+  // The slug-aware wrapper returns a new function every render, so keeping it
+  // in a ref is what lets the embed effect stay out of the render loop.
+  const navigateRef = useRef(navigate)
+
+  useEffect(() => {
+    navigateRef.current = navigate
+  })
 
   const { data, error, loading } = useSupersetDashboardsQuery({})
+
+  // Read once. Subscribing to the search params would re-render on every state
+  // write, and putting the key in the embed effect's deps would remount the
+  // iframe (a full dashboard reload) each time a filter moves.
+  const [initialStateKey] = useState(() =>
+    new URLSearchParams(window.location.search).get(DASHBOARD_STATE_SEARCH_PARAM),
+  )
 
   const currentDashboardTitle = getItemFromLS(dashboardTitleTestKey) || dashboardTitle
 
@@ -63,44 +77,23 @@ const Dashboard = ({ contentTitle, dashboardTitle, dashboardTitleTestKey }: Dash
     }
 
     let embedded: null | EmbeddedDashboard = null
+    let detachStateSync: (() => void) | null = null
 
-    const persistFilters = isFeatureFlagActive(FeatureFlags.SUPERSET_PERSISTENT_FILTERS)
-    // Filter persistence key is scoped to the org from the URL slug (resolved
-    // through `currentMembership`, which is now slug-driven). Reading the orgId
-    // directly from LS would scope filters to whatever org was last selected
-    // browser-wide, causing cross-org filter leak when multiple tabs are open
-    // on different orgs.
-    const orgId = currentMembership?.organization.id || ''
-    // Scoped by org AND dashboard title so the two dashboards don't share
-    // (and overwrite) each other's persisted filters.
-    const filtersLsKey = getSupersetFiltersLsKey(orgId, dashboardTitle)
+    const writeStateKeyToUrl = (key: string): void => {
+      const search = new URLSearchParams(window.location.search)
 
-    const debouncedSaveFilters = persistFilters
-      ? debounce((dataMask: Record<string, unknown>) => {
-          const filters = extractNativeFilters(dataMask)
+      search.set(DASHBOARD_STATE_SEARCH_PARAM, key)
 
-          if (Object.keys(filters).length > 0) {
-            setItemFromLS(filtersLsKey, filters)
-          } else {
-            removeItemFromLS(filtersLsKey)
-          }
-        }, 500)
-      : null
+      // An object target without a pathname is a documented pass-through of the
+      // slug-aware wrapper, so the org slug is neither dropped nor doubled.
+      navigateRef.current({ search: `?${search.toString()}` }, { replace: true })
+    }
 
     const mount = async () => {
       const mountPoint = document.getElementById(mountId)
 
       if (!mountPoint) {
         return
-      }
-
-      let urlParams: Record<string, string> | undefined
-
-      if (persistFilters) {
-        const savedFilters = getItemFromLS(filtersLsKey)
-        const hasFilters = savedFilters && Object.keys(savedFilters).length > 0
-
-        urlParams = hasFilters ? { native_filters: encodeRison(savedFilters) } : undefined
       }
 
       embedded = await embedDashboard({
@@ -110,18 +103,19 @@ const Dashboard = ({ contentTitle, dashboardTitle, dashboardTitleTestKey }: Dash
         fetchGuestToken: async () => dashboard?.guestToken,
         dashboardUiConfig: {
           hideTitle: true,
-          emitDataMasks: persistFilters,
+          emitDataMasks: true,
           filters: {
             expanded: true,
           },
-          ...(urlParams && { urlParams }),
+          ...(initialStateKey && { urlParams: { permalink_key: initialStateKey } }),
         },
         iframeSandboxExtras: ['allow-top-navigation', 'allow-popups-to-escape-sandbox'],
       })
 
-      if (debouncedSaveFilters) {
-        embedded.observeDataMask(debouncedSaveFilters)
-      }
+      detachStateSync = attachDashboardStateSync({
+        embedded,
+        onStateKey: writeStateKeyToUrl,
+      })
 
       dashboardRef.current = dashboard.id
     }
@@ -129,11 +123,11 @@ const Dashboard = ({ contentTitle, dashboardTitle, dashboardTitleTestKey }: Dash
     mount()
 
     return () => {
-      debouncedSaveFilters?.cancel()
+      detachStateSync?.()
       embedded?.unmount()
       dashboardRef.current = ''
     }
-  }, [dashboard, currentMembership?.organization.id, dashboardTitle, mountId])
+  }, [dashboard, mountId, initialStateKey])
 
   return (
     <>

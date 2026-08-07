@@ -1,19 +1,28 @@
 import { screen, waitFor } from '@testing-library/react'
 
 import { GENERIC_PLACEHOLDER_TEST_ID } from '~/components/designSystem/GenericPlaceholder'
-import { getItemFromLS, setItemFromLS } from '~/core/utils/localStorage'
+import { getItemFromLS } from '~/core/utils/localStorage'
 import { SupersetDashboardsDocument } from '~/generated/graphql'
-import { render, TestMocksType } from '~/test-utils'
+import { render, testMockNavigateFn, TestMocksType } from '~/test-utils'
 
 import Dashboard, { DASHBOARD_MOUNT_TEST_ID } from '../Dashboard'
 
 // --- Superset SDK -----------------------------------------------------------
 const mockUnmount = jest.fn()
-const mockObserveDataMask = jest.fn()
 const mockEmbedDashboard = jest.fn()
 
 jest.mock('@superset-ui/embedded-sdk', () => ({
   embedDashboard: (...args: unknown[]) => mockEmbedDashboard(...args),
+}))
+
+// --- State sync module ------------------------------------------------------
+// Mocked so this file only asserts the wiring; the engine has its own tests.
+const mockAttachDashboardStateSync = jest.fn()
+const mockDetachStateSync = jest.fn()
+
+jest.mock('~/pages/dashboards/dashboardStateSync', () => ({
+  DASHBOARD_STATE_SEARCH_PARAM: 'dashboard_state',
+  attachDashboardStateSync: (...args: unknown[]) => mockAttachDashboardStateSync(...args),
 }))
 
 // `~/main.css` resolves to the real stylesheet (the `~/` alias wins over the
@@ -23,19 +32,6 @@ jest.mock('~/main.css', () => ({}))
 // FinanceAssistantAnalyticsCta needs AiAgentProvider (mounted at App level, not in this tree)
 jest.mock('~/components/aiAgent/FinanceAssistantAnalyticsCta', () => ({
   FinanceAssistantAnalyticsCta: () => null,
-}))
-
-// --- Feature flags ----------------------------------------------------------
-const mockIsFeatureFlagActive = jest.fn()
-
-jest.mock('~/core/utils/featureFlags', () => ({
-  FeatureFlags: { SUPERSET_PERSISTENT_FILTERS: 'superset_persistent_filters' },
-  isFeatureFlagActive: (...args: unknown[]) => mockIsFeatureFlagActive(...args),
-}))
-
-// --- Current user (org for the filter key) ----------------------------------
-jest.mock('~/hooks/useCurrentUser', () => ({
-  useCurrentUser: () => ({ currentMembership: { organization: { id: 'org-1' } } }),
 }))
 
 // --- i18n -------------------------------------------------------------------
@@ -50,15 +46,9 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 jest.mock('~/core/utils/localStorage', () => ({
   ...jest.requireActual('~/core/utils/localStorage'),
   getItemFromLS: jest.fn(),
-  setItemFromLS: jest.fn(),
-  removeItemFromLS: jest.fn(),
 }))
 
 const mockGetItemFromLS = jest.mocked(getItemFromLS)
-const mockSetItemFromLS = jest.mocked(setItemFromLS)
-
-const ANALYTICS_FILTERS_KEY = 'superset-filters-org-1-lago-dashboard'
-const REVENUE_FILTERS_KEY = 'superset-filters-org-1-revenue-recognition'
 
 const dashboardsData = {
   supersetDashboards: [
@@ -85,6 +75,10 @@ const errorMock: TestMocksType = [
   { request: { query: SupersetDashboardsDocument }, error: new Error('boom') },
 ]
 
+const setUrl = (search: string): void => {
+  window.history.replaceState({}, '', `/acme/analytics${search}`)
+}
+
 const renderAnalytics = (mocks: TestMocksType = successMock) =>
   render(
     <Dashboard
@@ -95,24 +89,17 @@ const renderAnalytics = (mocks: TestMocksType = successMock) =>
     { mocks },
   )
 
-const renderRevenue = (mocks: TestMocksType = successMock) =>
-  render(
-    <Dashboard
-      contentTitle="Revenue title"
-      dashboardTitle="Revenue Recognition"
-      dashboardTitleTestKey="superset-dashboard-test-name-revenue-recognition"
-    />,
-    { mocks },
-  )
-
 describe('Dashboard', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    mockIsFeatureFlagActive.mockReturnValue(false)
+    setUrl('')
     mockGetItemFromLS.mockReturnValue(undefined)
+    mockAttachDashboardStateSync.mockReturnValue(mockDetachStateSync)
     mockEmbedDashboard.mockResolvedValue({
       unmount: mockUnmount,
-      observeDataMask: mockObserveDataMask,
+      observeDataMask: jest.fn(),
+      getActiveTabs: jest.fn(),
+      getDashboardPermalink: jest.fn(),
     })
   })
 
@@ -136,6 +123,8 @@ describe('Dashboard', () => {
       expect(config.supersetDomain).toBe('https://localhost:8089')
       expect(config.mountPoint).toBe(document.getElementById('superset-lago-dashboard'))
       expect(config.dashboardUiConfig.hideTitle).toBe(true)
+      // Required for observeDataMask to fire at all.
+      expect(config.dashboardUiConfig.emitDataMasks).toBe(true)
       await expect(config.fetchGuestToken()).resolves.toBe('token-1')
     })
   })
@@ -149,83 +138,73 @@ describe('Dashboard', () => {
     })
   })
 
-  describe('GIVEN filter persistence is disabled', () => {
-    it('THEN does not emit data masks nor observe filter changes', async () => {
-      mockIsFeatureFlagActive.mockReturnValue(false)
-
+  describe('GIVEN no dashboard_state param', () => {
+    it('THEN embeds without url params', async () => {
       renderAnalytics()
 
       await waitFor(() => expect(mockEmbedDashboard).toHaveBeenCalledTimes(1))
 
-      expect(mockEmbedDashboard.mock.calls[0][0].dashboardUiConfig.emitDataMasks).toBe(false)
-      expect(mockObserveDataMask).not.toHaveBeenCalled()
+      expect(mockEmbedDashboard.mock.calls[0][0].dashboardUiConfig.urlParams).toBeUndefined()
     })
   })
 
-  describe('GIVEN filter persistence is enabled', () => {
-    beforeEach(() => {
-      mockIsFeatureFlagActive.mockReturnValue(true)
-    })
+  describe('GIVEN a dashboard_state param', () => {
+    it('THEN restores it as the superset permalink key', async () => {
+      setUrl('?dashboard_state=AbCd1234')
 
-    it('THEN reads saved filters from a dashboard-scoped key (no cross-dashboard leak)', async () => {
       renderAnalytics()
+
       await waitFor(() => expect(mockEmbedDashboard).toHaveBeenCalledTimes(1))
-      expect(mockGetItemFromLS).toHaveBeenCalledWith(ANALYTICS_FILTERS_KEY)
-      expect(mockGetItemFromLS).not.toHaveBeenCalledWith(REVENUE_FILTERS_KEY)
+
+      expect(mockEmbedDashboard.mock.calls[0][0].dashboardUiConfig.urlParams).toEqual({
+        permalink_key: 'AbCd1234',
+      })
     })
+  })
 
-    it('THEN the other dashboard reads from its own key', async () => {
-      renderRevenue()
-      await waitFor(() => expect(mockEmbedDashboard).toHaveBeenCalledTimes(1))
-      expect(mockGetItemFromLS).toHaveBeenCalledWith(REVENUE_FILTERS_KEY)
-      expect(mockGetItemFromLS).not.toHaveBeenCalledWith(ANALYTICS_FILTERS_KEY)
-    })
+  describe('GIVEN the state sync reports a new key', () => {
+    it('THEN replaces the url param without touching the others', async () => {
+      setUrl('?other=keep-me')
 
-    it('THEN passes saved filters to Superset as rison-encoded url params', async () => {
-      const savedFilters = { 'NATIVE_FILTER-abc': { filterState: { value: ['EUR'] } } }
+      renderAnalytics()
 
-      mockGetItemFromLS.mockImplementation((key: string) =>
-        key === ANALYTICS_FILTERS_KEY ? savedFilters : undefined,
+      await waitFor(() => expect(mockAttachDashboardStateSync).toHaveBeenCalledTimes(1))
+
+      const { onStateKey } = mockAttachDashboardStateSync.mock.calls[0][0]
+
+      onStateKey('XyZ9')
+
+      expect(testMockNavigateFn).toHaveBeenCalledWith(
+        { search: '?other=keep-me&dashboard_state=XyZ9' },
+        { replace: true },
       )
-
-      renderAnalytics()
-      await waitFor(() => expect(mockEmbedDashboard).toHaveBeenCalledTimes(1))
-
-      const config = mockEmbedDashboard.mock.calls[0][0]
-
-      expect(config.dashboardUiConfig.emitDataMasks).toBe(true)
-      expect(typeof config.dashboardUiConfig.urlParams.native_filters).toBe('string')
-      expect(config.dashboardUiConfig.urlParams.native_filters.length).toBeGreaterThan(0)
     })
 
-    it('THEN persists observed filter changes under the dashboard-scoped key', async () => {
+    it('THEN overwrites a previous key rather than appending', async () => {
+      setUrl('?dashboard_state=old')
+
       renderAnalytics()
-      await waitFor(() => expect(mockObserveDataMask).toHaveBeenCalledTimes(1))
 
-      const observeCallback = mockObserveDataMask.mock.calls[0][0]
+      await waitFor(() => expect(mockAttachDashboardStateSync).toHaveBeenCalledTimes(1))
 
-      observeCallback({ 'NATIVE_FILTER-abc': { filterState: { value: ['EUR'] } } })
+      mockAttachDashboardStateSync.mock.calls[0][0].onStateKey('new')
 
-      // Save is debounced (500ms) — wait for it to flush.
-      await waitFor(
-        () =>
-          expect(mockSetItemFromLS).toHaveBeenCalledWith(
-            ANALYTICS_FILTERS_KEY,
-            expect.objectContaining({ 'NATIVE_FILTER-abc': expect.anything() }),
-          ),
-        { timeout: 1500 },
+      expect(testMockNavigateFn).toHaveBeenCalledWith(
+        { search: '?dashboard_state=new' },
+        { replace: true },
       )
     })
   })
 
   describe('GIVEN the component unmounts', () => {
-    it('THEN tears down the embedded dashboard', async () => {
+    it('THEN detaches the state sync and tears down the embedded dashboard', async () => {
       const { unmount } = renderAnalytics()
 
-      await waitFor(() => expect(mockEmbedDashboard).toHaveBeenCalledTimes(1))
+      await waitFor(() => expect(mockAttachDashboardStateSync).toHaveBeenCalledTimes(1))
 
       unmount()
 
+      expect(mockDetachStateSync).toHaveBeenCalled()
       expect(mockUnmount).toHaveBeenCalled()
     })
   })
