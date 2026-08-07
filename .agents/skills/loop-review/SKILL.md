@@ -30,7 +30,11 @@ description: 'Phase 3 of the loop pipeline for lago-front. Takes an ISSUE-ID, re
    5. Conventions: neighboring code style + the Frontend coding styleguide (Notion page linked in spec.md context); GraphQL codegen output consistent.
    6. Tests exist for the change (make-tests output present in the diff).
    7. No dead code, no unused exports, no console.log/debug leftovers.
-   8. Gates actually green: re-run `pnpm lint` and `pnpm types` in the worktree — do not trust the build phase's claim.
+   8. **Redundant comments**: a comment added or modified by the diff that restates a convention, or repeats one already in the same block, is a FAIL item (`redundant comment`).
+   9. **Navigation assertions pin the destination**: effects run in declaration order and the last navigate wins, so a bare `expect(navigate).toHaveBeenCalled()` stays green even when a later guard overwrites a correct redirect. With more than one navigating path, require `toHaveBeenCalledWith(...)` and assertions on the routes NOT taken.
+   10. **Hook-mock callbacks all exercised**: the spec must capture and invoke every callback the component passes in (`onCompleted`, `onError`, ...) — one the mock drops is an untested path that still ships.
+   11. **Redirect targets**: when a redirect uses a route constant, confirm it is the view intended — tab-less constants are often aliased to a default tab through a `match:` array.
+   12. Gates actually green: re-run `pnpm lint` and `pnpm types` in the worktree — do not trust the build phase's claim.
 
 4. **Second pass with the code-review skill**: run the `/code-review` skill (working-diff reviewer) on the worktree diff and fold any confirmed findings into the issues list.
 
