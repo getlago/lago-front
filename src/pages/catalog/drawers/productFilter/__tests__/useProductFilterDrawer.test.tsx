@@ -178,7 +178,7 @@ describe('useProductFilterDrawer', () => {
       act(() => result.current.openDrawer())
 
       expect(mockOpen).toHaveBeenCalledTimes(1)
-      expect(lastDrawerArgs?.title).toBe('text_17836220307039rf790f045t')
+      expect(lastDrawerArgs?.title).toBe('text_178603116671032mnf3wr3e3')
       expect(lastDrawerArgs?.form?.id).toBe('product-item-filter-drawer-form')
       expect(lastDrawerArgs?.closeOnSubmitSuccess).toBe(false)
       expect(lastDrawerArgs?.secondaryAction).toBeDefined()
