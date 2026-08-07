@@ -30,7 +30,10 @@ description: 'Phase 3 of the loop pipeline for lago-front. Takes an ISSUE-ID, re
    5. Conventions: neighboring code style + the Frontend coding styleguide (Notion page linked in spec.md context); GraphQL codegen output consistent.
    6. Tests exist for the change (make-tests output present in the diff).
    7. No dead code, no unused exports, no console.log/debug leftovers.
-   8. Gates actually green: re-run `pnpm lint` and `pnpm types` in the worktree — do not trust the build phase's claim.
+   8. **Redundant comments**: for every comment ADDED or MODIFIED by the diff, ask whether it explains a deviation, or merely restates a project convention at a site that follows it / duplicates a comment already present in the same block. The latter is a FAIL item (`redundant comment`) — reviewers will ask for its removal anyway.
+   9. **Navigation assertions pin their destination**: a bare `expect(<navigate mock>).toHaveBeenCalled()` (or `toHaveBeenCalledTimes(n)` with no argument matching) is a finding whenever the component under test has MORE THAN ONE code path that can navigate. React effects run in declaration order and the last navigate wins, so an earlier correct redirect can be silently overwritten by a later guard while a loose assertion stays green — no type, lint or test catches it. The spec must assert the destination with `toHaveBeenCalledWith(...)`, and where several effects can fire in the same render, also assert the routes that must NOT be taken.
+   10. **Every callback passed into a hook mock is exercised**: when the component hands callbacks to a hook (`onCompleted`, `onError`, `onSuccess`), check that the spec captures and invokes ALL of them, not just the failure branch — a callback the mock silently drops is a completely untested path that still ships. Related: when a redirect targets a route constant, confirm it is the specific view intended; parent or tab-less route constants are often aliased to a default tab through a `match:` array, landing the user somewhere other than the name suggests.
+   11. Gates actually green: re-run `pnpm lint` and `pnpm types` in the worktree — do not trust the build phase's claim.
 
 4. **Second pass with the code-review skill**: run the `/code-review` skill (working-diff reviewer) on the worktree diff and fold any confirmed findings into the issues list.
 
