@@ -292,23 +292,31 @@ const CustomerRequestOverduePayment: FC = () => {
   useEffect(
     () => {
       if (hasSubmittedRef.current) return
+      // The unscoped guard owns the redirect on this render: the query is
+      // skipped, so `loading` is false and `totalAmount` is 0 for lack of
+      // data, not for lack of overdue invoices — redirecting to 404 here
+      // would overwrite the guard's navigate to the invoices tab.
+      if (isUnscopedAccess) return
       if (loading === false && totalAmount <= 0) {
         navigate(ERROR_404_ROUTE)
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [loading, totalAmount],
+    [loading, totalAmount, isUnscopedAccess],
   )
 
   useEffect(() => {
     if (hasSubmittedRef.current) return
+    // Same reason as above: let the unscoped guard redirect, don't stack a
+    // danger toast and a second navigate on top of it.
+    if (isUnscopedAccess) return
     // Check and redirect if invoices are not ready for payment processing
     // Runs when payment status changes (on mount and when dependencies update)
     if (!isPaymentProcessingStatusLoading && !isCustomerReadyForOverduePayment) {
       handlePaymentNotReady()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isCustomerReadyForOverduePayment, isPaymentProcessingStatusLoading])
+  }, [isCustomerReadyForOverduePayment, isPaymentProcessingStatusLoading, isUnscopedAccess])
 
   return (
     <>

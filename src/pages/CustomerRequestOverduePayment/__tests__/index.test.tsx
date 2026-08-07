@@ -136,7 +136,8 @@ describe('CustomerRequestOverduePayment', () => {
           expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'info' }))
         })
 
-        expect(mockNavigate).toHaveBeenCalled()
+        expect(mockNavigate).toHaveBeenCalledWith(expect.stringContaining('/invoices'))
+        expect(mockNavigate).not.toHaveBeenCalledWith(ERROR_404_ROUTE)
       })
     })
   })
@@ -151,8 +152,10 @@ describe('CustomerRequestOverduePayment', () => {
         })
 
         await waitFor(() => {
-          expect(mockNavigate).toHaveBeenCalled()
+          expect(mockNavigate).toHaveBeenCalledWith(expect.stringContaining('/invoices'))
         })
+
+        expect(mockNavigate).not.toHaveBeenCalledWith(ERROR_404_ROUTE)
       })
     })
   })
@@ -207,7 +210,29 @@ describe('CustomerRequestOverduePayment', () => {
           expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'info' }))
         })
 
-        expect(mockNavigate).toHaveBeenCalled()
+        expect(mockNavigate).toHaveBeenCalledWith(expect.stringContaining('/invoices'))
+        expect(mockNavigate).not.toHaveBeenCalledWith(ERROR_404_ROUTE)
+      })
+
+      it('THEN should not stack a danger toast on top of the info toast', async () => {
+        mockSearchParams = new URLSearchParams()
+        jest
+          .mocked(useIsCustomerReadyForOverduePaymentModule.useIsCustomerReadyForOverduePayment)
+          .mockReturnValue({
+            isCustomerReadyForOverduePayment: false,
+            loading: false,
+            error: undefined,
+          })
+
+        await act(async () => {
+          render(<CustomerRequestOverduePayment />)
+        })
+
+        await waitFor(() => {
+          expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'info' }))
+        })
+
+        expect(addToast).not.toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
       })
     })
   })
