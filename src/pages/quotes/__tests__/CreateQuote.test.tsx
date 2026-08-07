@@ -96,12 +96,27 @@ const getComboBoxInput = (testId: string): HTMLInputElement =>
   within(screen.getByTestId(testId)).getByRole('combobox') as HTMLInputElement
 
 const selectComboBoxOption = async (testId: string, optionText: string): Promise<void> => {
-  await userEvent.click(getComboBoxInput(testId))
+  const input = getComboBoxInput(testId)
 
-  const options = await screen.findAllByRole('option')
-  const option = options.find((item) => item.textContent?.startsWith(optionText)) as HTMLElement
+  await userEvent.click(input)
 
-  await userEvent.click(option)
+  // Retry until the freshly opened popper holds the option, so a leftover popper from a
+  // previously opened combobox is never the one clicked.
+  let option: HTMLElement | undefined
+
+  await waitFor(() => {
+    option = screen.getAllByRole('option').find((item) => item.textContent?.startsWith(optionText))
+
+    expect(option).toBeDefined()
+  })
+
+  await userEvent.click(option as HTMLElement)
+
+  // The popper must be gone before the next interaction, otherwise it swallows the click.
+  await waitFor(() => {
+    expect(input).toHaveValue(optionText)
+    expect(screen.queryAllByRole('option')).toHaveLength(0)
+  })
 }
 
 describe('CreateQuote', () => {
