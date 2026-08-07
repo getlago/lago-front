@@ -61,6 +61,11 @@ export const attachDashboardStateSync = ({
     try {
       const key = extractPermalinkKey(await embedded.getDashboardPermalink(''))
 
+      // Teardown may have run while the request was in flight. `.cancel()`
+      // only stops a debounce that has not fired yet, it cannot abort an
+      // already-running invocation, so this is the only guard against
+      // emitting a stale key onto whatever the caller navigated to since.
+      if (disabled) return
       if (!key || key === lastEmittedKey) return
 
       lastEmittedKey = key

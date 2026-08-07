@@ -211,4 +211,27 @@ describe('attachDashboardStateSync', () => {
       expect(double.getActiveTabs).not.toHaveBeenCalled()
     })
   })
+
+  describe('GIVEN the sync is detached while a permalink request is in flight', () => {
+    it('THEN drops the resolved key instead of emitting it', async () => {
+      let resolvePermalink: (url: string) => void = () => undefined
+
+      double.getDashboardPermalink.mockReturnValue(
+        new Promise<string>((resolve) => {
+          resolvePermalink = resolve
+        }),
+      )
+
+      double.emitDataMask({ crossFiltersChanged: false, nativeFiltersChanged: true })
+      await advance(800)
+
+      expect(double.getDashboardPermalink).toHaveBeenCalledTimes(1)
+
+      detach()
+      resolvePermalink(PERMALINK_URL)
+      await flushPromises()
+
+      expect(onStateKey).not.toHaveBeenCalled()
+    })
+  })
 })
