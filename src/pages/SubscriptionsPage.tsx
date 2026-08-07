@@ -8,7 +8,6 @@ import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/
 import { Status, StatusType } from '~/components/designSystem/Status'
 import { Typography } from '~/components/designSystem/Typography'
 import {
-  AvailableFiltersEnum,
   Filters,
   formatFiltersForSubscriptionQuery,
   SubscriptionAvailableFilters,
@@ -16,25 +15,16 @@ import {
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
-import {
-  AnnotatedSubscription,
-  SubscriptionsList,
-} from '~/components/subscriptions/SubscriptionsList'
+import { SubscriptionsList } from '~/components/subscriptions/SubscriptionsList'
 import { TimezoneDate } from '~/components/TimezoneDate'
 import { SUBSCRIPTION_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { getIntervalTranslationKey } from '~/core/constants/form'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE } from '~/core/router'
-import {
-  FeatureFlagEnum,
-  StatusTypeEnum,
-  Subscription,
-  useGetSubscriptionsListLazyQuery,
-} from '~/generated/graphql'
+import { StatusTypeEnum, Subscription, useGetSubscriptionsListLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 gql`
   fragment SubscriptionForSubscriptionsList on Subscription {
@@ -120,19 +110,6 @@ gql`
 const SubscriptionsPage = () => {
   const { translate } = useInternationalization()
   const [searchParams] = useSearchParams()
-  const { hasFeatureFlag } = useOrganizationInfos()
-
-  const showBillingEntityColumn = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
-
-  // Drop the `billingEntityIds` option from the popper when the flag is off
-  // so the legacy UX matches the pre-epic state (no entity filter visible).
-  const availableFilters = useMemo(
-    () =>
-      showBillingEntityColumn
-        ? SubscriptionAvailableFilters
-        : SubscriptionAvailableFilters.filter((f) => f !== AvailableFiltersEnum.billingEntityIds),
-    [showBillingEntityColumn],
-  )
 
   const filtersForSubscriptionQuery = useMemo(() => {
     return formatFiltersForSubscriptionQuery(searchParams)
@@ -179,7 +156,7 @@ const SubscriptionsPage = () => {
         filtersSection={
           <Filters.Provider
             filtersNamePrefix={SUBSCRIPTION_LIST_FILTER_PREFIX}
-            availableFilters={availableFilters}
+            availableFilters={SubscriptionAvailableFilters}
           >
             <div className="flex flex-col gap-3 md:flex-row md:items-center">
               <SearchInput
@@ -253,23 +230,19 @@ const SubscriptionsPage = () => {
               ),
             },
 
-            ...(showBillingEntityColumn
-              ? [
-                  {
-                    key: 'billingEntityId' as const,
-                    title: translate('text_17436114971570doqrwuwhf0'),
-                    minWidth: 140,
-                    content: ({ billingEntityId, customer }: AnnotatedSubscription) => (
-                      <Typography variant="body" noWrap>
-                        <BillingEntityLabel
-                          ownId={billingEntityId}
-                          customerEntity={customer?.billingEntity}
-                        />
-                      </Typography>
-                    ),
-                  },
-                ]
-              : []),
+            {
+              key: 'billingEntityId',
+              title: translate('text_17436114971570doqrwuwhf0'),
+              minWidth: 140,
+              content: ({ billingEntityId, customer }) => (
+                <Typography variant="body" noWrap>
+                  <BillingEntityLabel
+                    ownId={billingEntityId}
+                    customerEntity={customer?.billingEntity}
+                  />
+                </Typography>
+              ),
+            },
 
             {
               key: 'isOverridden',

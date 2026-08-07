@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event'
 import { addToast } from '~/core/apolloClient'
 import { ERROR_404_ROUTE } from '~/core/router'
 import { initializeYup } from '~/formValidation/initializeYup'
-import { FeatureFlagEnum, LagoApiError } from '~/generated/graphql'
+import { LagoApiError } from '~/generated/graphql'
 import * as useIsCustomerReadyForOverduePaymentModule from '~/hooks/useIsCustomerReadyForOverduePayment'
 import { render } from '~/test-utils'
 
@@ -17,7 +17,6 @@ const mockNavigate = jest.fn()
 const mockGoBack = jest.fn()
 const mockUseGetRequestOverduePaymentInfosQuery = jest.fn()
 const mockCreatePaymentRequest = jest.fn()
-const mockHasFeatureFlag = jest.fn()
 let mockOnError: ((error: ApolloError) => void) | undefined
 let mockSearchParams = new URLSearchParams()
 
@@ -38,12 +37,6 @@ jest.mock('~/hooks/useIsCustomerReadyForOverduePayment', () => ({
     loading: false,
     error: undefined,
   })),
-}))
-
-jest.mock('~/hooks/useOrganizationInfos', () => ({
-  useOrganizationInfos: () => ({
-    hasFeatureFlag: mockHasFeatureFlag,
-  }),
 }))
 
 jest.mock('~/hooks/core/useLocationHistory', () => ({
@@ -113,8 +106,9 @@ describe('CustomerRequestOverduePayment', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockOnError = undefined
-    mockHasFeatureFlag.mockReturnValue(false)
-    mockSearchParams = new URLSearchParams()
+    // Both scopes are mandatory on this page; default to a fully scoped URL so
+    // each test opts into the unscoped-redirect path explicitly.
+    mockSearchParams = new URLSearchParams({ currency: 'USD', billingEntityId: 'be-123' })
     mockUseGetRequestOverduePaymentInfosQuery.mockReturnValue({
       data: {},
       loading: false,
@@ -129,13 +123,10 @@ describe('CustomerRequestOverduePayment', () => {
       })
   })
 
-  describe('GIVEN multi-entity billing is enabled but billingEntityId param is missing', () => {
+  describe('GIVEN the billingEntityId param is missing', () => {
     describe('WHEN the page renders', () => {
       it('THEN redirects back to the customer invoices tab', async () => {
-        mockHasFeatureFlag.mockImplementation(
-          (flag: FeatureFlagEnum) => flag === FeatureFlagEnum.MultiEntityBilling,
-        )
-        // billingEntityId not in searchParams
+        mockSearchParams = new URLSearchParams({ currency: 'USD' })
 
         await act(async () => {
           render(<CustomerRequestOverduePayment />)
@@ -151,11 +142,9 @@ describe('CustomerRequestOverduePayment', () => {
   })
 
   describe('GIVEN the query is skipped because access is unscoped', () => {
-    describe('WHEN multi-currency flag is on but currency param is missing', () => {
+    describe('WHEN the currency param is missing', () => {
       it('THEN redirects and does not fire the query', async () => {
-        mockHasFeatureFlag.mockImplementation(
-          (flag: FeatureFlagEnum) => flag === FeatureFlagEnum.MultiCurrency,
-        )
+        mockSearchParams = new URLSearchParams({ billingEntityId: 'be-123' })
 
         await act(async () => {
           render(<CustomerRequestOverduePayment />)
@@ -168,15 +157,9 @@ describe('CustomerRequestOverduePayment', () => {
     })
   })
 
-  describe('GIVEN both feature flags are enabled', () => {
+  describe('GIVEN the page is reached from the invoice balances breakdown', () => {
     describe('WHEN both currency and billingEntityId search params are provided', () => {
       it('THEN should not redirect and should render the page correctly', async () => {
-        mockHasFeatureFlag.mockReturnValue(true)
-        mockSearchParams = new URLSearchParams({
-          currency: 'USD',
-          billingEntityId: 'be-123',
-        })
-
         mockUseGetRequestOverduePaymentInfosQuery.mockReturnValue({
           data: validQueryData,
           loading: false,
@@ -197,12 +180,6 @@ describe('CustomerRequestOverduePayment', () => {
       })
 
       it('THEN should fire the query with both currency and billingEntityIds variables', async () => {
-        mockHasFeatureFlag.mockReturnValue(true)
-        mockSearchParams = new URLSearchParams({
-          currency: 'USD',
-          billingEntityId: 'be-123',
-        })
-
         mockUseGetRequestOverduePaymentInfosQuery.mockReturnValue({
           data: validQueryData,
           loading: false,
@@ -220,8 +197,7 @@ describe('CustomerRequestOverduePayment', () => {
 
     describe('WHEN both currency and billingEntityId params are missing', () => {
       it('THEN should redirect back to invoices tab', async () => {
-        mockHasFeatureFlag.mockReturnValue(true)
-        // No search params — both scopes missing
+        mockSearchParams = new URLSearchParams()
 
         await act(async () => {
           render(<CustomerRequestOverduePayment />)

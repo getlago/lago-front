@@ -23,7 +23,6 @@ import {
   CurrencyEnum,
   CustomerForDunningEmailFragmentDoc,
   CustomerForRequestOverduePaymentFormFragmentDoc,
-  FeatureFlagEnum,
   InvoicesForRequestOverduePaymentFormFragmentDoc,
   LagoApiError,
   LastPaymentRequestFragmentDoc,
@@ -35,7 +34,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useIsCustomerReadyForOverduePayment } from '~/hooks/useIsCustomerReadyForOverduePayment'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { EmailPreview } from '~/pages/CustomerRequestOverduePayment/components/EmailPreview'
 import { PageHeader } from '~/styles'
 
@@ -116,18 +114,13 @@ const CustomerRequestOverduePayment: FC = () => {
   const currencyParam = (searchParams.get('currency') as CurrencyEnum | null) ?? undefined
   const billingEntityIdParam = searchParams.get('billingEntityId') ?? undefined
 
-  const { hasFeatureFlag } = useOrganizationInfos()
-  const hasMultiCurrency = hasFeatureFlag(FeatureFlagEnum.MultiCurrency)
-  const hasMultiEntityBilling = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
-
-  // Guard: each enabled flag introduces an axis that must be scoped explicitly
-  // — `multi_currency` requires `currency`, `multi_entity_billing` requires
-  // `billingEntityId`. Without scoping, the total amount would sum across
-  // mismatched buckets and the BE would later reject the mutation
-  // (invoices_have_different_currencies / _billing_entities). Redirect the
-  // operator back to the invoices tab so they pick a row from the breakdown.
-  const needsCurrencyScope = hasMultiCurrency && !currencyParam
-  const needsEntityScope = hasMultiEntityBilling && !billingEntityIdParam
+  // Guard: both axes must be scoped explicitly. Without scoping, the total
+  // amount would sum across mismatched buckets and the BE would later reject
+  // the mutation (invoices_have_different_currencies / _billing_entities).
+  // Redirect the operator back to the invoices tab so they pick a row from
+  // the breakdown.
+  const needsCurrencyScope = !currencyParam
+  const needsEntityScope = !billingEntityIdParam
   const isUnscopedAccess = needsCurrencyScope || needsEntityScope
 
   useEffect(() => {
@@ -158,9 +151,9 @@ const CustomerRequestOverduePayment: FC = () => {
   }, [customerId, isUnscopedAccess])
 
   const { data, loading, error } = useGetRequestOverduePaymentInfosQuery({
-    // Skip when the URL is unscoped under multi-axis flags — the guard above
-    // will redirect synchronously and this query would otherwise burn a
-    // wasted network call before unmount.
+    // Skip when the URL is unscoped — the guard above will redirect
+    // synchronously and this query would otherwise burn a wasted network call
+    // before unmount.
     skip: !customerId || isUnscopedAccess,
     variables: {
       id: customerId ?? '',

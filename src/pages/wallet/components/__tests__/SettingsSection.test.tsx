@@ -18,8 +18,6 @@ import { mapFromApiToForm } from '~/pages/wallet/mappers/mapFromApiToForm'
 import { TWalletDataForm } from '~/pages/wallet/types'
 import { render } from '~/test-utils'
 
-const mockHasFeatureFlag = jest.fn<boolean, [string]>(() => false)
-
 // Identity translate keeps the assertions independent of the translation
 // files: what matters is that the rendered error is a translated label and
 // never zod's own untranslated default.
@@ -32,7 +30,6 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
     organization: {},
-    hasFeatureFlag: mockHasFeatureFlag,
   }),
 }))
 
@@ -152,11 +149,6 @@ const ValidationWrapper = ({
 const errorTexts = () => screen.queryAllByTestId('text-field-error').map((node) => node.textContent)
 
 describe('SettingsSection', () => {
-  beforeEach(() => {
-    mockHasFeatureFlag.mockReset()
-    mockHasFeatureFlag.mockReturnValue(false)
-  })
-
   describe('GIVEN the creation mode', () => {
     describe('WHEN the section renders', () => {
       it.each([['name'], ['rateAmount'], ['priority']])(
@@ -174,15 +166,7 @@ describe('SettingsSection', () => {
         expect(queryInput(container, 'rateAmount')).not.toBeDisabled()
       })
 
-      it('THEN should hide the currency picker when the customer has a currency and no multi-currency flag', () => {
-        const { container } = render(<TestWrapper />)
-
-        expect(queryInput(container, 'currency')).not.toBeInTheDocument()
-      })
-
-      it('THEN should display the currency picker when the multi-currency flag is on', () => {
-        mockHasFeatureFlag.mockReturnValue(true)
-
+      it('THEN should display the currency picker when the customer has a currency', () => {
         const { container } = render(<TestWrapper />)
 
         expect(queryInput(container, 'currency')).toBeInTheDocument()
@@ -205,8 +189,6 @@ describe('SettingsSection', () => {
       })
 
       it('THEN should disable the currency picker', () => {
-        mockHasFeatureFlag.mockReturnValue(true)
-
         const { container } = render(<TestWrapper formType={FORM_TYPE_ENUM.edition} />)
 
         expect(queryInput(container, 'currency')).toBeDisabled()

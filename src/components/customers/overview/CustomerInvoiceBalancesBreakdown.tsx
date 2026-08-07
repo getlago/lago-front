@@ -11,12 +11,10 @@ import { CUSTOMER_REQUEST_OVERDUE_PAYMENT_ROUTE, useNavigate } from '~/core/rout
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,
-  FeatureFlagEnum,
   GetCustomerGrossRevenuesQuery,
   GetCustomerOverdueBalancesQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { tw } from '~/styles/utils'
 
 export const BREAKDOWN_ENTITY_CELL = 'breakdown-entity-cell'
@@ -64,10 +62,6 @@ const emptyRow = (currency: CurrencyEnum, billingEntityId: string | null): Invoi
  * Aggregates monthly `grossRevenues` and `overdueBalances` into one row per
  * bucket. Hides nothing — overdue=0 rows render with a disabled "Request
  * payment" button so the operator sees the full balance picture.
- *
- * Rendered when at least one of `multi_currency` / `multi_entity_billing`
- * is enabled. The parent (`CustomerOverview`) handles flag gating and falls
- * back to the legacy 2-card layout when both flags are off.
  */
 export const CustomerInvoiceBalancesBreakdown = ({
   grossRevenues,
@@ -78,9 +72,6 @@ export const CustomerInvoiceBalancesBreakdown = ({
   const { translate } = useInternationalization()
   const { customerId } = useParams()
   const navigate = useNavigate()
-  const { hasFeatureFlag } = useOrganizationInfos()
-  const hasMultiCurrency = hasFeatureFlag(FeatureFlagEnum.MultiCurrency)
-  const hasMultiEntityBilling = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
 
   const rows = useMemo<InvoiceBalanceRow[]>(() => {
     const map = new Map<string, InvoiceBalanceRow>()
@@ -204,13 +195,10 @@ export const CustomerInvoiceBalancesBreakdown = ({
               onClick={() => {
                 const params = new URLSearchParams()
 
-                // Forward each scope only when its feature flag is enabled, so
-                // the URL mirrors the page guard logic (single-flag orgs don't
-                // get a redundant param).
-                if (hasMultiCurrency) {
-                  params.set('currency', currency)
-                }
-                if (hasMultiEntityBilling && billingEntityId) {
+                // Forward both scopes so the URL mirrors the page guard logic.
+                params.set('currency', currency)
+
+                if (billingEntityId) {
                   params.set('billingEntityId', billingEntityId)
                 }
 
@@ -228,14 +216,7 @@ export const CustomerInvoiceBalancesBreakdown = ({
         },
       },
     ],
-    [
-      translate,
-      customerBillingEntity,
-      customerId,
-      hasMultiCurrency,
-      hasMultiEntityBilling,
-      navigate,
-    ],
+    [translate, customerBillingEntity, customerId, navigate],
   )
 
   return (
