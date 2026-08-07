@@ -4232,6 +4232,7 @@ export enum FeeTypesEnum {
   Commitment = 'commitment',
   Credit = 'credit',
   FixedCharge = 'fixed_charge',
+  Product = 'product',
   Subscription = 'subscription'
 }
 

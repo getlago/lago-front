@@ -4,7 +4,6 @@ import { useMemo } from 'react'
 import { generatePath, useSearchParams } from 'react-router-dom'
 
 import { PlanFormInput } from '~/components/plans/types'
-import { isSubscriptionPurchaseOrderNumberEditable } from '~/components/purchaseOrder/PO'
 import { REDIRECTION_ORIGIN_SUBSCRIPTION_USAGE } from '~/components/subscriptions/SubscriptionUsageLifetimeGraph'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
@@ -461,13 +460,7 @@ export const useAddSubscription: UseAddSubscription = ({
                   // subscription column, meaning "inherit from customer".
                   billingEntityId: billingEntityId || null,
                   paymentMethod: parsedPaymentMethod,
-                  // Omitted entirely when not editable, otherwise the BE rejects
-                  // the whole update and the rest of the form can no longer be
-                  // edited. When editable the key must stay even as `null` —
-                  // that is the clear mechanism.
-                  ...(isSubscriptionPurchaseOrderNumberEditable(existingSubscription?.status)
-                    ? { purchaseOrderNumber }
-                    : {}),
+                  purchaseOrderNumber,
                   planOverrides,
                 },
               },
