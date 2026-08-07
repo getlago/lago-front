@@ -58,6 +58,18 @@ const activityTypeTranslations: Record<ActivityTypeEnum, string> = {
   [ActivityTypeEnum.PlanCreated]: 'text_17474046566311qv73xswmnm',
   [ActivityTypeEnum.PlanDeleted]: 'text_1747404656631vh02b35uq80',
   [ActivityTypeEnum.PlanUpdated]: 'text_1747404656631mkfxe18tzkx',
+  [ActivityTypeEnum.ProductCategoryCreated]: 'text_1786091733039nnb1h4pi72ma',
+  [ActivityTypeEnum.ProductCategoryDeleted]: 'text_178609173304159xh504rz1ft',
+  [ActivityTypeEnum.ProductCategoryUpdated]: 'text_1786091733044na86etjemkqu',
+  [ActivityTypeEnum.ProductCreated]: 'text_1786091733046g3b92p319w62',
+  [ActivityTypeEnum.ProductDeleted]: 'text_1786091733049o18s7aoyl5r4',
+  [ActivityTypeEnum.ProductFilterCreated]: 'text_17860917330516y1biphaeo15',
+  [ActivityTypeEnum.ProductFilterDeleted]: 'text_17860917330544tvqk6vicfn8',
+  [ActivityTypeEnum.ProductFilterUpdated]: 'text_1786091733056r14b2wvkqako',
+  [ActivityTypeEnum.ProductUpdated]: 'text_1786091733059hiktqgnywvoj',
+  [ActivityTypeEnum.RateCardCreated]: 'text_1786092176156yo311nnjo7ao',
+  [ActivityTypeEnum.RateCardDeleted]: 'text_1786092176162ynjwyyfdd6e5',
+  [ActivityTypeEnum.RateCardUpdated]: 'text_17860921761633on7rwl6cpn9',
   [ActivityTypeEnum.SubscriptionCanceled]: 'text_1777471747994p4c7cm9pri6',
   [ActivityTypeEnum.SubscriptionIncomplete]: 'text_17774717479940xot2f14xbr',
   [ActivityTypeEnum.SubscriptionStarted]: 'text_1747404806714xgkold0s07a',
@@ -78,6 +90,10 @@ const resourceTypeTranslations: Record<string, string> = {
   Customer: 'text_65201c5a175a4b0238abf29a',
   Invoice: 'text_63fcc3218d35b9377840f5b3',
   Plan: 'text_63d3a658c6d84a5843032145',
+  Product: 'text_1786091733061jsdqvdtvhh5t',
+  ProductCategory: 'text_1786091733064ylrve06n4u2o',
+  ProductFilter: 'text_1786091733066uc0p6228z0oi',
+  RateCard: 'text_1786092176164htj7ooyl4bgs',
   PaymentRequest: 'text_17495622741665lrk6dp6czk',
   Subscription: 'text_1728472697691k6k2e9m5ibb',
   Wallet: 'text_62d175066d2dbf1d50bc9384',
@@ -201,6 +217,34 @@ export const useActivityLogsInformation = () => {
       case ActivityTypeEnum.FeatureUpdated:
         parameters = {
           featureCode: activityObject.code,
+        }
+        break
+      case ActivityTypeEnum.ProductCategoryCreated:
+      case ActivityTypeEnum.ProductCategoryDeleted:
+      case ActivityTypeEnum.ProductCategoryUpdated:
+        parameters = {
+          productCategoryCode: activityObject.code,
+        }
+        break
+      case ActivityTypeEnum.ProductCreated:
+      case ActivityTypeEnum.ProductDeleted:
+      case ActivityTypeEnum.ProductUpdated:
+        parameters = {
+          productCode: activityObject.code,
+        }
+        break
+      case ActivityTypeEnum.ProductFilterCreated:
+      case ActivityTypeEnum.ProductFilterDeleted:
+      case ActivityTypeEnum.ProductFilterUpdated:
+        parameters = {
+          productFilterCode: activityObject.code,
+        }
+        break
+      case ActivityTypeEnum.RateCardCreated:
+      case ActivityTypeEnum.RateCardDeleted:
+      case ActivityTypeEnum.RateCardUpdated:
+        parameters = {
+          rateCardCode: activityObject.code,
         }
         break
       case ActivityTypeEnum.PaymentReceiptCreated:

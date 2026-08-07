@@ -45,6 +45,23 @@ describe('useActivityLogsInformation', () => {
 
       expect(result.current.getResourceType('UnknownType')).toBe('translated:UnknownType')
     })
+
+    it('should return translation key for product catalog resource types', () => {
+      const { result } = renderHook(() => useActivityLogsInformation())
+
+      expect(result.current.getResourceType('Product')).toBe(
+        'translated:text_1786091733061jsdqvdtvhh5t',
+      )
+      expect(result.current.getResourceType('ProductCategory')).toBe(
+        'translated:text_1786091733064ylrve06n4u2o',
+      )
+      expect(result.current.getResourceType('ProductFilter')).toBe(
+        'translated:text_1786091733066uc0p6228z0oi',
+      )
+      expect(result.current.getResourceType('RateCard')).toBe(
+        'translated:text_1786092176164htj7ooyl4bgs',
+      )
+    })
   })
 
   describe('getActivityDescription', () => {
@@ -553,6 +570,72 @@ describe('useActivityLogsInformation', () => {
 
       expect(description).toBe(
         'translated:text_1747404806714etwdmgd36ni:{"walletId":"wallet-xyz","transactionId":"transaction-uvw"}',
+      )
+    })
+
+    it('should return description for ProductCreated', () => {
+      const { result } = renderHook(() => useActivityLogsInformation())
+      const activityObject = {
+        code: 'api_calls',
+      }
+
+      const description = result.current.getActivityDescription(ActivityTypeEnum.ProductCreated, {
+        activityObject,
+      })
+
+      expect(description).toBe(
+        'translated:text_1786091733046g3b92p319w62:{"productCode":"api_calls"}',
+      )
+    })
+
+    it('should return description for ProductCategoryUpdated', () => {
+      const { result } = renderHook(() => useActivityLogsInformation())
+      const activityObject = {
+        code: 'compute',
+      }
+
+      const description = result.current.getActivityDescription(
+        ActivityTypeEnum.ProductCategoryUpdated,
+        {
+          activityObject,
+        },
+      )
+
+      expect(description).toBe(
+        'translated:text_1786091733044na86etjemkqu:{"productCategoryCode":"compute"}',
+      )
+    })
+
+    it('should return description for ProductFilterDeleted', () => {
+      const { result } = renderHook(() => useActivityLogsInformation())
+      const activityObject = {
+        code: 'region_eu',
+      }
+
+      const description = result.current.getActivityDescription(
+        ActivityTypeEnum.ProductFilterDeleted,
+        {
+          activityObject,
+        },
+      )
+
+      expect(description).toBe(
+        'translated:text_17860917330544tvqk6vicfn8:{"productFilterCode":"region_eu"}',
+      )
+    })
+
+    it('should return description for RateCardCreated', () => {
+      const { result } = renderHook(() => useActivityLogsInformation())
+      const activityObject = {
+        code: 'growth_usd',
+      }
+
+      const description = result.current.getActivityDescription(ActivityTypeEnum.RateCardCreated, {
+        activityObject,
+      })
+
+      expect(description).toBe(
+        'translated:text_1786092176156yo311nnjo7ao:{"rateCardCode":"growth_usd"}',
       )
     })
 
