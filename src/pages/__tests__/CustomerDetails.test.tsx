@@ -17,6 +17,13 @@ jest.mock('~/components/MainHeader/useMainHeaderTabContent', () => ({
   useMainHeaderTabContent: () => null,
 }))
 
+// The drawer stack uses `import.meta`, unsupported by jest: the connections
+// section reached through the information tab pulls it in transitively
+jest.mock('~/components/drawers/useDrawer', () => ({
+  useDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+  useFormDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+}))
+
 initializeYup()
 
 const mockUseGetCustomerQuery = jest.fn()

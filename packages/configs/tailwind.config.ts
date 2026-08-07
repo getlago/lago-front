@@ -3,6 +3,7 @@ import { Config } from 'tailwindcss/types/config'
 
 export const colors = {
   grey: {
+    '000': '#FFFFFF',
     100: '#F3F4F6',
     200: '#E7EAEE',
     300: '#D9DEE7',

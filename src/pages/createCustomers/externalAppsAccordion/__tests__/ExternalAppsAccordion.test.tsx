@@ -33,14 +33,11 @@ jest.mock('~/components/drawers/useDrawer', () => ({
 }))
 
 // The NetSuite subsidiaries query hook needs an ApolloProvider — inert here
-jest.mock(
-  '~/pages/createCustomers/externalAppsAccordion/accountingProvidersAccordion/useAccountingProvidersSubsidaries',
-  () => ({
-    useAccountingProvidersSubsidaries: () => ({ subsidiariesData: undefined }),
-  }),
-)
+jest.mock('~/components/customerConnections/useAccountingProvidersSubsidaries', () => ({
+  useAccountingProvidersSubsidaries: () => ({ subsidiariesData: undefined }),
+}))
 
-jest.mock('~/pages/createCustomers/common/usePaymentProviders', () => ({
+jest.mock('~/components/customerConnections/usePaymentProviders', () => ({
   usePaymentProviders: () => ({
     paymentProviders: {
       paymentProviders: {
@@ -54,7 +51,7 @@ jest.mock('~/pages/createCustomers/common/usePaymentProviders', () => ({
   }),
 }))
 
-jest.mock('~/pages/createCustomers/common/useAccountingProviders', () => ({
+jest.mock('~/components/customerConnections/useAccountingProviders', () => ({
   useAccountingProviders: () => ({
     accountingProviders: {
       integrations: {
@@ -68,7 +65,7 @@ jest.mock('~/pages/createCustomers/common/useAccountingProviders', () => ({
   }),
 }))
 
-jest.mock('~/pages/createCustomers/common/useTaxProviders', () => ({
+jest.mock('~/components/customerConnections/useTaxProviders', () => ({
   useTaxProviders: () => ({
     taxProviders: {
       integrations: {
@@ -82,7 +79,7 @@ jest.mock('~/pages/createCustomers/common/useTaxProviders', () => ({
   }),
 }))
 
-jest.mock('~/pages/createCustomers/common/useCrmProviders', () => ({
+jest.mock('~/components/customerConnections/useCrmProviders', () => ({
   useCrmProviders: () => ({
     crmProviders: {
       integrations: {
@@ -95,6 +92,14 @@ jest.mock('~/pages/createCustomers/common/useCrmProviders', () => ({
     getCrmProviderFromCode: (code?: string) => (code === 'hub-1' ? 'hubspot' : null),
   }),
 }))
+
+/** Row ids are `${category}-${code}` — codes come from the provider mocks above */
+const ROW_IDS: Record<ConnectionCategory, string> = {
+  [ConnectionCategory.Payment]: 'payment-stripe-eu',
+  [ConnectionCategory.Accounting]: 'accounting-ns-1',
+  [ConnectionCategory.Tax]: 'tax-anrok-1',
+  [ConnectionCategory.Crm]: 'crm-hub-1',
+}
 
 /** Customer form with a stripe payment slot and an anrok tax slot populated */
 const HARNESS_DEFAULT_VALUES: CreateCustomerDefaultValues = {
@@ -172,20 +177,22 @@ describe('ExternalAppsAccordion', () => {
         await openAccordion()
 
         const paymentRow = screen.getByTestId(
-          getCustomerConnectionRowTestId(ConnectionCategory.Payment),
+          getCustomerConnectionRowTestId(ROW_IDS[ConnectionCategory.Payment]),
         )
 
         expect(paymentRow).toBeVisible()
         expect(paymentRow).toHaveTextContent('Stripe EU')
         expect(paymentRow).toHaveTextContent('stripe-eu')
         expect(
-          screen.getByTestId(getCustomerConnectionRowTestId(ConnectionCategory.Tax)),
+          screen.getByTestId(getCustomerConnectionRowTestId(ROW_IDS[ConnectionCategory.Tax])),
         ).toBeVisible()
         expect(
-          screen.queryByTestId(getCustomerConnectionRowTestId(ConnectionCategory.Accounting)),
+          screen.queryByTestId(
+            getCustomerConnectionRowTestId(ROW_IDS[ConnectionCategory.Accounting]),
+          ),
         ).not.toBeInTheDocument()
         expect(
-          screen.queryByTestId(getCustomerConnectionRowTestId(ConnectionCategory.Crm)),
+          screen.queryByTestId(getCustomerConnectionRowTestId(ROW_IDS[ConnectionCategory.Crm])),
         ).not.toBeInTheDocument()
       })
     })
@@ -213,7 +220,7 @@ describe('ExternalAppsAccordion', () => {
         await openAccordion()
 
         const paymentRow = screen.getByTestId(
-          getCustomerConnectionRowTestId(ConnectionCategory.Payment),
+          getCustomerConnectionRowTestId(ROW_IDS[ConnectionCategory.Payment]),
         )
 
         await userEvent.click(within(paymentRow).getAllByRole('button')[0])
@@ -256,7 +263,7 @@ describe('ExternalAppsAccordion', () => {
         ]
 
         for (const category of categories) {
-          const row = screen.getByTestId(getCustomerConnectionRowTestId(category))
+          const row = screen.getByTestId(getCustomerConnectionRowTestId(ROW_IDS[category]))
 
           await userEvent.click(within(row).getAllByRole('button')[0])
         }
@@ -272,23 +279,25 @@ describe('ExternalAppsAccordion', () => {
         await openAccordion()
 
         for (const category of [ConnectionCategory.Accounting, ConnectionCategory.Crm]) {
-          await userEvent.click(screen.getByTestId(getCustomerConnectionMenuTestId(category)))
+          await userEvent.click(
+            screen.getByTestId(getCustomerConnectionMenuTestId(ROW_IDS[category])),
+          )
           await waitFor(() => {
             expect(screen.getByRole('button', { name: /delete connection/i })).toBeVisible()
           })
           await userEvent.click(screen.getByRole('button', { name: /delete connection/i }))
           await waitFor(() => {
             expect(
-              screen.queryByTestId(getCustomerConnectionRowTestId(category)),
+              screen.queryByTestId(getCustomerConnectionRowTestId(ROW_IDS[category])),
             ).not.toBeInTheDocument()
           })
         }
 
         expect(
-          screen.getByTestId(getCustomerConnectionRowTestId(ConnectionCategory.Payment)),
+          screen.getByTestId(getCustomerConnectionRowTestId(ROW_IDS[ConnectionCategory.Payment])),
         ).toBeInTheDocument()
         expect(
-          screen.getByTestId(getCustomerConnectionRowTestId(ConnectionCategory.Tax)),
+          screen.getByTestId(getCustomerConnectionRowTestId(ROW_IDS[ConnectionCategory.Tax])),
         ).toBeInTheDocument()
       })
     })
@@ -303,7 +312,7 @@ describe('ExternalAppsAccordion', () => {
         await openAccordion()
 
         const paymentRow = screen.getByTestId(
-          getCustomerConnectionRowTestId(ConnectionCategory.Payment),
+          getCustomerConnectionRowTestId(ROW_IDS[ConnectionCategory.Payment]),
         )
 
         await userEvent.click(within(paymentRow).getAllByRole('button')[0])
@@ -327,7 +336,7 @@ describe('ExternalAppsAccordion', () => {
 
         await openAccordion()
         await userEvent.click(
-          screen.getByTestId(getCustomerConnectionMenuTestId(ConnectionCategory.Payment)),
+          screen.getByTestId(getCustomerConnectionMenuTestId(ROW_IDS[ConnectionCategory.Payment])),
         )
         await waitFor(() => {
           expect(screen.getByRole('button', { name: /delete connection/i })).toBeVisible()
@@ -336,11 +345,13 @@ describe('ExternalAppsAccordion', () => {
 
         await waitFor(() => {
           expect(
-            screen.queryByTestId(getCustomerConnectionRowTestId(ConnectionCategory.Payment)),
+            screen.queryByTestId(
+              getCustomerConnectionRowTestId(ROW_IDS[ConnectionCategory.Payment]),
+            ),
           ).not.toBeInTheDocument()
         })
         expect(
-          screen.getByTestId(getCustomerConnectionRowTestId(ConnectionCategory.Tax)),
+          screen.getByTestId(getCustomerConnectionRowTestId(ROW_IDS[ConnectionCategory.Tax])),
         ).toBeInTheDocument()
       })
     })

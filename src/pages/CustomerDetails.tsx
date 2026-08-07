@@ -7,6 +7,10 @@ import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import { hasDefinedGQLError } from '~/core/apolloClient'
+import {
+  INTEGRATION_POLLING_INTERVAL,
+  MAX_INTEGRATION_POLLING_ATTEMPTS,
+} from '~/core/constants/integrationPolling'
 import { CUSTOMERS_LIST_ROUTE, useLocation, useNavigate } from '~/core/router'
 import {
   AddCustomerDrawerFragmentDoc,
@@ -62,9 +66,6 @@ gql`
   ${CustomerMainInfosFragmentDoc}
 `
 
-const POLLING_INTERVAL = 1000
-const MAX_POLLING_ATTEMPTS = 3
-
 const CustomerDetails = () => {
   const { openAddCouponToCustomerDialog } = useAddCouponToCustomerDialog()
   const pollingAttemptsRef = useRef(0)
@@ -96,7 +97,7 @@ const CustomerDetails = () => {
   useEffect(() => {
     if (shouldPollIntegrations && !hasAnyIntegrationCustomer) {
       pollingAttemptsRef.current = 0
-      startPolling(POLLING_INTERVAL)
+      startPolling(INTEGRATION_POLLING_INTERVAL)
     }
 
     return () => {
@@ -112,7 +113,10 @@ const CustomerDetails = () => {
 
     pollingAttemptsRef.current += 1
 
-    if (hasAnyIntegrationCustomer || pollingAttemptsRef.current >= MAX_POLLING_ATTEMPTS) {
+    if (
+      hasAnyIntegrationCustomer ||
+      pollingAttemptsRef.current >= MAX_INTEGRATION_POLLING_ATTEMPTS
+    ) {
       stopPolling()
       navigate(location.pathname, { replace: true, state: {} })
     }

@@ -1,3 +1,4 @@
+import { getAllIntegrationForAnIntegrationType } from '~/components/customerConnections/getAllIntegrationForAnIntegrationType'
 import {
   AnrokIntegration,
   AvalaraIntegration,
@@ -11,7 +12,6 @@ import {
   SalesforceIntegration,
   XeroIntegration,
 } from '~/generated/graphql'
-import { getAllIntegrationForAnIntegrationType } from '~/pages/createCustomers/common/getAllIntegrationForAnIntegrationType'
 
 import { CreateCustomerDefaultValues } from '../formInitialization/validationSchema'
 
