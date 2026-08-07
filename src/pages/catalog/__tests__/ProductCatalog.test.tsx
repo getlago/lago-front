@@ -8,6 +8,7 @@ import ProductCatalog, {
   CREATE_PRODUCT_ITEM_FILTER_TEST_ID,
   CREATE_PRODUCT_ITEM_TEST_ID,
   CREATE_PRODUCT_TEST_ID,
+  CREATE_RATE_CARD_TEST_ID,
   PRODUCT_CATALOG_CREATE_TEST_ID,
 } from '../ProductCatalog'
 
@@ -23,6 +24,7 @@ const mockHasPermissions = jest.fn()
 const mockOpenCreateProductCategoryDrawer = jest.fn()
 const mockOpenCreateProductDrawer = jest.fn()
 const mockOpenCreateProductFilterDrawer = jest.fn()
+const mockOpenCreateRateCardDrawer = jest.fn()
 
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({
@@ -49,6 +51,11 @@ jest.mock('../drawers/product/useProductDrawer', () => ({
 
 jest.mock('../drawers/productFilter/useProductFilterDrawer', () => ({
   useProductFilterDrawer: () => ({ openDrawer: mockOpenCreateProductFilterDrawer }),
+}))
+
+jest.mock('../drawers/rateCard/useRateCardDrawer', () => ({
+  useRateCardDrawer: () => ({ openDrawer: mockOpenCreateRateCardDrawer }),
+  RATE_CARD_DRAWER_TITLE_CREATE_KEY: 'text_1784925227817k72h5sd0wyu',
 }))
 
 // The real ProductCategoriesList fires its productCategories query on mount; this suite only
@@ -101,7 +108,7 @@ describe('ProductCatalog', () => {
   })
 
   describe('create dropdown', () => {
-    it('lists the three create entries when all create permissions are granted', async () => {
+    it('lists the four create entries when all create permissions are granted', async () => {
       const user = userEvent.setup()
 
       renderPage()
@@ -111,12 +118,14 @@ describe('ProductCatalog', () => {
       expect(screen.getByTestId(CREATE_PRODUCT_TEST_ID)).toBeInTheDocument()
       expect(screen.getByTestId(CREATE_PRODUCT_ITEM_TEST_ID)).toBeInTheDocument()
       expect(screen.getByTestId(CREATE_PRODUCT_ITEM_FILTER_TEST_ID)).toBeInTheDocument()
+      expect(screen.getByTestId(CREATE_RATE_CARD_TEST_ID)).toBeInTheDocument()
     })
 
     it.each([
       [CREATE_PRODUCT_TEST_ID, () => mockOpenCreateProductCategoryDrawer],
       [CREATE_PRODUCT_ITEM_TEST_ID, () => mockOpenCreateProductDrawer],
       [CREATE_PRODUCT_ITEM_FILTER_TEST_ID, () => mockOpenCreateProductFilterDrawer],
+      [CREATE_RATE_CARD_TEST_ID, () => mockOpenCreateRateCardDrawer],
     ])('opens the matching drawer from the %s entry', async (itemTestId, getOpenDrawerMock) => {
       const user = userEvent.setup()
 
@@ -141,6 +150,23 @@ describe('ProductCatalog', () => {
       expect(screen.queryByTestId(CREATE_PRODUCT_ITEM_TEST_ID)).not.toBeInTheDocument()
       expect(screen.getByTestId(CREATE_PRODUCT_TEST_ID)).toBeInTheDocument()
       expect(screen.getByTestId(CREATE_PRODUCT_ITEM_FILTER_TEST_ID)).toBeInTheDocument()
+      expect(screen.getByTestId(CREATE_RATE_CARD_TEST_ID)).toBeInTheDocument()
+    })
+
+    it('hides the rate card entry when its create permission is missing', async () => {
+      mockHasPermissions.mockImplementation(
+        (permissions: string[]) => !permissions.includes('rateCardsCreate'),
+      )
+      const user = userEvent.setup()
+
+      renderPage()
+
+      await user.click(screen.getByTestId(PRODUCT_CATALOG_CREATE_TEST_ID))
+
+      expect(screen.queryByTestId(CREATE_RATE_CARD_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.getByTestId(CREATE_PRODUCT_TEST_ID)).toBeInTheDocument()
+      expect(screen.getByTestId(CREATE_PRODUCT_ITEM_TEST_ID)).toBeInTheDocument()
+      expect(screen.getByTestId(CREATE_PRODUCT_ITEM_FILTER_TEST_ID)).toBeInTheDocument()
     })
 
     it('hides the whole dropdown when no create permission is granted', () => {
@@ -148,6 +174,7 @@ describe('ProductCatalog', () => {
         'productCategoriesCreate',
         'productsCreate',
         'productFiltersCreate',
+        'rateCardsCreate',
       ]
 
       mockHasPermissions.mockImplementation(

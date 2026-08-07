@@ -15,6 +15,7 @@ import {
   LagoApiError,
   ProductFilterForDeleteProductFilterDialogFragmentDoc,
   ProductFilterForDrawerFragmentDoc,
+  RateCardForPreviewProductFilterFragmentDoc,
   useGetProductFilterForDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -24,6 +25,7 @@ import { usePermissions } from '~/hooks/usePermissions'
 
 import ProductFilterActivityLogs from './ProductFilterActivityLogs'
 import ProductFilterDetailsOverview from './ProductFilterDetailsOverview'
+import RateCardPreview from './RateCardPreview'
 
 import { useDeleteProductFilterDialog } from '../dialogs/useDeleteProductFilterDialog'
 import { useProductFilterDrawer } from '../drawers/productFilter/useProductFilterDrawer'
@@ -31,6 +33,7 @@ import { useProductFilterDrawer } from '../drawers/productFilter/useProductFilte
 gql`
   fragment ProductFilterForProductFilterDetails on ProductFilter {
     id
+    ...RateCardForPreviewProductFilter
     ...ProductFilterForDrawer
     ...ProductFilterForDeleteProductFilterDialog
   }
@@ -42,6 +45,7 @@ gql`
     }
   }
 
+  ${RateCardForPreviewProductFilterFragmentDoc}
   ${ProductFilterForDrawerFragmentDoc}
   ${ProductFilterForDeleteProductFilterDialogFragmentDoc}
 `
@@ -156,7 +160,11 @@ const ProductFilterDetails = () => {
               productFilterId: productFilterId as string,
               tab: ProductFilterDetailsTabsOptionsEnum.rateCards,
             }),
-            content: <div className="p-4">{translate('text_1783104239825nxqno33u945')}</div>,
+            content: productFilter ? (
+              <DetailsPage.Container>
+                <RateCardPreview scope={{ productFilter }} />
+              </DetailsPage.Container>
+            ) : null,
           },
           {
             title: translate('text_62442e40cea25600b0b6d85a'),

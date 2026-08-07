@@ -15,6 +15,7 @@ import {
   formatFiltersForProductsQuery,
   formatFiltersForQuery,
   formatFiltersForQuotesQuery,
+  formatFiltersForRateCardsQuery,
   formatFiltersForRevenueStreamsQuery,
   formatFiltersForSecurityLogsQuery,
   formatFiltersForSubscriptionQuery,
@@ -23,6 +24,7 @@ import {
   getFilterValue,
   isValidDateRangeValue,
   keyWithPrefix,
+  mapRateCardFilterVars,
   parseFromToValue,
   parseMetadataFilter,
   unescapeFilterLabel,
@@ -1515,6 +1517,111 @@ describe('Filters utils', () => {
       const params = new URLSearchParams()
 
       expect(formatFiltersForProductFiltersQuery(params)).toEqual({})
+    })
+  })
+
+  describe('formatFiltersForRateCardsQuery', () => {
+    it('maps the Product category filter to a plural productCategoryIds array', () => {
+      const params = new URLSearchParams()
+
+      params.set(
+        'rc_rateCardProductCategory',
+        `cat-1${filterDataInlineSeparator}A,cat-2${filterDataInlineSeparator}B`,
+      )
+
+      expect(formatFiltersForRateCardsQuery(params)).toEqual({
+        productCategoryIds: ['cat-1', 'cat-2'],
+      })
+    })
+
+    it('filters the "Not defined" sentinel out of the productCategoryIds array', () => {
+      const params = new URLSearchParams()
+
+      params.set(
+        'rc_rateCardProductCategory',
+        `${filterWithoutProductValue},cat-1${filterDataInlineSeparator}A`,
+      )
+
+      expect(formatFiltersForRateCardsQuery(params)).toEqual({
+        productCategoryIds: ['cat-1'],
+      })
+    })
+
+    it('returns an empty productCategoryIds array when only the "Not defined" sentinel is selected', () => {
+      const params = new URLSearchParams()
+
+      params.set('rc_rateCardProductCategory', filterWithoutProductValue)
+
+      expect(formatFiltersForRateCardsQuery(params)).toEqual({
+        productCategoryIds: [],
+      })
+    })
+
+    it('maps the Product filter to a plural productIds array', () => {
+      const params = new URLSearchParams()
+
+      params.set(
+        'rc_rateCardProduct',
+        `id1${filterDataInlineSeparator}A,id2${filterDataInlineSeparator}B`,
+      )
+
+      expect(formatFiltersForRateCardsQuery(params)).toEqual({
+        productIds: ['id1', 'id2'],
+      })
+    })
+
+    it('maps the Product filter filter to a plural productFilterIds array', () => {
+      const params = new URLSearchParams()
+
+      params.set(
+        'rc_rateCardProductFilter',
+        `f1${filterDataInlineSeparator}A,f2${filterDataInlineSeparator}B`,
+      )
+
+      expect(formatFiltersForRateCardsQuery(params)).toEqual({
+        productFilterIds: ['f1', 'f2'],
+      })
+    })
+
+    it('returns an empty object when no filter is set', () => {
+      const params = new URLSearchParams()
+
+      expect(formatFiltersForRateCardsQuery(params)).toEqual({})
+    })
+  })
+
+  describe('mapRateCardFilterVars', () => {
+    it('down-maps the first productIds entry to productId', () => {
+      expect(mapRateCardFilterVars({ productIds: ['id1', 'id2'] })).toEqual({
+        productId: 'id1',
+      })
+    })
+
+    it('down-maps the first productFilterIds entry to productFilterId', () => {
+      expect(mapRateCardFilterVars({ productFilterIds: ['f1'] })).toEqual({
+        productFilterId: 'f1',
+      })
+    })
+
+    it('ignores productCategoryIds entirely (no current rateCards arg for the ProductCategory dimension)', () => {
+      expect(mapRateCardFilterVars({ productCategoryIds: ['cat-1'] })).toEqual({})
+    })
+
+    it('combines all mapped dimensions and still ignores productCategoryIds', () => {
+      expect(
+        mapRateCardFilterVars({
+          productCategoryIds: ['cat-1'],
+          productIds: ['id1'],
+          productFilterIds: ['f1'],
+        }),
+      ).toEqual({
+        productId: 'id1',
+        productFilterId: 'f1',
+      })
+    })
+
+    it('returns an empty object when given no plurals', () => {
+      expect(mapRateCardFilterVars({})).toEqual({})
     })
   })
 

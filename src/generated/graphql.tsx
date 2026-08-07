@@ -11828,6 +11828,14 @@ export type GetProductCategoriesForFilterItemProductCategoryQueryVariables = Exa
 
 export type GetProductCategoriesForFilterItemProductCategoryQuery = { __typename?: 'Query', productCategories: { __typename?: 'ProductCategoryCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'ProductCategory', id: string, code: string }> } };
 
+export type GetProductFiltersForFilterItemRateCardProductFilterQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetProductFiltersForFilterItemRateCardProductFilterQuery = { __typename?: 'Query', productFilters: { __typename?: 'ProductFilterCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null }> } };
+
 export type UserIdentifierQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -15396,6 +15404,17 @@ export type ProductsQueryVariables = Exact<{
 
 export type ProductsQuery = { __typename?: 'Query', products: { __typename?: 'ProductCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Product', id: string, name: string, code: string, invoiceDisplayName?: string | null, productType: ProductTypeEnum, filtersCount: number, createdAt: any, description?: string | null, attachedToPlanOrSubscription: boolean, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, code: string } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string } | null }> } };
 
+export type RateCardsQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+  productId?: InputMaybe<Scalars['ID']['input']>;
+  productFilterId?: InputMaybe<Scalars['ID']['input']>;
+}>;
+
+
+export type RateCardsQuery = { __typename?: 'Query', rateCards: { __typename?: 'RateCardCollection', collection: Array<{ __typename?: 'RateCard', id: string, name: string, code: string, createdAt: any, ratesCount: number, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, description?: string | null, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean, regroupPaidFees: RateCardRegroupPaidFeesEnum, proration: boolean, walletTargetable?: boolean | null, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, product: { __typename?: 'Product', id: string, name: string, code: string, productType: ProductTypeEnum, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, code: string } | null, activeRate?: { __typename?: 'RateCardRate', id: string, rateModel: RateCardRateModelEnum, rateProperties: any, minAmountCents: any } | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
+
 export type ProductCategoryForProductCategoryDetailsFragment = { __typename?: 'ProductCategory', id: string, name: string, code: string, description?: string | null, invoiceDisplayName?: string | null, attachedToPlanOrSubscription: boolean };
 
 export type GetProductCategoryForDetailsQueryVariables = Exact<{
@@ -15480,6 +15499,56 @@ export type GetProductFiltersForProductDetailsQueryVariables = Exact<{
 
 export type GetProductFiltersForProductDetailsQuery = { __typename?: 'Query', productFilters: { __typename?: 'ProductFilterCollection', metadata: { __typename?: 'CollectionMetadata', totalCount: number }, collection: Array<{ __typename?: 'ProductFilter', id: string, name: string, code: string, invoiceDisplayName?: string | null, createdAt: any, attachedToPlanOrSubscription: boolean, description?: string | null, product: { __typename?: 'Product', id: string, name: string, invoiceDisplayName?: string | null, code: string }, values: Array<{ __typename?: 'ProductFilterValue', id: string, value?: string | null, billableMetricFilter: { __typename?: 'BillableMetricFilter', id: string, key: string, values: Array<string> } }> }> } };
 
+export type RateCardActivityLogsQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceTypes?: InputMaybe<Array<ResourceTypeEnum> | ResourceTypeEnum>;
+  resourceIds?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+}>;
+
+
+export type RateCardActivityLogsQuery = { __typename?: 'Query', activityLogs?: { __typename?: 'ActivityLogCollection', collection: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } | null };
+
+export type RateCardForRateCardDetailsFragment = { __typename?: 'RateCard', id: string };
+
+export type GetRateCardForDetailsQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetRateCardForDetailsQuery = { __typename?: 'Query', rateCard?: { __typename?: 'RateCard', id: string, name: string, code: string, description?: string | null, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean, regroupPaidFees: RateCardRegroupPaidFeesEnum, proration: boolean, walletTargetable?: boolean | null, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, product: { __typename?: 'Product', id: string, name: string, code: string, productType: ProductTypeEnum, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, code: string } | null } | null };
+
+export type RateCardForDetailsOverviewFragment = { __typename?: 'RateCard', id: string, name: string, code: string, description?: string | null, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean, regroupPaidFees: RateCardRegroupPaidFeesEnum, proration: boolean, walletTargetable?: boolean | null, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, product: { __typename?: 'Product', id: string, name: string, code: string, productType: ProductTypeEnum, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, code: string } | null };
+
+export type GetRateCardForDetailsOverviewQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetRateCardForDetailsOverviewQuery = { __typename?: 'Query', rateCard?: { __typename?: 'RateCard', id: string, name: string, code: string, description?: string | null, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean, regroupPaidFees: RateCardRegroupPaidFeesEnum, proration: boolean, walletTargetable?: boolean | null, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, product: { __typename?: 'Product', id: string, name: string, code: string, productType: ProductTypeEnum, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, code: string } | null } | null };
+
+export type RateCardForPreviewProductFragment = { __typename?: 'Product', id: string, name: string };
+
+export type RateCardForPreviewProductFilterFragment = { __typename?: 'ProductFilter', id: string, name: string, product: { __typename?: 'Product', id: string, name: string } };
+
+export type GetRateCardsForProductDetailsQueryVariables = Exact<{
+  productId?: InputMaybe<Scalars['ID']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetRateCardsForProductDetailsQuery = { __typename?: 'Query', rateCards: { __typename?: 'RateCardCollection', metadata: { __typename?: 'CollectionMetadata', totalCount: number }, collection: Array<{ __typename?: 'RateCard', id: string, name: string, code: string, createdAt: any, ratesCount: number, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, description?: string | null, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean, regroupPaidFees: RateCardRegroupPaidFeesEnum, proration: boolean, walletTargetable?: boolean | null, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, product: { __typename?: 'Product', id: string, name: string, code: string, productType: ProductTypeEnum, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, code: string } | null, activeRate?: { __typename?: 'RateCardRate', id: string, rateModel: RateCardRateModelEnum, rateProperties: any, minAmountCents: any } | null }> } };
+
+export type GetRateCardsForProductFilterDetailsQueryVariables = Exact<{
+  productFilterId?: InputMaybe<Scalars['ID']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetRateCardsForProductFilterDetailsQuery = { __typename?: 'Query', rateCards: { __typename?: 'RateCardCollection', metadata: { __typename?: 'CollectionMetadata', totalCount: number }, collection: Array<{ __typename?: 'RateCard', id: string, name: string, code: string, createdAt: any, ratesCount: number, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, description?: string | null, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean, regroupPaidFees: RateCardRegroupPaidFeesEnum, proration: boolean, walletTargetable?: boolean | null, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, product: { __typename?: 'Product', id: string, name: string, code: string, productType: ProductTypeEnum, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, code: string } | null, activeRate?: { __typename?: 'RateCardRate', id: string, rateModel: RateCardRateModelEnum, rateProperties: any, minAmountCents: any } | null }> } };
+
 export type ProductCategoryForDeleteProductCategoryDialogFragment = { __typename?: 'ProductCategory', id: string, name: string };
 
 export type DeleteProductCategoryMutationVariables = Exact<{
@@ -15506,6 +15575,15 @@ export type DeleteProductFilterMutationVariables = Exact<{
 
 
 export type DeleteProductFilterMutation = { __typename?: 'Mutation', destroyProductFilter?: { __typename?: 'DestroyProductFilterPayload', id?: string | null } | null };
+
+export type RateCardForDeleteRateCardDialogFragment = { __typename?: 'RateCard', id: string, name: string };
+
+export type DestroyRateCardMutationVariables = Exact<{
+  input: DestroyRateCardInput;
+}>;
+
+
+export type DestroyRateCardMutation = { __typename?: 'Mutation', destroyRateCard?: { __typename?: 'DestroyRateCardPayload', id?: string | null } | null };
 
 export type GetProductCategoriesForProductDrawerQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -15581,6 +15659,48 @@ export type UpdateProductFilterMutationVariables = Exact<{
 
 
 export type UpdateProductFilterMutation = { __typename?: 'Mutation', updateProductFilter?: { __typename?: 'ProductFilter', id: string, name: string, code: string, description?: string | null, invoiceDisplayName?: string | null, attachedToPlanOrSubscription: boolean, product: { __typename?: 'Product', id: string, name: string, code: string }, values: Array<{ __typename?: 'ProductFilterValue', id: string, value?: string | null, billableMetricFilter: { __typename?: 'BillableMetricFilter', id: string, key: string, values: Array<string> } }> } | null };
+
+export type GetProductsForRateCardDrawerQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetProductsForRateCardDrawerQuery = { __typename?: 'Query', products: { __typename?: 'ProductCollection', collection: Array<{ __typename?: 'Product', id: string, name: string, code: string, productType: ProductTypeEnum, billableMetric?: { __typename?: 'BillableMetric', id: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number } } };
+
+export type GetProductFiltersForRateCardDrawerQueryVariables = Exact<{
+  productId?: InputMaybe<Scalars['ID']['input']>;
+}>;
+
+
+export type GetProductFiltersForRateCardDrawerQuery = { __typename?: 'Query', productFilters: { __typename?: 'ProductFilterCollection', collection: Array<{ __typename?: 'ProductFilter', id: string, name: string, code: string }> } };
+
+export type GetPricingUnitsForRateCardDrawerQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetPricingUnitsForRateCardDrawerQuery = { __typename?: 'Query', pricingUnits: { __typename?: 'PricingUnitCollection', collection: Array<{ __typename?: 'PricingUnit', id: string, name: string, code: string }> } };
+
+export type RateCardForDrawerFragment = { __typename?: 'RateCard', id: string, name: string, code: string, description?: string | null, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean, regroupPaidFees: RateCardRegroupPaidFeesEnum, proration: boolean, walletTargetable?: boolean | null, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, product: { __typename?: 'Product', id: string, name: string, code: string, productType: ProductTypeEnum, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, code: string } | null };
+
+export type CreateRateCardMutationVariables = Exact<{
+  input: CreateRateCardInput;
+}>;
+
+
+export type CreateRateCardMutation = { __typename?: 'Mutation', createRateCard?: { __typename?: 'RateCard', id: string, name: string, code: string, description?: string | null, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean, regroupPaidFees: RateCardRegroupPaidFeesEnum, proration: boolean, walletTargetable?: boolean | null, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, product: { __typename?: 'Product', id: string, name: string, code: string, productType: ProductTypeEnum, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, code: string } | null } | null };
+
+export type UpdateRateCardMutationVariables = Exact<{
+  input: UpdateRateCardInput;
+}>;
+
+
+export type UpdateRateCardMutation = { __typename?: 'Mutation', updateRateCard?: { __typename?: 'RateCard', id: string, name: string, code: string, description?: string | null, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean, regroupPaidFees: RateCardRegroupPaidFeesEnum, proration: boolean, walletTargetable?: boolean | null, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, product: { __typename?: 'Product', id: string, name: string, code: string, productType: ProductTypeEnum, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, code: string } | null } | null };
+
+export type RateCardForListFragment = { __typename?: 'RateCard', id: string, name: string, code: string, createdAt: any, ratesCount: number, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, description?: string | null, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean, regroupPaidFees: RateCardRegroupPaidFeesEnum, proration: boolean, walletTargetable?: boolean | null, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, product: { __typename?: 'Product', id: string, name: string, code: string, productType: ProductTypeEnum, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, code: string } | null, activeRate?: { __typename?: 'RateCardRate', id: string, rateModel: RateCardRateModelEnum, rateProperties: any, minAmountCents: any } | null };
 
 export type SelectableBillableMetricForCouponsFragment = { __typename?: 'SelectableBillableMetric', id: string, name: string, code: string };
 
@@ -21998,6 +22118,12 @@ export const ProductCategoryForProductCategoryDetailsOverviewFragmentDoc = gql`
   ...ProductCategoryForProductCategoryDrawer
 }
     ${ProductCategoryForProductCategoryDrawerFragmentDoc}`;
+export const RateCardForPreviewProductFragmentDoc = gql`
+    fragment RateCardForPreviewProduct on Product {
+  id
+  name
+}
+    `;
 export const ProductForFilterPreviewFragmentDoc = gql`
     fragment ProductForFilterPreview on Product {
   id
@@ -22018,11 +22144,13 @@ export const ProductForProductDetailsFragmentDoc = gql`
   id
   name
   code
+  ...RateCardForPreviewProduct
   ...ProductForFilterPreview
   ...ProductForDrawer
   ...ProductForDeleteProductDialog
 }
-    ${ProductForFilterPreviewFragmentDoc}
+    ${RateCardForPreviewProductFragmentDoc}
+${ProductForFilterPreviewFragmentDoc}
 ${ProductForDrawerFragmentDoc}
 ${ProductForDeleteProductDialogFragmentDoc}`;
 export const ProductForDetailsOverviewFragmentDoc = gql`
@@ -22046,13 +22174,25 @@ export const ProductForDetailsOverviewFragmentDoc = gql`
   ...ProductForDrawer
 }
     ${ProductForDrawerFragmentDoc}`;
+export const RateCardForPreviewProductFilterFragmentDoc = gql`
+    fragment RateCardForPreviewProductFilter on ProductFilter {
+  id
+  name
+  product {
+    id
+    name
+  }
+}
+    `;
 export const ProductFilterForProductFilterDetailsFragmentDoc = gql`
     fragment ProductFilterForProductFilterDetails on ProductFilter {
   id
+  ...RateCardForPreviewProductFilter
   ...ProductFilterForDrawer
   ...ProductFilterForDeleteProductFilterDialog
 }
-    ${ProductFilterForDrawerFragmentDoc}
+    ${RateCardForPreviewProductFilterFragmentDoc}
+${ProductFilterForDrawerFragmentDoc}
 ${ProductFilterForDeleteProductFilterDialogFragmentDoc}`;
 export const ProductFilterForDetailsOverviewFragmentDoc = gql`
     fragment ProductFilterForDetailsOverview on ProductFilter {
@@ -22086,6 +22226,106 @@ export const ProductFilterForDetailsOverviewFragmentDoc = gql`
   ...ProductFilterForDrawer
 }
     ${ProductFilterForDrawerFragmentDoc}`;
+export const RateCardForRateCardDetailsFragmentDoc = gql`
+    fragment RateCardForRateCardDetails on RateCard {
+  id
+}
+    `;
+export const RateCardForDrawerFragmentDoc = gql`
+    fragment RateCardForDrawer on RateCard {
+  id
+  name
+  code
+  description
+  currency
+  appliedPricingUnitCode
+  billingTiming
+  displayOnInvoice
+  regroupPaidFees
+  proration
+  walletTargetable
+  attachedToPlanOrSubscription
+  attachedToSubscriptions
+  product {
+    id
+    name
+    code
+    productType
+    billableMetric {
+      id
+      name
+      code
+      aggregationType
+      recurring
+    }
+  }
+  productFilter {
+    id
+    name
+    code
+  }
+}
+    `;
+export const RateCardForDetailsOverviewFragmentDoc = gql`
+    fragment RateCardForDetailsOverview on RateCard {
+  id
+  name
+  code
+  description
+  currency
+  appliedPricingUnitCode
+  billingTiming
+  displayOnInvoice
+  regroupPaidFees
+  proration
+  walletTargetable
+  product {
+    id
+    name
+    code
+  }
+  productFilter {
+    id
+    name
+    code
+  }
+  ...RateCardForDrawer
+}
+    ${RateCardForDrawerFragmentDoc}`;
+export const RateCardForDeleteRateCardDialogFragmentDoc = gql`
+    fragment RateCardForDeleteRateCardDialog on RateCard {
+  id
+  name
+}
+    `;
+export const RateCardForListFragmentDoc = gql`
+    fragment RateCardForList on RateCard {
+  id
+  name
+  code
+  createdAt
+  ratesCount
+  currency
+  appliedPricingUnitCode
+  product {
+    id
+    name
+  }
+  productFilter {
+    id
+    name
+  }
+  activeRate {
+    id
+    rateModel
+    rateProperties
+    minAmountCents
+  }
+  ...RateCardForDrawer
+  ...RateCardForDeleteRateCardDialog
+}
+    ${RateCardForDrawerFragmentDoc}
+${RateCardForDeleteRateCardDialogFragmentDoc}`;
 export const SelectableBillableMetricForCouponsFragmentDoc = gql`
     fragment SelectableBillableMetricForCoupons on SelectableBillableMetric {
   id
@@ -23720,6 +23960,58 @@ export type GetProductCategoriesForFilterItemProductCategoryQueryHookResult = Re
 export type GetProductCategoriesForFilterItemProductCategoryLazyQueryHookResult = ReturnType<typeof useGetProductCategoriesForFilterItemProductCategoryLazyQuery>;
 export type GetProductCategoriesForFilterItemProductCategorySuspenseQueryHookResult = ReturnType<typeof useGetProductCategoriesForFilterItemProductCategorySuspenseQuery>;
 export type GetProductCategoriesForFilterItemProductCategoryQueryResult = Apollo.QueryResult<GetProductCategoriesForFilterItemProductCategoryQuery, GetProductCategoriesForFilterItemProductCategoryQueryVariables>;
+export const GetProductFiltersForFilterItemRateCardProductFilterDocument = gql`
+    query getProductFiltersForFilterItemRateCardProductFilter($page: Int, $limit: Int) {
+  productFilters(page: $page, limit: $limit) {
+    metadata {
+      currentPage
+      totalPages
+    }
+    collection {
+      id
+      name
+      invoiceDisplayName
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetProductFiltersForFilterItemRateCardProductFilterQuery__
+ *
+ * To run a query within a React component, call `useGetProductFiltersForFilterItemRateCardProductFilterQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetProductFiltersForFilterItemRateCardProductFilterQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetProductFiltersForFilterItemRateCardProductFilterQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetProductFiltersForFilterItemRateCardProductFilterQuery(baseOptions?: Apollo.QueryHookOptions<GetProductFiltersForFilterItemRateCardProductFilterQuery, GetProductFiltersForFilterItemRateCardProductFilterQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetProductFiltersForFilterItemRateCardProductFilterQuery, GetProductFiltersForFilterItemRateCardProductFilterQueryVariables>(GetProductFiltersForFilterItemRateCardProductFilterDocument, options);
+      }
+export function useGetProductFiltersForFilterItemRateCardProductFilterLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetProductFiltersForFilterItemRateCardProductFilterQuery, GetProductFiltersForFilterItemRateCardProductFilterQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetProductFiltersForFilterItemRateCardProductFilterQuery, GetProductFiltersForFilterItemRateCardProductFilterQueryVariables>(GetProductFiltersForFilterItemRateCardProductFilterDocument, options);
+        }
+// @ts-ignore
+export function useGetProductFiltersForFilterItemRateCardProductFilterSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetProductFiltersForFilterItemRateCardProductFilterQuery, GetProductFiltersForFilterItemRateCardProductFilterQueryVariables>): Apollo.UseSuspenseQueryResult<GetProductFiltersForFilterItemRateCardProductFilterQuery, GetProductFiltersForFilterItemRateCardProductFilterQueryVariables>;
+export function useGetProductFiltersForFilterItemRateCardProductFilterSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProductFiltersForFilterItemRateCardProductFilterQuery, GetProductFiltersForFilterItemRateCardProductFilterQueryVariables>): Apollo.UseSuspenseQueryResult<GetProductFiltersForFilterItemRateCardProductFilterQuery | undefined, GetProductFiltersForFilterItemRateCardProductFilterQueryVariables>;
+export function useGetProductFiltersForFilterItemRateCardProductFilterSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProductFiltersForFilterItemRateCardProductFilterQuery, GetProductFiltersForFilterItemRateCardProductFilterQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetProductFiltersForFilterItemRateCardProductFilterQuery, GetProductFiltersForFilterItemRateCardProductFilterQueryVariables>(GetProductFiltersForFilterItemRateCardProductFilterDocument, options);
+        }
+export type GetProductFiltersForFilterItemRateCardProductFilterQueryHookResult = ReturnType<typeof useGetProductFiltersForFilterItemRateCardProductFilterQuery>;
+export type GetProductFiltersForFilterItemRateCardProductFilterLazyQueryHookResult = ReturnType<typeof useGetProductFiltersForFilterItemRateCardProductFilterLazyQuery>;
+export type GetProductFiltersForFilterItemRateCardProductFilterSuspenseQueryHookResult = ReturnType<typeof useGetProductFiltersForFilterItemRateCardProductFilterSuspenseQuery>;
+export type GetProductFiltersForFilterItemRateCardProductFilterQueryResult = Apollo.QueryResult<GetProductFiltersForFilterItemRateCardProductFilterQuery, GetProductFiltersForFilterItemRateCardProductFilterQueryVariables>;
 export const UserIdentifierDocument = gql`
     query UserIdentifier {
   me: currentUser {
@@ -39967,6 +40259,67 @@ export type ProductsQueryHookResult = ReturnType<typeof useProductsQuery>;
 export type ProductsLazyQueryHookResult = ReturnType<typeof useProductsLazyQuery>;
 export type ProductsSuspenseQueryHookResult = ReturnType<typeof useProductsSuspenseQuery>;
 export type ProductsQueryResult = Apollo.QueryResult<ProductsQuery, ProductsQueryVariables>;
+export const RateCardsDocument = gql`
+    query rateCards($page: Int, $limit: Int, $searchTerm: String, $productId: ID, $productFilterId: ID) {
+  rateCards(
+    page: $page
+    limit: $limit
+    searchTerm: $searchTerm
+    productId: $productId
+    productFilterId: $productFilterId
+  ) {
+    collection {
+      id
+      ...RateCardForList
+    }
+    metadata {
+      currentPage
+      totalPages
+      totalCount
+    }
+  }
+}
+    ${RateCardForListFragmentDoc}`;
+
+/**
+ * __useRateCardsQuery__
+ *
+ * To run a query within a React component, call `useRateCardsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useRateCardsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useRateCardsQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *      productId: // value for 'productId'
+ *      productFilterId: // value for 'productFilterId'
+ *   },
+ * });
+ */
+export function useRateCardsQuery(baseOptions?: Apollo.QueryHookOptions<RateCardsQuery, RateCardsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<RateCardsQuery, RateCardsQueryVariables>(RateCardsDocument, options);
+      }
+export function useRateCardsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<RateCardsQuery, RateCardsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<RateCardsQuery, RateCardsQueryVariables>(RateCardsDocument, options);
+        }
+// @ts-ignore
+export function useRateCardsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<RateCardsQuery, RateCardsQueryVariables>): Apollo.UseSuspenseQueryResult<RateCardsQuery, RateCardsQueryVariables>;
+export function useRateCardsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<RateCardsQuery, RateCardsQueryVariables>): Apollo.UseSuspenseQueryResult<RateCardsQuery | undefined, RateCardsQueryVariables>;
+export function useRateCardsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<RateCardsQuery, RateCardsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<RateCardsQuery, RateCardsQueryVariables>(RateCardsDocument, options);
+        }
+export type RateCardsQueryHookResult = ReturnType<typeof useRateCardsQuery>;
+export type RateCardsLazyQueryHookResult = ReturnType<typeof useRateCardsLazyQuery>;
+export type RateCardsSuspenseQueryHookResult = ReturnType<typeof useRateCardsSuspenseQuery>;
+export type RateCardsQueryResult = Apollo.QueryResult<RateCardsQuery, RateCardsQueryVariables>;
 export const GetProductCategoryForDetailsDocument = gql`
     query getProductCategoryForDetails($id: ID!) {
   productCategory(id: $id) {
@@ -40395,6 +40748,264 @@ export type GetProductFiltersForProductDetailsQueryHookResult = ReturnType<typeo
 export type GetProductFiltersForProductDetailsLazyQueryHookResult = ReturnType<typeof useGetProductFiltersForProductDetailsLazyQuery>;
 export type GetProductFiltersForProductDetailsSuspenseQueryHookResult = ReturnType<typeof useGetProductFiltersForProductDetailsSuspenseQuery>;
 export type GetProductFiltersForProductDetailsQueryResult = Apollo.QueryResult<GetProductFiltersForProductDetailsQuery, GetProductFiltersForProductDetailsQueryVariables>;
+export const RateCardActivityLogsDocument = gql`
+    query RateCardActivityLogs($page: Int, $limit: Int, $resourceTypes: [ResourceTypeEnum!], $resourceIds: [String!]) {
+  activityLogs(
+    page: $page
+    limit: $limit
+    resourceTypes: $resourceTypes
+    resourceIds: $resourceIds
+  ) {
+    collection {
+      ...ActivityLogsTableData
+    }
+    metadata {
+      currentPage
+      totalPages
+      totalCount
+    }
+  }
+}
+    ${ActivityLogsTableDataFragmentDoc}`;
+
+/**
+ * __useRateCardActivityLogsQuery__
+ *
+ * To run a query within a React component, call `useRateCardActivityLogsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useRateCardActivityLogsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useRateCardActivityLogsQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      resourceTypes: // value for 'resourceTypes'
+ *      resourceIds: // value for 'resourceIds'
+ *   },
+ * });
+ */
+export function useRateCardActivityLogsQuery(baseOptions?: Apollo.QueryHookOptions<RateCardActivityLogsQuery, RateCardActivityLogsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<RateCardActivityLogsQuery, RateCardActivityLogsQueryVariables>(RateCardActivityLogsDocument, options);
+      }
+export function useRateCardActivityLogsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<RateCardActivityLogsQuery, RateCardActivityLogsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<RateCardActivityLogsQuery, RateCardActivityLogsQueryVariables>(RateCardActivityLogsDocument, options);
+        }
+// @ts-ignore
+export function useRateCardActivityLogsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<RateCardActivityLogsQuery, RateCardActivityLogsQueryVariables>): Apollo.UseSuspenseQueryResult<RateCardActivityLogsQuery, RateCardActivityLogsQueryVariables>;
+export function useRateCardActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<RateCardActivityLogsQuery, RateCardActivityLogsQueryVariables>): Apollo.UseSuspenseQueryResult<RateCardActivityLogsQuery | undefined, RateCardActivityLogsQueryVariables>;
+export function useRateCardActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<RateCardActivityLogsQuery, RateCardActivityLogsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<RateCardActivityLogsQuery, RateCardActivityLogsQueryVariables>(RateCardActivityLogsDocument, options);
+        }
+export type RateCardActivityLogsQueryHookResult = ReturnType<typeof useRateCardActivityLogsQuery>;
+export type RateCardActivityLogsLazyQueryHookResult = ReturnType<typeof useRateCardActivityLogsLazyQuery>;
+export type RateCardActivityLogsSuspenseQueryHookResult = ReturnType<typeof useRateCardActivityLogsSuspenseQuery>;
+export type RateCardActivityLogsQueryResult = Apollo.QueryResult<RateCardActivityLogsQuery, RateCardActivityLogsQueryVariables>;
+export const GetRateCardForDetailsDocument = gql`
+    query getRateCardForDetails($id: ID!) {
+  rateCard(id: $id) {
+    id
+    name
+    code
+    ...RateCardForRateCardDetails
+    ...RateCardForDrawer
+    ...RateCardForDeleteRateCardDialog
+  }
+}
+    ${RateCardForRateCardDetailsFragmentDoc}
+${RateCardForDrawerFragmentDoc}
+${RateCardForDeleteRateCardDialogFragmentDoc}`;
+
+/**
+ * __useGetRateCardForDetailsQuery__
+ *
+ * To run a query within a React component, call `useGetRateCardForDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetRateCardForDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetRateCardForDetailsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetRateCardForDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetRateCardForDetailsQuery, GetRateCardForDetailsQueryVariables> & ({ variables: GetRateCardForDetailsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetRateCardForDetailsQuery, GetRateCardForDetailsQueryVariables>(GetRateCardForDetailsDocument, options);
+      }
+export function useGetRateCardForDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetRateCardForDetailsQuery, GetRateCardForDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetRateCardForDetailsQuery, GetRateCardForDetailsQueryVariables>(GetRateCardForDetailsDocument, options);
+        }
+// @ts-ignore
+export function useGetRateCardForDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetRateCardForDetailsQuery, GetRateCardForDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetRateCardForDetailsQuery, GetRateCardForDetailsQueryVariables>;
+export function useGetRateCardForDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetRateCardForDetailsQuery, GetRateCardForDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetRateCardForDetailsQuery | undefined, GetRateCardForDetailsQueryVariables>;
+export function useGetRateCardForDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetRateCardForDetailsQuery, GetRateCardForDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetRateCardForDetailsQuery, GetRateCardForDetailsQueryVariables>(GetRateCardForDetailsDocument, options);
+        }
+export type GetRateCardForDetailsQueryHookResult = ReturnType<typeof useGetRateCardForDetailsQuery>;
+export type GetRateCardForDetailsLazyQueryHookResult = ReturnType<typeof useGetRateCardForDetailsLazyQuery>;
+export type GetRateCardForDetailsSuspenseQueryHookResult = ReturnType<typeof useGetRateCardForDetailsSuspenseQuery>;
+export type GetRateCardForDetailsQueryResult = Apollo.QueryResult<GetRateCardForDetailsQuery, GetRateCardForDetailsQueryVariables>;
+export const GetRateCardForDetailsOverviewDocument = gql`
+    query getRateCardForDetailsOverview($id: ID!) {
+  rateCard(id: $id) {
+    id
+    ...RateCardForDetailsOverview
+  }
+}
+    ${RateCardForDetailsOverviewFragmentDoc}`;
+
+/**
+ * __useGetRateCardForDetailsOverviewQuery__
+ *
+ * To run a query within a React component, call `useGetRateCardForDetailsOverviewQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetRateCardForDetailsOverviewQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetRateCardForDetailsOverviewQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetRateCardForDetailsOverviewQuery(baseOptions: Apollo.QueryHookOptions<GetRateCardForDetailsOverviewQuery, GetRateCardForDetailsOverviewQueryVariables> & ({ variables: GetRateCardForDetailsOverviewQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetRateCardForDetailsOverviewQuery, GetRateCardForDetailsOverviewQueryVariables>(GetRateCardForDetailsOverviewDocument, options);
+      }
+export function useGetRateCardForDetailsOverviewLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetRateCardForDetailsOverviewQuery, GetRateCardForDetailsOverviewQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetRateCardForDetailsOverviewQuery, GetRateCardForDetailsOverviewQueryVariables>(GetRateCardForDetailsOverviewDocument, options);
+        }
+// @ts-ignore
+export function useGetRateCardForDetailsOverviewSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetRateCardForDetailsOverviewQuery, GetRateCardForDetailsOverviewQueryVariables>): Apollo.UseSuspenseQueryResult<GetRateCardForDetailsOverviewQuery, GetRateCardForDetailsOverviewQueryVariables>;
+export function useGetRateCardForDetailsOverviewSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetRateCardForDetailsOverviewQuery, GetRateCardForDetailsOverviewQueryVariables>): Apollo.UseSuspenseQueryResult<GetRateCardForDetailsOverviewQuery | undefined, GetRateCardForDetailsOverviewQueryVariables>;
+export function useGetRateCardForDetailsOverviewSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetRateCardForDetailsOverviewQuery, GetRateCardForDetailsOverviewQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetRateCardForDetailsOverviewQuery, GetRateCardForDetailsOverviewQueryVariables>(GetRateCardForDetailsOverviewDocument, options);
+        }
+export type GetRateCardForDetailsOverviewQueryHookResult = ReturnType<typeof useGetRateCardForDetailsOverviewQuery>;
+export type GetRateCardForDetailsOverviewLazyQueryHookResult = ReturnType<typeof useGetRateCardForDetailsOverviewLazyQuery>;
+export type GetRateCardForDetailsOverviewSuspenseQueryHookResult = ReturnType<typeof useGetRateCardForDetailsOverviewSuspenseQuery>;
+export type GetRateCardForDetailsOverviewQueryResult = Apollo.QueryResult<GetRateCardForDetailsOverviewQuery, GetRateCardForDetailsOverviewQueryVariables>;
+export const GetRateCardsForProductDetailsDocument = gql`
+    query getRateCardsForProductDetails($productId: ID, $limit: Int, $searchTerm: String) {
+  rateCards(productId: $productId, limit: $limit, searchTerm: $searchTerm) {
+    metadata {
+      totalCount
+    }
+    collection {
+      id
+      ...RateCardForList
+    }
+  }
+}
+    ${RateCardForListFragmentDoc}`;
+
+/**
+ * __useGetRateCardsForProductDetailsQuery__
+ *
+ * To run a query within a React component, call `useGetRateCardsForProductDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetRateCardsForProductDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetRateCardsForProductDetailsQuery({
+ *   variables: {
+ *      productId: // value for 'productId'
+ *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *   },
+ * });
+ */
+export function useGetRateCardsForProductDetailsQuery(baseOptions?: Apollo.QueryHookOptions<GetRateCardsForProductDetailsQuery, GetRateCardsForProductDetailsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetRateCardsForProductDetailsQuery, GetRateCardsForProductDetailsQueryVariables>(GetRateCardsForProductDetailsDocument, options);
+      }
+export function useGetRateCardsForProductDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetRateCardsForProductDetailsQuery, GetRateCardsForProductDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetRateCardsForProductDetailsQuery, GetRateCardsForProductDetailsQueryVariables>(GetRateCardsForProductDetailsDocument, options);
+        }
+// @ts-ignore
+export function useGetRateCardsForProductDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetRateCardsForProductDetailsQuery, GetRateCardsForProductDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetRateCardsForProductDetailsQuery, GetRateCardsForProductDetailsQueryVariables>;
+export function useGetRateCardsForProductDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetRateCardsForProductDetailsQuery, GetRateCardsForProductDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetRateCardsForProductDetailsQuery | undefined, GetRateCardsForProductDetailsQueryVariables>;
+export function useGetRateCardsForProductDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetRateCardsForProductDetailsQuery, GetRateCardsForProductDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetRateCardsForProductDetailsQuery, GetRateCardsForProductDetailsQueryVariables>(GetRateCardsForProductDetailsDocument, options);
+        }
+export type GetRateCardsForProductDetailsQueryHookResult = ReturnType<typeof useGetRateCardsForProductDetailsQuery>;
+export type GetRateCardsForProductDetailsLazyQueryHookResult = ReturnType<typeof useGetRateCardsForProductDetailsLazyQuery>;
+export type GetRateCardsForProductDetailsSuspenseQueryHookResult = ReturnType<typeof useGetRateCardsForProductDetailsSuspenseQuery>;
+export type GetRateCardsForProductDetailsQueryResult = Apollo.QueryResult<GetRateCardsForProductDetailsQuery, GetRateCardsForProductDetailsQueryVariables>;
+export const GetRateCardsForProductFilterDetailsDocument = gql`
+    query getRateCardsForProductFilterDetails($productFilterId: ID, $limit: Int, $searchTerm: String) {
+  rateCards(
+    productFilterId: $productFilterId
+    limit: $limit
+    searchTerm: $searchTerm
+  ) {
+    metadata {
+      totalCount
+    }
+    collection {
+      id
+      ...RateCardForList
+    }
+  }
+}
+    ${RateCardForListFragmentDoc}`;
+
+/**
+ * __useGetRateCardsForProductFilterDetailsQuery__
+ *
+ * To run a query within a React component, call `useGetRateCardsForProductFilterDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetRateCardsForProductFilterDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetRateCardsForProductFilterDetailsQuery({
+ *   variables: {
+ *      productFilterId: // value for 'productFilterId'
+ *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *   },
+ * });
+ */
+export function useGetRateCardsForProductFilterDetailsQuery(baseOptions?: Apollo.QueryHookOptions<GetRateCardsForProductFilterDetailsQuery, GetRateCardsForProductFilterDetailsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetRateCardsForProductFilterDetailsQuery, GetRateCardsForProductFilterDetailsQueryVariables>(GetRateCardsForProductFilterDetailsDocument, options);
+      }
+export function useGetRateCardsForProductFilterDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetRateCardsForProductFilterDetailsQuery, GetRateCardsForProductFilterDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetRateCardsForProductFilterDetailsQuery, GetRateCardsForProductFilterDetailsQueryVariables>(GetRateCardsForProductFilterDetailsDocument, options);
+        }
+// @ts-ignore
+export function useGetRateCardsForProductFilterDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetRateCardsForProductFilterDetailsQuery, GetRateCardsForProductFilterDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetRateCardsForProductFilterDetailsQuery, GetRateCardsForProductFilterDetailsQueryVariables>;
+export function useGetRateCardsForProductFilterDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetRateCardsForProductFilterDetailsQuery, GetRateCardsForProductFilterDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetRateCardsForProductFilterDetailsQuery | undefined, GetRateCardsForProductFilterDetailsQueryVariables>;
+export function useGetRateCardsForProductFilterDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetRateCardsForProductFilterDetailsQuery, GetRateCardsForProductFilterDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetRateCardsForProductFilterDetailsQuery, GetRateCardsForProductFilterDetailsQueryVariables>(GetRateCardsForProductFilterDetailsDocument, options);
+        }
+export type GetRateCardsForProductFilterDetailsQueryHookResult = ReturnType<typeof useGetRateCardsForProductFilterDetailsQuery>;
+export type GetRateCardsForProductFilterDetailsLazyQueryHookResult = ReturnType<typeof useGetRateCardsForProductFilterDetailsLazyQuery>;
+export type GetRateCardsForProductFilterDetailsSuspenseQueryHookResult = ReturnType<typeof useGetRateCardsForProductFilterDetailsSuspenseQuery>;
+export type GetRateCardsForProductFilterDetailsQueryResult = Apollo.QueryResult<GetRateCardsForProductFilterDetailsQuery, GetRateCardsForProductFilterDetailsQueryVariables>;
 export const DeleteProductCategoryDocument = gql`
     mutation deleteProductCategory($input: DestroyProductCategoryInput!) {
   destroyProductCategory(input: $input) {
@@ -40494,6 +41105,39 @@ export function useDeleteProductFilterMutation(baseOptions?: Apollo.MutationHook
 export type DeleteProductFilterMutationHookResult = ReturnType<typeof useDeleteProductFilterMutation>;
 export type DeleteProductFilterMutationResult = Apollo.MutationResult<DeleteProductFilterMutation>;
 export type DeleteProductFilterMutationOptions = Apollo.BaseMutationOptions<DeleteProductFilterMutation, DeleteProductFilterMutationVariables>;
+export const DestroyRateCardDocument = gql`
+    mutation destroyRateCard($input: DestroyRateCardInput!) {
+  destroyRateCard(input: $input) {
+    id
+  }
+}
+    `;
+export type DestroyRateCardMutationFn = Apollo.MutationFunction<DestroyRateCardMutation, DestroyRateCardMutationVariables>;
+
+/**
+ * __useDestroyRateCardMutation__
+ *
+ * To run a mutation, you first call `useDestroyRateCardMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDestroyRateCardMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [destroyRateCardMutation, { data, loading, error }] = useDestroyRateCardMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDestroyRateCardMutation(baseOptions?: Apollo.MutationHookOptions<DestroyRateCardMutation, DestroyRateCardMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DestroyRateCardMutation, DestroyRateCardMutationVariables>(DestroyRateCardDocument, options);
+      }
+export type DestroyRateCardMutationHookResult = ReturnType<typeof useDestroyRateCardMutation>;
+export type DestroyRateCardMutationResult = Apollo.MutationResult<DestroyRateCardMutation>;
+export type DestroyRateCardMutationOptions = Apollo.BaseMutationOptions<DestroyRateCardMutation, DestroyRateCardMutationVariables>;
 export const GetProductCategoriesForProductDrawerDocument = gql`
     query getProductCategoriesForProductDrawer($page: Int, $limit: Int, $searchTerm: String) {
   productCategories(page: $page, limit: $limit, searchTerm: $searchTerm) {
@@ -40859,6 +41503,228 @@ export function useUpdateProductFilterMutation(baseOptions?: Apollo.MutationHook
 export type UpdateProductFilterMutationHookResult = ReturnType<typeof useUpdateProductFilterMutation>;
 export type UpdateProductFilterMutationResult = Apollo.MutationResult<UpdateProductFilterMutation>;
 export type UpdateProductFilterMutationOptions = Apollo.BaseMutationOptions<UpdateProductFilterMutation, UpdateProductFilterMutationVariables>;
+export const GetProductsForRateCardDrawerDocument = gql`
+    query getProductsForRateCardDrawer($page: Int, $limit: Int, $searchTerm: String) {
+  products(page: $page, limit: $limit, searchTerm: $searchTerm) {
+    collection {
+      id
+      name
+      code
+      productType
+      billableMetric {
+        id
+        aggregationType
+        recurring
+      }
+    }
+    metadata {
+      currentPage
+      totalPages
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetProductsForRateCardDrawerQuery__
+ *
+ * To run a query within a React component, call `useGetProductsForRateCardDrawerQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetProductsForRateCardDrawerQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetProductsForRateCardDrawerQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *   },
+ * });
+ */
+export function useGetProductsForRateCardDrawerQuery(baseOptions?: Apollo.QueryHookOptions<GetProductsForRateCardDrawerQuery, GetProductsForRateCardDrawerQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetProductsForRateCardDrawerQuery, GetProductsForRateCardDrawerQueryVariables>(GetProductsForRateCardDrawerDocument, options);
+      }
+export function useGetProductsForRateCardDrawerLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetProductsForRateCardDrawerQuery, GetProductsForRateCardDrawerQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetProductsForRateCardDrawerQuery, GetProductsForRateCardDrawerQueryVariables>(GetProductsForRateCardDrawerDocument, options);
+        }
+// @ts-ignore
+export function useGetProductsForRateCardDrawerSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetProductsForRateCardDrawerQuery, GetProductsForRateCardDrawerQueryVariables>): Apollo.UseSuspenseQueryResult<GetProductsForRateCardDrawerQuery, GetProductsForRateCardDrawerQueryVariables>;
+export function useGetProductsForRateCardDrawerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProductsForRateCardDrawerQuery, GetProductsForRateCardDrawerQueryVariables>): Apollo.UseSuspenseQueryResult<GetProductsForRateCardDrawerQuery | undefined, GetProductsForRateCardDrawerQueryVariables>;
+export function useGetProductsForRateCardDrawerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProductsForRateCardDrawerQuery, GetProductsForRateCardDrawerQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetProductsForRateCardDrawerQuery, GetProductsForRateCardDrawerQueryVariables>(GetProductsForRateCardDrawerDocument, options);
+        }
+export type GetProductsForRateCardDrawerQueryHookResult = ReturnType<typeof useGetProductsForRateCardDrawerQuery>;
+export type GetProductsForRateCardDrawerLazyQueryHookResult = ReturnType<typeof useGetProductsForRateCardDrawerLazyQuery>;
+export type GetProductsForRateCardDrawerSuspenseQueryHookResult = ReturnType<typeof useGetProductsForRateCardDrawerSuspenseQuery>;
+export type GetProductsForRateCardDrawerQueryResult = Apollo.QueryResult<GetProductsForRateCardDrawerQuery, GetProductsForRateCardDrawerQueryVariables>;
+export const GetProductFiltersForRateCardDrawerDocument = gql`
+    query getProductFiltersForRateCardDrawer($productId: ID) {
+  productFilters(productId: $productId) {
+    collection {
+      id
+      name
+      code
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetProductFiltersForRateCardDrawerQuery__
+ *
+ * To run a query within a React component, call `useGetProductFiltersForRateCardDrawerQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetProductFiltersForRateCardDrawerQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetProductFiltersForRateCardDrawerQuery({
+ *   variables: {
+ *      productId: // value for 'productId'
+ *   },
+ * });
+ */
+export function useGetProductFiltersForRateCardDrawerQuery(baseOptions?: Apollo.QueryHookOptions<GetProductFiltersForRateCardDrawerQuery, GetProductFiltersForRateCardDrawerQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetProductFiltersForRateCardDrawerQuery, GetProductFiltersForRateCardDrawerQueryVariables>(GetProductFiltersForRateCardDrawerDocument, options);
+      }
+export function useGetProductFiltersForRateCardDrawerLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetProductFiltersForRateCardDrawerQuery, GetProductFiltersForRateCardDrawerQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetProductFiltersForRateCardDrawerQuery, GetProductFiltersForRateCardDrawerQueryVariables>(GetProductFiltersForRateCardDrawerDocument, options);
+        }
+// @ts-ignore
+export function useGetProductFiltersForRateCardDrawerSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetProductFiltersForRateCardDrawerQuery, GetProductFiltersForRateCardDrawerQueryVariables>): Apollo.UseSuspenseQueryResult<GetProductFiltersForRateCardDrawerQuery, GetProductFiltersForRateCardDrawerQueryVariables>;
+export function useGetProductFiltersForRateCardDrawerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProductFiltersForRateCardDrawerQuery, GetProductFiltersForRateCardDrawerQueryVariables>): Apollo.UseSuspenseQueryResult<GetProductFiltersForRateCardDrawerQuery | undefined, GetProductFiltersForRateCardDrawerQueryVariables>;
+export function useGetProductFiltersForRateCardDrawerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProductFiltersForRateCardDrawerQuery, GetProductFiltersForRateCardDrawerQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetProductFiltersForRateCardDrawerQuery, GetProductFiltersForRateCardDrawerQueryVariables>(GetProductFiltersForRateCardDrawerDocument, options);
+        }
+export type GetProductFiltersForRateCardDrawerQueryHookResult = ReturnType<typeof useGetProductFiltersForRateCardDrawerQuery>;
+export type GetProductFiltersForRateCardDrawerLazyQueryHookResult = ReturnType<typeof useGetProductFiltersForRateCardDrawerLazyQuery>;
+export type GetProductFiltersForRateCardDrawerSuspenseQueryHookResult = ReturnType<typeof useGetProductFiltersForRateCardDrawerSuspenseQuery>;
+export type GetProductFiltersForRateCardDrawerQueryResult = Apollo.QueryResult<GetProductFiltersForRateCardDrawerQuery, GetProductFiltersForRateCardDrawerQueryVariables>;
+export const GetPricingUnitsForRateCardDrawerDocument = gql`
+    query getPricingUnitsForRateCardDrawer($page: Int, $limit: Int) {
+  pricingUnits(page: $page, limit: $limit) {
+    collection {
+      id
+      name
+      code
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetPricingUnitsForRateCardDrawerQuery__
+ *
+ * To run a query within a React component, call `useGetPricingUnitsForRateCardDrawerQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPricingUnitsForRateCardDrawerQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPricingUnitsForRateCardDrawerQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetPricingUnitsForRateCardDrawerQuery(baseOptions?: Apollo.QueryHookOptions<GetPricingUnitsForRateCardDrawerQuery, GetPricingUnitsForRateCardDrawerQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetPricingUnitsForRateCardDrawerQuery, GetPricingUnitsForRateCardDrawerQueryVariables>(GetPricingUnitsForRateCardDrawerDocument, options);
+      }
+export function useGetPricingUnitsForRateCardDrawerLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPricingUnitsForRateCardDrawerQuery, GetPricingUnitsForRateCardDrawerQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetPricingUnitsForRateCardDrawerQuery, GetPricingUnitsForRateCardDrawerQueryVariables>(GetPricingUnitsForRateCardDrawerDocument, options);
+        }
+// @ts-ignore
+export function useGetPricingUnitsForRateCardDrawerSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPricingUnitsForRateCardDrawerQuery, GetPricingUnitsForRateCardDrawerQueryVariables>): Apollo.UseSuspenseQueryResult<GetPricingUnitsForRateCardDrawerQuery, GetPricingUnitsForRateCardDrawerQueryVariables>;
+export function useGetPricingUnitsForRateCardDrawerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPricingUnitsForRateCardDrawerQuery, GetPricingUnitsForRateCardDrawerQueryVariables>): Apollo.UseSuspenseQueryResult<GetPricingUnitsForRateCardDrawerQuery | undefined, GetPricingUnitsForRateCardDrawerQueryVariables>;
+export function useGetPricingUnitsForRateCardDrawerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPricingUnitsForRateCardDrawerQuery, GetPricingUnitsForRateCardDrawerQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetPricingUnitsForRateCardDrawerQuery, GetPricingUnitsForRateCardDrawerQueryVariables>(GetPricingUnitsForRateCardDrawerDocument, options);
+        }
+export type GetPricingUnitsForRateCardDrawerQueryHookResult = ReturnType<typeof useGetPricingUnitsForRateCardDrawerQuery>;
+export type GetPricingUnitsForRateCardDrawerLazyQueryHookResult = ReturnType<typeof useGetPricingUnitsForRateCardDrawerLazyQuery>;
+export type GetPricingUnitsForRateCardDrawerSuspenseQueryHookResult = ReturnType<typeof useGetPricingUnitsForRateCardDrawerSuspenseQuery>;
+export type GetPricingUnitsForRateCardDrawerQueryResult = Apollo.QueryResult<GetPricingUnitsForRateCardDrawerQuery, GetPricingUnitsForRateCardDrawerQueryVariables>;
+export const CreateRateCardDocument = gql`
+    mutation createRateCard($input: CreateRateCardInput!) {
+  createRateCard(input: $input) {
+    id
+    ...RateCardForDrawer
+  }
+}
+    ${RateCardForDrawerFragmentDoc}`;
+export type CreateRateCardMutationFn = Apollo.MutationFunction<CreateRateCardMutation, CreateRateCardMutationVariables>;
+
+/**
+ * __useCreateRateCardMutation__
+ *
+ * To run a mutation, you first call `useCreateRateCardMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateRateCardMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createRateCardMutation, { data, loading, error }] = useCreateRateCardMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateRateCardMutation(baseOptions?: Apollo.MutationHookOptions<CreateRateCardMutation, CreateRateCardMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateRateCardMutation, CreateRateCardMutationVariables>(CreateRateCardDocument, options);
+      }
+export type CreateRateCardMutationHookResult = ReturnType<typeof useCreateRateCardMutation>;
+export type CreateRateCardMutationResult = Apollo.MutationResult<CreateRateCardMutation>;
+export type CreateRateCardMutationOptions = Apollo.BaseMutationOptions<CreateRateCardMutation, CreateRateCardMutationVariables>;
+export const UpdateRateCardDocument = gql`
+    mutation updateRateCard($input: UpdateRateCardInput!) {
+  updateRateCard(input: $input) {
+    id
+    ...RateCardForDrawer
+  }
+}
+    ${RateCardForDrawerFragmentDoc}`;
+export type UpdateRateCardMutationFn = Apollo.MutationFunction<UpdateRateCardMutation, UpdateRateCardMutationVariables>;
+
+/**
+ * __useUpdateRateCardMutation__
+ *
+ * To run a mutation, you first call `useUpdateRateCardMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateRateCardMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateRateCardMutation, { data, loading, error }] = useUpdateRateCardMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateRateCardMutation(baseOptions?: Apollo.MutationHookOptions<UpdateRateCardMutation, UpdateRateCardMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateRateCardMutation, UpdateRateCardMutationVariables>(UpdateRateCardDocument, options);
+      }
+export type UpdateRateCardMutationHookResult = ReturnType<typeof useUpdateRateCardMutation>;
+export type UpdateRateCardMutationResult = Apollo.MutationResult<UpdateRateCardMutation>;
+export type UpdateRateCardMutationOptions = Apollo.BaseMutationOptions<UpdateRateCardMutation, UpdateRateCardMutationVariables>;
 export const GetBillableMetricsForCouponsDocument = gql`
     query getBillableMetricsForCoupons($page: Int, $limit: Int, $searchTerm: String) {
   selectableBillableMetrics(page: $page, limit: $limit, searchTerm: $searchTerm) {
