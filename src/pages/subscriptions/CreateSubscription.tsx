@@ -44,7 +44,6 @@ import { getTimezoneConfig } from '~/core/timezone'
 import { subscriptionFormSchema } from '~/formValidation/subscriptionFormSchema'
 import {
   CurrencyEnum,
-  FeatureFlagEnum,
   PlanInterval,
   StatusTypeEnum,
   SubscriptionForSubscriptionEditFormFragmentDoc,
@@ -113,13 +112,11 @@ const CreateSubscription = () => {
   const { isPremium } = useCurrentUser()
   const { translate } = useInternationalization()
   const { customerId, subscriptionId } = useParams()
-  const { hasFeatureFlag, intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
+  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const { isRunningInSalesForceIframe, isRunningInIframeContext } = useIframeConfig()
 
   const centralizedDialog = useCentralizedDialog()
   const [showCurrencyError, setShowCurrencyError] = useState<boolean>(false)
-
-  const hasMultiEntityBilling = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
 
   const [getPlans, { loading: planLoading, data: planData }] = useGetPlansLazyQuery({
     variables: { limit: 1000 },
@@ -217,7 +214,6 @@ const CreateSubscription = () => {
   const hasInitializedBillingEntityDefaultRef = useRef(false)
 
   useEffect(() => {
-    if (!hasMultiEntityBilling) return
     if (hasInitializedBillingEntityDefaultRef.current) return
     if (subscriptionBillingEntityId) {
       hasInitializedBillingEntityDefaultRef.current = true
@@ -234,7 +230,6 @@ const CreateSubscription = () => {
       hasInitializedBillingEntityDefaultRef.current = true
     }
   }, [
-    hasMultiEntityBilling,
     formType,
     subscription?.billingEntityId,
     customer?.billingEntity?.id,

@@ -44,13 +44,6 @@ jest.mock('~/hooks/useDownloadFile', () => ({
   }),
 }))
 
-jest.mock('~/hooks/useIsCustomerReadyForOverduePayment', () => ({
-  useIsCustomerReadyForOverduePayment: () => ({
-    isCustomerReadyForOverduePayment: true,
-    loading: false,
-  }),
-}))
-
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
   useGenerateCustomerPortalUrlMutation: () => [mockGeneratePortalUrl],
@@ -118,8 +111,8 @@ describe('useCustomerDetailsHeaderActions', () => {
 
         const dropdownAction = result.current[1] as MainHeaderDropdownAction
 
-        // 7 items: overdue, subscription, invoice, coupon, wallet, edit, delete
-        expect(dropdownAction.items).toHaveLength(7)
+        // 6 items: subscription, invoice, coupon, wallet, edit, delete
+        expect(dropdownAction.items).toHaveLength(6)
       })
     })
 
@@ -133,10 +126,8 @@ describe('useCustomerDetailsHeaderActions', () => {
         expect(result.current[0]).toMatchObject({ type: 'action' })
 
         const dropdownAction = result.current[1] as MainHeaderDropdownAction
-        // All permission-gated items (indexes 1-6) should be hidden
-        const permissionGatedItems = dropdownAction.items.slice(1)
 
-        permissionGatedItems.forEach((item) => {
+        dropdownAction.items.forEach((item) => {
           expect(item.hidden).toBe(true)
         })
       })
@@ -152,25 +143,9 @@ describe('useCustomerDetailsHeaderActions', () => {
         const { result } = renderHook(() => useCustomerDetailsHeaderActions(params))
 
         const dropdownAction = result.current[1] as MainHeaderDropdownAction
-        const walletItem = dropdownAction.items[4]
+        const walletItem = dropdownAction.items[3]
 
         expect(walletItem.disabled).toBe(true)
-      })
-    })
-
-    describe('WHEN customer has no overdue invoices', () => {
-      it('THEN should hide the overdue payment item', () => {
-        const params = {
-          ...defaultParams,
-          customer: createMockCustomer({ hasOverdueInvoices: false }),
-        }
-
-        const { result } = renderHook(() => useCustomerDetailsHeaderActions(params))
-
-        const dropdownAction = result.current[1] as MainHeaderDropdownAction
-        const overdueItem = dropdownAction.items[0]
-
-        expect(overdueItem.hidden).toBe(true)
       })
     })
 
@@ -189,25 +164,13 @@ describe('useCustomerDetailsHeaderActions', () => {
     })
 
     describe('WHEN a dropdown item onClick is called', () => {
-      it('THEN should navigate to the overdue payment route', () => {
-        const { result } = renderHook(() => useCustomerDetailsHeaderActions(defaultParams))
-
-        const dropdownAction = result.current[1] as MainHeaderDropdownAction
-        const closePopper = jest.fn()
-
-        dropdownAction.items[0].onClick(closePopper)
-
-        expect(mockNavigate).toHaveBeenCalledWith('/customer/cust-1/request-overdue-payment')
-        expect(closePopper).toHaveBeenCalled()
-      })
-
       it('THEN should navigate to the subscription creation route', () => {
         const { result } = renderHook(() => useCustomerDetailsHeaderActions(defaultParams))
 
         const dropdownAction = result.current[1] as MainHeaderDropdownAction
         const closePopper = jest.fn()
 
-        dropdownAction.items[1].onClick(closePopper)
+        dropdownAction.items[0].onClick(closePopper)
 
         expect(mockNavigate).toHaveBeenCalledWith('/customer/cust-1/create/subscription')
         expect(closePopper).toHaveBeenCalled()
@@ -219,7 +182,7 @@ describe('useCustomerDetailsHeaderActions', () => {
         const dropdownAction = result.current[1] as MainHeaderDropdownAction
         const closePopper = jest.fn()
 
-        dropdownAction.items[2].onClick(closePopper)
+        dropdownAction.items[1].onClick(closePopper)
 
         expect(mockNavigate).toHaveBeenCalledWith('/customer/cust-1/create-invoice')
         expect(closePopper).toHaveBeenCalled()
@@ -231,7 +194,7 @@ describe('useCustomerDetailsHeaderActions', () => {
         const dropdownAction = result.current[1] as MainHeaderDropdownAction
         const closePopper = jest.fn()
 
-        dropdownAction.items[4].onClick(closePopper)
+        dropdownAction.items[3].onClick(closePopper)
 
         expect(mockNavigate).toHaveBeenCalledWith('/customer/cust-1/wallet/create')
         expect(closePopper).toHaveBeenCalled()
@@ -243,7 +206,7 @@ describe('useCustomerDetailsHeaderActions', () => {
         const dropdownAction = result.current[1] as MainHeaderDropdownAction
         const closePopper = jest.fn()
 
-        dropdownAction.items[5].onClick(closePopper)
+        dropdownAction.items[4].onClick(closePopper)
 
         expect(mockNavigate).toHaveBeenCalledWith('/customer/cust-1/edit')
         expect(closePopper).toHaveBeenCalled()
@@ -263,7 +226,7 @@ describe('useCustomerDetailsHeaderActions', () => {
         const dropdownAction = result.current[1] as MainHeaderDropdownAction
         const closePopper = jest.fn()
 
-        dropdownAction.items[6].onClick(closePopper)
+        dropdownAction.items[5].onClick(closePopper)
 
         // Simulate the onDeleted callback
         capturedOnDeleted?.()
@@ -277,7 +240,7 @@ describe('useCustomerDetailsHeaderActions', () => {
         const dropdownAction = result.current[1] as MainHeaderDropdownAction
         const closePopper = jest.fn()
 
-        dropdownAction.items[6].onClick(closePopper)
+        dropdownAction.items[5].onClick(closePopper)
 
         expect(mockOpenDeleteCustomerDialog).toHaveBeenCalled()
         expect(closePopper).toHaveBeenCalled()
@@ -289,7 +252,7 @@ describe('useCustomerDetailsHeaderActions', () => {
         const dropdownAction = result.current[1] as MainHeaderDropdownAction
         const closePopper = jest.fn()
 
-        dropdownAction.items[3].onClick(closePopper)
+        dropdownAction.items[2].onClick(closePopper)
 
         expect(mockOpenAddCouponToCustomerDialog).toHaveBeenCalled()
         expect(closePopper).toHaveBeenCalled()
@@ -309,7 +272,7 @@ describe('useCustomerDetailsHeaderActions', () => {
 
         const dropdownAction = result.current[1] as MainHeaderDropdownAction
 
-        expect(dropdownAction.items[1].hidden).toBe(true)
+        expect(dropdownAction.items[0].hidden).toBe(true)
       })
     })
   })

@@ -5,7 +5,6 @@ import { useSearchParams } from 'react-router-dom'
 
 import CreditNotesTable from '~/components/creditNote/CreditNotesTable'
 import { CustomerCreditNotesBreakdown } from '~/components/customers/CustomerCreditNotesBreakdown'
-import { CustomerCreditNotesLegacyCard } from '~/components/customers/CustomerCreditNotesLegacyCard'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Filters } from '~/components/Filters'
@@ -18,14 +17,12 @@ import {
   CreditNotesForTableFragmentDoc,
   CurrencyEnum,
   CustomerCreditNotesBalance,
-  FeatureFlagEnum,
   TimezoneEnum,
   useGetCustomerCreditNotesLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCustomerFilterDefaults } from '~/hooks/useCustomerFilterDefaults'
 import { DEBOUNCE_SEARCH_MS } from '~/hooks/useDebouncedSearch'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
 gql`
@@ -75,10 +72,6 @@ export const CustomerCreditNotesList = ({
   customerTimezone,
 }: CustomerCreditNotesListProps) => {
   const { translate } = useInternationalization()
-  const { hasFeatureFlag } = useOrganizationInfos()
-  const hasMultiCurrency = hasFeatureFlag(FeatureFlagEnum.MultiCurrency)
-  const hasMultiEntityBilling = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
-  const showBreakdown = hasMultiCurrency || hasMultiEntityBilling
 
   const filtersProps = useCustomerFilterDefaults({
     customerCurrency: userCurrency,
@@ -134,17 +127,10 @@ export const CustomerCreditNotesList = ({
       />
 
       <div className="mb-12">
-        {showBreakdown ? (
-          <CustomerCreditNotesBreakdown
-            creditNotesBalances={creditNotesBalances}
-            customerBillingEntity={customerBillingEntity}
-          />
-        ) : (
-          <CustomerCreditNotesLegacyCard
-            creditNotesBalances={creditNotesBalances}
-            userCurrency={userCurrency}
-          />
-        )}
+        <CustomerCreditNotesBreakdown
+          creditNotesBalances={creditNotesBalances}
+          customerBillingEntity={customerBillingEntity}
+        />
       </div>
 
       <PageSectionTitle

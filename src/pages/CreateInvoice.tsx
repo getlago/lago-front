@@ -36,7 +36,6 @@ import { formatInvoiceDisplayValue, invoiceFeesToFeeInput } from '~/core/utils/i
 import {
   CurrencyEnum,
   CustomerAccountTypeEnum,
-  FeatureFlagEnum,
   FeeForInvoiceFeesToFeeInputFragmentDoc,
   FetchDraftInvoiceTaxesMutation,
   Invoice,
@@ -54,7 +53,6 @@ import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { useBillingEntitiesOptions } from '~/hooks/useBillingEntitiesOptions'
 import { useIframeConfig } from '~/hooks/useIframeConfig'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
 import { FeesSection } from '~/pages/createInvoice/components/FeesSection'
 import { invoiceFormValidationSchema } from '~/pages/createInvoice/formInitialization/validationSchema'
@@ -185,7 +183,6 @@ const CreateInvoice = () => {
   const navigate = useNavigate()
   const { goBack } = useLocationHistory()
   const actions = usePermissionsInvoiceActions()
-  const { hasFeatureFlag } = useOrganizationInfos()
   const {
     emitIframeMessage,
     emitSalesForceEvent,
@@ -512,9 +509,6 @@ const CreateInvoice = () => {
     }
   }, [currency, formValues.fees, hasTaxProvider, taxProviderTaxesResult?.collection, translate])
 
-  const showBillingEntityPicker = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
-  const hasMultiCurrency = hasFeatureFlag(FeatureFlagEnum.MultiCurrency)
-
   if (!!error && !loading) {
     return (
       <GenericPlaceholder
@@ -672,18 +666,16 @@ const CreateInvoice = () => {
                 </div>
 
                 <div className="flex flex-row items-start gap-4">
-                  {showBillingEntityPicker && (
-                    <div className="w-80">
-                      <BillingEntityFormPicker
-                        label={translate('text_1743611497157teaa1zu8l24')}
-                        value={formValues.billingEntityId}
-                        onChange={(id) => {
-                          form.setFieldValue('billingEntityId', id)
-                          setPickedBillingEntityId(id)
-                        }}
-                      />
-                    </div>
-                  )}
+                  <div className="w-80">
+                    <BillingEntityFormPicker
+                      label={translate('text_1743611497157teaa1zu8l24')}
+                      value={formValues.billingEntityId}
+                      onChange={(id) => {
+                        form.setFieldValue('billingEntityId', id)
+                        setPickedBillingEntityId(id)
+                      }}
+                    />
+                  </div>
                   <div className="w-40">
                     <form.AppField name="currency">
                       {(field) => (
@@ -692,7 +684,6 @@ const CreateInvoice = () => {
                           data={Object.values(CurrencyEnum).map((currencyType) => ({
                             value: currencyType,
                           }))}
-                          disabled={!!customer?.currency && !hasMultiCurrency}
                           label={translate('text_6453819268763979024ad057')}
                         />
                       )}

@@ -2,7 +2,6 @@ import { screen } from '@testing-library/react'
 
 import {
   BillingTimeEnum,
-  FeatureFlagEnum,
   NextSubscriptionTypeEnum,
   StatusTypeEnum,
   SubscriptionForSubscriptionInformationsFragment,
@@ -25,11 +24,8 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
-const mockHasFeatureFlag = jest.fn()
-
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
-    hasFeatureFlag: mockHasFeatureFlag,
     intlFormatDateTimeOrgaTZ: () => ({ date: '2025-01-01' }),
   }),
 }))
@@ -76,31 +72,14 @@ const baseSubscription: SubscriptionForSubscriptionInformationsFragment = {
 describe('SubscriptionInformations', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    mockHasFeatureFlag.mockReturnValue(false)
   })
 
-  describe('GIVEN MultiEntityBilling feature flag is enabled', () => {
+  describe('GIVEN a subscription bound to a billing entity', () => {
     describe('WHEN the component renders', () => {
       it('THEN shows the billing entity row', () => {
-        mockHasFeatureFlag.mockImplementation(
-          (flag: FeatureFlagEnum) => flag === FeatureFlagEnum.MultiEntityBilling,
-        )
-
         render(<SubscriptionInformations subscription={baseSubscription} />)
 
         expect(screen.getByTestId('billing-entity-label')).toBeInTheDocument()
-      })
-    })
-  })
-
-  describe('GIVEN MultiEntityBilling feature flag is disabled', () => {
-    describe('WHEN the component renders', () => {
-      it('THEN hides the billing entity row', () => {
-        mockHasFeatureFlag.mockReturnValue(false)
-
-        render(<SubscriptionInformations subscription={baseSubscription} />)
-
-        expect(screen.queryByTestId('billing-entity-label')).not.toBeInTheDocument()
       })
     })
   })
