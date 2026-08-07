@@ -53,6 +53,9 @@ import { FiltersItemPurchaseOrderNumber } from '~/components/Filters/graphql/fil
 import { FiltersItemQuoteNumber } from '~/components/Filters/graphql/filtersElements/FiltersItemQuoteNumber'
 import { FiltersItemQuoteOrderType } from '~/components/Filters/graphql/filtersElements/FiltersItemQuoteOrderType'
 import { FiltersItemQuoteStatus } from '~/components/Filters/graphql/filtersElements/FiltersItemQuoteStatus'
+import { FiltersItemRateCardProduct } from '~/components/Filters/graphql/filtersElements/FiltersItemRateCardProduct'
+import { FiltersItemRateCardProductCategory } from '~/components/Filters/graphql/filtersElements/FiltersItemRateCardProductCategory'
+import { FiltersItemRateCardProductFilter } from '~/components/Filters/graphql/filtersElements/FiltersItemRateCardProductFilter'
 import { FiltersItemRequestPath } from '~/components/Filters/graphql/filtersElements/FiltersItemRequestPath'
 import { FiltersItemResourceIds } from '~/components/Filters/graphql/filtersElements/FiltersItemResourceIds'
 import { FiltersItemResourceTypes } from '~/components/Filters/graphql/filtersElements/FiltersItemResourceTypes'
@@ -152,6 +155,11 @@ export const FiltersPanelItemTypeSwitch = ({
       <FiltersItemProductFilterProductCategory {...props} />
     ),
     [AvailableFiltersEnum.productFilterProduct]: <FiltersItemProductFilterProduct {...props} />,
+    [AvailableFiltersEnum.rateCardProductCategory]: (
+      <FiltersItemRateCardProductCategory {...props} />
+    ),
+    [AvailableFiltersEnum.rateCardProduct]: <FiltersItemRateCardProduct {...props} />,
+    [AvailableFiltersEnum.rateCardProductFilter]: <FiltersItemRateCardProductFilter {...props} />,
     [AvailableFiltersEnum.requestPaths]: <FiltersItemRequestPath {...props} />,
     [AvailableFiltersEnum.resourceIds]: <FiltersItemResourceIds {...props} />,
     [AvailableFiltersEnum.resourceTypes]: <FiltersItemResourceTypes {...props} />,

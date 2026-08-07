@@ -37,6 +37,7 @@ import {
   QUOTE_DETAILS_ROUTE,
   QUOTES_LIST_ROUTE,
   QUOTES_TAB_ROUTE,
+  RATE_CARD_DETAILS_ROUTE,
   REVENUE_RECOGNITION_ROUTE,
   SUBSCRIPTIONS_ROUTE,
   WALLET_DETAILS_ROUTE,
@@ -152,6 +153,7 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
         PRODUCT_CATEGORY_DETAILS_ROUTE,
         PRODUCT_DETAILS_ROUTE,
         PRODUCT_FILTER_DETAILS_ROUTE,
+        RATE_CARD_DETAILS_ROUTE,
       ],
       hidden:
         !hasFeatureFlag(FeatureFlagEnum.ProductCatalog) ||

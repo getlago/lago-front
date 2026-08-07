@@ -105,6 +105,9 @@ export enum AvailableFiltersEnum {
   productType = 'productType',
   productFilterProductCategory = 'productFilterProductCategory',
   productFilterProduct = 'productFilterProduct',
+  rateCardProductCategory = 'rateCardProductCategory',
+  rateCardProduct = 'rateCardProduct',
+  rateCardProductFilter = 'rateCardProductFilter',
   orderFormCreatedAt = 'orderFormCreatedAt',
   orderFormNumber = 'orderFormNumber',
   orderFormStatus = 'orderFormStatus',
@@ -325,6 +328,12 @@ export const ProductFilterAvailableFilters = [
   AvailableFiltersEnum.productFilterProduct,
 ]
 
+export const RateCardAvailableFilters = [
+  AvailableFiltersEnum.rateCardProductCategory,
+  AvailableFiltersEnum.rateCardProduct,
+  AvailableFiltersEnum.rateCardProductFilter,
+]
+
 export const CustomerAnalyticsAvailableFilters = [
   AvailableFiltersEnum.currency,
   AvailableFiltersEnum.billingEntityId,
@@ -424,6 +433,11 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   // elsewhere for the entity types) rather than minting new filter-specific copy.
   [AvailableFiltersEnum.productFilterProductCategory]: 'text_1783020794399ai60io2ufkg',
   [AvailableFiltersEnum.productFilterProduct]: 'text_1783020794400si0ioidu0m5',
+  // Rate card list filters reuse the same "Product category" / "Product" / "Product filter"
+  // resource-name labels shown elsewhere for these entity types.
+  [AvailableFiltersEnum.rateCardProductCategory]: 'text_1783020794399ai60io2ufkg',
+  [AvailableFiltersEnum.rateCardProduct]: 'text_1783020794400si0ioidu0m5',
+  [AvailableFiltersEnum.rateCardProductFilter]: 'text_1783020794400u55s2kj2o4n',
   [AvailableFiltersEnum.orderFormCreatedAt]: 'text_1776870266380s3zbpmnfrhj',
   [AvailableFiltersEnum.orderFormNumber]: 'text_1781624189693d7zcv2vog4c',
   [AvailableFiltersEnum.orderFormStatus]: 'text_63ac86d797f728a87b2f9fa7',
