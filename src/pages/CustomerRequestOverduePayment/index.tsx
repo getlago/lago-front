@@ -187,7 +187,17 @@ const CustomerRequestOverduePayment: FC = () => {
         translateKey: 'text_66b9e095a7dc6c6d3dabeed4',
       })
 
-      navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: customerId ?? '' }))
+      // Return where the operator came from — in practice the invoices tab,
+      // which is the only entry point to this page. Navigating to the
+      // tab-less customer route instead would drop them on the overview tab
+      // and mount a second view they never asked for.
+      goBack(
+        generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+          customerId: customerId ?? '',
+          tab: CustomerDetailsTabsOptions.invoices,
+        }),
+        { exclude: CUSTOMER_REQUEST_OVERDUE_PAYMENT_ROUTE },
+      )
     },
     onError(mutationError) {
       if (hasDefinedGQLError('InvoicesNotOverdue', mutationError)) {

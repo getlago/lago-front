@@ -18,6 +18,7 @@ const mockGoBack = jest.fn()
 const mockUseGetRequestOverduePaymentInfosQuery = jest.fn()
 const mockCreatePaymentRequest = jest.fn()
 let mockOnError: ((error: ApolloError) => void) | undefined
+let mockOnCompleted: (() => void) | undefined
 let mockSearchParams = new URLSearchParams()
 
 jest.mock('~/core/apolloClient', () => ({
@@ -63,9 +64,12 @@ jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
   useGetRequestOverduePaymentInfosQuery: jest.fn(() => mockUseGetRequestOverduePaymentInfosQuery()),
   useCreatePaymentRequestMutation: jest.fn(
-    (options?: { onError?: (error: ApolloError) => void }) => {
+    (options?: { onError?: (error: ApolloError) => void; onCompleted?: () => void }) => {
       if (options?.onError) {
         mockOnError = options.onError
+      }
+      if (options?.onCompleted) {
+        mockOnCompleted = options.onCompleted
       }
       return [
         mockCreatePaymentRequest,
@@ -106,6 +110,7 @@ describe('CustomerRequestOverduePayment', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockOnError = undefined
+    mockOnCompleted = undefined
     // Both scopes are mandatory on this page; default to a fully scoped URL so
     // each test opts into the unscoped-redirect path explicitly.
     mockSearchParams = new URLSearchParams({ currency: 'USD', billingEntityId: 'be-123' })
@@ -338,6 +343,50 @@ describe('CustomerRequestOverduePayment', () => {
             }),
           }),
         )
+      })
+    })
+  })
+
+  describe('GIVEN the payment request succeeds', () => {
+    describe('WHEN the mutation completes', () => {
+      it('THEN should go back to the invoices tab, not the tab-less customer route', async () => {
+        mockUseGetRequestOverduePaymentInfosQuery.mockReturnValue({
+          data: validQueryData,
+          loading: false,
+          error: undefined,
+        })
+
+        await act(async () => {
+          render(<CustomerRequestOverduePayment />)
+        })
+
+        await act(async () => {
+          mockOnCompleted?.()
+        })
+
+        expect(mockGoBack).toHaveBeenCalledWith(
+          expect.stringContaining('/invoices'),
+          expect.objectContaining({ exclude: expect.anything() }),
+        )
+        expect(mockNavigate).not.toHaveBeenCalled()
+      })
+
+      it('THEN should show the success toast', async () => {
+        mockUseGetRequestOverduePaymentInfosQuery.mockReturnValue({
+          data: validQueryData,
+          loading: false,
+          error: undefined,
+        })
+
+        await act(async () => {
+          render(<CustomerRequestOverduePayment />)
+        })
+
+        await act(async () => {
+          mockOnCompleted?.()
+        })
+
+        expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
       })
     })
   })
