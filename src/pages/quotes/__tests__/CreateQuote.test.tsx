@@ -1,7 +1,7 @@
-import { fireEvent, screen } from '@testing-library/react'
+import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { StatusTypeEnum } from '~/generated/graphql'
+import { CurrencyEnum, StatusTypeEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import CreateQuote, {
@@ -62,6 +62,47 @@ jest.mock('~/components/dialogs/CentralizedDialog', () => ({
     open: mockDialogOpen,
   }),
 }))
+
+jest.mock('@tanstack/react-virtual', () => ({
+  useVirtualizer: ({ count }: { count: number }) => ({
+    getTotalSize: () => count * 56,
+    getVirtualItems: () =>
+      Array.from({ length: count }, (_, index) => ({
+        index,
+        key: String(index),
+        start: index * 56,
+        size: 56,
+      })),
+    scrollToIndex: jest.fn(),
+    measureElement: jest.fn(),
+  }),
+}))
+
+const customersWithAndWithoutCurrency = {
+  customers: {
+    collection: [
+      { id: 'cust-1', displayName: 'Customer One', externalId: 'ext-1', currency: null },
+      {
+        id: 'cust-2',
+        displayName: 'Customer Two',
+        externalId: 'ext-2',
+        currency: CurrencyEnum.Usd,
+      },
+    ],
+  },
+}
+
+const getComboBoxInput = (testId: string): HTMLInputElement =>
+  within(screen.getByTestId(testId)).getByRole('combobox') as HTMLInputElement
+
+const selectComboBoxOption = async (testId: string, optionText: string): Promise<void> => {
+  await userEvent.click(getComboBoxInput(testId))
+
+  const options = await screen.findAllByRole('option')
+  const option = options.find((item) => item.textContent?.startsWith(optionText)) as HTMLElement
+
+  await userEvent.click(option)
+}
 
 describe('CreateQuote', () => {
   beforeEach(() => {
@@ -190,6 +231,114 @@ describe('CreateQuote', () => {
         render(<CreateQuote />)
 
         expect(screen.queryByTestId(CREATE_QUOTE_CURRENCY_COMBOBOX_TEST_ID)).not.toBeInTheDocument()
+      })
+
+      it('THEN should not submit the form', async () => {
+        render(<CreateQuote />)
+
+        await userEvent.click(screen.getByTestId(CREATE_QUOTE_SUBMIT_BUTTON_TEST_ID))
+
+        expect(mockOnSave).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the selected customer has no currency', () => {
+      it('THEN should show an empty and editable currency combobox', async () => {
+        mockCustomersQueryData = customersWithAndWithoutCurrency
+
+        render(<CreateQuote />)
+
+        await selectComboBoxOption(CREATE_QUOTE_CUSTOMER_COMBOBOX_TEST_ID, 'Customer One')
+
+        const currencyInput = getComboBoxInput(CREATE_QUOTE_CURRENCY_COMBOBOX_TEST_ID)
+
+        expect(currencyInput).toHaveValue('')
+        expect(currencyInput).not.toBeDisabled()
+      })
+
+      it('THEN should not submit the form while no currency is picked', async () => {
+        mockCustomersQueryData = customersWithAndWithoutCurrency
+
+        render(<CreateQuote />)
+
+        await selectComboBoxOption(CREATE_QUOTE_CUSTOMER_COMBOBOX_TEST_ID, 'Customer One')
+
+        await userEvent.click(screen.getByTestId(CREATE_QUOTE_SUBMIT_BUTTON_TEST_ID))
+
+        expect(mockOnSave).not.toHaveBeenCalled()
+      })
+
+      it('THEN should flag the currency combobox as invalid after a submit attempt', async () => {
+        mockCustomersQueryData = customersWithAndWithoutCurrency
+
+        render(<CreateQuote />)
+
+        await selectComboBoxOption(CREATE_QUOTE_CUSTOMER_COMBOBOX_TEST_ID, 'Customer One')
+
+        await userEvent.click(screen.getByTestId(CREATE_QUOTE_SUBMIT_BUTTON_TEST_ID))
+
+        await waitFor(() => {
+          expect(getComboBoxInput(CREATE_QUOTE_CURRENCY_COMBOBOX_TEST_ID)).toHaveAttribute(
+            'aria-invalid',
+            'true',
+          )
+        })
+      })
+
+      it('THEN should submit with the picked currency', async () => {
+        mockCustomersQueryData = customersWithAndWithoutCurrency
+
+        render(<CreateQuote />)
+
+        await selectComboBoxOption(CREATE_QUOTE_CUSTOMER_COMBOBOX_TEST_ID, 'Customer One')
+        await selectComboBoxOption(CREATE_QUOTE_CURRENCY_COMBOBOX_TEST_ID, CurrencyEnum.Eur)
+
+        await userEvent.click(screen.getByTestId(CREATE_QUOTE_SUBMIT_BUTTON_TEST_ID))
+
+        await waitFor(() => {
+          expect(mockOnSave).toHaveBeenCalledWith(
+            expect.objectContaining({
+              customerId: 'cust-1',
+              currency: CurrencyEnum.Eur,
+              hasCustomerCurrency: false,
+            }),
+          )
+        })
+      })
+    })
+
+    describe('WHEN the selected customer already has a currency', () => {
+      it('THEN should prefill and lock the currency combobox', async () => {
+        mockCustomersQueryData = customersWithAndWithoutCurrency
+
+        render(<CreateQuote />)
+
+        await selectComboBoxOption(CREATE_QUOTE_CUSTOMER_COMBOBOX_TEST_ID, 'Customer Two')
+
+        const currencyInput = getComboBoxInput(CREATE_QUOTE_CURRENCY_COMBOBOX_TEST_ID)
+
+        expect(currencyInput).toHaveValue(CurrencyEnum.Usd)
+        expect(currencyInput).toBeDisabled()
+      })
+
+      it('THEN should submit with the customer currency', async () => {
+        mockCustomersQueryData = customersWithAndWithoutCurrency
+
+        render(<CreateQuote />)
+
+        await selectComboBoxOption(CREATE_QUOTE_CUSTOMER_COMBOBOX_TEST_ID, 'Customer Two')
+
+        await userEvent.click(screen.getByTestId(CREATE_QUOTE_SUBMIT_BUTTON_TEST_ID))
+
+        await waitFor(() => {
+          expect(mockOnSave).toHaveBeenCalledWith(
+            expect.objectContaining({
+              customerId: 'cust-2',
+              currency: CurrencyEnum.Usd,
+              hasCustomerCurrency: true,
+            }),
+          )
+        })
       })
     })
   })

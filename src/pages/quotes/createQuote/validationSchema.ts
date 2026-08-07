@@ -21,5 +21,9 @@ export const createQuoteSchema = z
       message: 'text_1776238919927d6e7f8g9h0i',
     },
   )
+  .refine((data) => !!data.currency, {
+    path: ['currency'],
+    message: 'text_1771342994699klxu2paz7g8',
+  })
 
 export type CreateQuoteFormValues = z.infer<typeof createQuoteSchema>
