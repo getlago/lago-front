@@ -23,7 +23,7 @@ export const addOnFormSchema = z
 
       const amount = Number(data.amountCents)
 
-      if (isNaN(amount)) {
+      if (Number.isNaN(amount)) {
         return false
       }
 
