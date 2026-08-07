@@ -50,10 +50,13 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateEditBillableMetric } from '~/hooks/useCreateEditBillableMetric'
+import { hasRemovedFilterValues } from '~/pages/CreateBillableMetric.utils'
 import { PageHeader } from '~/styles'
 import { Main, Side, Subtitle, Title } from '~/styles/mainObjectsForm'
 
 const NOT_UNIQUE_KEY_ERROR = 'key_not_unique'
+
+export const FILTER_VALUE_WARNING_ALERT_TEST_ID = 'billable-metric-filter-value-warning'
 
 gql`
   fragment EditBillableMetric on BillableMetric {
@@ -95,6 +98,9 @@ const CreateBillableMetric = () => {
   const customExpressionDrawerRef = useRef<CustomExpressionDrawerRef>(null)
   const canBeEdited =
     isDuplicate || (!billableMetric?.hasSubscriptions && !billableMetric?.hasPlans)
+  // A non-duplicate edit of a metric already attached to plans/subscriptions:
+  // removing filter values here can collapse existing plan charge filters.
+  const isInUse = isEdition && !canBeEdited
 
   const formikProps = useFormik<
     CreateBillableMetricInput & {
@@ -235,6 +241,24 @@ const CreateBillableMetric = () => {
     }
 
     formikProps.setFieldValue(name, value)
+  }
+
+  const handleSubmit = (): void => {
+    // Warn before saving when the metric is in use and filter values were removed:
+    // the backend collapses affected plan charge filters, which may need manual review.
+    if (isInUse && hasRemovedFilterValues(billableMetric?.filters, formikProps.values.filters)) {
+      centralizedDialog.open({
+        title: translate('text_1785937424540rcpk2gtmvcw'),
+        description: translate('text_17859374245407eq5b0eujux'),
+        actionText: translate('text_1785937424540njszxyvj0rx'),
+        colorVariant: 'danger',
+        onAction: () => formikProps.submitForm(),
+      })
+
+      return
+    }
+
+    formikProps.submitForm()
   }
 
   return (
@@ -683,6 +707,12 @@ const CreateBillableMetric = () => {
                       </Typography>
                     </div>
 
+                    {isInUse && (
+                      <Alert type="warning" data-test={FILTER_VALUE_WARNING_ALERT_TEST_ID}>
+                        {translate('text_1785937424540jyldwaxzp6s')}
+                      </Alert>
+                    )}
+
                     {formikProps.values.filters?.map((filter, filterIndex) => {
                       return (
                         <div key={`filter-${filterIndex}`}>
@@ -859,7 +889,7 @@ const CreateBillableMetric = () => {
                     fullWidth
                     data-test="submit"
                     size="large"
-                    onClick={formikProps.submitForm}
+                    onClick={handleSubmit}
                   >
                     {translate(
                       isEdition ? 'text_62582fb4675ece01137a7e6c' : 'text_623b42ff8ee4e000ba87d0d4',
