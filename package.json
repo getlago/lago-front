@@ -61,7 +61,7 @@
     "@types/actioncable": "5.2.11",
     "@types/apollo-upload-client": "17.0.5",
     "@types/jest": "30.0.0",
-    "@types/lodash": "4.17.24",
+    "@types/lodash": "4.17.25",
     "@types/luxon": "3.7.2",
     "@types/node": "24.13.3",
     "@types/prismjs": "1.26.6",
