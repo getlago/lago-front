@@ -314,8 +314,8 @@ importers:
         specifier: 2.16.1
         version: 2.16.1
       '@vitejs/plugin-react-swc':
-        specifier: 4.3.2
-        version: 4.3.2(vite@7.3.6(@types/node@24.13.3)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.37.0)(yaml@2.8.3))
+        specifier: 4.3.3
+        version: 4.3.3(vite@7.3.6(@types/node@24.13.3)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.37.0)(yaml@2.8.3))
       autoprefixer:
         specifier: 10.5.4
         version: 10.5.4(postcss@8.5.25)
@@ -4082,8 +4082,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@vitejs/plugin-react-swc@4.3.2':
-    resolution: {integrity: sha512-MlSlmSAYbYwPjGa+CjOAqwij09iPYAQDHwx8osVkwoDamCxXlg+avpkC65Ysv+L/uqUWvRTsnJCKPjVhZih/sA==}
+  '@vitejs/plugin-react-swc@4.3.3':
+    resolution: {integrity: sha512-bti8ZAcvz4Lh6/e4Uk2k3aa1TiUXbbMsahuqOHvd3MveFTkKDZOA6wQVkpj7J/+tepX/wGfe+lsGh/t24HTXMQ==}
     engines: {node: ^20.19.0 || >=22.12.0}
     peerDependencies:
       vite: ^4 || ^5 || ^6 || ^7 || ^8
@@ -12619,7 +12619,7 @@ snapshots:
   '@unrs/resolver-binding-win32-x64-msvc@1.11.1':
     optional: true
 
-  '@vitejs/plugin-react-swc@4.3.2(vite@7.3.6(@types/node@24.13.3)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.37.0)(yaml@2.8.3))':
+  '@vitejs/plugin-react-swc@4.3.3(vite@7.3.6(@types/node@24.13.3)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.37.0)(yaml@2.8.3))':
     dependencies:
       '@rolldown/pluginutils': 1.0.1
       '@swc/core': 1.15.46
