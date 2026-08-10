@@ -6,7 +6,10 @@ import type {
   OnPricingCommand,
 } from '~/components/designSystem/RichTextEditor/common/RichTextEditorContext'
 import type { PricingBlockAttributes } from '~/components/designSystem/RichTextEditor/extensions/PricingBlock.schema'
-import { SubscriptionPricingContent } from '~/components/designSystem/RichTextEditor/PricingBlock/SubscriptionPricingContent'
+import {
+  SubscriptionPricingContent,
+  type ValidatePlanForm,
+} from '~/components/designSystem/RichTextEditor/PricingBlock/SubscriptionPricingContent'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
 import type { PlanFormInput } from '~/components/plans/types'
 import { addToast } from '~/core/apolloClient'
@@ -56,6 +59,7 @@ export const useSubscriptionPricingDrawer = (
   const initialStateRef = useRef<SubscriptionPricingState | null>(null)
   const subscriptionStateRef = useRef<SubscriptionPricingState | null>(null)
   const formValuesRef = useRef<PlanFormInput | null>(null)
+  const validatePlanFormRef = useRef<ValidatePlanForm | null>(null)
 
   // Latest saved billingItems, kept in a ref so plan saves/syncs can preserve
   // sibling categories (coupons, addons) instead of overwriting billingItems and
@@ -132,6 +136,17 @@ export const useSubscriptionPricingDrawer = (
           throw new Error('Incomplete plan')
         }
 
+        // An unfilled billing item must never reach the quote version, otherwise it
+        // would be approvable and only fail at execution time. The drawer stays open
+        // (`closeOnError: false`) with the invalid fields flagged by the form itself.
+        const isPlanFormValid = (await validatePlanFormRef.current?.()) ?? true
+
+        if (!isPlanFormValid) {
+          addToast({ severity: 'danger', translateKey: QUOTE_SAVE_FAILED_TOAST_KEY })
+
+          throw new Error('Invalid plan')
+        }
+
         const billingItems = toPlanBillingItems(state, formValues ?? undefined)
         const entityData: Record<string, EntityData> = {
           [state.planId]: {
@@ -183,6 +198,7 @@ export const useSubscriptionPricingDrawer = (
           <SubscriptionPricingContent
             stateRef={subscriptionStateRef}
             formValuesRef={formValuesRef}
+            validatePlanFormRef={validatePlanFormRef}
             initialState={initialStateRef.current}
             quoteDates={options?.quoteDates}
             customer={options?.customer}
