@@ -411,6 +411,198 @@ describe('buildPlanOverrides', () => {
 })
 
 // ---------------------------------------------------------------------------
+// buildPlanOverrides — diff against the catalog plan baseline (LAGO-1789)
+// ---------------------------------------------------------------------------
+
+describe('buildPlanOverrides with a catalog plan baseline', () => {
+  const fixedCharge = {
+    addOn: { code: 'setup_fee' },
+    chargeModel: FixedChargeChargeModelEnum.Standard,
+    properties: { amount: '100' },
+  } as unknown as PlanFormInput['fixedCharges'][number]
+
+  const usageCharge = {
+    billableMetric: { code: 'api_calls' },
+    chargeModel: ChargeModelEnum.Standard,
+    properties: { amount: '0.01' },
+  } as unknown as PlanFormInput['charges'][number]
+
+  // A plan carrying every overridable field, so an untouched save proves each one
+  // is diffed and not blindly forwarded.
+  const fullyConfiguredPlan: PlanFormInput = {
+    ...baseFormValues,
+    invoiceDisplayName: 'Platform fee',
+    fixedCharges: [fixedCharge],
+    charges: [usageCharge],
+    minimumCommitment: {
+      amountCents: '5000',
+      invoiceDisplayName: 'Annual minimum',
+      commitmentType: CommitmentTypeEnum.MinimumCommitment,
+    },
+    nonRecurringUsageThresholds: [
+      { amountCents: 10000, thresholdDisplayName: 'Tier 1', recurring: false },
+    ] as PlanFormInput['nonRecurringUsageThresholds'],
+    recurringUsageThreshold: {
+      amountCents: 50000,
+      thresholdDisplayName: 'Monthly cap',
+      recurring: true,
+    } as PlanFormInput['recurringUsageThreshold'],
+  }
+
+  it('returns no overrides when the form matches the catalog plan', () => {
+    expect(buildPlanOverrides(baseFormValues, baseFormValues)).toEqual({})
+  })
+
+  it('returns no overrides for an untouched plan that configures every field', () => {
+    expect(buildPlanOverrides(fullyConfiguredPlan, fullyConfiguredPlan)).toEqual({})
+  })
+
+  it('emits only the subscription fee when only the fee changed', () => {
+    const result = buildPlanOverrides(
+      { ...fullyConfiguredPlan, amountCents: '900.00' },
+      fullyConfiguredPlan,
+    )
+
+    expect(result).toEqual({ amountCents: 90000 })
+  })
+
+  it('emits only the invoice display name when only that changed', () => {
+    const result = buildPlanOverrides(
+      { ...fullyConfiguredPlan, invoiceDisplayName: 'Acme platform fee' },
+      fullyConfiguredPlan,
+    )
+
+    expect(result).toEqual({ invoiceDisplayName: 'Acme platform fee' })
+  })
+
+  it('emits the whole charges array when a single charge property changed', () => {
+    const result = buildPlanOverrides(
+      {
+        ...fullyConfiguredPlan,
+        charges: [
+          { ...usageCharge, properties: { amount: '0.02' } } as PlanFormInput['charges'][number],
+        ],
+      },
+      fullyConfiguredPlan,
+    )
+
+    // The backend replaces the whole usage charge set, so a single edit sends them
+    // all. Fixed charges live under overrides.fixedCharges and stay untouched here.
+    expect(Object.keys(result)).toEqual(['charges'])
+    expect(result.charges).toHaveLength(1)
+    expect(result.charges?.[0]).toEqual({
+      billableMetricCode: 'api_calls',
+      chargeModel: ChargeModelEnum.Standard,
+      properties: { amount: '0.02' },
+    })
+  })
+
+  it('emits only the minimum commitment when only that changed', () => {
+    const result = buildPlanOverrides(
+      {
+        ...fullyConfiguredPlan,
+        minimumCommitment: {
+          amountCents: '7000',
+          invoiceDisplayName: 'Annual minimum',
+          commitmentType: CommitmentTypeEnum.MinimumCommitment,
+        },
+      },
+      fullyConfiguredPlan,
+    )
+
+    expect(result).toEqual({
+      minimumCommitment: { amountCents: 700000, invoiceDisplayName: 'Annual minimum' },
+    })
+  })
+
+  it('emits only the usage thresholds when only those changed', () => {
+    const result = buildPlanOverrides(
+      {
+        ...fullyConfiguredPlan,
+        recurringUsageThreshold: {
+          amountCents: 60000,
+          thresholdDisplayName: 'Monthly cap',
+          recurring: true,
+        } as PlanFormInput['recurringUsageThreshold'],
+      },
+      fullyConfiguredPlan,
+    )
+
+    expect(Object.keys(result)).toEqual(['usageThresholds'])
+    expect(result.usageThresholds).toEqual([
+      { amountCents: 1000000, recurring: false, thresholdDisplayName: 'Tier 1' },
+      { amountCents: 6000000, recurring: true, thresholdDisplayName: 'Monthly cap' },
+    ])
+  })
+
+  it('keeps every configured field when no baseline is provided', () => {
+    const result = buildPlanOverrides(fullyConfiguredPlan)
+
+    expect(result.amountCents).toBe(85000)
+    expect(result.invoiceDisplayName).toBe('Platform fee')
+    expect(result.charges).toHaveLength(1)
+    expect(result.fixedCharges).toHaveLength(1)
+    expect(result.minimumCommitment).toBeDefined()
+    expect(result.usageThresholds).toHaveLength(2)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// toPlanBillingItems — baseline forwarding (LAGO-1789)
+// ---------------------------------------------------------------------------
+
+describe('toPlanBillingItems with a catalog plan baseline', () => {
+  it('produces empty overrides for an unedited plan', () => {
+    const result = toPlanBillingItems(basePricingState, baseFormValues, baseFormValues)
+
+    expect(result.plans[0].overrides).toEqual({})
+  })
+
+  it('keeps the payload snapshot even when nothing is overridden', () => {
+    const result = toPlanBillingItems(basePricingState, baseFormValues, baseFormValues)
+
+    expect(result.plans[0].payload.amountCents).toBe('85000')
+    expect(result.plans[0].payload.interval).toBe(PlanInterval.Monthly)
+  })
+
+  it('still emits the renamed plan alongside an otherwise unedited form', () => {
+    const result = toPlanBillingItems(
+      basePricingState,
+      { ...baseFormValues, name: 'Enterprise Plan - Acme' },
+      baseFormValues,
+    )
+
+    expect(result.plans[0].overrides).toEqual({ name: 'Enterprise Plan - Acme' })
+  })
+
+  // The real edit flow never compares two copies of the same object: the form values
+  // come back from the stored quote payload (a JSON round-trip that dropped every
+  // explicitly-undefined key) while the baseline comes straight from the plan query
+  // (which carries __typename and keeps those keys). Both must still read as unchanged.
+  it('produces empty overrides when the form is a payload round-trip of the baseline', () => {
+    const baselineCharge = {
+      billableMetric: { code: 'api_calls', __typename: 'BillableMetric' },
+      chargeModel: ChargeModelEnum.Graduated,
+      properties: {
+        amount: undefined,
+        graduatedRanges: [
+          { fromValue: 0, toValue: 10, perUnitAmount: '1', flatAmount: '0', __typename: 'Range' },
+        ],
+        __typename: 'Properties',
+      },
+    } as unknown as PlanFormInput['charges'][number]
+
+    const baseline: PlanFormInput = { ...baseFormValues, charges: [baselineCharge] }
+    // What fromPlanBillingItems hands back after the payload was stored as JSON.
+    const roundTripped: PlanFormInput = JSON.parse(JSON.stringify(baseline))
+
+    const result = toPlanBillingItems(basePricingState, roundTripped, baseline)
+
+    expect(result.plans[0].overrides).toEqual({})
+  })
+})
+
+// ---------------------------------------------------------------------------
 // fromPlanBillingItems — existing tests
 // ---------------------------------------------------------------------------
 
