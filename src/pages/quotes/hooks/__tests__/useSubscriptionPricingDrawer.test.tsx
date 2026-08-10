@@ -22,6 +22,10 @@ const mockDrawerClose = jest.fn()
 // `null` keeps the ref empty (exercises the early-return branch in handleSave).
 let mockInjectedState: SubscriptionPricingState | null = null
 
+// Verdict the mocked content component reports through validatePlanFormRef.
+// `null` leaves the ref unfilled, as when the content component never mounted.
+let mockPlanFormValid: boolean | null = null
+
 jest.mock('~/components/drawers/useDrawer', () => ({
   useFormDrawer: () => ({ open: mockDrawerOpen, close: mockDrawerClose }),
 }))
@@ -39,11 +43,18 @@ jest.mock(
   () => ({
     SubscriptionPricingContent: ({
       stateRef,
+      validatePlanFormRef,
     }: {
       stateRef?: { current: SubscriptionPricingState | null }
+      validatePlanFormRef?: { current: (() => Promise<boolean>) | null }
     }) => {
       if (stateRef) {
         stateRef.current = mockInjectedState
+      }
+
+      if (validatePlanFormRef) {
+        validatePlanFormRef.current =
+          mockPlanFormValid === null ? null : () => Promise.resolve(mockPlanFormValid as boolean)
       }
 
       return null
@@ -55,6 +66,7 @@ describe('useSubscriptionPricingDrawer', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockInjectedState = null
+    mockPlanFormValid = null
   })
 
   it('returns the expected interface', () => {
@@ -308,6 +320,91 @@ describe('useSubscriptionPricingDrawer', () => {
     expect(mockDrawerClose).not.toHaveBeenCalled()
     expect(result.current.entities).not.toHaveProperty('plan_123')
     expect(onDatesChange).not.toHaveBeenCalled()
+  })
+
+  describe('GIVEN the plan form reports its validity', () => {
+    const validState: SubscriptionPricingState = {
+      planId: 'plan_123',
+      planCode: 'enterprise',
+      planName: 'Enterprise Plan',
+      planDescription: '',
+      subscriptionSettings: {
+        externalId: '',
+        subscriptionName: '',
+        billingTime: 'anniversary',
+        startDate: '2023-07-26',
+        endDate: '2024-07-26',
+      },
+      invoicingSettings: { paymentMethodId: '', invoiceCustomFooter: '' },
+      overrides: {},
+    }
+
+    const submitDrawer = async (onSave: jest.Mock) => {
+      const rendered = renderHook(() => useSubscriptionPricingDrawer(undefined))
+
+      act(() => {
+        rendered.result.current.onPricingCommand({ onSave })
+      })
+
+      const openArgs = mockDrawerOpen.mock.calls[0][0]
+
+      render(openArgs.children)
+
+      return { openArgs, result: rendered.result }
+    }
+
+    describe('WHEN the plan form is invalid', () => {
+      beforeEach(() => {
+        mockInjectedState = validState
+        mockPlanFormValid = false
+      })
+
+      it('THEN should not persist the billing item', async () => {
+        const onSave = jest.fn().mockResolvedValue({ ok: true })
+        const { openArgs, result } = await submitDrawer(onSave)
+
+        await act(async () => {
+          await expect(openArgs.form.submit()).rejects.toThrow()
+        })
+
+        expect(onSave).not.toHaveBeenCalled()
+        expect(result.current.entities).not.toHaveProperty('plan_123')
+      })
+
+      it('THEN should toast and keep the drawer open', async () => {
+        const onSave = jest.fn().mockResolvedValue({ ok: true })
+        const { openArgs } = await submitDrawer(onSave)
+
+        await act(async () => {
+          await expect(openArgs.form.submit()).rejects.toThrow()
+        })
+
+        expect(mockAddToast).toHaveBeenCalledWith({
+          severity: 'danger',
+          translateKey: QUOTE_SAVE_FAILED_TOAST_KEY,
+        })
+        expect(mockDrawerClose).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the plan form is valid', () => {
+      beforeEach(() => {
+        mockInjectedState = validState
+        mockPlanFormValid = true
+      })
+
+      it('THEN should persist the billing item', async () => {
+        const onSave = jest.fn().mockResolvedValue({ ok: true })
+        const { openArgs, result } = await submitDrawer(onSave)
+
+        await act(async () => {
+          await openArgs.form.submit()
+        })
+
+        expect(onSave).toHaveBeenCalledTimes(1)
+        expect(result.current.entities).toHaveProperty('plan_123')
+      })
+    })
   })
 
   it('preserves existing coupons in the payload when saving a plan', async () => {

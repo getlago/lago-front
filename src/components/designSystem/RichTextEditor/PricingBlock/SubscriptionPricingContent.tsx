@@ -36,9 +36,14 @@ import { QuoteInvoicingPaymentsSettings } from './QuoteInvoicingPaymentsSettings
 import { useQuotePlanSettingsDrawer } from './useQuotePlanSettingsDrawer'
 import { useSubscriptionSettingsDrawer } from './useSubscriptionSettingsDrawer'
 
+export type ValidatePlanForm = () => Promise<boolean>
+
 interface SubscriptionPricingContentProps {
   stateRef: MutableRefObject<SubscriptionPricingState | null>
   formValuesRef: MutableRefObject<PlanFormInput | null>
+  // Filled with a submit-and-report-validity function so the drawer can refuse to
+  // persist an incomplete plan.
+  validatePlanFormRef?: MutableRefObject<ValidatePlanForm | null>
   initialState?: SubscriptionPricingState | null
   quoteDates?: { startDate?: string; endDate?: string }
   customer?: QuoteCustomer | null
@@ -50,6 +55,7 @@ interface SubscriptionPricingContentProps {
 export function SubscriptionPricingContent({
   stateRef,
   formValuesRef,
+  validatePlanFormRef,
   initialState,
   quoteDates,
   customer,
@@ -78,6 +84,10 @@ export function SubscriptionPricingContent({
     !!selectedPlanId &&
     selectedPlanId !== originalBillingItemPlanId.current
 
+  // Set by the form's own onSubmit, which TanStack only calls once the form-level
+  // `planFormSchema` passed — so it doubles as the validity signal.
+  const planFormValidRef = useRef(false)
+
   // Plan form — fetches plan by ID and creates TanStack form (no Router needed)
   const {
     form: planForm,
@@ -90,7 +100,25 @@ export function SubscriptionPricingContent({
     planIdToFetch: selectedPlanId || undefined,
     billingItemPlan: userSwitchedPlan ? undefined : billingItemPlan,
     subscriptionId,
+    onSubmit: () => {
+      planFormValidRef.current = true
+    },
   })
+
+  useEffect(() => {
+    if (!validatePlanFormRef) return
+
+    validatePlanFormRef.current = async () => {
+      planFormValidRef.current = false
+      await planForm.handleSubmit()
+
+      return planFormValidRef.current
+    }
+
+    return () => {
+      validatePlanFormRef.current = null
+    }
+  }, [planForm, validatePlanFormRef])
 
   // Sync selectedPlanId from resolvedPlanId when billing items or subscription data arrives
   useEffect(() => {

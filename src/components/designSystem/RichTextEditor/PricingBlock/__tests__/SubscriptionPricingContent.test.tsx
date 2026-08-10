@@ -85,19 +85,41 @@ jest.mock('~/generated/graphql', () => ({
 // Mock usePlanFormSetup — returns a mock form + plan when planIdToFetch is set
 let mockFormOverrides: Partial<PlanFormInput> = {}
 
+// Mirrors TanStack: handleSubmit only invokes onSubmit once the form-level
+// validators pass, which is what the component uses as its validity signal.
+let mockFormPassesValidation = true
+
 jest.mock('~/hooks/plans/usePlanFormSetup', () => {
   const { createMockPlanForm } = jest.requireActual('~/test-utils/createMockPlanForm')
 
   return {
-    usePlanFormSetup: jest.fn(({ planIdToFetch }: { planIdToFetch?: string }) => ({
-      form: createMockPlanForm(mockFormOverrides),
-      plan: planIdToFetch ? mockPlan : undefined,
-      formReady: !!planIdToFetch,
-      loading: false,
-      resolvedPlanId: planIdToFetch,
-      subscriptionSettings: undefined,
-      invoicingSettings: undefined,
-    })),
+    usePlanFormSetup: jest.fn(
+      ({
+        planIdToFetch,
+        onSubmit,
+      }: {
+        planIdToFetch?: string
+        onSubmit?: (value: PlanFormInput) => void
+      }) => {
+        const form = createMockPlanForm(mockFormOverrides)
+
+        form.handleSubmit = jest.fn(async () => {
+          if (mockFormPassesValidation) {
+            onSubmit?.(form.state.values)
+          }
+        })
+
+        return {
+          form,
+          plan: planIdToFetch ? mockPlan : undefined,
+          formReady: !!planIdToFetch,
+          loading: false,
+          resolvedPlanId: planIdToFetch,
+          subscriptionSettings: undefined,
+          invoicingSettings: undefined,
+        }
+      },
+    ),
   }
 })
 
@@ -146,6 +168,7 @@ jest.mock('~/components/plans/drawers/subscriptionFee/SubscriptionFeeDrawer', ()
 describe('SubscriptionPricingContent', () => {
   beforeEach(() => {
     mockFormOverrides = {}
+    mockFormPassesValidation = true
     mockOpenSubscriptionSettings.mockClear()
     mockOpenPlanSettings.mockClear()
   })
@@ -528,6 +551,74 @@ describe('SubscriptionPricingContent', () => {
       expect(usePlanFormSetup).toHaveBeenLastCalledWith(
         expect.objectContaining({ billingItemPlan, planIdToFetch: 'plan_1' }),
       )
+    })
+  })
+
+  describe('GIVEN the drawer passes a validatePlanFormRef', () => {
+    const renderWithValidateRef = async () => {
+      const stateRef = { current: null as SubscriptionPricingState | null }
+      const formValuesRef = { current: null as PlanFormInput | null }
+      const validatePlanFormRef = { current: null as (() => Promise<boolean>) | null }
+
+      const rendered = await act(() =>
+        render(
+          <SubscriptionPricingContent
+            stateRef={stateRef}
+            formValuesRef={formValuesRef}
+            validatePlanFormRef={validatePlanFormRef}
+          />,
+        ),
+      )
+
+      return { rendered, validatePlanFormRef }
+    }
+
+    describe('WHEN the component mounts', () => {
+      it('THEN should fill the ref with a validation handle', async () => {
+        const { validatePlanFormRef } = await renderWithValidateRef()
+
+        expect(typeof validatePlanFormRef.current).toBe('function')
+      })
+    })
+
+    describe('WHEN the plan form passes its validators', () => {
+      it('THEN should report the form as valid', async () => {
+        mockFormPassesValidation = true
+
+        const { validatePlanFormRef } = await renderWithValidateRef()
+
+        await expect(validatePlanFormRef.current?.()).resolves.toBe(true)
+      })
+    })
+
+    describe('WHEN the plan form fails its validators', () => {
+      it('THEN should report the form as invalid', async () => {
+        mockFormPassesValidation = false
+
+        const { validatePlanFormRef } = await renderWithValidateRef()
+
+        await expect(validatePlanFormRef.current?.()).resolves.toBe(false)
+      })
+
+      it('THEN should report invalid again on a second attempt', async () => {
+        mockFormPassesValidation = false
+
+        const { validatePlanFormRef } = await renderWithValidateRef()
+
+        await validatePlanFormRef.current?.()
+
+        await expect(validatePlanFormRef.current?.()).resolves.toBe(false)
+      })
+    })
+
+    describe('WHEN the component unmounts', () => {
+      it('THEN should clear the ref', async () => {
+        const { rendered, validatePlanFormRef } = await renderWithValidateRef()
+
+        rendered.unmount()
+
+        expect(validatePlanFormRef.current).toBeNull()
+      })
     })
   })
 })
