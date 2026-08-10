@@ -3,6 +3,7 @@ import type {
   LocalUsageChargeInput,
   PlanFormInput,
 } from '~/components/plans/types'
+import { planFormSchema } from '~/formValidation/planFormSchema'
 import {
   AggregationTypeEnum,
   ChargeModelEnum,
@@ -234,10 +235,11 @@ describe('buildPlanOverrides', () => {
     expect(result.invoiceDisplayName).toBe('Platform fee')
   })
 
-  it('merges fixed charges and usage charges into overrides.charges', () => {
+  describe('GIVEN a plan carrying both fixed charges and usage charges', () => {
     const fixedCharge = {
       addOn: { code: 'setup_fee' },
       chargeModel: FixedChargeChargeModelEnum.Standard,
+      units: '5',
       properties: { amount: '100' },
     } as unknown as PlanFormInput['fixedCharges'][number]
     const usageCharge = {
@@ -246,16 +248,116 @@ describe('buildPlanOverrides', () => {
       properties: { amount: '0.01' },
     } as unknown as PlanFormInput['charges'][number]
 
-    const result = buildPlanOverrides({
-      ...baseFormValues,
-      amountCents: '0',
-      fixedCharges: [fixedCharge],
-      charges: [usageCharge],
-    })
+    const buildBoth = () =>
+      buildPlanOverrides({
+        ...baseFormValues,
+        amountCents: '0',
+        fixedCharges: [fixedCharge],
+        charges: [usageCharge],
+      })
 
-    expect(result.charges).toHaveLength(2)
-    expect(result.charges?.[0].billableMetricCode).toBe('setup_fee')
-    expect(result.charges?.[1].billableMetricCode).toBe('api_calls')
+    describe('WHEN the overrides are built', () => {
+      it('THEN should send the fixed charge under overrides.fixedCharges keyed by addOnCode', () => {
+        const result = buildBoth()
+
+        expect(result.fixedCharges).toEqual([
+          { addOnCode: 'setup_fee', units: '5', properties: { amount: '100' } },
+        ])
+      })
+
+      it('THEN should keep overrides.charges limited to usage charges', () => {
+        const result = buildBoth()
+
+        expect(result.charges).toEqual([
+          {
+            billableMetricCode: 'api_calls',
+            chargeModel: ChargeModelEnum.Standard,
+            properties: { amount: '0.01' },
+          },
+        ])
+      })
+
+      it('THEN should not send chargeModel on a fixed charge override', () => {
+        const result = buildBoth()
+
+        expect(result.fixedCharges?.[0]).not.toHaveProperty('chargeModel')
+      })
+    })
+  })
+
+  describe('GIVEN a fixed charge with empty optional values', () => {
+    describe('WHEN the overrides are built', () => {
+      it.each([
+        ['empty string units', ''],
+        ['null units', null],
+        ['undefined units', undefined],
+      ])('THEN should omit units for %s', (_, units) => {
+        const result = buildPlanOverrides({
+          ...baseFormValues,
+          amountCents: '0',
+          fixedCharges: [
+            {
+              addOn: { code: 'setup_fee' },
+              chargeModel: FixedChargeChargeModelEnum.Standard,
+              units,
+              properties: { amount: '100' },
+            } as unknown as PlanFormInput['fixedCharges'][number],
+          ],
+        })
+
+        expect(result.fixedCharges?.[0]).not.toHaveProperty('units')
+      })
+
+      it('THEN should omit an empty invoiceDisplayName and absent properties', () => {
+        const result = buildPlanOverrides({
+          ...baseFormValues,
+          amountCents: '0',
+          fixedCharges: [
+            {
+              addOn: { code: 'setup_fee' },
+              chargeModel: FixedChargeChargeModelEnum.Standard,
+              units: '2',
+              invoiceDisplayName: '',
+            } as unknown as PlanFormInput['fixedCharges'][number],
+          ],
+        })
+
+        expect(result.fixedCharges).toEqual([{ addOnCode: 'setup_fee', units: '2' }])
+      })
+
+      it('THEN should keep a filled invoiceDisplayName', () => {
+        const result = buildPlanOverrides({
+          ...baseFormValues,
+          amountCents: '0',
+          fixedCharges: [
+            {
+              addOn: { code: 'setup_fee' },
+              chargeModel: FixedChargeChargeModelEnum.Standard,
+              units: '2',
+              invoiceDisplayName: 'Onboarding',
+            } as unknown as PlanFormInput['fixedCharges'][number],
+          ],
+        })
+
+        expect(result.fixedCharges?.[0].invoiceDisplayName).toBe('Onboarding')
+      })
+    })
+  })
+
+  describe('GIVEN a plan without fixed charges', () => {
+    describe('WHEN the overrides are built', () => {
+      it('THEN should not add a fixedCharges key at all', () => {
+        const result = buildPlanOverrides({
+          ...baseFormValues,
+          amountCents: '0',
+          fixedCharges: [],
+          charges: [],
+        })
+
+        expect(result).not.toHaveProperty('fixedCharges')
+        expect(result).not.toHaveProperty('charges')
+      })
+    })
   })
 
   it('includes a positive minimum commitment and ignores non-positive ones', () => {
@@ -779,5 +881,69 @@ describe('plan amount cents conversion', () => {
     const deserialized = fromPlanBillingItems(serialized.plans)
 
     expect(deserialized.formValues?.amountCents).toBe('850')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// planFormSchema round-trip — a saved plan must stay re-savable
+// ---------------------------------------------------------------------------
+
+describe('GIVEN a plan billing item saved from the quote drawer', () => {
+  // What `buildDefaultValues` seeds for a plan with neither a negotiated commitment
+  // nor progressive billing — the state the drawer reopens with.
+  const untouchedOptionals: PlanFormInput = {
+    ...baseFormValues,
+    minimumCommitment: {},
+    nonRecurringUsageThresholds: undefined,
+    recurringUsageThreshold: undefined,
+  }
+
+  const roundTrip = (formValues: PlanFormInput): PlanFormInput | null =>
+    fromPlanBillingItems(toPlanBillingItems(basePricingState, formValues).plans).formValues
+
+  describe('WHEN the plan is read back for editing', () => {
+    it('THEN should still satisfy planFormSchema without a commitment or thresholds', () => {
+      const result = planFormSchema.safeParse(roundTrip(untouchedOptionals))
+
+      expect(result.success).toBe(true)
+    })
+
+    it('THEN should not rebuild a phantom zero minimum commitment', () => {
+      expect(roundTrip(untouchedOptionals)?.minimumCommitment).toEqual({})
+    })
+
+    it('THEN should leave progressive billing unset rather than an empty list', () => {
+      expect(roundTrip(untouchedOptionals)?.nonRecurringUsageThresholds).toBeUndefined()
+    })
+
+    it('THEN should still satisfy planFormSchema with a fixed charge', () => {
+      const fixedCharge = {
+        addOn: { id: 'addon_1', name: 'Setup Fee', code: 'setup_fee' },
+        chargeModel: FixedChargeChargeModelEnum.Standard,
+        units: '5',
+        properties: { amount: '100' },
+        taxCodes: [],
+        taxes: [],
+      } as unknown as LocalFixedChargeInput
+
+      const result = planFormSchema.safeParse(
+        roundTrip({ ...untouchedOptionals, fixedCharges: [fixedCharge] }),
+      )
+
+      expect(result.success).toBe(true)
+    })
+
+    it('THEN should preserve a real minimum commitment', () => {
+      const formValues: PlanFormInput = {
+        ...untouchedOptionals,
+        minimumCommitment: {
+          amountCents: '5000',
+          commitmentType: CommitmentTypeEnum.MinimumCommitment,
+        },
+      }
+
+      expect(roundTrip(formValues)?.minimumCommitment?.amountCents).toBe('5000')
+      expect(planFormSchema.safeParse(roundTrip(formValues)).success).toBe(true)
+    })
   })
 })
