@@ -87,6 +87,15 @@ gql`
       ... on Plan {
         id
       }
+      ... on Product {
+        id
+      }
+      ... on ProductCategory {
+        id
+      }
+      ... on ProductFilter {
+        id
+      }
       ... on PaymentRequest {
         id
       }
