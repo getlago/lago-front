@@ -60,6 +60,9 @@ export const useSubscriptionPricingDrawer = (
   const subscriptionStateRef = useRef<SubscriptionPricingState | null>(null)
   const formValuesRef = useRef<PlanFormInput | null>(null)
   const validatePlanFormRef = useRef<ValidatePlanForm | null>(null)
+  // The catalog plan's own form values, used to serialize only the fields the user
+  // really changed instead of overriding the plan wholesale (LAGO-1789).
+  const basePlanFormValuesRef = useRef<PlanFormInput | null>(null)
 
   // Latest saved billingItems, kept in a ref so plan saves/syncs can preserve
   // sibling categories (coupons, addons) instead of overwriting billingItems and
@@ -147,7 +150,11 @@ export const useSubscriptionPricingDrawer = (
           throw new Error('Invalid plan')
         }
 
-        const billingItems = toPlanBillingItems(state, formValues ?? undefined)
+        const billingItems = toPlanBillingItems(
+          state,
+          formValues ?? undefined,
+          basePlanFormValuesRef.current ?? undefined,
+        )
         const entityData: Record<string, EntityData> = {
           [state.planId]: {
             entityId: state.planId,
@@ -199,6 +206,7 @@ export const useSubscriptionPricingDrawer = (
             stateRef={subscriptionStateRef}
             formValuesRef={formValuesRef}
             validatePlanFormRef={validatePlanFormRef}
+            basePlanFormValuesRef={basePlanFormValuesRef}
             initialState={initialStateRef.current}
             quoteDates={options?.quoteDates}
             customer={options?.customer}
