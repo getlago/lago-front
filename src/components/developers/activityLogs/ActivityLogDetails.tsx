@@ -102,6 +102,18 @@ gql`
       ... on PaymentReceipt {
         id
       }
+      ... on ProductCategory {
+        id
+      }
+      ... on Product {
+        id
+      }
+      ... on ProductFilter {
+        id
+      }
+      ... on RateCard {
+        id
+      }
     }
     loggedAt
     userEmail

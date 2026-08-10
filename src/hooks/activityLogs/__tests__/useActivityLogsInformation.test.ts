@@ -572,5 +572,41 @@ describe('useActivityLogsInformation', () => {
       expect(description).toContain('"invoiceNumber":"INV-000"')
       expect(description).toContain('"totalAmount"')
     })
+
+    describe('catalog productCategory activities', () => {
+      it.each([
+        ActivityTypeEnum.ProductCategoryCreated,
+        ActivityTypeEnum.ProductCategoryUpdated,
+        ActivityTypeEnum.ProductCategoryDeleted,
+        ActivityTypeEnum.ProductCreated,
+        ActivityTypeEnum.ProductUpdated,
+        ActivityTypeEnum.ProductDeleted,
+        ActivityTypeEnum.ProductFilterCreated,
+        ActivityTypeEnum.ProductFilterUpdated,
+        ActivityTypeEnum.ProductFilterDeleted,
+        ActivityTypeEnum.RateCardCreated,
+        ActivityTypeEnum.RateCardUpdated,
+        ActivityTypeEnum.RateCardDeleted,
+      ])('should return a code-parameterized description for %s', (activityType) => {
+        const { result } = renderHook(() => useActivityLogsInformation())
+
+        const description = result.current.getActivityDescription(activityType, {
+          activityObject: { code: 'catalog_code' },
+        })
+
+        expect(description).toContain('"code":"catalog_code"')
+      })
+    })
+  })
+
+  describe('getResourceType for catalog resources', () => {
+    it.each(['ProductCategory', 'Product', 'ProductFilter', 'RateCard'])(
+      'should map %s to a translated resource label rather than the raw fallback',
+      (resourceType) => {
+        const { result } = renderHook(() => useActivityLogsInformation())
+
+        expect(result.current.getResourceType(resourceType)).not.toBe(`translated:${resourceType}`)
+      },
+    )
   })
 })

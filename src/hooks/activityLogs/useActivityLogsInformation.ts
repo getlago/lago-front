@@ -58,6 +58,18 @@ const activityTypeTranslations: Record<ActivityTypeEnum, string> = {
   [ActivityTypeEnum.PlanCreated]: 'text_17474046566311qv73xswmnm',
   [ActivityTypeEnum.PlanDeleted]: 'text_1747404656631vh02b35uq80',
   [ActivityTypeEnum.PlanUpdated]: 'text_1747404656631mkfxe18tzkx',
+  [ActivityTypeEnum.ProductCategoryCreated]: 'text_17830207943996vz6dqrmz1g',
+  [ActivityTypeEnum.ProductCategoryUpdated]: 'text_1783020794399lcwfxs5h0ub',
+  [ActivityTypeEnum.ProductCategoryDeleted]: 'text_17830207943993vjrz9gc5zb',
+  [ActivityTypeEnum.ProductCreated]: 'text_1783020794399kzsy89qai1g',
+  [ActivityTypeEnum.ProductUpdated]: 'text_1783020794399nd5yf5pf3x9',
+  [ActivityTypeEnum.ProductDeleted]: 'text_1783020794399gv7kchne26v',
+  [ActivityTypeEnum.ProductFilterCreated]: 'text_178302079439951bxs3kwrf5',
+  [ActivityTypeEnum.ProductFilterUpdated]: 'text_1783020794399sqni1fhpkxx',
+  [ActivityTypeEnum.ProductFilterDeleted]: 'text_178302079439981vv999kce4',
+  [ActivityTypeEnum.RateCardCreated]: 'text_1783020794399t0t1weg8x8g',
+  [ActivityTypeEnum.RateCardUpdated]: 'text_1783020794399sf4d304ggs6',
+  [ActivityTypeEnum.RateCardDeleted]: 'text_17830207943995t96rbcm3ht',
   [ActivityTypeEnum.SubscriptionCanceled]: 'text_1777471747994p4c7cm9pri6',
   [ActivityTypeEnum.SubscriptionIncomplete]: 'text_17774717479940xot2f14xbr',
   [ActivityTypeEnum.SubscriptionStarted]: 'text_1747404806714xgkold0s07a',
@@ -79,6 +91,10 @@ const resourceTypeTranslations: Record<string, string> = {
   Invoice: 'text_63fcc3218d35b9377840f5b3',
   Plan: 'text_63d3a658c6d84a5843032145',
   PaymentRequest: 'text_17495622741665lrk6dp6czk',
+  ProductCategory: 'text_1783020794399ai60io2ufkg',
+  Product: 'text_1783020794400si0ioidu0m5',
+  ProductFilter: 'text_1783020794400u55s2kj2o4n',
+  RateCard: 'text_1783020794400xdy5qokafvy',
   Subscription: 'text_1728472697691k6k2e9m5ibb',
   Wallet: 'text_62d175066d2dbf1d50bc9384',
   PaymentReceipt: 'text_1769180515750z7jxssqkdvu',
@@ -123,6 +139,18 @@ export const useActivityLogsInformation = () => {
       case ActivityTypeEnum.PlanCreated:
       case ActivityTypeEnum.PlanDeleted:
       case ActivityTypeEnum.PlanUpdated:
+      case ActivityTypeEnum.ProductCategoryCreated:
+      case ActivityTypeEnum.ProductCategoryUpdated:
+      case ActivityTypeEnum.ProductCategoryDeleted:
+      case ActivityTypeEnum.ProductCreated:
+      case ActivityTypeEnum.ProductUpdated:
+      case ActivityTypeEnum.ProductDeleted:
+      case ActivityTypeEnum.ProductFilterCreated:
+      case ActivityTypeEnum.ProductFilterUpdated:
+      case ActivityTypeEnum.ProductFilterDeleted:
+      case ActivityTypeEnum.RateCardCreated:
+      case ActivityTypeEnum.RateCardUpdated:
+      case ActivityTypeEnum.RateCardDeleted:
         parameters = {
           code: activityObject.code,
         }

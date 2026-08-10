@@ -11,6 +11,8 @@ import {
   formatFiltersForMrrQuery,
   formatFiltersForOrderFormsQuery,
   formatFiltersForOrdersQuery,
+  formatFiltersForProductFiltersQuery,
+  formatFiltersForProductsQuery,
   formatFiltersForQuery,
   formatFiltersForQuotesQuery,
   formatFiltersForRevenueStreamsQuery,
@@ -27,7 +29,10 @@ import {
 import {
   AvailableFiltersEnum,
   filterDataInlineSeparator,
+  filterWithoutProductCategoryValue,
+  filterWithoutProductValue,
 } from '~/components/Filters/presentation/types'
+import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
 describe('Filters utils', () => {
   describe('formatFiltersForInvoiceQuery', () => {
@@ -348,6 +353,54 @@ describe('Filters utils', () => {
       const result = formatActiveFilterValueDisplay(AvailableFiltersEnum.planCode, 'planCodeValue')
 
       expect(result).toBe('PlanCodeValue')
+    })
+    it('should format active filter productProductCategory productCategory code display', () => {
+      const result = formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.productProductCategory,
+        `prod-1${filterDataInlineSeparator}code-1,prod-2${filterDataInlineSeparator}code-2`,
+      )
+
+      expect(result).toBe('code-1, code-2')
+    })
+    it('should format active filter productProductCategory "Not defined" with translation', () => {
+      const translate = ((key: string) =>
+        key === 'text_1784214117868fh6rndi4m75' ? 'Not defined' : key) as TranslateFunc
+
+      const result = formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.productProductCategory,
+        `${filterWithoutProductCategoryValue},prod-1${filterDataInlineSeparator}code-1`,
+        translate,
+      )
+
+      expect(result).toBe('Not defined, code-1')
+    })
+    it('should format active filter productFilterProductCategory productCategory code display', () => {
+      const result = formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.productFilterProductCategory,
+        `prod-1${filterDataInlineSeparator}code-1,prod-2${filterDataInlineSeparator}code-2`,
+      )
+
+      expect(result).toBe('code-1, code-2')
+    })
+    it('should format active filter productFilterProduct name display', () => {
+      const result = formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.productFilterProduct,
+        `pi-1${filterDataInlineSeparator}Seats,pi-2${filterDataInlineSeparator}Extra`,
+      )
+
+      expect(result).toBe('Seats, Extra')
+    })
+    it('should format active filter productFilterProduct "Not defined" with translation', () => {
+      const translate = ((key: string) =>
+        key === 'text_1784214117868fh6rndi4m75' ? 'Not defined' : key) as TranslateFunc
+
+      const result = formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.productFilterProduct,
+        `${filterWithoutProductValue},pi-1${filterDataInlineSeparator}Seats`,
+        translate,
+      )
+
+      expect(result).toBe('Not defined, Seats')
     })
     it('should format active filter paymentDisputeLost value display', () => {
       const result = formatActiveFilterValueDisplay(AvailableFiltersEnum.paymentDisputeLost, 'true')
@@ -1047,6 +1100,61 @@ describe('Filters utils', () => {
 
       expect(result).toEqual(['draft', 'approved'])
     })
+
+    it('should map productProductCategory productCategories-only to productCategoryIds', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.productProductCategory](
+        `prod-1${filterDataInlineSeparator}code-1,prod-2${filterDataInlineSeparator}code-2`,
+      )
+
+      expect(result).toEqual({ productCategoryIds: ['prod-1', 'prod-2'] })
+    })
+
+    it('should map productProductCategory "Not defined" only to withoutProductCategory', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.productProductCategory](
+        filterWithoutProductCategoryValue,
+      )
+
+      expect(result).toEqual({ withoutProductCategory: true })
+    })
+
+    it('should map productProductCategory with "Not defined" and productCategories to both keys', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.productProductCategory](
+        `${filterWithoutProductCategoryValue},prod-1${filterDataInlineSeparator}code-1`,
+      )
+
+      expect(result).toEqual({ productCategoryIds: ['prod-1'], withoutProductCategory: true })
+    })
+
+    it('should map productFilterProductCategory the same way as productProductCategory', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.productFilterProductCategory](
+        `${filterWithoutProductCategoryValue},prod-1${filterDataInlineSeparator}code-1`,
+      )
+
+      expect(result).toEqual({ productCategoryIds: ['prod-1'], withoutProductCategory: true })
+    })
+
+    it('should map productFilterProduct to the first real productId', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.productFilterProduct](
+        `pi-1${filterDataInlineSeparator}Seats,pi-2${filterDataInlineSeparator}Extra`,
+      )
+
+      expect(result).toEqual({ productId: 'pi-1' })
+    })
+
+    it('should map productFilterProduct "Not defined"-only to an empty object', () => {
+      const result =
+        FILTER_VALUE_MAP[AvailableFiltersEnum.productFilterProduct](filterWithoutProductValue)
+
+      expect(result).toEqual({})
+    })
+
+    it('should skip a leading "Not defined" entry and map productFilterProduct to the first real id', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.productFilterProduct](
+        `${filterWithoutProductValue},pi-1${filterDataInlineSeparator}Seats`,
+      )
+
+      expect(result).toEqual({ productId: 'pi-1' })
+    })
   })
 
   describe('formatMetadataFilter', () => {
@@ -1327,6 +1435,85 @@ describe('Filters utils', () => {
           logTypes: ['api_key'],
         }),
       )
+    })
+  })
+
+  describe('formatFiltersForProductsQuery', () => {
+    it('should map productCategories-only ProductCategory filter to productCategoryIds', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set(
+        'pit_productProductCategory',
+        `prod-1${filterDataInlineSeparator}code-1,prod-2${filterDataInlineSeparator}code-2`,
+      )
+
+      const result = formatFiltersForProductsQuery(searchParams)
+
+      expect(result).toEqual({ productCategoryIds: ['prod-1', 'prod-2'] })
+    })
+
+    it('should map "Not defined"-only ProductCategory filter to withoutProductCategory with no productCategoryIds', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('pit_productProductCategory', filterWithoutProductCategoryValue)
+
+      const result = formatFiltersForProductsQuery(searchParams)
+
+      expect(result).toEqual({ withoutProductCategory: true })
+      expect(result).not.toHaveProperty('productCategoryIds')
+    })
+
+    it('should map "Not defined" + productCategories + productType to all three query args', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set(
+        'pit_productProductCategory',
+        `${filterWithoutProductCategoryValue},prod-1${filterDataInlineSeparator}code-1`,
+      )
+      searchParams.set('pit_productType', 'fixed')
+
+      const result = formatFiltersForProductsQuery(searchParams)
+
+      expect(result).toEqual({
+        productCategoryIds: ['prod-1'],
+        withoutProductCategory: true,
+        productType: 'fixed',
+      })
+    })
+  })
+
+  describe('formatFiltersForProductFiltersQuery', () => {
+    it('maps the product-item filter to a single productId', () => {
+      const params = new URLSearchParams()
+
+      params.set('pif_productFilterProduct', 'pi-1|-_-|Seats')
+
+      expect(formatFiltersForProductFiltersQuery(params)).toEqual({ productId: 'pi-1' })
+    })
+
+    it('keeps only the first product when multiple are selected', () => {
+      const params = new URLSearchParams()
+
+      params.set(
+        'pif_productFilterProduct',
+        `pi-1${filterDataInlineSeparator}Seats,pi-2${filterDataInlineSeparator}Extra`,
+      )
+
+      expect(formatFiltersForProductFiltersQuery(params)).toEqual({ productId: 'pi-1' })
+    })
+
+    it('ignores the ProductCategory filter entirely', () => {
+      const params = new URLSearchParams()
+
+      params.set('pif_productFilterProductCategory', `prod-1${filterDataInlineSeparator}code-1`)
+
+      expect(formatFiltersForProductFiltersQuery(params)).toEqual({})
+    })
+
+    it('returns an empty object when no filter is set', () => {
+      const params = new URLSearchParams()
+
+      expect(formatFiltersForProductFiltersQuery(params)).toEqual({})
     })
   })
 

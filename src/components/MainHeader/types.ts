@@ -112,8 +112,8 @@ export interface MainHeaderEntityConfig {
 export interface BreadcrumbItem {
   /** Human-readable label shown in the breadcrumb trail */
   label: string
-  /** Route path — the item is rendered as a clickable link */
-  path: string
+  /** Route path: with a path the item is a clickable link; without it, a grey static label */
+  path?: string
   /** Show a skeleton instead of the label (e.g. while an async label loads) */
   loading?: boolean
 }

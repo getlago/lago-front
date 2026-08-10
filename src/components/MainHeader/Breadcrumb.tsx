@@ -8,11 +8,33 @@ import { BreadcrumbItem } from './types'
 
 export const BREADCRUMB_NAV_TEST_ID = 'breadcrumb-nav'
 
+const BreadcrumbItemContent = ({ item }: { item: BreadcrumbItem }) => {
+  if (item.loading) {
+    return <Skeleton variant="text" className="w-20" />
+  }
+
+  if (item.path) {
+    return (
+      <Link to={item.path} className="shrink-0 no-underline hover:no-underline">
+        <Typography variant="captionHl" color="primary600">
+          {item.label}
+        </Typography>
+      </Link>
+    )
+  }
+
+  return (
+    <Typography variant="captionHl" color="grey600" className="shrink-0">
+      {item.label}
+    </Typography>
+  )
+}
+
 /**
  * Breadcrumb — renders a horizontal trail of navigable links.
  *
  * Design rules (from Figma):
- * - Every item is a clickable blue link (path is mandatory).
+ * - Items with a path are clickable blue links; pathless items are grey static labels.
  * - Segments are separated by a "/" slash, same color as the links.
  * - Displayed above the entity name inside the header.
  */
@@ -25,24 +47,18 @@ export const Breadcrumb: FC<{ items: BreadcrumbItem[] }> = ({ items }) => {
       className="flex items-center gap-1"
       data-test={BREADCRUMB_NAV_TEST_ID}
     >
-      {items.map((item, index) => (
-        <Fragment key={item.path}>
-          {index > 0 && (
-            <Typography variant="captionHl" color="primary600" className="shrink-0">
-              /
-            </Typography>
-          )}
-          {item.loading ? (
-            <Skeleton variant="text" className="w-20" />
-          ) : (
-            <Link to={item.path} className="shrink-0 no-underline hover:no-underline">
-              <Typography variant="captionHl" color="primary600">
-                {item.label}
+      {items.map((item, index) => {
+        return (
+          <Fragment key={item.path ?? item.label}>
+            {index > 0 && (
+              <Typography variant="captionHl" color="primary600" className="shrink-0">
+                /
               </Typography>
-            </Link>
-          )}
-        </Fragment>
-      ))}
+            )}
+            <BreadcrumbItemContent item={item} />
+          </Fragment>
+        )
+      })}
     </nav>
   )
 }
