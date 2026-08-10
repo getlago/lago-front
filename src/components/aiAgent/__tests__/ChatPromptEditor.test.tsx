@@ -128,7 +128,7 @@ describe('ChatPromptEditor', () => {
         await userEvent.type(getInput(), 'hello')
         await userEvent.click(getSubmitButton())
 
-        expect(onSubmit).toHaveBeenCalledWith({ message: 'hello' }, expect.anything())
+        expect(onSubmit).toHaveBeenCalledWith({ message: 'hello' })
         expect(getInput()).toHaveValue('')
       })
     })
@@ -141,7 +141,7 @@ describe('ChatPromptEditor', () => {
 
         await userEvent.type(getInput(), 'hello{Enter}')
 
-        expect(onSubmit).toHaveBeenCalledWith({ message: 'hello' }, expect.anything())
+        expect(onSubmit).toHaveBeenCalledWith({ message: 'hello' })
       })
     })
 
