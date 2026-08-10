@@ -23,6 +23,19 @@ jest.mock('../ProductFilterPreview', () => ({
   default: () => null,
 }))
 
+const mockRateCardPreviewProps = jest.fn()
+
+// RateCardPreview imports useRateCardDrawer, which reaches drawerStack's
+// import.meta and crashes Jest; stub it out (capture the props so the scope
+// wiring can still be asserted, mirroring the drift test pattern).
+jest.mock('../RateCardPreview', () => ({
+  __esModule: true,
+  default: (props: Record<string, unknown>) => {
+    mockRateCardPreviewProps(props)
+    return null
+  },
+}))
+
 jest.mock('~/pages/catalog/drawers/product/useProductDrawer', () => ({
   useProductDrawer: () => ({ openDrawer: mockOpenEditProductDrawer }),
 }))
@@ -120,6 +133,18 @@ describe('ProductDetails', () => {
     expect(screen.getByText('text_1783980718114wkor6aysepe')).toBeInTheDocument()
     expect(screen.getByText('text_62442e40cea25600b0b6d85a')).toBeInTheDocument()
     expect(screen.getByText('text_1747314141347qq6rasuxisl')).toBeInTheDocument()
+  })
+
+  it('renders the RateCardPreview scoped to this product on the rate cards tab', async () => {
+    window.history.pushState({}, '', '/product-catalog/products/pitem-1/rate-cards')
+
+    await act(() => renderPage())
+
+    await waitFor(() => {
+      expect(mockRateCardPreviewProps).toHaveBeenCalledWith({
+        scope: { product: expect.objectContaining({ id: 'pitem-1', name: 'Seats' }) },
+      })
+    })
   })
 
   it('hides the activity logs tab without premium', async () => {

@@ -176,4 +176,11 @@ describe('cache typePolicies', () => {
       expect(Array.from(paginatedFields.keys())).toContain(fieldName)
     }
   })
+
+  // The rate cards list query lands in a later task, so the scanner above can't discover
+  // it from a gql document yet. Register the single-page policy ahead of time (mirrors
+  // productItemFilters) so the merge behavior is guarded from the moment the query ships.
+  it('rateCards has a single-page field policy registered ahead of its paginated query', () => {
+    expect(queryFieldPolicies.rateCards?.merge).toBeDefined()
+  })
 })
