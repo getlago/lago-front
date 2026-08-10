@@ -4,6 +4,7 @@ import type {
   LocalUsageChargeInput,
   PlanFormInput,
 } from '~/components/plans/types'
+import { comparable } from '~/core/utils/comparableValue'
 import { CommitmentTypeEnum, CurrencyEnum } from '~/generated/graphql'
 
 import { buildPlanPreviewData } from './buildPlanPreviewData'
@@ -317,13 +318,14 @@ const serializeFixedCharge = (charge: LocalFixedChargeInput): SerializedFixedCha
 }
 
 /**
- * Builds the camelCase `overrides` payload from the plan form state.
+ * Maps the plan form state to the camelCase `overrides` payload, with no regard
+ * for what the catalog plan holds.
  *
  * This is the single source of truth for the form → override mapping: it is
  * derived from the same `PlanFormInput` that feeds the plan `payload`, so the
  * two can't silently drift when a charge field is added.
  */
-export const buildPlanOverrides = (formValues: PlanFormInput): PlanOverrides => {
+const buildRawPlanOverrides = (formValues: PlanFormInput): PlanOverrides => {
   const overrides: PlanOverrides = {}
 
   // Form amounts are in currency units (e.g. "10" for $10); the backend
@@ -331,9 +333,9 @@ export const buildPlanOverrides = (formValues: PlanFormInput): PlanOverrides => 
   const currency = (formValues.amountCurrency as CurrencyEnum) ?? CurrencyEnum.Usd
 
   // Subscription fee
-  overrides.amountCents = Number(formValues.amountCents)
-    ? serializeAmount(formValues.amountCents, currency)
-    : undefined
+  if (Number(formValues.amountCents)) {
+    overrides.amountCents = serializeAmount(formValues.amountCents, currency)
+  }
   if (formValues.invoiceDisplayName) {
     overrides.invoiceDisplayName = formValues.invoiceDisplayName || undefined
   }
@@ -390,9 +392,52 @@ export const buildPlanOverrides = (formValues: PlanFormInput): PlanOverrides => 
   return overrides
 }
 
+/**
+ * Builds the `overrides` payload the backend uses to decide whether the quote
+ * creates an overridden subscription — so it must contain ONLY the fields the
+ * user actually changed relative to the catalog plan. Without `basePlanFormValues`
+ * every configured field is sent and every quoted subscription ends up
+ * overridden (LAGO-1789).
+ *
+ * Both sides run through `buildRawPlanOverrides` on purpose: the current form
+ * values and the baseline reach this function from different origins (a saved
+ * quote payload vs. a freshly fetched plan), and mapping them identically makes
+ * their representation differences cancel out instead of reading as changes.
+ * `comparable` finishes the job on the differences the mapping can't erase —
+ * `__typename` on the fetched side, keys the stored JSON dropped because their
+ * value was `undefined` on the payload side.
+ *
+ * Fields are dropped from the raw result rather than copied into a fresh object,
+ * so a new override field added to `buildRawPlanOverrides` is diffed without
+ * having to be repeated here. Every field is all-or-nothing (the backend replaces
+ * the whole charge set, so a single edited charge means sending them all).
+ */
+export const buildPlanOverrides = (
+  formValues: PlanFormInput,
+  basePlanFormValues?: PlanFormInput,
+): PlanOverrides => {
+  const overrides = buildRawPlanOverrides(formValues)
+
+  // With a baseline, drop the fields that match the catalog plan. Without one
+  // (catalog not loaded, or a caller that has none) keep the every-field
+  // behavior rather than silently dropping real overrides.
+  if (basePlanFormValues) {
+    const base = buildRawPlanOverrides(basePlanFormValues)
+
+    for (const key of Object.keys(overrides) as Array<keyof PlanOverrides>) {
+      if (comparable(overrides[key]) === comparable(base[key])) {
+        delete overrides[key]
+      }
+    }
+  }
+
+  return overrides
+}
+
 export const toPlanBillingItems = (
   state: SubscriptionPricingState,
   formValues?: PlanFormInput,
+  basePlanFormValues?: PlanFormInput,
 ): { plans: BillingItemPlan[] } => {
   const { planId, planCode, planName, planDescription, subscriptionSettings, invoicingSettings } =
     state
@@ -403,7 +448,9 @@ export const toPlanBillingItems = (
 
   // Derive overrides from the form values (single source of truth). Fall back to
   // any pre-built overrides on the state for callers that serialize without form values.
-  const overrides = formValues ? buildPlanOverrides(formValues) : (state.overrides ?? {})
+  const overrides = formValues
+    ? buildPlanOverrides(formValues, basePlanFormValues)
+    : (state.overrides ?? {})
 
   // The renamed plan goes into `overrides.name` (backend applies plan changes from
   // `overrides`), and only when it actually differs from the base — mirroring the

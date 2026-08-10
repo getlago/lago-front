@@ -1,8 +1,10 @@
 import { act, renderHook } from '@testing-library/react'
 
+import type { PlanFormInput } from '~/components/plans/types'
 import { addToast } from '~/core/apolloClient'
 import type { BillingItemsPayload } from '~/core/serializers/serializeQuoteBillingItems'
 import type { SubscriptionPricingState } from '~/core/serializers/serializeQuotePlanBillingItems'
+import { CurrencyEnum, PlanInterval } from '~/generated/graphql'
 import { QUOTE_SAVE_FAILED_TOAST_KEY } from '~/pages/quotes/utils/quoteSaveErrorKeys'
 import { render } from '~/test-utils'
 
@@ -21,6 +23,8 @@ const mockDrawerClose = jest.fn()
 // State the mocked content component hydrates into the hook's stateRef on render.
 // `null` keeps the ref empty (exercises the early-return branch in handleSave).
 let mockInjectedState: SubscriptionPricingState | null = null
+let mockInjectedFormValues: PlanFormInput | null = null
+let mockInjectedBasePlanFormValues: PlanFormInput | null = null
 
 // Verdict the mocked content component reports through validatePlanFormRef.
 // `null` leaves the ref unfilled, as when the content component never mounted.
@@ -37,19 +41,30 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 }))
 
 // Mock SubscriptionPricingContent — on render it hydrates the shared stateRef
-// so the drawer's submit handler has a subscription state to serialize.
+// so the drawer's submit handler has a subscription state to serialize, plus the
+// form values and their catalog-plan baseline used to diff the overrides.
 jest.mock(
   '~/components/designSystem/RichTextEditor/PricingBlock/SubscriptionPricingContent',
   () => ({
     SubscriptionPricingContent: ({
       stateRef,
+      formValuesRef,
+      basePlanFormValuesRef,
       validatePlanFormRef,
     }: {
       stateRef?: { current: SubscriptionPricingState | null }
+      formValuesRef?: { current: PlanFormInput | null }
+      basePlanFormValuesRef?: { current: PlanFormInput | null }
       validatePlanFormRef?: { current: (() => Promise<boolean>) | null }
     }) => {
       if (stateRef) {
         stateRef.current = mockInjectedState
+      }
+      if (formValuesRef) {
+        formValuesRef.current = mockInjectedFormValues
+      }
+      if (basePlanFormValuesRef) {
+        basePlanFormValuesRef.current = mockInjectedBasePlanFormValues
       }
 
       if (validatePlanFormRef) {
@@ -67,6 +82,8 @@ describe('useSubscriptionPricingDrawer', () => {
     jest.clearAllMocks()
     mockInjectedState = null
     mockPlanFormValid = null
+    mockInjectedFormValues = null
+    mockInjectedBasePlanFormValues = null
   })
 
   it('returns the expected interface', () => {
@@ -536,6 +553,88 @@ describe('useSubscriptionPricingDrawer', () => {
     expect(mockAddToast).toHaveBeenCalledWith({
       severity: 'danger',
       translateKey: QUOTE_SAVE_FAILED_TOAST_KEY,
+    })
+  })
+
+  describe('override diff baseline (LAGO-1789)', () => {
+    const planState: SubscriptionPricingState = {
+      planId: 'plan_123',
+      planCode: 'enterprise',
+      planName: 'Enterprise Plan',
+      basePlanName: 'Enterprise Plan',
+      planDescription: '',
+      subscriptionSettings: {
+        externalId: '',
+        subscriptionName: '',
+        billingTime: 'anniversary',
+        startDate: '2023-07-26',
+        endDate: '',
+      },
+      invoicingSettings: { paymentMethodId: '', invoiceCustomFooter: '' },
+      overrides: {},
+    }
+
+    const catalogFormValues = {
+      name: 'Enterprise Plan',
+      code: 'enterprise',
+      description: '',
+      interval: PlanInterval.Monthly,
+      amountCents: '850.00',
+      amountCurrency: CurrencyEnum.Usd,
+      payInAdvance: false,
+      trialPeriod: 0,
+      charges: [],
+      fixedCharges: [],
+      entitlements: [],
+    } as unknown as PlanFormInput
+
+    const saveAndReadPlan = async (): Promise<{ overrides: Record<string, unknown> }> => {
+      const onSave = jest.fn().mockResolvedValue({ ok: true })
+      const { result } = renderHook(() => useSubscriptionPricingDrawer(undefined))
+
+      act(() => {
+        result.current.onPricingCommand({ onSave })
+      })
+
+      const openArgs = mockDrawerOpen.mock.calls[0][0]
+
+      render(openArgs.children)
+
+      await act(async () => {
+        await openArgs.form.submit()
+      })
+
+      return onSave.mock.calls[0][2].plans[0]
+    }
+
+    it('sends no overrides when the form matches the catalog plan', async () => {
+      mockInjectedState = planState
+      mockInjectedFormValues = catalogFormValues
+      mockInjectedBasePlanFormValues = catalogFormValues
+
+      const plan = await saveAndReadPlan()
+
+      expect(plan.overrides).toEqual({})
+    })
+
+    it('sends only the edited field when the form differs from the catalog plan', async () => {
+      mockInjectedState = planState
+      mockInjectedFormValues = { ...catalogFormValues, amountCents: '900.00' }
+      mockInjectedBasePlanFormValues = catalogFormValues
+
+      const plan = await saveAndReadPlan()
+
+      expect(plan.overrides).toEqual({ amountCents: 90000 })
+    })
+
+    it('falls back to sending every configured field when no baseline is available', async () => {
+      mockInjectedState = planState
+      mockInjectedFormValues = catalogFormValues
+      mockInjectedBasePlanFormValues = null
+
+      const plan = await saveAndReadPlan()
+
+      expect(plan.overrides).toEqual({ amountCents: 85000 })
     })
   })
 })
