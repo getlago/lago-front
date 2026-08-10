@@ -190,7 +190,7 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
   const { handleSaveCharge, handleDeleteCharge } = chargeMutations
 
   const planCurrency = plan.amountCurrency
-  const charges = plan.charges ?? []
+  const charges = useMemo(() => plan.charges ?? [], [plan.charges])
   const isEmpty = charges.length === 0
   // Mirrors VirtualFilterList's internal branch (default threshold) via the shared
   // predicate. Used to drop content-visibility on the cards only when the list

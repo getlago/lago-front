@@ -113,28 +113,16 @@ describe('useAddSubscription', () => {
     mockPathname.current = EDITION_PATHNAME
   })
 
-  // The API rejects the whole update as soon as the `purchaseOrderNumber` key is
-  // present on a subscription that is neither pending nor active, even when the
-  // value did not change (`purchase_order_number_not_editable`, 405).
+  // The API rejects the `purchaseOrderNumber` only when the value actually
+  // changes on a subscription that is neither pending nor active
+  // (`purchase_order_number_not_editable`, 405), so the client always sends the
+  // key and lets the API decide.
   describe('GIVEN the subscription edition form is submitted', () => {
-    describe.each([
-      ['terminated', StatusTypeEnum.Terminated],
-      ['canceled', StatusTypeEnum.Canceled],
-    ])('WHEN the subscription is %s', (_, status) => {
-      it('THEN should omit the purchaseOrderNumber key from the update input', async () => {
-        const input = await submitAndCaptureInput(UpdateSubscriptionDocument, {
-          ...existingSubscription,
-          status,
-        } as ExistingSubscription)
-
-        expect(input).not.toHaveProperty('purchaseOrderNumber')
-        expect(input).toMatchObject({ id: 'sub-1', name: 'My subscription' })
-      })
-    })
-
     describe.each([
       ['pending', StatusTypeEnum.Pending],
       ['active', StatusTypeEnum.Active],
+      ['terminated', StatusTypeEnum.Terminated],
+      ['canceled', StatusTypeEnum.Canceled],
     ])('WHEN the subscription is %s', (_, status) => {
       it('THEN should send the purchaseOrderNumber in the update input', async () => {
         const input = await submitAndCaptureInput(UpdateSubscriptionDocument, {
@@ -142,7 +130,11 @@ describe('useAddSubscription', () => {
           status,
         } as ExistingSubscription)
 
-        expect(input).toMatchObject({ purchaseOrderNumber: 'PO-123' })
+        expect(input).toMatchObject({
+          id: 'sub-1',
+          name: 'My subscription',
+          purchaseOrderNumber: 'PO-123',
+        })
       })
     })
   })

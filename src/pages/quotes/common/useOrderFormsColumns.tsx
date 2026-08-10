@@ -42,6 +42,6 @@ export const useOrderFormsColumns = (): Array<TableColumn<OrderFormListItemFragm
         </Typography>
       ),
     },
-    getCreatedAtColumn<OrderFormListItemFragment>('text_624efab67eb2570101d117e3', 120),
+    getCreatedAtColumn<OrderFormListItemFragment>('text_624efab67eb2570101d117e3', 150),
   ]
 }
