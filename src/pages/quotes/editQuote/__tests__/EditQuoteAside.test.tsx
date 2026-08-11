@@ -429,12 +429,17 @@ describe('EditQuoteAside', () => {
           .getByTestId(EDIT_QUOTE_ASIDE_CURRENCY_COMBOBOX_TEST_ID)
           .querySelector('input') as HTMLInputElement
 
-        // Type to narrow the list down to the single AUD option instead of
-        // rendering and scanning every currency.
+        // Filter down to the single AUD option, then let the Autocomplete select
+        // it via the keyboard. Clicking a popper node instead means holding an
+        // element reference across re-renders, which is what made this flake.
         await user.clear(input)
         await user.type(input, CurrencyEnum.Aud)
 
-        await user.click(await screen.findByRole('option'))
+        await waitFor(() => {
+          expect(screen.getAllByRole('option')).toHaveLength(1)
+        })
+
+        await user.keyboard('{ArrowDown}{Enter}')
 
         await waitFor(() => {
           expect(mockUpdateQuoteVersion).toHaveBeenCalledWith(

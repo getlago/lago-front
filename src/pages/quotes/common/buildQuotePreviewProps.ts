@@ -40,7 +40,10 @@ export const buildQuotePreviewProps = ({
   // The version currency is the document's own currency and wins over the
   // customer's — the two can differ now that a quote's currency is editable.
   // The customer's remains the fallback for versions created before that.
-  const currency = version?.currency ?? customer?.currency ?? undefined
+  // The schema types the version currency as a plain String, hence the cast —
+  // same as every other quote-version currency read.
+  const currency =
+    (version?.currency as CurrencyEnum | undefined) ?? customer?.currency ?? undefined
 
   return {
     content: version?.content ?? '',
