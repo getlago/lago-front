@@ -388,6 +388,92 @@ describe('usePlanFormSetup', () => {
     })
   })
 
+  describe('GIVEN the override diff baseline (LAGO-1789)', () => {
+    describe('WHEN a plan id resolves', () => {
+      it('THEN should query the catalog plan even though the form query is skipped', () => {
+        const billingItemPlan = { id: 'plan-from-billing', payload: {}, overrides: {} }
+
+        mockFromPlanBillingItems.mockReturnValue({
+          formValues: { name: 'From Billing' },
+          subscriptionSettings: {},
+          invoicingSettings: {},
+        })
+
+        renderHook(() => usePlanFormSetup({ billingItemPlan: billingItemPlan as never }))
+
+        expect(mockUseGetSinglePlanQuery).toHaveBeenCalledWith(
+          expect.objectContaining({ skip: false, variables: { id: 'plan-from-billing' } }),
+        )
+      })
+
+      it('THEN should build the baseline with the catalog plan own currency', () => {
+        const billingItemPlan = { id: 'plan-from-billing', payload: {}, overrides: {} }
+
+        mockFromPlanBillingItems.mockReturnValue({
+          formValues: { name: 'From Billing' },
+          subscriptionSettings: {},
+          invoicingSettings: {},
+        })
+        mockUseGetSinglePlanQuery.mockReturnValue({
+          data: { plan: { ...mockPlan, amountCurrency: 'EUR' } },
+          loading: false,
+          error: undefined,
+        })
+
+        renderHook(() => usePlanFormSetup({ billingItemPlan: billingItemPlan as never }))
+
+        // The form side is hydrated from the billing item (no plan, USD default), so an
+        // EUR call can only come from the baseline.
+        expect(mockBuildDefaultValues).toHaveBeenCalledWith(
+          expect.objectContaining({ amountCurrency: 'EUR' }),
+          FORM_TYPE_ENUM.creation,
+          CurrencyEnum.Eur,
+          false,
+        )
+      })
+    })
+
+    describe('WHEN no plan id resolves', () => {
+      it('THEN should skip the baseline query and expose no baseline', () => {
+        const { result } = renderHook(() => usePlanFormSetup({}))
+
+        expect(result.current.basePlanFormValues).toBeUndefined()
+        expect(mockUseGetSinglePlanQuery).toHaveBeenCalledWith(
+          expect.objectContaining({ skip: true }),
+        )
+      })
+    })
+
+    describe('WHEN the form query already fetched the plan (case 4)', () => {
+      it('THEN should not fire a second query for the baseline', () => {
+        mockUseGetSinglePlanQuery.mockReturnValue({
+          data: { plan: mockPlan },
+          loading: false,
+          error: undefined,
+        })
+
+        renderHook(() => usePlanFormSetup({ planIdToFetch: 'plan-123' }))
+
+        const skipFlags = mockUseGetSinglePlanQuery.mock.calls.map((call) => call[0].skip)
+
+        // One live query (the form's) — the baseline reuses its result.
+        expect(skipFlags.filter((skip) => skip === false)).toHaveLength(1)
+      })
+
+      it('THEN should still expose a baseline built from that plan', () => {
+        mockUseGetSinglePlanQuery.mockReturnValue({
+          data: { plan: mockPlan },
+          loading: false,
+          error: undefined,
+        })
+
+        const { result } = renderHook(() => usePlanFormSetup({ planIdToFetch: 'plan-123' }))
+
+        expect(result.current.basePlanFormValues).toEqual({ name: 'default-plan' })
+      })
+    })
+  })
+
   describe('GIVEN the hook returns error from plan query', () => {
     describe('WHEN the plan query errors', () => {
       it('THEN should expose the error', () => {

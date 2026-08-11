@@ -4,6 +4,7 @@ import type {
   LocalUsageChargeInput,
   PlanFormInput,
 } from '~/components/plans/types'
+import { comparable } from '~/core/utils/comparableValue'
 import { CommitmentTypeEnum, CurrencyEnum } from '~/generated/graphql'
 
 import { buildPlanPreviewData } from './buildPlanPreviewData'
@@ -17,6 +18,16 @@ interface PlanChargeOverride {
   billableMetricCode: string
   chargeModel: string
   properties: Record<string, unknown>
+}
+
+// Fixed charges are keyed by add-on code, and the backend schema forbids any key
+// outside this set (`additionalProperties: {not: {}}`) — notably `chargeModel`,
+// which is only accepted on usage charge overrides.
+interface PlanFixedChargeOverride {
+  addOnCode: string
+  units?: string
+  properties?: Record<string, unknown>
+  invoiceDisplayName?: string
 }
 
 interface PlanMinimumCommitmentOverride {
@@ -36,6 +47,7 @@ export interface PlanOverrides {
   invoiceDisplayName?: string
   minimumCommitment?: PlanMinimumCommitmentOverride
   charges?: PlanChargeOverride[]
+  fixedCharges?: PlanFixedChargeOverride[]
   usageThresholds?: PlanUsageThresholdOverride[]
 }
 
@@ -261,6 +273,30 @@ const serializeCharge = (charge: LocalUsageChargeInput): SerializedCharge => {
   }
 }
 
+/**
+ * Fixed charge → `overrides.fixedCharges` entry. Only `addOnCode` is mandatory;
+ * the optional keys are omitted rather than sent empty because the backend schema
+ * validates them with `minLength: 1`.
+ */
+const buildFixedChargeOverride = (charge: LocalFixedChargeInput): PlanFixedChargeOverride => {
+  const override: PlanFixedChargeOverride = { addOnCode: charge.addOn?.code ?? '' }
+  const units = charge.units ?? ''
+
+  if (units) {
+    override.units = String(units)
+  }
+
+  if (charge.properties) {
+    override.properties = charge.properties
+  }
+
+  if (charge.invoiceDisplayName) {
+    override.invoiceDisplayName = charge.invoiceDisplayName
+  }
+
+  return override
+}
+
 const serializeFixedCharge = (charge: LocalFixedChargeInput): SerializedFixedCharge => {
   return {
     id: charge.id,
@@ -282,13 +318,14 @@ const serializeFixedCharge = (charge: LocalFixedChargeInput): SerializedFixedCha
 }
 
 /**
- * Builds the camelCase `overrides` payload from the plan form state.
+ * Maps the plan form state to the camelCase `overrides` payload, with no regard
+ * for what the catalog plan holds.
  *
  * This is the single source of truth for the form → override mapping: it is
  * derived from the same `PlanFormInput` that feeds the plan `payload`, so the
  * two can't silently drift when a charge field is added.
  */
-export const buildPlanOverrides = (formValues: PlanFormInput): PlanOverrides => {
+const buildRawPlanOverrides = (formValues: PlanFormInput): PlanOverrides => {
   const overrides: PlanOverrides = {}
 
   // Form amounts are in currency units (e.g. "10" for $10); the backend
@@ -296,34 +333,27 @@ export const buildPlanOverrides = (formValues: PlanFormInput): PlanOverrides => 
   const currency = (formValues.amountCurrency as CurrencyEnum) ?? CurrencyEnum.Usd
 
   // Subscription fee
-  overrides.amountCents = Number(formValues.amountCents)
-    ? serializeAmount(formValues.amountCents, currency)
-    : undefined
+  if (Number(formValues.amountCents)) {
+    overrides.amountCents = serializeAmount(formValues.amountCents, currency)
+  }
   if (formValues.invoiceDisplayName) {
     overrides.invoiceDisplayName = formValues.invoiceDisplayName || undefined
   }
 
-  // Fixed charges
+  // Fixed charges live in their own override collection: the backend resolves
+  // `charges[].billableMetricCode` against the plan's billable metrics, so an add-on
+  // code sent there fails with `charge_not_found`.
   if (formValues.fixedCharges?.length) {
-    overrides.charges = [
-      ...formValues.fixedCharges.map((c) => ({
-        billableMetricCode: c.addOn?.code ?? '',
-        chargeModel: c.chargeModel,
-        properties: c.properties ?? {},
-      })),
-    ]
+    overrides.fixedCharges = formValues.fixedCharges.map(buildFixedChargeOverride)
   }
 
   // Usage charges
   if (formValues.charges?.length) {
-    overrides.charges = [
-      ...(overrides.charges ?? []),
-      ...formValues.charges.map((c) => ({
-        billableMetricCode: c.billableMetric?.code ?? '',
-        chargeModel: c.chargeModel,
-        properties: c.properties ?? {},
-      })),
-    ]
+    overrides.charges = formValues.charges.map((c) => ({
+      billableMetricCode: c.billableMetric?.code ?? '',
+      chargeModel: c.chargeModel,
+      properties: c.properties ?? {},
+    }))
   }
 
   // Minimum commitment
@@ -362,9 +392,52 @@ export const buildPlanOverrides = (formValues: PlanFormInput): PlanOverrides => 
   return overrides
 }
 
+/**
+ * Builds the `overrides` payload the backend uses to decide whether the quote
+ * creates an overridden subscription — so it must contain ONLY the fields the
+ * user actually changed relative to the catalog plan. Without `basePlanFormValues`
+ * every configured field is sent and every quoted subscription ends up
+ * overridden (LAGO-1789).
+ *
+ * Both sides run through `buildRawPlanOverrides` on purpose: the current form
+ * values and the baseline reach this function from different origins (a saved
+ * quote payload vs. a freshly fetched plan), and mapping them identically makes
+ * their representation differences cancel out instead of reading as changes.
+ * `comparable` finishes the job on the differences the mapping can't erase —
+ * `__typename` on the fetched side, keys the stored JSON dropped because their
+ * value was `undefined` on the payload side.
+ *
+ * Fields are dropped from the raw result rather than copied into a fresh object,
+ * so a new override field added to `buildRawPlanOverrides` is diffed without
+ * having to be repeated here. Every field is all-or-nothing (the backend replaces
+ * the whole charge set, so a single edited charge means sending them all).
+ */
+export const buildPlanOverrides = (
+  formValues: PlanFormInput,
+  basePlanFormValues?: PlanFormInput,
+): PlanOverrides => {
+  const overrides = buildRawPlanOverrides(formValues)
+
+  // With a baseline, drop the fields that match the catalog plan. Without one
+  // (catalog not loaded, or a caller that has none) keep the every-field
+  // behavior rather than silently dropping real overrides.
+  if (basePlanFormValues) {
+    const base = buildRawPlanOverrides(basePlanFormValues)
+
+    for (const key of Object.keys(overrides) as Array<keyof PlanOverrides>) {
+      if (comparable(overrides[key]) === comparable(base[key])) {
+        delete overrides[key]
+      }
+    }
+  }
+
+  return overrides
+}
+
 export const toPlanBillingItems = (
   state: SubscriptionPricingState,
   formValues?: PlanFormInput,
+  basePlanFormValues?: PlanFormInput,
 ): { plans: BillingItemPlan[] } => {
   const { planId, planCode, planName, planDescription, subscriptionSettings, invoicingSettings } =
     state
@@ -375,7 +448,9 @@ export const toPlanBillingItems = (
 
   // Derive overrides from the form values (single source of truth). Fall back to
   // any pre-built overrides on the state for callers that serialize without form values.
-  const overrides = formValues ? buildPlanOverrides(formValues) : (state.overrides ?? {})
+  const overrides = formValues
+    ? buildPlanOverrides(formValues, basePlanFormValues)
+    : (state.overrides ?? {})
 
   // The renamed plan goes into `overrides.name` (backend applies plan changes from
   // `overrides`), and only when it actually differs from the base — mirroring the
@@ -535,6 +610,44 @@ const deserializeFixedCharge = (charge: SerializedFixedCharge): LocalFixedCharge
   }
 }
 
+/**
+ * A plan with no negotiated commitment is still persisted as a commitment object with an
+ * empty amount, so reading it back verbatim would rebuild a phantom 0 commitment that
+ * `planFormSchema` rejects. `{}` is what `buildDefaultValues` seeds for "no commitment".
+ */
+const deserializeMinimumCommitment = (
+  commitment: SerializedMinimumCommitment | null | undefined,
+  currency: CurrencyEnum,
+): PlanFormInput['minimumCommitment'] => {
+  if (!commitment || !Number(commitment.amountCents)) return {}
+
+  return {
+    id: commitment.id ?? undefined,
+    amountCents: String(deserializeAmount(commitment.amountCents, currency)),
+    invoiceDisplayName: commitment.invoiceDisplayName ?? undefined,
+    commitmentType: commitment.commitmentType as CommitmentTypeEnum,
+    taxCodes: commitment.taxCodes ?? [],
+    taxes: deserializeTaxes(commitment.taxes ?? []),
+  }
+}
+
+/**
+ * `undefined` means "progressive billing not configured"; an empty array is an error state
+ * for `planFormSchema`, and the payload always carries one when the plan has no threshold.
+ */
+const deserializeNonRecurringThresholds = (
+  thresholds: SerializedUsageThreshold[] | null | undefined,
+  currency: CurrencyEnum,
+): PlanFormInput['nonRecurringUsageThresholds'] => {
+  if (!thresholds?.length) return undefined
+
+  return thresholds.map((t) => ({
+    amountCents: deserializeAmount(t.amountCents || 0, currency),
+    thresholdDisplayName: t.thresholdDisplayName ?? undefined,
+    recurring: t.recurring,
+  })) as PlanFormInput['nonRecurringUsageThresholds']
+}
+
 export const fromPlanBillingItems = (plans: BillingItemPlan[]): FromPlanBillingItemsResult => {
   const plan = plans[0]
   const { payload, overrides, id } = plan
@@ -583,23 +696,11 @@ export const fromPlanBillingItems = (plans: BillingItemPlan[]): FromPlanBillingI
       taxes: deserializeTaxes(payload.taxes ?? []),
       charges: (payload.charges ?? []).map(deserializeCharge),
       fixedCharges: (payload.fixedCharges ?? []).map(deserializeFixedCharge),
-      minimumCommitment: payload.minimumCommitment
-        ? {
-            id: payload.minimumCommitment.id ?? undefined,
-            amountCents: String(
-              deserializeAmount(payload.minimumCommitment.amountCents || 0, currency),
-            ),
-            invoiceDisplayName: payload.minimumCommitment.invoiceDisplayName ?? undefined,
-            commitmentType: payload.minimumCommitment.commitmentType as CommitmentTypeEnum,
-            taxCodes: payload.minimumCommitment.taxCodes ?? [],
-            taxes: deserializeTaxes(payload.minimumCommitment.taxes ?? []),
-          }
-        : undefined,
-      nonRecurringUsageThresholds: (payload.nonRecurringUsageThresholds ?? []).map((t) => ({
-        amountCents: deserializeAmount(t.amountCents || 0, currency),
-        thresholdDisplayName: t.thresholdDisplayName ?? undefined,
-        recurring: t.recurring,
-      })) as PlanFormInput['nonRecurringUsageThresholds'],
+      minimumCommitment: deserializeMinimumCommitment(payload.minimumCommitment, currency),
+      nonRecurringUsageThresholds: deserializeNonRecurringThresholds(
+        payload.nonRecurringUsageThresholds,
+        currency,
+      ),
       recurringUsageThreshold: payload.recurringUsageThreshold
         ? {
             amountCents: deserializeAmount(
