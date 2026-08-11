@@ -13,6 +13,7 @@ gql`
   mutation updateQuoteVersion($input: UpdateQuoteVersionInput!) {
     updateQuoteVersion(input: $input) {
       id
+      currency
     }
   }
 

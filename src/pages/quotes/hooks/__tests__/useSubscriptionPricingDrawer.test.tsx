@@ -290,6 +290,7 @@ describe('useSubscriptionPricingDrawer', () => {
       // The drawer owns only the `plans` key; `addOns` is normalized in by the
       // save funnel (savePricingBlock), not by this drawer.
       expect.objectContaining({ plans: expect.any(Array) }),
+      undefined,
     )
     expect(onDatesChange).toHaveBeenCalledWith('2023-07-26', '2024-07-26')
     expect(result.current.entities).toHaveProperty('plan_123')
@@ -476,6 +477,7 @@ describe('useSubscriptionPricingDrawer', () => {
       expect.anything(),
       expect.anything(),
       expect.objectContaining({ plans: expect.any(Array), coupons: [existingCoupon] }),
+      undefined,
     )
   })
 
@@ -635,6 +637,65 @@ describe('useSubscriptionPricingDrawer', () => {
       const plan = await saveAndReadPlan()
 
       expect(plan.overrides).toEqual({ amountCents: 85000 })
+    })
+
+    describe('seeding the quote currency', () => {
+      const saveAndReadSeededCurrency = async (
+        hasQuoteCurrency: boolean,
+      ): Promise<CurrencyEnum | undefined> => {
+        const onSave = jest.fn().mockResolvedValue({ ok: true })
+        const { result } = renderHook(() =>
+          useSubscriptionPricingDrawer(undefined, {
+            currency: CurrencyEnum.Eur,
+            hasQuoteCurrency,
+          }),
+        )
+
+        act(() => {
+          result.current.onPricingCommand({ onSave })
+        })
+
+        const openArgs = mockDrawerOpen.mock.calls[0][0]
+
+        render(openArgs.children)
+
+        await act(async () => {
+          await openArgs.form.submit()
+        })
+
+        return onSave.mock.calls[0][3]
+      }
+
+      beforeEach(() => {
+        mockInjectedState = planState
+        mockInjectedFormValues = catalogFormValues
+        mockInjectedBasePlanFormValues = catalogFormValues
+      })
+
+      it("forwards the plan's currency when the quote has none of its own", async () => {
+        expect(await saveAndReadSeededCurrency(false)).toBe(CurrencyEnum.Usd)
+      })
+
+      it('forwards nothing when the quote already owns a currency', async () => {
+        expect(await saveAndReadSeededCurrency(true)).toBeUndefined()
+      })
+
+      it('locks the plan currency picker only when the quote owns a currency', () => {
+        const { result } = renderHook(() =>
+          useSubscriptionPricingDrawer(undefined, {
+            currency: CurrencyEnum.Eur,
+            hasQuoteCurrency: true,
+          }),
+        )
+
+        act(() => {
+          result.current.onPricingCommand({ onSave: jest.fn() })
+        })
+
+        expect(mockDrawerOpen.mock.calls[0][0].children.props).toEqual(
+          expect.objectContaining({ currency: CurrencyEnum.Eur, hasQuoteCurrency: true }),
+        )
+      })
     })
   })
 })

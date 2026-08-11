@@ -199,7 +199,7 @@ const mockQuote = {
     status: 'draft',
     version: 1,
     content: 'Some content',
-    currency: null,
+    currency: 'USD',
     startDate: null,
     endDate: null,
     createdAt: '2026-01-01',
@@ -1299,6 +1299,132 @@ describe('EditQuote', () => {
         // mergeWalletCredits unit tests (serializeQuoteBillingItems.test.ts)
         // and by useCreditsDrawer.test.tsx's "rebuild (create/edit path)" test,
         // which exercise the exact same rebuild -> mergeWalletCredits route.
+      })
+    })
+  })
+
+  describe('GIVEN the quote currency', () => {
+    const renderWithCurrencies = (
+      versionCurrency: string | null,
+      customerCurrency: string | null,
+    ) => {
+      mockUseQuote.mockReturnValue({
+        quote: {
+          ...mockQuote,
+          customer: { ...mockQuote.customer, currency: customerCurrency },
+          currentVersion: { ...mockQuote.currentVersion, currency: versionCurrency },
+        },
+        loading: false,
+        refetch: mockRefetchQuote,
+      })
+
+      return render(<EditQuote />)
+    }
+
+    describe('WHEN the version has no currency and the customer has one', () => {
+      it('THEN should backfill the version with the customer currency, once', async () => {
+        const { rerender } = renderWithCurrencies(null, 'EUR')
+
+        await waitFor(() => {
+          expect(mockUpdateQuoteVersion).toHaveBeenCalledWith(
+            { id: 'version-1', currency: 'EUR' },
+            false,
+          )
+        })
+
+        rerender(<EditQuote />)
+
+        expect(
+          mockUpdateQuoteVersion.mock.calls.filter(([payload]) => 'currency' in payload),
+        ).toHaveLength(1)
+      })
+    })
+
+    describe('WHEN the version already has a currency', () => {
+      it('THEN should not backfill it', async () => {
+        renderWithCurrencies('USD', 'EUR')
+
+        await waitFor(() => {
+          expect(capturedPricingDrawerArgs).not.toHaveLength(0)
+        })
+
+        expect(mockUpdateQuoteVersion).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the pricing drawers are built', () => {
+      it.each([
+        ['the version currency when it has one', 'USD', 'EUR', 'USD', true],
+        ['the customer currency as a fallback', null, 'EUR', 'EUR', false],
+      ])(
+        'THEN should use %s',
+        async (_, versionCurrency, customerCurrency, expected, hasQuoteCurrency) => {
+          renderWithCurrencies(versionCurrency, customerCurrency)
+
+          const options = capturedPricingDrawerArgs[1] as {
+            currency?: string
+            hasQuoteCurrency?: boolean
+          }
+
+          expect(options.currency).toBe(expected)
+          expect(options.hasQuoteCurrency).toBe(hasQuoteCurrency)
+        },
+      )
+    })
+
+    describe('WHEN a pricing drawer save seeds a currency', () => {
+      it('THEN should persist it alongside the billing items in a single mutation', async () => {
+        mockUpdateQuoteVersion.mockResolvedValue({
+          data: { updateQuoteVersion: { id: 'version-1' } },
+        })
+        renderWithCurrencies('USD', null)
+
+        act(() => {
+          capturedOnPricingCommand?.({ onSave: jest.fn() })
+        })
+
+        const wrappedOnSave = mockDrawerOnPricingCommand.mock.calls[0][0].onSave
+        const billingItems = { addOns: [{ addOnId: 'addon-1' }] }
+
+        await act(async () => {
+          await wrappedOnSave(
+            { pricingType: 'addOns', entityIds: ['addon-1'] },
+            {},
+            billingItems,
+            'JPY',
+          )
+        })
+
+        await waitFor(() => {
+          expect(mockUpdateQuoteVersion).toHaveBeenCalledWith(
+            expect.objectContaining({ id: 'version-1', billingItems, currency: 'JPY' }),
+            false,
+          )
+        })
+      })
+    })
+
+    describe('WHEN a pricing drawer save seeds no currency', () => {
+      it('THEN should leave the currency out of the payload', async () => {
+        mockUpdateQuoteVersion.mockResolvedValue({
+          data: { updateQuoteVersion: { id: 'version-1' } },
+        })
+        renderWithCurrencies('USD', null)
+
+        act(() => {
+          capturedOnPricingCommand?.({ onSave: jest.fn() })
+        })
+
+        const wrappedOnSave = mockDrawerOnPricingCommand.mock.calls[0][0].onSave
+
+        await act(async () => {
+          await wrappedOnSave({ pricingType: 'addOns', entityIds: ['addon-1'] }, {}, {})
+        })
+
+        await waitFor(() => {
+          expect(mockUpdateQuoteVersion).toHaveBeenCalled()
+        })
+        expect(mockUpdateQuoteVersion.mock.calls[0][0]).not.toHaveProperty('currency')
       })
     })
   })

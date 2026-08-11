@@ -26,6 +26,7 @@ import type { BillingItemsPayload } from '~/core/serializers/serializeQuoteBilli
 import type { Locale } from '~/core/translations'
 import { CurrencyEnum, OrderTypeEnum, type UpdateQuoteVersionInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { QUOTE_MENTION_VARIABLES } from '~/pages/quotes/common/mentionVariables'
 
 import EditQuoteAside from './editQuote/EditQuoteAside'
@@ -49,6 +50,7 @@ const EditQuote = () => {
   const navigate = useNavigate()
   const { quoteId } = useParams()
   const { quote, loading, refetch: refetchQuote } = useQuote(quoteId)
+  const { organization } = useOrganizationInfos()
 
   const { addQuoteImage } = useAddQuoteImage()
   // quote.images is the single source of truth — useAddQuoteImage writes each
@@ -110,6 +112,16 @@ const EditQuote = () => {
     quote?.orderType === OrderTypeEnum.SubscriptionCreation ||
     quote?.orderType === OrderTypeEnum.SubscriptionAmendment
 
+  // The quote version currency is the source of truth for every amount shown or
+  // serialized in this quote. Until it is set (legacy quotes, or before the
+  // backfill below lands), fall back to the customer's, then the organization's.
+  const quoteVersionCurrency = quote?.currentVersion?.currency as CurrencyEnum | undefined
+  const effectiveQuoteCurrency =
+    quoteVersionCurrency ??
+    quote?.customer?.currency ??
+    organization?.defaultCurrency ??
+    CurrencyEnum.Usd
+
   const subscriptionPricing = useSubscriptionPricingDrawer(quote?.currentVersion?.billingItems, {
     quoteDates: {
       startDate:
@@ -119,29 +131,25 @@ const EditQuote = () => {
     onDatesChange: handleSubscriptionDatesChange,
     customer: quote?.customer,
     subscriptionId: quote?.subscription?.id,
-    currency: quote?.currentVersion?.currency as CurrencyEnum | undefined,
+    currency: effectiveQuoteCurrency,
+    hasQuoteCurrency: !!quoteVersionCurrency,
   })
-  const oneOffPricing = useOneOffPricingDrawer(
-    quote?.currentVersion?.billingItems,
-    quote?.currentVersion?.currency as CurrencyEnum | undefined,
-  )
+  const oneOffPricing = useOneOffPricingDrawer(quote?.currentVersion?.billingItems, {
+    currency: effectiveQuoteCurrency,
+    hasQuoteCurrency: !!quoteVersionCurrency,
+  })
 
   const { onPricingCommand, isPricingDisabled, entities, syncEntitiesWithBlocks } =
     isSubscriptionOrder ? subscriptionPricing : oneOffPricing
 
-  // Discount + credits drawers price in the quote's own currency (matches the
-  // pricing drawers), not the customer's — the quote version currency is the
-  // source of truth for amounts shown/serialized in this quote.
-  const quoteCurrency = (quote?.currentVersion?.currency as CurrencyEnum) ?? CurrencyEnum.Usd
-
   // Stable ref so useDiscountDrawer can call savePricingBlock without a
   // forward-declaration error (savePricingBlock is defined below).
   const savePricingBlockRef = useRef<
-    (billingItems?: BillingItemsPayload) => Promise<SavePricingResult>
+    (billingItems?: BillingItemsPayload, currency?: CurrencyEnum) => Promise<SavePricingResult>
   >(async () => ({ ok: true }))
 
   const discount = useDiscountDrawer(quote?.currentVersion?.billingItems, {
-    currency: quoteCurrency,
+    currency: effectiveQuoteCurrency,
     onPersist: (billingItems) => savePricingBlockRef.current(billingItems),
     onRemoveBlock: (localId) => {
       isRollingBackRef.current = true
@@ -151,7 +159,7 @@ const EditQuote = () => {
   })
 
   const credits = useCreditsDrawer(quote?.currentVersion?.billingItems, {
-    currency: quoteCurrency,
+    currency: effectiveQuoteCurrency,
     onPersist: (billingItems) => savePricingBlockRef.current(billingItems),
     onRemoveBlock: (localId) => {
       isRollingBackRef.current = true
@@ -193,6 +201,22 @@ const EditQuote = () => {
   const updateQuoteVersionRef = useRef(updateQuoteVersion)
 
   updateQuoteVersionRef.current = updateQuoteVersion
+
+  // Quotes are no longer given a currency at creation time, so the edit page is
+  // where one gets materialized: persist the customer's (or the organization's)
+  // currency once, so every amount below has a real currency behind it.
+  const backfilledVersionIdRef = useRef<string | null>(null)
+
+  useEffect(() => {
+    if (!versionId || quoteVersionCurrency) return
+    if (backfilledVersionIdRef.current === versionId) return
+
+    backfilledVersionIdRef.current = versionId
+
+    updateQuoteVersionRef
+      .current({ id: versionId, currency: effectiveQuoteCurrency }, false)
+      .catch(() => undefined)
+  }, [versionId, quoteVersionCurrency, effectiveQuoteCurrency])
 
   const debouncedSave = useMemo(
     () =>
@@ -266,7 +290,10 @@ const EditQuote = () => {
   // Keep the ref in sync with the latest savePricingBlock so the stable wrapper
   // passed to useDiscountDrawer always calls the current version.
   const savePricingBlock = useCallback(
-    async (billingItems?: BillingItemsPayload): Promise<SavePricingResult> => {
+    async (
+      billingItems?: BillingItemsPayload,
+      currency?: CurrencyEnum,
+    ): Promise<SavePricingResult> => {
       if (!versionId) return { ok: true }
 
       const content = getMarkdownRef.current?.()
@@ -283,6 +310,9 @@ const EditQuote = () => {
         id: versionId,
         content,
         billingItems,
+        // Set only when the selected billing item is defining the quote currency
+        // — an existing currency is never overwritten from here.
+        ...(currency ? { currency } : {}),
       }
 
       failedPayloadRef.current = payload
@@ -317,12 +347,12 @@ const EditQuote = () => {
   const handlePricingCommand = useCallback<OnPricingCommand>(
     ({ onSave, editData }) => {
       onPricingCommand({
-        onSave: async (attrs, entityData, billingItems) => {
+        onSave: async (attrs, entityData, billingItems, currency) => {
           // 1. Insert/update the TipTap node (needed so the save serializes it).
           onSave(attrs, entityData, billingItems)
 
-          // 2. Unified save: content + billingItems together.
-          const result = await savePricingBlock(billingItems)
+          // 2. Unified save: content + billingItems (+ the seeded currency) together.
+          const result = await savePricingBlock(billingItems, currency)
 
           // 3. Roll back only a *newly inserted* node on failure — remove the
           // phantom block that never saved. When editing an existing block

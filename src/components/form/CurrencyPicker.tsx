@@ -2,7 +2,7 @@ import { ComboBox } from '~/components/form/ComboBox/ComboBox'
 import { ComboBoxProps } from '~/components/form/ComboBox/types'
 import { CurrencyEnum } from '~/generated/graphql'
 
-const CURRENCY_DATA = Object.values(CurrencyEnum).map((value) => ({ value }))
+export const CURRENCY_DATA = Object.values(CurrencyEnum).map((value) => ({ value }))
 
 // ComboBoxProps is a union (basic | grouped). We narrow to the basic branch
 // — discriminated by `renderGroupHeader?: never` — and then strip the props

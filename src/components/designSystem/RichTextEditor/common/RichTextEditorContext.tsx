@@ -40,6 +40,11 @@ interface PricingCommandParams {
     attrs: PricingBlockAttributes,
     entityData: Record<string, EntityData>,
     billingItems?: BillingItemsPayload,
+    /**
+     * Currency of the selected billing item, forwarded only when the quote has
+     * no currency of its own yet — the first plan/add-on then defines it.
+     */
+    currency?: CurrencyEnum,
   ) => void | Promise<unknown>
   editData?: { pricingType: PricingType; entityIds: string[]; localEntityIds?: string[] }
 }

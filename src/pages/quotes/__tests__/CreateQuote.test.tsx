@@ -5,7 +5,6 @@ import { StatusTypeEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import CreateQuote, {
-  CREATE_QUOTE_CURRENCY_COMBOBOX_TEST_ID,
   CREATE_QUOTE_CUSTOMER_COMBOBOX_TEST_ID,
   CREATE_QUOTE_ORDER_TYPE_TEST_ID,
   CREATE_QUOTE_SUBMIT_BUTTON_TEST_ID,
@@ -171,8 +170,8 @@ describe('CreateQuote', () => {
         mockCustomersQueryData = {
           customers: {
             collection: [
-              { id: 'cust-1', displayName: 'Customer One', externalId: 'ext-1', currency: null },
-              { id: 'cust-2', displayName: '', externalId: 'ext-2', currency: 'USD' },
+              { id: 'cust-1', displayName: 'Customer One', externalId: 'ext-1' },
+              { id: 'cust-2', displayName: '', externalId: 'ext-2' },
             ],
           },
         }
@@ -184,12 +183,21 @@ describe('CreateQuote', () => {
     })
   })
 
-  describe('GIVEN the currency field', () => {
-    describe('WHEN no customer is selected', () => {
-      it('THEN should not show the currency combobox', () => {
+  describe('GIVEN the currency is no longer picked at creation', () => {
+    describe.each([
+      ['no customer is loaded', undefined],
+      [
+        'customers are loaded',
+        { customers: { collection: [{ id: 'cust-1', displayName: 'One', externalId: 'ext-1' }] } },
+      ],
+    ])('WHEN %s', (_, customersData) => {
+      it('THEN should not render a currency field', () => {
+        mockCustomersQueryData = customersData
+
         render(<CreateQuote />)
 
-        expect(screen.queryByTestId(CREATE_QUOTE_CURRENCY_COMBOBOX_TEST_ID)).not.toBeInTheDocument()
+        // text_632b4acf0c41206cbcb8c324 is the "Currency" label
+        expect(screen.queryByText('text_632b4acf0c41206cbcb8c324')).not.toBeInTheDocument()
       })
     })
   })

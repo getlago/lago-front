@@ -44,7 +44,10 @@ export interface SubscriptionPricingDrawerOptions {
   onDatesChange?: (startDate?: string, endDate?: string) => void
   customer?: QuoteCustomer | null
   subscriptionId?: string
+  /** Currency used to display amounts — may be a customer/organization fallback. */
   currency?: CurrencyEnum | null
+  /** Whether `currency` is the quote's own currency rather than a fallback. */
+  hasQuoteCurrency?: boolean
 }
 
 export const useSubscriptionPricingDrawer = (
@@ -93,6 +96,7 @@ export const useSubscriptionPricingDrawer = (
         attrs: PricingBlockAttributes,
         entityData: Record<string, EntityData>,
         billingItems?: BillingItemsPayload,
+        currency?: CurrencyEnum,
       ) => void | Promise<unknown>)
     | null
   >(null)
@@ -164,6 +168,11 @@ export const useSubscriptionPricingDrawer = (
           },
         }
 
+        // The quote has no currency of its own yet: the selected plan defines it.
+        const seededCurrency = options?.hasQuoteCurrency
+          ? undefined
+          : (formValues?.amountCurrency as CurrencyEnum | undefined)
+
         const result = (await onSaveRef.current?.(
           { pricingType: 'plan', entityIds: [state.planId] },
           entityData,
@@ -171,6 +180,7 @@ export const useSubscriptionPricingDrawer = (
             ...latestBillingItemsRef.current,
             ...billingItems,
           },
+          seededCurrency,
         )) as SavePricingResult | undefined
 
         if (result?.ok === false) {
@@ -211,6 +221,7 @@ export const useSubscriptionPricingDrawer = (
             quoteDates={options?.quoteDates}
             customer={options?.customer}
             currency={options?.currency}
+            hasQuoteCurrency={options?.hasQuoteCurrency}
             billingItemPlan={billingItemPlan}
             subscriptionId={billingItemPlan ? undefined : options?.subscriptionId}
           />

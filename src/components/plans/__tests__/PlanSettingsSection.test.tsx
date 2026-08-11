@@ -346,6 +346,23 @@ describe('PlanSettingsSection', () => {
         expect(currencyInput).toBeDisabled()
       })
     })
+
+    describe.each([
+      ['disableCurrencyInput is set', true, true],
+      ['disableCurrencyInput is not set', false, false],
+    ])('WHEN %s', (_, disableCurrencyInput, expectedDisabled) => {
+      it(`THEN should render the currency field ${expectedDisabled ? 'disabled' : 'enabled'}`, async () => {
+        const { container } = await act(() =>
+          render(<PlanSettingsSectionWrapper disableCurrencyInput={disableCurrencyInput} />),
+        )
+
+        const currencyInput = container.querySelector(
+          '.MuiAutocomplete-root input',
+        ) as HTMLInputElement
+
+        expect(currencyInput.disabled).toBe(expectedDisabled)
+      })
+    })
   })
 
   describe('GIVEN the bill-monthly switches', () => {

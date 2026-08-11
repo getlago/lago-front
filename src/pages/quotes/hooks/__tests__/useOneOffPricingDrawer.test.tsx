@@ -927,9 +927,10 @@ describe('useOneOffPricingDrawer', () => {
   describe('GIVEN customerCurrency is provided', () => {
     describe('WHEN onPricingCommand is called', () => {
       it('THEN should pass the customerCurrency to the drawer content instead of organization default', () => {
-        const { result } = renderHook(() => useOneOffPricingDrawer(undefined, CurrencyEnum.Eur), {
-          wrapper,
-        })
+        const { result } = renderHook(
+          () => useOneOffPricingDrawer(undefined, { currency: CurrencyEnum.Eur }),
+          { wrapper },
+        )
 
         act(() => {
           result.current.onPricingCommand({
@@ -947,7 +948,9 @@ describe('useOneOffPricingDrawer', () => {
 
     describe('WHEN customerCurrency is null', () => {
       it('THEN should fall back to organization defaultCurrency', () => {
-        const { result } = renderHook(() => useOneOffPricingDrawer(undefined, null), { wrapper })
+        const { result } = renderHook(() => useOneOffPricingDrawer(undefined, { currency: null }), {
+          wrapper,
+        })
 
         act(() => {
           result.current.onPricingCommand({
@@ -1037,6 +1040,8 @@ describe('useOneOffPricingDrawer', () => {
             }),
           }),
           undefined, // toBillingItems is mocked, returns undefined
+          // No add-on payload was captured in this test, so nothing seeds the currency.
+          undefined,
         )
 
         // Entities should be updated (keyed by localId)
@@ -1154,7 +1159,80 @@ describe('useOneOffPricingDrawer', () => {
             'local-uuid-new': expect.objectContaining({ entityId: 'local-uuid-new' }),
           }),
           undefined, // toBillingItems is mocked, returns undefined
+          // The quote has no currency of its own: the add-on's seeds it.
+          'USD',
         )
+      })
+    })
+
+    describe('WHEN the quote already owns a currency', () => {
+      it('THEN should not forward the add-on currency', () => {
+        const { result } = renderHook(
+          () =>
+            useOneOffPricingDrawer(undefined, {
+              currency: CurrencyEnum.Eur,
+              hasQuoteCurrency: true,
+            }),
+          { wrapper },
+        )
+
+        act(() => {
+          result.current.onPricingCommand({ onSave: jest.fn(), editData: undefined })
+        })
+
+        const captureCallback =
+          mockFormDrawerOpen.mock.calls[0][0].children.props.onAddOnPayloadCapture
+
+        act(() => {
+          captureCallback('local-uuid-new', {
+            id: 'addon-new',
+            code: 'onboarding',
+            name: 'Onboarding Fee',
+            description: 'One-time onboarding',
+            amountCents: '7500',
+            amountCurrency: 'USD',
+            invoiceDisplayName: 'Onboarding',
+            taxes: [],
+          })
+        })
+
+        mockFormValues = {
+          planId: '',
+          addOnItems: [
+            {
+              localId: 'local-uuid-new',
+              addOnId: 'addon-new',
+              name: 'Onboarding Fee',
+              invoiceDisplayName: 'Onboarding',
+              code: 'onboarding',
+              description: 'One-time onboarding',
+              units: '1',
+              unitAmountCents: '7500',
+              totalAmount: '7500',
+              fromDatetime: '2026-01-01',
+              toDatetime: '2026-01-31',
+            },
+          ],
+        }
+
+        const mockOnSave = jest.fn()
+
+        act(() => {
+          result.current.onPricingCommand({
+            onSave: mockOnSave,
+            editData: {
+              pricingType: 'addOns',
+              entityIds: ['addon-new'],
+              localEntityIds: ['local-uuid-new'],
+            },
+          })
+        })
+
+        act(() => {
+          capturedOnSubmit?.({ value: mockFormValues })
+        })
+
+        expect(mockOnSave.mock.calls[0][3]).toBeUndefined()
       })
     })
   })
