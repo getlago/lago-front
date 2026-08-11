@@ -84,20 +84,44 @@ jest.mock('~/generated/graphql', () => ({
 
 // Mock usePlanFormSetup — returns a mock form + plan when planIdToFetch is set
 let mockFormOverrides: Partial<PlanFormInput> = {}
+let mockBasePlanFormValues: PlanFormInput | undefined
+
+// Mirrors TanStack: handleSubmit only invokes onSubmit once the form-level
+// validators pass, which is what the component uses as its validity signal.
+let mockFormPassesValidation = true
 
 jest.mock('~/hooks/plans/usePlanFormSetup', () => {
   const { createMockPlanForm } = jest.requireActual('~/test-utils/createMockPlanForm')
 
   return {
-    usePlanFormSetup: jest.fn(({ planIdToFetch }: { planIdToFetch?: string }) => ({
-      form: createMockPlanForm(mockFormOverrides),
-      plan: planIdToFetch ? mockPlan : undefined,
-      formReady: !!planIdToFetch,
-      loading: false,
-      resolvedPlanId: planIdToFetch,
-      subscriptionSettings: undefined,
-      invoicingSettings: undefined,
-    })),
+    usePlanFormSetup: jest.fn(
+      ({
+        planIdToFetch,
+        onSubmit,
+      }: {
+        planIdToFetch?: string
+        onSubmit?: (value: PlanFormInput) => void
+      }) => {
+        const form = createMockPlanForm(mockFormOverrides)
+
+        form.handleSubmit = jest.fn(async () => {
+          if (mockFormPassesValidation) {
+            onSubmit?.(form.state.values)
+          }
+        })
+
+        return {
+          form,
+          plan: planIdToFetch ? mockPlan : undefined,
+          basePlanFormValues: mockBasePlanFormValues,
+          formReady: !!planIdToFetch,
+          loading: false,
+          resolvedPlanId: planIdToFetch,
+          subscriptionSettings: undefined,
+          invoicingSettings: undefined,
+        }
+      },
+    ),
   }
 })
 
@@ -146,6 +170,8 @@ jest.mock('~/components/plans/drawers/subscriptionFee/SubscriptionFeeDrawer', ()
 describe('SubscriptionPricingContent', () => {
   beforeEach(() => {
     mockFormOverrides = {}
+    mockFormPassesValidation = true
+    mockBasePlanFormValues = undefined
     mockOpenSubscriptionSettings.mockClear()
     mockOpenPlanSettings.mockClear()
   })
@@ -153,9 +179,16 @@ describe('SubscriptionPricingContent', () => {
   it('shows plan selection ComboBox without initial data', async () => {
     const stateRef = { current: null as SubscriptionPricingState | null }
     const formValuesRef = { current: null as PlanFormInput | null }
+    const basePlanFormValuesRef = { current: null as PlanFormInput | null }
 
     await act(() =>
-      render(<SubscriptionPricingContent stateRef={stateRef} formValuesRef={formValuesRef} />),
+      render(
+        <SubscriptionPricingContent
+          stateRef={stateRef}
+          formValuesRef={formValuesRef}
+          basePlanFormValuesRef={basePlanFormValuesRef}
+        />,
+      ),
     )
 
     // Should show ComboBox for plan selection
@@ -167,6 +200,7 @@ describe('SubscriptionPricingContent', () => {
   it('shows sections when initial plan is provided', async () => {
     const stateRef = { current: null as SubscriptionPricingState | null }
     const formValuesRef = { current: null as PlanFormInput | null }
+    const basePlanFormValuesRef = { current: null as PlanFormInput | null }
 
     const initialState: SubscriptionPricingState = {
       planId: 'plan_1',
@@ -183,6 +217,7 @@ describe('SubscriptionPricingContent', () => {
         <SubscriptionPricingContent
           stateRef={stateRef}
           formValuesRef={formValuesRef}
+          basePlanFormValuesRef={basePlanFormValuesRef}
           initialState={initialState}
         />,
       ),
@@ -199,6 +234,7 @@ describe('SubscriptionPricingContent', () => {
   it('syncs state to stateRef when plan is selected', async () => {
     const stateRef = { current: null as SubscriptionPricingState | null }
     const formValuesRef = { current: null as PlanFormInput | null }
+    const basePlanFormValuesRef = { current: null as PlanFormInput | null }
 
     const initialState: SubscriptionPricingState = {
       planId: 'plan_1',
@@ -215,6 +251,7 @@ describe('SubscriptionPricingContent', () => {
         <SubscriptionPricingContent
           stateRef={stateRef}
           formValuesRef={formValuesRef}
+          basePlanFormValuesRef={basePlanFormValuesRef}
           initialState={initialState}
         />,
       ),
@@ -228,9 +265,16 @@ describe('SubscriptionPricingContent', () => {
     it('WHEN rendered without initialState THEN stateRef remains null', async () => {
       const stateRef = { current: null as SubscriptionPricingState | null }
       const formValuesRef = { current: null as PlanFormInput | null }
+      const basePlanFormValuesRef = { current: null as PlanFormInput | null }
 
       await act(() =>
-        render(<SubscriptionPricingContent stateRef={stateRef} formValuesRef={formValuesRef} />),
+        render(
+          <SubscriptionPricingContent
+            stateRef={stateRef}
+            formValuesRef={formValuesRef}
+            basePlanFormValuesRef={basePlanFormValuesRef}
+          />,
+        ),
       )
 
       // formReady is false and selectedPlanId is empty => stateRef.current = null (line 153-154)
@@ -269,6 +313,7 @@ describe('SubscriptionPricingContent', () => {
 
       const stateRef = { current: null as SubscriptionPricingState | null }
       const formValuesRef = { current: null as PlanFormInput | null }
+      const basePlanFormValuesRef = { current: null as PlanFormInput | null }
 
       const initialState: SubscriptionPricingState = {
         planId: 'plan_1',
@@ -284,6 +329,7 @@ describe('SubscriptionPricingContent', () => {
           <SubscriptionPricingContent
             stateRef={stateRef}
             formValuesRef={formValuesRef}
+            basePlanFormValuesRef={basePlanFormValuesRef}
             initialState={initialState}
           />,
         ),
@@ -305,6 +351,7 @@ describe('SubscriptionPricingContent', () => {
 
       const stateRef = { current: null as SubscriptionPricingState | null }
       const formValuesRef = { current: null as PlanFormInput | null }
+      const basePlanFormValuesRef = { current: null as PlanFormInput | null }
 
       const initialState: SubscriptionPricingState = {
         planId: 'plan_1',
@@ -320,6 +367,7 @@ describe('SubscriptionPricingContent', () => {
           <SubscriptionPricingContent
             stateRef={stateRef}
             formValuesRef={formValuesRef}
+            basePlanFormValuesRef={basePlanFormValuesRef}
             initialState={initialState}
           />,
         ),
@@ -337,6 +385,7 @@ describe('SubscriptionPricingContent', () => {
 
       const stateRef = { current: null as SubscriptionPricingState | null }
       const formValuesRef = { current: null as PlanFormInput | null }
+      const basePlanFormValuesRef = { current: null as PlanFormInput | null }
 
       const initialState: SubscriptionPricingState = {
         planId: 'plan_1',
@@ -352,6 +401,7 @@ describe('SubscriptionPricingContent', () => {
           <SubscriptionPricingContent
             stateRef={stateRef}
             formValuesRef={formValuesRef}
+            basePlanFormValuesRef={basePlanFormValuesRef}
             initialState={initialState}
           />,
         ),
@@ -377,12 +427,14 @@ describe('SubscriptionPricingContent', () => {
     it('WHEN a plan is selected THEN the invoicing & payments component is rendered', async () => {
       const stateRef = { current: null as SubscriptionPricingState | null }
       const formValuesRef = { current: null as PlanFormInput | null }
+      const basePlanFormValuesRef = { current: null as PlanFormInput | null }
 
       await act(() =>
         render(
           <SubscriptionPricingContent
             stateRef={stateRef}
             formValuesRef={formValuesRef}
+            basePlanFormValuesRef={basePlanFormValuesRef}
             initialState={initialState}
             customer={mockCustomer}
           />,
@@ -395,12 +447,14 @@ describe('SubscriptionPricingContent', () => {
     it('WHEN no customer is provided THEN the invoicing & payments component is hidden', async () => {
       const stateRef = { current: null as SubscriptionPricingState | null }
       const formValuesRef = { current: null as PlanFormInput | null }
+      const basePlanFormValuesRef = { current: null as PlanFormInput | null }
 
       await act(() =>
         render(
           <SubscriptionPricingContent
             stateRef={stateRef}
             formValuesRef={formValuesRef}
+            basePlanFormValuesRef={basePlanFormValuesRef}
             initialState={initialState}
           />,
         ),
@@ -425,12 +479,14 @@ describe('SubscriptionPricingContent', () => {
       const user = userEvent.setup()
       const stateRef = { current: null as SubscriptionPricingState | null }
       const formValuesRef = { current: null as PlanFormInput | null }
+      const basePlanFormValuesRef = { current: null as PlanFormInput | null }
 
       await act(() =>
         render(
           <SubscriptionPricingContent
             stateRef={stateRef}
             formValuesRef={formValuesRef}
+            basePlanFormValuesRef={basePlanFormValuesRef}
             initialState={initialState}
           />,
         ),
@@ -474,12 +530,14 @@ describe('SubscriptionPricingContent', () => {
     it('WHEN the user switches to a different plan THEN billingItemPlan is dropped so prices reset', async () => {
       const stateRef = { current: null as SubscriptionPricingState | null }
       const formValuesRef = { current: null as PlanFormInput | null }
+      const basePlanFormValuesRef = { current: null as PlanFormInput | null }
 
       await act(() =>
         render(
           <SubscriptionPricingContent
             stateRef={stateRef}
             formValuesRef={formValuesRef}
+            basePlanFormValuesRef={basePlanFormValuesRef}
             initialState={initialState}
             billingItemPlan={billingItemPlan}
           />,
@@ -512,12 +570,14 @@ describe('SubscriptionPricingContent', () => {
     it('WHEN the user re-selects the original plan THEN billingItemPlan is preserved', async () => {
       const stateRef = { current: null as SubscriptionPricingState | null }
       const formValuesRef = { current: null as PlanFormInput | null }
+      const basePlanFormValuesRef = { current: null as PlanFormInput | null }
 
       await act(() =>
         render(
           <SubscriptionPricingContent
             stateRef={stateRef}
             formValuesRef={formValuesRef}
+            basePlanFormValuesRef={basePlanFormValuesRef}
             initialState={initialState}
             billingItemPlan={billingItemPlan}
           />,
@@ -528,6 +588,145 @@ describe('SubscriptionPricingContent', () => {
       expect(usePlanFormSetup).toHaveBeenLastCalledWith(
         expect.objectContaining({ billingItemPlan, planIdToFetch: 'plan_1' }),
       )
+    })
+  })
+
+  describe('GIVEN the drawer passes a validatePlanFormRef', () => {
+    const renderWithValidateRef = async () => {
+      const stateRef = { current: null as SubscriptionPricingState | null }
+      const formValuesRef = { current: null as PlanFormInput | null }
+      const validatePlanFormRef = { current: null as (() => Promise<boolean>) | null }
+      const basePlanFormValuesRef = { current: null as PlanFormInput | null }
+
+      const rendered = await act(() =>
+        render(
+          <SubscriptionPricingContent
+            stateRef={stateRef}
+            formValuesRef={formValuesRef}
+            validatePlanFormRef={validatePlanFormRef}
+            basePlanFormValuesRef={basePlanFormValuesRef}
+          />,
+        ),
+      )
+
+      return { rendered, validatePlanFormRef }
+    }
+
+    describe('WHEN the component mounts', () => {
+      it('THEN should fill the ref with a validation handle', async () => {
+        const { validatePlanFormRef } = await renderWithValidateRef()
+
+        expect(typeof validatePlanFormRef.current).toBe('function')
+      })
+    })
+
+    describe('WHEN the plan form passes its validators', () => {
+      it('THEN should report the form as valid', async () => {
+        mockFormPassesValidation = true
+
+        const { validatePlanFormRef } = await renderWithValidateRef()
+
+        await expect(validatePlanFormRef.current?.()).resolves.toBe(true)
+      })
+    })
+
+    describe('WHEN the plan form fails its validators', () => {
+      it('THEN should report the form as invalid', async () => {
+        mockFormPassesValidation = false
+
+        const { validatePlanFormRef } = await renderWithValidateRef()
+
+        await expect(validatePlanFormRef.current?.()).resolves.toBe(false)
+      })
+
+      it('THEN should report invalid again on a second attempt', async () => {
+        mockFormPassesValidation = false
+
+        const { validatePlanFormRef } = await renderWithValidateRef()
+
+        await validatePlanFormRef.current?.()
+
+        await expect(validatePlanFormRef.current?.()).resolves.toBe(false)
+      })
+    })
+
+    describe('WHEN the component unmounts', () => {
+      it('THEN should clear the ref', async () => {
+        const { rendered, validatePlanFormRef } = await renderWithValidateRef()
+
+        rendered.unmount()
+
+        expect(validatePlanFormRef.current).toBeNull()
+      })
+    })
+  })
+
+  describe('GIVEN the override diff baseline', () => {
+    const initialState: SubscriptionPricingState = {
+      planId: 'plan_1',
+      planCode: 'starter',
+      planName: 'Starter',
+      planDescription: '',
+      subscriptionSettings: DEFAULT_SUBSCRIPTION_SETTINGS,
+      invoicingSettings: DEFAULT_INVOICING_SETTINGS,
+      overrides: {},
+    }
+
+    // Seed the base ref (optionally with a stale leftover) and render, returning the
+    // refs so each test can assert how the sync effect wrote them.
+    const renderWithRefs = async (basePlanFormValuesInit: PlanFormInput | null = null) => {
+      const stateRef = { current: null as SubscriptionPricingState | null }
+      const formValuesRef = { current: null as PlanFormInput | null }
+      const basePlanFormValuesRef = { current: basePlanFormValuesInit }
+
+      await act(() =>
+        render(
+          <SubscriptionPricingContent
+            stateRef={stateRef}
+            formValuesRef={formValuesRef}
+            basePlanFormValuesRef={basePlanFormValuesRef}
+            initialState={initialState}
+          />,
+        ),
+      )
+
+      return { stateRef, basePlanFormValuesRef }
+    }
+
+    it('WHEN the catalog plan values are available THEN basePlanFormValuesRef captures them', async () => {
+      mockBasePlanFormValues = {
+        name: 'Starter',
+        code: 'starter',
+        interval: PlanInterval.Monthly,
+        amountCents: '5000',
+        amountCurrency: CurrencyEnum.Usd,
+        charges: [],
+        fixedCharges: [],
+        entitlements: [],
+      } as unknown as PlanFormInput
+
+      const { basePlanFormValuesRef } = await renderWithRefs()
+
+      expect(basePlanFormValuesRef.current).toEqual(mockBasePlanFormValues)
+    })
+
+    it('WHEN no catalog plan values are available THEN the ref is cleared, not left stale', async () => {
+      // A leftover value from a previous plan: the sync must overwrite it, otherwise a
+      // stale baseline would be diffed against the new plan.
+      const { stateRef, basePlanFormValuesRef } = await renderWithRefs({
+        name: 'Previous plan',
+      } as unknown as PlanFormInput)
+
+      expect(stateRef.current).not.toBeNull()
+      expect(basePlanFormValuesRef.current).toBeNull()
+    })
+
+    it('WHEN the baseline has not arrived yet THEN the pricing sections still render', async () => {
+      await renderWithRefs()
+
+      // The plan query is cache-and-network, so it reports loading on every open —
+      // the drawer must not blank out waiting for the diff baseline.
+      expect(screen.getByTestId('fixed-charges-section')).toBeInTheDocument()
     })
   })
 })
