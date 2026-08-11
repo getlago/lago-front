@@ -24,6 +24,15 @@ export const useOrderActions = () => {
   const getActions = (order: OrderListItemFragment): OrderAction[] => {
     const actions: OrderAction[] = []
 
+    // Execute manually — only for created (not yet executed) orders, requires ordersExecute
+    if (order.status === OrderStatusEnum.Created && hasPermissions(['ordersExecute'])) {
+      actions.push({
+        icon: 'flash',
+        label: translate('text_17836939541574skv5dmaj06'),
+        onAction: () => navigate(generatePath(EXECUTE_ORDER_ROUTE, { orderId: order.id })),
+      })
+    }
+
     // Edit — only for created (not yet executed) orders, requires ordersUpdate permission
     if (order.status === OrderStatusEnum.Created && hasPermissions(['ordersUpdate'])) {
       actions.push({
@@ -53,15 +62,6 @@ export const useOrderActions = () => {
             }),
           ).catch(() => undefined)
         },
-      })
-    }
-
-    // Execute manually — only for created (not yet executed) orders, requires ordersExecute
-    if (order.status === OrderStatusEnum.Created && hasPermissions(['ordersExecute'])) {
-      actions.push({
-        icon: 'flash',
-        label: translate('text_17836939541574skv5dmaj06'),
-        onAction: () => navigate(generatePath(EXECUTE_ORDER_ROUTE, { orderId: order.id })),
       })
     }
 
