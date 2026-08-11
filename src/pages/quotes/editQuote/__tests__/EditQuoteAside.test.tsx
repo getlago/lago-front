@@ -409,7 +409,10 @@ describe('EditQuoteAside', () => {
 
     describe('WHEN the user picks a different currency', () => {
       it('THEN should persist it immediately, without waiting for a debounce', async () => {
-        const user = userEvent.setup()
+        // No inter-event delay: the full currency list is ~140 options, and
+        // userEvent's default pacing makes driving the popper slow enough to
+        // trip the default jest timeout when suites run in parallel.
+        const user = userEvent.setup({ delay: null })
         const onSaveStart = jest.fn()
 
         render(
@@ -422,34 +425,23 @@ describe('EditQuoteAside', () => {
           />,
         )
 
-        const comboboxInputBase = screen
+        const input = screen
           .getByTestId(EDIT_QUOTE_ASIDE_CURRENCY_COMBOBOX_TEST_ID)
-          .querySelector('.MuiInputBase-root') as HTMLElement
+          .querySelector('input') as HTMLInputElement
 
-        await user.click(comboboxInputBase)
+        // Type to narrow the list down to the single AUD option instead of
+        // rendering and scanning every currency.
+        await user.clear(input)
+        await user.type(input, CurrencyEnum.Aud)
 
-        // Currency options carry no label, so they are identified by their value.
-        const audOption = await waitFor(() => {
-          const option = screen
-            .getAllByRole('option')
-            .find((candidate) => candidate.textContent === CurrencyEnum.Aud)
+        await user.click(await screen.findByRole('option'))
 
-          expect(option).toBeDefined()
-
-          return option as HTMLElement
+        await waitFor(() => {
+          expect(mockUpdateQuoteVersion).toHaveBeenCalledWith(
+            { id: 'version-1', currency: CurrencyEnum.Aud },
+            false,
+          )
         })
-
-        await user.click(audOption)
-
-        await waitFor(
-          () => {
-            expect(mockUpdateQuoteVersion).toHaveBeenCalledWith(
-              { id: 'version-1', currency: CurrencyEnum.Aud },
-              false,
-            )
-          },
-          { timeout: 5000 },
-        )
         expect(onSaveStart).toHaveBeenCalled()
       })
     })

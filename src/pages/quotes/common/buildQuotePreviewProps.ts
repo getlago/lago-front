@@ -35,17 +35,21 @@ export const buildQuotePreviewProps = ({
   customer: QuotePreviewCustomerFragment | null | undefined
   images?: Record<string, string>
   header?: QuotePdfHeaderData
-}): QuotePreviewProps => ({
-  content: version?.content ?? '',
-  entities: version?.billingItems
-    ? buildPreviewEntities(
-        version.billingItems as BillingItemsPayload,
-        customer?.currency ?? undefined,
-      )
-    : {},
-  customerLocale: (customer?.billingConfiguration?.documentLocale ?? 'en') as Locale,
-  customerCurrency: customer?.currency ?? undefined,
-  mentionValues: (version?.mentionVariables ?? {}) as Record<string, string>,
-  images,
-  header,
-})
+}): QuotePreviewProps => {
+  // The version currency is the document's own currency and wins over the
+  // customer's — the two can differ now that a quote's currency is editable.
+  // The customer's remains the fallback for versions created before that.
+  const currency = version?.currency ?? customer?.currency ?? undefined
+
+  return {
+    content: version?.content ?? '',
+    entities: version?.billingItems
+      ? buildPreviewEntities(version.billingItems as BillingItemsPayload, currency)
+      : {},
+    customerLocale: (customer?.billingConfiguration?.documentLocale ?? 'en') as Locale,
+    customerCurrency: currency,
+    mentionValues: (version?.mentionVariables ?? {}) as Record<string, string>,
+    images,
+    header,
+  }
+}

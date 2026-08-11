@@ -1020,15 +1020,31 @@ describe('EditQuote', () => {
       })
     })
 
-    describe('WHEN the customer has a currency', () => {
-      it('THEN should pass customerCurrency to RichTextEditor', () => {
+    describe('WHEN the version currency differs from the customer one', () => {
+      it('THEN should price the editor in the version currency', () => {
         mockUseQuote.mockReturnValue({
           quote: {
             ...mockQuote,
-            customer: {
-              ...mockQuote.customer,
-              currency: 'EUR',
-            },
+            customer: { ...mockQuote.customer, currency: 'EUR' },
+            currentVersion: { ...mockQuote.currentVersion, currency: 'JPY' },
+          },
+          loading: false,
+          refetch: mockRefetchQuote,
+        })
+
+        render(<EditQuote />)
+
+        expect(capturedEditorCustomerCurrency).toBe('JPY')
+      })
+    })
+
+    describe('WHEN the version has no currency', () => {
+      it('THEN should fall back to the customer currency', () => {
+        mockUseQuote.mockReturnValue({
+          quote: {
+            ...mockQuote,
+            customer: { ...mockQuote.customer, currency: 'EUR' },
+            currentVersion: { ...mockQuote.currentVersion, currency: null },
           },
           loading: false,
           refetch: mockRefetchQuote,
@@ -1037,14 +1053,6 @@ describe('EditQuote', () => {
         render(<EditQuote />)
 
         expect(capturedEditorCustomerCurrency).toBe('EUR')
-      })
-    })
-
-    describe('WHEN the customer has no currency', () => {
-      it('THEN should pass undefined customerCurrency to RichTextEditor', () => {
-        render(<EditQuote />)
-
-        expect(capturedEditorCustomerCurrency).toBeUndefined()
       })
     })
 

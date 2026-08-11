@@ -114,4 +114,37 @@ describe('buildQuotePreviewProps', () => {
 
     expect(result.images).toEqual({})
   })
+
+  describe('GIVEN the version has its own currency', () => {
+    const version = {
+      content: '<p>Hi</p>',
+      billingItems: { addOns: [] },
+      mentionVariables: {},
+      currency: CurrencyEnum.Jpy,
+    }
+
+    it('THEN should price the preview in it rather than the customer currency', () => {
+      const customer = {
+        currency: CurrencyEnum.Eur,
+        billingConfiguration: { documentLocale: 'fr' },
+      }
+
+      const result = buildQuotePreviewProps({ version, customer })
+
+      expect(result.customerCurrency).toBe(CurrencyEnum.Jpy)
+      expect(buildPreviewEntities).toHaveBeenCalledWith({ addOns: [] }, CurrencyEnum.Jpy)
+    })
+
+    it('THEN should still fall back to the customer currency when the version has none', () => {
+      const customer = {
+        currency: CurrencyEnum.Eur,
+        billingConfiguration: { documentLocale: 'fr' },
+      }
+
+      const result = buildQuotePreviewProps({ version: { ...version, currency: null }, customer })
+
+      expect(result.customerCurrency).toBe(CurrencyEnum.Eur)
+      expect(buildPreviewEntities).toHaveBeenCalledWith({ addOns: [] }, CurrencyEnum.Eur)
+    })
+  })
 })

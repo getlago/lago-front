@@ -549,7 +549,7 @@ const EditQuote = () => {
             onDiscountBlocksChange={handleDiscountBlocksChange}
             {...subscriptionEditorProps}
             customerLocale={customerLocale}
-            customerCurrency={quote?.customer?.currency ?? undefined}
+            customerCurrency={effectiveQuoteCurrency}
             variableItems={mentionItems}
             mentionValues={mentionValues}
             images={images}
