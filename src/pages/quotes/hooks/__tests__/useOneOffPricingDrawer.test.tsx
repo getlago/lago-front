@@ -924,9 +924,9 @@ describe('useOneOffPricingDrawer', () => {
     })
   })
 
-  describe('GIVEN customerCurrency is provided', () => {
+  describe('GIVEN a quote currency is provided', () => {
     describe('WHEN onPricingCommand is called', () => {
-      it('THEN should pass the customerCurrency to the drawer content instead of organization default', () => {
+      it('THEN should pass it to the drawer content instead of the organization default', () => {
         const { result } = renderHook(
           () => useOneOffPricingDrawer(undefined, { currency: CurrencyEnum.Eur }),
           { wrapper },
@@ -946,7 +946,7 @@ describe('useOneOffPricingDrawer', () => {
       })
     })
 
-    describe('WHEN customerCurrency is null', () => {
+    describe('WHEN the quote currency is null', () => {
       it('THEN should fall back to organization defaultCurrency', () => {
         const { result } = renderHook(() => useOneOffPricingDrawer(undefined, { currency: null }), {
           wrapper,
@@ -966,7 +966,7 @@ describe('useOneOffPricingDrawer', () => {
       })
     })
 
-    describe('WHEN customerCurrency is not provided', () => {
+    describe('WHEN the quote currency is not provided', () => {
       it('THEN should use organization defaultCurrency', () => {
         const { result } = renderHook(() => useOneOffPricingDrawer(), { wrapper })
 

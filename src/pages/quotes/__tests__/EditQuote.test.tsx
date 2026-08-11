@@ -34,7 +34,7 @@ let capturedOnDiscountBlocksChange: ((blocks: unknown[]) => void) | undefined
 let capturedOnCreditsCommand: ((params: unknown) => void) | undefined
 let capturedOnCreditsBlocksChange: ((blocks: unknown[]) => void) | undefined
 let capturedEditorCustomerLocale: string | undefined
-let capturedEditorCustomerCurrency: string | undefined
+let capturedEditorDocumentCurrency: string | undefined
 let capturedRemoveBlockRef: { current: ((localId: string) => void) | null } | undefined
 
 // --- Mocks ---
@@ -66,7 +66,7 @@ jest.mock('~/components/designSystem/RichTextEditor/RichTextEditor', () => {
     onCreditsCommand,
     onCreditsBlocksChange,
     customerLocale,
-    customerCurrency,
+    documentCurrency,
   }: {
     getMarkdownRef?: React.MutableRefObject<(() => string) | null>
     removeBlockRef?: React.MutableRefObject<((localId: string) => void) | null>
@@ -78,7 +78,7 @@ jest.mock('~/components/designSystem/RichTextEditor/RichTextEditor', () => {
     onCreditsCommand?: (params: unknown) => void
     onCreditsBlocksChange?: (blocks: unknown[]) => void
     customerLocale?: string
-    customerCurrency?: string
+    documentCurrency?: string
   }) => {
     React.useEffect(() => {
       if (getMarkdownRef) {
@@ -92,7 +92,7 @@ jest.mock('~/components/designSystem/RichTextEditor/RichTextEditor', () => {
       capturedOnCreditsCommand = onCreditsCommand
       capturedOnCreditsBlocksChange = onCreditsBlocksChange
       capturedEditorCustomerLocale = customerLocale
-      capturedEditorCustomerCurrency = customerCurrency
+      capturedEditorDocumentCurrency = documentCurrency
       capturedRemoveBlockRef = removeBlockRef
 
       return () => {
@@ -111,7 +111,7 @@ jest.mock('~/components/designSystem/RichTextEditor/RichTextEditor', () => {
       onCreditsCommand,
       onCreditsBlocksChange,
       customerLocale,
-      customerCurrency,
+      documentCurrency,
     ])
 
     return <div data-test="mock-rich-text-editor" />
@@ -294,7 +294,7 @@ describe('EditQuote', () => {
     capturedOnCreditsCommand = undefined
     capturedOnCreditsBlocksChange = undefined
     capturedEditorCustomerLocale = undefined
-    capturedEditorCustomerCurrency = undefined
+    capturedEditorDocumentCurrency = undefined
     capturedRemoveBlockRef = undefined
     capturedPricingDrawerArgs = []
     capturedDiscountDrawerOptions = undefined
@@ -991,7 +991,7 @@ describe('EditQuote', () => {
     })
   })
 
-  describe('GIVEN customer locale and currency props', () => {
+  describe('GIVEN the customer locale and document currency props', () => {
     describe('WHEN the customer has a document locale', () => {
       it('THEN should pass customerLocale to RichTextEditor', () => {
         mockUseQuote.mockReturnValue({
@@ -1034,7 +1034,7 @@ describe('EditQuote', () => {
 
         render(<EditQuote />)
 
-        expect(capturedEditorCustomerCurrency).toBe('JPY')
+        expect(capturedEditorDocumentCurrency).toBe('JPY')
       })
     })
 
@@ -1052,7 +1052,7 @@ describe('EditQuote', () => {
 
         render(<EditQuote />)
 
-        expect(capturedEditorCustomerCurrency).toBe('EUR')
+        expect(capturedEditorDocumentCurrency).toBe('EUR')
       })
     })
 

@@ -518,7 +518,7 @@ describe('ApproveQuote', () => {
 
   describe('GIVEN the customer has a currency', () => {
     describe('WHEN currency is set', () => {
-      it('THEN should pass customerCurrency to RichTextEditor', () => {
+      it('THEN should pass documentCurrency to RichTextEditor', () => {
         mockUseQuote.mockReturnValue({
           quote: {
             ...mockQuote,
@@ -538,12 +538,12 @@ describe('ApproveQuote', () => {
 
         renderPage()
 
-        expect(capturedRichTextEditorProps.customerCurrency).toBe(CurrencyEnum.Eur)
+        expect(capturedRichTextEditorProps.documentCurrency).toBe(CurrencyEnum.Eur)
       })
     })
 
     describe('WHEN currency is null', () => {
-      it('THEN should pass undefined customerCurrency to RichTextEditor', () => {
+      it('THEN should pass undefined documentCurrency to RichTextEditor', () => {
         mockUseQuote.mockReturnValue({
           quote: {
             ...mockQuote,
@@ -559,7 +559,7 @@ describe('ApproveQuote', () => {
 
         renderPage()
 
-        expect(capturedRichTextEditorProps.customerCurrency).toBeUndefined()
+        expect(capturedRichTextEditorProps.documentCurrency).toBeUndefined()
       })
     })
   })

@@ -60,14 +60,14 @@ const renderPricingBlockView = ({
   entities = {} as Record<string, EntityData>,
   onPricingCommand = jest.fn() as OnPricingCommand,
   customerLocale,
-  customerCurrency,
+  documentCurrency,
 }: {
   attrs?: Record<string, unknown>
   mode?: 'edit' | 'preview'
   entities?: Record<string, EntityData>
   onPricingCommand?: OnPricingCommand
   customerLocale?: Locale
-  customerCurrency?: CurrencyEnum
+  documentCurrency?: CurrencyEnum
 } = {}) => {
   const nodeProps = createNodeProps(attrs)
 
@@ -81,7 +81,7 @@ const renderPricingBlockView = ({
           images: {},
           onPricingCommand,
           customerLocale,
-          customerCurrency,
+          documentCurrency,
         }}
       >
         <PricingBlockView {...nodeProps} />
@@ -455,7 +455,7 @@ describe('PricingBlockView', () => {
       })
     })
 
-    describe('WHEN customerCurrency is provided', () => {
+    describe('WHEN documentCurrency is provided', () => {
       it('THEN should render the preview table using that currency', () => {
         renderPricingBlockView({
           mode: 'preview',
@@ -469,7 +469,7 @@ describe('PricingBlockView', () => {
               totalAmount: '100',
             },
           },
-          customerCurrency: CurrencyEnum.Eur,
+          documentCurrency: CurrencyEnum.Eur,
         })
 
         expect(screen.getByTestId(ONE_OFF_ADDONS_PREVIEW_TABLE_TEST_ID)).toBeInTheDocument()

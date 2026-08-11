@@ -75,7 +75,12 @@ interface RichTextEditorContextValue {
   onDiscountCommand?: OnDiscountCommand
   onCreditsCommand?: OnCreditsCommand
   customerLocale?: Locale
-  customerCurrency?: CurrencyEnum
+  /**
+   * Currency the document prices in. For a quote this is the quote's own
+   * currency, which can differ from the customer's — do not pass the customer
+   * currency here unless the document has none of its own.
+   */
+  documentCurrency?: CurrencyEnum
 }
 
 const RichTextEditorContext = createContext<RichTextEditorContextValue>({

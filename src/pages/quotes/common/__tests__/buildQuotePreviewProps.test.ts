@@ -27,7 +27,7 @@ describe('buildQuotePreviewProps', () => {
       content: '<p>Hi</p>',
       entities: { 'addon-1': { entityId: 'addon-1' } },
       customerLocale: 'fr',
-      customerCurrency: CurrencyEnum.Eur,
+      documentCurrency: CurrencyEnum.Eur,
       mentionValues: {},
       images: {},
     })
@@ -41,7 +41,7 @@ describe('buildQuotePreviewProps', () => {
       content: '',
       entities: {},
       customerLocale: 'en',
-      customerCurrency: undefined,
+      documentCurrency: undefined,
       mentionValues: {},
       images: {},
     })
@@ -54,7 +54,7 @@ describe('buildQuotePreviewProps', () => {
     const result = buildQuotePreviewProps({ version, customer })
 
     expect(result.customerLocale).toBe('en')
-    expect(result.customerCurrency).toBeUndefined()
+    expect(result.documentCurrency).toBeUndefined()
     expect(result.entities).toEqual({})
   })
 
@@ -131,7 +131,7 @@ describe('buildQuotePreviewProps', () => {
 
       const result = buildQuotePreviewProps({ version, customer })
 
-      expect(result.customerCurrency).toBe(CurrencyEnum.Jpy)
+      expect(result.documentCurrency).toBe(CurrencyEnum.Jpy)
       expect(buildPreviewEntities).toHaveBeenCalledWith({ addOns: [] }, CurrencyEnum.Jpy)
     })
 
@@ -143,7 +143,7 @@ describe('buildQuotePreviewProps', () => {
 
       const result = buildQuotePreviewProps({ version: { ...version, currency: null }, customer })
 
-      expect(result.customerCurrency).toBe(CurrencyEnum.Eur)
+      expect(result.documentCurrency).toBe(CurrencyEnum.Eur)
       expect(buildPreviewEntities).toHaveBeenCalledWith({ addOns: [] }, CurrencyEnum.Eur)
     })
   })

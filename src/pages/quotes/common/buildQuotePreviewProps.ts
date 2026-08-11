@@ -19,7 +19,8 @@ export interface QuotePreviewProps {
   content: string
   entities: Record<string, EntityData>
   customerLocale: Locale
-  customerCurrency?: CurrencyEnum
+  /** The quote's own currency, which can differ from the customer's. */
+  documentCurrency?: CurrencyEnum
   mentionValues: Record<string, string>
   images: Record<string, string>
   header?: QuotePdfHeaderData
@@ -47,7 +48,7 @@ export const buildQuotePreviewProps = ({
       ? buildPreviewEntities(version.billingItems as BillingItemsPayload, currency)
       : {},
     customerLocale: (customer?.billingConfiguration?.documentLocale ?? 'en') as Locale,
-    customerCurrency: currency,
+    documentCurrency: currency,
     mentionValues: (version?.mentionVariables ?? {}) as Record<string, string>,
     images,
     header,
