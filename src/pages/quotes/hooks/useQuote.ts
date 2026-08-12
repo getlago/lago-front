@@ -7,6 +7,7 @@ gql`
     content
     billingItems
     mentionVariables
+    currency
   }
 
   fragment QuotePreviewCustomer on Customer {

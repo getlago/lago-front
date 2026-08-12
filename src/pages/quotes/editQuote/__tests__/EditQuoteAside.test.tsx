@@ -1,4 +1,5 @@
-import { fireEvent, screen } from '@testing-library/react'
+import { fireEvent, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
 import {
   CurrencyEnum,
@@ -11,6 +12,7 @@ import { render } from '~/test-utils'
 import EditQuoteAside, {
   EDIT_QUOTE_ASIDE_APPROVE_TEST_ID,
   EDIT_QUOTE_ASIDE_BILLING_ENTITY_INPUT_TEST_ID,
+  EDIT_QUOTE_ASIDE_CURRENCY_COMBOBOX_TEST_ID,
   EDIT_QUOTE_ASIDE_CURRENCY_INPUT_TEST_ID,
   EDIT_QUOTE_ASIDE_CUSTOMER_INPUT_TEST_ID,
   EDIT_QUOTE_ASIDE_DOWNLOAD_PDF_TEST_ID,
@@ -39,12 +41,30 @@ jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
 }))
 
+const mockUpdateQuoteVersion = jest.fn()
+
 jest.mock('~/pages/quotes/hooks/useUpdateQuote', () => ({
   useUpdateQuote: () => ({
-    updateQuoteVersion: jest.fn(),
+    updateQuoteVersion: mockUpdateQuoteVersion,
     isUpdatingQuoteVersion: false,
     updateQuote: jest.fn(),
     isUpdatingQuote: false,
+  }),
+}))
+
+// The currency ComboBox renders its options through a virtualized list.
+jest.mock('@tanstack/react-virtual', () => ({
+  useVirtualizer: ({ count }: { count: number }) => ({
+    getTotalSize: () => count * 56,
+    getVirtualItems: () =>
+      Array.from({ length: count }, (_, i) => ({
+        index: i,
+        key: String(i),
+        start: i * 56,
+        size: 56,
+      })),
+    scrollToIndex: jest.fn(),
+    measureElement: jest.fn(),
   }),
 }))
 
@@ -115,6 +135,7 @@ describe('EditQuoteAside', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockHasPermissions.mockReturnValue(true)
+    mockUpdateQuoteVersion.mockResolvedValue({ data: { updateQuoteVersion: { id: 'version-1' } } })
   })
 
   describe('GIVEN a quote is provided', () => {
@@ -347,33 +368,112 @@ describe('EditQuoteAside', () => {
     })
   })
 
-  describe('GIVEN a quote where customer has no currency but currentVersion does', () => {
-    describe('WHEN the component renders', () => {
-      it('THEN should render the currency field using currentVersion currency', () => {
-        const quoteWithVersionCurrency = {
-          ...mockQuote,
-          customer: { ...mockQuote.customer, currency: null },
-          currentVersion: { ...mockQuote.currentVersion, currency: CurrencyEnum.Eur },
-        }
+  describe('GIVEN the quote currency', () => {
+    const renderWithCurrency = (currency: CurrencyEnum | null) =>
+      render(
+        <EditQuoteAside
+          quote={{
+            ...mockQuote,
+            // The customer currency no longer feeds this field — only the version's does.
+            customer: { ...mockQuote.customer, currency: CurrencyEnum.Gbp },
+            currentVersion: { ...mockQuote.currentVersion, currency },
+          }}
+        />,
+      )
 
-        render(<EditQuoteAside quote={quoteWithVersionCurrency} />)
+    describe('WHEN the version has a currency', () => {
+      it('THEN should show it in an editable combobox', () => {
+        renderWithCurrency(CurrencyEnum.Eur)
 
-        expect(screen.getByTestId(EDIT_QUOTE_ASIDE_CURRENCY_INPUT_TEST_ID)).toBeInTheDocument()
+        const input = screen
+          .getByTestId(EDIT_QUOTE_ASIDE_CURRENCY_COMBOBOX_TEST_ID)
+          .querySelector('input') as HTMLInputElement
+
+        expect(input).toHaveValue(CurrencyEnum.Eur)
+        expect(input).not.toBeDisabled()
       })
     })
-  })
 
-  describe('GIVEN a quote where customer has a currency set', () => {
-    describe('WHEN the component renders', () => {
-      it('THEN should render the currency field using customer currency', () => {
-        const quoteWithCustomerCurrency = {
-          ...mockQuote,
-          customer: { ...mockQuote.customer, currency: CurrencyEnum.Eur },
-        }
+    describe('WHEN the version has no currency', () => {
+      it('THEN should show an empty combobox rather than the customer currency', () => {
+        renderWithCurrency(null)
 
-        render(<EditQuoteAside quote={quoteWithCustomerCurrency} />)
+        const input = screen
+          .getByTestId(EDIT_QUOTE_ASIDE_CURRENCY_COMBOBOX_TEST_ID)
+          .querySelector('input') as HTMLInputElement
 
-        expect(screen.getByTestId(EDIT_QUOTE_ASIDE_CURRENCY_INPUT_TEST_ID)).toBeInTheDocument()
+        expect(input).toHaveValue('')
+        expect(input).not.toBeDisabled()
+      })
+    })
+
+    describe('WHEN the user picks a different currency', () => {
+      it('THEN should persist it immediately, without waiting for a debounce', async () => {
+        // No inter-event delay: the full currency list is ~140 options, and
+        // userEvent's default pacing makes driving the popper slow enough to
+        // trip the default jest timeout when suites run in parallel.
+        const user = userEvent.setup({ delay: null })
+        const onSaveStart = jest.fn()
+
+        render(
+          <EditQuoteAside
+            quote={{
+              ...mockQuote,
+              currentVersion: { ...mockQuote.currentVersion, currency: CurrencyEnum.Eur },
+            }}
+            onSaveStart={onSaveStart}
+          />,
+        )
+
+        const input = screen
+          .getByTestId(EDIT_QUOTE_ASIDE_CURRENCY_COMBOBOX_TEST_ID)
+          .querySelector('input') as HTMLInputElement
+
+        // Filter down to the single AUD option, then let the Autocomplete select
+        // it via the keyboard. Clicking a popper node instead means holding an
+        // element reference across re-renders, which is what made this flake.
+        await user.clear(input)
+        await user.type(input, CurrencyEnum.Aud)
+
+        await waitFor(() => {
+          expect(screen.getAllByRole('option')).toHaveLength(1)
+        })
+
+        await user.keyboard('{ArrowDown}{Enter}')
+
+        await waitFor(() => {
+          expect(mockUpdateQuoteVersion).toHaveBeenCalledWith(
+            { id: 'version-1', currency: CurrencyEnum.Aud },
+            false,
+          )
+        })
+        expect(onSaveStart).toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the version currency changes outside the form', () => {
+      it('THEN should sync the field without issuing another save', async () => {
+        const { rerender } = renderWithCurrency(null)
+
+        rerender(
+          <EditQuoteAside
+            quote={{
+              ...mockQuote,
+              customer: { ...mockQuote.customer, currency: CurrencyEnum.Gbp },
+              currentVersion: { ...mockQuote.currentVersion, currency: CurrencyEnum.Jpy },
+            }}
+          />,
+        )
+
+        await waitFor(() => {
+          const input = screen
+            .getByTestId(EDIT_QUOTE_ASIDE_CURRENCY_COMBOBOX_TEST_ID)
+            .querySelector('input') as HTMLInputElement
+
+          expect(input).toHaveValue(CurrencyEnum.Jpy)
+        })
+
+        expect(mockUpdateQuoteVersion).not.toHaveBeenCalled()
       })
     })
   })

@@ -140,8 +140,14 @@ jest.mock('../QuoteInvoicingPaymentsSettings', () => ({
   ),
 }))
 
+const mockUseQuotePlanSettingsDrawer = jest.fn()
+
 jest.mock('../useQuotePlanSettingsDrawer', () => ({
-  useQuotePlanSettingsDrawer: () => ({ openDrawer: mockOpenPlanSettings }),
+  useQuotePlanSettingsDrawer: (...args: unknown[]) => {
+    mockUseQuotePlanSettingsDrawer(...args)
+
+    return { openDrawer: mockOpenPlanSettings }
+  },
 }))
 
 // Mock reused section components
@@ -588,6 +594,48 @@ describe('SubscriptionPricingContent', () => {
       expect(usePlanFormSetup).toHaveBeenLastCalledWith(
         expect.objectContaining({ billingItemPlan, planIdToFetch: 'plan_1' }),
       )
+    })
+  })
+
+  describe('GIVEN the quote owns a currency', () => {
+    const renderWithQuoteCurrency = async (hasQuoteCurrency: boolean) => {
+      const stateRef = { current: null as SubscriptionPricingState | null }
+      const formValuesRef = { current: null as PlanFormInput | null }
+      const basePlanFormValuesRef = { current: null as PlanFormInput | null }
+
+      await act(() =>
+        render(
+          <SubscriptionPricingContent
+            stateRef={stateRef}
+            formValuesRef={formValuesRef}
+            basePlanFormValuesRef={basePlanFormValuesRef}
+            currency={CurrencyEnum.Eur}
+            hasQuoteCurrency={hasQuoteCurrency}
+          />,
+        ),
+      )
+    }
+
+    it('WHEN it does THEN the plan form uses it and its currency picker is locked', async () => {
+      await renderWithQuoteCurrency(true)
+
+      expect(usePlanFormSetup).toHaveBeenLastCalledWith(
+        expect.objectContaining({ initialCurrency: CurrencyEnum.Eur }),
+      )
+      expect(mockUseQuotePlanSettingsDrawer).toHaveBeenLastCalledWith(expect.anything(), {
+        disableCurrencyInput: true,
+      })
+    })
+
+    it('WHEN it does not THEN the plan keeps its own currency and picker', async () => {
+      await renderWithQuoteCurrency(false)
+
+      expect(usePlanFormSetup).toHaveBeenLastCalledWith(
+        expect.objectContaining({ initialCurrency: undefined }),
+      )
+      expect(mockUseQuotePlanSettingsDrawer).toHaveBeenLastCalledWith(expect.anything(), {
+        disableCurrencyInput: false,
+      })
     })
   })
 

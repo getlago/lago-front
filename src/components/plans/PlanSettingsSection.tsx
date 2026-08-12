@@ -70,6 +70,8 @@ type PlanSettingsSectionProps = {
   isInSubscriptionForm?: boolean
   subscriptionFormType?: keyof typeof FORM_TYPE_ENUM
   isEdition?: boolean
+  /** Locks the currency picker when an outer scope (e.g. a quote) already owns it. */
+  disableCurrencyInput?: boolean
 }
 
 export const PlanSettingsSection = ({
@@ -78,6 +80,7 @@ export const PlanSettingsSection = ({
   isInSubscriptionForm,
   subscriptionFormType,
   isEdition,
+  disableCurrencyInput,
 }: PlanSettingsSectionProps) => {
   const { translate } = useInternationalization()
   const description = useStore(form.store, (s) => s.values.description)
@@ -200,7 +203,9 @@ export const PlanSettingsSection = ({
             data={CURRENCY_DATA}
             disableClearable
             disabled={
-              subscriptionFormType === FORM_TYPE_ENUM.edition || (isEdition && !canBeEdited)
+              disableCurrencyInput ||
+              subscriptionFormType === FORM_TYPE_ENUM.edition ||
+              (isEdition && !canBeEdited)
             }
             label={translate('text_642d5eb2783a2ad10d67032e')}
           />
