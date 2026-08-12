@@ -99,18 +99,22 @@ const EditQuote = () => {
 
   const isUpdating = isUpdatingQuote || isUpdatingQuoteVersion
 
+  // The amended subscription owns the start date: it is neither displayed nor sent (LAGO-1814).
+  const isAmendment = quote?.orderType === OrderTypeEnum.SubscriptionAmendment
+
   const handleSubscriptionDatesChange = useCallback(
     async (startDate?: string, endDate?: string) => {
       if (!versionId) return
 
-      await updateQuoteVersionRef.current({ id: versionId, startDate, endDate }, false)
+      await updateQuoteVersionRef.current(
+        { id: versionId, endDate, ...(isAmendment ? {} : { startDate }) },
+        false,
+      )
     },
-    [versionId],
+    [versionId, isAmendment],
   )
 
-  const isSubscriptionOrder =
-    quote?.orderType === OrderTypeEnum.SubscriptionCreation ||
-    quote?.orderType === OrderTypeEnum.SubscriptionAmendment
+  const isSubscriptionOrder = quote?.orderType === OrderTypeEnum.SubscriptionCreation || isAmendment
 
   // The quote version currency is the source of truth for every amount shown or
   // serialized in this quote. Until it is set (legacy quotes, or before the
@@ -124,8 +128,9 @@ const EditQuote = () => {
 
   const subscriptionPricing = useSubscriptionPricingDrawer(quote?.currentVersion?.billingItems, {
     quoteDates: {
-      startDate:
-        quote?.subscription?.subscriptionAt ?? quote?.currentVersion?.startDate ?? undefined,
+      startDate: isAmendment
+        ? undefined
+        : (quote?.subscription?.subscriptionAt ?? quote?.currentVersion?.startDate ?? undefined),
       endDate: quote?.currentVersion?.endDate ?? undefined,
     },
     onDatesChange: handleSubscriptionDatesChange,
@@ -133,6 +138,7 @@ const EditQuote = () => {
     subscriptionId: quote?.subscription?.id,
     currency: effectiveQuoteCurrency,
     hasQuoteCurrency: !!quoteVersionCurrency,
+    isAmendment,
   })
   const oneOffPricing = useOneOffPricingDrawer(quote?.currentVersion?.billingItems, {
     currency: effectiveQuoteCurrency,

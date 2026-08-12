@@ -143,7 +143,9 @@ interface PlanPayload {
   subscriptionExternalId: string | null
   subscriptionName: string | null
   billingTime: 'anniversary' | 'calendar'
-  startDate: string | null
+  // Omitted entirely for subscription-amendment quotes: the start date belongs to the
+  // amended subscription, so the quote must not carry one (LAGO-1814).
+  startDate?: string | null
   endDate: string | null
   paymentMethodId: string | null
   invoiceCustomFooter: string | null
@@ -438,6 +440,7 @@ export const toPlanBillingItems = (
   state: SubscriptionPricingState,
   formValues?: PlanFormInput,
   basePlanFormValues?: PlanFormInput,
+  options?: { omitStartDate?: boolean },
 ): { plans: BillingItemPlan[] } => {
   const { planId, planCode, planName, planDescription, subscriptionSettings, invoicingSettings } =
     state
@@ -467,7 +470,9 @@ export const toPlanBillingItems = (
     subscriptionExternalId: normalizeOptional(subscriptionSettings.externalId),
     subscriptionName: normalizeOptional(subscriptionSettings.subscriptionName),
     billingTime: subscriptionSettings.billingTime,
-    startDate: normalizeOptional(subscriptionSettings.startDate),
+    ...(options?.omitStartDate
+      ? {}
+      : { startDate: normalizeOptional(subscriptionSettings.startDate) }),
     endDate: normalizeOptional(subscriptionSettings.endDate),
     paymentMethodId: normalizeOptional(invoicingSettings.paymentMethodId),
     invoiceCustomFooter: normalizeOptional(invoicingSettings.invoiceCustomFooter),
@@ -543,7 +548,7 @@ interface FromPlanBillingItemsResult {
   formValues: PlanFormInput | null
 }
 
-const denormalizeOptional = (value: string | null): string => value ?? ''
+const denormalizeOptional = (value: string | null | undefined): string => value ?? ''
 
 const deserializeTaxes = (
   taxes: SerializedTax[],
