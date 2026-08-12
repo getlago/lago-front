@@ -1,10 +1,10 @@
-import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import { SETTINGS_ROUTE, useNavigate } from '~/core/router'
-import { BillingEntity, useGetBillingEntityQuery } from '~/generated/graphql'
+import { SETTINGS_ROUTE } from '~/core/router'
+import { BillingEntity, LagoApiError, useGetBillingEntityQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 import BillingEntityMain from '~/pages/settings/BillingEntity/sections/BillingEntityMain'
 
 export const BILLING_ENTITY_HEADER_TEST_ID = 'billing-entity-header'
@@ -12,23 +12,28 @@ export const BILLING_ENTITY_MAIN_TEST_ID = 'billing-entity-main'
 
 const BillingEntityPage = () => {
   const { billingEntityCode } = useParams()
-  const navigate = useNavigate()
   const { translate } = useInternationalization()
 
-  const { data: billingEntityData, loading: billingEntityLoading } = useGetBillingEntityQuery({
+  const {
+    data: billingEntityData,
+    loading: billingEntityLoading,
+    error: billingEntityError,
+  } = useGetBillingEntityQuery({
     variables: {
       code: billingEntityCode || '',
     },
     skip: !billingEntityCode,
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
   })
 
   const billingEntity = billingEntityData?.billingEntity
 
-  useEffect(() => {
-    if (!billingEntityLoading && !billingEntity) {
-      navigate(SETTINGS_ROUTE, { replace: true })
-    }
-  }, [billingEntity, billingEntityLoading, navigate])
+  useNotFoundRedirect({
+    error: billingEntityError,
+    loading: billingEntityLoading,
+    redirectTo: SETTINGS_ROUTE,
+    translateKey: 'text_17865284954420o93wb1ssqz',
+  })
 
   return (
     <>

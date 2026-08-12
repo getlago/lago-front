@@ -1,8 +1,9 @@
+import { ApolloError } from '@apollo/client'
 import { act, screen, waitFor } from '@testing-library/react'
-import { GraphQLError } from 'graphql'
 
 import { MainHeaderProvider } from '~/components/MainHeader/MainHeaderContext'
 import { SETTINGS_ROUTE } from '~/core/router'
+import { LagoApiError } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import BillingEntityPage, {
@@ -52,6 +53,16 @@ const createMockBillingEntity = (overrides = {}) => ({
   __typename: 'BillingEntity' as const,
   ...overrides,
 })
+
+const createNotFoundError = () =>
+  new ApolloError({
+    graphQLErrors: [
+      {
+        message: 'not found',
+        extensions: { code: LagoApiError.NotFound },
+      },
+    ] as ApolloError['graphQLErrors'],
+  })
 
 const mockQueryResult = {
   loading: (data?: { billingEntity: ReturnType<typeof createMockBillingEntity> | null }) => ({
@@ -106,25 +117,38 @@ describe('BillingEntityPage', () => {
   })
 
   describe('navigation behavior', () => {
-    it.each([
-      ['null', null, undefined],
-      ['undefined with error', undefined, new GraphQLError('Not found')],
-    ])(
-      'should navigate to settings route when billing entity is %s',
-      async (_, billingEntity, error) => {
-        mockUseGetBillingEntityQuery.mockReturnValue({
-          data: { billingEntity },
-          loading: false,
-          error,
-        })
+    it('should navigate to settings route when a NotFound error occurs', async () => {
+      mockUseGetBillingEntityQuery.mockReturnValue({
+        data: { billingEntity: undefined },
+        loading: false,
+        error: createNotFoundError(),
+      })
 
-        render(<BillingEntityWithProvider />)
+      render(<BillingEntityWithProvider />)
 
-        await waitFor(() => {
-          expect(mockNavigate).toHaveBeenCalledWith(SETTINGS_ROUTE, { replace: true })
-        })
-      },
-    )
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith(SETTINGS_ROUTE, { replace: true })
+      })
+    })
+
+    it('should NOT navigate when billing entity is null/undefined without an error', async () => {
+      // Regression test: a query can legitimately report `loading: false` with no data yet
+      // (e.g. `skip` was true a moment ago, or variables just changed) without that meaning
+      // the entity is confirmed absent. Only an actual NotFound error should redirect.
+      mockUseGetBillingEntityQuery.mockReturnValue({
+        data: { billingEntity: null },
+        loading: false,
+        error: undefined,
+      })
+
+      render(<BillingEntityWithProvider />)
+
+      await waitFor(() => {
+        expect(screen.getByTestId(BILLING_ENTITY_HEADER_TEST_ID)).toBeInTheDocument()
+      })
+
+      expect(mockNavigate).not.toHaveBeenCalled()
+    })
 
     it('should not navigate when billing entity exists', async () => {
       mockUseGetBillingEntityQuery.mockReturnValue(mockQueryResult.success())

@@ -1,17 +1,12 @@
-import { useEffect } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import { QuoteDetailsTabsOptionsEnum, QuotesTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import {
-  QUOTE_DETAILS_ROUTE,
-  QUOTES_LIST_ROUTE,
-  QUOTES_TAB_ROUTE,
-  useNavigate,
-} from '~/core/router'
+import { QUOTE_DETAILS_ROUTE, QUOTES_LIST_ROUTE, QUOTES_TAB_ROUTE } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 import { usePermissions } from '~/hooks/usePermissions'
 
 import { useQuote } from './hooks/useQuote'
@@ -22,18 +17,18 @@ import QuoteDetailsVersions from './QuoteDetailsVersions'
 
 const QuoteDetails = (): JSX.Element => {
   const { translate } = useInternationalization()
-  const navigate = useNavigate()
   const { quoteId } = useParams()
-  const { quote, loading } = useQuote(quoteId)
+  const { quote, loading, error } = useQuote(quoteId)
   const { getActions } = useQuoteVersionActions()
   const { hasPermissions } = usePermissions()
   const canViewOrderForms = hasPermissions(['orderFormsView'])
 
-  useEffect(() => {
-    if (loading || quote) return
-
-    navigate(QUOTES_LIST_ROUTE, { replace: true })
-  }, [loading, quote, navigate])
+  useNotFoundRedirect({
+    error,
+    loading,
+    redirectTo: QUOTES_LIST_ROUTE,
+    translateKey: 'text_1786528548955oqavkn0eypq',
+  })
 
   const activeTabContent = useMainHeaderTabContent()
 

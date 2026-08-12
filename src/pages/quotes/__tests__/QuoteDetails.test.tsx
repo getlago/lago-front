@@ -1,4 +1,7 @@
-import { OrderTypeEnum, StatusEnum } from '~/generated/graphql'
+import { ApolloError } from '@apollo/client'
+import { waitFor } from '@testing-library/react'
+
+import { LagoApiError, OrderTypeEnum, StatusEnum } from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import { useQuote } from '../hooks/useQuote'
@@ -298,7 +301,33 @@ describe('QuoteDetails', () => {
   })
 
   describe('GIVEN the page is rendered with an invalid quote', () => {
-    it('THEN should redirect to quotes list', () => {
+    it('THEN should redirect to quotes list on a NotFound error', async () => {
+      mockUseQuote.mockReturnValue({
+        quote: undefined,
+        loading: false,
+        error: new ApolloError({
+          graphQLErrors: [
+            { message: 'not found', extensions: { code: LagoApiError.NotFound } },
+          ] as ApolloError['graphQLErrors'],
+        }),
+        refetch: jest.fn(),
+      })
+
+      const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
+
+      useParamsMock.mockReturnValue({ quoteId: 'non-existent-id' })
+
+      render(<QuoteDetails />)
+
+      await waitFor(() => {
+        expect(testMockNavigateFn).toHaveBeenCalledWith('/quotes', { replace: true })
+      })
+    })
+
+    it('THEN should NOT redirect when the quote is simply not loaded yet', () => {
+      // Regression test: `loading: false` with no data yet (e.g. the query was skipped a
+      // moment ago) doesn't mean the quote is confirmed absent — only an actual NotFound
+      // error should redirect.
       mockUseQuote.mockReturnValue({
         quote: undefined,
         loading: false,
@@ -312,7 +341,7 @@ describe('QuoteDetails', () => {
 
       render(<QuoteDetails />)
 
-      expect(testMockNavigateFn).toHaveBeenCalledWith('/quotes', { replace: true })
+      expect(testMockNavigateFn).not.toHaveBeenCalled()
     })
   })
 })
