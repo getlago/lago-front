@@ -303,7 +303,7 @@ describe('activityLogs utils', () => {
     it('should encode special characters in activity ID', () => {
       const result = buildLinkToActivityLog('log-with-special-chars-#-&-=')
 
-      expect(result).toContain('/devtool/activity-logs/log-with-special-chars-#-&-=')
+      expect(result).toContain('/devtool/activity-logs/log-with-special-chars-%23-%26-%3D')
       expect(result).toContain('actl_activityIds=')
     })
   })
