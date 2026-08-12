@@ -1,0 +1,252 @@
+import { ApolloError } from '@apollo/client'
+import { GraphQLFormattedError } from 'graphql'
+
+import { LagoApiError } from '~/generated/graphql'
+import { TranslateFunc } from '~/hooks/core/useInternationalization'
+
+import { extractGraphQLErrors } from './mapBillingItemErrors'
+
+export interface QuoteMutationError {
+  /** Already-translated, user-facing sentence. */
+  message: string
+  /** Form field path, set only for field-targeted errors. */
+  field?: string
+}
+
+/**
+ * Codes the quote pages handle themselves — passed as `context.silentErrorCodes` so the
+ * global Apollo error link skips its generic toast and its Sentry report.
+ * `forbidden` needs no entry: the link already force-silences it.
+ */
+export const QUOTE_MUTATION_SILENT_ERROR_CODES = [
+  LagoApiError.UnprocessableEntity,
+  LagoApiError.NotFound,
+  LagoApiError.FeatureUnavailable,
+]
+
+/** Reused app-wide "an error occurred" copy, shown when nothing more precise is known. */
+const GENERIC_ERROR_KEY = 'text_622f7a3dc32ce100c46a5154'
+
+const PERMISSION_ERROR_KEY = 'text_17865407897429mqm1fco12j'
+const FEATURE_UNAVAILABLE_ERROR_KEY = 'text_1786540789742kokuwxcy86s'
+
+/** `{{prefix}}: {{detail}}` — used to compose a billing item error sentence. */
+const COMPOSED_MESSAGE_KEY = 'text_1786540789743pr2fbjucq45'
+
+/**
+ * Errors the API reports on the quote version itself, keyed by
+ * `${detailKey}.${errorCode}`. Both `single_validation_failure!` and multi-key
+ * `validation_failure!` arrive as `unprocessable_entity`, so the code alone is
+ * never a discriminator — the detail key is.
+ */
+export const TOP_LEVEL_ERROR_KEYS: Record<string, string> = {
+  'status.not_approvable': 'text_1786540789742thnfvmjlq8a',
+  'status.not_voidable': 'text_1786540789742nso5acvqa28',
+  'expiresAt.invalid_date': 'text_1786540789742b4ym3200cp6',
+  'currency.value_is_mandatory': 'text_17865407897425abgh9dnl45',
+  'currency.invalid_currency': 'text_1786540789742i50p3wlht3g',
+  'quoteVersion.not_found': 'text_178654078974209u9bigc6ta',
+  'quoteVersion.not_approved': 'text_1786540789742edgippmh4fh',
+  'quoteVersionId.value_already_exist': 'text_1786540789742km6ifr1uf63',
+  'voidReason.invalid': 'text_1786540789742xzmnw0kbnw2',
+  'startDate.value_is_mandatory': 'text_1786540789742o1548c5v0cr',
+  'startDate.invalid_date_range': 'text_1786540789742hb3p2cjocck',
+}
+
+/** Detail keys that map onto an approve-form field, so the error can also be shown inline. */
+const FORM_FIELD_BY_DETAIL_KEY: Record<string, string> = {
+  expiresAt: 'expiresAt',
+}
+
+/** `billingItems.<entity>` prefixes, interpolated with the 1-based item position. */
+const BILLING_ITEM_PREFIX_KEYS: Record<string, string> = {
+  plans: 'text_1786540789742q2ym1u6mrwh',
+  coupons: 'text_1786540789742ofilmd17tfv',
+  addOns: 'text_1786540789742gcenndpbfyl',
+  walletCredits: 'text_1786540789742h8g4ew7dzaf',
+}
+
+/** Wallet credit prefix variant carrying the nested recurring rule position. */
+const RECURRING_RULE_PREFIX_KEY = 'text_1786540789743koa76e679es'
+
+const RECURRING_RULES_SEGMENT = 'recurringTransactionRules'
+
+/**
+ * Billing item details, keyed by `${field}.${errorCode}` — only the pairs where
+ * naming the field says more than the code alone. Anything else falls back to
+ * `BILLING_ITEM_CODE_KEYS`.
+ */
+export const BILLING_ITEM_FIELD_ERROR_KEYS: Record<string, string> = {
+  'amountCents.value_is_mandatory': 'text_17865407897439beomgnzd95',
+  'percentageRate.value_is_mandatory': 'text_17865407897434vmamhdvweo',
+  'frequencyDuration.value_is_mandatory': 'text_17865407897437dnip7coe05',
+  'fromDatetime.value_is_mandatory': 'text_1786540789743pa0vg8lwqrp',
+  'toDatetime.value_is_mandatory': 'text_17865407897435i1str1tcqg',
+  'interval.value_is_mandatory': 'text_1786540789743w37crn5u26h',
+  'thresholdCredits.value_is_mandatory': 'text_17865407897439005gzhq9uj',
+  'thresholdCredits.invalid_value': 'text_17865407897438j9ox2gyjtz',
+  'targetOngoingBalance.value_is_mandatory': 'text_1786540789743ij3hcudi4o2',
+  'targetOngoingBalance.invalid_value': 'text_17865407897436vdq9qrmt5g',
+  'rateAmount.invalid_value': 'text_1786540789743un4zkfyvap6',
+  'units.value_is_mandatory': 'text_178654078974339ax12dmn1b',
+  'units.invalid_value': 'text_1786540789743exobcbk3bup',
+  'unitAmountCents.value_is_mandatory': 'text_1786540789743wiyora70qjc',
+  'unitAmountCents.invalid_value': 'text_17865407897432o3ig68pgdf',
+  'totalAmountCents.invalid_value': 'text_17865407897438uuwti3vbdw',
+}
+
+/** Billing item details, keyed by error code alone. */
+export const BILLING_ITEM_CODE_KEYS: Record<string, string> = {
+  value_is_mandatory: 'text_17865407897435dxgs25b9ms',
+  invalid_value: 'text_17865407897439bwyh8wzimz',
+  invalid_date: 'text_1786540789743k1lgh3v3l3b',
+  invalid_date_range: 'text_1786540789743debdwenpnih',
+  currencies_does_not_match: 'text_1786540789743zvj7xtx1x6j',
+  plan_not_found: 'text_1786540789743r5ldiuhgw6f',
+  coupon_not_found: 'text_1786540789744tkiprawg3ox',
+  add_on_not_found: 'text_17865407897449q82lvgyi80',
+  charge_not_found: 'text_1786540789744p6nciq805zz',
+  fixed_charge_not_found: 'text_17865407897442v23iz20ll2',
+  coupon_type_does_not_match: 'text_1786540789744nuvqoh8xq1x',
+  invalid_type: 'text_1786540789744rjcjizkivyf',
+  unsupported_key: 'text_1786540789744du1ls5xbtq0',
+  invalid_count: 'text_1786540789744jmwmrvskazb',
+  invalid_format: 'text_1786540789744zpvrqniktq5',
+  is_invalid: 'text_1786540789744i4c9sozn2qh',
+}
+
+/** At most three toasts, so a multi-key validation failure cannot flood the screen. */
+const MAX_DISPLAYED_ERRORS = 3
+
+interface ParsedBillingItemKey {
+  entity: string
+  /** 0-based position of the item within its collection, `null` on coarse keys. */
+  index: number | null
+  /** 0-based position of the nested recurring transaction rule, when the key targets one. */
+  ruleIndex: number | null
+  /** Last path segment, `null` when the key stops at a collection or an index. */
+  field: string | null
+}
+
+const isNumeric = (segment: string | undefined): boolean => !!segment && /^\d+$/.test(segment)
+
+// Backend detail keys look like `billingItems.<entity>.<index>.<section>.<field>`, with
+// `section` a structural wrapper (`payload`, `overrides`) and, for wallet credits, an
+// optional `recurringTransactionRules.<ruleIndex>` level. Only the entity, the positions
+// and the trailing field carry meaning.
+const parseBillingItemKey = (rawKey: string): ParsedBillingItemKey | null => {
+  const segments = rawKey.split('.')
+
+  if (segments[0] !== 'billingItems' || segments.length < 2) return null
+
+  const [, entity, ...rest] = segments
+  const lastSegment = rest.at(-1)
+  const rulesSegmentIndex = rest.indexOf(RECURRING_RULES_SEGMENT)
+  const rawRuleIndex = rulesSegmentIndex === -1 ? undefined : rest[rulesSegmentIndex + 1]
+
+  return {
+    entity,
+    index: isNumeric(rest[0]) ? Number(rest[0]) : null,
+    ruleIndex: isNumeric(rawRuleIndex) ? Number(rawRuleIndex) : null,
+    field: !lastSegment || isNumeric(lastSegment) ? null : lastSegment,
+  }
+}
+
+const getBillingItemPrefix = (
+  parsed: ParsedBillingItemKey,
+  translate: TranslateFunc,
+): string | null => {
+  const prefixKey = BILLING_ITEM_PREFIX_KEYS[parsed.entity]
+
+  if (!prefixKey || parsed.index === null) return null
+
+  if (parsed.ruleIndex !== null) {
+    return translate(RECURRING_RULE_PREFIX_KEY, {
+      index: parsed.index + 1,
+      ruleIndex: parsed.ruleIndex + 1,
+    })
+  }
+
+  return translate(prefixKey, { index: parsed.index + 1 })
+}
+
+const getBillingItemMessage = (
+  rawKey: string,
+  code: string,
+  translate: TranslateFunc,
+): string | null => {
+  const parsed = parseBillingItemKey(rawKey)
+
+  if (!parsed) return null
+
+  const prefix = getBillingItemPrefix(parsed, translate)
+  const detailKey =
+    (parsed.field ? BILLING_ITEM_FIELD_ERROR_KEYS[`${parsed.field}.${code}`] : undefined) ??
+    BILLING_ITEM_CODE_KEYS[code]
+
+  // Without a prefix the detail is a bare lowercase fragment ("a value is invalid"),
+  // which reads as a broken sentence on its own — fall back to the generic copy.
+  if (!prefix || !detailKey) return null
+
+  return translate(COMPOSED_MESSAGE_KEY, { prefix, detail: translate(detailKey) })
+}
+
+const getDetailError = (
+  rawKey: string,
+  code: string,
+  translate: TranslateFunc,
+): QuoteMutationError => {
+  const topLevelKey = TOP_LEVEL_ERROR_KEYS[`${rawKey}.${code}`]
+
+  if (topLevelKey) {
+    return { message: translate(topLevelKey), field: FORM_FIELD_BY_DETAIL_KEY[rawKey] }
+  }
+
+  const billingItemMessage = getBillingItemMessage(rawKey, code, translate)
+
+  if (billingItemMessage) return { message: billingItemMessage }
+
+  return { message: translate(GENERIC_ERROR_KEY) }
+}
+
+/**
+ * Turns a failed quote mutation into user-facing messages.
+ *
+ * The API answers through `ExecutionErrorResponder`, which exposes
+ * `extensions.code` plus a camelized `extensions.details` map of
+ * `field -> [errorCode]`. Always returns at least one message: a failure must
+ * never be silent.
+ */
+export const getQuoteMutationErrors = (
+  errorObject: ApolloError | readonly GraphQLFormattedError[] | undefined,
+  translate: TranslateFunc,
+): QuoteMutationError[] => {
+  const genericError: QuoteMutationError[] = [{ message: translate(GENERIC_ERROR_KEY) }]
+  const extensions = extractGraphQLErrors(errorObject)[0]?.extensions
+  const code = extensions?.code
+  const details = extensions?.details
+
+  if (code === LagoApiError.Forbidden) return [{ message: translate(PERMISSION_ERROR_KEY) }]
+  if (code === LagoApiError.FeatureUnavailable) {
+    return [{ message: translate(FEATURE_UNAVAILABLE_ERROR_KEY) }]
+  }
+
+  if (!details) return genericError
+
+  const errors: QuoteMutationError[] = []
+  const seenMessages = new Set<string>()
+
+  for (const [rawKey, codes] of Object.entries(details)) {
+    const detailCode = Array.isArray(codes) ? codes[0] : String(codes)
+    const error = getDetailError(rawKey, detailCode, translate)
+
+    if (seenMessages.has(error.message)) continue
+
+    seenMessages.add(error.message)
+    errors.push(error)
+  }
+
+  if (!errors.length) return genericError
+
+  return errors.slice(0, MAX_DISPLAYED_ERRORS)
+}
