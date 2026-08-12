@@ -4635,5 +4635,9 @@
   "text_1786540789744du1ls5xbtq0": "an unsupported field was provided",
   "text_1786540789744jmwmrvskazb": "an invalid number of items was provided",
   "text_1786540789744zpvrqniktq5": "a value has an invalid format",
-  "text_1786540789744i4c9sozn2qh": "a value is invalid"
+  "text_1786540789744i4c9sozn2qh": "a value is invalid",
+  "text_1786367738116xtz2r6c9eoz": "Rate card {{rateCardCode}} was created",
+  "text_1786367738117541mevhwa63": "Rate card {{rateCardCode}} was deleted",
+  "text_1786367738117gbjclk29or1": "Rate card {{rateCardCode}} was updated",
+  "text_1786367738117s1n9lpwf97k": "Rate card"
 }
