@@ -27,7 +27,7 @@ describe('buildQuotePreviewProps', () => {
       content: '<p>Hi</p>',
       entities: { 'addon-1': { entityId: 'addon-1' } },
       customerLocale: 'fr',
-      customerCurrency: CurrencyEnum.Eur,
+      documentCurrency: CurrencyEnum.Eur,
       mentionValues: {},
       images: {},
     })
@@ -41,7 +41,7 @@ describe('buildQuotePreviewProps', () => {
       content: '',
       entities: {},
       customerLocale: 'en',
-      customerCurrency: undefined,
+      documentCurrency: undefined,
       mentionValues: {},
       images: {},
     })
@@ -54,7 +54,7 @@ describe('buildQuotePreviewProps', () => {
     const result = buildQuotePreviewProps({ version, customer })
 
     expect(result.customerLocale).toBe('en')
-    expect(result.customerCurrency).toBeUndefined()
+    expect(result.documentCurrency).toBeUndefined()
     expect(result.entities).toEqual({})
   })
 
@@ -113,5 +113,38 @@ describe('buildQuotePreviewProps', () => {
     const result = buildQuotePreviewProps({ version: null, customer: null })
 
     expect(result.images).toEqual({})
+  })
+
+  describe('GIVEN the version has its own currency', () => {
+    const version = {
+      content: '<p>Hi</p>',
+      billingItems: { addOns: [] },
+      mentionVariables: {},
+      currency: CurrencyEnum.Jpy,
+    }
+
+    it('THEN should price the preview in it rather than the customer currency', () => {
+      const customer = {
+        currency: CurrencyEnum.Eur,
+        billingConfiguration: { documentLocale: 'fr' },
+      }
+
+      const result = buildQuotePreviewProps({ version, customer })
+
+      expect(result.documentCurrency).toBe(CurrencyEnum.Jpy)
+      expect(buildPreviewEntities).toHaveBeenCalledWith({ addOns: [] }, CurrencyEnum.Jpy)
+    })
+
+    it('THEN should still fall back to the customer currency when the version has none', () => {
+      const customer = {
+        currency: CurrencyEnum.Eur,
+        billingConfiguration: { documentLocale: 'fr' },
+      }
+
+      const result = buildQuotePreviewProps({ version: { ...version, currency: null }, customer })
+
+      expect(result.documentCurrency).toBe(CurrencyEnum.Eur)
+      expect(buildPreviewEntities).toHaveBeenCalledWith({ addOns: [] }, CurrencyEnum.Eur)
+    })
   })
 })

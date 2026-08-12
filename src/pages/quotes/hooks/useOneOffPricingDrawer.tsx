@@ -180,9 +180,16 @@ const buildSurvivingAddOnItems = (
     })
     .filter((item): item is AddOnItem => item !== null)
 
+export interface OneOffPricingDrawerOptions {
+  /** Currency used to display amounts — may be a customer/organization fallback. */
+  currency?: CurrencyEnum | null
+  /** Whether `currency` is the quote's own currency rather than a fallback. */
+  hasQuoteCurrency?: boolean
+}
+
 export const useOneOffPricingDrawer = (
   initialBillingItems?: unknown,
-  quoteCurrency?: CurrencyEnum | null,
+  options?: OneOffPricingDrawerOptions,
 ): UseOneOffPricingDrawerReturn => {
   const { translate } = useInternationalization()
   const { organization } = useOrganizationInfos()
@@ -191,7 +198,11 @@ export const useOneOffPricingDrawer = (
   // The quote currency drives amount cents (de)serialization. Kept in a ref so
   // the stable callbacks (form onSubmit, syncEntitiesWithBlocks) always read the
   // latest value without depending on it.
-  const currency = quoteCurrency ?? organization?.defaultCurrency ?? CurrencyEnum.Usd
+  const currency = options?.currency ?? organization?.defaultCurrency ?? CurrencyEnum.Usd
+  const hasQuoteCurrency = !!options?.hasQuoteCurrency
+  const hasQuoteCurrencyRef = useRef(hasQuoteCurrency)
+
+  hasQuoteCurrencyRef.current = hasQuoteCurrency
   const currencyRef = useRef(currency)
 
   currencyRef.current = currency
@@ -199,6 +210,9 @@ export const useOneOffPricingDrawer = (
   const [entities, setEntities] = useState<Record<string, EntityData>>({})
   const payloadsRef = useRef<Record<string, AddOnPayload>>({})
   const catalogIdMapRef = useRef<Record<string, string>>({})
+  // Catalog currency of each selected add-on, used to seed the quote currency
+  // when the quote has none of its own yet.
+  const addOnCurrencyMapRef = useRef<Record<string, CurrencyEnum>>({})
 
   // Session cache of add-ons removed from the doc, keyed by localId, so a Cmd+Z
   // that re-inserts the pricing block can re-hydrate the entity, its catalog
@@ -211,6 +225,7 @@ export const useOneOffPricingDrawer = (
         attrs: PricingBlockAttributes,
         entityData: Record<string, EntityData>,
         billingItems?: BillingItemsPayload,
+        currency?: CurrencyEnum,
       ) => void | Promise<unknown>)
     | null
   >(null)
@@ -254,6 +269,7 @@ export const useOneOffPricingDrawer = (
   const captureAddOnPayload = useCallback(
     (localId: string, addOn: AddOnForPricingSectionFragment) => {
       catalogIdMapRef.current[localId] = addOn.id
+      addOnCurrencyMapRef.current[localId] = addOn.amountCurrency
       payloadsRef.current[localId] = {
         position: 0, // will be set correctly by toBillingItems
         code: addOn.code,
@@ -388,8 +404,17 @@ export const useOneOffPricingDrawer = (
         localEntityIds: confirmedItems.map((item) => item.localId),
       }
 
-      const result = (await onSaveRef.current?.(attrs, entityData, billingItems)) as
-        SavePricingResult | undefined
+      // The quote has no currency of its own yet: the first add-on defines it.
+      const seededCurrency = hasQuoteCurrencyRef.current
+        ? undefined
+        : addOnCurrencyMapRef.current[confirmedItems[0]?.localId]
+
+      const result = (await onSaveRef.current?.(
+        attrs,
+        entityData,
+        billingItems,
+        seededCurrency,
+      )) as SavePricingResult | undefined
 
       lastSaveResultRef.current = result ?? { ok: true }
 

@@ -3,12 +3,7 @@ import { generatePath } from 'react-router-dom'
 
 import { addToast } from '~/core/apolloClient'
 import { EDIT_QUOTE_ROUTE, useNavigate } from '~/core/router'
-import {
-  CreateQuoteInput,
-  CurrencyEnum,
-  useCreateQuoteMutation,
-  useUpdateCustomerCurrencyForQuoteMutation,
-} from '~/generated/graphql'
+import { CreateQuoteInput, useCreateQuoteMutation } from '~/generated/graphql'
 
 gql`
   mutation createQuote($input: CreateQuoteInput!) {
@@ -19,13 +14,6 @@ gql`
       }
     }
   }
-
-  mutation updateCustomerCurrencyForQuote($input: UpdateCustomerInput!) {
-    updateCustomer(input: $input) {
-      id
-      currency
-    }
-  }
 `
 
 interface CreateQuoteValues {
@@ -33,9 +21,6 @@ interface CreateQuoteValues {
   orderType: CreateQuoteInput['orderType']
   subscriptionId?: string
   owners?: string[]
-  currency?: CurrencyEnum
-  customerExternalId?: string
-  hasCustomerCurrency?: boolean
 }
 
 interface UseCreateQuoteReturn {
@@ -45,8 +30,6 @@ interface UseCreateQuoteReturn {
 
 export const useCreateQuote = (): UseCreateQuoteReturn => {
   const navigate = useNavigate()
-
-  const [updateCustomerCurrency] = useUpdateCustomerCurrencyForQuoteMutation()
 
   const [createQuote, { loading }] = useCreateQuoteMutation({
     onCompleted({ createQuote: createdQuote }) {
@@ -68,18 +51,6 @@ export const useCreateQuote = (): UseCreateQuoteReturn => {
 
   const onSave = async (values: CreateQuoteValues): Promise<void> => {
     try {
-      if (!values.hasCustomerCurrency && values.currency && values.customerExternalId) {
-        await updateCustomerCurrency({
-          variables: {
-            input: {
-              id: values.customerId,
-              externalId: values.customerExternalId,
-              currency: values.currency,
-            },
-          },
-        })
-      }
-
       await createQuote({
         variables: {
           input: {
@@ -87,7 +58,6 @@ export const useCreateQuote = (): UseCreateQuoteReturn => {
             orderType: values.orderType,
             subscriptionId: values.subscriptionId || undefined,
             owners: values.owners,
-            currency: values.currency || undefined,
           },
         },
       })
