@@ -71,7 +71,7 @@ export const useWalletActions = ({
         navigate(
           generatePath(CREATE_WALLET_TOP_UP_ROUTE, {
             walletId: walletId as string,
-            customerId: customerId ?? null,
+            customerId: customerId as string,
           }),
         )
         closePopper()
@@ -98,7 +98,7 @@ export const useWalletActions = ({
         navigate(
           generatePath(EDIT_WALLET_ROUTE, {
             walletId: walletId as string,
-            customerId: customerId ?? null,
+            customerId: customerId as string,
           }),
         )
         closePopper()
