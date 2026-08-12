@@ -56,7 +56,7 @@ const PROPS: QuotePreviewProps = {
   content: '<p>Doc</p>',
   entities: { 'addon-1': { entityId: 'addon-1', entityType: 'addOn', name: 'A', code: 'a' } },
   customerLocale: 'en',
-  customerCurrency: undefined,
+  documentCurrency: undefined,
   mentionValues: {},
   images: {},
 }

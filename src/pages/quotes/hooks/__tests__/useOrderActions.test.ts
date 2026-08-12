@@ -68,9 +68,10 @@ describe('useOrderActions', () => {
       const actions = result.current.getActions(createMockOrder())
 
       expect(actions).toHaveLength(3)
-      expect(actions[0].icon).toBe('pen')
-      expect(actions[1].icon).toBe('download')
-      expect(actions[2].icon).toBe('flash')
+      // Execute manually comes first in the popper
+      expect(actions[0].icon).toBe('flash')
+      expect(actions[1].icon).toBe('pen')
+      expect(actions[2].icon).toBe('download')
     })
   })
 
@@ -102,7 +103,7 @@ describe('useOrderActions', () => {
       const { result } = renderHook(() => useOrderActions())
       const actions = result.current.getActions(createMockOrder({ id: 'order-42' }))
 
-      actions[0].onAction()
+      actions.find((a) => a.icon === 'pen')?.onAction()
 
       expect(testMockNavigateFn).toHaveBeenCalledWith('/order/order-42/edit')
     })
