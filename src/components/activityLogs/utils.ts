@@ -108,7 +108,7 @@ export function getResourceLink(
       }
       return generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE, {
         customerId: (resource as CreditNote).customer?.id,
-        invoiceId: (resource as CreditNote).invoice?.id as string | null,
+        invoiceId: (resource as CreditNote).invoice?.id as string,
         creditNoteId: resource.id,
       })
     case 'Invoice':

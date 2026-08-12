@@ -220,7 +220,7 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
                                 navigate(
                                   generatePath(UPDATE_ALERT_WALLET_ROUTE, {
                                     walletId: wallet.id,
-                                    customerId: customerId ?? null,
+                                    customerId: customerId as string,
                                     alertId: currentAlert.id,
                                   }),
                                 )

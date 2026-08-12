@@ -241,7 +241,7 @@ const WalletDetails = () => {
                       type="button"
                       to={generatePath(EDIT_WALLET_ROUTE, {
                         walletId: walletId as string,
-                        customerId: customerId ?? null,
+                        customerId: customerId as string,
                       })}
                       data-test="edit-wallet"
                     >
@@ -278,7 +278,7 @@ const WalletDetails = () => {
                       type="button"
                       to={generatePath(EDIT_WALLET_ROUTE, {
                         walletId: walletId as string,
-                        customerId: customerId ?? null,
+                        customerId: customerId as string,
                       })}
                       routerState={{ openRecurringRuleDrawer: true }}
                     >
@@ -333,7 +333,7 @@ const WalletDetails = () => {
                       type="button"
                       to={generatePath(CREATE_ALERT_WALLET_ROUTE, {
                         walletId: walletId as string,
-                        customerId: customerId ?? null,
+                        customerId: customerId as string,
                       })}
                       data-test="create-wallet-alert"
                     >

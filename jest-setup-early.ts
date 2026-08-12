@@ -5,6 +5,14 @@
  * so we can intercept warnings from libraries that cache console references.
  */
 
+// react-router's server-runtime/crypto module instantiates `new TextEncoder()` at
+// module load time. jsdom doesn't expose it globally, and react-router-dom v7 pulls
+// that module in even for client-only usage, so every test that imports
+// react-router-dom crashes without this polyfill.
+import { TextDecoder, TextEncoder } from 'node:util'
+
+Object.assign(globalThis, { TextEncoder, TextDecoder })
+
 /**
  * Patterns to suppress in test console output.
  * Each pattern is an array of strings that must ALL be present in the message.

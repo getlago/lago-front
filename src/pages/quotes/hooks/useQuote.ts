@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client'
+import { ApolloError, gql } from '@apollo/client'
 
-import { QuoteDetailItemFragment, useGetQuoteQuery } from '~/generated/graphql'
+import { LagoApiError, QuoteDetailItemFragment, useGetQuoteQuery } from '~/generated/graphql'
 
 gql`
   fragment QuotePreviewVersion on QuoteVersion {
@@ -78,7 +78,7 @@ gql`
 interface UseQuoteReturn {
   quote: QuoteDetailItemFragment | null | undefined
   loading: boolean
-  error: Error | undefined
+  error: ApolloError | undefined
   refetch: ReturnType<typeof useGetQuoteQuery>['refetch']
 }
 
@@ -86,6 +86,7 @@ export const useQuote = (id?: string): UseQuoteReturn => {
   const { data, loading, error, refetch } = useGetQuoteQuery({
     variables: { id: id || '' },
     skip: !id,
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
   })
 
   return {

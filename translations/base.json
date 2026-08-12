@@ -4588,5 +4588,7 @@
   "text_1786367738116xtz2r6c9eoz": "Rate card {{rateCardCode}} was created",
   "text_1786367738117541mevhwa63": "Rate card {{rateCardCode}} was deleted",
   "text_1786367738117gbjclk29or1": "Rate card {{rateCardCode}} was updated",
-  "text_1786367738117s1n9lpwf97k": "Rate card"
+  "text_1786367738117s1n9lpwf97k": "Rate card",
+  "text_17865284954420o93wb1ssqz": "Billing entity not found",
+  "text_1786528548955oqavkn0eypq": "Quote not found"
 }
