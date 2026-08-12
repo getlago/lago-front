@@ -2,11 +2,12 @@ import { useEffect } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Spinner } from '~/components/designSystem/Spinner'
-import { BILLING_ENTITY_ROUTE, useNavigate } from '~/core/router'
+import { BILLING_ENTITY_ROUTE, SETTINGS_ROUTE, useLocation, useNavigate } from '~/core/router'
 import { useGetBillingEntitiesQuery } from '~/generated/graphql'
 
 const SettingsHomePage = () => {
   const navigate = useNavigate()
+  const { strippedPathname } = useLocation()
 
   const { data: billingEntitiesData } = useGetBillingEntitiesQuery({
     // This endpoint is not cached to prevent error after logout + organization switch
@@ -17,6 +18,13 @@ const SettingsHomePage = () => {
 
   useEffect(() => {
     if (!billingEntitiesData?.billingEntities?.collection?.length) {
+      return
+    }
+
+    // react-router v7 wraps navigations in startTransition, so this page can stay mounted
+    // (and this query can still resolve) after the user has already navigated elsewhere from
+    // the settings nav. Bail out instead of clobbering that navigation with a stale redirect.
+    if (strippedPathname !== SETTINGS_ROUTE) {
       return
     }
 
@@ -36,7 +44,7 @@ const SettingsHomePage = () => {
       }),
       { replace: true },
     )
-  }, [billingEntitiesData, navigate])
+  }, [billingEntitiesData, navigate, strippedPathname])
 
   return <Spinner />
 }
