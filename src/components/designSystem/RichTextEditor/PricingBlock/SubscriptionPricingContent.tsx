@@ -48,7 +48,14 @@ interface SubscriptionPricingContentProps {
   initialState?: SubscriptionPricingState | null
   quoteDates?: { startDate?: string; endDate?: string }
   customer?: QuoteCustomer | null
+  /** Currency used to display amounts — may be a customer/organization fallback. */
   currency?: CurrencyEnum | null
+  /**
+   * Whether `currency` is the quote's own currency. When it is, the quote owns
+   * the currency and the plan's own picker is locked; when it is not, the plan
+   * is free to define it (and will seed the quote currency on save).
+   */
+  hasQuoteCurrency?: boolean
   billingItemPlan?: BillingItemPlan
   subscriptionId?: string
 }
@@ -62,6 +69,7 @@ export function SubscriptionPricingContent({
   quoteDates,
   customer,
   currency,
+  hasQuoteCurrency,
   billingItemPlan,
   subscriptionId,
 }: Readonly<SubscriptionPricingContentProps>) {
@@ -101,6 +109,10 @@ export function SubscriptionPricingContent({
     invoicingSettings: billingItemInvoicingSettings,
   } = usePlanFormSetup({
     planIdToFetch: selectedPlanId || undefined,
+    // When the quote owns a currency it is the source of truth for every amount
+    // here, so the plan form (de)serializes with it. Without one, the plan keeps
+    // its own currency and seeds the quote's on save.
+    initialCurrency: hasQuoteCurrency ? (currency ?? undefined) : undefined,
     billingItemPlan: userSwitchedPlan ? undefined : billingItemPlan,
     subscriptionId,
     onSubmit: () => {
@@ -151,7 +163,9 @@ export function SubscriptionPricingContent({
     !!subscriptionId,
   )
   const showInvoicingSection = Boolean(customer?.externalId || customer?.id)
-  const planSettingsDrawer = useQuotePlanSettingsDrawer(planForm)
+  const planSettingsDrawer = useQuotePlanSettingsDrawer(planForm, {
+    disableCurrencyInput: hasQuoteCurrency,
+  })
 
   // Subscription fee drawer (grouped with plan settings section)
   const subscriptionFeeDrawerRef = useRef<SubscriptionFeeDrawerRef>(null)

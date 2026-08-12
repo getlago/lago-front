@@ -664,18 +664,18 @@ describe('RichTextEditor', () => {
       })
     })
 
-    describe('WHEN customerCurrency is provided', () => {
+    describe('WHEN documentCurrency is provided', () => {
       it('THEN should render without errors', async () => {
-        await act(() => render(<RichTextEditor customerCurrency={'EUR' as never} />))
+        await act(() => render(<RichTextEditor documentCurrency={'EUR' as never} />))
 
         expect(screen.getByTestId(RICH_TEXT_EDITOR_TEST_ID)).toBeInTheDocument()
       })
     })
 
-    describe('WHEN both customerLocale and customerCurrency are provided', () => {
+    describe('WHEN both customerLocale and documentCurrency are provided', () => {
       it('THEN should render without errors', async () => {
         await act(() =>
-          render(<RichTextEditor customerLocale="fr" customerCurrency={'EUR' as never} />),
+          render(<RichTextEditor customerLocale="fr" documentCurrency={'EUR' as never} />),
         )
 
         expect(screen.getByTestId(RICH_TEXT_EDITOR_TEST_ID)).toBeInTheDocument()

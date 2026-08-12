@@ -15,11 +15,11 @@ export const DISCOUNT_BLOCK_VIEW_EMPTY_TEST_ID = 'discount-block-view-empty'
 export const DISCOUNT_BLOCK_VIEW_UNRESOLVED_TEST_ID = 'discount-block-view-unresolved'
 
 export const DiscountBlockView = ({ node, updateAttributes }: NodeViewProps) => {
-  const { entities, onDiscountCommand, mode, customerLocale, customerCurrency } =
+  const { entities, onDiscountCommand, mode, customerLocale, documentCurrency } =
     useRichTextEditorContext()
   const { translate } = useInternationalization()
   const { organization } = useOrganizationInfos()
-  const currency = customerCurrency ?? organization?.defaultCurrency ?? CurrencyEnum.Usd
+  const currency = documentCurrency ?? organization?.defaultCurrency ?? CurrencyEnum.Usd
 
   const effectiveLocale: Locale = (customerLocale ?? 'en') as Locale
   const { translateWithContextualLocal } = useContextualLocale(effectiveLocale)

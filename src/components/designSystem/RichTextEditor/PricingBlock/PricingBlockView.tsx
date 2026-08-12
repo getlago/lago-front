@@ -70,11 +70,11 @@ const PricingBlockPreview = ({
 }
 
 export const PricingBlockView = ({ node, updateAttributes }: NodeViewProps) => {
-  const { entities, onPricingCommand, mode, customerLocale, customerCurrency } =
+  const { entities, onPricingCommand, mode, customerLocale, documentCurrency } =
     useRichTextEditorContext()
   const { translate } = useInternationalization()
   const { organization } = useOrganizationInfos()
-  const currency = customerCurrency ?? organization?.defaultCurrency ?? CurrencyEnum.Usd
+  const currency = documentCurrency ?? organization?.defaultCurrency ?? CurrencyEnum.Usd
 
   const effectiveLocale: Locale = (customerLocale ?? 'en') as Locale
   const { translateWithContextualLocal } = useContextualLocale(effectiveLocale)
