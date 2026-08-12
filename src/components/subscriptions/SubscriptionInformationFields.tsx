@@ -205,6 +205,10 @@ const getSubscriptionInformationGrid = ({
     .filter(Boolean)
     .join(' ')
 
+  // A pending subscription has no `startedAt` yet, so fall back to the date it is
+  // scheduled to start on. Both being empty should not happen in practice.
+  const startDate = subscription?.startedAt ?? subscription?.subscriptionAt
+
   return [
     {
       label: translate('text_65201c5a175a4b0238abf29a'),
@@ -225,7 +229,7 @@ const getSubscriptionInformationGrid = ({
     },
     {
       label: translate('text_65201c5a175a4b0238abf29e'),
-      value: subscription?.startedAt ? intlFormatDateTimeOrgaTZ(subscription.startedAt).date : '-',
+      value: startDate ? intlFormatDateTimeOrgaTZ(startDate).date : '-',
     },
     {
       label: translate('text_1781859135627z59hpfpa8pt'),
