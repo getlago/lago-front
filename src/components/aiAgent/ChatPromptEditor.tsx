@@ -1,14 +1,14 @@
-import { FormikConfig, useFormik } from 'formik'
+import { useStore } from '@tanstack/react-form'
 import { Icon, tw } from 'lago-design-system'
 import { FC, useEffect, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
 import { Typography } from '~/components/designSystem/Typography'
-import { TextInputField } from '~/components/form'
 import { CreateAiConversationInput } from '~/generated/graphql'
 import { AGENT_TYPE_LABELS, AiAgentTypeEnum, useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm } from '~/hooks/forms/useAppform'
 import { MenuPopper } from '~/styles'
 
 export const CHAT_PROMPT_EDITOR_TEST_ID = 'chat-prompt-editor'
@@ -20,7 +20,7 @@ export const CHAT_PROMPT_EDITOR_AGENT_SELECTOR_TEST_ID = 'chat-prompt-editor-age
 
 interface ChatPromptEditorProps {
   disabled?: boolean
-  onSubmit: FormikConfig<CreateAiConversationInput>['onSubmit']
+  onSubmit: (values: CreateAiConversationInput) => void
 }
 
 export const ChatPromptEditor: FC<ChatPromptEditorProps> = ({
@@ -45,27 +45,29 @@ export const ChatPromptEditor: FC<ChatPromptEditorProps> = ({
     return () => observer.disconnect()
   }, [textareaElement])
 
-  const formikProps = useFormik({
-    initialValues: {
+  const form = useAppForm({
+    defaultValues: {
       message: '',
     },
-    onSubmit: (values, props) => {
-      if (!values.message || state.isLoading || state.isStreaming) return
+    onSubmit: ({ value, formApi }) => {
+      if (!value.message || state.isLoading || state.isStreaming) return
 
-      handleSubmit(values, props)
-      formikProps.resetForm()
+      handleSubmit(value)
+      formApi.reset()
     },
   })
+
+  const message = useStore(form.store, (formState) => formState.values.message)
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault()
-      formikProps.handleSubmit()
+      form.handleSubmit()
     }
   }
 
   const isWaitingForResponse = state.isLoading || state.isStreaming
-  const canSubmit = !!formikProps.values.message && !isWaitingForResponse && !disabled
+  const canSubmit = !!message && !isWaitingForResponse && !disabled
 
   const agentOptions = Object.values(AiAgentTypeEnum).map((value) => ({
     value,
@@ -77,7 +79,11 @@ export const ChatPromptEditor: FC<ChatPromptEditorProps> = ({
   return (
     <form
       className="relative mx-6 mb-6 mt-0 flex w-[calc(100%-16px*3)] shrink-0 flex-col gap-4"
-      onSubmit={formikProps.handleSubmit}
+      onSubmit={(event) => {
+        event.preventDefault()
+        event.stopPropagation()
+        form.handleSubmit()
+      }}
       data-test={CHAT_PROMPT_EDITOR_TEST_ID}
     >
       <div className="h-30 w-full" />
@@ -90,29 +96,31 @@ export const ChatPromptEditor: FC<ChatPromptEditorProps> = ({
             data-test={CHAT_PROMPT_EDITOR_GRADIENT_TEST_ID}
           />
         )}
-        <TextInputField
-          // eslint-disable-next-line jsx-a11y/no-autofocus
-          autoFocus
-          className="rounded-xl bg-white"
-          inputRef={setTextareaElement}
-          onKeyDown={handleKeyDown}
-          multiline
-          id="message"
-          name="message"
-          formikProps={formikProps}
-          placeholder={translate('text_1757417225851xkstj2u16q5')}
-          InputProps={{
-            // Bottom padding on the non-scrolling root reserves the agent selector + submit row,
-            // so scrolled text clips above it instead of sliding underneath (120px → 428px total)
-            className: '!px-0 !pb-13 !pt-3',
-          }}
-          inputProps={{
-            className:
-              '!resize-none w-full !px-4 !py-0 !min-h-14 !max-h-[364px] !overflow-y-auto text-sm',
-            'data-test': CHAT_PROMPT_EDITOR_INPUT_TEST_ID,
-          }}
-          disabled={isWaitingForResponse || disabled}
-        />
+        <form.AppField name="message">
+          {(field) => (
+            <field.TextInputField
+              // eslint-disable-next-line jsx-a11y/no-autofocus
+              autoFocus
+              className="rounded-xl bg-white"
+              inputRef={setTextareaElement}
+              onKeyDown={handleKeyDown}
+              multiline
+              id="message"
+              placeholder={translate('text_1757417225851xkstj2u16q5')}
+              InputProps={{
+                // Bottom padding on the non-scrolling root reserves the agent selector + submit row,
+                // so scrolled text clips above it instead of sliding underneath (120px → 428px total)
+                className: '!px-0 !pb-13 !pt-3',
+              }}
+              inputProps={{
+                className:
+                  '!resize-none w-full !px-4 !py-0 !min-h-14 !max-h-[364px] !overflow-y-auto text-sm',
+                'data-test': CHAT_PROMPT_EDITOR_INPUT_TEST_ID,
+              }}
+              disabled={isWaitingForResponse || disabled}
+            />
+          )}
+        </form.AppField>
 
         <div className="absolute bottom-3 right-4 flex items-center gap-2">
           {showAgentSelector && (

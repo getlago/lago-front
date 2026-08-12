@@ -119,6 +119,26 @@ export const usePlanFormSetup = ({
   const currency =
     initialCurrency || (effectivePlan?.amountCurrency as CurrencyEnum) || CurrencyEnum.Usd
 
+  // Baseline: the catalog plan untouched by the form, used by the quote serializer
+  // to emit only the fields the user really overrode (LAGO-1789). Case 4 already has
+  // it in `plan`; only cases 2 and 3 — which hydrate the form from a quote payload or
+  // a subscription and skip the query above — need to fetch it.
+  const { data: basePlanData } = useGetSinglePlanQuery({
+    context: { silentError: LagoApiError.NotFound },
+    variables: { id: resolvedPlanId as string },
+    skip: !resolvedPlanId || !skipPlanQuery,
+  })
+  const basePlan = plan ?? basePlanData?.plan
+  const baseCurrency =
+    initialCurrency || (basePlan?.amountCurrency as CurrencyEnum) || CurrencyEnum.Usd
+  const basePlanFormValues = useMemo(
+    () =>
+      basePlan
+        ? buildDefaultValues(basePlan, formType, baseCurrency, hasAnyPricingUnitConfigured)
+        : undefined,
+    [basePlan, formType, baseCurrency, hasAnyPricingUnitConfigured],
+  )
+
   const form = useAppForm({
     defaultValues:
       billingItemData?.formValues ??
@@ -170,6 +190,7 @@ export const usePlanFormSetup = ({
   return {
     form,
     plan: effectivePlan as EditPlanFragment | undefined,
+    basePlanFormValues,
     formReady,
     loading,
     error,

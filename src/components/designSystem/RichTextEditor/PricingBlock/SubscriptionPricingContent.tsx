@@ -36,13 +36,26 @@ import { QuoteInvoicingPaymentsSettings } from './QuoteInvoicingPaymentsSettings
 import { useQuotePlanSettingsDrawer } from './useQuotePlanSettingsDrawer'
 import { useSubscriptionSettingsDrawer } from './useSubscriptionSettingsDrawer'
 
+export type ValidatePlanForm = () => Promise<boolean>
+
 interface SubscriptionPricingContentProps {
   stateRef: MutableRefObject<SubscriptionPricingState | null>
   formValuesRef: MutableRefObject<PlanFormInput | null>
+  // Filled with a submit-and-report-validity function so the drawer can refuse to
+  // persist an incomplete plan.
+  validatePlanFormRef?: MutableRefObject<ValidatePlanForm | null>
+  basePlanFormValuesRef: MutableRefObject<PlanFormInput | null>
   initialState?: SubscriptionPricingState | null
   quoteDates?: { startDate?: string; endDate?: string }
   customer?: QuoteCustomer | null
+  /** Currency used to display amounts — may be a customer/organization fallback. */
   currency?: CurrencyEnum | null
+  /**
+   * Whether `currency` is the quote's own currency. When it is, the quote owns
+   * the currency and the plan's own picker is locked; when it is not, the plan
+   * is free to define it (and will seed the quote currency on save).
+   */
+  hasQuoteCurrency?: boolean
   billingItemPlan?: BillingItemPlan
   subscriptionId?: string
 }
@@ -50,10 +63,13 @@ interface SubscriptionPricingContentProps {
 export function SubscriptionPricingContent({
   stateRef,
   formValuesRef,
+  validatePlanFormRef,
+  basePlanFormValuesRef,
   initialState,
   quoteDates,
   customer,
   currency,
+  hasQuoteCurrency,
   billingItemPlan,
   subscriptionId,
 }: Readonly<SubscriptionPricingContentProps>) {
@@ -78,19 +94,46 @@ export function SubscriptionPricingContent({
     !!selectedPlanId &&
     selectedPlanId !== originalBillingItemPlanId.current
 
+  // Set by the form's own onSubmit, which TanStack only calls once the form-level
+  // `planFormSchema` passed — so it doubles as the validity signal.
+  const planFormValidRef = useRef(false)
+
   // Plan form — fetches plan by ID and creates TanStack form (no Router needed)
   const {
     form: planForm,
     plan: planData,
     formReady,
     resolvedPlanId,
+    basePlanFormValues,
     subscriptionSettings: billingItemSubscriptionSettings,
     invoicingSettings: billingItemInvoicingSettings,
   } = usePlanFormSetup({
     planIdToFetch: selectedPlanId || undefined,
+    // When the quote owns a currency it is the source of truth for every amount
+    // here, so the plan form (de)serializes with it. Without one, the plan keeps
+    // its own currency and seeds the quote's on save.
+    initialCurrency: hasQuoteCurrency ? (currency ?? undefined) : undefined,
     billingItemPlan: userSwitchedPlan ? undefined : billingItemPlan,
     subscriptionId,
+    onSubmit: () => {
+      planFormValidRef.current = true
+    },
   })
+
+  useEffect(() => {
+    if (!validatePlanFormRef) return
+
+    validatePlanFormRef.current = async () => {
+      planFormValidRef.current = false
+      await planForm.handleSubmit()
+
+      return planFormValidRef.current
+    }
+
+    return () => {
+      validatePlanFormRef.current = null
+    }
+  }, [planForm, validatePlanFormRef])
 
   // Sync selectedPlanId from resolvedPlanId when billing items or subscription data arrives
   useEffect(() => {
@@ -120,7 +163,9 @@ export function SubscriptionPricingContent({
     !!subscriptionId,
   )
   const showInvoicingSection = Boolean(customer?.externalId || customer?.id)
-  const planSettingsDrawer = useQuotePlanSettingsDrawer(planForm)
+  const planSettingsDrawer = useQuotePlanSettingsDrawer(planForm, {
+    disableCurrencyInput: hasQuoteCurrency,
+  })
 
   // Subscription fee drawer (grouped with plan settings section)
   const subscriptionFeeDrawerRef = useRef<SubscriptionFeeDrawerRef>(null)
@@ -157,8 +202,9 @@ export function SubscriptionPricingContent({
   const basePlanName =
     planData?.name ?? billingItemPlan?.payload.name ?? initialState?.basePlanName ?? formName
 
-  // Sync to stateRef + formValuesRef. Overrides are no longer computed here:
-  // toPlanBillingItems() derives them from formValuesRef (see buildPlanOverrides).
+  // Sync to stateRef + formValuesRef + basePlanFormValuesRef. Overrides are no longer
+  // computed here: toPlanBillingItems() derives them from the two form value refs
+  // (see buildPlanOverrides).
   useEffect(() => {
     if (!formReady || !selectedPlanId) {
       stateRef.current = null
@@ -176,6 +222,7 @@ export function SubscriptionPricingContent({
     }
 
     formValuesRef.current = formValues
+    basePlanFormValuesRef.current = basePlanFormValues ?? null
   }, [
     formReady,
     planData,
@@ -187,8 +234,10 @@ export function SubscriptionPricingContent({
     formDescription,
     formCode,
     formValues,
+    basePlanFormValues,
     stateRef,
     formValuesRef,
+    basePlanFormValuesRef,
   ])
 
   // ComboBox data

@@ -6,7 +6,10 @@ import type {
   OnPricingCommand,
 } from '~/components/designSystem/RichTextEditor/common/RichTextEditorContext'
 import type { PricingBlockAttributes } from '~/components/designSystem/RichTextEditor/extensions/PricingBlock.schema'
-import { SubscriptionPricingContent } from '~/components/designSystem/RichTextEditor/PricingBlock/SubscriptionPricingContent'
+import {
+  SubscriptionPricingContent,
+  type ValidatePlanForm,
+} from '~/components/designSystem/RichTextEditor/PricingBlock/SubscriptionPricingContent'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
 import type { PlanFormInput } from '~/components/plans/types'
 import { addToast } from '~/core/apolloClient'
@@ -41,7 +44,10 @@ export interface SubscriptionPricingDrawerOptions {
   onDatesChange?: (startDate?: string, endDate?: string) => void
   customer?: QuoteCustomer | null
   subscriptionId?: string
+  /** Currency used to display amounts — may be a customer/organization fallback. */
   currency?: CurrencyEnum | null
+  /** Whether `currency` is the quote's own currency rather than a fallback. */
+  hasQuoteCurrency?: boolean
 }
 
 export const useSubscriptionPricingDrawer = (
@@ -56,6 +62,10 @@ export const useSubscriptionPricingDrawer = (
   const initialStateRef = useRef<SubscriptionPricingState | null>(null)
   const subscriptionStateRef = useRef<SubscriptionPricingState | null>(null)
   const formValuesRef = useRef<PlanFormInput | null>(null)
+  const validatePlanFormRef = useRef<ValidatePlanForm | null>(null)
+  // The catalog plan's own form values, used to serialize only the fields the user
+  // really changed instead of overriding the plan wholesale (LAGO-1789).
+  const basePlanFormValuesRef = useRef<PlanFormInput | null>(null)
 
   // Latest saved billingItems, kept in a ref so plan saves/syncs can preserve
   // sibling categories (coupons, addons) instead of overwriting billingItems and
@@ -86,6 +96,7 @@ export const useSubscriptionPricingDrawer = (
         attrs: PricingBlockAttributes,
         entityData: Record<string, EntityData>,
         billingItems?: BillingItemsPayload,
+        currency?: CurrencyEnum,
       ) => void | Promise<unknown>)
     | null
   >(null)
@@ -132,7 +143,22 @@ export const useSubscriptionPricingDrawer = (
           throw new Error('Incomplete plan')
         }
 
-        const billingItems = toPlanBillingItems(state, formValues ?? undefined)
+        // An unfilled billing item must never reach the quote version, otherwise it
+        // would be approvable and only fail at execution time. The drawer stays open
+        // (`closeOnError: false`) with the invalid fields flagged by the form itself.
+        const isPlanFormValid = (await validatePlanFormRef.current?.()) ?? true
+
+        if (!isPlanFormValid) {
+          addToast({ severity: 'danger', translateKey: QUOTE_SAVE_FAILED_TOAST_KEY })
+
+          throw new Error('Invalid plan')
+        }
+
+        const billingItems = toPlanBillingItems(
+          state,
+          formValues ?? undefined,
+          basePlanFormValuesRef.current ?? undefined,
+        )
         const entityData: Record<string, EntityData> = {
           [state.planId]: {
             entityId: state.planId,
@@ -142,6 +168,11 @@ export const useSubscriptionPricingDrawer = (
           },
         }
 
+        // The quote has no currency of its own yet: the selected plan defines it.
+        const seededCurrency = options?.hasQuoteCurrency
+          ? undefined
+          : (formValues?.amountCurrency as CurrencyEnum | undefined)
+
         const result = (await onSaveRef.current?.(
           { pricingType: 'plan', entityIds: [state.planId] },
           entityData,
@@ -149,6 +180,7 @@ export const useSubscriptionPricingDrawer = (
             ...latestBillingItemsRef.current,
             ...billingItems,
           },
+          seededCurrency,
         )) as SavePricingResult | undefined
 
         if (result?.ok === false) {
@@ -183,10 +215,13 @@ export const useSubscriptionPricingDrawer = (
           <SubscriptionPricingContent
             stateRef={subscriptionStateRef}
             formValuesRef={formValuesRef}
+            validatePlanFormRef={validatePlanFormRef}
+            basePlanFormValuesRef={basePlanFormValuesRef}
             initialState={initialStateRef.current}
             quoteDates={options?.quoteDates}
             customer={options?.customer}
             currency={options?.currency}
+            hasQuoteCurrency={options?.hasQuoteCurrency}
             billingItemPlan={billingItemPlan}
             subscriptionId={billingItemPlan ? undefined : options?.subscriptionId}
           />

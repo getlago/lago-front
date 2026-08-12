@@ -40,6 +40,11 @@ interface PricingCommandParams {
     attrs: PricingBlockAttributes,
     entityData: Record<string, EntityData>,
     billingItems?: BillingItemsPayload,
+    /**
+     * Currency of the selected billing item, forwarded only when the quote has
+     * no currency of its own yet — the first plan/add-on then defines it.
+     */
+    currency?: CurrencyEnum,
   ) => void | Promise<unknown>
   editData?: { pricingType: PricingType; entityIds: string[]; localEntityIds?: string[] }
 }
@@ -70,7 +75,12 @@ interface RichTextEditorContextValue {
   onDiscountCommand?: OnDiscountCommand
   onCreditsCommand?: OnCreditsCommand
   customerLocale?: Locale
-  customerCurrency?: CurrencyEnum
+  /**
+   * Currency the document prices in. For a quote this is the quote's own
+   * currency, which can differ from the customer's — do not pass the customer
+   * currency here unless the document has none of its own.
+   */
+  documentCurrency?: CurrencyEnum
 }
 
 const RichTextEditorContext = createContext<RichTextEditorContextValue>({

@@ -79,7 +79,7 @@ interface RichTextEditorProps {
   isCreditsDisabled?: () => boolean
   onCreditsBlocksChange?: (blocks: CreditsBlockAttributes[]) => void
   customerLocale?: Locale
-  customerCurrency?: CurrencyEnum
+  documentCurrency?: CurrencyEnum
   images?: Record<string, string>
   onImageUpload?: (base64: string) => Promise<string>
   isCompact?: boolean
@@ -284,7 +284,7 @@ const RichTextEditor = ({
   onCreditsBlocksChange,
   onChange,
   customerLocale,
-  customerCurrency,
+  documentCurrency,
   images = {},
   onImageUpload,
   isCompact,
@@ -427,7 +427,7 @@ const RichTextEditor = ({
       onDiscountCommand,
       onCreditsCommand,
       customerLocale,
-      customerCurrency,
+      documentCurrency,
     }),
     [
       mode,
@@ -439,7 +439,7 @@ const RichTextEditor = ({
       onDiscountCommand,
       onCreditsCommand,
       customerLocale,
-      customerCurrency,
+      documentCurrency,
     ],
   )
 

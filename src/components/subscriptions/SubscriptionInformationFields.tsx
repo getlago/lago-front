@@ -94,7 +94,9 @@ const SubscriptionEndOrTerminatedAt = ({
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
 
   if (subscription?.status === StatusTypeEnum.Terminated) {
-    return intlFormatDateTimeOrgaTZ(subscription?.terminatedAt ?? '').date
+    if (!subscription.terminatedAt) return '-'
+
+    return intlFormatDateTimeOrgaTZ(subscription.terminatedAt).date
   }
 
   if (subscription?.endingAt) {
@@ -226,11 +228,13 @@ const getSubscriptionInformationGrid = ({
     },
     {
       label: translate('text_65201c5a175a4b0238abf29e'),
-      value: intlFormatDateTimeOrgaTZ(subscription?.startedAt ?? '').date,
+      value: subscription?.startedAt ? intlFormatDateTimeOrgaTZ(subscription.startedAt).date : '-',
     },
     {
       label: translate('text_1781859135627z59hpfpa8pt'),
-      value: intlFormatDateTimeOrgaTZ(subscription?.subscriptionAt ?? '').date,
+      value: subscription?.subscriptionAt
+        ? intlFormatDateTimeOrgaTZ(subscription.subscriptionAt).date
+        : '-',
     },
     {
       label: translate('text_65201c5a175a4b0238abf2a0'),

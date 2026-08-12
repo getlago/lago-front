@@ -57,7 +57,7 @@ describe('useOrderFormsColumns', () => {
     const createdAtColumn = result.current[4]
 
     expect(createdAtColumn.key).toBe('createdAt')
-    expect(createdAtColumn.minWidth).toBe(120)
+    expect(createdAtColumn.minWidth).toBe(150)
 
     render(<>{createdAtColumn.content(orderForm)}</>)
     expect(screen.getByText('4/10/2026')).toBeInTheDocument()

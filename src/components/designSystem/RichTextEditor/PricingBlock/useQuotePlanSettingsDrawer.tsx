@@ -9,7 +9,10 @@ import type { PlanFormType } from '~/hooks/plans/usePlanForm'
 
 export const PLAN_SETTINGS_DRAWER_SAVE_TEST_ID = 'plan-settings-drawer-save'
 
-export const useQuotePlanSettingsDrawer = (planForm: PlanFormType) => {
+export const useQuotePlanSettingsDrawer = (
+  planForm: PlanFormType,
+  { disableCurrencyInput }: { disableCurrencyInput?: boolean } = {},
+) => {
   const { translate } = useInternationalization()
   const drawer = useDrawer()
 
@@ -21,7 +24,13 @@ export const useQuotePlanSettingsDrawer = (planForm: PlanFormType) => {
 
     drawer.open({
       title: translate('text_642d5eb2783a2ad10d67031a'),
-      children: <PlanSettingsSection form={planForm} isInSubscriptionForm />,
+      children: (
+        <PlanSettingsSection
+          form={planForm}
+          isInSubscriptionForm
+          disableCurrencyInput={disableCurrencyInput}
+        />
+      ),
       actions: (
         <div className="flex items-center justify-end gap-3">
           <Button
@@ -39,7 +48,7 @@ export const useQuotePlanSettingsDrawer = (planForm: PlanFormType) => {
         </div>
       ),
     })
-  }, [drawer, planForm, translate])
+  }, [drawer, planForm, translate, disableCurrencyInput])
 
   return { openDrawer }
 }
