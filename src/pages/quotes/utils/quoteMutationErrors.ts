@@ -24,6 +24,18 @@ export const QUOTE_MUTATION_SILENT_ERROR_CODES = [
   LagoApiError.FeatureUnavailable,
 ]
 
+/**
+ * Codes this module produces a message for — the silenced ones plus `forbidden`, which the
+ * error link force-silences. Anything else stays with the global link, which both toasts the
+ * generic copy and reports to Sentry; toasting locally too would show the same copy twice
+ * (`addToast` only dedupes `message` against `message` and `translateKey` against
+ * `translateKey`, and the link toasts by key).
+ */
+const LOCALLY_HANDLED_ERROR_CODES: unknown[] = [
+  ...QUOTE_MUTATION_SILENT_ERROR_CODES,
+  LagoApiError.Forbidden,
+]
+
 /** Reused app-wide "an error occurred" copy, shown when nothing more precise is known. */
 const GENERIC_ERROR_KEY = 'text_622f7a3dc32ce100c46a5154'
 
@@ -214,8 +226,9 @@ const getDetailError = (
  *
  * The API answers through `ExecutionErrorResponder`, which exposes
  * `extensions.code` plus a camelized `extensions.details` map of
- * `field -> [errorCode]`. Always returns at least one message: a failure must
- * never be silent.
+ * `field -> [errorCode]`. Returns at least one message whenever the failure is this
+ * module's to report — a failure must never be silent — and an empty list only when the
+ * global error link already toasted the generic copy for a code handled nowhere here.
  */
 export const getQuoteMutationErrors = (
   errorObject: ApolloError | readonly GraphQLFormattedError[] | undefined,
@@ -230,6 +243,9 @@ export const getQuoteMutationErrors = (
   if (code === LagoApiError.FeatureUnavailable) {
     return [{ message: translate(FEATURE_UNAVAILABLE_ERROR_KEY) }]
   }
+
+  // The global error link owns this one: it already toasted the generic copy and reported it.
+  if (code && !LOCALLY_HANDLED_ERROR_CODES.includes(code)) return []
 
   if (!details) return genericError
 

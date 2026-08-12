@@ -82,7 +82,8 @@ const VoidQuote = () => {
     refetchQueries: ['getQuotes'],
     // Handled locally by `getQuoteMutationErrors`, so the global error link must not
     // also fire its generic toast (nor report these expected failures to Sentry).
-    context: { silentErrorCodes: QUOTE_MUTATION_SILENT_ERROR_CODES },
+    // Copied: the link pushes its own force-silenced codes onto the array it receives.
+    context: { silentErrorCodes: [...QUOTE_MUTATION_SILENT_ERROR_CODES] },
   })
 
   const versionId = quote?.versions[0]?.id

@@ -49,10 +49,17 @@ describe('getQuoteMutationErrors', () => {
       ])
     })
 
-    it('falls back to the generic message when there are no details', () => {
-      expect(getQuoteMutationErrors(makeError('internal_error'), translate)).toEqual([
+    it('falls back to the generic message when a handled code carries no details', () => {
+      expect(getQuoteMutationErrors(makeError('unprocessable_entity'), translate)).toEqual([
         { message: GENERIC_ERROR_KEY },
       ])
+    })
+
+    it('returns nothing on a code the global error link still toasts itself', () => {
+      expect(getQuoteMutationErrors(makeError('internal_error'), translate)).toEqual([])
+      expect(
+        getQuoteMutationErrors(makeError('internal_error', { status: ['foo'] }), translate),
+      ).toEqual([])
     })
 
     it('falls back to the generic message when there is no error at all', () => {
