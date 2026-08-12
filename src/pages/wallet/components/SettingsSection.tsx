@@ -19,10 +19,9 @@ import {
 import { dateErrorCodes, FORM_TYPE_ENUM } from '~/core/constants/form'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import { intlFormatDateTime } from '~/core/timezone'
-import { FeatureFlagEnum, GetCustomerInfosForWalletFormQuery } from '~/generated/graphql'
+import { GetCustomerInfosForWalletFormQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import {
   WALLET_PRIORITY_MAX,
   WALLET_PRIORITY_MIN,
@@ -68,9 +67,6 @@ export const SettingsSection = withForm({
     setShowMaxTopUp,
   }) {
     const { translate } = useInternationalization()
-    const { hasFeatureFlag } = useOrganizationInfos()
-    const hasMultiCurrency = hasFeatureFlag(FeatureFlagEnum.MultiCurrency)
-    const showCurrencyDropdown = hasMultiCurrency || !customerData?.customer?.currency
 
     const currency = useStore(form.store, (state) => state.values.currency)
     // The credit-rate row is bottom-aligned: when the rateAmount error text
@@ -109,11 +105,7 @@ export const SettingsSection = withForm({
           }}
         />
 
-        <div
-          className={tw('grid grid-cols-[48px_48px_1fr_120px] items-end gap-3', {
-            'grid-cols-[48px_48px_minmax(160px,1fr)]': !showCurrencyDropdown,
-          })}
-        >
+        <div className="grid grid-cols-[48px_48px_1fr_120px] items-end gap-3">
           <TextInput
             value="1"
             label={translate('text_62d18855b22699e5cf55f879')}
@@ -132,26 +124,17 @@ export const SettingsSection = withForm({
                 currency={currency}
                 beforeChangeFormatter={['positiveNumber']}
                 label={translate('text_62d18855b22699e5cf55f87d')}
-                InputProps={{
-                  endAdornment: !showCurrencyDropdown && !!customerData?.customer?.currency && (
-                    <InputAdornment position="end">
-                      {getCurrencySymbol(customerData.customer.currency)}
-                    </InputAdornment>
-                  ),
-                }}
               />
             )}
           </form.AppField>
-          {showCurrencyDropdown && (
-            <form.AppField name="currency">
-              {(field) => (
-                <field.CurrencyPickerField
-                  className={tw({ 'mb-7': rateAmountHasError })}
-                  disabled={formType === FORM_TYPE_ENUM.edition}
-                />
-              )}
-            </form.AppField>
-          )}
+          <form.AppField name="currency">
+            {(field) => (
+              <field.CurrencyPickerField
+                className={tw({ 'mb-7': rateAmountHasError })}
+                disabled={formType === FORM_TYPE_ENUM.edition}
+              />
+            )}
+          </form.AppField>
         </div>
 
         <div className="flex flex-col gap-4">

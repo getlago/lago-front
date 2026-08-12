@@ -1,7 +1,6 @@
 import { screen } from '@testing-library/react'
 
 import { MainHeaderConfig } from '~/components/MainHeader/types'
-import { FeatureFlagEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import SubscriptionsPage from '../SubscriptionsPage'
@@ -29,14 +28,6 @@ jest.mock('~/hooks/useDebouncedSearch', () => ({
   useDebouncedSearch: () => ({
     debouncedSearch: mockDebouncedSearch,
     isLoading: false,
-  }),
-}))
-
-const mockHasFeatureFlag = jest.fn()
-
-jest.mock('~/hooks/useOrganizationInfos', () => ({
-  useOrganizationInfos: () => ({
-    hasFeatureFlag: mockHasFeatureFlag,
   }),
 }))
 
@@ -78,7 +69,6 @@ describe('SubscriptionsPage', () => {
     jest.clearAllMocks()
     capturedConfig = null
     capturedListProps = null
-    mockHasFeatureFlag.mockReturnValue(false)
   })
 
   describe('GIVEN the page is rendered', () => {
@@ -106,16 +96,8 @@ describe('SubscriptionsPage', () => {
 
         expect(capturedConfig?.actions).toBeUndefined()
       })
-    })
-  })
 
-  describe('GIVEN MultiEntityBilling feature flag is enabled', () => {
-    describe('WHEN the page renders', () => {
       it('THEN should include billingEntityId column in SubscriptionsList', () => {
-        mockHasFeatureFlag.mockImplementation(
-          (flag: FeatureFlagEnum) => flag === FeatureFlagEnum.MultiEntityBilling,
-        )
-
         render(<SubscriptionsPage />)
 
         const columnKeys = capturedListProps?.columns?.map(
@@ -123,54 +105,6 @@ describe('SubscriptionsPage', () => {
         ) as string[]
 
         expect(columnKeys).toContain('billingEntityId')
-      })
-    })
-  })
-
-  describe('GIVEN MultiEntityBilling feature flag is disabled', () => {
-    describe('WHEN the page renders', () => {
-      it('THEN should not include billingEntityId column in SubscriptionsList', () => {
-        mockHasFeatureFlag.mockReturnValue(false)
-
-        render(<SubscriptionsPage />)
-
-        const columnKeys = capturedListProps?.columns?.map(
-          (col: { key: string }) => col.key,
-        ) as string[]
-
-        expect(columnKeys).not.toContain('billingEntityId')
-      })
-    })
-  })
-
-  describe('GIVEN both feature flags are enabled', () => {
-    describe('WHEN the page renders', () => {
-      it('THEN should include billingEntityId column in SubscriptionsList', () => {
-        mockHasFeatureFlag.mockReturnValue(true)
-
-        render(<SubscriptionsPage />)
-
-        const columnKeys = capturedListProps?.columns?.map(
-          (col: { key: string }) => col.key,
-        ) as string[]
-
-        expect(columnKeys).toContain('billingEntityId')
-      })
-
-      it('THEN should render the SubscriptionsList component', () => {
-        mockHasFeatureFlag.mockReturnValue(true)
-
-        render(<SubscriptionsPage />)
-
-        expect(screen.getByTestId('subscriptions-list-mock')).toBeInTheDocument()
-      })
-
-      it('THEN should configure MainHeader with a filtersSection', () => {
-        mockHasFeatureFlag.mockReturnValue(true)
-
-        render(<SubscriptionsPage />)
-
-        expect(capturedConfig?.filtersSection).toBeDefined()
       })
     })
   })

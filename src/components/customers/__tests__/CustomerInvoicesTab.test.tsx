@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { CurrencyEnum, InvoiceStatusTypeEnum, TimezoneEnum } from '~/generated/graphql'
+import { InvoiceStatusTypeEnum, TimezoneEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import { CustomerInvoicesTab, INVOICES_TAB_CONTAINER } from '../CustomerInvoicesTab'
@@ -71,7 +71,6 @@ const defaultProps = {
   customerTimezone: TimezoneEnum.TzUtc,
   customerBillingEntity: { id: 'be-1', code: 'code-1', name: 'Entity One' },
   externalId: 'ext-1',
-  userCurrency: CurrencyEnum.Eur,
   isPartner: false,
 }
 

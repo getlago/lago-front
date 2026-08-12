@@ -5,17 +5,11 @@ import { BillingEntityTaxAlerts } from '~/components/billingEntity/BillingEntity
 import { TRANSLATIONS_MAP_CUSTOMER_TYPE } from '~/components/customers/utils'
 import { Typography } from '~/components/designSystem/Typography'
 import { getTimezoneConfig } from '~/core/timezone'
-import {
-  AddCustomerDrawerFragment,
-  CustomerTypeEnum,
-  FeatureFlagEnum,
-  TimezoneEnum,
-} from '~/generated/graphql'
+import { AddCustomerDrawerFragment, CustomerTypeEnum, TimezoneEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 import { BillingEntityOption } from '~/hooks/useBillingEntitiesOptions'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
 
 import HelperText from './HelperText'
@@ -49,14 +43,7 @@ const CustomerInformation = withForm({
   }) {
     const { translate } = useInternationalization()
     const { isPremium } = useCurrentUser()
-    const { hasFeatureFlag } = useOrganizationInfos()
 
-    const canEditBillingEntity =
-      !isEdition ||
-      customer?.canEditAttributes ||
-      hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
-
-    const hasMultiEntityBilling = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
     const selectedBillingEntityCode = useStore(
       form.store,
       (state) => state.values.billingEntityCode,
@@ -97,7 +84,6 @@ const CustomerInformation = withForm({
             <field.ComboBoxField
               label={translate('text_1743611497157teaa1zu8l24')}
               placeholder={translate('text_174360002513391n72uwg6bb')}
-              disabled={!canEditBillingEntity}
               PopperProps={{ displayInDialog: true }}
               loading={isLoadingBillingEntities}
               data={billingEntitiesList}
@@ -107,13 +93,11 @@ const CustomerInformation = withForm({
           )}
         </form.AppField>
 
-        {hasMultiEntityBilling && (
-          <BillingEntityTaxAlerts
-            currentBillingEntity={customer?.billingEntity}
-            selectedBillingEntityCode={selectedBillingEntityCode}
-            billingEntities={billingEntitiesList}
-          />
-        )}
+        <BillingEntityTaxAlerts
+          currentBillingEntity={customer?.billingEntity}
+          selectedBillingEntityCode={selectedBillingEntityCode}
+          billingEntities={billingEntitiesList}
+        />
 
         <form.AppField name="externalId">
           {(field) => (
