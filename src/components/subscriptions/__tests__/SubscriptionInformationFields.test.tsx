@@ -96,6 +96,33 @@ describe('SubscriptionInformationFields', () => {
     ).toBeInTheDocument()
   })
 
+  it('shows "-" instead of an invalid date when the subscription has no start date', () => {
+    render(<SubscriptionInformationFields subscription={baseSubscription({ startedAt: null })} />)
+
+    expect(getValueUnderLabel(START_DATE_LABEL).getByText('-')).toBeInTheDocument()
+  })
+
+  it('shows "-" instead of an invalid date when the subscription has no billing anchor date', () => {
+    render(
+      <SubscriptionInformationFields subscription={baseSubscription({ subscriptionAt: null })} />,
+    )
+
+    expect(getValueUnderLabel(BILLING_ANCHOR_LABEL).getByText('-')).toBeInTheDocument()
+  })
+
+  it('shows "-" for the end date when the subscription is terminated without a terminated date', () => {
+    render(
+      <SubscriptionInformationFields
+        subscription={baseSubscription({
+          status: StatusTypeEnum.Terminated,
+          terminatedAt: null,
+        })}
+      />,
+    )
+
+    expect(getValueUnderLabel(END_DATE_LABEL).getByText('-')).toBeInTheDocument()
+  })
+
   it('shows "-" for the end date when the subscription is active without an ending date', () => {
     render(<SubscriptionInformationFields subscription={baseSubscription()} />)
 
