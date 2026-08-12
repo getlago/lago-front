@@ -12333,6 +12333,7 @@ export type ActivityLogDetailsFragment = { __typename?: 'ActivityLog', activityT
     | { __typename?: 'Product', id: string }
     | { __typename?: 'ProductCategory', id: string }
     | { __typename?: 'ProductFilter', id: string }
+    | { __typename?: 'RateCard', id: string }
     | { __typename?: 'Subscription', id: string }
     | { __typename?: 'Wallet', id: string, walletCustomer?: { __typename?: 'Customer', id: string } | null }
    | null };
@@ -12356,6 +12357,7 @@ export type GetSingleActivityLogQuery = { __typename?: 'Query', activityLog?: { 
       | { __typename?: 'Product', id: string }
       | { __typename?: 'ProductCategory', id: string }
       | { __typename?: 'ProductFilter', id: string }
+      | { __typename?: 'RateCard', id: string }
       | { __typename?: 'Subscription', id: string }
       | { __typename?: 'Wallet', id: string, walletCustomer?: { __typename?: 'Customer', id: string } | null }
      | null } | null };
@@ -17786,6 +17788,9 @@ export const ActivityLogDetailsFragmentDoc = gql`
       }
     }
     ... on PaymentReceipt {
+      id
+    }
+    ... on RateCard {
       id
     }
   }

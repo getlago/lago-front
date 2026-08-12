@@ -111,6 +111,9 @@ gql`
       ... on PaymentReceipt {
         id
       }
+      ... on RateCard {
+        id
+      }
     }
     loggedAt
     userEmail
