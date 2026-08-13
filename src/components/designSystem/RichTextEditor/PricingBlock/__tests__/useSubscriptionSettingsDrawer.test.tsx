@@ -269,6 +269,59 @@ describe('useSubscriptionSettingsDrawer', () => {
 
         expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({ startDate: '' }))
       })
+
+      it('THEN should lock the pre-filled external ID', () => {
+        openAndRenderDrawer(populatedValues, true)
+
+        const externalIdInput = document.querySelector(
+          'input[name="externalId"]',
+        ) as HTMLInputElement
+
+        // The external id identifies the amended subscription: neither editable...
+        expect(externalIdInput).toBeDisabled()
+        // ...nor removable
+        const fieldRow = externalIdInput.closest('.flex.flex-row')
+
+        expect(within(fieldRow as HTMLElement).queryByTestId('button')).not.toBeInTheDocument()
+      })
+
+      it('THEN should leave the subscription name editable', () => {
+        openAndRenderDrawer(populatedValues, true)
+
+        const subscriptionNameInput = document.querySelector(
+          'input[name="subscriptionName"]',
+        ) as HTMLInputElement
+
+        expect(subscriptionNameInput).not.toBeDisabled()
+      })
+
+      it('THEN should keep the "add external ID" flow when there is none to lock', async () => {
+        const user = userEvent.setup()
+
+        openAndRenderDrawer(defaultValues, true)
+
+        await user.click(screen.getByTestId('show-external-id'))
+
+        expect(document.querySelector('input[name="externalId"]')).not.toBeDisabled()
+      })
+    })
+  })
+
+  describe('GIVEN a subscription-creation quote with a pre-filled external ID', () => {
+    describe('WHEN isAmendment is false', () => {
+      it('THEN should keep the external ID editable and removable', () => {
+        openAndRenderDrawer(populatedValues, false)
+
+        const externalIdInput = document.querySelector(
+          'input[name="externalId"]',
+        ) as HTMLInputElement
+
+        expect(externalIdInput).not.toBeDisabled()
+
+        const fieldRow = externalIdInput.closest('.flex.flex-row')
+
+        expect(within(fieldRow as HTMLElement).getByTestId('button')).toBeInTheDocument()
+      })
     })
   })
 

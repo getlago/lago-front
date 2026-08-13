@@ -58,6 +58,9 @@ const SubscriptionSettingsDrawerContent = withForm({
   render: function Render({ form, initialValues, isAmendment }) {
     const { translate } = useInternationalization()
     const [showExternalId, setShowExternalId] = useState(!!initialValues.externalId)
+    // On an amendment the external id identifies the subscription being amended, so once it
+    // is prefilled it can neither be edited nor removed (LAGO-1822).
+    const isExternalIdLocked = isAmendment && !!initialValues.externalId
     const [showSubscriptionName, setShowSubscriptionName] = useState(
       !!initialValues.subscriptionName,
     )
@@ -76,23 +79,26 @@ const SubscriptionSettingsDrawerContent = withForm({
                   label={translate('text_642a94e522316cd9e1875224')}
                   placeholder={translate('text_642ac1d1407baafb9e4390ee')}
                   helperText={translate('text_642ac28c65c2180085afe31a')}
+                  disabled={isExternalIdLocked}
                 />
               )}
             </form.AppField>
-            <Tooltip
-              className="mt-7 h-fit"
-              placement="top-end"
-              title={translate('text_63aa085d28b8510cd46443ff')}
-            >
-              <Button
-                icon="trash"
-                variant="quaternary"
-                onClick={() => {
-                  form.setFieldValue('externalId', '')
-                  setShowExternalId(false)
-                }}
-              />
-            </Tooltip>
+            {!isExternalIdLocked && (
+              <Tooltip
+                className="mt-7 h-fit"
+                placement="top-end"
+                title={translate('text_63aa085d28b8510cd46443ff')}
+              >
+                <Button
+                  icon="trash"
+                  variant="quaternary"
+                  onClick={() => {
+                    form.setFieldValue('externalId', '')
+                    setShowExternalId(false)
+                  }}
+                />
+              </Tooltip>
+            )}
           </div>
         )}
         {showSubscriptionName && (

@@ -91,14 +91,14 @@ export function SubscriptionPricingContent({
     variables: { limit: 100 },
   })
 
-  // Track the plan this drawer opened with. Once the user picks a *different*
-  // plan, stop forwarding billingItemPlan so usePlanFormSetup falls back to
-  // fetching the newly selected plan and resets prices to its defaults (LAGO-1602).
-  const originalBillingItemPlanId = useRef(billingItemPlan?.id)
+  // Track the plan this drawer opened with — either the saved billing item's plan or,
+  // on an amendment, the plan resolved from the subscription (recorded by the sync effect
+  // below). Once the user picks a *different* plan, stop forwarding both billingItemPlan
+  // and subscriptionId so usePlanFormSetup falls back to fetching the newly selected plan
+  // and resets prices to its defaults (LAGO-1602, LAGO-1822).
+  const originalPlanIdRef = useRef(billingItemPlan?.id)
   const userSwitchedPlan =
-    !!originalBillingItemPlanId.current &&
-    !!selectedPlanId &&
-    selectedPlanId !== originalBillingItemPlanId.current
+    !!originalPlanIdRef.current && !!selectedPlanId && selectedPlanId !== originalPlanIdRef.current
 
   // Set by the form's own onSubmit, which TanStack only calls once the form-level
   // `planFormSchema` passed — so it doubles as the validity signal.
@@ -120,7 +120,7 @@ export function SubscriptionPricingContent({
     // its own currency and seeds the quote's on save.
     initialCurrency: hasQuoteCurrency ? (currency ?? undefined) : undefined,
     billingItemPlan: userSwitchedPlan ? undefined : billingItemPlan,
-    subscriptionId,
+    subscriptionId: userSwitchedPlan ? undefined : subscriptionId,
     onSubmit: () => {
       planFormValidRef.current = true
     },
@@ -141,9 +141,12 @@ export function SubscriptionPricingContent({
     }
   }, [planForm, validatePlanFormRef])
 
-  // Sync selectedPlanId from resolvedPlanId when billing items or subscription data arrives
+  // Sync selectedPlanId from resolvedPlanId when billing items or subscription data arrives.
+  // That first resolution is also the plan the drawer opened with, so record it as the
+  // baseline for userSwitchedPlan (the subscription path has no billingItemPlan to seed it).
   useEffect(() => {
     if (resolvedPlanId && !selectedPlanId) {
+      originalPlanIdRef.current = resolvedPlanId
       setSelectedPlanId(resolvedPlanId)
     }
   }, [resolvedPlanId, selectedPlanId])
@@ -172,11 +175,30 @@ export function SubscriptionPricingContent({
     initialState?.invoicingSettings ?? billingItemInvoicingSettings ?? DEFAULT_INVOICING_SETTINGS,
   )
 
-  // Hook-based drawers for settings
-  const subscriptionSettingsDrawer = useSubscriptionSettingsDrawer(
-    (values) => setSubscriptionSettings(values),
-    isAmendment,
+  // On an amendment the settings come from the subscription query, which resolves *after*
+  // mount — the lazy initializer above has already run with the defaults by then, so seed
+  // them once when they land. Skipped when a saved quote state or the user already owns them.
+  const subscriptionSettingsSeededRef = useRef(
+    !!initialState?.subscriptionSettings || !!billingItemSubscriptionSettings,
   )
+
+  useEffect(() => {
+    if (subscriptionSettingsSeededRef.current || !billingItemSubscriptionSettings) return
+
+    subscriptionSettingsSeededRef.current = true
+    setSubscriptionSettings(
+      // An amendment quote never carries a start date (it belongs to the subscription).
+      isAmendment
+        ? { ...billingItemSubscriptionSettings, startDate: '' }
+        : billingItemSubscriptionSettings,
+    )
+  }, [billingItemSubscriptionSettings, isAmendment])
+
+  // Hook-based drawers for settings
+  const subscriptionSettingsDrawer = useSubscriptionSettingsDrawer((values) => {
+    subscriptionSettingsSeededRef.current = true
+    setSubscriptionSettings(values)
+  }, isAmendment)
   const showInvoicingSection = Boolean(customer?.externalId || customer?.id)
   const planSettingsDrawer = useQuotePlanSettingsDrawer(planForm, {
     disableCurrencyInput: hasQuoteCurrency,
@@ -335,7 +357,7 @@ export function SubscriptionPricingContent({
             data={comboBoxData}
             loading={plansLoading}
             searchQuery={getPlans}
-            disabled={!!subscriptionId}
+            disabled={!!subscriptionId && !isAmendment}
             label={translate('text_17810991003371jgudmuzk6a')}
             placeholder={translate('text_1781099100337xeyy7omuzp8')}
             value={selectedPlanId}
