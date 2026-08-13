@@ -229,6 +229,36 @@ describe('VoidQuote', () => {
         expect(testMockNavigateFn).toHaveBeenCalledWith('/quote/quote-123/overview')
       })
     })
+
+    describe('WHEN the API rejects the void', () => {
+      it('THEN should show the mapped error toast and stay on the page', async () => {
+        mockVoidQuote.mockResolvedValueOnce({
+          data: null,
+          errors: [
+            {
+              message: 'Unprocessable Entity',
+              extensions: { code: 'unprocessable_entity', details: { status: ['not_voidable'] } },
+            },
+          ],
+        })
+
+        const user = userEvent.setup()
+
+        render(<VoidQuote />)
+
+        await user.click(screen.getByTestId(VOID_QUOTE_VOID_BUTTON_TEST_ID))
+
+        await waitFor(() => {
+          expect(addToast).toHaveBeenCalledWith({
+            severity: 'danger',
+            message: 'text_1786540789742nso5acvqa28',
+          })
+        })
+
+        expect(addToast).not.toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+        expect(testMockNavigateFn).not.toHaveBeenCalled()
+      })
+    })
   })
 
   describe('GIVEN the void and generate new version action', () => {
@@ -266,6 +296,36 @@ describe('VoidQuote', () => {
         expect(testMockNavigateFn).toHaveBeenCalledWith(
           '/quote/new-quote-456/version/new-version-456/edit',
         )
+      })
+    })
+
+    describe('WHEN the void step fails', () => {
+      it('THEN should surface the error and never clone', async () => {
+        mockVoidQuote.mockResolvedValueOnce({
+          data: null,
+          errors: [
+            {
+              message: 'Resource not found',
+              extensions: { code: 'not_found', details: { quoteVersion: ['not_found'] } },
+            },
+          ],
+        })
+
+        const user = userEvent.setup()
+
+        render(<VoidQuote />)
+
+        await user.click(screen.getByTestId(VOID_QUOTE_VOID_AND_GENERATE_BUTTON_TEST_ID))
+
+        await waitFor(() => {
+          expect(addToast).toHaveBeenCalledWith({
+            severity: 'danger',
+            message: 'text_178654078974209u9bigc6ta',
+          })
+        })
+
+        expect(mockCloneQuote).not.toHaveBeenCalled()
+        expect(testMockNavigateFn).not.toHaveBeenCalled()
       })
     })
   })
@@ -366,7 +426,7 @@ describe('VoidQuote', () => {
 
   describe('GIVEN the void mutation returns no data', () => {
     describe('WHEN the void button is clicked', () => {
-      it('THEN should not show success toast or navigate', async () => {
+      it('THEN should show the generic error toast and not navigate', async () => {
         mockVoidQuote.mockResolvedValueOnce({ data: { voidQuoteVersion: null } })
 
         const user = userEvent.setup()
@@ -379,7 +439,11 @@ describe('VoidQuote', () => {
           expect(mockVoidQuote).toHaveBeenCalled()
         })
 
-        expect(addToast).not.toHaveBeenCalled()
+        expect(addToast).toHaveBeenCalledWith({
+          severity: 'danger',
+          message: 'text_622f7a3dc32ce100c46a5154',
+        })
+        expect(addToast).not.toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
         expect(testMockNavigateFn).not.toHaveBeenCalled()
       })
     })
