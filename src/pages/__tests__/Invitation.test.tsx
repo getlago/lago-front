@@ -3,9 +3,14 @@ import { act, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 
 import { PASSWORD_HINTS_TEST_IDS } from '~/components/form/PasswordValidationHints/PasswordValidationHints'
-import { GetinviteDocument } from '~/generated/graphql'
+import { GetinviteDocument, JoinOrganizationDocument } from '~/generated/graphql'
 
-import Invitation, { INVITATION_SUBMIT_BUTTON_TEST_ID } from '../Invitation'
+import Invitation, {
+  INVITATION_JOIN_BUTTON_TEST_ID,
+  INVITATION_LOG_IN_BUTTON_TEST_ID,
+  INVITATION_LOG_OUT_BUTTON_TEST_ID,
+  INVITATION_SUBMIT_BUTTON_TEST_ID,
+} from '../Invitation'
 
 const getByDataTest = (testId: string) => document.querySelector(`[data-test="${testId}"]`)
 
@@ -19,6 +24,13 @@ const mockIsAuthenticated = jest.fn()
 
 jest.mock('~/hooks/auth/useIsAuthenticated', () => ({
   useIsAuthenticated: () => mockIsAuthenticated(),
+}))
+
+const mockCurrentUser = jest.fn()
+const mockRefetchCurrentUserInfos = jest.fn()
+
+jest.mock('~/hooks/useCurrentUser', () => ({
+  useCurrentUser: () => mockCurrentUser(),
 }))
 
 jest.mock('~/components/auth/GoogleAuthButton', () => ({
@@ -116,6 +128,7 @@ const createInviteMock = (
     token?: string
     email?: string
     organizationName?: string
+    existingUser?: boolean
     error?: boolean
   } = {},
 ): MockedResponse => {
@@ -123,6 +136,7 @@ const createInviteMock = (
     token = 'test-token',
     email = 'test@example.com',
     organizationName = 'Test Org',
+    existingUser = false,
     error = false,
   } = overrides
 
@@ -146,9 +160,34 @@ const createInviteMock = (
         invite: {
           id: 'invite-1',
           email,
+          existingUser,
           organization: {
             id: 'org-1',
             name: organizationName,
+          },
+        },
+      },
+    },
+  }
+}
+
+const createJoinOrganizationMock = (
+  overrides: { token?: string; slug?: string } = {},
+): MockedResponse => {
+  const { token = 'test-token', slug = 'test-org' } = overrides
+
+  return {
+    request: {
+      query: JoinOrganizationDocument,
+      variables: { input: { token } },
+    },
+    result: {
+      data: {
+        joinOrganization: {
+          id: 'membership-1',
+          organization: {
+            id: 'org-1',
+            slug,
           },
         },
       },
@@ -182,6 +221,11 @@ describe('Invitation', () => {
     jest.clearAllMocks()
     setupMockUseStore('', true)
     mockIsAuthenticated.mockReturnValue({ isAuthenticated: false })
+    mockCurrentUser.mockReturnValue({
+      currentUser: undefined,
+      loading: false,
+      refetchCurrentUserInfos: mockRefetchCurrentUserInfos,
+    })
     mockPasswordValidation.mockReturnValue({
       isValid: false,
       errors: ['MIN', 'LOWERCASE', 'UPPERCASE', 'NUMBER', 'SPECIAL'],
@@ -300,13 +344,126 @@ describe('Invitation', () => {
     })
   })
 
-  describe('when user is authenticated', () => {
-    it('should render nothing', async () => {
+  describe('when the invited email already has an account', () => {
+    const mocks = [createInviteMock({ existingUser: true })]
+
+    it('should ask for the password of the existing account', async () => {
+      await renderInvitation(mocks)
+
+      await waitFor(() => {
+        expect(getByDataTest(INVITATION_LOG_IN_BUTTON_TEST_ID)).toBeInTheDocument()
+      })
+
+      expect(document.querySelector('input[name="email"]')).toBeDisabled()
+      expect(getByDataTest(INVITATION_SUBMIT_BUTTON_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    // The password is verified against the existing account, not created: applying the creation
+    // rules would lock out any password predating them.
+    it('should not show the password creation hints', async () => {
+      setupMockUseStore('weak', true)
+      mockPasswordValidation.mockReturnValue({
+        isValid: false,
+        errors: ['MIN', 'UPPERCASE', 'NUMBER', 'SPECIAL'],
+      })
+
+      await renderInvitation(mocks)
+
+      await waitFor(() => {
+        expect(getByDataTest(INVITATION_LOG_IN_BUTTON_TEST_ID)).toBeInTheDocument()
+      })
+
+      expect(getByDataTest(PASSWORD_HINTS_TEST_IDS.VISIBLE)).not.toBeInTheDocument()
+      expect(getByDataTest(PASSWORD_HINTS_TEST_IDS.HIDDEN)).not.toBeInTheDocument()
+    })
+
+    it('should keep the SSO buttons available', async () => {
+      await renderInvitation(mocks)
+
+      await waitFor(() => {
+        expect(screen.getByTestId('google-auth-button')).toBeInTheDocument()
+      })
+
+      expect(screen.getByText('text_664c90c9b2b6c2012aa50bd5')).toBeInTheDocument()
+    })
+  })
+
+  describe('when the invited user is authenticated', () => {
+    beforeEach(() => {
       mockIsAuthenticated.mockReturnValue({ isAuthenticated: true })
+      mockCurrentUser.mockReturnValue({
+        currentUser: { id: 'user-1', email: 'test@example.com' },
+        loading: false,
+        refetchCurrentUserInfos: mockRefetchCurrentUserInfos,
+      })
+    })
 
-      const { container } = (await renderInvitation()) as unknown as { container: HTMLElement }
+    it('should only offer to accept the invitation', async () => {
+      await renderInvitation([createInviteMock({ existingUser: true })])
 
-      expect(container).toBeEmptyDOMElement()
+      await waitFor(() => {
+        expect(getByDataTest(INVITATION_JOIN_BUTTON_TEST_ID)).toBeInTheDocument()
+      })
+
+      expect(getByDataTest(INVITATION_SUBMIT_BUTTON_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.queryByTestId('google-auth-button')).not.toBeInTheDocument()
+    })
+
+    it('should reload the memberships of the user after accepting', async () => {
+      await renderInvitation([
+        createInviteMock({ existingUser: true }),
+        createJoinOrganizationMock(),
+      ])
+
+      await waitFor(() => {
+        expect(getByDataTest(INVITATION_JOIN_BUTTON_TEST_ID)).toBeInTheDocument()
+      })
+
+      await act(async () => {
+        ;(getByDataTest(INVITATION_JOIN_BUTTON_TEST_ID) as HTMLElement).click()
+      })
+
+      await waitFor(() => {
+        expect(mockRefetchCurrentUserInfos).toHaveBeenCalled()
+      })
+    })
+
+    it('should accept the invitation when the invited email only differs by its case', async () => {
+      mockCurrentUser.mockReturnValue({
+        currentUser: { id: 'user-1', email: 'TEST@example.com' },
+        loading: false,
+        refetchCurrentUserInfos: mockRefetchCurrentUserInfos,
+      })
+
+      await renderInvitation([createInviteMock({ existingUser: true })])
+
+      await waitFor(() => {
+        expect(getByDataTest(INVITATION_JOIN_BUTTON_TEST_ID)).toBeInTheDocument()
+      })
+
+      expect(getByDataTest(INVITATION_LOG_OUT_BUTTON_TEST_ID)).not.toBeInTheDocument()
+    })
+  })
+
+  describe('when another user is authenticated', () => {
+    beforeEach(() => {
+      mockIsAuthenticated.mockReturnValue({ isAuthenticated: true })
+      mockCurrentUser.mockReturnValue({
+        currentUser: { id: 'user-2', email: 'someone-else@example.com' },
+        loading: false,
+        refetchCurrentUserInfos: mockRefetchCurrentUserInfos,
+      })
+    })
+
+    it('should offer to log out instead of accepting the invitation', async () => {
+      await renderInvitation([createInviteMock({ existingUser: true })])
+
+      await waitFor(() => {
+        expect(getByDataTest(INVITATION_LOG_OUT_BUTTON_TEST_ID)).toBeInTheDocument()
+      })
+
+      expect(getByDataTest(INVITATION_JOIN_BUTTON_TEST_ID)).not.toBeInTheDocument()
+      expect(getByDataTest(INVITATION_SUBMIT_BUTTON_TEST_ID)).not.toBeInTheDocument()
     })
   })
 })

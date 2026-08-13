@@ -4581,5 +4581,14 @@
   "text_1786367738116xtz2r6c9eoz": "Rate card {{rateCardCode}} was created",
   "text_1786367738117541mevhwa63": "Rate card {{rateCardCode}} was deleted",
   "text_1786367738117gbjclk29or1": "Rate card {{rateCardCode}} was updated",
-  "text_1786367738117s1n9lpwf97k": "Rate card"
+  "text_1786367738117s1n9lpwf97k": "Rate card",
+  "text_1786557508910b6cacpc0pjt": "You already have a Lago account with {{email}}. Log in to accept this invitation.",
+  "text_1786557508910towzrwnae9w": "Log in to accept",
+  "text_17865575089107fdhugc24r9": "You are logged in as {{email}}. Accept the invitation to join this organization.",
+  "text_17865575089104r0enbn7r7l": "Accept invitation",
+  "text_1786557508910jl708qczi4g": "This invitation was sent to {{inviteEmail}}, but you are logged in as {{currentEmail}}. Log out to accept it with the invited account.",
+  "text_17865575089106781wwdm3l3": "Log out",
+  "text_1786557508910guitmzid55q": "You are already a member of this organization.",
+  "text_17865575089107lip4oupwdj": "This invitation was sent to another email address. Log in with the invited account to accept it.",
+  "text_1786557573982blvi6cjpnti": "Your login method is not allowed by this organization. Log in with an authorized method to accept this invitation."
 }
