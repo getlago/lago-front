@@ -1,8 +1,6 @@
 import { ComboBox } from '~/components/form'
-import { FeatureFlagEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useBillingEntitiesOptions } from '~/hooks/useBillingEntitiesOptions'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 type BillingEntityFormPickerProps = {
   /** Currently selected billing entity id (form value). */
@@ -16,14 +14,11 @@ type BillingEntityFormPickerProps = {
 }
 
 /**
- * Self-gated picker for the `billingEntityId` form field.
+ * Picker for the `billingEntityId` form field.
  *
- * - Returns `null` when the `multi_entity_billing` feature flag is off, so
- *   callers don't need to wrap with their own flag check (and the underlying
- *   billing-entities query is skipped to avoid useless network calls).
- * - Encapsulates the id ↔ code mapping: the form stores ids (the shape
- *   accepted by every `Create*Input.billingEntityId` mutation argument),
- *   while the ComboBox renders entity codes. Callers only deal with ids.
+ * Encapsulates the id ↔ code mapping: the form stores ids (the shape accepted
+ * by every `Create*Input.billingEntityId` mutation argument), while the
+ * ComboBox renders entity codes. Callers only deal with ids.
  */
 export const BILLING_ENTITY_FORM_PICKER_DATA_TEST = 'billing-entity-form-picker'
 
@@ -34,11 +29,7 @@ export const BillingEntityFormPicker = ({
   helperText,
 }: BillingEntityFormPickerProps) => {
   const { translate } = useInternationalization()
-  const { hasFeatureFlag } = useOrganizationInfos()
-  const enabled = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
-  const { options, isLoading } = useBillingEntitiesOptions({ skip: !enabled })
-
-  if (!enabled) return null
+  const { options, isLoading } = useBillingEntitiesOptions()
 
   const currentCode = options.find((o) => o.id === value)?.value ?? ''
 

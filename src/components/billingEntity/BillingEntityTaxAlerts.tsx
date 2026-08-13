@@ -22,9 +22,8 @@ type BillingEntityTaxAlertsProps = {
  *     selected one does.
  *
  * Both cases require a saved entity to switch FROM, so nothing renders during
- * customer creation. The caller owns the `multi_entity_billing` feature-flag
- * gate; this component is purely the EU-tax display/business logic so it can be
- * unit-tested in isolation.
+ * customer creation. This component is purely the EU-tax display/business
+ * logic so it can be unit-tested in isolation.
  */
 export const BillingEntityTaxAlerts = ({
   currentBillingEntity,

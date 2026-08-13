@@ -67,6 +67,9 @@ const activityTypeTranslations: Record<ActivityTypeEnum, string> = {
   [ActivityTypeEnum.ProductFilterCreated]: 'text_1786365890845d2vq3ufddsd',
   [ActivityTypeEnum.ProductFilterDeleted]: 'text_1786365890845pml4uzbtp7c',
   [ActivityTypeEnum.ProductFilterUpdated]: 'text_1786365890845pt4roxdajsk',
+  [ActivityTypeEnum.RateCardCreated]: 'text_1786367738116xtz2r6c9eoz',
+  [ActivityTypeEnum.RateCardDeleted]: 'text_1786367738117541mevhwa63',
+  [ActivityTypeEnum.RateCardUpdated]: 'text_1786367738117gbjclk29or1',
   [ActivityTypeEnum.SubscriptionCanceled]: 'text_1777471747994p4c7cm9pri6',
   [ActivityTypeEnum.SubscriptionIncomplete]: 'text_17774717479940xot2f14xbr',
   [ActivityTypeEnum.SubscriptionStarted]: 'text_1747404806714xgkold0s07a',
@@ -90,6 +93,7 @@ const resourceTypeTranslations: Record<string, string> = {
   Product: 'text_1786365890845gfq9jteut9u',
   ProductCategory: 'text_1786365890846dgl39wcqgik',
   ProductFilter: 'text_1786365890846v53b5wwzxjh',
+  RateCard: 'text_1786367738117s1n9lpwf97k',
   PaymentRequest: 'text_17495622741665lrk6dp6czk',
   Subscription: 'text_1728472697691k6k2e9m5ibb',
   Wallet: 'text_62d175066d2dbf1d50bc9384',
@@ -240,6 +244,13 @@ export const useActivityLogsInformation = () => {
       case ActivityTypeEnum.ProductFilterUpdated:
         parameters = {
           productFilterCode: activityObject.code,
+        }
+        break
+      case ActivityTypeEnum.RateCardCreated:
+      case ActivityTypeEnum.RateCardDeleted:
+      case ActivityTypeEnum.RateCardUpdated:
+        parameters = {
+          rateCardCode: activityObject.code,
         }
         break
       case ActivityTypeEnum.PaymentRequestCreated:

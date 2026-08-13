@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event'
 import { addToast } from '~/core/apolloClient'
 import { ERROR_404_ROUTE } from '~/core/router'
 import { initializeYup } from '~/formValidation/initializeYup'
-import { FeatureFlagEnum, LagoApiError } from '~/generated/graphql'
+import { LagoApiError } from '~/generated/graphql'
 import * as useIsCustomerReadyForOverduePaymentModule from '~/hooks/useIsCustomerReadyForOverduePayment'
 import { render } from '~/test-utils'
 
@@ -17,8 +17,8 @@ const mockNavigate = jest.fn()
 const mockGoBack = jest.fn()
 const mockUseGetRequestOverduePaymentInfosQuery = jest.fn()
 const mockCreatePaymentRequest = jest.fn()
-const mockHasFeatureFlag = jest.fn()
 let mockOnError: ((error: ApolloError) => void) | undefined
+let mockOnCompleted: (() => void) | undefined
 let mockSearchParams = new URLSearchParams()
 
 jest.mock('~/core/apolloClient', () => ({
@@ -38,12 +38,6 @@ jest.mock('~/hooks/useIsCustomerReadyForOverduePayment', () => ({
     loading: false,
     error: undefined,
   })),
-}))
-
-jest.mock('~/hooks/useOrganizationInfos', () => ({
-  useOrganizationInfos: () => ({
-    hasFeatureFlag: mockHasFeatureFlag,
-  }),
 }))
 
 jest.mock('~/hooks/core/useLocationHistory', () => ({
@@ -70,9 +64,12 @@ jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
   useGetRequestOverduePaymentInfosQuery: jest.fn(() => mockUseGetRequestOverduePaymentInfosQuery()),
   useCreatePaymentRequestMutation: jest.fn(
-    (options?: { onError?: (error: ApolloError) => void }) => {
+    (options?: { onError?: (error: ApolloError) => void; onCompleted?: () => void }) => {
       if (options?.onError) {
         mockOnError = options.onError
+      }
+      if (options?.onCompleted) {
+        mockOnCompleted = options.onCompleted
       }
       return [
         mockCreatePaymentRequest,
@@ -113,8 +110,10 @@ describe('CustomerRequestOverduePayment', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockOnError = undefined
-    mockHasFeatureFlag.mockReturnValue(false)
-    mockSearchParams = new URLSearchParams()
+    mockOnCompleted = undefined
+    // Both scopes are mandatory on this page; default to a fully scoped URL so
+    // each test opts into the unscoped-redirect path explicitly.
+    mockSearchParams = new URLSearchParams({ currency: 'USD', billingEntityId: 'be-123' })
     mockUseGetRequestOverduePaymentInfosQuery.mockReturnValue({
       data: {},
       loading: false,
@@ -129,13 +128,10 @@ describe('CustomerRequestOverduePayment', () => {
       })
   })
 
-  describe('GIVEN multi-entity billing is enabled but billingEntityId param is missing', () => {
+  describe('GIVEN the billingEntityId param is missing', () => {
     describe('WHEN the page renders', () => {
       it('THEN redirects back to the customer invoices tab', async () => {
-        mockHasFeatureFlag.mockImplementation(
-          (flag: FeatureFlagEnum) => flag === FeatureFlagEnum.MultiEntityBilling,
-        )
-        // billingEntityId not in searchParams
+        mockSearchParams = new URLSearchParams({ currency: 'USD' })
 
         await act(async () => {
           render(<CustomerRequestOverduePayment />)
@@ -145,38 +141,33 @@ describe('CustomerRequestOverduePayment', () => {
           expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'info' }))
         })
 
-        expect(mockNavigate).toHaveBeenCalled()
+        expect(mockNavigate).toHaveBeenCalledWith(expect.stringContaining('/invoices'))
+        expect(mockNavigate).not.toHaveBeenCalledWith(ERROR_404_ROUTE)
       })
     })
   })
 
   describe('GIVEN the query is skipped because access is unscoped', () => {
-    describe('WHEN multi-currency flag is on but currency param is missing', () => {
+    describe('WHEN the currency param is missing', () => {
       it('THEN redirects and does not fire the query', async () => {
-        mockHasFeatureFlag.mockImplementation(
-          (flag: FeatureFlagEnum) => flag === FeatureFlagEnum.MultiCurrency,
-        )
+        mockSearchParams = new URLSearchParams({ billingEntityId: 'be-123' })
 
         await act(async () => {
           render(<CustomerRequestOverduePayment />)
         })
 
         await waitFor(() => {
-          expect(mockNavigate).toHaveBeenCalled()
+          expect(mockNavigate).toHaveBeenCalledWith(expect.stringContaining('/invoices'))
         })
+
+        expect(mockNavigate).not.toHaveBeenCalledWith(ERROR_404_ROUTE)
       })
     })
   })
 
-  describe('GIVEN both feature flags are enabled', () => {
+  describe('GIVEN the page is reached from the invoice balances breakdown', () => {
     describe('WHEN both currency and billingEntityId search params are provided', () => {
       it('THEN should not redirect and should render the page correctly', async () => {
-        mockHasFeatureFlag.mockReturnValue(true)
-        mockSearchParams = new URLSearchParams({
-          currency: 'USD',
-          billingEntityId: 'be-123',
-        })
-
         mockUseGetRequestOverduePaymentInfosQuery.mockReturnValue({
           data: validQueryData,
           loading: false,
@@ -197,12 +188,6 @@ describe('CustomerRequestOverduePayment', () => {
       })
 
       it('THEN should fire the query with both currency and billingEntityIds variables', async () => {
-        mockHasFeatureFlag.mockReturnValue(true)
-        mockSearchParams = new URLSearchParams({
-          currency: 'USD',
-          billingEntityId: 'be-123',
-        })
-
         mockUseGetRequestOverduePaymentInfosQuery.mockReturnValue({
           data: validQueryData,
           loading: false,
@@ -220,8 +205,7 @@ describe('CustomerRequestOverduePayment', () => {
 
     describe('WHEN both currency and billingEntityId params are missing', () => {
       it('THEN should redirect back to invoices tab', async () => {
-        mockHasFeatureFlag.mockReturnValue(true)
-        // No search params — both scopes missing
+        mockSearchParams = new URLSearchParams()
 
         await act(async () => {
           render(<CustomerRequestOverduePayment />)
@@ -231,7 +215,42 @@ describe('CustomerRequestOverduePayment', () => {
           expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'info' }))
         })
 
-        expect(mockNavigate).toHaveBeenCalled()
+        expect(mockNavigate).toHaveBeenCalledWith(expect.stringContaining('/invoices'))
+        expect(mockNavigate).not.toHaveBeenCalledWith(ERROR_404_ROUTE)
+      })
+
+      it('THEN should render nothing instead of flashing the page body', async () => {
+        mockSearchParams = new URLSearchParams()
+
+        let container: HTMLElement | undefined
+
+        await act(async () => {
+          container = render(<CustomerRequestOverduePayment />).container
+        })
+
+        expect(container?.firstChild).toBeNull()
+        expect(screen.queryByTestId(SUBMIT_PAYMENT_REQUEST_TEST_ID)).not.toBeInTheDocument()
+      })
+
+      it('THEN should not stack a danger toast on top of the info toast', async () => {
+        mockSearchParams = new URLSearchParams()
+        jest
+          .mocked(useIsCustomerReadyForOverduePaymentModule.useIsCustomerReadyForOverduePayment)
+          .mockReturnValue({
+            isCustomerReadyForOverduePayment: false,
+            loading: false,
+            error: undefined,
+          })
+
+        await act(async () => {
+          render(<CustomerRequestOverduePayment />)
+        })
+
+        await waitFor(() => {
+          expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'info' }))
+        })
+
+        expect(addToast).not.toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
       })
     })
   })
@@ -324,6 +343,50 @@ describe('CustomerRequestOverduePayment', () => {
             }),
           }),
         )
+      })
+    })
+  })
+
+  describe('GIVEN the payment request succeeds', () => {
+    describe('WHEN the mutation completes', () => {
+      it('THEN should go back to the invoices tab, not the tab-less customer route', async () => {
+        mockUseGetRequestOverduePaymentInfosQuery.mockReturnValue({
+          data: validQueryData,
+          loading: false,
+          error: undefined,
+        })
+
+        await act(async () => {
+          render(<CustomerRequestOverduePayment />)
+        })
+
+        await act(async () => {
+          mockOnCompleted?.()
+        })
+
+        expect(mockGoBack).toHaveBeenCalledWith(
+          expect.stringContaining('/invoices'),
+          expect.objectContaining({ exclude: expect.anything() }),
+        )
+        expect(mockNavigate).not.toHaveBeenCalled()
+      })
+
+      it('THEN should show the success toast', async () => {
+        mockUseGetRequestOverduePaymentInfosQuery.mockReturnValue({
+          data: validQueryData,
+          loading: false,
+          error: undefined,
+        })
+
+        await act(async () => {
+          render(<CustomerRequestOverduePayment />)
+        })
+
+        await act(async () => {
+          mockOnCompleted?.()
+        })
+
+        expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
       })
     })
   })

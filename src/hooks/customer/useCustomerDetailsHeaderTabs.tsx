@@ -114,7 +114,6 @@ export function useCustomerDetailsHeaderTabs({
       content: (
         <CustomerInvoicesTab
           externalId={externalId}
-          userCurrency={customer?.currency || undefined}
           customerId={customerId}
           customerTimezone={safeTimezone}
           customerBillingEntity={customerBillingEntity}

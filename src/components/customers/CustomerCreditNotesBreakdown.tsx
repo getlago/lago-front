@@ -26,10 +26,6 @@ interface CustomerCreditNotesBreakdownProps {
 /**
  * Per (currency × billing_entity) breakdown of a customer's credit notes
  * balance. One row per bucket with non-zero remaining balance.
- *
- * Rendered when at least one of `multi_currency` / `multi_entity_billing`
- * is enabled. The parent (`CustomerCreditNotesList`) owns the flag gating
- * and falls back to a single legacy card when both flags are off.
  */
 export const CustomerCreditNotesBreakdown = ({
   creditNotesBalances,

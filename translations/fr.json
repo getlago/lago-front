@@ -43,8 +43,6 @@
   "text_6419c64eace749372fc72b54": "Payé",
   "text_6419c64eace749372fc72b62": "Télécharger le PDF",
   "text_666c5b12fea4aa1e1b26bf55": "Impayé",
-  "text_6670a7222702d70114cc7954": "Récapitulatif",
-  "text_6670a7222702d70114cc7955": "{{count}} facture d'un montant de {{amount}} est impayée.|{{count}} factures d'un montant de {{amount}} sont impayées.",
   "text_6670a7222702d70114cc7957": "Total facturé",
   "text_6670a7222702d70114cc795a": "Total impayé",
   "text_6670a7222702d70114cc795c": "pour {{count}} facture|pour {{count}} factures",

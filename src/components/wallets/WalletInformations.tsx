@@ -9,7 +9,7 @@ import { useResolvedPaymentMethodValue } from '~/components/paymentMethodSelecti
 import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount, getCurrencyPrecision } from '~/core/serializers/serializeAmount'
-import { CurrencyEnum, FeatureFlagEnum, WalletDetailsFragment } from '~/generated/graphql'
+import { CurrencyEnum, WalletDetailsFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePaymentMethodsList } from '~/hooks/customer/usePaymentMethodsList'
 import { useCustomerInvoiceCustomSections } from '~/hooks/useCustomerInvoiceCustomSections'
@@ -36,13 +36,8 @@ const SectionTitle = ({ title, subtitle }: { title: string; subtitle: string }) 
 
 const WalletInformations = ({ wallet }: WalletInformationsProps) => {
   const { translate } = useInternationalization()
-  const {
-    intlFormatDateTimeOrgaTZ,
-    hasFeatureFlag,
-    organization: { defaultCurrency } = {},
-  } = useOrganizationInfos()
-
-  const showBillingEntityRow = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
+  const { intlFormatDateTimeOrgaTZ, organization: { defaultCurrency } = {} } =
+    useOrganizationInfos()
 
   const { data: paymentMethodsList } = usePaymentMethodsList({
     externalCustomerId: wallet?.customer?.externalId || '',
@@ -139,17 +134,15 @@ const WalletInformations = ({ wallet }: WalletInformationsProps) => {
                 ? intlFormatDateTimeOrgaTZ(wallet?.expirationAt)?.date
                 : '-',
             },
-            showBillingEntityRow
-              ? {
-                  label: translate('text_17436114971570doqrwuwhf0'),
-                  value: (
-                    <BillingEntityLabel
-                      ownId={wallet?.billingEntityId}
-                      customerEntity={wallet?.customer?.billingEntity}
-                    />
-                  ),
-                }
-              : { label: '', value: '' },
+            {
+              label: translate('text_17436114971570doqrwuwhf0'),
+              value: (
+                <BillingEntityLabel
+                  ownId={wallet?.billingEntityId}
+                  customerEntity={wallet?.customer?.billingEntity}
+                />
+              ),
+            },
             {
               label: translate('text_1758286730208kztcznofxvr'),
               value: paidTopUpMinAmountCents || '-',
