@@ -25,6 +25,10 @@ import { buildOrderHeader } from './common/buildOrderHeader'
 import { buildQuotePreviewProps } from './common/buildQuotePreviewProps'
 import { getQuoteOrderTypeTranslationKey } from './common/getQuoteOrderTypeTranslationKey'
 import { QuotePreviewCard } from './common/QuotePreviewCard'
+import {
+  getQuoteMutationErrors,
+  QUOTE_MUTATION_SILENT_ERROR_CODES,
+} from './utils/quoteMutationErrors'
 
 export const EXECUTE_ORDER_CLOSE_BUTTON_TEST_ID = 'execute-order-close-button'
 export const EXECUTE_ORDER_CANCEL_BUTTON_TEST_ID = 'execute-order-cancel-button'
@@ -85,7 +89,14 @@ const ExecuteOrder = () => {
   })
 
   const [executeOrderMutation, { loading: executing }] = useExecuteOrderMutation({
+    // The client's default `errorPolicy: 'all'` keeps the mutation from throwing, so this
+    // refetch runs on a failed execution too — which matters because the API can still have
+    // moved the order to `failed`.
     refetchQueries: ['getOrders'],
+    // Handled locally by `getQuoteMutationErrors`, so the global error link must not
+    // also fire its generic toast (nor report these expected failures to Sentry).
+    // Copied: the link pushes its own force-silenced codes onto the array it receives.
+    context: { silentErrorCodes: [...QUOTE_MUTATION_SILENT_ERROR_CODES] },
   })
 
   const order = data?.order
@@ -119,16 +130,22 @@ const ExecuteOrder = () => {
       variables: { input: { id: orderId } },
     })
 
-    if (result.data?.executeOrder) {
-      addToast({ severity: 'success', translateKey: 'text_1783693954158zdvy0q96esu' })
-
-      navigate(
-        generatePath(QUOTE_DETAILS_ROUTE, {
-          quoteId,
-          tab: QuoteDetailsTabsOptionsEnum.orders,
-        }),
+    if (!result.data?.executeOrder) {
+      getQuoteMutationErrors(result.errors, translate, 'order').forEach(({ message }) =>
+        addToast({ severity: 'danger', message }),
       )
+
+      return
     }
+
+    addToast({ severity: 'success', translateKey: 'text_1783693954158zdvy0q96esu' })
+
+    navigate(
+      generatePath(QUOTE_DETAILS_ROUTE, {
+        quoteId,
+        tab: QuoteDetailsTabsOptionsEnum.orders,
+      }),
+    )
   }
 
   if (error) {

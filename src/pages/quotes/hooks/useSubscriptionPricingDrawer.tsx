@@ -48,6 +48,11 @@ export interface SubscriptionPricingDrawerOptions {
   currency?: CurrencyEnum | null
   /** Whether `currency` is the quote's own currency rather than a fallback. */
   hasQuoteCurrency?: boolean
+  /**
+   * Subscription-amendment quote: the amended subscription owns the start date, so it is
+   * neither displayed nor serialized (LAGO-1814).
+   */
+  isAmendment?: boolean
 }
 
 export const useSubscriptionPricingDrawer = (
@@ -158,6 +163,7 @@ export const useSubscriptionPricingDrawer = (
           state,
           formValues ?? undefined,
           basePlanFormValuesRef.current ?? undefined,
+          { omitStartDate: !!options?.isAmendment },
         )
         const entityData: Record<string, EntityData> = {
           [state.planId]: {
@@ -224,6 +230,7 @@ export const useSubscriptionPricingDrawer = (
             hasQuoteCurrency={options?.hasQuoteCurrency}
             billingItemPlan={billingItemPlan}
             subscriptionId={billingItemPlan ? undefined : options?.subscriptionId}
+            isAmendment={options?.isAmendment}
           />
         ),
       })

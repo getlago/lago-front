@@ -128,6 +128,21 @@ describe('toPlanBillingItems', () => {
     expect(result.plans[0].payload.endDate).toBe('2024-07-26')
   })
 
+  it('omits the startDate key entirely when omitStartDate is set', () => {
+    const result = toPlanBillingItems(basePricingState, baseFormValues, undefined, {
+      omitStartDate: true,
+    })
+
+    expect(result.plans[0].payload).not.toHaveProperty('startDate')
+    expect(result.plans[0].payload.endDate).toBeNull()
+  })
+
+  it('keeps the startDate key when omitStartDate is not set', () => {
+    const result = toPlanBillingItems(basePricingState, baseFormValues)
+
+    expect(result.plans[0].payload.startDate).toBe('2023-07-26')
+  })
+
   it('includes invoicing settings in the payload', () => {
     const state: SubscriptionPricingState = {
       ...basePricingState,

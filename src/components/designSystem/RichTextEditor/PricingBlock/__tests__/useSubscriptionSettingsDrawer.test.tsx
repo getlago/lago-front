@@ -244,12 +244,83 @@ describe('useSubscriptionSettingsDrawer', () => {
 
   describe('GIVEN the drawer is opened in amendment mode', () => {
     describe('WHEN isAmendment is true', () => {
-      it('THEN should disable the start date field', () => {
+      it('THEN should NOT render the start date field', () => {
         openAndRenderDrawer(populatedValues, true)
 
-        const startDateInput = document.querySelector('input[name="startDate"]') as HTMLInputElement
+        expect(document.querySelector('input[name="startDate"]')).not.toBeInTheDocument()
+      })
 
-        expect(startDateInput).toBeDisabled()
+      it('THEN should still render the end date field', () => {
+        openAndRenderDrawer(populatedValues, true)
+
+        expect(document.querySelector('input[name="endDate"]')).toBeInTheDocument()
+      })
+
+      it('THEN should save even though the start date is empty', async () => {
+        const user = userEvent.setup()
+
+        openAndRenderDrawer({ ...populatedValues, startDate: '' }, true)
+
+        await user.click(screen.getByTestId(SUBSCRIPTION_SETTINGS_DRAWER_SAVE_TEST_ID))
+
+        await waitFor(() => {
+          expect(mockOnSave).toHaveBeenCalledTimes(1)
+        })
+
+        expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({ startDate: '' }))
+      })
+
+      it('THEN should lock the pre-filled external ID', () => {
+        openAndRenderDrawer(populatedValues, true)
+
+        const externalIdInput = document.querySelector(
+          'input[name="externalId"]',
+        ) as HTMLInputElement
+
+        // The external id identifies the amended subscription: neither editable...
+        expect(externalIdInput).toBeDisabled()
+        // ...nor removable
+        const fieldRow = externalIdInput.closest('.flex.flex-row')
+
+        expect(within(fieldRow as HTMLElement).queryByTestId('button')).not.toBeInTheDocument()
+      })
+
+      it('THEN should leave the subscription name editable', () => {
+        openAndRenderDrawer(populatedValues, true)
+
+        const subscriptionNameInput = document.querySelector(
+          'input[name="subscriptionName"]',
+        ) as HTMLInputElement
+
+        expect(subscriptionNameInput).not.toBeDisabled()
+      })
+
+      it('THEN should keep the "add external ID" flow when there is none to lock', async () => {
+        const user = userEvent.setup()
+
+        openAndRenderDrawer(defaultValues, true)
+
+        await user.click(screen.getByTestId('show-external-id'))
+
+        expect(document.querySelector('input[name="externalId"]')).not.toBeDisabled()
+      })
+    })
+  })
+
+  describe('GIVEN a subscription-creation quote with a pre-filled external ID', () => {
+    describe('WHEN isAmendment is false', () => {
+      it('THEN should keep the external ID editable and removable', () => {
+        openAndRenderDrawer(populatedValues, false)
+
+        const externalIdInput = document.querySelector(
+          'input[name="externalId"]',
+        ) as HTMLInputElement
+
+        expect(externalIdInput).not.toBeDisabled()
+
+        const fieldRow = externalIdInput.closest('.flex.flex-row')
+
+        expect(within(fieldRow as HTMLElement).getByTestId('button')).toBeInTheDocument()
       })
     })
   })

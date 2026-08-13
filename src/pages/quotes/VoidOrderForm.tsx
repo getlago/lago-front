@@ -21,6 +21,10 @@ import { FormLoadingSkeleton, Main, Side } from '~/styles/mainObjectsForm'
 import { buildQuotePreviewProps } from './common/buildQuotePreviewProps'
 import { getOrderFormStatusMapping } from './common/getOrderFormStatusMapping'
 import { QuotePreviewCard } from './common/QuotePreviewCard'
+import {
+  getQuoteMutationErrors,
+  QUOTE_MUTATION_SILENT_ERROR_CODES,
+} from './utils/quoteMutationErrors'
 
 export const VOID_ORDER_FORM_CLOSE_BUTTON_TEST_ID = 'void-order-form-close-button'
 export const VOID_ORDER_FORM_VOID_BUTTON_TEST_ID = 'void-order-form-void-button'
@@ -95,6 +99,10 @@ const VoidOrderForm = () => {
 
   const [voidOrderFormMutation] = useVoidOrderFormMutation({
     refetchQueries: ['getOrderForms'],
+    // Handled locally by `getQuoteMutationErrors`, so the global error link must not
+    // also fire its generic toast (nor report these expected failures to Sentry).
+    // Copied: the link pushes its own force-silenced codes onto the array it receives.
+    context: { silentErrorCodes: [...QUOTE_MUTATION_SILENT_ERROR_CODES] },
   })
 
   const onSubmit = async () => {
@@ -110,19 +118,25 @@ const VoidOrderForm = () => {
       },
     })
 
-    if (result.data?.voidOrderForm) {
-      addToast({
-        severity: 'success',
-        translateKey: 'text_1781625672232ia473jidiy8',
-      })
-
-      navigate(
-        generatePath(QUOTE_DETAILS_ROUTE, {
-          quoteId,
-          tab: QuoteDetailsTabsOptionsEnum.orderForms,
-        }),
+    if (!result.data?.voidOrderForm) {
+      getQuoteMutationErrors(result.errors, translate, 'orderForm').forEach(({ message }) =>
+        addToast({ severity: 'danger', message }),
       )
+
+      return
     }
+
+    addToast({
+      severity: 'success',
+      translateKey: 'text_1781625672232ia473jidiy8',
+    })
+
+    navigate(
+      generatePath(QUOTE_DETAILS_ROUTE, {
+        quoteId,
+        tab: QuoteDetailsTabsOptionsEnum.orderForms,
+      }),
+    )
   }
 
   const onClose = () => {
