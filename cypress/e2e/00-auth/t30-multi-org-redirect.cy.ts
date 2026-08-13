@@ -76,8 +76,10 @@ describe('Multi-organization redirect flows', () => {
         cy.log('Invitation URL captured:', invitationUrl)
 
         // Log out User B before opening the invite
-        cy.clearLocalStorage()
-        cy.visit(invitationUrl, { failOnStatusCode: false })
+        cy.visit(invitationUrl, {
+          failOnStatusCode: false,
+          onBeforeLoad: (win) => win.localStorage.clear(),
+        })
       })
 
     // 5. User A accepts the invite with their password
