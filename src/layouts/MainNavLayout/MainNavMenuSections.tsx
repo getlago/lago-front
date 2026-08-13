@@ -4,6 +4,11 @@ import { VerticalMenu, VerticalMenuSectionTitle } from '~/components/designSyste
 import {
   ADD_ON_DETAILS_ROUTE,
   ADD_ONS_ROUTE,
+  ADMIN_AUDIT_LOG_ROUTE,
+  ADMIN_COMPARE_ROUTE,
+  ADMIN_ORGANIZATION_CREATE_ROUTE,
+  ADMIN_ORGANIZATION_DETAIL_ROUTE,
+  ADMIN_ORGANIZATIONS_ROUTE,
   ANALYTIC_ROUTE,
   ANALYTIC_TABS_ROUTE,
   BILLABLE_METRIC_DETAILS_ROUTE,
@@ -62,6 +67,7 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
   const { hasPermissions } = usePermissions()
   const { hasFeatureFlag } = useOrganizationInfos()
   const { isPremium } = useCurrentUser()
+  const { currentUser } = useCurrentUser()
 
   const getReportsTabs = (): NavTab[] => [
     {
@@ -202,12 +208,50 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
     },
   ]
 
+  const isAdmin = !!currentUser?.csAdmin && !!currentUser?.email?.endsWith('@getlago.com')
+
+  const getAdminTabs = (): NavTab[] => [
+    {
+      title: 'Organizations',
+      icon: 'user-multiple',
+      link: ADMIN_ORGANIZATIONS_ROUTE,
+      canBeClickedOnActive: true,
+      match: [
+        ADMIN_ORGANIZATIONS_ROUTE,
+        ADMIN_ORGANIZATION_CREATE_ROUTE,
+        ADMIN_ORGANIZATION_DETAIL_ROUTE,
+      ],
+      hidden: !isAdmin,
+    },
+    {
+      title: 'Compare',
+      icon: 'switch',
+      link: ADMIN_COMPARE_ROUTE,
+      hidden: !isAdmin,
+    },
+    {
+      title: 'Audit Log',
+      icon: 'document',
+      link: ADMIN_AUDIT_LOG_ROUTE,
+      hidden: !isAdmin,
+    },
+  ]
+
   const reportsTabs = getNavTabs(getReportsTabs())
   const configurationTabs = getNavTabs(getConfigurationTabs())
   const billingTabs = getNavTabs(getBillingTabs())
+  const adminTabs = getNavTabs(getAdminTabs())
 
-  // Don't render the section group if all sections are hidden
-  if (reportsTabs.allTabsHidden && configurationTabs.allTabsHidden && billingTabs.allTabsHidden) {
+  // Don't render the section group if all sections are hidden. The admin ("Internal") section
+  // must be included: on admin routes no org is selected, so reports/configuration/billing are
+  // all permission-gated to hidden — omitting adminTabs here dropped the whole group (and the
+  // Internal section with it) while the user was on an admin page.
+  if (
+    reportsTabs.allTabsHidden &&
+    configurationTabs.allTabsHidden &&
+    billingTabs.allTabsHidden &&
+    adminTabs.allTabsHidden
+  ) {
     return null
   }
 
@@ -257,6 +301,19 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
             loadingComponent={<VerticalMenuSkeleton numberOfElements={2} />}
             onClick={onItemClick}
             tabs={billingTabs.tabs}
+          />
+        </NavLayout.NavSection>
+      )}
+
+      {/* Admin */}
+      {!adminTabs.allTabsHidden && (
+        <NavLayout.NavSection>
+          <VerticalMenuSectionTitle title="Internal" loading={isLoading} />
+          <VerticalMenu
+            loading={isLoading}
+            loadingComponent={<VerticalMenuSkeleton numberOfElements={1} />}
+            onClick={onItemClick}
+            tabs={adminTabs.tabs}
           />
         </NavLayout.NavSection>
       )}
