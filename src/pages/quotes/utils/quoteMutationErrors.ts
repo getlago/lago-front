@@ -90,10 +90,43 @@ export const ORDER_FORM_ERROR_KEYS: Record<string, string> = {
 }
 
 /**
- * Which entity the failing mutation targets. Only `status.not_voidable` actually overlaps
- * today, but the scope keeps the two key sets from silently borrowing each other's copy.
+ * Order execution failures, keyed the same way. `executeOrder` reports on the order itself and on
+ * every catalog entity its billing snapshot points at, so a quoted plan/coupon/add-on that has
+ * since disappeared surfaces here as a top-level `<resource>.not_found` — unlike the billing-item
+ * keys below, which the approve mutation reports positionally.
  */
-export type QuoteMutationErrorScope = 'quote' | 'orderForm'
+export const ORDER_ERROR_KEYS: Record<string, string> = {
+  'order.not_found': 'text_1786630268015utxlmxzyv6k',
+  'orderType.unsupported_order_type': 'text_17866302680156sw8ubyaf72',
+  'executionMode.value_is_mandatory': 'text_1786630268015x89z5erp5gc',
+  'base.concurrency_conflict': 'text_178663026801526jdrqexzy1',
+  'plan.not_found': 'text_1786630268016ukk6fi5u778',
+  'coupon.not_found': 'text_1786630268016171ivs0g1kv',
+  'addOn.not_found': 'text_1786630268016o1hi9xo2obe',
+  'charge.not_found': 'text_1786630268016h9odzv5jjs5',
+  'fixedCharge.not_found': 'text_1786630268016t366gcvcago',
+  'billableMetric.not_found': 'text_1786630268016qtainhwsys3',
+  'chargeModel.charge_model_changed': 'text_1786630268016w264kj4y86j',
+  'fixedChargeModel.fixed_charge_model_changed': 'text_1786630268016meyak1nxn9g',
+  'customer.not_found': 'text_1786630268016i9hcrwrzkcc',
+  'fees.not_found': 'text_1786630268016vpwqdibatsd',
+}
+
+/**
+ * Which entity the failing mutation targets. `status.not_voidable` and
+ * `executionMode.value_is_mandatory` are each reported on two entities, so the scope is what keeps
+ * the key sets from silently borrowing each other's copy.
+ */
+export type QuoteMutationErrorScope = 'quote' | 'orderForm' | 'order'
+
+/**
+ * Scope-specific overrides, consulted before `TOP_LEVEL_ERROR_KEYS`. `quote` has no entry: it is
+ * the base scope, so it reads `TOP_LEVEL_ERROR_KEYS` directly.
+ */
+const SCOPED_ERROR_KEYS: Partial<Record<QuoteMutationErrorScope, Record<string, string>>> = {
+  orderForm: ORDER_FORM_ERROR_KEYS,
+  order: ORDER_ERROR_KEYS,
+}
 
 /** Detail keys that map onto a form field, so the error can also be shown inline. */
 const FORM_FIELD_BY_DETAIL_KEY: Record<string, string> = {
@@ -242,8 +275,7 @@ const getDetailError = (
   scope: QuoteMutationErrorScope,
 ): QuoteMutationError => {
   const detailKey = `${rawKey}.${code}`
-  const scopedKey = scope === 'orderForm' ? ORDER_FORM_ERROR_KEYS[detailKey] : undefined
-  const topLevelKey = scopedKey ?? TOP_LEVEL_ERROR_KEYS[detailKey]
+  const topLevelKey = SCOPED_ERROR_KEYS[scope]?.[detailKey] ?? TOP_LEVEL_ERROR_KEYS[detailKey]
 
   if (topLevelKey) {
     const field = FORM_FIELD_BY_DETAIL_KEY[rawKey]
@@ -263,7 +295,7 @@ const getDetailError = (
 }
 
 /**
- * Turns a failed quote or order-form mutation into user-facing messages.
+ * Turns a failed quote, order-form or order mutation into user-facing messages.
  *
  * The API answers through `ExecutionErrorResponder`, which exposes
  * `extensions.code` plus a camelized `extensions.details` map of

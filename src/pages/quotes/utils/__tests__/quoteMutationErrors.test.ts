@@ -6,6 +6,7 @@ import {
   BILLING_ITEM_CODE_KEYS,
   BILLING_ITEM_FIELD_ERROR_KEYS,
   getQuoteMutationErrors,
+  ORDER_ERROR_KEYS,
   ORDER_FORM_ERROR_KEYS,
   QUOTE_MUTATION_SILENT_ERROR_CODES,
   TOP_LEVEL_ERROR_KEYS,
@@ -315,6 +316,136 @@ describe('getQuoteMutationErrors', () => {
     })
   })
 
+  describe('order scope', () => {
+    // `executeOrder` reports the order itself and every catalog entity its billing snapshot
+    // points at, so these arrive as top-level `<resource>.<code>` details.
+    it.each([
+      ['not_found', 'order', 'not_found', 'text_1786630268015utxlmxzyv6k'],
+      [
+        'unprocessable_entity',
+        'orderType',
+        'unsupported_order_type',
+        'text_17866302680156sw8ubyaf72',
+      ],
+      ['unprocessable_entity', 'base', 'concurrency_conflict', 'text_178663026801526jdrqexzy1'],
+      ['not_found', 'plan', 'not_found', 'text_1786630268016ukk6fi5u778'],
+      ['not_found', 'coupon', 'not_found', 'text_1786630268016171ivs0g1kv'],
+      ['not_found', 'addOn', 'not_found', 'text_1786630268016o1hi9xo2obe'],
+      ['not_found', 'charge', 'not_found', 'text_1786630268016h9odzv5jjs5'],
+      ['not_found', 'fixedCharge', 'not_found', 'text_1786630268016t366gcvcago'],
+      ['not_found', 'billableMetric', 'not_found', 'text_1786630268016qtainhwsys3'],
+      [
+        'unprocessable_entity',
+        'chargeModel',
+        'charge_model_changed',
+        'text_1786630268016w264kj4y86j',
+      ],
+      [
+        'unprocessable_entity',
+        'fixedChargeModel',
+        'fixed_charge_model_changed',
+        'text_1786630268016meyak1nxn9g',
+      ],
+      ['not_found', 'customer', 'not_found', 'text_1786630268016i9hcrwrzkcc'],
+      ['not_found', 'fees', 'not_found', 'text_1786630268016vpwqdibatsd'],
+    ])('maps %s / %s.%s to its own message', (code, field, detailCode, expectedKey) => {
+      const errors = getQuoteMutationErrors(
+        makeError(code, { [field]: [detailCode] }),
+        translate,
+        'order',
+      )
+
+      expect(errors).toEqual([{ message: expectedKey, field: undefined }])
+    })
+
+    it('names the order, not the order form, on the shared executionMode key', () => {
+      const details = { executionMode: ['value_is_mandatory'] }
+
+      expect(
+        getQuoteMutationErrors(makeError('unprocessable_entity', details), translate, 'order'),
+      ).toEqual([
+        {
+          message: 'text_1786630268015x89z5erp5gc',
+          field: 'executionMode',
+          messageKey: 'text_1786630268015x89z5erp5gc',
+        },
+      ])
+      expect(
+        getQuoteMutationErrors(makeError('unprocessable_entity', details), translate, 'orderForm'),
+      ).toEqual([
+        {
+          message: 'text_17866108946411ovi8xqry3n',
+          field: 'executionMode',
+          messageKey: 'text_17866108946411ovi8xqry3n',
+        },
+      ])
+      // The quote scope never sees this detail, so it stays on the generic copy — and with no
+      // key to show inline, it is not flagged as a field error either.
+      expect(getQuoteMutationErrors(makeError('unprocessable_entity', details), translate)).toEqual(
+        [{ message: GENERIC_ERROR_KEY }],
+      )
+    })
+
+    it('keeps the quote messages for details the scope does not override', () => {
+      const errors = getQuoteMutationErrors(
+        makeError('not_found', { quoteVersion: ['not_found'] }),
+        translate,
+        'order',
+      )
+
+      expect(errors).toEqual([{ message: 'text_178654078974209u9bigc6ta', field: undefined }])
+    })
+
+    it('does not borrow the order-form copy', () => {
+      const errors = getQuoteMutationErrors(
+        makeError('not_found', { orderForm: ['not_found'] }),
+        translate,
+        'order',
+      )
+
+      expect(errors).toEqual([{ message: GENERIC_ERROR_KEY }])
+    })
+
+    it('reports permission and premium failures the same way as the quote scope', () => {
+      expect(getQuoteMutationErrors(makeError('forbidden'), translate, 'order')).toEqual([
+        { message: 'text_17865407897429mqm1fco12j' },
+      ])
+      expect(getQuoteMutationErrors(makeError('feature_unavailable'), translate, 'order')).toEqual([
+        { message: 'text_1786540789742kokuwxcy86s' },
+      ])
+    })
+
+    it('leaves an unknown detail on the generic message, and an unhandled code to the link', () => {
+      expect(
+        getQuoteMutationErrors(
+          makeError('unprocessable_entity', { order: ['who_knows'] }),
+          translate,
+          'order',
+        ),
+      ).toEqual([{ message: GENERIC_ERROR_KEY }])
+      expect(getQuoteMutationErrors(makeError('internal_error'), translate, 'order')).toEqual([])
+    })
+
+    it('caps a multi-key execution failure at three messages', () => {
+      const errors = getQuoteMutationErrors(
+        makeError('not_found', {
+          plan: ['not_found'],
+          coupon: ['not_found'],
+          addOn: ['not_found'],
+          billableMetric: ['not_found'],
+        }),
+        translate,
+        'order',
+      )
+
+      expect(errors).toEqual([
+        { message: 'text_1786630268016ukk6fi5u778', field: undefined },
+        { message: 'text_1786630268016171ivs0g1kv', field: undefined },
+        { message: 'text_1786630268016o1hi9xo2obe', field: undefined },
+      ])
+    })
+  })
+
   it('silences exactly the codes it handles locally', () => {
     expect(QUOTE_MUTATION_SILENT_ERROR_CODES).toEqual([
       'unprocessable_entity',
@@ -327,6 +458,7 @@ describe('getQuoteMutationErrors', () => {
     const allKeys = [
       ...Object.values(TOP_LEVEL_ERROR_KEYS),
       ...Object.values(ORDER_FORM_ERROR_KEYS),
+      ...Object.values(ORDER_ERROR_KEYS),
       ...Object.values(BILLING_ITEM_FIELD_ERROR_KEYS),
       ...Object.values(BILLING_ITEM_CODE_KEYS),
     ]
