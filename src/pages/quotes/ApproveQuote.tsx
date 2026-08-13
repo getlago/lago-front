@@ -28,6 +28,7 @@ import { getQuoteOrderTypeTranslationKey } from './common/getQuoteOrderTypeTrans
 import { QuotePreviewCard } from './common/QuotePreviewCard'
 import { useApproveQuote } from './hooks/useApproveQuote'
 import { useQuote } from './hooks/useQuote'
+import { applyFormFieldErrors } from './utils/applyFormFieldErrors'
 import { getQuoteMutationErrors } from './utils/quoteMutationErrors'
 
 export const APPROVE_QUOTE_CLOSE_BUTTON_TEST_ID = 'approve-quote-close-button'
@@ -81,16 +82,7 @@ const ApproveQuote = () => {
         const errors = getQuoteMutationErrors(result.errors, translate)
 
         errors.forEach(({ message }) => addToast({ severity: 'danger', message }))
-
-        const fieldError = errors.find(({ field }) => field === 'expiresAt')
-
-        if (fieldError) {
-          formApi.setErrorMap({
-            onDynamic: {
-              fields: { expiresAt: { message: fieldError.message, path: ['expiresAt'] } },
-            },
-          })
-        }
+        applyFormFieldErrors(formApi, errors)
 
         return
       }

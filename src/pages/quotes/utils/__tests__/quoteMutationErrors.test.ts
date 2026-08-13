@@ -6,6 +6,7 @@ import {
   BILLING_ITEM_CODE_KEYS,
   BILLING_ITEM_FIELD_ERROR_KEYS,
   getQuoteMutationErrors,
+  ORDER_FORM_ERROR_KEYS,
   QUOTE_MUTATION_SILENT_ERROR_CODES,
   TOP_LEVEL_ERROR_KEYS,
 } from '../quoteMutationErrors'
@@ -95,7 +96,13 @@ describe('getQuoteMutationErrors', () => {
         translate,
       )
 
-      expect(errors).toEqual([{ message: 'text_1786540789742b4ym3200cp6', field: 'expiresAt' }])
+      expect(errors).toEqual([
+        {
+          message: 'text_1786540789742b4ym3200cp6',
+          field: 'expiresAt',
+          messageKey: 'text_1786540789742b4ym3200cp6',
+        },
+      ])
     })
 
     it('maps the not_found payload the API sends for an unknown version', () => {
@@ -233,6 +240,81 @@ describe('getQuoteMutationErrors', () => {
     })
   })
 
+  describe('order-form scope', () => {
+    it.each([
+      ['orderForm', 'not_found', 'text_1786610894641duk7n532hdi'],
+      ['status', 'not_signable', 'text_1786610894641lt5jhzuiulg'],
+      ['status', 'not_voidable', 'text_1786610894641usymql0rk8r'],
+      ['signedDocument', 'invalid_format', 'text_1786610894641nv1aitlslgu'],
+      ['orderFormId', 'value_already_exist', 'text_17866108946418951e8uxdcl'],
+    ])('maps %s.%s to its own message', (field, code, expectedKey) => {
+      const errors = getQuoteMutationErrors(
+        makeError('unprocessable_entity', { [field]: [code] }),
+        translate,
+        'orderForm',
+      )
+
+      expect(errors).toEqual([{ message: expectedKey, field: undefined }])
+    })
+
+    it.each([
+      ['executionMode', 'value_is_mandatory', 'text_17866108946411ovi8xqry3n'],
+      ['executionMode', 'value_is_invalid', 'text_1786610894641m8ffsiodyjw'],
+      ['executeAt', 'invalid_date', 'text_1786610894641sjyf79n6nny'],
+    ])('flags %s.%s as a form field error', (field, code, expectedKey) => {
+      const errors = getQuoteMutationErrors(
+        makeError('unprocessable_entity', { [field]: [code] }),
+        translate,
+        'orderForm',
+      )
+
+      expect(errors).toEqual([{ message: expectedKey, field, messageKey: expectedKey }])
+    })
+
+    it('names the order form, not the quote version, on the shared not_voidable key', () => {
+      const details = { status: ['not_voidable'] }
+
+      expect(getQuoteMutationErrors(makeError('unprocessable_entity', details), translate)).toEqual(
+        [{ message: 'text_1786540789742nso5acvqa28', field: undefined }],
+      )
+      expect(
+        getQuoteMutationErrors(makeError('unprocessable_entity', details), translate, 'orderForm'),
+      ).toEqual([{ message: 'text_1786610894641usymql0rk8r', field: undefined }])
+    })
+
+    it('keeps the quote messages for details the scope does not override', () => {
+      const errors = getQuoteMutationErrors(
+        makeError('not_found', { quoteVersion: ['not_found'] }),
+        translate,
+        'orderForm',
+      )
+
+      expect(errors).toEqual([{ message: 'text_178654078974209u9bigc6ta', field: undefined }])
+    })
+
+    it('reports permission and premium failures the same way as the quote scope', () => {
+      expect(getQuoteMutationErrors(makeError('forbidden'), translate, 'orderForm')).toEqual([
+        { message: 'text_17865407897429mqm1fco12j' },
+      ])
+      expect(
+        getQuoteMutationErrors(makeError('feature_unavailable'), translate, 'orderForm'),
+      ).toEqual([{ message: 'text_1786540789742kokuwxcy86s' }])
+    })
+
+    it('leaves an unknown detail on the generic message, and an unhandled code to the link', () => {
+      expect(
+        getQuoteMutationErrors(
+          makeError('unprocessable_entity', { status: ['who_knows'] }),
+          translate,
+          'orderForm',
+        ),
+      ).toEqual([{ message: GENERIC_ERROR_KEY }])
+      expect(getQuoteMutationErrors(makeError('internal_error'), translate, 'orderForm')).toEqual(
+        [],
+      )
+    })
+  })
+
   it('silences exactly the codes it handles locally', () => {
     expect(QUOTE_MUTATION_SILENT_ERROR_CODES).toEqual([
       'unprocessable_entity',
@@ -244,6 +326,7 @@ describe('getQuoteMutationErrors', () => {
   it('declares no duplicate translation keys across its maps', () => {
     const allKeys = [
       ...Object.values(TOP_LEVEL_ERROR_KEYS),
+      ...Object.values(ORDER_FORM_ERROR_KEYS),
       ...Object.values(BILLING_ITEM_FIELD_ERROR_KEYS),
       ...Object.values(BILLING_ITEM_CODE_KEYS),
     ]

@@ -231,6 +231,81 @@ describe('VoidOrderForm', () => {
         expect(testMockNavigateFn).toHaveBeenCalledWith('/quote/quote-456/order-forms')
       })
     })
+
+    describe('WHEN the API rejects the void', () => {
+      it('THEN should toast the order-form status message and stay on the page', async () => {
+        mockVoidOrderForm.mockResolvedValueOnce({
+          data: null,
+          errors: [
+            {
+              message: 'Unprocessable Entity',
+              extensions: { code: 'unprocessable_entity', details: { status: ['not_voidable'] } },
+            },
+          ],
+        })
+
+        const user = userEvent.setup()
+
+        render(<VoidOrderForm />)
+
+        await user.click(screen.getByTestId(VOID_ORDER_FORM_VOID_BUTTON_TEST_ID))
+
+        await waitFor(() => {
+          expect(addToast).toHaveBeenCalledWith({
+            severity: 'danger',
+            message: 'text_1786610894641usymql0rk8r',
+          })
+        })
+
+        expect(addToast).not.toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+        expect(testMockNavigateFn).not.toHaveBeenCalled()
+      })
+
+      it('THEN should toast the not-found message when the order form is gone', async () => {
+        mockVoidOrderForm.mockResolvedValueOnce({
+          data: null,
+          errors: [
+            {
+              message: 'Resource not found',
+              extensions: { code: 'not_found', details: { orderForm: ['not_found'] } },
+            },
+          ],
+        })
+
+        const user = userEvent.setup()
+
+        render(<VoidOrderForm />)
+
+        await user.click(screen.getByTestId(VOID_ORDER_FORM_VOID_BUTTON_TEST_ID))
+
+        await waitFor(() => {
+          expect(addToast).toHaveBeenCalledWith({
+            severity: 'danger',
+            message: 'text_1786610894641duk7n532hdi',
+          })
+        })
+      })
+
+      it('THEN should toast the permission message on forbidden', async () => {
+        mockVoidOrderForm.mockResolvedValueOnce({
+          data: null,
+          errors: [{ message: 'Missing permissions', extensions: { code: 'forbidden' } }],
+        })
+
+        const user = userEvent.setup()
+
+        render(<VoidOrderForm />)
+
+        await user.click(screen.getByTestId(VOID_ORDER_FORM_VOID_BUTTON_TEST_ID))
+
+        await waitFor(() => {
+          expect(addToast).toHaveBeenCalledWith({
+            severity: 'danger',
+            message: 'text_17865407897429mqm1fco12j',
+          })
+        })
+      })
+    })
   })
 
   describe('GIVEN an order form whose quote has content', () => {

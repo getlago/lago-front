@@ -11,6 +11,14 @@ export interface QuoteMutationError {
   message: string
   /** Form field path, set only for field-targeted errors. */
   field?: string
+  /**
+   * Untranslated key behind `message`, set alongside `field`. Form fields translate the error
+   * they are given (`TextInput` runs it through `translate`, `DatePickerField` asks
+   * `useFieldError` for `translateErrors`), so an inline error has to be handed the key —
+   * feeding it a translated sentence only works through the missing-key fallback and logs a
+   * warning per render.
+   */
+  messageKey?: string
 }
 
 /**
@@ -65,9 +73,33 @@ export const TOP_LEVEL_ERROR_KEYS: Record<string, string> = {
   'startDate.invalid_date_range': 'text_1786540789742hb3p2cjocck',
 }
 
-/** Detail keys that map onto an approve-form field, so the error can also be shown inline. */
+/**
+ * Order-form failures, keyed the same way. Consulted before `TOP_LEVEL_ERROR_KEYS` when the
+ * caller passes the `orderForm` scope, because `status.not_voidable` is reported on both
+ * entities and the copy has to name the right one.
+ */
+export const ORDER_FORM_ERROR_KEYS: Record<string, string> = {
+  'orderForm.not_found': 'text_1786610894641duk7n532hdi',
+  'status.not_signable': 'text_1786610894641lt5jhzuiulg',
+  'status.not_voidable': 'text_1786610894641usymql0rk8r',
+  'executionMode.value_is_mandatory': 'text_17866108946411ovi8xqry3n',
+  'executionMode.value_is_invalid': 'text_1786610894641m8ffsiodyjw',
+  'executeAt.invalid_date': 'text_1786610894641sjyf79n6nny',
+  'signedDocument.invalid_format': 'text_1786610894641nv1aitlslgu',
+  'orderFormId.value_already_exist': 'text_17866108946418951e8uxdcl',
+}
+
+/**
+ * Which entity the failing mutation targets. Only `status.not_voidable` actually overlaps
+ * today, but the scope keeps the two key sets from silently borrowing each other's copy.
+ */
+export type QuoteMutationErrorScope = 'quote' | 'orderForm'
+
+/** Detail keys that map onto a form field, so the error can also be shown inline. */
 const FORM_FIELD_BY_DETAIL_KEY: Record<string, string> = {
   expiresAt: 'expiresAt',
+  executionMode: 'executionMode',
+  executeAt: 'executeAt',
 }
 
 /** `billingItems.<entity>` prefixes, interpolated with the 1-based item position. */
@@ -207,11 +239,20 @@ const getDetailError = (
   rawKey: string,
   code: string,
   translate: TranslateFunc,
+  scope: QuoteMutationErrorScope,
 ): QuoteMutationError => {
-  const topLevelKey = TOP_LEVEL_ERROR_KEYS[`${rawKey}.${code}`]
+  const detailKey = `${rawKey}.${code}`
+  const scopedKey = scope === 'orderForm' ? ORDER_FORM_ERROR_KEYS[detailKey] : undefined
+  const topLevelKey = scopedKey ?? TOP_LEVEL_ERROR_KEYS[detailKey]
 
   if (topLevelKey) {
-    return { message: translate(topLevelKey), field: FORM_FIELD_BY_DETAIL_KEY[rawKey] }
+    const field = FORM_FIELD_BY_DETAIL_KEY[rawKey]
+
+    return {
+      message: translate(topLevelKey),
+      field,
+      messageKey: field ? topLevelKey : undefined,
+    }
   }
 
   const billingItemMessage = getBillingItemMessage(rawKey, code, translate)
@@ -222,7 +263,7 @@ const getDetailError = (
 }
 
 /**
- * Turns a failed quote mutation into user-facing messages.
+ * Turns a failed quote or order-form mutation into user-facing messages.
  *
  * The API answers through `ExecutionErrorResponder`, which exposes
  * `extensions.code` plus a camelized `extensions.details` map of
@@ -233,6 +274,7 @@ const getDetailError = (
 export const getQuoteMutationErrors = (
   errorObject: ApolloError | readonly GraphQLFormattedError[] | undefined,
   translate: TranslateFunc,
+  scope: QuoteMutationErrorScope = 'quote',
 ): QuoteMutationError[] => {
   const genericError: QuoteMutationError[] = [{ message: translate(GENERIC_ERROR_KEY) }]
   const extensions = extractGraphQLErrors(errorObject)[0]?.extensions
@@ -254,7 +296,7 @@ export const getQuoteMutationErrors = (
 
   for (const [rawKey, codes] of Object.entries(details)) {
     const detailCode = Array.isArray(codes) ? codes[0] : String(codes)
-    const error = getDetailError(rawKey, detailCode, translate)
+    const error = getDetailError(rawKey, detailCode, translate, scope)
 
     if (seenMessages.has(error.message)) continue
 
