@@ -58,6 +58,11 @@ interface SubscriptionPricingContentProps {
   hasQuoteCurrency?: boolean
   billingItemPlan?: BillingItemPlan
   subscriptionId?: string
+  /**
+   * Subscription-amendment quote: the start date belongs to the amended subscription, so it
+   * is never displayed nor seeded here (LAGO-1814).
+   */
+  isAmendment?: boolean
 }
 
 export function SubscriptionPricingContent({
@@ -72,6 +77,7 @@ export function SubscriptionPricingContent({
   hasQuoteCurrency,
   billingItemPlan,
   subscriptionId,
+  isAmendment = false,
 }: Readonly<SubscriptionPricingContentProps>) {
   const { translate } = useInternationalization()
 
@@ -144,14 +150,23 @@ export function SubscriptionPricingContent({
 
   // Quote-specific state
   const [subscriptionSettings, setSubscriptionSettings] = useState(() => {
-    if (initialState?.subscriptionSettings) return initialState.subscriptionSettings
-    if (billingItemSubscriptionSettings) return billingItemSubscriptionSettings
+    const getInitialSettings = () => {
+      if (initialState?.subscriptionSettings) return initialState.subscriptionSettings
+      if (billingItemSubscriptionSettings) return billingItemSubscriptionSettings
 
-    return {
-      ...DEFAULT_SUBSCRIPTION_SETTINGS,
-      startDate: quoteDates?.startDate ?? '',
-      endDate: quoteDates?.endDate ?? '',
+      return {
+        ...DEFAULT_SUBSCRIPTION_SETTINGS,
+        startDate: quoteDates?.startDate ?? '',
+        endDate: quoteDates?.endDate ?? '',
+      }
     }
+
+    const settings = getInitialSettings()
+
+    // An amendment quote never carries a start date, whichever source seeded the settings.
+    if (isAmendment) return { ...settings, startDate: '' }
+
+    return settings
   })
   const [invoicingSettings, setInvoicingSettings] = useState(
     initialState?.invoicingSettings ?? billingItemInvoicingSettings ?? DEFAULT_INVOICING_SETTINGS,
@@ -160,7 +175,7 @@ export function SubscriptionPricingContent({
   // Hook-based drawers for settings
   const subscriptionSettingsDrawer = useSubscriptionSettingsDrawer(
     (values) => setSubscriptionSettings(values),
-    !!subscriptionId,
+    isAmendment,
   )
   const showInvoicingSection = Boolean(customer?.externalId || customer?.id)
   const planSettingsDrawer = useQuotePlanSettingsDrawer(planForm, {

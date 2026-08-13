@@ -244,12 +244,30 @@ describe('useSubscriptionSettingsDrawer', () => {
 
   describe('GIVEN the drawer is opened in amendment mode', () => {
     describe('WHEN isAmendment is true', () => {
-      it('THEN should disable the start date field', () => {
+      it('THEN should NOT render the start date field', () => {
         openAndRenderDrawer(populatedValues, true)
 
-        const startDateInput = document.querySelector('input[name="startDate"]') as HTMLInputElement
+        expect(document.querySelector('input[name="startDate"]')).not.toBeInTheDocument()
+      })
 
-        expect(startDateInput).toBeDisabled()
+      it('THEN should still render the end date field', () => {
+        openAndRenderDrawer(populatedValues, true)
+
+        expect(document.querySelector('input[name="endDate"]')).toBeInTheDocument()
+      })
+
+      it('THEN should save even though the start date is empty', async () => {
+        const user = userEvent.setup()
+
+        openAndRenderDrawer({ ...populatedValues, startDate: '' }, true)
+
+        await user.click(screen.getByTestId(SUBSCRIPTION_SETTINGS_DRAWER_SAVE_TEST_ID))
+
+        await waitFor(() => {
+          expect(mockOnSave).toHaveBeenCalledTimes(1)
+        })
+
+        expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({ startDate: '' }))
       })
     })
   })
