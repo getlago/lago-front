@@ -4632,5 +4632,13 @@
   "text_1786367738116xtz2r6c9eoz": "Rate card {{rateCardCode}} was created",
   "text_1786367738117541mevhwa63": "Rate card {{rateCardCode}} was deleted",
   "text_1786367738117gbjclk29or1": "Rate card {{rateCardCode}} was updated",
-  "text_1786367738117s1n9lpwf97k": "Rate card"
+  "text_1786367738117s1n9lpwf97k": "Rate card",
+  "text_1786610894641duk7n532hdi": "This order form could not be found",
+  "text_1786610894641lt5jhzuiulg": "This order form can no longer be signed because its status has changed",
+  "text_1786610894641usymql0rk8r": "This order form can no longer be voided because its status has changed",
+  "text_17866108946411ovi8xqry3n": "Please select an execution type",
+  "text_1786610894641m8ffsiodyjw": "The selected execution type is invalid",
+  "text_1786610894641sjyf79n6nny": "The execution date must be in the future",
+  "text_1786610894641nv1aitlslgu": "The signed document could not be read. Please upload a valid PDF, JPEG or PNG file",
+  "text_17866108946418951e8uxdcl": "An order has already been created for this order form"
 }

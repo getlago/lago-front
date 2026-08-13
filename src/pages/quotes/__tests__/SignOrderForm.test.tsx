@@ -220,6 +220,149 @@ describe('SignOrderForm', () => {
     })
   })
 
+  describe('API errors', () => {
+    const submitWithExecutionMode = async (user: ReturnType<typeof userEvent.setup>) => {
+      const comboboxContainer = screen.getByTestId(SIGN_ORDER_FORM_EXECUTION_TYPE_TEST_ID)
+      const comboboxInputBase = comboboxContainer.querySelector('.MuiInputBase-root') as HTMLElement
+
+      await user.click(comboboxInputBase)
+
+      const optionWrapper = await screen.findByTestId('combobox-item-text_1781686594125wc395bj9cul')
+      const option = optionWrapper.querySelector('.MuiAutocomplete-option') as HTMLElement
+
+      await user.click(option)
+      await user.click(screen.getByTestId(SIGN_ORDER_FORM_SUBMIT_BUTTON_TEST_ID))
+    }
+
+    it('toasts the API message and stays on the page when the status changed', async () => {
+      mockMarkSigned.mockResolvedValueOnce({
+        data: null,
+        errors: [
+          {
+            message: 'Unprocessable Entity',
+            extensions: { code: 'unprocessable_entity', details: { status: ['not_signable'] } },
+          },
+        ],
+      })
+
+      const user = userEvent.setup()
+
+      renderPage()
+
+      await submitWithExecutionMode(user)
+
+      await waitFor(() => {
+        expect(addToast).toHaveBeenCalledWith({
+          severity: 'danger',
+          message: 'text_1786610894641lt5jhzuiulg',
+        })
+      })
+      expect(addToast).not.toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+      expect(testMockNavigateFn).not.toHaveBeenCalled()
+    })
+
+    it('toasts the permission message on forbidden, which the error link silences', async () => {
+      mockMarkSigned.mockResolvedValueOnce({
+        data: null,
+        errors: [{ message: 'Missing permissions', extensions: { code: 'forbidden' } }],
+      })
+
+      const user = userEvent.setup()
+
+      renderPage()
+
+      await submitWithExecutionMode(user)
+
+      await waitFor(() => {
+        expect(addToast).toHaveBeenCalledWith({
+          severity: 'danger',
+          message: 'text_17865407897429mqm1fco12j',
+        })
+      })
+      expect(testMockNavigateFn).not.toHaveBeenCalled()
+    })
+
+    it('shows the executeAt failure inline on top of its toast', async () => {
+      mockMarkSigned.mockResolvedValueOnce({
+        data: null,
+        errors: [
+          {
+            message: 'Unprocessable Entity',
+            extensions: { code: 'unprocessable_entity', details: { executeAt: ['invalid_date'] } },
+          },
+        ],
+      })
+
+      const user = userEvent.setup()
+
+      renderPage()
+
+      await submitWithExecutionMode(user)
+
+      await waitFor(() => {
+        expect(screen.getByText('text_1786610894641sjyf79n6nny')).toBeInTheDocument()
+      })
+      expect(addToast).toHaveBeenCalledWith({
+        severity: 'danger',
+        message: 'text_1786610894641sjyf79n6nny',
+      })
+    })
+
+    it('shows the executionMode failure inline on top of its toast', async () => {
+      mockMarkSigned.mockResolvedValueOnce({
+        data: null,
+        errors: [
+          {
+            message: 'Unprocessable Entity',
+            extensions: {
+              code: 'unprocessable_entity',
+              details: { executionMode: ['value_is_invalid'] },
+            },
+          },
+        ],
+      })
+
+      const user = userEvent.setup()
+
+      renderPage()
+
+      await submitWithExecutionMode(user)
+
+      await waitFor(() => {
+        expect(screen.getByText('text_1786610894641m8ffsiodyjw')).toBeInTheDocument()
+      })
+      expect(addToast).toHaveBeenCalledWith({
+        severity: 'danger',
+        message: 'text_1786610894641m8ffsiodyjw',
+      })
+    })
+
+    it('falls back to the generic message when the payload carries no known detail', async () => {
+      mockMarkSigned.mockResolvedValueOnce({
+        data: null,
+        errors: [
+          {
+            message: 'Unprocessable Entity',
+            extensions: { code: 'unprocessable_entity', details: { base: ['who_knows'] } },
+          },
+        ],
+      })
+
+      const user = userEvent.setup()
+
+      renderPage()
+
+      await submitWithExecutionMode(user)
+
+      await waitFor(() => {
+        expect(addToast).toHaveBeenCalledWith({
+          severity: 'danger',
+          message: 'text_622f7a3dc32ce100c46a5154',
+        })
+      })
+    })
+  })
+
   describe('unsaved-changes guard', () => {
     const selectExecutionMode = async (user: ReturnType<typeof userEvent.setup>) => {
       const comboboxContainer = screen.getByTestId(SIGN_ORDER_FORM_EXECUTION_TYPE_TEST_ID)
