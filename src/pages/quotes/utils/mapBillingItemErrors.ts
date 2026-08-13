@@ -22,7 +22,7 @@ export interface MappedBillingItemErrors {
   unmapped: string[]
 }
 
-const extractGraphQLErrors = (
+export const extractGraphQLErrors = (
   errorObject?: ApolloError | readonly GraphQLFormattedError[],
 ): LagoGQLError[] => {
   if (!errorObject) return []
