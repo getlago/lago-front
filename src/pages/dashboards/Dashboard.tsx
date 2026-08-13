@@ -89,6 +89,12 @@ const Dashboard = ({ contentTitle, dashboardTitle, dashboardTitleTestKey }: Dash
         }, 500)
       : null
 
+    const fetchGuestToken = createFetchSupersetGuestToken(
+      client,
+      dashboard.id,
+      dashboard.guestToken,
+    )
+
     const mount = async () => {
       const mountPoint = document.getElementById(mountId)
 
@@ -109,7 +115,7 @@ const Dashboard = ({ contentTitle, dashboardTitle, dashboardTitleTestKey }: Dash
         id: dashboard.embeddedId,
         supersetDomain: lagoSupersetUrl,
         mountPoint,
-        fetchGuestToken: createFetchSupersetGuestToken(client, dashboard.id),
+        fetchGuestToken,
         dashboardUiConfig: {
           hideTitle: true,
           emitDataMasks: persistFilters,
@@ -131,6 +137,7 @@ const Dashboard = ({ contentTitle, dashboardTitle, dashboardTitleTestKey }: Dash
     mount()
 
     return () => {
+      fetchGuestToken.cancel()
       debouncedSaveFilters?.cancel()
       embedded?.unmount()
       dashboardRef.current = ''
