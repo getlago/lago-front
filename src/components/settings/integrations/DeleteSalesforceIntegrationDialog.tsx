@@ -1,10 +1,11 @@
-import { gql } from '@apollo/client'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
+import { gql, useApolloClient } from '@apollo/client'
 
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
+import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import {
   DeleteSalesforceIntegrationDialogFragment,
+  GetSalesforceIntegrationsListDocument,
   useDestroyNangoIntegrationMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -27,66 +28,53 @@ type TDeleteSalesforceIntegrationDialogProps = {
   callback?: (arg?: unknown) => void
 }
 
-export interface DeleteSalesforceIntegrationDialogRef {
-  openDialog: ({ provider, callback }: TDeleteSalesforceIntegrationDialogProps) => unknown
-  closeDialog: () => unknown
-}
+export const useDeleteSalesforceIntegrationDialog = () => {
+  const centralizedDialog = useCentralizedDialog()
+  const { translate } = useInternationalization()
+  const client = useApolloClient()
 
-export const DeleteSalesforceIntegrationDialog = forwardRef<DeleteSalesforceIntegrationDialogRef>(
-  (_, ref) => {
-    const { translate } = useInternationalization()
+  const [deleteSalesforce] = useDestroyNangoIntegrationMutation()
 
-    const dialogRef = useRef<WarningDialogRef>(null)
-    const [localData, setLocalData] = useState<TDeleteSalesforceIntegrationDialogProps | undefined>(
-      undefined,
-    )
-    const salesforceProvider = localData?.provider
+  const openDeleteSalesforceIntegrationDialog = ({
+    provider,
+    callback,
+  }: TDeleteSalesforceIntegrationDialogProps) => {
+    centralizedDialog.open({
+      title: translate('text_658461066530343fe1808cd7', {
+        name: provider?.name,
+      }),
+      description: translate('text_1731511951723v0hq5fotjrx'),
+      colorVariant: 'danger',
+      actionText: translate('text_645d071272418a14c1c76a81'),
+      onAction: async () => {
+        const result = await deleteSalesforce({
+          variables: {
+            input: {
+              id: provider?.id as string,
+            },
+          },
+        })
 
-    const [deleteSalesforce] = useDestroyNangoIntegrationMutation({
-      onCompleted(data) {
-        if (data.destroyIntegration) {
-          dialogRef.current?.closeDialog()
-          localData?.callback?.()
+        const destroyedId = result.data?.destroyIntegration?.id
+
+        if (destroyedId) {
+          evictFromCache(client, {
+            id: destroyedId,
+            __typename: 'SalesforceIntegration',
+            listFieldName: 'integrations',
+            listQueryDocument: GetSalesforceIntegrationsListDocument,
+          })
+
+          callback?.()
+
           addToast({
             message: translate('text_661ff6e56ef7e1b7c542b2f9'),
             severity: 'success',
           })
         }
       },
-      update(cache) {
-        cache.evict({ id: `SalesforceIntegration:${salesforceProvider?.id}` })
-      },
-      refetchQueries: ['getSalesforceIntegrationsList'],
     })
+  }
 
-    useImperativeHandle(ref, () => ({
-      openDialog: (data) => {
-        setLocalData(data)
-        dialogRef.current?.openDialog()
-      },
-      closeDialog: () => dialogRef.current?.closeDialog(),
-    }))
-
-    return (
-      <WarningDialog
-        ref={dialogRef}
-        title={translate('text_658461066530343fe1808cd7', {
-          name: salesforceProvider?.name,
-        })}
-        description={translate('text_1731511951723v0hq5fotjrx')}
-        onContinue={async () =>
-          await deleteSalesforce({
-            variables: {
-              input: {
-                id: salesforceProvider?.id as string,
-              },
-            },
-          })
-        }
-        continueText={translate('text_645d071272418a14c1c76a81')}
-      />
-    )
-  },
-)
-
-DeleteSalesforceIntegrationDialog.displayName = 'DeleteSalesforceIntegrationDialog'
+  return { openDeleteSalesforceIntegrationDialog }
+}

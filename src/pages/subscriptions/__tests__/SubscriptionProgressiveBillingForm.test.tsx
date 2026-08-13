@@ -1,6 +1,9 @@
+import NiceModal from '@ebay/nice-modal-react'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import CentralizedDialog from '~/components/dialogs/CentralizedDialog'
+import { CENTRALIZED_DIALOG_NAME } from '~/components/dialogs/const'
 import { CurrencyEnum, GetSubscriptionForProgressiveBillingFormDocument } from '~/generated/graphql'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
@@ -13,6 +16,8 @@ import SubscriptionProgressiveBillingForm, {
   PROGRESSIVE_BILLING_HAS_RECURRING_SWITCH_TEST_ID,
   PROGRESSIVE_BILLING_SUBMIT_BUTTON_TEST_ID,
 } from '../SubscriptionProgressiveBillingForm'
+
+NiceModal.register(CENTRALIZED_DIALOG_NAME, CentralizedDialog)
 
 const mockNavigate = jest.fn()
 
@@ -67,11 +72,12 @@ const renderComponent = (mocks: TestMocksType = [createQueryMock()]) => {
   return render(<SubscriptionProgressiveBillingForm />, {
     wrapper: (props: { children: React.ReactNode }) => (
       <AllTheProviders
-        {...props}
         mocks={mocks}
         useParams={{ subscriptionId, customerId }}
         forceTypenames={false}
-      />
+      >
+        <NiceModal.Provider>{props.children}</NiceModal.Provider>
+      </AllTheProviders>
     ),
   })
 }

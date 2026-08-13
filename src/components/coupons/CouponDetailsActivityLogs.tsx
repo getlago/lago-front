@@ -2,8 +2,9 @@ import { gql } from '@apollo/client'
 
 import { ActivityLogsTable } from '~/components/activityLogs/ActivityLogsTable'
 import { buildLinkToActivityLog } from '~/components/activityLogs/utils'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { PageSectionTitle } from '~/components/layouts/Section'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import {
   ActivityLogsTableDataFragmentDoc,
   LagoApiError,
@@ -34,6 +35,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
       }
     }
   }
@@ -57,8 +59,9 @@ export const CouponDetailsActivityLogs = ({ couponId }: CouponDetailsActivityLog
     variables: {
       resourceTypes: [ResourceTypeEnum.Coupon],
       resourceIds: [couponId],
-      limit: 20,
+      limit: DEFAULT_PAGE_SIZE,
     },
+    notifyOnNetworkStatusChange: true,
     context: {
       silentErrorCodes: [LagoApiError.FeatureUnavailable],
     },
@@ -73,16 +76,11 @@ export const CouponDetailsActivityLogs = ({ couponId }: CouponDetailsActivityLog
           subtitle={translate('text_17494781024812be7fqhzqxs')}
         />
 
-        <InfiniteScroll
-          onBottom={async () => {
-            const { currentPage = 0, totalPages = 0 } = data?.activityLogs?.metadata || {}
-
-            if (currentPage < totalPages && !loading) {
-              await fetchMore({
-                variables: { page: currentPage + 1 },
-              })
-            }
-          }}
+        <PaginatedContent
+          metadata={data?.activityLogs?.metadata}
+          loading={loading}
+          onPageChange={(page) => fetchMore({ variables: { page } })}
+          sticky={false}
         >
           <ActivityLogsTable
             containerSize={4}
@@ -100,7 +98,7 @@ export const CouponDetailsActivityLogs = ({ couponId }: CouponDetailsActivityLog
               return ''
             }}
           />
-        </InfiniteScroll>
+        </PaginatedContent>
       </div>
     </div>
   )

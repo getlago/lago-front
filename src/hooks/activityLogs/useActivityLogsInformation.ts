@@ -39,6 +39,7 @@ const activityTypeTranslations: Record<ActivityTypeEnum, string> = {
   [ActivityTypeEnum.FeatureDeleted]: 'text_1754570508183pw3m9k2lv68',
   [ActivityTypeEnum.FeatureUpdated]: 'text_1754570508183pw3m9k2lv69',
   [ActivityTypeEnum.InvoiceCreated]: 'text_174740465663205ip0mama6w',
+  [ActivityTypeEnum.InvoiceDeleted]: 'text_17842142209100wegryv1st3',
   [ActivityTypeEnum.InvoiceDrafted]: 'text_1747404656632jux35a9cxrt',
   [ActivityTypeEnum.InvoiceFailed]: 'text_1747404656632twxlowkc160',
   [ActivityTypeEnum.InvoiceGenerated]: 'text_174740465663232x0p7cp9d3',
@@ -57,6 +58,18 @@ const activityTypeTranslations: Record<ActivityTypeEnum, string> = {
   [ActivityTypeEnum.PlanCreated]: 'text_17474046566311qv73xswmnm',
   [ActivityTypeEnum.PlanDeleted]: 'text_1747404656631vh02b35uq80',
   [ActivityTypeEnum.PlanUpdated]: 'text_1747404656631mkfxe18tzkx',
+  [ActivityTypeEnum.ProductCategoryCreated]: 'text_1786365890845g3bnsrpvkkn',
+  [ActivityTypeEnum.ProductCategoryDeleted]: 'text_1786365890845nletp3u06fp',
+  [ActivityTypeEnum.ProductCategoryUpdated]: 'text_17863658908458ygd1210nj1',
+  [ActivityTypeEnum.ProductCreated]: 'text_17863658908457bi7j06nkm1',
+  [ActivityTypeEnum.ProductDeleted]: 'text_1786365890845upo9l4n9ec8',
+  [ActivityTypeEnum.ProductUpdated]: 'text_17863658908452gqonndfq1c',
+  [ActivityTypeEnum.ProductFilterCreated]: 'text_1786365890845d2vq3ufddsd',
+  [ActivityTypeEnum.ProductFilterDeleted]: 'text_1786365890845pml4uzbtp7c',
+  [ActivityTypeEnum.ProductFilterUpdated]: 'text_1786365890845pt4roxdajsk',
+  [ActivityTypeEnum.RateCardCreated]: 'text_1786367738116xtz2r6c9eoz',
+  [ActivityTypeEnum.RateCardDeleted]: 'text_1786367738117541mevhwa63',
+  [ActivityTypeEnum.RateCardUpdated]: 'text_1786367738117gbjclk29or1',
   [ActivityTypeEnum.SubscriptionCanceled]: 'text_1777471747994p4c7cm9pri6',
   [ActivityTypeEnum.SubscriptionIncomplete]: 'text_17774717479940xot2f14xbr',
   [ActivityTypeEnum.SubscriptionStarted]: 'text_1747404806714xgkold0s07a',
@@ -77,6 +90,10 @@ const resourceTypeTranslations: Record<string, string> = {
   Customer: 'text_65201c5a175a4b0238abf29a',
   Invoice: 'text_63fcc3218d35b9377840f5b3',
   Plan: 'text_63d3a658c6d84a5843032145',
+  Product: 'text_1786365890845gfq9jteut9u',
+  ProductCategory: 'text_1786365890846dgl39wcqgik',
+  ProductFilter: 'text_1786365890846v53b5wwzxjh',
+  RateCard: 'text_1786367738117s1n9lpwf97k',
   PaymentRequest: 'text_17495622741665lrk6dp6czk',
   Subscription: 'text_1728472697691k6k2e9m5ibb',
   Wallet: 'text_62d175066d2dbf1d50bc9384',
@@ -172,6 +189,7 @@ export const useActivityLogsInformation = () => {
         }
         break
       case ActivityTypeEnum.InvoiceCreated:
+      case ActivityTypeEnum.InvoiceDeleted:
       case ActivityTypeEnum.InvoiceDrafted:
       case ActivityTypeEnum.InvoiceFailed:
       case ActivityTypeEnum.InvoiceGenerated:
@@ -205,6 +223,34 @@ export const useActivityLogsInformation = () => {
       case ActivityTypeEnum.PaymentReceiptGenerated:
         parameters = {
           receiptNumber: activityObject.number,
+        }
+        break
+      case ActivityTypeEnum.ProductCategoryCreated:
+      case ActivityTypeEnum.ProductCategoryDeleted:
+      case ActivityTypeEnum.ProductCategoryUpdated:
+        parameters = {
+          productCategoryCode: activityObject.code,
+        }
+        break
+      case ActivityTypeEnum.ProductCreated:
+      case ActivityTypeEnum.ProductDeleted:
+      case ActivityTypeEnum.ProductUpdated:
+        parameters = {
+          productCode: activityObject.code,
+        }
+        break
+      case ActivityTypeEnum.ProductFilterCreated:
+      case ActivityTypeEnum.ProductFilterDeleted:
+      case ActivityTypeEnum.ProductFilterUpdated:
+        parameters = {
+          productFilterCode: activityObject.code,
+        }
+        break
+      case ActivityTypeEnum.RateCardCreated:
+      case ActivityTypeEnum.RateCardDeleted:
+      case ActivityTypeEnum.RateCardUpdated:
+        parameters = {
+          rateCardCode: activityObject.code,
         }
         break
       case ActivityTypeEnum.PaymentRequestCreated:

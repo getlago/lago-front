@@ -82,6 +82,7 @@ const EmailPreview = ({
           isLoading={loading}
           language={invoiceLanguage}
           logoUrl={billingEntity?.logoUrl}
+          name={billingEntityName}
           emailObject={
             showEmailHeader
               ? translateWithContextualLocal(translationsKey.subject, {

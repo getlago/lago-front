@@ -4,7 +4,8 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createRef, ReactNode } from 'react'
 
-import { FORM_DIALOG_NAME } from '~/components/dialogs/const'
+import CentralizedDialog from '~/components/dialogs/CentralizedDialog'
+import { CENTRALIZED_DIALOG_NAME, FORM_DIALOG_NAME } from '~/components/dialogs/const'
 import FormDialog from '~/components/dialogs/FormDialog'
 
 import { buildFixedChargeFixture, planDetailsV2Fixture } from './fixtures'
@@ -14,6 +15,7 @@ import {
   PlanDetailsV2FixedChargesSectionRef,
 } from '../PlanDetailsV2FixedChargesSection'
 
+NiceModal.register(CENTRALIZED_DIALOG_NAME, CentralizedDialog)
 NiceModal.register(FORM_DIALOG_NAME, FormDialog)
 
 const mockOpenDrawer = jest.fn()
@@ -413,6 +415,7 @@ describe('PlanDetailsV2FixedChargesSection', () => {
     await waitFor(() => expect(mockOpenDrawer).toHaveBeenCalledTimes(1))
     const [chargeArg] = mockOpenDrawer.mock.calls[0]
     // Drawer pre-fills with the override, not the plan default.
+
     expect(chargeArg.units).toBe('42')
   })
 
@@ -472,6 +475,7 @@ describe('PlanDetailsV2FixedChargesSection', () => {
 
     await waitFor(() => expect(mockOpenDrawer).toHaveBeenCalledTimes(1))
     const [chargeArg] = mockOpenDrawer.mock.calls[0]
+
     expect(chargeArg.units).toBe('7')
   })
 

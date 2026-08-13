@@ -38,6 +38,7 @@ export const ComboBox = ({
   virtualized = true,
   renderGroupInputStartAdornment,
   onOpen,
+  openOnFocus = false,
   onChange,
   variant = 'default',
   'data-test': dataTest,
@@ -96,6 +97,7 @@ export const ComboBox = ({
       className={containerClassName}
       options={data}
       disabled={disabled}
+      openOnFocus={openOnFocus}
       onOpen={() => {
         if (isLoading) return
         onOpen?.()
@@ -165,7 +167,7 @@ export const ComboBox = ({
             option={option}
             selected={state.selected}
             virtualized={virtualized}
-            addValueRedirectionUrl={option.addValueRedirectionUrl}
+            addValueOnClick={option.addValueOnClick}
             {...props}
           />
         )
@@ -185,7 +187,7 @@ export const ComboBox = ({
           filtered.push({
             value: params.inputValue,
             label: addValueProps.label || `Add "${params.inputValue}"`,
-            addValueRedirectionUrl: addValueProps.redirectionUrl,
+            addValueOnClick: addValueProps.onClick,
             customValue: true,
           })
         }

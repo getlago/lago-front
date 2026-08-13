@@ -134,24 +134,13 @@ jest.mock('~/components/plans/FeatureEntitlementSection', () => {
   }
 })
 
-jest.mock('~/components/designSystem/WarningDialog', () => {
+jest.mock('~/components/plans/PlanMetadataSection', () => {
   const React = jest.requireActual('react')
-  const mockOpenDialog = jest.fn()
 
-  const MockWarningDialog = React.forwardRef((props: { onContinue?: () => void }, ref: unknown) => {
-    React.useImperativeHandle(ref, () => ({
-      openDialog: () => {
-        mockOpenDialog()
-        props.onContinue?.()
-      },
-    }))
-
-    return React.createElement('div', { 'data-test': 'warning-dialog-mock' })
-  })
-
-  MockWarningDialog.displayName = 'WarningDialog'
-
-  return { WarningDialog: MockWarningDialog, WarningDialogRef: {} }
+  return {
+    PlanMetadataSection: () =>
+      React.createElement('div', { 'data-test': 'plan-metadata-section-mock' }),
+  }
 })
 
 jest.mock('~/components/plans/details-v2/shared/useCascadeFormDialog', () => ({
@@ -220,6 +209,7 @@ describe('CreatePlan', () => {
         ['ProgressiveBillingSection', 'progressive-billing-section-mock'],
         ['CommitmentsSection', 'commitments-section-mock'],
         ['FeatureEntitlementSection', 'feature-entitlement-section-mock'],
+        ['PlanMetadataSection', 'plan-metadata-section-mock'],
       ])('THEN should render %s', (_, testId) => {
         render(<CreatePlan />)
 

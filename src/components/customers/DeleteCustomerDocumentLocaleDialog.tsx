@@ -1,9 +1,7 @@
 import { gql } from '@apollo/client'
-import { forwardRef } from 'react'
 
-import { DialogRef } from '~/components/designSystem/Dialog'
 import { Typography } from '~/components/designSystem/Typography'
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
 import {
   DeleteCustomerDocumentLocaleFragment,
@@ -30,17 +28,10 @@ gql`
   }
 `
 
-export type DeleteCustomerDocumentLocaleDialogRef = WarningDialogRef
+export const useDeleteCustomerDocumentLocaleDialog = () => {
+  const centralizedDialog = useCentralizedDialog()
+  const { translate } = useInternationalization()
 
-interface DeleteCustomerDocumentLocaleDialogProps {
-  customer: DeleteCustomerDocumentLocaleFragment
-}
-
-export const DeleteCustomerDocumentLocaleDialog = forwardRef<
-  DialogRef,
-  DeleteCustomerDocumentLocaleDialogProps
->(({ customer }: DeleteCustomerDocumentLocaleDialogProps, ref) => {
-  const customerName = customer?.displayName
   const [deleteCustomerDocumentLocale] = useDeleteCustomerDocumentLocaleMutation({
     onCompleted(data) {
       if (data && data.updateCustomer) {
@@ -51,20 +42,22 @@ export const DeleteCustomerDocumentLocaleDialog = forwardRef<
       }
     },
   })
-  const { translate } = useInternationalization()
 
-  return (
-    <WarningDialog
-      ref={ref}
-      title={translate('text_63ea0f84f400488553caa68a')}
-      description={
+  const openDeleteCustomerDocumentLocaleDialog = (
+    customer: DeleteCustomerDocumentLocaleFragment,
+  ) => {
+    centralizedDialog.open({
+      title: translate('text_63ea0f84f400488553caa68a'),
+      description: (
         <Typography
           html={translate('text_63ea0f84f400488553caa691', {
-            customerName,
+            customerName: customer.displayName,
           })}
         />
-      }
-      onContinue={async () =>
+      ),
+      colorVariant: 'danger',
+      actionText: translate('text_63ea0f84f400488553caa697'),
+      onAction: async () => {
         await deleteCustomerDocumentLocale({
           variables: {
             input: {
@@ -77,10 +70,9 @@ export const DeleteCustomerDocumentLocaleDialog = forwardRef<
             },
           },
         })
-      }
-      continueText={translate('text_63ea0f84f400488553caa697')}
-    />
-  )
-})
+      },
+    })
+  }
 
-DeleteCustomerDocumentLocaleDialog.displayName = 'DeleteCustomerDocumentLocaleDialog'
+  return { openDeleteCustomerDocumentLocaleDialog }
+}

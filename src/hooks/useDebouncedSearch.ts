@@ -4,7 +4,7 @@ import { DateTime } from 'luxon'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 export const DEBOUNCE_SEARCH_MS = window.Cypress ? 0 : 500
-export const MIN_SEARCH_CHARS = 3
+const MIN_SEARCH_CHARS = 3
 
 export type UseDebouncedSearch = (
   searchQuery?: LazyQueryExecFunction<

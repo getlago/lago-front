@@ -32,6 +32,7 @@ const FormDialogOpeningDialog = create(
     cancelOrCloseText = 'close',
     closeOnError = true,
     onError,
+    onEntered,
     form,
     canOpenDialog,
     openDialogText,
@@ -46,6 +47,7 @@ const FormDialogOpeningDialog = create(
       cancelOrCloseText,
       closeOnError,
       onError,
+      didSubmitSucceed: form.didSubmitSucceed,
     })
 
     const formActions = {
@@ -98,6 +100,7 @@ const FormDialogOpeningDialog = create(
         isOpen={modal.visible}
         closeDialog={handleCancel}
         removeDialog={modal.remove}
+        onEntered={onEntered}
         data-test={FORM_DIALOG_OPENING_DIALOG_TEST_ID}
         form={formActions}
       >

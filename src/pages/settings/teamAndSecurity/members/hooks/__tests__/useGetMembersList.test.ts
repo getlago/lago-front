@@ -114,7 +114,7 @@ const mockMembers = [
 const membersListMock = {
   request: {
     query: GetMembersDocument,
-    variables: { limit: 20 },
+    variables: { limit: 20, page: 1 },
   },
   result: {
     data: {
@@ -192,7 +192,7 @@ describe('useGetMembersList', () => {
     const emptyMock = {
       request: {
         query: GetMembersDocument,
-        variables: { limit: 20 },
+        variables: { limit: 20, page: 1 },
       },
       result: {
         data: {
@@ -226,7 +226,7 @@ describe('useGetMembersList', () => {
     const errorMock = {
       request: {
         query: GetMembersDocument,
-        variables: { limit: 20 },
+        variables: { limit: 20, page: 1 },
       },
       error: new Error('Failed to fetch members'),
     }

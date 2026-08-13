@@ -101,6 +101,33 @@ export const Switch = ({
     circleFillColor = theme.palette.common.white
   }
 
+  const handleClick = (e: MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation()
+
+    if (!onChange) {
+      inputRef.current?.click()
+
+      return
+    }
+
+    const res = onChange(!checked, e)
+
+    if (res !== null && res instanceof Promise) {
+      let realLoading = true
+
+      // This is to prevent icon blink if the loading time is really small
+      setTimeout(() => {
+        if (mountedRef.current && realLoading) setLoading(true)
+      }, 100)
+      res.finally(() => {
+        if (mountedRef.current) {
+          realLoading = false
+          setLoading(false)
+        }
+      })
+    }
+  }
+
   return (
     // eslint-disable-next-line jsx-a11y/click-events-have-key-events
     <div
@@ -115,34 +142,7 @@ export const Switch = ({
         },
         className,
       )}
-      onClick={
-        disabled
-          ? undefined
-          : (e) => {
-              e.stopPropagation()
-
-              if (onChange) {
-                const res = onChange(!checked, e)
-
-                if (res !== null && res instanceof Promise) {
-                  let realLoading = true
-
-                  // This is to prevent icon blink if the loading time is really small
-                  setTimeout(() => {
-                    if (mountedRef.current && realLoading) setLoading(true)
-                  }, 100)
-                  res.finally(() => {
-                    if (mountedRef.current) {
-                      realLoading = false
-                      setLoading(false)
-                    }
-                  })
-                }
-              } else {
-                inputRef.current?.click()
-              }
-            }
-      }
+      onClick={disabled ? undefined : handleClick}
     >
       <div
         className={tw(

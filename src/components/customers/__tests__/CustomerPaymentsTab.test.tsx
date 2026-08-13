@@ -41,7 +41,7 @@ jest.mock('react-router-dom', () => ({
 
 const mockFormatFilters = jest.fn((): { currency: string | undefined } => ({ currency: undefined }))
 
-jest.mock('~/components/designSystem/Filters/utils', () => ({
+jest.mock('~/components/Filters/graphql/utils', () => ({
   formatFiltersForCustomerPaymentsQuery: () => mockFormatFilters(),
 }))
 

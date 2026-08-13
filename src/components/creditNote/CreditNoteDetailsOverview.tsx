@@ -230,6 +230,14 @@ export const CreditNoteDetailsOverview: FC<CreditNoteDetailsOverviewProps> = ({
                 )}
               </>
             )}
+
+            {!!creditNote?.invoice && (
+              <DetailsPage.OverviewLine
+                title={translate('text_17822197712867qhfbaf9fpk')}
+                value={creditNote.invoice.purchaseOrderNumber || '-'}
+              />
+            )}
+
             {creditNote?.createdAt && (
               <DetailsPage.OverviewLine
                 title={translate('text_637655cb50f04bf1c8379d06')}

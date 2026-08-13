@@ -1,9 +1,13 @@
-import { gql } from '@apollo/client'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
+import { gql, useApolloClient } from '@apollo/client'
 
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
-import { DeleteStripeIntegrationDialogFragment, useDeleteStripeMutation } from '~/generated/graphql'
+import { evictFromCache } from '~/core/apolloClient/evictFromCache'
+import {
+  DeleteStripeIntegrationDialogFragment,
+  GetStripeIntegrationsListDocument,
+  useDeleteStripeMutation,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
@@ -24,59 +28,47 @@ type TDeleteStripeIntegrationDialogProps = {
   callback?: () => void
 }
 
-export interface DeleteStripeIntegrationDialogRef {
-  openDialog: ({ provider, callback }: TDeleteStripeIntegrationDialogProps) => unknown
-  closeDialog: () => unknown
-}
+export const useDeleteStripeIntegrationDialog = () => {
+  const centralizedDialog = useCentralizedDialog()
+  const { translate } = useInternationalization()
+  const client = useApolloClient()
 
-export const DeleteStripeIntegrationDialog = forwardRef<DeleteStripeIntegrationDialogRef>(
-  (_, ref) => {
-    const { translate } = useInternationalization()
+  const [deleteStripe] = useDeleteStripeMutation()
 
-    const dialogRef = useRef<WarningDialogRef>(null)
-    const [localData, setLocalData] = useState<TDeleteStripeIntegrationDialogProps | undefined>(
-      undefined,
-    )
+  const openDeleteStripeIntegrationDialog = ({
+    provider,
+    callback,
+  }: TDeleteStripeIntegrationDialogProps) => {
+    centralizedDialog.open({
+      title: translate('text_658461066530343fe1808cd7', { name: provider?.name }),
+      description: translate('text_658461066530343fe1808cdb'),
+      colorVariant: 'danger',
+      actionText: translate('text_645d071272418a14c1c76a81'),
+      onAction: async () => {
+        const result = await deleteStripe({
+          variables: { input: { id: provider?.id as string } },
+        })
 
-    const stripeProvider = localData?.provider
+        const destroyedId = result.data?.destroyPaymentProvider?.id
 
-    const [deleteStripe] = useDeleteStripeMutation({
-      onCompleted(data) {
-        if (data && data.destroyPaymentProvider) {
-          dialogRef.current?.closeDialog()
-          localData?.callback?.()
+        if (destroyedId) {
+          evictFromCache(client, {
+            id: destroyedId,
+            __typename: 'StripeProvider',
+            listFieldName: 'paymentProviders',
+            listQueryDocument: GetStripeIntegrationsListDocument,
+          })
+
+          callback?.()
+
           addToast({
             message: translate('text_62b1edddbf5f461ab9712758'),
             severity: 'success',
           })
         }
       },
-      update(cache) {
-        cache.evict({ id: `StripeProvider:${stripeProvider?.id}` })
-      },
-      refetchQueries: ['getStripeIntegrationsList'],
     })
+  }
 
-    useImperativeHandle(ref, () => ({
-      openDialog: (data) => {
-        setLocalData(data)
-        dialogRef.current?.openDialog()
-      },
-      closeDialog: () => dialogRef.current?.closeDialog(),
-    }))
-
-    return (
-      <WarningDialog
-        ref={dialogRef}
-        title={translate('text_658461066530343fe1808cd7', { name: stripeProvider?.name })}
-        description={translate('text_658461066530343fe1808cdb')}
-        onContinue={async () =>
-          await deleteStripe({ variables: { input: { id: stripeProvider?.id as string } } })
-        }
-        continueText={translate('text_645d071272418a14c1c76a81')}
-      />
-    )
-  },
-)
-
-DeleteStripeIntegrationDialog.displayName = 'DeleteStripeIntegrationDialog'
+  return { openDeleteStripeIntegrationDialog }
+}

@@ -10,6 +10,7 @@ describe('SettingRoutes', () => {
   const MEMBERS_TAB_ROUTE = `${SETTINGS_ROUTE}/members/:tab`
   const AUTHENTICATION_ROUTE = `${SETTINGS_ROUTE}/authentication`
   const OKTA_AUTHENTICATION_ROUTE = `${AUTHENTICATION_ROUTE}/okta/:integrationId`
+  const ENTRA_ID_AUTHENTICATION_ROUTE = `${AUTHENTICATION_ROUTE}/entra/:integrationId`
   const DUNNINGS_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/dunnings`
   const BILLING_ENTITY_BASE = `${SETTINGS_ROUTE}/billing-entity`
   const BILLING_ENTITY_BASE_WITH_CODE = `${BILLING_ENTITY_BASE}/:billingEntityCode`
@@ -52,6 +53,7 @@ describe('SettingRoutes', () => {
     it('defines authentication routes', () => {
       expect(AUTHENTICATION_ROUTE).toBe('/settings/authentication')
       expect(OKTA_AUTHENTICATION_ROUTE).toBe('/settings/authentication/okta/:integrationId')
+      expect(ENTRA_ID_AUTHENTICATION_ROUTE).toBe('/settings/authentication/entra/:integrationId')
     })
 
     it('defines billing entity routes', () => {
@@ -116,6 +118,7 @@ describe('SettingRoutes', () => {
       expect(BILLING_ENTITY_ROUTE).toContain(':billingEntityCode')
       expect(ROLE_DETAILS_ROUTE).toContain(':roleId')
       expect(OKTA_AUTHENTICATION_ROUTE).toContain(':integrationId')
+      expect(ENTRA_ID_AUTHENTICATION_ROUTE).toContain(':integrationId')
       expect(EDIT_INVOICE_CUSTOM_SECTION).toContain(':sectionId')
       expect(EDIT_PRICING_UNIT).toContain(':pricingUnitId')
     })

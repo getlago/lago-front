@@ -5,16 +5,15 @@ import {
   AvailableQuickFilters,
   CustomerAvailableFilters,
   Filters,
-} from '~/components/designSystem/Filters'
+} from '~/components/Filters'
 import { SearchInput } from '~/components/SearchInput'
 import { CUSTOMER_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { UseDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 interface UseCustomersListFiltersSectionParams {
-  debouncedSearch: ReturnType<UseDebouncedSearch>['debouncedSearch']
+  debouncedSearch?: (value: string) => void
 }
 
 export function useCustomersListHeaderFilters({

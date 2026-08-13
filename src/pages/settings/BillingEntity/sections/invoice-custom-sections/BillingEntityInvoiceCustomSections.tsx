@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react'
+import { useMemo } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -18,22 +18,16 @@ import { BILLING_ENTITY_ROUTE } from '~/core/router/SettingRoutes'
 import { BillingEntity, useGetBillingEntityQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
-import {
-  ApplyInvoiceCustomSectionDialog,
-  ApplyInvoiceCustomSectionDialogRef,
-} from '~/pages/settings/BillingEntity/sections/invoice-custom-sections/ApplyInvoiceCustomSectionDialog'
-import {
-  RemoveInvoiceCustomSectionDialog,
-  RemoveInvoiceCustomSectionDialogRef,
-} from '~/pages/settings/BillingEntity/sections/invoice-custom-sections/RemoveInvoiceCustomSectionDialog'
+import { useApplyInvoiceCustomSectionDialog } from '~/pages/settings/BillingEntity/sections/invoice-custom-sections/ApplyInvoiceCustomSectionDialog'
+import { useRemoveInvoiceCustomSectionDialog } from '~/pages/settings/BillingEntity/sections/invoice-custom-sections/RemoveInvoiceCustomSectionDialog'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
 const BillingEntityInvoiceCustomSections = () => {
   const { hasPermissions } = usePermissions()
   const { translate } = useInternationalization()
 
-  const applyInvoiceCustomSectionDialogRef = useRef<ApplyInvoiceCustomSectionDialogRef>(null)
-  const removeInvoiceCustomSectionDialogRef = useRef<RemoveInvoiceCustomSectionDialogRef>(null)
+  const { openApplyInvoiceCustomSectionDialog } = useApplyInvoiceCustomSectionDialog()
+  const { openRemoveInvoiceCustomSectionDialog } = useRemoveInvoiceCustomSectionDialog()
 
   const { billingEntityCode } = useParams()
 
@@ -108,9 +102,7 @@ const BillingEntityInvoiceCustomSections = () => {
                           disabled={loading}
                           onClick={() => {
                             if (billingEntity) {
-                              applyInvoiceCustomSectionDialogRef?.current?.openDialog(
-                                billingEntity as BillingEntity,
-                              )
+                              openApplyInvoiceCustomSectionDialog(billingEntity as BillingEntity)
                             }
                           }}
                           data-test="apply-invoice-custom-section-button"
@@ -154,10 +146,10 @@ const BillingEntityInvoiceCustomSections = () => {
                             variant="quaternary"
                             onClick={() => {
                               if (billingEntity && customSection) {
-                                removeInvoiceCustomSectionDialogRef?.current?.openDialog(
-                                  billingEntity as BillingEntity,
-                                  customSection.id,
-                                )
+                                openRemoveInvoiceCustomSectionDialog({
+                                  billingEntity: billingEntity as BillingEntity,
+                                  invoiceCustomSectionId: customSection.id,
+                                })
                               }
                             }}
                           />
@@ -171,9 +163,6 @@ const BillingEntityInvoiceCustomSections = () => {
           </>
         )}
       </SettingsPaddedContainer>
-
-      <ApplyInvoiceCustomSectionDialog ref={applyInvoiceCustomSectionDialogRef} />
-      <RemoveInvoiceCustomSectionDialog ref={removeInvoiceCustomSectionDialogRef} />
     </>
   )
 }

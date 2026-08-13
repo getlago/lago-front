@@ -5,25 +5,24 @@ import { useSearchParams } from 'react-router-dom'
 
 import CreditNotesTable from '~/components/creditNote/CreditNotesTable'
 import { CustomerCreditNotesBreakdown } from '~/components/customers/CustomerCreditNotesBreakdown'
-import { CustomerCreditNotesLegacyCard } from '~/components/customers/CustomerCreditNotesLegacyCard'
-import { Filters } from '~/components/designSystem/Filters'
-import { formatFiltersForCustomerCreditNotesQuery } from '~/components/designSystem/Filters/utils'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
+import { usePageSearchParam } from '~/components/designSystem/Pagination'
+import { Filters } from '~/components/Filters'
+import { formatFiltersForCustomerCreditNotesQuery } from '~/components/Filters/graphql/utils'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { SearchInput } from '~/components/SearchInput'
 import { CUSTOMER_CREDIT_NOTES_FILTER_PREFIX } from '~/core/constants/filters'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import {
   CreditNotesForTableFragmentDoc,
   CurrencyEnum,
   CustomerCreditNotesBalance,
-  FeatureFlagEnum,
   TimezoneEnum,
   useGetCustomerCreditNotesLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCustomerFilterDefaults } from '~/hooks/useCustomerFilterDefaults'
 import { DEBOUNCE_SEARCH_MS } from '~/hooks/useDebouncedSearch'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
 gql`
@@ -55,7 +54,7 @@ type CreditNotesBalanceRow = Pick<
   'currency' | 'billingEntityId' | 'amountCents' | 'creditsAvailableCount'
 >
 
-export const CREDIT_NOTES_LIST_CONTAINER = 'credit-notes-list-container'
+const CREDIT_NOTES_LIST_CONTAINER = 'credit-notes-list-container'
 
 interface CustomerCreditNotesListProps {
   customerId: string
@@ -73,10 +72,6 @@ export const CustomerCreditNotesList = ({
   customerTimezone,
 }: CustomerCreditNotesListProps) => {
   const { translate } = useInternationalization()
-  const { hasFeatureFlag } = useOrganizationInfos()
-  const hasMultiCurrency = hasFeatureFlag(FeatureFlagEnum.MultiCurrency)
-  const hasMultiEntityBilling = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
-  const showBreakdown = hasMultiCurrency || hasMultiEntityBilling
 
   const filtersProps = useCustomerFilterDefaults({
     customerCurrency: userCurrency,
@@ -84,12 +79,15 @@ export const CustomerCreditNotesList = ({
     include: ['currency', 'entity'],
   })
   const [searchParams] = useSearchParams()
+  const { page, goToPage } = usePageSearchParam()
 
   const { currency, billingEntityId } = formatFiltersForCustomerCreditNotesQuery(searchParams)
 
   const [getCreditNotes, { data, loading, error, fetchMore, variables }] =
     useGetCustomerCreditNotesLazyQuery({
-      variables: { customerId, limit: 20 },
+      fetchPolicy: 'network-only',
+      notifyOnNetworkStatusChange: true,
+      variables: { customerId, limit: DEFAULT_PAGE_SIZE },
     })
 
   const [searchTerm, setSearchTerm] = useState<string | undefined>(undefined)
@@ -98,14 +96,15 @@ export const CustomerCreditNotesList = ({
     getCreditNotes({
       variables: {
         customerId,
-        limit: 20,
+        page,
+        limit: DEFAULT_PAGE_SIZE,
         searchTerm,
         currency,
         billingEntityIds: billingEntityId ? [billingEntityId] : undefined,
       },
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [customerId, searchTerm, currency, billingEntityId])
+  }, [customerId, page, searchTerm, currency, billingEntityId])
 
   const debouncedSetSearchTerm = useMemo(
     () => debounce((value: string) => setSearchTerm(value || undefined), DEBOUNCE_SEARCH_MS),
@@ -128,17 +127,10 @@ export const CustomerCreditNotesList = ({
       />
 
       <div className="mb-12">
-        {showBreakdown ? (
-          <CustomerCreditNotesBreakdown
-            creditNotesBalances={creditNotesBalances}
-            customerBillingEntity={customerBillingEntity}
-          />
-        ) : (
-          <CustomerCreditNotesLegacyCard
-            creditNotesBalances={creditNotesBalances}
-            userCurrency={userCurrency}
-          />
-        )}
+        <CustomerCreditNotesBreakdown
+          creditNotesBalances={creditNotesBalances}
+          customerBillingEntity={customerBillingEntity}
+        />
       </div>
 
       <PageSectionTitle
@@ -148,7 +140,10 @@ export const CustomerCreditNotesList = ({
 
       <div className="mb-4 flex items-center gap-3">
         <SearchInput
-          onChange={debouncedSetSearchTerm}
+          onChange={(value) => {
+            goToPage(1)
+            debouncedSetSearchTerm?.(value)
+          }}
           placeholder={translate('text_63c6edd80c57d0dfaae3898e')}
         />
         {filtersProps && (
@@ -171,11 +166,13 @@ export const CustomerCreditNotesList = ({
         <CreditNotesTable
           creditNotes={creditNotes}
           fetchMore={fetchMore}
+          onPageChange={goToPage}
           isLoading={loading}
           metadata={data?.creditNotes?.metadata}
           customerTimezone={customerTimezone}
           error={error}
           variables={variables}
+          sticky={false}
         />
       )}
     </div>

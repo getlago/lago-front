@@ -5,11 +5,13 @@ import { render } from '~/test-utils'
 import { BOTTOM_NAV_SECTION_TEST_ID, BottomNavSection } from '../BottomNavSection'
 
 const mockHasPermissions = jest.fn()
+const mockHasPermissionsOr = jest.fn()
 const mockOpenInspector = jest.fn()
 
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({
     hasPermissions: mockHasPermissions,
+    hasPermissionsOr: mockHasPermissionsOr,
   }),
 }))
 
@@ -47,6 +49,7 @@ describe('BottomNavSection', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockHasPermissions.mockReturnValue(true)
+    mockHasPermissionsOr.mockReturnValue(true)
     envGlobalVar.mockReturnValue({ appEnv: 'development' })
   })
 
@@ -75,6 +78,7 @@ describe('BottomNavSection', () => {
 
       // No permissions for settings or developer tools
       mockHasPermissions.mockReturnValue(false)
+      mockHasPermissionsOr.mockReturnValue(false)
 
       const { container } = render(<BottomNavSection {...defaultProps} />)
 
@@ -89,6 +93,7 @@ describe('BottomNavSection', () => {
 
       // No permissions for settings or developer tools
       mockHasPermissions.mockReturnValue(false)
+      mockHasPermissionsOr.mockReturnValue(false)
 
       const { container } = render(<BottomNavSection {...defaultProps} />)
 
@@ -103,6 +108,7 @@ describe('BottomNavSection', () => {
         // Only allow organizationView (settings)
         return permissions.includes('organizationView')
       })
+      mockHasPermissionsOr.mockReturnValue(false)
 
       render(<BottomNavSection {...defaultProps} />)
 
@@ -113,7 +119,8 @@ describe('BottomNavSection', () => {
       // Production environment (design system hidden)
       envGlobalVar.mockReturnValue({ appEnv: 'production' })
 
-      mockHasPermissions.mockImplementation((permissions: string[]) => {
+      mockHasPermissions.mockReturnValue(false)
+      mockHasPermissionsOr.mockImplementation((permissions: string[]) => {
         // Only allow developersManage (developer tools)
         return permissions.includes('developersManage')
       })
@@ -129,6 +136,7 @@ describe('BottomNavSection', () => {
 
       // No permissions for settings or developer tools
       mockHasPermissions.mockReturnValue(false)
+      mockHasPermissionsOr.mockReturnValue(false)
 
       render(<BottomNavSection {...defaultProps} />)
 
@@ -144,10 +152,13 @@ describe('BottomNavSection', () => {
       expect(mockHasPermissions).toHaveBeenCalledWith(['organizationView'])
     })
 
-    it('calls hasPermissions for developer tools visibility', () => {
+    it('calls hasPermissionsOr for developer tools visibility', () => {
       render(<BottomNavSection {...defaultProps} />)
 
-      expect(mockHasPermissions).toHaveBeenCalledWith(['developersManage'])
+      expect(mockHasPermissionsOr).toHaveBeenCalledWith([
+        'developersManage',
+        'developersKeysManage',
+      ])
     })
   })
 

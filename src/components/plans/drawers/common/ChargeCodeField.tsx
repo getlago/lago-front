@@ -3,11 +3,11 @@ import { withFieldGroup } from '~/hooks/forms/useAppform'
 
 import { EXISTING_CODE_ERROR_MESSAGE } from './chargeCode'
 
-export type ChargeCodeFieldValues = {
+type ChargeCodeFieldValues = {
   code: string
 }
 
-export type ChargeCodeFieldProps = {
+type ChargeCodeFieldProps = {
   disabled?: boolean
 }
 

@@ -18,13 +18,11 @@ import { isSameDay } from '~/core/timezone'
 import { LocaleEnum } from '~/core/translations'
 import {
   CurrencyEnum,
-  FeatureFlagEnum,
   InvoicesForRequestOverduePaymentFormFragment,
   LastPaymentRequestFragment,
   PaymentMethodReferenceInput,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 gql`
   fragment CustomerForRequestOverduePaymentForm on Customer {
@@ -75,9 +73,6 @@ export const RequestPaymentForm: FC<RequestPaymentFormProps> = ({
 
   const date = useMemo(() => DateTime.fromISO(lastSentDate?.createdAt).toUTC(), [lastSentDate])
   const today = useMemo(() => DateTime.now().toUTC(), [])
-
-  const { hasFeatureFlag } = useOrganizationInfos()
-  const hasAccessToMultiPaymentFlow = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)
 
   return (
     <div className="flex flex-col gap-10 md:max-w-168">
@@ -176,21 +171,19 @@ export const RequestPaymentForm: FC<RequestPaymentFormProps> = ({
         ]}
       />
 
-      {hasAccessToMultiPaymentFlow && (
-        <div className="flex flex-col gap-1 pb-12">
-          <Typography variant="captionHl" color="textSecondary">
-            {translate('text_1766485465416wt41tyyecwa')}
-          </Typography>
-          <Typography variant="caption" className="mb-2">
-            {translate('text_1766485465416p3b95l4ng0m')}
-          </Typography>
-          <PaymentMethodComboBox
-            externalCustomerId={externalCustomerId}
-            selectedPaymentMethod={formikProps.values.paymentMethod}
-            setSelectedPaymentMethod={(value) => formikProps.setFieldValue('paymentMethod', value)}
-          />
-        </div>
-      )}
+      <div className="flex flex-col gap-1 pb-12">
+        <Typography variant="captionHl" color="textSecondary">
+          {translate('text_1766485465416wt41tyyecwa')}
+        </Typography>
+        <Typography variant="caption" className="mb-2">
+          {translate('text_1766485465416p3b95l4ng0m')}
+        </Typography>
+        <PaymentMethodComboBox
+          externalCustomerId={externalCustomerId}
+          selectedPaymentMethod={formikProps.values.paymentMethod}
+          setSelectedPaymentMethod={(value) => formikProps.setFieldValue('paymentMethod', value)}
+        />
+      </div>
     </div>
   )
 }

@@ -2,8 +2,11 @@ import { ApolloError } from '@apollo/client'
 import { GraphQLFormattedError } from 'graphql'
 
 import {
+  buildGraphQLErrorFingerprint,
   extractThirdPartyErrorMessage,
+  getGraphQLErrorCode,
   hasDefinedGQLError,
+  isSilencedGQLError,
   LagoGQLError,
   PspErrorCode,
 } from '~/core/apolloClient/errorUtils'
@@ -154,6 +157,150 @@ describe('Test apollo utils', () => {
       expect(hasDefinedGQLError('UserAlreadyExists', emailError)).toBeTruthy()
       expect(hasDefinedGQLError('Forbidden', emailError)).toBeTruthy()
       expect(hasDefinedGQLError('CurrenciesDoesNotMatch', emailError)).toBeFalsy()
+    })
+  })
+
+  describe('isSilencedGQLError', () => {
+    const extensionsOf = (
+      details?: Record<string, string[]>,
+      code = 'unprocessable_entity',
+    ): LagoGQLError['extensions'] =>
+      ({ status: 422, code, details }) as unknown as LagoGQLError['extensions']
+
+    it('should be silent when the top-level code is listed in silentErrorCodes', () => {
+      const result = isSilencedGQLError({
+        extensions: extensionsOf(undefined, 'not_found'),
+        silentErrorCodes: ['not_found'],
+        silentErrorDetails: [],
+      })
+
+      expect(result).toBe(true)
+    })
+
+    it('should not be silent when the top-level code is not listed', () => {
+      const result = isSilencedGQLError({
+        extensions: extensionsOf(undefined, 'internal_error'),
+        silentErrorCodes: ['not_found'],
+        silentErrorDetails: [],
+      })
+
+      expect(result).toBe(false)
+    })
+
+    it('should be silent when a detail code is listed in silentErrorDetails', () => {
+      const result = isSilencedGQLError({
+        extensions: extensionsOf({ code: ['value_already_exist'] }),
+        silentErrorCodes: [],
+        silentErrorDetails: ['value_already_exist'],
+      })
+
+      expect(result).toBe(true)
+    })
+
+    it('should be silent whichever field holds the listed detail', () => {
+      const result = isSilencedGQLError({
+        extensions: extensionsOf({ name: ['value_already_exist'] }),
+        silentErrorCodes: [],
+        silentErrorDetails: ['value_already_exist'],
+      })
+
+      expect(result).toBe(true)
+    })
+
+    it('should not be silent for a 422 carrying a different detail', () => {
+      const result = isSilencedGQLError({
+        extensions: extensionsOf({ value: ['invalid_value'] }),
+        silentErrorCodes: [],
+        silentErrorDetails: ['value_already_exist'],
+      })
+
+      expect(result).toBe(false)
+    })
+
+    it('should not be silent when the error has no details', () => {
+      const result = isSilencedGQLError({
+        extensions: extensionsOf(undefined, 'internal_error'),
+        silentErrorCodes: [],
+        silentErrorDetails: ['value_already_exist'],
+      })
+
+      expect(result).toBe(false)
+    })
+
+    it('should not be silent when nothing is silenced', () => {
+      const result = isSilencedGQLError({
+        extensions: extensionsOf({ code: ['value_already_exist'] }),
+        silentErrorCodes: [],
+        silentErrorDetails: [],
+      })
+
+      expect(result).toBe(false)
+    })
+
+    it('should not be silent when the error has no extensions', () => {
+      const result = isSilencedGQLError({
+        extensions: undefined,
+        silentErrorCodes: [],
+        silentErrorDetails: [],
+      })
+
+      expect(result).toBe(false)
+    })
+  })
+})
+
+describe('getGraphQLErrorCode', () => {
+  describe('GIVEN a GraphQL error extensions object', () => {
+    describe('WHEN it carries a string code', () => {
+      it('THEN should return that code', () => {
+        expect(getGraphQLErrorCode({ code: 'purchase_order_number_not_editable' })).toBe(
+          'purchase_order_number_not_editable',
+        )
+      })
+    })
+
+    describe('WHEN the code is missing or not a string', () => {
+      it.each([
+        ['undefined extensions', undefined],
+        ['empty extensions', {}],
+        ['numeric code', { code: 405 }],
+        ['null code', { code: null }],
+      ])('THEN should return "unknown" for %s', (_, extensions) => {
+        expect(getGraphQLErrorCode(extensions)).toBe('unknown')
+      })
+    })
+  })
+})
+
+describe('buildGraphQLErrorFingerprint', () => {
+  describe('GIVEN an operation name and an error code', () => {
+    describe('WHEN both are known', () => {
+      // Two failures sharing the generic "Method Not Allowed" message must not
+      // collapse into a single Sentry issue.
+      it('THEN should build a fingerprint scoped to the operation and the code', () => {
+        expect(
+          buildGraphQLErrorFingerprint('updateSubscription', 'purchase_order_number_not_editable'),
+        ).toEqual(['graphql-error', 'updateSubscription', 'purchase_order_number_not_editable'])
+      })
+
+      it('THEN should build a different fingerprint for another operation with the same code', () => {
+        expect(buildGraphQLErrorFingerprint('voidInvoice', 'not_voidable')).not.toEqual(
+          buildGraphQLErrorFingerprint('updateSubscription', 'not_voidable'),
+        )
+      })
+    })
+
+    describe('WHEN the operation name is missing', () => {
+      it.each([
+        ['undefined', undefined],
+        ['empty string', ''],
+      ])('THEN should fall back to "unknown" for %s', (_, operationName) => {
+        expect(buildGraphQLErrorFingerprint(operationName, 'not_voidable')).toEqual([
+          'graphql-error',
+          'unknown',
+          'not_voidable',
+        ])
+      })
     })
   })
 })

@@ -8,6 +8,7 @@ import { PlanDetailsV2SectionId } from '../sidebarSections'
 const mockMinimumCommitmentAccordion = jest.fn()
 const mockProgressiveBillingAccordion = jest.fn()
 const mockEntitlementAccordion = jest.fn()
+const mockMetadataAccordion = jest.fn()
 
 jest.mock('../accordions/MinimumCommitmentAccordion', () => ({
   __esModule: true,
@@ -33,6 +34,14 @@ jest.mock('../accordions/EntitlementAccordion', () => ({
   },
 }))
 
+jest.mock('../accordions/MetadataAccordion', () => ({
+  __esModule: true,
+  MetadataAccordion: (props: unknown) => {
+    mockMetadataAccordion(props)
+    return null
+  },
+}))
+
 describe('PlanDetailsV2AdvancedSection', () => {
   beforeEach(() => {
     jest.clearAllMocks()
@@ -52,6 +61,7 @@ describe('PlanDetailsV2AdvancedSection', () => {
         ['minimum commitment', () => mockMinimumCommitmentAccordion],
         ['progressive billing', () => mockProgressiveBillingAccordion],
         ['entitlements', () => mockEntitlementAccordion],
+        ['metadata', () => mockMetadataAccordion],
       ])('THEN should render the %s accordion', (_, getMock) => {
         render(<PlanDetailsV2AdvancedSection plan={planDetailsV2Fixture} />)
 
@@ -62,6 +72,7 @@ describe('PlanDetailsV2AdvancedSection', () => {
         ['minimum commitment', () => mockMinimumCommitmentAccordion],
         ['progressive billing', () => mockProgressiveBillingAccordion],
         ['entitlements', () => mockEntitlementAccordion],
+        ['metadata', () => mockMetadataAccordion],
       ])(
         'THEN should forward plan + isInSubscriptionForm=false to the %s accordion',
         (_, getMock) => {
@@ -92,6 +103,7 @@ describe('PlanDetailsV2AdvancedSection', () => {
       it.each([
         ['progressive billing', () => mockProgressiveBillingAccordion],
         ['entitlements', () => mockEntitlementAccordion],
+        ['metadata', () => mockMetadataAccordion],
       ])('THEN should NOT render the %s accordion', (_, getMock) => {
         render(
           <PlanDetailsV2AdvancedSection plan={planDetailsV2Fixture} isInSubscriptionForm={true} />,

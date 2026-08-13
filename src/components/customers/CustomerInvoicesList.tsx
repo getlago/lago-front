@@ -1,10 +1,10 @@
 import { FetchMoreQueryOptions, gql } from '@apollo/client'
 import { IconName } from 'lago-design-system'
-import { FC, useRef } from 'react'
+import { FC } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { Status, StatusType } from '~/components/designSystem/Status'
 import { ActionItem } from '~/components/designSystem/Table'
 import { Table } from '~/components/designSystem/Table/Table'
@@ -13,17 +13,13 @@ import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { buildInvoiceDocumentData } from '~/components/emails/buildDocumentData'
+import { useDeleteInvoiceDialog } from '~/components/invoices/DeleteInvoiceDialog'
 import { useUpdateInvoicePaymentStatusDialog } from '~/components/invoices/EditInvoicePaymentStatusDialog'
-import {
-  FinalizeInvoiceDialog,
-  FinalizeInvoiceDialogRef,
-} from '~/components/invoices/FinalizeInvoiceDialog'
-import {
-  ResendInvoiceForCollectionDialog,
-  ResendInvoiceForCollectionDialogRef,
-} from '~/components/invoices/ResendInvoiceForCollectionDialog'
+import { useFinalizeInvoiceDialog } from '~/components/invoices/FinalizeInvoiceDialog'
+import { useResendInvoiceForCollectionDialog } from '~/components/invoices/ResendInvoiceForCollectionDialog'
 import { getMostRecentPaymentMethodId } from '~/components/invoices/utils/getMostRecentPaymentMethodId'
-import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { addToast } from '~/core/apolloClient'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import {
   invoiceStatusMapping,
   isInvoicePartiallyPaid,
@@ -44,7 +40,7 @@ import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
   BillingEntityEmailSettingsEnum,
   CurrencyEnum,
-  FeatureFlagEnum,
+  InvoiceForDeleteInvoiceFragmentDoc,
   InvoiceForFinalizeInvoiceFragment,
   InvoiceForFinalizeInvoiceFragmentDoc,
   InvoiceForInvoiceListFragment,
@@ -52,16 +48,13 @@ import {
   InvoiceForUpdateInvoicePaymentStatusFragmentDoc,
   InvoiceStatusTypeEnum,
   InvoiceTaxStatusTypeEnum,
-  LagoApiError,
   TimezoneEnum,
   useDownloadInvoiceItemMutation,
-  useRetryInvoicePaymentMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useDownloadFile } from '~/hooks/useDownloadFile'
 import { useGeneratePaymentUrl } from '~/hooks/useGeneratePaymentUrl'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
 import { useResendEmailDialog } from '~/hooks/useResendEmailDialog'
 
@@ -82,9 +75,6 @@ gql`
     paymentDisputeLostAt
     taxProviderVoidable
     invoiceType
-    creditableAmountCents
-    refundableAmountCents
-    offsettableAmountCents
     associatedActiveWalletPresent
     voidedInvoiceId
     regeneratedInvoiceId
@@ -119,6 +109,7 @@ gql`
     ...InvoiceForFinalizeInvoice
     ...InvoiceForUpdateInvoicePaymentStatus
     ...InvoiceForResendInvoiceForCollectionDialog
+    ...InvoiceForDeleteInvoice
   }
 
   fragment InvoiceForInvoiceList on InvoiceCollection {
@@ -160,6 +151,7 @@ gql`
   ${InvoiceForFinalizeInvoiceFragmentDoc}
   ${InvoiceForUpdateInvoicePaymentStatusFragmentDoc}
   ${InvoiceForResendInvoiceForCollectionDialogFragmentDoc}
+  ${InvoiceForDeleteInvoiceFragmentDoc}
 `
 
 interface CustomerInvoicesListProps {
@@ -170,6 +162,8 @@ interface CustomerInvoicesListProps {
   customerTimezone?: TimezoneEnum
   customerId: string
   fetchMore?: (options: FetchMoreQueryOptions<{ page: number }>) => Promise<unknown>
+  pageSize?: number
+  onPageChange?: (page: number) => void
 }
 
 export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
@@ -180,29 +174,17 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
   customerTimezone = TimezoneEnum.TzUtc,
   customerId,
   fetchMore,
+  pageSize = DEFAULT_PAGE_SIZE,
+  onPageChange,
 }) => {
   const navigate = useNavigate()
   const { isPremium } = useCurrentUser()
   const { translate } = useInternationalization()
   const actions = usePermissionsInvoiceActions()
-  const { hasFeatureFlag } = useOrganizationInfos()
-  const hasAccessToMultiPaymentFlow = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
-  const resendInvoiceForCollectionDialogRef = useRef<ResendInvoiceForCollectionDialogRef>(null)
+  const { openResendInvoiceForCollectionDialog } = useResendInvoiceForCollectionDialog()
   const { handleDownloadFile } = useDownloadFile()
   const { showResendEmailDialog } = useResendEmailDialog()
-
-  const [retryCollect] = useRetryInvoicePaymentMutation({
-    context: { silentErrorCodes: [LagoApiError.PaymentProcessorIsCurrentlyHandlingPayment] },
-    onCompleted({ retryInvoicePayment: data }) {
-      if (data?.id) {
-        addToast({
-          severity: 'success',
-          translateKey: 'text_63ac86d897f728a87b2fa0b3',
-        })
-      }
-    },
-  })
 
   const [downloadInvoice] = useDownloadInvoiceItemMutation({
     onCompleted({ downloadInvoice: data }) {
@@ -212,26 +194,24 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
 
   const { generatePaymentUrl } = useGeneratePaymentUrl()
 
-  const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
+  const { openFinalizeInvoiceDialog } = useFinalizeInvoiceDialog()
+  const { openDeleteInvoiceDialog } = useDeleteInvoiceDialog()
   const { openUpdateInvoicePaymentStatusDialog } = useUpdateInvoicePaymentStatusDialog()
 
   return (
     <>
-      <InfiniteScroll
-        onBottom={() => {
-          if (!fetchMore) return
-
-          const { currentPage = 0, totalPages = 0 } = invoiceData?.metadata || {}
-
-          currentPage < totalPages &&
-            !isLoading &&
-            fetchMore({ variables: { page: currentPage + 1 } })
-        }}
+      <PaginatedContent
+        metadata={invoiceData?.metadata}
+        loading={isLoading}
+        pageSize={pageSize}
+        onPageChange={onPageChange ?? ((page) => fetchMore?.({ variables: { page } }))}
+        sticky={false}
       >
         <Table
           name="customer-invoices"
           containerSize={{ default: 4 }}
           isLoading={isLoading}
+          loadingRowCount={pageSize}
           hasError={hasError}
           data={invoiceData?.collection ?? []}
           onRowActionLink={({ id }) =>
@@ -432,6 +412,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
               canRetryCollect,
               canUpdatePaymentStatus,
               canVoid,
+              canDelete,
               canResendEmail,
             } = actions
 
@@ -452,9 +433,6 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
             const { disabledIssueCreditNoteButton, disabledIssueCreditNoteButtonLabel } =
               createCreditNoteForInvoiceButtonProps({
                 invoiceType: invoice?.invoiceType,
-                creditableAmountCents: invoice?.creditableAmountCents,
-                refundableAmountCents: invoice?.refundableAmountCents,
-                offsettableAmountCents: invoice?.offsettableAmountCents,
                 associatedActiveWalletPresent: invoice?.associatedActiveWalletPresent,
               })
 
@@ -477,9 +455,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                   startIcon: 'checkmark' as IconName,
                   title: translate('text_63a41a8eabb9ae67047c1c08'),
                   onAction: (item) => {
-                    finalizeInvoiceRef.current?.openDialog(
-                      item as InvoiceForFinalizeInvoiceFragment,
-                    )
+                    openFinalizeInvoiceDialog(item as InvoiceForFinalizeInvoiceFragment)
                   },
                 }
               }
@@ -531,32 +507,11 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                 ? {
                     startIcon: 'push',
                     title: translate('text_63ac86d897f728a87b2fa039'),
-                    onAction: async () => {
-                      if (hasAccessToMultiPaymentFlow) {
-                        resendInvoiceForCollectionDialogRef.current?.openDialog({
-                          invoice,
-                          preselectedPaymentMethodId: getMostRecentPaymentMethodId(
-                            invoice?.payments,
-                          ),
-                        })
-                      } else {
-                        const { errors } = await retryCollect({
-                          variables: {
-                            input: {
-                              id: invoice.id,
-                            },
-                          },
-                        })
-
-                        if (
-                          hasDefinedGQLError('PaymentProcessorIsCurrentlyHandlingPayment', errors)
-                        ) {
-                          addToast({
-                            severity: 'info',
-                            translateKey: 'text_63b6d06df1a53b7e2ad973ad',
-                          })
-                        }
-                      }
+                    onAction: () => {
+                      openResendInvoiceForCollectionDialog({
+                        invoice,
+                        preselectedPaymentMethodId: getMostRecentPaymentMethodId(invoice?.payments),
+                      })
                     },
                   }
                 : null,
@@ -624,12 +579,20 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                       ),
                   }
                 : null,
+
+              canDelete(invoice)
+                ? {
+                    startIcon: 'trash',
+                    title: translate('text_17848001862070vhaaoyut3y'),
+                    onAction: (item) => {
+                      openDeleteInvoiceDialog(item)
+                    },
+                  }
+                : null,
             ]
           }}
         />
-      </InfiniteScroll>
-      <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
-      <ResendInvoiceForCollectionDialog ref={resendInvoiceForCollectionDialogRef} />
+      </PaginatedContent>
     </>
   )
 }

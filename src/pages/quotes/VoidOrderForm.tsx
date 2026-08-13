@@ -44,6 +44,7 @@ gql`
       quote {
         id
         number
+        images
         currentVersion {
           version
           ...QuotePreviewVersion
@@ -78,8 +79,13 @@ const VoidOrderForm = () => {
   const orderFormNumber = orderForm?.number ?? ''
 
   const previewProps = useMemo(
-    () => buildQuotePreviewProps(orderForm?.quote?.currentVersion, orderForm?.customer),
-    [orderForm?.quote?.currentVersion, orderForm?.customer],
+    () =>
+      buildQuotePreviewProps({
+        version: orderForm?.quote?.currentVersion,
+        customer: orderForm?.customer,
+        images: (orderForm?.quote?.images ?? {}) as Record<string, string>,
+      }),
+    [orderForm?.quote?.currentVersion, orderForm?.customer, orderForm?.quote?.images],
   )
 
   const header = {
@@ -182,7 +188,7 @@ const VoidOrderForm = () => {
           {loading ? (
             <FormLoadingSkeleton id="void-order-form" />
           ) : (
-            <div className="flex flex-col gap-12">
+            <div className="flex flex-col">
               <Alert data-test={VOID_ORDER_FORM_ALERT_TEST_ID} type="warning">
                 <Typography className="text-grey-700">
                   {translate('text_1779715648585ih339cvcfjx')}

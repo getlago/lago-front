@@ -2,7 +2,7 @@ import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { GENERIC_PLACEHOLDER_TEST_ID } from '~/components/designSystem/GenericPlaceholder'
-import { CurrencyEnum, FeatureFlagEnum, TimezoneEnum } from '~/generated/graphql'
+import { CurrencyEnum, TimezoneEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import { CustomerCreditNotesList } from '../CustomerCreditNotesList'
@@ -12,14 +12,6 @@ import { CustomerCreditNotesList } from '../CustomerCreditNotesList'
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
     translate: (key: string) => key,
-  }),
-}))
-
-const mockHasFeatureFlag = jest.fn<boolean, [FeatureFlagEnum]>(() => false)
-
-jest.mock('~/hooks/useOrganizationInfos', () => ({
-  useOrganizationInfos: () => ({
-    hasFeatureFlag: mockHasFeatureFlag,
   }),
 }))
 
@@ -52,7 +44,7 @@ jest.mock('react-router-dom', () => ({
   useSearchParams: () => [new URLSearchParams(), jest.fn()],
 }))
 
-jest.mock('~/components/designSystem/Filters/utils', () => ({
+jest.mock('~/components/Filters/graphql/utils', () => ({
   formatFiltersForCustomerCreditNotesQuery: () => ({
     currency: undefined,
     billingEntityId: undefined,
@@ -62,12 +54,6 @@ jest.mock('~/components/designSystem/Filters/utils', () => ({
 // Mock child components to isolate unit tests
 jest.mock('~/components/customers/CustomerCreditNotesBreakdown', () => ({
   CustomerCreditNotesBreakdown: () => <div data-test="mock-credit-notes-breakdown">Breakdown</div>,
-}))
-
-jest.mock('~/components/customers/CustomerCreditNotesLegacyCard', () => ({
-  CustomerCreditNotesLegacyCard: () => (
-    <div data-test="mock-credit-notes-legacy-card">LegacyCard</div>
-  ),
 }))
 
 jest.mock('~/components/creditNote/CreditNotesTable', () => ({
@@ -116,41 +102,18 @@ describe('CustomerCreditNotesList', () => {
     }
   })
 
-  describe('GIVEN the multi_currency feature flag is enabled', () => {
-    describe('WHEN the component renders', () => {
+  describe('GIVEN the component renders', () => {
+    describe('WHEN the balances section is displayed', () => {
       it('THEN should render CustomerCreditNotesBreakdown', () => {
-        mockHasFeatureFlag.mockImplementation((flag) => flag === FeatureFlagEnum.MultiCurrency)
-
         renderComponent()
 
         expect(screen.getByTestId('mock-credit-notes-breakdown')).toBeInTheDocument()
-        expect(screen.queryByTestId('mock-credit-notes-legacy-card')).not.toBeInTheDocument()
       })
-    })
-  })
 
-  describe('GIVEN the multi_entity_billing feature flag is enabled', () => {
-    describe('WHEN the component renders', () => {
-      it('THEN should render CustomerCreditNotesBreakdown', () => {
-        mockHasFeatureFlag.mockImplementation((flag) => flag === FeatureFlagEnum.MultiEntityBilling)
-
+      it('THEN should call the lazy query on mount', () => {
         renderComponent()
 
-        expect(screen.getByTestId('mock-credit-notes-breakdown')).toBeInTheDocument()
-        expect(screen.queryByTestId('mock-credit-notes-legacy-card')).not.toBeInTheDocument()
-      })
-    })
-  })
-
-  describe('GIVEN both feature flags are disabled', () => {
-    describe('WHEN the component renders', () => {
-      it('THEN should fall back to CustomerCreditNotesLegacyCard', () => {
-        mockHasFeatureFlag.mockReturnValue(false)
-
-        renderComponent()
-
-        expect(screen.getByTestId('mock-credit-notes-legacy-card')).toBeInTheDocument()
-        expect(screen.queryByTestId('mock-credit-notes-breakdown')).not.toBeInTheDocument()
+        expect(mockGetCreditNotes).toHaveBeenCalled()
       })
     })
   })
@@ -163,7 +126,6 @@ describe('CustomerCreditNotesList', () => {
           error: new Error('Network error'),
           loading: false,
         }
-        mockHasFeatureFlag.mockReturnValue(false)
 
         renderComponent()
 
@@ -181,7 +143,6 @@ describe('CustomerCreditNotesList', () => {
           error: new Error('Network error'),
           loading: true,
         }
-        mockHasFeatureFlag.mockReturnValue(false)
 
         renderComponent()
 
@@ -195,7 +156,6 @@ describe('CustomerCreditNotesList', () => {
     describe('WHEN the user types a search term', () => {
       it('THEN should trigger the lazy query with the debounced search term', async () => {
         jest.useFakeTimers()
-        mockHasFeatureFlag.mockReturnValue(false)
 
         renderComponent()
 
@@ -215,42 +175,6 @@ describe('CustomerCreditNotesList', () => {
         })
 
         jest.useRealTimers()
-      })
-    })
-  })
-
-  describe('GIVEN both multi_currency and multi_entity_billing flags are enabled', () => {
-    describe('WHEN the component renders', () => {
-      it('THEN should render CustomerCreditNotesBreakdown (not legacy card)', () => {
-        mockHasFeatureFlag.mockReturnValue(true)
-
-        renderComponent()
-
-        expect(screen.getByTestId('mock-credit-notes-breakdown')).toBeInTheDocument()
-        expect(screen.queryByTestId('mock-credit-notes-legacy-card')).not.toBeInTheDocument()
-      })
-
-      it('THEN should call the lazy query on mount', () => {
-        mockHasFeatureFlag.mockReturnValue(true)
-
-        renderComponent()
-
-        expect(mockGetCreditNotes).toHaveBeenCalled()
-      })
-    })
-  })
-
-  describe('GIVEN feature flags are checked', () => {
-    describe('WHEN both multi_currency and multi_entity_billing are enabled', () => {
-      it.each([
-        { flag: FeatureFlagEnum.MultiCurrency, label: 'multi_currency' },
-        { flag: FeatureFlagEnum.MultiEntityBilling, label: 'multi_entity_billing' },
-      ])('THEN should render breakdown when $label is enabled alone', ({ flag }) => {
-        mockHasFeatureFlag.mockImplementation((f) => f === flag)
-
-        renderComponent()
-
-        expect(screen.getByTestId('mock-credit-notes-breakdown')).toBeInTheDocument()
       })
     })
   })

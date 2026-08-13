@@ -120,6 +120,60 @@ describe('SuggestionList', () => {
     })
   })
 
+  describe('GIVEN items carry an icon property', () => {
+    interface IconItem extends TestItem {
+      icon: string
+    }
+
+    const createIconItems = (): IconItem[] => [
+      { id: '1', name: 'Heading', icon: 'h1' },
+      { id: '2', name: 'Bullet', icon: 'list-bullet' },
+    ]
+
+    describe('WHEN each item has an icon', () => {
+      it('THEN should render the icon as a start icon on each item', async () => {
+        const items = createIconItems()
+
+        await act(() =>
+          render(
+            <SuggestionList
+              items={items}
+              command={mockCommand}
+              getKey={(item) => item.id}
+              getLabel={(item) => item.name}
+            />,
+          ),
+        )
+
+        expect(screen.getByTestId(`${SUGGESTION_LIST_ITEM_TEST_ID}-0`)).toContainElement(
+          screen.getByTestId('h1/medium'),
+        )
+        expect(screen.getByTestId(`${SUGGESTION_LIST_ITEM_TEST_ID}-1`)).toContainElement(
+          screen.getByTestId('list-bullet/medium'),
+        )
+      })
+    })
+
+    describe('WHEN items have no icon property', () => {
+      it('THEN should not render any start icon', async () => {
+        await act(() =>
+          render(
+            <SuggestionList
+              items={createMockItems()}
+              command={mockCommand}
+              getKey={getKey}
+              getLabel={getLabel}
+            />,
+          ),
+        )
+
+        expect(
+          screen.getByTestId(`${SUGGESTION_LIST_ITEM_TEST_ID}-0`).querySelector('svg'),
+        ).toBeNull()
+      })
+    })
+  })
+
   describe('GIVEN the user clicks on an item', () => {
     describe('WHEN an item is clicked', () => {
       it('THEN should call command with the clicked item', async () => {

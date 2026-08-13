@@ -67,6 +67,10 @@ gql`
         ...FeatureEntitlementPrivilegeForPlan
       }
     }
+    metadata {
+      key
+      value
+    }
   }
 
   ${TaxForPlanSettingsSectionFragmentDoc}
@@ -97,7 +101,12 @@ export const buildUpdatePlanFormDefaults = (plan: PlanDetailsV2Fragment): PlanFo
     // contents.
     fixedCharges: settingsDefaults.fixedCharges as unknown as PlanFormInput['fixedCharges'],
     charges: settingsDefaults.charges as unknown as PlanFormInput['charges'],
-    amountCents: '0',
+    // The subscription fee is not editable from any consumer but
+    // SubscriptionFeeAccordion, yet `amountCents` is non-null on
+    // UpdatePlanInput so every submit ships it. Hydrate it from the plan (in
+    // display units, like the fee drawer) - seeding '0' here wiped the fee on
+    // every threshold / commitment / entitlement / metadata save.
+    amountCents: String(deserializeAmount(plan.amountCents ?? 0, currency)),
     trialPeriod: plan.trialPeriod ?? 0,
     payInAdvance: plan.payInAdvance ?? false,
     invoiceDisplayName: plan.invoiceDisplayName ?? undefined,
@@ -137,6 +146,7 @@ export const buildUpdatePlanFormDefaults = (plan: PlanDetailsV2Fragment): PlanFo
         ),
         ...rest,
       })) || [],
+    metadata: plan.metadata?.map(({ key, value }) => ({ key, value: value || '' })) || [],
     cascadeUpdates: undefined,
   }
 }
@@ -198,6 +208,7 @@ export const useUpdatePlanWithCascade = ({
                 value.amountCurrency,
               ),
               entitlements: serializeEntitlements(value.entitlements),
+              metadata: value.metadata ?? [],
             }
           : {}),
       }

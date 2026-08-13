@@ -1,6 +1,7 @@
 import { wait } from '@apollo/client/testing'
 import { act, renderHook } from '@testing-library/react'
 
+import { ERROR_404_ROUTE } from '~/core/router'
 import { GetInvoiceCreateCreditNoteDocument } from '~/generated/graphql'
 import {
   fullOneOffInvoiceMockAndExpect,
@@ -9,7 +10,7 @@ import {
   INVOICE_FIXTURE_ID,
   invoiceWithNoCredOrRefundAmountMockAndExpect,
 } from '~/hooks/__tests__/fixtures'
-import { AllTheProviders } from '~/test-utils'
+import { AllTheProviders, testMockNavigateFn } from '~/test-utils'
 
 import { useCreateCreditNote } from '../useCreateCreditNote'
 
@@ -147,6 +148,28 @@ describe('useCreateCreditNote()', () => {
       await act(() => wait(0))
 
       expect(result.current.feeForAddOn?.[0]?.isReadOnly).toBe(false)
+    })
+  })
+
+  describe('when the invoice is fully covered (nothing creditable/refundable/offsettable)', () => {
+    it('flags the invoice as fully covered instead of redirecting to 404', async () => {
+      testMockNavigateFn.mockClear()
+
+      const { mock } = invoiceWithNoCredOrRefundAmountMockAndExpect()
+      const fullyCoveredMock = {
+        invoice: {
+          ...mock.invoice,
+          creditableAmountCents: '0',
+          refundableAmountCents: '0',
+          offsettableAmountCents: '0',
+        },
+      }
+      const { result } = await prepare({ mock: fullyCoveredMock })
+
+      await act(() => wait(0))
+
+      expect(result.current.isInvoiceFullyCovered).toBe(true)
+      expect(testMockNavigateFn).not.toHaveBeenCalledWith(ERROR_404_ROUTE)
     })
   })
 })

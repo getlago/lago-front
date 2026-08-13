@@ -100,11 +100,16 @@ const EditOrderFormContent = ({ order, loading }: EditOrderFormContentProps) => 
 
   const previewProps = useMemo(
     () =>
-      buildQuotePreviewProps(
-        order?.orderForm?.quote?.currentVersion,
-        order?.orderForm?.quote?.customer,
-      ),
-    [order?.orderForm?.quote?.currentVersion, order?.orderForm?.quote?.customer],
+      buildQuotePreviewProps({
+        version: order?.orderForm?.quote?.currentVersion,
+        customer: order?.orderForm?.quote?.customer,
+        images: (order?.orderForm?.quote?.images ?? {}) as Record<string, string>,
+      }),
+    [
+      order?.orderForm?.quote?.currentVersion,
+      order?.orderForm?.quote?.customer,
+      order?.orderForm?.quote?.images,
+    ],
   )
 
   const orderNumber = order?.number ?? ''
@@ -197,7 +202,7 @@ const EditOrderFormContent = ({ order, loading }: EditOrderFormContentProps) => 
           {loading || !order ? (
             <FormLoadingSkeleton id="edit-order" />
           ) : (
-            <div className="flex flex-col gap-12">
+            <div className="flex flex-col">
               <div className="flex flex-col gap-1">
                 <Typography variant="headline" color="grey700">
                   {translate('text_178272359198433nj9yyhjt2', { orderNumber: order.number })}

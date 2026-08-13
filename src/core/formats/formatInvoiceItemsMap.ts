@@ -132,13 +132,13 @@ export type TExtendedFee<T> = T & {
 export type TExtendedRemainingFee = TExtendedFee<FeeFromFragment>
 
 // Generic boundary data type that works with any fee type
-export type TBoundaryDataForDisplay<TFee = TExtendedRemainingFee> = {
+type TBoundaryDataForDisplay<TFee = TExtendedRemainingFee> = {
   fromDatetime: string
   toDatetime: string
   fees: TFee[]
 }
 
-export type TBoundariesForDisplay<TFee = TExtendedRemainingFee> = {
+type TBoundariesForDisplay<TFee = TExtendedRemainingFee> = {
   [boundaryKey: string]: TBoundaryDataForDisplay<TFee>
 }
 
@@ -536,7 +536,7 @@ export const groupAndFormatFees = <TFee extends FeeForGrouping>({
  * Sorts fees by type and display name
  * Works with any fee type that has metadata attached
  */
-export const _newDeepFormatFees = <T extends { metadata: FeeMetadata }>(feesToFormat: T[]): T[] => {
+const _newDeepFormatFees = <T extends { metadata: FeeMetadata }>(feesToFormat: T[]): T[] => {
   return feesToFormat.sort((a, b) => {
     const aDisplayName = a?.metadata?.displayName.toLowerCase().replace('•', '').replace('-', '')
     const bDisplayName = b?.metadata?.displayName.toLowerCase().replace('•', '').replace('-', '')

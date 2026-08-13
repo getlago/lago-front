@@ -1,16 +1,12 @@
 import { gql } from '@apollo/client'
 import { tw } from 'lago-design-system'
-import { useRef } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { CouponCaption } from '~/components/coupons/CouponCaption'
 import { APPLIED_COUPON_STATUS_CONFIG } from '~/components/coupons/utils'
-import {
-  AddCouponToCustomerDialog,
-  AddCouponToCustomerDialogRef,
-} from '~/components/customers/AddCouponToCustomerDialog'
+import { useAddCouponToCustomerDialog } from '~/components/customers/AddCouponToCustomerDialog'
 import { Button } from '~/components/designSystem/Button'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Status } from '~/components/designSystem/Status'
 import { Table, TableColumn } from '~/components/designSystem/Table/Table'
 import { Tooltip } from '~/components/designSystem/Tooltip'
@@ -18,6 +14,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { PageSectionTitle } from '~/components/layouts/Section'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { CouponDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { COUPON_DETAILS_ROUTE } from '~/core/router'
 import {
@@ -35,6 +32,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
       }
       collection {
         id
@@ -69,12 +67,14 @@ export const CustomerAppliedCouponsList = ({
   const { hasPermissions } = usePermissions()
   const { terminateCoupon } = useTerminateAppliedCoupon()
   const centralizedDialog = useCentralizedDialog()
-  const addCouponDialogRef = useRef<AddCouponToCustomerDialogRef>(null)
+  const { openAddCouponToCustomerDialog } = useAddCouponToCustomerDialog()
+  const { page, goToPage } = usePageSearchParam()
 
-  const { data, error, loading, fetchMore } = useGetAppliedCouponsForCustomerQuery({
-    variables: { externalCustomerId: customerExternalId, page: 0, limit: 20 },
+  const { data, error, loading } = useGetAppliedCouponsForCustomerQuery({
+    variables: { externalCustomerId: customerExternalId, page, limit: DEFAULT_PAGE_SIZE },
     skip: !customerExternalId,
     notifyOnNetworkStatusChange: true,
+    fetchPolicy: 'network-only',
   })
 
   const appliedCoupons = data?.appliedCoupons?.collection || []
@@ -165,20 +165,12 @@ export const CustomerAppliedCouponsList = ({
     ? {
         title: translate('text_628b8dc14c71840130f8d8a1'),
         onClick: () => {
-          addCouponDialogRef.current?.openDialog()
+          openAddCouponToCustomerDialog({
+            customer: { id: customerId, displayName: customerDisplayName },
+          })
         },
       }
     : undefined
-
-  const fetchNextPage = () => {
-    const { currentPage = 0, totalPages = 0 } = data?.appliedCoupons?.metadata || {}
-
-    currentPage < totalPages &&
-      !loading &&
-      fetchMore({
-        variables: { page: currentPage + 1 },
-      })
-  }
 
   return (
     <>
@@ -188,7 +180,12 @@ export const CustomerAppliedCouponsList = ({
         action={sectionAction}
       />
 
-      <InfiniteScroll onBottom={fetchNextPage}>
+      <PaginatedContent
+        metadata={data?.appliedCoupons?.metadata}
+        loading={loading}
+        onPageChange={goToPage}
+        sticky={false}
+      >
         <Table
           name="customer-coupons-list"
           data={appliedCoupons}
@@ -206,12 +203,7 @@ export const CustomerAppliedCouponsList = ({
           columns={columns}
           actionColumn={actionColumn}
         />
-      </InfiniteScroll>
-
-      <AddCouponToCustomerDialog
-        ref={addCouponDialogRef}
-        customer={{ id: customerId, displayName: customerDisplayName }}
-      />
+      </PaginatedContent>
     </>
   )
 }

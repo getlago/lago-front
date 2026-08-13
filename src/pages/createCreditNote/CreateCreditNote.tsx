@@ -23,7 +23,7 @@ import { Button } from '~/components/designSystem/Button'
 import { Card } from '~/components/designSystem/Card'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { ComboBoxField, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { hasDefinedGQLError } from '~/core/apolloClient'
@@ -85,8 +85,29 @@ export const CREDIT_NOTE_REASONS: { reason: CreditNoteReasonEnum; label: string 
 const CreateCreditNote = () => {
   const navigate = useNavigate()
   const { translate } = useInternationalization()
-  const warningDialogRef = useRef<WarningDialogRef>(null)
+  const centralizedDialog = useCentralizedDialog()
   const { customerId, invoiceId } = useParams()
+
+  const navigateBack = useCallback(
+    () =>
+      navigate(
+        generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
+          customerId: customerId as string,
+          invoiceId: invoiceId as string,
+          tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
+        }),
+      ),
+    [customerId, invoiceId, navigate],
+  )
+
+  const openDirtyAttributesWarning = () =>
+    centralizedDialog.open({
+      title: translate('text_636bdf192a28e7cf28abf00d'),
+      description: translate('text_636bed940028096908b735ed'),
+      actionText: translate('text_636beda08285f03477c7e25e'),
+      colorVariant: 'danger',
+      onAction: () => navigateBack(),
+    })
   const {
     loading,
     invoice,
@@ -94,6 +115,7 @@ const CreateCreditNote = () => {
     feeForAddOn,
     feeForCredit,
     hasCreditableOrRefundableAmount,
+    isInvoiceFullyCovered,
     onCreate,
   } = useCreateCreditNote()
   const currency = invoice?.currency || CurrencyEnum.Usd
@@ -281,17 +303,7 @@ const CreateCreditNote = () => {
           variant="quaternary"
           icon="close"
           data-test={CLOSE_BUTTON_TEST_ID}
-          onClick={() =>
-            formikProps.dirty
-              ? warningDialogRef.current?.openDialog()
-              : navigate(
-                  generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-                    customerId: customerId as string,
-                    invoiceId: invoiceId as string,
-                    tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
-                  }),
-                )
-          }
+          onClick={() => (formikProps.dirty ? openDirtyAttributesWarning() : navigateBack())}
         />
       </PageHeader.Wrapper>
       <CenteredPage.Container>
@@ -448,55 +460,61 @@ const CreateCreditNote = () => {
                 </Typography>
               </div>
 
-              <CreditNoteItemsForm
-                isPrepaidCreditsInvoice={isPrepaidCreditsInvoice}
-                formikProps={formikProps}
-                feeForCredit={feeForCredit}
-                feeForAddOn={feeForAddOn}
-                feesPerInvoice={feesPerInvoice}
-                currency={currency}
-              />
-
-              {isPrepaidCreditsInvoice ? (
+              {isInvoiceFullyCovered ? (
+                <Alert type="danger">{translate('text_1783670256902guo0smcgak1')}</Alert>
+              ) : (
                 <>
-                  <div className="ml-auto w-full max-w-100">
-                    <CreditNoteEstimationLine
-                      label={
-                        hasCreditableOrRefundableAmount
-                          ? translate('text_17270794543889mcmuhfq70p')
-                          : translate('text_1767883339943r32jn2ioyeu')
-                      }
-                      value={intlFormatNumber(
-                        Number(formikProps.values.creditFee?.[0]?.value || 0),
-                        {
-                          currency,
-                        },
-                      )}
-                    />
-                  </div>
+                  <CreditNoteItemsForm
+                    isPrepaidCreditsInvoice={isPrepaidCreditsInvoice}
+                    formikProps={formikProps}
+                    feeForCredit={feeForCredit}
+                    feeForAddOn={feeForAddOn}
+                    feesPerInvoice={feesPerInvoice}
+                    currency={currency}
+                  />
 
-                  {hasCreditableOrRefundableAmount && (
-                    <Alert
-                      className="mt-6"
-                      type="info"
-                      data-test={PREPAID_CREDITS_REFUND_ALERT_TEST_ID}
-                    >
-                      {translate('text_1729084495407pcn1mei0hyd')}
-                    </Alert>
+                  {isPrepaidCreditsInvoice ? (
+                    <>
+                      <div className="ml-auto w-full max-w-100">
+                        <CreditNoteEstimationLine
+                          label={
+                            hasCreditableOrRefundableAmount
+                              ? translate('text_17270794543889mcmuhfq70p')
+                              : translate('text_1767883339943r32jn2ioyeu')
+                          }
+                          value={intlFormatNumber(
+                            Number(formikProps.values.creditFee?.[0]?.value || 0),
+                            {
+                              currency,
+                            },
+                          )}
+                        />
+                      </div>
+
+                      {hasCreditableOrRefundableAmount && (
+                        <Alert
+                          className="mt-6"
+                          type="info"
+                          data-test={PREPAID_CREDITS_REFUND_ALERT_TEST_ID}
+                        >
+                          {translate('text_1729084495407pcn1mei0hyd')}
+                        </Alert>
+                      )}
+                    </>
+                  ) : (
+                    <CreditNoteFormCalculation
+                      hasError={hasError}
+                      currency={creditNoteCalculation.currency}
+                      estimationLoading={creditNoteCalculation.estimationLoading}
+                      hasCouponLine={creditNoteCalculation.hasCouponLine}
+                      proRatedCouponAmount={creditNoteCalculation.proRatedCouponAmount}
+                      totalExcludedTax={creditNoteCalculation.totalExcludedTax}
+                      taxes={creditNoteCalculation.taxes}
+                      totalTaxIncluded={creditNoteCalculation.totalTaxIncluded}
+                      canOnlyCredit={creditNoteCalculation.canOnlyCredit}
+                    />
                   )}
                 </>
-              ) : (
-                <CreditNoteFormCalculation
-                  hasError={hasError}
-                  currency={creditNoteCalculation.currency}
-                  estimationLoading={creditNoteCalculation.estimationLoading}
-                  hasCouponLine={creditNoteCalculation.hasCouponLine}
-                  proRatedCouponAmount={creditNoteCalculation.proRatedCouponAmount}
-                  totalExcludedTax={creditNoteCalculation.totalExcludedTax}
-                  taxes={creditNoteCalculation.taxes}
-                  totalTaxIncluded={creditNoteCalculation.totalTaxIncluded}
-                  canOnlyCredit={creditNoteCalculation.canOnlyCredit}
-                />
               )}
             </div>
 
@@ -547,22 +565,6 @@ const CreateCreditNote = () => {
           </Button>
         </div>
       </CenteredPage.StickyFooter>
-
-      <WarningDialog
-        ref={warningDialogRef}
-        title={translate('text_636bdf192a28e7cf28abf00d')}
-        description={translate('text_636bed940028096908b735ed')}
-        continueText={translate('text_636beda08285f03477c7e25e')}
-        onContinue={() =>
-          navigate(
-            generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-              customerId: customerId as string,
-              invoiceId: invoiceId as string,
-              tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
-            }),
-          )
-        }
-      />
     </div>
   )
 }

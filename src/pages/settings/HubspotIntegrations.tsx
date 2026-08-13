@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -7,14 +6,8 @@ import { Popper } from '~/components/designSystem/Popper'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import {
-  AddHubspotDialog,
-  AddHubspotDialogRef,
-} from '~/components/settings/integrations/AddHubspotDialog'
-import {
-  DeleteHubspotIntegrationDialog,
-  DeleteHubspotIntegrationDialogRef,
-} from '~/components/settings/integrations/DeleteHubspotIntegrationDialog'
+import { useAddHubspotDialog } from '~/components/settings/integrations/AddHubspotDialog'
+import { useDeleteHubspotIntegrationDialog } from '~/components/settings/integrations/DeleteHubspotIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { HUBSPOT_INTEGRATION_DETAILS_ROUTE, INTEGRATIONS_ROUTE, useNavigate } from '~/core/router'
 import {
@@ -54,8 +47,8 @@ const HubspotIntegrations = () => {
   const navigate = useNavigate()
   const { translate } = useInternationalization()
 
-  const addHubspotDialogRef = useRef<AddHubspotDialogRef>(null)
-  const deleteDialogRef = useRef<DeleteHubspotIntegrationDialogRef>(null)
+  const { openAddHubspotDialog } = useAddHubspotDialog()
+  const { openDeleteHubspotIntegrationDialog } = useDeleteHubspotIntegrationDialog()
 
   const { data, loading } = useGetHubspotIntegrationsListQuery({
     variables: { limit: 1000, types: [IntegrationTypeEnum.Hubspot] },
@@ -100,7 +93,7 @@ const HubspotIntegrations = () => {
               label: translate('text_65846763e6140b469140e235'),
               variant: 'primary',
               onClick: () => {
-                addHubspotDialogRef.current?.openDialog()
+                openAddHubspotDialog()
               },
             },
           ],
@@ -152,9 +145,8 @@ const HubspotIntegrations = () => {
                           variant="quaternary"
                           align="left"
                           onClick={() => {
-                            addHubspotDialogRef.current?.openDialog({
+                            openAddHubspotDialog({
                               provider: connection,
-                              deleteModalRef: deleteDialogRef,
                               deleteDialogCallback,
                             })
                             closePopper()
@@ -167,7 +159,7 @@ const HubspotIntegrations = () => {
                           variant="quaternary"
                           align="left"
                           onClick={() => {
-                            deleteDialogRef.current?.openDialog({
+                            openDeleteHubspotIntegrationDialog({
                               provider: connection,
                               callback: deleteDialogCallback,
                             })
@@ -184,8 +176,6 @@ const HubspotIntegrations = () => {
             })}
         </section>
       </IntegrationsPage.Container>
-      <AddHubspotDialog ref={addHubspotDialogRef} />
-      <DeleteHubspotIntegrationDialog ref={deleteDialogRef} />
     </>
   )
 }

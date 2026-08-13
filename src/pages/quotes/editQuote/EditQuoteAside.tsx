@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
+import { CURRENCY_DATA } from '~/components/form/CurrencyPicker'
 import {
   type CurrencyEnum,
   OrderTypeEnum,
@@ -32,6 +33,7 @@ export const EDIT_QUOTE_ASIDE_CUSTOMER_INPUT_TEST_ID = 'edit-quote-aside-custome
 export const EDIT_QUOTE_ASIDE_BILLING_ENTITY_INPUT_TEST_ID = 'edit-quote-aside-billing-entity'
 export const EDIT_QUOTE_ASIDE_SUBSCRIPTION_INPUT_TEST_ID = 'edit-quote-aside-subscription'
 export const EDIT_QUOTE_ASIDE_CURRENCY_INPUT_TEST_ID = 'edit-quote-aside-currency'
+export const EDIT_QUOTE_ASIDE_CURRENCY_COMBOBOX_TEST_ID = 'edit-quote-aside-currency-combobox'
 export const EDIT_QUOTE_ASIDE_START_DATE_TEST_ID = 'edit-quote-aside-start-date'
 export const EDIT_QUOTE_ASIDE_END_DATE_TEST_ID = 'edit-quote-aside-end-date'
 export const EDIT_QUOTE_ASIDE_PAYMENT_TERM_TEST_ID = 'edit-quote-aside-payment-term'
@@ -107,21 +109,26 @@ const EditQuoteAsideForm = ({
 
   const hasSubscription = !!quote.subscription
   const isOneOff = quote.orderType === OrderTypeEnum.OneOff
+  // The amended subscription owns the start date: it is neither displayed nor sent (LAGO-1814).
+  const isAmendment = quote.orderType === OrderTypeEnum.SubscriptionAmendment
   const versionId = quote.currentVersion.id
+
+  const getStartDate = (): string | undefined => {
+    if (isAmendment) return undefined
+
+    return quote.subscription?.subscriptionAt ?? quote.currentVersion.startDate ?? undefined
+  }
 
   const getDefaultValues = (): EditQuoteAsideFormValues => {
     return {
       orderTypeLabel: translate(getQuoteOrderTypeTranslationKey(quote.orderType)),
       customerName: quote.customer.displayName,
       billingEntityId: quote.customer.billingEntity?.id ?? '',
-      currency:
-        quote.customer.currency ??
-        (quote.currentVersion.currency as CurrencyEnum | undefined) ??
-        undefined,
+      currency: (quote.currentVersion.currency as CurrencyEnum | undefined) ?? undefined,
       subscriptionLabel: quote.subscription
         ? `${quote.subscription.plan?.name ?? ''} - ${quote.subscription.externalId}`
         : undefined,
-      startDate: quote.subscription?.subscriptionAt ?? quote.currentVersion.startDate ?? undefined,
+      startDate: getStartDate(),
       endDate: quote.currentVersion.endDate ?? undefined,
       netPaymentTermLabel: formatNetPaymentTerm(
         quote.customer.netPaymentTerm ?? quote.customer.billingEntity?.netPaymentTerm,
@@ -152,6 +159,43 @@ const EditQuoteAsideForm = ({
   onSaveStartRef.current = onSaveStart
   onSaveErrorRef.current = onSaveError
 
+  const versionCurrency = (quote.currentVersion.currency as CurrencyEnum | undefined) ?? undefined
+  // Last currency known to be persisted, so the field listener can tell a user
+  // pick apart from a programmatic sync (mount backfill, billing-item seeding)
+  // and only fire a mutation for the former.
+  const persistedCurrencyRef = useRef(versionCurrency)
+
+  useEffect(() => {
+    persistedCurrencyRef.current = versionCurrency
+
+    if (versionCurrency && form.getFieldValue('currency') !== versionCurrency) {
+      form.setFieldValue('currency', versionCurrency)
+    }
+  }, [versionCurrency, form])
+
+  // Currency is a discrete pick, not typing — save it right away instead of
+  // going through the dates' debounce.
+  const handleCurrencyChange = async (currency: CurrencyEnum | undefined): Promise<void> => {
+    if (!versionId || !currency) return
+    if (currency === persistedCurrencyRef.current) return
+
+    persistedCurrencyRef.current = currency
+
+    const payload: UpdateQuoteVersionInput = { id: versionId, currency }
+
+    onSaveStartRef.current?.()
+
+    try {
+      const result = await updateQuoteVersionRef.current(payload, false)
+
+      if (!result.data?.updateQuoteVersion) {
+        onSaveErrorRef.current?.(payload)
+      }
+    } catch {
+      onSaveErrorRef.current?.(payload)
+    }
+  }
+
   const debouncedSaveDates = useMemo(
     () =>
       debounce(async (startDate?: string, endDate?: string) => {
@@ -159,8 +203,8 @@ const EditQuoteAsideForm = ({
 
         const payload: UpdateQuoteVersionInput = {
           id: versionId,
-          startDate,
           endDate,
+          ...(isAmendment ? {} : { startDate }),
         }
 
         try {
@@ -175,7 +219,7 @@ const EditQuoteAsideForm = ({
           onSaveErrorRef.current?.(payload)
         }
       }, AUTO_SAVE_DELAY_MS),
-    [versionId],
+    [versionId, isAmendment],
   )
 
   const startDate = useStore(form.store, (state) => state.values.startDate)
@@ -196,9 +240,14 @@ const EditQuoteAsideForm = ({
   const gridClassName = 'grid grid-cols-[7.5rem_1fr] items-center gap-0 gap-y-2'
 
   const handleDownloadPdf = () => {
-    download(buildQuotePreviewProps(quote.currentVersion, quote.customer, pdfHeader)).catch(
-      () => undefined,
-    )
+    download(
+      buildQuotePreviewProps({
+        version: quote.currentVersion,
+        customer: quote.customer,
+        images: (quote.images ?? {}) as Record<string, string>,
+        header: pdfHeader,
+      }),
+    ).catch(() => undefined)
   }
 
   return (
@@ -270,17 +319,20 @@ const EditQuoteAsideForm = ({
           >
             {translate('text_632b4acf0c41206cbcb8c324')}
           </Typography>
-          <form.AppField name="currency">
+          <form.AppField
+            name="currency"
+            listeners={{
+              onChange: ({ value }) => {
+                handleCurrencyChange(value)
+              },
+            }}
+          >
             {(field) => (
               <field.ComboBoxField
-                disabled
+                dataTest={EDIT_QUOTE_ASIDE_CURRENCY_COMBOBOX_TEST_ID}
                 disableClearable
-                data={[
-                  ...(quote.customer.currency ? [{ value: quote.customer.currency }] : []),
-                  ...(quote.currentVersion.currency && !quote.customer.currency
-                    ? [{ value: quote.currentVersion.currency }]
-                    : []),
-                ]}
+                placeholder={translate('text_632c6e59b73f9a54d4c7224b')}
+                data={CURRENCY_DATA}
               />
             )}
           </form.AppField>
@@ -302,16 +354,22 @@ const EditQuoteAsideForm = ({
 
           {!isOneOff && (
             <>
-              <Typography
-                variant="caption"
-                color="grey600"
-                data-test={EDIT_QUOTE_ASIDE_START_DATE_TEST_ID}
-              >
-                {translate('text_65201c5a175a4b0238abf29e')}
-              </Typography>
-              <form.AppField name="startDate">
-                {(field) => <field.DatePickerField disabled={hasSubscription} placement="auto" />}
-              </form.AppField>
+              {!isAmendment && (
+                <>
+                  <Typography
+                    variant="caption"
+                    color="grey600"
+                    data-test={EDIT_QUOTE_ASIDE_START_DATE_TEST_ID}
+                  >
+                    {translate('text_65201c5a175a4b0238abf29e')}
+                  </Typography>
+                  <form.AppField name="startDate">
+                    {(field) => (
+                      <field.DatePickerField disabled={hasSubscription} placement="auto" />
+                    )}
+                  </form.AppField>
+                </>
+              )}
 
               <Typography
                 variant="caption"

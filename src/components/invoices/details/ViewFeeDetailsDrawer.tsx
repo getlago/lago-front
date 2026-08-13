@@ -320,8 +320,7 @@ const PresentationGroupKeyTable = ({ fee }: PresentationGroupKeyTableProps) => {
     value !== null && value !== undefined && String(value).length > 0
 
   const firstPresentationBy = breakdowns.find((b) => !!b.presentationBy)?.presentationBy as
-    | Record<string, unknown>
-    | undefined
+    Record<string, unknown> | undefined
 
   if (!firstPresentationBy) {
     return null

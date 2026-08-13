@@ -12,14 +12,9 @@ import { DropdownItem } from './types'
 import { GROUP_NAMES, GroupName, useToolbarOverflow } from './useToolbarOverflow'
 
 import ColorPicker from '../BlockControls/ColorPicker'
+import { useRichTextEditorContext } from '../common/RichTextEditorContext'
 import ImagePopperForm from '../forms/ImagePopperForm'
 import LinkPopperForm from '../forms/LinkPopperForm'
-
-export {
-  TOOLBAR_LINK_INPUT_TEST_ID,
-  TOOLBAR_LINK_APPLY_BUTTON_TEST_ID,
-  TOOLBAR_LINK_REMOVE_BUTTON_TEST_ID,
-} from '../forms/LinkPopperForm'
 
 export const TOOLBAR_CONTAINER_TEST_ID = 'toolbar-container'
 export const TOOLBAR_UNDO_BUTTON_TEST_ID = 'toolbar-undo-button'
@@ -62,6 +57,7 @@ ToolbarGroup.displayName = 'ToolbarGroup'
 
 const Toolbar = ({ editor }: ToolbarProps) => {
   const { translate } = useInternationalization()
+  const { onImageUpload } = useRichTextEditorContext()
   const containerRef = useRef<HTMLDivElement>(null)
   const kebabRef = useRef<HTMLDivElement>(null)
   const groupRefs = useMemo(
@@ -428,24 +424,26 @@ const Toolbar = ({ editor }: ToolbarProps) => {
             </ToolbarButton>
 
             {/* Image */}
-            <Popper
-              PopperProps={{ placement: 'bottom-start' }}
-              opener={
-                <ToolbarButton
-                  testId={TOOLBAR_IMAGE_BUTTON_TEST_ID}
-                  tooltip={translate('text_1774862470019f83anhhatsg')}
-                  isActive={false}
-                >
-                  <Icon name="image" />
-                </ToolbarButton>
-              }
-            >
-              {({ closePopper }) => (
-                <MenuPopper>
-                  <ImagePopperForm editor={editor} closePopper={closePopper} />
-                </MenuPopper>
-              )}
-            </Popper>
+            {onImageUpload && (
+              <Popper
+                PopperProps={{ placement: 'bottom-start' }}
+                opener={
+                  <ToolbarButton
+                    testId={TOOLBAR_IMAGE_BUTTON_TEST_ID}
+                    tooltip={translate('text_1774862470019f83anhhatsg')}
+                    isActive={false}
+                  >
+                    <Icon name="image" />
+                  </ToolbarButton>
+                }
+              >
+                {({ closePopper }) => (
+                  <MenuPopper>
+                    <ImagePopperForm editor={editor} closePopper={closePopper} />
+                  </MenuPopper>
+                )}
+              </Popper>
+            )}
           </ToolbarGroup>
         )
     }

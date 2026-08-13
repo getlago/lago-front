@@ -21,6 +21,7 @@ import {
   CurrencyEnum,
   useGetWalletAlertsQuery,
   WalletDetailsFragment,
+  WalletStatusEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -53,6 +54,7 @@ type WalletAlertsProps = {
 }
 
 export const WALLET_ALERT_ACTIONS_DATA_TEST = 'wallet-alert-actions-data-test'
+
 export const WALLET_ALERTS_LOADING_TEST_ID = 'wallet-alerts-loading'
 export const WALLET_ALERTS_EMPTY_TEST_ID = 'wallet-alerts-empty'
 export const WALLET_ALERTS_LIST_TEST_ID = 'wallet-alerts-list'
@@ -89,6 +91,11 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
   const alerts = data?.walletAlerts?.collection
 
   const currency = wallet?.currency || defaultCurrency || CurrencyEnum.Usd
+
+  // An alert on a terminated wallet can never fire, so its config is read-only: the whole
+  // actions menu goes away rather than opening on an empty list (same shape as WalletActions).
+  const canEditAlerts =
+    hasPermissions(['walletsUpdate']) && wallet?.status === WalletStatusEnum.Active
 
   const formatAlertThresholdValue = ({
     value,
@@ -181,71 +188,69 @@ const WalletAlerts = ({ wallet }: WalletAlertsProps) => {
                   </div>
 
                   <div className="flex flex-row items-center gap-3">
-                    <Popper
-                      PopperProps={{ placement: 'bottom-end' }}
-                      opener={({ onClick }) => (
-                        <Tooltip
-                          placement="top-start"
-                          title={translate('text_1741251836185jea576d14uj')}
-                        >
-                          <Button
-                            variant="quaternary"
-                            icon="dots-horizontal"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              onClick()
-                            }}
-                            data-test={WALLET_ALERT_ACTIONS_DATA_TEST}
-                          />
-                        </Tooltip>
-                      )}
-                    >
-                      {({ closePopper }) => (
-                        <MenuPopper>
-                          {hasPermissions(['walletsUpdate']) && (
-                            <>
-                              <Button
-                                startIcon="pen"
-                                variant="quaternary"
-                                align="left"
-                                fullWidth
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  navigate(
-                                    generatePath(UPDATE_ALERT_WALLET_ROUTE, {
-                                      walletId: wallet.id,
-                                      customerId: customerId ?? null,
-                                      alertId: currentAlert.id,
-                                    }),
-                                  )
-                                  closePopper()
-                                }}
-                              >
-                                {translate('text_1773051593208w1akrget7fg')}
-                              </Button>
-
-                              <Button
-                                startIcon="trash"
-                                variant="quaternary"
-                                align="left"
-                                fullWidth
-                                onClick={(e) => {
-                                  e.stopPropagation()
-
-                                  openDeleteWalletAlertDialog({
+                    {canEditAlerts && (
+                      <Popper
+                        PopperProps={{ placement: 'bottom-end' }}
+                        opener={({ onClick }) => (
+                          <Tooltip
+                            placement="top-start"
+                            title={translate('text_1741251836185jea576d14uj')}
+                          >
+                            <Button
+                              variant="quaternary"
+                              icon="dots-horizontal"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                onClick()
+                              }}
+                              data-test={WALLET_ALERT_ACTIONS_DATA_TEST}
+                            />
+                          </Tooltip>
+                        )}
+                      >
+                        {({ closePopper }) => (
+                          <MenuPopper>
+                            <Button
+                              startIcon="pen"
+                              variant="quaternary"
+                              align="left"
+                              fullWidth
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                navigate(
+                                  generatePath(UPDATE_ALERT_WALLET_ROUTE, {
+                                    walletId: wallet.id,
+                                    customerId: customerId ?? null,
                                     alertId: currentAlert.id,
-                                  })
+                                  }),
+                                )
+                                closePopper()
+                              }}
+                            >
+                              {translate('text_1773051593208w1akrget7fg')}
+                            </Button>
 
-                                  closePopper()
-                                }}
-                              >
-                                {translate('text_1773051593208bjs37e577ir')}
-                              </Button>
-                            </>
-                          )}
-                        </MenuPopper>
-                      )}
-                    </Popper>
+                            <Button
+                              startIcon="trash"
+                              variant="quaternary"
+                              align="left"
+                              fullWidth
+                              onClick={(e) => {
+                                e.stopPropagation()
+
+                                openDeleteWalletAlertDialog({
+                                  alertId: currentAlert.id,
+                                })
+
+                                closePopper()
+                              }}
+                            >
+                              {translate('text_1773051593208bjs37e577ir')}
+                            </Button>
+                          </MenuPopper>
+                        )}
+                      </Popper>
+                    )}
                   </div>
                 </div>
               }

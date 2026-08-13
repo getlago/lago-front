@@ -1,8 +1,7 @@
 import { gql } from '@apollo/client'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
 import { Typography } from '~/components/designSystem/Typography'
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
 import { BillingEntity, useRemoveBillingEntityDunningCampaignMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -17,64 +16,39 @@ gql`
   }
 `
 
-export type RemoveAppliedDunningCampaignDialogRef = {
-  openDialog: (billingEntity: BillingEntity, appliedDunningCampaignId: string) => unknown
-  closeDialog: () => unknown
-}
+export const useRemoveAppliedDunningCampaignDialog = () => {
+  const { translate } = useInternationalization()
+  const centralizedDialog = useCentralizedDialog()
 
-export const RemoveAppliedDunningCampaignDialog = forwardRef<RemoveAppliedDunningCampaignDialogRef>(
-  (_, ref) => {
-    const { translate } = useInternationalization()
-    const dialogRef = useRef<WarningDialogRef>(null)
+  const [removeBillingEntityDunningCampaign] = useRemoveBillingEntityDunningCampaignMutation({
+    refetchQueries: ['getBillingEntity'],
+  })
 
-    const [appliedDunningCampaignId, setAppliedDunningCampaignId] = useState<string | null>(null)
-    const [billingEntity, setBillingEntity] = useState<BillingEntity | null>(null)
+  const openRemoveAppliedDunningCampaignDialog = (billingEntity: BillingEntity) => {
+    centralizedDialog.open({
+      title: translate('text_1750663218391a7zbhnk61ce'),
+      description: <Typography>{translate('text_1750663218391z2s6w2of7xp')}</Typography>,
+      colorVariant: 'danger',
+      actionText: translate('text_175066321839172gm0lkz8eu'),
+      onAction: async () => {
+        const result = await removeBillingEntityDunningCampaign({
+          variables: {
+            input: {
+              appliedDunningCampaignId: null,
+              billingEntityId: billingEntity.id,
+            },
+          },
+        })
 
-    const [removeBillingEntityDunningCampaign] = useRemoveBillingEntityDunningCampaignMutation({
-      onCompleted(data) {
-        if (data) {
+        if (result.data) {
           addToast({
             message: translate('text_1750663218391vbamspkjr5g'),
             severity: 'success',
           })
         }
       },
-      refetchQueries: ['getBillingEntity'],
     })
+  }
 
-    useImperativeHandle(ref, () => ({
-      openDialog: (_billingEntity, _appliedDunningCampaignId) => {
-        setBillingEntity(_billingEntity)
-        setAppliedDunningCampaignId(_appliedDunningCampaignId)
-
-        dialogRef.current?.openDialog()
-      },
-      closeDialog: () => {
-        dialogRef.current?.closeDialog()
-      },
-    }))
-
-    return (
-      <WarningDialog
-        ref={dialogRef}
-        title={translate('text_1750663218391a7zbhnk61ce')}
-        description={<Typography>{translate('text_1750663218391z2s6w2of7xp')}</Typography>}
-        onContinue={async () => {
-          if (billingEntity && appliedDunningCampaignId) {
-            await removeBillingEntityDunningCampaign({
-              variables: {
-                input: {
-                  appliedDunningCampaignId: null,
-                  billingEntityId: billingEntity.id,
-                },
-              },
-            })
-          }
-        }}
-        continueText={translate('text_175066321839172gm0lkz8eu')}
-      />
-    )
-  },
-)
-
-RemoveAppliedDunningCampaignDialog.displayName = 'RemoveAppliedDunningCampaignDialog'
+  return { openRemoveAppliedDunningCampaignDialog }
+}

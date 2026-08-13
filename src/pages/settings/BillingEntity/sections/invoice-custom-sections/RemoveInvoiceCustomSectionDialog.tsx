@@ -1,8 +1,7 @@
 import { gql } from '@apollo/client'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 
 import { Typography } from '~/components/designSystem/Typography'
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
 import {
   BillingEntity,
@@ -18,68 +17,52 @@ gql`
   }
 `
 
-export type RemoveInvoiceCustomSectionDialogRef = {
-  openDialog: (billingEntity: BillingEntity, invoiceCustomSectionId: string) => unknown
-  closeDialog: () => unknown
+type RemoveInvoiceCustomSectionDialogArgs = {
+  billingEntity: BillingEntity
+  invoiceCustomSectionId: string
 }
 
-export const RemoveInvoiceCustomSectionDialog = forwardRef<RemoveInvoiceCustomSectionDialogRef>(
-  (_, ref) => {
-    const { translate } = useInternationalization()
-    const dialogRef = useRef<WarningDialogRef>(null)
+export const useRemoveInvoiceCustomSectionDialog = () => {
+  const centralizedDialog = useCentralizedDialog()
+  const { translate } = useInternationalization()
 
-    const [invoiceCustomSectionId, setInvoiceCustomSectionId] = useState<string | null>(null)
-    const [billingEntity, setBillingEntity] = useState<BillingEntity | null>(null)
+  const [removeInvoiceCustomSection] = useRemoveBillingEntityInvoiceCustomSectionMutation({
+    onCompleted(data) {
+      if (data) {
+        addToast({
+          message: translate('text_1749026767605fq828vbnnwr'),
+          severity: 'success',
+        })
+      }
+    },
+    refetchQueries: ['getBillingEntity'],
+  })
 
-    const [removeInvoiceCustomSection] = useRemoveBillingEntityInvoiceCustomSectionMutation({
-      onCompleted(data) {
-        if (data) {
-          addToast({
-            message: translate('text_1749026767605fq828vbnnwr'),
-            severity: 'success',
-          })
-        }
+  const openRemoveInvoiceCustomSectionDialog = ({
+    billingEntity,
+    invoiceCustomSectionId,
+  }: RemoveInvoiceCustomSectionDialogArgs) => {
+    centralizedDialog.open({
+      title: translate('text_1749026767605ghziw4tp647'),
+      description: <Typography>{translate('text_17490267676056wp5w8xz9h5')}</Typography>,
+      colorVariant: 'danger',
+      actionText: translate('text_1749035464124mstmqfrzuvl'),
+      onAction: async () => {
+        await removeInvoiceCustomSection({
+          variables: {
+            input: {
+              id: billingEntity.id,
+              invoiceCustomSectionIds: [
+                ...(billingEntity?.selectedInvoiceCustomSections
+                  ?.filter((s) => s.id !== invoiceCustomSectionId)
+                  .map((s) => s.id) || []),
+              ],
+            },
+          },
+        })
       },
-      refetchQueries: ['getBillingEntity'],
     })
+  }
 
-    useImperativeHandle(ref, () => ({
-      openDialog: (_billingEntity, _invoiceCustomSectionId) => {
-        setBillingEntity(_billingEntity)
-        setInvoiceCustomSectionId(_invoiceCustomSectionId)
-
-        dialogRef.current?.openDialog()
-      },
-      closeDialog: () => {
-        dialogRef.current?.closeDialog()
-      },
-    }))
-
-    return (
-      <WarningDialog
-        ref={dialogRef}
-        title={translate('text_1749026767605ghziw4tp647')}
-        description={<Typography>{translate('text_17490267676056wp5w8xz9h5')}</Typography>}
-        onContinue={async () => {
-          if (billingEntity && invoiceCustomSectionId) {
-            await removeInvoiceCustomSection({
-              variables: {
-                input: {
-                  id: billingEntity.id,
-                  invoiceCustomSectionIds: [
-                    ...(billingEntity?.selectedInvoiceCustomSections
-                      ?.filter((s) => s.id !== invoiceCustomSectionId)
-                      .map((s) => s.id) || []),
-                  ],
-                },
-              },
-            })
-          }
-        }}
-        continueText={translate('text_1749035464124mstmqfrzuvl')}
-      />
-    )
-  },
-)
-
-RemoveInvoiceCustomSectionDialog.displayName = 'RemoveInvoiceCustomSectionDialog'
+  return { openRemoveInvoiceCustomSectionDialog }
+}

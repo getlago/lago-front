@@ -1,8 +1,12 @@
+import NiceModal from '@ebay/nice-modal-react'
 import { act, cleanup, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { useEffect, useReducer } from 'react'
 
-import { WARNING_DIALOG_CONFIRM_BUTTON_TEST_ID } from '~/components/designSystem/WarningDialog'
+import CentralizedDialog from '~/components/dialogs/CentralizedDialog'
+import {
+  CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID,
+  CENTRALIZED_DIALOG_NAME,
+} from '~/components/dialogs/const'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { CountryCode } from '~/generated/graphql'
 import { render } from '~/test-utils'
@@ -68,24 +72,14 @@ jest.mock('~/generated/graphql', () => ({
   useUpdateBillingEntityMutation: jest.fn(() => [mockUpdate]),
 }))
 
-// The remove button captures deleteConnectionRef.current at render time.
-// Refs are set after the commit phase, so a second render is needed
-// for the onClick handler to capture the populated ref.
-// This wrapper forces a re-render after mount to solve the issue.
-const PageWithRefCapture = () => {
-  const [, forceUpdate] = useReducer((x: number) => x + 1, 0)
+NiceModal.register(CENTRALIZED_DIALOG_NAME, CentralizedDialog)
 
-  useEffect(() => {
-    forceUpdate()
-  }, [])
-
-  return (
-    <>
-      <MainHeader />
-      <LagoTaxManagementIntegration />
-    </>
-  )
-}
+const Page = () => (
+  <NiceModal.Provider>
+    <MainHeader />
+    <LagoTaxManagementIntegration />
+  </NiceModal.Provider>
+)
 
 describe('LagoTaxManagementIntegration', () => {
   beforeEach(() => {
@@ -96,7 +90,7 @@ describe('LagoTaxManagementIntegration', () => {
 
   const renderPage = async () => {
     await act(async () => {
-      render(<PageWithRefCapture />)
+      render(<Page />)
     })
   }
 
@@ -128,7 +122,7 @@ describe('LagoTaxManagementIntegration', () => {
 
         await user.click(removeButton)
 
-        const confirmButton = await screen.findByTestId(WARNING_DIALOG_CONFIRM_BUTTON_TEST_ID)
+        const confirmButton = await screen.findByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID)
 
         await user.click(confirmButton)
 
@@ -152,7 +146,7 @@ describe('LagoTaxManagementIntegration', () => {
 
         await user.click(removeButton)
 
-        const confirmButton = await screen.findByTestId(WARNING_DIALOG_CONFIRM_BUTTON_TEST_ID)
+        const confirmButton = await screen.findByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID)
 
         await user.click(confirmButton)
 
@@ -178,7 +172,7 @@ describe('LagoTaxManagementIntegration', () => {
 
         await user.click(removeButton)
 
-        const confirmButton = await screen.findByTestId(WARNING_DIALOG_CONFIRM_BUTTON_TEST_ID)
+        const confirmButton = await screen.findByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID)
 
         await user.click(confirmButton)
 
@@ -200,7 +194,7 @@ describe('LagoTaxManagementIntegration', () => {
 
         await user.click(removeButton)
 
-        const confirmButton = await screen.findByTestId(WARNING_DIALOG_CONFIRM_BUTTON_TEST_ID)
+        const confirmButton = await screen.findByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID)
 
         await user.click(confirmButton)
 

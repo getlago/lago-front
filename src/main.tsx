@@ -70,6 +70,22 @@ if (!!sentryDsn && appEnv !== AppEnvEnum.development) {
   })
 }
 
+// Vite fires this when a dynamic import fails to preload, typically a chunk
+// removed by a deploy while the tab was open. Report only: calling
+// `event.preventDefault()` would swallow the rejection the router's `retry()`
+// and the error boundaries rely on to recover.
+window.addEventListener('vite:preloadError', (event) => {
+  Sentry.captureMessage('Chunk preload failed', {
+    level: 'warning',
+    tags: { chunkLoad: true, phase: 'preload' },
+    extra: {
+      reason: event.payload?.message,
+      href: window.location.href,
+      appVersion,
+    },
+  })
+})
+
 if (appEnv !== AppEnvEnum.production) {
   window.Lago = {
     getEnableFeatureFlags: getEnableFeatureFlags,

@@ -1,9 +1,15 @@
+import { ApolloError } from '@apollo/client'
 import { act, renderHook } from '@testing-library/react'
 import { ReactNode } from 'react'
 import { z } from 'zod'
 
-import { fromBillingItems } from '~/core/serializers/serializeQuoteBillingItems'
+import { addToast } from '~/core/apolloClient'
+import { fromBillingItems, toBillingItems } from '~/core/serializers/serializeQuoteBillingItems'
 import { CurrencyEnum } from '~/generated/graphql'
+import {
+  QUOTE_FIELD_ERROR_KEY,
+  QUOTE_SAVE_FAILED_TOAST_KEY,
+} from '~/pages/quotes/utils/quoteSaveErrorKeys'
 import { AllTheProviders } from '~/test-utils'
 
 import { useOneOffPricingDrawer } from '../useOneOffPricingDrawer'
@@ -58,11 +64,28 @@ jest.mock('~/components/drawers/drawerStack', () => ({
   },
 }))
 
+jest.mock('~/core/apolloClient', () => ({
+  ...jest.requireActual('~/core/apolloClient'),
+  addToast: jest.fn(),
+}))
+
+const mockAddToast = addToast as jest.Mock
+
 const mockFormReset = jest.fn()
-const mockHandleSubmit = jest.fn()
+const mockSetFieldMeta = jest.fn()
 
 // Capture the onSubmit and setFieldValue calls from useAppForm
-let capturedOnSubmit: ((args: { value: Record<string, unknown> }) => void) | null = null
+let capturedOnSubmit:
+  ((args: { value: Record<string, unknown> }) => void | Promise<unknown>) | null = null
+
+// Capture the form-level listeners (the `onChange` clears stale server errors).
+let capturedListeners: { onChange?: (args: { formApi: unknown }) => void } | null = null
+
+// Simulates real TanStack form behavior: handleSubmit() runs the captured onSubmit
+// with the current form values.
+const mockHandleSubmit = jest.fn(async () => {
+  await capturedOnSubmit?.({ value: mockFormValues })
+})
 const mockSetFieldValue = jest.fn()
 let mockFormValues = { planId: '', addOnItems: [] as Record<string, unknown>[] }
 
@@ -82,10 +105,16 @@ jest.mock('~/hooks/forms/useAppform', () => ({
       capturedOnSubmit = config.onSubmit as typeof capturedOnSubmit
     }
 
+    if (config.listeners) {
+      capturedListeners = config.listeners as typeof capturedListeners
+    }
+
     return {
       reset: mockFormReset,
       handleSubmit: mockHandleSubmit,
       setFieldValue: mockSetFieldValue,
+      setFieldMeta: mockSetFieldMeta,
+      getFieldMeta: jest.fn(() => undefined),
       state: {
         canSubmit: true,
         get values() {
@@ -126,6 +155,7 @@ jest.mock('../useSubscriptionPricingDrawer', () => ({
 }))
 
 const mockedFromBillingItems = fromBillingItems as jest.Mock
+const mockedToBillingItems = toBillingItems as jest.Mock
 
 const wrapper = ({ children }: { children: ReactNode }) => (
   <AllTheProviders>{children}</AllTheProviders>
@@ -135,22 +165,22 @@ const wrapper = ({ children }: { children: ReactNode }) => (
 
 const mockAddOnPayload = {
   position: 1,
-  add_on_code: 'setup',
+  code: 'setup',
   name: 'Setup Fee',
   description: 'One-time setup fee',
   units: 1,
-  unit_amount_cents: 10000,
-  total_amount_cents: 10000,
-  invoice_display_name: 'Setup',
-  from_datetime: null,
-  to_datetime: null,
-  tax_codes: ['vat_20'],
+  unitAmountCents: 10000,
+  totalAmountCents: 10000,
+  invoiceDisplayName: 'Setup',
+  fromDatetime: null,
+  toDatetime: null,
+  taxCodes: ['vat_20'],
 }
 
 const mockBillingItemsPayload = {
-  addons: [
+  addOns: [
     {
-      type: 'addon' as const,
+      type: 'add_on' as const,
       id: 'addon-1',
       payload: mockAddOnPayload,
       overrides: {},
@@ -231,7 +261,10 @@ describe('useOneOffPricingDrawer', () => {
           wrapper,
         })
 
-        expect(mockedFromBillingItems).toHaveBeenCalledWith(mockBillingItemsPayload)
+        expect(mockedFromBillingItems).toHaveBeenCalledWith(
+          mockBillingItemsPayload,
+          CurrencyEnum.Usd,
+        )
         // Entities should include both localId-keyed and backward-compat catalog-keyed entries
         expect(result.current.entities).toEqual({
           'local-uuid-1': expect.objectContaining({
@@ -252,7 +285,7 @@ describe('useOneOffPricingDrawer', () => {
 
     describe('WHEN initialBillingItems has no addons', () => {
       it('THEN should not call fromBillingItems', () => {
-        const emptyPayload = { addons: [] }
+        const emptyPayload = { addOns: [] }
 
         renderHook(() => useOneOffPricingDrawer(emptyPayload), { wrapper })
 
@@ -420,9 +453,13 @@ describe('useOneOffPricingDrawer', () => {
       })
     })
 
-    describe('WHEN all entities are referenced in blocks (with backward-compat entries)', () => {
-      it('THEN should clean up backward-compat keys and return updated billing items', () => {
-        // Hydration creates both localId-keyed and backward-compat catalog-keyed entries
+    describe('WHEN a block references an add-on by localEntityId and the catalog alias also exists in state', () => {
+      it('THEN should treat the add-on as active and return null (the alias is not a real orphan)', () => {
+        // Regression: after a save→refetch, hydration dual-keys state by both
+        // localId and the catalog addOnId. A block still references the add-on
+        // via its localEntityId, so the addOnId alias must NOT be mistaken for a
+        // deleted add-on — otherwise a no-op sync (e.g. on the editor preview
+        // toggle) rebuilds from catalog payloads and wipes the user's overrides.
         mockedFromBillingItems.mockReturnValue({
           entities: {
             'local-uuid-1': {
@@ -462,19 +499,220 @@ describe('useOneOffPricingDrawer', () => {
           syncResult = result.current.syncEntitiesWithBlocks(blocks)
         })
 
-        // Backward-compat key 'addon-1' was orphaned and cleaned up
-        expect(syncResult).not.toBeNull()
+        // No genuine deletion → no save, and both keys are retained (the alias
+        // is still needed to resolve legacy blocks that reference the catalog id)
+        expect(syncResult).toBeNull()
+        expect(mockedToBillingItems).not.toHaveBeenCalled()
         expect(result.current.entities).toHaveProperty('local-uuid-1')
-        expect(result.current.entities).not.toHaveProperty('addon-1')
+        expect(result.current.entities).toHaveProperty('addon-1')
       })
     })
 
-    describe('WHEN some entities are not referenced in blocks', () => {
-      it('THEN should remove orphaned entities and return updated billing items', () => {
+    describe('WHEN a block has been deleted so one add-on is no longer referenced', () => {
+      it('THEN should remove the orphaned add-on and rebuild survivors via toBillingItems (preserving overrides)', () => {
         const secondPayload = {
           ...mockAddOnPayload,
           position: 2,
-          add_on_code: 'onboarding',
+          code: 'onboarding',
+          name: 'Onboarding Fee',
+        }
+
+        mockedFromBillingItems.mockReturnValue({
+          entities: {
+            'local-uuid-1': {
+              entityId: 'local-uuid-1',
+              entityType: 'addOn',
+              name: 'Setup Fee',
+              code: 'setup',
+              units: '2',
+              unitAmountCents: '2000',
+              totalAmount: '4000',
+            },
+            'local-uuid-2': {
+              entityId: 'local-uuid-2',
+              entityType: 'addOn',
+              name: 'Onboarding Fee',
+              code: 'onboarding',
+            },
+          },
+          originalPayloads: {
+            'local-uuid-1': mockAddOnPayload,
+            'local-uuid-2': secondPayload,
+          },
+          addOnItems: [
+            { localId: 'local-uuid-1', addOnId: 'addon-1', name: 'Setup Fee', code: 'setup' },
+            {
+              localId: 'local-uuid-2',
+              addOnId: 'addon-2',
+              name: 'Onboarding Fee',
+              code: 'onboarding',
+            },
+          ],
+        })
+
+        const rebuilt = {
+          addOns: [
+            {
+              type: 'add_on' as const,
+              id: 'addon-1',
+              localId: 'local-uuid-1',
+              payload: mockAddOnPayload,
+              overrides: { units: 2, unitAmountCents: 2000, totalAmountCents: 4000 },
+            },
+          ],
+        }
+
+        mockedToBillingItems.mockReturnValueOnce(rebuilt)
+
+        const billingItemsWithTwo = {
+          addOns: [
+            {
+              type: 'add_on' as const,
+              id: 'addon-1',
+              payload: mockAddOnPayload,
+              overrides: {},
+            },
+            {
+              type: 'add_on' as const,
+              id: 'addon-2',
+              payload: secondPayload,
+              overrides: {},
+            },
+          ],
+        }
+
+        const { result } = renderHook(() => useOneOffPricingDrawer(billingItemsWithTwo), {
+          wrapper,
+        })
+
+        // Blocks only reference local-uuid-1, so local-uuid-2 becomes orphaned
+        const blocks = [
+          {
+            pricingType: 'addOns' as const,
+            entityIds: ['addon-1'],
+            localEntityIds: ['local-uuid-1'],
+          },
+        ]
+
+        let syncResult: unknown
+
+        act(() => {
+          syncResult = result.current.syncEntitiesWithBlocks(blocks)
+        })
+
+        // Survivors are rebuilt through toBillingItems so overrides are preserved
+        expect(syncResult).toBe(rebuilt)
+        expect(mockedToBillingItems).toHaveBeenCalledTimes(1)
+
+        const [survivingItems] = mockedToBillingItems.mock.calls[0]
+
+        // Only the surviving add-on is passed, carrying its localId + catalog addOnId
+        // and its edited values (not catalog defaults)
+        expect(survivingItems).toHaveLength(1)
+        expect(survivingItems[0]).toMatchObject({
+          localId: 'local-uuid-1',
+          addOnId: 'addon-1',
+          units: '2',
+          unitAmountCents: '2000',
+          totalAmount: '4000',
+        })
+
+        // Orphaned add-on removed from state, including its backward-compat alias
+        expect(result.current.entities).toHaveProperty('local-uuid-1')
+        expect(result.current.entities).not.toHaveProperty('local-uuid-2')
+        expect(result.current.entities).not.toHaveProperty('addon-2')
+      })
+    })
+
+    describe('WHEN a deleted add-on block re-appears (undo / Cmd+Z)', () => {
+      it('THEN should re-hydrate the add-on from the removed cache, preserving overrides', () => {
+        mockedFromBillingItems.mockReturnValue({
+          entities: {
+            'local-uuid-1': {
+              entityId: 'local-uuid-1',
+              entityType: 'addOn',
+              name: 'Setup Fee',
+              code: 'setup',
+              units: '2',
+              unitAmountCents: '2000',
+              totalAmount: '4000',
+            },
+          },
+          originalPayloads: {
+            'local-uuid-1': mockAddOnPayload,
+          },
+          addOnItems: [
+            { localId: 'local-uuid-1', addOnId: 'addon-1', name: 'Setup Fee', code: 'setup' },
+          ],
+        })
+
+        // Delete rebuild has no survivors; undo rebuild carries the restored add-on.
+        mockedToBillingItems
+          .mockReturnValueOnce({ addOns: [] })
+          .mockReturnValueOnce({ addOns: [{ type: 'add_on', id: 'addon-1' }] })
+
+        const billingItemsWithOne = {
+          addOns: [
+            {
+              type: 'add_on' as const,
+              id: 'addon-1',
+              payload: mockAddOnPayload,
+              overrides: {},
+            },
+          ],
+        }
+
+        const { result } = renderHook(() => useOneOffPricingDrawer(billingItemsWithOne), {
+          wrapper,
+        })
+
+        // Delete: no block references the add-on, so it is pruned (and cached).
+        act(() => {
+          result.current.syncEntitiesWithBlocks([
+            { pricingType: 'addOns' as const, entityIds: [], localEntityIds: [] },
+          ])
+        })
+
+        expect(result.current.entities).not.toHaveProperty('local-uuid-1')
+        expect(result.current.entities).not.toHaveProperty('addon-1')
+
+        // Undo: TipTap re-inserts the block referencing local-uuid-1.
+        act(() => {
+          result.current.syncEntitiesWithBlocks([
+            {
+              pricingType: 'addOns' as const,
+              entityIds: ['addon-1'],
+              localEntityIds: ['local-uuid-1'],
+            },
+          ])
+        })
+
+        // Entity is back (NodeView resolves again) and the rebuild ran with the
+        // restored add-on carrying its edited overrides, not catalog defaults.
+        expect(result.current.entities).toHaveProperty('local-uuid-1')
+
+        const lastCall = mockedToBillingItems.mock.calls.at(-1)
+        const survivingItems = lastCall?.[0]
+        const payloads = lastCall?.[1]
+
+        expect(survivingItems).toHaveLength(1)
+        expect(survivingItems[0]).toMatchObject({
+          localId: 'local-uuid-1',
+          addOnId: 'addon-1',
+          units: '2',
+          unitAmountCents: '2000',
+          totalAmount: '4000',
+        })
+        expect(payloads).toHaveProperty('local-uuid-1')
+      })
+    })
+
+    describe('WHEN a restored add-on block re-appears ahead of a survivor (undo)', () => {
+      it('THEN should rebuild add-ons in document order (position follows the doc)', () => {
+        const secondPayload = {
+          ...mockAddOnPayload,
+          position: 2,
+          code: 'onboarding',
           name: 'Onboarding Fee',
         }
 
@@ -508,20 +746,13 @@ describe('useOneOffPricingDrawer', () => {
           ],
         })
 
+        // Once (not persistent) so the return does not leak into sibling tests.
+        mockedToBillingItems.mockReturnValueOnce({ addOns: [] }).mockReturnValueOnce({ addOns: [] })
+
         const billingItemsWithTwo = {
-          addons: [
-            {
-              type: 'addon' as const,
-              id: 'addon-1',
-              payload: mockAddOnPayload,
-              overrides: {},
-            },
-            {
-              type: 'addon' as const,
-              id: 'addon-2',
-              payload: secondPayload,
-              overrides: {},
-            },
+          addOns: [
+            { type: 'add_on' as const, id: 'addon-1', payload: mockAddOnPayload, overrides: {} },
+            { type: 'add_on' as const, id: 'addon-2', payload: secondPayload, overrides: {} },
           ],
         }
 
@@ -529,32 +760,40 @@ describe('useOneOffPricingDrawer', () => {
           wrapper,
         })
 
-        // Blocks only reference local-uuid-1, so local-uuid-2 becomes orphaned
-        const blocks = [
-          {
-            pricingType: 'addOns' as const,
-            entityIds: ['addon-1'],
-            localEntityIds: ['local-uuid-1'],
-          },
-        ]
-
-        let syncResult: unknown
-
+        // Delete the FIRST add-on; only local-uuid-2 remains referenced.
         act(() => {
-          syncResult = result.current.syncEntitiesWithBlocks(blocks)
+          result.current.syncEntitiesWithBlocks([
+            {
+              pricingType: 'addOns' as const,
+              entityIds: ['addon-2'],
+              localEntityIds: ['local-uuid-2'],
+            },
+          ])
         })
 
-        expect(syncResult).not.toBeNull()
+        // Undo re-inserts local-uuid-1 ahead of local-uuid-2 (document order).
+        act(() => {
+          result.current.syncEntitiesWithBlocks([
+            {
+              pricingType: 'addOns' as const,
+              entityIds: ['addon-1'],
+              localEntityIds: ['local-uuid-1'],
+            },
+            {
+              pricingType: 'addOns' as const,
+              entityIds: ['addon-2'],
+              localEntityIds: ['local-uuid-2'],
+            },
+          ])
+        })
 
-        const payload = syncResult as { addons: Array<{ id: string }> }
+        // survivingItems passed to toBillingItems follow doc order, not append order.
+        const survivingItems = mockedToBillingItems.mock.calls.at(-1)?.[0]
 
-        // Only local-uuid-1 should remain
-        expect(payload.addons).toHaveLength(1)
-        expect(payload.addons[0].id).toBe('local-uuid-1')
-
-        // Entities should no longer include local-uuid-2
-        expect(result.current.entities).toHaveProperty('local-uuid-1')
-        expect(result.current.entities).not.toHaveProperty('local-uuid-2')
+        expect(survivingItems.map((i: { localId: string }) => i.localId)).toEqual([
+          'local-uuid-1',
+          'local-uuid-2',
+        ])
       })
     })
 
@@ -685,12 +924,13 @@ describe('useOneOffPricingDrawer', () => {
     })
   })
 
-  describe('GIVEN customerCurrency is provided', () => {
+  describe('GIVEN a quote currency is provided', () => {
     describe('WHEN onPricingCommand is called', () => {
-      it('THEN should pass the customerCurrency to the drawer content instead of organization default', () => {
-        const { result } = renderHook(() => useOneOffPricingDrawer(undefined, CurrencyEnum.Eur), {
-          wrapper,
-        })
+      it('THEN should pass it to the drawer content instead of the organization default', () => {
+        const { result } = renderHook(
+          () => useOneOffPricingDrawer(undefined, { currency: CurrencyEnum.Eur }),
+          { wrapper },
+        )
 
         act(() => {
           result.current.onPricingCommand({
@@ -706,9 +946,11 @@ describe('useOneOffPricingDrawer', () => {
       })
     })
 
-    describe('WHEN customerCurrency is null', () => {
+    describe('WHEN the quote currency is null', () => {
       it('THEN should fall back to organization defaultCurrency', () => {
-        const { result } = renderHook(() => useOneOffPricingDrawer(undefined, null), { wrapper })
+        const { result } = renderHook(() => useOneOffPricingDrawer(undefined, { currency: null }), {
+          wrapper,
+        })
 
         act(() => {
           result.current.onPricingCommand({
@@ -724,7 +966,7 @@ describe('useOneOffPricingDrawer', () => {
       })
     })
 
-    describe('WHEN customerCurrency is not provided', () => {
+    describe('WHEN the quote currency is not provided', () => {
       it('THEN should use organization defaultCurrency', () => {
         const { result } = renderHook(() => useOneOffPricingDrawer(), { wrapper })
 
@@ -745,7 +987,7 @@ describe('useOneOffPricingDrawer', () => {
 
   describe('GIVEN the form onSubmit handler is invoked', () => {
     describe('WHEN submitting for a one-off with confirmed add-on items', () => {
-      it('THEN should call onSave with add-on entity data and billing items', () => {
+      it('THEN should call onSave with add-on entity data and billing items', async () => {
         const mockOnSave = jest.fn()
 
         const { result } = renderHook(() => useOneOffPricingDrawer(), {
@@ -779,8 +1021,8 @@ describe('useOneOffPricingDrawer', () => {
           ],
         }
 
-        act(() => {
-          capturedOnSubmit?.({ value: mockFormValues })
+        await act(async () => {
+          await capturedOnSubmit?.({ value: mockFormValues })
         })
 
         expect(mockOnSave).toHaveBeenCalledWith(
@@ -798,6 +1040,8 @@ describe('useOneOffPricingDrawer', () => {
             }),
           }),
           undefined, // toBillingItems is mocked, returns undefined
+          // No add-on payload was captured in this test, so nothing seeds the currency.
+          undefined,
         )
 
         // Entities should be updated (keyed by localId)
@@ -915,7 +1159,80 @@ describe('useOneOffPricingDrawer', () => {
             'local-uuid-new': expect.objectContaining({ entityId: 'local-uuid-new' }),
           }),
           undefined, // toBillingItems is mocked, returns undefined
+          // The quote has no currency of its own: the add-on's seeds it.
+          'USD',
         )
+      })
+    })
+
+    describe('WHEN the quote already owns a currency', () => {
+      it('THEN should not forward the add-on currency', () => {
+        const { result } = renderHook(
+          () =>
+            useOneOffPricingDrawer(undefined, {
+              currency: CurrencyEnum.Eur,
+              hasQuoteCurrency: true,
+            }),
+          { wrapper },
+        )
+
+        act(() => {
+          result.current.onPricingCommand({ onSave: jest.fn(), editData: undefined })
+        })
+
+        const captureCallback =
+          mockFormDrawerOpen.mock.calls[0][0].children.props.onAddOnPayloadCapture
+
+        act(() => {
+          captureCallback('local-uuid-new', {
+            id: 'addon-new',
+            code: 'onboarding',
+            name: 'Onboarding Fee',
+            description: 'One-time onboarding',
+            amountCents: '7500',
+            amountCurrency: 'USD',
+            invoiceDisplayName: 'Onboarding',
+            taxes: [],
+          })
+        })
+
+        mockFormValues = {
+          planId: '',
+          addOnItems: [
+            {
+              localId: 'local-uuid-new',
+              addOnId: 'addon-new',
+              name: 'Onboarding Fee',
+              invoiceDisplayName: 'Onboarding',
+              code: 'onboarding',
+              description: 'One-time onboarding',
+              units: '1',
+              unitAmountCents: '7500',
+              totalAmount: '7500',
+              fromDatetime: '2026-01-01',
+              toDatetime: '2026-01-31',
+            },
+          ],
+        }
+
+        const mockOnSave = jest.fn()
+
+        act(() => {
+          result.current.onPricingCommand({
+            onSave: mockOnSave,
+            editData: {
+              pricingType: 'addOns',
+              entityIds: ['addon-new'],
+              localEntityIds: ['local-uuid-new'],
+            },
+          })
+        })
+
+        act(() => {
+          capturedOnSubmit?.({ value: mockFormValues })
+        })
+
+        expect(mockOnSave.mock.calls[0][3]).toBeUndefined()
       })
     })
   })
@@ -939,6 +1256,169 @@ describe('useOneOffPricingDrawer', () => {
         })
 
         expect(mockHandleSubmit).toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the save returns an error from the API', () => {
+    const confirmedAddOnItem = {
+      localId: 'local-uuid-1',
+      addOnId: 'addon-1',
+      name: 'Setup Fee',
+      invoiceDisplayName: 'Setup',
+      code: 'setup',
+      description: 'Desc',
+      units: '2',
+      unitAmountCents: '5000',
+      totalAmount: '10000',
+      fromDatetime: '2026-01-01',
+      toDatetime: '2026-01-31',
+    }
+
+    describe('WHEN the save resolves a mapped 422 field error', () => {
+      it('THEN should set a server field error, not commit entities, and keep the drawer open', async () => {
+        const mappedError = new ApolloError({
+          graphQLErrors: [
+            {
+              message: 'Unprocessable Entity',
+              extensions: {
+                code: 'unprocessable_entity',
+                details: { 'billingItems.add_ons.0.unitAmountCents': ['value_is_invalid'] },
+              },
+            } as never,
+          ],
+        })
+
+        const mockOnSave = jest.fn().mockResolvedValue({ ok: false, error: mappedError })
+
+        const { result } = renderHook(() => useOneOffPricingDrawer(), { wrapper })
+
+        act(() => {
+          result.current.onPricingCommand({
+            onSave: mockOnSave,
+            editData: undefined,
+          })
+        })
+
+        mockFormValues = {
+          planId: '',
+          addOnItems: [confirmedAddOnItem],
+        }
+
+        const callArgs = mockFormDrawerOpen.mock.calls[0][0]
+
+        await act(async () => {
+          await expect(callArgs.form.submit()).rejects.toThrow()
+        })
+
+        expect(mockSetFieldMeta).toHaveBeenCalledWith(
+          'addOnItems[0].unitAmountCents',
+          expect.any(Function),
+        )
+
+        // The failed save routes the field error onto the unit-amount input via
+        // `setServerFieldErrors`, which parks it in the `onDynamic` slot.
+        const metaUpdaterCall = mockSetFieldMeta.mock.calls
+          .filter(([path]) => path === 'addOnItems[0].unitAmountCents')
+          .pop()
+
+        const updatedMeta = metaUpdaterCall?.[1]({ errorMap: {} })
+
+        expect(updatedMeta.errorMap.onDynamic).toEqual({ message: QUOTE_FIELD_ERROR_KEY })
+
+        // Entities should NOT be committed since the save failed
+        expect(result.current.entities).not.toHaveProperty('local-uuid-1')
+        expect(mockAddToast).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the save resolves an unmappable error', () => {
+      it('THEN should show a generic failure toast and keep the drawer open', async () => {
+        const unmappableError = new ApolloError({
+          graphQLErrors: [
+            {
+              message: 'Internal Server Error',
+              extensions: { code: 'internal_server_error' },
+            } as never,
+          ],
+        })
+
+        const mockOnSave = jest.fn().mockResolvedValue({ ok: false, error: unmappableError })
+
+        const { result } = renderHook(() => useOneOffPricingDrawer(), { wrapper })
+
+        act(() => {
+          result.current.onPricingCommand({
+            onSave: mockOnSave,
+            editData: undefined,
+          })
+        })
+
+        mockFormValues = {
+          planId: '',
+          addOnItems: [confirmedAddOnItem],
+        }
+
+        const callArgs = mockFormDrawerOpen.mock.calls[0][0]
+
+        await act(async () => {
+          await expect(callArgs.form.submit()).rejects.toThrow()
+        })
+
+        expect(mockAddToast).toHaveBeenCalledWith({
+          severity: 'danger',
+          translateKey: QUOTE_SAVE_FAILED_TOAST_KEY,
+        })
+
+        expect(result.current.entities).not.toHaveProperty('local-uuid-1')
+      })
+    })
+  })
+
+  describe('GIVEN a field is edited after a server error (clear-on-edit)', () => {
+    it('THEN the onChange listener clears only fields holding OUR server error (gated by message)', () => {
+      const { result } = renderHook(() => useOneOffPricingDrawer(), { wrapper })
+
+      act(() => {
+        result.current.onPricingCommand({ onSave: jest.fn(), editData: undefined })
+      })
+
+      expect(capturedListeners?.onChange).toBeInstanceOf(Function)
+
+      // Per-path meta: our server error, a genuine Zod error (same slot), and
+      // never-mounted fields.
+      const metaByPath: Record<string, unknown> = {
+        'addOnItems[0].units': undefined,
+        'addOnItems[0].unitAmountCents': {
+          errorMap: { onDynamic: { message: QUOTE_FIELD_ERROR_KEY } },
+        },
+        'addOnItems[1].units': { errorMap: { onDynamic: { message: 'a_zod_error' } } },
+        'addOnItems[1].unitAmountCents': undefined,
+      }
+
+      const setFieldMeta = jest.fn()
+      const getFieldMeta = jest.fn((path: string) => metaByPath[path])
+      const formApi = {
+        state: { values: { addOnItems: [{ addOnId: 'addon-1' }, { addOnId: 'addon-2' }] } },
+        getFieldMeta,
+        setFieldMeta,
+      }
+
+      act(() => {
+        capturedListeners?.onChange?.({ formApi })
+      })
+
+      // Only the field carrying our server error is cleared — the Zod error and
+      // the unmounted fields are left untouched.
+      const clearedPaths = setFieldMeta.mock.calls.map(([path]) => path)
+
+      expect(clearedPaths).toEqual(['addOnItems[0].unitAmountCents'])
+
+      // The updater drops just the onDynamic slot.
+      const updater = setFieldMeta.mock.calls[0][1]
+
+      expect(updater({ errorMap: { onDynamic: { message: QUOTE_FIELD_ERROR_KEY } } })).toEqual({
+        errorMap: { onDynamic: undefined },
       })
     })
   })

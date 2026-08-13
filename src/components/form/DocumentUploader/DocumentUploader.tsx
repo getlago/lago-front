@@ -106,16 +106,12 @@ export const DocumentUploader: FC<DocumentUploaderProps> = ({
           <Icon name="upload" />
         </div>
         <div className="flex flex-col items-center text-center">
-          {
-            <div className="flex flex-row gap-1">
-              <Typography variant="bodyHl" color="primary600">
-                {translate('text_178168659412569kiwbxedzw')}
-              </Typography>
-              <Typography variant="bodyHl" color="grey700">
-                {translate('text_1781709211816eyrk9jcabsg')}
-              </Typography>
-            </div>
-          }
+          <Typography className="text-center" variant="bodyHl" color="grey700">
+            <Typography component="span" variant="bodyHl" color="primary600">
+              {translate('text_178168659412569kiwbxedzw')}
+            </Typography>{' '}
+            {translate('text_1781709211816eyrk9jcabsg')}
+          </Typography>
           {description && (
             <Typography variant="caption" color="grey600">
               {description}

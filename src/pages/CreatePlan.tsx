@@ -1,16 +1,17 @@
 import { gql } from '@apollo/client'
 import { useStore } from '@tanstack/react-form'
-import { useCallback, useRef } from 'react'
+import { useCallback } from 'react'
 import { generatePath, useSearchParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { CommitmentsSection } from '~/components/plans/CommitmentsSection'
 import { useCascadeFormDialog } from '~/components/plans/details-v2/shared/useCascadeFormDialog'
 import { FeatureEntitlementSection } from '~/components/plans/FeatureEntitlementSection'
 import { FixedChargesSection } from '~/components/plans/form/FixedChargesSection'
+import { PlanMetadataSection } from '~/components/plans/PlanMetadataSection'
 import { PlanSettingsSection } from '~/components/plans/PlanSettingsSection'
 import { ProgressiveBillingSection } from '~/components/plans/ProgressiveBillingSection'
 import { SubscriptionFeeSection } from '~/components/plans/SubscriptionFeeSection'
@@ -39,6 +40,7 @@ import {
   PlanForSubscriptionFeeSectionFragmentDoc,
   PlanForUsageChargeAccordionFragmentDoc,
   PlanInterval,
+  PlanMetadataForPlanFragmentDoc,
   UsageChargeForDrawerFragmentDoc,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -130,6 +132,7 @@ gql`
     ...PlanForSubscriptionFeeSection
     ...FeatureEntitlementForPlan
     ...FixedChargesOnPlanForm
+    ...PlanMetadataForPlan
   }
 
   ${UsageChargeForDrawerFragmentDoc}
@@ -138,6 +141,7 @@ gql`
   ${PlanForSubscriptionFeeSectionFragmentDoc}
   ${FeatureEntitlementForPlanFragmentDoc}
   ${FixedChargesOnPlanFormFragmentDoc}
+  ${PlanMetadataForPlanFragmentDoc}
 `
 
 const CreatePlan = () => {
@@ -146,7 +150,7 @@ const CreatePlan = () => {
   const { type: actionType } = useDuplicatePlanVar()
   const [searchParams] = useSearchParams()
   const { form, isEdition, loading, plan, type } = usePlanForm({})
-  const warningDialogRef = useRef<WarningDialogRef>(null)
+  const centralizedDialog = useCentralizedDialog()
   const { openCascadeDialog } = useCascadeFormDialog()
 
   const canBeEdited = !plan?.subscriptionsCount
@@ -193,13 +197,23 @@ const CreatePlan = () => {
     }
   }, [navigate, plan?.id, searchParams, actionType])
 
+  const openDirtyAttributesWarning = useCallback(() => {
+    centralizedDialog.open({
+      title: translate('text_665deda4babaf700d603ea13'),
+      description: translate('text_665dedd557dc3c00c62eb83d'),
+      actionText: translate('text_645388d5bdbd7b00abffa033'),
+      colorVariant: 'danger',
+      onAction: () => planCloseRedirection(),
+    })
+  }, [centralizedDialog, planCloseRedirection, translate])
+
   const onLeave = useCallback(() => {
     if (isDirty) {
-      return warningDialogRef.current?.openDialog()
+      return openDirtyAttributesWarning()
     }
 
     return planCloseRedirection()
-  }, [isDirty, planCloseRedirection])
+  }, [isDirty, openDirtyAttributesWarning, planCloseRedirection])
 
   const handleFormSubmit = useCallback(() => {
     if (isEdition && plan?.hasOverriddenPlans) {
@@ -304,6 +318,8 @@ const CreatePlan = () => {
                     <CommitmentsSection form={form} />
 
                     <FeatureEntitlementSection form={form} isEdition={isEdition} />
+
+                    <PlanMetadataSection form={form} />
                   </CenteredPage.SubsectionWrapper>
                 </CenteredPage.SectionWrapper>
               </>
@@ -341,14 +357,6 @@ const CreatePlan = () => {
           )}
         </CenteredPage.Wrapper>
       </form>
-
-      <WarningDialog
-        ref={warningDialogRef}
-        title={translate('text_665deda4babaf700d603ea13')}
-        description={translate('text_665dedd557dc3c00c62eb83d')}
-        continueText={translate('text_645388d5bdbd7b00abffa033')}
-        onContinue={() => planCloseRedirection()}
-      />
     </PlanFormProvider>
   )
 }

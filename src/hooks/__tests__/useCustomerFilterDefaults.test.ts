@@ -3,14 +3,13 @@ import { renderHook } from '@testing-library/react'
 import {
   AvailableFiltersEnum,
   filterDataInlineSeparator,
-} from '~/components/designSystem/Filters/types'
-import { CurrencyEnum, FeatureFlagEnum } from '~/generated/graphql'
+} from '~/components/Filters/presentation/types'
+import { CurrencyEnum } from '~/generated/graphql'
 
 import type { BillingEntityOption } from '../useBillingEntitiesOptions'
 import { useCustomerFilterDefaults } from '../useCustomerFilterDefaults'
 
 const mockUseBillingEntitiesOptions = jest.fn<{ options: BillingEntityOption[] }, []>()
-const mockHasFeatureFlag = jest.fn<boolean, [FeatureFlagEnum]>()
 const mockOrganization = { defaultCurrency: 'EUR' }
 
 jest.mock('~/hooks/useBillingEntitiesOptions', () => ({
@@ -20,7 +19,6 @@ jest.mock('~/hooks/useBillingEntitiesOptions', () => ({
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
     organization: mockOrganization,
-    hasFeatureFlag: mockHasFeatureFlag,
   }),
 }))
 
@@ -45,31 +43,11 @@ const SECONDARY_ENTITY: BillingEntityOption = {
 beforeEach(() => {
   jest.clearAllMocks()
   mockUseBillingEntitiesOptions.mockReturnValue({ options: [DEFAULT_ENTITY, SECONDARY_ENTITY] })
-  mockHasFeatureFlag.mockReturnValue(false)
 })
 
 describe('useCustomerFilterDefaults', () => {
-  describe('GIVEN no feature flags are enabled', () => {
-    describe('WHEN called with both currency and entity in include', () => {
-      it('THEN should return null', () => {
-        const { result } = renderHook(() =>
-          useCustomerFilterDefaults({
-            filtersNamePrefix: 'test',
-            include: ['currency', 'entity'],
-          }),
-        )
-
-        expect(result.current).toBeNull()
-      })
-    })
-  })
-
-  describe('GIVEN only MultiCurrency flag is enabled', () => {
-    beforeEach(() => {
-      mockHasFeatureFlag.mockImplementation((flag) => flag === FeatureFlagEnum.MultiCurrency)
-    })
-
-    describe('WHEN called with currency in include', () => {
+  describe('GIVEN a default billing entity exists', () => {
+    describe('WHEN called with currency only in include', () => {
       it('THEN should return currency filter in availableFilters', () => {
         const { result } = renderHook(() =>
           useCustomerFilterDefaults({
@@ -86,25 +64,6 @@ describe('useCustomerFilterDefaults', () => {
     })
 
     describe('WHEN called with entity only in include', () => {
-      it('THEN should return null because entity flag is off', () => {
-        const { result } = renderHook(() =>
-          useCustomerFilterDefaults({
-            filtersNamePrefix: 'test',
-            include: ['entity'],
-          }),
-        )
-
-        expect(result.current).toBeNull()
-      })
-    })
-  })
-
-  describe('GIVEN only MultiEntityBilling flag is enabled and a default entity exists', () => {
-    beforeEach(() => {
-      mockHasFeatureFlag.mockImplementation((flag) => flag === FeatureFlagEnum.MultiEntityBilling)
-    })
-
-    describe('WHEN called with entity in include', () => {
       it('THEN should return billingEntityId filter in availableFilters', () => {
         const { result } = renderHook(() =>
           useCustomerFilterDefaults({
@@ -118,32 +77,6 @@ describe('useCustomerFilterDefaults', () => {
           availableFilters: [AvailableFiltersEnum.billingEntityId],
         })
       })
-    })
-  })
-
-  describe('GIVEN MultiEntityBilling flag is enabled but no default entity exists', () => {
-    beforeEach(() => {
-      mockHasFeatureFlag.mockImplementation((flag) => flag === FeatureFlagEnum.MultiEntityBilling)
-      mockUseBillingEntitiesOptions.mockReturnValue({ options: [] })
-    })
-
-    describe('WHEN called with entity in include', () => {
-      it('THEN should return null', () => {
-        const { result } = renderHook(() =>
-          useCustomerFilterDefaults({
-            filtersNamePrefix: 'test',
-            include: ['entity'],
-          }),
-        )
-
-        expect(result.current).toBeNull()
-      })
-    })
-  })
-
-  describe('GIVEN both MultiCurrency and MultiEntityBilling flags are enabled', () => {
-    beforeEach(() => {
-      mockHasFeatureFlag.mockReturnValue(true)
     })
 
     describe('WHEN called with both currency and entity in include', () => {
@@ -201,9 +134,40 @@ describe('useCustomerFilterDefaults', () => {
     })
   })
 
+  describe('GIVEN no billing entity exists', () => {
+    beforeEach(() => {
+      mockUseBillingEntitiesOptions.mockReturnValue({ options: [] })
+    })
+
+    describe('WHEN called with entity only in include', () => {
+      it('THEN should return null', () => {
+        const { result } = renderHook(() =>
+          useCustomerFilterDefaults({
+            filtersNamePrefix: 'test',
+            include: ['entity'],
+          }),
+        )
+
+        expect(result.current).toBeNull()
+      })
+    })
+
+    describe('WHEN called with currency and entity in include', () => {
+      it('THEN should keep only the currency filter', () => {
+        const { result } = renderHook(() =>
+          useCustomerFilterDefaults({
+            filtersNamePrefix: 'test',
+            include: ['currency', 'entity'],
+          }),
+        )
+
+        expect(result.current?.availableFilters).toEqual([AvailableFiltersEnum.currency])
+      })
+    })
+  })
+
   describe('GIVEN withDefaults and entity whose name is null', () => {
     beforeEach(() => {
-      mockHasFeatureFlag.mockReturnValue(true)
       mockUseBillingEntitiesOptions.mockReturnValue({
         options: [{ ...DEFAULT_ENTITY, name: null }],
       })
@@ -229,20 +193,16 @@ describe('useCustomerFilterDefaults', () => {
   describe('GIVEN include filters are selectively requested', () => {
     it.each([
       {
-        scenario: 'only currency requested, both flags on',
+        scenario: 'only currency requested',
         include: ['currency'] as const,
-        flags: [FeatureFlagEnum.MultiCurrency, FeatureFlagEnum.MultiEntityBilling],
         expected: [AvailableFiltersEnum.currency],
       },
       {
-        scenario: 'only entity requested, both flags on',
+        scenario: 'only entity requested',
         include: ['entity'] as const,
-        flags: [FeatureFlagEnum.MultiCurrency, FeatureFlagEnum.MultiEntityBilling],
         expected: [AvailableFiltersEnum.billingEntityId],
       },
-    ])('THEN should only include $scenario', ({ include, flags, expected }) => {
-      mockHasFeatureFlag.mockImplementation((flag) => flags.includes(flag))
-
+    ])('THEN should only include $scenario', ({ include, expected }) => {
       const { result } = renderHook(() =>
         useCustomerFilterDefaults({
           filtersNamePrefix: 'test',

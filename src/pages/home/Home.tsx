@@ -35,9 +35,7 @@ const Home = () => {
     if (hasNavigatedRef.current) return
 
     const routerState = location.state as
-      | { from?: { pathname: string; search?: string; hash?: string } }
-      | null
-      | undefined
+      { from?: { pathname: string; search?: string; hash?: string } } | null | undefined
 
     const target = resolveRedirectTarget({
       currentUser,

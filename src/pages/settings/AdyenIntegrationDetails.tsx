@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -8,22 +7,17 @@ import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { useAddAdyenDialog } from '~/components/settings/integrations/AddAdyenDialog'
 import {
-  AddAdyenDialog,
-  AddAdyenDialogRef,
-} from '~/components/settings/integrations/AddAdyenDialog'
-import {
-  AddEditDeleteSuccessRedirectUrlDialog,
-  AddEditDeleteSuccessRedirectUrlDialogRef,
-} from '~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog'
-import { useDeleteAdyenIntegrationDialog } from '~/components/settings/integrations/DeleteAdyenIntegrationDialog'
+  useAddEditSuccessRedirectUrlDialog,
+  useDeleteSuccessRedirectUrlDialog,
+} from '~/components/settings/integrations/SuccessRedirectUrlDialogs'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { ADYEN_INTEGRATION_ROUTE, INTEGRATIONS_ROUTE, useNavigate } from '~/core/router'
 import {
   AddAdyenProviderDialogFragmentDoc,
   AdyenForCreateAndEditSuccessRedirectUrlFragmentDoc,
   AdyenIntegrationDetailsFragment,
-  DeleteAdyenIntegrationDialogFragmentDoc,
   ProviderTypeEnum,
   useGetAdyenIntegrationsDetailsQuery,
 } from '~/generated/graphql'
@@ -51,7 +45,6 @@ gql`
       ... on AdyenProvider {
         id
         ...AdyenIntegrationDetails
-        ...DeleteAdyenIntegrationDialog
         ...AddAdyenProviderDialog
         ...AdyenForCreateAndEditSuccessRedirectUrl
       }
@@ -67,16 +60,15 @@ gql`
   }
 
   ${AdyenForCreateAndEditSuccessRedirectUrlFragmentDoc}
-  ${DeleteAdyenIntegrationDialogFragmentDoc}
   ${AddAdyenProviderDialogFragmentDoc}
 `
 
 const AdyenIntegrationDetails = () => {
   const navigate = useNavigate()
   const { integrationId } = useParams()
-  const addAdyenDialogRef = useRef<AddAdyenDialogRef>(null)
-  const { openDeleteAdyenIntegrationDialog } = useDeleteAdyenIntegrationDialog()
-  const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
+  const { openAddAdyenDialog } = useAddAdyenDialog()
+  const { openAddEditSuccessRedirectUrlDialog } = useAddEditSuccessRedirectUrlDialog()
+  const { openDeleteSuccessRedirectUrlDialog } = useDeleteSuccessRedirectUrlDialog()
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const { data, loading } = useGetAdyenIntegrationsDetailsQuery({
@@ -115,7 +107,7 @@ const AdyenIntegrationDetails = () => {
             }),
           },
           {
-            label: translate('text_67db6a10cb0b8031ca538909'),
+            label: translate('text_645d071272418a14c1c76a6d'),
             path: generatePath(ADYEN_INTEGRATION_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
             }),
@@ -139,13 +131,9 @@ const AdyenIntegrationDetails = () => {
                   label: translate('text_65845f35d7d69c3ab4793dac'),
                   hidden: !canEditIntegration,
                   onClick: (closePopper) => {
-                    addAdyenDialogRef.current?.openDialog({
+                    openAddAdyenDialog({
                       provider: adyenPaymentProvider,
-                      onDelete: (provider) =>
-                        openDeleteAdyenIntegrationDialog({
-                          provider,
-                          callback: deleteDialogCallback,
-                        }),
+                      deleteCallback: deleteDialogCallback,
                     })
                     closePopper()
                   },
@@ -154,9 +142,9 @@ const AdyenIntegrationDetails = () => {
                   label: translate('text_65845f35d7d69c3ab4793dad'),
                   hidden: !canDeleteIntegration,
                   onClick: (closePopper) => {
-                    openDeleteAdyenIntegrationDialog({
+                    openAddAdyenDialog({
                       provider: adyenPaymentProvider,
-                      callback: deleteDialogCallback,
+                      deleteCallback: deleteDialogCallback,
                     })
                     closePopper()
                   },
@@ -176,13 +164,9 @@ const AdyenIntegrationDetails = () => {
                 variant="inline"
                 disabled={loading}
                 onClick={() => {
-                  addAdyenDialogRef.current?.openDialog({
+                  openAddAdyenDialog({
                     provider: adyenPaymentProvider,
-                    onDelete: (provider) =>
-                      openDeleteAdyenIntegrationDialog({
-                        provider,
-                        callback: deleteDialogCallback,
-                      }),
+                    deleteCallback: deleteDialogCallback,
                   })
                 }}
               >
@@ -241,7 +225,7 @@ const AdyenIntegrationDetails = () => {
                 variant="inline"
                 disabled={!!adyenPaymentProvider?.successRedirectUrl}
                 onClick={() => {
-                  successRedirectUrlDialogRef.current?.openDialog({
+                  openAddEditSuccessRedirectUrlDialog({
                     mode: 'Add',
                     type: 'Adyen',
                     provider: adyenPaymentProvider,
@@ -292,7 +276,7 @@ const AdyenIntegrationDetails = () => {
                           fullWidth
                           align="left"
                           onClick={() => {
-                            successRedirectUrlDialogRef.current?.openDialog({
+                            openAddEditSuccessRedirectUrlDialog({
                               mode: 'Edit',
                               type: 'Adyen',
                               provider: adyenPaymentProvider,
@@ -311,8 +295,7 @@ const AdyenIntegrationDetails = () => {
                           align="left"
                           fullWidth
                           onClick={() => {
-                            successRedirectUrlDialogRef.current?.openDialog({
-                              mode: 'Delete',
+                            openDeleteSuccessRedirectUrlDialog({
                               type: 'Adyen',
                               provider: adyenPaymentProvider,
                             })
@@ -330,9 +313,6 @@ const AdyenIntegrationDetails = () => {
           )}
         </section>
       </IntegrationsPage.Container>
-
-      <AddAdyenDialog ref={addAdyenDialogRef} />
-      <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )
 }

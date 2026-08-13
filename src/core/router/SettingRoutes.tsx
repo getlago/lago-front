@@ -108,12 +108,17 @@ const OktaAuthenticationDetails = lazyLoad(
   () => import('~/pages/settings/teamAndSecurity/authentication/OktaAuthenticationDetails'),
 )
 
+const EntraIdAuthenticationDetails = lazyLoad(
+  () => import('~/pages/settings/teamAndSecurity/authentication/EntraIdAuthenticationDetails'),
+)
+
 // ----------- Routes -----------
 export const SETTINGS_ROUTE = '/settings'
 export const INVOICE_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/invoice-sections`
 export const TAXES_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/taxes`
 export const GENERAL_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/general`
-export const ROOT_INTEGRATIONS_ROUTE = `${SETTINGS_ROUTE}/integrations`
+const ROOT_INTEGRATIONS_ROUTE = `${SETTINGS_ROUTE}/integrations`
+
 export const INTEGRATIONS_ROUTE = `${ROOT_INTEGRATIONS_ROUTE}/:integrationGroup`
 export const FULL_INTEGRATIONS_ROUTE = `${ROOT_INTEGRATIONS_ROUTE}/:integrationGroup/:tab`
 export const FULL_INTEGRATIONS_ROUTE_ID = `${ROOT_INTEGRATIONS_ROUTE}/:integrationGroup/:tab/:id`
@@ -138,11 +143,11 @@ export const MONEYHASH_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/moneyh
 export const FLUTTERWAVE_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/flutterwave`
 export const FLUTTERWAVE_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/flutterwave/:integrationId`
 export const GOCARDLESS_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/gocardless`
-export const GOCARDLESS_INTEGRATION_OAUTH_CALLBACK_ROUTE = `${ROOT_INTEGRATIONS_ROUTE}/gocardless/callback`
+const GOCARDLESS_INTEGRATION_OAUTH_CALLBACK_ROUTE = `${ROOT_INTEGRATIONS_ROUTE}/gocardless/callback`
+
 export const GOCARDLESS_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/gocardless/:integrationId`
 export const TAX_MANAGEMENT_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/lago-tax-management`
 
-export const EMAILS_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/emails`
 export const XERO_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/xero`
 export const XERO_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/xero/:integrationId/:tab`
 export const DUNNINGS_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/dunnings`
@@ -169,6 +174,7 @@ export const ROLE_EDIT_ROUTE = `${ROOT_ROLES_ROUTE}/:roleId/edit`
 
 export const AUTHENTICATION_ROUTE = `${TEAM_AND_SECURITY_ROOT_ROUTE}/authentication`
 export const OKTA_AUTHENTICATION_ROUTE = `${AUTHENTICATION_ROUTE}/okta/:integrationId`
+export const ENTRA_ID_AUTHENTICATION_ROUTE = `${AUTHENTICATION_ROUTE}/entra/:integrationId`
 
 export const TEAM_AND_SECURITY_GROUP_ROUTE = `${TEAM_AND_SECURITY_ROOT_ROUTE}/:group`
 export const TEAM_AND_SECURITY_TAB_ROUTE = `${TEAM_AND_SECURITY_GROUP_ROUTE}/:tab`
@@ -256,6 +262,12 @@ export const settingRoutes: CustomRouteObject[] = [
         path: OKTA_AUTHENTICATION_ROUTE,
         private: true,
         element: <OktaAuthenticationDetails />,
+        permissions: ['organizationIntegrationsView', 'authenticationMethodsView'],
+      },
+      {
+        path: ENTRA_ID_AUTHENTICATION_ROUTE,
+        private: true,
+        element: <EntraIdAuthenticationDetails />,
         permissions: ['organizationIntegrationsView', 'authenticationMethodsView'],
       },
       {

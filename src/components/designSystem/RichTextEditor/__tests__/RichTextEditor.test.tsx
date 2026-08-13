@@ -1,4 +1,4 @@
-import { act, cleanup, screen } from '@testing-library/react'
+import { act, cleanup, fireEvent, screen } from '@testing-library/react'
 import { Markdown } from 'tiptap-markdown'
 
 import { render } from '~/test-utils'
@@ -23,6 +23,18 @@ jest.mock('../extensions/PricingBlock', () => ({
   },
 }))
 
+jest.mock('../extensions/DiscountBlock', () => ({
+  DiscountBlock: {
+    configure: jest.fn(() => 'discount-block-extension'),
+  },
+}))
+
+jest.mock('../extensions/CreditsBlock', () => ({
+  CreditsBlock: {
+    configure: jest.fn(() => 'credits-block-extension'),
+  },
+}))
+
 jest.mock('../extensions/SlashCommands', () => ({
   SlashCommands: {
     configure: jest.fn((config: Record<string, unknown>) => {
@@ -40,6 +52,9 @@ const mockEditor = {
   setEditable: jest.fn(),
   on: jest.fn(),
   off: jest.fn(),
+  commands: {
+    focus: jest.fn(),
+  },
   state: { selection: { from: 0 } },
   view: {
     domAtPos: jest.fn().mockReturnValue({ node: document.createElement('div') }),
@@ -118,6 +133,26 @@ jest.mock('../extensions/Mention.schema', () => ({
   configureMention: jest.fn(() => 'configured-mention-extension'),
   mentionBaseConfig: {
     HTMLAttributes: { class: 'variable-mention' },
+  },
+}))
+
+// Capture the config passed to QuoteImageSchema.extend() and .configure()
+let capturedQuoteImageConfig: Record<string, unknown> = {}
+let capturedQuoteImageExtendConfig: Record<string, unknown> = {}
+
+jest.mock('../extensions/QuoteImage', () => ({
+  QuoteImageSchema: {
+    extend: jest.fn((extendConfig: Record<string, unknown>) => {
+      capturedQuoteImageExtendConfig = extendConfig
+
+      return {
+        configure: jest.fn((config: Record<string, unknown>) => {
+          capturedQuoteImageConfig = config
+
+          return 'quote-image-extension'
+        }),
+      }
+    }),
   },
 }))
 
@@ -461,6 +496,125 @@ describe('RichTextEditor', () => {
     })
   })
 
+  describe('GIVEN the removeBlockRef prop is provided', () => {
+    // The editor is mocked in this suite, so we assert the effect calls
+    // deleteRange over the matched node's range rather than round-tripping
+    // through real markdown serialization.
+    const originalChain = mockEditor.chain
+    const originalState = mockEditor.state
+
+    afterEach(() => {
+      mockEditor.chain = originalChain
+      mockEditor.state = originalState
+    })
+
+    const setupEditorWith = (nodes: Array<{ type: string; attrs: Record<string, unknown> }>) => {
+      const runSpy = jest.fn()
+      const deleteRangeSpy = jest.fn().mockReturnValue({ run: runSpy })
+      const focusSpy = jest.fn().mockReturnValue({ deleteRange: deleteRangeSpy })
+
+      mockEditor.chain = jest.fn().mockReturnValue({ focus: focusSpy })
+      mockEditor.state = {
+        ...mockEditor.state,
+        doc: {
+          descendants: jest.fn((cb: (node: unknown, pos: number) => boolean) => {
+            let pos = 5
+
+            for (const n of nodes) {
+              const stop = cb({ type: { name: n.type }, attrs: n.attrs, nodeSize: 3 }, pos)
+
+              if (stop === false) break
+              pos += 3
+            }
+          }),
+        },
+      } as unknown as typeof mockEditor.state
+
+      return { runSpy, deleteRangeSpy }
+    }
+
+    it('THEN should assign a function to removeBlockRef.current', async () => {
+      const removeBlockRef = { current: null } as React.MutableRefObject<
+        ((localId: string) => void) | null
+      >
+
+      setupEditorWith([])
+
+      await act(() => render(<RichTextEditor removeBlockRef={removeBlockRef} />))
+
+      expect(typeof removeBlockRef.current).toBe('function')
+    })
+
+    it('THEN removes a discount block matched by localId via deleteRange', async () => {
+      const removeBlockRef = { current: null } as React.MutableRefObject<
+        ((localId: string) => void) | null
+      >
+
+      const { runSpy, deleteRangeSpy } = setupEditorWith([
+        { type: 'discountBlock', attrs: { couponId: 'cpn_1', localId: 'coupon-local-1' } },
+      ])
+
+      await act(() => render(<RichTextEditor removeBlockRef={removeBlockRef} />))
+
+      act(() => removeBlockRef.current?.('coupon-local-1'))
+
+      expect(deleteRangeSpy).toHaveBeenCalledWith({ from: 5, to: 8 })
+      expect(runSpy).toHaveBeenCalled()
+    })
+
+    it('THEN removes a credits block matched by localId via deleteRange', async () => {
+      const removeBlockRef = { current: null } as React.MutableRefObject<
+        ((localId: string) => void) | null
+      >
+
+      const { runSpy, deleteRangeSpy } = setupEditorWith([
+        { type: 'creditsBlock', attrs: { localId: 'wallet-local-1' } },
+      ])
+
+      await act(() => render(<RichTextEditor removeBlockRef={removeBlockRef} />))
+
+      act(() => removeBlockRef.current?.('wallet-local-1'))
+
+      expect(deleteRangeSpy).toHaveBeenCalledWith({ from: 5, to: 8 })
+      expect(runSpy).toHaveBeenCalled()
+    })
+
+    it('THEN removes a pricing block matched via localEntityIds', async () => {
+      const removeBlockRef = { current: null } as React.MutableRefObject<
+        ((localId: string) => void) | null
+      >
+
+      const { runSpy, deleteRangeSpy } = setupEditorWith([
+        { type: 'pricingBlock', attrs: { localEntityIds: ['addon-local-9'] } },
+      ])
+
+      await act(() => render(<RichTextEditor removeBlockRef={removeBlockRef} />))
+
+      act(() => removeBlockRef.current?.('addon-local-9'))
+
+      expect(deleteRangeSpy).toHaveBeenCalledWith({ from: 5, to: 8 })
+      expect(runSpy).toHaveBeenCalled()
+    })
+
+    it('THEN does nothing when no block matches the localId', async () => {
+      const removeBlockRef = { current: null } as React.MutableRefObject<
+        ((localId: string) => void) | null
+      >
+
+      const { runSpy, deleteRangeSpy } = setupEditorWith([
+        { type: 'discountBlock', attrs: { couponId: 'cpn_1', localId: 'other-local' } },
+        { type: 'paragraph', attrs: {} },
+      ])
+
+      await act(() => render(<RichTextEditor removeBlockRef={removeBlockRef} />))
+
+      act(() => removeBlockRef.current?.('coupon-local-1'))
+
+      expect(deleteRangeSpy).not.toHaveBeenCalled()
+      expect(runSpy).not.toHaveBeenCalled()
+    })
+  })
+
   describe('GIVEN the mention extension addNodeView config', () => {
     beforeEach(async () => {
       await act(() => render(<RichTextEditor />))
@@ -510,18 +664,18 @@ describe('RichTextEditor', () => {
       })
     })
 
-    describe('WHEN customerCurrency is provided', () => {
+    describe('WHEN documentCurrency is provided', () => {
       it('THEN should render without errors', async () => {
-        await act(() => render(<RichTextEditor customerCurrency={'EUR' as never} />))
+        await act(() => render(<RichTextEditor documentCurrency={'EUR' as never} />))
 
         expect(screen.getByTestId(RICH_TEXT_EDITOR_TEST_ID)).toBeInTheDocument()
       })
     })
 
-    describe('WHEN both customerLocale and customerCurrency are provided', () => {
+    describe('WHEN both customerLocale and documentCurrency are provided', () => {
       it('THEN should render without errors', async () => {
         await act(() =>
-          render(<RichTextEditor customerLocale="fr" customerCurrency={'EUR' as never} />),
+          render(<RichTextEditor customerLocale="fr" documentCurrency={'EUR' as never} />),
         )
 
         expect(screen.getByTestId(RICH_TEXT_EDITOR_TEST_ID)).toBeInTheDocument()
@@ -595,6 +749,288 @@ describe('RichTextEditor', () => {
       expect(onPreviewReady).toHaveBeenCalledWith('<p>Preview content</p>')
 
       rafSpy.mockRestore()
+    })
+  })
+
+  describe('GIVEN the images and onImageUpload props', () => {
+    describe('WHEN images is provided', () => {
+      it('THEN should pass images to QuoteImageSchema.configure', async () => {
+        const images = { 'blob-1': 'https://signed/blob-1' }
+
+        await act(() => render(<RichTextEditor images={images} />))
+
+        expect(capturedQuoteImageConfig.images).toEqual(images)
+      })
+    })
+
+    describe('WHEN images is not provided (default)', () => {
+      it('THEN should configure QuoteImageSchema with an empty map', async () => {
+        await act(() => render(<RichTextEditor />))
+
+        expect(capturedQuoteImageConfig.images).toEqual({})
+      })
+    })
+
+    it('THEN should provide an addNodeView function on the extended QuoteImageSchema', async () => {
+      await act(() => render(<RichTextEditor />))
+
+      expect(capturedQuoteImageExtendConfig.addNodeView).toBeDefined()
+      expect(typeof capturedQuoteImageExtendConfig.addNodeView).toBe('function')
+    })
+
+    it('THEN should render without errors when onImageUpload is provided', async () => {
+      const onImageUpload = jest.fn()
+
+      await act(() => render(<RichTextEditor onImageUpload={onImageUpload} />))
+
+      expect(screen.getByTestId(RICH_TEXT_EDITOR_TEST_ID)).toBeInTheDocument()
+    })
+  })
+
+  describe('GIVEN onDiscountCommand prop', () => {
+    describe('WHEN onDiscountCommand is provided', () => {
+      it('THEN passes onDiscountCommand to SlashCommands.configure', async () => {
+        const onDiscountCommand = jest.fn()
+
+        await act(() => render(<RichTextEditor onDiscountCommand={onDiscountCommand} />))
+
+        expect(capturedSlashCommandsConfig.onDiscountCommand).toBeDefined()
+        expect(typeof capturedSlashCommandsConfig.onDiscountCommand).toBe('function')
+      })
+    })
+
+    describe('WHEN onDiscountCommand is not provided', () => {
+      it('THEN passes undefined onDiscountCommand to SlashCommands.configure', async () => {
+        await act(() => render(<RichTextEditor />))
+
+        expect(capturedSlashCommandsConfig.onDiscountCommand).toBeUndefined()
+      })
+    })
+  })
+
+  describe('GIVEN the DiscountBlock extension', () => {
+    it('THEN registers DiscountBlock with entities from props', async () => {
+      const { DiscountBlock } = jest.requireMock('../extensions/DiscountBlock') as {
+        DiscountBlock: { configure: jest.Mock }
+      }
+
+      DiscountBlock.configure.mockClear()
+
+      const entities = {
+        'local-1': {
+          entityId: 'cpn_1',
+          entityType: 'coupon' as const,
+          name: 'Summer Sale',
+          code: 'SUMMER',
+        },
+      }
+
+      await act(() => render(<RichTextEditor entities={entities} />))
+
+      expect(DiscountBlock.configure).toHaveBeenCalledWith({ entities })
+    })
+  })
+
+  describe('GIVEN onDiscountBlocksChange prop', () => {
+    describe('WHEN the editor updates with discount block nodes', () => {
+      it('THEN calls onDiscountBlocksChange with the collected discount blocks', async () => {
+        const onDiscountBlocksChange = jest.fn()
+
+        await act(() => render(<RichTextEditor onDiscountBlocksChange={onDiscountBlocksChange} />))
+
+        const onUpdate = (capturedEditorConfig as { onUpdate?: (arg: { editor: unknown }) => void })
+          .onUpdate
+
+        expect(onUpdate).toBeDefined()
+
+        const mockDocWithDiscount = {
+          state: {
+            doc: {
+              descendants: jest.fn((cb: (node: unknown) => void) => {
+                cb({
+                  type: { name: 'discountBlock' },
+                  attrs: { couponId: 'cpn_1', localId: 'local-1' },
+                })
+                cb({ type: { name: 'discountBlock' }, attrs: { couponId: '', localId: 'local-2' } })
+              }),
+            },
+          },
+        }
+
+        await act(() => onUpdate?.({ editor: mockDocWithDiscount }))
+
+        expect(onDiscountBlocksChange).toHaveBeenCalledWith([
+          { couponId: 'cpn_1', localId: 'local-1' },
+        ])
+      })
+    })
+
+    describe('WHEN the editor updates without discount block nodes', () => {
+      it('THEN calls onDiscountBlocksChange with an empty array', async () => {
+        const onDiscountBlocksChange = jest.fn()
+
+        await act(() => render(<RichTextEditor onDiscountBlocksChange={onDiscountBlocksChange} />))
+
+        const onUpdate = (capturedEditorConfig as { onUpdate?: (arg: { editor: unknown }) => void })
+          .onUpdate
+        const mockDocEmpty = {
+          state: {
+            doc: {
+              descendants: jest.fn((cb: (node: unknown) => void) => {
+                cb({ type: { name: 'paragraph' }, attrs: {} })
+              }),
+            },
+          },
+        }
+
+        await act(() => onUpdate?.({ editor: mockDocEmpty }))
+
+        expect(onDiscountBlocksChange).toHaveBeenCalledWith([])
+      })
+    })
+  })
+
+  describe('GIVEN onCreditsCommand prop', () => {
+    describe('WHEN onCreditsCommand is provided', () => {
+      it('THEN renders without error and passes onCreditsCommand to SlashCommands.configure', async () => {
+        const onCreditsCommand = jest.fn()
+
+        await act(() => render(<RichTextEditor onCreditsCommand={onCreditsCommand} />))
+
+        expect(screen.getByTestId(RICH_TEXT_EDITOR_TEST_ID)).toBeInTheDocument()
+        expect(capturedSlashCommandsConfig.onCreditsCommand).toBeDefined()
+        expect(typeof capturedSlashCommandsConfig.onCreditsCommand).toBe('function')
+      })
+    })
+
+    describe('WHEN onCreditsCommand is not provided', () => {
+      it('THEN passes undefined onCreditsCommand to SlashCommands.configure', async () => {
+        await act(() => render(<RichTextEditor />))
+
+        expect(capturedSlashCommandsConfig.onCreditsCommand).toBeUndefined()
+      })
+    })
+  })
+
+  describe('GIVEN the CreditsBlock extension', () => {
+    it('THEN registers CreditsBlock with entities from props', async () => {
+      const { CreditsBlock } = jest.requireMock('../extensions/CreditsBlock') as {
+        CreditsBlock: { configure: jest.Mock }
+      }
+
+      CreditsBlock.configure.mockClear()
+
+      const entities = {
+        'local-1': {
+          entityId: 'wal_1',
+          entityType: 'wallet' as const,
+          name: 'Main Wallet',
+          code: 'WALLET',
+        },
+      }
+
+      await act(() => render(<RichTextEditor entities={entities} />))
+
+      expect(CreditsBlock.configure).toHaveBeenCalledWith({ entities })
+    })
+  })
+
+  describe('GIVEN onCreditsBlocksChange prop', () => {
+    describe('WHEN the editor updates with credits block nodes', () => {
+      it('THEN calls onCreditsBlocksChange with all collected credits blocks, including empty localId', async () => {
+        const onCreditsBlocksChange = jest.fn()
+
+        await act(() => render(<RichTextEditor onCreditsBlocksChange={onCreditsBlocksChange} />))
+
+        const onUpdate = (capturedEditorConfig as { onUpdate?: (arg: { editor: unknown }) => void })
+          .onUpdate
+
+        expect(onUpdate).toBeDefined()
+
+        const mockDocWithCredits = {
+          state: {
+            doc: {
+              descendants: jest.fn((cb: (node: unknown) => void) => {
+                cb({ type: { name: 'creditsBlock' }, attrs: { localId: 'local-1' } })
+                cb({ type: { name: 'creditsBlock' }, attrs: { localId: '' } })
+              }),
+            },
+          },
+        }
+
+        await act(() => onUpdate?.({ editor: mockDocWithCredits }))
+
+        expect(onCreditsBlocksChange).toHaveBeenCalledWith([
+          { localId: 'local-1' },
+          { localId: '' },
+        ])
+      })
+    })
+
+    describe('WHEN the editor updates without credits block nodes', () => {
+      it('THEN calls onCreditsBlocksChange with an empty array', async () => {
+        const onCreditsBlocksChange = jest.fn()
+
+        await act(() => render(<RichTextEditor onCreditsBlocksChange={onCreditsBlocksChange} />))
+
+        const onUpdate = (capturedEditorConfig as { onUpdate?: (arg: { editor: unknown }) => void })
+          .onUpdate
+        const mockDocEmpty = {
+          state: {
+            doc: {
+              descendants: jest.fn((cb: (node: unknown) => void) => {
+                cb({ type: { name: 'paragraph' }, attrs: {} })
+              }),
+            },
+          },
+        }
+
+        await act(() => onUpdate?.({ editor: mockDocEmpty }))
+
+        expect(onCreditsBlocksChange).toHaveBeenCalledWith([])
+      })
+    })
+  })
+
+  describe('GIVEN a click on the editor background', () => {
+    beforeEach(() => {
+      mockEditor.commands.focus.mockClear()
+    })
+
+    describe('WHEN clicking the container background in edit mode', () => {
+      it('THEN should focus the editor at the end', async () => {
+        await act(() => render(<RichTextEditor />))
+
+        const container = screen.getByTestId(RICH_TEXT_EDITOR_TEST_ID)
+
+        fireEvent.mouseDown(container)
+
+        expect(mockEditor.commands.focus).toHaveBeenCalledWith('end')
+      })
+    })
+
+    describe('WHEN clicking a child element (content) in edit mode', () => {
+      it('THEN should not focus the editor', async () => {
+        await act(() => render(<RichTextEditor />))
+
+        const content = screen.getByTestId(RICH_TEXT_EDITOR_CONTENT_TEST_ID)
+
+        fireEvent.mouseDown(content)
+
+        expect(mockEditor.commands.focus).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN clicking the container background in preview mode', () => {
+      it('THEN should not focus the editor', async () => {
+        await act(() => render(<RichTextEditor mode="preview" />))
+
+        const container = screen.getByTestId(RICH_TEXT_EDITOR_TEST_ID)
+
+        fireEvent.mouseDown(container)
+
+        expect(mockEditor.commands.focus).not.toHaveBeenCalled()
+      })
     })
   })
 })

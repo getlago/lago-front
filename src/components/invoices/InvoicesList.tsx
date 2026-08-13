@@ -1,11 +1,11 @@
 import { ApolloError, LazyQueryHookOptions } from '@apollo/client'
 import { IconName } from 'lago-design-system'
-import { useMemo, useRef } from 'react'
+import { useMemo } from 'react'
 import { generatePath, useSearchParams } from 'react-router-dom'
 
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
 import { GenericPlaceholderProps } from '~/components/designSystem/GenericPlaceholder'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { Status, StatusType } from '~/components/designSystem/Status'
 import { Table } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
@@ -14,18 +14,13 @@ import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { buildInvoiceDocumentData } from '~/components/emails/buildDocumentData'
+import { useDeleteInvoiceDialog } from '~/components/invoices/DeleteInvoiceDialog'
 import { useUpdateInvoicePaymentStatusDialog } from '~/components/invoices/EditInvoicePaymentStatusDialog'
-import {
-  FinalizeInvoiceDialog,
-  FinalizeInvoiceDialogRef,
-} from '~/components/invoices/FinalizeInvoiceDialog'
-import {
-  ResendInvoiceForCollectionDialog,
-  ResendInvoiceForCollectionDialogRef,
-} from '~/components/invoices/ResendInvoiceForCollectionDialog'
+import { useFinalizeInvoiceDialog } from '~/components/invoices/FinalizeInvoiceDialog'
+import { useResendInvoiceForCollectionDialog } from '~/components/invoices/ResendInvoiceForCollectionDialog'
 import { getEmptyStateConfig } from '~/components/invoices/utils/emptyStateMapping'
 import { getMostRecentPaymentMethodId } from '~/components/invoices/utils/getMostRecentPaymentMethodId'
-import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { addToast } from '~/core/apolloClient'
 import {
   invoiceStatusMapping,
   isInvoicePartiallyPaid,
@@ -47,20 +42,16 @@ import { regeneratePath } from '~/core/utils/regenerateUtils'
 import {
   BillingEntityEmailSettingsEnum,
   CurrencyEnum,
-  FeatureFlagEnum,
   GetInvoicesListQuery,
   GetInvoicesListQueryResult,
   Invoice,
   InvoiceStatusTypeEnum,
-  LagoApiError,
   useDownloadInvoiceItemMutation,
-  useRetryInvoicePaymentMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useDownloadFile } from '~/hooks/useDownloadFile'
 import { useGeneratePaymentUrl } from '~/hooks/useGeneratePaymentUrl'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
 import { useResendEmailDialog } from '~/hooks/useResendEmailDialog'
 
@@ -71,6 +62,9 @@ type TInvoiceListProps = {
   isLoading: boolean
   metadata: GetInvoicesListQuery['invoices']['metadata'] | undefined
   variables: LazyQueryHookOptions['variables'] | undefined
+  pageSize?: number
+  onPageSizeChange?: (pageSize: number) => void
+  onPageChange?: (page: number) => void
 }
 
 type InvoiceItem = GetInvoicesListQuery['invoices']['collection'][number]
@@ -82,40 +76,29 @@ const InvoicesList = ({
   isLoading,
   metadata,
   variables,
+  pageSize,
+  onPageSizeChange,
+  onPageChange,
 }: TInvoiceListProps) => {
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const actions = usePermissionsInvoiceActions()
-  const { hasFeatureFlag } = useOrganizationInfos()
   const { showResendEmailDialog } = useResendEmailDialog()
 
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
 
   const { handleDownloadFile } = useDownloadFile()
 
-  const hasAccessToMultiPaymentFlow = hasFeatureFlag(FeatureFlagEnum.MultiplePaymentMethods)
-
-  const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
+  const { openFinalizeInvoiceDialog } = useFinalizeInvoiceDialog()
+  const { openDeleteInvoiceDialog } = useDeleteInvoiceDialog()
   const { openUpdateInvoicePaymentStatusDialog } = useUpdateInvoicePaymentStatusDialog()
-  const resendInvoiceForCollectionDialogRef = useRef<ResendInvoiceForCollectionDialogRef>(null)
+  const { openResendInvoiceForCollectionDialog } = useResendInvoiceForCollectionDialog()
 
   const [downloadInvoice] = useDownloadInvoiceItemMutation({
     onCompleted({ downloadInvoice: data }) {
       handleDownloadFile(data?.fileUrl)
-    },
-  })
-
-  const [retryCollect] = useRetryInvoicePaymentMutation({
-    context: { silentErrorCodes: [LagoApiError.PaymentProcessorIsCurrentlyHandlingPayment] },
-    onCompleted({ retryInvoicePayment: data }) {
-      if (data?.id) {
-        addToast({
-          severity: 'success',
-          translateKey: 'text_63ac86d897f728a87b2fa0b3',
-        })
-      }
     },
   })
 
@@ -165,7 +148,7 @@ const InvoicesList = ({
     invoice: InvoiceItem,
     isPartiallyPaid: boolean,
     isDisabledIssueCreditNoteButton: boolean,
-    disabledIssueCreditNoteButtonLabel: string | false,
+    disabledIssueCreditNoteButtonLabel: string | undefined,
   ): ActionItem<InvoiceItem> | null => {
     if (!actions.canIssueCreditNote(invoice)) return null
 
@@ -209,7 +192,7 @@ const InvoicesList = ({
     hasActiveWallet: boolean
     isPartiallyPaid: boolean
     isDisabledIssueCreditNoteButton: boolean
-    disabledIssueCreditNoteButtonLabel: string | false
+    disabledIssueCreditNoteButtonLabel: string | undefined
   }): Array<ActionItem<InvoiceItem>> => {
     const downloadAction: ActionItem<InvoiceItem> | null = actions.canDownload(invoice)
       ? {
@@ -249,7 +232,7 @@ const InvoicesList = ({
             startIcon: 'checkmark',
             title: translate('text_63a41a8eabb9ae67047c1c08'),
             onAction: (item) => {
-              finalizeInvoiceRef.current?.openDialog(item)
+              openFinalizeInvoiceDialog(item)
             },
           }
         : null
@@ -272,28 +255,11 @@ const InvoicesList = ({
       ? {
           startIcon: 'push',
           title: translate('text_63ac86d897f728a87b2fa039'),
-          onAction: async () => {
-            if (hasAccessToMultiPaymentFlow) {
-              resendInvoiceForCollectionDialogRef.current?.openDialog({
-                invoice,
-                preselectedPaymentMethodId: getMostRecentPaymentMethodId(invoice?.payments),
-              })
-            } else {
-              const { errors } = await retryCollect({
-                variables: {
-                  input: {
-                    id: invoice.id,
-                  },
-                },
-              })
-
-              if (hasDefinedGQLError('PaymentProcessorIsCurrentlyHandlingPayment', errors)) {
-                addToast({
-                  severity: 'info',
-                  translateKey: 'text_63b6d06df1a53b7e2ad973ad',
-                })
-              }
-            }
+          onAction: () => {
+            openResendInvoiceForCollectionDialog({
+              invoice,
+              preselectedPaymentMethodId: getMostRecentPaymentMethodId(invoice?.payments),
+            })
           },
         }
       : null
@@ -344,6 +310,16 @@ const InvoicesList = ({
         }
       : null
 
+    const deleteAction: ActionItem<InvoiceItem> | null = actions.canDelete(invoice)
+      ? {
+          startIcon: 'trash',
+          title: translate('text_17848001862070vhaaoyut3y'),
+          onAction: (item) => {
+            openDeleteInvoiceDialog(item)
+          },
+        }
+      : null
+
     const regenerateAction: ActionItem<InvoiceItem> | null = actions.canRegenerate(
       invoice,
       hasActiveWallet,
@@ -366,39 +342,36 @@ const InvoicesList = ({
       updatePaymentStatusAction,
       issueCreditNoteAction,
       voidInvoiceAction,
+      deleteAction,
       regenerateAction,
     ].filter(Boolean) as Array<ActionItem<InvoiceItem>>
   }
 
   return (
-    <div className="border-t border-grey-300">
-      <InfiniteScroll
-        onBottom={() => {
-          const { currentPage = 0, totalPages = 0 } = metadata || {}
-
-          currentPage < totalPages &&
-            !isLoading &&
-            fetchMore({
-              variables: { page: currentPage + 1 },
-            })
-        }}
+    <>
+      <PaginatedContent
+        insetPager
+        metadata={metadata}
+        loading={isLoading}
+        pageSize={pageSize}
+        onPageChange={onPageChange ?? ((page) => fetchMore({ variables: { page } }))}
+        onPageSizeChange={onPageSizeChange}
       >
         <Table
           name="invoices-list"
+          containerClassName="-mb-px h-auto shrink-0 border-t border-grey-300"
           data={invoices || []}
           containerSize={{
             default: 16,
             md: 48,
           }}
           isLoading={isLoading}
+          loadingRowCount={pageSize}
           hasError={!!error}
           actionColumn={(invoice) => {
             const { disabledIssueCreditNoteButton, disabledIssueCreditNoteButtonLabel } =
               createCreditNoteForInvoiceButtonProps({
                 invoiceType: invoice?.invoiceType,
-                creditableAmountCents: invoice?.creditableAmountCents,
-                refundableAmountCents: invoice?.refundableAmountCents,
-                offsettableAmountCents: invoice?.offsettableAmountCents,
                 associatedActiveWalletPresent: invoice?.associatedActiveWalletPresent,
               })
 
@@ -594,11 +567,8 @@ const InvoicesList = ({
             emptyState,
           }}
         />
-      </InfiniteScroll>
-
-      <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
-      <ResendInvoiceForCollectionDialog ref={resendInvoiceForCollectionDialogRef} />
-    </div>
+      </PaginatedContent>
+    </>
   )
 }
 

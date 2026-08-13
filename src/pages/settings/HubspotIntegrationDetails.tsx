@@ -1,18 +1,11 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import {
-  AddHubspotDialog,
-  AddHubspotDialogRef,
-} from '~/components/settings/integrations/AddHubspotDialog'
-import {
-  DeleteHubspotIntegrationDialog,
-  DeleteHubspotIntegrationDialogRef,
-} from '~/components/settings/integrations/DeleteHubspotIntegrationDialog'
+import { useAddHubspotDialog } from '~/components/settings/integrations/AddHubspotDialog'
+import { useDeleteHubspotIntegrationDialog } from '~/components/settings/integrations/DeleteHubspotIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { HUBSPOT_INTEGRATION_ROUTE, INTEGRATIONS_ROUTE, useNavigate } from '~/core/router'
 import {
@@ -69,8 +62,8 @@ const HubspotIntegrationDetails = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
 
-  const addHubspotDialogRef = useRef<AddHubspotDialogRef>(null)
-  const deleteHubspotDialogRef = useRef<DeleteHubspotIntegrationDialogRef>(null)
+  const { openAddHubspotDialog } = useAddHubspotDialog()
+  const { openDeleteHubspotIntegrationDialog } = useDeleteHubspotIntegrationDialog()
 
   const { data, loading } = useGetHubspotIntegrationsDetailsQuery({
     variables: {
@@ -110,7 +103,7 @@ const HubspotIntegrationDetails = () => {
             }),
           },
           {
-            label: translate('text_67db6a10cb0b8031ca538909'),
+            label: translate('text_1727189568053s79ks5q07tr'),
             path: generatePath(HUBSPOT_INTEGRATION_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
             }),
@@ -133,9 +126,8 @@ const HubspotIntegrationDetails = () => {
                 {
                   label: translate('text_65845f35d7d69c3ab4793dac'),
                   onClick: (closePopper) => {
-                    addHubspotDialogRef.current?.openDialog({
+                    openAddHubspotDialog({
                       provider: hubspotIntegration,
-                      deleteModalRef: deleteHubspotDialogRef,
                       deleteDialogCallback,
                     })
                     closePopper()
@@ -146,7 +138,7 @@ const HubspotIntegrationDetails = () => {
                   hidden: !hubspotIntegration,
                   onClick: (closePopper) => {
                     if (hubspotIntegration) {
-                      deleteHubspotDialogRef.current?.openDialog({
+                      openDeleteHubspotIntegrationDialog({
                         provider: hubspotIntegration,
                         callback: deleteDialogCallback,
                       })
@@ -168,9 +160,8 @@ const HubspotIntegrationDetails = () => {
               variant="inline"
               disabled={loading}
               onClick={() => {
-                addHubspotDialogRef.current?.openDialog({
+                openAddHubspotDialog({
                   provider: hubspotIntegration,
-                  deleteModalRef: deleteHubspotDialogRef,
                   deleteDialogCallback,
                 })
               }}
@@ -216,9 +207,6 @@ const HubspotIntegrationDetails = () => {
           )}
         </section>
       </IntegrationsPage.Container>
-
-      <AddHubspotDialog ref={addHubspotDialogRef} />
-      <DeleteHubspotIntegrationDialog ref={deleteHubspotDialogRef} />
     </>
   )
 }

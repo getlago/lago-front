@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client'
 import { Icon, tw } from 'lago-design-system'
+import { useState } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { CouponCaption } from '~/components/coupons/CouponCaption'
@@ -7,7 +8,7 @@ import { useDeleteCoupon } from '~/components/coupons/useDeleteCoupon'
 import { useTerminateCoupon } from '~/components/coupons/useTerminateCoupon'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { GenericPlaceholderProps } from '~/components/designSystem/GenericPlaceholder'
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Status } from '~/components/designSystem/Status'
 import { Table } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
@@ -16,6 +17,7 @@ import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { couponStatusMapping } from '~/core/constants/statusCouponMapping'
 import { CouponDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
@@ -83,14 +85,15 @@ const CouponsList = () => {
   const actions = usePermissionsCouponActions()
   const { openDialog: openDeleteDialog } = useDeleteCoupon()
   const { openDialog: openTerminateDialog } = useTerminateCoupon()
-  const [getCoupons, { data, error, loading, fetchMore, variables }] = useCouponsLazyQuery({
-    variables: { limit: 20 },
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+  const { page, goToPage } = usePageSearchParam()
+  const [getCoupons, { data, error, loading, variables }] = useCouponsLazyQuery({
+    variables: { limit: pageSize, page },
     notifyOnNetworkStatusChange: true,
     fetchPolicy: 'network-only',
     nextFetchPolicy: 'network-only',
   })
   const { debouncedSearch, isLoading } = useDebouncedSearch(getCoupons, loading)
-  const list = data?.coupons?.collection || []
 
   const getEmptyState = (): Partial<GenericPlaceholderProps> => {
     if (variables?.searchTerm) {
@@ -167,7 +170,7 @@ const CouponsList = () => {
         entity={{
           viewName: translate('text_62865498824cc10126ab2956'),
           metadata: formatCountToMetadata(couponsTotalCount, translate),
-          metadataLoading: isLoading,
+          metadataLoading: isLoading && couponsTotalCount === undefined,
         }}
         actions={{
           items: [
@@ -183,31 +186,35 @@ const CouponsList = () => {
         }}
         filtersSection={
           <SearchInput
-            onChange={debouncedSearch}
+            onChange={(value) => {
+              goToPage(1)
+              debouncedSearch?.(value)
+            }}
             placeholder={translate('text_63beebbf4f60e2f553232782')}
           />
         }
       />
 
-      <InfiniteScroll
-        onBottom={() => {
-          const { currentPage = 0, totalPages = 0 } = data?.coupons?.metadata || {}
-
-          currentPage < totalPages &&
-            !isLoading &&
-            fetchMore({
-              variables: { page: currentPage + 1 },
-            })
+      <PaginatedContent
+        insetPager
+        metadata={data?.coupons?.metadata}
+        loading={isLoading}
+        pageSize={pageSize}
+        onPageChange={goToPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size)
+          goToPage(1)
         }}
       >
         <Table
           name="coupons-list"
-          data={list}
+          data={data?.coupons?.collection ?? []}
+          loadingRowCount={pageSize}
           containerSize={{
             default: 16,
             md: 48,
           }}
-          containerClassName={tw('h-[calc(100%-theme(space.nav))] border-t border-grey-300')}
+          containerClassName={tw('-mb-px h-auto shrink-0 border-t border-grey-300')}
           rowSize={72}
           isLoading={isLoading}
           hasError={!!error}
@@ -234,10 +241,15 @@ const CouponsList = () => {
                       {coupon.name}
                     </Typography>
                     <div className="flex items-baseline gap-1">
-                      <TypographyWithCopy className="shrink-0" compact noWrap variant="caption">
+                      <TypographyWithCopy
+                        className="h-auto shrink-0"
+                        compact
+                        noWrap
+                        variant="caption"
+                      >
                         {coupon.code}
                       </TypographyWithCopy>
-                      <Typography className="shrink-0" variant="caption" noWrap>
+                      <Typography className="h-auto shrink-0" variant="caption" noWrap>
                         •
                       </Typography>
                       <CouponCaption coupon={coupon} variant="caption" />
@@ -293,7 +305,7 @@ const CouponsList = () => {
             emptyState: getEmptyState(),
           }}
         />
-      </InfiniteScroll>
+      </PaginatedContent>
     </>
   )
 }

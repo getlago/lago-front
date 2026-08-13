@@ -10,7 +10,6 @@ import {
   applyExistingCodeError,
   buildChargeCodeSchema,
 } from '~/components/plans/drawers/common/chargeCode'
-import { RemoveChargeWarningDialogRef } from '~/components/plans/RemoveChargeWarningDialog'
 import {
   LocalChargeFilterInput,
   LocalPricingUnitInput,
@@ -150,7 +149,7 @@ gql`
 // `code` is only required when the field is shown (v2 details/edition via
 // `showCode`); the legacy plan form keeps it optional so its hidden, empty code
 // never blocks submit.
-export const buildUsageChargeDrawerSchema = (requireCode: boolean) =>
+const buildUsageChargeDrawerSchema = (requireCode: boolean) =>
   z
     .object({
       billableMetricId: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
@@ -247,7 +246,7 @@ interface UsageChargeDrawerProps {
     | FORM_ERRORS_ENUM.existingCode
     | Promise<void | boolean | FORM_ERRORS_ENUM.existingCode>
   onDelete?: (index: number) => void
-  removeChargeWarningDialogRef?: React.RefObject<RemoveChargeWarningDialogRef>
+  openRemoveChargeWarningDialog?: (params: { callback: () => void }) => void
   amountCurrency?: string
 }
 
@@ -266,7 +265,7 @@ export const UsageChargeDrawer = forwardRef<UsageChargeDrawerRef, UsageChargeDra
       subscriptionFormType,
       onSave,
       onDelete,
-      removeChargeWarningDialogRef,
+      openRemoveChargeWarningDialog,
       amountCurrency,
     },
     ref,
@@ -335,7 +334,7 @@ export const UsageChargeDrawer = forwardRef<UsageChargeDrawerRef, UsageChargeDra
         chargeDrawer.close()
 
         if (actionType !== 'duplicate' && isUsedInSubscriptionRef.current) {
-          removeChargeWarningDialogRef?.current?.openDialog({ callback: deleteCharge })
+          openRemoveChargeWarningDialog?.({ callback: deleteCharge })
         } else {
           deleteCharge()
         }

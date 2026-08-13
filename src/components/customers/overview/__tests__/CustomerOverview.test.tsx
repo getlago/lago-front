@@ -1,21 +1,13 @@
 import { act, screen, waitFor } from '@testing-library/react'
 
-import { FeatureFlagEnum } from '~/generated/graphql'
-import * as useOrganizationInfosModule from '~/hooks/useOrganizationInfos'
 import * as usePermissionsModule from '~/hooks/usePermissions'
 import { render } from '~/test-utils'
 
-import {
-  CUSTOMER_OVERVIEW_BREAKDOWN,
-  CUSTOMER_OVERVIEW_LEGACY_CARDS,
-  CustomerOverview,
-} from '../CustomerOverview'
+import { CUSTOMER_OVERVIEW_BREAKDOWN, CustomerOverview } from '../CustomerOverview'
 
 const mockGetCustomerOverdueBalances = jest.fn()
 const mockGetCustomerGrossRevenues = jest.fn()
 const mockHasPermissions = jest.fn(() => true)
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const mockHasFeatureFlag = jest.fn((_flag: FeatureFlagEnum) => false)
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -34,14 +26,6 @@ jest.mock('~/hooks/useIsCustomerReadyForOverduePayment', () => ({
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: jest.fn(() => ({
     hasPermissions: jest.fn(() => true),
-  })),
-}))
-
-jest.mock('~/hooks/useOrganizationInfos', () => ({
-  useOrganizationInfos: jest.fn(() => ({
-    organization: { defaultCurrency: 'USD' as const },
-    hasFeatureFlag: jest.fn(() => false),
-    intlFormatDateTimeOrgaTZ: jest.fn(() => ({ time: '12:00:00', date: '2024-01-01' })),
   })),
 }))
 
@@ -109,76 +93,26 @@ jest.mock('~/generated/graphql', () => ({
 describe('CustomerOverview', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    mockHasFeatureFlag.mockImplementation(() => false)
     mockHasPermissions.mockReturnValue(true)
-
-    jest.mocked(useOrganizationInfosModule.useOrganizationInfos).mockReturnValue({
-      organization: { defaultCurrency: 'USD' } as ReturnType<
-        typeof useOrganizationInfosModule.useOrganizationInfos
-      >['organization'],
-      hasFeatureFlag: mockHasFeatureFlag,
-      intlFormatDateTimeOrgaTZ: jest.fn(() => ({ time: '12:00:00', date: '2024-01-01' })),
-    } as unknown as ReturnType<typeof useOrganizationInfosModule.useOrganizationInfos>)
 
     jest.mocked(usePermissionsModule.usePermissions).mockReturnValue({
       hasPermissions: mockHasPermissions,
     } as unknown as ReturnType<typeof usePermissionsModule.usePermissions>)
   })
 
-  describe('GIVEN multi_currency feature flag is enabled', () => {
+  describe('GIVEN the customer has balances', () => {
     describe('WHEN the component is rendered', () => {
       it('THEN should render the breakdown table', async () => {
-        mockHasFeatureFlag.mockImplementation(
-          (flag: FeatureFlagEnum) => flag === FeatureFlagEnum.MultiCurrency,
-        )
-
         await act(async () => {
           render(<CustomerOverview externalCustomerId="ext-123" />)
         })
 
         await waitFor(() => {
           expect(screen.getByTestId(CUSTOMER_OVERVIEW_BREAKDOWN)).toBeInTheDocument()
-        })
-      })
-    })
-  })
-
-  describe('GIVEN multi_entity_billing feature flag is enabled', () => {
-    describe('WHEN the component is rendered', () => {
-      it('THEN should render the breakdown table', async () => {
-        mockHasFeatureFlag.mockImplementation(
-          (flag: FeatureFlagEnum) => flag === FeatureFlagEnum.MultiEntityBilling,
-        )
-
-        await act(async () => {
-          render(<CustomerOverview externalCustomerId="ext-123" />)
-        })
-
-        await waitFor(() => {
-          expect(screen.getByTestId(CUSTOMER_OVERVIEW_BREAKDOWN)).toBeInTheDocument()
-        })
-      })
-    })
-  })
-
-  describe('GIVEN both multi_currency and multi_entity_billing flags are enabled', () => {
-    describe('WHEN the component is rendered', () => {
-      it('THEN should render the breakdown table (not legacy cards)', async () => {
-        mockHasFeatureFlag.mockReturnValue(true)
-
-        await act(async () => {
-          render(<CustomerOverview externalCustomerId="ext-123" />)
-        })
-
-        await waitFor(() => {
-          expect(screen.getByTestId(CUSTOMER_OVERVIEW_BREAKDOWN)).toBeInTheDocument()
-          expect(screen.queryByTestId(CUSTOMER_OVERVIEW_LEGACY_CARDS)).not.toBeInTheDocument()
         })
       })
 
       it('THEN should execute both lazy queries', async () => {
-        mockHasFeatureFlag.mockReturnValue(true)
-
         await act(async () => {
           render(<CustomerOverview externalCustomerId="ext-123" />)
         })
@@ -186,22 +120,6 @@ describe('CustomerOverview', () => {
         await waitFor(() => {
           expect(mockGetCustomerOverdueBalances).toHaveBeenCalled()
           expect(mockGetCustomerGrossRevenues).toHaveBeenCalled()
-        })
-      })
-    })
-  })
-
-  describe('GIVEN both feature flags are off', () => {
-    describe('WHEN the component is rendered', () => {
-      it('THEN should fall back to the legacy cards', async () => {
-        mockHasFeatureFlag.mockReturnValue(false)
-
-        await act(async () => {
-          render(<CustomerOverview externalCustomerId="ext-123" />)
-        })
-
-        await waitFor(() => {
-          expect(screen.getByTestId(CUSTOMER_OVERVIEW_LEGACY_CARDS)).toBeInTheDocument()
         })
       })
     })
@@ -231,7 +149,7 @@ describe('CustomerOverview', () => {
     })
   })
 
-  describe('GIVEN breakdown mode and both gross and overdue collections are empty', () => {
+  describe('GIVEN both gross and overdue collections are empty', () => {
     describe('WHEN the component is rendered', () => {
       it('THEN should hide the Invoice balances section entirely', async () => {
         const { useGetCustomerOverdueBalancesLazyQuery, useGetCustomerGrossRevenuesLazyQuery } =
@@ -256,7 +174,6 @@ describe('CustomerOverview', () => {
             error: undefined,
           },
         ])
-        mockHasFeatureFlag.mockReturnValue(true)
 
         const { container } = render(<CustomerOverview externalCustomerId="ext-123" />)
 

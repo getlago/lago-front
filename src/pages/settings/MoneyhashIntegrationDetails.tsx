@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
-import { useRef } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
@@ -8,18 +7,8 @@ import { Button } from '~/components/designSystem/Button'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import {
-  AddEditDeleteSuccessRedirectUrlDialog,
-  AddEditDeleteSuccessRedirectUrlDialogRef,
-} from '~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog'
-import {
-  AddMoneyhashDialog,
-  AddMoneyhashDialogRef,
-} from '~/components/settings/integrations/AddMoneyhashDialog'
-import {
-  DeleteMoneyhashIntegrationDialog,
-  DeleteMoneyhashIntegrationDialogRef,
-} from '~/components/settings/integrations/DeleteMoneyhashIntegrationDialog'
+import { useAddMoneyhashDialog } from '~/components/settings/integrations/AddMoneyhashDialog'
+import { useDeleteMoneyhashIntegrationDialog } from '~/components/settings/integrations/DeleteMoneyhashIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { INTEGRATIONS_ROUTE, MONEYHASH_INTEGRATION_ROUTE, useNavigate } from '~/core/router'
 import {
@@ -70,9 +59,8 @@ gql`
 const MoneyhashIntegrationDetails = () => {
   const navigate = useNavigate()
   const { integrationId } = useParams()
-  const addMoneyhashDialogRef = useRef<AddMoneyhashDialogRef>(null)
-  const deleteDialogRef = useRef<DeleteMoneyhashIntegrationDialogRef>(null)
-  const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
+  const { openAddMoneyhashDialog } = useAddMoneyhashDialog()
+  const { openDeleteMoneyhashIntegrationDialog } = useDeleteMoneyhashIntegrationDialog()
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const { data, loading } = useGetMoneyhashIntegrationsDetailsQuery({
@@ -113,7 +101,7 @@ const MoneyhashIntegrationDetails = () => {
             }),
           },
           {
-            label: translate('text_67db6a10cb0b8031ca538909'),
+            label: translate('text_1733427981129n3wxjui0bex'),
             path: generatePath(MONEYHASH_INTEGRATION_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Community,
             }),
@@ -137,9 +125,8 @@ const MoneyhashIntegrationDetails = () => {
                   label: translate('text_65845f35d7d69c3ab4793dac'),
                   hidden: !canEditIntegration,
                   onClick: (closePopper) => {
-                    addMoneyhashDialogRef.current?.openDialog({
+                    openAddMoneyhashDialog({
                       provider: moneyhashPaymentProvider,
-                      deleteModalRef: deleteDialogRef,
                       deleteDialogCallback,
                     })
                     closePopper()
@@ -149,7 +136,7 @@ const MoneyhashIntegrationDetails = () => {
                   label: translate('text_65845f35d7d69c3ab4793dad'),
                   hidden: !canDeleteIntegration,
                   onClick: (closePopper) => {
-                    deleteDialogRef.current?.openDialog({
+                    openDeleteMoneyhashIntegrationDialog({
                       provider: moneyhashPaymentProvider,
                       callback: deleteDialogCallback,
                     })
@@ -171,9 +158,8 @@ const MoneyhashIntegrationDetails = () => {
               variant="inline"
               disabled={loading}
               onClick={() => {
-                addMoneyhashDialogRef.current?.openDialog({
+                openAddMoneyhashDialog({
                   provider: moneyhashPaymentProvider,
-                  deleteModalRef: deleteDialogRef,
                   deleteDialogCallback,
                 })
               }}
@@ -254,9 +240,6 @@ const MoneyhashIntegrationDetails = () => {
           )}
         </>
       </section>
-      <AddMoneyhashDialog ref={addMoneyhashDialogRef} />
-      <DeleteMoneyhashIntegrationDialog ref={deleteDialogRef} />
-      <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )
 }

@@ -1,9 +1,7 @@
 import { gql } from '@apollo/client'
-import { forwardRef } from 'react'
 
-import { DialogRef } from '~/components/designSystem/Dialog'
 import { Typography } from '~/components/designSystem/Typography'
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
 import {
   DeleteCustomerNetPaymentTermFragment,
@@ -28,17 +26,16 @@ gql`
   }
 `
 
-export type DeleteOrganizationNetPaymentTermDialogRef = WarningDialogRef
-
-interface DeleteOrganizationNetPaymentTermDialogProps {
+type DeleteCustomerNetPaymentTermDialogData = {
   customer: DeleteCustomerNetPaymentTermFragment
 }
 
-export const DeleteOrganizationNetPaymentTermDialog = forwardRef<
-  DialogRef,
-  DeleteOrganizationNetPaymentTermDialogProps
->(({ customer }: DeleteOrganizationNetPaymentTermDialogProps, ref) => {
-  const customerName = customer?.displayName
+export const useDeleteCustomerNetPaymentTermDialog = (): {
+  openDeleteCustomerNetPaymentTermDialog: (data: DeleteCustomerNetPaymentTermDialogData) => void
+} => {
+  const centralizedDialog = useCentralizedDialog()
+  const { translate } = useInternationalization()
+
   const [deleteCustomerNetPaymentTerm] = useDeleteCustomerNetPaymentTermMutation({
     onCompleted(data) {
       if (data && data.updateCustomer) {
@@ -49,36 +46,35 @@ export const DeleteOrganizationNetPaymentTermDialog = forwardRef<
       }
     },
   })
-  const { translate } = useInternationalization()
 
-  return (
-    <WarningDialog
-      ref={ref}
-      title={translate('text_64c7a89b6c67eb6c988980db')}
-      description={
+  const openDeleteCustomerNetPaymentTermDialog = ({
+    customer,
+  }: DeleteCustomerNetPaymentTermDialogData): void => {
+    centralizedDialog.open({
+      title: translate('text_64c7a89b6c67eb6c988980db'),
+      description: (
         <Typography
           html={translate('text_64c7a89b6c67eb6c988980f9', {
-            customerName: `<span class="line-break-anywhere">${customerName}</span>`,
+            customerName: `<span class="line-break-anywhere">${customer?.displayName}</span>`,
           })}
         />
-      }
-      onContinue={async () =>
+      ),
+      colorVariant: 'danger',
+      actionText: translate('text_64c7a89b6c67eb6c98898133'),
+      onAction: async () => {
         await deleteCustomerNetPaymentTerm({
           variables: {
             input: {
               id: customer.id,
               netPaymentTerm: null,
-              // NOTE: API should not require those fields on customer update
-              // To be tackled as improvement
               externalId: customer.externalId,
               name: customer.name || '',
             },
           },
         })
-      }
-      continueText={translate('text_64c7a89b6c67eb6c98898133')}
-    />
-  )
-})
+      },
+    })
+  }
 
-DeleteOrganizationNetPaymentTermDialog.displayName = 'DeleteOrganizationNetPaymentTermDialog'
+  return { openDeleteCustomerNetPaymentTermDialog }
+}

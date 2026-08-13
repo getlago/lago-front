@@ -186,10 +186,6 @@ export default [
           patterns: [
             {
               group: [
-                '~/components/designSystem/Dialog',
-                '~/components/designSystem/WarningDialog',
-                '~/components/designSystem/PreventClosingDrawerDialog',
-                '~/components/PremiumWarningDialog',
                 '~/components/addOns/*Dialog*',
                 '~/components/billableMetrics/*Dialog*',
                 '~/components/coupons/*Dialog*',

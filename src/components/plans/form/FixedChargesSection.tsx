@@ -12,10 +12,7 @@ import {
   FixedChargeDrawer,
   FixedChargeDrawerRef,
 } from '~/components/plans/drawers/fixedCharge/FixedChargeDrawer'
-import {
-  RemoveChargeWarningDialog,
-  RemoveChargeWarningDialogRef,
-} from '~/components/plans/RemoveChargeWarningDialog'
+import { useRemoveChargeWarningDialog } from '~/components/plans/RemoveChargeWarningDialog'
 import { LocalFixedChargeInput } from '~/components/plans/types'
 import {
   buildChargeHoverActions,
@@ -88,7 +85,7 @@ export const FixedChargesSection = ({
   const billFixedChargesMonthly = useStore(form.store, (s) => s.values.billFixedChargesMonthly)
 
   const hasAnyFixedCharge = !!fixedCharges.length
-  const removeChargeWarningDialogRef = useRef<RemoveChargeWarningDialogRef>(null)
+  const { openRemoveChargeWarningDialog } = useRemoveChargeWarningDialog()
   const fixedChargeDrawerRef = useRef<FixedChargeDrawerRef>(null)
   const [alreadyUsedAddOnIds, setAlreadyUsedAddOnIds] = useState<Map<string, number>>(new Map())
 
@@ -198,7 +195,7 @@ export const FixedChargesSection = ({
                             showWarningOnDelete: actionType !== 'duplicate' && isUsedInSubscription,
                             onDelete: () => handleChargeDelete(i),
                             onEdit: openFixedChargeDrawer,
-                            removeChargeWarningDialogRef,
+                            openRemoveChargeWarningDialog,
                             translate,
                           })}
                         />
@@ -234,10 +231,8 @@ export const FixedChargesSection = ({
         isInSubscriptionForm={isInSubscriptionForm}
         onSave={handleDrawerSave}
         onDelete={handleChargeDelete}
-        removeChargeWarningDialogRef={removeChargeWarningDialogRef}
+        openRemoveChargeWarningDialog={openRemoveChargeWarningDialog}
       />
-
-      <RemoveChargeWarningDialog ref={removeChargeWarningDialogRef} />
     </>
   )
 }

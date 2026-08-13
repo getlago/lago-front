@@ -1,9 +1,14 @@
+import NiceModal from '@ebay/nice-modal-react'
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import CentralizedDialog from '~/components/dialogs/CentralizedDialog'
+import { CENTRALIZED_DIALOG_NAME } from '~/components/dialogs/const'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import CreateSubscription from '../CreateSubscription'
+
+NiceModal.register(CENTRALIZED_DIALOG_NAME, CentralizedDialog)
 
 // --- Mock state ---
 
@@ -241,22 +246,6 @@ jest.mock('~/generated/graphql', () => {
   }
 })
 
-jest.mock('~/components/designSystem/WarningDialog', () => ({
-  WarningDialog: () => <div data-test="warning-dialog" />,
-  ...((): any => {
-    // Capture ref via mock
-    const actual = jest.requireActual('react')
-    const originalUseRef = actual.useRef
-
-    jest.spyOn(actual, 'useRef').mockImplementation((initialValue: unknown) => {
-      // Restore immediately to not break other useRef calls
-      return originalUseRef(initialValue)
-    })
-
-    return {}
-  })(),
-}))
-
 // Mock heavy child components to avoid deep rendering
 jest.mock('~/components/plans/PlanSettingsSection', () => ({
   PlanSettingsSection: () => <div data-test="plan-settings-section" />,
@@ -292,8 +281,12 @@ jest.mock('~/components/invoices/useEditInvoiceDisplayName', () => ({
   }),
 }))
 
-jest.mock('~/components/paymentMethodsInvoiceSettings/PaymentMethodsInvoiceSettings', () => ({
-  PaymentMethodsInvoiceSettings: () => <div data-test="payment-methods-settings" />,
+jest.mock('~/components/subscriptions/form/PaymentSettingsSection', () => ({
+  PaymentSettingsSection: () => <div data-test="payment-settings-section" />,
+}))
+
+jest.mock('~/components/subscriptions/form/InvoicingSettingsSection', () => ({
+  InvoicingSettingsSection: () => <div data-test="invoicing-settings-section" />,
 }))
 
 jest.mock('~/contexts/PlanFormContext', () => ({
@@ -307,9 +300,14 @@ jest.mock('~/components/customers/subscriptions/SubscriptionDatesOffsetHelperCom
 // --- Helpers ---
 
 const renderCreateSubscription = () =>
-  render(<CreateSubscription />, {
-    mocks: [],
-  })
+  render(
+    <NiceModal.Provider>
+      <CreateSubscription />
+    </NiceModal.Provider>,
+    {
+      mocks: [],
+    },
+  )
 
 // --- Tests ---
 

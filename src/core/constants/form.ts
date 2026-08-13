@@ -27,12 +27,8 @@ export const MIN_AMOUNT_SHOULD_BE_LOWER_THAN_MAX_ERROR = 'minAmountShouldBeLower
 export const MUI_INPUT_BASE_ROOT_CLASSNAME = 'MuiInputBase-root'
 export const MUI_BUTTON_BASE_ROOT_CLASSNAME = 'MuiButtonBase-root'
 // Plans
-export const SEARCH_METERED_CHARGE_INPUT_CLASSNAME = 'searchMeteredChargeInput'
-export const SEARCH_ADD_ON_FOR_FIXED_CHARGES_SECTION_INPUT_CLASSNAME =
-  'searchAddOnForFixedChargesSectionInput'
 export const SEARCH_ADD_ON_IN_FIXED_CHARGE_DRAWER_INPUT_CLASSNAME =
   'searchAddOnInFixedChargeDrawerInput'
-export const SEARCH_RECURRING_CHARGE_INPUT_CLASSNAME = 'searchRecurringChargeInput'
 export const SEARCH_BILLABLE_METRIC_IN_USAGE_CHARGE_DRAWER_INPUT_CLASSNAME =
   'searchBillableMetricInUsageChargeDrawerInput'
 export const SEARCH_TAX_INPUT_FOR_PLAN_CLASSNAME = 'searchTaxForPlanInput'
@@ -51,12 +47,17 @@ export const SEARCH_TAX_INPUT_FOR_ADD_ON_CLASSNAME = 'searchTaxForAddOnInput'
 // Invoices
 export const SEARCH_TAX_INPUT_FOR_INVOICE_ADD_ON_CLASSNAME = 'searchTaxForInvoiceAddOnInput'
 export const ADD_ITEM_FOR_INVOICE_INPUT_NAME = 'addItemInput'
+export const NET_PAYMENT_TERM_INPUT_CLASSNAME = 'netPaymentTermInput'
+export const RESEND_INVOICE_PAYMENT_METHOD_INPUT_CLASSNAME = 'resendInvoicePaymentMethodInput'
+// Billing entity
+export const SEARCH_INVOICE_CUSTOM_SECTION_INPUT_CLASSNAME = 'searchInvoiceCustomSectionInput'
+export const SEARCH_DUNNING_CAMPAIGN_INPUT_CLASSNAME = 'searchDunningCampaignInput'
+export const FINALIZE_ZERO_AMOUNT_INVOICE_INPUT_CLASSNAME = 'finalizeZeroAmountInvoiceInput'
+export const SEARCH_APPLY_TAX_INPUT_CLASSNAME = 'searchApplyTaxInput'
 // Customer
+export const ADD_PAYMENT_METHOD_PROVIDER_INPUT_CLASSNAME = 'addPaymentMethodProviderInput'
 export const SEARCH_TAX_INPUT_FOR_CUSTOMER_CLASSNAME = 'searchTaxForCustomerInput'
-export const ADD_CUSTOMER_PAYMENT_PROVIDER_ACCORDION = 'addCustomerPaymentProviderAccordion'
-export const ADD_CUSTOMER_ACCOUNTING_PROVIDER_ACCORDION = 'addCustomerAccountingProviderAccordion'
-export const ADD_CUSTOMER_TAX_PROVIDER_ACCORDION = 'addCustomerTaxProviderAccordion'
-export const ADD_CUSTOMER_CRM_PROVIDER_ACCORDION = 'addCustomerCrmProviderAccordion'
+export const SEARCH_COUPON_INPUT_FOR_CUSTOMER_CLASSNAME = 'searchCouponForCustomerInput'
 // Wallets
 export const SEARCH_APPLIES_TO_FEE_TYPE_CLASSNAME = 'searchAppliesToFeeTypeInput'
 export const SEARCH_APPLIES_TO_BILLABLE_METRIC_CLASSNAME = 'searchAppliesToBillableMetricInput'

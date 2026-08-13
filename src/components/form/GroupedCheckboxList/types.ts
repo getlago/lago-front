@@ -8,7 +8,7 @@ import { TypographyProps } from '~/components/designSystem/Typography'
 // Data Types
 // ============================================================================
 
-export type CheckboxGroupItem = {
+type CheckboxGroupItem = {
   id: string // Unique key (e.g., "customer.created")
   label: string // Main title - MANDATORY
   sublabel?: string // Subtitle - OPTIONAL (e.g., description)
@@ -20,7 +20,7 @@ export type CheckboxGroup = {
   items: CheckboxGroupItem[]
 }
 
-export type GroupedCheckboxListProps = {
+type GroupedCheckboxListProps = {
   // Dynamic texts
   title: string
   subtitle: string

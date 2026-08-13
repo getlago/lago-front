@@ -66,6 +66,28 @@ export const createPaginatedFieldPolicy = (additionalExclusions: string[] = []):
 })
 
 /**
+ * Field policy for NUMBERED (real) pagination — one page shown at a time.
+ *
+ * Same cache key as `createPaginatedFieldPolicy` (page/limit/offset excluded, so
+ * one entry per filter set), but it **replaces** the entry on each fetch instead
+ * of appending. The rendered collection is therefore exactly the page you
+ * navigated to, never an accumulation. Use this on queries migrated off infinite
+ * scroll; navigate pages with `fetchMore({ variables: { page } })`.
+ */
+export const createSinglePageFieldPolicy = (additionalExclusions: string[] = []): FieldPolicy => ({
+  keyArgs(args) {
+    if (!args) return false
+
+    const excludedArgs = new Set(['page', 'limit', 'offset', ...additionalExclusions])
+
+    return Object.keys(args)
+      .filter((key) => !excludedArgs.has(key))
+      .sort((a, b) => a.localeCompare(b))
+  },
+  merge: (_existing, incoming) => incoming,
+})
+
+/**
  * Appends an item to a plain-array field on a normalized parent entity.
  *
  * Use for non-paginated array fields (e.g. `Plan.charges`, `Plan.fixedCharges`) when a

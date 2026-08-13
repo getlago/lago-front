@@ -20,23 +20,26 @@ export interface SubscriptionSettingsFormValues {
   endDate: string
 }
 
-const subscriptionSettingsSchema = z
-  .object({
-    externalId: z.string(),
-    subscriptionName: z.string(),
-    billingTime: z.enum(['anniversary', 'calendar']),
-    startDate: z.string().min(1, 'text_624ea7c29103fd010732ab7d'),
-    endDate: z.string(),
-  })
-  .superRefine((data, ctx) => {
-    if (data.endDate && data.startDate && data.endDate < data.startDate) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'End date must be after start date',
-        path: ['endDate'],
-      })
-    }
-  })
+// Amendment quotes don't display a start date (it belongs to the amended subscription), so
+// the hidden, always-empty field must not block the save (LAGO-1814).
+const makeSubscriptionSettingsSchema = (isAmendment: boolean) =>
+  z
+    .object({
+      externalId: z.string(),
+      subscriptionName: z.string(),
+      billingTime: z.enum(['anniversary', 'calendar']),
+      startDate: isAmendment ? z.string() : z.string().min(1, 'text_624ea7c29103fd010732ab7d'),
+      endDate: z.string(),
+    })
+    .superRefine((data, ctx) => {
+      if (data.endDate && data.startDate && data.endDate < data.startDate) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'End date must be after start date',
+          path: ['endDate'],
+        })
+      }
+    })
 
 const DEFAULT_VALUES: SubscriptionSettingsFormValues = {
   externalId: '',
@@ -171,15 +174,16 @@ const SubscriptionSettingsDrawerContent = withForm({
           </form.AppField>
         </div>
         <div className="flex gap-3">
-          <form.AppField name="startDate">
-            {(field) => (
-              <field.DatePickerField
-                disabled={isAmendment}
-                label={translate('text_65201c5a175a4b0238abf29e')}
-                className="flex-1"
-              />
-            )}
-          </form.AppField>
+          {!isAmendment && (
+            <form.AppField name="startDate">
+              {(field) => (
+                <field.DatePickerField
+                  label={translate('text_65201c5a175a4b0238abf29e')}
+                  className="flex-1"
+                />
+              )}
+            </form.AppField>
+          )}
           <form.AppField name="endDate">
             {(field) => (
               <field.DatePickerField
@@ -204,7 +208,7 @@ export const useSubscriptionSettingsDrawer = (
   const form = useAppForm({
     defaultValues: DEFAULT_VALUES,
     validationLogic: revalidateLogic(),
-    validators: { onDynamic: subscriptionSettingsSchema },
+    validators: { onDynamic: makeSubscriptionSettingsSchema(isAmendment) },
     onSubmit: async ({ value }) => {
       onSave(value)
       drawer.close()

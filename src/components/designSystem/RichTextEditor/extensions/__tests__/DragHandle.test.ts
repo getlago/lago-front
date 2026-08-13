@@ -871,6 +871,44 @@ describe('DragHandle', () => {
       })
     })
 
+    describe('WHEN clicking editor UI marked to preserve selection (e.g. a portaled color picker)', () => {
+      it('THEN should keep the block NodeSelection intact', () => {
+        const editor = createEditor('<p>First</p><p>Second</p>')
+        const container = wrapEditorInContainer(editor)
+
+        // Select first block
+        const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+
+        ;(grips[0] as HTMLElement).click()
+
+        expect(editor.state.selection instanceof NodeSelection).toBe(true)
+
+        // The block toolbar's color picker renders in a Popper portaled to
+        // document.body — OUTSIDE .rich-text-editor — but is marked so its
+        // mousedown must not be treated as an outside click that deselects.
+        const popper = document.createElement('div')
+
+        popper.setAttribute('data-rte-preserve-selection', '')
+
+        const swatch = document.createElement('button')
+
+        popper.appendChild(swatch)
+        document.body.appendChild(popper)
+
+        const mousedown = new MouseEvent('mousedown', { bubbles: true })
+
+        swatch.dispatchEvent(mousedown)
+
+        const isStillNodeSelected = editor.state.selection instanceof NodeSelection
+
+        document.body.removeChild(popper)
+        document.body.removeChild(container)
+        editor.destroy()
+
+        expect(isStillNodeSelected).toBe(true)
+      })
+    })
+
     describe('WHEN clicking outside with no block selected', () => {
       it('THEN should not change the selection', () => {
         const editor = createEditor('<p>First</p><p>Second</p>')

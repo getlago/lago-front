@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -7,14 +6,7 @@ import { Popper } from '~/components/designSystem/Popper'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import {
-  AddCashfreeDialog,
-  AddCashfreeDialogRef,
-} from '~/components/settings/integrations/AddCashfreeDialog'
-import {
-  AddEditDeleteSuccessRedirectUrlDialog,
-  AddEditDeleteSuccessRedirectUrlDialogRef,
-} from '~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog'
+import { useAddCashfreeDialog } from '~/components/settings/integrations/AddCashfreeDialog'
 import { useDeleteCashfreeIntegrationDialog } from '~/components/settings/integrations/DeleteCashfreeIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CASHFREE_INTEGRATION_DETAILS_ROUTE, INTEGRATIONS_ROUTE, useNavigate } from '~/core/router'
@@ -58,9 +50,8 @@ gql`
 const CashfreeIntegrations = () => {
   const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
-  const addCashfreeDialogRef = useRef<AddCashfreeDialogRef>(null)
+  const { openAddCashfreeDialog } = useAddCashfreeDialog()
   const { openDeleteCashfreeIntegrationDialog } = useDeleteCashfreeIntegrationDialog()
-  const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
   const { translate } = useInternationalization()
   const { data, loading } = useGetCashfreeIntegrationsListQuery({
     variables: { limit: 1000, type: ProviderTypeEnum.Cashfree },
@@ -107,7 +98,7 @@ const CashfreeIntegrations = () => {
               variant: 'primary',
               hidden: !canCreateIntegration,
               onClick: () => {
-                addCashfreeDialogRef.current?.openDialog()
+                openAddCashfreeDialog()
               },
             },
           ],
@@ -162,13 +153,9 @@ const CashfreeIntegrations = () => {
                               variant="quaternary"
                               align="left"
                               onClick={() => {
-                                addCashfreeDialogRef.current?.openDialog({
+                                openAddCashfreeDialog({
                                   provider: connection,
-                                  onDeleteClick: () =>
-                                    openDeleteCashfreeIntegrationDialog({
-                                      provider: connection,
-                                      callback: deleteDialogCallback,
-                                    }),
+                                  deleteCallback: deleteDialogCallback,
                                 })
                                 closePopper()
                               }}
@@ -202,9 +189,6 @@ const CashfreeIntegrations = () => {
             })}
         </section>
       </IntegrationsPage.Container>
-
-      <AddCashfreeDialog ref={addCashfreeDialogRef} />
-      <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )
 }

@@ -99,11 +99,54 @@ export const printHtmlContent = (html: string, options?: { title?: string }): vo
     ),
   )
 
-  waitForStylesheets
+  // Wait for images to load before printing. The print HTML can contain remote
+  // <img> (e.g. uploaded quote images served via signed URLs); printing before
+  // they finish downloading yields blank images in the PDF. Resolve on load OR
+  // error (a broken src shouldn't block), and treat already-complete images as
+  // ready. Stylesheets never carried this risk — images are the first remote
+  // resource in the print HTML.
+  const images = Array.from(iframeDoc.querySelectorAll<HTMLImageElement>('img'))
+
+  const waitForImages = Promise.all(
+    images.map(
+      (img) =>
+        new Promise<void>((resolve) => {
+          if (img.complete) {
+            resolve()
+            return
+          }
+
+          const onDone = (): void => {
+            img.removeEventListener('load', onDone)
+            img.removeEventListener('error', onDone)
+            resolve()
+          }
+
+          img.addEventListener('load', onDone)
+          img.addEventListener('error', onDone)
+        }),
+    ),
+  )
+
+  // Bound the wait: a stalled resource must never hang the download. Whichever
+  // settles first — all resources loaded, or the timeout — triggers printing.
+  const RESOURCE_WAIT_TIMEOUT_MS = 3000
+  let timeoutId: ReturnType<typeof globalThis.setTimeout> | undefined
+  const waitForResources = Promise.race([
+    Promise.all([waitForStylesheets, waitForImages]),
+    new Promise<void>((resolve) => {
+      timeoutId = globalThis.setTimeout(resolve, RESOURCE_WAIT_TIMEOUT_MS)
+    }),
+  ])
+
+  waitForResources
     .catch(() => {
       // If waiting fails, fall through and attempt to print anyway
     })
     .finally(() => {
+      // Cancel the timeout if the resources won the race, so it doesn't linger.
+      globalThis.clearTimeout(timeoutId)
+
       const contentWindow = iframe.contentWindow
 
       if (!contentWindow) {

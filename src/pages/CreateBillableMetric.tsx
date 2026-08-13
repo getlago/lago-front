@@ -19,7 +19,7 @@ import { Chip } from '~/components/designSystem/Chip'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import {
   BasicMultipleComboBoxData,
   ButtonSelector,
@@ -50,10 +50,13 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCreateEditBillableMetric } from '~/hooks/useCreateEditBillableMetric'
+import { hasRemovedFilterValues } from '~/pages/CreateBillableMetric.utils'
 import { PageHeader } from '~/styles'
 import { Main, Side, Subtitle, Title } from '~/styles/mainObjectsForm'
 
 const NOT_UNIQUE_KEY_ERROR = 'key_not_unique'
+
+export const FILTER_VALUE_WARNING_ALERT_TEST_ID = 'billable-metric-filter-value-warning'
 
 gql`
   fragment EditBillableMetric on BillableMetric {
@@ -91,10 +94,13 @@ const CreateBillableMetric = () => {
     isDuplicate,
   })
 
-  const warningDirtyAttributesDialogRef = useRef<WarningDialogRef>(null)
+  const centralizedDialog = useCentralizedDialog()
   const customExpressionDrawerRef = useRef<CustomExpressionDrawerRef>(null)
   const canBeEdited =
     isDuplicate || (!billableMetric?.hasSubscriptions && !billableMetric?.hasPlans)
+  // A non-duplicate edit of a metric already attached to plans/subscriptions:
+  // removing filter values here can collapse existing plan charge filters.
+  const isInUse = isEdition && !canBeEdited
 
   const formikProps = useFormik<
     CreateBillableMetricInput & {
@@ -237,6 +243,24 @@ const CreateBillableMetric = () => {
     formikProps.setFieldValue(name, value)
   }
 
+  const handleSubmit = (): void => {
+    // Warn before saving when the metric is in use and filter values were removed:
+    // the backend collapses affected plan charge filters, which may need manual review.
+    if (isInUse && hasRemovedFilterValues(billableMetric?.filters, formikProps.values.filters)) {
+      centralizedDialog.open({
+        title: translate('text_1785937424540rcpk2gtmvcw'),
+        description: translate('text_17859374245407eq5b0eujux'),
+        actionText: translate('text_1785937424540njszxyvj0rx'),
+        colorVariant: 'danger',
+        onAction: () => formikProps.submitForm(),
+      })
+
+      return
+    }
+
+    formikProps.submitForm()
+  }
+
   return (
     <div>
       <PageHeader.Wrapper>
@@ -248,7 +272,19 @@ const CreateBillableMetric = () => {
           icon="close"
           onClick={() =>
             formikProps.dirty
-              ? warningDirtyAttributesDialogRef.current?.openDialog()
+              ? centralizedDialog.open({
+                  title: translate(
+                    isEdition ? 'text_62583bbb86abcf01654f693f' : 'text_6244277fe0975300fe3fb940',
+                  ),
+                  description: translate(
+                    isEdition ? 'text_62583bbb86abcf01654f6943' : 'text_6244277fe0975300fe3fb946',
+                  ),
+                  actionText: translate(
+                    isEdition ? 'text_62583bbb86abcf01654f694b' : 'text_6244277fe0975300fe3fb94c',
+                  ),
+                  colorVariant: 'danger',
+                  onAction: () => navigate(BILLABLE_METRICS_ROUTE),
+                })
               : navigate(BILLABLE_METRICS_ROUTE)
           }
         />
@@ -671,6 +707,12 @@ const CreateBillableMetric = () => {
                       </Typography>
                     </div>
 
+                    {isInUse && (
+                      <Alert type="warning" data-test={FILTER_VALUE_WARNING_ALERT_TEST_ID}>
+                        {translate('text_1785937424540jyldwaxzp6s')}
+                      </Alert>
+                    )}
+
                     {formikProps.values.filters?.map((filter, filterIndex) => {
                       return (
                         <div key={`filter-${filterIndex}`}>
@@ -847,7 +889,7 @@ const CreateBillableMetric = () => {
                     fullWidth
                     data-test="submit"
                     size="large"
-                    onClick={formikProps.submitForm}
+                    onClick={handleSubmit}
                   >
                     {translate(
                       isEdition ? 'text_62582fb4675ece01137a7e6c' : 'text_623b42ff8ee4e000ba87d0d4',
@@ -865,19 +907,6 @@ const CreateBillableMetric = () => {
       <CustomExpressionDrawer
         ref={customExpressionDrawerRef}
         onSave={(expression: string) => formikProps.setFieldValue('expression', expression)}
-      />
-      <WarningDialog
-        ref={warningDirtyAttributesDialogRef}
-        title={translate(
-          isEdition ? 'text_62583bbb86abcf01654f693f' : 'text_6244277fe0975300fe3fb940',
-        )}
-        description={translate(
-          isEdition ? 'text_62583bbb86abcf01654f6943' : 'text_6244277fe0975300fe3fb946',
-        )}
-        continueText={translate(
-          isEdition ? 'text_62583bbb86abcf01654f694b' : 'text_6244277fe0975300fe3fb94c',
-        )}
-        onContinue={() => navigate(BILLABLE_METRICS_ROUTE)}
       />
     </div>
   )

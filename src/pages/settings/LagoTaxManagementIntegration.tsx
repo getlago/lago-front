@@ -1,20 +1,16 @@
 import { gql } from '@apollo/client'
 import { Icon, tw } from 'lago-design-system'
-import { FC, useRef } from 'react'
+import { FC } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'
-import { DialogRef } from '~/components/designSystem/Dialog'
 import { Typography } from '~/components/designSystem/Typography'
-import { WarningDialog } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import {
-  AddLagoTaxManagementDialog,
-  AddLagoTaxManagementDialogRef,
-} from '~/components/settings/integrations/AddLagoTaxManagementDialog'
+import { useAddLagoTaxManagementDialog } from '~/components/settings/integrations/AddLagoTaxManagementDialog'
 import { addToast } from '~/core/apolloClient'
 import { CountryCodes } from '~/core/constants/countryCodes'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -76,8 +72,8 @@ const LagoTaxManagementIntegration = () => {
   const navigate = useNavigate()
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
-  const deleteConnectionRef = useRef<DialogRef>(null)
-  const addLagoTaxManagementDialog = useRef<AddLagoTaxManagementDialogRef>(null)
+  const centralizedDialog = useCentralizedDialog()
+  const { openAddLagoTaxManagementDialog } = useAddLagoTaxManagementDialog()
 
   const { data: billingEntitiesData, loading: billingEntitiesLoading } =
     useGetBillingEntitiesQuery()
@@ -156,7 +152,13 @@ const LagoTaxManagementIntegration = () => {
               disabled: loading,
               dataTest: LAGO_TAX_MANAGEMENT_REMOVE_BUTTON_TEST_ID,
               onClick: () => {
-                deleteConnectionRef.current?.openDialog()
+                centralizedDialog.open({
+                  title: translate('text_657078c28394d6b1ae1b9707'),
+                  description: translate('text_657078c28394d6b1ae1b970d'),
+                  actionText: translate('text_657078c28394d6b1ae1b971b'),
+                  colorVariant: 'danger',
+                  onAction: removeEuTaxManagement,
+                })
               },
             },
           ],
@@ -173,7 +175,7 @@ const LagoTaxManagementIntegration = () => {
             <Button
               variant="inline"
               onClick={() => {
-                addLagoTaxManagementDialog.current?.openDialog()
+                openAddLagoTaxManagementDialog({ isUpdate: true })
               }}
             >
               {translate('text_174669693169993cmj3546tp')}
@@ -243,16 +245,6 @@ const LagoTaxManagementIntegration = () => {
             ))}
         </section>
       </IntegrationsPage.Container>
-
-      <AddLagoTaxManagementDialog isUpdate={true} ref={addLagoTaxManagementDialog} />
-
-      <WarningDialog
-        ref={deleteConnectionRef}
-        title={translate('text_657078c28394d6b1ae1b9707')}
-        description={translate('text_657078c28394d6b1ae1b970d')}
-        continueText={translate('text_657078c28394d6b1ae1b971b')}
-        onContinue={removeEuTaxManagement}
-      />
     </>
   )
 }

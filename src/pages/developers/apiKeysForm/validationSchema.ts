@@ -13,6 +13,4 @@ export const apiKeysFormValidationSchema = z.object({
   permissions: z.array(apiKeyPermissionSchema),
 })
 
-export type ApiKeysFormValues = z.infer<typeof apiKeysFormValidationSchema>
-
 export type ApiKeyPermissions = z.infer<typeof apiKeyPermissionSchema>

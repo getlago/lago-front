@@ -3,9 +3,7 @@
  */
 
 export type OverlayResult =
-  | { reason: 'close' }
-  | { reason: 'success'; params?: unknown }
-  | { reason: 'error'; error: Error }
+  { reason: 'close' } | { reason: 'success'; params?: unknown } | { reason: 'error'; error: Error }
 
 export type HookOverlayReturnType<Props> = {
   open: (props: Props) => Promise<OverlayResult>

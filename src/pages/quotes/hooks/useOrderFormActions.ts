@@ -51,9 +51,14 @@ export const useOrderFormActions = () => {
         icon: 'download',
         label: translate('text_17797156485850t8yms6hf7z'),
         onAction: () => {
-          void download(buildQuotePreviewProps(version, orderForm.customer, header)).catch(
-            () => undefined,
-          )
+          void download(
+            buildQuotePreviewProps({
+              version,
+              customer: orderForm.customer,
+              images: (orderForm.quote.images ?? {}) as Record<string, string>,
+              header,
+            }),
+          ).catch(() => undefined)
         },
       })
     }

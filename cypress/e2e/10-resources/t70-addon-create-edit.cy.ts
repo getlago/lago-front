@@ -21,7 +21,9 @@ describe('Add On', () => {
     cy.url().should('match', /\/[^/]+\/create\/add-on$/)
 
     // Basic form infos
-    cy.get('[data-test="submit"]').should('be.disabled')
+    // The TanStack submit button is enabled by default and only disables on
+    // validation errors (canSubmit) — it is not gated on a pristine/invalid
+    // mount state, so no be.disabled assertion on the empty form here.
     cy.get('input[name="name"]').type(addOnName)
     cy.get('input[name="code"]').should('have.value', addOnCode)
     cy.get('input[name="amountCents"]').type('30')

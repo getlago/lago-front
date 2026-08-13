@@ -1,4 +1,5 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
 import {
   CurrencyEnum,
@@ -22,6 +23,8 @@ mockIntersectionObserver.mockReturnValue({
 })
 window.IntersectionObserver = mockIntersectionObserver
 
+const mockCanDelete = jest.fn(() => false)
+
 jest.mock('~/hooks/usePermissionsInvoiceActions', () => ({
   usePermissionsInvoiceActions: () => ({
     canDownload: () => true,
@@ -30,10 +33,19 @@ jest.mock('~/hooks/usePermissionsInvoiceActions', () => ({
     canGeneratePaymentUrl: () => false,
     canUpdatePaymentStatus: () => false,
     canVoid: () => false,
+    canDelete: mockCanDelete,
     canIssueCreditNote: () => false,
     canRecordPayment: () => false,
     canResendEmail: () => false,
     canRegenerate: () => false,
+  }),
+}))
+
+const mockOpenDeleteInvoiceDialog = jest.fn()
+
+jest.mock('~/components/invoices/DeleteInvoiceDialog', () => ({
+  useDeleteInvoiceDialog: () => ({
+    openDeleteInvoiceDialog: mockOpenDeleteInvoiceDialog,
   }),
 }))
 
@@ -59,9 +71,6 @@ const createMockInvoice = (
   paymentDisputeLostAt: null,
   taxProviderVoidable: false,
   invoiceType: InvoiceTypeEnum.Subscription,
-  creditableAmountCents: '10000',
-  refundableAmountCents: '0',
-  offsettableAmountCents: '0',
   associatedActiveWalletPresent: false,
   voidedInvoiceId: null,
   regeneratedInvoiceId: null,
@@ -130,12 +139,35 @@ describe('CustomerInvoicesList', () => {
   })
 
   describe('GIVEN loading state', () => {
-    it('THEN should show loading rows', () => {
+    it('THEN should render the full-list skeleton on the first load', () => {
       renderComponent({ isLoading: true, invoiceData: createMockInvoiceData([]) })
 
       const bodyRows = screen.queryAllByRole('rowgroup')[1]
 
-      expect(bodyRows?.querySelectorAll('tr').length).toBeGreaterThan(0)
+      // First load with no data → skeleton rows fill the list
+      expect(bodyRows?.querySelectorAll('tr').length ?? 0).toBeGreaterThan(0)
+    })
+  })
+
+  describe('GIVEN a draft invoice and delete permission', () => {
+    it('THEN should open the delete dialog when the delete action is clicked', async () => {
+      const user = userEvent.setup()
+
+      mockCanDelete.mockReturnValue(true)
+
+      renderComponent({
+        invoiceData: createMockInvoiceData([
+          createMockInvoice({ status: InvoiceStatusTypeEnum.Draft }),
+        ]),
+      })
+
+      await waitFor(() => user.click(screen.getByTestId('open-action-button')))
+
+      const deleteButton = screen.getByRole('button', { name: 'Delete invoice' })
+
+      await waitFor(() => user.click(deleteButton))
+
+      expect(mockOpenDeleteInvoiceDialog).toHaveBeenCalled()
     })
   })
 })

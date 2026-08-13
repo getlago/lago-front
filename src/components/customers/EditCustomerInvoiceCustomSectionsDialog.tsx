@@ -1,11 +1,10 @@
 import { gql } from '@apollo/client'
-import { useFormik } from 'formik'
-import { forwardRef, useMemo } from 'react'
-import { array, mixed, object, string } from 'yup'
+import { revalidateLogic, useStore } from '@tanstack/react-form'
+import { useEffect, useMemo, useRef } from 'react'
 
-import { Button } from '~/components/designSystem/Button'
-import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
-import { MultipleComboBox, RadioField } from '~/components/form'
+import { useFormDialog } from '~/components/dialogs/FormDialog'
+import { DialogResult } from '~/components/dialogs/types'
+import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { addToast } from '~/core/apolloClient'
 import {
   CustomerAppliedInvoiceCustomSectionsFragmentDoc,
@@ -13,8 +12,18 @@ import {
   useEditCustomerInvoiceCustomSectionMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm, withForm } from '~/hooks/forms/useAppform'
 import { useCustomerInvoiceCustomSections } from '~/hooks/useCustomerInvoiceCustomSections'
 import { useInvoiceCustomSectionsLazy } from '~/hooks/useInvoiceCustomSections'
+
+import {
+  BehaviorType,
+  editCustomerInvoiceCustomSectionsDefaultValues,
+  editCustomerInvoiceCustomSectionsSchema,
+} from './editCustomerInvoiceCustomSections/validationSchema'
+
+export const EDIT_CUSTOMER_INVOICE_CUSTOM_SECTIONS_FORM_ID =
+  'edit-customer-invoice-custom-sections-form'
 
 gql`
   mutation editCustomerInvoiceCustomSection($input: UpdateCustomerInput!) {
@@ -27,41 +36,90 @@ gql`
   }
 `
 
-enum BehaviorType {
-  FALLBACK = 'fallback',
-  CUSTOM_SECTIONS = 'customSections',
-  DEACTIVATE = 'deactivate',
-}
+const DialogContent = withForm({
+  defaultValues: editCustomerInvoiceCustomSectionsDefaultValues,
+  render: function Render({ form }) {
+    const { translate } = useInternationalization()
+    const { getInvoiceCustomSections, data: orgInvoiceCustomSections } =
+      useInvoiceCustomSectionsLazy()
 
-export type EditCustomerInvoiceCustomSectionsDialogRef = DialogRef
+    useEffect(() => {
+      getInvoiceCustomSections()
+    }, [getInvoiceCustomSections])
 
-interface EditCustomerInvoiceCustomSectionsDialogProps {
-  customerId: string
-}
+    const options = useMemo(
+      () =>
+        (orgInvoiceCustomSections ?? []).map((section) => ({
+          labelNode: section.name,
+          label: section.name,
+          description: section.code,
+          value: section.id,
+        })),
+      [orgInvoiceCustomSections],
+    )
 
-export const EditCustomerInvoiceCustomSectionsDialog = forwardRef<
-  DialogRef,
-  EditCustomerInvoiceCustomSectionsDialogProps
->(({ customerId }: EditCustomerInvoiceCustomSectionsDialogProps, ref) => {
+    const behavior = useStore(form.store, (state) => state.values.behavior)
+
+    return (
+      <div className="p-8 not-last-child:mb-4">
+        <form.AppField name="behavior">
+          {(field) => (
+            <field.RadioField
+              value={BehaviorType.FALLBACK}
+              label={translate('text_17352239389166kugn45zj95')}
+              labelVariant="body"
+            />
+          )}
+        </form.AppField>
+        <form.AppField name="behavior">
+          {(field) => (
+            <field.RadioField
+              value={BehaviorType.CUSTOM_SECTIONS}
+              label={translate('text_1735223938916ed8ef8phwaz')}
+              labelVariant="body"
+            />
+          )}
+        </form.AppField>
+        {behavior === BehaviorType.CUSTOM_SECTIONS && (
+          <form.AppField name="configurableInvoiceCustomSections">
+            {(field) => (
+              <field.MultipleComboBoxField
+                hideTags={false}
+                forcePopupIcon
+                data={options}
+                placeholder={translate('text_1735223938916qvvv12r7je0')}
+                PopperProps={{ displayInDialog: true }}
+                emptyText={translate('text_173642092241713ws50zg9v4')}
+              />
+            )}
+          </form.AppField>
+        )}
+        <form.AppField name="behavior">
+          {(field) => (
+            <field.RadioField
+              value={BehaviorType.DEACTIVATE}
+              label={translate('text_1735223938916dhd7cyzokib')}
+              labelVariant="body"
+            />
+          )}
+        </form.AppField>
+      </div>
+    )
+  },
+})
+
+export const useEditCustomerInvoiceCustomSectionsDialog = (customerId: string) => {
+  const formDialog = useFormDialog()
   const { translate } = useInternationalization()
+  const successRef = useRef(false)
 
   const { data: customerData, customer } = useCustomerInvoiceCustomSections(customerId)
 
-  const { getInvoiceCustomSections, data: orgInvoiceCustomSections } =
-    useInvoiceCustomSectionsLazy()
-
-  const options = useMemo(() => {
-    return (orgInvoiceCustomSections ?? []).map((section) => ({
-      labelNode: section.name,
-      label: section.name,
-      description: section.code,
-      value: section.id,
-    }))
-  }, [orgInvoiceCustomSections])
-
   const [editCustomerInvoiceCustomSection] = useEditCustomerInvoiceCustomSectionMutation({
     refetchQueries: ['getCustomerSettings'],
-    onCompleted: () => {
+    onCompleted: (res) => {
+      if (!res.updateCustomer) return
+      successRef.current = true
       addToast({
         severity: 'success',
         message: translate('text_17352280436833uy9uxzbqn7'),
@@ -69,42 +127,11 @@ export const EditCustomerInvoiceCustomSectionsDialog = forwardRef<
     },
   })
 
-  const initialBehavior = useMemo((): BehaviorType => {
-    if (customerData?.hasOverwrittenInvoiceCustomSectionsSelection) {
-      return BehaviorType.CUSTOM_SECTIONS
-    } else if (customerData?.skipInvoiceCustomSections) {
-      return BehaviorType.DEACTIVATE
-    }
-
-    return BehaviorType.FALLBACK
-  }, [customerData])
-
-  const initialSectionIds = useMemo(() => {
-    if (!customerData?.hasOverwrittenInvoiceCustomSectionsSelection) {
-      return undefined
-    }
-
-    return customerData.configurableInvoiceCustomSections.map((section) => section.id)
-  }, [customerData])
-
-  const formikProps = useFormik<{
-    behavior: BehaviorType | ''
-    configurableInvoiceCustomSectionIds: string[] | undefined
-  }>({
-    initialValues: {
-      behavior: initialBehavior,
-      configurableInvoiceCustomSectionIds: initialSectionIds,
-    },
-    validationSchema: object().shape({
-      behavior: mixed().oneOf(Object.values(BehaviorType)).required(''),
-      configurableInvoiceCustomSectionIds: array()
-        .of(string())
-        .when('behavior', {
-          is: (val: BehaviorType) => val === BehaviorType.CUSTOM_SECTIONS,
-          then: (schema) => schema.min(1, ''),
-        }),
-    }),
-    onSubmit: async (values) => {
+  const form = useAppForm({
+    defaultValues: editCustomerInvoiceCustomSectionsDefaultValues,
+    validationLogic: revalidateLogic(),
+    validators: { onDynamic: editCustomerInvoiceCustomSectionsSchema },
+    onSubmit: async ({ value }) => {
       if (!customer) return
 
       let formattedValues: UpdateCustomerInput = {
@@ -112,7 +139,7 @@ export const EditCustomerInvoiceCustomSectionsDialog = forwardRef<
         externalId: customer.externalId,
       }
 
-      switch (values.behavior) {
+      switch (value.behavior) {
         case BehaviorType.FALLBACK:
           formattedValues = {
             ...formattedValues,
@@ -124,7 +151,9 @@ export const EditCustomerInvoiceCustomSectionsDialog = forwardRef<
           formattedValues = {
             ...formattedValues,
             skipInvoiceCustomSections: false,
-            configurableInvoiceCustomSectionIds: values.configurableInvoiceCustomSectionIds,
+            configurableInvoiceCustomSectionIds: value.configurableInvoiceCustomSections.map(
+              (section) => section.value,
+            ),
           }
           break
         case BehaviorType.DEACTIVATE:
@@ -138,88 +167,60 @@ export const EditCustomerInvoiceCustomSectionsDialog = forwardRef<
 
       await editCustomerInvoiceCustomSection({ variables: { input: formattedValues } })
     },
-    validateOnMount: true,
-    enableReinitialize: true,
   })
 
-  return (
-    <Dialog
-      ref={ref}
-      onOpen={async () => {
-        await getInvoiceCustomSections()
-      }}
-      title={translate('text_17352239389168sdqd97zo0t')}
-      description={translate('text_1735223938916hla21yfwyzw')}
-      actions={({ closeDialog }) => (
-        <>
-          <Button variant="quaternary" onClick={closeDialog}>
-            {translate('text_63ea0f84f400488553caa6a5')}
-          </Button>
-          <Button
-            variant="primary"
-            disabled={!formikProps.isValid || !formikProps.dirty}
-            onClick={async () => {
-              await formikProps.submitForm()
-              closeDialog()
-            }}
-          >
-            {translate('text_1735223938916q9pq0j0z0ju')}
-          </Button>
-        </>
-      )}
-    >
-      <div className="mb-8 not-last-child:mb-4">
-        <RadioField
-          name="behavior"
-          formikProps={formikProps}
-          value={BehaviorType.FALLBACK}
-          label={translate('text_17352239389166kugn45zj95')}
-          labelVariant="body"
-        />
-        <RadioField
-          name="behavior"
-          formikProps={formikProps}
-          value={BehaviorType.CUSTOM_SECTIONS}
-          label={translate('text_1735223938916ed8ef8phwaz')}
-          labelVariant="body"
-        />
-        {formikProps.values.behavior === BehaviorType.CUSTOM_SECTIONS && (
-          <MultipleComboBox
-            hideTags={false}
-            forcePopupIcon
-            name="configurableInvoiceCustomSectionIds"
-            data={options}
-            onChange={(section) =>
-              formikProps.setFieldValue(
-                'configurableInvoiceCustomSectionIds',
-                section.map(({ value }) => value),
-              )
-            }
-            value={
-              formikProps.values.configurableInvoiceCustomSectionIds?.map((id) => {
-                const foundSection = options.find((section) => section.value === id)
+  const handleSubmit = async (): Promise<DialogResult> => {
+    successRef.current = false
+    await form.handleSubmit()
 
-                return {
-                  value: id,
-                  label: foundSection?.label,
-                }
-              }) ?? []
-            }
-            placeholder={translate('text_1735223938916qvvv12r7je0')}
-            PopperProps={{ displayInDialog: true }}
-            emptyText={translate('text_173642092241713ws50zg9v4')}
-          />
-        )}
-        <RadioField
-          name="behavior"
-          formikProps={formikProps}
-          value={BehaviorType.DEACTIVATE}
-          label={translate('text_1735223938916dhd7cyzokib')}
-          labelVariant="body"
-        />
-      </div>
-    </Dialog>
-  )
-})
+    if (!successRef.current) {
+      throw new Error('Submit failed')
+    }
 
-EditCustomerInvoiceCustomSectionsDialog.displayName = 'EditCustomerInvoiceCustomSectionsDialog'
+    return { reason: 'success' }
+  }
+
+  const openEditCustomerInvoiceCustomSectionsDialog = () => {
+    form.reset()
+
+    if (customerData?.hasOverwrittenInvoiceCustomSectionsSelection) {
+      form.setFieldValue('behavior', BehaviorType.CUSTOM_SECTIONS)
+      form.setFieldValue(
+        'configurableInvoiceCustomSections',
+        customerData.configurableInvoiceCustomSections.map((section) => ({
+          value: section.id,
+          label: section.name,
+        })),
+      )
+    } else if (customerData?.skipInvoiceCustomSections) {
+      form.setFieldValue('behavior', BehaviorType.DEACTIVATE)
+    } else {
+      form.setFieldValue('behavior', BehaviorType.FALLBACK)
+    }
+
+    formDialog
+      .open({
+        title: translate('text_17352239389168sdqd97zo0t'),
+        description: translate('text_1735223938916hla21yfwyzw'),
+        closeOnError: false,
+        onEntered: focusFirstInput,
+        children: <DialogContent form={form} />,
+        mainAction: (
+          <form.AppForm>
+            <form.SubmitButton>{translate('text_1735223938916q9pq0j0z0ju')}</form.SubmitButton>
+          </form.AppForm>
+        ),
+        form: {
+          id: EDIT_CUSTOMER_INVOICE_CUSTOM_SECTIONS_FORM_ID,
+          submit: handleSubmit,
+        },
+      })
+      .then((response) => {
+        if (response.reason === 'close') {
+          form.reset()
+        }
+      })
+  }
+
+  return { openEditCustomerInvoiceCustomSectionsDialog }
+}

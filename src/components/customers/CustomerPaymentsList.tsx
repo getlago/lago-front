@@ -1,7 +1,7 @@
 import { FC } from 'react'
 import { generatePath } from 'react-router-dom'
 
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { Status } from '~/components/designSystem/Status'
 import { Table, TableProps } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
@@ -34,6 +34,7 @@ interface CustomerPaymentsListProps {
   loading: boolean
   metadata?: GetPaymentsListQuery['payments']['metadata']
   fetchMore?: GetPaymentsListQueryHookResult['fetchMore']
+  onPageChange?: (page: number) => void
   placeholder?: TableProps<PaymentForPaymentsListFragment>['placeholder']
 }
 
@@ -42,6 +43,7 @@ export const CustomerPaymentsList: FC<CustomerPaymentsListProps> = ({
   loading,
   metadata,
   fetchMore,
+  onPageChange,
   placeholder,
 }) => {
   const { translate } = useInternationalization()
@@ -52,16 +54,13 @@ export const CustomerPaymentsList: FC<CustomerPaymentsListProps> = ({
   const { showResendEmailDialog } = useResendEmailDialog()
 
   return (
-    <InfiniteScroll
-      onBottom={() => {
-        const { currentPage = 0, totalPages = 0 } = metadata || {}
-
-        currentPage < totalPages &&
-          !loading &&
-          fetchMore?.({
-            variables: { page: currentPage + 1 },
-          })
-      }}
+    <PaginatedContent
+      metadata={metadata}
+      loading={loading}
+      onPageChange={(page) =>
+        (onPageChange ?? ((p) => fetchMore?.({ variables: { page: p } })))(page)
+      }
+      sticky={false}
     >
       <Table
         name="customer-payments-list"
@@ -224,6 +223,6 @@ export const CustomerPaymentsList: FC<CustomerPaymentsListProps> = ({
           },
         ]}
       />
-    </InfiniteScroll>
+    </PaginatedContent>
   )
 }

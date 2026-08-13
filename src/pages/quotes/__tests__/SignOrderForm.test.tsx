@@ -178,7 +178,7 @@ describe('SignOrderForm', () => {
     await waitFor(() => {
       expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
     })
-    expect(testMockNavigateFn).toHaveBeenCalledWith('/quote/quote-456/order-forms')
+    expect(testMockNavigateFn).toHaveBeenCalledWith('/quote/quote-456/orders')
   })
 
   it('signs without an execution date (executeAt is optional)', async () => {
@@ -216,7 +216,7 @@ describe('SignOrderForm', () => {
     })
 
     await waitFor(() => {
-      expect(testMockNavigateFn).toHaveBeenCalledWith('/quote/quote-456/order-forms')
+      expect(testMockNavigateFn).toHaveBeenCalledWith('/quote/quote-456/orders')
     })
   })
 

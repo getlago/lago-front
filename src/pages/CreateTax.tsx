@@ -7,7 +7,7 @@ import { Card } from '~/components/designSystem/Card'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
 import { TaxCodeSnippet } from '~/components/taxes/TaxCodeSnippet'
 import { TaxFormInput } from '~/components/taxes/types'
@@ -27,8 +27,7 @@ export const CREATE_TAX_DESCRIPTION_DELETE_TEST_ID = 'create-tax-description-del
 
 const CreateTaxRate = () => {
   const { isEdition, errorCode, loading, onClose, onSave, tax } = useCreateEditTax()
-  const leavingNotSavedChargesWarningDialogRef = useRef<WarningDialogRef>(null)
-  const savingAppliedTaxRateWarningDialogRef = useRef<WarningDialogRef>(null)
+  const centralizedDialog = useCentralizedDialog()
   const saveAfterConfirmRef = useRef<() => Promise<void>>(async () => {})
   const { translate } = useInternationalization()
 
@@ -48,7 +47,21 @@ const CreateTaxRate = () => {
         saveAfterConfirmRef.current = async () => {
           await onSave(value as unknown as TaxFormInput)
         }
-        savingAppliedTaxRateWarningDialogRef.current?.openDialog()
+        centralizedDialog.open({
+          title: translate('text_6464a12047f2dd00affa924f', {
+            name: tax?.name,
+          }),
+          description: translate(
+            'text_6464a12047f2dd00affa9250',
+            {
+              customersCount: tax?.customersCount,
+            },
+            tax?.customersCount,
+          ),
+          colorVariant: 'info',
+          actionText: translate('text_6464a12047f2dd00affa9252'),
+          onAction: () => saveAfterConfirmRef.current(),
+        })
       } else {
         await onSave(value as unknown as TaxFormInput)
       }
@@ -120,7 +133,15 @@ const CreateTaxRate = () => {
           icon="close"
           data-test={CREATE_TAX_CLOSE_BUTTON_TEST_ID}
           onClick={() =>
-            isDirty ? leavingNotSavedChargesWarningDialogRef.current?.openDialog() : onClose()
+            isDirty
+              ? centralizedDialog.open({
+                  title: translate('text_645bb193927b375079d289cb'),
+                  description: translate('text_645bb193927b375079d289d9'),
+                  actionText: translate('text_645bb193927b375079d289f9'),
+                  colorVariant: 'danger',
+                  onAction: onClose,
+                })
+              : onClose()
           }
         />
       </PageHeader.Wrapper>
@@ -276,29 +297,6 @@ const CreateTaxRate = () => {
           />
         </Side>
       </form>
-      <WarningDialog
-        ref={leavingNotSavedChargesWarningDialogRef}
-        title={translate('text_645bb193927b375079d289cb')}
-        description={translate('text_645bb193927b375079d289d9')}
-        continueText={translate('text_645bb193927b375079d289f9')}
-        onContinue={onClose}
-      />
-      <WarningDialog
-        mode="info"
-        ref={savingAppliedTaxRateWarningDialogRef}
-        title={translate('text_6464a12047f2dd00affa924f', {
-          name: tax?.name,
-        })}
-        description={translate(
-          'text_6464a12047f2dd00affa9250',
-          {
-            customersCount: tax?.customersCount,
-          },
-          tax?.customersCount,
-        )}
-        continueText={translate('text_6464a12047f2dd00affa9252')}
-        onContinue={() => saveAfterConfirmRef.current()}
-      />
     </div>
   )
 }

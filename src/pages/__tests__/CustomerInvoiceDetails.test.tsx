@@ -204,6 +204,7 @@ const mockDefaultAuthorizations = {
   canRecordPayment: true,
   canUpdatePaymentStatus: true,
   canVoid: true,
+  canDelete: false,
   canRegenerate: false,
   canGeneratePaymentUrl: false,
   canSyncAccountingIntegration: false,
@@ -230,8 +231,12 @@ jest.mock('~/pages/InvoiceOverview', () => ({
   default: () => <div data-test="invoice-overview-mock">InvoiceOverview</div>,
 }))
 
+jest.mock('~/components/invoices/DeleteInvoiceDialog', () => ({
+  useDeleteInvoiceDialog: () => ({ openDeleteInvoiceDialog: jest.fn() }),
+}))
+
 jest.mock('~/components/invoices/FinalizeInvoiceDialog', () => ({
-  FinalizeInvoiceDialog: () => null,
+  useFinalizeInvoiceDialog: () => ({ openFinalizeInvoiceDialog: jest.fn() }),
 }))
 
 jest.mock('~/components/invoices/EditInvoicePaymentStatusDialog', () => ({
@@ -241,7 +246,7 @@ jest.mock('~/components/invoices/EditInvoicePaymentStatusDialog', () => ({
 }))
 
 jest.mock('~/components/invoices/DisputeInvoiceDialog', () => ({
-  DisputeInvoiceDialog: () => null,
+  useDisputeInvoiceDialog: () => ({ openDisputeInvoiceDialog: jest.fn() }),
 }))
 
 jest.mock('~/components/invoices/AddMetadataDrawer', () => ({

@@ -1,6 +1,9 @@
 // Console suppression is handled in jest-setup-early.ts (runs before imports)
 import '@testing-library/jest-dom'
 
+// Registers the default Zod error message for every suite — pure schema tests never go
+// through `test-utils`, so they would otherwise see a different default than the app.
+import './src/formValidation/initializeZod'
 import muiSnapshotSerializer from './src/test-utils/snapshotSerializer'
 
 // jsdom has no ResizeObserver; components that observe layout (virtualized lists, the

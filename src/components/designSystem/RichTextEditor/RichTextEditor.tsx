@@ -1,6 +1,19 @@
 import Placeholder from '@tiptap/extension-placeholder'
-import { EditorContent, ReactNodeViewRenderer, ReactRenderer, useEditor } from '@tiptap/react'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import {
+  type Editor,
+  EditorContent,
+  ReactNodeViewRenderer,
+  ReactRenderer,
+  useEditor,
+} from '@tiptap/react'
+import {
+  type MouseEvent,
+  type MutableRefObject,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react'
 import tippy, { type Instance as TippyInstance } from 'tippy.js'
 
 import type { Locale } from '~/core/translations'
@@ -10,6 +23,8 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import BlockToolbar from './BlockControls/BlockToolbar'
 import {
   type EntityData,
+  type OnCreditsCommand,
+  type OnDiscountCommand,
   type OnPricingCommand,
   RichTextEditorProvider,
 } from './common/RichTextEditorContext'
@@ -19,6 +34,10 @@ import {
   RICH_TEXT_EDITOR_TOOLBAR_TEST_ID,
 } from './constants'
 import { getBaseExtensions } from './extensions/baseExtensions'
+import { CreditsBlock } from './extensions/CreditsBlock'
+import { type CreditsBlockAttributes } from './extensions/CreditsBlock.schema'
+import { DiscountBlock } from './extensions/DiscountBlock'
+import { type DiscountBlockAttributes } from './extensions/DiscountBlock.schema'
 import { DragHandle } from './extensions/DragHandle'
 import { LinkPasteHandler } from './extensions/LinkPasteHandler'
 import {
@@ -28,6 +47,8 @@ import {
 } from './extensions/Mention.schema'
 import { PricingBlock } from './extensions/PricingBlock'
 import { type PricingBlockAttributes } from './extensions/PricingBlock.schema'
+import { QuoteImageSchema } from './extensions/QuoteImage'
+import { QuoteImageNodeView } from './extensions/QuoteImageNodeView'
 import { SlashCommands } from './extensions/SlashCommands'
 import { TableCommands } from './extensions/TableCommands'
 import { TemplateSelectorExtension } from './extensions/TemplateSelectorExtension'
@@ -47,12 +68,20 @@ interface RichTextEditorProps {
   content?: string
   templates?: EditorTemplate[]
   getMarkdownRef?: React.MutableRefObject<(() => string) | null>
+  removeBlockRef?: React.MutableRefObject<((localId: string) => void) | null>
   onChange?: () => void
   onPricingCommand?: OnPricingCommand
   isPricingDisabled?: () => boolean
   onPricingBlocksChange?: (blocks: PricingBlockAttributes[]) => void
+  onDiscountCommand?: OnDiscountCommand
+  onDiscountBlocksChange?: (blocks: DiscountBlockAttributes[]) => void
+  onCreditsCommand?: OnCreditsCommand
+  isCreditsDisabled?: () => boolean
+  onCreditsBlocksChange?: (blocks: CreditsBlockAttributes[]) => void
   customerLocale?: Locale
-  customerCurrency?: CurrencyEnum
+  documentCurrency?: CurrencyEnum
+  images?: Record<string, string>
+  onImageUpload?: (base64: string) => Promise<string>
   isCompact?: boolean
   onPreviewReady?: (html: string) => void
   /**
@@ -63,7 +92,7 @@ interface RichTextEditorProps {
   variableItems?: MentionItem[]
 }
 
-export const createMentionSuggestion = (
+const createMentionSuggestion = (
   items: MentionItem[],
 ): NonNullable<MentionSchemaOptions['suggestion']> => ({
   char: '@',
@@ -133,6 +162,110 @@ const getInitialEditorContent = (content?: string, templates?: EditorTemplate[])
   return ''
 }
 
+const collectPricingBlocks = (editorInstance: Editor): PricingBlockAttributes[] => {
+  const blocks: PricingBlockAttributes[] = []
+
+  editorInstance.state.doc.descendants((node) => {
+    if (node.type.name === 'pricingBlock' && node.attrs.entityIds?.length) {
+      blocks.push({
+        pricingType: node.attrs.pricingType,
+        entityIds: node.attrs.entityIds,
+        localEntityIds: node.attrs.localEntityIds,
+      })
+    }
+  })
+
+  return blocks
+}
+
+const collectDiscountBlocks = (editorInstance: Editor): DiscountBlockAttributes[] => {
+  const discountBlocks: DiscountBlockAttributes[] = []
+
+  editorInstance.state.doc.descendants((node) => {
+    if (node.type.name === 'discountBlock' && node.attrs.couponId) {
+      discountBlocks.push({
+        couponId: node.attrs.couponId,
+        localId: node.attrs.localId,
+      })
+    }
+  })
+
+  return discountBlocks
+}
+
+const collectCreditsBlocks = (editorInstance: Editor): CreditsBlockAttributes[] => {
+  const creditsBlocks: CreditsBlockAttributes[] = []
+
+  editorInstance.state.doc.descendants((node) => {
+    if (node.type.name === 'creditsBlock') {
+      creditsBlocks.push({ localId: node.attrs.localId })
+    }
+  })
+
+  return creditsBlocks
+}
+
+const readMarkdownFromEditor = (editor: Editor | null | undefined): string | undefined => {
+  if (!editor || !editor.storage || !('markdown' in editor.storage)) return undefined
+
+  const storage: unknown = editor.storage.markdown
+
+  if (
+    !storage ||
+    typeof storage !== 'object' ||
+    !('getMarkdown' in storage) ||
+    typeof storage.getMarkdown !== 'function'
+  )
+    return undefined
+
+  const result: unknown = storage.getMarkdown()
+
+  return typeof result === 'string' ? result : undefined
+}
+
+const buildSlashCommandsOptions = ({
+  translate,
+  onPricingCommand,
+  onPricingCommandRef,
+  isPricingDisabled,
+  isPricingDisabledRef,
+  onDiscountCommand,
+  onDiscountCommandRef,
+  onCreditsCommand,
+  onCreditsCommandRef,
+  isCreditsDisabled,
+  isCreditsDisabledRef,
+}: {
+  translate: (key: string) => string
+  onPricingCommand?: OnPricingCommand
+  onPricingCommandRef: MutableRefObject<OnPricingCommand | undefined>
+  isPricingDisabled?: () => boolean
+  isPricingDisabledRef: MutableRefObject<(() => boolean) | undefined>
+  onDiscountCommand?: OnDiscountCommand
+  onDiscountCommandRef: MutableRefObject<OnDiscountCommand | undefined>
+  onCreditsCommand?: OnCreditsCommand
+  onCreditsCommandRef: MutableRefObject<OnCreditsCommand | undefined>
+  isCreditsDisabled?: () => boolean
+  isCreditsDisabledRef: MutableRefObject<(() => boolean) | undefined>
+}) => ({
+  translate,
+  onPricingCommand: onPricingCommand
+    ? (params: Parameters<OnPricingCommand>[0]) => onPricingCommandRef.current?.(params)
+    : undefined,
+  isPricingDisabled: isPricingDisabled
+    ? () => isPricingDisabledRef.current?.() ?? false
+    : undefined,
+  onDiscountCommand: onDiscountCommand
+    ? (params: Parameters<OnDiscountCommand>[0]) => onDiscountCommandRef.current?.(params)
+    : undefined,
+  onCreditsCommand: onCreditsCommand
+    ? (params: Parameters<OnCreditsCommand>[0]) => onCreditsCommandRef.current?.(params)
+    : undefined,
+  isCreditsDisabled: isCreditsDisabled
+    ? () => isCreditsDisabledRef.current?.() ?? false
+    : undefined,
+})
+
 const RichTextEditor = ({
   mode = 'edit',
   mentionValues = {},
@@ -140,12 +273,20 @@ const RichTextEditor = ({
   content,
   templates,
   getMarkdownRef,
+  removeBlockRef,
   onPricingCommand,
   isPricingDisabled,
   onPricingBlocksChange,
+  onDiscountCommand,
+  onDiscountBlocksChange,
+  onCreditsCommand,
+  isCreditsDisabled,
+  onCreditsBlocksChange,
   onChange,
   customerLocale,
-  customerCurrency,
+  documentCurrency,
+  images = {},
+  onImageUpload,
   isCompact,
   onPreviewReady,
   variableItems = [],
@@ -155,13 +296,27 @@ const RichTextEditor = ({
   const onPricingBlocksChangeRef = useRef(onPricingBlocksChange)
   const onPricingCommandRef = useRef(onPricingCommand)
   const isPricingDisabledRef = useRef(isPricingDisabled)
+  const onDiscountCommandRef = useRef(onDiscountCommand)
+  const onDiscountBlocksChangeRef = useRef(onDiscountBlocksChange)
+  const onCreditsCommandRef = useRef(onCreditsCommand)
+  const isCreditsDisabledRef = useRef(isCreditsDisabled)
+  const onCreditsBlocksChangeRef = useRef(onCreditsBlocksChange)
 
   onChangeRef.current = onChange
   onPricingBlocksChangeRef.current = onPricingBlocksChange
   onPricingCommandRef.current = onPricingCommand
   isPricingDisabledRef.current = isPricingDisabled
+  onDiscountCommandRef.current = onDiscountCommand
+  onDiscountBlocksChangeRef.current = onDiscountBlocksChange
+  onCreditsCommandRef.current = onCreditsCommand
+  isCreditsDisabledRef.current = isCreditsDisabled
+  onCreditsBlocksChangeRef.current = onCreditsBlocksChange
 
   const mentionSuggestion = useMemo(() => createMentionSuggestion(variableItems), [variableItems])
+
+  const editorAttributesClass = isCompact
+    ? 'max-w-4xl mx-auto focus:outline-none min-h-[300px] mb-4 px-0'
+    : 'max-w-4xl mx-auto focus:outline-none min-h-[300px] my-4 px-10'
 
   const editor = useEditor({
     extensions: [
@@ -181,15 +336,28 @@ const RichTextEditor = ({
         suggestion: mentionSuggestion,
       } as MentionSchemaOptions),
       PricingBlock.configure({ entities: entitiesFromProps }),
-      SlashCommands.configure({
-        translate,
-        onPricingCommand: onPricingCommand
-          ? (params) => onPricingCommandRef.current?.(params)
-          : undefined,
-        isPricingDisabled: isPricingDisabled
-          ? () => isPricingDisabledRef.current?.() ?? false
-          : undefined,
-      }),
+      QuoteImageSchema.extend({
+        addNodeView() {
+          return ReactNodeViewRenderer(QuoteImageNodeView, { as: 'div' })
+        },
+      }).configure({ images }),
+      DiscountBlock.configure({ entities: entitiesFromProps }),
+      CreditsBlock.configure({ entities: entitiesFromProps }),
+      SlashCommands.configure(
+        buildSlashCommandsOptions({
+          translate,
+          onPricingCommand,
+          onPricingCommandRef,
+          isPricingDisabled,
+          isPricingDisabledRef,
+          onDiscountCommand,
+          onDiscountCommandRef,
+          onCreditsCommand,
+          onCreditsCommandRef,
+          isCreditsDisabled,
+          isCreditsDisabledRef,
+        }),
+      ),
       LinkPasteHandler,
       TemplateSelectorExtension.configure({ templates: templates ?? [] }),
       DragHandle,
@@ -197,28 +365,24 @@ const RichTextEditor = ({
     ],
     editorProps: {
       attributes: {
-        class: isCompact
-          ? 'max-w-4xl mx-auto focus:outline-none min-h-[300px] mb-4 px-0'
-          : 'max-w-4xl mx-auto focus:outline-none min-h-[300px] my-4 px-10',
+        class: editorAttributesClass,
       },
     },
     content: getInitialEditorContent(content, templates),
     onUpdate: ({ editor: editorInstance }) => {
       onChangeRef.current?.()
-      if (!onPricingBlocksChangeRef.current) return
 
-      const blocks: PricingBlockAttributes[] = []
+      if (onPricingBlocksChangeRef.current) {
+        onPricingBlocksChangeRef.current(collectPricingBlocks(editorInstance))
+      }
 
-      editorInstance.state.doc.descendants((node) => {
-        if (node.type.name === 'pricingBlock' && node.attrs.entityIds?.length) {
-          blocks.push({
-            pricingType: node.attrs.pricingType,
-            entityIds: node.attrs.entityIds,
-            localEntityIds: node.attrs.localEntityIds,
-          })
-        }
-      })
-      onPricingBlocksChangeRef.current(blocks)
+      if (onDiscountBlocksChangeRef.current) {
+        onDiscountBlocksChangeRef.current(collectDiscountBlocks(editorInstance))
+      }
+
+      if (onCreditsBlocksChangeRef.current) {
+        onCreditsBlocksChangeRef.current(collectCreditsBlocks(editorInstance))
+      }
     },
   })
 
@@ -247,34 +411,36 @@ const RichTextEditor = ({
     }
   }, [editor, isPreview, onPreviewReady])
 
-  const getMarkdown = useCallback((): string | undefined => {
-    if (!editor || !editor.storage || !('markdown' in editor.storage)) return undefined
-
-    const storage: unknown = editor.storage.markdown
-
-    if (
-      !storage ||
-      typeof storage !== 'object' ||
-      !('getMarkdown' in storage) ||
-      typeof storage.getMarkdown !== 'function'
-    )
-      return undefined
-
-    const result: unknown = storage.getMarkdown()
-
-    return typeof result === 'string' ? result : undefined
-  }, [editor])
+  const getMarkdown = useCallback(
+    (): string | undefined => readMarkdownFromEditor(editor),
+    [editor],
+  )
 
   const contextValue = useMemo(
     () => ({
       mode,
       mentionValues,
       entities: entitiesFromProps,
+      images,
       onPricingCommand,
+      onImageUpload,
+      onDiscountCommand,
+      onCreditsCommand,
       customerLocale,
-      customerCurrency,
+      documentCurrency,
     }),
-    [mode, mentionValues, entitiesFromProps, onPricingCommand, customerLocale, customerCurrency],
+    [
+      mode,
+      mentionValues,
+      entitiesFromProps,
+      images,
+      onImageUpload,
+      onPricingCommand,
+      onDiscountCommand,
+      onCreditsCommand,
+      customerLocale,
+      documentCurrency,
+    ],
   )
 
   useEffect(() => {
@@ -289,13 +455,67 @@ const RichTextEditor = ({
     }
   }, [getMarkdownRef, getMarkdown])
 
+  useEffect(() => {
+    if (!removeBlockRef) return
+
+    removeBlockRef.current = (localId: string) => {
+      if (!editor) return
+
+      let target: { from: number; to: number } | null = null
+
+      editor.state.doc.descendants((node, pos) => {
+        if (target) return false
+
+        const isTargetBlock =
+          (node.type.name === 'discountBlock' ||
+            node.type.name === 'pricingBlock' ||
+            node.type.name === 'creditsBlock') &&
+          (node.attrs.localId === localId || node.attrs.localEntityIds?.includes(localId))
+
+        if (isTargetBlock) {
+          target = { from: pos, to: pos + node.nodeSize }
+
+          return false
+        }
+
+        return true
+      })
+
+      if (target) {
+        editor.chain().focus().deleteRange(target).run()
+      }
+    }
+
+    return () => {
+      if (removeBlockRef) {
+        removeBlockRef.current = null
+      }
+    }
+  }, [removeBlockRef, editor])
+
   if (!editor) return null
+
+  const handleContainerMouseDown = (e: MouseEvent<HTMLDivElement>): void => {
+    if (isPreview) return
+    // Only when clicking the container's own empty background, not a child
+    // (ProseMirror content, toolbars, table controls all bubble up as children).
+    if (e.target !== e.currentTarget) return
+
+    e.preventDefault()
+    editor.commands.focus('end')
+  }
 
   return (
     <RichTextEditorProvider value={contextValue}>
+      {/*
+        onMouseDown forwards background clicks to the real contenteditable below;
+        keyboard users tab straight into the editor, so no key handler is needed.
+      */}
+      {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
       <div
         className={`rich-text-editor relative size-full overflow-auto ${isPreview ? '' : 'group/editor'}`}
         data-test={RICH_TEXT_EDITOR_TEST_ID}
+        onMouseDown={handleContainerMouseDown}
       >
         {!isPreview && <Toolbar editor={editor} data-test={RICH_TEXT_EDITOR_TOOLBAR_TEST_ID} />}
         <div className="relative">

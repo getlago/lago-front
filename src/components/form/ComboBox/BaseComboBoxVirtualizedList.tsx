@@ -44,7 +44,7 @@ export const calculateItemMarginTop = (
  * @param groupItemKey - Key used to identify group headers
  * @returns The margin bottom value in pixels
  */
-export const calculateItemMarginBottom = (
+const calculateItemMarginBottom = (
   index: number,
   elements: ReactElement[],
   groupItemKey: string,

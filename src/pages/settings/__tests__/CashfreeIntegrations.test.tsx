@@ -11,15 +11,14 @@ import {
 import CashfreeIntegrations from '../CashfreeIntegrations'
 
 jest.mock('~/components/settings/integrations/AddCashfreeDialog', () => ({
-  AddCashfreeDialog: () => null,
+  useAddCashfreeDialog: () => ({
+    openAddCashfreeDialog: jest.fn(),
+  }),
 }))
 jest.mock('~/components/settings/integrations/DeleteCashfreeIntegrationDialog', () => ({
   useDeleteCashfreeIntegrationDialog: () => ({
     openDeleteCashfreeIntegrationDialog: jest.fn(),
   }),
-}))
-jest.mock('~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog', () => ({
-  AddEditDeleteSuccessRedirectUrlDialog: () => null,
 }))
 
 describe('CashfreeIntegrations', () => {

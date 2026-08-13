@@ -1,3 +1,4 @@
+import NiceModal from '@ebay/nice-modal-react'
 import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
@@ -8,6 +9,8 @@ import {
 } from '~/components/creditNote/CreditNoteFormAllocation'
 import { CREDIT_ONLY_AMOUNT_LINE_TEST_ID } from '~/components/creditNote/CreditNoteFormCalculation'
 import { getSubscriptionCheckboxTestId } from '~/components/creditNote/CreditNoteItemsForm'
+import CentralizedDialog from '~/components/dialogs/CentralizedDialog'
+import { CENTRALIZED_DIALOG_NAME } from '~/components/dialogs/const'
 import {
   CreditNoteEstimateDocument,
   CreditNoteReasonEnum,
@@ -23,6 +26,8 @@ import CreateCreditNote, {
   PREPAID_CREDITS_REFUND_ALERT_TEST_ID,
   SUBMIT_BUTTON_TEST_ID,
 } from '../CreateCreditNote'
+
+NiceModal.register(CENTRALIZED_DIALOG_NAME, CentralizedDialog)
 
 const mockOnCreate = jest.fn()
 const mockUseCreateCreditNote = jest.fn()
@@ -678,7 +683,14 @@ describe('CreateCreditNote', () => {
       const user = userEvent.setup()
       const mocks = [createCreditNoteEstimateMock()]
 
-      await act(() => render(<CreateCreditNote />, { mocks }))
+      await act(() =>
+        render(
+          <NiceModal.Provider>
+            <CreateCreditNote />
+          </NiceModal.Provider>,
+          { mocks },
+        ),
+      )
 
       // Type in description to make form dirty
       const descriptionWrapper = screen.getByTestId(DESCRIPTION_INPUT_TEST_ID)

@@ -1,9 +1,7 @@
 import { gql } from '@apollo/client'
-import { forwardRef } from 'react'
 
-import { DialogRef } from '~/components/designSystem/Dialog'
 import { Typography } from '~/components/designSystem/Typography'
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
 import {
   DeleteCustomerFinalizeZeroAmountInvoiceFragment,
@@ -29,19 +27,17 @@ gql`
   }
 `
 
-export type DeleteCustomerFinalizeZeroAmountInvoiceDialogRef = WarningDialogRef
-
-interface DeleteCustomerFinalizeZeroAmountInvoiceDialogProps {
+type DeleteCustomerFinalizeZeroAmountInvoiceDialogData = {
   customer: DeleteCustomerFinalizeZeroAmountInvoiceFragment
 }
 
-export const DeleteCustomerFinalizeZeroAmountInvoiceDialog = forwardRef<
-  DialogRef,
-  DeleteCustomerFinalizeZeroAmountInvoiceDialogProps
->(({ customer }: DeleteCustomerFinalizeZeroAmountInvoiceDialogProps, ref) => {
+export const useDeleteCustomerFinalizeZeroAmountInvoiceDialog = (): {
+  openDeleteCustomerFinalizeZeroAmountInvoiceDialog: (
+    data: DeleteCustomerFinalizeZeroAmountInvoiceDialogData,
+  ) => void
+} => {
+  const centralizedDialog = useCentralizedDialog()
   const { translate } = useInternationalization()
-
-  const customerName = customer?.displayName
 
   const [deleteCustomerFinalizeZeroAmountInvoice] =
     useDeleteCustomerFinalizeZeroAmountInvoiceMutation({
@@ -55,18 +51,21 @@ export const DeleteCustomerFinalizeZeroAmountInvoiceDialog = forwardRef<
       },
     })
 
-  return (
-    <WarningDialog
-      ref={ref}
-      title={translate('text_1725549671288txz7z4m4qrf')}
-      description={
+  const openDeleteCustomerFinalizeZeroAmountInvoiceDialog = ({
+    customer,
+  }: DeleteCustomerFinalizeZeroAmountInvoiceDialogData): void => {
+    centralizedDialog.open({
+      title: translate('text_1725549671288txz7z4m4qrf'),
+      description: (
         <Typography
           html={translate('text_17255496712882gafqyniqpc', {
-            customerName,
+            customerName: customer?.displayName,
           })}
         />
-      }
-      onContinue={async () =>
+      ),
+      colorVariant: 'danger',
+      actionText: translate('text_63aa085d28b8510cd46441a5'),
+      onAction: async () => {
         await deleteCustomerFinalizeZeroAmountInvoice({
           variables: {
             input: {
@@ -77,11 +76,9 @@ export const DeleteCustomerFinalizeZeroAmountInvoiceDialog = forwardRef<
             },
           },
         })
-      }
-      continueText={translate('text_63aa085d28b8510cd46441a5')}
-    />
-  )
-})
+      },
+    })
+  }
 
-DeleteCustomerFinalizeZeroAmountInvoiceDialog.displayName =
-  'DeleteCustomerFinalizeZeroAmountInvoice'
+  return { openDeleteCustomerFinalizeZeroAmountInvoiceDialog }
+}

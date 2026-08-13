@@ -59,6 +59,22 @@
       "commitMessagePrefix": "chore(deps):"
     },
     {
+      "matchPackageNames": ["@sentry/*"],
+      "groupName": "Sentry",
+      "commitMessagePrefix": "chore(deps):"
+    },
+    {
+      "matchPackageNames": [
+        "typescript",
+        "typescript-eslint",
+        "prettier",
+        "prettier-plugin-*",
+        "@trivago/prettier-plugin-*"
+      ],
+      "groupName": "TypeScript tooling",
+      "commitMessagePrefix": "chore(deps):"
+    },
+    {
       "matchUpdateTypes": ["major"],
       "commitMessagePrefix": "chore(deps-major)"
     },
@@ -69,6 +85,29 @@
     {
       "matchUpdateTypes": ["patch", "digest", "bump"],
       "commitMessagePrefix": "chore(deps)",
+      "automerge": true,
+      "automergeType": "branch"
+    },
+    {
+      "description": "Auto-merge minor updates for trusted dev/build/test tooling and Sentry (major still manual). Apollo excluded: runtime data layer.",
+      "matchUpdateTypes": ["minor"],
+      "matchPackageNames": [
+        "@sentry/*",
+        "eslint",
+        "eslint-plugin-*",
+        "@eslint/*",
+        "@babel/*",
+        "@types/react",
+        "@types/react-dom",
+        "@types/react-router-dom",
+        "@testing-library/*",
+        "cypress",
+        "typescript",
+        "typescript-eslint",
+        "prettier",
+        "prettier-plugin-*",
+        "@trivago/prettier-plugin-*"
+      ],
       "automerge": true,
       "automergeType": "branch"
     }

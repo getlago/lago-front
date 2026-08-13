@@ -9,7 +9,6 @@ import {
   applyExistingCodeError,
   buildChargeCodeSchema,
 } from '~/components/plans/drawers/common/chargeCode'
-import { RemoveChargeWarningDialogRef } from '~/components/plans/RemoveChargeWarningDialog'
 import { LocalFixedChargeInput } from '~/components/plans/types'
 import { PlanFormProvider, usePlanFormContext } from '~/contexts/PlanFormContext'
 import { useDuplicatePlanVar } from '~/core/apolloClient'
@@ -30,7 +29,7 @@ import { useAppForm } from '~/hooks/forms/useAppform'
 import { DEFAULT_VALUES } from './constants'
 import { FixedChargeDrawerContent } from './FixedChargeDrawerContent'
 
-export { type FixedChargeDrawerFormValues, DEFAULT_VALUES } from './constants'
+export { type FixedChargeDrawerFormValues } from './constants'
 
 const FIXED_CHARGE_FORM_ID = 'fixed-charge-drawer-form'
 
@@ -90,7 +89,7 @@ interface FixedChargeDrawerProps {
     | FORM_ERRORS_ENUM.existingCode
     | Promise<void | boolean | FORM_ERRORS_ENUM.existingCode>
   onDelete?: (index: number) => void
-  removeChargeWarningDialogRef?: React.RefObject<RemoveChargeWarningDialogRef>
+  openRemoveChargeWarningDialog?: (params: { callback: () => void }) => void
 }
 
 export const FixedChargeDrawer = forwardRef<FixedChargeDrawerRef, FixedChargeDrawerProps>(
@@ -103,7 +102,7 @@ export const FixedChargeDrawer = forwardRef<FixedChargeDrawerRef, FixedChargeDra
       existingChargeCodes,
       onSave,
       onDelete,
-      removeChargeWarningDialogRef,
+      openRemoveChargeWarningDialog,
     },
     ref,
   ) => {
@@ -167,7 +166,7 @@ export const FixedChargeDrawer = forwardRef<FixedChargeDrawerRef, FixedChargeDra
         fixedChargeDrawer.close()
 
         if (actionType !== 'duplicate' && isUsedInSubscriptionRef.current) {
-          removeChargeWarningDialogRef?.current?.openDialog({ callback: deleteCharge })
+          openRemoveChargeWarningDialog?.({ callback: deleteCharge })
         } else {
           deleteCharge()
         }

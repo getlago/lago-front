@@ -1,10 +1,21 @@
 import { act, renderHook } from '@testing-library/react'
 
+import type { PlanFormInput } from '~/components/plans/types'
+import { addToast } from '~/core/apolloClient'
 import type { BillingItemsPayload } from '~/core/serializers/serializeQuoteBillingItems'
 import type { SubscriptionPricingState } from '~/core/serializers/serializeQuotePlanBillingItems'
+import { CurrencyEnum, PlanInterval } from '~/generated/graphql'
+import { QUOTE_SAVE_FAILED_TOAST_KEY } from '~/pages/quotes/utils/quoteSaveErrorKeys'
 import { render } from '~/test-utils'
 
 import { useSubscriptionPricingDrawer } from '../useSubscriptionPricingDrawer'
+
+jest.mock('~/core/apolloClient', () => ({
+  ...jest.requireActual('~/core/apolloClient'),
+  addToast: jest.fn(),
+}))
+
+const mockAddToast = addToast as jest.Mock
 
 const mockDrawerOpen = jest.fn()
 const mockDrawerClose = jest.fn()
@@ -12,6 +23,12 @@ const mockDrawerClose = jest.fn()
 // State the mocked content component hydrates into the hook's stateRef on render.
 // `null` keeps the ref empty (exercises the early-return branch in handleSave).
 let mockInjectedState: SubscriptionPricingState | null = null
+let mockInjectedFormValues: PlanFormInput | null = null
+let mockInjectedBasePlanFormValues: PlanFormInput | null = null
+
+// Verdict the mocked content component reports through validatePlanFormRef.
+// `null` leaves the ref unfilled, as when the content component never mounted.
+let mockPlanFormValid: boolean | null = null
 
 jest.mock('~/components/drawers/useDrawer', () => ({
   useFormDrawer: () => ({ open: mockDrawerOpen, close: mockDrawerClose }),
@@ -24,17 +41,35 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 }))
 
 // Mock SubscriptionPricingContent — on render it hydrates the shared stateRef
-// so the drawer's submit handler has a subscription state to serialize.
+// so the drawer's submit handler has a subscription state to serialize, plus the
+// form values and their catalog-plan baseline used to diff the overrides.
 jest.mock(
   '~/components/designSystem/RichTextEditor/PricingBlock/SubscriptionPricingContent',
   () => ({
     SubscriptionPricingContent: ({
       stateRef,
+      formValuesRef,
+      basePlanFormValuesRef,
+      validatePlanFormRef,
     }: {
       stateRef?: { current: SubscriptionPricingState | null }
+      formValuesRef?: { current: PlanFormInput | null }
+      basePlanFormValuesRef?: { current: PlanFormInput | null }
+      validatePlanFormRef?: { current: (() => Promise<boolean>) | null }
     }) => {
       if (stateRef) {
         stateRef.current = mockInjectedState
+      }
+      if (formValuesRef) {
+        formValuesRef.current = mockInjectedFormValues
+      }
+      if (basePlanFormValuesRef) {
+        basePlanFormValuesRef.current = mockInjectedBasePlanFormValues
+      }
+
+      if (validatePlanFormRef) {
+        validatePlanFormRef.current =
+          mockPlanFormValid === null ? null : () => Promise.resolve(mockPlanFormValid as boolean)
       }
 
       return null
@@ -46,6 +81,9 @@ describe('useSubscriptionPricingDrawer', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockInjectedState = null
+    mockPlanFormValid = null
+    mockInjectedFormValues = null
+    mockInjectedBasePlanFormValues = null
   })
 
   it('returns the expected interface', () => {
@@ -77,23 +115,23 @@ describe('useSubscriptionPricingDrawer', () => {
 
   it('hydrates entities from initial billingItems with plans', () => {
     const initialBillingItems: BillingItemsPayload = {
-      addons: [],
+      addOns: [],
       plans: [
         {
           type: 'plan',
           id: 'plan_123',
           payload: {
             position: 1,
-            plan_code: 'enterprise',
-            plan_name: 'Enterprise Plan',
-            plan_description: '',
-            subscription_external_id: null,
-            subscription_name: null,
-            billing_time: 'anniversary',
-            start_date: '2023-07-26',
-            end_date: null,
-            payment_method_id: null,
-            invoice_custom_footer: null,
+            code: 'enterprise',
+            name: 'Enterprise Plan',
+            description: '',
+            subscriptionExternalId: null,
+            subscriptionName: null,
+            billingTime: 'anniversary',
+            startDate: '2023-07-26',
+            endDate: null,
+            paymentMethodId: null,
+            invoiceCustomFooter: null,
           },
           overrides: {},
         },
@@ -109,23 +147,23 @@ describe('useSubscriptionPricingDrawer', () => {
 
   it('syncEntitiesWithBlocks removes orphaned entities', () => {
     const initialBillingItems: BillingItemsPayload = {
-      addons: [],
+      addOns: [],
       plans: [
         {
           type: 'plan',
           id: 'plan_123',
           payload: {
             position: 1,
-            plan_code: 'enterprise',
-            plan_name: 'Enterprise Plan',
-            plan_description: '',
-            subscription_external_id: null,
-            subscription_name: null,
-            billing_time: 'anniversary',
-            start_date: '2023-07-26',
-            end_date: null,
-            payment_method_id: null,
-            invoice_custom_footer: null,
+            code: 'enterprise',
+            name: 'Enterprise Plan',
+            description: '',
+            subscriptionExternalId: null,
+            subscriptionName: null,
+            billingTime: 'anniversary',
+            startDate: '2023-07-26',
+            endDate: null,
+            paymentMethodId: null,
+            invoiceCustomFooter: null,
           },
           overrides: {},
         },
@@ -147,7 +185,69 @@ describe('useSubscriptionPricingDrawer', () => {
     expect(result.current.entities).not.toHaveProperty('plan_123')
   })
 
-  it('saves the subscription and closes the drawer when the form is submitted', () => {
+  it('syncEntitiesWithBlocks re-hydrates a pruned plan when its block re-appears (undo)', () => {
+    const initialBillingItems: BillingItemsPayload = {
+      addOns: [],
+      plans: [
+        {
+          type: 'plan',
+          id: 'plan_123',
+          payload: {
+            position: 1,
+            code: 'enterprise',
+            name: 'Enterprise Plan',
+            description: '',
+            subscriptionExternalId: null,
+            subscriptionName: null,
+            billingTime: 'anniversary',
+            startDate: '2023-07-26',
+            endDate: null,
+            paymentMethodId: null,
+            invoiceCustomFooter: null,
+          },
+          overrides: {},
+        },
+      ],
+    }
+
+    const { result } = renderHook(() => useSubscriptionPricingDrawer(initialBillingItems))
+
+    // Delete: the block leaves the doc, so the plan is pruned and the payload
+    // clears the plan slice for the autosave.
+    let afterDelete: BillingItemsPayload | null = null
+
+    act(() => {
+      afterDelete = result.current.syncEntitiesWithBlocks([])
+    })
+
+    expect(afterDelete).toEqual(expect.objectContaining({ plans: [] }))
+    expect(result.current.entities).not.toHaveProperty('plan_123')
+
+    // Undo: TipTap re-inserts the block, so the same id re-appears in the doc.
+    let afterUndo: BillingItemsPayload | null = null
+
+    act(() => {
+      afterUndo = result.current.syncEntitiesWithBlocks([
+        { pricingType: 'plan', entityIds: ['plan_123'] },
+      ])
+    })
+
+    // Entity is rehydrated (NodeView resolves again) and the plan item — with its
+    // overrides — is re-persisted, restoring server state.
+    expect(result.current.entities).toHaveProperty('plan_123')
+    expect(afterUndo).toEqual(
+      expect.objectContaining({
+        plans: [
+          expect.objectContaining({
+            id: 'plan_123',
+            payload: expect.objectContaining({ name: 'Enterprise Plan' }),
+          }),
+        ],
+      }),
+    )
+  })
+
+  it('commits entities and propagates dates on success', async () => {
     mockInjectedState = {
       planId: 'plan_123',
       planCode: 'enterprise',
@@ -164,7 +264,7 @@ describe('useSubscriptionPricingDrawer', () => {
       overrides: {},
     }
 
-    const onSave = jest.fn()
+    const onSave = jest.fn().mockResolvedValue({ ok: true })
     const onDatesChange = jest.fn()
 
     const { result } = renderHook(() => useSubscriptionPricingDrawer(undefined, { onDatesChange }))
@@ -178,8 +278,8 @@ describe('useSubscriptionPricingDrawer', () => {
     // Render the drawer children so the mocked content hydrates the state ref
     render(openArgs.children)
 
-    act(() => {
-      openArgs.form.submit()
+    await act(async () => {
+      await openArgs.form.submit()
     })
 
     expect(onSave).toHaveBeenCalledWith(
@@ -187,14 +287,248 @@ describe('useSubscriptionPricingDrawer', () => {
       expect.objectContaining({
         plan_123: expect.objectContaining({ entityId: 'plan_123', entityType: 'plan' }),
       }),
-      expect.objectContaining({ addons: [], plans: expect.any(Array) }),
+      // The drawer owns only the `plans` key; `addOns` is normalized in by the
+      // save funnel (savePricingBlock), not by this drawer.
+      expect.objectContaining({ plans: expect.any(Array) }),
+      undefined,
     )
     expect(onDatesChange).toHaveBeenCalledWith('2023-07-26', '2024-07-26')
     expect(result.current.entities).toHaveProperty('plan_123')
-    expect(mockDrawerClose).toHaveBeenCalledTimes(1)
   })
 
-  it('does not save or close the drawer when no subscription state is set', () => {
+  it('toasts and keeps the drawer open when the save fails', async () => {
+    mockInjectedState = {
+      planId: 'plan_123',
+      planCode: 'enterprise',
+      planName: 'Enterprise Plan',
+      planDescription: '',
+      subscriptionSettings: {
+        externalId: '',
+        subscriptionName: '',
+        billingTime: 'anniversary',
+        startDate: '2023-07-26',
+        endDate: '2024-07-26',
+      },
+      invoicingSettings: { paymentMethodId: '', invoiceCustomFooter: '' },
+      overrides: {},
+    }
+
+    const onSave = jest.fn().mockResolvedValue({ ok: false, error: undefined })
+    const onDatesChange = jest.fn()
+
+    const { result } = renderHook(() => useSubscriptionPricingDrawer(undefined, { onDatesChange }))
+
+    act(() => {
+      result.current.onPricingCommand({ onSave })
+    })
+
+    const openArgs = mockDrawerOpen.mock.calls[0][0]
+
+    // Render the drawer children so the mocked content hydrates the state ref
+    render(openArgs.children)
+
+    await act(async () => {
+      await expect(openArgs.form.submit()).rejects.toThrow()
+    })
+
+    expect(mockAddToast).toHaveBeenCalledWith({
+      severity: 'danger',
+      translateKey: QUOTE_SAVE_FAILED_TOAST_KEY,
+    })
+    expect(mockDrawerClose).not.toHaveBeenCalled()
+    expect(result.current.entities).not.toHaveProperty('plan_123')
+    expect(onDatesChange).not.toHaveBeenCalled()
+  })
+
+  describe('GIVEN the plan form reports its validity', () => {
+    const validState: SubscriptionPricingState = {
+      planId: 'plan_123',
+      planCode: 'enterprise',
+      planName: 'Enterprise Plan',
+      planDescription: '',
+      subscriptionSettings: {
+        externalId: '',
+        subscriptionName: '',
+        billingTime: 'anniversary',
+        startDate: '2023-07-26',
+        endDate: '2024-07-26',
+      },
+      invoicingSettings: { paymentMethodId: '', invoiceCustomFooter: '' },
+      overrides: {},
+    }
+
+    const submitDrawer = async (onSave: jest.Mock) => {
+      const rendered = renderHook(() => useSubscriptionPricingDrawer(undefined))
+
+      act(() => {
+        rendered.result.current.onPricingCommand({ onSave })
+      })
+
+      const openArgs = mockDrawerOpen.mock.calls[0][0]
+
+      render(openArgs.children)
+
+      return { openArgs, result: rendered.result }
+    }
+
+    describe('WHEN the plan form is invalid', () => {
+      beforeEach(() => {
+        mockInjectedState = validState
+        mockPlanFormValid = false
+      })
+
+      it('THEN should not persist the billing item', async () => {
+        const onSave = jest.fn().mockResolvedValue({ ok: true })
+        const { openArgs, result } = await submitDrawer(onSave)
+
+        await act(async () => {
+          await expect(openArgs.form.submit()).rejects.toThrow()
+        })
+
+        expect(onSave).not.toHaveBeenCalled()
+        expect(result.current.entities).not.toHaveProperty('plan_123')
+      })
+
+      it('THEN should toast and keep the drawer open', async () => {
+        const onSave = jest.fn().mockResolvedValue({ ok: true })
+        const { openArgs } = await submitDrawer(onSave)
+
+        await act(async () => {
+          await expect(openArgs.form.submit()).rejects.toThrow()
+        })
+
+        expect(mockAddToast).toHaveBeenCalledWith({
+          severity: 'danger',
+          translateKey: QUOTE_SAVE_FAILED_TOAST_KEY,
+        })
+        expect(mockDrawerClose).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the plan form is valid', () => {
+      beforeEach(() => {
+        mockInjectedState = validState
+        mockPlanFormValid = true
+      })
+
+      it('THEN should persist the billing item', async () => {
+        const onSave = jest.fn().mockResolvedValue({ ok: true })
+        const { openArgs, result } = await submitDrawer(onSave)
+
+        await act(async () => {
+          await openArgs.form.submit()
+        })
+
+        expect(onSave).toHaveBeenCalledTimes(1)
+        expect(result.current.entities).toHaveProperty('plan_123')
+      })
+    })
+  })
+
+  it('preserves existing coupons in the payload when saving a plan', async () => {
+    // Regression: coupons live alongside plans in billingItems. Saving a plan
+    // must not overwrite billingItems and drop a previously-added coupon.
+    mockInjectedState = {
+      planId: 'plan_123',
+      planCode: 'enterprise',
+      planName: 'Enterprise Plan',
+      planDescription: '',
+      subscriptionSettings: {
+        externalId: '',
+        subscriptionName: '',
+        billingTime: 'anniversary',
+        startDate: '2023-07-26',
+        endDate: '',
+      },
+      invoicingSettings: { paymentMethodId: '', invoiceCustomFooter: '' },
+      overrides: {},
+    }
+
+    const existingCoupon = {
+      type: 'coupon',
+      id: 'cpn_1',
+      localId: 'local-cpn-1',
+      payload: {},
+      overrides: {},
+    } as unknown as NonNullable<BillingItemsPayload['coupons']>[number]
+
+    const initialBillingItems: BillingItemsPayload = {
+      addOns: [],
+      coupons: [existingCoupon],
+    }
+
+    const onSave = jest.fn().mockResolvedValue({ ok: true })
+
+    const { result } = renderHook(() => useSubscriptionPricingDrawer(initialBillingItems))
+
+    act(() => {
+      result.current.onPricingCommand({ onSave })
+    })
+
+    const openArgs = mockDrawerOpen.mock.calls[0][0]
+
+    render(openArgs.children)
+
+    await act(async () => {
+      await openArgs.form.submit()
+    })
+
+    expect(onSave).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.anything(),
+      expect.objectContaining({ plans: expect.any(Array), coupons: [existingCoupon] }),
+      undefined,
+    )
+  })
+
+  it('syncEntitiesWithBlocks preserves existing coupons when pruning an orphaned plan', () => {
+    const existingCoupon = {
+      type: 'coupon',
+      id: 'cpn_1',
+      localId: 'local-cpn-1',
+      payload: {},
+      overrides: {},
+    } as unknown as NonNullable<BillingItemsPayload['coupons']>[number]
+
+    const initialBillingItems: BillingItemsPayload = {
+      addOns: [],
+      plans: [
+        {
+          type: 'plan',
+          id: 'plan_123',
+          payload: {
+            position: 1,
+            code: 'enterprise',
+            name: 'Enterprise Plan',
+            description: '',
+            subscriptionExternalId: null,
+            subscriptionName: null,
+            billingTime: 'anniversary',
+            startDate: '2023-07-26',
+            endDate: null,
+            paymentMethodId: null,
+            invoiceCustomFooter: null,
+          },
+          overrides: {},
+        },
+      ],
+      coupons: [existingCoupon],
+    }
+
+    const { result } = renderHook(() => useSubscriptionPricingDrawer(initialBillingItems))
+
+    let billingItems: BillingItemsPayload | null = null
+
+    act(() => {
+      billingItems = result.current.syncEntitiesWithBlocks([
+        { pricingType: 'plan', entityIds: ['plan_other'] },
+      ])
+    })
+
+    expect(billingItems).toEqual(expect.objectContaining({ plans: [], coupons: [existingCoupon] }))
+  })
+
+  it('toasts and keeps the drawer open (no save) when no subscription state is set', async () => {
     mockInjectedState = null
 
     const onSave = jest.fn()
@@ -209,11 +543,159 @@ describe('useSubscriptionPricingDrawer', () => {
 
     render(openArgs.children)
 
-    act(() => {
-      openArgs.form.submit()
+    // Submitting an incomplete plan throws (FormDrawer catches it and, with
+    // closeOnError:false, keeps the drawer open) and surfaces a toast rather
+    // than silently doing nothing.
+    await act(async () => {
+      await expect(openArgs.form.submit()).rejects.toThrow()
     })
 
     expect(onSave).not.toHaveBeenCalled()
     expect(mockDrawerClose).not.toHaveBeenCalled()
+    expect(mockAddToast).toHaveBeenCalledWith({
+      severity: 'danger',
+      translateKey: QUOTE_SAVE_FAILED_TOAST_KEY,
+    })
+  })
+
+  describe('override diff baseline (LAGO-1789)', () => {
+    const planState: SubscriptionPricingState = {
+      planId: 'plan_123',
+      planCode: 'enterprise',
+      planName: 'Enterprise Plan',
+      basePlanName: 'Enterprise Plan',
+      planDescription: '',
+      subscriptionSettings: {
+        externalId: '',
+        subscriptionName: '',
+        billingTime: 'anniversary',
+        startDate: '2023-07-26',
+        endDate: '',
+      },
+      invoicingSettings: { paymentMethodId: '', invoiceCustomFooter: '' },
+      overrides: {},
+    }
+
+    const catalogFormValues = {
+      name: 'Enterprise Plan',
+      code: 'enterprise',
+      description: '',
+      interval: PlanInterval.Monthly,
+      amountCents: '850.00',
+      amountCurrency: CurrencyEnum.Usd,
+      payInAdvance: false,
+      trialPeriod: 0,
+      charges: [],
+      fixedCharges: [],
+      entitlements: [],
+    } as unknown as PlanFormInput
+
+    const saveAndReadPlan = async (): Promise<{ overrides: Record<string, unknown> }> => {
+      const onSave = jest.fn().mockResolvedValue({ ok: true })
+      const { result } = renderHook(() => useSubscriptionPricingDrawer(undefined))
+
+      act(() => {
+        result.current.onPricingCommand({ onSave })
+      })
+
+      const openArgs = mockDrawerOpen.mock.calls[0][0]
+
+      render(openArgs.children)
+
+      await act(async () => {
+        await openArgs.form.submit()
+      })
+
+      return onSave.mock.calls[0][2].plans[0]
+    }
+
+    it('sends no overrides when the form matches the catalog plan', async () => {
+      mockInjectedState = planState
+      mockInjectedFormValues = catalogFormValues
+      mockInjectedBasePlanFormValues = catalogFormValues
+
+      const plan = await saveAndReadPlan()
+
+      expect(plan.overrides).toEqual({})
+    })
+
+    it('sends only the edited field when the form differs from the catalog plan', async () => {
+      mockInjectedState = planState
+      mockInjectedFormValues = { ...catalogFormValues, amountCents: '900.00' }
+      mockInjectedBasePlanFormValues = catalogFormValues
+
+      const plan = await saveAndReadPlan()
+
+      expect(plan.overrides).toEqual({ amountCents: 90000 })
+    })
+
+    it('falls back to sending every configured field when no baseline is available', async () => {
+      mockInjectedState = planState
+      mockInjectedFormValues = catalogFormValues
+      mockInjectedBasePlanFormValues = null
+
+      const plan = await saveAndReadPlan()
+
+      expect(plan.overrides).toEqual({ amountCents: 85000 })
+    })
+
+    describe('seeding the quote currency', () => {
+      const saveAndReadSeededCurrency = async (
+        hasQuoteCurrency: boolean,
+      ): Promise<CurrencyEnum | undefined> => {
+        const onSave = jest.fn().mockResolvedValue({ ok: true })
+        const { result } = renderHook(() =>
+          useSubscriptionPricingDrawer(undefined, {
+            currency: CurrencyEnum.Eur,
+            hasQuoteCurrency,
+          }),
+        )
+
+        act(() => {
+          result.current.onPricingCommand({ onSave })
+        })
+
+        const openArgs = mockDrawerOpen.mock.calls[0][0]
+
+        render(openArgs.children)
+
+        await act(async () => {
+          await openArgs.form.submit()
+        })
+
+        return onSave.mock.calls[0][3]
+      }
+
+      beforeEach(() => {
+        mockInjectedState = planState
+        mockInjectedFormValues = catalogFormValues
+        mockInjectedBasePlanFormValues = catalogFormValues
+      })
+
+      it("forwards the plan's currency when the quote has none of its own", async () => {
+        expect(await saveAndReadSeededCurrency(false)).toBe(CurrencyEnum.Usd)
+      })
+
+      it('forwards nothing when the quote already owns a currency', async () => {
+        expect(await saveAndReadSeededCurrency(true)).toBeUndefined()
+      })
+
+      it('locks the plan currency picker only when the quote owns a currency', () => {
+        const { result } = renderHook(() =>
+          useSubscriptionPricingDrawer(undefined, {
+            currency: CurrencyEnum.Eur,
+            hasQuoteCurrency: true,
+          }),
+        )
+
+        act(() => {
+          result.current.onPricingCommand({ onSave: jest.fn() })
+        })
+
+        expect(mockDrawerOpen.mock.calls[0][0].children.props).toEqual(
+          expect.objectContaining({ currency: CurrencyEnum.Eur, hasQuoteCurrency: true }),
+        )
+      })
+    })
   })
 })

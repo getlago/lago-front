@@ -54,6 +54,7 @@ gql`
       invoiceCustomSectionsCreate
       invoiceCustomSectionsUpdate
       invoicesCreate
+      invoicesDelete
       invoicesSend
       invoicesUpdate
       invoicesView
@@ -90,8 +91,11 @@ gql`
       quotesView
       quotesVoid
       orderFormsSign
+      orderFormsView
       orderFormsVoid
+      ordersExecute
       ordersUpdate
+      ordersView
       pricingUnitsCreate
       pricingUnitsUpdate
       pricingUnitsView

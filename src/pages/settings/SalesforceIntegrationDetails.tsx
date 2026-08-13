@@ -1,19 +1,12 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import {
-  AddSalesforceDialog,
-  AddSalesforceDialogRef,
-} from '~/components/settings/integrations/AddSalesforceDialog'
-import {
-  DeleteSalesforceIntegrationDialog,
-  DeleteSalesforceIntegrationDialogRef,
-} from '~/components/settings/integrations/DeleteSalesforceIntegrationDialog'
+import { useAddSalesforceDialog } from '~/components/settings/integrations/AddSalesforceDialog'
+import { useDeleteSalesforceIntegrationDialog } from '~/components/settings/integrations/DeleteSalesforceIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { INTEGRATIONS_ROUTE, SALESFORCE_INTEGRATION_ROUTE, useNavigate } from '~/core/router'
 import {
@@ -68,8 +61,8 @@ const SalesforceIntegrationDetails = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
 
-  const addSalesforceDialogRef = useRef<AddSalesforceDialogRef>(null)
-  const deleteSalesforceDialogRef = useRef<DeleteSalesforceIntegrationDialogRef>(null)
+  const { openAddSalesforceDialog } = useAddSalesforceDialog()
+  const { openDeleteSalesforceIntegrationDialog } = useDeleteSalesforceIntegrationDialog()
 
   const { data, loading } = useGetSalesforceIntegrationsDetailsQuery({
     variables: {
@@ -81,8 +74,7 @@ const SalesforceIntegrationDetails = () => {
   })
 
   const salesforceIntegration = data?.integration as
-    | SalesforceIntegrationDetailsFragment
-    | undefined
+    SalesforceIntegrationDetailsFragment | undefined
 
   const deleteDialogCallback = () => {
     const integrations = data?.integrations?.collection || []
@@ -111,7 +103,7 @@ const SalesforceIntegrationDetails = () => {
             }),
           },
           {
-            label: translate('text_67db6a10cb0b8031ca538909'),
+            label: translate('text_1731507195246vu9kt6xnhv6'),
             path: generatePath(SALESFORCE_INTEGRATION_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
             }),
@@ -134,9 +126,8 @@ const SalesforceIntegrationDetails = () => {
                 {
                   label: translate('text_65845f35d7d69c3ab4793dac'),
                   onClick: (closePopper) => {
-                    addSalesforceDialogRef.current?.openDialog({
+                    openAddSalesforceDialog({
                       provider: salesforceIntegration,
-                      deleteModalRef: deleteSalesforceDialogRef,
                       deleteDialogCallback,
                     })
                     closePopper()
@@ -147,7 +138,7 @@ const SalesforceIntegrationDetails = () => {
                   hidden: !salesforceIntegration,
                   onClick: (closePopper) => {
                     if (salesforceIntegration) {
-                      deleteSalesforceDialogRef.current?.openDialog({
+                      openDeleteSalesforceIntegrationDialog({
                         provider: salesforceIntegration,
                         callback: deleteDialogCallback,
                       })
@@ -170,9 +161,8 @@ const SalesforceIntegrationDetails = () => {
               variant="inline"
               disabled={loading}
               onClick={() => {
-                addSalesforceDialogRef.current?.openDialog({
+                openAddSalesforceDialog({
                   provider: salesforceIntegration,
-                  deleteModalRef: deleteSalesforceDialogRef,
                   deleteDialogCallback,
                 })
               }}
@@ -204,9 +194,6 @@ const SalesforceIntegrationDetails = () => {
           )}
         </section>
       </IntegrationsPage.Container>
-
-      <AddSalesforceDialog ref={addSalesforceDialogRef} />
-      <DeleteSalesforceIntegrationDialog ref={deleteSalesforceDialogRef} />
     </>
   )
 }

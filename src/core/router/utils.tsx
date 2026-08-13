@@ -1,7 +1,12 @@
+import { captureException, captureMessage } from '@sentry/react'
 import { ComponentType, lazy, LazyExoticComponent } from 'react'
+
+import { envGlobalVar } from '~/core/apolloClient/reactiveVars/envGlobalVar'
+import { reloadWithCacheBust } from '~/core/utils/reloadWithCacheBust'
 
 const CHUNK_RELOAD_KEY = 'lago_chunk_reload'
 const RELOAD_COOLDOWN_MS = 10_000
+const CHUNK_LOAD_FINGERPRINT = 'chunk-load-failure'
 
 function hasReloadedRecently(): boolean {
   try {
@@ -28,43 +33,71 @@ function markReloaded(): void {
   }
 }
 
+function showPersistentToast(): void {
+  import('~/core/apolloClient/reactiveVars/toastVar')
+    .then(({ addToast }) => {
+      addToast({
+        severity: 'info',
+        message:
+          'Something went wrong while loading the page. Please try refreshing or clearing your cache.',
+        autoDismiss: false,
+      })
+    })
+    .catch((error) => {
+      // Toast module also failed to load, nothing more we can do.
+      // The rejected import is already surfaced by the route error boundary.
+      // eslint-disable-next-line no-console
+      console.error('Failed to load fallback toast module', error)
+    })
+}
+
 const retry = (
   fn: () => Promise<{ default: ComponentType<Record<string, never>> }>,
   retriesLeft = 2,
   interval = 1000,
 ): Promise<{ default: ComponentType<Record<string, never>> }> => {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     fn()
       .then(resolve)
-      .catch(() => {
+      .catch((error) => {
         if (retriesLeft > 0) {
           setTimeout(() => {
-            retry(fn, retriesLeft - 1, interval).then(resolve)
+            retry(fn, retriesLeft - 1, interval)
+              .then(resolve)
+              .catch(reject)
           }, interval)
-        } else if (!hasReloadedRecently()) {
+
+          return
+        }
+
+        if (!hasReloadedRecently()) {
           // All retries exhausted — reload silently to get fresh HTML
           markReloaded()
-          window.location.reload()
-        } else {
-          // Already reloaded recently and still failing — show persistent toast.
-          // Promise stays pending so Suspense keeps showing <Spinner />
-          // while the rest of the app (sidebar, header) remains usable.
-          import('~/core/apolloClient/reactiveVars/toastVar')
-            .then(({ addToast }) => {
-              addToast({
-                severity: 'info',
-                message:
-                  'Something went wrong while loading the page. Please try refreshing or clearing your cache.',
-                autoDismiss: false,
-              })
-            })
-            .catch((error) => {
-              // Toast module also failed to load — nothing more we can do.
-              // User still sees <Spinner /> from Suspense.
-              // eslint-disable-next-line no-console
-              console.error('Failed to load fallback toast module', error)
-            })
+          captureMessage('Chunk load failed - reloading with cache-bust', {
+            level: 'warning',
+            tags: { chunkLoad: true, phase: 'reload' },
+            fingerprint: [CHUNK_LOAD_FINGERPRINT],
+          })
+          reloadWithCacheBust()
+
+          return
         }
+
+        // Already reloaded recently and still failing. Report it, keep the
+        // persistent toast, and reject so the route error boundary renders a
+        // recoverable placeholder instead of a spinner that never resolves.
+        captureException(error, {
+          tags: { chunkLoad: true, phase: 'dead-end' },
+          extra: {
+            href: window.location.href,
+            appVersion: envGlobalVar().appVersion,
+          },
+          fingerprint: [CHUNK_LOAD_FINGERPRINT],
+        })
+
+        showPersistentToast()
+
+        reject(error)
       })
   })
 }

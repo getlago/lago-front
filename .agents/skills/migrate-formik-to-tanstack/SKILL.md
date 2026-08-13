@@ -60,6 +60,77 @@ Before starting, gather context by reading these reference files:
 
 **This step is critical. Document ALL validations before proceeding.**
 
+> **⛔ CRITICAL — Formik does NOT validate raw values (`prepareDataForValidation`)**
+>
+> Formik runs Yup on `prepareDataForValidation(values)`, which **recursively converts
+> every empty string (`''`) to `undefined`** (arrays and nested objects included), and
+> passes the PREPARED values as the Yup `context` too. A literal Yup→Zod translation
+> silently diverges on every `''`-sensitive check:
+>
+> - `Number('') === 0` (passes `!isNaN`) while `Number(undefined)` is `NaN` (fails it)
+>   → "at least one of X/Y" rules stop firing on emptied fields
+> - `min <= max` cross-checks run against `0` instead of being skipped
+> - optional numeric fields (`yup.number().min().max()`) accepted an emptied input
+>   (`''` → `undefined` → not required); a raw-`''` port wrongly rejects it
+>
+> **Rule:** in the Zod schema, treat `''` as ABSENT wherever the Yup rule relied on
+> presence/`isNaN`/numeric casts. Use a tiny helper and apply it inside each check:
+>
+> ```typescript
+> const prepared = <T,>(value: T): T | undefined =>
+>   value === ('' as unknown as T) ? undefined : value
+> ```
+>
+> Reference implementation: `src/pages/wallet/formInitialization/validationSchema.ts`.
+
+> **⛔ CRITICAL — the schema must validate what the WRAPPER stores, not what Formik stored**
+>
+> Formik forms often bind raw components manually, with an `onChange` that TRANSFORMS the
+> value before it reaches form state:
+>
+> ```tsx
+> // Formik: onChange is a shape ADAPTER — options in, bare id strings stored
+> <MultipleComboBox
+>   name="sectionIds"
+>   onChange={(options) => formikProps.setFieldValue('sectionIds', options.map(({ value }) => value))}
+> />
+> ```
+>
+> The registered `field.*Field` wrappers call `field.handleChange(rawComponentValue)` — they
+> store the component's NATIVE value, and the manual adapter silently dies in the migration.
+> Port the Yup schema 1:1 and it now validates a shape that no longer exists. Zod rejects on
+> every change, `canSubmit` stays `false` forever: **submit button disabled, no visible error,
+> no network request** (the BIL-410 regression signature, lago-front#3932 → #4067). Seeding is
+> broken the same way: `defaultValues` written in the OLD shape (bare ids) don't match the
+> combobox options, so an existing selection renders no tags.
+>
+> The Step 3.3 differential Yup↔Zod audit does NOT catch this — old and new schema agree with
+> each other while both disagree with the new runtime value. Value-shape parity is a separate
+> check from validation-semantics parity.
+>
+> **Rule — for EVERY field being migrated:**
+>
+> 1. Grep the Formik JSX for custom `onChange` / `setFieldValue` transforms — each one is a
+>    shape adapter that the registered wrapper will NOT reproduce.
+> 2. Read the wrapper (`src/components/form/**/*ForTanstack.tsx`) and note the type it passes
+>    to `field.handleChange` / expects in `useFieldContext<...>()`.
+> 3. Write the Zod schema against the WRAPPER's shape; move id-extraction/mapping into
+>    `onSubmit` (the API contract doesn't change).
+> 4. Seed `defaultValues` in the wrapper's shape too (e.g. build `{ value, label }` options
+>    from the existing selection).
+> 5. Derive `FormValues` with `z.infer<typeof schema>` so the schema and the type cannot drift.
+>
+> **Known wrapper shapes:**
+>
+> | Wrapper                  | Stores in form state                                                       | Schema                                                                     |
+> | ------------------------ | -------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+> | `MultipleComboBoxField`  | WHOLE options: `MultipleComboBoxData[]` (`{ value, label, … }`)             | `z.array(z.looseObject({ value: z.string() }))` + map to ids in `onSubmit`   |
+> | `ComboBoxField`          | the option's `value` as `string \| undefined` (clearing sets `undefined`)  | requiredness is a BUSINESS rule, not UI clearability: required → `z.string().min(1)` (a cleared field correctly fails); optional → `z.string().optional()` |
+> | `TextInputField` (`int`) | `number \| ''` (see Pattern 11)                                             | `z.union([z.number(), z.literal('')])` + `.refine((v) => v !== '')` when required (Pattern 11) |
+>
+> Reference: `src/components/customers/editCustomerInvoiceCustomSections/validationSchema.ts`
+> (the BIL-410 fix) and `CreateQuote` for the MultipleComboBox convention.
+
 1. **Locate validation sources** - Search for:
 
    ```typescript
@@ -148,6 +219,17 @@ Before writing any code, create a plan document:
 | Field | Yup Validation | Zod Equivalent | Custom Message |
 | ----- | -------------- | -------------- | -------------- |
 | ...   | ...            | ...            | ...            |
+
+### Field Value-Shape Map (REQUIRED — do not skip, see BIL-410)
+
+One row PER FIELD. "Formik transform" = any custom `onChange`/`setFieldValue` mapping.
+
+| Field | Formik stored shape | Formik transform? | TanStack wrapper | Wrapper stored shape | Zod shape |
+| ----- | ------------------- | ----------------- | ---------------- | -------------------- | --------- |
+| ...   | ...                 | ...               | ...              | ...                  | ...       |
+
+**If any row's "Formik stored shape" ≠ "Wrapper stored shape": schema follows the wrapper,
+`onSubmit` maps back to the API shape, `defaultValues` seed in the wrapper shape.**
 
 ### Cross-Field Validations
 
@@ -506,6 +588,29 @@ return (
 >
 > **The UI before and after the migration MUST be visually identical**, unless the change is an intentional UI/UX improvement. Always compare the rendered page before and after the migration to catch layout regressions.
 
+**⚠️ CRITICAL — `await` every async call inside `onSubmit`:**
+
+`isSubmitting` (which drives `form.SubmitButton`'s spinner) flips back to `false` as soon as
+the `onSubmit` callback's own promise resolves — NOT when a fire-and-forget call inside it
+finishes. If the save/mutation call isn't awaited, `onSubmit` returns on the next microtask and
+the spinner vanishes instantly instead of covering the actual network request.
+
+```typescript
+// ❌ WRONG — onSave's promise is dropped, isSubmitting flips false almost immediately
+onSubmit: async ({ value }) => {
+  onSave(value)
+},
+
+// ✅ CORRECT — isSubmitting stays true until the mutation settles
+onSubmit: async ({ value }) => {
+  await onSave(value)
+},
+```
+
+This applies to every async call inside `onSubmit`: mutation calls, `onSave`/`onCreate`/`onUpdate`
+callback props, etc. Grep the finished `onSubmit` body for any bare (non-`await`ed) call to a
+function whose return type is `Promise<...>`.
+
 **Replace submit button:**
 
 Always prefer the registered `form.SubmitButton` over a manually-wired `<Button type="submit">` with `useStore` subscriptions — it internally subscribes to `canSubmit` + `isSubmitting` and adds a `loading` state for free.
@@ -614,7 +719,34 @@ Verify:
 4. **Loading state**: Loading skeleton renders correctly (if using `FormLoadingSkeleton`)
 5. **Responsive behavior**: The form looks correct on different viewport sizes
 
-#### Step 3.3: Test Validation Behavior
+#### Step 3.3: Empirical Validation Parity Audit (RECOMMENDED for complex schemas)
+
+Do not trust a by-eye Yup→Zod translation — verify it EMPIRICALLY with a throwaway
+differential test before deleting the old schema:
+
+```typescript
+import { validateYupSchema } from 'formik' // the EXACT runtime path Formik used
+import { ValidationError } from 'yup'
+
+const oldErrorPaths = (values: unknown): string[] => {
+  try {
+    // sync=true; context defaults to the PREPARED values, exactly like Formik
+    validateYupSchema(values, oldYupSchema(), true)
+    return []
+  } catch (error) {
+    if (error instanceof ValidationError) return error.inner.map((e) => e.path || '')
+    throw error
+  }
+}
+// Compare against newZodSchema.safeParse(values) issue paths (normalize [0] vs .0)
+```
+
+Build a scenario matrix that includes **a `''`-variant of every string field** (plus the
+bound/cross-field combos), assert old and new produce the same invalid-field sets, then
+delete the harness. Never call `schema.validateSync` directly — it skips
+`prepareDataForValidation` and will falsely report parity.
+
+#### Step 3.4: Test Validation Behavior
 
 Manually test each validation case:
 
@@ -623,6 +755,12 @@ Manually test each validation case:
 3. **Range validations**: Enter out-of-range values, verify error
 4. **Cross-field validations**: Test dependent field combinations
 5. **Conditional validations**: Toggle conditions, verify validation changes
+6. **Happy-path submit through EVERY field** (CRITICAL — BIL-410): interact with each field —
+   including fields hidden behind radios/conditionals (reveal → fill → submit) — and verify the
+   submit button enables AND the mutation fires with the expected payload. A field whose stored
+   shape mismatches the schema fails SILENTLY: button stays disabled, no error, no request.
+   The migrated jest suite must include at least one select-then-submit test per
+   combobox/multi-select field asserting the mutation variables.
 
 ---
 
@@ -866,25 +1004,27 @@ const form = useAppForm({
 
 ### Pattern 5: Scroll to First Error on Invalid Submit
 
-Use `onSubmitInvalid` to improve UX:
+> ⚠️ **Commonly skipped — evaluate it explicitly on every migration, even flat/simple forms.** It was missed entirely in the wallet alert migration and came back as review feedback (lago-front#4061). Ask: can the form be taller than the viewport, or can an errored field be off-screen on submit? If yes, wire it.
+
+Do NOT hand-roll the scrolling: use the shared `scrollToFirstInputError` helper (`~/core/form/scrollToFirstInputError`), which finds the first errored input inside the form element, scrolls it into view and focuses it.
 
 ```typescript
+import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
+
+const MY_FORM_ID = 'my-form'
+
 const form = useAppForm({
   // ...
-  onSubmitInvalid: ({ formApi }) => {
-    // Get the first field with an error
-    const firstErrorField = Object.keys(formApi.state.fieldMeta).find(
-      (key) => formApi.state.fieldMeta[key]?.errors?.length > 0,
-    )
-
-    if (firstErrorField) {
-      // Scroll to the error field
-      const element = document.querySelector(`[name="${firstErrorField}"]`)
-      element?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    }
+  onSubmitInvalid({ formApi }) {
+    scrollToFirstInputError(MY_FORM_ID, formApi.state.errorMap.onDynamic || {})
   },
 })
+
+// The id MUST be on the <form> element — the helper queries `#${formId} input`
+return <form id={MY_FORM_ID} onSubmit={...}>
 ```
+
+> **Reference**: `src/pages/createCustomers/CreateCustomer.tsx`, `src/pages/auth/SignUp.tsx`, `src/pages/wallet/WalletAlertForm.tsx`.
 
 ### Pattern 6: Conditional Field Rendering
 
@@ -1252,6 +1392,8 @@ The `/make-tests` skill will automatically:
 - [ ] Read target form file completely
 - [ ] Identify all form fields and types
 - [ ] **Validation Analysis (CRITICAL):**
+  - [ ] **Account for `prepareDataForValidation`** — Formik validated `''` as `undefined`; map every `isNaN`/presence/numeric check with `''`-as-absent semantics
+  - [ ] **Field Value-Shape Map (CRITICAL — BIL-410)** — one row per field: inventory custom `onChange`/`setFieldValue` transforms (shape adapters the wrapper won't reproduce), read each `*ForTanstack` wrapper's stored type, write the Zod shape against the WRAPPER
   - [ ] Locate Yup schema / validate function / field-level validations
   - [ ] Create Validation Mapping Table (Field → Yup → Zod)
   - [ ] Document cross-field validations (`.when()`, `.test()`)
@@ -1268,6 +1410,7 @@ The `/make-tests` skill will automatically:
 - [ ] Check `src/formValidation/zodCustoms.ts` for reusable shared validators before creating new ones
 - [ ] Create validation schema file, reusing shared validators where possible
 - [ ] Verify Zod schema matches Yup validation behavior
+- [ ] Schema follows each wrapper's stored shape (Value-Shape Map); id/API mapping lives in `onSubmit`; `defaultValues` seeded in wrapper shape; `FormValues` derived via `z.infer`
 - [ ] Update imports (remove Formik/Yup, add TanStack)
 - [ ] Replace `useFormik` with `useAppForm`
 - [ ] Add `useStore` for form state subscriptions (if needed)
@@ -1275,6 +1418,7 @@ The `/make-tests` skill will automatically:
 - [ ] Use `NameAndCodeGroup` for name + code fields (if applicable)
 - [ ] Wrap content in `<form>` element with `onSubmit`
 - [ ] Verify `<form>` wrapper doesn't break CSS layout (add `className="flex min-h-full flex-col"` if needed)
+- [ ] `await` every async call inside `onSubmit` (mutation calls, `onSave`/`onCreate`/`onUpdate` props) — a dropped `await` makes the submit spinner vanish before the request settles
 - [ ] Update each field to use `form.AppField` pattern
 - [ ] Replace submit button with `form.SubmitButton`
 - [ ] Update `setFieldValue` calls
@@ -1287,7 +1431,7 @@ The `/make-tests` skill will automatically:
 - [ ] Update sub-components to use `withForm` HOC
 - [ ] Use `withFieldGroup` for reusable field groups shared across forms
 - [ ] Add `.refine()` validations for cross-field dependencies
-- [ ] Implement `onSubmitInvalid` for error scrolling
+- [ ] **Implement `onSubmitInvalid` for error scrolling (Pattern 5 — commonly skipped: evaluate even on simple forms, don't gate it on "complex")**
 - [ ] Add `formApi.setErrorMap` for server-side errors
 - [ ] Migrate dialogs with forms to independent TanStack forms (Pattern 9)
 - [ ] Derive boolean state from form values instead of separate flags (Pattern 10)
@@ -1308,6 +1452,7 @@ The `/make-tests` skill will automatically:
   - [ ] Test all range validations (min, max)
   - [ ] Test all cross-field validations
   - [ ] Test all conditional validations
+  - [ ] **Happy-path submit through every field** (incl. conditionally-rendered ones): reveal → fill → submit → mutation fires with expected payload (BIL-410)
   - [ ] Test all server-side errors (trigger mutation errors, verify field error displays)
   - [ ] Verify error messages match original
 - [ ] Run `pnpm prettier --write <file>`
@@ -1355,6 +1500,19 @@ The `/make-tests` skill will automatically:
 16. **Field shows `0` instead of placeholder**: If `defaultValues` is `0`, the field displays `0` as a value. Use `''` as default when the original form showed `0` as placeholder (visually empty field). See Pattern 11.
 17. **Dialog closes even when validation fails**: `closeDialog()` after `await form.handleSubmit()` runs unconditionally because `handleSubmit` doesn't throw on validation failure. Use the `closeDialogRef` pattern (Pattern 12) to call `closeDialog` only from inside `onSubmit`.
 18. **Translation keys added manually cause inconsistent IDs**: Always use `pnpm translations:add <count>` to generate keys. See Pattern 13.
+19. **Setting an array item on an undefined base corrupts the value**: `form.setFieldValue('rules[0]', item)` when `rules` is `undefined` creates a plain OBJECT (`{0: item}`), not an array (Formik/lodash created an array). Any `.forEach`/`Array.isArray` consumer then breaks. **Always set the whole array instead** (`form.setFieldValue('rules', [item])`); bracket-index paths are safe only on an EXISTING array.
+20. **Submit stuck in loading forever (no errors shown, no mutation fired)**: an exception thrown INSIDE the validation phase (e.g. a `superRefine` crashing on malformed data) fires after `isSubmitting=true` but before the reset — the button spins forever. `superRefine` must NEVER throw: guard array shapes with `Array.isArray`, optional chains everywhere. This symptom triad (infinite loading + zero validation errors + no network call) = throwing validator.
+21. **Zod v4 replaces empty messages with "Invalid input"**: the Yup `required('')` pattern (mark invalid without visible text) cannot be ported as `message: ''` — Zod substitutes its default "Invalid input" which then renders. Use a real translation key (generic required key: `text_1771342994699klxu2paz7g8` "Field is required") or suppress display via the wrapper's `errorOverride`/`silentError`.
+22. **Error labels needing translate variables**: the `*ForTanstack` wrappers translate message KEYS without variables — a `{{min}}/{{max}}` label renders raw placeholders. Emit the key from the schema, and let the COMPONENT translate with variables via the wrapper's `errorOverride` prop (`errorOverride={hasError ? translate(key, { min, max }) : undefined}`). `TextInputField`, `AmountInputField` and `DatePickerField` all support `errorOverride` (string replaces the error, `false` suppresses it).
+23. **Validation timing changes reviewer perception**: Formik's `validateOnMount` disabled the submit instantly; `revalidateLogic()` surfaces errors at the FIRST submit attempt, then live. Same rules, different moment — warn reviewers/QA or they will report "missing validations".
+24. **The `<form>` wrapper enables Enter-key submission**: a native form submits on Enter inside inputs — behavior the Formik version did not have. Usually desirable; flag it in the visual/UX check.
+25. **Submit spinner disappears instantly / doesn't cover the network request**: an un-awaited
+async call inside `onSubmit` (`onSave(value)` instead of `await onSave(value)`) lets the
+`onSubmit` promise resolve on the next microtask, so `isSubmitting` — and `form.SubmitButton`'s
+`loading` prop — flips back to `false` before the mutation actually settles. Always `await` the
+save/mutation call.
+26. **Submit button permanently disabled after selecting in a MultipleComboBox (no error shown, no request sent)**: the schema declares `z.array(z.string())` (the OLD Formik shape, produced by a manual `onChange` adapter that the migration dropped) but `MultipleComboBoxField` stores WHOLE option objects (`{ value, label, … }[]`). Zod rejects every selection → `canSubmit` never turns true; seeding bare ids also renders no tags. Fix: `z.array(z.looseObject({ value: z.string() }))`, map to ids in `onSubmit`, seed `defaultValues` as `{ value, label }` options, derive `FormValues` via `z.infer`. This was the BIL-410 regression (lago-front#3932 → #4067); see the Field Value-Shape Map in Phase 1.
+27. **Section validity for UNMOUNTED fields**: Formik's `errors.someArray` reflected schema errors regardless of what was rendered. The TanStack equivalent for an accordion validity icon is the form-level error map, not `fieldMeta` (which only covers mounted fields). Validator-produced errors live DIRECTLY on `errorMap.onDynamic`, keyed by field path (e.g. `someArray[0].prop`) — the `.fields` sub-shape does NOT exist there; it only appears for errors set manually via `form.setErrorMap({ onDynamic: { fields: ... } })` (server errors). Read it as: `useStore(form.store, (s) => { const dynamicErrors = (s.errorMap as { onDynamic?: Record<string, unknown> })?.onDynamic ?? {}; return Object.entries(dynamicErrors).some(([k, v]) => k.startsWith('someArray') && !!v) })`.
 
 ## Usage
 

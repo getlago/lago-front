@@ -3,6 +3,7 @@ import { gql, useApolloClient } from '@apollo/client'
 import { LocalFixedChargeInput } from '~/components/plans/types'
 import { addToast } from '~/core/apolloClient'
 import { serializeFixedChargeProperties } from '~/core/serializers/serializePlanInput'
+import { sortedWithoutTypename } from '~/core/utils/comparableValue'
 import {
   FixedChargeForDetailsV2Fragment,
   UpdateSubscriptionFixedChargeInput,
@@ -42,24 +43,6 @@ type Args = {
   // row showing the stale plan default. When absent, falls back to the
   // name-based refresh.
   refetchOverrides?: () => Promise<unknown>
-}
-
-// Recursively drops __typename and sorts object keys, so cached values
-// (with __typename, selection-set key order) compare equal to drawer values
-// (no __typename, form key order) when nothing changed.
-const sortedWithoutTypename = (value: unknown): unknown => {
-  if (Array.isArray(value)) return value.map(sortedWithoutTypename)
-
-  if (value !== null && typeof value === 'object') {
-    return Object.fromEntries(
-      Object.entries(value as Record<string, unknown>)
-        .filter(([key]) => key !== '__typename')
-        .sort(([a], [b]) => a.localeCompare(b))
-        .map(([key, entry]) => [key, sortedWithoutTypename(entry)]),
-    )
-  }
-
-  return value
 }
 
 const comparableProperties = (

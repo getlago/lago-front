@@ -14,34 +14,36 @@ describe('buildQuotePreviewProps', () => {
   })
 
   it('builds entities from billingItems and extracts locale + currency', () => {
-    const version = { content: '<p>Hi</p>', billingItems: { addons: [] }, mentionVariables: {} }
+    const version = { content: '<p>Hi</p>', billingItems: { addOns: [] }, mentionVariables: {} }
     const customer = {
       currency: CurrencyEnum.Eur,
       billingConfiguration: { documentLocale: 'fr' },
     }
 
-    const result = buildQuotePreviewProps(version, customer)
+    const result = buildQuotePreviewProps({ version, customer })
 
-    expect(buildPreviewEntities).toHaveBeenCalledWith({ addons: [] })
+    expect(buildPreviewEntities).toHaveBeenCalledWith({ addOns: [] }, CurrencyEnum.Eur)
     expect(result).toEqual({
       content: '<p>Hi</p>',
       entities: { 'addon-1': { entityId: 'addon-1' } },
       customerLocale: 'fr',
-      customerCurrency: CurrencyEnum.Eur,
+      documentCurrency: CurrencyEnum.Eur,
       mentionValues: {},
+      images: {},
     })
   })
 
   it('returns an empty-safe bundle when version and customer are null', () => {
-    const result = buildQuotePreviewProps(null, null)
+    const result = buildQuotePreviewProps({ version: null, customer: null })
 
     expect(buildPreviewEntities).not.toHaveBeenCalled()
     expect(result).toEqual({
       content: '',
       entities: {},
       customerLocale: 'en',
-      customerCurrency: undefined,
+      documentCurrency: undefined,
       mentionValues: {},
+      images: {},
     })
   })
 
@@ -49,15 +51,15 @@ describe('buildQuotePreviewProps', () => {
     const version = { content: '<p>x</p>', billingItems: null, mentionVariables: {} }
     const customer = { currency: null, billingConfiguration: null }
 
-    const result = buildQuotePreviewProps(version, customer)
+    const result = buildQuotePreviewProps({ version, customer })
 
     expect(result.customerLocale).toBe('en')
-    expect(result.customerCurrency).toBeUndefined()
+    expect(result.documentCurrency).toBeUndefined()
     expect(result.entities).toEqual({})
   })
 
   it('passes through structured header data when provided', () => {
-    const version = { content: '<p>Hi</p>', billingItems: { addons: [] }, mentionVariables: {} }
+    const version = { content: '<p>Hi</p>', billingItems: { addOns: [] }, mentionVariables: {} }
     const customer = {
       currency: CurrencyEnum.Eur,
       billingConfiguration: { documentLocale: 'fr' },
@@ -67,13 +69,13 @@ describe('buildQuotePreviewProps', () => {
       rows: ['Order form number OF-2026-0012'],
     }
 
-    const result = buildQuotePreviewProps(version, customer, header)
+    const result = buildQuotePreviewProps({ version, customer, images: {}, header })
 
     expect(result.header).toEqual(header)
   })
 
   it('leaves header undefined when not provided', () => {
-    const result = buildQuotePreviewProps(null, null)
+    const result = buildQuotePreviewProps({ version: null, customer: null })
 
     expect(result.header).toBeUndefined()
   })
@@ -85,7 +87,7 @@ describe('buildQuotePreviewProps', () => {
       mentionVariables: { customer_name: 'Keenan Feldspar', organization_logo: null },
     }
 
-    const result = buildQuotePreviewProps(version, null)
+    const result = buildQuotePreviewProps({ version, customer: null })
 
     expect(result.mentionValues).toEqual({
       customer_name: 'Keenan Feldspar',
@@ -94,8 +96,55 @@ describe('buildQuotePreviewProps', () => {
   })
 
   it('falls back to {} when mentionVariables is absent (null version)', () => {
-    const result = buildQuotePreviewProps(null, null)
+    const result = buildQuotePreviewProps({ version: null, customer: null })
 
     expect(result.mentionValues).toEqual({})
+  })
+
+  it('passes through the images map when provided', () => {
+    const images = { 'blob-1': 'https://example.com/signed-url' }
+
+    const result = buildQuotePreviewProps({ version: null, customer: null, images })
+
+    expect(result.images).toEqual(images)
+  })
+
+  it('defaults images to {} when not provided', () => {
+    const result = buildQuotePreviewProps({ version: null, customer: null })
+
+    expect(result.images).toEqual({})
+  })
+
+  describe('GIVEN the version has its own currency', () => {
+    const version = {
+      content: '<p>Hi</p>',
+      billingItems: { addOns: [] },
+      mentionVariables: {},
+      currency: CurrencyEnum.Jpy,
+    }
+
+    it('THEN should price the preview in it rather than the customer currency', () => {
+      const customer = {
+        currency: CurrencyEnum.Eur,
+        billingConfiguration: { documentLocale: 'fr' },
+      }
+
+      const result = buildQuotePreviewProps({ version, customer })
+
+      expect(result.documentCurrency).toBe(CurrencyEnum.Jpy)
+      expect(buildPreviewEntities).toHaveBeenCalledWith({ addOns: [] }, CurrencyEnum.Jpy)
+    })
+
+    it('THEN should still fall back to the customer currency when the version has none', () => {
+      const customer = {
+        currency: CurrencyEnum.Eur,
+        billingConfiguration: { documentLocale: 'fr' },
+      }
+
+      const result = buildQuotePreviewProps({ version: { ...version, currency: null }, customer })
+
+      expect(result.documentCurrency).toBe(CurrencyEnum.Eur)
+      expect(buildPreviewEntities).toHaveBeenCalledWith({ addOns: [] }, CurrencyEnum.Eur)
+    })
   })
 })

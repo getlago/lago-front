@@ -34,7 +34,7 @@ export interface MainHeaderDropdownAction {
   dataTest?: string
 }
 
-export interface MainHeaderDropdownItem {
+interface MainHeaderDropdownItem {
   label: string
   onClick: (closePopper: () => void) => void | Promise<void>
   disabled?: boolean
@@ -60,7 +60,7 @@ export interface MainHeaderInPageAction {
 }
 
 /** Arbitrary ReactNode rendered as-is in the actions area */
-export interface MainHeaderCustomAction {
+interface MainHeaderCustomAction {
   type: 'custom'
   label: string
   content: ReactNode
@@ -70,9 +70,7 @@ export interface MainHeaderCustomAction {
 }
 
 export type MainHeaderAction =
-  | MainHeaderDropdownAction
-  | MainHeaderInPageAction
-  | MainHeaderCustomAction
+  MainHeaderDropdownAction | MainHeaderInPageAction | MainHeaderCustomAction
 
 // ─── Actions config ─────────────────────────────────────────────
 
@@ -85,7 +83,7 @@ export interface MainHeaderActionsConfig {
 
 // ─── Entity config ──────────────────────────────────────────────
 
-export type MainHeaderBadge = Pick<StatusProps, 'label' | 'labelVariables' | 'endIcon'> & {
+type MainHeaderBadge = Pick<StatusProps, 'label' | 'labelVariables' | 'endIcon'> & {
   /** Accepts both the StatusType enum and string literals like 'default', 'success', etc. */
   type: `${StatusType}`
 }

@@ -20,11 +20,6 @@ export type FormValuesType = Record<
   }
 >
 
-export type XeroIntegrationMapItemFormProps = {
-  formikProps: FormikProps<FormValuesType>
-  billingEntityKey: 'default' | string
-}
-
 export interface XeroIntegrationMapItemDrawerRef {
   openDrawer: (props: XeroIntegrationMapItemDrawerProps) => unknown
   closeDrawer: () => unknown

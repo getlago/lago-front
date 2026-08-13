@@ -8,7 +8,7 @@ import { tw } from '~/styles/utils'
 import { Typography } from './Typography'
 
 export type AvatarSize = 'tiny' | 'small' | 'intermediate' | 'medium' | 'big' | 'large'
-export type AvatarUserCompanyVariant = 'user' | 'company'
+type AvatarUserCompanyVariant = 'user' | 'company'
 export type AvatarConnectorVariant = 'connector' | 'connector-full'
 
 interface AvatarConnectorProps {

@@ -23,8 +23,7 @@ describe('getBaseExtensions', () => {
       it('THEN should include StarterKit with link and underline disabled', () => {
         const extensions = getBaseExtensions()
         const starterKit = extensions.find((ext) => 'name' in ext && ext.name === 'starterKit') as
-          | { name: string; options: Record<string, unknown> }
-          | undefined
+          { name: string; options: Record<string, unknown> } | undefined
 
         expect(starterKit).toBeDefined()
         expect(starterKit?.options.link).toBe(false)
@@ -38,7 +37,6 @@ describe('getBaseExtensions', () => {
         ['subscript'],
         ['highlight'],
         ['textAlign'],
-        ['image'],
         ['table'],
         ['tableRow'],
         ['tableCell'],
@@ -58,8 +56,7 @@ describe('getBaseExtensions', () => {
       it('THEN should configure Table with resizable false by default', () => {
         const extensions = getBaseExtensions()
         const table = extensions.find((ext) => 'name' in ext && ext.name === 'table') as
-          | { name: string; options: { resizable: boolean } }
-          | undefined
+          { name: string; options: { resizable: boolean } } | undefined
 
         expect(table).toBeDefined()
         expect(table?.options.resizable).toBe(false)
@@ -68,8 +65,7 @@ describe('getBaseExtensions', () => {
       it('THEN should configure Link with openOnClick false', () => {
         const extensions = getBaseExtensions()
         const link = extensions.find((ext) => 'name' in ext && ext.name === 'link') as
-          | { name: string; options: { openOnClick: boolean } }
-          | undefined
+          { name: string; options: { openOnClick: boolean } } | undefined
 
         expect(link).toBeDefined()
         expect(link?.options.openOnClick).toBe(false)
@@ -82,8 +78,7 @@ describe('getBaseExtensions', () => {
       it('THEN should configure Table with resizable true', () => {
         const extensions = getBaseExtensions({ tableResizable: true })
         const table = extensions.find((ext) => 'name' in ext && ext.name === 'table') as
-          | { name: string; options: { resizable: boolean } }
-          | undefined
+          { name: string; options: { resizable: boolean } } | undefined
 
         expect(table).toBeDefined()
         expect(table?.options.resizable).toBe(true)
@@ -96,8 +91,7 @@ describe('getBaseExtensions', () => {
       it('THEN should configure Table with resizable false', () => {
         const extensions = getBaseExtensions({ tableResizable: false })
         const table = extensions.find((ext) => 'name' in ext && ext.name === 'table') as
-          | { name: string; options: { resizable: boolean } }
-          | undefined
+          { name: string; options: { resizable: boolean } } | undefined
 
         expect(table).toBeDefined()
         expect(table?.options.resizable).toBe(false)
@@ -247,8 +241,7 @@ describe('getBaseExtensions', () => {
       it('THEN should disable paragraph and heading in StarterKit', () => {
         const extensions = getBaseExtensions()
         const starterKit = extensions.find((ext) => 'name' in ext && ext.name === 'starterKit') as
-          | { name: string; options: Record<string, unknown> }
-          | undefined
+          { name: string; options: Record<string, unknown> } | undefined
 
         expect(starterKit?.options.paragraph).toBe(false)
         expect(starterKit?.options.heading).toBe(false)
@@ -257,8 +250,7 @@ describe('getBaseExtensions', () => {
       it('THEN should configure dropcursor with blue color', () => {
         const extensions = getBaseExtensions()
         const starterKit = extensions.find((ext) => 'name' in ext && ext.name === 'starterKit') as
-          | { name: string; options: Record<string, unknown> }
-          | undefined
+          { name: string; options: Record<string, unknown> } | undefined
 
         expect(starterKit?.options.dropcursor).toEqual({ color: '#dbeafe', width: 4 })
       })

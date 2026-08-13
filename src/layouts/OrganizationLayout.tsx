@@ -17,7 +17,6 @@ import { LEGACY_APP_PATH_SEGMENTS } from '~/core/router/legacyPaths'
 import { resolveOrgSlug } from '~/core/router/utils/orgSlug'
 import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-import { hasIframeParams } from '~/hooks/useIframeConfig'
 
 const Error404 = lazy(() => import('~/pages/Error404'))
 
@@ -34,9 +33,6 @@ class SlugMigrationEvent extends Error {
     this.name = name
   }
 }
-
-/** Sentry `mode` tag — distinguishes which recovery branch resolved the slug. */
-type RecoveryMode = 'single-org' | 'multi-org-iframe' | 'multi-org'
 
 const OrganizationLayout = () => {
   const { organizationSlug } = useParams<{ organizationSlug: string }>()
@@ -60,8 +56,6 @@ const OrganizationLayout = () => {
     currentUser?.memberships.length === 1
       ? currentUser.memberships[0]?.organization.slug
       : undefined
-
-  const isIframeContext = hasIframeParams(location.search)
 
   // Multi-membership recovery — applies when `soleMembershipSlug` is undefined
   // (i.e., user has ≥2 memberships). Resolves via the in-memory org var
@@ -93,16 +87,11 @@ const OrganizationLayout = () => {
   // triggers a parent re-render. `replace` keeps history clean — the legacy
   // URL never gets a back-button entry.
   //
-  // Two Sentry events may fire here:
-  //
-  // 1. `legacy_url_auto_recovered` (info) — always, when recovery happens.
-  //    The `mode` tag (`single-org` / `multi-org-iframe` / `multi-org`) marks
-  //    which recovery branch resolved the slug, for analytics.
-  // 2. `slug_migration_missed_link` (error) — additionally, when the previous
-  //    in-app path was slug-prefixed. This is the developer-actionable signal
-  //    that an in-app link wasn't migrated to the slug wrapper. Auto-recovery
-  //    silences the user-facing 404, but we keep this signal so the bug
-  //    remains visible in Sentry and dev alerts can fire on it.
+  // Emits `slug_migration_missed_link` (error) when the previous in-app path
+  // was slug-prefixed. This is the developer-actionable signal that an in-app
+  // link wasn't migrated to the slug wrapper. Auto-recovery silences the
+  // user-facing 404, but we keep this signal so the bug remains visible in
+  // Sentry and dev alerts can fire on it.
   useEffect(() => {
     if (!shouldAutoRecoverLegacyPath) return
 
@@ -110,32 +99,6 @@ const OrganizationLayout = () => {
       replace: true,
       skipSlugPrepend: true,
     })
-
-    // Sentry `mode` tag — purely analytical, distinguishes which recovery
-    // branch resolved the slug.
-    const recoveryMode = (): RecoveryMode => {
-      if (soleMembershipSlug) return 'single-org'
-      if (isIframeContext) return 'multi-org-iframe'
-      return 'multi-org'
-    }
-
-    // Sentry groups by `exception.type` (= `Error.name`), so each
-    // `SlugMigrationEvent` subclass name yields its own issue with the
-    // correct level. The `feature: 'slug-migration'` tag is the unified
-    // search/alert handle across all migration events.
-    Sentry.captureException(
-      new SlugMigrationEvent('SlugMigrationAutoRecovered', 'legacy_url_auto_recovered'),
-      {
-        level: 'info',
-        tags: {
-          feature: 'slug-migration',
-          attemptedSlug: organizationSlug ?? '',
-          recoveredToSlug: recoveredSlug ?? '',
-          mode: recoveryMode(),
-        },
-        extra: { fullPath: location.pathname },
-      },
-    )
 
     // Detect missed-migration in-app links. `previousPath` is read from
     // `locationHistoryVar` which records pathnames the user navigated through;

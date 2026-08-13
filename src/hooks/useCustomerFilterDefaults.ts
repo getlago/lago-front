@@ -1,13 +1,13 @@
 import {
   AvailableFiltersEnum,
   filterDataInlineSeparator,
-} from '~/components/designSystem/Filters/types'
-import { CurrencyEnum, FeatureFlagEnum } from '~/generated/graphql'
+} from '~/components/Filters/presentation/types'
+import { CurrencyEnum } from '~/generated/graphql'
 
 import { useBillingEntitiesOptions } from './useBillingEntitiesOptions'
 import { useOrganizationInfos } from './useOrganizationInfos'
 
-export type CustomerFilterKind = 'currency' | 'entity'
+type CustomerFilterKind = 'currency' | 'entity'
 
 type UseCustomerFilterDefaultsArgs = {
   /**
@@ -18,9 +18,9 @@ type UseCustomerFilterDefaultsArgs = {
   customerCurrency?: CurrencyEnum
   filtersNamePrefix: string
   /**
-   * Which filters this view wants to expose. Each kind is independently
-   * subject to its own feature flag and resolution state — if either gates it
-   * out, that kind is silently dropped from the returned `availableFilters`.
+   * Which filters this view wants to expose. Each kind is subject to its own
+   * resolution state — when it can't resolve (e.g. no billing entity exists),
+   * that kind is silently dropped from the returned `availableFilters`.
    */
   include: CustomerFilterKind[]
   /**
@@ -44,11 +44,11 @@ export type CustomerFilterProviderProps = {
  *
  * Each view stays inline with the project convention (mount its own
  * `<Filters.Provider>` in JSX) but reuses this hook to derive a ready-to-
- * spread props bundle — feature-flag gating, default value formatting, and
- * static URL population are all encapsulated here.
+ * spread props bundle — availability resolution, default value formatting,
+ * and static URL population are all encapsulated here.
  *
- * Returns `null` when no filter would render (e.g. all flags off) so the
- * caller can skip the whole `<Filters.Provider>` block with a single check.
+ * Returns `null` when no filter would render so the caller can skip the whole
+ * `<Filters.Provider>` block with a single check.
  *
  * @example
  *   const filtersProps = useCustomerFilterDefaults({
@@ -69,15 +69,12 @@ export const useCustomerFilterDefaults = ({
   include,
   withDefaults = false,
 }: UseCustomerFilterDefaultsArgs): CustomerFilterProviderProps | null => {
-  const { organization, hasFeatureFlag } = useOrganizationInfos()
+  const { organization } = useOrganizationInfos()
   const { options } = useBillingEntitiesOptions()
   const defaultBillingEntity = options.find((option) => option.isDefault) ?? options[0]
 
-  const wantCurrency = include.includes('currency') && hasFeatureFlag(FeatureFlagEnum.MultiCurrency)
-  const wantEntity =
-    include.includes('entity') &&
-    hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling) &&
-    !!defaultBillingEntity
+  const wantCurrency = include.includes('currency')
+  const wantEntity = include.includes('entity') && !!defaultBillingEntity
 
   const availableFilters: AvailableFiltersEnum[] = []
 

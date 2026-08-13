@@ -58,8 +58,13 @@ const QuoteVersionPreview = () => {
   }, [loading, quote, quoteId, versionId, targetVersion, navigate])
 
   const previewProps = useMemo(
-    () => buildQuotePreviewProps(targetVersion, quote?.customer),
-    [targetVersion, quote?.customer],
+    () =>
+      buildQuotePreviewProps({
+        version: targetVersion,
+        customer: quote?.customer,
+        images: (quote?.images ?? {}) as Record<string, string>,
+      }),
+    [targetVersion, quote?.customer, quote?.images],
   )
 
   const quoteNumberWithVersion = quote ? `${quote.number} - v${targetVersion?.version ?? ''}` : ''
@@ -116,7 +121,7 @@ const QuoteVersionPreview = () => {
           {loading ? (
             <FormLoadingSkeleton id="quote-version-preview" />
           ) : (
-            <div className="flex flex-col gap-12">
+            <div className="flex flex-col">
               <div className="flex flex-col gap-1">
                 <Typography variant="headline">
                   {translate('text_17827453798351lxoetcgnjt', {

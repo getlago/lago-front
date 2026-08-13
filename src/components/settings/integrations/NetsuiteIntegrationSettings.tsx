@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { Alert } from '~/components/designSystem/Alert'
@@ -22,15 +21,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { NetsuiteIntegrationDetailsTabs } from '~/pages/settings/NetsuiteIntegrationDetails'
 
-import {
-  AddEditDeleteSuccessRedirectUrlDialog,
-  AddEditDeleteSuccessRedirectUrlDialogRef,
-} from './AddEditDeleteSuccessRedirectUrlDialog'
-import { AddNetsuiteDialog, AddNetsuiteDialogRef } from './AddNetsuiteDialog'
-import {
-  DeleteNetsuiteIntegrationDialog,
-  DeleteNetsuiteIntegrationDialogRef,
-} from './DeleteNetsuiteIntegrationDialog'
+import { useAddNetsuiteDialog } from './AddNetsuiteDialog'
 
 const PROVIDER_CONNECTION_LIMIT = 2
 
@@ -97,9 +88,7 @@ const buildEnabledSynchronizedLabelKeys = (integration?: NetsuiteIntegrationSett
 const NetsuiteIntegrationSettings = () => {
   const navigate = useNavigate()
   const { integrationId = '' } = useParams()
-  const addNetsuiteDialogRef = useRef<AddNetsuiteDialogRef>(null)
-  const deleteDialogRef = useRef<DeleteNetsuiteIntegrationDialogRef>(null)
-  const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
+  const { openAddNetsuiteDialog } = useAddNetsuiteDialog()
   const { translate } = useInternationalization()
   const { data, loading } = useGetNetsuiteIntegrationsSettingsQuery({
     variables: {
@@ -125,102 +114,93 @@ const NetsuiteIntegrationSettings = () => {
   }
 
   return (
-    <>
-      <IntegrationsPage.Container className="my-4 md:my-8">
-        {!loading && !!netsuiteIntegration && !netsuiteIntegration?.hasMappingsConfigured && (
-          <Alert
-            type="warning"
-            ButtonProps={{
-              label: translate('text_661ff6e56ef7e1b7c542b20a'),
-              onClick: () => {
-                navigate(
-                  generatePath(NETSUITE_INTEGRATION_DETAILS_ROUTE, {
-                    integrationId,
-                    tab: NetsuiteIntegrationDetailsTabs.Items,
-                    integrationGroup: IntegrationsTabsOptionsEnum.Lago,
-                  }),
-                )
-              },
+    <IntegrationsPage.Container className="my-4 md:my-8">
+      {!loading && !!netsuiteIntegration && !netsuiteIntegration?.hasMappingsConfigured && (
+        <Alert
+          type="warning"
+          ButtonProps={{
+            label: translate('text_661ff6e56ef7e1b7c542b20a'),
+            onClick: () => {
+              navigate(
+                generatePath(NETSUITE_INTEGRATION_DETAILS_ROUTE, {
+                  integrationId,
+                  tab: NetsuiteIntegrationDetailsTabs.Items,
+                  integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                }),
+              )
+            },
+          }}
+        >
+          {translate('text_661ff6e56ef7e1b7c542b218')}
+        </Alert>
+      )}
+
+      <section>
+        <IntegrationsPage.Headline label={translate('text_661ff6e56ef7e1b7c542b232')}>
+          <Button
+            variant="inline"
+            disabled={loading}
+            onClick={() => {
+              openAddNetsuiteDialog({
+                provider: netsuiteIntegration,
+                deleteDialogCallback,
+              })
             }}
           >
-            {translate('text_661ff6e56ef7e1b7c542b218')}
-          </Alert>
-        )}
+            {translate('text_62b1edddbf5f461ab9712787')}
+          </Button>
+        </IntegrationsPage.Headline>
 
-        <section>
-          <IntegrationsPage.Headline label={translate('text_661ff6e56ef7e1b7c542b232')}>
-            <Button
-              variant="inline"
-              disabled={loading}
-              onClick={() => {
-                addNetsuiteDialogRef.current?.openDialog({
-                  provider: netsuiteIntegration,
-                  deleteModalRef: deleteDialogRef,
-                  deleteDialogCallback,
-                })
-              }}
-            >
-              {translate('text_62b1edddbf5f461ab9712787')}
-            </Button>
-          </IntegrationsPage.Headline>
-
-          <>
-            {loading &&
-              [0, 1, 2].map((i) => (
-                <IntegrationsPage.ItemSkeleton key={`item-skeleton-item-${i}`} />
-              ))}
-            {!loading && (
-              <>
+        <>
+          {loading &&
+            [0, 1, 2].map((i) => <IntegrationsPage.ItemSkeleton key={`item-skeleton-item-${i}`} />)}
+          {!loading && (
+            <>
+              <IntegrationsPage.DetailsItem
+                icon="text"
+                label={translate('text_626162c62f790600f850b76a')}
+                value={netsuiteIntegration?.name}
+              />
+              <IntegrationsPage.DetailsItem
+                icon="id"
+                label={translate('text_62876e85e32e0300e1803127')}
+                value={netsuiteIntegration?.code}
+              />
+              <IntegrationsPage.DetailsItem
+                icon="info-circle"
+                label={translate('text_661ff6e56ef7e1b7c542b216')}
+                value={netsuiteIntegration?.accountId ?? undefined}
+              />
+              <IntegrationsPage.DetailsItem
+                icon="info-circle"
+                label={translate('text_661ff6e56ef7e1b7c542b230')}
+                value={netsuiteIntegration?.clientId ?? undefined}
+              />
+              <IntegrationsPage.DetailsItem
+                icon="key"
+                label={translate('text_661ff6e56ef7e1b7c542b247')}
+                value={netsuiteIntegration?.clientSecret ?? undefined}
+              />
+              {!!netsuiteIntegration?.scriptEndpointUrl && (
                 <IntegrationsPage.DetailsItem
-                  icon="text"
-                  label={translate('text_626162c62f790600f850b76a')}
-                  value={netsuiteIntegration?.name}
+                  icon="link"
+                  label={translate('text_661ff6e56ef7e1b7c542b2a0')}
+                  value={netsuiteIntegration?.scriptEndpointUrl}
                 />
-                <IntegrationsPage.DetailsItem
-                  icon="id"
-                  label={translate('text_62876e85e32e0300e1803127')}
-                  value={netsuiteIntegration?.code}
-                />
-                <IntegrationsPage.DetailsItem
-                  icon="info-circle"
-                  label={translate('text_661ff6e56ef7e1b7c542b216')}
-                  value={netsuiteIntegration?.accountId ?? undefined}
-                />
-                <IntegrationsPage.DetailsItem
-                  icon="info-circle"
-                  label={translate('text_661ff6e56ef7e1b7c542b230')}
-                  value={netsuiteIntegration?.clientId ?? undefined}
-                />
-                <IntegrationsPage.DetailsItem
-                  icon="key"
-                  label={translate('text_661ff6e56ef7e1b7c542b247')}
-                  value={netsuiteIntegration?.clientSecret ?? undefined}
-                />
-                {!!netsuiteIntegration?.scriptEndpointUrl && (
-                  <IntegrationsPage.DetailsItem
-                    icon="link"
-                    label={translate('text_661ff6e56ef7e1b7c542b2a0')}
-                    value={netsuiteIntegration?.scriptEndpointUrl}
-                  />
-                )}
-                <IntegrationsPage.DetailsItem
-                  icon="schema"
-                  label={translate('text_661ff6e56ef7e1b7c542b2b4')}
-                  value={buildEnabledSynchronizedLabelKeys(netsuiteIntegration)
-                    .map((t) => translate(t))
-                    .sort((a, b) => a.localeCompare(b))
-                    .join(', ')}
-                />
-              </>
-            )}
-          </>
-        </section>
-      </IntegrationsPage.Container>
-
-      <AddNetsuiteDialog ref={addNetsuiteDialogRef} />
-      <DeleteNetsuiteIntegrationDialog ref={deleteDialogRef} />
-      <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
-    </>
+              )}
+              <IntegrationsPage.DetailsItem
+                icon="schema"
+                label={translate('text_661ff6e56ef7e1b7c542b2b4')}
+                value={buildEnabledSynchronizedLabelKeys(netsuiteIntegration)
+                  .map((t) => translate(t))
+                  .sort((a, b) => a.localeCompare(b))
+                  .join(', ')}
+              />
+            </>
+          )}
+        </>
+      </section>
+    </IntegrationsPage.Container>
   )
 }
 

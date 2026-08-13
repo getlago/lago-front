@@ -101,6 +101,15 @@ describe('Quotes', () => {
         expect(capturedConfig?.tabs?.[2].link).toBe('/quotes/orders')
       })
 
+      it('THEN should hide the Order forms tab without the orderFormsView permission', () => {
+        mockHasPermissions.mockReturnValue(false)
+
+        render(<Quotes />)
+
+        expect(capturedConfig?.tabs).toHaveLength(2)
+        expect(capturedConfig?.tabs?.some((tab) => tab.link?.endsWith('/order-forms'))).toBe(false)
+      })
+
       it('THEN should render the active tab content', () => {
         mockHasPermissions.mockReturnValue(true)
 

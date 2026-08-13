@@ -215,7 +215,7 @@
   }
 
   .variable-mention {
-    @apply rounded bg-grey-300 px-1.5 py-0.5 text-base;
+    @apply rounded bg-grey-300 px-1.5 py-0.5;
   }
 
   .variable-mention--resolved {

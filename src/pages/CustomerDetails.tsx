@@ -2,14 +2,7 @@ import { gql } from '@apollo/client'
 import { useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 
-import {
-  AddCouponToCustomerDialog,
-  AddCouponToCustomerDialogRef,
-} from '~/components/customers/AddCouponToCustomerDialog'
-import {
-  DeleteCustomerDialog,
-  DeleteCustomerDialogRef,
-} from '~/components/customers/DeleteCustomerDialog'
+import { useAddCouponToCustomerDialog } from '~/components/customers/AddCouponToCustomerDialog'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
@@ -73,8 +66,7 @@ const POLLING_INTERVAL = 1000
 const MAX_POLLING_ATTEMPTS = 3
 
 const CustomerDetails = () => {
-  const deleteDialogRef = useRef<DeleteCustomerDialogRef>(null)
-  const addCouponDialogRef = useRef<AddCouponToCustomerDialogRef>(null)
+  const { openAddCouponToCustomerDialog } = useAddCouponToCustomerDialog()
   const pollingAttemptsRef = useRef(0)
   const { translate } = useInternationalization()
   const navigate = useNavigate()
@@ -136,8 +128,12 @@ const CustomerDetails = () => {
   const actions = useCustomerDetailsHeaderActions({
     customerId: customerId as string,
     customer,
-    deleteDialogRef,
-    addCouponDialogRef,
+    openAddCouponToCustomerDialog: () =>
+      openAddCouponToCustomerDialog({
+        customer: customer
+          ? { id: customer.id, displayName: customer.displayName ?? undefined }
+          : null,
+      }),
   })
 
   const entity = useCustomerDetailsHeaderEntity({ customer, loading })
@@ -178,9 +174,6 @@ const CustomerDetails = () => {
           />
         </div>
       )}
-
-      <DeleteCustomerDialog ref={deleteDialogRef} />
-      <AddCouponToCustomerDialog ref={addCouponDialogRef} customer={customer} />
     </div>
   )
 }

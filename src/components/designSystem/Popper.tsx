@@ -32,8 +32,7 @@ export const isPopperGroupTracked = (groupName: string): boolean =>
 export interface PopperProps {
   className?: string
   opener?:
-    | ReactElement
-    | (({ isOpen, onClick }: { isOpen: boolean; onClick: () => void }) => ReactElement)
+    ReactElement | (({ isOpen, onClick }: { isOpen: boolean; onClick: () => void }) => ReactElement)
   maxHeight?: number | string
   minWidth?: number
   PopperProps?: Pick<MUIPopperProps, 'placement' | 'modifiers' | 'disablePortal'>

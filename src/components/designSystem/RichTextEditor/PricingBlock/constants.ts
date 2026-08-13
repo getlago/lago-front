@@ -16,5 +16,3 @@ export const pricingDrawerDefaultValues = {
   planId: '',
   addOnItems: [] as AddOnItem[],
 }
-
-export type PricingDrawerFormValues = typeof pricingDrawerDefaultValues

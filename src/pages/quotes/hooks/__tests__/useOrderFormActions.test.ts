@@ -50,6 +50,7 @@ const createMockOrderForm = (
   quote: {
     id: 'q-1',
     number: 'QUO-001',
+    images: {},
     currentVersion: { id: 'qv-1', version: 1, content: '# Hello World', mentionVariables: {} },
   },
   ...overrides,
@@ -140,6 +141,7 @@ describe('useOrderFormActions', () => {
             quote: {
               id: 'q-1',
               number: 'QUO-001',
+              images: {},
               currentVersion: { id: 'qv-1', version: 1, content: null, mentionVariables: {} },
             },
           }),
@@ -216,14 +218,15 @@ describe('useOrderFormActions', () => {
 
         downloadAction?.onAction()
 
-        expect(mockedBuildQuotePreviewProps).toHaveBeenCalledWith(
-          orderForm.quote.currentVersion,
-          orderForm.customer,
-          {
+        expect(mockedBuildQuotePreviewProps).toHaveBeenCalledWith({
+          version: orderForm.quote.currentVersion,
+          customer: orderForm.customer,
+          images: orderForm.quote.images,
+          header: {
             documentNumber: 'OF-2026-0001',
             rows: ['text_1781778938224iupllzr5sgb'],
           },
-        )
+        })
         expect(mockDownload).toHaveBeenCalledWith({ content: '# Hello World' })
       })
     })
@@ -237,7 +240,7 @@ describe('useOrderFormActions', () => {
 
       actions.find((a) => a.icon === 'download')?.onAction()
 
-      const headerArg = mockedBuildQuotePreviewProps.mock.calls[0][2]
+      const headerArg = mockedBuildQuotePreviewProps.mock.calls[0][0].header
 
       expect(headerArg?.rows).toHaveLength(2)
       expect(headerArg?.rows?.[0]).toBe('text_1781778938224iupllzr5sgb')

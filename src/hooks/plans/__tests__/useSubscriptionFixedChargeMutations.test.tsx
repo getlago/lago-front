@@ -106,6 +106,7 @@ describe('useSubscriptionFixedChargeMutations', () => {
     )
 
     let saved: boolean | unknown
+
     await act(async () => {
       saved = await result.current.handleSaveCharge(buildCharge())
     })
@@ -129,6 +130,7 @@ describe('useSubscriptionFixedChargeMutations', () => {
     )
 
     let saved: boolean | unknown
+
     await act(async () => {
       saved = await result.current.handleSaveCharge(buildCharge())
     })

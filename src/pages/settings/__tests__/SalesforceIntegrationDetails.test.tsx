@@ -7,10 +7,12 @@ import { renderIntegrationPage } from './integrationTestHelpers'
 import SalesforceIntegrationDetails from '../SalesforceIntegrationDetails'
 
 jest.mock('~/components/settings/integrations/AddSalesforceDialog', () => ({
-  AddSalesforceDialog: () => null,
+  useAddSalesforceDialog: () => ({ openAddSalesforceDialog: jest.fn() }),
 }))
 jest.mock('~/components/settings/integrations/DeleteSalesforceIntegrationDialog', () => ({
-  DeleteSalesforceIntegrationDialog: () => null,
+  useDeleteSalesforceIntegrationDialog: () => ({
+    openDeleteSalesforceIntegrationDialog: jest.fn(),
+  }),
 }))
 
 const mockQueryResult = jest.fn()

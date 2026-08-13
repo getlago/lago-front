@@ -28,7 +28,8 @@ const editBillingEntityTimezoneValidationSchema = z.object({
 type EditBillingEntityTimezoneFormValues = z.infer<typeof editBillingEntityTimezoneValidationSchema>
 
 export const EDIT_BILLING_ENTITY_TIMEZONE_FORM_ID = 'edit-billing-entity-timezone-form'
-export const EDIT_BILLING_ENTITY_TIMEZONE_COMBOBOX_TEST_ID = 'edit-billing-entity-timezone-combobox'
+const EDIT_BILLING_ENTITY_TIMEZONE_COMBOBOX_TEST_ID = 'edit-billing-entity-timezone-combobox'
+
 export const EDIT_BILLING_ENTITY_TIMEZONE_SUBMIT_BUTTON_TEST_ID =
   'edit-billing-entity-timezone-submit-button'
 

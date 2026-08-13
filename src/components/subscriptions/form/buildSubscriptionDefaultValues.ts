@@ -4,9 +4,7 @@ import { SubscriptionFormValues } from '~/formValidation/subscriptionFormSchema'
 import { BillingTimeEnum, SubscriptionForSubscriptionEditFormFragment } from '~/generated/graphql'
 
 export type SubscriptionDefaultsSource =
-  | SubscriptionForSubscriptionEditFormFragment
-  | null
-  | undefined
+  SubscriptionForSubscriptionEditFormFragment | null | undefined
 
 export type SubscriptionFormType = keyof typeof FORM_TYPE_ENUM
 
@@ -37,6 +35,7 @@ export const buildSubscriptionDefaultValues = (
       skipInvoiceCustomSections: subscription?.skipInvoiceCustomSections || false,
     },
     consolidateInvoice: subscription?.consolidateInvoice ?? true,
+    purchaseOrderNumber: subscription?.purchaseOrderNumber || undefined,
     ...activationRuleValues,
   }
 }

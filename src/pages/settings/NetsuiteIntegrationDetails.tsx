@@ -1,21 +1,10 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
-import {
-  AddEditDeleteSuccessRedirectUrlDialog,
-  AddEditDeleteSuccessRedirectUrlDialogRef,
-} from '~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog'
-import {
-  AddNetsuiteDialog,
-  AddNetsuiteDialogRef,
-} from '~/components/settings/integrations/AddNetsuiteDialog'
-import {
-  DeleteNetsuiteIntegrationDialog,
-  DeleteNetsuiteIntegrationDialogRef,
-} from '~/components/settings/integrations/DeleteNetsuiteIntegrationDialog'
+import { useAddNetsuiteDialog } from '~/components/settings/integrations/AddNetsuiteDialog'
+import { useDeleteNetsuiteIntegrationDialog } from '~/components/settings/integrations/DeleteNetsuiteIntegrationDialog'
 import NetsuiteIntegrationItemsList from '~/components/settings/integrations/NetsuiteIntegrationItemsList'
 import NetsuiteIntegrationSettings from '~/components/settings/integrations/NetsuiteIntegrationSettings'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -83,9 +72,8 @@ gql`
 const NetsuiteIntegrationDetails = () => {
   const navigate = useNavigate()
   const { integrationId = '' } = useParams()
-  const addNetsuiteDialogRef = useRef<AddNetsuiteDialogRef>(null)
-  const deleteDialogRef = useRef<DeleteNetsuiteIntegrationDialogRef>(null)
-  const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
+  const { openAddNetsuiteDialog } = useAddNetsuiteDialog()
+  const { openDeleteNetsuiteIntegrationDialog } = useDeleteNetsuiteIntegrationDialog()
   const { translate } = useInternationalization()
   const { data, loading } = useGetNetsuiteIntegrationsDetailsQuery({
     variables: {
@@ -122,7 +110,7 @@ const NetsuiteIntegrationDetails = () => {
             }),
           },
           {
-            label: translate('text_67db6a10cb0b8031ca538909'),
+            label: translate('text_661ff6e56ef7e1b7c542b239'),
             path: generatePath(NETSUITE_INTEGRATION_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
             }),
@@ -145,9 +133,8 @@ const NetsuiteIntegrationDetails = () => {
                 {
                   label: translate('text_65845f35d7d69c3ab4793dac'),
                   onClick: (closePopper) => {
-                    addNetsuiteDialogRef.current?.openDialog({
+                    openAddNetsuiteDialog({
                       provider: netsuiteIntegration,
-                      deleteModalRef: deleteDialogRef,
                       deleteDialogCallback,
                     })
                     closePopper()
@@ -157,7 +144,7 @@ const NetsuiteIntegrationDetails = () => {
                   label: translate('text_65845f35d7d69c3ab4793dad'),
                   onClick: (closePopper) => {
                     if (netsuiteIntegration) {
-                      deleteDialogRef.current?.openDialog({
+                      openDeleteNetsuiteIntegrationDialog({
                         provider: netsuiteIntegration,
                         callback: deleteDialogCallback,
                       })
@@ -202,10 +189,6 @@ const NetsuiteIntegrationDetails = () => {
       />
 
       <>{activeTabContent}</>
-
-      <AddNetsuiteDialog ref={addNetsuiteDialogRef} />
-      <DeleteNetsuiteIntegrationDialog ref={deleteDialogRef} />
-      <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )
 }

@@ -96,8 +96,13 @@ const SignOrderForm = () => {
 
   // Single source of truth for preview inputs (shared with the PDF renderer).
   const previewProps = useMemo(
-    () => buildQuotePreviewProps(orderForm?.quote?.currentVersion, orderForm?.quote?.customer),
-    [orderForm?.quote?.currentVersion, orderForm?.quote?.customer],
+    () =>
+      buildQuotePreviewProps({
+        version: orderForm?.quote?.currentVersion,
+        customer: orderForm?.quote?.customer,
+        images: (orderForm?.quote?.images ?? {}) as Record<string, string>,
+      }),
+    [orderForm?.quote?.currentVersion, orderForm?.quote?.customer, orderForm?.quote?.images],
   )
 
   const orderFormNumber = orderForm?.number ?? ''
@@ -127,7 +132,7 @@ const SignOrderForm = () => {
         navigate(
           generatePath(QUOTE_DETAILS_ROUTE, {
             quoteId,
-            tab: QuoteDetailsTabsOptionsEnum.orderForms,
+            tab: QuoteDetailsTabsOptionsEnum.orders,
           }),
         )
       }
@@ -210,7 +215,7 @@ const SignOrderForm = () => {
           {loading ? (
             <FormLoadingSkeleton id="sign-order-form" />
           ) : (
-            <div className="flex flex-col gap-12">
+            <div className="flex flex-col">
               <Alert data-test={SIGN_ORDER_FORM_ALERT_TEST_ID} type="info">
                 <Typography className="text-grey-700">
                   {translate('text_1781686594125tgfd5ypl1h6')}

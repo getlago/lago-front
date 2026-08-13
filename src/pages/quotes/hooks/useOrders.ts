@@ -1,5 +1,6 @@
 import { FetchMoreQueryOptions, gql, OperationVariables } from '@apollo/client'
 
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import {
   GetOrdersQuery,
   GetOrdersQueryVariables,
@@ -13,13 +14,24 @@ gql`
     number
     status
     executionMode
-    executedAt
+    executeAt
+    customer {
+      id
+      displayName
+      ...QuotePreviewCustomer
+    }
     orderForm {
       id
       number
       quote {
         id
         number
+        images
+        currentVersion {
+          id
+          version
+          ...QuotePreviewVersion
+        }
       }
     }
   }
@@ -74,10 +86,11 @@ interface UseOrdersReturn {
 
 export const useOrders = (
   variables?: Omit<GetOrdersQueryVariables, 'limit' | 'page'>,
+  pageSize: number = DEFAULT_PAGE_SIZE,
 ): UseOrdersReturn => {
   const { data, loading, error, fetchMore } = useGetOrdersQuery({
     variables: {
-      limit: 20,
+      limit: pageSize,
       ...variables,
     },
     notifyOnNetworkStatusChange: true,

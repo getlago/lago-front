@@ -6,6 +6,7 @@ import { generatePath, useParams } from 'react-router-dom'
 import { Avatar, AvatarBadge } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
+import { Pagination } from '~/components/designSystem/Pagination'
 import { Popper } from '~/components/designSystem/Popper'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Table, TableColumn, TableContainerSize } from '~/components/designSystem/Table'
@@ -28,6 +29,7 @@ import {
   WalletDetailsDrawerRef,
 } from '~/components/wallets/WalletDetailsDrawer'
 import { addToast } from '~/core/apolloClient'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { CREATE_WALLET_TOP_UP_ROUTE, useNavigate } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
@@ -118,11 +120,15 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
 
   const [getWalletTransactions, { data, error, fetchMore, loading, refetch }] =
     useGetWalletTransactionsLazyQuery({
-      variables: { walletId: wallet.id, limit: 20 },
+      variables: { walletId: wallet.id, limit: DEFAULT_PAGE_SIZE },
       notifyOnNetworkStatusChange: true,
     })
   const list = data?.walletTransactions?.collection
-  const { currentPage = 0, totalPages = 0 } = data?.walletTransactions?.metadata || {}
+  const {
+    currentPage = 0,
+    totalPages = 0,
+    totalCount = 0,
+  } = data?.walletTransactions?.metadata || {}
 
   const hasData = !!list && !!list?.length
   const hasError = !!error && !loading
@@ -162,6 +168,7 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
           />
         )}
         {isLoading &&
+          !list?.length &&
           [1, 2, 3].map((i) => (
             <div
               className="flex w-full gap-3 px-3 py-4 shadow-b"
@@ -196,7 +203,7 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
             image={<EmptyImage width="136" height="104" />}
           />
         )}
-        {!isLoading && !isWalletEmpty && (
+        {!!list?.length && (
           <>
             <Table
               name="wallet-transactions-list"
@@ -481,20 +488,14 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
           </>
         )}
       </div>
-      <div className="flex items-center justify-between gap-4 px-4 py-1">
-        {currentPage < totalPages && (
-          <Button
-            variant="quaternary"
-            size="medium"
-            onClick={() =>
-              fetchMore({
-                variables: { page: currentPage + 1 },
-              })
-            }
-          >
-            {translate('text_62da6ec24a8e24e44f8128aa')}
-          </Button>
-        )}
+      <div className="flex items-center justify-between gap-4 py-1">
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalCount={totalCount}
+          loading={isLoading}
+          onPageChange={(page) => fetchMore({ variables: { page } })}
+        />
         {footer}
       </div>
 

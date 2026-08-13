@@ -16,8 +16,8 @@ import { useInternationalization } from './core/useInternationalization'
 import { useAppForm } from './forms/useAppform'
 import { ResendEmailFetchResult, useResendEmail } from './useResendEmail'
 
-export const SUBMIT_RESEND_EMAIL_DATA_TEST = 'submit-resend-email'
-export const RESEND_EMAIL_FORM_ID = 'resend-email'
+const SUBMIT_RESEND_EMAIL_DATA_TEST = 'submit-resend-email'
+const RESEND_EMAIL_FORM_ID = 'resend-email'
 const INVALID_FORM_ERROR_MESSAGE = 'form.invalid'
 
 type Recipients =

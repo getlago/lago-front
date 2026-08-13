@@ -1,5 +1,4 @@
 import { Icon } from 'lago-design-system'
-import { useRef } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { Avatar } from '~/components/designSystem/Avatar'
@@ -25,14 +24,8 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
-import {
-  ApplyDunningCampaignDialog,
-  ApplyDunningCampaignDialogRef,
-} from '~/pages/settings/BillingEntity/sections/dunning-campaigns/ApplyDunningCampaignDialog'
-import {
-  RemoveAppliedDunningCampaignDialog,
-  RemoveAppliedDunningCampaignDialogRef,
-} from '~/pages/settings/BillingEntity/sections/dunning-campaigns/RemoveAppliedDunningCampaignDialog'
+import { useApplyDunningCampaignDialog } from '~/pages/settings/BillingEntity/sections/dunning-campaigns/ApplyDunningCampaignDialog'
+import { useRemoveAppliedDunningCampaignDialog } from '~/pages/settings/BillingEntity/sections/dunning-campaigns/RemoveAppliedDunningCampaignDialog'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
 const BillingEntityDunningCampaigns = () => {
@@ -43,8 +36,8 @@ const BillingEntityDunningCampaigns = () => {
 
   const hasAccessToFeature = premiumIntegrations?.includes(PremiumIntegrationTypeEnum.AutoDunning)
 
-  const applyDunningCampaignDialogRef = useRef<ApplyDunningCampaignDialogRef>(null)
-  const removeAppliedDunningCampaignDialogRef = useRef<RemoveAppliedDunningCampaignDialogRef>(null)
+  const { openApplyDunningCampaignDialog } = useApplyDunningCampaignDialog()
+  const { openRemoveAppliedDunningCampaignDialog } = useRemoveAppliedDunningCampaignDialog()
 
   const {
     data: billingEntityData,
@@ -111,9 +104,7 @@ const BillingEntityDunningCampaigns = () => {
                           disabled={loading || !!appliedDunningCampaign?.id}
                           onClick={() => {
                             if (billingEntity) {
-                              applyDunningCampaignDialogRef?.current?.openDialog(
-                                billingEntity as BillingEntity,
-                              )
+                              openApplyDunningCampaignDialog(billingEntity as BillingEntity)
                             }
                           }}
                           data-test="apply-dunning-campaign-button"
@@ -190,9 +181,8 @@ const BillingEntityDunningCampaigns = () => {
                             variant="quaternary"
                             onClick={() => {
                               if (billingEntity && appliedDunningCampaign) {
-                                removeAppliedDunningCampaignDialogRef.current?.openDialog(
+                                openRemoveAppliedDunningCampaignDialog(
                                   billingEntity as BillingEntity,
-                                  appliedDunningCampaign.id,
                                 )
                               }
                             }}
@@ -207,9 +197,6 @@ const BillingEntityDunningCampaigns = () => {
           </>
         )}
       </SettingsPaddedContainer>
-
-      <ApplyDunningCampaignDialog ref={applyDunningCampaignDialogRef} />
-      <RemoveAppliedDunningCampaignDialog ref={removeAppliedDunningCampaignDialogRef} />
     </>
   )
 }

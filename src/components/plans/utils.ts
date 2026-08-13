@@ -1,7 +1,4 @@
-import { RefObject } from 'react'
-
 import { SelectorActionItem } from '~/components/designSystem/Selector'
-import { RemoveChargeWarningDialogRef } from '~/components/plans/RemoveChargeWarningDialog'
 import {
   ALL_FILTER_VALUES,
   AnyChargeModel,
@@ -92,14 +89,14 @@ export const buildChargeHoverActions = ({
   showWarningOnDelete,
   onDelete,
   onEdit,
-  removeChargeWarningDialogRef,
+  openRemoveChargeWarningDialog,
   translate,
 }: {
   showDelete: boolean
   showWarningOnDelete: boolean
   onDelete: () => void
   onEdit: () => void
-  removeChargeWarningDialogRef: RefObject<RemoveChargeWarningDialogRef>
+  openRemoveChargeWarningDialog: (params: { callback: () => void }) => void
   translate: TranslateFunc
 }): SelectorActionItem[] => {
   const actions: SelectorActionItem[] = []
@@ -110,7 +107,7 @@ export const buildChargeHoverActions = ({
       e.preventDefault()
 
       if (showWarningOnDelete) {
-        removeChargeWarningDialogRef.current?.openDialog({ callback: onDelete })
+        openRemoveChargeWarningDialog({ callback: onDelete })
       } else {
         onDelete()
       }

@@ -7,13 +7,10 @@ import { renderIntegrationPage } from './integrationTestHelpers'
 import NetsuiteIntegrationDetails from '../NetsuiteIntegrationDetails'
 
 jest.mock('~/components/settings/integrations/AddNetsuiteDialog', () => ({
-  AddNetsuiteDialog: () => null,
+  useAddNetsuiteDialog: () => ({ openAddNetsuiteDialog: jest.fn() }),
 }))
 jest.mock('~/components/settings/integrations/DeleteNetsuiteIntegrationDialog', () => ({
-  DeleteNetsuiteIntegrationDialog: () => null,
-}))
-jest.mock('~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog', () => ({
-  AddEditDeleteSuccessRedirectUrlDialog: () => null,
+  useDeleteNetsuiteIntegrationDialog: () => ({ openDeleteNetsuiteIntegrationDialog: jest.fn() }),
 }))
 jest.mock('~/components/settings/integrations/NetsuiteIntegrationSettings', () => ({
   __esModule: true,

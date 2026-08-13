@@ -1,8 +1,9 @@
+import { useForm } from '@tanstack/react-form'
 import { act, renderHook } from '@testing-library/react'
-import { useFormik } from 'formik'
 
 import { PlanFormInput } from '~/components/plans/types'
 import { transformFilterObjectToString } from '~/components/plans/utils'
+import { usePropertyValues } from '~/contexts/ChargeFormContext'
 import {
   AggregationTypeEnum,
   ChargeModelEnum,
@@ -28,8 +29,8 @@ const prepare = async ({
   const propertyType = typeof filterIndex === 'number' ? 'filters' : 'properties'
 
   const { result } = renderHook(() => {
-    const formikProps = useFormik<PlanFormInput>({
-      initialValues: {
+    const form = useForm({
+      defaultValues: {
         amountCents: 1,
         amountCurrency: CurrencyEnum.Usd,
         code: 'volume',
@@ -68,30 +69,19 @@ const prepare = async ({
                 : undefined,
           },
         ],
-      },
+      } as PlanFormInput,
       onSubmit: () => {},
     })
-    const localCharge = formikProps.values.charges[chargeIndex]
     const propertyCursor =
-      propertyType === 'filters' ? `filters.${filterIndex}.properties` : 'properties'
-    const valuePointer =
       propertyType === 'filters'
-        ? localCharge?.filters?.[filterIndex || 0].properties
-        : localCharge?.properties
-
-    const wrappedSetFieldValue = (path: string, value: unknown) => {
-      formikProps.setFieldValue(`charges.${chargeIndex}.${path}`, value)
-    }
-
-    // Create a mock form object that bridges to formik
-    const mockForm = {
-      setFieldValue: (path: string, value: unknown) => wrappedSetFieldValue(path, value),
-    }
+        ? `charges.${chargeIndex}.filters.${filterIndex}.properties`
+        : `charges.${chargeIndex}.properties`
+    const valuePointer = usePropertyValues(form, propertyCursor)
 
     return useVolumeChargeForm({
       disabled,
       propertyCursor,
-      form: mockForm,
+      form,
       valuePointer,
     })
   })

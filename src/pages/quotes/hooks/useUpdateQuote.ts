@@ -2,6 +2,7 @@ import { gql } from '@apollo/client'
 
 import { addToast } from '~/core/apolloClient'
 import {
+  LagoApiError,
   type UpdateQuoteInput,
   type UpdateQuoteVersionInput,
   useUpdateQuoteMutation,
@@ -12,6 +13,7 @@ gql`
   mutation updateQuoteVersion($input: UpdateQuoteVersionInput!) {
     updateQuoteVersion(input: $input) {
       id
+      currency
     }
   }
 
@@ -43,9 +45,12 @@ export const useUpdateQuote = ({ onUpdateFinished, onUpdateError }: UseUpdateQuo
   ) => {
     const result = await updateQuoteVersionMutation({
       variables: { input },
+      context: { silentError: LagoApiError.UnprocessableEntity },
     })
 
-    if (result.data?.updateQuoteVersion) {
+    const hasErrors = !!result.errors?.length || !result.data?.updateQuoteVersion
+
+    if (!hasErrors) {
       if (displayToast) {
         addToast({
           severity: 'success',

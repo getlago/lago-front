@@ -72,7 +72,10 @@ export const InvoiceDetailsTableBodyLineGraduatedPercentage = memo(
             </td>
             <td>
               <Typography variant="body" color="grey600">
-                {Number(graduatedPercentageRange.units)}
+                {intlFormatNumber(Number(graduatedPercentageRange.units) || 0, {
+                  style: 'decimal',
+                  maximumFractionDigits: 6,
+                })}
               </Typography>
             </td>
             {!hideVat && (

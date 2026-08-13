@@ -1,29 +1,33 @@
 import type { EntityData } from '~/components/designSystem/RichTextEditor/common/RichTextEditorContext'
 import type { AddOnItem } from '~/components/designSystem/RichTextEditor/PricingBlock/constants'
+import { CurrencyEnum } from '~/generated/graphql'
 
+import { deserializeAmount, serializeAmount } from './serializeAmount'
+import { type BillingItemCoupon, fromCoupons } from './serializeQuoteCoupons'
 import { type BillingItemPlan, fromPlanBillingItems } from './serializeQuotePlanBillingItems'
+import { type BillingItemWallet, fromWallets } from './serializeQuoteWallets'
 
 // --- Backend contract types (snake_case) ---
 
 export interface AddOnPayload {
   position: number
-  add_on_code: string
+  code: string
   name: string
   description: string
   units: number
-  unit_amount_cents: number
-  total_amount_cents: number
-  invoice_display_name: string
-  from_datetime: string | null
-  to_datetime: string | null
-  tax_codes: string[]
+  unitAmountCents: number
+  totalAmountCents: number
+  invoiceDisplayName: string
+  fromDatetime: string | null
+  toDatetime: string | null
+  taxCodes: string[]
 }
 
-// position, add_on_code, and tax_codes are not overridable
-type OverridableFields = Omit<AddOnPayload, 'position' | 'add_on_code' | 'tax_codes'>
+// position, code, and taxCodes are not overridable
+type OverridableFields = Omit<AddOnPayload, 'position' | 'code' | 'taxCodes'>
 
-export interface BillingItemAddon {
-  type: 'addon'
+interface BillingItemAddon {
+  type: 'add_on'
   id: string
   localId?: string
   payload: AddOnPayload
@@ -31,9 +35,23 @@ export interface BillingItemAddon {
 }
 
 export interface BillingItemsPayload {
-  addons: BillingItemAddon[]
+  addOns?: BillingItemAddon[]
   plans?: BillingItemPlan[]
+  coupons?: BillingItemCoupon[]
+  walletCredits?: BillingItemWallet[]
 }
+
+/**
+ * Replace ONLY the walletCredits slice, preserving every sibling category
+ * (plans/addOns/coupons) untouched.
+ *
+ * Callers should use this helper whenever mutating wallet credits to avoid
+ * accidentally dropping unrelated billingItems categories.
+ */
+export const mergeWalletCredits = (
+  billingItems: BillingItemsPayload | null | undefined,
+  walletCredits: BillingItemWallet[],
+): BillingItemsPayload => ({ ...billingItems, walletCredits })
 
 // --- Serialization helpers ---
 
@@ -48,17 +66,20 @@ const normalizeDateTime = (value: string): string | null => (value === '' ? null
 export const toBillingItems = (
   addOnItems: AddOnItem[],
   originalPayloads: Record<string, AddOnPayload>,
-): BillingItemsPayload => {
+  currency: CurrencyEnum = CurrencyEnum.Usd,
+): Required<Pick<BillingItemsPayload, 'addOns'>> => {
   const addons: BillingItemAddon[] = addOnItems.map((item, index) => {
     const original = originalPayloads[item.localId] ?? originalPayloads[item.addOnId]
     const payload: AddOnPayload = { ...original, position: index + 1 }
 
     const overrides: Partial<OverridableFields> = {}
 
-    // Compare each overridable field
+    // Compare each overridable field. The form holds amounts in currency units
+    // (e.g. "10" for $10); the payload/overrides store cents per the backend
+    // contract, so convert with the quote currency before diffing.
     const formUnits = Number(item.units)
-    const formUnitAmountCents = Number(item.unitAmountCents)
-    const formTotalAmountCents = Number(item.totalAmount)
+    const formUnitAmountCents = serializeAmount(item.unitAmountCents, currency)
+    const formTotalAmountCents = serializeAmount(item.totalAmount, currency)
     const formFromDatetime = normalizeDateTime(item.fromDatetime)
     const formToDatetime = normalizeDateTime(item.toDatetime)
 
@@ -71,26 +92,32 @@ export const toBillingItems = (
     if (formUnits !== original.units) {
       overrides.units = formUnits
     }
-    if (formUnitAmountCents !== original.unit_amount_cents) {
-      overrides.unit_amount_cents = formUnitAmountCents
+    if (formUnitAmountCents !== original.unitAmountCents) {
+      overrides.unitAmountCents = formUnitAmountCents
     }
-    if (formTotalAmountCents !== original.total_amount_cents) {
-      overrides.total_amount_cents = formTotalAmountCents
+    if (formTotalAmountCents !== original.totalAmountCents) {
+      overrides.totalAmountCents = formTotalAmountCents
     }
-    if (item.invoiceDisplayName !== original.invoice_display_name) {
-      overrides.invoice_display_name = item.invoiceDisplayName
+    if (item.invoiceDisplayName !== original.invoiceDisplayName) {
+      overrides.invoiceDisplayName = item.invoiceDisplayName
     }
-    if (formFromDatetime !== original.from_datetime) {
-      overrides.from_datetime = formFromDatetime
+    if (formFromDatetime !== original.fromDatetime) {
+      overrides.fromDatetime = formFromDatetime
     }
-    if (formToDatetime !== original.to_datetime) {
-      overrides.to_datetime = formToDatetime
+    if (formToDatetime !== original.toDatetime) {
+      overrides.toDatetime = formToDatetime
     }
 
-    return { type: 'addon' as const, id: item.addOnId, localId: item.localId, payload, overrides }
+    return {
+      type: 'add_on' as const,
+      id: item.addOnId,
+      localId: item.localId,
+      payload,
+      overrides,
+    }
   })
 
-  return { addons }
+  return { addOns: addons }
 }
 
 // --- Deserialization ---
@@ -101,12 +128,17 @@ interface FromBillingItemsResult {
   originalPayloads: Record<string, AddOnPayload>
 }
 
-export const fromBillingItems = (billingItems: BillingItemsPayload): FromBillingItemsResult => {
+export const fromBillingItems = (
+  billingItems: BillingItemsPayload,
+  currency?: CurrencyEnum,
+): FromBillingItemsResult => {
   const entities: Record<string, EntityData> = {}
   const addOnItems: AddOnItem[] = []
   const originalPayloads: Record<string, AddOnPayload> = {}
 
-  const sorted = [...billingItems.addons].sort((a, b) => a.payload.position - b.payload.position)
+  const sorted = [...(billingItems.addOns ?? [])].sort(
+    (a, b) => a.payload.position - b.payload.position,
+  )
 
   for (const addon of sorted) {
     const { payload, overrides, id, localId: savedLocalId } = addon
@@ -117,39 +149,49 @@ export const fromBillingItems = (billingItems: BillingItemsPayload): FromBilling
       name: overrides.name ?? payload.name,
       description: overrides.description ?? payload.description,
       units: overrides.units ?? payload.units,
-      unit_amount_cents: overrides.unit_amount_cents ?? payload.unit_amount_cents,
-      total_amount_cents: overrides.total_amount_cents ?? payload.total_amount_cents,
-      invoice_display_name: overrides.invoice_display_name ?? payload.invoice_display_name,
-      from_datetime: overrides.from_datetime ?? payload.from_datetime,
-      to_datetime: overrides.to_datetime ?? payload.to_datetime,
+      unitAmountCents: overrides.unitAmountCents ?? payload.unitAmountCents,
+      totalAmountCents: overrides.totalAmountCents ?? payload.totalAmountCents,
+      invoiceDisplayName: overrides.invoiceDisplayName ?? payload.invoiceDisplayName,
+      fromDatetime: overrides.fromDatetime ?? payload.fromDatetime,
+      toDatetime: overrides.toDatetime ?? payload.toDatetime,
     }
+
+    // Payload stores cents; the form and preview expect currency units. With no
+    // currency we can't know the decimal precision, so we leave the amounts empty
+    // rather than fabricate a wrong-scaled value under a default currency.
+    const unitAmountCents = currency
+      ? String(deserializeAmount(effective.unitAmountCents, currency))
+      : ''
+    const totalAmount = currency
+      ? String(deserializeAmount(effective.totalAmountCents, currency))
+      : ''
 
     entities[localId] = {
       entityId: localId,
       entityType: 'addOn',
       name: effective.name,
-      invoiceDisplayName: effective.invoice_display_name,
-      code: payload.add_on_code,
+      invoiceDisplayName: effective.invoiceDisplayName,
+      code: payload.code,
       description: effective.description,
       units: String(effective.units),
-      unitAmountCents: String(effective.unit_amount_cents),
-      totalAmount: String(effective.total_amount_cents),
-      fromDatetime: effective.from_datetime ?? '',
-      toDatetime: effective.to_datetime ?? '',
+      unitAmountCents,
+      totalAmount,
+      fromDatetime: effective.fromDatetime ?? '',
+      toDatetime: effective.toDatetime ?? '',
     }
 
     addOnItems.push({
       localId,
       addOnId: id,
       name: effective.name,
-      invoiceDisplayName: effective.invoice_display_name,
-      code: payload.add_on_code,
+      invoiceDisplayName: effective.invoiceDisplayName,
+      code: payload.code,
       description: effective.description,
       units: String(effective.units),
-      unitAmountCents: String(effective.unit_amount_cents),
-      totalAmount: String(effective.total_amount_cents),
-      fromDatetime: effective.from_datetime ?? '',
-      toDatetime: effective.to_datetime ?? '',
+      unitAmountCents,
+      totalAmount,
+      fromDatetime: effective.fromDatetime ?? '',
+      toDatetime: effective.toDatetime ?? '',
     })
 
     originalPayloads[localId] = payload
@@ -170,8 +212,9 @@ export const fromBillingItems = (billingItems: BillingItemsPayload): FromBilling
  */
 export const buildPreviewEntities = (
   billingItems: BillingItemsPayload,
+  currency?: CurrencyEnum,
 ): Record<string, EntityData> => {
-  const { entities, addOnItems } = fromBillingItems(billingItems)
+  const { entities, addOnItems } = fromBillingItems(billingItems, currency)
   const previewEntities: Record<string, EntityData> = { ...entities }
 
   for (const item of addOnItems) {
@@ -182,6 +225,24 @@ export const buildPreviewEntities = (
     const { entityData } = fromPlanBillingItems(billingItems.plans)
 
     Object.assign(previewEntities, entityData)
+  }
+
+  if (billingItems.coupons && billingItems.coupons.length > 0) {
+    const { entities: couponEntities } = fromCoupons(billingItems.coupons)
+
+    Object.assign(previewEntities, couponEntities)
+    // also key by couponId for legacy entityIds resolution
+    for (const c of billingItems.coupons) {
+      previewEntities[c.id] = couponEntities[c.localId]
+    }
+  }
+
+  // Wallet/credits blocks reference wallets solely by localId (no catalog id), so
+  // single-keying is enough — unlike coupons/add-ons there is no legacy id fallback.
+  if (billingItems.walletCredits && billingItems.walletCredits.length > 0) {
+    const { entities: walletEntities } = fromWallets(billingItems.walletCredits)
+
+    Object.assign(previewEntities, walletEntities)
   }
 
   return previewEntities

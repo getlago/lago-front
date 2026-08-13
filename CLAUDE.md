@@ -75,6 +75,302 @@
   import { useMatch } from 'react-router-dom'
   ```
 
+## Pagination (numbered lists & tables)
+
+All lists use numbered pagination via `PaginatedContent` + `Pagination`
+(`src/components/designSystem/Pagination/`, prop docs inline). Infinite scroll is gone.
+Reference sites: `SubscriptionsPage.tsx` (full-page, sticky),
+`CustomerPaymentsTab.tsx` (nested, non-sticky). The **developer-tool** lists
+(`src/components/developers/*`: API logs, activity logs, events, webhook logs, API keys) keep
+numbered pagination but stay `fetchMore`-based (no URL page) — `usePageSearchParam` is
+intentionally not wired there (`onPageChange={(page) => fetchMore({ variables: { page } })}`).
+
+Adding a paginated list:
+
+1. Query the `{ collection, metadata }` root field with `$page`/`$limit`, select
+   `metadata { currentPage totalPages totalCount }`, then `pnpm codegen`.
+2. Register the field in `queryFieldPolicies` (`cache.ts`) with
+   `createSinglePageFieldPolicy()` (replace merge). **Skipping this makes page 2
+   silently stop** — `cache.test.ts` guard fails CI. Never use
+   `createPaginatedFieldPolicy()` (legacy append/infinite-scroll).
+3. Query hook: `notifyOnNetworkStatusChange: true`, `limit: DEFAULT_PAGE_SIZE`. The page lives in
+   the URL — `const { page, goToPage } = usePageSearchParam()` — so pass `page` in the variables.
+4. Wrap the table:
+   ```tsx
+   <PaginatedContent
+     metadata={data?.<field>.metadata}   // MUST pass, else totalCount=0 → pager hidden
+     loading={loading}
+     onPageChange={goToPage}              // URL-driven: deep-linkable + survives refresh
+     sticky={/* full-page: true (default) · list inside a scrolling tab: false */}
+     insetPager={/* true ONLY for full-page lists · see below */}
+   >
+     <Table data={rows} isLoading={loading} ... />
+   </PaginatedContent>
+   ```
+   - `Table` auto-blanks data rows while `isLoading` → skeletons render in place (never
+     stacked below existing rows). Pass `data={rows}` directly — no `loading ? [] : rows`
+     ternary needed.
+   - `loadingRowCount` defaults to `DEFAULT_PAGE_SIZE` on `Table` — only pass when the
+     list uses a custom page size (e.g. `loadingRowCount={pageSize}` for rows-per-page menu).
+   - `pageSize` on `PaginatedContent` defaults to `DEFAULT_PAGE_SIZE` and **must match the
+     query `limit`** — mismatch makes the "X-Y of N" label lie. Pass explicitly ONLY when
+     using a custom limit (e.g. `pageSize={pageSize}` for rows-per-page menu, or
+     `pageSize={PORTAL_INVOICES_PAGE_SIZE}` for fixed non-default sizes). Omit for the
+     default 20.
+   - **URL page** via `usePageSearchParam(prefix?)` (`~/components/designSystem/Pagination`):
+     bare `page` for a single list on the route; pass a `prefix` (`usePageSearchParam('draft')`
+     → `draft_page`) **only** when 2+ paginated lists share one view (customer invoices,
+     invoice-sections). Out-of-range pages auto-clamp to the last page (in `PaginatedContent`).
+   - **Reset to page 1** on search (`goToPage(1)` before the debounced search) and on page-size
+     change. Filter changes reset it centrally in `useFilters` — don't handle those.
+   - **Customer-detail tabs** (route-based → the tab subtree remounts on switch and resets to
+     page 1) additionally set `fetchPolicy: 'network-only'` on the list query. Leaving a tab drops
+     `?page`, so on re-entry the single-page cache would briefly flash the previously-viewed page
+     before the page-1 refetch; `network-only` skips that stale read → clean skeleton → page 1.
+     Applied to the 7 customer tabs (subscriptions, payments, creditNotes, appliedCoupons,
+     activityLogs, wallets, customerInvoices). Full-page lists don't need it (they don't remount).
+   - Pager inside a child component (e.g. `InvoicesList`, `CreditNotesTable`, `CustomerInvoicesList`)
+     → thread an optional `onPageChange` prop down and pass `goToPage` (fallback: `fetchMore`).
+   - `sticky` → table `containerClassName="h-auto shrink-0 -mb-px border-t border-grey-300"`
+     (`-mb-px` overlaps the last-row border with the pager → single divider, no doubled line);
+     `sticky={false}` → `containerClassName="border-t border-grey-300"`.
+   - `insetPager` → pass **only** for full-page lists rendered directly in the unpadded main
+     scroll area (they fake the page gutter via `containerSize` 16/48). Padded containers
+     (settings, customer detail) already have the gutter — passing it there doubles it.
+   - Rows-per-page menu only if you pass `onPageSizeChange` + local
+     `useState(DEFAULT_PAGE_SIZE)`.
+
+Constants in `~/core/constants/pagination`: `DEFAULT_PAGE_SIZE = 20`,
+`PAGE_SIZE_OPTIONS = [20, 50, 100]`.
+
+## Drawers
+
+Three generations coexist in the codebase. **Only the hook pattern is allowed in new
+code** — the other two are migration debt, and their presence is not permission to copy
+them.
+
+| Generation | Shape | Status |
+| ---------- | ----- | ------ |
+| `use<Feature>Drawer()` hook returning `{ openDrawer }`, built on `useFormDrawer` / `useDrawer` (NiceModal) | no ref, no rendered element | ✅ **canonical** |
+| `useFormDrawer` wrapped in a `forwardRef` + `useImperativeHandle` component that `return null` | parent holds a ref | ⚠️ legacy, migrate on touch |
+| `~/components/designSystem/Drawer` + `DrawerRef` (`openDrawer`/`closeDrawer`) | parent holds a ref to a rendered `<Drawer>` | ⛔ legacy, never for new code |
+
+### The canonical pattern
+
+Write a hook named `use<Feature>Drawer` that owns the form and returns `{ openDrawer }`.
+Keep the drawer body in its own component. Use `useFormDrawer` for drawers with a form
+and a save button, `useDrawer` (CentralizedDrawer) for read-only or non-form content.
+
+```tsx
+// src/.../useFeatureDrawer.tsx
+const FEATURE_FORM_ID = 'feature-drawer-form'
+
+export const useFeatureDrawer = ({ onSave }: UseFeatureDrawerProps): UseFeatureDrawerReturn => {
+  const { translate } = useInternationalization()
+  const drawer = useFormDrawer()
+
+  const form = useAppForm({
+    defaultValues: DEFAULT_VALUES,
+    validationLogic: revalidateLogic(),
+    validators: { onDynamic: featureValidationSchema },
+    onSubmit: async ({ value }) => {
+      await onSave(value)
+      drawer.close()
+    },
+  })
+
+  // Seed + open in one step: no values = create, values = edit
+  const openDrawer = (values?: TFeature): void => {
+    form.reset({ ...DEFAULT_VALUES, ...values }, { keepDefaultValues: true })
+
+    drawer.open({
+      title: translate('...'),
+      form: { id: FEATURE_FORM_ID, submit: form.handleSubmit },
+      closeOnSubmitSuccess: false,
+      shouldPromptOnClose: () => form.state.isDirty,
+      onClose: () => form.reset(),
+      onEntered: focusFirstInput,
+      children: <FeatureDrawerContent form={form} />,
+      mainAction: (
+        <form.AppForm>
+          <form.SubmitButton dataTest="feature-drawer-save">
+            {translate('text_17295436903260tlyb1gp1i7')}
+          </form.SubmitButton>
+        </form.AppForm>
+      ),
+    })
+  }
+
+  return { openDrawer }
+}
+```
+
+The consumer just calls the hook — no `useRef`, no drawer element in its JSX:
+
+```tsx
+// ✅ Correct
+const { openDrawer } = useFeatureDrawer({ onSave })
+return <Button onClick={() => openDrawer(existingValue)}>Edit</Button>
+
+// ❌ Wrong — phantom component + imperative ref
+const drawerRef = useRef<FeatureDrawerRef>(null)
+return (
+  <>
+    <Button onClick={() => drawerRef.current?.openDrawer()}>Edit</Button>
+    <FeatureDrawer ref={drawerRef} onSave={onSave} />
+  </>
+)
+```
+
+Notes:
+
+- `drawer.close()` belongs inside the hook (in `onSubmit`); do not expose a `closeDrawer`
+  unless a consumer actually calls it. In practice they never do.
+- `shouldPromptOnClose: () => form.state.isDirty` gives the unsaved-changes prompt;
+  `closeOnSubmitSuccess: false` lets `onSubmit` decide when to close.
+- Drawer-local draft: the value only reaches the parent form in `onSave`, so cancelling
+  must not mutate parent state.
+- Reference sites: `usePlanSettingsDrawer`, `useSubscriptionInformationDrawer`,
+  `useCreditsDrawer`, `useRecurringRuleDrawer`.
+
+### Testing drawers
+
+The drawer stack uses `import.meta`, unsupported by jest, so **every** test touching a
+drawer must mock the module:
+
+```typescript
+jest.mock('~/components/drawers/useDrawer', () => ({
+  useDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+  useFormDrawer: () => ({ open: mockOpen, close: mockClose }),
+}))
+```
+
+- **Testing a consumer** → mock the `use<Feature>Drawer` hook itself and assert
+  `openDrawer` was called with the right seed:
+  ```typescript
+  useFeatureDrawer: (props) => {
+    capturedProps.current = props
+    return { openDrawer: mockOpenDrawer }
+  }
+  ```
+- **Testing the drawer itself** → host the hook in a throwaway component to capture
+  `openDrawer`, call it, then render the captured `children` (with `open` mocked, the body
+  never mounts on its own):
+  ```tsx
+  const opened = mockOpen.mock.calls.at(-1)?.[0]
+  render(<>{opened.children}</>)
+  ```
+  The same object exposes `form.submit`, `shouldPromptOnClose`, `onClose` and `onEntered`,
+  so those are asserted directly rather than through the DOM.
+
+## Dialogs
+
+All dialogs are hook-based, backed by NiceModal. New code must use one of three hooks
+depending on the shape of the flow — the legacy imperative `forwardRef` + `Dialog` /
+`WarningDialog` pattern is gone, do not reintroduce it.
+
+| Hook | Use for | Signature |
+| ---- | ------- | --------- |
+| `useFormDialog` | Form + submit button | `open({ title, form: { id, submit }, mainAction, children, ... })` |
+| `useCentralizedDialog` | Confirmation / warning (no form) | `open({ title, description, actionText, colorVariant, onAction })` |
+| `useFormDialogOpeningDialog` | Edit form that can open a secondary destructive confirm | same as `useFormDialog` + a nested `open-other-dialog` return |
+
+### The canonical pattern
+
+Write a hook named `use<Feature>Dialog` that owns the form and returns
+`{ openDialog }` (or an equivalent `open<Feature>Dialog` verb). Keep the dialog body
+inline or in its own component. Consumers just call the hook — no ref, no rendered
+dialog element.
+
+```tsx
+// src/.../useFeatureDialog.tsx
+const FEATURE_FORM_ID = 'feature-dialog-form'
+
+export const useFeatureDialog = ({ onSave }: UseFeatureDialogProps) => {
+  const { translate } = useInternationalization()
+  const formDialog = useFormDialog()
+
+  const form = useAppForm({
+    defaultValues: DEFAULT_VALUES,
+    validationLogic: revalidateLogic(),
+    validators: { onDynamic: featureValidationSchema },
+    onSubmit: async ({ value }) => {
+      await onSave(value)
+    },
+  })
+
+  const openFeatureDialog = (values?: TFeature): void => {
+    form.reset({ ...DEFAULT_VALUES, ...values }, { keepDefaultValues: true })
+
+    formDialog.open({
+      title: translate('...'),
+      form: { id: FEATURE_FORM_ID, submit: form.handleSubmit },
+      onEntered: focusFirstInput,
+      children: <FeatureDialogContent form={form} />,
+      mainAction: (
+        <form.AppForm>
+          <form.SubmitButton dataTest="feature-dialog-save">
+            {translate('text_17295436903260tlyb1gp1i7')}
+          </form.SubmitButton>
+        </form.AppForm>
+      ),
+    })
+  }
+
+  return { openFeatureDialog }
+}
+```
+
+The consumer just calls the hook — no `useRef`, no dialog element in its JSX:
+
+```tsx
+// ✅ Correct
+const { openFeatureDialog } = useFeatureDialog({ onSave })
+return <Button onClick={() => openFeatureDialog(existingValue)}>Edit</Button>
+
+// ❌ Wrong — phantom component + imperative ref (removed pattern)
+const dialogRef = useRef<FeatureDialogRef>(null)
+return (
+  <>
+    <Button onClick={() => dialogRef.current?.openDialog()}>Edit</Button>
+    <FeatureDialog ref={dialogRef} onSave={onSave} />
+  </>
+)
+```
+
+Notes:
+
+- Confirmation-only flows (delete / revoke / danger prompts) use
+  `useCentralizedDialog` with `colorVariant: 'danger'` — no form, no `mainAction`,
+  just a single `onAction` callback.
+- `useFormDialogOpeningDialog` is only for the compound "edit + delete-from-within"
+  case; do not reach for it otherwise.
+- Every dialog hook is registered globally in `src/core/overlays/registeredDialogs.ts` —
+  no need to render the dialog element in the tree; NiceModal mounts it on `open()`.
+- Reference sites: `useCreateInviteDialog`, `useEditInviteRoleDialog`,
+  `useRevokeInviteDialog`, `useApplyTaxDialog`, `useAddEditSuccessRedirectUrlDialog`.
+
+### Testing dialogs
+
+Same rule as drawers: the dialog stack uses `import.meta`, unsupported by jest, so
+**every** test touching a dialog must mock the module:
+
+```typescript
+jest.mock('~/components/dialogs/FormDialog', () => ({
+  useFormDialog: () => ({ open: mockOpen, close: mockClose }),
+}))
+jest.mock('~/components/dialogs/CentralizedDialog', () => ({
+  useCentralizedDialog: () => ({ open: jest.fn(), close: jest.fn() }),
+}))
+```
+
+- **Testing a consumer** → mock the `use<Feature>Dialog` hook itself and assert
+  `openDialog` was called with the right seed.
+- **Testing the dialog itself** → host the hook in a throwaway component to capture
+  `open()`'s payload, then render the captured `children` (with `open` mocked, the body
+  never mounts on its own). The same object exposes `form.submit`, `onEntered`, etc.,
+  so those are asserted directly rather than through the DOM.
+
 ## Organization slug architecture
 
 All authenticated app routes are nested under `/:organizationSlug/...`. The
@@ -195,11 +491,16 @@ and Apollo cache automatically).
   probing legacy-URL behavior (e.g. testing the auth-guard redirect from a
   slug-less path to `/login`). Always add an inline comment explaining why.
 
-## Detailed Guidelines (read on demand)
+## Detailed Guidelines
 
-When working on these areas, read the relevant file first:
+TypeScript conventions are small and broadly applicable, so they are imported
+automatically into every session (bare `@` reference, not backtick-wrapped):
 
-- **TypeScript conventions**: `@.agents/docs/typescript-conventions.md`
+@.agents/docs/typescript-conventions.md
+
+Read these on demand when working on the relevant area (backtick-wrapped so they
+are referenced, not auto-loaded):
+
 - **Folder architecture**: `@.agents/docs/folder-architecture.md`
 - **Library documentation**: `@.agents/docs/documentation.md`
 - **GraphQL fragments & type safety**: `@.agents/docs/graphql-fragments.md`

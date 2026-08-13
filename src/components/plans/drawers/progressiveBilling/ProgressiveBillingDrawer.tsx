@@ -12,7 +12,7 @@ import { useAppForm } from '~/hooks/forms/useAppform'
 import { DEFAULT_VALUES, ProgressiveBillingFormValues, progressiveBillingSchema } from './constants'
 import { ProgressiveBillingDrawerContent } from './ProgressiveBillingDrawerContent'
 
-export const PROGRESSIVE_BILLING_DRAWER_SAVE_TEST_ID = 'progressive-billing-drawer-save'
+const PROGRESSIVE_BILLING_DRAWER_SAVE_TEST_ID = 'progressive-billing-drawer-save'
 
 export interface ProgressiveBillingDrawerRef {
   openDrawer: (values?: ProgressiveBillingFormValues) => void

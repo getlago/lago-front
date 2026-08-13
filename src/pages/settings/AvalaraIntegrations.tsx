@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -7,14 +6,8 @@ import { Popper } from '~/components/designSystem/Popper'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import {
-  AddAvalaraDialog,
-  AddAvalaraDialogRef,
-} from '~/components/settings/integrations/AddAvalaraDialog'
-import {
-  DeleteAvalaraIntegrationDialog,
-  DeleteAvalaraIntegrationDialogRef,
-} from '~/components/settings/integrations/DeleteAvalaraIntegrationDialog'
+import { useAddAvalaraDialog } from '~/components/settings/integrations/AddAvalaraDialog'
+import { useDeleteAvalaraIntegrationDialog } from '~/components/settings/integrations/DeleteAvalaraIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { AVALARA_INTEGRATION_DETAILS_ROUTE, INTEGRATIONS_ROUTE, useNavigate } from '~/core/router'
 import {
@@ -59,8 +52,8 @@ gql`
 const AvalaraIntegrations = () => {
   const navigate = useNavigate()
   const { translate } = useInternationalization()
-  const addAvalaraDialogRef = useRef<AddAvalaraDialogRef>(null)
-  const deleteDialogRef = useRef<DeleteAvalaraIntegrationDialogRef>(null)
+  const { openAddAvalaraDialog } = useAddAvalaraDialog()
+  const { openDeleteAvalaraIntegrationDialog } = useDeleteAvalaraIntegrationDialog()
   const { data, loading } = useGetAvalaraIntegrationsListQuery({
     variables: { limit: 1000, types: [IntegrationTypeEnum.Avalara] },
   })
@@ -103,7 +96,7 @@ const AvalaraIntegrations = () => {
               label: translate('text_65846763e6140b469140e235'),
               variant: 'primary',
               onClick: () => {
-                addAvalaraDialogRef.current?.openDialog()
+                openAddAvalaraDialog()
               },
             },
           ],
@@ -156,9 +149,8 @@ const AvalaraIntegrations = () => {
                           variant="quaternary"
                           align="left"
                           onClick={() => {
-                            addAvalaraDialogRef.current?.openDialog({
+                            openAddAvalaraDialog({
                               integration: connection,
-                              deleteModalRef: deleteDialogRef,
                               deleteDialogCallback,
                             })
                             closePopper()
@@ -171,7 +163,7 @@ const AvalaraIntegrations = () => {
                           variant="quaternary"
                           align="left"
                           onClick={() => {
-                            deleteDialogRef.current?.openDialog({
+                            openDeleteAvalaraIntegrationDialog({
                               provider: connection,
                               callback: deleteDialogCallback,
                             })
@@ -188,8 +180,6 @@ const AvalaraIntegrations = () => {
             })}
         </section>
       </IntegrationsPage.Container>
-      <AddAvalaraDialog ref={addAvalaraDialogRef} />
-      <DeleteAvalaraIntegrationDialog ref={deleteDialogRef} />
     </>
   )
 }

@@ -66,7 +66,7 @@ jest.mock('~/components/creditNote/CreditNotesTable', () => ({
 }))
 
 jest.mock('~/components/exports/ExportDialog', () => ({
-  ExportDialog: () => null,
+  useExportDialog: () => ({ openExportDialog: jest.fn() }),
 }))
 
 describe('CreditNotesPage', () => {

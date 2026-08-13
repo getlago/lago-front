@@ -7,6 +7,7 @@ gql`
     content
     billingItems
     mentionVariables
+    currency
   }
 
   fragment QuotePreviewCustomer on Customer {
@@ -19,6 +20,7 @@ gql`
   fragment QuoteDetailItem on Quote {
     id
     number
+    images
     versions {
       id
       status

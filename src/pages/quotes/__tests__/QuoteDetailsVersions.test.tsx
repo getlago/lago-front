@@ -34,6 +34,7 @@ const mockUseQuoteVersionActions = useQuoteVersionActions as jest.MockedFunction
 const mockQuote: QuoteDetailItemFragment = {
   id: 'quote-v2',
   number: 'QT-2026-0042',
+  images: {},
   versions: [
     { id: 'version-v2', status: StatusEnum.Draft, version: 2, createdAt: '2026-04-09T15:00:00Z' },
     {

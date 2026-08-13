@@ -4,28 +4,6 @@ import { InvoiceTypeEnum } from '~/generated/graphql'
 
 export const INVOICE_FIXTURE_ID = '1234'
 
-export const fourOFourInvoiceMock = () => ({
-  mock: {
-    invoice: {
-      id: INVOICE_FIXTURE_ID,
-      refundableAmountCents: '0',
-      creditableAmountCents: '0',
-      paymentDisputeLostAt: null,
-      invoiceType: InvoiceTypeEnum.Subscription,
-      fees: [],
-      invoiceSubscriptions: [],
-      currency: 'EUR',
-      number: 'HOO-AFA3-004-002',
-      paymentStatus: 'pending',
-      subTotalIncludingTaxesAmountCents: '0',
-      couponsAmountCents: '0',
-      feesAmountCents: '0',
-      versionNumber: 3,
-      __typename: 'Invoice',
-    },
-  },
-})
-
 export const fullSubscriptionInvoiceMockAndExpect = () => ({
   mock: {
     invoice: {

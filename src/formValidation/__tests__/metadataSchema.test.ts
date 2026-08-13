@@ -448,5 +448,52 @@ describe('metadataSchema', () => {
         expect(result.success).toBeTruthy()
       })
     })
+
+    describe('custom keyMaxLength', () => {
+      it('rejects a key longer than the custom key max length', () => {
+        const values = [
+          {
+            key: 'abcdef', // 6 chars
+            value: 'value',
+          },
+        ]
+        const schema = zodMetadataSchema(METADATA_VALUE_MAX_LENGTH_DEFAULT, 5)
+        const result = schema.safeParse(values)
+
+        expect(result.success).toBeFalsy()
+        if (!result.success) {
+          expect(result.error.issues.some((issue) => issue.message === 'maxLength')).toBeTruthy()
+        }
+      })
+
+      it('accepts a key at the custom key max length', () => {
+        const values = [
+          {
+            key: 'abcde', // 5 chars
+            value: 'value',
+          },
+        ]
+        const schema = zodMetadataSchema(METADATA_VALUE_MAX_LENGTH_DEFAULT, 5)
+        const result = schema.safeParse(values)
+
+        expect(result.success).toBeTruthy()
+      })
+
+      it('accepts a key longer than the default when a larger custom key max length is given', () => {
+        const values = [
+          {
+            key: new Array(METADATA_KEY_MAX_LENGTH + 10).join('a'),
+            value: 'value',
+          },
+        ]
+        const schema = zodMetadataSchema(
+          METADATA_VALUE_MAX_LENGTH_DEFAULT,
+          METADATA_KEY_MAX_LENGTH + 50,
+        )
+        const result = schema.safeParse(values)
+
+        expect(result.success).toBeTruthy()
+      })
+    })
   })
 })

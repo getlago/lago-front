@@ -380,15 +380,10 @@ describe('CustomerInvoiceBalancesBreakdown', () => {
 
         await user.click(buttons[0])
 
+        expect(mockNavigate).toHaveBeenCalledWith(expect.stringContaining('currency=USD'))
+        expect(mockNavigate).toHaveBeenCalledWith(expect.stringContaining('billingEntityId=be-1'))
         expect(mockNavigate).toHaveBeenCalledWith(
-          expect.objectContaining({
-            search: expect.stringContaining('currency=USD'),
-          }),
-        )
-        expect(mockNavigate).toHaveBeenCalledWith(
-          expect.objectContaining({
-            search: expect.stringContaining('billingEntityId=be-1'),
-          }),
+          expect.stringMatching(/^\/customers\/[^?]+\/request-overdue-payment\?/),
         )
       })
     })

@@ -16,7 +16,6 @@ export const TRANSACTION_REMAINING_CREDITS_DATA_TEST = 'remaining-credits'
 
 // WalletTransactionItems
 export const WALLET_TRANSACTION_ITEMS_LOADING_TEST_ID = 'wallet-transaction-items-loading'
-export const WALLET_TRANSACTION_ITEMS_ERROR_TEST_ID = 'wallet-transaction-items-error'
 export const WALLET_TRANSACTION_ITEMS_LIST_TEST_ID = 'wallet-transaction-items-list'
 export const WALLET_TRANSACTION_ITEM_ROW_TEST_ID = 'wallet-transaction-item-row'
 
@@ -39,6 +38,11 @@ export const RECURRING_INVOICE_REQUIRES_SUCCESSFUL_PAYMENT_SWITCH_DATA_TEST =
   'recurring-invoice-requires-successful-payment-switch'
 export const RECURRING_TOPUP_TYPE_DATA_TEST = 'recurring-topup-type'
 export const SHOW_RECURRING_EXPIRATION_AT_DATA_TEST = 'show-recurring-expiration-at'
+export const DELETE_RECURRING_EXPIRATION_AT_DATA_TEST = 'delete-recurring-expiration-at'
+export const ADD_RECURRING_RULE_BUTTON_DATA_TEST = 'add-recurring-rule-button'
+export const RECURRING_RULE_INVOICING_SETTINGS_SELECTOR_DATA_TEST =
+  'rule-invoicing-settings-selector'
+export const RECURRING_RULE_PAYMENT_SETTINGS_SELECTOR_DATA_TEST = 'rule-payment-settings-selector'
 
 // SettingsSection
 export const SHOW_EXPIRATION_AT_DATA_TEST = 'show-expiration-at'
@@ -46,9 +50,16 @@ export const ADD_MIN_MAX_AMOUNT_DATA_TEST = 'add-min-max-amount'
 export const ADD_MIN_TOPUP_OPTION_DATA_TEST = 'add-min-topup-option'
 export const ADD_MAX_TOPUP_OPTION_DATA_TEST = 'add-max-topup-option'
 
+// WalletAlertForm
+export const WALLET_ALERT_FORM_TEST_ID = 'wallet-alert-form'
+export const WALLET_ALERT_TYPE_COMBOBOX_DATA_TEST = 'wallet-alert-type-combobox'
+export const SUBMIT_WALLET_ALERT_DATA_TEST = 'submit-wallet-alert'
+export const CLOSE_WALLET_ALERT_BUTTON_DATA_TEST = 'close-wallet-alert-button'
+
 // TopUpTypeSelector
 export const TOPUP_TYPE_PREPAID_CREDITS_DATA_TEST = 'topup-type-prepaid-credits'
 export const TOPUP_TYPE_FREE_CREDITS_DATA_TEST = 'topup-type-free-credits'
 
 // ScopeSection
 export const SHOW_LIMIT_INPUT_DATA_TEST = 'show-limit-input'
+export const SHOW_BILLABLE_METRIC_LIMIT_INPUT_DATA_TEST = 'show-billable-metric-limit-input'

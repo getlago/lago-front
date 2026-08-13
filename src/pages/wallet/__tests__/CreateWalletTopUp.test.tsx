@@ -2,10 +2,17 @@ import { MockedResponse } from '@apollo/client/testing'
 import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { INVOICING_SETTINGS_SELECTOR_TEST_ID } from '~/components/invoicingSettings/InvoicingSettingsSelector'
+import { PAYMENT_SETTINGS_SELECTOR_TEST_ID } from '~/components/paymentSettings/PaymentSettingsSelector'
+import { PURCHASE_ORDER_ADD_BUTTON_TEST_ID } from '~/components/purchaseOrder/PurchaseOrderButtons'
+import { PURCHASE_ORDER_FORM_BLOCK_INPUT_TEST_ID } from '~/components/purchaseOrder/PurchaseOrderFormBlock'
 import {
+  ADD_METADATA_DATA_TEST,
   CLOSE_CREATE_TOPUP_BUTTON_DATA_TEST,
   CREATE_WALLET_TOP_UP_FORM_TEST_ID,
   SUBMIT_WALLET_DATA_TEST,
+  TOPUP_TYPE_FREE_CREDITS_DATA_TEST,
+  TOPUP_TYPE_PREPAID_CREDITS_DATA_TEST,
 } from '~/components/wallets/utils/dataTestConstants'
 import { addToast } from '~/core/apolloClient'
 import {
@@ -21,6 +28,12 @@ import { render, TestMocksType } from '~/test-utils'
 import CreateWalletTopUp from '../CreateWalletTopUp'
 
 // Mock dependencies
+// The drawer stack relies on import.meta (unsupported in jest)
+jest.mock('~/components/drawers/useDrawer', () => ({
+  useDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+  useFormDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+}))
+
 jest.mock('~/core/apolloClient', () => ({
   ...jest.requireActual('~/core/apolloClient'),
   addToast: jest.fn(),
@@ -119,7 +132,7 @@ const createMutationMock = (
   },
 })
 
-const createInvoiceStatusMock = (): MockedResponse => ({
+const createInvoiceStatusMock = (purchaseOrderNumber: string | null = null): MockedResponse => ({
   request: {
     query: GetInvoiceStatusDocument,
     variables: { id: 'voided-invoice-1' },
@@ -129,6 +142,7 @@ const createInvoiceStatusMock = (): MockedResponse => ({
       invoice: {
         id: 'voided-invoice-1',
         status: 'finalized',
+        purchaseOrderNumber,
       },
     },
   },
@@ -223,14 +237,16 @@ describe('CreateWalletTopUp', () => {
         })
       })
 
-      it('THEN should display the submit button as disabled initially', async () => {
+      it('THEN should display the submit button as enabled upfront', async () => {
+        // TanStack convention: validation gates the button only after the
+        // first submit attempt (the old form disabled it upfront)
         render(<CreateWalletTopUp />, { mocks: getDefaultMocks() })
 
         await waitFor(() => {
           expect(screen.getByTestId(CREATE_WALLET_TOP_UP_FORM_TEST_ID)).toBeInTheDocument()
         })
 
-        expect(screen.getByTestId(SUBMIT_WALLET_DATA_TEST)).toBeDisabled()
+        expect(screen.getByTestId(SUBMIT_WALLET_DATA_TEST)).not.toBeDisabled()
       })
 
       it('THEN should display the paid credits input', async () => {
@@ -301,12 +317,7 @@ describe('CreateWalletTopUp', () => {
           expect(screen.getByTestId(CREATE_WALLET_TOP_UP_FORM_TEST_ID)).toBeInTheDocument()
         })
 
-        // Click the Free Credits tab button
-        const freeCreditsTab = screen.getByRole('button', {
-          name: /text_1770376670114piyn9eibuhm/,
-        })
-
-        await user.click(freeCreditsTab)
+        await user.click(screen.getByTestId(TOPUP_TYPE_FREE_CREDITS_DATA_TEST))
 
         await waitFor(() => {
           expect(document.querySelector('input[name="grantedCredits"]')).toBeInTheDocument()
@@ -314,6 +325,78 @@ describe('CreateWalletTopUp', () => {
 
         // paidCredits input should be gone
         expect(document.querySelector('input[name="paidCredits"]')).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN a PO number was set in prepaid mode', () => {
+      const revealAndTypePurchaseOrderNumber = async (user: ReturnType<typeof userEvent.setup>) => {
+        await user.click(screen.getByTestId(PURCHASE_ORDER_ADD_BUTTON_TEST_ID))
+        await user.type(
+          screen
+            .getByTestId(PURCHASE_ORDER_FORM_BLOCK_INPUT_TEST_ID)
+            .querySelector('input') as HTMLInputElement,
+          'PO-PREPAID',
+        )
+      }
+
+      it('THEN should not send the PO number when submitting as free credits', async () => {
+        const user = userEvent.setup()
+        let capturedVars: Record<string, unknown> | undefined
+
+        render(<CreateWalletTopUp />, {
+          mocks: getDefaultMocks((vars) => {
+            capturedVars = vars
+          }),
+        })
+
+        await waitFor(() => {
+          expect(screen.getByTestId(CREATE_WALLET_TOP_UP_FORM_TEST_ID)).toBeInTheDocument()
+        })
+
+        await revealAndTypePurchaseOrderNumber(user)
+        await user.click(screen.getByTestId(TOPUP_TYPE_FREE_CREDITS_DATA_TEST))
+
+        // Free credits never generate an invoice — the PO section is gone.
+        expect(
+          screen.queryByTestId(PURCHASE_ORDER_FORM_BLOCK_INPUT_TEST_ID),
+        ).not.toBeInTheDocument()
+
+        await user.type(
+          document.querySelector('input[name="grantedCredits"]') as HTMLInputElement,
+          '10',
+        )
+
+        await act(async () => {
+          await user.click(screen.getByTestId(SUBMIT_WALLET_DATA_TEST))
+        })
+
+        await waitFor(() => {
+          expect(capturedVars).toBeDefined()
+          expect(
+            (capturedVars as Record<string, Record<string, unknown>>).input.purchaseOrderNumber,
+          ).toBeNull()
+        })
+      })
+
+      it('THEN should not resurrect the PO number when switching back to prepaid', async () => {
+        const user = userEvent.setup()
+
+        render(<CreateWalletTopUp />, { mocks: getDefaultMocks() })
+
+        await waitFor(() => {
+          expect(screen.getByTestId(CREATE_WALLET_TOP_UP_FORM_TEST_ID)).toBeInTheDocument()
+        })
+
+        await revealAndTypePurchaseOrderNumber(user)
+        await user.click(screen.getByTestId(TOPUP_TYPE_FREE_CREDITS_DATA_TEST))
+        await user.click(screen.getByTestId(TOPUP_TYPE_PREPAID_CREDITS_DATA_TEST))
+
+        // The section is back, but collapsed to the add button — the cleared
+        // value must not reappear.
+        expect(screen.getByTestId(PURCHASE_ORDER_ADD_BUTTON_TEST_ID)).toBeInTheDocument()
+        expect(
+          screen.queryByTestId(PURCHASE_ORDER_FORM_BLOCK_INPUT_TEST_ID),
+        ).not.toBeInTheDocument()
       })
     })
   })
@@ -407,12 +490,7 @@ describe('CreateWalletTopUp', () => {
           expect(screen.getByTestId(CREATE_WALLET_TOP_UP_FORM_TEST_ID)).toBeInTheDocument()
         })
 
-        // Switch to Free Credits tab
-        const freeCreditsTab = screen.getByRole('button', {
-          name: /text_1770376670114piyn9eibuhm/,
-        })
-
-        await user.click(freeCreditsTab)
+        await user.click(screen.getByTestId(TOPUP_TYPE_FREE_CREDITS_DATA_TEST))
 
         await waitFor(() => {
           expect(document.querySelector('input[name="grantedCredits"]')).toBeInTheDocument()
@@ -502,6 +580,67 @@ describe('CreateWalletTopUp', () => {
       })
     })
 
+    describe('WHEN regenerating a voided invoice that has a PO number', () => {
+      it('THEN should prefill the PO number and send it in the mutation', async () => {
+        const user = userEvent.setup()
+        let createCapturedVars: Record<string, unknown> | undefined
+
+        const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
+
+        useParamsMock.mockReturnValue({
+          customerId: 'customer-1',
+          walletId: 'wallet-1',
+          voidedInvoiceId: 'voided-invoice-1',
+        })
+
+        const mocks = [
+          createWalletForTopUpMock(),
+          createCustomerInfoMock(),
+          createInvoiceStatusMock('PO-1'),
+          createVoidInvoiceMock(),
+          createMutationMock((vars) => {
+            createCapturedVars = vars
+          }),
+        ] as TestMocksType
+
+        render(<CreateWalletTopUp />, { mocks })
+
+        // The PO number from the voided invoice is prefilled into the input.
+        await waitFor(() => {
+          const poInput = screen
+            .getByTestId(PURCHASE_ORDER_FORM_BLOCK_INPUT_TEST_ID)
+            .querySelector('input') as HTMLInputElement
+
+          expect(poInput).toHaveValue('PO-1')
+        })
+
+        // The prefill lands through the defaults reseed, so the form must
+        // stay pristine — closing navigates straight back instead of opening
+        // the unsaved-changes warning. (The submit button itself is enabled
+        // upfront by TanStack convention, so it can't witness dirtiness.)
+        await user.click(screen.getByTestId(CLOSE_CREATE_TOPUP_BUTTON_DATA_TEST))
+        expect(mockGoBack).toHaveBeenCalled()
+
+        await user.type(getPaidCreditsInput(), '10')
+
+        await waitFor(() => {
+          expect(screen.getByTestId(SUBMIT_WALLET_DATA_TEST)).not.toBeDisabled()
+        })
+
+        await act(async () => {
+          await user.click(screen.getByTestId(SUBMIT_WALLET_DATA_TEST))
+        })
+
+        await waitFor(() => {
+          expect(createCapturedVars).toBeDefined()
+          expect(
+            (createCapturedVars as Record<string, Record<string, unknown>>).input
+              .purchaseOrderNumber,
+          ).toBe('PO-1')
+        })
+      })
+    })
+
     describe('WHEN mutation succeeds', () => {
       it('THEN should show a success toast', async () => {
         const user = userEvent.setup()
@@ -524,6 +663,176 @@ describe('CreateWalletTopUp', () => {
 
         await waitFor(() => {
           expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+        })
+      })
+    })
+  })
+
+  describe('GIVEN no credit amount is set', () => {
+    describe('WHEN submitting the form', () => {
+      it('THEN should show the required error on the credits input, disable the button and not call the mutation', async () => {
+        const user = userEvent.setup()
+        let mutationCalled = false
+
+        render(<CreateWalletTopUp />, {
+          mocks: getDefaultMocks(() => {
+            mutationCalled = true
+          }),
+        })
+
+        await waitFor(() => {
+          expect(getPaidCreditsInput()).toBeInTheDocument()
+        })
+
+        await act(async () => {
+          await user.click(screen.getByTestId(SUBMIT_WALLET_DATA_TEST))
+        })
+
+        await waitFor(() => {
+          expect(getPaidCreditsInput()).toHaveAttribute('aria-invalid', 'true')
+        })
+        expect(screen.getByTestId(SUBMIT_WALLET_DATA_TEST)).toBeDisabled()
+        expect(mutationCalled).toBe(false)
+      })
+
+      it('THEN should clear the error and re-enable the button when an amount is typed', async () => {
+        const user = userEvent.setup()
+
+        render(<CreateWalletTopUp />, { mocks: getDefaultMocks() })
+
+        await waitFor(() => {
+          expect(getPaidCreditsInput()).toBeInTheDocument()
+        })
+
+        await act(async () => {
+          await user.click(screen.getByTestId(SUBMIT_WALLET_DATA_TEST))
+        })
+
+        await waitFor(() => {
+          expect(getPaidCreditsInput()).toHaveAttribute('aria-invalid', 'true')
+        })
+
+        await user.type(getPaidCreditsInput(), '10')
+
+        await waitFor(() => {
+          expect(getPaidCreditsInput()).toHaveAttribute('aria-invalid', 'false')
+        })
+        expect(screen.getByTestId(SUBMIT_WALLET_DATA_TEST)).not.toBeDisabled()
+      })
+    })
+  })
+
+  describe('GIVEN the customer billing settings sections', () => {
+    const customerInfoMockWith = (customerOverride: Record<string, unknown>): MockedResponse => ({
+      request: {
+        query: GetCustomerInfosForWalletFormDocument,
+        variables: { id: 'customer-1' },
+      },
+      result: {
+        data: { customer: { ...mockCustomerData.customer, ...customerOverride } },
+      },
+    })
+
+    const mocksWithCustomer = (customerOverride: Record<string, unknown>): TestMocksType =>
+      [
+        createWalletForTopUpMock(),
+        customerInfoMockWith(customerOverride),
+        createMutationMock(),
+      ] as TestMocksType
+
+    describe('WHEN the customer has both an id and an externalId', () => {
+      it('THEN should render both the invoicing and payment settings selectors', async () => {
+        render(<CreateWalletTopUp />, { mocks: mocksWithCustomer({}) })
+
+        await waitFor(() => {
+          expect(screen.getByTestId(CREATE_WALLET_TOP_UP_FORM_TEST_ID)).toBeInTheDocument()
+        })
+
+        expect(screen.getByTestId(INVOICING_SETTINGS_SELECTOR_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByTestId(PAYMENT_SETTINGS_SELECTOR_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the customer has only an id', () => {
+      it('THEN should render only the invoicing settings selector', async () => {
+        render(<CreateWalletTopUp />, { mocks: mocksWithCustomer({ externalId: null }) })
+
+        await waitFor(() => {
+          expect(screen.getByTestId(CREATE_WALLET_TOP_UP_FORM_TEST_ID)).toBeInTheDocument()
+        })
+
+        expect(screen.getByTestId(INVOICING_SETTINGS_SELECTOR_TEST_ID)).toBeInTheDocument()
+        expect(screen.queryByTestId(PAYMENT_SETTINGS_SELECTOR_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the customer has only an externalId', () => {
+      it('THEN should render only the payment settings selector', async () => {
+        render(<CreateWalletTopUp />, { mocks: mocksWithCustomer({ id: null }) })
+
+        await waitFor(() => {
+          expect(screen.getByTestId(CREATE_WALLET_TOP_UP_FORM_TEST_ID)).toBeInTheDocument()
+        })
+
+        expect(screen.getByTestId(PAYMENT_SETTINGS_SELECTOR_TEST_ID)).toBeInTheDocument()
+        expect(screen.queryByTestId(INVOICING_SETTINGS_SELECTOR_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the metadata accordion', () => {
+    const openMetadataAccordion = async (user: ReturnType<typeof userEvent.setup>) => {
+      await user.click(document.querySelector('.MuiAccordionSummary-root') as HTMLElement)
+
+      await waitFor(() => {
+        expect(document.querySelector('.MuiCollapse-entered')).toBeInTheDocument()
+      })
+    }
+
+    describe('WHEN adding a metadata row', () => {
+      it('THEN should display the key and value inputs', async () => {
+        const user = userEvent.setup()
+
+        render(<CreateWalletTopUp />, { mocks: getDefaultMocks() })
+
+        await waitFor(() => {
+          expect(screen.getByTestId(CREATE_WALLET_TOP_UP_FORM_TEST_ID)).toBeInTheDocument()
+        })
+
+        await openMetadataAccordion(user)
+        await user.click(screen.getByTestId(ADD_METADATA_DATA_TEST))
+
+        await waitFor(() => {
+          expect(document.querySelector('input[name="metadata[0].key"]')).toBeInTheDocument()
+        })
+        expect(document.querySelector('input[name="metadata[0].value"]')).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN removing a metadata row', () => {
+      it('THEN should remove its inputs', async () => {
+        const user = userEvent.setup()
+
+        render(<CreateWalletTopUp />, { mocks: getDefaultMocks() })
+
+        await waitFor(() => {
+          expect(screen.getByTestId(CREATE_WALLET_TOP_UP_FORM_TEST_ID)).toBeInTheDocument()
+        })
+
+        await openMetadataAccordion(user)
+        await user.click(screen.getByTestId(ADD_METADATA_DATA_TEST))
+
+        await waitFor(() => {
+          expect(document.querySelector('input[name="metadata[0].key"]')).toBeInTheDocument()
+        })
+
+        const collapse = document.querySelector('.MuiCollapse-entered') as HTMLElement
+        const trashIcon = collapse.querySelector('svg[data-test="trash/medium"]') as SVGElement
+
+        await user.click(trashIcon.closest('button') as HTMLButtonElement)
+
+        await waitFor(() => {
+          expect(document.querySelector('input[name="metadata[0].key"]')).not.toBeInTheDocument()
         })
       })
     })

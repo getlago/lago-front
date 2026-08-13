@@ -11,6 +11,7 @@ type UseDialogActionsParams = {
   cancelOrCloseText: 'close' | 'cancel'
   closeOnError: boolean
   onError?: (error: Error) => void
+  didSubmitSucceed?: () => boolean
 }
 
 type UseDialogActionsReturn = {
@@ -25,6 +26,7 @@ export const useDialogActions = ({
   cancelOrCloseText,
   closeOnError,
   onError,
+  didSubmitSucceed,
 }: UseDialogActionsParams): UseDialogActionsReturn => {
   const { translate } = useInternationalization()
 
@@ -43,6 +45,10 @@ export const useDialogActions = ({
 
     try {
       const result = await onAction()
+
+      // A failed validation is not an error: the form resolved without submitting, so
+      // keep the dialog open on its inline field errors instead of resolving it.
+      if (didSubmitSucceed && !didSubmitSucceed()) return
 
       const response = result ?? { reason: 'success' }
 

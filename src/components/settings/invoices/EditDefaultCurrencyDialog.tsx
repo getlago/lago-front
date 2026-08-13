@@ -30,9 +30,9 @@ gql`
 
 export const EDIT_DEFAULT_CURRENCY_FORM_ID = 'edit-default-currency-form'
 
-export const EDIT_DEFAULT_CURRENCY_DIALOG_SUBMIT_BUTTON_TEST_ID =
+const EDIT_DEFAULT_CURRENCY_DIALOG_SUBMIT_BUTTON_TEST_ID =
   'edit-default-currency-dialog-submit-button'
-export const EDIT_DEFAULT_CURRENCY_DIALOG_CURRENCY_FIELD_TEST_ID =
+const EDIT_DEFAULT_CURRENCY_DIALOG_CURRENCY_FIELD_TEST_ID =
   'edit-default-currency-dialog-currency-field'
 
 const editDefaultCurrencyValidationSchema = z.object({

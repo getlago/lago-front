@@ -7,13 +7,10 @@ import { renderIntegrationPage } from './integrationTestHelpers'
 import AnrokIntegrationDetails from '../AnrokIntegrationDetails'
 
 jest.mock('~/components/settings/integrations/AddAnrokDialog', () => ({
-  AddAnrokDialog: () => null,
+  useAddAnrokDialog: () => ({ openAddAnrokDialog: jest.fn() }),
 }))
 jest.mock('~/components/settings/integrations/DeleteAnrokIntegrationDialog', () => ({
-  DeleteAnrokIntegrationDialog: () => null,
-}))
-jest.mock('~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog', () => ({
-  AddEditDeleteSuccessRedirectUrlDialog: () => null,
+  useDeleteAnrokIntegrationDialog: () => ({ openDeleteAnrokIntegrationDialog: jest.fn() }),
 }))
 jest.mock('~/components/settings/integrations/AnrokIntegrationSettings', () => ({
   __esModule: true,

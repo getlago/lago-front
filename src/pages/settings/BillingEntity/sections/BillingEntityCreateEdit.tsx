@@ -1,11 +1,11 @@
 import { useFormik } from 'formik'
-import { useEffect, useRef } from 'react'
+import { useCallback, useEffect } from 'react'
 import { object, string } from 'yup'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { ComboBoxField, SwitchField, TextInput, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { LogoPicker } from '~/components/LogoPicker'
@@ -26,7 +26,17 @@ const BillingEntityCreateEdit = () => {
   const { isEdition, errorCode, loading, onClose, onSave, billingEntity } =
     useCreateEditBillingEntity()
 
-  const warningDirtyAttributesDialogRef = useRef<WarningDialogRef>(null)
+  const centralizedDialog = useCentralizedDialog()
+
+  const openDirtyAttributesWarning = useCallback(() => {
+    centralizedDialog.open({
+      title: translate('text_6244277fe0975300fe3fb940'),
+      description: translate('text_6244277fe0975300fe3fb946'),
+      actionText: translate('text_6244277fe0975300fe3fb94c'),
+      colorVariant: 'danger',
+      onAction: () => onClose(),
+    })
+  }, [centralizedDialog, onClose, translate])
 
   useEffect(() => {
     if (errorCode === FORM_ERRORS_ENUM.existingCode) {
@@ -93,226 +103,212 @@ const BillingEntityCreateEdit = () => {
     MANDATORY_EINVOICING_COUNTRIES.includes(formikProps.values.country)
 
   return (
-    <>
-      <CenteredPage.Wrapper>
-        <CenteredPage.Header>
-          <Typography variant="bodyHl" color="textSecondary" noWrap>
-            {isEdition && translate('text_1743077296189h6w5gkxmgwz')}
-            {!isEdition && translate('text_17423672666602uggxpe1r0v')}
-          </Typography>
+    <CenteredPage.Wrapper>
+      <CenteredPage.Header>
+        <Typography variant="bodyHl" color="textSecondary" noWrap>
+          {isEdition && translate('text_1743077296189h6w5gkxmgwz')}
+          {!isEdition && translate('text_17423672666602uggxpe1r0v')}
+        </Typography>
 
-          <Button
-            variant="quaternary"
-            icon="close"
-            onClick={() =>
-              formikProps.dirty ? warningDirtyAttributesDialogRef.current?.openDialog() : onClose()
-            }
-          />
-        </CenteredPage.Header>
+        <Button
+          variant="quaternary"
+          icon="close"
+          onClick={() => (formikProps.dirty ? openDirtyAttributesWarning() : onClose())}
+        />
+      </CenteredPage.Header>
 
-        <CenteredPage.Container>
-          {loading && <FormLoadingSkeleton id="create-billing-entity" />}
+      <CenteredPage.Container>
+        {loading && <FormLoadingSkeleton id="create-billing-entity" />}
 
-          {!loading && (
-            <>
-              <div className="not-last-child:mb-1">
-                <Typography variant="headline" color="textSecondary">
-                  {translate('text_1743077296189ms0shds6g53')}
-                </Typography>
-                <Typography variant="body">{translate('text_1743077296189ji809eyi90y')}</Typography>
-              </div>
+        {!loading && (
+          <>
+            <div className="not-last-child:mb-1">
+              <Typography variant="headline" color="textSecondary">
+                {translate('text_1743077296189ms0shds6g53')}
+              </Typography>
+              <Typography variant="body">{translate('text_1743077296189ji809eyi90y')}</Typography>
+            </div>
 
-              <div className="flex flex-col gap-12 not-last-child:pb-12 not-last-child:shadow-b">
-                <section className="not-last-child:mb-6">
-                  <div className="not-last-child:mb-2">
-                    <Typography variant="subhead1">
-                      {translate('text_1743077296189sv3omf8cjep')}
-                    </Typography>
-                    <Typography variant="caption">
-                      {translate('text_1743077296189q2ukwvbtf5y')}
-                    </Typography>
-                  </div>
-                  <div className="flex items-start gap-6 *:flex-1">
-                    <TextInput
-                      // eslint-disable-next-line jsx-a11y/no-autofocus
-                      autoFocus
-                      name="name"
-                      value={formikProps.values.name || ''}
-                      onChange={(name) => {
-                        updateNameAndMaybeCode({ name, formikProps })
-                      }}
-                      label={translate('text_6419c64eace749372fc72b0f')}
-                      placeholder={translate('text_6584550dc4cec7adf861504f')}
-                    />
+            <div className="flex flex-col gap-12 not-last-child:pb-12 not-last-child:shadow-b">
+              <section className="not-last-child:mb-6">
+                <div className="not-last-child:mb-2">
+                  <Typography variant="subhead1">
+                    {translate('text_1743077296189sv3omf8cjep')}
+                  </Typography>
+                  <Typography variant="caption">
+                    {translate('text_1743077296189q2ukwvbtf5y')}
+                  </Typography>
+                </div>
+                <div className="flex items-start gap-6 *:flex-1">
+                  <TextInput
+                    // eslint-disable-next-line jsx-a11y/no-autofocus
+                    autoFocus
+                    name="name"
+                    value={formikProps.values.name || ''}
+                    onChange={(name) => {
+                      updateNameAndMaybeCode({ name, formikProps })
+                    }}
+                    label={translate('text_6419c64eace749372fc72b0f')}
+                    placeholder={translate('text_6584550dc4cec7adf861504f')}
+                  />
 
+                  <TextInputField
+                    name="code"
+                    disabled={!!isEdition}
+                    beforeChangeFormatter="code"
+                    formikProps={formikProps}
+                    label={translate('text_62876e85e32e0300e1803127')}
+                    placeholder={translate('text_6584550dc4cec7adf8615053')}
+                  />
+                </div>
+              </section>
+
+              <section className="not-last-child:mb-6">
+                <div className="not-last-child:mb-2">
+                  <Typography variant="subhead1">
+                    {translate('text_17430772961890sgj8ku8lmp')}
+                  </Typography>
+                  <Typography variant="caption">
+                    {translate('text_1743077296189mme3pwm3xxu')}
+                  </Typography>
+                </div>
+
+                <div className="mb-8 flex flex-col gap-6">
+                  <LogoPicker
+                    logoValue={formikProps.values.logo}
+                    onChange={(value) => formikProps.setFieldValue('logo', value)}
+                    logoUrl={billingEntity?.logoUrl}
+                    name={billingEntity?.name}
+                  />
+
+                  <TextInputField
+                    name="legalName"
+                    label={translate('text_62ab2d0396dd6b0361614d40')}
+                    placeholder={translate('text_62ab2d0396dd6b0361614d48')}
+                    formikProps={formikProps}
+                  />
+
+                  <TextInputField
+                    name="legalNumber"
+                    label={translate('text_62ab2d0396dd6b0361614d50')}
+                    placeholder={translate('text_62ab2d0396dd6b0361614d58')}
+                    formikProps={formikProps}
+                  />
+
+                  <TextInputField
+                    name="taxIdentificationNumber"
+                    label={translate('text_648053ee819b60364c675d05')}
+                    placeholder={translate('text_648053ee819b60364c675d0b')}
+                    formikProps={formikProps}
+                  />
+
+                  <TextInputField
+                    name="email"
+                    beforeChangeFormatter={['lowercase']}
+                    label={translate('text_62ab2d0396dd6b0361614d60')}
+                    placeholder={translate('text_62ab2d0396dd6b0361614d68')}
+                    formikProps={formikProps}
+                  />
+
+                  <TextInputField
+                    name="phone"
+                    label={translate('text_626c0c09812bbc00e4c59e0d')}
+                    placeholder={translate('text_626c0c09812bbc00e4c59e0f')}
+                    formikProps={formikProps}
+                  />
+
+                  <div className="flex flex-col gap-4">
                     <TextInputField
-                      name="code"
-                      disabled={!!isEdition}
-                      beforeChangeFormatter="code"
+                      name="addressLine1"
+                      label={translate('text_62ab2d0396dd6b0361614d70')}
+                      placeholder={translate('text_62ab2d0396dd6b0361614d78')}
                       formikProps={formikProps}
-                      label={translate('text_62876e85e32e0300e1803127')}
-                      placeholder={translate('text_6584550dc4cec7adf8615053')}
+                    />
+                    <TextInputField
+                      name="addressLine2"
+                      placeholder={translate('text_62ab2d0396dd6b0361614d80')}
+                      formikProps={formikProps}
+                    />
+                    <TextInputField
+                      name="zipcode"
+                      placeholder={translate('text_62ab2d0396dd6b0361614d88')}
+                      formikProps={formikProps}
+                    />
+                    <TextInputField
+                      name="city"
+                      placeholder={translate('text_62ab2d0396dd6b0361614d90')}
+                      formikProps={formikProps}
+                    />
+                    <TextInputField
+                      name="state"
+                      placeholder={translate('text_62ab2d0396dd6b0361614d98')}
+                      formikProps={formikProps}
+                    />
+                    <ComboBoxField
+                      data={countryDataForCombobox}
+                      name="country"
+                      placeholder={translate('text_62ab2d0396dd6b0361614da0')}
+                      formikProps={formikProps}
+                      PopperProps={{ displayInDialog: true }}
                     />
                   </div>
-                </section>
+                </div>
+              </section>
 
-                <section className="not-last-child:mb-6">
-                  <div className="not-last-child:mb-2">
-                    <Typography variant="subhead1">
-                      {translate('text_17430772961890sgj8ku8lmp')}
-                    </Typography>
-                    <Typography variant="caption">
-                      {translate('text_1743077296189mme3pwm3xxu')}
-                    </Typography>
-                  </div>
-
-                  <div className="mb-8 flex flex-col gap-6">
-                    <LogoPicker
-                      logoValue={formikProps.values.logo}
-                      onChange={(value) => formikProps.setFieldValue('logo', value)}
-                      logoUrl={billingEntity?.logoUrl}
-                      name={billingEntity?.name}
-                    />
-
-                    <TextInputField
-                      name="legalName"
-                      label={translate('text_62ab2d0396dd6b0361614d40')}
-                      placeholder={translate('text_62ab2d0396dd6b0361614d48')}
+              <section className="not-last-child:mb-6">
+                <div className="not-last-child:mb-2">
+                  <Typography variant="subhead1">
+                    {translate('text_1760101157939jviogsjfcsn')}
+                  </Typography>
+                  <Typography variant="caption">
+                    {translate('text_1760101157939mnmlyzbp7ao')}
+                  </Typography>
+                </div>
+                <div className="mb-8 flex flex-col gap-6">
+                  {!canDisplayEinvoicingField ? (
+                    <Alert type="warning">
+                      <Typography
+                        className="word-break-word"
+                        color="textSecondary"
+                        html={translate('text_176010285376748i8jr0rwn2', {
+                          href: DOCUMENTATION_EINVOICING,
+                        })}
+                      />
+                    </Alert>
+                  ) : (
+                    <SwitchField
                       formikProps={formikProps}
+                      name="einvoicing"
+                      label={translate('text_1760103938878g88itu3cdah')}
+                      subLabel={translate('text_1760103938878069h2vcfis3')}
                     />
+                  )}
+                </div>
+              </section>
+            </div>
+          </>
+        )}
+      </CenteredPage.Container>
 
-                    <TextInputField
-                      name="legalNumber"
-                      label={translate('text_62ab2d0396dd6b0361614d50')}
-                      placeholder={translate('text_62ab2d0396dd6b0361614d58')}
-                      formikProps={formikProps}
-                    />
+      <CenteredPage.StickyFooter>
+        <Button
+          variant="quaternary"
+          onClick={() => (formikProps.dirty ? openDirtyAttributesWarning() : onClose())}
+        >
+          {translate('text_6411e6b530cb47007488b027')}
+        </Button>
 
-                    <TextInputField
-                      name="taxIdentificationNumber"
-                      label={translate('text_648053ee819b60364c675d05')}
-                      placeholder={translate('text_648053ee819b60364c675d0b')}
-                      formikProps={formikProps}
-                    />
+        <Button
+          variant="primary"
+          disabled={!formikProps.isValid || !formikProps.dirty}
+          onClick={formikProps.submitForm}
+        >
+          {isEdition && translate('text_17432414198706rdwf76ek3u')}
 
-                    <TextInputField
-                      name="email"
-                      beforeChangeFormatter={['lowercase']}
-                      label={translate('text_62ab2d0396dd6b0361614d60')}
-                      placeholder={translate('text_62ab2d0396dd6b0361614d68')}
-                      formikProps={formikProps}
-                    />
-
-                    <TextInputField
-                      name="phone"
-                      label={translate('text_626c0c09812bbc00e4c59e0d')}
-                      placeholder={translate('text_626c0c09812bbc00e4c59e0f')}
-                      formikProps={formikProps}
-                    />
-
-                    <div className="flex flex-col gap-4">
-                      <TextInputField
-                        name="addressLine1"
-                        label={translate('text_62ab2d0396dd6b0361614d70')}
-                        placeholder={translate('text_62ab2d0396dd6b0361614d78')}
-                        formikProps={formikProps}
-                      />
-                      <TextInputField
-                        name="addressLine2"
-                        placeholder={translate('text_62ab2d0396dd6b0361614d80')}
-                        formikProps={formikProps}
-                      />
-                      <TextInputField
-                        name="zipcode"
-                        placeholder={translate('text_62ab2d0396dd6b0361614d88')}
-                        formikProps={formikProps}
-                      />
-                      <TextInputField
-                        name="city"
-                        placeholder={translate('text_62ab2d0396dd6b0361614d90')}
-                        formikProps={formikProps}
-                      />
-                      <TextInputField
-                        name="state"
-                        placeholder={translate('text_62ab2d0396dd6b0361614d98')}
-                        formikProps={formikProps}
-                      />
-                      <ComboBoxField
-                        data={countryDataForCombobox}
-                        name="country"
-                        placeholder={translate('text_62ab2d0396dd6b0361614da0')}
-                        formikProps={formikProps}
-                        PopperProps={{ displayInDialog: true }}
-                      />
-                    </div>
-                  </div>
-                </section>
-
-                <section className="not-last-child:mb-6">
-                  <div className="not-last-child:mb-2">
-                    <Typography variant="subhead1">
-                      {translate('text_1760101157939jviogsjfcsn')}
-                    </Typography>
-                    <Typography variant="caption">
-                      {translate('text_1760101157939mnmlyzbp7ao')}
-                    </Typography>
-                  </div>
-                  <div className="mb-8 flex flex-col gap-6">
-                    {!canDisplayEinvoicingField ? (
-                      <Alert type="warning">
-                        <Typography
-                          className="word-break-word"
-                          color="textSecondary"
-                          html={translate('text_176010285376748i8jr0rwn2', {
-                            href: DOCUMENTATION_EINVOICING,
-                          })}
-                        />
-                      </Alert>
-                    ) : (
-                      <SwitchField
-                        formikProps={formikProps}
-                        name="einvoicing"
-                        label={translate('text_1760103938878g88itu3cdah')}
-                        subLabel={translate('text_1760103938878069h2vcfis3')}
-                      />
-                    )}
-                  </div>
-                </section>
-              </div>
-            </>
-          )}
-        </CenteredPage.Container>
-
-        <CenteredPage.StickyFooter>
-          <Button
-            variant="quaternary"
-            onClick={() =>
-              formikProps.dirty ? warningDirtyAttributesDialogRef.current?.openDialog() : onClose()
-            }
-          >
-            {translate('text_6411e6b530cb47007488b027')}
-          </Button>
-
-          <Button
-            variant="primary"
-            disabled={!formikProps.isValid || !formikProps.dirty}
-            onClick={formikProps.submitForm}
-          >
-            {isEdition && translate('text_17432414198706rdwf76ek3u')}
-
-            {!isEdition && translate('text_174324141987010zhlfvyidj')}
-          </Button>
-        </CenteredPage.StickyFooter>
-      </CenteredPage.Wrapper>
-
-      <WarningDialog
-        ref={warningDirtyAttributesDialogRef}
-        title={translate('text_6244277fe0975300fe3fb940')}
-        description={translate('text_6244277fe0975300fe3fb946')}
-        continueText={translate('text_6244277fe0975300fe3fb94c')}
-        onContinue={() => onClose()}
-      />
-    </>
+          {!isEdition && translate('text_174324141987010zhlfvyidj')}
+        </Button>
+      </CenteredPage.StickyFooter>
+    </CenteredPage.Wrapper>
   )
 }
 

@@ -1,13 +1,13 @@
-import { gql } from '@apollo/client'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
+import { gql, useApolloClient } from '@apollo/client'
 
-import { Button } from '~/components/designSystem/Button'
-import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
 import { Typography } from '~/components/designSystem/Typography'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
+import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import { intlFormatDateTime } from '~/core/timezone/utils'
 import {
   ApiKeyForDeleteApiKeyDialogFragment,
+  GetApiKeysDocument,
   TimezoneEnum,
   useDestroyApiKeyMutation,
 } from '~/generated/graphql'
@@ -30,80 +30,58 @@ type DeleteApiKeyDialogProps = {
   apiKey: ApiKeyForDeleteApiKeyDialogFragment
 }
 
-export interface DeleteApiKeyDialogRef {
-  openDialog: (data: DeleteApiKeyDialogProps) => unknown
-  closeDialog: () => unknown
-}
-
-export const DeleteApiKeyDialog = forwardRef<DeleteApiKeyDialogRef>((_, ref) => {
+export const useDeleteApiKeyDialog = () => {
+  const centralizedDialog = useCentralizedDialog()
   const { translate } = useInternationalization()
-  const dialogRef = useRef<DialogRef>(null)
-  const [localData, setLocalData] = useState<DeleteApiKeyDialogProps | undefined>(undefined)
-  const apiKey = localData?.apiKey
+  const client = useApolloClient()
 
-  const [destroyApiKey] = useDestroyApiKeyMutation({
-    onCompleted(data) {
-      if (!!data?.destroyApiKey?.id) {
-        addToast({
-          message: translate('text_17325256621362d6ocmq1lhw'),
-          severity: 'success',
-        })
-        dialogRef.current?.closeDialog()
-      }
-    },
-    refetchQueries: ['getApiKeys'],
-  })
+  const [destroyApiKey] = useDestroyApiKeyMutation()
 
-  useImperativeHandle(ref, () => ({
-    openDialog: (data) => {
-      setLocalData(data)
-      dialogRef.current?.openDialog()
-    },
-    closeDialog: () => {
-      dialogRef.current?.closeDialog()
-    },
-  }))
-
-  return (
-    <Dialog
-      ref={dialogRef}
-      title={translate('text_1732182455718y0m5fijuray')}
-      description={translate('text_1732182455718jvfke15s5qj')}
-      actions={({ closeDialog }) => (
-        <>
-          <Button variant="quaternary" onClick={closeDialog}>
-            {translate('text_64352657267c3d916f962769')}
-          </Button>
-          <Button
-            danger
-            variant="primary"
-            onClick={async () => {
-              await destroyApiKey({
-                variables: { input: { id: apiKey?.id as string } },
-              })
-            }}
-          >
-            {translate('text_1732182455718y0m5fijuray')}
-          </Button>
-        </>
-      )}
-    >
-      <div className="mb-8 flex flex-col gap-8">
-        <div className="flex w-full items-center">
-          <Typography className="w-35" variant="caption" color="grey600">
-            {translate('text_1731515447290xbe4iqm5n6r')}
-          </Typography>
-          <Typography className="flex-1" variant="body" color="grey700">
-            {!!apiKey?.lastUsedAt
-              ? intlFormatDateTime(apiKey?.lastUsedAt, {
-                  timezone: TimezoneEnum.TzUtc,
-                }).date
-              : '-'}
-          </Typography>
+  const openDeleteApiKeyDialog = ({ apiKey }: DeleteApiKeyDialogProps) => {
+    centralizedDialog.open({
+      title: translate('text_1732182455718y0m5fijuray'),
+      description: translate('text_1732182455718jvfke15s5qj'),
+      colorVariant: 'danger',
+      actionText: translate('text_1732182455718y0m5fijuray'),
+      children: (
+        <div className="flex flex-col gap-8 p-8">
+          <div className="flex w-full items-center">
+            <Typography className="w-35" variant="caption" color="grey600">
+              {translate('text_1731515447290xbe4iqm5n6r')}
+            </Typography>
+            <Typography className="flex-1" variant="body" color="grey700">
+              {!!apiKey?.lastUsedAt
+                ? intlFormatDateTime(apiKey?.lastUsedAt, {
+                    timezone: TimezoneEnum.TzUtc,
+                  }).date
+                : '-'}
+            </Typography>
+          </div>
         </div>
-      </div>
-    </Dialog>
-  )
-})
+      ),
+      onAction: async () => {
+        const result = await destroyApiKey({
+          variables: { input: { id: apiKey?.id as string } },
+        })
 
-DeleteApiKeyDialog.displayName = 'DeleteApiKeyDialog'
+        const destroyedId = result.data?.destroyApiKey?.id
+
+        if (destroyedId) {
+          evictFromCache(client, {
+            id: destroyedId,
+            __typename: 'SanitizedApiKey',
+            listFieldName: 'apiKeys',
+            listQueryDocument: GetApiKeysDocument,
+          })
+
+          addToast({
+            message: translate('text_17325256621362d6ocmq1lhw'),
+            severity: 'success',
+          })
+        }
+      },
+    })
+  }
+
+  return { openDeleteApiKeyDialog }
+}

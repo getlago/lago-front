@@ -4,11 +4,7 @@ import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import { UsageBreakdownType } from '~/components/analytics/usage/types'
-import {
-  AvailableFiltersEnum,
-  formatFiltersForQuery,
-  getFilterValue,
-} from '~/components/designSystem/Filters'
+import { AvailableFiltersEnum, formatFiltersForQuery, getFilterValue } from '~/components/Filters'
 import { bigNumberShortenNotation, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { getTimezoneConfig } from '~/core/timezone'

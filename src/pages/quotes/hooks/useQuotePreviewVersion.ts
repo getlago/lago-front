@@ -7,6 +7,7 @@ gql`
     quote(id: $id) {
       id
       number
+      images
       orderType
       customer {
         id

@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
-import { useMemo, useRef } from 'react'
+import { useMemo } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { Alert } from '~/components/designSystem/Alert'
@@ -11,15 +11,12 @@ import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import {
-  AddEditDeleteSuccessRedirectUrlDialog,
-  AddEditDeleteSuccessRedirectUrlDialogRef,
-} from '~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog'
-import {
-  AddFlutterwaveDialog,
-  AddFlutterwaveDialogRef,
-} from '~/components/settings/integrations/AddFlutterwaveDialog'
+import { useAddFlutterwaveDialog } from '~/components/settings/integrations/AddFlutterwaveDialog'
 import { useDeleteFlutterwaveIntegrationDialog } from '~/components/settings/integrations/DeleteFlutterwaveIntegrationDialog'
+import {
+  useAddEditSuccessRedirectUrlDialog,
+  useDeleteSuccessRedirectUrlDialog,
+} from '~/components/settings/integrations/SuccessRedirectUrlDialogs'
 import { addToast, envGlobalVar } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { FLUTTERWAVE_INTEGRATION_ROUTE, INTEGRATIONS_ROUTE, useNavigate } from '~/core/router'
@@ -69,9 +66,10 @@ const FlutterwaveIntegrationDetails = () => {
   const navigate = useNavigate()
   const { integrationId } = useParams()
   const { hasPermissions } = usePermissions()
-  const addDialogRef = useRef<AddFlutterwaveDialogRef>(null)
+  const { openAddFlutterwaveDialog } = useAddFlutterwaveDialog()
   const { openDeleteFlutterwaveIntegrationDialog } = useDeleteFlutterwaveIntegrationDialog()
-  const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
+  const { openAddEditSuccessRedirectUrlDialog } = useAddEditSuccessRedirectUrlDialog()
+  const { openDeleteSuccessRedirectUrlDialog } = useDeleteSuccessRedirectUrlDialog()
   const { apiUrl } = envGlobalVar()
   // CRITICAL: this organizationId is baked into a webhook URL the user copies
   // into the third-party provider's dashboard. If we read it from
@@ -132,7 +130,7 @@ const FlutterwaveIntegrationDetails = () => {
             }),
           },
           {
-            label: translate('text_67db6a10cb0b8031ca538909'),
+            label: translate('text_1749724395108m0swrna0zt4'),
             path: generatePath(FLUTTERWAVE_INTEGRATION_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Community,
             }),
@@ -156,13 +154,9 @@ const FlutterwaveIntegrationDetails = () => {
                   label: translate('text_65845f35d7d69c3ab4793dac'),
                   hidden: !canEditIntegration,
                   onClick: (closePopper) => {
-                    addDialogRef.current?.openDialog({
+                    openAddFlutterwaveDialog({
                       provider: flutterwavePaymentProvider,
-                      onDelete: (provider) =>
-                        openDeleteFlutterwaveIntegrationDialog({
-                          provider,
-                          callback: deleteDialogCallback,
-                        }),
+                      deleteCallback: deleteDialogCallback,
                     })
                     closePopper()
                   },
@@ -199,13 +193,9 @@ const FlutterwaveIntegrationDetails = () => {
                 variant="quaternary"
                 align="left"
                 onClick={() => {
-                  addDialogRef.current?.openDialog({
+                  openAddFlutterwaveDialog({
                     provider: flutterwavePaymentProvider,
-                    onDelete: (provider) =>
-                      openDeleteFlutterwaveIntegrationDialog({
-                        provider,
-                        callback: deleteDialogCallback,
-                      }),
+                    deleteCallback: deleteDialogCallback,
                   })
                 }}
               >
@@ -298,7 +288,7 @@ const FlutterwaveIntegrationDetails = () => {
                 variant="quaternary"
                 disabled={!!flutterwavePaymentProvider?.successRedirectUrl}
                 onClick={() => {
-                  successRedirectUrlDialogRef.current?.openDialog({
+                  openAddEditSuccessRedirectUrlDialog({
                     mode: 'Add',
                     type: 'Flutterwave',
                     provider: flutterwavePaymentProvider,
@@ -349,7 +339,7 @@ const FlutterwaveIntegrationDetails = () => {
                           fullWidth
                           align="left"
                           onClick={() => {
-                            successRedirectUrlDialogRef.current?.openDialog({
+                            openAddEditSuccessRedirectUrlDialog({
                               mode: 'Edit',
                               type: 'Flutterwave',
                               provider: flutterwavePaymentProvider,
@@ -368,8 +358,7 @@ const FlutterwaveIntegrationDetails = () => {
                           align="left"
                           fullWidth
                           onClick={() => {
-                            successRedirectUrlDialogRef.current?.openDialog({
-                              mode: 'Delete',
+                            openDeleteSuccessRedirectUrlDialog({
                               type: 'Flutterwave',
                               provider: flutterwavePaymentProvider,
                             })
@@ -387,9 +376,6 @@ const FlutterwaveIntegrationDetails = () => {
           )}
         </section>
       </div>
-
-      <AddFlutterwaveDialog ref={addDialogRef} />
-      <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </div>
   )
 }

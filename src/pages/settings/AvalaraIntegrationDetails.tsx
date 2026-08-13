@@ -1,23 +1,12 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
-import {
-  AddAvalaraDialog,
-  AddAvalaraDialogRef,
-} from '~/components/settings/integrations/AddAvalaraDialog'
-import {
-  AddEditDeleteSuccessRedirectUrlDialog,
-  AddEditDeleteSuccessRedirectUrlDialogRef,
-} from '~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog'
+import { useAddAvalaraDialog } from '~/components/settings/integrations/AddAvalaraDialog'
 import AvalaraIntegrationItemsList from '~/components/settings/integrations/AvalaraIntegrationItemsList'
 import AvalaraIntegrationSettings from '~/components/settings/integrations/AvalaraIntegrationSettings'
-import {
-  DeleteAvalaraIntegrationDialog,
-  DeleteAvalaraIntegrationDialogRef,
-} from '~/components/settings/integrations/DeleteAvalaraIntegrationDialog'
+import { useDeleteAvalaraIntegrationDialog } from '~/components/settings/integrations/DeleteAvalaraIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   AVALARA_INTEGRATION_DETAILS_ROUTE,
@@ -78,9 +67,8 @@ gql`
 const AvalaraIntegrationDetails = () => {
   const navigate = useNavigate()
   const { integrationId = '' } = useParams()
-  const addAvalaraDialogRef = useRef<AddAvalaraDialogRef>(null)
-  const deleteDialogRef = useRef<DeleteAvalaraIntegrationDialogRef>(null)
-  const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
+  const { openAddAvalaraDialog } = useAddAvalaraDialog()
+  const { openDeleteAvalaraIntegrationDialog } = useDeleteAvalaraIntegrationDialog()
   const { translate } = useInternationalization()
   const { data, loading } = useGetAvalaraIntegrationsDetailsQuery({
     variables: {
@@ -117,7 +105,7 @@ const AvalaraIntegrationDetails = () => {
             }),
           },
           {
-            label: translate('text_67db6a10cb0b8031ca538909'),
+            label: translate('text_1744293609277s53zn6jcoq4'),
             path: generatePath(AVALARA_INTEGRATION_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
             }),
@@ -140,9 +128,8 @@ const AvalaraIntegrationDetails = () => {
                 {
                   label: translate('text_65845f35d7d69c3ab4793dac'),
                   onClick: (closePopper) => {
-                    addAvalaraDialogRef.current?.openDialog({
+                    openAddAvalaraDialog({
                       integration: avalaraIntegration,
-                      deleteModalRef: deleteDialogRef,
                       deleteDialogCallback,
                     })
                     closePopper()
@@ -151,7 +138,7 @@ const AvalaraIntegrationDetails = () => {
                 {
                   label: translate('text_65845f35d7d69c3ab4793dad'),
                   onClick: (closePopper) => {
-                    deleteDialogRef.current?.openDialog({
+                    openDeleteAvalaraIntegrationDialog({
                       provider: avalaraIntegration,
                       callback: deleteDialogCallback,
                     })
@@ -185,9 +172,6 @@ const AvalaraIntegrationDetails = () => {
         ]}
       />
       <>{activeTabContent}</>
-      <AddAvalaraDialog ref={addAvalaraDialogRef} />
-      <DeleteAvalaraIntegrationDialog ref={deleteDialogRef} />
-      <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )
 }

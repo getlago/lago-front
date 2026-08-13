@@ -1,11 +1,11 @@
 import { gql } from '@apollo/client'
-import { useFormik } from 'formik'
-import { forwardRef } from 'react'
-import { mixed, object, string } from 'yup'
+import { revalidateLogic, useStore } from '@tanstack/react-form'
+import { useEffect, useRef } from 'react'
+import { z } from 'zod'
 
-import { Button } from '~/components/designSystem/Button'
-import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
-import { ComboBoxField, RadioField } from '~/components/form'
+import { useFormDialog } from '~/components/dialogs/FormDialog'
+import { DialogResult } from '~/components/dialogs/types'
+import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { addToast } from '~/core/apolloClient'
 import {
   EditCustomerDunningCampaignFragment,
@@ -14,6 +14,7 @@ import {
   useGetApplicableDunningCampaignsLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useAppForm, withForm } from '~/hooks/forms/useAppform'
 
 gql`
   fragment EditCustomerDunningCampaign on Customer {
@@ -59,26 +60,119 @@ export const getInitialBehavior = (customer: EditCustomerDunningCampaignFragment
   return BehaviorType.FALLBACK
 }
 
-export type EditCustomerDunningCampaignDialogRef = DialogRef
+const EDIT_CUSTOMER_DUNNING_CAMPAIGN_FORM_ID = 'edit-customer-dunning-campaign-form'
 
-interface EditCustomerDunningCampaignDialogProps {
-  customer: EditCustomerDunningCampaignFragment
+const validationSchema = z
+  .object({
+    behavior: z.enum(BehaviorType),
+    appliedDunningCampaignId: z.string(),
+  })
+  .refine(
+    (data) =>
+      data.behavior !== BehaviorType.NEW_CAMPAIGN || data.appliedDunningCampaignId.length > 0,
+    { path: ['appliedDunningCampaignId'], message: '' },
+  )
+
+type FormValues = {
+  behavior: BehaviorType
+  appliedDunningCampaignId: string
 }
 
-export const EditCustomerDunningCampaignDialog = forwardRef<
-  DialogRef,
-  EditCustomerDunningCampaignDialogProps
->(({ customer }: EditCustomerDunningCampaignDialogProps, ref) => {
+const initialValues: FormValues = {
+  behavior: BehaviorType.FALLBACK,
+  appliedDunningCampaignId: '',
+}
+
+type DialogContentProps = {
+  customer: EditCustomerDunningCampaignFragment | null
+}
+
+const defaultDialogContentProps: DialogContentProps = {
+  customer: null,
+}
+
+const DialogContent = withForm({
+  defaultValues: initialValues,
+  props: defaultDialogContentProps,
+  render: function Render({ form, customer }) {
+    const { translate } = useInternationalization()
+    const [getDunningCampaigns, { data, loading }] = useGetApplicableDunningCampaignsLazyQuery({
+      variables: {
+        currency: customer?.currency,
+      },
+    })
+
+    useEffect(() => {
+      getDunningCampaigns()
+    }, [getDunningCampaigns])
+
+    const behavior = useStore(form.store, (state) => state.values.behavior)
+
+    return (
+      <div className="p-6 not-last-child:mb-4">
+        <form.AppField name="behavior">
+          {(field) => (
+            <field.RadioField
+              value={BehaviorType.FALLBACK}
+              label={translate('text_1729543665907g5bbnbl8yvr')}
+              labelVariant="body"
+            />
+          )}
+        </form.AppField>
+        <form.AppField name="behavior">
+          {(field) => (
+            <field.RadioField
+              value={BehaviorType.NEW_CAMPAIGN}
+              label={translate('text_17295436659071kau9ol0axk')}
+              labelVariant="body"
+            />
+          )}
+        </form.AppField>
+        {behavior === BehaviorType.NEW_CAMPAIGN && (
+          <form.AppField name="appliedDunningCampaignId">
+            {(field) => (
+              <field.ComboBoxField
+                loading={loading}
+                data={
+                  data?.dunningCampaigns.collection.map((campaign) => ({
+                    label: campaign.name,
+                    description: campaign.code,
+                    value: campaign.id,
+                  })) ?? []
+                }
+                placeholder={translate('text_1729543690326d4dmmcw7n89')}
+                PopperProps={{ displayInDialog: true }}
+                emptyText={translate('text_1731078338811aok1u8oopxl')}
+              />
+            )}
+          </form.AppField>
+        )}
+        <form.AppField name="behavior">
+          {(field) => (
+            <field.RadioField
+              value={BehaviorType.DEACTIVATE}
+              label={translate('text_1729543690326ndlmz7bdmy1')}
+              sublabel={translate('text_17295436903267b0kiid8h8r')}
+              labelVariant="body"
+            />
+          )}
+        </form.AppField>
+      </div>
+    )
+  },
+})
+
+export const useEditCustomerDunningCampaignDialog = () => {
+  const formDialog = useFormDialog()
   const { translate } = useInternationalization()
-  const [getDunningCampaigns, { data, loading }] = useGetApplicableDunningCampaignsLazyQuery({
-    variables: {
-      currency: customer.currency,
-    },
-  })
+  const customerRef = useRef<EditCustomerDunningCampaignFragment | null>(null)
+  const successRef = useRef(false)
 
   const [editCustomerDunningCampaignBehavior] = useEditCustomerDunningCampaignMutation({
     refetchQueries: ['getCustomerSettings'],
-    onCompleted: () => {
+    onCompleted: (res) => {
+      if (!res.updateCustomer) return
+      successRef.current = true
       addToast({
         severity: 'success',
         message: translate('text_17295437652543pf2j5lqe67'),
@@ -86,28 +180,21 @@ export const EditCustomerDunningCampaignDialog = forwardRef<
     },
   })
 
-  const formikProps = useFormik<{
-    behavior: BehaviorType | ''
-    appliedDunningCampaignId: string
-  }>({
-    initialValues: {
-      behavior: getInitialBehavior(customer),
-      appliedDunningCampaignId: customer.appliedDunningCampaign?.id ?? '',
-    },
-    validationSchema: object().shape({
-      behavior: mixed().oneOf(Object.values(BehaviorType)).required(''),
-      appliedDunningCampaignId: string().when('behavior', {
-        is: (val: BehaviorType) => val === BehaviorType.NEW_CAMPAIGN,
-        then: (schema) => schema.required(''),
-      }),
-    }),
-    onSubmit: async (values) => {
+  const form = useAppForm({
+    defaultValues: initialValues,
+    validationLogic: revalidateLogic(),
+    validators: { onDynamic: validationSchema },
+    onSubmit: async ({ value }) => {
+      const customer = customerRef.current
+
+      if (!customer) return
+
       let formattedValues: UpdateCustomerInput = {
         id: customer.id,
         externalId: customer.externalId,
       }
 
-      switch (values.behavior) {
+      switch (value.behavior) {
         case BehaviorType.FALLBACK:
           formattedValues = {
             ...formattedValues,
@@ -118,7 +205,7 @@ export const EditCustomerDunningCampaignDialog = forwardRef<
         case BehaviorType.NEW_CAMPAIGN:
           formattedValues = {
             ...formattedValues,
-            appliedDunningCampaignId: values.appliedDunningCampaignId,
+            appliedDunningCampaignId: value.appliedDunningCampaignId,
           }
           break
         case BehaviorType.DEACTIVATE:
@@ -131,80 +218,50 @@ export const EditCustomerDunningCampaignDialog = forwardRef<
 
       await editCustomerDunningCampaignBehavior({ variables: { input: formattedValues } })
     },
-    validateOnMount: true,
-    enableReinitialize: true,
   })
 
-  return (
-    <Dialog
-      ref={ref}
-      onOpen={async () => {
-        await getDunningCampaigns()
-      }}
-      title={translate('text_1729543665906svxp253ug1g')}
-      description={translate('text_1729543665907gw6pj8jsj3z')}
-      actions={({ closeDialog }) => (
-        <>
-          <Button variant="quaternary" onClick={closeDialog}>
-            {translate('text_63ea0f84f400488553caa6a5')}
-          </Button>
-          <Button
-            variant="primary"
-            disabled={!formikProps.isValid || !formikProps.dirty}
-            onClick={async () => {
-              await formikProps.submitForm()
-              closeDialog()
-            }}
-          >
-            {translate('text_17295436903260tlyb1gp1i7')}
-          </Button>
-        </>
-      )}
-    >
-      <div className="mb-8 not-last-child:mb-4">
-        <RadioField
-          name="behavior"
-          formikProps={formikProps}
-          value={BehaviorType.FALLBACK}
-          label={translate('text_1729543665907g5bbnbl8yvr')}
-          labelVariant="body"
-        />
-        <RadioField
-          name="behavior"
-          formikProps={formikProps}
-          value={BehaviorType.NEW_CAMPAIGN}
-          label={translate('text_17295436659071kau9ol0axk')}
-          labelVariant="body"
-        />
-        {formikProps.values.behavior === 'newCampaign' && (
-          <ComboBoxField
-            name="appliedDunningCampaignId"
-            formikProps={formikProps}
-            loading={loading}
-            data={
-              data?.dunningCampaigns.collection.map((campaign) => ({
-                label: campaign.name,
-                description: campaign.code,
-                value: campaign.id,
-              })) ?? []
-            }
-            isEmptyNull={false}
-            placeholder={translate('text_1729543690326d4dmmcw7n89')}
-            PopperProps={{ displayInDialog: true }}
-            emptyText={translate('text_1731078338811aok1u8oopxl')}
-          />
-        )}
-        <RadioField
-          name="behavior"
-          formikProps={formikProps}
-          value={BehaviorType.DEACTIVATE}
-          label={translate('text_1729543690326ndlmz7bdmy1')}
-          sublabel={translate('text_17295436903267b0kiid8h8r')}
-          labelVariant="body"
-        />
-      </div>
-    </Dialog>
-  )
-})
+  const handleSubmit = async (): Promise<DialogResult> => {
+    successRef.current = false
+    await form.handleSubmit()
 
-EditCustomerDunningCampaignDialog.displayName = 'EditCustomerDunningCampaignDialog'
+    if (!successRef.current) {
+      throw new Error('Submit failed')
+    }
+
+    return { reason: 'success' }
+  }
+
+  const openEditCustomerDunningCampaignDialog = (customer: EditCustomerDunningCampaignFragment) => {
+    customerRef.current = customer
+
+    form.reset()
+    form.setFieldValue('behavior', getInitialBehavior(customer))
+    form.setFieldValue('appliedDunningCampaignId', customer.appliedDunningCampaign?.id ?? '')
+
+    formDialog
+      .open({
+        title: translate('text_1729543665906svxp253ug1g'),
+        description: translate('text_1729543665907gw6pj8jsj3z'),
+        children: <DialogContent customer={customer} form={form} />,
+        closeOnError: false,
+        onEntered: focusFirstInput,
+        mainAction: (
+          <form.AppForm>
+            <form.SubmitButton>{translate('text_17295436903260tlyb1gp1i7')}</form.SubmitButton>
+          </form.AppForm>
+        ),
+        form: {
+          id: EDIT_CUSTOMER_DUNNING_CAMPAIGN_FORM_ID,
+          submit: handleSubmit,
+        },
+      })
+      .then((response) => {
+        if (response.reason === 'close') {
+          form.reset()
+          customerRef.current = null
+        }
+      })
+  }
+
+  return { openEditCustomerDunningCampaignDialog }
+}

@@ -3,7 +3,6 @@ import { CheckboxGroup } from '~/components/form/GroupedCheckboxList'
 import { useGetPermissionGrouping } from './useGetPermissionGrouping'
 
 import { allPermissions } from '../common/permissionsConst'
-import { PermissionName } from '../common/permissionsTypes'
 
 export const useRolePermissionsGroups = (): { groups: CheckboxGroup[] } => {
   const { permissionGrouping } = useGetPermissionGrouping(allPermissions)
@@ -19,9 +18,4 @@ export const useRolePermissionsGroups = (): { groups: CheckboxGroup[] } => {
   }))
 
   return { groups }
-}
-
-// Helper to get all permission names for empty values
-export const getAllPermissionNames = (): PermissionName[] => {
-  return allPermissions
 }

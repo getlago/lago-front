@@ -1,6 +1,6 @@
 import { screen } from '@testing-library/react'
 
-import { filterDataInlineSeparator } from '~/components/designSystem/Filters/types'
+import { filterDataInlineSeparator } from '~/components/Filters/presentation/types'
 import { OrderTypeEnum, StatusEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
@@ -173,6 +173,7 @@ describe('QuotesList', () => {
           expect.objectContaining({
             statuses: ['draft', 'approved'],
           }),
+          expect.any(Number),
         )
       })
     })
@@ -193,6 +194,7 @@ describe('QuotesList', () => {
           expect.objectContaining({
             customers: ['cust-1'],
           }),
+          expect.any(Number),
         )
       })
     })
@@ -207,6 +209,7 @@ describe('QuotesList', () => {
           expect.not.objectContaining({
             statuses: expect.anything(),
           }),
+          expect.any(Number),
         )
       })
     })

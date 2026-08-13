@@ -1,7 +1,8 @@
 import { screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
 import { OrderExecutionModeEnum, OrderStatusEnum } from '~/generated/graphql'
-import { render } from '~/test-utils'
+import { render, testMockNavigateFn } from '~/test-utils'
 
 import { useOrders } from '../hooks/useOrders'
 import OrdersList from '../OrdersList'
@@ -34,6 +35,10 @@ jest.mock('../hooks/useOrders', () => ({
   useOrders: jest.fn(),
 }))
 
+jest.mock('~/pages/quotes/common/QuotePdfProvider', () => ({
+  useDownloadQuotePdf: () => ({ download: jest.fn() }),
+}))
+
 const mockUseOrders = useOrders as jest.MockedFunction<typeof useOrders>
 
 const mockOrders = [
@@ -42,16 +47,36 @@ const mockOrders = [
     number: 'ORD-2026-0001',
     status: OrderStatusEnum.Executed,
     executionMode: OrderExecutionModeEnum.ExecuteInLago,
-    executedAt: '2026-04-10T10:00:00Z',
-    orderForm: { id: 'of-1', number: 'OF-2026-0001', quote: { id: 'q-1', number: 'QUO-001' } },
+    executeAt: '2026-04-10T10:00:00Z',
+    customer: { id: 'customer-001', displayName: 'Acme Corp' },
+    orderForm: {
+      id: 'of-1',
+      number: 'OF-2026-0001',
+      quote: {
+        id: 'q-1',
+        number: 'QUO-001',
+        images: {},
+        currentVersion: { id: 'qv-1', version: 1, content: '# Hello World', mentionVariables: {} },
+      },
+    },
   },
   {
     id: 'order-2',
     number: 'ORD-2026-0002',
     status: OrderStatusEnum.Created,
     executionMode: null,
-    executedAt: null,
-    orderForm: { id: 'of-2', number: 'OF-2026-0002', quote: { id: 'q-2', number: 'QUO-002' } },
+    executeAt: null,
+    customer: { id: 'customer-002', displayName: 'Globex Corp' },
+    orderForm: {
+      id: 'of-2',
+      number: 'OF-2026-0002',
+      quote: {
+        id: 'q-2',
+        number: 'QUO-002',
+        images: {},
+        currentVersion: { id: 'qv-2', version: 1, content: '# Hello World', mentionVariables: {} },
+      },
+    },
   },
 ]
 
@@ -111,7 +136,7 @@ describe('OrdersList', () => {
     it('THEN should request orders scoped to the quote', () => {
       render(<OrdersList quoteNumber="QUO-001" />)
 
-      expect(mockUseOrders).toHaveBeenCalledWith({ quoteNumber: ['QUO-001'] })
+      expect(mockUseOrders).toHaveBeenCalledWith({ quoteNumber: ['QUO-001'] }, expect.any(Number))
     })
 
     it('THEN should NOT display the source quote column', () => {
@@ -163,9 +188,45 @@ describe('OrdersList', () => {
     window.history.pushState({}, '', '/orders?or_orderStatus=executed')
     try {
       render(<OrdersList />)
-      expect(mockUseOrders).toHaveBeenCalledWith(expect.objectContaining({ status: ['executed'] }))
+      expect(mockUseOrders).toHaveBeenCalledWith(
+        expect.objectContaining({ status: ['executed'] }),
+        expect.any(Number),
+      )
     } finally {
       window.history.pushState({}, '', '/')
     }
+  })
+
+  describe('row navigation', () => {
+    beforeEach(() => {
+      testMockNavigateFn.mockClear()
+      mockUseOrders.mockReturnValue({
+        orders: mockOrders,
+        loading: false,
+        error: undefined,
+        fetchMore: jest.fn(),
+        metadata: { currentPage: 1, totalPages: 1, totalCount: mockOrders.length },
+      })
+    })
+
+    it('THEN navigates an Executed order row to the details page', async () => {
+      const user = userEvent.setup()
+
+      render(<OrdersList />)
+
+      await user.click(screen.getByTestId('table-row-0'))
+
+      expect(testMockNavigateFn).toHaveBeenCalledWith('/order/order-1')
+    })
+
+    it('THEN navigates a Created order row to the execute page', async () => {
+      const user = userEvent.setup()
+
+      render(<OrdersList />)
+
+      await user.click(screen.getByTestId('table-row-1'))
+
+      expect(testMockNavigateFn).toHaveBeenCalledWith('/order/order-2/execute')
+    })
   })
 })

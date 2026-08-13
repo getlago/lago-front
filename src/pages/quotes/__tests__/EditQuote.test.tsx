@@ -3,6 +3,8 @@ import userEvent from '@testing-library/user-event'
 import { act } from 'react'
 
 import { RIGHT_ASIDE_PAGE_HEADER_TEST_ID } from '~/components/layouts/RightAsidePage'
+import { makeEmptyWalletItem, toWallets } from '~/core/serializers/serializeQuoteWallets'
+import { CurrencyEnum } from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import EditQuote from '../EditQuote'
@@ -27,8 +29,13 @@ type PricingCommandParams = {
 
 let capturedOnPricingCommand: ((params: PricingCommandParams) => void) | undefined
 let capturedOnPricingBlocksChange: ((blocks: unknown[]) => void) | undefined
+let capturedOnDiscountCommand: ((params: unknown) => void) | undefined
+let capturedOnDiscountBlocksChange: ((blocks: unknown[]) => void) | undefined
+let capturedOnCreditsCommand: ((params: unknown) => void) | undefined
+let capturedOnCreditsBlocksChange: ((blocks: unknown[]) => void) | undefined
 let capturedEditorCustomerLocale: string | undefined
-let capturedEditorCustomerCurrency: string | undefined
+let capturedEditorDocumentCurrency: string | undefined
+let capturedRemoveBlockRef: { current: ((localId: string) => void) | null } | undefined
 
 // --- Mocks ---
 
@@ -50,18 +57,28 @@ jest.mock('~/components/designSystem/RichTextEditor/RichTextEditor', () => {
 
   const MockRichTextEditor = ({
     getMarkdownRef,
+    removeBlockRef,
     onChange,
     onPricingCommand,
     onPricingBlocksChange,
+    onDiscountCommand,
+    onDiscountBlocksChange,
+    onCreditsCommand,
+    onCreditsBlocksChange,
     customerLocale,
-    customerCurrency,
+    documentCurrency,
   }: {
     getMarkdownRef?: React.MutableRefObject<(() => string) | null>
+    removeBlockRef?: React.MutableRefObject<((localId: string) => void) | null>
     onChange?: () => void
     onPricingCommand?: (params: PricingCommandParams) => void
     onPricingBlocksChange?: (blocks: unknown[]) => void
+    onDiscountCommand?: (params: unknown) => void
+    onDiscountBlocksChange?: (blocks: unknown[]) => void
+    onCreditsCommand?: (params: unknown) => void
+    onCreditsBlocksChange?: (blocks: unknown[]) => void
     customerLocale?: string
-    customerCurrency?: string
+    documentCurrency?: string
   }) => {
     React.useEffect(() => {
       if (getMarkdownRef) {
@@ -70,8 +87,13 @@ jest.mock('~/components/designSystem/RichTextEditor/RichTextEditor', () => {
       capturedOnChange = onChange
       capturedOnPricingCommand = onPricingCommand
       capturedOnPricingBlocksChange = onPricingBlocksChange
+      capturedOnDiscountCommand = onDiscountCommand
+      capturedOnDiscountBlocksChange = onDiscountBlocksChange
+      capturedOnCreditsCommand = onCreditsCommand
+      capturedOnCreditsBlocksChange = onCreditsBlocksChange
       capturedEditorCustomerLocale = customerLocale
-      capturedEditorCustomerCurrency = customerCurrency
+      capturedEditorDocumentCurrency = documentCurrency
+      capturedRemoveBlockRef = removeBlockRef
 
       return () => {
         if (getMarkdownRef) {
@@ -80,11 +102,16 @@ jest.mock('~/components/designSystem/RichTextEditor/RichTextEditor', () => {
       }
     }, [
       getMarkdownRef,
+      removeBlockRef,
       onChange,
       onPricingCommand,
       onPricingBlocksChange,
+      onDiscountCommand,
+      onDiscountBlocksChange,
+      onCreditsCommand,
+      onCreditsBlocksChange,
       customerLocale,
-      customerCurrency,
+      documentCurrency,
     ])
 
     return <div data-test="mock-rich-text-editor" />
@@ -172,7 +199,7 @@ const mockQuote = {
     status: 'draft',
     version: 1,
     content: 'Some content',
-    currency: null,
+    currency: 'USD',
     startDate: null,
     endDate: null,
     createdAt: '2026-01-01',
@@ -213,6 +240,29 @@ jest.mock('../hooks/useOneOffPricingDrawer', () => ({
   }),
 }))
 
+const mockDiscountOnDiscountCommand = jest.fn()
+const mockSyncDiscountBlocks = jest.fn().mockReturnValue(null)
+
+type DiscountDrawerOptions = {
+  currency?: unknown
+  onPersist?: (...args: unknown[]) => unknown
+  onRemoveBlock?: (localId: string) => void
+}
+
+let capturedDiscountDrawerOptions: DiscountDrawerOptions | undefined
+
+jest.mock('../hooks/useDiscountDrawer', () => ({
+  useDiscountDrawer: (_billingItems: unknown, options: DiscountDrawerOptions) => {
+    capturedDiscountDrawerOptions = options
+
+    return {
+      onDiscountCommand: mockDiscountOnDiscountCommand,
+      entities: {},
+      syncDiscountBlocks: mockSyncDiscountBlocks,
+    }
+  },
+}))
+
 jest.mock('../common/getQuoteStatusMapping', () => ({
   getQuoteStatusMapping: () => ({ type: 'outline', label: 'draft' }),
 }))
@@ -239,10 +289,17 @@ describe('EditQuote', () => {
     capturedAsideCallbacks = {}
     capturedOnPricingCommand = undefined
     capturedOnPricingBlocksChange = undefined
+    capturedOnDiscountCommand = undefined
+    capturedOnDiscountBlocksChange = undefined
+    capturedOnCreditsCommand = undefined
+    capturedOnCreditsBlocksChange = undefined
     capturedEditorCustomerLocale = undefined
-    capturedEditorCustomerCurrency = undefined
+    capturedEditorDocumentCurrency = undefined
+    capturedRemoveBlockRef = undefined
     capturedPricingDrawerArgs = []
+    capturedDiscountDrawerOptions = undefined
     mockSyncEntitiesWithBlocks.mockReturnValue(null)
+    mockSyncDiscountBlocks.mockReturnValue(null)
 
     const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
 
@@ -670,7 +727,7 @@ describe('EditQuote', () => {
         const wrappedOnSave = mockDrawerOnPricingCommand.mock.calls[0][0].onSave
         const mockAttrs = { pricingType: 'addOns', entityIds: ['addon-1'] }
         const mockEntityData = { 'addon-1': { name: 'Test Add-on' } }
-        const mockBillingItems = [{ addOnId: 'addon-1' }]
+        const mockBillingItems = { addOns: [{ addOnId: 'addon-1' }] }
 
         await act(async () => {
           wrappedOnSave(mockAttrs, mockEntityData, mockBillingItems)
@@ -698,8 +755,8 @@ describe('EditQuote', () => {
       })
     })
 
-    describe('WHEN savePricingBlock fails', () => {
-      it('THEN should set save status to error', async () => {
+    describe('WHEN savePricingBlock throws (drawer-originated save)', () => {
+      it('THEN should not display the header error status chip — the drawer surfaces the error', async () => {
         mockUpdateQuoteVersion.mockRejectedValue(new Error('Network error'))
 
         render(<EditQuote />)
@@ -714,15 +771,154 @@ describe('EditQuote', () => {
           wrappedOnSave({}, {}, [{ addOnId: 'addon-1' }])
         })
 
+        // The header should revert to the neutral/idle chip, not the error chip —
+        // the drawer stays open and surfaces the failure itself.
         await waitFor(() => {
-          expect(screen.getByText('text_1779437694622y666yr137gm')).toBeInTheDocument()
+          expect(screen.getByText('text_1779268404389wpd2ysgatw4')).toBeInTheDocument()
         })
+
+        expect(screen.queryByText('text_1779437694622y666yr137gm')).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN savePricingBlock resolves with errors (drawer-originated save)', () => {
+      it('THEN should not display the header error status chip — the drawer surfaces the error', async () => {
+        mockUpdateQuoteVersion.mockResolvedValueOnce({
+          data: null,
+          errors: [{ message: 'Some GraphQL error' }],
+        })
+
+        render(<EditQuote />)
+
+        act(() => {
+          capturedOnPricingCommand?.({ onSave: jest.fn() })
+        })
+
+        const wrappedOnSave = mockDrawerOnPricingCommand.mock.calls[0][0].onSave
+
+        await act(async () => {
+          wrappedOnSave({}, {}, [{ addOnId: 'addon-1' }])
+        })
+
+        await waitFor(() => {
+          expect(screen.getByText('text_1779268404389wpd2ysgatw4')).toBeInTheDocument()
+        })
+
+        expect(screen.queryByText('text_1779437694622y666yr137gm')).not.toBeInTheDocument()
+        // refetchQuote should not be triggered for a failed save
+        expect(mockRefetchQuote).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN a drawer-originated pricing save fails', () => {
+      it('THEN should roll back the just-inserted block and not issue a corrective save', async () => {
+        mockUpdateQuoteVersion.mockResolvedValueOnce({
+          data: null,
+          errors: [{ message: 'Some GraphQL error' }],
+        })
+
+        // Make the post-rollback reconciliation resolve to a truthy
+        // billing-items object. Without the isRollingBackRef guard, this
+        // would be enough for handlePricingBlocksChange to fire a second,
+        // corrective savePricingBlock/updateQuoteVersion call.
+        mockSyncEntitiesWithBlocks.mockReturnValue({ addOns: [] })
+
+        render(<EditQuote />)
+
+        const removeBlockSpy = jest.fn()
+
+        // The mock RichTextEditor exposes the removeBlockRef instance passed
+        // down by EditQuote. In production, removeBlockRef.current() runs
+        // `editor.chain().focus().deleteRange().run()`, which SYNCHRONOUSLY
+        // triggers the editor's onUpdate → onPricingBlocksChange
+        // reconciliation within the same call stack. Mirror that here so the
+        // isRollingBackRef guard in handlePricingBlocksChange is actually
+        // exercised, instead of removeBlockRef being a no-op spy.
+        if (capturedRemoveBlockRef) {
+          capturedRemoveBlockRef.current = (localId: string) => {
+            removeBlockSpy(localId)
+            // Simulate the real editor: the removed block is no longer
+            // present in the reconciled block list.
+            capturedOnPricingBlocksChange?.([])
+          }
+        }
+
+        act(() => {
+          capturedOnPricingCommand?.({ onSave: jest.fn() })
+        })
+
+        const wrappedOnSave = mockDrawerOnPricingCommand.mock.calls[0][0].onSave
+        const mockAttrs = {
+          pricingType: 'addOns',
+          entityIds: ['addon-1'],
+          localEntityIds: ['local-addon-1'],
+        }
+
+        await act(async () => {
+          await wrappedOnSave(mockAttrs, {}, [{ addOnId: 'addon-1' }])
+        })
+
+        // Rollback: the inserted block is removed by its localId.
+        expect(removeBlockSpy).toHaveBeenCalledWith('local-addon-1')
+
+        // The rollback synchronously re-enters onPricingBlocksChange, but during
+        // a rollback reconciliation is skipped entirely: syncEntitiesWithBlocks
+        // must NOT run (it would prune the failed add-on's cached catalog payload
+        // and crash a corrected resubmit in toBillingItems), and therefore no
+        // corrective updateQuoteVersion is issued either.
+        expect(mockSyncEntitiesWithBlocks).not.toHaveBeenCalled()
+        expect(mockUpdateQuoteVersion).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    describe('WHEN a drawer-originated pricing EDIT fails', () => {
+      it('THEN should NOT remove the existing block (so a resubmit can recover it)', async () => {
+        mockUpdateQuoteVersion.mockResolvedValueOnce({
+          data: null,
+          errors: [{ message: 'Some GraphQL error' }],
+        })
+
+        render(<EditQuote />)
+
+        const removeBlockSpy = jest.fn()
+
+        if (capturedRemoveBlockRef) {
+          capturedRemoveBlockRef.current = removeBlockSpy
+        }
+
+        act(() => {
+          // editData present → the drawer is editing an existing, saved block.
+          capturedOnPricingCommand?.({
+            onSave: jest.fn(),
+            editData: {
+              pricingType: 'addOns',
+              entityIds: ['addon-1'],
+              localEntityIds: ['local-addon-1'],
+            },
+          })
+        })
+
+        const wrappedOnSave = mockDrawerOnPricingCommand.mock.calls[0][0].onSave
+        const mockAttrs = {
+          pricingType: 'addOns',
+          entityIds: ['addon-1'],
+          localEntityIds: ['local-addon-1'],
+        }
+
+        await act(async () => {
+          await wrappedOnSave(mockAttrs, {}, [{ addOnId: 'addon-1' }])
+        })
+
+        // A failed edit must leave the block in place — removing it would lose
+        // the user's saved pricing and the updateAttributes resubmit couldn't
+        // restore it.
+        expect(removeBlockSpy).not.toHaveBeenCalled()
       })
     })
 
     describe('WHEN pricing blocks change and syncEntitiesWithBlocks returns billing items', () => {
       it('THEN should save the updated billing items', async () => {
-        const mockBillingItems = [{ addOnId: 'addon-1', units: '2' }]
+        const mockBillingItems = { addOns: [{ addOnId: 'addon-1', units: '2' }] }
 
         mockSyncEntitiesWithBlocks.mockReturnValue(mockBillingItems)
         mockUpdateQuoteVersion.mockResolvedValue({
@@ -795,7 +991,7 @@ describe('EditQuote', () => {
     })
   })
 
-  describe('GIVEN customer locale and currency props', () => {
+  describe('GIVEN the customer locale and document currency props', () => {
     describe('WHEN the customer has a document locale', () => {
       it('THEN should pass customerLocale to RichTextEditor', () => {
         mockUseQuote.mockReturnValue({
@@ -824,15 +1020,13 @@ describe('EditQuote', () => {
       })
     })
 
-    describe('WHEN the customer has a currency', () => {
-      it('THEN should pass customerCurrency to RichTextEditor', () => {
+    describe('WHEN the version currency differs from the customer one', () => {
+      it('THEN should price the editor in the version currency', () => {
         mockUseQuote.mockReturnValue({
           quote: {
             ...mockQuote,
-            customer: {
-              ...mockQuote.customer,
-              currency: 'EUR',
-            },
+            customer: { ...mockQuote.customer, currency: 'EUR' },
+            currentVersion: { ...mockQuote.currentVersion, currency: 'JPY' },
           },
           loading: false,
           refetch: mockRefetchQuote,
@@ -840,15 +1034,25 @@ describe('EditQuote', () => {
 
         render(<EditQuote />)
 
-        expect(capturedEditorCustomerCurrency).toBe('EUR')
+        expect(capturedEditorDocumentCurrency).toBe('JPY')
       })
     })
 
-    describe('WHEN the customer has no currency', () => {
-      it('THEN should pass undefined customerCurrency to RichTextEditor', () => {
+    describe('WHEN the version has no currency', () => {
+      it('THEN should fall back to the customer currency', () => {
+        mockUseQuote.mockReturnValue({
+          quote: {
+            ...mockQuote,
+            customer: { ...mockQuote.customer, currency: 'EUR' },
+            currentVersion: { ...mockQuote.currentVersion, currency: null },
+          },
+          loading: false,
+          refetch: mockRefetchQuote,
+        })
+
         render(<EditQuote />)
 
-        expect(capturedEditorCustomerCurrency).toBeUndefined()
+        expect(capturedEditorDocumentCurrency).toBe('EUR')
       })
     })
 
@@ -871,6 +1075,440 @@ describe('EditQuote', () => {
         const options = capturedPricingDrawerArgs[1] as { customer?: { currency?: string } }
 
         expect(options.customer?.currency).toBe('EUR')
+      })
+    })
+  })
+
+  describe('GIVEN a subscription amendment quote', () => {
+    type PricingDrawerDateOptions = {
+      isAmendment?: boolean
+      quoteDates?: { startDate?: string; endDate?: string }
+      onDatesChange?: (startDate?: string, endDate?: string) => Promise<void>
+    }
+
+    const renderAmendment = (): PricingDrawerDateOptions => {
+      mockUseQuote.mockReturnValue({
+        quote: {
+          ...mockQuote,
+          orderType: 'subscription_amendment',
+          currentVersion: { ...mockQuote.currentVersion, startDate: '2026-01-01T00:00:00Z' },
+        },
+        loading: false,
+        refetch: mockRefetchQuote,
+      })
+
+      render(<EditQuote />)
+
+      return capturedPricingDrawerArgs[1] as PricingDrawerDateOptions
+    }
+
+    describe('WHEN the pricing drawer options are built', () => {
+      it('THEN should flag the amendment and seed no start date', () => {
+        const options = renderAmendment()
+
+        expect(options.isAmendment).toBe(true)
+        expect(options.quoteDates?.startDate).toBeUndefined()
+      })
+    })
+
+    describe('WHEN the pricing drawer reports a date change', () => {
+      it('THEN should update the version without a startDate key', async () => {
+        mockUpdateQuoteVersion.mockResolvedValue({
+          data: { updateQuoteVersion: { id: 'version-1' } },
+        })
+
+        const options = renderAmendment()
+
+        await act(async () => {
+          await options.onDatesChange?.('2026-01-01T00:00:00Z', '2026-06-01T00:00:00Z')
+        })
+
+        const payload = mockUpdateQuoteVersion.mock.calls.at(-1)?.[0]
+
+        expect(payload).not.toHaveProperty('startDate')
+        expect(payload.endDate).toBe('2026-06-01T00:00:00Z')
+      })
+    })
+  })
+
+  describe('GIVEN a subscription creation quote', () => {
+    describe('WHEN the pricing drawer reports a date change', () => {
+      it('THEN should update the version with the startDate', async () => {
+        mockUpdateQuoteVersion.mockResolvedValue({
+          data: { updateQuoteVersion: { id: 'version-1' } },
+        })
+
+        render(<EditQuote />)
+
+        const options = capturedPricingDrawerArgs[1] as {
+          onDatesChange?: (startDate?: string, endDate?: string) => Promise<void>
+        }
+
+        await act(async () => {
+          await options.onDatesChange?.('2026-01-01T00:00:00Z', '2026-06-01T00:00:00Z')
+        })
+
+        const payload = mockUpdateQuoteVersion.mock.calls.at(-1)?.[0]
+
+        expect(payload.startDate).toBe('2026-01-01T00:00:00Z')
+      })
+    })
+  })
+
+  describe('GIVEN the discount command integration', () => {
+    describe('WHEN the quote is a subscription order', () => {
+      it('THEN should pass a defined onDiscountCommand to RichTextEditor', () => {
+        // mockQuote.orderType = 'subscription_creation' by default
+        render(<EditQuote />)
+
+        expect(capturedOnDiscountCommand).toBeDefined()
+      })
+    })
+
+    describe('WHEN the quote is a one-off order', () => {
+      it('THEN should pass undefined onDiscountCommand to RichTextEditor', () => {
+        mockUseQuote.mockReturnValue({
+          quote: {
+            ...mockQuote,
+            orderType: 'one_off',
+          },
+          loading: false,
+          refetch: mockRefetchQuote,
+        })
+
+        render(<EditQuote />)
+
+        expect(capturedOnDiscountCommand).toBeUndefined()
+      })
+    })
+
+    describe('WHEN handleDiscountCommand is invoked from the editor', () => {
+      it('THEN should delegate to useDiscountDrawer onDiscountCommand with editData', () => {
+        render(<EditQuote />)
+
+        const mockEditData = { couponId: 'coupon-1', localId: 'local-1' }
+
+        act(() => {
+          capturedOnDiscountCommand?.({ onSave: jest.fn(), editData: mockEditData })
+        })
+
+        expect(mockDiscountOnDiscountCommand).toHaveBeenCalledWith(
+          expect.objectContaining({ editData: mockEditData }),
+        )
+      })
+    })
+
+    describe('WHEN discount blocks change and syncDiscountBlocks returns billing items', () => {
+      it('THEN should save the updated billing items', async () => {
+        // The discount drawer owns only the `coupons` key and returns a partial
+        // without `addOns`; savePricingBlock sends that partial as-is.
+        const mockBillingItems = { coupons: [{ id: 'coupon-1', position: 1 }] }
+
+        mockSyncDiscountBlocks.mockReturnValue(mockBillingItems)
+        mockUpdateQuoteVersion.mockResolvedValue({
+          data: { updateQuoteVersion: { id: 'version-1' } },
+        })
+
+        render(<EditQuote />)
+
+        const mockBlocks = [{ couponId: 'coupon-1', localId: 'local-1' }]
+
+        await act(async () => {
+          capturedOnDiscountBlocksChange?.(mockBlocks)
+        })
+
+        expect(mockSyncDiscountBlocks).toHaveBeenCalledWith(mockBlocks)
+
+        await waitFor(() => {
+          expect(mockUpdateQuoteVersion).toHaveBeenCalledWith(
+            expect.objectContaining({
+              billingItems: { coupons: [{ id: 'coupon-1', position: 1 }] },
+            }),
+            false,
+          )
+        })
+      })
+    })
+
+    describe('WHEN discount blocks change but syncDiscountBlocks returns null', () => {
+      it('THEN should not trigger a save', async () => {
+        mockSyncDiscountBlocks.mockReturnValue(null)
+
+        render(<EditQuote />)
+
+        const mockBlocks = [{ couponId: 'coupon-1', localId: 'local-1' }]
+
+        await act(async () => {
+          capturedOnDiscountBlocksChange?.(mockBlocks)
+        })
+
+        expect(mockSyncDiscountBlocks).toHaveBeenCalledWith(mockBlocks)
+        expect(mockUpdateQuoteVersion).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN a rejected discount edit removes the coupon block (onRemoveBlock)', () => {
+      it('THEN should not issue a corrective save for the removed coupon', async () => {
+        // Simulate the reconciliation after removal resolving to a truthy
+        // billing-items object (the coupon that was hydrated into itemsRef
+        // is now gone). Without the isRollingBackRef guard, this would be
+        // enough for handleDiscountBlocksChange to fire a corrective
+        // savePricingBlock/updateQuoteVersion call that persists the
+        // deletion.
+        mockSyncDiscountBlocks.mockReturnValue({ coupons: [] })
+
+        render(<EditQuote />)
+
+        const removeBlockSpy = jest.fn()
+
+        // The mock RichTextEditor exposes the removeBlockRef instance passed
+        // down by EditQuote. In production, removeBlockRef.current() runs
+        // `editor.chain().focus().deleteRange().run()`, which SYNCHRONOUSLY
+        // triggers the editor's onUpdate → onDiscountBlocksChange
+        // reconciliation within the same call stack. Mirror that here so the
+        // isRollingBackRef guard on the discount onRemoveBlock wrapper is
+        // actually exercised, instead of removeBlockRef being a no-op spy.
+        if (capturedRemoveBlockRef) {
+          capturedRemoveBlockRef.current = (localId: string) => {
+            removeBlockSpy(localId)
+            // Simulate the real editor: the removed coupon block is no
+            // longer present in the reconciled block list.
+            capturedOnDiscountBlocksChange?.([])
+          }
+        }
+
+        expect(capturedDiscountDrawerOptions?.onRemoveBlock).toBeDefined()
+
+        await act(async () => {
+          capturedDiscountDrawerOptions?.onRemoveBlock?.('local-coupon-1')
+        })
+
+        // Rollback: the coupon block is removed by its localId.
+        expect(removeBlockSpy).toHaveBeenCalledWith('local-coupon-1')
+
+        // The removal synchronously re-entered onDiscountBlocksChange, and
+        // syncDiscountBlocks resolved truthy — so without the
+        // isRollingBackRef guard this would trigger a corrective
+        // updateQuoteVersion call that persists the coupon deletion.
+        expect(mockUpdateQuoteVersion).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the credits command integration', () => {
+    describe('WHEN the quote is a subscription order', () => {
+      it('THEN should pass a defined onCreditsCommand to RichTextEditor', () => {
+        // mockQuote.orderType = 'subscription_creation' by default
+        render(<EditQuote />)
+
+        expect(capturedOnCreditsCommand).toBeDefined()
+      })
+    })
+
+    describe('WHEN the quote is a one-off order', () => {
+      it('THEN should pass undefined onCreditsCommand to RichTextEditor', () => {
+        mockUseQuote.mockReturnValue({
+          quote: {
+            ...mockQuote,
+            orderType: 'one_off',
+          },
+          loading: false,
+          refetch: mockRefetchQuote,
+        })
+
+        render(<EditQuote />)
+
+        expect(capturedOnCreditsCommand).toBeUndefined()
+      })
+    })
+
+    describe('WHEN a saved credits block is deleted from the editor', () => {
+      it('THEN should save walletCredits cleared while leaving plans/addons/coupons untouched', async () => {
+        // useCreditsDrawer is NOT mocked (unlike useDiscountDrawer) so this test
+        // exercises the real syncCreditsBlocks -> mergeWalletCredits route.
+        const originalPlans = [{ type: 'plan' }]
+        const originalAddons = [{ type: 'addon' }]
+        const originalCoupons = [{ type: 'coupon' }]
+        const walletCredits = toWallets(
+          [{ ...makeEmptyWalletItem('wl_1'), rateAmount: '1', paidCredits: '10' }],
+          CurrencyEnum.Usd,
+        )
+
+        mockUseQuote.mockReturnValue({
+          quote: {
+            ...mockQuote,
+            currentVersion: {
+              ...mockQuote.currentVersion,
+              billingItems: {
+                plans: originalPlans,
+                addOns: originalAddons,
+                coupons: originalCoupons,
+                walletCredits: walletCredits,
+              },
+            },
+          },
+          loading: false,
+          refetch: mockRefetchQuote,
+        })
+        mockUpdateQuoteVersion.mockResolvedValue({
+          data: { updateQuoteVersion: { id: 'version-1' } },
+        })
+
+        render(<EditQuote />)
+
+        // Simulate the editor reporting the creditsBlock node was removed from the doc.
+        await act(async () => {
+          capturedOnCreditsBlocksChange?.([])
+        })
+
+        await waitFor(() => {
+          expect(mockUpdateQuoteVersion).toHaveBeenCalledWith(
+            expect.objectContaining({
+              billingItems: {
+                plans: originalPlans,
+                addOns: originalAddons,
+                coupons: originalCoupons,
+                walletCredits: [],
+              },
+            }),
+            false,
+          )
+        })
+
+        // The create/full-save path (fill a rate + paid credits, click the
+        // credits-drawer-submit button) is not driven here: useFormDrawer is
+        // mocked as a no-op in this harness, so drawer.open() never mounts
+        // CreditsDrawerContent in jsdom. That same sibling-preservation
+        // invariant on create/edit is proven at the pure-function level by the
+        // mergeWalletCredits unit tests (serializeQuoteBillingItems.test.ts)
+        // and by useCreditsDrawer.test.tsx's "rebuild (create/edit path)" test,
+        // which exercise the exact same rebuild -> mergeWalletCredits route.
+      })
+    })
+  })
+
+  describe('GIVEN the quote currency', () => {
+    const renderWithCurrencies = (
+      versionCurrency: string | null,
+      customerCurrency: string | null,
+    ) => {
+      mockUseQuote.mockReturnValue({
+        quote: {
+          ...mockQuote,
+          customer: { ...mockQuote.customer, currency: customerCurrency },
+          currentVersion: { ...mockQuote.currentVersion, currency: versionCurrency },
+        },
+        loading: false,
+        refetch: mockRefetchQuote,
+      })
+
+      return render(<EditQuote />)
+    }
+
+    describe('WHEN the version has no currency and the customer has one', () => {
+      it('THEN should backfill the version with the customer currency, once', async () => {
+        const { rerender } = renderWithCurrencies(null, 'EUR')
+
+        await waitFor(() => {
+          expect(mockUpdateQuoteVersion).toHaveBeenCalledWith(
+            { id: 'version-1', currency: 'EUR' },
+            false,
+          )
+        })
+
+        rerender(<EditQuote />)
+
+        expect(
+          mockUpdateQuoteVersion.mock.calls.filter(([payload]) => 'currency' in payload),
+        ).toHaveLength(1)
+      })
+    })
+
+    describe('WHEN the version already has a currency', () => {
+      it('THEN should not backfill it', async () => {
+        renderWithCurrencies('USD', 'EUR')
+
+        await waitFor(() => {
+          expect(capturedPricingDrawerArgs).not.toHaveLength(0)
+        })
+
+        expect(mockUpdateQuoteVersion).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the pricing drawers are built', () => {
+      it.each([
+        ['the version currency when it has one', 'USD', 'EUR', 'USD', true],
+        ['the customer currency as a fallback', null, 'EUR', 'EUR', false],
+      ])(
+        'THEN should use %s',
+        async (_, versionCurrency, customerCurrency, expected, hasQuoteCurrency) => {
+          renderWithCurrencies(versionCurrency, customerCurrency)
+
+          const options = capturedPricingDrawerArgs[1] as {
+            currency?: string
+            hasQuoteCurrency?: boolean
+          }
+
+          expect(options.currency).toBe(expected)
+          expect(options.hasQuoteCurrency).toBe(hasQuoteCurrency)
+        },
+      )
+    })
+
+    describe('WHEN a pricing drawer save seeds a currency', () => {
+      it('THEN should persist it alongside the billing items in a single mutation', async () => {
+        mockUpdateQuoteVersion.mockResolvedValue({
+          data: { updateQuoteVersion: { id: 'version-1' } },
+        })
+        renderWithCurrencies('USD', null)
+
+        act(() => {
+          capturedOnPricingCommand?.({ onSave: jest.fn() })
+        })
+
+        const wrappedOnSave = mockDrawerOnPricingCommand.mock.calls[0][0].onSave
+        const billingItems = { addOns: [{ addOnId: 'addon-1' }] }
+
+        await act(async () => {
+          await wrappedOnSave(
+            { pricingType: 'addOns', entityIds: ['addon-1'] },
+            {},
+            billingItems,
+            'JPY',
+          )
+        })
+
+        await waitFor(() => {
+          expect(mockUpdateQuoteVersion).toHaveBeenCalledWith(
+            expect.objectContaining({ id: 'version-1', billingItems, currency: 'JPY' }),
+            false,
+          )
+        })
+      })
+    })
+
+    describe('WHEN a pricing drawer save seeds no currency', () => {
+      it('THEN should leave the currency out of the payload', async () => {
+        mockUpdateQuoteVersion.mockResolvedValue({
+          data: { updateQuoteVersion: { id: 'version-1' } },
+        })
+        renderWithCurrencies('USD', null)
+
+        act(() => {
+          capturedOnPricingCommand?.({ onSave: jest.fn() })
+        })
+
+        const wrappedOnSave = mockDrawerOnPricingCommand.mock.calls[0][0].onSave
+
+        await act(async () => {
+          await wrappedOnSave({ pricingType: 'addOns', entityIds: ['addon-1'] }, {}, {})
+        })
+
+        await waitFor(() => {
+          expect(mockUpdateQuoteVersion).toHaveBeenCalled()
+        })
+        expect(mockUpdateQuoteVersion.mock.calls[0][0]).not.toHaveProperty('currency')
       })
     })
   })

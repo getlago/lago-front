@@ -191,7 +191,7 @@ const mockMembers = [
 const membersListMock = {
   request: {
     query: GetMembersDocument,
-    variables: { limit: 20 },
+    variables: { limit: 20, page: 1 },
   },
   result: {
     data: {
@@ -294,7 +294,7 @@ describe('MembersList', () => {
       const loadingMock = {
         request: {
           query: GetMembersDocument,
-          variables: { limit: 20 },
+          variables: { limit: 20, page: 1 },
         },
         delay: Infinity,
         result: {
@@ -318,7 +318,7 @@ describe('MembersList', () => {
       const emptyMock = {
         request: {
           query: GetMembersDocument,
-          variables: { limit: 20 },
+          variables: { limit: 20, page: 1 },
         },
         result: {
           data: {
@@ -351,7 +351,7 @@ describe('MembersList', () => {
       const errorMock = {
         request: {
           query: GetMembersDocument,
-          variables: { limit: 20 },
+          variables: { limit: 20, page: 1 },
         },
         error: new Error('Failed to fetch members'),
       }
@@ -379,7 +379,7 @@ describe('MembersList', () => {
       const singleMemberMock = {
         request: {
           query: GetMembersDocument,
-          variables: { limit: 20 },
+          variables: { limit: 20, page: 1 },
         },
         result: {
           data: {
@@ -411,7 +411,7 @@ describe('MembersList', () => {
       const multiRoleMemberMock = {
         request: {
           query: GetMembersDocument,
-          variables: { limit: 20 },
+          variables: { limit: 20, page: 1 },
         },
         result: {
           data: {
@@ -445,7 +445,7 @@ describe('MembersList', () => {
       const paginatedMock = {
         request: {
           query: GetMembersDocument,
-          variables: { limit: 20 },
+          variables: { limit: 20, page: 1 },
         },
         result: {
           data: {
@@ -477,7 +477,7 @@ describe('MembersList', () => {
       const emptyMock = {
         request: {
           query: GetMembersDocument,
-          variables: { limit: 20 },
+          variables: { limit: 20, page: 1 },
         },
         result: {
           data: {
@@ -529,7 +529,7 @@ describe('MembersList', () => {
       const noAdminMock = {
         request: {
           query: GetMembersDocument,
-          variables: { limit: 20 },
+          variables: { limit: 20, page: 1 },
         },
         result: {
           data: {
@@ -687,7 +687,7 @@ describe('MembersList', () => {
       const emptyMock = {
         request: {
           query: GetMembersDocument,
-          variables: { limit: 20 },
+          variables: { limit: 20, page: 1 },
         },
         result: {
           data: {
@@ -718,7 +718,7 @@ describe('MembersList', () => {
       const emptyMock = {
         request: {
           query: GetMembersDocument,
-          variables: { limit: 20 },
+          variables: { limit: 20, page: 1 },
         },
         result: {
           data: {
@@ -751,7 +751,7 @@ describe('MembersList', () => {
       const errorMock = {
         request: {
           query: GetMembersDocument,
-          variables: { limit: 20 },
+          variables: { limit: 20, page: 1 },
         },
         error: new Error('Failed to fetch members'),
       }
@@ -768,7 +768,7 @@ describe('MembersList', () => {
       const errorMock = {
         request: {
           query: GetMembersDocument,
-          variables: { limit: 20 },
+          variables: { limit: 20, page: 1 },
         },
         error: new Error('Failed to fetch members'),
       }

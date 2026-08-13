@@ -6,6 +6,9 @@ import { SubscriptionDatesOffsetHelperComponent } from '~/components/customers/s
 import { Button } from '~/components/designSystem/Button'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
+import { isSubscriptionPurchaseOrderNumberEditable } from '~/components/purchaseOrder/PO'
+import { PurchaseOrderFormBlock } from '~/components/purchaseOrder/PurchaseOrderFormBlock'
+import { SubscriptionActivationRuleSection } from '~/components/subscriptions/SubscriptionActivationRuleSection'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { getTimezoneConfig } from '~/core/timezone'
 import {
@@ -33,6 +36,7 @@ gql`
     subscriptionAt
     endingAt
     billingTime
+    purchaseOrderNumber
     billingEntityId
     periodEndDate
     status
@@ -89,6 +93,7 @@ interface SubscriptionInformationFormSectionExtraProps {
   shouldDisplaySubscriptionName: boolean
   setShouldDisplaySubscriptionName: Dispatch<SetStateAction<boolean>>
   selectedPlanInterval?: PlanInterval
+  customerExternalId?: string | null
 }
 
 const subscriptionInformationDefaultProps: SubscriptionInformationFormSectionExtraProps = {
@@ -100,6 +105,7 @@ const subscriptionInformationDefaultProps: SubscriptionInformationFormSectionExt
   shouldDisplaySubscriptionName: false,
   setShouldDisplaySubscriptionName: () => {},
   selectedPlanInterval: undefined,
+  customerExternalId: undefined,
 }
 
 const TYPING_PLACEHOLDER_DATE = '2026-01-01'
@@ -121,6 +127,7 @@ export const SubscriptionInformationFormSection = withForm({
     shouldDisplaySubscriptionName,
     setShouldDisplaySubscriptionName,
     selectedPlanInterval,
+    customerExternalId,
   }) {
     const { translate } = useInternationalization()
 
@@ -308,6 +315,30 @@ export const SubscriptionInformationFormSection = withForm({
                 </form.Subscribe>
               </div>
             </>
+          )}
+
+          <form.AppField name="purchaseOrderNumber">
+            {(field) => (
+              <PurchaseOrderFormBlock
+                value={field.state.value}
+                description={translate('text_1783511588872qmkjh4n14du')}
+                // PO number is only editable while the subscription is pending or active.
+                disabled={
+                  formType === FORM_TYPE_ENUM.edition &&
+                  !isSubscriptionPurchaseOrderNumberEditable(subscription?.status)
+                }
+                onChange={(value) => field.handleChange(value ?? undefined)}
+              />
+            )}
+          </form.AppField>
+
+          {!!customerExternalId && (
+            <SubscriptionActivationRuleSection
+              form={form}
+              customerExternalId={customerExternalId}
+              formType={formType}
+              subscriptionStatus={subscription?.status}
+            />
           )}
         </div>
       </CenteredPage.PageSection>

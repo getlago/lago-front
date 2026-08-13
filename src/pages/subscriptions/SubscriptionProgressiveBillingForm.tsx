@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { InputAdornment } from '@mui/material'
-import { useCallback, useMemo, useRef } from 'react'
+import { useCallback, useMemo } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { Alert } from '~/components/designSystem/Alert'
@@ -8,7 +8,7 @@ import { Button } from '~/components/designSystem/Button'
 import { ChargeTable } from '~/components/designSystem/Table'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
-import { WarningDialog, WarningDialogRef } from '~/components/designSystem/WarningDialog'
+import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { addToast } from '~/core/apolloClient'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -75,7 +75,7 @@ const SubscriptionProgressiveBillingForm = () => {
   const { customerId = '', planId = '', subscriptionId = '' } = useParams()
   const { translate } = useInternationalization()
   const navigate = useNavigate()
-  const warningDirtyAttributesDialogRef = useRef<WarningDialogRef>(null)
+  const centralizedDialog = useCentralizedDialog()
 
   const { data: subscriptionData, loading: subscriptionLoading } =
     useGetSubscriptionForProgressiveBillingFormQuery({
@@ -254,9 +254,18 @@ const SubscriptionProgressiveBillingForm = () => {
     [currency, form, translate],
   )
 
+  const openDirtyAttributesWarning = () =>
+    centralizedDialog.open({
+      title: translate('text_665deda4babaf700d603ea13'),
+      description: translate('text_665dedd557dc3c00c62eb83d'),
+      actionText: translate('text_6244277fe0975300fe3fb94c'),
+      colorVariant: 'danger',
+      onAction: () => onLeave(),
+    })
+
   const handleAbort = () => {
     if (isDirty) {
-      warningDirtyAttributesDialogRef.current?.openDialog()
+      openDirtyAttributesWarning()
     } else {
       onLeave()
     }
@@ -398,14 +407,6 @@ const SubscriptionProgressiveBillingForm = () => {
           </CenteredPage.StickyFooter>
         </form>
       </CenteredPage.Wrapper>
-
-      <WarningDialog
-        ref={warningDirtyAttributesDialogRef}
-        title={translate('text_665deda4babaf700d603ea13')}
-        description={translate('text_665dedd557dc3c00c62eb83d')}
-        continueText={translate('text_6244277fe0975300fe3fb94c')}
-        onContinue={onLeave}
-      />
     </>
   )
 }

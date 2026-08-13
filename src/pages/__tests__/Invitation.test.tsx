@@ -213,6 +213,14 @@ describe('Invitation', () => {
       })
     })
 
+    it('should show Entra ID button', async () => {
+      await renderInvitation()
+
+      await waitFor(() => {
+        expect(screen.getByText('text_1784307344255ojifndnfotw')).toBeInTheDocument()
+      })
+    })
+
     it('should have submit button', async () => {
       await renderInvitation()
 

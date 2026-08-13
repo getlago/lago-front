@@ -7,7 +7,7 @@ import {
 } from '~/core/router'
 import { isOneOff, isPrepaidCredit } from '~/core/utils/invoiceUtils'
 import { Invoice } from '~/generated/graphql'
-import { CREATE_ACTIVE_WALLET_TOP_UP_ID } from '~/pages/wallet/CreateWalletTopUp'
+import { CREATE_ACTIVE_WALLET_TOP_UP_ID } from '~/pages/wallet/topUp/constants'
 
 export const regeneratePath = (invoice: Pick<Invoice, 'id' | 'invoiceType' | 'customer'>) => {
   if (isPrepaidCredit(invoice)) {

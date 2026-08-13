@@ -30,22 +30,11 @@ jest.mock('~/components/plans/drawers/usageCharge/UsageChargeDrawer', () => {
   return { UsageChargeDrawer: MockedDrawer }
 })
 
-jest.mock('~/components/plans/RemoveChargeWarningDialog', () => {
-  const React = jest.requireActual('react')
-
-  const MockedDialog = React.forwardRef((_props: unknown, ref: unknown) => {
-    React.useImperativeHandle(ref, () => ({
-      openDialog: jest.fn(),
-      closeDialog: jest.fn(),
-    }))
-
-    return React.createElement('div', { 'data-test': 'remove-charge-warning-dialog-mock' })
-  })
-
-  MockedDialog.displayName = 'RemoveChargeWarningDialog'
-
-  return { RemoveChargeWarningDialog: MockedDialog, RemoveChargeWarningDialogRef: {} }
-})
+jest.mock('~/components/plans/RemoveChargeWarningDialog', () => ({
+  useRemoveChargeWarningDialog: () => ({
+    openRemoveChargeWarningDialog: jest.fn(),
+  }),
+}))
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({

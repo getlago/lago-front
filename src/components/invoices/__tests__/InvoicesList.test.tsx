@@ -70,6 +70,7 @@ const mockCanRetryCollect = jest.fn(() => false)
 const mockCanGeneratePaymentUrl = jest.fn(() => false)
 const mockCanUpdatePaymentStatus = jest.fn(() => true)
 const mockCanVoid = jest.fn(() => true)
+const mockCanDelete = jest.fn(() => false)
 const mockCanRegenerate = jest.fn(() => false)
 const mockCanIssueCreditNote = jest.fn(() => true)
 const mockCanRecordPayment = jest.fn(() => true)
@@ -84,6 +85,7 @@ jest.mock('~/hooks/usePermissionsInvoiceActions', () => ({
     canGeneratePaymentUrl: mockCanGeneratePaymentUrl,
     canUpdatePaymentStatus: mockCanUpdatePaymentStatus,
     canVoid: mockCanVoid,
+    canDelete: mockCanDelete,
     canRegenerate: mockCanRegenerate,
     canIssueCreditNote: mockCanIssueCreditNote,
     canRecordPayment: mockCanRecordPayment,
@@ -137,6 +139,29 @@ jest.mock('~/components/invoices/EditInvoicePaymentStatusDialog', () => ({
   }),
 }))
 
+const mockOpenResendInvoiceForCollectionDialog = jest.fn()
+
+jest.mock('~/components/invoices/ResendInvoiceForCollectionDialog', () => ({
+  useResendInvoiceForCollectionDialog: () => ({
+    openResendInvoiceForCollectionDialog: mockOpenResendInvoiceForCollectionDialog,
+  }),
+}))
+
+const mockOpenFinalizeInvoiceDialog = jest.fn()
+const mockOpenDeleteInvoiceDialog = jest.fn()
+
+jest.mock('~/components/invoices/DeleteInvoiceDialog', () => ({
+  useDeleteInvoiceDialog: () => ({
+    openDeleteInvoiceDialog: mockOpenDeleteInvoiceDialog,
+  }),
+}))
+
+jest.mock('~/components/invoices/FinalizeInvoiceDialog', () => ({
+  useFinalizeInvoiceDialog: () => ({
+    openFinalizeInvoiceDialog: mockOpenFinalizeInvoiceDialog,
+  }),
+}))
+
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
   useDownloadInvoiceItemMutation: (options: typeof downloadInvoiceCallbacks) => {
@@ -168,9 +193,6 @@ const createMockInvoice = (overrides: Partial<InvoiceItem> = {}): InvoiceItem =>
   paymentDisputeLostAt: null,
   taxProviderVoidable: false,
   invoiceType: InvoiceTypeEnum.Subscription,
-  creditableAmountCents: '10000',
-  refundableAmountCents: '0',
-  offsettableAmountCents: '0',
   associatedActiveWalletPresent: false,
   voidedInvoiceId: null,
   regeneratedInvoiceId: null,
@@ -330,10 +352,10 @@ describe('InvoicesList', () => {
   })
 
   describe('Loading State', () => {
-    it('renders loading state when isLoading is true', async () => {
+    it('renders the full-list skeleton while loading', async () => {
       await renderInvoicesList({ isLoading: true, invoices: undefined })
 
-      // Table should still render headers but with loading skeletons in body
+      // Loading → skeleton rows fill the list
       const bodyRows = within(screen.queryAllByRole('rowgroup')[1]).queryAllByRole('row')
 
       expect(bodyRows.length).toBeGreaterThan(0)
@@ -1036,7 +1058,6 @@ describe('InvoicesList', () => {
       const user = userEvent.setup()
 
       mockCanRetryCollect.mockReturnValue(true)
-      mockHasFeatureFlag.mockReturnValue(true)
 
       await renderInvoicesList({
         invoices: [
@@ -1055,9 +1076,10 @@ describe('InvoicesList', () => {
 
       await waitFor(() => user.click(retryButton))
 
-      // Dialog should be opened - verify by checking for dialog-title test id
       await waitFor(() => {
-        expect(screen.getByTestId('dialog-title')).toBeInTheDocument()
+        expect(mockOpenResendInvoiceForCollectionDialog).toHaveBeenCalledWith(
+          expect.objectContaining({ invoice: expect.objectContaining({ id: 'invoice-1' }) }),
+        )
       })
     })
 
@@ -1107,6 +1129,26 @@ describe('InvoicesList', () => {
       await waitFor(() => user.click(voidButton))
 
       expect(testMockNavigateFn).toHaveBeenCalled()
+    })
+
+    it('opens the delete dialog when the delete action is clicked', async () => {
+      const user = userEvent.setup()
+
+      mockCanDelete.mockReturnValue(true)
+
+      await renderInvoicesList({
+        invoices: [createMockInvoice({ status: InvoiceStatusTypeEnum.Draft })],
+      })
+
+      const actionButton = screen.getByTestId('open-action-button')
+
+      await waitFor(() => user.click(actionButton))
+
+      const deleteButton = screen.getByRole('button', { name: 'text_17848001862070vhaaoyut3y' })
+
+      await waitFor(() => user.click(deleteButton))
+
+      expect(mockOpenDeleteInvoiceDialog).toHaveBeenCalled()
     })
 
     it('shows regenerate action for voided invoice and navigates', async () => {
@@ -1248,8 +1290,8 @@ describe('InvoicesList', () => {
     })
   })
 
-  describe('Disabled Credit Note Action', () => {
-    it('shows disabled credit note action with tooltip for partially paid invoice with zero creditable amount', async () => {
+  describe('Issue Credit Note Action enablement', () => {
+    it('keeps the issue-credit-note action enabled for a finalized invoice regardless of covered amount', async () => {
       const user = userEvent.setup()
 
       await renderInvoicesList({
@@ -1257,10 +1299,8 @@ describe('InvoicesList', () => {
           createMockInvoice({
             status: InvoiceStatusTypeEnum.Finalized,
             paymentStatus: InvoicePaymentStatusTypeEnum.Pending,
-            totalAmountCents: '10000',
-            totalPaidAmountCents: '0',
-            creditableAmountCents: '0',
-            refundableAmountCents: '0',
+            invoiceType: InvoiceTypeEnum.Subscription,
+            associatedActiveWalletPresent: true,
           }),
         ],
       })
@@ -1274,6 +1314,31 @@ describe('InvoicesList', () => {
       })
 
       expect(issueCreditNoteButton).toBeInTheDocument()
+      expect(issueCreditNoteButton).not.toBeDisabled()
+    })
+
+    it('disables the issue-credit-note action for a credit invoice whose wallet was terminated', async () => {
+      const user = userEvent.setup()
+
+      await renderInvoicesList({
+        invoices: [
+          createMockInvoice({
+            status: InvoiceStatusTypeEnum.Finalized,
+            invoiceType: InvoiceTypeEnum.Credit,
+            associatedActiveWalletPresent: false,
+          }),
+        ],
+      })
+
+      const actionButton = screen.getByTestId('open-action-button')
+
+      await waitFor(() => user.click(actionButton))
+
+      const issueCreditNoteButton = screen.getByRole('button', {
+        name: 'text_636bdef6565341dcb9cfb127',
+      })
+
+      expect(issueCreditNoteButton).toBeDisabled()
     })
   })
 
@@ -1518,22 +1583,9 @@ describe('InvoicesList', () => {
     })
   })
 
-  describe('Infinite Scroll onBottom', () => {
-    let intersectionObserverCallback: (entries: Array<{ isIntersecting: boolean }>) => void
-
-    beforeEach(() => {
-      // Reset intersection observer mock to capture the callback
-      mockIntersectionObserver.mockImplementation((callback) => {
-        intersectionObserverCallback = callback
-        return {
-          observe: jest.fn(),
-          unobserve: jest.fn(),
-          disconnect: jest.fn(),
-        }
-      })
-    })
-
-    it('calls fetchMore when scrolling to bottom and more pages available', async () => {
+  describe('Pagination', () => {
+    it('calls fetchMore with the next page when the next control is clicked', async () => {
+      const user = userEvent.setup()
       const fetchMore = jest.fn()
 
       await renderInvoicesList({
@@ -1542,49 +1594,46 @@ describe('InvoicesList', () => {
         isLoading: false,
       })
 
-      // Simulate intersection observer callback firing
-      await act(async () => {
-        intersectionObserverCallback([{ isIntersecting: true }])
-      })
+      const pagination = screen.getByRole('navigation', { name: 'pagination' })
+      const buttons = within(pagination).getAllByRole('button')
+
+      // [prev, next] — click the next chevron (last control)
+      await user.click(buttons[buttons.length - 1])
 
       expect(fetchMore).toHaveBeenCalledWith({
         variables: { page: 2 },
       })
     })
 
-    it('does not call fetchMore when on last page', async () => {
-      const fetchMore = jest.fn()
-
+    it('disables the next control on the last page', async () => {
       await renderInvoicesList({
-        fetchMore,
+        fetchMore: jest.fn(),
         metadata: createMockMetadata({ currentPage: 3, totalPages: 3, totalCount: 30 }),
         isLoading: false,
       })
 
-      await act(async () => {
-        intersectionObserverCallback([{ isIntersecting: true }])
-      })
+      const pagination = screen.getByRole('navigation', { name: 'pagination' })
+      const buttons = within(pagination).getAllByRole('button')
 
-      expect(fetchMore).not.toHaveBeenCalled()
+      // the last control is the "next" chevron
+      expect(buttons[buttons.length - 1]).toBeDisabled()
     })
 
-    it('does not call fetchMore when isLoading is true', async () => {
-      const fetchMore = jest.fn()
-
+    it('keeps the pager visible with disabled controls while loading', async () => {
       await renderInvoicesList({
-        fetchMore,
+        fetchMore: jest.fn(),
         metadata: createMockMetadata({ currentPage: 1, totalPages: 3, totalCount: 30 }),
         isLoading: true,
       })
 
-      await act(async () => {
-        intersectionObserverCallback([{ isIntersecting: true }])
-      })
+      const pagination = screen.getByRole('navigation', { name: 'pagination' })
 
-      expect(fetchMore).not.toHaveBeenCalled()
+      within(pagination)
+        .getAllByRole('button')
+        .forEach((button) => expect(button).toBeDisabled())
     })
 
-    it('does not call fetchMore when metadata is undefined', async () => {
+    it('does not render the pagination control when metadata is undefined', async () => {
       const fetchMore = jest.fn()
 
       await renderInvoicesList({
@@ -1593,10 +1642,7 @@ describe('InvoicesList', () => {
         isLoading: false,
       })
 
-      await act(async () => {
-        intersectionObserverCallback([{ isIntersecting: true }])
-      })
-
+      expect(screen.queryByRole('navigation', { name: 'pagination' })).not.toBeInTheDocument()
       expect(fetchMore).not.toHaveBeenCalled()
     })
   })

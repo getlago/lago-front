@@ -19,7 +19,6 @@ import {
 import {
   ActivationRuleStatusEnum,
   CancellationReasonEnum,
-  FeatureFlagEnum,
   NextSubscriptionTypeEnum,
   StatusTypeEnum,
   SubscriptionInformationFieldsFragment,
@@ -43,6 +42,7 @@ gql`
     nextSubscriptionAt
     nextSubscriptionType
     billingEntityId
+    purchaseOrderNumber
     activationRules {
       id
       type
@@ -93,7 +93,9 @@ const SubscriptionEndOrTerminatedAt = ({
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
 
   if (subscription?.status === StatusTypeEnum.Terminated) {
-    return intlFormatDateTimeOrgaTZ(subscription?.terminatedAt ?? '').date
+    if (!subscription.terminatedAt) return '-'
+
+    return intlFormatDateTimeOrgaTZ(subscription.terminatedAt).date
   }
 
   if (subscription?.endingAt) {
@@ -188,12 +190,10 @@ const getSubscriptionInformationGrid = ({
   subscription,
   translate,
   intlFormatDateTimeOrgaTZ,
-  showBillingEntityRow,
 }: {
   subscription?: SubscriptionInformationFieldsFragment | null
   translate: TranslateFunc
   intlFormatDateTimeOrgaTZ: ReturnType<typeof useOrganizationInfos>['intlFormatDateTimeOrgaTZ']
-  showBillingEntityRow: boolean
 }) => {
   const isCustomerDeleted = !!subscription?.customer?.deletedAt
   const customerId = subscription?.customer?.id ?? ''
@@ -225,17 +225,19 @@ const getSubscriptionInformationGrid = ({
     },
     {
       label: translate('text_65201c5a175a4b0238abf29e'),
-      value: intlFormatDateTimeOrgaTZ(subscription?.startedAt ?? '').date,
+      value: subscription?.startedAt ? intlFormatDateTimeOrgaTZ(subscription.startedAt).date : '-',
     },
     {
       label: translate('text_1781859135627z59hpfpa8pt'),
-      value: intlFormatDateTimeOrgaTZ(subscription?.subscriptionAt ?? '').date,
+      value: subscription?.subscriptionAt
+        ? intlFormatDateTimeOrgaTZ(subscription.subscriptionAt).date
+        : '-',
     },
     {
       label: translate('text_65201c5a175a4b0238abf2a0'),
       value: <SubscriptionEndOrTerminatedAt subscription={subscription} />,
     },
-    showBillingEntityRow && {
+    {
       label: translate('text_17436114971570doqrwuwhf0'),
       value: (
         <BillingEntityLabel
@@ -243,6 +245,10 @@ const getSubscriptionInformationGrid = ({
           customerEntity={subscription?.customer?.billingEntity}
         />
       ),
+    },
+    {
+      label: translate('text_17822197712865r9iwe3lgel'),
+      value: subscription?.purchaseOrderNumber || '-',
     },
   ]
 }
@@ -253,8 +259,7 @@ export const SubscriptionInformationFields = ({
   subscription?: SubscriptionInformationFieldsFragment | null
 }) => {
   const { translate } = useInternationalization()
-  const { intlFormatDateTimeOrgaTZ, hasFeatureFlag } = useOrganizationInfos()
-  const showBillingEntityRow = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
+  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
 
   const paymentActivationRule = getPaymentActivationRule(subscription)
   const customerId = subscription?.customer?.id ?? ''
@@ -296,7 +301,6 @@ export const SubscriptionInformationFields = ({
           subscription,
           translate,
           intlFormatDateTimeOrgaTZ,
-          showBillingEntityRow,
         })}
       />
 

@@ -29,8 +29,8 @@ interface ChargeFilterProps {
   filterIndex: number
   chargeIndex: number
   billableMetricFilters?: BillableMetricFilter[]
-  /** Values already selected by other filters on the same charge */
-  existingFilterValues?: Set<string>
+  /** Full value sets of the other filters defined on the same charge */
+  otherFiltersValues?: LocalChargeFilterInput['values'][]
   setFilterValues: (values: LocalChargeFilterInput['values']) => void
   deleteFilterValue: (valueIndex: number) => void
 }
@@ -41,7 +41,7 @@ export const ChargeFilter = memo(
     filterIndex,
     chargeIndex,
     billableMetricFilters,
-    existingFilterValues,
+    otherFiltersValues,
     setFilterValues,
     deleteFilterValue,
   }: ChargeFilterProps) => {
@@ -49,11 +49,18 @@ export const ChargeFilter = memo(
     const [showComboBox, setShowComboBox] = useState(false)
     const hasValuesDefined = Object.keys(filter?.values || {}).length > 0
 
-    const hasDuplicateValues = useMemo(() => {
-      if (!existingFilterValues?.size) return false
+    // Only warn when another filter on this charge has the *exact same* set of
+    // values (e.g. same filter, different price) — a partial overlap is valid.
+    const isDuplicateDefinition = useMemo(() => {
+      if (!otherFiltersValues?.length || !filter.values.length) return false
 
-      return filter.values.some((v) => existingFilterValues.has(v))
-    }, [existingFilterValues, filter.values])
+      const currentValues = new Set(filter.values)
+
+      return otherFiltersValues.some(
+        (values) =>
+          values.length === currentValues.size && values.every((v) => currentValues.has(v)),
+      )
+    }, [otherFiltersValues, filter.values])
 
     const filterValues: BasicComboBoxData[] = useMemo(() => {
       if (!billableMetricFilters) return []
@@ -112,8 +119,8 @@ export const ChargeFilter = memo(
           {translate('text_65f8472df7593301061e27d3')}
         </Typography>
 
-        {hasDuplicateValues && (
-          <Alert type="warning">{translate('text_1773693201084rlj6btz4xe1')}</Alert>
+        {isDuplicateDefinition && (
+          <Alert type="warning">{translate('text_17842075995060cc5300kk8j')}</Alert>
         )}
 
         {hasValuesDefined && (

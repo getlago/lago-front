@@ -11,10 +11,14 @@ import {
 import AvalaraIntegrations from '../AvalaraIntegrations'
 
 jest.mock('~/components/settings/integrations/AddAvalaraDialog', () => ({
-  AddAvalaraDialog: () => null,
+  useAddAvalaraDialog: () => ({
+    openAddAvalaraDialog: jest.fn(),
+  }),
 }))
 jest.mock('~/components/settings/integrations/DeleteAvalaraIntegrationDialog', () => ({
-  DeleteAvalaraIntegrationDialog: () => null,
+  useDeleteAvalaraIntegrationDialog: () => ({
+    openDeleteAvalaraIntegrationDialog: jest.fn(),
+  }),
 }))
 
 describe('AvalaraIntegrations', () => {

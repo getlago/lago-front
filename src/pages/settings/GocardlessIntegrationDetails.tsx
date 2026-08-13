@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
-import { useRef } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -10,18 +9,12 @@ import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { useAddGocardlessDialog } from '~/components/settings/integrations/AddGocardlessDialog'
+import { useDeleteGocardlessIntegrationDialog } from '~/components/settings/integrations/DeleteGocardlessIntegrationDialog'
 import {
-  AddEditDeleteSuccessRedirectUrlDialog,
-  AddEditDeleteSuccessRedirectUrlDialogRef,
-} from '~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog'
-import {
-  AddGocardlessDialog,
-  AddGocardlessDialogRef,
-} from '~/components/settings/integrations/AddGocardlessDialog'
-import {
-  DeleteGocardlessIntegrationDialog,
-  DeleteGocardlessIntegrationDialogRef,
-} from '~/components/settings/integrations/DeleteGocardlessIntegrationDialog'
+  useAddEditSuccessRedirectUrlDialog,
+  useDeleteSuccessRedirectUrlDialog,
+} from '~/components/settings/integrations/SuccessRedirectUrlDialogs'
 import { addToast, envGlobalVar } from '~/core/apolloClient'
 import { buildGocardlessAuthUrl } from '~/core/constants/externalUrls'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -78,9 +71,10 @@ const GocardlessIntegrationDetails = () => {
   const { integrationId } = useParams()
   const { lagoOauthProxyUrl } = envGlobalVar()
   const { hasPermissions } = usePermissions()
-  const addDialogRef = useRef<AddGocardlessDialogRef>(null)
-  const deleteDialogRef = useRef<DeleteGocardlessIntegrationDialogRef>(null)
-  const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
+  const { openAddGocardlessDialog } = useAddGocardlessDialog()
+  const { openDeleteGocardlessIntegrationDialog } = useDeleteGocardlessIntegrationDialog()
+  const { openAddEditSuccessRedirectUrlDialog } = useAddEditSuccessRedirectUrlDialog()
+  const { openDeleteSuccessRedirectUrlDialog } = useDeleteSuccessRedirectUrlDialog()
   const { translate } = useInternationalization()
   const { data, loading } = useGetGocardlessIntegrationsDetailsQuery({
     variables: {
@@ -122,7 +116,7 @@ const GocardlessIntegrationDetails = () => {
             }),
           },
           {
-            label: translate('text_67db6a10cb0b8031ca538909'),
+            label: translate('text_634ea0ecc6147de10ddb6648'),
             path: generatePath(GOCARDLESS_INTEGRATION_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
             }),
@@ -148,9 +142,8 @@ const GocardlessIntegrationDetails = () => {
                   label: translate('text_65845f35d7d69c3ab4793dac'),
                   hidden: !canEditIntegration,
                   onClick: (closePopper) => {
-                    addDialogRef.current?.openDialog({
+                    openAddGocardlessDialog({
                       provider: gocardlessPaymentProvider,
-                      deleteModalRef: deleteDialogRef,
                       deleteDialogCallback,
                     })
                     closePopper()
@@ -185,7 +178,7 @@ const GocardlessIntegrationDetails = () => {
                   label: translate('text_65845f35d7d69c3ab4793dad'),
                   hidden: !canDeleteIntegration,
                   onClick: (closePopper) => {
-                    deleteDialogRef.current?.openDialog({
+                    openDeleteGocardlessIntegrationDialog({
                       provider: gocardlessPaymentProvider,
                       callback: deleteDialogCallback,
                     })
@@ -207,9 +200,8 @@ const GocardlessIntegrationDetails = () => {
                 variant="inline"
                 align="left"
                 onClick={() => {
-                  addDialogRef.current?.openDialog({
+                  openAddGocardlessDialog({
                     provider: gocardlessPaymentProvider,
-                    deleteModalRef: deleteDialogRef,
                     deleteDialogCallback,
                   })
                 }}
@@ -275,7 +267,7 @@ const GocardlessIntegrationDetails = () => {
                 variant="inline"
                 disabled={!!gocardlessPaymentProvider?.successRedirectUrl}
                 onClick={() => {
-                  successRedirectUrlDialogRef.current?.openDialog({
+                  openAddEditSuccessRedirectUrlDialog({
                     mode: 'Add',
                     type: 'GoCardless',
                     provider: gocardlessPaymentProvider,
@@ -328,7 +320,7 @@ const GocardlessIntegrationDetails = () => {
                                 fullWidth
                                 align="left"
                                 onClick={() => {
-                                  successRedirectUrlDialogRef.current?.openDialog({
+                                  openAddEditSuccessRedirectUrlDialog({
                                     mode: 'Edit',
                                     type: 'GoCardless',
                                     provider: gocardlessPaymentProvider,
@@ -347,8 +339,7 @@ const GocardlessIntegrationDetails = () => {
                                 align="left"
                                 fullWidth
                                 onClick={() => {
-                                  successRedirectUrlDialogRef.current?.openDialog({
-                                    mode: 'Delete',
+                                  openDeleteSuccessRedirectUrlDialog({
                                     type: 'GoCardless',
                                     provider: gocardlessPaymentProvider,
                                   })
@@ -369,9 +360,6 @@ const GocardlessIntegrationDetails = () => {
           )}
         </section>
       </IntegrationsPage.Container>
-      <AddGocardlessDialog ref={addDialogRef} />
-      <DeleteGocardlessIntegrationDialog ref={deleteDialogRef} />
-      <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </div>
   )
 }

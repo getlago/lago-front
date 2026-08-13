@@ -19,6 +19,7 @@ import Board from '~/icons/board.svg'
 import Bold from '~/icons/bold.svg'
 import Book from '~/icons/book.svg'
 import Box from '~/icons/box.svg'
+import Brackets from '~/icons/brackets.svg'
 import Bulb from '~/icons/bulb.svg'
 import Burger from '~/icons/burger.svg'
 import Calendar from '~/icons/calendar.svg'
@@ -116,6 +117,7 @@ import Reload from '~/icons/reload.svg'
 import Requested from '~/icons/requested.svg'
 import ResizeExpand from '~/icons/resize-expand.svg'
 import ResizeReduce from '~/icons/resize-reduce.svg'
+import Robot from '~/icons/robot.svg'
 import Rocket from '~/icons/rocket.svg'
 import Rotate from '~/icons/rotate.svg'
 import Schema from '~/icons/schema.svg'
@@ -179,6 +181,7 @@ export const ALL_ICONS = {
   bulb: Bulb,
   burger: Burger,
   box: Box,
+  brackets: Brackets,
   calendar: Calendar,
   'chart-bar': ChartBar,
   checkmark: Checkmark,
@@ -274,6 +277,7 @@ export const ALL_ICONS = {
   requested: Requested,
   'resize-expand': ResizeExpand,
   'resize-reduce': ResizeReduce,
+  robot: Robot,
   rocket: Rocket,
   rotate: Rotate,
   scissor: Scissor,

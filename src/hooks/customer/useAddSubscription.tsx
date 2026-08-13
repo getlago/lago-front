@@ -16,6 +16,7 @@ import {
   useNavigate,
 } from '~/core/router'
 import { serializePlanInput } from '~/core/serializers'
+import { comparable } from '~/core/utils/comparableValue'
 import {
   BillingTimeEnum,
   CreateSubscriptionInput,
@@ -39,6 +40,7 @@ gql`
       subscriptionAt
       endingAt
       name
+      purchaseOrderNumber
       externalId
       activationRules {
         id
@@ -80,6 +82,7 @@ gql`
       subscriptionAt
       endingAt
       name
+      purchaseOrderNumber
       externalId
       activationRules {
         id
@@ -136,25 +139,6 @@ type UseAddSubscription = (args: {
   subscriptionAt?: string
 }) => UseAddSubscriptionReturn
 
-// Recursively drops __typename and sorts object keys so two values produced by
-// the same serialization compare equal regardless of key order / __typename.
-const sortedWithoutTypename = (value: unknown): unknown => {
-  if (Array.isArray(value)) return value.map(sortedWithoutTypename)
-
-  if (value !== null && typeof value === 'object') {
-    return Object.fromEntries(
-      Object.entries(value as Record<string, unknown>)
-        .filter(([key]) => key !== '__typename')
-        .sort(([a], [b]) => a.localeCompare(b))
-        .map(([key, entry]) => [key, sortedWithoutTypename(entry)]),
-    )
-  }
-
-  return value
-}
-
-const comparable = (value: unknown): string => JSON.stringify(sortedWithoutTypename(value))
-
 // The override-meaningful content of a (serialized + cleaned) fixed charge,
 // excluding `units` (compared separately) and identity fields. The edit drawer
 // writes the whole charge back and augments it with normalization-only fields
@@ -184,6 +168,7 @@ export const cleanPlanValues = (planValues: PlanOverridesInput) => {
     billFixedChargesMonthly: undefined,
     cascadeUpdates: undefined,
     entitlements: undefined,
+    metadata: undefined,
     usageThresholds: undefined,
     charges: planValues?.charges?.map((charge) => ({
       ...charge,
@@ -385,6 +370,7 @@ export const useAddSubscription: UseAddSubscription = ({
         billingTime,
         paymentMethod,
         billingEntityId,
+        purchaseOrderNumber,
         ...values
       },
       { ...planValues },
@@ -438,6 +424,7 @@ export const useAddSubscription: UseAddSubscription = ({
                   name: name || undefined,
                   externalId: externalId || undefined,
                   paymentMethod: parsedPaymentMethod,
+                  purchaseOrderNumber,
                   ...values,
                   planOverrides,
                 },
@@ -455,6 +442,7 @@ export const useAddSubscription: UseAddSubscription = ({
                   // subscription column, meaning "inherit from customer".
                   billingEntityId: billingEntityId || null,
                   paymentMethod: parsedPaymentMethod,
+                  purchaseOrderNumber,
                   planOverrides,
                 },
               },

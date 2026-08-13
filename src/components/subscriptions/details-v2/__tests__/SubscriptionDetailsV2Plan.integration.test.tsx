@@ -33,6 +33,7 @@ const stubRefDrawer = () => {
     return null
   })
 }
+
 jest.mock('~/components/plans/drawers/subscriptionFee/SubscriptionFeeDrawer', () => ({
   __esModule: true,
   SubscriptionFeeDrawer: stubRefDrawer(),
@@ -56,6 +57,10 @@ jest.mock('~/components/plans/details-v2/accordions/ProgressiveBillingAccordion'
 jest.mock('~/components/plans/details-v2/accordions/EntitlementAccordion', () => ({
   __esModule: true,
   EntitlementAccordion: () => null,
+}))
+jest.mock('~/components/plans/details-v2/accordions/MetadataAccordion', () => ({
+  __esModule: true,
+  MetadataAccordion: () => null,
 }))
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (k: string) => k }),

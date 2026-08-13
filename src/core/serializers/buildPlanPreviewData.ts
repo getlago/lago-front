@@ -6,7 +6,7 @@ import type {
 } from '~/components/plans/types'
 import { ChargeModelEnum, FixedChargeChargeModelEnum, PlanInterval } from '~/generated/graphql'
 
-export type BilledTiming = 'beginningOfPeriod' | 'endOfPeriod' | 'onTransaction'
+type BilledTiming = 'beginningOfPeriod' | 'endOfPeriod' | 'onTransaction'
 
 export type PreviewCellValue =
   | { type: 'count'; value: number }
@@ -32,7 +32,7 @@ export type PreviewQualifier =
   | { type: 'perTransaction' }
   | { type: 'commitment' }
 
-export type PlanPreviewMainRow = {
+type PlanPreviewMainRow = {
   kind: 'main'
   rowType: 'subscriptionFee' | 'fixedCharge' | 'usageCharge' | 'minimumCommitment'
   name?: string
@@ -43,7 +43,7 @@ export type PlanPreviewMainRow = {
   price: PreviewCellValue
 }
 
-export type PlanPreviewDetailRow = {
+type PlanPreviewDetailRow = {
   kind: 'detail'
   label: PreviewDetailLabel
   qualifier: PreviewQualifier

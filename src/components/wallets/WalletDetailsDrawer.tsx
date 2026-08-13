@@ -24,6 +24,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import WalletTransactionItems from '~/components/wallets/WalletTransactionItems'
 import { buildGoCardlessPaymentUrl, buildStripePaymentUrl } from '~/core/constants/externalUrls'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import {
   payablePaymentStatusMapping,
   paymentStatusMapping,
@@ -67,6 +68,7 @@ gql`
     source
     invoiceRequiresSuccessfulPayment
     priority
+    purchaseOrderNumber
     remainingAmountCents
     remainingCreditAmount
     metadata {
@@ -132,6 +134,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
       }
     }
   }
@@ -148,6 +151,7 @@ gql`
       metadata {
         currentPage
         totalPages
+        totalCount
       }
     }
   }
@@ -207,9 +211,10 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
       loading: fundingsLoading,
       fetchMore: fundingsFetchMore,
     } = useGetWalletTransactionFundingsQuery({
+      notifyOnNetworkStatusChange: true,
       variables: {
         walletTransactionId: walletTransactionId as string,
-        limit: 20,
+        limit: DEFAULT_PAGE_SIZE,
       },
       skip: !walletTransactionId || !showFundingTab,
       context: {
@@ -223,9 +228,10 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
       loading: consumptionsLoading,
       fetchMore: consumptionsFetchMore,
     } = useGetWalletTransactionConsumptionsQuery({
+      notifyOnNetworkStatusChange: true,
       variables: {
         walletTransactionId: walletTransactionId as string,
-        limit: 20,
+        limit: DEFAULT_PAGE_SIZE,
       },
       skip: !walletTransactionId || !showConsumptionTab,
       context: {
@@ -260,6 +266,7 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
       invoice,
       invoiceRequiresSuccessfulPayment,
       priority,
+      purchaseOrderNumber,
       remainingAmountCents,
       remainingCreditAmount,
       metadata,
@@ -562,6 +569,10 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
                                     {id}
                                   </TypographyWithCopy>
                                 }
+                              />
+                              <DetailRow
+                                label={translate('text_17822197712865r9iwe3lgel')}
+                                value={purchaseOrderNumber}
                               />
                             </div>
                           </section>

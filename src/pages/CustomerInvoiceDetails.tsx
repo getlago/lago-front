@@ -10,15 +10,10 @@ import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { buildInvoiceDocumentData } from '~/components/emails/buildDocumentData'
 import { AddMetadataDrawer, AddMetadataDrawerRef } from '~/components/invoices/AddMetadataDrawer'
-import {
-  DisputeInvoiceDialog,
-  DisputeInvoiceDialogRef,
-} from '~/components/invoices/DisputeInvoiceDialog'
+import { useDeleteInvoiceDialog } from '~/components/invoices/DeleteInvoiceDialog'
+import { useDisputeInvoiceDialog } from '~/components/invoices/DisputeInvoiceDialog'
 import { useUpdateInvoicePaymentStatusDialog } from '~/components/invoices/EditInvoicePaymentStatusDialog'
-import {
-  FinalizeInvoiceDialog,
-  FinalizeInvoiceDialogRef,
-} from '~/components/invoices/FinalizeInvoiceDialog'
+import { useFinalizeInvoiceDialog } from '~/components/invoices/FinalizeInvoiceDialog'
 import { InvoiceActivityLogs } from '~/components/invoices/InvoiceActivityLogs'
 import { InvoiceCreditNoteList } from '~/components/invoices/InvoiceCreditNoteList'
 import { InvoicePaymentList } from '~/components/invoices/InvoicePaymentList'
@@ -60,6 +55,7 @@ import {
   HubspotIntegrationInfosForInvoiceOverviewFragmentDoc,
   Invoice,
   InvoiceDetailsForInvoiceOverviewFragmentDoc,
+  InvoiceForDeleteInvoiceFragmentDoc,
   InvoiceForDetailsTableFragmentDoc,
   InvoiceForFinalizeInvoiceFragmentDoc,
   InvoiceForFormatInvoiceItemMapFragmentDoc,
@@ -105,6 +101,7 @@ gql`
     taxStatus
     totalAmountCents
     currency
+    purchaseOrderNumber
     refundableAmountCents
     creditableAmountCents
     offsettableAmountCents
@@ -132,6 +129,7 @@ gql`
     ...InvoiceForInvoiceInfos
     ...InvoiceForFinalizeInvoice
     ...InvoiceForUpdateInvoicePaymentStatus
+    ...InvoiceForDeleteInvoice
   }
 
   fragment FeeAppliedTaxesForInvoiceDetails on Fee {
@@ -221,6 +219,7 @@ gql`
     invoice(id: $id) {
       id
       status
+      purchaseOrderNumber
     }
   }
 
@@ -299,6 +298,7 @@ gql`
   ${AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc}
   ${InvoiceForFinalizeInvoiceFragmentDoc}
   ${InvoiceForUpdateInvoicePaymentStatusFragmentDoc}
+  ${InvoiceForDeleteInvoiceFragmentDoc}
   ${NetsuiteIntegrationInfosForInvoiceOverviewFragmentDoc}
   ${HubspotIntegrationInfosForInvoiceOverviewFragmentDoc}
   ${SalesforceIntegrationInfosForInvoiceOverviewFragmentDoc}
@@ -316,11 +316,12 @@ const CustomerInvoiceDetails = () => {
   const { goBack } = useLocationHistory()
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
-  const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
+  const { openFinalizeInvoiceDialog } = useFinalizeInvoiceDialog()
+  const { openDeleteInvoiceDialog } = useDeleteInvoiceDialog()
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
   const { openUpdateInvoicePaymentStatusDialog } = useUpdateInvoicePaymentStatusDialog()
   const addMetadataDrawerDialogRef = useRef<AddMetadataDrawerRef>(null)
-  const disputeInvoiceDialogRef = useRef<DisputeInvoiceDialogRef>(null)
+  const { openDisputeInvoiceDialog } = useDisputeInvoiceDialog()
   const activeTabContent = useMainHeaderTabContent()
 
   const { data, loading, error, refetch } = useGetInvoiceDetailsQuery({
@@ -523,9 +524,6 @@ const CustomerInvoiceDetails = () => {
     currency,
     status,
     taxStatus,
-    creditableAmountCents,
-    refundableAmountCents,
-    offsettableAmountCents,
     taxProviderVoidable,
     associatedActiveWalletPresent,
     paymentDisputeLostAt,
@@ -538,9 +536,6 @@ const CustomerInvoiceDetails = () => {
   const { disabledIssueCreditNoteButton, disabledIssueCreditNoteButtonLabel } =
     createCreditNoteForInvoiceButtonProps({
       invoiceType,
-      creditableAmountCents,
-      refundableAmountCents,
-      offsettableAmountCents,
       associatedActiveWalletPresent,
     })
 
@@ -778,7 +773,7 @@ const CustomerInvoiceDetails = () => {
           label: translate('text_63a41a8eabb9ae67047c1c08'),
           hidden: !authorizations.canFinalizeInvoice,
           onClick: (closePopper: () => void) => {
-            finalizeInvoiceRef.current?.openDialog(data?.invoice)
+            openFinalizeInvoiceDialog(data?.invoice)
             closePopper()
           },
         },
@@ -938,7 +933,7 @@ const CustomerInvoiceDetails = () => {
           label: translate('text_66141e30699a0631f0b2ec71'),
           hidden: !authorizations.canDispute,
           onClick: (closePopper: () => void) => {
-            disputeInvoiceDialogRef.current?.openDialog({
+            openDisputeInvoiceDialog({
               id: data?.invoice?.id || '',
             })
             closePopper()
@@ -957,6 +952,16 @@ const CustomerInvoiceDetails = () => {
                   invoiceId,
                 }),
               )
+            }
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_17848001862070vhaaoyut3y'),
+          hidden: !authorizations.canDelete,
+          onClick: (closePopper: () => void) => {
+            if (data?.invoice) {
+              openDeleteInvoiceDialog(data.invoice, goToPreviousRoute)
             }
             closePopper()
           },
@@ -1034,8 +1039,6 @@ const CustomerInvoiceDetails = () => {
         <DetailsPage.Container>{activeTabContent}</DetailsPage.Container>
       )}
 
-      <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
-      <DisputeInvoiceDialog ref={disputeInvoiceDialogRef} />
       {!!invoice && <AddMetadataDrawer ref={addMetadataDrawerDialogRef} invoiceId={invoice.id} />}
     </>
   )

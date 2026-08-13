@@ -25,6 +25,10 @@ import { QuotePreviewCard } from './common/QuotePreviewCard'
 import { useSharedColumns } from './common/sharedColumns'
 import { useCloneQuote } from './hooks/useCloneQuote'
 import { useQuote } from './hooks/useQuote'
+import {
+  getQuoteMutationErrors,
+  QUOTE_MUTATION_SILENT_ERROR_CODES,
+} from './utils/quoteMutationErrors'
 
 export const VOID_QUOTE_CLOSE_BUTTON_TEST_ID = 'void-quote-close-button'
 export const VOID_QUOTE_VOID_BUTTON_TEST_ID = 'void-quote-void-button'
@@ -58,8 +62,13 @@ const VoidQuote = () => {
     : ''
 
   const previewProps = useMemo(
-    () => buildQuotePreviewProps(quote?.currentVersion, quote?.customer),
-    [quote?.currentVersion, quote?.customer],
+    () =>
+      buildQuotePreviewProps({
+        version: quote?.currentVersion,
+        customer: quote?.customer,
+        images: (quote?.images ?? {}) as Record<string, string>,
+      }),
+    [quote?.currentVersion, quote?.customer, quote?.images],
   )
 
   const header = {
@@ -71,6 +80,10 @@ const VoidQuote = () => {
 
   const [voidQuoteVersionMutation] = useVoidQuoteVersionMutation({
     refetchQueries: ['getQuotes'],
+    // Handled locally by `getQuoteMutationErrors`, so the global error link must not
+    // also fire its generic toast (nor report these expected failures to Sentry).
+    // Copied: the link pushes its own force-silenced codes onto the array it receives.
+    context: { silentErrorCodes: [...QUOTE_MUTATION_SILENT_ERROR_CODES] },
   })
 
   const versionId = quote?.versions[0]?.id
@@ -86,7 +99,15 @@ const VoidQuote = () => {
       },
     })
 
-    return result.data?.voidQuoteVersion ?? null
+    if (!result.data?.voidQuoteVersion) {
+      getQuoteMutationErrors(result.errors, translate).forEach(({ message }) =>
+        addToast({ severity: 'danger', message }),
+      )
+
+      return null
+    }
+
+    return result.data.voidQuoteVersion
   }
 
   const onSubmit = async () => {
@@ -203,7 +224,7 @@ const VoidQuote = () => {
           {loading ? (
             <FormLoadingSkeleton id="void-quote" />
           ) : (
-            <div className="flex flex-col gap-12">
+            <div className="flex flex-col">
               <Alert data-test={VOID_QUOTE_ALERT_TEST_ID} type="warning">
                 <Typography className="text-grey-700">
                   {translate('text_1776414006125a67i2j1xl8s')}

@@ -21,17 +21,15 @@ import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { endOfDayIso } from '~/core/utils/dateUtils'
 import { scrollToTop } from '~/core/utils/domUtils'
 import {
-  BillableMetricsForCouponsFragment,
   CouponExpiration,
   CouponFrequency,
   CouponTypeEnum,
   CreateCouponInput,
   CurrencyEnum,
-  PlansForCouponsFragment,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
-import { useCreateEditCoupon } from '~/hooks/useCreateEditCoupon'
+import { CouponLimitItem, useCreateEditCoupon } from '~/hooks/useCreateEditCoupon'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { useAddBillableMetricToCouponDialog } from '~/pages/createCoupon/dialogs/AddBillableMetricToCouponDialog'
 import { useAddPlanToCouponDialog } from '~/pages/createCoupon/dialogs/AddPlanToCouponDialog'
@@ -46,7 +44,6 @@ export const COUPONS_FORM_ID = 'coupon-form'
 export const COUPON_DESCRIPTION_INPUT_TEST_ID = 'coupon-description-input'
 export const COUPON_AMOUNT_INPUT_TEST_ID = 'coupon-amount-input'
 export const COUPON_PERCENTAGE_INPUT_TEST_ID = 'coupon-percentage-input'
-export const COUPON_CODE_SNIPPET_TEST_ID = 'coupon-code-snippet'
 export const COUPON_EXPIRATION_SECTION_TEST_ID = 'coupon-expiration-section'
 export const COUPON_LIMIT_ERROR_TEST_ID = 'coupon-limit-error'
 
@@ -122,14 +119,14 @@ const CreateCoupon = () => {
   // Get all form values for the code snippet
   const formValues = useStore(form.store, (state) => state.values)
 
-  const attachPlanToCoupon = (plan: PlansForCouponsFragment) => {
+  const attachPlanToCoupon = (plan: CouponLimitItem) => {
     if (limitPlansList.length === 0) {
       form.setFieldValue('hasBillableMetricLimit', false)
     }
     form.setFieldValue('limitPlansList', [...limitPlansList, plan])
   }
 
-  const attachBillableMetricToCoupon = (billableMetric: BillableMetricsForCouponsFragment) => {
+  const attachBillableMetricToCoupon = (billableMetric: CouponLimitItem) => {
     if (limitBillableMetricsList.length === 0) {
       form.setFieldValue('hasPlanLimit', false)
     }

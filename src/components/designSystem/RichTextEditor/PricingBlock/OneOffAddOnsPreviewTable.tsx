@@ -85,10 +85,12 @@ export const OneOffAddOnsPreviewTable = ({
       textAlign: 'right',
       content: (entity) => (
         <Typography variant="body" color="grey700">
-          {intlFormatNumber(Number.parseFloat(entity.totalAmount ?? '0'), {
-            currency,
-            locale,
-          })}
+          {entity.totalAmount
+            ? intlFormatNumber(Number.parseFloat(entity.totalAmount), {
+                currency,
+                locale,
+              })
+            : '-'}
         </Typography>
       ),
     },

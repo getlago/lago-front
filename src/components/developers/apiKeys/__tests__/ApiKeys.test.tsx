@@ -6,7 +6,7 @@ import { AllTheProviders } from '~/test-utils'
 
 import { ApiKeys } from '../ApiKeys'
 
-// Mock IntersectionObserver (used by InfiniteScroll, undefined in jsdom)
+// Mock IntersectionObserver (undefined in jsdom, used by some design-system components)
 const mockIntersectionObserver = jest.fn()
 
 mockIntersectionObserver.mockReturnValue({

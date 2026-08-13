@@ -1,4 +1,5 @@
 import type { SuggestionKeyDownProps } from '@tiptap/suggestion'
+import { IconName } from 'lago-design-system'
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
@@ -98,6 +99,11 @@ function SuggestionListInner<T>(
             data-test={`${itemTestId}-${index}`}
             variant={index === selectedIndex ? 'secondary' : 'quaternary'}
             align="left"
+            startIcon={
+              item && typeof item === 'object' && 'icon' in item
+                ? (item.icon as IconName)
+                : undefined
+            }
             fullWidth
             disabled={getDisabled?.(item)}
             onClick={() => command(item)}

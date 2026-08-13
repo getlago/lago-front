@@ -25,7 +25,7 @@ import { useInviteActions } from '../hooks/useInviteActions'
 export const SUBMIT_INVITE_DATA_TEST = 'submit-invite-button'
 export const FORM_CREATE_INVITE_ID = 'form-create-invite'
 export const INVITE_URL_DATA_TEST = 'invitation-url'
-export const FORM_INVALID_ERROR_MESSAGE = 'form.invalid'
+const FORM_INVALID_ERROR_MESSAGE = 'form.invalid'
 
 const initialValues: CreateInviteSingleRole = {
   email: '',

@@ -121,6 +121,39 @@ describe('CreateCreditNote', () => {
     })
   })
 
+  describe('fully covered invoice', () => {
+    beforeEach(() => {
+      mockUseCreateCreditNote.mockReturnValue({
+        loading: false,
+        invoice: { ...defaultMockInvoice, creditableAmountCents: '0', refundableAmountCents: '0' },
+        feesPerInvoice: undefined,
+        feeForAddOn: undefined,
+        feeForCredit: undefined,
+        isInvoiceFullyCovered: true,
+        onCreate: mockOnCreate,
+      })
+    })
+
+    it('renders the form with a danger alert instead of the fee items', async () => {
+      await act(() => render(<CreateCreditNote />))
+
+      // Form chrome still renders (invoice information card is present)
+      expect(screen.getByText('Invoice information')).toBeInTheDocument()
+      // Danger alert replaces the fee items
+      expect(
+        screen.getByText(
+          "The total amount of all credit notes matches this invoice's total. No additional credit notes can be created.",
+        ),
+      ).toBeInTheDocument()
+    })
+
+    it('disables the submit button', async () => {
+      await act(() => render(<CreateCreditNote />))
+
+      expect(screen.getByText('Issue credit note').closest('button')).toBeDisabled()
+    })
+  })
+
   describe('loading state', () => {
     it('does not render form content when loading', async () => {
       mockUseCreateCreditNote.mockReturnValue({

@@ -95,6 +95,7 @@ const mockedBuildPreviewEntities = buildPreviewEntities as jest.MockedFunction<
 const mockQuote = {
   id: 'quote-123',
   number: 'QT-2026-0042',
+  images: {},
   orderType: OrderTypeEnum.SubscriptionCreation,
   createdAt: '2026-04-09T10:00:00Z',
   versions: [
@@ -231,6 +232,74 @@ describe('ApproveQuote', () => {
 
         expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
         expect(testMockNavigateFn).toHaveBeenCalledWith('/quote/quote-123/order-forms')
+      })
+    })
+
+    describe('WHEN the API rejects the approval', () => {
+      const mockApproveRejection = (details: Record<string, string[]>) => {
+        mockUseApproveQuote.mockReturnValue({
+          goToApproveQuote: jest.fn(),
+          approveQuote: mockApproveQuote.mockResolvedValue({
+            data: null,
+            errors: [{ message: 'Unprocessable Entity', extensions: { code, details } }],
+          }),
+        })
+      }
+      const code = 'unprocessable_entity'
+
+      it('THEN should show the mapped error toast and stay on the page', async () => {
+        const user = userEvent.setup()
+
+        mockApproveRejection({ status: ['not_approvable'] })
+        renderPage()
+
+        await user.click(screen.getByTestId(APPROVE_QUOTE_APPROVE_BUTTON_TEST_ID))
+
+        await waitFor(() => {
+          expect(addToast).toHaveBeenCalledWith({
+            severity: 'danger',
+            message: 'text_1786540789742thnfvmjlq8a',
+          })
+        })
+
+        expect(addToast).not.toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+        expect(testMockNavigateFn).not.toHaveBeenCalled()
+      })
+
+      it('THEN should also display an inline error on the expiration date field', async () => {
+        const user = userEvent.setup()
+
+        mockApproveRejection({ expiresAt: ['invalid_date'] })
+        renderPage()
+
+        await user.click(screen.getByTestId(APPROVE_QUOTE_APPROVE_BUTTON_TEST_ID))
+
+        await waitFor(() => {
+          expect(addToast).toHaveBeenCalledWith({
+            severity: 'danger',
+            message: 'text_1786540789742b4ym3200cp6',
+          })
+        })
+
+        expect(await screen.findByText('text_1786540789742b4ym3200cp6')).toBeInTheDocument()
+      })
+
+      it('THEN should show one toast per error, capped at three', async () => {
+        const user = userEvent.setup()
+
+        mockApproveRejection({
+          'billingItems.plans.0.id': ['plan_not_found'],
+          'billingItems.plans.1.id': ['plan_not_found'],
+          'billingItems.coupons.0.id': ['coupon_not_found'],
+          status: ['not_approvable'],
+        })
+        renderPage()
+
+        await user.click(screen.getByTestId(APPROVE_QUOTE_APPROVE_BUTTON_TEST_ID))
+
+        await waitFor(() => {
+          expect(addToast).toHaveBeenCalledTimes(3)
+        })
       })
     })
   })
@@ -391,7 +460,7 @@ describe('ApproveQuote', () => {
     })
 
     describe('WHEN the approve button is clicked', () => {
-      it('THEN should not show success toast or navigate', async () => {
+      it('THEN should show the generic error toast and not navigate', async () => {
         const user = userEvent.setup()
 
         renderPage()
@@ -402,7 +471,11 @@ describe('ApproveQuote', () => {
           expect(mockApproveQuote).toHaveBeenCalled()
         })
 
-        expect(addToast).not.toHaveBeenCalled()
+        expect(addToast).toHaveBeenCalledWith({
+          severity: 'danger',
+          message: 'text_622f7a3dc32ce100c46a5154',
+        })
+        expect(addToast).not.toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
         expect(testMockNavigateFn).not.toHaveBeenCalled()
       })
     })
@@ -428,7 +501,7 @@ describe('ApproveQuote', () => {
             currentVersion: {
               ...mockQuote.currentVersion,
               content: '<p>Test content</p>',
-              billingItems: { addons: [{ type: 'addon', id: 'addon-1' }] },
+              billingItems: { addOns: [{ type: 'add_on', id: 'addon-1' }] },
             },
           },
           loading: false,
@@ -517,7 +590,7 @@ describe('ApproveQuote', () => {
 
   describe('GIVEN the customer has a currency', () => {
     describe('WHEN currency is set', () => {
-      it('THEN should pass customerCurrency to RichTextEditor', () => {
+      it('THEN should pass documentCurrency to RichTextEditor', () => {
         mockUseQuote.mockReturnValue({
           quote: {
             ...mockQuote,
@@ -537,12 +610,12 @@ describe('ApproveQuote', () => {
 
         renderPage()
 
-        expect(capturedRichTextEditorProps.customerCurrency).toBe(CurrencyEnum.Eur)
+        expect(capturedRichTextEditorProps.documentCurrency).toBe(CurrencyEnum.Eur)
       })
     })
 
     describe('WHEN currency is null', () => {
-      it('THEN should pass undefined customerCurrency to RichTextEditor', () => {
+      it('THEN should pass undefined documentCurrency to RichTextEditor', () => {
         mockUseQuote.mockReturnValue({
           quote: {
             ...mockQuote,
@@ -558,7 +631,7 @@ describe('ApproveQuote', () => {
 
         renderPage()
 
-        expect(capturedRichTextEditorProps.customerCurrency).toBeUndefined()
+        expect(capturedRichTextEditorProps.documentCurrency).toBeUndefined()
       })
     })
   })

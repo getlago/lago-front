@@ -327,17 +327,12 @@ export const UsageChargeDrawerContent = withForm({
       const currentFilterIndex =
         filterEditIndexRef.current ?? (form.state.values.filters?.length || 0)
 
-      // Collect values already used by other filters on this charge
-      const existingFilterValues = new Set<string>()
+      // Collect the full value set of every other filter on this charge, so we
+      // can later detect when one is an exact duplicate of another (not just a partial overlap).
       const allFilters = form.state.values.filters || []
-
-      for (let i = 0; i < allFilters.length; i++) {
-        if (i === filterEditIndexRef.current) continue
-
-        for (const v of allFilters[i].values) {
-          existingFilterValues.add(v)
-        }
-      }
+      const otherFiltersValues = allFilters
+        .filter((_, i) => i !== filterEditIndexRef.current)
+        .map((f) => f.values)
 
       // Keep the ref in sync so useAppForm's opts.defaultValues matches the reset values.
       // Without this, useForm's layout effect calls formApi.update(opts) on re-render,
@@ -367,7 +362,7 @@ export const UsageChargeDrawerContent = withForm({
               key={filterOpenCounterRef.current}
               form={filterForm}
               billableMetricFilters={form.state.values.billableMetric?.filters || []}
-              existingFilterValues={existingFilterValues}
+              otherFiltersValues={otherFiltersValues}
               chargeIndex={editIndex}
               filterIndex={currentFilterIndex}
             />

@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -15,35 +14,14 @@ import {
   SettingsPaddedContainer,
 } from '~/components/layouts/Settings'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import {
-  EditBillingEntityDocumentLocaleDialog,
-  EditBillingEntityDocumentLocaleDialogRef,
-} from '~/components/settings/invoices/EditBillingEntityDocumentLocaleDialog'
-import {
-  EditBillingEntityGracePeriodDialog,
-  EditBillingEntityGracePeriodDialogRef,
-} from '~/components/settings/invoices/EditBillingEntityGracePeriodDialog'
-import {
-  EditBillingEntityInvoiceIssuingDatePolicyDialog,
-  EditBillingEntityInvoiceIssuingDatePolicyDialogRef,
-} from '~/components/settings/invoices/EditBillingEntityInvoiceIssuingDatePolicyDialog'
-import {
-  EditBillingEntityInvoiceNumberingDialog,
-  EditBillingEntityInvoiceNumberingDialogRef,
-} from '~/components/settings/invoices/EditBillingEntityInvoiceNumberingDialog'
-import {
-  EditBillingEntityInvoiceTemplateDialog,
-  EditBillingEntityInvoiceTemplateDialogRef,
-} from '~/components/settings/invoices/EditBillingEntityInvoiceTemplateDialog'
+import { useEditBillingEntityDocumentLocaleDialog } from '~/components/settings/invoices/EditBillingEntityDocumentLocaleDialog'
+import { useEditBillingEntityGracePeriodDialog } from '~/components/settings/invoices/EditBillingEntityGracePeriodDialog'
+import { useEditBillingEntityInvoiceIssuingDatePolicyDialog } from '~/components/settings/invoices/EditBillingEntityInvoiceIssuingDatePolicyDialog'
+import { useEditBillingEntityInvoiceNumberingDialog } from '~/components/settings/invoices/EditBillingEntityInvoiceNumberingDialog'
+import { useEditBillingEntityInvoiceTemplateDialog } from '~/components/settings/invoices/EditBillingEntityInvoiceTemplateDialog'
 import { useEditDefaultCurrencyDialog } from '~/components/settings/invoices/EditDefaultCurrencyDialog'
-import {
-  EditFinalizeZeroAmountInvoiceDialog,
-  EditFinalizeZeroAmountInvoiceDialogRef,
-} from '~/components/settings/invoices/EditFinalizeZeroAmountInvoiceDialog'
-import {
-  EditNetPaymentTermDialog,
-  EditNetPaymentTermDialogRef,
-} from '~/components/settings/invoices/EditNetPaymentTermDialog'
+import { useEditFinalizeZeroAmountInvoiceDialog } from '~/components/settings/invoices/EditFinalizeZeroAmountInvoiceDialog'
+import { useEditNetPaymentTermDialog } from '~/components/settings/invoices/EditNetPaymentTermDialog'
 import {
   INVOICE_ISSUING_DATE_ADJUSTMENT_SETTING_KEYS,
   INVOICE_ISSUING_DATE_ANCHOR_SETTING_KEYS,
@@ -135,17 +113,18 @@ const BillingEntityInvoiceSettings = () => {
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
 
-  const editInvoiceTemplateDialogRef = useRef<EditBillingEntityInvoiceTemplateDialogRef>(null)
-  const editInvoiceNumberingDialogRef = useRef<EditBillingEntityInvoiceNumberingDialogRef>(null)
-  const editBillingEntityInvoiceIssuingDatePolicyDialogRef =
-    useRef<EditBillingEntityInvoiceIssuingDatePolicyDialogRef>(null)
-  const editGracePeriodDialogRef = useRef<EditBillingEntityGracePeriodDialogRef>(null)
-  const editDocumentLanguageDialogRef = useRef<EditBillingEntityDocumentLocaleDialogRef>(null)
-  const editNetPaymentTermDialogRef = useRef<EditNetPaymentTermDialogRef>(null)
-  const editFinalizeZeroAmountInvoiceDialogRef =
-    useRef<EditFinalizeZeroAmountInvoiceDialogRef>(null)
+  const { openEditBillingEntityInvoiceIssuingDatePolicyDialog } =
+    useEditBillingEntityInvoiceIssuingDatePolicyDialog()
+  const { openEditBillingEntityGracePeriodDialog } = useEditBillingEntityGracePeriodDialog()
+  const { openEditBillingEntityDocumentLocaleDialog } = useEditBillingEntityDocumentLocaleDialog()
+  const { openEditNetPaymentTermDialog } = useEditNetPaymentTermDialog()
+  const netPaymentTermDialogDescription = translate('text_64c7a89b6c67eb6c988980eb')
+  const { openEditFinalizeZeroAmountInvoiceDialog } = useEditFinalizeZeroAmountInvoiceDialog()
   const premiumWarningDialog = usePremiumWarningDialog()
   const { openEditDefaultCurrencyDialog } = useEditDefaultCurrencyDialog()
+  const { openEditBillingEntityInvoiceTemplateDialog } = useEditBillingEntityInvoiceTemplateDialog()
+  const { openEditBillingEntityInvoiceNumberingDialog } =
+    useEditBillingEntityInvoiceNumberingDialog()
 
   const { data, error, loading } = useGetBillingEntitySettingsQuery({
     variables: {
@@ -198,19 +177,17 @@ const BillingEntityInvoiceSettings = () => {
         <Button
           variant="inline"
           disabled={!canEditInvoiceSettings}
-          onClick={() => editDocumentLanguageDialogRef?.current?.openDialog()}
+          onClick={() =>
+            openEditBillingEntityDocumentLocaleDialog({
+              id: billingEntity?.id as string,
+              documentLocale,
+            })
+          }
         >
           {translate('text_63e51ef4985f0ebd75c212fc')}
         </Button>
       ),
       content: DocumentLocales[documentLocale as keyof typeof DocumentLocales],
-      dialog: (
-        <EditBillingEntityDocumentLocaleDialog
-          ref={editDocumentLanguageDialogRef}
-          documentLocale={documentLocale}
-          id={billingEntity?.id as string}
-        />
-      ),
     },
     {
       id: 'invoice-settings-finalize-zero-amount',
@@ -220,7 +197,13 @@ const BillingEntityInvoiceSettings = () => {
         <Button
           variant="inline"
           disabled={!canEditInvoiceSettings}
-          onClick={() => editFinalizeZeroAmountInvoiceDialogRef?.current?.openDialog()}
+          onClick={() =>
+            billingEntity &&
+            openEditFinalizeZeroAmountInvoiceDialog({
+              entity: billingEntity,
+              finalizeZeroAmountInvoice: billingEntity.finalizeZeroAmountInvoice,
+            })
+          }
         >
           {translate('text_637f819eff19cd55a56d55e4')}
         </Button>
@@ -228,14 +211,6 @@ const BillingEntityInvoiceSettings = () => {
       content: billingEntity?.finalizeZeroAmountInvoice
         ? translate('text_1725549671287ancbf00edxx')
         : translate('text_1725549671288zkq9sr0y46l'),
-
-      dialog: (
-        <EditFinalizeZeroAmountInvoiceDialog
-          ref={editFinalizeZeroAmountInvoiceDialogRef}
-          entity={billingEntity}
-          finalizeZeroAmountInvoice={billingEntity?.finalizeZeroAmountInvoice}
-        />
-      ),
     },
     {
       id: 'invoice-settings-grace-period',
@@ -248,7 +223,10 @@ const BillingEntityInvoiceSettings = () => {
           disabled={!canEditInvoiceSettings}
           onClick={() => {
             isPremium
-              ? editGracePeriodDialogRef?.current?.openDialog()
+              ? openEditBillingEntityGracePeriodDialog({
+                  id: billingEntity?.id as string,
+                  invoiceGracePeriod,
+                })
               : premiumWarningDialog.open()
           }}
         >
@@ -260,13 +238,6 @@ const BillingEntityInvoiceSettings = () => {
         { gracePeriod: invoiceGracePeriod },
         invoiceGracePeriod,
       ),
-      dialog: (
-        <EditBillingEntityGracePeriodDialog
-          ref={editGracePeriodDialogRef}
-          invoiceGracePeriod={invoiceGracePeriod}
-          id={billingEntity?.id as string}
-        />
-      ),
     },
     {
       id: 'invoice-settings-default-footer',
@@ -276,7 +247,12 @@ const BillingEntityInvoiceSettings = () => {
         <Button
           variant="inline"
           disabled={!canEditInvoiceSettings}
-          onClick={() => editInvoiceTemplateDialogRef?.current?.openDialog()}
+          onClick={() =>
+            openEditBillingEntityInvoiceTemplateDialog({
+              id: billingEntity?.id as string,
+              invoiceFooter,
+            })
+          }
         >
           {translate('text_6380d7e60f081e5b777c4b24')}
         </Button>
@@ -297,13 +273,6 @@ const BillingEntityInvoiceSettings = () => {
           )}
         </>
       ),
-      dialog: (
-        <EditBillingEntityInvoiceTemplateDialog
-          ref={editInvoiceTemplateDialogRef}
-          invoiceFooter={invoiceFooter}
-          id={billingEntity?.id as string}
-        />
-      ),
     },
     {
       id: 'invoice-settings-invoice-numbering',
@@ -313,7 +282,13 @@ const BillingEntityInvoiceSettings = () => {
         <Button
           variant="inline"
           disabled={!canEditInvoiceSettings}
-          onClick={() => editInvoiceNumberingDialogRef?.current?.openDialog()}
+          onClick={() =>
+            openEditBillingEntityInvoiceNumberingDialog({
+              id: billingEntity?.id as string,
+              documentNumbering: billingEntity?.documentNumbering,
+              documentNumberPrefix: billingEntity?.documentNumberPrefix,
+            })
+          }
         >
           {translate('text_6380d7e60f081e5b777c4b24')}
         </Button>
@@ -335,14 +310,6 @@ const BillingEntityInvoiceSettings = () => {
           </Typography>
         </div>
       ),
-      dialog: (
-        <EditBillingEntityInvoiceNumberingDialog
-          ref={editInvoiceNumberingDialogRef}
-          documentNumbering={billingEntity?.documentNumbering}
-          documentNumberPrefix={billingEntity?.documentNumberPrefix}
-          id={billingEntity?.id as string}
-        />
-      ),
     },
     {
       id: 'invoice-settings-issuing_date-policy',
@@ -352,7 +319,10 @@ const BillingEntityInvoiceSettings = () => {
         <Button
           variant="inline"
           disabled={!canEditInvoiceSettings}
-          onClick={() => editBillingEntityInvoiceIssuingDatePolicyDialogRef?.current?.openDialog()}
+          onClick={() => {
+            if (!billingEntity) return
+            openEditBillingEntityInvoiceIssuingDatePolicyDialog({ billingEntity })
+          }}
         >
           {translate('text_6380d7e60f081e5b777c4b24')}
         </Button>
@@ -379,16 +349,6 @@ const BillingEntityInvoiceSettings = () => {
           </Typography>
         </div>
       ),
-      dialog: (
-        <>
-          {!!billingEntity && (
-            <EditBillingEntityInvoiceIssuingDatePolicyDialog
-              ref={editBillingEntityInvoiceIssuingDatePolicyDialogRef}
-              billingEntity={billingEntity}
-            />
-          )}
-        </>
-      ),
     },
     {
       id: 'invoice-settings-net-payment-term',
@@ -398,7 +358,12 @@ const BillingEntityInvoiceSettings = () => {
         <Button
           variant="inline"
           disabled={!canEditInvoiceSettings}
-          onClick={() => editNetPaymentTermDialogRef?.current?.openDialog(billingEntity)}
+          onClick={() =>
+            openEditNetPaymentTermDialog({
+              model: billingEntity,
+              description: netPaymentTermDialogDescription,
+            })
+          }
         >
           {translate('text_637f819eff19cd55a56d55e4')}
         </Button>
@@ -409,12 +374,6 @@ const BillingEntityInvoiceSettings = () => {
           days: billingEntity?.netPaymentTerm,
         },
         billingEntity?.netPaymentTerm,
-      ),
-      dialog: (
-        <EditNetPaymentTermDialog
-          ref={editNetPaymentTermDialogRef}
-          description={translate('text_64c7a89b6c67eb6c988980eb')}
-        />
       ),
     },
   ]
@@ -458,10 +417,6 @@ const BillingEntityInvoiceSettings = () => {
             ))}
         </SettingsListWrapper>
       </SettingsPaddedContainer>
-
-      {items.map((item) => (
-        <div key={`billing-entity-invoice-settings-dialog-${item.id}`}>{item.dialog}</div>
-      ))}
     </>
   )
 }

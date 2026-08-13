@@ -23,10 +23,7 @@ import { PlanInterval } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { PlanFormType } from '~/hooks/plans/usePlanForm'
 
-import {
-  RemoveChargeWarningDialog,
-  RemoveChargeWarningDialogRef,
-} from './RemoveChargeWarningDialog'
+import { useRemoveChargeWarningDialog } from './RemoveChargeWarningDialog'
 import { LocalUsageChargeInput } from './types'
 
 gql`
@@ -65,7 +62,7 @@ export const UsageChargesSection = ({
   const amountCurrency = useStore(form.store, (s) => s.values.amountCurrency)
 
   const hasAnyCharge = !!charges.length
-  const removeChargeWarningDialogRef = useRef<RemoveChargeWarningDialogRef>(null)
+  const { openRemoveChargeWarningDialog } = useRemoveChargeWarningDialog()
   const usageChargeDrawerRef = useRef<UsageChargeDrawerRef>(null)
   const [alreadyUsedBmsIds, setAlreadyUsedBmsIds] = useState<Map<string, number>>(new Map())
 
@@ -167,7 +164,7 @@ export const UsageChargesSection = ({
               showWarningOnDelete: actionType !== 'duplicate' && isUsedInSubscription,
               onDelete: () => handleChargeDelete(i),
               onEdit: openUsageChargeDrawer,
-              removeChargeWarningDialogRef,
+              openRemoveChargeWarningDialog,
               translate,
             })}
           />
@@ -220,11 +217,9 @@ export const UsageChargesSection = ({
         subscriptionFormType={subscriptionFormType}
         onSave={handleDrawerSave}
         onDelete={handleChargeDelete}
-        removeChargeWarningDialogRef={removeChargeWarningDialogRef}
+        openRemoveChargeWarningDialog={openRemoveChargeWarningDialog}
         amountCurrency={amountCurrency}
       />
-
-      <RemoveChargeWarningDialog ref={removeChargeWarningDialogRef} />
     </>
   )
 }

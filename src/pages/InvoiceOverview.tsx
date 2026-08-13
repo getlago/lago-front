@@ -14,10 +14,6 @@ import {
   InvoiceTableSection,
 } from '~/components/invoices/details/InvoiceDetailsTable'
 import { ViewFeeDetailsDrawerProvider } from '~/components/invoices/details/ViewFeeDetailsDrawer'
-import {
-  FinalizeInvoiceDialog,
-  FinalizeInvoiceDialogRef,
-} from '~/components/invoices/FinalizeInvoiceDialog'
 import { InvoiceCustomerInfos } from '~/components/invoices/InvoiceCustomerInfos'
 import { InvoiceOverviewHeaderButtons } from '~/components/invoices/InvoiceOverviewHeaderButtons'
 import { Metadatas } from '~/components/invoices/Metadatas'
@@ -294,10 +290,14 @@ export const InvoiceQuickInfo = ({
   invoice,
   billingEntity,
   customer,
+  purchaseOrderNumber,
+  onPurchaseOrderNumberChange,
 }: {
   invoice: AllInvoiceDetailsForCustomerInvoiceDetailsFragment | null | undefined
   billingEntity: Pick<BillingEntity, 'id' | 'name' | 'code' | 'einvoicing'> | null | undefined
   customer?: CustomerForInvoiceOverviewFragment | null
+  purchaseOrderNumber?: string | null
+  onPurchaseOrderNumberChange?: (value: string | null) => void
 }) => {
   const { translate } = useInternationalization()
   const isDraft = invoice?.status === InvoiceStatusTypeEnum.Draft
@@ -343,7 +343,11 @@ export const InvoiceQuickInfo = ({
           </Typography>
         </div>
       )}
-      <InvoiceCustomerInfos invoice={invoice} />
+      <InvoiceCustomerInfos
+        invoice={invoice}
+        purchaseOrderNumber={purchaseOrderNumber}
+        onPurchaseOrderNumberChange={onPurchaseOrderNumberChange}
+      />
     </>
   )
 }
@@ -381,7 +385,6 @@ const InvoiceOverview = memo(
     const { invoiceId } = useParams()
 
     const billingEntity = invoice?.billingEntity
-    const finalizeInvoiceRef = useRef<FinalizeInvoiceDialogRef>(null)
     const editFeeDrawerRef = useRef<EditFeeDrawerRef>(null)
 
     if (hasError) {
@@ -465,7 +468,6 @@ const InvoiceOverview = memo(
               retryInvoice={retryInvoice}
               downloadInvoice={downloadInvoice}
               downloadInvoiceXml={downloadInvoiceXml}
-              finalizeInvoiceRef={finalizeInvoiceRef}
               goToPreviousRoute={goToPreviousRoute}
               invoiceId={invoiceId}
             />
@@ -815,7 +817,6 @@ const InvoiceOverview = memo(
             </>
           )}
         </>
-        <FinalizeInvoiceDialog ref={finalizeInvoiceRef} />
         <EditFeeDrawer ref={editFeeDrawerRef} />
       </ViewFeeDetailsDrawerProvider>
     )

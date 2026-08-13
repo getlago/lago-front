@@ -1,7 +1,7 @@
 import { FC, RefObject, useMemo } from 'react'
 import { generatePath } from 'react-router-dom'
 
-import { InfiniteScroll } from '~/components/designSystem/InfiniteScroll'
+import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { EVENT_LOG_ROUTE } from '~/components/developers/devtoolsRoutes'
@@ -14,9 +14,16 @@ import { useFormatterDateHelper } from '~/hooks/helpers/useFormatterDateHelper'
 type EventTableProps = {
   getEventsResult: EventsQueryResult
   logListRef: RefObject<ListSectionRef>
+  pageSize?: number
+  onPageSizeChange?: (pageSize: number) => void
 }
 
-export const EventTable: FC<EventTableProps> = ({ getEventsResult, logListRef }) => {
+export const EventTable: FC<EventTableProps> = ({
+  getEventsResult,
+  logListRef,
+  pageSize,
+  onPageSizeChange,
+}) => {
   const { translate } = useInternationalization()
   const { formattedDateTimeWithSecondsOrgaTZ } = useFormatterDateHelper()
 
@@ -33,16 +40,12 @@ export const EventTable: FC<EventTableProps> = ({ getEventsResult, logListRef })
   )
 
   return (
-    <InfiniteScroll
-      onBottom={async () => {
-        const { currentPage = 0, totalPages = 0 } = data?.events?.metadata || {}
-
-        if (currentPage < totalPages && !loading) {
-          await fetchMore({
-            variables: { page: currentPage + 1 },
-          })
-        }
-      }}
+    <PaginatedContent
+      metadata={data?.events?.metadata}
+      loading={loading}
+      pageSize={pageSize}
+      onPageChange={(page) => fetchMore({ variables: { page } })}
+      onPageSizeChange={onPageSizeChange}
     >
       <Table
         name="events-logs"
@@ -52,6 +55,7 @@ export const EventTable: FC<EventTableProps> = ({ getEventsResult, logListRef })
         data={events}
         hasError={!!error}
         isLoading={loading}
+        loadingRowCount={pageSize}
         onRowActionLink={({ transactionId }) => {
           if (getCurrentBreakpoint() === 'sm') {
             logListRef.current?.updateView('forward')
@@ -93,6 +97,6 @@ export const EventTable: FC<EventTableProps> = ({ getEventsResult, logListRef })
           },
         }}
       />
-    </InfiniteScroll>
+    </PaginatedContent>
   )
 }

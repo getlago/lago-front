@@ -162,16 +162,21 @@ const BlockToolbar = ({ editor }: BlockToolbarProps) => {
       >
         {() => (
           <MenuPopper>
-            <ColorPicker
-              activeBackgroundColor={blockSelection.backgroundColor}
-              activeTextColor={blockSelection.textColor}
-              onSelectBackground={(color) => {
-                editor.commands.setBlockBackgroundColor(color)
-              }}
-              onSelectText={(color) => {
-                editor.commands.setBlockTextColor(color)
-              }}
-            />
+            {/* Marked so the drag-handle outside-click handler does not treat a
+                click on this portaled picker as an outside click and clear the
+                block NodeSelection before the color command runs (LAGO-1671). */}
+            <div data-rte-preserve-selection>
+              <ColorPicker
+                activeBackgroundColor={blockSelection.backgroundColor}
+                activeTextColor={blockSelection.textColor}
+                onSelectBackground={(color) => {
+                  editor.commands.setBlockBackgroundColor(color)
+                }}
+                onSelectText={(color) => {
+                  editor.commands.setBlockTextColor(color)
+                }}
+              />
+            </div>
           </MenuPopper>
         )}
       </Popper>

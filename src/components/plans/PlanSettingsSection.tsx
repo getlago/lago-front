@@ -12,7 +12,7 @@ import {
   getIntervalTranslationKey,
   SEARCH_TAX_INPUT_FOR_PLAN_CLASSNAME,
 } from '~/core/constants/form'
-import { CurrencyEnum, PlanInterval, TaxForPlanSettingsSectionFragment } from '~/generated/graphql'
+import { CurrencyEnum, PlanInterval } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { PlanFormType } from '~/hooks/plans/usePlanForm'
 
@@ -52,15 +52,6 @@ gql`
   }
 `
 
-export interface PlanSettingsFormValues {
-  name: string
-  code: string
-  description: string
-  interval: PlanInterval
-  amountCurrency: CurrencyEnum
-  taxes: TaxForPlanSettingsSectionFragment[]
-}
-
 const INTERVAL_OPTIONS = [
   PlanInterval.Weekly,
   PlanInterval.Monthly,
@@ -79,6 +70,8 @@ type PlanSettingsSectionProps = {
   isInSubscriptionForm?: boolean
   subscriptionFormType?: keyof typeof FORM_TYPE_ENUM
   isEdition?: boolean
+  /** Locks the currency picker when an outer scope (e.g. a quote) already owns it. */
+  disableCurrencyInput?: boolean
 }
 
 export const PlanSettingsSection = ({
@@ -87,6 +80,7 @@ export const PlanSettingsSection = ({
   isInSubscriptionForm,
   subscriptionFormType,
   isEdition,
+  disableCurrencyInput,
 }: PlanSettingsSectionProps) => {
   const { translate } = useInternationalization()
   const description = useStore(form.store, (s) => s.values.description)
@@ -209,7 +203,9 @@ export const PlanSettingsSection = ({
             data={CURRENCY_DATA}
             disableClearable
             disabled={
-              subscriptionFormType === FORM_TYPE_ENUM.edition || (isEdition && !canBeEdited)
+              disableCurrencyInput ||
+              subscriptionFormType === FORM_TYPE_ENUM.edition ||
+              (isEdition && !canBeEdited)
             }
             label={translate('text_642d5eb2783a2ad10d67032e')}
           />

@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -8,18 +7,12 @@ import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { useAddStripeDialog } from '~/components/settings/integrations/AddStripeDialog'
+import { useDeleteStripeIntegrationDialog } from '~/components/settings/integrations/DeleteStripeIntegrationDialog'
 import {
-  AddEditDeleteSuccessRedirectUrlDialog,
-  AddEditDeleteSuccessRedirectUrlDialogRef,
-} from '~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog'
-import {
-  AddStripeDialog,
-  AddStripeDialogRef,
-} from '~/components/settings/integrations/AddStripeDialog'
-import {
-  DeleteStripeIntegrationDialog,
-  DeleteStripeIntegrationDialogRef,
-} from '~/components/settings/integrations/DeleteStripeIntegrationDialog'
+  useAddEditSuccessRedirectUrlDialog,
+  useDeleteSuccessRedirectUrlDialog,
+} from '~/components/settings/integrations/SuccessRedirectUrlDialogs'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { INTEGRATIONS_ROUTE, STRIPE_INTEGRATION_ROUTE, useNavigate } from '~/core/router'
 import {
@@ -45,6 +38,7 @@ gql`
     secretKey
     successRedirectUrl
     supports3ds
+    requireTermsOfServiceConsent
   }
 
   query getStripeIntegrationsDetails($id: ID!, $limit: Int, $type: ProviderTypeEnum) {
@@ -76,9 +70,10 @@ const StripeIntegrationDetails = () => {
   const navigate = useNavigate()
   const { integrationId } = useParams()
   const { hasPermissions } = usePermissions()
-  const addDialogRef = useRef<AddStripeDialogRef>(null)
-  const deleteDialogRef = useRef<DeleteStripeIntegrationDialogRef>(null)
-  const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
+  const { openAddStripeDialog } = useAddStripeDialog()
+  const { openDeleteStripeIntegrationDialog } = useDeleteStripeIntegrationDialog()
+  const { openAddEditSuccessRedirectUrlDialog } = useAddEditSuccessRedirectUrlDialog()
+  const { openDeleteSuccessRedirectUrlDialog } = useDeleteSuccessRedirectUrlDialog()
   const { translate } = useInternationalization()
   const { data, loading } = useGetStripeIntegrationsDetailsQuery({
     variables: {
@@ -117,7 +112,7 @@ const StripeIntegrationDetails = () => {
             }),
           },
           {
-            label: translate('text_67db6a10cb0b8031ca538909'),
+            label: translate('text_62b1edddbf5f461ab971277d'),
             path: generatePath(STRIPE_INTEGRATION_ROUTE, {
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
             }),
@@ -141,10 +136,9 @@ const StripeIntegrationDetails = () => {
                   label: translate('text_65845f35d7d69c3ab4793dac'),
                   hidden: !canEditIntegration,
                   onClick: (closePopper) => {
-                    addDialogRef.current?.openDialog({
+                    openAddStripeDialog({
                       provider: stripePaymentProvider,
-                      deleteModalRef: deleteDialogRef,
-                      deleteDialogCallback,
+                      deleteCallback: deleteDialogCallback,
                     })
                     closePopper()
                   },
@@ -153,7 +147,7 @@ const StripeIntegrationDetails = () => {
                   label: translate('text_65845f35d7d69c3ab4793dad'),
                   hidden: !canDeleteIntegration,
                   onClick: (closePopper) => {
-                    deleteDialogRef.current?.openDialog({
+                    openDeleteStripeIntegrationDialog({
                       provider: stripePaymentProvider,
                       callback: deleteDialogCallback,
                     })
@@ -175,10 +169,9 @@ const StripeIntegrationDetails = () => {
                 variant="inline"
                 disabled={loading}
                 onClick={() => {
-                  addDialogRef.current?.openDialog({
+                  openAddStripeDialog({
                     provider: stripePaymentProvider,
-                    deleteModalRef: deleteDialogRef,
-                    deleteDialogCallback,
+                    deleteCallback: deleteDialogCallback,
                   })
                 }}
               >
@@ -215,6 +208,15 @@ const StripeIntegrationDetails = () => {
                     : translate('text_176416000997957yqelmt2m2')
                 }
               />
+              <IntegrationsPage.DetailsItem
+                icon="checkmark"
+                label={translate('text_1784801513985pk4c5o9i14q')}
+                value={
+                  stripePaymentProvider?.requireTermsOfServiceConsent
+                    ? translate('text_1764160009979jzn4xunn1z8')
+                    : translate('text_176416000997957yqelmt2m2')
+                }
+              />
             </>
           )}
         </section>
@@ -226,7 +228,7 @@ const StripeIntegrationDetails = () => {
                 variant="inline"
                 disabled={!!stripePaymentProvider?.successRedirectUrl || loading}
                 onClick={() => {
-                  successRedirectUrlDialogRef.current?.openDialog({
+                  openAddEditSuccessRedirectUrlDialog({
                     mode: 'Add',
                     type: 'Stripe',
                     provider: stripePaymentProvider,
@@ -278,7 +280,7 @@ const StripeIntegrationDetails = () => {
                               fullWidth
                               align="left"
                               onClick={() => {
-                                successRedirectUrlDialogRef.current?.openDialog({
+                                openAddEditSuccessRedirectUrlDialog({
                                   mode: 'Edit',
                                   type: 'Stripe',
                                   provider: stripePaymentProvider,
@@ -297,8 +299,7 @@ const StripeIntegrationDetails = () => {
                               align="left"
                               fullWidth
                               onClick={() => {
-                                successRedirectUrlDialogRef.current?.openDialog({
-                                  mode: 'Delete',
+                                openDeleteSuccessRedirectUrlDialog({
                                   type: 'Stripe',
                                   provider: stripePaymentProvider,
                                 })
@@ -318,10 +319,6 @@ const StripeIntegrationDetails = () => {
           )}
         </section>
       </IntegrationsPage.Container>
-
-      <AddStripeDialog ref={addDialogRef} />
-      <DeleteStripeIntegrationDialog ref={deleteDialogRef} />
-      <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )
 }

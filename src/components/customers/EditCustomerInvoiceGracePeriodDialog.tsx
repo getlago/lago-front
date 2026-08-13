@@ -1,16 +1,18 @@
 import { gql } from '@apollo/client'
 import InputAdornment from '@mui/material/InputAdornment'
-import { revalidateLogic, useStore } from '@tanstack/react-form'
-import { forwardRef, useRef } from 'react'
-import { useParams } from 'react-router-dom'
+import { revalidateLogic } from '@tanstack/react-form'
+import { useRef } from 'react'
 import { z } from 'zod'
 
-import { Button } from '~/components/designSystem/Button'
-import { Dialog, DialogRef } from '~/components/designSystem/Dialog'
+import { useFormDialog } from '~/components/dialogs/FormDialog'
+import { DialogResult } from '~/components/dialogs/types'
+import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { addToast } from '~/core/apolloClient'
 import { useUpdateCustomerInvoiceGracePeriodMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
+
+export const EDIT_CUSTOMER_INVOICE_GRACE_PERIOD_FORM_ID = 'edit-customer-invoice-grace-period-form'
 
 gql`
   fragment EditCustomerInvoiceGracePeriod on Customer {
@@ -27,24 +29,24 @@ gql`
 `
 
 const editCustomerInvoiceGracePeriodValidationSchema = z.object({
-  invoiceGracePeriod: z
-    .union([z.number().max(365, { message: 'text_63bed78ae69de9cad5c348e4' }), z.literal('')])
-    .refine((val) => val !== '', { message: 'text_177583191144596sed2y63wo' }),
+  // An empty input is allowed and submits as 0 (see onSubmit).
+  invoiceGracePeriod: z.union([
+    z.number().max(365, { message: 'text_63bed78ae69de9cad5c348e4' }),
+    z.literal(''),
+  ]),
 })
 
-export type EditCustomerInvoiceGracePeriodDialogRef = DialogRef
-
-interface EditCustomerInvoiceGracePeriodDialogProps {
+type EditCustomerInvoiceGracePeriodDialogData = {
+  customerId: string
   invoiceGracePeriod: number | undefined | null
 }
 
-export const EditCustomerInvoiceGracePeriodDialog = forwardRef<
-  DialogRef,
-  EditCustomerInvoiceGracePeriodDialogProps
->(({ invoiceGracePeriod }: EditCustomerInvoiceGracePeriodDialogProps, ref) => {
-  const { customerId } = useParams()
+export const useEditCustomerInvoiceGracePeriodDialog = () => {
+  const formDialog = useFormDialog()
   const { translate } = useInternationalization()
-  const closeDialogRef = useRef<(() => void) | null>(null)
+  const dataRef = useRef<EditCustomerInvoiceGracePeriodDialogData | null>(null)
+  const successRef = useRef(false)
+
   const [updateCustomerInvoiceGracePeriod] = useUpdateCustomerInvoiceGracePeriodMutation({
     onCompleted(res) {
       if (res?.updateCustomerInvoiceGracePeriod) {
@@ -58,72 +60,89 @@ export const EditCustomerInvoiceGracePeriodDialog = forwardRef<
 
   const form = useAppForm({
     defaultValues: {
-      invoiceGracePeriod: (invoiceGracePeriod ?? '') as number | '',
+      invoiceGracePeriod: '' as number | '',
     },
     validationLogic: revalidateLogic(),
     validators: {
       onDynamic: editCustomerInvoiceGracePeriodValidationSchema,
     },
     onSubmit: async ({ value }) => {
-      await updateCustomerInvoiceGracePeriod({
+      const result = await updateCustomerInvoiceGracePeriod({
         variables: {
           input: {
-            id: customerId || '',
+            id: dataRef.current?.customerId || '',
             invoiceGracePeriod: Number(value.invoiceGracePeriod) || 0,
           },
         },
       })
-      closeDialogRef.current?.()
+
+      if (result.data?.updateCustomerInvoiceGracePeriod) {
+        successRef.current = true
+      }
     },
   })
 
-  const isDirty = useStore(form.store, (state) => state.isDirty)
-  const canSubmit = useStore(form.store, (state) => state.canSubmit)
+  const handleSubmit = async (): Promise<DialogResult> => {
+    successRef.current = false
+    await form.handleSubmit()
 
-  return (
-    <Dialog
-      ref={ref}
-      title={translate('text_638dff9779fb99299bee90b0')}
-      description={translate('text_638dff9779fb99299bee90b4')}
-      onClose={() => form.reset()}
-      actions={({ closeDialog }) => (
-        <>
-          <Button variant="quaternary" onClick={closeDialog}>
-            {translate('text_638dff9779fb99299bee90c8')}
-          </Button>
-          <Button
-            variant="primary"
-            disabled={!canSubmit || !isDirty}
-            onClick={async () => {
-              closeDialogRef.current = closeDialog
-              await form.handleSubmit()
-            }}
-          >
-            {translate('text_638dff9779fb99299bee90cc')}
-          </Button>
-        </>
-      )}
-    >
-      <div className="mb-8">
-        <form.AppField name="invoiceGracePeriod">
-          {(field) => (
-            <field.TextInputField
-              beforeChangeFormatter={['positiveNumber', 'int']}
-              label={translate('text_638dff9779fb99299bee90bc')}
-              placeholder={translate('text_638dff9779fb99299bee90c0')}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    {translate('text_638dff9779fb99299bee90c4')}
-                  </InputAdornment>
-                ),
-              }}
-            />
-          )}
-        </form.AppField>
-      </div>
-    </Dialog>
-  )
-})
+    if (!successRef.current) {
+      throw new Error('Submit failed')
+    }
 
-EditCustomerInvoiceGracePeriodDialog.displayName = 'EditCustomerInvoiceGracePeriodDialog'
+    return { reason: 'success' }
+  }
+
+  const openEditCustomerInvoiceGracePeriodDialog = (
+    data: EditCustomerInvoiceGracePeriodDialogData,
+  ) => {
+    dataRef.current = data
+    form.reset()
+    form.setFieldValue('invoiceGracePeriod', (data.invoiceGracePeriod ?? '') as number | '')
+
+    formDialog
+      .open({
+        title: translate('text_638dff9779fb99299bee90b0'),
+        description: translate('text_638dff9779fb99299bee90b4'),
+        closeOnError: false,
+        onEntered: focusFirstInput,
+        children: (
+          <div className="p-8">
+            <form.AppField name="invoiceGracePeriod">
+              {(field) => (
+                <field.TextInputField
+                  beforeChangeFormatter={['positiveNumber', 'int']}
+                  label={translate('text_638dff9779fb99299bee90bc')}
+                  placeholder={translate('text_638dff9779fb99299bee90c0')}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        {translate('text_638dff9779fb99299bee90c4')}
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              )}
+            </form.AppField>
+          </div>
+        ),
+        mainAction: (
+          <form.AppForm>
+            <form.SubmitButton>{translate('text_638dff9779fb99299bee90cc')}</form.SubmitButton>
+          </form.AppForm>
+        ),
+        form: {
+          id: EDIT_CUSTOMER_INVOICE_GRACE_PERIOD_FORM_ID,
+          submit: handleSubmit,
+        },
+      })
+      .then((response) => {
+        if (response.reason === 'close') {
+          form.reset()
+          dataRef.current = null
+        }
+      })
+  }
+
+  return { openEditCustomerInvoiceGracePeriodDialog }
+}

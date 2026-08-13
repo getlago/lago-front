@@ -1,51 +1,18 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import {
-  AddCustomerDrawerFragment,
-  CountryCode,
-  CustomerAccountTypeEnum,
-  TimezoneEnum,
-} from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import BillingAccordion from '~/pages/createCustomers/billingAccordion/BillingAccordion'
 import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
 import { render } from '~/test-utils'
 
-const mockCustomer: AddCustomerDrawerFragment = {
-  id: 'test-customer-id',
-  canEditAttributes: true,
-  applicableTimezone: TimezoneEnum.TzAfricaAlgiers,
-  externalId: 'CUST-001',
-  accountType: CustomerAccountTypeEnum.Customer,
-  addressLine1: '123 Test St',
-  addressLine2: 'Suite 100',
-  city: 'Testville',
-  state: 'TS',
-  zipcode: '12345',
-  country: CountryCode.Us,
-  phone: '+1234567890',
-  email: 'email@email.com',
-  billingEntity: {
-    __typename: 'BillingEntity',
-    id: 'billing-entity-1',
-    name: 'Test Billing Entity',
-    code: 'TBE',
-    euTaxManagement: false,
-  },
-}
-
 // Create a test wrapper component that properly initializes the form
-const TestBillingAccordionWrapper = ({
-  customer = null,
-}: {
-  customer?: AddCustomerDrawerFragment | null
-}) => {
+const TestBillingAccordionWrapper = () => {
   const form = useAppForm({
     defaultValues: emptyCreateCustomerDefaultValues,
   })
 
-  return <BillingAccordion form={form} customer={customer} />
+  return <BillingAccordion form={form} />
 }
 
 describe('BillingAccordion Integration Tests', () => {
@@ -85,17 +52,6 @@ describe('BillingAccordion Integration Tests', () => {
       const user = userEvent.setup()
       const rendered = render(<TestBillingAccordionWrapper />)
 
-      const accordionButton = screen.getAllByRole('button')[0]
-
-      await user.click(accordionButton)
-      await waitFor(() => {
-        expect(rendered.container).toMatchSnapshot()
-      })
-    })
-
-    it('THEN should render with customer data', async () => {
-      const user = userEvent.setup()
-      const rendered = render(<TestBillingAccordionWrapper customer={mockCustomer} />)
       const accordionButton = screen.getAllByRole('button')[0]
 
       await user.click(accordionButton)

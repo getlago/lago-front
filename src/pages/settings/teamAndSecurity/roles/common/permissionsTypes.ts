@@ -2,12 +2,12 @@ import { PermissionEnum } from '~/generated/graphql'
 
 export type PermissionName = keyof typeof PermissionEnum
 
-export type PermissionItem = {
+type PermissionItem = {
   name: PermissionName
   description: string
 }
 
-export type PermissionGroupingItem = {
+type PermissionGroupingItem = {
   name: string
   displayName: string
   permissions: Array<PermissionItem>

@@ -35,8 +35,7 @@ const setCodeError = (message: string) => {
 
 const getCodeOnDynamicError = () => {
   const errorMap = capturedForm?.getFieldMeta('code')?.errorMap as
-    | { onDynamic?: { message?: string } }
-    | undefined
+    { onDynamic?: { message?: string } } | undefined
 
   return errorMap?.onDynamic
 }

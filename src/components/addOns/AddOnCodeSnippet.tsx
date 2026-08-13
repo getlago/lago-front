@@ -6,7 +6,12 @@ import { CreateAddOnInput } from '~/generated/graphql'
 
 const { apiUrl } = envGlobalVar()
 
-const getSnippets = (addOn?: CreateAddOnInput) => {
+// amountCents is a display value coming from the form, so it can be a string
+type AddOnCodeSnippetInput = Omit<CreateAddOnInput, 'amountCents'> & {
+  amountCents?: string | number
+}
+
+const getSnippets = (addOn?: AddOnCodeSnippetInput) => {
   if (!addOn || !addOn.code) return '# Fill the form to generate the code snippet'
 
   return snippetBuilder({
@@ -38,7 +43,7 @@ const getSnippets = (addOn?: CreateAddOnInput) => {
 }
 
 interface AddOnCodeSnippetProps {
-  addOn?: CreateAddOnInput
+  addOn?: AddOnCodeSnippetInput
   loading?: boolean
 }
 

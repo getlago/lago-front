@@ -11,10 +11,7 @@ import {
   UsageChargeDrawer,
   UsageChargeDrawerRef,
 } from '~/components/plans/drawers/usageCharge/UsageChargeDrawer'
-import {
-  RemoveChargeWarningDialog,
-  RemoveChargeWarningDialogRef,
-} from '~/components/plans/RemoveChargeWarningDialog'
+import { useRemoveChargeWarningDialog } from '~/components/plans/RemoveChargeWarningDialog'
 import { LocalUsageChargeInput } from '~/components/plans/types'
 import { UsageChargeInfo } from '~/components/plans/UsageChargeInfo'
 import { PlanFormProvider } from '~/contexts/PlanFormContext'
@@ -188,12 +185,12 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
   const { gateOnClick, premiumIcon } = useSubscriptionPremiumGate(isInSubscriptionForm)
   const { hasAnyPricingUnitConfigured } = useCustomPricingUnits()
   const drawerRef = useRef<UsageChargeDrawerRef>(null)
-  const removeChargeWarningDialogRef = useRef<RemoveChargeWarningDialogRef>(null)
+  const { openRemoveChargeWarningDialog } = useRemoveChargeWarningDialog()
 
   const { handleSaveCharge, handleDeleteCharge } = chargeMutations
 
   const planCurrency = plan.amountCurrency
-  const charges = plan.charges ?? []
+  const charges = useMemo(() => plan.charges ?? [], [plan.charges])
   const isEmpty = charges.length === 0
   // Mirrors VirtualFilterList's internal branch (default threshold) via the shared
   // predicate. Used to drop content-visibility on the cards only when the list
@@ -293,7 +290,7 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
   // subscriptions; delete directly otherwise.
   const handleDelete = (chargeId: string) => {
     if (isUsedInSubscription) {
-      removeChargeWarningDialogRef.current?.openDialog({
+      openRemoveChargeWarningDialog({
         callback: () => handleDeleteCharge(chargeId),
       })
     } else {
@@ -407,11 +404,9 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
 
             if (target) handleDeleteCharge(target.id)
           }}
-          removeChargeWarningDialogRef={removeChargeWarningDialogRef}
+          openRemoveChargeWarningDialog={openRemoveChargeWarningDialog}
         />
       </PlanFormProvider>
-
-      <RemoveChargeWarningDialog ref={removeChargeWarningDialogRef} />
     </section>
   )
 })

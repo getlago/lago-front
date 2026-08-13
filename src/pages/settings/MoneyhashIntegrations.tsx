@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { useRef } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -7,18 +6,8 @@ import { Popper } from '~/components/designSystem/Popper'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import {
-  AddEditDeleteSuccessRedirectUrlDialog,
-  AddEditDeleteSuccessRedirectUrlDialogRef,
-} from '~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog'
-import {
-  AddMoneyhashDialog,
-  AddMoneyhashDialogRef,
-} from '~/components/settings/integrations/AddMoneyhashDialog'
-import {
-  DeleteMoneyhashIntegrationDialog,
-  DeleteMoneyhashIntegrationDialogRef,
-} from '~/components/settings/integrations/DeleteMoneyhashIntegrationDialog'
+import { useAddMoneyhashDialog } from '~/components/settings/integrations/AddMoneyhashDialog'
+import { useDeleteMoneyhashIntegrationDialog } from '~/components/settings/integrations/DeleteMoneyhashIntegrationDialog'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { INTEGRATIONS_ROUTE, MONEYHASH_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import {
@@ -60,9 +49,8 @@ gql`
 const MoneyhashIntegrations = () => {
   const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
-  const addMoneyhashDialogRef = useRef<AddMoneyhashDialogRef>(null)
-  const deleteDialogRef = useRef<DeleteMoneyhashIntegrationDialogRef>(null)
-  const successRedirectUrlDialogRef = useRef<AddEditDeleteSuccessRedirectUrlDialogRef>(null)
+  const { openAddMoneyhashDialog } = useAddMoneyhashDialog()
+  const { openDeleteMoneyhashIntegrationDialog } = useDeleteMoneyhashIntegrationDialog()
   const { translate } = useInternationalization()
   const { data, loading } = useGetMoneyhashIntegrationsListQuery({
     variables: { limit: 1000, type: ProviderTypeEnum.Moneyhash },
@@ -108,7 +96,7 @@ const MoneyhashIntegrations = () => {
               variant: 'primary',
               hidden: !canCreateIntegration,
               onClick: () => {
-                addMoneyhashDialogRef.current?.openDialog()
+                openAddMoneyhashDialog()
               },
             },
           ],
@@ -162,9 +150,8 @@ const MoneyhashIntegrations = () => {
                               variant="quaternary"
                               align="left"
                               onClick={() => {
-                                addMoneyhashDialogRef.current?.openDialog({
+                                openAddMoneyhashDialog({
                                   provider: connection,
-                                  deleteModalRef: deleteDialogRef,
                                   deleteDialogCallback,
                                 })
                                 closePopper()
@@ -180,7 +167,7 @@ const MoneyhashIntegrations = () => {
                               variant="quaternary"
                               align="left"
                               onClick={() => {
-                                deleteDialogRef.current?.openDialog({
+                                openDeleteMoneyhashIntegrationDialog({
                                   provider: connection,
                                   callback: deleteDialogCallback,
                                 })
@@ -199,9 +186,6 @@ const MoneyhashIntegrations = () => {
             })}
         </section>
       </IntegrationsPage.Container>
-      <AddMoneyhashDialog ref={addMoneyhashDialogRef} />
-      <DeleteMoneyhashIntegrationDialog ref={deleteDialogRef} />
-      <AddEditDeleteSuccessRedirectUrlDialog ref={successRedirectUrlDialogRef} />
     </>
   )
 }

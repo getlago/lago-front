@@ -12,8 +12,6 @@ import { Typography } from './Typography'
 export const SELECTOR_END_CONTENT_TEST_ID = 'selector-end-content'
 export const SELECTOR_HOVER_ACTIONS_TEST_ID = 'selector-hover-actions'
 
-export const SELECTOR_HEIGHT = 72
-
 interface SelectorProps {
   title: string
   subtitle?: string

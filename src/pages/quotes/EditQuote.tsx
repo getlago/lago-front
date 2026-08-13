@@ -1,9 +1,17 @@
+import { ApolloError } from '@apollo/client'
+import type { GraphQLFormattedError } from 'graphql'
 import { debounce } from 'lodash'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
-import type { OnPricingCommand } from '~/components/designSystem/RichTextEditor/common/RichTextEditorContext'
+import type {
+  OnCreditsCommand,
+  OnDiscountCommand,
+  OnPricingCommand,
+} from '~/components/designSystem/RichTextEditor/common/RichTextEditorContext'
+import { CreditsBlockAttributes } from '~/components/designSystem/RichTextEditor/extensions/CreditsBlock.schema'
+import { DiscountBlockAttributes } from '~/components/designSystem/RichTextEditor/extensions/DiscountBlock.schema'
 import { PricingBlockAttributes } from '~/components/designSystem/RichTextEditor/extensions/PricingBlock.schema'
 import RichTextEditor, {
   type RichTextEditorMode,
@@ -16,11 +24,15 @@ import { QuoteDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { QUOTE_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import type { BillingItemsPayload } from '~/core/serializers/serializeQuoteBillingItems'
 import type { Locale } from '~/core/translations'
-import { OrderTypeEnum, type UpdateQuoteVersionInput } from '~/generated/graphql'
+import { CurrencyEnum, OrderTypeEnum, type UpdateQuoteVersionInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { QUOTE_MENTION_VARIABLES } from '~/pages/quotes/common/mentionVariables'
 
 import EditQuoteAside from './editQuote/EditQuoteAside'
+import { useAddQuoteImage } from './hooks/useAddQuoteImage'
+import { useCreditsDrawer } from './hooks/useCreditsDrawer'
+import { useDiscountDrawer } from './hooks/useDiscountDrawer'
 import { useOneOffPricingDrawer } from './hooks/useOneOffPricingDrawer'
 import { useQuote } from './hooks/useQuote'
 import { useSubscriptionPricingDrawer } from './hooks/useSubscriptionPricingDrawer'
@@ -30,11 +42,32 @@ const AUTO_SAVE_DELAY_MS = 2000
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
 
+export type SavePricingResult =
+  { ok: true } | { ok: false; error: ApolloError | readonly GraphQLFormattedError[] | undefined }
+
 const EditQuote = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { quoteId } = useParams()
   const { quote, loading, refetch: refetchQuote } = useQuote(quoteId)
+  const { organization } = useOrganizationInfos()
+
+  const { addQuoteImage } = useAddQuoteImage()
+  // quote.images is the single source of truth — useAddQuoteImage writes each
+  // uploaded blob into the normalized Quote.images cache field, so it updates
+  // reactively here (on-screen editor) and everywhere quote.images is read.
+  const images = (quote?.images ?? {}) as Record<string, string>
+
+  const onImageUpload = useCallback(
+    async (base64: string): Promise<string> => {
+      if (!quoteId) throw new Error('Missing quote id')
+
+      const { id } = await addQuoteImage({ id: quoteId, image: base64 })
+
+      return id
+    },
+    [quoteId, addQuoteImage],
+  )
 
   const versionId = quote?.currentVersion?.id
 
@@ -66,37 +99,95 @@ const EditQuote = () => {
 
   const isUpdating = isUpdatingQuote || isUpdatingQuoteVersion
 
+  // The amended subscription owns the start date: it is neither displayed nor sent (LAGO-1814).
+  const isAmendment = quote?.orderType === OrderTypeEnum.SubscriptionAmendment
+
   const handleSubscriptionDatesChange = useCallback(
     async (startDate?: string, endDate?: string) => {
       if (!versionId) return
 
-      await updateQuoteVersionRef.current({ id: versionId, startDate, endDate }, false)
+      await updateQuoteVersionRef.current(
+        { id: versionId, endDate, ...(isAmendment ? {} : { startDate }) },
+        false,
+      )
     },
-    [versionId],
+    [versionId, isAmendment],
   )
 
-  const isSubscriptionOrder =
-    quote?.orderType === OrderTypeEnum.SubscriptionCreation ||
-    quote?.orderType === OrderTypeEnum.SubscriptionAmendment
+  const isSubscriptionOrder = quote?.orderType === OrderTypeEnum.SubscriptionCreation || isAmendment
+
+  // The quote version currency is the source of truth for every amount shown or
+  // serialized in this quote. Until it is set (legacy quotes, or before the
+  // backfill below lands), fall back to the customer's, then the organization's.
+  const quoteVersionCurrency = quote?.currentVersion?.currency as CurrencyEnum | undefined
+  const effectiveQuoteCurrency =
+    quoteVersionCurrency ??
+    quote?.customer?.currency ??
+    organization?.defaultCurrency ??
+    CurrencyEnum.Usd
+
+  const getStartDate = (): string | undefined => {
+    if (isAmendment) return undefined
+
+    return quote?.subscription?.subscriptionAt ?? quote?.currentVersion?.startDate ?? undefined
+  }
 
   const subscriptionPricing = useSubscriptionPricingDrawer(quote?.currentVersion?.billingItems, {
     quoteDates: {
-      startDate:
-        quote?.subscription?.subscriptionAt ?? quote?.currentVersion?.startDate ?? undefined,
+      startDate: getStartDate(),
       endDate: quote?.currentVersion?.endDate ?? undefined,
     },
     onDatesChange: handleSubscriptionDatesChange,
     customer: quote?.customer,
     subscriptionId: quote?.subscription?.id,
+    currency: effectiveQuoteCurrency,
+    hasQuoteCurrency: !!quoteVersionCurrency,
+    isAmendment,
   })
-  const oneOffPricing = useOneOffPricingDrawer(quote?.currentVersion?.billingItems)
+  const oneOffPricing = useOneOffPricingDrawer(quote?.currentVersion?.billingItems, {
+    currency: effectiveQuoteCurrency,
+    hasQuoteCurrency: !!quoteVersionCurrency,
+  })
 
   const { onPricingCommand, isPricingDisabled, entities, syncEntitiesWithBlocks } =
     isSubscriptionOrder ? subscriptionPricing : oneOffPricing
 
+  // Stable ref so useDiscountDrawer can call savePricingBlock without a
+  // forward-declaration error (savePricingBlock is defined below).
+  const savePricingBlockRef = useRef<
+    (billingItems?: BillingItemsPayload, currency?: CurrencyEnum) => Promise<SavePricingResult>
+  >(async () => ({ ok: true }))
+
+  const discount = useDiscountDrawer(quote?.currentVersion?.billingItems, {
+    currency: effectiveQuoteCurrency,
+    onPersist: (billingItems) => savePricingBlockRef.current(billingItems),
+    onRemoveBlock: (localId) => {
+      isRollingBackRef.current = true
+      removeBlockRef.current?.(localId)
+      isRollingBackRef.current = false
+    },
+  })
+
+  const credits = useCreditsDrawer(quote?.currentVersion?.billingItems, {
+    currency: effectiveQuoteCurrency,
+    onPersist: (billingItems) => savePricingBlockRef.current(billingItems),
+    onRemoveBlock: (localId) => {
+      isRollingBackRef.current = true
+      removeBlockRef.current?.(localId)
+      isRollingBackRef.current = false
+    },
+  })
+
+  const mergedEntities = useMemo(
+    () => ({ ...entities, ...discount.entities, ...credits.entities }),
+    [entities, discount.entities, credits.entities],
+  )
+
   const customerLocale = (quote?.customer?.billingConfiguration?.documentLocale ?? 'en') as Locale
 
   const getMarkdownRef = useRef<(() => string) | null>(null)
+  const removeBlockRef = useRef<((localId: string) => void) | null>(null)
+  const isRollingBackRef = useRef(false)
   const lastSavedContentRef = useRef('')
   const isReadyForChangesRef = useRef(false)
   const failedPayloadRef = useRef<UpdateQuoteVersionInput | null>(null)
@@ -120,6 +211,22 @@ const EditQuote = () => {
   const updateQuoteVersionRef = useRef(updateQuoteVersion)
 
   updateQuoteVersionRef.current = updateQuoteVersion
+
+  // Quotes are no longer given a currency at creation time, so the edit page is
+  // where one gets materialized: persist the customer's (or the organization's)
+  // currency once, so every amount below has a real currency behind it.
+  const backfilledVersionIdRef = useRef<string | null>(null)
+
+  useEffect(() => {
+    if (!versionId || quoteVersionCurrency) return
+    if (backfilledVersionIdRef.current === versionId) return
+
+    backfilledVersionIdRef.current = versionId
+
+    updateQuoteVersionRef
+      .current({ id: versionId, currency: effectiveQuoteCurrency }, false)
+      .catch(() => undefined)
+  }, [versionId, quoteVersionCurrency, effectiveQuoteCurrency])
 
   const debouncedSave = useMemo(
     () =>
@@ -190,43 +297,89 @@ const EditQuote = () => {
     }
   }, [])
 
+  // Keep the ref in sync with the latest savePricingBlock so the stable wrapper
+  // passed to useDiscountDrawer always calls the current version.
   const savePricingBlock = useCallback(
-    async (billingItems?: BillingItemsPayload) => {
-      if (!versionId) return
+    async (
+      billingItems?: BillingItemsPayload,
+      currency?: CurrencyEnum,
+    ): Promise<SavePricingResult> => {
+      if (!versionId) return { ok: true }
 
       const content = getMarkdownRef.current?.()
 
-      if (content === null || content === undefined) return
+      if (content === null || content === undefined) return { ok: true }
 
       setSaveStatus('saving')
 
-      const payload: UpdateQuoteVersionInput = { id: versionId, content, billingItems }
+      // Each drawer owns a single billingItems category and already merges its
+      // partial ({ plans } / { addOns } / { coupons }) over the current items,
+      // so the payload is sent as-is — no key is fabricated here (a stray
+      // `addOns: []` would otherwise leak onto subscription quotes).
+      const payload: UpdateQuoteVersionInput = {
+        id: versionId,
+        content,
+        billingItems,
+        // Set only when the selected billing item is defining the quote currency
+        // — an existing currency is never overwritten from here.
+        ...(currency ? { currency } : {}),
+      }
 
       failedPayloadRef.current = payload
 
       try {
         const result = await updateQuoteVersionRef.current(payload, false)
 
-        if (result.data?.updateQuoteVersion) {
+        if (result.data?.updateQuoteVersion && !result.errors?.length) {
           lastSavedContentRef.current = content
           failedPayloadRef.current = null
           refetchQuote()
+
+          return { ok: true }
         }
-      } catch {
-        setSaveStatus('error')
+
+        // Drawer-originated failure: let the drawer surface field/toast errors and
+        // stay open. Revert the header to a neutral state instead of the error chip.
+        setSaveStatus('idle')
+
+        return { ok: false, error: result.errors }
+      } catch (error) {
+        setSaveStatus('idle')
+
+        return { ok: false, error: error as ApolloError }
       }
     },
     [versionId, refetchQuote],
   )
 
+  savePricingBlockRef.current = savePricingBlock
+
   const handlePricingCommand = useCallback<OnPricingCommand>(
     ({ onSave, editData }) => {
       onPricingCommand({
-        onSave: (attrs, entityData, billingItems) => {
-          // 1. Insert/update the TipTap node (existing behavior)
+        onSave: async (attrs, entityData, billingItems, currency) => {
+          // 1. Insert/update the TipTap node (needed so the save serializes it).
           onSave(attrs, entityData, billingItems)
-          // 2. Unified save: content + billingItems together
-          savePricingBlock(billingItems)
+
+          // 2. Unified save: content + billingItems (+ the seeded currency) together.
+          const result = await savePricingBlock(billingItems, currency)
+
+          // 3. Roll back only a *newly inserted* node on failure — remove the
+          // phantom block that never saved. When editing an existing block
+          // (`editData`), do NOT remove it: the drawer stays open on a fixable
+          // error and the resubmit path is `updateAttributes`, which can't
+          // resurrect a deleted node — removing it would lose saved pricing.
+          if (!result.ok && !editData) {
+            const localId = attrs.localEntityIds?.[0] ?? attrs.entityIds?.[0]
+
+            if (localId) {
+              isRollingBackRef.current = true
+              removeBlockRef.current?.(localId)
+              isRollingBackRef.current = false
+            }
+          }
+
+          return result
         },
         editData,
       })
@@ -236,6 +389,13 @@ const EditQuote = () => {
 
   const handlePricingBlocksChange = useCallback(
     (blocks: PricingBlockAttributes[]) => {
+      // A rollback tears the block back out after a failed save. Skip
+      // reconciliation entirely — not just the corrective save: otherwise
+      // `syncEntitiesWithBlocks` prunes the just-failed add-on's cached catalog
+      // payload, and a corrected resubmit (which rebuilds the wire payload from
+      // that cache) crashes in `toBillingItems` on the now-missing baseline.
+      if (isRollingBackRef.current) return
+
       const updatedBillingItems = syncEntitiesWithBlocks(blocks)
 
       if (updatedBillingItems) {
@@ -245,10 +405,71 @@ const EditQuote = () => {
     [syncEntitiesWithBlocks, savePricingBlock],
   )
 
+  const handleDiscountCommand = useCallback<OnDiscountCommand>(
+    ({ onSave, editData }) => {
+      discount.onDiscountCommand({ onSave, editData })
+    },
+    [discount],
+  )
+
+  const handleDiscountBlocksChange = useCallback(
+    (blocks: DiscountBlockAttributes[]) => {
+      // See handlePricingBlocksChange: skip reconciliation during a rollback so
+      // the failed coupon's cached payload isn't pruned, which would break a
+      // corrected resubmit.
+      if (isRollingBackRef.current) return
+
+      const updated = discount.syncDiscountBlocks(blocks)
+
+      if (updated) {
+        savePricingBlock(updated)
+      }
+    },
+    [discount, savePricingBlock],
+  )
+
+  const handleCreditsCommand = useCallback<OnCreditsCommand>(
+    ({ onSave, editData }) => {
+      credits.onCreditsCommand({ onSave, editData })
+    },
+    [credits],
+  )
+
+  const handleCreditsBlocksChange = useCallback(
+    (blocks: CreditsBlockAttributes[]) => {
+      // Unlike handlePricingBlocksChange, we don't skip the whole reconciliation
+      // during a rollback: syncCreditsBlocks must still refresh the wallet-cap
+      // count, or a rolled-back create leaves it stale and wrongly disables
+      // /credits until the next edit. We only skip the pruning branch during a
+      // rollback so the failed wallet's cached payload survives a corrected
+      // resubmit (prune:false also returns undefined → no corrective save).
+      const updated = credits.syncCreditsBlocks(blocks, {
+        prune: !isRollingBackRef.current,
+      })
+
+      if (updated) {
+        savePricingBlock(updated)
+      }
+    },
+    [credits, savePricingBlock],
+  )
+
   const handleClose = () => {
     debouncedSave.cancel()
     onClose()
   }
+
+  // Discount + credits are subscription-only; gate the whole set of commands
+  // once here instead of per-prop, which keeps the JSX (and the component's
+  // cognitive complexity) low.
+  const subscriptionEditorProps = isSubscriptionOrder
+    ? {
+        onDiscountCommand: handleDiscountCommand,
+        onCreditsCommand: handleCreditsCommand,
+        isCreditsDisabled: credits.isCreditsDisabled,
+        onCreditsBlocksChange: handleCreditsBlocksChange,
+      }
+    : {}
 
   return (
     <RightAsidePage.Wrapper>
@@ -328,16 +549,21 @@ const EditQuote = () => {
           <RichTextEditor
             content={quote?.currentVersion?.content ?? ''}
             getMarkdownRef={getMarkdownRef}
+            removeBlockRef={removeBlockRef}
             onChange={handleChange}
             mode={editorMode}
             onPricingCommand={handlePricingCommand}
             isPricingDisabled={isPricingDisabled}
-            entities={entities}
+            entities={mergedEntities}
             onPricingBlocksChange={handlePricingBlocksChange}
+            onDiscountBlocksChange={handleDiscountBlocksChange}
+            {...subscriptionEditorProps}
             customerLocale={customerLocale}
-            customerCurrency={quote?.customer?.currency ?? undefined}
+            documentCurrency={effectiveQuoteCurrency}
             variableItems={mentionItems}
             mentionValues={mentionValues}
+            images={images}
+            onImageUpload={onImageUpload}
           />
         )}
       </RightAsidePage.Content>

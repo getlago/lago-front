@@ -11,13 +11,7 @@ import {
 import AdyenIntegrations from '../AdyenIntegrations'
 
 jest.mock('~/components/settings/integrations/AddAdyenDialog', () => ({
-  AddAdyenDialog: () => null,
-}))
-jest.mock('~/components/settings/integrations/DeleteAdyenIntegrationDialog', () => ({
-  useDeleteAdyenIntegrationDialog: () => ({ openDeleteAdyenIntegrationDialog: () => null }),
-}))
-jest.mock('~/components/settings/integrations/AddEditDeleteSuccessRedirectUrlDialog', () => ({
-  AddEditDeleteSuccessRedirectUrlDialog: () => null,
+  useAddAdyenDialog: () => ({ openAddAdyenDialog: () => null }),
 }))
 
 describe('AdyenIntegrations', () => {

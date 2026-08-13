@@ -17,7 +17,7 @@ import { useAppForm } from '~/hooks/forms/useAppform'
 import { DEFAULT_VALUES, type FeatureEntitlementFormValues } from './constants'
 import { FeatureEntitlementDrawerContent } from './FeatureEntitlementDrawerContent'
 
-export { type FeatureEntitlementFormValues, DEFAULT_VALUES } from './constants'
+export { type FeatureEntitlementFormValues } from './constants'
 
 const privilegeSchema = z.object({
   privilegeCode: z.string().min(1),

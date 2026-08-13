@@ -38,7 +38,7 @@ const basePlan = {
   description: null,
   interval: PlanInterval.Monthly,
   amountCurrency: CurrencyEnum.Usd,
-  amountCents: '0',
+  amountCents: '3000',
   payInAdvance: false,
   trialPeriod: 0,
   invoiceDisplayName: null,
@@ -108,6 +108,33 @@ describe('buildUpdatePlanFormDefaults', () => {
     )
   })
 
+  it('hydrates amountCents from the plan in display units', () => {
+    const defaults = buildUpdatePlanFormDefaults({
+      id: 'p1',
+      name: 'P',
+      code: 'p',
+      interval: PlanInterval.Monthly,
+      amountCurrency: CurrencyEnum.Usd,
+      amountCents: '3000',
+      payInAdvance: false,
+    } as PlanDetailsV2Fragment)
+
+    expect(defaults.amountCents).toBe('30')
+  })
+
+  it('falls back to a zero amountCents when the plan has none', () => {
+    const defaults = buildUpdatePlanFormDefaults({
+      id: 'p1',
+      name: 'P',
+      code: 'p',
+      interval: PlanInterval.Monthly,
+      amountCurrency: CurrencyEnum.Usd,
+      payInAdvance: false,
+    } as PlanDetailsV2Fragment)
+
+    expect(defaults.amountCents).toBe('0')
+  })
+
   it('defaults to empty advanced fields when the plan has none', () => {
     const defaults = buildUpdatePlanFormDefaults({
       id: 'p1',
@@ -140,6 +167,41 @@ describe('buildUpdatePlanFormDefaults', () => {
     expect(defaults.trialPeriod).toBe(14)
     expect(defaults.payInAdvance).toBe(true)
     expect(defaults.invoiceDisplayName).toBe('Custom name')
+  })
+
+  it('hydrates metadata from the plan and coerces null values to empty strings', () => {
+    const defaults = buildUpdatePlanFormDefaults({
+      id: 'p1',
+      name: 'P',
+      code: 'p',
+      interval: PlanInterval.Monthly,
+      amountCurrency: CurrencyEnum.Usd,
+      amountCents: '0',
+      payInAdvance: false,
+      metadata: [
+        { key: 'product_group', value: 'Premium Suite' },
+        { key: 'display_order', value: null },
+      ],
+    } as PlanDetailsV2Fragment)
+
+    expect(defaults.metadata).toEqual([
+      { key: 'product_group', value: 'Premium Suite' },
+      { key: 'display_order', value: '' },
+    ])
+  })
+
+  it('defaults metadata to an empty array when the plan has none', () => {
+    const defaults = buildUpdatePlanFormDefaults({
+      id: 'p1',
+      name: 'P',
+      code: 'p',
+      interval: PlanInterval.Monthly,
+      amountCurrency: CurrencyEnum.Usd,
+      amountCents: '0',
+      payInAdvance: false,
+    } as PlanDetailsV2Fragment)
+
+    expect(defaults.metadata).toEqual([])
   })
 })
 
@@ -439,6 +501,62 @@ describe('useUpdatePlanWithCascade', () => {
       expect(capturedUpdateInput?.usageThresholds).toEqual([])
     })
 
+    it('preserves the plan subscription fee when a threshold-only edit is submitted', async () => {
+      const planWithThresholds = {
+        ...basePlan,
+        usageThresholds: [
+          { id: 'u1', amountCents: 10000, recurring: false, thresholdDisplayName: null },
+        ],
+      } as PlanDetailsV2Fragment
+
+      const { result } = renderHook(
+        () => useUpdatePlanWithCascade({ plan: planWithThresholds, includeAdvancedFields: true }),
+        { wrapper: wrapper([capturingUpdateMock]) },
+      )
+
+      await act(async () => {
+        await result.current.applyAndSubmit(() => {
+          result.current.form.setFieldValue('nonRecurringUsageThresholds', [
+            { amountCents: 100, recurring: false, thresholdDisplayName: null },
+            { amountCents: 250, recurring: false, thresholdDisplayName: null },
+          ])
+        })
+      })
+
+      await waitFor(() => {
+        expect(capturedUpdateInput).toBeDefined()
+      })
+
+      expect(capturedUpdateInput?.amountCents).toBe(3000)
+    })
+
+    it('preserves the plan subscription fee when all thresholds are deleted', async () => {
+      const planWithThresholds = {
+        ...basePlan,
+        usageThresholds: [
+          { id: 'u1', amountCents: 10000, recurring: false, thresholdDisplayName: null },
+        ],
+      } as PlanDetailsV2Fragment
+
+      const { result } = renderHook(
+        () => useUpdatePlanWithCascade({ plan: planWithThresholds, includeAdvancedFields: true }),
+        { wrapper: wrapper([capturingUpdateMock]) },
+      )
+
+      await act(async () => {
+        await result.current.applyAndSubmit(() => {
+          result.current.form.setFieldValue('nonRecurringUsageThresholds', undefined)
+          result.current.form.setFieldValue('recurringUsageThreshold', undefined)
+        })
+      })
+
+      await waitFor(() => {
+        expect(capturedUpdateInput).toBeDefined()
+      })
+
+      expect(capturedUpdateInput?.amountCents).toBe(3000)
+    })
+
     it('strips display-only entitlement fields from the payload when included', async () => {
       const planWithAdvanced = {
         ...basePlan,
@@ -501,6 +619,70 @@ describe('useUpdatePlanWithCascade', () => {
           config: undefined,
         }),
       )
+    })
+
+    it('includes metadata in the payload when true', async () => {
+      const planWithMetadata = {
+        ...basePlan,
+        metadata: [{ key: 'product_group', value: 'Premium Suite' }],
+      } as PlanDetailsV2Fragment
+
+      const { result } = renderHook(
+        () => useUpdatePlanWithCascade({ plan: planWithMetadata, includeAdvancedFields: true }),
+        { wrapper: wrapper([capturingUpdateMock]) },
+      )
+
+      await act(async () => {
+        await result.current.submit()
+      })
+
+      await waitFor(() => {
+        expect(capturedUpdateInput).toBeDefined()
+      })
+
+      expect(capturedUpdateInput?.metadata).toEqual([
+        { key: 'product_group', value: 'Premium Suite' },
+      ])
+    })
+
+    it('omits metadata from the payload when false (default)', async () => {
+      const { result } = renderHook(() => useUpdatePlanWithCascade({ plan: basePlan }), {
+        wrapper: wrapper([capturingUpdateMock]),
+      })
+
+      await act(async () => {
+        await result.current.submit()
+      })
+
+      await waitFor(() => {
+        expect(capturedUpdateInput).toBeDefined()
+      })
+
+      expect(capturedUpdateInput).not.toHaveProperty('metadata')
+    })
+
+    it('sends metadata: [] when all pairs are cleared so the API clears them', async () => {
+      const planWithMetadata = {
+        ...basePlan,
+        metadata: [{ key: 'product_group', value: 'Premium Suite' }],
+      } as PlanDetailsV2Fragment
+
+      const { result } = renderHook(
+        () => useUpdatePlanWithCascade({ plan: planWithMetadata, includeAdvancedFields: true }),
+        { wrapper: wrapper([capturingUpdateMock]) },
+      )
+
+      await act(async () => {
+        await result.current.applyAndSubmit(() => {
+          result.current.form.setFieldValue('metadata', [])
+        })
+      })
+
+      await waitFor(() => {
+        expect(capturedUpdateInput).toBeDefined()
+      })
+
+      expect(capturedUpdateInput?.metadata).toEqual([])
     })
   })
 })

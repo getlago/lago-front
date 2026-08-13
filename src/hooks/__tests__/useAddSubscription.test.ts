@@ -18,6 +18,7 @@ describe('cleanPlanValues', () => {
     description: 'Test Description',
     interval: PlanInterval.Monthly,
     entitlements: [],
+    metadata: [{ key: 'product_group', value: 'Premium Suite' }],
     amountCents: '1000',
     amountCurrency: CurrencyEnum.Usd,
     trialPeriod: 7,
@@ -136,6 +137,7 @@ describe('cleanPlanValues', () => {
     expect(result.billFixedChargesMonthly).toBeUndefined()
     expect(result.cascadeUpdates).toBeUndefined()
     expect(result.entitlements).toBeUndefined()
+    expect(result.metadata).toBeUndefined()
     expect(result.usageThresholds).toBeUndefined()
 
     // Should clean charges
@@ -332,6 +334,7 @@ describe('buildPlanOverridesInput', () => {
   it('normalizes an empty invoiceDisplayName against an absent one', () => {
     const baseline = buildBaseValues()
     // Baseline charge has no invoiceDisplayName at all
+
     delete (baseline.fixedCharges[0] as { invoiceDisplayName?: string }).invoiceDisplayName
     const current = clone(baseline)
 
