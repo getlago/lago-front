@@ -113,6 +113,9 @@ gql`
       ... on ProductFilter {
         id
       }
+      ... on RateCard {
+        id
+      }
       ... on PaymentRequest {
         id
       }
