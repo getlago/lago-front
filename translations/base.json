@@ -4640,5 +4640,19 @@
   "text_1786610894641m8ffsiodyjw": "The selected execution type is invalid",
   "text_1786610894641sjyf79n6nny": "The execution date must be in the future",
   "text_1786610894641nv1aitlslgu": "The signed document could not be read. Please upload a valid PDF, JPEG or PNG file",
-  "text_17866108946418951e8uxdcl": "An order has already been created for this order form"
+  "text_17866108946418951e8uxdcl": "An order has already been created for this order form",
+  "text_1786630268015utxlmxzyv6k": "This order could not be found",
+  "text_17866302680156sw8ubyaf72": "This type of order cannot be executed yet",
+  "text_1786630268015x89z5erp5gc": "This order has no execution type, please edit it before executing it",
+  "text_178663026801526jdrqexzy1": "This order is already being executed, please try again in a moment",
+  "text_1786630268016ukk6fi5u778": "A plan of this order no longer exists",
+  "text_1786630268016171ivs0g1kv": "A coupon of this order no longer exists",
+  "text_1786630268016o1hi9xo2obe": "An add-on of this order no longer exists",
+  "text_1786630268016h9odzv5jjs5": "A charge of this order no longer exists on its plan",
+  "text_1786630268016t366gcvcago": "A fixed charge of this order no longer exists on its plan",
+  "text_1786630268016qtainhwsys3": "A billable metric of this order no longer exists",
+  "text_1786630268016w264kj4y86j": "The charge model of a plan has changed since the quote was approved",
+  "text_1786630268016meyak1nxn9g": "The fixed charge model of a plan has changed since the quote was approved",
+  "text_1786630268016i9hcrwrzkcc": "The customer of this order could not be found",
+  "text_1786630268016vpwqdibatsd": "This order has nothing to bill"
 }
