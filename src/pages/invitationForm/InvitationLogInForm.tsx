@@ -55,8 +55,8 @@ export const InvitationLogInForm = ({
             {(field) => (
               <field.TextInputField
                 password
-                label={translate('text_62ab2d0396dd6b0361614d60')}
-                placeholder={translate('text_62a99ba2af7535cefacab4bf')}
+                label={translate('text_620bc4d4269a55014d493f32')}
+                placeholder={translate('text_620bc4d4269a55014d493f5b')}
                 showOnlyErrors={[PASSWORD_VALIDATION_ERRORS.REQUIRED]}
               />
             )}
