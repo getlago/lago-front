@@ -13,18 +13,14 @@ import CustomerInformation from '~/pages/createCustomers/customerInformation/Cus
 import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
 import { render } from '~/test-utils'
 
-const MULTI_ENTITY_BILLING_FLAG = 'multi_entity_billing'
 // The EU-tax banners render a design-system info alert. Their detailed
 // display/business logic is covered in BillingEntityTaxAlerts.test.tsx; here we
-// only assert the multi_entity_billing flag gate around that component.
+// only assert that the component is wired into the form.
 const ALERT_INFO_TEST_ID = 'alert-type-info'
-
-const mockHasFeatureFlag = jest.fn<boolean, [string]>(() => false)
 
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
     organization: {},
-    hasFeatureFlag: mockHasFeatureFlag,
     timezoneConfig: { name: 'UTC', offset: '+00:00' },
     intlFormatDateTimeOrgaTZ: () => ({ date: '2026-01-01' }),
   }),
@@ -118,11 +114,6 @@ const lockedCustomer: AddCustomerDrawerFragment = {
 }
 
 describe('CustomerInformation Integration Tests', () => {
-  beforeEach(() => {
-    mockHasFeatureFlag.mockReset()
-    mockHasFeatureFlag.mockReturnValue(false)
-  })
-
   describe('WHEN rendering the component', () => {
     it('THEN should render without crashing', () => {
       const { container } = render(<TestCustomerInformationWrapper />)
@@ -168,23 +159,7 @@ describe('CustomerInformation Integration Tests', () => {
   })
 
   describe('WHEN editing a customer with non-editable attributes', () => {
-    it('THEN keeps the billing entity field disabled when multi_entity_billing flag is OFF', () => {
-      mockHasFeatureFlag.mockReturnValue(false)
-
-      const { container } = render(
-        <TestCustomerInformationWrapper customer={lockedCustomer} isEdition={true} />,
-      )
-
-      const billingEntityField = container.querySelector('input[name="billingEntityCode"]')
-
-      expect(billingEntityField).not.toBeNull()
-
-      expect(billingEntityField).toBeDisabled()
-    })
-
-    it('THEN enables the billing entity field when multi_entity_billing flag is ON', () => {
-      mockHasFeatureFlag.mockImplementation((flag: string) => flag === MULTI_ENTITY_BILLING_FLAG)
-
+    it('THEN keeps the billing entity field editable', () => {
       const { container } = render(
         <TestCustomerInformationWrapper customer={lockedCustomer} isEdition={true} />,
       )
@@ -197,10 +172,8 @@ describe('CustomerInformation Integration Tests', () => {
     })
   })
 
-  describe('WHEN switching the billing entity (EU tax alert gate)', () => {
-    it('THEN renders the EU-tax info alert under the multi_entity_billing flag', () => {
-      mockHasFeatureFlag.mockImplementation((flag: string) => flag === MULTI_ENTITY_BILLING_FLAG)
-
+  describe('WHEN switching the billing entity (EU tax alert)', () => {
+    it('THEN renders the EU-tax info alert', () => {
       // Customer on TBE (EU tax OFF) switching to ABE (EU tax ON).
       render(
         <TestCustomerInformationWrapper
@@ -213,14 +186,12 @@ describe('CustomerInformation Integration Tests', () => {
       expect(screen.getByTestId(ALERT_INFO_TEST_ID)).toBeInTheDocument()
     })
 
-    it('THEN renders no EU-tax alert when the multi_entity_billing flag is OFF', () => {
-      mockHasFeatureFlag.mockReturnValue(false)
-
+    it('THEN renders no EU-tax alert when the selected entity matches the saved one', () => {
       render(
         <TestCustomerInformationWrapper
           customer={mockCustomer}
           isEdition={true}
-          selectedBillingEntityCode="ABE"
+          selectedBillingEntityCode="TBE"
         />,
       )
 

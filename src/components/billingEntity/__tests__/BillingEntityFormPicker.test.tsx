@@ -1,7 +1,5 @@
 import { configure, render, screen } from '@testing-library/react'
 
-import { FeatureFlagEnum } from '~/generated/graphql'
-
 import { BILLING_ENTITY_FORM_PICKER_DATA_TEST } from '../BillingEntityFormPicker'
 
 configure({ testIdAttribute: 'data-test' })
@@ -10,14 +8,6 @@ const mockOnChange = jest.fn()
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (key: string) => key }),
-}))
-
-const mockHasFeatureFlag = jest.fn()
-
-jest.mock('~/hooks/useOrganizationInfos', () => ({
-  useOrganizationInfos: () => ({
-    hasFeatureFlag: mockHasFeatureFlag,
-  }),
 }))
 
 const mockOptions = [
@@ -77,27 +67,7 @@ describe('BillingEntityFormPicker', () => {
     jest.clearAllMocks()
   })
 
-  describe('GIVEN the multi_entity_billing feature flag is disabled', () => {
-    describe('WHEN the component renders', () => {
-      it('THEN should return null', () => {
-        mockHasFeatureFlag.mockReturnValue(false)
-
-        const { container } = render(
-          <BillingEntityFormPicker value={undefined} onChange={mockOnChange} />,
-        )
-
-        expect(container.firstChild).toBeNull()
-      })
-    })
-  })
-
-  describe('GIVEN the multi_entity_billing feature flag is enabled', () => {
-    beforeEach(() => {
-      mockHasFeatureFlag.mockImplementation(
-        (flag: FeatureFlagEnum) => flag === FeatureFlagEnum.MultiEntityBilling,
-      )
-    })
-
+  describe('GIVEN the org has billing entities', () => {
     describe('WHEN the component renders', () => {
       it('THEN should display the picker', () => {
         render(<BillingEntityFormPicker value="entity-1" onChange={mockOnChange} />)

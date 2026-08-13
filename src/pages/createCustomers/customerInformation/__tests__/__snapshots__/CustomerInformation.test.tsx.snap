@@ -1222,7 +1222,8 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
       </div>
     </div>
     <div
-      class=MuiAutocomplete-root MuiAutocomplete-hasPopupIcon css-hash-MuiAutocomplete-root
+      aria-owns=:r-mui-id:-listbox
+      class=MuiAutocomplete-root Mui-expanded Mui-focused MuiAutocomplete-hasPopupIcon css-hash-MuiAutocomplete-root
     >
       <div
         class="flex flex-col gap-1 group/combobox-input"
@@ -1246,16 +1247,16 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
           class=MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-hash-MuiFormControl-root-MuiTextField-root
         >
           <div
-            class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd css-hash-MuiInputBase-root-MuiOutlinedInput-root
+            class=MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth Mui-focused MuiInputBase-formControl MuiInputBase-adornedEnd css-hash-MuiInputBase-root-MuiOutlinedInput-root
           >
             <input
               aria-autocomplete="list"
-              aria-expanded="false"
+              aria-controls=:r-mui-id:-listbox
+              aria-expanded="true"
               aria-invalid="false"
               autocapitalize="none"
               autocomplete="off"
-              class=MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd css-hash-MuiInputBase-input-MuiOutlinedInput-input
-              disabled=""
+              class=MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-hash-MuiInputBase-input-MuiOutlinedInput-input
               id=:r-mui-id:
               name="billingEntityCode"
               placeholder="Search or select an entity"
@@ -1268,10 +1269,9 @@ exports[`CustomerInformation Integration Tests WHEN rendering the component THEN
               class=MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-hash-MuiInputAdornment-root
             >
               <button
-                class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
+                class=MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-disableElevation button-icon-only min-w-[unset] whitespace-nowrap [&>svg]:cursor-pointer justify-center css-hash-MuiButtonBase-root-MuiButton-root
                 data-test="button"
-                disabled=""
-                tabindex="-1"
+                tabindex="0"
                 type="button"
               >
                 <svg

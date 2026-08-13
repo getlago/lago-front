@@ -23,7 +23,6 @@ import {
   CurrencyEnum,
   CustomerForDunningEmailFragmentDoc,
   CustomerForRequestOverduePaymentFormFragmentDoc,
-  FeatureFlagEnum,
   InvoicesForRequestOverduePaymentFormFragmentDoc,
   LagoApiError,
   LastPaymentRequestFragmentDoc,
@@ -35,7 +34,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useIsCustomerReadyForOverduePayment } from '~/hooks/useIsCustomerReadyForOverduePayment'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { EmailPreview } from '~/pages/CustomerRequestOverduePayment/components/EmailPreview'
 import { PageHeader } from '~/styles'
 
@@ -116,18 +114,13 @@ const CustomerRequestOverduePayment: FC = () => {
   const currencyParam = (searchParams.get('currency') as CurrencyEnum | null) ?? undefined
   const billingEntityIdParam = searchParams.get('billingEntityId') ?? undefined
 
-  const { hasFeatureFlag } = useOrganizationInfos()
-  const hasMultiCurrency = hasFeatureFlag(FeatureFlagEnum.MultiCurrency)
-  const hasMultiEntityBilling = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
-
-  // Guard: each enabled flag introduces an axis that must be scoped explicitly
-  // — `multi_currency` requires `currency`, `multi_entity_billing` requires
-  // `billingEntityId`. Without scoping, the total amount would sum across
-  // mismatched buckets and the BE would later reject the mutation
-  // (invoices_have_different_currencies / _billing_entities). Redirect the
-  // operator back to the invoices tab so they pick a row from the breakdown.
-  const needsCurrencyScope = hasMultiCurrency && !currencyParam
-  const needsEntityScope = hasMultiEntityBilling && !billingEntityIdParam
+  // Guard: both axes must be scoped explicitly. Without scoping, the total
+  // amount would sum across mismatched buckets and the BE would later reject
+  // the mutation (invoices_have_different_currencies / _billing_entities).
+  // Redirect the operator back to the invoices tab so they pick a row from
+  // the breakdown.
+  const needsCurrencyScope = !currencyParam
+  const needsEntityScope = !billingEntityIdParam
   const isUnscopedAccess = needsCurrencyScope || needsEntityScope
 
   useEffect(() => {
@@ -158,9 +151,9 @@ const CustomerRequestOverduePayment: FC = () => {
   }, [customerId, isUnscopedAccess])
 
   const { data, loading, error } = useGetRequestOverduePaymentInfosQuery({
-    // Skip when the URL is unscoped under multi-axis flags — the guard above
-    // will redirect synchronously and this query would otherwise burn a
-    // wasted network call before unmount.
+    // Skip when the URL is unscoped — the guard above will redirect
+    // synchronously and this query would otherwise burn a wasted network call
+    // before unmount.
     skip: !customerId || isUnscopedAccess,
     variables: {
       id: customerId ?? '',
@@ -194,7 +187,17 @@ const CustomerRequestOverduePayment: FC = () => {
         translateKey: 'text_66b9e095a7dc6c6d3dabeed4',
       })
 
-      navigate(generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: customerId ?? '' }))
+      // Return where the operator came from — in practice the invoices tab,
+      // which is the only entry point to this page. Navigating to the
+      // tab-less customer route instead would drop them on the overview tab
+      // and mount a second view they never asked for.
+      goBack(
+        generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+          customerId: customerId ?? '',
+          tab: CustomerDetailsTabsOptions.invoices,
+        }),
+        { exclude: CUSTOMER_REQUEST_OVERDUE_PAYMENT_ROUTE },
+      )
     },
     onError(mutationError) {
       if (hasDefinedGQLError('InvoicesNotOverdue', mutationError)) {
@@ -299,23 +302,36 @@ const CustomerRequestOverduePayment: FC = () => {
   useEffect(
     () => {
       if (hasSubmittedRef.current) return
+      // The unscoped guard owns the redirect on this render: the query is
+      // skipped, so `loading` is false and `totalAmount` is 0 for lack of
+      // data, not for lack of overdue invoices — redirecting to 404 here
+      // would overwrite the guard's navigate to the invoices tab.
+      if (isUnscopedAccess) return
       if (loading === false && totalAmount <= 0) {
         navigate(ERROR_404_ROUTE)
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [loading, totalAmount],
+    [loading, totalAmount, isUnscopedAccess],
   )
 
   useEffect(() => {
     if (hasSubmittedRef.current) return
+    // Same reason as above: let the unscoped guard redirect, don't stack a
+    // danger toast and a second navigate on top of it.
+    if (isUnscopedAccess) return
     // Check and redirect if invoices are not ready for payment processing
     // Runs when payment status changes (on mount and when dependencies update)
     if (!isPaymentProcessingStatusLoading && !isCustomerReadyForOverduePayment) {
       handlePaymentNotReady()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isCustomerReadyForOverduePayment, isPaymentProcessingStatusLoading])
+  }, [isCustomerReadyForOverduePayment, isPaymentProcessingStatusLoading, isUnscopedAccess])
+
+  // Render nothing while the unscoped guard is redirecting: the query is
+  // skipped, so the body would mount with no customer and no invoices and
+  // flash an error placeholder for the frame before the navigate lands.
+  if (isUnscopedAccess) return null
 
   return (
     <>
