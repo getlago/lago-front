@@ -76,19 +76,17 @@ describe('Multi-organization redirect flows', () => {
         invitationUrl = $link.attr('href') || $link.text().trim()
         cy.log('Invitation URL captured:', invitationUrl)
 
-        // Force a full page navigation by visiting the URL.
-        // The invitation page keeps the session: User B is still logged in here.
+        // Log out User B before opening the invite
+        cy.clearLocalStorage()
         cy.visit(invitationUrl, { failOnStatusCode: false })
       })
 
-    // 5. The invitation targets User A, so User B has to log out first
+    // 5. User A accepts the invite with their password
     cy.url().should('include', '/invitation/')
-    cy.get('[data-test="log-out-button"]', { timeout: 10000 }).click()
-
-    // 6. User A already has an account: accepting requires the password of that account, which is
-    // what proves the acceptor owns it
-    cy.get('input[name="password"]', { timeout: 10000 }).should('be.visible')
-    cy.get('input[name="password"]').type(testUsers.userA.password)
+    cy.get('input[name="password"]', { timeout: 10000 })
+      .scrollIntoView()
+      .should('be.visible')
+      .type(testUsers.userA.password)
     cy.get('[data-test="log-in-button"]').click()
 
     // User A should now have access to both organizations
