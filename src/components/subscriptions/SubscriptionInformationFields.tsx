@@ -19,7 +19,6 @@ import {
 import {
   ActivationRuleStatusEnum,
   CancellationReasonEnum,
-  FeatureFlagEnum,
   NextSubscriptionTypeEnum,
   StatusTypeEnum,
   SubscriptionInformationFieldsFragment,
@@ -191,12 +190,10 @@ const getSubscriptionInformationGrid = ({
   subscription,
   translate,
   intlFormatDateTimeOrgaTZ,
-  showBillingEntityRow,
 }: {
   subscription?: SubscriptionInformationFieldsFragment | null
   translate: TranslateFunc
   intlFormatDateTimeOrgaTZ: ReturnType<typeof useOrganizationInfos>['intlFormatDateTimeOrgaTZ']
-  showBillingEntityRow: boolean
 }) => {
   const isCustomerDeleted = !!subscription?.customer?.deletedAt
   const customerId = subscription?.customer?.id ?? ''
@@ -240,7 +237,7 @@ const getSubscriptionInformationGrid = ({
       label: translate('text_65201c5a175a4b0238abf2a0'),
       value: <SubscriptionEndOrTerminatedAt subscription={subscription} />,
     },
-    showBillingEntityRow && {
+    {
       label: translate('text_17436114971570doqrwuwhf0'),
       value: (
         <BillingEntityLabel
@@ -262,8 +259,7 @@ export const SubscriptionInformationFields = ({
   subscription?: SubscriptionInformationFieldsFragment | null
 }) => {
   const { translate } = useInternationalization()
-  const { intlFormatDateTimeOrgaTZ, hasFeatureFlag } = useOrganizationInfos()
-  const showBillingEntityRow = hasFeatureFlag(FeatureFlagEnum.MultiEntityBilling)
+  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
 
   const paymentActivationRule = getPaymentActivationRule(subscription)
   const customerId = subscription?.customer?.id ?? ''
@@ -305,7 +301,6 @@ export const SubscriptionInformationFields = ({
           subscription,
           translate,
           intlFormatDateTimeOrgaTZ,
-          showBillingEntityRow,
         })}
       />
 

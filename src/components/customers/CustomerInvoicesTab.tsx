@@ -11,7 +11,6 @@ import { PageSectionTitle } from '~/components/layouts/Section'
 import { SearchInput } from '~/components/SearchInput'
 import { CUSTOMER_INVOICES_FILTER_PREFIX } from '~/core/constants/filters'
 import {
-  CurrencyEnum,
   InvoiceForInvoiceListFragmentDoc,
   InvoiceStatusTypeEnum,
   TimezoneEnum,
@@ -58,7 +57,6 @@ interface CustomerInvoicesTabProps {
   customerTimezone?: TimezoneEnum
   customerBillingEntity?: { id: string; code: string; name?: string | null } | null
   externalId?: string
-  userCurrency?: CurrencyEnum
   isPartner?: boolean
 }
 
@@ -68,7 +66,6 @@ export const CustomerInvoicesTab = ({
   customerBillingEntity,
   isPartner,
   externalId,
-  userCurrency,
 }: CustomerInvoicesTabProps) => {
   const { translate } = useInternationalization()
   const filtersProps = useCustomerFilterDefaults({
@@ -126,7 +123,6 @@ export const CustomerInvoicesTab = ({
       {!isPartner && (
         <CustomerOverview
           externalCustomerId={externalId}
-          userCurrency={userCurrency}
           customerBillingEntity={customerBillingEntity}
         />
       )}

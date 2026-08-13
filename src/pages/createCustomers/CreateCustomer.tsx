@@ -221,7 +221,7 @@ const CreateCustomer = () => {
                 customer={customer}
                 billingEntitiesList={billingEntitiesList}
               />
-              <BillingAccordion form={form} customer={customer} />
+              <BillingAccordion form={form} />
               <MetadataAccordion form={form} />
               <ExternalAppsAccordion form={form} isEdition={isEdition} customer={customer} />
             </div>
