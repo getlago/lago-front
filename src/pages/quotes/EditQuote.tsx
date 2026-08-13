@@ -126,11 +126,15 @@ const EditQuote = () => {
     organization?.defaultCurrency ??
     CurrencyEnum.Usd
 
+  const getStartDate = (): string | undefined => {
+    if (isAmendment) return undefined
+
+    return quote?.subscription?.subscriptionAt ?? quote?.currentVersion?.startDate ?? undefined
+  }
+
   const subscriptionPricing = useSubscriptionPricingDrawer(quote?.currentVersion?.billingItems, {
     quoteDates: {
-      startDate: isAmendment
-        ? undefined
-        : (quote?.subscription?.subscriptionAt ?? quote?.currentVersion?.startDate ?? undefined),
+      startDate: getStartDate(),
       endDate: quote?.currentVersion?.endDate ?? undefined,
     },
     onDatesChange: handleSubscriptionDatesChange,

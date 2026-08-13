@@ -113,6 +113,12 @@ const EditQuoteAsideForm = ({
   const isAmendment = quote.orderType === OrderTypeEnum.SubscriptionAmendment
   const versionId = quote.currentVersion.id
 
+  const getStartDate = (): string | undefined => {
+    if (isAmendment) return undefined
+
+    return quote.subscription?.subscriptionAt ?? quote.currentVersion.startDate ?? undefined
+  }
+
   const getDefaultValues = (): EditQuoteAsideFormValues => {
     return {
       orderTypeLabel: translate(getQuoteOrderTypeTranslationKey(quote.orderType)),
@@ -122,9 +128,7 @@ const EditQuoteAsideForm = ({
       subscriptionLabel: quote.subscription
         ? `${quote.subscription.plan?.name ?? ''} - ${quote.subscription.externalId}`
         : undefined,
-      startDate: isAmendment
-        ? undefined
-        : (quote.subscription?.subscriptionAt ?? quote.currentVersion.startDate ?? undefined),
+      startDate: getStartDate(),
       endDate: quote.currentVersion.endDate ?? undefined,
       netPaymentTermLabel: formatNetPaymentTerm(
         quote.customer.netPaymentTerm ?? quote.customer.billingEntity?.netPaymentTerm,
