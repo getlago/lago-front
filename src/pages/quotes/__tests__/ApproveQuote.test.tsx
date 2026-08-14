@@ -234,6 +234,74 @@ describe('ApproveQuote', () => {
         expect(testMockNavigateFn).toHaveBeenCalledWith('/quote/quote-123/order-forms')
       })
     })
+
+    describe('WHEN the API rejects the approval', () => {
+      const mockApproveRejection = (details: Record<string, string[]>) => {
+        mockUseApproveQuote.mockReturnValue({
+          goToApproveQuote: jest.fn(),
+          approveQuote: mockApproveQuote.mockResolvedValue({
+            data: null,
+            errors: [{ message: 'Unprocessable Entity', extensions: { code, details } }],
+          }),
+        })
+      }
+      const code = 'unprocessable_entity'
+
+      it('THEN should show the mapped error toast and stay on the page', async () => {
+        const user = userEvent.setup()
+
+        mockApproveRejection({ status: ['not_approvable'] })
+        renderPage()
+
+        await user.click(screen.getByTestId(APPROVE_QUOTE_APPROVE_BUTTON_TEST_ID))
+
+        await waitFor(() => {
+          expect(addToast).toHaveBeenCalledWith({
+            severity: 'danger',
+            message: 'text_1786540789742thnfvmjlq8a',
+          })
+        })
+
+        expect(addToast).not.toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+        expect(testMockNavigateFn).not.toHaveBeenCalled()
+      })
+
+      it('THEN should also display an inline error on the expiration date field', async () => {
+        const user = userEvent.setup()
+
+        mockApproveRejection({ expiresAt: ['invalid_date'] })
+        renderPage()
+
+        await user.click(screen.getByTestId(APPROVE_QUOTE_APPROVE_BUTTON_TEST_ID))
+
+        await waitFor(() => {
+          expect(addToast).toHaveBeenCalledWith({
+            severity: 'danger',
+            message: 'text_1786540789742b4ym3200cp6',
+          })
+        })
+
+        expect(await screen.findByText('text_1786540789742b4ym3200cp6')).toBeInTheDocument()
+      })
+
+      it('THEN should show one toast per error, capped at three', async () => {
+        const user = userEvent.setup()
+
+        mockApproveRejection({
+          'billingItems.plans.0.id': ['plan_not_found'],
+          'billingItems.plans.1.id': ['plan_not_found'],
+          'billingItems.coupons.0.id': ['coupon_not_found'],
+          status: ['not_approvable'],
+        })
+        renderPage()
+
+        await user.click(screen.getByTestId(APPROVE_QUOTE_APPROVE_BUTTON_TEST_ID))
+
+        await waitFor(() => {
+          expect(addToast).toHaveBeenCalledTimes(3)
+        })
+      })
+    })
   })
 
   describe('GIVEN the close action', () => {
@@ -392,7 +460,7 @@ describe('ApproveQuote', () => {
     })
 
     describe('WHEN the approve button is clicked', () => {
-      it('THEN should not show success toast or navigate', async () => {
+      it('THEN should show the generic error toast and not navigate', async () => {
         const user = userEvent.setup()
 
         renderPage()
@@ -403,7 +471,11 @@ describe('ApproveQuote', () => {
           expect(mockApproveQuote).toHaveBeenCalled()
         })
 
-        expect(addToast).not.toHaveBeenCalled()
+        expect(addToast).toHaveBeenCalledWith({
+          severity: 'danger',
+          message: 'text_622f7a3dc32ce100c46a5154',
+        })
+        expect(addToast).not.toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
         expect(testMockNavigateFn).not.toHaveBeenCalled()
       })
     })

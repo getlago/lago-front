@@ -28,6 +28,8 @@ import { getQuoteOrderTypeTranslationKey } from './common/getQuoteOrderTypeTrans
 import { QuotePreviewCard } from './common/QuotePreviewCard'
 import { useApproveQuote } from './hooks/useApproveQuote'
 import { useQuote } from './hooks/useQuote'
+import { applyFormFieldErrors } from './utils/applyFormFieldErrors'
+import { getQuoteMutationErrors } from './utils/quoteMutationErrors'
 
 export const APPROVE_QUOTE_CLOSE_BUTTON_TEST_ID = 'approve-quote-close-button'
 export const APPROVE_QUOTE_APPROVE_BUTTON_TEST_ID = 'approve-quote-approve-button'
@@ -69,23 +71,30 @@ const ApproveQuote = () => {
     defaultValues: approveQuoteDefaultValues,
     validationLogic: revalidateLogic(),
     validators: { onDynamic: approveQuoteValidationSchema },
-    onSubmit: async ({ value }) => {
+    onSubmit: async ({ value, formApi }) => {
       if (!quoteId || !versionId) return
 
       const result = await approveQuote({
         variables: { input: buildApproveQuoteVersionInput(versionId, value) },
       })
 
-      if (result.data?.approveQuoteVersion) {
-        addToast({ severity: 'success', translateKey: 'text_1776848720529o2nn0q3b7iv' })
+      if (!result.data?.approveQuoteVersion) {
+        const errors = getQuoteMutationErrors(result.errors, translate)
 
-        navigate(
-          generatePath(QUOTE_DETAILS_ROUTE, {
-            quoteId,
-            tab: QuoteDetailsTabsOptionsEnum.orderForms,
-          }),
-        )
+        errors.forEach(({ message }) => addToast({ severity: 'danger', message }))
+        applyFormFieldErrors(formApi, errors)
+
+        return
       }
+
+      addToast({ severity: 'success', translateKey: 'text_1776848720529o2nn0q3b7iv' })
+
+      navigate(
+        generatePath(QUOTE_DETAILS_ROUTE, {
+          quoteId,
+          tab: QuoteDetailsTabsOptionsEnum.orderForms,
+        }),
+      )
     },
   })
 

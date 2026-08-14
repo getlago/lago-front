@@ -109,7 +109,15 @@ const EditQuoteAsideForm = ({
 
   const hasSubscription = !!quote.subscription
   const isOneOff = quote.orderType === OrderTypeEnum.OneOff
+  // The amended subscription owns the start date: it is neither displayed nor sent (LAGO-1814).
+  const isAmendment = quote.orderType === OrderTypeEnum.SubscriptionAmendment
   const versionId = quote.currentVersion.id
+
+  const getStartDate = (): string | undefined => {
+    if (isAmendment) return undefined
+
+    return quote.subscription?.subscriptionAt ?? quote.currentVersion.startDate ?? undefined
+  }
 
   const getDefaultValues = (): EditQuoteAsideFormValues => {
     return {
@@ -120,7 +128,7 @@ const EditQuoteAsideForm = ({
       subscriptionLabel: quote.subscription
         ? `${quote.subscription.plan?.name ?? ''} - ${quote.subscription.externalId}`
         : undefined,
-      startDate: quote.subscription?.subscriptionAt ?? quote.currentVersion.startDate ?? undefined,
+      startDate: getStartDate(),
       endDate: quote.currentVersion.endDate ?? undefined,
       netPaymentTermLabel: formatNetPaymentTerm(
         quote.customer.netPaymentTerm ?? quote.customer.billingEntity?.netPaymentTerm,
@@ -195,8 +203,8 @@ const EditQuoteAsideForm = ({
 
         const payload: UpdateQuoteVersionInput = {
           id: versionId,
-          startDate,
           endDate,
+          ...(isAmendment ? {} : { startDate }),
         }
 
         try {
@@ -211,7 +219,7 @@ const EditQuoteAsideForm = ({
           onSaveErrorRef.current?.(payload)
         }
       }, AUTO_SAVE_DELAY_MS),
-    [versionId],
+    [versionId, isAmendment],
   )
 
   const startDate = useStore(form.store, (state) => state.values.startDate)
@@ -346,16 +354,22 @@ const EditQuoteAsideForm = ({
 
           {!isOneOff && (
             <>
-              <Typography
-                variant="caption"
-                color="grey600"
-                data-test={EDIT_QUOTE_ASIDE_START_DATE_TEST_ID}
-              >
-                {translate('text_65201c5a175a4b0238abf29e')}
-              </Typography>
-              <form.AppField name="startDate">
-                {(field) => <field.DatePickerField disabled={hasSubscription} placement="auto" />}
-              </form.AppField>
+              {!isAmendment && (
+                <>
+                  <Typography
+                    variant="caption"
+                    color="grey600"
+                    data-test={EDIT_QUOTE_ASIDE_START_DATE_TEST_ID}
+                  >
+                    {translate('text_65201c5a175a4b0238abf29e')}
+                  </Typography>
+                  <form.AppField name="startDate">
+                    {(field) => (
+                      <field.DatePickerField disabled={hasSubscription} placement="auto" />
+                    )}
+                  </form.AppField>
+                </>
+              )}
 
               <Typography
                 variant="caption"

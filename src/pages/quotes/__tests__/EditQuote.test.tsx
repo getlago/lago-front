@@ -1079,6 +1079,82 @@ describe('EditQuote', () => {
     })
   })
 
+  describe('GIVEN a subscription amendment quote', () => {
+    type PricingDrawerDateOptions = {
+      isAmendment?: boolean
+      quoteDates?: { startDate?: string; endDate?: string }
+      onDatesChange?: (startDate?: string, endDate?: string) => Promise<void>
+    }
+
+    const renderAmendment = (): PricingDrawerDateOptions => {
+      mockUseQuote.mockReturnValue({
+        quote: {
+          ...mockQuote,
+          orderType: 'subscription_amendment',
+          currentVersion: { ...mockQuote.currentVersion, startDate: '2026-01-01T00:00:00Z' },
+        },
+        loading: false,
+        refetch: mockRefetchQuote,
+      })
+
+      render(<EditQuote />)
+
+      return capturedPricingDrawerArgs[1] as PricingDrawerDateOptions
+    }
+
+    describe('WHEN the pricing drawer options are built', () => {
+      it('THEN should flag the amendment and seed no start date', () => {
+        const options = renderAmendment()
+
+        expect(options.isAmendment).toBe(true)
+        expect(options.quoteDates?.startDate).toBeUndefined()
+      })
+    })
+
+    describe('WHEN the pricing drawer reports a date change', () => {
+      it('THEN should update the version without a startDate key', async () => {
+        mockUpdateQuoteVersion.mockResolvedValue({
+          data: { updateQuoteVersion: { id: 'version-1' } },
+        })
+
+        const options = renderAmendment()
+
+        await act(async () => {
+          await options.onDatesChange?.('2026-01-01T00:00:00Z', '2026-06-01T00:00:00Z')
+        })
+
+        const payload = mockUpdateQuoteVersion.mock.calls.at(-1)?.[0]
+
+        expect(payload).not.toHaveProperty('startDate')
+        expect(payload.endDate).toBe('2026-06-01T00:00:00Z')
+      })
+    })
+  })
+
+  describe('GIVEN a subscription creation quote', () => {
+    describe('WHEN the pricing drawer reports a date change', () => {
+      it('THEN should update the version with the startDate', async () => {
+        mockUpdateQuoteVersion.mockResolvedValue({
+          data: { updateQuoteVersion: { id: 'version-1' } },
+        })
+
+        render(<EditQuote />)
+
+        const options = capturedPricingDrawerArgs[1] as {
+          onDatesChange?: (startDate?: string, endDate?: string) => Promise<void>
+        }
+
+        await act(async () => {
+          await options.onDatesChange?.('2026-01-01T00:00:00Z', '2026-06-01T00:00:00Z')
+        })
+
+        const payload = mockUpdateQuoteVersion.mock.calls.at(-1)?.[0]
+
+        expect(payload.startDate).toBe('2026-01-01T00:00:00Z')
+      })
+    })
+  })
+
   describe('GIVEN the discount command integration', () => {
     describe('WHEN the quote is a subscription order', () => {
       it('THEN should pass a defined onDiscountCommand to RichTextEditor', () => {
