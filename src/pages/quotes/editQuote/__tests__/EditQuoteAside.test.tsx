@@ -84,6 +84,9 @@ jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({ hasPermissions: mockHasPermissions }),
 }))
 
+// The translate mock echoes keys, so the DatePicker's default placeholder is its key
+const DATE_PLACEHOLDER_KEY = 'text_62cd78ea9bff25e3391b243d'
+
 const mockQuote: QuoteDetailItemFragment = {
   __typename: 'Quote',
   id: 'quote-1',
@@ -506,7 +509,7 @@ describe('EditQuoteAside', () => {
 
   describe('GIVEN a subscription amendment quote', () => {
     describe('WHEN the component renders', () => {
-      it('THEN should render the start date field', () => {
+      it('THEN should NOT render the start date field', () => {
         const amendmentQuote = {
           ...mockQuote,
           orderType: OrderTypeEnum.SubscriptionAmendment,
@@ -514,7 +517,7 @@ describe('EditQuoteAside', () => {
 
         render(<EditQuoteAside quote={amendmentQuote} />)
 
-        expect(screen.getByTestId(EDIT_QUOTE_ASIDE_START_DATE_TEST_ID)).toBeInTheDocument()
+        expect(screen.queryByTestId(EDIT_QUOTE_ASIDE_START_DATE_TEST_ID)).not.toBeInTheDocument()
       })
 
       it('THEN should render the end date field', () => {
@@ -526,6 +529,67 @@ describe('EditQuoteAside', () => {
         render(<EditQuoteAside quote={amendmentQuote} />)
 
         expect(screen.getByTestId(EDIT_QUOTE_ASIDE_END_DATE_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the user changes the end date', () => {
+      it('THEN should auto-save without a startDate key', async () => {
+        const amendmentQuote = {
+          ...mockQuote,
+          orderType: OrderTypeEnum.SubscriptionAmendment,
+          currentVersion: { ...mockQuote.currentVersion, startDate: '2026-01-01T00:00:00Z' },
+        }
+
+        render(<EditQuoteAside quote={amendmentQuote} />)
+
+        const dateInputs = screen.getAllByPlaceholderText(DATE_PLACEHOLDER_KEY)
+
+        // Only the end date remains on an amendment quote
+        expect(dateInputs).toHaveLength(1)
+
+        fireEvent.change(dateInputs[0], { target: { value: '06/01/2026' } })
+
+        await waitFor(
+          () => {
+            expect(mockUpdateQuoteVersion).toHaveBeenCalled()
+          },
+          { timeout: 5000 },
+        )
+
+        const payload = mockUpdateQuoteVersion.mock.calls.at(-1)?.[0]
+
+        expect(payload).not.toHaveProperty('startDate')
+        expect(payload.endDate).toBeTruthy()
+      })
+    })
+  })
+
+  describe('GIVEN a subscription creation quote', () => {
+    describe('WHEN the user changes the end date', () => {
+      it('THEN should still auto-save the startDate', async () => {
+        const creationQuote = {
+          ...mockQuote,
+          currentVersion: { ...mockQuote.currentVersion, startDate: '2026-01-01T00:00:00Z' },
+        }
+
+        render(<EditQuoteAside quote={creationQuote} />)
+
+        const dateInputs = screen.getAllByPlaceholderText(DATE_PLACEHOLDER_KEY)
+
+        expect(dateInputs).toHaveLength(2)
+
+        fireEvent.change(dateInputs[1], { target: { value: '06/01/2026' } })
+
+        await waitFor(
+          () => {
+            expect(mockUpdateQuoteVersion).toHaveBeenCalled()
+          },
+          { timeout: 5000 },
+        )
+
+        const payload = mockUpdateQuoteVersion.mock.calls.at(-1)?.[0]
+
+        expect(payload.startDate).toBe('2026-01-01T00:00:00Z')
       })
     })
   })

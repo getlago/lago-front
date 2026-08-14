@@ -35,6 +35,11 @@ import {
   signOrderFormDefaultValues,
   signOrderFormValidationSchema,
 } from './signOrderForm/validationSchema'
+import { applyFormFieldErrors } from './utils/applyFormFieldErrors'
+import {
+  getQuoteMutationErrors,
+  QUOTE_MUTATION_SILENT_ERROR_CODES,
+} from './utils/quoteMutationErrors'
 
 export const SIGN_ORDER_FORM_CLOSE_BUTTON_TEST_ID = 'sign-order-form-close-button'
 export const SIGN_ORDER_FORM_CANCEL_BUTTON_TEST_ID = 'sign-order-form-cancel-button'
@@ -92,6 +97,10 @@ const SignOrderForm = () => {
 
   const [markOrderFormAsSignedMutation] = useMarkOrderFormAsSignedMutation({
     refetchQueries: ['getOrderForms'],
+    // Handled locally by `getQuoteMutationErrors`, so the global error link must not
+    // also fire its generic toast (nor report these expected failures to Sentry).
+    // Copied: the link pushes its own force-silenced codes onto the array it receives.
+    context: { silentErrorCodes: [...QUOTE_MUTATION_SILENT_ERROR_CODES] },
   })
 
   // Single source of truth for preview inputs (shared with the PDF renderer).
@@ -117,7 +126,7 @@ const SignOrderForm = () => {
     defaultValues: signOrderFormDefaultValues,
     validationLogic: revalidateLogic(),
     validators: { onDynamic: signOrderFormValidationSchema },
-    onSubmit: async ({ value }) => {
+    onSubmit: async ({ value, formApi }) => {
       const quoteId = orderForm?.quote?.id
 
       if (!orderFormId || !quoteId) return
@@ -126,16 +135,23 @@ const SignOrderForm = () => {
         variables: { input: buildSignOrderFormInput(orderFormId, value) },
       })
 
-      if (result.data?.markOrderFormAsSigned) {
-        addToast({ severity: 'success', translateKey: 'text_1781686594125pop15l3s7yw' })
+      if (!result.data?.markOrderFormAsSigned) {
+        const errors = getQuoteMutationErrors(result.errors, translate, 'orderForm')
 
-        navigate(
-          generatePath(QUOTE_DETAILS_ROUTE, {
-            quoteId,
-            tab: QuoteDetailsTabsOptionsEnum.orders,
-          }),
-        )
+        errors.forEach(({ message }) => addToast({ severity: 'danger', message }))
+        applyFormFieldErrors(formApi, errors)
+
+        return
       }
+
+      addToast({ severity: 'success', translateKey: 'text_1781686594125pop15l3s7yw' })
+
+      navigate(
+        generatePath(QUOTE_DETAILS_ROUTE, {
+          quoteId,
+          tab: QuoteDetailsTabsOptionsEnum.orders,
+        }),
+      )
     },
   })
 

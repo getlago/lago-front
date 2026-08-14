@@ -90,6 +90,12 @@ let mockBasePlanFormValues: PlanFormInput | undefined
 // validators pass, which is what the component uses as its validity signal.
 let mockFormPassesValidation = true
 
+// Amendment path: while the quote still amends a subscription, the hook resolves the plan
+// (and the subscription settings) from that subscription instead of planIdToFetch, and both
+// only land once the query resolves — after mount.
+let mockSubscriptionPlanId: string | undefined
+let mockSubscriptionSettings: SubscriptionPricingState['subscriptionSettings'] | undefined
+
 jest.mock('~/hooks/plans/usePlanFormSetup', () => {
   const { createMockPlanForm } = jest.requireActual('~/test-utils/createMockPlanForm')
 
@@ -97,9 +103,11 @@ jest.mock('~/hooks/plans/usePlanFormSetup', () => {
     usePlanFormSetup: jest.fn(
       ({
         planIdToFetch,
+        subscriptionId,
         onSubmit,
       }: {
         planIdToFetch?: string
+        subscriptionId?: string
         onSubmit?: (value: PlanFormInput) => void
       }) => {
         const form = createMockPlanForm(mockFormOverrides)
@@ -110,14 +118,18 @@ jest.mock('~/hooks/plans/usePlanFormSetup', () => {
           }
         })
 
+        // The subscription's own plan wins over planIdToFetch as long as the
+        // subscription is still forwarded.
+        const resolvedPlanId = (subscriptionId && mockSubscriptionPlanId) || planIdToFetch
+
         return {
           form,
-          plan: planIdToFetch ? mockPlan : undefined,
+          plan: resolvedPlanId ? mockPlan : undefined,
           basePlanFormValues: mockBasePlanFormValues,
-          formReady: !!planIdToFetch,
+          formReady: !!resolvedPlanId,
           loading: false,
-          resolvedPlanId: planIdToFetch,
-          subscriptionSettings: undefined,
+          resolvedPlanId,
+          subscriptionSettings: subscriptionId ? mockSubscriptionSettings : undefined,
           invoicingSettings: undefined,
         }
       },
@@ -178,6 +190,8 @@ describe('SubscriptionPricingContent', () => {
     mockFormOverrides = {}
     mockFormPassesValidation = true
     mockBasePlanFormValues = undefined
+    mockSubscriptionPlanId = undefined
+    mockSubscriptionSettings = undefined
     mockOpenSubscriptionSettings.mockClear()
     mockOpenPlanSettings.mockClear()
   })
@@ -775,6 +789,136 @@ describe('SubscriptionPricingContent', () => {
       // The plan query is cache-and-network, so it reports loading on every open —
       // the drawer must not blank out waiting for the diff baseline.
       expect(screen.getByTestId('fixed-charges-section')).toBeInTheDocument()
+    })
+  })
+
+  describe('GIVEN a quote attached to a subscription', () => {
+    const subscriptionSettings = {
+      externalId: 'sub_ext_1',
+      subscriptionName: 'Acme monthly',
+      billingTime: 'calendar' as const,
+      startDate: '2026-01-01',
+      endDate: '2026-12-31',
+    }
+
+    const renderWithSubscription = async (isAmendment: boolean) => {
+      const stateRef = { current: null as SubscriptionPricingState | null }
+      const formValuesRef = { current: null as PlanFormInput | null }
+      const basePlanFormValuesRef = { current: null as PlanFormInput | null }
+
+      // A fresh element every time: React bails out of a re-render given the very same
+      // element reference, and the mocked hook would never be called again.
+      const buildElement = () => (
+        <SubscriptionPricingContent
+          stateRef={stateRef}
+          formValuesRef={formValuesRef}
+          basePlanFormValuesRef={basePlanFormValuesRef}
+          subscriptionId="sub_1"
+          isAmendment={isAmendment}
+        />
+      )
+
+      const rendered = await act(() => render(buildElement()))
+
+      return {
+        stateRef,
+        // Replays the render so the mocked hook returns its newly-set values, the way the
+        // subscription query resolving after mount would.
+        rerender: async () => {
+          await act(async () => {
+            rendered.rerender(buildElement())
+          })
+        },
+      }
+    }
+
+    const selectPlan = async (label: string) => {
+      const combobox = screen.getByRole('combobox') as HTMLInputElement
+
+      await userEvent.click(combobox)
+
+      await waitFor(() => {
+        expect(screen.getAllByRole('listbox').length).toBeGreaterThan(0)
+      })
+
+      const listboxId = combobox.getAttribute('aria-controls') as string
+      const listbox = document.getElementById(listboxId) as HTMLElement
+
+      await userEvent.click(within(listbox).getByText(label))
+    }
+
+    it('WHEN it is an amendment THEN the plan can still be changed', async () => {
+      mockSubscriptionPlanId = 'plan_1'
+
+      await renderWithSubscription(true)
+
+      expect(screen.getByRole('combobox')).not.toBeDisabled()
+    })
+
+    it('WHEN it is not an amendment THEN the plan stays locked to the subscription', async () => {
+      mockSubscriptionPlanId = 'plan_1'
+
+      await renderWithSubscription(false)
+
+      expect(screen.getByRole('combobox')).toBeDisabled()
+    })
+
+    it('WHEN the user switches plan on an amendment THEN the subscription is dropped so prices reset', async () => {
+      mockSubscriptionPlanId = 'plan_1'
+
+      await renderWithSubscription(true)
+
+      // While the original plan is selected, the subscription still drives the form
+      expect(usePlanFormSetup).toHaveBeenLastCalledWith(
+        expect.objectContaining({ subscriptionId: 'sub_1', planIdToFetch: 'plan_1' }),
+      )
+
+      await selectPlan('Pro (pro)')
+
+      // Both sources are dropped, so the hook fetches plan_2 and resets to its defaults
+      expect(usePlanFormSetup).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          subscriptionId: undefined,
+          billingItemPlan: undefined,
+          planIdToFetch: 'plan_2',
+        }),
+      )
+    })
+
+    it('WHEN the subscription settings resolve after mount THEN they seed the quote state', async () => {
+      mockSubscriptionPlanId = 'plan_1'
+
+      const { stateRef, rerender } = await renderWithSubscription(true)
+
+      expect(stateRef.current?.subscriptionSettings.externalId).toBe('')
+
+      mockSubscriptionSettings = subscriptionSettings
+      await rerender()
+
+      expect(stateRef.current?.subscriptionSettings).toEqual({
+        ...subscriptionSettings,
+        // An amendment quote never carries a start date
+        startDate: '',
+      })
+    })
+
+    it('WHEN the user switches plan THEN the seeded subscription settings are preserved', async () => {
+      mockSubscriptionPlanId = 'plan_1'
+      mockSubscriptionSettings = subscriptionSettings
+
+      const { stateRef, rerender } = await renderWithSubscription(true)
+
+      await rerender()
+      await selectPlan('Pro (pro)')
+
+      // The subscription query is no longer forwarded, but its settings must survive
+      expect(usePlanFormSetup).toHaveBeenLastCalledWith(
+        expect.objectContaining({ subscriptionId: undefined, planIdToFetch: 'plan_2' }),
+      )
+      expect(stateRef.current?.subscriptionSettings).toEqual({
+        ...subscriptionSettings,
+        startDate: '',
+      })
     })
   })
 })
