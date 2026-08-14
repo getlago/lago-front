@@ -97,6 +97,24 @@ let mockFormPassesValidation = true
 // only land once the query resolves — after mount.
 let mockSubscriptionPlanId: string | undefined
 let mockSubscriptionSettings: SubscriptionPricingState['subscriptionSettings'] | undefined
+// The plan the form displays. When the quote amends a subscription running an overridden
+// plan — or was saved from such an amendment — this is the override child plan, which is
+// absent from the catalog list.
+let mockDisplayedPlan: typeof mockPlan | undefined
+// The catalog plan the hook resolves, when a test needs one that is not derived from the
+// resolved plan id (an override child resolves to its parent).
+let mockCatalogPlan: typeof mockPlan | undefined
+
+// Default catalog plan for a given id — plan_1/plan_2 mirror the mocked plans query
+// collection, any other id stands for a plan outside the current search page.
+const mockBuildCatalogPlan = (id: string): typeof mockPlan => {
+  const catalog: Record<string, { name: string; code: string }> = {
+    plan_1: { name: 'Starter', code: 'starter' },
+    plan_2: { name: 'Pro', code: 'pro' },
+  }
+
+  return { ...mockPlan, id, ...(catalog[id] ?? { name: `Catalog ${id}`, code: id }) }
+}
 
 jest.mock('~/hooks/plans/usePlanFormSetup', () => {
   const { createMockPlanForm } = jest.requireActual('~/test-utils/createMockPlanForm')
@@ -124,9 +142,15 @@ jest.mock('~/hooks/plans/usePlanFormSetup', () => {
         // subscription is still forwarded.
         const resolvedPlanId = (subscriptionId && mockSubscriptionPlanId) || planIdToFetch
 
+        // `plan` is what the form displays — possibly an override child plan — while
+        // `catalogPlan` is always the plan listed on the Plans page behind it.
+        const catalogPlan =
+          mockCatalogPlan ?? (resolvedPlanId ? mockBuildCatalogPlan(resolvedPlanId) : undefined)
+
         return {
           form,
-          plan: resolvedPlanId ? mockPlan : undefined,
+          plan: resolvedPlanId ? (mockDisplayedPlan ?? mockPlan) : undefined,
+          catalogPlan,
           basePlanFormValues: mockBasePlanFormValues,
           formReady: !!resolvedPlanId,
           loading: false,
@@ -194,9 +218,23 @@ describe('SubscriptionPricingContent', () => {
     mockBasePlanFormValues = undefined
     mockSubscriptionPlanId = undefined
     mockSubscriptionSettings = undefined
+    mockDisplayedPlan = undefined
+    mockCatalogPlan = undefined
     mockOpenSubscriptionSettings.mockClear()
     mockOpenPlanSettings.mockClear()
   })
+
+  // The options live in the popper, outside the element `aria-controls` points at, so they
+  // are queried document-wide. The ComboBox sorts them alphabetically by label.
+  const openPlanOptions = async (): Promise<string[]> => {
+    await userEvent.click(screen.getByRole('combobox'))
+
+    await waitFor(() => {
+      expect(screen.getAllByRole('option').length).toBeGreaterThan(0)
+    })
+
+    return screen.getAllByRole('option').map((option) => option.textContent ?? '')
+  }
 
   it('shows plan selection ComboBox without initial data', async () => {
     const stateRef = { current: null as SubscriptionPricingState | null }
@@ -596,6 +634,39 @@ describe('SubscriptionPricingContent', () => {
       overrides: {},
     }
 
+    it('WHEN the saved plan is an override THEN its parent is offered instead', async () => {
+      // A quote saved from a subscription amendment stores the subscription's override
+      // plan id, so the hook resolves the parent as the catalog plan (LAGO-1823).
+      const overrideBillingItemPlan = {
+        ...billingItemPlan,
+        id: 'plan_1_override',
+      } as unknown as BillingItemPlan
+
+      mockDisplayedPlan = { ...mockPlan, id: 'plan_1_override', code: 'starter_override' }
+      mockCatalogPlan = mockBuildCatalogPlan('plan_99')
+
+      const stateRef = { current: null as SubscriptionPricingState | null }
+      const formValuesRef = { current: null as PlanFormInput | null }
+      const basePlanFormValuesRef = { current: null as PlanFormInput | null }
+
+      await act(() =>
+        render(
+          <SubscriptionPricingContent
+            stateRef={stateRef}
+            formValuesRef={formValuesRef}
+            basePlanFormValuesRef={basePlanFormValuesRef}
+            // The saved state carries the override id too, so the user has not switched plan
+            initialState={{ ...initialState, planId: 'plan_1_override' }}
+            billingItemPlan={overrideBillingItemPlan}
+          />,
+        ),
+      )
+
+      const options = await openPlanOptions()
+
+      expect(options).toEqual(['Catalog plan_99 (plan_99)', 'Pro (pro)', 'Starter (starter)'])
+    })
+
     it('WHEN the user switches to a different plan THEN billingItemPlan is dropped so prices reset', async () => {
       const stateRef = { current: null as SubscriptionPricingState | null }
       const formValuesRef = { current: null as PlanFormInput | null }
@@ -902,6 +973,36 @@ describe('SubscriptionPricingContent', () => {
       await renderWithSubscription(true)
 
       expect(screen.getByRole('combobox')).not.toBeDisabled()
+    })
+
+    it('WHEN the subscription runs an overridden plan THEN the override is not offered', async () => {
+      mockSubscriptionPlanId = 'plan_1'
+      mockDisplayedPlan = {
+        ...mockPlan,
+        id: 'plan_1_override',
+        code: 'starter_override',
+      }
+
+      await renderWithSubscription(true)
+
+      const options = await openPlanOptions()
+
+      expect(options).toEqual(['Pro (pro)', 'Starter (starter)'])
+    })
+
+    it('WHEN the catalog plan falls outside the current search page THEN it is still offered', async () => {
+      mockSubscriptionPlanId = 'plan_99'
+      mockDisplayedPlan = {
+        ...mockPlan,
+        id: 'plan_99_override',
+        code: 'plan_99_override',
+      }
+
+      await renderWithSubscription(true)
+
+      const options = await openPlanOptions()
+
+      expect(options).toContain('Catalog plan_99 (plan_99)')
     })
 
     it('WHEN it is not an amendment THEN the plan stays locked to the subscription', async () => {

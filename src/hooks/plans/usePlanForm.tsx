@@ -52,6 +52,13 @@ gql`
   query getSinglePlan($id: ID!) {
     plan(id: $id) {
       ...EditPlan
+      # An amendment quote stores the subscription's override plan id, so this query can
+      # return an override — its parent is then the plan listed on the Plans page.
+      parent {
+        id
+        name
+        code
+      }
     }
   }
 

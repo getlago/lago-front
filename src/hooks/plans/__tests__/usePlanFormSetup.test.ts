@@ -142,6 +142,18 @@ describe('usePlanFormSetup', () => {
         expect(result.current.resolvedPlanId).toBe('plan-123')
       })
 
+      it('THEN should expose the same plan as catalogPlan', () => {
+        mockUseGetSinglePlanQuery.mockReturnValue({
+          data: { plan: mockPlan },
+          loading: false,
+          error: undefined,
+        })
+
+        const { result } = renderHook(() => usePlanFormSetup({ planIdToFetch: 'plan-123' }))
+
+        expect(result.current.catalogPlan).toEqual(mockPlan)
+      })
+
       it('THEN should call buildDefaultValues with the plan', () => {
         mockUseGetSinglePlanQuery.mockReturnValue({
           data: { plan: mockPlan },
@@ -209,6 +221,32 @@ describe('usePlanFormSetup', () => {
         expect(capturedDefaultValues).toEqual(mockDeserialized.formValues)
       })
 
+      it('THEN should expose the parent as catalogPlan when the stored plan is an override', () => {
+        mockFromPlanBillingItems.mockReturnValue({
+          formValues: { name: 'Deserialized Plan' },
+          subscriptionSettings: {},
+          invoicingSettings: {},
+        })
+        // A quote saved from an amendment stores the subscription's override plan id.
+        mockUseGetSinglePlanQuery.mockReturnValue({
+          data: {
+            plan: {
+              ...mockPlan,
+              id: 'override-plan-1',
+              parent: { id: 'parent-plan-1', name: 'Starter', code: 'starter' },
+            },
+          },
+          loading: false,
+          error: undefined,
+        })
+
+        const { result } = renderHook(() =>
+          usePlanFormSetup({ billingItemPlan: billingItemPlan as never }),
+        )
+
+        expect(result.current.catalogPlan?.id).toBe('parent-plan-1')
+      })
+
       it('THEN should skip the plan query', () => {
         mockFromPlanBillingItems.mockReturnValue({
           formValues: { name: 'Plan' },
@@ -261,6 +299,22 @@ describe('usePlanFormSetup', () => {
           startDate: '2026-01-01',
           endDate: '2026-12-31',
         })
+      })
+
+      it('THEN should expose the override child as plan and the parent as catalogPlan', () => {
+        mockUseGetSubscriptionForQuotePricingQuery.mockReturnValue({
+          data: { subscription: mockSubscription },
+        })
+        mockUseGetSinglePlanQuery.mockReturnValue({
+          data: { plan: { ...mockPlan, id: 'parent-plan-1' } },
+          loading: false,
+          error: undefined,
+        })
+
+        const { result } = renderHook(() => usePlanFormSetup({ subscriptionId: 'sub-1' }))
+
+        expect(result.current.plan?.id).toBe('child-plan-1')
+        expect(result.current.catalogPlan?.id).toBe('parent-plan-1')
       })
 
       it('THEN should skip the plan query since subscriptionPlan is available', () => {

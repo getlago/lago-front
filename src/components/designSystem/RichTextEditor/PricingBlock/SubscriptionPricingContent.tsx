@@ -108,6 +108,7 @@ export function SubscriptionPricingContent({
   const {
     form: planForm,
     plan: planData,
+    catalogPlan,
     formReady,
     resolvedPlanId,
     basePlanFormValues,
@@ -285,13 +286,15 @@ export function SubscriptionPricingContent({
     }))
 
     // Ensure the pre-selected plan is always present, even when it falls outside
-    // the current (searchable) result page, so its label still renders.
-    if (planData && !data.some((d) => d.value === planData.id)) {
-      data.unshift({ value: planData.id, label: `${planData.name} (${planData.code})` })
+    // the current (searchable) result page, so its label still renders. It has to be
+    // the catalog plan: on an amendment the subscription runs an override child plan,
+    // which is not listed on the Plans page and must never be offered here.
+    if (catalogPlan && !data.some((d) => d.value === catalogPlan.id)) {
+      data.unshift({ value: catalogPlan.id, label: `${catalogPlan.name} (${catalogPlan.code})` })
     }
 
     return data
-  }, [plansData, planData])
+  }, [plansData, catalogPlan])
 
   // Shared selector helpers for custom sections
   const buildEndContent = (showInterval = false) => (
