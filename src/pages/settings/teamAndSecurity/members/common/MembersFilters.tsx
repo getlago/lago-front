@@ -38,6 +38,10 @@ const MembersFilters = ({ searchQuery, setSearchQuery, type }: MembersFiltersPro
   const handleRoleFilterChange = (newRole: string | null) => {
     const newSearchParams = new URLSearchParams(searchParams)
 
+    // Both lists paginate on the bare `page` key: a new filter narrows the result set, so the
+    // page the user was on may no longer exist
+    newSearchParams.delete('page')
+
     if (newRole) {
       newSearchParams.set(MEMBERS_PAGE_ROLE_FILTER_KEY, newRole)
     } else {

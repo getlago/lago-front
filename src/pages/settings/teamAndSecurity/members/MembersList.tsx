@@ -12,14 +12,19 @@ import { MEMBERS_PAGE_ROLE_FILTER_KEY } from '~/core/constants/roles'
 import { GetMembersQuery, MembershipItemForMembershipSettingsFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { usePermissions } from '~/hooks/usePermissions'
 import { AllowedElements, useRoleDisplayInformation } from '~/hooks/useRoleDisplayInformation'
+import { useRolesList } from '~/hooks/useRolesList'
 
 import MembersFilters from './common/MembersFilters'
 import { useCreateInviteDialog } from './dialogs/CreateInviteDialog'
 import { useEditMemberRoleDialog } from './dialogs/EditMemberRoleDialog'
 import { useRevokeMembershipDialog } from './dialogs/RevokeMembershipDialog'
 import { useGetMembersList } from './hooks/useGetMembersList'
+
+export const MEMBERS_LIST_EDIT_ACTION_TEST_ID = 'members-list-edit-action'
+export const MEMBERS_LIST_DELETE_ACTION_TEST_ID = 'members-list-delete-action'
 
 type Membership = GetMembersQuery['memberships']['collection'][0]
 
@@ -41,13 +46,10 @@ const MemberList = () => {
   const { translate } = useInternationalization()
   const { page, goToPage } = usePageSearchParam()
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
-  const { members, metadata, membersLoading, membersError, membersRefetch } = useGetMembersList(
-    pageSize,
-    page,
-  )
   const { hasPermissions } = usePermissions()
   const { currentUser } = useCurrentUser()
   const { getDisplayName } = useRoleDisplayInformation()
+  const { roles, isLoadingRoles } = useRolesList()
 
   const RolesColumn = getRolesColumn(getDisplayName)
 
@@ -61,19 +63,27 @@ const MemberList = () => {
     return searchParams.get(MEMBERS_PAGE_ROLE_FILTER_KEY)
   }, [searchParams])
 
+  // The filter is stored in the URL as a role name, while the API filters on role ids
+  const roleIds = useMemo(() => {
+    if (!selectedRole) return undefined
+
+    const matchingRoleIds = roles
+      .filter((role) => role.name === selectedRole)
+      .map((role) => role.id)
+
+    return matchingRoleIds.length > 0 ? matchingRoleIds : undefined
+  }, [roles, selectedRole])
+
+  const { getMembers, members, metadata, membersLoading, membersError, membersRefetch } =
+    useGetMembersList({ pageSize, page, roleIds })
+
+  const { debouncedSearch, isLoading } = useDebouncedSearch(getMembers, membersLoading)
+
+  // Role ids resolve asynchronously, so the first response of a role-filtered list is unfiltered:
+  // stay on the skeleton until the ids are known to never paint members the filter excludes
+  const isListLoading = isLoading || (!!selectedRole && isLoadingRoles)
+
   const [searchQuery, setSearchQuery] = useState('')
-
-  const filteredMembers = useMemo(() => {
-    if (!selectedRole && !searchQuery) return members
-
-    return members.filter((member) => {
-      const matchesRole = !selectedRole || member.roles.includes(selectedRole)
-      const matchesSearch =
-        !searchQuery || member.user.email?.toLowerCase().includes(searchQuery.toLowerCase())
-
-      return matchesRole && matchesSearch
-    })
-  }, [members, selectedRole, searchQuery])
 
   const columns: Array<TableColumn<Membership> | null> = [
     {
@@ -112,6 +122,7 @@ const MemberList = () => {
                 isEditingMyOwnMembership: currentUser?.id === membership.user.id,
               })
             },
+            dataTest: MEMBERS_LIST_EDIT_ACTION_TEST_ID,
           } as ActionItem<MembershipItemForMembershipSettingsFragment>,
         ]
       : []
@@ -123,17 +134,15 @@ const MemberList = () => {
               startIcon: 'trash',
               title: translate('text_63ea0f84f400488553caa786'),
               onAction: () => {
-                const admins = members.filter((m) => m.roles.includes('Admin'))
-                const isDeletingLastAdmin =
-                  admins.some((admin) => admin.id === membership.id) && admins.length === 1
-
                 openRevokeMembershipDialog({
                   id: membership.id,
                   email: membership.user.email || '',
                   organizationName: membership.organization?.name || '',
-                  isDeletingLastAdmin,
+                  isDeletingLastAdmin:
+                    membership.roles.includes('Admin') && metadata?.adminCount === 1,
                 })
               },
+              dataTest: MEMBERS_LIST_DELETE_ACTION_TEST_ID,
             } as ActionItem<MembershipItemForMembershipSettingsFragment>,
           ]
         : []
@@ -165,12 +174,13 @@ const MemberList = () => {
         setSearchQuery={(value) => {
           goToPage(1)
           setSearchQuery(value)
+          debouncedSearch?.(value)
         }}
         type="members"
       />
       <PaginatedContent
         metadata={metadata}
-        loading={membersLoading}
+        loading={isListLoading}
         pageSize={pageSize}
         onPageChange={goToPage}
         onPageSizeChange={(newPageSize) => {
@@ -183,8 +193,8 @@ const MemberList = () => {
           containerClassName="h-auto shrink-0"
           containerSize={{ default: 0 }}
           rowSize={72}
-          isLoading={membersLoading}
-          data={filteredMembers}
+          isLoading={isListLoading}
+          data={members}
           loadingRowCount={pageSize}
           hasError={!!membersError}
           placeholder={tablePlaceholder}
