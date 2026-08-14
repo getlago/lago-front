@@ -336,6 +336,8 @@ export function SubscriptionPricingContent({
     currency: displayCurrency,
   })
 
+  const customerName = customer?.displayName || customer?.externalId || ''
+
   return (
     <CenteredPage.SubsectionWrapper>
       {/* 1. Plan selection */}
@@ -349,7 +351,7 @@ export function SubscriptionPricingContent({
         <CenteredPage.PageSection>
           <CenteredPage.PageSectionTitle
             title={translate('text_65118a52df984447c186940f', {
-              customerName: customer?.name,
+              customerName,
             })}
             description={translate('text_1781099100337s3ou7wd0l4z')}
           />

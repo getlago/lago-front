@@ -1,6 +1,7 @@
 import { act, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { PAGE_SECTION_TITLE_TEST_ID } from '~/components/layouts/CenteredPage'
 import type { PlanFormInput } from '~/components/plans/types'
 import {
   type BillingItemPlan,
@@ -15,6 +16,7 @@ import {
   PlanInterval,
 } from '~/generated/graphql'
 import { usePlanFormSetup } from '~/hooks/plans/usePlanFormSetup'
+import type { QuoteCustomer } from '~/pages/quotes/hooks/useSubscriptionPricingDrawer'
 import { render } from '~/test-utils'
 
 import { SubscriptionPricingContent } from '../SubscriptionPricingContent'
@@ -442,7 +444,7 @@ describe('SubscriptionPricingContent', () => {
       invoicingSettings: DEFAULT_INVOICING_SETTINGS,
       overrides: {},
     }
-    const mockCustomer = { id: 'cust-1', externalId: 'ext-1', name: 'Acme' }
+    const mockCustomer = { id: 'cust-1', externalId: 'ext-1', displayName: 'Acme' }
 
     it('WHEN a plan is selected THEN the invoicing & payments component is rendered', async () => {
       const stateRef = { current: null as SubscriptionPricingState | null }
@@ -481,6 +483,53 @@ describe('SubscriptionPricingContent', () => {
       )
 
       expect(screen.queryByTestId('quote-invoicing-payments-settings')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('GIVEN the plan-selection section title is rendered', () => {
+    const renderWithCustomer = async (customer?: QuoteCustomer): Promise<HTMLElement> => {
+      const stateRef = { current: null as SubscriptionPricingState | null }
+      const formValuesRef = { current: null as PlanFormInput | null }
+      const basePlanFormValuesRef = { current: null as PlanFormInput | null }
+
+      await act(() =>
+        render(
+          <SubscriptionPricingContent
+            stateRef={stateRef}
+            formValuesRef={formValuesRef}
+            basePlanFormValuesRef={basePlanFormValuesRef}
+            customer={customer}
+          />,
+        ),
+      )
+
+      return screen.getAllByTestId(PAGE_SECTION_TITLE_TEST_ID)[0]
+    }
+
+    it('WHEN the customer has a displayName THEN the title shows it', async () => {
+      const title = await renderWithCustomer({
+        id: 'cust-1',
+        externalId: 'ext-1',
+        displayName: 'Acme',
+      })
+
+      expect(title).toHaveTextContent('Acme')
+    })
+
+    it('WHEN the customer has no displayName THEN the title falls back to the externalId', async () => {
+      const title = await renderWithCustomer({ id: 'cust-1', externalId: 'ext-1' })
+
+      expect(title).toHaveTextContent('ext-1')
+    })
+
+    it.each([
+      ['a customer with a displayName', { id: 'cust-1', externalId: 'ext-1', displayName: 'Acme' }],
+      ['a customer without a displayName', { id: 'cust-1', externalId: 'ext-1' }],
+      ['no customer at all', undefined],
+    ])('WHEN rendered with %s THEN the title never contains "undefined"', async (_, customer) => {
+      const title = await renderWithCustomer(customer)
+
+      expect(title).not.toHaveTextContent('undefined')
     })
   })
 
