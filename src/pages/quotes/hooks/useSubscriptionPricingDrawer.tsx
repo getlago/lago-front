@@ -36,7 +36,8 @@ interface UseSubscriptionPricingDrawerReturn {
 export interface QuoteCustomer {
   id: string
   externalId: string
-  name?: string | null
+  /** Resolved customer label — the `QuoteDetailItem` fragment selects `displayName`, never `name`. */
+  displayName?: string | null
 }
 
 export interface SubscriptionPricingDrawerOptions {
