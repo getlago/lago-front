@@ -96,8 +96,32 @@ describe('SubscriptionInformationFields', () => {
     ).toBeInTheDocument()
   })
 
-  it('shows "-" instead of an invalid date when the subscription has no start date', () => {
-    render(<SubscriptionInformationFields subscription={baseSubscription({ startedAt: null })} />)
+  it('falls back to the scheduled start date under "Start date" when the subscription is pending', () => {
+    // Pending scenario: started_at is still empty, subscription_at holds the future start date
+    render(
+      <SubscriptionInformationFields
+        subscription={baseSubscription({
+          status: StatusTypeEnum.Pending,
+          startedAt: null,
+          subscriptionAt: '2026-06-01',
+        })}
+      />,
+    )
+
+    expect(
+      getValueUnderLabel(START_DATE_LABEL).getByText('formatted-2026-06-01'),
+    ).toBeInTheDocument()
+    expect(
+      getValueUnderLabel(BILLING_ANCHOR_LABEL).getByText('formatted-2026-06-01'),
+    ).toBeInTheDocument()
+  })
+
+  it('shows "-" instead of an invalid date when the subscription has neither a start nor a scheduled date', () => {
+    render(
+      <SubscriptionInformationFields
+        subscription={baseSubscription({ startedAt: null, subscriptionAt: null })}
+      />,
+    )
 
     expect(getValueUnderLabel(START_DATE_LABEL).getByText('-')).toBeInTheDocument()
   })
