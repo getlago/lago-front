@@ -12,12 +12,14 @@ import {
   useNavigate,
 } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
 
 import { useQuote } from './hooks/useQuote'
 import { useQuoteVersionActions } from './hooks/useQuoteVersionActions'
 import OrderFormsList from './OrderFormsList'
 import OrdersList from './OrdersList'
+import QuoteDetailsActivityLogs from './QuoteDetailsActivityLogs'
 import QuoteDetailsVersions from './QuoteDetailsVersions'
 
 const QuoteDetails = (): JSX.Element => {
@@ -27,6 +29,7 @@ const QuoteDetails = (): JSX.Element => {
   const { quote, loading } = useQuote(quoteId)
   const { getActions } = useQuoteVersionActions()
   const { hasPermissions } = usePermissions()
+  const { isPremium } = useCurrentUser()
   const canViewOrderForms = hasPermissions(['orderFormsView'])
 
   useEffect(() => {
@@ -106,6 +109,15 @@ const QuoteDetails = (): JSX.Element => {
               tab: QuoteDetailsTabsOptionsEnum.orders,
             }),
             content: <OrdersList quoteNumber={quote?.number} />,
+          },
+          {
+            title: translate('text_1747314141347qq6rasuxisl'),
+            link: generatePath(QUOTE_DETAILS_ROUTE, {
+              quoteId: quoteId as string,
+              tab: QuoteDetailsTabsOptionsEnum.activityLogs,
+            }),
+            content: <QuoteDetailsActivityLogs quoteId={quoteId as string} />,
+            hidden: !isPremium || !hasPermissions(['auditLogsView']),
           },
         ]}
       />

@@ -1,22 +1,108 @@
-import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
+import { gql } from '@apollo/client'
+
+import { ActivityLogsTable } from '~/components/activityLogs/ActivityLogsTable'
+import { buildLinkToActivityLog } from '~/components/activityLogs/utils'
+import { PaginatedContent } from '~/components/designSystem/Pagination'
+import { PageSectionTitle } from '~/components/layouts/Section'
+import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
+import {
+  ActivityLogsTableDataFragmentDoc,
+  LagoApiError,
+  ResourceTypeEnum,
+  useQuoteDetailsActivityLogsQuery,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import EmptyImage from '~/public/images/maneki/empty.svg'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useDeveloperTool } from '~/hooks/useDeveloperTool'
+import { usePermissions } from '~/hooks/usePermissions'
+
+gql`
+  query QuoteDetailsActivityLogs(
+    $page: Int
+    $limit: Int
+    $resourceTypes: [ResourceTypeEnum!]
+    $resourceIds: [String!]
+  ) {
+    activityLogs(
+      page: $page
+      limit: $limit
+      resourceTypes: $resourceTypes
+      resourceIds: $resourceIds
+    ) {
+      collection {
+        ...ActivityLogsTableData
+      }
+      metadata {
+        currentPage
+        totalPages
+        totalCount
+      }
+    }
+  }
+
+  ${ActivityLogsTableDataFragmentDoc}
+`
 
 export const QUOTE_ACTIVITY_LOGS_CONTAINER_TEST_ID = 'quote-activity-logs-container'
 
-const QuoteDetailsActivityLogs = (): JSX.Element => {
+interface QuoteDetailsActivityLogsProps {
+  quoteId: string
+}
+
+const QuoteDetailsActivityLogs = ({ quoteId }: QuoteDetailsActivityLogsProps): JSX.Element => {
   const { translate } = useInternationalization()
+  const { openPanel: open, setUrl } = useDeveloperTool()
+  const { isPremium } = useCurrentUser()
+  const { hasPermissions } = usePermissions()
+
+  const canViewLogs = isPremium && hasPermissions(['auditLogsView'])
+
+  const { data, loading, error, refetch, fetchMore } = useQuoteDetailsActivityLogsQuery({
+    variables: {
+      resourceTypes: [ResourceTypeEnum.Quote],
+      resourceIds: [quoteId],
+      limit: DEFAULT_PAGE_SIZE,
+    },
+    notifyOnNetworkStatusChange: true,
+    context: {
+      silentErrorCodes: [LagoApiError.FeatureUnavailable],
+    },
+    skip: !canViewLogs,
+  })
 
   return (
     <div
       className="w-full px-4 pb-20 pt-6 md:px-12"
       data-test={QUOTE_ACTIVITY_LOGS_CONTAINER_TEST_ID}
     >
-      <GenericPlaceholder
-        title={translate('text_1775749367376kjpj8v9d3a6')}
-        subtitle={translate('text_17757493673761ovrgfrw8xo')}
-        image={<EmptyImage width="136" height="104" />}
+      <PageSectionTitle
+        title={translate('text_1747314141347qq6rasuxisl')}
+        subtitle={translate('text_1786955447407qdfyv707tf8')}
       />
+
+      <PaginatedContent
+        metadata={data?.activityLogs?.metadata}
+        loading={loading}
+        onPageChange={(page) => fetchMore({ variables: { page } })}
+        sticky={false}
+      >
+        <ActivityLogsTable
+          containerSize={4}
+          data={data?.activityLogs?.collection ?? []}
+          error={error}
+          isLoading={loading}
+          refetch={refetch}
+          onRowActionLink={(row) => {
+            const url = buildLinkToActivityLog(row.activityId)
+
+            open()
+            setUrl(url)
+
+            // We return an empty string to avoid the default behavior of the table
+            return ''
+          }}
+        />
+      </PaginatedContent>
     </div>
   )
 }
