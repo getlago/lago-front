@@ -84,7 +84,10 @@ const successMock: TestMocksType = [
       query: CreateSupersetGuestTokenDocument,
       variables: { input: { dashboardId: 'dash-1' } },
     },
-    result: { data: { createSupersetGuestToken: { guestToken: 'token-1' } } },
+    // Deliberately different from the `guestToken` seeded by the dashboards query
+    // above: if the two matched, an assertion on the fetched token would pass even
+    // when the mutation never ran or threw and fell back to the seed.
+    result: { data: { createSupersetGuestToken: { guestToken: 'refreshed-token' } } },
   },
 ]
 
@@ -143,7 +146,8 @@ describe('Dashboard', () => {
       expect(config.supersetDomain).toBe('https://localhost:8089')
       expect(config.mountPoint).toBe(document.getElementById('superset-lago-dashboard'))
       expect(config.dashboardUiConfig.hideTitle).toBe(true)
-      await expect(config.fetchGuestToken()).resolves.toBe('token-1')
+      // Proves the token came from the mutation, not from the query's seed.
+      await expect(config.fetchGuestToken()).resolves.toBe('refreshed-token')
     })
   })
 
@@ -234,6 +238,33 @@ describe('Dashboard', () => {
       unmount()
 
       expect(mockUnmount).toHaveBeenCalled()
+    })
+
+    // The SDK puts its iframe in the DOM before `embedDashboard` resolves, so an
+    // embed still in flight at cleanup time has to be unmounted once it lands —
+    // otherwise the iframe is orphaned with its Switchboard port open. StrictMode
+    // hits this on every dev mount.
+    it('THEN tears down an embed that only resolves after cleanup ran', async () => {
+      let resolveEmbed: (value: unknown) => void = () => {}
+
+      mockEmbedDashboard.mockReturnValue(
+        new Promise((resolve) => {
+          resolveEmbed = resolve
+        }),
+      )
+
+      const { unmount } = renderAnalytics()
+
+      await waitFor(() => expect(mockEmbedDashboard).toHaveBeenCalledTimes(1))
+
+      unmount()
+      expect(mockUnmount).not.toHaveBeenCalled()
+
+      resolveEmbed({ unmount: mockUnmount, observeDataMask: mockObserveDataMask })
+
+      await waitFor(() => expect(mockUnmount).toHaveBeenCalledTimes(1))
+      // The late embed must not wire up filter observation either.
+      expect(mockObserveDataMask).not.toHaveBeenCalled()
     })
   })
 })
