@@ -73,7 +73,7 @@ export const PlanDetailsActivityLogs = ({ planId }: PlanDetailsActivityLogsProps
             loading={loading}
             error={error}
             refetch={refetch}
-            onPageChange={(page) => fetchMore({ variables: { page } })}
+            fetchMore={fetchMore}
           />
         </div>
       </div>

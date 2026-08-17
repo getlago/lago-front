@@ -9,7 +9,21 @@ import { ActivityLogsTableDataFragment, CollectionMetadata } from '~/generated/g
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDeveloperTool } from '~/hooks/useDeveloperTool'
 
-interface ActivityLogsSectionProps {
+/** The two pagination strategies activity-log lists use, per CLAUDE.md: detail tabs page
+ *  through `fetchMore`, while the customer tabs drive the page from the URL. */
+type ActivityLogsPaginationProps =
+  | {
+      /** The query's own `fetchMore` — the pager calls it with the target page */
+      fetchMore: (options: { variables: { page: number } }) => void
+      onPageChange?: never
+    }
+  | {
+      /** Used when the page lives in the URL (`usePageSearchParam`) instead of in `fetchMore` */
+      onPageChange: (page: number) => void
+      fetchMore?: never
+    }
+
+type ActivityLogsSectionProps = ActivityLogsPaginationProps & {
   /** Resource-specific line under the shared "Activity logs" heading */
   subtitle: string
   /** The `activityLogs` field of the resource's own activity-logs query */
@@ -20,7 +34,6 @@ interface ActivityLogsSectionProps {
   loading: boolean
   error: ApolloError | undefined
   refetch: QueryResult['refetch']
-  onPageChange: (page: number) => void
   /** Activity-log lists sit inside a scrolling detail tab, so the pager is not pinned by
    *  default. `InvoiceActivityLogs` is the exception and opts back in. */
   sticky?: boolean
@@ -30,9 +43,10 @@ interface ActivityLogsSectionProps {
  * Heading + paginated `ActivityLogsTable` for a single resource's activity logs, with the
  * row click wired to the developer-tool panel.
  *
- * Every resource keeps its own query (codegen needs one operation name per resource) and its
- * own outer wrapper (each detail page has different padding), so this owns only the part that
- * is identical everywhere.
+ * Every resource keeps its own query, because each filters the `activityLogs` field
+ * differently (`resourceTypes`/`resourceIds`, `externalSubscriptionId`,
+ * `externalCustomerId`), and its own outer wrapper, because each detail page has different
+ * padding. This owns only the part that is identical everywhere.
  *
  * @example
  * <ActivityLogsSection
@@ -41,7 +55,7 @@ interface ActivityLogsSectionProps {
  *   loading={loading}
  *   error={error}
  *   refetch={refetch}
- *   onPageChange={(page) => fetchMore({ variables: { page } })}
+ *   fetchMore={fetchMore}
  * />
  */
 export const ActivityLogsSection: FC<ActivityLogsSectionProps> = ({
@@ -50,11 +64,22 @@ export const ActivityLogsSection: FC<ActivityLogsSectionProps> = ({
   loading,
   error,
   refetch,
+  fetchMore,
   onPageChange,
   sticky = false,
 }) => {
   const { translate } = useInternationalization()
   const { openPanel, setUrl } = useDeveloperTool()
+
+  const handlePageChange = (page: number): void => {
+    if (onPageChange) {
+      onPageChange(page)
+
+      return
+    }
+
+    fetchMore?.({ variables: { page } })
+  }
 
   return (
     <>
@@ -63,7 +88,7 @@ export const ActivityLogsSection: FC<ActivityLogsSectionProps> = ({
       <PaginatedContent
         metadata={activityLogs?.metadata}
         loading={loading}
-        onPageChange={onPageChange}
+        onPageChange={handlePageChange}
         sticky={sticky}
       >
         <ActivityLogsTable

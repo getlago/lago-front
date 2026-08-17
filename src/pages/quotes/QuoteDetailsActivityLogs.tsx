@@ -76,7 +76,7 @@ const QuoteDetailsActivityLogs = ({ quoteId }: QuoteDetailsActivityLogsProps): J
         loading={loading}
         error={error}
         refetch={refetch}
-        onPageChange={(page) => fetchMore({ variables: { page } })}
+        fetchMore={fetchMore}
       />
     </div>
   )

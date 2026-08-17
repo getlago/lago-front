@@ -74,7 +74,7 @@ export const BillableMetricDetailsActivityLogs = ({
           loading={loading}
           error={error}
           refetch={refetch}
-          onPageChange={(page) => fetchMore({ variables: { page } })}
+          fetchMore={fetchMore}
         />
       </section>
     </section>
