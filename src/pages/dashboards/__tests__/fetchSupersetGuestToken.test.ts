@@ -1,9 +1,7 @@
 import { type ApolloClient } from '@apollo/client'
 
-import {
-  CREATE_SUPERSET_GUEST_TOKEN,
-  createFetchSupersetGuestToken,
-} from '~/pages/dashboards/fetchSupersetGuestToken'
+import { CreateSupersetGuestTokenDocument } from '~/generated/graphql'
+import { createFetchSupersetGuestToken } from '~/pages/dashboards/fetchSupersetGuestToken'
 
 const makeClient = (mutate: jest.Mock) => ({ mutate }) as unknown as ApolloClient<object>
 
@@ -24,7 +22,7 @@ describe('createFetchSupersetGuestToken', () => {
 
     expect(mutate).toHaveBeenCalledTimes(2)
     expect(mutate).toHaveBeenNthCalledWith(1, {
-      mutation: CREATE_SUPERSET_GUEST_TOKEN,
+      mutation: CreateSupersetGuestTokenDocument,
       variables: { input: { dashboardId: '42' } },
       fetchPolicy: 'no-cache',
     })

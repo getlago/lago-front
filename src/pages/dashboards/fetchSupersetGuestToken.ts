@@ -1,6 +1,12 @@
 import { type ApolloClient, gql } from '@apollo/client'
 
-export const CREATE_SUPERSET_GUEST_TOKEN = gql`
+import {
+  CreateSupersetGuestTokenDocument,
+  CreateSupersetGuestTokenMutation,
+  CreateSupersetGuestTokenMutationVariables,
+} from '~/generated/graphql'
+
+gql`
   mutation createSupersetGuestToken($input: CreateSupersetGuestTokenInput!) {
     createSupersetGuestToken(input: $input) {
       guestToken
@@ -26,8 +32,11 @@ export const createFetchSupersetGuestToken = (
     }
 
     try {
-      const { data } = await client.mutate({
-        mutation: CREATE_SUPERSET_GUEST_TOKEN,
+      const { data } = await client.mutate<
+        CreateSupersetGuestTokenMutation,
+        CreateSupersetGuestTokenMutationVariables
+      >({
+        mutation: CreateSupersetGuestTokenDocument,
         variables: { input: { dashboardId } },
         fetchPolicy: 'no-cache',
       })
