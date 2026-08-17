@@ -1,6 +1,7 @@
 import { screen } from '@testing-library/react'
 
 import { MainHeaderConfig } from '~/components/MainHeader/types'
+import { TranslateFunc } from '~/hooks/core/useInternationalization'
 import { render } from '~/test-utils'
 
 import InvoicesPage from '../InvoicesPage'
@@ -18,7 +19,9 @@ jest.mock('~/components/MainHeader/MainHeader', () => ({
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
-    translate: (key: string) => key,
+    // Interpolated values are appended so tests can assert on them without matching keys
+    translate: (key: string, args?: Record<string, unknown>) =>
+      args ? [key, ...Object.values(args)].join(' ') : key,
   }),
 }))
 
@@ -53,6 +56,16 @@ jest.mock('~/core/apolloClient', () => ({
 const mockRetryAll = jest.fn().mockResolvedValue({ errors: undefined })
 const mockCreateExport = jest.fn()
 
+const UNCAPPED_METADATA = {
+  currentPage: 1,
+  totalPages: 1,
+  totalCount: 5,
+  totalCountCapped: false,
+  hasNextPage: false,
+}
+
+let mockInvoicesMetadata: typeof UNCAPPED_METADATA = UNCAPPED_METADATA
+
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
   useGetInvoicesListLazyQuery: () => [
@@ -60,7 +73,7 @@ jest.mock('~/generated/graphql', () => ({
     {
       data: {
         invoices: {
-          metadata: { currentPage: 1, totalPages: 1, totalCount: 5 },
+          metadata: mockInvoicesMetadata,
           collection: [],
         },
       },
@@ -87,14 +100,35 @@ jest.mock('~/components/invoices/FinalizeInvoiceDialog', () => ({
   useFinalizeInvoiceDialog: () => ({ openFinalizeInvoiceDialog: jest.fn() }),
 }))
 
+const mockOpenExportDialog = jest.fn()
+
 jest.mock('~/components/exports/ExportDialog', () => ({
-  useExportDialog: () => ({ openExportDialog: jest.fn() }),
+  useExportDialog: () => ({ openExportDialog: mockOpenExportDialog }),
 }))
+
+const mockFormatCountToMetadata = jest.fn()
+
+jest.mock('~/components/MainHeader/formatCountToMetadata', () => ({
+  formatCountToMetadata: (
+    count: number | undefined | null,
+    translate: TranslateFunc,
+    capped?: boolean,
+  ) => mockFormatCountToMetadata(count, translate, capped),
+}))
+
+const openExportDialogFromHeader = (): void => {
+  const exportAction = capturedConfig?.actions?.items[0]
+
+  if (exportAction?.type === 'action') {
+    exportAction.onClick?.()
+  }
+}
 
 describe('InvoicesPage', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     capturedConfig = null
+    mockInvoicesMetadata = UNCAPPED_METADATA
   })
 
   describe('GIVEN the page is rendered', () => {
@@ -128,6 +162,72 @@ describe('InvoicesPage', () => {
   describe('GIVEN there are invoices', () => {
     describe('WHEN the export action is configured', () => {
       it('THEN the first action (export) should not be disabled', () => {
+        render(<InvoicesPage />)
+
+        const exportAction = capturedConfig?.actions?.items[0]
+
+        expect(exportAction?.type === 'action' && exportAction.disabled).toBeFalsy()
+      })
+    })
+  })
+
+  describe('GIVEN the total is exact', () => {
+    describe('WHEN the header count is built', () => {
+      it('THEN should format it as an exact total', () => {
+        render(<InvoicesPage />)
+
+        expect(mockFormatCountToMetadata).toHaveBeenCalledWith(5, expect.any(Function), false)
+      })
+    })
+
+    describe('WHEN the export dialog is opened', () => {
+      it('THEN should label it with the raw count', () => {
+        render(<InvoicesPage />)
+
+        openExportDialogFromHeader()
+
+        expect(mockOpenExportDialog).toHaveBeenCalledWith(
+          expect.objectContaining({ totalCountLabel: expect.stringContaining('5') }),
+        )
+      })
+    })
+  })
+
+  describe('GIVEN the total is capped', () => {
+    const CAPPED_METADATA = {
+      currentPage: 1,
+      totalPages: 500,
+      totalCount: 10000,
+      totalCountCapped: true,
+      hasNextPage: true,
+    }
+
+    beforeEach(() => {
+      mockInvoicesMetadata = CAPPED_METADATA
+    })
+
+    describe('WHEN the header count is built', () => {
+      it('THEN should flag it as capped', () => {
+        render(<InvoicesPage />)
+
+        expect(mockFormatCountToMetadata).toHaveBeenCalledWith(10000, expect.any(Function), true)
+      })
+    })
+
+    describe('WHEN the export dialog is opened', () => {
+      it('THEN should label it with the formatted floor', () => {
+        render(<InvoicesPage />)
+
+        openExportDialogFromHeader()
+
+        expect(mockOpenExportDialog).toHaveBeenCalledWith(
+          expect.objectContaining({ totalCountLabel: expect.stringContaining('10,000') }),
+        )
+      })
+    })
+
+    describe('WHEN the export action is configured', () => {
+      it('THEN should stay enabled (a capped total is a real count)', () => {
         render(<InvoicesPage />)
 
         const exportAction = capturedConfig?.actions?.items[0]

@@ -4654,5 +4654,8 @@
   "text_1786630268016w264kj4y86j": "The charge model of a plan has changed since the quote was approved",
   "text_1786630268016meyak1nxn9g": "The fixed charge model of a plan has changed since the quote was approved",
   "text_1786630268016i9hcrwrzkcc": "The customer of this order could not be found",
-  "text_1786630268016vpwqdibatsd": "This order has nothing to bill"
+  "text_1786630268016vpwqdibatsd": "This order has nothing to bill",
+  "text_1786997491915x333f5g35ff": "{{startNumber}}-{{endNumber}} of {{count}}+ results",
+  "text_1786997491915trapg3o2kee": "{{count}}+ results",
+  "text_1786997491915ihtx5q0emhp": "{{invoicesTotalCount}}+ invoices"
 }

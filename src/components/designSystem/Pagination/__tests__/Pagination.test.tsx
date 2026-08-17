@@ -8,6 +8,9 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
       if (key === 'text_1782992964028u0dbq1gbcy4') {
         return `${args?.startNumber}-${args?.endNumber} of ${args?.count} results`
       }
+      if (key === 'text_1786997491915x333f5g35ff') {
+        return `${args?.startNumber}-${args?.endNumber} of ${args?.count}+ results`
+      }
       if (key === 'text_1782992964029cazjloaotl0') {
         return `${args?.count} rows per page`
       }
@@ -171,5 +174,83 @@ describe('Pagination', () => {
     )
 
     expect(container).toBeEmptyDOMElement()
+  })
+
+  // Capped total (invoice list): `totalCount` is a 10,000 floor and `totalPages` its 500-page
+  // counterpart, so the collection's own `hasNextPage` decides whether next is reachable.
+  const cappedProps = {
+    ...baseProps,
+    currentPage: 600,
+    totalPages: 500,
+    totalCount: 10000,
+    pageSize: 20,
+    hasNextPage: true,
+    totalCountCapped: true,
+  }
+
+  it('keeps next enabled past the last counted page when hasNextPage is true', () => {
+    const onPageChange = jest.fn()
+
+    render(<Pagination {...cappedProps} onPageChange={onPageChange} />)
+
+    const [, next] = within(screen.getByRole('navigation', { name: 'pagination' })).getAllByRole(
+      'button',
+    )
+
+    expect(next).not.toBeDisabled()
+
+    fireEvent.click(next)
+    expect(onPageChange).toHaveBeenCalledWith(601)
+  })
+
+  it('disables next when hasNextPage is false, even with pages left to count', () => {
+    render(<Pagination {...baseProps} currentPage={1} totalPages={3} hasNextPage={false} />)
+
+    const [, next] = within(screen.getByRole('navigation', { name: 'pagination' })).getAllByRole(
+      'button',
+    )
+
+    expect(next).toBeDisabled()
+  })
+
+  it.each([
+    ['enabled in the middle of the collection', 2, false],
+    ['disabled on the last page', 3, true],
+  ])(
+    'derives next from the page arithmetic when hasNextPage is absent (%s)',
+    (_, currentPage, expectedDisabled) => {
+      render(<Pagination {...baseProps} currentPage={currentPage} />)
+
+      const [, next] = within(screen.getByRole('navigation', { name: 'pagination' })).getAllByRole(
+        'button',
+      )
+
+      expect(next).toHaveProperty('disabled', expectedDisabled)
+    },
+  )
+
+  it('renders the range label with a formatted floor when the total is capped', () => {
+    render(<Pagination {...cappedProps} currentPage={1} />)
+
+    expect(screen.getByText('1-20 of 10,000+ results')).toBeInTheDocument()
+  })
+
+  it('does not clamp the range to the capped total on a page past it', () => {
+    render(<Pagination {...cappedProps} />)
+
+    expect(screen.getByText('11981-12000 of 10,000+ results')).toBeInTheDocument()
+  })
+
+  it('keeps the range readable on the last page of a capped list', () => {
+    // no next page, yet already past the counted range: clamping would invert the range
+    render(<Pagination {...cappedProps} currentPage={603} hasNextPage={false} />)
+
+    expect(screen.getByText('12041-12060 of 10,000+ results')).toBeInTheDocument()
+  })
+
+  it('keeps the exact-total label when the total is not capped', () => {
+    render(<Pagination {...baseProps} currentPage={2} hasNextPage totalCountCapped={false} />)
+
+    expect(screen.getByText('21-40 of 45 results')).toBeInTheDocument()
   })
 })
