@@ -21,6 +21,8 @@ const QUOTE_ID = 'quote-001'
 const ORDER_FORM_ID = 'order-form-001'
 const ORDER_ID = 'order-001'
 const ACTIVITY_DESCRIPTION = 'Quote QT-2026-0042 was created'
+/** `Table` derives its own test id from `name`, which `ActivityLogsTable` sets to activity-logs */
+const ACTIVITY_LOGS_TABLE_TEST_ID = 'table-activity-logs'
 
 const mockOpenPanel = jest.fn()
 const mockSetUrl = jest.fn()
@@ -336,25 +338,26 @@ describe('QuoteDetailsActivityLogs', () => {
 
   describe('GIVEN the quote is not loaded yet', () => {
     // An empty id list would drop the filter server-side and return the whole organization's
-    // activity log, so the query must not fire at all
-    const emptyIdsMocks = (result: jest.Mock): TestMocksType => [
+    // activity log, so the query must not fire at all. `variableMatcher` accepts ANY variables so
+    // that a query fired with unexpected ones still trips `result` — matching on exact variables
+    // would let it slip through as an unmatched-mock error instead.
+    const anyQueryMocks = (result: jest.Mock): TestMocksType => [
       {
-        request: {
-          query: QuoteDetailsActivityLogsDocument,
-          variables: buildVariables([]),
-        },
+        request: { query: QuoteDetailsActivityLogsDocument },
+        variableMatcher: () => true,
         result,
       },
     ]
 
+    // `useQuote` returns `data?.quote`, so the value while loading is `undefined` — never `null`
     describe('WHEN the quote is still loading', () => {
       it('THEN should not fire the query', async () => {
         const result = jest.fn(() => buildResult({ activityIds: ['activity-001'] }))
 
-        renderComponent(emptyIdsMocks(result), { quote: null, loading: true })
+        renderComponent(anyQueryMocks(result), { quote: undefined, loading: true })
 
         await waitFor(() => {
-          expect(screen.getByTestId(QUOTE_ACTIVITY_LOGS_CONTAINER_TEST_ID)).toBeInTheDocument()
+          expect(screen.getByTestId(ACTIVITY_LOGS_TABLE_TEST_ID)).toBeInTheDocument()
         })
 
         expect(result).not.toHaveBeenCalled()
@@ -364,10 +367,10 @@ describe('QuoteDetailsActivityLogs', () => {
       it('THEN should fold the quote fetch into the section loading state', async () => {
         const result = jest.fn(() => buildResult({ activityIds: ['activity-001'] }))
 
-        renderComponent(emptyIdsMocks(result), { quote: null, loading: true })
+        renderComponent(anyQueryMocks(result), { quote: undefined, loading: true })
 
         await waitFor(() => {
-          expect(screen.getByTestId(QUOTE_ACTIVITY_LOGS_CONTAINER_TEST_ID)).toBeInTheDocument()
+          expect(screen.getByTestId(ACTIVITY_LOGS_TABLE_TEST_ID)).toBeInTheDocument()
         })
 
         // Loading renders skeleton rows. The empty placeholder here would mean the quote fetch
@@ -380,13 +383,30 @@ describe('QuoteDetailsActivityLogs', () => {
       it('THEN should render the empty state without firing the query', async () => {
         const result = jest.fn(() => buildResult({ activityIds: ['activity-001'] }))
 
-        renderComponent(emptyIdsMocks(result), { quote: null, loading: false })
+        renderComponent(anyQueryMocks(result), { quote: null, loading: false })
 
         await waitFor(() => {
           expect(screen.getByTestId(GENERIC_PLACEHOLDER_TEST_ID)).toBeInTheDocument()
         })
 
+        // The empty state carries no button; the generic error placeholder does, so this
+        // distinguishes "no logs" from "the request failed"
+        expect(screen.queryByTestId(GENERIC_PLACEHOLDER_BUTTON_TEST_ID)).not.toBeInTheDocument()
         expect(result).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the quote has no activity yet', () => {
+    describe('WHEN the query returns an empty collection', () => {
+      it('THEN should render the empty state', async () => {
+        renderComponent(buildMocks({ activityIds: [], totalCount: 0 }))
+
+        await waitFor(() => {
+          expect(screen.getByTestId(GENERIC_PLACEHOLDER_TEST_ID)).toBeInTheDocument()
+        })
+
+        expect(screen.queryByTestId(GENERIC_PLACEHOLDER_BUTTON_TEST_ID)).not.toBeInTheDocument()
       })
     })
   })
