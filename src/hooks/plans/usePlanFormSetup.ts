@@ -53,6 +53,11 @@ gql`
  *  Case 2: billingItemPlan — form values come from deserialized billing items
  *  Case 3: subscriptionId — fetch subscription's plan (override child plan → parent)
  *  Case 4: planIdToFetch — existing behavior (fetch plan by id directly)
+ *
+ * Two plans come out of it: `plan` is what the form displays — on case 3 the
+ * subscription's override child, so the current pricing shows — while `catalogPlan` is
+ * always the plan listed on the Plans page (the parent, whenever the other one is an
+ * override).
  */
 export const usePlanFormSetup = ({
   planIdToFetch,
@@ -129,6 +134,8 @@ export const usePlanFormSetup = ({
     skip: !resolvedPlanId || !skipPlanQuery,
   })
   const basePlan = plan ?? basePlanData?.plan
+  // Whatever was fetched can itself be an override, whose parent is then the catalog plan.
+  const catalogPlan = basePlan?.parent ?? basePlan
   const baseCurrency =
     initialCurrency || (basePlan?.amountCurrency as CurrencyEnum) || CurrencyEnum.Usd
   const basePlanFormValues = useMemo(
@@ -190,6 +197,7 @@ export const usePlanFormSetup = ({
   return {
     form,
     plan: effectivePlan as EditPlanFragment | undefined,
+    catalogPlan,
     basePlanFormValues,
     formReady,
     loading,
