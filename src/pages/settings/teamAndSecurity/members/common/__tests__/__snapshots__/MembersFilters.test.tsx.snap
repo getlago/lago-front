@@ -3,7 +3,7 @@
 exports[`MembersFilters Snapshot Tests matches snapshot with default props 1`] = `
 <div>
   <div
-    class="flex h-16 shrink-0 items-center justify-between gap-3 shadow-b"
+    class="flex shrink-0 items-center justify-between gap-3 pb-4 shadow-b"
   >
     <div
       class=""
@@ -86,7 +86,7 @@ exports[`MembersFilters Snapshot Tests matches snapshot with default props 1`] =
 exports[`MembersFilters Snapshot Tests matches snapshot with invitations type 1`] = `
 <div>
   <div
-    class="flex h-16 shrink-0 items-center justify-between gap-3 shadow-b"
+    class="flex shrink-0 items-center justify-between gap-3 pb-4 shadow-b"
   >
     <div
       class=""
@@ -169,7 +169,7 @@ exports[`MembersFilters Snapshot Tests matches snapshot with invitations type 1`
 exports[`MembersFilters Snapshot Tests matches snapshot with members type 1`] = `
 <div>
   <div
-    class="flex h-16 shrink-0 items-center justify-between gap-3 shadow-b"
+    class="flex shrink-0 items-center justify-between gap-3 pb-4 shadow-b"
   >
     <div
       class=""
@@ -252,7 +252,7 @@ exports[`MembersFilters Snapshot Tests matches snapshot with members type 1`] = 
 exports[`MembersFilters Snapshot Tests matches snapshot with search query 1`] = `
 <div>
   <div
-    class="flex h-16 shrink-0 items-center justify-between gap-3 shadow-b"
+    class="flex shrink-0 items-center justify-between gap-3 pb-4 shadow-b"
   >
     <div
       class=""
