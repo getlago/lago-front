@@ -7145,6 +7145,7 @@ export type OrderForm = {
   expiresAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   id: Scalars['ID']['output'];
   number: Scalars['String']['output'];
+  order?: Maybe<Order>;
   organization: Organization;
   quote: Quote;
   signedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
@@ -9353,6 +9354,7 @@ export type Quote = {
   id: Scalars['ID']['output'];
   images: Scalars['JSON']['output'];
   number: Scalars['String']['output'];
+  orderForms: Array<OrderForm>;
   orderType: OrderTypeEnum;
   organization: Organization;
   owners?: Maybe<Array<User>>;
@@ -9380,6 +9382,7 @@ export type QuoteVersion = {
   endDate?: Maybe<Scalars['ISO8601Date']['output']>;
   id: Scalars['ID']['output'];
   mentionVariables: Scalars['JSON']['output'];
+  orderForm?: Maybe<OrderForm>;
   organization: Organization;
   quote: Quote;
   startDate?: Maybe<Scalars['ISO8601Date']['output']>;
