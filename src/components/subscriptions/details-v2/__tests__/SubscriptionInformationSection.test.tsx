@@ -42,6 +42,7 @@ const subscription = {
   id: 'sub-1',
   externalId: 'ext-1',
   status: StatusTypeEnum.Active,
+  startedAt: '2026-01-15',
   subscriptionAt: '2026-01-01',
   endingAt: null,
   terminatedAt: null,
@@ -76,6 +77,8 @@ describe('SubscriptionInformationSection', () => {
     expect(screen.getByText('text_6335e8900c69f8ebdfef5312')).toBeInTheDocument() // title
     expect(screen.getByText('ext-1')).toBeInTheDocument()
     expect(screen.getByText('Acme')).toBeInTheDocument()
+    // Start date reads startedAt, the billing anchor keeps subscriptionAt
+    expect(screen.getByText('formatted-2026-01-15')).toBeInTheDocument()
     expect(screen.getByText('formatted-2026-01-01')).toBeInTheDocument()
   })
 
