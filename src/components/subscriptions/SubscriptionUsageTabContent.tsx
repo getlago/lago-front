@@ -9,6 +9,7 @@ import SubscriptionUsageLifetimeGraph from './SubscriptionUsageLifetimeGraph'
 gql`
   query getCustomerFromSubscription($subscriptionId: ID!) {
     subscription(id: $subscriptionId) {
+      id
       customer {
         id
       }
