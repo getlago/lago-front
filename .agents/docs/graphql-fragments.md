@@ -20,8 +20,11 @@ pnpm codegen
 ### ⚠️ CRITICAL: Always select `id` on a type that has one
 
 **Every selection set on a type that exposes an `id` must select `id`** - in fragments,
-in queries, in mutation payloads. No exceptions, even when the component renders none
-of it.
+in queries, in mutation payloads. Write it even when the component renders none of it.
+
+Some pre-existing selections still break this rule. They are listed in the guard's
+`KNOWN_UNSAFE_SELECTIONS` baseline described at the end of this section, and that list
+is shrink-only: treat it as debt to burn down, never as licence to add one more.
 
 Apollo normalizes an object into `TypeName:id` **only** when the selection set contains
 `id`. Without it the object is stored **inline**, and that write **replaces** whatever

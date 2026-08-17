@@ -14371,7 +14371,7 @@ export type GetCustomerOverdueInvoicesReadyForPaymentProcessingQueryVariables = 
 }>;
 
 
-export type GetCustomerOverdueInvoicesReadyForPaymentProcessingQuery = { __typename?: 'Query', invoices: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', readyForPaymentProcessing: boolean }> } };
+export type GetCustomerOverdueInvoicesReadyForPaymentProcessingQuery = { __typename?: 'Query', invoices: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, readyForPaymentProcessing: boolean }> } };
 
 export type MainOrganizationInfosFragment = { __typename?: 'CurrentOrganization', id: string, name: string, slug: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, defaultCurrency: CurrencyEnum, featureFlags: Array<FeatureFlagEnum>, premiumIntegrations: Array<PremiumIntegrationTypeEnum>, canCreateBillingEntity: boolean, authenticationMethods: Array<AuthenticationMethodsEnum>, authenticatedMethod: AuthenticationMethodsEnum };
 
@@ -35427,6 +35427,7 @@ export const GetCustomerOverdueInvoicesReadyForPaymentProcessingDocument = gql`
     query getCustomerOverdueInvoicesReadyForPaymentProcessing($id: ID!) {
   invoices(paymentOverdue: true, customerId: $id) {
     collection {
+      id
       readyForPaymentProcessing
     }
   }

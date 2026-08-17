@@ -1,6 +1,6 @@
 /* eslint-disable import/order -- prettier's sort-imports groups node builtins with externals, conflicting with import/order's builtin-first grouping */
 import fs from 'fs'
-import { FieldNode, Kind, parse, SelectionSetNode } from 'graphql'
+import { DocumentNode, FieldNode, Kind, parse, SelectionSetNode } from 'graphql'
 import path from 'path'
 
 const GENERATED_GRAPHQL_PATH = path.resolve(__dirname, '../../../generated/graphql.tsx')
@@ -20,6 +20,14 @@ const GENERATED_GRAPHQL_PATH = path.resolve(__dirname, '../../../generated/graph
  * that is exactly what this guard detects: a field selected WITH `id` in one
  * document and WITHOUT `id` in another. A field nobody ever selects with `id`
  * is simply never normalized — consistent, and not a clobber.
+ *
+ * KNOWN GAP: codegen emits union and interface types as `export type X = A | B`
+ * rather than an object literal, so `buildSchemaFieldTypes` does not pick them
+ * up and `walk` stops at any field typed as one (`ActivityLogResourceObject`,
+ * …). Selections under a union are therefore never checked. This under-reports;
+ * it never produces a false positive. Resolving members would mean splitting the
+ * selection set per inline fragment, which is worth doing only if a clobber is
+ * ever traced back to a union field.
  */
 
 type FieldName = string
@@ -72,7 +80,6 @@ const KNOWN_UNSAFE_SELECTIONS: Conflicts = {
     'UpdateInvoicePaymentStatus',
     'VoidInvoice',
   ],
-  'InvoiceCollection.collection': ['GetCustomerOverdueInvoicesReadyForPaymentProcessing'],
   'Quote.currentVersion': ['GetOrderFormForVoid'],
   'Subscription.usageThresholds': ['ResetSubscriptionProgressiveBilling'],
 }
@@ -159,7 +166,7 @@ const collectConflicts = (source: string): Conflicts => {
 
     const operationName = documentName.replace(/Document$/, '')
 
-    let ast
+    let ast: DocumentNode
 
     try {
       ast = parse(inlineFragments(documents, documentName))
