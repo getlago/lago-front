@@ -5,7 +5,12 @@ import { createRoot } from 'react-dom/client'
 import App from '~/App'
 import { envGlobalVar } from '~/core/apolloClient'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
-import { getEnableFeatureFlags, listFeatureFlags, setFeatureFlags } from '~/core/utils/featureFlags'
+import {
+  FeatureFlags,
+  getEnableFeatureFlags,
+  listFeatureFlags,
+  setFeatureFlags,
+} from '~/core/utils/featureFlags'
 
 import './main.css'
 
@@ -86,20 +91,28 @@ window.addEventListener('vite:preloadError', (event) => {
   })
 })
 
-if (appEnv !== AppEnvEnum.production) {
-  window.Lago = {
-    getEnableFeatureFlags: getEnableFeatureFlags,
-    setFeatureFlags: setFeatureFlags,
-    listFeatureFlags: listFeatureFlags,
-  }
+type LagoWindowApi = {
+  getEnableFeatureFlags: () => FeatureFlags[]
+  setFeatureFlags: (flags: FeatureFlags[] | FeatureFlags | 'all') => FeatureFlags[]
+  listFeatureFlags: () => FeatureFlags[]
+  help: () => void
+}
 
+const printFeatureFlagsHelp = (): void => {
   const style = 'background: #eee; color: #fe3d3d'
+  const flags = listFeatureFlags()
+  const flagsSample = flags
+    .slice(0, 2)
+    .map((flag) => `'${flag}'`)
+    .join(', ')
+
   const logs = [
     'List available flags: %c window.Lago.listFeatureFlags() ',
-    "Set single flag: %c window.Lago.setFeatureFlags('ftr_xxx_enabled') ",
-    "Set multiple flags: %c window.Lago.setFeatureFlags(['ftr_xxx_enabled', 'ftr_yyy_enabled']) ",
+    `Set single flag: %c window.Lago.setFeatureFlags('${flags[0]}') `,
+    `Set multiple flags: %c window.Lago.setFeatureFlags([${flagsSample}]) `,
     "Set all flags: %c window.Lago.setFeatureFlags('all') ",
     'Get enable flags: %c window.Lago.getEnableFeatureFlags() ',
+    'Print this help again: %c window.Lago.help() ',
   ]
 
   /* eslint-disable no-console */
@@ -107,6 +120,22 @@ if (appEnv !== AppEnvEnum.production) {
   logs.forEach((log) => console.info(log, style))
   console.groupEnd()
   /* eslint-enable no-console */
+}
+
+const lagoWindowApi: LagoWindowApi = {
+  getEnableFeatureFlags,
+  setFeatureFlags,
+  listFeatureFlags,
+  help: printFeatureFlagsHelp,
+}
+
+// The API is exposed in every environment so feature flags can be enabled on
+// production too. Only non-production advertises it on load: on production it
+// stays silent and is reachable on demand through `window.Lago.help()`.
+window.Lago = lagoWindowApi
+
+if (appEnv !== AppEnvEnum.production) {
+  printFeatureFlagsHelp()
 }
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
