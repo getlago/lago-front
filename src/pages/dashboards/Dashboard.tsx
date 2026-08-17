@@ -1,4 +1,5 @@
 import { gql, useApolloClient } from '@apollo/client'
+import { captureException } from '@sentry/react'
 import { embedDashboard, EmbeddedDashboard } from '@superset-ui/embedded-sdk'
 import { debounce } from 'lodash'
 import { useEffect, useMemo, useRef } from 'react'
@@ -65,6 +66,7 @@ const Dashboard = ({ contentTitle, dashboardTitle, dashboardTitleTestKey }: Dash
     }
 
     let embedded: null | EmbeddedDashboard = null
+    let disposed = false
 
     const persistFilters = isFeatureFlagActive(FeatureFlags.SUPERSET_PERSISTENT_FILTERS)
     // Filter persistence key is scoped to the org from the URL slug (resolved
@@ -127,6 +129,17 @@ const Dashboard = ({ contentTitle, dashboardTitle, dashboardTitleTestKey }: Dash
         iframeSandboxExtras: ['allow-top-navigation', 'allow-popups-to-escape-sandbox'],
       })
 
+      // Cleanup may have run while the embed was in flight — StrictMode's double
+      // mount, a dashboard tab switch, a fast navigate. The SDK puts its iframe in
+      // the DOM before `embedDashboard` resolves, so the cleanup below had no
+      // `embedded` to unmount: do it here, otherwise the iframe stays orphaned in
+      // the DOM with its Switchboard port open.
+      if (disposed) {
+        embedded.unmount()
+
+        return
+      }
+
       if (debouncedSaveFilters) {
         embedded.observeDataMask(debouncedSaveFilters)
       }
@@ -134,9 +147,19 @@ const Dashboard = ({ contentTitle, dashboardTitle, dashboardTitleTestKey }: Dash
       dashboardRef.current = dashboard.id
     }
 
-    mount()
+    // `embedDashboard` rejects if Superset hands back a token it can't decode
+    // (`jwtDecode` throws inside `getGuestTokenRefreshTiming`). Nothing else
+    // observes this promise, so without a catch that surfaces as an unhandled
+    // rejection and a silently blank dashboard.
+    mount().catch((mountError) => {
+      captureException(mountError, {
+        tags: { errorType: 'SupersetDashboardMountError', component: 'Dashboard' },
+        extra: { dashboardId: dashboard.id },
+      })
+    })
 
     return () => {
+      disposed = true
       fetchGuestToken.cancel()
       debouncedSaveFilters?.cancel()
       embedded?.unmount()

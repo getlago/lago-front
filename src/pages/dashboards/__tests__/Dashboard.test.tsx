@@ -2,10 +2,7 @@ import { screen, waitFor } from '@testing-library/react'
 
 import { GENERIC_PLACEHOLDER_TEST_ID } from '~/components/designSystem/GenericPlaceholder'
 import { getItemFromLS, setItemFromLS } from '~/core/utils/localStorage'
-import {
-  CreateSupersetGuestTokenDocument,
-  SupersetDashboardsDocument,
-} from '~/generated/graphql'
+import { CreateSupersetGuestTokenDocument, SupersetDashboardsDocument } from '~/generated/graphql'
 import { render, TestMocksType } from '~/test-utils'
 
 import Dashboard, { DASHBOARD_MOUNT_TEST_ID } from '../Dashboard'
