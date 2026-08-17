@@ -170,11 +170,41 @@ const generateActionColumn = ({
     },
   }
 
+  // A subscription that never started billing is cancelled rather than terminated
+  const isCancellation =
+    subscription.status === StatusTypeEnum.Pending ||
+    subscription.status === StatusTypeEnum.Incomplete
+
+  const terminateAction: ActionItem<AnnotatedSubscription> = {
+    startIcon: 'trash',
+    title: isCancellation
+      ? translate('text_64a6d736c23125004817627f')
+      : translate('text_62d904b97e690a881f2b867c'),
+    onAction: () => {
+      openTerminateDialog({
+        id: subscription.id,
+        name: subscription.name as string,
+        status: subscription.status as StatusTypeEnum,
+        payInAdvance: subscription.payInAdvance,
+      })
+    },
+  }
+
   if (
     subscription.status === StatusTypeEnum.Terminated ||
-    subscription.status === StatusTypeEnum.Canceled ||
-    subscription.status === StatusTypeEnum.Incomplete
+    subscription.status === StatusTypeEnum.Canceled
   ) {
+    return [copyToClipboardAction]
+  }
+
+  // An incomplete subscription is still waiting on its activation payment. There is no
+  // settled plan to edit, upgrade or downgrade, and no usage to alert on, so the only
+  // action beyond copying the id is cancelling the activation.
+  if (subscription.status === StatusTypeEnum.Incomplete) {
+    if (hasSubscriptionsUpdatePermission) {
+      return [copyToClipboardAction, terminateAction]
+    }
+
     return [copyToClipboardAction]
   }
 
@@ -235,21 +265,7 @@ const generateActionColumn = ({
   })
 
   if (hasSubscriptionsUpdatePermission) {
-    actions = actions.concat({
-      startIcon: 'trash',
-      title:
-        subscription.status === StatusTypeEnum.Pending
-          ? translate('text_64a6d736c23125004817627f')
-          : translate('text_62d904b97e690a881f2b867c'),
-      onAction: () => {
-        openTerminateDialog({
-          id: subscription.id,
-          name: subscription.name as string,
-          status: subscription.status as StatusTypeEnum,
-          payInAdvance: subscription.payInAdvance,
-        })
-      },
-    })
+    actions = actions.concat(terminateAction)
   }
 
   return actions
