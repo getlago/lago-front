@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql, useApolloClient } from '@apollo/client'
 import { embedDashboard, EmbeddedDashboard } from '@superset-ui/embedded-sdk'
 import { debounce } from 'lodash'
 import { useEffect, useMemo, useRef } from 'react'
@@ -15,6 +15,7 @@ import { useSupersetDashboardsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import '~/main.css'
+import { createFetchSupersetGuestToken } from '~/pages/dashboards/fetchSupersetGuestToken'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { PageHeader } from '~/styles'
 
@@ -42,6 +43,7 @@ export type DashboardProps = {
 const Dashboard = ({ contentTitle, dashboardTitle, dashboardTitleTestKey }: DashboardProps) => {
   const { translate } = useInternationalization()
   const { currentMembership } = useCurrentUser()
+  const client = useApolloClient()
 
   const dashboardRef = useRef<string>('')
 
@@ -87,6 +89,12 @@ const Dashboard = ({ contentTitle, dashboardTitle, dashboardTitleTestKey }: Dash
         }, 500)
       : null
 
+    const fetchGuestToken = createFetchSupersetGuestToken(
+      client,
+      dashboard.id,
+      dashboard.guestToken,
+    )
+
     const mount = async () => {
       const mountPoint = document.getElementById(mountId)
 
@@ -107,7 +115,7 @@ const Dashboard = ({ contentTitle, dashboardTitle, dashboardTitleTestKey }: Dash
         id: dashboard.embeddedId,
         supersetDomain: lagoSupersetUrl,
         mountPoint,
-        fetchGuestToken: async () => dashboard?.guestToken,
+        fetchGuestToken,
         dashboardUiConfig: {
           hideTitle: true,
           emitDataMasks: persistFilters,
@@ -129,11 +137,12 @@ const Dashboard = ({ contentTitle, dashboardTitle, dashboardTitleTestKey }: Dash
     mount()
 
     return () => {
+      fetchGuestToken.cancel()
       debouncedSaveFilters?.cancel()
       embedded?.unmount()
       dashboardRef.current = ''
     }
-  }, [dashboard, currentMembership?.organization.id, dashboardTitle, mountId])
+  }, [dashboard, currentMembership?.organization.id, client, dashboardTitle, mountId])
 
   return (
     <>

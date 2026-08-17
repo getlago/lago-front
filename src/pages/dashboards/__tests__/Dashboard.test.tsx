@@ -3,6 +3,7 @@ import { screen, waitFor } from '@testing-library/react'
 import { GENERIC_PLACEHOLDER_TEST_ID } from '~/components/designSystem/GenericPlaceholder'
 import { getItemFromLS, setItemFromLS } from '~/core/utils/localStorage'
 import { SupersetDashboardsDocument } from '~/generated/graphql'
+import { CREATE_SUPERSET_GUEST_TOKEN } from '~/pages/dashboards/fetchSupersetGuestToken'
 import { render, TestMocksType } from '~/test-utils'
 
 import Dashboard, { DASHBOARD_MOUNT_TEST_ID } from '../Dashboard'
@@ -79,6 +80,13 @@ const dashboardsData = {
 
 const successMock: TestMocksType = [
   { request: { query: SupersetDashboardsDocument }, result: { data: dashboardsData } },
+  {
+    request: {
+      query: CREATE_SUPERSET_GUEST_TOKEN,
+      variables: { input: { dashboardId: 'dash-1' } },
+    },
+    result: { data: { createSupersetGuestToken: { guestToken: 'token-1' } } },
+  },
 ]
 
 const errorMock: TestMocksType = [
