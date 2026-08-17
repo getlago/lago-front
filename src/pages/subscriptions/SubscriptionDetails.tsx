@@ -77,7 +77,8 @@ const SubscriptionDetails = () => {
   const navigate = useNavigate()
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
-  const { canEditSubscription, isStatusEditable } = useSubscriptionPermissionsActions()
+  const { canEditSubscription, canTerminateSubscription, isStatusEditable } =
+    useSubscriptionPermissionsActions()
   const { planId = '', customerId = '', subscriptionId = '' } = useParams()
   const { translate } = useInternationalization()
   const { openTerminateCustomerSubscriptionDialog } = useTerminateCustomerSubscriptionDialog()
@@ -357,7 +358,7 @@ const SubscriptionDetails = () => {
         {
           label: translate('text_62d904b97e690a881f2b867c'),
           dataTest: SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID,
-          hidden: !canEditSubscription(subscription?.status),
+          hidden: !canTerminateSubscription(subscription?.status),
           danger: true,
           onClick: (closePopper) => {
             openTerminateCustomerSubscriptionDialog({
