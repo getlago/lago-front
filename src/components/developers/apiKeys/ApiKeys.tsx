@@ -14,6 +14,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import {
   API_KEY_COPY_ACTION_TEST_ID,
+  API_KEY_REVEAL_ACTION_TEST_ID,
   API_KEY_REVEAL_BUTTON_TEST_ID,
 } from '~/components/developers/apiKeys/dataTestConstants'
 import { useDeleteApiKeyDialog } from '~/components/developers/apiKeys/DeleteApiKeyDialog'
@@ -491,6 +492,7 @@ export const ApiKeys = () => {
                         {
                           startIcon: !!apiKeyValue ? 'eye-hidden' : 'eye',
                           disabled: apiKeysLoading,
+                          dataTest: API_KEY_REVEAL_ACTION_TEST_ID,
                           title: !!apiKeyValue
                             ? translate('text_1731085297554jks9n068fpp')
                             : translate('text_1731085297554lu61x8djvcr'),

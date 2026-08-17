@@ -10,10 +10,15 @@ import {
   GetApiKeyValueDocument,
   GetOrganizationInfosForApiKeyDocument,
 } from '~/generated/graphql'
+import { STATE_KEY_ID_TO_REVEAL } from '~/pages/developers/ApiKeysForm'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
 import { ApiKeys } from '../ApiKeys'
-import { API_KEY_COPY_ACTION_TEST_ID, API_KEY_REVEAL_BUTTON_TEST_ID } from '../dataTestConstants'
+import {
+  API_KEY_COPY_ACTION_TEST_ID,
+  API_KEY_REVEAL_ACTION_TEST_ID,
+  API_KEY_REVEAL_BUTTON_TEST_ID,
+} from '../dataTestConstants'
 
 // Mock IntersectionObserver (undefined in jsdom, used by some design-system components)
 const mockIntersectionObserver = jest.fn()
@@ -38,6 +43,14 @@ jest.mock('~/core/utils/copyToClipboard', () => ({
 jest.mock('~/core/apolloClient', () => ({
   ...jest.requireActual('~/core/apolloClient'),
   addToast: jest.fn(),
+}))
+
+// Router state carries the id to auto-reveal after a key is created
+const mockLocation: { state: Record<string, string> | null } = { state: null }
+
+jest.mock('~/core/router', () => ({
+  ...jest.requireActual('~/core/router'),
+  useLocation: () => mockLocation,
 }))
 
 // Mock hooks that require providers
@@ -154,6 +167,7 @@ const getApiKeyRow = async (): Promise<HTMLElement> => {
 describe('ApiKeys', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockLocation.state = null
   })
 
   it('should show masked organization ID by default', async () => {
@@ -237,6 +251,49 @@ describe('ApiKeys', () => {
         expect(screen.queryByText(MOCK_API_KEY_PLAINTEXT_VALUE)).not.toBeInTheDocument()
 
         fireEvent.click(within(row).getByTestId(API_KEY_REVEAL_BUTTON_TEST_ID))
+
+        expect(await screen.findByText(MOCK_API_KEY_PLAINTEXT_VALUE)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN revealing then clicking the reveal button again', () => {
+      it('THEN should mask the value back', async () => {
+        renderComponent()
+
+        const row = await getApiKeyRow()
+
+        fireEvent.click(within(row).getByTestId(API_KEY_REVEAL_BUTTON_TEST_ID))
+
+        expect(await screen.findByText(MOCK_API_KEY_PLAINTEXT_VALUE)).toBeInTheDocument()
+
+        fireEvent.click(within(row).getByTestId(API_KEY_REVEAL_BUTTON_TEST_ID))
+
+        await waitFor(() => {
+          expect(screen.queryByText(MOCK_API_KEY_PLAINTEXT_VALUE)).not.toBeInTheDocument()
+        })
+
+        expect(screen.getByText(MOCK_API_KEY_VALUE)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN using the reveal action in the action menu', () => {
+      it('THEN should reveal the value', async () => {
+        renderComponent()
+
+        const row = await getApiKeyRow()
+
+        fireEvent.click(within(row).getByTestId(OPEN_ACTION_BUTTON_TEST_ID))
+        fireEvent.click(await screen.findByTestId(API_KEY_REVEAL_ACTION_TEST_ID))
+
+        expect(await screen.findByText(MOCK_API_KEY_PLAINTEXT_VALUE)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN redirected here with a key id to reveal', () => {
+      it('THEN should reveal that key on mount', async () => {
+        mockLocation.state = { [STATE_KEY_ID_TO_REVEAL]: MOCK_API_KEY_ID }
+
+        renderComponent()
 
         expect(await screen.findByText(MOCK_API_KEY_PLAINTEXT_VALUE)).toBeInTheDocument()
       })
