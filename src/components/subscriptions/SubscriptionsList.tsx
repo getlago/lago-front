@@ -6,7 +6,10 @@ import { StatusProps, StatusType } from '~/components/designSystem/Status'
 import { Table, TableProps } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { addToast } from '~/core/apolloClient'
-import { subscriptionStatusMapping } from '~/core/constants/statusSubscriptionMapping'
+import {
+  isSubscriptionCancellation,
+  subscriptionStatusMapping,
+} from '~/core/constants/statusSubscriptionMapping'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
@@ -170,14 +173,9 @@ const generateActionColumn = ({
     },
   }
 
-  // A subscription that never started billing is cancelled rather than terminated
-  const isCancellation =
-    subscription.status === StatusTypeEnum.Pending ||
-    subscription.status === StatusTypeEnum.Incomplete
-
   const terminateAction: ActionItem<AnnotatedSubscription> = {
     startIcon: 'trash',
-    title: isCancellation
+    title: isSubscriptionCancellation(subscription.status)
       ? translate('text_64a6d736c23125004817627f')
       : translate('text_62d904b97e690a881f2b867c'),
     onAction: () => {

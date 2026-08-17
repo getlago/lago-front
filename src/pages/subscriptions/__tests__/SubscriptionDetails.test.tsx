@@ -16,6 +16,9 @@ import SubscriptionDetails, {
   SUBSCRIPTION_DETAILS_UPGRADE_DOWNGRADE_TEST_ID,
 } from '../SubscriptionDetails'
 
+const CANCEL_SUBSCRIPTION_KEY = 'text_64a6d736c23125004817627f'
+const TERMINATE_SUBSCRIPTION_KEY = 'text_62d904b97e690a881f2b867c'
+
 let capturedConfig: MainHeaderConfig | null = null
 
 jest.mock('~/components/MainHeader/MainHeader', () => ({
@@ -299,6 +302,41 @@ describe('SubscriptionDetails', () => {
           }),
         )
       }
+    })
+  })
+
+  describe('GIVEN the terminate dropdown item', () => {
+    const findTerminateItemForStatus = (status: StatusTypeEnum) => {
+      mockUseGetSubscriptionForDetailsQuery.mockReturnValue({
+        data: { subscription: { ...mockSubscription, status } },
+        loading: false,
+        error: null,
+      })
+
+      render(<SubscriptionDetails />)
+
+      const dropdownAction = capturedConfig?.actions?.items[0]
+
+      if (dropdownAction?.type !== 'dropdown') return undefined
+
+      return dropdownAction.items.find((i) => i.dataTest === SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID)
+    }
+
+    describe('WHEN the subscription never started billing', () => {
+      it.each([StatusTypeEnum.Pending, StatusTypeEnum.Incomplete])(
+        'THEN should label it as cancel for a %s subscription',
+        (status) => {
+          expect(findTerminateItemForStatus(status)?.label).toBe(CANCEL_SUBSCRIPTION_KEY)
+        },
+      )
+    })
+
+    describe('WHEN the subscription is active', () => {
+      it('THEN should label it as terminate', () => {
+        expect(findTerminateItemForStatus(StatusTypeEnum.Active)?.label).toBe(
+          TERMINATE_SUBSCRIPTION_KEY,
+        )
+      })
     })
   })
 

@@ -8,6 +8,7 @@ import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { DialogResult } from '~/components/dialogs/types'
 import { addToast } from '~/core/apolloClient'
+import { isSubscriptionCancellation } from '~/core/constants/statusSubscriptionMapping'
 import {
   InvoiceTypeEnum,
   OnTerminationCreditNoteEnum,
@@ -274,7 +275,7 @@ export const useTerminateCustomerSubscriptionDialog = () => {
     form.reset()
     loadingRef.current = false
 
-    if (data.status === StatusTypeEnum.Pending || data.status === StatusTypeEnum.Incomplete) {
+    if (isSubscriptionCancellation(data.status)) {
       // Subscriptions that never started billing: simple confirmation, no form fields.
       // An incomplete one still has an activation payment in flight, so it warns that
       // cancelling that payment depends on the payment provider.

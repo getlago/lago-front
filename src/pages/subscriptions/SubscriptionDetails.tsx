@@ -16,6 +16,7 @@ import { SubscriptionEntitlementsTabContent } from '~/components/subscriptions/S
 import { SubscriptionProgressiveBillingTab } from '~/components/subscriptions/SubscriptionProgressiveBillingTab/SubscriptionProgressiveBillingTab'
 import { SubscriptionUsageTabContent } from '~/components/subscriptions/SubscriptionUsageTabContent'
 import { addToast } from '~/core/apolloClient'
+import { isSubscriptionCancellation } from '~/core/constants/statusSubscriptionMapping'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   CREATE_ALERT_CUSTOMER_SUBSCRIPTION_ROUTE,
@@ -356,7 +357,9 @@ const SubscriptionDetails = () => {
           },
         },
         {
-          label: translate('text_62d904b97e690a881f2b867c'),
+          label: isSubscriptionCancellation(subscription?.status)
+            ? translate('text_64a6d736c23125004817627f')
+            : translate('text_62d904b97e690a881f2b867c'),
           dataTest: SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID,
           hidden: !canTerminateSubscription(subscription?.status),
           danger: true,
