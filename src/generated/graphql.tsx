@@ -4244,6 +4244,7 @@ export type ExportFinanceAssistantResultInput = {
 export enum FeatureFlagEnum {
   EnrichedEventsAggregation = 'enriched_events_aggregation',
   FixedChargeUsageDeltaMigration = 'fixed_charge_usage_delta_migration',
+  InvoiceSearchTerms = 'invoice_search_terms',
   LazyChargeUsageCache = 'lazy_charge_usage_cache',
   Meilisearch = 'meilisearch',
   MultiConnection = 'multi_connection',
@@ -5011,7 +5012,24 @@ export type InvoiceCollection = {
   /** A collection of paginated InvoiceCollection */
   collection: Array<Invoice>;
   /** Pagination Metadata for navigating the Pagination */
-  metadata: CollectionMetadata;
+  metadata: InvoiceCollectionMetadata;
+};
+
+/** Pagination metadata for a collection of invoices */
+export type InvoiceCollectionMetadata = {
+  __typename?: 'InvoiceCollectionMetadata';
+  /** Current Page of loaded data */
+  currentPage: Scalars['Int']['output'];
+  /** True when another page follows, even when `totalCount` is capped */
+  hasNextPage: Scalars['Boolean']['output'];
+  /** The number of items per page */
+  limitValue: Scalars['Int']['output'];
+  /** The total number of items to be paginated */
+  totalCount: Scalars['Int']['output'];
+  /** True when `totalCount` hit the counting limit and is a lower bound, not the exact total */
+  totalCountCapped: Scalars['Boolean']['output'];
+  /** The total number of pages in the pagination */
+  totalPages: Scalars['Int']['output'];
 };
 
 export type InvoiceCustomSection = {
@@ -11691,7 +11709,7 @@ export type GetInvoiceNumbersForFilterItemInvoiceNumbersQueryVariables = Exact<{
 }>;
 
 
-export type GetInvoiceNumbersForFilterItemInvoiceNumbersQuery = { __typename?: 'Query', invoices: { __typename?: 'InvoiceCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Invoice', id: string, number: string }> } };
+export type GetInvoiceNumbersForFilterItemInvoiceNumbersQuery = { __typename?: 'Query', invoices: { __typename?: 'InvoiceCollection', metadata: { __typename?: 'InvoiceCollectionMetadata', currentPage: number, totalPages: number }, collection: Array<{ __typename?: 'Invoice', id: string, number: string }> } };
 
 export type GetCustomersForFilterItemMultipleCustomersQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -12060,7 +12078,7 @@ export type CustomerPortalInvoicesQueryVariables = Exact<{
 }>;
 
 
-export type CustomerPortalInvoicesQuery = { __typename?: 'Query', customerPortalInvoices: { __typename?: 'InvoiceCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Invoice', id: string, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, paymentDisputeLostAt?: any | null, number: string, issuingDate: any, totalAmountCents: any, totalDueAmountCents: any, currency?: CurrencyEnum | null, invoiceType: InvoiceTypeEnum }> } };
+export type CustomerPortalInvoicesQuery = { __typename?: 'Query', customerPortalInvoices: { __typename?: 'InvoiceCollection', metadata: { __typename?: 'InvoiceCollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Invoice', id: string, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, paymentDisputeLostAt?: any | null, number: string, issuingDate: any, totalAmountCents: any, totalDueAmountCents: any, currency?: CurrencyEnum | null, invoiceType: InvoiceTypeEnum }> } };
 
 export type DownloadCustomerPortalInvoiceMutationVariables = Exact<{
   input: DownloadCustomerPortalInvoiceInput;
@@ -12219,7 +12237,7 @@ export type IntegrationsListForCustomerMainInfosQuery = { __typename?: 'Query', 
 
 export type InvoiceListItemFragment = { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, totalDueAmountCents: any, totalPaidAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, invoiceType: InvoiceTypeEnum, associatedActiveWalletPresent: boolean, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, customer: { __typename?: 'Customer', id: string, externalId: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum, paymentProvider?: ProviderTypeEnum | null, hasActiveWallet: boolean, email?: string | null, deletedAt?: any | null }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, email?: string | null, einvoicing: boolean, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null }, payments?: Array<{ __typename?: 'Payment', createdAt: any, paymentMethodId?: string | null }> | null };
 
-export type InvoiceForInvoiceListFragment = { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, totalDueAmountCents: any, totalPaidAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, invoiceType: InvoiceTypeEnum, associatedActiveWalletPresent: boolean, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, customer: { __typename?: 'Customer', id: string, externalId: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum, paymentProvider?: ProviderTypeEnum | null, hasActiveWallet: boolean, email?: string | null, deletedAt?: any | null }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, email?: string | null, einvoicing: boolean, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null }, payments?: Array<{ __typename?: 'Payment', createdAt: any, paymentMethodId?: string | null }> | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalCount: number, totalPages: number } };
+export type InvoiceForInvoiceListFragment = { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, totalDueAmountCents: any, totalPaidAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, invoiceType: InvoiceTypeEnum, associatedActiveWalletPresent: boolean, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, customer: { __typename?: 'Customer', id: string, externalId: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum, paymentProvider?: ProviderTypeEnum | null, hasActiveWallet: boolean, email?: string | null, deletedAt?: any | null }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, email?: string | null, einvoicing: boolean, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null }, payments?: Array<{ __typename?: 'Payment', createdAt: any, paymentMethodId?: string | null }> | null }>, metadata: { __typename?: 'InvoiceCollectionMetadata', currentPage: number, totalCount: number, totalPages: number } };
 
 export type DownloadInvoiceItemMutationVariables = Exact<{
   input: DownloadInvoiceInput;
@@ -12253,7 +12271,7 @@ export type GetCustomerInvoicesQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomerInvoicesQuery = { __typename?: 'Query', customerInvoices: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, totalDueAmountCents: any, totalPaidAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, invoiceType: InvoiceTypeEnum, associatedActiveWalletPresent: boolean, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, customer: { __typename?: 'Customer', id: string, externalId: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum, paymentProvider?: ProviderTypeEnum | null, hasActiveWallet: boolean, email?: string | null, deletedAt?: any | null }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, email?: string | null, einvoicing: boolean, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null }, payments?: Array<{ __typename?: 'Payment', createdAt: any, paymentMethodId?: string | null }> | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalCount: number, totalPages: number } } };
+export type GetCustomerInvoicesQuery = { __typename?: 'Query', customerInvoices: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, totalDueAmountCents: any, totalPaidAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, invoiceType: InvoiceTypeEnum, associatedActiveWalletPresent: boolean, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, customer: { __typename?: 'Customer', id: string, externalId: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum, paymentProvider?: ProviderTypeEnum | null, hasActiveWallet: boolean, email?: string | null, deletedAt?: any | null }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, email?: string | null, einvoicing: boolean, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null }, payments?: Array<{ __typename?: 'Payment', createdAt: any, paymentMethodId?: string | null }> | null }>, metadata: { __typename?: 'InvoiceCollectionMetadata', currentPage: number, totalCount: number, totalPages: number } } };
 
 export type CustomerMainInfosFragment = { __typename?: 'Customer', id: string, customerType?: CustomerTypeEnum | null, name?: string | null, firstname?: string | null, lastname?: string | null, externalId: string, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, phone?: string | null, email?: string | null, currency?: CurrencyEnum | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, url?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, timezone?: TimezoneEnum | null, paymentProviderCode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, anrokCustomer?: { __typename?: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, avalaraCustomer?: { __typename?: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, netsuiteCustomer?: { __typename?: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, xeroCustomer?: { __typename?: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, hubspotCustomer?: { __typename?: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, targetedObject?: HubspotTargetedObjectsEnum | null } | null, salesforceCustomer?: { __typename?: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string } };
 
@@ -13458,7 +13476,7 @@ export type RetryAllInvoicesMutationVariables = Exact<{
 }>;
 
 
-export type RetryAllInvoicesMutation = { __typename?: 'Mutation', retryAllInvoices?: { __typename?: 'InvoiceCollection', metadata: { __typename?: 'CollectionMetadata', totalCount: number } } | null };
+export type RetryAllInvoicesMutation = { __typename?: 'Mutation', retryAllInvoices?: { __typename?: 'InvoiceCollection', metadata: { __typename?: 'InvoiceCollectionMetadata', totalCount: number } } | null };
 
 export type AvalaraIntegrationItemsFragment = { __typename?: 'AvalaraIntegration', id: string };
 
@@ -13528,7 +13546,7 @@ export type RetryAllAvalaraInvoicesMutationVariables = Exact<{
 }>;
 
 
-export type RetryAllAvalaraInvoicesMutation = { __typename?: 'Mutation', retryAllInvoices?: { __typename?: 'InvoiceCollection', metadata: { __typename?: 'CollectionMetadata', totalCount: number } } | null };
+export type RetryAllAvalaraInvoicesMutation = { __typename?: 'Mutation', retryAllInvoices?: { __typename?: 'InvoiceCollection', metadata: { __typename?: 'InvoiceCollectionMetadata', totalCount: number } } | null };
 
 export type DeleteAnrokIntegrationDialogFragment = { __typename?: 'AnrokIntegration', id: string, name: string };
 
@@ -15064,14 +15082,14 @@ export type GetInvoicesListQueryVariables = Exact<{
 }>;
 
 
-export type GetInvoicesListQuery = { __typename?: 'Query', invoices: { __typename?: 'InvoiceCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, totalDueAmountCents: any, totalPaidAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, invoiceType: InvoiceTypeEnum, associatedActiveWalletPresent: boolean, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, customer: { __typename?: 'Customer', id: string, externalId: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum, paymentProvider?: ProviderTypeEnum | null, hasActiveWallet: boolean, email?: string | null, deletedAt?: any | null }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, email?: string | null, einvoicing: boolean, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null }, payments?: Array<{ __typename?: 'Payment', createdAt: any, paymentMethodId?: string | null }> | null }> } };
+export type GetInvoicesListQuery = { __typename?: 'Query', invoices: { __typename?: 'InvoiceCollection', metadata: { __typename?: 'InvoiceCollectionMetadata', currentPage: number, totalPages: number, totalCount: number, totalCountCapped: boolean, hasNextPage: boolean }, collection: Array<{ __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, totalDueAmountCents: any, totalPaidAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, invoiceType: InvoiceTypeEnum, associatedActiveWalletPresent: boolean, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, customer: { __typename?: 'Customer', id: string, externalId: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum, paymentProvider?: ProviderTypeEnum | null, hasActiveWallet: boolean, email?: string | null, deletedAt?: any | null }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, email?: string | null, einvoicing: boolean, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null }, payments?: Array<{ __typename?: 'Payment', createdAt: any, paymentMethodId?: string | null }> | null }> } };
 
 export type RetryAllInvoicePaymentsMutationVariables = Exact<{
   input: RetryAllInvoicePaymentsInput;
 }>;
 
 
-export type RetryAllInvoicePaymentsMutation = { __typename?: 'Mutation', retryAllInvoicePayments?: { __typename?: 'InvoiceCollection', metadata: { __typename?: 'CollectionMetadata', totalCount: number } } | null };
+export type RetryAllInvoicePaymentsMutation = { __typename?: 'Mutation', retryAllInvoicePayments?: { __typename?: 'InvoiceCollection', metadata: { __typename?: 'InvoiceCollectionMetadata', totalCount: number } } | null };
 
 export type CreateInvoicesDataExportMutationVariables = Exact<{
   input: CreateDataExportsInvoicesInput;
@@ -38178,6 +38196,8 @@ export const GetInvoicesListDocument = gql`
       currentPage
       totalPages
       totalCount
+      totalCountCapped
+      hasNextPage
     }
     collection {
       id
