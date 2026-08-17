@@ -12702,9 +12702,9 @@ export type DeleteWebhookMutationVariables = Exact<{
 
 export type DeleteWebhookMutation = { __typename?: 'Mutation', destroyWebhookEndpoint?: { __typename?: 'DestroyWebhookEndpointPayload', id?: string | null } | null };
 
-export type CustomerForDunningEmailFragment = { __typename?: 'Customer', displayName: string, paymentProvider?: ProviderTypeEnum | null, netPaymentTerm?: number | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null };
+export type CustomerForDunningEmailFragment = { __typename?: 'Customer', id: string, displayName: string, paymentProvider?: ProviderTypeEnum | null, netPaymentTerm?: number | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null } | null };
 
-export type OrganizationForDunningEmailFragment = { __typename?: 'CurrentOrganization', name: string, logoUrl?: string | null, email?: string | null, netPaymentTerm: number, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', documentLocale?: string | null } | null };
+export type OrganizationForDunningEmailFragment = { __typename?: 'CurrentOrganization', id: string, name: string, logoUrl?: string | null, email?: string | null, netPaymentTerm: number, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, documentLocale?: string | null } | null };
 
 export type InvoicesForDunningEmailFragment = { __typename?: 'Invoice', id: string, number: string, totalDueAmountCents: any, currency?: CurrencyEnum | null };
 
@@ -13100,12 +13100,12 @@ export type UsageChargeForDrawerFragment = { __typename?: 'Charge', id: string, 
 
 export type FixedChargesOnPlanFormFragment = { __typename?: 'Plan', id: string, billFixedChargesMonthly?: boolean | null, fixedCharges?: Array<{ __typename?: 'FixedCharge', id: string, prorated: boolean, units: string, chargeModel: FixedChargeChargeModelEnum, invoiceDisplayName?: string | null, payInAdvance: boolean, addOn: { __typename?: 'AddOn', id: string, name: string, code: string }, properties?: { __typename?: 'FixedChargeProperties', amount?: string | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', flatAmount: string, fromValue: number, perUnitAmount: string, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', flatAmount: string, fromValue: any, perUnitAmount: string, toValue?: any | null }> | null } | null, taxes?: Array<{ __typename?: 'Tax', id: string, code: string, name: string, rate: number }> | null }> | null };
 
-export type OrganizationInfoForPreviewDunningCampaignFragment = { __typename?: 'CurrentOrganization', name: string, email?: string | null, logoUrl?: string | null };
+export type OrganizationInfoForPreviewDunningCampaignFragment = { __typename?: 'CurrentOrganization', id: string, name: string, email?: string | null, logoUrl?: string | null };
 
 export type GetOrganizationInfoForPreviewDunningCampaignQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetOrganizationInfoForPreviewDunningCampaignQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', name: string, email?: string | null, logoUrl?: string | null } | null };
+export type GetOrganizationInfoForPreviewDunningCampaignQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, name: string, email?: string | null, logoUrl?: string | null } | null };
 
 export type UpdateBillingEntityLogoMutationVariables = Exact<{
   input: UpdateBillingEntityInput;
@@ -13881,7 +13881,7 @@ export type UpdateBillingEntityNetPaymentTermMutation = { __typename?: 'Mutation
 export type GetOrganizationCustomFooterForInvoiceQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetOrganizationCustomFooterForInvoiceQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', invoiceFooter?: string | null } | null } | null };
+export type GetOrganizationCustomFooterForInvoiceQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, invoiceFooter?: string | null } | null } | null };
 
 export type RemoveSubscriptionEntitlementMutationVariables = Exact<{
   input: RemoveSubscriptionEntitlementInput;
@@ -13993,7 +13993,7 @@ export type GetCustomerFromSubscriptionQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomerFromSubscriptionQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', customer: { __typename?: 'Customer', id: string } } | null };
+export type GetCustomerFromSubscriptionQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, customer: { __typename?: 'Customer', id: string } } | null };
 
 export type DestroySubscriptionAlertMutationVariables = Exact<{
   input: DestroySubscriptionAlertInput;
@@ -14541,7 +14541,7 @@ export type GetCustomerOverdueInvoicesReadyForPaymentProcessingQueryVariables = 
 }>;
 
 
-export type GetCustomerOverdueInvoicesReadyForPaymentProcessingQuery = { __typename?: 'Query', invoices: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', readyForPaymentProcessing: boolean }> } };
+export type GetCustomerOverdueInvoicesReadyForPaymentProcessingQuery = { __typename?: 'Query', invoices: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, readyForPaymentProcessing: boolean }> } };
 
 export type MainOrganizationInfosFragment = { __typename?: 'CurrentOrganization', id: string, name: string, slug: string, logoUrl?: string | null, timezone?: TimezoneEnum | null, defaultCurrency: CurrencyEnum, featureFlags: Array<FeatureFlagEnum>, premiumIntegrations: Array<PremiumIntegrationTypeEnum>, canCreateBillingEntity: boolean, authenticationMethods: Array<AuthenticationMethodsEnum>, authenticatedMethod: AuthenticationMethodsEnum };
 
@@ -14945,7 +14945,7 @@ export type GetRequestOverduePaymentInfosQueryVariables = Exact<{
 }>;
 
 
-export type GetRequestOverduePaymentInfosQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', defaultCurrency: CurrencyEnum, name: string, logoUrl?: string | null, email?: string | null, netPaymentTerm: number, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', documentLocale?: string | null } | null } | null, customer?: { __typename?: 'Customer', externalId: string, currency?: CurrencyEnum | null, email?: string | null, displayName: string, paymentProvider?: ProviderTypeEnum | null, netPaymentTerm?: number | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null } | null, paymentRequests: { __typename?: 'PaymentRequestCollection', collection: Array<{ __typename?: 'PaymentRequest', createdAt: any }> }, invoices: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, number: string, totalDueAmountCents: any, currency?: CurrencyEnum | null, issuingDate: any }> } };
+export type GetRequestOverduePaymentInfosQuery = { __typename?: 'Query', organization?: { __typename?: 'CurrentOrganization', id: string, defaultCurrency: CurrencyEnum, name: string, logoUrl?: string | null, email?: string | null, netPaymentTerm: number, billingConfiguration?: { __typename?: 'OrganizationBillingConfiguration', id: string, documentLocale?: string | null } | null } | null, customer?: { __typename?: 'Customer', id: string, externalId: string, currency?: CurrencyEnum | null, email?: string | null, displayName: string, paymentProvider?: ProviderTypeEnum | null, netPaymentTerm?: number | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', id: string, documentLocale?: string | null } | null } | null, paymentRequests: { __typename?: 'PaymentRequestCollection', collection: Array<{ __typename?: 'PaymentRequest', createdAt: any }> }, invoices: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, number: string, totalDueAmountCents: any, currency?: CurrencyEnum | null, issuingDate: any }> } };
 
 export type CreatePaymentRequestMutationVariables = Exact<{
   input: PaymentRequestCreateInput;
@@ -18076,21 +18076,25 @@ export const WebhookLogFragmentDoc = gql`
     `;
 export const CustomerForDunningEmailFragmentDoc = gql`
     fragment CustomerForDunningEmail on Customer {
+  id
   displayName
   paymentProvider
   netPaymentTerm
   billingConfiguration {
+    id
     documentLocale
   }
 }
     `;
 export const OrganizationForDunningEmailFragmentDoc = gql`
     fragment OrganizationForDunningEmail on CurrentOrganization {
+  id
   name
   logoUrl
   email
   netPaymentTerm
   billingConfiguration {
+    id
     documentLocale
   }
 }
@@ -19144,6 +19148,7 @@ export const BillableMetricForUsageChargeSectionFragmentDoc = gql`
     `;
 export const OrganizationInfoForPreviewDunningCampaignFragmentDoc = gql`
     fragment OrganizationInfoForPreviewDunningCampaign on CurrentOrganization {
+  id
   name
   email
   logoUrl
@@ -32297,7 +32302,9 @@ export type UpdateBillingEntityNetPaymentTermMutationOptions = Apollo.BaseMutati
 export const GetOrganizationCustomFooterForInvoiceDocument = gql`
     query GetOrganizationCustomFooterForInvoice {
   organization {
+    id
     billingConfiguration {
+      id
       invoiceFooter
     }
   }
@@ -32849,6 +32856,7 @@ export type GetSubscriptionForSubscriptionUsageLifetimeGraphQueryResult = Apollo
 export const GetCustomerFromSubscriptionDocument = gql`
     query getCustomerFromSubscription($subscriptionId: ID!) {
   subscription(id: $subscriptionId) {
+    id
     customer {
       id
     }
@@ -35589,6 +35597,7 @@ export const GetCustomerOverdueInvoicesReadyForPaymentProcessingDocument = gql`
     query getCustomerOverdueInvoicesReadyForPaymentProcessing($id: ID!) {
   invoices(paymentOverdue: true, customerId: $id) {
     collection {
+      id
       readyForPaymentProcessing
     }
   }
@@ -37711,10 +37720,12 @@ export type VoidInvoiceMutationOptions = Apollo.BaseMutationOptions<VoidInvoiceM
 export const GetRequestOverduePaymentInfosDocument = gql`
     query getRequestOverduePaymentInfos($id: ID!, $currency: CurrencyEnum, $billingEntityIds: [ID!]) {
   organization {
+    id
     defaultCurrency
     ...OrganizationForDunningEmail
   }
   customer(id: $id) {
+    id
     externalId
     currency
     ...CustomerForRequestOverduePaymentForm
