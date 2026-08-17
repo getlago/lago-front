@@ -12,7 +12,10 @@ import { ActionItem } from '~/components/designSystem/Table/types'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
-import { API_KEY_COPY_ACTION_TEST_ID } from '~/components/developers/apiKeys/dataTestConstants'
+import {
+  API_KEY_COPY_ACTION_TEST_ID,
+  API_KEY_REVEAL_BUTTON_TEST_ID,
+} from '~/components/developers/apiKeys/dataTestConstants'
 import { useDeleteApiKeyDialog } from '~/components/developers/apiKeys/DeleteApiKeyDialog'
 import { useRotateApiKeyDialog } from '~/components/developers/apiKeys/RotateApiKeyDialog'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
@@ -113,8 +116,13 @@ export const ApiKeys = () => {
     variables: { page: 1, limit: pageSize },
     notifyOnNetworkStatusChange: true,
   })
+  // `no-cache`, not `network-only`: the plaintext key must never reach the normalized
+  // cache, which `cachePersistor` serializes to IndexedDB in full. The revealed value
+  // is held in React state instead, so nothing reads it back from the cache.
+  // `nextFetchPolicy` has to be set too, since the client defaults it to `cache-first`.
   const [getApiKeyValue] = useGetApiKeyValueLazyQuery({
-    fetchPolicy: 'network-only',
+    fetchPolicy: 'no-cache',
+    nextFetchPolicy: 'no-cache',
   })
 
   const showPremiumAddApiKeyState = !isPremium && !!apiKeysData?.apiKeys.collection.length
@@ -124,16 +132,22 @@ export const ApiKeys = () => {
   // never unmask it on screen (LAGO-1813).
   const fetchApiKeyValue = useCallback(
     async (id: string): Promise<string | undefined> => {
+      // Apollo's lazy-query execute resolves with `error` set instead of rejecting, so
+      // a failure has to be read off the result; the catch is belt-and-braces.
       try {
         const res = await getApiKeyValue({ variables: { id } })
 
-        return res?.data?.apiKey?.value
+        if (!res.error && !!res.data?.apiKey?.value) {
+          return res.data.apiKey.value
+        }
       } catch {
-        addToast({
-          severity: 'danger',
-          translateKey: 'text_62b31e1f6a5b8b1b745ece48',
-        })
+        // falls through to the toast below
       }
+
+      addToast({
+        severity: 'danger',
+        translateKey: 'text_62b31e1f6a5b8b1b745ece48',
+      })
     },
     [getApiKeyValue],
   )
@@ -439,6 +453,7 @@ export const ApiKeys = () => {
                                   size="small"
                                   loading={isRevealing}
                                   icon={!!apiKeyValue ? 'eye-hidden' : 'eye'}
+                                  data-test={API_KEY_REVEAL_BUTTON_TEST_ID}
                                   onClick={() => toggleApiKeyVisibility(id)}
                                 />
                               </Tooltip>

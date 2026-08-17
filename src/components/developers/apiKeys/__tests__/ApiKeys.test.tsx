@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 
 import { OPEN_ACTION_BUTTON_TEST_ID } from '~/components/designSystem/Table/Table'
 import { TYPOGRAPHY_WITH_COPY_BUTTON_TEST_ID } from '~/components/designSystem/TypographyWithCopy'
+import { addToast } from '~/core/apolloClient'
 import { maskValue } from '~/core/formats/maskValue'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
@@ -9,10 +10,10 @@ import {
   GetApiKeyValueDocument,
   GetOrganizationInfosForApiKeyDocument,
 } from '~/generated/graphql'
-import { AllTheProviders } from '~/test-utils'
+import { AllTheProviders, TestMocksType } from '~/test-utils'
 
 import { ApiKeys } from '../ApiKeys'
-import { API_KEY_COPY_ACTION_TEST_ID } from '../dataTestConstants'
+import { API_KEY_COPY_ACTION_TEST_ID, API_KEY_REVEAL_BUTTON_TEST_ID } from '../dataTestConstants'
 
 // Mock IntersectionObserver (undefined in jsdom, used by some design-system components)
 const mockIntersectionObserver = jest.fn()
@@ -32,6 +33,11 @@ const MOCK_API_KEY_PLAINTEXT_VALUE = 'secret-api-key-xyz'
 
 jest.mock('~/core/utils/copyToClipboard', () => ({
   copyToClipboard: jest.fn(),
+}))
+
+jest.mock('~/core/apolloClient', () => ({
+  ...jest.requireActual('~/core/apolloClient'),
+  addToast: jest.fn(),
 }))
 
 // Mock hooks that require providers
@@ -113,14 +119,24 @@ const mockApiKeyValueData = {
   },
 }
 
-const renderComponent = () => {
+const mockApiKeyValueError = {
+  request: {
+    query: GetApiKeyValueDocument,
+    variables: { id: MOCK_API_KEY_ID },
+  },
+  error: new Error('Network error'),
+}
+
+// `MockedProvider` consumes one mock per call and the query is `no-cache`, so the value
+// mock is listed twice for the tests that fetch it twice (copy, then reveal).
+const renderComponent = (
+  valueMocks: TestMocksType = [mockApiKeyValueData, mockApiKeyValueData],
+) => {
   return render(<ApiKeys />, {
     wrapper: ({ children }) =>
       AllTheProviders({
         children,
-        // The value query is mocked twice: MockedProvider consumes a mock per call, and
-        // some tests fetch the value more than once (copy, then reveal).
-        mocks: [mockOrganizationData, mockApiKeysData, mockApiKeyValueData, mockApiKeyValueData],
+        mocks: [mockOrganizationData, mockApiKeysData, ...valueMocks],
         forceTypenames: true,
       }),
   })
@@ -198,16 +214,51 @@ describe('ApiKeys', () => {
         renderComponent()
 
         const row = await getApiKeyRow()
-        const revealButton = within(row)
-          .getByTestId(/^eye\//)
-          .closest('button')
 
-        expect(revealButton).not.toBeNull()
-
-        fireEvent.click(revealButton as HTMLElement)
+        fireEvent.click(within(row).getByTestId(API_KEY_REVEAL_BUTTON_TEST_ID))
 
         expect(await screen.findByText(MOCK_API_KEY_PLAINTEXT_VALUE)).toBeInTheDocument()
         expect(copyToClipboard).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN copying the key and then revealing it', () => {
+      it('THEN should reveal the value the copy left masked', async () => {
+        renderComponent()
+
+        const row = await getApiKeyRow()
+
+        fireEvent.click(within(row).getByTestId(TYPOGRAPHY_WITH_COPY_BUTTON_TEST_ID))
+
+        await waitFor(() => {
+          expect(copyToClipboard).toHaveBeenCalledWith(MOCK_API_KEY_PLAINTEXT_VALUE)
+        })
+
+        expect(screen.queryByText(MOCK_API_KEY_PLAINTEXT_VALUE)).not.toBeInTheDocument()
+
+        fireEvent.click(within(row).getByTestId(API_KEY_REVEAL_BUTTON_TEST_ID))
+
+        expect(await screen.findByText(MOCK_API_KEY_PLAINTEXT_VALUE)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the value query fails', () => {
+      it('THEN should show an error toast and copy nothing', async () => {
+        renderComponent([mockApiKeyValueError])
+
+        const row = await getApiKeyRow()
+
+        fireEvent.click(within(row).getByTestId(TYPOGRAPHY_WITH_COPY_BUTTON_TEST_ID))
+
+        await waitFor(() => {
+          expect(addToast).toHaveBeenCalledWith({
+            severity: 'danger',
+            translateKey: 'text_62b31e1f6a5b8b1b745ece48',
+          })
+        })
+
+        expect(copyToClipboard).not.toHaveBeenCalled()
+        expect(screen.getByText(MOCK_API_KEY_VALUE)).toBeInTheDocument()
       })
     })
   })
