@@ -116,7 +116,8 @@ const QuoteDetails = (): JSX.Element => {
               quoteId: quoteId as string,
               tab: QuoteDetailsTabsOptionsEnum.activityLogs,
             }),
-            content: <QuoteDetailsActivityLogs quoteId={quoteId as string} />,
+            // Mounted while the quote loads so the tab keeps its loading state on first paint
+            content: <QuoteDetailsActivityLogs quote={quote} loading={loading} />,
             hidden: !isPremium || !hasPermissions(['auditLogsView']),
           },
         ]}

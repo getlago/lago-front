@@ -66,6 +66,7 @@ const mockQuote = {
   images: {},
   orderType: OrderTypeEnum.SubscriptionCreation,
   createdAt: '2026-04-09T10:00:00Z',
+  orderForms: [],
   versions: [
     { id: 'version-1', status: StatusEnum.Draft, version: 1, createdAt: '2026-04-09T10:00:00Z' },
   ],

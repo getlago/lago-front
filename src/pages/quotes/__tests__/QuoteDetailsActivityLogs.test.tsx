@@ -8,8 +8,8 @@ import {
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import {
   LagoApiError,
+  QuoteDetailItemFragment,
   QuoteDetailsActivityLogsDocument,
-  ResourceTypeEnum,
 } from '~/generated/graphql'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
@@ -18,6 +18,8 @@ import QuoteDetailsActivityLogs, {
 } from '../QuoteDetailsActivityLogs'
 
 const QUOTE_ID = 'quote-001'
+const ORDER_FORM_ID = 'order-form-001'
+const ORDER_ID = 'order-001'
 const ACTIVITY_DESCRIPTION = 'Quote QT-2026-0042 was created'
 
 const mockOpenPanel = jest.fn()
@@ -59,6 +61,25 @@ jest.mock('~/hooks/helpers/useFormatterDateHelper', () => ({
   }),
 }))
 
+/** The component reads only `id` and `orderForms`; the rest of the fragment is irrelevant here */
+const buildQuote = (
+  orderForms: Array<{ id: string; order: { id: string } | null }> = [
+    { id: ORDER_FORM_ID, order: { id: ORDER_ID } },
+  ],
+): QuoteDetailItemFragment =>
+  ({
+    id: QUOTE_ID,
+    orderForms,
+  }) as unknown as QuoteDetailItemFragment
+
+const grantPermissions = (granted: Array<string>): void => {
+  mockHasPermissions.mockImplementation((permissions: Array<string>) =>
+    permissions.every((permission) => granted.includes(permission)),
+  )
+}
+
+const ALL_PERMISSIONS = ['auditLogsView', 'orderFormsView', 'ordersView']
+
 const buildActivityLog = (activityId: string) => ({
   __typename: 'ActivityLog' as const,
   activityId,
@@ -69,11 +90,10 @@ const buildActivityLog = (activityId: string) => ({
   externalSubscriptionId: null,
 })
 
-const baseVariables = {
-  resourceTypes: [ResourceTypeEnum.Quote],
-  resourceIds: [QUOTE_ID],
+const buildVariables = (resourceIds: Array<string>) => ({
+  resourceIds,
   limit: DEFAULT_PAGE_SIZE,
-}
+})
 
 const buildResult = ({
   activityIds,
@@ -100,19 +120,23 @@ const buildResult = ({
   },
 })
 
-const buildMocks = (
-  options: {
-    activityIds?: Array<string>
-    totalPages?: number
-    totalCount?: number
-  } = {},
-): TestMocksType => [
+const buildMocks = ({
+  resourceIds = [QUOTE_ID, ORDER_FORM_ID, ORDER_ID],
+  activityIds = ['activity-001'],
+  totalPages = 1,
+  totalCount = 1,
+}: {
+  resourceIds?: Array<string>
+  activityIds?: Array<string>
+  totalPages?: number
+  totalCount?: number
+} = {}): TestMocksType => [
   {
     request: {
       query: QuoteDetailsActivityLogsDocument,
-      variables: baseVariables,
+      variables: buildVariables(resourceIds),
     },
-    result: buildResult({ activityIds: ['activity-001'], ...options }),
+    result: buildResult({ activityIds, totalPages, totalCount }),
   },
 ]
 
@@ -120,7 +144,7 @@ const buildErrorMocks = (code: LagoApiError): TestMocksType => [
   {
     request: {
       query: QuoteDetailsActivityLogsDocument,
-      variables: baseVariables,
+      variables: buildVariables([QUOTE_ID, ORDER_FORM_ID, ORDER_ID]),
     },
     result: {
       errors: [{ message: code, extensions: { code } }],
@@ -128,21 +152,27 @@ const buildErrorMocks = (code: LagoApiError): TestMocksType => [
   },
 ]
 
-const renderComponent = (mocks: TestMocksType) =>
+const renderComponent = (
+  mocks: TestMocksType,
+  {
+    quote = buildQuote(),
+    loading = false,
+  }: { quote?: QuoteDetailItemFragment | null | undefined; loading?: boolean } = {},
+) =>
   rtlRender(
     <AllTheProviders mocks={mocks} forceTypenames>
-      <QuoteDetailsActivityLogs quoteId={QUOTE_ID} />
+      <QuoteDetailsActivityLogs quote={quote} loading={loading} />
     </AllTheProviders>,
   )
 
 describe('QuoteDetailsActivityLogs', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    mockHasPermissions.mockReturnValue(true)
+    grantPermissions(ALL_PERMISSIONS)
     mockIsPremium.mockReturnValue(true)
   })
 
-  describe('GIVEN the user is premium and has the auditLogsView permission', () => {
+  describe('GIVEN the user is premium and has every relevant permission', () => {
     describe('WHEN the logs resolve', () => {
       it('THEN should render the container', () => {
         renderComponent(buildMocks())
@@ -221,7 +251,7 @@ describe('QuoteDetailsActivityLogs', () => {
           {
             request: {
               query: QuoteDetailsActivityLogsDocument,
-              variables: { ...baseVariables, page: 2 },
+              variables: { ...buildVariables([QUOTE_ID, ORDER_FORM_ID, ORDER_ID]), page: 2 },
             },
             result: nextPageResult,
           },
@@ -236,6 +266,96 @@ describe('QuoteDetailsActivityLogs', () => {
         await waitFor(() => {
           expect(nextPageResult).toHaveBeenCalled()
         })
+      })
+    })
+  })
+
+  describe('GIVEN the quote has downstream resources', () => {
+    describe('WHEN the quote has no order form', () => {
+      it('THEN should query the quote id alone', async () => {
+        renderComponent(buildMocks({ resourceIds: [QUOTE_ID] }), { quote: buildQuote([]) })
+
+        await waitFor(() => {
+          expect(screen.getByText(ACTIVITY_DESCRIPTION)).toBeInTheDocument()
+        })
+      })
+    })
+
+    describe('WHEN an order form has no order yet', () => {
+      it('THEN should query the quote and order form ids only', async () => {
+        renderComponent(buildMocks({ resourceIds: [QUOTE_ID, ORDER_FORM_ID] }), {
+          quote: buildQuote([{ id: ORDER_FORM_ID, order: null }]),
+        })
+
+        await waitFor(() => {
+          expect(screen.getByText(ACTIVITY_DESCRIPTION)).toBeInTheDocument()
+        })
+      })
+    })
+
+    // The two gates are independent: each resource kind is requested only when its own detail
+    // page is reachable, so denying one does not suppress the other
+    describe('WHEN the user cannot view order forms', () => {
+      it('THEN should query the quote and order ids only', async () => {
+        grantPermissions(['auditLogsView', 'ordersView'])
+
+        renderComponent(buildMocks({ resourceIds: [QUOTE_ID, ORDER_ID] }))
+
+        await waitFor(() => {
+          expect(screen.getByText(ACTIVITY_DESCRIPTION)).toBeInTheDocument()
+        })
+      })
+    })
+
+    describe('WHEN the user cannot view orders', () => {
+      it('THEN should query the quote and order form ids only', async () => {
+        grantPermissions(['auditLogsView', 'orderFormsView'])
+
+        renderComponent(buildMocks({ resourceIds: [QUOTE_ID, ORDER_FORM_ID] }))
+
+        await waitFor(() => {
+          expect(screen.getByText(ACTIVITY_DESCRIPTION)).toBeInTheDocument()
+        })
+      })
+    })
+
+    describe('WHEN the user can view neither order forms nor orders', () => {
+      it('THEN should query the quote id alone', async () => {
+        grantPermissions(['auditLogsView'])
+
+        renderComponent(buildMocks({ resourceIds: [QUOTE_ID] }))
+
+        await waitFor(() => {
+          expect(screen.getByText(ACTIVITY_DESCRIPTION)).toBeInTheDocument()
+        })
+      })
+    })
+  })
+
+  describe('GIVEN the quote is not loaded yet', () => {
+    describe('WHEN the tab renders', () => {
+      it('THEN should not fire the query', async () => {
+        const result = jest.fn(() => buildResult({ activityIds: ['activity-001'] }))
+
+        renderComponent(
+          [
+            {
+              request: {
+                query: QuoteDetailsActivityLogsDocument,
+                variables: buildVariables([]),
+              },
+              result,
+            },
+          ],
+          { quote: undefined, loading: true },
+        )
+
+        await waitFor(() => {
+          expect(screen.getByTestId(QUOTE_ACTIVITY_LOGS_CONTAINER_TEST_ID)).toBeInTheDocument()
+        })
+
+        expect(result).not.toHaveBeenCalled()
+        expect(screen.queryByText(ACTIVITY_DESCRIPTION)).not.toBeInTheDocument()
       })
     })
   })
@@ -266,12 +386,15 @@ describe('QuoteDetailsActivityLogs', () => {
 
   describe('GIVEN the logs cannot be viewed', () => {
     describe.each([
-      ['the user is not premium', { isPremium: false, hasPermissions: true }],
-      ['the user lacks the auditLogsView permission', { isPremium: true, hasPermissions: false }],
-    ])('WHEN %s', (_, { isPremium, hasPermissions }) => {
+      ['the user is not premium', { isPremium: false, granted: ALL_PERMISSIONS }],
+      [
+        'the user lacks the auditLogsView permission',
+        { isPremium: true, granted: ['orderFormsView', 'ordersView'] },
+      ],
+    ])('WHEN %s', (_, { isPremium, granted }) => {
       it('THEN should skip the query and render no row', async () => {
         mockIsPremium.mockReturnValue(isPremium)
-        mockHasPermissions.mockReturnValue(hasPermissions)
+        grantPermissions(granted)
 
         renderComponent(buildMocks())
 
