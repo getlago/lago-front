@@ -154,16 +154,18 @@ const buildErrorMocks = (code: LagoApiError): TestMocksType => [
 
 const renderComponent = (
   mocks: TestMocksType,
-  {
-    quote = buildQuote(),
-    loading = false,
-  }: { quote?: QuoteDetailItemFragment | null | undefined; loading?: boolean } = {},
-) =>
-  rtlRender(
+  options: { quote?: QuoteDetailItemFragment | null; loading?: boolean } = {},
+) => {
+  // `'quote' in options` rather than a destructuring default: a default also fires on an explicit
+  // `undefined`, which would silently hand a loaded quote to the "not loaded yet" cases
+  const quote = 'quote' in options ? options.quote : buildQuote()
+
+  return rtlRender(
     <AllTheProviders mocks={mocks} forceTypenames>
-      <QuoteDetailsActivityLogs quote={quote} loading={loading} />
+      <QuoteDetailsActivityLogs quote={quote} loading={options.loading ?? false} />
     </AllTheProviders>,
   )
+}
 
 describe('QuoteDetailsActivityLogs', () => {
   beforeEach(() => {
@@ -333,22 +335,23 @@ describe('QuoteDetailsActivityLogs', () => {
   })
 
   describe('GIVEN the quote is not loaded yet', () => {
-    describe('WHEN the tab renders', () => {
+    // An empty id list would drop the filter server-side and return the whole organization's
+    // activity log, so the query must not fire at all
+    const emptyIdsMocks = (result: jest.Mock): TestMocksType => [
+      {
+        request: {
+          query: QuoteDetailsActivityLogsDocument,
+          variables: buildVariables([]),
+        },
+        result,
+      },
+    ]
+
+    describe('WHEN the quote is still loading', () => {
       it('THEN should not fire the query', async () => {
         const result = jest.fn(() => buildResult({ activityIds: ['activity-001'] }))
 
-        renderComponent(
-          [
-            {
-              request: {
-                query: QuoteDetailsActivityLogsDocument,
-                variables: buildVariables([]),
-              },
-              result,
-            },
-          ],
-          { quote: undefined, loading: true },
-        )
+        renderComponent(emptyIdsMocks(result), { quote: null, loading: true })
 
         await waitFor(() => {
           expect(screen.getByTestId(QUOTE_ACTIVITY_LOGS_CONTAINER_TEST_ID)).toBeInTheDocument()
@@ -356,6 +359,34 @@ describe('QuoteDetailsActivityLogs', () => {
 
         expect(result).not.toHaveBeenCalled()
         expect(screen.queryByText(ACTIVITY_DESCRIPTION)).not.toBeInTheDocument()
+      })
+
+      it('THEN should fold the quote fetch into the section loading state', async () => {
+        const result = jest.fn(() => buildResult({ activityIds: ['activity-001'] }))
+
+        renderComponent(emptyIdsMocks(result), { quote: null, loading: true })
+
+        await waitFor(() => {
+          expect(screen.getByTestId(QUOTE_ACTIVITY_LOGS_CONTAINER_TEST_ID)).toBeInTheDocument()
+        })
+
+        // Loading renders skeleton rows. The empty placeholder here would mean the quote fetch
+        // was not folded in, so the tab would flash "no logs" before the quote resolves.
+        expect(screen.queryByTestId(GENERIC_PLACEHOLDER_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the quote resolved to nothing', () => {
+      it('THEN should render the empty state without firing the query', async () => {
+        const result = jest.fn(() => buildResult({ activityIds: ['activity-001'] }))
+
+        renderComponent(emptyIdsMocks(result), { quote: null, loading: false })
+
+        await waitFor(() => {
+          expect(screen.getByTestId(GENERIC_PLACEHOLDER_TEST_ID)).toBeInTheDocument()
+        })
+
+        expect(result).not.toHaveBeenCalled()
       })
     })
   })

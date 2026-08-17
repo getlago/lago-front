@@ -78,8 +78,10 @@ const QuoteDetailsActivityLogs = ({
       silentErrorCodes: [LagoApiError.FeatureUnavailable],
     },
     // Firing before the order form ids are known would render a quote-only timeline that then
-    // visibly grows
-    skip: !canViewLogs || !quote,
+    // visibly grows. Guarding on the list rather than on `quote` also keeps an empty
+    // `resourceIds` off the wire: the API treats a blank list as "no filter" and would answer
+    // with the whole organization's activity log.
+    skip: !canViewLogs || !resourceIds.length,
   })
 
   return (
