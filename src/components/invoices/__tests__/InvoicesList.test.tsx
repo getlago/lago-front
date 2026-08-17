@@ -240,13 +240,20 @@ const createMockInvoices = (count: number): InvoiceItem[] => {
 
 const createMockMetadata = (
   overrides: Partial<GetInvoicesListQuery['invoices']['metadata']> = {},
-): GetInvoicesListQuery['invoices']['metadata'] => ({
-  __typename: 'CollectionMetadata',
-  currentPage: 1,
-  totalPages: 1,
-  totalCount: 1,
-  ...overrides,
-})
+): GetInvoicesListQuery['invoices']['metadata'] => {
+  const { currentPage = 1, totalPages = 1, totalCount = 1 } = overrides
+
+  return {
+    __typename: 'InvoiceCollectionMetadata',
+    currentPage,
+    totalPages,
+    totalCount,
+    totalCountCapped: false,
+    // What the API reports for an uncapped total; override it to exercise the capped list
+    hasNextPage: currentPage < totalPages,
+    ...overrides,
+  }
+}
 
 // Default props type
 type TInvoiceListProps = {
