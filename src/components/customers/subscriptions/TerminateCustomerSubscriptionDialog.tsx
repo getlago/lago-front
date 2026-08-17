@@ -240,8 +240,7 @@ export const useTerminateCustomerSubscriptionDialog = () => {
 
     const values = form.state.values
 
-    // An incomplete subscription has never been billed, so there is no invoice to generate
-    // and no credit note to issue: only the subscription id is meaningful here.
+    // An incomplete subscription has never been billed: nothing to invoice or credit.
     const payload: TerminateSubscriptionInput =
       data?.status === StatusTypeEnum.Incomplete
         ? { id: data.id }
@@ -276,9 +275,6 @@ export const useTerminateCustomerSubscriptionDialog = () => {
     loadingRef.current = false
 
     if (isSubscriptionCancellation(data.status)) {
-      // Subscriptions that never started billing: simple confirmation, no form fields.
-      // An incomplete one still has an activation payment in flight, so it warns that
-      // cancelling that payment depends on the payment provider.
       const description =
         data.status === StatusTypeEnum.Incomplete
           ? translate('text_1786964945244ww7yr3vukeh', { subscriptionName: data.name })
