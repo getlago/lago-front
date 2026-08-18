@@ -19,6 +19,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
   fragment OrganizationInfoForPreviewDunningCampaign on CurrentOrganization {
+    id
     name
     email
     logoUrl
