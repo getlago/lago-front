@@ -94,6 +94,7 @@ const mockQuote: QuoteDetailItemFragment = {
   images: {},
   orderType: OrderTypeEnum.SubscriptionCreation,
   createdAt: '2026-01-01',
+  orderForms: [],
   versions: [
     {
       __typename: 'QuoteVersion',
