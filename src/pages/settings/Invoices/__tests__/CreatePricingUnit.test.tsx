@@ -8,8 +8,11 @@ import CreatePricingUnit, {
   CREATE_PRICING_UNIT_CLOSE_BUTTON_TEST_ID,
   CREATE_PRICING_UNIT_DESCRIPTION_DELETE_TEST_ID,
   CREATE_PRICING_UNIT_FORM_ID,
+  CREATE_PRICING_UNIT_SHOW_DESCRIPTION_TEST_ID,
   CREATE_PRICING_UNIT_SUBMIT_BUTTON_TEST_ID,
 } from '../CreatePricingUnit'
+
+const EXISTING_CODE_ERROR_KEY = 'text_632a2d437e341dcc76817556'
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -186,7 +189,7 @@ describe('CreatePricingUnit', () => {
 
         renderInCreateMode()
 
-        await user.click(screen.getByTestId('show-description'))
+        await user.click(screen.getByTestId(CREATE_PRICING_UNIT_SHOW_DESCRIPTION_TEST_ID))
         expect(getDescriptionTextarea()).toBeInTheDocument()
 
         await user.click(screen.getByTestId(CREATE_PRICING_UNIT_DESCRIPTION_DELETE_TEST_ID))
@@ -206,6 +209,21 @@ describe('CreatePricingUnit', () => {
           expect(screen.getByTestId(CREATE_PRICING_UNIT_SUBMIT_BUTTON_TEST_ID)).toBeDisabled()
         })
         expect(mockCreatePricingUnit).not.toHaveBeenCalled()
+      })
+
+      it('THEN should scroll to the first input in error', async () => {
+        const user = userEvent.setup()
+
+        renderInCreateMode()
+
+        // `name` is the first input of the form, so it is the one `onSubmitInvalid` must reach.
+        const scrollIntoView = jest.spyOn(getInput('name'), 'scrollIntoView')
+
+        await user.click(screen.getByTestId(CREATE_PRICING_UNIT_SUBMIT_BUTTON_TEST_ID))
+
+        await waitFor(() => {
+          expect(scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'center' })
+        })
       })
     })
 
@@ -307,6 +325,30 @@ describe('CreatePricingUnit', () => {
         })
         expect(testMockNavigateFn).not.toHaveBeenCalled()
         expect(addToast).not.toHaveBeenCalled()
+      })
+
+      it('THEN should surface the error on the code field', async () => {
+        const user = userEvent.setup()
+
+        mockCreatePricingUnit.mockResolvedValue({
+          data: undefined,
+          errors: [{ message: 'ValueAlreadyExist' }],
+        })
+        ;(hasDefinedGQLError as jest.Mock).mockImplementation(
+          (code: string) => code === 'ValueAlreadyExist',
+        )
+
+        renderInCreateMode()
+
+        await user.type(getInput('name'), 'My Unit')
+        await user.type(getInput('shortName'), 'MYU')
+        await user.click(screen.getByTestId(CREATE_PRICING_UNIT_SUBMIT_BUTTON_TEST_ID))
+
+        await waitFor(() => {
+          expect(getInput('code')).toHaveAttribute('aria-invalid', 'true')
+        })
+        // `code` is the only field in error here, so the lone `text-field-error` is its own.
+        expect(screen.getByTestId('text-field-error')).toHaveTextContent(EXISTING_CODE_ERROR_KEY)
       })
     })
   })

@@ -64,6 +64,7 @@ export const CREATE_PRICING_UNIT_CLOSE_BUTTON_TEST_ID = 'create-pricing-unit-clo
 export const CREATE_PRICING_UNIT_SUBMIT_BUTTON_TEST_ID = 'create-pricing-unit-submit-button'
 export const CREATE_PRICING_UNIT_DESCRIPTION_DELETE_TEST_ID =
   'create-pricing-unit-description-delete-button'
+export const CREATE_PRICING_UNIT_SHOW_DESCRIPTION_TEST_ID = 'show-description'
 
 const CreatePricingUnit = () => {
   const navigate = useNavigate()
@@ -173,12 +174,7 @@ const CreatePricingUnit = () => {
 
   useEffect(() => {
     if (pricingUnitData?.pricingUnit) {
-      form.reset({
-        name: pricingUnitData.pricingUnit.name || '',
-        code: pricingUnitData.pricingUnit.code || '',
-        description: pricingUnitData.pricingUnit.description || '',
-        shortName: pricingUnitData.pricingUnit.shortName || '',
-      })
+      form.reset(defaultValues)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pricingUnitData])
@@ -305,9 +301,9 @@ const CreatePricingUnit = () => {
                     <Button
                       startIcon="plus"
                       variant="inline"
-                      align="left"
+                      fitContent
                       onClick={() => setShouldDisplayDescription(true)}
-                      data-test="show-description"
+                      data-test={CREATE_PRICING_UNIT_SHOW_DESCRIPTION_TEST_ID}
                     >
                       {translate('text_642d5eb2783a2ad10d670324')}
                     </Button>
