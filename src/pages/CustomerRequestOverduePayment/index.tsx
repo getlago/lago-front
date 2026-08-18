@@ -52,11 +52,13 @@ gql`
     $billingEntityIds: [ID!]
   ) {
     organization {
+      id
       defaultCurrency
       ...OrganizationForDunningEmail
     }
 
     customer(id: $id) {
+      id
       externalId
       currency
       ...CustomerForRequestOverduePaymentForm
