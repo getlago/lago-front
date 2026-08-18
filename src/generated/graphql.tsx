@@ -16738,7 +16738,7 @@ export type GetinviteQueryVariables = Exact<{
 }>;
 
 
-export type GetinviteQuery = { __typename?: 'Query', invite?: { __typename?: 'Invite', id: string, email: string, existingUser: boolean, organization: { __typename?: 'Organization', id: string, name: string } } | null };
+export type GetinviteQuery = { __typename?: 'Query', invite?: { __typename?: 'Invite', id: string, email: string, existingUser: boolean, organization: { __typename?: 'Organization', id: string, name: string, slug: string } } | null };
 
 export type AcceptInviteMutationVariables = Exact<{
   input: AcceptInviteInput;
@@ -42884,6 +42884,7 @@ export const GetinviteDocument = gql`
     organization {
       id
       name
+      slug
     }
   }
 }

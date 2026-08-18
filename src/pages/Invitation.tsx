@@ -10,7 +10,7 @@ import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { hasDefinedGQLError, logOut, onLogIn } from '~/core/apolloClient'
 import { DOCUMENTATION_ENV_VARS } from '~/core/constants/externalUrls'
-import { HOME_ROUTE, LOGIN_ROUTE, useNavigate } from '~/core/router'
+import { LOGIN_ROUTE, useNavigate } from '~/core/router'
 import { addValuesToUrlState } from '~/core/utils/urlUtils'
 import {
   CurrentUserFragmentDoc,
@@ -58,6 +58,7 @@ gql`
       organization {
         id
         name
+        slug
       }
     }
   }
@@ -148,6 +149,7 @@ const Invitation = () => {
   })
   const invite = data?.invite
   const email = invite?.email
+  const invitedOrganizationSlug = invite?.organization.slug
 
   const mode: InvitationMode | undefined = useMemo(() => {
     if (!invite) return undefined
@@ -166,15 +168,16 @@ const Invitation = () => {
 
   // Land on the organization of the invitation. Without it the home page would resolve the last
   // used organization, which is not the one that was just joined.
-  const onAccepted = async (userToken: string, slug?: string) => {
+  const onAccepted = async (userToken: string, slug: string) => {
     await onLogIn(client, userToken)
-    navigate(slug ? `/${slug}` : HOME_ROUTE, { replace: true, skipSlugPrepend: true })
+    navigate(`/${slug}`, { replace: true, skipSlugPrepend: true })
   }
 
   // Logging out clears the Apollo store without refetching the active queries, so the invite has
   // to be queried again to render the logged out flow.
   const onLogOut = async () => {
     await logOut(client, true)
+    resetJoinOrganization()
     await refetchInvite()
   }
 
@@ -188,20 +191,26 @@ const Invitation = () => {
       },
     })
 
-  const [joinOrganization, { error: joinOrganizationError, loading: joinOrganizationLoading }] =
-    useJoinOrganizationMutation({
-      context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
-      onCompleted: async (res) => {
-        const slug = res?.joinOrganization?.organization.slug
+  const [
+    joinOrganization,
+    {
+      error: joinOrganizationError,
+      loading: joinOrganizationLoading,
+      reset: resetJoinOrganization,
+    },
+  ] = useJoinOrganizationMutation({
+    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
+    onCompleted: async (res) => {
+      const slug = res?.joinOrganization?.organization.slug
 
-        if (!slug) return
+      if (!slug) return
 
-        // The mutation cannot return the permissions and the organization details the cached
-        // current user holds, so the memberships are reloaded instead of written to the cache.
-        await refetchCurrentUserInfos()
-        navigate(`/${slug}`, { replace: true, skipSlugPrepend: true })
-      },
-    })
+      // The mutation cannot return the permissions and the organization details the cached
+      // current user holds, so the memberships are reloaded instead of written to the cache.
+      await refetchCurrentUserInfos()
+      navigate(`/${slug}`, { replace: true, skipSlugPrepend: true })
+    },
+  })
 
   const [googleAcceptInvite, { error: googleAcceptInviteError }] = useGoogleAcceptInviteMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
@@ -224,8 +233,8 @@ const Invitation = () => {
     useOktaAcceptInviteMutation({
       context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
       onCompleted: async (res) => {
-        if (!!res?.oktaAcceptInvite) {
-          await onAccepted(res.oktaAcceptInvite.token)
+        if (!!res?.oktaAcceptInvite && !!invitedOrganizationSlug) {
+          await onAccepted(res.oktaAcceptInvite.token, invitedOrganizationSlug)
         }
       },
     })
@@ -244,8 +253,8 @@ const Invitation = () => {
   ] = useEntraIdAcceptInviteMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     onCompleted: async (res) => {
-      if (res?.entraIdAcceptInvite) {
-        await onAccepted(res.entraIdAcceptInvite.token)
+      if (!!res?.entraIdAcceptInvite && !!invitedOrganizationSlug) {
+        await onAccepted(res.entraIdAcceptInvite.token, invitedOrganizationSlug)
       }
     },
   })
@@ -303,6 +312,10 @@ const Invitation = () => {
     }
   }
 
+  const onJoinOrganization = () => {
+    joinOrganization({ variables: { input: { token: token || '' } } }).catch(() => undefined)
+  }
+
   useEffect(() => {
     if (!!googleCode && !!token) {
       googleAcceptInvite({
@@ -318,7 +331,7 @@ const Invitation = () => {
   }, [googleCode, token])
 
   useEffect(() => {
-    if (!!oktaCode && !!oktaState && !!token) {
+    if (!!oktaCode && !!oktaState && !!token && !!invitedOrganizationSlug) {
       oktaAcceptInvite({
         variables: {
           input: {
@@ -330,10 +343,10 @@ const Invitation = () => {
       })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [oktaCode, oktaState, token])
+  }, [oktaCode, oktaState, token, invitedOrganizationSlug])
 
   useEffect(() => {
-    if (!!entraIdCode && !!entraIdState && !!token) {
+    if (!!entraIdCode && !!entraIdState && !!token && !!invitedOrganizationSlug) {
       entraIdAcceptInvite({
         variables: {
           input: {
@@ -345,7 +358,12 @@ const Invitation = () => {
       })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [entraIdCode, entraIdState, token])
+  }, [entraIdCode, entraIdState, token, invitedOrganizationSlug])
+
+  const joinLoginMethodNotAuthorized = hasDefinedGQLError(
+    'LoginMethodNotAuthorized',
+    joinOrganizationError,
+  )
 
   const errorTranslation: string | undefined = useMemo(() => {
     if (
@@ -432,7 +450,7 @@ const Invitation = () => {
       return translate('text_1786557508910guitmzid55q')
     }
 
-    if (hasDefinedGQLError('LoginMethodNotAuthorized', joinOrganizationError)) {
+    if (joinLoginMethodNotAuthorized) {
       return translate('text_1786557573982blvi6cjpnti')
     }
 
@@ -447,6 +465,7 @@ const Invitation = () => {
     oktaAuthorizeUrlError,
     entraIdAcceptInviteError,
     entraIdAuthorizeUrlError,
+    joinLoginMethodNotAuthorized,
   ])
 
   const errorAlert = !!errorTranslation && (
@@ -506,13 +525,15 @@ const Invitation = () => {
             </Button>
           </>
         )}
-        {!error && (!!loading || (isAuthenticated && (!!currentUserLoading || !currentUser))) && (
-          <>
-            <Skeleton variant="text" className="mb-8 w-52" />
-            <Skeleton variant="text" className="mb-4 w-110" />
-            <Skeleton variant="text" className="w-76" />
-          </>
-        )}
+        {!error &&
+          !mode &&
+          (!!loading || (isAuthenticated && (!!currentUserLoading || !currentUser))) && (
+            <>
+              <Skeleton variant="text" className="mb-8 w-52" />
+              <Skeleton variant="text" className="mb-4 w-110" />
+              <Skeleton variant="text" className="w-76" />
+            </>
+          )}
         {!error && !loading && !!invite && !!mode && (
           <Stack spacing={8}>
             <Stack spacing={3}>
@@ -536,20 +557,20 @@ const Invitation = () => {
 
             {errorAlert}
 
-            {mode === 'join' && (
+            {mode === 'join' && !joinLoginMethodNotAuthorized && (
               <Button
                 data-test={INVITATION_JOIN_BUTTON_TEST_ID}
                 fullWidth
                 size="large"
                 variant="primary"
                 loading={joinOrganizationLoading}
-                onClick={() => joinOrganization({ variables: { input: { token: token || '' } } })}
+                onClick={onJoinOrganization}
               >
                 {translate('text_17865575089104r0enbn7r7l')}
               </Button>
             )}
 
-            {mode === 'emailMismatch' && (
+            {(mode === 'emailMismatch' || (mode === 'join' && joinLoginMethodNotAuthorized)) && (
               <Button
                 data-test={INVITATION_LOG_OUT_BUTTON_TEST_ID}
                 fullWidth
