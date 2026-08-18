@@ -7,9 +7,11 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { PASSWORD_HINTS_TEST_IDS } from '~/components/form/PasswordValidationHints/PasswordValidationHints'
 import {
   AcceptInviteDocument,
+  EntraIdAcceptInviteDocument,
   GetinviteDocument,
   JoinOrganizationDocument,
   LagoApiError,
+  OktaAcceptInviteDocument,
 } from '~/generated/graphql'
 
 import Invitation, {
@@ -42,11 +44,17 @@ jest.mock('~/hooks/useCurrentUser', () => ({
 
 const mockOnLogIn = jest.fn()
 const mockLogOut = jest.fn()
+const mockNavigate = jest.fn()
 
 jest.mock('~/core/apolloClient', () => ({
   ...jest.requireActual('~/core/apolloClient'),
   onLogIn: (...args: unknown[]) => mockOnLogIn(...args),
   logOut: (...args: unknown[]) => mockLogOut(...args),
+}))
+
+jest.mock('~/core/router', () => ({
+  ...jest.requireActual('~/core/router'),
+  useNavigate: () => mockNavigate,
 }))
 
 jest.mock('~/components/auth/GoogleAuthButton', () => ({
@@ -160,6 +168,7 @@ const createInviteMock = (
     token?: string
     email?: string
     organizationName?: string
+    organizationSlug?: string
     existingUser?: boolean
     error?: boolean
     onResult?: () => void
@@ -169,6 +178,7 @@ const createInviteMock = (
     token = 'test-token',
     email = 'test@example.com',
     organizationName = 'Test Org',
+    organizationSlug = 'test-org',
     existingUser = false,
     error = false,
     onResult,
@@ -193,6 +203,7 @@ const createInviteMock = (
         organization: {
           id: 'org-1',
           name: organizationName,
+          slug: organizationSlug,
         },
       },
     },
@@ -214,28 +225,58 @@ const createInviteMock = (
 }
 
 const createJoinOrganizationMock = (
-  overrides: { token?: string; slug?: string } = {},
+  overrides: { token?: string; slug?: string; errorCode?: LagoApiErrorCode } = {},
 ): MockedResponse => {
-  const { token = 'test-token', slug = 'test-org' } = overrides
+  const { token = 'test-token', slug = 'test-org', errorCode } = overrides
 
   return {
     request: {
       query: JoinOrganizationDocument,
       variables: { input: { token } },
     },
-    result: {
-      data: {
-        joinOrganization: {
-          id: 'membership-1',
-          organization: {
-            id: 'org-1',
-            slug,
+    result: errorCode
+      ? { errors: [graphQLError(errorCode)] }
+      : {
+          data: {
+            joinOrganization: {
+              id: 'membership-1',
+              organization: {
+                id: 'org-1',
+                slug,
+              },
+            },
           },
         },
-      },
-    },
   }
 }
+
+const createOktaAcceptInviteMock = (): MockedResponse => ({
+  request: {
+    query: OktaAcceptInviteDocument,
+    variables: {
+      input: {
+        code: 'okta-code',
+        state: 'okta-state',
+        inviteToken: 'test-token',
+      },
+    },
+  },
+  result: { data: { oktaAcceptInvite: { token: 'user-token' } } },
+})
+
+const createEntraIdAcceptInviteMock = (): MockedResponse => ({
+  request: {
+    query: EntraIdAcceptInviteDocument,
+    variables: {
+      input: {
+        code: 'entra-code',
+        state: 'entra-state',
+        inviteToken: 'test-token',
+      },
+    },
+  },
+  result: { data: { entraIdAcceptInvite: { token: 'user-token' } } },
+})
 
 const createAcceptInviteMock = (
   overrides: {
@@ -271,13 +312,14 @@ const createAcceptInviteMock = (
 const renderInvitation = async (
   mocks: MockedResponse[] = [createInviteMock()],
   token = 'test-token',
+  search = '',
 ) => {
   let result
 
   await act(async () => {
     result = render(
       <MockedProvider mocks={mocks}>
-        <MemoryRouter initialEntries={[`/invitation/${token}`]}>
+        <MemoryRouter initialEntries={[`/invitation/${token}${search}`]}>
           <Routes>
             <Route path="/invitation/:token" element={<Invitation />} />
           </Routes>
@@ -305,6 +347,7 @@ describe('Invitation', () => {
     })
     mockOnLogIn.mockResolvedValue(undefined)
     mockLogOut.mockResolvedValue(undefined)
+    mockNavigate.mockReset()
   })
 
   describe('when invite is loaded successfully', () => {
@@ -348,6 +391,36 @@ describe('Invitation', () => {
 
         expect(submitButton).toBeInTheDocument()
         expect(submitButton?.textContent).toBe('text_63246f875e2228ab7b63dd1c')
+      })
+    })
+
+    it('should enter the invited organization after Okta authentication', async () => {
+      await renderInvitation(
+        [createInviteMock({ organizationSlug: 'invited-org' }), createOktaAcceptInviteMock()],
+        'test-token',
+        '?oktaCode=okta-code&oktaState=okta-state',
+      )
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/invited-org', {
+          replace: true,
+          skipSlugPrepend: true,
+        })
+      })
+    })
+
+    it('should enter the invited organization after Entra ID authentication', async () => {
+      await renderInvitation(
+        [createInviteMock({ organizationSlug: 'invited-org' }), createEntraIdAcceptInviteMock()],
+        'test-token',
+        '?entraIdCode=entra-code&entraIdState=entra-state',
+      )
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/invited-org', {
+          replace: true,
+          skipSlugPrepend: true,
+        })
       })
     })
   })
@@ -540,6 +613,22 @@ describe('Invitation', () => {
       expect(screen.queryByTestId('google-auth-button')).not.toBeInTheDocument()
     })
 
+    it('should not show the skeleton while memberships are reloading', async () => {
+      mockCurrentUser.mockReturnValue({
+        currentUser: { id: 'user-1', email: 'test@example.com' },
+        loading: true,
+        refetchCurrentUserInfos: mockRefetchCurrentUserInfos,
+      })
+
+      await renderInvitation([createInviteMock({ existingUser: true })])
+
+      await waitFor(() => {
+        expect(getByDataTest(INVITATION_JOIN_BUTTON_TEST_ID)).toBeInTheDocument()
+      })
+
+      expect(document.querySelector('.animate-pulse')).not.toBeInTheDocument()
+    })
+
     it('should reload the memberships of the user after accepting', async () => {
       await renderInvitation([
         createInviteMock({ existingUser: true }),
@@ -573,6 +662,21 @@ describe('Invitation', () => {
       })
 
       expect(getByDataTest(INVITATION_LOG_OUT_BUTTON_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    it('should allow logging out when the session cannot accept the invitation', async () => {
+      const user = userEvent.setup()
+
+      await renderInvitation([
+        createInviteMock({ existingUser: true }),
+        createJoinOrganizationMock({ errorCode: 'LoginMethodNotAuthorized' }),
+      ])
+
+      await user.click(await screen.findByText('text_17865575089104r0enbn7r7l'))
+
+      expect(await screen.findByText('text_1786557573982blvi6cjpnti')).toBeInTheDocument()
+      expect(getByDataTest(INVITATION_LOG_OUT_BUTTON_TEST_ID)).toBeInTheDocument()
+      expect(getByDataTest(INVITATION_JOIN_BUTTON_TEST_ID)).not.toBeInTheDocument()
     })
   })
 
