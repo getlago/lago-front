@@ -20,6 +20,12 @@ const isKnownFeatureFlag = (value: unknown): value is FeatureFlags => {
  * nav and locked the whole app on the error fallback, which a refresh could not
  * recover from (Sentry FRONT-17H).
  */
+const discardStoredFeatureFlags = (): FeatureFlags[] => {
+  localStorage.removeItem(FF_KEY)
+
+  return []
+}
+
 export const getEnableFeatureFlags = (): FeatureFlags[] => {
   const stored = localStorage.getItem(FF_KEY)
 
@@ -27,19 +33,19 @@ export const getEnableFeatureFlags = (): FeatureFlags[] => {
     return []
   }
 
+  let parsed: unknown
+
   try {
-    const parsed: unknown = JSON.parse(stored)
-
-    if (!Array.isArray(parsed)) {
-      throw new Error('Stored feature flags are not an array')
-    }
-
-    return parsed.filter(isKnownFeatureFlag)
+    parsed = JSON.parse(stored)
   } catch {
-    localStorage.removeItem(FF_KEY)
-
-    return []
+    return discardStoredFeatureFlags()
   }
+
+  if (!Array.isArray(parsed)) {
+    return discardStoredFeatureFlags()
+  }
+
+  return parsed.filter(isKnownFeatureFlag)
 }
 
 export const isFeatureFlagActive = (flag: FeatureFlags): boolean => {

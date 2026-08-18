@@ -5,12 +5,7 @@ import { createRoot } from 'react-dom/client'
 import App from '~/App'
 import { envGlobalVar } from '~/core/apolloClient'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
-import {
-  FeatureFlags,
-  getEnableFeatureFlags,
-  listFeatureFlags,
-  setFeatureFlags,
-} from '~/core/utils/featureFlags'
+import { installLagoWindowApi } from '~/core/utils/featureFlagsConsole'
 
 import './main.css'
 
@@ -91,52 +86,7 @@ window.addEventListener('vite:preloadError', (event) => {
   })
 })
 
-type LagoWindowApi = {
-  getEnableFeatureFlags: () => FeatureFlags[]
-  setFeatureFlags: (flags: FeatureFlags[] | FeatureFlags | 'all') => FeatureFlags[]
-  listFeatureFlags: () => FeatureFlags[]
-  help: () => void
-}
-
-const printFeatureFlagsHelp = (): void => {
-  const style = 'background: #eee; color: #fe3d3d'
-  const flags = listFeatureFlags()
-  const flagsSample = flags
-    .slice(0, 2)
-    .map((flag) => `'${flag}'`)
-    .join(', ')
-
-  const logs = [
-    'List available flags: %c window.Lago.listFeatureFlags() ',
-    `Set single flag: %c window.Lago.setFeatureFlags('${flags[0]}') `,
-    `Set multiple flags: %c window.Lago.setFeatureFlags([${flagsSample}]) `,
-    "Set all flags: %c window.Lago.setFeatureFlags('all') ",
-    'Get enable flags: %c window.Lago.getEnableFeatureFlags() ',
-    'Print this help again: %c window.Lago.help() ',
-  ]
-
-  /* eslint-disable no-console */
-  console.groupCollapsed('%c window.Lago is available', style)
-  logs.forEach((log) => console.info(log, style))
-  console.groupEnd()
-  /* eslint-enable no-console */
-}
-
-const lagoWindowApi: LagoWindowApi = {
-  getEnableFeatureFlags,
-  setFeatureFlags,
-  listFeatureFlags,
-  help: printFeatureFlagsHelp,
-}
-
-// The API is exposed in every environment so feature flags can be enabled on
-// production too. Only non-production advertises it on load: on production it
-// stays silent and is reachable on demand through `window.Lago.help()`.
-window.Lago = lagoWindowApi
-
-if (appEnv !== AppEnvEnum.production) {
-  printFeatureFlagsHelp()
-}
+installLagoWindowApi(appEnv)
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const container = document.getElementById('root')!

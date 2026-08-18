@@ -1,6 +1,6 @@
 interface Window {
   Cypress: any
-  Lago: any
+  Lago: import('./src/core/utils/featureFlagsConsole').LagoWindowApi
 }
 
 declare type AppEnvEnum = import('./src/core/constants/globalTypes').AppEnvEnum
