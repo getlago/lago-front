@@ -108,6 +108,7 @@ export function SubscriptionPricingContent({
   const {
     form: planForm,
     plan: planData,
+    catalogPlan,
     formReady,
     resolvedPlanId,
     basePlanFormValues,
@@ -285,13 +286,15 @@ export function SubscriptionPricingContent({
     }))
 
     // Ensure the pre-selected plan is always present, even when it falls outside
-    // the current (searchable) result page, so its label still renders.
-    if (planData && !data.some((d) => d.value === planData.id)) {
-      data.unshift({ value: planData.id, label: `${planData.name} (${planData.code})` })
+    // the current (searchable) result page, so its label still renders. It has to be
+    // the catalog plan: on an amendment the subscription runs an override child plan,
+    // which is not listed on the Plans page and must never be offered here.
+    if (catalogPlan && !data.some((d) => d.value === catalogPlan.id)) {
+      data.unshift({ value: catalogPlan.id, label: `${catalogPlan.name} (${catalogPlan.code})` })
     }
 
     return data
-  }, [plansData, planData])
+  }, [plansData, catalogPlan])
 
   // Shared selector helpers for custom sections
   const buildEndContent = (showInterval = false) => (
@@ -336,6 +339,8 @@ export function SubscriptionPricingContent({
     currency: displayCurrency,
   })
 
+  const customerName = customer?.displayName || customer?.externalId || ''
+
   return (
     <CenteredPage.SubsectionWrapper>
       {/* 1. Plan selection */}
@@ -349,7 +354,7 @@ export function SubscriptionPricingContent({
         <CenteredPage.PageSection>
           <CenteredPage.PageSectionTitle
             title={translate('text_65118a52df984447c186940f', {
-              customerName: customer?.name,
+              customerName,
             })}
             description={translate('text_1781099100337s3ou7wd0l4z')}
           />

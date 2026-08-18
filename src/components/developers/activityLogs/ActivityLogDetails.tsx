@@ -114,6 +114,15 @@ gql`
       ... on RateCard {
         id
       }
+      ... on Quote {
+        id
+      }
+      ... on OrderForm {
+        id
+      }
+      ... on Order {
+        id
+      }
     }
     loggedAt
     userEmail

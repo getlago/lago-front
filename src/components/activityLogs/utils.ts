@@ -10,6 +10,7 @@ import {
   CustomerInvoiceDetailsTabsOptionsEnum,
   FeatureDetailsTabsOptionsEnum,
   PlanDetailsTabsOptionsEnum,
+  QuoteDetailsTabsOptionsEnum,
 } from '~/core/constants/tabsOptions'
 import {
   BILLABLE_METRIC_DETAILS_ROUTE,
@@ -19,7 +20,10 @@ import {
   CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE,
   CUSTOMER_INVOICE_DETAILS_ROUTE,
   FEATURE_DETAILS_ROUTE,
+  ORDER_DETAILS_ROUTE,
+  ORDER_FORM_DETAILS_ROUTE,
   PLAN_DETAILS_ROUTE,
+  QUOTE_DETAILS_ROUTE,
 } from '~/core/router'
 import {
   ActivityLogDetailsFragment,
@@ -34,21 +38,29 @@ import {
 export function formatActivityType(activityType: ActivityTypeEnum) {
   const str = String(activityType)
   // List of known action suffixes
+  // Longest suffixes first: 'version_created' must win over 'created' so that
+  // quote_version_created reads quote.version_created, not quote_version.created.
   const actions = [
     'payment_status_updated',
     'ready_to_finalize',
     'paid_credit_added',
+    'version_created',
+    'file_uploaded',
     'refund_failure',
     'payment_failure',
     'payment_overdue',
     'one_off_created',
     'terminated',
     'generated',
+    'approved',
+    'executed',
+    'expired',
     'created',
     'deleted',
     'updated',
     'drafted',
     'failed',
+    'signed',
     'voided',
     'recorded',
     'started',
@@ -122,10 +134,23 @@ export function getResourceLink(
         featureId: resource.id,
         tab: FeatureDetailsTabsOptionsEnum.overview,
       })
+    case 'Order':
+      return generatePath(ORDER_DETAILS_ROUTE, {
+        orderId: resource.id,
+      })
+    case 'OrderForm':
+      return generatePath(ORDER_FORM_DETAILS_ROUTE, {
+        orderFormId: resource.id,
+      })
     case 'Plan':
       return generatePath(PLAN_DETAILS_ROUTE, {
         planId: resource.id,
         tab: PlanDetailsTabsOptionsEnum.overview,
+      })
+    case 'Quote':
+      return generatePath(QUOTE_DETAILS_ROUTE, {
+        quoteId: resource.id,
+        tab: QuoteDetailsTabsOptionsEnum.overview,
       })
     case 'Wallet':
       return generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
