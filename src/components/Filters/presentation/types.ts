@@ -7,6 +7,19 @@ export const filterDataInlineSeparator = '|-_-|'
 // decode them back only for display — see escapeFilterLabel / unescapeFilterLabel in utils.
 export const filterDataLabelCommaPlaceholder = '|-COMMA-|'
 
+// Sentinel entry for the "Not defined" option of the product-item ProductCategory filter.
+// Selected alongside real productCategory ids in the same multi-select, it is NOT a productCategory id:
+// it maps to the standalone `withoutProductCategory: true` query arg. Kept free of the comma and
+// `filterDataInlineSeparator` so it can never collide with an encoded productCategory selection.
+export const filterWithoutProductCategoryValue = '__without_productCategory__'
+
+// Sentinel entry for the "Not defined" option of the product-item-filters list's
+// ProductCategory item filter. Matches the Figma reference for visual parity with the
+// product-item list's ProductCategory filter, but has no backend meaning here: a
+// ProductFilter always belongs to exactly one product, so selecting it
+// never contributes a `productId` (see formatFiltersForProductFiltersQuery).
+export const filterWithoutProductValue = '__without_productCategory_item__'
+
 export enum AvailableQuickFilters {
   invoiceStatus = 'invoiceStatus',
   customerAccountType = 'customerAccountType',
@@ -88,6 +101,10 @@ export enum AvailableFiltersEnum {
   paymentStatus = 'paymentStatus',
   planCode = 'planCode',
   purchaseOrderNumber = 'purchaseOrderNumber',
+  productProductCategory = 'productProductCategory',
+  productType = 'productType',
+  productFilterProductCategory = 'productFilterProductCategory',
+  productFilterProduct = 'productFilterProduct',
   orderFormCreatedAt = 'orderFormCreatedAt',
   orderFormNumber = 'orderFormNumber',
   orderFormStatus = 'orderFormStatus',
@@ -298,6 +315,16 @@ export const SubscriptionAvailableFilters = [
   AvailableFiltersEnum.subscriptionStatus,
 ]
 
+export const ProductAvailableFilters = [
+  AvailableFiltersEnum.productProductCategory,
+  AvailableFiltersEnum.productType,
+]
+
+export const ProductFilterAvailableFilters = [
+  AvailableFiltersEnum.productFilterProductCategory,
+  AvailableFiltersEnum.productFilterProduct,
+]
+
 export const CustomerAnalyticsAvailableFilters = [
   AvailableFiltersEnum.currency,
   AvailableFiltersEnum.billingEntityId,
@@ -391,6 +418,12 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.paymentStatus]: 'text_63eba8c65a6c8043feee2a0f',
   [AvailableFiltersEnum.planCode]: 'text_642d5eb2783a2ad10d670320',
   [AvailableFiltersEnum.purchaseOrderNumber]: 'text_17822197712867qhfbaf9fpk',
+  [AvailableFiltersEnum.productProductCategory]: 'text_1783020794399ai60io2ufkg',
+  [AvailableFiltersEnum.productType]: 'text_632d68358f1fedc68eed3e5a',
+  // Reuses the "ProductCategory" / "ProductCategory item" resource-name labels (same words shown
+  // elsewhere for the entity types) rather than minting new filter-specific copy.
+  [AvailableFiltersEnum.productFilterProductCategory]: 'text_1783020794399ai60io2ufkg',
+  [AvailableFiltersEnum.productFilterProduct]: 'text_1783020794400si0ioidu0m5',
   [AvailableFiltersEnum.orderFormCreatedAt]: 'text_1776870266380s3zbpmnfrhj',
   [AvailableFiltersEnum.orderFormNumber]: 'text_1781624189693d7zcv2vog4c',
   [AvailableFiltersEnum.orderFormStatus]: 'text_63ac86d797f728a87b2f9fa7',
