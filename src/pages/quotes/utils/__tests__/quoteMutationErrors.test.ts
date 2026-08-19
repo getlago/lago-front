@@ -80,8 +80,17 @@ describe('getQuoteMutationErrors', () => {
       ['quoteVersion', 'not_approved', 'text_1786540789742edgippmh4fh'],
       ['quoteVersionId', 'value_already_exist', 'text_1786540789742km6ifr1uf63'],
       ['voidReason', 'invalid', 'text_1786540789742xzmnw0kbnw2'],
-      ['startDate', 'value_is_mandatory', 'text_1786540789742o1548c5v0cr'],
-      ['startDate', 'invalid_date_range', 'text_1786540789742hb3p2cjocck'],
+      ['status', 'not_editable', 'text_17871360906941z44i8yw0ac'],
+      ['status', 'not_clonable', 'text_1787136090694y83z6vb527o'],
+      ['status', 'active_version_exists', 'text_1787136090694dk5q95wet17'],
+      ['owners', 'invalid', 'text_17871360906948prsrsrwge1'],
+      ['image', 'invalid_format', 'text_1787136090694ingmztiheet'],
+      ['image', 'file_too_large', 'text_1787136090694qc666iqsdq4'],
+      ['subscriptionId', 'value_is_mandatory', 'text_17871360906949qpqk5in7j2'],
+      ['subscriptionId', 'subscription_not_active', 'text_1787136090694uz5da4yhddr'],
+      ['billingEntityId', 'billing_entity_not_found', 'text_1787136090694cr8wvbhalzc'],
+      ['billingEntityId', 'not_supported_for_order_type', 'text_1787136090694e0p67xtiaqu'],
+      ['base', 'concurrency_conflict', 'text_17871360906941p1bvt8npaw'],
     ])('maps %s.%s to its own message', (field, code, expectedKey) => {
       const errors = getQuoteMutationErrors(
         makeError('unprocessable_entity', { [field]: [code] }),
@@ -91,19 +100,27 @@ describe('getQuoteMutationErrors', () => {
       expect(errors).toEqual([{ message: expectedKey, field: undefined }])
     })
 
-    it('flags expiresAt.invalid_date as a form field error', () => {
+    it.each([
+      ['invalid_date', 'text_1786540789742b4ym3200cp6'],
+      // The original QA return: approving with a too-late expiry answered a field-scoped 422
+      // that fell through to the generic copy, so nothing showed on the field.
+      ['after_deal_expiration', 'text_17871360906940d0lnf13g0l'],
+    ])('flags expiresAt.%s as a form field error', (code, expectedKey) => {
       const errors = getQuoteMutationErrors(
-        makeError('unprocessable_entity', { expiresAt: ['invalid_date'] }),
+        makeError('unprocessable_entity', { expiresAt: [code] }),
         translate,
       )
 
       expect(errors).toEqual([
-        {
-          message: 'text_1786540789742b4ym3200cp6',
-          field: 'expiresAt',
-          messageKey: 'text_1786540789742b4ym3200cp6',
-        },
+        { message: expectedKey, field: 'expiresAt', messageKey: expectedKey },
       ])
+    })
+
+    it('no longer maps the quote-level startDate details the API stopped sending', () => {
+      // Keys are flat and dotted, and `toHaveProperty('a.b')` reads the dot as a PATH — so the
+      // string form would pass here even if the mappings came back. Assert on the key list.
+      expect(Object.keys(TOP_LEVEL_ERROR_KEYS)).not.toContain('startDate.value_is_mandatory')
+      expect(Object.keys(TOP_LEVEL_ERROR_KEYS)).not.toContain('startDate.invalid_date_range')
     })
 
     it('maps the not_found payload the API sends for an unknown version', () => {
@@ -248,6 +265,7 @@ describe('getQuoteMutationErrors', () => {
       ['status', 'not_voidable', 'text_1786610894641usymql0rk8r'],
       ['signedDocument', 'invalid_format', 'text_1786610894641nv1aitlslgu'],
       ['orderFormId', 'value_already_exist', 'text_17866108946418951e8uxdcl'],
+      ['base', 'concurrency_conflict', 'text_17871360906947rld1stpjr6'],
     ])('maps %s.%s to its own message', (field, code, expectedKey) => {
       const errors = getQuoteMutationErrors(
         makeError('unprocessable_entity', { [field]: [code] }),
@@ -262,6 +280,8 @@ describe('getQuoteMutationErrors', () => {
       ['executionMode', 'value_is_mandatory', 'text_17866108946411ovi8xqry3n'],
       ['executionMode', 'value_is_invalid', 'text_1786610894641m8ffsiodyjw'],
       ['executeAt', 'invalid_date', 'text_1786610894641sjyf79n6nny'],
+      // Signing an order form with a too-late execution date failed just as silently as approve.
+      ['executeAt', 'after_deal_expiration', 'text_17871360906947inroyu1jq2'],
     ])('flags %s.%s as a form field error', (field, code, expectedKey) => {
       const errors = getQuoteMutationErrors(
         makeError('unprocessable_entity', { [field]: [code] }),
@@ -348,6 +368,13 @@ describe('getQuoteMutationErrors', () => {
       ],
       ['not_found', 'customer', 'not_found', 'text_1786630268016i9hcrwrzkcc'],
       ['not_found', 'fees', 'not_found', 'text_1786630268016vpwqdibatsd'],
+      ['unprocessable_entity', 'status', 'not_editable', 'text_1787136090695el9p68o6bbz'],
+      [
+        'unprocessable_entity',
+        'subscription',
+        'subscription_not_active',
+        'text_1787136090695a0gmnr8nxim',
+      ],
     ])('maps %s / %s.%s to its own message', (code, field, detailCode, expectedKey) => {
       const errors = getQuoteMutationErrors(
         makeError(code, { [field]: [detailCode] }),
@@ -356,6 +383,63 @@ describe('getQuoteMutationErrors', () => {
       )
 
       expect(errors).toEqual([{ message: expectedKey, field: undefined }])
+    })
+
+    it.each([
+      ['invalid_date', 'text_1787137341763zuw842lkske'],
+      ['after_deal_expiration', 'text_1787137341763nutdwcniihz'],
+    ])('flags executeAt.%s as a form field error on its own copy', (code, expectedKey) => {
+      const errors = getQuoteMutationErrors(
+        makeError('unprocessable_entity', { executeAt: [code] }),
+        translate,
+        'order',
+      )
+
+      expect(errors).toEqual([
+        { message: expectedKey, field: 'executeAt', messageKey: expectedKey },
+      ])
+    })
+
+    it('does not reuse the order-form executeAt copy', () => {
+      expect(ORDER_ERROR_KEYS['executeAt.invalid_date']).not.toBe(
+        ORDER_FORM_ERROR_KEYS['executeAt.invalid_date'],
+      )
+      expect(ORDER_ERROR_KEYS['executeAt.after_deal_expiration']).not.toBe(
+        ORDER_FORM_ERROR_KEYS['executeAt.after_deal_expiration'],
+      )
+    })
+
+    // The amendment business validator reports `billing_items.plans` with NO index, so the
+    // billing-item path yields `index: null` and no prefix — only a top-level entry can name it.
+    it('maps the index-less billingItems.plans key the amendment validator sends', () => {
+      const errors = getQuoteMutationErrors(
+        makeError('unprocessable_entity', { 'billingItems.plans': ['single_plan_expected'] }),
+        translate,
+        'order',
+      )
+
+      expect(errors).toEqual([{ message: 'text_1787136090695y7j822vqoa1', field: undefined }])
+    })
+
+    it('leaves the same index-less key on the generic copy in the quote scope', () => {
+      const errors = getQuoteMutationErrors(
+        makeError('unprocessable_entity', { 'billingItems.plans': ['single_plan_expected'] }),
+        translate,
+      )
+
+      expect(errors).toEqual([{ message: GENERIC_ERROR_KEY }])
+    })
+
+    it('still resolves an indexed plan key through the billing-item path', () => {
+      const errors = getQuoteMutationErrors(
+        makeError('unprocessable_entity', {
+          'billingItems.plans.0.payload.startDate': ['value_is_mandatory'],
+        }),
+        translate,
+        'order',
+      )
+
+      expect(errors[0].message).toContain('text_1786540789742q2ym1u6mrwh(index=1)')
     })
 
     it('names the order, not the order form, on the shared executionMode key', () => {

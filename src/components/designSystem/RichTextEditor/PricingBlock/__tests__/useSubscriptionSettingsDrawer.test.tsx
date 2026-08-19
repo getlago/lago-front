@@ -4,6 +4,7 @@ import { ReactElement } from 'react'
 
 import { render } from '~/test-utils'
 
+import { QUOTE_PAYMENT_TERM_LINE_TEST_ID } from '../QuotePaymentTermLine'
 import {
   SUBSCRIPTION_SETTINGS_DRAWER_SAVE_TEST_ID,
   type SubscriptionSettingsFormValues,
@@ -51,8 +52,11 @@ const populatedValues: SubscriptionSettingsFormValues = {
 const openAndRenderDrawer = (
   values: SubscriptionSettingsFormValues = defaultValues,
   isAmendment = false,
+  netPaymentTerm: number | null | undefined = undefined,
 ) => {
-  const hookReturn = renderHook(() => useSubscriptionSettingsDrawer(mockOnSave, isAmendment))
+  const hookReturn = renderHook(() =>
+    useSubscriptionSettingsDrawer({ onSave: mockOnSave, isAmendment, netPaymentTerm }),
+  )
 
   act(() => {
     hookReturn.result.current.openDrawer(values)
@@ -79,14 +83,14 @@ describe('useSubscriptionSettingsDrawer', () => {
   })
 
   it('returns openDrawer function', () => {
-    const { result } = renderHook(() => useSubscriptionSettingsDrawer(mockOnSave))
+    const { result } = renderHook(() => useSubscriptionSettingsDrawer({ onSave: mockOnSave }))
 
     expect(result.current).toHaveProperty('openDrawer')
     expect(typeof result.current.openDrawer).toBe('function')
   })
 
   it('opens the drawer when openDrawer is called', () => {
-    const { result } = renderHook(() => useSubscriptionSettingsDrawer(mockOnSave))
+    const { result } = renderHook(() => useSubscriptionSettingsDrawer({ onSave: mockOnSave }))
 
     act(() => {
       result.current.openDrawer(defaultValues)
@@ -102,7 +106,7 @@ describe('useSubscriptionSettingsDrawer', () => {
   })
 
   it('opens the drawer with pre-populated values', () => {
-    const { result } = renderHook(() => useSubscriptionSettingsDrawer(mockOnSave))
+    const { result } = renderHook(() => useSubscriptionSettingsDrawer({ onSave: mockOnSave }))
 
     act(() => {
       result.current.openDrawer({
@@ -340,7 +344,7 @@ describe('useSubscriptionSettingsDrawer', () => {
       it('THEN should call onSave with the form values and close the drawer', async () => {
         const user = userEvent.setup()
 
-        const hookReturn = renderHook(() => useSubscriptionSettingsDrawer(mockOnSave))
+        const hookReturn = renderHook(() => useSubscriptionSettingsDrawer({ onSave: mockOnSave }))
 
         const validValues: SubscriptionSettingsFormValues = {
           externalId: 'ext_123',
@@ -392,7 +396,7 @@ describe('useSubscriptionSettingsDrawer', () => {
   describe('GIVEN the form is re-opened after being previously opened', () => {
     describe('WHEN openDrawer is called with new values', () => {
       it('THEN should reset the form to the new values', () => {
-        const { result } = renderHook(() => useSubscriptionSettingsDrawer(mockOnSave))
+        const { result } = renderHook(() => useSubscriptionSettingsDrawer({ onSave: mockOnSave }))
 
         act(() => {
           result.current.openDrawer({
@@ -426,7 +430,7 @@ describe('useSubscriptionSettingsDrawer', () => {
   describe('GIVEN form submission via the hidden submit button', () => {
     describe('WHEN the form is submitted via the form element', () => {
       it('THEN should trigger form submission through handleFormSubmit', async () => {
-        const hookReturn = renderHook(() => useSubscriptionSettingsDrawer(mockOnSave))
+        const hookReturn = renderHook(() => useSubscriptionSettingsDrawer({ onSave: mockOnSave }))
 
         const validValues: SubscriptionSettingsFormValues = {
           externalId: '',
@@ -464,6 +468,44 @@ describe('useSubscriptionSettingsDrawer', () => {
         await waitFor(() => {
           expect(mockOnSave).toHaveBeenCalledTimes(1)
         })
+      })
+    })
+  })
+  describe('GIVEN the drawer carries the deal-term dates', () => {
+    describe('WHEN a resolved payment term is passed', () => {
+      it.each([
+        ['a positive term', 30],
+        ['a zero term', 0],
+      ])('THEN should display the read-only payment term for %s', (_, netPaymentTerm) => {
+        openAndRenderDrawer(defaultValues, false, netPaymentTerm)
+
+        expect(screen.getByTestId(QUOTE_PAYMENT_TERM_LINE_TEST_ID)).toBeInTheDocument()
+      })
+
+      it('THEN should not turn the payment term into a form field', async () => {
+        const user = userEvent.setup()
+
+        // populated: the schema requires a start date on a non-amendment, so an empty
+        // default would block the save before the assertion could run.
+        openAndRenderDrawer(populatedValues, false, 30)
+
+        const saveButton = screen.getByTestId(SUBSCRIPTION_SETTINGS_DRAWER_SAVE_TEST_ID)
+
+        await user.click(saveButton)
+
+        await waitFor(() => {
+          expect(mockOnSave).toHaveBeenCalledTimes(1)
+        })
+
+        expect(mockOnSave.mock.calls[0][0]).not.toHaveProperty('netPaymentTerm')
+      })
+    })
+
+    describe('WHEN no payment term is known', () => {
+      it('THEN should still display the row with a placeholder value', () => {
+        openAndRenderDrawer(defaultValues, false, undefined)
+
+        expect(screen.getByTestId(QUOTE_PAYMENT_TERM_LINE_TEST_ID)).toHaveTextContent('-')
       })
     })
   })

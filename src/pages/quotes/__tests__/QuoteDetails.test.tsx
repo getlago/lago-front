@@ -1,9 +1,11 @@
+import { screen } from '@testing-library/react'
+
 import { OrderTypeEnum, StatusEnum } from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import { useQuote } from '../hooks/useQuote'
 import { useQuoteVersionActions } from '../hooks/useQuoteVersionActions'
-import QuoteDetails from '../QuoteDetails'
+import QuoteDetails, { QUOTE_DETAILS_CUSTOMER_LINK_TEST_ID } from '../QuoteDetails'
 
 const mockMainHeaderConfigure = jest.fn()
 
@@ -76,8 +78,7 @@ const mockQuote = {
     version: 1,
     content: null,
     currency: null,
-    startDate: null,
-    endDate: null,
+    billingEntityId: null,
     billingItems: null,
     createdAt: '2026-04-09T10:00:00Z',
     mentionVariables: {},
@@ -159,8 +160,39 @@ describe('QuoteDetails', () => {
 
         const config = mockMainHeaderConfigure.mock.calls[0][0]
 
-        expect(config.entity.metadata).toContain('Acme Corp')
-        expect(config.entity.metadata).toContain('ext-acme-001')
+        // `metadata` is a ReactNode now (a link), so it has to be rendered to be inspected.
+        render(<>{config.entity.metadata}</>)
+
+        const link = screen.getByTestId(QUOTE_DETAILS_CUSTOMER_LINK_TEST_ID)
+
+        expect(link).toHaveTextContent('Acme Corp')
+        expect(link).toHaveTextContent('ext-acme-001')
+      })
+
+      it('THEN should link the customer metadata to the customer detail page', () => {
+        render(<QuoteDetails />)
+
+        const config = mockMainHeaderConfigure.mock.calls[0][0]
+
+        render(<>{config.entity.metadata}</>)
+
+        expect(screen.getByTestId(QUOTE_DETAILS_CUSTOMER_LINK_TEST_ID)).toHaveAttribute(
+          'href',
+          expect.stringContaining('/customer/customer-001'),
+        )
+      })
+
+      it('THEN should fall back to empty metadata while the quote is loading', () => {
+        mockUseQuote.mockReturnValue({
+          quote: undefined,
+          loading: true,
+          error: undefined,
+          refetch: jest.fn(),
+        })
+
+        render(<QuoteDetails />)
+
+        expect(mockMainHeaderConfigure.mock.calls[0][0].entity.metadata).toBe('')
       })
 
       it('THEN should configure MainHeader with four tabs', () => {

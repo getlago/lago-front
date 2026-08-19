@@ -187,6 +187,14 @@ const mockQuote = {
     name: 'Acme Corp',
     externalId: 'ext-cust-1',
     currency: null,
+    netPaymentTerm: 30,
+    billingEntity: {
+      __typename: 'BillingEntity' as const,
+      id: 'be-1',
+      code: 'default',
+      name: 'Default Entity',
+      netPaymentTerm: 60,
+    },
     billingConfiguration: {
       documentLocale: null,
     },
@@ -200,8 +208,7 @@ const mockQuote = {
     version: 1,
     content: 'Some content',
     currency: 'USD',
-    startDate: null,
-    endDate: null,
+    billingEntityId: null,
     createdAt: '2026-01-01',
   },
 }
@@ -217,6 +224,7 @@ jest.mock('../hooks/useQuote', () => ({
 const mockDrawerOnPricingCommand = jest.fn()
 const mockSyncEntitiesWithBlocks = jest.fn().mockReturnValue(null)
 let capturedPricingDrawerArgs: unknown[] = []
+let capturedOneOffDrawerArgs: unknown[] = []
 
 jest.mock('../hooks/useSubscriptionPricingDrawer', () => ({
   useSubscriptionPricingDrawer: (...args: unknown[]) => {
@@ -232,12 +240,16 @@ jest.mock('../hooks/useSubscriptionPricingDrawer', () => ({
 }))
 
 jest.mock('../hooks/useOneOffPricingDrawer', () => ({
-  useOneOffPricingDrawer: () => ({
-    onPricingCommand: jest.fn(),
-    isPricingDisabled: () => false,
-    entities: {},
-    syncEntitiesWithBlocks: jest.fn().mockReturnValue(null),
-  }),
+  useOneOffPricingDrawer: (...args: unknown[]) => {
+    capturedOneOffDrawerArgs = args
+
+    return {
+      onPricingCommand: jest.fn(),
+      isPricingDisabled: () => false,
+      entities: {},
+      syncEntitiesWithBlocks: jest.fn().mockReturnValue(null),
+    }
+  },
 }))
 
 const mockDiscountOnDiscountCommand = jest.fn()
@@ -297,6 +309,7 @@ describe('EditQuote', () => {
     capturedEditorDocumentCurrency = undefined
     capturedRemoveBlockRef = undefined
     capturedPricingDrawerArgs = []
+    capturedOneOffDrawerArgs = []
     capturedDiscountDrawerOptions = undefined
     mockSyncEntitiesWithBlocks.mockReturnValue(null)
     mockSyncDiscountBlocks.mockReturnValue(null)
@@ -1080,77 +1093,63 @@ describe('EditQuote', () => {
   })
 
   describe('GIVEN a subscription amendment quote', () => {
-    type PricingDrawerDateOptions = {
-      isAmendment?: boolean
-      quoteDates?: { startDate?: string; endDate?: string }
-      onDatesChange?: (startDate?: string, endDate?: string) => Promise<void>
-    }
-
-    const renderAmendment = (): PricingDrawerDateOptions => {
+    const renderAmendment = (): { isAmendment?: boolean; netPaymentTerm?: number | null } => {
       mockUseQuote.mockReturnValue({
-        quote: {
-          ...mockQuote,
-          orderType: 'subscription_amendment',
-          currentVersion: { ...mockQuote.currentVersion, startDate: '2026-01-01T00:00:00Z' },
-        },
+        quote: { ...mockQuote, orderType: 'subscription_amendment' },
         loading: false,
         refetch: mockRefetchQuote,
       })
 
       render(<EditQuote />)
 
-      return capturedPricingDrawerArgs[1] as PricingDrawerDateOptions
+      return capturedPricingDrawerArgs[1] as {
+        isAmendment?: boolean
+        netPaymentTerm?: number | null
+      }
     }
 
     describe('WHEN the pricing drawer options are built', () => {
-      it('THEN should flag the amendment and seed no start date', () => {
-        const options = renderAmendment()
-
-        expect(options.isAmendment).toBe(true)
-        expect(options.quoteDates?.startDate).toBeUndefined()
+      it('THEN should flag the amendment', () => {
+        expect(renderAmendment().isAmendment).toBe(true)
       })
-    })
 
-    describe('WHEN the pricing drawer reports a date change', () => {
-      it('THEN should update the version without a startDate key', async () => {
-        mockUpdateQuoteVersion.mockResolvedValue({
-          data: { updateQuoteVersion: { id: 'version-1' } },
-        })
+      it('THEN should seed no quote-level dates, which the API no longer accepts', () => {
+        const options = renderAmendment() as Record<string, unknown>
 
-        const options = renderAmendment()
-
-        await act(async () => {
-          await options.onDatesChange?.('2026-01-01T00:00:00Z', '2026-06-01T00:00:00Z')
-        })
-
-        const payload = mockUpdateQuoteVersion.mock.calls.at(-1)?.[0]
-
-        expect(payload).not.toHaveProperty('startDate')
-        expect(payload.endDate).toBe('2026-06-01T00:00:00Z')
+        expect(options).not.toHaveProperty('quoteDates')
+        expect(options).not.toHaveProperty('onDatesChange')
       })
     })
   })
 
-  describe('GIVEN a subscription creation quote', () => {
-    describe('WHEN the pricing drawer reports a date change', () => {
-      it('THEN should update the version with the startDate', async () => {
-        mockUpdateQuoteVersion.mockResolvedValue({
-          data: { updateQuoteVersion: { id: 'version-1' } },
+  describe('GIVEN the resolved payment term', () => {
+    describe('WHEN the customer carries its own term', () => {
+      it('THEN should pass it to both pricing drawers', () => {
+        render(<EditQuote />)
+
+        expect(capturedPricingDrawerArgs[1]).toEqual(
+          expect.objectContaining({ netPaymentTerm: 30 }),
+        )
+        expect(capturedOneOffDrawerArgs[1]).toEqual(expect.objectContaining({ netPaymentTerm: 30 }))
+      })
+    })
+
+    describe('WHEN the customer has no term of its own', () => {
+      it('THEN should fall back to the billing entity term', () => {
+        mockUseQuote.mockReturnValue({
+          quote: {
+            ...mockQuote,
+            customer: { ...mockQuote.customer, netPaymentTerm: null },
+          },
+          loading: false,
+          refetch: mockRefetchQuote,
         })
 
         render(<EditQuote />)
 
-        const options = capturedPricingDrawerArgs[1] as {
-          onDatesChange?: (startDate?: string, endDate?: string) => Promise<void>
-        }
-
-        await act(async () => {
-          await options.onDatesChange?.('2026-01-01T00:00:00Z', '2026-06-01T00:00:00Z')
-        })
-
-        const payload = mockUpdateQuoteVersion.mock.calls.at(-1)?.[0]
-
-        expect(payload.startDate).toBe('2026-01-01T00:00:00Z')
+        expect(capturedPricingDrawerArgs[1]).toEqual(
+          expect.objectContaining({ netPaymentTerm: 60 }),
+        )
       })
     })
   })

@@ -3,6 +3,7 @@ import { screen } from '@testing-library/react'
 import { render } from '~/test-utils'
 
 import EditAddOnDrawer, { editAddOnDrawerDefaultValues } from '../EditAddOnDrawer'
+import { QUOTE_PAYMENT_TERM_LINE_TEST_ID } from '../QuotePaymentTermLine'
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -16,7 +17,10 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
   }),
 }))
 
-const renderWithForm = (initialValues?: Partial<typeof editAddOnDrawerDefaultValues>) => {
+const renderWithForm = (
+  initialValues?: Partial<typeof editAddOnDrawerDefaultValues>,
+  netPaymentTerm?: number | null,
+) => {
   const { useAppForm: useAppFormHook } = jest.requireActual('~/hooks/forms/useAppform')
 
   const Wrapper = () => {
@@ -27,7 +31,7 @@ const renderWithForm = (initialValues?: Partial<typeof editAddOnDrawerDefaultVal
       },
     })
 
-    return <EditAddOnDrawer form={form} />
+    return <EditAddOnDrawer form={form} netPaymentTerm={netPaymentTerm} />
   }
 
   return render(<Wrapper />)
@@ -55,10 +59,12 @@ describe('EditAddOnDrawer', () => {
         expect(headings.length).toBeGreaterThanOrEqual(2)
       })
 
+      // `DatePickerField` exposes no `dataTest` prop, so the rendered label (the translation
+      // key, since translate is mocked to identity) is the only handle on these two fields.
       it.each([
-        { name: 'fromDatetime', label: 'text_1779980717322k58g8b65e2i' },
-        { name: 'toDatetime', label: 'text_1779980717322igk4qqvn301' },
-      ])('THEN should render the $name date picker field', ({ label }) => {
+        { name: 'fromDatetime', label: 'text_1787136090693ny89dm4srtc' },
+        { name: 'toDatetime', label: 'text_1787136090694y25btbscct7' },
+      ])('THEN should label the $name field as a deal-term date', ({ label }) => {
         renderWithForm()
 
         expect(screen.getByText(label)).toBeInTheDocument()
@@ -86,8 +92,8 @@ describe('EditAddOnDrawer', () => {
         renderWithForm()
 
         // Two date picker labels
-        expect(screen.getByText('text_1779980717322k58g8b65e2i')).toBeInTheDocument()
-        expect(screen.getByText('text_1779980717322igk4qqvn301')).toBeInTheDocument()
+        expect(screen.getByText('text_1787136090693ny89dm4srtc')).toBeInTheDocument()
+        expect(screen.getByText('text_1787136090694y25btbscct7')).toBeInTheDocument()
         // Invoice display name label
         expect(screen.getByText('text_1780302522400gadrdaf1b98')).toBeInTheDocument()
         // Description label
@@ -204,11 +210,31 @@ describe('EditAddOnDrawer', () => {
         expect(gridContainer).toBeInTheDocument()
 
         // Both date picker labels should be within the grid
-        const fromLabel = screen.getByText('text_1779980717322k58g8b65e2i')
-        const toLabel = screen.getByText('text_1779980717322igk4qqvn301')
+        const fromLabel = screen.getByText('text_1787136090693ny89dm4srtc')
+        const toLabel = screen.getByText('text_1787136090694y25btbscct7')
 
         expect(gridContainer).toContainElement(fromLabel)
         expect(gridContainer).toContainElement(toLabel)
+      })
+    })
+  })
+  describe('GIVEN the drawer carries the one-off deal-term dates', () => {
+    describe('WHEN a resolved payment term is passed', () => {
+      it.each([
+        ['a positive term', 30],
+        ['a zero term', 0],
+      ])('THEN should display the read-only payment term for %s', (_, netPaymentTerm) => {
+        renderWithForm(undefined, netPaymentTerm)
+
+        expect(screen.getByTestId(QUOTE_PAYMENT_TERM_LINE_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN no payment term is known', () => {
+      it('THEN should display the row with a placeholder value', () => {
+        renderWithForm(undefined, null)
+
+        expect(screen.getByTestId(QUOTE_PAYMENT_TERM_LINE_TEST_ID)).toHaveTextContent('-')
       })
     })
   })

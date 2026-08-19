@@ -41,9 +41,12 @@ export interface QuoteCustomer {
 }
 
 export interface SubscriptionPricingDrawerOptions {
-  quoteDates?: { startDate?: string; endDate?: string }
-  onDatesChange?: (startDate?: string, endDate?: string) => void
   customer?: QuoteCustomer | null
+  /**
+   * Resolved customer/billing-entity payment term, displayed read-only next to the subscription
+   * dates the deal term derives from.
+   */
+  netPaymentTerm?: number | null
   subscriptionId?: string
   /** Currency used to display amounts — may be a customer/organization fallback. */
   currency?: CurrencyEnum | null
@@ -198,12 +201,6 @@ export const useSubscriptionPricingDrawer = (
 
         entitiesRef.current = { ...entitiesRef.current, ...entityData }
         setEntities({ ...entitiesRef.current })
-
-        // Propagate date changes to the quote level
-        options?.onDatesChange?.(
-          state.subscriptionSettings.startDate || undefined,
-          state.subscriptionSettings.endDate || undefined,
-        )
       }
 
       drawer.open({
@@ -225,8 +222,8 @@ export const useSubscriptionPricingDrawer = (
             validatePlanFormRef={validatePlanFormRef}
             basePlanFormValuesRef={basePlanFormValuesRef}
             initialState={initialStateRef.current}
-            quoteDates={options?.quoteDates}
             customer={options?.customer}
+            netPaymentTerm={options?.netPaymentTerm}
             currency={options?.currency}
             hasQuoteCurrency={options?.hasQuoteCurrency}
             billingItemPlan={billingItemPlan}

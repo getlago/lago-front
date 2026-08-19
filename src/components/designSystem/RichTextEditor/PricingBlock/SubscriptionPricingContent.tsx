@@ -46,8 +46,12 @@ interface SubscriptionPricingContentProps {
   validatePlanFormRef?: MutableRefObject<ValidatePlanForm | null>
   basePlanFormValuesRef: MutableRefObject<PlanFormInput | null>
   initialState?: SubscriptionPricingState | null
-  quoteDates?: { startDate?: string; endDate?: string }
   customer?: QuoteCustomer | null
+  /**
+   * Resolved customer/billing-entity payment term, displayed read-only next to the subscription
+   * dates the deal term derives from.
+   */
+  netPaymentTerm?: number | null
   /** Currency used to display amounts — may be a customer/organization fallback. */
   currency?: CurrencyEnum | null
   /**
@@ -71,8 +75,8 @@ export function SubscriptionPricingContent({
   validatePlanFormRef,
   basePlanFormValuesRef,
   initialState,
-  quoteDates,
   customer,
+  netPaymentTerm,
   currency,
   hasQuoteCurrency,
   billingItemPlan,
@@ -158,11 +162,7 @@ export function SubscriptionPricingContent({
       if (initialState?.subscriptionSettings) return initialState.subscriptionSettings
       if (billingItemSubscriptionSettings) return billingItemSubscriptionSettings
 
-      return {
-        ...DEFAULT_SUBSCRIPTION_SETTINGS,
-        startDate: quoteDates?.startDate ?? '',
-        endDate: quoteDates?.endDate ?? '',
-      }
+      return DEFAULT_SUBSCRIPTION_SETTINGS
     }
 
     const settings = getInitialSettings()
@@ -196,10 +196,14 @@ export function SubscriptionPricingContent({
   }, [billingItemSubscriptionSettings, isAmendment])
 
   // Hook-based drawers for settings
-  const subscriptionSettingsDrawer = useSubscriptionSettingsDrawer((values) => {
-    subscriptionSettingsSeededRef.current = true
-    setSubscriptionSettings(values)
-  }, isAmendment)
+  const subscriptionSettingsDrawer = useSubscriptionSettingsDrawer({
+    onSave: (values) => {
+      subscriptionSettingsSeededRef.current = true
+      setSubscriptionSettings(values)
+    },
+    isAmendment,
+    netPaymentTerm,
+  })
   const showInvoicingSection = Boolean(customer?.externalId || customer?.id)
   const planSettingsDrawer = useQuotePlanSettingsDrawer(planForm, {
     disableCurrencyInput: hasQuoteCurrency,

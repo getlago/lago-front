@@ -102,18 +102,6 @@ const EditQuote = () => {
   // The amended subscription owns the start date: it is neither displayed nor sent (LAGO-1814).
   const isAmendment = quote?.orderType === OrderTypeEnum.SubscriptionAmendment
 
-  const handleSubscriptionDatesChange = useCallback(
-    async (startDate?: string, endDate?: string) => {
-      if (!versionId) return
-
-      await updateQuoteVersionRef.current(
-        { id: versionId, endDate, ...(isAmendment ? {} : { startDate }) },
-        false,
-      )
-    },
-    [versionId, isAmendment],
-  )
-
   const isSubscriptionOrder = quote?.orderType === OrderTypeEnum.SubscriptionCreation || isAmendment
 
   // The quote version currency is the source of truth for every amount shown or
@@ -126,19 +114,14 @@ const EditQuote = () => {
     organization?.defaultCurrency ??
     CurrencyEnum.Usd
 
-  const getStartDate = (): string | undefined => {
-    if (isAmendment) return undefined
-
-    return quote?.subscription?.subscriptionAt ?? quote?.currentVersion?.startDate ?? undefined
-  }
+  // Mirrors `Customer#applicable_net_payment_term`: the customer's own term when set, the
+  // billing entity's otherwise. Shown read-only in the drawers that carry the deal-term dates.
+  const quoteNetPaymentTerm =
+    quote?.customer.netPaymentTerm ?? quote?.customer.billingEntity.netPaymentTerm
 
   const subscriptionPricing = useSubscriptionPricingDrawer(quote?.currentVersion?.billingItems, {
-    quoteDates: {
-      startDate: getStartDate(),
-      endDate: quote?.currentVersion?.endDate ?? undefined,
-    },
-    onDatesChange: handleSubscriptionDatesChange,
     customer: quote?.customer,
+    netPaymentTerm: quoteNetPaymentTerm,
     subscriptionId: quote?.subscription?.id,
     currency: effectiveQuoteCurrency,
     hasQuoteCurrency: !!quoteVersionCurrency,
@@ -147,6 +130,7 @@ const EditQuote = () => {
   const oneOffPricing = useOneOffPricingDrawer(quote?.currentVersion?.billingItems, {
     currency: effectiveQuoteCurrency,
     hasQuoteCurrency: !!quoteVersionCurrency,
+    netPaymentTerm: quoteNetPaymentTerm,
   })
 
   const { onPricingCommand, isPricingDisabled, entities, syncEntitiesWithBlocks } =

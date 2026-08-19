@@ -2,6 +2,8 @@ import { Typography } from '~/components/designSystem/Typography'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 
+import { QuotePaymentTermLine } from './QuotePaymentTermLine'
+
 export const editAddOnDrawerDefaultValues = {
   invoiceDisplayName: '',
   description: '',
@@ -11,9 +13,19 @@ export const editAddOnDrawerDefaultValues = {
 
 const DESCRIPTION_MAX_LENGTH = 255
 
+interface EditAddOnDrawerExtraProps {
+  /** Resolved customer/billing-entity payment term, displayed read-only next to the dates. */
+  netPaymentTerm?: number | null
+}
+
+const editAddOnDrawerDefaultProps: EditAddOnDrawerExtraProps = {
+  netPaymentTerm: undefined,
+}
+
 const EditAddOnDrawer = withForm({
   defaultValues: editAddOnDrawerDefaultValues,
-  render: function EditAddOnDrawerRender({ form }) {
+  props: editAddOnDrawerDefaultProps,
+  render: function EditAddOnDrawerRender({ form, netPaymentTerm }) {
     const { translate } = useInternationalization()
 
     return (
@@ -31,7 +43,7 @@ const EditAddOnDrawer = withForm({
             <form.AppField name="fromDatetime">
               {(field) => (
                 <field.DatePickerField
-                  label={translate('text_1779980717322k58g8b65e2i')}
+                  label={translate('text_1787136090693ny89dm4srtc')}
                   placement="auto"
                 />
               )}
@@ -40,12 +52,13 @@ const EditAddOnDrawer = withForm({
             <form.AppField name="toDatetime">
               {(field) => (
                 <field.DatePickerField
-                  label={translate('text_1779980717322igk4qqvn301')}
+                  label={translate('text_1787136090694y25btbscct7')}
                   placement="auto"
                 />
               )}
             </form.AppField>
           </div>
+          <QuotePaymentTermLine netPaymentTerm={netPaymentTerm} />
         </div>
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-2">

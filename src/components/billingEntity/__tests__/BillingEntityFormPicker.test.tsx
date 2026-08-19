@@ -21,11 +21,18 @@ const mockOptions = [
   { id: 'entity-2', value: 'code-2', label: 'Entity Two', name: 'Entity Two', isDefault: false },
 ]
 
+const INHERIT_OPTION = {
+  id: '',
+  value: '',
+  label: 'Use customer default',
+  isDefault: false,
+}
+
+const mockUseBillingEntitiesOptions = jest.fn()
+
 jest.mock('~/hooks/useBillingEntitiesOptions', () => ({
-  useBillingEntitiesOptions: () => ({
-    options: mockOptions,
-    isLoading: false,
-  }),
+  useBillingEntitiesOptions: (params?: { includeInheritOption?: boolean }) =>
+    mockUseBillingEntitiesOptions(params),
 }))
 
 jest.mock('~/hooks/useDebouncedSearch', () => ({
@@ -65,6 +72,11 @@ describe('BillingEntityFormPicker', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    // Mirrors the real hook: the sentinel is prepended only when asked for.
+    mockUseBillingEntitiesOptions.mockImplementation((params) => ({
+      options: params?.includeInheritOption ? [INHERIT_OPTION, ...mockOptions] : mockOptions,
+      isLoading: false,
+    }))
   })
 
   describe('GIVEN the org has billing entities', () => {
@@ -89,6 +101,49 @@ describe('BillingEntityFormPicker', () => {
         screen.getByTestId('option-code-2').click()
 
         expect(mockOnChange).toHaveBeenCalledWith('entity-2')
+      })
+    })
+  })
+  describe('GIVEN the inherit option is not requested', () => {
+    describe('WHEN the component renders', () => {
+      it('THEN should not ask the hook for the sentinel', () => {
+        render(<BillingEntityFormPicker value="entity-1" onChange={mockOnChange} />)
+
+        expect(mockUseBillingEntitiesOptions).toHaveBeenCalledWith({ includeInheritOption: false })
+      })
+
+      it('THEN should not offer an inherit choice', () => {
+        render(<BillingEntityFormPicker value="entity-1" onChange={mockOnChange} />)
+
+        expect(screen.queryByTestId('option-')).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the inherit option is requested', () => {
+    describe('WHEN the component renders', () => {
+      it('THEN should forward the flag to the hook', () => {
+        render(<BillingEntityFormPicker includeInheritOption value="" onChange={mockOnChange} />)
+
+        expect(mockUseBillingEntitiesOptions).toHaveBeenCalledWith({ includeInheritOption: true })
+      })
+
+      it('THEN should offer the inherit choice', () => {
+        render(<BillingEntityFormPicker includeInheritOption value="" onChange={mockOnChange} />)
+
+        expect(screen.getByTestId('option-')).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the inherit choice is selected', () => {
+      it('THEN should report undefined, so the caller can submit null', () => {
+        render(
+          <BillingEntityFormPicker includeInheritOption value="entity-2" onChange={mockOnChange} />,
+        )
+
+        screen.getByTestId('option-').click()
+
+        expect(mockOnChange).toHaveBeenCalledWith(undefined)
       })
     })
   })

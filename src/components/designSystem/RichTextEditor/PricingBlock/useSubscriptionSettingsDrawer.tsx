@@ -10,6 +10,8 @@ import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm, withForm } from '~/hooks/forms/useAppform'
 
+import { QuotePaymentTermLine } from './QuotePaymentTermLine'
+
 export const SUBSCRIPTION_SETTINGS_DRAWER_SAVE_TEST_ID = 'subscription-settings-drawer-save'
 
 export interface SubscriptionSettingsFormValues {
@@ -49,13 +51,23 @@ const DEFAULT_VALUES: SubscriptionSettingsFormValues = {
   endDate: '',
 }
 
+interface SubscriptionSettingsDrawerContentProps {
+  initialValues: SubscriptionSettingsFormValues
+  isAmendment: boolean
+  /** Resolved customer/billing-entity payment term, displayed read-only next to the dates. */
+  netPaymentTerm?: number | null
+}
+
+const subscriptionSettingsDrawerContentDefaultProps: SubscriptionSettingsDrawerContentProps = {
+  initialValues: DEFAULT_VALUES,
+  isAmendment: false,
+  netPaymentTerm: undefined,
+}
+
 const SubscriptionSettingsDrawerContent = withForm({
   defaultValues: DEFAULT_VALUES,
-  props: {
-    initialValues: DEFAULT_VALUES,
-    isAmendment: false,
-  },
-  render: function Render({ form, initialValues, isAmendment }) {
+  props: subscriptionSettingsDrawerContentDefaultProps,
+  render: function Render({ form, initialValues, isAmendment, netPaymentTerm }) {
     const { translate } = useInternationalization()
     const [showExternalId, setShowExternalId] = useState(!!initialValues.externalId)
     // On an amendment the external id identifies the subscription being amended, so once it
@@ -199,15 +211,23 @@ const SubscriptionSettingsDrawerContent = withForm({
             )}
           </form.AppField>
         </div>
+        <QuotePaymentTermLine netPaymentTerm={netPaymentTerm} />
       </div>
     )
   },
 })
 
-export const useSubscriptionSettingsDrawer = (
-  onSave: (values: SubscriptionSettingsFormValues) => void,
+interface UseSubscriptionSettingsDrawerProps {
+  onSave: (values: SubscriptionSettingsFormValues) => void
+  isAmendment?: boolean
+  netPaymentTerm?: number | null
+}
+
+export const useSubscriptionSettingsDrawer = ({
+  onSave,
   isAmendment = false,
-) => {
+  netPaymentTerm,
+}: UseSubscriptionSettingsDrawerProps) => {
   const { translate } = useInternationalization()
   const drawer = useDrawer()
 
@@ -239,6 +259,7 @@ export const useSubscriptionSettingsDrawer = (
               form={form}
               initialValues={values}
               isAmendment={isAmendment}
+              netPaymentTerm={netPaymentTerm}
             />
           </form>
         ),
@@ -262,9 +283,10 @@ export const useSubscriptionSettingsDrawer = (
         ),
       })
     },
-    // isAmendment and handleFormSubmit are stable (param + closure over form) — safe to omit
+    // isAmendment and handleFormSubmit are stable (prop + closure over form) — safe to omit.
+    // netPaymentTerm is not: it lands with the quote query, after mount.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [drawer, form, translate],
+    [drawer, form, translate, netPaymentTerm],
   )
 
   return { openDrawer }

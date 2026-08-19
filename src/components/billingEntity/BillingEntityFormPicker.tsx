@@ -11,6 +11,12 @@ type BillingEntityFormPickerProps = {
   label?: string
   /** Optional helper text rendered below the ComboBox. */
   helperText?: string
+  /**
+   * Prepend the "inherit from the customer's default billing entity at billing time" option.
+   * Opt-in: only forms whose underlying field is nullable may offer it, since picking it
+   * submits `undefined`.
+   */
+  includeInheritOption?: boolean
 }
 
 /**
@@ -27,9 +33,10 @@ export const BillingEntityFormPicker = ({
   onChange,
   label,
   helperText,
+  includeInheritOption = false,
 }: BillingEntityFormPickerProps) => {
   const { translate } = useInternationalization()
-  const { options, isLoading } = useBillingEntitiesOptions()
+  const { options, isLoading } = useBillingEntitiesOptions({ includeInheritOption })
 
   const currentCode = options.find((o) => o.id === value)?.value ?? ''
 
@@ -47,7 +54,9 @@ export const BillingEntityFormPicker = ({
       onChange={(code) => {
         const selected = options.find((o) => o.value === code)
 
-        onChange(selected?.id ?? undefined)
+        // The inherit sentinel carries an empty id, which means "no entity" just like a cleared
+        // ComboBox — both must reach the caller as `undefined`, never as an empty string.
+        onChange(selected?.id || undefined)
       }}
     />
   )

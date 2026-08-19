@@ -69,8 +69,18 @@ export const TOP_LEVEL_ERROR_KEYS: Record<string, string> = {
   'quoteVersion.not_approved': 'text_1786540789742edgippmh4fh',
   'quoteVersionId.value_already_exist': 'text_1786540789742km6ifr1uf63',
   'voidReason.invalid': 'text_1786540789742xzmnw0kbnw2',
-  'startDate.value_is_mandatory': 'text_1786540789742o1548c5v0cr',
-  'startDate.invalid_date_range': 'text_1786540789742hb3p2cjocck',
+  'expiresAt.after_deal_expiration': 'text_17871360906940d0lnf13g0l',
+  'status.not_editable': 'text_17871360906941z44i8yw0ac',
+  'status.not_clonable': 'text_1787136090694y83z6vb527o',
+  'status.active_version_exists': 'text_1787136090694dk5q95wet17',
+  'owners.invalid': 'text_17871360906948prsrsrwge1',
+  'image.invalid_format': 'text_1787136090694ingmztiheet',
+  'image.file_too_large': 'text_1787136090694qc666iqsdq4',
+  'subscriptionId.value_is_mandatory': 'text_17871360906949qpqk5in7j2',
+  'subscriptionId.subscription_not_active': 'text_1787136090694uz5da4yhddr',
+  'billingEntityId.billing_entity_not_found': 'text_1787136090694cr8wvbhalzc',
+  'billingEntityId.not_supported_for_order_type': 'text_1787136090694e0p67xtiaqu',
+  'base.concurrency_conflict': 'text_17871360906941p1bvt8npaw',
 }
 
 /**
@@ -85,8 +95,10 @@ export const ORDER_FORM_ERROR_KEYS: Record<string, string> = {
   'executionMode.value_is_mandatory': 'text_17866108946411ovi8xqry3n',
   'executionMode.value_is_invalid': 'text_1786610894641m8ffsiodyjw',
   'executeAt.invalid_date': 'text_1786610894641sjyf79n6nny',
+  'executeAt.after_deal_expiration': 'text_17871360906947inroyu1jq2',
   'signedDocument.invalid_format': 'text_1786610894641nv1aitlslgu',
   'orderFormId.value_already_exist': 'text_17866108946418951e8uxdcl',
+  'base.concurrency_conflict': 'text_17871360906947rld1stpjr6',
 }
 
 /**
@@ -100,6 +112,14 @@ export const ORDER_ERROR_KEYS: Record<string, string> = {
   'orderType.unsupported_order_type': 'text_17866302680156sw8ubyaf72',
   'executionMode.value_is_mandatory': 'text_1786630268015x89z5erp5gc',
   'base.concurrency_conflict': 'text_178663026801526jdrqexzy1',
+  'status.not_editable': 'text_1787136090695el9p68o6bbz',
+  'executeAt.invalid_date': 'text_1787137341763zuw842lkske',
+  'executeAt.after_deal_expiration': 'text_1787137341763nutdwcniihz',
+  'subscription.subscription_not_active': 'text_1787136090695a0gmnr8nxim',
+  // The amendment validator reports `billing_items.plans` with no index, so `parseBillingItemKey`
+  // yields `index: null` and the billing-item path falls back to generic copy — it needs this
+  // top-level entry to say anything useful.
+  'billingItems.plans.single_plan_expected': 'text_1787136090695y7j822vqoa1',
   'plan.not_found': 'text_1786630268016ukk6fi5u778',
   'coupon.not_found': 'text_1786630268016171ivs0g1kv',
   'addOn.not_found': 'text_1786630268016o1hi9xo2obe',
