@@ -476,6 +476,14 @@ describe('CustomerInvoiceDetails', () => {
         expect(capturedConfig?.tabs).toHaveLength(4)
       })
     })
+
+    describe('WHEN the component renders', () => {
+      it('THEN should not display the provisional tax rates alert', () => {
+        render(<CustomerInvoiceDetails />)
+
+        expect(screen.queryByText('text_1787146693629wj3i1366ild')).not.toBeInTheDocument()
+      })
+    })
   })
 
   describe('GIVEN the invoice is in draft status', () => {
@@ -496,6 +504,33 @@ describe('CustomerInvoiceDetails', () => {
 
         // Draft: no payments, no credit notes → overview + activity logs
         expect(capturedConfig?.tabs).toHaveLength(2)
+      })
+    })
+
+    describe('WHEN the component renders', () => {
+      it('THEN should display the provisional tax rates alert', () => {
+        render(<CustomerInvoiceDetails />)
+
+        expect(screen.getByText('text_1787146693629wj3i1366ild')).toBeInTheDocument()
+        expect(screen.getByText('text_1787146693629de7kvm201hi')).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the customer has no tax provider', () => {
+      it('THEN should still display the provisional tax rates alert', () => {
+        mockUseGetInvoiceCustomerQuery.mockReturnValue({
+          data: {
+            customer: {
+              ...mockCustomerData.customer,
+              avalaraCustomer: null,
+            },
+          },
+          loading: false,
+        })
+
+        render(<CustomerInvoiceDetails />)
+
+        expect(screen.getByText('text_1787146693629wj3i1366ild')).toBeInTheDocument()
       })
     })
   })

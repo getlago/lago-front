@@ -4668,5 +4668,7 @@
   "text_17869554474074s8lhp2f0vt": "Quote",
   "text_17869554474070hpjb5xm2ft": "Order form",
   "text_1786955447407xkrcha3k3x8": "Order",
-  "text_1786975404383a9uh5csux55": "Logs reflecting this quote’s activity, including its order forms and orders."
+  "text_1786975404383a9uh5csux55": "Logs reflecting this quote’s activity, including its order forms and orders.",
+  "text_1787146693629wj3i1366ild": "Tax rates are provisional.",
+  "text_1787146693629de7kvm201hi": "Tax rates shown are provisional and based on the customer’s data at draft creation. They will be recalculated from the current customer information when the invoice is finalized."
 }
