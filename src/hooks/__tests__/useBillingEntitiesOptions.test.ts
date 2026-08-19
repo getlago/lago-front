@@ -7,7 +7,10 @@ import {
 } from '~/generated/graphql'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
-import { useBillingEntitiesOptions } from '../useBillingEntitiesOptions'
+import {
+  BILLING_ENTITY_INHERIT_CODE,
+  useBillingEntitiesOptions,
+} from '../useBillingEntitiesOptions'
 
 const buildEntity = (overrides: Record<string, unknown>) => ({
   __typename: 'BillingEntity' as const,
@@ -98,12 +101,36 @@ describe('useBillingEntitiesOptions', () => {
       expect(result.current.options).toHaveLength(3)
       expect(result.current.options[0]).toEqual({
         id: '',
-        value: '',
+        value: BILLING_ENTITY_INHERIT_CODE,
         label: 'Use customer default',
         isDefault: false,
         euTaxManagement: false,
       })
       expect(result.current.options[1].value).toBe('us')
+    })
+
+    // An empty ComboBox value is indistinguishable from "no selection", so the sentinel could be
+    // picked but never held: the field emptied itself on blur.
+    it('THEN gives the sentinel a non-empty ComboBox value so it can be held as a selection', async () => {
+      const { result } = renderHook(
+        () => useBillingEntitiesOptions({ includeInheritOption: true }),
+        {
+          wrapper: createWrapper(mocks),
+        },
+      )
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+
+      expect(BILLING_ENTITY_INHERIT_CODE).not.toBe('')
+      expect(result.current.options[0].value).toBe(BILLING_ENTITY_INHERIT_CODE)
+      // The id stays empty: that is what makes callers submit `null`.
+      expect(result.current.options[0].id).toBe('')
+      // ...and it must not collide with a real entity code.
+      expect(result.current.options.slice(1).map((option) => option.value)).not.toContain(
+        BILLING_ENTITY_INHERIT_CODE,
+      )
     })
   })
 

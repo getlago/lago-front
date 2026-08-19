@@ -8,6 +8,7 @@ import {
   QuoteDetailItemFragment,
   StatusEnum,
 } from '~/generated/graphql'
+import { BILLING_ENTITY_INHERIT_CODE } from '~/hooks/useBillingEntitiesOptions'
 import { render } from '~/test-utils'
 
 import EditQuoteAside, {
@@ -50,6 +51,8 @@ jest.mock('~/core/apolloClient', () => ({
 const mockBillingEntitiesOptions = jest.fn()
 
 jest.mock('~/hooks/useBillingEntitiesOptions', () => ({
+  // Keep the real BILLING_ENTITY_INHERIT_CODE: the option fixtures below are keyed on it.
+  ...jest.requireActual('~/hooks/useBillingEntitiesOptions'),
   useBillingEntitiesOptions: (params?: { includeInheritOption?: boolean }) =>
     mockBillingEntitiesOptions(params),
 }))
@@ -100,7 +103,13 @@ jest.mock('~/hooks/usePermissions', () => ({
 // Shape produced by `useBillingEntitiesOptions({ includeInheritOption: true })`: the sentinel
 // first (empty id/value = follow the customer), then the entities.
 const BILLING_ENTITY_OPTIONS = [
-  { id: '', value: '', label: 'Use customer default', isDefault: false, euTaxManagement: false },
+  {
+    id: '',
+    value: BILLING_ENTITY_INHERIT_CODE,
+    label: 'Use customer default',
+    isDefault: false,
+    euTaxManagement: false,
+  },
   {
     id: 'be-1',
     value: 'default',
@@ -597,7 +606,25 @@ describe('EditQuoteAside', () => {
           .getByTestId(BILLING_ENTITY_FORM_PICKER_DATA_TEST)
           .querySelector('input') as HTMLInputElement
 
-        expect(input).toHaveValue('')
+        // Shows the inherit LABEL, not an empty box: an empty ComboBox value reads as
+        // "no selection" and `clearOnBlur` wiped it, so the choice never stuck.
+        expect(input).toHaveValue('Use customer default')
+        expect(mockUpdateQuoteVersion).not.toHaveBeenCalled()
+      })
+
+      it('THEN should keep the inherit option displayed after the field loses focus', async () => {
+        const user = userEvent.setup({ delay: null })
+
+        render(<EditQuoteAside quote={mockQuote} />)
+
+        const input = screen
+          .getByTestId(BILLING_ENTITY_FORM_PICKER_DATA_TEST)
+          .querySelector('input') as HTMLInputElement
+
+        await user.click(input)
+        await user.tab()
+
+        expect(input).toHaveValue('Use customer default')
         expect(mockUpdateQuoteVersion).not.toHaveBeenCalled()
       })
     })
@@ -613,6 +640,7 @@ describe('EditQuoteAside', () => {
           .getByTestId(BILLING_ENTITY_FORM_PICKER_DATA_TEST)
           .querySelector('input') as HTMLInputElement
 
+        await user.clear(input)
         await user.type(input, 'second')
 
         await waitFor(() => {
@@ -632,9 +660,7 @@ describe('EditQuoteAside', () => {
     })
 
     describe('WHEN the user switches back to the inherit option', () => {
-      it('THEN should send null rather than an empty id', async () => {
-        const user = userEvent.setup({ delay: null })
-
+      const renderWithPinnedEntity = () =>
         render(
           <EditQuoteAside
             quote={{
@@ -644,18 +670,18 @@ describe('EditQuoteAside', () => {
           />,
         )
 
-        const input = screen
+      const getPickerInput = (): HTMLInputElement =>
+        screen
           .getByTestId(BILLING_ENTITY_FORM_PICKER_DATA_TEST)
           .querySelector('input') as HTMLInputElement
 
-        await user.clear(input)
-        await user.type(input, 'Use customer default')
+      it('THEN should send null when the field is cleared', async () => {
+        const user = userEvent.setup({ delay: null })
 
-        await waitFor(() => {
-          expect(screen.getAllByRole('option')).toHaveLength(1)
-        })
+        renderWithPinnedEntity()
 
-        await user.keyboard('{ArrowDown}{Enter}')
+        // Clearing IS "go back to the customer's entity": both resolve to the inherit option.
+        await user.clear(getPickerInput())
 
         await waitFor(() => {
           expect(mockUpdateQuoteVersion).toHaveBeenCalledWith(
@@ -663,6 +689,52 @@ describe('EditQuoteAside', () => {
             false,
           )
         })
+      })
+
+      // Driving the popper by keyboard, like the currency case: holding a node reference across
+      // re-renders is what made these flake. The inherit option is first in the list.
+      const pickInheritFromList = async (
+        user: ReturnType<typeof userEvent.setup>,
+      ): Promise<void> => {
+        await user.click(getPickerInput())
+        await user.keyboard('{ArrowDown}')
+
+        await waitFor(() => {
+          expect(screen.getAllByRole('option').length).toBeGreaterThan(1)
+        })
+
+        await user.keyboard('{Enter}')
+      }
+
+      it('THEN should send null when the inherit option is picked from the list', async () => {
+        const user = userEvent.setup({ delay: null })
+
+        renderWithPinnedEntity()
+
+        await pickInheritFromList(user)
+
+        await waitFor(() => {
+          expect(mockUpdateQuoteVersion).toHaveBeenCalledWith(
+            { id: 'version-1', billingEntityId: null },
+            false,
+          )
+        })
+      })
+
+      it('THEN should keep showing the inherit option once it is saved', async () => {
+        const user = userEvent.setup({ delay: null })
+
+        renderWithPinnedEntity()
+
+        await pickInheritFromList(user)
+
+        await waitFor(() => {
+          expect(mockUpdateQuoteVersion).toHaveBeenCalled()
+        })
+
+        await user.tab()
+
+        expect(getPickerInput()).toHaveValue('Use customer default')
       })
     })
 
@@ -718,6 +790,7 @@ describe('EditQuoteAside', () => {
           .getByTestId(BILLING_ENTITY_FORM_PICKER_DATA_TEST)
           .querySelector('input') as HTMLInputElement
 
+        await user.clear(input)
         await user.type(input, 'second')
 
         await waitFor(() => {
@@ -759,6 +832,7 @@ describe('EditQuoteAside', () => {
           .getByTestId(BILLING_ENTITY_FORM_PICKER_DATA_TEST)
           .querySelector('input') as HTMLInputElement
 
+        await user.clear(input)
         await user.type(input, 'second')
 
         await waitFor(() => {
@@ -779,7 +853,7 @@ describe('EditQuoteAside', () => {
                 .getByTestId(BILLING_ENTITY_FORM_PICKER_DATA_TEST)
                 .querySelector('input') as HTMLInputElement
             ).value,
-          ).toBe('')
+          ).toBe('Use customer default')
         })
 
         // ...and the restore must not fire a second mutation of its own.

@@ -16,13 +16,24 @@ export type BillingEntityOption = {
   euTaxManagement: boolean
 }
 
+/**
+ * ComboBox `value` of the "inherit from the customer" option.
+ *
+ * Deliberately NOT an empty string: `ComboBox` renders `value={value || null}`, so an empty value
+ * is indistinguishable from "no selection", and with `clearOnBlur` the option could be picked but
+ * never held — the field emptied itself on blur. The option's `id` stays empty, so callers still
+ * submit `null`. Reserved-looking on purpose, since it is matched against real entity codes.
+ */
+export const BILLING_ENTITY_INHERIT_CODE = '__lago_inherit_billing_entity__'
+
 type UseBillingEntitiesOptionsParams = {
   /**
    * When true, prepends a sentinel option representing "no explicit binding —
    * inherit from the customer's default billing entity at billing time".
-   * The sentinel option has `value: ''` so callers can submit `null` / omit
-   * the field when this is selected. Mirrors the `paymentMethod` reference
-   * pattern (subscription/wallet inherit from customer if not set).
+   * The sentinel option has an empty `id` so callers can submit `null` / omit
+   * the field when this is selected, and `BILLING_ENTITY_INHERIT_CODE` as its
+   * ComboBox value. Mirrors the `paymentMethod` reference pattern
+   * (subscription/wallet inherit from customer if not set).
    */
   includeInheritOption?: boolean
   /**
@@ -93,7 +104,7 @@ export const useBillingEntitiesOptions = ({
     if (includeInheritOption) {
       formatted.unshift({
         id: '',
-        value: '',
+        value: BILLING_ENTITY_INHERIT_CODE,
         label: inheritLabel ?? translate('text_1778155404199jv285agrvax'),
         isDefault: false,
         euTaxManagement: false,

@@ -1,5 +1,7 @@
 import { configure, render, screen } from '@testing-library/react'
 
+import { BILLING_ENTITY_INHERIT_CODE } from '~/hooks/useBillingEntitiesOptions'
+
 import { BILLING_ENTITY_FORM_PICKER_DATA_TEST } from '../BillingEntityFormPicker'
 
 configure({ testIdAttribute: 'data-test' })
@@ -23,7 +25,7 @@ const mockOptions = [
 
 const INHERIT_OPTION = {
   id: '',
-  value: '',
+  value: BILLING_ENTITY_INHERIT_CODE,
   label: 'Use customer default',
   isDefault: false,
 }
@@ -31,6 +33,8 @@ const INHERIT_OPTION = {
 const mockUseBillingEntitiesOptions = jest.fn()
 
 jest.mock('~/hooks/useBillingEntitiesOptions', () => ({
+  // Keep the real BILLING_ENTITY_INHERIT_CODE: the sentinel's value is what this suite asserts on.
+  ...jest.requireActual('~/hooks/useBillingEntitiesOptions'),
   useBillingEntitiesOptions: (params?: { includeInheritOption?: boolean }) =>
     mockUseBillingEntitiesOptions(params),
 }))
@@ -115,7 +119,9 @@ describe('BillingEntityFormPicker', () => {
       it('THEN should not offer an inherit choice', () => {
         render(<BillingEntityFormPicker value="entity-1" onChange={mockOnChange} />)
 
-        expect(screen.queryByTestId('option-')).not.toBeInTheDocument()
+        expect(
+          screen.queryByTestId(`option-${BILLING_ENTITY_INHERIT_CODE}`),
+        ).not.toBeInTheDocument()
       })
     })
   })
@@ -131,7 +137,7 @@ describe('BillingEntityFormPicker', () => {
       it('THEN should offer the inherit choice', () => {
         render(<BillingEntityFormPicker includeInheritOption value="" onChange={mockOnChange} />)
 
-        expect(screen.getByTestId('option-')).toBeInTheDocument()
+        expect(screen.getByTestId(`option-${BILLING_ENTITY_INHERIT_CODE}`)).toBeInTheDocument()
       })
     })
 
@@ -141,9 +147,33 @@ describe('BillingEntityFormPicker', () => {
           <BillingEntityFormPicker includeInheritOption value="entity-2" onChange={mockOnChange} />,
         )
 
-        screen.getByTestId('option-').click()
+        screen.getByTestId(`option-${BILLING_ENTITY_INHERIT_CODE}`).click()
 
         expect(mockOnChange).toHaveBeenCalledWith(undefined)
+      })
+    })
+  })
+  describe('GIVEN the form carries no billing entity', () => {
+    describe.each([
+      ['an empty string', ''],
+      ['undefined', undefined],
+      ['null', null],
+    ])('WHEN the value is %s and the inherit option is offered', (_, value) => {
+      it('THEN should resolve to the inherit option, so it renders as a real selection', () => {
+        render(
+          <BillingEntityFormPicker includeInheritOption value={value} onChange={mockOnChange} />,
+        )
+
+        // A non-empty value is what lets ComboBox hold the selection instead of clearing on blur.
+        expect(screen.getByTestId('combo-value')).toHaveTextContent(BILLING_ENTITY_INHERIT_CODE)
+      })
+    })
+
+    describe('WHEN the inherit option is NOT offered', () => {
+      it('THEN should stay unselected rather than inventing a value', () => {
+        render(<BillingEntityFormPicker value="" onChange={mockOnChange} />)
+
+        expect(screen.getByTestId('combo-value')).toHaveTextContent('')
       })
     })
   })

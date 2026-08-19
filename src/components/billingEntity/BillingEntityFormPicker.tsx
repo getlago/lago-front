@@ -38,7 +38,10 @@ export const BillingEntityFormPicker = ({
   const { translate } = useInternationalization()
   const { options, isLoading } = useBillingEntitiesOptions({ includeInheritOption })
 
-  const currentCode = options.find((o) => o.id === value)?.value ?? ''
+  // No entity bound (empty, null or undefined) resolves to the inherit option when it is offered,
+  // so the picker shows "use customer default" instead of looking untouched.
+  const inheritOption = options.find((option) => !option.id)
+  const currentCode = options.find((o) => o.id === value)?.value ?? inheritOption?.value ?? ''
 
   return (
     <ComboBox
