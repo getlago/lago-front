@@ -81,7 +81,7 @@ export type ActivityLogCollection = {
 };
 
 /** Activity log resource */
-export type ActivityLogResourceObject = BillableMetric | BillingEntity | Coupon | CreditNote | Customer | FeatureObject | Invoice | PaymentReceipt | PaymentRequest | Plan | Product | ProductCategory | ProductFilter | RateCard | Subscription | Wallet;
+export type ActivityLogResourceObject = BillableMetric | BillingEntity | Coupon | CreditNote | Customer | FeatureObject | Invoice | Order | OrderForm | PaymentReceipt | PaymentRequest | Plan | Product | ProductCategory | ProductFilter | Quote | RateCard | Subscription | Wallet;
 
 /** Activity Logs source enums */
 export enum ActivitySourceEnum {
@@ -160,6 +160,20 @@ export enum ActivityTypeEnum {
   InvoiceRegenerated = 'invoice_regenerated',
   /** invoice.voided */
   InvoiceVoided = 'invoice_voided',
+  /** order.created */
+  OrderCreated = 'order_created',
+  /** order.executed */
+  OrderExecuted = 'order_executed',
+  /** order_form.created */
+  OrderFormCreated = 'order_form_created',
+  /** order_form.expired */
+  OrderFormExpired = 'order_form_expired',
+  /** order_form.file_uploaded */
+  OrderFormFileUploaded = 'order_form_file_uploaded',
+  /** order_form.signed */
+  OrderFormSigned = 'order_form_signed',
+  /** order_form.voided */
+  OrderFormVoided = 'order_form_voided',
   /** payment_receipt.created */
   PaymentReceiptCreated = 'payment_receipt_created',
   /** payment_receipt.generated */
@@ -192,6 +206,16 @@ export enum ActivityTypeEnum {
   ProductFilterUpdated = 'product_filter_updated',
   /** product.updated */
   ProductUpdated = 'product_updated',
+  /** quote.approved */
+  QuoteApproved = 'quote_approved',
+  /** quote.created */
+  QuoteCreated = 'quote_created',
+  /** quote.updated */
+  QuoteUpdated = 'quote_updated',
+  /** quote.version_created */
+  QuoteVersionCreated = 'quote_version_created',
+  /** quote.voided */
+  QuoteVoided = 'quote_voided',
   /** rate_card.created */
   RateCardCreated = 'rate_card_created',
   /** rate_card.deleted */
@@ -4135,6 +4159,7 @@ export enum EventCategoryEnum {
   Payments = 'PAYMENTS',
   PaymentReceipts = 'PAYMENT_RECEIPTS',
   Plans = 'PLANS',
+  Quotes = 'QUOTES',
   SubscriptionsAndFees = 'SUBSCRIPTIONS_AND_FEES',
   WalletsAndCredits = 'WALLETS_AND_CREDITS'
 }
@@ -4190,6 +4215,12 @@ export enum EventTypeEnum {
   InvoiceReadyToFinalize = 'invoice_ready_to_finalize',
   InvoiceResynced = 'invoice_resynced',
   InvoiceVoided = 'invoice_voided',
+  OrderCreated = 'order_created',
+  OrderExecuted = 'order_executed',
+  OrderFormCreated = 'order_form_created',
+  OrderFormExpired = 'order_form_expired',
+  OrderFormSigned = 'order_form_signed',
+  OrderFormVoided = 'order_form_voided',
   PaymentProviderError = 'payment_provider_error',
   PaymentReceiptCreated = 'payment_receipt_created',
   PaymentReceiptGenerated = 'payment_receipt_generated',
@@ -4201,6 +4232,9 @@ export enum EventTypeEnum {
   PlanCreated = 'plan_created',
   PlanDeleted = 'plan_deleted',
   PlanUpdated = 'plan_updated',
+  QuoteApproved = 'quote_approved',
+  QuoteCreated = 'quote_created',
+  QuoteVoided = 'quote_voided',
   SubscriptionCanceled = 'subscription_canceled',
   SubscriptionIncomplete = 'subscription_incomplete',
   SubscriptionStarted = 'subscription_started',
@@ -7053,6 +7087,7 @@ export enum OnTerminationInvoiceEnum {
 
 export type Order = {
   __typename?: 'Order';
+  activityLogs?: Maybe<Array<ActivityLog>>;
   billingSnapshot: Scalars['JSON']['output'];
   createdAt: Scalars['ISO8601DateTime']['output'];
   currency?: Maybe<CurrencyEnum>;
@@ -7103,12 +7138,14 @@ export type OrderExecutionRecord = {
 
 export type OrderForm = {
   __typename?: 'OrderForm';
+  activityLogs?: Maybe<Array<ActivityLog>>;
   billingSnapshot: Scalars['JSON']['output'];
   createdAt: Scalars['ISO8601DateTime']['output'];
   customer: Customer;
   expiresAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   id: Scalars['ID']['output'];
   number: Scalars['String']['output'];
+  order?: Maybe<Order>;
   organization: Organization;
   quote: Quote;
   signedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
@@ -9310,12 +9347,14 @@ export type QueryWebhooksArgs = {
 
 export type Quote = {
   __typename?: 'Quote';
+  activityLogs?: Maybe<Array<ActivityLog>>;
   createdAt: Scalars['ISO8601DateTime']['output'];
   currentVersion: QuoteVersion;
   customer: Customer;
   id: Scalars['ID']['output'];
   images: Scalars['JSON']['output'];
   number: Scalars['String']['output'];
+  orderForms: Array<OrderForm>;
   orderType: OrderTypeEnum;
   organization: Organization;
   owners?: Maybe<Array<User>>;
@@ -9343,6 +9382,7 @@ export type QuoteVersion = {
   endDate?: Maybe<Scalars['ISO8601Date']['output']>;
   id: Scalars['ID']['output'];
   mentionVariables: Scalars['JSON']['output'];
+  orderForm?: Maybe<OrderForm>;
   organization: Organization;
   quote: Quote;
   startDate?: Maybe<Scalars['ISO8601Date']['output']>;
@@ -9646,6 +9686,10 @@ export enum ResourceTypeEnum {
   Feature = 'feature',
   /** Invoice */
   Invoice = 'invoice',
+  /** Order */
+  Order = 'order',
+  /** OrderForm */
+  OrderForm = 'order_form',
   /** PaymentReceipt */
   PaymentReceipt = 'payment_receipt',
   /** PaymentRequest */
@@ -9658,6 +9702,8 @@ export enum ResourceTypeEnum {
   ProductCategory = 'product_category',
   /** ProductFilter */
   ProductFilter = 'product_filter',
+  /** Quote */
+  Quote = 'quote',
   /** RateCard */
   RateCard = 'rate_card',
   /** Subscription */
@@ -12618,12 +12664,15 @@ export type ActivityLogDetailsFragment = { __typename?: 'ActivityLog', activityT
     | { __typename?: 'Customer', id: string }
     | { __typename?: 'FeatureObject', id: string }
     | { __typename?: 'Invoice', id: string, customer: { __typename?: 'Customer', id: string } }
+    | { __typename?: 'Order', id: string }
+    | { __typename?: 'OrderForm', id: string }
     | { __typename?: 'PaymentReceipt', id: string }
     | { __typename?: 'PaymentRequest', id: string }
     | { __typename?: 'Plan', id: string }
     | { __typename?: 'Product', id: string }
     | { __typename?: 'ProductCategory', id: string }
     | { __typename?: 'ProductFilter', id: string }
+    | { __typename?: 'Quote', id: string }
     | { __typename?: 'RateCard', id: string }
     | { __typename?: 'Subscription', id: string }
     | { __typename?: 'Wallet', id: string, walletCustomer?: { __typename?: 'Customer', id: string } | null }
@@ -12642,12 +12691,15 @@ export type GetSingleActivityLogQuery = { __typename?: 'Query', activityLog?: { 
       | { __typename?: 'Customer', id: string }
       | { __typename?: 'FeatureObject', id: string }
       | { __typename?: 'Invoice', id: string, customer: { __typename?: 'Customer', id: string } }
+      | { __typename?: 'Order', id: string }
+      | { __typename?: 'OrderForm', id: string }
       | { __typename?: 'PaymentReceipt', id: string }
       | { __typename?: 'PaymentRequest', id: string }
       | { __typename?: 'Plan', id: string }
       | { __typename?: 'Product', id: string }
       | { __typename?: 'ProductCategory', id: string }
       | { __typename?: 'ProductFilter', id: string }
+      | { __typename?: 'Quote', id: string }
       | { __typename?: 'RateCard', id: string }
       | { __typename?: 'Subscription', id: string }
       | { __typename?: 'Wallet', id: string, walletCustomer?: { __typename?: 'Customer', id: string } | null }
@@ -15599,7 +15651,7 @@ export type GetOrderForEditQueryVariables = Exact<{
 }>;
 
 
-export type GetOrderForEditQuery = { __typename?: 'Query', order?: { __typename?: 'Order', id: string, number: string, status: OrderStatusEnum, orderType: OrderTypeEnum, executeAt?: any | null, executionMode?: OrderExecutionModeEnum | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string }, orderForm: { __typename?: 'OrderForm', id: string, number: string, quote: { __typename?: 'Quote', id: string, number: string, images: any, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, netPaymentTerm?: number | null, currency?: CurrencyEnum | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, netPaymentTerm: number }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, currency?: CurrencyEnum | null, startDate?: any | null, endDate?: any | null, createdAt: any, content?: string | null, billingItems?: any | null, mentionVariables: any } } } } | null };
+export type GetOrderForEditQuery = { __typename?: 'Query', order?: { __typename?: 'Order', id: string, number: string, status: OrderStatusEnum, orderType: OrderTypeEnum, executeAt?: any | null, executionMode?: OrderExecutionModeEnum | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string }, orderForm: { __typename?: 'OrderForm', id: string, number: string, quote: { __typename?: 'Quote', id: string, number: string, images: any, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, orderForms: Array<{ __typename?: 'OrderForm', id: string, order?: { __typename?: 'Order', id: string } | null }>, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, netPaymentTerm?: number | null, currency?: CurrencyEnum | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, netPaymentTerm: number }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, currency?: CurrencyEnum | null, startDate?: any | null, endDate?: any | null, createdAt: any, content?: string | null, billingItems?: any | null, mentionVariables: any } } } } | null };
 
 export type UpdateOrderMutationVariables = Exact<{
   input: UpdateOrderInput;
@@ -15613,7 +15665,7 @@ export type GetOrderForExecuteQueryVariables = Exact<{
 }>;
 
 
-export type GetOrderForExecuteQuery = { __typename?: 'Query', order?: { __typename?: 'Order', id: string, number: string, status: OrderStatusEnum, orderType: OrderTypeEnum, executeAt?: any | null, executionMode?: OrderExecutionModeEnum | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string }, orderForm: { __typename?: 'OrderForm', id: string, number: string, quote: { __typename?: 'Quote', id: string, number: string, images: any, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, netPaymentTerm?: number | null, currency?: CurrencyEnum | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, netPaymentTerm: number }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, currency?: CurrencyEnum | null, startDate?: any | null, endDate?: any | null, createdAt: any, content?: string | null, billingItems?: any | null, mentionVariables: any } } } } | null };
+export type GetOrderForExecuteQuery = { __typename?: 'Query', order?: { __typename?: 'Order', id: string, number: string, status: OrderStatusEnum, orderType: OrderTypeEnum, executeAt?: any | null, executionMode?: OrderExecutionModeEnum | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string }, orderForm: { __typename?: 'OrderForm', id: string, number: string, quote: { __typename?: 'Quote', id: string, number: string, images: any, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, orderForms: Array<{ __typename?: 'OrderForm', id: string, order?: { __typename?: 'Order', id: string } | null }>, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, netPaymentTerm?: number | null, currency?: CurrencyEnum | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, netPaymentTerm: number }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, currency?: CurrencyEnum | null, startDate?: any | null, endDate?: any | null, createdAt: any, content?: string | null, billingItems?: any | null, mentionVariables: any } } } } | null };
 
 export type ExecuteOrderMutationVariables = Exact<{
   input: ExecuteOrderInput;
@@ -15622,12 +15674,21 @@ export type ExecuteOrderMutationVariables = Exact<{
 
 export type ExecuteOrderMutation = { __typename?: 'Mutation', executeOrder?: { __typename?: 'Order', id: string, status: OrderStatusEnum } | null };
 
+export type QuoteDetailsActivityLogsQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceIds?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+}>;
+
+
+export type QuoteDetailsActivityLogsQuery = { __typename?: 'Query', activityLogs?: { __typename?: 'ActivityLogCollection', collection: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } | null };
+
 export type GetOrderFormForSignQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetOrderFormForSignQuery = { __typename?: 'Query', orderForm?: { __typename?: 'OrderForm', id: string, number: string, status: OrderFormStatusEnum, createdAt: any, expiresAt?: any | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string }, quote: { __typename?: 'Quote', id: string, number: string, images: any, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, netPaymentTerm?: number | null, currency?: CurrencyEnum | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, netPaymentTerm: number }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, currency?: CurrencyEnum | null, startDate?: any | null, endDate?: any | null, createdAt: any, content?: string | null, billingItems?: any | null, mentionVariables: any } } } | null };
+export type GetOrderFormForSignQuery = { __typename?: 'Query', orderForm?: { __typename?: 'OrderForm', id: string, number: string, status: OrderFormStatusEnum, createdAt: any, expiresAt?: any | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string }, quote: { __typename?: 'Quote', id: string, number: string, images: any, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, orderForms: Array<{ __typename?: 'OrderForm', id: string, order?: { __typename?: 'Order', id: string } | null }>, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, netPaymentTerm?: number | null, currency?: CurrencyEnum | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, netPaymentTerm: number }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, currency?: CurrencyEnum | null, startDate?: any | null, endDate?: any | null, createdAt: any, content?: string | null, billingItems?: any | null, mentionVariables: any } } } | null };
 
 export type MarkOrderFormAsSignedMutationVariables = Exact<{
   input: MarkOrderFormAsSignedInput;
@@ -15741,14 +15802,14 @@ export type QuotePreviewVersionFragment = { __typename?: 'QuoteVersion', content
 
 export type QuotePreviewCustomerFragment = { __typename?: 'Customer', currency?: CurrencyEnum | null, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null };
 
-export type QuoteDetailItemFragment = { __typename?: 'Quote', id: string, number: string, images: any, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, netPaymentTerm?: number | null, currency?: CurrencyEnum | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, netPaymentTerm: number }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, currency?: CurrencyEnum | null, startDate?: any | null, endDate?: any | null, createdAt: any, content?: string | null, billingItems?: any | null, mentionVariables: any } };
+export type QuoteDetailItemFragment = { __typename?: 'Quote', id: string, number: string, images: any, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, orderForms: Array<{ __typename?: 'OrderForm', id: string, order?: { __typename?: 'Order', id: string } | null }>, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, netPaymentTerm?: number | null, currency?: CurrencyEnum | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, netPaymentTerm: number }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, currency?: CurrencyEnum | null, startDate?: any | null, endDate?: any | null, createdAt: any, content?: string | null, billingItems?: any | null, mentionVariables: any } };
 
 export type GetQuoteQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetQuoteQuery = { __typename?: 'Query', quote?: { __typename?: 'Quote', id: string, number: string, images: any, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, netPaymentTerm?: number | null, currency?: CurrencyEnum | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, netPaymentTerm: number }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, currency?: CurrencyEnum | null, startDate?: any | null, endDate?: any | null, createdAt: any, content?: string | null, billingItems?: any | null, mentionVariables: any } } | null };
+export type GetQuoteQuery = { __typename?: 'Query', quote?: { __typename?: 'Quote', id: string, number: string, images: any, orderType: OrderTypeEnum, createdAt: any, versions: Array<{ __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, createdAt: any }>, orderForms: Array<{ __typename?: 'OrderForm', id: string, order?: { __typename?: 'Order', id: string } | null }>, customer: { __typename?: 'Customer', id: string, displayName: string, externalId: string, netPaymentTerm?: number | null, currency?: CurrencyEnum | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, netPaymentTerm: number }, billingConfiguration?: { __typename?: 'CustomerBillingConfiguration', documentLocale?: string | null } | null }, owners?: Array<{ __typename?: 'User', id: string, email?: string | null }> | null, subscription?: { __typename?: 'Subscription', id: string, name?: string | null, externalId: string, subscriptionAt?: any | null, plan: { __typename?: 'Plan', id: string, name: string } } | null, currentVersion: { __typename?: 'QuoteVersion', id: string, status: StatusEnum, version: number, currency?: CurrencyEnum | null, startDate?: any | null, endDate?: any | null, createdAt: any, content?: string | null, billingItems?: any | null, mentionVariables: any } } | null };
 
 export type GetQuotePreviewQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -18010,6 +18071,15 @@ export const ActivityLogDetailsFragmentDoc = gql`
       id
     }
     ... on RateCard {
+      id
+    }
+    ... on Quote {
+      id
+    }
+    ... on OrderForm {
+      id
+    }
+    ... on Order {
       id
     }
   }
@@ -21913,6 +21983,12 @@ export const QuoteDetailItemFragmentDoc = gql`
     status
     version
     createdAt
+  }
+  orderForms {
+    id
+    order {
+      id
+    }
   }
   orderType
   createdAt
@@ -41002,6 +41078,58 @@ export function useExecuteOrderMutation(baseOptions?: Apollo.MutationHookOptions
 export type ExecuteOrderMutationHookResult = ReturnType<typeof useExecuteOrderMutation>;
 export type ExecuteOrderMutationResult = Apollo.MutationResult<ExecuteOrderMutation>;
 export type ExecuteOrderMutationOptions = Apollo.BaseMutationOptions<ExecuteOrderMutation, ExecuteOrderMutationVariables>;
+export const QuoteDetailsActivityLogsDocument = gql`
+    query QuoteDetailsActivityLogs($page: Int, $limit: Int, $resourceIds: [String!]) {
+  activityLogs(page: $page, limit: $limit, resourceIds: $resourceIds) {
+    collection {
+      ...ActivityLogsTableData
+    }
+    metadata {
+      currentPage
+      totalPages
+      totalCount
+    }
+  }
+}
+    ${ActivityLogsTableDataFragmentDoc}`;
+
+/**
+ * __useQuoteDetailsActivityLogsQuery__
+ *
+ * To run a query within a React component, call `useQuoteDetailsActivityLogsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useQuoteDetailsActivityLogsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useQuoteDetailsActivityLogsQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      resourceIds: // value for 'resourceIds'
+ *   },
+ * });
+ */
+export function useQuoteDetailsActivityLogsQuery(baseOptions?: Apollo.QueryHookOptions<QuoteDetailsActivityLogsQuery, QuoteDetailsActivityLogsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<QuoteDetailsActivityLogsQuery, QuoteDetailsActivityLogsQueryVariables>(QuoteDetailsActivityLogsDocument, options);
+      }
+export function useQuoteDetailsActivityLogsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<QuoteDetailsActivityLogsQuery, QuoteDetailsActivityLogsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<QuoteDetailsActivityLogsQuery, QuoteDetailsActivityLogsQueryVariables>(QuoteDetailsActivityLogsDocument, options);
+        }
+// @ts-ignore
+export function useQuoteDetailsActivityLogsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<QuoteDetailsActivityLogsQuery, QuoteDetailsActivityLogsQueryVariables>): Apollo.UseSuspenseQueryResult<QuoteDetailsActivityLogsQuery, QuoteDetailsActivityLogsQueryVariables>;
+export function useQuoteDetailsActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<QuoteDetailsActivityLogsQuery, QuoteDetailsActivityLogsQueryVariables>): Apollo.UseSuspenseQueryResult<QuoteDetailsActivityLogsQuery | undefined, QuoteDetailsActivityLogsQueryVariables>;
+export function useQuoteDetailsActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<QuoteDetailsActivityLogsQuery, QuoteDetailsActivityLogsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<QuoteDetailsActivityLogsQuery, QuoteDetailsActivityLogsQueryVariables>(QuoteDetailsActivityLogsDocument, options);
+        }
+export type QuoteDetailsActivityLogsQueryHookResult = ReturnType<typeof useQuoteDetailsActivityLogsQuery>;
+export type QuoteDetailsActivityLogsLazyQueryHookResult = ReturnType<typeof useQuoteDetailsActivityLogsLazyQuery>;
+export type QuoteDetailsActivityLogsSuspenseQueryHookResult = ReturnType<typeof useQuoteDetailsActivityLogsSuspenseQuery>;
+export type QuoteDetailsActivityLogsQueryResult = Apollo.QueryResult<QuoteDetailsActivityLogsQuery, QuoteDetailsActivityLogsQueryVariables>;
 export const GetOrderFormForSignDocument = gql`
     query getOrderFormForSign($id: ID!) {
   orderForm(id: $id) {
