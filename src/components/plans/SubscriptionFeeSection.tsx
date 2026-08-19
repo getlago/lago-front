@@ -78,7 +78,7 @@ export const SubscriptionFeeSection = ({
 
   const selectorEndContent = () => (
     <div className="flex items-center gap-3">
-      <Chip label={translate(getIntervalTranslationKey[interval])} />
+      {!!interval && <Chip label={translate(getIntervalTranslationKey[interval])} />}
       <Tooltip placement="top-end" title={translate('text_17719630334671lxunwzo7ae')}>
         <Button icon="chevron-right-filled" variant="quaternary" tabIndex={-1} />
       </Tooltip>

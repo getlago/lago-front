@@ -193,7 +193,9 @@ export const CustomerSubscriptionsList = ({
                 key: 'frequency',
                 title: translate('text_1736968618645gg26amx8djq'),
                 content: ({ frequency }) => (
-                  <Typography>{translate(getIntervalTranslationKey[frequency])}</Typography>
+                  <Typography>
+                    {frequency ? translate(getIntervalTranslationKey[frequency]) : '-'}
+                  </Typography>
                 ),
               },
               {
