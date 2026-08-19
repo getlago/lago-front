@@ -44,6 +44,12 @@ interface PlanUsageThresholdOverride {
 export interface PlanOverrides {
   name?: string
   amountCents?: number
+  /**
+   * Set only when the deal is priced in another currency than the catalog plan. The backend
+   * resolves `overrides.amountCurrency || plan.amount_currency` and hands it to
+   * `Plans::OverrideService`, which reprices the duplicated plan.
+   */
+  amountCurrency?: string
   invoiceDisplayName?: string
   minimumCommitment?: PlanMinimumCommitmentOverride
   charges?: PlanChargeOverride[]
@@ -431,6 +437,18 @@ export const buildPlanOverrides = (
         delete overrides[key]
       }
     }
+
+    // Currency is the one field handled here rather than in `buildRawPlanOverrides`, because it
+    // must only ever be sent as a deviation. The backend resolves
+    // `overrides.amountCurrency || plan.amount_currency`, so emitting the catalog's own currency
+    // would turn every quoted subscription into an override for nothing (LAGO-1789) — and without
+    // a baseline there is no way to tell a repricing from the plan's own price, so nothing is sent.
+    if (
+      formValues.amountCurrency &&
+      formValues.amountCurrency !== basePlanFormValues.amountCurrency
+    ) {
+      overrides.amountCurrency = formValues.amountCurrency
+    }
   }
 
   return overrides
@@ -488,7 +506,7 @@ export const toPlanBillingItems = (
 
     payload.interval = formValues.interval
     payload.amountCents = toCentsString(formValues.amountCents)
-    payload.amountCurrency = formValues.amountCurrency
+    payload.amountCurrency = basePlanFormValues?.amountCurrency ?? formValues.amountCurrency
     payload.payInAdvance = formValues.payInAdvance ?? false
     payload.billChargesMonthly = formValues.billChargesMonthly ?? null
     payload.billFixedChargesMonthly = formValues.billFixedChargesMonthly ?? null
@@ -683,15 +701,18 @@ export const fromPlanBillingItems = (plans: BillingItemPlan[]): FromPlanBillingI
   let formValues: PlanFormInput | null = null
 
   if (hasFullPlanData) {
-    // Payload stores cents; the plan form expects currency units.
-    const currency = (payload.amountCurrency as CurrencyEnum) ?? CurrencyEnum.Usd
+    // Payload stores cents in the deal currency, and names the catalog plan's own currency —
+    // the override is what carries the repricing, so it wins here too.
+    const currency = (overrides.amountCurrency ??
+      payload.amountCurrency ??
+      CurrencyEnum.Usd) as CurrencyEnum
 
     formValues = {
       interval: payload.interval as PlanFormInput['interval'],
       amountCents: String(
         deserializeAmount(payload.amountCents || 0, currency),
       ) as PlanFormInput['amountCents'],
-      amountCurrency: payload.amountCurrency as PlanFormInput['amountCurrency'],
+      amountCurrency: currency as PlanFormInput['amountCurrency'],
       payInAdvance: payload.payInAdvance ?? false,
       billChargesMonthly: payload.billChargesMonthly ?? undefined,
       billFixedChargesMonthly: payload.billFixedChargesMonthly ?? undefined,

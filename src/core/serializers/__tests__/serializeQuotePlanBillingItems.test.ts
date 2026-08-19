@@ -227,12 +227,103 @@ describe('toPlanBillingItems', () => {
 // buildPlanOverrides — form state → overrides mapping (single source of truth)
 // ---------------------------------------------------------------------------
 
+describe('plan currency round trip', () => {
+  const catalogUsd = { ...baseFormValues, amountCurrency: CurrencyEnum.Usd }
+  const dealEur = { ...baseFormValues, amountCurrency: CurrencyEnum.Eur }
+
+  // The payload mirrors the billing object as stored, so it names the catalog plan's own currency;
+  // the repricing lives in the override.
+  it('keeps the catalog currency in the payload and the deal currency in the override', () => {
+    const result = toPlanBillingItems(basePricingState, dealEur, catalogUsd)
+
+    expect(result.plans[0].payload.amountCurrency).toBe(CurrencyEnum.Usd)
+    expect(result.plans[0].overrides.amountCurrency).toBe(CurrencyEnum.Eur)
+  })
+
+  it('names the same currency on both sides when there is no repricing', () => {
+    const result = toPlanBillingItems(basePricingState, catalogUsd, catalogUsd)
+
+    expect(result.plans[0].payload.amountCurrency).toBe(CurrencyEnum.Usd)
+    expect(result.plans[0].overrides).not.toHaveProperty('amountCurrency')
+  })
+
+  it('reopens a repriced plan in the deal currency, not the catalog one', () => {
+    const serialized = toPlanBillingItems(basePricingState, dealEur, catalogUsd)
+    const deserialized = fromPlanBillingItems(serialized.plans)
+
+    expect(deserialized.formValues?.amountCurrency).toBe(CurrencyEnum.Eur)
+  })
+
+  // Amounts are stored in cents of the EFFECTIVE currency, so reading them back under the catalog
+  // currency would rescale them whenever the two differ in decimals.
+  it('reads the stored amount back unchanged after a repricing', () => {
+    const serialized = toPlanBillingItems(
+      basePricingState,
+      { ...dealEur, amountCents: '850.00' as PlanFormInput['amountCents'] },
+      catalogUsd,
+    )
+    const deserialized = fromPlanBillingItems(serialized.plans)
+
+    expect(deserialized.formValues?.amountCents).toBe('850')
+  })
+
+  it('survives a zero-decimal deal currency, where cents and units are the same number', () => {
+    const serialized = toPlanBillingItems(
+      basePricingState,
+      {
+        ...baseFormValues,
+        amountCurrency: CurrencyEnum.Jpy,
+        amountCents: '850' as PlanFormInput['amountCents'],
+      },
+      catalogUsd,
+    )
+
+    expect(serialized.plans[0].payload.amountCents).toBe('850')
+    expect(fromPlanBillingItems(serialized.plans).formValues?.amountCents).toBe('850')
+  })
+})
+
 describe('buildPlanOverrides', () => {
   it('carries over the subscription fee amount', () => {
     const result = buildPlanOverrides({ ...baseFormValues, amountCents: '850.00' })
 
     // $850.00 → 85000 cents
     expect(result.amountCents).toBe(85000)
+  })
+
+  describe('repricing the deal in another currency', () => {
+    // The backend resolves `overrides.amountCurrency || plan.amount_currency` and hands the result
+    // to Plans::OverrideService, so the override is what reprices a catalog plan for the deal.
+    it('sends the currency when the deal is priced differently from the catalog plan', () => {
+      const result = buildPlanOverrides(
+        { ...baseFormValues, amountCurrency: CurrencyEnum.Eur },
+        { ...baseFormValues, amountCurrency: CurrencyEnum.Usd },
+      )
+
+      expect(result.amountCurrency).toBe(CurrencyEnum.Eur)
+    })
+
+    it('stays silent when the deal is in the catalog plan currency', () => {
+      const result = buildPlanOverrides(
+        { ...baseFormValues, amountCurrency: CurrencyEnum.Usd },
+        { ...baseFormValues, amountCurrency: CurrencyEnum.Usd },
+      )
+
+      expect(result).not.toHaveProperty('amountCurrency')
+    })
+
+    // Emitting it unconditionally would make every quoted subscription an override (LAGO-1789).
+    it('does not turn an untouched plan into an override', () => {
+      const untouched = { ...baseFormValues, amountCents: '0' as PlanFormInput['amountCents'] }
+
+      expect(buildPlanOverrides(untouched, untouched)).toEqual({})
+    })
+
+    it('sends nothing without a baseline, having no way to tell a repricing from the plan price', () => {
+      const result = buildPlanOverrides({ ...baseFormValues, amountCurrency: CurrencyEnum.Eur })
+
+      expect(result).not.toHaveProperty('amountCurrency')
+    })
   })
 
   it('omits amountCents when the fee is zero or empty', () => {
