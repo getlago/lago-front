@@ -1,5 +1,6 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { print } from 'graphql'
 
 import { BILLING_ENTITY_FORM_PICKER_DATA_TEST } from '~/components/billingEntity/BillingEntityFormPicker'
 import {
@@ -7,6 +8,7 @@ import {
   OrderTypeEnum,
   QuoteDetailItemFragment,
   StatusEnum,
+  UpdateQuoteVersionDocument,
 } from '~/generated/graphql'
 import { BILLING_ENTITY_INHERIT_CODE } from '~/hooks/useBillingEntitiesOptions'
 import { render } from '~/test-utils'
@@ -760,6 +762,94 @@ describe('EditQuoteAside', () => {
         })
 
         expect(mockUpdateQuoteVersion).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the document renders mention variables', () => {
+    // The content stores variable ids, so the preview reads `quoteVersion.mentionVariables`. A
+    // draft recomputes them live from the version's billing entity and currency, so selecting the
+    // field back refreshes the normalized QuoteVersion instead of leaving the previous entity's
+    // values on screen (LAGO-1839).
+    // `useUpdateQuote` is mocked in this suite, so the cases below cannot observe the cache — the
+    // refresh itself is covered in `hooks/__tests__/useUpdateQuoteCache.test.tsx`. This guards the
+    // half that lives in the mutation the aside calls: without the field in the selection set,
+    // Apollo has nothing to write back and the preview keeps the previous entity's values.
+    it('THEN should select mentionVariables back from the version mutation', () => {
+      expect(print(UpdateQuoteVersionDocument)).toContain('mentionVariables')
+    })
+
+    const respondWith = (mentionVariables: Record<string, string>) =>
+      mockUpdateQuoteVersion.mockResolvedValue({
+        data: { updateQuoteVersion: { id: 'version-1', mentionVariables } },
+      })
+
+    it('THEN should return the new entity values when the billing entity changes', async () => {
+      const user = userEvent.setup({ delay: null })
+
+      respondWith({ billing_entity_name: 'Second Entity' })
+
+      render(<EditQuoteAside quote={mockQuote} />)
+
+      const input = screen
+        .getByTestId(BILLING_ENTITY_FORM_PICKER_DATA_TEST)
+        .querySelector('input') as HTMLInputElement
+
+      await user.clear(input)
+      await user.type(input, 'second')
+
+      await waitFor(() => {
+        expect(screen.getAllByRole('option')).toHaveLength(1)
+      })
+
+      await user.keyboard('{ArrowDown}{Enter}')
+
+      await waitFor(() => {
+        expect(mockUpdateQuoteVersion).toHaveBeenCalled()
+      })
+
+      const result = await mockUpdateQuoteVersion.mock.results.at(-1)?.value
+
+      expect(result.data.updateQuoteVersion.mentionVariables).toEqual({
+        billing_entity_name: 'Second Entity',
+      })
+    })
+
+    it('THEN should return the new quote_currency when the currency changes', async () => {
+      const user = userEvent.setup({ delay: null })
+
+      respondWith({ quote_currency: CurrencyEnum.Aud })
+
+      render(
+        <EditQuoteAside
+          quote={{
+            ...mockQuote,
+            currentVersion: { ...mockQuote.currentVersion, currency: CurrencyEnum.Eur },
+          }}
+        />,
+      )
+
+      const input = screen
+        .getByTestId(EDIT_QUOTE_ASIDE_CURRENCY_COMBOBOX_TEST_ID)
+        .querySelector('input') as HTMLInputElement
+
+      await user.clear(input)
+      await user.type(input, CurrencyEnum.Aud)
+
+      await waitFor(() => {
+        expect(screen.getAllByRole('option')).toHaveLength(1)
+      })
+
+      await user.keyboard('{ArrowDown}{Enter}')
+
+      await waitFor(() => {
+        expect(mockUpdateQuoteVersion).toHaveBeenCalled()
+      })
+
+      const result = await mockUpdateQuoteVersion.mock.results.at(-1)?.value
+
+      expect(result.data.updateQuoteVersion.mentionVariables).toEqual({
+        quote_currency: CurrencyEnum.Aud,
       })
     })
   })

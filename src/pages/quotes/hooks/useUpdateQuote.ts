@@ -15,6 +15,11 @@ gql`
       id
       currency
       billingEntityId
+      # The document renders variable ids against this dict, and a draft recomputes it live from
+      # the version's billing entity and currency. Selecting it lets the mutation refresh the
+      # normalized QuoteVersion, so the preview stops showing the previous entity's values
+      # without a second round trip (LAGO-1839).
+      mentionVariables
     }
   }
 
