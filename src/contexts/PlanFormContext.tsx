@@ -4,7 +4,7 @@ import { CurrencyEnum, PlanInterval } from '~/generated/graphql'
 
 interface PlanFormContextValue {
   currency: CurrencyEnum
-  interval: PlanInterval
+  interval: PlanInterval | null | undefined
 }
 
 const PlanFormContext = createContext<PlanFormContextValue | null>(null)

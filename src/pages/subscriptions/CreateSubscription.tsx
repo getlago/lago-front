@@ -569,7 +569,7 @@ const CreateSubscription = () => {
                         }
                         shouldDisplaySubscriptionName={shouldDisplaySubscriptionName}
                         setShouldDisplaySubscriptionName={setShouldDisplaySubscriptionName}
-                        selectedPlanInterval={selectedPlan?.interval}
+                        selectedPlanInterval={selectedPlan?.interval ?? undefined}
                         customerExternalId={customer?.externalId}
                       />
 
