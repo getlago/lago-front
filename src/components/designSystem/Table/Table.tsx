@@ -91,6 +91,8 @@ export interface TableProps<T> {
 const ACTION_COLUMN_ID = 'actionColumn'
 const LOADING_ROW_COUNT = DEFAULT_PAGE_SIZE
 
+export const OPEN_ACTION_BUTTON_TEST_ID = 'open-action-button'
+
 const MIN_CONTAINER_PADDING_PX = 4
 
 // The outer columns' padding follows the table's exterior gutter
@@ -570,7 +572,7 @@ export const Table = <T extends DataItem>({
                                   <Button
                                     icon="dots-horizontal"
                                     variant="quaternary"
-                                    data-test="open-action-button"
+                                    data-test={OPEN_ACTION_BUTTON_TEST_ID}
                                   />
                                 </Tooltip>
                               </PopperOpener>

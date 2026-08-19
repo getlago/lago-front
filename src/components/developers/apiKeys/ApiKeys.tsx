@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
 import { DateTime } from 'luxon'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -12,6 +12,11 @@ import { ActionItem } from '~/components/designSystem/Table/types'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
+import {
+  API_KEY_COPY_ACTION_TEST_ID,
+  API_KEY_REVEAL_ACTION_TEST_ID,
+  API_KEY_REVEAL_BUTTON_TEST_ID,
+} from '~/components/developers/apiKeys/dataTestConstants'
 import { useDeleteApiKeyDialog } from '~/components/developers/apiKeys/DeleteApiKeyDialog'
 import { useRotateApiKeyDialog } from '~/components/developers/apiKeys/RotateApiKeyDialog'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
@@ -112,61 +117,118 @@ export const ApiKeys = () => {
     variables: { page: 1, limit: pageSize },
     notifyOnNetworkStatusChange: true,
   })
+  // `no-cache`, not `network-only`: the plaintext key must never reach the normalized
+  // cache, which `cachePersistor` serializes to IndexedDB in full. The revealed value
+  // is held in React state instead, so nothing reads it back from the cache.
+  // `nextFetchPolicy` has to be set too, since the client defaults it to `cache-first`.
   const [getApiKeyValue] = useGetApiKeyValueLazyQuery({
-    fetchPolicy: 'network-only',
+    fetchPolicy: 'no-cache',
+    nextFetchPolicy: 'no-cache',
   })
 
   const showPremiumAddApiKeyState = !isPremium && !!apiKeysData?.apiKeys.collection.length
 
-  // Reveals a single key's value, tracking the loading state per row id (a Set, so
-  // several keys can reveal concurrently) and keeping the rest of the list as-is
-  // instead of flashing the whole list to loading.
-  const revealApiKey = async (id: string): Promise<string | undefined> => {
-    setLoadingKeyIds((prev) => new Set(prev).add(id))
+  // The list query only returns sanitized values, so the plaintext has to be fetched
+  // per key. Fetching is deliberately kept separate from revealing: copying a key must
+  // never unmask it on screen (LAGO-1813).
+  const fetchApiKeyValue = useCallback(
+    async (id: string): Promise<string | undefined> => {
+      // Apollo's lazy-query execute resolves with `error` set instead of rejecting, so
+      // a failure has to be read off the result; the catch is belt-and-braces.
+      try {
+        const res = await getApiKeyValue({ variables: { id } })
 
-    try {
-      const res = await getApiKeyValue({ variables: { id } })
-      const fetchedValue = res?.data?.apiKey?.value
-
-      if (fetchedValue) {
-        setShownApiKeysMap((prev) => new Map(prev.set(id, fetchedValue)))
+        if (!res.error && !!res.data?.apiKey?.value) {
+          return res.data.apiKey.value
+        }
+      } catch {
+        // falls through to the toast below
       }
 
-      return fetchedValue
-    } catch {
       addToast({
         severity: 'danger',
         translateKey: 'text_62b31e1f6a5b8b1b745ece48',
       })
-    } finally {
-      setLoadingKeyIds((prev) => {
-        const next = new Set(prev)
+    },
+    [getApiKeyValue],
+  )
 
-        next.delete(id)
-        return next
-      })
+  // Reveals a single key's value, tracking the loading state per row id (a Set, so
+  // several keys can reveal concurrently) and keeping the rest of the list as-is
+  // instead of flashing the whole list to loading.
+  const revealApiKey = useCallback(
+    async (id: string): Promise<string | undefined> => {
+      setLoadingKeyIds((prev) => new Set(prev).add(id))
+
+      try {
+        const fetchedValue = await fetchApiKeyValue(id)
+
+        if (fetchedValue) {
+          setShownApiKeysMap((prev) => new Map(prev).set(id, fetchedValue))
+        }
+
+        return fetchedValue
+      } finally {
+        setLoadingKeyIds((prev) => {
+          const next = new Set(prev)
+
+          next.delete(id)
+          return next
+        })
+      }
+    },
+    [fetchApiKeyValue],
+  )
+
+  const hideApiKey = (id: string): void => {
+    setShownApiKeysMap((prev) => {
+      const next = new Map(prev)
+
+      next.delete(id)
+      return next
+    })
+  }
+
+  const toggleApiKeyVisibility = async (id: string): Promise<void> => {
+    if (shownApiKeysMap.has(id)) {
+      hideApiKey(id)
+      return
     }
+
+    await revealApiKey(id)
+  }
+
+  // Copies the plaintext value without revealing it: already-revealed keys are read
+  // from the map, hidden ones are fetched on demand and never stored.
+  const copyApiKey = async (id: string): Promise<void> => {
+    const value = shownApiKeysMap.get(id) ?? (await fetchApiKeyValue(id))
+
+    if (!value) return
+
+    copyToClipboard(value)
+    addToast({
+      severity: 'info',
+      translateKey: 'text_6227a2e847fcd700e9038952',
+    })
   }
 
   useEffect(() => {
-    const revealGivenKey = async () => {
-      const res = await getApiKeyValue({ variables: { id: state[STATE_KEY_ID_TO_REVEAL] } })
+    const keyIdToReveal = state?.[STATE_KEY_ID_TO_REVEAL]
 
-      if (!!res?.data?.apiKey?.value) {
-        setShownApiKeysMap(
-          (prev) => new Map(prev.set(state[STATE_KEY_ID_TO_REVEAL], res.data?.apiKey.value || '')),
-        )
+    // Incase we're redirected here with a keyIdToReveal, trigger the query
+    if (!keyIdToReveal) return
 
+    const revealGivenKey = async (): Promise<void> => {
+      const fetchedValue = await revealApiKey(keyIdToReveal)
+
+      if (!!fetchedValue) {
         // Remove the keyIdToReveal from the state
         window.history.replaceState({}, '')
       }
     }
 
-    // Incase we're redirected here with a keyIdToReveal, trigger the query
-    if (!!state?.[STATE_KEY_ID_TO_REVEAL]) {
-      revealGivenKey()
-    }
-  }, [getApiKeyValue, state])
+    revealGivenKey()
+  }, [revealApiKey, state])
 
   return (
     <div className="flex h-full flex-col not-last-child:shadow-b">
@@ -373,22 +435,7 @@ export const ApiKeys = () => {
                                   className="ml-0 line-break-auto [text-wrap:auto]"
                                   color="grey700"
                                   variant="captionCode"
-                                  masked={!apiKeyValue}
-                                  onCopy={
-                                    apiKeyValue
-                                      ? undefined
-                                      : async () => {
-                                          const fetchedValue = await revealApiKey(id)
-
-                                          if (fetchedValue) {
-                                            copyToClipboard(fetchedValue)
-                                            addToast({
-                                              severity: 'info',
-                                              translateKey: 'text_6227a2e847fcd700e9038952',
-                                            })
-                                          }
-                                        }
-                                  }
+                                  onCopy={() => copyApiKey(id)}
                                 >
                                   {apiKeyValue || value}
                                 </TypographyWithCopy>
@@ -407,18 +454,8 @@ export const ApiKeys = () => {
                                   size="small"
                                   loading={isRevealing}
                                   icon={!!apiKeyValue ? 'eye-hidden' : 'eye'}
-                                  onClick={async () => {
-                                    if (!!apiKeyValue) {
-                                      setShownApiKeysMap((prev) => {
-                                        const newMap = new Map(prev)
-
-                                        newMap.delete(id)
-                                        return newMap
-                                      })
-                                    } else {
-                                      await revealApiKey(id)
-                                    }
-                                  }}
+                                  data-test={API_KEY_REVEAL_BUTTON_TEST_ID}
+                                  onClick={() => toggleApiKeyVisibility(id)}
                                 />
                               </Tooltip>
                             </div>
@@ -455,37 +492,20 @@ export const ApiKeys = () => {
                         {
                           startIcon: !!apiKeyValue ? 'eye-hidden' : 'eye',
                           disabled: apiKeysLoading,
+                          dataTest: API_KEY_REVEAL_ACTION_TEST_ID,
                           title: !!apiKeyValue
                             ? translate('text_1731085297554jks9n068fpp')
                             : translate('text_1731085297554lu61x8djvcr'),
-                          onAction: async () => {
-                            if (!!apiKeyValue) {
-                              setShownApiKeysMap((prev) => {
-                                const newMap = new Map(prev)
-
-                                newMap.delete(id)
-                                return newMap
-                              })
-                            } else {
-                              await revealApiKey(id)
-                            }
-                          },
+                          onAction: () => toggleApiKeyVisibility(id),
                         },
 
-                        apiKeyValue
-                          ? {
-                              startIcon: 'duplicate',
-                              disabled: apiKeysLoading,
-                              title: translate('text_637f813d31381b1ed90ab30a'),
-                              onAction: () => {
-                                copyToClipboard(apiKeyValue)
-                                addToast({
-                                  severity: 'info',
-                                  translateKey: 'text_6227a2e847fcd700e9038952',
-                                })
-                              },
-                            }
-                          : null,
+                        {
+                          startIcon: 'duplicate',
+                          disabled: apiKeysLoading,
+                          dataTest: API_KEY_COPY_ACTION_TEST_ID,
+                          title: translate('text_637f813d31381b1ed90ab30a'),
+                          onAction: () => copyApiKey(id),
+                        },
 
                         {
                           startIcon: 'pivot',
@@ -495,8 +515,8 @@ export const ApiKeys = () => {
                             openRotateApiKeyDialog({
                               apiKey: item,
                               callBack: (itemToReveal) => {
-                                setShownApiKeysMap(
-                                  (prev) => new Map(prev.set(itemToReveal.id, itemToReveal.value)),
+                                setShownApiKeysMap((prev) =>
+                                  new Map(prev).set(itemToReveal.id, itemToReveal.value),
                                 )
                               },
                               openPremiumDialog: () => premiumWarningDialog.open(),

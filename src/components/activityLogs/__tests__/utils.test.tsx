@@ -105,6 +105,21 @@ describe('activityLogs utils', () => {
       expect(formatActivityType(ActivityTypeEnum.EmailSent)).toBe('email.sent')
     })
 
+    it.each([
+      [ActivityTypeEnum.QuoteApproved, 'quote.approved'],
+      [ActivityTypeEnum.QuoteVoided, 'quote.voided'],
+      // version_created has to win over the shorter created suffix
+      [ActivityTypeEnum.QuoteVersionCreated, 'quote.version_created'],
+      [ActivityTypeEnum.OrderFormSigned, 'order_form.signed'],
+      [ActivityTypeEnum.OrderFormExpired, 'order_form.expired'],
+      [ActivityTypeEnum.OrderFormFileUploaded, 'order_form.file_uploaded'],
+      [ActivityTypeEnum.OrderFormCreated, 'order_form.created'],
+      [ActivityTypeEnum.OrderExecuted, 'order.executed'],
+      [ActivityTypeEnum.OrderCreated, 'order.created'],
+    ])('should format %s as %s', (activityType, expected) => {
+      expect(formatActivityType(activityType)).toBe(expected)
+    })
+
     it('should return unchanged if no known suffix matches', () => {
       // Mock an enum value that doesn't match any known patterns
       const unknownType = 'unknown_type' as ActivityTypeEnum
@@ -251,6 +266,33 @@ describe('activityLogs utils', () => {
       )
 
       expect(link).toContain('plan-123')
+    })
+
+    it('should return path for Quote', () => {
+      const link = getResourceLink(
+        { id: 'quote-123', __typename: 'Quote' as const },
+        { resourceType: 'Quote', activityType: ActivityTypeEnum.QuoteCreated },
+      )
+
+      expect(link).toContain('quote-123')
+    })
+
+    it('should return path for OrderForm', () => {
+      const link = getResourceLink(
+        { id: 'order-form-123', __typename: 'OrderForm' as const },
+        { resourceType: 'OrderForm', activityType: ActivityTypeEnum.OrderFormCreated },
+      )
+
+      expect(link).toContain('order-form-123')
+    })
+
+    it('should return path for Order', () => {
+      const link = getResourceLink(
+        { id: 'order-123', __typename: 'Order' as const },
+        { resourceType: 'Order', activityType: ActivityTypeEnum.OrderCreated },
+      )
+
+      expect(link).toContain('order-123')
     })
 
     it("should return path for Wallet using its customer's id", () => {

@@ -56,7 +56,7 @@ const MembersFilters = ({ searchQuery, setSearchQuery, type }: MembersFiltersPro
   }
 
   return (
-    <div className="flex h-16 items-center justify-between gap-3 shadow-b">
+    <div className="flex shrink-0 items-center justify-between gap-3 pb-4 shadow-b">
       <Popper
         PopperProps={{ placement: 'bottom-start' }}
         opener={
