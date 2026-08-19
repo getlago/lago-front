@@ -157,6 +157,46 @@ describe('getQuoteMutationErrors', () => {
       ])
     })
 
+    // Field paths and codes taken from
+    // QuoteVersions::Validators::SubscriptionCreation::BusinessValidator, which is what reports
+    // them at approve time. Without a field entry these fell through to the generic
+    // "a required value is missing", which said nothing about which field to fix.
+    it.each([
+      ['startDate', 'value_is_mandatory', 'text_1787146745141l1kczsx39v9'],
+      ['startDate', 'invalid_date', 'text_1787146745141j3ktrzyti2x'],
+      ['endDate', 'invalid_date', 'text_1787146745141wjbnbx6qx0k'],
+      ['endDate', 'invalid_date_range', 'text_17871467451419agn4aantij'],
+    ])('names the plan %s on %s instead of the generic copy', (field, code, expectedKey) => {
+      const errors = getQuoteMutationErrors(
+        makeError('unprocessable_entity', {
+          [`billingItems.plans.0.payload.${field}`]: [code],
+        }),
+        translate,
+      )
+
+      expect(errors).toEqual([
+        {
+          message: `text_1786540789743pr2fbjucq45(prefix=text_1786540789742q2ym1u6mrwh(index=1),detail=${expectedKey})`,
+        },
+      ])
+      expect(errors[0].message).not.toContain(BILLING_ITEM_CODE_KEYS[code])
+    })
+
+    it('still carries the 1-based plan position on a date error', () => {
+      const errors = getQuoteMutationErrors(
+        makeError('unprocessable_entity', {
+          'billingItems.plans.2.payload.startDate': ['value_is_mandatory'],
+        }),
+        translate,
+      )
+
+      expect(errors[0].message).toContain('text_1786540789742q2ym1u6mrwh(index=3)')
+    })
+
+    it('leaves the end date out of the mandatory copy, which the API never reports', () => {
+      expect(BILLING_ITEM_FIELD_ERROR_KEYS).not.toHaveProperty(['endDate.value_is_mandatory'])
+    })
+
     it('prefers the field-specific message over the bare code message', () => {
       const errors = getQuoteMutationErrors(
         makeError('unprocessable_entity', {

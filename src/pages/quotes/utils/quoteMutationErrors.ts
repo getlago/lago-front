@@ -174,6 +174,14 @@ const RECURRING_RULES_SEGMENT = 'recurringTransactionRules'
  * `BILLING_ITEM_CODE_KEYS`.
  */
 export const BILLING_ITEM_FIELD_ERROR_KEYS: Record<string, string> = {
+  // Per-plan dates, reported by `QuoteVersions::Validators::SubscriptionCreation::BusinessValidator`.
+  // The start date is only mandatory at approve; the end date never is, so it has no entry for that.
+  // `endDate.invalid_date` covers two causes there — a non-ISO8601 value and an end date that is not
+  // in the future — so its copy has to fit both.
+  'startDate.value_is_mandatory': 'text_1787146745141l1kczsx39v9',
+  'startDate.invalid_date': 'text_1787146745141j3ktrzyti2x',
+  'endDate.invalid_date': 'text_1787146745141wjbnbx6qx0k',
+  'endDate.invalid_date_range': 'text_17871467451419agn4aantij',
   'amountCents.value_is_mandatory': 'text_17865407897439beomgnzd95',
   'percentageRate.value_is_mandatory': 'text_17865407897434vmamhdvweo',
   'frequencyDuration.value_is_mandatory': 'text_17865407897437dnip7coe05',

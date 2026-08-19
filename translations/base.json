@@ -4686,5 +4686,9 @@
   "text_1787136090695y7j822vqoa1": "A subscription amendment must contain exactly one plan",
   "text_1787136090695a0gmnr8nxim": "The subscription being amended is no longer active",
   "text_1787137341763zuw842lkske": "The execution date must be in the future",
-  "text_1787137341763nutdwcniihz": "The execution date must be on or before the end of the deal term"
+  "text_1787137341763nutdwcniihz": "The execution date must be on or before the end of the deal term",
+  "text_1787146745141l1kczsx39v9": "a start date is required",
+  "text_1787146745141j3ktrzyti2x": "the start date is invalid",
+  "text_1787146745141wjbnbx6qx0k": "the end date must be a valid future date",
+  "text_17871467451419agn4aantij": "the end date must be after the start date"
 }
