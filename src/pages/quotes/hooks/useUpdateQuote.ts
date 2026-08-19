@@ -20,6 +20,10 @@ gql`
       # normalized QuoteVersion, so the preview stops showing the previous entity's values
       # without a second round trip (LAGO-1839).
       mentionVariables
+      # Same reason: a currency change restamps the currency carried by every billing item (plan
+      # overrides, wallet credit and coupon payloads) server-side, so the items have to come back
+      # or the cache keeps quoting the previous one.
+      billingItems
     }
   }
 

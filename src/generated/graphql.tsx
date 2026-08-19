@@ -15664,7 +15664,7 @@ export type VoidQuoteVersionMutationVariables = Exact<{
 
 export type VoidQuoteVersionMutation = { __typename?: 'Mutation', voidQuoteVersion?: { __typename?: 'QuoteVersion', id: string, status: StatusEnum } | null };
 
-export type TestQuoteVersionMentionVariablesFragment = { __typename?: 'QuoteVersion', mentionVariables: any };
+export type TestQuoteVersionCachedFieldsFragment = { __typename?: 'QuoteVersion', mentionVariables: any, billingItems?: any | null };
 
 export type AddQuoteImageMutationVariables = Exact<{
   input: AddQuoteImageInput;
@@ -15788,7 +15788,7 @@ export type UpdateQuoteVersionMutationVariables = Exact<{
 }>;
 
 
-export type UpdateQuoteVersionMutation = { __typename?: 'Mutation', updateQuoteVersion?: { __typename?: 'QuoteVersion', id: string, currency?: CurrencyEnum | null, billingEntityId?: string | null, mentionVariables: any } | null };
+export type UpdateQuoteVersionMutation = { __typename?: 'Mutation', updateQuoteVersion?: { __typename?: 'QuoteVersion', id: string, currency?: CurrencyEnum | null, billingEntityId?: string | null, mentionVariables: any, billingItems?: any | null } | null };
 
 export type UpdateQuoteMutationVariables = Exact<{
   input: UpdateQuoteInput;
@@ -21851,9 +21851,10 @@ export const FeeForInvoiceBuildRegenerationPreviewFragmentDoc = gql`
   ...FeeForInvoiceDetailsTableBodyLine
 }
     ${FeeForInvoiceDetailsTableBodyLineFragmentDoc}`;
-export const TestQuoteVersionMentionVariablesFragmentDoc = gql`
-    fragment TestQuoteVersionMentionVariables on QuoteVersion {
+export const TestQuoteVersionCachedFieldsFragmentDoc = gql`
+    fragment TestQuoteVersionCachedFields on QuoteVersion {
   mentionVariables
+  billingItems
 }
     `;
 export const QuotePreviewCustomerFragmentDoc = gql`
@@ -41721,6 +41722,7 @@ export const UpdateQuoteVersionDocument = gql`
     currency
     billingEntityId
     mentionVariables
+    billingItems
   }
 }
     `;
