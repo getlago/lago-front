@@ -34,8 +34,8 @@ import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 gql`
   query getCreditNotesList(
-    $amountFrom: Int
-    $amountTo: Int
+    $amountFrom: BigInt
+    $amountTo: BigInt
     $creditStatus: [CreditNoteCreditStatusEnum!]
     $currency: CurrencyEnum
     $customerExternalId: String
