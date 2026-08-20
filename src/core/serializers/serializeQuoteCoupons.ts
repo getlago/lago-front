@@ -25,11 +25,19 @@ export interface CouponPayload {
   resolvedPayload: unknown
 }
 
-// Full UI-editable set, ALWAYS written (not Partial). Excludes currency (locked).
+// Full UI-editable set, ALWAYS written (not Partial).
 export type CouponOverrides = Pick<
   CouponPayload,
   'amountCents' | 'percentageRate' | 'frequency' | 'frequencyDuration'
->
+> & {
+  /**
+   * Deal currency a fixed-amount coupon is repriced in, and the unit `amountCents` above is
+   * expressed in. `payload.currency` is the catalog coupon's own and stays that way, so the
+   * repricing has to live here — a coupon priced elsewhere is otherwise unusable on the deal.
+   * Null on percentage coupons, which carry no amount.
+   */
+  amountCurrency: string | null
+}
 
 export interface BillingItemCoupon {
   type: 'coupon'
@@ -56,15 +64,20 @@ export interface DiscountFormItem {
 export const toCoupons = (
   items: DiscountFormItem[],
   originalPayloads: Record<string, CouponPayload>,
+  dealCurrency?: CurrencyEnum,
 ): BillingItemCoupon[] =>
   items.map((item, index) => {
     const original = originalPayloads[item.localId]
     const payload: CouponPayload = { ...original, position: index + 1 }
 
     const isFixed = item.couponType === CouponTypeEnum.FixedAmount
+    // The deal currency prices the coupon; the form's own is the catalog's and only stands in
+    // when the caller has no deal currency to give.
+    const currency = dealCurrency ?? item.currency
 
     const overrides: CouponOverrides = {
-      amountCents: isFixed ? serializeAmount(Number(item.amount), item.currency) : null,
+      amountCents: isFixed ? serializeAmount(Number(item.amount), currency) : null,
+      amountCurrency: isFixed ? currency : null,
       percentageRate: isFixed ? null : (item.percentageRate ?? null),
       frequency: item.frequency as CouponPayload['frequency'],
       frequencyDuration:
@@ -76,6 +89,7 @@ export const toCoupons = (
 
 export const fromCoupons = (
   coupons: BillingItemCoupon[],
+  dealCurrency?: CurrencyEnum,
 ): {
   entities: Record<string, EntityData>
   discountItems: DiscountFormItem[]
@@ -90,7 +104,13 @@ export const fromCoupons = (
   for (const coupon of sorted) {
     const { payload, overrides, id, localId: savedLocalId } = coupon
     const localId = savedLocalId ?? crypto.randomUUID()
-    const currency = (payload.currency as CurrencyEnum) ?? CurrencyEnum.Usd
+    // The amount is stored in the deal currency, so that is what reads it back. The stored
+    // override covers callers with no deal currency to hand over; `payload.currency` is the
+    // catalog coupon's and is the last resort.
+    const currency = (dealCurrency ??
+      overrides.amountCurrency ??
+      payload.currency ??
+      CurrencyEnum.Usd) as CurrencyEnum
 
     const effectiveAmountCents = overrides.amountCents ?? payload.amountCents ?? 0
     const couponType =

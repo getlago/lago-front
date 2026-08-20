@@ -228,7 +228,7 @@ export const buildPreviewEntities = (
   }
 
   if (billingItems.coupons && billingItems.coupons.length > 0) {
-    const { entities: couponEntities } = fromCoupons(billingItems.coupons)
+    const { entities: couponEntities } = fromCoupons(billingItems.coupons, currency)
 
     Object.assign(previewEntities, couponEntities)
     // also key by couponId for legacy entityIds resolution

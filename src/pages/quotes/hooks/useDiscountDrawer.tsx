@@ -374,7 +374,7 @@ export const useDiscountDrawer = (
   const currency = options.currency
   const { onPersist, onRemoveBlock } = options
 
-  const initial = fromCoupons(billingItems?.coupons ?? [])
+  const initial = fromCoupons(billingItems?.coupons ?? [], options.currency)
 
   const itemsRef = useRef<Record<string, DiscountFormItem>>(
     Object.fromEntries(initial.discountItems.map((i) => [i.localId, i])),
@@ -406,24 +406,26 @@ export const useDiscountDrawer = (
   useEffect(() => {
     if (!billingItems?.coupons) return
 
-    const result = fromCoupons(billingItems.coupons)
+    const result = fromCoupons(billingItems.coupons, currency)
 
     itemsRef.current = Object.fromEntries(result.discountItems.map((i) => [i.localId, i]))
     originalPayloadsRef.current = result.originalPayloads
     entitiesRef.current = result.entities
     setEntities(result.entities)
-  }, [billingItems])
+    // `currency` belongs here: a deal-currency change has to re-read the stored amounts in the new
+    // one, otherwise the drawer keeps quoting the previous currency.
+  }, [billingItems, currency])
 
   const rebuild = useCallback((): BillingItemsPayload => {
     const items = Object.values(itemsRef.current)
-    const coupons = toCoupons(items, originalPayloadsRef.current)
-    const { entities: nextEntities } = fromCoupons(coupons)
+    const coupons = toCoupons(items, originalPayloadsRef.current, currency)
+    const { entities: nextEntities } = fromCoupons(coupons, currency)
 
     entitiesRef.current = nextEntities
     setEntities(nextEntities)
 
     return { ...billingItems, coupons }
-  }, [billingItems])
+  }, [billingItems, currency])
 
   const form = useAppForm({
     defaultValues: makeDefaults(currency),
@@ -502,7 +504,11 @@ export const useDiscountDrawer = (
       // the commit only happens once onPersist confirms the save succeeded.
       const prospectiveItems = { ...itemsRef.current, [localId]: nextItem }
       const prospectiveSnapshots = { ...originalPayloadsRef.current, [localId]: nextSnapshot }
-      const prospectiveCoupons = toCoupons(Object.values(prospectiveItems), prospectiveSnapshots)
+      const prospectiveCoupons = toCoupons(
+        Object.values(prospectiveItems),
+        prospectiveSnapshots,
+        currency,
+      )
       const prospectivePayload: BillingItemsPayload = {
         ...billingItems,
         coupons: prospectiveCoupons,
