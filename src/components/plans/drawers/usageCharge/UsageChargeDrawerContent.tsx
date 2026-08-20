@@ -75,7 +75,7 @@ interface UsageChargeDrawerContentExtraProps {
   initialCharge?: LocalUsageChargeInput
   alreadyUsedChargeAlertMessage?: string
   currency: CurrencyEnum
-  interval: PlanInterval
+  interval: PlanInterval | null | undefined
 }
 
 const usageChargeDrawerContentDefaultProps: UsageChargeDrawerContentExtraProps = {
