@@ -54,8 +54,8 @@ gql`
     $searchTerm: String
     $settlements: [InvoiceSettlementTypeEnum!]
     $status: [InvoiceStatusTypeEnum!]
-    $amountFrom: Int
-    $amountTo: Int
+    $amountFrom: BigInt
+    $amountTo: BigInt
     $selfBilled: Boolean
     $billingEntityIds: [ID!]
   ) {
