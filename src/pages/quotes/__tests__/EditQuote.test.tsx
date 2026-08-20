@@ -768,8 +768,11 @@ describe('EditQuote', () => {
       })
     })
 
+    // The neutral chip and the saved chip are the very same label, so a header left on
+    // `idle` after a rejected save reads as "Saved" — the drawer's toast is then the only
+    // trace, and it is gone as soon as the drawer is closed.
     describe('WHEN savePricingBlock throws (drawer-originated save)', () => {
-      it('THEN should not display the header error status chip — the drawer surfaces the error', async () => {
+      it('THEN should report the failure in the header rather than a saved state', async () => {
         mockUpdateQuoteVersion.mockRejectedValue(new Error('Network error'))
 
         render(<EditQuote />)
@@ -784,18 +787,16 @@ describe('EditQuote', () => {
           wrappedOnSave({}, {}, [{ addOnId: 'addon-1' }])
         })
 
-        // The header should revert to the neutral/idle chip, not the error chip —
-        // the drawer stays open and surfaces the failure itself.
         await waitFor(() => {
-          expect(screen.getByText('text_1779268404389wpd2ysgatw4')).toBeInTheDocument()
+          expect(screen.getByText('text_1779437694622y666yr137gm')).toBeInTheDocument()
         })
 
-        expect(screen.queryByText('text_1779437694622y666yr137gm')).not.toBeInTheDocument()
+        expect(screen.queryByText('text_1779268404389wpd2ysgatw4')).not.toBeInTheDocument()
       })
     })
 
     describe('WHEN savePricingBlock resolves with errors (drawer-originated save)', () => {
-      it('THEN should not display the header error status chip — the drawer surfaces the error', async () => {
+      it('THEN should report the failure in the header rather than a saved state', async () => {
         mockUpdateQuoteVersion.mockResolvedValueOnce({
           data: null,
           errors: [{ message: 'Some GraphQL error' }],
@@ -814,12 +815,170 @@ describe('EditQuote', () => {
         })
 
         await waitFor(() => {
-          expect(screen.getByText('text_1779268404389wpd2ysgatw4')).toBeInTheDocument()
+          expect(screen.getByText('text_1779437694622y666yr137gm')).toBeInTheDocument()
         })
 
-        expect(screen.queryByText('text_1779437694622y666yr137gm')).not.toBeInTheDocument()
+        expect(screen.queryByText('text_1779268404389wpd2ysgatw4')).not.toBeInTheDocument()
         // refetchQuote should not be triggered for a failed save
         expect(mockRefetchQuote).not.toHaveBeenCalled()
+      })
+    })
+
+    // The insertion of the block changes the document, which schedules the editor's own
+    // content-only autosave. That save must never be the one that has the last word: it
+    // would report success for a content whose billing items the API rejected, leaving a
+    // block in the quote with nothing behind it.
+    describe('GIVEN a content autosave is pending when a pricing save fails', () => {
+      beforeEach(() => {
+        jest.useFakeTimers()
+      })
+
+      afterEach(() => {
+        jest.useRealTimers()
+      })
+
+      const renderReady = async (): Promise<void> => {
+        render(<EditQuote />)
+
+        await act(async () => {
+          jest.advanceTimersByTime(0)
+        })
+      }
+
+      // Mirrors production ordering: inserting the node fires the editor's onChange
+      // synchronously, then the drawer's unified save runs.
+      const insertBlockThenSave = async (attrs: Record<string, unknown>): Promise<void> => {
+        act(() => {
+          capturedOnPricingCommand?.({ onSave: jest.fn() })
+        })
+
+        const wrappedOnSave = mockDrawerOnPricingCommand.mock.calls[0][0].onSave
+
+        mockMarkdownContent = '<!-- entity:pricing:plan:plan-1 -->'
+
+        act(() => {
+          capturedOnChange?.()
+        })
+
+        await act(async () => {
+          await wrappedOnSave(attrs, {}, { plans: [{ id: 'plan-1' }] })
+        })
+      }
+
+      describe('WHEN the pricing save is rejected', () => {
+        it('THEN should drop the pending content-only save instead of letting it report success', async () => {
+          mockUpdateQuoteVersion.mockResolvedValue({
+            data: null,
+            errors: [{ message: 'Some GraphQL error' }],
+          })
+
+          await renderReady()
+          await insertBlockThenSave({ pricingType: 'plan', entityIds: ['plan-1'] })
+
+          await act(async () => {
+            jest.advanceTimersByTime(2000)
+          })
+
+          // Only the unified save ran — no content-only call followed it.
+          expect(mockUpdateQuoteVersion).toHaveBeenCalledTimes(1)
+          expect(mockUpdateQuoteVersion).toHaveBeenCalledWith(
+            expect.objectContaining({ billingItems: { plans: [{ id: 'plan-1' }] } }),
+            false,
+          )
+        })
+      })
+
+      describe('WHEN the content changes again after a rejected pricing edit', () => {
+        it('THEN should carry the unsaved billing items along rather than the content alone', async () => {
+          mockUpdateQuoteVersion.mockResolvedValue({
+            data: null,
+            errors: [{ message: 'Some GraphQL error' }],
+          })
+
+          await renderReady()
+          // `editData` marks an edit of an existing block: it is never rolled back, so its
+          // block stays in the document with its billing items still unsaved.
+          act(() => {
+            capturedOnPricingCommand?.({
+              onSave: jest.fn(),
+              editData: { pricingType: 'plan', entityIds: ['plan-1'] },
+            })
+          })
+
+          const wrappedOnSave = mockDrawerOnPricingCommand.mock.calls[0][0].onSave
+
+          await act(async () => {
+            await wrappedOnSave(
+              { pricingType: 'plan', entityIds: ['plan-1'] },
+              {},
+              {
+                plans: [{ id: 'plan-1' }],
+              },
+            )
+          })
+
+          mockMarkdownContent = '<!-- entity:pricing:plan:plan-1 -->\n\nSome prose'
+
+          act(() => {
+            capturedOnChange?.()
+          })
+
+          await act(async () => {
+            jest.advanceTimersByTime(2000)
+          })
+
+          expect(mockUpdateQuoteVersion).toHaveBeenLastCalledWith(
+            expect.objectContaining({
+              content: '<!-- entity:pricing:plan:plan-1 -->\n\nSome prose',
+              billingItems: { plans: [{ id: 'plan-1' }] },
+            }),
+            false,
+          )
+        })
+      })
+
+      describe('WHEN the failed insert is rolled back', () => {
+        it('THEN should report saved again and stop carrying the abandoned billing items', async () => {
+          mockUpdateQuoteVersion.mockResolvedValueOnce({
+            data: null,
+            errors: [{ message: 'Some GraphQL error' }],
+          })
+
+          await renderReady()
+
+          if (capturedRemoveBlockRef) {
+            capturedRemoveBlockRef.current = () => {
+              // The real editor drops the block, taking the document back to the
+              // content that is stored.
+              mockMarkdownContent = '# Mock markdown content'
+            }
+          }
+
+          await insertBlockThenSave({ pricingType: 'plan', entityIds: ['plan-1'] })
+
+          // The document matches what is stored again, so the saved chip is truthful and
+          // no retry is offered.
+          expect(screen.queryByText('text_1779437694622y666yr137gm')).not.toBeInTheDocument()
+          expect(screen.getByText('text_1779268404389wpd2ysgatw4')).toBeInTheDocument()
+
+          mockUpdateQuoteVersion.mockResolvedValue({
+            data: { updateQuoteVersion: { id: 'version-1' } },
+          })
+          mockMarkdownContent = '# Mock markdown content edited'
+
+          act(() => {
+            capturedOnChange?.()
+          })
+
+          await act(async () => {
+            jest.advanceTimersByTime(2000)
+          })
+
+          expect(mockUpdateQuoteVersion).toHaveBeenLastCalledWith(
+            { id: 'version-1', content: '# Mock markdown content edited' },
+            false,
+          )
+        })
       })
     })
 

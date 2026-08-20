@@ -1033,4 +1033,91 @@ describe('RichTextEditor', () => {
       })
     })
   })
+
+  describe('GIVEN the removeBlockRef prop is provided', () => {
+    type MockNode = { type: { name: string }; attrs: Record<string, unknown>; nodeSize: number }
+
+    const mockDeleteRange = jest.fn().mockReturnValue({ run: jest.fn() })
+
+    // The removal walks the document and deletes the matching node's range, neither of
+    // which the shared editor mock models.
+    const withDoc = async (nodes: MockNode[]): Promise<void> => {
+      mockEditor.state = {
+        ...mockEditor.state,
+        doc: {
+          descendants: (callback: (node: MockNode, pos: number) => unknown) => {
+            nodes.forEach((node, index) => callback(node, index))
+          },
+        },
+      } as unknown as typeof mockEditor.state
+
+      mockEditor.chain = jest.fn().mockReturnValue({
+        focus: jest.fn().mockReturnValue({ deleteRange: mockDeleteRange }),
+      }) as unknown as typeof mockEditor.chain
+    }
+
+    const pricingBlock = (attrs: Record<string, unknown>): MockNode => ({
+      type: { name: 'pricingBlock' },
+      attrs,
+      nodeSize: 1,
+    })
+
+    const renderWithRemoveBlockRef = async (): Promise<
+      React.MutableRefObject<((localId: string) => void) | null>
+    > => {
+      const removeBlockRef = { current: null } as React.MutableRefObject<
+        ((localId: string) => void) | null
+      >
+
+      await act(() => render(<RichTextEditor removeBlockRef={removeBlockRef} />))
+
+      return removeBlockRef
+    }
+
+    beforeEach(() => {
+      mockDeleteRange.mockClear()
+    })
+
+    describe('WHEN the block is identified by its entity id alone', () => {
+      it('THEN should delete it, as a subscription pricing block carries no local id', async () => {
+        await withDoc([pricingBlock({ pricingType: 'plan', entityIds: ['plan-1'] })])
+
+        const removeBlockRef = await renderWithRemoveBlockRef()
+
+        removeBlockRef.current?.('plan-1')
+
+        expect(mockDeleteRange).toHaveBeenCalledWith({ from: 0, to: 1 })
+      })
+    })
+
+    describe('WHEN the block is identified by a local entity id', () => {
+      it('THEN should delete it', async () => {
+        await withDoc([
+          pricingBlock({
+            pricingType: 'addOns',
+            entityIds: ['addon-1'],
+            localEntityIds: ['local-1'],
+          }),
+        ])
+
+        const removeBlockRef = await renderWithRemoveBlockRef()
+
+        removeBlockRef.current?.('local-1')
+
+        expect(mockDeleteRange).toHaveBeenCalledWith({ from: 0, to: 1 })
+      })
+    })
+
+    describe('WHEN no block carries the id', () => {
+      it('THEN should delete nothing', async () => {
+        await withDoc([pricingBlock({ pricingType: 'plan', entityIds: ['plan-1'] })])
+
+        const removeBlockRef = await renderWithRemoveBlockRef()
+
+        removeBlockRef.current?.('plan-2')
+
+        expect(mockDeleteRange).not.toHaveBeenCalled()
+      })
+    })
+  })
 })

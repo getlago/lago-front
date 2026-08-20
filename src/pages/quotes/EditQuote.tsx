@@ -218,7 +218,17 @@ const EditQuote = () => {
 
         if (markdown === null || markdown === undefined || !versionId) return
 
-        const payload: UpdateQuoteVersionInput = { id: versionId, content: markdown }
+        // A pricing save that failed leaves its block in the content with its billing item
+        // unsaved, so the content is never sent on its own from here on: carrying the
+        // rejected items along means the two either land together or fail together, instead
+        // of the content quietly persisting a block nothing backs.
+        const unsavedBillingItems = failedPayloadRef.current?.billingItems
+
+        const payload: UpdateQuoteVersionInput = {
+          id: versionId,
+          content: markdown,
+          ...(unsavedBillingItems ? { billingItems: unsavedBillingItems } : {}),
+        }
 
         failedPayloadRef.current = payload
 
@@ -293,6 +303,11 @@ const EditQuote = () => {
 
       if (content === null || content === undefined) return { ok: true }
 
+      // The block insertion this save follows already scheduled a content-only autosave.
+      // It would land after this one and report success for a content whose billing items
+      // were rejected, so the pricing save takes ownership of the pending content.
+      debouncedSave.cancel()
+
       setSaveStatus('saving')
 
       // Each drawer owns a single billingItems category and already merges its
@@ -321,18 +336,20 @@ const EditQuote = () => {
           return { ok: true }
         }
 
-        // Drawer-originated failure: let the drawer surface field/toast errors and
-        // stay open. Revert the header to a neutral state instead of the error chip.
-        setSaveStatus('idle')
+        // The drawer surfaces the failure too (toast, and it stays open on its own), but
+        // the header cannot stay silent: `idle` renders the very same "Saved" chip as a
+        // successful save, so a rejected save would read as a saved one. The error chip
+        // also exposes the retry, which resends the payload kept above.
+        setSaveStatus('error')
 
         return { ok: false, error: result.errors }
       } catch (error) {
-        setSaveStatus('idle')
+        setSaveStatus('error')
 
         return { ok: false, error: error as ApolloError }
       }
     },
-    [versionId, refetchQuote],
+    [versionId, refetchQuote, debouncedSave],
   )
 
   savePricingBlockRef.current = savePricingBlock
@@ -359,6 +376,12 @@ const EditQuote = () => {
               isRollingBackRef.current = true
               removeBlockRef.current?.(localId)
               isRollingBackRef.current = false
+
+              // The rolled-back insert leaves the document back on what is stored, so
+              // there is nothing left to retry — and the header can say saved again
+              // without lying. A failed *edit* keeps both its block and its retry.
+              failedPayloadRef.current = null
+              setSaveStatus('idle')
             }
           }
 

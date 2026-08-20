@@ -466,11 +466,18 @@ const RichTextEditor = ({
       editor.state.doc.descendants((node, pos) => {
         if (target) return false
 
+        // Blocks are identified by a client-side local id when they have one, and by the
+        // catalog entity they point at otherwise — a subscription pricing block carries
+        // `entityIds` only, so leaving it out made every removal of one a silent no-op
+        // (a failed insert then left its orphaned block behind). The two id namespaces
+        // never overlap, so a single lookup covering both cannot cross-match.
         const isTargetBlock =
           (node.type.name === 'discountBlock' ||
             node.type.name === 'pricingBlock' ||
             node.type.name === 'creditsBlock') &&
-          (node.attrs.localId === localId || node.attrs.localEntityIds?.includes(localId))
+          (node.attrs.localId === localId ||
+            node.attrs.localEntityIds?.includes(localId) ||
+            node.attrs.entityIds?.includes(localId))
 
         if (isTargetBlock) {
           target = { from: pos, to: pos + node.nodeSize }
