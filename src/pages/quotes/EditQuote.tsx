@@ -203,6 +203,9 @@ const EditQuote = () => {
 
   useEffect(() => {
     if (!versionId || quoteVersionCurrency) return
+    // An amendment takes its currency from the amended subscription at creation, and the API
+    // refuses any change to it — including materializing one here.
+    if (isAmendment) return
     if (backfilledVersionIdRef.current === versionId) return
 
     backfilledVersionIdRef.current = versionId
@@ -210,7 +213,7 @@ const EditQuote = () => {
     updateQuoteVersionRef
       .current({ id: versionId, currency: effectiveQuoteCurrency }, false)
       .catch(() => undefined)
-  }, [versionId, quoteVersionCurrency, effectiveQuoteCurrency])
+  }, [versionId, quoteVersionCurrency, effectiveQuoteCurrency, isAmendment])
 
   const debouncedSave = useMemo(
     () =>

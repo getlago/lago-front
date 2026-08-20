@@ -766,6 +766,62 @@ describe('EditQuoteAside', () => {
     })
   })
 
+  describe('GIVEN a subscription amendment quote', () => {
+    const amendmentQuote = { ...mockQuote, orderType: OrderTypeEnum.SubscriptionAmendment }
+
+    // The amended subscription already invoices in its plan's currency and the quote took it at
+    // creation, so the API refuses any change (`currency: not_supported_for_order_type`).
+    describe('WHEN the aside renders', () => {
+      it('THEN should still show the currency, read-only', () => {
+        render(<EditQuoteAside quote={amendmentQuote} />)
+
+        const input = screen
+          .getByTestId(EDIT_QUOTE_ASIDE_CURRENCY_COMBOBOX_TEST_ID)
+          .querySelector('input') as HTMLInputElement
+
+        expect(screen.getByTestId(EDIT_QUOTE_ASIDE_CURRENCY_INPUT_TEST_ID)).toBeInTheDocument()
+        expect(input).toBeDisabled()
+      })
+
+      it('THEN should leave it editable on every other order type', () => {
+        render(<EditQuoteAside quote={mockQuote} />)
+
+        const input = screen
+          .getByTestId(EDIT_QUOTE_ASIDE_CURRENCY_COMBOBOX_TEST_ID)
+          .querySelector('input') as HTMLInputElement
+
+        expect(input).not.toBeDisabled()
+      })
+    })
+
+    describe('WHEN the field is driven programmatically', () => {
+      it('THEN should still refuse to persist a currency', async () => {
+        const { rerender } = render(<EditQuoteAside quote={amendmentQuote} />)
+
+        // The resync effect writes the field whenever the version currency changes; on an
+        // amendment that must never turn into a mutation.
+        rerender(
+          <EditQuoteAside
+            quote={{
+              ...amendmentQuote,
+              currentVersion: { ...amendmentQuote.currentVersion, currency: CurrencyEnum.Jpy },
+            }}
+          />,
+        )
+
+        await waitFor(() => {
+          const input = screen
+            .getByTestId(EDIT_QUOTE_ASIDE_CURRENCY_COMBOBOX_TEST_ID)
+            .querySelector('input') as HTMLInputElement
+
+          expect(input).toHaveValue(CurrencyEnum.Jpy)
+        })
+
+        expect(mockUpdateQuoteVersion).not.toHaveBeenCalled()
+      })
+    })
+  })
+
   describe('GIVEN the document renders mention variables', () => {
     // The content stores variable ids, so the preview reads `quoteVersion.mentionVariables`. A
     // draft recomputes them live from the version's billing entity and currency, so selecting the

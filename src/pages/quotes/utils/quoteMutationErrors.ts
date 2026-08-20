@@ -65,6 +65,7 @@ export const TOP_LEVEL_ERROR_KEYS: Record<string, string> = {
   'expiresAt.invalid_date': 'text_1786540789742b4ym3200cp6',
   'currency.value_is_mandatory': 'text_17865407897425abgh9dnl45',
   'currency.invalid_currency': 'text_1786540789742i50p3wlht3g',
+  'currency.not_supported_for_order_type': 'text_1787216718467e8ca9iw2atm',
   'quoteVersion.not_found': 'text_178654078974209u9bigc6ta',
   'quoteVersion.not_approved': 'text_1786540789742edgippmh4fh',
   'quoteVersionId.value_already_exist': 'text_1786540789742km6ifr1uf63',

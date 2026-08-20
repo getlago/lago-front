@@ -1122,6 +1122,44 @@ describe('EditQuote', () => {
     })
   })
 
+  describe('GIVEN a subscription amendment quote with no currency yet', () => {
+    describe('WHEN the page materializes the quote currency', () => {
+      it('THEN should skip the backfill, which the API refuses on an amendment', () => {
+        mockUseQuote.mockReturnValue({
+          quote: {
+            ...mockQuote,
+            orderType: 'subscription_amendment',
+            currentVersion: { ...mockQuote.currentVersion, currency: null },
+          },
+          loading: false,
+          refetch: mockRefetchQuote,
+        })
+
+        render(<EditQuote />)
+
+        expect(mockUpdateQuoteVersion).not.toHaveBeenCalled()
+      })
+
+      it('THEN should still backfill it on a subscription creation', () => {
+        mockUseQuote.mockReturnValue({
+          quote: {
+            ...mockQuote,
+            currentVersion: { ...mockQuote.currentVersion, currency: null },
+          },
+          loading: false,
+          refetch: mockRefetchQuote,
+        })
+
+        render(<EditQuote />)
+
+        expect(mockUpdateQuoteVersion).toHaveBeenCalledWith(
+          expect.objectContaining({ currency: expect.any(String) }),
+          false,
+        )
+      })
+    })
+  })
+
   describe('GIVEN the resolved payment term', () => {
     describe('WHEN the customer carries its own term', () => {
       it('THEN should pass it to both pricing drawers', () => {

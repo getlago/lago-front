@@ -193,6 +193,9 @@ const EditQuoteAsideForm = ({
    * Currency and billing entity are discrete picks, not typing, so they save right away.
    */
   const handleCurrencyChange = async (currency: CurrencyEnum | undefined): Promise<void> => {
+    // The amended subscription already invoices in its plan's currency and the quote took that
+    // currency at creation, so the API refuses to change it (`currency: not_supported_for_order_type`).
+    if (isAmendment) return
     if (!versionId || !currency) return
 
     const previous = persistedCurrencyRef.current
@@ -325,6 +328,7 @@ const EditQuoteAsideForm = ({
             {(field) => (
               <field.ComboBoxField
                 dataTest={EDIT_QUOTE_ASIDE_CURRENCY_COMBOBOX_TEST_ID}
+                disabled={isAmendment}
                 disableClearable
                 placeholder={translate('text_632c6e59b73f9a54d4c7224b')}
                 data={CURRENCY_DATA}
