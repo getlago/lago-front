@@ -146,11 +146,16 @@ export function SubscriptionPricingContent({
   // That first resolution is also the plan the drawer opened with, so record it as the
   // baseline for userSwitchedPlan (the subscription path has no billingItemPlan to seed it).
   useEffect(() => {
-    if (resolvedPlanId && !selectedPlanId) {
-      originalPlanIdRef.current = resolvedPlanId
-      setSelectedPlanId(resolvedPlanId)
-    }
-  }, [resolvedPlanId, selectedPlanId])
+    if (!resolvedPlanId || selectedPlanId) return
+
+    // The override child a subscription runs is never offered in the list — only catalog plans
+    // are — so selecting it would leave the ComboBox with a value it cannot label and it would
+    // render the raw id. `originalPlanIdRef` follows, so switching plan is still detected.
+    const selectableId = catalogPlan?.id ?? resolvedPlanId
+
+    originalPlanIdRef.current = selectableId
+    setSelectedPlanId(selectableId)
+  }, [resolvedPlanId, selectedPlanId, catalogPlan])
 
   // Quote-specific state
   const [subscriptionSettings, setSubscriptionSettings] = useState(() => {
@@ -250,7 +255,7 @@ export function SubscriptionPricingContent({
     }
 
     stateRef.current = {
-      planId: planData?.id ?? selectedPlanId,
+      planId: billingItemPlan?.id ?? catalogPlan?.id ?? planData?.id ?? selectedPlanId,
       planCode: formCode,
       planName: formName,
       basePlanName,
@@ -264,6 +269,8 @@ export function SubscriptionPricingContent({
   }, [
     formReady,
     planData,
+    billingItemPlan,
+    catalogPlan,
     selectedPlanId,
     subscriptionSettings,
     invoicingSettings,

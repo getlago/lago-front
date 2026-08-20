@@ -1238,3 +1238,150 @@ describe('GIVEN a plan billing item saved from the quote drawer', () => {
     })
   })
 })
+
+// ---------------------------------------------------------------------------
+// Payload alignment on the quoted (baseline) plan
+// ---------------------------------------------------------------------------
+
+const usageCharge = (id: string, metricCode: string): LocalUsageChargeInput =>
+  ({
+    id,
+    billableMetric: {
+      id: `bm_${metricCode}`,
+      code: metricCode,
+      name: metricCode,
+      aggregationType: AggregationTypeEnum.CountAgg,
+      recurring: false,
+      filters: [],
+    },
+    chargeModel: ChargeModelEnum.Standard,
+    properties: { amount: '10' },
+    invoiceDisplayName: '',
+    payInAdvance: false,
+    prorated: false,
+    invoiceable: true,
+    taxCodes: [],
+  }) as LocalUsageChargeInput
+
+const fixedCharge = (id: string, addOnCode: string): LocalFixedChargeInput =>
+  ({
+    id,
+    addOn: { id: `addon_${addOnCode}`, name: addOnCode, code: addOnCode },
+    chargeModel: FixedChargeChargeModelEnum.Standard,
+    units: '1',
+    applyUnitsImmediately: false,
+    invoiceDisplayName: null,
+    payInAdvance: false,
+    prorated: false,
+    properties: { amount: '20' },
+    taxCodes: [],
+  }) as LocalFixedChargeInput
+
+describe('toPlanBillingItems — snapshot ids are bound to the quoted plan', () => {
+  describe('GIVEN a subscription amendment, whose form is seeded from the override child while the quote points at the catalog parent', () => {
+    // The child carries its own charge ids; the catalog plan the billing item names
+    // carries the ones the backend resolves overrides against.
+    const childCharge = usageCharge('child_charge', 'count_bm')
+    const catalogCharge = usageCharge('catalog_charge', 'count_bm')
+    const childFixedCharge = fixedCharge('child_fixed_charge', 'support')
+    const catalogFixedCharge = fixedCharge('catalog_fixed_charge', 'support')
+
+    const formValues: PlanFormInput = {
+      ...baseFormValues,
+      name: 'Enterprise Plan with Override',
+      amountCents: '211.00',
+      charges: [childCharge],
+      fixedCharges: [childFixedCharge],
+    }
+    const baselineFormValues: PlanFormInput = {
+      ...baseFormValues,
+      name: 'Enterprise Plan',
+      charges: [catalogCharge],
+      fixedCharges: [catalogFixedCharge],
+    }
+
+    describe('WHEN the billing item is serialized', () => {
+      it('THEN should rebind the snapshot charge ids on the catalog charges sharing the billable metric', () => {
+        const result = toPlanBillingItems(basePricingState, formValues, baselineFormValues)
+
+        expect(result.plans[0].payload.charges?.[0].id).toBe('catalog_charge')
+        expect(result.plans[0].payload.fixedCharges?.[0].id).toBe('catalog_fixed_charge')
+      })
+
+      it('THEN should keep the negotiated values as overrides rather than in the snapshot', () => {
+        // The seeded state carries the child's name, as it does on a first open.
+        const state: SubscriptionPricingState = {
+          ...basePricingState,
+          planName: 'Enterprise Plan with Override',
+          basePlanName: 'Enterprise Plan with Override',
+        }
+        const result = toPlanBillingItems(state, formValues, baselineFormValues)
+
+        // The snapshot still describes what was negotiated, only its ids move.
+        expect(result.plans[0].payload.charges?.[0].properties).toEqual({ amount: '10' })
+        expect(result.plans[0].overrides.amountCents).toBe(21100)
+        expect(result.plans[0].payload.name).toBe('Enterprise Plan')
+        expect(result.plans[0].overrides.name).toBe('Enterprise Plan with Override')
+      })
+    })
+  })
+
+  describe('GIVEN no baseline plan is resolved', () => {
+    describe('WHEN the billing item is serialized', () => {
+      it('THEN should leave the snapshot ids untouched', () => {
+        const formValues: PlanFormInput = {
+          ...baseFormValues,
+          charges: [usageCharge('own_charge', 'count_bm')],
+          fixedCharges: [fixedCharge('own_fixed_charge', 'support')],
+        }
+
+        const result = toPlanBillingItems(basePricingState, formValues)
+
+        expect(result.plans[0].payload.charges?.[0].id).toBe('own_charge')
+        expect(result.plans[0].payload.fixedCharges?.[0].id).toBe('own_fixed_charge')
+      })
+    })
+  })
+
+  describe('GIVEN a charge the baseline plan does not carry', () => {
+    describe('WHEN the billing item is serialized', () => {
+      it('THEN should leave that charge id untouched, having nothing to bind it to', () => {
+        const formValues: PlanFormInput = {
+          ...baseFormValues,
+          charges: [usageCharge('child_charge', 'count_bm'), usageCharge('added_charge', 'sum_bm')],
+        }
+        const baselineFormValues: PlanFormInput = {
+          ...baseFormValues,
+          charges: [usageCharge('catalog_charge', 'count_bm')],
+        }
+
+        const result = toPlanBillingItems(basePricingState, formValues, baselineFormValues)
+
+        expect(result.plans[0].payload.charges?.[0].id).toBe('catalog_charge')
+        expect(result.plans[0].payload.charges?.[1].id).toBe('added_charge')
+      })
+    })
+  })
+
+  describe('GIVEN the baseline plan carries two charges on the same billable metric', () => {
+    describe('WHEN the billing item is serialized', () => {
+      it('THEN should leave the id untouched rather than bind it to an arbitrary one', () => {
+        const formValues: PlanFormInput = {
+          ...baseFormValues,
+          charges: [usageCharge('child_charge', 'count_bm')],
+        }
+        const baselineFormValues: PlanFormInput = {
+          ...baseFormValues,
+          charges: [
+            usageCharge('catalog_charge_a', 'count_bm'),
+            usageCharge('catalog_charge_b', 'count_bm'),
+          ],
+        }
+
+        const result = toPlanBillingItems(basePricingState, formValues, baselineFormValues)
+
+        expect(result.plans[0].payload.charges?.[0].id).toBe('child_charge')
+      })
+    })
+  })
+})
