@@ -33,7 +33,6 @@ const INHERIT_OPTION = {
 const mockUseBillingEntitiesOptions = jest.fn()
 
 jest.mock('~/hooks/useBillingEntitiesOptions', () => ({
-  // Keep the real BILLING_ENTITY_INHERIT_CODE: the sentinel's value is what this suite asserts on.
   ...jest.requireActual('~/hooks/useBillingEntitiesOptions'),
   useBillingEntitiesOptions: (params?: { includeInheritOption?: boolean }) =>
     mockUseBillingEntitiesOptions(params),
@@ -76,7 +75,6 @@ describe('BillingEntityFormPicker', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
-    // Mirrors the real hook: the sentinel is prepended only when asked for.
     mockUseBillingEntitiesOptions.mockImplementation((params) => ({
       options: params?.includeInheritOption ? [INHERIT_OPTION, ...mockOptions] : mockOptions,
       isLoading: false,
@@ -164,7 +162,6 @@ describe('BillingEntityFormPicker', () => {
           <BillingEntityFormPicker includeInheritOption value={value} onChange={mockOnChange} />,
         )
 
-        // A non-empty value is what lets ComboBox hold the selection instead of clearing on blur.
         expect(screen.getByTestId('combo-value')).toHaveTextContent(BILLING_ENTITY_INHERIT_CODE)
       })
     })

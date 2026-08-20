@@ -160,7 +160,6 @@ describe('QuoteDetails', () => {
 
         const config = mockMainHeaderConfigure.mock.calls[0][0]
 
-        // `metadata` is a ReactNode now (a link), so it has to be rendered to be inspected.
         render(<>{config.entity.metadata}</>)
 
         const link = screen.getByTestId(QUOTE_DETAILS_CUSTOMER_LINK_TEST_ID)

@@ -485,8 +485,6 @@ describe('useSubscriptionSettingsDrawer', () => {
       it('THEN should not turn the payment term into a form field', async () => {
         const user = userEvent.setup()
 
-        // populated: the schema requires a start date on a non-amendment, so an empty
-        // default would block the save before the assertion could run.
         openAndRenderDrawer(populatedValues, false, 30)
 
         const saveButton = screen.getByTestId(SUBSCRIPTION_SETTINGS_DRAWER_SAVE_TEST_ID)

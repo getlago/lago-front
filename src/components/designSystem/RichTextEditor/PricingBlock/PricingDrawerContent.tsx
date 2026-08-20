@@ -7,7 +7,6 @@ import { pricingDrawerDefaultValues } from './constants'
 interface PricingDrawerContentExtraProps {
   currency: CurrencyEnum
   onAddOnPayloadCapture?: (localId: string, addOn: AddOnForPricingSectionFragment) => void
-  /** Resolved customer/billing-entity payment term, displayed read-only in the edit drawer. */
   netPaymentTerm?: number | null
 }
 

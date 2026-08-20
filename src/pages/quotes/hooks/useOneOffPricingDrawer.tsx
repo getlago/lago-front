@@ -185,10 +185,6 @@ export interface OneOffPricingDrawerOptions {
   currency?: CurrencyEnum | null
   /** Whether `currency` is the quote's own currency rather than a fallback. */
   hasQuoteCurrency?: boolean
-  /**
-   * Resolved customer/billing-entity payment term, displayed read-only next to the dates the
-   * one-off commercial term derives from.
-   */
   netPaymentTerm?: number | null
 }
 

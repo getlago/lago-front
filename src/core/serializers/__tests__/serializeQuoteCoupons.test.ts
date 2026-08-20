@@ -129,8 +129,6 @@ describe('serializeQuoteCoupons', () => {
   })
 
   describe('repricing a fixed-amount coupon in the deal currency', () => {
-    // `payload.currency` is the catalog coupon's own and stays that way, so without a currency in
-    // the overrides a coupon priced elsewhere is unusable on the deal.
     const items = [
       {
         localId: 'local-1',

@@ -59,8 +59,6 @@ describe('EditAddOnDrawer', () => {
         expect(headings.length).toBeGreaterThanOrEqual(2)
       })
 
-      // `DatePickerField` exposes no `dataTest` prop, so the rendered label (the translation
-      // key, since translate is mocked to identity) is the only handle on these two fields.
       it.each([
         { name: 'fromDatetime', label: 'text_1787136090693ny89dm4srtc' },
         { name: 'toDatetime', label: 'text_1787136090694y25btbscct7' },

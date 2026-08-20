@@ -23,7 +23,6 @@ const VERSION_FRAGMENT = gql`
 const STALE_VARIABLES = { billing_entity_name: 'First Entity', quote_currency: CurrencyEnum.Eur }
 const FRESH_VARIABLES = { billing_entity_name: 'Second Entity', quote_currency: CurrencyEnum.Aud }
 
-// A currency change restamps the currency every billing item carries, server-side.
 const STALE_BILLING_ITEMS = {
   plans: [{ id: 'plan-1', payload: {}, overrides: { amountCurrency: CurrencyEnum.Eur } }],
   walletCredits: [{ payload: { currency: CurrencyEnum.Eur } }],
@@ -44,7 +43,6 @@ const readVersion = (
     fragment: VERSION_FRAGMENT,
   })
 
-/** Seeds the normalized QuoteVersion the quote preview reads its variables from. */
 const seedCache = (): InMemoryCache => {
   const cache = new InMemoryCache()
 
@@ -111,9 +109,6 @@ describe('useUpdateQuote — server-recomputed fields refresh in the cache', () 
           await result.current.updateQuoteVersion(input, false)
         })
 
-        // The mutation selects both fields back, so writing its result into the cache replaces the
-        // stale dict the preview was rendering (LAGO-1839) and the stale currency the billing items
-        // were carrying.
         await waitFor(() => {
           expect(readVersion(cache)?.mentionVariables).toEqual(FRESH_VARIABLES)
         })

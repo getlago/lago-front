@@ -231,8 +231,6 @@ describe('plan currency round trip', () => {
   const catalogUsd = { ...baseFormValues, amountCurrency: CurrencyEnum.Usd }
   const dealEur = { ...baseFormValues, amountCurrency: CurrencyEnum.Eur }
 
-  // The payload mirrors the billing object as stored, so it names the catalog plan's own currency;
-  // the repricing lives in the override.
   it('keeps the catalog currency in the payload and the deal currency in the override', () => {
     const result = toPlanBillingItems(basePricingState, dealEur, catalogUsd)
 
@@ -254,8 +252,6 @@ describe('plan currency round trip', () => {
     expect(deserialized.formValues?.amountCurrency).toBe(CurrencyEnum.Eur)
   })
 
-  // Amounts are stored in cents of the EFFECTIVE currency, so reading them back under the catalog
-  // currency would rescale them whenever the two differ in decimals.
   it('reads the stored amount back unchanged after a repricing', () => {
     const serialized = toPlanBillingItems(
       basePricingState,
@@ -292,8 +288,6 @@ describe('buildPlanOverrides', () => {
   })
 
   describe('repricing the deal in another currency', () => {
-    // The backend resolves `overrides.amountCurrency || plan.amount_currency` and hands the result
-    // to Plans::OverrideService, so the override is what reprices a catalog plan for the deal.
     it('sends the currency when the deal is priced differently from the catalog plan', () => {
       const result = buildPlanOverrides(
         { ...baseFormValues, amountCurrency: CurrencyEnum.Eur },
@@ -312,7 +306,6 @@ describe('buildPlanOverrides', () => {
       expect(result).not.toHaveProperty('amountCurrency')
     })
 
-    // Emitting it unconditionally would make every quoted subscription an override (LAGO-1789).
     it('does not turn an untouched plan into an override', () => {
       const untouched = { ...baseFormValues, amountCents: '0' as PlanFormInput['amountCents'] }
 

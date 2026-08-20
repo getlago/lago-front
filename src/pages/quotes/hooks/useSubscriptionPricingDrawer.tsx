@@ -42,10 +42,6 @@ export interface QuoteCustomer {
 
 export interface SubscriptionPricingDrawerOptions {
   customer?: QuoteCustomer | null
-  /**
-   * Resolved customer/billing-entity payment term, displayed read-only next to the subscription
-   * dates the deal term derives from.
-   */
   netPaymentTerm?: number | null
   subscriptionId?: string
   /** Currency used to display amounts — may be a customer/organization fallback. */

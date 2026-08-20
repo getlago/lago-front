@@ -13,14 +13,6 @@ export const formatNetPaymentTerm = (
   return translate('text_64c7a89b6c67eb6c9889815f', { days: netPaymentTerm }, netPaymentTerm)
 }
 
-/**
- * Payment term shown next to the dates the deal term derives from.
- *
- * Read-only and never persisted on the quote on purpose: `Customer#applicable_net_payment_term`
- * already falls back to the billing entity, and `Invoices::CreateGeneratingService` derives the
- * invoice's term the same way — a quote-level field would let the document promise a term the
- * invoice won't honour.
- */
 export const QuotePaymentTermLine = ({
   netPaymentTerm,
 }: {

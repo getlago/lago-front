@@ -87,8 +87,6 @@ const EditQuoteAsideForm = ({
   const { hasPermissions } = usePermissions()
   const { download } = useDownloadQuotePdf()
   const { goToApproveQuote } = useApproveQuote()
-  // Shares its query — and its cache entry — with the picker below. Read here only for
-  // `hasMultipleEntities`, which decides whether the row is worth showing at all.
   const { hasMultipleEntities } = useBillingEntitiesOptions({ includeInheritOption: true })
 
   const canApprove = hasPermissions(['quotesApprove'])
@@ -103,16 +101,12 @@ const EditQuoteAsideForm = ({
 
   const isAmendment = quote.orderType === OrderTypeEnum.SubscriptionAmendment
   const versionId = quote.currentVersion.id
-  // The backend rejects an entity on an amendment: re-pinning a running subscription would move
-  // it to another invoice-numbering series mid-life.
   const canPickBillingEntity = hasMultipleEntities && !isAmendment
   const versionBillingEntityId = quote.currentVersion.billingEntityId ?? ''
 
   const getDefaultValues = (): EditQuoteAsideFormValues => {
     return {
       orderTypeLabel: translate(getQuoteOrderTypeTranslationKey(quote.orderType)),
-      // Blank means "no explicit binding — follow the customer's own entity at billing time",
-      // which is exactly what a null `quote_versions.billing_entity_id` carries.
       billingEntityId: versionBillingEntityId,
       currency: (quote.currentVersion.currency as CurrencyEnum | undefined) ?? undefined,
       subscriptionLabel: quote.subscription
@@ -129,7 +123,6 @@ const EditQuoteAsideForm = ({
     },
   })
 
-  // Allow the use of updateQuoteVersion in a callback without using eslint-disable-next-line
   const updateQuoteVersionRef = useRef(updateQuoteVersion)
   const onSaveStartRef = useRef(onSaveStart)
   const onSaveErrorRef = useRef(onSaveError)
@@ -139,8 +132,6 @@ const EditQuoteAsideForm = ({
   onSaveErrorRef.current = onSaveError
 
   const versionCurrency = (quote.currentVersion.currency as CurrencyEnum | undefined) ?? undefined
-  // Last values known to be persisted, so the field listeners can tell a user pick apart from a
-  // programmatic sync (mount backfill, billing-item seeding) and only fire a mutation for the former.
   const persistedCurrencyRef = useRef(versionCurrency)
   const persistedBillingEntityIdRef = useRef(versionBillingEntityId)
 
@@ -168,8 +159,6 @@ const EditQuoteAsideForm = ({
 
       if (result.data?.updateQuoteVersion) return true
 
-      // `updateQuoteVersion` silences 422 so the page can report it itself. Without this the
-      // aside would only offer a retry and never say which field the API rejected.
       getQuoteMutationErrors(result.errors, translate).forEach(({ message }) =>
         addToast({ severity: 'danger', message }),
       )
@@ -183,18 +172,7 @@ const EditQuoteAsideForm = ({
     }
   }
 
-  /*
-   * Both handlers claim the `persisted*` ref BEFORE the mutation, so the resync effects above
-   * cannot be mistaken for a user pick. When the API rejects the value it still holds the old
-   * one, so the ref AND the field go back: otherwise the aside would keep showing a value the
-   * quote does not carry, and re-picking it would be a silent no-op against the guard. Restoring
-   * the field re-enters the handler, where the guard short-circuits on the first comparison.
-   *
-   * Currency and billing entity are discrete picks, not typing, so they save right away.
-   */
   const handleCurrencyChange = async (currency: CurrencyEnum | undefined): Promise<void> => {
-    // The amended subscription already invoices in its plan's currency and the quote took that
-    // currency at creation, so the API refuses to change it (`currency: not_supported_for_order_type`).
     if (isAmendment) return
     if (!versionId || !currency) return
 
@@ -220,8 +198,6 @@ const EditQuoteAsideForm = ({
 
     persistedBillingEntityIdRef.current = billingEntityId
 
-    // The inherit option carries an empty id, and the column behind it is nullable — send `null`
-    // rather than an empty string the API would reject as an unknown entity.
     if (await saveVersionField({ id: versionId, billingEntityId: billingEntityId || null })) return
 
     persistedBillingEntityIdRef.current = previous

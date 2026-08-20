@@ -117,9 +117,6 @@ export const ORDER_ERROR_KEYS: Record<string, string> = {
   'executeAt.invalid_date': 'text_1787137341763zuw842lkske',
   'executeAt.after_deal_expiration': 'text_1787137341763nutdwcniihz',
   'subscription.subscription_not_active': 'text_1787136090695a0gmnr8nxim',
-  // The amendment validator reports `billing_items.plans` with no index, so `parseBillingItemKey`
-  // yields `index: null` and the billing-item path falls back to generic copy — it needs this
-  // top-level entry to say anything useful.
   'billingItems.plans.single_plan_expected': 'text_1787136090695y7j822vqoa1',
   'plan.not_found': 'text_1786630268016ukk6fi5u778',
   'coupon.not_found': 'text_1786630268016171ivs0g1kv',
@@ -175,10 +172,6 @@ const RECURRING_RULES_SEGMENT = 'recurringTransactionRules'
  * `BILLING_ITEM_CODE_KEYS`.
  */
 export const BILLING_ITEM_FIELD_ERROR_KEYS: Record<string, string> = {
-  // Per-plan dates, reported by `QuoteVersions::Validators::SubscriptionCreation::BusinessValidator`.
-  // The start date is only mandatory at approve; the end date never is, so it has no entry for that.
-  // `endDate.invalid_date` covers two causes there — a non-ISO8601 value and an end date that is not
-  // in the future — so its copy has to fit both.
   'startDate.value_is_mandatory': 'text_1787146745141l1kczsx39v9',
   'startDate.invalid_date': 'text_1787146745141j3ktrzyti2x',
   'endDate.invalid_date': 'text_1787146745141wjbnbx6qx0k',

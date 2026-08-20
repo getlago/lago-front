@@ -54,7 +54,6 @@ const DEFAULT_VALUES: SubscriptionSettingsFormValues = {
 interface SubscriptionSettingsDrawerContentProps {
   initialValues: SubscriptionSettingsFormValues
   isAmendment: boolean
-  /** Resolved customer/billing-entity payment term, displayed read-only next to the dates. */
   netPaymentTerm?: number | null
 }
 
@@ -283,8 +282,6 @@ export const useSubscriptionSettingsDrawer = ({
         ),
       })
     },
-    // isAmendment and handleFormSubmit are stable (prop + closure over form) — safe to omit.
-    // netPaymentTerm is not: it lands with the quote query, after mount.
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [drawer, form, translate, netPaymentTerm],
   )

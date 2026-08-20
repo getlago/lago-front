@@ -412,8 +412,6 @@ export const useDiscountDrawer = (
     originalPayloadsRef.current = result.originalPayloads
     entitiesRef.current = result.entities
     setEntities(result.entities)
-    // `currency` belongs here: a deal-currency change has to re-read the stored amounts in the new
-    // one, otherwise the drawer keeps quoting the previous currency.
   }, [billingItems, currency])
 
   const rebuild = useCallback((): BillingItemsPayload => {

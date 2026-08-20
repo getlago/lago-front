@@ -47,10 +47,6 @@ interface SubscriptionPricingContentProps {
   basePlanFormValuesRef: MutableRefObject<PlanFormInput | null>
   initialState?: SubscriptionPricingState | null
   customer?: QuoteCustomer | null
-  /**
-   * Resolved customer/billing-entity payment term, displayed read-only next to the subscription
-   * dates the deal term derives from.
-   */
   netPaymentTerm?: number | null
   /** Currency used to display amounts — may be a customer/organization fallback. */
   currency?: CurrencyEnum | null

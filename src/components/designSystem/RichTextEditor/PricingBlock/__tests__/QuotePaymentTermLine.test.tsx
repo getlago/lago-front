@@ -14,7 +14,6 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
-// Mirrors the mocked identity `translate`, plus the interpolation the plural key relies on.
 const translate = jest.fn(
   (key: string, data?: Record<string, unknown>) =>
     `${key}${data ? `:${JSON.stringify(data)}` : ''}`,

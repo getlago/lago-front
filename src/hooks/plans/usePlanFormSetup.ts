@@ -136,9 +136,6 @@ export const usePlanFormSetup = ({
   const basePlan = plan ?? basePlanData?.plan
   // Whatever was fetched can itself be an override, whose parent is then the catalog plan.
   const catalogPlan = basePlan?.parent ?? basePlan
-  // Deliberately NOT `initialCurrency`: the baseline must stay the catalog plan as priced in the
-  // catalog, otherwise a quote in another currency stamps its own onto both sides of the override
-  // diff and the repricing is silently dropped as "unchanged".
   const baseCurrency = (basePlan?.amountCurrency as CurrencyEnum) || CurrencyEnum.Usd
   const basePlanFormValues = useMemo(
     () =>

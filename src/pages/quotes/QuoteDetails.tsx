@@ -54,8 +54,6 @@ const QuoteDetails = (): JSX.Element => {
         data-test={QUOTE_DETAILS_CUSTOMER_LINK_TEST_ID}
         to={generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: quote.customer.id })}
       >
-        {/* `body` matches what EntitySection renders for a plain-string metadata, so linking it
-            does not shrink the line. */}
         <Typography variant="body" color="inherit">
           {`${quote.customer.displayName} - ${quote.customer.externalId}`}
         </Typography>

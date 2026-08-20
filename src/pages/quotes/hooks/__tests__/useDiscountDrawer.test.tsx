@@ -540,8 +540,6 @@ describe('useDiscountDrawer', () => {
     expect(coupon.localId).toBe('mock-uuid-1')
     expect(coupon.overrides).toEqual({
       amountCents: 1000,
-      // The deal currency the amount is priced in, so a coupon from the catalog can be quoted
-      // on a deal in another currency.
       amountCurrency: CurrencyEnum.Usd,
       percentageRate: null,
       frequency: 'once',

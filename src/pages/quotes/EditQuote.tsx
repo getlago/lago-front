@@ -114,8 +114,6 @@ const EditQuote = () => {
     organization?.defaultCurrency ??
     CurrencyEnum.Usd
 
-  // Mirrors `Customer#applicable_net_payment_term`: the customer's own term when set, the
-  // billing entity's otherwise. Shown read-only in the drawers that carry the deal-term dates.
   const quoteNetPaymentTerm =
     quote?.customer.netPaymentTerm ?? quote?.customer.billingEntity.netPaymentTerm
 
@@ -203,8 +201,6 @@ const EditQuote = () => {
 
   useEffect(() => {
     if (!versionId || quoteVersionCurrency) return
-    // An amendment takes its currency from the amended subscription at creation, and the API
-    // refuses any change to it — including materializing one here.
     if (isAmendment) return
     if (backfilledVersionIdRef.current === versionId) return
 

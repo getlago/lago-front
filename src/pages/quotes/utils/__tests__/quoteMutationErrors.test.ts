@@ -102,8 +102,6 @@ describe('getQuoteMutationErrors', () => {
 
     it.each([
       ['invalid_date', 'text_1786540789742b4ym3200cp6'],
-      // The original QA return: approving with a too-late expiry answered a field-scoped 422
-      // that fell through to the generic copy, so nothing showed on the field.
       ['after_deal_expiration', 'text_17871360906940d0lnf13g0l'],
     ])('flags expiresAt.%s as a form field error', (code, expectedKey) => {
       const errors = getQuoteMutationErrors(
@@ -117,8 +115,6 @@ describe('getQuoteMutationErrors', () => {
     })
 
     it('no longer maps the quote-level startDate details the API stopped sending', () => {
-      // Keys are flat and dotted, and `toHaveProperty('a.b')` reads the dot as a PATH — so the
-      // string form would pass here even if the mappings came back. Assert on the key list.
       expect(Object.keys(TOP_LEVEL_ERROR_KEYS)).not.toContain('startDate.value_is_mandatory')
       expect(Object.keys(TOP_LEVEL_ERROR_KEYS)).not.toContain('startDate.invalid_date_range')
     })
@@ -157,10 +153,6 @@ describe('getQuoteMutationErrors', () => {
       ])
     })
 
-    // Field paths and codes taken from
-    // QuoteVersions::Validators::SubscriptionCreation::BusinessValidator, which is what reports
-    // them at approve time. Without a field entry these fell through to the generic
-    // "a required value is missing", which said nothing about which field to fix.
     it.each([
       ['startDate', 'value_is_mandatory', 'text_1787146745141l1kczsx39v9'],
       ['startDate', 'invalid_date', 'text_1787146745141j3ktrzyti2x'],
@@ -320,7 +312,6 @@ describe('getQuoteMutationErrors', () => {
       ['executionMode', 'value_is_mandatory', 'text_17866108946411ovi8xqry3n'],
       ['executionMode', 'value_is_invalid', 'text_1786610894641m8ffsiodyjw'],
       ['executeAt', 'invalid_date', 'text_1786610894641sjyf79n6nny'],
-      // Signing an order form with a too-late execution date failed just as silently as approve.
       ['executeAt', 'after_deal_expiration', 'text_17871360906947inroyu1jq2'],
     ])('flags %s.%s as a form field error', (field, code, expectedKey) => {
       const errors = getQuoteMutationErrors(
@@ -449,8 +440,6 @@ describe('getQuoteMutationErrors', () => {
       )
     })
 
-    // The amendment business validator reports `billing_items.plans` with NO index, so the
-    // billing-item path yields `index: null` and no prefix — only a top-level entry can name it.
     it('maps the index-less billingItems.plans key the amendment validator sends', () => {
       const errors = getQuoteMutationErrors(
         makeError('unprocessable_entity', { 'billingItems.plans': ['single_plan_expected'] }),

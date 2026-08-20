@@ -44,11 +44,6 @@ interface PlanUsageThresholdOverride {
 export interface PlanOverrides {
   name?: string
   amountCents?: number
-  /**
-   * Set only when the deal is priced in another currency than the catalog plan. The backend
-   * resolves `overrides.amountCurrency || plan.amount_currency` and hands it to
-   * `Plans::OverrideService`, which reprices the duplicated plan.
-   */
   amountCurrency?: string
   invoiceDisplayName?: string
   minimumCommitment?: PlanMinimumCommitmentOverride
@@ -438,11 +433,6 @@ export const buildPlanOverrides = (
       }
     }
 
-    // Currency is the one field handled here rather than in `buildRawPlanOverrides`, because it
-    // must only ever be sent as a deviation. The backend resolves
-    // `overrides.amountCurrency || plan.amount_currency`, so emitting the catalog's own currency
-    // would turn every quoted subscription into an override for nothing (LAGO-1789) — and without
-    // a baseline there is no way to tell a repricing from the plan's own price, so nothing is sent.
     if (
       formValues.amountCurrency &&
       formValues.amountCurrency !== basePlanFormValues.amountCurrency
@@ -701,8 +691,6 @@ export const fromPlanBillingItems = (plans: BillingItemPlan[]): FromPlanBillingI
   let formValues: PlanFormInput | null = null
 
   if (hasFullPlanData) {
-    // Payload stores cents in the deal currency, and names the catalog plan's own currency —
-    // the override is what carries the repricing, so it wins here too.
     const currency = (overrides.amountCurrency ??
       payload.amountCurrency ??
       CurrencyEnum.Usd) as CurrencyEnum

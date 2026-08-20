@@ -53,7 +53,6 @@ jest.mock('~/core/apolloClient', () => ({
 const mockBillingEntitiesOptions = jest.fn()
 
 jest.mock('~/hooks/useBillingEntitiesOptions', () => ({
-  // Keep the real BILLING_ENTITY_INHERIT_CODE: the option fixtures below are keyed on it.
   ...jest.requireActual('~/hooks/useBillingEntitiesOptions'),
   useBillingEntitiesOptions: (params?: { includeInheritOption?: boolean }) =>
     mockBillingEntitiesOptions(params),
@@ -102,8 +101,6 @@ jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({ hasPermissions: mockHasPermissions }),
 }))
 
-// Shape produced by `useBillingEntitiesOptions({ includeInheritOption: true })`: the sentinel
-// first (empty id/value = follow the customer), then the entities.
 const BILLING_ENTITY_OPTIONS = [
   {
     id: '',
@@ -608,8 +605,6 @@ describe('EditQuoteAside', () => {
           .getByTestId(BILLING_ENTITY_FORM_PICKER_DATA_TEST)
           .querySelector('input') as HTMLInputElement
 
-        // Shows the inherit LABEL, not an empty box: an empty ComboBox value reads as
-        // "no selection" and `clearOnBlur` wiped it, so the choice never stuck.
         expect(input).toHaveValue('Use customer default')
         expect(mockUpdateQuoteVersion).not.toHaveBeenCalled()
       })
@@ -682,7 +677,6 @@ describe('EditQuoteAside', () => {
 
         renderWithPinnedEntity()
 
-        // Clearing IS "go back to the customer's entity": both resolve to the inherit option.
         await user.clear(getPickerInput())
 
         await waitFor(() => {
@@ -693,8 +687,6 @@ describe('EditQuoteAside', () => {
         })
       })
 
-      // Driving the popper by keyboard, like the currency case: holding a node reference across
-      // re-renders is what made these flake. The inherit option is first in the list.
       const pickInheritFromList = async (
         user: ReturnType<typeof userEvent.setup>,
       ): Promise<void> => {
@@ -769,8 +761,6 @@ describe('EditQuoteAside', () => {
   describe('GIVEN a subscription amendment quote', () => {
     const amendmentQuote = { ...mockQuote, orderType: OrderTypeEnum.SubscriptionAmendment }
 
-    // The amended subscription already invoices in its plan's currency and the quote took it at
-    // creation, so the API refuses any change (`currency: not_supported_for_order_type`).
     describe('WHEN the aside renders', () => {
       it('THEN should still show the currency, read-only', () => {
         render(<EditQuoteAside quote={amendmentQuote} />)
@@ -798,8 +788,6 @@ describe('EditQuoteAside', () => {
       it('THEN should still refuse to persist a currency', async () => {
         const { rerender } = render(<EditQuoteAside quote={amendmentQuote} />)
 
-        // The resync effect writes the field whenever the version currency changes; on an
-        // amendment that must never turn into a mutation.
         rerender(
           <EditQuoteAside
             quote={{
@@ -823,14 +811,6 @@ describe('EditQuoteAside', () => {
   })
 
   describe('GIVEN the document renders mention variables', () => {
-    // The content stores variable ids, so the preview reads `quoteVersion.mentionVariables`. A
-    // draft recomputes them live from the version's billing entity and currency, so selecting the
-    // field back refreshes the normalized QuoteVersion instead of leaving the previous entity's
-    // values on screen (LAGO-1839).
-    // `useUpdateQuote` is mocked in this suite, so the cases below cannot observe the cache — the
-    // refresh itself is covered in `hooks/__tests__/useUpdateQuoteCache.test.tsx`. This guards the
-    // half that lives in the mutation the aside calls: without the field in the selection set,
-    // Apollo has nothing to write back and the preview keeps the previous entity's values.
     it('THEN should select mentionVariables back from the version mutation', () => {
       expect(print(UpdateQuoteVersionDocument)).toContain('mentionVariables')
     })
@@ -991,7 +971,6 @@ describe('EditQuoteAside', () => {
           expect(mockUpdateQuoteVersion).toHaveBeenCalledTimes(1)
         })
 
-        // Back to the inherit option the version actually carries...
         await waitFor(() => {
           expect(
             (
@@ -1002,7 +981,6 @@ describe('EditQuoteAside', () => {
           ).toBe('Use customer default')
         })
 
-        // ...and the restore must not fire a second mutation of its own.
         expect(mockUpdateQuoteVersion).toHaveBeenCalledTimes(1)
       })
 
@@ -1046,7 +1024,6 @@ describe('EditQuoteAside', () => {
           expect(mockUpdateQuoteVersion).toHaveBeenCalledTimes(1)
         })
 
-        // The guard was rolled back with the field, so the same pick is not a silent no-op.
         await pickSecondEntity()
 
         await waitFor(() => {

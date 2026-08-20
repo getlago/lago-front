@@ -25,17 +25,10 @@ export interface CouponPayload {
   resolvedPayload: unknown
 }
 
-// Full UI-editable set, ALWAYS written (not Partial).
 export type CouponOverrides = Pick<
   CouponPayload,
   'amountCents' | 'percentageRate' | 'frequency' | 'frequencyDuration'
 > & {
-  /**
-   * Deal currency a fixed-amount coupon is repriced in, and the unit `amountCents` above is
-   * expressed in. `payload.currency` is the catalog coupon's own and stays that way, so the
-   * repricing has to live here — a coupon priced elsewhere is otherwise unusable on the deal.
-   * Null on percentage coupons, which carry no amount.
-   */
   amountCurrency: string | null
 }
 
@@ -71,8 +64,6 @@ export const toCoupons = (
     const payload: CouponPayload = { ...original, position: index + 1 }
 
     const isFixed = item.couponType === CouponTypeEnum.FixedAmount
-    // The deal currency prices the coupon; the form's own is the catalog's and only stands in
-    // when the caller has no deal currency to give.
     const currency = dealCurrency ?? item.currency
 
     const overrides: CouponOverrides = {
@@ -104,9 +95,6 @@ export const fromCoupons = (
   for (const coupon of sorted) {
     const { payload, overrides, id, localId: savedLocalId } = coupon
     const localId = savedLocalId ?? crypto.randomUUID()
-    // The amount is stored in the deal currency, so that is what reads it back. The stored
-    // override covers callers with no deal currency to hand over; `payload.currency` is the
-    // catalog coupon's and is the last resort.
     const currency = (dealCurrency ??
       overrides.amountCurrency ??
       payload.currency ??

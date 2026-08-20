@@ -14,7 +14,6 @@ export const editAddOnDrawerDefaultValues = {
 const DESCRIPTION_MAX_LENGTH = 255
 
 interface EditAddOnDrawerExtraProps {
-  /** Resolved customer/billing-entity payment term, displayed read-only next to the dates. */
   netPaymentTerm?: number | null
 }
 
