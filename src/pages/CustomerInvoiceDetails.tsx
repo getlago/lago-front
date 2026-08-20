@@ -1026,6 +1026,19 @@ const CustomerInvoiceDetails = () => {
           </div>
         </Alert>
       )}
+      {status === InvoiceStatusTypeEnum.Draft && (
+        <Alert fullWidth className="md:px-12" type="info">
+          <div className="flex flex-col">
+            <Typography variant="body" color="grey700">
+              {translate('text_1787146693629wj3i1366ild')}
+            </Typography>
+
+            <Typography variant="caption" color="grey600">
+              {translate('text_1787146693629de7kvm201hi')}
+            </Typography>
+          </div>
+        </Alert>
+      )}
       {hasError ? (
         <GenericPlaceholder
           title={translate('text_634812d6f16b31ce5cbf4111')}
