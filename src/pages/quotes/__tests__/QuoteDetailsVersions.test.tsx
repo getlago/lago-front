@@ -5,7 +5,10 @@ import { OrderTypeEnum, QuoteDetailItemFragment, StatusEnum } from '~/generated/
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import { useQuoteVersionActions } from '../hooks/useQuoteVersionActions'
-import QuoteDetailsVersions, { QUOTE_VERSIONS_TABLE_TEST_ID } from '../QuoteDetailsVersions'
+import QuoteDetailsVersions, {
+  QUOTE_DETAILS_VERSIONS_CUSTOMER_LINK_TEST_ID,
+  QUOTE_VERSIONS_TABLE_TEST_ID,
+} from '../QuoteDetailsVersions'
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -102,6 +105,15 @@ describe('QuoteDetailsVersions', () => {
         render(<QuoteDetailsVersions quote={mockQuote} />)
 
         expect(screen.getByText('Acme Corp - ext-acme-001')).toBeInTheDocument()
+      })
+
+      it('THEN should link the customer to the customer detail page', () => {
+        render(<QuoteDetailsVersions quote={mockQuote} />)
+
+        const link = screen.getByTestId(QUOTE_DETAILS_VERSIONS_CUSTOMER_LINK_TEST_ID)
+
+        expect(link).toHaveTextContent('Acme Corp - ext-acme-001')
+        expect(link).toHaveAttribute('href', expect.stringContaining('/customer/customer-001'))
       })
 
       it('THEN should display owner emails as chips', () => {
