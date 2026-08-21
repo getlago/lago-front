@@ -42,8 +42,10 @@ type ResendInvoiceForCollectionDialogData = {
   preselectedPaymentMethodId?: string | null
 }
 
+// The payment method is optional: customers relying on a custom payment flow (webhooks) have no
+// payment method stored, and must still be able to resend the invoice for collection.
 const resendInvoiceForCollectionValidationSchema = z.object({
-  paymentMethodId: z.string().min(1),
+  paymentMethodId: z.string(),
 })
 
 export const useResendInvoiceForCollectionDialog = () => {
@@ -82,10 +84,12 @@ export const useResendInvoiceForCollectionDialog = () => {
         variables: {
           input: {
             id: invoice?.id as string,
-            paymentMethod: {
-              paymentMethodId: value.paymentMethodId,
-              paymentMethodType: paymentMethodTypeRef.current,
-            },
+            paymentMethod: value.paymentMethodId
+              ? {
+                  paymentMethodId: value.paymentMethodId,
+                  paymentMethodType: paymentMethodTypeRef.current,
+                }
+              : undefined,
           },
         },
       })
@@ -177,16 +181,11 @@ export const useResendInvoiceForCollectionDialog = () => {
         },
         mainAction: (
           <form.AppForm>
-            <form.Subscribe selector={(state) => !state.values.paymentMethodId}>
-              {(isPaymentMethodEmpty) => (
-                <form.SubmitButton
-                  disabled={isPaymentMethodEmpty}
-                  dataTest={RESEND_INVOICE_FOR_COLLECTION_DIALOG_SUBMIT_BUTTON_TEST_ID}
-                >
-                  {translate('text_63ac86d897f728a87b2fa039')}
-                </form.SubmitButton>
-              )}
-            </form.Subscribe>
+            <form.SubmitButton
+              dataTest={RESEND_INVOICE_FOR_COLLECTION_DIALOG_SUBMIT_BUTTON_TEST_ID}
+            >
+              {translate('text_63ac86d897f728a87b2fa039')}
+            </form.SubmitButton>
           </form.AppForm>
         ),
         form: {
