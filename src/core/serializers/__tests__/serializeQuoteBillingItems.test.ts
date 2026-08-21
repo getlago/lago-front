@@ -206,6 +206,17 @@ describe('fromBillingItems', () => {
     ],
   })
 
+  // See the plan-side note: a restamped item can come back with no `overrides` key.
+  it('deserializes an add-on whose overrides the API dropped', () => {
+    const items = makeBillingItems()
+    const addOns = (items.addOns ?? []).map((addOn) => ({ ...addOn, overrides: null }))
+
+    const { addOnItems } = fromBillingItems({ ...items, addOns })
+
+    expect(addOnItems).toHaveLength(addOns.length)
+    expect(addOnItems[0].name).toBe(addOns[0].payload.name)
+  })
+
   it('reconstructs entities keyed by localId from payload with no overrides', () => {
     const result = fromBillingItems(makeBillingItems(), CurrencyEnum.Usd)
 

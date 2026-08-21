@@ -7,7 +7,13 @@ import { Status } from '~/components/designSystem/Status'
 import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { QuoteDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { EDIT_QUOTE_ROUTE, QUOTE_DETAILS_ROUTE, useNavigate } from '~/core/router'
+import {
+  CUSTOMER_DETAILS_ROUTE,
+  EDIT_QUOTE_ROUTE,
+  Link,
+  QUOTE_DETAILS_ROUTE,
+  useNavigate,
+} from '~/core/router'
 import { StatusEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
@@ -24,6 +30,7 @@ import { useQuotePreviewVersion } from './hooks/useQuotePreviewVersion'
 export const QUOTE_VERSION_PREVIEW_CLOSE_BUTTON_TEST_ID = 'quote-version-preview-close-button'
 export const QUOTE_VERSION_PREVIEW_DESCRIPTION_TEST_ID = 'quote-version-preview-description'
 export const QUOTE_VERSION_PREVIEW_CARD_TEST_ID = 'quote-version-preview-card'
+export const QUOTE_VERSION_PREVIEW_CUSTOMER_LINK_TEST_ID = 'quote-version-preview-customer-link'
 
 const QuoteVersionPreview = () => {
   const { translate } = useInternationalization()
@@ -146,7 +153,19 @@ const QuoteVersionPreview = () => {
                     },
                     {
                       label: translate('text_65201c5a175a4b0238abf29a'),
-                      value: quote?.customer.displayName,
+                      value: quote ? (
+                        <Link
+                          className="w-fit"
+                          data-test={QUOTE_VERSION_PREVIEW_CUSTOMER_LINK_TEST_ID}
+                          to={generatePath(CUSTOMER_DETAILS_ROUTE, {
+                            customerId: quote.customer.id,
+                          })}
+                        >
+                          {quote.customer.displayName}
+                        </Link>
+                      ) : (
+                        ''
+                      ),
                     },
                     {
                       label: translate('text_6560809c38fb9de88d8a52fb'),

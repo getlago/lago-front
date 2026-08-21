@@ -59,6 +59,7 @@ gql`
 interface AddOnSelectionContentExtraProps {
   currency: CurrencyEnum
   onAddOnPayloadCapture?: (localId: string, addOn: AddOnForPricingSectionFragment) => void
+  netPaymentTerm?: number | null
 }
 
 function TotalAmountCell({
@@ -284,12 +285,18 @@ const ConfirmedAddOnRow = withForm({
 const addOnSelectionContentDefaultProps: AddOnSelectionContentExtraProps = {
   currency: CurrencyEnum.Usd,
   onAddOnPayloadCapture: undefined,
+  netPaymentTerm: undefined,
 }
 
 const AddOnSelectionContent = withForm({
   defaultValues: pricingDrawerDefaultValues,
   props: addOnSelectionContentDefaultProps,
-  render: function AddOnSelectionContentRender({ form, currency, onAddOnPayloadCapture }) {
+  render: function AddOnSelectionContentRender({
+    form,
+    currency,
+    onAddOnPayloadCapture,
+    netPaymentTerm,
+  }) {
     const { translate } = useInternationalization()
     const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
 
@@ -385,7 +392,7 @@ const AddOnSelectionContent = withForm({
             {translate('text_17295436903260tlyb1gp1i7')}
           </Button>
         ),
-        children: <EditAddOnDrawer form={editForm} />,
+        children: <EditAddOnDrawer form={editForm} netPaymentTerm={netPaymentTerm} />,
       })
     }
 

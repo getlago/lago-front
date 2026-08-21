@@ -6,7 +6,12 @@ import { Status } from '~/components/designSystem/Status'
 import { Table, TableColumn } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
-import { EDIT_QUOTE_ROUTE, QUOTE_VERSION_PREVIEW_ROUTE } from '~/core/router'
+import {
+  CUSTOMER_DETAILS_ROUTE,
+  EDIT_QUOTE_ROUTE,
+  Link,
+  QUOTE_VERSION_PREVIEW_ROUTE,
+} from '~/core/router'
 import { QuoteDetailItemFragment, StatusEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -22,6 +27,7 @@ interface QuoteDetailsVersionsProps {
 }
 
 export const QUOTE_VERSIONS_TABLE_TEST_ID = 'quote-versions-table'
+export const QUOTE_DETAILS_VERSIONS_CUSTOMER_LINK_TEST_ID = 'quote-details-versions-customer-link'
 
 const QuoteDetailsVersions = ({ quote }: QuoteDetailsVersionsProps): JSX.Element => {
   const { translate } = useInternationalization()
@@ -69,7 +75,15 @@ const QuoteDetailsVersions = ({ quote }: QuoteDetailsVersionsProps): JSX.Element
     },
     {
       label: translate('text_65201c5a175a4b0238abf29a'),
-      value: `${quote.customer.displayName} - ${quote.customer.externalId}`,
+      value: (
+        <Link
+          className="w-fit"
+          data-test={QUOTE_DETAILS_VERSIONS_CUSTOMER_LINK_TEST_ID}
+          to={generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: quote.customer.id })}
+        >
+          {`${quote.customer.displayName} - ${quote.customer.externalId}`}
+        </Link>
+      ),
     },
     {
       label: translate('text_6560809c38fb9de88d8a52fb'),

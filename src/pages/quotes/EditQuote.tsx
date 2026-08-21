@@ -102,18 +102,6 @@ const EditQuote = () => {
   // The amended subscription owns the start date: it is neither displayed nor sent (LAGO-1814).
   const isAmendment = quote?.orderType === OrderTypeEnum.SubscriptionAmendment
 
-  const handleSubscriptionDatesChange = useCallback(
-    async (startDate?: string, endDate?: string) => {
-      if (!versionId) return
-
-      await updateQuoteVersionRef.current(
-        { id: versionId, endDate, ...(isAmendment ? {} : { startDate }) },
-        false,
-      )
-    },
-    [versionId, isAmendment],
-  )
-
   const isSubscriptionOrder = quote?.orderType === OrderTypeEnum.SubscriptionCreation || isAmendment
 
   // The quote version currency is the source of truth for every amount shown or
@@ -126,19 +114,12 @@ const EditQuote = () => {
     organization?.defaultCurrency ??
     CurrencyEnum.Usd
 
-  const getStartDate = (): string | undefined => {
-    if (isAmendment) return undefined
-
-    return quote?.subscription?.subscriptionAt ?? quote?.currentVersion?.startDate ?? undefined
-  }
+  const quoteNetPaymentTerm =
+    quote?.customer.netPaymentTerm ?? quote?.customer.billingEntity.netPaymentTerm
 
   const subscriptionPricing = useSubscriptionPricingDrawer(quote?.currentVersion?.billingItems, {
-    quoteDates: {
-      startDate: getStartDate(),
-      endDate: quote?.currentVersion?.endDate ?? undefined,
-    },
-    onDatesChange: handleSubscriptionDatesChange,
     customer: quote?.customer,
+    netPaymentTerm: quoteNetPaymentTerm,
     subscriptionId: quote?.subscription?.id,
     currency: effectiveQuoteCurrency,
     hasQuoteCurrency: !!quoteVersionCurrency,
@@ -147,6 +128,7 @@ const EditQuote = () => {
   const oneOffPricing = useOneOffPricingDrawer(quote?.currentVersion?.billingItems, {
     currency: effectiveQuoteCurrency,
     hasQuoteCurrency: !!quoteVersionCurrency,
+    netPaymentTerm: quoteNetPaymentTerm,
   })
 
   const { onPricingCommand, isPricingDisabled, entities, syncEntitiesWithBlocks } =
@@ -219,6 +201,7 @@ const EditQuote = () => {
 
   useEffect(() => {
     if (!versionId || quoteVersionCurrency) return
+    if (isAmendment) return
     if (backfilledVersionIdRef.current === versionId) return
 
     backfilledVersionIdRef.current = versionId
@@ -226,7 +209,7 @@ const EditQuote = () => {
     updateQuoteVersionRef
       .current({ id: versionId, currency: effectiveQuoteCurrency }, false)
       .catch(() => undefined)
-  }, [versionId, quoteVersionCurrency, effectiveQuoteCurrency])
+  }, [versionId, quoteVersionCurrency, effectiveQuoteCurrency, isAmendment])
 
   const debouncedSave = useMemo(
     () =>
@@ -235,7 +218,17 @@ const EditQuote = () => {
 
         if (markdown === null || markdown === undefined || !versionId) return
 
-        const payload: UpdateQuoteVersionInput = { id: versionId, content: markdown }
+        // A pricing save that failed leaves its block in the content with its billing item
+        // unsaved, so the content is never sent on its own from here on: carrying the
+        // rejected items along means the two either land together or fail together, instead
+        // of the content quietly persisting a block nothing backs.
+        const unsavedBillingItems = failedPayloadRef.current?.billingItems
+
+        const payload: UpdateQuoteVersionInput = {
+          id: versionId,
+          content: markdown,
+          ...(unsavedBillingItems ? { billingItems: unsavedBillingItems } : {}),
+        }
 
         failedPayloadRef.current = payload
 
@@ -310,6 +303,11 @@ const EditQuote = () => {
 
       if (content === null || content === undefined) return { ok: true }
 
+      // The block insertion this save follows already scheduled a content-only autosave.
+      // It would land after this one and report success for a content whose billing items
+      // were rejected, so the pricing save takes ownership of the pending content.
+      debouncedSave.cancel()
+
       setSaveStatus('saving')
 
       // Each drawer owns a single billingItems category and already merges its
@@ -338,18 +336,20 @@ const EditQuote = () => {
           return { ok: true }
         }
 
-        // Drawer-originated failure: let the drawer surface field/toast errors and
-        // stay open. Revert the header to a neutral state instead of the error chip.
-        setSaveStatus('idle')
+        // The drawer surfaces the failure too (toast, and it stays open on its own), but
+        // the header cannot stay silent: `idle` renders the very same "Saved" chip as a
+        // successful save, so a rejected save would read as a saved one. The error chip
+        // also exposes the retry, which resends the payload kept above.
+        setSaveStatus('error')
 
         return { ok: false, error: result.errors }
       } catch (error) {
-        setSaveStatus('idle')
+        setSaveStatus('error')
 
         return { ok: false, error: error as ApolloError }
       }
     },
-    [versionId, refetchQuote],
+    [versionId, refetchQuote, debouncedSave],
   )
 
   savePricingBlockRef.current = savePricingBlock
@@ -376,6 +376,12 @@ const EditQuote = () => {
               isRollingBackRef.current = true
               removeBlockRef.current?.(localId)
               isRollingBackRef.current = false
+
+              // The rolled-back insert leaves the document back on what is stored, so
+              // there is nothing left to retry — and the header can say saved again
+              // without lying. A failed *edit* keeps both its block and its retry.
+              failedPayloadRef.current = null
+              setSaveStatus('idle')
             }
           }
 

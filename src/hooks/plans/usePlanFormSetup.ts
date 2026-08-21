@@ -136,14 +136,25 @@ export const usePlanFormSetup = ({
   const basePlan = plan ?? basePlanData?.plan
   // Whatever was fetched can itself be an override, whose parent is then the catalog plan.
   const catalogPlan = basePlan?.parent ?? basePlan
-  const baseCurrency =
-    initialCurrency || (basePlan?.amountCurrency as CurrencyEnum) || CurrencyEnum.Usd
+
+  // A `parent` selection carries a reference only, so the catalog plan is fetched in full when the
+  // resolved plan turns out to be an override child. The override diff has to run against the
+  // catalog: baselining on the child would read the previous negotiation as the list price and
+  // silently drop from the overrides every term that still matches it.
+  const catalogPlanId = basePlan?.parent?.id
+  const { data: catalogPlanData } = useGetSinglePlanQuery({
+    context: { silentError: LagoApiError.NotFound },
+    variables: { id: catalogPlanId as string },
+    skip: !catalogPlanId,
+  })
+  const baselinePlan = catalogPlanData?.plan ?? basePlan
+  const baseCurrency = (baselinePlan?.amountCurrency as CurrencyEnum) || CurrencyEnum.Usd
   const basePlanFormValues = useMemo(
     () =>
-      basePlan
-        ? buildDefaultValues(basePlan, formType, baseCurrency, hasAnyPricingUnitConfigured)
+      baselinePlan
+        ? buildDefaultValues(baselinePlan, formType, baseCurrency, hasAnyPricingUnitConfigured)
         : undefined,
-    [basePlan, formType, baseCurrency, hasAnyPricingUnitConfigured],
+    [baselinePlan, formType, baseCurrency, hasAnyPricingUnitConfigured],
   )
 
   const form = useAppForm({
