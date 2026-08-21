@@ -1,18 +1,12 @@
 import { ActionItem } from '~/components/designSystem/Table/types'
 import {
   AnnotatedSubscription,
+  SUBSCRIPTIONS_LIST_CANCEL_TEST_ID,
+  SUBSCRIPTIONS_LIST_TERMINATE_TEST_ID,
   SubscriptionsList,
 } from '~/components/subscriptions/SubscriptionsList'
 import { PlanInterval, StatusTypeEnum, Subscription, TimezoneEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
-
-const COPY_ID_KEY = 'text_62d7f6178ec94cd09370e65b'
-const SUBSCRIPTION_DETAILS_KEY = 'text_62d7f6178ec94cd09370e63c'
-const SUBSCRIPTION_PLAN_KEY = 'text_17810297639135ya0hmsldpi'
-const UPGRADE_DOWNGRADE_KEY = 'text_62d7f6178ec94cd09370e64a'
-const ALERTS_KEY = 'text_1746785137190vu5wwlsmzmz'
-const CANCEL_SUBSCRIPTION_KEY = 'text_64a6d736c23125004817627f'
-const TERMINATE_SUBSCRIPTION_KEY = 'text_62d904b97e690a881f2b867c'
 
 const mockTableProps = jest.fn()
 
@@ -82,8 +76,13 @@ const getActions = (status: StatusTypeEnum): ActionItem<AnnotatedSubscription>[]
   return tableProps.actionColumn(tableProps.data[0])
 }
 
-const getActionTitles = (status: StatusTypeEnum): unknown[] =>
-  getActions(status).map((action) => action.title)
+// The action icons identify each entry without leaning on its wording. Whether the last
+// action cancels or terminates is asserted on its dataTest, since both share the same icon.
+const getActionIcons = (status: StatusTypeEnum): unknown[] =>
+  getActions(status).map((action) => action.startIcon)
+
+const getEndingActionTestId = (status: StatusTypeEnum): unknown =>
+  getActions(status).at(-1)?.dataTest
 
 describe('SubscriptionsList', () => {
   beforeEach(() => {
@@ -94,15 +93,17 @@ describe('SubscriptionsList', () => {
   describe('GIVEN an incomplete subscription', () => {
     describe('WHEN the user has the subscriptionsUpdate permission', () => {
       it('THEN should only offer copying the id and cancelling', () => {
-        expect(getActionTitles(StatusTypeEnum.Incomplete)).toEqual([
-          COPY_ID_KEY,
-          CANCEL_SUBSCRIPTION_KEY,
-        ])
+        expect(getActionIcons(StatusTypeEnum.Incomplete)).toEqual(['duplicate', 'trash'])
+        expect(getEndingActionTestId(StatusTypeEnum.Incomplete)).toBe(
+          SUBSCRIPTIONS_LIST_CANCEL_TEST_ID,
+        )
       })
 
       it('THEN should open the terminate dialog with the incomplete status', () => {
         const actions = getActions(StatusTypeEnum.Incomplete)
-        const cancelAction = actions.find((action) => action.title === CANCEL_SUBSCRIPTION_KEY)
+        const cancelAction = actions.find(
+          (action) => action.dataTest === SUBSCRIPTIONS_LIST_CANCEL_TEST_ID,
+        )
 
         cancelAction?.onAction({} as AnnotatedSubscription)
 
@@ -119,34 +120,38 @@ describe('SubscriptionsList', () => {
       it('THEN should only offer copying the id', () => {
         mockHasPermissions.mockReturnValue(false)
 
-        expect(getActionTitles(StatusTypeEnum.Incomplete)).toEqual([COPY_ID_KEY])
+        expect(getActionIcons(StatusTypeEnum.Incomplete)).toEqual(['duplicate'])
       })
     })
   })
 
   describe('GIVEN an active subscription', () => {
     it('THEN should keep the edit actions and label the last one as terminate', () => {
-      expect(getActionTitles(StatusTypeEnum.Active)).toEqual([
-        SUBSCRIPTION_DETAILS_KEY,
-        SUBSCRIPTION_PLAN_KEY,
-        UPGRADE_DOWNGRADE_KEY,
-        COPY_ID_KEY,
-        ALERTS_KEY,
-        TERMINATE_SUBSCRIPTION_KEY,
+      expect(getActionIcons(StatusTypeEnum.Active)).toEqual([
+        'text',
+        'board',
+        'pen',
+        'duplicate',
+        'bell',
+        'trash',
       ])
+      expect(getEndingActionTestId(StatusTypeEnum.Active)).toBe(
+        SUBSCRIPTIONS_LIST_TERMINATE_TEST_ID,
+      )
     })
   })
 
   describe('GIVEN a pending subscription', () => {
     it('THEN should keep the edit actions and label the last one as cancel', () => {
-      expect(getActionTitles(StatusTypeEnum.Pending)).toEqual([
-        SUBSCRIPTION_DETAILS_KEY,
-        SUBSCRIPTION_PLAN_KEY,
-        UPGRADE_DOWNGRADE_KEY,
-        COPY_ID_KEY,
-        ALERTS_KEY,
-        CANCEL_SUBSCRIPTION_KEY,
+      expect(getActionIcons(StatusTypeEnum.Pending)).toEqual([
+        'text',
+        'board',
+        'pen',
+        'duplicate',
+        'bell',
+        'trash',
       ])
+      expect(getEndingActionTestId(StatusTypeEnum.Pending)).toBe(SUBSCRIPTIONS_LIST_CANCEL_TEST_ID)
     })
   })
 
@@ -154,7 +159,7 @@ describe('SubscriptionsList', () => {
     'GIVEN a %s subscription',
     (status) => {
       it('THEN should only offer copying the id', () => {
-        expect(getActionTitles(status)).toEqual([COPY_ID_KEY])
+        expect(getActionIcons(status)).toEqual(['duplicate'])
       })
     },
   )

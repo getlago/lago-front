@@ -141,6 +141,9 @@ const annotateSubscriptions = (
   }, [])
 }
 
+export const SUBSCRIPTIONS_LIST_TERMINATE_TEST_ID = 'subscriptions-list-terminate'
+export const SUBSCRIPTIONS_LIST_CANCEL_TEST_ID = 'subscriptions-list-cancel'
+
 const generateActionColumn = ({
   subscription,
   hasSubscriptionsUpdatePermission,
@@ -178,6 +181,9 @@ const generateActionColumn = ({
     title: isSubscriptionCancellation(subscription.status)
       ? translate('text_64a6d736c23125004817627f')
       : translate('text_62d904b97e690a881f2b867c'),
+    dataTest: isSubscriptionCancellation(subscription.status)
+      ? SUBSCRIPTIONS_LIST_CANCEL_TEST_ID
+      : SUBSCRIPTIONS_LIST_TERMINATE_TEST_ID,
     onAction: () => {
       openTerminateDialog({
         id: subscription.id,

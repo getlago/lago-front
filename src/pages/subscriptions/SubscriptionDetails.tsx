@@ -73,6 +73,7 @@ export const SUBSCRIPTION_DETAILS_ACTIONS_TEST_ID = 'subscription-details-action
 export const SUBSCRIPTION_DETAILS_UPGRADE_DOWNGRADE_TEST_ID =
   'subscription-details-upgrade-downgrade'
 export const SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID = 'subscription-details-terminate'
+export const SUBSCRIPTION_DETAILS_CANCEL_TEST_ID = 'subscription-details-cancel'
 
 const SubscriptionDetails = () => {
   const navigate = useNavigate()
@@ -360,7 +361,9 @@ const SubscriptionDetails = () => {
           label: isSubscriptionCancellation(subscription?.status)
             ? translate('text_64a6d736c23125004817627f')
             : translate('text_62d904b97e690a881f2b867c'),
-          dataTest: SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID,
+          dataTest: isSubscriptionCancellation(subscription?.status)
+            ? SUBSCRIPTION_DETAILS_CANCEL_TEST_ID
+            : SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID,
           hidden: !canTerminateSubscription(subscription?.status),
           danger: true,
           onClick: (closePopper) => {

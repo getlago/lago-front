@@ -12,12 +12,10 @@ import { StatusTypeEnum } from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import SubscriptionDetails, {
+  SUBSCRIPTION_DETAILS_CANCEL_TEST_ID,
   SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID,
   SUBSCRIPTION_DETAILS_UPGRADE_DOWNGRADE_TEST_ID,
 } from '../SubscriptionDetails'
-
-const CANCEL_SUBSCRIPTION_KEY = 'text_64a6d736c23125004817627f'
-const TERMINATE_SUBSCRIPTION_KEY = 'text_62d904b97e690a881f2b867c'
 
 let capturedConfig: MainHeaderConfig | null = null
 
@@ -269,28 +267,28 @@ describe('SubscriptionDetails', () => {
       }
     })
 
-    it('THEN should show the terminate dropdown item', () => {
+    it('THEN should show the cancel dropdown item', () => {
       render(<SubscriptionDetails />)
 
       const dropdownAction = capturedConfig?.actions?.items[0]
 
       if (dropdownAction?.type === 'dropdown') {
         const item = dropdownAction.items.find(
-          (i) => i.dataTest === SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID,
+          (i) => i.dataTest === SUBSCRIPTION_DETAILS_CANCEL_TEST_ID,
         )
 
         expect(item?.hidden).toBe(false)
       }
     })
 
-    it('THEN terminate onClick should open the dialog with the incomplete status', () => {
+    it('THEN cancel onClick should open the dialog with the incomplete status', () => {
       render(<SubscriptionDetails />)
 
       const dropdownAction = capturedConfig?.actions?.items[0]
 
       if (dropdownAction?.type === 'dropdown') {
         const terminateItem = dropdownAction.items.find(
-          (i) => i.dataTest === SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID,
+          (i) => i.dataTest === SUBSCRIPTION_DETAILS_CANCEL_TEST_ID,
         )
 
         terminateItem?.onClick(jest.fn())
@@ -305,8 +303,8 @@ describe('SubscriptionDetails', () => {
     })
   })
 
-  describe('GIVEN the terminate dropdown item', () => {
-    const findTerminateItemForStatus = (status: StatusTypeEnum) => {
+  describe('GIVEN the ending dropdown item', () => {
+    const findEndingItemDataTestForStatus = (status: StatusTypeEnum) => {
       mockUseGetSubscriptionForDetailsQuery.mockReturnValue({
         data: { subscription: { ...mockSubscription, status } },
         loading: false,
@@ -319,22 +317,26 @@ describe('SubscriptionDetails', () => {
 
       if (dropdownAction?.type !== 'dropdown') return undefined
 
-      return dropdownAction.items.find((i) => i.dataTest === SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID)
+      return dropdownAction.items.find(
+        (i) =>
+          i.dataTest === SUBSCRIPTION_DETAILS_CANCEL_TEST_ID ||
+          i.dataTest === SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID,
+      )?.dataTest
     }
 
     describe('WHEN the subscription never started billing', () => {
       it.each([StatusTypeEnum.Pending, StatusTypeEnum.Incomplete])(
-        'THEN should label it as cancel for a %s subscription',
+        'THEN should offer cancel for a %s subscription',
         (status) => {
-          expect(findTerminateItemForStatus(status)?.label).toBe(CANCEL_SUBSCRIPTION_KEY)
+          expect(findEndingItemDataTestForStatus(status)).toBe(SUBSCRIPTION_DETAILS_CANCEL_TEST_ID)
         },
       )
     })
 
     describe('WHEN the subscription is active', () => {
-      it('THEN should label it as terminate', () => {
-        expect(findTerminateItemForStatus(StatusTypeEnum.Active)?.label).toBe(
-          TERMINATE_SUBSCRIPTION_KEY,
+      it('THEN should offer terminate', () => {
+        expect(findEndingItemDataTestForStatus(StatusTypeEnum.Active)).toBe(
+          SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID,
         )
       })
     })
