@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+import { ConnectionCategory } from '~/components/customerConnections/types'
 import { zodMetadataSchema } from '~/formValidation/metadataSchema'
 import { zodMultipleEmails, zodOptionalUrl } from '~/formValidation/zodCustoms'
 import {
@@ -53,48 +54,45 @@ export const validationSchema = z.object({
   timezone: z.enum(TimezoneEnum).optional(),
   // Don't know why, just using zod.url().optional() gives an error if the field is emptied after submission
   url: zodOptionalUrl.optional(),
-  accountingProviderCode: z.string().optional(),
-  accountingCustomer: z
-    .object({
-      id: z.string().optional(),
-      accountingCustomerId: z.string().optional(),
-      syncWithProvider: z.boolean().optional(),
-      subsidiaryId: z.string().optional(),
-      providerType: z.enum(IntegrationTypeEnum).optional(),
-    })
-    // Connection rules are enforced by the connection drawer (the only entry
-    // point writing this slot); duplicating them here would only produce
-    // invisible submit blocks now that the inline fields are gone
+  // Connection rules are enforced by the connection drawer (the only entry
+  // point writing these arrays); duplicating them here would only produce
+  // invisible submit blocks now that the inline fields are gone
+  integrationCustomers: z
+    .array(
+      z.object({
+        id: z.string().optional(),
+        category: z.enum([
+          ConnectionCategory.Accounting,
+          ConnectionCategory.Tax,
+          ConnectionCategory.Crm,
+        ]),
+        providerCode: z.string().optional(),
+        providerType: z.enum(IntegrationTypeEnum).optional(),
+        externalCustomerId: z.string().optional(),
+        syncWithProvider: z.boolean().optional(),
+        subsidiaryId: z.string().optional(),
+        targetedObject: z.enum(HubspotTargetedObjectsEnum).optional(),
+      }),
+    )
     .optional(),
-  taxProviderCode: z.string().optional(),
-  taxCustomer: z
-    .object({
-      id: z.string().optional(),
-      taxCustomerId: z.string().optional(),
-      syncWithProvider: z.boolean().optional(),
-      providerType: z.enum(IntegrationTypeEnum).optional(),
-    })
-    .optional(),
-  crmProviderCode: z.string().optional(),
-  crmCustomer: z
-    .object({
-      id: z.string().optional(),
-      crmCustomerId: z.string().optional(),
-      syncWithProvider: z.boolean().optional(),
-      targetedObject: z.enum(HubspotTargetedObjectsEnum).optional(),
-      providerType: z.enum(IntegrationTypeEnum).optional(),
-    })
-    .optional(),
-  paymentProviderCode: z.string().optional(),
-  paymentProviderCustomer: z
-    .object({
-      providerCustomerId: z.string().optional(),
-      providerType: z.enum(ProviderTypeEnum).optional(),
-      syncWithProvider: z.boolean().optional(),
-      providerPaymentMethods: z
-        .partialRecord(z.enum(ProviderPaymentMethodsEnum), z.boolean())
-        .optional(),
-    })
+  // Provider-backed payment connections plus the customer's persisted manual
+  // row (code "manual"), which is invisible in the UI but must round-trip its
+  // id so the backend's diff-by-id reconciliation leaves it untouched
+  paymentProviderCustomers: z
+    .array(
+      z.object({
+        id: z.string().optional(),
+        code: z.string().optional(),
+        isDefault: z.boolean().optional(),
+        providerCode: z.string().optional(),
+        providerType: z.enum(ProviderTypeEnum).optional(),
+        providerCustomerId: z.string().optional(),
+        syncWithProvider: z.boolean().optional(),
+        providerPaymentMethods: z
+          .partialRecord(z.enum(ProviderPaymentMethodsEnum), z.boolean())
+          .optional(),
+      }),
+    )
     .optional(),
   metadata: zodMetadataSchema(),
   billingEntityCode: z.string().optional(),
@@ -135,36 +133,8 @@ export const emptyCreateCustomerDefaultValues: CreateCustomerDefaultValues = {
   },
   timezone: undefined,
   url: undefined,
-  accountingProviderCode: undefined,
-  accountingCustomer: {
-    id: undefined,
-    accountingCustomerId: '',
-    syncWithProvider: false,
-    providerType: undefined,
-    subsidiaryId: '',
-  },
-  taxProviderCode: undefined,
-  taxCustomer: {
-    id: undefined,
-    taxCustomerId: '',
-    providerType: undefined,
-    syncWithProvider: false,
-  },
-  crmProviderCode: undefined,
-  crmCustomer: {
-    id: undefined,
-    crmCustomerId: '',
-    syncWithProvider: false,
-    providerType: undefined,
-    targetedObject: undefined,
-  },
-  paymentProviderCode: undefined,
-  paymentProviderCustomer: {
-    providerCustomerId: '',
-    syncWithProvider: false,
-    providerType: undefined,
-    providerPaymentMethods: {},
-  },
+  integrationCustomers: [],
+  paymentProviderCustomers: [],
   metadata: [],
   billingEntityCode: undefined,
 }

@@ -159,6 +159,16 @@ export function useCustomerDetailsHeaderTabs({
           onEdit={() => navigate(generatePath(UPDATE_CUSTOMER_ROUTE, { customerId }))}
         />
       ),
+      // The MainHeader config snapshot strips the tabs' content ReactNode, so
+      // a silent cache update alone (the connections immediate-save) would not
+      // re-push the config and the tab would keep rendering the stale
+      // customer. Key the snapshot on every connection-related field.
+      snapshotKey: JSON.stringify([
+        customer?.paymentProvider,
+        customer?.paymentProviderCode,
+        customer?.paymentProviderCustomers,
+        customer?.integrationCustomers,
+      ]),
     },
     {
       title: translate('text_638dff9779fb99299bee9126'),

@@ -43,6 +43,7 @@
 
 ## Code Quality
 
+- Never put Linear ticket IDs (e.g. ING-123, LAGO-456) in code comments — describe, if needed, the pending work itself instead
 - TypeScript strict mode with proper typing
 - ESLint rules from `lago-configs` package
 - Consistent naming: camelCase for variables, PascalCase for components
@@ -149,11 +150,11 @@ Three generations coexist in the codebase. **Only the hook pattern is allowed in
 code** — the other two are migration debt, and their presence is not permission to copy
 them.
 
-| Generation | Shape | Status |
-| ---------- | ----- | ------ |
-| `use<Feature>Drawer()` hook returning `{ openDrawer }`, built on `useFormDrawer` / `useDrawer` (NiceModal) | no ref, no rendered element | ✅ **canonical** |
-| `useFormDrawer` wrapped in a `forwardRef` + `useImperativeHandle` component that `return null` | parent holds a ref | ⚠️ legacy, migrate on touch |
-| `~/components/designSystem/Drawer` + `DrawerRef` (`openDrawer`/`closeDrawer`) | parent holds a ref to a rendered `<Drawer>` | ⛔ legacy, never for new code |
+| Generation                                                                                                 | Shape                                       | Status                        |
+| ---------------------------------------------------------------------------------------------------------- | ------------------------------------------- | ----------------------------- |
+| `use<Feature>Drawer()` hook returning `{ openDrawer }`, built on `useFormDrawer` / `useDrawer` (NiceModal) | no ref, no rendered element                 | ✅ **canonical**              |
+| `useFormDrawer` wrapped in a `forwardRef` + `useImperativeHandle` component that `return null`             | parent holds a ref                          | ⚠️ legacy, migrate on touch   |
+| `~/components/designSystem/Drawer` + `DrawerRef` (`openDrawer`/`closeDrawer`)                              | parent holds a ref to a rendered `<Drawer>` | ⛔ legacy, never for new code |
 
 ### The canonical pattern
 
