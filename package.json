@@ -71,7 +71,7 @@
     "@vitejs/plugin-react-swc": "4.3.3",
     "autoprefixer": "10.5.4",
     "babel-jest": "30.4.1",
-    "baseline-browser-mapping": "2.11.13",
+    "baseline-browser-mapping": "2.11.14",
     "class-variance-authority": "0.7.1",
     "cssnano": "8.0.5",
     "cypress": "15.20.1",
