@@ -1,3 +1,5 @@
+import { captureMessage } from '@sentry/react'
+
 import { AppEnvEnum } from '~/core/constants/globalTypes'
 import { LocaleEnum } from '~/core/translations/types'
 import {
@@ -5,6 +7,10 @@ import {
   replaceDynamicVarInString,
   translateKey,
 } from '~/core/translations/utils'
+
+jest.mock('@sentry/react', () => ({
+  captureMessage: jest.fn(),
+}))
 
 describe('utils', () => {
   describe('translateKey', () => {
@@ -49,10 +55,52 @@ describe('utils', () => {
     })
 
     describe('when the key is missing', () => {
+      beforeEach(() => {
+        jest.clearAllMocks()
+      })
+
       it('returns the key itself', () => {
         expect(
           translateKey({ ...baseContext, translations: { greeting: 'Hello' } }, 'missing_key'),
         ).toEqual('missing_key')
+      })
+
+      it('reports it to Sentry on production for a non-english locale', () => {
+        translateKey(
+          {
+            translations: { greeting: 'Hello' },
+            locale: LocaleEnum.fr,
+            appEnv: AppEnvEnum.production,
+          },
+          'missing_key',
+        )
+
+        expect(captureMessage).toHaveBeenCalledTimes(1)
+      })
+
+      it('reports it to Sentry when appEnv is undefined for a non-english locale', () => {
+        const warnSpy = jest.spyOn(console, 'warn').mockImplementation()
+
+        translateKey(
+          { translations: { greeting: 'Hello' }, locale: LocaleEnum.fr, appEnv: undefined },
+          'missing_key',
+        )
+
+        expect(captureMessage).toHaveBeenCalledTimes(1)
+        expect(warnSpy).not.toHaveBeenCalled()
+
+        warnSpy.mockRestore()
+      })
+
+      it('warns in the console on development instead of reporting to Sentry', () => {
+        const warnSpy = jest.spyOn(console, 'warn').mockImplementation()
+
+        translateKey({ ...baseContext, translations: { greeting: 'Hello' } }, 'missing_key')
+
+        expect(warnSpy).toHaveBeenCalledTimes(1)
+        expect(captureMessage).not.toHaveBeenCalled()
+
+        warnSpy.mockRestore()
       })
     })
   })

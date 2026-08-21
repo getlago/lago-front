@@ -1,4 +1,5 @@
 import { AppEnvEnum } from '~/core/constants/globalTypes'
+import { isProductionAppEnv } from '~/core/utils/appEnv'
 import { getEnableFeatureFlags, listFeatureFlags, setFeatureFlags } from '~/core/utils/featureFlags'
 
 /**
@@ -38,7 +39,7 @@ export const printFeatureFlagsHelp = (): void => {
   /* eslint-enable no-console */
 }
 
-export const installLagoWindowApi = (appEnv: AppEnvEnum): void => {
+export const installLagoWindowApi = (appEnv: AppEnvEnum | undefined): void => {
   window.Lago = {
     getEnableFeatureFlags,
     setFeatureFlags,
@@ -46,7 +47,7 @@ export const installLagoWindowApi = (appEnv: AppEnvEnum): void => {
     help: printFeatureFlagsHelp,
   }
 
-  if (appEnv !== AppEnvEnum.production) {
+  if (!isProductionAppEnv(appEnv)) {
     printFeatureFlagsHelp()
   }
 }
