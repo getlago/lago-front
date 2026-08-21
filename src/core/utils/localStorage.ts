@@ -53,7 +53,9 @@ export const setItemFromLS = (key: string, value: unknown): void => {
   if (value === undefined || value === null) return removeItemFromLS(key)
 
   try {
-    localStorage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value))
+    const stringify = typeof value !== 'string' ? JSON.stringify(value) : value
+
+    localStorage.setItem(key, stringify)
   } catch {
     // Storage unavailable or quota exceeded — the value stays in memory only.
   }
