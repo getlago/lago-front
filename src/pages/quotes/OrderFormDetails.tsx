@@ -5,7 +5,7 @@ import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Typography } from '~/components/designSystem/Typography'
 import { QuotesTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { QUOTES_TAB_ROUTE } from '~/core/router'
+import { CUSTOMER_DETAILS_ROUTE, Link, QUOTES_TAB_ROUTE } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -24,6 +24,7 @@ export const ORDER_FORM_DETAILS_DESCRIPTION_TEST_ID = 'order-form-details-descri
 export const ORDER_FORM_DETAILS_ERROR_TEST_ID = 'order-form-details-error'
 export const ORDER_FORM_DETAILS_PREVIEW_TEST_ID = 'order-form-details-preview'
 export const ORDER_FORM_DETAILS_ATTACHMENTS_TEST_ID = 'order-form-details-attachments'
+export const ORDER_FORM_DETAILS_CUSTOMER_LINK_TEST_ID = 'order-form-details-customer-link'
 
 const OrderFormDetails = () => {
   const { translate } = useInternationalization()
@@ -67,6 +68,22 @@ const OrderFormDetails = () => {
         buttonAction={() => location.reload()}
         image={<ErrorImage width="136" height="104" />}
       />
+    )
+  }
+
+  const renderCustomerLink = (): JSX.Element | string => {
+    if (!orderForm?.customer) return ''
+
+    return (
+      <Link
+        className="w-fit"
+        data-test={ORDER_FORM_DETAILS_CUSTOMER_LINK_TEST_ID}
+        to={generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: orderForm.customer.id })}
+      >
+        <Typography variant="body" color="inherit">
+          {orderForm.customer.displayName}
+        </Typography>
+      </Link>
     )
   }
 
@@ -116,9 +133,7 @@ const OrderFormDetails = () => {
                     <Typography variant="caption" color="grey600">
                       {translate('text_65201c5a175a4b0238abf29a')}
                     </Typography>
-                    <Typography variant="body" color="grey700">
-                      {orderForm?.customer.displayName}
-                    </Typography>
+                    {renderCustomerLink()}
                   </div>
                   <div className="flex flex-col">
                     <Typography variant="caption" color="grey600">
