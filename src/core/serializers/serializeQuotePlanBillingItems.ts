@@ -704,9 +704,24 @@ const deserializeNonRecurringThresholds = (
   })) as PlanFormInput['nonRecurringUsageThresholds']
 }
 
-export const fromPlanBillingItems = (plans: BillingItemPlan[]): FromPlanBillingItemsResult => {
+/**
+ * A billing item as it comes back from the API, where `overrides` may be absent.
+ *
+ * `billingItems` is a JSON scalar, and the backend restamps it on a currency change: an
+ * item whose only deviation stopped being one (a currency override that now matches the
+ * deal) comes back carrying no overrides at all rather than an empty object. Everything
+ * this module writes always sets them, so only the read path is relaxed.
+ */
+type IncomingBillingItemPlan = Omit<BillingItemPlan, 'overrides'> & {
+  overrides?: PlanOverrides | null
+}
+
+export const fromPlanBillingItems = (
+  plans: IncomingBillingItemPlan[],
+): FromPlanBillingItemsResult => {
   const plan = plans[0]
-  const { payload, overrides, id } = plan
+  const { payload, id } = plan
+  const overrides: PlanOverrides = plan.overrides ?? {}
 
   // Effective/display name: the override takes precedence over the base plan name.
   const effectiveName = overrides.name ?? payload.name

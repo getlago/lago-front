@@ -100,6 +100,25 @@ describe('serializeQuoteCoupons', () => {
   })
 
   describe('fromCoupons', () => {
+    // See the plan-side note: a restamped item can come back with no `overrides` key.
+    it('deserializes a coupon whose overrides the API dropped', () => {
+      const saved = [
+        {
+          type: 'coupon' as const,
+          id: 'cpn_uuid',
+          localId: 'local-1',
+          payload: fixedPayload,
+          overrides: null,
+        },
+      ]
+
+      const { discountItems, entities } = fromCoupons(saved)
+
+      expect(discountItems).toHaveLength(1)
+      expect(discountItems[0].couponId).toBe('cpn_uuid')
+      expect(entities['local-1'].entityType).toBe('coupon')
+    })
+
     it('round-trips a saved coupon into a form item keyed by localId, overrides winning', () => {
       const saved: BillingItemCoupon[] = [
         {

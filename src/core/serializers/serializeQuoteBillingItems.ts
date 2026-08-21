@@ -128,8 +128,13 @@ interface FromBillingItemsResult {
   originalPayloads: Record<string, AddOnPayload>
 }
 
+/** See the note on `IncomingBillingItemPlan`: the API may return no `overrides` at all. */
+type IncomingBillingItemAddon = Omit<BillingItemAddon, 'overrides'> & {
+  overrides?: Partial<OverridableFields> | null
+}
+
 export const fromBillingItems = (
-  billingItems: BillingItemsPayload,
+  billingItems: Omit<BillingItemsPayload, 'addOns'> & { addOns?: IncomingBillingItemAddon[] },
   currency?: CurrencyEnum,
 ): FromBillingItemsResult => {
   const entities: Record<string, EntityData> = {}
@@ -141,7 +146,8 @@ export const fromBillingItems = (
   )
 
   for (const addon of sorted) {
-    const { payload, overrides, id, localId: savedLocalId } = addon
+    const { payload, id, localId: savedLocalId } = addon
+    const overrides: Partial<OverridableFields> = addon.overrides ?? {}
     const localId = savedLocalId ?? crypto.randomUUID()
 
     // Merge: overrides win over payload

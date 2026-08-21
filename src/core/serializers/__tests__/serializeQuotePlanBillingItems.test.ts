@@ -717,6 +717,42 @@ describe('fromPlanBillingItems', () => {
     expect(result.overrides).toEqual({})
   })
 
+  // A currency change makes the backend restamp the billing items, and an item whose only
+  // deviation stopped being one comes back with no `overrides` key at all. Dereferencing it
+  // took the whole quote editor down with a TypeError.
+  describe.each([
+    ['null', null],
+    ['undefined', undefined],
+  ])('GIVEN the API returned %s overrides', (_, overrides) => {
+    it('THEN should deserialize the plan as having no overrides', () => {
+      const result = fromPlanBillingItems([{ ...baseBillingItemPlan, overrides }])
+
+      expect(result.overrides).toEqual({})
+      expect(result.planName).toBe('Enterprise Plan')
+      expect(result.basePlanName).toBe('Enterprise Plan')
+      expect(result.planId).toBe('plan_123')
+    })
+  })
+
+  it('falls back to the payload currency when the restamped item carries no overrides', () => {
+    const plan = {
+      ...baseBillingItemPlan,
+      payload: {
+        ...baseBillingItemPlan.payload,
+        interval: PlanInterval.Monthly,
+        amountCents: '1999',
+        amountCurrency: CurrencyEnum.Eur,
+        charges: [],
+      },
+      overrides: null,
+    }
+
+    const result = fromPlanBillingItems([plan])
+
+    expect(result.formValues?.amountCurrency).toBe(CurrencyEnum.Eur)
+    expect(result.formValues?.amountCents).toBe('19.99')
+  })
+
   it('uses overrides.name as the effective name and payload.name as the base', () => {
     const plan: BillingItemPlan = {
       ...baseBillingItemPlan,
