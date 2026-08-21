@@ -44,7 +44,7 @@ type UseCurrentUser = () => {
   loading: boolean
   currentUser?: CurrentUserInfosFragment
   currentMembership?: CurrentUserInfosFragment['memberships'][0]
-  refetchCurrentUserInfos: () => void
+  refetchCurrentUserInfos: ReturnType<typeof useGetCurrentUserInfosQuery>['refetch']
 }
 
 export const useCurrentUser: UseCurrentUser = () => {

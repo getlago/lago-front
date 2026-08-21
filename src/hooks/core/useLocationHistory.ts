@@ -177,11 +177,6 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
       } else if (isAuthenticated && !isCurrentUserLoading) {
         handleAuthenticatedRouteEnter(routeConfig, location)
       } else if (!routeConfig?.children && !routeConfig.onlyPublic) {
-        // In the invitation for page, once users are logged in, we redirect them to the home page
-        if (routeConfig.invitation && isAuthenticated) {
-          // We can then safely redirect to the home page.
-          navigate(HOME_ROUTE)
-        }
         /**
          * We add the current location to the history only if :
          * - Current route has no children (to avoid adding Layout route which will result in duplicates)

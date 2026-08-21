@@ -9,4 +9,10 @@
  * Logout goes through `logOut(client)` in cacheUtils (never `navigate`),
  * so no logout route is listed.
  */
-export const NEVER_SLUG_PREFIXES = ['/customer-portal', '/forbidden', '/404', '/login']
+export const NEVER_SLUG_PREFIXES = [
+  '/customer-portal',
+  '/forbidden',
+  '/404',
+  '/login',
+  '/invitation',
+]

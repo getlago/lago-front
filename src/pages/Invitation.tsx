@@ -1,6 +1,5 @@
 import { gql, useApolloClient } from '@apollo/client'
 import Stack from '@mui/material/Stack'
-import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { useEffect, useMemo } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
 
@@ -9,13 +8,10 @@ import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
-import { PasswordValidationHints } from '~/components/form/PasswordValidationHints/PasswordValidationHints'
-import { TextInput } from '~/components/form/TextInput'
-import { hasDefinedGQLError, onLogIn } from '~/core/apolloClient'
+import { hasDefinedGQLError, logOut, onLogIn } from '~/core/apolloClient'
 import { DOCUMENTATION_ENV_VARS } from '~/core/constants/externalUrls'
-import { LOGIN_ROUTE } from '~/core/router'
+import { LOGIN_ROUTE, useNavigate } from '~/core/router'
 import { addValuesToUrlState } from '~/core/utils/urlUtils'
-import { PASSWORD_VALIDATION_ERRORS } from '~/formValidation/zodCustoms'
 import {
   CurrentUserFragmentDoc,
   LagoApiError,
@@ -25,32 +21,44 @@ import {
   useFetchOktaAuthorizeUrlMutation,
   useGetinviteQuery,
   useGoogleAcceptInviteMutation,
+  useJoinOrganizationMutation,
   useOktaAcceptInviteMutation,
 } from '~/generated/graphql'
 import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useAppForm } from '~/hooks/forms/useAppform'
-import { usePasswordValidation } from '~/hooks/forms/usePasswordValidation'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import MicrosoftEntraId from '~/public/images/microsoft-entra-id.svg'
 import { Card, Page, StyledLogo, Subtitle, Title } from '~/styles/auth'
 
-import {
-  invitationDefaultValues,
-  invitationValidationSchema,
-} from './invitationForm/validationSchema'
+import { InvitationLogInForm } from './invitationForm/InvitationLogInForm'
+import { InvitationSignUpForm } from './invitationForm/InvitationSignUpForm'
 
 export const INVITATION_FORM_ID = 'invitation-form'
 export const INVITATION_ERROR_ALERT_TEST_ID = 'invitation-error-alert'
 export const INVITATION_SUBMIT_BUTTON_TEST_ID = 'submit-button'
+export const INVITATION_JOIN_BUTTON_TEST_ID = 'join-button'
+export const INVITATION_LOG_IN_BUTTON_TEST_ID = 'log-in-button'
+export const INVITATION_LOG_OUT_BUTTON_TEST_ID = 'log-out-button'
+
+/**
+ * How the invitation can be accepted:
+ * - `signUp`: the invited email has no account, the password is created.
+ * - `logInRequired`: the invited email has an account, its password is required.
+ * - `join`: the invited user is logged in, only the membership is added.
+ * - `emailMismatch`: another user is logged in.
+ */
+type InvitationMode = 'signUp' | 'logInRequired' | 'join' | 'emailMismatch'
 
 gql`
   query getinvite($token: String!) {
     invite(token: $token) {
       id
       email
+      existingUser
       organization {
         id
         name
+        slug
       }
     }
   }
@@ -58,12 +66,30 @@ gql`
   mutation acceptInvite($input: AcceptInviteInput!) {
     acceptInvite(input: $input) {
       token
+      organization {
+        id
+        slug
+      }
+    }
+  }
+
+  mutation joinOrganization($input: JoinOrganizationInput!) {
+    joinOrganization(input: $input) {
+      id
+      organization {
+        id
+        slug
+      }
     }
   }
 
   mutation googleAcceptInvite($input: GoogleAcceptInviteInput!) {
     googleAcceptInvite(input: $input) {
       token
+      organization {
+        id
+        slug
+      }
     }
   }
 
@@ -96,9 +122,11 @@ gql`
 
 const Invitation = () => {
   const { isAuthenticated } = useIsAuthenticated()
+  const { currentUser, loading: currentUserLoading, refetchCurrentUserInfos } = useCurrentUser()
   const { translate } = useInternationalization()
   const { token } = useParams()
   const client = useApolloClient()
+  const navigate = useNavigate()
   const [searchParams] = useSearchParams()
 
   const googleCode = searchParams.get('code') || ''
@@ -107,28 +135,88 @@ const Invitation = () => {
   const entraIdCode = searchParams.get('entraIdCode') || ''
   const entraIdState = searchParams.get('entraIdState') || ''
 
-  const { data, error, loading } = useGetinviteQuery({
+  const {
+    data,
+    error,
+    loading,
+    refetch: refetchInvite,
+  } = useGetinviteQuery({
     context: { silentErrorCodes: [LagoApiError.InviteNotFound, LagoApiError.NotFound] },
     variables: { token: token || '' },
-    skip: !token || isAuthenticated, // We need to skip when authenticated to prevent an error flash on the form after submit
+    // Keeps the skeleton visible while the invite is fetched again after a log out.
+    notifyOnNetworkStatusChange: true,
+    skip: !token,
   })
-  const email = data?.invite?.email
+  const invite = data?.invite
+  const email = invite?.email
+  const invitedOrganizationSlug = invite?.organization.slug
+
+  const mode: InvitationMode | undefined = useMemo(() => {
+    if (!invite) return undefined
+
+    if (isAuthenticated) {
+      if (!currentUser) return undefined
+
+      // Emails are not downcased on write, hence the case insensitive comparison.
+      const isInvitedUser = currentUser.email?.toLowerCase() === invite.email.toLowerCase()
+
+      return isInvitedUser ? 'join' : 'emailMismatch'
+    }
+
+    return invite.existingUser ? 'logInRequired' : 'signUp'
+  }, [invite, isAuthenticated, currentUser])
+
+  // Land on the organization of the invitation. Without it the home page would resolve the last
+  // used organization, which is not the one that was just joined.
+  const onAccepted = async (userToken: string, slug: string) => {
+    await onLogIn(client, userToken)
+    navigate(`/${slug}`, { replace: true, skipSlugPrepend: true })
+  }
+
+  // Logging out clears the Apollo store without refetching the active queries, so the invite has
+  // to be queried again to render the logged out flow.
+  const onLogOut = async () => {
+    await logOut(client, true)
+    resetJoinOrganization()
+    await refetchInvite()
+  }
 
   const [acceptInvite, { error: acceptInviteError, loading: acceptInviteLoading }] =
     useAcceptInviteMutation({
       context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
       onCompleted: async (res) => {
         if (!!res?.acceptInvite) {
-          await onLogIn(client, res?.acceptInvite.token)
+          await onAccepted(res.acceptInvite.token, res.acceptInvite.organization.slug)
         }
       },
     })
+
+  const [
+    joinOrganization,
+    {
+      error: joinOrganizationError,
+      loading: joinOrganizationLoading,
+      reset: resetJoinOrganization,
+    },
+  ] = useJoinOrganizationMutation({
+    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
+    onCompleted: async (res) => {
+      const slug = res?.joinOrganization?.organization.slug
+
+      if (!slug) return
+
+      // The mutation cannot return the permissions and the organization details the cached
+      // current user holds, so the memberships are reloaded instead of written to the cache.
+      await refetchCurrentUserInfos()
+      navigate(`/${slug}`, { replace: true, skipSlugPrepend: true })
+    },
+  })
 
   const [googleAcceptInvite, { error: googleAcceptInviteError }] = useGoogleAcceptInviteMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     onCompleted: async (res) => {
       if (!!res?.googleAcceptInvite) {
-        await onLogIn(client, res?.googleAcceptInvite.token)
+        await onAccepted(res.googleAcceptInvite.token, res.googleAcceptInvite.organization.slug)
       }
     },
   })
@@ -145,8 +233,8 @@ const Invitation = () => {
     useOktaAcceptInviteMutation({
       context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
       onCompleted: async (res) => {
-        if (!!res?.oktaAcceptInvite) {
-          await onLogIn(client, res?.oktaAcceptInvite.token)
+        if (!!res?.oktaAcceptInvite && !!invitedOrganizationSlug) {
+          await onAccepted(res.oktaAcceptInvite.token, invitedOrganizationSlug)
         }
       },
     })
@@ -165,33 +253,24 @@ const Invitation = () => {
   ] = useEntraIdAcceptInviteMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     onCompleted: async (res) => {
-      if (res?.entraIdAcceptInvite) {
-        await onLogIn(client, res?.entraIdAcceptInvite.token)
+      if (!!res?.entraIdAcceptInvite && !!invitedOrganizationSlug) {
+        await onAccepted(res.entraIdAcceptInvite.token, invitedOrganizationSlug)
       }
     },
   })
 
-  const form = useAppForm({
-    defaultValues: invitationDefaultValues,
-    validationLogic: revalidateLogic(),
-    validators: {
-      onDynamic: invitationValidationSchema,
-    },
-    onSubmit: async ({ value }) => {
-      await acceptInvite({
-        variables: {
-          input: {
-            token: token || '',
-            email: email || '',
-            password: value.password,
-          },
+  // Both forms submit the same mutation. The API creates the password when the invited email has
+  // no account, and verifies it otherwise.
+  const onSubmitPassword = async (password: string) => {
+    await acceptInvite({
+      variables: {
+        input: {
+          token: token || '',
+          password,
         },
-      })
-    },
-  })
-
-  const password = useStore(form.store, (state) => state.values.password)
-  const passwordValidation = usePasswordValidation(password)
+      },
+    })
+  }
 
   const onOktaLogin = async () => {
     const { data: oktaAuthorizeData } = await fetchOktaAuthorizeUrl({
@@ -233,6 +312,10 @@ const Invitation = () => {
     }
   }
 
+  const onJoinOrganization = () => {
+    joinOrganization({ variables: { input: { token: token || '' } } }).catch(() => undefined)
+  }
+
   useEffect(() => {
     if (!!googleCode && !!token) {
       googleAcceptInvite({
@@ -248,7 +331,7 @@ const Invitation = () => {
   }, [googleCode, token])
 
   useEffect(() => {
-    if (!!oktaCode && !!oktaState && !!token) {
+    if (!!oktaCode && !!oktaState && !!token && !!invitedOrganizationSlug) {
       oktaAcceptInvite({
         variables: {
           input: {
@@ -260,10 +343,10 @@ const Invitation = () => {
       })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [oktaCode, oktaState, token])
+  }, [oktaCode, oktaState, token, invitedOrganizationSlug])
 
   useEffect(() => {
-    if (!!entraIdCode && !!entraIdState && !!token) {
+    if (!!entraIdCode && !!entraIdState && !!token && !!invitedOrganizationSlug) {
       entraIdAcceptInvite({
         variables: {
           input: {
@@ -275,11 +358,17 @@ const Invitation = () => {
       })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [entraIdCode, entraIdState, token])
+  }, [entraIdCode, entraIdState, token, invitedOrganizationSlug])
+
+  const joinLoginMethodNotAuthorized = hasDefinedGQLError(
+    'LoginMethodNotAuthorized',
+    joinOrganizationError,
+  )
 
   const errorTranslation: string | undefined = useMemo(() => {
     if (
       !acceptInviteError &&
+      !joinOrganizationError &&
       !googleAcceptInviteError &&
       !oktaAcceptInviteError &&
       !oktaAuthorizeUrlError &&
@@ -344,26 +433,78 @@ const Invitation = () => {
       })
     }
 
+    // The password submitted for an invitation whose email already has an account did not match.
+    if (hasDefinedGQLError('IncorrectLoginOrPassword', acceptInviteError)) {
+      return translate('text_620bc4d4269a55014d493fb7')
+    }
+
+    if (hasDefinedGQLError('EmailAlreadyUsed', acceptInviteError)) {
+      return translate('text_1786557508910guitmzid55q')
+    }
+
+    if (hasDefinedGQLError('InviteEmailMistmatch', joinOrganizationError)) {
+      return translate('text_17865575089107lip4oupwdj')
+    }
+
+    if (hasDefinedGQLError('EmailAlreadyUsed', joinOrganizationError)) {
+      return translate('text_1786557508910guitmzid55q')
+    }
+
+    if (joinLoginMethodNotAuthorized) {
+      return translate('text_1786557573982blvi6cjpnti')
+    }
+
     return
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     acceptInviteError,
+    joinOrganizationError,
     googleAcceptInviteError,
     oktaAcceptInviteError,
     oktaAuthorizeUrlError,
     entraIdAcceptInviteError,
     entraIdAuthorizeUrlError,
+    joinLoginMethodNotAuthorized,
   ])
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    form.handleSubmit()
-  }
+  const errorAlert = !!errorTranslation && (
+    <Alert type="danger" data-test={INVITATION_ERROR_ALERT_TEST_ID}>
+      <Typography color="inherit" html={errorTranslation} />
+    </Alert>
+  )
 
-  if (isAuthenticated) {
-    return null
-  }
+  const ssoButtons = (
+    <Stack spacing={4}>
+      <GoogleAuthButton
+        mode="invite"
+        invitationToken={token || ''}
+        label={translate('text_664c90c9b2b6c2012aa50bd3')}
+      />
+
+      <Button
+        fullWidth
+        startIcon="okta"
+        size="large"
+        variant="tertiary"
+        onClick={() => onOktaLogin()}
+        loading={oktaAuthorizeUrlLoading || oktaAcceptInviteLoading}
+      >
+        {translate('text_664c90c9b2b6c2012aa50bd5')}
+      </Button>
+
+      <Button
+        fullWidth
+        size="large"
+        variant="tertiary"
+        onClick={() => onEntraIdLogin()}
+        loading={entraIdAuthorizeUrlLoading || entraIdAcceptInviteLoading}
+      >
+        <MicrosoftEntraId className="mr-2 size-4" />
+        {translate('text_1784307344255ojifndnfotw')}
+      </Button>
+    </Stack>
+  )
 
   return (
     <Page>
@@ -384,112 +525,100 @@ const Invitation = () => {
             </Button>
           </>
         )}
-        {!error && !!loading && (
-          <>
-            <Skeleton variant="text" className="mb-8 w-52" />
-            <Skeleton variant="text" className="mb-4 w-110" />
-            <Skeleton variant="text" className="w-76" />
-          </>
-        )}
-        {!error && !loading && !!data?.invite && (
-          <form id={INVITATION_FORM_ID} onSubmit={handleSubmit}>
-            <Stack spacing={8}>
-              <Stack spacing={3}>
-                <Typography variant="headline">
-                  {translate('text_664c90c9b2b6c2012aa50bcd', {
-                    orgnisationName: data?.invite?.organization.name,
+        {!error &&
+          !mode &&
+          (!!loading || (isAuthenticated && (!!currentUserLoading || !currentUser))) && (
+            <>
+              <Skeleton variant="text" className="mb-8 w-52" />
+              <Skeleton variant="text" className="mb-4 w-110" />
+              <Skeleton variant="text" className="w-76" />
+            </>
+          )}
+        {!error && !loading && !!invite && !!mode && (
+          <Stack spacing={8}>
+            <Stack spacing={3}>
+              <Typography variant="headline">
+                {translate('text_664c90c9b2b6c2012aa50bcd', {
+                  orgnisationName: invite.organization.name,
+                })}
+              </Typography>
+              <Typography>
+                {mode === 'signUp' && translate('text_63246f875e2228ab7b63dcd4')}
+                {mode === 'logInRequired' && translate('text_1786557508910b6cacpc0pjt', { email })}
+                {mode === 'join' &&
+                  translate('text_17865575089107fdhugc24r9', { email: currentUser?.email })}
+                {mode === 'emailMismatch' &&
+                  translate('text_1786557508910jl708qczi4g', {
+                    inviteEmail: email,
+                    currentEmail: currentUser?.email,
                   })}
-                </Typography>
-                <Typography>{translate('text_63246f875e2228ab7b63dcd4')}</Typography>
-              </Stack>
-
-              {!!errorTranslation && (
-                <Alert type="danger" data-test={INVITATION_ERROR_ALERT_TEST_ID}>
-                  <Typography color="inherit" html={errorTranslation} />
-                </Alert>
-              )}
-
-              <Stack spacing={4}>
-                <GoogleAuthButton
-                  mode="invite"
-                  invitationToken={token || ''}
-                  label={translate('text_664c90c9b2b6c2012aa50bd3')}
-                />
-
-                <Button
-                  fullWidth
-                  startIcon="okta"
-                  size="large"
-                  variant="tertiary"
-                  onClick={() => onOktaLogin()}
-                  loading={oktaAuthorizeUrlLoading || oktaAcceptInviteLoading}
-                >
-                  {translate('text_664c90c9b2b6c2012aa50bd5')}
-                </Button>
-
-                <Button
-                  fullWidth
-                  size="large"
-                  variant="tertiary"
-                  onClick={() => onEntraIdLogin()}
-                  loading={entraIdAuthorizeUrlLoading || entraIdAcceptInviteLoading}
-                >
-                  <MicrosoftEntraId className="mr-2 size-4" />
-                  {translate('text_1784307344255ojifndnfotw')}
-                </Button>
-              </Stack>
-
-              <div className="flex items-center justify-center gap-4 before:flex-1 before:border before:border-grey-300 before:content-[''] after:flex-1 after:border after:border-grey-300 after:content-['']">
-                <Typography variant="captionHl" color="grey500">
-                  {translate('text_6303351deffd2a0d70498675').toUpperCase()}
-                </Typography>
-              </div>
-
-              <div className="flex flex-col gap-4">
-                <TextInput
-                  disabled
-                  name="email"
-                  beforeChangeFormatter={['lowercase']}
-                  label={translate('text_63246f875e2228ab7b63dcdc')}
-                  value={email}
-                />
-
-                <div>
-                  <form.AppField name="password">
-                    {(field) => (
-                      <field.TextInputField
-                        password
-                        label={translate('text_63246f875e2228ab7b63dce9')}
-                        placeholder={translate('text_63246f875e2228ab7b63dcf0')}
-                        showOnlyErrors={[PASSWORD_VALIDATION_ERRORS.REQUIRED]}
-                      />
-                    )}
-                  </form.AppField>
-                  <PasswordValidationHints
-                    password={password}
-                    errors={passwordValidation.errors}
-                    isValid={passwordValidation.isValid}
-                    successMessage="text_63246f875e2228ab7b63dd02"
-                  />
-                </div>
-              </div>
-
-              <form.AppForm>
-                <form.SubmitButton
-                  dataTest={INVITATION_SUBMIT_BUTTON_TEST_ID}
-                  fullWidth
-                  size="large"
-                  loading={acceptInviteLoading}
-                >
-                  {translate('text_63246f875e2228ab7b63dd1c')}
-                </form.SubmitButton>
-              </form.AppForm>
-              <Typography
-                variant="caption"
-                html={translate('text_63246f875e2228ab7b63dd1f', { link: LOGIN_ROUTE })}
-              />
+              </Typography>
             </Stack>
-          </form>
+
+            {errorAlert}
+
+            {mode === 'join' && !joinLoginMethodNotAuthorized && (
+              <Button
+                data-test={INVITATION_JOIN_BUTTON_TEST_ID}
+                fullWidth
+                size="large"
+                variant="primary"
+                loading={joinOrganizationLoading}
+                onClick={onJoinOrganization}
+              >
+                {translate('text_17865575089104r0enbn7r7l')}
+              </Button>
+            )}
+
+            {(mode === 'emailMismatch' || (mode === 'join' && joinLoginMethodNotAuthorized)) && (
+              <Button
+                data-test={INVITATION_LOG_OUT_BUTTON_TEST_ID}
+                fullWidth
+                size="large"
+                variant="primary"
+                onClick={() => onLogOut()}
+              >
+                {translate('text_17865575089106781wwdm3l3')}
+              </Button>
+            )}
+
+            {(mode === 'signUp' || mode === 'logInRequired') && (
+              <>
+                {ssoButtons}
+
+                <div className="flex items-center justify-center gap-4 before:flex-1 before:border before:border-grey-300 before:content-[''] after:flex-1 after:border after:border-grey-300 after:content-['']">
+                  <Typography variant="captionHl" color="grey500">
+                    {translate('text_6303351deffd2a0d70498675').toUpperCase()}
+                  </Typography>
+                </div>
+
+                {mode === 'signUp' ? (
+                  <InvitationSignUpForm
+                    email={email}
+                    formId={INVITATION_FORM_ID}
+                    loading={acceptInviteLoading}
+                    submitDataTest={INVITATION_SUBMIT_BUTTON_TEST_ID}
+                    onSubmit={onSubmitPassword}
+                  />
+                ) : (
+                  <InvitationLogInForm
+                    email={email}
+                    formId={INVITATION_FORM_ID}
+                    loading={acceptInviteLoading}
+                    submitDataTest={INVITATION_LOG_IN_BUTTON_TEST_ID}
+                    onSubmit={onSubmitPassword}
+                  />
+                )}
+
+                {mode === 'signUp' && (
+                  <Typography
+                    variant="caption"
+                    html={translate('text_63246f875e2228ab7b63dd1f', { link: LOGIN_ROUTE })}
+                  />
+                )}
+              </>
+            )}
+          </Stack>
         )}
       </Card>
     </Page>
