@@ -820,7 +820,7 @@ const CustomerInvoiceDetails = () => {
           },
         },
         {
-          label: translate('text_1770392315728uyw3zhs7kzh'),
+          label: translate('text_17703925321987cxf5psj6l4'),
           hidden: !authorizations.canResendEmail,
           onClick: (closePopper: () => void) => {
             resendEmail()

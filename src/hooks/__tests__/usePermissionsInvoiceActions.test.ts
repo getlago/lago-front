@@ -3,7 +3,6 @@ import { renderHook } from '@testing-library/react'
 import { envGlobalVar } from '~/core/apolloClient'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
 import {
-  BillingEntityEmailSettingsEnum,
   GetCurrentUserInfosDocument,
   InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
@@ -835,27 +834,12 @@ describe('usePermissionsInvoiceActions', () => {
   })
 
   describe('canResendEmail', () => {
-    const billingEntityWithEmailSettings = {
-      id: '1',
-      name: 'Test',
-      code: 'test',
-      emailSettings: [BillingEntityEmailSettingsEnum.InvoiceFinalized],
-    }
-
-    const billingEntityWithoutEmailSettings = {
-      id: '1',
-      name: 'Test',
-      code: 'test',
-      emailSettings: [] as BillingEntityEmailSettingsEnum[],
-    }
-
-    it('should return true when invoice is finalized, has invoicesSend permission, and email scenario is active', async () => {
+    it('should return true when invoice is finalized and has invoicesSend permission', async () => {
       const { result } = await prepare()
 
       expect(
         result.current.canResendEmail({
           status: InvoiceStatusTypeEnum.Finalized,
-          billingEntity: billingEntityWithEmailSettings,
         }),
       ).toBe(true)
     })
@@ -866,7 +850,6 @@ describe('usePermissionsInvoiceActions', () => {
       expect(
         result.current.canResendEmail({
           status: InvoiceStatusTypeEnum.Draft,
-          billingEntity: billingEntityWithEmailSettings,
         }),
       ).toBe(false)
     })
@@ -877,7 +860,6 @@ describe('usePermissionsInvoiceActions', () => {
       expect(
         result.current.canResendEmail({
           status: InvoiceStatusTypeEnum.Voided,
-          billingEntity: billingEntityWithEmailSettings,
         }),
       ).toBe(false)
     })
@@ -888,7 +870,6 @@ describe('usePermissionsInvoiceActions', () => {
       expect(
         result.current.canResendEmail({
           status: InvoiceStatusTypeEnum.Pending,
-          billingEntity: billingEntityWithEmailSettings,
         }),
       ).toBe(false)
     })
@@ -899,7 +880,6 @@ describe('usePermissionsInvoiceActions', () => {
       expect(
         result.current.canResendEmail({
           status: InvoiceStatusTypeEnum.Failed,
-          billingEntity: billingEntityWithEmailSettings,
         }),
       ).toBe(false)
     })
@@ -910,18 +890,6 @@ describe('usePermissionsInvoiceActions', () => {
       expect(
         result.current.canResendEmail({
           status: InvoiceStatusTypeEnum.Finalized,
-          billingEntity: billingEntityWithEmailSettings,
-        }),
-      ).toBe(false)
-    })
-
-    it('should return false when email scenario is inactive', async () => {
-      const { result } = await prepare()
-
-      expect(
-        result.current.canResendEmail({
-          status: InvoiceStatusTypeEnum.Finalized,
-          billingEntity: billingEntityWithoutEmailSettings,
         }),
       ).toBe(false)
     })

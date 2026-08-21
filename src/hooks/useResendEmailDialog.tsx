@@ -134,7 +134,7 @@ export const useResendEmailDialog = () => {
 
     formDialog
       .open({
-        title: translate('text_1771317709944fi3nu3lw2gy'),
+        title: translate('text_17703925321987cxf5psj6l4'),
         headerContent: <ResendEmailHeaderContent form={form} subject={subject} />,
         children: (
           <EmailPreview
