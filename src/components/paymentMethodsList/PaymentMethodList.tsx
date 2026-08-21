@@ -10,7 +10,8 @@ import {
   useSetPaymentMethodAsDefaultMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { PaymentMethodItem, usePaymentMethodsList } from '~/hooks/customer/usePaymentMethodsList'
+import { useConnectionPaymentMethodsList } from '~/hooks/customer/useConnectionPaymentMethodsList'
+import { PaymentMethodItem } from '~/hooks/customer/usePaymentMethodsList'
 
 import { useDeletePaymentMethodDialog } from './DeletePaymentMethodDialog'
 import { usePaymentMethodsTableColumns } from './usePaymentMethodsTableColumns'
@@ -30,10 +31,12 @@ gql`
 `
 
 interface Props {
-  externalCustomerId: string
+  customerId: string
+  /** The selected payment connection whose methods the table lists */
+  connectionId: string
 }
 
-export const PaymentMethodsList = ({ externalCustomerId }: Props) => {
+export const PaymentMethodsList = ({ customerId, connectionId }: Props) => {
   const { translate } = useInternationalization()
   const { openDeletePaymentMethodDialog } = useDeletePaymentMethodDialog()
 
@@ -48,7 +51,7 @@ export const PaymentMethodsList = ({ externalCustomerId }: Props) => {
     error: hasErrorPaymentMethods,
     data: paymentMethodsList,
     refetch,
-  } = usePaymentMethodsList({ externalCustomerId })
+  } = useConnectionPaymentMethodsList({ customerId, connectionId })
 
   const setPaymentMethodAsDefault = useCallback(
     async (input: SetAsDefaultInput): Promise<void> => {

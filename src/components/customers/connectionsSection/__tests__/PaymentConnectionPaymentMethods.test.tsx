@@ -131,7 +131,7 @@ describe('PaymentConnectionPaymentMethods', () => {
 
   describe('GIVEN a payment array holding nothing but a manual row', () => {
     describe('WHEN the block renders', () => {
-      it('THEN should keep the list and the add action available', () => {
+      it('THEN should keep the add action available but list nothing, having no connection to scope to', () => {
         render(
           <PaymentConnectionPaymentMethods
             customer={buildManualOnlyCustomer()}
@@ -139,7 +139,7 @@ describe('PaymentConnectionPaymentMethods', () => {
           />,
         )
 
-        expect(screen.getByTestId(PAYMENT_METHODS_LIST_TEST_ID)).toBeInTheDocument()
+        expect(screen.queryByTestId(PAYMENT_METHODS_LIST_TEST_ID)).not.toBeInTheDocument()
         expect(screen.getByTestId(ADD_PAYMENT_METHOD_TEST_ID)).not.toBeDisabled()
         expect(screen.queryByTestId(INELIGIBLE_PAYMENT_METHODS_TEST_ID)).not.toBeInTheDocument()
       })
