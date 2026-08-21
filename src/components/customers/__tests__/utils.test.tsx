@@ -1,55 +1,74 @@
+import { IntegrationsListForCustomerMainInfosQuery } from '~/generated/graphql'
+
 import { getConnectedIntegrations } from '../utils'
 
+const buildIntegrationsData = (
+  collection: Array<{ __typename: string; id: string }>,
+): IntegrationsListForCustomerMainInfosQuery =>
+  ({ integrations: { collection } }) as unknown as IntegrationsListForCustomerMainInfosQuery
+
 describe('getConnectedIntegrations', () => {
-  it('should return undefined if data is undefined', () => {
-    const result = getConnectedIntegrations(undefined, {}, 'SomeType', 'someKey')
+  describe('GIVEN no integrations data', () => {
+    describe('WHEN looking up an integration', () => {
+      it('THEN should return undefined', () => {
+        const result = getConnectedIntegrations(undefined, 'AvalaraIntegration', 'integration-1')
 
-    expect(result).toBeUndefined()
+        expect(result).toBeUndefined()
+      })
+    })
   })
 
-  it('should return undefined if customerKey does not exist in customer', () => {
-    const data = {
-      integrations: { collection: [] },
-    }
-    const customer = {}
+  describe('GIVEN an integration customer without an integration id', () => {
+    describe.each([
+      ['undefined', undefined],
+      ['null', null],
+    ])('WHEN the id is %s', (_, integrationId) => {
+      it('THEN should return undefined instead of matching the first integration of the type', () => {
+        const data = buildIntegrationsData([{ __typename: 'AvalaraIntegration', id: 'int-1' }])
 
-    const result = getConnectedIntegrations(data, customer, 'SomeType', 'nonExistentKey')
+        const result = getConnectedIntegrations(data, 'AvalaraIntegration', integrationId)
 
-    expect(result).toBeUndefined()
+        expect(result).toBeUndefined()
+      })
+    })
   })
 
-  it('should return the correct integration if it matches typename and id', () => {
-    const data = {
-      integrations: {
-        collection: [
+  describe('GIVEN integrations of several types', () => {
+    describe('WHEN both the typename and the integration id match', () => {
+      it('THEN should return that integration', () => {
+        const data = buildIntegrationsData([
           { __typename: 'AvalaraIntegration', id: 'integration-1' },
           { __typename: 'SalesforceIntegration', id: 'integration-2' },
-        ],
-      },
-    }
+        ])
 
-    const customer = {
-      someKey: { integrationId: 'integration-1' },
-    }
+        const result = getConnectedIntegrations(data, 'AvalaraIntegration', 'integration-1')
 
-    const result = getConnectedIntegrations(data, customer, 'AvalaraIntegration', 'someKey')
+        expect(result).toEqual({ __typename: 'AvalaraIntegration', id: 'integration-1' })
+      })
+    })
 
-    expect(result).toEqual({ __typename: 'AvalaraIntegration', id: 'integration-1' })
-  })
+    describe('WHEN the id belongs to another integration type', () => {
+      it('THEN should return undefined', () => {
+        const data = buildIntegrationsData([
+          { __typename: 'SalesforceIntegration', id: 'integration-2' },
+        ])
 
-  it('should return undefined if no integration matches the id', () => {
-    const data = {
-      integrations: {
-        collection: [{ __typename: 'HubspotIntegration', id: 'integration-1' }],
-      },
-    }
+        const result = getConnectedIntegrations(data, 'AvalaraIntegration', 'integration-2')
 
-    const customer = {
-      someKey: { integrationId: 'non-existent-id' },
-    }
+        expect(result).toBeUndefined()
+      })
+    })
 
-    const result = getConnectedIntegrations(data, customer, 'SomeType', 'someKey')
+    describe('WHEN no integration carries that id', () => {
+      it('THEN should return undefined', () => {
+        const data = buildIntegrationsData([
+          { __typename: 'HubspotIntegration', id: 'integration-1' },
+        ])
 
-    expect(result).toBeUndefined()
+        const result = getConnectedIntegrations(data, 'HubspotIntegration', 'non-existent-id')
+
+        expect(result).toBeUndefined()
+      })
+    })
   })
 })

@@ -19,20 +19,22 @@ const TestStripePaymentProviderContentWrapper = ({
   const form = useAppForm({
     defaultValues: {
       ...emptyCreateCustomerDefaultValues,
-      paymentProviderCustomer: {
-        providerCustomerId: '',
-        syncWithProvider: false,
-        providerPaymentMethods: {
-          [ProviderPaymentMethodsEnum.Card]: true,
-          [ProviderPaymentMethodsEnum.SepaDebit]: false,
-          [ProviderPaymentMethodsEnum.Link]: false,
-          [ProviderPaymentMethodsEnum.UsBankAccount]: false,
-          [ProviderPaymentMethodsEnum.BacsDebit]: false,
-          [ProviderPaymentMethodsEnum.CustomerBalance]: false,
-          [ProviderPaymentMethodsEnum.Boleto]: false,
-          [ProviderPaymentMethodsEnum.Crypto]: false,
+      paymentProviderCustomers: [
+        {
+          providerCustomerId: '',
+          syncWithProvider: false,
+          providerPaymentMethods: {
+            [ProviderPaymentMethodsEnum.Card]: true,
+            [ProviderPaymentMethodsEnum.SepaDebit]: false,
+            [ProviderPaymentMethodsEnum.Link]: false,
+            [ProviderPaymentMethodsEnum.UsBankAccount]: false,
+            [ProviderPaymentMethodsEnum.BacsDebit]: false,
+            [ProviderPaymentMethodsEnum.CustomerBalance]: false,
+            [ProviderPaymentMethodsEnum.Boleto]: false,
+            [ProviderPaymentMethodsEnum.Crypto]: false,
+          },
         },
-      },
+      ],
       ...initialValues,
     } as typeof emptyCreateCustomerDefaultValues,
   })
@@ -41,7 +43,7 @@ const TestStripePaymentProviderContentWrapper = ({
     <StripePaymentProviderContent
       form={form}
       fields={{
-        providerPaymentMethods: 'paymentProviderCustomer.providerPaymentMethods',
+        providerPaymentMethods: 'paymentProviderCustomers[0].providerPaymentMethods',
       }}
     />
   )
@@ -76,14 +78,16 @@ describe('StripePaymentProviderContent Integration Tests', () => {
       const rendered = render(
         <TestStripePaymentProviderContentWrapper
           initialValues={{
-            paymentProviderCustomer: {
-              providerCustomerId: '',
-              syncWithProvider: false,
-              providerPaymentMethods: {
-                [ProviderPaymentMethodsEnum.CustomerBalance]: true,
-                [ProviderPaymentMethodsEnum.Card]: false,
+            paymentProviderCustomers: [
+              {
+                providerCustomerId: '',
+                syncWithProvider: false,
+                providerPaymentMethods: {
+                  [ProviderPaymentMethodsEnum.CustomerBalance]: true,
+                  [ProviderPaymentMethodsEnum.Card]: false,
+                },
               },
-            },
+            ],
           }}
         />,
       )
@@ -95,15 +99,17 @@ describe('StripePaymentProviderContent Integration Tests', () => {
       const rendered = render(
         <TestStripePaymentProviderContentWrapper
           initialValues={{
-            paymentProviderCustomer: {
-              providerCustomerId: '',
-              syncWithProvider: false,
-              providerPaymentMethods: {
-                [ProviderPaymentMethodsEnum.Card]: true,
-                [ProviderPaymentMethodsEnum.SepaDebit]: true,
-                [ProviderPaymentMethodsEnum.Link]: true,
+            paymentProviderCustomers: [
+              {
+                providerCustomerId: '',
+                syncWithProvider: false,
+                providerPaymentMethods: {
+                  [ProviderPaymentMethodsEnum.Card]: true,
+                  [ProviderPaymentMethodsEnum.SepaDebit]: true,
+                  [ProviderPaymentMethodsEnum.Link]: true,
+                },
               },
-            },
+            ],
           }}
         />,
       )
@@ -239,14 +245,16 @@ describe('StripePaymentProviderContent Integration Tests', () => {
       render(
         <TestStripePaymentProviderContentWrapper
           initialValues={{
-            paymentProviderCustomer: {
-              providerCustomerId: '',
-              syncWithProvider: false,
-              providerPaymentMethods: {
-                [ProviderPaymentMethodsEnum.Card]: false,
-                [ProviderPaymentMethodsEnum.Link]: false,
+            paymentProviderCustomers: [
+              {
+                providerCustomerId: '',
+                syncWithProvider: false,
+                providerPaymentMethods: {
+                  [ProviderPaymentMethodsEnum.Card]: false,
+                  [ProviderPaymentMethodsEnum.Link]: false,
+                },
               },
-            },
+            ],
           }}
         />,
       )
@@ -260,14 +268,16 @@ describe('StripePaymentProviderContent Integration Tests', () => {
       render(
         <TestStripePaymentProviderContentWrapper
           initialValues={{
-            paymentProviderCustomer: {
-              providerCustomerId: '',
-              syncWithProvider: false,
-              providerPaymentMethods: {
-                [ProviderPaymentMethodsEnum.CustomerBalance]: true,
-                [ProviderPaymentMethodsEnum.Card]: false,
+            paymentProviderCustomers: [
+              {
+                providerCustomerId: '',
+                syncWithProvider: false,
+                providerPaymentMethods: {
+                  [ProviderPaymentMethodsEnum.CustomerBalance]: true,
+                  [ProviderPaymentMethodsEnum.Card]: false,
+                },
               },
-            },
+            ],
           }}
         />,
       )
@@ -285,14 +295,16 @@ describe('StripePaymentProviderContent Integration Tests', () => {
       render(
         <TestStripePaymentProviderContentWrapper
           initialValues={{
-            paymentProviderCustomer: {
-              providerCustomerId: '',
-              syncWithProvider: false,
-              providerPaymentMethods: {
-                [ProviderPaymentMethodsEnum.SepaDebit]: true,
-                // Only SEPA enabled, making it unique
+            paymentProviderCustomers: [
+              {
+                providerCustomerId: '',
+                syncWithProvider: false,
+                providerPaymentMethods: {
+                  [ProviderPaymentMethodsEnum.SepaDebit]: true,
+                  // Only SEPA enabled, making it unique
+                },
               },
-            },
+            ],
           }}
         />,
       )
@@ -358,14 +370,16 @@ describe('StripePaymentProviderContent Integration Tests', () => {
       render(
         <TestStripePaymentProviderContentWrapper
           initialValues={{
-            paymentProviderCustomer: {
-              providerCustomerId: '',
-              syncWithProvider: false,
-              providerPaymentMethods: {
-                [ProviderPaymentMethodsEnum.Card]: true,
-                [ProviderPaymentMethodsEnum.Link]: true,
+            paymentProviderCustomers: [
+              {
+                providerCustomerId: '',
+                syncWithProvider: false,
+                providerPaymentMethods: {
+                  [ProviderPaymentMethodsEnum.Card]: true,
+                  [ProviderPaymentMethodsEnum.Link]: true,
+                },
               },
-            },
+            ],
           }}
         />,
       )
@@ -391,11 +405,13 @@ describe('StripePaymentProviderContent Integration Tests', () => {
       render(
         <TestStripePaymentProviderContentWrapper
           initialValues={{
-            paymentProviderCustomer: {
-              providerCustomerId: '',
-              syncWithProvider: false,
-              providerPaymentMethods: {},
-            },
+            paymentProviderCustomers: [
+              {
+                providerCustomerId: '',
+                syncWithProvider: false,
+                providerPaymentMethods: {},
+              },
+            ],
           }}
         />,
       )
@@ -411,11 +427,13 @@ describe('StripePaymentProviderContent Integration Tests', () => {
       render(
         <TestStripePaymentProviderContentWrapper
           initialValues={{
-            paymentProviderCustomer: {
-              providerCustomerId: '',
-              syncWithProvider: false,
-              providerPaymentMethods: undefined,
-            },
+            paymentProviderCustomers: [
+              {
+                providerCustomerId: '',
+                syncWithProvider: false,
+                providerPaymentMethods: undefined,
+              },
+            ],
           }}
         />,
       )
@@ -429,19 +447,21 @@ describe('StripePaymentProviderContent Integration Tests', () => {
       const rendered = render(
         <TestStripePaymentProviderContentWrapper
           initialValues={{
-            paymentProviderCustomer: {
-              providerCustomerId: '',
-              syncWithProvider: false,
-              providerPaymentMethods: {
-                [ProviderPaymentMethodsEnum.Card]: true,
-                [ProviderPaymentMethodsEnum.Link]: true,
-                [ProviderPaymentMethodsEnum.SepaDebit]: true,
-                [ProviderPaymentMethodsEnum.UsBankAccount]: true,
-                [ProviderPaymentMethodsEnum.BacsDebit]: true,
-                [ProviderPaymentMethodsEnum.Boleto]: true,
-                [ProviderPaymentMethodsEnum.Crypto]: true,
+            paymentProviderCustomers: [
+              {
+                providerCustomerId: '',
+                syncWithProvider: false,
+                providerPaymentMethods: {
+                  [ProviderPaymentMethodsEnum.Card]: true,
+                  [ProviderPaymentMethodsEnum.Link]: true,
+                  [ProviderPaymentMethodsEnum.SepaDebit]: true,
+                  [ProviderPaymentMethodsEnum.UsBankAccount]: true,
+                  [ProviderPaymentMethodsEnum.BacsDebit]: true,
+                  [ProviderPaymentMethodsEnum.Boleto]: true,
+                  [ProviderPaymentMethodsEnum.Crypto]: true,
+                },
               },
-            },
+            ],
           }}
         />,
       )

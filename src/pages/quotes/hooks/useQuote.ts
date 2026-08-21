@@ -69,8 +69,7 @@ gql`
       status
       version
       currency
-      startDate
-      endDate
+      billingEntityId
       createdAt
       ...QuotePreviewVersion
     }

@@ -5,6 +5,7 @@ import {
   INELIGIBLE_PAYMENT_METHODS_TEST_ID,
   PAYMENT_METHODS_LIST_TEST_ID,
 } from '~/components/customers/connectionsSection/constants'
+import { getProviderPaymentConnection } from '~/components/customers/connectionsSection/utils'
 import { LinkedPaymentProvider } from '~/components/customers/types'
 import { useAddPaymentMethodDialog } from '~/components/customers/useAddPaymentMethodDialog'
 import { Typography } from '~/components/designSystem/Typography'
@@ -35,14 +36,16 @@ export const PaymentConnectionPaymentMethods = ({
   const { translate } = useInternationalization()
   const { openAddPaymentMethodDialog } = useAddPaymentMethodDialog()
 
+  const providerConnection = getProviderPaymentConnection(customer)
+
   // Bank Transfer / Crypto only: the provider can't register a new method
   const hasOnlyIneligiblePaymentMethods = useMemo(() => {
-    const methods = customer.providerCustomer?.providerPaymentMethods
+    const methods = providerConnection?.providerPaymentMethods
 
     if (!methods?.length) return false
 
     return methods.every((method) => INELIGIBLE_PAYMENT_METHODS.includes(method))
-  }, [customer.providerCustomer])
+  }, [providerConnection])
 
   return (
     <>
@@ -68,9 +71,9 @@ export const PaymentConnectionPaymentMethods = ({
         </Typography>
       )}
 
-      {!hasOnlyIneligiblePaymentMethods && (
+      {!hasOnlyIneligiblePaymentMethods && !!providerConnection && (
         <div data-test={PAYMENT_METHODS_LIST_TEST_ID}>
-          <PaymentMethodsList externalCustomerId={customer.externalId} />
+          <PaymentMethodsList customerId={customer.id} connectionId={providerConnection.id} />
         </div>
       )}
     </>

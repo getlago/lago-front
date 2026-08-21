@@ -1,588 +1,372 @@
-import {
-  AnrokIntegration,
-  AvalaraIntegration,
-  GetAccountingIntegrationsForExternalAppsAccordionQuery,
-  GetCrmIntegrationsForExternalAppsAccordionQuery,
-  GetTaxIntegrationsForExternalAppsAccordionQuery,
-  HubspotIntegration,
-  HubspotTargetedObjectsEnum,
-  IntegrationTypeEnum,
-  NetsuiteIntegration,
-  SalesforceIntegration,
-  XeroIntegration,
-} from '~/generated/graphql'
-import { CreateCustomerDefaultValues } from '~/pages/createCustomers/formInitialization/validationSchema'
+import { ConnectionCategory } from '~/components/customerConnections/types'
+import { HubspotTargetedObjectsEnum, IntegrationTypeEnum } from '~/generated/graphql'
 
 import { getIntegrationCustomers } from '../getIntegrationCustomers'
 
-// Mock the getAllIntegrationForAnIntegrationType function
-jest.mock('~/components/customerConnections/getAllIntegrationForAnIntegrationType', () => ({
-  getAllIntegrationForAnIntegrationType: jest.fn(),
-}))
-
 describe('getIntegrationCustomers', () => {
-  // Useful to specify return type or assert specific calls
-  const getAllIntegrationForAnIntegrationTypeMock = jest.requireMock(
-    '~/components/customerConnections/getAllIntegrationForAnIntegrationType',
-  ).getAllIntegrationForAnIntegrationType
+  describe('GIVEN no integration connection', () => {
+    describe('WHEN the form array is undefined', () => {
+      it('THEN should return an empty array', () => {
+        expect(getIntegrationCustomers(undefined)).toEqual([])
+      })
+    })
 
-  beforeEach(() => {
-    jest.clearAllMocks()
-  })
-
-  describe('when no provider codes are provided', () => {
-    it('should return undefined', () => {
-      const result = getIntegrationCustomers({})
-
-      expect(result).toEqual([])
+    describe('WHEN the form array is empty', () => {
+      it('THEN should return an empty array', () => {
+        expect(getIntegrationCustomers([])).toEqual([])
+      })
     })
   })
 
-  describe('when provider codes are provided but no matching integrations found', () => {
-    beforeEach(() => {
-      // Mock getAllIntegrationForAnIntegrationType to return empty arrays
-      getAllIntegrationForAnIntegrationTypeMock.mockReturnValue([])
-    })
+  describe('GIVEN an integration connection without a resolved provider', () => {
+    describe('WHEN the provider code is missing', () => {
+      it('THEN should drop the connection', () => {
+        const result = getIntegrationCustomers([
+          {
+            id: 'anrok-1',
+            category: ConnectionCategory.Tax,
+            providerType: IntegrationTypeEnum.Anrok,
+            externalCustomerId: 'tax-123',
+          },
+        ])
 
-    it('should return empty array when tax provider not found', () => {
-      const result = getIntegrationCustomers({
-        taxProviderCode: 'non-existent-tax',
-        taxProviders: {} as GetTaxIntegrationsForExternalAppsAccordionQuery,
+        expect(result).toEqual([])
       })
 
-      expect(result).toEqual([])
+      it('THEN should drop the connection when the provider code is an empty string', () => {
+        const result = getIntegrationCustomers([
+          {
+            id: 'anrok-1',
+            category: ConnectionCategory.Tax,
+            providerCode: '',
+            providerType: IntegrationTypeEnum.Anrok,
+          },
+        ])
+
+        expect(result).toEqual([])
+      })
     })
 
-    it('should return empty array when accounting provider not found', () => {
-      const result = getIntegrationCustomers({
-        accountingProviderCode: 'non-existent-accounting',
-        accountingProviders: {} as GetAccountingIntegrationsForExternalAppsAccordionQuery,
-      })
+    describe('WHEN the provider type is missing', () => {
+      it('THEN should drop the connection', () => {
+        const result = getIntegrationCustomers([
+          {
+            id: 'anrok-1',
+            category: ConnectionCategory.Tax,
+            providerCode: 'anrok_1',
+            externalCustomerId: 'tax-123',
+          },
+        ])
 
-      expect(result).toEqual([])
+        expect(result).toEqual([])
+      })
     })
 
-    it('should return empty array when CRM provider not found', () => {
-      const result = getIntegrationCustomers({
-        crmProviderCode: 'non-existent-crm',
-        crmProviders: {} as GetCrmIntegrationsForExternalAppsAccordionQuery,
-      })
+    describe('WHEN only some connections are resolved', () => {
+      it('THEN should keep only the resolved ones', () => {
+        const result = getIntegrationCustomers([
+          {
+            category: ConnectionCategory.Tax,
+            providerCode: 'anrok_1',
+            providerType: IntegrationTypeEnum.Anrok,
+            externalCustomerId: 'tax-123',
+            syncWithProvider: true,
+          },
+          {
+            category: ConnectionCategory.Accounting,
+            providerCode: 'netsuite_1',
+          },
+          {
+            category: ConnectionCategory.Crm,
+            providerType: IntegrationTypeEnum.Hubspot,
+          },
+        ])
 
-      expect(result).toEqual([])
+        expect(result).toEqual([
+          {
+            id: undefined,
+            integrationCode: 'anrok_1',
+            integrationType: IntegrationTypeEnum.Anrok,
+            externalCustomerId: 'tax-123',
+            syncWithProvider: true,
+          },
+        ])
+      })
     })
   })
 
-  describe('when tax provider integration is found', () => {
-    const mockAnrokIntegration: AnrokIntegration = {
-      __typename: 'AnrokIntegration',
-      id: 'anrok-1',
-      code: 'anrok-test',
-      name: 'Anrok Test',
-      apiKey: 'anrok-api-key',
-    }
+  describe('GIVEN a tax integration connection', () => {
+    describe('WHEN mapping it to an input item', () => {
+      it('THEN should map the provider code and type and keep the persisted id', () => {
+        const result = getIntegrationCustomers([
+          {
+            id: 'anrok-1',
+            category: ConnectionCategory.Tax,
+            providerCode: 'anrok_1',
+            providerType: IntegrationTypeEnum.Anrok,
+            externalCustomerId: 'tax-123',
+            syncWithProvider: true,
+          },
+        ])
 
-    const mockAvalaraIntegration: AvalaraIntegration = {
-      __typename: 'AvalaraIntegration',
-      id: 'avalara-1',
-      code: 'avalara-test',
-      name: 'Avalara Test',
-      companyCode: 'avalara-company',
-      licenseKey: 'avalara-license',
-    }
-
-    beforeEach(() => {
-      getAllIntegrationForAnIntegrationTypeMock.mockImplementation(
-        ({ integrationType }: { integrationType: IntegrationTypeEnum }) => {
-          if (integrationType === IntegrationTypeEnum.Anrok) {
-            return [mockAnrokIntegration]
-          }
-          if (integrationType === IntegrationTypeEnum.Avalara) {
-            return [mockAvalaraIntegration]
-          }
-          return []
-        },
-      )
-    })
-
-    it('should return Anrok integration customer with minimal data', () => {
-      const result = getIntegrationCustomers({
-        taxProviderCode: 'anrok-test',
-        taxProviders: {} as GetTaxIntegrationsForExternalAppsAccordionQuery,
+        expect(result).toEqual([
+          {
+            id: 'anrok-1',
+            integrationCode: 'anrok_1',
+            integrationType: IntegrationTypeEnum.Anrok,
+            externalCustomerId: 'tax-123',
+            syncWithProvider: true,
+          },
+        ])
       })
 
-      expect(result).toEqual([
-        {
-          integrationCode: 'anrok-test',
-          integrationType: IntegrationTypeEnum.Anrok,
-          syncWithProvider: undefined,
-          externalCustomerId: undefined,
-        },
-      ])
-    })
+      it('THEN should omit the id when the connection is not persisted yet', () => {
+        const result = getIntegrationCustomers([
+          {
+            category: ConnectionCategory.Tax,
+            providerCode: 'avalara_1',
+            providerType: IntegrationTypeEnum.Avalara,
+            externalCustomerId: 'tax-456',
+            syncWithProvider: false,
+          },
+        ])
 
-    it('should return Anrok integration customer with full tax customer data', () => {
-      const taxCustomer: CreateCustomerDefaultValues['taxCustomer'] = {
-        syncWithProvider: true,
-        taxCustomerId: 'tax-123',
-      }
-
-      const result = getIntegrationCustomers({
-        taxProviderCode: 'anrok-test',
-        taxProviders: {} as GetTaxIntegrationsForExternalAppsAccordionQuery,
-        taxCustomer,
+        expect(result[0]?.id).toBeUndefined()
+        expect(result).toEqual([
+          {
+            id: undefined,
+            integrationCode: 'avalara_1',
+            integrationType: IntegrationTypeEnum.Avalara,
+            externalCustomerId: 'tax-456',
+            syncWithProvider: false,
+          },
+        ])
       })
 
-      expect(result).toEqual([
-        {
-          integrationCode: 'anrok-test',
-          integrationType: IntegrationTypeEnum.Anrok,
-          syncWithProvider: true,
-          externalCustomerId: 'tax-123',
-        },
-      ])
-    })
+      it('THEN should forward the optional fields as undefined when they are not set', () => {
+        const result = getIntegrationCustomers([
+          {
+            category: ConnectionCategory.Tax,
+            providerCode: 'anrok_1',
+            providerType: IntegrationTypeEnum.Anrok,
+          },
+        ])
 
-    it('should return Avalara integration customer', () => {
-      const taxCustomer: CreateCustomerDefaultValues['taxCustomer'] = {
-        syncWithProvider: false,
-        taxCustomerId: 'avalara-456',
-      }
-
-      const result = getIntegrationCustomers({
-        taxProviderCode: 'avalara-test',
-        taxProviders: {} as GetTaxIntegrationsForExternalAppsAccordionQuery,
-        taxCustomer,
+        expect(result).toEqual([
+          {
+            id: undefined,
+            integrationCode: 'anrok_1',
+            integrationType: IntegrationTypeEnum.Anrok,
+            externalCustomerId: undefined,
+            syncWithProvider: undefined,
+          },
+        ])
       })
-
-      expect(result).toEqual([
-        {
-          integrationCode: 'avalara-test',
-          integrationType: IntegrationTypeEnum.Avalara,
-          syncWithProvider: false,
-          externalCustomerId: 'avalara-456',
-        },
-      ])
     })
   })
 
-  describe('when accounting provider integration is found', () => {
-    const mockNetsuiteIntegration: NetsuiteIntegration = {
-      __typename: 'NetsuiteIntegration',
-      id: 'netsuite-1',
-      code: 'netsuite-test',
-      name: 'NetSuite Test',
-      connectionId: 'netsuite-conn-123',
-      scriptEndpointUrl: 'https://netsuite.example.com/endpoint',
-    }
+  describe('GIVEN an accounting integration connection', () => {
+    describe('WHEN the subsidiaryId is set', () => {
+      it('THEN should spread the subsidiaryId onto the input item', () => {
+        const result = getIntegrationCustomers([
+          {
+            id: 'netsuite-1',
+            category: ConnectionCategory.Accounting,
+            providerCode: 'netsuite_1',
+            providerType: IntegrationTypeEnum.Netsuite,
+            externalCustomerId: 'accounting-123',
+            syncWithProvider: true,
+            subsidiaryId: 'subsidiary-1',
+          },
+        ])
 
-    const mockXeroIntegration: XeroIntegration = {
-      __typename: 'XeroIntegration',
-      id: 'xero-1',
-      code: 'xero-test',
-      name: 'Xero Test',
-      connectionId: 'xero-conn-456',
-    }
-
-    beforeEach(() => {
-      getAllIntegrationForAnIntegrationTypeMock.mockImplementation(
-        ({ integrationType }: { integrationType: IntegrationTypeEnum }) => {
-          if (integrationType === IntegrationTypeEnum.Netsuite) {
-            return [mockNetsuiteIntegration]
-          }
-          if (integrationType === IntegrationTypeEnum.Xero) {
-            return [mockXeroIntegration]
-          }
-          return []
-        },
-      )
+        expect(result).toEqual([
+          {
+            id: 'netsuite-1',
+            integrationCode: 'netsuite_1',
+            integrationType: IntegrationTypeEnum.Netsuite,
+            externalCustomerId: 'accounting-123',
+            syncWithProvider: true,
+            subsidiaryId: 'subsidiary-1',
+          },
+        ])
+      })
     })
 
-    it('should return NetSuite integration customer with minimal data', () => {
-      const result = getIntegrationCustomers({
-        accountingProviderCode: 'netsuite-test',
-        accountingProviders: {} as GetAccountingIntegrationsForExternalAppsAccordionQuery,
-      })
+    describe('WHEN the subsidiaryId is an empty string', () => {
+      it('THEN should omit the subsidiaryId from the input item', () => {
+        const result = getIntegrationCustomers([
+          {
+            id: 'netsuite-1',
+            category: ConnectionCategory.Accounting,
+            providerCode: 'netsuite_1',
+            providerType: IntegrationTypeEnum.Netsuite,
+            externalCustomerId: 'accounting-123',
+            syncWithProvider: true,
+            subsidiaryId: '',
+          },
+        ])
 
-      expect(result).toEqual([
-        {
-          integrationCode: 'netsuite-test',
-          integrationType: IntegrationTypeEnum.Netsuite,
-          syncWithProvider: undefined,
-          externalCustomerId: undefined,
-        },
-      ])
+        expect(result[0]).not.toHaveProperty('subsidiaryId')
+      })
     })
 
-    it('should return NetSuite integration customer with full accounting customer data', () => {
-      const accountingCustomer: CreateCustomerDefaultValues['accountingCustomer'] = {
-        syncWithProvider: true,
-        accountingCustomerId: 'netsuite-123',
-        subsidiaryId: 'subsidiary-456',
-      }
+    describe('WHEN the provider has no subsidiary at all', () => {
+      it('THEN should omit the subsidiaryId from the input item', () => {
+        const result = getIntegrationCustomers([
+          {
+            id: 'xero-1',
+            category: ConnectionCategory.Accounting,
+            providerCode: 'xero_1',
+            providerType: IntegrationTypeEnum.Xero,
+            externalCustomerId: 'accounting-456',
+            syncWithProvider: false,
+          },
+        ])
 
-      const result = getIntegrationCustomers({
-        accountingProviderCode: 'netsuite-test',
-        accountingProviders: {} as GetAccountingIntegrationsForExternalAppsAccordionQuery,
-        accountingCustomer,
+        expect(result[0]).not.toHaveProperty('subsidiaryId')
+        expect(result).toEqual([
+          {
+            id: 'xero-1',
+            integrationCode: 'xero_1',
+            integrationType: IntegrationTypeEnum.Xero,
+            externalCustomerId: 'accounting-456',
+            syncWithProvider: false,
+          },
+        ])
       })
-
-      expect(result).toEqual([
-        {
-          integrationCode: 'netsuite-test',
-          integrationType: IntegrationTypeEnum.Netsuite,
-          syncWithProvider: true,
-          externalCustomerId: 'netsuite-123',
-          subsidiaryId: 'subsidiary-456',
-        },
-      ])
-    })
-
-    it('should return accounting customer without subsidiaryId when not provided', () => {
-      const accountingCustomer: CreateCustomerDefaultValues['accountingCustomer'] = {
-        syncWithProvider: false,
-        accountingCustomerId: 'xero-789',
-      }
-
-      const result = getIntegrationCustomers({
-        accountingProviderCode: 'xero-test',
-        accountingProviders: {} as GetAccountingIntegrationsForExternalAppsAccordionQuery,
-        accountingCustomer,
-      })
-
-      expect(result).toEqual([
-        {
-          integrationCode: 'xero-test',
-          integrationType: IntegrationTypeEnum.Xero,
-          syncWithProvider: false,
-          externalCustomerId: 'xero-789',
-        },
-      ])
     })
   })
 
-  describe('when CRM provider integration is found', () => {
-    const mockHubspotIntegration: HubspotIntegration = {
-      __typename: 'HubspotIntegration',
-      id: 'hubspot-1',
-      code: 'hubspot-test',
-      name: 'HubSpot Test',
-      connectionId: 'hubspot-conn-789',
-      defaultTargetedObject: HubspotTargetedObjectsEnum.Contacts,
-    }
+  describe('GIVEN a CRM integration connection', () => {
+    describe('WHEN the targetedObject is set', () => {
+      it('THEN should spread the targetedObject onto the input item', () => {
+        const result = getIntegrationCustomers([
+          {
+            id: 'hubspot-1',
+            category: ConnectionCategory.Crm,
+            providerCode: 'hubspot_1',
+            providerType: IntegrationTypeEnum.Hubspot,
+            externalCustomerId: 'crm-123',
+            syncWithProvider: true,
+            targetedObject: HubspotTargetedObjectsEnum.Companies,
+          },
+        ])
 
-    const mockSalesforceIntegration: SalesforceIntegration = {
-      __typename: 'SalesforceIntegration',
-      id: 'salesforce-1',
-      code: 'salesforce-test',
-      name: 'Salesforce Test',
-      instanceId: 'salesforce-inst-101',
-    }
-
-    beforeEach(() => {
-      getAllIntegrationForAnIntegrationTypeMock.mockImplementation(
-        ({ integrationType }: { integrationType: IntegrationTypeEnum }) => {
-          if (integrationType === IntegrationTypeEnum.Hubspot) {
-            return [mockHubspotIntegration]
-          }
-          if (integrationType === IntegrationTypeEnum.Salesforce) {
-            return [mockSalesforceIntegration]
-          }
-          return []
-        },
-      )
+        expect(result).toEqual([
+          {
+            id: 'hubspot-1',
+            integrationCode: 'hubspot_1',
+            integrationType: IntegrationTypeEnum.Hubspot,
+            externalCustomerId: 'crm-123',
+            syncWithProvider: true,
+            targetedObject: HubspotTargetedObjectsEnum.Companies,
+          },
+        ])
+      })
     })
 
-    it('should return HubSpot integration customer with minimal data', () => {
-      const result = getIntegrationCustomers({
-        crmProviderCode: 'hubspot-test',
-        crmProviders: {} as GetCrmIntegrationsForExternalAppsAccordionQuery,
+    describe('WHEN the targetedObject is undefined', () => {
+      it('THEN should omit the targetedObject from the input item', () => {
+        const result = getIntegrationCustomers([
+          {
+            id: 'salesforce-1',
+            category: ConnectionCategory.Crm,
+            providerCode: 'salesforce_1',
+            providerType: IntegrationTypeEnum.Salesforce,
+            externalCustomerId: 'crm-456',
+            syncWithProvider: false,
+            targetedObject: undefined,
+          },
+        ])
+
+        expect(result[0]).not.toHaveProperty('targetedObject')
+        expect(result).toEqual([
+          {
+            id: 'salesforce-1',
+            integrationCode: 'salesforce_1',
+            integrationType: IntegrationTypeEnum.Salesforce,
+            externalCustomerId: 'crm-456',
+            syncWithProvider: false,
+          },
+        ])
       })
-
-      expect(result).toEqual([
-        {
-          integrationCode: 'hubspot-test',
-          integrationType: IntegrationTypeEnum.Hubspot,
-          syncWithProvider: undefined,
-          externalCustomerId: undefined,
-        },
-      ])
-    })
-
-    it('should return HubSpot integration customer with full CRM customer data', () => {
-      const crmCustomer: CreateCustomerDefaultValues['crmCustomer'] = {
-        syncWithProvider: true,
-        crmCustomerId: 'hubspot-123',
-        targetedObject: HubspotTargetedObjectsEnum.Companies,
-      }
-
-      const result = getIntegrationCustomers({
-        crmProviderCode: 'hubspot-test',
-        crmProviders: {} as GetCrmIntegrationsForExternalAppsAccordionQuery,
-        crmCustomer,
-      })
-
-      expect(result).toEqual([
-        {
-          integrationCode: 'hubspot-test',
-          integrationType: IntegrationTypeEnum.Hubspot,
-          syncWithProvider: true,
-          externalCustomerId: 'hubspot-123',
-          targetedObject: HubspotTargetedObjectsEnum.Companies,
-        },
-      ])
-    })
-
-    it('should return Salesforce integration customer without targetedObject', () => {
-      const crmCustomer: CreateCustomerDefaultValues['crmCustomer'] = {
-        syncWithProvider: false,
-        crmCustomerId: 'salesforce-456',
-      }
-
-      const result = getIntegrationCustomers({
-        crmProviderCode: 'salesforce-test',
-        crmProviders: {} as GetCrmIntegrationsForExternalAppsAccordionQuery,
-        crmCustomer,
-      })
-
-      expect(result).toEqual([
-        {
-          integrationCode: 'salesforce-test',
-          integrationType: IntegrationTypeEnum.Salesforce,
-          syncWithProvider: false,
-          externalCustomerId: 'salesforce-456',
-        },
-      ])
     })
   })
 
-  describe('when multiple provider integrations are found', () => {
-    const mockAnrokIntegration: AnrokIntegration = {
-      __typename: 'AnrokIntegration',
-      id: 'anrok-1',
-      code: 'anrok-test',
-      name: 'Anrok Test',
-      apiKey: 'anrok-api-key',
-    }
+  describe('GIVEN one integration connection per category', () => {
+    describe('WHEN mapping them to input items', () => {
+      it('THEN should map every connection preserving the array order and every id', () => {
+        const result = getIntegrationCustomers([
+          {
+            id: 'netsuite-1',
+            category: ConnectionCategory.Accounting,
+            providerCode: 'netsuite_1',
+            providerType: IntegrationTypeEnum.Netsuite,
+            externalCustomerId: 'accounting-123',
+            syncWithProvider: false,
+            subsidiaryId: 'subsidiary-1',
+          },
+          {
+            id: 'anrok-1',
+            category: ConnectionCategory.Tax,
+            providerCode: 'anrok_1',
+            providerType: IntegrationTypeEnum.Anrok,
+            externalCustomerId: 'tax-123',
+            syncWithProvider: true,
+          },
+          {
+            id: 'hubspot-1',
+            category: ConnectionCategory.Crm,
+            providerCode: 'hubspot_1',
+            providerType: IntegrationTypeEnum.Hubspot,
+            externalCustomerId: 'crm-123',
+            syncWithProvider: true,
+            targetedObject: HubspotTargetedObjectsEnum.Contacts,
+          },
+        ])
 
-    const mockNetsuiteIntegration: NetsuiteIntegration = {
-      __typename: 'NetsuiteIntegration',
-      id: 'netsuite-1',
-      code: 'netsuite-test',
-      name: 'NetSuite Test',
-      connectionId: 'netsuite-conn-123',
-      scriptEndpointUrl: 'https://netsuite.example.com/endpoint',
-    }
-
-    const mockHubspotIntegration: HubspotIntegration = {
-      __typename: 'HubspotIntegration',
-      id: 'hubspot-1',
-      code: 'hubspot-test',
-      name: 'HubSpot Test',
-      connectionId: 'hubspot-conn-789',
-      defaultTargetedObject: HubspotTargetedObjectsEnum.Contacts,
-    }
-
-    beforeEach(() => {
-      getAllIntegrationForAnIntegrationTypeMock.mockImplementation(
-        ({ integrationType }: { integrationType: IntegrationTypeEnum }) => {
-          if (integrationType === IntegrationTypeEnum.Anrok) {
-            return [mockAnrokIntegration]
-          }
-          if (integrationType === IntegrationTypeEnum.Netsuite) {
-            return [mockNetsuiteIntegration]
-          }
-          if (integrationType === IntegrationTypeEnum.Hubspot) {
-            return [mockHubspotIntegration]
-          }
-          return []
-        },
-      )
-    })
-
-    it('should return all integration customers when all providers are found', () => {
-      const taxCustomer: CreateCustomerDefaultValues['taxCustomer'] = {
-        syncWithProvider: true,
-        taxCustomerId: 'tax-123',
-      }
-
-      const accountingCustomer: CreateCustomerDefaultValues['accountingCustomer'] = {
-        syncWithProvider: false,
-        accountingCustomerId: 'accounting-456',
-        subsidiaryId: 'sub-789',
-      }
-
-      const crmCustomer: CreateCustomerDefaultValues['crmCustomer'] = {
-        syncWithProvider: true,
-        crmCustomerId: 'crm-101',
-        targetedObject: HubspotTargetedObjectsEnum.Contacts,
-      }
-
-      const result = getIntegrationCustomers({
-        taxProviderCode: 'anrok-test',
-        accountingProviderCode: 'netsuite-test',
-        crmProviderCode: 'hubspot-test',
-        taxProviders: {} as GetTaxIntegrationsForExternalAppsAccordionQuery,
-        accountingProviders: {} as GetAccountingIntegrationsForExternalAppsAccordionQuery,
-        crmProviders: {} as GetCrmIntegrationsForExternalAppsAccordionQuery,
-        taxCustomer,
-        accountingCustomer,
-        crmCustomer,
+        expect(result).toEqual([
+          {
+            id: 'netsuite-1',
+            integrationCode: 'netsuite_1',
+            integrationType: IntegrationTypeEnum.Netsuite,
+            externalCustomerId: 'accounting-123',
+            syncWithProvider: false,
+            subsidiaryId: 'subsidiary-1',
+          },
+          {
+            id: 'anrok-1',
+            integrationCode: 'anrok_1',
+            integrationType: IntegrationTypeEnum.Anrok,
+            externalCustomerId: 'tax-123',
+            syncWithProvider: true,
+          },
+          {
+            id: 'hubspot-1',
+            integrationCode: 'hubspot_1',
+            integrationType: IntegrationTypeEnum.Hubspot,
+            externalCustomerId: 'crm-123',
+            syncWithProvider: true,
+            targetedObject: HubspotTargetedObjectsEnum.Contacts,
+          },
+        ])
       })
 
-      expect(result).toEqual([
-        {
-          integrationCode: 'anrok-test',
-          integrationType: IntegrationTypeEnum.Anrok,
-          syncWithProvider: true,
-          externalCustomerId: 'tax-123',
-        },
-        {
-          integrationCode: 'netsuite-test',
-          integrationType: IntegrationTypeEnum.Netsuite,
-          syncWithProvider: false,
-          externalCustomerId: 'accounting-456',
-          subsidiaryId: 'sub-789',
-        },
-        {
-          integrationCode: 'hubspot-test',
-          integrationType: IntegrationTypeEnum.Hubspot,
-          syncWithProvider: true,
-          externalCustomerId: 'crm-101',
-          targetedObject: HubspotTargetedObjectsEnum.Contacts,
-        },
-      ])
-    })
+      it('THEN should not emit any category field on the input items', () => {
+        const result = getIntegrationCustomers([
+          {
+            id: 'anrok-1',
+            category: ConnectionCategory.Tax,
+            providerCode: 'anrok_1',
+            providerType: IntegrationTypeEnum.Anrok,
+          },
+        ])
 
-    it('should return only found integration customers when some providers are not found', () => {
-      const taxCustomer: CreateCustomerDefaultValues['taxCustomer'] = {
-        syncWithProvider: true,
-        taxCustomerId: 'tax-123',
-      }
-
-      const result = getIntegrationCustomers({
-        taxProviderCode: 'anrok-test',
-        accountingProviderCode: 'non-existent-accounting',
-        crmProviderCode: 'non-existent-crm',
-        taxProviders: {} as GetTaxIntegrationsForExternalAppsAccordionQuery,
-        accountingProviders: {} as GetAccountingIntegrationsForExternalAppsAccordionQuery,
-        crmProviders: {} as GetCrmIntegrationsForExternalAppsAccordionQuery,
-        taxCustomer,
+        expect(result[0]).not.toHaveProperty('category')
+        expect(result[0]).not.toHaveProperty('providerCode')
+        expect(result[0]).not.toHaveProperty('providerType')
       })
-
-      expect(result).toEqual([
-        {
-          integrationCode: 'anrok-test',
-          integrationType: IntegrationTypeEnum.Anrok,
-          syncWithProvider: true,
-          externalCustomerId: 'tax-123',
-        },
-      ])
-    })
-  })
-
-  describe('edge cases', () => {
-    it('should handle undefined customer objects gracefully', () => {
-      const mockAnrokIntegration: AnrokIntegration = {
-        __typename: 'AnrokIntegration',
-        id: 'anrok-1',
-        code: 'anrok-test',
-        name: 'Anrok Test',
-        apiKey: 'anrok-api-key',
-      }
-
-      getAllIntegrationForAnIntegrationTypeMock.mockImplementation(
-        ({ integrationType }: { integrationType: IntegrationTypeEnum }) => {
-          if (integrationType === IntegrationTypeEnum.Anrok) {
-            return [mockAnrokIntegration]
-          }
-          return []
-        },
-      )
-
-      const result = getIntegrationCustomers({
-        taxProviderCode: 'anrok-test',
-        taxProviders: {} as GetTaxIntegrationsForExternalAppsAccordionQuery,
-        taxCustomer: undefined,
-      })
-
-      expect(result).toEqual([
-        {
-          integrationCode: 'anrok-test',
-          integrationType: IntegrationTypeEnum.Anrok,
-          syncWithProvider: undefined,
-          externalCustomerId: undefined,
-        },
-      ])
-    })
-
-    it('should handle empty subsidiaryId and targetedObject values', () => {
-      const mockNetsuiteIntegration: NetsuiteIntegration = {
-        __typename: 'NetsuiteIntegration',
-        id: 'netsuite-1',
-        code: 'netsuite-test',
-        name: 'NetSuite Test',
-        connectionId: 'netsuite-conn-123',
-        scriptEndpointUrl: 'https://netsuite.example.com/endpoint',
-      }
-
-      const mockHubspotIntegration: HubspotIntegration = {
-        __typename: 'HubspotIntegration',
-        id: 'hubspot-1',
-        code: 'hubspot-test',
-        name: 'HubSpot Test',
-        connectionId: 'hubspot-conn-789',
-        defaultTargetedObject: HubspotTargetedObjectsEnum.Contacts,
-      }
-
-      getAllIntegrationForAnIntegrationTypeMock.mockImplementation(
-        ({ integrationType }: { integrationType: IntegrationTypeEnum }) => {
-          if (integrationType === IntegrationTypeEnum.Netsuite) {
-            return [mockNetsuiteIntegration]
-          }
-          if (integrationType === IntegrationTypeEnum.Hubspot) {
-            return [mockHubspotIntegration]
-          }
-          return []
-        },
-      )
-
-      const accountingCustomer: CreateCustomerDefaultValues['accountingCustomer'] = {
-        syncWithProvider: true,
-        accountingCustomerId: 'netsuite-123',
-        subsidiaryId: '', // Empty string
-      }
-
-      const crmCustomer: CreateCustomerDefaultValues['crmCustomer'] = {
-        syncWithProvider: true,
-        crmCustomerId: 'hubspot-456',
-        targetedObject: undefined, // Undefined
-      }
-
-      const result = getIntegrationCustomers({
-        accountingProviderCode: 'netsuite-test',
-        crmProviderCode: 'hubspot-test',
-        accountingProviders: {} as GetAccountingIntegrationsForExternalAppsAccordionQuery,
-        crmProviders: {} as GetCrmIntegrationsForExternalAppsAccordionQuery,
-        accountingCustomer,
-        crmCustomer,
-      })
-
-      expect(result).toEqual([
-        {
-          integrationCode: 'netsuite-test',
-          integrationType: IntegrationTypeEnum.Netsuite,
-          syncWithProvider: true,
-          externalCustomerId: 'netsuite-123',
-          // subsidiaryId should not be included when empty
-        },
-        {
-          integrationCode: 'hubspot-test',
-          integrationType: IntegrationTypeEnum.Hubspot,
-          syncWithProvider: true,
-          externalCustomerId: 'hubspot-456',
-          // targetedObject should not be included when undefined
-        },
-      ])
     })
   })
 })

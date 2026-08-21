@@ -27,7 +27,10 @@ import {
 import { PaymentConnectionPaymentMethods } from '~/components/customers/connectionsSection/PaymentConnectionPaymentMethods'
 import { useCustomerConnectionRows } from '~/components/customers/connectionsSection/useCustomerConnectionRows'
 import { useCustomerConnectionsPersistence } from '~/components/customers/connectionsSection/useCustomerConnectionsPersistence'
-import { getIntegrationCustomerForCategory } from '~/components/customers/connectionsSection/utils'
+import {
+  getIntegrationCustomerForCategory,
+  getProviderPaymentConnection,
+} from '~/components/customers/connectionsSection/utils'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
@@ -112,13 +115,7 @@ export const CustomerConnectionsSection = ({ customer }: CustomerConnectionsSect
   const { data: integrationsData, loading: integrationsLoading } =
     useIntegrationsListForCustomerMainInfosQuery({
       variables: { limit: 1000 },
-      skip:
-        !customer.netsuiteCustomer &&
-        !customer.anrokCustomer &&
-        !customer.avalaraCustomer &&
-        !customer.xeroCustomer &&
-        !customer.hubspotCustomer &&
-        !customer.salesforceCustomer,
+      skip: !customer.integrationCustomers?.length,
     })
 
   const rows = useCustomerConnectionRows({ customer, connectionOptions })
@@ -170,12 +167,14 @@ export const CustomerConnectionsSection = ({ customer }: CustomerConnectionsSect
 
   const getInitialValues = (category: ConnectionCategory): Partial<ConnectionFormValues> => {
     if (category === ConnectionCategory.Payment) {
+      const providerConnection = getProviderPaymentConnection(customer)
+
       return {
         providerCode: customer.paymentProviderCode ?? undefined,
         providerType: customer.paymentProvider ?? undefined,
-        externalCustomerId: customer.providerCustomer?.providerCustomerId ?? '',
-        syncWithProvider: customer.providerCustomer?.syncWithProvider ?? false,
-        providerPaymentMethods: (customer.providerCustomer?.providerPaymentMethods ?? []).reduce(
+        externalCustomerId: providerConnection?.providerCustomerId ?? '',
+        syncWithProvider: providerConnection?.syncWithProvider ?? false,
+        providerPaymentMethods: (providerConnection?.providerPaymentMethods ?? []).reduce(
           (acc, method) => ({ ...acc, [method]: true }),
           {} as Partial<Record<ProviderPaymentMethodsEnum, boolean>>,
         ),

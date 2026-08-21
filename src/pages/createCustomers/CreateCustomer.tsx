@@ -2,10 +2,7 @@ import { revalidateLogic } from '@tanstack/react-form'
 import { Icon } from 'lago-design-system'
 import { useCallback } from 'react'
 
-import { useAccountingProviders } from '~/components/customerConnections/useAccountingProviders'
-import { useCrmProviders } from '~/components/customerConnections/useCrmProviders'
-import { usePaymentProviders } from '~/components/customerConnections/usePaymentProviders'
-import { useTaxProviders } from '~/components/customerConnections/useTaxProviders'
+import { MANUAL_CONNECTION_CODE } from '~/components/customerConnections/customerIntegrationConst'
 import { SUBMIT_CUSTOMER_DATA_TEST } from '~/components/customers/utils/dataTestConstants'
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
@@ -37,10 +34,6 @@ const CreateCustomer = () => {
   const centralizedDialog = useCentralizedDialog()
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
   const { organization: { premiumIntegrations } = {} } = useOrganizationInfos()
-  const { getPaymentProvider } = usePaymentProviders()
-  const { taxProviders } = useTaxProviders()
-  const { crmProviders } = useCrmProviders()
-  const { accountingProviders } = useAccountingProviders()
 
   const hasAccessToRevenueShare = !!premiumIntegrations?.includes(
     PremiumIntegrationTypeEnum.RevenueShare,
@@ -70,12 +63,7 @@ const CreateCustomer = () => {
       onDynamic: validationSchema,
     },
     onSubmit: async ({ value, formApi }) => {
-      const formattedValues = mapFromFormToApi(value, {
-        paymentProvider: getPaymentProvider(value.paymentProviderCode),
-        taxProviders,
-        crmProviders,
-        accountingProviders,
-      })
+      const formattedValues = mapFromFormToApi(value)
 
       const answer = await onSave(formattedValues)
 
@@ -98,16 +86,22 @@ const CreateCustomer = () => {
       const thirdPartyErrorMessage = extractThirdPartyErrorMessage(errors)
 
       if (thirdPartyErrorMessage?.startsWith(STRIPE_CUSTOMER_ERROR_MESSAGE_DETAILS)) {
-        formApi.setErrorMap({
-          onDynamic: {
-            fields: {
-              'paymentProviderCustomer.providerCustomerId': {
-                message: 'text_1772636865361lt8w6gchmv1',
-                path: ['paymentProviderCustomer', 'providerCustomerId'],
+        const paymentConnectionIndex = (value.paymentProviderCustomers ?? []).findIndex(
+          (connection) => connection.code !== MANUAL_CONNECTION_CODE,
+        )
+
+        if (paymentConnectionIndex !== -1) {
+          formApi.setErrorMap({
+            onDynamic: {
+              fields: {
+                [`paymentProviderCustomers[${paymentConnectionIndex}].providerCustomerId`]: {
+                  message: 'text_1772636865361lt8w6gchmv1',
+                  path: ['paymentProviderCustomers', paymentConnectionIndex, 'providerCustomerId'],
+                },
               },
             },
-          },
-        })
+          })
+        }
         return
       }
 

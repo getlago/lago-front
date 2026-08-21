@@ -265,9 +265,8 @@ describe('useSubscriptionPricingDrawer', () => {
     }
 
     const onSave = jest.fn().mockResolvedValue({ ok: true })
-    const onDatesChange = jest.fn()
 
-    const { result } = renderHook(() => useSubscriptionPricingDrawer(undefined, { onDatesChange }))
+    const { result } = renderHook(() => useSubscriptionPricingDrawer(undefined))
 
     act(() => {
       result.current.onPricingCommand({ onSave })
@@ -292,7 +291,6 @@ describe('useSubscriptionPricingDrawer', () => {
       expect.objectContaining({ plans: expect.any(Array) }),
       undefined,
     )
-    expect(onDatesChange).toHaveBeenCalledWith('2023-07-26', '2024-07-26')
     expect(result.current.entities).toHaveProperty('plan_123')
   })
 
@@ -314,9 +312,8 @@ describe('useSubscriptionPricingDrawer', () => {
     }
 
     const onSave = jest.fn().mockResolvedValue({ ok: false, error: undefined })
-    const onDatesChange = jest.fn()
 
-    const { result } = renderHook(() => useSubscriptionPricingDrawer(undefined, { onDatesChange }))
+    const { result } = renderHook(() => useSubscriptionPricingDrawer(undefined))
 
     act(() => {
       result.current.onPricingCommand({ onSave })
@@ -337,7 +334,6 @@ describe('useSubscriptionPricingDrawer', () => {
     })
     expect(mockDrawerClose).not.toHaveBeenCalled()
     expect(result.current.entities).not.toHaveProperty('plan_123')
-    expect(onDatesChange).not.toHaveBeenCalled()
   })
 
   describe('GIVEN the plan form reports its validity', () => {
@@ -697,5 +693,18 @@ describe('useSubscriptionPricingDrawer', () => {
         )
       })
     })
+  })
+  it('passes the resolved payment term down to the drawer content', () => {
+    const { result } = renderHook(() =>
+      useSubscriptionPricingDrawer(undefined, { netPaymentTerm: 30 }),
+    )
+
+    act(() => {
+      result.current.onPricingCommand({ onSave: jest.fn().mockResolvedValue({ ok: true }) })
+    })
+
+    const openArgs = mockDrawerOpen.mock.calls[0][0]
+
+    expect(openArgs.children.props.netPaymentTerm).toBe(30)
   })
 })

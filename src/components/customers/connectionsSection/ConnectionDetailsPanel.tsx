@@ -10,7 +10,10 @@ import {
   CONNECTION_PROVIDER_ID_PLACEHOLDER_TEST_ID,
   PaymentProviderMethodTranslationsLookup,
 } from '~/components/customers/connectionsSection/constants'
-import { getIntegrationCustomerForCategory } from '~/components/customers/connectionsSection/utils'
+import {
+  getIntegrationCustomerForCategory,
+  getProviderPaymentConnection,
+} from '~/components/customers/connectionsSection/utils'
 import { getConnectedIntegrations } from '~/components/customers/utils'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
@@ -138,7 +141,7 @@ export const ConnectionDetailsPanel = ({
 
   const renderContent = (): ReactNode => {
     if (row.category === ConnectionCategory.Payment) {
-      const { providerCustomer } = customer
+      const providerCustomer = getProviderPaymentConnection(customer)
       const isStripe = customer.paymentProvider === ProviderTypeEnum.Stripe
       // Cashfree and Flutterwave have no provider-customer mapping at all, so
       // the id is always empty for them: the row would permanently claim a
@@ -196,13 +199,14 @@ export const ConnectionDetailsPanel = ({
     const buildExternalUrl = (): string | undefined => {
       if (!externalCustomerId) return undefined
 
+      const integrationId = integrationCustomer?.integrationId
+
       switch (integrationCustomer?.integrationType) {
         case IntegrationTypeEnum.Netsuite: {
           const netsuite = getConnectedIntegrations(
             integrationsData,
-            customer,
             'NetsuiteIntegration',
-            'netsuiteCustomer',
+            integrationId,
           )
 
           return netsuite?.accountId
@@ -214,9 +218,8 @@ export const ConnectionDetailsPanel = ({
         case IntegrationTypeEnum.Anrok: {
           const anrok = getConnectedIntegrations(
             integrationsData,
-            customer,
             'AnrokIntegration',
-            'anrokCustomer',
+            integrationId,
           )
 
           return anrok?.externalAccountId
@@ -228,11 +231,13 @@ export const ConnectionDetailsPanel = ({
         case IntegrationTypeEnum.Hubspot: {
           const hubspot = getConnectedIntegrations(
             integrationsData,
-            customer,
             'HubspotIntegration',
-            'hubspotCustomer',
+            integrationId,
           )
-          const targetedObject = customer.hubspotCustomer?.targetedObject
+          const targetedObject =
+            integrationCustomer && 'targetedObject' in integrationCustomer
+              ? integrationCustomer.targetedObject
+              : undefined
 
           return hubspot?.portalId && targetedObject
             ? buildHubspotObjectUrl({
@@ -245,9 +250,8 @@ export const ConnectionDetailsPanel = ({
         case IntegrationTypeEnum.Salesforce: {
           const salesforce = getConnectedIntegrations(
             integrationsData,
-            customer,
             'SalesforceIntegration',
-            'salesforceCustomer',
+            integrationId,
           )
 
           return salesforce?.instanceId

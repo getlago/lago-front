@@ -7,7 +7,7 @@ import {
 } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import OrderDetails from '../OrderDetails'
+import OrderDetails, { ORDER_DETAILS_CUSTOMER_LINK_TEST_ID } from '../OrderDetails'
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (key: string) => key }),
@@ -70,6 +70,21 @@ describe('OrderDetails', () => {
     expect(screen.getByText('Acme Corp')).toBeInTheDocument()
     // execution date formatted by the mocked org-tz formatter
     expect(screen.getByText('4/10/2026')).toBeInTheDocument()
+  })
+
+  it('links the customer to the customer detail page', () => {
+    mockUseGetOrderForEditQuery.mockReturnValue({
+      data: { order },
+      loading: false,
+      error: undefined,
+    } as unknown as ReturnType<typeof useGetOrderForEditQuery>)
+
+    render(<OrderDetails />)
+
+    const link = screen.getByTestId(ORDER_DETAILS_CUSTOMER_LINK_TEST_ID)
+
+    expect(link).toHaveTextContent('Acme Corp')
+    expect(link).toHaveAttribute('href', expect.stringContaining('/customer/c-1'))
   })
 
   it('shows the loading skeleton while fetching', () => {

@@ -1,3 +1,4 @@
+import { ConnectionCategory } from '~/components/customerConnections/types'
 import {
   CountryCode,
   CurrencyEnum,
@@ -272,373 +273,363 @@ describe('validationSchema', () => {
     })
   })
 
-  describe('accountingCustomer validation', () => {
-    it('validates when no provider is selected', () => {
-      const result = validationSchema.safeParse({
-        externalId: 'customer-123',
-        accountingCustomer: {
-          providerType: undefined,
-        },
-        metadata: [],
-      })
+  describe('GIVEN the integrationCustomers array', () => {
+    describe('WHEN the array is omitted or empty', () => {
+      it('THEN should accept the customer (the array is optional)', () => {
+        const omittedResult = validationSchema.safeParse({
+          externalId: 'customer-123',
+          metadata: [],
+        })
 
-      expect(result.success).toBe(true)
+        expect(omittedResult.success).toBe(true)
+
+        const emptyResult = validationSchema.safeParse({
+          externalId: 'customer-123',
+          integrationCustomers: [],
+          metadata: [],
+        })
+
+        expect(emptyResult.success).toBe(true)
+      })
     })
 
-    it('validates when syncWithProvider is true', () => {
-      const result = validationSchema.safeParse({
-        externalId: 'customer-123',
-        accountingCustomer: {
-          providerType: IntegrationTypeEnum.Netsuite,
-          syncWithProvider: true,
-          subsidiaryId: 'SUB-123',
-        },
-        metadata: [],
+    describe('WHEN a row is provided for each integration category', () => {
+      it('THEN should accept an accounting row', () => {
+        const result = validationSchema.safeParse({
+          externalId: 'customer-123',
+          integrationCustomers: [
+            {
+              id: 'netsuite-connection-id',
+              category: ConnectionCategory.Accounting,
+              providerCode: 'netsuite-eu',
+              providerType: IntegrationTypeEnum.Netsuite,
+              externalCustomerId: 'ACC-CUST-001',
+              syncWithProvider: true,
+              subsidiaryId: 'SUB-123',
+            },
+          ],
+          metadata: [],
+        })
+
+        expect(result.success).toBe(true)
       })
 
-      expect(result.success).toBe(true)
+      it('THEN should accept a tax row', () => {
+        const result = validationSchema.safeParse({
+          externalId: 'customer-123',
+          integrationCustomers: [
+            {
+              id: 'anrok-connection-id',
+              category: ConnectionCategory.Tax,
+              providerCode: 'anrok-eu',
+              providerType: IntegrationTypeEnum.Anrok,
+              externalCustomerId: 'TAX-CUST-001',
+              syncWithProvider: false,
+            },
+          ],
+          metadata: [],
+        })
+
+        expect(result.success).toBe(true)
+      })
+
+      it('THEN should accept a CRM row', () => {
+        const result = validationSchema.safeParse({
+          externalId: 'customer-123',
+          integrationCustomers: [
+            {
+              id: 'hubspot-connection-id',
+              category: ConnectionCategory.Crm,
+              providerCode: 'hubspot-eu',
+              providerType: IntegrationTypeEnum.Hubspot,
+              externalCustomerId: 'CRM-CUST-001',
+              syncWithProvider: false,
+              targetedObject: HubspotTargetedObjectsEnum.Companies,
+            },
+          ],
+          metadata: [],
+        })
+
+        expect(result.success).toBe(true)
+      })
+
+      it('THEN should accept one row per category at once', () => {
+        const result = validationSchema.safeParse({
+          externalId: 'customer-123',
+          integrationCustomers: [
+            { category: ConnectionCategory.Accounting, providerType: IntegrationTypeEnum.Xero },
+            { category: ConnectionCategory.Tax, providerType: IntegrationTypeEnum.Avalara },
+            { category: ConnectionCategory.Crm, providerType: IntegrationTypeEnum.Salesforce },
+          ],
+          metadata: [],
+        })
+
+        expect(result.success).toBe(true)
+      })
     })
 
-    it('does not enforce accountingCustomerId (rule owned by the connection drawer)', () => {
-      const result = validationSchema.safeParse({
-        externalId: 'customer-123',
-        accountingCustomer: {
-          providerType: IntegrationTypeEnum.Anrok,
-          syncWithProvider: false,
-          accountingCustomerId: '',
-        },
-        metadata: [],
-      })
+    describe('WHEN a row has no category', () => {
+      it('THEN should reject the row and point the issue at the category', () => {
+        const result = validationSchema.safeParse({
+          externalId: 'customer-123',
+          integrationCustomers: [
+            {
+              providerCode: 'anrok-eu',
+              providerType: IntegrationTypeEnum.Anrok,
+            },
+          ],
+          metadata: [],
+        })
 
-      expect(result.success).toBe(true)
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues[0].path).toEqual(['integrationCustomers', 0, 'category'])
+        }
+      })
     })
 
-    it('accepts accountingCustomerId when syncWithProvider is false', () => {
-      const result = validationSchema.safeParse({
-        externalId: 'customer-123',
-        accountingCustomer: {
-          providerType: IntegrationTypeEnum.Anrok,
-          syncWithProvider: false,
-          accountingCustomerId: 'ACC-123',
-        },
-        metadata: [],
-      })
+    describe('WHEN a row uses the payment category', () => {
+      it('THEN should reject it (payment connections live in their own array)', () => {
+        const result = validationSchema.safeParse({
+          externalId: 'customer-123',
+          integrationCustomers: [
+            {
+              category: ConnectionCategory.Payment,
+              providerCode: 'stripe-eu',
+            },
+          ],
+          metadata: [],
+        })
 
-      expect(result.success).toBe(true)
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          expect(result.error.issues[0].path).toEqual(['integrationCustomers', 0, 'category'])
+        }
+      })
     })
 
-    it('does not enforce subsidiaryId (rule owned by the connection drawer)', () => {
-      const result = validationSchema.safeParse({
-        externalId: 'customer-123',
-        accountingCustomer: {
-          providerType: IntegrationTypeEnum.Netsuite,
-          syncWithProvider: true,
-          subsidiaryId: '',
-        },
-        metadata: [],
-      })
+    describe('WHEN a row carries an unknown provider type', () => {
+      it('THEN should reject it', () => {
+        const result = validationSchema.safeParse({
+          externalId: 'customer-123',
+          integrationCustomers: [
+            {
+              category: ConnectionCategory.Tax,
+              providerType: 'INVALID_INTEGRATION',
+            },
+          ],
+          metadata: [],
+        })
 
-      expect(result.success).toBe(true)
+        expect(result.success).toBe(false)
+      })
     })
 
-    it('does not require subsidiaryId for non-NetSuite providers', () => {
-      const result = validationSchema.safeParse({
-        externalId: 'customer-123',
-        accountingCustomer: {
-          providerType: IntegrationTypeEnum.Anrok,
-          syncWithProvider: true,
-          subsidiaryId: '',
-        },
-        metadata: [],
+    describe('WHEN only the category is provided', () => {
+      it('THEN should accept the row (the other rules are owned by the connection drawer)', () => {
+        const result = validationSchema.safeParse({
+          externalId: 'customer-123',
+          integrationCustomers: [{ category: ConnectionCategory.Accounting }],
+          metadata: [],
+        })
+
+        expect(result.success).toBe(true)
       })
-
-      expect(result.success).toBe(true)
-    })
-  })
-
-  describe('taxCustomer validation', () => {
-    it('validates when no provider is selected', () => {
-      const result = validationSchema.safeParse({
-        externalId: 'customer-123',
-        taxCustomer: {
-          providerType: undefined,
-        },
-        metadata: [],
-      })
-
-      expect(result.success).toBe(true)
-    })
-
-    it('validates when syncWithProvider is true', () => {
-      const result = validationSchema.safeParse({
-        externalId: 'customer-123',
-        taxCustomer: {
-          providerType: IntegrationTypeEnum.Anrok,
-          syncWithProvider: true,
-        },
-        metadata: [],
-      })
-
-      expect(result.success).toBe(true)
-    })
-
-    it('does not enforce taxCustomerId (rule owned by the connection drawer)', () => {
-      const result = validationSchema.safeParse({
-        externalId: 'customer-123',
-        taxCustomer: {
-          providerType: IntegrationTypeEnum.Anrok,
-          syncWithProvider: false,
-          taxCustomerId: '',
-        },
-        metadata: [],
-      })
-
-      expect(result.success).toBe(true)
-    })
-
-    it('accepts taxCustomerId when syncWithProvider is false', () => {
-      const result = validationSchema.safeParse({
-        externalId: 'customer-123',
-        taxCustomer: {
-          providerType: IntegrationTypeEnum.Anrok,
-          syncWithProvider: false,
-          taxCustomerId: 'TAX-123',
-        },
-        metadata: [],
-      })
-
-      expect(result.success).toBe(true)
-    })
-  })
-
-  describe('crmCustomer validation', () => {
-    it('validates when no provider is selected', () => {
-      const result = validationSchema.safeParse({
-        externalId: 'customer-123',
-        crmCustomer: {
-          providerType: undefined,
-        },
-        metadata: [],
-      })
-
-      expect(result.success).toBe(true)
-    })
-
-    it('validates when syncWithProvider is true', () => {
-      const result = validationSchema.safeParse({
-        externalId: 'customer-123',
-        crmCustomer: {
-          providerType: IntegrationTypeEnum.Hubspot,
-          syncWithProvider: true,
-          targetedObject: HubspotTargetedObjectsEnum.Companies,
-        },
-        metadata: [],
-      })
-
-      expect(result.success).toBe(true)
-    })
-
-    it('does not enforce crmCustomerId (rule owned by the connection drawer)', () => {
-      const result = validationSchema.safeParse({
-        externalId: 'customer-123',
-        crmCustomer: {
-          providerType: IntegrationTypeEnum.Hubspot,
-          syncWithProvider: false,
-          crmCustomerId: '',
-          targetedObject: HubspotTargetedObjectsEnum.Companies,
-        },
-        metadata: [],
-      })
-
-      expect(result.success).toBe(true)
-    })
-
-    it('accepts crmCustomerId when syncWithProvider is false', () => {
-      const result = validationSchema.safeParse({
-        externalId: 'customer-123',
-        crmCustomer: {
-          providerType: IntegrationTypeEnum.Hubspot,
-          syncWithProvider: false,
-          crmCustomerId: 'CRM-123',
-          targetedObject: HubspotTargetedObjectsEnum.Companies,
-        },
-        metadata: [],
-      })
-
-      expect(result.success).toBe(true)
-    })
-
-    it('does not enforce targetedObject (rule owned by the connection drawer)', () => {
-      const result = validationSchema.safeParse({
-        externalId: 'customer-123',
-        crmCustomer: {
-          providerType: IntegrationTypeEnum.Hubspot,
-          syncWithProvider: true,
-          targetedObject: undefined,
-        },
-        metadata: [],
-      })
-
-      expect(result.success).toBe(true)
-    })
-
-    it('accepts valid targetedObject for Hubspot', () => {
-      const result = validationSchema.safeParse({
-        externalId: 'customer-123',
-        crmCustomer: {
-          providerType: IntegrationTypeEnum.Hubspot,
-          syncWithProvider: true,
-          targetedObject: HubspotTargetedObjectsEnum.Contacts,
-        },
-        metadata: [],
-      })
-
-      expect(result.success).toBe(true)
-    })
-
-    it('does not require targetedObject for non-Hubspot providers', () => {
-      const result = validationSchema.safeParse({
-        externalId: 'customer-123',
-        crmCustomer: {
-          providerType: IntegrationTypeEnum.Salesforce,
-          syncWithProvider: true,
-          targetedObject: undefined,
-        },
-        metadata: [],
-      })
-
-      expect(result.success).toBe(true)
     })
   })
 
-  describe('paymentProviderCustomer validation', () => {
-    it('validates when no provider is selected', () => {
-      const result = validationSchema.safeParse({
-        externalId: 'customer-123',
-        paymentProviderCustomer: {
-          providerType: undefined,
-        },
-        metadata: [],
-      })
+  describe('GIVEN the paymentProviderCustomers array', () => {
+    describe('WHEN the array is omitted or empty', () => {
+      it('THEN should accept the customer (the array is optional)', () => {
+        const omittedResult = validationSchema.safeParse({
+          externalId: 'customer-123',
+          metadata: [],
+        })
 
-      expect(result.success).toBe(true)
+        expect(omittedResult.success).toBe(true)
+
+        const emptyResult = validationSchema.safeParse({
+          externalId: 'customer-123',
+          paymentProviderCustomers: [],
+          metadata: [],
+        })
+
+        expect(emptyResult.success).toBe(true)
+      })
     })
 
-    it('validates Cashfree without providerCustomerId', () => {
-      const result = validationSchema.safeParse({
-        externalId: 'customer-123',
-        paymentProviderCustomer: {
-          providerType: ProviderTypeEnum.Cashfree,
-          syncWithProvider: false,
-        },
-        metadata: [],
+    describe('WHEN a provider-backed row is provided', () => {
+      it('THEN should accept the full row shape', () => {
+        const result = validationSchema.safeParse({
+          externalId: 'customer-123',
+          paymentProviderCustomers: [
+            {
+              id: 'payment-connection-id',
+              code: 'stripe',
+              isDefault: true,
+              providerCode: 'stripe-eu',
+              providerType: ProviderTypeEnum.Stripe,
+              providerCustomerId: 'PAY-CUST-001',
+              syncWithProvider: false,
+              providerPaymentMethods: {
+                [ProviderPaymentMethodsEnum.Card]: true,
+                [ProviderPaymentMethodsEnum.SepaDebit]: false,
+              },
+            },
+          ],
+          metadata: [],
+        })
+
+        expect(result.success).toBe(true)
       })
 
-      expect(result.success).toBe(true)
+      it('THEN should accept providers without a provider customer mapping', () => {
+        const result = validationSchema.safeParse({
+          externalId: 'customer-123',
+          paymentProviderCustomers: [
+            {
+              providerCode: 'cashfree-eu',
+              providerType: ProviderTypeEnum.Cashfree,
+              syncWithProvider: false,
+            },
+            {
+              providerCode: 'flutterwave-eu',
+              providerType: ProviderTypeEnum.Flutterwave,
+              syncWithProvider: false,
+            },
+          ],
+          metadata: [],
+        })
+
+        expect(result.success).toBe(true)
+      })
     })
 
-    it('validates Flutterwave without providerCustomerId', () => {
-      const result = validationSchema.safeParse({
-        externalId: 'customer-123',
-        paymentProviderCustomer: {
-          providerType: ProviderTypeEnum.Flutterwave,
-          syncWithProvider: false,
-        },
-        metadata: [],
-      })
+    describe('WHEN a persisted manual row is provided', () => {
+      it('THEN should accept the identity-only shape it round-trips with', () => {
+        const result = validationSchema.safeParse({
+          externalId: 'customer-123',
+          paymentProviderCustomers: [
+            { id: 'manual-connection-id', code: 'lago_manual', isDefault: false },
+          ],
+          metadata: [],
+        })
 
-      expect(result.success).toBe(true)
+        expect(result.success).toBe(true)
+      })
     })
 
-    it('does not enforce providerCustomerId (rule owned by the connection drawer)', () => {
-      const result = validationSchema.safeParse({
-        externalId: 'customer-123',
-        paymentProviderCustomer: {
-          providerType: ProviderTypeEnum.Stripe,
-          syncWithProvider: false,
-          providerCustomerId: '',
-          providerPaymentMethods: {
-            [ProviderPaymentMethodsEnum.Card]: true,
-          },
-        },
-        metadata: [],
-      })
+    describe('WHEN the payment methods are empty or missing', () => {
+      it('THEN should accept the row (the rule is owned by the connection drawer)', () => {
+        const result = validationSchema.safeParse({
+          externalId: 'customer-123',
+          paymentProviderCustomers: [
+            {
+              providerCode: 'stripe-eu',
+              providerType: ProviderTypeEnum.Stripe,
+              providerCustomerId: '',
+              syncWithProvider: true,
+              providerPaymentMethods: {},
+            },
+            {
+              providerCode: 'adyen-eu',
+              providerType: ProviderTypeEnum.Adyen,
+              syncWithProvider: true,
+            },
+          ],
+          metadata: [],
+        })
 
-      expect(result.success).toBe(true)
+        expect(result.success).toBe(true)
+      })
     })
 
-    it('accepts providerCustomerId when syncWithProvider is false', () => {
-      const result = validationSchema.safeParse({
-        externalId: 'customer-123',
-        paymentProviderCustomer: {
-          providerType: ProviderTypeEnum.Adyen,
-          syncWithProvider: false,
-          providerCustomerId: 'PROV-123',
-        },
-        metadata: [],
-      })
+    describe('WHEN a row carries an unknown provider type', () => {
+      it('THEN should reject it', () => {
+        const result = validationSchema.safeParse({
+          externalId: 'customer-123',
+          paymentProviderCustomers: [
+            {
+              providerCode: 'stripe-eu',
+              providerType: 'INVALID_PROVIDER',
+            },
+          ],
+          metadata: [],
+        })
 
-      expect(result.success).toBe(true)
+        expect(result.success).toBe(false)
+      })
     })
 
-    it('validates when syncWithProvider is true', () => {
-      const result = validationSchema.safeParse({
-        externalId: 'customer-123',
-        paymentProviderCustomer: {
-          providerType: ProviderTypeEnum.Stripe,
-          syncWithProvider: true,
-          providerPaymentMethods: {
-            [ProviderPaymentMethodsEnum.Card]: true,
-          },
-        },
-        metadata: [],
-      })
+    describe('WHEN a payment method flag is not a boolean', () => {
+      it('THEN should reject it', () => {
+        const result = validationSchema.safeParse({
+          externalId: 'customer-123',
+          paymentProviderCustomers: [
+            {
+              providerCode: 'stripe-eu',
+              providerType: ProviderTypeEnum.Stripe,
+              providerPaymentMethods: {
+                [ProviderPaymentMethodsEnum.Card]: 'yes',
+              },
+            },
+          ],
+          metadata: [],
+        })
 
-      expect(result.success).toBe(true)
+        expect(result.success).toBe(false)
+      })
+    })
+  })
+
+  describe('GIVEN the connection slot fields replaced by the two arrays', () => {
+    describe('WHEN the schema shape is inspected', () => {
+      it('THEN should no longer declare any of the removed slot fields', () => {
+        expect(Object.keys(validationSchema.shape)).toEqual(
+          expect.not.arrayContaining([
+            'paymentProviderCode',
+            'paymentProviderCustomer',
+            'accountingProviderCode',
+            'accountingCustomer',
+            'taxProviderCode',
+            'taxCustomer',
+            'crmProviderCode',
+            'crmCustomer',
+          ]),
+        )
+        expect(Object.keys(validationSchema.shape)).toEqual(
+          expect.arrayContaining(['paymentProviderCustomers', 'integrationCustomers']),
+        )
+      })
     })
 
-    it('does not enforce payment methods (rule owned by the connection drawer)', () => {
-      const result = validationSchema.safeParse({
-        externalId: 'customer-123',
-        paymentProviderCustomer: {
-          providerType: ProviderTypeEnum.Stripe,
-          syncWithProvider: true,
-          providerPaymentMethods: {},
-        },
-        metadata: [],
+    describe('WHEN a payload still carries the removed slot fields', () => {
+      it('THEN should strip them from the parsed values', () => {
+        const result = validationSchema.safeParse({
+          externalId: 'customer-123',
+          metadata: [],
+          paymentProviderCode: 'PAY-PROVIDER-001',
+          paymentProviderCustomer: { providerCustomerId: 'PAY-CUST-001' },
+          accountingProviderCode: 'ACC-PROVIDER-001',
+          accountingCustomer: { accountingCustomerId: 'ACC-CUST-001' },
+          taxProviderCode: 'TAX-PROVIDER-001',
+          taxCustomer: { taxCustomerId: 'TAX-CUST-001' },
+          crmProviderCode: 'CRM-PROVIDER-001',
+          crmCustomer: { crmCustomerId: 'CRM-CUST-001' },
+        })
+
+        expect(result.success).toBe(true)
+        if (result.success) {
+          expect(result.data).not.toHaveProperty('paymentProviderCode')
+          expect(result.data).not.toHaveProperty('paymentProviderCustomer')
+          expect(result.data).not.toHaveProperty('accountingProviderCode')
+          expect(result.data).not.toHaveProperty('accountingCustomer')
+          expect(result.data).not.toHaveProperty('taxProviderCode')
+          expect(result.data).not.toHaveProperty('taxCustomer')
+          expect(result.data).not.toHaveProperty('crmProviderCode')
+          expect(result.data).not.toHaveProperty('crmCustomer')
+        }
       })
-
-      expect(result.success).toBe(true)
-    })
-
-    it('accepts Stripe with at least one payment method enabled', () => {
-      const result = validationSchema.safeParse({
-        externalId: 'customer-123',
-        paymentProviderCustomer: {
-          providerType: ProviderTypeEnum.Stripe,
-          syncWithProvider: true,
-          providerPaymentMethods: {
-            [ProviderPaymentMethodsEnum.Card]: true,
-            [ProviderPaymentMethodsEnum.SepaDebit]: false,
-          },
-        },
-        metadata: [],
-      })
-
-      expect(result.success).toBe(true)
-    })
-
-    it('does not require payment methods for non-Stripe providers', () => {
-      const result = validationSchema.safeParse({
-        externalId: 'customer-123',
-        paymentProviderCustomer: {
-          providerType: ProviderTypeEnum.Adyen,
-          syncWithProvider: true,
-        },
-        metadata: [],
-      })
-
-      expect(result.success).toBe(true)
     })
   })
 
@@ -695,47 +686,7 @@ describe('validationSchema', () => {
     })
   })
 
-  describe('provider codes', () => {
-    it('validates accountingProviderCode', () => {
-      const result = validationSchema.safeParse({
-        externalId: 'customer-123',
-        accountingProviderCode: 'ACC-PROVIDER-001',
-        metadata: [],
-      })
-
-      expect(result.success).toBe(true)
-    })
-
-    it('validates taxProviderCode', () => {
-      const result = validationSchema.safeParse({
-        externalId: 'customer-123',
-        taxProviderCode: 'TAX-PROVIDER-001',
-        metadata: [],
-      })
-
-      expect(result.success).toBe(true)
-    })
-
-    it('validates crmProviderCode', () => {
-      const result = validationSchema.safeParse({
-        externalId: 'customer-123',
-        crmProviderCode: 'CRM-PROVIDER-001',
-        metadata: [],
-      })
-
-      expect(result.success).toBe(true)
-    })
-
-    it('validates paymentProviderCode', () => {
-      const result = validationSchema.safeParse({
-        externalId: 'customer-123',
-        paymentProviderCode: 'PAY-PROVIDER-001',
-        metadata: [],
-      })
-
-      expect(result.success).toBe(true)
-    })
-
+  describe('billing entity', () => {
     it('validates billingEntityCode', () => {
       const result = validationSchema.safeParse({
         externalId: 'customer-123',
@@ -782,37 +733,51 @@ describe('validationSchema', () => {
         },
         timezone: TimezoneEnum.TzUtc,
         url: 'https://acme.com',
-        accountingProviderCode: 'ACC-001',
-        accountingCustomer: {
-          accountingCustomerId: 'ACC-CUST-001',
-          syncWithProvider: false,
-          providerType: IntegrationTypeEnum.Netsuite,
-          subsidiaryId: 'SUB-001',
-        },
-        taxProviderCode: 'TAX-001',
-        taxCustomer: {
-          taxCustomerId: 'TAX-CUST-001',
-          syncWithProvider: false,
-          providerType: IntegrationTypeEnum.Anrok,
-        },
-        crmProviderCode: 'CRM-001',
-        crmCustomer: {
-          crmCustomerId: 'CRM-CUST-001',
-          syncWithProvider: false,
-          providerType: IntegrationTypeEnum.Hubspot,
-          targetedObject: HubspotTargetedObjectsEnum.Companies,
-        },
-        paymentProviderCode: 'PAY-001',
-        paymentProviderCustomer: {
-          providerCustomerId: 'PAY-CUST-001',
-          syncWithProvider: false,
-          providerType: ProviderTypeEnum.Stripe,
-          providerPaymentMethods: {
-            [ProviderPaymentMethodsEnum.Card]: true,
-            [ProviderPaymentMethodsEnum.SepaDebit]: true,
-            [ProviderPaymentMethodsEnum.UsBankAccount]: false,
+        integrationCustomers: [
+          {
+            id: 'accounting-connection-id',
+            category: ConnectionCategory.Accounting,
+            providerCode: 'ACC-001',
+            providerType: IntegrationTypeEnum.Netsuite,
+            externalCustomerId: 'ACC-CUST-001',
+            syncWithProvider: false,
+            subsidiaryId: 'SUB-001',
           },
-        },
+          {
+            id: 'tax-connection-id',
+            category: ConnectionCategory.Tax,
+            providerCode: 'TAX-001',
+            providerType: IntegrationTypeEnum.Anrok,
+            externalCustomerId: 'TAX-CUST-001',
+            syncWithProvider: false,
+          },
+          {
+            id: 'crm-connection-id',
+            category: ConnectionCategory.Crm,
+            providerCode: 'CRM-001',
+            providerType: IntegrationTypeEnum.Hubspot,
+            externalCustomerId: 'CRM-CUST-001',
+            syncWithProvider: false,
+            targetedObject: HubspotTargetedObjectsEnum.Companies,
+          },
+        ],
+        paymentProviderCustomers: [
+          { id: 'manual-connection-id', code: 'lago_manual', isDefault: false },
+          {
+            id: 'payment-connection-id',
+            code: 'stripe',
+            isDefault: true,
+            providerCode: 'PAY-001',
+            providerType: ProviderTypeEnum.Stripe,
+            providerCustomerId: 'PAY-CUST-001',
+            syncWithProvider: false,
+            providerPaymentMethods: {
+              [ProviderPaymentMethodsEnum.Card]: true,
+              [ProviderPaymentMethodsEnum.SepaDebit]: true,
+              [ProviderPaymentMethodsEnum.UsBankAccount]: false,
+            },
+          },
+        ],
         metadata: [
           { key: 'department', value: 'Engineering', displayInInvoice: true },
           { key: 'region', value: 'US-West', displayInInvoice: false },
@@ -823,30 +788,41 @@ describe('validationSchema', () => {
       expect(result.success).toBe(true)
     })
 
-    it('validates a customer with sync enabled for all integrations', () => {
+    it('validates a customer with sync enabled for all connections', () => {
       const result = validationSchema.safeParse({
         externalId: 'customer-123',
-        accountingCustomer: {
-          syncWithProvider: true,
-          providerType: IntegrationTypeEnum.Netsuite,
-          subsidiaryId: 'SUB-001',
-        },
-        taxCustomer: {
-          syncWithProvider: true,
-          providerType: IntegrationTypeEnum.Anrok,
-        },
-        crmCustomer: {
-          syncWithProvider: true,
-          providerType: IntegrationTypeEnum.Hubspot,
-          targetedObject: HubspotTargetedObjectsEnum.Companies,
-        },
-        paymentProviderCustomer: {
-          syncWithProvider: true,
-          providerType: ProviderTypeEnum.Stripe,
-          providerPaymentMethods: {
-            [ProviderPaymentMethodsEnum.Card]: true,
+        integrationCustomers: [
+          {
+            category: ConnectionCategory.Accounting,
+            providerCode: 'ACC-001',
+            providerType: IntegrationTypeEnum.Netsuite,
+            syncWithProvider: true,
+            subsidiaryId: 'SUB-001',
           },
-        },
+          {
+            category: ConnectionCategory.Tax,
+            providerCode: 'TAX-001',
+            providerType: IntegrationTypeEnum.Anrok,
+            syncWithProvider: true,
+          },
+          {
+            category: ConnectionCategory.Crm,
+            providerCode: 'CRM-001',
+            providerType: IntegrationTypeEnum.Hubspot,
+            syncWithProvider: true,
+            targetedObject: HubspotTargetedObjectsEnum.Companies,
+          },
+        ],
+        paymentProviderCustomers: [
+          {
+            providerCode: 'PAY-001',
+            providerType: ProviderTypeEnum.Stripe,
+            syncWithProvider: true,
+            providerPaymentMethods: {
+              [ProviderPaymentMethodsEnum.Card]: true,
+            },
+          },
+        ],
         metadata: [],
       })
 

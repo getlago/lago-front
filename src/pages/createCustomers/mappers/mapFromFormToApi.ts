@@ -1,11 +1,9 @@
+import { MANUAL_CONNECTION_CODE } from '~/components/customerConnections/customerIntegrationConst'
 import {
   CreateCustomerInput,
   CustomerAccountTypeEnum,
-  GetAccountingIntegrationsForExternalAppsAccordionQuery,
-  GetCrmIntegrationsForExternalAppsAccordionQuery,
-  GetTaxIntegrationsForExternalAppsAccordionQuery,
+  PaymentProviderCustomerInput,
   ProviderPaymentMethodsEnum,
-  ProviderTypeEnum,
   UpdateCustomerInput,
 } from '~/generated/graphql'
 
@@ -13,55 +11,69 @@ import { getIntegrationCustomers } from './getIntegrationCustomers'
 
 import { CreateCustomerDefaultValues } from '../formInitialization/validationSchema'
 
-type AdditionalData = {
-  paymentProvider?: ProviderTypeEnum | null
-  taxProviders?: GetTaxIntegrationsForExternalAppsAccordionQuery
-  crmProviders?: GetCrmIntegrationsForExternalAppsAccordionQuery
-  accountingProviders?: GetAccountingIntegrationsForExternalAppsAccordionQuery
+type FormPaymentConnection = NonNullable<
+  CreateCustomerDefaultValues['paymentProviderCustomers']
+>[number]
+
+const getEnabledProviderPaymentMethods = (
+  providerPaymentMethods: Partial<Record<ProviderPaymentMethodsEnum, boolean>> | undefined,
+): Array<ProviderPaymentMethodsEnum> => {
+  return Object.entries(providerPaymentMethods || {}).reduce((acc, [method, isEnabled]) => {
+    if (isEnabled) {
+      acc.push(method as ProviderPaymentMethodsEnum)
+    }
+    return acc
+  }, [] as Array<ProviderPaymentMethodsEnum>)
+}
+
+/** The provider-backed payment connection in the form, if any (never the manual row) */
+const getProviderPaymentConnection = (
+  values: CreateCustomerDefaultValues,
+): FormPaymentConnection | undefined =>
+  values.paymentProviderCustomers?.find((connection) => connection.code !== MANUAL_CONNECTION_CODE)
+
+/**
+ * The backend reconciles the array declaratively: rows omitted (matched by id)
+ * are destroyed, rows with an id are updated in place, rows without are
+ * created. Every persisted connection in the form model MUST therefore keep
+ * its id — a provider row sent without it gets destroyed and recreated.
+ */
+const getPaymentProviderCustomers = (
+  values: CreateCustomerDefaultValues,
+): Array<PaymentProviderCustomerInput> => {
+  // The manual connection is never submitted while the customer is capped at one
+  // connection per type: the backend only persists a manual row when it receives
+  // one, so leaving it out keeps today's payment behaviour untouched. Nothing is
+  // destroyed by the omission either — the row the backend prepends to the read
+  // payload is a non-persisted placeholder. Submitting it, together with the
+  // default flag, belongs to the multi-connection phase.
+  return (values.paymentProviderCustomers ?? [])
+    .filter((connection) => connection.code !== MANUAL_CONNECTION_CODE)
+    .map((connection) => ({
+      id: connection.id,
+      // The backend defaults a new connection's code to the provider code;
+      // sending it explicitly keeps the connection addressable by code
+      code: connection.code ?? connection.providerCode,
+      // Omitted rather than blanked when unresolved: the backend writes every
+      // key it receives onto the row, so an empty value would wipe the
+      // provider of an existing connection
+      ...(connection.providerType ? { paymentProvider: connection.providerType } : {}),
+      ...(connection.providerCode ? { paymentProviderCode: connection.providerCode } : {}),
+      providerCustomerId: connection.providerCustomerId || null,
+      providerPaymentMethods: getEnabledProviderPaymentMethods(connection.providerPaymentMethods),
+      syncWithProvider: connection.syncWithProvider ?? false,
+    }))
 }
 
 export const mapFromFormToApi = (
   values: CreateCustomerDefaultValues,
-  { paymentProvider, taxProviders, crmProviders, accountingProviders }: AdditionalData,
 ): CreateCustomerInput | UpdateCustomerInput => {
   const formattedEmail = values.email
     ?.split(',')
     .map((mail) => mail.trim())
     .join(',')
 
-  const getProviderPaymentMethods = (): Array<ProviderPaymentMethodsEnum> => {
-    return Object.entries(values.paymentProviderCustomer?.providerPaymentMethods || {}).reduce(
-      (acc, [method, isEnabled]) => {
-        if (isEnabled) {
-          acc.push(method as ProviderPaymentMethodsEnum)
-        }
-        return acc
-      },
-      [] as Array<ProviderPaymentMethodsEnum>,
-    )
-  }
-
-  const integrationCustomers = getIntegrationCustomers({
-    taxProviderCode: values.taxProviderCode,
-    accountingProviderCode: values.accountingProviderCode,
-    crmProviderCode: values.crmProviderCode,
-    taxProviders,
-    accountingProviders,
-    crmProviders,
-    accountingCustomer: values.accountingCustomer,
-    crmCustomer: values.crmCustomer,
-    taxCustomer: values.taxCustomer,
-  })
-
-  const providerCustomer =
-    values.paymentProviderCustomer?.providerCustomerId ||
-    values.paymentProviderCustomer?.syncWithProvider
-      ? {
-          providerCustomerId: values.paymentProviderCustomer?.providerCustomerId,
-          syncWithProvider: values.paymentProviderCustomer?.syncWithProvider,
-          providerPaymentMethods: getProviderPaymentMethods(),
-        }
-      : null
+  const providerPaymentConnection = getProviderPaymentConnection(values)
 
   return {
     email: formattedEmail,
@@ -90,9 +102,15 @@ export const mapFromFormToApi = (
         : null,
     timezone: values.timezone,
     url: values.url,
-    paymentProvider,
-    paymentProviderCode: values.paymentProviderCode,
-    providerCustomer,
+    // The customer-level provider scalars stay the source of provider identity
+    // on read (`ProviderCustomer` carries none), and the backend assigns them
+    // from these keys whether or not the array is sent. They must therefore
+    // mirror the array's provider row: an explicit `null` on removal both
+    // clears the code and discards the old link, and a switch re-points them
+    // (the backend only self-assigns them when they are still blank).
+    paymentProvider: providerPaymentConnection?.providerType ?? null,
+    paymentProviderCode: providerPaymentConnection?.providerCode ?? null,
+    paymentProviderCustomers: getPaymentProviderCustomers(values),
     metadata: values.metadata?.map((meta) => ({
       id: meta.id,
       key: meta.key,
@@ -100,7 +118,7 @@ export const mapFromFormToApi = (
       displayInInvoice: meta.displayInInvoice || false,
     })),
     billingEntityCode: values.billingEntityCode,
-    integrationCustomers,
+    integrationCustomers: getIntegrationCustomers(values.integrationCustomers),
     taxIdentificationNumber: values.taxIdentificationNumber,
   }
 }
