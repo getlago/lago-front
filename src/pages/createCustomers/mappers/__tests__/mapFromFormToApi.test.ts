@@ -444,7 +444,6 @@ describe('mapFromFormToApi', () => {
           {
             id: PERSISTED_PAYMENT_ID,
             code: 'stripe_1',
-            isDefault: true,
             paymentProvider: ProviderTypeEnum.Stripe,
             paymentProviderCode: 'stripe_1',
             providerCustomerId: 'cus_stripe123',
@@ -470,7 +469,24 @@ describe('mapFromFormToApi', () => {
         })
 
         expect(result.paymentProviderCustomers?.[0]?.code).toBe('stripe_1')
-        expect(result.paymentProviderCustomers?.[0]?.isDefault).toBe(false)
+      })
+
+      it('THEN should never submit the default flag, which the backend owns', () => {
+        const result = mapFromFormToApi({
+          ...emptyCreateCustomerDefaultValues,
+          externalId: 'customer-123',
+          paymentProviderCustomers: [
+            {
+              id: PERSISTED_PAYMENT_ID,
+              code: 'stripe_1',
+              isDefault: true,
+              providerCode: 'stripe_1',
+              providerType: ProviderTypeEnum.Stripe,
+            },
+          ],
+        })
+
+        expect(result.paymentProviderCustomers?.[0]).not.toHaveProperty('isDefault')
       })
 
       it('THEN should null an empty providerCustomerId', () => {
@@ -701,7 +717,6 @@ describe('mapFromFormToApi', () => {
           {
             id: PERSISTED_PAYMENT_ID,
             code: 'stripe_1',
-            isDefault: true,
             paymentProvider: ProviderTypeEnum.Stripe,
             paymentProviderCode: 'stripe_1',
             providerCustomerId: 'cus_12345',
@@ -732,7 +747,7 @@ describe('mapFromFormToApi', () => {
         expect(result.paymentProviderCustomers).toEqual([])
       })
 
-      it('THEN should round-trip a persisted manual row as an id, a manual type, a manual code and isDefault', () => {
+      it('THEN should keep a persisted manual row in the form model but leave it out of the mutation input', () => {
         const customer = buildCustomer({
           paymentProviderCustomers: [
             {
@@ -752,14 +767,7 @@ describe('mapFromFormToApi', () => {
 
         const result = mapFromFormToApi(formValues)
 
-        expect(result.paymentProviderCustomers).toEqual([
-          {
-            id: PERSISTED_MANUAL_ID,
-            type: 'lago_manual',
-            code: 'lago_manual',
-            isDefault: true,
-          },
-        ])
+        expect(result.paymentProviderCustomers).toEqual([])
       })
 
       it('THEN should round-trip the integration connection id for each category through the array', () => {

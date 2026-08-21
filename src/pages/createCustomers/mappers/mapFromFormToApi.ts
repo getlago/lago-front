@@ -41,24 +41,19 @@ const getProviderPaymentConnection = (
 const getPaymentProviderCustomers = (
   values: CreateCustomerDefaultValues,
 ): Array<PaymentProviderCustomerInput> => {
-  return (values.paymentProviderCustomers ?? []).map((connection) => {
-    // The persisted manual row round-trips as-is: `type: "manual"` routes it
-    // to the backend's manual upsert, and its id keeps it out of the discard
-    if (connection.code === MANUAL_CONNECTION_CODE) {
-      return {
-        id: connection.id,
-        type: MANUAL_CONNECTION_CODE,
-        code: MANUAL_CONNECTION_CODE,
-        isDefault: connection.isDefault ?? false,
-      }
-    }
-
-    return {
+  // The manual connection is never submitted while the customer is capped at one
+  // connection per type: the backend only persists a manual row when it receives
+  // one, so leaving it out keeps today's payment behaviour untouched. Nothing is
+  // destroyed by the omission either — the row the backend prepends to the read
+  // payload is a non-persisted placeholder. Submitting it, together with the
+  // default flag, belongs to the multi-connection phase.
+  return (values.paymentProviderCustomers ?? [])
+    .filter((connection) => connection.code !== MANUAL_CONNECTION_CODE)
+    .map((connection) => ({
       id: connection.id,
       // The backend defaults a new connection's code to the provider code;
-      // sending it explicitly keeps the isDefault resolution (by code) working
+      // sending it explicitly keeps the connection addressable by code
       code: connection.code ?? connection.providerCode,
-      isDefault: connection.isDefault ?? false,
       // Omitted rather than blanked when unresolved: the backend writes every
       // key it receives onto the row, so an empty value would wipe the
       // provider of an existing connection
@@ -67,8 +62,7 @@ const getPaymentProviderCustomers = (
       providerCustomerId: connection.providerCustomerId || null,
       providerPaymentMethods: getEnabledProviderPaymentMethods(connection.providerPaymentMethods),
       syncWithProvider: connection.syncWithProvider ?? false,
-    }
-  })
+    }))
 }
 
 export const mapFromFormToApi = (

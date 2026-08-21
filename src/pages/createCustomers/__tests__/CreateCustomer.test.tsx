@@ -612,15 +612,13 @@ describe('CreateCustomer Integration Tests', () => {
         expect(mockOnSave).toHaveBeenCalled()
       })
 
-      // The persisted manual row precedes the provider row, so the error path
-      // has to scan for the first NON-MANUAL row (index 1) instead of index 0
+      // The manual row still sits first in the FORM model, so the error path has
+      // to scan past it to land on the provider row; the submitted input holds
+      // the provider row alone, since the manual one is never sent
       const input = mockOnSave.mock.calls[0][0] as UpdateCustomerInput
 
-      expect(input.paymentProviderCustomers?.map((row) => row.id)).toEqual([
-        'manual-row-id',
-        'stripe-row-id',
-      ])
-      expect(input.paymentProviderCustomers?.[1]).toEqual(
+      expect(input.paymentProviderCustomers?.map((row) => row.id)).toEqual(['stripe-row-id'])
+      expect(input.paymentProviderCustomers?.[0]).toEqual(
         expect.objectContaining({ code: 'stripe', providerCustomerId: 'cus_missing' }),
       )
 
