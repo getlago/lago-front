@@ -8941,6 +8941,8 @@ export type QueryInvoicesArgs = {
 export type QueryMembershipsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
+  roleIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -16909,6 +16911,8 @@ export type MembershipItemForMembershipSettingsFragment = { __typename?: 'Member
 export type GetMembersQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+  roleIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
 }>;
 
 
@@ -45590,8 +45594,13 @@ export type GetInvitesLazyQueryHookResult = ReturnType<typeof useGetInvitesLazyQ
 export type GetInvitesSuspenseQueryHookResult = ReturnType<typeof useGetInvitesSuspenseQuery>;
 export type GetInvitesQueryResult = Apollo.QueryResult<GetInvitesQuery, GetInvitesQueryVariables>;
 export const GetMembersDocument = gql`
-    query getMembers($page: Int, $limit: Int) {
-  memberships(page: $page, limit: $limit) {
+    query getMembers($page: Int, $limit: Int, $searchTerm: String, $roleIds: [ID!]) {
+  memberships(
+    page: $page
+    limit: $limit
+    searchTerm: $searchTerm
+    roleIds: $roleIds
+  ) {
     metadata {
       currentPage
       totalPages
@@ -45619,6 +45628,8 @@ export const GetMembersDocument = gql`
  *   variables: {
  *      page: // value for 'page'
  *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *      roleIds: // value for 'roleIds'
  *   },
  * });
  */
