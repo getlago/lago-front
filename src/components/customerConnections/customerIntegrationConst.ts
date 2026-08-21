@@ -3,11 +3,14 @@ import { IntegrationTypeEnum, ProviderTypeEnum } from '~/generated/graphql'
 import { ConnectionCategory } from './types'
 
 /**
- * Reserved code of the null-provider manual payment connection. The backend
- * also prepends a NON-persisted manual placeholder (id "<customerId>-manual")
- * to `paymentProviderCustomers` when the customer has no persisted manual row.
+ * Reserved code of the null-provider manual payment connection, mirroring the
+ * backend's `PaymentProviderCustomers::BaseCustomer::MANUAL_CODE`. It is a plain
+ * string on `ProviderCustomer.code`, not a GraphQL enum, so it has to be
+ * duplicated here. The backend also prepends a NON-persisted manual placeholder
+ * (id "<customerId>-manual") to `paymentProviderCustomers` when the customer has
+ * no persisted manual row.
  */
-export const MANUAL_CONNECTION_CODE = 'manual'
+export const MANUAL_CONNECTION_CODE = 'lago_manual'
 
 /** Category of each integration-customer type (payment providers are not integrations) */
 export const INTEGRATION_TYPE_TO_CATEGORY: Partial<

@@ -151,7 +151,7 @@ const customerWithStripeConnection: AddCustomerDrawerFragment = {
     {
       __typename: 'ProviderCustomer',
       id: 'manual-row-id',
-      code: 'manual',
+      code: 'lago_manual',
       isDefault: false,
     },
     {

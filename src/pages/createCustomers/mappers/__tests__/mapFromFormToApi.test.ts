@@ -717,7 +717,7 @@ describe('mapFromFormToApi', () => {
             {
               __typename: 'ProviderCustomer',
               id: MANUAL_PLACEHOLDER_ID,
-              code: 'manual',
+              code: 'lago_manual',
               isDefault: false,
             },
           ],
@@ -738,7 +738,7 @@ describe('mapFromFormToApi', () => {
             {
               __typename: 'ProviderCustomer',
               id: PERSISTED_MANUAL_ID,
-              code: 'manual',
+              code: 'lago_manual',
               isDefault: true,
             },
           ],
@@ -747,7 +747,7 @@ describe('mapFromFormToApi', () => {
         const formValues = mapFromApiToForm(customer, mockDefaultBillingEntity)
 
         expect(formValues.paymentProviderCustomers).toEqual([
-          { id: PERSISTED_MANUAL_ID, code: 'manual', isDefault: true },
+          { id: PERSISTED_MANUAL_ID, code: 'lago_manual', isDefault: true },
         ])
 
         const result = mapFromFormToApi(formValues)
@@ -755,8 +755,8 @@ describe('mapFromFormToApi', () => {
         expect(result.paymentProviderCustomers).toEqual([
           {
             id: PERSISTED_MANUAL_ID,
-            type: 'manual',
-            code: 'manual',
+            type: 'lago_manual',
+            code: 'lago_manual',
             isDefault: true,
           },
         ])

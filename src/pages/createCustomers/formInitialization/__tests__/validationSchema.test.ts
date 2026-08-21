@@ -510,7 +510,7 @@ describe('validationSchema', () => {
         const result = validationSchema.safeParse({
           externalId: 'customer-123',
           paymentProviderCustomers: [
-            { id: 'manual-connection-id', code: 'manual', isDefault: false },
+            { id: 'manual-connection-id', code: 'lago_manual', isDefault: false },
           ],
           metadata: [],
         })
@@ -762,7 +762,7 @@ describe('validationSchema', () => {
           },
         ],
         paymentProviderCustomers: [
-          { id: 'manual-connection-id', code: 'manual', isDefault: false },
+          { id: 'manual-connection-id', code: 'lago_manual', isDefault: false },
           {
             id: 'payment-connection-id',
             code: 'stripe',

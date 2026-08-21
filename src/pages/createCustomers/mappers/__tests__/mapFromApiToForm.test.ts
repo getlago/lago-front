@@ -373,7 +373,7 @@ describe('mapFromApiToForm', () => {
               {
                 __typename: 'ProviderCustomer',
                 id: MANUAL_PLACEHOLDER_ID,
-                code: 'manual',
+                code: 'lago_manual',
                 isDefault: false,
               },
               {
@@ -409,7 +409,7 @@ describe('mapFromApiToForm', () => {
           {
             __typename: 'ProviderCustomer',
             id: MANUAL_PLACEHOLDER_ID,
-            code: 'manual',
+            code: 'lago_manual',
             isDefault: false,
           },
         ],
@@ -474,7 +474,7 @@ describe('mapFromApiToForm', () => {
               {
                 __typename: 'ProviderCustomer',
                 id: MANUAL_PLACEHOLDER_ID,
-                code: 'manual',
+                code: 'lago_manual',
                 isDefault: false,
               },
             ],
@@ -496,7 +496,7 @@ describe('mapFromApiToForm', () => {
               {
                 __typename: 'ProviderCustomer',
                 id: 'a3f6c1d2-1111-4a2b-9c3d-000000000001',
-                code: 'manual',
+                code: 'lago_manual',
                 isDefault: true,
                 providerCustomerId: 'should-be-ignored',
                 syncWithProvider: true,
@@ -510,7 +510,7 @@ describe('mapFromApiToForm', () => {
         expect(result.paymentProviderCustomers).toEqual([
           {
             id: 'a3f6c1d2-1111-4a2b-9c3d-000000000001',
-            code: 'manual',
+            code: 'lago_manual',
             isDefault: true,
           },
         ])
@@ -983,7 +983,7 @@ describe('mapFromApiToForm', () => {
             {
               __typename: 'ProviderCustomer',
               id: MANUAL_PLACEHOLDER_ID,
-              code: 'manual',
+              code: 'lago_manual',
               isDefault: false,
             },
             {
