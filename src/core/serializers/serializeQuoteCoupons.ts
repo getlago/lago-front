@@ -25,11 +25,12 @@ export interface CouponPayload {
   resolvedPayload: unknown
 }
 
-// Full UI-editable set, ALWAYS written (not Partial). Excludes currency (locked).
 export type CouponOverrides = Pick<
   CouponPayload,
   'amountCents' | 'percentageRate' | 'frequency' | 'frequencyDuration'
->
+> & {
+  amountCurrency: string | null
+}
 
 export interface BillingItemCoupon {
   type: 'coupon'
@@ -56,15 +57,18 @@ export interface DiscountFormItem {
 export const toCoupons = (
   items: DiscountFormItem[],
   originalPayloads: Record<string, CouponPayload>,
+  dealCurrency?: CurrencyEnum,
 ): BillingItemCoupon[] =>
   items.map((item, index) => {
     const original = originalPayloads[item.localId]
     const payload: CouponPayload = { ...original, position: index + 1 }
 
     const isFixed = item.couponType === CouponTypeEnum.FixedAmount
+    const currency = dealCurrency ?? item.currency
 
     const overrides: CouponOverrides = {
-      amountCents: isFixed ? serializeAmount(Number(item.amount), item.currency) : null,
+      amountCents: isFixed ? serializeAmount(Number(item.amount), currency) : null,
+      amountCurrency: isFixed ? currency : null,
       percentageRate: isFixed ? null : (item.percentageRate ?? null),
       frequency: item.frequency as CouponPayload['frequency'],
       frequencyDuration:
@@ -74,8 +78,14 @@ export const toCoupons = (
     return { type: 'coupon' as const, id: item.couponId, localId: item.localId, payload, overrides }
   })
 
+/** See the note on `IncomingBillingItemPlan`: the API may return no `overrides` at all. */
+type IncomingBillingItemCoupon = Omit<BillingItemCoupon, 'overrides'> & {
+  overrides?: CouponOverrides | null
+}
+
 export const fromCoupons = (
-  coupons: BillingItemCoupon[],
+  coupons: IncomingBillingItemCoupon[],
+  dealCurrency?: CurrencyEnum,
 ): {
   entities: Record<string, EntityData>
   discountItems: DiscountFormItem[]
@@ -88,9 +98,13 @@ export const fromCoupons = (
   const sorted = [...coupons].sort((a, b) => a.payload.position - b.payload.position)
 
   for (const coupon of sorted) {
-    const { payload, overrides, id, localId: savedLocalId } = coupon
+    const { payload, id, localId: savedLocalId } = coupon
+    const overrides: Partial<CouponOverrides> = coupon.overrides ?? {}
     const localId = savedLocalId ?? crypto.randomUUID()
-    const currency = (payload.currency as CurrencyEnum) ?? CurrencyEnum.Usd
+    const currency = (dealCurrency ??
+      overrides.amountCurrency ??
+      payload.currency ??
+      CurrencyEnum.Usd) as CurrencyEnum
 
     const effectiveAmountCents = overrides.amountCents ?? payload.amountCents ?? 0
     const couponType =

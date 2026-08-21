@@ -8,13 +8,9 @@ import {
 
 const validBase: EditQuoteAsideFormValues = {
   orderTypeLabel: 'Subscription creation',
-  customerName: 'Acme Corp',
   billingEntityId: 'be-1',
   currency: CurrencyEnum.Usd,
   subscriptionLabel: 'Premium - ext-sub-1',
-  startDate: '2026-06-01T00:00:00Z',
-  endDate: '2026-12-31T00:00:00Z',
-  netPaymentTermLabel: '30 days',
 }
 
 describe('editQuoteAsideSchema', () => {
@@ -31,7 +27,6 @@ describe('editQuoteAsideSchema', () => {
       it('THEN should pass validation', () => {
         const result = editQuoteAsideSchema.safeParse({
           orderTypeLabel: 'One-off',
-          customerName: 'Test',
           billingEntityId: 'be-2',
         })
 
@@ -40,78 +35,49 @@ describe('editQuoteAsideSchema', () => {
     })
   })
 
-  describe('GIVEN startDate and endDate are both provided', () => {
-    describe('WHEN endDate is after startDate', () => {
+  describe('GIVEN the billing entity is left to the customer', () => {
+    describe('WHEN billingEntityId is the empty inherit sentinel', () => {
       it('THEN should pass validation', () => {
-        const result = editQuoteAsideSchema.safeParse({
-          ...validBase,
-          startDate: '2026-01-01T00:00:00Z',
-          endDate: '2026-06-01T00:00:00Z',
-        })
+        const result = editQuoteAsideSchema.safeParse({ ...validBase, billingEntityId: '' })
 
         expect(result.success).toBe(true)
       })
     })
 
-    describe('WHEN endDate equals startDate', () => {
-      it('THEN should fail with an endDate error', () => {
-        const result = editQuoteAsideSchema.safeParse({
-          ...validBase,
-          startDate: '2026-06-01T00:00:00Z',
-          endDate: '2026-06-01T00:00:00Z',
-        })
+    describe('WHEN billingEntityId is missing entirely', () => {
+      it('THEN should fail, because the field always holds a string', () => {
+        const result = editQuoteAsideSchema.safeParse({ orderTypeLabel: 'One-off' })
 
         expect(result.success).toBe(false)
-
-        if (!result.success) {
-          const endDateError = result.error.issues.find((i) => i.path.includes('endDate'))
-
-          expect(endDateError).toBeDefined()
-        }
       })
     })
+  })
 
-    describe('WHEN endDate is before startDate', () => {
-      it('THEN should fail with an endDate error', () => {
+  describe('GIVEN the currency', () => {
+    describe('WHEN it is not a known currency', () => {
+      it('THEN should fail validation', () => {
+        const result = editQuoteAsideSchema.safeParse({ ...validBase, currency: 'NOT_A_CURRENCY' })
+
+        expect(result.success).toBe(false)
+      })
+    })
+  })
+
+  describe('GIVEN the quote-level dates dropped by the API', () => {
+    describe('WHEN startDate and endDate are supplied', () => {
+      it('THEN should ignore them instead of validating a range', () => {
         const result = editQuoteAsideSchema.safeParse({
           ...validBase,
           startDate: '2026-12-01T00:00:00Z',
           endDate: '2026-01-01T00:00:00Z',
         })
 
-        expect(result.success).toBe(false)
+        expect(result.success).toBe(true)
 
-        if (!result.success) {
-          const endDateError = result.error.issues.find((i) => i.path.includes('endDate'))
-
-          expect(endDateError).toBeDefined()
+        if (result.success) {
+          expect(result.data).not.toHaveProperty('startDate')
+          expect(result.data).not.toHaveProperty('endDate')
         }
-      })
-    })
-  })
-
-  describe('GIVEN only one date is provided', () => {
-    describe('WHEN only startDate is set', () => {
-      it('THEN should pass validation (no cross-field check)', () => {
-        const result = editQuoteAsideSchema.safeParse({
-          ...validBase,
-          startDate: '2026-06-01T00:00:00Z',
-          endDate: undefined,
-        })
-
-        expect(result.success).toBe(true)
-      })
-    })
-
-    describe('WHEN only endDate is set', () => {
-      it('THEN should pass validation (no cross-field check)', () => {
-        const result = editQuoteAsideSchema.safeParse({
-          ...validBase,
-          startDate: undefined,
-          endDate: '2026-12-01T00:00:00Z',
-        })
-
-        expect(result.success).toBe(true)
       })
     })
   })
@@ -123,13 +89,9 @@ describe('editQuoteAsideDefaultValues', () => {
       it('THEN should have empty strings for required fields and undefined for optional fields', () => {
         expect(editQuoteAsideDefaultValues).toEqual({
           orderTypeLabel: '',
-          customerName: '',
           billingEntityId: '',
           currency: undefined,
           subscriptionLabel: undefined,
-          startDate: undefined,
-          endDate: undefined,
-          netPaymentTermLabel: undefined,
         })
       })
     })

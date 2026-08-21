@@ -14,6 +14,9 @@ gql`
     updateQuoteVersion(input: $input) {
       id
       currency
+      billingEntityId
+      mentionVariables
+      billingItems
     }
   }
 

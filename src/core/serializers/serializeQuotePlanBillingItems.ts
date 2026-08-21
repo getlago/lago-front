@@ -44,6 +44,7 @@ interface PlanUsageThresholdOverride {
 export interface PlanOverrides {
   name?: string
   amountCents?: number
+  amountCurrency?: string
   invoiceDisplayName?: string
   minimumCommitment?: PlanMinimumCommitmentOverride
   charges?: PlanChargeOverride[]
@@ -431,9 +432,48 @@ export const buildPlanOverrides = (
         delete overrides[key]
       }
     }
+
+    if (
+      formValues.amountCurrency &&
+      formValues.amountCurrency !== basePlanFormValues.amountCurrency
+    ) {
+      overrides.amountCurrency = formValues.amountCurrency
+    }
   }
 
   return overrides
+}
+
+/**
+ * Realigns the charge ids of a plan snapshot on the plan the billing item points at.
+ *
+ * The backend resolves every charge override through the snapshot: it looks the
+ * negotiated charge up by billable metric, then requires the snapshot id it finds to
+ * belong to the quoted plan. On a subscription amendment the form is seeded from the
+ * plan the subscription actually runs on (an override child, carrying its own charge
+ * ids) while the quote points at the catalog parent, so the ids are rebound here on
+ * the baseline charge sharing the same key. Anything without a single unambiguous
+ * match keeps its own id: the creation flow is already aligned, and a charge the
+ * baseline does not have cannot be mapped onto it.
+ */
+const alignChargeIdsOnBaseline = <T>(
+  charges: T[],
+  baselineCharges: T[] | undefined,
+  keyOf: (charge: T) => string | undefined,
+): T[] => {
+  if (!baselineCharges?.length) return charges
+
+  return charges.map((charge) => {
+    const key = keyOf(charge)
+
+    if (!key) return charge
+
+    const matches = baselineCharges.filter((baseline) => keyOf(baseline) === key)
+
+    if (matches.length !== 1) return charge
+
+    return { ...charge, id: (matches[0] as { id?: string | null }).id }
+  })
 }
 
 export const toPlanBillingItems = (
@@ -447,7 +487,10 @@ export const toPlanBillingItems = (
 
   // The base (original) plan name lives in the payload; the effective `planName`
   // is used only for display. Fall back to `planName` for callers that don't carry a base.
-  const base = state.basePlanName ?? planName
+  // The payload describes the plan the quote points at, so its name is the baseline's
+  // when one is resolved (on an amendment the form carries the override child's name,
+  // which belongs in `overrides.name` instead).
+  const base = basePlanFormValues?.name ?? state.basePlanName ?? planName
 
   // Derive overrides from the form values (single source of truth). Fall back to
   // any pre-built overrides on the state for callers that serialize without form values.
@@ -488,7 +531,7 @@ export const toPlanBillingItems = (
 
     payload.interval = formValues.interval
     payload.amountCents = toCentsString(formValues.amountCents)
-    payload.amountCurrency = formValues.amountCurrency
+    payload.amountCurrency = basePlanFormValues?.amountCurrency ?? formValues.amountCurrency
     payload.payInAdvance = formValues.payInAdvance ?? false
     payload.billChargesMonthly = formValues.billChargesMonthly ?? null
     payload.billFixedChargesMonthly = formValues.billFixedChargesMonthly ?? null
@@ -496,8 +539,16 @@ export const toPlanBillingItems = (
     payload.invoiceDisplayName = formValues.invoiceDisplayName ?? null
     payload.taxCodes = formValues.taxCodes ?? []
     payload.taxes = serializeTaxes(formValues.taxes)
-    payload.charges = (formValues.charges ?? []).map(serializeCharge)
-    payload.fixedCharges = (formValues.fixedCharges ?? []).map(serializeFixedCharge)
+    payload.charges = alignChargeIdsOnBaseline(
+      formValues.charges ?? [],
+      basePlanFormValues?.charges,
+      (charge) => charge.billableMetric?.code,
+    ).map(serializeCharge)
+    payload.fixedCharges = alignChargeIdsOnBaseline(
+      formValues.fixedCharges ?? [],
+      basePlanFormValues?.fixedCharges,
+      (charge) => charge.addOn?.code,
+    ).map(serializeFixedCharge)
     payload.minimumCommitment = formValues.minimumCommitment
       ? {
           id: formValues.minimumCommitment.id ?? undefined,
@@ -653,9 +704,24 @@ const deserializeNonRecurringThresholds = (
   })) as PlanFormInput['nonRecurringUsageThresholds']
 }
 
-export const fromPlanBillingItems = (plans: BillingItemPlan[]): FromPlanBillingItemsResult => {
+/**
+ * A billing item as it comes back from the API, where `overrides` may be absent.
+ *
+ * `billingItems` is a JSON scalar, and the backend restamps it on a currency change: an
+ * item whose only deviation stopped being one (a currency override that now matches the
+ * deal) comes back carrying no overrides at all rather than an empty object. Everything
+ * this module writes always sets them, so only the read path is relaxed.
+ */
+type IncomingBillingItemPlan = Omit<BillingItemPlan, 'overrides'> & {
+  overrides?: PlanOverrides | null
+}
+
+export const fromPlanBillingItems = (
+  plans: IncomingBillingItemPlan[],
+): FromPlanBillingItemsResult => {
   const plan = plans[0]
-  const { payload, overrides, id } = plan
+  const { payload, id } = plan
+  const overrides: PlanOverrides = plan.overrides ?? {}
 
   // Effective/display name: the override takes precedence over the base plan name.
   const effectiveName = overrides.name ?? payload.name
@@ -683,15 +749,16 @@ export const fromPlanBillingItems = (plans: BillingItemPlan[]): FromPlanBillingI
   let formValues: PlanFormInput | null = null
 
   if (hasFullPlanData) {
-    // Payload stores cents; the plan form expects currency units.
-    const currency = (payload.amountCurrency as CurrencyEnum) ?? CurrencyEnum.Usd
+    const currency = (overrides.amountCurrency ??
+      payload.amountCurrency ??
+      CurrencyEnum.Usd) as CurrencyEnum
 
     formValues = {
       interval: payload.interval as PlanFormInput['interval'],
       amountCents: String(
         deserializeAmount(payload.amountCents || 0, currency),
       ) as PlanFormInput['amountCents'],
-      amountCurrency: payload.amountCurrency as PlanFormInput['amountCurrency'],
+      amountCurrency: currency as PlanFormInput['amountCurrency'],
       payInAdvance: payload.payInAdvance ?? false,
       billChargesMonthly: payload.billChargesMonthly ?? undefined,
       billFixedChargesMonthly: payload.billFixedChargesMonthly ?? undefined,

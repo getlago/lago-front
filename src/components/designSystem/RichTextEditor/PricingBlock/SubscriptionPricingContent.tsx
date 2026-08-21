@@ -46,8 +46,8 @@ interface SubscriptionPricingContentProps {
   validatePlanFormRef?: MutableRefObject<ValidatePlanForm | null>
   basePlanFormValuesRef: MutableRefObject<PlanFormInput | null>
   initialState?: SubscriptionPricingState | null
-  quoteDates?: { startDate?: string; endDate?: string }
   customer?: QuoteCustomer | null
+  netPaymentTerm?: number | null
   /** Currency used to display amounts — may be a customer/organization fallback. */
   currency?: CurrencyEnum | null
   /**
@@ -71,8 +71,8 @@ export function SubscriptionPricingContent({
   validatePlanFormRef,
   basePlanFormValuesRef,
   initialState,
-  quoteDates,
   customer,
+  netPaymentTerm,
   currency,
   hasQuoteCurrency,
   billingItemPlan,
@@ -146,11 +146,16 @@ export function SubscriptionPricingContent({
   // That first resolution is also the plan the drawer opened with, so record it as the
   // baseline for userSwitchedPlan (the subscription path has no billingItemPlan to seed it).
   useEffect(() => {
-    if (resolvedPlanId && !selectedPlanId) {
-      originalPlanIdRef.current = resolvedPlanId
-      setSelectedPlanId(resolvedPlanId)
-    }
-  }, [resolvedPlanId, selectedPlanId])
+    if (!resolvedPlanId || selectedPlanId) return
+
+    // The override child a subscription runs is never offered in the list — only catalog plans
+    // are — so selecting it would leave the ComboBox with a value it cannot label and it would
+    // render the raw id. `originalPlanIdRef` follows, so switching plan is still detected.
+    const selectableId = catalogPlan?.id ?? resolvedPlanId
+
+    originalPlanIdRef.current = selectableId
+    setSelectedPlanId(selectableId)
+  }, [resolvedPlanId, selectedPlanId, catalogPlan])
 
   // Quote-specific state
   const [subscriptionSettings, setSubscriptionSettings] = useState(() => {
@@ -158,11 +163,7 @@ export function SubscriptionPricingContent({
       if (initialState?.subscriptionSettings) return initialState.subscriptionSettings
       if (billingItemSubscriptionSettings) return billingItemSubscriptionSettings
 
-      return {
-        ...DEFAULT_SUBSCRIPTION_SETTINGS,
-        startDate: quoteDates?.startDate ?? '',
-        endDate: quoteDates?.endDate ?? '',
-      }
+      return DEFAULT_SUBSCRIPTION_SETTINGS
     }
 
     const settings = getInitialSettings()
@@ -196,10 +197,14 @@ export function SubscriptionPricingContent({
   }, [billingItemSubscriptionSettings, isAmendment])
 
   // Hook-based drawers for settings
-  const subscriptionSettingsDrawer = useSubscriptionSettingsDrawer((values) => {
-    subscriptionSettingsSeededRef.current = true
-    setSubscriptionSettings(values)
-  }, isAmendment)
+  const subscriptionSettingsDrawer = useSubscriptionSettingsDrawer({
+    onSave: (values) => {
+      subscriptionSettingsSeededRef.current = true
+      setSubscriptionSettings(values)
+    },
+    isAmendment,
+    netPaymentTerm,
+  })
   const showInvoicingSection = Boolean(customer?.externalId || customer?.id)
   const planSettingsDrawer = useQuotePlanSettingsDrawer(planForm, {
     disableCurrencyInput: hasQuoteCurrency,
@@ -250,7 +255,7 @@ export function SubscriptionPricingContent({
     }
 
     stateRef.current = {
-      planId: planData?.id ?? selectedPlanId,
+      planId: billingItemPlan?.id ?? catalogPlan?.id ?? planData?.id ?? selectedPlanId,
       planCode: formCode,
       planName: formName,
       basePlanName,
@@ -264,6 +269,8 @@ export function SubscriptionPricingContent({
   }, [
     formReady,
     planData,
+    billingItemPlan,
+    catalogPlan,
     selectedPlanId,
     subscriptionSettings,
     invoicingSettings,
