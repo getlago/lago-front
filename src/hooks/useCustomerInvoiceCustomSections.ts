@@ -49,8 +49,6 @@ export const useCustomerInvoiceCustomSections = (
   const { data, loading, error } = useGetCustomerInvoiceCustomSectionsQuery({
     variables: { customerId: customerId as string },
     skip: !customerId,
-    // A soft-deleted customer makes the root `customer(id:)` resolver return a
-    // legitimate 404: expected here, and already handled by rendering nothing.
     context: { silentErrorCodes: [LagoApiError.NotFound] },
   })
 
