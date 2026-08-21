@@ -45,7 +45,7 @@ export const useUpdateQuote = ({ onUpdateFinished, onUpdateError }: UseUpdateQuo
   ) => {
     const result = await updateQuoteVersionMutation({
       variables: { input },
-      context: { silentError: LagoApiError.UnprocessableEntity },
+      context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
     })
 
     const hasErrors = !!result.errors?.length || !result.data?.updateQuoteVersion

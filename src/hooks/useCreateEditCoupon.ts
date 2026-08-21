@@ -144,7 +144,7 @@ export const useCreateEditCoupon: () => UseCreateEditCouponReturn = () => {
   const navigate = useNavigate()
   const { couponId } = useParams()
   const { data, loading, error } = useGetSingleCouponQuery({
-    context: { silentError: LagoApiError.NotFound },
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
     variables: { id: couponId as string },
     skip: !couponId,
   })
