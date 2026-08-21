@@ -167,7 +167,7 @@ export const useCreateCreditNote: () => UseCreateCreditNoteReturn = () => {
   const navigate = useNavigate()
   const { data, error, loading } = useGetInvoiceCreateCreditNoteQuery({
     fetchPolicy: 'network-only',
-    context: { silentError: LagoApiError.NotFound },
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
     variables: {
       id: invoiceId as string,
     },
