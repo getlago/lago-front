@@ -4,11 +4,6 @@ import { useConnectionPaymentMethodsQuery } from '~/generated/graphql'
 
 import { PaymentMethodList } from './usePaymentMethodsList'
 
-// The backend silently caps unpaginated lists at 25; an explicit generous
-// limit keeps the whole connection's list visible (the block renders no
-// pagination controls)
-const PAYMENT_METHODS_LIMIT = 50
-
 // Read through the singular provider connection on purpose: the customer's
 // `paymentProviderCustomers` array prepends a NON-persisted manual placeholder
 // (a plain hash, not a record), and resolving `paymentMethods` on it crashes
@@ -17,12 +12,12 @@ const PAYMENT_METHODS_LIMIT = 50
 // array once the backend resolves nested fields on the placeholder, which
 // multiple connections per type will require anyway.
 gql`
-  query ConnectionPaymentMethods($customerId: ID!, $withDeleted: Boolean, $limit: Int) {
+  query ConnectionPaymentMethods($customerId: ID!, $withDeleted: Boolean) {
     customer(id: $customerId) {
       id
       providerCustomer {
         id
-        paymentMethods(withDeleted: $withDeleted, limit: $limit) {
+        paymentMethods(withDeleted: $withDeleted) {
           collection {
             ...PaymentMethodItem
           }
@@ -41,7 +36,6 @@ interface UseConnectionPaymentMethodsListReturn {
 
 interface UseConnectionPaymentMethodsListArgs {
   customerId?: string
-  /** Id of the selected payment connection — rows of any other connection are never returned */
   connectionId?: string
   withDeleted?: boolean
   skip?: boolean
@@ -61,7 +55,6 @@ export const useConnectionPaymentMethodsList: UseConnectionPaymentMethodsList = 
     variables: {
       customerId,
       withDeleted,
-      limit: PAYMENT_METHODS_LIMIT,
     },
     skip: skip || !customerId || !connectionId,
   })

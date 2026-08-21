@@ -14438,7 +14438,6 @@ export type UpdateSubscriptionMutation = { __typename?: 'Mutation', updateSubscr
 export type ConnectionPaymentMethodsQueryVariables = Exact<{
   customerId: Scalars['ID']['input'];
   withDeleted?: InputMaybe<Scalars['Boolean']['input']>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
 }>;
 
 
@@ -34536,12 +34535,12 @@ export type UpdateSubscriptionMutationHookResult = ReturnType<typeof useUpdateSu
 export type UpdateSubscriptionMutationResult = Apollo.MutationResult<UpdateSubscriptionMutation>;
 export type UpdateSubscriptionMutationOptions = Apollo.BaseMutationOptions<UpdateSubscriptionMutation, UpdateSubscriptionMutationVariables>;
 export const ConnectionPaymentMethodsDocument = gql`
-    query ConnectionPaymentMethods($customerId: ID!, $withDeleted: Boolean, $limit: Int) {
+    query ConnectionPaymentMethods($customerId: ID!, $withDeleted: Boolean) {
   customer(id: $customerId) {
     id
     providerCustomer {
       id
-      paymentMethods(withDeleted: $withDeleted, limit: $limit) {
+      paymentMethods(withDeleted: $withDeleted) {
         collection {
           ...PaymentMethodItem
         }
@@ -34565,7 +34564,6 @@ export const ConnectionPaymentMethodsDocument = gql`
  *   variables: {
  *      customerId: // value for 'customerId'
  *      withDeleted: // value for 'withDeleted'
- *      limit: // value for 'limit'
  *   },
  * });
  */

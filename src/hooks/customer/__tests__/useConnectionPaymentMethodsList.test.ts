@@ -71,7 +71,6 @@ async function prepare({
         variables: {
           customerId: CUSTOMER_ID,
           withDeleted: true,
-          limit: 50,
         },
       },
       result: error

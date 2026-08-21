@@ -32,7 +32,6 @@ gql`
 
 interface Props {
   customerId: string
-  /** The selected payment connection whose methods the table lists */
   connectionId: string
 }
 
