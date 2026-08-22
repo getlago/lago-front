@@ -1,5 +1,5 @@
 import { envGlobalVar } from '~/core/apolloClient'
-import { AppEnvEnum } from '~/core/constants/globalTypes'
+import { isDevOrQaAppEnv } from '~/core/utils/appEnv'
 
 import { authRoutes } from './AuthRoutes'
 import { customerPortalRoutes } from './CustomerPortalRoutes'
@@ -93,9 +93,7 @@ const analyticsInlineRoutes: CustomRouteObject[] = [
   },
 ]
 
-const devOnlyInlineRoutes: CustomRouteObject[] = [AppEnvEnum.qa, AppEnvEnum.development].includes(
-  appEnv,
-)
+const devOnlyInlineRoutes: CustomRouteObject[] = isDevOrQaAppEnv(appEnv)
   ? [
       {
         path: [ONLY_DEV_DESIGN_SYSTEM_ROUTE, ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE],
