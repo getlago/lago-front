@@ -9,6 +9,7 @@ import {
   EntitlementInput,
   EntitlementPrivilegeInput,
   FixedChargeInput,
+  PlanInterval,
   PrivilegeValueTypeEnum,
   PropertiesInput,
   TaxForPlanAndChargesInPlanFormFragment,
@@ -81,8 +82,20 @@ export type LocalEntitlementInput = Omit<EntitlementInput, 'privileges'> & {
 
 export type PlanFormInput = Omit<
   CreatePlanInput,
-  'clientMutationId' | 'charges' | 'usageThresholds' | 'entitlements' | 'fixedCharges'
+  | 'clientMutationId'
+  | 'charges'
+  | 'usageThresholds'
+  | 'entitlements'
+  | 'fixedCharges'
+  | 'interval'
+  | 'amountCents'
+  | 'payInAdvance'
 > & {
+  // The API input is optional only for product-catalog plans, which do not
+  // use this form: the legacy plan form always sets these.
+  interval: PlanInterval
+  amountCents: NonNullable<CreatePlanInput['amountCents']>
+  payInAdvance: boolean
   fixedCharges: LocalFixedChargeInput[]
   charges: LocalUsageChargeInput[]
   // NOTE: this is used for display purpose but will be replaced by taxCodes[] on save
