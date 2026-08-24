@@ -130,6 +130,20 @@ describe('BottomNavSection', () => {
       expect(screen.getByTestId(BOTTOM_NAV_SECTION_TEST_ID)).toBeInTheDocument()
     })
 
+    it('does not render section when appEnv is undefined with no permissions', () => {
+      // A deployment without APP_ENV must behave like production: the design system tab
+      // stays hidden instead of leaking a developer surface.
+      envGlobalVar.mockReturnValue({ appEnv: undefined })
+
+      mockHasPermissions.mockReturnValue(false)
+      mockHasPermissionsOr.mockReturnValue(false)
+
+      const { container } = render(<BottomNavSection {...defaultProps} />)
+
+      expect(screen.queryByTestId(BOTTOM_NAV_SECTION_TEST_ID)).not.toBeInTheDocument()
+      expect(container.firstChild).toBeNull()
+    })
+
     it('renders section when at least one tab is visible (design system in QA)', () => {
       // QA environment where design system tab is visible
       envGlobalVar.mockReturnValue({ appEnv: 'qa' })

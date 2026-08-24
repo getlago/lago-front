@@ -26,9 +26,9 @@ import {
   buildSalesforceUrl,
   buildXeroInvoiceUrl,
 } from '~/core/constants/externalUrls'
-import { AppEnvEnum } from '~/core/constants/globalTypes'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CUSTOMER_INVOICE_DETAILS_ROUTE, Link } from '~/core/router'
+import { isProductionAppEnv } from '~/core/utils/appEnv'
 import {
   AllInvoiceDetailsForCustomerInvoiceDetailsFragment,
   AvalaraIntegrationInfosForInvoiceOverviewFragment,
@@ -626,7 +626,7 @@ const InvoiceOverview = memo(
                             companyId: connectedAvalaraIntegration?.companyId || '',
                             accountId: connectedAvalaraIntegration?.accountId,
                             objectId: String(invoice?.taxProviderId || ''),
-                            isSandbox: appEnv !== AppEnvEnum.production,
+                            isSandbox: !isProductionAppEnv(appEnv),
                           })}
                         >
                           <Typography

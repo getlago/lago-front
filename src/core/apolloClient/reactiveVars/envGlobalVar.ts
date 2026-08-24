@@ -3,7 +3,7 @@ import { makeVar } from '@apollo/client'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
 
 interface EnvGlobal {
-  appEnv: AppEnvEnum
+  appEnv: AppEnvEnum | undefined
   apiUrl: string
   lagoOauthProxyUrl: string
   disableSignUp: boolean

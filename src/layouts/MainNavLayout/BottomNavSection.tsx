@@ -3,12 +3,12 @@ import Stack from '@mui/material/Stack'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { VerticalMenu } from '~/components/designSystem/VerticalMenu'
 import { envGlobalVar } from '~/core/apolloClient'
-import { AppEnvEnum } from '~/core/constants/globalTypes'
 import {
   ONLY_DEV_DESIGN_SYSTEM_ROUTE,
   ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE,
   SETTINGS_ROUTE,
 } from '~/core/router'
+import { isDevOrQaAppEnv } from '~/core/utils/appEnv'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDeveloperTool } from '~/hooks/useDeveloperTool'
 import { usePermissions } from '~/hooks/usePermissions'
@@ -36,7 +36,7 @@ export const BottomNavSection = ({ isLoading, onItemClick }: BottomNavSectionPro
       icon: 'rocket',
       link: ONLY_DEV_DESIGN_SYSTEM_ROUTE,
       match: [ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, ONLY_DEV_DESIGN_SYSTEM_ROUTE],
-      hidden: ![AppEnvEnum.qa, AppEnvEnum.development].includes(appEnv),
+      hidden: !isDevOrQaAppEnv(appEnv),
     },
     {
       title: translate('text_62728ff857d47b013204c726'),

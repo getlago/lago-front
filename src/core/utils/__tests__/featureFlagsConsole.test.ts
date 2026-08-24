@@ -54,6 +54,23 @@ describe('featureFlagsConsole', () => {
       expect(groupEndSpy).toHaveBeenCalledTimes(1)
     })
 
+    it('exposes the api when appEnv is undefined', () => {
+      installLagoWindowApi(undefined)
+
+      expect(window.Lago.getEnableFeatureFlags).toBeInstanceOf(Function)
+      expect(window.Lago.setFeatureFlags).toBeInstanceOf(Function)
+      expect(window.Lago.listFeatureFlags).toBeInstanceOf(Function)
+      expect(window.Lago.help).toBeInstanceOf(Function)
+    })
+
+    it('stays silent when appEnv is undefined', () => {
+      installLagoWindowApi(undefined)
+
+      expect(groupCollapsedSpy).not.toHaveBeenCalled()
+      expect(infoSpy).not.toHaveBeenCalled()
+      expect(groupEndSpy).not.toHaveBeenCalled()
+    })
+
     it('prints the help on demand once installed on production', () => {
       installLagoWindowApi(AppEnvEnum.production)
 
