@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom'
 import { useGetCustomerFromSubscriptionQuery } from '~/generated/graphql'
 
 import { SubscriptionCurrentUsageTable } from './SubscriptionCurrentUsageTable'
+import { SubscriptionRealtimeUsageGraph } from './SubscriptionRealtimeUsageGraph'
 import SubscriptionUsageLifetimeGraph from './SubscriptionUsageLifetimeGraph'
 
 gql`
@@ -40,6 +41,7 @@ export const SubscriptionUsageTabContent = () => {
         customerId={customerId || ''}
         subscriptionId={subscriptionId}
       />
+      <SubscriptionRealtimeUsageGraph subscriptionId={subscriptionId} />
       <SubscriptionCurrentUsageTable
         customerId={customerId || ''}
         subscriptionId={subscriptionId}

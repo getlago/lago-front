@@ -4778,6 +4778,33 @@ export type GroupedChargeUsage = {
   units: Scalars['Float']['output'];
 };
 
+/** Usage of a single charge filter within one hour */
+export type HourlyUsageBreakdown = {
+  __typename?: 'HourlyUsageBreakdown';
+  chargeFilterId?: Maybe<Scalars['ID']['output']>;
+  eventsCount: Scalars['Int']['output'];
+  units: Scalars['Float']['output'];
+};
+
+/** A charge filter with usage in the window, and its window totals */
+export type HourlyUsageFilter = {
+  __typename?: 'HourlyUsageFilter';
+  chargeFilterId?: Maybe<Scalars['ID']['output']>;
+  eventsCount: Scalars['Int']['output'];
+  invoiceDisplayName?: Maybe<Scalars['String']['output']>;
+  units: Scalars['Float']['output'];
+  values: Scalars['ChargeFilterValues']['output'];
+};
+
+/** One hour of the window, broken down by charge filter */
+export type HourlyUsagePoint = {
+  __typename?: 'HourlyUsagePoint';
+  breakdown: Array<HourlyUsageBreakdown>;
+  eventsCount: Scalars['Int']['output'];
+  time: Scalars['ISO8601DateTime']['output'];
+  units: Scalars['Float']['output'];
+};
+
 /** Api Logs http method enums */
 export enum HttpMethodEnum {
   Delete = 'delete',
@@ -8334,6 +8361,8 @@ export type Query = {
   subscriptionEntitlement: SubscriptionEntitlement;
   /** Query entitlements of a subscriptions */
   subscriptionEntitlements: SubscriptionEntitlementCollection;
+  /** Query the hourly usage of a subscription charge, broken down by charge filter */
+  subscriptionHourlyUsage: SubscriptionHourlyUsage;
   /** Query subscriptions of an organization */
   subscriptions: SubscriptionCollection;
   /** Query all Superset dashboards with embedded configuration and guest tokens */
@@ -9232,6 +9261,14 @@ export type QuerySubscriptionEntitlementsArgs = {
 };
 
 
+export type QuerySubscriptionHourlyUsageArgs = {
+  chargeId: Scalars['ID']['input'];
+  fromDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+  subscriptionId: Scalars['ID']['input'];
+  toDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+};
+
+
 export type QuerySubscriptionsArgs = {
   billingEntityIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   currency?: InputMaybe<Scalars['String']['input']>;
@@ -10041,6 +10078,18 @@ export type SubscriptionEntitlementPrivilegeObject = {
   name?: Maybe<Scalars['String']['output']>;
   value?: Maybe<Scalars['String']['output']>;
   valueType: PrivilegeValueTypeEnum;
+};
+
+/** Realtime usage of a charge, per hour and per charge filter */
+export type SubscriptionHourlyUsage = {
+  __typename?: 'SubscriptionHourlyUsage';
+  aggregationType: AggregationTypeEnum;
+  filters: Array<HourlyUsageFilter>;
+  fromDatetime: Scalars['ISO8601DateTime']['output'];
+  hours: Array<HourlyUsagePoint>;
+  lastIngestedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
+  timezone: TimezoneEnum;
+  toDatetime: Scalars['ISO8601DateTime']['output'];
 };
 
 export type SubscriptionLifetimeUsage = {
@@ -14028,6 +14077,22 @@ export type SwitchProgressiveBillingDisabledValueMutationVariables = Exact<{
 
 
 export type SwitchProgressiveBillingDisabledValueMutation = { __typename?: 'Mutation', updateSubscription?: { __typename?: 'Subscription', id: string, progressiveBillingDisabled?: boolean | null } | null };
+
+export type GetSubscriptionChargesForRealtimeUsageQueryVariables = Exact<{
+  subscriptionId: Scalars['ID']['input'];
+}>;
+
+
+export type GetSubscriptionChargesForRealtimeUsageQuery = { __typename?: 'Query', subscription?: { __typename?: 'Subscription', id: string, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum }, plan: { __typename?: 'Plan', id: string, charges?: Array<{ __typename?: 'Charge', id: string, invoiceDisplayName?: string | null, billableMetric: { __typename?: 'BillableMetric', id: string, code: string, name: string, aggregationType: AggregationTypeEnum } }> | null } } | null };
+
+export type GetSubscriptionHourlyUsageQueryVariables = Exact<{
+  subscriptionId: Scalars['ID']['input'];
+  chargeId: Scalars['ID']['input'];
+  fromDatetime?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
+}>;
+
+
+export type GetSubscriptionHourlyUsageQuery = { __typename?: 'Query', subscriptionHourlyUsage: { __typename?: 'SubscriptionHourlyUsage', fromDatetime: any, toDatetime: any, timezone: TimezoneEnum, aggregationType: AggregationTypeEnum, filters: Array<{ __typename?: 'HourlyUsageFilter', chargeFilterId?: string | null, invoiceDisplayName?: string | null, units: number, eventsCount: number }>, hours: Array<{ __typename?: 'HourlyUsagePoint', time: any, units: number, eventsCount: number, breakdown: Array<{ __typename?: 'HourlyUsageBreakdown', chargeFilterId?: string | null, units: number }> }> } };
 
 export type SubscriptionUsageLifetimeGraphForLifetimeGraphFragment = { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, lifetimeUsage?: { __typename?: 'SubscriptionLifetimeUsage', lastThresholdAmountCents?: any | null, nextThresholdAmountCents?: any | null, totalUsageAmountCents: any, totalUsageFromDatetime: any, totalUsageToDatetime: any } | null, customer: { __typename?: 'Customer', id: string, currency?: CurrencyEnum | null, applicableTimezone: TimezoneEnum }, plan: { __typename?: 'Plan', id: string } };
 
@@ -32890,6 +32955,133 @@ export function useSwitchProgressiveBillingDisabledValueMutation(baseOptions?: A
 export type SwitchProgressiveBillingDisabledValueMutationHookResult = ReturnType<typeof useSwitchProgressiveBillingDisabledValueMutation>;
 export type SwitchProgressiveBillingDisabledValueMutationResult = Apollo.MutationResult<SwitchProgressiveBillingDisabledValueMutation>;
 export type SwitchProgressiveBillingDisabledValueMutationOptions = Apollo.BaseMutationOptions<SwitchProgressiveBillingDisabledValueMutation, SwitchProgressiveBillingDisabledValueMutationVariables>;
+export const GetSubscriptionChargesForRealtimeUsageDocument = gql`
+    query getSubscriptionChargesForRealtimeUsage($subscriptionId: ID!) {
+  subscription(id: $subscriptionId) {
+    id
+    customer {
+      id
+      applicableTimezone
+    }
+    plan {
+      id
+      charges {
+        id
+        invoiceDisplayName
+        billableMetric {
+          id
+          code
+          name
+          aggregationType
+        }
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetSubscriptionChargesForRealtimeUsageQuery__
+ *
+ * To run a query within a React component, call `useGetSubscriptionChargesForRealtimeUsageQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSubscriptionChargesForRealtimeUsageQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetSubscriptionChargesForRealtimeUsageQuery({
+ *   variables: {
+ *      subscriptionId: // value for 'subscriptionId'
+ *   },
+ * });
+ */
+export function useGetSubscriptionChargesForRealtimeUsageQuery(baseOptions: Apollo.QueryHookOptions<GetSubscriptionChargesForRealtimeUsageQuery, GetSubscriptionChargesForRealtimeUsageQueryVariables> & ({ variables: GetSubscriptionChargesForRealtimeUsageQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetSubscriptionChargesForRealtimeUsageQuery, GetSubscriptionChargesForRealtimeUsageQueryVariables>(GetSubscriptionChargesForRealtimeUsageDocument, options);
+      }
+export function useGetSubscriptionChargesForRealtimeUsageLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetSubscriptionChargesForRealtimeUsageQuery, GetSubscriptionChargesForRealtimeUsageQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetSubscriptionChargesForRealtimeUsageQuery, GetSubscriptionChargesForRealtimeUsageQueryVariables>(GetSubscriptionChargesForRealtimeUsageDocument, options);
+        }
+// @ts-ignore
+export function useGetSubscriptionChargesForRealtimeUsageSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSubscriptionChargesForRealtimeUsageQuery, GetSubscriptionChargesForRealtimeUsageQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionChargesForRealtimeUsageQuery, GetSubscriptionChargesForRealtimeUsageQueryVariables>;
+export function useGetSubscriptionChargesForRealtimeUsageSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionChargesForRealtimeUsageQuery, GetSubscriptionChargesForRealtimeUsageQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionChargesForRealtimeUsageQuery | undefined, GetSubscriptionChargesForRealtimeUsageQueryVariables>;
+export function useGetSubscriptionChargesForRealtimeUsageSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionChargesForRealtimeUsageQuery, GetSubscriptionChargesForRealtimeUsageQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetSubscriptionChargesForRealtimeUsageQuery, GetSubscriptionChargesForRealtimeUsageQueryVariables>(GetSubscriptionChargesForRealtimeUsageDocument, options);
+        }
+export type GetSubscriptionChargesForRealtimeUsageQueryHookResult = ReturnType<typeof useGetSubscriptionChargesForRealtimeUsageQuery>;
+export type GetSubscriptionChargesForRealtimeUsageLazyQueryHookResult = ReturnType<typeof useGetSubscriptionChargesForRealtimeUsageLazyQuery>;
+export type GetSubscriptionChargesForRealtimeUsageSuspenseQueryHookResult = ReturnType<typeof useGetSubscriptionChargesForRealtimeUsageSuspenseQuery>;
+export type GetSubscriptionChargesForRealtimeUsageQueryResult = Apollo.QueryResult<GetSubscriptionChargesForRealtimeUsageQuery, GetSubscriptionChargesForRealtimeUsageQueryVariables>;
+export const GetSubscriptionHourlyUsageDocument = gql`
+    query getSubscriptionHourlyUsage($subscriptionId: ID!, $chargeId: ID!, $fromDatetime: ISO8601DateTime) {
+  subscriptionHourlyUsage(
+    subscriptionId: $subscriptionId
+    chargeId: $chargeId
+    fromDatetime: $fromDatetime
+  ) {
+    fromDatetime
+    toDatetime
+    timezone
+    aggregationType
+    filters {
+      chargeFilterId
+      invoiceDisplayName
+      units
+      eventsCount
+    }
+    hours {
+      time
+      units
+      eventsCount
+      breakdown {
+        chargeFilterId
+        units
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetSubscriptionHourlyUsageQuery__
+ *
+ * To run a query within a React component, call `useGetSubscriptionHourlyUsageQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSubscriptionHourlyUsageQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetSubscriptionHourlyUsageQuery({
+ *   variables: {
+ *      subscriptionId: // value for 'subscriptionId'
+ *      chargeId: // value for 'chargeId'
+ *      fromDatetime: // value for 'fromDatetime'
+ *   },
+ * });
+ */
+export function useGetSubscriptionHourlyUsageQuery(baseOptions: Apollo.QueryHookOptions<GetSubscriptionHourlyUsageQuery, GetSubscriptionHourlyUsageQueryVariables> & ({ variables: GetSubscriptionHourlyUsageQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetSubscriptionHourlyUsageQuery, GetSubscriptionHourlyUsageQueryVariables>(GetSubscriptionHourlyUsageDocument, options);
+      }
+export function useGetSubscriptionHourlyUsageLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetSubscriptionHourlyUsageQuery, GetSubscriptionHourlyUsageQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetSubscriptionHourlyUsageQuery, GetSubscriptionHourlyUsageQueryVariables>(GetSubscriptionHourlyUsageDocument, options);
+        }
+// @ts-ignore
+export function useGetSubscriptionHourlyUsageSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetSubscriptionHourlyUsageQuery, GetSubscriptionHourlyUsageQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionHourlyUsageQuery, GetSubscriptionHourlyUsageQueryVariables>;
+export function useGetSubscriptionHourlyUsageSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionHourlyUsageQuery, GetSubscriptionHourlyUsageQueryVariables>): Apollo.UseSuspenseQueryResult<GetSubscriptionHourlyUsageQuery | undefined, GetSubscriptionHourlyUsageQueryVariables>;
+export function useGetSubscriptionHourlyUsageSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSubscriptionHourlyUsageQuery, GetSubscriptionHourlyUsageQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetSubscriptionHourlyUsageQuery, GetSubscriptionHourlyUsageQueryVariables>(GetSubscriptionHourlyUsageDocument, options);
+        }
+export type GetSubscriptionHourlyUsageQueryHookResult = ReturnType<typeof useGetSubscriptionHourlyUsageQuery>;
+export type GetSubscriptionHourlyUsageLazyQueryHookResult = ReturnType<typeof useGetSubscriptionHourlyUsageLazyQuery>;
+export type GetSubscriptionHourlyUsageSuspenseQueryHookResult = ReturnType<typeof useGetSubscriptionHourlyUsageSuspenseQuery>;
+export type GetSubscriptionHourlyUsageQueryResult = Apollo.QueryResult<GetSubscriptionHourlyUsageQuery, GetSubscriptionHourlyUsageQueryVariables>;
 export const GetSubscriptionForSubscriptionUsageLifetimeGraphDocument = gql`
     query getSubscriptionForSubscriptionUsageLifetimeGraph($subscriptionId: ID!) {
   subscription(id: $subscriptionId) {
