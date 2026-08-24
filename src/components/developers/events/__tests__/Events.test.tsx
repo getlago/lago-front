@@ -11,9 +11,9 @@ import {
 } from '../eventKey'
 import { Events } from '../Events'
 
-const mockSetActiveRow = jest.fn()
 const mockUpdateView = jest.fn()
 const mockUseEventsQuery = jest.fn()
+const capturedEventTableProps: { activeRowId?: string } = {}
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -31,7 +31,11 @@ jest.mock('~/generated/graphql', () => ({
 }))
 
 jest.mock('~/components/developers/events/EventTable', () => ({
-  EventTable: () => <div data-test="event-table-mock" />,
+  EventTable: ({ activeRowId }: { activeRowId?: string }) => {
+    capturedEventTableProps.activeRowId = activeRowId
+
+    return <div data-test="event-table-mock" />
+  },
 }))
 
 jest.mock('~/components/developers/events/EventDetails', () => ({
@@ -50,7 +54,6 @@ jest.mock('~/components/developers/LogsLayout', () => {
           ref: React.Ref<unknown>,
         ) => {
           useImperativeHandle(ref, () => ({
-            setActiveRow: mockSetActiveRow,
             updateView: mockUpdateView,
           }))
 
@@ -85,6 +88,7 @@ const setUrl = (search = ''): void => {
 describe('Events', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    capturedEventTableProps.activeRowId = undefined
     setUrl()
     mockUseEventsQuery.mockReturnValue({
       data: {
@@ -112,10 +116,10 @@ describe('Events', () => {
         })
       })
 
-      it('THEN should not highlight any row', () => {
+      it('THEN should not mark any row as selected', () => {
         render(<Events />)
 
-        expect(mockSetActiveRow).not.toHaveBeenCalled()
+        expect(capturedEventTableProps.activeRowId).toBeUndefined()
       })
     })
 
@@ -136,27 +140,27 @@ describe('Events', () => {
 
   describe('GIVEN two events sharing a transactionId', () => {
     describe('WHEN the url selects the first one', () => {
-      it('THEN should highlight the row matching its dedup tuple', () => {
+      it('THEN should select the row matching its dedup tuple', () => {
         setUrl(
           `?${EVENT_EXTERNAL_SUBSCRIPTION_ID_PARAM}=subscription-1&${EVENT_TIMESTAMP_MS_PARAM}=1740000000123&${EVENT_CODE_PARAM}=api_calls`,
         )
 
         render(<Events />, { useParams: { '*': 'transaction-1' } })
 
-        expect(mockSetActiveRow).toHaveBeenCalledWith(serializeEventKey(firstEvent))
+        expect(capturedEventTableProps.activeRowId).toBe(serializeEventKey(firstEvent))
       })
     })
 
     describe('WHEN the url selects the duplicate', () => {
-      it('THEN should highlight the other row, not the first one', () => {
+      it('THEN should select the other row, not the first one', () => {
         setUrl(
           `?${EVENT_EXTERNAL_SUBSCRIPTION_ID_PARAM}=subscription-1&${EVENT_TIMESTAMP_MS_PARAM}=1740000000123&${EVENT_CODE_PARAM}=storage`,
         )
 
         render(<Events />, { useParams: { '*': 'transaction-1' } })
 
-        expect(mockSetActiveRow).toHaveBeenCalledWith(serializeEventKey(duplicateEvent))
-        expect(mockSetActiveRow).not.toHaveBeenCalledWith(serializeEventKey(firstEvent))
+        expect(capturedEventTableProps.activeRowId).toBe(serializeEventKey(duplicateEvent))
+        expect(capturedEventTableProps.activeRowId).not.toBe(serializeEventKey(firstEvent))
       })
     })
 

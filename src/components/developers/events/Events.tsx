@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -84,15 +84,6 @@ export const Events = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.events?.collection, transactionId, searchParams])
 
-  // `setActiveRow` writes a raw `data-state` attribute React does not manage, and the table
-  // keys its rows by index, so a new page reuses the same <tr> elements. The highlight has to
-  // be reapplied whenever the rows change, not only when the selected event does.
-  useLayoutEffect(() => {
-    if (transactionId) {
-      logListRef.current?.setActiveRow(selectedEventKey)
-    }
-  }, [transactionId, selectedEventKey, data?.events?.collection])
-
   const shouldDisplayLogDetails = !!transactionId && !!data?.events?.collection.length
 
   return (
@@ -123,6 +114,7 @@ export const Events = () => {
           <EventTable
             getEventsResult={getEventsResult}
             logListRef={logListRef}
+            activeRowId={transactionId ? selectedEventKey : undefined}
             pageSize={pageSize}
             onPageSizeChange={setPageSize}
           />

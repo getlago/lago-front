@@ -51,11 +51,17 @@ const buildResult = (collection: ReturnType<typeof anEvent>[]) =>
   }) as unknown as EventsQueryResult
 
 const logListRef = {
-  current: { updateView: jest.fn(), setActiveRow: jest.fn() },
+  current: { updateView: jest.fn() },
 } as unknown as RefObject<ListSectionRef>
 
-const renderTable = (collection: ReturnType<typeof anEvent>[]) =>
-  render(<EventTable getEventsResult={buildResult(collection)} logListRef={logListRef} />)
+const renderTable = (collection: ReturnType<typeof anEvent>[], activeRowId?: string) =>
+  render(
+    <EventTable
+      getEventsResult={buildResult(collection)}
+      logListRef={logListRef}
+      activeRowId={activeRowId}
+    />,
+  )
 
 describe('EventTable', () => {
   beforeEach(() => {
@@ -139,6 +145,48 @@ describe('EventTable', () => {
         await user.click(screen.getByTestId('table-row-1'))
 
         expect(testMockNavigateFn).toHaveBeenCalledWith(buildEventLink(second))
+      })
+    })
+  })
+  describe('GIVEN one of the duplicate rows is selected', () => {
+    describe('WHEN the table renders', () => {
+      it('THEN should mark only that row as selected', () => {
+        const first = anEvent()
+        const second = anEvent({ code: 'storage' })
+
+        renderTable([first, second], serializeEventKey(second))
+
+        expect(screen.getByTestId('table-row-0')).not.toHaveAttribute('data-state')
+        expect(screen.getByTestId('table-row-1')).toHaveAttribute('data-state', 'selected')
+      })
+
+      it('THEN should keep the selection through a re-render of the rows', () => {
+        const event = anEvent()
+
+        const { rerender } = renderTable([event], serializeEventKey(event))
+
+        // The highlight used to be written straight into the DOM after mount, so any later
+        // re-render of the rows dropped it. Rendering it from the data is what keeps it.
+        rerender(
+          <EventTable
+            getEventsResult={buildResult([event])}
+            logListRef={logListRef}
+            activeRowId={serializeEventKey(event)}
+          />,
+        )
+
+        expect(screen.getByTestId('table-row-0')).toHaveAttribute('data-state', 'selected')
+      })
+    })
+  })
+
+  describe('GIVEN no row is selected', () => {
+    describe('WHEN the table renders', () => {
+      it('THEN should mark no row as selected', () => {
+        renderTable([anEvent(), anEvent({ code: 'storage' })])
+
+        expect(screen.getByTestId('table-row-0')).not.toHaveAttribute('data-state')
+        expect(screen.getByTestId('table-row-1')).not.toHaveAttribute('data-state')
       })
     })
   })

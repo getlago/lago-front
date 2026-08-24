@@ -15,6 +15,7 @@ import { useFormatterDateHelper } from '~/hooks/helpers/useFormatterDateHelper'
 type EventTableProps = {
   getEventsResult: EventsQueryResult
   logListRef: RefObject<ListSectionRef>
+  activeRowId?: string
   pageSize?: number
   onPageSizeChange?: (pageSize: number) => void
 }
@@ -22,6 +23,7 @@ type EventTableProps = {
 export const EventTable: FC<EventTableProps> = ({
   getEventsResult,
   logListRef,
+  activeRowId,
   pageSize,
   onPageSizeChange,
 }) => {
@@ -63,6 +65,7 @@ export const EventTable: FC<EventTableProps> = ({
         containerSize={16}
         rowSize={48}
         data={events}
+        activeRowId={activeRowId}
         hasError={!!error}
         isLoading={loading}
         loadingRowCount={pageSize}
