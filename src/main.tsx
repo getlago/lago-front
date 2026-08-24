@@ -5,6 +5,7 @@ import { createRoot } from 'react-dom/client'
 import App from '~/App'
 import { envGlobalVar } from '~/core/apolloClient'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
+import { reportMissingAppEnv } from '~/core/utils/appEnv'
 import { installLagoWindowApi } from '~/core/utils/featureFlagsConsole'
 
 import './main.css'
@@ -85,6 +86,8 @@ window.addEventListener('vite:preloadError', (event) => {
     },
   })
 })
+
+reportMissingAppEnv(appEnv)
 
 installLagoWindowApi(appEnv)
 

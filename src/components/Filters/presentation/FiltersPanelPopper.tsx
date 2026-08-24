@@ -10,7 +10,11 @@ import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { FiltersPanelItemTypeSwitch } from '~/components/Filters/graphql/FiltersPanelItemTypeSwitch'
 import { useFilters } from '~/components/Filters/graphql/useFilters'
-import { FiltersItemDates, METADATA_SPLITTER } from '~/components/Filters/graphql/utils'
+import {
+  FiltersItemDates,
+  isValidDateRangeValue,
+  METADATA_SPLITTER,
+} from '~/components/Filters/graphql/utils'
 import {
   AvailableFiltersEnum,
   FiltersFormValues,
@@ -69,7 +73,12 @@ export const FiltersPanelPopper = () => {
                   !!filterType &&
                   FiltersItemDates.includes(filterType) &&
                   filterType !== AvailableFiltersEnum.metadata,
-                then: (schema) => schema.matches(/\w+,\w+/, '').required(''),
+                then: (schema) =>
+                  schema.required('').test({
+                    name: 'date-range-order',
+                    message: '',
+                    test: isValidDateRangeValue,
+                  }),
                 otherwise: (schema) => schema.required(''),
               })
               .when('filterType', {

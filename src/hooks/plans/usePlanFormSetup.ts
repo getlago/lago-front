@@ -114,7 +114,7 @@ export const usePlanFormSetup = ({
     loading: planLoading,
     error,
   } = useGetSinglePlanQuery({
-    context: { silentError: LagoApiError.NotFound },
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
     variables: { id: resolvedPlanId as string },
     skip: !resolvedPlanId || skipPlanQuery,
   })
@@ -129,7 +129,7 @@ export const usePlanFormSetup = ({
   // it in `plan`; only cases 2 and 3 — which hydrate the form from a quote payload or
   // a subscription and skip the query above — need to fetch it.
   const { data: basePlanData } = useGetSinglePlanQuery({
-    context: { silentError: LagoApiError.NotFound },
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
     variables: { id: resolvedPlanId as string },
     skip: !resolvedPlanId || !skipPlanQuery,
   })

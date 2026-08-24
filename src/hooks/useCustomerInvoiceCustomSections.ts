@@ -3,6 +3,7 @@ import { gql } from '@apollo/client'
 import { InvoiceCustomSectionBasic } from '~/components/invoceCustomFooter/types'
 import {
   EditCustomerInvoiceCustomSectionFragment,
+  LagoApiError,
   useGetCustomerInvoiceCustomSectionsQuery,
 } from '~/generated/graphql'
 
@@ -48,6 +49,7 @@ export const useCustomerInvoiceCustomSections = (
   const { data, loading, error } = useGetCustomerInvoiceCustomSectionsQuery({
     variables: { customerId: customerId as string },
     skip: !customerId,
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
   })
 
   const customer = data?.customer ?? null
