@@ -8,10 +8,14 @@ import {
   useDeveloperTool,
 } from '~/hooks/useDeveloperTool'
 
-// Mock useCurrentUser
+// Mock useCurrentUser — mutable so a cold cache (user still loading) can be simulated
+let mockCurrentUser: { id: string } | undefined = { id: 'test-user' }
+
 jest.mock('~/hooks/useCurrentUser', () => ({
   useCurrentUser: () => ({
-    currentUser: { id: 'test-user' },
+    get currentUser() {
+      return mockCurrentUser
+    },
   }),
 }))
 
@@ -39,6 +43,7 @@ describe('useDeveloperTool', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     window.history.replaceState({}, '', '/')
+    mockCurrentUser = { id: 'test-user' }
   })
 
   describe('DeveloperToolProvider', () => {
@@ -197,6 +202,33 @@ describe('useDeveloperTool', () => {
           const { result } = openWith(address)
 
           expect(result.current.url).toBe(address)
+        })
+      })
+    })
+
+    describe('GIVEN a cold cache, with the user still loading', () => {
+      describe('WHEN the hook mounts', () => {
+        it('THEN it should not open the panel yet', () => {
+          mockCurrentUser = undefined
+
+          const { result } = openWith('/devtool/events')
+
+          expect(mockOpenPanel).not.toHaveBeenCalled()
+          expect(result.current.url).toBe('')
+        })
+
+        it('THEN it should still open the panel once the user lands', () => {
+          mockCurrentUser = undefined
+
+          const { result, rerender } = openWith('/devtool/events')
+
+          // The param used to be consumed on that first render, so the link was thrown away
+          // before it could open anything.
+          mockCurrentUser = { id: 'test-user' }
+          rerender()
+
+          expect(mockOpenPanel).toHaveBeenCalled()
+          expect(result.current.url).toBe('/devtool/events')
         })
       })
     })
