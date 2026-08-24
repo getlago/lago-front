@@ -66,15 +66,13 @@
   `Outlet`, etc.) are unrestricted.
   ```typescript
   // Correct — slug-aware wrappers
+  import { useNavigate, Link, useLocation } from '~/core/router'
   // Correct — route matching with strippedPathname
   import { matchPath } from 'react-router-dom'
-  // Wrong — useMatch uses raw pathname (includes slug), never matches
-  import { useMatch } from 'react-router-dom'
-
-  import { Link, useLocation, useNavigate } from '~/core/router'
-
   const { strippedPathname } = useLocation()
   const match = matchPath(SOME_ROUTE, strippedPathname)
+  // Wrong — useMatch uses raw pathname (includes slug), never matches
+  import { useMatch } from 'react-router-dom'
   ```
 
 ## Pagination (numbered lists & tables)
@@ -151,11 +149,11 @@ Three generations coexist in the codebase. **Only the hook pattern is allowed in
 code** — the other two are migration debt, and their presence is not permission to copy
 them.
 
-| Generation                                                                                                 | Shape                                       | Status                        |
-| ---------------------------------------------------------------------------------------------------------- | ------------------------------------------- | ----------------------------- |
-| `use<Feature>Drawer()` hook returning `{ openDrawer }`, built on `useFormDrawer` / `useDrawer` (NiceModal) | no ref, no rendered element                 | ✅ **canonical**              |
-| `useFormDrawer` wrapped in a `forwardRef` + `useImperativeHandle` component that `return null`             | parent holds a ref                          | ⚠️ legacy, migrate on touch   |
-| `~/components/designSystem/Drawer` + `DrawerRef` (`openDrawer`/`closeDrawer`)                              | parent holds a ref to a rendered `<Drawer>` | ⛔ legacy, never for new code |
+| Generation | Shape | Status |
+| ---------- | ----- | ------ |
+| `use<Feature>Drawer()` hook returning `{ openDrawer }`, built on `useFormDrawer` / `useDrawer` (NiceModal) | no ref, no rendered element | ✅ **canonical** |
+| `useFormDrawer` wrapped in a `forwardRef` + `useImperativeHandle` component that `return null` | parent holds a ref | ⚠️ legacy, migrate on touch |
+| `~/components/designSystem/Drawer` + `DrawerRef` (`openDrawer`/`closeDrawer`) | parent holds a ref to a rendered `<Drawer>` | ⛔ legacy, never for new code |
 
 ### The canonical pattern
 
@@ -271,11 +269,11 @@ All dialogs are hook-based, backed by NiceModal. New code must use one of three 
 depending on the shape of the flow — the legacy imperative `forwardRef` + `Dialog` /
 `WarningDialog` pattern is gone, do not reintroduce it.
 
-| Hook                         | Use for                                                 | Signature                                                          |
-| ---------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------ |
-| `useFormDialog`              | Form + submit button                                    | `open({ title, form: { id, submit }, mainAction, children, ... })` |
-| `useCentralizedDialog`       | Confirmation / warning (no form)                        | `open({ title, description, actionText, colorVariant, onAction })` |
-| `useFormDialogOpeningDialog` | Edit form that can open a secondary destructive confirm | same as `useFormDialog` + a nested `open-other-dialog` return      |
+| Hook | Use for | Signature |
+| ---- | ------- | --------- |
+| `useFormDialog` | Form + submit button | `open({ title, form: { id, submit }, mainAction, children, ... })` |
+| `useCentralizedDialog` | Confirmation / warning (no form) | `open({ title, description, actionText, colorVariant, onAction })` |
+| `useFormDialogOpeningDialog` | Edit form that can open a secondary destructive confirm | same as `useFormDialog` + a nested `open-other-dialog` return |
 
 ### The canonical pattern
 
