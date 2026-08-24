@@ -44,6 +44,7 @@ export interface DatePickerProps extends Omit<
   disableFuture?: boolean
   disablePast?: boolean
   minDate?: DateTime
+  maxDate?: DateTime
   showErrorInTooltip?: boolean
   placement?: MuiPopperProps['placement']
   onError?: (err: keyof typeof DATE_PICKER_ERROR_ENUM | undefined) => void
@@ -61,6 +62,7 @@ export const DatePicker = ({
   disableFuture,
   disablePast,
   minDate,
+  maxDate,
   placeholder,
   disabled = false,
   showErrorInTooltip = false,
@@ -152,6 +154,7 @@ export const DatePicker = ({
             disabled={disabled}
             disablePast={disablePast}
             minDate={minDate}
+            maxDate={maxDate}
             value={localDate}
             onChange={(date) => {
               setLocalDate(!date ? date : (date as unknown as DateTime).toUTC())

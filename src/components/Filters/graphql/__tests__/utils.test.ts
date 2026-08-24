@@ -19,6 +19,7 @@ import {
   formatFiltersForWebhookLogsQuery,
   formatMetadataFilter,
   getFilterValue,
+  isValidDateRangeValue,
   keyWithPrefix,
   parseFromToValue,
   parseMetadataFilter,
@@ -1651,6 +1652,36 @@ describe('Filters utils', () => {
           customers: ['cust-1'],
         }),
       )
+    })
+  })
+
+  describe('isValidDateRangeValue', () => {
+    describe('GIVEN an ordered range', () => {
+      it.each([
+        ['a from before the to', '2024-01-01T00:00:00.000Z,2024-01-31T23:59:59.999Z'],
+        ['a single-day range', '2024-01-01T00:00:00.000Z,2024-01-01T23:59:59.999Z'],
+        ['identical bounds', '2024-01-01T00:00:00.000Z,2024-01-01T00:00:00.000Z'],
+      ])('WHEN the value has %s THEN should be valid', (_, value) => {
+        expect(isValidDateRangeValue(value)).toBe(true)
+      })
+    })
+
+    describe('GIVEN a range that cannot be queried', () => {
+      it.each([
+        ['the to is before the from', '2024-01-31T23:59:59.999Z,2024-01-01T00:00:00.000Z'],
+        ['the from is missing', ',2024-01-31T23:59:59.999Z'],
+        ['the to is missing', '2024-01-01T00:00:00.000Z,'],
+        ['both bounds are missing', ','],
+        ['a bound is unparsable', 'not-a-date,2024-01-31T23:59:59.999Z'],
+        ['there is no separator', '2024-01-01T00:00:00.000Z'],
+        ['the value is empty', ''],
+      ])('WHEN %s THEN should be invalid', (_, value) => {
+        expect(isValidDateRangeValue(value)).toBe(false)
+      })
+
+      it('WHEN the value is undefined THEN should be invalid', () => {
+        expect(isValidDateRangeValue(undefined)).toBe(false)
+      })
     })
   })
 })
