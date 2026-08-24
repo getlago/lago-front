@@ -51,7 +51,6 @@
   "text_66b378e748cda1004ff00db0": "Ciao {{customerName}},",
   "text_66b378e748cda1004ff00db1": "Questo è un promemoria del team finanziario di {{organizationName}} che alcune fatture sono in ritardo.",
   "text_66b378e748cda1004ff00db2": "L'importo totale dovuto è di {{amount}}.",
-  "text_66b378e748cda1004ff00db3": "I nostri termini di pagamento contrattualmente concordati richiedono il pagamento al momento della generazione della fattura.|I nostri termini di pagamento contrattualmente concordati sono {{netPaymentTerm}} giorno.|I nostri termini di pagamento contrattualmente concordati sono {{netPaymentTerm}} giorni.",
   "text_66b378e748cda1004ff00db4": "Se hai già effettuato il pagamento, ti preghiamo di ignorare questa email.",
   "text_66b378e748cda1004ff00db5": "Grazie.",
   "text_66b378e748cda1004ff00db6": "Saldo da pagare",
