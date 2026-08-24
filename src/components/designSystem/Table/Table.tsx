@@ -77,12 +77,6 @@ export interface TableProps<T> {
   hasError?: boolean
   loadingRowCount?: number
   placeholder?: TablePlaceholder
-  /**
-   * `id` of the row to mark as selected. Rendered as `data-state="selected"`, which the
-   * row styling above already keys on. Declarative on purpose: the master-detail lists
-   * used to set that attribute imperatively after mount, and any later re-render of the
-   * rows silently threw it away.
-   */
   activeRowId?: string
   onRowActionLink?: (item: T) => string
   onRowActionClick?: (item: T) => void
