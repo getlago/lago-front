@@ -1,11 +1,14 @@
+import { useReactiveVar } from '@apollo/client'
 import { FC, useEffect } from 'react'
 import { Panel, PanelResizeHandle } from 'react-resizable-panels'
 
 import { Button } from '~/components/designSystem/Button'
 import { NavigationTab, TabManagedBy } from '~/components/designSystem/NavigationTab'
+import { Spinner } from '~/components/designSystem/Spinner'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { devToolsNavigationMapping, DevtoolsRouter } from '~/components/developers/DevtoolsRouter'
 import { addToast } from '~/core/apolloClient'
+import { currentOrganizationVar } from '~/core/apolloClient/reactiveVars/currentOrganizationVar'
 import { useLocation, useNavigate } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -28,6 +31,14 @@ export const DevtoolsView: FC = () => {
 
   const { translate } = useInternationalization()
   const { pathname, search } = useLocation()
+  // Query-gate: every devtools tab reads org-scoped data, and the `x-lago-organization`
+  // header is built from this var. The panel lives in a MemoryRouter that is a SIBLING of
+  // the app's BrowserRouter, so it can mount before `OrganizationLayout` has derived the org
+  // from the URL slug — which is exactly what happens when a copied inspector link opens the
+  // panel on first paint. Rendering the tabs then fires their queries header-less and the API
+  // rejects them with "Missing organization id", leaving the tab stuck on its error state
+  // until the user hits refresh.
+  const currentOrganizationId = useReactiveVar(currentOrganizationVar)
 
   const { hasPermissions } = usePermissions()
   const { isPremium } = useCurrentUser()
@@ -125,7 +136,13 @@ export const DevtoolsView: FC = () => {
             </Tooltip>
           </NavigationTab>
           <div className="flex min-h-0 flex-1 flex-col overflow-auto">
-            <DevtoolsRouter />
+            {currentOrganizationId ? (
+              <DevtoolsRouter />
+            ) : (
+              <div className="flex flex-1 items-center justify-center">
+                <Spinner />
+              </div>
+            )}
           </div>
         </div>
       </Panel>

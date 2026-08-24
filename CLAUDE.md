@@ -66,13 +66,15 @@
   `Outlet`, etc.) are unrestricted.
   ```typescript
   // Correct — slug-aware wrappers
-  import { useNavigate, Link, useLocation } from '~/core/router'
   // Correct — route matching with strippedPathname
   import { matchPath } from 'react-router-dom'
-  const { strippedPathname } = useLocation()
-  const match = matchPath(SOME_ROUTE, strippedPathname)
   // Wrong — useMatch uses raw pathname (includes slug), never matches
   import { useMatch } from 'react-router-dom'
+
+  import { Link, useLocation, useNavigate } from '~/core/router'
+
+  const { strippedPathname } = useLocation()
+  const match = matchPath(SOME_ROUTE, strippedPathname)
   ```
 
 ## Pagination (numbered lists & tables)
@@ -149,11 +151,11 @@ Three generations coexist in the codebase. **Only the hook pattern is allowed in
 code** — the other two are migration debt, and their presence is not permission to copy
 them.
 
-| Generation | Shape | Status |
-| ---------- | ----- | ------ |
-| `use<Feature>Drawer()` hook returning `{ openDrawer }`, built on `useFormDrawer` / `useDrawer` (NiceModal) | no ref, no rendered element | ✅ **canonical** |
-| `useFormDrawer` wrapped in a `forwardRef` + `useImperativeHandle` component that `return null` | parent holds a ref | ⚠️ legacy, migrate on touch |
-| `~/components/designSystem/Drawer` + `DrawerRef` (`openDrawer`/`closeDrawer`) | parent holds a ref to a rendered `<Drawer>` | ⛔ legacy, never for new code |
+| Generation                                                                                                 | Shape                                       | Status                        |
+| ---------------------------------------------------------------------------------------------------------- | ------------------------------------------- | ----------------------------- |
+| `use<Feature>Drawer()` hook returning `{ openDrawer }`, built on `useFormDrawer` / `useDrawer` (NiceModal) | no ref, no rendered element                 | ✅ **canonical**              |
+| `useFormDrawer` wrapped in a `forwardRef` + `useImperativeHandle` component that `return null`             | parent holds a ref                          | ⚠️ legacy, migrate on touch   |
+| `~/components/designSystem/Drawer` + `DrawerRef` (`openDrawer`/`closeDrawer`)                              | parent holds a ref to a rendered `<Drawer>` | ⛔ legacy, never for new code |
 
 ### The canonical pattern
 
@@ -269,11 +271,11 @@ All dialogs are hook-based, backed by NiceModal. New code must use one of three 
 depending on the shape of the flow — the legacy imperative `forwardRef` + `Dialog` /
 `WarningDialog` pattern is gone, do not reintroduce it.
 
-| Hook | Use for | Signature |
-| ---- | ------- | --------- |
-| `useFormDialog` | Form + submit button | `open({ title, form: { id, submit }, mainAction, children, ... })` |
-| `useCentralizedDialog` | Confirmation / warning (no form) | `open({ title, description, actionText, colorVariant, onAction })` |
-| `useFormDialogOpeningDialog` | Edit form that can open a secondary destructive confirm | same as `useFormDialog` + a nested `open-other-dialog` return |
+| Hook                         | Use for                                                 | Signature                                                          |
+| ---------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------ |
+| `useFormDialog`              | Form + submit button                                    | `open({ title, form: { id, submit }, mainAction, children, ... })` |
+| `useCentralizedDialog`       | Confirmation / warning (no form)                        | `open({ title, description, actionText, colorVariant, onAction })` |
+| `useFormDialogOpeningDialog` | Edit form that can open a secondary destructive confirm | same as `useFormDialog` + a nested `open-other-dialog` return      |
 
 ### The canonical pattern
 
@@ -419,6 +421,7 @@ Legitimate var reads in the codebase (audit anchor, keep this short). Two permit
 - `src/layouts/OrganizationLayout.tsx` — switch detection on the `currentOrgId !== org.id` mismatch (the single sync point that writes the var from the URL slug).
 - `src/components/UserIdentifier.tsx` — query-gates the `UserIdentifier` query (org-scoped `organization` field) on `!!currentOrganizationId` so it doesn't fire on slug-less surfaces (e.g. `/`).
 - `src/hooks/useOrganizationInfos.ts` — query-gates `getOrganizationInfos` (org-scoped) on `!!currentOrganizationId` for the same reason.
+- `src/components/developers/DevtoolsView.tsx` — query-gates the whole devtools panel (`DevtoolsRouter`) on `!!currentOrganizationId`. The panel lives in a `MemoryRouter` that is a SIBLING of the app's `BrowserRouter`, so it has no access to the URL slug and can mount before `OrganizationLayout` has derived the org — a copied inspector link opens it on first paint. Without the gate every tab fires its org-scoped query header-less and the API answers `Missing organization id`.
 - `src/hooks/useCurrentUser.ts` — slug-first resolution of `currentMembership` with var as a fallback for routes outside `/:organizationSlug` (login, customer portal). The fallback exists so callers in those non-org routes still get a membership; if a future audit shows nobody consumes `currentMembership` from those contexts, the fallback can be dropped.
 
 Anything else reading the var in a feature component is a regression — fix it.

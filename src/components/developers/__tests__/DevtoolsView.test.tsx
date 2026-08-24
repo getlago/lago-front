@@ -6,6 +6,7 @@ import {
   DEVTOOLS_COPY_INSPECTOR_LINK_TEST_ID,
   DevtoolsView,
 } from '~/components/developers/DevtoolsView'
+import { currentOrganizationVar } from '~/core/apolloClient/reactiveVars/currentOrganizationVar'
 
 configure({ testIdAttribute: 'data-test' })
 
@@ -68,7 +69,7 @@ jest.mock('~/components/designSystem/NavigationTab', () => ({
 }))
 
 jest.mock('~/components/developers/DevtoolsRouter', () => ({
-  DevtoolsRouter: () => <div />,
+  DevtoolsRouter: () => <div data-test="devtools-router-mock" />,
   devToolsNavigationMapping: () => [],
 }))
 
@@ -86,6 +87,11 @@ describe('DevtoolsView', () => {
     jest.clearAllMocks()
     window.history.replaceState({}, '', '/customers')
     mockLocation.search = ''
+    currentOrganizationVar('organization-1')
+  })
+
+  afterEach(() => {
+    currentOrganizationVar(null)
   })
 
   describe('GIVEN the events tab has an event selected', () => {
@@ -117,6 +123,39 @@ describe('DevtoolsView', () => {
         const link = await copiedInspectorLink()
 
         expect(link.searchParams.get('devtool-tab')).toBe('/devtool/events/transaction-1')
+      })
+    })
+  })
+
+  describe('GIVEN the current organization is not known yet', () => {
+    describe('WHEN the panel renders', () => {
+      it('THEN it should not render the devtools routes', () => {
+        currentOrganizationVar(null)
+
+        render(<DevtoolsView />)
+
+        // Every devtools tab queries org-scoped data. The `x-lago-organization` header is
+        // built from this var, so rendering the routes before it is set fires the queries
+        // without it and the API rejects them with "Missing organization id".
+        expect(screen.queryByTestId('devtools-router-mock')).not.toBeInTheDocument()
+      })
+
+      it('THEN it should still render the panel chrome', () => {
+        currentOrganizationVar(null)
+
+        render(<DevtoolsView />)
+
+        expect(screen.getByTestId(DEVTOOLS_COPY_INSPECTOR_LINK_TEST_ID)).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the current organization is known', () => {
+    describe('WHEN the panel renders', () => {
+      it('THEN it should render the devtools routes', () => {
+        render(<DevtoolsView />)
+
+        expect(screen.getByTestId('devtools-router-mock')).toBeInTheDocument()
       })
     })
   })
