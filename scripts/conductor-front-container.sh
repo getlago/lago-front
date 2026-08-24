@@ -30,7 +30,8 @@ CMD="${1:-}"
 NAME="${CONDUCTOR_WORKSPACE_NAME:?CONDUCTOR_WORKSPACE_NAME is required (run via Conductor)}"
 # Optional: `down` works purely off the generated compose file (kept outside the
 # workspace), so archiving still tears the container down after the workspace
-# directory is gone. up/shell/host require it, see require_ws.
+# directory is gone. `shell` only needs the running container. Only up/host read
+# it, see require_ws.
 WS="${CONDUCTOR_WORKSPACE_PATH:-}"
 ROOT="${CONDUCTOR_ROOT_PATH:?CONDUCTOR_ROOT_PATH is required (run via Conductor)}"
 PORT="${CONDUCTOR_PORT:-8080}"
@@ -158,6 +159,8 @@ teardown_san() {
   # referencing $san in the same statement trips `set -u`.
   local san="$1"
   local file="$COMPOSE_DIR/${san}.yml"
+  local project="lago_front_ct_${san}"
+
   if [[ -f "$file" ]] && docker compose -f "$file" down -v; then
     rm -f "$file"
     return
@@ -173,11 +176,32 @@ teardown_san() {
   fi
 
   # No compose file (deleted manually), or it no longer parses (stale format from
-  # an older revision of this script): remove the container and its named volumes
+  # an older revision of this script): remove the container and its volumes
   # directly so nothing is left orphaned.
+  docker rm -f "$project" >/dev/null 2>&1 || true
+
+  # Compose prefixes every declared volume with the project name, so the real
+  # volumes are lago_front_ct_<san>_front_nm_ct_<san>, not front_nm_ct_<san>.
+  # Match on the compose project label, which survives the compose file, and fall
+  # back to the prefixed literals in case the label is missing.
+  local -a vols=()
+  local vol
+  while IFS= read -r vol; do
+    [[ -n "$vol" ]] && vols+=("$vol")
+  done < <(docker volume ls -q --filter "label=com.docker.compose.project=${project}" 2>/dev/null || true)
+  if [[ ${#vols[@]} -gt 0 ]]; then
+    docker volume rm "${vols[@]}" >/dev/null 2>&1 || true
+  fi
+  docker volume rm "${project}_front_nm_ct_${san}" "${project}_front_dist_ct_${san}" >/dev/null 2>&1 || true
+
+  # Only drop the compose file once the container is really gone. Deleting it on a
+  # failed removal would destroy the sole record of the project name and volume
+  # set, leaving both unreclaimable.
+  if docker ps -a --format '{{.Names}}' | grep -qx "$project"; then
+    echo "warn: container ${project} still present, keeping ${file}." >&2
+    return
+  fi
   rm -f "$file"
-  docker rm -f "lago_front_ct_${san}" >/dev/null 2>&1 || true
-  docker volume rm "front_nm_ct_${san}" "front_dist_ct_${san}" >/dev/null 2>&1 || true
 }
 
 cmd_down() {
@@ -256,7 +280,9 @@ cmd_host() {
 case "$CMD" in
   up) require_ws; cmd_up ;;
   down) cmd_down ;;
-  shell) require_ws; cmd_shell ;;
+  # No require_ws: cmd_shell only needs the running container, not the directory,
+  # so it stays usable when the workspace has already been removed.
+  shell) cmd_shell ;;
   host) require_ws; cmd_host ;;
   *)
     echo "Usage: conductor-front-container.sh {up|down|shell|host}" >&2
