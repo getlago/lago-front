@@ -31,7 +31,9 @@ export const PAYMENT_TERM_DUE_DATE_PREVIEW_TEST_ID = 'payment-term-due-date-prev
  * from are simply not sent: `buildPaymentTermInput` emits only the chosen type's fields.
  */
 export const PAYMENT_TERM_FORM_DEFAULT_VALUES = {
-  termType: '' as PaymentTermTypeEnum | '',
+  // The combo box maps its empty option to `undefined`, so an empty term type arrives as
+  // either. Both mean "inherit from the level above".
+  termType: '' as PaymentTermTypeEnum | '' | undefined,
   days: 0 as number | '',
   dayOfMonth: PAYMENT_TERM_DAY_OF_MONTH_MIN as number | '',
   monthOffset: PAYMENT_TERM_DEFAULT_MONTH_OFFSET as number | '',
@@ -48,7 +50,7 @@ const isPositiveIntegerWithin = (value: number | '', min: number, max: number): 
  */
 export const paymentTermFormSchema = z
   .object({
-    termType: z.union([z.enum(PaymentTermTypeEnum), z.literal('')]),
+    termType: z.union([z.enum(PaymentTermTypeEnum), z.literal(''), z.undefined()]),
     days: z.union([z.number(), z.literal('')]),
     dayOfMonth: z.union([z.number(), z.literal('')]),
     monthOffset: z.union([z.number(), z.literal('')]),
@@ -58,7 +60,10 @@ export const paymentTermFormSchema = z
 
     const fields = PAYMENT_TERM_FIELDS_BY_TYPE[values.termType]
 
-    if (fields.includes('days') && !isPositiveIntegerWithin(values.days, 0, Number.MAX_SAFE_INTEGER)) {
+    if (
+      fields.includes('days') &&
+      !isPositiveIntegerWithin(values.days, 0, Number.MAX_SAFE_INTEGER)
+    ) {
       ctx.addIssue({ code: 'custom', path: ['days'], message: '' })
     }
 

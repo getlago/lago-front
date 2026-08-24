@@ -4,6 +4,7 @@ import {
   CurrencyEnum,
   FinalizeZeroAmountInvoiceEnum,
   GetCustomerSettingsDocument,
+  PaymentTermTypeEnum,
 } from '~/generated/graphql'
 import { render, TestMocksType } from '~/test-utils'
 
@@ -98,15 +99,15 @@ jest.mock('~/components/customers/DeleteCustomerFinalizeZeroAmountInvoiceDialog'
   }),
 }))
 
-jest.mock('~/components/customers/DeleteCustomerNetPaymentTermDialog', () => ({
-  useDeleteCustomerNetPaymentTermDialog: () => ({
-    openDeleteCustomerNetPaymentTermDialog: jest.fn(),
+jest.mock('~/components/customers/DeleteCustomerPaymentTermDialog', () => ({
+  useDeleteCustomerPaymentTermDialog: () => ({
+    openDeleteCustomerPaymentTermDialog: jest.fn(),
   }),
 }))
 
-jest.mock('~/components/settings/invoices/EditNetPaymentTermDialog', () => ({
-  useEditNetPaymentTermDialog: () => ({
-    openEditNetPaymentTermDialog: jest.fn(),
+jest.mock('~/components/settings/invoices/EditPaymentTermDialog', () => ({
+  useEditPaymentTermDialog: () => ({
+    openEditPaymentTermDialog: jest.fn(),
   }),
 }))
 
@@ -134,7 +135,7 @@ const createCustomerSettingsMock = (overrides = {}) => ({
         name: 'Test Customer',
         displayName: 'Test Customer',
         invoiceGracePeriod: null,
-        netPaymentTerm: null,
+        paymentTerm: null,
         finalizeZeroAmountInvoice: FinalizeZeroAmountInvoiceEnum.Inherit,
         currency: CurrencyEnum.Usd,
         excludeFromDunningCampaign: false,
@@ -145,7 +146,13 @@ const createCustomerSettingsMock = (overrides = {}) => ({
         billingEntity: {
           __typename: 'BillingEntity',
           id: 'billing-entity-123',
-          netPaymentTerm: 30,
+          paymentTerm: {
+            __typename: 'PaymentTerm',
+            termType: PaymentTermTypeEnum.Net,
+            days: 30,
+            dayOfMonth: null,
+            monthOffset: null,
+          },
           finalizeZeroAmountInvoice: true,
           billingConfiguration: {
             __typename: 'BillingEntityBillingConfiguration',
@@ -233,11 +240,11 @@ describe('CustomerSettings', () => {
       })
     })
 
-    it('renders net payment term section', async () => {
+    it('renders payment terms section', async () => {
       await prepare()
 
       await waitFor(() => {
-        expect(screen.getByText(/net payment term/i)).toBeInTheDocument()
+        expect(screen.getByText('Payment terms')).toBeInTheDocument()
       })
     })
 
@@ -377,40 +384,52 @@ describe('CustomerSettings', () => {
     })
   })
 
-  describe('Net Payment Term Setting', () => {
-    it('displays inherited net payment term when not set on customer', async () => {
+  describe('Payment Term Setting', () => {
+    const customerTerm = (paymentTerm: unknown) =>
+      createCustomerSettingsMock({ paymentTerm } as Record<string, unknown>)
+
+    it('displays the billing entity term, marked as inherited, when the customer has none', async () => {
       await prepare()
 
       await waitFor(() => {
-        // Should show inherited value (30 days)
-        expect(screen.getByText(/30 day/i)).toBeInTheDocument()
+        expect(screen.getByText(/Net 30 days \(inherit from billing entity\)/i)).toBeInTheDocument()
       })
     })
 
-    it('displays custom net payment term when set on customer', async () => {
-      const customNetPaymentTermMock = createCustomerSettingsMock({
-        netPaymentTerm: 15,
+    it('displays the customer term, unmarked, when it overrides the billing entity', async () => {
+      await prepare({
+        mocks: [
+          customerTerm({
+            __typename: 'PaymentTerm',
+            termType: PaymentTermTypeEnum.Net,
+            days: 15,
+            dayOfMonth: null,
+            monthOffset: null,
+          }),
+        ],
       })
-
-      await prepare({ mocks: [customNetPaymentTermMock] })
 
       await waitFor(() => {
-        expect(screen.getByText(/15 day/i)).toBeInTheDocument()
+        expect(screen.getByText('Net 15 days')).toBeInTheDocument()
       })
+      expect(screen.queryByText(/Net 15 days \(inherit/i)).not.toBeInTheDocument()
     })
 
-    it('displays zero days when net payment term is 0', async () => {
-      const zeroNetPaymentTermMock = createCustomerSettingsMock({
-        netPaymentTerm: 0,
+    it('displays a term type carrying no numeric field', async () => {
+      await prepare({
+        mocks: [
+          customerTerm({
+            __typename: 'PaymentTerm',
+            termType: PaymentTermTypeEnum.EndOfMonth,
+            days: null,
+            dayOfMonth: null,
+            monthOffset: null,
+          }),
+        ],
       })
 
-      await prepare({ mocks: [zeroNetPaymentTermMock] })
-
       await waitFor(() => {
-        // Net payment term of 0 shows as "0 day"
-        const elements = screen.getAllByText(/0 day/i)
-
-        expect(elements.length).toBeGreaterThan(0)
+        expect(screen.getByText('End of month')).toBeInTheDocument()
       })
     })
   })
