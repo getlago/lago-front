@@ -2,6 +2,8 @@ import { act, renderHook, screen, waitFor, within } from '@testing-library/react
 import userEvent from '@testing-library/user-event'
 import { ReactElement } from 'react'
 
+import { ResolvablePaymentTerm } from '~/core/utils/paymentTerm'
+import { PaymentTermTypeEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import { QUOTE_PAYMENT_TERM_LINE_TEST_ID } from '../QuotePaymentTermLine'
@@ -52,10 +54,10 @@ const populatedValues: SubscriptionSettingsFormValues = {
 const openAndRenderDrawer = (
   values: SubscriptionSettingsFormValues = defaultValues,
   isAmendment = false,
-  netPaymentTerm: number | null | undefined = undefined,
+  paymentTerm: ResolvablePaymentTerm | null | undefined = undefined,
 ) => {
   const hookReturn = renderHook(() =>
-    useSubscriptionSettingsDrawer({ onSave: mockOnSave, isAmendment, netPaymentTerm }),
+    useSubscriptionSettingsDrawer({ onSave: mockOnSave, isAmendment, paymentTerm }),
   )
 
   act(() => {
@@ -474,10 +476,10 @@ describe('useSubscriptionSettingsDrawer', () => {
   describe('GIVEN the drawer carries the deal-term dates', () => {
     describe('WHEN a resolved payment term is passed', () => {
       it.each([
-        ['a positive term', 30],
-        ['a zero term', 0],
-      ])('THEN should display the read-only payment term for %s', (_, netPaymentTerm) => {
-        openAndRenderDrawer(defaultValues, false, netPaymentTerm)
+        ['a term carrying days', { termType: PaymentTermTypeEnum.Net, days: 30 }],
+        ['a term carrying none', { termType: PaymentTermTypeEnum.DueOnReceipt }],
+      ])('THEN should display the read-only payment term for %s', (_, paymentTerm) => {
+        openAndRenderDrawer(defaultValues, false, paymentTerm)
 
         expect(screen.getByTestId(QUOTE_PAYMENT_TERM_LINE_TEST_ID)).toBeInTheDocument()
       })
@@ -485,7 +487,7 @@ describe('useSubscriptionSettingsDrawer', () => {
       it('THEN should not turn the payment term into a form field', async () => {
         const user = userEvent.setup()
 
-        openAndRenderDrawer(populatedValues, false, 30)
+        openAndRenderDrawer(populatedValues, false, { termType: PaymentTermTypeEnum.Net, days: 30 })
 
         const saveButton = screen.getByTestId(SUBSCRIPTION_SETTINGS_DRAWER_SAVE_TEST_ID)
 
@@ -495,7 +497,7 @@ describe('useSubscriptionSettingsDrawer', () => {
           expect(mockOnSave).toHaveBeenCalledTimes(1)
         })
 
-        expect(mockOnSave.mock.calls[0][0]).not.toHaveProperty('netPaymentTerm')
+        expect(mockOnSave.mock.calls[0][0]).not.toHaveProperty('paymentTerm')
       })
     })
 

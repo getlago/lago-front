@@ -4,7 +4,8 @@ import { act } from 'react'
 
 import { RIGHT_ASIDE_PAGE_HEADER_TEST_ID } from '~/components/layouts/RightAsidePage'
 import { makeEmptyWalletItem, toWallets } from '~/core/serializers/serializeQuoteWallets'
-import { CurrencyEnum } from '~/generated/graphql'
+import { ResolvablePaymentTerm } from '~/core/utils/paymentTerm'
+import { CurrencyEnum, PaymentTermTypeEnum } from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import EditQuote from '../EditQuote'
@@ -187,13 +188,13 @@ const mockQuote = {
     name: 'Acme Corp',
     externalId: 'ext-cust-1',
     currency: null,
-    netPaymentTerm: 30,
+    paymentTerm: { termType: PaymentTermTypeEnum.Net, days: 30 },
     billingEntity: {
       __typename: 'BillingEntity' as const,
       id: 'be-1',
       code: 'default',
       name: 'Default Entity',
-      netPaymentTerm: 60,
+      paymentTerm: { termType: PaymentTermTypeEnum.Net, days: 60 },
     },
     billingConfiguration: {
       documentLocale: null,
@@ -1252,7 +1253,10 @@ describe('EditQuote', () => {
   })
 
   describe('GIVEN a subscription amendment quote', () => {
-    const renderAmendment = (): { isAmendment?: boolean; netPaymentTerm?: number | null } => {
+    const renderAmendment = (): {
+      isAmendment?: boolean
+      paymentTerm?: ResolvablePaymentTerm | null
+    } => {
       mockUseQuote.mockReturnValue({
         quote: { ...mockQuote, orderType: 'subscription_amendment' },
         loading: false,
@@ -1263,7 +1267,7 @@ describe('EditQuote', () => {
 
       return capturedPricingDrawerArgs[1] as {
         isAmendment?: boolean
-        netPaymentTerm?: number | null
+        paymentTerm?: ResolvablePaymentTerm | null
       }
     }
 
@@ -1324,10 +1328,14 @@ describe('EditQuote', () => {
       it('THEN should pass it to both pricing drawers', () => {
         render(<EditQuote />)
 
+        const expected = { termType: PaymentTermTypeEnum.Net, days: 30 }
+
         expect(capturedPricingDrawerArgs[1]).toEqual(
-          expect.objectContaining({ netPaymentTerm: 30 }),
+          expect.objectContaining({ paymentTerm: expected }),
         )
-        expect(capturedOneOffDrawerArgs[1]).toEqual(expect.objectContaining({ netPaymentTerm: 30 }))
+        expect(capturedOneOffDrawerArgs[1]).toEqual(
+          expect.objectContaining({ paymentTerm: expected }),
+        )
       })
     })
 
@@ -1336,7 +1344,7 @@ describe('EditQuote', () => {
         mockUseQuote.mockReturnValue({
           quote: {
             ...mockQuote,
-            customer: { ...mockQuote.customer, netPaymentTerm: null },
+            customer: { ...mockQuote.customer, paymentTerm: null },
           },
           loading: false,
           refetch: mockRefetchQuote,
@@ -1345,7 +1353,34 @@ describe('EditQuote', () => {
         render(<EditQuote />)
 
         expect(capturedPricingDrawerArgs[1]).toEqual(
-          expect.objectContaining({ netPaymentTerm: 60 }),
+          expect.objectContaining({
+            paymentTerm: { termType: PaymentTermTypeEnum.Net, days: 60 },
+          }),
+        )
+      })
+    })
+
+    describe('WHEN no term is set at any level', () => {
+      it('THEN should fall back to due on receipt', () => {
+        mockUseQuote.mockReturnValue({
+          quote: {
+            ...mockQuote,
+            customer: {
+              ...mockQuote.customer,
+              paymentTerm: null,
+              billingEntity: { ...mockQuote.customer.billingEntity, paymentTerm: null },
+            },
+          },
+          loading: false,
+          refetch: mockRefetchQuote,
+        })
+
+        render(<EditQuote />)
+
+        expect(capturedPricingDrawerArgs[1]).toEqual(
+          expect.objectContaining({
+            paymentTerm: { termType: PaymentTermTypeEnum.DueOnReceipt },
+          }),
         )
       })
     })

@@ -14,6 +14,7 @@ import { ComboboxItem } from '~/components/form'
 import { ComboBox } from '~/components/form/ComboBox/ComboBox'
 import { MUI_INPUT_BASE_ROOT_CLASSNAME } from '~/core/constants/form'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { ResolvablePaymentTerm } from '~/core/utils/paymentTerm'
 import {
   type AddOnForPricingSectionFragment,
   CurrencyEnum,
@@ -59,7 +60,7 @@ gql`
 interface AddOnSelectionContentExtraProps {
   currency: CurrencyEnum
   onAddOnPayloadCapture?: (localId: string, addOn: AddOnForPricingSectionFragment) => void
-  netPaymentTerm?: number | null
+  paymentTerm?: ResolvablePaymentTerm | null
 }
 
 function TotalAmountCell({
@@ -285,7 +286,7 @@ const ConfirmedAddOnRow = withForm({
 const addOnSelectionContentDefaultProps: AddOnSelectionContentExtraProps = {
   currency: CurrencyEnum.Usd,
   onAddOnPayloadCapture: undefined,
-  netPaymentTerm: undefined,
+  paymentTerm: undefined,
 }
 
 const AddOnSelectionContent = withForm({
@@ -295,7 +296,7 @@ const AddOnSelectionContent = withForm({
     form,
     currency,
     onAddOnPayloadCapture,
-    netPaymentTerm,
+    paymentTerm,
   }) {
     const { translate } = useInternationalization()
     const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
@@ -392,7 +393,7 @@ const AddOnSelectionContent = withForm({
             {translate('text_17295436903260tlyb1gp1i7')}
           </Button>
         ),
-        children: <EditAddOnDrawer form={editForm} netPaymentTerm={netPaymentTerm} />,
+        children: <EditAddOnDrawer form={editForm} paymentTerm={paymentTerm} />,
       })
     }
 

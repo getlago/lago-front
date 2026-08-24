@@ -6,6 +6,7 @@ import { BILLING_ENTITY_FORM_PICKER_DATA_TEST } from '~/components/billingEntity
 import {
   CurrencyEnum,
   OrderTypeEnum,
+  PaymentTermTypeEnum,
   QuoteDetailItemFragment,
   StatusEnum,
   UpdateQuoteVersionDocument,
@@ -141,13 +142,13 @@ const mockQuote: QuoteDetailItemFragment = {
     id: 'customer-1',
     displayName: 'Acme Corp',
     externalId: 'ext-cust-1',
-    netPaymentTerm: 30,
+    paymentTerm: { termType: PaymentTermTypeEnum.Net, days: 30 },
     billingEntity: {
       __typename: 'BillingEntity',
       id: 'be-1',
       code: 'default',
       name: 'Default Entity',
-      netPaymentTerm: 60,
+      paymentTerm: { termType: PaymentTermTypeEnum.Net, days: 60 },
     },
   },
   owners: [],

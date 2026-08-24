@@ -24,6 +24,7 @@ import { QuoteDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { QUOTE_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import type { BillingItemsPayload } from '~/core/serializers/serializeQuoteBillingItems'
 import type { Locale } from '~/core/translations'
+import { resolvePaymentTerm } from '~/core/utils/paymentTerm'
 import { CurrencyEnum, OrderTypeEnum, type UpdateQuoteVersionInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -114,12 +115,16 @@ const EditQuote = () => {
     organization?.defaultCurrency ??
     CurrencyEnum.Usd
 
-  const quoteNetPaymentTerm =
-    quote?.customer.netPaymentTerm ?? quote?.customer.billingEntity.netPaymentTerm
+  // Quotes carry no term of their own: the document shows the term the customer would
+  // resolve to, falling back to the billing entity and then to due on receipt.
+  const { term: quotePaymentTerm } = resolvePaymentTerm({
+    ownTerm: quote?.customer.paymentTerm,
+    parentTerm: quote?.customer.billingEntity.paymentTerm,
+  })
 
   const subscriptionPricing = useSubscriptionPricingDrawer(quote?.currentVersion?.billingItems, {
     customer: quote?.customer,
-    netPaymentTerm: quoteNetPaymentTerm,
+    paymentTerm: quotePaymentTerm,
     subscriptionId: quote?.subscription?.id,
     currency: effectiveQuoteCurrency,
     hasQuoteCurrency: !!quoteVersionCurrency,
@@ -128,7 +133,7 @@ const EditQuote = () => {
   const oneOffPricing = useOneOffPricingDrawer(quote?.currentVersion?.billingItems, {
     currency: effectiveQuoteCurrency,
     hasQuoteCurrency: !!quoteVersionCurrency,
-    netPaymentTerm: quoteNetPaymentTerm,
+    paymentTerm: quotePaymentTerm,
   })
 
   const { onPricingCommand, isPricingDisabled, entities, syncEntitiesWithBlocks } =
