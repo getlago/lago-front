@@ -3,6 +3,7 @@ import { renderHook } from '@testing-library/react'
 import { envGlobalVar } from '~/core/apolloClient'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
 import {
+  BillingEntityEmailSettingsEnum,
   GetCurrentUserInfosDocument,
   InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
@@ -892,6 +893,24 @@ describe('usePermissionsInvoiceActions', () => {
           status: InvoiceStatusTypeEnum.Finalized,
         }),
       ).toBe(false)
+    })
+
+    // Regression guard: sending a finalized invoice manually must stay available to billing
+    // entities that disabled the automatic invoice_finalized email, otherwise they have no
+    // way to deliver the invoice at all.
+    it('should return true when the invoice_finalized email scenario is disabled', async () => {
+      const { result } = await prepare()
+      const invoiceWithEmailScenarioDisabled = {
+        status: InvoiceStatusTypeEnum.Finalized,
+        billingEntity: {
+          id: '1',
+          name: 'Test',
+          code: 'test',
+          emailSettings: [] as BillingEntityEmailSettingsEnum[],
+        },
+      }
+
+      expect(result.current.canResendEmail(invoiceWithEmailScenarioDisabled)).toBe(true)
     })
   })
 

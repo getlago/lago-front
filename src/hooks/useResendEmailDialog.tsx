@@ -5,6 +5,7 @@ import { useFormDialog } from '~/components/dialogs/FormDialog'
 import EmailPreview, { BillingEntity, DocumentData } from '~/components/emails/EmailPreview'
 import {
   resendEmailFormDefaultValues,
+  ResendEmailFormDefaultValues,
   resendEmailFormValidationSchema,
 } from '~/components/emails/resendEmail/formInitialization'
 import ResendEmailHeaderContent from '~/components/emails/resendEmail/ResendEmailHeaderContent'
@@ -31,6 +32,31 @@ const formatRecipients = (recipients: Recipients) => {
   if (!recipients?.length) return
 
   return recipients.map(({ value }) => value)
+}
+
+// The dialog is shared by invoices, credit notes and payment receipts. Only the invoice
+// action can be the first delivery of the document, the other two are always resends.
+const DIALOG_TITLE_TRANSLATION_KEY: Record<BillingEntityEmailSettingsEnum, string> = {
+  [BillingEntityEmailSettingsEnum.InvoiceFinalized]: 'text_17703925321987cxf5psj6l4',
+  [BillingEntityEmailSettingsEnum.CreditNoteCreated]: 'text_1771317709944fi3nu3lw2gy',
+  [BillingEntityEmailSettingsEnum.PaymentReceiptCreated]: 'text_1771317709944fi3nu3lw2gy',
+}
+
+const buildInitialValues = (
+  customerEmail: string | null | undefined,
+): ResendEmailFormDefaultValues => {
+  if (!customerEmail) return resendEmailFormDefaultValues
+
+  return {
+    ...resendEmailFormDefaultValues,
+    to: [
+      {
+        value: customerEmail,
+        label: customerEmail,
+        customValue: true,
+      },
+    ],
+  }
 }
 
 export const useResendEmailDialog = () => {
@@ -122,19 +148,13 @@ export const useResendEmailDialog = () => {
   }) => {
     if (!documentId) return
 
-    if (customerEmail) {
-      form.setFieldValue('to', [
-        {
-          value: customerEmail,
-          label: customerEmail,
-          customValue: true,
-        },
-      ])
-    }
+    // Reset before seeding: the hook holds a single form instance for a whole list, so
+    // without this the previous document's recipients and errors leak into the next one.
+    form.reset(buildInitialValues(customerEmail), { keepDefaultValues: true })
 
     formDialog
       .open({
-        title: translate('text_17703925321987cxf5psj6l4'),
+        title: translate(DIALOG_TITLE_TRANSLATION_KEY[type]),
         headerContent: <ResendEmailHeaderContent form={form} subject={subject} />,
         children: (
           <EmailPreview

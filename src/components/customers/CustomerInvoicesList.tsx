@@ -99,7 +99,6 @@ gql`
       code
       email
       einvoicing
-      emailSettings
     }
     payments {
       createdAt
