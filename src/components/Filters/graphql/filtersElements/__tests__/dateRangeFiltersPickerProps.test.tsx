@@ -52,10 +52,11 @@ const renderComponent = (
 
 /**
  * Every date range filter must cap its calendars against the opposite bound, so an inverted
- * range cannot be picked in the first place. Covered here for all four of them at once
- * because the wiring is per-component and easy to cross over.
+ * range cannot be picked in the first place, and must keep the timezone, future-date and
+ * placement options of its own surface. Both are asserted here for all four at once, on the
+ * props they hand to their pickers.
  */
-describe('date range filters calendar bounds', () => {
+describe('date range filters picker props', () => {
   const originalDefaultZone = Settings.defaultZone
 
   beforeAll(() => {
@@ -103,5 +104,36 @@ describe('date range filters calendar bounds', () => {
         expect(toPicker.minDate).toBeUndefined()
       })
     })
+  })
+
+  describe('GIVEN the per-surface picker options', () => {
+    describe.each([
+      // A placement of undefined leaves the picker on its own 'bottom-end' default
+      ['FiltersItemDate', FiltersItemDate, 'UTC', false, false, undefined],
+      ['FiltersItemIssuingDate', FiltersItemIssuingDate, undefined, false, false, undefined],
+      ['FiltersItemLoggedDate', FiltersItemLoggedDate, 'UTC', false, true, undefined],
+      ['FiltersItemWebhookDate', FiltersItemWebhookDate, 'UTC', true, true, 'auto'],
+    ] as [
+      string,
+      DateRangeFilterComponent,
+      string | undefined,
+      boolean,
+      boolean,
+      string | undefined,
+    ][])(
+      'WHEN %s renders',
+      (_, Component, defaultZone, disableFutureFrom, disableFutureTo, placement) => {
+        it('THEN should keep its timezone, future-date and placement options', () => {
+          const { fromPicker, toPicker } = renderComponent(Component)
+
+          expect(fromPicker.defaultZone).toBe(defaultZone)
+          expect(toPicker.defaultZone).toBe(defaultZone)
+          expect(!!fromPicker.disableFuture).toBe(disableFutureFrom)
+          expect(!!toPicker.disableFuture).toBe(disableFutureTo)
+          expect(fromPicker.placement).toBe(placement)
+          expect(toPicker.placement).toBe(placement)
+        })
+      },
+    )
   })
 })
