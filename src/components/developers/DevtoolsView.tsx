@@ -20,12 +20,14 @@ import {
 } from '~/hooks/useDeveloperTool'
 import { usePermissions } from '~/hooks/usePermissions'
 
+export const DEVTOOLS_COPY_INSPECTOR_LINK_TEST_ID = 'devtools-copy-inspector-link'
+
 export const DevtoolsView: FC = () => {
   const { panelRef, panelOpen, isFullscreen, expandPanel, resizePanel, closePanel, url, setUrl } =
     useDeveloperTool()
 
   const { translate } = useInternationalization()
-  const { pathname } = useLocation()
+  const { pathname, search } = useLocation()
 
   const { hasPermissions } = usePermissions()
   const { isPremium } = useCurrentUser()
@@ -35,8 +37,10 @@ export const DevtoolsView: FC = () => {
   const copyInspectorLink = () => {
     const windowUrl = new URL(window.location.href)
 
-    // URLSearchParams.set() handles encoding automatically, so we don't need encodeURIComponent
-    windowUrl.searchParams.set(DEVTOOL_TAB_PARAMS, pathname)
+    // The panel's own search string is part of the address: the events tab carries three of
+    // the four fields identifying the selected event there, so a pathname alone reopens the
+    // wrong row. URLSearchParams.set() handles encoding, so no encodeURIComponent here.
+    windowUrl.searchParams.set(DEVTOOL_TAB_PARAMS, `${pathname}${search}`)
     copyToClipboard(windowUrl.toString())
     addToast({
       severity: 'info',
@@ -92,6 +96,7 @@ export const DevtoolsView: FC = () => {
               startIcon="link"
               size="small"
               variant="quaternary"
+              data-test={DEVTOOLS_COPY_INSPECTOR_LINK_TEST_ID}
               onClick={() => copyInspectorLink()}
             >
               {translate('text_17460208605597iyd249v26z')}

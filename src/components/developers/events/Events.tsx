@@ -1,11 +1,15 @@
 import { gql } from '@apollo/client'
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { generatePath, useParams } from 'react-router-dom'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useParams, useSearchParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
-import { EVENT_LOG_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { EventDetails } from '~/components/developers/events/EventDetails'
+import {
+  buildEventLink,
+  parseEventKeyFromUrl,
+  serializeEventKey,
+} from '~/components/developers/events/eventKey'
 import { EventTable } from '~/components/developers/events/EventTable'
 import { ListSectionRef, LogsLayout } from '~/components/developers/LogsLayout'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
@@ -18,6 +22,8 @@ gql`
   fragment EventItem on Event {
     id
     transactionId
+    externalSubscriptionId
+    timestampMs
     code
     receivedAt
   }
@@ -39,7 +45,8 @@ gql`
 export const Events = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
-  const { '*': eventId } = useParams<{ '*': string }>()
+  const { '*': transactionId } = useParams<{ '*': string }>()
+  const [searchParams] = useSearchParams()
   const logListRef = useRef<ListSectionRef>(null)
 
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
@@ -51,43 +58,42 @@ export const Events = () => {
 
   const { data, loading, refetch } = getEventsResult
 
-  const navigateToFirstEvent = useCallback(
-    (eventCollection?: EventItemFragment[]) => {
-      if (eventCollection?.length) {
-        const firstEvent = eventCollection[0]
+  // Two events can share a transactionId, so the selected row is identified by the whole
+  // dedup tuple: the path carries the transactionId, the search params carry the rest.
+  const selectedEventKey = useMemo(
+    () => serializeEventKey(parseEventKeyFromUrl(transactionId, searchParams)),
+    [transactionId, searchParams],
+  )
 
-        if (firstEvent && getCurrentBreakpoint() !== 'sm') {
-          // We need to use the transactionId as the id because the eventId is not always available (for Clickhouse events)
-          navigate(
-            generatePath(EVENT_LOG_ROUTE, {
-              '*': firstEvent.transactionId as string,
-            }),
-            {
-              replace: true,
-            },
-          )
-        }
-      }
+  const navigateToFirstEvent = useCallback(
+    (eventCollection?: EventItemFragment[], currentSearchParams?: URLSearchParams) => {
+      const firstEvent = eventCollection?.[0]
+
+      if (!firstEvent || getCurrentBreakpoint() === 'sm') return
+
+      navigate(buildEventLink(firstEvent, currentSearchParams), { replace: true })
     },
     [navigate],
   )
 
-  // If no eventId is provided in params, navigate to the first event
+  // If no event is provided in params, navigate to the first event
   useEffect(() => {
-    if (!eventId) {
-      navigateToFirstEvent(data?.events?.collection)
+    if (!transactionId) {
+      navigateToFirstEvent(data?.events?.collection, searchParams)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data?.events?.collection, eventId])
+  }, [data?.events?.collection, transactionId, searchParams])
 
-  // The table should highlight the selected row when the eventId is provided in params
+  // `setActiveRow` writes a raw `data-state` attribute React does not manage, and the table
+  // keys its rows by index, so a new page reuses the same <tr> elements. The highlight has to
+  // be reapplied whenever the rows change, not only when the selected event does.
   useLayoutEffect(() => {
-    if (eventId) {
-      logListRef.current?.setActiveRow(eventId)
+    if (transactionId) {
+      logListRef.current?.setActiveRow(selectedEventKey)
     }
-  }, [eventId])
+  }, [transactionId, selectedEventKey, data?.events?.collection])
 
-  const shouldDisplayLogDetails = !!eventId && !!data?.events?.collection.length
+  const shouldDisplayLogDetails = !!transactionId && !!data?.events?.collection.length
 
   return (
     <div className="flex h-full flex-col not-last-child:shadow-b">
@@ -104,7 +110,7 @@ export const Events = () => {
           onClick={async () => {
             const result = await refetch()
 
-            navigateToFirstEvent(result.data?.events?.collection)
+            navigateToFirstEvent(result.data?.events?.collection, searchParams)
           }}
         >
           {translate('text_1738748043939zqoqzz350yj')}

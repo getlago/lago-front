@@ -32,8 +32,10 @@ const PageWrapper = ({ children, routeConfig }: PageWrapperProps) => {
       const url = new URL(window.location.href)
 
       url.pathname = '/'
-      // URLSearchParams.set() handles encoding automatically, so we don't need encodeURIComponent
-      url.searchParams.set(DEVTOOL_TAB_PARAMS, location.pathname)
+      // The search string is part of the devtools address, not decoration — the events tab
+      // keeps three of the four fields identifying the selected event there.
+      // URLSearchParams.set() handles encoding, so no encodeURIComponent here.
+      url.searchParams.set(DEVTOOL_TAB_PARAMS, `${location.pathname}${location.search}`)
       window.location.replace(url.toString())
     }
   }, [location])

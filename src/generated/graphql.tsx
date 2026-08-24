@@ -4145,6 +4145,7 @@ export type Event = {
   payload: Scalars['JSON']['output'];
   receivedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   timestamp?: Maybe<Scalars['ISO8601DateTime']['output']>;
+  timestampMs?: Maybe<Scalars['BigInt']['output']>;
   transactionId?: Maybe<Scalars['String']['output']>;
 };
 
@@ -8795,7 +8796,10 @@ export type QueryDunningCampaignsArgs = {
 
 
 export type QueryEventArgs = {
-  transactionId: Scalars['ID']['input'];
+  code?: InputMaybe<Scalars['String']['input']>;
+  externalSubscriptionId?: InputMaybe<Scalars['ID']['input']>;
+  timestampMs?: InputMaybe<Scalars['BigInt']['input']>;
+  transactionId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 
@@ -12683,16 +12687,19 @@ export type GetApiLogsQueryVariables = Exact<{
 
 export type GetApiLogsQuery = { __typename?: 'Query', apiLogs?: { __typename?: 'ApiLogCollection', collection: Array<{ __typename?: 'ApiLog', requestId: string, httpMethod: HttpMethodEnum, httpStatus: number, requestPath?: string | null, loggedAt: any }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } | null };
 
-export type EventDetailsFragment = { __typename?: 'Event', id: string, code: string, transactionId?: string | null, timestamp?: any | null, receivedAt?: any | null, payload: any, billableMetricName?: string | null, matchBillableMetric?: boolean | null, matchCustomField?: boolean | null, apiClient?: string | null, ipAddress?: string | null, externalSubscriptionId?: string | null, customerTimezone: TimezoneEnum };
+export type EventDetailsFragment = { __typename?: 'Event', id: string, code: string, transactionId?: string | null, timestamp?: any | null, timestampMs?: any | null, receivedAt?: any | null, payload: any, billableMetricName?: string | null, matchBillableMetric?: boolean | null, matchCustomField?: boolean | null, apiClient?: string | null, ipAddress?: string | null, externalSubscriptionId?: string | null, customerTimezone: TimezoneEnum };
 
 export type GetSingleEventQueryVariables = Exact<{
   transactionId: Scalars['ID']['input'];
+  externalSubscriptionId?: InputMaybe<Scalars['ID']['input']>;
+  timestampMs?: InputMaybe<Scalars['BigInt']['input']>;
+  code?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-export type GetSingleEventQuery = { __typename?: 'Query', event?: { __typename?: 'Event', id: string, code: string, transactionId?: string | null, timestamp?: any | null, receivedAt?: any | null, payload: any, billableMetricName?: string | null, matchBillableMetric?: boolean | null, matchCustomField?: boolean | null, apiClient?: string | null, ipAddress?: string | null, externalSubscriptionId?: string | null, customerTimezone: TimezoneEnum } | null };
+export type GetSingleEventQuery = { __typename?: 'Query', event?: { __typename?: 'Event', id: string, code: string, transactionId?: string | null, timestamp?: any | null, timestampMs?: any | null, receivedAt?: any | null, payload: any, billableMetricName?: string | null, matchBillableMetric?: boolean | null, matchCustomField?: boolean | null, apiClient?: string | null, ipAddress?: string | null, externalSubscriptionId?: string | null, customerTimezone: TimezoneEnum } | null };
 
-export type EventItemFragment = { __typename?: 'Event', id: string, transactionId?: string | null, code: string, receivedAt?: any | null };
+export type EventItemFragment = { __typename?: 'Event', id: string, transactionId?: string | null, externalSubscriptionId?: string | null, timestampMs?: any | null, code: string, receivedAt?: any | null };
 
 export type EventsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -12700,7 +12707,7 @@ export type EventsQueryVariables = Exact<{
 }>;
 
 
-export type EventsQuery = { __typename?: 'Query', events?: { __typename?: 'EventCollection', collection: Array<{ __typename?: 'Event', id: string, transactionId?: string | null, code: string, receivedAt?: any | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } | null };
+export type EventsQuery = { __typename?: 'Query', events?: { __typename?: 'EventCollection', collection: Array<{ __typename?: 'Event', id: string, transactionId?: string | null, externalSubscriptionId?: string | null, timestampMs?: any | null, code: string, receivedAt?: any | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } | null };
 
 export type WebhookLogDetailsFragment = { __typename?: 'Webhook', id: string, webhookType: string, status: WebhookStatusEnum, payload?: string | null, response?: string | null, httpStatus?: number | null, endpoint: string, retries: number, updatedAt: any };
 
@@ -18102,6 +18109,7 @@ export const EventDetailsFragmentDoc = gql`
   code
   transactionId
   timestamp
+  timestampMs
   receivedAt
   payload
   billableMetricName
@@ -18117,6 +18125,8 @@ export const EventItemFragmentDoc = gql`
     fragment EventItem on Event {
   id
   transactionId
+  externalSubscriptionId
+  timestampMs
   code
   receivedAt
 }
@@ -27561,8 +27571,13 @@ export type GetApiLogsLazyQueryHookResult = ReturnType<typeof useGetApiLogsLazyQ
 export type GetApiLogsSuspenseQueryHookResult = ReturnType<typeof useGetApiLogsSuspenseQuery>;
 export type GetApiLogsQueryResult = Apollo.QueryResult<GetApiLogsQuery, GetApiLogsQueryVariables>;
 export const GetSingleEventDocument = gql`
-    query getSingleEvent($transactionId: ID!) {
-  event(transactionId: $transactionId) {
+    query getSingleEvent($transactionId: ID!, $externalSubscriptionId: ID, $timestampMs: BigInt, $code: String) {
+  event(
+    transactionId: $transactionId
+    externalSubscriptionId: $externalSubscriptionId
+    timestampMs: $timestampMs
+    code: $code
+  ) {
     id
     ...EventDetails
   }
@@ -27582,6 +27597,9 @@ export const GetSingleEventDocument = gql`
  * const { data, loading, error } = useGetSingleEventQuery({
  *   variables: {
  *      transactionId: // value for 'transactionId'
+ *      externalSubscriptionId: // value for 'externalSubscriptionId'
+ *      timestampMs: // value for 'timestampMs'
+ *      code: // value for 'code'
  *   },
  * });
  */

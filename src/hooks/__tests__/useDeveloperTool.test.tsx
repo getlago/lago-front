@@ -166,6 +166,52 @@ describe('useDeveloperTool', () => {
     })
   })
 
+  describe('checkParamsFromUrl (devtool-tab bridge)', () => {
+    const openWith = (devtoolTab: string) => {
+      const params = new URLSearchParams({ 'devtool-tab': devtoolTab })
+
+      window.history.replaceState({}, '', `/?${params.toString()}`)
+
+      return renderHook(() => useDeveloperTool(), { wrapper })
+    }
+
+    describe('GIVEN a copied link whose devtools address carries search params', () => {
+      describe('WHEN the hook mounts', () => {
+        it('THEN it should reopen the panel on the full address, search string included', () => {
+          const address =
+            '/devtool/events/transaction-1?externalSubscriptionId=subscription-1&timestampMs=1740000000123&code=api_calls'
+
+          const { result } = openWith(address)
+
+          expect(result.current.url).toBe(address)
+          expect(mockOpenPanel).toHaveBeenCalled()
+        })
+      })
+    })
+
+    describe('GIVEN a devtools address containing a percent-encoded character', () => {
+      describe('WHEN the hook mounts', () => {
+        it('THEN it should not decode it a second time', () => {
+          const address = '/devtool/events/transaction%3F1?code=api_calls'
+
+          const { result } = openWith(address)
+
+          expect(result.current.url).toBe(address)
+        })
+      })
+    })
+
+    describe('GIVEN no devtool-tab param', () => {
+      describe('WHEN the hook mounts', () => {
+        it('THEN it should not open the panel', () => {
+          renderHook(() => useDeveloperTool(), { wrapper })
+
+          expect(mockOpenPanel).not.toHaveBeenCalled()
+        })
+      })
+    })
+  })
+
   describe('resetDevtoolsNavigation', () => {
     describe('GIVEN the devtools has navigated to a specific tab', () => {
       describe('WHEN resetDevtoolsNavigation is called', () => {

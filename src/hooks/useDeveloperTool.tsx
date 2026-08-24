@@ -91,15 +91,16 @@ export function useDeveloperTool(): DeveloperToolContextType {
   // We can copy/paste the URL of the devtools in the browser and it will open the devtools with the correct tab
   const checkParamsFromUrl = () => {
     const params = new URLSearchParams(window.location.search)
+    // `params.get` already percent-decodes; decoding twice corrupts any value that legitimately
+    // contains an escape, such as the percent-encoded transaction id of an event.
     const devtoolTab = params.get(DEVTOOL_TAB_PARAMS) ?? ''
-    const decodedDevtoolTab = decodeURIComponent(devtoolTab)
 
     const isValidUser = !!currentUser
 
-    if (decodedDevtoolTab && isValidUser) {
+    if (devtoolTab && isValidUser) {
       // Use setUrl to navigate in the MemoryRouter (devtools panel), not navigate() which would
       // navigate in the BrowserRouter
-      context?.setUrl(decodedDevtoolTab)
+      context?.setUrl(devtoolTab)
       context?.openPanel()
     }
 
