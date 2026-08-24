@@ -16,6 +16,7 @@ import { SubscriptionEntitlementsTabContent } from '~/components/subscriptions/S
 import { SubscriptionProgressiveBillingTab } from '~/components/subscriptions/SubscriptionProgressiveBillingTab/SubscriptionProgressiveBillingTab'
 import { SubscriptionUsageTabContent } from '~/components/subscriptions/SubscriptionUsageTabContent'
 import { addToast } from '~/core/apolloClient'
+import { isSubscriptionCancellation } from '~/core/constants/statusSubscriptionMapping'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   CREATE_ALERT_CUSTOMER_SUBSCRIPTION_ROUTE,
@@ -72,12 +73,14 @@ export const SUBSCRIPTION_DETAILS_ACTIONS_TEST_ID = 'subscription-details-action
 export const SUBSCRIPTION_DETAILS_UPGRADE_DOWNGRADE_TEST_ID =
   'subscription-details-upgrade-downgrade'
 export const SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID = 'subscription-details-terminate'
+export const SUBSCRIPTION_DETAILS_CANCEL_TEST_ID = 'subscription-details-cancel'
 
 const SubscriptionDetails = () => {
   const navigate = useNavigate()
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
-  const { canEditSubscription, isStatusEditable } = useSubscriptionPermissionsActions()
+  const { canEditSubscription, canTerminateSubscription, isStatusEditable } =
+    useSubscriptionPermissionsActions()
   const { planId = '', customerId = '', subscriptionId = '' } = useParams()
   const { translate } = useInternationalization()
   const { openTerminateCustomerSubscriptionDialog } = useTerminateCustomerSubscriptionDialog()
@@ -355,9 +358,13 @@ const SubscriptionDetails = () => {
           },
         },
         {
-          label: translate('text_62d904b97e690a881f2b867c'),
-          dataTest: SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID,
-          hidden: !canEditSubscription(subscription?.status),
+          label: isSubscriptionCancellation(subscription?.status)
+            ? translate('text_64a6d736c23125004817627f')
+            : translate('text_62d904b97e690a881f2b867c'),
+          dataTest: isSubscriptionCancellation(subscription?.status)
+            ? SUBSCRIPTION_DETAILS_CANCEL_TEST_ID
+            : SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID,
+          hidden: !canTerminateSubscription(subscription?.status),
           danger: true,
           onClick: (closePopper) => {
             openTerminateCustomerSubscriptionDialog({

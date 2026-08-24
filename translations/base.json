@@ -4691,5 +4691,6 @@
   "text_1787146745141j3ktrzyti2x": "the start date is invalid",
   "text_1787146745141wjbnbx6qx0k": "the end date must be a valid future date",
   "text_17871467451419agn4aantij": "the end date must be after the start date",
-  "text_1787216718467e8ca9iw2atm": "An amendment keeps the currency of the subscription it restates"
+  "text_1787216718467e8ca9iw2atm": "An amendment keeps the currency of the subscription it restates",
+  "text_1786964945244ww7yr3vukeh": "You’re about to cancel {{subscriptionName}} subscription. Its activation will stop and Lago will attempt to cancel the pending payment. Depending on its status, the payment provider may not allow it. Are you sure?"
 }
