@@ -4,57 +4,62 @@ import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
 import {
-  DeleteCustomerNetPaymentTermFragment,
-  useDeleteCustomerNetPaymentTermMutation,
+  DeleteCustomerPaymentTermFragment,
+  useDeleteCustomerPaymentTermMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
-  fragment DeleteCustomerNetPaymentTerm on Customer {
+  fragment DeleteCustomerPaymentTerm on Customer {
     id
     externalId
     name
     displayName
-    netPaymentTerm
+    paymentTerm {
+      termType
+      days
+      dayOfMonth
+      monthOffset
+    }
   }
 
-  mutation deleteCustomerNetPaymentTerm($input: UpdateCustomerInput!) {
+  mutation deleteCustomerPaymentTerm($input: UpdateCustomerInput!) {
     updateCustomer(input: $input) {
       id
-      ...DeleteCustomerNetPaymentTerm
+      ...DeleteCustomerPaymentTerm
     }
   }
 `
 
-type DeleteCustomerNetPaymentTermDialogData = {
-  customer: DeleteCustomerNetPaymentTermFragment
+type DeleteCustomerPaymentTermDialogData = {
+  customer: DeleteCustomerPaymentTermFragment
 }
 
-export const useDeleteCustomerNetPaymentTermDialog = (): {
-  openDeleteCustomerNetPaymentTermDialog: (data: DeleteCustomerNetPaymentTermDialogData) => void
+export const useDeleteCustomerPaymentTermDialog = (): {
+  openDeleteCustomerPaymentTermDialog: (data: DeleteCustomerPaymentTermDialogData) => void
 } => {
   const centralizedDialog = useCentralizedDialog()
   const { translate } = useInternationalization()
 
-  const [deleteCustomerNetPaymentTerm] = useDeleteCustomerNetPaymentTermMutation({
+  const [deleteCustomerPaymentTerm] = useDeleteCustomerPaymentTermMutation({
     onCompleted(data) {
       if (data && data.updateCustomer) {
         addToast({
-          message: translate('text_64c7a89b6c67eb6c98898357'),
+          message: translate('text_1787603382163macepxq32tf'),
           severity: 'success',
         })
       }
     },
   })
 
-  const openDeleteCustomerNetPaymentTermDialog = ({
+  const openDeleteCustomerPaymentTermDialog = ({
     customer,
-  }: DeleteCustomerNetPaymentTermDialogData): void => {
+  }: DeleteCustomerPaymentTermDialogData): void => {
     centralizedDialog.open({
-      title: translate('text_64c7a89b6c67eb6c988980db'),
+      title: translate('text_1787603382163xl4mmi1owjh'),
       description: (
         <Typography
-          html={translate('text_64c7a89b6c67eb6c988980f9', {
+          html={translate('text_1787603382163x1yp1dfhgcb', {
             customerName: `<span class="line-break-anywhere">${customer?.displayName}</span>`,
           })}
         />
@@ -62,11 +67,12 @@ export const useDeleteCustomerNetPaymentTermDialog = (): {
       colorVariant: 'danger',
       actionText: translate('text_64c7a89b6c67eb6c98898133'),
       onAction: async () => {
-        await deleteCustomerNetPaymentTerm({
+        // Clearing the term makes the customer inherit from the billing entity again.
+        await deleteCustomerPaymentTerm({
           variables: {
             input: {
               id: customer.id,
-              netPaymentTerm: null,
+              paymentTerm: null,
               externalId: customer.externalId,
               name: customer.name || '',
             },
@@ -76,5 +82,5 @@ export const useDeleteCustomerNetPaymentTermDialog = (): {
     })
   }
 
-  return { openDeleteCustomerNetPaymentTermDialog }
+  return { openDeleteCustomerPaymentTermDialog }
 }
