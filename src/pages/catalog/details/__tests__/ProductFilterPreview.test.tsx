@@ -1,5 +1,13 @@
 import { MockedResponse } from '@apollo/client/testing'
-import { act, fireEvent, render as rtlRender, screen, waitFor } from '@testing-library/react'
+import {
+  act,
+  configure,
+  fireEvent,
+  getConfig,
+  render as rtlRender,
+  screen,
+  waitFor,
+} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import {
@@ -7,6 +15,7 @@ import {
   ProductFilterForListFragment,
   ProductForFilterPreviewFragment,
 } from '~/generated/graphql'
+import { DEBOUNCE_SEARCH_MS } from '~/hooks/useDebouncedSearch'
 import { AllTheProviders } from '~/test-utils'
 
 import ProductFilterPreview, {
@@ -119,9 +128,25 @@ const renderPreview = (
   })
 
 describe('ProductFilterPreview', () => {
+  // Every case here renders behind useDebouncedSearch's loading-blink timer, which burns up
+  // to DEBOUNCE_SEARCH_MS of real time before rows paint. RTL's 1s default leaves almost no
+  // headroom for that on a loaded CI runner, so widen it for this file only.
+  const originalAsyncUtilTimeout = getConfig().asyncUtilTimeout
+
+  beforeAll(() => {
+    configure({ asyncUtilTimeout: 5000 })
+  })
+
+  afterAll(() => {
+    configure({ asyncUtilTimeout: originalAsyncUtilTimeout })
+  })
   beforeEach(() => {
     jest.clearAllMocks()
     mockHasPermissions.mockReturnValue(true)
+  })
+
+  afterEach(() => {
+    jest.useRealTimers()
   })
 
   it('renders up to the preview limit of rows returned by the scoped query', async () => {
@@ -137,6 +162,11 @@ describe('ProductFilterPreview', () => {
   })
 
   it('re-runs the query with the search term when the user searches', async () => {
+    // The search runs through useDebouncedSearch, which burns DEBOUNCE_SEARCH_MS on a real
+    // timer plus a second delay in its loading-blink guard. Waiting that out on the wall
+    // clock makes the assertion race CI load, so drive the timers explicitly instead.
+    jest.useFakeTimers()
+
     await act(() =>
       renderPreview([
         filtersQueryMock({ productId: PRODUCT_ITEM_ID, limit: 7 }, [buildRow(1)], 1),
@@ -152,7 +182,16 @@ describe('ProductFilterPreview', () => {
       target: { value: 'region' },
     })
 
-    expect(await screen.findByText('Searched region', {}, { timeout: 3000 })).toBeInTheDocument()
+    // First pass fires the debounced query, second flushes the mocked link and the
+    // loading-blink timeout that gates the result render.
+    await act(async () => {
+      jest.advanceTimersByTime(DEBOUNCE_SEARCH_MS)
+    })
+    await act(async () => {
+      jest.advanceTimersByTime(DEBOUNCE_SEARCH_MS)
+    })
+
+    expect(screen.getByText('Searched region')).toBeInTheDocument()
   })
 
   it('shows the view-all link deep-linked to this product when the total exceeds the preview limit', async () => {
