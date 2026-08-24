@@ -3,8 +3,8 @@ import { DateTime } from 'luxon'
 import {
   buildPaymentTermInput,
   paymentTermDueDate,
-  resolvePaymentTerm,
   ResolvablePaymentTerm,
+  resolvePaymentTerm,
 } from '~/core/utils/paymentTerm'
 import { PaymentTermTypeEnum } from '~/generated/graphql'
 
@@ -62,20 +62,23 @@ describe('paymentTerm', () => {
 
     describe('day of month clamping', () => {
       it.each`
-        issuingDate     | dayOfMonth | monthOffset | expected         | because
-        ${'2026-08-15'} | ${31}      | ${1}        | ${'2026-09-30'}  | ${'September has 30 days'}
-        ${'2026-01-15'} | ${31}      | ${1}        | ${'2026-02-28'}  | ${'February 2026 has 28 days'}
-        ${'2028-01-15'} | ${31}      | ${1}        | ${'2028-02-29'}  | ${'February 2028 is a leap year'}
-        ${'2026-07-15'} | ${15}      | ${1}        | ${'2026-08-15'}  | ${'a mid-month day never clamps'}
-      `('clamps to $expected because $because', ({ issuingDate, dayOfMonth, monthOffset, expected }) => {
-        expect(
-          dueDate(issuingDate, {
-            termType: PaymentTermTypeEnum.DayOfMonth,
-            dayOfMonth,
-            monthOffset,
-          }),
-        ).toBe(expected)
-      })
+        issuingDate     | dayOfMonth | monthOffset | expected        | because
+        ${'2026-08-15'} | ${31}      | ${1}        | ${'2026-09-30'} | ${'September has 30 days'}
+        ${'2026-01-15'} | ${31}      | ${1}        | ${'2026-02-28'} | ${'February 2026 has 28 days'}
+        ${'2028-01-15'} | ${31}      | ${1}        | ${'2028-02-29'} | ${'February 2028 is a leap year'}
+        ${'2026-07-15'} | ${15}      | ${1}        | ${'2026-08-15'} | ${'a mid-month day never clamps'}
+      `(
+        'clamps to $expected because $because',
+        ({ issuingDate, dayOfMonth, monthOffset, expected }) => {
+          expect(
+            dueDate(issuingDate, {
+              termType: PaymentTermTypeEnum.DayOfMonth,
+              dayOfMonth,
+              monthOffset,
+            }),
+          ).toBe(expected)
+        },
+      )
     })
 
     describe('day of month roll forward', () => {
@@ -147,9 +150,9 @@ describe('paymentTerm', () => {
         }),
       ).toEqual({ termType: PaymentTermTypeEnum.DueOnReceipt })
 
-      expect(
-        buildPaymentTermInput({ termType: PaymentTermTypeEnum.EndOfMonth, days: 30 }),
-      ).toEqual({ termType: PaymentTermTypeEnum.EndOfMonth })
+      expect(buildPaymentTermInput({ termType: PaymentTermTypeEnum.EndOfMonth, days: 30 })).toEqual(
+        { termType: PaymentTermTypeEnum.EndOfMonth },
+      )
     })
 
     it.each([
@@ -157,10 +160,12 @@ describe('paymentTerm', () => {
       PaymentTermTypeEnum.NetEndOfMonth,
       PaymentTermTypeEnum.DaysEndOfMonth,
     ])('sends only days for %s', (termType) => {
-      expect(buildPaymentTermInput({ termType, days: 30, dayOfMonth: 12, monthOffset: 2 })).toEqual({
-        termType,
-        days: 30,
-      })
+      expect(buildPaymentTermInput({ termType, days: 30, dayOfMonth: 12, monthOffset: 2 })).toEqual(
+        {
+          termType,
+          days: 30,
+        },
+      )
     })
 
     it('sends only the day of month fields for a day of month term', () => {
