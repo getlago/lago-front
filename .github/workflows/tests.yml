@@ -10,10 +10,6 @@ on:
       - main
 
 jobs:
-  # Jest transpiles without type-checking and the codegen workflow (which runs
-  # tsc) only triggers on pull requests, so a type error produced by the MERGE
-  # of two individually green PRs lands on main unseen. This job runs on main
-  # pushes too, so it surfaces immediately instead of on the next PR.
   typecheck:
     if: github.event.pull_request.draft == false || github.event_name == 'push'
     name: Typecheck
