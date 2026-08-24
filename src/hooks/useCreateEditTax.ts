@@ -75,7 +75,7 @@ export const useCreateEditTax: () => useCreateEditTaxReturn = () => {
   const navigate = useNavigate()
   const { taxId } = useParams()
   const { data, loading, error } = useGetSingleTaxQuery({
-    context: { silentError: LagoApiError.NotFound },
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
     variables: { id: taxId as string },
     skip: !taxId,
   })
