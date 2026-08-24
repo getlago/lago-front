@@ -19,6 +19,7 @@ import {
   type SubscriptionPricingState,
   toPlanBillingItems,
 } from '~/core/serializers/serializeQuotePlanBillingItems'
+import { ResolvablePaymentTerm } from '~/core/utils/paymentTerm'
 import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import type { SavePricingResult } from '~/pages/quotes/EditQuote'
@@ -42,7 +43,7 @@ export interface QuoteCustomer {
 
 export interface SubscriptionPricingDrawerOptions {
   customer?: QuoteCustomer | null
-  netPaymentTerm?: number | null
+  paymentTerm?: ResolvablePaymentTerm | null
   subscriptionId?: string
   /** Currency used to display amounts — may be a customer/organization fallback. */
   currency?: CurrencyEnum | null
@@ -219,7 +220,7 @@ export const useSubscriptionPricingDrawer = (
             basePlanFormValuesRef={basePlanFormValuesRef}
             initialState={initialStateRef.current}
             customer={options?.customer}
-            netPaymentTerm={options?.netPaymentTerm}
+            paymentTerm={options?.paymentTerm}
             currency={options?.currency}
             hasQuoteCurrency={options?.hasQuoteCurrency}
             billingItemPlan={billingItemPlan}

@@ -4,7 +4,7 @@ import type { PlanFormInput } from '~/components/plans/types'
 import { addToast } from '~/core/apolloClient'
 import type { BillingItemsPayload } from '~/core/serializers/serializeQuoteBillingItems'
 import type { SubscriptionPricingState } from '~/core/serializers/serializeQuotePlanBillingItems'
-import { CurrencyEnum, PlanInterval } from '~/generated/graphql'
+import { CurrencyEnum, PaymentTermTypeEnum, PlanInterval } from '~/generated/graphql'
 import { QUOTE_SAVE_FAILED_TOAST_KEY } from '~/pages/quotes/utils/quoteSaveErrorKeys'
 import { render } from '~/test-utils'
 
@@ -696,7 +696,9 @@ describe('useSubscriptionPricingDrawer', () => {
   })
   it('passes the resolved payment term down to the drawer content', () => {
     const { result } = renderHook(() =>
-      useSubscriptionPricingDrawer(undefined, { netPaymentTerm: 30 }),
+      useSubscriptionPricingDrawer(undefined, {
+        paymentTerm: { termType: PaymentTermTypeEnum.Net, days: 30 },
+      }),
     )
 
     act(() => {
@@ -705,6 +707,9 @@ describe('useSubscriptionPricingDrawer', () => {
 
     const openArgs = mockDrawerOpen.mock.calls[0][0]
 
-    expect(openArgs.children.props.netPaymentTerm).toBe(30)
+    expect(openArgs.children.props.paymentTerm).toEqual({
+      termType: PaymentTermTypeEnum.Net,
+      days: 30,
+    })
   })
 })

@@ -51,7 +51,6 @@
   "text_66b378e748cda1004ff00db0": "你好 {{customerName}},",
   "text_66b378e748cda1004ff00db1": "{{organizationName}} 財務團隊在此提醒您, 部分發票已逾期未付款.",
   "text_66b378e748cda1004ff00db2": "應付總金額為 {{amount}}.",
-  "text_66b378e748cda1004ff00db3": "我們合約約定的付款條款要求於發票生成時付款.|我們合約約定的付款條款為 {{netPaymentTerm}} 天.|我們合約約定的付款條款為 {{netPaymentTerm}} 天.",
   "text_66b378e748cda1004ff00db4": "若您已完成付款, 請忽略此電子郵件.",
   "text_66b378e748cda1004ff00db5": "謝謝.",
   "text_66b378e748cda1004ff00db6": "應付餘額",
