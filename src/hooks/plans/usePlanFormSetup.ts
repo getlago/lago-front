@@ -143,7 +143,7 @@ export const usePlanFormSetup = ({
   // silently drop from the overrides every term that still matches it.
   const catalogPlanId = basePlan?.parent?.id
   const { data: catalogPlanData } = useGetSinglePlanQuery({
-    context: { silentError: LagoApiError.NotFound },
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
     variables: { id: catalogPlanId as string },
     skip: !catalogPlanId,
   })
