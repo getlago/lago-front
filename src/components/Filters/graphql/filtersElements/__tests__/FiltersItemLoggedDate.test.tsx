@@ -49,7 +49,7 @@ describe('FiltersItemLoggedDate', () => {
       })
     })
 
-    describe('WHEN the from date is changed', () => {
+    describe('WHEN the from date is changed to a date before the to date', () => {
       it('THEN should call setFilterValue keeping the existing to date', () => {
         const { setFilterValue } = renderComponent(
           '2024-01-01T00:00:00.000Z,2024-01-31T23:59:59.999Z',
@@ -57,15 +57,15 @@ describe('FiltersItemLoggedDate', () => {
 
         const [fromInput] = screen.getAllByRole('textbox')
 
-        fireEvent.change(fromInput, { target: { value: '02/15/2024' } })
+        fireEvent.change(fromInput, { target: { value: '01/15/2024' } })
 
         expect(setFilterValue).toHaveBeenCalledWith(
-          '2024-02-15T00:00:00.000Z,2024-01-31T23:59:59.999Z',
+          '2024-01-15T00:00:00.000Z,2024-01-31T23:59:59.999Z',
         )
       })
     })
 
-    describe('WHEN the to date is changed', () => {
+    describe('WHEN the to date is changed to a date after the from date', () => {
       it('THEN should call setFilterValue keeping the existing from date', () => {
         const { setFilterValue } = renderComponent(
           '2024-01-01T00:00:00.000Z,2024-01-31T23:59:59.999Z',
@@ -77,6 +77,37 @@ describe('FiltersItemLoggedDate', () => {
 
         expect(setFilterValue).toHaveBeenCalledWith(
           '2024-01-01T00:00:00.000Z,2024-02-15T23:59:59.999Z',
+        )
+      })
+    })
+    describe('WHEN the from date is changed to a date after the to date', () => {
+      it('THEN should clamp the to date instead of persisting an inverted range', () => {
+        const { setFilterValue } = renderComponent(
+          '2024-01-01T00:00:00.000Z,2024-01-15T23:59:59.999Z',
+        )
+
+        const [fromInput] = screen.getAllByRole('textbox')
+
+        fireEvent.change(fromInput, { target: { value: '02/15/2024' } })
+
+        expect(setFilterValue).toHaveBeenCalledWith(
+          '2024-02-15T00:00:00.000Z,2024-02-15T23:59:59.999Z',
+        )
+      })
+    })
+
+    describe('WHEN the to date is changed to a date before the from date', () => {
+      it('THEN should clamp the from date instead of persisting an inverted range', () => {
+        const { setFilterValue } = renderComponent(
+          '2024-01-15T00:00:00.000Z,2024-01-31T23:59:59.999Z',
+        )
+
+        const toInput = screen.getAllByRole('textbox')[1]
+
+        fireEvent.change(toInput, { target: { value: '01/05/2024' } })
+
+        expect(setFilterValue).toHaveBeenCalledWith(
+          '2024-01-05T00:00:00.000Z,2024-01-05T23:59:59.999Z',
         )
       })
     })

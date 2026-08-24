@@ -1,6 +1,5 @@
-import { DateTime } from 'luxon'
-
 import { Typography } from '~/components/designSystem/Typography'
+import { useDateRangeFilterValue } from '~/components/Filters/graphql/filtersElements/useDateRangeFilterValue'
 import { FiltersFormValues } from '~/components/Filters/presentation/types'
 import { DatePicker } from '~/components/form'
 import { getTimezoneConfig } from '~/core/timezone'
@@ -14,7 +13,8 @@ type FiltersItemDateProps = {
 
 export const FiltersItemDate = ({ value = ',', setFilterValue }: FiltersItemDateProps) => {
   const { translate } = useInternationalization()
-  const [givenValueFrom, givenValueTo] = value.split(',')
+  const { from, to, maxFromDate, minToDate, handleFromChange, handleToChange } =
+    useDateRangeFilterValue({ value, setFilterValue })
 
   return (
     <div className="flex items-center gap-2 lg:gap-3">
@@ -22,10 +22,9 @@ export const FiltersItemDate = ({ value = ',', setFilterValue }: FiltersItemDate
         showErrorInTooltip
         className="flex-1"
         defaultZone={getTimezoneConfig(TimezoneEnum.TzUtc).name}
-        onChange={(dateFrom) => {
-          setFilterValue(`${DateTime.fromISO(dateFrom as string).startOf('day')},${givenValueTo}`)
-        }}
-        value={givenValueFrom}
+        maxDate={maxFromDate}
+        onChange={handleFromChange}
+        value={from}
       />
       <Typography variant="body" color="grey700">
         <div className="block lg:hidden">-</div>
@@ -37,10 +36,9 @@ export const FiltersItemDate = ({ value = ',', setFilterValue }: FiltersItemDate
         showErrorInTooltip
         className="flex-1"
         defaultZone={getTimezoneConfig(TimezoneEnum.TzUtc).name}
-        onChange={(dateTo) => {
-          setFilterValue(`${givenValueFrom},${DateTime.fromISO(dateTo as string).endOf('day')}`)
-        }}
-        value={givenValueTo}
+        minDate={minToDate}
+        onChange={handleToChange}
+        value={to}
       />
     </div>
   )

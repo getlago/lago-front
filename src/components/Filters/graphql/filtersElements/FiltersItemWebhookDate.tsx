@@ -1,6 +1,5 @@
-import { DateTime } from 'luxon'
-
 import { Typography } from '~/components/designSystem/Typography'
+import { useDateRangeFilterValue } from '~/components/Filters/graphql/filtersElements/useDateRangeFilterValue'
 import { FiltersFormValues } from '~/components/Filters/presentation/types'
 import { DatePicker } from '~/components/form'
 import { getTimezoneConfig } from '~/core/timezone'
@@ -19,40 +18,8 @@ export const FiltersItemWebhookDate = ({
   const { translate } = useInternationalization()
   const { timezone } = useOrganizationInfos()
   const defaultZone = getTimezoneConfig(timezone).name
-
-  const [givenValueFrom, givenValueTo] = value.split(',')
-
-  const handleFromChange = (dateFrom: unknown) => {
-    const from = DateTime.fromISO(dateFrom as string).startOf('day')
-
-    // If fromDate > toDate, adjust toDate to end of fromDate day
-    if (givenValueTo) {
-      const to = DateTime.fromISO(givenValueTo)
-
-      if (from > to) {
-        setFilterValue(`${from.toISO()},${from.endOf('day').toISO()}`)
-        return
-      }
-    }
-
-    setFilterValue(`${from.toISO()},${givenValueTo}`)
-  }
-
-  const handleToChange = (dateTo: unknown) => {
-    const to = DateTime.fromISO(dateTo as string).endOf('day')
-
-    // If toDate < fromDate, adjust fromDate to start of toDate day
-    if (givenValueFrom) {
-      const from = DateTime.fromISO(givenValueFrom)
-
-      if (to < from) {
-        setFilterValue(`${to.startOf('day').toISO()},${to.toISO()}`)
-        return
-      }
-    }
-
-    setFilterValue(`${givenValueFrom},${to.toISO()}`)
-  }
+  const { from, to, maxFromDate, minToDate, handleFromChange, handleToChange } =
+    useDateRangeFilterValue({ value, setFilterValue })
 
   return (
     <div className="flex items-center gap-2 lg:gap-3">
@@ -62,8 +29,9 @@ export const FiltersItemWebhookDate = ({
         placement="auto"
         className="flex-1"
         defaultZone={defaultZone}
+        maxDate={maxFromDate}
         onChange={handleFromChange}
-        value={givenValueFrom}
+        value={from}
       />
       <Typography variant="body" color="grey700">
         <div className="block lg:hidden">-</div>
@@ -77,8 +45,9 @@ export const FiltersItemWebhookDate = ({
         placement="auto"
         className="flex-1"
         defaultZone={defaultZone}
+        minDate={minToDate}
         onChange={handleToChange}
-        value={givenValueTo}
+        value={to}
       />
     </div>
   )

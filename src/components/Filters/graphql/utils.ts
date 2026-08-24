@@ -166,6 +166,23 @@ export const escapeFilterLabel = (label: string): string =>
 export const unescapeFilterLabel = (label: string): string =>
   label.split(filterDataLabelCommaPlaceholder).join(',')
 
+/**
+ * A `from,to` date range filter value is only applicable when both bounds parse and are
+ * ordered. Guards the panel against inverted ranges reaching the query, whichever way they
+ * got in (typed date, cleared bound, hand-edited URL) — the API answers them with no results.
+ */
+export const isValidDateRangeValue = (value?: string): boolean => {
+  if (!value) return false
+
+  const [from, to] = value.split(',')
+  const fromDate = DateTime.fromISO(from)
+  const toDate = DateTime.fromISO(to)
+
+  if (!fromDate.isValid || !toDate.isValid) return false
+
+  return fromDate <= toDate
+}
+
 export const FiltersItemDates = [
   AvailableFiltersEnum.date,
   AvailableFiltersEnum.issuingDate,

@@ -1,6 +1,5 @@
-import { DateTime } from 'luxon'
-
 import { Typography } from '~/components/designSystem/Typography'
+import { useDateRangeFilterValue } from '~/components/Filters/graphql/filtersElements/useDateRangeFilterValue'
 import { FiltersFormValues } from '~/components/Filters/presentation/types'
 import { DatePicker } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -15,19 +14,17 @@ export const FiltersItemIssuingDate = ({
   setFilterValue,
 }: FiltersItemIssuingDateProps) => {
   const { translate } = useInternationalization()
+  const { from, to, maxFromDate, minToDate, handleFromChange, handleToChange } =
+    useDateRangeFilterValue({ value, setFilterValue })
 
   return (
     <div className="flex items-center gap-2 lg:gap-3">
       <DatePicker
         showErrorInTooltip
         className="flex-1"
-        onChange={(issuingDateFrom) => {
-          // replace the value.split(',')[0] with the new value
-          setFilterValue(
-            `${DateTime.fromISO(issuingDateFrom as string).startOf('day')},${value.split(',')[1]}`,
-          )
-        }}
-        value={value.split(',')[0]}
+        maxDate={maxFromDate}
+        onChange={handleFromChange}
+        value={from}
       />
       <Typography variant="body" color="grey700">
         <div className="block lg:hidden">-</div>
@@ -38,13 +35,9 @@ export const FiltersItemIssuingDate = ({
       <DatePicker
         showErrorInTooltip
         className="flex-1"
-        onChange={(issuingDateTo) => {
-          // replace the value.split(',')[1] with the new value
-          setFilterValue(
-            `${value.split(',')[0]},${DateTime.fromISO(issuingDateTo as string).endOf('day')}`,
-          )
-        }}
-        value={value.split(',')[1]}
+        minDate={minToDate}
+        onChange={handleToChange}
+        value={to}
       />
     </div>
   )
