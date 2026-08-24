@@ -10,11 +10,15 @@ set -euo pipefail
 # owner of worktree create/destroy. Wired from the committed team config
 # .conductor/settings.toml:
 #   [scripts.run.container] command = "$CONDUCTOR_WORKSPACE_PATH/scripts/conductor-front-container.sh up"
-#   scripts.archive        = "$CONDUCTOR_WORKSPACE_PATH/scripts/conductor-front-container.sh down"
+#   scripts.archive        = "$CONDUCTOR_ROOT_PATH/scripts/conductor-front-container.sh down"
 #
-# The script is located via $CONDUCTOR_WORKSPACE_PATH (set by Conductor for every
-# script, including the headless archive hook) rather than a user shell var like
-# $LAGO_PATH, which is not present in Conductor's non-interactive script env.
+# The run scripts are located via $CONDUCTOR_WORKSPACE_PATH so a branch-local edit
+# to this file is what actually runs. The archive hook instead resolves it from
+# $CONDUCTOR_ROOT_PATH (the main clone): a workspace whose branch predates the
+# commit that added this file has no copy in its checkout, and by archive time the
+# workspace directory may already be gone. Either way $CONDUCTOR_ROOT_PATH is a
+# Conductor-provided var, not a user shell var like $LAGO_PATH, which is not
+# present in Conductor's non-interactive script env.
 #
 # Prerequisites:
 #   - the main Lago Docker stack is running (`lago up -d`)
@@ -24,7 +28,10 @@ set -euo pipefail
 CMD="${1:-}"
 
 NAME="${CONDUCTOR_WORKSPACE_NAME:?CONDUCTOR_WORKSPACE_NAME is required (run via Conductor)}"
-WS="${CONDUCTOR_WORKSPACE_PATH:?CONDUCTOR_WORKSPACE_PATH is required (run via Conductor)}"
+# Optional: `down` works purely off the generated compose file (kept outside the
+# workspace), so archiving still tears the container down after the workspace
+# directory is gone. up/shell/host require it, see require_ws.
+WS="${CONDUCTOR_WORKSPACE_PATH:-}"
 ROOT="${CONDUCTOR_ROOT_PATH:?CONDUCTOR_ROOT_PATH is required (run via Conductor)}"
 PORT="${CONDUCTOR_PORT:-8080}"
 
@@ -32,6 +39,13 @@ LAGO_PATH="$(cd "$ROOT/.." && pwd)"
 COMPOSE_DIR="$LAGO_PATH/.conductor-front-containers"
 SAN="$(echo "$NAME" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/_/g')"
 COMPOSE_FILE="$COMPOSE_DIR/${SAN}.yml"
+
+require_ws() {
+  [[ -d "$WS" ]] || {
+    echo "CONDUCTOR_WORKSPACE_PATH must point at an existing directory (got: ${WS:-<unset>})" >&2
+    exit 1
+  }
+}
 
 gen_compose() {
   mkdir -p "$COMPOSE_DIR"
@@ -138,16 +152,54 @@ cmd_up() {
   docker compose -f "$COMPOSE_FILE" logs -f
 }
 
-cmd_down() {
-  if [[ -f "$COMPOSE_FILE" ]]; then
-    docker compose -f "$COMPOSE_FILE" down -v
-    rm -f "$COMPOSE_FILE"
-  else
-    # No compose file (e.g. deleted manually) — still remove the container and
-    # its named volumes directly so nothing is left orphaned.
-    docker rm -f "lago_front_ct_${SAN}" >/dev/null 2>&1 || true
-    docker volume rm "front_nm_ct_${SAN}" "front_dist_ct_${SAN}" >/dev/null 2>&1 || true
+# Tear down one compose project by its sanitised name, compose file or not.
+teardown_san() {
+  # Two statements: bash expands the whole `local` line before assigning, so
+  # referencing $san in the same statement trips `set -u`.
+  local san="$1"
+  local file="$COMPOSE_DIR/${san}.yml"
+  if [[ -f "$file" ]] && docker compose -f "$file" down -v; then
+    rm -f "$file"
+    return
   fi
+
+  # Docker itself unreachable (daemon down, CLI missing): there is nothing to
+  # remove right now and dropping the compose file would lose the only record of
+  # what to clean up, so warn and leave it. Never fail: this runs from the archive
+  # hook, where a teardown error would surface as a failed archive.
+  if ! docker info >/dev/null 2>&1; then
+    echo "warn: docker unreachable, leaving '${san}' teardown for later." >&2
+    return
+  fi
+
+  # No compose file (deleted manually), or it no longer parses (stale format from
+  # an older revision of this script): remove the container and its named volumes
+  # directly so nothing is left orphaned.
+  rm -f "$file"
+  docker rm -f "lago_front_ct_${san}" >/dev/null 2>&1 || true
+  docker volume rm "front_nm_ct_${san}" "front_dist_ct_${san}" >/dev/null 2>&1 || true
+}
+
+cmd_down() {
+  teardown_san "$SAN"
+
+  # The compose project is named after CONDUCTOR_WORKSPACE_NAME at `up` time, so
+  # renaming the workspace afterwards makes $SAN miss the project that is actually
+  # running and orphans its node_modules volume (~600MB each). Also tear down any
+  # other compose project whose /app mount is this workspace, so a rename between
+  # `up` and archive still cleans up.
+  if [[ -n "$WS" && -d "$COMPOSE_DIR" ]]; then
+    local file other
+    for file in "$COMPOSE_DIR"/*.yml; do
+      [[ -f "$file" ]] || continue
+      grep -qF -- "${WS}:/app:cached" "$file" || continue
+      other="$(basename "$file" .yml)"
+      if [[ "$other" == "$SAN" ]]; then continue; fi
+      echo "Also tearing down stale project '$other' for this workspace (renamed since 'up')."
+      teardown_san "$other"
+    done
+  fi
+
   echo "Removed front container for '$NAME'."
 }
 
@@ -202,10 +254,10 @@ cmd_host() {
 }
 
 case "$CMD" in
-  up) cmd_up ;;
+  up) require_ws; cmd_up ;;
   down) cmd_down ;;
-  shell) cmd_shell ;;
-  host) cmd_host ;;
+  shell) require_ws; cmd_shell ;;
+  host) require_ws; cmd_host ;;
   *)
     echo "Usage: conductor-front-container.sh {up|down|shell|host}" >&2
     exit 1
