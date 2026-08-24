@@ -14,10 +14,16 @@ type DateRangeFilterFieldsProps = {
   placement?: DatePickerProps['placement']
 }
 
-const parseBound = (isoDate?: string | null): DateTime | undefined => {
+/**
+ * Bounds are parsed in the pickers' own zone, not the ambient Luxon one. `DatePicker` only
+ * switches `Settings.defaultZone` from an effect, so during the first render the ambient zone
+ * is still the organization's — which would put a UTC-backed bound on the previous calendar
+ * day and cap the calendars one day off.
+ */
+const parseBound = (isoDate?: string | null, zone?: string): DateTime | undefined => {
   if (!isoDate) return undefined
 
-  const parsed = DateTime.fromISO(isoDate)
+  const parsed = DateTime.fromISO(isoDate, { zone })
 
   return parsed.isValid ? parsed : undefined
 }
@@ -42,11 +48,11 @@ export const DateRangeFilterFields = ({
   const { translate } = useInternationalization()
 
   const [from, to] = value.split(',')
-  const fromDate = parseBound(from)
-  const toDate = parseBound(to)
+  const fromDate = parseBound(from, defaultZone)
+  const toDate = parseBound(to, defaultZone)
 
   const handleFromChange = (dateFrom?: string | null): void => {
-    const newFrom = parseBound(dateFrom)?.startOf('day')
+    const newFrom = parseBound(dateFrom, defaultZone)?.startOf('day')
 
     if (!newFrom) {
       setFilterValue(`,${to}`)
@@ -63,7 +69,7 @@ export const DateRangeFilterFields = ({
   }
 
   const handleToChange = (dateTo?: string | null): void => {
-    const newTo = parseBound(dateTo)?.endOf('day')
+    const newTo = parseBound(dateTo, defaultZone)?.endOf('day')
 
     if (!newTo) {
       setFilterValue(`${from},`)

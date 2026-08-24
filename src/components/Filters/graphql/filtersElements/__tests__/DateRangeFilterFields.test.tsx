@@ -188,6 +188,65 @@ describe('DateRangeFilterFields', () => {
     })
   })
 
+  describe('GIVEN a UTC-backed filter in an organization on another timezone', () => {
+    const value = '2024-01-01T00:00:00.000Z,2024-01-31T23:59:59.999Z'
+
+    const renderInAmbientZone = (
+      ambientZone: string,
+    ): { fromPicker: DatePickerProps; toPicker: DatePickerProps; setFilterValue: jest.Mock } => {
+      // DatePicker only switches Settings.defaultZone from an effect, so the first render sees
+      // the organization's zone — which UserIdentifier sets app-wide.
+      Settings.defaultZone = ambientZone
+
+      const setFilterValue = jest.fn()
+
+      render(
+        <DateRangeFilterFields value={value} setFilterValue={setFilterValue} defaultZone="UTC" />,
+        { wrapper: AllTheProviders },
+      )
+
+      const [fromPicker, toPicker] = recordedProps
+
+      return { fromPicker, toPicker, setFilterValue }
+    }
+
+    afterEach(() => {
+      Settings.defaultZone = 'UTC'
+    })
+
+    describe('WHEN the ambient zone is behind UTC', () => {
+      it('THEN should keep the calendar bounds on the UTC calendar day', () => {
+        const { fromPicker, toPicker } = renderInAmbientZone('America/Los_Angeles')
+
+        expect(toPicker.minDate?.day).toBe(1)
+        expect(toPicker.minDate?.month).toBe(1)
+        expect(fromPicker.maxDate?.day).toBe(31)
+        expect(fromPicker.maxDate?.month).toBe(1)
+      })
+    })
+
+    describe('WHEN the ambient zone is ahead of UTC', () => {
+      it('THEN should keep the calendar bounds on the UTC calendar day', () => {
+        const { fromPicker, toPicker } = renderInAmbientZone('Asia/Tokyo')
+
+        expect(toPicker.minDate?.day).toBe(1)
+        expect(fromPicker.maxDate?.day).toBe(31)
+      })
+    })
+
+    describe('WHEN a bound is picked while the ambient zone still differs', () => {
+      it('THEN should write the day boundaries in the picker zone, not the ambient one', () => {
+        const { toPicker, setFilterValue } = renderInAmbientZone('America/Los_Angeles')
+
+        toPicker.onChange('2024-02-15T00:00:00.000Z')
+
+        expect(setFilterValue).toHaveBeenCalledWith(
+          '2024-01-01T00:00:00.000Z,2024-02-15T23:59:59.999Z',
+        )
+      })
+    })
+  })
+
   describe('GIVEN an unparsable bound, as a hand-edited URL would produce', () => {
     const value = 'not-a-date,2024-01-31T23:59:59.999Z'
 
