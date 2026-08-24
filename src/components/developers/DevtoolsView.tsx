@@ -37,9 +37,8 @@ export const DevtoolsView: FC = () => {
   const copyInspectorLink = () => {
     const windowUrl = new URL(window.location.href)
 
-    // The panel's own search string is part of the address: the events tab carries three of
-    // the four fields identifying the selected event there, so a pathname alone reopens the
-    // wrong row. URLSearchParams.set() handles encoding, so no encodeURIComponent here.
+    // The panel's own search string is part of the address — see `EventKey`. A pathname alone
+    // reopens the events tab on the wrong row.
     windowUrl.searchParams.set(DEVTOOL_TAB_PARAMS, `${pathname}${search}`)
     copyToClipboard(windowUrl.toString())
     addToast({

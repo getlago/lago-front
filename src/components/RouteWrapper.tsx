@@ -32,9 +32,7 @@ const PageWrapper = ({ children, routeConfig }: PageWrapperProps) => {
       const url = new URL(window.location.href)
 
       url.pathname = '/'
-      // The search string is part of the devtools address, not decoration — the events tab
-      // keeps three of the four fields identifying the selected event there.
-      // URLSearchParams.set() handles encoding, so no encodeURIComponent here.
+      // The search string is part of the devtools address, not decoration — see `EventKey`.
       url.searchParams.set(DEVTOOL_TAB_PARAMS, `${location.pathname}${location.search}`)
       window.location.replace(url.toString())
     }

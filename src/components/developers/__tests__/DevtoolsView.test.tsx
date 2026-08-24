@@ -102,6 +102,8 @@ describe('DevtoolsView', () => {
       })
 
       it('THEN it should keep the page the user is on', async () => {
+        mockLocation.search = '?code=api_calls'
+
         const link = await copiedInspectorLink()
 
         expect(link.pathname).toBe('/customers')
