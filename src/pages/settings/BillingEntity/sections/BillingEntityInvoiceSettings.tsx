@@ -21,11 +21,12 @@ import { useEditBillingEntityInvoiceNumberingDialog } from '~/components/setting
 import { useEditBillingEntityInvoiceTemplateDialog } from '~/components/settings/invoices/EditBillingEntityInvoiceTemplateDialog'
 import { useEditDefaultCurrencyDialog } from '~/components/settings/invoices/EditDefaultCurrencyDialog'
 import { useEditFinalizeZeroAmountInvoiceDialog } from '~/components/settings/invoices/EditFinalizeZeroAmountInvoiceDialog'
-import { useEditNetPaymentTermDialog } from '~/components/settings/invoices/EditNetPaymentTermDialog'
+import { useEditPaymentTermDialog } from '~/components/settings/invoices/EditPaymentTermDialog'
 import {
   INVOICE_ISSUING_DATE_ADJUSTMENT_SETTING_KEYS,
   INVOICE_ISSUING_DATE_ANCHOR_SETTING_KEYS,
 } from '~/core/constants/issuingDatePolicy'
+import { DEFAULT_PAYMENT_TERM } from '~/core/constants/paymentTerm'
 import { BILLING_ENTITY_ROUTE } from '~/core/router/SettingRoutes'
 import { DocumentLocales } from '~/core/translations/documentLocales'
 import { getBillingEntityNumberPreview } from '~/core/utils/billingEntityNumberPreview'
@@ -38,11 +39,12 @@ import {
   EditBillingEntityInvoiceIssuingDatePolicyDialogFragmentDoc,
   EditBillingEntityInvoiceNumberingDialogFragmentDoc,
   EditBillingEntityInvoiceTemplateDialogFragmentDoc,
-  EditBillingEntityNetPaymentTermForDialogFragmentDoc,
+  EditBillingEntityPaymentTermForDialogFragmentDoc,
   useGetBillingEntitySettingsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { usePaymentTerm } from '~/hooks/usePaymentTerm'
 import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
@@ -59,7 +61,6 @@ gql`
       id
       code
       name
-      netPaymentTerm
       defaultCurrency
       documentNumbering
       documentNumberPrefix
@@ -73,7 +74,7 @@ gql`
         subscriptionInvoiceIssuingDateAnchor
       }
       ...EditBillingEntityInvoiceTemplateDialog
-      ...EditBillingEntityNetPaymentTermForDialog
+      ...EditBillingEntityPaymentTermForDialog
       ...EditBillingEntityDefaultCurrencyForDialog
       ...EditBillingEntityInvoiceNumberingDialog
       ...EditBillingEntityInvoiceIssuingDatePolicyDialog
@@ -101,7 +102,7 @@ gql`
 
   ${DeleteCustomSectionFragmentDoc}
   ${EditBillingEntityInvoiceTemplateDialogFragmentDoc}
-  ${EditBillingEntityNetPaymentTermForDialogFragmentDoc}
+  ${EditBillingEntityPaymentTermForDialogFragmentDoc}
   ${EditBillingEntityDefaultCurrencyForDialogFragmentDoc}
   ${EditBillingEntityInvoiceNumberingDialogFragmentDoc}
   ${EditBillingEntityInvoiceIssuingDatePolicyDialogFragmentDoc}
@@ -117,8 +118,8 @@ const BillingEntityInvoiceSettings = () => {
     useEditBillingEntityInvoiceIssuingDatePolicyDialog()
   const { openEditBillingEntityGracePeriodDialog } = useEditBillingEntityGracePeriodDialog()
   const { openEditBillingEntityDocumentLocaleDialog } = useEditBillingEntityDocumentLocaleDialog()
-  const { openEditNetPaymentTermDialog } = useEditNetPaymentTermDialog()
-  const netPaymentTermDialogDescription = translate('text_64c7a89b6c67eb6c988980eb')
+  const { openEditPaymentTermDialog } = useEditPaymentTermDialog()
+  const { formatPaymentTerm } = usePaymentTerm()
   const { openEditFinalizeZeroAmountInvoiceDialog } = useEditFinalizeZeroAmountInvoiceDialog()
   const premiumWarningDialog = usePremiumWarningDialog()
   const { openEditDefaultCurrencyDialog } = useEditDefaultCurrencyDialog()
@@ -351,30 +352,21 @@ const BillingEntityInvoiceSettings = () => {
       ),
     },
     {
-      id: 'invoice-settings-net-payment-term',
-      label: translate('text_64c7a89b6c67eb6c98898167'),
+      id: 'invoice-settings-payment-term',
+      label: translate('text_17876033821633o4yokqvqdl'),
       sublabel: translate('text_1728031300577aivplw3hqav'),
       action: (
         <Button
           variant="inline"
           disabled={!canEditInvoiceSettings}
-          onClick={() =>
-            openEditNetPaymentTermDialog({
-              model: billingEntity,
-              description: netPaymentTermDialogDescription,
-            })
-          }
+          onClick={() => openEditPaymentTermDialog({ model: billingEntity })}
         >
           {translate('text_637f819eff19cd55a56d55e4')}
         </Button>
       ),
-      content: translate(
-        'text_64c7a89b6c67eb6c9889815f',
-        {
-          days: billingEntity?.netPaymentTerm,
-        },
-        billingEntity?.netPaymentTerm,
-      ),
+      // Nothing set on the entity means the default, due on receipt — the entity is the
+      // last level of the chain, so there is nothing above it to inherit from.
+      content: formatPaymentTerm(billingEntity?.paymentTerm ?? DEFAULT_PAYMENT_TERM),
     },
   ]
 

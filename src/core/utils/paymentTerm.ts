@@ -5,7 +5,7 @@ import {
   PAYMENT_TERM_DEFAULT_MONTH_OFFSET,
   PAYMENT_TERM_FIELDS_BY_TYPE,
 } from '~/core/constants/paymentTerm'
-import { Maybe, PaymentTermInput, PaymentTermTypeEnum } from '~/generated/graphql'
+import { PaymentTermInput, PaymentTermTypeEnum } from '~/generated/graphql'
 
 /**
  * The shape shared by the API object and the API input — enough to compute a due date
@@ -17,6 +17,9 @@ export type ResolvablePaymentTerm = {
   dayOfMonth?: number | null
   monthOffset?: number | null
 }
+
+/** A term as read off a query result: absent means "inherit from the level above". */
+export type MaybePaymentTerm = ResolvablePaymentTerm | null | undefined
 
 /**
  * `monthOffset` is optional on the API, which fills in the default server-side. Mirror
@@ -114,8 +117,8 @@ export const resolvePaymentTerm = ({
   ownTerm,
   parentTerm,
 }: {
-  ownTerm: Maybe<ResolvablePaymentTerm>
-  parentTerm: Maybe<ResolvablePaymentTerm>
+  ownTerm: MaybePaymentTerm
+  parentTerm: MaybePaymentTerm
 }): { term: ResolvablePaymentTerm; isInherited: boolean } => {
   if (ownTerm) return { term: ownTerm, isInherited: false }
 
