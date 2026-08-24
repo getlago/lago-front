@@ -51,6 +51,7 @@ import {
   EditCustomerInvoiceCustomSectionFragmentDoc,
   EditCustomerInvoiceGracePeriodFragmentDoc,
   EditCustomerIssuingDatePolicyDialogFragmentDoc,
+  EditCustomerPaymentTermForDialogFragmentDoc,
   EditCustomerVatRateFragmentDoc,
   FinalizeZeroAmountInvoiceEnum,
   PremiumIntegrationTypeEnum,
@@ -104,22 +105,10 @@ gql`
     customer(id: $id) {
       id
       invoiceGracePeriod
-      paymentTerm {
-        termType
-        days
-        dayOfMonth
-        monthOffset
-      }
       finalizeZeroAmountInvoice
 
       billingEntity {
         id
-        paymentTerm {
-          termType
-          days
-          dayOfMonth
-          monthOffset
-        }
         finalizeZeroAmountInvoice
         billingConfiguration {
           id
@@ -158,6 +147,7 @@ gql`
       ...DeleteCustomerDocumentLocale
       ...CustomerForDeleteVatRateDialog
       ...DeleteCustomerPaymentTerm
+      ...EditCustomerPaymentTermForDialog
       ...EditCustomerIssuingDatePolicyDialog
     }
   }
@@ -171,6 +161,7 @@ gql`
   ${DeleteCustomerDocumentLocaleFragmentDoc}
   ${CustomerForDeleteVatRateDialogFragmentDoc}
   ${DeleteCustomerPaymentTermFragmentDoc}
+  ${EditCustomerPaymentTermForDialogFragmentDoc}
   ${EditCustomerIssuingDatePolicyDialogFragmentDoc}
 `
 

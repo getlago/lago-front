@@ -6,13 +6,16 @@ import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { DialogResult } from '~/components/dialogs/types'
 import {
   PAYMENT_TERM_FORM_DEFAULT_VALUES,
-  paymentTermFormSchema,
   PaymentTermFormContent,
+  paymentTermFormSchema,
   PaymentTermFormValues,
 } from '~/components/paymentTerms/PaymentTermFormContent'
 import { addToast } from '~/core/apolloClient'
 import { MUI_INPUT_BASE_ROOT_CLASSNAME, PAYMENT_TERM_INPUT_CLASSNAME } from '~/core/constants/form'
-import { PAYMENT_TERM_DEFAULT_MONTH_OFFSET } from '~/core/constants/paymentTerm'
+import {
+  DEFAULT_PAYMENT_TERM,
+  PAYMENT_TERM_DEFAULT_MONTH_OFFSET,
+} from '~/core/constants/paymentTerm'
 import { buildPaymentTermInput } from '~/core/utils/paymentTerm'
 import {
   EditBillingEntityPaymentTermForDialogFragment,
@@ -24,6 +27,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
 export const EDIT_PAYMENT_TERM_FORM_ID = 'edit-payment-term-form'
+export const EDIT_PAYMENT_TERM_SUBMIT_BUTTON_TEST_ID = 'edit-payment-term-submit'
 
 gql`
   fragment EditCustomerPaymentTermForDialog on Customer {
@@ -35,6 +39,15 @@ gql`
       days
       dayOfMonth
       monthOffset
+    }
+    billingEntity {
+      id
+      paymentTerm {
+        termType
+        days
+        dayOfMonth
+        monthOffset
+      }
     }
   }
 
@@ -71,6 +84,22 @@ enum PaymentTermModelTypesEnum {
 type ModelData =
   EditCustomerPaymentTermForDialogFragment | EditBillingEntityPaymentTermForDialogFragment
 
+const isCustomer = (model: ModelData): model is EditCustomerPaymentTermForDialogFragment =>
+  model.__typename === PaymentTermModelTypesEnum.Customer
+
+/**
+ * The inherit choice, offered only on a level that has a parent to fall back to. The
+ * billing entity is the last level of the chain, so it never gets one.
+ */
+const getInheritedFrom = (model: ModelData | null) => {
+  if (!model || !isCustomer(model)) return undefined
+
+  return {
+    term: model.billingEntity?.paymentTerm ?? DEFAULT_PAYMENT_TERM,
+    labelKey: 'text_1728374331992d2alok9y3kr',
+  }
+}
+
 const getInitialFormValues = (model: ModelData | null): PaymentTermFormValues => {
   const paymentTerm = model?.paymentTerm
 
@@ -93,10 +122,16 @@ export const useEditPaymentTermDialog = () => {
   const { translate } = useInternationalization()
   const modelRef = useRef<ModelData | null>(null)
   const isEditRef = useRef(false)
+  const isClearingRef = useRef(false)
   const successRef = useRef(false)
 
   const onCompletedToast = () => {
     successRef.current = true
+
+    if (isClearingRef.current) {
+      return addToast({ severity: 'success', translateKey: 'text_1787603382163macepxq32tf' })
+    }
+
     addToast({
       severity: 'success',
       translateKey: isEditRef.current
@@ -124,18 +159,28 @@ export const useEditPaymentTermDialog = () => {
     onSubmit: async ({ value }) => {
       const model = modelRef.current
 
-      if (!model || !value.termType) return
+      if (!model) return
 
-      // Only the chosen type's own fields are sent — the API rejects the others. Never
-      // send `netPaymentTerm` alongside: the API mirrors the legacy alias itself.
-      const paymentTerm = buildPaymentTermInput({
-        termType: value.termType,
-        days: value.days === '' ? 0 : Number(value.days),
-        dayOfMonth: value.dayOfMonth === '' ? null : Number(value.dayOfMonth),
-        monthOffset: value.monthOffset === '' ? null : Number(value.monthOffset),
-      })
+      // An empty term type is the inherit choice: `null` clears the override so the level
+      // above wins again, the same payload the delete dialog sends.
+      //
+      // Otherwise only the chosen type's own fields are sent — the API rejects the others.
+      // Never send `netPaymentTerm` alongside: the API mirrors the legacy alias itself.
+      const paymentTerm = value.termType
+        ? buildPaymentTermInput({
+            termType: value.termType,
+            days: value.days === '' ? 0 : Number(value.days),
+            dayOfMonth: value.dayOfMonth === '' ? null : Number(value.dayOfMonth),
+            monthOffset: value.monthOffset === '' ? null : Number(value.monthOffset),
+          })
+        : null
 
-      if (model.__typename === PaymentTermModelTypesEnum.Customer) {
+      isClearingRef.current = paymentTerm === null
+
+      // The billing entity has nothing to inherit from, so it offers no way to clear.
+      if (!paymentTerm && !isCustomer(model)) return
+
+      if (isCustomer(model)) {
         await updateCustomer({
           variables: {
             input: {
@@ -169,6 +214,7 @@ export const useEditPaymentTermDialog = () => {
     isEditRef.current = !!model?.paymentTerm
 
     const seeded = getInitialFormValues(model ?? null)
+    const inheritedFrom = getInheritedFrom(model ?? null)
 
     form.reset()
     form.setFieldValue('termType', seeded.termType)
@@ -192,12 +238,14 @@ export const useEditPaymentTermDialog = () => {
         },
         children: (
           <div className="p-8">
-            <PaymentTermFormContent form={form} displayInDialog />
+            <PaymentTermFormContent form={form} displayInDialog inheritedFrom={inheritedFrom} />
           </div>
         ),
         mainAction: (
           <form.AppForm>
-            <form.SubmitButton>{translate('text_17432414198706rdwf76ek3u')}</form.SubmitButton>
+            <form.SubmitButton dataTest={EDIT_PAYMENT_TERM_SUBMIT_BUTTON_TEST_ID}>
+              {translate('text_17432414198706rdwf76ek3u')}
+            </form.SubmitButton>
           </form.AppForm>
         ),
         form: {
@@ -210,6 +258,7 @@ export const useEditPaymentTermDialog = () => {
           form.reset()
           modelRef.current = null
           isEditRef.current = false
+          isClearingRef.current = false
         }
       })
   }
