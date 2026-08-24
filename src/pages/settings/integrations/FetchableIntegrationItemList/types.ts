@@ -16,6 +16,8 @@ import {
   MappableIntegrationProvider,
 } from '~/pages/settings/integrations/common'
 
+type SupportedMappableType = MappableTypeEnum.AddOn | MappableTypeEnum.BillableMetric
+
 export type FetchMoreFunction = ReturnType<
   | typeof useGetAddOnsForNetsuiteItemsListLazyQuery
   | typeof useGetBillableMetricsForNetsuiteItemsListLazyQuery
@@ -36,7 +38,7 @@ export type FetchIntegrationItemsListProps = {
   isLoading: boolean
   integrationMapItemDrawerRef: MappableIntegrationMapItemDrawerRef
   createRoute: string
-  mappableType: MappableTypeEnum
+  mappableType: SupportedMappableType
   provider: MappableIntegrationProvider
   firstColumnName?: string
 }
@@ -47,6 +49,6 @@ export type FetchableIntegrationItemErrorProps = {
 
 export type FetchableIntegrationItemEmptyProps = {
   hasSearchTerm: boolean
-  type: MappableTypeEnum
+  type: SupportedMappableType
   createRoute: string
 }
