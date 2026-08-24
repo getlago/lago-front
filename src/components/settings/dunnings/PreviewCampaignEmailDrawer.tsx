@@ -114,7 +114,6 @@ export const PreviewCampaignEmailDrawer = forwardRef<PreviewCampaignEmailDrawerR
                     overdueAmount={deserializeAmount(DUMMY_OVERDUE_AMOUNT_CENTS, CurrencyEnum.Usd)}
                     organization={{
                       name: data?.organization?.name ?? '{{organization_name}}',
-                      netPaymentTerm: '{{net_payment_term}}',
                       email: data?.organization?.email || '{{organization_email}}',
                     }}
                     customer={{

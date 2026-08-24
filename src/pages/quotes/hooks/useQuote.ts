@@ -41,13 +41,23 @@ gql`
       id
       displayName
       externalId
-      netPaymentTerm
+      paymentTerm {
+        termType
+        days
+        dayOfMonth
+        monthOffset
+      }
       ...QuotePreviewCustomer
       billingEntity {
         id
         code
         name
-        netPaymentTerm
+        paymentTerm {
+          termType
+          days
+          dayOfMonth
+          monthOffset
+        }
       }
     }
     owners {
