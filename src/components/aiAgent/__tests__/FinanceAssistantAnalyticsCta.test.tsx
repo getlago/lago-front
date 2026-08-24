@@ -99,6 +99,26 @@ describe('FinanceAssistantAnalyticsCta', () => {
       })
     })
 
+    describe('WHEN closing the CTA', () => {
+      it('THEN should hide it', async () => {
+        render(<FinanceAssistantAnalyticsCta />)
+
+        const closeButton = screen
+          .getByTestId('close/medium')
+          .closest('button') as HTMLButtonElement
+
+        expect(closeButton.parentElement).toHaveClass(
+          'group-hover/finance-assistant-cta:flex',
+          'hidden',
+          'rounded-full',
+        )
+
+        await userEvent.click(closeButton)
+
+        expect(screen.queryByTestId(FINANCE_ASSISTANT_CTA_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
     describe('WHEN typing a question', () => {
       it('THEN should enable the submit button', async () => {
         render(<FinanceAssistantAnalyticsCta />)

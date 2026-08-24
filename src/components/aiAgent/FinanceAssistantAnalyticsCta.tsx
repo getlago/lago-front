@@ -3,6 +3,7 @@ import { FormEvent, useState } from 'react'
 
 import { useAskFinanceAssistant } from '~/components/aiAgent/hooks/useAskFinanceAssistant'
 import { AiBadge } from '~/components/designSystem/AiBadge'
+import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import { AiAgentTypeEnum, useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -47,7 +48,7 @@ export const FinanceAssistantAnalyticsCta = () => {
   }
 
   return (
-    <div className="sticky bottom-6 z-10 mx-auto mt-[-24px] flex w-full max-w-[500px] justify-center">
+    <div className="group/finance-assistant-cta sticky bottom-6 z-10 mx-auto mt-[-24px] flex w-full max-w-[500px] justify-center">
       {/* The page-level wrapper is pointer-events-none (full-width overlay strip); only the visible card may catch clicks */}
       <form
         onSubmit={handleSubmit}
@@ -81,6 +82,15 @@ export const FinanceAssistantAnalyticsCta = () => {
           />
         </button>
       </form>
+
+      <div className="pointer-events-auto absolute -right-3 -top-3 hidden overflow-hidden rounded-full bg-white shadow-xl group-hover/finance-assistant-cta:flex">
+        <Button
+          icon="close"
+          size="small"
+          variant="quaternary"
+          onClick={() => setIsVisible(false)}
+        />
+      </div>
     </div>
   )
 }
