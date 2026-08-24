@@ -21,6 +21,7 @@ import {
   fromBillingItems,
   toBillingItems,
 } from '~/core/serializers/serializeQuoteBillingItems'
+import { ResolvablePaymentTerm } from '~/core/utils/paymentTerm'
 import { type AddOnForPricingSectionFragment, CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
@@ -185,7 +186,7 @@ export interface OneOffPricingDrawerOptions {
   currency?: CurrencyEnum | null
   /** Whether `currency` is the quote's own currency rather than a fallback. */
   hasQuoteCurrency?: boolean
-  netPaymentTerm?: number | null
+  paymentTerm?: ResolvablePaymentTerm | null
 }
 
 export const useOneOffPricingDrawer = (
@@ -521,12 +522,12 @@ export const useOneOffPricingDrawer = (
             form={form}
             currency={currency}
             onAddOnPayloadCapture={captureAddOnPayload}
-            netPaymentTerm={options?.netPaymentTerm}
+            paymentTerm={options?.paymentTerm}
           />
         ),
       })
     },
-    [formDrawer, translate, currency, form, captureAddOnPayload, options?.netPaymentTerm],
+    [formDrawer, translate, currency, form, captureAddOnPayload, options?.paymentTerm],
   )
 
   const syncEntitiesWithBlocks = useCallback(
