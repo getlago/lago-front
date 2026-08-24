@@ -17596,7 +17596,6 @@ export const InvoiceListItemFragmentDoc = gql`
     code
     email
     einvoicing
-    emailSettings
   }
   payments {
     createdAt
@@ -21107,7 +21106,6 @@ export const InvoiceDetailsForInvoiceOverviewFragmentDoc = gql`
     code
     email
     einvoicing
-    emailSettings
     logoUrl
   }
 }
@@ -21747,7 +21745,6 @@ export const InvoiceForInvoiceBuildRegenerationPreviewFragmentDoc = gql`
     code
     einvoicing
     email
-    emailSettings
     logoUrl
     name
   }
