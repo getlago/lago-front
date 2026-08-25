@@ -1,5 +1,3 @@
-import { gql } from '@apollo/client'
-import { Icon } from 'lago-design-system'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Bar,
@@ -12,81 +10,23 @@ import {
 } from 'recharts'
 
 import { Skeleton } from '~/components/designSystem/Skeleton'
-import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { intlFormatDateTime, TimeFormat } from '~/core/timezone'
 import {
-  AggregationTypeEnum,
-  TimezoneEnum,
-  useGetSubscriptionChargesForRealtimeUsageQuery,
-  useGetSubscriptionHourlyUsageQuery,
-} from '~/generated/graphql'
+  formatUnits,
+  prefersReducedMotion,
+  RealtimeUsageControls,
+  RealtimeUsageEmpty,
+  RealtimeUsageHeader,
+  useRealtimeUsage,
+  WINDOWS,
+} from '~/components/subscriptions/realtimeUsage'
 import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 import { theme } from '~/styles'
 import { tw } from '~/styles/utils'
 
-gql`
-  query getSubscriptionChargesForRealtimeUsage($subscriptionId: ID!) {
-    subscription(id: $subscriptionId) {
-      id
-      customer {
-        id
-        applicableTimezone
-      }
-      plan {
-        id
-        charges {
-          id
-          invoiceDisplayName
-          billableMetric {
-            id
-            code
-            name
-            aggregationType
-          }
-        }
-      }
-    }
-  }
-
-  query getSubscriptionHourlyUsage(
-    $subscriptionId: ID!
-    $chargeId: ID!
-    $fromDatetime: ISO8601DateTime
-  ) {
-    subscriptionHourlyUsage(
-      subscriptionId: $subscriptionId
-      chargeId: $chargeId
-      fromDatetime: $fromDatetime
-    ) {
-      fromDatetime
-      toDatetime
-      timezone
-      aggregationType
-      filters {
-        chargeFilterId
-        invoiceDisplayName
-        units
-        eventsCount
-      }
-      hours {
-        time
-        units
-        eventsCount
-        breakdown {
-          chargeFilterId
-          units
-        }
-      }
-    }
-  }
-`
-
 export const REALTIME_USAGE_LIVE_TEST_ID = 'realtime-usage-live'
 export const REALTIME_USAGE_EMPTY_TEST_ID = 'realtime-usage-empty'
 export const REALTIME_USAGE_LEGEND_TEST_ID = 'realtime-usage-legend'
-export const REALTIME_USAGE_TABLE_TEST_ID = 'realtime-usage-table'
 export const REALTIME_USAGE_CHARGE_TAB_TEST_ID = 'realtime-usage-charge-tab'
 export const REALTIME_USAGE_AUTO_REFRESH_TEST_ID = 'realtime-usage-auto-refresh'
 export const REALTIME_USAGE_TIME_RANGE_TEST_ID = 'realtime-usage-time-range'
@@ -104,25 +44,11 @@ const OTHER_FILTER_COLOR = theme.palette.grey[400]
 const MAX_VISIBLE_FILTERS = 5
 const DEFAULT_KEY = 'default'
 const OTHER_KEY = 'other'
-// Auto-refresh is off by default: polling is opt-in, so an idle usage tab
-// stays idle.
-const AUTO_REFRESH_OPTIONS = [0, 1, 5, 10]
 const CURRENT_HOUR_TWEEN_DURATION = 250
-const WINDOW_REFRESH_INTERVAL = 60000
-const WINDOWS = [6, 12, 24]
-const REALTIME_AGGREGATION_TYPES = [AggregationTypeEnum.CountAgg, AggregationTypeEnum.SumAgg]
+const SCALE_ANIMATION_DURATION = 450
 
 type Series = { key: string; label: string; color: string }
 type HourPoint = { time: string; isPartial: boolean } & Record<string, number | string | boolean>
-
-const startOfHourMinusHours = (hours: number): string => {
-  const date = new Date()
-
-  date.setMinutes(0, 0, 0)
-  date.setHours(date.getHours() - (hours - 1))
-
-  return date.toISOString()
-}
 
 export const SubscriptionRealtimeUsageGraph = ({
   subscriptionId,
@@ -130,69 +56,10 @@ export const SubscriptionRealtimeUsageGraph = ({
   subscriptionId: string
 }): JSX.Element | null => {
   const { translate } = useInternationalization()
-  const [chargeId, setChargeId] = useState<string>('')
-  const [windowInHours, setWindowInHours] = useState<number>(24)
-  const [autoRefreshSeconds, setAutoRefreshSeconds] = useState<number>(0)
-  const [fromDatetime, setFromDatetime] = useState<string>(() =>
-    startOfHourMinusHours(windowInHours),
-  )
+  const state = useRealtimeUsage(subscriptionId)
+  const { usage, isLoading, unitLabel, formatHour, windowInHours } = state
 
-  // The window start only moves when the selection changes or the hour turns;
-  // recomputing it on every poll would refetch on every tick.
-  useEffect(() => {
-    const refresh = (): void => setFromDatetime(startOfHourMinusHours(windowInHours))
-
-    refresh()
-
-    const interval = setInterval(refresh, WINDOW_REFRESH_INTERVAL)
-
-    return () => clearInterval(interval)
-  }, [windowInHours])
-
-  const { data: subscriptionData, loading: subscriptionLoading } =
-    useGetSubscriptionChargesForRealtimeUsageQuery({
-      variables: { subscriptionId },
-      skip: !subscriptionId,
-    })
-
-  const charges = useMemo(
-    () =>
-      (subscriptionData?.subscription?.plan?.charges || []).filter((charge) =>
-        REALTIME_AGGREGATION_TYPES.includes(charge.billableMetric.aggregationType),
-      ),
-    [subscriptionData],
-  )
-
-  const selectedCharge = charges.find((charge) => charge.id === chargeId) || charges[0]
-  const timezone = (subscriptionData?.subscription?.customer?.applicableTimezone ||
-    TimezoneEnum.TzUtc) as TimezoneEnum
-
-  const changeWindow = (value: number): void => {
-    if (value === windowInHours) return
-
-    setWindowInHours(value)
-  }
-
-  const { data, loading, previousData } = useGetSubscriptionHourlyUsageQuery({
-    variables: {
-      subscriptionId,
-      chargeId: selectedCharge?.id || '',
-      fromDatetime,
-    },
-    skip: !selectedCharge,
-    pollInterval: autoRefreshSeconds * 1000,
-  })
-
-  // Hold the previous render while a poll is in flight: no skeleton flash and
-  // no layout jump every five seconds.
-  const usage = data?.subscriptionHourlyUsage || previousData?.subscriptionHourlyUsage
-  const isLoading = (subscriptionLoading || loading) && !usage
-
-  const unitLabel = translate(
-    usage?.aggregationType === AggregationTypeEnum.CountAgg
-      ? 'text_1787607502687bbm16iot9di'
-      : 'text_1787607502687zc1gdrqwnzj',
-  )
+  const barSize = (WINDOWS.find((option) => option.hours === windowInHours) || WINDOWS[0]).barSize
 
   const { series, points } = useMemo(
     () => buildSeriesAndPoints(usage?.filters, usage?.hours, translate),
@@ -201,24 +68,22 @@ export const SubscriptionRealtimeUsageGraph = ({
 
   const displayPoints = useCurrentHourTween(points)
 
-  const { currentHour, peak, peakTime } = useMemo(() => {
-    const totals = (usage?.hours || []).map((hour) => hour.units)
-    const peakIndex = totals.indexOf(Math.max(...totals, 0))
+  // A scale change is a new view, not new data, so the columns rescale into
+  // it: recharts interpolates every bar from where it was to where the new
+  // window puts it, widening them on the way. The scale is the click plus
+  // the window the API ends up serving, so both the immediate widening and
+  // the arrival of the new hours are animated; polls leave it untouched and
+  // so never replay it.
+  const scaleKey = `${windowInHours}-${usage?.fromDatetime || ''}`
+  const [settledScaleKey, setSettledScaleKey] = useState('')
+  const isRescaling = settledScaleKey !== scaleKey && !prefersReducedMotion()
 
-    return {
-      currentHour: totals[totals.length - 1] || 0,
-      peak: totals[peakIndex] || 0,
-      peakTime: usage?.hours[peakIndex]?.time,
-    }
-  }, [usage])
+  useEffect(() => {
+    const timer = setTimeout(() => setSettledScaleKey(scaleKey), SCALE_ANIMATION_DURATION)
 
-  const formatHour = (time: string): string =>
-    intlFormatDateTime(time, { timezone, formatTime: TimeFormat.TIME_24_SIMPLE }).time
+    return () => clearTimeout(timer)
+  }, [scaleKey])
 
-  const hasUsage = (usage?.filters.length || 0) > 0
-  // The served window still lags the requested one while the new scale loads.
-  const isSwitchingScale =
-    !!usage && new Date(usage.fromDatetime).getTime() !== new Date(fromDatetime).getTime()
   const renderContent = (): JSX.Element => {
     if (isLoading) {
       return (
@@ -229,20 +94,8 @@ export const SubscriptionRealtimeUsageGraph = ({
       )
     }
 
-    if (!hasUsage) {
-      return (
-        <div
-          className="flex flex-col gap-1 py-8 text-center"
-          data-test={REALTIME_USAGE_EMPTY_TEST_ID}
-        >
-          <Typography variant="subhead2" color="grey700">
-            {translate('text_1787607502687zw3kwy13xlm')}
-          </Typography>
-          <Typography variant="caption" color="grey600">
-            {translate('text_17876075026878y6buigdffk')}
-          </Typography>
-        </div>
-      )
+    if (!state.hasUsage) {
+      return <RealtimeUsageEmpty testId={REALTIME_USAGE_EMPTY_TEST_ID} />
     }
 
     return (
@@ -250,25 +103,9 @@ export const SubscriptionRealtimeUsageGraph = ({
         data-test={REALTIME_USAGE_CHART_TEST_ID}
         className={tw(
           'flex flex-col gap-4 transition-all duration-200 ease-out motion-reduce:transition-none',
-          isSwitchingScale && 'translate-y-1 opacity-40',
+          state.isSwitchingScale && 'translate-y-1 opacity-40',
         )}
       >
-        <div className="flex flex-row flex-wrap gap-8">
-          <KeyFigure
-            label={translate('text_1787607502687kk9iifzv84b')}
-            value={`${formatUnits(currentHour)} ${unitLabel}`}
-          />
-          <KeyFigure
-            label={translate('text_17876075026874f3ren735vy')}
-            value={formatUnits(peak)}
-            caption={peakTime ? formatHour(peakTime) : undefined}
-          />
-          <KeyFigure
-            label={translate('text_1787607502687yrooy5zddk1')}
-            value={String(usage?.filters.length || 0)}
-          />
-        </div>
-
         <ResponsiveContainer width="100%" height={232}>
           <BarChart data={displayPoints} margin={{ top: 16, right: 4, bottom: 0, left: 0 }}>
             <CartesianGrid vertical={false} stroke={theme.palette.grey[200]} />
@@ -309,8 +146,10 @@ export const SubscriptionRealtimeUsageGraph = ({
                 dataKey={serie.key}
                 stackId="usage"
                 fill={serie.color}
-                maxBarSize={24}
-                isAnimationActive={false}
+                maxBarSize={barSize}
+                isAnimationActive={isRescaling}
+                animationDuration={SCALE_ANIMATION_DURATION}
+                animationEasing="ease-out"
                 shape={
                   <StackedSegment
                     seriesKey={serie.key}
@@ -326,105 +165,40 @@ export const SubscriptionRealtimeUsageGraph = ({
           className="flex flex-row flex-wrap items-center gap-x-6 gap-y-2"
           data-test={REALTIME_USAGE_LEGEND_TEST_ID}
         >
-          <Typography variant="captionHl" color="grey500" noWrap>
-            {translate('text_1787607502687kk9iifzv84b')}
-          </Typography>
           {series.map((serie) => (
             <div key={`realtime-usage-legend-${serie.key}`} className="flex items-center gap-2">
               <div className="size-3 rounded-sm" style={{ backgroundColor: serie.color }} />
               <Typography variant="caption" color="grey700" noWrap>
                 {serie.label}
               </Typography>
-              <Typography variant="caption" color="grey600" noWrap>
-                {formatUnits(seriesValue(points[points.length - 1], serie.key))}
-              </Typography>
             </div>
           ))}
         </div>
-
-        <UsageTable series={series} points={points} formatHour={formatHour} translate={translate} />
       </div>
     )
   }
 
-  if (!subscriptionLoading && charges.length === 0) {
+  if (!state.hasRealtimeCharge) {
     return null
   }
 
   return (
     <section>
-      <div className="flex h-10 flex-row items-start shadow-b">
-        <div className="flex flex-row items-center gap-2">
-          <Typography variant="subhead1" color="grey700" noWrap>
-            {translate('text_1787607502687njc8sk8pgf4')}
-          </Typography>
-          <Tooltip placement="top-start" title={translate('text_1787607502687amwxqtlozbw')}>
-            <Icon name="info-circle" />
-          </Tooltip>
-          {!isLoading && autoRefreshSeconds > 0 && (
-            <span
-              className="flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5"
-              data-test={REALTIME_USAGE_LIVE_TEST_ID}
-            >
-              <span className="size-1.5 animate-pulse rounded-full bg-green-600 motion-reduce:animate-none" />
-              <Typography variant="captionHl" color="success600">
-                {translate('text_1787607502687jr0jliz0c3k')}
-              </Typography>
-            </span>
-          )}
-        </div>
-      </div>
+      <RealtimeUsageHeader
+        title={translate('text_1787607502687njc8sk8pgf4')}
+        tooltip={translate('text_1787607502687amwxqtlozbw')}
+        isLive={!isLoading && state.autoRefreshSeconds > 0}
+        liveTestId={REALTIME_USAGE_LIVE_TEST_ID}
+      />
 
       <div className="flex flex-col gap-4 bg-white py-6">
-        <div className="flex flex-row flex-wrap items-center justify-between gap-x-6 gap-y-3">
-          <div className="flex flex-row flex-wrap items-center gap-2">
-            {charges.length > 1 &&
-              charges.map((charge) => (
-                <button
-                  key={`realtime-usage-charge-${charge.id}`}
-                  type="button"
-                  data-test={`${REALTIME_USAGE_CHARGE_TAB_TEST_ID}-${charge.billableMetric.code}`}
-                  onClick={() => setChargeId(charge.id)}
-                  className={tw(
-                    'rounded-lg border border-grey-300 px-3 py-1 text-sm text-grey-600 hover:bg-grey-100',
-                    charge.id === selectedCharge?.id && 'border-blue-600 bg-blue-100 text-blue-600',
-                  )}
-                >
-                  {charge.invoiceDisplayName || charge.billableMetric.name}
-                </button>
-              ))}
-          </div>
-
-          <div className="ml-auto flex flex-row flex-wrap items-center gap-x-5 gap-y-2">
-            <SegmentedControl
-              dataTest={REALTIME_USAGE_TIME_RANGE_TEST_ID}
-              label={translate('text_1787610177631jhuc7lxfw1v')}
-              value={windowInHours}
-              onChange={changeWindow}
-              options={WINDOWS.map((value) => ({ value, label: `${value}h` }))}
-            />
-
-            <SegmentedControl
-              dataTest={REALTIME_USAGE_AUTO_REFRESH_TEST_ID}
-              label={translate('text_17876098439600jp8nt3z0hk')}
-              value={autoRefreshSeconds}
-              onChange={setAutoRefreshSeconds}
-              options={AUTO_REFRESH_OPTIONS.map((value) => ({
-                value,
-                label: value === 0 ? translate('text_1787609843960bopfeje8bho') : `${value}s`,
-              }))}
-            />
-          </div>
-        </div>
+        <RealtimeUsageControls state={state} testIdPrefix="realtime-usage" />
 
         {renderContent()}
       </div>
     </section>
   )
 }
-
-const formatUnits = (value: number): string =>
-  intlFormatNumber(value, { style: 'decimal', maximumFractionDigits: 2 })
 
 const seriesValue = (point: HourPoint | undefined, key: string): number =>
   (point?.[key] as number) || 0
@@ -493,11 +267,6 @@ const buildSeriesAndPoints = (
   return { series, points }
 }
 
-const prefersReducedMotion = (): boolean =>
-  typeof window !== 'undefined' &&
-  typeof window.matchMedia === 'function' &&
-  window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
 // Only the current hour can still move: every closed hour is a settled bucket
 // sum. So the chart tweens that one column and leaves the rest alone —
 // animating the whole chart on each poll would imply motion in data that is
@@ -565,68 +334,6 @@ const useCurrentHourTween = (points: HourPoint[]): HourPoint[] => {
   return displayPoints
 }
 
-const SegmentedControl = ({
-  label,
-  options,
-  value,
-  onChange,
-  dataTest,
-}: {
-  label: string
-  options: { value: number; label: string }[]
-  value: number
-  onChange: (value: number) => void
-  dataTest: string
-}): JSX.Element => (
-  <div className="flex flex-row items-center gap-2" data-test={dataTest}>
-    <Typography variant="captionHl" color="grey500" noWrap>
-      {label}
-    </Typography>
-    <div className="flex flex-row items-center overflow-hidden rounded-lg border border-grey-300">
-      {options.map((option) => (
-        <button
-          key={`${dataTest}-${option.value}`}
-          type="button"
-          aria-pressed={option.value === value}
-          onClick={() => onChange(option.value)}
-          className={tw(
-            'border-r border-grey-300 px-2 py-1 text-sm text-grey-600 last:border-r-0 hover:bg-grey-100',
-            option.value === value && 'bg-blue-100 font-medium text-blue-600',
-          )}
-        >
-          {option.label}
-        </button>
-      ))}
-    </div>
-  </div>
-)
-
-const KeyFigure = ({
-  label,
-  value,
-  caption,
-}: {
-  label: string
-  value: string
-  caption?: string
-}): JSX.Element => (
-  <div className="flex flex-col">
-    <Typography variant="captionHl" color="grey500" noWrap>
-      {label}
-    </Typography>
-    <div className="flex items-baseline gap-1">
-      <Typography variant="subhead1" color="grey700" noWrap>
-        {value}
-      </Typography>
-      {!!caption && (
-        <Typography variant="caption" color="grey600" noWrap>
-          {caption}
-        </Typography>
-      )}
-    </div>
-  </div>
-)
-
 const UsageTooltip = ({
   active,
   point,
@@ -678,64 +385,6 @@ const UsageTooltip = ({
     </div>
   )
 }
-
-const UsageTable = ({
-  series,
-  points,
-  formatHour,
-  translate,
-}: {
-  series: Series[]
-  points: HourPoint[]
-  formatHour: (time: string) => string
-  translate: TranslateFunc
-}): JSX.Element => (
-  <details className="border-t border-grey-200 pt-3">
-    <summary className="cursor-pointer">
-      <Typography className="inline" variant="caption" color="grey600">
-        {translate('text_17876075026879ho9f5zsobi')}
-      </Typography>
-    </summary>
-    <div className="mt-3 max-h-60 overflow-auto">
-      <table
-        className="w-full text-right text-sm tabular-nums"
-        data-test={REALTIME_USAGE_TABLE_TEST_ID}
-      >
-        <thead>
-          <tr>
-            <th className="py-1 pr-4 text-left font-medium text-grey-600">
-              {translate('text_1787607502687j2okdne0is9')}
-            </th>
-            {series.map((serie) => (
-              <th
-                key={`realtime-usage-th-${serie.key}`}
-                className="py-1 pl-4 font-medium text-grey-600"
-              >
-                {serie.label}
-              </th>
-            ))}
-            <th className="py-1 pl-4 font-medium text-grey-600">
-              {translate('text_1787607502687fbugu4gz6xl')}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {[...points].reverse().map((point) => (
-            <tr key={`realtime-usage-tr-${point.time}`} className="border-t border-grey-200">
-              <td className="py-1 pr-4 text-left text-grey-600">{formatHour(point.time)}</td>
-              {series.map((serie) => (
-                <td key={`realtime-usage-td-${point.time}-${serie.key}`} className="py-1 pl-4">
-                  {formatUnits(seriesValue(point, serie.key))}
-                </td>
-              ))}
-              <td className="py-1 pl-4 font-medium">{formatUnits(totalOf(point, series))}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  </details>
-)
 
 // Draws one segment of a stacked column: a 2px gap in the surface color
 // separates it from the segment below, and the topmost segment of the column

@@ -5,6 +5,7 @@ import { useGetCustomerFromSubscriptionQuery } from '~/generated/graphql'
 
 import { SubscriptionCurrentUsageTable } from './SubscriptionCurrentUsageTable'
 import { SubscriptionRealtimeUsageGraph } from './SubscriptionRealtimeUsageGraph'
+import { SubscriptionRealtimeUsageLanes } from './SubscriptionRealtimeUsageLanes'
 import SubscriptionUsageLifetimeGraph from './SubscriptionUsageLifetimeGraph'
 
 gql`
@@ -42,6 +43,7 @@ export const SubscriptionUsageTabContent = () => {
         subscriptionId={subscriptionId}
       />
       <SubscriptionRealtimeUsageGraph subscriptionId={subscriptionId} />
+      <SubscriptionRealtimeUsageLanes subscriptionId={subscriptionId} />
       <SubscriptionCurrentUsageTable
         customerId={customerId || ''}
         subscriptionId={subscriptionId}
