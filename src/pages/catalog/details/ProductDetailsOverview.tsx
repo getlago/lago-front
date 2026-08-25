@@ -77,6 +77,46 @@ export const ProductDetailsOverview = () => {
     return <DetailsPage.Skeleton />
   }
 
+  const attachedProductCategory = product?.productCategory ? (
+    <Link
+      to={generatePath(PRODUCT_CATEGORY_DETAILS_ROUTE, {
+        productCategoryId: product.productCategory.id,
+        tab: ProductCategoryDetailsTabsOptionsEnum.overview,
+      })}
+    >
+      {product.productCategory.name}
+    </Link>
+  ) : (
+    '-'
+  )
+
+  const productTypeChip = product?.productType ? (
+    <Chip size="small" label={translate(ITEM_TYPE_TRANSLATION_KEY[product.productType])} />
+  ) : (
+    '-'
+  )
+
+  const code = product?.code ? (
+    <TypographyWithCopy variant="body" color="grey700">
+      {product.code}
+    </TypographyWithCopy>
+  ) : (
+    '-'
+  )
+
+  const attachedBillableMetric = product?.billableMetric ? (
+    <Link
+      to={generatePath(BILLABLE_METRIC_DETAILS_ROUTE, {
+        billableMetricId: product.billableMetric.id,
+        tab: BillableMetricDetailsTabsOptionsEnum.overview,
+      })}
+    >
+      {product.billableMetric.name}
+    </Link>
+  ) : (
+    '-'
+  )
+
   return (
     <section>
       <div className="flex h-18 items-center justify-between gap-4">
@@ -104,58 +144,14 @@ export const ProductDetailsOverview = () => {
           grid={[
             {
               label: translate('text_17839807181143h6kt2bdiyi'),
-              value: product?.productCategory ? (
-                <Link
-                  to={generatePath(PRODUCT_CATEGORY_DETAILS_ROUTE, {
-                    productCategoryId: product.productCategory.id,
-                    tab: ProductCategoryDetailsTabsOptionsEnum.overview,
-                  })}
-                >
-                  {product.productCategory.name}
-                </Link>
-              ) : (
-                '-'
-              ),
+              value: attachedProductCategory,
             },
-            {
-              label: translate('text_1783980718113na6t9imp2k0'),
-              value: product?.productType ? (
-                <Chip
-                  size="small"
-                  label={translate(ITEM_TYPE_TRANSLATION_KEY[product.productType])}
-                />
-              ) : (
-                '-'
-              ),
-            },
-            {
-              label: translate('text_17839807181150t4xkvfjefv'),
-              value: product?.name || '-',
-            },
-            {
-              label: translate('text_1783980718114rdgmz1gtpm2'),
-              value: product?.code ? (
-                <TypographyWithCopy variant="body" color="grey700">
-                  {product.code}
-                </TypographyWithCopy>
-              ) : (
-                '-'
-              ),
-            },
+            { label: translate('text_1783980718113na6t9imp2k0'), value: productTypeChip },
+            { label: translate('text_17839807181150t4xkvfjefv'), value: product?.name || '-' },
+            { label: translate('text_1783980718114rdgmz1gtpm2'), value: code },
             product?.productType === ProductTypeEnum.Usage && {
               label: translate('text_178398071811327xropcsqmr'),
-              value: product?.billableMetric ? (
-                <Link
-                  to={generatePath(BILLABLE_METRIC_DETAILS_ROUTE, {
-                    billableMetricId: product.billableMetric.id,
-                    tab: BillableMetricDetailsTabsOptionsEnum.overview,
-                  })}
-                >
-                  {product.billableMetric.name}
-                </Link>
-              ) : (
-                '-'
-              ),
+              value: attachedBillableMetric,
             },
           ]}
         />
