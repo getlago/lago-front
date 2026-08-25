@@ -44,7 +44,20 @@ gql`
     activeRate {
       id
       rateModel
-      rateProperties
+      rateProperties {
+        amount
+        packageSize
+        rate
+        graduatedRanges {
+          perUnitAmount
+        }
+        volumeRanges {
+          perUnitAmount
+        }
+        graduatedPercentageRanges {
+          rate
+        }
+      }
       minAmountCents
     }
     ...RateCardForDrawer
