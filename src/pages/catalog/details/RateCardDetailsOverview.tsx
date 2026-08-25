@@ -124,9 +124,7 @@ const RateCardDetailsOverview = ({ rateCardId }: { rateCardId: string }) => {
         tab: ProductDetailsTabsOptionsEnum.overview,
       })}
     >
-      <Typography variant="body" color="grey700">
-        {product.name}
-      </Typography>
+      {product.name}
     </Link>
   )
 
@@ -137,9 +135,7 @@ const RateCardDetailsOverview = ({ rateCardId }: { rateCardId: string }) => {
         tab: ProductFilterDetailsTabsOptionsEnum.overview,
       })}
     >
-      <Typography variant="body" color="grey700">
-        {productFilter.name}
-      </Typography>
+      {productFilter.name}
     </Link>
   ) : (
     '-'

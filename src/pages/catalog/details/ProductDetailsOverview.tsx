@@ -111,9 +111,7 @@ export const ProductDetailsOverview = () => {
                     tab: ProductCategoryDetailsTabsOptionsEnum.overview,
                   })}
                 >
-                  <Typography variant="body" color="grey700">
-                    {product.productCategory.name}
-                  </Typography>
+                  {product.productCategory.name}
                 </Link>
               ) : (
                 '-'
@@ -153,9 +151,7 @@ export const ProductDetailsOverview = () => {
                     tab: BillableMetricDetailsTabsOptionsEnum.overview,
                   })}
                 >
-                  <Typography variant="body" color="grey700">
-                    {product.billableMetric.name}
-                  </Typography>
+                  {product.billableMetric.name}
                 </Link>
               ) : (
                 '-'

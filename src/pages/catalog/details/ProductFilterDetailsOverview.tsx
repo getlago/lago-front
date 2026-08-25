@@ -100,9 +100,7 @@ const ProductFilterDetailsOverview = ({ productFilterId }: { productFilterId: st
         tab: ProductCategoryDetailsTabsOptionsEnum.overview,
       })}
     >
-      <Typography variant="body" color="grey700">
-        {product.productCategory.name}
-      </Typography>
+      {product.productCategory.name}
     </Link>
   ) : (
     <Typography
@@ -121,9 +119,7 @@ const ProductFilterDetailsOverview = ({ productFilterId }: { productFilterId: st
         tab: ProductDetailsTabsOptionsEnum.overview,
       })}
     >
-      <Typography variant="body" color="grey700">
-        {product.invoiceDisplayName || product.name}
-      </Typography>
+      {product.invoiceDisplayName || product.name}
     </Link>
   )
 
