@@ -108,7 +108,7 @@ export const useRateCardTableColumns = ({
                 })
 
             return (
-              <Typography color="info600" noWrap>
+              <Typography color="inherit" noWrap>
                 <Link to={to}>{productFilter?.name ?? product.name}</Link>
               </Typography>
             )
