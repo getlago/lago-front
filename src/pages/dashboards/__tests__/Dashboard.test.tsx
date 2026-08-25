@@ -84,9 +84,7 @@ const successMock: TestMocksType = [
       query: CreateSupersetGuestTokenDocument,
       variables: { input: { dashboardId: 'dash-1' } },
     },
-    // Deliberately different from the `guestToken` seeded by the dashboards query
-    // above: if the two matched, an assertion on the fetched token would pass even
-    // when the mutation never ran or threw and fell back to the seed.
+    // Must differ from the seed above, or the assertion passes on the fallback too.
     result: { data: { createSupersetGuestToken: { guestToken: 'refreshed-token' } } },
   },
 ]
@@ -116,8 +114,6 @@ const renderRevenue = (mocks: TestMocksType = successMock) =>
   )
 
 // Whether `promise` has settled once microtasks and 0ms timers have flushed.
-// Racing against an already-resolved sentinel instead would always pick the
-// sentinel, so such an assertion could never fail.
 const hasSettled = async (promise: Promise<unknown>): Promise<boolean> => {
   let settled = false
 
@@ -168,7 +164,6 @@ describe('Dashboard', () => {
       expect(config.supersetDomain).toBe('https://localhost:8089')
       expect(config.mountPoint).toBe(document.getElementById('superset-lago-dashboard'))
       expect(config.dashboardUiConfig.hideTitle).toBe(true)
-      // Proves the token came from the mutation, not from the query's seed.
       await expect(config.fetchGuestToken()).resolves.toBe('refreshed-token')
     })
   })
@@ -262,10 +257,8 @@ describe('Dashboard', () => {
       expect(mockUnmount).toHaveBeenCalled()
     })
 
-    // The SDK's `unmount()` only clears the iframe (`index.js:159-163`); it never
-    // cancels the refresh `setTimeout` it scheduled, so cleanup has to cancel the
-    // fetcher too. Without that, the chain keeps minting tokens for the rest of the
-    // SPA session — every revisit or dashboard switch leaving another one behind.
+    // The SDK's `unmount()` clears the iframe but not its refresh `setTimeout`
+    // (`index.js:159-163`), so cleanup has to cancel the fetcher itself.
     it('THEN cancels the guest token fetcher so the refresh chain stops', async () => {
       const { unmount } = renderAnalytics()
 
@@ -275,16 +268,12 @@ describe('Dashboard', () => {
 
       unmount()
 
-      // A cancelled fetcher deliberately never settles — that is the only way to
-      // halt a chain that re-arms from our resolution. Settling here means cleanup
-      // left the loop alive: the mutation mock would have resolved it.
+      // A cancelled fetcher never settles; the mutation mock would have resolved it.
       expect(await hasSettled(fetchGuestToken())).toBe(false)
     })
 
-    // The SDK puts its iframe in the DOM before `embedDashboard` resolves, so an
-    // embed still in flight at cleanup time has to be unmounted once it lands —
-    // otherwise the iframe is orphaned with its Switchboard port open. StrictMode
-    // hits this on every dev mount.
+    // The SDK mounts its iframe before `embedDashboard` resolves, so an embed still
+    // in flight at cleanup time is orphaned unless it is unmounted once it lands.
     it('THEN tears down an embed that only resolves after cleanup ran', async () => {
       let resolveEmbed: (value: unknown) => void = () => {}
 
@@ -304,7 +293,6 @@ describe('Dashboard', () => {
       resolveEmbed({ unmount: mockUnmount, observeDataMask: mockObserveDataMask })
 
       await waitFor(() => expect(mockUnmount).toHaveBeenCalledTimes(1))
-      // The late embed must not wire up filter observation either.
       expect(mockObserveDataMask).not.toHaveBeenCalled()
     })
   })

@@ -31,8 +31,6 @@ const tokenResponse = (guestToken: string | null) => ({
 })
 
 // Whether `promise` has settled once microtasks and 0ms timers have flushed.
-// Racing against an already-resolved sentinel instead would always pick the
-// sentinel, so such an assertion could never fail.
 const hasSettled = async (promise: Promise<unknown>): Promise<boolean> => {
   let settled = false
 
@@ -99,7 +97,6 @@ describe('createFetchSupersetGuestToken', () => {
       await jest.advanceTimersByTimeAsync(0)
       expect(mutate).toHaveBeenCalledTimes(1)
 
-      // No further attempt until the first backoff has elapsed.
       await jest.advanceTimersByTimeAsync(FIRST_RETRY_BACKOFF_MS - 1)
       expect(mutate).toHaveBeenCalledTimes(1)
 
@@ -124,8 +121,6 @@ describe('createFetchSupersetGuestToken', () => {
       await drainFailedInvocation(fetchGuestToken())
       expect(mutate).toHaveBeenCalledTimes(MAX_MINT_ATTEMPTS)
 
-      // The SDK re-invokes us ~5s after we hand back an expired token. That call
-      // must not immediately hit the endpoint again.
       const second = fetchGuestToken()
 
       await jest.advanceTimersByTimeAsync(FIRST_STREAK_COOLDOWN_MS - 1)
@@ -196,13 +191,11 @@ describe('createFetchSupersetGuestToken', () => {
       .mockResolvedValue(tokenResponse('token-recovered'))
     const fetchGuestToken = createFetchSupersetGuestToken(makeClient(mutate), '42', 'initial-token')
 
-    // Attempt 1 fails, attempt 2 recovers within the same invocation.
     const recovering = fetchGuestToken()
 
     await jest.advanceTimersByTimeAsync(FIRST_RETRY_BACKOFF_MS)
     await expect(recovering).resolves.toBe('token-recovered')
 
-    // Streak is reset, so the next invocation mints without waiting.
     await expect(fetchGuestToken()).resolves.toBe('token-recovered')
     expect(mutate).toHaveBeenCalledTimes(3)
   })
@@ -236,10 +229,8 @@ describe('createFetchSupersetGuestToken', () => {
       expect(mutate).not.toHaveBeenCalled()
     })
 
-    // A call already in flight MUST settle. The SDK awaits this callback inside
-    // `Promise.all([fetchGuestToken(), mountIframe()])` during the initial embed,
-    // so hanging here leaves `embedDashboard` unresolved and its already-mounted
-    // iframe orphaned, with no handle for the effect cleanup to unmount.
+    // The SDK awaits this callback inside `Promise.all` during the initial embed,
+    // so hanging here would leave `embedDashboard` unresolved forever.
     it('THEN still settles a call that was already in flight', async () => {
       let resolveMutate: (value: unknown) => void = () => {}
       const mutate = jest.fn().mockReturnValue(
@@ -261,8 +252,6 @@ describe('createFetchSupersetGuestToken', () => {
       await expect(pending).resolves.toBe('token-late')
     })
 
-    // Without waking the sleeper this would sit on the remaining backoff, so the
-    // assertion below would time out rather than resolve.
     it('THEN abandons a pending retry backoff immediately', async () => {
       const mutate = jest.fn().mockRejectedValue(new Error('network'))
       const fetchGuestToken = createFetchSupersetGuestToken(

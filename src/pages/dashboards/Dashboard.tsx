@@ -129,11 +129,8 @@ const Dashboard = ({ contentTitle, dashboardTitle, dashboardTitleTestKey }: Dash
         iframeSandboxExtras: ['allow-top-navigation', 'allow-popups-to-escape-sandbox'],
       })
 
-      // Cleanup may have run while the embed was in flight — StrictMode's double
-      // mount, a dashboard tab switch, a fast navigate. The SDK puts its iframe in
-      // the DOM before `embedDashboard` resolves, so the cleanup below had no
-      // `embedded` to unmount: do it here, otherwise the iframe stays orphaned in
-      // the DOM with its Switchboard port open.
+      // The SDK mounts its iframe before `embedDashboard` resolves, so cleanup that
+      // ran while this was in flight had no `embedded` to unmount.
       if (disposed) {
         embedded.unmount()
 
@@ -147,10 +144,8 @@ const Dashboard = ({ contentTitle, dashboardTitle, dashboardTitleTestKey }: Dash
       dashboardRef.current = dashboard.id
     }
 
-    // `embedDashboard` rejects if Superset hands back a token it can't decode
-    // (`jwtDecode` throws inside `getGuestTokenRefreshTiming`). Nothing else
-    // observes this promise, so without a catch that surfaces as an unhandled
-    // rejection and a silently blank dashboard.
+    // Nothing else observes this promise: uncaught, a bad token from Superset is an
+    // unhandled rejection and a silently blank dashboard.
     mount().catch((mountError) => {
       captureException(mountError, {
         tags: { errorType: 'SupersetDashboardMountError', component: 'Dashboard' },
