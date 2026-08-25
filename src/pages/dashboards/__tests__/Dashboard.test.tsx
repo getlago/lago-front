@@ -115,6 +115,28 @@ const renderRevenue = (mocks: TestMocksType = successMock) =>
     { mocks },
   )
 
+// Whether `promise` has settled once microtasks and 0ms timers have flushed.
+// Racing against an already-resolved sentinel instead would always pick the
+// sentinel, so such an assertion could never fail.
+const hasSettled = async (promise: Promise<unknown>): Promise<boolean> => {
+  let settled = false
+
+  promise.then(
+    () => {
+      settled = true
+    },
+    () => {
+      settled = true
+    },
+  )
+
+  await new Promise<void>((resolve) => {
+    setTimeout(resolve, 0)
+  })
+
+  return settled
+}
+
 describe('Dashboard', () => {
   beforeEach(() => {
     jest.clearAllMocks()
@@ -238,6 +260,25 @@ describe('Dashboard', () => {
       unmount()
 
       expect(mockUnmount).toHaveBeenCalled()
+    })
+
+    // The SDK's `unmount()` only clears the iframe (`index.js:159-163`); it never
+    // cancels the refresh `setTimeout` it scheduled, so cleanup has to cancel the
+    // fetcher too. Without that, the chain keeps minting tokens for the rest of the
+    // SPA session — every revisit or dashboard switch leaving another one behind.
+    it('THEN cancels the guest token fetcher so the refresh chain stops', async () => {
+      const { unmount } = renderAnalytics()
+
+      await waitFor(() => expect(mockEmbedDashboard).toHaveBeenCalledTimes(1))
+
+      const { fetchGuestToken } = mockEmbedDashboard.mock.calls[0][0]
+
+      unmount()
+
+      // A cancelled fetcher deliberately never settles — that is the only way to
+      // halt a chain that re-arms from our resolution. Settling here means cleanup
+      // left the loop alive: the mutation mock would have resolved it.
+      expect(await hasSettled(fetchGuestToken())).toBe(false)
     })
 
     // The SDK puts its iframe in the DOM before `embedDashboard` resolves, so an
