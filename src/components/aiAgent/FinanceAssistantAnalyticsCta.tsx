@@ -3,7 +3,6 @@ import { FormEvent, useState } from 'react'
 
 import { useAskFinanceAssistant } from '~/components/aiAgent/hooks/useAskFinanceAssistant'
 import { AiBadge } from '~/components/designSystem/AiBadge'
-import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
 import { AiAgentTypeEnum, useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -13,6 +12,7 @@ import { usePermissions } from '~/hooks/usePermissions'
 export const FINANCE_ASSISTANT_CTA_TEST_ID = 'finance-assistant-cta'
 export const FINANCE_ASSISTANT_CTA_INPUT_TEST_ID = 'finance-assistant-cta-input'
 export const FINANCE_ASSISTANT_CTA_SUBMIT_BUTTON_TEST_ID = 'finance-assistant-cta-submit-button'
+export const FINANCE_ASSISTANT_CTA_CLOSE_BUTTON_TEST_ID = 'finance-assistant-cta-close-button'
 
 export const FinanceAssistantAnalyticsCta = () => {
   const { openPanelWithAgent, state } = useAiAgent()
@@ -83,14 +83,15 @@ export const FinanceAssistantAnalyticsCta = () => {
         </button>
       </form>
 
-      <div className="pointer-events-auto absolute -right-3 -top-3 hidden overflow-hidden rounded-full bg-white shadow-xl group-hover/finance-assistant-cta:flex">
-        <Button
-          icon="close"
-          size="small"
-          variant="quaternary"
-          onClick={() => setIsVisible(false)}
-        />
-      </div>
+      <button
+        type="button"
+        aria-label={translate('text_62f50d26c989ab03196884ae')}
+        onClick={() => setIsVisible(false)}
+        className="pointer-events-none absolute -right-2 -top-2 flex size-5 items-center justify-center rounded-full bg-white text-grey-600 opacity-0 shadow-sm transition-opacity duration-200 hover:text-grey-700 focus-visible:pointer-events-auto focus-visible:opacity-100 focus-visible:ring group-hover/finance-assistant-cta:pointer-events-auto group-hover/finance-assistant-cta:opacity-100"
+        data-test={FINANCE_ASSISTANT_CTA_CLOSE_BUTTON_TEST_ID}
+      >
+        <Icon name="close" size="xsmall" />
+      </button>
     </div>
   )
 }

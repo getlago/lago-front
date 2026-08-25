@@ -2,6 +2,7 @@ import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import {
+  FINANCE_ASSISTANT_CTA_CLOSE_BUTTON_TEST_ID,
   FINANCE_ASSISTANT_CTA_INPUT_TEST_ID,
   FINANCE_ASSISTANT_CTA_SUBMIT_BUTTON_TEST_ID,
   FINANCE_ASSISTANT_CTA_TEST_ID,
@@ -103,15 +104,16 @@ describe('FinanceAssistantAnalyticsCta', () => {
       it('THEN should hide it', async () => {
         render(<FinanceAssistantAnalyticsCta />)
 
-        const closeButton = screen
-          .getByTestId('close/medium')
-          .closest('button') as HTMLButtonElement
+        const closeButton = screen.getByTestId(FINANCE_ASSISTANT_CTA_CLOSE_BUTTON_TEST_ID)
 
-        expect(closeButton.parentElement).toHaveClass(
-          'group-hover/finance-assistant-cta:flex',
-          'hidden',
-          'rounded-full',
+        expect(closeButton).toHaveClass(
+          'opacity-0',
+          'transition-opacity',
+          'group-hover/finance-assistant-cta:opacity-100',
+          'pointer-events-none',
+          'group-hover/finance-assistant-cta:pointer-events-auto',
         )
+        expect(closeButton.querySelector('[data-test="close/xsmall"]')).toBeInTheDocument()
 
         await userEvent.click(closeButton)
 
