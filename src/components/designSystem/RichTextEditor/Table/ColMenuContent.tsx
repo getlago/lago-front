@@ -95,6 +95,19 @@ const ColMenuContent = ({
           {translate('text_1775636781835fuo9er4u938')}
         </Button>
       )}
+
+      {/* Delete table */}
+      <Button
+        variant="quaternary"
+        startIcon="trash"
+        align="left"
+        onClick={() => {
+          focusCellAndRun(editor, cellPos, (chain) => chain.deleteTable())
+          closePopper()
+        }}
+      >
+        {translate('text_1787637018754g8frfvo1m2k')}
+      </Button>
     </MenuPopper>
   )
 }

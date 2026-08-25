@@ -10,7 +10,7 @@ import { MenuPopper } from '~/styles/designSystem/PopperComponents'
 
 import ColorPicker from './ColorPicker'
 
-import { getDragHandleStorage } from '../extensions/DragHandle'
+import { getDragHandleStorage, resolveSelectedTable } from '../extensions/DragHandle'
 
 export const BLOCK_TOOLBAR_TEST_ID = 'block-toolbar'
 export const BLOCK_TOOLBAR_MOVE_UP_BUTTON_TEST_ID = 'block-toolbar-move-up-button'
@@ -55,20 +55,11 @@ const getNodeSelectionBlock = (e: Editor) => {
 const getDragHandleTableBlock = (e: Editor) => {
   if (e.view.dragging) return null
 
-  const selectedBlock = getDragHandleStorage(e).selectedBlock
+  const selectedTable = resolveSelectedTable(e.state, getDragHandleStorage(e).selectedBlock)
 
-  if (!selectedBlock) return null
+  if (!selectedTable) return null
 
-  const node = e.state.doc.nodeAt(selectedBlock.pos)
-
-  if (node?.type.name !== 'table') return null
-
-  const selFrom = e.state.selection.from
-  const tableEnd = selectedBlock.pos + node.nodeSize
-
-  if (selFrom < selectedBlock.pos || selFrom > tableEnd) return null
-
-  return buildBlockInfo(selectedBlock.pos, node, e.state.doc)
+  return buildBlockInfo(selectedTable.pos, selectedTable.node, e.state.doc)
 }
 
 const BlockToolbar = ({ editor }: BlockToolbarProps) => {
