@@ -9,7 +9,7 @@ import { AllTheProviders, TestMocksType } from '~/test-utils'
 
 import ProductFilterDetailsOverview, {
   PRODUCT_ITEM_FILTER_DETAILS_OVERVIEW_EDIT_TEST_ID,
-  PRODUCT_ITEM_FILTER_DETAILS_OVERVIEW_NO_PRODUCT_TEST_ID,
+  PRODUCT_ITEM_FILTER_DETAILS_OVERVIEW_NO_PRODUCT_CATEGORY_TEST_ID,
 } from '../ProductFilterDetailsOverview'
 
 const mockOpenEditProductFilterDrawer = jest.fn()
@@ -192,7 +192,7 @@ describe('ProductFilterDetailsOverview', () => {
         expect(await screen.findByText('EU pro filter')).toBeInTheDocument()
         expect(screen.queryByRole('link', { name: 'Object storage' })).not.toBeInTheDocument()
         expect(
-          screen.getByTestId(PRODUCT_ITEM_FILTER_DETAILS_OVERVIEW_NO_PRODUCT_TEST_ID),
+          screen.getByTestId(PRODUCT_ITEM_FILTER_DETAILS_OVERVIEW_NO_PRODUCT_CATEGORY_TEST_ID),
         ).toBeInTheDocument()
       })
     })

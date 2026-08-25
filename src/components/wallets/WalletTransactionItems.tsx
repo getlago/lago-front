@@ -139,7 +139,7 @@ const WalletTransactionItems = ({
                     })}?walletId=${wallet.id}&transactionId=${transaction.walletTransaction.id}`}
                   >
                     <Button
-                      className="visited:text-blue focus:underline focus:ring-0"
+                      className="focus:underline focus:ring-0"
                       variant="inline"
                       endIcon="outside"
                     >

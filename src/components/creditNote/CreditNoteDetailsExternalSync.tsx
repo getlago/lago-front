@@ -117,7 +117,7 @@ const OverviewLine: FC<
       )}
       {link && (
         <Link
-          className="w-fit line-break-anywhere visited:text-blue hover:no-underline"
+          className="w-fit line-break-anywhere hover:no-underline"
           target="_blank"
           rel="noopener noreferrer"
           to={link}

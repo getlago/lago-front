@@ -24,8 +24,8 @@ import { useProductFilterDrawer } from '../drawers/productFilter/useProductFilte
 
 export const PRODUCT_ITEM_FILTER_DETAILS_OVERVIEW_EDIT_TEST_ID =
   'product-item-filter-details-overview-edit'
-export const PRODUCT_ITEM_FILTER_DETAILS_OVERVIEW_NO_PRODUCT_TEST_ID =
-  'product-item-filter-details-overview-no-productCategory'
+export const PRODUCT_ITEM_FILTER_DETAILS_OVERVIEW_NO_PRODUCT_CATEGORY_TEST_ID =
+  'product-item-filter-details-overview-no-product-category'
 
 gql`
   fragment ProductFilterForDetailsOverview on ProductFilter {
@@ -100,18 +100,12 @@ const ProductFilterDetailsOverview = ({ productFilterId }: { productFilterId: st
         tab: ProductCategoryDetailsTabsOptionsEnum.overview,
       })}
     >
-      <Typography variant="body" color="grey700">
-        {product.productCategory.name}
-      </Typography>
+      {product.productCategory.name}
     </Link>
   ) : (
-    <Typography
-      data-test={PRODUCT_ITEM_FILTER_DETAILS_OVERVIEW_NO_PRODUCT_TEST_ID}
-      variant="body"
-      color="grey700"
-    >
+    <span data-test={PRODUCT_ITEM_FILTER_DETAILS_OVERVIEW_NO_PRODUCT_CATEGORY_TEST_ID}>
       {translate('text_1784590896872hcbug1hthjl')}
-    </Typography>
+    </span>
   )
 
   const attachedProduct = (
@@ -121,9 +115,7 @@ const ProductFilterDetailsOverview = ({ productFilterId }: { productFilterId: st
         tab: ProductDetailsTabsOptionsEnum.overview,
       })}
     >
-      <Typography variant="body" color="grey700">
-        {product.invoiceDisplayName || product.name}
-      </Typography>
+      {product.invoiceDisplayName || product.name}
     </Link>
   )
 
