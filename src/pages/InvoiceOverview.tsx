@@ -60,6 +60,11 @@ import { tw } from '~/styles/utils'
 
 const { appEnv } = envGlobalVar()
 
+export const ANROK_SECTION_TEST_ID = 'invoice-overview-anrok-section'
+export const AVALARA_SECTION_TEST_ID = 'invoice-overview-avalara-section'
+export const ANROK_RESYNC_CTA_TEST_ID = 'invoice-overview-anrok-resync-cta'
+export const AVALARA_RESYNC_CTA_TEST_ID = 'invoice-overview-avalara-resync-cta'
+
 gql`
   fragment InvoiceDetailsForInvoiceOverview on Invoice {
     id
@@ -230,9 +235,18 @@ const InlineLink = ({ children, ...props }: LinkProps) => {
   )
 }
 
-const InfoLine = ({ children }: { children: React.ReactNode }) => {
+const InfoLine = ({
+  children,
+  dataTest,
+}: {
+  children: React.ReactNode
+  dataTest?: string
+}): JSX.Element => {
   return (
-    <div className="mb-3 flex items-start first-child:mr-3 first-child:min-w-58 first-child:leading-7 last-child:w-full last-child:line-break-anywhere">
+    <div
+      data-test={dataTest}
+      className="mb-3 flex items-start first-child:mr-3 first-child:min-w-58 first-child:leading-7 last-child:w-full last-child:line-break-anywhere"
+    >
       {children}
     </div>
   )
@@ -410,9 +424,14 @@ const InvoiceOverview = memo(
     const showNetsuiteSection =
       !!connectedNetsuiteIntegration?.accountId && !!invoice?.externalIntegrationId
 
+    // `taxProviderVoidable` is tax-provider-agnostic, so each re-sync row must be scoped to the
+    // tax provider the customer is actually connected to.
     const showTaxProviderReSyncButton = invoice?.taxProviderVoidable
+    const showAnrokReSyncButton = !!showTaxProviderReSyncButton && !!customer?.anrokCustomer
+    const showAvalaraReSyncButton = !!showTaxProviderReSyncButton && !!customer?.avalaraCustomer
+
     const showAnrokLink = isInvoiceFinalizedOrVoided && !!customer?.anrokCustomer?.externalAccountId
-    const showAnrokSection = (showTaxProviderReSyncButton || showAnrokLink) && !!fees?.length
+    const showAnrokSection = (showAnrokReSyncButton || showAnrokLink) && !!fees?.length
 
     const showAvalaraLink =
       isInvoiceFinalizedOrVoided &&
@@ -421,7 +440,7 @@ const InvoiceOverview = memo(
       !!connectedAvalaraIntegration?.accountId &&
       !!invoice?.taxProviderId
 
-    const showAvalaraSection = (showAvalaraLink || showTaxProviderReSyncButton) && !!fees?.length
+    const showAvalaraSection = (showAvalaraLink || showAvalaraReSyncButton) && !!fees?.length
 
     const showHubspotReSyncButton = invoice?.integrationHubspotSyncable
     const showHubspotLink =
@@ -565,7 +584,7 @@ const InvoiceOverview = memo(
                   </SectionHeader>
 
                   {showAnrokSection && (
-                    <InfoLine>
+                    <InfoLine dataTest={ANROK_SECTION_TEST_ID}>
                       <Typography variant="caption" color="grey600" noWrap>
                         {translate('text_1724772240299r3u9nouqflf')}
                       </Typography>
@@ -594,6 +613,7 @@ const InvoiceOverview = memo(
                           </Typography>
                           <span>•</span>
                           <InlineLink
+                            data-test={ANROK_RESYNC_CTA_TEST_ID}
                             to={'#'}
                             onClick={(e) => {
                               e.preventDefault()
@@ -613,7 +633,7 @@ const InvoiceOverview = memo(
                   )}
 
                   {showAvalaraSection && (
-                    <InfoLine>
+                    <InfoLine dataTest={AVALARA_SECTION_TEST_ID}>
                       <Typography variant="caption" color="grey600" noWrap>
                         {translate('text_1747408519913t2tehiclc5m')}
                       </Typography>
@@ -645,6 +665,7 @@ const InvoiceOverview = memo(
                           </Typography>
                           <span>•</span>
                           <InlineLink
+                            data-test={AVALARA_RESYNC_CTA_TEST_ID}
                             to={'#'}
                             onClick={(e) => {
                               e.preventDefault()
