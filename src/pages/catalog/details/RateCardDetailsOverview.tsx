@@ -73,6 +73,7 @@ gql`
       id
       name
       code
+      invoiceDisplayName
     }
     productFilter {
       id
@@ -124,7 +125,7 @@ const RateCardDetailsOverview = ({ rateCardId }: { rateCardId: string }) => {
         tab: ProductDetailsTabsOptionsEnum.overview,
       })}
     >
-      {product.name}
+      {product.invoiceDisplayName || product.name}
     </Link>
   )
 
