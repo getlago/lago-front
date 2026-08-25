@@ -198,7 +198,6 @@ export const CreditNoteDetailsOverview: FC<CreditNoteDetailsOverviewProps> = ({
                       validWrapper={(children) => <>{children}</>}
                       invalidWrapper={(children) => (
                         <Link
-                          className="visited:text-blue"
                           to={generatePath(CUSTOMER_DETAILS_ROUTE, {
                             customerId: creditNote?.customer?.id,
                           })}
@@ -216,7 +215,6 @@ export const CreditNoteDetailsOverview: FC<CreditNoteDetailsOverviewProps> = ({
                     title={translate('text_637655cb50f04bf1c8379d02')}
                     value={
                       <Link
-                        className="visited:text-blue"
                         to={generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
                           customerId: creditNote?.customer?.id,
                           invoiceId: creditNote?.invoice.id,

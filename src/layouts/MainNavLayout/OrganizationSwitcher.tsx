@@ -263,7 +263,7 @@ export const OrganizationSwitcher = ({
                 {isVersionLoading && <Skeleton variant="text" className="w-30" />}
                 {!isVersionLoading && !!currentVersion?.githubUrl && !!currentVersion?.number && (
                   <a
-                    className="flex items-center gap-2 text-blue visited:text-blue"
+                    className="flex items-center gap-2 text-blue"
                     href={currentVersion.githubUrl}
                     target="_blank"
                     rel="noreferrer noopener"
