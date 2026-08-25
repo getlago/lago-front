@@ -49,7 +49,7 @@ description: 'Phase 2 of the loop pipeline for lago-front. Takes an ISSUE-ID, re
      - New keys only when nothing fits; follow the existing key naming pattern.
      - Never leave dead keys: if the change removes the last usage of a key, remove the key.
    - Match surrounding code conventions and the styleguide. No dead code, no unused exports, no components built for a future consumer that does not exist yet.
-   - **Comments: delete, don't rewrite.** When a change removes the workaround a comment explained, delete the comment instead of rewording it. Before adding one, check the enclosing block for a comment already stating the same rule.
+   - **Comments must earn their place.** A comment is welcome only when it carries context the code cannot show: a constraint, a non-obvious why, a cross-file invariant. Never narrate self-evident code — a self-speaking prop, what a well-named variable holds, what the next line does. When a change removes the workaround a comment explained, delete the comment instead of rewording it. Before adding one, check the enclosing block for a comment already stating the same rule.
    - **A redirect in a `useEffect` does not stop its own render** — the body paints before the navigate commits. Pair every guard effect with an early `return null` on the same condition (after all hooks), and assert `container.firstChild` is null.
    - If GraphQL documents change: run `pnpm codegen` and include regenerated files.
 
