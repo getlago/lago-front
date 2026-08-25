@@ -10,6 +10,7 @@ import {
 } from '~/core/constants/tabsOptions'
 import { Link, PRODUCT_DETAILS_ROUTE, PRODUCT_FILTER_DETAILS_ROUTE } from '~/core/router'
 import {
+  PropertiesForActiveRateFragmentDoc,
   RateCardForDeleteRateCardDialogFragmentDoc,
   RateCardForDrawerFragmentDoc,
   RateCardForListFragment,
@@ -44,13 +45,16 @@ gql`
     activeRate {
       id
       rateModel
-      rateProperties
+      rateProperties {
+        ...PropertiesForActiveRate
+      }
       minAmountCents
     }
     ...RateCardForDrawer
     ...RateCardForDeleteRateCardDialog
   }
 
+  ${PropertiesForActiveRateFragmentDoc}
   ${RateCardForDrawerFragmentDoc}
   ${RateCardForDeleteRateCardDialogFragmentDoc}
 `
