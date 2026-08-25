@@ -12,7 +12,6 @@ import {
   REALTIME_USAGE_EMPTY_TEST_ID,
   REALTIME_USAGE_LEGEND_TEST_ID,
   REALTIME_USAGE_LIVE_TEST_ID,
-  REALTIME_USAGE_TABLE_TEST_ID,
   REALTIME_USAGE_TIME_RANGE_TEST_ID,
   SubscriptionRealtimeUsageGraph,
 } from '../SubscriptionRealtimeUsageGraph'
@@ -112,19 +111,11 @@ describe('SubscriptionRealtimeUsageGraph', () => {
 
     const legend = screen.getByTestId(REALTIME_USAGE_LEGEND_TEST_ID)
 
-    // The named filter and the charge default both get their own series, and
-    // the legend shows the current (last) hour of each.
+    // The named filter and the charge default both get their own series; the
+    // legend only names them and carries their color.
     expect(legend).toHaveTextContent('Europe')
-    expect(legend).toHaveTextContent('10')
-    expect(legend).toHaveTextContent('2')
-
-    const table = screen.getByTestId(REALTIME_USAGE_TABLE_TEST_ID)
-
-    expect(table).toHaveTextContent('Europe')
-    // Most recent hour first, with its per-filter values and the row total.
-    expect(table.querySelectorAll('tbody tr')).toHaveLength(2)
-    expect(table.querySelectorAll('tbody tr')[0]).toHaveTextContent('12')
-    expect(table.querySelectorAll('tbody tr')[1]).toHaveTextContent('22')
+    expect(legend).toHaveTextContent('Default (no filter)')
+    expect(legend).not.toHaveTextContent(/\d/)
   })
 
   it('does not poll until auto-refresh is turned on', async () => {
@@ -184,6 +175,58 @@ describe('SubscriptionRealtimeUsageGraph', () => {
 
     await waitFor(() => expect(options[0]).toHaveAttribute('aria-pressed', 'true'))
     expect(options[2]).toHaveAttribute('aria-pressed', 'false')
+  })
+
+  it('widens the columns when the window shrinks', async () => {
+    // Recharts needs a measured container, which jsdom never gives it.
+    const resizeObserver = jest
+      .spyOn(Element.prototype, 'getBoundingClientRect')
+      .mockReturnValue({ ...new DOMRect(), width: 800, height: 232 })
+
+    global.ResizeObserver = class {
+      observe(): void {}
+      unobserve(): void {}
+      disconnect(): void {}
+    }
+
+    const { container } = render(
+      <SubscriptionRealtimeUsageGraph subscriptionId={SUBSCRIPTION_ID} />,
+      {
+        mocks: [
+          chargesMock,
+          hourlyUsageMock(
+            [{ chargeFilterId: EU_FILTER_ID, invoiceDisplayName: 'Europe', units: 30 }],
+            [
+              {
+                time: '2026-08-24T09:00:00Z',
+                units: 20,
+                breakdown: [{ chargeFilterId: EU_FILTER_ID, units: 20 }],
+              },
+            ],
+          ),
+        ],
+      },
+    )
+
+    // The rescale animation leaves the columns mid-flight, so every read waits
+    // for the settled geometry rather than sampling a frame.
+    const columnWidth = (): number | undefined => {
+      const path = container.querySelector('.recharts-bar path')
+      const xs = (path?.getAttribute('d') || '')
+        .match(/-?\d+\.?\d*/g)
+        ?.map(Number)
+        .filter((_, index) => index % 2 === 0)
+
+      return xs?.length ? Math.max(...xs) - Math.min(...xs) : undefined
+    }
+
+    await waitFor(() => expect(columnWidth()).toBe(24))
+
+    fireEvent.click(screen.getByText('6h'))
+
+    await waitFor(() => expect(columnWidth()).toBe(56))
+
+    resizeObserver.mockRestore()
   })
 
   it('renders the empty state when the pipeline has no usage for the charge', async () => {
