@@ -45,10 +45,17 @@ import { FiltersItemPaymentOverdue } from '~/components/Filters/graphql/filtersE
 import { FiltersItemPaymentStatus } from '~/components/Filters/graphql/filtersElements/FiltersItemPaymentStatus'
 import { FiltersItemPeriod } from '~/components/Filters/graphql/filtersElements/FiltersItemPeriod'
 import { FiltersItemPlanCode } from '~/components/Filters/graphql/filtersElements/FiltersItemPlanCode'
+import { FiltersItemProductFilterProduct } from '~/components/Filters/graphql/filtersElements/FiltersItemProductFilterProduct'
+import { FiltersItemProductFilterProductCategory } from '~/components/Filters/graphql/filtersElements/FiltersItemProductFilterProductCategory'
+import { FiltersItemProductProductCategory } from '~/components/Filters/graphql/filtersElements/FiltersItemProductProductCategory'
+import { FiltersItemProductType } from '~/components/Filters/graphql/filtersElements/FiltersItemProductType'
 import { FiltersItemPurchaseOrderNumber } from '~/components/Filters/graphql/filtersElements/FiltersItemPurchaseOrderNumber'
 import { FiltersItemQuoteNumber } from '~/components/Filters/graphql/filtersElements/FiltersItemQuoteNumber'
 import { FiltersItemQuoteOrderType } from '~/components/Filters/graphql/filtersElements/FiltersItemQuoteOrderType'
 import { FiltersItemQuoteStatus } from '~/components/Filters/graphql/filtersElements/FiltersItemQuoteStatus'
+import { FiltersItemRateCardProduct } from '~/components/Filters/graphql/filtersElements/FiltersItemRateCardProduct'
+import { FiltersItemRateCardProductCategory } from '~/components/Filters/graphql/filtersElements/FiltersItemRateCardProductCategory'
+import { FiltersItemRateCardProductFilter } from '~/components/Filters/graphql/filtersElements/FiltersItemRateCardProductFilter'
 import { FiltersItemRequestPath } from '~/components/Filters/graphql/filtersElements/FiltersItemRequestPath'
 import { FiltersItemResourceIds } from '~/components/Filters/graphql/filtersElements/FiltersItemResourceIds'
 import { FiltersItemResourceTypes } from '~/components/Filters/graphql/filtersElements/FiltersItemResourceTypes'
@@ -142,6 +149,17 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.paymentStatus]: <FiltersItemPaymentStatus {...props} />,
     [AvailableFiltersEnum.period]: <FiltersItemPeriod {...props} />,
     [AvailableFiltersEnum.planCode]: <FiltersItemPlanCode {...props} />,
+    [AvailableFiltersEnum.productProductCategory]: <FiltersItemProductProductCategory {...props} />,
+    [AvailableFiltersEnum.productType]: <FiltersItemProductType {...props} />,
+    [AvailableFiltersEnum.productFilterProductCategory]: (
+      <FiltersItemProductFilterProductCategory {...props} />
+    ),
+    [AvailableFiltersEnum.productFilterProduct]: <FiltersItemProductFilterProduct {...props} />,
+    [AvailableFiltersEnum.rateCardProductCategory]: (
+      <FiltersItemRateCardProductCategory {...props} />
+    ),
+    [AvailableFiltersEnum.rateCardProduct]: <FiltersItemRateCardProduct {...props} />,
+    [AvailableFiltersEnum.rateCardProductFilter]: <FiltersItemRateCardProductFilter {...props} />,
     [AvailableFiltersEnum.requestPaths]: <FiltersItemRequestPath {...props} />,
     [AvailableFiltersEnum.resourceIds]: <FiltersItemResourceIds {...props} />,
     [AvailableFiltersEnum.resourceTypes]: <FiltersItemResourceTypes {...props} />,

@@ -110,6 +110,10 @@ const App = () => {
     return <Spinner />
   }
 
+  // ToastContainer sits inside BrowserRouter so router Links in toast messages
+  // resolve; it is a fixed overlay, out of the PanelGroup flow. Toasts triggered
+  // from the devtools MemoryRouter still display (global toastsVar) and their
+  // links navigate the main app router, which is the intent.
   return (
     <ApolloProvider client={client}>
       <StyledEngineProvider injectFirst>
@@ -131,6 +135,7 @@ const App = () => {
                             <AiAgent />
                           </PanelGroup>
                         </Panel>
+                        <ToastContainer />
                       </BrowserRouter>
                       <MemoryRouter initialEntries={[DEVTOOL_ROUTE]}>
                         <DevtoolsErrorBoundary>
@@ -144,7 +149,6 @@ const App = () => {
             </DeveloperToolProvider>
           </ErrorBoundary>
           <UserIdentifier />
-          <ToastContainer />
         </ThemeProvider>
       </StyledEngineProvider>
     </ApolloProvider>
