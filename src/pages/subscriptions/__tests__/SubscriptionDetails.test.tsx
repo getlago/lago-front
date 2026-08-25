@@ -12,6 +12,7 @@ import { StatusTypeEnum } from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import SubscriptionDetails, {
+  SUBSCRIPTION_DETAILS_CANCEL_TEST_ID,
   SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID,
   SUBSCRIPTION_DETAILS_UPGRADE_DOWNGRADE_TEST_ID,
 } from '../SubscriptionDetails'
@@ -107,11 +108,13 @@ jest.mock('~/generated/graphql', () => ({
 }))
 
 const mockCanEditSubscription = jest.fn().mockReturnValue(true)
+const mockCanTerminateSubscription = jest.fn().mockReturnValue(true)
 const mockIsStatusEditable = jest.fn().mockReturnValue(true)
 
 jest.mock('~/hooks/useSubscriptionPermissionsActions', () => ({
   useSubscriptionPermissionsActions: () => ({
     canEditSubscription: mockCanEditSubscription,
+    canTerminateSubscription: mockCanTerminateSubscription,
     isStatusEditable: mockIsStatusEditable,
   }),
 }))
@@ -122,6 +125,7 @@ describe('SubscriptionDetails', () => {
     capturedConfig = null
     mockHasPermissions.mockReturnValue(true)
     mockCanEditSubscription.mockReturnValue(true)
+    mockCanTerminateSubscription.mockReturnValue(true)
     mockIsStatusEditable.mockReturnValue(true)
     mockUseCurrentUser.mockReturnValue({ isPremium: true })
 
@@ -175,6 +179,7 @@ describe('SubscriptionDetails', () => {
   describe('GIVEN user does not have subscriptionsUpdate permission', () => {
     beforeEach(() => {
       mockCanEditSubscription.mockReturnValue(false)
+      mockCanTerminateSubscription.mockReturnValue(false)
     })
 
     it.each([
@@ -209,6 +214,7 @@ describe('SubscriptionDetails', () => {
         error: null,
       })
       mockCanEditSubscription.mockReturnValue(false)
+      mockCanTerminateSubscription.mockReturnValue(false)
     })
 
     it.each([
@@ -230,6 +236,109 @@ describe('SubscriptionDetails', () => {
 
         expect(item?.hidden).toBe(true)
       }
+    })
+  })
+
+  describe('GIVEN subscription is incomplete', () => {
+    beforeEach(() => {
+      mockUseGetSubscriptionForDetailsQuery.mockReturnValue({
+        data: {
+          subscription: { ...mockSubscription, status: StatusTypeEnum.Incomplete },
+        },
+        loading: false,
+        error: null,
+      })
+      // An incomplete subscription cannot be edited, but its activation can be canceled
+      mockCanEditSubscription.mockReturnValue(false)
+      mockCanTerminateSubscription.mockReturnValue(true)
+    })
+
+    it('THEN should hide the upgrade/downgrade dropdown item', () => {
+      render(<SubscriptionDetails />)
+
+      const dropdownAction = capturedConfig?.actions?.items[0]
+
+      if (dropdownAction?.type === 'dropdown') {
+        const item = dropdownAction.items.find(
+          (i) => i.dataTest === SUBSCRIPTION_DETAILS_UPGRADE_DOWNGRADE_TEST_ID,
+        )
+
+        expect(item?.hidden).toBe(true)
+      }
+    })
+
+    it('THEN should show the cancel dropdown item', () => {
+      render(<SubscriptionDetails />)
+
+      const dropdownAction = capturedConfig?.actions?.items[0]
+
+      if (dropdownAction?.type === 'dropdown') {
+        const item = dropdownAction.items.find(
+          (i) => i.dataTest === SUBSCRIPTION_DETAILS_CANCEL_TEST_ID,
+        )
+
+        expect(item?.hidden).toBe(false)
+      }
+    })
+
+    it('THEN cancel onClick should open the dialog with the incomplete status', () => {
+      render(<SubscriptionDetails />)
+
+      const dropdownAction = capturedConfig?.actions?.items[0]
+
+      if (dropdownAction?.type === 'dropdown') {
+        const terminateItem = dropdownAction.items.find(
+          (i) => i.dataTest === SUBSCRIPTION_DETAILS_CANCEL_TEST_ID,
+        )
+
+        terminateItem?.onClick(jest.fn())
+
+        expect(mockOpenTerminateDialog).toHaveBeenCalledWith(
+          expect.objectContaining({
+            id: 'subscription-1',
+            status: StatusTypeEnum.Incomplete,
+          }),
+        )
+      }
+    })
+  })
+
+  describe('GIVEN the ending dropdown item', () => {
+    const findEndingItemDataTestForStatus = (status: StatusTypeEnum) => {
+      mockUseGetSubscriptionForDetailsQuery.mockReturnValue({
+        data: { subscription: { ...mockSubscription, status } },
+        loading: false,
+        error: null,
+      })
+
+      render(<SubscriptionDetails />)
+
+      const dropdownAction = capturedConfig?.actions?.items[0]
+
+      if (dropdownAction?.type !== 'dropdown') return undefined
+
+      return dropdownAction.items.find(
+        (i) =>
+          i.dataTest === SUBSCRIPTION_DETAILS_CANCEL_TEST_ID ||
+          i.dataTest === SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID,
+      )?.dataTest
+    }
+
+    describe('WHEN the subscription never started billing', () => {
+      it.each([StatusTypeEnum.Pending, StatusTypeEnum.Incomplete])(
+        'THEN should offer cancel for a %s subscription',
+        (status) => {
+          expect(findEndingItemDataTestForStatus(status)).toBe(SUBSCRIPTION_DETAILS_CANCEL_TEST_ID)
+        },
+      )
+    })
+
+    describe('WHEN the subscription is active', () => {
+      it('THEN should offer terminate', () => {
+        expect(findEndingItemDataTestForStatus(StatusTypeEnum.Active)).toBe(
+          SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID,
+        )
+      })
     })
   })
 

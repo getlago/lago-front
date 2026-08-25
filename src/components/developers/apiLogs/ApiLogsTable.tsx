@@ -16,6 +16,7 @@ import { useFormatterDateHelper } from '~/hooks/helpers/useFormatterDateHelper'
 interface ApiLogsTableProps {
   getApiLogsResult: GetApiLogsQueryResult
   logListRef: RefObject<ListSectionRef>
+  activeRowId?: string
   pageSize?: number
   onPageSizeChange?: (pageSize: number) => void
 }
@@ -23,6 +24,7 @@ interface ApiLogsTableProps {
 export const ApiLogsTable: FC<ApiLogsTableProps> = ({
   getApiLogsResult,
   logListRef,
+  activeRowId,
   pageSize,
   onPageSizeChange,
 }) => {
@@ -55,6 +57,7 @@ export const ApiLogsTable: FC<ApiLogsTableProps> = ({
         containerSize={16}
         rowSize={48}
         data={apiLogs}
+        activeRowId={activeRowId}
         loadingRowCount={pageSize}
         hasError={!!error}
         isLoading={loading}

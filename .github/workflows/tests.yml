@@ -10,6 +10,32 @@ on:
       - main
 
 jobs:
+  typecheck:
+    if: github.event.pull_request.draft == false || github.event_name == 'push'
+    name: Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v7.0.1
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6.0.10
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6.5.0
+        with:
+          node-version-file: package.json
+          cache: "pnpm"
+
+      - name: Install Node.js dependencies
+        run: pnpm install
+
+      - name: Build packages
+        run: pnpm prebuild
+
+      - name: Run Typescript
+        run: pnpm tsc
+
   test-shard:
     if: github.event.pull_request.draft == false || github.event_name == 'push'
     name: Tests (shard ${{ matrix.shard }}/4)

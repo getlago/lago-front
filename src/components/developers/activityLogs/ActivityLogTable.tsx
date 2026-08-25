@@ -11,6 +11,7 @@ import { ActivityLogsQueryResult } from '~/generated/graphql'
 interface ActivityLogTableProps {
   getActivityLogsResult: ActivityLogsQueryResult
   logListRef: RefObject<ListSectionRef>
+  activeRowId?: string
   pageSize?: number
   onPageSizeChange?: (pageSize: number) => void
 }
@@ -18,6 +19,7 @@ interface ActivityLogTableProps {
 export const ActivityLogTable: FC<ActivityLogTableProps> = ({
   getActivityLogsResult,
   logListRef,
+  activeRowId,
   pageSize,
   onPageSizeChange,
 }) => {
@@ -34,6 +36,7 @@ export const ActivityLogTable: FC<ActivityLogTableProps> = ({
     >
       <Table
         data={data?.activityLogs?.collection ?? []}
+        activeRowId={activeRowId}
         isLoading={loading}
         loadingRowCount={pageSize}
         error={error}

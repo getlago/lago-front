@@ -3,7 +3,7 @@ import fs from 'fs'
 import { DocumentNode, FieldNode, OperationDefinitionNode, parse, SelectionNode } from 'graphql'
 import path from 'path'
 
-import { queryFieldPolicies } from '../cache'
+import { cache, EVENT_KEY_FIELDS, queryFieldPolicies } from '../cache'
 
 const SRC_DIR = path.resolve(__dirname, '../../..')
 
@@ -175,5 +175,51 @@ describe('cache typePolicies', () => {
     for (const fieldName of FIELDS_WITHOUT_FETCH_MORE) {
       expect(Array.from(paginatedFields.keys())).toContain(fieldName)
     }
+  })
+})
+
+// `Event.id` is synthesized by Clickhouse at whole-second precision and without the
+// billable metric code, so two genuinely distinct events can share it and collapse into a
+// single normalized entity — which is what made the events list render the wrong rows.
+// Shortening this tuple silently reintroduces that bug, hence the exact-match assertion.
+describe('Event typePolicy', () => {
+  it('normalizes Event on the full dedup tuple', () => {
+    expect(EVENT_KEY_FIELDS).toEqual([
+      'transactionId',
+      'externalSubscriptionId',
+      'timestampMs',
+      'code',
+    ])
+  })
+
+  it('gives two events differing only by code distinct cache entries', () => {
+    const identify = (code: string): string | undefined =>
+      cache.identify({
+        __typename: 'Event',
+        id: 'organization-1-subscription-1-transaction-1-1740000000',
+        transactionId: 'transaction-1',
+        externalSubscriptionId: 'subscription-1',
+        timestampMs: '1740000000123',
+        code,
+      })
+
+    expect(identify('api_calls')).not.toEqual(identify('storage'))
+  })
+
+  it('gives two events matching the whole tuple the same cache entry', () => {
+    const event = {
+      __typename: 'Event',
+      transactionId: 'transaction-1',
+      externalSubscriptionId: 'subscription-1',
+      timestampMs: '1740000000123',
+      code: 'api_calls',
+    }
+
+    const identified = cache.identify({ ...event, id: 'synthesized-id-1' })
+
+    // `identify` returns undefined for a key field missing from the object, so without this
+    // the equality below would also hold for two failed lookups.
+    expect(identified).toBeDefined()
+    expect(identified).toEqual(cache.identify({ ...event, id: 'synthesized-id-2' }))
   })
 })

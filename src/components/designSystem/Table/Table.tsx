@@ -77,6 +77,7 @@ export interface TableProps<T> {
   hasError?: boolean
   loadingRowCount?: number
   placeholder?: TablePlaceholder
+  activeRowId?: string
   onRowActionLink?: (item: T) => string
   onRowActionClick?: (item: T) => void
   actionColumn?: ActionColumn<T>
@@ -284,6 +285,7 @@ export const Table = <T extends DataItem>({
   placeholder,
   tableInDialog,
   containerClassName,
+  activeRowId,
   onRowActionLink,
   onRowActionClick,
   actionColumn,
@@ -528,6 +530,7 @@ export const Table = <T extends DataItem>({
                   key={`${TABLE_ID}-row-${i}`}
                   id={`${TABLE_ID}-row-${i}`}
                   data-id={item.id}
+                  data-state={!!activeRowId && item.id === activeRowId ? 'selected' : undefined}
                   isClickable={isClickable}
                   tabIndex={isClickable ? 0 : undefined}
                   onKeyDown={isClickable ? onKeyDown : undefined}
