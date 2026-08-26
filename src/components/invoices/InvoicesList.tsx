@@ -209,7 +209,7 @@ const InvoicesList = ({
     const resendEmailAction: ActionItem<InvoiceItem> | null = actions.canResendEmail(invoice)
       ? {
           startIcon: 'at',
-          title: translate('text_1770392315728uyw3zhs7kzh'),
+          title: translate('text_17703925321987cxf5psj6l4'),
           onAction: async () => {
             showResendEmailDialog({
               subject: translate('text_17706311399878xdnudpnjtt', {
