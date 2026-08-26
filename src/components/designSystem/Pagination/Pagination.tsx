@@ -6,6 +6,7 @@ import { getPageRange, shouldRenderFooter } from '~/components/designSystem/Pagi
 import { Popper } from '~/components/designSystem/Popper'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { DEFAULT_PAGE_SIZE, PAGE_SIZE_OPTIONS } from '~/core/constants/pagination'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { MenuPopper } from '~/styles'
 import { tw } from '~/styles/utils'
@@ -13,8 +14,16 @@ import { tw } from '~/styles/utils'
 interface PaginationProps {
   currentPage: number
   totalPages: number
-  /** Total number of items across all pages — drives the "X-Y of N results" label */
+  /** Total number of items across all pages — drives the "X-Y of N results" label. A lower bound
+   *  rather than an exact total when `totalCountCapped` is set. */
   totalCount: number
+  /** Whether another page follows the current one. Only collections that report it pass it (the
+   *  invoice list, whose total is capped server-side); left undefined it is derived from
+   *  `currentPage < totalPages`, as it always was. */
+  hasNextPage?: boolean
+  /** True when `totalCount` is a lower bound instead of the exact total (capped server-side).
+   *  The range label then reads "1-20 of 10,000+ results". */
+  totalCountCapped?: boolean
   /** Rows displayed per page — drives the range label and the selected option */
   pageSize?: number
   onPageChange: (page: number) => void
@@ -50,6 +59,8 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(
       currentPage,
       totalPages,
       totalCount,
+      hasNextPage,
+      totalCountCapped,
       pageSize = DEFAULT_PAGE_SIZE,
       onPageChange,
       onPageSizeChange,
@@ -74,14 +85,38 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(
       return null
     }
 
-    const { startNumber, endNumber } = getPageRange({ currentPage, pageSize, totalCount })
-
-    // "{start}-{end} of {total} results"
-    const rangeLabel = translate(
-      'text_1782992964028u0dbq1gbcy4',
-      { startNumber, endNumber, count: totalCount },
+    const { startNumber, endNumber } = getPageRange({
+      currentPage,
+      pageSize,
       totalCount,
-    )
+      hasNextPage,
+      totalCountCapped,
+    })
+
+    // A capped total makes `totalPages` a floor too, so the page arithmetic can only be trusted
+    // when the collection doesn't tell us whether another page follows.
+    const canGoNext = hasNextPage ?? currentPage < totalPages
+
+    // "{start}-{end} of {total} results" — or "of {total}+ results" when the total is a capped
+    // floor. The floor is pre-formatted ("10,000+") because it reads as a round number; exact
+    // totals keep printing raw, and keep their singular/plural form.
+    const getRangeLabel = (): string => {
+      if (totalCountCapped) {
+        return translate('text_1786997491915x333f5g35ff', {
+          startNumber,
+          endNumber,
+          count: intlFormatNumber(totalCount, { style: 'decimal', maximumFractionDigits: 0 }),
+        })
+      }
+
+      return translate(
+        'text_1782992964028u0dbq1gbcy4',
+        { startNumber, endNumber, count: totalCount },
+        totalCount,
+      )
+    }
+
+    const rangeLabel = getRangeLabel()
 
     // 40px tall, 12px horizontal padding, 16px, grey-600, centered
     const labelClassName = 'flex h-10 items-center justify-center px-3 text-base text-grey-600'
@@ -159,7 +194,7 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(
           type="button"
           aria-label="next page"
           className={arrowClassName}
-          disabled={loading || currentPage >= totalPages}
+          disabled={loading || !canGoNext}
           onClick={() => onPageChange(currentPage + 1)}
         >
           <Icon name="chevron-right" size="medium" />
