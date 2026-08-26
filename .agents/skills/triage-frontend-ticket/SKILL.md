@@ -58,10 +58,12 @@ Mixed ticket ("it's wrong, and while we're there make it configurable") → trea
 The repo documents itself, and skipping that is how an analysis ends up correct about the
 symptom and wrong about the fix.
 
-### 2a. Match the symptom against known regression classes first
+### 2a. Check the symptom against known regression classes
 
 `CLAUDE.md` is not only style — it records defect classes together with the symptom they
-produce. Checking these costs one grep and is often decisive.
+produce. The table below turns a reported symptom into **the first place to look**. Nothing
+in it is a conclusion: a row that matches is a hypothesis, and the analysis stands or falls
+on confirming it at the actual call site.
 
 | Reported symptom | Documented cause |
 | --- | --- |
@@ -72,8 +74,17 @@ produce. Checking these costs one grep and is often decisive.
 | A previously-viewed page flashes when re-entering a customer tab | List query missing `fetchPolicy: 'network-only'` |
 | The pager is missing entirely | `metadata` not passed to `PaginatedContent`, so `totalCount` is 0 |
 
-A match means the root cause is already documented: cite the rule and take the prescribed
-fix rather than inventing one. No match means nothing — most defects are not in this table.
+How to use a match: **open the call site and check whether the documented cause is actually
+present there.** Confirmed → cite the rule and take the prescribed fix rather than inventing
+one. Not present → the row was a wrong guess; drop it and keep reading the code. The symptom
+in a report is a description of what someone saw, and several causes produce the same
+description.
+
+A row that matches never enters the comment as the cause on its own. It has to survive step
+3 like any other claim: the evidence is what makes it a finding, and "the symptom matches a
+documented pattern" is not evidence.
+
+No match means nothing at all — most defects are not in this table.
 
 ### 2b. Read what binds this area
 
@@ -132,6 +143,12 @@ Build the input from what the code *actually stores*, not from the ticket's scre
 
 ## 4. Verdict
 
+**A ticket reporting several symptoms gets a verdict per symptom.** They routinely have
+different causes and different answers — one fixable today, another blocked on an API change.
+Collapsing them blocks work that could ship, or promises work that cannot. Decompose the report
+into its separate claims and judge each on its own; a combined "partly X, partly Y" headline is
+fine, the body has to keep them apart.
+
 **Defect** — pick one:
 
 - **confirmed** — real, with the mechanism
@@ -147,6 +164,10 @@ Build the input from what the code *actually stores*, not from the ticket's scre
 ## 5. Blast radius / scope
 
 Whatever mechanism is involved, grep for every other call site sharing it. Split into affected and unaffected, and say why each unaffected one is safe.
+
+**When the mechanism is a shared key or identifier** — a URL param, a localStorage key, a constant, a cache key, an enum value — enumerate **both directions**: every **consumer** that reads it, and every **producer** that writes it, deep links built in unrelated pages included. Grep the exported constant, then the bare literal too in case somewhere hardcodes it.
+
+Changing the shape of a shared value while missing one producer is a silent break: the writer keeps emitting the old shape, the reader matches nothing, and no test fails because the two live in different files. A fix list that changes a key's format without naming every writer is incomplete.
 
 This is where triage earns its keep — the reporter sees one surface, the code usually has more. Report affected siblings even when out of the ticket's scope. For a change request the same sweep answers "where else does this have to change to stay consistent", which is usually the real cost of the ticket.
 
@@ -254,20 +275,37 @@ Rules for the block, in order of how often they are what goes wrong:
 1. **One approach, no menu.** Alternatives belong in *Rejected alternatives*. An agent handed two options picks arbitrarily.
 2. **Every path exact and complete** — relative to `front/`, no globs, no "and related files", no "etc.". If the sweep in step 5 found six call sites, all six are listed.
 3. **Snippets apply as written.** No `...` inside lines that change. The surrounding context must be enough to locate the edit unambiguously.
-4. **Acceptance criteria are assertions, not intentions.** "The chip shows `8/20/2026` for a `+02:00` bound" — not "the chip shows the right date".
+4. **Acceptance criteria are assertions, not intentions,** and assertable *in this repo's test setup*. "The chip shows `8/20/2026` for a `+02:00` bound" — not "the chip shows the right date". Two traps: `translate` is mocked in jest, so a criterion phrased against user-facing copy ("the label reads Admin") cannot be asserted — phrase it against the translation key or an exported `data-test` constant. And every criterion needs a concrete expected value, so "restores the full list" has to name the rows or the count.
 5. **Name the conventions.** `CLAUDE.md` is there for whoever implements this, but stating which rules bind *this* change prevents the classic misses (hand-written translation keys, missing cache field policy, barrel MUI imports) — an agent skips them, a developer new to the area does not know them.
-6. **Unresolved decisions go to *Open questions*, marked (blocking).** Never leave a decision implicit inside the handoff for the implementer to guess.
+6. **Unresolved decisions go to *Open questions*, marked (blocking).** Never leave a decision implicit inside the handoff for the implementer to guess. The one that hides most easily: a **derived value that can fail to resolve**. If the fix compares against something looked up at runtime — a code mapped to a name, an id mapped to a record — say what happens while the lookup is still loading and when it never resolves (a stale link, a deleted record). `list.includes(undefined)` is false for every row, which renders as a confidently empty screen rather than an error. Decide it in the handoff, or raise it as blocking.
 
-Before moving on, verify every listed path resolves — a handoff citing a file that does
-not exist sends the implementing agent hunting:
+### Verify the references mechanically, before posting
+
+Two checks, both cheap, both over the **whole comment** and not just this block. Reference rot
+is the failure that sends an implementer hunting, and it discredits the analysis around it.
+
+**Every path resolves:**
 
 ```bash
 # every path in "Files to touch"; a missing one is a defect in the analysis, not a typo to ignore
 ls front/src/path/to/file.ts
 ```
 
-A path that must be *created* by the change is fine — mark it `(new)` in the list so the
-check is not mistaken for a miss.
+A path that must be *created* by the change is fine — mark it `(new)` in the list so the check
+is not mistaken for a miss.
+
+**Every `file:line` still points at what you say it does.** Line references drift the moment
+you read around a file, and a citation off by two lands on a closing brace or an `if`. Print
+each one and confirm the symbol is there:
+
+```bash
+# for every file:line the comment cites, in every section
+sed -n '41p' front/src/path/to/file.ts
+```
+
+Cite the line where the **value originates**, not where the enclosing block starts — that is
+the line the implementer has to edit. If a claim spans a range, cite the range (`:66-76`). A
+citation you did not print is a citation you did not verify.
 
 Omit the whole block for *cannot determine* and *blocked* verdicts — there is nothing to hand off yet, and a speculative handoff is worse than none. For *not a bug*, omit it too unless a small clarifying change (a tooltip, a label) is genuinely warranted.
 
@@ -372,6 +410,9 @@ deliverable and it is already posted. Report that the move did not go through an
 - **On Linear, only the comment and the one `Triage` → `Backlog` move.** No assignee, no labels, no cycle, no closing, and never a status change from anywhere other than `Triage`.
 - **No code edits.** This skill analyses; implementing is a separate task — by hand or through whatever pipeline the team uses.
 - **Never post twice on the same ticket state.** The footer gate is the mechanism; respect it.
+- **Print every `file:line` you cite before posting.** An unverified citation is reference rot waiting to happen.
+- **A matching symptom is where to look, never what to conclude.** The regression table in
+  step 2a produces hypotheses; only the call site produces findings.
 - **Never dress a guess as a finding.** No evidence → *cannot determine* or *blocked*, not a confident story.
 - **Someone will edit code straight from the handoff block.** Exact paths, one approach, assertions not intentions. A vague handoff produces a wrong implementation, which is worse than no analysis.
 - **Never accept the ticket's description of current behavior.** Verify it in the code — for change requests this is the most common error in the report.
