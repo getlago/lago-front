@@ -72,7 +72,7 @@ description: 'Phase 2 of the loop pipeline for lago-front. Takes an ISSUE-ID, re
    - Before coding, state explicitly (in your working notes for the report): for each issue, what the previous attempt did and what THIS attempt does differently.
    - **Same issue failed twice** → the previous strategy is wrong, don't refine it a third time in the same direction: change strategy — re-read spec.md acceptance criteria from scratch, broaden the investigation (callers, related components, existing tests), question the diagnosis itself. Consume the retry, but on a different path.
    - **Oscillation check**: before applying a fix, verify against the history that it does not revert (fully or partially) a change made by a PREVIOUS iteration. Fix A breaks B, fix B re-breaks A is a loop-killer the gates won't surface. Detected → declare it in the report, do NOT apply either of the two oscillating fixes again: find the third option that satisfies both constraints (usually one level up from where both fixes were applied). Note the oscillation in the working notes so loop-run's flywheel picks it up.
-   - Never STOP early for a repeated failure — the 3-attempt budget belongs to loop-run and is enforced by `front/scripts/loop-iter.sh`; exhausting it is the ONLY human touchpoint.
+   - Never STOP early for a repeated failure — the 3-attempt budget belongs to loop-run and is enforced by `front/scripts/iter-budget.sh`; exhausting it is the ONLY human touchpoint.
 3. Fix only those issues in the existing worktree.
 4. Re-run the gates (step 7 above). If the fix touched testable logic, re-invoke `make-tests` for the affected paths.
 5. Report what changed per issue number, including the "what's different from the previous attempt" line for each.

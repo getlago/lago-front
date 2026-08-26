@@ -27,7 +27,7 @@ The loop's quality comes from the harness, not from the prompt. Three properties
 
 - **Verification is external to the generator.** The exit condition is never "the agent thinks it is done": it is `pnpm lint`, `pnpm types`, `pnpm translations:*`, scoped jest, a PASS verdict from a reviewer that never saw the builder's reasoning, and green CI.
 - **The reviewer runs in a fresh subagent.** A builder reviewing its own work grades itself. `loop-run` dispatches `loop-review` with clean context, and the reviewer re-runs the gates instead of trusting the build phase's claim.
-- **The retry budget is mechanical.** `scripts/loop-iter.sh` keeps the counters on disk and refuses the fourth attempt. The cap does not depend on the agent remembering how many times it has tried.
+- **The retry budget is mechanical.** `scripts/iter-budget.sh` keeps the counters on disk and refuses the fourth attempt. The cap does not depend on the agent remembering how many times it has tried.
 
 ## Setup, per developer
 
@@ -58,7 +58,8 @@ Put these in your shell profile or your own `.claude/settings.local.json` (never
 | `SLACK_LOOP_BOT_TOKEN` | yes | bot token of the app above (`xoxb-…`) |
 | `SLACK_LOOP_USER_ID` | recommended | your Slack member ID (profile → Copy member ID). Set it and resolution is instant. Unset → the script looks you up by `git config user.email`, which only works if that is your work email and the app has `users:read.email` |
 | `LOOP_STATE_DIR` | no | where run state lives. Default `~/.claude/loop-state` |
-| `LOOP_MAX_ITER` | no | attempts allowed per retry budget. Default `3` |
+| `ITER_MAX` | no | attempts allowed per retry budget. Default `3`. `LOOP_MAX_ITER` still works as a deprecated alias |
+| `ITER_STATE_DIR` | no | where `iter-budget.sh` keeps its counters. Falls back to `LOOP_STATE_DIR`, then the default — so leaving it unset keeps counters inside the run directory. Only set it if you point it at the **same** root as `LOOP_STATE_DIR`; a different value splits the counters from the rest of the run state |
 
 **4. Verify**
 
@@ -93,7 +94,7 @@ Per-developer, outside the repo, in `$LOOP_STATE_DIR/<ISSUE-ID>/`:
 | `ci-failure.md` / `ci-failure-history.md` | loop-run | current and past CI failure logs |
 | `feedback.md` | loop-revise | every round of human feedback |
 | `impediment.md` | loop-run / loop-revise | why the loop gave up: stage, cause, what it tried, what it needs |
-| `counters/` | loop-iter.sh | the retry budgets |
+| `counters/` | iter-budget.sh | the retry budgets |
 
 Plus two files shared across runs: `_journal.md` (one row per run — iterations spent, gates that failed, outcome) and `_flywheel.md` (proposals to improve these skills).
 
@@ -101,4 +102,4 @@ Plus two files shared across runs: `_journal.md` (one row per run — iterations
 
 Every run that struggles writes down why. `_flywheel.md` collects proposed edits to the skills, evidence attached; the loop never edits its own instructions. Read it when you have a moment, and turn a proposal that keeps recurring into a PR against `.agents/skills/loop-*`. `_journal.md` is how you tell whether such a change actually helped — average iterations per run should fall.
 
-Scripts live in `front/scripts/`: `loop-iter.sh` (retry budget) and `loop-notify.sh` (exit DM). Both are standalone and documented in their headers.
+Scripts live in `front/scripts/`: `iter-budget.sh` (retry budget) and `loop-notify.sh` (exit DM). Both are standalone and documented in their headers.
