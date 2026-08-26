@@ -53,7 +53,52 @@ Then **classify the ticket**, because it decides what the analysis has to prove:
 
 Mixed ticket ("it's wrong, and while we're there make it configurable") → treat the defect as primary, and cover the request under *Scope beyond the defect*. When the label and the wording disagree, the wording wins; say which you picked.
 
-## 2. Find the real code path
+## 2. Ground it in the project's own rules, then read the code
+
+The repo documents itself, and skipping that is how an analysis ends up correct about the
+symptom and wrong about the fix.
+
+### 2a. Match the symptom against known regression classes first
+
+`CLAUDE.md` is not only style — it records defect classes together with the symptom they
+produce. Checking these costs one grep and is often decisive.
+
+| Reported symptom | Documented cause |
+| --- | --- |
+| A list loads page 1 then stops; page 2 is empty | Field not registered in `queryFieldPolicies` with `createSinglePageFieldPolicy()` |
+| Another org's data, logo flashing the wrong org, a webhook URL baking the wrong UUID, a value from another tab | A feature component reading `currentOrganizationVar` instead of `useParams` + memberships — `CLAUDE.md` names this a known bug pattern |
+| Route matching never fires | `useMatch` from `react-router-dom` — the raw pathname includes the slug. Use `matchPath` + `strippedPathname` |
+| The "X-Y of N" label disagrees with the rows | `PaginatedContent` `pageSize` ≠ the query `limit` |
+| A previously-viewed page flashes when re-entering a customer tab | List query missing `fetchPolicy: 'network-only'` |
+| The pager is missing entirely | `metadata` not passed to `PaginatedContent`, so `totalCount` is 0 |
+
+A match means the root cause is already documented: cite the rule and take the prescribed
+fix rather than inventing one. No match means nothing — most defects are not in this table.
+
+### 2b. Read what binds this area
+
+- **`CLAUDE.md` at the root** — always. It is prescriptive, not advisory.
+- **The on-demand docs** in `.agents/docs/` for the area involved: `folder-architecture`,
+  `graphql-fragments`, `testing-practices`, `documentation`. (`typescript-conventions` is
+  already loaded in every session.)
+- **The nearest-neighbour code.** The closest existing feature doing the same thing is the
+  pattern of record. Read it before proposing a shape.
+
+Two things this changes about the *fix*, not just the analysis:
+
+- **The fix must be the sanctioned pattern, not merely a working one.** A new drawer is the
+  `use<Feature>Drawer` hook, never a `forwardRef` + `DrawerRef`; a dialog is one of the three
+  hooks; a new translation key comes from `pnpm translations:add`, never hand-written.
+- **A legacy pattern next door is not permission to copy it.** `CLAUDE.md` says this outright
+  about drawers, and it holds generally: three generations coexist and only one is allowed in
+  new code. Cite the reference site the docs name, so whoever implements it copies from the
+  right place.
+
+For a **change request**, conventions are part of the answer, not a footnote: a request that
+fights a documented convention is a *caveat* at minimum, and sometimes the reason the honest
+verdict is *feasible with caveats* rather than *feasible as asked*.
+
+### 2c. Then follow the chain
 
 Read the actual code. Grep for the feature, the filter key, the component, the translation key — whatever the ticket names — and follow the chain end to end. Name real symbols and `file.ts:line` paths.
 
@@ -260,6 +305,8 @@ It must also review the **Implementation handoff** block as its own deliverable,
 - Is each acceptance criterion an assertion with a concrete expected value, testable as written?
 - Could the block be read as offering more than one approach?
 - Is any decision left implicit that the implementer would have to guess?
+- Does the proposed fix follow the pattern `CLAUDE.md` and `.agents/docs/` prescribe for this
+  area — rather than whatever the neighbouring code happens to do?
 
 A `FAIL` on the handoff counts exactly like a `FAIL` on the analysis. An analysis that is
 correct but hands off badly still produces a wrong implementation.
@@ -328,5 +375,6 @@ deliverable and it is already posted. Report that the move did not go through an
 - **Never dress a guess as a finding.** No evidence → *cannot determine* or *blocked*, not a confident story.
 - **Someone will edit code straight from the handoff block.** Exact paths, one approach, assertions not intentions. A vague handoff produces a wrong implementation, which is worse than no analysis.
 - **Never accept the ticket's description of current behavior.** Verify it in the code — for change requests this is the most common error in the report.
+- **The project's documented patterns outrank both the neighbouring code and your own instinct.** A fix that works but violates `CLAUDE.md` is a finding to reject, not to propose.
 - **The review budget lives on disk, not in your memory.** Every review charges `iter-budget.sh`; a non-zero exit is final.
 - Comment in English regardless of the language the operator is using.
