@@ -11,7 +11,17 @@ description: 'Use when given a Linear ticket (URL or ID) for lago-front and the 
 
 **Output:** one comment posted on the ticket. Nothing else on Linear is touched.
 
-**Who reads that comment:** a human deciding whether to schedule the ticket, *and* a downstream agent that will implement it — `loop-spec` reads the ticket's comments and turns them into `spec.md`, and a later comment overrides the description there. So the comment is a handoff document: the implementing agent must be able to start from it without re-deriving the analysis. That is what step 6's **Implementation handoff** block is for.
+**Who reads that comment:** whoever picks the ticket up next — a human deciding whether to
+schedule it, a developer opening the editor, or an agent implementing it. Assume none of
+them will redo the analysis. So the comment is a **handoff document**: everything needed to
+start work is in it, in a form that reads as well to a person as it parses to an agent.
+That is what step 6's **Implementation handoff** block is for.
+
+This skill is deliberately pipeline-agnostic. It ends at the posted comment and makes no
+assumption about how the work gets done afterwards — by hand, by an agent, or by an
+automated pipeline. If your team uses one that reads ticket comments (`/loop-run` does,
+through `loop-spec`), the handoff block is already in the shape it needs; if not, it is
+simply a well-specified ticket.
 
 Create a todo per numbered step below before starting.
 
@@ -156,9 +166,13 @@ Markdown, **English**, these sections in order. Omit a section only when it woul
 
 ### The Implementation handoff block
 
-Both templates end with this block. It is the part a downstream agent acts on, so it
-states one chosen approach in machine-actionable form — exact paths, exact symbols,
-runnable commands. It maps 1:1 onto the `spec.md` that `loop-spec` writes.
+Both templates end with this block. It is the part someone acts on, so it states one
+chosen approach in directly actionable form — exact paths, exact symbols, runnable
+commands. It is written to serve either reader: a developer can work straight through it,
+and an agent can parse it without inference.
+
+(It also happens to map 1:1 onto the `spec.md` that `/loop-run`'s spec phase writes, so
+that pipeline consumes it as-is. Nothing here depends on using it.)
 
 ```markdown
 ### Implementation handoff
@@ -195,7 +209,7 @@ Rules for the block, in order of how often they are what goes wrong:
 2. **Every path exact and complete** — relative to `front/`, no globs, no "and related files", no "etc.". If the sweep in step 5 found six call sites, all six are listed.
 3. **Snippets apply as written.** No `...` inside lines that change. The surrounding context must be enough to locate the edit unambiguously.
 4. **Acceptance criteria are assertions, not intentions.** "The chip shows `8/20/2026` for a `+02:00` bound" — not "the chip shows the right date".
-5. **Name the conventions.** The downstream agent has `CLAUDE.md`, but stating which rules bind this change prevents the classic misses (hand-written translation keys, missing cache field policy, barrel MUI imports).
+5. **Name the conventions.** `CLAUDE.md` is there for whoever implements this, but stating which rules bind *this* change prevents the classic misses (hand-written translation keys, missing cache field policy, barrel MUI imports) — an agent skips them, a developer new to the area does not know them.
 6. **Unresolved decisions go to *Open questions*, marked (blocking).** Never leave a decision implicit inside the handoff for the implementer to guess.
 
 Before moving on, verify every listed path resolves — a handoff citing a file that does
@@ -217,15 +231,22 @@ Never propose closing the ticket, changing its state, assigning it, or editing c
 
 ## 7. Independent review — always
 
-**The cap is MECHANICAL, enforced by `iter-budget.sh`, not by counting review rounds in your head.**
+**The cap is MECHANICAL, not a number you keep in your head.** `front/scripts/iter-budget.sh`
+is a standalone repo utility — an attempt counter on disk, no pipeline attached — and it is
+what refuses the round past the cap.
 
-Before **every** review — the first one included — charge the budget:
+Before **every** review, the first one included, charge the budget:
 
 ```bash
 front/scripts/iter-budget.sh <ISSUE-ID> triage-review
 ```
 
-Exit 0 → run the review. **Exit 1 → the budget is spent: go straight to the exhausted path below. Do not review again.** The counter caps `triage-review` at 2, so the sequence is at most: review → fix → review.
+Exit 0 → run the review. **Exit 1 → the budget is spent: go straight to the exhausted path
+below. Do not review again.** The `triage-review` counter is capped at 2, so the sequence is
+at most: review → fix → review.
+
+If the script is missing (a checkout that predates it), cap at 2 by hand and say so in the
+report to the operator — never silently drop the cap.
 
 Each review dispatches a **fresh subagent with codebase access** (Agent tool, `general-purpose`). Give it: the ticket text, the draft comment, the repo path. Do **not** give it your reasoning — it must re-derive. On the second review, also give it the previous review's defects and what you changed.
 
@@ -271,10 +292,10 @@ Then report to the operator in chat: type, verdict, one-line reason, review outc
 ## Hard rules
 
 - **Read-only on Linear except the one comment.** No state change, no assignee, no labels, no closing.
-- **No code edits.** This skill analyses; implementing is a separate task (`/loop-run`).
+- **No code edits.** This skill analyses; implementing is a separate task — by hand or through whatever pipeline the team uses.
 - **Never post twice on the same ticket state.** The footer gate is the mechanism; respect it.
 - **Never dress a guess as a finding.** No evidence → *cannot determine* or *blocked*, not a confident story.
-- **The handoff block is read by an agent that will edit code from it.** Exact paths, one approach, assertions not intentions. A vague handoff produces a wrong implementation, which is worse than no analysis.
+- **Someone will edit code straight from the handoff block.** Exact paths, one approach, assertions not intentions. A vague handoff produces a wrong implementation, which is worse than no analysis.
 - **Never accept the ticket's description of current behavior.** Verify it in the code — for change requests this is the most common error in the report.
-- **The review budget lives in the filesystem, not in your memory.** Every review charges `iter-budget.sh`; a non-zero exit is final.
+- **The review budget lives on disk, not in your memory.** Every review charges `iter-budget.sh`; a non-zero exit is final.
 - Comment in English regardless of the language the operator is using.

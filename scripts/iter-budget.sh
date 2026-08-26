@@ -24,7 +24,9 @@
 #   ITER_MAX_<COUNTER>     per-counter override, counter upper-cased with hyphens
 #                          as underscores (e.g. ITER_MAX_TRIAGE_REVIEW). Wins over
 #                          ITER_MAX and over built-in caps.
-#   ITER_STATE_DIR         where run state lives (default ~/.claude/loop-state)
+#   ITER_STATE_DIR         where counters live (default ~/.claude/loop-state — the path is
+#                          historical; the loop pipeline keeps its own artifacts there too,
+#                          but nothing in this script depends on that)
 #
 #   LOOP_MAX_ITER, LOOP_MAX_ITER_<COUNTER> and LOOP_STATE_DIR are honoured as
 #   deprecated aliases, so an existing shell profile keeps working.
