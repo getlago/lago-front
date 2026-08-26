@@ -24,6 +24,10 @@ automated pipeline. If your team uses one that reads ticket comments (`/loop-run
 through `loop-spec`), the handoff block is already in the shape it needs; if not, it is
 simply a well-specified ticket.
 
+**Read `LEARNINGS.md`** (alongside this file) before you judge anything. It holds rules learned
+from real outcomes and overrides the defaults here where they conflict — within the limits stated
+in that file: a learning may tune judgement, never soften a guardrail.
+
 Create a todo per numbered step below before starting.
 
 ## 1. Fetch, gate, classify
@@ -32,6 +36,7 @@ Extract the issue id (`[A-Z]+-\d+`), then reset the review budget so a re-triage
 
 ```bash
 front/scripts/iter-budget.sh <ISSUE-ID> reset triage-review
+front/scripts/analysis-depth.sh <ISSUE-ID> reset
 ```
 
 Fetch via Linear MCP `get_issue` (with `includeRelations`) **and** `list_comments` — repro steps, scope changes and decisions often live only in comments, and a Slack attachment subtitle often holds the original report.
@@ -47,8 +52,9 @@ fourth outcome.
 | Gate | Check | On failure |
 | --- | --- | --- |
 | **Already triaged** | Any comment body contains `<!-- triage-frontend-ticket:` **or** opens with a `## Technical analysis` heading (a hand-written or pre-footer analysis counts) | Footer present → recompute **both** fingerprints (step 8). Both unchanged → STOP, report "already triaged, nothing new". Either changed → re-triage, and open the comment by saying which one moved. Footer absent → STOP and report that a human analysis already exists. |
-| **Frontend** | Labels include `Front-end`, or the work is unambiguously UI/client-side | Not frontend → STOP and say so. Ambiguous → ask the operator. |
+| **Frontend** | The responsible logic actually lives in `lago-front`. **Do not decide this from the `Front-end` label** — whoever files a ticket often cannot tell which layer owns the behaviour, and a UI symptom is regularly an API bug. Check the described behaviour against the code before accepting it | Logic lives in the API → STOP, say so, and name what you found so the ticket can be re-routed. Genuinely split across both → STOP and ask the operator which half to scope. |
 | **Analyzable** | Enough to locate the code: a named surface plus either a symptom (defect) or a desired outcome (change request) | Too vague → post the *Needs info* variant (step 6), then stop. Never guess a repro or invent requirements. |
+| **Not a duplicate** | Search open tickets for the same problem — same Sentry issue, same error, same surface plus same symptom, or shared distinctive identifiers. Use Linear `list_issues` with a `query`, restricted to open states | Clearly the same problem → STOP, report `possible duplicate of <ID>`, post nothing. Two analyses of one bug is worse than none, and merging them is a human call. Superficial keyword overlap is not a duplicate — confirm it is genuinely the same problem before stopping. |
 
 Then **classify the ticket**, because it decides what the analysis has to prove:
 
@@ -58,6 +64,37 @@ Then **classify the ticket**, because it decides what the analysis has to prove:
 | **Change request** | `Improvement` / `Feature` label; "should also", "add", "allow", "rename", "instead of" | What exists today, what has to change, and what stands in the way? |
 
 Mixed ticket ("it's wrong, and while we're there make it configurable") → treat the defect as primary, and cover the request under *Scope beyond the defect*. When the label and the wording disagree, the wording wins; say which you picked.
+
+### Pick a depth — a full analysis is not free
+
+A full run costs real money in tokens, most of it in the independent review. Spending that on
+"the external-link icon wraps onto its own line" is waste. Choose one tier, and **record it
+before you go further**:
+
+```bash
+front/scripts/analysis-depth.sh <ISSUE-ID> set <skip|shallow|full>
+```
+
+| Tier | When | What it produces |
+| --- | --- | --- |
+| **skip** | The ticket already names what to change and where — an analysis would only restate it ("change this wording to that") | A one-line comment saying it is already actionable, or nothing. Stop. |
+| **shallow** | The symptom is purely presentational — layout, wrapping, spacing, icon size, copy, a translation key — **and** the cause sits in a single file | Root cause with `file:line`, the fix, the handoff. **No independent review.** |
+| **full** | Everything else: anything touching data flow, derived values, shared state, timezones, currency, pagination, cache, or more than one file | The whole flow, review included. |
+
+**Escalation is one-way and enforced.** `analysis-depth.sh` refuses to move back down, because
+the cheap tier is also the tier that skips the review — and the moment to be tempted into
+skipping it is exactly when the work turns out bigger than hoped. If the cause is not where you
+expected, or it reaches shared or derived state, escalate:
+
+```bash
+front/scripts/analysis-depth.sh <ISSUE-ID> set full
+```
+
+Uncertain between two tiers → take the deeper one. Being wrong about a CSS fix costs a glance;
+being wrong about a value shown on an invoice does not.
+
+The rest of this skill describes the **full** tier. At `shallow`, run steps 2 and 3, keep the
+comment to root cause + evidence + fix + handoff, and go straight to step 8.
 
 ## 2. Ground it in the project's own rules, then read the code
 
@@ -116,6 +153,21 @@ fights a documented convention is a *caveat* at minimum, and sometimes the reaso
 verdict is *feasible with caveats* rather than *feasible as asked*.
 
 ### 2c. Then follow the chain
+
+**Generated files are read with a scalpel.** `src/generated/graphql.tsx` holds single lines
+tens of thousands of characters long — one permissions blob repeated per operation. A bare grep
+for a common word there returns those whole lines and burns a large share of the run's budget
+for nothing. Match the shape you want and print only that:
+
+```bash
+# the argument list of one query, not every line mentioning it
+grep -n "QueryMembershipsArgs" -A 6 src/generated/graphql.tsx
+
+# a field's declared type, without the surrounding blob
+grep -o "issuingDate[A-Za-z]*?*: [A-Za-z'\[\]]*" src/generated/graphql.tsx | sort -u
+```
+
+The same applies to lockfiles, snapshots and translation bundles.
 
 Read the actual code. Grep for the feature, the filter key, the component, the translation key — whatever the ticket names — and follow the chain end to end. Name real symbols and `file.ts:line` paths.
 
@@ -252,6 +304,11 @@ that pipeline consumes it as-is. Nothing here depends on using it.)
 
 **Approach:** <one sentence: the single chosen approach. Not a menu.>
 
+**Precedent:** <one of — `<path>` plus the spec covering it, when the fix transplants an
+existing, test-covered pattern · `no precedent — designed`, when the shape is new here. State
+which; a reader cannot tell a copied pattern from an invented one by looking at the snippet, and
+it is the difference between low-risk and needs-a-second-opinion.>
+
 **Files to touch** (paths relative to `front/`):
 - `src/path/to/file.ts` — <what changes here, naming the exact symbol>
 - `src/path/to/other.test.ts` — <the cases to add>
@@ -319,7 +376,17 @@ For **cannot determine** / **blocked**, replace the middle sections with *Needs 
 
 Never propose closing the ticket, changing its state, assigning it, or editing code. Analysis only; the decision stays human.
 
-## 7. Independent review — always
+## 7. Independent review — always at `full` depth
+
+Read the latch first, and do what it says rather than what you remember choosing:
+
+```bash
+front/scripts/analysis-depth.sh <ISSUE-ID> get
+```
+
+`full` → review, no exceptions. `shallow` → skip this step and go to step 8; there is no
+finding here whose cost of being wrong justifies the review. Anything else means the tier was
+never recorded: go back to step 1 and record it.
 
 **The cap is MECHANICAL, not a number you keep in your head.** `front/scripts/iter-budget.sh`
 is a standalone repo utility — an attempt counter on disk, no pipeline attached — and it is
@@ -367,7 +434,18 @@ Never post a silently-failed review as clean, and never re-run a review the scri
 
 Post with Linear MCP `save_comment` (`issueId` = the identifier), no confirmation needed — the operator invoked this deliberately.
 
-Append this footer as the last line, so the step-1 gate can recognise it:
+Close the comment with a provenance line, above the footer:
+
+```markdown
+---
+Generated by `/triage-frontend-ticket` · independently reviewed
+```
+
+At `shallow` depth, drop `· independently reviewed` — it did not happen. State what the output
+**is**; never tell a reader or another system what weight to give it. That is their rule to
+write, not this skill's to impose.
+
+Then append this footer as the last line, so the step-1 gate can recognise it:
 
 ```
 <!-- triage-frontend-ticket: v1 · type=<defect|change-request> · desc-sha=<hash> · cmt-sha=<hash> -->
@@ -430,6 +508,11 @@ deliverable and it is already posted. Report that the move did not go through an
 ## Hard rules
 
 - **On Linear, only the comment and the one `Triage` → `Backlog` move.** No assignee, no labels, no cycle, no closing, and never a status change from anywhere other than `Triage`.
+  **Why the label ban is not arbitrary:** an `ai-augmented` or `claude-*` label, and the
+  `Scoping` state, are entry gates for the org's existing automated pipeline — it skips any
+  ticket carrying them. Applying one here would make the ticket permanently invisible to that
+  pipeline, silently. `Backlog` is safe because it is a pre-dev state that pipeline accepts.
+  Do not add a convenience label to mark analysed tickets; the footer already does that.
 - **No code edits.** This skill analyses; implementing is a separate task — by hand or through whatever pipeline the team uses.
 - **Never post twice on the same ticket state.** The footer gate is the mechanism; respect it.
 - **Print every `file:line` you cite before posting.** An unverified citation is reference rot waiting to happen.
