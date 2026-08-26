@@ -4677,6 +4677,7 @@
   "text_17871467451419agn4aantij": "the end date must be after the start date",
   "text_1787216718467e8ca9iw2atm": "An amendment keeps the currency of the subscription it restates",
   "text_1786964945244ww7yr3vukeh": "You’re about to cancel {{subscriptionName}} subscription. Its activation will stop and Lago will attempt to cancel the pending payment. Depending on its status, the payment provider may not allow it. Are you sure?",
+  "text_1787637018754g8frfvo1m2k": "Delete table",
   "text_1787146693629wj3i1366ild": "Tax rates are provisional.",
   "text_1787146693629de7kvm201hi": "Tax rates shown are provisional and based on the customer’s data at draft creation. They will be recalculated from the current customer information when the invoice is finalized.",
   "text_1783019143196lwfj3wt5eyh": "Catalog & pricing",
