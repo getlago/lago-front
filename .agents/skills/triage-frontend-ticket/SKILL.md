@@ -36,11 +36,17 @@ front/scripts/iter-budget.sh <ISSUE-ID> reset triage-review
 
 Fetch via Linear MCP `get_issue` (with `includeRelations`) **and** `list_comments` — repro steps, scope changes and decisions often live only in comments, and a Slack attachment subtitle often holds the original report.
 
-Check the three gates in order. Each failure means STOP and report to the operator — do not post.
+Check the three gates in order. Two of them stop silently; one posts. Do not improvise a
+fourth outcome.
+
+- **Already triaged** or **not frontend** → STOP, report to the operator, post nothing.
+- **Not analyzable** → post the *Needs info* comment (step 6) **with the footer** (step 8), then
+  stop: no independent review (there is no finding to re-derive) and no status move (the ticket
+  is still waiting on the reporter).
 
 | Gate | Check | On failure |
 | --- | --- | --- |
-| **Already triaged** | Any comment body contains `<!-- triage-frontend-ticket:` **or** opens with a `## Technical analysis` heading (a hand-written or pre-footer analysis counts) | Footer present → compute the current description fingerprint (step 7); same fingerprint means STOP and report "already triaged, description unchanged", different means re-triage and say in the comment what changed. Footer absent → STOP and report that a human analysis already exists. |
+| **Already triaged** | Any comment body contains `<!-- triage-frontend-ticket:` **or** opens with a `## Technical analysis` heading (a hand-written or pre-footer analysis counts) | Footer present → recompute **both** fingerprints (step 8). Both unchanged → STOP, report "already triaged, nothing new". Either changed → re-triage, and open the comment by saying which one moved. Footer absent → STOP and report that a human analysis already exists. |
 | **Frontend** | Labels include `Front-end`, or the work is unambiguously UI/client-side | Not frontend → STOP and say so. Ambiguous → ask the operator. |
 | **Analyzable** | Enough to locate the code: a named surface plus either a symptom (defect) or a desired outcome (change request) | Too vague → post the *Needs info* variant (step 6), then stop. Never guess a repro or invent requirements. |
 
@@ -364,14 +370,25 @@ Post with Linear MCP `save_comment` (`issueId` = the identifier), no confirmatio
 Append this footer as the last line, so the step-1 gate can recognise it:
 
 ```
-<!-- triage-frontend-ticket: v1 · type=<defect|change-request> · desc-sha=<fingerprint> -->
+<!-- triage-frontend-ticket: v1 · type=<defect|change-request> · desc-sha=<hash> · cmt-sha=<hash> -->
 ```
 
-Fingerprint = first 12 chars of the description's sha256:
+**Two fingerprints, because a ticket changes in two places.** Step 1 fetches the comments
+precisely because scope changes, repro details and decisions land there and never make it back
+into the description — so a description-only key reports "nothing new" on a ticket whose
+comments have since redefined the work.
 
 ```bash
+# what the ticket says
 printf '%s' "$DESCRIPTION" | shasum -a 256 | cut -c1-12
+
+# which comments exist, in order — ids only, so editing prose in a comment is not a re-triage
+# trigger while a NEW comment is. Exclude comments carrying this skill's footer, otherwise
+# posting immediately invalidates the fingerprint it just wrote.
+printf '%s' "$COMMENT_IDS" | shasum -a 256 | cut -c1-12
 ```
+
+With no qualifying comments, use `cmt-sha=none`.
 
 Then report to the operator in chat: type, verdict, one-line reason, review outcome, comment URL, and whether the status moved (step 9). Short and plain — the analysis already lives on the ticket.
 
@@ -382,9 +399,14 @@ resolved analysis answers that, so the ticket can move on to `Backlog` — where
 prioritises it. Anything further (`Ready for dev`, an assignee, a cycle) is a scheduling
 decision this skill does not make.
 
+**Re-fetch the ticket immediately before moving it.** The analysis takes minutes, and a human
+may have triaged it in the meantime; acting on the status captured at step 1 would overwrite
+their decision. If the re-fetch no longer says `Triage`, leave it alone and report that
+somebody moved it first.
+
 Move it **only** when every one of these holds:
 
-- the status at fetch time was exactly `Triage` — a ticket already in `Backlog`,
+- the status **at re-fetch time** is exactly `Triage` — a ticket already in `Backlog`,
   `Scoping` or beyond is left alone
 - the verdict is **confirmed bug**, **feasible as asked**, or **feasible with caveats**
 - the independent review returned `PASS`

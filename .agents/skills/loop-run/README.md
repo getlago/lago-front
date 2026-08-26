@@ -59,6 +59,7 @@ Put these in your shell profile or your own `.claude/settings.local.json` (never
 | `SLACK_LOOP_USER_ID` | recommended | your Slack member ID (profile → Copy member ID). Set it and resolution is instant. Unset → the script looks you up by `git config user.email`, which only works if that is your work email and the app has `users:read.email` |
 | `LOOP_STATE_DIR` | no | where run state lives. Default `~/.claude/loop-state` |
 | `ITER_MAX` | no | attempts allowed per retry budget. Default `3`. `LOOP_MAX_ITER` still works as a deprecated alias |
+| `ITER_STATE_DIR` | no | where `iter-budget.sh` keeps its counters. Falls back to `LOOP_STATE_DIR`, then the default — so leaving it unset keeps counters inside the run directory. Only set it if you point it at the **same** root as `LOOP_STATE_DIR`; a different value splits the counters from the rest of the run state |
 
 **4. Verify**
 
