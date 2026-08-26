@@ -41,17 +41,18 @@ front/scripts/analysis-depth.sh <ISSUE-ID> reset
 
 Fetch via Linear MCP `get_issue` (with `includeRelations`) **and** `list_comments` — repro steps, scope changes and decisions often live only in comments, and a Slack attachment subtitle often holds the original report.
 
-Check the three gates in order. Two of them stop silently; one posts. Do not improvise a
-fourth outcome.
+Check every gate in order. Exactly one of them posts anything; the rest stop silently. Do not
+improvise a third outcome.
 
-- **Already triaged** or **not frontend** → STOP, report to the operator, post nothing.
 - **Not analyzable** → post the *Needs info* comment (step 6) **with the footer** (step 8), then
   stop: no independent review (there is no finding to re-derive) and no status move (the ticket
   is still waiting on the reporter).
+- **Every other failure** → STOP, report to the operator, post nothing.
 
 | Gate | Check | On failure |
 | --- | --- | --- |
 | **Already triaged** | Any comment body contains `<!-- triage-frontend-ticket:` **or** opens with a `## Technical analysis` heading (a hand-written or pre-footer analysis counts) | Footer present → recompute **both** fingerprints (step 8). Both unchanged → STOP, report "already triaged, nothing new". Either changed → re-triage, and open the comment by saying which one moved. Footer absent → STOP and report that a human analysis already exists. |
+| **Not already in flight** | The status is a pre-dev state (`Triage`, `Backlog`, `Next to scope`, `Ready for dev`) and the ticket carries no `claude-*` label and no linked PR | Started, completed or cancelled (`Dev in progress`, `In Review`, `Under QA`, `Done`, …) → STOP: somebody or something is already on it, and an analysis arriving now is noise on work in progress. `Scoping` → STOP, a human is actively scoping it. A `claude-*` label or an attached PR → STOP, the org pipeline already picked it up. |
 | **Frontend** | The responsible logic actually lives in `lago-front`. **Do not decide this from the `Front-end` label** — whoever files a ticket often cannot tell which layer owns the behaviour, and a UI symptom is regularly an API bug. Check the described behaviour against the code before accepting it | Logic lives in the API → STOP, say so, and name what you found so the ticket can be re-routed. Genuinely split across both → STOP and ask the operator which half to scope. |
 | **Analyzable** | Enough to locate the code: a named surface plus either a symptom (defect) or a desired outcome (change request) | Too vague → post the *Needs info* variant (step 6), then stop. Never guess a repro or invent requirements. |
 | **Not a duplicate** | Search open tickets for the same problem — same Sentry issue, same error, same surface plus same symptom, or shared distinctive identifiers. Use Linear `list_issues` with a `query`, restricted to open states | Clearly the same problem → STOP, report `possible duplicate of <ID>`, post nothing. Two analyses of one bug is worse than none, and merging them is a human call. Superficial keyword overlap is not a duplicate — confirm it is genuinely the same problem before stopping. |
