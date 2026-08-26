@@ -9,7 +9,8 @@ description: 'Use when given a Linear ticket (URL or ID) for lago-front and the 
 
 **Repo:** the lago-front checkout (`front/` in the lago monorepo). If the session is not in lago-front, STOP — this skill reasons about this codebase only.
 
-**Output:** one comment posted on the ticket. Nothing else on Linear is touched.
+**Output:** one comment posted on the ticket, and — only for a ticket sitting in `Triage`
+that the analysis actually resolved — a move to `Backlog`. Nothing else on Linear is touched.
 
 **Who reads that comment:** whoever picks the ticket up next — a human deciding whether to
 schedule it, a developer opening the editor, or an agent implementing it. Assume none of
@@ -287,11 +288,41 @@ Fingerprint = first 12 chars of the description's sha256:
 printf '%s' "$DESCRIPTION" | shasum -a 256 | cut -c1-12
 ```
 
-Then report to the operator in chat: type, verdict, one-line reason, review outcome, comment URL. Short and plain — the analysis already lives on the ticket.
+Then report to the operator in chat: type, verdict, one-line reason, review outcome, comment URL, and whether the status moved (step 9). Short and plain — the analysis already lives on the ticket.
+
+## 9. Promote out of Triage — only when earned
+
+A ticket in `Triage` is waiting for someone to establish whether there is work here. A
+resolved analysis answers that, so the ticket can move on to `Backlog` — where the team
+prioritises it. Anything further (`Ready for dev`, an assignee, a cycle) is a scheduling
+decision this skill does not make.
+
+Move it **only** when every one of these holds:
+
+- the status at fetch time was exactly `Triage` — a ticket already in `Backlog`,
+  `Scoping` or beyond is left alone
+- the verdict is **confirmed bug**, **feasible as asked**, or **feasible with caveats**
+- the independent review returned `PASS`
+- the comment posted successfully
+
+```
+save_issue: { id: <ISSUE-ID>, status: "Backlog" }
+```
+
+Leave the ticket in `Triage` for every other outcome, and say why in the report:
+
+| Outcome | Why it stays in Triage |
+| --- | --- |
+| **not a bug** | Someone has to decide whether to close it, and that is not a technical call |
+| **cannot determine** / **blocked** | Still waiting on the missing facts the comment asked for |
+| review exhausted its budget without `PASS` | The analysis is unconfirmed; promoting it would launder that |
+
+A failed status update is a warning, never a failure of the run: the comment is the
+deliverable and it is already posted. Report that the move did not go through and move on.
 
 ## Hard rules
 
-- **Read-only on Linear except the one comment.** No state change, no assignee, no labels, no closing.
+- **On Linear, only the comment and the one `Triage` → `Backlog` move.** No assignee, no labels, no cycle, no closing, and never a status change from anywhere other than `Triage`.
 - **No code edits.** This skill analyses; implementing is a separate task — by hand or through whatever pipeline the team uses.
 - **Never post twice on the same ticket state.** The footer gate is the mechanism; respect it.
 - **Never dress a guess as a finding.** No evidence → *cannot determine* or *blocked*, not a confident story.
