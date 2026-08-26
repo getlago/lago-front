@@ -1,0 +1,275 @@
+import { gql } from '@apollo/client'
+import { generatePath } from 'react-router-dom'
+
+import { Button } from '~/components/designSystem/Button'
+import { Status } from '~/components/designSystem/Status'
+import { Typography } from '~/components/designSystem/Typography'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
+import { DetailsPage } from '~/components/layouts/DetailsPage'
+import { PlanDetailsChargeWrapperSwitch } from '~/components/plans/details/PlanDetailsChargeWrapperSwitch'
+import { chargeModelLookupTranslation } from '~/core/constants/form'
+import { rateCardRateStatusMapping } from '~/core/constants/statusRateCardRateMapping'
+import {
+  ProductCategoryDetailsTabsOptionsEnum,
+  ProductDetailsTabsOptionsEnum,
+  ProductFilterDetailsTabsOptionsEnum,
+  RateCardDetailsTabsOptionsEnum,
+} from '~/core/constants/tabsOptions'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import {
+  Link,
+  PRODUCT_CATEGORY_DETAILS_ROUTE,
+  PRODUCT_DETAILS_ROUTE,
+  PRODUCT_FILTER_DETAILS_ROUTE,
+  RATE_CARD_DETAILS_ROUTE,
+} from '~/core/router'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { intlFormatDateTime } from '~/core/timezone'
+import {
+  ChargeModelEnum,
+  Properties,
+  RateCardBillingTimingEnum,
+  RateCardForRateDetailsFragment,
+  RateCardRateForDetailsFragment,
+  TimezoneEnum,
+} from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCustomPricingUnits } from '~/hooks/plans/useCustomPricingUnits'
+import { usePermissions } from '~/hooks/usePermissions'
+
+import {
+  BILLING_INTERVAL_UNIT_TRANSLATION_KEY,
+  RATE_CARD_RATE_BILLING_INTERVAL_LABEL_KEY,
+  RATE_CARD_RATE_DRAWER_DESCRIPTION_KEY,
+  RATE_CARD_RATE_DRAWER_TITLE_EDIT_KEY,
+  RATE_CARD_RATE_EFFECTIVE_DATE_LABEL_KEY,
+  RATE_CARD_RATE_MODEL_LABEL_KEY,
+  RATE_CARD_RATES_SECTION_TITLE_KEY,
+} from '../drawers/rateCardRate/constants'
+
+gql`
+  fragment RateCardForRateDetails on RateCard {
+    id
+    name
+    code
+    currency
+    appliedPricingUnitCode
+    billingTiming
+    product {
+      id
+      name
+      productCategory {
+        id
+        name
+      }
+    }
+    productFilter {
+      id
+      name
+    }
+  }
+`
+
+export const RATE_CARD_RATE_DETAILS_OVERVIEW_EDIT_TEST_ID = 'rate-card-rate-details-overview-edit'
+export const RATE_CARD_RATE_DETAILS_OVERVIEW_STATUS_TEST_ID =
+  'rate-card-rate-details-overview-status'
+
+// New translation keys are exported as named constants (feature convention) so tests and
+// siblings reference them instead of duplicating the raw ids.
+export const RATE_CARD_RATE_DETAILS_PRODUCT_CATEGORY_LABEL_KEY = 'text_17877372202296ejgkqky70w'
+export const RATE_CARD_RATE_DETAILS_RATE_CARD_LABEL_KEY = 'text_1787737220228091rkbqj1vl'
+export const RATE_CARD_RATE_DETAILS_CODE_LABEL_KEY = 'text_1787737220228i16tnwmeue3'
+export const RATE_CARD_RATE_DETAILS_BILLING_INTERVAL_VALUE_KEY = 'text_17877372202287udsa3vj1ul'
+
+type RateCardRateDetailsOverviewProps = {
+  rate: RateCardRateForDetailsFragment
+  rateCard: RateCardForRateDetailsFragment
+  onEdit?: () => void
+}
+
+const RateCardRateDetailsOverview = ({
+  rate,
+  rateCard,
+  onEdit,
+}: RateCardRateDetailsOverviewProps) => {
+  const { translate } = useInternationalization()
+  const { hasPermissions } = usePermissions()
+  const { pricingUnits } = useCustomPricingUnits()
+
+  const { product, productFilter } = rateCard
+  const pricingUnitShortName = pricingUnits.find(
+    (unit) => unit.code === rateCard.appliedPricingUnitCode,
+  )?.shortName
+
+  const renderProductCategory = () => {
+    if (!product.productCategory) return '-'
+
+    return (
+      <Link
+        to={generatePath(PRODUCT_CATEGORY_DETAILS_ROUTE, {
+          productCategoryId: product.productCategory.id,
+          tab: ProductCategoryDetailsTabsOptionsEnum.overview,
+        })}
+      >
+        <Typography variant="body" color="grey700">
+          {product.productCategory.name}
+        </Typography>
+      </Link>
+    )
+  }
+
+  const renderProductFilter = () => {
+    if (!productFilter) return '-'
+
+    return (
+      <Link
+        to={generatePath(PRODUCT_FILTER_DETAILS_ROUTE, {
+          productFilterId: productFilter.id,
+          tab: ProductFilterDetailsTabsOptionsEnum.overview,
+        })}
+      >
+        <Typography variant="body" color="grey700">
+          {productFilter.name}
+        </Typography>
+      </Link>
+    )
+  }
+
+  // A spending minimum true-ups a closed period, so the backend rejects it outright on a
+  // pay-in-advance card - there is nothing to show for one.
+  const hasSpendingMinimum = rateCard.billingTiming === RateCardBillingTimingEnum.Arrears
+
+  const spendingMinimum = intlFormatNumber(
+    deserializeAmount(rate.minAmountCents ?? 0, rateCard.currency),
+    {
+      currencyDisplay: 'symbol',
+      currency: rateCard.currency,
+      pricingUnitShortName,
+      maximumFractionDigits: 15,
+    },
+  )
+
+  return (
+    <section className="flex flex-col gap-4">
+      <div className="flex h-18 items-center justify-between gap-4">
+        <div className="flex flex-col">
+          <Typography variant="subhead1" color="grey700" noWrap>
+            {translate(RATE_CARD_RATES_SECTION_TITLE_KEY)}
+          </Typography>
+          <Typography variant="caption" color="grey600" noWrap>
+            {translate(RATE_CARD_RATE_DRAWER_DESCRIPTION_KEY)}
+          </Typography>
+        </div>
+        {!!onEdit && hasPermissions(['rateCardsUpdate']) && (
+          <Button
+            variant="inline"
+            data-test={RATE_CARD_RATE_DETAILS_OVERVIEW_EDIT_TEST_ID}
+            onClick={onEdit}
+          >
+            {translate(RATE_CARD_RATE_DRAWER_TITLE_EDIT_KEY)}
+          </Button>
+        )}
+      </div>
+
+      <DetailsPage.InfoGrid
+        grid={[
+          {
+            label: translate(RATE_CARD_RATE_DETAILS_PRODUCT_CATEGORY_LABEL_KEY),
+            value: renderProductCategory(),
+          },
+          {
+            label: translate('text_1784925227817ekmphmxz74c'),
+            value: (
+              <Link
+                to={generatePath(PRODUCT_DETAILS_ROUTE, {
+                  productId: product.id,
+                  tab: ProductDetailsTabsOptionsEnum.overview,
+                })}
+              >
+                <Typography variant="body" color="grey700">
+                  {product.name}
+                </Typography>
+              </Link>
+            ),
+          },
+          {
+            label: translate('text_17849304406579sbwz4df14p'),
+            value: renderProductFilter(),
+          },
+          {
+            label: translate(RATE_CARD_RATE_DETAILS_RATE_CARD_LABEL_KEY),
+            value: (
+              <Link
+                to={generatePath(RATE_CARD_DETAILS_ROUTE, {
+                  rateCardId: rateCard.id,
+                  tab: RateCardDetailsTabsOptionsEnum.rates,
+                })}
+              >
+                <Typography variant="body" color="grey700">
+                  {rateCard.name}
+                </Typography>
+              </Link>
+            ),
+          },
+          {
+            label: translate(RATE_CARD_RATE_DETAILS_CODE_LABEL_KEY),
+            value: (
+              <TypographyWithCopy variant="body" color="grey700">
+                {rate.code}
+              </TypographyWithCopy>
+            ),
+          },
+          {
+            label: translate(RATE_CARD_RATE_EFFECTIVE_DATE_LABEL_KEY),
+            // A calendar day stored as a UTC instant: reading it in the organization timezone
+            // would show the previous day for anything west of UTC.
+            value: intlFormatDateTime(rate.effectiveFrom, { timezone: TimezoneEnum.TzUtc }).date,
+          },
+          {
+            label: translate('text_63ac86d797f728a87b2f9fa7'),
+            value: (
+              <Status
+                {...rateCardRateStatusMapping(rate.status)}
+                data-test={RATE_CARD_RATE_DETAILS_OVERVIEW_STATUS_TEST_ID}
+              />
+            ),
+          },
+          {
+            label: translate(RATE_CARD_RATE_BILLING_INTERVAL_LABEL_KEY),
+            value: translate(RATE_CARD_RATE_DETAILS_BILLING_INTERVAL_VALUE_KEY, {
+              count: rate.billingIntervalCount,
+              unit: translate(
+                BILLING_INTERVAL_UNIT_TRANSLATION_KEY[rate.billingIntervalUnit],
+              ).toLocaleLowerCase(),
+            }),
+          },
+          {
+            label: translate(RATE_CARD_RATE_MODEL_LABEL_KEY),
+            value: translate(chargeModelLookupTranslation[rate.rateModel]),
+          },
+        ]}
+      />
+
+      <PlanDetailsChargeWrapperSwitch
+        currency={rateCard.currency}
+        // The two enums are distinct GraphQL types with identical string members, and the
+        // switch keys off those strings.
+        chargeModel={rate.rateModel as unknown as ChargeModelEnum}
+        values={rate.rateProperties as unknown as Properties}
+        chargeAppliedPricingUnit={
+          pricingUnitShortName ? { pricingUnit: { shortName: pricingUnitShortName } } : undefined
+        }
+        // A rate has no charge filters, so it can never carry presentation group keys.
+        showPresentationGroupKeys={false}
+      />
+
+      {hasSpendingMinimum && (
+        <DetailsPage.InfoGrid
+          grid={[{ label: translate('text_643e592657fc1ba5ce110c30'), value: spendingMinimum }]}
+        />
+      )}
+    </section>
+  )
+}
+
+export default RateCardRateDetailsOverview

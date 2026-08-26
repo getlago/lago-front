@@ -11,6 +11,7 @@ export const ChargeModelSelector = ({
   localCharge,
   chargeModelComboboxData,
   handleUpdate,
+  label,
 }: {
   alreadyUsedChargeAlertMessage: string | undefined
   isInSubscriptionForm: boolean | undefined
@@ -18,6 +19,8 @@ export const ChargeModelSelector = ({
   localCharge: LocalUsageChargeInput | LocalFixedChargeInput
   chargeModelComboboxData: BasicComboBoxData[]
   handleUpdate: (name: string, value: unknown) => void
+  /** Overrides the "Charge model" field label - rate cards call the same concept "Rate model". */
+  label?: string
 }) => {
   const { translate } = useInternationalization()
 
@@ -32,7 +35,7 @@ export const ChargeModelSelector = ({
         disableClearable
         name="chargeModel"
         disabled={isInSubscriptionForm || disabled}
-        label={translate('text_65201b8216455901fe273dd5')}
+        label={label ?? translate('text_65201b8216455901fe273dd5')}
         data={chargeModelComboboxData}
         value={localCharge.chargeModel}
         helperText={translate(getChargeModelHelpTextTranslationKey[localCharge.chargeModel])}

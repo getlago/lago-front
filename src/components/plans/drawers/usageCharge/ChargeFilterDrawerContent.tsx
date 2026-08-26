@@ -146,7 +146,7 @@ export const ChargeFilterDrawerContent = withForm({
                 currency={currency}
                 form={form}
                 isEdition={isEdition}
-                isFilterForm
+                showPresentationGroupKeys={false}
                 localCharge={{ chargeModel } as LocalUsageChargeInput}
                 propertyCursor="properties"
               />

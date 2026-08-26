@@ -40,6 +40,13 @@ jest.mock('../RateCardActivityLogs', () => ({
   default: () => null,
 }))
 
+jest.mock('../RateCardRatesTab', () => ({
+  __esModule: true,
+  default: ({ rateCard }: { rateCard: { id: string } }) => (
+    <div data-test="rates-tab">{rateCard.id}</div>
+  ),
+}))
+
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({ hasPermissions: mockHasPermissions }),
 }))
@@ -83,6 +90,7 @@ const rateCardFixture = {
     },
   },
   productFilter: null,
+  activeRate: null,
 }
 
 const detailsQueryMock = {
@@ -182,13 +190,13 @@ describe('RateCardDetails', () => {
     expect(screen.queryByText('text_1747314141347qq6rasuxisl')).not.toBeInTheDocument()
   })
 
-  it('renders the rates tab stub content when that tab is active', async () => {
+  it('renders the rates list with the loaded rate card when that tab is active', async () => {
     window.history.pushState({}, '', '/product-catalog/rate-cards/rc-1/rates')
 
     await act(() => renderPage())
 
     await waitFor(() => {
-      expect(screen.getAllByText('text_1784930705742tg0kbcsak2v')).toHaveLength(2)
+      expect(screen.getByTestId('rates-tab')).toHaveTextContent('rc-1')
     })
   })
 

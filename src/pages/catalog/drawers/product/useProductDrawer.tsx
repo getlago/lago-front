@@ -12,6 +12,7 @@ import { ProductDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { applyExistingCodeError } from '~/core/form/existingCodeError'
 import { PRODUCT_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import { prependOrgSlug } from '~/core/router/utils/prependOrgSlug'
+import { escapeDoubleQuotes } from '~/core/utils/escapeDoubleQuotes'
 import {
   LagoApiError,
   ProductForDrawerFragment,
@@ -97,10 +98,6 @@ const mapProductToFormValues = (product: ProductForDrawerFragment): ProductFormV
   productType: product.productType,
   billableMetricId: product.billableMetric?.id || '',
 })
-
-// `data-text` is a double-quoted HTML attribute in the linked-toast template;
-// escape embedded quotes so a product name cannot break out of it.
-const escapeDoubleQuotes = (value: string) => value.replaceAll('"', '&quot;')
 
 type ProductCategoryAttachment = { id: string; name: string; code: string }
 

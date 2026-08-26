@@ -26,9 +26,10 @@ interface ChargeWrapperSwitchProps {
   localCharge: LocalFixedChargeInput | LocalUsageChargeInput
   propertyCursor: string
   onExpandCustomCharge?: (currentValue: string | undefined) => void
-  // When rendered for a charge filter sub-form, we hide PresentationGroupKeys —
-  // filters inherit them from the parent charge automatically.
-  isFilterForm?: boolean
+  // Off for the surfaces that cannot own presentation group keys: a charge filter
+  // sub-form (filters inherit them from the parent charge) and a rate card rate
+  // (rates have no charge filters at all).
+  showPresentationGroupKeys?: boolean
 }
 
 export const ChargeWrapperSwitch = memo(
@@ -41,7 +42,7 @@ export const ChargeWrapperSwitch = memo(
     localCharge,
     propertyCursor,
     onExpandCustomCharge,
-    isFilterForm,
+    showPresentationGroupKeys = true,
   }: ChargeWrapperSwitchProps) => {
     const isUsageCharge = chargeType === 'usage'
 
@@ -70,7 +71,7 @@ export const ChargeWrapperSwitch = memo(
           {isUsageCharge && (
             <>
               <PricingGroupKeys />
-              {!isFilterForm && <PresentationGroupKeys />}
+              {showPresentationGroupKeys && <PresentationGroupKeys />}
             </>
           )}
         </div>

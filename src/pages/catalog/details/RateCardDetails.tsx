@@ -15,6 +15,7 @@ import {
   LagoApiError,
   RateCardForDeleteRateCardDialogFragmentDoc,
   RateCardForDrawerFragmentDoc,
+  RateCardForRateDrawerFragmentDoc,
   useGetRateCardForDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -24,6 +25,7 @@ import { usePermissions } from '~/hooks/usePermissions'
 
 import RateCardActivityLogs from './RateCardActivityLogs'
 import RateCardDetailsOverview from './RateCardDetailsOverview'
+import RateCardRatesTab from './RateCardRatesTab'
 
 import { useDeleteRateCardDialog } from '../dialogs/useDeleteRateCardDialog'
 import { useRateCardDrawer } from '../drawers/rateCard/useRateCardDrawer'
@@ -41,11 +43,13 @@ gql`
       ...RateCardForRateCardDetails
       ...RateCardForDrawer
       ...RateCardForDeleteRateCardDialog
+      ...RateCardForRateDrawer
     }
   }
 
   ${RateCardForDrawerFragmentDoc}
   ${RateCardForDeleteRateCardDialogFragmentDoc}
+  ${RateCardForRateDrawerFragmentDoc}
 `
 
 export const RATE_CARDS_LIST_PATH = generatePath(PRODUCT_CATALOG_TAB_ROUTE, {
@@ -129,7 +133,7 @@ const RateCardDetails = () => {
         // closures capture `rateCard` from the last push. Encode the mutable
         // fields the closures depend on (but that the header does not display)
         // so an edit touching only those re-pushes fresh closures.
-        snapshotKey={`${rateCard?.description}|${rateCard?.billingTiming}|${rateCard?.proration}|${rateCard?.attachedToPlanOrSubscription}|${rateCard?.attachedToSubscriptions}|${rateCard?.currency}|${rateCard?.appliedPricingUnitCode}|${rateCard?.walletTargetable}|${rateCard?.displayOnInvoice}|${rateCard?.regroupPaidFees}`}
+        snapshotKey={`${rateCard?.description}|${rateCard?.billingTiming}|${rateCard?.proration}|${rateCard?.attachedToPlanOrSubscription}|${rateCard?.attachedToSubscriptions}|${rateCard?.currency}|${rateCard?.appliedPricingUnitCode}|${rateCard?.walletTargetable}|${rateCard?.displayOnInvoice}|${rateCard?.regroupPaidFees}|${rateCard?.activeRate?.effectiveFrom}`}
         breadcrumb={[
           {
             label: translate('text_1783019143196z1oi70j03vt'),
@@ -165,7 +169,11 @@ const RateCardDetails = () => {
               rateCardId: rateCardId as string,
               tab: RateCardDetailsTabsOptionsEnum.rates,
             }),
-            content: <div className="p-4">{translate(RATE_CARD_DETAILS_RATES_TAB_KEY)}</div>,
+            content: (
+              <DetailsPage.Container>
+                {!!rateCard && <RateCardRatesTab rateCard={rateCard} />}
+              </DetailsPage.Container>
+            ),
           },
           {
             title: translate('text_62442e40cea25600b0b6d85a'),

@@ -11,6 +11,7 @@ import { RateCardDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { applyExistingCodeError } from '~/core/form/existingCodeError'
 import { RATE_CARD_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import { prependOrgSlug } from '~/core/router/utils/prependOrgSlug'
+import { escapeDoubleQuotes } from '~/core/utils/escapeDoubleQuotes'
 import {
   LagoApiError,
   RateCardBillingTimingEnum,
@@ -114,10 +115,6 @@ const mapRateCardToFormValues = (rateCard: RateCardForDrawerFragment): RateCardF
   proration: rateCard.proration,
   walletTargetable: rateCard.walletTargetable ?? false,
 })
-
-// `data-text` is a double-quoted HTML attribute in the linked-toast template;
-// escape embedded quotes so a rate card name cannot break out of it.
-const escapeDoubleQuotes = (value: string) => value.replaceAll('"', '&quot;')
 
 type ProductAttachment = { id: string; name: string }
 type ProductFilterAttachment = {

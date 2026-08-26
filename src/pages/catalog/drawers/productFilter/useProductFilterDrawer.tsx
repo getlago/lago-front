@@ -11,6 +11,7 @@ import { ProductFilterDetailsTabsOptionsEnum } from '~/core/constants/tabsOption
 import { applyExistingCodeError } from '~/core/form/existingCodeError'
 import { PRODUCT_FILTER_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import { prependOrgSlug } from '~/core/router/utils/prependOrgSlug'
+import { escapeDoubleQuotes } from '~/core/utils/escapeDoubleQuotes'
 import {
   LagoApiError,
   ProductFilterForDrawerFragment,
@@ -130,10 +131,6 @@ const mapSeededFilters = (
 
   return Array.from(byId.values())
 }
-
-// `data-text` is a double-quoted HTML attribute in the linked-toast template;
-// escape embedded quotes so a product filter name cannot break out of it.
-const escapeDoubleQuotes = (value: string) => value.replaceAll('"', '&quot;')
 
 type ProductAttachment = {
   id: string
