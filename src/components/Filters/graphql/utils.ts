@@ -1173,7 +1173,10 @@ export const formatActiveFilterValueDisplay = (
       return value
         .split(',')
         .map((v) => {
-          return intlFormatDateTime(v, { formatDate: DateFormat.DATE_SHORT }).date
+          return intlFormatDateTime(v, {
+            formatDate: DateFormat.DATE_SHORT,
+            setZone: true,
+          }).date
         })
         .join(' - ')
     case AvailableFiltersEnum.period:

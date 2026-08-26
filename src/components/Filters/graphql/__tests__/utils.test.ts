@@ -336,6 +336,22 @@ describe('Filters utils', () => {
 
       expect(result).toBe('1/1/2022 - 1/31/2022')
     })
+    it('should keep positive offsets when formatting an issuingDate value display', () => {
+      const result = formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.issuingDate,
+        '2026-08-20T00:00:00.000+02:00,2026-08-20T23:59:59.999+02:00',
+      )
+
+      expect(result).toBe('8/20/2026 - 8/20/2026')
+    })
+    it('should keep negative offsets when formatting a webhookDate value display', () => {
+      const result = formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.webhookDate,
+        '2026-08-20T00:00:00.000-05:00,2026-08-20T23:59:59.999-05:00',
+      )
+
+      expect(result).toBe('8/20/2026 - 8/20/2026')
+    })
     it('should format active filter date value display', () => {
       const result = formatActiveFilterValueDisplay(
         AvailableFiltersEnum.date,
