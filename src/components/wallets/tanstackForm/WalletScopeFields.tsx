@@ -7,26 +7,16 @@ import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { ComboBox, ComboboxItem } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
+import {
+  WALLET_SCOPE_FEE_TYPE_LABEL_KEYS,
+  WALLET_SCOPE_FEE_TYPES,
+  WalletScopeFeeType,
+} from '~/components/wallets/utils/walletScopeFeeTypes'
 import { FeeTypesEnum, useGetBillableMetricsForWalletLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 
 import type { WalletScopeSlice } from './walletFormSchema'
-
-type AvailableFeeTypes = FeeTypesEnum.Charge | FeeTypesEnum.Commitment | FeeTypesEnum.Subscription
-
-const FEE_TYPE_OPTIONS: AvailableFeeTypes[] = [
-  FeeTypesEnum.Charge,
-  FeeTypesEnum.Commitment,
-  FeeTypesEnum.Subscription,
-]
-
-// Reuse the exact translation keys the Formik `ScopeSection.tsx` uses for these labels.
-const FEE_TYPE_LABEL_KEYS: Record<AvailableFeeTypes, string> = {
-  [FeeTypesEnum.Charge]: 'text_1748441354191rj96qhw3twa',
-  [FeeTypesEnum.Commitment]: 'text_1748441354191cnp0tm4ubf0',
-  [FeeTypesEnum.Subscription]: 'text_6630e3210c13c500cd398ea2',
-}
 
 const DEFAULTS: WalletScopeSlice = { feeTypes: [], billableMetricCodes: [] }
 
@@ -65,10 +55,10 @@ export const WalletScopeFields = withForm({
         <form.AppField name="feeTypes">
           {(field) => {
             const selected = field.state.value as FeeTypesEnum[]
-            const allSelected = selected.length === FEE_TYPE_OPTIONS.length
+            const allSelected = selected.length === WALLET_SCOPE_FEE_TYPES.length
 
-            const comboboxFeeTypesData = FEE_TYPE_OPTIONS.map((feeType) => ({
-              label: translate(FEE_TYPE_LABEL_KEYS[feeType]),
+            const comboboxFeeTypesData = WALLET_SCOPE_FEE_TYPES.map((feeType) => ({
+              label: translate(WALLET_SCOPE_FEE_TYPE_LABEL_KEYS[feeType]),
               value: feeType,
               disabled: selected.includes(feeType),
             }))
@@ -96,7 +86,9 @@ export const WalletScopeFields = withForm({
                     {selected.map((feeType) => (
                       <Chip
                         key={feeType}
-                        label={translate(FEE_TYPE_LABEL_KEYS[feeType as AvailableFeeTypes])}
+                        label={translate(
+                          WALLET_SCOPE_FEE_TYPE_LABEL_KEYS[feeType as WalletScopeFeeType],
+                        )}
                         onDelete={() => removeFeeType(feeType)}
                       />
                     ))}
