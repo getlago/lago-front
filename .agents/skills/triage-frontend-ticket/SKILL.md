@@ -65,41 +65,19 @@ Then **classify the ticket**, because it decides what the analysis has to prove:
 
 Mixed ticket ("it's wrong, and while we're there make it configurable") → treat the defect as primary, and cover the request under *Scope beyond the defect*. When the label and the wording disagree, the wording wins; say which you picked.
 
-### Pick a depth — a full analysis is not free
+### Is there anything to analyse at all?
 
-A full run costs real money in tokens, most of it in the independent review. Spending that on
-"the external-link icon wraps onto its own line" is waste. Choose one tier, and **record it
-before you go further**:
-
-```bash
-front/scripts/analysis-depth.sh <ISSUE-ID> set <skip|shallow|full>
-```
-
-| Tier | When | What it produces |
-| --- | --- | --- |
-| **skip** | The ticket already names what to change and where — an analysis would only restate it ("change this wording to that") | A one-line comment saying it is already actionable, or nothing. Stop. |
-| **shallow** | The change is **contained**: cause and fix in one file, nothing else reads or writes the value, and being wrong shows up immediately. Layout, wrapping, spacing, icon size, copy and translation keys are the common cases, but a small self-contained logic fix qualifies too | Root cause with `file:line`, the fix, the handoff. **No independent review** — `CLAUDE.md` and the conventions are enough of a check at this size. |
-| **full** | Any of: more than one file · a shared key or identifier · a derived value · pagination, cache, timezone or currency semantics · a fix whose failure mode is **silent** (a wrong number, a filter matching nothing) rather than visible | The whole flow, review included. |
-
-**Escalation is one-way and enforced.** `analysis-depth.sh` refuses to move back down, because
-the cheap tier is also the tier that skips the review — and the moment to be tempted into
-skipping it is exactly when the work turns out bigger than hoped. Escalate the instant any of
-these turns up: the cause is not in the file you expected · a second file has to change · the
-value is read or written somewhere else · the fix could be wrong without anyone noticing.
+Some tickets already name what to change and where — "change this wording to that". An analysis
+would only restate them. Record that and stop:
 
 ```bash
-front/scripts/analysis-depth.sh <ISSUE-ID> set full
+front/scripts/analysis-depth.sh <ISSUE-ID> set skip
 ```
 
-**The test is the failure mode, not the size of the diff.** A one-line change to how a date or an
-amount is formatted is `full`: the diff is trivial, being wrong is invisible, and the review is
-what catches it. A twenty-line layout rewrite can be `shallow`: wrong is obvious the moment
-anyone opens the page.
+Post a one-line comment saying it is already actionable, or nothing at all, and finish.
 
-Uncertain between two tiers → take the deeper one.
-
-The rest of this skill describes the **full** tier. At `shallow`, run steps 2 and 3, keep the
-comment to root cause + evidence + fix + handoff, and go straight to step 8.
+Everything else gets the analysis. **How deep it goes is not decided here** — you cannot know
+what a change touches before reading the code. That call comes at step 5, once you do.
 
 ## 2. Ground it in the project's own rules, then read the code
 
@@ -233,6 +211,43 @@ Whatever mechanism is involved, grep for every other call site sharing it. Split
 Changing the shape of a shared value while missing one producer is a silent break: the writer keeps emitting the old shape, the reader matches nothing, and no test fails because the two live in different files. A fix list that changes a key's format without naming every writer is incomplete.
 
 This is where triage earns its keep — the reporter sees one surface, the code usually has more. Report affected siblings even when out of the ticket's scope. For a change request the same sweep answers "where else does this have to change to stay consistent", which is usually the real cost of the ticket.
+
+### Now price the review
+
+You know what the change touches, so this is the moment to decide whether it needs an
+independent review. That review is the expensive part of this skill: spend it where being wrong
+would go unnoticed, not on everything.
+
+```bash
+front/scripts/analysis-depth.sh <ISSUE-ID> set <shallow|full>
+```
+
+**`full` — the review runs.** Any one of:
+
+- the fix reaches more than one **area** of the code
+- a **shared key or identifier**, or a **derived value**
+- pagination, cache, timezone or currency **semantics**
+- the failure mode is **silent** — a wrong number, a filter matching nothing, a link that quietly
+  stops working
+
+**`shallow` — the review is skipped.** The change is contained to one area, nobody else reads or
+writes the value, and being wrong is obvious to whoever opens the page. `CLAUDE.md` and the
+conventions are check enough at this size.
+
+**Do not count files.** A source file and its test are one unit of work, not two — counting them
+would put everything in `full` and make `shallow` unreachable, which is not the intent. Count
+areas: a component plus its own test is one; a component, a hook and a cache policy is three.
+
+**The test is the failure mode, not the size of the diff.** One line changing how an amount is
+formatted is `full` — trivial diff, invisible when wrong, and the review is what catches it. A
+twenty-line layout rewrite can be `shallow` — wrong is obvious at a glance.
+
+Uncertain between the two → `full`.
+
+**Escalation is one-way and enforced.** `analysis-depth.sh` refuses to move back down: `shallow`
+is the tier that skips the review, and the moment to be tempted into skipping it is exactly when
+the work turns out bigger than hoped. If anything surfaces while drafting — a second area to
+touch, a value read somewhere else, a way to be wrong unnoticed — escalate and take the review.
 
 ## 6. Draft the comment
 
@@ -391,7 +406,7 @@ front/scripts/analysis-depth.sh <ISSUE-ID> get
 
 `full` → review, no exceptions. `shallow` → skip this step and go to step 8; there is no
 finding here whose cost of being wrong justifies the review. Anything else means the tier was
-never recorded: go back to step 1 and record it.
+never recorded: go back to step 5 and record it.
 
 **The cap is MECHANICAL, not a number you keep in your head.** `front/scripts/iter-budget.sh`
 is a standalone repo utility — an attempt counter on disk, no pipeline attached — and it is
