@@ -75,7 +75,7 @@ Adopting the loop means accepting these. They are enforced in the skills as hard
 - **The pipeline commits, pushes and opens the PR.** It is the one place where an agent performs git write operations, and only ever on its own branch in its own worktree. It never force-pushes and never touches the main checkout.
 - **Humans merge.** No self-approval, no merge, no auto-merge flag — ever.
 - **No AI attribution** in commits, PR bodies or Slack messages.
-- **`#frontend` is posted only when CI is green.** No announcement of a red PR, no exceptions.
+- **`#frontend` is posted only when CI is green** — sole exception: a red `Run Codegen` caused by a verified unmerged companion lago-api PR (loop-run CI-gate step 5.3), which is announced anyway since only the API merge plus a rerun stand between it and green.
 - **The full jest suite is never run.** Only scoped paths for the touched domain.
 - **Every external PR comment gets a reply** — applied with the sha, or not applied with a one-line technical reason.
 - **Destructive cleanup always asks.** `loop-clean` never destroys a dirty worktree or one with unpushed commits.

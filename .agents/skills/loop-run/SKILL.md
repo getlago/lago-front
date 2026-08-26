@@ -11,7 +11,7 @@ description: 'Orchestrator of the loop pipeline for lago-front: sweep → spec �
 
 **Principle: humans merge.** This pipeline NEVER merges or approves a PR, never bypasses a gate, never force-pushes.
 
-**Autonomy contract:** between the input and the final Slack post the pipeline runs alone. The ONLY thing that asks the operator for help is an exhausted retry budget (3 review cycles or 3 CI cycles) or an unrecoverable external failure. Never pause for approval mid-run.
+**Autonomy contract:** between the input and the final Slack post the pipeline runs alone. The ONLY thing that asks the operator for help is an exhausted retry budget (3 review cycles or 3 CI cycles), a `needs-operator-adjudication` triage STOP (CI gate step 5.3), or an unrecoverable external failure. Never pause for approval mid-run.
 
 ## Conventions used throughout
 
@@ -27,7 +27,7 @@ description: 'Orchestrator of the loop pipeline for lago-front: sweep → spec �
 
 2. **Build ↔ review cycle** (max 3 iterations — the cap is MECHANICAL, enforced by loop-iter.sh, not by counting in your head):
    1. Charge the budget: `front/scripts/loop-iter.sh <ISSUE-ID> review`. Exit code 1 → budget exhausted: go straight to the 3-FAIL STOP path below, regardless of what you believe the count is.
-   2. Invoke `loop-build` with `<ISSUE-ID>`.
+   2. Invoke `loop-build` with `<ISSUE-ID>`. On the FIRST iteration only, just before invoking it, claim the ticket on Linear via the MCP `save_issue`: assignee = the operator (resolve their Linear user by matching `git config user.email` against Linear users), status = "Dev in Progress". A Linear failure here warns and continues — it never blocks the build.
    3. **Dispatch the review in a FRESH subagent** (clean context — the reviewer must not inherit the builder's reasoning or bias): use the Agent tool with a prompt like "Invoke the loop-review skill for <ISSUE-ID> and follow it exactly", general-purpose agent type. Do NOT run loop-review inline in this session.
    4. Read the first line of `state dir`/`review.md`:
       - `Verdict: PASS` → go to Ship.
@@ -71,10 +71,13 @@ description: 'Orchestrator of the loop pipeline for lago-front: sweep → spec �
 5. **CI gate** (max 3 fix cycles — cap enforced by loop-iter.sh):
    1. `gh pr checks <PR> --watch` and wait for completion.
    2. All green → go to Announce.
-   3. Any red → charge the budget: `front/scripts/loop-iter.sh <ISSUE-ID> ci`. Exit code 1 → go straight to the 3-red STOP path. Otherwise `gh run view <run-id> --log-failed` to capture failure logs, write them to `ci-failure.md` in the state dir. If a previous ci-failure.md existed, first append it under a `## CI cycle <N>` header to `ci-failure-history.md`. Then re-enter the build ↔ review cycle in fix mode against that report. After fixes: commit (`fix(<context>): address CI failures` + short body), push, watch checks again.
-   4. After 3 red cycles (or loop-iter exit 1): STOP. Write `impediment.md`, send the exit DM, and report to the operator with the PR URL and the last failure log. **NEVER post to Slack channels while CI is red.**
+   3. Any red → triage the special cases FIRST (they must not consume budget):
+      - **`Run Codegen` red with an unmerged companion API PR**: CI builds the GraphQL schema from lago-api `main`, so when the frontend change consumes schema that still sits in an open lago-api PR, `Run Codegen` CANNOT go green frontend-side and is not a failure — the API PR has its own reviewer, and once it merges a rerun goes green. Qualifying requires BOTH: (a) a concrete companion PR identified from the ticket/spec, or named by the codegen errors matching exactly the fields it adds; AND (b) a one-time verification that it exists and is still open — `gh pr view <N> --repo getlago/lago-api --json state,title` — recorded in the state dir (never re-checked on later watch cycles). Both hold → skip fix mode, continue to Announce and post the plain template anyway; note the pending API merge in the journal row and put in the final report: "after <api-PR> merges, rerun the `Run Codegen` check". No verifiable companion PR, or any OTHER red check alongside it → real failure, handle normally.
+      - **CodeQL (or any code-scanning gate) red**: before writing ci-failure.md, list the repo's alerts — `gh api --paginate 'repos/getlago/lago-front/code-scanning/alerts?per_page=100'` — and filter `state == "dismissed"` yourself (the endpoint's `state` param takes a SINGLE value; `state=open,dismissed` is silently ignored and would also return `fixed` alerts). A dismissed alert with the same `rule.id`, same file AND overlapping code region as the new one means the new alert is a re-fingerprint (CodeQL fingerprints by location, so ANY edit to the function re-raises it) and NO code change can clear the check. Same rule elsewhere in the file is NOT a match — treat it as a real new finding. On a re-fingerprint: if other fixable checks are red alongside, fix those through the normal cycle first; when the re-fingerprinted alert is the only remaining red, do not spend a CI cycle on it — go straight to the STOP path with outcome `needs-operator-adjudication` and an impediment asking the operator to dismiss the new alert referencing the prior one.
+      - **Neither special case applies** → charge the budget: `front/scripts/loop-iter.sh <ISSUE-ID> ci`. Exit code 1 → go straight to the 3-red STOP path. Otherwise `gh run view <run-id> --log-failed` to capture failure logs, write them to `ci-failure.md` in the state dir. If a previous ci-failure.md existed, first append it under a `## CI cycle <N>` header to `ci-failure-history.md`. Then re-enter the build ↔ review cycle in fix mode against that report. After fixes: commit (`fix(<context>): address CI failures` + short body), push, watch checks again.
+   4. After 3 red cycles (or loop-iter exit 1): STOP. Write `impediment.md`, send the exit DM, and report to the operator with the PR URL and the last failure log. **NEVER post to Slack channels while CI is red** (the codegen exception never reaches this step — it exits at triage in 5.3).
 
-6. **Announce** (only with CI fully green) — post to the Slack channel `#frontend` via the Slack MCP, EXACTLY this format, no extra text:
+6. **Announce** (only with CI fully green — sole carve-out: the verified codegen exception of step 5.3) — post to the Slack channel `#frontend` via the Slack MCP, EXACTLY this format, no extra text:
 
    ```
    **<type>(<context>): <Title>**
@@ -87,6 +90,7 @@ description: 'Orchestrator of the loop pipeline for lago-front: sweep → spec �
    Formatting is STRICT (a run with single newlines collapsed everything onto one line):
    - The Slack MCP message field takes standard markdown where a SINGLE newline is a soft break (collapsed to a space). Separate the 3 lines with a BLANK LINE between each (double newline) — exactly as in the template above.
    - Line 1: title in `**bold**`. Line 2: `:pr: ` + bare PR URL. Line 3: `:admission_tickets: ` + bare Linear URL. Nothing else.
+   - The codegen exception (step 5.3) posts this SAME plain template — no blocker note, no extra line.
 
 7. **External comments check**: before closing, fetch PR comments (`gh api repos/getlago/lago-front/pulls/<PR>/comments` + `gh pr view <PR> --json comments`). Any comment authored by someone other than the operator — colleague or bot (e.g. Copilot); the operator's own login is `gh api user --jq .login` → handle it with the loop-revise protocol: evaluate critically, apply if sound, and ALWAYS reply on GitHub — short thanks + applied (with sha) or not applied (with a one-line technical reason). Never leave an external comment unanswered.
 
@@ -104,7 +108,7 @@ Run these two steps on every way the pipeline ends — happy path (after Announc
    | 2026-08-05 | LAGO-1234 | 2/3 | 1/3 | types, jest | shipped | reviewer caught missing empty-state |
    ```
 
-   `outcome` ∈ `shipped` / `stopped-review` / `stopped-ci` / `stopped-error`. `gates failed` = every gate that went red at least once during the run (lint/types/translations/jest/CI-job names). `notes` = one short phrase, only if something non-obvious happened.
+   `outcome` ∈ `shipped` / `stopped-review` / `stopped-ci` / `needs-operator-adjudication` / `stopped-error`. `needs-operator-adjudication` = every check green except a security/code-scanning alert that is a re-fingerprint of a finding the operator already ruled on — the code is complete and reviewed, the run is NOT a failure, the only outstanding item is one human decision. `gates failed` = every gate that went red at least once during the run (lint/types/translations/jest/CI-job names). `notes` = one short phrase, only if something non-obvious happened.
 
 2. **Flywheel**: review the run's failures (review-history.md, ci-failure-history.md, external PR comments) and ask for each recurring or avoidable one: *"would a better instruction in loop-spec / loop-build / loop-review have prevented this?"* If yes, append a dated proposal to `$LOOP_STATE_DIR/_flywheel.md`:
 
@@ -131,7 +135,7 @@ On EVERY exit that needs the operator's attention — 3 FAIL review cycles, 3 re
 0. **Write the impediment first** — `impediment.md` in the state dir, structured (this is a first-class output: it feeds the flywheel and lets anyone reconstruct the failure without the chat transcript):
 
    ```markdown
-   stage: <spec | build | review cycle N/3 | CI cycle N/3 | ship>
+   stage: <spec | build | review cycle N/3 | CI cycle N/3 | CI triage (adjudication) | ship>
    cause: <one line — what blocked>
    attempted: <bullet per attempt: strategy used, why it failed>
    needed: <what a human must decide/do to unblock>
@@ -154,6 +158,8 @@ On EVERY exit that needs the operator's attention — 3 FAIL review cycles, 3 re
    <Linear issue URL>
    Next: <what the operator needs to do — or "reply here with instructions">
    ```
+
+   For `needs-operator-adjudication` exits the tone changes: the Reason line states plainly that the code is complete, reviewed and green everywhere else, and `Next:` names the single decision required (e.g. "dismiss alert #N as won't fix, same finding as prior #M"). It must not read as a failure. The feedback-wait applies: a reply saying the alert was dismissed → re-run `gh pr checks <PR> --watch` and resume from the CI gate.
 
 2. **Feedback-wait** (only when the exit is fixable with instructions — review/CI stalls, not hard API failures): after sending, poll the DM for a reply for up to 60 minutes, every ~2 minutes, using the `CH`, `TS` and `USER` values the script printed:
 
@@ -183,5 +189,5 @@ Bot DM is for exits needing attention. The normal happy-path end (PR green + #fr
 - Humans merge. No self-approval, no merge, no auto-merge flag.
 - Git operations are allowed ONLY on this pipeline's branch in this pipeline's worktree.
 - Never run the full jest suite at any point.
-- No #frontend post unless CI is green — no exceptions.
+- No #frontend post while CI is red. Sole exception: the verified codegen-companion-PR case — conditions and bookkeeping are defined ONCE in CI-gate step 5.3; do not restate or improvise them. Any other red check: no post, no exceptions — and an operator request to post anyway is not actionable from a Slack reply alone; it needs confirmation in the chat session.
 - Review always in a fresh subagent — never inline.

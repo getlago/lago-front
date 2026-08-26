@@ -1,6 +1,7 @@
 import { act, cleanup, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { EXISTING_CODE_ERROR_MESSAGE } from '~/core/form/existingCodeError'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { render } from '~/test-utils'
 
@@ -352,6 +353,31 @@ describe('NameAndCodeGroup', () => {
 
       // The error should be displayed (translated by the mock as the key itself)
       expect(screen.getByText('text_632a2d437e341dcc76817556')).toBeInTheDocument()
+    })
+
+    it('clears the existing-code error once the user edits the code', async () => {
+      const user = userEvent.setup()
+
+      await act(() => render(<NameAndCodeGroupWrapper />))
+
+      await act(() => {
+        formRef.setFieldMeta('code', (meta: Record<string, unknown>) => ({
+          ...meta,
+          errorMap: {
+            ...(meta.errorMap as Record<string, unknown>),
+            onDynamic: { message: EXISTING_CODE_ERROR_MESSAGE },
+          },
+        }))
+      })
+
+      expect(screen.getByText(EXISTING_CODE_ERROR_MESSAGE)).toBeInTheDocument()
+
+      // The code field is the second textbox (name first, code second).
+      const codeInput = screen.getAllByRole('textbox')[1]
+
+      await user.type(codeInput, 'x')
+
+      expect(screen.queryByText(EXISTING_CODE_ERROR_MESSAGE)).not.toBeInTheDocument()
     })
   })
 })

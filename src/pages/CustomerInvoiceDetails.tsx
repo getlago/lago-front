@@ -820,7 +820,7 @@ const CustomerInvoiceDetails = () => {
           },
         },
         {
-          label: translate('text_1770392315728uyw3zhs7kzh'),
+          label: translate('text_17703925321987cxf5psj6l4'),
           hidden: !authorizations.canResendEmail,
           onClick: (closePopper: () => void) => {
             resendEmail()
@@ -1022,6 +1022,19 @@ const CustomerInvoiceDetails = () => {
 
             <Typography variant="caption" color="grey600">
               {translate('text_1735045451931zfgc6yvvcfm')}
+            </Typography>
+          </div>
+        </Alert>
+      )}
+      {status === InvoiceStatusTypeEnum.Draft && (
+        <Alert fullWidth className="md:px-12" type="info">
+          <div className="flex flex-col">
+            <Typography variant="body" color="grey700">
+              {translate('text_1787146693629wj3i1366ild')}
+            </Typography>
+
+            <Typography variant="caption" color="grey600">
+              {translate('text_1787146693629de7kvm201hi')}
             </Typography>
           </div>
         </Alert>

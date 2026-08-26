@@ -136,6 +136,108 @@ describe('PaginatedContent', () => {
     expect(onPageChange).not.toHaveBeenCalled()
   })
 
+  it('does not clamp a page past the capped total while another page follows', () => {
+    // capped invoice list: totalPages is a 500-page floor, so page 600 is a real page
+    render(
+      <PaginatedContent
+        onPageChange={onPageChange}
+        metadata={{
+          currentPage: 600,
+          totalPages: 500,
+          totalCount: 10000,
+          hasNextPage: true,
+          totalCountCapped: true,
+        }}
+      >
+        <div />
+      </PaginatedContent>,
+    )
+
+    expect(onPageChange).not.toHaveBeenCalled()
+  })
+
+  it('does not clamp the last page of a capped list (no next page, still past the floor)', () => {
+    // 12,050 matches at 20/page: the real last page is 603 while totalPages floors at 500 and the
+    // collection reports no next page. Clamping here made the last page unreachable.
+    render(
+      <PaginatedContent
+        onPageChange={onPageChange}
+        metadata={{
+          currentPage: 603,
+          totalPages: 500,
+          totalCount: 10000,
+          hasNextPage: false,
+          totalCountCapped: true,
+        }}
+      >
+        <div />
+      </PaginatedContent>,
+    )
+
+    expect(onPageChange).not.toHaveBeenCalled()
+  })
+
+  it('still clamps an out-of-range page when no page follows', () => {
+    render(
+      <PaginatedContent
+        onPageChange={onPageChange}
+        metadata={{
+          currentPage: 200000,
+          totalPages: 3,
+          totalCount: 45,
+          hasNextPage: false,
+          totalCountCapped: false,
+        }}
+      >
+        <div />
+      </PaginatedContent>,
+    )
+
+    expect(onPageChange).toHaveBeenCalledWith(3)
+  })
+
+  it('forwards hasNextPage and totalCountCapped to Pagination', () => {
+    render(
+      <PaginatedContent
+        onPageChange={onPageChange}
+        metadata={{
+          currentPage: 600,
+          totalPages: 500,
+          totalCount: 10000,
+          hasNextPage: true,
+          totalCountCapped: true,
+        }}
+      >
+        <div />
+      </PaginatedContent>,
+    )
+
+    expect(mockPaginationSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        hasNextPage: true,
+        totalCountCapped: true,
+      }),
+    )
+  })
+
+  it('leaves both capped fields undefined for lists that do not select them', () => {
+    render(
+      <PaginatedContent
+        onPageChange={onPageChange}
+        metadata={{ currentPage: 3, totalPages: 7, totalCount: 130 }}
+      >
+        <div />
+      </PaginatedContent>,
+    )
+
+    expect(mockPaginationSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        hasNextPage: undefined,
+        totalCountCapped: undefined,
+      }),
+    )
+  })
+
   it('forwards pageSize, onPageSizeChange, pageSizeOptions and loading', () => {
     const onPageSizeChange = jest.fn()
 

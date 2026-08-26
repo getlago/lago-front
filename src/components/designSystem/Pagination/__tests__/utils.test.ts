@@ -58,6 +58,83 @@ describe('Pagination/utils', () => {
         })
       })
     })
+
+    describe('GIVEN a capped total with another page to come', () => {
+      describe('WHEN the range runs past the capped count', () => {
+        it('THEN the end is not clamped (the page is necessarily full)', () => {
+          // page 600 of a 12,000-match list whose total is capped at 10,000
+          expect(
+            getPageRange({ currentPage: 600, pageSize: 20, totalCount: 10000, hasNextPage: true }),
+          ).toEqual({
+            startNumber: 11981,
+            endNumber: 12000,
+          })
+        })
+      })
+
+      describe('WHEN the range sits inside the counted range', () => {
+        it('THEN the end is the full page, as it already was', () => {
+          expect(
+            getPageRange({ currentPage: 2, pageSize: 20, totalCount: 10000, hasNextPage: true }),
+          ).toEqual({
+            startNumber: 21,
+            endNumber: 40,
+          })
+        })
+      })
+    })
+
+    describe('GIVEN no page follows the current one', () => {
+      describe('WHEN hasNextPage is false or absent', () => {
+        it.each([[false], [undefined]])(
+          'THEN the end is still clamped to totalCount (hasNextPage = %s)',
+          (hasNextPage) => {
+            expect(
+              getPageRange({ currentPage: 3, pageSize: 20, totalCount: 45, hasNextPage }),
+            ).toEqual({
+              startNumber: 41,
+              endNumber: 45,
+            })
+          },
+        )
+      })
+
+      describe('WHEN the total is capped', () => {
+        it('THEN the end is a whole page rather than an inverted range', () => {
+          // last page of a capped list: without the opt-out this returned end 10000 < start 12041
+          expect(
+            getPageRange({
+              currentPage: 603,
+              pageSize: 20,
+              totalCount: 10000,
+              hasNextPage: false,
+              totalCountCapped: true,
+            }),
+          ).toEqual({
+            startNumber: 12041,
+            endNumber: 12060,
+          })
+        })
+
+        // A page well inside the counted range lands on the same numbers with or without the
+        // opt-out (the clamp only ever bites once the range reaches totalCount), so this pins that
+        // the capped flag does not disturb the ordinary case rather than exercising the branch.
+        it('THEN a page inside the counted range keeps the plain full-page range', () => {
+          expect(
+            getPageRange({
+              currentPage: 2,
+              pageSize: 20,
+              totalCount: 10000,
+              hasNextPage: false,
+              totalCountCapped: true,
+            }),
+          ).toEqual({
+            startNumber: 21,
+            endNumber: 40,
+          })
+        })
+      })
+    })
   })
 
   describe('shouldRenderFooter', () => {

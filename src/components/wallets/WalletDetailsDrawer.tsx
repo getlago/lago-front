@@ -635,7 +635,7 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
                                     label={translate('text_64188b3d9735d5007d71226c')}
                                     value={
                                       <Link
-                                        className="visited:text-blue focus:underline focus:ring-0"
+                                        className="focus:underline focus:ring-0"
                                         to={generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
                                           invoiceId: invoice?.id,
                                           customerId: invoice?.customer?.id,
@@ -717,7 +717,7 @@ export const WalletDetailsDrawer = forwardRef<WalletDetailsDrawerRef, WalletDeta
                                               target="_blank"
                                               rel="noopener noreferrer"
                                               to={href}
-                                              className="flex items-center gap-2 visited:text-blue focus:underline focus:ring-0"
+                                              className="flex items-center gap-2 focus:underline focus:ring-0"
                                             >
                                               {payment.providerPaymentId}
                                               <Icon name="outside" />

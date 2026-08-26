@@ -419,6 +419,7 @@ Legitimate var reads in the codebase (audit anchor, keep this short). Two permit
 - `src/layouts/OrganizationLayout.tsx` — switch detection on the `currentOrgId !== org.id` mismatch (the single sync point that writes the var from the URL slug).
 - `src/components/UserIdentifier.tsx` — query-gates the `UserIdentifier` query (org-scoped `organization` field) on `!!currentOrganizationId` so it doesn't fire on slug-less surfaces (e.g. `/`).
 - `src/hooks/useOrganizationInfos.ts` — query-gates `getOrganizationInfos` (org-scoped) on `!!currentOrganizationId` for the same reason.
+- `src/components/developers/DevtoolsView.tsx` — query-gates the whole devtools panel (`DevtoolsRouter`) on `!!currentOrganizationId`. The panel lives in a `MemoryRouter` that is a SIBLING of the app's `BrowserRouter`, so it has no access to the URL slug and can mount before `OrganizationLayout` has derived the org — a copied inspector link opens it on first paint. Without the gate every tab fires its org-scoped query header-less and the API answers `Missing organization id`.
 - `src/hooks/useCurrentUser.ts` — slug-first resolution of `currentMembership` with var as a fallback for routes outside `/:organizationSlug` (login, customer portal). The fallback exists so callers in those non-org routes still get a membership; if a future audit shows nobody consumes `currentMembership` from those contexts, the fallback can be dropped.
 
 Anything else reading the var in a feature component is a regression — fix it.

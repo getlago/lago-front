@@ -16,7 +16,6 @@ const CTASection = ({ children, className }: { children: ReactNode; className?: 
 
 export type ListSectionRef = {
   updateView: (direction: 'forward' | 'backward') => void
-  setActiveRow: (id: string) => void
 }
 
 type ListSectionProps = {
@@ -36,24 +35,9 @@ const ListSection = forwardRef<ListSectionRef, ListSectionProps>(
       }
     }
 
-    const setActiveRow = (id: string) => {
-      if (logListRef.current) {
-        const selectedRows = logListRef.current.querySelectorAll('tr[data-state="selected"]')
-
-        selectedRows.forEach((row) => {
-          row.removeAttribute('data-state')
-        })
-
-        const element = logListRef.current.querySelector(`tr[data-id="${id}"]`) as HTMLElement
-
-        element?.setAttribute('data-state', 'selected')
-      }
-    }
-
     useImperativeHandle(ref, () => {
       return {
         updateView,
-        setActiveRow,
       }
     })
 

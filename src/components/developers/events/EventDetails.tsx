@@ -1,12 +1,13 @@
 import { gql } from '@apollo/client'
 import { Fragment } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
 
 import { CodeSnippet } from '~/components/CodeSnippet'
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
+import { parseEventKeyFromUrl } from '~/components/developers/events/eventKey'
 import { TimezoneDate } from '~/components/TimezoneDate'
 import { DateFormat, TimeFormat } from '~/core/timezone/utils'
 import { useGetSingleEventQuery } from '~/generated/graphql'
@@ -18,6 +19,7 @@ gql`
     code
     transactionId
     timestamp
+    timestampMs
     receivedAt
     payload
     billableMetricName
@@ -29,8 +31,18 @@ gql`
     customerTimezone
   }
 
-  query getSingleEvent($transactionId: ID!) {
-    event(transactionId: $transactionId) {
+  query getSingleEvent(
+    $transactionId: ID!
+    $externalSubscriptionId: ID
+    $timestampMs: BigInt
+    $code: String
+  ) {
+    event(
+      transactionId: $transactionId
+      externalSubscriptionId: $externalSubscriptionId
+      timestampMs: $timestampMs
+      code: $code
+    ) {
       id
       ...EventDetails
     }
@@ -43,12 +55,22 @@ const dateFormatOptions = {
 }
 
 export const EventDetails = ({ goBack }: { goBack: () => void }) => {
-  const { '*': eventId } = useParams<{ '*': string }>()
+  const { '*': transactionIdParam } = useParams<{ '*': string }>()
+  const [searchParams] = useSearchParams()
   const { translate } = useInternationalization()
 
+  // The transactionId alone cannot address one event — see `EventKey`. Sending the whole tuple
+  // is what gives each duplicate its own Apollo field key instead of replaying the first match.
+  const eventKey = parseEventKeyFromUrl(transactionIdParam, searchParams)
+
   const { data, loading } = useGetSingleEventQuery({
-    variables: { transactionId: eventId || '' },
-    skip: !eventId,
+    variables: {
+      transactionId: eventKey.transactionId || '',
+      externalSubscriptionId: eventKey.externalSubscriptionId,
+      timestampMs: eventKey.timestampMs,
+      code: eventKey.code,
+    },
+    skip: !eventKey.transactionId,
   })
 
   const {
