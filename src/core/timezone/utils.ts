@@ -143,6 +143,7 @@ const getTimezoneString = (dateTime: DateTime, timezone: TimezoneEnum, format: T
  * @param options.formatDate - Format to use for the date portion. Default is `DATE_MED` (Apr 18, 2025).
  * @param options.formatTime - Format to use for the time portion. Default is `TIME_SIMPLE` (12:00 AM).
  * @param options.formatTimezone - Format to use for the timezone. Default is `UTC_OFFSET` (UTC±0:00).
+ * @param options.setZone - Keep the offset embedded in the ISO string instead of converting to `timezone`.
  * @returns Object containing formatted date, time and timezone strings
  * @example
  * ```ts
@@ -166,6 +167,7 @@ export type IntlFormatDateTimeOptions = {
   formatDate?: DateFormat
   formatTime?: TimeFormat
   formatTimezone?: TimezoneFormat
+  setZone?: boolean
 }
 
 export type IntlFormatDateTimeReturn = {
@@ -184,6 +186,7 @@ export const intlFormatDateTime = (
   const localeDateTime = DateTime.fromISO(date, {
     zone: getTimezoneConfig(timezone).name,
     locale: locale,
+    setZone: options.setZone,
   })
 
   return {
