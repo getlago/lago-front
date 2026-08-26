@@ -21,6 +21,6 @@ export const WALLET_SCOPE_FEE_TYPES: WalletScopeFeeType[] = [
 export const WALLET_SCOPE_FEE_TYPE_LABEL_KEYS: Record<WalletScopeFeeType, string> = {
   [FeeTypesEnum.Charge]: 'text_1748441354191rj96qhw3twa',
   [FeeTypesEnum.Commitment]: 'text_1748441354191cnp0tm4ubf0',
-  [FeeTypesEnum.FixedCharge]: 'text_1787723331045bdc2a98j3bh',
+  [FeeTypesEnum.FixedCharge]: 'text_1787723331045u6dbfhsdn6n',
   [FeeTypesEnum.Subscription]: 'text_6630e3210c13c500cd398ea2',
 }
