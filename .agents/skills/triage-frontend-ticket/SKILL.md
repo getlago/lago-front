@@ -5,7 +5,7 @@ description: 'Use when given a Linear ticket (URL or ID) for lago-front and the 
 
 # Triage frontend ticket
 
-**Input:** one Linear ticket URL or identifier (e.g. `BIL-598`). If none was given, ask with AskUserQuestion and stop until given.
+**Input:** one Linear ticket URL or identifier (e.g. `ABC-123`). If none was given, ask with AskUserQuestion and stop until given.
 
 **Repo:** the lago-front checkout (`front/` in the lago monorepo). If the session is not in lago-front, STOP — this skill reasons about this codebase only.
 
