@@ -19,6 +19,7 @@ import { SearchInput } from '~/components/SearchInput'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { INVOICE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
   CurrencyEnum,
@@ -84,6 +85,8 @@ gql`
         currentPage
         totalPages
         totalCount
+        totalCountCapped
+        hasNextPage
       }
       collection {
         id
@@ -218,13 +221,30 @@ const InvoicesPage = () => {
   })
 
   const invoicesTotalCount = data?.invoices?.metadata?.totalCount
+  // Above the API's counting limit the total is a lower bound, so every place printing it says
+  // "10,000+" rather than pretending the floor is exact.
+  const invoicesTotalCountCapped = data?.invoices?.metadata?.totalCountCapped
+
+  // The export runs server-side over every match, so the capped floor is the honest label here too.
+  const getExportTotalCountLabel = (): string => {
+    if (invoicesTotalCountCapped && invoicesTotalCount !== undefined) {
+      return translate('text_1786997491915ihtx5q0emhp', {
+        invoicesTotalCount: intlFormatNumber(invoicesTotalCount, {
+          style: 'decimal',
+          maximumFractionDigits: 0,
+        }),
+      })
+    }
+
+    return translate('text_66b21236c939426d07ff9937', { invoicesTotalCount }, invoicesTotalCount)
+  }
 
   return (
     <>
       <MainHeader.Configure
         entity={{
           viewName: translate('text_63ac86d797f728a87b2f9f85'),
-          metadata: formatCountToMetadata(invoicesTotalCount, translate),
+          metadata: formatCountToMetadata(invoicesTotalCount, translate, invoicesTotalCountCapped),
           metadataLoading: invoiceIsLoading && invoicesTotalCount === undefined,
         }}
         actions={{
@@ -237,11 +257,7 @@ const InvoicesPage = () => {
               disabled: !invoicesTotalCount,
               onClick: () => {
                 openExportDialog({
-                  totalCountLabel: translate(
-                    'text_66b21236c939426d07ff9937',
-                    { invoicesTotalCount },
-                    invoicesTotalCount,
-                  ),
+                  totalCountLabel: getExportTotalCountLabel(),
                   onExport: onInvoicesExport,
                   disableExport: invoicesTotalCount === 0,
                   resourceTypeOptions: [

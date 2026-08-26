@@ -219,6 +219,80 @@ describe('useResendEmailDialog', () => {
     })
   })
 
+  describe('GIVEN the same hook instance opens the dialog twice', () => {
+    const openTwiceAndRenderLastHeader = (secondCustomerEmail: string | null | undefined): void => {
+      const { result } = renderHook(() => useResendEmailDialog(), {
+        wrapper: customWrapper,
+      })
+
+      act(() => {
+        result.current.showResendEmailDialog({
+          ...defaultParams,
+          documentId: 'doc-first',
+          customerEmail: 'first@example.com',
+        })
+      })
+
+      act(() => {
+        result.current.showResendEmailDialog({
+          ...defaultParams,
+          documentId: 'doc-second',
+          customerEmail: secondCustomerEmail,
+        })
+      })
+
+      render(mockFormDialogOpen.mock.calls[1][0].headerContent)
+    }
+
+    describe('WHEN the second document has no customer email', () => {
+      it('THEN should not keep the first document recipients', () => {
+        openTwiceAndRenderLastHeader(undefined)
+
+        expect(screen.queryByText('first@example.com')).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the second document has a different customer email', () => {
+      it('THEN should replace the first document recipients', () => {
+        openTwiceAndRenderLastHeader('second@example.com')
+
+        expect(screen.getByText('second@example.com')).toBeInTheDocument()
+        expect(screen.queryByText('first@example.com')).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the dialog is shared across document types', () => {
+    const openWithTypeAndGetTitle = (type: BillingEntityEmailSettingsEnum): string => {
+      const { result } = renderHook(() => useResendEmailDialog(), {
+        wrapper: customWrapper,
+      })
+
+      act(() => {
+        result.current.showResendEmailDialog({ ...defaultParams, type })
+      })
+
+      return mockFormDialogOpen.mock.calls.at(-1)?.[0].title
+    }
+
+    describe('WHEN the document is an invoice', () => {
+      it('THEN should title the dialog with the send email copy', () => {
+        expect(openWithTypeAndGetTitle(BillingEntityEmailSettingsEnum.InvoiceFinalized)).toBe(
+          'Send email',
+        )
+      })
+    })
+
+    describe('WHEN the document is a credit note or a payment receipt', () => {
+      it.each([
+        BillingEntityEmailSettingsEnum.CreditNoteCreated,
+        BillingEntityEmailSettingsEnum.PaymentReceiptCreated,
+      ])('THEN should keep the resend email copy for %s', (type) => {
+        expect(openWithTypeAndGetTitle(type)).toBe('Resend email')
+      })
+    })
+  })
+
   describe('GIVEN the dialog resolves with success', () => {
     describe('WHEN result reason is success', () => {
       it('THEN should show success toast', async () => {

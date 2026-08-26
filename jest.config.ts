@@ -14,8 +14,14 @@ export default {
   },
 
   transformIgnorePatterns: [
-    // Ignore node_modules except lago-design-system (internal dependency)
-    '/node_modules[\\\\/](?!lago-design-system)',
+    // Ignore node_modules except:
+    // - lago-design-system (internal dependency)
+    // - the htmlparser2 chain: sanitize-html >= 2.17.6 is CJS but depends on the ESM-only
+    //   htmlparser2 v12 (hence its node >= 22.12 engine requirement, where require(ESM)
+    //   works). Jest's CJS registry has no require(ESM), so these must go through babel.
+    // The optional `.pnpm/` branch covers pnpm's virtual store layout
+    // (node_modules/.pnpm/<pkg>@<version>/node_modules/<pkg>).
+    '/node_modules[\\\\/](?!(\\.pnpm[\\\\/])?(lago-design-system|htmlparser2|domelementtype|domhandler|domutils|dom-serializer|entities)[@\\\\/])',
     '^.+\\.module\\.(css|sass|scss)$',
   ],
 
