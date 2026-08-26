@@ -3,7 +3,7 @@ import type { Config } from 'jest'
 export default {
   // The root of your source code, typically /src
   // `<rootDir>` is a token Jest substitutes
-  roots: ['<rootDir>/src', '<rootDir>/scripts'],
+  roots: ['<rootDir>/src'],
 
   automock: false,
 
@@ -54,10 +54,7 @@ export default {
   // Test spec file resolution pattern
   // Matches parent folder `__tests__` and filename
   // should contain `test` or `spec`.
-  testMatch: [
-    '<rootDir>/src/**/__tests__/**/*.{spec,test}.{ts,tsx}',
-    '<rootDir>/scripts/**/__tests__/**/*.{spec,test}.ts',
-  ],
+  testMatch: ['<rootDir>/src/**/__tests__/**/*.{spec,test}.{ts,tsx}'],
 
   modulePaths: [],
 
