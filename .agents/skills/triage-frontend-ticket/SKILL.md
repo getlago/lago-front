@@ -78,20 +78,25 @@ front/scripts/analysis-depth.sh <ISSUE-ID> set <skip|shallow|full>
 | Tier | When | What it produces |
 | --- | --- | --- |
 | **skip** | The ticket already names what to change and where — an analysis would only restate it ("change this wording to that") | A one-line comment saying it is already actionable, or nothing. Stop. |
-| **shallow** | The symptom is purely presentational — layout, wrapping, spacing, icon size, copy, a translation key — **and** the cause sits in a single file | Root cause with `file:line`, the fix, the handoff. **No independent review.** |
-| **full** | Everything else: anything touching data flow, derived values, shared state, timezones, currency, pagination, cache, or more than one file | The whole flow, review included. |
+| **shallow** | The change is **contained**: cause and fix in one file, nothing else reads or writes the value, and being wrong shows up immediately. Layout, wrapping, spacing, icon size, copy and translation keys are the common cases, but a small self-contained logic fix qualifies too | Root cause with `file:line`, the fix, the handoff. **No independent review** — `CLAUDE.md` and the conventions are enough of a check at this size. |
+| **full** | Any of: more than one file · a shared key or identifier · a derived value · pagination, cache, timezone or currency semantics · a fix whose failure mode is **silent** (a wrong number, a filter matching nothing) rather than visible | The whole flow, review included. |
 
 **Escalation is one-way and enforced.** `analysis-depth.sh` refuses to move back down, because
 the cheap tier is also the tier that skips the review — and the moment to be tempted into
-skipping it is exactly when the work turns out bigger than hoped. If the cause is not where you
-expected, or it reaches shared or derived state, escalate:
+skipping it is exactly when the work turns out bigger than hoped. Escalate the instant any of
+these turns up: the cause is not in the file you expected · a second file has to change · the
+value is read or written somewhere else · the fix could be wrong without anyone noticing.
 
 ```bash
 front/scripts/analysis-depth.sh <ISSUE-ID> set full
 ```
 
-Uncertain between two tiers → take the deeper one. Being wrong about a CSS fix costs a glance;
-being wrong about a value shown on an invoice does not.
+**The test is the failure mode, not the size of the diff.** A one-line change to how a date or an
+amount is formatted is `full`: the diff is trivial, being wrong is invisible, and the review is
+what catches it. A twenty-line layout rewrite can be `shallow`: wrong is obvious the moment
+anyone opens the page.
+
+Uncertain between two tiers → take the deeper one.
 
 The rest of this skill describes the **full** tier. At `shallow`, run steps 2 and 3, keep the
 comment to root cause + evidence + fix + handoff, and go straight to step 8.
