@@ -101,39 +101,53 @@ const RateCardRateDetailsOverview = ({
     (unit) => unit.code === rateCard.appliedPricingUnitCode,
   )?.shortName
 
-  const renderProductCategory = () => {
-    if (!product.productCategory) return '-'
+  const attachedProductCategory = product.productCategory ? (
+    <Link
+      to={generatePath(PRODUCT_CATEGORY_DETAILS_ROUTE, {
+        productCategoryId: product.productCategory.id,
+        tab: ProductCategoryDetailsTabsOptionsEnum.overview,
+      })}
+    >
+      {product.productCategory.name}
+    </Link>
+  ) : (
+    '-'
+  )
 
-    return (
-      <Link
-        to={generatePath(PRODUCT_CATEGORY_DETAILS_ROUTE, {
-          productCategoryId: product.productCategory.id,
-          tab: ProductCategoryDetailsTabsOptionsEnum.overview,
-        })}
-      >
-        <Typography variant="body" color="grey700">
-          {product.productCategory.name}
-        </Typography>
-      </Link>
-    )
-  }
+  const attachedProduct = (
+    <Link
+      to={generatePath(PRODUCT_DETAILS_ROUTE, {
+        productId: product.id,
+        tab: ProductDetailsTabsOptionsEnum.overview,
+      })}
+    >
+      {product.name}
+    </Link>
+  )
 
-  const renderProductFilter = () => {
-    if (!productFilter) return '-'
+  const attachedProductFilter = productFilter ? (
+    <Link
+      to={generatePath(PRODUCT_FILTER_DETAILS_ROUTE, {
+        productFilterId: productFilter.id,
+        tab: ProductFilterDetailsTabsOptionsEnum.overview,
+      })}
+    >
+      {productFilter.name}
+    </Link>
+  ) : (
+    '-'
+  )
 
-    return (
-      <Link
-        to={generatePath(PRODUCT_FILTER_DETAILS_ROUTE, {
-          productFilterId: productFilter.id,
-          tab: ProductFilterDetailsTabsOptionsEnum.overview,
-        })}
-      >
-        <Typography variant="body" color="grey700">
-          {productFilter.name}
-        </Typography>
-      </Link>
-    )
-  }
+  const attachedRateCard = (
+    <Link
+      to={generatePath(RATE_CARD_DETAILS_ROUTE, {
+        rateCardId: rateCard.id,
+        tab: RateCardDetailsTabsOptionsEnum.rates,
+      })}
+    >
+      {rateCard.name}
+    </Link>
+  )
 
   // A spending minimum true-ups a closed period, so the backend rejects it outright on a
   // pay-in-advance card - there is nothing to show for one.
@@ -175,41 +189,19 @@ const RateCardRateDetailsOverview = ({
         grid={[
           {
             label: translate(RATE_CARD_RATE_DETAILS_PRODUCT_CATEGORY_LABEL_KEY),
-            value: renderProductCategory(),
+            value: attachedProductCategory,
           },
           {
             label: translate('text_1784925227817ekmphmxz74c'),
-            value: (
-              <Link
-                to={generatePath(PRODUCT_DETAILS_ROUTE, {
-                  productId: product.id,
-                  tab: ProductDetailsTabsOptionsEnum.overview,
-                })}
-              >
-                <Typography variant="body" color="grey700">
-                  {product.name}
-                </Typography>
-              </Link>
-            ),
+            value: attachedProduct,
           },
           {
             label: translate('text_17849304406579sbwz4df14p'),
-            value: renderProductFilter(),
+            value: attachedProductFilter,
           },
           {
             label: translate(RATE_CARD_RATE_DETAILS_RATE_CARD_LABEL_KEY),
-            value: (
-              <Link
-                to={generatePath(RATE_CARD_DETAILS_ROUTE, {
-                  rateCardId: rateCard.id,
-                  tab: RateCardDetailsTabsOptionsEnum.rates,
-                })}
-              >
-                <Typography variant="body" color="grey700">
-                  {rateCard.name}
-                </Typography>
-              </Link>
-            ),
+            value: attachedRateCard,
           },
           {
             label: translate(RATE_CARD_RATE_DETAILS_CODE_LABEL_KEY),
