@@ -372,8 +372,6 @@ const RateCardRateDrawerFormSections = withForm({
 
           <ChargeModelSelector
             label={translate(RATE_CARD_RATE_MODEL_LABEL_KEY)}
-            alreadyUsedChargeAlertMessage={undefined}
-            isInSubscriptionForm={undefined}
             disabled={isActiveRate}
             localCharge={localCharge}
             chargeModelComboboxData={rateModelComboboxData}

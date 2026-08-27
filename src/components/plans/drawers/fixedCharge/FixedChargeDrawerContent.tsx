@@ -249,6 +249,7 @@ export const FixedChargeDrawerContent = withForm({
               <CenteredPage.PageSectionTitle title={translate('text_1772133285141xbpuxbd4vrk')} />
 
               <ChargeModelSelector
+                label={translate('text_65201b8216455901fe273dd5')}
                 alreadyUsedChargeAlertMessage={alertMessage}
                 isInSubscriptionForm={isInSubscriptionForm}
                 disabled={isExistingChargeDisabled}
