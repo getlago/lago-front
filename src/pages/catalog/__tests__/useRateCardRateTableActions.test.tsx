@@ -1,7 +1,11 @@
 import { renderHook } from '@testing-library/react'
 
 import { ActionItem } from '~/components/designSystem/Table/types'
-import { RateCardRateForListFragment, RateCardRateStatusEnum } from '~/generated/graphql'
+import {
+  RateCardForRateDrawerFragment,
+  RateCardRateForListFragment,
+  RateCardRateStatusEnum,
+} from '~/generated/graphql'
 
 import { buildRateCardForRateDrawer, buildRateCardRate } from './fixtures'
 
@@ -35,8 +39,10 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (key: string) => key }),
 }))
 
-const renderActions = (rateCard = buildRateCardForRateDrawer()) =>
-  renderHook(() => useRateCardRateTableActions({ rateCard }))
+// `null` stands for "the parent card query has not resolved yet", which the hook must handle.
+const renderActions = (
+  rateCard: RateCardForRateDrawerFragment | null = buildRateCardForRateDrawer(),
+) => renderHook(() => useRateCardRateTableActions({ rateCardId: 'rc-1', rateCard }))
 
 const getActions = (
   actionColumn: ReturnType<typeof useRateCardRateTableActions>['actionColumn'],
@@ -144,6 +150,20 @@ describe('useRateCardRateTableActions', () => {
         )
 
         expect(actions.map((action) => action.startIcon)).toEqual(['eye'])
+      })
+    })
+
+    describe('WHEN the parent card has not loaded yet', () => {
+      // Whether a rate is editable depends on the card's attachments, so edit waits for it.
+      // Deleting only depends on the rate's own status, and the row link on the card id.
+      it('THEN drops edit but keeps view and delete', () => {
+        const { result } = renderActions(null)
+        const actions = getActions(result.current.actionColumn, buildRateCardRate())
+
+        expect(actions.map((action) => action.startIcon)).toEqual(['eye', 'trash'])
+        expect(result.current.getRowActionLink({ id: 'rate-1' })).toBe(
+          '/product-catalog/rate-cards/rc-1/rates/rate-1/overview',
+        )
       })
     })
 

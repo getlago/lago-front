@@ -262,7 +262,6 @@ export const FixedChargeDrawerContent = withForm({
                 chargePricingUnitShortName={undefined}
                 currency={currency}
                 form={form}
-                isEdition={isEdition}
                 localCharge={formValues as unknown as LocalFixedChargeInput}
                 propertyCursor="properties"
               />

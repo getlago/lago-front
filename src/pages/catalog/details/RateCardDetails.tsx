@@ -29,6 +29,7 @@ import RateCardRatesTab from './RateCardRatesTab'
 
 import { useDeleteRateCardDialog } from '../dialogs/useDeleteRateCardDialog'
 import { useRateCardDrawer } from '../drawers/rateCard/useRateCardDrawer'
+import { RATE_CARD_RATES_SECTION_TITLE_KEY } from '../drawers/rateCardRate/constants'
 
 gql`
   fragment RateCardForRateCardDetails on RateCard {
@@ -60,11 +61,6 @@ export const RATE_CARD_DETAILS_ACTIONS_TEST_ID = 'rate-card-details-actions'
 export const RATE_CARD_DETAILS_EDIT_TEST_ID = 'rate-card-details-edit'
 export const RATE_CARD_DETAILS_DELETE_TEST_ID = 'rate-card-details-delete'
 
-// New translation key exported as a named constant (feature convention): the
-// "rates" tab is this rate card's own pricing history, distinct from the
-// "Rate cards" tab shown on Product/Product/ProductFilter details
-// pages (which lists which rate cards reference that record).
-export const RATE_CARD_DETAILS_RATES_TAB_KEY = 'text_1784930705742tg0kbcsak2v'
 export const RATE_CARD_NOT_FOUND_KEY = 'text_1784930440657nw8iu2iml5k'
 
 const RateCardDetails = () => {
@@ -164,14 +160,14 @@ const RateCardDetails = () => {
             ),
           },
           {
-            title: translate(RATE_CARD_DETAILS_RATES_TAB_KEY),
+            title: translate(RATE_CARD_RATES_SECTION_TITLE_KEY),
             link: generatePath(RATE_CARD_DETAILS_ROUTE, {
               rateCardId: rateCardId as string,
               tab: RateCardDetailsTabsOptionsEnum.rates,
             }),
             content: (
               <DetailsPage.Container>
-                {!!rateCard && <RateCardRatesTab rateCard={rateCard} />}
+                <RateCardRatesTab rateCardId={rateCardId as string} rateCard={rateCard} />
               </DetailsPage.Container>
             ),
           },

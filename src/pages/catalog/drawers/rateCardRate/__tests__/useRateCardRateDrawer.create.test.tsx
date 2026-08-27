@@ -94,6 +94,16 @@ jest.mock('../RateCardRateDrawerContent', () => ({
         seed
       </button>
       <button
+        data-test="seed-second-rate"
+        onClick={() => {
+          form.setFieldValue('effectiveFrom', '2099-01-01T00:00:00.000Z')
+          form.setFieldValue('code', 'rate_01_01_2099')
+          form.setFieldValue('properties', { amount: '11' })
+        }}
+      >
+        seed another
+      </button>
+      <button
         data-test="seed-spending-minimum"
         onClick={() => form.setFieldValue('minAmountCents', '20')}
       >
@@ -337,6 +347,57 @@ describe('useRateCardRateDrawer create flow', () => {
         await submit()
 
         await waitFor(() => expect(addToast).toHaveBeenCalled())
+
+        expect(
+          (
+            lastDrawerArgs?.children as {
+              props: { getEffectiveFromBoundary: () => string | null }
+            }
+          )?.props.getEffectiveFromBoundary(),
+        ).toBe('2020-01-01T00:00:00.000Z')
+      })
+    })
+
+    describe('WHEN a second, still-pending rate follows an already-effective one', () => {
+      // The reset re-derives the boundary from the card as it was when the drawer opened, which
+      // knows nothing about the first save: without a floor the boundary would drop back to
+      // null and the next date would be validated against nothing.
+      it('THEN the boundary stays on the effective rate instead of regressing', async () => {
+        const alreadyEffective = { ...createdRate, effectiveFrom: '2020-01-01T00:00:00.000Z' }
+        const stillPending = {
+          ...createdRate,
+          id: 'rate-10',
+          code: 'rate_01_01_2099',
+          effectiveFrom: '2099-01-01T00:00:00.000Z',
+        }
+        const { result } = renderDrawerHook([
+          {
+            request: { query: CreateRateCardRateDocument },
+            maxUsageCount: Number.POSITIVE_INFINITY,
+            variableMatcher: (vars) => vars?.input?.code === 'rate_03_01_2026',
+            result: { data: { createRateCardRate: alreadyEffective } },
+          },
+          {
+            request: { query: CreateRateCardRateDocument },
+            maxUsageCount: Number.POSITIVE_INFINITY,
+            variableMatcher: (vars) => vars?.input?.code === 'rate_01_01_2099',
+            result: { data: { createRateCardRate: stillPending } },
+          },
+        ])
+
+        act(() => result.current.openDrawer({ rateCard: buildRateCardForRateDrawer() }))
+
+        render(<>{lastDrawerArgs?.secondaryAction}</>)
+        await userEvent.click(screen.getByTestId(CREATE_MORE_SWITCH_TEST_ID))
+
+        renderDrawerBody()
+        await userEvent.click(screen.getByTestId('seed-rate'))
+        await submit()
+        await waitFor(() => expect(addToast).toHaveBeenCalledTimes(1))
+
+        await userEvent.click(screen.getByTestId('seed-second-rate'))
+        await submit()
+        await waitFor(() => expect(addToast).toHaveBeenCalledTimes(2))
 
         expect(
           (

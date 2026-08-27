@@ -16,6 +16,7 @@ import { AllTheProviders, testMockNavigateFn } from '~/test-utils'
 
 import RateCardRateDetails, {
   buildRateCardRateSnapshotKey,
+  RATE_CARD_RATE_ACTIVITY_LOGS_EMPTY_KEY,
   RATE_CARD_RATE_BREADCRUMB_KEY,
   RATE_CARD_RATE_DETAILS_ACTIONS_TEST_ID,
   RATE_CARD_RATE_DETAILS_DELETE_TEST_ID,
@@ -230,7 +231,9 @@ describe('RateCardRateDetails', () => {
 
   describe('GIVEN the activity logs tab is active', () => {
     describe('WHEN the page renders', () => {
-      it('THEN renders it empty, since rate-scoped logs do not exist yet', async () => {
+      // Rate-scoped logs do not exist yet (`ResourceTypeEnum` has no rate member), so the tab
+      // says where the changes are tracked instead of showing a blank panel.
+      it('THEN points at the parent rate card, with no table mounted', async () => {
         window.history.pushState(
           {},
           '',
@@ -240,9 +243,8 @@ describe('RateCardRateDetails', () => {
         await act(() => renderPage([detailsQueryMock()], 'activity-logs'))
 
         await waitFor(() =>
-          expect(screen.getByText('text_1747314141347qq6rasuxisl')).toBeInTheDocument(),
+          expect(screen.getByText(RATE_CARD_RATE_ACTIVITY_LOGS_EMPTY_KEY)).toBeInTheDocument(),
         )
-        // No activity log table is mounted at all.
         expect(screen.queryByRole('table')).not.toBeInTheDocument()
       })
     })

@@ -16,7 +16,10 @@ import {
   RATE_CARD_RATE_DRAWER_TITLE_EDIT_KEY,
   RATE_CARD_RATE_VIEW_ACTION_KEY,
 } from './drawers/rateCardRate/constants'
-import { useRateCardRateDrawer } from './drawers/rateCardRate/useRateCardRateDrawer'
+import {
+  OpenRateCardRateDrawerArgs,
+  useRateCardRateDrawer,
+} from './drawers/rateCardRate/useRateCardRateDrawer'
 
 export const buildRateCardRateDetailsPath = ({
   rateCardId,
@@ -31,6 +34,27 @@ export const buildRateCardRateDetailsPath = ({
     tab: RateCardRateDetailsTabsOptionsEnum.overview,
   })
 
+type UseRateCardRateTableActionsProps = {
+  rateCardId: string
+  /**
+   * Undefined while the parent card query is still in flight - the rows can already be listed
+   * by then, and every write action needs the card to know what the backend would accept, so
+   * they only appear once it lands.
+   */
+  rateCard?: RateCardForRateDrawerFragment | null
+}
+
+type UseRateCardRateTableActionsReturn = {
+  actionColumn: ActionColumn<RateCardRateForListFragment>
+  actionColumnTooltip: (rate: RateCardRateForListFragment) => string
+  getRowActionLink: (rate: { id: string }) => string
+  /**
+   * The drawer instance this hook already owns, so the tab's create CTA shares one form with
+   * the row Edit action instead of mounting a second one.
+   */
+  openRateDrawer: (args: OpenRateCardRateDrawerArgs) => void
+}
+
 /**
  * Row actions and row link for the rate card's rates tab. Which actions a row offers is
  * dictated by what the backend accepts for that rate: an effective or terminated rate keeps
@@ -38,10 +62,9 @@ export const buildRateCardRateDetailsPath = ({
  * non-pending rate on a card billed by subscriptions) cannot be edited at all.
  */
 export const useRateCardRateTableActions = ({
+  rateCardId,
   rateCard,
-}: {
-  rateCard: RateCardForRateDrawerFragment
-}) => {
+}: UseRateCardRateTableActionsProps): UseRateCardRateTableActionsReturn => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
@@ -56,6 +79,7 @@ export const useRateCardRateTableActions = ({
       const label = [
         translate(RATE_CARD_RATE_VIEW_ACTION_KEY).toLowerCase(),
         canUpdateRateCards &&
+          !!rateCard &&
           isRateCardRateEditable({ rate, rateCard }) &&
           translate(RATE_CARD_RATE_DRAWER_TITLE_EDIT_KEY).toLowerCase(),
         canDeleteRateCards &&
@@ -72,9 +96,8 @@ export const useRateCardRateTableActions = ({
   )
 
   const getRowActionLink = useCallback(
-    ({ id }: { id: string }) =>
-      buildRateCardRateDetailsPath({ rateCardId: rateCard.id, rateId: id }),
-    [rateCard.id],
+    ({ id }: { id: string }): string => buildRateCardRateDetailsPath({ rateCardId, rateId: id }),
+    [rateCardId],
   )
 
   const actionColumn: ActionColumn<RateCardRateForListFragment> = (rate) => {
@@ -82,12 +105,11 @@ export const useRateCardRateTableActions = ({
       {
         startIcon: 'eye',
         title: translate(RATE_CARD_RATE_VIEW_ACTION_KEY),
-        onAction: () =>
-          navigate(buildRateCardRateDetailsPath({ rateCardId: rateCard.id, rateId: rate.id })),
+        onAction: () => navigate(buildRateCardRateDetailsPath({ rateCardId, rateId: rate.id })),
       },
     ]
 
-    if (canUpdateRateCards && isRateCardRateEditable({ rate, rateCard })) {
+    if (canUpdateRateCards && !!rateCard && isRateCardRateEditable({ rate, rateCard })) {
       actions.push({
         startIcon: 'pen',
         title: translate(RATE_CARD_RATE_DRAWER_TITLE_EDIT_KEY),
@@ -106,5 +128,5 @@ export const useRateCardRateTableActions = ({
     return actions
   }
 
-  return { actionColumn, actionColumnTooltip, getRowActionLink }
+  return { actionColumn, actionColumnTooltip, getRowActionLink, openRateDrawer }
 }

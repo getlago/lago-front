@@ -596,7 +596,6 @@ export const UsageChargeDrawerContent = withForm({
                 chargePricingUnitShortName={chargePricingUnitShortName}
                 currency={currency}
                 form={form}
-                isEdition={isEdition || false}
                 localCharge={formValues as unknown as LocalUsageChargeInput}
                 propertyCursor="properties"
                 onExpandCustomCharge={openCustomChargeDrawer}

@@ -22,7 +22,6 @@ interface ChargeWrapperSwitchProps {
   currency: CurrencyEnum
   disabled?: boolean
   form: AnyFormApi
-  isEdition: boolean
   localCharge: LocalFixedChargeInput | LocalUsageChargeInput
   propertyCursor: string
   onExpandCustomCharge?: (currentValue: string | undefined) => void

@@ -7,6 +7,8 @@ import {
   buildRateCodeFromEffectiveDate,
   formatEffectiveDate,
   isEffectiveFromAppendable,
+  laterEffectiveFrom,
+  RATE_CARD_RATE_DEPENDENT_QUERIES,
   RATE_CARD_RATE_EFFECTIVE_DATE_AFTER_ACTIVE_KEY,
   RATE_CARD_RATE_FORM_DEFAULTS,
   RateCardRateSchemaContext,
@@ -49,6 +51,41 @@ describe('formatEffectiveDate', () => {
     describe('WHEN it is rendered in an error message', () => {
       it('THEN formats it as MM/DD/YYYY in UTC', () => {
         expect(formatEffectiveDate('2026-06-24T00:00:00.000Z')).toBe('06/24/2026')
+      })
+    })
+  })
+})
+
+describe('laterEffectiveFrom', () => {
+  const earlier = '2026-01-01T00:00:00.000Z'
+  const later = '2026-06-24T00:00:00.000Z'
+
+  describe('GIVEN two boundaries', () => {
+    it.each([
+      ['the second is later', earlier, later, later],
+      ['the first is later', later, earlier, later],
+      ['there is no first', null, later, later],
+      ['there is no second', later, null, later],
+      ['there is neither', null, null, null],
+    ])('THEN keeps the later one WHEN %s', (_, a, b, expected) => {
+      expect(laterEffectiveFrom(a, b)).toBe(expected)
+    })
+  })
+})
+
+describe('RATE_CARD_RATE_DEPENDENT_QUERIES', () => {
+  describe('GIVEN a rate was deleted', () => {
+    describe('WHEN the list refetches', () => {
+      // Its own details query would answer 404, which is why the delete flow evicts from the
+      // cache instead. Adding it here would reintroduce the delayed error toast.
+      it('THEN the rate details query is not among the refetched ones', () => {
+        expect(RATE_CARD_RATE_DEPENDENT_QUERIES).not.toContain('getRateCardRateForDetails')
+      })
+
+      it('THEN every surface counting rates is refetched', () => {
+        expect(RATE_CARD_RATE_DEPENDENT_QUERIES).toEqual(
+          expect.arrayContaining(['rateCardRates', 'getRateCardForDetails', 'rateCards']),
+        )
       })
     })
   })

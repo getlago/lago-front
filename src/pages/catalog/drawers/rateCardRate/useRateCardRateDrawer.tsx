@@ -39,10 +39,11 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
-import { useCustomPricingUnits } from '~/hooks/plans/useCustomPricingUnits'
 
 import {
   buildRateCardRateSchema,
+  laterEffectiveFrom,
+  RATE_CARD_RATE_DEPENDENT_QUERIES,
   RATE_CARD_RATE_DRAWER_TITLE_CREATE_KEY,
   RATE_CARD_RATE_DRAWER_TITLE_EDIT_KEY,
   RATE_CARD_RATE_DUPLICATE_DATE_KEY,
@@ -140,9 +141,18 @@ export const RATE_CARD_RATE_CREATE_SUCCESS_TOAST_KEY = 'text_1787737220228xp4gsk
 export const RATE_CARD_RATE_CREATE_LINKED_TOAST_KEY = 'text_1787737220228ohglc5h59fp'
 export const RATE_CARD_RATE_EDIT_SUCCESS_TOAST_KEY = 'text_1787737220228s9wmwhscsfg'
 
+// A create or an update leaves the rate in place, so the rate's own details page - the surface
+// that offers the Edit action, and the only one reading the card through it - is refetched too.
+const RATE_CARD_RATE_REFETCH_QUERIES = [
+  ...RATE_CARD_RATE_DEPENDENT_QUERIES,
+  'getRateCardRateForDetails',
+]
+
 // Range rows come back from the API carrying `__typename`, which the typed PropertiesInput
 // rejects on the way back in - rebuild them from the fields the form owns.
-const toFormProperties = (rateProperties: RateCardRateForDrawerFragment['rateProperties']) => {
+const toFormProperties = (
+  rateProperties: RateCardRateForDrawerFragment['rateProperties'],
+): PropertiesInput => {
   const shape = getPropertyShape(rateProperties as Properties)
 
   return {
@@ -211,6 +221,8 @@ type RateCardRateFormSuccess = {
   wasEdit: boolean
 }
 
+// Return type left inferred: it carries the `useAppForm` instance, whose type cannot be named
+// (the hook's generics have no usable defaults). Every member it returns is annotated instead.
 const useRateCardRateForm = ({
   onSuccess,
 }: {
@@ -222,28 +234,18 @@ const useRateCardRateForm = ({
     requiresConversionRate: false,
     effectiveFromBoundary: null,
   })
+  // A boundary already moved by a save made in this drawer session. The card snapshot the
+  // drawer opened with does not know about it, so re-deriving from that snapshot alone would
+  // walk the boundary back on every "create more" reset.
+  const boundaryFloorRef = useRef<string | null>(null)
 
   const [createRateCardRate] = useCreateRateCardRateMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
-    // Refetched only if currently mounted: the card's rates tab, plus every surface showing
-    // the card's `activeRate` / `ratesCount`.
-    refetchQueries: [
-      'rateCardRates',
-      'getRateCardForDetails',
-      'rateCards',
-      'getRateCardsForProductDetails',
-      'getRateCardsForProductFilterDetails',
-    ],
+    refetchQueries: RATE_CARD_RATE_REFETCH_QUERIES,
   })
   const [updateRateCardRate] = useUpdateRateCardRateMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
-    refetchQueries: [
-      'rateCardRates',
-      'getRateCardForDetails',
-      'rateCards',
-      'getRateCardsForProductDetails',
-      'getRateCardsForProductFilterDetails',
-    ],
+    refetchQueries: RATE_CARD_RATE_REFETCH_QUERIES,
   })
 
   const form = useAppForm({
@@ -291,7 +293,12 @@ const useRateCardRateForm = ({
                 rateModel: value.rateModel,
                 billingIntervalCount: Number(value.billingIntervalCount),
                 billingIntervalUnit: value.billingIntervalUnit,
-                ...(supportsSpendingMinimum ? { minAmountCents } : {}),
+                // A pay-in-advance card hides the field, but a rate saved while the card was
+                // still in arrears can carry a minimum the user can no longer see: send 0
+                // rather than omitting the key, so the stale value is cleared instead of
+                // living on invisibly. Only a positive value is refused there
+                // (`validate_min_amount_timing`).
+                minAmountCents: supportsSpendingMinimum ? minAmountCents : 0,
               }),
         }
 
@@ -353,15 +360,18 @@ const useRateCardRateForm = ({
     },
   })
 
-  const resetForm = (
+  const seedForm = (
     rateCard: RateCardForRateDrawerFragment,
     rate?: RateCardRateForDrawerFragment,
-  ) => {
+  ): void => {
     rateCardRef.current = rateCard
     editedRateRef.current = rate
     schemaContextRef.current = {
       requiresConversionRate: !!rateCard.appliedPricingUnitCode,
-      effectiveFromBoundary: deriveEffectiveFromBoundary(rateCard, rate),
+      effectiveFromBoundary: laterEffectiveFrom(
+        deriveEffectiveFromBoundary(rateCard, rate),
+        boundaryFloorRef.current,
+      ),
     }
 
     form.reset(rate ? mapRateToFormValues(rate, rateCard.currency) : RATE_CARD_RATE_FORM_DEFAULTS, {
@@ -369,33 +379,60 @@ const useRateCardRateForm = ({
     })
   }
 
+  /** Seeds a fresh drawer session: the card snapshot is current, so no floor is carried over. */
+  const resetForm = (
+    rateCard: RateCardForRateDrawerFragment,
+    rate?: RateCardRateForDrawerFragment,
+  ): void => {
+    boundaryFloorRef.current = null
+    seedForm(rateCard, rate)
+  }
+
+  /**
+   * Re-seeds the form for the next "create more" iteration. Only a rate that is already
+   * effective becomes the card's active rate, and only that moves the append boundary
+   * (`others.where(effective_from: ..now).maximum`) - so it is remembered as a floor that
+   * survives this reset and every later one in the session.
+   */
+  const resetFormForNextCreate = (
+    rateCard: RateCardForRateDrawerFragment,
+    savedRate: RateCardRateForDrawerFragment,
+  ): void => {
+    if (DateTime.fromISO(savedRate.effectiveFrom) <= DateTime.utc()) {
+      boundaryFloorRef.current = laterEffectiveFrom(
+        boundaryFloorRef.current,
+        savedRate.effectiveFrom,
+      )
+    }
+
+    seedForm(rateCard)
+  }
+
   return {
     form,
     resetForm,
-    getEffectiveFromBoundary: () => schemaContextRef.current.effectiveFromBoundary,
-    advanceEffectiveFromBoundary: (effectiveFrom: string) => {
-      schemaContextRef.current = {
-        ...schemaContextRef.current,
-        effectiveFromBoundary: effectiveFrom,
-      }
-    },
+    resetFormForNextCreate,
+    getEffectiveFromBoundary: (): string | null => schemaContextRef.current.effectiveFromBoundary,
   }
 }
 
-type OpenRateCardRateDrawerArgs = {
+export type OpenRateCardRateDrawerArgs = {
   rateCard: RateCardForRateDrawerFragment
   rate?: RateCardRateForDrawerFragment
+}
+
+type UseRateCardRateDrawerReturn = {
+  openDrawer: (args: OpenRateCardRateDrawerArgs) => void
 }
 
 // Dual-mode drawer: `openDrawer({ rateCard })` appends a rate to the card,
 // `openDrawer({ rateCard, rate })` edits it. Create mode carries the "Create more" footer
 // toggle that keeps the drawer open, resets the form and links the new rate in the toast.
-export const useRateCardRateDrawer = () => {
+export const useRateCardRateDrawer = (): UseRateCardRateDrawerReturn => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { organizationSlug } = useParams()
   const drawer = useFormDrawer()
-  const { pricingUnits } = useCustomPricingUnits()
   const { createMoreControl, isCreateMoreEnabled, resetCreateMore, resetSignal, notifyReset } =
     useCreateMore()
 
@@ -403,8 +440,8 @@ export const useRateCardRateDrawer = () => {
   // onSuccess, outside openDrawer's scope) can re-seed from the same card.
   const rateCardRef = useRef<RateCardForRateDrawerFragment | undefined>(undefined)
 
-  const { form, resetForm, advanceEffectiveFromBoundary, getEffectiveFromBoundary } =
-    useRateCardRateForm({
+  const { form, resetForm, resetFormForNextCreate, getEffectiveFromBoundary } = useRateCardRateForm(
+    {
       onSuccess: ({ rate, wasEdit }) => {
         if (wasEdit) {
           drawer.close()
@@ -424,16 +461,7 @@ export const useRateCardRateDrawer = () => {
         })
 
         if (isCreateMoreEnabled() && rateCard) {
-          resetForm(rateCard)
-
-          // After the reset, which re-derives the boundary from the card as it was when the
-          // drawer opened: only a rate that is already effective becomes the card's active
-          // rate, and only that moves the boundary
-          // (`others.where(effective_from: ..now).maximum`).
-          if (DateTime.fromISO(rate.effectiveFrom) <= DateTime.utc()) {
-            advanceEffectiveFromBoundary(rate.effectiveFrom)
-          }
-
+          resetFormForNextCreate(rateCard, rate)
           notifyReset()
           // The drawer renders outside the matched-route context, so the router Link in the
           // toast cannot auto-prepend the org slug; bake it in here.
@@ -454,19 +482,16 @@ export const useRateCardRateDrawer = () => {
           message: translate(RATE_CARD_RATE_CREATE_SUCCESS_TOAST_KEY),
         })
       },
-    })
+    },
+  )
 
-  const openDrawer = ({ rateCard, rate }: OpenRateCardRateDrawerArgs) => {
+  const openDrawer = ({ rateCard, rate }: OpenRateCardRateDrawerArgs): void => {
     rateCardRef.current = rateCard
     resetCreateMore()
     resetForm(rateCard, rate)
 
     const isEdit = !!rate
     const isActiveRate = rate?.status === RateCardRateStatusEnum.Active
-
-    const pricingUnitShortName = pricingUnits.find(
-      (unit) => unit.code === rateCard.appliedPricingUnitCode,
-    )?.shortName
 
     drawer.open({
       title: isEdit
@@ -500,12 +525,9 @@ export const useRateCardRateDrawer = () => {
           isActiveRate={isActiveRate}
           isCodeLocked={isEdit && rateCard.attachedToPlanOrSubscription}
           getEffectiveFromBoundary={getEffectiveFromBoundary}
-          initialMinAmountCents={
-            rate && Number(rate.minAmountCents)
-              ? String(deserializeAmount(rate.minAmountCents, rateCard.currency))
-              : ''
-          }
-          pricingUnitShortName={pricingUnitShortName}
+          // `resetForm` above already seeded the form with the deserialized amount, so read it
+          // back from there rather than deriving the same value a second time.
+          initialMinAmountCents={form.state.values.minAmountCents}
           resetSignal={resetSignal}
         />
       ),

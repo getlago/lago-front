@@ -40,10 +40,11 @@ jest.mock('../RateCardActivityLogs', () => ({
   default: () => null,
 }))
 
+// The tab mounts on the card id alone and receives the card once its query resolves.
 jest.mock('../RateCardRatesTab', () => ({
   __esModule: true,
-  default: ({ rateCard }: { rateCard: { id: string } }) => (
-    <div data-test="rates-tab">{rateCard.id}</div>
+  default: ({ rateCardId, rateCard }: { rateCardId: string; rateCard?: { id: string } | null }) => (
+    <div data-test="rates-tab">{rateCard ? rateCard.id : `loading:${rateCardId}`}</div>
   ),
 }))
 

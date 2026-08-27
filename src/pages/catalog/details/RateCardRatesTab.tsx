@@ -12,13 +12,13 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
+import { tw } from '~/styles/utils'
 
 import {
   RATE_CARD_RATE_DRAWER_DESCRIPTION_KEY,
   RATE_CARD_RATE_DRAWER_TITLE_CREATE_KEY,
   RATE_CARD_RATES_SECTION_TITLE_KEY,
 } from '../drawers/rateCardRate/constants'
-import { useRateCardRateDrawer } from '../drawers/rateCardRate/useRateCardRateDrawer'
 import { useRateCardRateTableActions } from '../useRateCardRateTableActions'
 import { useRateCardRateTableColumns } from '../useRateCardRateTableColumns'
 
@@ -50,30 +50,38 @@ export const RATE_CARD_RATES_CREATE_TEST_ID = 'rate-card-rates-create'
 export const RATE_CARD_RATES_EMPTY_TITLE_KEY = 'text_1787737220228wjwpgmwu8fv'
 export const RATE_CARD_RATES_EMPTY_SUBTITLE_KEY = 'text_1787737220228bjix2qjx4rz'
 
-const RateCardRatesTab = ({ rateCard }: { rateCard: RateCardForRateDrawerFragment }) => {
+type RateCardRatesTabProps = {
+  rateCardId: string
+  /**
+   * Undefined until the parent card query resolves. The rates query only needs the id, so it
+   * runs in parallel with it rather than behind it; the card gates the create CTA and the row
+   * write actions, which cannot be decided without it.
+   */
+  rateCard?: RateCardForRateDrawerFragment | null
+}
+
+const RateCardRatesTab = ({ rateCardId, rateCard }: RateCardRatesTabProps) => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const { page, goToPage } = usePageSearchParam()
-  const { openDrawer: openRateDrawer } = useRateCardRateDrawer()
-  const { actionColumn, actionColumnTooltip, getRowActionLink } = useRateCardRateTableActions({
-    rateCard,
-  })
+  const { actionColumn, actionColumnTooltip, getRowActionLink, openRateDrawer } =
+    useRateCardRateTableActions({ rateCardId, rateCard })
 
   // network-only: the details tabs are route-based so this component remounts on tab switch
   // and `?page` is dropped; a cache-first read would flash the previously viewed page before
   // the page-1 refetch.
   const { data, error, loading } = useRateCardRatesQuery({
-    variables: { rateCardId: rateCard.id, page, limit: DEFAULT_PAGE_SIZE },
+    variables: { rateCardId, page, limit: DEFAULT_PAGE_SIZE },
     notifyOnNetworkStatusChange: true,
     fetchPolicy: 'network-only',
     nextFetchPolicy: 'network-only',
   })
 
-  const canCreateRateCards = hasPermissions(['rateCardsCreate'])
+  const canCreateRates = hasPermissions(['rateCardsCreate'])
 
   const columns = useRateCardRateTableColumns({
-    currency: rateCard.currency,
-    appliedPricingUnitCode: rateCard.appliedPricingUnitCode,
+    currency: rateCard?.currency,
+    appliedPricingUnitCode: rateCard?.appliedPricingUnitCode,
   })
 
   const placeholder: TablePlaceholder = {
@@ -87,11 +95,12 @@ const RateCardRatesTab = ({ rateCard }: { rateCard: RateCardForRateDrawerFragmen
     emptyState: {
       title: translate(RATE_CARD_RATES_EMPTY_TITLE_KEY),
       subtitle: translate(RATE_CARD_RATES_EMPTY_SUBTITLE_KEY),
-      ...(canCreateRateCards && {
-        buttonTitle: translate(RATE_CARD_RATE_DRAWER_TITLE_CREATE_KEY),
-        buttonVariant: 'primary' as const,
-        buttonAction: () => openRateDrawer({ rateCard }),
-      }),
+      ...(canCreateRates &&
+        !!rateCard && {
+          buttonTitle: translate(RATE_CARD_RATE_DRAWER_TITLE_CREATE_KEY),
+          buttonVariant: 'primary' as const,
+          buttonAction: () => openRateDrawer({ rateCard }),
+        }),
     },
   }
 
@@ -106,7 +115,7 @@ const RateCardRatesTab = ({ rateCard }: { rateCard: RateCardForRateDrawerFragmen
             {translate(RATE_CARD_RATE_DRAWER_DESCRIPTION_KEY)}
           </Typography>
         </div>
-        {canCreateRateCards && (
+        {canCreateRates && !!rateCard && (
           <Button
             variant="inline"
             data-test={RATE_CARD_RATES_CREATE_TEST_ID}
@@ -127,6 +136,7 @@ const RateCardRatesTab = ({ rateCard }: { rateCard: RateCardForRateDrawerFragmen
           name="rate-card-rates-list"
           data={data?.rateCardRates?.collection ?? []}
           containerSize={0}
+          containerClassName={tw('border-t border-grey-300')}
           rowSize={72}
           isLoading={loading}
           hasError={!!error}

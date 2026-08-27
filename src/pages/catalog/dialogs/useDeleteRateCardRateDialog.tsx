@@ -10,6 +10,8 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+import { RATE_CARD_RATE_DEPENDENT_QUERIES } from '../drawers/rateCardRate/constants'
+
 export const RATE_CARD_RATE_DELETE_DIALOG_TITLE_KEY = 'text_1787737220228vtfsw6cywjo'
 export const RATE_CARD_RATE_DELETE_DIALOG_DESCRIPTION_KEY = 'text_17877372202281n4vwytee34'
 export const RATE_CARD_RATE_DELETE_SUCCESS_TOAST_KEY = 'text_1787737220228n5sd5hs13kg'
@@ -32,14 +34,25 @@ type DeleteRateCardRateDialogProps = {
   callback?: () => void
 }
 
-export const useDeleteRateCardRateDialog = () => {
+type UseDeleteRateCardRateDialogReturn = {
+  openDeleteRateCardRateDialog: (props: DeleteRateCardRateDialogProps) => void
+}
+
+export const useDeleteRateCardRateDialog = (): UseDeleteRateCardRateDialogReturn => {
   const centralizedDialog = useCentralizedDialog()
   const { translate } = useInternationalization()
   const client = useApolloClient()
 
-  const [destroyRateCardRate] = useDestroyRateCardRateMutation()
+  // Eviction below drops the row, but the counts it cannot reach - the list metadata's
+  // `totalCount` and the card's `ratesCount` - come from the server.
+  const [destroyRateCardRate] = useDestroyRateCardRateMutation({
+    refetchQueries: RATE_CARD_RATE_DEPENDENT_QUERIES,
+  })
 
-  const openDeleteRateCardRateDialog = ({ rate, callback }: DeleteRateCardRateDialogProps) => {
+  const openDeleteRateCardRateDialog = ({
+    rate,
+    callback,
+  }: DeleteRateCardRateDialogProps): void => {
     centralizedDialog.open({
       title: translate(RATE_CARD_RATE_DELETE_DIALOG_TITLE_KEY, { code: rate.code }),
       description: translate(RATE_CARD_RATE_DELETE_DIALOG_DESCRIPTION_KEY),

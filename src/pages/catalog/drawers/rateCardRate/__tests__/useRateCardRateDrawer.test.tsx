@@ -234,7 +234,10 @@ describe('useRateCardRateDrawer edit flow', () => {
 
   describe('GIVEN a card billed in a pay-in-advance timing', () => {
     describe('WHEN a pending rate is saved', () => {
-      it('THEN never sends a spending minimum, which the backend rejects there', async () => {
+      // The field is hidden there, but the rate can still carry a minimum saved while the card
+      // was in arrears: 0 clears it, where omitting the key would leave it invisible forever.
+      // Only a positive value is rejected on an advance card.
+      it('THEN clears the spending minimum instead of leaving it behind', async () => {
         let capturedInput: Record<string, unknown> = {}
         const { result } = renderDrawerHook([updateMock((input) => (capturedInput = input))])
 
@@ -250,14 +253,16 @@ describe('useRateCardRateDrawer edit flow', () => {
 
         await waitFor(() => expect(mockClose).toHaveBeenCalledTimes(1))
 
-        expect(capturedInput).not.toHaveProperty('minAmountCents')
+        expect(capturedInput.minAmountCents).toBe(0)
       })
     })
   })
 
   describe('GIVEN a card pricing in a custom pricing unit', () => {
     describe('WHEN the drawer opens', () => {
-      it('THEN passes the pricing unit short name to the body', () => {
+      // The short name is resolved inside the body, which re-renders when the units query
+      // resolves - `children` is captured once here, so a name read now could never update.
+      it('THEN passes the pricing unit code to the body', () => {
         const { result } = renderDrawerHook()
 
         act(() =>
@@ -267,7 +272,8 @@ describe('useRateCardRateDrawer edit flow', () => {
           }),
         )
 
-        expect(contentProps()?.pricingUnitShortName).toBe('tok')
+        expect(contentProps()?.rateCard.appliedPricingUnitCode).toBe('tokens')
+        expect(contentProps()).not.toHaveProperty('pricingUnitShortName')
       })
     })
 
@@ -423,6 +429,21 @@ describe('useRateCardRateDrawer edit flow', () => {
           expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' })),
         )
         expect(mockClose).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the edited rate carries a spending minimum', () => {
+    describe('WHEN the drawer opens', () => {
+      // Read back from the form the reset just seeded rather than deserialized a second time.
+      it('THEN hands the body the decimal amount the form holds', () => {
+        const { result } = renderDrawerHook()
+
+        act(() =>
+          result.current.openDrawer({ rateCard: buildRateCardForRateDrawer(), rate: pendingRate }),
+        )
+
+        expect(contentProps()?.initialMinAmountCents).toBe('15')
       })
     })
   })

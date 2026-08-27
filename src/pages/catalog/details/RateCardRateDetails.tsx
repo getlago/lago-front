@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client'
 import { generatePath, useParams } from 'react-router-dom'
 
+import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
@@ -80,6 +81,7 @@ type RateCardForRateDetailsAndDrawerFragment = RateCardForRateDetailsFragment &
 
 export const RATE_CARD_RATE_BREADCRUMB_KEY = 'text_1787737220228sofw78j0u83'
 export const RATE_CARD_RATE_NOT_FOUND_KEY = 'text_1787737220228b97cdfac4py'
+export const RATE_CARD_RATE_ACTIVITY_LOGS_EMPTY_KEY = 'text_1787819065018edyn6m968e4'
 
 const PRODUCT_CATALOG_RATE_CARDS_PATH = generatePath(PRODUCT_CATALOG_TAB_ROUTE, {
   tab: ProductCatalogTabsOptionsEnum.rateCards,
@@ -232,10 +234,21 @@ const RateCardRateDetails = () => {
               rateId: rateId as string,
               tab: RateCardRateDetailsTabsOptionsEnum.activityLogs,
             }),
-            // Intentionally empty: activity logs are emitted against the parent rate card, and
+            // No table yet: activity logs are emitted against the parent rate card, and
             // `ResourceTypeEnum` has no rate member yet, so there is nothing to scope to this
-            // rate. Wired up in BIL-594.
-            content: <DetailsPage.Container />,
+            // rate. The tab says so rather than showing a blank panel. Wired up in BIL-594.
+            content: (
+              <DetailsPage.Container>
+                <section className="flex flex-col gap-1">
+                  <Typography variant="subhead1" color="grey700">
+                    {translate('text_1747314141347qq6rasuxisl')}
+                  </Typography>
+                  <Typography variant="body" color="grey600">
+                    {translate(RATE_CARD_RATE_ACTIVITY_LOGS_EMPTY_KEY)}
+                  </Typography>
+                </section>
+              </DetailsPage.Container>
+            ),
             hidden: !isPremium || !hasPermissions(['auditLogsView']),
           },
         ]}

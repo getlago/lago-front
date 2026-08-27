@@ -73,7 +73,7 @@ export const ChargeFilterDrawerContent = withForm({
     filterIndex,
   }) {
     const { translate } = useInternationalization()
-    const { chargeModel, chargeType, currency, chargePricingUnitShortName, isEdition } =
+    const { chargeModel, chargeType, currency, chargePricingUnitShortName } =
       useChargeFilterDrawerContext()
 
     const handleFormSubmit = (event: React.FormEvent) => {
@@ -145,7 +145,6 @@ export const ChargeFilterDrawerContent = withForm({
                 chargePricingUnitShortName={chargePricingUnitShortName}
                 currency={currency}
                 form={form}
-                isEdition={isEdition}
                 showPresentationGroupKeys={false}
                 localCharge={{ chargeModel } as LocalUsageChargeInput}
                 propertyCursor="properties"

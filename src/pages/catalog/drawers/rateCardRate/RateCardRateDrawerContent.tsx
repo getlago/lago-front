@@ -30,6 +30,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 import { useChargeForm } from '~/hooks/plans/useChargeForm'
+import { useCustomPricingUnits } from '~/hooks/plans/useCustomPricingUnits'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { tw } from '~/styles/utils'
 
@@ -93,7 +94,6 @@ type RateCardRateDrawerSectionsExtraProps = {
   getEffectiveFromBoundary: () => string | null
   /** Captured at open time so clearing the input does not collapse the section mid-edit. */
   initialMinAmountCents: string
-  pricingUnitShortName?: string
 }
 
 const rateCardRateDrawerSectionsDefaultProps: RateCardRateDrawerSectionsExtraProps = {
@@ -109,7 +109,6 @@ const rateCardRateDrawerSectionsDefaultProps: RateCardRateDrawerSectionsExtraPro
   isCodeLocked: false,
   getEffectiveFromBoundary: () => null,
   initialMinAmountCents: '',
-  pricingUnitShortName: undefined,
 }
 
 // Holds the reactive form state so it resets alongside the form when the keyed wrapper
@@ -125,12 +124,18 @@ const RateCardRateDrawerFormSections = withForm({
     isCodeLocked,
     getEffectiveFromBoundary,
     initialMinAmountCents,
-    pricingUnitShortName,
   }) {
     const { translate } = useInternationalization()
     const { isPremium } = useCurrentUser()
     const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
     const { getFixedChargeModelComboboxData, getUsageChargeModelComboboxData } = useChargeForm()
+    const { pricingUnits } = useCustomPricingUnits()
+
+    // Resolved here rather than at open() time: the drawer captures `children` once, so a short
+    // name read before the pricing-units query resolved would stick for the whole session.
+    const pricingUnitShortName = pricingUnits.find(
+      (unit) => unit.code === rateCard.appliedPricingUnitCode,
+    )?.shortName
 
     const effectiveFrom = useStore(form.store, (state) => state.values.effectiveFrom)
     // Re-read on every render: the sections remount after a "create more" save, which is
@@ -175,8 +180,9 @@ const RateCardRateDrawerFormSections = withForm({
     // Interpolates the boundary date, which `translate()` cannot do from a zod message - the
     // schema raises the matching issue so the submit stays blocked either way.
     const effectiveFromErrorOverride = useMemo(() => {
-      if (isEffectiveFromAppendable(effectiveFrom, effectiveFromBoundary) || !effectiveFromBoundary)
-        return undefined
+      // No boundary means the card has no effective rate yet, so any date appends.
+      if (!effectiveFromBoundary) return undefined
+      if (isEffectiveFromAppendable(effectiveFrom, effectiveFromBoundary)) return undefined
 
       return translate(RATE_CARD_RATE_EFFECTIVE_DATE_AFTER_ACTIVE_KEY, {
         date: formatEffectiveDate(effectiveFromBoundary),
@@ -379,7 +385,6 @@ const RateCardRateDrawerFormSections = withForm({
             chargePricingUnitShortName={pricingUnitShortName}
             currency={rateCard.currency}
             form={form}
-            isEdition={isEdit}
             localCharge={localCharge}
             propertyCursor="properties"
             showPresentationGroupKeys={false}
@@ -450,7 +455,6 @@ export const RateCardRateDrawerContent = withForm({
     isCodeLocked,
     getEffectiveFromBoundary,
     initialMinAmountCents,
-    pricingUnitShortName,
     resetSignal,
   }) {
     const rootRef = useRef<HTMLDivElement>(null)
@@ -479,7 +483,6 @@ export const RateCardRateDrawerContent = withForm({
             isCodeLocked={isCodeLocked}
             getEffectiveFromBoundary={getEffectiveFromBoundary}
             initialMinAmountCents={initialMinAmountCents}
-            pricingUnitShortName={pricingUnitShortName}
           />
         </div>
       </div>

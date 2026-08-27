@@ -75,8 +75,9 @@ const ratesQueryMock = (
   },
 })
 
-const renderTab = (mocks: MockedResponse[]) =>
-  rtlRender(<RateCardRatesTab rateCard={rateCard} />, {
+// `null` stands for "the parent card query has not resolved yet", which the tab must handle.
+const renderTab = (mocks: MockedResponse[], card: typeof rateCard | null = rateCard) =>
+  rtlRender(<RateCardRatesTab rateCardId="rc-1" rateCard={card} />, {
     wrapper: ({ children }) => (
       <AllTheProviders forceTypenames mocks={mocks}>
         {children}
@@ -134,6 +135,23 @@ describe('RateCardRatesTab', () => {
         await userEvent.click(screen.getByTestId(RATE_CARD_RATES_CREATE_TEST_ID))
 
         expect(mockOpenRateDrawer).toHaveBeenCalledWith({ rateCard })
+      })
+    })
+  })
+
+  describe('GIVEN the parent rate card has not loaded yet', () => {
+    describe('WHEN the tab renders', () => {
+      it('THEN still lists the rates, which only need the card id', async () => {
+        await act(() => renderTab([ratesQueryMock([buildRow(0)])], null))
+
+        await waitFor(() => expect(screen.getByText('rate_01_00_2026')).toBeInTheDocument())
+      })
+
+      it('THEN hides the create action until the card is known', async () => {
+        await act(() => renderTab([ratesQueryMock([buildRow(0)])], null))
+
+        await waitFor(() => expect(screen.getByText('rate_01_00_2026')).toBeInTheDocument())
+        expect(screen.queryByTestId(RATE_CARD_RATES_CREATE_TEST_ID)).not.toBeInTheDocument()
       })
     })
   })

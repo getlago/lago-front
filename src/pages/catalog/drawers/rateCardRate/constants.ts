@@ -43,6 +43,20 @@ export const RATE_CARD_RATE_DUPLICATE_DATE_KEY = 'text_1787753924848luck8g8y1qd'
 export const RATE_CARD_RATE_SAVE_FAILED_KEY = 'text_1787753924848adhyrzqb0gz'
 export const RATE_CARD_RATE_DELETE_ACTION_KEY = 'text_1787737220228txu8nd2qayi'
 
+/**
+ * Queries carrying data derived from a card's rates - the rates list and its `totalCount`, plus
+ * the card's `ratesCount` / `activeRate` on every surface that shows them. Refetched after any
+ * rate write, and only if currently mounted. The deleted rate's own details query is
+ * deliberately absent: refetching it would answer 404.
+ */
+export const RATE_CARD_RATE_DEPENDENT_QUERIES = [
+  'rateCardRates',
+  'getRateCardForDetails',
+  'rateCards',
+  'getRateCardsForProductDetails',
+  'getRateCardsForProductFilterDetails',
+]
+
 export const BILLING_INTERVAL_UNIT_TRANSLATION_KEY: Record<
   RateCardRateBillingIntervalUnitEnum,
   string
@@ -101,6 +115,17 @@ export const isEffectiveFromAppendable = (isoDate: string, boundary: string | nu
   if (!isoDate || !boundary) return true
 
   return DateTime.fromISO(isoDate) > DateTime.fromISO(boundary)
+}
+
+/**
+ * The later of two append boundaries, null meaning "no boundary yet". Used to carry a boundary
+ * moved by a save forward across a form reset, which re-derives it from an older card snapshot.
+ */
+export const laterEffectiveFrom = (a: string | null, b: string | null): string | null => {
+  if (!a) return b
+  if (!b) return a
+
+  return DateTime.fromISO(a) > DateTime.fromISO(b) ? a : b
 }
 
 export type RateCardRateSchemaContext = {
@@ -194,7 +219,12 @@ export const isRateCardRateEditable = ({
   return !rateCard.attachedToSubscriptions || rate.status === RateCardRateStatusEnum.Pending
 }
 
-/** Deleting is soft and audit-safe only before the rate ever applied. */
+/**
+ * Deleting is soft and audit-safe only before the rate ever applied, which is the single rule
+ * `RateCardRates::DestroyService` enforces (`only_pending_rates_can_be_deleted`). The parent
+ * card's attachments are deliberately not consulted: a pending rate has never priced anything,
+ * so it stays deletable even on a card already in a plan or a subscription.
+ */
 export const isRateCardRateDeletable = (
   rate: Pick<RateCardRateForDrawerFragment, 'status'>,
 ): boolean => rate.status === RateCardRateStatusEnum.Pending

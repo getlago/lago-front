@@ -60,6 +60,13 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({ timezone: 'TZ_UTC' }),
 }))
 
+jest.mock('~/hooks/plans/useCustomPricingUnits', () => ({
+  useCustomPricingUnits: () => ({
+    hasAnyPricingUnitConfigured: true,
+    pricingUnits: [{ id: 'pu-1', name: 'Tokens', code: 'tokens', shortName: 'tok' }],
+  }),
+}))
+
 jest.mock('~/components/plans/chargeAccordion/ChargeModelSelector', () => ({
   ChargeModelSelector: (props: Record<string, unknown>) => {
     mockChargeModelSelectorProps = props
@@ -100,7 +107,6 @@ const Host = ({
   isCodeLocked = false,
   effectiveFromBoundary = null,
   initialMinAmountCents = '',
-  pricingUnitShortName,
 }: {
   rateCard?: RateCardRateDrawerRateCard
   isEdit?: boolean
@@ -108,7 +114,6 @@ const Host = ({
   isCodeLocked?: boolean
   effectiveFromBoundary?: string | null
   initialMinAmountCents?: string
-  pricingUnitShortName?: string
 }) => {
   const form = useAppForm({ defaultValues: RATE_CARD_RATE_FORM_DEFAULTS })
 
@@ -149,7 +154,6 @@ const Host = ({
         isCodeLocked={isCodeLocked}
         getEffectiveFromBoundary={() => effectiveFromBoundary}
         initialMinAmountCents={initialMinAmountCents}
-        pricingUnitShortName={pricingUnitShortName}
       />
     </>
   )
@@ -272,6 +276,21 @@ describe('RateCardRateDrawerContent', () => {
         expect(
           screen.getByTestId(RATE_CARD_RATE_DRAWER_CONVERSION_RATE_TEST_ID),
         ).toBeInTheDocument()
+      })
+
+      // Resolved from the units query here, not baked in at open() time: the drawer captures
+      // `children` once, so a name read before that query resolved would never self-correct.
+      it('THEN labels the conversion rate with the unit short name, not its code', () => {
+        render(<Host rateCard={{ ...arrearsUsageCard, appliedPricingUnitCode: 'tokens' }} />)
+
+        expect(screen.getByText('1 tok')).toBeInTheDocument()
+        expect(screen.queryByText('1 tokens')).not.toBeInTheDocument()
+      })
+
+      it('THEN prices the charge fields in that short name too', () => {
+        render(<Host rateCard={{ ...arrearsUsageCard, appliedPricingUnitCode: 'tokens' }} />)
+
+        expect(mockChargeWrapperSwitchProps.chargePricingUnitShortName).toBe('tok')
       })
     })
   })

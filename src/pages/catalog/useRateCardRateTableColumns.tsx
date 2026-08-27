@@ -51,7 +51,8 @@ export const useRateCardRateTableColumns = ({
   currency,
   appliedPricingUnitCode,
 }: {
-  currency: CurrencyEnum
+  /** Absent while the parent rate card is still loading; the price cell falls back to no unit. */
+  currency?: CurrencyEnum | null
   appliedPricingUnitCode?: string | null
 }): Array<TableColumn<RateCardRateForListFragment>> => {
   const { translate } = useInternationalization()
