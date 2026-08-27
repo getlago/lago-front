@@ -13,6 +13,7 @@ import {
 import { useFormDrawer } from '~/components/drawers/useDrawer'
 import type { PlanFormInput } from '~/components/plans/types'
 import { addToast } from '~/core/apolloClient'
+import { buildPlanPreviewData } from '~/core/serializers/buildPlanPreviewData'
 import type { BillingItemsPayload } from '~/core/serializers/serializeQuoteBillingItems'
 import {
   fromPlanBillingItems,
@@ -171,6 +172,10 @@ export const useSubscriptionPricingDrawer = (
             entityType: 'plan',
             name: state.planName,
             code: state.planCode,
+            // The preview branch of PricingBlockView renders the plan table only when
+            // `plan` is set, and the commit below replaces the whole entity — without
+            // the payload the block goes blank in preview until a refetch re-hydrates it.
+            plan: buildPlanPreviewData(formValues ?? null),
           },
         }
 
