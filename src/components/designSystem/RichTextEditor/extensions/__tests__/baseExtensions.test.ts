@@ -288,4 +288,28 @@ describe('getBaseExtensions', () => {
       expect(markdown?.options.html).toBe(true)
     })
   })
+
+  describe('GIVEN the WrappedHorizontalRule extension', () => {
+    describe('WHEN a document contains a horizontal rule', () => {
+      it('THEN should render the hr inside the spacer block wrapper', () => {
+        const editor = createEditor('<p>Title</p><hr><p>Body</p>')
+        const html = editor.getHTML()
+
+        editor.destroy()
+
+        expect(html).toContain(
+          '<div class="spacer" data-type="horizontalRule"><div class="block-wrapper"><hr></div></div>',
+        )
+      })
+
+      it('THEN should keep the markdown round-trip identical', () => {
+        const editor = createEditor('<p>Title</p><hr><p>Body</p>')
+        const markdown = getMarkdown(editor)
+
+        editor.destroy()
+
+        expect(markdown).toBe('Title\n\n---\n\nBody')
+      })
+    })
+  })
 })
