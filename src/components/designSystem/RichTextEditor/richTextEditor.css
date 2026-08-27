@@ -415,6 +415,12 @@
   margin-top: 20px;
 }
 
+/* A divider's <hr> is a 1px line at the top of its block-wrapper, not a text
+   line — pull the group up so the buttons center on the line itself. */
+.block-handle-group:has(+ .spacer[data-type='horizontalRule']) {
+  margin-top: -4px;
+}
+
 .tableWrapper {
   @apply relative rounded-md p-2 pb-8;
 }
