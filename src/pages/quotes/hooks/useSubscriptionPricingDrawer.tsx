@@ -172,9 +172,6 @@ export const useSubscriptionPricingDrawer = (
             entityType: 'plan',
             name: state.planName,
             code: state.planCode,
-            // The preview branch of PricingBlockView renders the plan table only when
-            // `plan` is set, and the commit below replaces the whole entity — without
-            // the payload the block goes blank in preview until a refetch re-hydrates it.
             plan: buildPlanPreviewData(formValues ?? null),
           },
         }
