@@ -41,6 +41,11 @@ front/scripts/analysis-depth.sh <ISSUE-ID> reset
 
 Fetch via Linear MCP `get_issue` (with `includeRelations`) **and** `list_comments` — repro steps, scope changes and decisions often live only in comments, and a Slack attachment subtitle often holds the original report.
 
+**Then enumerate the attachments and say what you could and could not read.** A Loom or a screenshot is
+frequently the only place the actual gesture exists. You cannot watch a video: state that, ask the operator
+to describe what happens in it, and never replace it with a plausible reconstruction — a repro you invented
+is how an analysis ends up explaining a defect nobody reported.
+
 Check every gate in order. Exactly one of them posts anything; the rest stop silently. Do not
 improvise a third outcome.
 
@@ -100,6 +105,7 @@ on confirming it at the actual call site.
 | The "X-Y of N" label disagrees with the rows | `PaginatedContent` `pageSize` ≠ the query `limit` |
 | A previously-viewed page flashes when re-entering a customer tab | List query missing `fetchPolicy: 'network-only'` |
 | The pager is missing entirely | `metadata` not passed to `PaginatedContent`, so `totalCount` is 0 |
+| A menu / popper / tooltip "never opens", or opens in the wrong place | the element is usually in the DOM but positioned out of view: offsets computed from viewport rects while the element is absolutely positioned inside a scrolled `position: relative` container (the offset needs `scrollTop`/`scrollLeft`), clipping, or `z-index`. Reproduce with the container scrolled — at scroll 0 the broken math looks correct |
 
 How to use a match: **open the call site and check whether the documented cause is actually
 present there.** Confirmed → cite the rule and take the prescribed fix rather than inventing
@@ -183,6 +189,35 @@ An analysis that describes behavior without citing code is not done.
 
 Build the input from what the code *actually stores*, not from the ticket's screenshot. Reconstruct that value from step 2 first.
 
+### 3a. For interaction, layout and rendering symptoms, a harness is not a reproduction
+
+A jest harness or a `node -e` snippet proves a **mechanism exists**. It cannot prove that mechanism is what
+the reporter hit — jsdom has no layout, no scroll and no paint, which is exactly where this class of defect
+lives. When the symptom is "the menu doesn't open", "nothing happens when I click", "it's in the wrong
+place", the evidence has to come from the running app on the reported surface (the `/qa-session` skill
+resolves the worktree and port). Until then every code-derived cause is a hypothesis, however well it reads.
+
+### 3b. Precondition check — does the reporter's repro actually trigger your cause?
+
+The single check that catches a plausible-but-wrong analysis. For **each** cause you propose, write down:
+
+| | |
+| --- | --- |
+| Cause | <the mechanism> |
+| Exact precondition | <the state or gesture required to trigger it, in code terms> |
+| Reporter's steps satisfy it? | yes, because … / no, because … |
+
+A cause whose precondition is **narrower** than the report explains less than it looks like it does — say so
+instead of letting the reader assume it covers the ticket. If **no** cause is triggered by the reported
+steps, the real cause is still unfound: the verdict is *cannot determine* on the reported symptom, plus
+whatever adjacent defects you did confirm, listed as adjacent. Never present them as the answer.
+
+Worked failure this rule exists to prevent: a report said "paste markdown, the block menu never opens". The
+analysis found two genuine defects — a stale captured position in a widget, and an unwrapped `<hr>` — and
+both were real. But the first needs an edit that leaves `doc.childCount` unchanged and the second only ever
+affected dividers, while a plain multi-block paste rebuilds every decoration and works fine on unfixed code.
+The reported symptom was a third defect, in a file the analysis had explicitly fenced off as correct.
+
 ## 4. Verdict
 
 **A ticket reporting several symptoms gets a verdict per symptom.** They routinely have
@@ -210,6 +245,11 @@ Whatever mechanism is involved, grep for every other call site sharing it. Split
 **When the mechanism is a shared key or identifier** — a URL param, a localStorage key, a constant, a cache key, an enum value — enumerate **both directions**: every **consumer** that reads it, and every **producer** that writes it, deep links built in unrelated pages included. Grep the exported constant, then the bare literal too in case somewhere hardcodes it.
 
 Changing the shape of a shared value while missing one producer is a silent break: the writer keeps emitting the old shape, the reader matches nothing, and no test fails because the two live in different files. A fix list that changes a key's format without naming every writer is incomplete.
+
+**A file may be declared out of scope only after the symptom has been reproduced, and only for code proven
+unrelated to that reproduction.** "This guard is correct" is a claim about one line, not a licence to stop
+reading the file — the defect is regularly a few lines below the part you verified, and a non-goal written
+early becomes a blindfold the implementer inherits.
 
 This is where triage earns its keep — the reporter sees one surface, the code usually has more. Report affected siblings even when out of the ticket's scope. For a change request the same sweep answers "where else does this have to change to stay consistent", which is usually the real cost of the ticket.
 
@@ -258,6 +298,11 @@ Markdown, **English**, these sections in order. Omit a section only when it woul
 
 ```markdown
 ## Technical analysis — <confirmed bug | not a bug | cannot determine>
+
+### Reported repro
+<the reporter's steps, and how they were reproduced: running app on <surface> | harness only | not reproduced
+| media unread (video). Then, per cause: precondition, and whether the reported steps satisfy it (step 3b).
+Not reproduced, or a cause narrower than the report → say which part of the ticket stays unexplained.>
 
 ### Root cause
 <the disagreement, stated once. Files, symbols, line refs.>
@@ -539,6 +584,13 @@ deliverable and it is already posted. Report that the move did not go through an
 - **Print every `file:line` you cite before posting.** An unverified citation is reference rot waiting to happen.
 - **A matching symptom is where to look, never what to conclude.** The regression table in
   step 2a produces hypotheses; only the call site produces findings.
+- **A real defect is not automatically the reported defect.** Every cause carries its precondition and
+  whether the reporter's steps meet it (step 3b). Unmet → the reported symptom is still unexplained, and
+  saying so is the deliverable.
+- **For interaction, layout and rendering symptoms, reproduce in the running app.** jsdom has no layout,
+  no scroll and no paint; a green harness there is not evidence about what the reporter saw.
+- **Scope fences come after reproduction, never before.** Declaring a file correct up front is how the
+  actual cause survives triage, implementation and QA untouched.
 - **Never dress a guess as a finding.** No evidence → *cannot determine* or *blocked*, not a confident story.
 - **Someone will edit code straight from the handoff block.** Exact paths, one approach, assertions not intentions. A vague handoff produces a wrong implementation, which is worse than no analysis.
 - **Never accept the ticket's description of current behavior.** Verify it in the code — for change requests this is the most common error in the report.
