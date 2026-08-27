@@ -104,8 +104,8 @@ const BlockToolbar = ({ editor }: BlockToolbarProps) => {
     const blockRect = dom.getBoundingClientRect()
 
     setPosition({
-      top: blockRect.top - containerRect.top,
-      left: blockRect.left - containerRect.left,
+      top: blockRect.top - containerRect.top + editorContainer.scrollTop,
+      left: blockRect.left - containerRect.left + editorContainer.scrollLeft,
     })
   }, [editor, blockSelection])
 
