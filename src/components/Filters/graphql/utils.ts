@@ -105,6 +105,34 @@ import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
 export const keyWithPrefix = (key: string, prefix?: string) => (prefix ? `${prefix}_${key}` : key)
 
+/**
+ * `is between` bounds describe an interval, so `11,10` designates the same interval as
+ * `10,11`. Rewriting the raw `interval,from,to` value with its bounds in ascending order
+ * makes the resulting query — and the chip summarising it — independent from the order
+ * the user typed the bounds in.
+ *
+ * Only applied where the value is consumed (query variables, active filter chip), so the
+ * filter inputs keep displaying the bounds as they were typed.
+ */
+export const orderIntervalBounds = (value: string): string => {
+  const [interval, from, to] = value.split(',')
+
+  // `isBetween` holds the same value in AmountFilterInterval and
+  // ActiveSubscriptionsFilterInterval, the two intervals with a lower and an upper bound.
+  if (interval !== AmountFilterInterval.isBetween || !from || !to) {
+    return value
+  }
+
+  const fromNumber = Number(from)
+  const toNumber = Number(to)
+
+  if (Number.isNaN(fromNumber) || Number.isNaN(toNumber) || fromNumber <= toNumber) {
+    return value
+  }
+
+  return `${interval},${to},${from}`
+}
+
 export const parseFromToValue = (value: string, keys: { from: string; to: string }) => {
   const [interval, from, to] = value.split(',')
 
@@ -209,9 +237,12 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.activitySources]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.activityTypes]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.activeSubscriptions]: (value: string) =>
-    parseFromToValue(value, { from: 'activeSubscriptionsFrom', to: 'activeSubscriptionsTo' }),
+    parseFromToValue(orderIntervalBounds(value), {
+      from: 'activeSubscriptionsFrom',
+      to: 'activeSubscriptionsTo',
+    }),
   [AvailableFiltersEnum.amount]: (value: string) =>
-    parseFromToValue(value, { from: 'amountFrom', to: 'amountTo' }),
+    parseFromToValue(orderIntervalBounds(value), { from: 'amountFrom', to: 'amountTo' }),
   [AvailableFiltersEnum.apiKeyIds]: (value: string) =>
     value.split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
   [AvailableFiltersEnum.billingEntityIds]: (value: string) =>
@@ -1092,7 +1123,7 @@ export const formatActiveFilterValueDisplay = (
   translate?: TranslateFunc,
 ): string => {
   if (key === AvailableFiltersEnum.amount) {
-    const [interval, from, to] = value.split(',')
+    const [interval, from, to] = orderIntervalBounds(value).split(',')
 
     const intervalLabel = translate?.(
       AMOUNT_INTERVALS_TRANSLATION_MAP[interval as AmountFilterInterval],
@@ -1109,7 +1140,7 @@ export const formatActiveFilterValueDisplay = (
   }
 
   if (key === AvailableFiltersEnum.activeSubscriptions) {
-    const [interval, from, to] = value.split(',')
+    const [interval, from, to] = orderIntervalBounds(value).split(',')
 
     const intervalLabel = translate?.(
       ACTIVE_SUBSCRIPTIONS_INTERVALS_TRANSLATION_MAP[interval as ActiveSubscriptionsFilterInterval],
