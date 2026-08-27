@@ -238,9 +238,6 @@ export const DragHandle = Extension.create({
 
       doc.forEach((node, pos) => {
         decorations.push(
-          // The widget's position moves with document edits (oldSet.map below),
-          // so the handle must resolve it at event time through getPos — a
-          // captured `pos` goes stale after any same-childCount edit.
           Decoration.widget(pos, (_view, getPos): HTMLElement => createHandleElement(getPos), {
             side: -1,
             key: `drag-handle-${pos}`,
