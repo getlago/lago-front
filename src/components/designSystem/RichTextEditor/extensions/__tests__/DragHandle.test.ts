@@ -7,6 +7,7 @@ import { NodeSelection } from '@tiptap/pm/state'
 import StarterKit from '@tiptap/starter-kit'
 import { act } from 'react'
 
+import { getBaseExtensions } from '../baseExtensions'
 import { BlockColors } from '../BlockColors'
 import { DragHandle, type DragHandleStorage, resolveSelectedTable } from '../DragHandle'
 
@@ -1114,6 +1115,182 @@ describe('DragHandle', () => {
         expect(removeSpy).toHaveBeenCalledWith('mousedown', expect.any(Function))
 
         removeSpy.mockRestore()
+      })
+    })
+  })
+
+  describe('GIVEN the document has been edited without a structural change', () => {
+    /**
+     * jsdom does not propagate exceptions thrown inside DOM listeners to the
+     * caller of element.click() — it dispatches a window `error` event instead.
+     * Capture those so a throwing click handler fails the test rather than
+     * silently leaving the previous selection in place.
+     */
+    const clickCapturingWindowErrors = (element: HTMLElement): ErrorEvent[] => {
+      const errors: ErrorEvent[] = []
+      const onError = (event: ErrorEvent): void => {
+        event.preventDefault()
+        errors.push(event)
+      }
+
+      window.addEventListener('error', onError)
+      element.click()
+      window.removeEventListener('error', onError)
+
+      return errors
+    }
+
+    describe('WHEN text is inserted into an earlier block and a later grip is clicked', () => {
+      it('THEN should select the block at its current position', () => {
+        const editor = createEditor('<p>Alpha</p><p>Beta</p><p>Gamma</p>')
+
+        editor.commands.insertContentAt(6, 'XXXXXXXXXX')
+
+        const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+        const errors = clickCapturingWindowErrors(grips[1] as HTMLElement)
+
+        const { selection } = editor.state
+        const isNodeSelection = selection instanceof NodeSelection
+        const selectedFrom = selection.from
+        const selectedText = isNodeSelection ? selection.node.textContent : null
+
+        editor.destroy()
+
+        expect(errors).toHaveLength(0)
+        expect(isNodeSelection).toBe(true)
+        expect(selectedFrom).toBe(17)
+        expect(selectedText).toBe('Beta')
+      })
+
+      it('THEN should select the last block at its current position', () => {
+        const editor = createEditor('<p>Alpha</p><p>Beta</p><p>Gamma</p>')
+
+        editor.commands.insertContentAt(6, 'XXXXXXXXXX')
+
+        const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+        const errors = clickCapturingWindowErrors(grips[2] as HTMLElement)
+
+        const { selection } = editor.state
+        const isNodeSelection = selection instanceof NodeSelection
+        const selectedFrom = selection.from
+        const selectedText = isNodeSelection ? selection.node.textContent : null
+
+        editor.destroy()
+
+        expect(errors).toHaveLength(0)
+        expect(isNodeSelection).toBe(true)
+        expect(selectedFrom).toBe(23)
+        expect(selectedText).toBe('Gamma')
+      })
+
+      it('THEN should point the selection at a block whose DOM node is resolvable', () => {
+        const editor = createEditor('<p>Alpha</p><p>Beta</p><p>Gamma</p>')
+
+        editor.commands.insertContentAt(6, 'XXXXXXXXXX')
+
+        const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+
+        clickCapturingWindowErrors(grips[1] as HTMLElement)
+
+        // BlockToolbar only renders the menu when nodeDOM resolves to an element.
+        const blockDom = editor.view.nodeDOM(editor.state.selection.from)
+
+        editor.destroy()
+
+        expect(blockDom).toBeInstanceOf(HTMLElement)
+      })
+    })
+
+    describe('WHEN a single character is inserted and a later grip is clicked', () => {
+      it('THEN should select the block without throwing in the click listener', () => {
+        const editor = createEditor('<p>Alpha</p><p>Beta</p>')
+
+        editor.commands.insertContentAt(6, 'X')
+
+        const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+        const errors = clickCapturingWindowErrors(grips[1] as HTMLElement)
+
+        const { selection } = editor.state
+        const isNodeSelection = selection instanceof NodeSelection
+        const selectedFrom = selection.from
+        const selectedText = isNodeSelection ? selection.node.textContent : null
+
+        editor.destroy()
+
+        expect(errors).toHaveLength(0)
+        expect(isNodeSelection).toBe(true)
+        expect(selectedFrom).toBe(8)
+        expect(selectedText).toBe('Beta')
+      })
+    })
+
+    describe('WHEN markdown is pasted into an earlier block and a later grip is clicked', () => {
+      it('THEN should select the block at its current position', () => {
+        let editor!: Editor
+
+        act(() => {
+          editor = new Editor({
+            extensions: [...getBaseExtensions(), DragHandle],
+            content: '<p></p><p>Outro</p>',
+          })
+        })
+
+        // jsdom has no ClipboardEvent — build the slice the way ProseMirror's
+        // paste path does, through the Markdown extension's clipboardTextParser.
+        editor.commands.setTextSelection(1)
+
+        const slice = editor.view.someProp('clipboardTextParser', (parser) =>
+          parser(
+            'Hello **world** this is markdown',
+            editor.state.selection.$from,
+            false,
+            editor.view,
+          ),
+        )
+
+        if (!slice) throw new Error('clipboardTextParser did not produce a slice')
+
+        editor.view.dispatch(editor.state.tr.replaceSelection(slice))
+
+        const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+        const errors = clickCapturingWindowErrors(grips[1] as HTMLElement)
+
+        const { selection } = editor.state
+        const isNodeSelection = selection instanceof NodeSelection
+        const selectedFrom = selection.from
+        const selectedText = isNodeSelection ? selection.node.textContent : null
+
+        editor.destroy()
+
+        expect(errors).toHaveLength(0)
+        expect(isNodeSelection).toBe(true)
+        expect(selectedFrom).toBe(30)
+        expect(selectedText).toBe('Outro')
+      })
+    })
+
+    describe('WHEN text is inserted before a table and the table grip is clicked', () => {
+      it('THEN should store the table at its current position', () => {
+        const editor = createEditor(
+          '<p>Before</p><table><tbody><tr><td>A1</td><td>B1</td></tr></tbody></table><p>After</p>',
+        )
+        const storage = getDragHandleStorage(editor)
+
+        editor.commands.insertContentAt(4, 'YYYY')
+
+        const tablePos = findTablePos(editor)
+        const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+        const errors = clickCapturingWindowErrors(grips[1] as HTMLElement)
+
+        const selectedBlock = storage.selectedBlock
+        const resolved = resolveSelectedTable(editor.state, selectedBlock)
+        const resolvedNodeName = resolved?.node.type.name
+
+        editor.destroy()
+
+        expect(errors).toHaveLength(0)
+        expect(selectedBlock).toEqual({ pos: tablePos })
+        expect(resolvedNodeName).toBe('table')
       })
     })
   })

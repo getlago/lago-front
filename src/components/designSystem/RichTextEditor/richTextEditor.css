@@ -415,6 +415,10 @@
   margin-top: 20px;
 }
 
+.block-handle-group:has(+ .spacer[data-type='horizontalRule']) {
+  margin-top: -4px;
+}
+
 .tableWrapper {
   @apply relative rounded-md p-2 pb-8;
 }
