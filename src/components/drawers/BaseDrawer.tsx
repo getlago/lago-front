@@ -6,6 +6,8 @@ import { Typography } from '~/components/designSystem/Typography'
 import { tw } from '~/styles/utils'
 
 import {
+  BASE_DRAWER_CONTENT_ATTR,
+  BASE_DRAWER_CONTENT_TEST_ID,
   DRAWER_PUSH_BACK_OFFSET,
   DRAWER_PUSH_BACK_SCALE,
   DRAWER_TRANSITION_DURATION,
@@ -37,8 +39,9 @@ export const BASE_DRAWER_BACKDROP_TEST_ID = 'base-drawer-backdrop'
 export const BASE_DRAWER_PAPER_TEST_ID = 'base-drawer-paper'
 export const BASE_DRAWER_HEADER_TEST_ID = 'base-drawer-header'
 export const BASE_DRAWER_CLOSE_BUTTON_TEST_ID = 'base-drawer-close-button'
-export const BASE_DRAWER_CONTENT_TEST_ID = 'base-drawer-content'
 export const BASE_DRAWER_ACTIONS_TEST_ID = 'base-drawer-actions'
+
+export { BASE_DRAWER_CONTENT_TEST_ID } from './const'
 
 export const BaseDrawer = ({
   isOpen,
@@ -201,6 +204,7 @@ export const BaseDrawer = ({
           withPadding && 'px-4 pb-20 pt-12 md:px-12',
         )}
         data-test={BASE_DRAWER_CONTENT_TEST_ID}
+        {...{ [BASE_DRAWER_CONTENT_ATTR]: '' }}
       >
         {children}
       </div>

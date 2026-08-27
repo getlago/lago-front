@@ -8,7 +8,7 @@ import StarterKit from '@tiptap/starter-kit'
 import { act } from 'react'
 
 import { BlockColors } from '../BlockColors'
-import { DragHandle, type DragHandleStorage } from '../DragHandle'
+import { DragHandle, type DragHandleStorage, resolveSelectedTable } from '../DragHandle'
 
 const TABLE_CONTENT = `
 <p>Before table</p>
@@ -36,6 +36,33 @@ const createEditor = (content = '<p>First</p><p>Second</p>') => {
 
 const getDragHandleStorage = (editor: Editor): DragHandleStorage =>
   (editor.storage as any).dragHandle as DragHandleStorage
+
+const findTablePos = (editor: Editor): number => {
+  let tablePos = -1
+
+  editor.state.doc.descendants((node, pos) => {
+    if (node.type.name === 'table' && tablePos === -1) {
+      tablePos = pos
+    }
+  })
+
+  return tablePos
+}
+
+const hasTable = (editor: Editor): boolean => findTablePos(editor) > -1
+
+/** Clicks the grip of the table in TABLE_CONTENT (the second top-level block). */
+const selectTableViaGrip = (editor: Editor): void => {
+  const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+
+  ;(grips[1] as HTMLElement).click()
+}
+
+const pressKey = (editor: Editor, key: string): void => {
+  const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true })
+
+  editor.view.someProp('handleKeyDown', (f) => f(editor.view, event))
+}
 
 describe('DragHandle', () => {
   describe('GIVEN the DragHandle extension', () => {
@@ -325,15 +352,7 @@ describe('DragHandle', () => {
       it('THEN should store the table position in selectedBlock storage', () => {
         const editor = createEditor(TABLE_CONTENT)
         const storage = getDragHandleStorage(editor)
-
-        // Find the table node position
-        let tablePos = -1
-
-        editor.state.doc.descendants((node, pos) => {
-          if (node.type.name === 'table' && tablePos === -1) {
-            tablePos = pos
-          }
-        })
+        const tablePos = findTablePos(editor)
 
         expect(tablePos).toBeGreaterThan(-1)
 
@@ -350,14 +369,7 @@ describe('DragHandle', () => {
 
       it('THEN should place cursor inside the table via TextSelection', () => {
         const editor = createEditor(TABLE_CONTENT)
-
-        let tablePos = -1
-
-        editor.state.doc.descendants((node, pos) => {
-          if (node.type.name === 'table' && tablePos === -1) {
-            tablePos = pos
-          }
-        })
+        const tablePos = findTablePos(editor)
 
         const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
         const tableGrip = grips[1] as HTMLElement
@@ -440,6 +452,160 @@ describe('DragHandle', () => {
         expect(storage.selectedBlock).toEqual({ pos: tablePos })
 
         editor.destroy()
+      })
+    })
+  })
+
+  describe('GIVEN the resolveSelectedTable helper', () => {
+    describe('WHEN no block is stored', () => {
+      it('THEN should return null', () => {
+        const editor = createEditor(TABLE_CONTENT)
+        const result = resolveSelectedTable(editor.state, null)
+
+        editor.destroy()
+
+        expect(result).toBeNull()
+      })
+    })
+
+    describe('WHEN the stored position does not hold a table', () => {
+      it('THEN should return null', () => {
+        const editor = createEditor(TABLE_CONTENT)
+        const result = resolveSelectedTable(editor.state, { pos: 0 })
+
+        editor.destroy()
+
+        expect(result).toBeNull()
+      })
+    })
+
+    describe('WHEN the caret sits outside the stored table', () => {
+      it('THEN should return null', () => {
+        const editor = createEditor(TABLE_CONTENT)
+        const tablePos = findTablePos(editor)
+
+        editor.commands.setTextSelection(1)
+
+        const result = resolveSelectedTable(editor.state, { pos: tablePos })
+
+        editor.destroy()
+
+        expect(result).toBeNull()
+      })
+    })
+
+    describe('WHEN the caret sits inside the stored table', () => {
+      it('THEN should return the table position and node', () => {
+        const editor = createEditor(TABLE_CONTENT)
+        const tablePos = findTablePos(editor)
+
+        // The table grip drops a valid caret in the table's first cell
+        selectTableViaGrip(editor)
+
+        const result = resolveSelectedTable(editor.state, { pos: tablePos })
+        const resultPos = result?.pos
+        const resultNodeName = result?.node.type.name
+
+        editor.destroy()
+
+        expect(resultPos).toBe(tablePos)
+        expect(resultNodeName).toBe('table')
+      })
+    })
+  })
+
+  describe('GIVEN a table selected through its drag handle', () => {
+    describe.each([['Backspace'], ['Delete']])('WHEN %s is pressed', (key) => {
+      it('THEN should remove the whole table from the document', () => {
+        const editor = createEditor(TABLE_CONTENT)
+
+        selectTableViaGrip(editor)
+
+        expect(hasTable(editor)).toBe(true)
+
+        pressKey(editor, key)
+
+        const stillHasTable = hasTable(editor)
+        const remainingText = editor.state.doc.textContent
+
+        editor.destroy()
+
+        expect(stillHasTable).toBe(false)
+        expect(remainingText).toContain('Before table')
+        expect(remainingText).toContain('After table')
+      })
+
+      it('THEN should clear the stored block selection', () => {
+        const editor = createEditor(TABLE_CONTENT)
+        const storage = getDragHandleStorage(editor)
+
+        selectTableViaGrip(editor)
+        pressKey(editor, key)
+
+        const selectedBlockAfter = storage.selectedBlock
+
+        editor.destroy()
+
+        expect(selectedBlockAfter).toBeNull()
+      })
+    })
+
+    describe('WHEN the caret has moved out of the table before pressing Backspace', () => {
+      it('THEN should keep the table in the document', () => {
+        const editor = createEditor(TABLE_CONTENT)
+
+        selectTableViaGrip(editor)
+
+        // Move the caret to the paragraph before the table — this clears the
+        // stored block selection, so Backspace must not delete the table.
+        editor.commands.setTextSelection(1)
+
+        pressKey(editor, 'Backspace')
+
+        const stillHasTable = hasTable(editor)
+
+        editor.destroy()
+
+        expect(stillHasTable).toBe(true)
+      })
+    })
+  })
+
+  describe('GIVEN no table is selected through a drag handle', () => {
+    describe('WHEN Backspace is pressed on a paragraph selected via its drag handle', () => {
+      it('THEN should still delete that paragraph through the default behaviour', () => {
+        const editor = createEditor('<p>First</p><p>Second</p>')
+        const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+
+        ;(grips[0] as HTMLElement).click()
+
+        pressKey(editor, 'Backspace')
+
+        const remainingText = editor.state.doc.textContent
+
+        editor.destroy()
+
+        expect(remainingText).not.toContain('First')
+        expect(remainingText).toContain('Second')
+      })
+    })
+
+    describe('WHEN Backspace is pressed with a caret inside a table cell', () => {
+      it('THEN should keep the table in the document', () => {
+        const editor = createEditor(TABLE_CONTENT)
+        const storage = getDragHandleStorage(editor)
+
+        // Caret inside the table, but the table is not block-selected
+        selectTableViaGrip(editor)
+        storage.selectedBlock = null
+
+        pressKey(editor, 'Backspace')
+
+        const stillHasTable = hasTable(editor)
+
+        editor.destroy()
+
+        expect(stillHasTable).toBe(true)
       })
     })
   })

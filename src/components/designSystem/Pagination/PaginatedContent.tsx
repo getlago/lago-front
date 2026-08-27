@@ -2,13 +2,26 @@ import { ReactNode, useEffect, useRef } from 'react'
 
 import { Pagination } from '~/components/designSystem/Pagination/Pagination'
 import { getScrollableAncestor } from '~/components/designSystem/Pagination/utils'
-import { CollectionMetadata } from '~/generated/graphql'
+import { CollectionMetadata, InvoiceCollectionMetadata } from '~/generated/graphql'
 import { tw } from '~/styles/utils'
+
+/**
+ * What a paginated list must select for the footer to work: `currentPage`, `totalPages` and
+ * `totalCount`. `hasNextPage` and `totalCountCapped` are optional because only collections whose
+ * total can be capped server-side expose them (the invoice list); every other list omits them and
+ * keeps the exact-total behaviour.
+ */
+export type PaginationMetadata = Pick<
+  CollectionMetadata,
+  'currentPage' | 'totalPages' | 'totalCount'
+> &
+  Partial<Pick<InvoiceCollectionMetadata, 'hasNextPage' | 'totalCountCapped'>>
 
 interface PaginatedContentProps {
   /** Pagination metadata returned by the list query. The query must select `currentPage`,
-   *  `totalPages` and `totalCount` — the footer always shows "X-Y of N results". */
-  metadata?: Pick<CollectionMetadata, 'currentPage' | 'totalPages' | 'totalCount'> | null
+   *  `totalPages` and `totalCount` — the footer shows "X-Y of N results" (or "of N+ results"
+   *  when the collection reports a capped total). See `PaginationMetadata`. */
+  metadata?: PaginationMetadata | null
   /** Called with the target page when the user navigates */
   onPageChange: (page: number) => void
   /** Rows displayed per page — drives the range label and selected option */
@@ -66,13 +79,25 @@ export const PaginatedContent = ({
   // reads like a "no data" empty state even though data exists. Clamp to the last real page —
   // standard pager behaviour — but only when there IS data (a truly empty list keeps its empty
   // state). `currentPage` echoes the requested page, so this converges after one correction.
+  //
+  // A capped total voids the whole premise: `totalPages` is then a floor, so `currentPage >
+  // totalPages` says nothing about being out of range and every page past the cap — including the
+  // real last one — would be yanked back to the cap. Hence both opt-outs: `hasNextPage` for the
+  // pages that still have a successor, `totalCountCapped` for the collection as a whole (the last
+  // page reports `hasNextPage: false` while sitting past the floored `totalPages`).
+  // Accepted trade-off: a capped list no longer auto-recovers from an absurd stale `?page=999999`
+  // — it shows its empty state until the user pages back. Un-capped lists keep recovering.
   const currentPage = metadata?.currentPage
   const totalPages = metadata?.totalPages
   const totalCount = metadata?.totalCount
+  const hasNextPage = metadata?.hasNextPage
+  const totalCountCapped = metadata?.totalCountCapped
 
   useEffect(() => {
     if (
       !loading &&
+      !hasNextPage &&
+      !totalCountCapped &&
       totalCount &&
       totalCount > 0 &&
       totalPages &&
@@ -82,7 +107,7 @@ export const PaginatedContent = ({
     ) {
       onPageChange(totalPages)
     }
-  }, [loading, currentPage, totalPages, totalCount, onPageChange])
+  }, [loading, hasNextPage, totalCountCapped, currentPage, totalPages, totalCount, onPageChange])
 
   // After a page change, reposition the list so the new page isn't opened scrolled to its end
   // (e.g. paging from the bottom of a 100-row page):
@@ -134,6 +159,8 @@ export const PaginatedContent = ({
       currentPage={metadata?.currentPage ?? 1}
       totalPages={metadata?.totalPages ?? 0}
       totalCount={metadata?.totalCount ?? 0}
+      hasNextPage={hasNextPage}
+      totalCountCapped={totalCountCapped}
       pageSize={pageSize}
       onPageChange={handlePageChange}
       onPageSizeChange={onPageSizeChange}

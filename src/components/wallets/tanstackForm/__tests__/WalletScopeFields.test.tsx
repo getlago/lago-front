@@ -1,6 +1,10 @@
 import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import {
+  WALLET_SCOPE_FEE_TYPE_LABEL_KEYS,
+  WALLET_SCOPE_FEE_TYPES,
+} from '~/components/wallets/utils/walletScopeFeeTypes'
 import { FeeTypesEnum } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { render } from '~/test-utils'
@@ -121,12 +125,7 @@ describe('WalletScopeFields', () => {
     describe('WHEN all fee types are selected', () => {
       it('THEN should show the all-selected alert and disable the add button', () => {
         render(
-          <TestWrapper
-            initialValues={{
-              ...emptyScope,
-              feeTypes: [FeeTypesEnum.Charge, FeeTypesEnum.Commitment, FeeTypesEnum.Subscription],
-            }}
-          />,
+          <TestWrapper initialValues={{ ...emptyScope, feeTypes: [...WALLET_SCOPE_FEE_TYPES] }} />,
         )
 
         expect(screen.getByTestId(FEE_TYPE_ALERT_TEST_ID)).toBeInTheDocument()
@@ -186,6 +185,54 @@ describe('WalletScopeFields', () => {
 
         expect(screen.queryByTestId(WALLET_SCOPE_FEE_TYPE_COMBOBOX_TEST_ID)).not.toBeInTheDocument()
         expect(screen.getByTestId(WALLET_SCOPE_FEE_TYPE_ADD_BUTTON_TEST_ID)).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the fee-type combobox is open', () => {
+    const openFeeTypeCombobox = async (user: ReturnType<typeof userEvent.setup>): Promise<void> => {
+      await user.click(screen.getByTestId(WALLET_SCOPE_FEE_TYPE_ADD_BUTTON_TEST_ID))
+
+      const combobox = screen.getByTestId(WALLET_SCOPE_FEE_TYPE_COMBOBOX_TEST_ID)
+      const input = combobox.querySelector('input') as HTMLInputElement
+
+      await user.click(input)
+    }
+
+    describe('WHEN listing its options', () => {
+      it('THEN should offer every wallet-scope fee type, fixed charges included', async () => {
+        const user = userEvent.setup()
+
+        render(<TestWrapper />)
+
+        await openFeeTypeCombobox(user)
+
+        const options = await screen.findAllByRole('option')
+
+        expect(options).toHaveLength(WALLET_SCOPE_FEE_TYPES.length)
+        expect(
+          screen.getByText(WALLET_SCOPE_FEE_TYPE_LABEL_KEYS[FeeTypesEnum.FixedCharge]),
+        ).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN selecting the fixed-charge option', () => {
+      it('THEN should render its chip', async () => {
+        const user = userEvent.setup()
+
+        render(<TestWrapper />)
+
+        await openFeeTypeCombobox(user)
+        await user.click(
+          await screen.findByText(WALLET_SCOPE_FEE_TYPE_LABEL_KEYS[FeeTypesEnum.FixedCharge]),
+        )
+
+        const chips = await screen.findByTestId(WALLET_SCOPE_FEE_TYPE_CHIPS_TEST_ID)
+
+        expect(chips.children).toHaveLength(1)
+        expect(
+          within(chips).getByText(WALLET_SCOPE_FEE_TYPE_LABEL_KEYS[FeeTypesEnum.FixedCharge]),
+        ).toBeInTheDocument()
       })
     })
   })
