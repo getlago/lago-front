@@ -1,9 +1,6 @@
 import { gql } from '@apollo/client'
 
-import { ActivityLogsTable } from '~/components/activityLogs/ActivityLogsTable'
-import { buildLinkToActivityLog } from '~/components/activityLogs/utils'
-import { PaginatedContent } from '~/components/designSystem/Pagination'
-import { Typography } from '~/components/designSystem/Typography'
+import { ActivityLogsSection } from '~/components/activityLogs/ActivityLogsSection'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import {
   ActivityLogsTableDataFragmentDoc,
@@ -13,7 +10,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-import { useDeveloperTool } from '~/hooks/useDeveloperTool'
 import { usePermissions } from '~/hooks/usePermissions'
 
 gql`
@@ -49,7 +45,6 @@ interface ProductFilterActivityLogsProps {
 
 const ProductFilterActivityLogs = ({ productFilterId }: ProductFilterActivityLogsProps) => {
   const { translate } = useInternationalization()
-  const { openPanel: open, setUrl } = useDeveloperTool()
   const { hasPermissions } = usePermissions()
   const { isPremium } = useCurrentUser()
 
@@ -71,40 +66,14 @@ const ProductFilterActivityLogs = ({ productFilterId }: ProductFilterActivityLog
   return (
     <section className="flex flex-col gap-12">
       <section>
-        <div className="flex h-18 items-center justify-between gap-4">
-          <div className="flex flex-col">
-            <Typography variant="subhead1" color="grey700" noWrap>
-              {translate('text_1747314141347qq6rasuxisl')}
-            </Typography>
-            <Typography variant="caption" color="grey600" noWrap>
-              {translate('text_17845928288679yi8tiutrl4')}
-            </Typography>
-          </div>
-        </div>
-
-        <PaginatedContent
-          metadata={data?.activityLogs?.metadata}
+        <ActivityLogsSection
+          subtitle={translate('text_17845928288679yi8tiutrl4')}
+          activityLogs={data?.activityLogs}
           loading={loading}
-          onPageChange={(page) => fetchMore({ variables: { page } })}
-          sticky={false}
-        >
-          <ActivityLogsTable
-            containerSize={4}
-            data={data?.activityLogs?.collection ?? []}
-            error={error}
-            isLoading={loading}
-            refetch={refetch}
-            onRowActionLink={(row) => {
-              const url = buildLinkToActivityLog(row.activityId)
-
-              open()
-              setUrl(url)
-
-              // We return an empty string to avoid the default behavior of the table
-              return ''
-            }}
-          />
-        </PaginatedContent>
+          error={error}
+          refetch={refetch}
+          fetchMore={fetchMore}
+        />
       </section>
     </section>
   )
