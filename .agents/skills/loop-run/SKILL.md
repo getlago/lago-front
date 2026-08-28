@@ -119,7 +119,7 @@ Run these two steps on every way the pipeline ends — happy path (after Announc
    - proposed edit: <the concrete instruction to add/change, quoted>
    ```
 
-   Rules: proposals ONLY — NEVER edit the skill files themselves, NEVER notify the operator. They read _flywheel.md when they want, and a proposal that proves itself becomes a PR against these skills. Nothing avoidable found → append nothing (no empty entries).
+   Rules: proposals ONLY — NEVER edit the skill files themselves, NEVER notify the operator. They read _flywheel.md when they want, and the `loop-flywheel` skill is what turns the proposals that prove themselves into a PR against these skills. Nothing avoidable found → append nothing (no empty entries).
 
 ## Failure handling
 
