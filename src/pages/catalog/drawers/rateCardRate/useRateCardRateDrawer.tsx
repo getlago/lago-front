@@ -26,6 +26,7 @@ import {
   PercentageChargeFragmentDoc,
   PricingGroupKeysFragmentDoc,
   Properties,
+  PropertiesForActiveRateFragmentDoc,
   PropertiesInput,
   RateCardBillingTimingEnum,
   RateCardForRateDrawerFragment,
@@ -58,6 +59,10 @@ import { RateCardRateDrawerContent } from './RateCardRateDrawerContent'
 
 gql`
   fragment PropertiesForRateCardRate on Properties {
+    # Spread rather than re-listed: the rate-card list writes only PropertiesForActiveRate for
+    # the same normalized rate, and Apollo replaces array fields wholesale. Keeping this a
+    # strict superset means neither write can drop range fields the other one cached.
+    ...PropertiesForActiveRate
     ...StandardCharge
     ...PackageCharge
     ...PercentageCharge
@@ -124,6 +129,7 @@ gql`
     }
   }
 
+  ${PropertiesForActiveRateFragmentDoc}
   ${StandardChargeFragmentDoc}
   ${PackageChargeFragmentDoc}
   ${PercentageChargeFragmentDoc}

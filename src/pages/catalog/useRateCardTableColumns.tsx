@@ -10,7 +10,7 @@ import {
 } from '~/core/constants/tabsOptions'
 import { Link, PRODUCT_DETAILS_ROUTE, PRODUCT_FILTER_DETAILS_ROUTE } from '~/core/router'
 import {
-  PropertiesForActiveRateFragmentDoc,
+  PropertiesForRateCardRateFragmentDoc,
   RateCardForDeleteRateCardDialogFragmentDoc,
   RateCardForDrawerFragmentDoc,
   RateCardForListFragment,
@@ -45,8 +45,12 @@ gql`
     activeRate {
       id
       rateModel
+      # The rate detail page and the rates tab write the full PropertiesForRateCardRate for
+      # this same normalized rate. Apollo replaces array fields wholesale, so writing the
+      # narrower PropertiesForActiveRate here would strip the range fields they cached and
+      # drive them back to the network. The price cell still only reads the narrow subset.
       rateProperties {
-        ...PropertiesForActiveRate
+        ...PropertiesForRateCardRate
       }
       minAmountCents
     }
@@ -54,7 +58,7 @@ gql`
     ...RateCardForDeleteRateCardDialog
   }
 
-  ${PropertiesForActiveRateFragmentDoc}
+  ${PropertiesForRateCardRateFragmentDoc}
   ${RateCardForDrawerFragmentDoc}
   ${RateCardForDeleteRateCardDialogFragmentDoc}
 `

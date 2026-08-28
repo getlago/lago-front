@@ -8,7 +8,6 @@ import { rateCardRateStatusMapping } from '~/core/constants/statusRateCardRateMa
 import { intlFormatDateTime } from '~/core/timezone'
 import {
   CurrencyEnum,
-  PropertiesForActiveRateFragmentDoc,
   RateCardRateForDeleteRateCardRateDialogFragmentDoc,
   RateCardRateForDrawerFragmentDoc,
   RateCardRateForListFragment,
@@ -22,25 +21,19 @@ import { RATE_CARD_RATE_EFFECTIVE_DATE_LABEL_KEY } from './drawers/rateCardRate/
 import { formatActiveRate } from './utils/formatActiveRate'
 
 // Co-located with the columns hook (its only consumer beyond the actions hook, which needs
-// the fields already carried by the two spread fragments). `PropertiesForActiveRate` is the
-// same fragment the rate-card list's price cell reads, so the two cells cannot drift.
+// the fields already carried by the two spread fragments). Only `createdAt` is listed
+// directly: every other field the cells read - code, status, effectiveFrom, rateModel,
+// minAmountCents and the pricing properties - already comes from the spread
+// `RateCardRateForDrawer`, and re-declaring them would leave two competing definitions of
+// the same fields in one document.
 gql`
   fragment RateCardRateForList on RateCardRate {
     id
-    code
-    status
-    effectiveFrom
     createdAt
-    rateModel
-    minAmountCents
-    rateProperties {
-      ...PropertiesForActiveRate
-    }
     ...RateCardRateForDrawer
     ...RateCardRateForDeleteRateCardRateDialog
   }
 
-  ${PropertiesForActiveRateFragmentDoc}
   ${RateCardRateForDrawerFragmentDoc}
   ${RateCardRateForDeleteRateCardRateDialogFragmentDoc}
 `
