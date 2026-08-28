@@ -1,11 +1,10 @@
 import { gql } from '@apollo/client'
 import { generatePath } from 'react-router-dom'
 
-import { Button } from '~/components/designSystem/Button'
 import { Status } from '~/components/designSystem/Status'
-import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
+import { PageSectionTitle } from '~/components/layouts/Section'
 import { PlanDetailsChargeWrapperSwitch } from '~/components/plans/details/PlanDetailsChargeWrapperSwitch'
 import { chargeModelLookupTranslation } from '~/core/constants/form'
 import { rateCardRateStatusMapping } from '~/core/constants/statusRateCardRateMapping'
@@ -165,25 +164,19 @@ const RateCardRateDetailsOverview = ({
 
   return (
     <section className="flex flex-col gap-4">
-      <div className="flex h-18 items-center justify-between gap-4">
-        <div className="flex flex-col">
-          <Typography variant="subhead1" color="grey700" noWrap>
-            {translate(RATE_CARD_RATES_SECTION_TITLE_KEY)}
-          </Typography>
-          <Typography variant="caption" color="grey600" noWrap>
-            {translate(RATE_CARD_RATE_DRAWER_DESCRIPTION_KEY)}
-          </Typography>
-        </div>
-        {!!onEdit && hasPermissions(['rateCardsUpdate']) && (
-          <Button
-            variant="inline"
-            data-test={RATE_CARD_RATE_DETAILS_OVERVIEW_EDIT_TEST_ID}
-            onClick={onEdit}
-          >
-            {translate(RATE_CARD_RATE_DRAWER_TITLE_EDIT_KEY)}
-          </Button>
-        )}
-      </div>
+      <PageSectionTitle
+        title={translate(RATE_CARD_RATES_SECTION_TITLE_KEY)}
+        subtitle={translate(RATE_CARD_RATE_DRAWER_DESCRIPTION_KEY)}
+        action={
+          !!onEdit && hasPermissions(['rateCardsUpdate'])
+            ? {
+                title: translate(RATE_CARD_RATE_DRAWER_TITLE_EDIT_KEY),
+                dataTest: RATE_CARD_RATE_DETAILS_OVERVIEW_EDIT_TEST_ID,
+                onClick: onEdit,
+              }
+            : undefined
+        }
+      />
 
       <DetailsPage.InfoGrid
         grid={[

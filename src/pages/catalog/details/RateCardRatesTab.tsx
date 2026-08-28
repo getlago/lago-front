@@ -1,9 +1,8 @@
 import { gql } from '@apollo/client'
 
-import { Button } from '~/components/designSystem/Button'
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Table, TablePlaceholder } from '~/components/designSystem/Table/Table'
-import { Typography } from '~/components/designSystem/Typography'
+import { PageSectionTitle } from '~/components/layouts/Section'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import {
   RateCardForRateDrawerFragment,
@@ -106,25 +105,19 @@ const RateCardRatesTab = ({ rateCardId, rateCard }: RateCardRatesTabProps) => {
 
   return (
     <section data-test={RATE_CARD_RATES_TAB_TEST_ID}>
-      <div className="flex h-18 items-center justify-between gap-4">
-        <div className="flex flex-col">
-          <Typography variant="subhead1" color="grey700" noWrap>
-            {translate(RATE_CARD_RATES_SECTION_TITLE_KEY)}
-          </Typography>
-          <Typography variant="caption" color="grey600" noWrap>
-            {translate(RATE_CARD_RATE_DRAWER_DESCRIPTION_KEY)}
-          </Typography>
-        </div>
-        {canCreateRates && !!rateCard && (
-          <Button
-            variant="inline"
-            data-test={RATE_CARD_RATES_CREATE_TEST_ID}
-            onClick={() => openRateDrawer({ rateCard })}
-          >
-            {translate(RATE_CARD_RATE_DRAWER_TITLE_CREATE_KEY)}
-          </Button>
-        )}
-      </div>
+      <PageSectionTitle
+        title={translate(RATE_CARD_RATES_SECTION_TITLE_KEY)}
+        subtitle={translate(RATE_CARD_RATE_DRAWER_DESCRIPTION_KEY)}
+        action={
+          canCreateRates && !!rateCard
+            ? {
+                title: translate(RATE_CARD_RATE_DRAWER_TITLE_CREATE_KEY),
+                dataTest: RATE_CARD_RATES_CREATE_TEST_ID,
+                onClick: () => openRateDrawer({ rateCard }),
+              }
+            : undefined
+        }
+      />
 
       <PaginatedContent
         metadata={data?.rateCardRates?.metadata}

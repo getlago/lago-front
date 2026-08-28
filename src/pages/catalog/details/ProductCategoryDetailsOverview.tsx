@@ -1,10 +1,9 @@
 import { gql } from '@apollo/client'
 import { useParams } from 'react-router-dom'
 
-import { Button } from '~/components/designSystem/Button'
-import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
+import { PageSectionTitle } from '~/components/layouts/Section'
 import {
   LagoApiError,
   ProductCategoryForProductCategoryDrawerFragmentDoc,
@@ -56,25 +55,19 @@ export const ProductCategoryDetailsOverview = () => {
 
   return (
     <section>
-      <div className="flex h-18 items-center justify-between gap-4">
-        <div className="flex flex-col">
-          <Typography variant="subhead1" color="grey700" noWrap>
-            {translate('text_17836270312826gyudi4ayy2')}
-          </Typography>
-          <Typography variant="caption" color="grey600" noWrap>
-            {translate('text_1783627031283826817cnqcb')}
-          </Typography>
-        </div>
-        {hasPermissions(['productCategoriesUpdate']) && (
-          <Button
-            variant="inline"
-            data-test={PRODUCT_OVERVIEW_EDIT_TEST_ID}
-            onClick={() => productCategory && openEditProductCategoryDrawer(productCategory)}
-          >
-            {translate('text_625fd39a15394c0117e7d792')}
-          </Button>
-        )}
-      </div>
+      <PageSectionTitle
+        title={translate('text_17836270312826gyudi4ayy2')}
+        subtitle={translate('text_1783627031283826817cnqcb')}
+        action={
+          hasPermissions(['productCategoriesUpdate'])
+            ? {
+                title: translate('text_625fd39a15394c0117e7d792'),
+                dataTest: PRODUCT_OVERVIEW_EDIT_TEST_ID,
+                onClick: () => productCategory && openEditProductCategoryDrawer(productCategory),
+              }
+            : undefined
+        }
+      />
 
       <div className="flex flex-col gap-4">
         <DetailsPage.InfoGrid

@@ -1,10 +1,9 @@
 import { gql } from '@apollo/client'
 import { generatePath } from 'react-router-dom'
 
-import { Button } from '~/components/designSystem/Button'
-import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
+import { PageSectionTitle } from '~/components/layouts/Section'
 import {
   ProductDetailsTabsOptionsEnum,
   ProductFilterDetailsTabsOptionsEnum,
@@ -167,25 +166,19 @@ const RateCardDetailsOverview = ({ rateCardId }: { rateCardId: string }) => {
 
   return (
     <section>
-      <div className="flex h-18 items-center justify-between gap-4">
-        <div className="flex flex-col">
-          <Typography variant="subhead1" color="grey700" noWrap>
-            {translate('text_628cf761cbe6820138b8f2e4')}
-          </Typography>
-          <Typography variant="caption" color="grey600" noWrap>
-            {translate('text_178492522781766xwbos8bso')}
-          </Typography>
-        </div>
-        {hasPermissions(['rateCardsUpdate']) && (
-          <Button
-            variant="inline"
-            data-test={RATE_CARD_DETAILS_OVERVIEW_EDIT_TEST_ID}
-            onClick={() => openEditRateCardDrawer({ rateCard })}
-          >
-            {translate(RATE_CARD_DRAWER_TITLE_EDIT_KEY)}
-          </Button>
-        )}
-      </div>
+      <PageSectionTitle
+        title={translate('text_628cf761cbe6820138b8f2e4')}
+        subtitle={translate('text_178492522781766xwbos8bso')}
+        action={
+          hasPermissions(['rateCardsUpdate'])
+            ? {
+                title: translate(RATE_CARD_DRAWER_TITLE_EDIT_KEY),
+                dataTest: RATE_CARD_DETAILS_OVERVIEW_EDIT_TEST_ID,
+                onClick: () => openEditRateCardDrawer({ rateCard }),
+              }
+            : undefined
+        }
+      />
 
       <div className="flex flex-col gap-4">
         <DetailsPage.InfoGrid
