@@ -24,6 +24,7 @@ import {
 configure({ testIdAttribute: 'data-test' })
 
 const CODE_PROBE_TEST_ID = 'code-probe'
+const DIRTY_PROBE_TEST_ID = 'dirty-probe'
 const SET_DATE_BUTTON_TEST_ID = 'set-date'
 const SET_SECOND_DATE_BUTTON_TEST_ID = 'set-second-date'
 const CHANGE_MODEL_BUTTON_TEST_ID = 'change-model'
@@ -146,6 +147,9 @@ const Host = ({
       <form.Subscribe selector={(state) => state.values.code}>
         {(code) => <span data-test={CODE_PROBE_TEST_ID}>{code}</span>}
       </form.Subscribe>
+      <form.Subscribe selector={(state) => state.isDirty}>
+        {(isDirty) => <span data-test={DIRTY_PROBE_TEST_ID}>{String(isDirty)}</span>}
+      </form.Subscribe>
       <RateCardRateDrawerContent
         form={form}
         rateCard={rateCard}
@@ -228,6 +232,31 @@ describe('RateCardRateDrawerContent', () => {
         expect(
           (mockChargeWrapperSwitchProps.localCharge as { chargeModel: string }).chargeModel,
         ).toBe(RateCardRateModelEnum.Package)
+      })
+    })
+
+    describe('WHEN the form already carried unsaved input', () => {
+      // The drawer's unsaved-changes prompt reads form.state.isDirty. Resetting the whole
+      // form on a model switch cleared it, so closing afterwards discarded the input with
+      // no confirmation.
+      it('THEN keeps the form dirty so the unsaved-changes prompt still fires', async () => {
+        render(<Host />)
+
+        await userEvent.click(screen.getByTestId(SET_DATE_BUTTON_TEST_ID))
+        expect(screen.getByTestId(DIRTY_PROBE_TEST_ID)).toHaveTextContent('true')
+
+        await userEvent.click(screen.getByTestId(CHANGE_MODEL_BUTTON_TEST_ID))
+
+        expect(screen.getByTestId(DIRTY_PROBE_TEST_ID)).toHaveTextContent('true')
+      })
+
+      it('THEN keeps the values the user already entered', async () => {
+        render(<Host />)
+
+        await userEvent.click(screen.getByTestId(SET_DATE_BUTTON_TEST_ID))
+        await userEvent.click(screen.getByTestId(CHANGE_MODEL_BUTTON_TEST_ID))
+
+        expect(screen.getByTestId(CODE_PROBE_TEST_ID)).toHaveTextContent('rate_01_24_2026')
       })
     })
 

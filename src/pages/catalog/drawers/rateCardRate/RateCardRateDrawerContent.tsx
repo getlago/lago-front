@@ -211,16 +211,18 @@ const RateCardRateDrawerFormSections = withForm({
         return
       }
 
-      // form.reset (not setFieldValue) so the previous model's field meta and errors go away
-      // with its properties.
-      form.reset(
-        {
-          ...form.state.values,
-          rateModel: nextRateModel,
-          properties: getPropertyShape({}),
-        },
-        { keepDefaultValues: true },
-      )
+      // Clear the outgoing model's property field meta and errors, which would otherwise
+      // linger on paths the new model never mounts and keep the form invalid. Deliberately
+      // not `form.reset`: that resets EVERY field's meta, so `form.state.isDirty` flips back
+      // to false and the drawer's unsaved-changes prompt stops firing, letting a close
+      // discard the user's input silently. Nested property paths carry no default value, so
+      // `resetField` only clears their meta.
+      Object.keys(form.state.fieldMeta)
+        .filter((field) => field === 'properties' || field.startsWith('properties.'))
+        .forEach((field) => form.resetField(field as keyof typeof form.state.values))
+
+      form.setFieldValue('rateModel', nextRateModel)
+      form.setFieldValue('properties', getPropertyShape({}))
     }
 
     return (
