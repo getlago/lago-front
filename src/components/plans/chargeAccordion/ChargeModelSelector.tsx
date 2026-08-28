@@ -7,7 +7,9 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 type ChargeModelSelectorProps = {
   label: string
   disabled: boolean | undefined
-  localCharge: LocalUsageChargeInput | LocalFixedChargeInput
+  // Only the model is read, so callers that own no full charge (a rate card rate) can pass the
+  // single field instead of faking one.
+  localCharge: Pick<LocalUsageChargeInput | LocalFixedChargeInput, 'chargeModel'>
   chargeModelComboboxData: BasicComboBoxData[]
   handleUpdate: (name: string, value: unknown) => void
   alreadyUsedChargeAlertMessage?: string

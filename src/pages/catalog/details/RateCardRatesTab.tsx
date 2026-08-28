@@ -44,18 +44,13 @@ gql`
 export const RATE_CARD_RATES_TAB_TEST_ID = 'rate-card-rates-tab'
 export const RATE_CARD_RATES_CREATE_TEST_ID = 'rate-card-rates-create'
 
-// New translation keys are exported as named constants (feature convention) so tests and
-// siblings reference them instead of duplicating the raw ids.
 export const RATE_CARD_RATES_EMPTY_TITLE_KEY = 'text_1787737220228wjwpgmwu8fv'
 export const RATE_CARD_RATES_EMPTY_SUBTITLE_KEY = 'text_1787737220228bjix2qjx4rz'
 
 type RateCardRatesTabProps = {
   rateCardId: string
-  /**
-   * Undefined until the parent card query resolves. The rates query only needs the id, so it
-   * runs in parallel with it rather than behind it; the card gates the create CTA and the row
-   * write actions, which cannot be decided without it.
-   */
+  // Undefined until the parent card query resolves: the rates query only needs the id, so the
+  // two run in parallel. The card gates the create CTA and the row write actions.
   rateCard?: RateCardForRateDrawerFragment | null
 }
 

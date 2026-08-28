@@ -45,10 +45,8 @@ gql`
     activeRate {
       id
       rateModel
-      # The rate detail page and the rates tab write the full PropertiesForRateCardRate for
-      # this same normalized rate. Apollo replaces array fields wholesale, so writing the
-      # narrower PropertiesForActiveRate here would strip the range fields they cached and
-      # drive them back to the network. The price cell still only reads the narrow subset.
+      # Superset on purpose: Apollo replaces array fields wholesale, so the narrower
+      # PropertiesForActiveRate would strip range fields the rate pages cached.
       rateProperties {
         ...PropertiesForRateCardRate
       }

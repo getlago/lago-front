@@ -25,8 +25,6 @@ import {
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
 import {
-  ChargeModelEnum,
-  Properties,
   RateCardBillingTimingEnum,
   RateCardForRateDetailsFragment,
   RateCardRateForDetailsFragment,
@@ -45,6 +43,7 @@ import {
   RATE_CARD_RATE_MODEL_LABEL_KEY,
   RATE_CARD_RATES_SECTION_TITLE_KEY,
 } from '../drawers/rateCardRate/constants'
+import { toChargeModel } from '../drawers/rateCardRate/utils'
 
 gql`
   fragment RateCardForRateDetails on RateCard {
@@ -73,8 +72,6 @@ export const RATE_CARD_RATE_DETAILS_OVERVIEW_EDIT_TEST_ID = 'rate-card-rate-deta
 export const RATE_CARD_RATE_DETAILS_OVERVIEW_STATUS_TEST_ID =
   'rate-card-rate-details-overview-status'
 
-// New translation keys are exported as named constants (feature convention) so tests and
-// siblings reference them instead of duplicating the raw ids.
 export const RATE_CARD_RATE_DETAILS_PRODUCT_CATEGORY_LABEL_KEY = 'text_17877372202296ejgkqky70w'
 export const RATE_CARD_RATE_DETAILS_RATE_CARD_LABEL_KEY = 'text_1787737220228091rkbqj1vl'
 export const RATE_CARD_RATE_DETAILS_CODE_LABEL_KEY = 'text_1787737220228i16tnwmeue3'
@@ -241,10 +238,8 @@ const RateCardRateDetailsOverview = ({
 
       <PlanDetailsChargeWrapperSwitch
         currency={rateCard.currency}
-        // The two enums are distinct GraphQL types with identical string members, and the
-        // switch keys off those strings.
-        chargeModel={rate.rateModel as unknown as ChargeModelEnum}
-        values={rate.rateProperties as unknown as Properties}
+        chargeModel={toChargeModel(rate.rateModel)}
+        values={rate.rateProperties}
         chargeAppliedPricingUnit={
           pricingUnitShortName ? { pricingUnit: { shortName: pricingUnitShortName } } : undefined
         }

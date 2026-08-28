@@ -11,6 +11,7 @@ import { RateCardDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { applyExistingCodeError } from '~/core/form/existingCodeError'
 import { RATE_CARD_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import { prependOrgSlug } from '~/core/router/utils/prependOrgSlug'
+import { escapeDoubleQuotes } from '~/core/utils/escapeDoubleQuotes'
 import {
   LagoApiError,
   RateCardBillingTimingEnum,
@@ -37,8 +38,6 @@ import {
   RateCardDrawerContent,
   type RateCardProductSeed,
 } from './RateCardDrawerContent'
-
-import { escapeDoubleQuotes } from '../../utils/escapeDoubleQuotes'
 
 gql`
   fragment RateCardForDrawer on RateCard {

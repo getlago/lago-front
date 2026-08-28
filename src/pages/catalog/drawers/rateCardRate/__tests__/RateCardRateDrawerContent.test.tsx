@@ -1,4 +1,4 @@
-import { configure, render, screen } from '@testing-library/react'
+import { act, configure, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import {
@@ -25,6 +25,7 @@ configure({ testIdAttribute: 'data-test' })
 
 const CODE_PROBE_TEST_ID = 'code-probe'
 const DIRTY_PROBE_TEST_ID = 'dirty-probe'
+const CUSTOM_PROPERTIES_PROBE_TEST_ID = 'custom-properties-probe'
 const SET_DATE_BUTTON_TEST_ID = 'set-date'
 const SET_SECOND_DATE_BUTTON_TEST_ID = 'set-second-date'
 const CHANGE_MODEL_BUTTON_TEST_ID = 'change-model'
@@ -41,9 +42,25 @@ type ChargeModelUpdater = (field: string, value: unknown) => void
 
 let mockHandleChargeModelUpdate: ChargeModelUpdater | undefined
 let mockSpendingMinimumProps: Record<string, unknown> = {}
+let mockCustomChargeOnSave: ((customProperties: string) => void) | undefined
+const mockOpenCustomChargeDrawer = jest.fn()
+
+jest.mock('~/components/plans/drawers/common/useCustomChargeDrawer', () => ({
+  useCustomChargeDrawer: ({ onSave }: { onSave: (customProperties: string) => void }) => {
+    mockCustomChargeOnSave = onSave
+
+    return { openCustomChargeDrawer: mockOpenCustomChargeDrawer }
+  },
+}))
 
 jest.mock('~/components/dialogs/PremiumWarningDialog', () => ({
   usePremiumWarningDialog: () => ({ open: mockOpenPremiumWarningDialog }),
+}))
+
+// The drawer stack uses `import.meta`, which jest cannot parse.
+jest.mock('~/components/drawers/useDrawer', () => ({
+  useDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+  useFormDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
 }))
 
 jest.mock('~/hooks/useCurrentUser', () => ({
@@ -150,6 +167,11 @@ const Host = ({
       <form.Subscribe selector={(state) => state.isDirty}>
         {(isDirty) => <span data-test={DIRTY_PROBE_TEST_ID}>{String(isDirty)}</span>}
       </form.Subscribe>
+      <form.Subscribe selector={(state) => state.values.properties?.customProperties}>
+        {(customProperties) => (
+          <span data-test={CUSTOM_PROPERTIES_PROBE_TEST_ID}>{String(customProperties)}</span>
+        )}
+      </form.Subscribe>
       <RateCardRateDrawerContent
         form={form}
         rateCard={rateCard}
@@ -174,6 +196,7 @@ describe('RateCardRateDrawerContent', () => {
     mockChargeWrapperSwitchProps = {}
     mockHandleChargeModelUpdate = undefined
     mockSpendingMinimumProps = {}
+    mockCustomChargeOnSave = undefined
   })
 
   describe('GIVEN a rate is being created', () => {
@@ -419,6 +442,32 @@ describe('RateCardRateDrawerContent', () => {
         expect(
           (mockSpendingMinimumProps.localCharge as { minAmountCents: string }).minAmountCents,
         ).toBe('')
+      })
+    })
+  })
+
+  describe('GIVEN the Custom rate model is selected', () => {
+    describe('WHEN the drawer body renders', () => {
+      // `CustomCharge` renders its JSON editor with no `onChange`, so without this callback
+      // the typed JSON never reaches the form and a Custom rate can never be saved.
+      it('THEN ChargeWrapperSwitch receives the expand callback that opens the editor', () => {
+        render(<Host />)
+
+        expect(mockChargeWrapperSwitchProps.onExpandCustomCharge).toBe(mockOpenCustomChargeDrawer)
+      })
+    })
+
+    describe('WHEN the custom charge sub-drawer saves', () => {
+      it('THEN the edited JSON lands on properties.customProperties', async () => {
+        render(<Host />)
+
+        await act(async () => {
+          mockCustomChargeOnSave?.('{"foo":"bar"}')
+        })
+
+        expect(screen.getByTestId(CUSTOM_PROPERTIES_PROBE_TEST_ID)).toHaveTextContent(
+          '{"foo":"bar"}',
+        )
       })
     })
   })

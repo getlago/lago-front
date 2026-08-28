@@ -14,13 +14,12 @@ import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { ChargeModelSelector } from '~/components/plans/chargeAccordion/ChargeModelSelector'
 import { ChargeWrapperSwitch } from '~/components/plans/chargeAccordion/ChargeWrapperSwitch'
 import { SpendingMinimumOptionSection } from '~/components/plans/chargeAccordion/SpendingMinimumOptionSection'
-import { LocalUsageChargeInput } from '~/components/plans/types'
+import { useCustomChargeDrawer } from '~/components/plans/drawers/common/useCustomChargeDrawer'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import getPropertyShape from '~/core/serializers/getPropertyShape'
 import { getTimezoneConfig } from '~/core/timezone'
 import {
   AggregationTypeEnum,
-  ChargeModelEnum,
   CurrencyEnum,
   ProductTypeEnum,
   RateCardBillingTimingEnum,
@@ -36,9 +35,6 @@ import { tw } from '~/styles/utils'
 
 import {
   BILLING_INTERVAL_UNIT_TRANSLATION_KEY,
-  buildRateCodeFromEffectiveDate,
-  formatEffectiveDate,
-  isEffectiveFromAppendable,
   RATE_CARD_RATE_BILLING_INTERVAL_DESCRIPTION_KEY,
   RATE_CARD_RATE_BILLING_INTERVAL_LABEL_KEY,
   RATE_CARD_RATE_DRAWER_DESCRIPTION_KEY,
@@ -48,9 +44,13 @@ import {
   RATE_CARD_RATE_FORM_DEFAULTS,
   RATE_CARD_RATE_MODEL_LABEL_KEY,
 } from './constants'
+import {
+  buildRateCodeFromEffectiveDate,
+  formatEffectiveDate,
+  isEffectiveFromAppendable,
+  toChargeModel,
+} from './utils'
 
-// New translation keys are exported as named constants (feature convention) so tests and
-// siblings reference them instead of duplicating the raw ids.
 export const RATE_CARD_RATE_SETTINGS_SECTION_TITLE_KEY = 'text_1787737220227io0cqa5y5jy'
 export const RATE_CARD_RATE_SPENDING_MINIMUM_DESCRIPTION_KEY = 'text_1787737220228b7rp4u9zxp6'
 
@@ -74,25 +74,12 @@ export type RateCardRateDrawerRateCard = {
 type RateCardRateDrawerSectionsExtraProps = {
   rateCard: RateCardRateDrawerRateCard
   isEdit: boolean
-  /**
-   * An active rate prices live subscriptions: the backend rejects any change to its effective
-   * date, rate model, billing interval or spending minimum - even an unchanged one
-   * (`RateCardRates::UpdateService::FROZEN_ON_ACTIVE`) - and the design freezes its code too.
-   * Only the pricing values stay editable.
-   */
   isActiveRate: boolean
-  /**
-   * The code is the rate identity: the backend refuses to change it once the parent card is
-   * attached to a plan or a subscription (`RateCardRates::UpdateService`).
-   */
   isCodeLocked: boolean
-  /**
-   * `effectiveFrom` of the rate currently in effect - a new date must land strictly after it.
-   * Read through a getter because `children` is captured once at open() while the boundary
-   * moves whenever a "create more" save produces an already-effective rate.
-   */
+  // A getter, not a value: `children` is captured once at open() while the boundary moves
+  // whenever a "create more" save produces an already-effective rate.
   getEffectiveFromBoundary: () => string | null
-  /** Captured at open time so clearing the input does not collapse the section mid-edit. */
+  // Captured at open time so clearing the input does not collapse the section mid-edit.
   initialMinAmountCents: string
 }
 
@@ -189,15 +176,18 @@ const RateCardRateDrawerFormSections = withForm({
       })
     }, [effectiveFrom, effectiveFromBoundary, translate])
 
-    // ChargeModelSelector / ChargeWrapperSwitch are bound to the charge-world shape; a rate
-    // only carries the model, so adapt it into a synthetic local charge for them.
-    const localCharge = {
-      chargeModel: rateModel as unknown as ChargeModelEnum,
-    } as LocalUsageChargeInput
-    const spendingMinimumLocalCharge = { minAmountCents } as unknown as LocalUsageChargeInput
-    const spendingMinimumInitialCharge = {
-      minAmountCents: initialMinAmountCents,
-    } as unknown as LocalUsageChargeInput
+    // The charge components each read a single field off `localCharge`, so a rate - which owns
+    // no charge - passes just that field.
+    const localCharge = { chargeModel: toChargeModel(rateModel) }
+    const spendingMinimumLocalCharge = { minAmountCents }
+    const spendingMinimumInitialCharge = { minAmountCents: initialMinAmountCents }
+
+    // Without this the Custom rate model renders an editable JSON editor whose value never
+    // reaches the form, so a Custom rate could never be saved.
+    const { openCustomChargeDrawer } = useCustomChargeDrawer({
+      onSave: (customProperties) =>
+        form.setFieldValue('properties.customProperties', customProperties),
+    })
 
     const handleRateModelUpdate = (name: string, value: unknown) => {
       if (name !== 'chargeModel') return
@@ -387,6 +377,7 @@ const RateCardRateDrawerFormSections = withForm({
             form={form}
             localCharge={localCharge}
             propertyCursor="properties"
+            onExpandCustomCharge={openCustomChargeDrawer}
             showPresentationGroupKeys={false}
           />
         </CenteredPage.PageSection>

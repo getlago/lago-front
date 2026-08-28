@@ -10,8 +10,6 @@ import { usePermissions } from '~/hooks/usePermissions'
 
 import { useDeleteRateCardRateDialog } from './dialogs/useDeleteRateCardRateDialog'
 import {
-  isRateCardRateDeletable,
-  isRateCardRateEditable,
   RATE_CARD_RATE_DELETE_ACTION_KEY,
   RATE_CARD_RATE_DRAWER_TITLE_EDIT_KEY,
   RATE_CARD_RATE_VIEW_ACTION_KEY,
@@ -20,6 +18,7 @@ import {
   OpenRateCardRateDrawerArgs,
   useRateCardRateDrawer,
 } from './drawers/rateCardRate/useRateCardRateDrawer'
+import { isRateCardRateDeletable, isRateCardRateEditable } from './drawers/rateCardRate/utils'
 
 export const buildRateCardRateDetailsPath = ({
   rateCardId,
@@ -36,11 +35,8 @@ export const buildRateCardRateDetailsPath = ({
 
 type UseRateCardRateTableActionsProps = {
   rateCardId: string
-  /**
-   * Undefined while the parent card query is still in flight - the rows can already be listed
-   * by then, and every write action needs the card to know what the backend would accept, so
-   * they only appear once it lands.
-   */
+  // Undefined while the parent card query is still in flight; every write action needs the
+  // card to know what the backend would accept, so they only appear once it lands.
   rateCard?: RateCardForRateDrawerFragment | null
 }
 
@@ -48,10 +44,7 @@ type UseRateCardRateTableActionsReturn = {
   actionColumn: ActionColumn<RateCardRateForListFragment>
   actionColumnTooltip: (rate: RateCardRateForListFragment) => string
   getRowActionLink: (rate: { id: string }) => string
-  /**
-   * The drawer instance this hook already owns, so the tab's create CTA shares one form with
-   * the row Edit action instead of mounting a second one.
-   */
+  // Re-exposed so the tab's create CTA shares this hook's drawer instead of mounting a second.
   openRateDrawer: (args: OpenRateCardRateDrawerArgs) => void
 }
 

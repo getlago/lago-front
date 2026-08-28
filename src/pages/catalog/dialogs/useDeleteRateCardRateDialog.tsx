@@ -43,8 +43,6 @@ export const useDeleteRateCardRateDialog = (): UseDeleteRateCardRateDialogReturn
   const { translate } = useInternationalization()
   const client = useApolloClient()
 
-  // Eviction below drops the row, but the counts it cannot reach - the list metadata's
-  // `totalCount` and the card's `ratesCount` - come from the server.
   const [destroyRateCardRate] = useDestroyRateCardRateMutation({
     refetchQueries: RATE_CARD_RATE_DEPENDENT_QUERIES,
   })
@@ -68,10 +66,8 @@ export const useDeleteRateCardRateDialog = (): UseDeleteRateCardRateDialogReturn
         // A backend rejection resolves without data (errorPolicy 'all'); the global error
         // link surfaces it as an error toast.
         if (destroyedId) {
-          // Alongside the refetch, not instead of it: eviction drops the deleted entity and
-          // its row from the cached list pages straight away, so a still-mounted rate
-          // details query re-reads nothing rather than a record the server already removed,
-          // and the rates tab does not paint a stale row while the refetch is in flight.
+          // Evicting alongside the refetch, not instead of it: it drops the row immediately so
+          // nothing stale is painted, while the refetch brings back the server-side counts.
           evictFromCache(client, {
             id: destroyedId,
             __typename: 'RateCardRate',

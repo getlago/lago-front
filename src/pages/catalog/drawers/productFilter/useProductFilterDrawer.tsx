@@ -11,6 +11,7 @@ import { ProductFilterDetailsTabsOptionsEnum } from '~/core/constants/tabsOption
 import { applyExistingCodeError } from '~/core/form/existingCodeError'
 import { PRODUCT_FILTER_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import { prependOrgSlug } from '~/core/router/utils/prependOrgSlug'
+import { escapeDoubleQuotes } from '~/core/utils/escapeDoubleQuotes'
 import {
   LagoApiError,
   ProductFilterForDrawerFragment,
@@ -32,8 +33,6 @@ import {
   ProductFilterDrawerContent,
   SelectableBillableMetricFilter,
 } from './ProductFilterDrawerContent'
-
-import { escapeDoubleQuotes } from '../../utils/escapeDoubleQuotes'
 
 gql`
   fragment ProductFilterForDrawer on ProductFilter {

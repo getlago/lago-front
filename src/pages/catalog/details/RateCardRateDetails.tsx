@@ -38,12 +38,11 @@ import RateCardRateDetailsOverview from './RateCardRateDetailsOverview'
 
 import { useDeleteRateCardRateDialog } from '../dialogs/useDeleteRateCardRateDialog'
 import {
-  isRateCardRateDeletable,
-  isRateCardRateEditable,
   RATE_CARD_RATE_DELETE_ACTION_KEY,
   RATE_CARD_RATE_DRAWER_TITLE_EDIT_KEY,
 } from '../drawers/rateCardRate/constants'
 import { useRateCardRateDrawer } from '../drawers/rateCardRate/useRateCardRateDrawer'
+import { isRateCardRateDeletable, isRateCardRateEditable } from '../drawers/rateCardRate/utils'
 
 gql`
   fragment RateCardRateForDetails on RateCardRate {
@@ -74,7 +73,6 @@ export const RATE_CARD_RATE_DETAILS_ACTIONS_TEST_ID = 'rate-card-rate-details-ac
 export const RATE_CARD_RATE_DETAILS_EDIT_TEST_ID = 'rate-card-rate-details-edit'
 export const RATE_CARD_RATE_DETAILS_DELETE_TEST_ID = 'rate-card-rate-details-delete'
 
-// New translation keys are exported as named constants (feature convention).
 /** The query selects both card fragments, so the snapshot builder can read either half. */
 type RateCardForRateDetailsAndDrawerFragment = RateCardForRateDetailsFragment &
   RateCardForRateDrawerFragment
@@ -236,7 +234,7 @@ const RateCardRateDetails = () => {
             }),
             // No table yet: activity logs are emitted against the parent rate card, and
             // `ResourceTypeEnum` has no rate member yet, so there is nothing to scope to this
-            // rate. The tab says so rather than showing a blank panel. Wired up in BIL-594.
+            // rate. The tab says so rather than showing a blank panel.
             content: (
               <DetailsPage.Container className="pt-6">
                 <section>

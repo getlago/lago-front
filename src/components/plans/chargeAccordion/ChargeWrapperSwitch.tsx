@@ -22,7 +22,9 @@ interface ChargeWrapperSwitchProps {
   currency: CurrencyEnum
   disabled?: boolean
   form: AnyFormApi
-  localCharge: LocalFixedChargeInput | LocalUsageChargeInput
+  // Only the model is read, so callers that own no full charge (a rate card rate) can pass the
+  // single field instead of faking one.
+  localCharge: Pick<LocalFixedChargeInput | LocalUsageChargeInput, 'chargeModel'>
   propertyCursor: string
   onExpandCustomCharge?: (currentValue: string | undefined) => void
   // Off for the surfaces that cannot own presentation group keys: a charge filter

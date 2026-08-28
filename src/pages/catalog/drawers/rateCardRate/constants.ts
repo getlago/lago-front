@@ -1,21 +1,8 @@
-import { DateTime } from 'luxon'
-import { z } from 'zod'
-
-import { AnyChargeModel } from '~/core/constants/form'
 import getPropertyShape from '~/core/serializers/getPropertyShape'
-import { intlFormatDateTime } from '~/core/timezone'
-import {
-  PropertiesZodInput,
-  validateChargeProperties,
-} from '~/formValidation/chargePropertiesSchema'
 import {
   PropertiesInput,
-  RateCardForRateDrawerFragment,
   RateCardRateBillingIntervalUnitEnum,
-  RateCardRateForDrawerFragment,
   RateCardRateModelEnum,
-  RateCardRateStatusEnum,
-  TimezoneEnum,
 } from '~/generated/graphql'
 
 export const RATE_CARD_RATE_FORM_ID = 'rateCardRateForm'
@@ -25,8 +12,6 @@ export const RATE_CARD_RATE_FORM_SUBMIT_TEST_ID = 'rate-card-rate-form-submit'
 // Reused from other forms (`pnpm translations:add` only for genuinely new copy).
 export const VALUE_REQUIRED_KEY = 'text_624ea7c29103fd010732ab7d' // "Value is mandatory to move forward"
 
-// New translation keys are exported as named constants (feature convention) so tests
-// and siblings reference them instead of duplicating the raw ids.
 export const RATE_CARD_RATE_EFFECTIVE_DATE_LABEL_KEY = 'text_1787737220227bfxpshdo133'
 export const RATE_CARD_RATE_EFFECTIVE_DATE_DESCRIPTION_KEY = 'text_1787737220227auyye6x3cr0'
 export const RATE_CARD_RATE_EFFECTIVE_DATE_AFTER_ACTIVE_KEY = 'text_1787737220227ti37lv0cu28'
@@ -90,151 +75,3 @@ export const RATE_CARD_RATE_FORM_DEFAULTS: RateCardRateFormValues = {
   properties: getPropertyShape({}),
   minAmountCents: '',
 }
-
-// The effective date is a calendar day, not an instant: the picker is pinned to UTC (like every
-// other date-only field in the app) so the day the user clicked is the day the backend floors to.
-// Reading it back in UTC therefore keeps the derived code and the error copy on that same day.
-const toUtcDateTime = (isoDate: string): DateTime => DateTime.fromISO(isoDate, { zone: 'utc' })
-
-/** `rate_01_24_2026` - the code the Code field is seeded with when a date is picked. */
-export const buildRateCodeFromEffectiveDate = (isoDate: string): string | undefined => {
-  if (!isoDate) return undefined
-
-  const date = toUtcDateTime(isoDate)
-
-  return date.isValid ? `rate_${date.toFormat('MM_dd_yyyy')}` : undefined
-}
-
-/**
- * The same rendering the rates table and the rate overview use, so the boundary date quoted in
- * the error copy reads identically to the dates shown beside it. UTC for the reason above.
- */
-export const formatEffectiveDate = (isoDate: string): string =>
-  intlFormatDateTime(isoDate, { timezone: TimezoneEnum.TzUtc }).date
-
-/**
- * The card's rate timeline is append-only: a rate may only be inserted strictly after the
- * currently effective one (`RateCardRate#validate_effective_from_is_appended`). `boundary` is
- * that rate's `effectiveFrom`, or null when the card has no effective rate yet.
- */
-export const isEffectiveFromAppendable = (isoDate: string, boundary: string | null): boolean => {
-  if (!isoDate || !boundary) return true
-
-  return DateTime.fromISO(isoDate) > DateTime.fromISO(boundary)
-}
-
-/**
- * The later of two append boundaries, null meaning "no boundary yet". Used to carry a boundary
- * moved by a save forward across a form reset, which re-derives it from an older card snapshot.
- */
-export const laterEffectiveFrom = (a: string | null, b: string | null): string | null => {
-  if (!a) return b
-  if (!b) return a
-
-  return DateTime.fromISO(a) > DateTime.fromISO(b) ? a : b
-}
-
-export type RateCardRateSchemaContext = {
-  /** The parent card prices in a custom pricing unit, so a conversion rate is mandatory. */
-  requiresConversionRate: boolean
-  /** `effectiveFrom` of the rate currently in effect, or null when the card has none yet. */
-  effectiveFromBoundary: string | null
-}
-
-/**
- * The context is read through a getter rather than captured: the schema is built once for the
- * form's lifetime while the card being edited changes on every `openDrawer`.
- */
-export const buildRateCardRateSchema = (getContext: () => RateCardRateSchemaContext) =>
-  // `z.custom` rather than `z.object`, matching the other form schemas in the app: a strict
-  // per-field object aborts before `superRefine` as soon as one field mismatches, and the
-  // date picker writes `undefined` when its input is cleared. That would replace every
-  // translated message below with zod's own untranslated "Required". TypeScript already
-  // pins the shape, so the only checks worth running are the ones it cannot express.
-  z.custom<RateCardRateFormValues>().superRefine((values, ctx) => {
-    const { requiresConversionRate, effectiveFromBoundary } = getContext()
-
-    if (!values.effectiveFrom) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['effectiveFrom'],
-        message: VALUE_REQUIRED_KEY,
-      })
-    } else if (!isEffectiveFromAppendable(values.effectiveFrom, effectiveFromBoundary)) {
-      // The rendered copy interpolates the boundary date, which `translate()` cannot do
-      // from a zod message - the drawer body passes it through `errorOverride` instead.
-      // This issue exists to block the submit.
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['effectiveFrom'],
-        message: RATE_CARD_RATE_EFFECTIVE_DATE_AFTER_ACTIVE_KEY,
-      })
-    }
-
-    // Previously `z.string().min(1)` on the object; kept here so it survives an
-    // `undefined` on any other field.
-    if (!values.code) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['code'],
-        message: VALUE_REQUIRED_KEY,
-      })
-    }
-
-    const billingIntervalCount = Number(values.billingIntervalCount)
-
-    if (!Number.isInteger(billingIntervalCount) || billingIntervalCount < 1) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['billingIntervalCount'],
-        message: VALUE_REQUIRED_KEY,
-      })
-    }
-
-    // Mandatory as soon as the rate card prices in a custom pricing unit
-    // (`RateCardRate#validate_pricing_unit_conversion_rate`).
-    if (requiresConversionRate && Number(values.conversionRate) <= 0) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['conversionRate'],
-        message: VALUE_REQUIRED_KEY,
-      })
-    }
-
-    validateChargeProperties(
-      // The two enums are distinct GraphQL types with identical string members, and the
-      // charge validators key off those strings.
-      values.rateModel as unknown as AnyChargeModel,
-      values.properties as PropertiesZodInput | undefined,
-      ctx,
-      ['properties'],
-    )
-  })
-
-/**
- * A rate is editable at all only while the backend accepts a change: terminated rates are
- * frozen for audit, and on a card billed by subscriptions the live pricing may only be
- * appended to, so anything past `pending` is read-only there
- * (`RateCardRates::UpdateService`).
- */
-export const isRateCardRateEditable = ({
-  rate,
-  rateCard,
-}: {
-  rate: Pick<RateCardRateForDrawerFragment, 'status'>
-  rateCard: Pick<RateCardForRateDrawerFragment, 'attachedToSubscriptions'>
-}): boolean => {
-  if (rate.status === RateCardRateStatusEnum.Terminated) return false
-
-  return !rateCard.attachedToSubscriptions || rate.status === RateCardRateStatusEnum.Pending
-}
-
-/**
- * Deleting is soft and audit-safe only before the rate ever applied, which is the single rule
- * `RateCardRates::DestroyService` enforces (`only_pending_rates_can_be_deleted`). The parent
- * card's attachments are deliberately not consulted: a pending rate has never priced anything,
- * so it stays deletable even on a card already in a plan or a subscription.
- */
-export const isRateCardRateDeletable = (
-  rate: Pick<RateCardRateForDrawerFragment, 'status'>,
-): boolean => rate.status === RateCardRateStatusEnum.Pending
