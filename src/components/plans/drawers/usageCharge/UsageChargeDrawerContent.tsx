@@ -63,7 +63,6 @@ import { DEFAULT_VALUES, UsageChargeDrawerFormValues } from './constants'
 
 interface UsageChargeDrawerContentExtraProps {
   isCreateMode: boolean
-  isEdition?: boolean
   disabled?: boolean
   isInSubscriptionForm?: boolean
   // TEMP (LAGO-1498): Code is shown only via the v2 details/edition UI.
@@ -80,7 +79,6 @@ interface UsageChargeDrawerContentExtraProps {
 
 const usageChargeDrawerContentDefaultProps: UsageChargeDrawerContentExtraProps = {
   isCreateMode: false,
-  isEdition: false,
   disabled: false,
   isInSubscriptionForm: false,
   showCode: false,
@@ -100,7 +98,6 @@ export const UsageChargeDrawerContent = withForm({
   render: function UsageChargeDrawerContentRender({
     form,
     isCreateMode,
-    isEdition,
     disabled,
     isInSubscriptionForm,
     showCode,
@@ -356,7 +353,6 @@ export const UsageChargeDrawerContent = withForm({
             chargeType="usage"
             currency={currency}
             chargePricingUnitShortName={chargePricingUnitShortName}
-            isEdition={isEdition || false}
           >
             <ChargeFilterDrawerContent
               key={filterOpenCounterRef.current}

@@ -230,7 +230,6 @@ export interface UsageChargeDrawerRef {
 
 interface UsageChargeDrawerProps {
   disabled?: boolean
-  isEdition?: boolean
   isInSubscriptionForm?: boolean
   // TEMP (LAGO-1498): drop showCode + existingChargeCodes once the old
   // plan/subscription forms are retired and the Code field becomes unconditional.
@@ -258,7 +257,6 @@ export const UsageChargeDrawer = forwardRef<UsageChargeDrawerRef, UsageChargeDra
   (
     {
       disabled,
-      isEdition,
       isInSubscriptionForm,
       showCode = false,
       existingChargeCodes,
@@ -365,7 +363,6 @@ export const UsageChargeDrawer = forwardRef<UsageChargeDrawerRef, UsageChargeDra
             <UsageChargeDrawerContent
               form={form}
               isCreateMode={isCreateModeRef.current}
-              isEdition={isEdition}
               disabled={disabled}
               isInSubscriptionForm={isInSubscriptionForm}
               showCode={showCode}

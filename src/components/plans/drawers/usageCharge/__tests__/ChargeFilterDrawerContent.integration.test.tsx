@@ -74,7 +74,6 @@ function FilterDrawerHarness({
       chargeType="usage"
       currency={CurrencyEnum.Usd}
       chargePricingUnitShortName={undefined}
-      isEdition={false}
     >
       <ChargeFilterDrawerContent
         form={form}
