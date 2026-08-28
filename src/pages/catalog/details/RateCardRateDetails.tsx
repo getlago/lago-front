@@ -1,9 +1,9 @@
 import { gql } from '@apollo/client'
 import { generatePath, useParams } from 'react-router-dom'
 
-import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
+import { PageSectionTitle } from '~/components/layouts/Section'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
@@ -239,13 +239,11 @@ const RateCardRateDetails = () => {
             // rate. The tab says so rather than showing a blank panel. Wired up in BIL-594.
             content: (
               <DetailsPage.Container>
-                <section className="flex flex-col gap-1">
-                  <Typography variant="subhead1" color="grey700">
-                    {translate('text_1747314141347qq6rasuxisl')}
-                  </Typography>
-                  <Typography variant="body" color="grey600">
-                    {translate(RATE_CARD_RATE_ACTIVITY_LOGS_EMPTY_KEY)}
-                  </Typography>
+                <section>
+                  <PageSectionTitle
+                    title={translate('text_1747314141347qq6rasuxisl')}
+                    subtitle={translate(RATE_CARD_RATE_ACTIVITY_LOGS_EMPTY_KEY)}
+                  />
                 </section>
               </DetailsPage.Container>
             ),
