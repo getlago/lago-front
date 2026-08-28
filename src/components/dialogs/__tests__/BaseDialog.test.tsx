@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { render } from '~/test-utils'
 
 import BaseDialog, { BaseDialogProps } from '../BaseDialog'
-import { DIALOG_TITLE_TEST_ID } from '../const'
+import { DIALOG_BODY_TEST_ID, DIALOG_HEADER_CONTENT_TEST_ID, DIALOG_TITLE_TEST_ID } from '../const'
 
 // Test IDs for test-specific elements
 const DIALOG_CONTENT_TEST_ID = 'dialog-content'
@@ -316,6 +316,87 @@ describe('BaseDialog', () => {
       expect(form?.querySelector('header')).toBeInTheDocument()
       expect(form?.querySelector(`[data-test="${DIALOG_CONTENT_TEST_ID}"]`)).toBeInTheDocument()
       expect(form?.querySelector(`[data-test="${DIALOG_ACTION_TEST_ID}"]`)).toBeInTheDocument()
+    })
+  })
+
+  describe('Overflow', () => {
+    describe('GIVEN description, headerContent and children are all provided', () => {
+      const renderFullDialog = () =>
+        render(
+          <BaseDialog
+            {...defaultProps}
+            description="Test Description"
+            headerContent={<div data-test={HEADER_CONTENT_TEST_ID}>Header Content</div>}
+          >
+            <div data-test={DIALOG_CONTENT_TEST_ID}>Test Content</div>
+          </BaseDialog>,
+        )
+
+      describe('WHEN the dialog renders', () => {
+        it('THEN should gather description, headerContent and children in a single scroll area', () => {
+          renderFullDialog()
+
+          const body = screen.getByTestId(DIALOG_BODY_TEST_ID)
+
+          expect(body).toHaveClass('overflow-auto')
+          expect(body).toContainElement(screen.getByText('Test Description'))
+          expect(body).toContainElement(screen.getByTestId(HEADER_CONTENT_TEST_ID))
+          expect(body).toContainElement(screen.getByTestId(DIALOG_CONTENT_TEST_ID))
+        })
+
+        it('THEN should expose no scroll area other than the body', () => {
+          renderFullDialog()
+
+          const scrollAreas = document.body.querySelectorAll('.overflow-auto')
+
+          expect(scrollAreas).toHaveLength(1)
+          expect(scrollAreas[0]).toBe(screen.getByTestId(DIALOG_BODY_TEST_ID))
+        })
+
+        it('THEN should keep the title pinned outside the scroll area', () => {
+          renderFullDialog()
+
+          expect(screen.getByTestId(DIALOG_BODY_TEST_ID)).not.toContainElement(
+            screen.getByTestId(DIALOG_TITLE_TEST_ID),
+          )
+        })
+
+        it('THEN should keep the actions pinned outside the scroll area and unshrinkable', () => {
+          renderFullDialog()
+
+          const actions = screen.getByTestId(DIALOG_ACTION_TEST_ID)
+
+          expect(screen.getByTestId(DIALOG_BODY_TEST_ID)).not.toContainElement(actions)
+          expect(actions.parentElement).toHaveClass('shrink-0')
+        })
+      })
+    })
+
+    describe('GIVEN no description and no headerContent', () => {
+      describe('WHEN the dialog renders', () => {
+        it('THEN should not render the header content region', () => {
+          render(
+            <BaseDialog {...defaultProps}>
+              <div data-test={DIALOG_CONTENT_TEST_ID}>Test Content</div>
+            </BaseDialog>,
+          )
+
+          expect(screen.queryByTestId(DIALOG_HEADER_CONTENT_TEST_ID)).not.toBeInTheDocument()
+          expect(screen.getByTestId(DIALOG_BODY_TEST_ID)).toContainElement(
+            screen.getByTestId(DIALOG_CONTENT_TEST_ID),
+          )
+        })
+      })
+    })
+
+    describe('GIVEN neither header content nor children', () => {
+      describe('WHEN the dialog renders', () => {
+        it('THEN should not render the scroll area at all', () => {
+          render(<BaseDialog {...defaultProps} />)
+
+          expect(screen.queryByTestId(DIALOG_BODY_TEST_ID)).not.toBeInTheDocument()
+        })
+      })
     })
   })
 
