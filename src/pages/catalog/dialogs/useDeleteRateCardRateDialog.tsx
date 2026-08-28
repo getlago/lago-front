@@ -63,11 +63,10 @@ export const useDeleteRateCardRateDialog = (): UseDeleteRateCardRateDialogReturn
 
         const destroyedId = data?.destroyRateCardRate?.id
 
-        // A backend rejection resolves without data (errorPolicy 'all'); the global error
-        // link surfaces it as an error toast.
+        // A rejection resolves without data (errorPolicy 'all'); the error link toasts it.
         if (destroyedId) {
-          // Evicting alongside the refetch, not instead of it: it drops the row immediately so
-          // nothing stale is painted, while the refetch brings back the server-side counts.
+          // Alongside the refetch, not instead of it: evicting drops the row immediately, the
+          // refetch brings back the server-side counts.
           evictFromCache(client, {
             id: destroyedId,
             __typename: 'RateCardRate',

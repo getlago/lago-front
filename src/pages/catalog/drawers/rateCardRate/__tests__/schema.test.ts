@@ -47,8 +47,8 @@ describe('buildRateCardRateSchema', () => {
 
   describe('GIVEN the effective date was cleared in the picker', () => {
     describe('WHEN it is parsed', () => {
-      // The date picker writes `undefined`, not ''. A strict `z.object` aborted here, so the
-      // field showed zod's untranslated "Required" and every other issue below disappeared.
+      // The picker writes `undefined`, not ''. A strict `z.object` aborted here and showed
+      // zod's untranslated "Required".
       it('THEN reports the translated required issue and still reports the other issues', () => {
         const result = parse({
           ...validValues,

@@ -145,12 +145,10 @@ const RateCardRateDetailsOverview = ({
     </Link>
   )
 
-  // A spending minimum true-ups a closed period, so the backend rejects it outright on a
-  // pay-in-advance card - there is nothing to show for one.
+  // The backend rejects a spending minimum on a pay-in-advance card.
   const hasSpendingMinimum = rateCard.billingTiming === RateCardBillingTimingEnum.Arrears
 
-  // A rate saved without one stores 0, which formats as "$0.00" and reads as a configured
-  // zero floor rather than "none set" - the drawer shows an "Add" affordance for that state.
+  // A rate saved without one stores 0, which would read as a configured zero floor.
   const minAmountCents = Number(rate.minAmountCents ?? 0)
 
   const spendingMinimum =
@@ -207,8 +205,7 @@ const RateCardRateDetailsOverview = ({
           },
           {
             label: translate(RATE_CARD_RATE_EFFECTIVE_DATE_LABEL_KEY),
-            // A calendar day stored as a UTC instant: reading it in the organization timezone
-            // would show the previous day for anything west of UTC.
+            // Calendar day: the org timezone would show the previous day west of UTC.
             value: intlFormatDateTime(rate.effectiveFrom, { timezone: TimezoneEnum.TzUtc }).date,
           },
           {
@@ -243,7 +240,6 @@ const RateCardRateDetailsOverview = ({
         chargeAppliedPricingUnit={
           pricingUnitShortName ? { pricingUnit: { shortName: pricingUnitShortName } } : undefined
         }
-        // A rate has no charge filters, so it can never carry presentation group keys.
         showPresentationGroupKeys={false}
       />
 

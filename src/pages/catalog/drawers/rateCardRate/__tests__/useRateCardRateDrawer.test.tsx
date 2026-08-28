@@ -234,9 +234,8 @@ describe('useRateCardRateDrawer edit flow', () => {
 
   describe('GIVEN a card billed in a pay-in-advance timing', () => {
     describe('WHEN a pending rate is saved', () => {
-      // The field is hidden there, but the rate can still carry a minimum saved while the card
-      // was in arrears: 0 clears it, where omitting the key would leave it invisible forever.
-      // Only a positive value is rejected on an advance card.
+      // The rate can still carry a minimum saved while the card was in arrears: 0 clears it,
+      // omitting the key would leave it invisible forever.
       it('THEN clears the spending minimum instead of leaving it behind', async () => {
         let capturedInput: Record<string, unknown> = {}
         const { result } = renderDrawerHook([updateMock((input) => (capturedInput = input))])
@@ -260,8 +259,7 @@ describe('useRateCardRateDrawer edit flow', () => {
 
   describe('GIVEN a card pricing in a custom pricing unit', () => {
     describe('WHEN the drawer opens', () => {
-      // The short name is resolved inside the body, which re-renders when the units query
-      // resolves - `children` is captured once here, so a name read now could never update.
+      // `children` is captured once here, so a name read now could never update.
       it('THEN passes the pricing unit code to the body', () => {
         const { result } = renderDrawerHook()
 
@@ -316,8 +314,8 @@ describe('useRateCardRateDrawer edit flow', () => {
     })
 
     describe('WHEN that very rate is the one being edited', () => {
-      // Comparing the active rate against itself would make its own date invalid and block
-      // every save, so the boundary drops - exactly what the backend does by excluding self.
+      // Comparing the active rate against itself would invalidate its own date, so the
+      // boundary drops - what the backend does by excluding self.
       it('THEN passes no boundary at all', () => {
         const { result } = renderDrawerHook()
 
@@ -376,8 +374,7 @@ describe('useRateCardRateDrawer edit flow', () => {
     })
 
     describe('WHEN a new rate is created', () => {
-      // The backend only refuses a code CHANGE; a rate that does not exist yet has no identity
-      // to protect, and its code is what the date seeds.
+      // The backend only refuses a code CHANGE, and a rate being created has none yet.
       it('THEN leaves the code editable', () => {
         const { result } = renderDrawerHook()
 

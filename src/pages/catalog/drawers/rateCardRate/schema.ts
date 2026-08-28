@@ -13,22 +13,16 @@ import {
 import { isEffectiveFromAppendable, toChargeModel } from './utils'
 
 export type RateCardRateSchemaContext = {
-  /** The parent card prices in a custom pricing unit, so a conversion rate is mandatory. */
   requiresConversionRate: boolean
-  /** `effectiveFrom` of the rate currently in effect, or null when the card has none yet. */
+  /** `effectiveFrom` of the rate currently in effect, null when the card has none yet. */
   effectiveFromBoundary: string | null
 }
 
-/**
- * The context is read through a getter rather than captured: the schema is built once for the
- * form's lifetime while the card being edited changes on every `openDrawer`.
- */
+// A getter, not a value: the schema is built once for the form's lifetime while the card being
+// edited changes on every `openDrawer`.
 export const buildRateCardRateSchema = (getContext: () => RateCardRateSchemaContext) =>
-  // `z.custom` rather than `z.object`, matching the other form schemas in the app: a strict
-  // per-field object aborts before `superRefine` as soon as one field mismatches, and the
-  // date picker writes `undefined` when its input is cleared. That would replace every
-  // translated message below with zod's own untranslated "Required". TypeScript already
-  // pins the shape, so the only checks worth running are the ones it cannot express.
+  // `z.custom` not `z.object`: a strict object aborts before `superRefine` on the first
+  // mismatch, replacing every translated message below with zod's untranslated "Required".
   z.custom<RateCardRateFormValues>().superRefine((values, ctx) => {
     const { requiresConversionRate, effectiveFromBoundary } = getContext()
 
@@ -39,9 +33,8 @@ export const buildRateCardRateSchema = (getContext: () => RateCardRateSchemaCont
         message: VALUE_REQUIRED_KEY,
       })
     } else if (!isEffectiveFromAppendable(values.effectiveFrom, effectiveFromBoundary)) {
-      // The rendered copy interpolates the boundary date, which `translate()` cannot do
-      // from a zod message - the drawer body passes it through `errorOverride` instead.
-      // This issue exists to block the submit.
+      // Only blocks the submit: the copy interpolates the boundary date, so the drawer body
+      // renders it through `errorOverride` instead.
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['effectiveFrom'],
@@ -49,8 +42,6 @@ export const buildRateCardRateSchema = (getContext: () => RateCardRateSchemaCont
       })
     }
 
-    // Previously `z.string().min(1)` on the object; kept here so it survives an
-    // `undefined` on any other field.
     if (!values.code) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -69,8 +60,7 @@ export const buildRateCardRateSchema = (getContext: () => RateCardRateSchemaCont
       })
     }
 
-    // Mandatory as soon as the rate card prices in a custom pricing unit
-    // (`RateCardRate#validate_pricing_unit_conversion_rate`).
+    // `RateCardRate#validate_pricing_unit_conversion_rate`.
     if (requiresConversionRate && Number(values.conversionRate) <= 0) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,

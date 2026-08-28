@@ -259,9 +259,8 @@ describe('RateCardRateDrawerContent', () => {
     })
 
     describe('WHEN the form already carried unsaved input', () => {
-      // The drawer's unsaved-changes prompt reads form.state.isDirty. Resetting the whole
-      // form on a model switch cleared it, so closing afterwards discarded the input with
-      // no confirmation.
+      // Resetting the whole form on a model switch cleared `isDirty`, so closing afterwards
+      // discarded the input with no prompt.
       it('THEN keeps the form dirty so the unsaved-changes prompt still fires', async () => {
         render(<Host />)
 
@@ -330,8 +329,8 @@ describe('RateCardRateDrawerContent', () => {
         ).toBeInTheDocument()
       })
 
-      // Resolved from the units query here, not baked in at open() time: the drawer captures
-      // `children` once, so a name read before that query resolved would never self-correct.
+      // `children` is captured once at open(), so a name read before the query resolved would
+      // never self-correct.
       it('THEN labels the conversion rate with the unit short name, not its code', () => {
         render(<Host rateCard={{ ...arrearsUsageCard, appliedPricingUnitCode: 'tokens' }} />)
 
@@ -423,9 +422,8 @@ describe('RateCardRateDrawerContent', () => {
 
   describe('GIVEN the spending minimum is being typed into', () => {
     describe('WHEN the live value passes through a state that reads as no minimum', () => {
-      // The section derives its reveal state from `initialLocalCharge`, so feeding it the live
-      // value would collapse the input mid-edit (typing "0.5" passes through "0", clearing the
-      // field passes through "").
+      // The reveal state comes from `initialLocalCharge`; the live value would collapse the
+      // input mid-edit (typing "0.5" passes through "0").
       it('THEN the value it reveals from stays the one captured at open', async () => {
         render(<Host isEdit initialMinAmountCents="15" />)
 
@@ -448,8 +446,8 @@ describe('RateCardRateDrawerContent', () => {
 
   describe('GIVEN the Custom rate model is selected', () => {
     describe('WHEN the drawer body renders', () => {
-      // `CustomCharge` renders its JSON editor with no `onChange`, so without this callback
-      // the typed JSON never reaches the form and a Custom rate can never be saved.
+      // `CustomCharge` gives its JSON editor no `onChange`, so without this a Custom rate
+      // can never be saved.
       it('THEN ChargeWrapperSwitch receives the expand callback that opens the editor', () => {
         render(<Host />)
 

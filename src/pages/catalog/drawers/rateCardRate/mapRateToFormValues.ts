@@ -9,8 +9,7 @@ import {
 
 import { RateCardRateFormValues } from './constants'
 
-// Range rows come back from the API carrying `__typename`, which the typed PropertiesInput
-// rejects on the way back in - rebuild them from the fields the form owns.
+// Range rows arrive carrying `__typename`, which `PropertiesInput` rejects on the way back in.
 export const toFormProperties = (
   rateProperties: RateCardRateForDrawerFragment['rateProperties'],
 ): PropertiesInput => {

@@ -20,12 +20,8 @@ import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { RATE_CARD_RATE_EFFECTIVE_DATE_LABEL_KEY } from './drawers/rateCardRate/constants'
 import { formatActiveRate } from './utils/formatActiveRate'
 
-// Co-located with the columns hook (its only consumer beyond the actions hook, which needs
-// the fields already carried by the two spread fragments). Only `createdAt` is listed
-// directly: every other field the cells read - code, status, effectiveFrom, rateModel,
-// minAmountCents and the pricing properties - already comes from the spread
-// `RateCardRateForDrawer`, and re-declaring them would leave two competing definitions of
-// the same fields in one document.
+// Only `createdAt` is listed directly; every other field the cells read comes from the spread
+// `RateCardRateForDrawer`.
 gql`
   fragment RateCardRateForList on RateCardRate {
     id
@@ -44,7 +40,6 @@ export const useRateCardRateTableColumns = ({
   currency,
   appliedPricingUnitCode,
 }: {
-  /** Absent while the parent rate card is still loading; the price cell falls back to no unit. */
   currency?: CurrencyEnum | null
   appliedPricingUnitCode?: string | null
 }): Array<TableColumn<RateCardRateForListFragment>> => {
@@ -52,9 +47,8 @@ export const useRateCardRateTableColumns = ({
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const { pricingUnits } = useCustomPricingUnits()
 
-  // The card stores the unit CODE; prices are labelled with its short name, the same way the
-  // rate details page does - passing the code through would print e.g. "10 credits" here and
-  // "10 cr" there for the same rate.
+  // The card stores the code, but prices are labelled with the short name - passing the code
+  // through would print "10 credits" here and "10 cr" on the details page.
   const pricingUnitShortName = pricingUnits.find(
     (unit) => unit.code === appliedPricingUnitCode,
   )?.shortName

@@ -11,8 +11,7 @@ const buildDrawerRate = (
 describe('toFormProperties', () => {
   describe('GIVEN properties carrying range rows', () => {
     describe('WHEN they are mapped back into the form', () => {
-      // The API sends `__typename` on every row, which the typed PropertiesInput rejects on
-      // the way back in.
+      // The API sends `__typename` on every row, which `PropertiesInput` rejects.
       it('THEN the rows are rebuilt without __typename', () => {
         const properties = toFormProperties({
           __typename: 'Properties',
@@ -87,8 +86,7 @@ describe('mapRateToFormValues', () => {
     })
 
     describe('WHEN the rate stores no spending minimum', () => {
-      // A rate saved without one stores 0, which must read as "none set" rather than a
-      // configured zero floor.
+      // A rate saved without one stores 0, which must read as "none set".
       it('THEN the field is left empty', () => {
         const values = mapRateToFormValues(
           buildDrawerRate({ minAmountCents: '0' }),

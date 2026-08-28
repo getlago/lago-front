@@ -49,9 +49,8 @@ jest.mock('~/hooks/plans/useCustomPricingUnits', () => ({
   }),
 }))
 
-// Stands in for an organization west of UTC: a UTC-midnight instant reads as the PREVIOUS
-// day there. The effective-date cell must not use this formatter, and returning the same
-// string as the real UTC one would let that regression through unnoticed.
+// An org west of UTC, where a UTC-midnight instant reads as the previous day. Returning the
+// same string as the UTC formatter would let that regression through unnoticed.
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
     intlFormatDateTimeOrgaTZ: (date: string) => ({
@@ -104,8 +103,7 @@ describe('useRateCardRateTableColumns', () => {
   })
 
   describe('GIVEN a rate row', () => {
-    // The badge copy comes from the Status component's own contextual-locale translations;
-    // the status -> badge mapping itself is covered by statusRateCardRateMapping.test.ts.
+    // The mapping itself is covered by statusRateCardRateMapping.test.ts.
     describe('WHEN the status column content renders', () => {
       it.each([
         RateCardRateStatusEnum.Pending,
@@ -121,8 +119,7 @@ describe('useRateCardRateTableColumns', () => {
     })
 
     describe('WHEN the effective date column content renders', () => {
-      // The effective date is a calendar day, so it is read in UTC. Rendering it in the
-      // organization timezone lands the rate on the previous day west of UTC.
+      // Calendar day: the org timezone would land the rate on the previous day west of UTC.
       it('THEN shows the UTC calendar day, not the organization-timezone one', () => {
         const columns = renderColumns()
 

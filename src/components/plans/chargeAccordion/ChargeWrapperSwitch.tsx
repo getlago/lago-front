@@ -22,14 +22,11 @@ interface ChargeWrapperSwitchProps {
   currency: CurrencyEnum
   disabled?: boolean
   form: AnyFormApi
-  // Only the model is read, so callers that own no full charge (a rate card rate) can pass the
-  // single field instead of faking one.
+  // Narrowed to what is read, so a caller owning no charge need not fake one.
   localCharge: Pick<LocalFixedChargeInput | LocalUsageChargeInput, 'chargeModel'>
   propertyCursor: string
   onExpandCustomCharge?: (currentValue: string | undefined) => void
-  // Off for the surfaces that cannot own presentation group keys: a charge filter
-  // sub-form (filters inherit them from the parent charge) and a rate card rate
-  // (rates have no charge filters at all).
+  // Off for surfaces that cannot own them: charge filters inherit them, rates have none.
   showPresentationGroupKeys?: boolean
 }
 

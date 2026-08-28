@@ -24,9 +24,8 @@ import {
 
 configure({ testIdAttribute: 'data-test' })
 
-// Register the dialog against the real NiceModal name: a CentralizedDialog's confirm button
-// never renders unless the modal is registered, so mocking useCentralizedDialog would only
-// exercise the hook callback, not the actual dialog rendering + confirm wiring.
+// The confirm button never renders unless the modal is registered against its real NiceModal
+// name, so mocking the hook would skip the dialog rendering entirely.
 NiceModal.register(CENTRALIZED_DIALOG_NAME, CentralizedDialog)
 
 jest.mock('~/core/apolloClient', () => ({

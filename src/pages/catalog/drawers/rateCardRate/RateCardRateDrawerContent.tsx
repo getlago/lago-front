@@ -62,7 +62,6 @@ export const RATE_CARD_RATE_DRAWER_BILLING_INTERVAL_UNIT_TEST_ID =
 export const RATE_CARD_RATE_DRAWER_CONVERSION_RATE_TEST_ID = 'rate-card-rate-conversion-rate'
 export const RATE_CARD_RATE_DRAWER_SPENDING_MINIMUM_TEST_ID = 'rate-card-rate-spending-minimum'
 
-/** The parent rate card fields the drawer body needs; supplied by `RateCardForRateDrawer`. */
 export type RateCardRateDrawerRateCard = {
   currency: CurrencyEnum
   appliedPricingUnitCode?: string | null
@@ -76,8 +75,7 @@ type RateCardRateDrawerSectionsExtraProps = {
   isEdit: boolean
   isActiveRate: boolean
   isCodeLocked: boolean
-  // A getter, not a value: `children` is captured once at open() while the boundary moves
-  // whenever a "create more" save produces an already-effective rate.
+  // A getter, not a value: `children` is captured once at open() while the boundary moves.
   getEffectiveFromBoundary: () => string | null
   // Captured at open time so clearing the input does not collapse the section mid-edit.
   initialMinAmountCents: string
@@ -98,8 +96,6 @@ const rateCardRateDrawerSectionsDefaultProps: RateCardRateDrawerSectionsExtraPro
   initialMinAmountCents: '',
 }
 
-// Holds the reactive form state so it resets alongside the form when the keyed wrapper
-// remounts after a "create more" save.
 const RateCardRateDrawerFormSections = withForm({
   defaultValues: RATE_CARD_RATE_FORM_DEFAULTS,
   props: rateCardRateDrawerSectionsDefaultProps,
@@ -118,23 +114,19 @@ const RateCardRateDrawerFormSections = withForm({
     const { getFixedChargeModelComboboxData, getUsageChargeModelComboboxData } = useChargeForm()
     const { pricingUnits } = useCustomPricingUnits()
 
-    // Resolved here rather than at open() time: the drawer captures `children` once, so a short
-    // name read before the pricing-units query resolved would stick for the whole session.
+    // Resolved on render, not at open(): `children` is captured once, so a short name read
+    // before the pricing-units query resolved would stick for the whole session.
     const pricingUnitShortName = pricingUnits.find(
       (unit) => unit.code === rateCard.appliedPricingUnitCode,
     )?.shortName
 
     const effectiveFrom = useStore(form.store, (state) => state.values.effectiveFrom)
-    // Re-read on every render: the sections remount after a "create more" save, which is
-    // exactly when the boundary can have moved.
     const effectiveFromBoundary = getEffectiveFromBoundary()
     const rateModel = useStore(form.store, (state) => state.values.rateModel)
     const minAmountCents = useStore(form.store, (state) => state.values.minAmountCents)
 
-    // Seeding stops for good once the code has been edited by hand (same contract as the
-    // Name -> Code pairing elsewhere), so a later date change never overwrites it. The
-    // second ref marks the writes this component makes itself, which must not count as a
-    // hand edit - the code field's own listener cannot tell the two apart.
+    // Seeding stops once the code is edited by hand. The second ref marks this component's
+    // own writes, which the code field's listener would otherwise read as a hand edit.
     const isCodeDerivedFromDateRef = useRef(!isEdit)
     const isSeedingCodeRef = useRef(false)
 
@@ -149,9 +141,8 @@ const RateCardRateDrawerFormSections = withForm({
         isPremium,
         aggregationType: rateCard.aggregationType,
       })
-      // getFixedChargeModelComboboxData / getUsageChargeModelComboboxData are recreated on
-      // every render by useChargeForm (not memoized there), so listing them would defeat this
-      // memoization; their output only varies with the deps kept below.
+      // The two getters are recreated on every render by `useChargeForm`, so listing them
+      // would defeat this memo; their output only varies with the deps kept below.
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [rateCard.productType, rateCard.aggregationType, isPremium])
 
@@ -164,10 +155,8 @@ const RateCardRateDrawerFormSections = withForm({
       [translate],
     )
 
-    // Interpolates the boundary date, which `translate()` cannot do from a zod message - the
-    // schema raises the matching issue so the submit stays blocked either way.
+    // Interpolates the boundary date, which `translate()` cannot do from a zod message.
     const effectiveFromErrorOverride = useMemo(() => {
-      // No boundary means the card has no effective rate yet, so any date appends.
       if (!effectiveFromBoundary) return undefined
       if (isEffectiveFromAppendable(effectiveFrom, effectiveFromBoundary)) return undefined
 
@@ -176,14 +165,11 @@ const RateCardRateDrawerFormSections = withForm({
       })
     }, [effectiveFrom, effectiveFromBoundary, translate])
 
-    // The charge components each read a single field off `localCharge`, so a rate - which owns
-    // no charge - passes just that field.
     const localCharge = { chargeModel: toChargeModel(rateModel) }
     const spendingMinimumLocalCharge = { minAmountCents }
     const spendingMinimumInitialCharge = { minAmountCents: initialMinAmountCents }
 
-    // Without this the Custom rate model renders an editable JSON editor whose value never
-    // reaches the form, so a Custom rate could never be saved.
+    // Without this the Custom model's JSON editor never writes back to the form.
     const { openCustomChargeDrawer } = useCustomChargeDrawer({
       onSave: (customProperties) =>
         form.setFieldValue('properties.customProperties', customProperties),
@@ -201,12 +187,7 @@ const RateCardRateDrawerFormSections = withForm({
         return
       }
 
-      // Clear the outgoing model's property field meta and errors, which would otherwise
-      // linger on paths the new model never mounts and keep the form invalid. Deliberately
-      // not `form.reset`: that resets EVERY field's meta, so `form.state.isDirty` flips back
-      // to false and the drawer's unsaved-changes prompt stops firing, letting a close
-      // discard the user's input silently. Nested property paths carry no default value, so
-      // `resetField` only clears their meta.
+      // Not `form.reset`: that clears `isDirty` too, and the drawer would stop prompting.
       Object.keys(form.state.fieldMeta)
         .filter((field) => field === 'properties' || field.startsWith('properties.'))
         .forEach((field) => form.resetField(field as keyof typeof form.state.values))
@@ -246,9 +227,8 @@ const RateCardRateDrawerFormSections = withForm({
               <field.DatePickerField
                 label={translate(RATE_CARD_RATE_EFFECTIVE_DATE_LABEL_KEY)}
                 description={translate(RATE_CARD_RATE_EFFECTIVE_DATE_DESCRIPTION_KEY)}
-                // Pinned to UTC like every other date-only field: the backend floors an
-                // arrears date to UTC midnight, so an organization-zone instant would land
-                // the rate on the previous day.
+                // Calendar day: the backend floors it to UTC midnight, so an org-zone
+                // instant would land the rate on the previous day.
                 defaultZone={getTimezoneConfig(TimezoneEnum.TzUtc).name}
                 disabled={isActiveRate}
                 errorOverride={effectiveFromErrorOverride}
@@ -432,9 +412,8 @@ const rateCardRateDrawerContentDefaultProps: RateCardRateDrawerContentExtraProps
   resetSignal: undefined,
 }
 
-// Drawer body: `children` is captured once at open(), so reactive state lives here and `form`
-// is the data-passing seam. After a "create more" save the reset signal remounts the sections
-// (fresh fields + reveal state) with a fade-in, scrolls back to the top and refocuses.
+// `children` is captured once at open(), so reactive state lives here and `form` is the
+// data-passing seam. A "create more" save remounts the sections, scrolls up and refocuses.
 export const RateCardRateDrawerContent = withForm({
   defaultValues: RATE_CARD_RATE_FORM_DEFAULTS,
   props: rateCardRateDrawerContentDefaultProps,

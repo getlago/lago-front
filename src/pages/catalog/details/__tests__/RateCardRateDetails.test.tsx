@@ -23,8 +23,7 @@ import RateCardRateDetails, {
   RATE_CARD_RATE_DETAILS_EDIT_TEST_ID,
 } from '../RateCardRateDetails'
 
-// Every test mounts the whole page (MainHeader + Apollo + router), so the default 5s budget
-// is tight once jest runs suites in parallel - the assertions themselves resolve in ~100ms.
+// Every test mounts the whole page, so the default 5s budget is tight under parallel jest.
 jest.setTimeout(15000)
 
 const mockOpenRateDrawer = jest.fn()
@@ -131,8 +130,7 @@ const RateCardRateDetailsWithHeader = () => (
   </>
 )
 
-// forceTypenames + __typename in the fixtures: the query spreads fragments, and the cache
-// only writes fragment fields when it can match the typename.
+// The cache only writes fragment fields when it can match the typename.
 const renderPage = (mocks: MockedResponse[] = [detailsQueryMock()], tab = 'overview') =>
   rtlRender(<RateCardRateDetailsWithHeader />, {
     wrapper: ({ children }) => (
@@ -231,8 +229,7 @@ describe('RateCardRateDetails', () => {
 
   describe('GIVEN the activity logs tab is active', () => {
     describe('WHEN the page renders', () => {
-      // Rate-scoped logs do not exist yet (`ResourceTypeEnum` has no rate member), so the tab
-      // says where the changes are tracked instead of showing a blank panel.
+      // `ResourceTypeEnum` has no rate member yet, so the tab says where changes are tracked.
       it('THEN points at the parent rate card, with no table mounted', async () => {
         window.history.pushState(
           {},
@@ -372,8 +369,7 @@ describe('RateCardRateDetails', () => {
   })
 })
 
-// MainHeader re-pushes its config - and with it the tab element, which closes over the rate -
-// only when this key changes, so a save that touched only the pricing has to move it.
+// The config is re-pushed only when this key changes, so a pricing-only save has to move it.
 describe('buildRateCardRateSnapshotKey', () => {
   type SnapshotArgs = Parameters<typeof buildRateCardRateSnapshotKey>[0]
 

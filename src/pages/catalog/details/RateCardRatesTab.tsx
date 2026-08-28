@@ -21,8 +21,8 @@ import {
 import { useRateCardRateTableActions } from '../useRateCardRateTableActions'
 import { useRateCardRateTableColumns } from '../useRateCardRateTableColumns'
 
-// The operation is intentionally named `rateCardRates` (lowercase): the rate drawer refetches
-// active queries by that exact string name and the delete dialog evicts from its document.
+// Renaming this operation breaks the drawer's `refetchQueries` and the delete dialog's eviction,
+// which both reference it by name.
 gql`
   query rateCardRates($rateCardId: ID!, $page: Int, $limit: Int) {
     rateCardRates(rateCardId: $rateCardId, page: $page, limit: $limit) {
@@ -49,8 +49,7 @@ export const RATE_CARD_RATES_EMPTY_SUBTITLE_KEY = 'text_1787737220228bjix2qjx4rz
 
 type RateCardRatesTabProps = {
   rateCardId: string
-  // Undefined until the parent card query resolves: the rates query only needs the id, so the
-  // two run in parallel. The card gates the create CTA and the row write actions.
+  // Undefined until the parent card query resolves; gates the create CTA and the row actions.
   rateCard?: RateCardForRateDrawerFragment | null
 }
 
@@ -61,9 +60,8 @@ const RateCardRatesTab = ({ rateCardId, rateCard }: RateCardRatesTabProps) => {
   const { actionColumn, actionColumnTooltip, getRowActionLink, openRateDrawer } =
     useRateCardRateTableActions({ rateCardId, rateCard })
 
-  // network-only: the details tabs are route-based so this component remounts on tab switch
-  // and `?page` is dropped; a cache-first read would flash the previously viewed page before
-  // the page-1 refetch.
+  // network-only: the tab remounts on switch and drops `?page`, so a cache-first read would
+  // flash the previously viewed page.
   const { data, error, loading } = useRateCardRatesQuery({
     variables: { rateCardId, page, limit: DEFAULT_PAGE_SIZE },
     notifyOnNetworkStatusChange: true,

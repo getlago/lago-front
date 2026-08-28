@@ -42,9 +42,8 @@ import { deriveEffectiveFromBoundary, laterEffectiveFrom, toChargeModel } from '
 
 gql`
   fragment PropertiesForRateCardRate on Properties {
-    # Spread rather than re-listed: the rate-card list writes only PropertiesForActiveRate for
-    # the same normalized rate, and Apollo replaces array fields wholesale. Keeping this a
-    # strict superset means neither write can drop range fields the other one cached.
+    # Must stay a strict superset of PropertiesForActiveRate: Apollo replaces array fields
+    # wholesale, so a narrower write would strip range fields the other one cached.
     ...PropertiesForActiveRate
     ...StandardCharge
     ...PackageCharge
@@ -123,8 +122,7 @@ gql`
   ${VolumeRangesFragmentDoc}
 `
 
-// A create or an update leaves the rate in place, so the rate's own details page - the surface
-// that offers the Edit action, and the only one reading the card through it - is refetched too.
+// Plus the rate's own details page, which a create or an update leaves in place.
 const RATE_CARD_RATE_REFETCH_QUERIES = [
   ...RATE_CARD_RATE_DEPENDENT_QUERIES,
   'getRateCardRateForDetails',
@@ -135,8 +133,7 @@ export type RateCardRateFormSuccess = {
   wasEdit: boolean
 }
 
-// Return type left inferred: it carries the `useAppForm` instance, whose type cannot be named
-// (the hook's generics have no usable defaults). Every member it returns is annotated instead.
+// Return type inferred: it carries the `useAppForm` instance, whose type cannot be named.
 export const useRateCardRateForm = ({
   onSuccess,
 }: {
@@ -148,9 +145,8 @@ export const useRateCardRateForm = ({
     requiresConversionRate: false,
     effectiveFromBoundary: null,
   })
-  // A boundary already moved by a save made in this drawer session. The card snapshot the
-  // drawer opened with does not know about it, so re-deriving from that snapshot alone would
-  // walk the boundary back on every "create more" reset.
+  // A boundary moved by a save in this session: the card snapshot the drawer opened with does
+  // not know about it, so re-deriving alone would walk the boundary back on every reset.
   const boundaryFloorRef = useRef<string | null>(null)
 
   const [createRateCardRate] = useCreateRateCardRateMutation({
@@ -190,8 +186,7 @@ export const useRateCardRateForm = ({
       let errors: FetchResult['errors']
 
       if (editedRate) {
-        // An active rate freezes its timeline and model server-side, and rejects them on
-        // presence even when unchanged (`FROZEN_ON_ACTIVE`), so they are omitted entirely.
+        // `FROZEN_ON_ACTIVE` rejects these on presence, even unchanged, so they are omitted.
         const isActiveRate = editedRate.status === RateCardRateStatusEnum.Active
         const input: UpdateRateCardRateInput = {
           id: editedRate.id,
@@ -205,11 +200,8 @@ export const useRateCardRateForm = ({
                 rateModel: value.rateModel,
                 billingIntervalCount: Number(value.billingIntervalCount),
                 billingIntervalUnit: value.billingIntervalUnit,
-                // A pay-in-advance card hides the field, but a rate saved while the card was
-                // still in arrears can carry a minimum the user can no longer see: send 0
-                // rather than omitting the key, so the stale value is cleared instead of
-                // living on invisibly. Only a positive value is refused there
-                // (`validate_min_amount_timing`).
+                // 0 rather than omitted, to clear a minimum saved while the card was in
+                // arrears (`validate_min_amount_timing` only refuses a positive value).
                 minAmountCents: supportsSpendingMinimum ? minAmountCents : 0,
               }),
         }
@@ -239,9 +231,8 @@ export const useRateCardRateForm = ({
         errors = result.errors
       }
 
-      // Both the code and the effective date are unique per card, so the backend answers a
-      // collision on either with the same error code - scope it to the field it came from,
-      // otherwise a duplicate date reads as a duplicate code.
+      // Both fields are unique per card and collide with the same error code, so scope it to
+      // the field it came from.
       if (hasDefinedGQLError('ValueAlreadyExist', errors, 'code')) {
         applyExistingCodeError(formApi)
         return
@@ -258,9 +249,8 @@ export const useRateCardRateForm = ({
         return
       }
 
-      // Anything else the backend refuses (an incompatible rate model, a spending minimum on a
-      // pay-in-advance card, a frozen field) is silenced by `silentErrorCodes`, so without this
-      // the submit would look like a no-op.
+      // `silentErrorCodes` swallows everything else, so without this the submit looks like a
+      // no-op.
       if (errors?.length) {
         addToast({ severity: 'danger', translateKey: RATE_CARD_RATE_SAVE_FAILED_KEY })
         return
@@ -291,7 +281,7 @@ export const useRateCardRateForm = ({
     })
   }
 
-  /** Seeds a fresh drawer session: the card snapshot is current, so no floor is carried over. */
+  /** Fresh drawer session: the card snapshot is current, so no floor is carried over. */
   const resetForm = (
     rateCard: RateCardForRateDrawerFragment,
     rate?: RateCardRateForDrawerFragment,
@@ -300,12 +290,8 @@ export const useRateCardRateForm = ({
     seedForm(rateCard, rate)
   }
 
-  /**
-   * Re-seeds the form for the next "create more" iteration. Only a rate that is already
-   * effective becomes the card's active rate, and only that moves the append boundary
-   * (`others.where(effective_from: ..now).maximum`) - so it is remembered as a floor that
-   * survives this reset and every later one in the session.
-   */
+  // Only an already-effective rate becomes the card's active rate and moves the append
+  // boundary, so remember it as a floor that survives this reset and every later one.
   const resetFormForNextCreate = (
     rateCard: RateCardForRateDrawerFragment,
     savedRate: RateCardRateForDrawerFragment,

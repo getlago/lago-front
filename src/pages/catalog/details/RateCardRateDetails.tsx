@@ -73,7 +73,6 @@ export const RATE_CARD_RATE_DETAILS_ACTIONS_TEST_ID = 'rate-card-rate-details-ac
 export const RATE_CARD_RATE_DETAILS_EDIT_TEST_ID = 'rate-card-rate-details-edit'
 export const RATE_CARD_RATE_DETAILS_DELETE_TEST_ID = 'rate-card-rate-details-delete'
 
-/** The query selects both card fragments, so the snapshot builder can read either half. */
 type RateCardForRateDetailsAndDrawerFragment = RateCardForRateDetailsFragment &
   RateCardForRateDrawerFragment
 
@@ -85,12 +84,8 @@ const PRODUCT_CATALOG_RATE_CARDS_PATH = generatePath(PRODUCT_CATALOG_TAB_ROUTE, 
   tab: ProductCatalogTabsOptionsEnum.rateCards,
 })
 
-/**
- * The MainHeader config snapshot strips functions, so the tab content and the action closures
- * capture the rate from the last push and are only re-pushed when this key changes. It must
- * therefore encode every mutable field they depend on - including the pricing values the
- * drawer exists to change, which the header itself never displays.
- */
+// The header config is only re-pushed when this key changes, and its closures capture the rate,
+// so the key must encode every mutable field they read - including values the header never shows.
 export const buildRateCardRateSnapshotKey = ({
   rate,
   rateCard,
@@ -131,8 +126,6 @@ const RateCardRateDetails = () => {
   const rate = data?.rateCardRate
   const rateCard = data?.rateCard
 
-  // The rates tab of the parent card is the natural fallback; the card itself may be gone too,
-  // in which case its own details page redirects on to the rate cards list.
   const rateCardRatesPath = rateCardId
     ? generatePath(RATE_CARD_DETAILS_ROUTE, {
         rateCardId,
@@ -232,9 +225,8 @@ const RateCardRateDetails = () => {
               rateId: rateId as string,
               tab: RateCardRateDetailsTabsOptionsEnum.activityLogs,
             }),
-            // No table yet: activity logs are emitted against the parent rate card, and
-            // `ResourceTypeEnum` has no rate member yet, so there is nothing to scope to this
-            // rate. The tab says so rather than showing a blank panel.
+            // No table yet: `ResourceTypeEnum` has no rate member, so nothing can be scoped
+            // to this rate.
             content: (
               <DetailsPage.Container className="pt-6">
                 <section>

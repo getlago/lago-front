@@ -35,8 +35,7 @@ export const buildRateCardRateDetailsPath = ({
 
 type UseRateCardRateTableActionsProps = {
   rateCardId: string
-  // Undefined while the parent card query is still in flight; every write action needs the
-  // card to know what the backend would accept, so they only appear once it lands.
+  // Undefined while the parent card query is in flight; write actions appear once it lands.
   rateCard?: RateCardForRateDrawerFragment | null
 }
 
@@ -44,16 +43,9 @@ type UseRateCardRateTableActionsReturn = {
   actionColumn: ActionColumn<RateCardRateForListFragment>
   actionColumnTooltip: (rate: RateCardRateForListFragment) => string
   getRowActionLink: (rate: { id: string }) => string
-  // Re-exposed so the tab's create CTA shares this hook's drawer instead of mounting a second.
   openRateDrawer: (args: OpenRateCardRateDrawerArgs) => void
 }
 
-/**
- * Row actions and row link for the rate card's rates tab. Which actions a row offers is
- * dictated by what the backend accepts for that rate: an effective or terminated rate keeps
- * its pricing history, so only a pending rate can be deleted, and a terminated one (or any
- * non-pending rate on a card billed by subscriptions) cannot be edited at all.
- */
 export const useRateCardRateTableActions = ({
   rateCardId,
   rateCard,
@@ -82,7 +74,6 @@ export const useRateCardRateTableActions = ({
         .filter(Boolean)
         .join(', ')
 
-      // uppercase first letter
       return label.charAt(0).toUpperCase() + label.slice(1)
     },
     [canUpdateRateCards, canDeleteRateCards, rateCard, translate],

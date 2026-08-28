@@ -39,9 +39,7 @@ type UseRateCardRateDrawerReturn = {
   openDrawer: (args: OpenRateCardRateDrawerArgs) => void
 }
 
-// Dual-mode drawer: `openDrawer({ rateCard })` appends a rate to the card,
-// `openDrawer({ rateCard, rate })` edits it. Create mode carries the "Create more" footer
-// toggle that keeps the drawer open, resets the form and links the new rate in the toast.
+// `openDrawer({ rateCard })` appends a rate, `openDrawer({ rateCard, rate })` edits it.
 export const useRateCardRateDrawer = (): UseRateCardRateDrawerReturn => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
@@ -50,8 +48,7 @@ export const useRateCardRateDrawer = (): UseRateCardRateDrawerReturn => {
   const { createMoreControl, isCreateMoreEnabled, resetCreateMore, resetSignal, notifyReset } =
     useCreateMore()
 
-  // Remembered for the whole drawer session so the "create more" reset (fired from
-  // onSuccess, outside openDrawer's scope) can re-seed from the same card.
+  // Kept for the session: the "create more" reset fires outside `openDrawer`'s scope.
   const rateCardRef = useRef<RateCardForRateDrawerFragment | undefined>(undefined)
 
   const { form, resetForm, resetFormForNextCreate, getEffectiveFromBoundary } = useRateCardRateForm(
@@ -77,8 +74,8 @@ export const useRateCardRateDrawer = (): UseRateCardRateDrawerReturn => {
         if (isCreateMoreEnabled() && rateCard) {
           resetFormForNextCreate(rateCard, rate)
           notifyReset()
-          // The drawer renders outside the matched-route context, so the router Link in the
-          // toast cannot auto-prepend the org slug; bake it in here.
+          // The drawer renders outside the matched-route context, so the toast's Link cannot
+          // auto-prepend the org slug.
           addToast({
             severity: 'success',
             message: translate(RATE_CARD_RATE_CREATE_LINKED_TOAST_KEY, {
@@ -139,8 +136,7 @@ export const useRateCardRateDrawer = (): UseRateCardRateDrawerReturn => {
           isActiveRate={isActiveRate}
           isCodeLocked={isEdit && rateCard.attachedToPlanOrSubscription}
           getEffectiveFromBoundary={getEffectiveFromBoundary}
-          // `resetForm` above already seeded the form with the deserialized amount, so read it
-          // back from there rather than deriving the same value a second time.
+          // Already deserialized by `resetForm` above.
           initialMinAmountCents={form.state.values.minAmountCents}
           resetSignal={resetSignal}
         />

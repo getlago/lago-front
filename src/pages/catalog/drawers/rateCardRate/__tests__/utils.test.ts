@@ -34,8 +34,7 @@ describe('buildRateCodeFromEffectiveDate', () => {
         Settings.defaultZone = 'Asia/Tokyo'
       })
 
-      // Restored here rather than after the assertion: Settings is module-global, so a
-      // failing expectation would otherwise leave every later test in this file in Tokyo.
+      // Settings is module-global: restoring after the assertion would leak on failure.
       afterEach(() => {
         Settings.defaultZone = originalDefaultZone
       })
@@ -59,8 +58,7 @@ describe('buildRateCodeFromEffectiveDate', () => {
 describe('formatEffectiveDate', () => {
   describe('GIVEN a stored effective date', () => {
     describe('WHEN it is rendered in an error message', () => {
-      // Same rendering as the rates table and the rate overview, so the quoted boundary
-      // matches the dates displayed next to it rather than reading as a US-format date.
+      // Same rendering as the rates table, so the quoted boundary matches the dates beside it.
       it('THEN formats it the way every other surface shows an effective date', () => {
         expect(formatEffectiveDate('2026-06-24T00:00:00.000Z')).toBe(
           intlFormatDateTime('2026-06-24T00:00:00.000Z', { timezone: TimezoneEnum.TzUtc }).date,

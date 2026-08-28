@@ -40,9 +40,8 @@ const mockOpen = jest.fn((args: CapturedDrawerArgs) => {
 const mockClose = jest.fn()
 const mockNavigate = jest.fn()
 
-// Mock the NiceModal-backed drawer hook so Jest never loads the drawer stack
-// (drawerStack.ts uses import.meta and crashes Jest) and we can capture the args
-// the hook passes to `open`.
+// drawerStack.ts uses `import.meta`, which jest cannot parse; mocking also lets us capture
+// the args passed to `open`.
 jest.mock('~/components/drawers/useDrawer', () => ({
   useFormDrawer: () => ({ open: mockOpen, close: mockClose }),
 }))
@@ -73,9 +72,8 @@ jest.mock('~/hooks/plans/useCustomPricingUnits', () => ({
   useCustomPricingUnits: () => ({ hasAnyPricingUnitConfigured: false, pricingUnits: [] }),
 }))
 
-// Replace the drawer body (it pulls in the charge components and import.meta-backed
-// modules) with controls that seed the form directly, so the create flow - input
-// serialization, create-more, duplicate code - is exercised without driving the real inputs.
+// Replace the drawer body with controls that seed the form directly, so the create flow is
+// exercised without driving the real inputs.
 jest.mock('../RateCardRateDrawerContent', () => ({
   RateCardRateDrawerContent: ({
     form,
@@ -328,9 +326,8 @@ describe('useRateCardRateDrawer create flow', () => {
     })
 
     describe('WHEN a rate that is already effective is created with create-more on', () => {
-      // The reset re-derives the boundary from the card as it was when the drawer opened, so
-      // the advance has to land after it or the next rate in the session is validated against
-      // a boundary the new rate already moved.
+      // The reset re-derives the boundary from the card as it was at open(), so the advance
+      // has to land after it.
       it('THEN the append boundary moves to the new rate, surviving the form reset', async () => {
         const alreadyEffective = { ...createdRate, effectiveFrom: '2020-01-01T00:00:00.000Z' }
         const { result } = renderDrawerHook([
@@ -359,9 +356,8 @@ describe('useRateCardRateDrawer create flow', () => {
     })
 
     describe('WHEN a second, still-pending rate follows an already-effective one', () => {
-      // The reset re-derives the boundary from the card as it was when the drawer opened, which
-      // knows nothing about the first save: without a floor the boundary would drop back to
-      // null and the next date would be validated against nothing.
+      // The card snapshot knows nothing about the first save, so without a floor the boundary
+      // would drop back to null.
       it('THEN the boundary stays on the effective rate instead of regressing', async () => {
         const alreadyEffective = { ...createdRate, effectiveFrom: '2020-01-01T00:00:00.000Z' }
         const stillPending = {

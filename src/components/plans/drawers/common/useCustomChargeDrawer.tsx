@@ -12,7 +12,6 @@ import { useAppForm } from '~/hooks/forms/useAppform'
 export const CUSTOM_CHARGE_DRAWER_SAVE_TEST_ID = 'custom-charge-drawer-save'
 
 type UseCustomChargeDrawerProps = {
-  /** Writes the edited JSON back into the host form's `properties.customProperties`. */
   onSave: (customProperties: string) => void
 }
 
@@ -20,12 +19,8 @@ type UseCustomChargeDrawerReturn = {
   openCustomChargeDrawer: (currentValue: string | undefined) => void
 }
 
-/**
- * The only write path for a Custom charge model: `CustomCharge` renders its `JsonEditor` behind
- * an overlay with no `onChange`, so a host that renders `ChargeWrapperSwitch` without wiring
- * `onExpandCustomCharge` to this hook leaves the model unsaveable. Shared by the usage-charge
- * drawer and the rate card rate drawer.
- */
+// The only write path for a Custom charge model: `CustomCharge` gives its `JsonEditor` no
+// `onChange`, so a host that does not wire `onExpandCustomCharge` to this cannot save one.
 export const useCustomChargeDrawer = ({
   onSave,
 }: UseCustomChargeDrawerProps): UseCustomChargeDrawerReturn => {
