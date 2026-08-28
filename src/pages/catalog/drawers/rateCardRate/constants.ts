@@ -140,66 +140,70 @@ export type RateCardRateSchemaContext = {
  * form's lifetime while the card being edited changes on every `openDrawer`.
  */
 export const buildRateCardRateSchema = (getContext: () => RateCardRateSchemaContext) =>
-  z
-    .object({
-      effectiveFrom: z.string(),
-      code: z.string().min(1, { message: VALUE_REQUIRED_KEY }),
-      billingIntervalCount: z.string(),
-      billingIntervalUnit: z.nativeEnum(RateCardRateBillingIntervalUnitEnum),
-      conversionRate: z.string(),
-      rateModel: z.nativeEnum(RateCardRateModelEnum),
-      properties: z.record(z.string(), z.unknown()).optional(),
-      minAmountCents: z.string(),
-    })
-    .superRefine((values, ctx) => {
-      const { requiresConversionRate, effectiveFromBoundary } = getContext()
+  // `z.custom` rather than `z.object`, matching the other form schemas in the app: a strict
+  // per-field object aborts before `superRefine` as soon as one field mismatches, and the
+  // date picker writes `undefined` when its input is cleared. That would replace every
+  // translated message below with zod's own untranslated "Required". TypeScript already
+  // pins the shape, so the only checks worth running are the ones it cannot express.
+  z.custom<RateCardRateFormValues>().superRefine((values, ctx) => {
+    const { requiresConversionRate, effectiveFromBoundary } = getContext()
 
-      if (!values.effectiveFrom) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['effectiveFrom'],
-          message: VALUE_REQUIRED_KEY,
-        })
-      } else if (!isEffectiveFromAppendable(values.effectiveFrom, effectiveFromBoundary)) {
-        // The rendered copy interpolates the boundary date, which `translate()` cannot do
-        // from a zod message - the drawer body passes it through `errorOverride` instead.
-        // This issue exists to block the submit.
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['effectiveFrom'],
-          message: RATE_CARD_RATE_EFFECTIVE_DATE_AFTER_ACTIVE_KEY,
-        })
-      }
+    if (!values.effectiveFrom) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['effectiveFrom'],
+        message: VALUE_REQUIRED_KEY,
+      })
+    } else if (!isEffectiveFromAppendable(values.effectiveFrom, effectiveFromBoundary)) {
+      // The rendered copy interpolates the boundary date, which `translate()` cannot do
+      // from a zod message - the drawer body passes it through `errorOverride` instead.
+      // This issue exists to block the submit.
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['effectiveFrom'],
+        message: RATE_CARD_RATE_EFFECTIVE_DATE_AFTER_ACTIVE_KEY,
+      })
+    }
 
-      const billingIntervalCount = Number(values.billingIntervalCount)
+    // Previously `z.string().min(1)` on the object; kept here so it survives an
+    // `undefined` on any other field.
+    if (!values.code) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['code'],
+        message: VALUE_REQUIRED_KEY,
+      })
+    }
 
-      if (!Number.isInteger(billingIntervalCount) || billingIntervalCount < 1) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['billingIntervalCount'],
-          message: VALUE_REQUIRED_KEY,
-        })
-      }
+    const billingIntervalCount = Number(values.billingIntervalCount)
 
-      // Mandatory as soon as the rate card prices in a custom pricing unit
-      // (`RateCardRate#validate_pricing_unit_conversion_rate`).
-      if (requiresConversionRate && Number(values.conversionRate) <= 0) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['conversionRate'],
-          message: VALUE_REQUIRED_KEY,
-        })
-      }
+    if (!Number.isInteger(billingIntervalCount) || billingIntervalCount < 1) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['billingIntervalCount'],
+        message: VALUE_REQUIRED_KEY,
+      })
+    }
 
-      validateChargeProperties(
-        // The two enums are distinct GraphQL types with identical string members, and the
-        // charge validators key off those strings.
-        values.rateModel as unknown as AnyChargeModel,
-        values.properties as PropertiesZodInput | undefined,
-        ctx,
-        ['properties'],
-      )
-    })
+    // Mandatory as soon as the rate card prices in a custom pricing unit
+    // (`RateCardRate#validate_pricing_unit_conversion_rate`).
+    if (requiresConversionRate && Number(values.conversionRate) <= 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['conversionRate'],
+        message: VALUE_REQUIRED_KEY,
+      })
+    }
+
+    validateChargeProperties(
+      // The two enums are distinct GraphQL types with identical string members, and the
+      // charge validators key off those strings.
+      values.rateModel as unknown as AnyChargeModel,
+      values.properties as PropertiesZodInput | undefined,
+      ctx,
+      ['properties'],
+    )
+  })
 
 /**
  * A rate is editable at all only while the backend accepts a change: terminated rates are

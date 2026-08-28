@@ -24,14 +24,20 @@ describe('buildRateCodeFromEffectiveDate', () => {
     })
 
     describe('WHEN the ambient timezone is not UTC', () => {
-      it('THEN still reads the day in UTC, matching the day the backend stores', () => {
-        const originalDefaultZone = Settings.defaultZone
+      const originalDefaultZone = Settings.defaultZone
 
+      beforeEach(() => {
         Settings.defaultZone = 'Asia/Tokyo'
+      })
 
-        expect(buildRateCodeFromEffectiveDate('2026-01-24T00:00:00.000Z')).toBe('rate_01_24_2026')
-
+      // Restored here rather than after the assertion: Settings is module-global, so a
+      // failing expectation would otherwise leave every later test in this file in Tokyo.
+      afterEach(() => {
         Settings.defaultZone = originalDefaultZone
+      })
+
+      it('THEN still reads the day in UTC, matching the day the backend stores', () => {
+        expect(buildRateCodeFromEffectiveDate('2026-01-24T00:00:00.000Z')).toBe('rate_01_24_2026')
       })
     })
 
@@ -157,6 +163,26 @@ describe('buildRateCardRateSchema', () => {
         const result = parse({ ...validValues, effectiveFrom: '' })
 
         expect(issuePathsAndMessages(result)).toContainEqual(['effectiveFrom', VALUE_REQUIRED_KEY])
+      })
+    })
+  })
+
+  describe('GIVEN the effective date was cleared in the picker', () => {
+    describe('WHEN it is parsed', () => {
+      // The date picker writes `undefined`, not ''. A strict `z.object` aborted here, so the
+      // field showed zod's untranslated "Required" and every other issue below disappeared.
+      it('THEN reports the translated required issue and still reports the other issues', () => {
+        const result = parse({
+          ...validValues,
+          effectiveFrom: undefined,
+          billingIntervalCount: '0',
+        })
+
+        expect(issuePathsAndMessages(result)).toContainEqual(['effectiveFrom', VALUE_REQUIRED_KEY])
+        expect(issuePathsAndMessages(result)).toContainEqual([
+          'billingIntervalCount',
+          VALUE_REQUIRED_KEY,
+        ])
       })
     })
   })
