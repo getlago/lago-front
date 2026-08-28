@@ -135,6 +135,8 @@ describe('RateCardRateDetailsOverview', () => {
 
       it('THEN falls back to a dash when there is no product filter or category', () => {
         renderOverview({
+          // A spending minimum, so the only dashes left are the two rows under test.
+          rate: buildRateCardRate({ minAmountCents: '2500' }),
           rateCard: buildRateCardForRateDetails({
             product: {
               __typename: 'Product',
@@ -153,6 +155,17 @@ describe('RateCardRateDetailsOverview', () => {
         renderOverview({ rate: buildRateCardRate({ minAmountCents: '2500' }) })
 
         expect(screen.getByText('$25.00')).toBeInTheDocument()
+      })
+
+      // A rate saved without a spending minimum stores 0, and "$0.00" reads as a configured
+      // zero floor rather than "none set".
+      it.each([
+        ['zero', '0'],
+        ['unset', null],
+      ])('THEN renders no amount when the minimum is %s', (_, minAmountCents) => {
+        renderOverview({ rate: buildRateCardRate({ minAmountCents }) })
+
+        expect(screen.queryByText('$0.00')).not.toBeInTheDocument()
       })
     })
   })

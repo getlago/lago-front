@@ -152,15 +152,19 @@ const RateCardRateDetailsOverview = ({
   // pay-in-advance card - there is nothing to show for one.
   const hasSpendingMinimum = rateCard.billingTiming === RateCardBillingTimingEnum.Arrears
 
-  const spendingMinimum = intlFormatNumber(
-    deserializeAmount(rate.minAmountCents ?? 0, rateCard.currency),
-    {
-      currencyDisplay: 'symbol',
-      currency: rateCard.currency,
-      pricingUnitShortName,
-      maximumFractionDigits: 15,
-    },
-  )
+  // A rate saved without one stores 0, which formats as "$0.00" and reads as a configured
+  // zero floor rather than "none set" - the drawer shows an "Add" affordance for that state.
+  const minAmountCents = Number(rate.minAmountCents ?? 0)
+
+  const spendingMinimum =
+    minAmountCents > 0
+      ? intlFormatNumber(deserializeAmount(minAmountCents, rateCard.currency), {
+          currencyDisplay: 'symbol',
+          currency: rateCard.currency,
+          pricingUnitShortName,
+          maximumFractionDigits: 15,
+        })
+      : '-'
 
   return (
     <section className="flex flex-col gap-4">
