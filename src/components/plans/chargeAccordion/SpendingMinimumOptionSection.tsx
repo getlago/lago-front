@@ -23,10 +23,11 @@ export const SpendingMinimumOptionSection = ({
   handleUpdate,
   handleRemoveSpendingMinimum,
 }: {
-  initialLocalCharge: LocalUsageChargeInput
+  // Narrowed to what is read, so a caller owning no charge need not fake one.
+  initialLocalCharge: Pick<LocalUsageChargeInput, 'minAmountCents'>
   subscriptionFormType: (typeof FORM_TYPE_ENUM)[keyof typeof FORM_TYPE_ENUM] | undefined
   disabled: boolean | undefined
-  localCharge: LocalUsageChargeInput
+  localCharge: Pick<LocalUsageChargeInput, 'minAmountCents'>
   chargePricingUnitShortName: string | undefined
   currency: CurrencyEnum
   isPremium: boolean

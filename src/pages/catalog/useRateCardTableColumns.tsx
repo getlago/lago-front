@@ -10,7 +10,7 @@ import {
 } from '~/core/constants/tabsOptions'
 import { Link, PRODUCT_DETAILS_ROUTE, PRODUCT_FILTER_DETAILS_ROUTE } from '~/core/router'
 import {
-  PropertiesForActiveRateFragmentDoc,
+  PropertiesForRateCardRateFragmentDoc,
   RateCardForDeleteRateCardDialogFragmentDoc,
   RateCardForDrawerFragmentDoc,
   RateCardForListFragment,
@@ -45,8 +45,10 @@ gql`
     activeRate {
       id
       rateModel
+      # Superset on purpose: Apollo replaces array fields wholesale, so the narrower
+      # PropertiesForActiveRate would strip range fields the rate pages cached.
       rateProperties {
-        ...PropertiesForActiveRate
+        ...PropertiesForRateCardRate
       }
       minAmountCents
     }
@@ -54,7 +56,7 @@ gql`
     ...RateCardForDeleteRateCardDialog
   }
 
-  ${PropertiesForActiveRateFragmentDoc}
+  ${PropertiesForRateCardRateFragmentDoc}
   ${RateCardForDrawerFragmentDoc}
   ${RateCardForDeleteRateCardDialogFragmentDoc}
 `

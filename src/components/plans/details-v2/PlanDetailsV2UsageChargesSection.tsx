@@ -392,7 +392,6 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
       >
         <UsageChargeDrawer
           ref={drawerRef}
-          isEdition
           disabled={!canBeEdited}
           isInSubscriptionForm={isInSubscriptionForm}
           showCode

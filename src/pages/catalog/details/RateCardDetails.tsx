@@ -15,6 +15,7 @@ import {
   LagoApiError,
   RateCardForDeleteRateCardDialogFragmentDoc,
   RateCardForDrawerFragmentDoc,
+  RateCardForRateDrawerFragmentDoc,
   useGetRateCardForDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -24,9 +25,11 @@ import { usePermissions } from '~/hooks/usePermissions'
 
 import RateCardActivityLogs from './RateCardActivityLogs'
 import RateCardDetailsOverview from './RateCardDetailsOverview'
+import RateCardRatesTab from './RateCardRatesTab'
 
 import { useDeleteRateCardDialog } from '../dialogs/useDeleteRateCardDialog'
 import { useRateCardDrawer } from '../drawers/rateCard/useRateCardDrawer'
+import { RATE_CARD_RATES_SECTION_TITLE_KEY } from '../drawers/rateCardRate/constants'
 
 gql`
   fragment RateCardForRateCardDetails on RateCard {
@@ -41,11 +44,13 @@ gql`
       ...RateCardForRateCardDetails
       ...RateCardForDrawer
       ...RateCardForDeleteRateCardDialog
+      ...RateCardForRateDrawer
     }
   }
 
   ${RateCardForDrawerFragmentDoc}
   ${RateCardForDeleteRateCardDialogFragmentDoc}
+  ${RateCardForRateDrawerFragmentDoc}
 `
 
 export const RATE_CARDS_LIST_PATH = generatePath(PRODUCT_CATALOG_TAB_ROUTE, {
@@ -56,11 +61,6 @@ export const RATE_CARD_DETAILS_ACTIONS_TEST_ID = 'rate-card-details-actions'
 export const RATE_CARD_DETAILS_EDIT_TEST_ID = 'rate-card-details-edit'
 export const RATE_CARD_DETAILS_DELETE_TEST_ID = 'rate-card-details-delete'
 
-// New translation key exported as a named constant (feature convention): the
-// "rates" tab is this rate card's own pricing history, distinct from the
-// "Rate cards" tab shown on Product/Product/ProductFilter details
-// pages (which lists which rate cards reference that record).
-export const RATE_CARD_DETAILS_RATES_TAB_KEY = 'text_1784930705742tg0kbcsak2v'
 export const RATE_CARD_NOT_FOUND_KEY = 'text_1784930440657nw8iu2iml5k'
 
 const RateCardDetails = () => {
@@ -129,7 +129,7 @@ const RateCardDetails = () => {
         // closures capture `rateCard` from the last push. Encode the mutable
         // fields the closures depend on (but that the header does not display)
         // so an edit touching only those re-pushes fresh closures.
-        snapshotKey={`${rateCard?.description}|${rateCard?.billingTiming}|${rateCard?.proration}|${rateCard?.attachedToPlanOrSubscription}|${rateCard?.attachedToSubscriptions}|${rateCard?.currency}|${rateCard?.appliedPricingUnitCode}|${rateCard?.walletTargetable}|${rateCard?.displayOnInvoice}|${rateCard?.regroupPaidFees}`}
+        snapshotKey={`${rateCard?.description}|${rateCard?.billingTiming}|${rateCard?.proration}|${rateCard?.attachedToPlanOrSubscription}|${rateCard?.attachedToSubscriptions}|${rateCard?.currency}|${rateCard?.appliedPricingUnitCode}|${rateCard?.walletTargetable}|${rateCard?.displayOnInvoice}|${rateCard?.regroupPaidFees}|${rateCard?.activeRate?.effectiveFrom}`}
         breadcrumb={[
           {
             label: translate('text_1783019143196z1oi70j03vt'),
@@ -154,18 +154,22 @@ const RateCardDetails = () => {
               tab: RateCardDetailsTabsOptionsEnum.overview,
             }),
             content: (
-              <DetailsPage.Container>
+              <DetailsPage.Container className="pt-6">
                 <RateCardDetailsOverview rateCardId={rateCardId as string} />
               </DetailsPage.Container>
             ),
           },
           {
-            title: translate(RATE_CARD_DETAILS_RATES_TAB_KEY),
+            title: translate(RATE_CARD_RATES_SECTION_TITLE_KEY),
             link: generatePath(RATE_CARD_DETAILS_ROUTE, {
               rateCardId: rateCardId as string,
               tab: RateCardDetailsTabsOptionsEnum.rates,
             }),
-            content: <div className="p-4">{translate(RATE_CARD_DETAILS_RATES_TAB_KEY)}</div>,
+            content: (
+              <DetailsPage.Container className="pt-6">
+                <RateCardRatesTab rateCardId={rateCardId as string} rateCard={rateCard} />
+              </DetailsPage.Container>
+            ),
           },
           {
             title: translate('text_62442e40cea25600b0b6d85a'),
@@ -182,7 +186,7 @@ const RateCardDetails = () => {
               tab: RateCardDetailsTabsOptionsEnum.activityLogs,
             }),
             content: (
-              <DetailsPage.Container>
+              <DetailsPage.Container className="pt-6">
                 <RateCardActivityLogs rateCardId={rateCardId as string} />
               </DetailsPage.Container>
             ),

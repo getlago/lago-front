@@ -57,6 +57,8 @@ This skill will:
 
 **Test by default, justify skips.** Every new or significantly modified file SHOULD get tests unless it falls into the Explicit Exclusions list below. The bias is toward testing — if in doubt, write the test.
 
+**Fixture defaults must not disable the branch under test.** A test that names a condition sets it explicitly instead of inheriting a factory default, and after writing it you reread it and ask whether it would still pass with the condition inverted in the source. See `.agents/docs/testing-practices.md` → "Fixture Defaults Must Not Disable the Branch Under Test".
+
 ### The 80% Target is a Minimum, Not a Ceiling
 
 - **80% coverage on new code** is the **minimum target** for files with any logic

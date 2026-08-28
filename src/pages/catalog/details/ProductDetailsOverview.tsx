@@ -1,11 +1,10 @@
 import { gql } from '@apollo/client'
 import { generatePath, useParams } from 'react-router-dom'
 
-import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'
-import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
+import { PageSectionTitle } from '~/components/layouts/Section'
 import {
   BillableMetricDetailsTabsOptionsEnum,
   ProductCategoryDetailsTabsOptionsEnum,
@@ -119,25 +118,19 @@ export const ProductDetailsOverview = () => {
 
   return (
     <section>
-      <div className="flex h-18 items-center justify-between gap-4">
-        <div className="flex flex-col">
-          <Typography variant="subhead1" color="grey700" noWrap>
-            {translate('text_1783980718114jzmq5e6getf')}
-          </Typography>
-          <Typography variant="caption" color="grey600" noWrap>
-            {translate('text_17839807181145a6o0mukpar')}
-          </Typography>
-        </div>
-        {hasPermissions(['productsUpdate']) && (
-          <Button
-            variant="inline"
-            data-test={PRODUCT_ITEM_OVERVIEW_EDIT_TEST_ID}
-            onClick={() => product && openEditProductDrawer({ product })}
-          >
-            {translate('text_625fd39a15394c0117e7d792')}
-          </Button>
-        )}
-      </div>
+      <PageSectionTitle
+        title={translate('text_1783980718114jzmq5e6getf')}
+        subtitle={translate('text_17839807181145a6o0mukpar')}
+        action={
+          hasPermissions(['productsUpdate'])
+            ? {
+                title: translate('text_625fd39a15394c0117e7d792'),
+                dataTest: PRODUCT_ITEM_OVERVIEW_EDIT_TEST_ID,
+                onClick: () => product && openEditProductDrawer({ product }),
+              }
+            : undefined
+        }
+      />
 
       <div className="flex flex-col gap-4">
         <DetailsPage.InfoGrid

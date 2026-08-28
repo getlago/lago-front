@@ -147,7 +147,7 @@ const ProductDetails = () => {
               tab: ProductDetailsTabsOptionsEnum.overview,
             }),
             content: (
-              <DetailsPage.Container>
+              <DetailsPage.Container className="pt-6">
                 <ProductDetailsOverview />
               </DetailsPage.Container>
             ),
@@ -159,7 +159,7 @@ const ProductDetails = () => {
               tab: ProductDetailsTabsOptionsEnum.rateCards,
             }),
             content: product ? (
-              <DetailsPage.Container>
+              <DetailsPage.Container className="pt-6">
                 <RateCardPreview scope={{ product }} />
               </DetailsPage.Container>
             ) : null,
@@ -171,7 +171,7 @@ const ProductDetails = () => {
               tab: ProductDetailsTabsOptionsEnum.filters,
             }),
             content: product ? (
-              <DetailsPage.Container className="pb-0">
+              <DetailsPage.Container className="pb-0 pt-6">
                 <ProductFilterPreview product={product} />
               </DetailsPage.Container>
             ) : null,

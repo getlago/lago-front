@@ -9,6 +9,7 @@ import {
   escapeFilterLabel,
   filterDataInlineSeparator,
 } from '~/components/Filters'
+import { PageSectionTitle } from '~/components/layouts/Section'
 import { SearchInput } from '~/components/SearchInput'
 import { PRODUCT_FILTER_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { ProductCatalogTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -187,34 +188,27 @@ const ProductFilterPreview = ({ product }: { product: ProductForFilterPreviewFra
 
   return (
     <section>
-      <div className="flex h-18 items-center justify-between gap-4">
-        <div className="flex flex-col">
-          <Typography variant="subhead1" color="grey700" noWrap>
-            {translate('text_1783980718114wkor6aysepe')}
-          </Typography>
-          <Typography variant="caption" color="grey600" noWrap>
-            {translate('text_1784593927667g72f4poh3cq')}
-          </Typography>
-        </div>
-        {canCreateProductFilters && (
-          <Button
-            variant="inline"
-            data-test={PRODUCT_ITEM_FILTER_PREVIEW_CREATE_TEST_ID}
-            onClick={() =>
-              openProductFilterDrawer({
-                attachToProduct: {
-                  id: product.id,
-                  name: product.name,
-                  code: product.code,
-                  billableMetricFilters: product.billableMetric?.filters ?? [],
-                },
-              })
-            }
-          >
-            {translate('text_17836220307039rf790f045t')}
-          </Button>
-        )}
-      </div>
+      <PageSectionTitle
+        title={translate('text_1783980718114wkor6aysepe')}
+        subtitle={translate('text_1784593927667g72f4poh3cq')}
+        action={
+          canCreateProductFilters
+            ? {
+                title: translate('text_17836220307039rf790f045t'),
+                dataTest: PRODUCT_ITEM_FILTER_PREVIEW_CREATE_TEST_ID,
+                onClick: () =>
+                  openProductFilterDrawer({
+                    attachToProduct: {
+                      id: product.id,
+                      name: product.name,
+                      code: product.code,
+                      billableMetricFilters: product.billableMetric?.filters ?? [],
+                    },
+                  }),
+              }
+            : undefined
+        }
+      />
 
       <ProductFilterPreviewList product={product} />
     </section>

@@ -10,7 +10,6 @@ import { UsageChargeDrawerContent as OriginalUsageChargeDrawerContent } from '..
 // Cast to strip the injected `form` prop that withForm adds to the type
 const UsageChargeDrawerContent = OriginalUsageChargeDrawerContent as unknown as React.FC<{
   isCreateMode: boolean
-  isEdition?: boolean
   disabled?: boolean
   isInSubscriptionForm?: boolean
   showCode?: boolean
@@ -626,7 +625,6 @@ describe('UsageChargeDrawerContent', () => {
         render(
           <UsageChargeDrawerContent
             isCreateMode={false}
-            isEdition
             disabled
             editIndex={0}
             currency="USD"
@@ -650,7 +648,6 @@ describe('UsageChargeDrawerContent', () => {
         render(
           <UsageChargeDrawerContent
             isCreateMode={false}
-            isEdition
             disabled
             editIndex={0}
             currency="USD"
@@ -681,7 +678,6 @@ describe('UsageChargeDrawerContent', () => {
         render(
           <UsageChargeDrawerContent
             isCreateMode={false}
-            isEdition
             disabled
             editIndex={0}
             currency="USD"
@@ -705,7 +701,6 @@ describe('UsageChargeDrawerContent', () => {
         render(
           <UsageChargeDrawerContent
             isCreateMode={false}
-            isEdition
             disabled
             editIndex={0}
             currency="USD"
