@@ -154,7 +154,7 @@ const RateCardDetails = () => {
               tab: RateCardDetailsTabsOptionsEnum.overview,
             }),
             content: (
-              <DetailsPage.Container>
+              <DetailsPage.Container className="pt-6">
                 <RateCardDetailsOverview rateCardId={rateCardId as string} />
               </DetailsPage.Container>
             ),
@@ -166,7 +166,7 @@ const RateCardDetails = () => {
               tab: RateCardDetailsTabsOptionsEnum.rates,
             }),
             content: (
-              <DetailsPage.Container>
+              <DetailsPage.Container className="pt-6">
                 <RateCardRatesTab rateCardId={rateCardId as string} rateCard={rateCard} />
               </DetailsPage.Container>
             ),
@@ -186,7 +186,7 @@ const RateCardDetails = () => {
               tab: RateCardDetailsTabsOptionsEnum.activityLogs,
             }),
             content: (
-              <DetailsPage.Container>
+              <DetailsPage.Container className="pt-6">
                 <RateCardActivityLogs rateCardId={rateCardId as string} />
               </DetailsPage.Container>
             ),

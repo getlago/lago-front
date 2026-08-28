@@ -149,7 +149,7 @@ const ProductFilterDetails = () => {
               tab: ProductFilterDetailsTabsOptionsEnum.overview,
             }),
             content: (
-              <DetailsPage.Container>
+              <DetailsPage.Container className="pt-6">
                 <ProductFilterDetailsOverview productFilterId={productFilterId as string} />
               </DetailsPage.Container>
             ),
@@ -161,7 +161,7 @@ const ProductFilterDetails = () => {
               tab: ProductFilterDetailsTabsOptionsEnum.rateCards,
             }),
             content: productFilter ? (
-              <DetailsPage.Container>
+              <DetailsPage.Container className="pt-6">
                 <RateCardPreview scope={{ productFilter }} />
               </DetailsPage.Container>
             ) : null,
@@ -181,7 +181,7 @@ const ProductFilterDetails = () => {
               tab: ProductFilterDetailsTabsOptionsEnum.activityLogs,
             }),
             content: (
-              <DetailsPage.Container>
+              <DetailsPage.Container className="pt-6">
                 <ProductFilterActivityLogs productFilterId={productFilterId as string} />
               </DetailsPage.Container>
             ),

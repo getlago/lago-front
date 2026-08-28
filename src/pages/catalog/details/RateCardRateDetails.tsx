@@ -216,7 +216,7 @@ const RateCardRateDetails = () => {
               tab: RateCardRateDetailsTabsOptionsEnum.overview,
             }),
             content: (
-              <DetailsPage.Container>
+              <DetailsPage.Container className="pt-6">
                 {!!rate && !!rateCard && (
                   <RateCardRateDetailsOverview
                     rate={rate}
@@ -238,7 +238,7 @@ const RateCardRateDetails = () => {
             // `ResourceTypeEnum` has no rate member yet, so there is nothing to scope to this
             // rate. The tab says so rather than showing a blank panel. Wired up in BIL-594.
             content: (
-              <DetailsPage.Container>
+              <DetailsPage.Container className="pt-6">
                 <section>
                   <PageSectionTitle
                     title={translate('text_1747314141347qq6rasuxisl')}
