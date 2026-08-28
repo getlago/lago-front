@@ -49,10 +49,13 @@ jest.mock('~/hooks/plans/useCustomPricingUnits', () => ({
   }),
 }))
 
+// Stands in for an organization west of UTC: a UTC-midnight instant reads as the PREVIOUS
+// day there. The effective-date cell must not use this formatter, and returning the same
+// string as the real UTC one would let that regression through unnoticed.
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
     intlFormatDateTimeOrgaTZ: (date: string) => ({
-      date: date.startsWith('2026-01-24') ? 'Jan 24, 2026' : 'Jan 20, 2026',
+      date: date.startsWith('2026-01-24') ? 'Jan 23, 2026' : 'Jan 20, 2026',
       time: '00:00',
     }),
   }),
@@ -118,12 +121,15 @@ describe('useRateCardRateTableColumns', () => {
     })
 
     describe('WHEN the effective date column content renders', () => {
-      it('THEN shows the organization-timezone formatted date', () => {
+      // The effective date is a calendar day, so it is read in UTC. Rendering it in the
+      // organization timezone lands the rate on the previous day west of UTC.
+      it('THEN shows the UTC calendar day, not the organization-timezone one', () => {
         const columns = renderColumns()
 
         render(<>{getColumnContent(columns, 'effectiveFrom')(buildRateCardRate())}</>)
 
         expect(screen.getByText('Jan 24, 2026')).toBeInTheDocument()
+        expect(screen.queryByText('Jan 23, 2026')).not.toBeInTheDocument()
       })
     })
 

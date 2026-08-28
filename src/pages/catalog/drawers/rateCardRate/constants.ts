@@ -3,6 +3,7 @@ import { z } from 'zod'
 
 import { AnyChargeModel } from '~/core/constants/form'
 import getPropertyShape from '~/core/serializers/getPropertyShape'
+import { intlFormatDateTime } from '~/core/timezone'
 import {
   PropertiesZodInput,
   validateChargeProperties,
@@ -14,6 +15,7 @@ import {
   RateCardRateForDrawerFragment,
   RateCardRateModelEnum,
   RateCardRateStatusEnum,
+  TimezoneEnum,
 } from '~/generated/graphql'
 
 export const RATE_CARD_RATE_FORM_ID = 'rateCardRateForm'
@@ -103,8 +105,12 @@ export const buildRateCodeFromEffectiveDate = (isoDate: string): string | undefi
   return date.isValid ? `rate_${date.toFormat('MM_dd_yyyy')}` : undefined
 }
 
+/**
+ * The same rendering the rates table and the rate overview use, so the boundary date quoted in
+ * the error copy reads identically to the dates shown beside it. UTC for the reason above.
+ */
 export const formatEffectiveDate = (isoDate: string): string =>
-  toUtcDateTime(isoDate).toFormat('MM/dd/yyyy')
+  intlFormatDateTime(isoDate, { timezone: TimezoneEnum.TzUtc }).date
 
 /**
  * The card's rate timeline is append-only: a rate may only be inserted strictly after the

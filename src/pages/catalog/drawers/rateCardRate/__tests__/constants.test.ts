@@ -1,6 +1,11 @@
 import { Settings } from 'luxon'
 
-import { RateCardRateBillingIntervalUnitEnum, RateCardRateModelEnum } from '~/generated/graphql'
+import { intlFormatDateTime } from '~/core/timezone'
+import {
+  RateCardRateBillingIntervalUnitEnum,
+  RateCardRateModelEnum,
+  TimezoneEnum,
+} from '~/generated/graphql'
 
 import {
   buildRateCardRateSchema,
@@ -55,8 +60,16 @@ describe('buildRateCodeFromEffectiveDate', () => {
 describe('formatEffectiveDate', () => {
   describe('GIVEN a stored effective date', () => {
     describe('WHEN it is rendered in an error message', () => {
-      it('THEN formats it as MM/DD/YYYY in UTC', () => {
-        expect(formatEffectiveDate('2026-06-24T00:00:00.000Z')).toBe('06/24/2026')
+      // Same rendering as the rates table and the rate overview, so the quoted boundary
+      // matches the dates displayed next to it rather than reading as a US-format date.
+      it('THEN formats it the way every other surface shows an effective date', () => {
+        expect(formatEffectiveDate('2026-06-24T00:00:00.000Z')).toBe(
+          intlFormatDateTime('2026-06-24T00:00:00.000Z', { timezone: TimezoneEnum.TzUtc }).date,
+        )
+      })
+
+      it('THEN reads the day in UTC, not in the ambient zone', () => {
+        expect(formatEffectiveDate('2026-06-24T00:00:00.000Z')).toBe('Jun 24, 2026')
       })
     })
   })
