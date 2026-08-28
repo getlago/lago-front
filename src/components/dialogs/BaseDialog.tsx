@@ -4,7 +4,7 @@ import { ReactNode } from 'react'
 
 import { Typography } from '~/components/designSystem/Typography'
 
-import { DIALOG_TITLE_TEST_ID } from './const'
+import { DIALOG_HEADER_CONTENT_TEST_ID, DIALOG_TITLE_TEST_ID } from './const'
 import { FormProps } from './types'
 
 export type BaseDialogProps = {
@@ -54,7 +54,18 @@ const BaseDialog = ({
               </Typography>
               {description && <Typography variant="body">{description}</Typography>}
             </div>
-            {headerContent && <div>{headerContent}</div>}
+            {/* The header sits above the scrollable body in a height-capped flex column, so an
+                unbounded header (e.g. the send email dialog once its recipient inputs wrap onto
+                several lines) would squeeze the body out of the dialog entirely. Cap it and let
+                it scroll on its own instead. */}
+            {headerContent && (
+              <div
+                className="max-h-[min(16rem,30vh)] overflow-auto"
+                data-test={DIALOG_HEADER_CONTENT_TEST_ID}
+              >
+                {headerContent}
+              </div>
+            )}
           </div>
         </header>
 

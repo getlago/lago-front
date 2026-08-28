@@ -1,4 +1,5 @@
 export const DIALOG_TITLE_TEST_ID = 'dialog-title' as const
+export const DIALOG_HEADER_CONTENT_TEST_ID = 'dialog-header-content' as const
 
 export const CENTRALIZED_DIALOG_NAME = 'CentralizedDialog' as const
 export const CENTRALIZED_DIALOG_TEST_ID = 'centralized-dialog' as const

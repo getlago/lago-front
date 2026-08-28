@@ -32,7 +32,10 @@ exports[`FormDialog Snapshot Tests matches snapshot with all optional props 1`] 
             Full description
           </div>
         </div>
-        <div>
+        <div
+          class="max-h-[min(16rem,30vh)] overflow-auto"
+          data-test="dialog-header-content"
+        >
           <div>
             Header Content
           </div>

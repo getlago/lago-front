@@ -28,7 +28,10 @@ exports[`DialogOpeningWarningDialog Snapshot Tests matches snapshot with all pro
           This is a description
         </div>
       </div>
-      <div>
+      <div
+        class="max-h-[min(16rem,30vh)] overflow-auto"
+        data-test="dialog-header-content"
+      >
         <div>
           Header Content
         </div>

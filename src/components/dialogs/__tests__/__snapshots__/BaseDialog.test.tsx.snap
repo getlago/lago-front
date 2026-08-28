@@ -28,7 +28,10 @@ exports[`BaseDialog Snapshot Tests matches snapshot with all props 1`] = `
           This is a description
         </div>
       </div>
-      <div>
+      <div
+        class="max-h-[min(16rem,30vh)] overflow-auto"
+        data-test="dialog-header-content"
+      >
         <div>
           Header Content
         </div>
@@ -169,7 +172,10 @@ exports[`BaseDialog Snapshot Tests matches snapshot with headerContent 1`] = `
           Test Dialog
         </div>
       </div>
-      <div>
+      <div
+        class="max-h-[min(16rem,30vh)] overflow-auto"
+        data-test="dialog-header-content"
+      >
         <div
           data-test="header-content"
         >
