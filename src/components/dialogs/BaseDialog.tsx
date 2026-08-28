@@ -54,10 +54,6 @@ const BaseDialog = ({
               </Typography>
               {description && <Typography variant="body">{description}</Typography>}
             </div>
-            {/* The header sits above the scrollable body in a height-capped flex column, so an
-                unbounded header (e.g. the send email dialog once its recipient inputs wrap onto
-                several lines) would squeeze the body out of the dialog entirely. Cap it and let
-                it scroll on its own instead. */}
             {headerContent && (
               <div
                 className="max-h-[min(16rem,30vh)] overflow-auto"
