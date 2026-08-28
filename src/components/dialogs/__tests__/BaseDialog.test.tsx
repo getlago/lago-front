@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { render } from '~/test-utils'
 
 import BaseDialog, { BaseDialogProps } from '../BaseDialog'
-import { DIALOG_HEADER_CONTENT_TEST_ID, DIALOG_TITLE_TEST_ID } from '../const'
+import { DIALOG_BODY_TEST_ID, DIALOG_HEADER_CONTENT_TEST_ID, DIALOG_TITLE_TEST_ID } from '../const'
 
 // Test IDs for test-specific elements
 const DIALOG_CONTENT_TEST_ID = 'dialog-content'
@@ -319,12 +319,13 @@ describe('BaseDialog', () => {
     })
   })
 
-  describe('Header content overflow', () => {
-    describe('GIVEN headerContent is provided alongside a dialog body', () => {
-      const renderWithHeaderContent = () =>
+  describe('Overflow', () => {
+    describe('GIVEN description, headerContent and children are all provided', () => {
+      const renderFullDialog = () =>
         render(
           <BaseDialog
             {...defaultProps}
+            description="Test Description"
             headerContent={<div data-test={HEADER_CONTENT_TEST_ID}>Header Content</div>}
           >
             <div data-test={DIALOG_CONTENT_TEST_ID}>Test Content</div>
@@ -332,36 +333,48 @@ describe('BaseDialog', () => {
         )
 
       describe('WHEN the dialog renders', () => {
-        it('THEN should render headerContent inside its own scrollable region', () => {
-          renderWithHeaderContent()
+        it('THEN should gather description, headerContent and children in a single scroll area', () => {
+          renderFullDialog()
 
-          const scrollRegion = screen.getByTestId(DIALOG_HEADER_CONTENT_TEST_ID)
+          const body = screen.getByTestId(DIALOG_BODY_TEST_ID)
 
-          expect(scrollRegion).toContainElement(screen.getByTestId(HEADER_CONTENT_TEST_ID))
-          expect(scrollRegion).toHaveClass('overflow-auto')
+          expect(body).toHaveClass('overflow-auto')
+          expect(body).toContainElement(screen.getByText('Test Description'))
+          expect(body).toContainElement(screen.getByTestId(HEADER_CONTENT_TEST_ID))
+          expect(body).toContainElement(screen.getByTestId(DIALOG_CONTENT_TEST_ID))
         })
 
-        it('THEN should bound the header height so the body cannot be squeezed out', () => {
-          renderWithHeaderContent()
+        it('THEN should expose no scroll area other than the body', () => {
+          renderFullDialog()
 
-          expect(screen.getByTestId(DIALOG_HEADER_CONTENT_TEST_ID)).toHaveClass(
-            'max-h-[min(16rem,30vh)]',
+          const scrollAreas = document.body.querySelectorAll('.overflow-auto')
+
+          expect(scrollAreas).toHaveLength(1)
+          expect(scrollAreas[0]).toBe(screen.getByTestId(DIALOG_BODY_TEST_ID))
+        })
+
+        it('THEN should keep the title pinned outside the scroll area', () => {
+          renderFullDialog()
+
+          expect(screen.getByTestId(DIALOG_BODY_TEST_ID)).not.toContainElement(
+            screen.getByTestId(DIALOG_TITLE_TEST_ID),
           )
         })
 
-        it('THEN should keep the dialog body outside the header scrollable region', () => {
-          renderWithHeaderContent()
+        it('THEN should keep the actions pinned outside the scroll area and unshrinkable', () => {
+          renderFullDialog()
 
-          expect(screen.getByTestId(DIALOG_HEADER_CONTENT_TEST_ID)).not.toContainElement(
-            screen.getByTestId(DIALOG_CONTENT_TEST_ID),
-          )
+          const actions = screen.getByTestId(DIALOG_ACTION_TEST_ID)
+
+          expect(screen.getByTestId(DIALOG_BODY_TEST_ID)).not.toContainElement(actions)
+          expect(actions.parentElement).toHaveClass('shrink-0')
         })
       })
     })
 
-    describe('GIVEN no headerContent is provided', () => {
+    describe('GIVEN no description and no headerContent', () => {
       describe('WHEN the dialog renders', () => {
-        it('THEN should not render the header scrollable region', () => {
+        it('THEN should not render the header content region', () => {
           render(
             <BaseDialog {...defaultProps}>
               <div data-test={DIALOG_CONTENT_TEST_ID}>Test Content</div>
@@ -369,6 +382,19 @@ describe('BaseDialog', () => {
           )
 
           expect(screen.queryByTestId(DIALOG_HEADER_CONTENT_TEST_ID)).not.toBeInTheDocument()
+          expect(screen.getByTestId(DIALOG_BODY_TEST_ID)).toContainElement(
+            screen.getByTestId(DIALOG_CONTENT_TEST_ID),
+          )
+        })
+      })
+    })
+
+    describe('GIVEN neither header content nor children', () => {
+      describe('WHEN the dialog renders', () => {
+        it('THEN should not render the scroll area at all', () => {
+          render(<BaseDialog {...defaultProps} />)
+
+          expect(screen.queryByTestId(DIALOG_BODY_TEST_ID)).not.toBeInTheDocument()
         })
       })
     })

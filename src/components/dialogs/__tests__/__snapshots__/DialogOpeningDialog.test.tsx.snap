@@ -7,29 +7,29 @@ exports[`DialogOpeningWarningDialog Snapshot Tests matches snapshot with all pro
   role="dialog"
 >
   <header
-    class="p-8"
+    class="shrink-0 px-8 pt-8"
   >
     <div
-      class="flex flex-col gap-8"
+      class=MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-hash-MuiTypography-root
+      data-test="dialog-title"
+    >
+      Dialog Opening Title
+    </div>
+  </header>
+  <div
+    class="overflow-auto"
+    data-test="dialog-body"
+  >
+    <div
+      class="flex flex-col gap-8 px-8 pb-8 pt-2"
     >
       <div
-        class="flex flex-col gap-2"
+        class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+        data-test="body"
       >
-        <div
-          class=MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-hash-MuiTypography-root
-          data-test="dialog-title"
-        >
-          Dialog Opening Title
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          This is a description
-        </div>
+        This is a description
       </div>
       <div
-        class="max-h-[min(16rem,30vh)] overflow-auto"
         data-test="dialog-header-content"
       >
         <div>
@@ -37,16 +37,16 @@ exports[`DialogOpeningWarningDialog Snapshot Tests matches snapshot with all pro
         </div>
       </div>
     </div>
-  </header>
-  <div
-    class="overflow-auto shadow-t"
-  >
-    <div>
-      Dialog Content
+    <div
+      class="shadow-t"
+    >
+      <div>
+        Dialog Content
+      </div>
     </div>
   </div>
   <div
-    class="flex flex-col-reverse flex-wrap justify-end gap-3 px-8 py-4 shadow-t md:flex-row"
+    class="flex shrink-0 flex-col-reverse flex-wrap justify-end gap-3 px-8 py-4 shadow-t md:flex-row"
   >
     <div
       class="flex flex-row items-center justify-between gap-3 w-full"
@@ -91,25 +91,17 @@ exports[`DialogOpeningWarningDialog Snapshot Tests matches snapshot with basic p
   role="dialog"
 >
   <header
-    class="p-8"
+    class="shrink-0 px-8 pt-8 pb-8"
   >
     <div
-      class="flex flex-col gap-8"
+      class=MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-hash-MuiTypography-root
+      data-test="dialog-title"
     >
-      <div
-        class="flex flex-col gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-hash-MuiTypography-root
-          data-test="dialog-title"
-        >
-          Dialog Opening Title
-        </div>
-      </div>
+      Dialog Opening Title
     </div>
   </header>
   <div
-    class="flex flex-col-reverse flex-wrap justify-end gap-3 px-8 py-4 shadow-t md:flex-row"
+    class="flex shrink-0 flex-col-reverse flex-wrap justify-end gap-3 px-8 py-4 shadow-t md:flex-row"
   >
     <div
       class="flex flex-row items-center justify-between gap-3"
@@ -146,25 +138,17 @@ exports[`DialogOpeningWarningDialog Snapshot Tests matches snapshot with warning
   role="dialog"
 >
   <header
-    class="p-8"
+    class="shrink-0 px-8 pt-8 pb-8"
   >
     <div
-      class="flex flex-col gap-8"
+      class=MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-hash-MuiTypography-root
+      data-test="dialog-title"
     >
-      <div
-        class="flex flex-col gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-subhead1 whitespace-pre-line css-hash-MuiTypography-root
-          data-test="dialog-title"
-        >
-          Dialog Opening Title
-        </div>
-      </div>
+      Dialog Opening Title
     </div>
   </header>
   <div
-    class="flex flex-col-reverse flex-wrap justify-end gap-3 px-8 py-4 shadow-t md:flex-row"
+    class="flex shrink-0 flex-col-reverse flex-wrap justify-end gap-3 px-8 py-4 shadow-t md:flex-row"
   >
     <div
       class="flex flex-row items-center justify-between gap-3 w-full"

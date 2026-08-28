@@ -4,7 +4,7 @@ import { ReactNode } from 'react'
 
 import { Typography } from '~/components/designSystem/Typography'
 
-import { DIALOG_HEADER_CONTENT_TEST_ID, DIALOG_TITLE_TEST_ID } from './const'
+import { DIALOG_BODY_TEST_ID, DIALOG_HEADER_CONTENT_TEST_ID, DIALOG_TITLE_TEST_ID } from './const'
 import { FormProps } from './types'
 
 export type BaseDialogProps = {
@@ -41,43 +41,44 @@ const BaseDialog = ({
     return form?.submit()
   }
 
+  const hasScrollingHeader = !!description || !!headerContent
+
   const generateContent = () => {
     return (
       <>
-        {/* Header */}
-        <header className="p-8">
-          <div className="flex flex-col gap-8">
-            {/* Header is made of two main parts: title/description and optional header content */}
-            <div className="flex flex-col gap-2">
-              <Typography variant="subhead1" data-test={DIALOG_TITLE_TEST_ID}>
-                {title}
-              </Typography>
-              {description && <Typography variant="body">{description}</Typography>}
-            </div>
-            {headerContent && (
-              <div
-                className="max-h-[min(16rem,30vh)] overflow-auto"
-                data-test={DIALOG_HEADER_CONTENT_TEST_ID}
-              >
-                {headerContent}
-              </div>
-            )}
-          </div>
+        {/* Title */}
+        <header className={tw('shrink-0 px-8 pt-8', { 'pb-8': !hasScrollingHeader })}>
+          <Typography variant="subhead1" data-test={DIALOG_TITLE_TEST_ID}>
+            {title}
+          </Typography>
         </header>
 
-        {/* Content */}
-        {children && (
-          <div
-            className={tw('overflow-auto shadow-t', {
-              'p-8': childrenNeedsWrapping,
-            })}
-          >
-            {children}
+        {/* Body: description, header content and children share a single scroll area */}
+        {(hasScrollingHeader || children) && (
+          <div className="overflow-auto" data-test={DIALOG_BODY_TEST_ID}>
+            {hasScrollingHeader && (
+              <div className="flex flex-col gap-8 px-8 pb-8 pt-2">
+                {description && <Typography variant="body">{description}</Typography>}
+                {headerContent && (
+                  <div data-test={DIALOG_HEADER_CONTENT_TEST_ID}>{headerContent}</div>
+                )}
+              </div>
+            )}
+
+            {children && (
+              <div
+                className={tw('shadow-t', {
+                  'p-8': childrenNeedsWrapping,
+                })}
+              >
+                {children}
+              </div>
+            )}
           </div>
         )}
 
         {/* Footer */}
-        <div className="flex flex-col-reverse flex-wrap justify-end gap-3 px-8 py-4 shadow-t md:flex-row">
+        <div className="flex shrink-0 flex-col-reverse flex-wrap justify-end gap-3 px-8 py-4 shadow-t md:flex-row">
           {actions}
         </div>
       </>
