@@ -53,4 +53,15 @@ describe('buildUpdateOrderInput', () => {
       executeAt: '2030-01-01T00:00:00.000Z',
     })
   })
+
+  // The mutation reads an omitted key as "leave unchanged", and JSON.stringify drops undefined
+  // values, so a cleared date only reaches the API as an explicit null.
+  it('maps a cleared date to an explicit null', () => {
+    const input = buildUpdateOrderInput('order-1', {
+      executionMode: OrderExecutionModeEnum.OrderOnly,
+      executeAt: undefined,
+    })
+
+    expect(input.executeAt).toBeNull()
+  })
 })

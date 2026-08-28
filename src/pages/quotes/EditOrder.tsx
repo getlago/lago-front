@@ -33,6 +33,11 @@ import {
   EditOrderFormValues,
   editOrderValidationSchema,
 } from './editOrder/validationSchema'
+import { applyFormFieldErrors } from './utils/applyFormFieldErrors'
+import {
+  getQuoteMutationErrors,
+  QUOTE_MUTATION_SILENT_ERROR_CODES,
+} from './utils/quoteMutationErrors'
 
 export const EDIT_ORDER_CLOSE_BUTTON_TEST_ID = 'edit-order-close-button'
 export const EDIT_ORDER_CANCEL_BUTTON_TEST_ID = 'edit-order-cancel-button'
@@ -96,6 +101,7 @@ const EditOrderFormContent = ({ order, loading }: EditOrderFormContentProps) => 
 
   const [updateOrderMutation] = useUpdateOrderMutation({
     refetchQueries: ['getOrders'],
+    context: { silentErrorCodes: [...QUOTE_MUTATION_SILENT_ERROR_CODES] },
   })
 
   const previewProps = useMemo(
@@ -129,18 +135,25 @@ const EditOrderFormContent = ({ order, loading }: EditOrderFormContentProps) => 
     defaultValues,
     validationLogic: revalidateLogic(),
     validators: { onDynamic: editOrderValidationSchema },
-    onSubmit: async ({ value }) => {
+    onSubmit: async ({ value, formApi }) => {
       if (!orderId) return
 
       const result = await updateOrderMutation({
         variables: { input: buildUpdateOrderInput(orderId, value) },
       })
 
-      if (result.data?.updateOrder) {
-        addToast({ severity: 'success', translateKey: 'text_1782723591984c30uudt9ma9' })
+      if (!result.data?.updateOrder) {
+        const errors = getQuoteMutationErrors(result.errors, translate, 'order')
 
-        closeRedirection()
+        errors.forEach(({ message }) => addToast({ severity: 'danger', message }))
+        applyFormFieldErrors(formApi, errors)
+
+        return
       }
+
+      addToast({ severity: 'success', translateKey: 'text_1782723591984c30uudt9ma9' })
+
+      closeRedirection()
     },
   })
 
