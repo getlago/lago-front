@@ -68,8 +68,10 @@ export const useDeleteRateCardRateDialog = (): UseDeleteRateCardRateDialogReturn
         // A backend rejection resolves without data (errorPolicy 'all'); the global error
         // link surfaces it as an error toast.
         if (destroyedId) {
-          // Evict instead of refetching the list so a still-mounted rate details query is
-          // not driven to a post-delete 404 (see evictFromCache).
+          // Alongside the refetch, not instead of it: eviction drops the deleted entity and
+          // its row from the cached list pages straight away, so a still-mounted rate
+          // details query re-reads nothing rather than a record the server already removed,
+          // and the rates tab does not paint a stale row while the refetch is in flight.
           evictFromCache(client, {
             id: destroyedId,
             __typename: 'RateCardRate',

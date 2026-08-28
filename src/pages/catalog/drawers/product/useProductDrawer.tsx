@@ -12,7 +12,6 @@ import { ProductDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { applyExistingCodeError } from '~/core/form/existingCodeError'
 import { PRODUCT_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import { prependOrgSlug } from '~/core/router/utils/prependOrgSlug'
-import { escapeDoubleQuotes } from '~/core/utils/escapeDoubleQuotes'
 import {
   LagoApiError,
   ProductForDrawerFragment,
@@ -30,6 +29,8 @@ import {
   ProductFormValues,
 } from './constants'
 import { ComboboxSeed, ProductDrawerContent } from './ProductDrawerContent'
+
+import { escapeDoubleQuotes } from '../../utils/escapeDoubleQuotes'
 
 gql`
   fragment ProductForDrawer on Product {

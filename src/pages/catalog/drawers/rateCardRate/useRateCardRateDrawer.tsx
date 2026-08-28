@@ -15,7 +15,6 @@ import { prependOrgSlug } from '~/core/router/utils/prependOrgSlug'
 import getPropertyShape from '~/core/serializers/getPropertyShape'
 import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
 import { serializeProperties } from '~/core/serializers/serializePlanInput'
-import { escapeDoubleQuotes } from '~/core/utils/escapeDoubleQuotes'
 import {
   ChargeModelEnum,
   CustomChargeFragmentDoc,
@@ -56,6 +55,8 @@ import {
   RateCardRateSchemaContext,
 } from './constants'
 import { RateCardRateDrawerContent } from './RateCardRateDrawerContent'
+
+import { escapeDoubleQuotes } from '../../utils/escapeDoubleQuotes'
 
 gql`
   fragment PropertiesForRateCardRate on Properties {

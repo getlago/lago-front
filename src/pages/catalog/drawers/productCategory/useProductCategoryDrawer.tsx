@@ -12,7 +12,6 @@ import { ProductCategoryDetailsTabsOptionsEnum } from '~/core/constants/tabsOpti
 import { applyExistingCodeError } from '~/core/form/existingCodeError'
 import { PRODUCT_CATEGORY_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import { prependOrgSlug } from '~/core/router/utils/prependOrgSlug'
-import { escapeDoubleQuotes } from '~/core/utils/escapeDoubleQuotes'
 import {
   LagoApiError,
   ProductCategoryForProductCategoryDrawerFragment,
@@ -24,6 +23,8 @@ import { useAppForm } from '~/hooks/forms/useAppform'
 
 import { PRODUCT_FORM_DEFAULTS, PRODUCT_FORM_ID, ProductCategoryFormValues } from './constants'
 import { ProductCategoryDrawerContent } from './ProductCategoryDrawerContent'
+
+import { escapeDoubleQuotes } from '../../utils/escapeDoubleQuotes'
 
 gql`
   fragment ProductCategoryForProductCategoryDrawer on ProductCategory {
