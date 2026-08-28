@@ -24,6 +24,8 @@ If no Linear URL was provided, ask for it with AskUserQuestion and stop until gi
 
 3. **Explore the codebase.** Locate every file the ticket touches (components, hooks, GraphQL documents, translations, tests). Follow existing patterns — read neighboring code, don't invent structure. If GraphQL operations change, note that `pnpm codegen` is required.
 
+   **Date fields**: for every date in scope, pin in spec.md whether it is a calendar day or an instant, and state the write zone and the display zone together. Lago floors arrears dates to UTC midnight and the codebase pins date-only pickers to `TimezoneEnum.TzUtc`, so a date-only field must be written AND displayed in UTC. Naming the org timezone for one is how the display ends up disagreeing with the stored value.
+
 4. **Write `spec.md`** in the state dir, with exactly these sections:
 
    ```markdown

@@ -28,13 +28,14 @@ description: 'Phase 3 of the loop pipeline for lago-front. Takes an ISSUE-ID, re
    3. **No useless duplication**: no new component/hook/util that replicates something in `lago-design-system` or the shared codebase; no copy-pasted logic that should be extracted or reused.
    4. **Translations**: new keys in `translations/base.json` only where no existing label fit; no dead keys left; run `pnpm translations:inspect` to verify.
    5. Conventions: neighboring code style + the Frontend coding styleguide (Notion page linked in spec.md context); GraphQL codegen output consistent.
-   6. Tests exist for the change (make-tests output present in the diff).
+   6. Tests exist for the change (make-tests output present in the diff), and no test is defused by a fixture default that switches off the branch it claims to cover (a null relation, a false flag, an empty collection). See `.agents/docs/testing-practices.md` → "Fixture Defaults Must Not Disable the Branch Under Test".
    7. No dead code, no unused exports, no console.log/debug leftovers.
-   8. **Redundant comments**: a comment added or modified by the diff that restates a convention, repeats one already in the same block, or narrates self-evident code (a self-speaking prop, what a well-named variable holds, what the next line does) is a FAIL item (`redundant comment`). A comment stating a constraint, a non-obvious why, or a cross-file invariant the code cannot show is fine — the same three categories loop-build's comment rule allows.
+   8. **Comment budget**: `.agents/docs/typescript-conventions.md` → "Comments: Default to None" applies to every comment the diff adds or edits. FAIL (`redundant comment`) any that restates the code, runs longer than 2 lines, repeats another file's comment verbatim, records history git already holds, or documents a prop whose name already says it. A comment naming an external constraint the reader cannot see, why NOT the obvious alternative, or a trap that bites on edit is fine.
    9. **Navigation assertions pin the destination**: effects run in declaration order and the last navigate wins, so a bare `expect(navigate).toHaveBeenCalled()` stays green even when a later guard overwrites a correct redirect. With more than one navigating path, require `toHaveBeenCalledWith(...)` and assertions on the routes NOT taken.
    10. **Hook-mock callbacks all exercised**: the spec must capture and invoke every callback the component passes in (`onCompleted`, `onError`, ...) — one the mock drops is an untested path that still ships.
    11. **Redirect targets**: when a redirect uses a route constant, confirm it is the view intended — tab-less constants are often aliased to a default tab through a `match:` array.
-   12. Gates actually green: re-run `pnpm lint` and `pnpm types` in the worktree — do not trust the build phase's claim.
+   12. **Reused components, write path**: when an existing form component is reused on a new surface, walk every OPTIONAL callback prop it declares, not just the required ones. For each one the new caller omits, name the user action it disables and confirm that action is out of scope. An omitted `on*` prop on a form component is a silent read-only mode, not a default.
+   13. Gates actually green: re-run `pnpm lint` and `pnpm types` in the worktree — do not trust the build phase's claim.
 
 4. **Second pass with the code-review skill**: run the `/code-review` skill (working-diff reviewer) on the worktree diff and fold any confirmed findings into the issues list.
 
