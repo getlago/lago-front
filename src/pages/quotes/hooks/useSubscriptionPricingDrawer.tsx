@@ -13,6 +13,7 @@ import {
 import { useFormDrawer } from '~/components/drawers/useDrawer'
 import type { PlanFormInput } from '~/components/plans/types'
 import { addToast } from '~/core/apolloClient'
+import { buildPlanPreviewData } from '~/core/serializers/buildPlanPreviewData'
 import type { BillingItemsPayload } from '~/core/serializers/serializeQuoteBillingItems'
 import {
   fromPlanBillingItems,
@@ -171,6 +172,7 @@ export const useSubscriptionPricingDrawer = (
             entityType: 'plan',
             name: state.planName,
             code: state.planCode,
+            plan: buildPlanPreviewData(formValues ?? null),
           },
         }
 

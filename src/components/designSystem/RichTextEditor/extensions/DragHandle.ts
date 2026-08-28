@@ -145,7 +145,7 @@ export const DragHandle = Extension.create({
       editor.view.focus()
     }
 
-    function createHandleElement(pos: number): HTMLElement {
+    function createHandleElement(getPos: () => number | undefined): HTMLElement {
       const group = document.createElement('div')
 
       group.className = 'block-handle-group'
@@ -184,6 +184,14 @@ export const DragHandle = Extension.create({
       renderIcon(gripIconContainer, 'double-dots-vertical')
 
       gripButton.addEventListener('dragstart', (e) => {
+        const pos = getPos()
+
+        if (pos === undefined) {
+          e.preventDefault()
+
+          return
+        }
+
         selectBlock(pos)
 
         editor.view.dragging = {
@@ -211,6 +219,11 @@ export const DragHandle = Extension.create({
       gripButton.addEventListener('click', (e) => {
         e.preventDefault()
         e.stopPropagation()
+
+        const pos = getPos()
+
+        if (pos === undefined) return
+
         selectBlock(pos)
       })
 
@@ -225,7 +238,7 @@ export const DragHandle = Extension.create({
 
       doc.forEach((node, pos) => {
         decorations.push(
-          Decoration.widget(pos, () => createHandleElement(pos), {
+          Decoration.widget(pos, (_view, getPos): HTMLElement => createHandleElement(getPos), {
             side: -1,
             key: `drag-handle-${pos}`,
             ignoreSelection: true,

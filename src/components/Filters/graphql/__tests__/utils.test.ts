@@ -25,11 +25,14 @@ import {
   isValidDateRangeValue,
   keyWithPrefix,
   mapRateCardFilterVars,
+  orderIntervalBounds,
   parseFromToValue,
   parseMetadataFilter,
   unescapeFilterLabel,
 } from '~/components/Filters/graphql/utils'
 import {
+  AMOUNT_INTERVALS_TRANSLATION_MAP,
+  AmountFilterInterval,
   AvailableFiltersEnum,
   filterDataInlineSeparator,
   filterWithoutProductCategoryValue,
@@ -481,6 +484,32 @@ describe('Filters utils', () => {
 
       expect(result).toBe('Acme Corp, Beta Inc')
     })
+
+    describe('GIVEN an is between interval', () => {
+      const translate = ((key: string) =>
+        key === AMOUNT_INTERVALS_TRANSLATION_MAP[AmountFilterInterval.isBetween]
+          ? 'Is between'
+          : 'And') as TranslateFunc
+
+      it.each([
+        ['ascending bounds', 'isBetween,10,11'],
+        ['descending bounds', 'isBetween,11,10'],
+      ])('WHEN the amount value has %s THEN should read the interval ascending', (_, value) => {
+        const result = formatActiveFilterValueDisplay(AvailableFiltersEnum.amount, value, translate)
+
+        expect(result).toBe('Is between 10 and 11')
+      })
+
+      it('WHEN the activeSubscriptions bounds are descending THEN should read the interval ascending', () => {
+        const result = formatActiveFilterValueDisplay(
+          AvailableFiltersEnum.activeSubscriptions,
+          'isBetween,8,3',
+          translate,
+        )
+
+        expect(result).toBe('Is between 3 and 8')
+      })
+    })
   })
 
   describe('getFilterValue', () => {
@@ -587,6 +616,42 @@ describe('Filters utils', () => {
       expect(result).toEqual({
         from: 20,
         to: null,
+      })
+    })
+  })
+
+  describe('orderIntervalBounds', () => {
+    describe('GIVEN an is between interval with both bounds', () => {
+      it.each([
+        ['the from is greater than the to', 'isBetween,11,10', 'isBetween,10,11'],
+        ['the bounds are decimals', 'isBetween,10.5,10.05', 'isBetween,10.05,10.5'],
+        ['the from is positive and the to is zero', 'isBetween,3,0', 'isBetween,0,3'],
+      ])('WHEN %s THEN should swap the bounds', (_, value, expected) => {
+        expect(orderIntervalBounds(value)).toBe(expected)
+      })
+
+      it.each([
+        ['the from is lower than the to', 'isBetween,10,11'],
+        ['the bounds are identical', 'isBetween,10,10'],
+        ['both bounds are zero', 'isBetween,0,0'],
+        ['a bound is not a number', 'isBetween,abc,10'],
+      ])('WHEN %s THEN should keep the value untouched', (_, value) => {
+        expect(orderIntervalBounds(value)).toBe(value)
+      })
+    })
+
+    describe('GIVEN a value without two comparable bounds', () => {
+      it.each([
+        ['the interval has a single bound', 'isAtLeast,11'],
+        ['the interval compares to one bound', 'isEqualTo,11,'],
+        ['the upper bound only is set', 'isUpTo,,10'],
+        ['the interval is lower than', 'isLessThan,,10'],
+        ['the interval is greater than', 'isGreaterThan,11,'],
+        ['the is between from is missing', 'isBetween,,10'],
+        ['the is between to is missing', 'isBetween,11,'],
+        ['the value is empty', ''],
+      ])('WHEN %s THEN should keep the value untouched', (_, value) => {
+        expect(orderIntervalBounds(value)).toBe(value)
       })
     })
   })
@@ -1052,6 +1117,21 @@ describe('Filters utils', () => {
   })
 
   describe('FILTER_VALUE_MAP', () => {
+    describe('GIVEN an is between interval with reversed bounds', () => {
+      it('WHEN parsing the amount filter THEN should query the same interval as ordered bounds', () => {
+        const result = FILTER_VALUE_MAP[AvailableFiltersEnum.amount]('isBetween,11,10')
+
+        expect(result).toEqual(FILTER_VALUE_MAP[AvailableFiltersEnum.amount]('isBetween,10,11'))
+        expect(result).toEqual({ amountFrom: 10, amountTo: 11 })
+      })
+
+      it('WHEN parsing the activeSubscriptions filter THEN should query the same interval as ordered bounds', () => {
+        const result = FILTER_VALUE_MAP[AvailableFiltersEnum.activeSubscriptions]('isBetween,8,3')
+
+        expect(result).toEqual({ activeSubscriptionsFrom: 3, activeSubscriptionsTo: 8 })
+      })
+    })
+
     it('should parse creditNoteType filter correctly', () => {
       const result = FILTER_VALUE_MAP[AvailableFiltersEnum.creditNoteType]('credit,refund,offset')
 
