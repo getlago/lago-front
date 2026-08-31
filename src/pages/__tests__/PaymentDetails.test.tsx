@@ -1,9 +1,14 @@
-import { screen } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
 
 import { MainHeaderConfig } from '~/components/MainHeader/types'
 import { addToast } from '~/core/apolloClient'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { CurrencyEnum, PayablePaymentStatusEnum, PaymentTypeEnum } from '~/generated/graphql'
+import {
+  CurrencyEnum,
+  PayablePaymentStatusEnum,
+  PaymentTypeEnum,
+  ProviderTypeEnum,
+} from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import PaymentDetails from '../PaymentDetails'
@@ -182,6 +187,27 @@ describe('PaymentDetails', () => {
         render(<PaymentDetails />)
 
         expect(screen.getByText('INV-001')).toBeInTheDocument()
+      })
+
+      it('THEN should display the provider payment ID and external-link icon inline', () => {
+        mockUseGetPaymentDetailsQuery.mockReturnValue({
+          data: {
+            payment: {
+              ...mockPaymentData.payment,
+              paymentType: PaymentTypeEnum.Provider,
+              paymentProviderType: ProviderTypeEnum.Stripe,
+              providerPaymentId: 'provider-payment-123',
+            },
+          },
+          loading: false,
+        })
+
+        render(<PaymentDetails />)
+
+        const providerPaymentId = screen.getByText('provider-payment-123')
+
+        expect(providerPaymentId).toHaveClass('flex', 'items-center', 'gap-1')
+        expect(within(providerPaymentId).getByTestId('outside/medium')).toBeInTheDocument()
       })
     })
   })
