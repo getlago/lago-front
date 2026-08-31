@@ -6,6 +6,7 @@ import {
   ENTITY_SECTION_METADATA_TEST_ID,
   ENTITY_SECTION_VIEW_NAME_TEST_ID,
 } from '~/components/MainHeader/mainHeaderTestIds'
+import { ProductCategoryDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { GetProductCategoryForDetailsDocument } from '~/generated/graphql'
 import { AllTheProviders, testMockNavigateFn } from '~/test-utils'
 
@@ -78,7 +79,9 @@ const ProductCategoryDetailsWithHeader = () => (
 
 // forceTypenames + __typename in the fixture: the query spreads fragments, and
 // the cache only writes fragment fields when it can match the typename.
-const renderPage = (tab = 'overview') => {
+const renderPage = (
+  tab: ProductCategoryDetailsTabsOptionsEnum = ProductCategoryDetailsTabsOptionsEnum.overview,
+) => {
   window.history.pushState({}, '', `/product-catalog/product-categories/prod-1/${tab}`)
 
   return rtlRender(<ProductCategoryDetailsWithHeader />, {
@@ -138,12 +141,12 @@ describe('ProductCategoryDetails', () => {
   })
 
   it('renders the activity logs tab content scoped to the product category', async () => {
-    await act(() => renderPage('activity-logs'))
+    await act(() => renderPage(ProductCategoryDetailsTabsOptionsEnum.activityLogs))
 
     await waitFor(() => {
-      expect(mockProductCategoryActivityLogsProps).toHaveBeenCalledWith(
-        expect.objectContaining({ productCategoryId: 'prod-1' }),
-      )
+      expect(mockProductCategoryActivityLogsProps).toHaveBeenCalledWith({
+        productCategoryId: 'prod-1',
+      })
     })
   })
 

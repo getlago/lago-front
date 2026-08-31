@@ -6,6 +6,7 @@ import {
   ENTITY_SECTION_METADATA_TEST_ID,
   ENTITY_SECTION_VIEW_NAME_TEST_ID,
 } from '~/components/MainHeader/mainHeaderTestIds'
+import { ProductDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { GetProductForDetailsDocument, ProductTypeEnum } from '~/generated/graphql'
 import { AllTheProviders, testMockNavigateFn } from '~/test-utils'
 
@@ -95,7 +96,9 @@ const ProductDetailsWithHeader = () => (
 
 // forceTypenames + __typename in the fixture: the query spreads fragments, and
 // the cache only writes fragment fields when it can match the typename.
-const renderPage = (tab = 'overview') => {
+const renderPage = (
+  tab: ProductDetailsTabsOptionsEnum = ProductDetailsTabsOptionsEnum.overview,
+) => {
   window.history.pushState({}, '', `/product-catalog/products/pitem-1/${tab}`)
 
   return rtlRender(<ProductDetailsWithHeader />, {
@@ -149,7 +152,7 @@ describe('ProductDetails', () => {
   })
 
   it('renders the RateCardPreview scoped to this product on the rate cards tab', async () => {
-    await act(() => renderPage('rate-cards'))
+    await act(() => renderPage(ProductDetailsTabsOptionsEnum.rateCards))
 
     await waitFor(() => {
       expect(mockRateCardPreviewProps).toHaveBeenCalledWith({
@@ -159,12 +162,10 @@ describe('ProductDetails', () => {
   })
 
   it('renders the activity logs tab content scoped to the product', async () => {
-    await act(() => renderPage('activity-logs'))
+    await act(() => renderPage(ProductDetailsTabsOptionsEnum.activityLogs))
 
     await waitFor(() => {
-      expect(mockProductActivityLogsProps).toHaveBeenCalledWith(
-        expect.objectContaining({ productId: 'pitem-1' }),
-      )
+      expect(mockProductActivityLogsProps).toHaveBeenCalledWith({ productId: 'pitem-1' })
     })
   })
 
