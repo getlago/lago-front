@@ -1,3 +1,5 @@
+import { DateTime } from 'luxon'
+
 import {
   BillingTimeEnum,
   ChargeModelEnum,
@@ -21,6 +23,8 @@ export const dateErrorCodes = {
   shouldBeFutureAndBiggerThanSubscriptionAt: 'shouldBeFutureAndBiggerThanSubscriptionAt',
   shouldBeFutureAndBiggerThanFromDatetime: 'shouldBeFutureAndBiggerThanFromDatetime',
 } as const
+export const MIN_SUPPORTED_DATE_YEAR = 1970
+export const MIN_SUPPORTED_DATE = DateTime.fromISO('1970-01-01T00:00:00.000Z', { zone: 'utc' })
 export const MIN_AMOUNT_SHOULD_BE_LOWER_THAN_MAX_ERROR = 'minAmountShouldBeLowerThanMax'
 
 /**** Selectors ****/
