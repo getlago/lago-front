@@ -396,9 +396,10 @@ it is the difference between low-risk and needs-a-second-opinion.>
 - `pnpm test src/<scoped path>` <only the touched domain, never the full suite>
 - `pnpm codegen` <only if a GraphQL document changed — then the diff must be clean>
 
-**Conventions that apply:** <the `CLAUDE.md` rules this change is subject to — new
-translation keys via `pnpm translations:add <n>` and never hand-written, pagination
-field policy registration, slug-aware router imports, direct MUI imports, and so on.
+**Conventions that apply:** <the rules this change is subject to, from `CLAUDE.md` and the
+`lago-*` skills — new translation keys via `pnpm translations:add <n>` and never
+hand-written, pagination field policy registration, slug-aware router imports, direct MUI
+imports, and so on.
 Cite only the ones that actually bind here; "none beyond the defaults" is valid.>
 ```
 
@@ -408,7 +409,7 @@ Rules for the block, in order of how often they are what goes wrong:
 2. **Every path exact and complete** — relative to `front/`, no globs, no "and related files", no "etc.". If the sweep in step 5 found six call sites, all six are listed.
 3. **Snippets apply as written.** No `...` inside lines that change. The surrounding context must be enough to locate the edit unambiguously.
 4. **Acceptance criteria are assertions, not intentions,** and assertable *in this repo's test setup*. "The chip shows `8/20/2026` for a `+02:00` bound" — not "the chip shows the right date". Two traps: `translate` is mocked in jest, so a criterion phrased against user-facing copy ("the label reads Admin") cannot be asserted — phrase it against the translation key or an exported `data-test` constant. And every criterion needs a concrete expected value, so "restores the full list" has to name the rows or the count.
-5. **Name the conventions.** `CLAUDE.md` is there for whoever implements this, but stating which rules bind *this* change prevents the classic misses (hand-written translation keys, missing cache field policy, barrel MUI imports) — an agent skips them, a developer new to the area does not know them.
+5. **Name the conventions.** `CLAUDE.md` and the `lago-*` skills are there for whoever implements this, but stating which rules bind *this* change prevents the classic misses (hand-written translation keys, missing cache field policy, barrel MUI imports) — an agent skips them, a developer new to the area does not know them.
 6. **Unresolved decisions go to *Open questions*, marked (blocking).** Never leave a decision implicit inside the handoff for the implementer to guess. The one that hides most easily: a **derived value that can fail to resolve**. If the fix compares against something looked up at runtime — a code mapped to a name, an id mapped to a record — say what happens while the lookup is still loading and when it never resolves (a stale link, a deleted record). `list.includes(undefined)` is false for every row, which renders as a confidently empty screen rather than an error. Decide it in the handoff, or raise it as blocking.
 
 ### Verify the references mechanically, before posting
@@ -485,8 +486,8 @@ It must also review the **Implementation handoff** block as its own deliverable,
 - Is each acceptance criterion an assertion with a concrete expected value, testable as written?
 - Could the block be read as offering more than one approach?
 - Is any decision left implicit that the implementer would have to guess?
-- Does the proposed fix follow the pattern `CLAUDE.md` and `.agents/docs/` prescribe for this
-  area — rather than whatever the neighbouring code happens to do?
+- Does the proposed fix follow the pattern `CLAUDE.md`, `.agents/docs/` and the `lago-*`
+  skills prescribe for this area — rather than whatever the neighbouring code happens to do?
 
 A `FAIL` on the handoff counts exactly like a `FAIL` on the analysis. An analysis that is
 correct but hands off badly still produces a wrong implementation.

@@ -11,7 +11,7 @@ import { useDeveloperTool } from '~/hooks/useDeveloperTool'
 
 /** The two pagination strategies activity-log lists use today: the resource detail tabs page
  *  through `fetchMore`, while the customer tab drives the page from the URL
- *  (`usePageSearchParam`), which CLAUDE.md prescribes for the customer-detail tabs. */
+ *  (`usePageSearchParam`), which `lago-pagination` prescribes for the customer-detail tabs. */
 type ActivityLogsPaginationProps =
   | {
       /** The query's own `fetchMore` — the pager calls it with the target page */
