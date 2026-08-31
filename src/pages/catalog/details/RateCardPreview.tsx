@@ -3,12 +3,12 @@ import { generatePath } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { Table, TablePlaceholder } from '~/components/designSystem/Table/Table'
-import { Typography } from '~/components/designSystem/Typography'
 import {
   AvailableFiltersEnum,
   escapeFilterLabel,
   filterDataInlineSeparator,
 } from '~/components/Filters'
+import { PageSectionTitle } from '~/components/layouts/Section'
 import { SearchInput } from '~/components/SearchInput'
 import { RATE_CARD_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { ProductCatalogTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -295,29 +295,22 @@ const RateCardPreview = ({ scope }: { scope: RateCardPreviewScope }) => {
 
   return (
     <section>
-      <div className="flex h-18 items-center justify-between gap-4">
-        <div className="flex flex-col">
-          <Typography variant="subhead1" color="grey700" noWrap>
-            {translate('text_1783104239825nxqno33u945')}
-          </Typography>
-          <Typography variant="caption" color="grey600" noWrap>
-            {translate(RATE_CARD_DRAWER_DESCRIPTION_KEY)}
-          </Typography>
-        </div>
-        {canCreateRateCards && (
-          <Button
-            variant="inline"
-            data-test={RATE_CARD_PREVIEW_CREATE_TEST_ID}
-            onClick={() =>
-              'product' in scope
-                ? openRateCardDrawer({ attachToProduct: scope.product })
-                : openRateCardDrawer({ attachToProductFilter: scope.productFilter })
-            }
-          >
-            {translate(RATE_CARD_DRAWER_TITLE_CREATE_KEY)}
-          </Button>
-        )}
-      </div>
+      <PageSectionTitle
+        title={translate('text_1783104239825nxqno33u945')}
+        subtitle={translate(RATE_CARD_DRAWER_DESCRIPTION_KEY)}
+        action={
+          canCreateRateCards
+            ? {
+                title: translate(RATE_CARD_DRAWER_TITLE_CREATE_KEY),
+                dataTest: RATE_CARD_PREVIEW_CREATE_TEST_ID,
+                onClick: () =>
+                  'product' in scope
+                    ? openRateCardDrawer({ attachToProduct: scope.product })
+                    : openRateCardDrawer({ attachToProductFilter: scope.productFilter }),
+              }
+            : undefined
+        }
+      />
 
       {'product' in scope ? (
         <RateCardPreviewListForProduct

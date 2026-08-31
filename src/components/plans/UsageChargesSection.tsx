@@ -212,7 +212,6 @@ export const UsageChargesSection = ({
       <UsageChargeDrawer
         ref={usageChargeDrawerRef}
         disabled={isEdition && !canBeEdited}
-        isEdition={isEdition}
         isInSubscriptionForm={isInSubscriptionForm}
         subscriptionFormType={subscriptionFormType}
         onSave={handleDrawerSave}

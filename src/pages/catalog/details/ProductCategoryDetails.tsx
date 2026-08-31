@@ -144,7 +144,7 @@ const ProductCategoryDetails = () => {
               tab: ProductCategoryDetailsTabsOptionsEnum.overview,
             }),
             content: (
-              <DetailsPage.Container>
+              <DetailsPage.Container className="pt-6">
                 <ProductCategoryDetailsOverview />
               </DetailsPage.Container>
             ),
@@ -156,7 +156,7 @@ const ProductCategoryDetails = () => {
               tab: ProductCategoryDetailsTabsOptionsEnum.products,
             }),
             content: (
-              <DetailsPage.Container>
+              <DetailsPage.Container className="pt-6">
                 <ProductCategoryDetailsProducts
                   productCategory={
                     productCategory

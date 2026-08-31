@@ -18,7 +18,6 @@ describe('ChargeFilterDrawerContext', () => {
             chargeType="fixed"
             currency={CurrencyEnum.Eur}
             chargePricingUnitShortName={undefined}
-            isEdition={false}
           >
             {children}
           </ChargeFilterDrawerProvider>
@@ -36,7 +35,6 @@ describe('ChargeFilterDrawerContext', () => {
             chargeType="usage"
             currency={CurrencyEnum.Usd}
             chargePricingUnitShortName={undefined}
-            isEdition={false}
           >
             {children}
           </ChargeFilterDrawerProvider>
@@ -54,7 +52,6 @@ describe('ChargeFilterDrawerContext', () => {
             chargeType="fixed"
             currency={CurrencyEnum.Gbp}
             chargePricingUnitShortName="GBP"
-            isEdition={true}
           >
             {children}
           </ChargeFilterDrawerProvider>
@@ -64,24 +61,6 @@ describe('ChargeFilterDrawerContext', () => {
 
         expect(result.current.currency).toBe(CurrencyEnum.Gbp)
         expect(result.current.chargePricingUnitShortName).toBe('GBP')
-      })
-
-      it('THEN should return the provided isEdition value', () => {
-        const wrapper = ({ children }: { children: ReactNode }) => (
-          <ChargeFilterDrawerProvider
-            chargeModel={ChargeModelEnum.Volume}
-            chargeType="usage"
-            currency={CurrencyEnum.Usd}
-            chargePricingUnitShortName={undefined}
-            isEdition={true}
-          >
-            {children}
-          </ChargeFilterDrawerProvider>
-        )
-
-        const { result } = renderHook(() => useChargeFilterDrawerContext(), { wrapper })
-
-        expect(result.current.isEdition).toBe(true)
       })
     })
 
@@ -93,7 +72,6 @@ describe('ChargeFilterDrawerContext', () => {
             chargeType="fixed"
             currency={CurrencyEnum.Eur}
             chargePricingUnitShortName={undefined}
-            isEdition={false}
           >
             {children}
           </ChargeFilterDrawerProvider>

@@ -2,11 +2,11 @@ import { gql } from '@apollo/client'
 import { Fragment } from 'react'
 import { generatePath } from 'react-router-dom'
 
-import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'
 import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
+import { PageSectionTitle } from '~/components/layouts/Section'
 import {
   ProductCategoryDetailsTabsOptionsEnum,
   ProductDetailsTabsOptionsEnum,
@@ -151,25 +151,19 @@ const ProductFilterDetailsOverview = ({ productFilterId }: { productFilterId: st
 
   return (
     <section>
-      <div className="flex h-18 items-center justify-between gap-4">
-        <div className="flex flex-col">
-          <Typography variant="subhead1" color="grey700" noWrap>
-            {translate('text_1784590896872mnuossjldco')}
-          </Typography>
-          <Typography variant="caption" color="grey600" noWrap>
-            {translate('text_17845908968721vd9etj0npq')}
-          </Typography>
-        </div>
-        {hasPermissions(['productFiltersUpdate']) && (
-          <Button
-            variant="inline"
-            data-test={PRODUCT_ITEM_FILTER_DETAILS_OVERVIEW_EDIT_TEST_ID}
-            onClick={() => openEditProductFilterDrawer({ productFilter })}
-          >
-            {translate('text_625fd39a15394c0117e7d792')}
-          </Button>
-        )}
-      </div>
+      <PageSectionTitle
+        title={translate('text_1784590896872mnuossjldco')}
+        subtitle={translate('text_17845908968721vd9etj0npq')}
+        action={
+          hasPermissions(['productFiltersUpdate'])
+            ? {
+                title: translate('text_625fd39a15394c0117e7d792'),
+                dataTest: PRODUCT_ITEM_FILTER_DETAILS_OVERVIEW_EDIT_TEST_ID,
+                onClick: () => openEditProductFilterDrawer({ productFilter }),
+              }
+            : undefined
+        }
+      />
 
       <div className="flex flex-col gap-4">
         <DetailsPage.InfoGrid

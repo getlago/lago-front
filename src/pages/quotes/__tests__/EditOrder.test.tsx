@@ -1,6 +1,7 @@
 import NiceModal from '@ebay/nice-modal-react'
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { DateTime } from 'luxon'
 
 import CentralizedDialog from '~/components/dialogs/CentralizedDialog'
 import {
@@ -109,6 +110,15 @@ const mockOrder = {
   },
 }
 
+// Noon UTC keeps the same calendar date across all realistic test timezones
+const mockOrderWithExecuteAt = {
+  ...mockOrder,
+  executionMode: OrderExecutionModeEnum.ExecuteInLago,
+  executeAt: '2030-12-25T12:00:00.000Z',
+}
+
+const executeAtInput = () => screen.getByPlaceholderText('text_17816865941253r8yqeoibh1')
+
 describe('EditOrder', () => {
   beforeEach(() => {
     jest.clearAllMocks()
@@ -151,6 +161,7 @@ describe('EditOrder', () => {
           input: expect.objectContaining({
             id: 'order-123',
             executionMode: OrderExecutionModeEnum.ExecuteInLago,
+            executeAt: null,
           }),
         },
       })
@@ -250,11 +261,109 @@ describe('EditOrder', () => {
           input: expect.objectContaining({
             id: 'order-123',
             executionMode: OrderExecutionModeEnum.OrderOnly,
+            executeAt: null,
           }),
         },
       })
     })
     expect(mockGoBack).toHaveBeenCalled()
+  })
+
+  it('sends an explicit null when the execution date is cleared', async () => {
+    mockUseGetOrderForEditQuery.mockReturnValue({
+      data: { order: mockOrderWithExecuteAt },
+      loading: false,
+      error: undefined,
+    })
+    mockUpdateOrder.mockResolvedValueOnce({
+      data: { updateOrder: { id: 'order-123' } },
+    })
+
+    const user = userEvent.setup()
+
+    renderPage()
+
+    await user.clear(executeAtInput())
+
+    await user.click(screen.getByTestId(EDIT_ORDER_SUBMIT_BUTTON_TEST_ID))
+
+    await waitFor(() => {
+      expect(mockUpdateOrder).toHaveBeenCalledWith({
+        variables: {
+          input: {
+            id: 'order-123',
+            executionMode: OrderExecutionModeEnum.ExecuteInLago,
+            executeAt: null,
+          },
+        },
+      })
+    })
+    expect(mockGoBack).toHaveBeenCalled()
+  })
+
+  it('submits the new execution date when it is changed', async () => {
+    mockUseGetOrderForEditQuery.mockReturnValue({
+      data: { order: mockOrderWithExecuteAt },
+      loading: false,
+      error: undefined,
+    })
+    mockUpdateOrder.mockResolvedValueOnce({
+      data: { updateOrder: { id: 'order-123' } },
+    })
+
+    const user = userEvent.setup()
+
+    renderPage()
+
+    await user.clear(executeAtInput())
+    await user.type(executeAtInput(), '12/31/2030')
+
+    await user.click(screen.getByTestId(EDIT_ORDER_SUBMIT_BUTTON_TEST_ID))
+
+    await waitFor(() => {
+      expect(mockUpdateOrder).toHaveBeenCalled()
+    })
+
+    // Asserted as a calendar date rather than an instant: the picker emits UTC, so the exact
+    // string depends on the runner's timezone.
+    const { executeAt } = mockUpdateOrder.mock.calls[0][0].variables.input
+
+    expect(DateTime.fromISO(executeAt).toFormat('MM/dd/yyyy')).toBe('12/31/2030')
+  })
+
+  it('shows the API failure inline instead of navigating away', async () => {
+    mockUseGetOrderForEditQuery.mockReturnValue({
+      data: { order: mockOrderWithExecuteAt },
+      loading: false,
+      error: undefined,
+    })
+    mockUpdateOrder.mockResolvedValueOnce({
+      data: null,
+      errors: [
+        {
+          message: 'Unprocessable Entity',
+          extensions: {
+            code: 'unprocessable_entity',
+            details: { executeAt: ['after_deal_expiration'] },
+          },
+        },
+      ],
+    })
+
+    const user = userEvent.setup()
+
+    renderPage()
+
+    await user.click(screen.getByTestId(EDIT_ORDER_SUBMIT_BUTTON_TEST_ID))
+
+    await waitFor(() => {
+      expect(screen.getByText('text_1787137341763nutdwcniihz')).toBeInTheDocument()
+    })
+    expect(addToast).toHaveBeenCalledWith({
+      severity: 'danger',
+      message: 'text_1787137341763nutdwcniihz',
+    })
+    expect(mockGoBack).not.toHaveBeenCalled()
   })
 
   describe('unsaved-changes guard', () => {

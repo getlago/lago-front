@@ -3,12 +3,12 @@ import { generatePath } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
 import { Table, TablePlaceholder } from '~/components/designSystem/Table/Table'
-import { Typography } from '~/components/designSystem/Typography'
 import {
   AvailableFiltersEnum,
   escapeFilterLabel,
   filterDataInlineSeparator,
 } from '~/components/Filters'
+import { PageSectionTitle } from '~/components/layouts/Section'
 import { SearchInput } from '~/components/SearchInput'
 import { PRODUCT_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { ProductCatalogTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -151,25 +151,19 @@ export const ProductCategoryDetailsProducts = ({
 
   return (
     <section>
-      <div className="flex h-18 items-center justify-between gap-4">
-        <div className="flex flex-col">
-          <Typography variant="subhead1" color="grey700" noWrap>
-            {translate('text_17831042398250iwa2xp8pba')}
-          </Typography>
-          <Typography variant="caption" color="grey600" noWrap>
-            {translate('text_1783980718114ltktg3qxx47')}
-          </Typography>
-        </div>
-        {hasPermissions(['productsCreate']) && !!productCategory && (
-          <Button
-            variant="inline"
-            data-test={PRODUCT_DETAILS_ADD_PRODUCT_ITEM_TEST_ID}
-            onClick={() => openProductDrawer({ attachToProductCategory: productCategory })}
-          >
-            {translate('text_1783622030703m9jlurg4jsn')}
-          </Button>
-        )}
-      </div>
+      <PageSectionTitle
+        title={translate('text_17831042398250iwa2xp8pba')}
+        subtitle={translate('text_1783980718114ltktg3qxx47')}
+        action={
+          hasPermissions(['productsCreate']) && !!productCategory
+            ? {
+                title: translate('text_1783622030703m9jlurg4jsn'),
+                dataTest: PRODUCT_DETAILS_ADD_PRODUCT_ITEM_TEST_ID,
+                onClick: () => openProductDrawer({ attachToProductCategory: productCategory }),
+              }
+            : undefined
+        }
+      />
 
       {productCategory ? <ProductsPreview productCategory={productCategory} /> : null}
     </section>

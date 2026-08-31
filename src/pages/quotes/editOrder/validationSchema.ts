@@ -33,5 +33,5 @@ export const buildUpdateOrderInput = (
 ): UpdateOrderInput => ({
   id: orderId,
   executionMode: values.executionMode,
-  executeAt: values.executeAt,
+  executeAt: values.executeAt ?? null,
 })
