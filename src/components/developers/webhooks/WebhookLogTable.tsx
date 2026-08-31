@@ -16,6 +16,7 @@ import { useFormatterDateHelper } from '~/hooks/helpers/useFormatterDateHelper'
 type WebhookLogTableProps = {
   getWebhookLogsResult: GetWebhookLogQueryResult
   logListRef: React.RefObject<ListSectionRef>
+  activeRowId?: string
   isLoading: boolean
   pageSize?: number
   onPageSizeChange?: (pageSize: number) => void
@@ -24,6 +25,7 @@ type WebhookLogTableProps = {
 export const WebhookLogTable: FC<WebhookLogTableProps> = ({
   getWebhookLogsResult,
   logListRef,
+  activeRowId,
   isLoading,
   pageSize,
   onPageSizeChange,
@@ -49,6 +51,7 @@ export const WebhookLogTable: FC<WebhookLogTableProps> = ({
         containerSize={16}
         rowSize={48}
         data={data?.webhooks.collection ?? []}
+        activeRowId={activeRowId}
         hasError={!!error}
         isLoading={isLoading}
         loadingRowCount={pageSize}

@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ReactNode } from 'react'
 
@@ -30,6 +30,12 @@ const AVAILABLE_FILTERS = [
   AvailableFiltersEnum.currency,
   AvailableFiltersEnum.externalId,
 ]
+
+const DATE_AVAILABLE_FILTERS = [AvailableFiltersEnum.issuingDate]
+
+const hydrateUrlWithFilters = (search: string): void => {
+  window.history.replaceState({}, '', search)
+}
 
 const renderPanel = (props: Partial<Parameters<typeof FiltersProvider>[0]> = {}): void => {
   render(
@@ -154,6 +160,40 @@ describe('FiltersPanelPopper', () => {
         await userEvent.click(screen.getByTestId(FILTERS_PANEL_CANCEL_TEST_ID))
 
         expect(screen.queryByTestId(FILTERS_PANEL_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a date range filter hydrated from the URL', () => {
+    afterEach(() => {
+      hydrateUrlWithFilters('/')
+    })
+
+    describe('WHEN the range cannot be queried and the user edits one bound', () => {
+      it('THEN it keeps the apply button disabled', async () => {
+        hydrateUrlWithFilters('/?f_issuingDate=not-a-date,2024-01-31T23:59:59.999Z')
+        renderPanel({ availableFilters: DATE_AVAILABLE_FILTERS })
+        await openPanel()
+
+        const toInput = screen.getAllByRole('textbox')[1]
+
+        fireEvent.change(toInput, { target: { value: '02/15/2024' } })
+
+        expect(screen.getByTestId(FILTERS_PANEL_APPLY_TEST_ID)).toBeDisabled()
+      })
+    })
+
+    describe('WHEN the range is ordered and the user edits one bound', () => {
+      it('THEN it enables the apply button', async () => {
+        hydrateUrlWithFilters('/?f_issuingDate=2024-01-01T00:00:00.000Z,2024-01-31T23:59:59.999Z')
+        renderPanel({ availableFilters: DATE_AVAILABLE_FILTERS })
+        await openPanel()
+
+        const toInput = screen.getAllByRole('textbox')[1]
+
+        fireEvent.change(toInput, { target: { value: '02/15/2024' } })
+
+        expect(screen.getByTestId(FILTERS_PANEL_APPLY_TEST_ID)).not.toBeDisabled()
       })
     })
   })

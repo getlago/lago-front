@@ -1,5 +1,7 @@
 import { FieldPolicy, InMemoryCache } from '@apollo/client'
 
+import { Event } from '~/generated/graphql'
+
 import { createPaginatedFieldPolicy, createSinglePageFieldPolicy } from './cacheHelpers'
 
 // Every root query field consumed via fetchMore needs a merge policy here, otherwise
@@ -34,7 +36,12 @@ export const queryFieldPolicies: Record<string, FieldPolicy> = {
   payments: createSinglePageFieldPolicy(),
   plans: createSinglePageFieldPolicy(),
   pricingUnits: createSinglePageFieldPolicy(),
+  productCategories: createSinglePageFieldPolicy(),
+  products: createSinglePageFieldPolicy(),
+  productFilters: createSinglePageFieldPolicy(),
   quotes: createSinglePageFieldPolicy(),
+  rateCardRates: createSinglePageFieldPolicy(),
+  rateCards: createSinglePageFieldPolicy(),
   subscriptions: createSinglePageFieldPolicy(),
   taxes: createSinglePageFieldPolicy(),
   wallets: createSinglePageFieldPolicy(),
@@ -87,10 +94,27 @@ export const queryFieldPolicies: Record<string, FieldPolicy> = {
   },
 }
 
+// `Event.id` is not an identity — the rationale lives on `EventKey` in
+// `~/components/developers/events/eventKey`. Dropping any of the four fields re-merges events
+// the API bills separately, which is the bug this policy exists to prevent.
+//
+// Every query returning an `Event` MUST select all four fields. A selection missing one makes
+// Apollo throw (InvariantError 5, raised by the key extractor) and discard the whole write —
+// it does not merely warn. Both `EventItem` and `EventDetails` cover the tuple.
+export const EVENT_KEY_FIELDS = [
+  'transactionId',
+  'externalSubscriptionId',
+  'timestampMs',
+  'code',
+] satisfies (keyof Event)[]
+
 export const cache = new InMemoryCache({
   typePolicies: {
     Query: {
       fields: queryFieldPolicies,
+    },
+    Event: {
+      keyFields: EVENT_KEY_FIELDS,
     },
   },
 })

@@ -29,6 +29,7 @@ const translate = ((key: string, data?: Record<string, unknown>) => {
     // wallet-owned interval + fee-type keys
     text_1784883525803lunzztlh547: 'Monthly',
     text_1784883525803oz45f5x0ier: 'Usage charges',
+    text_1787723331045u6dbfhsdn6n: 'Fixed charge fees',
     // block label — empty-name fallback
     text_1783352692386xocpgvrz3na: 'Credits',
   }
@@ -135,6 +136,19 @@ describe('WalletPreviewTable', () => {
     renderTable(fullData)
 
     expect(screen.getByText('All prices exclude any applicable taxes')).toBeInTheDocument()
+  })
+
+  it('labels a fixed-charge scope in the caption', () => {
+    renderTable({
+      ...fullData,
+      expirationAt: null,
+      appliesTo: {
+        feeTypes: ['fixed_charge'] as WalletPreviewData['appliesTo']['feeTypes'],
+        billableMetricCodes: [],
+      },
+    })
+
+    expect(screen.getByText('Applies to Fixed charge fees')).toBeInTheDocument()
   })
 
   it('falls back to "all fees" when the scope is empty', () => {

@@ -7,6 +7,7 @@ gql`
   query getCustomerOverdueInvoicesReadyForPaymentProcessing($id: ID!) {
     invoices(paymentOverdue: true, customerId: $id) {
       collection {
+        id
         readyForPaymentProcessing
       }
     }

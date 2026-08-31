@@ -162,6 +162,28 @@ describe('InvoiceDetailsTable', () => {
 - TypeScript provides autocomplete and catches typos
 - No coupling with translation keys or hardcoded strings
 
+### Fixture Defaults Must Not Disable the Branch Under Test
+
+A shared factory default that encodes the "off" state of the very branch a test covers makes
+the test pass for the wrong reason. `buildRateCardForRateDrawer` defaulted `activeRate: null`,
+so the "edit an active rate" test never reached the append boundary that made every save fail,
+and it stayed green through two review cycles.
+
+- A test that names a condition sets that condition explicitly. Never inherit it from a factory
+  default: a null relation, a false flag, an empty collection.
+- After writing a test for a conditional, reread it and ask: would this still pass if the
+  condition were inverted in the source? If yes, the test does not cover the branch.
+
+```typescript
+// ❌ Bad - the fixture default is what makes the assertion pass
+const rateCard = buildRateCardForRateDrawer() // activeRate: null
+render(<RateDrawer rateCard={rateCard} />)
+
+// ✅ Good - the branch under test is set explicitly
+const rateCard = buildRateCardForRateDrawer({ activeRate: buildRate() })
+render(<RateDrawer rateCard={rateCard} />)
+```
+
 ### Use Component Props Types in Tests
 
 **ALWAYS** import and use the component's exported props type when writing tests. Never create a separate type definition that duplicates the component's props structure.

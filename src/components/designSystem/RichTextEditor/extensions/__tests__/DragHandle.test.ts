@@ -7,8 +7,9 @@ import { NodeSelection } from '@tiptap/pm/state'
 import StarterKit from '@tiptap/starter-kit'
 import { act } from 'react'
 
+import { getBaseExtensions } from '../baseExtensions'
 import { BlockColors } from '../BlockColors'
-import { DragHandle, type DragHandleStorage } from '../DragHandle'
+import { DragHandle, type DragHandleStorage, resolveSelectedTable } from '../DragHandle'
 
 const TABLE_CONTENT = `
 <p>Before table</p>
@@ -36,6 +37,33 @@ const createEditor = (content = '<p>First</p><p>Second</p>') => {
 
 const getDragHandleStorage = (editor: Editor): DragHandleStorage =>
   (editor.storage as any).dragHandle as DragHandleStorage
+
+const findTablePos = (editor: Editor): number => {
+  let tablePos = -1
+
+  editor.state.doc.descendants((node, pos) => {
+    if (node.type.name === 'table' && tablePos === -1) {
+      tablePos = pos
+    }
+  })
+
+  return tablePos
+}
+
+const hasTable = (editor: Editor): boolean => findTablePos(editor) > -1
+
+/** Clicks the grip of the table in TABLE_CONTENT (the second top-level block). */
+const selectTableViaGrip = (editor: Editor): void => {
+  const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+
+  ;(grips[1] as HTMLElement).click()
+}
+
+const pressKey = (editor: Editor, key: string): void => {
+  const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true })
+
+  editor.view.someProp('handleKeyDown', (f) => f(editor.view, event))
+}
 
 describe('DragHandle', () => {
   describe('GIVEN the DragHandle extension', () => {
@@ -325,15 +353,7 @@ describe('DragHandle', () => {
       it('THEN should store the table position in selectedBlock storage', () => {
         const editor = createEditor(TABLE_CONTENT)
         const storage = getDragHandleStorage(editor)
-
-        // Find the table node position
-        let tablePos = -1
-
-        editor.state.doc.descendants((node, pos) => {
-          if (node.type.name === 'table' && tablePos === -1) {
-            tablePos = pos
-          }
-        })
+        const tablePos = findTablePos(editor)
 
         expect(tablePos).toBeGreaterThan(-1)
 
@@ -350,14 +370,7 @@ describe('DragHandle', () => {
 
       it('THEN should place cursor inside the table via TextSelection', () => {
         const editor = createEditor(TABLE_CONTENT)
-
-        let tablePos = -1
-
-        editor.state.doc.descendants((node, pos) => {
-          if (node.type.name === 'table' && tablePos === -1) {
-            tablePos = pos
-          }
-        })
+        const tablePos = findTablePos(editor)
 
         const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
         const tableGrip = grips[1] as HTMLElement
@@ -440,6 +453,160 @@ describe('DragHandle', () => {
         expect(storage.selectedBlock).toEqual({ pos: tablePos })
 
         editor.destroy()
+      })
+    })
+  })
+
+  describe('GIVEN the resolveSelectedTable helper', () => {
+    describe('WHEN no block is stored', () => {
+      it('THEN should return null', () => {
+        const editor = createEditor(TABLE_CONTENT)
+        const result = resolveSelectedTable(editor.state, null)
+
+        editor.destroy()
+
+        expect(result).toBeNull()
+      })
+    })
+
+    describe('WHEN the stored position does not hold a table', () => {
+      it('THEN should return null', () => {
+        const editor = createEditor(TABLE_CONTENT)
+        const result = resolveSelectedTable(editor.state, { pos: 0 })
+
+        editor.destroy()
+
+        expect(result).toBeNull()
+      })
+    })
+
+    describe('WHEN the caret sits outside the stored table', () => {
+      it('THEN should return null', () => {
+        const editor = createEditor(TABLE_CONTENT)
+        const tablePos = findTablePos(editor)
+
+        editor.commands.setTextSelection(1)
+
+        const result = resolveSelectedTable(editor.state, { pos: tablePos })
+
+        editor.destroy()
+
+        expect(result).toBeNull()
+      })
+    })
+
+    describe('WHEN the caret sits inside the stored table', () => {
+      it('THEN should return the table position and node', () => {
+        const editor = createEditor(TABLE_CONTENT)
+        const tablePos = findTablePos(editor)
+
+        // The table grip drops a valid caret in the table's first cell
+        selectTableViaGrip(editor)
+
+        const result = resolveSelectedTable(editor.state, { pos: tablePos })
+        const resultPos = result?.pos
+        const resultNodeName = result?.node.type.name
+
+        editor.destroy()
+
+        expect(resultPos).toBe(tablePos)
+        expect(resultNodeName).toBe('table')
+      })
+    })
+  })
+
+  describe('GIVEN a table selected through its drag handle', () => {
+    describe.each([['Backspace'], ['Delete']])('WHEN %s is pressed', (key) => {
+      it('THEN should remove the whole table from the document', () => {
+        const editor = createEditor(TABLE_CONTENT)
+
+        selectTableViaGrip(editor)
+
+        expect(hasTable(editor)).toBe(true)
+
+        pressKey(editor, key)
+
+        const stillHasTable = hasTable(editor)
+        const remainingText = editor.state.doc.textContent
+
+        editor.destroy()
+
+        expect(stillHasTable).toBe(false)
+        expect(remainingText).toContain('Before table')
+        expect(remainingText).toContain('After table')
+      })
+
+      it('THEN should clear the stored block selection', () => {
+        const editor = createEditor(TABLE_CONTENT)
+        const storage = getDragHandleStorage(editor)
+
+        selectTableViaGrip(editor)
+        pressKey(editor, key)
+
+        const selectedBlockAfter = storage.selectedBlock
+
+        editor.destroy()
+
+        expect(selectedBlockAfter).toBeNull()
+      })
+    })
+
+    describe('WHEN the caret has moved out of the table before pressing Backspace', () => {
+      it('THEN should keep the table in the document', () => {
+        const editor = createEditor(TABLE_CONTENT)
+
+        selectTableViaGrip(editor)
+
+        // Move the caret to the paragraph before the table — this clears the
+        // stored block selection, so Backspace must not delete the table.
+        editor.commands.setTextSelection(1)
+
+        pressKey(editor, 'Backspace')
+
+        const stillHasTable = hasTable(editor)
+
+        editor.destroy()
+
+        expect(stillHasTable).toBe(true)
+      })
+    })
+  })
+
+  describe('GIVEN no table is selected through a drag handle', () => {
+    describe('WHEN Backspace is pressed on a paragraph selected via its drag handle', () => {
+      it('THEN should still delete that paragraph through the default behaviour', () => {
+        const editor = createEditor('<p>First</p><p>Second</p>')
+        const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+
+        ;(grips[0] as HTMLElement).click()
+
+        pressKey(editor, 'Backspace')
+
+        const remainingText = editor.state.doc.textContent
+
+        editor.destroy()
+
+        expect(remainingText).not.toContain('First')
+        expect(remainingText).toContain('Second')
+      })
+    })
+
+    describe('WHEN Backspace is pressed with a caret inside a table cell', () => {
+      it('THEN should keep the table in the document', () => {
+        const editor = createEditor(TABLE_CONTENT)
+        const storage = getDragHandleStorage(editor)
+
+        // Caret inside the table, but the table is not block-selected
+        selectTableViaGrip(editor)
+        storage.selectedBlock = null
+
+        pressKey(editor, 'Backspace')
+
+        const stillHasTable = hasTable(editor)
+
+        editor.destroy()
+
+        expect(stillHasTable).toBe(true)
       })
     })
   })
@@ -948,6 +1115,182 @@ describe('DragHandle', () => {
         expect(removeSpy).toHaveBeenCalledWith('mousedown', expect.any(Function))
 
         removeSpy.mockRestore()
+      })
+    })
+  })
+
+  describe('GIVEN the document has been edited without a structural change', () => {
+    /**
+     * jsdom does not propagate exceptions thrown inside DOM listeners to the
+     * caller of element.click() — it dispatches a window `error` event instead.
+     * Capture those so a throwing click handler fails the test rather than
+     * silently leaving the previous selection in place.
+     */
+    const clickCapturingWindowErrors = (element: HTMLElement): ErrorEvent[] => {
+      const errors: ErrorEvent[] = []
+      const onError = (event: ErrorEvent): void => {
+        event.preventDefault()
+        errors.push(event)
+      }
+
+      window.addEventListener('error', onError)
+      element.click()
+      window.removeEventListener('error', onError)
+
+      return errors
+    }
+
+    describe('WHEN text is inserted into an earlier block and a later grip is clicked', () => {
+      it('THEN should select the block at its current position', () => {
+        const editor = createEditor('<p>Alpha</p><p>Beta</p><p>Gamma</p>')
+
+        editor.commands.insertContentAt(6, 'XXXXXXXXXX')
+
+        const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+        const errors = clickCapturingWindowErrors(grips[1] as HTMLElement)
+
+        const { selection } = editor.state
+        const isNodeSelection = selection instanceof NodeSelection
+        const selectedFrom = selection.from
+        const selectedText = isNodeSelection ? selection.node.textContent : null
+
+        editor.destroy()
+
+        expect(errors).toHaveLength(0)
+        expect(isNodeSelection).toBe(true)
+        expect(selectedFrom).toBe(17)
+        expect(selectedText).toBe('Beta')
+      })
+
+      it('THEN should select the last block at its current position', () => {
+        const editor = createEditor('<p>Alpha</p><p>Beta</p><p>Gamma</p>')
+
+        editor.commands.insertContentAt(6, 'XXXXXXXXXX')
+
+        const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+        const errors = clickCapturingWindowErrors(grips[2] as HTMLElement)
+
+        const { selection } = editor.state
+        const isNodeSelection = selection instanceof NodeSelection
+        const selectedFrom = selection.from
+        const selectedText = isNodeSelection ? selection.node.textContent : null
+
+        editor.destroy()
+
+        expect(errors).toHaveLength(0)
+        expect(isNodeSelection).toBe(true)
+        expect(selectedFrom).toBe(23)
+        expect(selectedText).toBe('Gamma')
+      })
+
+      it('THEN should point the selection at a block whose DOM node is resolvable', () => {
+        const editor = createEditor('<p>Alpha</p><p>Beta</p><p>Gamma</p>')
+
+        editor.commands.insertContentAt(6, 'XXXXXXXXXX')
+
+        const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+
+        clickCapturingWindowErrors(grips[1] as HTMLElement)
+
+        // BlockToolbar only renders the menu when nodeDOM resolves to an element.
+        const blockDom = editor.view.nodeDOM(editor.state.selection.from)
+
+        editor.destroy()
+
+        expect(blockDom).toBeInstanceOf(HTMLElement)
+      })
+    })
+
+    describe('WHEN a single character is inserted and a later grip is clicked', () => {
+      it('THEN should select the block without throwing in the click listener', () => {
+        const editor = createEditor('<p>Alpha</p><p>Beta</p>')
+
+        editor.commands.insertContentAt(6, 'X')
+
+        const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+        const errors = clickCapturingWindowErrors(grips[1] as HTMLElement)
+
+        const { selection } = editor.state
+        const isNodeSelection = selection instanceof NodeSelection
+        const selectedFrom = selection.from
+        const selectedText = isNodeSelection ? selection.node.textContent : null
+
+        editor.destroy()
+
+        expect(errors).toHaveLength(0)
+        expect(isNodeSelection).toBe(true)
+        expect(selectedFrom).toBe(8)
+        expect(selectedText).toBe('Beta')
+      })
+    })
+
+    describe('WHEN markdown is pasted into an earlier block and a later grip is clicked', () => {
+      it('THEN should select the block at its current position', () => {
+        let editor!: Editor
+
+        act(() => {
+          editor = new Editor({
+            extensions: [...getBaseExtensions(), DragHandle],
+            content: '<p></p><p>Outro</p>',
+          })
+        })
+
+        // jsdom has no ClipboardEvent — build the slice the way ProseMirror's
+        // paste path does, through the Markdown extension's clipboardTextParser.
+        editor.commands.setTextSelection(1)
+
+        const slice = editor.view.someProp('clipboardTextParser', (parser) =>
+          parser(
+            'Hello **world** this is markdown',
+            editor.state.selection.$from,
+            false,
+            editor.view,
+          ),
+        )
+
+        if (!slice) throw new Error('clipboardTextParser did not produce a slice')
+
+        editor.view.dispatch(editor.state.tr.replaceSelection(slice))
+
+        const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+        const errors = clickCapturingWindowErrors(grips[1] as HTMLElement)
+
+        const { selection } = editor.state
+        const isNodeSelection = selection instanceof NodeSelection
+        const selectedFrom = selection.from
+        const selectedText = isNodeSelection ? selection.node.textContent : null
+
+        editor.destroy()
+
+        expect(errors).toHaveLength(0)
+        expect(isNodeSelection).toBe(true)
+        expect(selectedFrom).toBe(30)
+        expect(selectedText).toBe('Outro')
+      })
+    })
+
+    describe('WHEN text is inserted before a table and the table grip is clicked', () => {
+      it('THEN should store the table at its current position', () => {
+        const editor = createEditor(
+          '<p>Before</p><table><tbody><tr><td>A1</td><td>B1</td></tr></tbody></table><p>After</p>',
+        )
+        const storage = getDragHandleStorage(editor)
+
+        editor.commands.insertContentAt(4, 'YYYY')
+
+        const tablePos = findTablePos(editor)
+        const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
+        const errors = clickCapturingWindowErrors(grips[1] as HTMLElement)
+
+        const selectedBlock = storage.selectedBlock
+        const resolved = resolveSelectedTable(editor.state, selectedBlock)
+        const resolvedNodeName = resolved?.node.type.name
+
+        editor.destroy()
+
+        expect(errors).toHaveLength(0)
+        expect(selectedBlock).toEqual({ pos: tablePos })
+        expect(resolvedNodeName).toBe('table')
       })
     })
   })

@@ -161,6 +161,84 @@ describe('TerminateCustomerSubscriptionDialog', () => {
       })
     })
 
+    describe('WHEN subscription status is Incomplete', () => {
+      it('THEN renders centralized dialog with title', async () => {
+        await act(() =>
+          render(
+            <NiceModalWrapper>
+              <TestWrapper status={StatusTypeEnum.Incomplete} />
+            </NiceModalWrapper>,
+          ),
+        )
+
+        await act(async () => {
+          await userEvent.click(screen.getByTestId('open-dialog-btn'))
+        })
+
+        await waitFor(() => {
+          expect(screen.getByTestId(DIALOG_TITLE_TEST_ID)).toBeInTheDocument()
+          expect(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID)).toBeInTheDocument()
+        })
+      })
+
+      it('THEN does NOT render the invoice and credit note form', async () => {
+        await act(() =>
+          render(
+            <NiceModalWrapper>
+              <TestWrapper status={StatusTypeEnum.Incomplete} payInAdvance={true} />
+            </NiceModalWrapper>,
+          ),
+        )
+
+        await act(async () => {
+          await userEvent.click(screen.getByTestId('open-dialog-btn'))
+        })
+
+        await waitFor(() => {
+          expect(screen.queryByTestId(FORM_DIALOG_TEST_ID)).not.toBeInTheDocument()
+        })
+      })
+
+      it('THEN confirming calls terminate with the subscription id only', async () => {
+        mockTerminate.mockImplementation(async () => {
+          capturedMutationOnCompleted?.({
+            terminateSubscription: {
+              id: 'sub-123',
+              status: 'canceled',
+              terminatedAt: null,
+              customer: { id: 'cust-1', deletedAt: null, activeSubscriptionsCount: 0 },
+            },
+          })
+        })
+
+        await act(() =>
+          render(
+            <NiceModalWrapper>
+              <TestWrapper status={StatusTypeEnum.Incomplete} payInAdvance={true} />
+            </NiceModalWrapper>,
+          ),
+        )
+
+        await act(async () => {
+          await userEvent.click(screen.getByTestId('open-dialog-btn'))
+        })
+
+        await waitFor(() => {
+          expect(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID)).toBeInTheDocument()
+        })
+
+        await act(async () => {
+          await userEvent.click(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID))
+        })
+
+        await waitFor(() => {
+          expect(mockTerminate).toHaveBeenCalledWith({
+            variables: { input: { id: 'sub-123' } },
+          })
+        })
+      })
+    })
+
     describe('WHEN invoice has offsettable amount', () => {
       it('THEN renders Offset radio option', async () => {
         mockUseGetInvoicesForTerminationQuery.mockReturnValue(

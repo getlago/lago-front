@@ -1052,6 +1052,20 @@ describe('SubscriptionPricingContent', () => {
       })
     })
 
+    it('WHEN the subscription runs an overridden plan THEN the quote points at the catalog plan', async () => {
+      // The billing item is built from `stateRef`, and the backend resolves its overrides
+      // against the plan it names — so an amendment has to quote the catalog parent, not
+      // the override child the subscription runs on. Quoting the child made the whole
+      // billing item fail validation server-side, silently dropping the plan (LAGO-1838).
+      mockSubscriptionPlanId = 'plan_1_override'
+      mockDisplayedPlan = { ...mockPlan, id: 'plan_1_override', code: 'starter_override' }
+      mockCatalogPlan = mockBuildCatalogPlan('plan_1')
+
+      const { stateRef } = await renderWithSubscription(true)
+
+      expect(stateRef.current?.planId).toBe('plan_1')
+    })
+
     it('WHEN the user switches plan THEN the seeded subscription settings are preserved', async () => {
       mockSubscriptionPlanId = 'plan_1'
       mockSubscriptionSettings = subscriptionSettings

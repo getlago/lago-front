@@ -5,7 +5,7 @@
 **ALWAYS run code generation after modifying ANY GraphQL-related files:**
 
 ```bash
-pnpm code-gen
+pnpm codegen
 ```
 
 **When to run code-gen:**
@@ -16,6 +16,81 @@ pnpm code-gen
 - After modifying inline `gql` template literals
 
 **This is MANDATORY** - GraphQL code generation updates TypeScript types and ensures type safety across the application. Never skip this step or you will cause type errors and runtime issues.
+
+### ⚠️ CRITICAL: Always select `id` on a type that has one
+
+**Every selection set on a type that exposes an `id` must select `id`** - in fragments,
+in queries, in mutation payloads. Write it even when the component renders none of it.
+
+Some pre-existing selections still break this rule. They are listed in the guard's
+`KNOWN_UNSAFE_SELECTIONS` baseline described at the end of this section, and that list
+is shrink-only: treat it as debt to burn down, never as licence to add one more.
+
+Apollo normalizes an object into `TypeName:id` **only** when the selection set contains
+`id`. Without it the object is stored **inline**, and that write **replaces** whatever
+the cache held at that location - including a `{ __ref }` some other query put there.
+
+```graphql
+# query A
+organization { id name slug timezone }     # ROOT_QUERY.organization = { __ref: "CurrentOrganization:abc" }
+
+# query B - no `id`
+organization { name email }                # ROOT_QUERY.organization = { name, email }  ← reference destroyed
+```
+
+After B runs, A's cache read is incomplete, so Apollo refetches A. A rewrites the
+reference, B's read goes incomplete, B refetches. Ping-pong.
+
+**Why it is worse than a wasted request here:** `useOrganizationInfos` sets
+`notifyOnNetworkStatusChange: true` and `MainNavLayout` renders
+`{isLoading && <Spinner/>}` / `{!isLoading && <Outlet/>}`. A background refetch
+therefore **unmounts the whole routed page**, which remounts and re-fires all of its
+own `cache-and-network` queries. This was BIL-550: the customer invoices view visibly
+loading twice, plus a burst of duplicate operations across the app.
+
+**Symptoms that point here:** a view that renders twice, layout-level operations
+(`UserIdentifier`, `getOrganizationInfos`, `SideNavInfos`) firing 2-4× on a single
+navigation, or an Apollo `Cache data may be lost when replacing the <field> field`
+console warning.
+
+```graphql
+# ❌ Bad - fragment on a normalized type with no `id`
+fragment OrganizationForDunningEmail on CurrentOrganization {
+  name
+  logoUrl
+  billingConfiguration {
+    documentLocale
+  }
+}
+
+# ✅ Good - `id` at every level that has one
+fragment OrganizationForDunningEmail on CurrentOrganization {
+  id
+  name
+  logoUrl
+  billingConfiguration {
+    id
+    documentLocale
+  }
+}
+```
+
+Notes:
+
+- **Nested levels count.** Adding `id` to `customer` but not to
+  `customer.billingConfiguration` just moves the clobber one level down.
+- **`id` is a cache concern, not a rendering concern.** Do not let a presentational
+  component's prop type force the `id` out of the fragment - keep `id` in the fragment
+  and narrow the props with `Pick<SomeFragment, 'fieldA' | 'fieldB'>` instead
+  (see `DunningEmail.tsx`).
+- **Value objects are fine.** Types with no `id` in the schema (`CustomerAddress`,
+  `ChargeProperties`, …) are never normalized, so there is nothing to clobber.
+
+**Enforced by** `src/core/apolloClient/__tests__/normalizedIdSelections.test.ts`, which
+fails CI when a field is selected **with** `id` in one document and **without** `id` in
+another. It carries a `KNOWN_UNSAFE_SELECTIONS` baseline of pre-existing violations:
+that list must only ever shrink. Fixing one means adding `id`, running `pnpm codegen`,
+and deleting its entry.
 
 ### Fragment Architecture Principles
 

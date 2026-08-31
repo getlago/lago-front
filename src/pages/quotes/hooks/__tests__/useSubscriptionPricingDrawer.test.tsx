@@ -26,6 +26,20 @@ let mockInjectedState: SubscriptionPricingState | null = null
 let mockInjectedFormValues: PlanFormInput | null = null
 let mockInjectedBasePlanFormValues: PlanFormInput | null = null
 
+const catalogFormValues = {
+  name: 'Enterprise Plan',
+  code: 'enterprise',
+  description: '',
+  interval: PlanInterval.Monthly,
+  amountCents: '850.00',
+  amountCurrency: CurrencyEnum.Usd,
+  payInAdvance: false,
+  trialPeriod: 0,
+  charges: [],
+  fixedCharges: [],
+  entitlements: [],
+} as unknown as PlanFormInput
+
 // Verdict the mocked content component reports through validatePlanFormRef.
 // `null` leaves the ref unfilled, as when the content component never mounted.
 let mockPlanFormValid: boolean | null = null
@@ -265,9 +279,8 @@ describe('useSubscriptionPricingDrawer', () => {
     }
 
     const onSave = jest.fn().mockResolvedValue({ ok: true })
-    const onDatesChange = jest.fn()
 
-    const { result } = renderHook(() => useSubscriptionPricingDrawer(undefined, { onDatesChange }))
+    const { result } = renderHook(() => useSubscriptionPricingDrawer(undefined))
 
     act(() => {
       result.current.onPricingCommand({ onSave })
@@ -292,8 +305,82 @@ describe('useSubscriptionPricingDrawer', () => {
       expect.objectContaining({ plans: expect.any(Array) }),
       undefined,
     )
-    expect(onDatesChange).toHaveBeenCalledWith('2023-07-26', '2024-07-26')
     expect(result.current.entities).toHaveProperty('plan_123')
+  })
+
+  it('commits the plan preview payload built from the form values', async () => {
+    mockInjectedState = {
+      planId: 'plan_123',
+      planCode: 'enterprise',
+      planName: 'Enterprise Plan',
+      planDescription: '',
+      subscriptionSettings: {
+        externalId: '',
+        subscriptionName: '',
+        billingTime: 'anniversary',
+        startDate: '2023-07-26',
+        endDate: '2024-07-26',
+      },
+      invoicingSettings: { paymentMethodId: '', invoiceCustomFooter: '' },
+      overrides: {},
+    }
+    mockInjectedFormValues = catalogFormValues
+
+    const onSave = jest.fn().mockResolvedValue({ ok: true })
+
+    const { result } = renderHook(() => useSubscriptionPricingDrawer(undefined))
+
+    act(() => {
+      result.current.onPricingCommand({ onSave })
+    })
+
+    const openArgs = mockDrawerOpen.mock.calls[0][0]
+
+    render(openArgs.children)
+
+    await act(async () => {
+      await openArgs.form.submit()
+    })
+
+    expect(result.current.entities.plan_123.plan).toBeDefined()
+    expect(result.current.entities.plan_123.plan?.rows.length).toBeGreaterThan(0)
+  })
+
+  it('commits an empty preview payload when no form values are available', async () => {
+    mockInjectedState = {
+      planId: 'plan_123',
+      planCode: 'enterprise',
+      planName: 'Enterprise Plan',
+      planDescription: '',
+      subscriptionSettings: {
+        externalId: '',
+        subscriptionName: '',
+        billingTime: 'anniversary',
+        startDate: '2023-07-26',
+        endDate: '2024-07-26',
+      },
+      invoicingSettings: { paymentMethodId: '', invoiceCustomFooter: '' },
+      overrides: {},
+    }
+    mockInjectedFormValues = null
+
+    const onSave = jest.fn().mockResolvedValue({ ok: true })
+
+    const { result } = renderHook(() => useSubscriptionPricingDrawer(undefined))
+
+    act(() => {
+      result.current.onPricingCommand({ onSave })
+    })
+
+    const openArgs = mockDrawerOpen.mock.calls[0][0]
+
+    render(openArgs.children)
+
+    await act(async () => {
+      await openArgs.form.submit()
+    })
+
+    expect(result.current.entities.plan_123.plan).toEqual({ rows: [] })
   })
 
   it('toasts and keeps the drawer open when the save fails', async () => {
@@ -314,9 +401,8 @@ describe('useSubscriptionPricingDrawer', () => {
     }
 
     const onSave = jest.fn().mockResolvedValue({ ok: false, error: undefined })
-    const onDatesChange = jest.fn()
 
-    const { result } = renderHook(() => useSubscriptionPricingDrawer(undefined, { onDatesChange }))
+    const { result } = renderHook(() => useSubscriptionPricingDrawer(undefined))
 
     act(() => {
       result.current.onPricingCommand({ onSave })
@@ -337,7 +423,6 @@ describe('useSubscriptionPricingDrawer', () => {
     })
     expect(mockDrawerClose).not.toHaveBeenCalled()
     expect(result.current.entities).not.toHaveProperty('plan_123')
-    expect(onDatesChange).not.toHaveBeenCalled()
   })
 
   describe('GIVEN the plan form reports its validity', () => {
@@ -576,20 +661,6 @@ describe('useSubscriptionPricingDrawer', () => {
       overrides: {},
     }
 
-    const catalogFormValues = {
-      name: 'Enterprise Plan',
-      code: 'enterprise',
-      description: '',
-      interval: PlanInterval.Monthly,
-      amountCents: '850.00',
-      amountCurrency: CurrencyEnum.Usd,
-      payInAdvance: false,
-      trialPeriod: 0,
-      charges: [],
-      fixedCharges: [],
-      entitlements: [],
-    } as unknown as PlanFormInput
-
     const saveAndReadPlan = async (): Promise<{ overrides: Record<string, unknown> }> => {
       const onSave = jest.fn().mockResolvedValue({ ok: true })
       const { result } = renderHook(() => useSubscriptionPricingDrawer(undefined))
@@ -697,5 +768,18 @@ describe('useSubscriptionPricingDrawer', () => {
         )
       })
     })
+  })
+  it('passes the resolved payment term down to the drawer content', () => {
+    const { result } = renderHook(() =>
+      useSubscriptionPricingDrawer(undefined, { netPaymentTerm: 30 }),
+    )
+
+    act(() => {
+      result.current.onPricingCommand({ onSave: jest.fn().mockResolvedValue({ ok: true }) })
+    })
+
+    const openArgs = mockDrawerOpen.mock.calls[0][0]
+
+    expect(openArgs.children.props.netPaymentTerm).toBe(30)
   })
 })

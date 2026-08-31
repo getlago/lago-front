@@ -16,7 +16,9 @@ import Logo from '~/public/images/logo/lago-logo-grey.svg'
 gql`
   query GetOrganizationCustomFooterForInvoice {
     organization {
+      id
       billingConfiguration {
+        id
         invoiceFooter
       }
     }

@@ -91,38 +91,37 @@ export function useDeveloperTool(): DeveloperToolContextType {
   // We can copy/paste the URL of the devtools in the browser and it will open the devtools with the correct tab
   const checkParamsFromUrl = () => {
     const params = new URLSearchParams(window.location.search)
+    // `params.get` already percent-decodes; decoding twice corrupts any value that legitimately
+    // contains an escape, such as the percent-encoded transaction id of an event.
     const devtoolTab = params.get(DEVTOOL_TAB_PARAMS) ?? ''
-    const decodedDevtoolTab = decodeURIComponent(devtoolTab)
 
-    const isValidUser = !!currentUser
+    // On a cold cache the user is still loading on the first render. Consuming the param
+    // then would drop it before it could open anything, so it is left in the URL and the
+    // effect below runs again once the user lands.
+    if (!currentUser || !devtoolTab) return
 
-    if (decodedDevtoolTab && isValidUser) {
-      // Use setUrl to navigate in the MemoryRouter (devtools panel), not navigate() which would
-      // navigate in the BrowserRouter
-      context?.setUrl(decodedDevtoolTab)
-      context?.openPanel()
-    }
+    // Use setUrl to navigate in the MemoryRouter (devtools panel), not navigate() which would
+    // navigate in the BrowserRouter
+    context?.setUrl(devtoolTab)
+    context?.openPanel()
 
     // Remove the devtool-tab param from the URL using React Router's navigate with replace.
     // This ensures the location object is updated (not just the browser URL), so the location
     // history won't contain the devtool-tab param when goBack() is called later.
-    if (devtoolTab) {
-      params.delete(DEVTOOL_TAB_PARAMS)
-      const search = params.toString()
+    params.delete(DEVTOOL_TAB_PARAMS)
+    const search = params.toString()
 
-      navigate(
-        { pathname: window.location.pathname, search: search ? `?${search}` : '' },
-        { replace: true },
-      )
-    }
+    navigate(
+      { pathname: window.location.pathname, search: search ? `?${search}` : '' },
+      { replace: true },
+    )
   }
 
   useEffect(() => {
-    // On mounted, check the params from the URL
     checkParamsFromUrl()
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [currentUser?.id])
 
   // Throw an error if the hook is used outside of the provider
   if (!context) {

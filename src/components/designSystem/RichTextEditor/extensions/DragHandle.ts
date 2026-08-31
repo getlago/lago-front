@@ -1,6 +1,6 @@
 import { type Editor, Extension } from '@tiptap/core'
 import type { Node as PmNode } from '@tiptap/pm/model'
-import { NodeSelection, Plugin, PluginKey, TextSelection } from '@tiptap/pm/state'
+import { type EditorState, NodeSelection, Plugin, PluginKey, TextSelection } from '@tiptap/pm/state'
 import { Decoration, DecorationSet } from '@tiptap/pm/view'
 import { ALL_ICONS } from 'lago-design-system'
 import { createElement } from 'react'
@@ -34,6 +34,29 @@ export const getDragHandleStorage = (editor: Editor): DragHandleStorage => {
   return { selectedBlock: null, hideMenu: false }
 }
 
+/**
+ * Resolves the table a drag-handle block selection points at, as long as the
+ * real selection (a caret inside one of its cells, see `selectBlock`) is still
+ * within it. Returns null as soon as the stored position is stale.
+ */
+export const resolveSelectedTable = (
+  state: EditorState,
+  selectedBlock: DragHandleStorage['selectedBlock'],
+): { pos: number; node: PmNode } | null => {
+  if (!selectedBlock) return null
+
+  const { pos } = selectedBlock
+  const node = state.doc.nodeAt(pos)
+
+  if (node?.type.name !== 'table') return null
+
+  const selFrom = state.selection.from
+
+  if (selFrom < pos || selFrom > pos + node.nodeSize) return null
+
+  return { pos, node }
+}
+
 export const DragHandle = Extension.create({
   name: 'dragHandle',
 
@@ -51,23 +74,40 @@ export const DragHandle = Extension.create({
     const storage = getDragHandleStorage(this.editor)
 
     // Clear table block selection when the user moves the cursor elsewhere
-    if (storage.selectedBlock) {
-      const { pos } = storage.selectedBlock
-      const node = this.editor.state.doc.nodeAt(pos)
+    if (storage.selectedBlock && !resolveSelectedTable(this.editor.state, storage.selectedBlock)) {
+      storage.selectedBlock = null
+    }
+  },
 
-      if (node?.type.name !== 'table') {
-        storage.selectedBlock = null
+  addKeyboardShortcuts() {
+    /**
+     * A table "selected" through its drag handle only holds a caret inside its
+     * first cell, so Backspace/Delete reach prosemirror-tables' own keymap
+     * (`deleteCellSelection`), which empties cells and never removes the table.
+     * Delete the whole node here so a table can be removed like every other
+     * block (LAGO-1843). Both table handlers bail out on a plain TextSelection,
+     * so this stays correct whatever order the keymap plugins end up in.
+     */
+    const deleteSelectedTable = (): boolean => {
+      const storage = getDragHandleStorage(this.editor)
+      const selectedTable = resolveSelectedTable(this.editor.state, storage.selectedBlock)
 
-        return
-      }
+      if (!selectedTable) return false
 
-      // Check if the selection is still inside this table
-      const selFrom = this.editor.state.selection.from
-      const tableEnd = pos + node.nodeSize
+      storage.selectedBlock = null
+      storage.hideMenu = false
 
-      if (selFrom < pos || selFrom > tableEnd) {
-        storage.selectedBlock = null
-      }
+      return this.editor.commands.deleteRange({
+        from: selectedTable.pos,
+        to: selectedTable.pos + selectedTable.node.nodeSize,
+      })
+    }
+
+    return {
+      Backspace: deleteSelectedTable,
+      Delete: deleteSelectedTable,
+      'Mod-Backspace': deleteSelectedTable,
+      'Mod-Delete': deleteSelectedTable,
     }
   },
 
@@ -105,7 +145,7 @@ export const DragHandle = Extension.create({
       editor.view.focus()
     }
 
-    function createHandleElement(pos: number): HTMLElement {
+    function createHandleElement(getPos: () => number | undefined): HTMLElement {
       const group = document.createElement('div')
 
       group.className = 'block-handle-group'
@@ -144,6 +184,14 @@ export const DragHandle = Extension.create({
       renderIcon(gripIconContainer, 'double-dots-vertical')
 
       gripButton.addEventListener('dragstart', (e) => {
+        const pos = getPos()
+
+        if (pos === undefined) {
+          e.preventDefault()
+
+          return
+        }
+
         selectBlock(pos)
 
         editor.view.dragging = {
@@ -171,6 +219,11 @@ export const DragHandle = Extension.create({
       gripButton.addEventListener('click', (e) => {
         e.preventDefault()
         e.stopPropagation()
+
+        const pos = getPos()
+
+        if (pos === undefined) return
+
         selectBlock(pos)
       })
 
@@ -185,7 +238,7 @@ export const DragHandle = Extension.create({
 
       doc.forEach((node, pos) => {
         decorations.push(
-          Decoration.widget(pos, () => createHandleElement(pos), {
+          Decoration.widget(pos, (_view, getPos): HTMLElement => createHandleElement(getPos), {
             side: -1,
             key: `drag-handle-${pos}`,
             ignoreSelection: true,
@@ -283,25 +336,17 @@ export const DragHandle = Extension.create({
 
             // Add table block-selected decoration from storage, but only while
             // the selection is still inside the table.
-            if (storage.selectedBlock) {
-              const { pos } = storage.selectedBlock
-              const node = state.doc.nodeAt(pos)
+            const selectedTable = resolveSelectedTable(state, storage.selectedBlock)
 
-              if (node?.type.name === 'table') {
-                const selFrom = state.selection.from
-                const tableEnd = pos + node.nodeSize
+            if (!selectedTable) return handleDecos
 
-                if (selFrom >= pos && selFrom <= tableEnd) {
-                  const tableDeco = Decoration.node(pos, pos + node.nodeSize, {
-                    class: 'is-block-selected',
-                  })
+            const tableDeco = Decoration.node(
+              selectedTable.pos,
+              selectedTable.pos + selectedTable.node.nodeSize,
+              { class: 'is-block-selected' },
+            )
 
-                  return handleDecos.add(state.doc, [tableDeco])
-                }
-              }
-            }
-
-            return handleDecos
+            return handleDecos.add(state.doc, [tableDeco])
           },
           handleClick() {
             // User clicked inside the editor content (not on a drag handle).

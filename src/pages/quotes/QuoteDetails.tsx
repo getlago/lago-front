@@ -1,24 +1,31 @@
 import { useEffect } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
+import { Typography } from '~/components/designSystem/Typography'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import { QuoteDetailsTabsOptionsEnum, QuotesTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
+  CUSTOMER_DETAILS_ROUTE,
+  Link,
   QUOTE_DETAILS_ROUTE,
   QUOTES_LIST_ROUTE,
   QUOTES_TAB_ROUTE,
   useNavigate,
 } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
 
 import { useQuote } from './hooks/useQuote'
 import { useQuoteVersionActions } from './hooks/useQuoteVersionActions'
 import OrderFormsList from './OrderFormsList'
 import OrdersList from './OrdersList'
+import QuoteDetailsActivityLogs from './QuoteDetailsActivityLogs'
 import QuoteDetailsVersions from './QuoteDetailsVersions'
+
+export const QUOTE_DETAILS_CUSTOMER_LINK_TEST_ID = 'quote-details-customer-link'
 
 const QuoteDetails = (): JSX.Element => {
   const { translate } = useInternationalization()
@@ -27,6 +34,7 @@ const QuoteDetails = (): JSX.Element => {
   const { quote, loading } = useQuote(quoteId)
   const { getActions } = useQuoteVersionActions()
   const { hasPermissions } = usePermissions()
+  const { isPremium } = useCurrentUser()
   const canViewOrderForms = hasPermissions(['orderFormsView'])
 
   useEffect(() => {
@@ -36,6 +44,22 @@ const QuoteDetails = (): JSX.Element => {
   }, [loading, quote, navigate])
 
   const activeTabContent = useMainHeaderTabContent()
+
+  const renderCustomerMetadata = (): JSX.Element | string => {
+    if (!quote) return ''
+
+    return (
+      <Link
+        className="w-fit"
+        data-test={QUOTE_DETAILS_CUSTOMER_LINK_TEST_ID}
+        to={generatePath(CUSTOMER_DETAILS_ROUTE, { customerId: quote.customer.id })}
+      >
+        <Typography variant="body" color="inherit">
+          {`${quote.customer.displayName} - ${quote.customer.externalId}`}
+        </Typography>
+      </Link>
+    )
+  }
 
   const headerActions: MainHeaderAction[] = (() => {
     if (!quote) return []
@@ -74,7 +98,7 @@ const QuoteDetails = (): JSX.Element => {
         entity={{
           viewName: quote?.number ?? '',
           viewNameLoading: loading,
-          metadata: quote ? `${quote.customer.displayName} - ${quote.customer.externalId}` : '',
+          metadata: renderCustomerMetadata(),
           metadataLoading: loading,
         }}
         actions={{ items: headerActions, loading }}
@@ -106,6 +130,16 @@ const QuoteDetails = (): JSX.Element => {
               tab: QuoteDetailsTabsOptionsEnum.orders,
             }),
             content: <OrdersList quoteNumber={quote?.number} />,
+          },
+          {
+            title: translate('text_1747314141347qq6rasuxisl'),
+            link: generatePath(QUOTE_DETAILS_ROUTE, {
+              quoteId: quoteId as string,
+              tab: QuoteDetailsTabsOptionsEnum.activityLogs,
+            }),
+            // Mounted while the quote loads so the tab keeps its loading state on first paint
+            content: <QuoteDetailsActivityLogs quote={quote} loading={loading} />,
+            hidden: !isPremium || !hasPermissions(['auditLogsView']),
           },
         ]}
       />

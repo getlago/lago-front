@@ -11,23 +11,34 @@ import {
   formatFiltersForMrrQuery,
   formatFiltersForOrderFormsQuery,
   formatFiltersForOrdersQuery,
+  formatFiltersForProductFiltersQuery,
+  formatFiltersForProductsQuery,
   formatFiltersForQuery,
   formatFiltersForQuotesQuery,
+  formatFiltersForRateCardsQuery,
   formatFiltersForRevenueStreamsQuery,
   formatFiltersForSecurityLogsQuery,
   formatFiltersForSubscriptionQuery,
   formatFiltersForWebhookLogsQuery,
   formatMetadataFilter,
   getFilterValue,
+  isValidDateRangeValue,
   keyWithPrefix,
+  mapRateCardFilterVars,
+  orderIntervalBounds,
   parseFromToValue,
   parseMetadataFilter,
   unescapeFilterLabel,
 } from '~/components/Filters/graphql/utils'
 import {
+  AMOUNT_INTERVALS_TRANSLATION_MAP,
+  AmountFilterInterval,
   AvailableFiltersEnum,
   filterDataInlineSeparator,
+  filterWithoutProductCategoryValue,
+  filterWithoutProductValue,
 } from '~/components/Filters/presentation/types'
+import { TranslateFunc } from '~/hooks/core/useInternationalization'
 
 describe('Filters utils', () => {
   describe('formatFiltersForInvoiceQuery', () => {
@@ -328,6 +339,22 @@ describe('Filters utils', () => {
 
       expect(result).toBe('1/1/2022 - 1/31/2022')
     })
+    it('should keep positive offsets when formatting an issuingDate value display', () => {
+      const result = formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.issuingDate,
+        '2026-08-20T00:00:00.000+02:00,2026-08-20T23:59:59.999+02:00',
+      )
+
+      expect(result).toBe('8/20/2026 - 8/20/2026')
+    })
+    it('should keep negative offsets when formatting a webhookDate value display', () => {
+      const result = formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.webhookDate,
+        '2026-08-20T00:00:00.000-05:00,2026-08-20T23:59:59.999-05:00',
+      )
+
+      expect(result).toBe('8/20/2026 - 8/20/2026')
+    })
     it('should format active filter date value display', () => {
       const result = formatActiveFilterValueDisplay(
         AvailableFiltersEnum.date,
@@ -348,6 +375,54 @@ describe('Filters utils', () => {
       const result = formatActiveFilterValueDisplay(AvailableFiltersEnum.planCode, 'planCodeValue')
 
       expect(result).toBe('PlanCodeValue')
+    })
+    it('should format active filter productProductCategory productCategory code display', () => {
+      const result = formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.productProductCategory,
+        `prod-1${filterDataInlineSeparator}code-1,prod-2${filterDataInlineSeparator}code-2`,
+      )
+
+      expect(result).toBe('code-1, code-2')
+    })
+    it('should format active filter productProductCategory "Not defined" with translation', () => {
+      const translate = ((key: string) =>
+        key === 'text_1784214117868fh6rndi4m75' ? 'Not defined' : key) as TranslateFunc
+
+      const result = formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.productProductCategory,
+        `${filterWithoutProductCategoryValue},prod-1${filterDataInlineSeparator}code-1`,
+        translate,
+      )
+
+      expect(result).toBe('Not defined, code-1')
+    })
+    it('should format active filter productFilterProductCategory productCategory code display', () => {
+      const result = formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.productFilterProductCategory,
+        `prod-1${filterDataInlineSeparator}code-1,prod-2${filterDataInlineSeparator}code-2`,
+      )
+
+      expect(result).toBe('code-1, code-2')
+    })
+    it('should format active filter productFilterProduct name display', () => {
+      const result = formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.productFilterProduct,
+        `pi-1${filterDataInlineSeparator}Seats,pi-2${filterDataInlineSeparator}Extra`,
+      )
+
+      expect(result).toBe('Seats, Extra')
+    })
+    it('should format active filter productFilterProduct "Not defined" with translation', () => {
+      const translate = ((key: string) =>
+        key === 'text_1784214117868fh6rndi4m75' ? 'Not defined' : key) as TranslateFunc
+
+      const result = formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.productFilterProduct,
+        `${filterWithoutProductValue},pi-1${filterDataInlineSeparator}Seats`,
+        translate,
+      )
+
+      expect(result).toBe('Not defined, Seats')
     })
     it('should format active filter paymentDisputeLost value display', () => {
       const result = formatActiveFilterValueDisplay(AvailableFiltersEnum.paymentDisputeLost, 'true')
@@ -408,6 +483,32 @@ describe('Filters utils', () => {
       )
 
       expect(result).toBe('Acme Corp, Beta Inc')
+    })
+
+    describe('GIVEN an is between interval', () => {
+      const translate = ((key: string) =>
+        key === AMOUNT_INTERVALS_TRANSLATION_MAP[AmountFilterInterval.isBetween]
+          ? 'Is between'
+          : 'And') as TranslateFunc
+
+      it.each([
+        ['ascending bounds', 'isBetween,10,11'],
+        ['descending bounds', 'isBetween,11,10'],
+      ])('WHEN the amount value has %s THEN should read the interval ascending', (_, value) => {
+        const result = formatActiveFilterValueDisplay(AvailableFiltersEnum.amount, value, translate)
+
+        expect(result).toBe('Is between 10 and 11')
+      })
+
+      it('WHEN the activeSubscriptions bounds are descending THEN should read the interval ascending', () => {
+        const result = formatActiveFilterValueDisplay(
+          AvailableFiltersEnum.activeSubscriptions,
+          'isBetween,8,3',
+          translate,
+        )
+
+        expect(result).toBe('Is between 3 and 8')
+      })
     })
   })
 
@@ -515,6 +616,42 @@ describe('Filters utils', () => {
       expect(result).toEqual({
         from: 20,
         to: null,
+      })
+    })
+  })
+
+  describe('orderIntervalBounds', () => {
+    describe('GIVEN an is between interval with both bounds', () => {
+      it.each([
+        ['the from is greater than the to', 'isBetween,11,10', 'isBetween,10,11'],
+        ['the bounds are decimals', 'isBetween,10.5,10.05', 'isBetween,10.05,10.5'],
+        ['the from is positive and the to is zero', 'isBetween,3,0', 'isBetween,0,3'],
+      ])('WHEN %s THEN should swap the bounds', (_, value, expected) => {
+        expect(orderIntervalBounds(value)).toBe(expected)
+      })
+
+      it.each([
+        ['the from is lower than the to', 'isBetween,10,11'],
+        ['the bounds are identical', 'isBetween,10,10'],
+        ['both bounds are zero', 'isBetween,0,0'],
+        ['a bound is not a number', 'isBetween,abc,10'],
+      ])('WHEN %s THEN should keep the value untouched', (_, value) => {
+        expect(orderIntervalBounds(value)).toBe(value)
+      })
+    })
+
+    describe('GIVEN a value without two comparable bounds', () => {
+      it.each([
+        ['the interval has a single bound', 'isAtLeast,11'],
+        ['the interval compares to one bound', 'isEqualTo,11,'],
+        ['the upper bound only is set', 'isUpTo,,10'],
+        ['the interval is lower than', 'isLessThan,,10'],
+        ['the interval is greater than', 'isGreaterThan,11,'],
+        ['the is between from is missing', 'isBetween,,10'],
+        ['the is between to is missing', 'isBetween,11,'],
+        ['the value is empty', ''],
+      ])('WHEN %s THEN should keep the value untouched', (_, value) => {
+        expect(orderIntervalBounds(value)).toBe(value)
       })
     })
   })
@@ -980,6 +1117,21 @@ describe('Filters utils', () => {
   })
 
   describe('FILTER_VALUE_MAP', () => {
+    describe('GIVEN an is between interval with reversed bounds', () => {
+      it('WHEN parsing the amount filter THEN should query the same interval as ordered bounds', () => {
+        const result = FILTER_VALUE_MAP[AvailableFiltersEnum.amount]('isBetween,11,10')
+
+        expect(result).toEqual(FILTER_VALUE_MAP[AvailableFiltersEnum.amount]('isBetween,10,11'))
+        expect(result).toEqual({ amountFrom: 10, amountTo: 11 })
+      })
+
+      it('WHEN parsing the activeSubscriptions filter THEN should query the same interval as ordered bounds', () => {
+        const result = FILTER_VALUE_MAP[AvailableFiltersEnum.activeSubscriptions]('isBetween,8,3')
+
+        expect(result).toEqual({ activeSubscriptionsFrom: 3, activeSubscriptionsTo: 8 })
+      })
+    })
+
     it('should parse creditNoteType filter correctly', () => {
       const result = FILTER_VALUE_MAP[AvailableFiltersEnum.creditNoteType]('credit,refund,offset')
 
@@ -1046,6 +1198,61 @@ describe('Filters utils', () => {
       const result = FILTER_VALUE_MAP[AvailableFiltersEnum.quoteStatus]('draft,approved')
 
       expect(result).toEqual(['draft', 'approved'])
+    })
+
+    it('should map productProductCategory productCategories-only to productCategoryIds', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.productProductCategory](
+        `prod-1${filterDataInlineSeparator}code-1,prod-2${filterDataInlineSeparator}code-2`,
+      )
+
+      expect(result).toEqual({ productCategoryIds: ['prod-1', 'prod-2'] })
+    })
+
+    it('should map productProductCategory "Not defined" only to withoutProductCategory', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.productProductCategory](
+        filterWithoutProductCategoryValue,
+      )
+
+      expect(result).toEqual({ withoutProductCategory: true })
+    })
+
+    it('should map productProductCategory with "Not defined" and productCategories to both keys', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.productProductCategory](
+        `${filterWithoutProductCategoryValue},prod-1${filterDataInlineSeparator}code-1`,
+      )
+
+      expect(result).toEqual({ productCategoryIds: ['prod-1'], withoutProductCategory: true })
+    })
+
+    it('should map productFilterProductCategory the same way as productProductCategory', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.productFilterProductCategory](
+        `${filterWithoutProductCategoryValue},prod-1${filterDataInlineSeparator}code-1`,
+      )
+
+      expect(result).toEqual({ productCategoryIds: ['prod-1'], withoutProductCategory: true })
+    })
+
+    it('should map productFilterProduct to the first real productId', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.productFilterProduct](
+        `pi-1${filterDataInlineSeparator}Seats,pi-2${filterDataInlineSeparator}Extra`,
+      )
+
+      expect(result).toEqual({ productId: 'pi-1' })
+    })
+
+    it('should map productFilterProduct "Not defined"-only to an empty object', () => {
+      const result =
+        FILTER_VALUE_MAP[AvailableFiltersEnum.productFilterProduct](filterWithoutProductValue)
+
+      expect(result).toEqual({})
+    })
+
+    it('should skip a leading "Not defined" entry and map productFilterProduct to the first real id', () => {
+      const result = FILTER_VALUE_MAP[AvailableFiltersEnum.productFilterProduct](
+        `${filterWithoutProductValue},pi-1${filterDataInlineSeparator}Seats`,
+      )
+
+      expect(result).toEqual({ productId: 'pi-1' })
     })
   })
 
@@ -1327,6 +1534,190 @@ describe('Filters utils', () => {
           logTypes: ['api_key'],
         }),
       )
+    })
+  })
+
+  describe('formatFiltersForProductsQuery', () => {
+    it('should map productCategories-only ProductCategory filter to productCategoryIds', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set(
+        'pit_productProductCategory',
+        `prod-1${filterDataInlineSeparator}code-1,prod-2${filterDataInlineSeparator}code-2`,
+      )
+
+      const result = formatFiltersForProductsQuery(searchParams)
+
+      expect(result).toEqual({ productCategoryIds: ['prod-1', 'prod-2'] })
+    })
+
+    it('should map "Not defined"-only ProductCategory filter to withoutProductCategory with no productCategoryIds', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set('pit_productProductCategory', filterWithoutProductCategoryValue)
+
+      const result = formatFiltersForProductsQuery(searchParams)
+
+      expect(result).toEqual({ withoutProductCategory: true })
+      expect(result).not.toHaveProperty('productCategoryIds')
+    })
+
+    it('should map "Not defined" + productCategories + productType to all three query args', () => {
+      const searchParams = new URLSearchParams()
+
+      searchParams.set(
+        'pit_productProductCategory',
+        `${filterWithoutProductCategoryValue},prod-1${filterDataInlineSeparator}code-1`,
+      )
+      searchParams.set('pit_productType', 'fixed')
+
+      const result = formatFiltersForProductsQuery(searchParams)
+
+      expect(result).toEqual({
+        productCategoryIds: ['prod-1'],
+        withoutProductCategory: true,
+        productType: 'fixed',
+      })
+    })
+  })
+
+  describe('formatFiltersForProductFiltersQuery', () => {
+    it('maps the product-item filter to a single productId', () => {
+      const params = new URLSearchParams()
+
+      params.set('pif_productFilterProduct', 'pi-1|-_-|Seats')
+
+      expect(formatFiltersForProductFiltersQuery(params)).toEqual({ productId: 'pi-1' })
+    })
+
+    it('keeps only the first product when multiple are selected', () => {
+      const params = new URLSearchParams()
+
+      params.set(
+        'pif_productFilterProduct',
+        `pi-1${filterDataInlineSeparator}Seats,pi-2${filterDataInlineSeparator}Extra`,
+      )
+
+      expect(formatFiltersForProductFiltersQuery(params)).toEqual({ productId: 'pi-1' })
+    })
+
+    it('ignores the ProductCategory filter entirely', () => {
+      const params = new URLSearchParams()
+
+      params.set('pif_productFilterProductCategory', `prod-1${filterDataInlineSeparator}code-1`)
+
+      expect(formatFiltersForProductFiltersQuery(params)).toEqual({})
+    })
+
+    it('returns an empty object when no filter is set', () => {
+      const params = new URLSearchParams()
+
+      expect(formatFiltersForProductFiltersQuery(params)).toEqual({})
+    })
+  })
+
+  describe('formatFiltersForRateCardsQuery', () => {
+    it('maps the Product category filter to a plural productCategoryIds array', () => {
+      const params = new URLSearchParams()
+
+      params.set(
+        'rc_rateCardProductCategory',
+        `cat-1${filterDataInlineSeparator}A,cat-2${filterDataInlineSeparator}B`,
+      )
+
+      expect(formatFiltersForRateCardsQuery(params)).toEqual({
+        productCategoryIds: ['cat-1', 'cat-2'],
+      })
+    })
+
+    it('filters the "Not defined" sentinel out of the productCategoryIds array', () => {
+      const params = new URLSearchParams()
+
+      params.set(
+        'rc_rateCardProductCategory',
+        `${filterWithoutProductValue},cat-1${filterDataInlineSeparator}A`,
+      )
+
+      expect(formatFiltersForRateCardsQuery(params)).toEqual({
+        productCategoryIds: ['cat-1'],
+      })
+    })
+
+    it('returns an empty productCategoryIds array when only the "Not defined" sentinel is selected', () => {
+      const params = new URLSearchParams()
+
+      params.set('rc_rateCardProductCategory', filterWithoutProductValue)
+
+      expect(formatFiltersForRateCardsQuery(params)).toEqual({
+        productCategoryIds: [],
+      })
+    })
+
+    it('maps the Product filter to a plural productIds array', () => {
+      const params = new URLSearchParams()
+
+      params.set(
+        'rc_rateCardProduct',
+        `id1${filterDataInlineSeparator}A,id2${filterDataInlineSeparator}B`,
+      )
+
+      expect(formatFiltersForRateCardsQuery(params)).toEqual({
+        productIds: ['id1', 'id2'],
+      })
+    })
+
+    it('maps the Product filter filter to a plural productFilterIds array', () => {
+      const params = new URLSearchParams()
+
+      params.set(
+        'rc_rateCardProductFilter',
+        `f1${filterDataInlineSeparator}A,f2${filterDataInlineSeparator}B`,
+      )
+
+      expect(formatFiltersForRateCardsQuery(params)).toEqual({
+        productFilterIds: ['f1', 'f2'],
+      })
+    })
+
+    it('returns an empty object when no filter is set', () => {
+      const params = new URLSearchParams()
+
+      expect(formatFiltersForRateCardsQuery(params)).toEqual({})
+    })
+  })
+
+  describe('mapRateCardFilterVars', () => {
+    it('down-maps the first productIds entry to productId', () => {
+      expect(mapRateCardFilterVars({ productIds: ['id1', 'id2'] })).toEqual({
+        productId: 'id1',
+      })
+    })
+
+    it('down-maps the first productFilterIds entry to productFilterId', () => {
+      expect(mapRateCardFilterVars({ productFilterIds: ['f1'] })).toEqual({
+        productFilterId: 'f1',
+      })
+    })
+
+    it('ignores productCategoryIds entirely (no current rateCards arg for the ProductCategory dimension)', () => {
+      expect(mapRateCardFilterVars({ productCategoryIds: ['cat-1'] })).toEqual({})
+    })
+
+    it('combines all mapped dimensions and still ignores productCategoryIds', () => {
+      expect(
+        mapRateCardFilterVars({
+          productCategoryIds: ['cat-1'],
+          productIds: ['id1'],
+          productFilterIds: ['f1'],
+        }),
+      ).toEqual({
+        productId: 'id1',
+        productFilterId: 'f1',
+      })
+    })
+
+    it('returns an empty object when given no plurals', () => {
+      expect(mapRateCardFilterVars({})).toEqual({})
     })
   })
 
@@ -1651,6 +2042,36 @@ describe('Filters utils', () => {
           customers: ['cust-1'],
         }),
       )
+    })
+  })
+
+  describe('isValidDateRangeValue', () => {
+    describe('GIVEN an ordered range', () => {
+      it.each([
+        ['a from before the to', '2024-01-01T00:00:00.000Z,2024-01-31T23:59:59.999Z'],
+        ['a single-day range', '2024-01-01T00:00:00.000Z,2024-01-01T23:59:59.999Z'],
+        ['identical bounds', '2024-01-01T00:00:00.000Z,2024-01-01T00:00:00.000Z'],
+      ])('WHEN the value has %s THEN should be valid', (_, value) => {
+        expect(isValidDateRangeValue(value)).toBe(true)
+      })
+    })
+
+    describe('GIVEN a range that cannot be queried', () => {
+      it.each([
+        ['the to is before the from', '2024-01-31T23:59:59.999Z,2024-01-01T00:00:00.000Z'],
+        ['the from is missing', ',2024-01-31T23:59:59.999Z'],
+        ['the to is missing', '2024-01-01T00:00:00.000Z,'],
+        ['both bounds are missing', ','],
+        ['a bound is unparsable', 'not-a-date,2024-01-31T23:59:59.999Z'],
+        ['there is no separator', '2024-01-01T00:00:00.000Z'],
+        ['the value is empty', ''],
+      ])('WHEN %s THEN should be invalid', (_, value) => {
+        expect(isValidDateRangeValue(value)).toBe(false)
+      })
+
+      it('WHEN the value is undefined THEN should be invalid', () => {
+        expect(isValidDateRangeValue(undefined)).toBe(false)
+      })
     })
   })
 })

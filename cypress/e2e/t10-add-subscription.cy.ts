@@ -46,7 +46,7 @@ describe('Subscriptions', () => {
 
     cy.get('[data-test="status"]').should('have.text', 'Pending')
     cy.get('[data-test="subscription-details-actions"]').click()
-    cy.get('[data-test="subscription-details-terminate"]').click()
+    cy.get('[data-test="subscription-details-cancel"]').click()
 
     // Pending subscriptions use a CentralizedDialog (not FormDialog)
     cy.get('[data-test="centralized-confirm"]').click({ force: true })

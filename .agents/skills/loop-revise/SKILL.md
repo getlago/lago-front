@@ -69,7 +69,7 @@ No free-text feedback given → default to the unanswered external PR comments a
 
    Then `git push` — the open PR updates itself.
 
-7. **CI gate**: `gh pr checks <PR> --watch`. Red → same recovery as loop-run: charge the budget first with `front/scripts/loop-iter.sh <ISSUE-ID> ci-revise` (exit 1 = exhausted → STOP path), capture failed logs to `ci-failure.md` (previous one appended to `ci-failure-history.md`), fix, recommit. On STOP: write `impediment.md` and notify exactly like loop-run's "Exit notification" section — send via `front/scripts/loop-notify.sh "<MESSAGE>"` (prints `CH`/`TS`/`USER` for the feedback-wait polling); fallback to PushNotification + MCP self-DM if the script fails.
+7. **CI gate**: `gh pr checks <PR> --watch`. Red → same recovery as loop-run, INCLUDING its pre-budget triage of special cases (codegen companion-PR, code-scanning re-fingerprint — loop-run CI-gate step 5.3); neither applies → charge the budget first with `front/scripts/iter-budget.sh <ISSUE-ID> ci-revise` (exit 1 = exhausted → STOP path), capture failed logs to `ci-failure.md` (previous one appended to `ci-failure-history.md`), fix, recommit. On STOP: write `impediment.md` and notify exactly like loop-run's "Exit notification" section — send via `front/scripts/loop-notify.sh "<MESSAGE>"` (prints `CH`/`TS`/`USER` for the feedback-wait polling); fallback to PushNotification + MCP self-DM if the script fails.
 
 8. **Reply to every external comment on GitHub — ALWAYS** (colleagues and bots alike, whether the suggestion was applied or not). Short, friendly, in English, no AI attribution:
    - Applied → thank + confirm: `Good catch, thanks! Applied in <short-sha>.`
@@ -84,7 +84,7 @@ No free-text feedback given → default to the unanswered external PR comments a
      | <date> | <ISSUE-ID> | <N> points | <charged>/<max> | <gates that went red, or none> | revised | <one short phrase> |
      ```
 
-     Column 3 is how many feedback points were applied (not build↔review iterations, which this phase does not run). Column 4 is the `ci-revise` budget as `N/3`, or `0/3` if CI never went red. Column 6 is `revised` or `stopped-ci`. Everything narrative belongs in column 7 and nowhere else.
+     Column 3 is how many feedback points were applied (not build↔review iterations, which this phase does not run). Column 4 is the `ci-revise` budget as `N/3`, or `0/3` if CI never went red. Column 6 is `revised`, `stopped-ci`, or `needs-operator-adjudication` (loop-run's definition). Everything narrative belongs in column 7 and nowhere else.
    - **Flywheel**: the operator's feedback is the highest-value signal — for each point raised, ask *"would a better instruction in loop-spec / loop-build / loop-review have prevented the loop from producing this in the first place?"* If yes, append a dated proposal to `$LOOP_STATE_DIR/_flywheel.md` (target skill, evidence, proposed edit — quoted). Proposals ONLY: never edit skill files, never ping the operator about it. Nothing avoidable → append nothing.
 
 10. **Report**: what changed per feedback point, replies posted, commit SHA, CI status. **NO new #frontend post** — the PR was already announced; colleagues see the update on GitHub.

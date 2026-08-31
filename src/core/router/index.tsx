@@ -1,7 +1,8 @@
 import { envGlobalVar } from '~/core/apolloClient'
-import { AppEnvEnum } from '~/core/constants/globalTypes'
+import { isDevOrQaAppEnv } from '~/core/utils/appEnv'
 
 import { authRoutes } from './AuthRoutes'
+import { catalogRoutes } from './CatalogRoutes'
 import { customerPortalRoutes } from './CustomerPortalRoutes'
 import { customerObjectCreationRoutes, customerRoutes, customerVoidRoutes } from './CustomerRoutes'
 import { objectCreationRoutes, objectDetailsRoutes, objectListRoutes } from './ObjectsRoutes'
@@ -93,9 +94,7 @@ const analyticsInlineRoutes: CustomRouteObject[] = [
   },
 ]
 
-const devOnlyInlineRoutes: CustomRouteObject[] = [AppEnvEnum.qa, AppEnvEnum.development].includes(
-  appEnv,
-)
+const devOnlyInlineRoutes: CustomRouteObject[] = isDevOrQaAppEnv(appEnv)
   ? [
       {
         path: [ONLY_DEV_DESIGN_SYSTEM_ROUTE, ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE],
@@ -143,6 +142,7 @@ export const routes: CustomRouteObject[] = [
           ...makeRelative(analyticsInlineRoutes),
           ...makeRelative(customerRoutes),
           ...makeRelative(objectListRoutes),
+          ...makeRelative(catalogRoutes),
           ...makeRelative(objectDetailsRoutes),
           ...makeRelative(quotesRoutes),
           ...makeRelative(devOnlyInlineRoutes),
@@ -166,6 +166,7 @@ export const routes: CustomRouteObject[] = [
 ]
 
 export * from './AuthRoutes'
+export * from './CatalogRoutes'
 export * from './CustomerRoutes'
 export * from './ObjectsRoutes'
 export * from './QuotesRoutes'

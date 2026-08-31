@@ -13,6 +13,11 @@ import {
   SHOW_LIMIT_INPUT_DATA_TEST,
 } from '~/components/wallets/utils/dataTestConstants'
 import {
+  WALLET_SCOPE_FEE_TYPE_LABEL_KEYS,
+  WALLET_SCOPE_FEE_TYPES,
+  WalletScopeFeeType,
+} from '~/components/wallets/utils/walletScopeFeeTypes'
+import {
   MUI_INPUT_BASE_ROOT_CLASSNAME,
   SEARCH_APPLIES_TO_BILLABLE_METRIC_CLASSNAME,
   SEARCH_APPLIES_TO_FEE_TYPE_CLASSNAME,
@@ -58,14 +63,6 @@ gql`
   }
 `
 
-type AvailableFeeTypes = FeeTypesEnum.Charge | FeeTypesEnum.Commitment | FeeTypesEnum.Subscription
-
-const availableFeeTypesTranslation: Record<AvailableFeeTypes, string> = {
-  [FeeTypesEnum.Charge]: 'text_1748441354191rj96qhw3twa',
-  [FeeTypesEnum.Commitment]: 'text_1748441354191cnp0tm4ubf0',
-  [FeeTypesEnum.Subscription]: 'text_6630e3210c13c500cd398ea2',
-}
-
 export const ScopeSection = withForm({
   defaultValues: emptyWalletFormDefaultValues(),
   props: {},
@@ -89,23 +86,11 @@ export const ScopeSection = withForm({
     })
 
     const comboboxFeeTypesData = useMemo(() => {
-      return [
-        {
-          label: translate(availableFeeTypesTranslation[FeeTypesEnum.Charge]),
-          value: FeeTypesEnum.Charge,
-          disabled: appliedFeeTypes?.includes(FeeTypesEnum.Charge) ?? false,
-        },
-        {
-          label: translate(availableFeeTypesTranslation[FeeTypesEnum.Commitment]),
-          value: FeeTypesEnum.Commitment,
-          disabled: appliedFeeTypes?.includes(FeeTypesEnum.Commitment) ?? false,
-        },
-        {
-          label: translate(availableFeeTypesTranslation[FeeTypesEnum.Subscription]),
-          value: FeeTypesEnum.Subscription,
-          disabled: appliedFeeTypes?.includes(FeeTypesEnum.Subscription) ?? false,
-        },
-      ]
+      return WALLET_SCOPE_FEE_TYPES.map((feeType) => ({
+        label: translate(WALLET_SCOPE_FEE_TYPE_LABEL_KEYS[feeType]),
+        value: feeType,
+        disabled: appliedFeeTypes?.includes(feeType) ?? false,
+      }))
     }, [appliedFeeTypes, translate])
 
     const comboboxBillableMetricsData = useMemo(() => {
@@ -133,7 +118,7 @@ export const ScopeSection = withForm({
     }, [billableMetricsData?.selectableBillableMetrics?.collection, appliedBillableMetrics])
 
     const hasSelectedAllFeeTypes = useMemo(
-      () => appliedFeeTypes?.length === Object.keys(availableFeeTypesTranslation).length,
+      () => appliedFeeTypes?.length === WALLET_SCOPE_FEE_TYPES.length,
       [appliedFeeTypes?.length],
     )
 
@@ -164,7 +149,7 @@ export const ScopeSection = withForm({
             <div className="flex flex-wrap items-center gap-3">
               {appliedFeeTypes?.map((feeType) => {
                 const feeTypeTranslation =
-                  availableFeeTypesTranslation[feeType as AvailableFeeTypes]
+                  WALLET_SCOPE_FEE_TYPE_LABEL_KEYS[feeType as WalletScopeFeeType]
 
                 return (
                   <Chip

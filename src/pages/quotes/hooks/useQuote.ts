@@ -27,6 +27,14 @@ gql`
       version
       createdAt
     }
+    # Feeds the activity-logs tab, which asks for the whole quote → order form → order
+    # resource set in one query
+    orderForms {
+      id
+      order {
+        id
+      }
+    }
     orderType
     createdAt
     customer {
@@ -61,8 +69,7 @@ gql`
       status
       version
       currency
-      startDate
-      endDate
+      billingEntityId
       createdAt
       ...QuotePreviewVersion
     }

@@ -1,10 +1,11 @@
+import { uniqBy } from 'lodash'
 import { FC, RefObject, useMemo } from 'react'
-import { generatePath } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 
 import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
-import { EVENT_LOG_ROUTE } from '~/components/developers/devtoolsRoutes'
+import { buildEventLink, serializeEventKey } from '~/components/developers/events/eventKey'
 import { ListSectionRef } from '~/components/developers/LogsLayout'
 import { getCurrentBreakpoint } from '~/core/utils/getCurrentBreakpoint'
 import { EventsQueryResult } from '~/generated/graphql'
@@ -14,6 +15,7 @@ import { useFormatterDateHelper } from '~/hooks/helpers/useFormatterDateHelper'
 type EventTableProps = {
   getEventsResult: EventsQueryResult
   logListRef: RefObject<ListSectionRef>
+  activeRowId?: string
   pageSize?: number
   onPageSizeChange?: (pageSize: number) => void
 }
@@ -21,21 +23,31 @@ type EventTableProps = {
 export const EventTable: FC<EventTableProps> = ({
   getEventsResult,
   logListRef,
+  activeRowId,
   pageSize,
   onPageSizeChange,
 }) => {
   const { translate } = useInternationalization()
   const { formattedDateTimeWithSecondsOrgaTZ } = useFormatterDateHelper()
+  const [searchParams] = useSearchParams()
 
   const { data, error, loading, fetchMore, refetch } = getEventsResult
 
+  // Rows are keyed on the whole dedup tuple (see `EventKey`), so `Event.id` collisions no
+  // longer merge distinct events. Rows matching the full tuple ARE the same event and are
+  // collapsed here: the API deliberately does not deduplicate the list (measured on 3M rows,
+  // count 18ms -> 1699ms, page 45ms -> 2445ms, reverted in lago-api 2a31919c1). Consequence:
+  // `metadata.totalCount` keeps counting raw rows, so the pager can report one more event
+  // than the list shows.
   const events = useMemo(
     () =>
-      data?.events?.collection.map((event) => ({
-        ...event,
-        // We need to use the transactionId as the id because the eventId is not always available (for Clickhouse events)
-        id: event.transactionId as string,
-      })) || [],
+      uniqBy(
+        data?.events?.collection.map((event) => ({
+          ...event,
+          id: serializeEventKey(event),
+        })) || [],
+        'id',
+      ),
     [data?.events?.collection],
   )
 
@@ -53,17 +65,16 @@ export const EventTable: FC<EventTableProps> = ({
         containerSize={16}
         rowSize={48}
         data={events}
+        activeRowId={activeRowId}
         hasError={!!error}
         isLoading={loading}
         loadingRowCount={pageSize}
-        onRowActionLink={({ transactionId }) => {
+        onRowActionLink={(event) => {
           if (getCurrentBreakpoint() === 'sm') {
             logListRef.current?.updateView('forward')
           }
 
-          return generatePath(EVENT_LOG_ROUTE, {
-            '*': transactionId as string,
-          })
+          return buildEventLink(event, searchParams)
         }}
         columns={[
           {

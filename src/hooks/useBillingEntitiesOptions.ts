@@ -16,13 +16,12 @@ export type BillingEntityOption = {
   euTaxManagement: boolean
 }
 
+export const BILLING_ENTITY_INHERIT_CODE = '__lago_inherit_billing_entity__'
+
 type UseBillingEntitiesOptionsParams = {
   /**
    * When true, prepends a sentinel option representing "no explicit binding —
    * inherit from the customer's default billing entity at billing time".
-   * The sentinel option has `value: ''` so callers can submit `null` / omit
-   * the field when this is selected. Mirrors the `paymentMethod` reference
-   * pattern (subscription/wallet inherit from customer if not set).
    */
   includeInheritOption?: boolean
   /**
@@ -93,7 +92,7 @@ export const useBillingEntitiesOptions = ({
     if (includeInheritOption) {
       formatted.unshift({
         id: '',
-        value: '',
+        value: BILLING_ENTITY_INHERIT_CODE,
         label: inheritLabel ?? translate('text_1778155404199jv285agrvax'),
         isDefault: false,
         euTaxManagement: false,

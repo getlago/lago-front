@@ -17,12 +17,14 @@ If no Linear URL was provided, ask for it with AskUserQuestion and stop until gi
 1. **Extract the issue ID** from the URL (pattern `[A-Z]+-\d+`, uppercase — any Linear team prefix: LAGO, ING, ...). All state for this run lives in the state dir — create the directory.
 
 2. **Fetch all sources**:
-   - Linear ticket via the Linear MCP `get_issue` tool: title, description, acceptance criteria, linked designs/comments.
+   - Linear ticket via the Linear MCP `get_issue` tool — the WHOLE ticket, not just the description: title, description, acceptance criteria, current state, labels, relations (blocked-by/related/duplicates), attachments and linked designs. Then fetch the full comment thread via `list_comments`: comments often carry decisions, scope changes and repro details that never made it back into the description — on conflict, a later comment overrides the description; note it in spec.md.
    - Every Notion URL given, via the Notion MCP `notion-fetch` tool: product requirements, technical constraints, edge cases.
    - If a Notion page linked INSIDE the Linear ticket clearly holds the product/tech spec, fetch that too.
    - Conflict between sources → the Linear ticket wins for scope, Notion wins for product/UX detail; note the conflict in spec.md.
 
 3. **Explore the codebase.** Locate every file the ticket touches (components, hooks, GraphQL documents, translations, tests). Follow existing patterns — read neighboring code, don't invent structure. If GraphQL operations change, note that `pnpm codegen` is required.
+
+   **Date fields**: for every date in scope, pin in spec.md whether it is a calendar day or an instant, and state the write zone and the display zone together. Lago floors arrears dates to UTC midnight and the codebase pins date-only pickers to `TimezoneEnum.TzUtc`, so a date-only field must be written AND displayed in UTC. Naming the org timezone for one is how the display ends up disagreeing with the stored value.
 
 4. **Write `spec.md`** in the state dir, with exactly these sections:
 

@@ -29,6 +29,12 @@ export const API_LOGS_FILTER_PREFIX = 'apil'
 
 export const SUBSCRIPTION_LIST_FILTER_PREFIX = 'sub'
 
+export const PRODUCT_LIST_FILTER_PREFIX = 'pit'
+
+export const PRODUCT_FILTER_LIST_FILTER_PREFIX = 'pif'
+
+export const RATE_CARD_LIST_FILTER_PREFIX = 'rc'
+
 export const SECURITY_LOGS_FILTER_PREFIX = 'secul'
 
 export const QUOTE_LIST_FILTER_PREFIX = 'qu'

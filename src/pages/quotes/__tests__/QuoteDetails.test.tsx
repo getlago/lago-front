@@ -1,9 +1,11 @@
+import { screen } from '@testing-library/react'
+
 import { OrderTypeEnum, StatusEnum } from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import { useQuote } from '../hooks/useQuote'
 import { useQuoteVersionActions } from '../hooks/useQuoteVersionActions'
-import QuoteDetails from '../QuoteDetails'
+import QuoteDetails, { QUOTE_DETAILS_CUSTOMER_LINK_TEST_ID } from '../QuoteDetails'
 
 const mockMainHeaderConfigure = jest.fn()
 
@@ -44,10 +46,20 @@ jest.mock('../OrdersList', () => ({
   default: () => null,
 }))
 
+jest.mock('../QuoteDetailsActivityLogs', () => ({
+  __esModule: true,
+  default: () => null,
+}))
+
 const mockHasPermissions = jest.fn()
+const mockIsPremium = jest.fn()
 
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({ hasPermissions: mockHasPermissions }),
+}))
+
+jest.mock('~/hooks/useCurrentUser', () => ({
+  useCurrentUser: () => ({ isPremium: mockIsPremium() }),
 }))
 
 const mockQuote = {
@@ -56,6 +68,7 @@ const mockQuote = {
   images: {},
   orderType: OrderTypeEnum.SubscriptionCreation,
   createdAt: '2026-04-09T10:00:00Z',
+  orderForms: [],
   versions: [
     { id: 'version-1', status: StatusEnum.Draft, version: 1, createdAt: '2026-04-09T10:00:00Z' },
   ],
@@ -65,8 +78,7 @@ const mockQuote = {
     version: 1,
     content: null,
     currency: null,
-    startDate: null,
-    endDate: null,
+    billingEntityId: null,
     billingItems: null,
     createdAt: '2026-04-09T10:00:00Z',
     mentionVariables: {},
@@ -104,6 +116,7 @@ describe('QuoteDetails', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockHasPermissions.mockReturnValue(true)
+    mockIsPremium.mockReturnValue(true)
     const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
 
     useParamsMock.mockReturnValue({ quoteId: 'quote-draft-001' })
@@ -147,16 +160,46 @@ describe('QuoteDetails', () => {
 
         const config = mockMainHeaderConfigure.mock.calls[0][0]
 
-        expect(config.entity.metadata).toContain('Acme Corp')
-        expect(config.entity.metadata).toContain('ext-acme-001')
+        render(<>{config.entity.metadata}</>)
+
+        const link = screen.getByTestId(QUOTE_DETAILS_CUSTOMER_LINK_TEST_ID)
+
+        expect(link).toHaveTextContent('Acme Corp')
+        expect(link).toHaveTextContent('ext-acme-001')
       })
 
-      it('THEN should configure MainHeader with three tabs', () => {
+      it('THEN should link the customer metadata to the customer detail page', () => {
         render(<QuoteDetails />)
 
         const config = mockMainHeaderConfigure.mock.calls[0][0]
 
-        expect(config.tabs).toHaveLength(3)
+        render(<>{config.entity.metadata}</>)
+
+        expect(screen.getByTestId(QUOTE_DETAILS_CUSTOMER_LINK_TEST_ID)).toHaveAttribute(
+          'href',
+          expect.stringContaining('/customer/customer-001'),
+        )
+      })
+
+      it('THEN should fall back to empty metadata while the quote is loading', () => {
+        mockUseQuote.mockReturnValue({
+          quote: undefined,
+          loading: true,
+          error: undefined,
+          refetch: jest.fn(),
+        })
+
+        render(<QuoteDetails />)
+
+        expect(mockMainHeaderConfigure.mock.calls[0][0].entity.metadata).toBe('')
+      })
+
+      it('THEN should configure MainHeader with four tabs', () => {
+        render(<QuoteDetails />)
+
+        const config = mockMainHeaderConfigure.mock.calls[0][0]
+
+        expect(config.tabs).toHaveLength(4)
       })
 
       it('THEN should have the first tab linking to overview', () => {
@@ -182,6 +225,22 @@ describe('QuoteDetails', () => {
 
         expect(config.tabs[2].link).toBe('/quote/quote-draft-001/orders')
       })
+
+      it('THEN should have Activity logs as the fourth tab', () => {
+        render(<QuoteDetails />)
+
+        const config = mockMainHeaderConfigure.mock.calls[0][0]
+
+        expect(config.tabs[3].link).toBe('/quote/quote-draft-001/activity-logs')
+      })
+
+      it('THEN should show the activity logs tab', () => {
+        render(<QuoteDetails />)
+
+        const config = mockMainHeaderConfigure.mock.calls[0][0]
+
+        expect(config.tabs[3].hidden).toBe(false)
+      })
     })
 
     describe('WHEN the user lacks the orderFormsView permission', () => {
@@ -192,10 +251,29 @@ describe('QuoteDetails', () => {
 
         const config = mockMainHeaderConfigure.mock.calls[0][0]
 
-        expect(config.tabs).toHaveLength(2)
+        expect(config.tabs).toHaveLength(3)
         expect(
           config.tabs.some((tab: { link?: string }) => tab.link?.endsWith('/order-forms')),
         ).toBe(false)
+      })
+    })
+
+    describe.each([
+      ['the user is not premium', { isPremium: false, hasPermissions: true }],
+      ['the user lacks the auditLogsView permission', { isPremium: true, hasPermissions: false }],
+    ])('WHEN %s', (_, { isPremium, hasPermissions }) => {
+      it('THEN should hide the activity logs tab', () => {
+        mockIsPremium.mockReturnValue(isPremium)
+        mockHasPermissions.mockReturnValue(hasPermissions)
+
+        render(<QuoteDetails />)
+
+        const config = mockMainHeaderConfigure.mock.calls[0][0]
+        const activityLogsTab = config.tabs.find((tab: { link?: string }) =>
+          tab.link?.endsWith('/activity-logs'),
+        )
+
+        expect(activityLogsTab.hidden).toBe(true)
       })
     })
 

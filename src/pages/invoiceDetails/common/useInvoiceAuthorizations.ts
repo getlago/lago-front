@@ -110,7 +110,6 @@ export const useInvoiceAuthorizations = ({
     integrationSyncable,
     integrationHubspotSyncable,
     regeneratedInvoiceId,
-    billingEntity,
   } = (invoice || {}) as AllInvoiceDetailsForCustomerInvoiceDetailsFragment
 
   const canRecordPayment = !!invoice && actions.canRecordPayment(invoice)
@@ -157,7 +156,7 @@ export const useInvoiceAuthorizations = ({
         hasActiveWallet,
       ),
       canSyncTaxIntegration: actions.canSyncTaxIntegration({ taxProviderVoidable }),
-      canResendEmail: actions.canResendEmail({ status, billingEntity }),
+      canResendEmail: actions.canResendEmail({ status }),
     }
   }, [
     hasTaxProviderError,
@@ -177,7 +176,6 @@ export const useInvoiceAuthorizations = ({
     invoiceType,
     hasActiveWallet,
     taxProviderVoidable,
-    billingEntity,
   ])
 
   return {

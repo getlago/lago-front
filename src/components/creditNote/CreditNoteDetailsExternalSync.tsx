@@ -12,8 +12,8 @@ import {
   buildNetsuiteCreditNoteUrl,
   buildXeroCreditNoteUrl,
 } from '~/core/constants/externalUrls'
-import { AppEnvEnum } from '~/core/constants/globalTypes'
 import { Link } from '~/core/router'
+import { isProductionAppEnv } from '~/core/utils/appEnv'
 import { getConnectedIntegration } from '~/core/utils/integrations'
 import {
   AnrokIntegration,
@@ -117,7 +117,7 @@ const OverviewLine: FC<
       )}
       {link && (
         <Link
-          className="w-fit line-break-anywhere visited:text-blue hover:no-underline"
+          className="w-fit line-break-anywhere hover:no-underline"
           target="_blank"
           rel="noopener noreferrer"
           to={link}
@@ -258,7 +258,7 @@ export const CreditNoteDetailsExternalSync: FC<CreditNoteDetailsExternalSyncProp
                 accountId: connectedAvalaraIntegration?.accountId,
                 companyId: connectedAvalaraIntegration?.companyId || '',
                 objectId: creditNote?.taxProviderId,
-                isSandbox: appEnv !== AppEnvEnum.production,
+                isSandbox: !isProductionAppEnv(appEnv),
               })}
               id={creditNote?.taxProviderId}
             />

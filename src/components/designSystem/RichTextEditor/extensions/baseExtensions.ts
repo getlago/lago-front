@@ -5,6 +5,7 @@ import CodeBlock from '@tiptap/extension-code-block'
 import Color from '@tiptap/extension-color'
 import Heading from '@tiptap/extension-heading'
 import Highlight from '@tiptap/extension-highlight'
+import HorizontalRule from '@tiptap/extension-horizontal-rule'
 import Link from '@tiptap/extension-link'
 import OrderedList from '@tiptap/extension-ordered-list'
 import Paragraph from '@tiptap/extension-paragraph'
@@ -193,6 +194,16 @@ const WrappedCodeBlock = CodeBlock.extend({
   },
 })
 
+// Without the wrapper a bare <hr> has no .spacer sibling, so the drag handle's
+// hover reveal rules never match and the divider can't be selected or deleted.
+const WrappedHorizontalRule = HorizontalRule.extend({
+  renderHTML(props) {
+    const inner = this.parent ? this.parent(props) : (['hr'] satisfies DOMOutputSpec)
+
+    return wrapInBlockWrapper('horizontalRule', inner)
+  },
+})
+
 // -- Extension list -----------------------------------------------------------
 
 interface BaseExtensionsOptions {
@@ -217,6 +228,7 @@ export const getBaseExtensions = (options?: BaseExtensionsOptions): Extensions =
     orderedList: false,
     blockquote: false,
     codeBlock: false,
+    horizontalRule: false,
   }),
   WrappedParagraph,
   WrappedHeading,
@@ -224,6 +236,7 @@ export const getBaseExtensions = (options?: BaseExtensionsOptions): Extensions =
   WrappedOrderedList,
   WrappedBlockquote,
   WrappedCodeBlock,
+  WrappedHorizontalRule,
   Link.configure({ openOnClick: false }),
   Underline,
   Superscript,

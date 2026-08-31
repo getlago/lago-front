@@ -1,11 +1,14 @@
+import { useReactiveVar } from '@apollo/client'
 import { FC, useEffect } from 'react'
 import { Panel, PanelResizeHandle } from 'react-resizable-panels'
 
 import { Button } from '~/components/designSystem/Button'
 import { NavigationTab, TabManagedBy } from '~/components/designSystem/NavigationTab'
+import { Spinner } from '~/components/designSystem/Spinner'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { devToolsNavigationMapping, DevtoolsRouter } from '~/components/developers/DevtoolsRouter'
 import { addToast } from '~/core/apolloClient'
+import { currentOrganizationVar } from '~/core/apolloClient/reactiveVars/currentOrganizationVar'
 import { useLocation, useNavigate } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -20,12 +23,22 @@ import {
 } from '~/hooks/useDeveloperTool'
 import { usePermissions } from '~/hooks/usePermissions'
 
+export const DEVTOOLS_COPY_INSPECTOR_LINK_TEST_ID = 'devtools-copy-inspector-link'
+
 export const DevtoolsView: FC = () => {
   const { panelRef, panelOpen, isFullscreen, expandPanel, resizePanel, closePanel, url, setUrl } =
     useDeveloperTool()
 
   const { translate } = useInternationalization()
-  const { pathname } = useLocation()
+  const { pathname, search } = useLocation()
+  // Query-gate: every devtools tab reads org-scoped data, and the `x-lago-organization`
+  // header is built from this var. The panel lives in a MemoryRouter that is a SIBLING of
+  // the app's BrowserRouter, so it can mount before `OrganizationLayout` has derived the org
+  // from the URL slug — which is exactly what happens when a copied inspector link opens the
+  // panel on first paint. Rendering the tabs then fires their queries header-less and the API
+  // rejects them with "Missing organization id", leaving the tab stuck on its error state
+  // until the user hits refresh.
+  const currentOrganizationId = useReactiveVar(currentOrganizationVar)
 
   const { hasPermissions } = usePermissions()
   const { isPremium } = useCurrentUser()
@@ -35,8 +48,9 @@ export const DevtoolsView: FC = () => {
   const copyInspectorLink = () => {
     const windowUrl = new URL(window.location.href)
 
-    // URLSearchParams.set() handles encoding automatically, so we don't need encodeURIComponent
-    windowUrl.searchParams.set(DEVTOOL_TAB_PARAMS, pathname)
+    // The panel's own search string is part of the address — see `EventKey`. A pathname alone
+    // reopens the events tab on the wrong row.
+    windowUrl.searchParams.set(DEVTOOL_TAB_PARAMS, `${pathname}${search}`)
     copyToClipboard(windowUrl.toString())
     addToast({
       severity: 'info',
@@ -92,6 +106,7 @@ export const DevtoolsView: FC = () => {
               startIcon="link"
               size="small"
               variant="quaternary"
+              data-test={DEVTOOLS_COPY_INSPECTOR_LINK_TEST_ID}
               onClick={() => copyInspectorLink()}
             >
               {translate('text_17460208605597iyd249v26z')}
@@ -121,7 +136,13 @@ export const DevtoolsView: FC = () => {
             </Tooltip>
           </NavigationTab>
           <div className="flex min-h-0 flex-1 flex-col overflow-auto">
-            <DevtoolsRouter />
+            {currentOrganizationId ? (
+              <DevtoolsRouter />
+            ) : (
+              <div className="flex flex-1 items-center justify-center">
+                <Spinner />
+              </div>
+            )}
           </div>
         </div>
       </Panel>

@@ -77,4 +77,37 @@ describe('formatCountToMetadata', () => {
       })
     })
   })
+
+  describe('GIVEN the count is capped', () => {
+    // A capped count is a lower bound: it reads as a formatted floor, and its key is single-form
+    // (a floor above the cap is never "1"), so no plural argument is passed.
+    const mockCappedTranslate = jest.fn(
+      (_key: string, params?: Record<string, string | number>) => `${params?.count}+ results`,
+    ) as unknown as TranslateFunc
+
+    describe('WHEN called with capped set', () => {
+      it('THEN should format the count as a floor, without a plural argument', () => {
+        const result = formatCountToMetadata(10000, mockCappedTranslate, true)
+
+        expect(mockCappedTranslate).toHaveBeenCalledWith(expect.any(String), { count: '10,000' })
+        expect(result).toBe('10,000+ results')
+      })
+    })
+
+    describe('WHEN called with capped explicitly false', () => {
+      it('THEN should keep the exact-total behaviour', () => {
+        const result = formatCountToMetadata(10000, mockTranslate, false)
+
+        expect(mockTranslate).toHaveBeenCalledWith(expect.any(String), { count: 10000 }, 10000)
+        expect(result).toBe('10000 results')
+      })
+    })
+
+    describe('WHEN the count is absent', () => {
+      it.each([[undefined], [null]])('THEN should return undefined (count = %s)', (count) => {
+        expect(formatCountToMetadata(count, mockCappedTranslate, true)).toBeUndefined()
+        expect(mockCappedTranslate).not.toHaveBeenCalled()
+      })
+    })
+  })
 })

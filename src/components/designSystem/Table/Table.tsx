@@ -77,6 +77,7 @@ export interface TableProps<T> {
   hasError?: boolean
   loadingRowCount?: number
   placeholder?: TablePlaceholder
+  activeRowId?: string
   onRowActionLink?: (item: T) => string
   onRowActionClick?: (item: T) => void
   actionColumn?: ActionColumn<T>
@@ -90,6 +91,8 @@ export interface TableProps<T> {
 
 const ACTION_COLUMN_ID = 'actionColumn'
 const LOADING_ROW_COUNT = DEFAULT_PAGE_SIZE
+
+export const OPEN_ACTION_BUTTON_TEST_ID = 'open-action-button'
 
 const MIN_CONTAINER_PADDING_PX = 4
 
@@ -282,6 +285,7 @@ export const Table = <T extends DataItem>({
   placeholder,
   tableInDialog,
   containerClassName,
+  activeRowId,
   onRowActionLink,
   onRowActionClick,
   actionColumn,
@@ -526,6 +530,7 @@ export const Table = <T extends DataItem>({
                   key={`${TABLE_ID}-row-${i}`}
                   id={`${TABLE_ID}-row-${i}`}
                   data-id={item.id}
+                  data-state={!!activeRowId && item.id === activeRowId ? 'selected' : undefined}
                   isClickable={isClickable}
                   tabIndex={isClickable ? 0 : undefined}
                   onKeyDown={isClickable ? onKeyDown : undefined}
@@ -570,7 +575,7 @@ export const Table = <T extends DataItem>({
                                   <Button
                                     icon="dots-horizontal"
                                     variant="quaternary"
-                                    data-test="open-action-button"
+                                    data-test={OPEN_ACTION_BUTTON_TEST_ID}
                                   />
                                 </Tooltip>
                               </PopperOpener>

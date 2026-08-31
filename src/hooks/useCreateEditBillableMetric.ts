@@ -59,7 +59,7 @@ export const useCreateEditBillableMetric: ({
   const navigate = useNavigate()
   const { billableMetricId } = useParams()
   const { data, loading, error } = useGetSingleBillableMetricQuery({
-    context: { silentError: LagoApiError.NotFound },
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
     variables: { id: billableMetricId as string },
     skip: !billableMetricId,
   })
