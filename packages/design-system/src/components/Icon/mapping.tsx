@@ -93,6 +93,7 @@ import MagnifyingGlass from '~/icons/magnifying-glass.svg'
 import Mail from '~/icons/mail.svg'
 import Map from '~/icons/map.svg'
 import Micro from '~/icons/micro.svg'
+import Microsoft from '~/icons/microsoft.svg'
 import MinusCircle from '~/icons/minus-circle.svg'
 import Minus from '~/icons/minus.svg'
 import Okta from '~/icons/okta.svg'
@@ -253,6 +254,7 @@ export const ALL_ICONS = {
   mail: Mail,
   map: Map,
   micro: Micro,
+  microsoft: Microsoft,
   'minus-circle': MinusCircle,
   minus: Minus,
   okta: Okta,

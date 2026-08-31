@@ -263,10 +263,7 @@ describe('Authentication', () => {
       expect(screen.getAllByTestId(/dots-horizontal/).length).toBe(3)
     })
 
-    const selectorButtons = screen.getAllByRole('button').filter((el) => el.tagName === 'DIV')
-
-    // Click the Okta selector (3rd one)
-    await user.click(selectorButtons[2])
+    await user.click(screen.getByTestId(getSSOSelectorTestId(AuthenticationMethodsEnum.Okta)))
 
     await waitFor(() => {
       expect(testMockNavigateFn).toHaveBeenCalled()
@@ -309,15 +306,12 @@ describe('Authentication', () => {
     await prepare({ mocks: emptyIntegrationsMock })
 
     await waitFor(() => {
-      const selectors = screen.getAllByRole('button').filter((el) => el.tagName === 'DIV')
-
-      expect(selectors.length).toBeGreaterThanOrEqual(3)
+      expect(
+        screen.getByTestId(getSSOSelectorTestId(AuthenticationMethodsEnum.Okta)),
+      ).toBeInTheDocument()
     })
 
-    const selectorButtons = screen.getAllByRole('button').filter((el) => el.tagName === 'DIV')
-
-    // Click the Okta selector (3rd one)
-    await user.click(selectorButtons[2])
+    await user.click(screen.getByTestId(getSSOSelectorTestId(AuthenticationMethodsEnum.Okta)))
 
     await waitFor(() => {
       const dialog = document.querySelector('[class*="MuiDialog"]')
@@ -334,15 +328,12 @@ describe('Authentication', () => {
     await prepare()
 
     await waitFor(() => {
-      const selectors = screen.getAllByRole('button').filter((el) => el.tagName === 'DIV')
-
-      expect(selectors.length).toBeGreaterThanOrEqual(3)
+      expect(
+        screen.getByTestId(getSSOSelectorTestId(AuthenticationMethodsEnum.Okta)),
+      ).toBeInTheDocument()
     })
 
-    const selectorButtons = screen.getAllByRole('button').filter((el) => el.tagName === 'DIV')
-
-    // Click the Okta selector (3rd one)
-    await user.click(selectorButtons[2])
+    await user.click(screen.getByTestId(getSSOSelectorTestId(AuthenticationMethodsEnum.Okta)))
 
     // Premium warning dialog should appear
     await waitFor(() => {
@@ -574,11 +565,7 @@ describe('Authentication', () => {
       expect(screen.getAllByTestId(/dots-horizontal/).length).toBe(3)
     })
 
-    // Click the Okta dots button (3rd one)
-    const dotsIcons = screen.getAllByTestId(/dots-horizontal/)
-    const oktaDotsButton = dotsIcons[2].closest('button') as HTMLElement
-
-    await user.click(oktaDotsButton)
+    await user.click(screen.getByTestId(getSSOSelectorDotsTestId(AuthenticationMethodsEnum.Okta)))
 
     // Should see pen (edit) and trash (delete) icons in the Okta popper
     await waitFor(() => {
@@ -604,10 +591,7 @@ describe('Authentication', () => {
       expect(screen.getAllByTestId(/dots-horizontal/).length).toBe(3)
     })
 
-    const dotsIcons = screen.getAllByTestId(/dots-horizontal/)
-    const oktaDotsButton = dotsIcons[2].closest('button') as HTMLElement
-
-    await user.click(oktaDotsButton)
+    await user.click(screen.getByTestId(getSSOSelectorDotsTestId(AuthenticationMethodsEnum.Okta)))
 
     await waitFor(() => {
       expect(screen.queryAllByTestId(/pen\//).length).toBeGreaterThanOrEqual(1)
@@ -635,6 +619,25 @@ describe('Authentication', () => {
         screen.getByTestId(getSSOSelectorTestId(AuthenticationMethodsEnum.EntraId)),
       ).toBeInTheDocument()
     })
+  })
+
+  it('renders the Entra ID selector before the Okta one', async () => {
+    await prepare()
+
+    const entraIdSelector = await screen.findByTestId(
+      getSSOSelectorTestId(AuthenticationMethodsEnum.EntraId),
+    )
+    const oktaSelector = screen.getByTestId(getSSOSelectorTestId(AuthenticationMethodsEnum.Okta))
+
+    expect(entraIdSelector.compareDocumentPosition(oktaSelector)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    )
+  })
+
+  it('names the Entra ID provider "Microsoft Entra ID"', async () => {
+    await prepare()
+
+    expect(await screen.findByText('Microsoft Entra ID')).toBeInTheDocument()
   })
 
   it('shows sparkle icon for Entra ID when no Entra ID premium integration', async () => {
@@ -758,6 +761,9 @@ describe('Authentication', () => {
       expect(screen.queryAllByTestId(/pen\//).length).toBeGreaterThanOrEqual(1)
       expect(screen.queryAllByTestId(/trash\//).length).toBeGreaterThanOrEqual(1)
     })
+
+    expect(screen.getByText('Edit connection')).toBeInTheDocument()
+    expect(screen.getByText('Delete connection')).toBeInTheDocument()
   })
 
   it('opens the Entra edit dialog prefilled from the Entra integration', async () => {
@@ -805,10 +811,7 @@ describe('Authentication', () => {
       expect(screen.getAllByTestId(/dots-horizontal/).length).toBe(3)
     })
 
-    const dotsIcons = screen.getAllByTestId(/dots-horizontal/)
-    const oktaDotsButton = dotsIcons[2].closest('button') as HTMLElement
-
-    await user.click(oktaDotsButton)
+    await user.click(screen.getByTestId(getSSOSelectorDotsTestId(AuthenticationMethodsEnum.Okta)))
 
     await waitFor(() => {
       expect(screen.queryAllByTestId(/trash\//).length).toBeGreaterThanOrEqual(1)
