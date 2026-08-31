@@ -40,7 +40,7 @@ gql`
 `
 
 interface ProductCategoryActivityLogsProps {
-  productCategoryId: string
+  productCategoryId: string | undefined
 }
 
 const ProductCategoryActivityLogs = ({ productCategoryId }: ProductCategoryActivityLogsProps) => {
@@ -53,14 +53,16 @@ const ProductCategoryActivityLogs = ({ productCategoryId }: ProductCategoryActiv
   const { data, loading, error, refetch, fetchMore } = useProductCategoryActivityLogsQuery({
     variables: {
       resourceTypes: [ResourceTypeEnum.ProductCategory],
-      resourceIds: [productCategoryId],
+      resourceIds: productCategoryId ? [productCategoryId] : undefined,
       limit: DEFAULT_PAGE_SIZE,
     },
     notifyOnNetworkStatusChange: true,
     context: {
       silentErrorCodes: [LagoApiError.FeatureUnavailable],
     },
-    skip: !canViewLogs,
+    // Without the id guard the filter is dropped server-side and the query returns the
+    // whole organization's activity log.
+    skip: !canViewLogs || !productCategoryId,
   })
 
   return (

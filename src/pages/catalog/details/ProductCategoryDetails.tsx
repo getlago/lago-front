@@ -188,7 +188,7 @@ const ProductCategoryDetails = () => {
             }),
             content: (
               <DetailsPage.Container className="pt-6">
-                <ProductCategoryActivityLogs productCategoryId={productCategoryId as string} />
+                <ProductCategoryActivityLogs productCategoryId={productCategoryId} />
               </DetailsPage.Container>
             ),
             hidden: !isPremium || !hasPermissions(['auditLogsView']),

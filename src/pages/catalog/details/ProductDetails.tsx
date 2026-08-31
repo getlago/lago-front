@@ -193,7 +193,7 @@ const ProductDetails = () => {
             }),
             content: (
               <DetailsPage.Container className="pt-6">
-                <ProductActivityLogs productId={productId as string} />
+                <ProductActivityLogs productId={productId} />
               </DetailsPage.Container>
             ),
             hidden: !isPremium || !hasPermissions(['auditLogsView']),

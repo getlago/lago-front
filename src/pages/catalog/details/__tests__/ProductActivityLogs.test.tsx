@@ -65,8 +65,8 @@ const buildActivityLog = (activityId: string) => ({
   externalSubscriptionId: null,
 })
 
-/** The three values that distinguish this component from its sibling activity-log
- *  components: an exact-variable mock only matches when all three are right. */
+/** The resource type and id are what distinguish this component from its sibling
+ *  activity-log components: an exact-variable mock only matches when both are right. */
 const QUERY_VARIABLES = {
   resourceTypes: [ResourceTypeEnum.Product],
   resourceIds: [PRODUCT_ID],
@@ -112,12 +112,30 @@ const buildErrorMocks = (code: LagoApiError): TestMocksType => [
   },
 ]
 
-const renderComponent = (mocks: TestMocksType) =>
-  rtlRender(
+const renderComponent = (
+  mocks: TestMocksType,
+  options: { productId?: string | undefined } = {},
+) => {
+  // `'productId' in options` rather than a destructuring default: a default also fires on an
+  // explicit `undefined`, which would silently hand a real id to the "no id yet" case
+  const productId = 'productId' in options ? options.productId : PRODUCT_ID
+
+  return rtlRender(
     <AllTheProviders mocks={mocks} forceTypenames>
-      <ProductActivityLogs productId={PRODUCT_ID} />
+      <ProductActivityLogs productId={productId} />
     </AllTheProviders>,
   )
+}
+
+// `variableMatcher` accepts any variables so a query fired with unexpected ones still
+// trips `result` rather than slipping through as an unmatched-mock error
+const anyQueryMocks = (result: jest.Mock): TestMocksType => [
+  {
+    request: { query: ProductActivityLogsDocument },
+    variableMatcher: () => true,
+    result,
+  },
+]
 
 describe('ProductActivityLogs', () => {
   beforeEach(() => {
@@ -230,17 +248,26 @@ describe('ProductActivityLogs', () => {
     })
   })
 
-  describe('GIVEN the logs cannot be viewed', () => {
-    // `variableMatcher` accepts any variables so a query fired with unexpected ones still
-    // trips `result` rather than slipping through as an unmatched-mock error
-    const anyQueryMocks = (result: jest.Mock): TestMocksType => [
-      {
-        request: { query: ProductActivityLogsDocument },
-        variableMatcher: () => true,
-        result,
-      },
-    ]
+  describe('GIVEN the route param is not available', () => {
+    describe('WHEN the product id is undefined', () => {
+      // An absent id would drop the filter server-side and return the whole
+      // organization's activity log, so the query must not fire at all
+      it('THEN should skip the query and render the empty state', async () => {
+        const result = jest.fn(() => buildResult())
 
+        renderComponent(anyQueryMocks(result), { productId: undefined })
+
+        await waitFor(() => {
+          expect(screen.getByTestId(GENERIC_PLACEHOLDER_TEST_ID)).toBeInTheDocument()
+        })
+
+        expect(result).not.toHaveBeenCalled()
+        expect(screen.queryByText(ACTIVITY_DESCRIPTION)).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the logs cannot be viewed', () => {
     describe.each([
       ['the user is not premium', { isPremium: false, granted: ['auditLogsView'] }],
       ['the user lacks the auditLogsView permission', { isPremium: true, granted: [] }],
