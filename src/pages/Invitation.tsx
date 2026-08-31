@@ -31,7 +31,6 @@ import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { usePasswordValidation } from '~/hooks/forms/usePasswordValidation'
-import MicrosoftEntraId from '~/public/images/microsoft-entra-id.svg'
 import { Card, Page, StyledLogo, Subtitle, Title } from '~/styles/auth'
 
 import {
@@ -429,12 +428,12 @@ const Invitation = () => {
 
                 <Button
                   fullWidth
+                  startIcon="microsoft"
                   size="large"
                   variant="tertiary"
                   onClick={() => onEntraIdLogin()}
                   loading={entraIdAuthorizeUrlLoading || entraIdAcceptInviteLoading}
                 >
-                  <MicrosoftEntraId className="mr-2 size-4" />
                   {translate('text_1784307344255ojifndnfotw')}
                 </Button>
               </Stack>
