@@ -506,3 +506,4 @@ are referenced, not auto-loaded):
 - **Library documentation**: `@.agents/docs/documentation.md`
 - **GraphQL fragments & type safety**: `@.agents/docs/graphql-fragments.md`
 - **Testing best practices**: `@.agents/docs/testing-practices.md`
+- **Icons, logos & brand assets**: `@.agents/docs/icons-and-logos.md`
