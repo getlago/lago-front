@@ -24,7 +24,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { useDeveloperTool } from '~/hooks/useDeveloperTool'
 import { useIframeConfig } from '~/hooks/useIframeConfig'
-import MicrosoftEntraId from '~/public/images/microsoft-entra-id.svg'
 import { Card, Page, StyledLogo } from '~/styles/auth'
 
 import { loginDefaultValues, loginValidationSchema } from './loginForm/validationSchema'
@@ -155,11 +154,11 @@ const Login = () => {
                   </Button>
                   <Button
                     fullWidth
+                    startIcon="microsoft"
                     size="large"
                     variant="tertiary"
                     onClick={() => navigate(LOGIN_ENTRA_ID_ROUTE, { state: location.state })}
                   >
-                    <MicrosoftEntraId className="mr-2 size-4" />
                     {translate('text_1784307344254zepa808t6gd')}
                   </Button>
                 </Stack>
