@@ -26,6 +26,7 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 import { usePermissions } from '~/hooks/usePermissions'
 
+import ProductCategoryActivityLogs from './ProductCategoryActivityLogs'
 import { ProductCategoryDetailsOverview } from './ProductCategoryDetailsOverview'
 import { ProductCategoryDetailsProducts } from './ProductCategoryDetailsProducts'
 
@@ -185,7 +186,11 @@ const ProductCategoryDetails = () => {
               productCategoryId: productCategoryId as string,
               tab: ProductCategoryDetailsTabsOptionsEnum.activityLogs,
             }),
-            content: <div className="p-4">{translate('text_1747314141347qq6rasuxisl')}</div>,
+            content: (
+              <DetailsPage.Container className="pt-6">
+                <ProductCategoryActivityLogs productCategoryId={productCategoryId as string} />
+              </DetailsPage.Container>
+            ),
             hidden: !isPremium || !hasPermissions(['auditLogsView']),
           },
         ]}

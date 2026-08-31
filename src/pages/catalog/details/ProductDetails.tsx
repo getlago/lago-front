@@ -24,6 +24,7 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 import { usePermissions } from '~/hooks/usePermissions'
 
+import ProductActivityLogs from './ProductActivityLogs'
 import { ProductDetailsOverview } from './ProductDetailsOverview'
 import ProductFilterPreview from './ProductFilterPreview'
 import RateCardPreview from './RateCardPreview'
@@ -190,7 +191,11 @@ const ProductDetails = () => {
               productId: productId as string,
               tab: ProductDetailsTabsOptionsEnum.activityLogs,
             }),
-            content: <div className="p-4">{translate('text_1747314141347qq6rasuxisl')}</div>,
+            content: (
+              <DetailsPage.Container className="pt-6">
+                <ProductActivityLogs productId={productId as string} />
+              </DetailsPage.Container>
+            ),
             hidden: !isPremium || !hasPermissions(['auditLogsView']),
           },
         ]}

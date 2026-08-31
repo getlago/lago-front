@@ -4885,5 +4885,8 @@
   "text_17877372202296ejgkqky70w": "Attached product category",
   "text_1787753924848luck8g8y1qd": "A rate is already effective on this date",
   "text_1787753924848adhyrzqb0gz": "This rate could not be saved. Please check its settings and try again.",
-  "text_1787819065018edyn6m968e4": "Changes made to this rate are tracked on its parent rate card."
+  "text_1787819065018edyn6m968e4": "Changes made to this rate are tracked on its parent rate card.",
+  "text_1788164971209jpekwrfqvn6": "Logs reflecting this product category's activity.",
+  "text_1788165288458ilh83vbkt7a": "Logs reflecting this product's activity.",
+  "text_1788165722542bcdlld0bbxg": "Logs reflecting this rate card's activity."
 }

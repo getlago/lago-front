@@ -32,6 +32,16 @@ jest.mock('../ProductCategoryDetailsProducts', () => ({
   ProductCategoryDetailsProducts: () => null,
 }))
 
+const mockProductCategoryActivityLogsProps = jest.fn()
+
+jest.mock('../ProductCategoryActivityLogs', () => ({
+  __esModule: true,
+  default: (props: Record<string, unknown>) => {
+    mockProductCategoryActivityLogsProps(props)
+    return null
+  },
+}))
+
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({ hasPermissions: mockHasPermissions }),
 }))
@@ -68,18 +78,21 @@ const ProductCategoryDetailsWithHeader = () => (
 
 // forceTypenames + __typename in the fixture: the query spreads fragments, and
 // the cache only writes fragment fields when it can match the typename.
-const renderPage = () =>
-  rtlRender(<ProductCategoryDetailsWithHeader />, {
+const renderPage = (tab = 'overview') => {
+  window.history.pushState({}, '', `/product-catalog/product-categories/prod-1/${tab}`)
+
+  return rtlRender(<ProductCategoryDetailsWithHeader />, {
     wrapper: ({ children }) => (
       <AllTheProviders
         forceTypenames
         mocks={[detailsQueryMock]}
-        useParams={{ productCategoryId: 'prod-1', tab: 'overview' }}
+        useParams={{ productCategoryId: 'prod-1', tab }}
       >
         {children}
       </AllTheProviders>
     ),
   })
+}
 
 describe('ProductCategoryDetails', () => {
   beforeEach(() => {
@@ -122,6 +135,16 @@ describe('ProductCategoryDetails', () => {
     expect(screen.getByText('text_17831042398250iwa2xp8pba')).toBeInTheDocument()
     expect(screen.getByText('text_62442e40cea25600b0b6d85a')).toBeInTheDocument()
     expect(screen.getByText('text_1747314141347qq6rasuxisl')).toBeInTheDocument()
+  })
+
+  it('renders the activity logs tab content scoped to the product category', async () => {
+    await act(() => renderPage('activity-logs'))
+
+    await waitFor(() => {
+      expect(mockProductCategoryActivityLogsProps).toHaveBeenCalledWith(
+        expect.objectContaining({ productCategoryId: 'prod-1' }),
+      )
+    })
   })
 
   it('hides the activity logs tab without premium', async () => {
