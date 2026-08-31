@@ -92,15 +92,15 @@ symptom and wrong about the fix.
 
 ### 2a. Check the symptom against known regression classes
 
-`CLAUDE.md` is not only style — it records defect classes together with the symptom they
-produce. The table below turns a reported symptom into **the first place to look**. Nothing
+`CLAUDE.md` and the `lago-*` skills it points to are not only style — they record defect
+classes together with the symptom they produce. The table below turns a reported symptom into **the first place to look**. Nothing
 in it is a conclusion: a row that matches is a hypothesis, and the analysis stands or falls
 on confirming it at the actual call site.
 
 | Reported symptom | Documented cause |
 | --- | --- |
 | A list loads page 1 then stops; page 2 is empty | Field not registered in `queryFieldPolicies` with `createSinglePageFieldPolicy()` |
-| Another org's data, logo flashing the wrong org, a webhook URL baking the wrong UUID, a value from another tab | A feature component reading `currentOrganizationVar` instead of `useParams` + memberships — `CLAUDE.md` names this a known bug pattern |
+| Another org's data, logo flashing the wrong org, a webhook URL baking the wrong UUID, a value from another tab | A feature component reading `currentOrganizationVar` instead of `useParams` + memberships — the `lago-organization-slug` skill names this a known bug pattern |
 | Route matching never fires | `useMatch` from `react-router-dom` — the raw pathname includes the slug. Use `matchPath` + `strippedPathname` |
 | The "X-Y of N" label disagrees with the rows | `PaginatedContent` `pageSize` ≠ the query `limit` |
 | A previously-viewed page flashes when re-entering a customer tab | List query missing `fetchPolicy: 'network-only'` |
@@ -122,6 +122,9 @@ No match means nothing at all — most defects are not in this table.
 ### 2b. Read what binds this area
 
 - **`CLAUDE.md` at the root** — always. It is prescriptive, not advisory.
+- **The subsystem skills** `CLAUDE.md` points to, whenever the area is one of theirs:
+  `lago-pagination`, `lago-drawers`, `lago-dialogs`, `lago-organization-slug`. They carry the
+  full rules those sections used to hold inline.
 - **The on-demand docs** in `.agents/docs/` for the area involved: `folder-architecture`,
   `graphql-fragments`, `testing-practices`, `documentation`. (`typescript-conventions` is
   already loaded in every session.)
@@ -133,8 +136,8 @@ Two things this changes about the *fix*, not just the analysis:
 - **The fix must be the sanctioned pattern, not merely a working one.** A new drawer is the
   `use<Feature>Drawer` hook, never a `forwardRef` + `DrawerRef`; a dialog is one of the three
   hooks; a new translation key comes from `pnpm translations:add`, never hand-written.
-- **A legacy pattern next door is not permission to copy it.** `CLAUDE.md` says this outright
-  about drawers, and it holds generally: three generations coexist and only one is allowed in
+- **A legacy pattern next door is not permission to copy it.** The `lago-drawers` skill says
+  this outright, and it holds generally: three generations coexist and only one is allowed in
   new code. Cite the reference site the docs name, so whoever implements it copies from the
   right place.
 

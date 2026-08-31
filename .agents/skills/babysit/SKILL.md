@@ -104,10 +104,15 @@ Work out which docs the diff touches, then pass their paths:
 | `.graphql`, fragments, `src/generated/`         | `.agents/docs/graphql-fragments.md`   |
 | new files or directories **under `src/`**       | `.agents/docs/folder-architecture.md` |
 | a new or unfamiliar library                     | `.agents/docs/documentation.md`       |
+| a list, table or paginated query                | `.agents/skills/lago-pagination/SKILL.md` |
+| a drawer                                        | `.agents/skills/lago-drawers/SKILL.md` |
+| a dialog, modal or confirmation prompt          | `.agents/skills/lago-dialogs/SKILL.md` |
+| an org id or slug, or an identifier embedding one | `.agents/skills/lago-organization-slug/SKILL.md` |
 
-`CLAUDE.md` already pulls in `.agents/docs/typescript-conventions.md` itself, and its
-own sections cover drawers, pagination, router imports, MUI imports, translations, and
-the organization-slug rules. Nothing there needs repeating here.
+`CLAUDE.md` already pulls in `.agents/docs/typescript-conventions.md` itself, and its own
+sections still cover router imports, MUI imports and translations. The pagination, drawer,
+dialog and organization-slug rules now live in the `lago-*` skills listed above. Nothing in
+any of them needs repeating here.
 
 ```
 Skill(skill: "review", args: `<n>
@@ -115,7 +120,7 @@ Skill(skill: "review", args: `<n>
 Review against this repo's conventions. Read these files and treat them as the
 authority, in this order:
   CLAUDE.md
-  <the .agents/docs paths selected above>
+  <the .agents/docs and .agents/skills paths selected above>
 
 Weight violations of those documented rules above generic code-review findings.
 Do not report anything CI already catches: formatting, type errors, failing tests,
@@ -137,7 +142,7 @@ Then turn the findings into a triage list:
 
 | # | Sev  | File:line            | Finding                                  |
 |---|------|----------------------|------------------------------------------|
-| 1 | high | usePlanDrawer.tsx:42 | ref-based drawer, CLAUDE.md forbids      |
+| 1 | high | usePlanDrawer.tsx:42 | ref-based drawer, lago-drawers forbids   |
 | 2 | med  | cache.ts             | new list field not in queryFieldPolicies |
 
 CI: 2 failing (Run linters, Tests shard 3/4) | Reviews: none | Mergeable: clean
