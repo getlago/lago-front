@@ -50,7 +50,7 @@ gql`
   ${ProductFilterForDeleteProductFilterDialogFragmentDoc}
 `
 
-export const PRODUCT_ITEM_FILTERS_LIST_PATH = generatePath(PRODUCT_CATALOG_TAB_ROUTE, {
+const PRODUCT_ITEM_FILTERS_LIST_PATH = generatePath(PRODUCT_CATALOG_TAB_ROUTE, {
   tab: ProductCatalogTabsOptionsEnum.productFilters,
 })
 

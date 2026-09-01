@@ -12,7 +12,7 @@ import { useUpdateCustomerInvoiceGracePeriodMutation } from '~/generated/graphql
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
-export const EDIT_CUSTOMER_INVOICE_GRACE_PERIOD_FORM_ID = 'edit-customer-invoice-grace-period-form'
+const EDIT_CUSTOMER_INVOICE_GRACE_PERIOD_FORM_ID = 'edit-customer-invoice-grace-period-form'
 
 gql`
   fragment EditCustomerInvoiceGracePeriod on Customer {

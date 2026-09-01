@@ -61,7 +61,7 @@ gql`
   ${CustomerAppliedTaxRatesForSettingsFragmentDoc}
 `
 
-export const EDIT_CUSTOMER_VAT_RATE_FORM_ID = 'edit-customer-vat-rate-form'
+const EDIT_CUSTOMER_VAT_RATE_FORM_ID = 'edit-customer-vat-rate-form'
 
 interface EditCustomerVatRateContentProps {
   appliedTaxRatesTaxesIds?: string[]

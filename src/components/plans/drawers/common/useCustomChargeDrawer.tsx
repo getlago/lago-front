@@ -9,7 +9,7 @@ import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
-export const CUSTOM_CHARGE_DRAWER_SAVE_TEST_ID = 'custom-charge-drawer-save'
+const CUSTOM_CHARGE_DRAWER_SAVE_TEST_ID = 'custom-charge-drawer-save'
 
 type UseCustomChargeDrawerProps = {
   onSave: (customProperties: string) => void

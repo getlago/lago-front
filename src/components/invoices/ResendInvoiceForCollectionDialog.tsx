@@ -24,7 +24,7 @@ import { useAppForm } from '~/hooks/forms/useAppform'
 
 export const RESEND_INVOICE_FOR_COLLECTION_DIALOG_SUBMIT_BUTTON_TEST_ID =
   'resend-invoice-for-collection-dialog-submit-button'
-export const RESEND_INVOICE_FOR_COLLECTION_FORM_ID = 'resend-invoice-for-collection-form'
+const RESEND_INVOICE_FOR_COLLECTION_FORM_ID = 'resend-invoice-for-collection-form'
 
 gql`
   fragment InvoiceForResendInvoiceForCollectionDialog on Invoice {

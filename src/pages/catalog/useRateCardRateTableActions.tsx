@@ -20,7 +20,7 @@ import {
 } from './drawers/rateCardRate/useRateCardRateDrawer'
 import { isRateCardRateDeletable, isRateCardRateEditable } from './drawers/rateCardRate/utils'
 
-export const buildRateCardRateDetailsPath = ({
+const buildRateCardRateDetailsPath = ({
   rateCardId,
   rateId,
 }: {

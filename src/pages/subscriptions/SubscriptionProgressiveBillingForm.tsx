@@ -41,7 +41,7 @@ export const PROGRESSIVE_BILLING_HAS_RECURRING_SWITCH_TEST_ID =
 export const PROGRESSIVE_BILLING_CANCEL_BUTTON_TEST_ID = 'progressive-billing-cancel-button'
 export const PROGRESSIVE_BILLING_SUBMIT_BUTTON_TEST_ID = 'progressive-billing-submit-button'
 export const PROGRESSIVE_BILLING_CLOSE_BUTTON_TEST_ID = 'progressive-billing-close-button'
-export const PROGRESSIVE_BILLING_INFO_ALERT_TEST_ID = 'progressive-billing-info-alert'
+const PROGRESSIVE_BILLING_INFO_ALERT_TEST_ID = 'progressive-billing-info-alert'
 
 gql`
   query getSubscriptionForProgressiveBillingForm($subscriptionId: ID!) {
