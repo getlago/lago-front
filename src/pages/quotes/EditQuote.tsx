@@ -4,6 +4,7 @@ import { debounce } from 'lodash'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
+import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import type {
   OnCreditsCommand,
@@ -39,6 +40,8 @@ import { useSubscriptionPricingDrawer } from './hooks/useSubscriptionPricingDraw
 import { useUpdateQuote } from './hooks/useUpdateQuote'
 
 const AUTO_SAVE_DELAY_MS = 2000
+
+export const EDIT_QUOTE_PRICING_CTA_TEST_ID = 'edit-quote-pricing-cta'
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
 
@@ -165,10 +168,40 @@ const EditQuote = () => {
     [entities, discount.entities, credits.entities],
   )
 
+  // `isPricingDisabled()` reads a ref, so it cannot drive a render. Until the editor has
+  // reported its blocks the saved billingItems stand in, so a priced quote never paints the CTA.
+  const savedBillingItems = quote?.currentVersion?.billingItems as BillingItemsPayload | undefined
+  const hasSavedPricing = !!(savedBillingItems?.plans?.length || savedBillingItems?.addOns?.length)
+  const [hasPricingBlockInDocument, setHasPricingBlockInDocument] = useState<boolean | null>(null)
+  const hasPricingBlock = hasPricingBlockInDocument ?? hasSavedPricing
+
+  const pricingSummary = useMemo(() => {
+    // The pricing hooks index each add-on twice — by localId and by catalog id, for
+    // backward compat with older documents — so the names must be deduped by entityId.
+    const seen = new Set<string>()
+    const names: string[] = []
+
+    for (const entity of Object.values(entities)) {
+      if (!entity || seen.has(entity.entityId)) continue
+
+      seen.add(entity.entityId)
+      names.push(entity.invoiceDisplayName || entity.name)
+    }
+
+    return names.join(', ')
+  }, [entities])
+
   const customerLocale = (quote?.customer?.billingConfiguration?.documentLocale ?? 'en') as Locale
 
   const getMarkdownRef = useRef<(() => string) | null>(null)
   const removeBlockRef = useRef<((localId: string) => void) | null>(null)
+  const insertPricingBlockRef = useRef<(() => void) | null>(null)
+
+  // Runs the very command the slash menu's "Pricing" item runs, so the save, the rollback
+  // and the selection fix-up stay in one place.
+  const handleAddPricingBlock = useCallback(() => {
+    insertPricingBlockRef.current?.()
+  }, [])
   const isRollingBackRef = useRef(false)
   const lastSavedContentRef = useRef('')
   const isReadyForChangesRef = useRef(false)
@@ -395,6 +428,10 @@ const EditQuote = () => {
 
   const handlePricingBlocksChange = useCallback(
     (blocks: PricingBlockAttributes[]) => {
+      // Before the rollback guard below: a rolled-back insert must still clear the flag,
+      // only the corrective save is skipped.
+      setHasPricingBlockInDocument(blocks.length > 0)
+
       // A rollback tears the block back out after a failed save. Skip
       // reconciliation entirely — not just the corrective save: otherwise
       // `syncEntitiesWithBlocks` prunes the just-failed add-on's cached catalog
@@ -536,6 +573,9 @@ const EditQuote = () => {
           <EditQuoteAside
             quote={quote}
             isSaving={saveStatus === 'saving'}
+            hasPricingBlock={hasPricingBlock}
+            pricingSummary={pricingSummary}
+            onAddPricingBlock={handleAddPricingBlock}
             onSaveStart={() => setSaveStatus('saving')}
             onSaveFinished={onUpdateFinished}
             onSaveError={(payload) => {
@@ -552,25 +592,44 @@ const EditQuote = () => {
             <Skeleton variant="text" className="w-5/6" />
           </div>
         ) : (
-          <RichTextEditor
-            content={quote?.currentVersion?.content ?? ''}
-            getMarkdownRef={getMarkdownRef}
-            removeBlockRef={removeBlockRef}
-            onChange={handleChange}
-            mode={editorMode}
-            onPricingCommand={handlePricingCommand}
-            isPricingDisabled={isPricingDisabled}
-            entities={mergedEntities}
-            onPricingBlocksChange={handlePricingBlocksChange}
-            onDiscountBlocksChange={handleDiscountBlocksChange}
-            {...subscriptionEditorProps}
-            customerLocale={customerLocale}
-            documentCurrency={effectiveQuoteCurrency}
-            variableItems={mentionItems}
-            mentionValues={mentionValues}
-            images={images}
-            onImageUpload={onImageUpload}
-          />
+          <div className="flex h-full flex-col">
+            <div className="min-h-0 flex-1">
+              <RichTextEditor
+                content={quote?.currentVersion?.content ?? ''}
+                getMarkdownRef={getMarkdownRef}
+                removeBlockRef={removeBlockRef}
+                insertPricingBlockRef={insertPricingBlockRef}
+                onChange={handleChange}
+                mode={editorMode}
+                onPricingCommand={handlePricingCommand}
+                isPricingDisabled={isPricingDisabled}
+                entities={mergedEntities}
+                onPricingBlocksChange={handlePricingBlocksChange}
+                onDiscountBlocksChange={handleDiscountBlocksChange}
+                {...subscriptionEditorProps}
+                customerLocale={customerLocale}
+                documentCurrency={effectiveQuoteCurrency}
+                variableItems={mentionItems}
+                mentionValues={mentionValues}
+                images={images}
+                onImageUpload={onImageUpload}
+              />
+            </div>
+            {!hasPricingBlock && (
+              <div className="mx-auto w-full max-w-4xl shrink-0 px-10 pb-4">
+                <Alert
+                  type="warning"
+                  data-test={EDIT_QUOTE_PRICING_CTA_TEST_ID}
+                  ButtonProps={{
+                    label: translate('text_1788277738981ng58j3nfudd'),
+                    onClick: handleAddPricingBlock,
+                  }}
+                >
+                  {translate('text_1788277738980lq42krzk56z')}
+                </Alert>
+              </div>
+            )}
+          </div>
         )}
       </RightAsidePage.Content>
     </RightAsidePage.Wrapper>

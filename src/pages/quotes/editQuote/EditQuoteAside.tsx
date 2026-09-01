@@ -4,6 +4,7 @@ import { generatePath } from 'react-router-dom'
 
 import { BillingEntityFormPicker } from '~/components/billingEntity/BillingEntityFormPicker'
 import { Button } from '~/components/designSystem/Button'
+import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { CURRENCY_DATA } from '~/components/form/CurrencyPicker'
 import { addToast } from '~/core/apolloClient'
@@ -40,10 +41,17 @@ export const EDIT_QUOTE_ASIDE_CURRENCY_INPUT_TEST_ID = 'edit-quote-aside-currenc
 export const EDIT_QUOTE_ASIDE_CURRENCY_COMBOBOX_TEST_ID = 'edit-quote-aside-currency-combobox'
 export const EDIT_QUOTE_ASIDE_DOWNLOAD_PDF_TEST_ID = 'edit-quote-aside-download-pdf'
 export const EDIT_QUOTE_ASIDE_APPROVE_TEST_ID = 'edit-quote-aside-approve'
+export const EDIT_QUOTE_ASIDE_PRICING_LABEL_TEST_ID = 'edit-quote-aside-pricing'
+export const EDIT_QUOTE_ASIDE_PRICING_SUMMARY_TEST_ID = 'edit-quote-aside-pricing-summary'
+export const EDIT_QUOTE_ASIDE_PRICING_EMPTY_TEST_ID = 'edit-quote-aside-pricing-empty'
+export const EDIT_QUOTE_ASIDE_ADD_PRICING_TEST_ID = 'edit-quote-aside-add-pricing'
 
 interface EditQuoteAsideProps {
   quote: QuoteDetailItemFragment | null | undefined
   isSaving?: boolean
+  hasPricingBlock: boolean
+  pricingSummary: string
+  onAddPricingBlock: () => void
   onSaveStart?: () => void
   onSaveFinished?: () => void
   onSaveError?: (payload: UpdateQuoteVersionInput) => void
@@ -52,6 +60,9 @@ interface EditQuoteAsideProps {
 const EditQuoteAside = ({
   quote,
   isSaving,
+  hasPricingBlock,
+  pricingSummary,
+  onAddPricingBlock,
   onSaveStart,
   onSaveFinished,
   onSaveError,
@@ -62,6 +73,9 @@ const EditQuoteAside = ({
     <EditQuoteAsideForm
       quote={quote}
       isSaving={isSaving}
+      hasPricingBlock={hasPricingBlock}
+      pricingSummary={pricingSummary}
+      onAddPricingBlock={onAddPricingBlock}
       onSaveStart={onSaveStart}
       onSaveFinished={onSaveFinished}
       onSaveError={onSaveError}
@@ -72,12 +86,18 @@ const EditQuoteAside = ({
 const EditQuoteAsideForm = ({
   quote,
   isSaving,
+  hasPricingBlock,
+  pricingSummary,
+  onAddPricingBlock,
   onSaveStart,
   onSaveFinished,
   onSaveError,
 }: {
   quote: QuoteDetailItemFragment
   isSaving?: boolean
+  hasPricingBlock: boolean
+  pricingSummary: string
+  onAddPricingBlock: () => void
   onSaveStart?: () => void
   onSaveFinished?: () => void
   onSaveError?: (payload: UpdateQuoteVersionInput) => void
@@ -206,6 +226,42 @@ const EditQuoteAsideForm = ({
 
   const gridClassName = 'grid grid-cols-[7.5rem_1fr] items-center gap-0 gap-y-2'
 
+  const renderPricingValue = () => {
+    if (hasPricingBlock) {
+      return (
+        <Typography
+          variant="body"
+          color="grey700"
+          noWrap
+          data-test={EDIT_QUOTE_ASIDE_PRICING_SUMMARY_TEST_ID}
+        >
+          {pricingSummary}
+        </Typography>
+      )
+    }
+
+    return (
+      <div className="flex items-center gap-2">
+        <Typography
+          variant="body"
+          color="grey500"
+          data-test={EDIT_QUOTE_ASIDE_PRICING_EMPTY_TEST_ID}
+        >
+          {translate('text_17882777389811he711tg7yj')}
+        </Typography>
+        <Button
+          variant="quaternary"
+          size="small"
+          startIcon="plus"
+          data-test={EDIT_QUOTE_ASIDE_ADD_PRICING_TEST_ID}
+          onClick={onAddPricingBlock}
+        >
+          {translate('text_1788277738981ng58j3nfudd')}
+        </Button>
+      </div>
+    )
+  }
+
   const handleDownloadPdf = () => {
     download(
       buildQuotePreviewProps({
@@ -326,6 +382,15 @@ const EditQuoteAsideForm = ({
               </form.AppField>
             </>
           )}
+
+          <Typography
+            variant="caption"
+            color="grey600"
+            data-test={EDIT_QUOTE_ASIDE_PRICING_LABEL_TEST_ID}
+          >
+            {translate('text_1779802343219a1cl5ckvtrn')}
+          </Typography>
+          {renderPricingValue()}
         </div>
       </div>
       <div className="sticky bottom-0 mt-auto flex justify-end gap-3 border-t border-grey-200 bg-white p-4">
@@ -339,15 +404,23 @@ const EditQuoteAsideForm = ({
           {translate('text_17797156485850t8yms6hf7z')}
         </Button>
         {canApprove && (
-          <Button
-            variant="primary"
-            data-test={EDIT_QUOTE_ASIDE_APPROVE_TEST_ID}
-            loading={isSaving}
-            disabled={!!isSaving}
-            onClick={() => goToApproveQuote(quote.id, quote.currentVersion.id)}
+          // Tooltip only: the server stays the authority on approvability, so a
+          // client-side false negative must never disable the button.
+          <Tooltip
+            placement="top-end"
+            title={translate('text_1788272907430gswzvnbqi2z')}
+            disableHoverListener={hasPricingBlock}
           >
-            {translate('text_1776848720529vv5zmyyq94k')}
-          </Button>
+            <Button
+              variant="primary"
+              data-test={EDIT_QUOTE_ASIDE_APPROVE_TEST_ID}
+              loading={isSaving}
+              disabled={!!isSaving}
+              onClick={() => goToApproveQuote(quote.id, quote.currentVersion.id)}
+            >
+              {translate('text_1776848720529vv5zmyyq94k')}
+            </Button>
+          </Tooltip>
         )}
       </div>
     </div>

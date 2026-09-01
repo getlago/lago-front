@@ -7,7 +7,7 @@ import { makeEmptyWalletItem, toWallets } from '~/core/serializers/serializeQuot
 import { CurrencyEnum } from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
-import EditQuote from '../EditQuote'
+import EditQuote, { EDIT_QUOTE_PRICING_CTA_TEST_ID } from '../EditQuote'
 
 // --- Shared state for mocks ---
 
@@ -21,6 +21,14 @@ type AsideCallbacks = {
 }
 
 let capturedAsideCallbacks: AsideCallbacks = {}
+
+type AsidePricingProps = {
+  hasPricingBlock?: boolean
+  pricingSummary?: string
+  onAddPricingBlock?: () => void
+}
+
+let capturedAsidePricingProps: AsidePricingProps = {}
 
 type PricingCommandParams = {
   onSave: (...args: unknown[]) => void
@@ -36,6 +44,7 @@ let capturedOnCreditsBlocksChange: ((blocks: unknown[]) => void) | undefined
 let capturedEditorCustomerLocale: string | undefined
 let capturedEditorDocumentCurrency: string | undefined
 let capturedRemoveBlockRef: { current: ((localId: string) => void) | null } | undefined
+const mockInsertPricingBlock = jest.fn()
 
 // --- Mocks ---
 
@@ -58,6 +67,7 @@ jest.mock('~/components/designSystem/RichTextEditor/RichTextEditor', () => {
   const MockRichTextEditor = ({
     getMarkdownRef,
     removeBlockRef,
+    insertPricingBlockRef,
     onChange,
     onPricingCommand,
     onPricingBlocksChange,
@@ -70,6 +80,7 @@ jest.mock('~/components/designSystem/RichTextEditor/RichTextEditor', () => {
   }: {
     getMarkdownRef?: React.MutableRefObject<(() => string) | null>
     removeBlockRef?: React.MutableRefObject<((localId: string) => void) | null>
+    insertPricingBlockRef?: React.MutableRefObject<(() => void) | null>
     onChange?: () => void
     onPricingCommand?: (params: PricingCommandParams) => void
     onPricingBlocksChange?: (blocks: unknown[]) => void
@@ -95,14 +106,22 @@ jest.mock('~/components/designSystem/RichTextEditor/RichTextEditor', () => {
       capturedEditorDocumentCurrency = documentCurrency
       capturedRemoveBlockRef = removeBlockRef
 
+      if (insertPricingBlockRef) {
+        insertPricingBlockRef.current = mockInsertPricingBlock
+      }
+
       return () => {
         if (getMarkdownRef) {
           getMarkdownRef.current = null
+        }
+        if (insertPricingBlockRef) {
+          insertPricingBlockRef.current = null
         }
       }
     }, [
       getMarkdownRef,
       removeBlockRef,
+      insertPricingBlockRef,
       onChange,
       onPricingCommand,
       onPricingBlocksChange,
@@ -128,6 +147,9 @@ jest.mock('../editQuote/EditQuoteAside', () => {
     __esModule: true,
     default: (props: {
       isSaving?: boolean
+      hasPricingBlock?: boolean
+      pricingSummary?: string
+      onAddPricingBlock?: () => void
       onSaveStart?: () => void
       onSaveFinished?: () => void
       onSaveError?: (payload: unknown) => void
@@ -136,6 +158,11 @@ jest.mock('../editQuote/EditQuoteAside', () => {
         onSaveStart: props.onSaveStart,
         onSaveFinished: props.onSaveFinished,
         onSaveError: props.onSaveError,
+      }
+      capturedAsidePricingProps = {
+        hasPricingBlock: props.hasPricingBlock,
+        pricingSummary: props.pricingSummary,
+        onAddPricingBlock: props.onAddPricingBlock,
       }
 
       return <div data-test="mock-edit-quote-aside" data-is-saving={String(!!props.isSaving)} />
@@ -221,6 +248,8 @@ jest.mock('../hooks/useQuote', () => ({
   useQuote: (...args: unknown[]) => mockUseQuote(...args),
 }))
 
+let mockPricingEntities: Record<string, { entityId: string; name: string }> = {}
+
 const mockDrawerOnPricingCommand = jest.fn()
 const mockSyncEntitiesWithBlocks = jest.fn().mockReturnValue(null)
 let capturedPricingDrawerArgs: unknown[] = []
@@ -233,7 +262,7 @@ jest.mock('../hooks/useSubscriptionPricingDrawer', () => ({
     return {
       onPricingCommand: mockDrawerOnPricingCommand,
       isPricingDisabled: () => false,
-      entities: {},
+      entities: mockPricingEntities,
       syncEntitiesWithBlocks: mockSyncEntitiesWithBlocks,
     }
   },
@@ -311,6 +340,8 @@ describe('EditQuote', () => {
     capturedPricingDrawerArgs = []
     capturedOneOffDrawerArgs = []
     capturedDiscountDrawerOptions = undefined
+    capturedAsidePricingProps = {}
+    mockPricingEntities = {}
     mockSyncEntitiesWithBlocks.mockReturnValue(null)
     mockSyncDiscountBlocks.mockReturnValue(null)
 
@@ -1705,6 +1736,127 @@ describe('EditQuote', () => {
           expect(mockUpdateQuoteVersion).toHaveBeenCalled()
         })
         expect(mockUpdateQuoteVersion.mock.calls[0][0]).not.toHaveProperty('currency')
+      })
+    })
+  })
+  describe('GIVEN the quote has no pricing block', () => {
+    describe('WHEN rendered', () => {
+      it('THEN should display the empty-state CTA below the editor', () => {
+        render(<EditQuote />)
+
+        const cta = screen.getByTestId(EDIT_QUOTE_PRICING_CTA_TEST_ID)
+        const editor = screen.getByTestId('mock-rich-text-editor')
+
+        expect(cta).toBeInTheDocument()
+        expect(editor.compareDocumentPosition(cta) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+      })
+
+      it('THEN should tell the aside there is no pricing block', () => {
+        render(<EditQuote />)
+
+        expect(capturedAsidePricingProps.hasPricingBlock).toBe(false)
+      })
+    })
+
+    describe('WHEN the CTA button is clicked', () => {
+      it('THEN should run the editor insert command', async () => {
+        const user = userEvent.setup()
+
+        render(<EditQuote />)
+
+        const cta = screen.getByTestId(EDIT_QUOTE_PRICING_CTA_TEST_ID)
+
+        await user.click(cta.querySelector('button') as HTMLButtonElement)
+
+        expect(mockInsertPricingBlock).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    describe('WHEN the aside asks to add a pricing block', () => {
+      it('THEN should run the same editor insert command', () => {
+        render(<EditQuote />)
+
+        act(() => {
+          capturedAsidePricingProps.onAddPricingBlock?.()
+        })
+
+        expect(mockInsertPricingBlock).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    describe('WHEN a pricing block is inserted in the editor', () => {
+      it('THEN should hide the CTA and tell the aside', () => {
+        render(<EditQuote />)
+
+        act(() => {
+          capturedOnPricingBlocksChange?.([{ pricingType: 'plan', entityIds: ['plan-1'] }])
+        })
+
+        expect(screen.queryByTestId(EDIT_QUOTE_PRICING_CTA_TEST_ID)).not.toBeInTheDocument()
+        expect(capturedAsidePricingProps.hasPricingBlock).toBe(true)
+      })
+    })
+  })
+
+  describe('GIVEN the quote already has saved pricing', () => {
+    describe.each([
+      ['a subscription plan', { plans: [{ id: 'plan-1' }] }],
+      ['one-off add-ons', { addOns: [{ id: 'addon-1' }] }],
+    ])('WHEN the saved billingItems hold %s', (_label, billingItems) => {
+      // The CTA must not flash on the first paint of a quote that is already priced.
+      it('THEN should never render the CTA', () => {
+        mockUseQuote.mockReturnValue({
+          quote: {
+            ...mockQuote,
+            currentVersion: { ...mockQuote.currentVersion, billingItems },
+          },
+          loading: false,
+          refetch: mockRefetchQuote,
+        })
+
+        render(<EditQuote />)
+
+        expect(screen.queryByTestId(EDIT_QUOTE_PRICING_CTA_TEST_ID)).not.toBeInTheDocument()
+        expect(capturedAsidePricingProps.hasPricingBlock).toBe(true)
+      })
+    })
+
+    describe('WHEN the last pricing block is removed from the editor', () => {
+      it('THEN should bring the CTA back', () => {
+        mockUseQuote.mockReturnValue({
+          quote: {
+            ...mockQuote,
+            currentVersion: { ...mockQuote.currentVersion, billingItems: { plans: [{ id: 'p' }] } },
+          },
+          loading: false,
+          refetch: mockRefetchQuote,
+        })
+
+        render(<EditQuote />)
+
+        act(() => {
+          capturedOnPricingBlocksChange?.([])
+        })
+
+        expect(screen.getByTestId(EDIT_QUOTE_PRICING_CTA_TEST_ID)).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN priced entities are cached by the pricing drawer', () => {
+    describe('WHEN the aside receives the pricing summary', () => {
+      // The drawer indexes each add-on twice — by localId and by catalog id — so an
+      // undeduped summary would repeat every name.
+      it('THEN should list each entity name once', () => {
+        mockPricingEntities = {
+          'local-1': { entityId: 'addon-1', name: 'Setup fee' },
+          'addon-1': { entityId: 'addon-1', name: 'Setup fee' },
+          'local-2': { entityId: 'addon-2', name: 'Support pack' },
+        }
+
+        render(<EditQuote />)
+
+        expect(capturedAsidePricingProps.pricingSummary).toBe('Setup fee, Support pack')
       })
     })
   })
