@@ -169,9 +169,6 @@ export const DatePicker = ({
                 return
               }
 
-              // Nothing to publish: an unparseable date has no ISO representation. Any date
-              // that has one is published as typed — whether it is acceptable is the
-              // consuming schema's rule, see `addUnsupportedDateIssue`.
               if (!nextDate.isValid) {
                 onError?.(DATE_PICKER_ERROR_ENUM.invalid)
                 return

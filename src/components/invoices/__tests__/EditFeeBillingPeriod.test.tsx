@@ -178,7 +178,7 @@ describe('useEditFeeBillingPeriodDialog', () => {
       })
     })
 
-    // Regression (ING-634): only toDatetime was checked, so a typed pre-1970 from datetime
+    // Regression: only toDatetime was checked, so a typed pre-1970 from datetime
     // reached the callback once the picker stopped withholding it.
     describe('WHEN the from datetime is before the minimum supported date', () => {
       it('THEN should not invoke the callback and should report the submit as unsuccessful', async () => {

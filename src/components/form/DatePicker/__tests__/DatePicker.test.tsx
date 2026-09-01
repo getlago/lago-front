@@ -79,7 +79,7 @@ describe('DatePicker', () => {
     })
   })
 
-  // Regression (ING-634): withholding these left the form on the previously accepted value
+  // Regression: withholding these left the form on the previously accepted value
   // while the input showed the rejected one. The floor is the consuming schema's rule now.
   describe.each([
     [

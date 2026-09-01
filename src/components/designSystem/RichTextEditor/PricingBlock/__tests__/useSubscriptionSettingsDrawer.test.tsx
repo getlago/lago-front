@@ -393,10 +393,6 @@ describe('useSubscriptionSettingsDrawer', () => {
     })
   })
 
-  // Regression (ING-634): the schema only ordered the two dates, so a typed pre-1970 date
-  // saved once the picker stopped withholding it. Each case is picked so the ordering rule
-  // cannot fire in its place — the start date carries the only modern bound, and the end
-  // date case runs in amendment mode where the start date is empty and unrequired.
   describe.each([
     ['the start date', { startDate: '0026-08-31', endDate: '2025-01-01' }, false],
     ['the end date', { startDate: '', endDate: '0026-08-31' }, true],

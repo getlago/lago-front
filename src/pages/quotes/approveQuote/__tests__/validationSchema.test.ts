@@ -15,7 +15,7 @@ describe('approveQuoteValidationSchema', () => {
     })
   })
 
-  // Regression (ING-634): this schema had no date rule at all, so a typed pre-1970 expiry
+  // Regression: this schema had no date rule at all, so a typed pre-1970 expiry
   // reached the API once the picker stopped withholding it.
   describe.each([
     ['a year with fewer than four digits', '0026-08-31T00:00:00.000Z'],

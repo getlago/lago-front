@@ -25,11 +25,7 @@ export const DatePickerField = memo(
         name={name}
         onBlur={handleBlur}
         value={_get(values, name)}
-        // Not gated on `touched`: DatePicker drops `onBlur`, so it would never turn true
-        // and the field would render no error at all.
         error={error ? translate(error) : undefined}
-        // A key rather than the picker's own code: whatever lands in `errors` is rendered
-        // as the message, so it has to be one.
         onError={(err) => setFieldError(name, err && UNSUPPORTED_DATE_ERROR)}
         onChange={(value: string | null | undefined) => {
           setFieldValue(name, value)

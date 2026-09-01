@@ -85,7 +85,7 @@ describe('subscriptionFormSchema', () => {
       })
     })
 
-    // Regression (ING-634): the picker publishes a typed pre-1970 date now, and nothing
+    // Regression: the picker publishes a typed pre-1970 date now, and nothing
     // else in this schema rejects a start date.
     describe.each([
       ['a year with fewer than four digits', '0026-08-31T00:00:00.000Z'],
@@ -132,7 +132,7 @@ describe('subscriptionFormSchema', () => {
       })
     })
 
-    // Regression (ING-634): the picker used to clear the field instead, and an absent
+    // Regression: the picker used to clear the field instead, and an absent
     // endingAt skipped every rule below through `if (!data.endingAt) return`.
     describe('WHEN endingAt is before 1970', () => {
       it('THEN should fail with an unsupported-date error on endingAt', () => {

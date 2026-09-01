@@ -749,7 +749,7 @@ describe('editAddOnSchema date validation (LAGO-1502)', () => {
     })
   })
 
-  // Regression (ING-634): only the ordering was checked, and it cannot fail on a start date
+  // Regression: only the ordering was checked, and it cannot fail on a start date
   // that is earlier than a modern end date, so a typed pre-1970 start date went through.
   describe('GIVEN fromDatetime is before the minimum supported date', () => {
     describe('WHEN the schema validates', () => {

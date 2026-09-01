@@ -427,7 +427,7 @@ describe('walletFormValidationSchema', () => {
       )
     })
 
-    // Regression (ING-634): startedAt has no future rule, so a typed pre-1970 date now
+    // Regression: startedAt has no future rule, so a typed pre-1970 date now
     // reaching the form would otherwise pass the format-only check.
     it('rejects a startedAt before the minimum supported date', () => {
       const result = walletFormValidationSchema.safeParse(

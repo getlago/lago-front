@@ -55,7 +55,7 @@ describe('DatePickerField', () => {
     })
   })
 
-  // Regression (ING-634): the error was gated on Formik's `touched`, which DatePicker never
+  // Regression: the error was gated on Formik's `touched`, which DatePicker never
   // turns true because it drops `onBlur` — so the rejection was invisible and only showed up
   // as a disabled submit button.
   describe('GIVEN a date the schema rejects', () => {

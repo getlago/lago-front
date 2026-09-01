@@ -66,7 +66,7 @@ describe('buildRateCardRateSchema', () => {
     })
   })
 
-  // Regression (ING-634): the picker publishes a typed pre-1970 date now, and a card with no
+  // Regression: the picker publishes a typed pre-1970 date now, and a card with no
   // active rate yet has no boundary for the appendable check to fail against.
   describe('GIVEN the effective date is before the minimum supported date', () => {
     describe('WHEN it is parsed with no active-rate boundary', () => {

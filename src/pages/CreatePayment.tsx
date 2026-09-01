@@ -106,8 +106,6 @@ const CreatePayment = () => {
         .required('')
         .test((value) => maxAmount(value)),
       reference: string().max(40).required(''),
-      // The last yup form holding a date field, so the shared zod
-      // `addUnsupportedDateIssue` cannot be reused here.
       createdAt: date().required('').min(MIN_SUPPORTED_DATE.toJSDate(), UNSUPPORTED_DATE_ERROR),
     }),
     enableReinitialize: true,
