@@ -1,6 +1,6 @@
 ---
 name: qa-session
-description: Use when the operator wants to verify in the browser that a change works — asks "come lo testo in locale?", "dammi gli step", "QA this", references a worktree/PR/ticket built in this session, or reports something not working during manual testing (button does nothing, section missing, block blank).
+description: Use when the operator wants to verify in the browser that a change works — asks "how do I test this locally?", "give me the steps", "QA this", references a worktree/PR/ticket built in this session, or reports something not working during manual testing (button does nothing, section missing, block blank).
 ---
 
 # QA Session — browser verification of a change
@@ -42,6 +42,12 @@ diff and not the other way round. Enumerate the ticket's attachments (`get_issue
 `list_comments`): a video, screenshot or Slack thread often carries the only repro there is. You cannot watch
 a video — say so explicitly, and ask the operator for the gesture and the surface rather than substituting a
 plausible one.
+
+**No ticket (PR, branch or free-text target)**: the report is whatever the operator handed over — PR body,
+their own message. Ask for the exact gesture, payload and surface when it is not there; never substitute a
+plausible one. Everywhere below, "ticket" and "spec" mean that source instead, and with no acceptance
+criteria the AC control (Step 4a) collapses into the report control — say so rather than deriving ACs from
+the diff.
 
 Then check what gates the surface:
 
@@ -89,9 +95,19 @@ capped at PARTIAL until (b) reproduces.
 
 Same trick both times:
 
-1. Preferred (same worktree, `git status --short` must be empty):
-   `git checkout main -- <touched files>` → vite HMR reloads → run the failing check → confirm the old
-   behavior → `git checkout HEAD -- <touched files>` and re-verify the tree is clean.
+1. Preferred (same worktree, `git status --short` must be empty) — revert the whole branch diff, which
+   `git checkout main -- <paths>` cannot do for paths the branch adds, deletes or renames:
+
+   ```bash
+   git diff main...HEAD > /tmp/qa-control.patch
+   git apply -R /tmp/qa-control.patch   # worktree now runs main's code, vite HMR reloads
+   # run the failing check, confirm the old behavior
+   git apply /tmp/qa-control.patch      # back to the branch code
+   ```
+
+   Re-applying the same patch forward is what restores adds, deletes and renames symmetrically; re-verify
+   `git status --short` is empty afterwards.
+
 2. Alternative: another running worktree whose branch doesn't touch those files (`git diff main...HEAD --stat`)
    — they share the DB, so the same fixture URL works on both ports.
 
@@ -127,8 +143,9 @@ Read the handler BEFORE calling anything a bug.
 
 ## Step 7 — Record, then the verdict LAST
 
-Append results to `$LOOP_STATE_DIR/<ISSUE-ID>/qa.md`: one row per check, mode, PASS/FAIL, the control
-outcome, what was deliberately not covered, anomalies with root cause. Genuine side-findings → propose as a
+Append results to `$LOOP_STATE_DIR/<ISSUE-ID>/qa.md`, or `$LOOP_STATE_DIR/qa/<branch-or-PR>.md` when there
+is no ISSUE-ID: one row per check, mode, PASS/FAIL, the control outcome, what was deliberately not covered,
+anomalies with root cause. Genuine side-findings → propose as a
 separate ticket; never fix unasked.
 
 Then close the reply with this block as the **very last thing** — nothing after it:
