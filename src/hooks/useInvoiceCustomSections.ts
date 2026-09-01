@@ -18,7 +18,7 @@ gql`
   }
 `
 
-export type InvoiceCustomSection = NonNullable<
+type InvoiceCustomSection = NonNullable<
   GetInvoiceCustomSectionsQuery['invoiceCustomSections']
 >['collection'][number]
 

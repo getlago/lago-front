@@ -25,7 +25,7 @@ export interface CouponPayload {
   resolvedPayload: unknown
 }
 
-export type CouponOverrides = Pick<
+type CouponOverrides = Pick<
   CouponPayload,
   'amountCents' | 'percentageRate' | 'frequency' | 'frequencyDuration'
 > & {

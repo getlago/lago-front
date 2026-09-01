@@ -16,7 +16,7 @@ export type ProductFilterValueEntry = {
   value?: string
 }
 
-export type ProductFilterValuesEditorProps = {
+type ProductFilterValuesEditorProps = {
   billableMetricFilters: Array<Pick<BillableMetricFilter, 'id' | 'key' | 'values'>>
   values: ProductFilterValueEntry[]
   onChange: (values: ProductFilterValueEntry[]) => void
