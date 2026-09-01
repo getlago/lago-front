@@ -5,6 +5,7 @@ import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types
 import { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types'
 import { addPurchaseOrderNumberMaxLengthIssue } from '~/components/purchaseOrder/validation'
 import { ActivationRuleFormTypeEnum } from '~/core/constants/subscriptionActivationRules'
+import { addUnsupportedDateIssue } from '~/formValidation/zodCustoms'
 import { BillingTimeEnum } from '~/generated/graphql'
 
 export interface SubscriptionFormValues {
@@ -40,6 +41,8 @@ export const subscriptionFormSchema = z
         message: 'text_624ea7c29103fd010732ab7d',
         path: ['subscriptionAt'],
       })
+    } else {
+      addUnsupportedDateIssue(ctx, data.subscriptionAt, ['subscriptionAt'])
     }
 
     addPurchaseOrderNumberMaxLengthIssue(ctx, data.purchaseOrderNumber, ['purchaseOrderNumber'])
@@ -65,14 +68,7 @@ export const subscriptionFormSchema = z
 
     if (!data.endingAt) return
 
-    if (!DateTime.fromISO(data.endingAt).isValid) {
-      ctx.addIssue({
-        code: 'custom',
-        message: 'text_64ef55a730b88e3d2117b3d4',
-        path: ['endingAt'],
-      })
-      return
-    }
+    if (addUnsupportedDateIssue(ctx, data.endingAt, ['endingAt'])) return
 
     if (data.subscriptionAt) {
       const subscriptionAt = DateTime.fromISO(data.subscriptionAt)

@@ -79,37 +79,24 @@ describe('DatePicker', () => {
     })
   })
 
+  // Regression (ING-634): withholding these left the form on the previously accepted value
+  // while the input showed the rejected one. The floor is the consuming schema's rule now.
   describe.each([
-    ['a year with fewer than four digits', DateTime.fromObject({ year: 26, month: 2, day: 9 })],
+    [
+      'a year with fewer than four digits',
+      DateTime.fromObject({ year: 26, month: 2, day: 9 }),
+      '0026-02-09T00:00:00.000Z',
+    ],
     [
       'an instant before the minimum supported year',
       DateTime.fromObject({ year: 1969, month: 12, day: 31 }, { zone: 'utc' }),
+      '1969-12-31T00:00:00.000Z',
     ],
     [
       'a supported calendar date whose instant is before the minimum',
       DateTime.fromObject({ year: 1970, month: 1, day: 1 }, { zone: 'Asia/Tokyo' }),
+      '1969-12-31T15:00:00.000Z',
     ],
-  ])('GIVEN %s', (_, date) => {
-    describe('WHEN the date changes', () => {
-      it('THEN should show an invalid error without publishing the date', () => {
-        const onChange = jest.fn()
-        const onError = jest.fn()
-
-        render(<DatePicker onChange={onChange} onError={onError} />)
-        changeDate(date)
-
-        expect(onChange).not.toHaveBeenCalled()
-        expect(onError).toHaveBeenCalledTimes(1)
-        expect(onError).toHaveBeenCalledWith('invalid')
-        expect(getPickerProps().slotProps?.textField).toMatchObject({
-          error: true,
-          helperText: 'translated_text_62cd78ea9bff25e3391b2459',
-        })
-      })
-    })
-  })
-
-  describe.each([
     [
       'the minimum supported instant',
       DateTime.fromObject({ year: 1970, month: 1, day: 1 }, { zone: 'utc' }),
@@ -132,6 +119,33 @@ describe('DatePicker', () => {
         expect(onChange).toHaveBeenCalledTimes(1)
         expect(onChange).toHaveBeenCalledWith(expectedIso)
         expect(onError).toHaveBeenCalledWith(undefined)
+      })
+
+      it('THEN should not render an error', () => {
+        render(<DatePicker onChange={jest.fn()} />)
+        changeDate(date)
+
+        expect(getPickerProps().slotProps?.textField).toMatchObject({ error: false })
+      })
+    })
+  })
+
+  describe('GIVEN a date that has no ISO representation', () => {
+    describe('WHEN the date changes', () => {
+      it('THEN should show an invalid error without publishing the date', () => {
+        const onChange = jest.fn()
+        const onError = jest.fn()
+
+        render(<DatePicker onChange={onChange} onError={onError} />)
+        changeDate(DateTime.fromISO('not-a-date'))
+
+        expect(onChange).not.toHaveBeenCalled()
+        expect(onError).toHaveBeenCalledTimes(1)
+        expect(onError).toHaveBeenCalledWith('invalid')
+        expect(getPickerProps().slotProps?.textField).toMatchObject({
+          error: true,
+          helperText: 'translated_text_62cd78ea9bff25e3391b2459',
+        })
       })
     })
   })

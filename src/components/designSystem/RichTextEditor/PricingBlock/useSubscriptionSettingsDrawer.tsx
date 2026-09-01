@@ -7,6 +7,7 @@ import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { useDrawer } from '~/components/drawers/useDrawer'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
+import { addUnsupportedDateIssue } from '~/formValidation/zodCustoms'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm, withForm } from '~/hooks/forms/useAppform'
 
@@ -34,6 +35,10 @@ const makeSubscriptionSettingsSchema = (isAmendment: boolean) =>
       endDate: z.string(),
     })
     .superRefine((data, ctx) => {
+      addUnsupportedDateIssue(ctx, data.startDate, ['startDate'])
+
+      if (addUnsupportedDateIssue(ctx, data.endDate, ['endDate'])) return
+
       if (data.endDate && data.startDate && data.endDate < data.startDate) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,

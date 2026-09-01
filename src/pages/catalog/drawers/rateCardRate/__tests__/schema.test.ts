@@ -1,3 +1,4 @@
+import { UNSUPPORTED_DATE_ERROR } from '~/core/constants/form'
 import { RateCardRateBillingIntervalUnitEnum, RateCardRateModelEnum } from '~/generated/graphql'
 
 import {
@@ -61,6 +62,18 @@ describe('buildRateCardRateSchema', () => {
           'billingIntervalCount',
           VALUE_REQUIRED_KEY,
         ])
+      })
+    })
+  })
+
+  // Regression (ING-634): the picker publishes a typed pre-1970 date now, and a card with no
+  // active rate yet has no boundary for the appendable check to fail against.
+  describe('GIVEN the effective date is before the minimum supported date', () => {
+    describe('WHEN it is parsed with no active-rate boundary', () => {
+      it('THEN reports the unsupported-date issue on effectiveFrom', () => {
+        const result = parse({ ...validValues, effectiveFrom: '0026-08-31T00:00:00.000Z' })
+
+        expect(issuePathsAndMessages(result)).toEqual([['effectiveFrom', UNSUPPORTED_DATE_ERROR]])
       })
     })
   })
