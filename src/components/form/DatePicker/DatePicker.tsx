@@ -13,7 +13,7 @@ import { Button } from '~/components/designSystem/Button'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { TextInputProps } from '~/components/form'
-import { MIN_SUPPORTED_DATE, MIN_SUPPORTED_DATE_YEAR } from '~/core/constants/form'
+import { MIN_SUPPORTED_DATE } from '~/core/constants/form'
 import { getTimezoneConfig } from '~/core/timezone'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -30,9 +30,6 @@ gql`
 enum DATE_PICKER_ERROR_ENUM {
   invalid = 'invalid',
 }
-
-const isBelowMinSupportedDate = (date: DateTime): boolean =>
-  date.toUTC().year < MIN_SUPPORTED_DATE_YEAR
 
 export interface DatePickerProps extends Omit<
   TextInputProps,
@@ -91,7 +88,7 @@ export const DatePicker = ({
 
   const [localDate, setLocalDate] = useState<DateTime | null>(getValueFormatted())
 
-  const isInvalid = !!localDate && (!localDate.isValid || isBelowMinSupportedDate(localDate))
+  const isInvalid = !!localDate && !localDate.isValid
 
   const getHelperText = useCallback(() => {
     if (!!error || isInvalid) {
@@ -172,7 +169,7 @@ export const DatePicker = ({
                 return
               }
 
-              if (!nextDate.isValid || isBelowMinSupportedDate(nextDate)) {
+              if (!nextDate.isValid) {
                 onError?.(DATE_PICKER_ERROR_ENUM.invalid)
                 return
               }

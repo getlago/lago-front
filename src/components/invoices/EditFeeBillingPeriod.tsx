@@ -8,6 +8,7 @@ import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { DatePicker } from '~/components/form'
 import { dateErrorCodes } from '~/core/constants/form'
 import { getTimezoneConfig } from '~/core/timezone'
+import { addUnsupportedDateIssue } from '~/formValidation/zodCustoms'
 import { TimezoneEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
@@ -24,6 +25,9 @@ const editFeeBillingPeriodValidationSchema = z
   .object({
     fromDatetime: z.string().min(1, { message: '' }),
     toDatetime: z.string(),
+  })
+  .superRefine((data, ctx) => {
+    addUnsupportedDateIssue(ctx, data.fromDatetime, ['fromDatetime'])
   })
   .refine((data) => !data.toDatetime || DateTime.fromISO(data.toDatetime).isValid, {
     message: dateErrorCodes.wrongFormat,

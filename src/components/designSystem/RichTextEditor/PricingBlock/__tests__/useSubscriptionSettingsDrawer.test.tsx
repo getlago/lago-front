@@ -393,6 +393,27 @@ describe('useSubscriptionSettingsDrawer', () => {
     })
   })
 
+  describe.each([
+    ['the start date', { startDate: '0026-08-31', endDate: '2025-01-01' }, false],
+    ['the end date', { startDate: '', endDate: '0026-08-31' }, true],
+  ])('GIVEN %s is before the minimum supported date', (_, dates, isAmendment) => {
+    describe('WHEN the save button is clicked', () => {
+      it('THEN should not call onSave', async () => {
+        const user = userEvent.setup()
+
+        openAndRenderDrawer({ ...populatedValues, ...dates }, isAmendment)
+
+        await user.click(screen.getByTestId(SUBSCRIPTION_SETTINGS_DRAWER_SAVE_TEST_ID))
+
+        await waitFor(() => {
+          expect(mockDrawerClose).not.toHaveBeenCalled()
+        })
+
+        expect(mockOnSave).not.toHaveBeenCalled()
+      })
+    })
+  })
+
   describe('GIVEN the form is re-opened after being previously opened', () => {
     describe('WHEN openDrawer is called with new values', () => {
       it('THEN should reset the form to the new values', () => {
