@@ -6,6 +6,7 @@ import {
   ENTITY_SECTION_METADATA_TEST_ID,
   ENTITY_SECTION_VIEW_NAME_TEST_ID,
 } from '~/components/MainHeader/mainHeaderTestIds'
+import { ProductCategoryDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { GetProductCategoryForDetailsDocument } from '~/generated/graphql'
 import { AllTheProviders, testMockNavigateFn } from '~/test-utils'
 
@@ -30,6 +31,16 @@ jest.mock('~/pages/catalog/dialogs/useDeleteProductCategoryDialog', () => ({
 // uses import.meta and crashes Jest); this suite only exercises the header/tabs.
 jest.mock('../ProductCategoryDetailsProducts', () => ({
   ProductCategoryDetailsProducts: () => null,
+}))
+
+const mockProductCategoryActivityLogsProps = jest.fn()
+
+jest.mock('../ProductCategoryActivityLogs', () => ({
+  __esModule: true,
+  default: (props: Record<string, unknown>) => {
+    mockProductCategoryActivityLogsProps(props)
+    return null
+  },
 }))
 
 jest.mock('~/hooks/usePermissions', () => ({
@@ -68,18 +79,23 @@ const ProductCategoryDetailsWithHeader = () => (
 
 // forceTypenames + __typename in the fixture: the query spreads fragments, and
 // the cache only writes fragment fields when it can match the typename.
-const renderPage = () =>
-  rtlRender(<ProductCategoryDetailsWithHeader />, {
+const renderPage = (
+  tab: ProductCategoryDetailsTabsOptionsEnum = ProductCategoryDetailsTabsOptionsEnum.overview,
+) => {
+  window.history.pushState({}, '', `/product-catalog/product-categories/prod-1/${tab}`)
+
+  return rtlRender(<ProductCategoryDetailsWithHeader />, {
     wrapper: ({ children }) => (
       <AllTheProviders
         forceTypenames
         mocks={[detailsQueryMock]}
-        useParams={{ productCategoryId: 'prod-1', tab: 'overview' }}
+        useParams={{ productCategoryId: 'prod-1', tab }}
       >
         {children}
       </AllTheProviders>
     ),
   })
+}
 
 describe('ProductCategoryDetails', () => {
   beforeEach(() => {
@@ -122,6 +138,16 @@ describe('ProductCategoryDetails', () => {
     expect(screen.getByText('text_17831042398250iwa2xp8pba')).toBeInTheDocument()
     expect(screen.getByText('text_62442e40cea25600b0b6d85a')).toBeInTheDocument()
     expect(screen.getByText('text_1747314141347qq6rasuxisl')).toBeInTheDocument()
+  })
+
+  it('renders the activity logs tab content scoped to the product category', async () => {
+    await act(() => renderPage(ProductCategoryDetailsTabsOptionsEnum.activityLogs))
+
+    await waitFor(() => {
+      expect(mockProductCategoryActivityLogsProps).toHaveBeenCalledWith({
+        productCategoryId: 'prod-1',
+      })
+    })
   })
 
   it('hides the activity logs tab without premium', async () => {

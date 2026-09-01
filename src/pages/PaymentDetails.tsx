@@ -502,9 +502,14 @@ const PaymentDetails = () => {
                       }}
                       invalidWrapper={() => <>{'-'}</>}
                     >
-                      <Typography variant="body" color="grey700" forceBreak>
+                      <Typography
+                        variant="body"
+                        color="grey700"
+                        forceBreak
+                        className="flex items-center gap-1"
+                      >
                         {payment?.providerPaymentId ?? payment?.reference}
-                        <Icon name="outside" className="mb-1 ml-2" />
+                        <Icon name="outside" />
                       </Typography>
                     </ConditionalWrapper>
                   }

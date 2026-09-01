@@ -6,14 +6,14 @@ import {
   ActivityLogsTableDataFragmentDoc,
   LagoApiError,
   ResourceTypeEnum,
-  useRateCardActivityLogsQuery,
+  useProductActivityLogsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
 
 gql`
-  query RateCardActivityLogs(
+  query ProductActivityLogs(
     $page: Int
     $limit: Int
     $resourceTypes: [ResourceTypeEnum!]
@@ -39,35 +39,37 @@ gql`
   ${ActivityLogsTableDataFragmentDoc}
 `
 
-interface RateCardActivityLogsProps {
-  rateCardId: string
+interface ProductActivityLogsProps {
+  productId: string | undefined
 }
 
-const RateCardActivityLogs = ({ rateCardId }: RateCardActivityLogsProps) => {
+const ProductActivityLogs = ({ productId }: ProductActivityLogsProps) => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const { isPremium } = useCurrentUser()
 
   const canViewLogs = isPremium && hasPermissions(['auditLogsView'])
 
-  const { data, loading, error, refetch, fetchMore } = useRateCardActivityLogsQuery({
+  const { data, loading, error, refetch, fetchMore } = useProductActivityLogsQuery({
     variables: {
-      resourceTypes: [ResourceTypeEnum.RateCard],
-      resourceIds: [rateCardId],
+      resourceTypes: [ResourceTypeEnum.Product],
+      resourceIds: productId ? [productId] : undefined,
       limit: DEFAULT_PAGE_SIZE,
     },
     notifyOnNetworkStatusChange: true,
     context: {
       silentErrorCodes: [LagoApiError.FeatureUnavailable],
     },
-    skip: !canViewLogs,
+    // Without the id guard the filter is dropped server-side and the query returns the
+    // whole organization's activity log.
+    skip: !canViewLogs || !productId,
   })
 
   return (
     <section className="flex flex-col gap-12">
       <section>
         <ActivityLogsSection
-          subtitle={translate('text_1788165722542bcdlld0bbxg')}
+          subtitle={translate('text_1788165288458ilh83vbkt7a')}
           activityLogs={data?.activityLogs}
           loading={loading}
           error={error}
@@ -79,4 +81,4 @@ const RateCardActivityLogs = ({ rateCardId }: RateCardActivityLogsProps) => {
   )
 }
 
-export default RateCardActivityLogs
+export default ProductActivityLogs
