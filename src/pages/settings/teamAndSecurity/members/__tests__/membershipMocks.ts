@@ -170,3 +170,47 @@ export const rolesListMock = {
     },
   },
 }
+
+export const createMockInvite = (id: string, email: string, roleCodes: string[]) => ({
+  __typename: 'Invite',
+  id,
+  email,
+  token: `token-${id}`,
+  roles: roleCodes,
+  organization: {
+    __typename: 'Organization',
+    id: 'org-1',
+    name: 'Test Organization',
+  },
+})
+
+// Invites store role CODES, not names — the API resolves the filtered role ids to codes
+export const mockInvitations = [
+  createMockInvite('invite-1', 'test1@example.com', ['admin']),
+  createMockInvite('invite-2', 'test2@example.com', ['finance']),
+]
+
+type InvitesResultOptions = {
+  collection?: ReturnType<typeof createMockInvite>[]
+  totalCount?: number
+  totalPages?: number
+}
+
+export const buildInvitesResult = ({
+  collection = mockInvitations,
+  totalCount = collection.length,
+  totalPages = 1,
+}: InvitesResultOptions = {}) => ({
+  data: {
+    invites: {
+      __typename: 'InviteCollection',
+      metadata: {
+        __typename: 'CollectionMetadata',
+        currentPage: 1,
+        totalPages,
+        totalCount,
+      },
+      collection,
+    },
+  },
+})

@@ -9018,6 +9018,8 @@ export type QueryInviteArgs = {
 export type QueryInvitesArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
+  roleIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -17540,6 +17542,8 @@ export type InviteItemForMembersSettingsFragment = { __typename?: 'Invite', id: 
 export type GetInvitesQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+  roleIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
 }>;
 
 
@@ -48701,8 +48705,8 @@ export type UpdateOrganizationAuthenticationMethodsMutationHookResult = ReturnTy
 export type UpdateOrganizationAuthenticationMethodsMutationResult = Apollo.MutationResult<UpdateOrganizationAuthenticationMethodsMutation>;
 export type UpdateOrganizationAuthenticationMethodsMutationOptions = Apollo.BaseMutationOptions<UpdateOrganizationAuthenticationMethodsMutation, UpdateOrganizationAuthenticationMethodsMutationVariables>;
 export const GetInvitesDocument = gql`
-    query getInvites($page: Int, $limit: Int) {
-  invites(page: $page, limit: $limit) {
+    query getInvites($page: Int, $limit: Int, $searchTerm: String, $roleIds: [ID!]) {
+  invites(page: $page, limit: $limit, searchTerm: $searchTerm, roleIds: $roleIds) {
     metadata {
       currentPage
       totalPages
@@ -48729,6 +48733,8 @@ export const GetInvitesDocument = gql`
  *   variables: {
  *      page: // value for 'page'
  *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *      roleIds: // value for 'roleIds'
  *   },
  * });
  */
