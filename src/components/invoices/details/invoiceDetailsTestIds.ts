@@ -19,5 +19,8 @@ export const VIEW_FEE_DETAILS_OVERVIEW_TEST_ID = 'view-fee-details-overview'
 export const VIEW_FEE_DETAILS_SOURCE_ITEM_TEST_ID = 'view-fee-details-source-item'
 export const VIEW_FEE_DETAILS_PGK_TABLE_TEST_ID = 'view-fee-details-pgk-table'
 
+// EditFeeDrawer — the add/edit/regenerate fee drawer
+export const EDIT_FEE_DRAWER_SUBMIT_BUTTON_TEST_ID = 'edit-fee-drawer-submit-button'
+
 // InvoiceDetailsTableBodyLine — clickable fee row (dynamic id appended)
 export const FEE_ROW_TEST_ID_PREFIX = 'fee-row'
