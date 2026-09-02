@@ -26,9 +26,24 @@ refs after every navigation (stale refs click the backdrop and close drawers).
 
 ## Step 1 — Resolve the app under test
 
-- ISSUE-ID → `$LOOP_STATE_DIR/<ISSUE-ID>/state.md` (default `~/.claude/loop-state`) for worktree, branch, port. Else `lago/.worktree-slots`
-  (`name:front_port:base:api_port:api_base`) or `docker ps`.
-- Front URL `http://localhost:<front_port>`; container `lago_front_wt_$(echo "<BRANCH>" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/_/g')`.
+Resolve the target down to a **worktree name** first — that name is what the slot registry is keyed on and
+what the container names derive from:
+
+- **ISSUE-ID** → `$LOOP_STATE_DIR/<ISSUE-ID>/state.md` (default `~/.claude/loop-state`) for worktree, branch, port.
+- **PR number or URL** → its head branch, then the state dir whose `branch:` matches, same as `loop-revise`:
+  ```bash
+  BRANCH=$(gh pr view <PR> --json headRefName --jq .headRefName)
+  grep -l "^branch: ${BRANCH}$" "${LOOP_STATE_DIR:-$HOME/.claude/loop-state}"/*/state.md
+  ```
+- **Branch, worktree name or free-text** → the slot registry at the monorepo root, i.e. `../.worktree-slots`
+  from the `front/` checkout (`name:front_port:front_base:api_port:api_base`), else `docker ps`.
+
+`lago-worktree` keys a slot by the branch with `/` replaced by `-`, so normalize before looking one up —
+`WT=${BRANCH//\//-}` — otherwise every slashed branch misses its own slot and reads as "not running".
+
+- Front URL `http://localhost:<front_port>`; containers `lago_front_wt_${SAN}` and `lago_api_wt_${SAN}`, with
+  `SAN=$(echo "$WT" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/_/g')`. An empty `api_port` in the slot
+  means the worktree has no API of its own and proxies the shared stack, whose API is `lago_api_dev`.
 - Stale code / `504 Outdated Optimize Dep` / blank page → clear vite cache THEN restart (first load is slow):
   ```bash
   docker exec <container> sh -c 'rm -rf /app/node_modules/.vite' || true
@@ -51,9 +66,12 @@ the diff.
 
 Then check what gates the surface:
 
-- **Feature flag** — `featureFlag: FeatureFlagEnum.X` on the route in `src/core/router/*`; enum value = DB string:
+- **Feature flag** — `featureFlag: FeatureFlagEnum.X` on the route in `src/core/router/*`; enum value = DB string.
+  Flip it on the organization **whose slug is in the URL under test**, in the API container resolved in
+  Step 1 (`lago_api_wt_${SAN}`, or `lago_api_dev` on the shared stack). `Organization.first` is an
+  arbitrary row: it can enable the flag on an org nobody is testing and leave the tested route gated.
   ```bash
-  docker exec -it <api_container> bin/rails runner 'o = Organization.first; o.update!(feature_flags: (o.feature_flags | ["<flag>"])); puts o.feature_flags.inspect'
+  docker exec -it <api_container> bin/rails runner 'o = Organization.find_by!(slug: "<slug>"); o.update!(feature_flags: (o.feature_flags | ["<flag>"])); puts o.feature_flags.inspect'
   ```
 - **Permissions / premium** — `permissions:` on the route, `premiumIntegrations` gates.
 - **Data** — what must exist (customer, plan, wallet) and the org slug (URLs are `/<slug>/...`).
@@ -99,14 +117,19 @@ Same trick both times:
    `git checkout main -- <paths>` cannot do for paths the branch adds, deletes or renames:
 
    ```bash
-   git diff main...HEAD > /tmp/qa-control.patch
+   git diff --binary main...HEAD > /tmp/qa-control.patch   # --binary: without it an image or font in the diff won't re-apply
    git apply -R /tmp/qa-control.patch   # worktree now runs main's code, vite HMR reloads
    # run the failing check, confirm the old behavior
-   git apply /tmp/qa-control.patch      # back to the branch code
+   git apply /tmp/qa-control.patch      # back to the branch code — mandatory, see below
    ```
 
-   Re-applying the same patch forward is what restores adds, deletes and renames symmetrically; re-verify
-   `git status --short` is empty afterwards.
+   Re-applying the same patch forward is what restores adds, deletes and renames symmetrically.
+
+   **The forward re-apply is not optional and never skipped.** Every way out of the control run goes
+   through it: the check reproducing, not reproducing, erroring, the browser leg dying mid-run in `auto`
+   mode, and the stop above when (b) doesn't reproduce. Skip it and the branch is left running main's code
+   under a dirty tree that reads as the operator's own uncommitted edits. Restore, confirm
+   `git status --short` is empty, and only then report — including when reporting a stop.
 
 2. Alternative: another running worktree whose branch doesn't touch those files (`git diff main...HEAD --stat`)
    — they share the DB, so the same fixture URL works on both ports.
