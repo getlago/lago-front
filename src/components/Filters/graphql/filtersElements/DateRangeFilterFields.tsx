@@ -36,6 +36,9 @@ const parseBound = (isoDate?: string | null, zone?: string): DateTime | undefine
  * Keeps the range ordered: picking a "from" after the current "to" (or a "to" before the
  * current "from") clamps the opposite bound to the same day instead of persisting an
  * inverted range the API would silently answer with no results.
+ *
+ * A bound the API cannot store (before `MIN_SUPPORTED_DATE`) is accepted rather than guarded:
+ * a filter writes nothing, so the worst case is the empty result set the user asked for.
  */
 export const DateRangeFilterFields = ({
   value = ',',

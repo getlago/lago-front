@@ -1,5 +1,6 @@
 import { Settings } from 'luxon'
 
+import { UNSUPPORTED_DATE_ERROR } from '~/core/constants/form'
 import { ActivationRuleFormTypeEnum } from '~/core/constants/subscriptionActivationRules'
 import { BillingTimeEnum } from '~/generated/graphql'
 
@@ -83,6 +84,27 @@ describe('subscriptionFormSchema', () => {
         }
       })
     })
+
+    // Regression: the picker publishes a typed pre-1970 date now, and nothing
+    // else in this schema rejects a start date.
+    describe.each([
+      ['a year with fewer than four digits', '0026-08-31T00:00:00.000Z'],
+      ['the last instant before 1970', '1969-12-31T23:59:59.999Z'],
+    ])('WHEN subscriptionAt is %s', (_, subscriptionAt) => {
+      it('THEN should fail with an error on subscriptionAt', () => {
+        const result = subscriptionFormSchema.safeParse(buildValidValues({ subscriptionAt }))
+
+        expect(result.success).toBe(false)
+
+        if (!result.success) {
+          const error = result.error.issues.find((i) => i.path.includes('subscriptionAt'))
+
+          expect(error).toEqual(
+            expect.objectContaining({ message: UNSUPPORTED_DATE_ERROR, path: ['subscriptionAt'] }),
+          )
+        }
+      })
+    })
   })
 
   describe('GIVEN endingAt validation', () => {
@@ -106,6 +128,24 @@ describe('subscriptionFormSchema', () => {
           const error = result.error.issues.find((i) => i.path.includes('endingAt'))
 
           expect(error).toBeDefined()
+        }
+      })
+    })
+
+    // Regression: the picker used to clear the field instead, and an absent
+    // endingAt skipped every rule below through `if (!data.endingAt) return`.
+    describe('WHEN endingAt is before 1970', () => {
+      it('THEN should fail with an unsupported-date error on endingAt', () => {
+        const result = subscriptionFormSchema.safeParse(
+          buildValidValues({ endingAt: '0026-08-31T00:00:00.000Z' }),
+        )
+
+        expect(result.success).toBe(false)
+
+        if (!result.success) {
+          expect(result.error.issues).toEqual([
+            expect.objectContaining({ message: UNSUPPORTED_DATE_ERROR, path: ['endingAt'] }),
+          ])
         }
       })
     })

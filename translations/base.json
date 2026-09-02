@@ -4900,5 +4900,8 @@
   "text_1787819065018edyn6m968e4": "Changes made to this rate are tracked on its parent rate card.",
   "text_1788164971209jpekwrfqvn6": "Logs reflecting this product category's activity.",
   "text_1788165288458ilh83vbkt7a": "Logs reflecting this product's activity.",
-  "text_1788165722542bcdlld0bbxg": "Logs reflecting this rate card's activity."
+  "text_1788165722542bcdlld0bbxg": "Logs reflecting this rate card's activity.",
+  "text_1788272700125nn7h1cyxjvf": "Add a pricing block with a plan to the quote content before approving it.",
+  "text_1788272700125mb3btrwjl5b": "Add a pricing block with at least one add-on to the quote content before approving it.",
+  "text_1788272907430gswzvnbqi2z": "Add a pricing block to the quote content before approving it."
 }

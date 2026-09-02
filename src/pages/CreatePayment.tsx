@@ -15,6 +15,7 @@ import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { AmountInputField, ComboBox, DatePickerField, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { addToast } from '~/core/apolloClient'
+import { MIN_SUPPORTED_DATE, UNSUPPORTED_DATE_ERROR } from '~/core/constants/form'
 import { paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { PAYMENT_DETAILS_ROUTE, PAYMENTS_ROUTE, useNavigate } from '~/core/router'
@@ -105,7 +106,7 @@ const CreatePayment = () => {
         .required('')
         .test((value) => maxAmount(value)),
       reference: string().max(40).required(''),
-      createdAt: date().required(''),
+      createdAt: date().required('').min(MIN_SUPPORTED_DATE.toJSDate(), UNSUPPORTED_DATE_ERROR),
     }),
     enableReinitialize: true,
     validateOnMount: true,

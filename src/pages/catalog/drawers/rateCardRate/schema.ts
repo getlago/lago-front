@@ -4,6 +4,7 @@ import {
   PropertiesZodInput,
   validateChargeProperties,
 } from '~/formValidation/chargePropertiesSchema'
+import { addUnsupportedDateIssue } from '~/formValidation/zodCustoms'
 
 import {
   RATE_CARD_RATE_EFFECTIVE_DATE_AFTER_ACTIVE_KEY,
@@ -18,6 +19,34 @@ export type RateCardRateSchemaContext = {
   effectiveFromBoundary: string | null
 }
 
+const addEffectiveFromIssues = (
+  effectiveFrom: string,
+  boundary: string | null,
+  ctx: z.RefinementCtx,
+): void => {
+  const path = ['effectiveFrom']
+
+  if (!effectiveFrom) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path, message: VALUE_REQUIRED_KEY })
+
+    return
+  }
+
+  // A card with no active rate has no boundary, so the check below cannot catch a date the
+  // API refuses.
+  if (addUnsupportedDateIssue(ctx, effectiveFrom, path)) return
+
+  if (!isEffectiveFromAppendable(effectiveFrom, boundary)) {
+    // Only blocks the submit: the copy interpolates the boundary date, so the drawer body
+    // renders it through `errorOverride` instead.
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path,
+      message: RATE_CARD_RATE_EFFECTIVE_DATE_AFTER_ACTIVE_KEY,
+    })
+  }
+}
+
 // A getter, not a value: the schema is built once for the form's lifetime while the card being
 // edited changes on every `openDrawer`.
 export const buildRateCardRateSchema = (getContext: () => RateCardRateSchemaContext) =>
@@ -26,21 +55,7 @@ export const buildRateCardRateSchema = (getContext: () => RateCardRateSchemaCont
   z.custom<RateCardRateFormValues>().superRefine((values, ctx) => {
     const { requiresConversionRate, effectiveFromBoundary } = getContext()
 
-    if (!values.effectiveFrom) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['effectiveFrom'],
-        message: VALUE_REQUIRED_KEY,
-      })
-    } else if (!isEffectiveFromAppendable(values.effectiveFrom, effectiveFromBoundary)) {
-      // Only blocks the submit: the copy interpolates the boundary date, so the drawer body
-      // renders it through `errorOverride` instead.
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['effectiveFrom'],
-        message: RATE_CARD_RATE_EFFECTIVE_DATE_AFTER_ACTIVE_KEY,
-      })
-    }
+    addEffectiveFromIssues(values.effectiveFrom, effectiveFromBoundary, ctx)
 
     if (!values.code) {
       ctx.addIssue({
