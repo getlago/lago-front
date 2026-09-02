@@ -145,20 +145,19 @@ describe('EditFeeDrawer', () => {
       })
     })
 
-    describe('WHEN the mutation fails for a reason unrelated to the fee', () => {
-      it.each([
-        [
-          'a not_found pointing at another resource',
-          LagoApiError.NotFound,
-          { charge: ['not_found'] },
-        ],
-        ['a validation error', LagoApiError.UnprocessableEntity, undefined],
-      ])('THEN should fall back to the generic toast on %s', (_, code, details) => {
+    describe('WHEN the mutation fails with a not_found pointing at another resource', () => {
+      const failWithOtherNotFound = (): void => {
         renderEditDrawer()
 
         act(() => {
-          mockMutationConfig?.onError?.(buildError(code, details))
+          mockMutationConfig?.onError?.(
+            buildError(LagoApiError.NotFound, { charge: ['not_found'] }),
+          )
         })
+      }
+
+      it('THEN should fall back to the generic toast, since not_found is silenced here', () => {
+        failWithOtherNotFound()
 
         expect(mockAddToast).toHaveBeenCalledWith({
           severity: 'danger',
@@ -167,13 +166,7 @@ describe('EditFeeDrawer', () => {
       })
 
       it('THEN should keep the drawer open so the user can retry', async () => {
-        renderEditDrawer()
-
-        act(() => {
-          mockMutationConfig?.onError?.(
-            buildError(LagoApiError.NotFound, { charge: ['not_found'] }),
-          )
-        })
+        failWithOtherNotFound()
 
         await settleDrawerTransition()
 
@@ -181,14 +174,42 @@ describe('EditFeeDrawer', () => {
       })
 
       it('THEN should not refetch the invoice', () => {
+        failWithOtherNotFound()
+
+        expect(mockRefetchQueries).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the mutation fails with a code the global error link still handles', () => {
+      // Only not_found is silenced, so the link still toasts and reports these itself. Toasting
+      // here too would queue a second identical toast and lean on addToast's translateKey dedupe.
+      it.each([
+        ['a validation error', LagoApiError.UnprocessableEntity, undefined],
+        [
+          'a validation error carrying details',
+          LagoApiError.UnprocessableEntity,
+          { units: ['value_is_out_of_range'] },
+        ],
+      ])('THEN should leave the toast to the error link on %s', (_, code, details) => {
         renderEditDrawer()
 
         act(() => {
-          mockMutationConfig?.onError?.(
-            buildError(LagoApiError.NotFound, { charge: ['not_found'] }),
-          )
+          mockMutationConfig?.onError?.(buildError(code, details))
         })
 
+        expect(mockAddToast).not.toHaveBeenCalled()
+      })
+
+      it('THEN should keep the drawer open and not refetch', async () => {
+        renderEditDrawer()
+
+        act(() => {
+          mockMutationConfig?.onError?.(buildError(LagoApiError.UnprocessableEntity))
+        })
+
+        await settleDrawerTransition()
+
+        expect(screen.getByTestId(EDIT_FEE_DRAWER_SUBMIT_BUTTON_TEST_ID)).toBeInTheDocument()
         expect(mockRefetchQueries).not.toHaveBeenCalled()
       })
     })

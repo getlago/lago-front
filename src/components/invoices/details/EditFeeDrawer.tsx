@@ -256,16 +256,20 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
     // row rendered before that refresh submits a `feeId` the API can no longer resolve.
     context: { silentErrorCodes: [LagoApiError.NotFound] },
     onError(error) {
-      if (!isEditMode || !hasDefinedGQLError('NotFound', error, 'fee')) {
-        addToast({ severity: 'danger', translateKey: 'text_622f7a3dc32ce100c46a5154' })
+      // Only `not_found` is silenced, so every other code is still the global error link's to
+      // toast and report — re-toasting it here would only be saved by addToast's dedupe.
+      if (!hasDefinedGQLError('NotFound', error)) return
+
+      if (isEditMode && hasDefinedGQLError('NotFound', error, 'fee')) {
+        addToast({ severity: 'danger', translateKey: 'text_1788330185449ifi9d6haua6' })
+        drawerRef.current?.closeDrawer()
+        resetForm()
+        client.refetchQueries({ include: ['getInvoiceDetails', 'getInvoiceFees'] })
 
         return
       }
 
-      addToast({ severity: 'danger', translateKey: 'text_1788330185449ifi9d6haua6' })
-      drawerRef.current?.closeDrawer()
-      resetForm()
-      client.refetchQueries({ include: ['getInvoiceDetails', 'getInvoiceFees'] })
+      addToast({ severity: 'danger', translateKey: 'text_622f7a3dc32ce100c46a5154' })
     },
     onCompleted({ createAdjustedFee }) {
       if (createAdjustedFee?.id) {
