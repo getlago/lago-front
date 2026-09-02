@@ -43,7 +43,6 @@ export const EDIT_QUOTE_ASIDE_DOWNLOAD_PDF_TEST_ID = 'edit-quote-aside-download-
 export const EDIT_QUOTE_ASIDE_APPROVE_TEST_ID = 'edit-quote-aside-approve'
 export const EDIT_QUOTE_ASIDE_PRICING_LABEL_TEST_ID = 'edit-quote-aside-pricing'
 export const EDIT_QUOTE_ASIDE_PRICING_SUMMARY_TEST_ID = 'edit-quote-aside-pricing-summary'
-export const EDIT_QUOTE_ASIDE_PRICING_EMPTY_TEST_ID = 'edit-quote-aside-pricing-empty'
 export const EDIT_QUOTE_ASIDE_ADD_PRICING_TEST_ID = 'edit-quote-aside-add-pricing'
 
 interface EditQuoteAsideProps {
@@ -241,24 +240,16 @@ const EditQuoteAsideForm = ({
     }
 
     return (
-      <div className="flex items-center gap-2">
-        <Typography
-          variant="body"
-          color="grey500"
-          data-test={EDIT_QUOTE_ASIDE_PRICING_EMPTY_TEST_ID}
-        >
-          {translate('text_17882777389811he711tg7yj')}
-        </Typography>
-        <Button
-          variant="quaternary"
-          size="small"
-          startIcon="plus"
-          data-test={EDIT_QUOTE_ASIDE_ADD_PRICING_TEST_ID}
-          onClick={onAddPricingBlock}
-        >
-          {translate('text_1788277738981ng58j3nfudd')}
-        </Button>
-      </div>
+      <Button
+        className="w-fit"
+        variant="quaternary"
+        size="small"
+        startIcon="plus"
+        data-test={EDIT_QUOTE_ASIDE_ADD_PRICING_TEST_ID}
+        onClick={onAddPricingBlock}
+      >
+        {translate('text_1788277738981ng58j3nfudd')}
+      </Button>
     )
   }
 

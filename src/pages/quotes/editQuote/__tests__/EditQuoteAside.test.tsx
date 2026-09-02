@@ -22,7 +22,6 @@ import EditQuoteAside, {
   EDIT_QUOTE_ASIDE_CUSTOMER_INPUT_TEST_ID,
   EDIT_QUOTE_ASIDE_CUSTOMER_LINK_TEST_ID,
   EDIT_QUOTE_ASIDE_DOWNLOAD_PDF_TEST_ID,
-  EDIT_QUOTE_ASIDE_PRICING_EMPTY_TEST_ID,
   EDIT_QUOTE_ASIDE_PRICING_LABEL_TEST_ID,
   EDIT_QUOTE_ASIDE_PRICING_SUMMARY_TEST_ID,
   EDIT_QUOTE_ASIDE_QUOTE_TYPE_COMBOBOX_TEST_ID,
@@ -1080,7 +1079,6 @@ describe('EditQuoteAside', () => {
         expect(screen.getByTestId(EDIT_QUOTE_ASIDE_PRICING_SUMMARY_TEST_ID)).toHaveTextContent(
           'Premium plan',
         )
-        expect(screen.queryByTestId(EDIT_QUOTE_ASIDE_PRICING_EMPTY_TEST_ID)).not.toBeInTheDocument()
         expect(screen.queryByTestId(EDIT_QUOTE_ASIDE_ADD_PRICING_TEST_ID)).not.toBeInTheDocument()
       })
 
@@ -1100,12 +1098,12 @@ describe('EditQuoteAside', () => {
     })
 
     describe('WHEN the quote has no pricing block', () => {
-      it('THEN should display the empty label and the add button', () => {
+      it('THEN should display the add button in place of a summary', () => {
         render(
           <EditQuoteAside {...defaultPricingProps} quote={mockQuote} hasPricingBlock={false} />,
         )
 
-        expect(screen.getByTestId(EDIT_QUOTE_ASIDE_PRICING_EMPTY_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByTestId(EDIT_QUOTE_ASIDE_PRICING_LABEL_TEST_ID)).toBeInTheDocument()
         expect(screen.getByTestId(EDIT_QUOTE_ASIDE_ADD_PRICING_TEST_ID)).toBeInTheDocument()
         expect(
           screen.queryByTestId(EDIT_QUOTE_ASIDE_PRICING_SUMMARY_TEST_ID),
