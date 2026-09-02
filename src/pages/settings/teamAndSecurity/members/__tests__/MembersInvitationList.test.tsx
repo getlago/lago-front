@@ -1,7 +1,14 @@
-import { act, cleanup, fireEvent, screen, waitFor } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 
-import { GetInvitesDocument, GetRolesListDocument } from '~/generated/graphql'
-import { render, TestMocksType } from '~/test-utils'
+import { GetInvitesDocument } from '~/generated/graphql'
+import { AllTheProviders, TestMocksType } from '~/test-utils'
+
+import {
+  ADMIN_ROLE_ID,
+  buildInvitesResult,
+  createMockInvite,
+  rolesListMock,
+} from './membershipMocks'
 
 import MembersInvitationList from '../MembersInvitationList'
 
@@ -33,33 +40,6 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
-jest.mock('~/hooks/useRolesList', () => ({
-  useRolesList: () => ({
-    roles: [
-      {
-        id: 'role-1',
-        name: 'Admin',
-        code: 'admin',
-        description: 'Administrator role',
-        admin: true,
-        memberships: [],
-        permissions: [],
-      },
-      {
-        id: 'role-2',
-        name: 'Finance',
-        code: 'finance',
-        description: 'Finance role',
-        admin: false,
-        memberships: [],
-        permissions: [],
-      },
-    ],
-    isLoadingRoles: false,
-  }),
-}))
-
-// Mock dialog components to avoid complexity
 jest.mock('../dialogs/EditInviteRoleDialog', () => ({
   useEditInviteRoleDialog: () => ({
     openEditInviteRoleDialog: jest.fn(),
@@ -78,92 +58,39 @@ jest.mock('../dialogs/CreateInviteDialog', () => ({
   }),
 }))
 
-const mockInvitations = [
-  {
-    __typename: 'Invite',
-    id: 'invite-1',
-    email: 'test1@example.com',
-    token: 'token-1',
-    roles: ['admin'],
-    organization: {
-      __typename: 'Organization',
-      id: 'org-1',
-      name: 'Test Organization',
-    },
-  },
-  {
-    __typename: 'Invite',
-    id: 'invite-2',
-    email: 'test2@example.com',
-    token: 'token-2',
-    roles: ['finance'],
-    organization: {
-      __typename: 'Organization',
-      id: 'org-1',
-      name: 'Test Organization',
-    },
-  },
-]
+// The debounced search settles ~500ms after each network round trip, so give the UI room to catch up
+const SEARCH_TIMEOUT = 4000
+
+const SEARCH_PLACEHOLDER = 'text_1767713872664lwivpxg5xlb'
+const FILTERED_EMPTY_STATE_TITLE = 'text_1767714241102zgu36uubm70'
+const PRISTINE_EMPTY_STATE_TITLE = 'text_17671750294886x8eq8lizmt'
+const ERROR_STATE_TITLE = 'text_6321a076b94bd1b32494e9ee'
+
+const DEFAULT_VARIABLES = { limit: 20, page: 1, roleIds: undefined }
 
 const invitesListMock = {
   request: {
     query: GetInvitesDocument,
-    variables: { limit: 20, page: 1 },
+    variables: DEFAULT_VARIABLES,
   },
-  result: {
-    data: {
-      invites: {
-        __typename: 'InviteCollection',
-        metadata: {
-          __typename: 'CollectionMetadata',
-          currentPage: 1,
-          totalPages: 1,
-          totalCount: 2,
-        },
-        collection: mockInvitations,
-      },
-    },
-  },
+  result: buildInvitesResult(),
 }
 
-const rolesListMock = {
-  request: {
-    query: GetRolesListDocument,
-  },
-  result: {
-    data: {
-      roles: [
-        {
-          __typename: 'Role',
-          id: 'role-1',
-          name: 'Admin',
-          code: 'admin',
-          description: 'Administrator role',
-          permissions: [],
-          admin: true,
-          memberships: [],
-        },
-        {
-          __typename: 'Role',
-          id: 'role-2',
-          name: 'Finance',
-          code: 'finance',
-          description: 'Finance role',
-          permissions: [],
-          admin: false,
-          memberships: [],
-        },
-      ],
-    },
-  },
-}
+const adminOnlyResult = buildInvitesResult({
+  collection: [createMockInvite('invite-1', 'test1@example.com', ['admin'])],
+})
 
 async function prepare({
   mocks = [invitesListMock, rolesListMock],
-}: { mocks?: TestMocksType } = {}) {
+  url = '/',
+}: { mocks?: TestMocksType; url?: string } = {}) {
+  window.history.pushState({}, '', url)
+
+  // `forceTypenames` is required: the roles list is read through a fragment, which Apollo can
+  // only match when __typename is part of the document
   await act(() =>
     render(<MembersInvitationList />, {
-      mocks,
+      wrapper: ({ children }) => AllTheProviders({ children, mocks, forceTypenames: true }),
     }),
   )
 }
@@ -172,436 +99,354 @@ describe('MembersInvitationList', () => {
   afterEach(() => {
     cleanup()
     jest.clearAllMocks()
+    window.history.pushState({}, '', '/')
   })
 
-  describe('Rendering', () => {
-    it('renders the filters section', async () => {
-      await prepare()
+  describe('GIVEN the invitations are fetched without any filter', () => {
+    describe('WHEN the response resolves', () => {
+      it('THEN should display the search input', async () => {
+        await prepare()
 
-      // Search input should be present - check by placeholder text (uses translation key)
-      expect(screen.getByPlaceholderText('text_1767713872664lwivpxg5xlb')).toBeInTheDocument()
-    })
-
-    it('renders invitations table after loading', async () => {
-      await prepare()
-
-      await waitFor(() => {
-        expect(screen.getByText('test1@example.com')).toBeInTheDocument()
+        expect(screen.getByPlaceholderText(SEARCH_PLACEHOLDER)).toBeInTheDocument()
       })
 
-      expect(screen.getByText('test2@example.com')).toBeInTheDocument()
-    })
+      it('THEN should display every invitation returned by the API', async () => {
+        await prepare()
 
-    it('renders role chips for invitations', async () => {
-      await prepare()
-
-      await waitFor(() => {
-        expect(screen.getByText('test1@example.com')).toBeInTheDocument()
-      })
-
-      // Role chips should be displayed - uses translation keys for system roles
-      expect(screen.getByText('text_664f035a68227f00e261b7ee')).toBeInTheDocument() // Admin
-      expect(screen.getByText('text_664f035a68227f00e261b7f2')).toBeInTheDocument() // Finance
-    })
-  })
-
-  describe('Loading State', () => {
-    it('shows loading state while fetching data', async () => {
-      const loadingMock = {
-        request: {
-          query: GetInvitesDocument,
-          variables: { limit: 20, page: 1 },
-        },
-        delay: Infinity,
-        result: {
-          data: null,
-        },
-      }
-
-      await act(() =>
-        render(<MembersInvitationList />, {
-          mocks: [loadingMock, rolesListMock],
-        }),
-      )
-
-      // During loading, invitation emails should not be visible
-      expect(screen.queryByText('test1@example.com')).not.toBeInTheDocument()
-    })
-  })
-
-  describe('Empty State', () => {
-    it('shows empty state when no invitations', async () => {
-      const emptyMock = {
-        request: {
-          query: GetInvitesDocument,
-          variables: { limit: 20, page: 1 },
-        },
-        result: {
-          data: {
-            invites: {
-              __typename: 'InviteCollection',
-              metadata: {
-                __typename: 'CollectionMetadata',
-                currentPage: 1,
-                totalPages: 1,
-                totalCount: 0,
-              },
-              collection: [],
-            },
+        await waitFor(
+          () => {
+            expect(screen.getByText('test1@example.com')).toBeInTheDocument()
           },
-        },
-      }
+          { timeout: SEARCH_TIMEOUT },
+        )
 
-      await prepare({ mocks: [emptyMock, rolesListMock] })
+        expect(screen.getByText('test2@example.com')).toBeInTheDocument()
+      })
 
-      await waitFor(() => {
-        // Empty state title should be visible
-        expect(screen.getByText('text_17671750294886x8eq8lizmt')).toBeInTheDocument()
+      it('THEN should display a role chip per invitation', async () => {
+        await prepare()
+
+        await waitFor(
+          () => {
+            expect(screen.getByText('test1@example.com')).toBeInTheDocument()
+          },
+          { timeout: SEARCH_TIMEOUT },
+        )
+
+        // Admin and Finance role labels, resolved from the invite role codes
+        expect(screen.getByText('text_664f035a68227f00e261b7ee')).toBeInTheDocument()
+        expect(screen.getByText('text_664f035a68227f00e261b7f2')).toBeInTheDocument()
+      })
+
+      it('THEN should display the email and role column headers', async () => {
+        await prepare()
+
+        await waitFor(
+          () => {
+            expect(screen.getByText('text_63208b630aaf8df6bbfb2655')).toBeInTheDocument()
+          },
+          { timeout: SEARCH_TIMEOUT },
+        )
+
+        expect(screen.getByText('text_664f035a68227f00e261b7ec')).toBeInTheDocument()
+      })
+
+      it('THEN should display an action menu per invitation', async () => {
+        await prepare()
+
+        await waitFor(
+          () => {
+            expect(screen.getByText('test1@example.com')).toBeInTheDocument()
+          },
+          { timeout: SEARCH_TIMEOUT },
+        )
+
+        expect(screen.getAllByTestId('open-action-button')).toHaveLength(2)
       })
     })
   })
 
-  describe('Error State', () => {
-    it('shows error state when query fails', async () => {
-      const errorMock = {
-        request: {
-          query: GetInvitesDocument,
-          variables: { limit: 20, page: 1 },
-        },
-        error: new Error('Failed to fetch invitations'),
-      }
+  describe('GIVEN the invitations query is still in flight', () => {
+    describe('WHEN the response has not resolved yet', () => {
+      it('THEN should not display any invitation', async () => {
+        const loadingMock = {
+          request: {
+            query: GetInvitesDocument,
+            variables: DEFAULT_VARIABLES,
+          },
+          delay: Infinity,
+          result: { data: null },
+        }
 
-      await prepare({ mocks: [errorMock, rolesListMock] })
+        await prepare({ mocks: [loadingMock, rolesListMock] })
 
-      await waitFor(() => {
-        // Error state title uses translation key
-        expect(screen.getByText('text_6321a076b94bd1b32494e9ee')).toBeInTheDocument()
+        expect(screen.queryByText('test1@example.com')).not.toBeInTheDocument()
       })
     })
+  })
 
-    it('shows error state subtitle when query fails', async () => {
-      const errorMock = {
-        request: {
-          query: GetInvitesDocument,
-          variables: { limit: 20, page: 1 },
-        },
-        error: new Error('Failed to fetch invitations'),
-      }
+  describe('GIVEN the API returns no invitation and no filter is applied', () => {
+    describe('WHEN the response resolves', () => {
+      it('THEN should display the pristine empty state', async () => {
+        const emptyMock = {
+          request: {
+            query: GetInvitesDocument,
+            variables: DEFAULT_VARIABLES,
+          },
+          result: buildInvitesResult({ collection: [] }),
+        }
 
-      await prepare({ mocks: [errorMock, rolesListMock] })
+        await prepare({ mocks: [emptyMock, rolesListMock] })
 
-      await waitFor(() => {
-        // Error state subtitle translation key
-        expect(screen.getByText('text_6321a076b94bd1b32494e9e8')).toBeInTheDocument()
+        await waitFor(
+          () => {
+            expect(screen.getByText(PRISTINE_EMPTY_STATE_TITLE)).toBeInTheDocument()
+          },
+          { timeout: SEARCH_TIMEOUT },
+        )
+
+        // Invite button
+        expect(screen.getByText('text_63208b630aaf8df6bbfb265b')).toBeInTheDocument()
       })
     })
+  })
 
-    it('shows retry button when query fails', async () => {
-      const errorMock = {
-        request: {
-          query: GetInvitesDocument,
-          variables: { limit: 20, page: 1 },
-        },
-        error: new Error('Failed to fetch invitations'),
-      }
+  describe('GIVEN the invitations query fails', () => {
+    describe('WHEN the error resolves', () => {
+      it('THEN should display the error state and its retry button', async () => {
+        const errorMock = {
+          request: {
+            query: GetInvitesDocument,
+            variables: DEFAULT_VARIABLES,
+          },
+          error: new Error('Failed to fetch invites'),
+        }
 
-      await prepare({ mocks: [errorMock, rolesListMock] })
+        await prepare({ mocks: [errorMock, rolesListMock] })
 
-      await waitFor(() => {
-        // Retry button translation key
+        await waitFor(
+          () => {
+            expect(screen.getByText(ERROR_STATE_TITLE)).toBeInTheDocument()
+          },
+          { timeout: SEARCH_TIMEOUT },
+        )
+
         expect(screen.getByText('text_6321a076b94bd1b32494e9f2')).toBeInTheDocument()
       })
     })
   })
 
-  describe('Search Filtering', () => {
-    it('filters invitations by search query', async () => {
-      await prepare()
+  describe('GIVEN the user searches for an invitation', () => {
+    describe('WHEN typing a search term', () => {
+      it('THEN should query the API with the search term and render only its result', async () => {
+        const searchMock = {
+          request: {
+            query: GetInvitesDocument,
+            variables: { ...DEFAULT_VARIABLES, searchTerm: 'test1' },
+          },
+          result: adminOnlyResult,
+        }
 
-      await waitFor(() => {
-        expect(screen.getByText('test1@example.com')).toBeInTheDocument()
+        await prepare({ mocks: [invitesListMock, searchMock, rolesListMock] })
+
+        await waitFor(
+          () => {
+            expect(screen.getByText('test2@example.com')).toBeInTheDocument()
+          },
+          { timeout: SEARCH_TIMEOUT },
+        )
+
+        fireEvent.change(screen.getByPlaceholderText(SEARCH_PLACEHOLDER), {
+          target: { value: 'test1' },
+        })
+
+        // The mock only replies when `searchTerm` reached the API, so the narrowed list proves
+        // the filtering happened server-side
+        await waitFor(
+          () => {
+            expect(screen.getByText('test1@example.com')).toBeInTheDocument()
+            expect(screen.queryByText('test2@example.com')).not.toBeInTheDocument()
+          },
+          { timeout: SEARCH_TIMEOUT },
+        )
+      })
+
+      it('THEN should not filter the loaded page client-side while the request is in flight', async () => {
+        const pendingSearchMock = {
+          request: {
+            query: GetInvitesDocument,
+            variables: { ...DEFAULT_VARIABLES, searchTerm: 'nobody' },
+          },
+          delay: Infinity,
+          result: { data: null },
+        }
+
+        await prepare({ mocks: [invitesListMock, pendingSearchMock, rolesListMock] })
+
+        await waitFor(
+          () => {
+            expect(screen.getByText('test2@example.com')).toBeInTheDocument()
+          },
+          { timeout: SEARCH_TIMEOUT },
+        )
+
+        fireEvent.change(screen.getByPlaceholderText(SEARCH_PLACEHOLDER), {
+          target: { value: 'nobody' },
+        })
+
+        // A term matching nothing on the loaded page must NOT empty the table on its own:
+        // only the API response can change the rendered collection
         expect(screen.getByText('test2@example.com')).toBeInTheDocument()
       })
 
-      const searchInput = screen.getByPlaceholderText('text_1767713872664lwivpxg5xlb')
+      it('THEN should display the filtered empty state when the API returns nothing', async () => {
+        const emptySearchMock = {
+          request: {
+            query: GetInvitesDocument,
+            variables: { ...DEFAULT_VARIABLES, searchTerm: 'nobody' },
+          },
+          result: buildInvitesResult({ collection: [] }),
+        }
 
-      fireEvent.change(searchInput, { target: { value: 'test1' } })
+        await prepare({ mocks: [invitesListMock, emptySearchMock, rolesListMock] })
 
-      // Only test1 should be visible after filtering
-      await waitFor(() => {
-        expect(screen.getByText('test1@example.com')).toBeInTheDocument()
-        expect(screen.queryByText('test2@example.com')).not.toBeInTheDocument()
+        await waitFor(
+          () => {
+            expect(screen.getByText('test1@example.com')).toBeInTheDocument()
+          },
+          { timeout: SEARCH_TIMEOUT },
+        )
+
+        fireEvent.change(screen.getByPlaceholderText(SEARCH_PLACEHOLDER), {
+          target: { value: 'nobody' },
+        })
+
+        await waitFor(
+          () => {
+            expect(screen.getByText(FILTERED_EMPTY_STATE_TITLE)).toBeInTheDocument()
+          },
+          { timeout: SEARCH_TIMEOUT },
+        )
       })
     })
 
-    it('shows all invitations when search is cleared', async () => {
-      await prepare()
+    describe('WHEN clearing the search term', () => {
+      it('THEN should query the API again without any search term', async () => {
+        const searchMock = {
+          request: {
+            query: GetInvitesDocument,
+            variables: { ...DEFAULT_VARIABLES, searchTerm: 'test1' },
+          },
+          result: adminOnlyResult,
+        }
+        const clearedMock = {
+          request: {
+            query: GetInvitesDocument,
+            variables: DEFAULT_VARIABLES,
+          },
+          result: buildInvitesResult(),
+        }
 
-      await waitFor(() => {
-        expect(screen.getByText('test1@example.com')).toBeInTheDocument()
+        await prepare({ mocks: [invitesListMock, searchMock, clearedMock, rolesListMock] })
+
+        const searchInput = screen.getByPlaceholderText(SEARCH_PLACEHOLDER)
+
+        fireEvent.change(searchInput, { target: { value: 'test1' } })
+
+        await waitFor(
+          () => {
+            expect(screen.queryByText('test2@example.com')).not.toBeInTheDocument()
+          },
+          { timeout: SEARCH_TIMEOUT },
+        )
+
+        fireEvent.change(searchInput, { target: { value: '' } })
+
+        await waitFor(
+          () => {
+            expect(screen.getByText('test2@example.com')).toBeInTheDocument()
+          },
+          { timeout: SEARCH_TIMEOUT },
+        )
       })
+    })
+  })
 
-      const searchInput = screen.getByPlaceholderText('text_1767713872664lwivpxg5xlb')
+  describe('GIVEN a role filter is set in the URL', () => {
+    describe('WHEN the roles are resolved', () => {
+      it('THEN should query the API with the matching role id', async () => {
+        const roleFilteredMock = {
+          request: {
+            query: GetInvitesDocument,
+            variables: { limit: 20, page: 1, roleIds: [ADMIN_ROLE_ID] },
+          },
+          result: adminOnlyResult,
+        }
 
-      fireEvent.change(searchInput, { target: { value: 'test1' } })
+        await prepare({
+          // invitesListMock stays available in case the unfiltered request goes out before the
+          // roles resolve — the assertion below is on the state the list settles into
+          mocks: [invitesListMock, roleFilteredMock, rolesListMock],
+          url: '/?roles=Admin',
+        })
 
-      await waitFor(() => {
-        expect(screen.queryByText('test2@example.com')).not.toBeInTheDocument()
-      })
-
-      fireEvent.change(searchInput, { target: { value: '' } })
-
-      await waitFor(() => {
-        expect(screen.getByText('test1@example.com')).toBeInTheDocument()
-        expect(screen.getByText('test2@example.com')).toBeInTheDocument()
+        // Invites store role codes while the URL holds a role name: only a request carrying
+        // roleIds: ['role-1'] returns the narrowed collection, which the previous client-side
+        // filter could never produce (it compared a name against a code and always matched none)
+        await waitFor(
+          () => {
+            expect(screen.getByText('test1@example.com')).toBeInTheDocument()
+            expect(screen.queryByText('test2@example.com')).not.toBeInTheDocument()
+          },
+          { timeout: SEARCH_TIMEOUT },
+        )
       })
     })
 
-    it('search is case insensitive', async () => {
-      await prepare()
+    describe('WHEN the roles are not resolved yet', () => {
+      it('THEN should not display invitations the filter may exclude', async () => {
+        const pendingRolesMock = {
+          ...rolesListMock,
+          delay: Infinity,
+        }
+        // The response the component would get if it queried before resolving the role id
+        const unfilteredMock = {
+          request: {
+            query: GetInvitesDocument,
+            variables: DEFAULT_VARIABLES,
+          },
+          result: buildInvitesResult(),
+        }
 
-      await waitFor(() => {
-        expect(screen.getByText('test1@example.com')).toBeInTheDocument()
-      })
+        await prepare({ mocks: [unfilteredMock, pendingRolesMock], url: '/?roles=Admin' })
 
-      const searchInput = screen.getByPlaceholderText('text_1767713872664lwivpxg5xlb')
+        await new Promise((resolve) => setTimeout(resolve, 1000))
 
-      fireEvent.change(searchInput, { target: { value: 'TEST1' } })
-
-      await waitFor(() => {
-        expect(screen.getByText('test1@example.com')).toBeInTheDocument()
-        expect(screen.queryByText('test2@example.com')).not.toBeInTheDocument()
-      })
-    })
-
-    it('shows no results when search matches nothing', async () => {
-      await prepare()
-
-      await waitFor(() => {
-        expect(screen.getByText('test1@example.com')).toBeInTheDocument()
-      })
-
-      const searchInput = screen.getByPlaceholderText('text_1767713872664lwivpxg5xlb')
-
-      fireEvent.change(searchInput, { target: { value: 'nonexistent' } })
-
-      await waitFor(() => {
         expect(screen.queryByText('test1@example.com')).not.toBeInTheDocument()
         expect(screen.queryByText('test2@example.com')).not.toBeInTheDocument()
       })
     })
   })
 
-  describe('Table Structure', () => {
-    it('renders email column header', async () => {
-      await prepare()
-
-      await waitFor(() => {
-        // Email column header translation key
-        expect(screen.getByText('text_63208b630aaf8df6bbfb2655')).toBeInTheDocument()
-      })
-    })
-
-    it('renders role column header', async () => {
-      await prepare()
-
-      await waitFor(() => {
-        // Role column header translation key
-        expect(screen.getByText('text_664f035a68227f00e261b7ec')).toBeInTheDocument()
-      })
-    })
-
-    it('renders invitation avatar', async () => {
-      await prepare()
-
-      await waitFor(() => {
-        expect(screen.getByText('test1@example.com')).toBeInTheDocument()
-      })
-
-      // Avatar should be rendered for each invitation
-      const avatars = document.querySelectorAll('[class*="avatar"]')
-
-      expect(avatars.length).toBeGreaterThan(0)
-    })
-  })
-
-  describe('Empty State Content', () => {
-    it('shows empty state title when no invitations', async () => {
-      const emptyMock = {
-        request: {
-          query: GetInvitesDocument,
-          variables: { limit: 20, page: 1 },
-        },
-        result: {
-          data: {
-            invites: {
-              __typename: 'InviteCollection',
-              metadata: {
-                __typename: 'CollectionMetadata',
-                currentPage: 1,
-                totalPages: 1,
-                totalCount: 0,
-              },
-              collection: [],
-            },
+  describe('GIVEN the API reports several pages', () => {
+    describe('WHEN the response resolves', () => {
+      it('THEN should render the returned page', async () => {
+        const paginatedMock = {
+          request: {
+            query: GetInvitesDocument,
+            variables: DEFAULT_VARIABLES,
           },
-        },
-      }
+          result: buildInvitesResult({ totalCount: 50, totalPages: 3 }),
+        }
 
-      await prepare({ mocks: [emptyMock, rolesListMock] })
+        await prepare({ mocks: [paginatedMock, rolesListMock] })
 
-      await waitFor(() => {
-        // Empty state title translation key (no pending invitations)
-        expect(screen.getByText('text_17671750294886x8eq8lizmt')).toBeInTheDocument()
-      })
-    })
-
-    it('shows empty state subtitle when no invitations', async () => {
-      const emptyMock = {
-        request: {
-          query: GetInvitesDocument,
-          variables: { limit: 20, page: 1 },
-        },
-        result: {
-          data: {
-            invites: {
-              __typename: 'InviteCollection',
-              metadata: {
-                __typename: 'CollectionMetadata',
-                currentPage: 1,
-                totalPages: 1,
-                totalCount: 0,
-              },
-              collection: [],
-            },
+        await waitFor(
+          () => {
+            expect(screen.getByText('test1@example.com')).toBeInTheDocument()
           },
-        },
-      }
-
-      await prepare({ mocks: [emptyMock, rolesListMock] })
-
-      await waitFor(() => {
-        // Empty state subtitle translation key
-        expect(screen.getByText('text_1767175029488r5limdbdwm5')).toBeInTheDocument()
-      })
-    })
-
-    it('shows invite button in empty state', async () => {
-      const emptyMock = {
-        request: {
-          query: GetInvitesDocument,
-          variables: { limit: 20, page: 1 },
-        },
-        result: {
-          data: {
-            invites: {
-              __typename: 'InviteCollection',
-              metadata: {
-                __typename: 'CollectionMetadata',
-                currentPage: 1,
-                totalPages: 1,
-                totalCount: 0,
-              },
-              collection: [],
-            },
-          },
-        },
-      }
-
-      await prepare({ mocks: [emptyMock, rolesListMock] })
-
-      await waitFor(() => {
-        // Invite button translation key - use getAllByText since it appears in both MembersFilters and Table placeholder
-        expect(screen.getAllByText('text_63208b630aaf8df6bbfb265b').length).toBeGreaterThanOrEqual(
-          1,
+          { timeout: SEARCH_TIMEOUT },
         )
-      })
-    })
-  })
-
-  describe('Action Column', () => {
-    it('renders action menu for invitations', async () => {
-      await prepare()
-
-      await waitFor(() => {
-        expect(screen.getByText('test1@example.com')).toBeInTheDocument()
-      })
-
-      // Action buttons should be present
-      const actionButtons = screen.getAllByRole('button')
-
-      expect(actionButtons.length).toBeGreaterThan(0)
-    })
-  })
-
-  describe('Pagination', () => {
-    it('handles paginated results', async () => {
-      const paginatedMock = {
-        request: {
-          query: GetInvitesDocument,
-          variables: { limit: 20, page: 1 },
-        },
-        result: {
-          data: {
-            invites: {
-              __typename: 'InviteCollection',
-              metadata: {
-                __typename: 'CollectionMetadata',
-                currentPage: 1,
-                totalPages: 3,
-                totalCount: 50,
-              },
-              collection: mockInvitations,
-            },
-          },
-        },
-      }
-
-      await prepare({ mocks: [paginatedMock, rolesListMock] })
-
-      await waitFor(() => {
-        expect(screen.getByText('test1@example.com')).toBeInTheDocument()
-      })
-    })
-  })
-
-  describe('Invitation Count', () => {
-    it('renders correct number of invitations', async () => {
-      await prepare()
-
-      await waitFor(() => {
-        expect(screen.getByText('test1@example.com')).toBeInTheDocument()
-        expect(screen.getByText('test2@example.com')).toBeInTheDocument()
-      })
-    })
-
-    it('handles single invitation', async () => {
-      const singleInviteMock = {
-        request: {
-          query: GetInvitesDocument,
-          variables: { limit: 20, page: 1 },
-        },
-        result: {
-          data: {
-            invites: {
-              __typename: 'InviteCollection',
-              metadata: {
-                __typename: 'CollectionMetadata',
-                currentPage: 1,
-                totalPages: 1,
-                totalCount: 1,
-              },
-              collection: [mockInvitations[0]],
-            },
-          },
-        },
-      }
-
-      await prepare({ mocks: [singleInviteMock, rolesListMock] })
-
-      await waitFor(() => {
-        expect(screen.getByText('test1@example.com')).toBeInTheDocument()
-        expect(screen.queryByText('test2@example.com')).not.toBeInTheDocument()
       })
     })
   })

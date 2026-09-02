@@ -75,6 +75,7 @@ describe('MembersFilters', () => {
   afterEach(() => {
     cleanup()
     jest.clearAllMocks()
+    window.history.pushState({}, '', '/')
   })
 
   describe('Rendering', () => {
@@ -162,6 +163,26 @@ describe('MembersFilters', () => {
 
       await waitFor(() => {
         expect(setSearchQuery).toHaveBeenCalledWith('')
+      })
+    })
+  })
+
+  describe('Page reset', () => {
+    it('drops the current page from the URL when the role filter changes', async () => {
+      const user = userEvent.setup()
+
+      window.history.pushState({}, '', '/?page=3')
+
+      await prepare()
+
+      await user.click(screen.getByText(/all roles/i))
+
+      const adminOption = await screen.findByRole('button', { name: 'Admin' })
+
+      await user.click(adminOption)
+
+      await waitFor(() => {
+        expect(window.location.search).toBe('?roles=Admin')
       })
     })
   })
