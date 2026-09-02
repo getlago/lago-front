@@ -60,6 +60,13 @@ const usageProduct: ProductForDetailsOverviewFragment = {
   },
 }
 
+const UNBREAKABLE_DESCRIPTION = 'a'.repeat(500)
+
+const longDescriptionProduct: ProductForDetailsOverviewFragment = {
+  ...fixedProduct,
+  description: UNBREAKABLE_DESCRIPTION,
+}
+
 const buildMock = (product: ProductForDetailsOverviewFragment): TestMocksType => [
   {
     request: {
@@ -147,6 +154,45 @@ describe('ProductDetailsOverview', () => {
           expect(screen.getByText('Seats')).toBeInTheDocument()
         })
         expect(screen.queryByTestId(PRODUCT_ITEM_OVERVIEW_EDIT_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a description shorter than the display limit', () => {
+    describe('WHEN the overview loads', () => {
+      // A single unspaced word has no wrap opportunity and used to overflow the page.
+      it('THEN renders it in full and lets it break mid-word', async () => {
+        await act(() => renderOverview())
+
+        expect(await screen.findByText('Per seat billing')).toHaveClass('line-break-anywhere')
+        expect(
+          screen.queryByRole('button', { name: 'text_62bdbf07117c3d1f178d6517' }),
+        ).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a description longer than the display limit', () => {
+    describe('WHEN the overview loads', () => {
+      it('THEN truncates it behind a "See more" button', async () => {
+        await act(() => renderOverview(longDescriptionProduct))
+
+        expect(
+          await screen.findByRole('button', { name: 'text_62bdbf07117c3d1f178d6517' }),
+        ).toBeInTheDocument()
+        expect(screen.queryByText(UNBREAKABLE_DESCRIPTION)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN "See more" is clicked', () => {
+      it('THEN reveals the whole description', async () => {
+        await act(() => renderOverview(longDescriptionProduct))
+
+        await userEvent.click(
+          await screen.findByRole('button', { name: 'text_62bdbf07117c3d1f178d6517' }),
+        )
+
+        expect(screen.getByText(UNBREAKABLE_DESCRIPTION)).toHaveClass('line-break-anywhere')
       })
     })
   })

@@ -6,12 +6,6 @@ import {
   RateCardRegroupPaidFeesEnum,
 } from '~/generated/graphql'
 
-// Reused from other drawers (`pnpm translations:add`) rather than hand-written.
-const NAME_REQUIRED_KEY = 'text_1771342980565bx64zqq2mjs' // "Name is required"
-const CODE_REQUIRED_KEY = 'text_1771342994699klxu2paz7g9' // "Code is required"
-const PRODUCT_ITEM_REQUIRED_KEY = 'text_1771342994699klxu2paz7g8' // "Field is required"
-const CURRENCY_REQUIRED_KEY = 'text_1784923399556hjnr43vhm5z' // "Currency is required"
-
 export const RATE_CARD_FORM_ID = 'rateCardForm'
 
 export const RATE_CARD_FORM_SUBMIT_TEST_ID = 'rate-card-form-submit'
@@ -46,10 +40,10 @@ export type RateCardFormValues = typeof RATE_CARD_FORM_DEFAULTS
 // `.superRefine` enforces it since the field type still allows the empty default.
 export const rateCardDrawerSchema = z
   .object({
-    name: z.string().min(1, NAME_REQUIRED_KEY),
-    code: z.string().min(1, CODE_REQUIRED_KEY),
+    name: z.string().min(1, 'text_1771342980565bx64zqq2mjs'),
+    code: z.string().min(1, 'text_1771342994699klxu2paz7g9'),
     description: z.string(),
-    productId: z.string().min(1, PRODUCT_ITEM_REQUIRED_KEY),
+    productId: z.string().min(1, 'text_1771342994699klxu2paz7g8'),
     productFilterId: z.string(),
     pricingUnit: z.string(),
     currency: z.union([z.nativeEnum(CurrencyEnum), z.literal('')]),
@@ -63,7 +57,7 @@ export const rateCardDrawerSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['currency'],
-        message: CURRENCY_REQUIRED_KEY,
+        message: 'text_1784923399556hjnr43vhm5z',
       })
     }
   })

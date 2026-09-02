@@ -25,6 +25,7 @@ const PRODUCT_ITEM_FILTER_DRAWER_REMOVE_DESCRIPTION_TEST_ID =
   'product-item-filter-drawer-remove-description'
 const PRODUCT_ITEM_FILTER_DRAWER_SHOW_DESCRIPTION_TEST_ID =
   'product-item-filter-drawer-show-description'
+
 export const PRODUCT_ITEM_FILTER_DRAWER_MISSING_VALUES_ALERT_TEST_ID =
   'product-item-filter-drawer-missing-values-alert'
 
@@ -149,131 +150,133 @@ const ProductFilterDrawerFormSections = withForm({
           </Typography>
         </div>
 
-        <CenteredPage.PageSection>
-          <CenteredPage.PageSectionTitle
-            title={translate('text_1784579021080ysbidm753z8')}
-            description={translate('text_1784579021080xvr3zayq5rz')}
-          />
+        <CenteredPage.SubsectionWrapper>
+          <CenteredPage.PageSection>
+            <CenteredPage.PageSectionTitle
+              title={translate('text_1784579021080ysbidm753z8')}
+              description={translate('text_1784579021080xvr3zayq5rz')}
+            />
 
-          <NameAndCodeGroup
-            form={form}
-            fields={{ name: 'name', code: 'code' }}
-            disableCodeInput={disableCodeInput}
-            disableAutoGenerateCode={isEdit}
-            nameProps={{ autoFocus: true }}
-          />
+            <NameAndCodeGroup
+              form={form}
+              fields={{ name: 'name', code: 'code' }}
+              disableCodeInput={disableCodeInput}
+              disableAutoGenerateCode={isEdit}
+              nameProps={{ autoFocus: true }}
+            />
 
-          {shouldDisplayDescription && (
-            <div className="flex items-center">
-              <form.AppField name="description">
-                {(field) => (
-                  <field.TextInputField
-                    multiline
-                    className="mr-3 flex-1"
-                    label={translate('text_629728388c4d2300e2d380f1')}
-                    placeholder={translate('text_1750257831368ae3rtaclhjy')}
-                    rows="3"
+            {shouldDisplayDescription && (
+              <div className="flex items-center">
+                <form.AppField name="description">
+                  {(field) => (
+                    <field.TextInputField
+                      multiline
+                      className="mr-3 flex-1"
+                      label={translate('text_629728388c4d2300e2d380f1')}
+                      placeholder={translate('text_1750257831368ae3rtaclhjy')}
+                      rows="3"
+                    />
+                  )}
+                </form.AppField>
+                <Tooltip
+                  className="mt-6"
+                  placement="top-end"
+                  title={translate('text_63aa085d28b8510cd46443ff')}
+                >
+                  <Button
+                    icon="trash"
+                    variant="quaternary"
+                    onClick={handleHideDescription}
+                    data-test={PRODUCT_ITEM_FILTER_DRAWER_REMOVE_DESCRIPTION_TEST_ID}
                   />
-                )}
-              </form.AppField>
-              <Tooltip
-                className="mt-6"
-                placement="top-end"
-                title={translate('text_63aa085d28b8510cd46443ff')}
-              >
-                <Button
-                  icon="trash"
-                  variant="quaternary"
-                  onClick={handleHideDescription}
-                  data-test={PRODUCT_ITEM_FILTER_DRAWER_REMOVE_DESCRIPTION_TEST_ID}
-                />
-              </Tooltip>
-            </div>
-          )}
-          {!shouldDisplayDescription && (
-            <Button
-              fitContent
-              startIcon="plus"
-              variant="inline"
-              onClick={() => setShouldDisplayDescription(true)}
-              data-test={PRODUCT_ITEM_FILTER_DRAWER_SHOW_DESCRIPTION_TEST_ID}
-            >
-              {translate('text_642d5eb2783a2ad10d670324')}
-            </Button>
-          )}
-
-          <form.AppField
-            name="productId"
-            listeners={{
-              // Switching the product invalidates the selected values: they
-              // reference the previous item's billable metric filters, so clear
-              // them to keep the values section scoped to the new selection.
-              onChange: () => {
-                if (form.state.values.values.length) {
-                  form.setFieldValue('values', [])
-                }
-              },
-            }}
-          >
-            {(field) => (
-              <field.ComboBoxField
-                label={translate('text_17845790210805g4buh2kivc')}
-                placeholder={translate('text_1784579021080kajutbc14la')}
-                data={productsComboboxData}
-                searchQuery={getProducts}
-                loading={productsLoading}
-                disabled={isEdit}
-              />
-            )}
-          </form.AppField>
-        </CenteredPage.PageSection>
-
-        <CenteredPage.PageSection>
-          <CenteredPage.PageSectionTitle
-            title={translate('text_1784579021080cayu2mqo1o8')}
-            description={translate('text_1784579021080da8nd35wa0j')}
-          />
-
-          <form.AppField name="values">
-            {(field) => (
-              <div className="flex flex-col gap-4">
-                <ProductFilterValuesEditor
-                  billableMetricFilters={selectedFilters}
-                  values={field.state.value}
-                  onChange={(nextValues) => field.handleChange(nextValues)}
-                  disabled={!productId}
-                  hasError={field.state.meta.errors.length > 0}
-                />
-
-                {field.state.meta.errors.length > 0 && (
-                  <Alert
-                    type="danger"
-                    data-test={PRODUCT_ITEM_FILTER_DRAWER_MISSING_VALUES_ALERT_TEST_ID}
-                  >
-                    {translate('text_1784579021080myc4hsroeid')}
-                  </Alert>
-                )}
+                </Tooltip>
               </div>
             )}
-          </form.AppField>
-        </CenteredPage.PageSection>
-
-        <CenteredPage.PageSection>
-          <CenteredPage.PageSectionTitle
-            title={translate('text_17423672025282dl7iozy1ru')}
-            description={translate('text_1783627031283g55tf6jjlg1')}
-          />
-
-          <form.AppField name="invoiceDisplayName">
-            {(field) => (
-              <field.TextInputField
-                label={translate('text_65a6b4e2cb38d9b70ec53d39')}
-                placeholder={translate('text_65a6b4e2cb38d9b70ec53d41')}
-                description={translate('text_1771963033467yduu33x3qw9')}
-              />
+            {!shouldDisplayDescription && (
+              <Button
+                fitContent
+                startIcon="plus"
+                variant="inline"
+                onClick={() => setShouldDisplayDescription(true)}
+                data-test={PRODUCT_ITEM_FILTER_DRAWER_SHOW_DESCRIPTION_TEST_ID}
+              >
+                {translate('text_642d5eb2783a2ad10d670324')}
+              </Button>
             )}
-          </form.AppField>
-        </CenteredPage.PageSection>
+
+            <form.AppField
+              name="productId"
+              listeners={{
+                // Switching the product invalidates the selected values: they
+                // reference the previous item's billable metric filters, so clear
+                // them to keep the values section scoped to the new selection.
+                onChange: () => {
+                  if (form.state.values.values.length) {
+                    form.setFieldValue('values', [])
+                  }
+                },
+              }}
+            >
+              {(field) => (
+                <field.ComboBoxField
+                  label={translate('text_17845790210805g4buh2kivc')}
+                  placeholder={translate('text_1784579021080kajutbc14la')}
+                  data={productsComboboxData}
+                  searchQuery={getProducts}
+                  loading={productsLoading}
+                  disabled={isEdit}
+                />
+              )}
+            </form.AppField>
+          </CenteredPage.PageSection>
+
+          <CenteredPage.PageSection>
+            <CenteredPage.PageSectionTitle
+              title={translate('text_1784579021080cayu2mqo1o8')}
+              description={translate('text_1784579021080da8nd35wa0j')}
+            />
+
+            <form.AppField name="values">
+              {(field) => (
+                <div className="flex flex-col gap-4">
+                  <ProductFilterValuesEditor
+                    billableMetricFilters={selectedFilters}
+                    values={field.state.value}
+                    onChange={(nextValues) => field.handleChange(nextValues)}
+                    disabled={!productId}
+                    hasError={field.state.meta.errors.length > 0}
+                  />
+
+                  {field.state.meta.errors.length > 0 && (
+                    <Alert
+                      type="danger"
+                      data-test={PRODUCT_ITEM_FILTER_DRAWER_MISSING_VALUES_ALERT_TEST_ID}
+                    >
+                      {translate('text_1784579021080myc4hsroeid')}
+                    </Alert>
+                  )}
+                </div>
+              )}
+            </form.AppField>
+          </CenteredPage.PageSection>
+
+          <CenteredPage.PageSection>
+            <CenteredPage.PageSectionTitle
+              title={translate('text_17423672025282dl7iozy1ru')}
+              description={translate('text_1783627031283g55tf6jjlg1')}
+            />
+
+            <form.AppField name="invoiceDisplayName">
+              {(field) => (
+                <field.TextInputField
+                  label={translate('text_65a6b4e2cb38d9b70ec53d39')}
+                  placeholder={translate('text_65a6b4e2cb38d9b70ec53d41')}
+                  description={translate('text_1771963033467yduu33x3qw9')}
+                />
+              )}
+            </form.AppField>
+          </CenteredPage.PageSection>
+        </CenteredPage.SubsectionWrapper>
       </>
     )
   },

@@ -89,9 +89,7 @@ gql`
   }
 `
 
-// New translation keys are exported as named constants (feature convention) so
-// tests and siblings reference them instead of duplicating the raw ids. The
-// create title doubles as the create submit label (identical copy).
+// The create title doubles as the create submit label (identical copy).
 export const RATE_CARD_DRAWER_TITLE_CREATE_KEY = 'text_1784925227817k72h5sd0wyu'
 export const RATE_CARD_DRAWER_TITLE_EDIT_KEY = 'text_17849252278173fdc5gny30g'
 export const RATE_CARD_DRAWER_SUBMIT_EDIT_KEY = 'text_1784925227817q9ktcnhk8ck'

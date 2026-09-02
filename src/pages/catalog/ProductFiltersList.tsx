@@ -43,8 +43,22 @@ gql`
     ...ProductFilterForDeleteProductFilterDialog
   }
 
-  query productFilters($page: Int, $limit: Int, $searchTerm: String, $productId: ID) {
-    productFilters(page: $page, limit: $limit, searchTerm: $searchTerm, productId: $productId) {
+  query productFilters(
+    $page: Int
+    $limit: Int
+    $searchTerm: String
+    $productId: ID
+    $productCategoryIds: [ID!]
+    $withoutProductCategory: Boolean
+  ) {
+    productFilters(
+      page: $page
+      limit: $limit
+      searchTerm: $searchTerm
+      productId: $productId
+      productCategoryIds: $productCategoryIds
+      withoutProductCategory: $withoutProductCategory
+    ) {
       collection {
         id
         ...ProductFilterForList

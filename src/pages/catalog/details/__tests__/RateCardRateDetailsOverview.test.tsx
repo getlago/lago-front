@@ -17,6 +17,7 @@ import {
 import RateCardRateDetailsOverview, {
   RATE_CARD_RATE_DETAILS_BILLING_INTERVAL_VALUE_KEY,
   RATE_CARD_RATE_DETAILS_OVERVIEW_EDIT_TEST_ID,
+  RATE_CARD_RATE_DETAILS_OVERVIEW_NO_PRODUCT_CATEGORY_TEST_ID,
   RATE_CARD_RATE_DETAILS_OVERVIEW_STATUS_TEST_ID,
 } from '../RateCardRateDetailsOverview'
 
@@ -133,9 +134,9 @@ describe('RateCardRateDetailsOverview', () => {
         )
       })
 
-      it('THEN falls back to a dash when there is no product filter or category', () => {
+      it('THEN falls back to a dash on the product filter and to a label on the category', () => {
         renderOverview({
-          // A spending minimum, so the only dashes left are the two rows under test.
+          // A spending minimum, so the only dash left is the product filter row.
           rate: buildRateCardRate({ minAmountCents: '2500' }),
           rateCard: buildRateCardForRateDetails({
             product: {
@@ -148,7 +149,10 @@ describe('RateCardRateDetailsOverview', () => {
           }),
         })
 
-        expect(screen.getAllByText('-')).toHaveLength(2)
+        expect(screen.getAllByText('-')).toHaveLength(1)
+        expect(
+          screen.getByTestId(RATE_CARD_RATE_DETAILS_OVERVIEW_NO_PRODUCT_CATEGORY_TEST_ID),
+        ).toBeInTheDocument()
       })
 
       it('THEN shows the spending minimum', () => {

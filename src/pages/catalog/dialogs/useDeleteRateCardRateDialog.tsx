@@ -12,9 +12,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { RATE_CARD_RATE_DEPENDENT_QUERIES } from '../drawers/rateCardRate/constants'
 
-const RATE_CARD_RATE_DELETE_DIALOG_TITLE_KEY = 'text_1787737220228vtfsw6cywjo'
-const RATE_CARD_RATE_DELETE_DIALOG_DESCRIPTION_KEY = 'text_17877372202281n4vwytee34'
-
 export const RATE_CARD_RATE_DELETE_SUCCESS_TOAST_KEY = 'text_1787737220228n5sd5hs13kg'
 
 gql`
@@ -53,8 +50,8 @@ export const useDeleteRateCardRateDialog = (): UseDeleteRateCardRateDialogReturn
     callback,
   }: DeleteRateCardRateDialogProps): void => {
     centralizedDialog.open({
-      title: translate(RATE_CARD_RATE_DELETE_DIALOG_TITLE_KEY, { code: rate.code }),
-      description: translate(RATE_CARD_RATE_DELETE_DIALOG_DESCRIPTION_KEY),
+      title: translate('text_1787737220228vtfsw6cywjo', { code: rate.code }),
+      description: translate('text_17877372202281n4vwytee34'),
       colorVariant: 'danger',
       actionText: translate('text_63ea0f84f400488553caa786'),
       onAction: async () => {
