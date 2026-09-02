@@ -67,7 +67,7 @@ const RateCardActivityLogs = ({ rateCardId }: RateCardActivityLogsProps) => {
     <section className="flex flex-col gap-12">
       <section>
         <ActivityLogsSection
-          subtitle={translate('text_17845928288679yi8tiutrl4')}
+          subtitle={translate('text_1788165722542bcdlld0bbxg')}
           activityLogs={data?.activityLogs}
           loading={loading}
           error={error}

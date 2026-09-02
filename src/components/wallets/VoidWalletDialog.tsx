@@ -25,7 +25,7 @@ gql`
   }
 `
 
-export const VOID_WALLET_FORM_ID = 'void-wallet-form'
+const VOID_WALLET_FORM_ID = 'void-wallet-form'
 
 type VoidWalletDialogData = {
   walletId?: string

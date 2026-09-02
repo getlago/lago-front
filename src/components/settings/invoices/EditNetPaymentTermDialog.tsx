@@ -21,7 +21,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm, withForm } from '~/hooks/forms/useAppform'
 
-export const EDIT_NET_PAYMENT_TERM_FORM_ID = 'edit-net-payment-term-form'
+const EDIT_NET_PAYMENT_TERM_FORM_ID = 'edit-net-payment-term-form'
 
 gql`
   fragment EditCustomerNetPaymentTermForDialog on Customer {

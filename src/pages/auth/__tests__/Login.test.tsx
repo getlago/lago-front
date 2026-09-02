@@ -205,4 +205,30 @@ describe('Login', () => {
       expect(mockNavigate).toHaveBeenCalledWith('/login/okta', { state: null })
     })
   })
+
+  describe('GIVEN the user clicks on the Microsoft Entra ID login button', () => {
+    it('THEN should navigate to the Entra ID login route', async () => {
+      const user = userEvent.setup()
+
+      await renderLogin()
+
+      const entraIdLoginButton = Array.from(document.querySelectorAll('button')).find((button) =>
+        button.textContent?.includes('text_1784307344254zepa808t6gd'),
+      ) as HTMLButtonElement
+
+      await user.click(entraIdLoginButton)
+
+      expect(mockNavigate).toHaveBeenCalledWith('/login/entra', { state: null })
+    })
+
+    it('THEN should render the Microsoft logo at the same size as the other SSO buttons', async () => {
+      await renderLogin()
+
+      const entraIdLoginButton = Array.from(document.querySelectorAll('button')).find((button) =>
+        button.textContent?.includes('text_1784307344254zepa808t6gd'),
+      ) as HTMLButtonElement
+
+      expect(entraIdLoginButton.querySelector('[data-test="microsoft/medium"]')).toBeInTheDocument()
+    })
+  })
 })

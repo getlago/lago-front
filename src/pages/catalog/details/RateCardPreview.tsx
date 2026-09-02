@@ -105,7 +105,7 @@ export const RATE_CARD_PREVIEW_VIEW_ALL_TEST_ID = 'rate-card-preview-view-all'
 // New translation key, exported as a named constant (feature convention, see
 // useRateCardTableColumns.tsx) so the test references it instead of duplicating
 // the raw id.
-export const RATE_CARD_PREVIEW_VIEW_ALL_KEY = 'text_1785001812444mgdhh9wr0jj'
+const RATE_CARD_PREVIEW_VIEW_ALL_KEY = 'text_1785001812444mgdhh9wr0jj'
 
 const PREVIEW_LIMIT = 7
 

@@ -15585,6 +15585,26 @@ export type RateCardsQueryVariables = Exact<{
 
 export type RateCardsQuery = { __typename?: 'Query', rateCards: { __typename?: 'RateCardCollection', collection: Array<{ __typename?: 'RateCard', id: string, name: string, code: string, createdAt: any, ratesCount: number, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, description?: string | null, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean, regroupPaidFees: RateCardRegroupPaidFeesEnum, proration: boolean, walletTargetable?: boolean | null, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, product: { __typename?: 'Product', id: string, name: string, code: string, productType: ProductTypeEnum, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, code: string } | null, activeRate?: { __typename?: 'RateCardRate', id: string, rateModel: RateCardRateModelEnum, minAmountCents: any, rateProperties: { __typename?: 'Properties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', perUnitAmount: string, flatAmount: string, fromValue: number, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', rate: string, flatAmount: string, fromValue: number, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', perUnitAmount: string, flatAmount: string, fromValue: any, toValue?: any | null }> | null } } | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
+export type ProductActivityLogsQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceTypes?: InputMaybe<Array<ResourceTypeEnum> | ResourceTypeEnum>;
+  resourceIds?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+}>;
+
+
+export type ProductActivityLogsQuery = { __typename?: 'Query', activityLogs?: { __typename?: 'ActivityLogCollection', collection: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } | null };
+
+export type ProductCategoryActivityLogsQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceTypes?: InputMaybe<Array<ResourceTypeEnum> | ResourceTypeEnum>;
+  resourceIds?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+}>;
+
+
+export type ProductCategoryActivityLogsQuery = { __typename?: 'Query', activityLogs?: { __typename?: 'ActivityLogCollection', collection: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } | null };
+
 export type ProductCategoryForProductCategoryDetailsFragment = { __typename?: 'ProductCategory', id: string, name: string, code: string, description?: string | null, invoiceDisplayName?: string | null, attachedToPlanOrSubscription: boolean };
 
 export type GetProductCategoryForDetailsQueryVariables = Exact<{
@@ -40677,6 +40697,122 @@ export type RateCardsQueryHookResult = ReturnType<typeof useRateCardsQuery>;
 export type RateCardsLazyQueryHookResult = ReturnType<typeof useRateCardsLazyQuery>;
 export type RateCardsSuspenseQueryHookResult = ReturnType<typeof useRateCardsSuspenseQuery>;
 export type RateCardsQueryResult = Apollo.QueryResult<RateCardsQuery, RateCardsQueryVariables>;
+export const ProductActivityLogsDocument = gql`
+    query ProductActivityLogs($page: Int, $limit: Int, $resourceTypes: [ResourceTypeEnum!], $resourceIds: [String!]) {
+  activityLogs(
+    page: $page
+    limit: $limit
+    resourceTypes: $resourceTypes
+    resourceIds: $resourceIds
+  ) {
+    collection {
+      ...ActivityLogsTableData
+    }
+    metadata {
+      currentPage
+      totalPages
+      totalCount
+    }
+  }
+}
+    ${ActivityLogsTableDataFragmentDoc}`;
+
+/**
+ * __useProductActivityLogsQuery__
+ *
+ * To run a query within a React component, call `useProductActivityLogsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useProductActivityLogsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useProductActivityLogsQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      resourceTypes: // value for 'resourceTypes'
+ *      resourceIds: // value for 'resourceIds'
+ *   },
+ * });
+ */
+export function useProductActivityLogsQuery(baseOptions?: Apollo.QueryHookOptions<ProductActivityLogsQuery, ProductActivityLogsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ProductActivityLogsQuery, ProductActivityLogsQueryVariables>(ProductActivityLogsDocument, options);
+      }
+export function useProductActivityLogsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ProductActivityLogsQuery, ProductActivityLogsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ProductActivityLogsQuery, ProductActivityLogsQueryVariables>(ProductActivityLogsDocument, options);
+        }
+// @ts-ignore
+export function useProductActivityLogsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ProductActivityLogsQuery, ProductActivityLogsQueryVariables>): Apollo.UseSuspenseQueryResult<ProductActivityLogsQuery, ProductActivityLogsQueryVariables>;
+export function useProductActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProductActivityLogsQuery, ProductActivityLogsQueryVariables>): Apollo.UseSuspenseQueryResult<ProductActivityLogsQuery | undefined, ProductActivityLogsQueryVariables>;
+export function useProductActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProductActivityLogsQuery, ProductActivityLogsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ProductActivityLogsQuery, ProductActivityLogsQueryVariables>(ProductActivityLogsDocument, options);
+        }
+export type ProductActivityLogsQueryHookResult = ReturnType<typeof useProductActivityLogsQuery>;
+export type ProductActivityLogsLazyQueryHookResult = ReturnType<typeof useProductActivityLogsLazyQuery>;
+export type ProductActivityLogsSuspenseQueryHookResult = ReturnType<typeof useProductActivityLogsSuspenseQuery>;
+export type ProductActivityLogsQueryResult = Apollo.QueryResult<ProductActivityLogsQuery, ProductActivityLogsQueryVariables>;
+export const ProductCategoryActivityLogsDocument = gql`
+    query ProductCategoryActivityLogs($page: Int, $limit: Int, $resourceTypes: [ResourceTypeEnum!], $resourceIds: [String!]) {
+  activityLogs(
+    page: $page
+    limit: $limit
+    resourceTypes: $resourceTypes
+    resourceIds: $resourceIds
+  ) {
+    collection {
+      ...ActivityLogsTableData
+    }
+    metadata {
+      currentPage
+      totalPages
+      totalCount
+    }
+  }
+}
+    ${ActivityLogsTableDataFragmentDoc}`;
+
+/**
+ * __useProductCategoryActivityLogsQuery__
+ *
+ * To run a query within a React component, call `useProductCategoryActivityLogsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useProductCategoryActivityLogsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useProductCategoryActivityLogsQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      resourceTypes: // value for 'resourceTypes'
+ *      resourceIds: // value for 'resourceIds'
+ *   },
+ * });
+ */
+export function useProductCategoryActivityLogsQuery(baseOptions?: Apollo.QueryHookOptions<ProductCategoryActivityLogsQuery, ProductCategoryActivityLogsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ProductCategoryActivityLogsQuery, ProductCategoryActivityLogsQueryVariables>(ProductCategoryActivityLogsDocument, options);
+      }
+export function useProductCategoryActivityLogsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ProductCategoryActivityLogsQuery, ProductCategoryActivityLogsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ProductCategoryActivityLogsQuery, ProductCategoryActivityLogsQueryVariables>(ProductCategoryActivityLogsDocument, options);
+        }
+// @ts-ignore
+export function useProductCategoryActivityLogsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ProductCategoryActivityLogsQuery, ProductCategoryActivityLogsQueryVariables>): Apollo.UseSuspenseQueryResult<ProductCategoryActivityLogsQuery, ProductCategoryActivityLogsQueryVariables>;
+export function useProductCategoryActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProductCategoryActivityLogsQuery, ProductCategoryActivityLogsQueryVariables>): Apollo.UseSuspenseQueryResult<ProductCategoryActivityLogsQuery | undefined, ProductCategoryActivityLogsQueryVariables>;
+export function useProductCategoryActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ProductCategoryActivityLogsQuery, ProductCategoryActivityLogsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ProductCategoryActivityLogsQuery, ProductCategoryActivityLogsQueryVariables>(ProductCategoryActivityLogsDocument, options);
+        }
+export type ProductCategoryActivityLogsQueryHookResult = ReturnType<typeof useProductCategoryActivityLogsQuery>;
+export type ProductCategoryActivityLogsLazyQueryHookResult = ReturnType<typeof useProductCategoryActivityLogsLazyQuery>;
+export type ProductCategoryActivityLogsSuspenseQueryHookResult = ReturnType<typeof useProductCategoryActivityLogsSuspenseQuery>;
+export type ProductCategoryActivityLogsQueryResult = Apollo.QueryResult<ProductCategoryActivityLogsQuery, ProductCategoryActivityLogsQueryVariables>;
 export const GetProductCategoryForDetailsDocument = gql`
     query getProductCategoryForDetails($id: ID!) {
   productCategory(id: $id) {

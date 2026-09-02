@@ -1,3 +1,5 @@
+// Brand logos belong here only as 16x16 glyphs; the plated versions live in the repo
+// root's `src/public/images` — see `.agents/docs/icons-and-logos.md`.
 import Alphabet from '~/icons/alphabet.svg'
 import Apps from '~/icons/apps.svg'
 import ArrowBackUp from '~/icons/arrow-back-up.svg'
@@ -93,6 +95,7 @@ import MagnifyingGlass from '~/icons/magnifying-glass.svg'
 import Mail from '~/icons/mail.svg'
 import Map from '~/icons/map.svg'
 import Micro from '~/icons/micro.svg'
+import Microsoft from '~/icons/microsoft.svg'
 import MinusCircle from '~/icons/minus-circle.svg'
 import Minus from '~/icons/minus.svg'
 import Okta from '~/icons/okta.svg'
@@ -253,6 +256,7 @@ export const ALL_ICONS = {
   mail: Mail,
   map: Map,
   micro: Micro,
+  microsoft: Microsoft,
   'minus-circle': MinusCircle,
   minus: Minus,
   okta: Okta,

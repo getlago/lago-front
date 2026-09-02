@@ -69,7 +69,8 @@ gql`
   ${SubscriptionForProgressiveBillingTabFragmentDoc}
 `
 
-export const SUBSCRIPTION_DETAILS_ACTIONS_TEST_ID = 'subscription-details-actions'
+const SUBSCRIPTION_DETAILS_ACTIONS_TEST_ID = 'subscription-details-actions'
+
 export const SUBSCRIPTION_DETAILS_UPGRADE_DOWNGRADE_TEST_ID =
   'subscription-details-upgrade-downgrade'
 export const SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID = 'subscription-details-terminate'

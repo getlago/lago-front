@@ -13,6 +13,7 @@ import { Button } from '~/components/designSystem/Button'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { TextInputProps } from '~/components/form'
+import { MIN_SUPPORTED_DATE } from '~/core/constants/form'
 import { getTimezoneConfig } from '~/core/timezone'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -29,6 +30,7 @@ gql`
 enum DATE_PICKER_ERROR_ENUM {
   invalid = 'invalid',
 }
+
 export interface DatePickerProps extends Omit<
   TextInputProps,
   'label' | 'value' | 'onChange' | 'beforeChangeFormatter' | 'password' | 'onError'
@@ -61,7 +63,7 @@ export const DatePicker = ({
   defaultZone,
   disableFuture,
   disablePast,
-  minDate,
+  minDate = MIN_SUPPORTED_DATE,
   maxDate,
   placeholder,
   disabled = false,
@@ -157,19 +159,23 @@ export const DatePicker = ({
             maxDate={maxDate}
             value={localDate}
             onChange={(date) => {
-              setLocalDate(!date ? date : (date as unknown as DateTime).toUTC())
+              const nextDate = date as unknown as DateTime | null
 
-              // To avoid breaking dates in the parent, we do not pass it unless it's valid
-              const formattedDate = !date
-                ? undefined
-                : (date as unknown as DateTime)?.toUTC().toISO()
+              setLocalDate(!nextDate ? nextDate : nextDate.toUTC())
 
-              if ((date as unknown as DateTime)?.isValid || !date) {
-                onError && onError(undefined)
-                onChange(formattedDate)
-              } else {
-                onError && onError(DATE_PICKER_ERROR_ENUM.invalid)
+              if (!nextDate) {
+                onError?.(undefined)
+                onChange(undefined)
+                return
               }
+
+              if (!nextDate.isValid) {
+                onError?.(DATE_PICKER_ERROR_ENUM.invalid)
+                return
+              }
+
+              onError?.(undefined)
+              onChange(nextDate.toUTC().toISO())
             }}
             slots={{
               calendarHeader: (calendarHeaderProps) => (

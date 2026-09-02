@@ -178,6 +178,37 @@ describe('useEditFeeBillingPeriodDialog', () => {
       })
     })
 
+    // Regression: only toDatetime was checked, so a typed pre-1970 from datetime
+    // reached the callback once the picker stopped withholding it.
+    describe('WHEN the from datetime is before the minimum supported date', () => {
+      it('THEN should not invoke the callback and should report the submit as unsuccessful', async () => {
+        const callback = jest.fn()
+        let didSubmitSucceed: boolean | undefined
+
+        mockFormDialogOpen.mockImplementation(async (config) => {
+          await config.form.submit()
+          didSubmitSucceed = config.form.didSubmitSucceed?.()
+
+          return { reason: 'close' }
+        })
+
+        const { result } = renderHook(() => useEditFeeBillingPeriodDialog(), {
+          wrapper: customWrapper,
+        })
+
+        await act(async () => {
+          result.current.openEditFeeBillingPeriodDialog({
+            fromDatetime: '0026-08-31T00:00:00.000Z',
+            toDatetime: TO_DATETIME,
+            callback,
+          })
+        })
+
+        expect(callback).not.toHaveBeenCalled()
+        expect(didSubmitSucceed).toBe(false)
+      })
+    })
+
     describe('WHEN the to datetime is before the from datetime', () => {
       it('THEN should not invoke the callback and should report the submit as unsuccessful', async () => {
         const callback = jest.fn()

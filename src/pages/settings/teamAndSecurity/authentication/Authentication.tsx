@@ -141,6 +141,21 @@ const Authentication = () => {
 
   const ssoProviders: SSOProviderConfig[] = [
     {
+      method: AuthenticationMethodsEnum.EntraId,
+      titleKey: 'text_17843073442548zt904xoinv',
+      subtitleKey: 'text_1784307344254qdygzl3hxxa',
+      editLabelKey: 'text_664c732c264d7eed1c74fdaa',
+      deleteLabelKey: 'text_664c732c264d7eed1c74fdb0',
+      route: ENTRA_ID_AUTHENTICATION_ROUTE,
+      icon: <MicrosoftEntraId />,
+      shouldSee: shouldSeeEntraIdIntegration,
+      integrationId: entraIdIntegration?.id,
+      openAddDialog: (callback) =>
+        openAddEntraIdDialog({ integration: entraIdIntegration, callback }),
+      openDeleteDialog: (callback) =>
+        openDeleteEntraIdIntegrationDialog({ integration: entraIdIntegration, callback }),
+    },
+    {
       method: AuthenticationMethodsEnum.Okta,
       titleKey: 'text_664c732c264d7eed1c74fda2',
       subtitleKey: 'text_664c732c264d7eed1c74fda8',
@@ -153,21 +168,6 @@ const Authentication = () => {
       openAddDialog: (callback) => openAddOktaDialog({ integration: oktaIntegration, callback }),
       openDeleteDialog: (callback) =>
         openDeleteOktaIntegrationDialog({ integration: oktaIntegration, callback }),
-    },
-    {
-      method: AuthenticationMethodsEnum.EntraId,
-      titleKey: 'text_17843073442548zt904xoinv',
-      subtitleKey: 'text_1784307344254qdygzl3hxxa',
-      editLabelKey: 'text_1784307344255fc26gfvrmb5',
-      deleteLabelKey: 'text_1785339647668vsn4wyo0j7n',
-      route: ENTRA_ID_AUTHENTICATION_ROUTE,
-      icon: <MicrosoftEntraId />,
-      shouldSee: shouldSeeEntraIdIntegration,
-      integrationId: entraIdIntegration?.id,
-      openAddDialog: (callback) =>
-        openAddEntraIdDialog({ integration: entraIdIntegration, callback }),
-      openDeleteDialog: (callback) =>
-        openDeleteEntraIdIntegrationDialog({ integration: entraIdIntegration, callback }),
     },
   ]
 

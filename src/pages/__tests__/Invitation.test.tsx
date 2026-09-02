@@ -221,6 +221,22 @@ describe('Invitation', () => {
       })
     })
 
+    it('should render the Microsoft logo at the same size as the other SSO buttons', async () => {
+      await renderInvitation()
+
+      const entraIdButton = await waitFor(() => {
+        const button = screen
+          .getByText('text_1784307344255ojifndnfotw')
+          .closest('button') as HTMLButtonElement
+
+        expect(button).toBeInTheDocument()
+
+        return button
+      })
+
+      expect(entraIdButton.querySelector('[data-test="microsoft/medium"]')).toBeInTheDocument()
+    })
+
     it('should have submit button', async () => {
       await renderInvitation()
 

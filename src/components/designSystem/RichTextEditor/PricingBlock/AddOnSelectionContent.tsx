@@ -14,6 +14,7 @@ import { ComboboxItem } from '~/components/form'
 import { ComboBox } from '~/components/form/ComboBox/ComboBox'
 import { MUI_INPUT_BASE_ROOT_CLASSNAME } from '~/core/constants/form'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { addUnsupportedDateIssue } from '~/formValidation/zodCustoms'
 import {
   type AddOnForPricingSectionFragment,
   CurrencyEnum,
@@ -102,6 +103,33 @@ function TotalAmountCell({
 }
 
 type TranslateFn = ReturnType<typeof useInternationalization>['translate']
+
+export const buildEditAddOnSchema = (translate: TranslateFn) =>
+  z
+    .object({
+      invoiceDisplayName: z.string(),
+      description: z.string(),
+      fromDatetime: z.string().min(1, { message: translate('text_1780327356834f5f3nndfg80') }),
+      toDatetime: z.string().min(1, { message: translate('text_17803273568346wguor4j5u5') }),
+    })
+    .superRefine((data, ctx) => {
+      addUnsupportedDateIssue(ctx, data.fromDatetime, ['fromDatetime'])
+
+      if (addUnsupportedDateIssue(ctx, data.toDatetime, ['toDatetime'])) return
+
+      if (data.fromDatetime && data.toDatetime) {
+        const from = DateTime.fromISO(data.fromDatetime)
+        const to = DateTime.fromISO(data.toDatetime)
+
+        if (to < from) {
+          ctx.addIssue({
+            code: 'custom',
+            message: translate('text_64ef55a730b88e3d2117b3d4'),
+            path: ['toDatetime'],
+          })
+        }
+      }
+    })
 
 function PendingAddOnRow({
   index,
@@ -314,33 +342,7 @@ const AddOnSelectionContent = withForm({
     const editDrawer = useFormDrawer()
     const editingIndexRef = useRef<number | null>(null)
 
-    const editAddOnSchema = useMemo(
-      () =>
-        z
-          .object({
-            invoiceDisplayName: z.string(),
-            description: z.string(),
-            fromDatetime: z
-              .string()
-              .min(1, { message: translate('text_1780327356834f5f3nndfg80') }),
-            toDatetime: z.string().min(1, { message: translate('text_17803273568346wguor4j5u5') }),
-          })
-          .superRefine((data, ctx) => {
-            if (data.fromDatetime && data.toDatetime) {
-              const from = DateTime.fromISO(data.fromDatetime)
-              const to = DateTime.fromISO(data.toDatetime)
-
-              if (to < from) {
-                ctx.addIssue({
-                  code: 'custom',
-                  message: translate('text_64ef55a730b88e3d2117b3d4'),
-                  path: ['toDatetime'],
-                })
-              }
-            }
-          }),
-      [translate],
-    )
+    const editAddOnSchema = useMemo(() => buildEditAddOnSchema(translate), [translate])
 
     const editForm = useAppForm({
       defaultValues: editAddOnDrawerDefaultValues,

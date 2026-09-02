@@ -35,6 +35,8 @@ jest.mock('../extensions/CreditsBlock', () => ({
   },
 }))
 
+const mockInsertPricingBlock = jest.fn()
+
 jest.mock('../extensions/SlashCommands', () => ({
   SlashCommands: {
     configure: jest.fn((config: Record<string, unknown>) => {
@@ -44,6 +46,7 @@ jest.mock('../extensions/SlashCommands', () => ({
     }),
   },
   slashCommandDefinitions: [],
+  insertPricingBlock: (...args: unknown[]) => mockInsertPricingBlock(...args),
 }))
 
 const mockGetMarkdown = jest.fn().mockReturnValue('# Hello World')
@@ -1117,6 +1120,96 @@ describe('RichTextEditor', () => {
         removeBlockRef.current?.('plan-2')
 
         expect(mockDeleteRange).not.toHaveBeenCalled()
+      })
+    })
+  })
+})
+
+describe('RichTextEditor insertPricingBlockRef', () => {
+  beforeEach(() => {
+    mockInsertPricingBlock.mockClear()
+  })
+
+  describe('GIVEN the insertPricingBlockRef prop is provided', () => {
+    describe('WHEN the editor mounts with a pricing handler', () => {
+      it('THEN should assign a function to insertPricingBlockRef.current', async () => {
+        const insertPricingBlockRef = { current: null } as React.MutableRefObject<
+          (() => void) | null
+        >
+
+        await act(() =>
+          render(
+            <RichTextEditor
+              insertPricingBlockRef={insertPricingBlockRef}
+              onPricingCommand={jest.fn()}
+            />,
+          ),
+        )
+
+        expect(typeof insertPricingBlockRef.current).toBe('function')
+      })
+
+      // The out-of-editor CTAs run on a document the user never clicked into, where the
+      // selection is still at the very start.
+      it('THEN should insert at the end of the document when called', async () => {
+        const insertPricingBlockRef = { current: null } as React.MutableRefObject<
+          (() => void) | null
+        >
+        const onPricingCommand = jest.fn()
+
+        await act(() =>
+          render(
+            <RichTextEditor
+              insertPricingBlockRef={insertPricingBlockRef}
+              onPricingCommand={onPricingCommand}
+            />,
+          ),
+        )
+
+        act(() => {
+          insertPricingBlockRef.current?.()
+        })
+
+        expect(mockInsertPricingBlock).toHaveBeenCalledWith(expect.anything(), onPricingCommand, {
+          at: 'end',
+        })
+      })
+    })
+
+    describe('WHEN no pricing handler is provided', () => {
+      it('THEN should not insert anything', async () => {
+        const insertPricingBlockRef = { current: null } as React.MutableRefObject<
+          (() => void) | null
+        >
+
+        await act(() => render(<RichTextEditor insertPricingBlockRef={insertPricingBlockRef} />))
+
+        act(() => {
+          insertPricingBlockRef.current?.()
+        })
+
+        expect(mockInsertPricingBlock).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the editor unmounts', () => {
+      it('THEN should clear insertPricingBlockRef.current', async () => {
+        const insertPricingBlockRef = { current: null } as React.MutableRefObject<
+          (() => void) | null
+        >
+
+        await act(() =>
+          render(
+            <RichTextEditor
+              insertPricingBlockRef={insertPricingBlockRef}
+              onPricingCommand={jest.fn()}
+            />,
+          ),
+        )
+
+        cleanup()
+
+        expect(insertPricingBlockRef.current).toBeNull()
       })
     })
   })

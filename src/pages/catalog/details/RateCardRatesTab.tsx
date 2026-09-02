@@ -44,8 +44,8 @@ gql`
 export const RATE_CARD_RATES_TAB_TEST_ID = 'rate-card-rates-tab'
 export const RATE_CARD_RATES_CREATE_TEST_ID = 'rate-card-rates-create'
 
-export const RATE_CARD_RATES_EMPTY_TITLE_KEY = 'text_1787737220228wjwpgmwu8fv'
-export const RATE_CARD_RATES_EMPTY_SUBTITLE_KEY = 'text_1787737220228bjix2qjx4rz'
+const RATE_CARD_RATES_EMPTY_TITLE_KEY = 'text_1787737220228wjwpgmwu8fv'
+const RATE_CARD_RATES_EMPTY_SUBTITLE_KEY = 'text_1787737220228bjix2qjx4rz'
 
 type RateCardRatesTabProps = {
   rateCardId: string

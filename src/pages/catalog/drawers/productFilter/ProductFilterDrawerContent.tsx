@@ -21,9 +21,9 @@ import { tw } from '~/styles/utils'
 import { PRODUCT_ITEM_FILTER_FORM_DEFAULTS } from './constants'
 import ProductFilterValuesEditor from './ProductFilterValuesEditor'
 
-export const PRODUCT_ITEM_FILTER_DRAWER_REMOVE_DESCRIPTION_TEST_ID =
+const PRODUCT_ITEM_FILTER_DRAWER_REMOVE_DESCRIPTION_TEST_ID =
   'product-item-filter-drawer-remove-description'
-export const PRODUCT_ITEM_FILTER_DRAWER_SHOW_DESCRIPTION_TEST_ID =
+const PRODUCT_ITEM_FILTER_DRAWER_SHOW_DESCRIPTION_TEST_ID =
   'product-item-filter-drawer-show-description'
 export const PRODUCT_ITEM_FILTER_DRAWER_MISSING_VALUES_ALERT_TEST_ID =
   'product-item-filter-drawer-missing-values-alert'

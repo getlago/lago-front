@@ -1,12 +1,11 @@
 import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { DateTime } from 'luxon'
-import { z } from 'zod'
 
+import { UNSUPPORTED_DATE_ERROR } from '~/core/constants/form'
 import { CurrencyEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import AddOnSelectionContent from '../AddOnSelectionContent'
+import AddOnSelectionContent, { buildEditAddOnSchema } from '../AddOnSelectionContent'
 import { type AddOnItem, pricingDrawerDefaultValues } from '../constants'
 
 const mockUseGetAddOnsForPricingSectionQuery = jest.fn()
@@ -693,29 +692,7 @@ describe('AddOnSelectionContent', () => {
   })
 })
 
-// --- editAddOnSchema validation tests (mirrors the schema defined in AddOnSelectionContent) ---
-
-const editAddOnSchema = z
-  .object({
-    invoiceDisplayName: z.string(),
-    description: z.string(),
-    fromDatetime: z.string().min(1, { message: 'Start date is required' }),
-    toDatetime: z.string().min(1, { message: 'End date is required' }),
-  })
-  .superRefine((data, ctx) => {
-    if (data.fromDatetime && data.toDatetime) {
-      const from = DateTime.fromISO(data.fromDatetime)
-      const to = DateTime.fromISO(data.toDatetime)
-
-      if (to < from) {
-        ctx.addIssue({
-          code: 'custom',
-          message: 'End date must not be before start date',
-          path: ['toDatetime'],
-        })
-      }
-    }
-  })
+const editAddOnSchema = buildEditAddOnSchema((key: string) => key)
 
 describe('editAddOnSchema date validation (LAGO-1502)', () => {
   const validData = {
@@ -768,6 +745,27 @@ describe('editAddOnSchema date validation (LAGO-1502)', () => {
         })
 
         expect(result.success).toBe(true)
+      })
+    })
+  })
+
+  // Regression: only the ordering was checked, and it cannot fail on a start date
+  // that is earlier than a modern end date, so a typed pre-1970 start date went through.
+  describe('GIVEN fromDatetime is before the minimum supported date', () => {
+    describe('WHEN the schema validates', () => {
+      it('THEN should fail with the unsupported-date error on fromDatetime', () => {
+        const result = editAddOnSchema.safeParse({
+          ...validData,
+          fromDatetime: '0026-08-31T00:00:00.000+00:00',
+        })
+
+        expect(result.success).toBe(false)
+
+        if (!result.success) {
+          expect(result.error.issues).toEqual([
+            expect.objectContaining({ path: ['fromDatetime'], message: UNSUPPORTED_DATE_ERROR }),
+          ])
+        }
       })
     })
   })

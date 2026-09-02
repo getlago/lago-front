@@ -31,7 +31,6 @@ import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { usePasswordValidation } from '~/hooks/forms/usePasswordValidation'
-import MicrosoftEntraId from '~/public/images/microsoft-entra-id.svg'
 import { Card, Page, StyledLogo, Subtitle, Title } from '~/styles/auth'
 
 import {
@@ -39,8 +38,9 @@ import {
   invitationValidationSchema,
 } from './invitationForm/validationSchema'
 
-export const INVITATION_FORM_ID = 'invitation-form'
-export const INVITATION_ERROR_ALERT_TEST_ID = 'invitation-error-alert'
+const INVITATION_FORM_ID = 'invitation-form'
+const INVITATION_ERROR_ALERT_TEST_ID = 'invitation-error-alert'
+
 export const INVITATION_SUBMIT_BUTTON_TEST_ID = 'submit-button'
 
 gql`
@@ -429,12 +429,12 @@ const Invitation = () => {
 
                 <Button
                   fullWidth
+                  startIcon="microsoft"
                   size="large"
                   variant="tertiary"
                   onClick={() => onEntraIdLogin()}
                   loading={entraIdAuthorizeUrlLoading || entraIdAcceptInviteLoading}
                 >
-                  <MicrosoftEntraId className="mr-2 size-4" />
                   {translate('text_1784307344255ojifndnfotw')}
                 </Button>
               </Stack>

@@ -258,6 +258,39 @@ describe('getQuoteMutationErrors', () => {
     })
   })
 
+  describe('missing pricing block', () => {
+    const MISSING_PLAN_KEY = 'text_1788272700125nn7h1cyxjvf'
+    const MISSING_ADD_ON_KEY = 'text_1788272700125mb3btrwjl5b'
+    const MISSING_PRICING_BLOCK_KEY = 'text_1788272907430gswzvnbqi2z'
+
+    it.each([
+      ['billingItems.plans', MISSING_PLAN_KEY],
+      ['billingItems.addOns', MISSING_ADD_ON_KEY],
+      ['billingItems', MISSING_PRICING_BLOCK_KEY],
+    ])('names the pricing block on an index-less %s key', (detailKey, expectedKey) => {
+      const errors = getQuoteMutationErrors(
+        makeError('unprocessable_entity', { [detailKey]: ['value_is_mandatory'] }),
+        translate,
+      )
+
+      expect(errors).toEqual([{ message: expectedKey, field: undefined }])
+    })
+
+    it('keeps the indexed billing-item path composing its own sentence', () => {
+      const errors = getQuoteMutationErrors(
+        makeError('unprocessable_entity', {
+          'billingItems.plans.0.startDate': ['value_is_mandatory'],
+        }),
+        translate,
+      )
+
+      expect(errors[0].message).toContain('text_1786540789742q2ym1u6mrwh(index=1)')
+      expect(errors[0].message).toContain(
+        BILLING_ITEM_FIELD_ERROR_KEYS['startDate.value_is_mandatory'],
+      )
+    })
+  })
+
   describe('multi-key validation failures', () => {
     it('returns one message per detail key, capped at three', () => {
       const errors = getQuoteMutationErrors(

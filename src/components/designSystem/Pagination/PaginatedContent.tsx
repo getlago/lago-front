@@ -11,10 +11,7 @@ import { tw } from '~/styles/utils'
  * total can be capped server-side expose them (the invoice list); every other list omits them and
  * keeps the exact-total behaviour.
  */
-export type PaginationMetadata = Pick<
-  CollectionMetadata,
-  'currentPage' | 'totalPages' | 'totalCount'
-> &
+type PaginationMetadata = Pick<CollectionMetadata, 'currentPage' | 'totalPages' | 'totalCount'> &
   Partial<Pick<InvoiceCollectionMetadata, 'hasNextPage' | 'totalCountCapped'>>
 
 interface PaginatedContentProps {

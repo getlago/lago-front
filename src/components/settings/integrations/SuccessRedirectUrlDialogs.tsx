@@ -108,7 +108,7 @@ gql`
 
 const SUCCESS_REDIRECT_URL_FORM_ID = 'success-redirect-url-form'
 
-export const SuccessRedirectUrlProviderType = {
+const SuccessRedirectUrlProviderType = {
   Adyen: 'Adyen',
   Stripe: 'Stripe',
   GoCardless: 'GoCardless',
@@ -117,7 +117,7 @@ export const SuccessRedirectUrlProviderType = {
   Moneyhash: 'Moneyhash',
 } as const
 
-export type SuccessRedirectUrlProviderTypeKey = keyof typeof SuccessRedirectUrlProviderType
+type SuccessRedirectUrlProviderTypeKey = keyof typeof SuccessRedirectUrlProviderType
 
 type SuccessRedirectUrlProviderFragment =
   | AdyenForCreateAndEditSuccessRedirectUrlFragment

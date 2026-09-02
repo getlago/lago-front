@@ -284,6 +284,38 @@ describe('ApproveQuote', () => {
         expect(await screen.findByText('text_1786540789742b4ym3200cp6')).toBeInTheDocument()
       })
 
+      it('THEN should tell the user to add a pricing block when no plan is quoted', async () => {
+        const user = userEvent.setup()
+
+        mockApproveRejection({ 'billingItems.plans': ['value_is_mandatory'] })
+        renderPage()
+
+        await user.click(screen.getByTestId(APPROVE_QUOTE_APPROVE_BUTTON_TEST_ID))
+
+        await waitFor(() => {
+          expect(addToast).toHaveBeenCalledWith({
+            severity: 'danger',
+            message: 'text_1788272700125nn7h1cyxjvf',
+          })
+        })
+      })
+
+      it('THEN should name the add-on pricing block on a one-off quote', async () => {
+        const user = userEvent.setup()
+
+        mockApproveRejection({ 'billingItems.addOns': ['value_is_mandatory'] })
+        renderPage()
+
+        await user.click(screen.getByTestId(APPROVE_QUOTE_APPROVE_BUTTON_TEST_ID))
+
+        await waitFor(() => {
+          expect(addToast).toHaveBeenCalledWith({
+            severity: 'danger',
+            message: 'text_1788272700125mb3btrwjl5b',
+          })
+        })
+      })
+
       it('THEN should show one toast per error, capped at three', async () => {
         const user = userEvent.setup()
 

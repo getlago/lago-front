@@ -11,7 +11,7 @@ import { useGetBillingEntityQuery, useUpdateBillingEntityLogoMutation } from '~/
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
-export const UPDATE_BILLING_ENTITY_LOGO_FORM_ID = 'update-billing-entity-logo-form'
+const UPDATE_BILLING_ENTITY_LOGO_FORM_ID = 'update-billing-entity-logo-form'
 
 gql`
   mutation updateBillingEntityLogo($input: UpdateBillingEntityInput!) {

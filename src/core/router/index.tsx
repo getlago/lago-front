@@ -178,5 +178,4 @@ export * from './types'
 // Enforced by the ESLint `no-restricted-imports` in  packages/configs/eslint.config.mjs
 export { Link } from './Link'
 export { useLocation } from './useLocation'
-export type { SlugAwareLocation } from './useLocation'
 export { useNavigate } from './useNavigate'

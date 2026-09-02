@@ -28,7 +28,7 @@ export const WALLET_SCOPE_BILLABLE_METRIC_CHIPS_TEST_ID = 'wallet-scope-billable
 export const WALLET_SCOPE_BILLABLE_METRIC_ADD_BUTTON_TEST_ID =
   'wallet-scope-billable-metric-add-button'
 export const WALLET_SCOPE_BILLABLE_METRIC_COMBOBOX_TEST_ID = 'wallet-scope-billable-metric-combobox'
-export const WALLET_SCOPE_BILLABLE_METRIC_CANCEL_BUTTON_TEST_ID =
+const WALLET_SCOPE_BILLABLE_METRIC_CANCEL_BUTTON_TEST_ID =
   'wallet-scope-billable-metric-cancel-button'
 
 export const WalletScopeFields = withForm({
