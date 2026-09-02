@@ -117,7 +117,7 @@ export const SuccessRedirectUrlProviderType = {
   Moneyhash: 'Moneyhash',
 } as const
 
-export type SuccessRedirectUrlProviderTypeKey = keyof typeof SuccessRedirectUrlProviderType
+type SuccessRedirectUrlProviderTypeKey = keyof typeof SuccessRedirectUrlProviderType
 
 type SuccessRedirectUrlProviderFragment =
   | AdyenForCreateAndEditSuccessRedirectUrlFragment

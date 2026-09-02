@@ -4894,5 +4894,6 @@
   "text_1788272907430gswzvnbqi2z": "Add a pricing block to the quote content before approving it.",
   "text_1788277738980lq42krzk56z": "This quote has no pricing block yet. Add one to define what the customer is billed for.",
   "text_1788277738981ng58j3nfudd": "Add pricing block",
-  "text_17882777389811he711tg7yj": "No pricing block"
+  "text_17882777389811he711tg7yj": "No pricing block",
+  "text_1788330185449ifi9d6haua6": "This fee no longer exists, the invoice has been refreshed. Please review the updated fees and try again."
 }
