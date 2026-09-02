@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql, useApolloClient } from '@apollo/client'
 import InputAdornment from '@mui/material/InputAdornment'
 import { useFormik } from 'formik'
 import { tw } from 'lago-design-system'
@@ -12,6 +12,7 @@ import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { AmountInputField, ComboBox, ComboBoxField, TextInputField } from '~/components/form'
 import { DrawerLayout } from '~/components/layouts/Drawer'
+import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { ALL_CHARGE_MODELS, ALL_FILTER_VALUES } from '~/core/constants/form'
 import { TExtendedRemainingFee } from '~/core/formats/formatInvoiceItemsMap'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -24,6 +25,7 @@ import {
   FeeForCreateFeeDrawerFragment,
   FixedCharge,
   FixedChargeChargeModelEnum,
+  LagoApiError,
   useCreateAdjustedFeeMutation,
   useGetInvoiceDetailsForCreateFeeDrawerQuery,
 } from '~/generated/graphql'
@@ -32,6 +34,7 @@ import { OnRegeneratedFeeAdd } from '~/pages/CustomerInvoiceRegenerate'
 
 import { InvoiceTableSection } from './InvoiceDetailsTable'
 import { InvoiceDetailsTableBodyLine } from './InvoiceDetailsTableBodyLine'
+import { EDIT_FEE_DRAWER_SUBMIT_BUTTON_TEST_ID } from './invoiceDetailsTestIds'
 import {
   getChargesComboboxDataFromInvoiceSubscription,
   getChargesFiltersComboboxDataFromInvoiceSubscription,
@@ -206,6 +209,7 @@ type formikValues = Omit<Partial<CreateAdjustedFeeInput>, 'feeId'> & {
 
 export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
   const { translate } = useInternationalization()
+  const client = useApolloClient()
   const drawerRef = useRef<DrawerRef>(null)
   const [localData, setLocalData] = useState<EditFeeDrawerProps | undefined>(undefined)
   const isRegenerateMode = localData?.mode === 'regenerate'
@@ -248,6 +252,21 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
   )
 
   const [createFee] = useCreateAdjustedFeeMutation({
+    // Draft fees are destroyed and recreated when the draft is refreshed server-side, so a
+    // row rendered before that refresh submits a `feeId` the API can no longer resolve.
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
+    onError(error) {
+      if (!isEditMode || !hasDefinedGQLError('NotFound', error, 'fee')) {
+        addToast({ severity: 'danger', translateKey: 'text_622f7a3dc32ce100c46a5154' })
+
+        return
+      }
+
+      addToast({ severity: 'danger', translateKey: 'text_1788330185449ifi9d6haua6' })
+      drawerRef.current?.closeDrawer()
+      resetForm()
+      client.refetchQueries({ include: ['getInvoiceDetails', 'getInvoiceFees'] })
+    },
     onCompleted({ createAdjustedFee }) {
       if (createAdjustedFee?.id) {
         // Close drawer
@@ -767,6 +786,7 @@ export const EditFeeDrawer = forwardRef<EditFeeDrawerRef>((_, ref) => {
             </Button>
 
             <Button
+              data-test={EDIT_FEE_DRAWER_SUBMIT_BUTTON_TEST_ID}
               disabled={!formikProps.isValid || !formikProps.dirty || !isChargeFilterIdValid}
               loading={formikProps.isSubmitting}
               onClick={formikProps.submitForm}
