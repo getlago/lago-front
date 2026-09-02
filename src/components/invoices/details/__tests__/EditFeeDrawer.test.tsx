@@ -82,15 +82,22 @@ const settleDrawerTransition = async (): Promise<void> => {
   })
 }
 
-const renderEditDrawer = (): void => {
+const renderAndOpenDrawer = (data: Parameters<EditFeeDrawerRef['openDrawer']>[0]): void => {
   const ref = createRef<EditFeeDrawerRef>()
 
   render(<EditFeeDrawer ref={ref} />)
 
   act(() => {
-    ref.current?.openDrawer({ mode: 'edit', invoiceId: 'invoice-1', fee: buildFee() })
+    ref.current?.openDrawer(data)
   })
+
+  // Guard the precondition: the close assertions below are negative, so a drawer that silently
+  // failed to open would let them pass without proving anything.
+  expect(screen.getByTestId(EDIT_FEE_DRAWER_SUBMIT_BUTTON_TEST_ID)).toBeInTheDocument()
 }
+
+const renderEditDrawer = (): void =>
+  renderAndOpenDrawer({ mode: 'edit', invoiceId: 'invoice-1', fee: buildFee() })
 
 describe('EditFeeDrawer', () => {
   beforeEach(() => {
@@ -99,6 +106,14 @@ describe('EditFeeDrawer', () => {
   })
 
   describe('GIVEN the drawer is open in edit mode', () => {
+    describe('WHEN openDrawer is called with a fee', () => {
+      it('THEN should render the drawer body', () => {
+        renderEditDrawer()
+
+        expect(screen.getByTestId(EDIT_FEE_DRAWER_SUBMIT_BUTTON_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
     describe('WHEN the createAdjustedFee mutation is configured', () => {
       it('THEN should silence not_found so the global error link stops toasting it generically', () => {
         renderEditDrawer()
@@ -220,16 +235,10 @@ describe('EditFeeDrawer', () => {
       // No feeId is submitted in add mode, so a not_found can never be the stale-fee case —
       // claiming "this fee no longer exists" there would be plainly wrong.
       it('THEN should fall back to the generic toast', () => {
-        const ref = createRef<EditFeeDrawerRef>()
-
-        render(<EditFeeDrawer ref={ref} />)
-
-        act(() => {
-          ref.current?.openDrawer({
-            mode: 'add',
-            invoiceId: 'invoice-1',
-            invoiceSubscriptionId: 'sub-1',
-          })
+        renderAndOpenDrawer({
+          mode: 'add',
+          invoiceId: 'invoice-1',
+          invoiceSubscriptionId: 'sub-1',
         })
 
         act(() => {
