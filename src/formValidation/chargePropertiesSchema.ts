@@ -24,7 +24,8 @@ const volumeRangeSchema = z.object({
   flatAmount: z.string().optional(),
 })
 
-export const propertiesZodSchema = z.object({
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- only used for its inferred type below
+const propertiesZodSchema = z.object({
   amount: z.string().optional().nullable(),
   rate: z.string().optional().nullable(),
   fixedAmount: z.string().optional().nullable(),

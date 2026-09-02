@@ -85,21 +85,22 @@ gql`
 // New translation keys are exported as named constants (feature convention) so
 // tests and siblings reference them instead of duplicating the raw ids.
 export const RATE_CARD_DRAWER_DESCRIPTION_KEY = 'text_178492522781766xwbos8bso'
-export const RATE_CARD_SETTINGS_SECTION_TITLE_KEY = 'text_1784925227817ux91jv869zn'
-export const RATE_CARD_PRICING_UNIT_SECTION_TITLE_KEY = 'text_1784925227817g6gsuui48w0'
-export const RATE_CARD_SECTION_SUBTITLE_KEY = 'text_1784925227817rk6mzc70x59'
+const RATE_CARD_SETTINGS_SECTION_TITLE_KEY = 'text_1784925227817ux91jv869zn'
+const RATE_CARD_PRICING_UNIT_SECTION_TITLE_KEY = 'text_1784925227817g6gsuui48w0'
+const RATE_CARD_SECTION_SUBTITLE_KEY = 'text_1784925227817rk6mzc70x59'
+
 export const RATE_CARD_PRODUCT_ITEM_LABEL_KEY = 'text_1784925227817ekmphmxz74c'
-export const RATE_CARD_PRODUCT_ITEM_FILTER_LABEL_KEY = 'text_1784925227817w9txcfey6nm'
+const RATE_CARD_PRODUCT_ITEM_FILTER_LABEL_KEY = 'text_1784925227817w9txcfey6nm'
+
 export const RATE_CARD_PRICING_UNIT_LABEL_KEY = 'text_1784925227817xt1irx4wum2'
 export const RATE_CARD_CURRENCY_LABEL_KEY = 'text_1784925227817bab1mp540x7'
-export const RATE_CARD_AVAILABLE_MODELS_ALERT_KEY = 'text_1784925227817ukilytyxozn'
-export const RATE_CARD_WALLET_TARGETABLE_LABEL_KEY = 'text_1784925227817ffwix51pkv1'
-export const RATE_CARD_WALLET_TARGETABLE_CAPTION_KEY = 'text_17849252278174oqykkuidsn'
+const RATE_CARD_AVAILABLE_MODELS_ALERT_KEY = 'text_1784925227817ukilytyxozn'
+const RATE_CARD_WALLET_TARGETABLE_LABEL_KEY = 'text_1784925227817ffwix51pkv1'
+const RATE_CARD_WALLET_TARGETABLE_CAPTION_KEY = 'text_17849252278174oqykkuidsn'
 
-export const RATE_CARD_DRAWER_SHOW_DESCRIPTION_TEST_ID = 'rate-card-drawer-show-description'
-export const RATE_CARD_DRAWER_REMOVE_DESCRIPTION_TEST_ID = 'rate-card-drawer-remove-description'
-export const RATE_CARD_DRAWER_AVAILABLE_MODELS_ALERT_TEST_ID =
-  'rate-card-drawer-available-models-alert'
+const RATE_CARD_DRAWER_SHOW_DESCRIPTION_TEST_ID = 'rate-card-drawer-show-description'
+const RATE_CARD_DRAWER_REMOVE_DESCRIPTION_TEST_ID = 'rate-card-drawer-remove-description'
+const RATE_CARD_DRAWER_AVAILABLE_MODELS_ALERT_TEST_ID = 'rate-card-drawer-available-models-alert'
 
 export type RateCardComboboxSeed = { value: string; label: string } | null
 

@@ -53,7 +53,7 @@ gql`
   ${RateCardForRateDrawerFragmentDoc}
 `
 
-export const RATE_CARDS_LIST_PATH = generatePath(PRODUCT_CATALOG_TAB_ROUTE, {
+const RATE_CARDS_LIST_PATH = generatePath(PRODUCT_CATALOG_TAB_ROUTE, {
   tab: ProductCatalogTabsOptionsEnum.rateCards,
 })
 
@@ -61,7 +61,7 @@ export const RATE_CARD_DETAILS_ACTIONS_TEST_ID = 'rate-card-details-actions'
 export const RATE_CARD_DETAILS_EDIT_TEST_ID = 'rate-card-details-edit'
 export const RATE_CARD_DETAILS_DELETE_TEST_ID = 'rate-card-details-delete'
 
-export const RATE_CARD_NOT_FOUND_KEY = 'text_1784930440657nw8iu2iml5k'
+const RATE_CARD_NOT_FOUND_KEY = 'text_1784930440657nw8iu2iml5k'
 
 const RateCardDetails = () => {
   const navigate = useNavigate()

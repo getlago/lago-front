@@ -88,7 +88,7 @@ gql`
   ${CouponCaptionFragmentDoc}
 `
 
-export const ADD_COUPON_TO_CUSTOMER_FORM_ID = 'add-coupon-to-customer-form'
+const ADD_COUPON_TO_CUSTOMER_FORM_ID = 'add-coupon-to-customer-form'
 
 // These three fields can hold either shape, because `formatValue` is not
 // type-consistent (src/components/form/TextInput/TextInput.tsx:59):

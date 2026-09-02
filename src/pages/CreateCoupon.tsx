@@ -43,7 +43,8 @@ export const COUPONS_FORM_ID = 'coupon-form'
 // Test ID constants
 export const COUPON_DESCRIPTION_INPUT_TEST_ID = 'coupon-description-input'
 export const COUPON_AMOUNT_INPUT_TEST_ID = 'coupon-amount-input'
-export const COUPON_PERCENTAGE_INPUT_TEST_ID = 'coupon-percentage-input'
+const COUPON_PERCENTAGE_INPUT_TEST_ID = 'coupon-percentage-input'
+
 export const COUPON_EXPIRATION_SECTION_TEST_ID = 'coupon-expiration-section'
 export const COUPON_LIMIT_ERROR_TEST_ID = 'coupon-limit-error'
 

@@ -20,8 +20,9 @@ import { getOrderExecutionModeTranslationKey } from './common/getOrderExecutionM
 import { getQuoteOrderTypeTranslationKey } from './common/getQuoteOrderTypeTranslationKey'
 import { QuotePreviewCard } from './common/QuotePreviewCard'
 
-export const ORDER_DETAILS_CLOSE_BUTTON_TEST_ID = 'order-details-close-button'
-export const ORDER_DETAILS_PREVIEW_TEST_ID = 'order-details-preview'
+const ORDER_DETAILS_CLOSE_BUTTON_TEST_ID = 'order-details-close-button'
+const ORDER_DETAILS_PREVIEW_TEST_ID = 'order-details-preview'
+
 export const ORDER_DETAILS_CUSTOMER_LINK_TEST_ID = 'order-details-customer-link'
 
 const OrderDetails = () => {

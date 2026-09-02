@@ -7,10 +7,10 @@ import {
 } from '~/generated/graphql'
 
 // Reused from other drawers (`pnpm translations:add`) rather than hand-written.
-export const NAME_REQUIRED_KEY = 'text_1771342980565bx64zqq2mjs' // "Name is required"
-export const CODE_REQUIRED_KEY = 'text_1771342994699klxu2paz7g9' // "Code is required"
-export const PRODUCT_ITEM_REQUIRED_KEY = 'text_1771342994699klxu2paz7g8' // "Field is required"
-export const CURRENCY_REQUIRED_KEY = 'text_1784923399556hjnr43vhm5z' // "Currency is required"
+const NAME_REQUIRED_KEY = 'text_1771342980565bx64zqq2mjs' // "Name is required"
+const CODE_REQUIRED_KEY = 'text_1771342994699klxu2paz7g9' // "Code is required"
+const PRODUCT_ITEM_REQUIRED_KEY = 'text_1771342994699klxu2paz7g8' // "Field is required"
+const CURRENCY_REQUIRED_KEY = 'text_1784923399556hjnr43vhm5z' // "Currency is required"
 
 export const RATE_CARD_FORM_ID = 'rateCardForm'
 

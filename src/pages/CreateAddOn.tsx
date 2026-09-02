@@ -26,7 +26,7 @@ import { addOnFormSchema, AddOnFormValues } from './createAddOn/validationSchema
 
 export const CREATE_ADD_ON_FORM_ID = 'create-add-on-form'
 export const CREATE_ADD_ON_DESCRIPTION_DELETE_TEST_ID = 'create-add-on-description-delete'
-export const CREATE_ADD_ON_AMOUNT_INPUT_TEST_ID = 'create-add-on-amount-input'
+const CREATE_ADD_ON_AMOUNT_INPUT_TEST_ID = 'create-add-on-amount-input'
 
 const CreateAddOn = () => {
   const { translate } = useInternationalization()
