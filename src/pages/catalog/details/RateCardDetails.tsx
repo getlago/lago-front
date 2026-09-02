@@ -29,7 +29,6 @@ import RateCardRatesTab from './RateCardRatesTab'
 
 import { useDeleteRateCardDialog } from '../dialogs/useDeleteRateCardDialog'
 import { useRateCardDrawer } from '../drawers/rateCard/useRateCardDrawer'
-import { RATE_CARD_RATES_SECTION_TITLE_KEY } from '../drawers/rateCardRate/constants'
 
 gql`
   fragment RateCardForRateCardDetails on RateCard {
@@ -61,8 +60,6 @@ export const RATE_CARD_DETAILS_ACTIONS_TEST_ID = 'rate-card-details-actions'
 export const RATE_CARD_DETAILS_EDIT_TEST_ID = 'rate-card-details-edit'
 export const RATE_CARD_DETAILS_DELETE_TEST_ID = 'rate-card-details-delete'
 
-const RATE_CARD_NOT_FOUND_KEY = 'text_1784930440657nw8iu2iml5k'
-
 const RateCardDetails = () => {
   const navigate = useNavigate()
   const { translate } = useInternationalization()
@@ -82,7 +79,7 @@ const RateCardDetails = () => {
     error,
     loading,
     redirectTo: RATE_CARDS_LIST_PATH,
-    translateKey: RATE_CARD_NOT_FOUND_KEY,
+    translateKey: 'text_1784930440657nw8iu2iml5k',
   })
 
   const rateCard = data?.rateCard
@@ -160,7 +157,7 @@ const RateCardDetails = () => {
             ),
           },
           {
-            title: translate(RATE_CARD_RATES_SECTION_TITLE_KEY),
+            title: translate('text_1784930705742tg0kbcsak2v'),
             link: generatePath(RATE_CARD_DETAILS_ROUTE, {
               rateCardId: rateCardId as string,
               tab: RateCardDetailsTabsOptionsEnum.rates,

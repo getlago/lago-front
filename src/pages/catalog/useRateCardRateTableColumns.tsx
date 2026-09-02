@@ -17,7 +17,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCustomPricingUnits } from '~/hooks/plans/useCustomPricingUnits'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
-import { RATE_CARD_RATE_EFFECTIVE_DATE_LABEL_KEY } from './drawers/rateCardRate/constants'
 import { formatActiveRate } from './utils/formatActiveRate'
 
 // Only `createdAt` is listed directly; every other field the cells read comes from the spread
@@ -67,7 +66,7 @@ export const useRateCardRateTableColumns = ({
     },
     {
       key: 'effectiveFrom',
-      title: translate(RATE_CARD_RATE_EFFECTIVE_DATE_LABEL_KEY),
+      title: translate('text_1787737220227bfxpshdo133'),
       minWidth: 140,
       content: ({ effectiveFrom }) => (
         <Typography color="grey600" variant="body" noWrap>

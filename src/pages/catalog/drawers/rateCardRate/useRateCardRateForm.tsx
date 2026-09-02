@@ -30,12 +30,7 @@ import {
 } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
-import {
-  RATE_CARD_RATE_DEPENDENT_QUERIES,
-  RATE_CARD_RATE_DUPLICATE_DATE_KEY,
-  RATE_CARD_RATE_FORM_DEFAULTS,
-  RATE_CARD_RATE_SAVE_FAILED_KEY,
-} from './constants'
+import { RATE_CARD_RATE_DEPENDENT_QUERIES, RATE_CARD_RATE_FORM_DEFAULTS } from './constants'
 import { mapRateToFormValues } from './mapRateToFormValues'
 import { buildRateCardRateSchema, RateCardRateSchemaContext } from './schema'
 import { deriveEffectiveFromBoundary, laterEffectiveFrom, toChargeModel } from './utils'
@@ -243,7 +238,7 @@ export const useRateCardRateForm = ({
           ...meta,
           errorMap: {
             ...meta?.errorMap,
-            onDynamic: { message: RATE_CARD_RATE_DUPLICATE_DATE_KEY },
+            onDynamic: { message: 'text_1787753924848luck8g8y1qd' },
           },
         }))
         return
@@ -252,7 +247,7 @@ export const useRateCardRateForm = ({
       // `silentErrorCodes` swallows everything else, so without this the submit looks like a
       // no-op.
       if (errors?.length) {
-        addToast({ severity: 'danger', translateKey: RATE_CARD_RATE_SAVE_FAILED_KEY })
+        addToast({ severity: 'danger', translateKey: 'text_1787753924848adhyrzqb0gz' })
         return
       }
 

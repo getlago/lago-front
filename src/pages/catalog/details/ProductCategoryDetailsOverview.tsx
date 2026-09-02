@@ -55,19 +55,17 @@ export const ProductCategoryDetailsOverview = () => {
 
   return (
     <section>
-      <PageSectionTitle
-        title={translate('text_17836270312826gyudi4ayy2')}
-        subtitle={translate('text_1783627031283826817cnqcb')}
-        action={
-          hasPermissions(['productCategoriesUpdate'])
-            ? {
-                title: translate('text_625fd39a15394c0117e7d792'),
-                dataTest: PRODUCT_OVERVIEW_EDIT_TEST_ID,
-                onClick: () => productCategory && openEditProductCategoryDrawer(productCategory),
-              }
-            : undefined
-        }
-      />
+      {hasPermissions(['productCategoriesUpdate']) && (
+        <PageSectionTitle
+          title={translate('text_17836270312826gyudi4ayy2')}
+          subtitle={translate('text_1783627031283826817cnqcb')}
+          action={{
+            title: translate('text_625fd39a15394c0117e7d792'),
+            dataTest: PRODUCT_OVERVIEW_EDIT_TEST_ID,
+            onClick: () => productCategory && openEditProductCategoryDrawer(productCategory),
+          }}
+        />
+      )}
 
       <div className="flex flex-col gap-4">
         <DetailsPage.InfoGrid

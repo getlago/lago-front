@@ -62,82 +62,84 @@ const ProductCategoryDrawerFormSections = withForm({
           </Typography>
         </div>
 
-        <CenteredPage.PageSection>
-          <CenteredPage.PageSectionTitle
-            title={translate('text_17836270312826gyudi4ayy2')}
-            description={translate('text_1783627031283920r4ap3cwe')}
-          />
+        <CenteredPage.SubsectionWrapper>
+          <CenteredPage.PageSection>
+            <CenteredPage.PageSectionTitle
+              title={translate('text_17836270312826gyudi4ayy2')}
+              description={translate('text_1783627031283920r4ap3cwe')}
+            />
 
-          <NameAndCodeGroup
-            form={form}
-            fields={{ name: 'name', code: 'code' }}
-            disableCodeInput={disableCodeInput}
-            disableAutoGenerateCode={isEdit}
-            nameProps={{
-              autoFocus: true,
-              placeholder: translate('text_17836270312839ylvd3gjr17'),
-            }}
-            codeProps={{
-              placeholder: translate('text_178362703128304wpnxjmfnu'),
-            }}
-          />
+            <NameAndCodeGroup
+              form={form}
+              fields={{ name: 'name', code: 'code' }}
+              disableCodeInput={disableCodeInput}
+              disableAutoGenerateCode={isEdit}
+              nameProps={{
+                autoFocus: true,
+                placeholder: translate('text_17836270312839ylvd3gjr17'),
+              }}
+              codeProps={{
+                placeholder: translate('text_178362703128304wpnxjmfnu'),
+              }}
+            />
 
-          {shouldDisplayDescription && (
-            <div className="flex items-center">
-              <form.AppField name="description">
-                {(field) => (
-                  <field.TextInputField
-                    multiline
-                    className="mr-3 flex-1"
-                    label={translate('text_629728388c4d2300e2d380f1')}
-                    placeholder={translate('text_1750257831368ae3rtaclhjy')}
-                    rows="3"
+            {shouldDisplayDescription && (
+              <div className="flex items-center">
+                <form.AppField name="description">
+                  {(field) => (
+                    <field.TextInputField
+                      multiline
+                      className="mr-3 flex-1"
+                      label={translate('text_629728388c4d2300e2d380f1')}
+                      placeholder={translate('text_1750257831368ae3rtaclhjy')}
+                      rows="3"
+                    />
+                  )}
+                </form.AppField>
+                <Tooltip
+                  className="mt-6"
+                  placement="top-end"
+                  title={translate('text_63aa085d28b8510cd46443ff')}
+                >
+                  <Button
+                    icon="trash"
+                    variant="quaternary"
+                    onClick={handleHideDescription}
+                    data-test={PRODUCT_DRAWER_REMOVE_DESCRIPTION_TEST_ID}
                   />
-                )}
-              </form.AppField>
-              <Tooltip
-                className="mt-6"
-                placement="top-end"
-                title={translate('text_63aa085d28b8510cd46443ff')}
-              >
-                <Button
-                  icon="trash"
-                  variant="quaternary"
-                  onClick={handleHideDescription}
-                  data-test={PRODUCT_DRAWER_REMOVE_DESCRIPTION_TEST_ID}
-                />
-              </Tooltip>
-            </div>
-          )}
-          {!shouldDisplayDescription && (
-            <Button
-              fitContent
-              startIcon="plus"
-              variant="inline"
-              onClick={() => setShouldDisplayDescription(true)}
-              data-test={PRODUCT_DRAWER_SHOW_DESCRIPTION_TEST_ID}
-            >
-              {translate('text_642d5eb2783a2ad10d670324')}
-            </Button>
-          )}
-        </CenteredPage.PageSection>
-
-        <CenteredPage.PageSection>
-          <CenteredPage.PageSectionTitle
-            title={translate('text_17423672025282dl7iozy1ru')}
-            description={translate('text_1783627031283g55tf6jjlg1')}
-          />
-
-          <form.AppField name="invoiceDisplayName">
-            {(field) => (
-              <field.TextInputField
-                label={translate('text_65a6b4e2cb38d9b70ec53d39')}
-                placeholder={translate('text_65a6b4e2cb38d9b70ec53d41')}
-                description={translate('text_1771963033467yduu33x3qw9')}
-              />
+                </Tooltip>
+              </div>
             )}
-          </form.AppField>
-        </CenteredPage.PageSection>
+            {!shouldDisplayDescription && (
+              <Button
+                fitContent
+                startIcon="plus"
+                variant="inline"
+                onClick={() => setShouldDisplayDescription(true)}
+                data-test={PRODUCT_DRAWER_SHOW_DESCRIPTION_TEST_ID}
+              >
+                {translate('text_642d5eb2783a2ad10d670324')}
+              </Button>
+            )}
+          </CenteredPage.PageSection>
+
+          <CenteredPage.PageSection>
+            <CenteredPage.PageSectionTitle
+              title={translate('text_17423672025282dl7iozy1ru')}
+              description={translate('text_1783627031283g55tf6jjlg1')}
+            />
+
+            <form.AppField name="invoiceDisplayName">
+              {(field) => (
+                <field.TextInputField
+                  label={translate('text_65a6b4e2cb38d9b70ec53d39')}
+                  placeholder={translate('text_65a6b4e2cb38d9b70ec53d41')}
+                  description={translate('text_1771963033467yduu33x3qw9')}
+                />
+              )}
+            </form.AppField>
+          </CenteredPage.PageSection>
+        </CenteredPage.SubsectionWrapper>
       </>
     )
   },

@@ -28,6 +28,7 @@ import {
   OrderAvailableFilters,
   OrderFormAvailableFilters,
   ProductAvailableFilters,
+  ProductFilterAvailableFilters,
   QuoteAvailableFilters,
   RateCardAvailableFilters,
   RevenueStreamsAvailablePopperFilters,
@@ -316,12 +317,8 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   },
   [AvailableFiltersEnum.productType]: (value: string) => value,
   [AvailableFiltersEnum.productFilterProductCategory]: (value: string) => {
-    // Same shape as productProductCategory (real ids -> `productCategoryIds`, the synthetic
-    // "Not defined" entry -> `withoutProductCategory`). Kept here for shape-consistency and
-    // active-filter chip rendering only: formatFiltersForProductFiltersQuery
-    // deliberately excludes this filter from its availableFilters allow-list, so
-    // this entry never actually reaches the `productFilters` query - the
-    // backend has no product-level argument on that query today.
+    // Same shape as productProductCategory: real ids -> `productCategoryIds`, the synthetic
+    // "Not defined" entry -> `withoutProductCategory`. The `productFilters` query accepts both.
     const parts = value.split(',').filter(Boolean)
     const withoutProductCategory = parts.includes(filterWithoutProductCategoryValue)
     const productCategoryIds = parts
@@ -575,19 +572,19 @@ export const formatFiltersForProductsQuery = (
   })
 }
 
-type ProductFiltersQueryFilters = Partial<Pick<ProductFiltersQueryVariables, 'productId'>>
+type ProductFiltersQueryFilters = Partial<
+  Pick<ProductFiltersQueryVariables, 'productId' | 'productCategoryIds' | 'withoutProductCategory'>
+>
 
 export const formatFiltersForProductFiltersQuery = (
   searchParams: URLSearchParams,
 ): ProductFiltersQueryFilters => {
-  // productFilterProductCategory is intentionally omitted from availableFilters: the
-  // backend `productFilters` query only accepts `productId` + `searchTerm`
-  // today, so the ProductCategory filter is UI-only pending backend support and must never
-  // contribute to the query variables, even though it's selectable in the panel
-  // (see ProductFilterAvailableFilters).
+  // No keyMap: both dimensions have FILTER_VALUE_MAP entries returning an object
+  // ({ productCategoryIds?, withoutProductCategory? } / { productId? }) that
+  // formatFiltersForQuery spreads straight into the query vars.
   return formatFiltersForQuery<ProductFiltersQueryFilters>({
     searchParams,
-    availableFilters: [AvailableFiltersEnum.productFilterProduct],
+    availableFilters: ProductFilterAvailableFilters,
     filtersNamePrefix: PRODUCT_FILTER_LIST_FILTER_PREFIX,
   })
 }

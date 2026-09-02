@@ -9,6 +9,8 @@ interface ShowMoreTextProps extends TypographyProps {
   showMore?: string | ReactElement
 }
 
+export const MAX_DESCRIPTION_LENGTH_DISPLAY_LIMIT = 250
+
 export const ShowMoreText = ({ text, limit, showMore, ...props }: ShowMoreTextProps) => {
   const { translate } = useInternationalization()
   const [isTextTruncated, setIsTextTruncated] = useState(true)

@@ -1,7 +1,11 @@
 import { gql } from '@apollo/client'
 import { generatePath, useParams } from 'react-router-dom'
 
-import { Chip } from '~/components/designSystem/Chip'
+import {
+  MAX_DESCRIPTION_LENGTH_DISPLAY_LIMIT,
+  ShowMoreText,
+} from '~/components/designSystem/ShowMoreText'
+import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { PageSectionTitle } from '~/components/layouts/Section'
@@ -86,11 +90,15 @@ export const ProductDetailsOverview = () => {
       {product.productCategory.name}
     </Link>
   ) : (
-    '-'
+    <Typography variant="body" color="grey600">
+      {translate('text_1784590896872hcbug1hthjl')}
+    </Typography>
   )
 
-  const productTypeChip = product?.productType ? (
-    <Chip size="small" label={translate(ITEM_TYPE_TRANSLATION_KEY[product.productType])} />
+  const productType = product?.productType ? (
+    <Typography variant="body" color="grey700">
+      {translate(ITEM_TYPE_TRANSLATION_KEY[product.productType])}
+    </Typography>
   ) : (
     '-'
   )
@@ -118,44 +126,55 @@ export const ProductDetailsOverview = () => {
 
   return (
     <section>
-      <PageSectionTitle
-        title={translate('text_1783980718114jzmq5e6getf')}
-        subtitle={translate('text_17839807181145a6o0mukpar')}
-        action={
-          hasPermissions(['productsUpdate'])
-            ? {
-                title: translate('text_625fd39a15394c0117e7d792'),
-                dataTest: PRODUCT_ITEM_OVERVIEW_EDIT_TEST_ID,
-                onClick: () => product && openEditProductDrawer({ product }),
-              }
-            : undefined
-        }
-      />
+      {hasPermissions(['productsUpdate']) && (
+        <PageSectionTitle
+          title={translate('text_1783980718114jzmq5e6getf')}
+          subtitle={translate('text_17839807181145a6o0mukpar')}
+          action={{
+            title: translate('text_625fd39a15394c0117e7d792'),
+            dataTest: PRODUCT_ITEM_OVERVIEW_EDIT_TEST_ID,
+            onClick: () => product && openEditProductDrawer({ product }),
+          }}
+        />
+      )}
 
       <div className="flex flex-col gap-4">
+        <DetailsPage.InfoGridItem
+          className="col-span-2"
+          label={translate('text_17877372202296ejgkqky70w')}
+          value={attachedProductCategory}
+        />
+
         <DetailsPage.InfoGrid
           grid={[
-            {
-              label: translate('text_17839807181143h6kt2bdiyi'),
-              value: attachedProductCategory,
-            },
-            { label: translate('text_1783980718113na6t9imp2k0'), value: productTypeChip },
             { label: translate('text_17839807181150t4xkvfjefv'), value: product?.name || '-' },
             { label: translate('text_1783980718114rdgmz1gtpm2'), value: code },
+          ]}
+        />
+
+        {!!product?.description && (
+          <DetailsPage.InfoGridItem
+            label={translate('text_6388b923e514213fed58331c')}
+            value={
+              <ShowMoreText
+                variant="body"
+                color="grey700"
+                text={product.description}
+                limit={MAX_DESCRIPTION_LENGTH_DISPLAY_LIMIT}
+              />
+            }
+          />
+        )}
+
+        <DetailsPage.InfoGrid
+          grid={[
+            { label: translate('text_1783980718113na6t9imp2k0'), value: productType },
             product?.productType === ProductTypeEnum.Usage && {
               label: translate('text_178398071811327xropcsqmr'),
               value: attachedBillableMetric,
             },
           ]}
         />
-
-        {!!product?.description && (
-          <DetailsPage.InfoGridItem
-            className="col-span-2"
-            label={translate('text_6388b923e514213fed58331c')}
-            value={product?.description || '-'}
-          />
-        )}
 
         {!!product?.invoiceDisplayName && (
           <DetailsPage.InfoGridItem

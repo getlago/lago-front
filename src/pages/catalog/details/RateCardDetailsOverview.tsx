@@ -1,14 +1,21 @@
 import { gql } from '@apollo/client'
 import { generatePath } from 'react-router-dom'
 
+import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import {
+  ProductCategoryDetailsTabsOptionsEnum,
   ProductDetailsTabsOptionsEnum,
   ProductFilterDetailsTabsOptionsEnum,
 } from '~/core/constants/tabsOptions'
-import { Link, PRODUCT_DETAILS_ROUTE, PRODUCT_FILTER_DETAILS_ROUTE } from '~/core/router'
+import {
+  Link,
+  PRODUCT_CATEGORY_DETAILS_ROUTE,
+  PRODUCT_DETAILS_ROUTE,
+  PRODUCT_FILTER_DETAILS_ROUTE,
+} from '~/core/router'
 import {
   LagoApiError,
   RateCardBillingTimingEnum,
@@ -21,23 +28,11 @@ import { usePermissions } from '~/hooks/usePermissions'
 
 import { InvoicingStrategy, mapInvoiceFieldsToStrategy } from '../drawers/rateCard/constants'
 import {
-  RATE_CARD_CURRENCY_LABEL_KEY,
-  RATE_CARD_PRICING_UNIT_LABEL_KEY,
-  RATE_CARD_PRODUCT_ITEM_LABEL_KEY,
-} from '../drawers/rateCard/RateCardDrawerContent'
-import {
   RATE_CARD_DRAWER_TITLE_EDIT_KEY,
   useRateCardDrawer,
 } from '../drawers/rateCard/useRateCardDrawer'
 
 export const RATE_CARD_DETAILS_OVERVIEW_EDIT_TEST_ID = 'rate-card-details-overview-edit'
-
-// New translation keys are exported as named constants (feature convention).
-const RATE_CARD_DETAILS_OVERVIEW_NAME_LABEL_KEY = 'text_1784930440656rjmo1lmed8k'
-const RATE_CARD_DETAILS_OVERVIEW_CODE_LABEL_KEY = 'text_178493044065618ejwmmneyl'
-const RATE_CARD_DETAILS_OVERVIEW_BILLING_TIMING_LABEL_KEY = 'text_1784930440656zu20xor7y71'
-const RATE_CARD_DETAILS_OVERVIEW_WALLET_TARGETABLE_LABEL_KEY = 'text_17849304406576mhltomszbh'
-const RATE_CARD_DETAILS_OVERVIEW_PRODUCT_ITEM_FILTER_LABEL_KEY = 'text_17849304406579sbwz4df14p'
 
 const YES_TRANSLATION_KEY = 'text_1764160009979jzn4xunn1z8'
 const NO_TRANSLATION_KEY = 'text_176416000997957yqelmt2m2'
@@ -71,6 +66,10 @@ gql`
       name
       code
       invoiceDisplayName
+      productCategory {
+        id
+        name
+      }
     }
     productFilter {
       id
@@ -115,6 +114,21 @@ const RateCardDetailsOverview = ({ rateCardId }: { rateCardId: string }) => {
 
   const { product, productFilter } = rateCard
 
+  const attachedProductCategory = product.productCategory ? (
+    <Link
+      to={generatePath(PRODUCT_CATEGORY_DETAILS_ROUTE, {
+        productCategoryId: product.productCategory.id,
+        tab: ProductCategoryDetailsTabsOptionsEnum.overview,
+      })}
+    >
+      {product.productCategory.name}
+    </Link>
+  ) : (
+    <Typography variant="body" color="grey600">
+      {translate('text_1784590896872hcbug1hthjl')}
+    </Typography>
+  )
+
   const attachedProduct = (
     <Link
       to={generatePath(PRODUCT_DETAILS_ROUTE, {
@@ -154,40 +168,39 @@ const RateCardDetailsOverview = ({ rateCardId }: { rateCardId: string }) => {
 
   const currencyOrPricingUnitRow = rateCard.appliedPricingUnitCode
     ? {
-        label: translate(RATE_CARD_PRICING_UNIT_LABEL_KEY),
+        label: translate('text_1784925227817xt1irx4wum2'),
         value: pricingUnit?.name || rateCard.appliedPricingUnitCode,
       }
     : {
-        label: translate(RATE_CARD_CURRENCY_LABEL_KEY),
+        label: translate('text_1784925227817bab1mp540x7'),
         value: rateCard.currency || '-',
       }
 
   return (
     <section>
-      <PageSectionTitle
-        title={translate('text_628cf761cbe6820138b8f2e4')}
-        subtitle={translate('text_178492522781766xwbos8bso')}
-        action={
-          hasPermissions(['rateCardsUpdate'])
-            ? {
-                title: translate(RATE_CARD_DRAWER_TITLE_EDIT_KEY),
-                dataTest: RATE_CARD_DETAILS_OVERVIEW_EDIT_TEST_ID,
-                onClick: () => openEditRateCardDrawer({ rateCard }),
-              }
-            : undefined
-        }
-      />
+      {hasPermissions(['rateCardsUpdate']) && (
+        <PageSectionTitle
+          title={translate('text_628cf761cbe6820138b8f2e4')}
+          subtitle={translate('text_178492522781766xwbos8bso')}
+          action={{
+            title: translate(RATE_CARD_DRAWER_TITLE_EDIT_KEY),
+            dataTest: RATE_CARD_DETAILS_OVERVIEW_EDIT_TEST_ID,
+            onClick: () => openEditRateCardDrawer({ rateCard }),
+          }}
+        />
+      )}
 
       <div className="flex flex-col gap-4">
         <DetailsPage.InfoGrid
           grid={[
-            { label: translate(RATE_CARD_PRODUCT_ITEM_LABEL_KEY), value: attachedProduct },
+            { label: translate('text_17839807181143h6kt2bdiyi'), value: attachedProductCategory },
+            { label: translate('text_1784925227817ekmphmxz74c'), value: attachedProduct },
             {
-              label: translate(RATE_CARD_DETAILS_OVERVIEW_PRODUCT_ITEM_FILTER_LABEL_KEY),
+              label: translate('text_17849304406579sbwz4df14p'),
               value: attachedProductFilter,
             },
-            { label: translate(RATE_CARD_DETAILS_OVERVIEW_NAME_LABEL_KEY), value: rateCard.name },
-            { label: translate(RATE_CARD_DETAILS_OVERVIEW_CODE_LABEL_KEY), value: code },
+            { label: translate('text_1784930440656rjmo1lmed8k'), value: rateCard.name },
+            { label: translate('text_178493044065618ejwmmneyl'), value: code },
           ]}
         />
 
@@ -203,7 +216,7 @@ const RateCardDetailsOverview = ({ rateCardId }: { rateCardId: string }) => {
           grid={[
             currencyOrPricingUnitRow,
             {
-              label: translate(RATE_CARD_DETAILS_OVERVIEW_BILLING_TIMING_LABEL_KEY),
+              label: translate('text_1784930440656zu20xor7y71'),
               value: translate(BILLING_TIMING_TRANSLATION_KEY[rateCard.billingTiming]),
             },
             {
@@ -217,7 +230,7 @@ const RateCardDetailsOverview = ({ rateCardId }: { rateCardId: string }) => {
                 : translate(NO_TRANSLATION_KEY),
             },
             {
-              label: translate(RATE_CARD_DETAILS_OVERVIEW_WALLET_TARGETABLE_LABEL_KEY),
+              label: translate('text_17849304406576mhltomszbh'),
               value: rateCard.walletTargetable
                 ? translate(YES_TRANSLATION_KEY)
                 : translate(NO_TRANSLATION_KEY),

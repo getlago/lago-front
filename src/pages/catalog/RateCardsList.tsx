@@ -60,14 +60,6 @@ gql`
 
 export const RATE_CARDS_LIST_TEST_ID = 'rate-cards-list'
 
-// New translation keys are exported as named constants (feature convention, see
-// useRateCardTableColumns.tsx) so the test references them instead of
-// duplicating the raw ids.
-export const RATE_CARDS_SEARCH_PLACEHOLDER_KEY = 'text_17849293094725tv045xhkxf'
-export const RATE_CARDS_EMPTY_TITLE_KEY = 'text_1784929309473260i6j8d7kb'
-export const RATE_CARDS_EMPTY_SUBTITLE_KEY = 'text_1784929309473m4m8kk6q6g5'
-export const RATE_CARDS_EMPTY_SEARCH_TITLE_KEY = 'text_17849293094732goytgdvyql'
-
 const RateCardsList = () => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
@@ -119,12 +111,12 @@ const RateCardsList = () => {
         },
     emptyState: variables?.searchTerm
       ? {
-          title: translate(RATE_CARDS_EMPTY_SEARCH_TITLE_KEY),
+          title: translate('text_17849293094732goytgdvyql'),
           subtitle: translate('text_63bee4e10e2d53912bfe4da7'),
         }
       : {
-          title: translate(RATE_CARDS_EMPTY_TITLE_KEY),
-          subtitle: translate(RATE_CARDS_EMPTY_SUBTITLE_KEY),
+          title: translate('text_1784929309473260i6j8d7kb'),
+          subtitle: translate('text_1784929309473m4m8kk6q6g5'),
           ...(canCreateRateCards && {
             buttonTitle: translate(RATE_CARD_DRAWER_TITLE_CREATE_KEY),
             buttonVariant: 'primary',
@@ -146,7 +138,7 @@ const RateCardsList = () => {
         <div className="flex flex-col gap-3 py-4 md:flex-row md:items-center">
           <SearchInput
             onChange={searchInputOnChange}
-            placeholder={translate(RATE_CARDS_SEARCH_PLACEHOLDER_KEY)}
+            placeholder={translate('text_17849293094725tv045xhkxf')}
             data-test="rate-cards-search-input"
           />
           <Filters.Component />

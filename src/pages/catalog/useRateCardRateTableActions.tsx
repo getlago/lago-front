@@ -9,11 +9,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 
 import { useDeleteRateCardRateDialog } from './dialogs/useDeleteRateCardRateDialog'
-import {
-  RATE_CARD_RATE_DELETE_ACTION_KEY,
-  RATE_CARD_RATE_DRAWER_TITLE_EDIT_KEY,
-  RATE_CARD_RATE_VIEW_ACTION_KEY,
-} from './drawers/rateCardRate/constants'
+import { RATE_CARD_RATE_DRAWER_TITLE_EDIT_KEY } from './drawers/rateCardRate/constants'
 import {
   OpenRateCardRateDrawerArgs,
   useRateCardRateDrawer,
@@ -62,14 +58,14 @@ export const useRateCardRateTableActions = ({
   const actionColumnTooltip = useCallback(
     (rate: RateCardRateForListFragment): string => {
       const label = [
-        translate(RATE_CARD_RATE_VIEW_ACTION_KEY).toLowerCase(),
+        translate('text_1787737220228sypguqmiv1l').toLowerCase(),
         canUpdateRateCards &&
           !!rateCard &&
           isRateCardRateEditable({ rate, rateCard }) &&
           translate(RATE_CARD_RATE_DRAWER_TITLE_EDIT_KEY).toLowerCase(),
         canDeleteRateCards &&
           isRateCardRateDeletable(rate) &&
-          translate(RATE_CARD_RATE_DELETE_ACTION_KEY).toLowerCase(),
+          translate('text_1787737220228txu8nd2qayi').toLowerCase(),
       ]
         .filter(Boolean)
         .join(', ')
@@ -88,7 +84,7 @@ export const useRateCardRateTableActions = ({
     const actions: ActionItem<RateCardRateForListFragment>[] = [
       {
         startIcon: 'eye',
-        title: translate(RATE_CARD_RATE_VIEW_ACTION_KEY),
+        title: translate('text_1787737220228sypguqmiv1l'),
         onAction: () => navigate(buildRateCardRateDetailsPath({ rateCardId, rateId: rate.id })),
       },
     ]
@@ -104,7 +100,7 @@ export const useRateCardRateTableActions = ({
     if (canDeleteRateCards && isRateCardRateDeletable(rate)) {
       actions.push({
         startIcon: 'trash',
-        title: translate(RATE_CARD_RATE_DELETE_ACTION_KEY),
+        title: translate('text_1787737220228txu8nd2qayi'),
         onAction: () => openDeleteRateCardRateDialog({ rate }),
       })
     }

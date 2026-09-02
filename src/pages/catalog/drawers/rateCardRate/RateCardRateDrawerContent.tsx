@@ -35,14 +35,8 @@ import { tw } from '~/styles/utils'
 
 import {
   BILLING_INTERVAL_UNIT_TRANSLATION_KEY,
-  RATE_CARD_RATE_BILLING_INTERVAL_DESCRIPTION_KEY,
-  RATE_CARD_RATE_BILLING_INTERVAL_LABEL_KEY,
-  RATE_CARD_RATE_DRAWER_DESCRIPTION_KEY,
   RATE_CARD_RATE_EFFECTIVE_DATE_AFTER_ACTIVE_KEY,
-  RATE_CARD_RATE_EFFECTIVE_DATE_DESCRIPTION_KEY,
-  RATE_CARD_RATE_EFFECTIVE_DATE_LABEL_KEY,
   RATE_CARD_RATE_FORM_DEFAULTS,
-  RATE_CARD_RATE_MODEL_LABEL_KEY,
 } from './constants'
 import {
   buildRateCodeFromEffectiveDate,
@@ -50,9 +44,6 @@ import {
   isEffectiveFromAppendable,
   toChargeModel,
 } from './utils'
-
-const RATE_CARD_RATE_SETTINGS_SECTION_TITLE_KEY = 'text_1787737220227io0cqa5y5jy'
-const RATE_CARD_RATE_SPENDING_MINIMUM_DESCRIPTION_KEY = 'text_1787737220228b7rp4u9zxp6'
 
 export const RATE_CARD_RATE_DRAWER_CODE_TEST_ID = 'rate-card-rate-code'
 export const RATE_CARD_RATE_DRAWER_BILLING_INTERVAL_COUNT_TEST_ID =
@@ -199,13 +190,11 @@ const RateCardRateDrawerFormSections = withForm({
     return (
       <>
         <Typography variant="body" color="grey600">
-          {translate(RATE_CARD_RATE_DRAWER_DESCRIPTION_KEY)}
+          {translate('text_17877372202276uc54jqy1np')}
         </Typography>
 
         <CenteredPage.PageSection>
-          <CenteredPage.PageSectionTitle
-            title={translate(RATE_CARD_RATE_SETTINGS_SECTION_TITLE_KEY)}
-          />
+          <CenteredPage.PageSectionTitle title={translate('text_1787737220227io0cqa5y5jy')} />
 
           <form.AppField
             name="effectiveFrom"
@@ -225,8 +214,8 @@ const RateCardRateDrawerFormSections = withForm({
           >
             {(field) => (
               <field.DatePickerField
-                label={translate(RATE_CARD_RATE_EFFECTIVE_DATE_LABEL_KEY)}
-                description={translate(RATE_CARD_RATE_EFFECTIVE_DATE_DESCRIPTION_KEY)}
+                label={translate('text_1787737220227bfxpshdo133')}
+                description={translate('text_1787737220227auyye6x3cr0')}
                 // Calendar day: the backend floors it to UTC midnight, so an org-zone
                 // instant would land the rate on the previous day.
                 defaultZone={getTimezoneConfig(TimezoneEnum.TzUtc).name}
@@ -260,10 +249,10 @@ const RateCardRateDrawerFormSections = withForm({
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1">
               <Typography variant="captionHl" color="grey700">
-                {translate(RATE_CARD_RATE_BILLING_INTERVAL_LABEL_KEY)}
+                {translate('text_1787737220227tqziocrcywv')}
               </Typography>
               <Typography variant="caption" color="grey600">
-                {translate(RATE_CARD_RATE_BILLING_INTERVAL_DESCRIPTION_KEY)}
+                {translate('text_1787737220227zq85vxlw0aq')}
               </Typography>
             </div>
 
@@ -283,7 +272,7 @@ const RateCardRateDrawerFormSections = withForm({
                 {(field) => (
                   <field.ComboBoxField
                     dataTest={RATE_CARD_RATE_DRAWER_BILLING_INTERVAL_UNIT_TEST_ID}
-                    className="flex-1"
+                    containerClassName="flex-1"
                     disableClearable
                     sortValues={false}
                     data={billingIntervalUnitComboboxData}
@@ -343,7 +332,7 @@ const RateCardRateDrawerFormSections = withForm({
           )}
 
           <ChargeModelSelector
-            label={translate(RATE_CARD_RATE_MODEL_LABEL_KEY)}
+            label={translate('text_65201b8216455901fe273dd5')}
             disabled={isActiveRate}
             localCharge={localCharge}
             chargeModelComboboxData={rateModelComboboxData}
@@ -375,7 +364,7 @@ const RateCardRateDrawerFormSections = withForm({
                   {translate('text_643e592657fc1ba5ce110c30')}
                 </Typography>
                 <Typography variant="caption" color="grey600">
-                  {translate(RATE_CARD_RATE_SPENDING_MINIMUM_DESCRIPTION_KEY)}
+                  {translate('text_1787737220228b7rp4u9zxp6')}
                 </Typography>
               </div>
 

@@ -44,16 +44,12 @@ export const useProductTableColumns = ({
           key: 'productCategory.name',
           title: translate('text_17839807181143h6kt2bdiyi'),
           minWidth: 160,
-          content: ({ productCategory }) => (
-            <Typography color="grey600" variant="body" noWrap>
-              {productCategory?.name || '-'}
-            </Typography>
-          ),
+          content: ({ productCategory }) => <Chip label={productCategory?.name || '-'} />,
         }
       : null,
     {
       key: 'filtersCount',
-      title: translate('text_1783980718114wkor6aysepe'),
+      title: translate('text_1788182491979e5qhb8xgn2m'),
       textAlign: 'right',
       minWidth: 112,
       content: ({ filtersCount }) => (
@@ -64,10 +60,11 @@ export const useProductTableColumns = ({
     },
     {
       key: 'productType',
-      title: translate('text_1783980718113na6t9imp2k0'),
+      title: translate('text_6560809c38fb9de88d8a52fb'),
+      textAlign: 'right',
       minWidth: 112,
       content: ({ productType }) => (
-        <Chip size="small" label={translate(PRODUCT_ITEM_TYPE_TRANSLATION_KEY[productType])} />
+        <Chip label={translate(PRODUCT_ITEM_TYPE_TRANSLATION_KEY[productType])} />
       ),
     },
     {

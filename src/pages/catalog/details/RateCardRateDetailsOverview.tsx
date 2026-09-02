@@ -2,6 +2,7 @@ import { gql } from '@apollo/client'
 import { generatePath } from 'react-router-dom'
 
 import { Status } from '~/components/designSystem/Status'
+import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { PageSectionTitle } from '~/components/layouts/Section'
@@ -36,12 +37,7 @@ import { usePermissions } from '~/hooks/usePermissions'
 
 import {
   BILLING_INTERVAL_UNIT_TRANSLATION_KEY,
-  RATE_CARD_RATE_BILLING_INTERVAL_LABEL_KEY,
-  RATE_CARD_RATE_DRAWER_DESCRIPTION_KEY,
   RATE_CARD_RATE_DRAWER_TITLE_EDIT_KEY,
-  RATE_CARD_RATE_EFFECTIVE_DATE_LABEL_KEY,
-  RATE_CARD_RATE_MODEL_LABEL_KEY,
-  RATE_CARD_RATES_SECTION_TITLE_KEY,
 } from '../drawers/rateCardRate/constants'
 import { toChargeModel } from '../drawers/rateCardRate/utils'
 
@@ -71,10 +67,8 @@ gql`
 export const RATE_CARD_RATE_DETAILS_OVERVIEW_EDIT_TEST_ID = 'rate-card-rate-details-overview-edit'
 export const RATE_CARD_RATE_DETAILS_OVERVIEW_STATUS_TEST_ID =
   'rate-card-rate-details-overview-status'
-
-const RATE_CARD_RATE_DETAILS_PRODUCT_CATEGORY_LABEL_KEY = 'text_17877372202296ejgkqky70w'
-const RATE_CARD_RATE_DETAILS_RATE_CARD_LABEL_KEY = 'text_1787737220228091rkbqj1vl'
-const RATE_CARD_RATE_DETAILS_CODE_LABEL_KEY = 'text_1787737220228i16tnwmeue3'
+export const RATE_CARD_RATE_DETAILS_OVERVIEW_NO_PRODUCT_CATEGORY_TEST_ID =
+  'rate-card-rate-details-overview-no-product-category'
 
 export const RATE_CARD_RATE_DETAILS_BILLING_INTERVAL_VALUE_KEY = 'text_17877372202287udsa3vj1ul'
 
@@ -108,7 +102,13 @@ const RateCardRateDetailsOverview = ({
       {product.productCategory.name}
     </Link>
   ) : (
-    '-'
+    <Typography
+      variant="body"
+      color="grey600"
+      data-test={RATE_CARD_RATE_DETAILS_OVERVIEW_NO_PRODUCT_CATEGORY_TEST_ID}
+    >
+      {translate('text_1784590896872hcbug1hthjl')}
+    </Typography>
   )
 
   const attachedProduct = (
@@ -164,24 +164,22 @@ const RateCardRateDetailsOverview = ({
 
   return (
     <section className="flex flex-col gap-4">
-      <PageSectionTitle
-        title={translate(RATE_CARD_RATES_SECTION_TITLE_KEY)}
-        subtitle={translate(RATE_CARD_RATE_DRAWER_DESCRIPTION_KEY)}
-        action={
-          !!onEdit && hasPermissions(['rateCardsUpdate'])
-            ? {
-                title: translate(RATE_CARD_RATE_DRAWER_TITLE_EDIT_KEY),
-                dataTest: RATE_CARD_RATE_DETAILS_OVERVIEW_EDIT_TEST_ID,
-                onClick: onEdit,
-              }
-            : undefined
-        }
-      />
+      {!!onEdit && hasPermissions(['rateCardsUpdate']) && (
+        <PageSectionTitle
+          title={translate('text_1784930705742tg0kbcsak2v')}
+          subtitle={translate('text_17877372202276uc54jqy1np')}
+          action={{
+            title: translate(RATE_CARD_RATE_DRAWER_TITLE_EDIT_KEY),
+            dataTest: RATE_CARD_RATE_DETAILS_OVERVIEW_EDIT_TEST_ID,
+            onClick: onEdit,
+          }}
+        />
+      )}
 
       <DetailsPage.InfoGrid
         grid={[
           {
-            label: translate(RATE_CARD_RATE_DETAILS_PRODUCT_CATEGORY_LABEL_KEY),
+            label: translate('text_17877372202296ejgkqky70w'),
             value: attachedProductCategory,
           },
           {
@@ -193,11 +191,11 @@ const RateCardRateDetailsOverview = ({
             value: attachedProductFilter,
           },
           {
-            label: translate(RATE_CARD_RATE_DETAILS_RATE_CARD_LABEL_KEY),
+            label: translate('text_1787737220228091rkbqj1vl'),
             value: attachedRateCard,
           },
           {
-            label: translate(RATE_CARD_RATE_DETAILS_CODE_LABEL_KEY),
+            label: translate('text_1787737220228i16tnwmeue3'),
             value: (
               <TypographyWithCopy variant="body" color="grey700">
                 {rate.code}
@@ -205,7 +203,7 @@ const RateCardRateDetailsOverview = ({
             ),
           },
           {
-            label: translate(RATE_CARD_RATE_EFFECTIVE_DATE_LABEL_KEY),
+            label: translate('text_1787737220227bfxpshdo133'),
             // Calendar day: the org timezone would show the previous day west of UTC.
             value: intlFormatDateTime(rate.effectiveFrom, { timezone: TimezoneEnum.TzUtc }).date,
           },
@@ -218,20 +216,24 @@ const RateCardRateDetailsOverview = ({
               />
             ),
           },
-          {
-            label: translate(RATE_CARD_RATE_BILLING_INTERVAL_LABEL_KEY),
-            value: translate(RATE_CARD_RATE_DETAILS_BILLING_INTERVAL_VALUE_KEY, {
-              count: rate.billingIntervalCount,
-              unit: translate(
-                BILLING_INTERVAL_UNIT_TRANSLATION_KEY[rate.billingIntervalUnit],
-              ).toLocaleLowerCase(),
-            }),
-          },
-          {
-            label: translate(RATE_CARD_RATE_MODEL_LABEL_KEY),
-            value: translate(chargeModelLookupTranslation[rate.rateModel]),
-          },
         ]}
+      />
+
+      <DetailsPage.InfoGridItem
+        className="col-span-2"
+        label={translate('text_1787737220227tqziocrcywv')}
+        value={translate(RATE_CARD_RATE_DETAILS_BILLING_INTERVAL_VALUE_KEY, {
+          count: rate.billingIntervalCount,
+          unit: translate(
+            BILLING_INTERVAL_UNIT_TRANSLATION_KEY[rate.billingIntervalUnit],
+          ).toLocaleLowerCase(),
+        })}
+      />
+
+      <DetailsPage.InfoGridItem
+        className="col-span-2"
+        label={translate('text_65201b8216455901fe273dd5')}
+        value={translate(chargeModelLookupTranslation[rate.rateModel])}
       />
 
       <PlanDetailsChargeWrapperSwitch

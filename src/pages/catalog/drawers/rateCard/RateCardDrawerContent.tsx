@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
+import { Chip } from '~/components/designSystem/Chip'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
@@ -82,25 +83,12 @@ gql`
   }
 `
 
-// New translation keys are exported as named constants (feature convention) so
-// tests and siblings reference them instead of duplicating the raw ids.
-export const RATE_CARD_DRAWER_DESCRIPTION_KEY = 'text_178492522781766xwbos8bso'
-const RATE_CARD_SETTINGS_SECTION_TITLE_KEY = 'text_1784925227817ux91jv869zn'
-const RATE_CARD_PRICING_UNIT_SECTION_TITLE_KEY = 'text_1784925227817g6gsuui48w0'
-const RATE_CARD_SECTION_SUBTITLE_KEY = 'text_1784925227817rk6mzc70x59'
-
-export const RATE_CARD_PRODUCT_ITEM_LABEL_KEY = 'text_1784925227817ekmphmxz74c'
-const RATE_CARD_PRODUCT_ITEM_FILTER_LABEL_KEY = 'text_1784925227817w9txcfey6nm'
-
-export const RATE_CARD_PRICING_UNIT_LABEL_KEY = 'text_1784925227817xt1irx4wum2'
-export const RATE_CARD_CURRENCY_LABEL_KEY = 'text_1784925227817bab1mp540x7'
-const RATE_CARD_AVAILABLE_MODELS_ALERT_KEY = 'text_1784925227817ukilytyxozn'
-const RATE_CARD_WALLET_TARGETABLE_LABEL_KEY = 'text_1784925227817ffwix51pkv1'
-const RATE_CARD_WALLET_TARGETABLE_CAPTION_KEY = 'text_17849252278174oqykkuidsn'
-
-const RATE_CARD_DRAWER_SHOW_DESCRIPTION_TEST_ID = 'rate-card-drawer-show-description'
-const RATE_CARD_DRAWER_REMOVE_DESCRIPTION_TEST_ID = 'rate-card-drawer-remove-description'
-const RATE_CARD_DRAWER_AVAILABLE_MODELS_ALERT_TEST_ID = 'rate-card-drawer-available-models-alert'
+export const RATE_CARD_DRAWER_SHOW_DESCRIPTION_TEST_ID = 'rate-card-drawer-show-description'
+export const RATE_CARD_DRAWER_DESCRIPTION_TEST_ID = 'rate-card-drawer-description'
+export const RATE_CARD_DRAWER_REMOVE_DESCRIPTION_TEST_ID = 'rate-card-drawer-remove-description'
+export const RATE_CARD_DRAWER_AVAILABLE_MODELS_ALERT_TEST_ID =
+  'rate-card-drawer-available-models-alert'
+export const RATE_CARD_DRAWER_AVAILABLE_MODEL_CHIP_TEST_ID = 'rate-card-drawer-available-model-chip'
 
 export type RateCardComboboxSeed = { value: string; label: string } | null
 
@@ -173,6 +161,7 @@ const RateCardDrawerFormSections = withForm({
     )
 
     const productId = useStore(form.store, (state) => state.values.productId)
+    const currency = useStore(form.store, (state) => state.values.currency)
     const billingTiming = useStore(form.store, (state) => state.values.billingTiming)
     const invoicingStrategy = useStore(form.store, (state) => state.values.invoicingStrategy)
 
@@ -243,7 +232,7 @@ const RateCardDrawerFormSections = withForm({
 
     const pricingUnitsComboboxData = useMemo(
       () => [
-        { value: PRICING_UNIT_CURRENCY_OPTION, label: translate(RATE_CARD_CURRENCY_LABEL_KEY) },
+        { value: PRICING_UNIT_CURRENCY_OPTION, label: translate('text_1784925227817bab1mp540x7') },
         ...(pricingUnitsData?.pricingUnits?.collection ?? []).map((unit) => ({
           value: unit.code,
           label: unit.name,
@@ -253,7 +242,7 @@ const RateCardDrawerFormSections = withForm({
     )
 
     const currencyComboboxData = useMemo(
-      () => Object.values(CurrencyEnum).map((currency) => ({ value: currency, label: currency })),
+      () => Object.values(CurrencyEnum).map((cur) => ({ value: cur, label: cur })),
       [],
     )
 
@@ -311,225 +300,248 @@ const RateCardDrawerFormSections = withForm({
 
     return (
       <>
-        <Typography variant="body" color="grey600">
-          {translate(RATE_CARD_DRAWER_DESCRIPTION_KEY)}
-        </Typography>
+        <div className="flex flex-col gap-2">
+          <Typography variant="headline" color="grey700">
+            {translate(isEdit ? 'text_17849252278173fdc5gny30g' : 'text_1784925227817k72h5sd0wyu')}
+          </Typography>
+          <Typography variant="body" color="grey600">
+            {translate('text_178492522781766xwbos8bso')}
+          </Typography>
+        </div>
+        <CenteredPage.SubsectionWrapper>
+          <CenteredPage.PageSection>
+            <CenteredPage.PageSectionTitle
+              title={translate('text_1784925227817ux91jv869zn')}
+              description={translate('text_1784925227817rk6mzc70x59')}
+            />
 
-        <CenteredPage.PageSection>
-          <CenteredPage.PageSectionTitle
-            title={translate(RATE_CARD_SETTINGS_SECTION_TITLE_KEY)}
-            description={translate(RATE_CARD_SECTION_SUBTITLE_KEY)}
-          />
+            <NameAndCodeGroup
+              form={form}
+              fields={{ name: 'name', code: 'code' }}
+              disableCodeInput={disableCodeInput}
+              disableAutoGenerateCode={isEdit}
+              nameProps={{ autoFocus: true }}
+            />
 
-          <NameAndCodeGroup
-            form={form}
-            fields={{ name: 'name', code: 'code' }}
-            disableCodeInput={disableCodeInput}
-            disableAutoGenerateCode={isEdit}
-            nameProps={{ autoFocus: true }}
-          />
-
-          {shouldDisplayDescription && (
-            <div className="flex items-center">
-              <form.AppField name="description">
-                {(field) => (
-                  <field.TextInputField
-                    multiline
-                    className="mr-3 flex-1"
-                    label={translate('text_629728388c4d2300e2d380f1')}
-                    placeholder={translate('text_1750257831368ae3rtaclhjy')}
-                    rows="3"
+            {shouldDisplayDescription && (
+              <div className="flex items-center">
+                <form.AppField name="description">
+                  {(field) => (
+                    <field.TextInputField
+                      multiline
+                      className="mr-3 flex-1"
+                      label={translate('text_629728388c4d2300e2d380f1')}
+                      placeholder={translate('text_1750257831368ae3rtaclhjy')}
+                      rows="3"
+                      data-test={RATE_CARD_DRAWER_DESCRIPTION_TEST_ID}
+                    />
+                  )}
+                </form.AppField>
+                <Tooltip
+                  className="mt-6"
+                  placement="top-end"
+                  title={translate('text_63aa085d28b8510cd46443ff')}
+                >
+                  <Button
+                    icon="trash"
+                    variant="quaternary"
+                    onClick={handleHideDescription}
+                    data-test={RATE_CARD_DRAWER_REMOVE_DESCRIPTION_TEST_ID}
                   />
-                )}
-              </form.AppField>
-              <Tooltip
-                className="mt-6"
-                placement="top-end"
-                title={translate('text_63aa085d28b8510cd46443ff')}
-              >
-                <Button
-                  icon="trash"
-                  variant="quaternary"
-                  onClick={handleHideDescription}
-                  data-test={RATE_CARD_DRAWER_REMOVE_DESCRIPTION_TEST_ID}
-                />
-              </Tooltip>
-            </div>
-          )}
-          {!shouldDisplayDescription && (
-            <Button
-              fitContent
-              startIcon="plus"
-              variant="inline"
-              onClick={() => setShouldDisplayDescription(true)}
-              data-test={RATE_CARD_DRAWER_SHOW_DESCRIPTION_TEST_ID}
-            >
-              {translate('text_642d5eb2783a2ad10d670324')}
-            </Button>
-          )}
-
-          <form.AppField
-            name="productId"
-            listeners={{
-              // Switching the product item invalidates the selected item filter
-              // (it belongs to the previous item), so clear it.
-              onChange: () => {
-                if (form.state.values.productFilterId) {
-                  form.setFieldValue('productFilterId', '')
-                }
-              },
-            }}
-          >
-            {(field) => (
-              <field.ComboBoxField
-                label={translate(RATE_CARD_PRODUCT_ITEM_LABEL_KEY)}
-                placeholder={translate('text_1784579021080kajutbc14la')}
-                data={productsComboboxData}
-                searchQuery={getProducts}
-                loading={productsLoading}
-                disabled={isEdit}
-              />
+                </Tooltip>
+              </div>
             )}
-          </form.AppField>
+            {!shouldDisplayDescription && (
+              <Button
+                fitContent
+                startIcon="plus"
+                variant="inline"
+                onClick={() => setShouldDisplayDescription(true)}
+                data-test={RATE_CARD_DRAWER_SHOW_DESCRIPTION_TEST_ID}
+              >
+                {translate('text_642d5eb2783a2ad10d670324')}
+              </Button>
+            )}
 
-          {!!productId && (
-            <form.AppField name="productFilterId">
+            <form.AppField
+              name="productId"
+              listeners={{
+                // Switching the product item invalidates the selected item filter
+                // (it belongs to the previous item), so clear it.
+                onChange: () => {
+                  if (form.state.values.productFilterId) {
+                    form.setFieldValue('productFilterId', '')
+                  }
+                },
+              }}
+            >
               {(field) => (
                 <field.ComboBoxField
-                  label={translate(RATE_CARD_PRODUCT_ITEM_FILTER_LABEL_KEY)}
-                  placeholder={translate('text_1784927788140s9l160t42mm')}
-                  data={productFiltersComboboxData}
-                  loading={productFiltersLoading}
+                  label={translate('text_1784925227817ekmphmxz74c')}
+                  placeholder={translate('text_1784579021080kajutbc14la')}
+                  data={productsComboboxData}
+                  searchQuery={getProducts}
+                  loading={productsLoading}
                   disabled={isEdit}
                 />
               )}
             </form.AppField>
-          )}
 
-          {!!productId && availableRateModelLabels.length > 0 && (
-            <Alert type="info" data-test={RATE_CARD_DRAWER_AVAILABLE_MODELS_ALERT_TEST_ID}>
-              {`${translate(RATE_CARD_AVAILABLE_MODELS_ALERT_KEY)} ${availableRateModelLabels.join(', ')}`}
-            </Alert>
-          )}
-        </CenteredPage.PageSection>
-
-        <CenteredPage.PageSection>
-          <CenteredPage.PageSectionTitle
-            title={translate(RATE_CARD_PRICING_UNIT_SECTION_TITLE_KEY)}
-          />
-
-          <form.AppField name="pricingUnit">
-            {(field) => (
-              <field.ComboBoxField
-                disableClearable
-                label={translate(RATE_CARD_PRICING_UNIT_LABEL_KEY)}
-                data={pricingUnitsComboboxData}
-                disabled={isLocked}
-              />
-            )}
-          </form.AppField>
-
-          {/* Currency is mandatory on every rate card, independent of the pricing unit. */}
-          <form.AppField name="currency">
-            {(field) => (
-              <field.ComboBoxField
-                disableClearable
-                label={translate(RATE_CARD_CURRENCY_LABEL_KEY)}
-                placeholder={translate('text_632c6e59b73f9a54d4c7224b')}
-                data={currencyComboboxData}
-                disabled={isLocked}
-              />
-            )}
-          </form.AppField>
-        </CenteredPage.PageSection>
-
-        <CenteredPage.PageSection>
-          <CenteredPage.PageSectionTitle title={translate('text_17423672025282dl7iozy1ru')} />
-
-          <form.AppField
-            name="billingTiming"
-            listeners={{
-              // Invoicing strategy only exists for pay-in-advance; reset it when
-              // switching to arrears so a stale strategy is not serialized.
-              onChange: ({ value }) => {
-                if (
-                  value === RateCardBillingTimingEnum.Arrears &&
-                  form.state.values.invoicingStrategy !== 'invoiceable'
-                ) {
-                  form.setFieldValue('invoicingStrategy', 'invoiceable')
-                }
-              },
-            }}
-          >
-            {(field) => (
-              <field.RadioGroupField
-                label={translate('text_6682c52081acea90520743a8')}
-                optionLabelVariant="body"
-                disabled={isLocked}
-                options={[
-                  {
-                    label: translate('text_6682c52081acea90520743ac'),
-                    value: RateCardBillingTimingEnum.Arrears,
-                  },
-                  {
-                    label: translate('text_6682c52081acea90520743ae'),
-                    value: RateCardBillingTimingEnum.Advance,
-                  },
-                ]}
-              />
-            )}
-          </form.AppField>
-
-          {isPayInAdvance && (
-            <ChargeInvoicingStrategyOption
-              localCharge={strategyLocalCharge}
-              disabled={isLocked}
-              openPremiumDialog={() => openPremiumWarningDialog()}
-              handleUpdate={({ invoiceable, regroupPaidFees }) => {
-                form.setFieldValue(
-                  'invoicingStrategy',
-                  mapInvoiceFieldsToStrategy({
-                    displayOnInvoice: invoiceable,
-                    regroupPaidFees: (regroupPaidFees ??
-                      null) as unknown as RateCardRegroupPaidFeesEnum | null,
-                  }),
-                )
-              }}
-            />
-          )}
-
-          {isProrationVisible && (
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-col gap-1">
-                <Typography variant="captionHl" color="grey700">
-                  {translate('text_177488074309762bkd4znl3p')}
-                </Typography>
-                <Typography variant="caption" color="grey600">
-                  {translate('text_1774880743098ioxd3oxanxo')}
-                </Typography>
-              </div>
-
-              <form.AppField name="proration">
+            {!!productId && (
+              <form.AppField name="productFilterId">
                 {(field) => (
-                  <field.SwitchField
-                    label={translate('text_177488074309762bkd4znl3p')}
+                  <field.ComboBoxField
+                    label={translate('text_1784925227817w9txcfey6nm')}
+                    placeholder={translate('text_1784927788140s9l160t42mm')}
+                    data={productFiltersComboboxData}
+                    loading={productFiltersLoading}
+                    disabled={isEdit}
+                  />
+                )}
+              </form.AppField>
+            )}
+
+            <form.AppField name="currency">
+              {(field) => (
+                <field.ComboBoxField
+                  disableClearable
+                  label={translate('text_1784925227817bab1mp540x7')}
+                  placeholder={translate('text_632c6e59b73f9a54d4c7224b')}
+                  data={currencyComboboxData}
+                  disabled={isLocked}
+                />
+              )}
+            </form.AppField>
+
+            {!!currency && pricingUnitsComboboxData.length > 0 && (
+              <form.AppField name="pricingUnit">
+                {(field) => (
+                  <field.ComboBoxField
+                    disableClearable
+                    label={translate('text_1784925227817xt1irx4wum2')}
+                    data={pricingUnitsComboboxData}
                     disabled={isLocked}
                   />
                 )}
               </form.AppField>
-            </div>
-          )}
+            )}
+          </CenteredPage.PageSection>
 
-          <form.AppField name="walletTargetable">
-            {(field) => (
-              <field.SwitchField
-                label={translate(RATE_CARD_WALLET_TARGETABLE_LABEL_KEY)}
-                subLabel={translate(RATE_CARD_WALLET_TARGETABLE_CAPTION_KEY)}
+          <CenteredPage.PageSection>
+            <CenteredPage.PageSectionTitle title={translate('text_17423672025282dl7iozy1ru')} />
+
+            <form.AppField
+              name="billingTiming"
+              listeners={{
+                // Invoicing strategy only exists for pay-in-advance; reset it when
+                // switching to arrears so a stale strategy is not serialized.
+                onChange: ({ value }) => {
+                  if (
+                    value === RateCardBillingTimingEnum.Arrears &&
+                    form.state.values.invoicingStrategy !== 'invoiceable'
+                  ) {
+                    form.setFieldValue('invoicingStrategy', 'invoiceable')
+                  }
+                },
+              }}
+            >
+              {(field) => (
+                <field.RadioGroupField
+                  label={translate('text_6682c52081acea90520743a8')}
+                  description={translate('text_1781703119230q5zam349txb')}
+                  optionLabelVariant="body"
+                  disabled={isLocked}
+                  options={[
+                    {
+                      label: translate('text_6682c52081acea90520743ac'),
+                      value: RateCardBillingTimingEnum.Arrears,
+                    },
+                    {
+                      label: translate('text_6682c52081acea90520743ae'),
+                      value: RateCardBillingTimingEnum.Advance,
+                    },
+                  ]}
+                />
+              )}
+            </form.AppField>
+
+            {isPayInAdvance && (
+              <ChargeInvoicingStrategyOption
+                localCharge={strategyLocalCharge}
                 disabled={isLocked}
+                openPremiumDialog={() => openPremiumWarningDialog()}
+                handleUpdate={({ invoiceable, regroupPaidFees }) => {
+                  form.setFieldValue(
+                    'invoicingStrategy',
+                    mapInvoiceFieldsToStrategy({
+                      displayOnInvoice: invoiceable,
+                      regroupPaidFees: (regroupPaidFees ??
+                        null) as unknown as RateCardRegroupPaidFeesEnum | null,
+                    }),
+                  )
+                }}
               />
             )}
-          </form.AppField>
-        </CenteredPage.PageSection>
+
+            {isProrationVisible && (
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-1">
+                  <Typography variant="captionHl" color="grey700">
+                    {translate('text_177488074309762bkd4znl3p')}
+                  </Typography>
+                  <Typography variant="caption" color="grey600">
+                    {translate('text_1774880743098ioxd3oxanxo')}
+                  </Typography>
+                </div>
+
+                <form.AppField name="proration">
+                  {(field) => (
+                    <field.SwitchField
+                      label={translate('text_177488074309762bkd4znl3p')}
+                      disabled={isLocked}
+                    />
+                  )}
+                </form.AppField>
+              </div>
+            )}
+
+            {!!productId && availableRateModelLabels.length > 0 && (
+              <Alert
+                type="info"
+                data-test={RATE_CARD_DRAWER_AVAILABLE_MODELS_ALERT_TEST_ID}
+                className="flex flex-col gap-1"
+              >
+                <Typography
+                  variant="body"
+                  color="grey700"
+                >{`${translate('text_1784925227817ukilytyxozn')} `}</Typography>
+
+                <span className="flex flex-wrap gap-2">
+                  {availableRateModelLabels.map((label) => (
+                    <Chip
+                      key={label}
+                      data-test={RATE_CARD_DRAWER_AVAILABLE_MODEL_CHIP_TEST_ID}
+                      variant="captionCode"
+                      color="danger600"
+                      label={label}
+                      size="small"
+                    />
+                  ))}
+                </span>
+              </Alert>
+            )}
+
+            <form.AppField name="walletTargetable">
+              {(field) => (
+                <field.SwitchField
+                  label={translate('text_1784925227817ffwix51pkv1')}
+                  subLabel={translate('text_17849252278174oqykkuidsn')}
+                  disabled={isLocked}
+                />
+              )}
+            </form.AppField>
+          </CenteredPage.PageSection>
+        </CenteredPage.SubsectionWrapper>
       </>
     )
   },
