@@ -1,21 +1,27 @@
 import { gql, useApolloClient } from '@apollo/client'
+import { GraphQLFormattedError } from 'graphql'
 
-import { ConnectionFormValues } from '~/components/customerConnections/CustomerConnectionDrawer'
+import {
+  ConnectionFormValues,
+  CustomerConnectionDrawerFormApi,
+} from '~/components/customerConnections/CustomerConnectionDrawer'
 import { ConnectionCategory } from '~/components/customerConnections/types'
 import { useConnectionOptions } from '~/components/customerConnections/useConnectionOptions'
 import {
   getIntegrationCustomerForCategory,
   getProviderPaymentConnection,
 } from '~/components/customers/connectionsSection/utils'
-import { addToast } from '~/core/apolloClient'
+import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import {
   INTEGRATION_POLLING_INTERVAL,
   MAX_INTEGRATION_POLLING_ATTEMPTS,
 } from '~/core/constants/integrationPolling'
+import { applyExistingCodeError } from '~/core/form/existingCodeError'
 import {
   AddCustomerDrawerFragment,
   GetCustomerDocument,
   GetCustomerQuery,
+  LagoApiError,
   ProviderPaymentMethodsEnum,
   ProviderTypeEnum,
   useClearCustomerPaymentProviderMutation,
@@ -92,7 +98,7 @@ type UseCustomerConnectionsPersistenceReturn = {
   saveConnection: (
     category: ConnectionCategory,
     values: ConnectionFormValues,
-    utils: { isEdition: boolean },
+    utils: { isEdition: boolean; formApi: CustomerConnectionDrawerFormApi },
   ) => Promise<boolean>
   deleteConnection: (category: ConnectionCategory) => Promise<boolean>
 }
@@ -117,11 +123,21 @@ export const useCustomerConnectionsPersistence = ({
 }: UseCustomerConnectionsPersistenceProps): UseCustomerConnectionsPersistenceReturn => {
   const client = useApolloClient()
 
-  const [createPaymentConnection] = useCreateCustomerPaymentConnectionMutation()
-  const [updatePaymentConnection] = useUpdateCustomerPaymentConnectionMutation()
+  // `value_already_exist` is reported by the drawer itself, on any key: the
+  // global error link would otherwise toast it on top
+  const silenceExistingCodeError = {
+    context: { silentErrorDetails: [LagoApiError.ValueAlreadyExist] },
+  }
+
+  const [createPaymentConnection] =
+    useCreateCustomerPaymentConnectionMutation(silenceExistingCodeError)
+  const [updatePaymentConnection] =
+    useUpdateCustomerPaymentConnectionMutation(silenceExistingCodeError)
   const [destroyPaymentConnection] = useDestroyCustomerPaymentConnectionMutation()
-  const [createIntegrationConnection] = useCreateCustomerIntegrationConnectionMutation()
-  const [updateIntegrationConnection] = useUpdateCustomerIntegrationConnectionMutation()
+  const [createIntegrationConnection] =
+    useCreateCustomerIntegrationConnectionMutation(silenceExistingCodeError)
+  const [updateIntegrationConnection] =
+    useUpdateCustomerIntegrationConnectionMutation(silenceExistingCodeError)
   const [destroyIntegrationConnection] = useDestroyCustomerIntegrationConnectionMutation()
   const [clearPaymentProvider] = useClearCustomerPaymentProviderMutation()
 
@@ -155,18 +171,29 @@ export const useCustomerConnectionsPersistence = ({
   }
 
   /**
-   * True only when the mutation returned its payload. Apollo THROWS on
-   * network and GraphQL errors (default errorPolicy) — without the catch a
-   * failure would bubble as an unhandled rejection from the delete
-   * confirmation dialog. No toast here: the global error link already
-   * surfaces non-silenced errors.
+   * True only when the mutation returned its payload. `errorPolicy: 'all'`
+   * (`src/core/apolloClient/init.ts`) returns GraphQL errors in `errors`, so
+   * only a network failure rejects.
    */
   const runMutation = async <TData>(
-    mutate: () => Promise<{ data?: TData | null; errors?: readonly unknown[] }>,
+    mutate: () => Promise<{ data?: TData | null; errors?: readonly GraphQLFormattedError[] }>,
     getPayload: (data: TData) => unknown,
+    formApi?: CustomerConnectionDrawerFormApi,
   ): Promise<boolean> => {
     try {
       const { data, errors } = await mutate()
+
+      if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
+        // Silenced globally for this operation, so the drawer owns the report:
+        // under the Code input when it is the code, a toast otherwise
+        if (formApi && hasDefinedGQLError('ValueAlreadyExist', errors, 'code')) {
+          applyExistingCodeError(formApi)
+        } else {
+          addToast({ severity: 'danger', translateKey: 'text_622f7a3dc32ce100c46a5154' })
+        }
+
+        return false
+      }
 
       return !errors?.length && !!data && !!getPayload(data)
     } catch {
@@ -188,7 +215,10 @@ export const useCustomerConnectionsPersistence = ({
     return pools[category].find((integration) => integration.code === code)
   }
 
-  const savePaymentConnection = async (values: ConnectionFormValues): Promise<boolean> => {
+  const savePaymentConnection = async (
+    values: ConnectionFormValues,
+    formApi: CustomerConnectionDrawerFormApi,
+  ): Promise<boolean> => {
     const paymentProvider = (values.providerType as ProviderTypeEnum) || undefined
 
     // The create mutation pairs the code with its provider type — without a
@@ -209,6 +239,7 @@ export const useCustomerConnectionsPersistence = ({
             variables: {
               input: {
                 id: existingId,
+                ...(values.code ? { code: values.code } : {}),
                 providerCustomerId: values.externalCustomerId || null,
                 syncWithProvider: values.syncWithProvider ?? false,
                 providerPaymentMethods: getEnabledPaymentMethods(values.providerPaymentMethods),
@@ -216,6 +247,7 @@ export const useCustomerConnectionsPersistence = ({
             },
           }),
         (data) => data.updatePaymentProviderCustomer,
+        formApi,
       )
     }
 
@@ -237,6 +269,7 @@ export const useCustomerConnectionsPersistence = ({
           variables: {
             input: {
               customerId: customer.id,
+              code: values.code || undefined,
               paymentProvider,
               paymentProviderCode: values.providerCode,
               providerCustomerId: values.externalCustomerId || null,
@@ -246,12 +279,14 @@ export const useCustomerConnectionsPersistence = ({
           },
         }),
       (data) => data.createPaymentProviderCustomer,
+      formApi,
     )
   }
 
   const saveIntegrationConnection = async (
     category: Exclude<ConnectionCategory, ConnectionCategory.Payment>,
     values: ConnectionFormValues,
+    formApi: CustomerConnectionDrawerFormApi,
   ): Promise<boolean> => {
     const orgIntegration = values.providerCode
       ? resolveOrgIntegration(category, values.providerCode)
@@ -270,6 +305,7 @@ export const useCustomerConnectionsPersistence = ({
     const isSameConnection = existing?.integrationCode === values.providerCode
 
     const linkInput = {
+      ...(values.code ? { code: values.code } : {}),
       externalCustomerId: values.externalCustomerId || null,
       syncWithProvider: values.syncWithProvider ?? false,
       ...(category === ConnectionCategory.Accounting && values.subsidiaryId
@@ -289,6 +325,7 @@ export const useCustomerConnectionsPersistence = ({
             variables: { input: { id: existingId, ...linkInput } },
           }),
         (data) => data.updateIntegrationCustomer,
+        formApi,
       )
     }
 
@@ -316,18 +353,19 @@ export const useCustomerConnectionsPersistence = ({
           },
         }),
       (data) => data.createIntegrationCustomer,
+      formApi,
     )
   }
 
   const saveConnection = async (
     category: ConnectionCategory,
     values: ConnectionFormValues,
-    { isEdition }: { isEdition: boolean },
+    { isEdition, formApi }: { isEdition: boolean; formApi: CustomerConnectionDrawerFormApi },
   ): Promise<boolean> => {
     const succeeded =
       category === ConnectionCategory.Payment
-        ? await savePaymentConnection(values)
-        : await saveIntegrationConnection(category, values)
+        ? await savePaymentConnection(values, formApi)
+        : await saveIntegrationConnection(category, values, formApi)
 
     // The link the write was supposed to leave behind — an integration
     // customer is created asynchronously, so the refresh waits for it instead

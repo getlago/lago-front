@@ -1,7 +1,10 @@
 import { act, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { ConnectionFormValues } from '~/components/customerConnections/CustomerConnectionDrawer'
+import {
+  ConnectionFormValues,
+  CustomerConnectionDrawerFormApi,
+} from '~/components/customerConnections/CustomerConnectionDrawer'
 import {
   getCustomerConnectionMenuTestId,
   getCustomerConnectionRowTestId,
@@ -78,7 +81,7 @@ type CapturedDrawerProps = {
   onSave?: (
     category: ConnectionCategory,
     values: ConnectionFormValues,
-    utils: { isEdition: boolean },
+    utils: { isEdition: boolean; formApi: CustomerConnectionDrawerFormApi },
   ) => void | Promise<void>
 }
 
@@ -346,6 +349,7 @@ const saveFromDrawer = async (
   await act(async () => {
     await capturedDrawerProps.current?.onSave?.(category, values as ConnectionFormValues, {
       isEdition: true,
+      formApi: {} as CustomerConnectionDrawerFormApi,
     })
   })
 }
@@ -818,6 +822,131 @@ describe('ExternalAppsAccordion', () => {
             screen.getByTestId(getCustomerConnectionRowTestId(ROW_IDS[ConnectionCategory.Crm])),
           ).toBeVisible()
         })
+      })
+    })
+  })
+  describe('GIVEN the connection code', () => {
+    describe('WHEN editing a connection that carries one', () => {
+      it.each([
+        ['payment', ConnectionCategory.Payment, 'stripe'],
+        ['tax', ConnectionCategory.Tax, 'tax-eu'],
+      ])('THEN should prefill the %s drawer with it', async (_, category, expectedCode) => {
+        render(
+          <Harness
+            defaultValues={buildDefaultValues({
+              integrationCustomers: [{ ...TAX_CONNECTION, code: 'tax-eu' }],
+            })}
+          />,
+        )
+
+        await openAccordion()
+        await clickRow(category)
+
+        expect(mockOpenEdit).toHaveBeenCalledWith(
+          category,
+          expect.objectContaining({ code: expectedCode }),
+          undefined,
+        )
+      })
+    })
+
+    describe('WHEN the drawer saves a typed code', () => {
+      it('THEN should store it on the payment connection of the form array', async () => {
+        render(<Harness />)
+
+        await openAccordion()
+        await saveFromDrawer(ConnectionCategory.Payment, {
+          code: 'payment-eu',
+          providerCode: 'stripe-eu',
+          providerType: ProviderTypeEnum.Stripe,
+          externalCustomerId: 'cus_123',
+        })
+
+        expect(getFormValues().paymentProviderCustomers).toEqual([
+          expect.objectContaining({ id: 'pc-1', code: 'payment-eu' }),
+        ])
+      })
+
+      it('THEN should store it on the integration connection of the form array', async () => {
+        render(<Harness />)
+
+        await openAccordion()
+        await saveFromDrawer(ConnectionCategory.Tax, {
+          code: 'tax-eu',
+          providerCode: 'anrok-1',
+          providerType: IntegrationTypeEnum.Anrok,
+          externalCustomerId: 'anrok_cus_1',
+        })
+
+        expect(getFormValues().integrationCustomers).toEqual([
+          expect.objectContaining({ id: 'tax-row-id', code: 'tax-eu' }),
+        ])
+      })
+    })
+
+    describe('WHEN the drawer switches the integration to another provider', () => {
+      it('THEN should not carry the replaced connection code over', async () => {
+        render(
+          <Harness
+            defaultValues={buildDefaultValues({
+              integrationCustomers: [{ ...TAX_CONNECTION, code: 'tax-eu' }],
+            })}
+          />,
+        )
+
+        await openAccordion()
+        // The code the drawer emits after a switch: its field re-seeds on the
+        // new provider
+        await saveFromDrawer(ConnectionCategory.Tax, {
+          code: 'avalara-1',
+          providerCode: 'avalara-1',
+          providerType: IntegrationTypeEnum.Avalara,
+          externalCustomerId: 'avalara_cus_1',
+        })
+
+        expect(getFormValues().integrationCustomers).toEqual([
+          expect.objectContaining({ id: undefined, code: 'avalara-1', providerCode: 'avalara-1' }),
+        ])
+      })
+    })
+
+    describe('WHEN the drawer saves a switched provider with an emptied code', () => {
+      it('THEN should not fall back to the replaced connection code', async () => {
+        render(
+          <Harness
+            defaultValues={buildDefaultValues({
+              integrationCustomers: [{ ...TAX_CONNECTION, code: 'tax-eu' }],
+            })}
+          />,
+        )
+
+        await openAccordion()
+        await saveFromDrawer(ConnectionCategory.Tax, {
+          code: '',
+          providerCode: 'avalara-1',
+          providerType: IntegrationTypeEnum.Avalara,
+          externalCustomerId: 'avalara_cus_1',
+        })
+
+        expect(getFormValues().integrationCustomers?.[0]?.code).toBeUndefined()
+      })
+    })
+
+    describe('WHEN the drawer saves without a code', () => {
+      it('THEN should keep the code the connection already had', async () => {
+        render(<Harness />)
+
+        await openAccordion()
+        await saveFromDrawer(ConnectionCategory.Payment, {
+          code: '',
+          providerCode: 'stripe-eu',
+          providerType: ProviderTypeEnum.Stripe,
+          externalCustomerId: 'cus_123',
+        })
+
+        expect(getFormValues().paymentProviderCustomers).toEqual([
+          expect.objectContaining({ code: 'stripe' }),
+        ])
       })
     })
   })

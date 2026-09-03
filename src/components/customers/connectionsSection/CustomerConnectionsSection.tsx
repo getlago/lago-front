@@ -10,6 +10,7 @@ import {
 import {
   ConnectionFormValues,
   CustomerConnectionDrawer,
+  CustomerConnectionDrawerFormApi,
 } from '~/components/customerConnections/CustomerConnectionDrawer'
 import {
   CustomerConnectionRow,
@@ -170,6 +171,7 @@ export const CustomerConnectionsSection = ({ customer }: CustomerConnectionsSect
       const providerConnection = getProviderPaymentConnection(customer)
 
       return {
+        code: providerConnection?.code ?? '',
         providerCode: customer.paymentProviderCode ?? undefined,
         providerType: customer.paymentProvider ?? undefined,
         externalCustomerId: providerConnection?.providerCustomerId ?? '',
@@ -184,6 +186,7 @@ export const CustomerConnectionsSection = ({ customer }: CustomerConnectionsSect
     const existing = getIntegrationCustomerForCategory(customer, category)
 
     return {
+      code: existing?.code ?? '',
       providerCode: existing?.integrationCode ?? undefined,
       providerType: existing?.integrationType ?? undefined,
       externalCustomerId: existing?.externalCustomerId ?? '',
@@ -227,9 +230,9 @@ export const CustomerConnectionsSection = ({ customer }: CustomerConnectionsSect
   const handleSaveConnection = async (
     category: ConnectionCategory,
     values: ConnectionFormValues,
-    { isEdition }: { isEdition: boolean },
+    { isEdition, formApi }: { isEdition: boolean; formApi: CustomerConnectionDrawerFormApi },
   ): Promise<boolean> => {
-    const succeeded = await saveConnection(category, values, { isEdition })
+    const succeeded = await saveConnection(category, values, { isEdition, formApi })
 
     // The drawer closes on a truthy onSave — report the failure instead of
     // throwing, so it stays open (with its values intact) without raising an

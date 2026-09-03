@@ -1,13 +1,16 @@
 import { act, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { createRef } from 'react'
 
 import { render } from '~/test-utils'
 
+import { CONNECTION_CODE_FIELD_TEST_ID } from '../ConnectionCodeField'
 import {
   ConnectionFormValues,
   CustomerConnectionDrawer,
   CustomerConnectionDrawerRef,
 } from '../CustomerConnectionDrawer'
+import { MANUAL_CONNECTION_CODE } from '../customerIntegrationConst'
 import { CONNECTION_CATEGORY_SHORT_LABEL_KEYS, ConnectionCategory } from '../types'
 
 const mockOpen = jest.fn()
@@ -128,7 +131,7 @@ describe('CustomerConnectionDrawer', () => {
         expect(onSave).toHaveBeenCalledWith(
           ConnectionCategory.Payment,
           expect.objectContaining({ providerCode: 'stripe-1', externalCustomerId: 'cus_123' }),
-          { isEdition: true },
+          { isEdition: true, formApi: expect.anything() },
         )
         expect(mockClose).toHaveBeenCalledTimes(1)
       })
@@ -182,6 +185,144 @@ describe('CustomerConnectionDrawer', () => {
         render(<>{getLastOpenArgs().children}</>)
 
         expect(screen.getByRole('combobox')).toBeInTheDocument()
+      })
+    })
+  })
+  describe('GIVEN the connection code field', () => {
+    describe('WHEN the drawer content renders', () => {
+      it.each([
+        ['create', undefined],
+        ['edit', VALID_PAYMENT_VALUES],
+      ])('THEN should display the code input in %s mode', (_, initialValues) => {
+        const { ref } = renderDrawer()
+
+        act(() => ref.current?.openDrawer(ConnectionCategory.Payment, initialValues))
+
+        render(<>{getLastOpenArgs().children}</>)
+
+        expect(screen.getByTestId(CONNECTION_CODE_FIELD_TEST_ID)).toBeInTheDocument()
+      })
+
+      it('THEN should follow the selected connection when the code is still empty', () => {
+        const { ref } = renderDrawer()
+
+        act(() => ref.current?.openDrawer(ConnectionCategory.Payment, VALID_PAYMENT_VALUES))
+
+        render(<>{getLastOpenArgs().children}</>)
+
+        const input = screen
+          .getByTestId(CONNECTION_CODE_FIELD_TEST_ID)
+          .querySelector('input') as HTMLInputElement
+
+        expect(input).toHaveValue('stripe-1')
+      })
+
+      it('THEN should never overwrite a code the connection already carries', () => {
+        const { ref } = renderDrawer()
+
+        act(() =>
+          ref.current?.openDrawer(ConnectionCategory.Payment, {
+            ...VALID_PAYMENT_VALUES,
+            code: 'payment-eu',
+          }),
+        )
+
+        render(<>{getLastOpenArgs().children}</>)
+
+        const input = screen
+          .getByTestId(CONNECTION_CODE_FIELD_TEST_ID)
+          .querySelector('input') as HTMLInputElement
+
+        expect(input).toHaveValue('payment-eu')
+      })
+
+      it('THEN should stay editable on a connection whose provider is locked', () => {
+        const { ref } = renderDrawer()
+
+        act(() =>
+          ref.current?.openDrawer(
+            ConnectionCategory.Payment,
+            { ...VALID_PAYMENT_VALUES, code: 'stripe-eu' },
+            { title: 'My Stripe', subtitle: 'stripe-1', icon: null },
+          ),
+        )
+
+        render(<>{getLastOpenArgs().children}</>)
+
+        const input = screen
+          .getByTestId(CONNECTION_CODE_FIELD_TEST_ID)
+          .querySelector('input') as HTMLInputElement
+
+        expect(input).toHaveValue('stripe-eu')
+        expect(input).not.toBeDisabled()
+      })
+    })
+
+    describe('WHEN the form is submitted', () => {
+      it('THEN should persist the typed code', async () => {
+        const onSave = jest.fn().mockResolvedValue(true)
+        const { ref } = renderDrawer({ onSave })
+
+        act(() =>
+          ref.current?.openDrawer(ConnectionCategory.Payment, {
+            ...VALID_PAYMENT_VALUES,
+            code: 'stripe-eu',
+          }),
+        )
+
+        await act(async () => {
+          await getLastOpenArgs().form.submit()
+        })
+
+        expect(onSave).toHaveBeenCalledWith(
+          ConnectionCategory.Payment,
+          expect.objectContaining({ code: 'stripe-eu' }),
+          expect.anything(),
+        )
+      })
+
+      it('THEN should refuse the reserved manual code, which the customer payload would destroy', async () => {
+        const onSave = jest.fn().mockResolvedValue(true)
+        const { ref } = renderDrawer({ onSave })
+
+        act(() =>
+          ref.current?.openDrawer(ConnectionCategory.Payment, {
+            ...VALID_PAYMENT_VALUES,
+            code: MANUAL_CONNECTION_CODE,
+          }),
+        )
+
+        await act(async () => {
+          await getLastOpenArgs().form.submit()
+        })
+
+        expect(onSave).not.toHaveBeenCalled()
+        expect(mockClose).not.toHaveBeenCalled()
+      })
+
+      it('THEN should submit with an empty code, the field being optional', async () => {
+        const onSave = jest.fn().mockResolvedValue(true)
+        const { ref } = renderDrawer({ onSave })
+
+        act(() => ref.current?.openDrawer(ConnectionCategory.Payment, VALID_PAYMENT_VALUES))
+
+        render(<>{getLastOpenArgs().children}</>)
+
+        // The rendered field seeds itself from the connection, so an empty code
+        // is a state the user reaches by clearing the input
+        await userEvent.clear(
+          screen.getByTestId(CONNECTION_CODE_FIELD_TEST_ID).querySelector('input') as HTMLElement,
+        )
+
+        await act(async () => {
+          await getLastOpenArgs().form.submit()
+        })
+
+        expect(onSave).toHaveBeenCalledWith(
+          ConnectionCategory.Payment,
+          expect.objectContaining({ code: '' }),
+          expect.anything(),
+        )
       })
     })
   })
