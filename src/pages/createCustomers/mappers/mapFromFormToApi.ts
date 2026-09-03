@@ -51,9 +51,9 @@ const getPaymentProviderCustomers = (
     .filter((connection) => connection.code !== MANUAL_CONNECTION_CODE)
     .map((connection) => ({
       id: connection.id,
-      // The backend defaults a new connection's code to the provider code;
-      // sending it explicitly keeps the connection addressable by code
-      code: connection.code ?? connection.providerCode,
+      // Explicit null, never omitted nor blank: `set_code` backfills the
+      // provider code on nil, and `''` would defeat its `||=`
+      code: connection.code || null,
       // Omitted rather than blanked when unresolved: the backend writes every
       // key it receives onto the row, so an empty value would wipe the
       // provider of an existing connection

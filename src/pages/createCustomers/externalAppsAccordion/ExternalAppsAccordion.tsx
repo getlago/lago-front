@@ -199,7 +199,7 @@ const ExternalAppsAccordion = withForm({
 
         const nextConnection: FormPaymentConnection = {
           id: preserved?.id,
-          code: values.code || preserved?.code,
+          code: values.code || undefined,
           // Carried across a switch too: the replacement inherits the default
           // flag, otherwise a customer that already has another (manual)
           // connection would end up with no default at all
@@ -229,7 +229,7 @@ const ExternalAppsAccordion = withForm({
       const nextConnection: FormIntegrationConnection = {
         id: preserved?.id,
         category,
-        code: values.code || preserved?.code,
+        code: values.code || undefined,
         providerCode: values.providerCode,
         providerType: (values.providerType as IntegrationTypeEnum) || undefined,
         externalCustomerId: values.externalCustomerId ?? '',

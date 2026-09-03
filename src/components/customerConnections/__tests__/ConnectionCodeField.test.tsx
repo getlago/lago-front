@@ -11,6 +11,8 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (key: string) => key }),
 }))
 
+const EXISTING_CODE_ERROR_MESSAGE = 'text_632a2d437e341dcc76817556'
+
 const formRef: { current: CustomerConnectionDrawerFormApi | null } = { current: null }
 
 const Harness = ({
@@ -28,14 +30,6 @@ const Harness = ({
 const getInput = (): HTMLInputElement =>
   screen.getByTestId(CONNECTION_CODE_FIELD_TEST_ID).querySelector('input') as HTMLInputElement
 
-const selectProvider = (providerCode: string): void => {
-  act(() => {
-    formRef.current?.setFieldValue('providerCode', providerCode)
-  })
-}
-
-const EXISTING_CODE_ERROR_MESSAGE = 'text_632a2d437e341dcc76817556'
-
 describe('ConnectionCodeField', () => {
   beforeEach(() => {
     formRef.current = null
@@ -43,78 +37,28 @@ describe('ConnectionCodeField', () => {
 
   describe('GIVEN a connection being created', () => {
     describe('WHEN a provider is selected', () => {
-      it('THEN should seed the code with the selected connection code', () => {
+      it('THEN should leave the code empty, the backend backfilling it from the provider', () => {
         render(<Harness defaultValues={{ code: '', providerCode: undefined }} />)
 
-        selectProvider('anrok-1')
+        act(() => {
+          formRef.current?.setFieldValue('providerCode', 'anrok-1')
+        })
 
-        expect(getInput()).toHaveValue('anrok-1')
-      })
-    })
-
-    describe('WHEN the provider is switched after the seed', () => {
-      it('THEN should follow the new connection instead of keeping the replaced code', () => {
-        render(<Harness defaultValues={{ code: '', providerCode: undefined }} />)
-
-        selectProvider('anrok-1')
-        selectProvider('avalara-1')
-
-        expect(getInput()).toHaveValue('avalara-1')
-      })
-    })
-
-    describe('WHEN the provider is switched away and back', () => {
-      it('THEN should come back to the code the drawer opened on', () => {
-        render(<Harness defaultValues={{ code: 'tax-eu', providerCode: 'anrok-1' }} />)
-
-        selectProvider('avalara-1')
-        expect(getInput()).toHaveValue('avalara-1')
-
-        selectProvider('anrok-1')
-        expect(getInput()).toHaveValue('tax-eu')
-      })
-
-      it('THEN should re-seed when the drawer opened without a code', () => {
-        render(<Harness defaultValues={{ code: '', providerCode: undefined }} />)
-
-        selectProvider('anrok-1')
-        selectProvider('avalara-1')
-        selectProvider('anrok-1')
-
-        expect(getInput()).toHaveValue('anrok-1')
-      })
-    })
-
-    describe('WHEN the user typed a code before switching provider', () => {
-      it('THEN should keep what the user typed', async () => {
-        render(<Harness defaultValues={{ code: '', providerCode: undefined }} />)
-
-        selectProvider('anrok-1')
-        await userEvent.clear(getInput())
-        await userEvent.type(getInput(), 'tax-eu')
-
-        selectProvider('avalara-1')
-
-        expect(getInput()).toHaveValue('tax-eu')
+        expect(getInput()).toHaveValue('')
       })
     })
   })
 
   describe('GIVEN a connection opened on a persisted code', () => {
-    describe('WHEN the field mounts', () => {
-      it('THEN should keep the persisted code', () => {
-        render(<Harness defaultValues={{ code: 'payment-eu', providerCode: 'stripe-eu' }} />)
+    describe('WHEN the provider is switched', () => {
+      it('THEN should keep showing the value the connection was loaded with', () => {
+        render(<Harness defaultValues={{ code: 'tax-eu', providerCode: 'anrok-1' }} />)
 
-        expect(getInput()).toHaveValue('payment-eu')
-      })
-    })
-  })
-  describe('GIVEN a persisted connection with no code', () => {
-    describe('WHEN the field mounts', () => {
-      it('THEN should seed it from the connection it is attached to', () => {
-        render(<Harness defaultValues={{ code: '', providerCode: 'stripe-eu' }} />)
+        act(() => {
+          formRef.current?.setFieldValue('providerCode', 'avalara-1')
+        })
 
-        expect(getInput()).toHaveValue('stripe-eu')
+        expect(getInput()).toHaveValue('tax-eu')
       })
     })
   })

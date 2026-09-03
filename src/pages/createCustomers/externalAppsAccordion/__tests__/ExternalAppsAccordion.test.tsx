@@ -661,11 +661,13 @@ describe('ExternalAppsAccordion', () => {
 
   describe('GIVEN a payment connection save from the drawer', () => {
     describe('WHEN the provider is unchanged', () => {
-      it('THEN should preserve the persisted id, code and isDefault', async () => {
+      it('THEN should preserve the persisted id, the submitted code and isDefault', async () => {
         render(<Harness defaultValues={buildDefaultValues()} customer={buildPersistedCustomer()} />)
 
         await openAccordion()
+        // The drawer submits the code it was prefilled with from the DB
         await saveFromDrawer(ConnectionCategory.Payment, {
+          code: 'stripe',
           providerCode: 'stripe-eu',
           providerType: ProviderTypeEnum.Stripe,
           externalCustomerId: 'cus_999',
@@ -933,7 +935,7 @@ describe('ExternalAppsAccordion', () => {
     })
 
     describe('WHEN the drawer saves without a code', () => {
-      it('THEN should keep the code the connection already had', async () => {
+      it('THEN should drop it so the backend backfills the provider code', async () => {
         render(<Harness />)
 
         await openAccordion()
@@ -945,7 +947,7 @@ describe('ExternalAppsAccordion', () => {
         })
 
         expect(getFormValues().paymentProviderCustomers).toEqual([
-          expect.objectContaining({ code: 'stripe' }),
+          expect.objectContaining({ code: undefined }),
         ])
       })
     })

@@ -1,6 +1,3 @@
-import { useStore } from '@tanstack/react-form'
-import { useEffect, useRef } from 'react'
-
 import { clearExistingCodeError } from '~/core/form/existingCodeError'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -12,28 +9,11 @@ type ConnectionCodeFieldProps = {
   form: CustomerConnectionDrawerFormApi
 }
 
+// Never pre-filled from the selected provider: an empty code is submitted as
+// null and `PaymentProviderCustomers/IntegrationCustomers::BaseCustomer#set_code`
+// backfills it from the provider, so the value shown always comes from the DB.
 export const ConnectionCodeField = ({ form }: ConnectionCodeFieldProps) => {
   const { translate } = useInternationalization()
-
-  const providerCode = useStore(form.store, (state) => state.values.providerCode)
-  const code = useStore(form.store, (state) => state.values.code)
-  const openedRef = useRef({ providerCode, code })
-
-  // The seed writes without touching the meta: that is what tells it apart
-  // from a code the user typed.
-  useEffect(() => {
-    if (!providerCode) return
-    if (form.getFieldMeta('code')?.isDirty) return
-
-    const opened = openedRef.current
-    const nextCode =
-      providerCode === opened.providerCode ? opened.code || providerCode : providerCode
-
-    if (nextCode === code) return
-
-    form.setFieldValue('code', nextCode, { dontUpdateMeta: true })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [providerCode])
 
   return (
     <form.AppField name="code" listeners={{ onChange: () => clearExistingCodeError(form) }}>

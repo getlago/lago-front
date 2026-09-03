@@ -193,6 +193,7 @@ describe('useCustomerConnectionsPersistence', () => {
         expect(mockUpdatePayment).toHaveBeenCalledWith({
           variables: {
             input: {
+              code: null,
               id: 'pc-1',
               providerCustomerId: 'cus_456',
               syncWithProvider: true,
@@ -226,6 +227,7 @@ describe('useCustomerConnectionsPersistence', () => {
         expect(mockCreatePayment).toHaveBeenCalledWith({
           variables: {
             input: {
+              code: null,
               customerId: 'cust-1',
               paymentProvider: ProviderTypeEnum.Adyen,
               paymentProviderCode: 'adyen-eu',
@@ -327,6 +329,7 @@ describe('useCustomerConnectionsPersistence', () => {
         expect(mockCreateIntegration).toHaveBeenCalledWith({
           variables: {
             input: {
+              code: null,
               customerId: 'cust-1',
               integrationId: 'org-int-anrok',
               externalCustomerId: 'anrok_cus_1',
@@ -358,6 +361,7 @@ describe('useCustomerConnectionsPersistence', () => {
         expect(mockUpdateIntegration).toHaveBeenCalledWith({
           variables: {
             input: {
+              code: null,
               id: 'nc-1',
               externalCustomerId: 'ns_cus_UPDATED',
               syncWithProvider: true,
@@ -388,6 +392,7 @@ describe('useCustomerConnectionsPersistence', () => {
         expect(mockUpdateIntegration).toHaveBeenCalledWith({
           variables: {
             input: {
+              code: null,
               id: 'hc-1',
               externalCustomerId: 'hub_cus_1',
               syncWithProvider: true,
@@ -419,6 +424,7 @@ describe('useCustomerConnectionsPersistence', () => {
         expect(mockCreateIntegration).toHaveBeenCalledWith({
           variables: {
             input: {
+              code: null,
               customerId: 'cust-1',
               integrationId: 'org-int-xero',
               externalCustomerId: 'xero_cus_1',
@@ -763,12 +769,12 @@ describe('useCustomerConnectionsPersistence', () => {
       })
     })
 
-    describe('WHEN the code input is left empty on an edition', () => {
+    describe('WHEN the code input is left empty', () => {
       it.each([
         ['payment', ConnectionCategory.Payment, () => mockUpdatePayment],
         ['integration', ConnectionCategory.Accounting, () => mockUpdateIntegration],
       ])(
-        'THEN should omit the key from the %s update mutation, never blanking the persisted code',
+        'THEN should send an explicit null on the %s update mutation, for the backend to backfill',
         async (_, category, getMock) => {
           const result = setup()
 
@@ -786,11 +792,9 @@ describe('useCustomerConnectionsPersistence', () => {
             { isEdition: true, formApi },
           )
 
-          const [[{ variables }]] = getMock().mock.calls as unknown as [
-            [{ variables: { input: Record<string, unknown> } }],
-          ]
-
-          expect(variables.input).not.toHaveProperty('code')
+          expect(getMock()).toHaveBeenCalledWith({
+            variables: { input: expect.objectContaining({ code: null }) },
+          })
         },
       )
     })
