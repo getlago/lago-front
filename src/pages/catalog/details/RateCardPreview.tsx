@@ -25,17 +25,10 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { usePermissions } from '~/hooks/usePermissions'
 
-import { RATE_CARD_DRAWER_DESCRIPTION_KEY } from '../drawers/rateCard/RateCardDrawerContent'
 import {
   RATE_CARD_DRAWER_TITLE_CREATE_KEY,
   useRateCardDrawer,
 } from '../drawers/rateCard/useRateCardDrawer'
-import {
-  RATE_CARDS_EMPTY_SEARCH_TITLE_KEY,
-  RATE_CARDS_EMPTY_SUBTITLE_KEY,
-  RATE_CARDS_EMPTY_TITLE_KEY,
-  RATE_CARDS_SEARCH_PLACEHOLDER_KEY,
-} from '../RateCardsList'
 import { useRateCardTableActions } from '../useRateCardTableActions'
 import { useRateCardTableColumns } from '../useRateCardTableColumns'
 
@@ -102,11 +95,6 @@ gql`
 export const RATE_CARD_PREVIEW_CREATE_TEST_ID = 'rate-card-preview-create'
 export const RATE_CARD_PREVIEW_VIEW_ALL_TEST_ID = 'rate-card-preview-view-all'
 
-// New translation key, exported as a named constant (feature convention, see
-// useRateCardTableColumns.tsx) so the test references it instead of duplicating
-// the raw id.
-export const RATE_CARD_PREVIEW_VIEW_ALL_KEY = 'text_1785001812444mgdhh9wr0jj'
-
 const PREVIEW_LIMIT = 7
 
 // Discriminated scope: which parent entity this preview is embedded under. Typed
@@ -163,12 +151,12 @@ const RateCardPreviewListView = ({
         },
     emptyState: isSearching
       ? {
-          title: translate(RATE_CARDS_EMPTY_SEARCH_TITLE_KEY),
+          title: translate('text_17849293094732goytgdvyql'),
           subtitle: translate('text_63bee4e10e2d53912bfe4da7'),
         }
       : {
-          title: translate(RATE_CARDS_EMPTY_TITLE_KEY),
-          subtitle: translate(RATE_CARDS_EMPTY_SUBTITLE_KEY),
+          title: translate('text_1784929309473260i6j8d7kb'),
+          subtitle: translate('text_1784929309473m4m8kk6q6g5'),
         },
   }
 
@@ -176,7 +164,7 @@ const RateCardPreviewListView = ({
     <div className="flex flex-col gap-4">
       <SearchInput
         onChange={onSearch}
-        placeholder={translate(RATE_CARDS_SEARCH_PLACEHOLDER_KEY)}
+        placeholder={translate('text_17849293094725tv045xhkxf')}
         data-test="rate-card-preview-search-input"
       />
       <Table
@@ -200,7 +188,7 @@ const RateCardPreviewListView = ({
             endIcon="arrow-right"
             data-test={RATE_CARD_PREVIEW_VIEW_ALL_TEST_ID}
           >
-            {translate(RATE_CARD_PREVIEW_VIEW_ALL_KEY, { count: totalCount })}
+            {translate('text_1785001812444mgdhh9wr0jj', { count: totalCount })}
           </Button>
         </Link>
       )}
@@ -297,7 +285,7 @@ const RateCardPreview = ({ scope }: { scope: RateCardPreviewScope }) => {
     <section>
       <PageSectionTitle
         title={translate('text_1783104239825nxqno33u945')}
-        subtitle={translate(RATE_CARD_DRAWER_DESCRIPTION_KEY)}
+        subtitle={translate('text_178492522781766xwbos8bso')}
         action={
           canCreateRateCards
             ? {

@@ -13,11 +13,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import { tw } from '~/styles/utils'
 
-import {
-  RATE_CARD_RATE_DRAWER_DESCRIPTION_KEY,
-  RATE_CARD_RATE_DRAWER_TITLE_CREATE_KEY,
-  RATE_CARD_RATES_SECTION_TITLE_KEY,
-} from '../drawers/rateCardRate/constants'
+import { RATE_CARD_RATE_DRAWER_TITLE_CREATE_KEY } from '../drawers/rateCardRate/constants'
 import { useRateCardRateTableActions } from '../useRateCardRateTableActions'
 import { useRateCardRateTableColumns } from '../useRateCardRateTableColumns'
 
@@ -43,9 +39,6 @@ gql`
 
 export const RATE_CARD_RATES_TAB_TEST_ID = 'rate-card-rates-tab'
 export const RATE_CARD_RATES_CREATE_TEST_ID = 'rate-card-rates-create'
-
-export const RATE_CARD_RATES_EMPTY_TITLE_KEY = 'text_1787737220228wjwpgmwu8fv'
-export const RATE_CARD_RATES_EMPTY_SUBTITLE_KEY = 'text_1787737220228bjix2qjx4rz'
 
 type RateCardRatesTabProps = {
   rateCardId: string
@@ -85,8 +78,8 @@ const RateCardRatesTab = ({ rateCardId, rateCard }: RateCardRatesTabProps) => {
       buttonAction: () => location.reload(),
     },
     emptyState: {
-      title: translate(RATE_CARD_RATES_EMPTY_TITLE_KEY),
-      subtitle: translate(RATE_CARD_RATES_EMPTY_SUBTITLE_KEY),
+      title: translate('text_1787737220228wjwpgmwu8fv'),
+      subtitle: translate('text_1787737220228bjix2qjx4rz'),
       ...(canCreateRates &&
         !!rateCard && {
           buttonTitle: translate(RATE_CARD_RATE_DRAWER_TITLE_CREATE_KEY),
@@ -99,8 +92,8 @@ const RateCardRatesTab = ({ rateCardId, rateCard }: RateCardRatesTabProps) => {
   return (
     <section data-test={RATE_CARD_RATES_TAB_TEST_ID}>
       <PageSectionTitle
-        title={translate(RATE_CARD_RATES_SECTION_TITLE_KEY)}
-        subtitle={translate(RATE_CARD_RATE_DRAWER_DESCRIPTION_KEY)}
+        title={translate('text_1784930705742tg0kbcsak2v')}
+        subtitle={translate('text_17877372202276uc54jqy1np')}
         action={
           canCreateRates && !!rateCard
             ? {

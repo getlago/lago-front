@@ -9046,6 +9046,8 @@ export type QueryInviteArgs = {
 export type QueryInvitesArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
+  roleIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -9119,6 +9121,8 @@ export type QueryInvoicesArgs = {
 export type QueryMembershipsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
+  roleIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -15795,6 +15799,8 @@ export type ProductFiltersQueryVariables = Exact<{
   limit?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
   productId?: InputMaybe<Scalars['ID']['input']>;
+  productCategoryIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
+  withoutProductCategory?: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
@@ -15948,14 +15954,14 @@ export type GetRateCardForDetailsQueryVariables = Exact<{
 
 export type GetRateCardForDetailsQuery = { __typename?: 'Query', rateCard?: { __typename?: 'RateCard', id: string, name: string, code: string, description?: string | null, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean, regroupPaidFees: RateCardRegroupPaidFeesEnum, proration: boolean, walletTargetable?: boolean | null, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, product: { __typename?: 'Product', id: string, name: string, code: string, productType: ProductTypeEnum, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, code: string } | null, activeRate?: { __typename?: 'RateCardRate', id: string, effectiveFrom: any } | null } | null };
 
-export type RateCardForDetailsOverviewFragment = { __typename?: 'RateCard', id: string, name: string, code: string, description?: string | null, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean, regroupPaidFees: RateCardRegroupPaidFeesEnum, proration: boolean, walletTargetable?: boolean | null, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, product: { __typename?: 'Product', id: string, name: string, code: string, invoiceDisplayName?: string | null, productType: ProductTypeEnum, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, code: string } | null };
+export type RateCardForDetailsOverviewFragment = { __typename?: 'RateCard', id: string, name: string, code: string, description?: string | null, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean, regroupPaidFees: RateCardRegroupPaidFeesEnum, proration: boolean, walletTargetable?: boolean | null, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, product: { __typename?: 'Product', id: string, name: string, code: string, invoiceDisplayName?: string | null, productType: ProductTypeEnum, productCategory?: { __typename?: 'ProductCategory', id: string, name: string } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, code: string } | null };
 
 export type GetRateCardForDetailsOverviewQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetRateCardForDetailsOverviewQuery = { __typename?: 'Query', rateCard?: { __typename?: 'RateCard', id: string, name: string, code: string, description?: string | null, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean, regroupPaidFees: RateCardRegroupPaidFeesEnum, proration: boolean, walletTargetable?: boolean | null, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, product: { __typename?: 'Product', id: string, name: string, code: string, invoiceDisplayName?: string | null, productType: ProductTypeEnum, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, code: string } | null } | null };
+export type GetRateCardForDetailsOverviewQuery = { __typename?: 'Query', rateCard?: { __typename?: 'RateCard', id: string, name: string, code: string, description?: string | null, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean, regroupPaidFees: RateCardRegroupPaidFeesEnum, proration: boolean, walletTargetable?: boolean | null, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, product: { __typename?: 'Product', id: string, name: string, code: string, invoiceDisplayName?: string | null, productType: ProductTypeEnum, productCategory?: { __typename?: 'ProductCategory', id: string, name: string } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, code: string } | null } | null };
 
 export type RateCardForPreviewProductFragment = { __typename?: 'Product', id: string, name: string };
 
@@ -17730,6 +17736,8 @@ export type InviteItemForMembersSettingsFragment = { __typename?: 'Invite', id: 
 export type GetInvitesQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+  roleIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
 }>;
 
 
@@ -17740,6 +17748,8 @@ export type MembershipItemForMembershipSettingsFragment = { __typename?: 'Member
 export type GetMembersQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+  roleIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
 }>;
 
 
@@ -22735,6 +22745,10 @@ export const RateCardForDetailsOverviewFragmentDoc = gql`
     name
     code
     invoiceDisplayName
+    productCategory {
+      id
+      name
+    }
   }
   productFilter {
     id
@@ -41212,12 +41226,14 @@ export type ProductCategoriesLazyQueryHookResult = ReturnType<typeof useProductC
 export type ProductCategoriesSuspenseQueryHookResult = ReturnType<typeof useProductCategoriesSuspenseQuery>;
 export type ProductCategoriesQueryResult = Apollo.QueryResult<ProductCategoriesQuery, ProductCategoriesQueryVariables>;
 export const ProductFiltersDocument = gql`
-    query productFilters($page: Int, $limit: Int, $searchTerm: String, $productId: ID) {
+    query productFilters($page: Int, $limit: Int, $searchTerm: String, $productId: ID, $productCategoryIds: [ID!], $withoutProductCategory: Boolean) {
   productFilters(
     page: $page
     limit: $limit
     searchTerm: $searchTerm
     productId: $productId
+    productCategoryIds: $productCategoryIds
+    withoutProductCategory: $withoutProductCategory
   ) {
     collection {
       id
@@ -41248,6 +41264,8 @@ export const ProductFiltersDocument = gql`
  *      limit: // value for 'limit'
  *      searchTerm: // value for 'searchTerm'
  *      productId: // value for 'productId'
+ *      productCategoryIds: // value for 'productCategoryIds'
+ *      withoutProductCategory: // value for 'withoutProductCategory'
  *   },
  * });
  */
@@ -49240,8 +49258,8 @@ export type UpdateOrganizationAuthenticationMethodsMutationHookResult = ReturnTy
 export type UpdateOrganizationAuthenticationMethodsMutationResult = Apollo.MutationResult<UpdateOrganizationAuthenticationMethodsMutation>;
 export type UpdateOrganizationAuthenticationMethodsMutationOptions = Apollo.BaseMutationOptions<UpdateOrganizationAuthenticationMethodsMutation, UpdateOrganizationAuthenticationMethodsMutationVariables>;
 export const GetInvitesDocument = gql`
-    query getInvites($page: Int, $limit: Int) {
-  invites(page: $page, limit: $limit) {
+    query getInvites($page: Int, $limit: Int, $searchTerm: String, $roleIds: [ID!]) {
+  invites(page: $page, limit: $limit, searchTerm: $searchTerm, roleIds: $roleIds) {
     metadata {
       currentPage
       totalPages
@@ -49268,6 +49286,8 @@ export const GetInvitesDocument = gql`
  *   variables: {
  *      page: // value for 'page'
  *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *      roleIds: // value for 'roleIds'
  *   },
  * });
  */
@@ -49291,8 +49311,13 @@ export type GetInvitesLazyQueryHookResult = ReturnType<typeof useGetInvitesLazyQ
 export type GetInvitesSuspenseQueryHookResult = ReturnType<typeof useGetInvitesSuspenseQuery>;
 export type GetInvitesQueryResult = Apollo.QueryResult<GetInvitesQuery, GetInvitesQueryVariables>;
 export const GetMembersDocument = gql`
-    query getMembers($page: Int, $limit: Int) {
-  memberships(page: $page, limit: $limit) {
+    query getMembers($page: Int, $limit: Int, $searchTerm: String, $roleIds: [ID!]) {
+  memberships(
+    page: $page
+    limit: $limit
+    searchTerm: $searchTerm
+    roleIds: $roleIds
+  ) {
     metadata {
       currentPage
       totalPages
@@ -49320,6 +49345,8 @@ export const GetMembersDocument = gql`
  *   variables: {
  *      page: // value for 'page'
  *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *      roleIds: // value for 'roleIds'
  *   },
  * });
  */

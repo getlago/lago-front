@@ -49,7 +49,7 @@ import { PricingBlock } from './extensions/PricingBlock'
 import { type PricingBlockAttributes } from './extensions/PricingBlock.schema'
 import { QuoteImageSchema } from './extensions/QuoteImage'
 import { QuoteImageNodeView } from './extensions/QuoteImageNodeView'
-import { SlashCommands } from './extensions/SlashCommands'
+import { insertPricingBlock, SlashCommands } from './extensions/SlashCommands'
 import { TableCommands } from './extensions/TableCommands'
 import { TemplateSelectorExtension } from './extensions/TemplateSelectorExtension'
 import { type MentionItem, MentionList, type MentionListRef } from './Mentions/MentionList'
@@ -69,6 +69,7 @@ interface RichTextEditorProps {
   templates?: EditorTemplate[]
   getMarkdownRef?: React.MutableRefObject<(() => string) | null>
   removeBlockRef?: React.MutableRefObject<((localId: string) => void) | null>
+  insertPricingBlockRef?: React.MutableRefObject<(() => void) | null>
   onChange?: () => void
   onPricingCommand?: OnPricingCommand
   isPricingDisabled?: () => boolean
@@ -274,6 +275,7 @@ const RichTextEditor = ({
   templates,
   getMarkdownRef,
   removeBlockRef,
+  insertPricingBlockRef,
   onPricingCommand,
   isPricingDisabled,
   onPricingBlocksChange,
@@ -454,6 +456,24 @@ const RichTextEditor = ({
       }
     }
   }, [getMarkdownRef, getMarkdown])
+
+  useEffect(() => {
+    if (!insertPricingBlockRef) return
+
+    insertPricingBlockRef.current = () => {
+      const handler = onPricingCommandRef.current
+
+      if (!editor || !handler) return
+
+      insertPricingBlock(editor, handler, { at: 'end' })
+    }
+
+    return () => {
+      if (insertPricingBlockRef) {
+        insertPricingBlockRef.current = null
+      }
+    }
+  }, [insertPricingBlockRef, editor])
 
   useEffect(() => {
     if (!removeBlockRef) return

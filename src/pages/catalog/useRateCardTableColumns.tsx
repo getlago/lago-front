@@ -61,12 +61,6 @@ gql`
   ${RateCardForDeleteRateCardDialogFragmentDoc}
 `
 
-// New translation keys are exported as named constants (feature convention) so
-// tests and siblings reference them instead of duplicating the raw ids.
-export const RATE_CARD_TABLE_ATTACHED_TO_HEADER_KEY = 'text_17849266826007ust9hd9n62'
-export const RATE_CARD_TABLE_ACTIVE_RATE_HEADER_KEY = 'text_1784926682600lyzk75bbx48'
-export const RATE_CARD_TABLE_RATES_COUNT_HEADER_KEY = 'text_1784926682600958z273qqyt'
-
 // Shared between the standalone rate-cards list (Task 8) and the product-item /
 // product-item-filter details previews (Task 10): the previews drop the
 // "Attached to" column since they are already scoped to a single product item
@@ -100,7 +94,7 @@ export const useRateCardTableColumns = ({
     withAttachedTo
       ? {
           key: 'productFilter.name',
-          title: translate(RATE_CARD_TABLE_ATTACHED_TO_HEADER_KEY),
+          title: translate('text_17849266826007ust9hd9n62'),
           minWidth: 160,
           content: ({ product, productFilter }) => {
             const to = productFilter
@@ -123,7 +117,7 @@ export const useRateCardTableColumns = ({
       : null,
     {
       key: 'activeRate',
-      title: translate(RATE_CARD_TABLE_ACTIVE_RATE_HEADER_KEY),
+      title: translate('text_1784926682600lyzk75bbx48'),
       textAlign: 'right',
       minWidth: 200,
       content: ({ activeRate, currency, appliedPricingUnitCode }) => {
@@ -149,7 +143,7 @@ export const useRateCardTableColumns = ({
     },
     {
       key: 'ratesCount',
-      title: translate(RATE_CARD_TABLE_RATES_COUNT_HEADER_KEY),
+      title: translate('text_1784926682600958z273qqyt'),
       textAlign: 'right',
       minWidth: 80,
       content: ({ ratesCount }) => (

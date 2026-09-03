@@ -40,9 +40,7 @@ export const useProductFilterTableColumns = ({
           key: 'product.name',
           title: translate('text_17845790210805g4buh2kivc'),
           minWidth: 160,
-          content: ({ product }) => (
-            <Chip size="small" label={product.invoiceDisplayName || product.name} />
-          ),
+          content: ({ product }) => <Chip label={product.invoiceDisplayName || product.name} />,
         }
       : null,
     {

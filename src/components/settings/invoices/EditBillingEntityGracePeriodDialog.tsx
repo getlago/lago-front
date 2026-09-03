@@ -31,7 +31,7 @@ const editBillingEntityGracePeriodValidationSchema = z.object({
   ]),
 })
 
-export const EDIT_BILLING_ENTITY_GRACE_PERIOD_FORM_ID = 'edit-billing-entity-grace-period-form'
+const EDIT_BILLING_ENTITY_GRACE_PERIOD_FORM_ID = 'edit-billing-entity-grace-period-form'
 
 type EditBillingEntityGracePeriodDialogData = {
   id: string

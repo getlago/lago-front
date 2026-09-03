@@ -14,6 +14,7 @@ import { INVITATION_ROUTE } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { GetInvitesQuery, InviteItemForMembersSettingsFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { usePermissions } from '~/hooks/usePermissions'
 import { AllowedElements, useRoleDisplayInformation } from '~/hooks/useRoleDisplayInformation'
 import { useRolesList } from '~/hooks/useRolesList'
@@ -49,9 +50,7 @@ const MembersInvitationList = () => {
   const { translate } = useInternationalization()
   const { page, goToPage } = usePageSearchParam()
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
-  const { invitations, metadata, invitesLoading, invitesError, invitesRefetch } =
-    useGetMembersInvitationList(pageSize, page)
-  const { roles } = useRolesList()
+  const { roles, isLoadingRoles } = useRolesList()
   const { getDisplayName } = useRoleDisplayInformation()
   const { hasPermissions } = usePermissions()
 
@@ -67,19 +66,27 @@ const MembersInvitationList = () => {
     return searchParams.get(MEMBERS_PAGE_ROLE_FILTER_KEY)
   }, [searchParams])
 
+  // The filter is stored in the URL as a role name, while the API filters on role ids
+  const roleIds = useMemo(() => {
+    if (!selectedRole) return undefined
+
+    const matchingRoleIds = roles
+      .filter((role) => role.name === selectedRole)
+      .map((role) => role.id)
+
+    return matchingRoleIds.length > 0 ? matchingRoleIds : undefined
+  }, [roles, selectedRole])
+
+  const { getInvites, invitations, metadata, invitesLoading, invitesError, invitesRefetch } =
+    useGetMembersInvitationList({ pageSize, page, roleIds })
+
+  const { debouncedSearch, isLoading } = useDebouncedSearch(getInvites, invitesLoading)
+
+  // Role ids resolve asynchronously, so the first response of a role-filtered list is unfiltered:
+  // stay on the skeleton until the ids are known to never paint invitations the filter excludes
+  const isListLoading = isLoading || (!!selectedRole && isLoadingRoles)
+
   const [searchQuery, setSearchQuery] = useState('')
-
-  const filteredInvitations = useMemo(() => {
-    if (!selectedRole && !searchQuery) return invitations
-
-    return invitations.filter((invitation) => {
-      const matchesRole = !selectedRole || invitation.roles.includes(selectedRole)
-      const matchesSearch =
-        !searchQuery || invitation.email?.toLowerCase().includes(searchQuery.toLowerCase())
-
-      return matchesRole && matchesSearch
-    })
-  }, [invitations, selectedRole, searchQuery])
 
   const columns: Array<TableColumn<Invitation> | null> = [
     {
@@ -198,12 +205,13 @@ const MembersInvitationList = () => {
         setSearchQuery={(value) => {
           goToPage(1)
           setSearchQuery(value)
+          debouncedSearch?.(value)
         }}
         type="invitations"
       />
       <PaginatedContent
         metadata={metadata}
-        loading={invitesLoading}
+        loading={isListLoading}
         pageSize={pageSize}
         onPageChange={goToPage}
         onPageSizeChange={(newPageSize) => {
@@ -216,8 +224,8 @@ const MembersInvitationList = () => {
           containerClassName="h-auto shrink-0"
           containerSize={{ default: 0 }}
           rowSize={72}
-          isLoading={invitesLoading}
-          data={filteredInvitations}
+          isLoading={isListLoading}
+          data={invitations}
           loadingRowCount={pageSize}
           hasError={!!invitesError}
           placeholder={getTablePlaceholder()}

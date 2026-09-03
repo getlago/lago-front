@@ -1,136 +1,23 @@
-import { renderHook, waitFor } from '@testing-library/react'
+import { act, renderHook, waitFor } from '@testing-library/react'
 
 import { GetMembersDocument } from '~/generated/graphql'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
+import {
+  ADMIN_ROLE_ID,
+  buildMembershipsResult,
+  createMockMembership,
+} from '../../__tests__/membershipMocks'
 import { useGetMembersList } from '../useGetMembersList'
 
-const createMockMembership = (id: string, email: string, roles: string[]) => ({
-  __typename: 'Membership',
-  id,
-  roles,
-  user: {
-    __typename: 'User',
-    id: `user-${id}`,
-    email,
-  },
-  organization: {
-    __typename: 'Organization',
-    id: 'org-1',
-    name: 'Test Organization',
-  },
-  permissions: {
-    __typename: 'Permissions',
-    addonsCreate: true,
-    addonsDelete: true,
-    addonsUpdate: true,
-    addonsView: true,
-    analyticsOverdueBalancesView: true,
-    analyticsMrrView: true,
-    analyticsInvoicedUsagesView: true,
-    analyticsView: true,
-    analyticsGrossRevenuesView: true,
-    billableMetricsCreate: true,
-    billableMetricsDelete: true,
-    billableMetricsUpdate: true,
-    billableMetricsView: true,
-    billingEntitiesCreate: true,
-    billingEntitiesDelete: true,
-    billingEntitiesUpdate: true,
-    billingEntitiesView: true,
-    couponsAttach: true,
-    couponsCreate: true,
-    couponsDelete: true,
-    couponsDetach: true,
-    couponsUpdate: true,
-    couponsView: true,
-    creditNotesCreate: true,
-    creditNotesUpdate: true,
-    creditNotesView: true,
-    creditNotesVoid: true,
-    customerSettingsUpdateGracePeriod: true,
-    customerSettingsUpdateLang: true,
-    customerSettingsUpdatePaymentTerms: true,
-    customerSettingsUpdateTaxRates: true,
-    customersCreate: true,
-    customersDelete: true,
-    customersUpdate: true,
-    customersView: true,
-    developersKeysManage: true,
-    developersManage: true,
-    draftInvoicesUpdate: true,
-    dunningCampaignsCreate: true,
-    dunningCampaignsDelete: true,
-    dunningCampaignsUpdate: true,
-    dunningCampaignsView: true,
-    invoiceCustomSectionsCreate: true,
-    invoiceCustomSectionsDelete: true,
-    invoiceCustomSectionsUpdate: true,
-    invoiceCustomSectionsView: true,
-    invoicesCreate: true,
-    invoicesSend: true,
-    invoicesUpdate: true,
-    invoicesView: true,
-    invoicesVoid: true,
-    organizationEmailsUpdate: true,
-    organizationEmailsView: true,
-    organizationIntegrationsCreate: true,
-    organizationIntegrationsDelete: true,
-    organizationIntegrationsUpdate: true,
-    organizationIntegrationsView: true,
-    organizationInvoicesUpdate: true,
-    organizationInvoicesView: true,
-    organizationMembersCreate: true,
-    organizationMembersDelete: true,
-    organizationMembersUpdate: true,
-    organizationMembersView: true,
-    organizationTaxesUpdate: true,
-    organizationTaxesView: true,
-    organizationUpdate: true,
-    organizationView: true,
-    plansCreate: true,
-    plansDelete: true,
-    plansUpdate: true,
-    plansView: true,
-    rolesCreate: true,
-    rolesDelete: true,
-    rolesUpdate: true,
-    rolesView: true,
-    subscriptionsCreate: true,
-    subscriptionsUpdate: true,
-    subscriptionsView: true,
-    walletsCreate: true,
-    walletsTerminate: true,
-    walletsTopUp: true,
-    walletsUpdate: true,
-  },
-})
-
-const mockMembers = [
-  createMockMembership('member-1', 'admin@example.com', ['Admin']),
-  createMockMembership('member-2', 'finance@example.com', ['Finance']),
-]
+const DEFAULT_VARIABLES = { limit: 20, page: 1, roleIds: undefined }
 
 const membersListMock = {
   request: {
     query: GetMembersDocument,
-    variables: { limit: 20, page: 1 },
+    variables: DEFAULT_VARIABLES,
   },
-  result: {
-    data: {
-      memberships: {
-        __typename: 'MembershipCollection',
-        metadata: {
-          __typename: 'MembershipsCollectionMetadata',
-          currentPage: 1,
-          totalPages: 1,
-          totalCount: 2,
-          adminCount: 1,
-        },
-        collection: mockMembers,
-      },
-    },
-  },
+  result: buildMembershipsResult(),
 }
 
 const createWrapper = (mocks: TestMocksType) => {
@@ -142,127 +29,175 @@ const createWrapper = (mocks: TestMocksType) => {
     })
 }
 
+const renderAndFetch = async (mocks: TestMocksType, props = {}) => {
+  const { result } = renderHook(() => useGetMembersList(props), {
+    wrapper: createWrapper(mocks),
+  })
+
+  await act(async () => {
+    result.current.getMembers()
+  })
+
+  return result
+}
+
 describe('useGetMembersList', () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })
 
-  it('returns loading state initially', () => {
-    const { result } = renderHook(() => useGetMembersList(), {
-      wrapper: createWrapper([membersListMock]),
-    })
+  describe('GIVEN the query has not been executed yet', () => {
+    describe('WHEN the hook is rendered', () => {
+      it('THEN should not expose any member', () => {
+        const { result } = renderHook(() => useGetMembersList(), {
+          wrapper: createWrapper([membersListMock]),
+        })
 
-    expect(result.current.membersLoading).toBe(true)
-    expect(result.current.members).toEqual([])
-  })
-
-  it('returns members after loading', async () => {
-    const { result } = renderHook(() => useGetMembersList(), {
-      wrapper: createWrapper([membersListMock]),
-    })
-
-    await waitFor(() => {
-      expect(result.current.membersLoading).toBe(false)
-    })
-
-    expect(result.current.members).toHaveLength(2)
-    expect(result.current.members[0]?.user.email).toBe('admin@example.com')
-    expect(result.current.members[1]?.user.email).toBe('finance@example.com')
-  })
-
-  it('returns metadata with adminCount', async () => {
-    const { result } = renderHook(() => useGetMembersList(), {
-      wrapper: createWrapper([membersListMock]),
-    })
-
-    await waitFor(() => {
-      expect(result.current.membersLoading).toBe(false)
-    })
-
-    expect(result.current.metadata).toEqual({
-      __typename: 'MembershipsCollectionMetadata',
-      currentPage: 1,
-      totalPages: 1,
-      totalCount: 2,
-      adminCount: 1,
+        expect(result.current.members).toEqual([])
+        expect(result.current.metadata).toBeUndefined()
+      })
     })
   })
 
-  it('returns empty array when no members', async () => {
-    const emptyMock = {
-      request: {
-        query: GetMembersDocument,
-        variables: { limit: 20, page: 1 },
-      },
-      result: {
-        data: {
-          memberships: {
-            __typename: 'MembershipCollection',
-            metadata: {
-              __typename: 'MembershipsCollectionMetadata',
-              currentPage: 1,
-              totalPages: 1,
-              totalCount: 0,
-              adminCount: 0,
-            },
-            collection: [],
+  describe('GIVEN the query is executed without filters', () => {
+    describe('WHEN the response resolves', () => {
+      it('THEN should expose the returned members', async () => {
+        const result = await renderAndFetch([membersListMock])
+
+        await waitFor(() => {
+          expect(result.current.membersLoading).toBe(false)
+        })
+
+        expect(result.current.members).toHaveLength(2)
+        expect(result.current.members[0]?.user.email).toBe('admin@example.com')
+        expect(result.current.members[1]?.user.email).toBe('finance@example.com')
+      })
+
+      it('THEN should expose the metadata with the org-wide admin count', async () => {
+        const result = await renderAndFetch([membersListMock])
+
+        await waitFor(() => {
+          expect(result.current.membersLoading).toBe(false)
+        })
+
+        expect(result.current.metadata).toEqual({
+          __typename: 'MembershipsCollectionMetadata',
+          currentPage: 1,
+          totalPages: 1,
+          totalCount: 2,
+          adminCount: 1,
+        })
+      })
+
+      it('THEN should expose the refetch and fetchMore helpers', async () => {
+        const result = await renderAndFetch([membersListMock])
+
+        await waitFor(() => {
+          expect(result.current.membersLoading).toBe(false)
+        })
+
+        expect(typeof result.current.membersRefetch).toBe('function')
+        expect(typeof result.current.membersFetchMore).toBe('function')
+      })
+    })
+  })
+
+  describe('GIVEN the query is executed with a search term', () => {
+    describe('WHEN the response resolves', () => {
+      it('THEN should send the search term to the API and return the matching members', async () => {
+        const searchMock = {
+          request: {
+            query: GetMembersDocument,
+            variables: { ...DEFAULT_VARIABLES, searchTerm: 'admin' },
           },
-        },
-      },
-    }
+          result: buildMembershipsResult({
+            collection: [createMockMembership('member-1', 'admin@example.com', ['Admin'])],
+          }),
+        }
 
-    const { result } = renderHook(() => useGetMembersList(), {
-      wrapper: createWrapper([emptyMock]),
+        const { result } = renderHook(() => useGetMembersList(), {
+          wrapper: createWrapper([searchMock]),
+        })
+
+        await act(async () => {
+          result.current.getMembers({ variables: { searchTerm: 'admin' } })
+        })
+
+        await waitFor(() => {
+          expect(result.current.membersLoading).toBe(false)
+        })
+
+        // The mock only matches when `searchTerm` reached the query, so getting data back is the assertion
+        expect(result.current.members).toHaveLength(1)
+        expect(result.current.members[0]?.user.email).toBe('admin@example.com')
+      })
     })
-
-    await waitFor(() => {
-      expect(result.current.membersLoading).toBe(false)
-    })
-
-    expect(result.current.members).toEqual([])
   })
 
-  it('returns error when query fails', async () => {
-    const errorMock = {
-      request: {
-        query: GetMembersDocument,
-        variables: { limit: 20, page: 1 },
-      },
-      error: new Error('Failed to fetch members'),
-    }
+  describe('GIVEN the query is executed with role ids', () => {
+    describe('WHEN the response resolves', () => {
+      it('THEN should send the role ids to the API and return the matching members', async () => {
+        const roleFilterMock = {
+          request: {
+            query: GetMembersDocument,
+            variables: { limit: 20, page: 1, roleIds: [ADMIN_ROLE_ID] },
+          },
+          result: buildMembershipsResult({
+            collection: [createMockMembership('member-1', 'admin@example.com', ['Admin'])],
+          }),
+        }
 
-    const { result } = renderHook(() => useGetMembersList(), {
-      wrapper: createWrapper([errorMock]),
+        const result = await renderAndFetch([roleFilterMock], { roleIds: [ADMIN_ROLE_ID] })
+
+        await waitFor(() => {
+          expect(result.current.membersLoading).toBe(false)
+        })
+
+        expect(result.current.members).toHaveLength(1)
+        expect(result.current.members[0]?.user.email).toBe('admin@example.com')
+      })
     })
-
-    await waitFor(() => {
-      expect(result.current.membersLoading).toBe(false)
-    })
-
-    expect(result.current.membersError).toBeDefined()
   })
 
-  it('exposes refetch function', async () => {
-    const { result } = renderHook(() => useGetMembersList(), {
-      wrapper: createWrapper([membersListMock]),
-    })
+  describe('GIVEN the API returns no member', () => {
+    describe('WHEN the response resolves', () => {
+      it('THEN should expose an empty collection', async () => {
+        const emptyMock = {
+          request: {
+            query: GetMembersDocument,
+            variables: DEFAULT_VARIABLES,
+          },
+          result: buildMembershipsResult({ collection: [], adminCount: 0 }),
+        }
 
-    await waitFor(() => {
-      expect(result.current.membersLoading).toBe(false)
-    })
+        const result = await renderAndFetch([emptyMock])
 
-    expect(typeof result.current.membersRefetch).toBe('function')
+        await waitFor(() => {
+          expect(result.current.membersLoading).toBe(false)
+        })
+
+        expect(result.current.members).toEqual([])
+      })
+    })
   })
 
-  it('exposes fetchMore function', async () => {
-    const { result } = renderHook(() => useGetMembersList(), {
-      wrapper: createWrapper([membersListMock]),
-    })
+  describe('GIVEN the query fails', () => {
+    describe('WHEN the error resolves', () => {
+      it('THEN should expose the error', async () => {
+        const errorMock = {
+          request: {
+            query: GetMembersDocument,
+            variables: DEFAULT_VARIABLES,
+          },
+          error: new Error('Failed to fetch members'),
+        }
 
-    await waitFor(() => {
-      expect(result.current.membersLoading).toBe(false)
-    })
+        const result = await renderAndFetch([errorMock])
 
-    expect(typeof result.current.membersFetchMore).toBe('function')
+        await waitFor(() => {
+          expect(result.current.membersError).toBeDefined()
+        })
+      })
+    })
   })
 })

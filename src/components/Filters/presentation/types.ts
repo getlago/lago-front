@@ -427,14 +427,12 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.paymentStatus]: 'text_63eba8c65a6c8043feee2a0f',
   [AvailableFiltersEnum.planCode]: 'text_642d5eb2783a2ad10d670320',
   [AvailableFiltersEnum.purchaseOrderNumber]: 'text_17822197712867qhfbaf9fpk',
-  [AvailableFiltersEnum.productProductCategory]: 'text_1783020794399ai60io2ufkg',
-  [AvailableFiltersEnum.productType]: 'text_632d68358f1fedc68eed3e5a',
-  // Reuses the "ProductCategory" / "ProductCategory item" resource-name labels (same words shown
-  // elsewhere for the entity types) rather than minting new filter-specific copy.
-  [AvailableFiltersEnum.productFilterProductCategory]: 'text_1783020794399ai60io2ufkg',
-  [AvailableFiltersEnum.productFilterProduct]: 'text_1783020794400si0ioidu0m5',
-  // Rate card list filters reuse the same "Product category" / "Product" / "Product filter"
+  // Catalog list filters reuse the "Product category" / "Product" / "Product filter"
   // resource-name labels shown elsewhere for these entity types.
+  [AvailableFiltersEnum.productProductCategory]: 'text_1786374750349h8y80oq55h9',
+  [AvailableFiltersEnum.productType]: 'text_632d68358f1fedc68eed3e5a',
+  [AvailableFiltersEnum.productFilterProductCategory]: 'text_1786374750349h8y80oq55h9',
+  [AvailableFiltersEnum.productFilterProduct]: 'text_1783020794400si0ioidu0m5',
   [AvailableFiltersEnum.rateCardProductCategory]: 'text_1786374750349h8y80oq55h9',
   [AvailableFiltersEnum.rateCardProduct]: 'text_1783020794400si0ioidu0m5',
   [AvailableFiltersEnum.rateCardProductFilter]: 'text_1783020794400u55s2kj2o4n',
@@ -477,6 +475,18 @@ export type FiltersFormValues = {
   }>
 }
 
-export const mapFilterToTranslationKey = (filter: AvailableFiltersEnum) => {
+// Inside the panel the list context already names the resource, so the category dimension
+// reads "Category". Active-filter chips render outside the panel and keep the full label.
+const panelTranslationMap: Partial<Record<AvailableFiltersEnum, string>> = {
+  [AvailableFiltersEnum.productProductCategory]: 'text_1766047828726zeybs9mgzhl',
+  [AvailableFiltersEnum.productFilterProductCategory]: 'text_1766047828726zeybs9mgzhl',
+  [AvailableFiltersEnum.rateCardProductCategory]: 'text_1766047828726zeybs9mgzhl',
+}
+
+export const mapFilterToTranslationKey = (filter: AvailableFiltersEnum): string => {
   return translationMap[filter] || filter
+}
+
+export const mapFilterToPanelTranslationKey = (filter: AvailableFiltersEnum): string => {
+  return panelTranslationMap[filter] || mapFilterToTranslationKey(filter)
 }

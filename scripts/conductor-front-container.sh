@@ -40,6 +40,17 @@ LAGO_PATH="$(cd "$ROOT/.." && pwd)"
 COMPOSE_DIR="$LAGO_PATH/.conductor-front-containers"
 SAN="$(echo "$NAME" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/_/g')"
 COMPOSE_FILE="$COMPOSE_DIR/${SAN}.yml"
+# One pnpm store shared by every workspace container, mounted at exactly
+# /app/.pnpm-store: /app is a macOS bind mount, so pnpm refuses to keep its store
+# on another device and rewrites any store-dir config (env vars are ignored
+# outright) back to <project>/.pnpm-store, landing ~670MB in every workspace
+# directory on the host. Mounting the shared volume on that path is what pnpm
+# accepts. Declared external in the generated compose file so `down -v` on one
+# workspace can never remove it.
+PNPM_STORE_VOL="lago_front_pnpm_store"
+# Below this `pnpm install` cannot finish (node_modules alone is ~750MB) and the
+# container loops on ERR_PNPM_ENOSPC instead of failing once, loudly.
+MIN_FREE_MB=1536
 
 require_ws() {
   [[ -d "$WS" ]] || {
@@ -60,12 +71,20 @@ services:
     container_name: lago_front_ct_${SAN}
     stdin_open: true
     restart: unless-stopped
+    # start.dev.sh can still exit on a genuine failure; cap the logs so a restart
+    # loop cannot fill the Docker disk with progress lines.
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     volumes:
       # Quoted so a workspace path containing spaces / YAML-special chars can't
       # break the volume string parsing.
       - "${WS}:/app:cached"
       - front_nm_ct_${SAN}:/app/node_modules
       - front_dist_ct_${SAN}:/app/dist
+      - ${PNPM_STORE_VOL}:/app/.pnpm-store
     environment:
       - NODE_ENV=development
       - API_URL=http://localhost:${PORT}/api
@@ -89,6 +108,8 @@ services:
 volumes:
   front_nm_ct_${SAN}:
   front_dist_ct_${SAN}:
+  ${PNPM_STORE_VOL}:
+    external: true
 
 networks:
   lago_net:
@@ -120,6 +141,64 @@ patch_env() {
   } >> "$env_file"
 }
 
+# Tear down every project whose workspace directory is gone. Conductor fires the
+# archive hook once and teardown_san gives up when Docker is unreachable, so
+# without this retry a missed archive leaks an ~800MB node_modules volume.
+sweep_stale() {
+  [[ -d "$COMPOSE_DIR" ]] || return 0
+
+  local file san mount
+  for file in "$COMPOSE_DIR"/*.yml; do
+    [[ -f "$file" ]] || continue
+    san="$(basename "$file" .yml)"
+    if [[ "$san" == "$SAN" ]]; then continue; fi
+    mount="$(sed -n 's|^ *- "\(.*\):/app:cached"$|\1|p' "$file" | head -1)" || mount=""
+    # Unparsable mount: hand-edited or from an older revision. Leave it rather
+    # than guess a project is dead and drop its volumes.
+    if [[ -z "$mount" ]]; then continue; fi
+    if [[ -d "$mount" ]]; then continue; fi
+    echo "Sweeping '$san': its workspace directory is gone (archived)."
+    teardown_san "$san"
+  done
+}
+
+check_image() {
+  if ! docker image inspect front_dev >/dev/null 2>&1; then
+    echo "Error: the front_dev image is missing. Build it from the workspace:" >&2
+    echo "    docker build -f Dockerfile.dev -t front_dev $WS" >&2
+    exit 1
+  fi
+
+  local want="" have=""
+  # A branch predating the Dockerfile, or a probe that fails: skip the check
+  # rather than block the boot (set -euo pipefail would abort on the assignment).
+  if [[ -f "$WS/Dockerfile.dev" ]]; then
+    want="$(sed -n 's/^FROM node:\([^-]*\)-alpine.*/\1/p' "$WS/Dockerfile.dev" | head -1)" || want=""
+  fi
+  # node images publish their version as NODE_VERSION, so the image's node is
+  # readable from its config without starting a container.
+  have="$(docker image inspect front_dev --format '{{range .Config.Env}}{{println .}}{{end}}' | sed -n 's/^NODE_VERSION=//p' | head -1)" || have=""
+  if [[ -n "$want" && -n "$have" && "$want" != "$have" ]]; then
+    echo "warn: front_dev runs node ${have}, Dockerfile.dev wants ${want}. Rebuild:" >&2
+    echo "    docker build -f Dockerfile.dev -t front_dev $WS" >&2
+  fi
+}
+
+require_disk() {
+  local free
+  free="$(docker run --rm --entrypoint df front_dev -P / 2>/dev/null | awk 'NR==2 {print int($4/1024)}')" || free=""
+  # Probe failed: never block a boot on a failed measurement.
+  if [[ -z "$free" ]]; then return 0; fi
+
+  if [[ "$free" -lt "$MIN_FREE_MB" ]]; then
+    echo "Error: ${free}MB free on the Docker disk, pnpm install needs ~${MIN_FREE_MB}MB." >&2
+    echo "  Starting anyway would loop on ERR_PNPM_ENOSPC. Reclaim space, then retry:" >&2
+    echo "    docker builder prune -af" >&2
+    echo "    docker image prune -a" >&2
+    exit 1
+  fi
+}
+
 cmd_up() {
   # Substring match (not anchored) for parity with lago-worktree.sh and to
   # tolerate any Compose-added prefix/suffix on the main front container name.
@@ -128,8 +207,22 @@ cmd_up() {
     exit 1
   fi
 
+  # Before the disk check, so reclaimed space counts towards it.
+  sweep_stale
+  check_image
+  require_disk
+
   patch_env
   gen_compose
+
+  # Idempotent; external in the compose file, so nothing else creates it.
+  docker volume create "$PNPM_STORE_VOL" >/dev/null
+
+  # Shadowed by the shared store volume from here on, so whatever it already
+  # holds is dead weight on the host disk.
+  if [[ -n "$(ls -A "$WS/.pnpm-store" 2>/dev/null)" ]]; then
+    echo "note: $WS/.pnpm-store is superseded by the shared store volume, safe to delete."
+  fi
 
   # A hard-killed prior run (SIGKILL) can orphan the container or leave a stale
   # network endpoint that blocks re-attach ("endpoint ... already exists"); clear
@@ -224,6 +317,8 @@ cmd_down() {
     done
   fi
 
+  sweep_stale
+
   echo "Removed front container for '$NAME'."
 }
 
@@ -284,8 +379,11 @@ case "$CMD" in
   # so it stays usable when the workspace has already been removed.
   shell) cmd_shell ;;
   host) require_ws; cmd_host ;;
+  # Also runs on every `up`; exposed so a leak can be reclaimed without booting
+  # a workspace.
+  sweep) sweep_stale ;;
   *)
-    echo "Usage: conductor-front-container.sh {up|down|shell|host}" >&2
+    echo "Usage: conductor-front-container.sh {up|down|shell|host|sweep}" >&2
     exit 1
     ;;
 esac

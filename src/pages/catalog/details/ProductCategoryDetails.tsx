@@ -126,7 +126,7 @@ const ProductCategoryDetails = () => {
         snapshotKey={`${productCategory?.description}|${productCategory?.invoiceDisplayName}|${productCategory?.attachedToPlanOrSubscription}`}
         breadcrumb={[
           { label: translate('text_1783019143196z1oi70j03vt'), path: PRODUCTS_LIST_PATH },
-          { label: translate('text_1783020794399ai60io2ufkg') },
+          { label: translate('text_1786374750349h8y80oq55h9') },
         ]}
         entity={{
           viewName: productCategory?.name || '',

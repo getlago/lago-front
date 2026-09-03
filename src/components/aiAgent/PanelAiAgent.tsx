@@ -17,6 +17,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 export const PANEL_AI_AGENT_WELCOME_TEST_ID = 'panel-ai-agent-welcome'
 export const PANEL_AI_AGENT_PREMIUM_BLOCK_TEST_ID = 'panel-ai-agent-premium-block'
 export const PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID = 'panel-ai-agent-initial-prompt'
+
 export const PANEL_AI_AGENT_ERROR_TEST_ID = 'panel-ai-agent-error'
 
 type PanelAiAgentProps = {

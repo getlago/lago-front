@@ -14,7 +14,7 @@ import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
-export const WALLET_RECURRING_DRAWER_SAVE_TEST_ID = 'wallet-recurring-drawer-save'
+const WALLET_RECURRING_DRAWER_SAVE_TEST_ID = 'wallet-recurring-drawer-save'
 
 const DEFAULTS: WalletRecurringSlice = itemToRecurring(makeEmptyWalletItem(''))
 

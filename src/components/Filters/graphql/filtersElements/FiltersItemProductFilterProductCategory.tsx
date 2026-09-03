@@ -19,12 +19,6 @@ type FiltersItemProductFilterProductCategoryProps = {
   setFilterValue: (value: string) => void
 }
 
-// UI-only pending backend support: the `productFilters` query only accepts
-// `productId` + `searchTerm` today (see formatFiltersForProductFiltersQuery,
-// which deliberately excludes this filter), so a selection made here never reaches
-// the API. Built to match the Figma reference, which mirrors the product-item
-// list's ProductCategory filter (FiltersItemProductProductCategory) exactly, including reusing
-// the same `productCategories` query.
 export const FiltersItemProductFilterProductCategory = ({
   value,
   setFilterValue,
@@ -46,7 +40,7 @@ export const FiltersItemProductFilterProductCategory = ({
       .sort((a, b) => a.label.localeCompare(b.label))
 
     // "Not defined" is injected client-side (not returned by the API) and pinned on top of
-    // every productCategory, matching the Figma reference. It has no query effect on this list.
+    // every productCategory. Selecting it maps to `withoutProductCategory: true`, not to an id.
     return [
       {
         label: translate('text_1784214117868fh6rndi4m75'),

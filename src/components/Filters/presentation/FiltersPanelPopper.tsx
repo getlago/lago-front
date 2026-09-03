@@ -18,7 +18,7 @@ import {
 import {
   AvailableFiltersEnum,
   FiltersFormValues,
-  mapFilterToTranslationKey,
+  mapFilterToPanelTranslationKey,
 } from '~/components/Filters/presentation/types'
 import { ComboBox } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -124,7 +124,7 @@ export const FiltersPanelPopper = () => {
 
     return availableFilters.map((filter) => {
       return {
-        label: translate(mapFilterToTranslationKey(filter)),
+        label: translate(mapFilterToPanelTranslationKey(filter)),
         value: filter,
         disabled: alreadySelectedFiltersTypes.includes(filter),
       }

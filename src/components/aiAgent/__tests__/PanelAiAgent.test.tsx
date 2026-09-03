@@ -8,6 +8,7 @@ import {
 import { CHAT_SHORTCUTS_TEST_ID } from '~/components/aiAgent/ChatShortcuts'
 import {
   PANEL_AI_AGENT_ERROR_TEST_ID,
+  PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID,
   PANEL_AI_AGENT_PREMIUM_BLOCK_TEST_ID,
   PANEL_AI_AGENT_WELCOME_TEST_ID,
   PanelAiAgent,
@@ -256,6 +257,58 @@ describe('PanelAiAgent', () => {
 
         expect(mockStartNewConversation).not.toHaveBeenCalled()
         expect(mockAddNewMessage).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the conversation creation is in flight', () => {
+    describe('WHEN the message has been submitted', () => {
+      it('THEN should echo the pending prompt with the loading indicator', async () => {
+        mockCreateLoading = true
+
+        render(<PanelAiAgent hasAccessToAiAgent />)
+
+        await submitPrompt('hello')
+
+        const pendingBlock = await screen.findByTestId(PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID)
+
+        expect(pendingBlock).toHaveTextContent('hello')
+        expect(screen.queryByTestId(PANEL_AI_AGENT_WELCOME_TEST_ID)).not.toBeInTheDocument()
+      })
+
+      it('THEN should drop the pending prompt when the user switches agent', async () => {
+        mockCreateLoading = true
+
+        const { rerender } = render(<PanelAiAgent hasAccessToAiAgent />)
+
+        await submitPrompt('hello')
+
+        expect(await screen.findByTestId(PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID)).toBeInTheDocument()
+
+        mockAgentType = AiAgentTypeEnum.finance
+        rerender(<PanelAiAgent hasAccessToAiAgent />)
+
+        await waitFor(() => {
+          expect(
+            screen.queryByTestId(PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID),
+          ).not.toBeInTheDocument()
+        })
+      })
+
+      it('THEN should hand the pending prompt over to the error block on failure', async () => {
+        mockCreateLoading = true
+
+        const { rerender } = render(<PanelAiAgent hasAccessToAiAgent />)
+
+        await submitPrompt('hello')
+
+        expect(await screen.findByTestId(PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID)).toBeInTheDocument()
+
+        mockCreateError = new Error('boom')
+        rerender(<PanelAiAgent hasAccessToAiAgent />)
+
+        expect(screen.queryByTestId(PANEL_AI_AGENT_INITIAL_PROMPT_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.getByTestId(PANEL_AI_AGENT_ERROR_TEST_ID)).toHaveTextContent('hello')
       })
     })
   })

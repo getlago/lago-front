@@ -50,7 +50,8 @@ import { useCreateCreditNote } from './common/useCreateCreditNote'
 import MetadataFormCard from './metadataForm/MetadataFormCard'
 
 export const SUBMIT_BUTTON_TEST_ID = 'submit-credit-note-button'
-export const REASON_COMBOBOX_TEST_ID = 'reason-combobox'
+const REASON_COMBOBOX_TEST_ID = 'reason-combobox'
+
 export const DESCRIPTION_INPUT_TEST_ID = 'description-input'
 export const PREPAID_CREDITS_REFUND_ALERT_TEST_ID = 'prepaid-credits-refund-alert'
 export const CLOSE_BUTTON_TEST_ID = 'close-credit-note-button'

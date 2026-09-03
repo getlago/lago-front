@@ -37,10 +37,7 @@ import { usePermissions } from '~/hooks/usePermissions'
 import RateCardRateDetailsOverview from './RateCardRateDetailsOverview'
 
 import { useDeleteRateCardRateDialog } from '../dialogs/useDeleteRateCardRateDialog'
-import {
-  RATE_CARD_RATE_DELETE_ACTION_KEY,
-  RATE_CARD_RATE_DRAWER_TITLE_EDIT_KEY,
-} from '../drawers/rateCardRate/constants'
+import { RATE_CARD_RATE_DRAWER_TITLE_EDIT_KEY } from '../drawers/rateCardRate/constants'
 import { useRateCardRateDrawer } from '../drawers/rateCardRate/useRateCardRateDrawer'
 import { isRateCardRateDeletable, isRateCardRateEditable } from '../drawers/rateCardRate/utils'
 
@@ -77,7 +74,6 @@ type RateCardForRateDetailsAndDrawerFragment = RateCardForRateDetailsFragment &
   RateCardForRateDrawerFragment
 
 export const RATE_CARD_RATE_BREADCRUMB_KEY = 'text_1787737220228sofw78j0u83'
-export const RATE_CARD_RATE_NOT_FOUND_KEY = 'text_1787737220228b97cdfac4py'
 export const RATE_CARD_RATE_ACTIVITY_LOGS_EMPTY_KEY = 'text_1787819065018edyn6m968e4'
 
 const PRODUCT_CATALOG_RATE_CARDS_PATH = generatePath(PRODUCT_CATALOG_TAB_ROUTE, {
@@ -137,7 +133,7 @@ const RateCardRateDetails = () => {
     error,
     loading,
     redirectTo: rateCardRatesPath,
-    translateKey: RATE_CARD_RATE_NOT_FOUND_KEY,
+    translateKey: 'text_1787737220228b97cdfac4py',
   })
 
   const canEdit = !!rate && !!rateCard && isRateCardRateEditable({ rate, rateCard })
@@ -158,7 +154,7 @@ const RateCardRateDetails = () => {
           },
         },
         {
-          label: translate(RATE_CARD_RATE_DELETE_ACTION_KEY),
+          label: translate('text_1787737220228txu8nd2qayi'),
           dataTest: RATE_CARD_RATE_DETAILS_DELETE_TEST_ID,
           hidden: !hasPermissions(['rateCardsDelete']) || !rate || !isRateCardRateDeletable(rate),
           onClick: (closePopper) => {

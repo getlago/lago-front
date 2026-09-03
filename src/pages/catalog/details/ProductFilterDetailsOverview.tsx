@@ -3,6 +3,10 @@ import { Fragment } from 'react'
 import { generatePath } from 'react-router-dom'
 
 import { Chip } from '~/components/designSystem/Chip'
+import {
+  MAX_DESCRIPTION_LENGTH_DISPLAY_LIMIT,
+  ShowMoreText,
+} from '~/components/designSystem/ShowMoreText'
 import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
@@ -103,9 +107,13 @@ const ProductFilterDetailsOverview = ({ productFilterId }: { productFilterId: st
       {product.productCategory.name}
     </Link>
   ) : (
-    <span data-test={PRODUCT_ITEM_FILTER_DETAILS_OVERVIEW_NO_PRODUCT_CATEGORY_TEST_ID}>
+    <Typography
+      variant="body"
+      color="grey600"
+      data-test={PRODUCT_ITEM_FILTER_DETAILS_OVERVIEW_NO_PRODUCT_CATEGORY_TEST_ID}
+    >
       {translate('text_1784590896872hcbug1hthjl')}
-    </span>
+    </Typography>
   )
 
   const attachedProduct = (
@@ -151,43 +159,39 @@ const ProductFilterDetailsOverview = ({ productFilterId }: { productFilterId: st
 
   return (
     <section>
-      <PageSectionTitle
-        title={translate('text_1784590896872mnuossjldco')}
-        subtitle={translate('text_17845908968721vd9etj0npq')}
-        action={
-          hasPermissions(['productFiltersUpdate'])
-            ? {
-                title: translate('text_625fd39a15394c0117e7d792'),
-                dataTest: PRODUCT_ITEM_FILTER_DETAILS_OVERVIEW_EDIT_TEST_ID,
-                onClick: () => openEditProductFilterDrawer({ productFilter }),
-              }
-            : undefined
-        }
-      />
+      {hasPermissions(['productFiltersUpdate']) && (
+        <PageSectionTitle
+          title={translate('text_1784590896872mnuossjldco')}
+          subtitle={translate('text_17845908968721vd9etj0npq')}
+          action={{
+            title: translate('text_625fd39a15394c0117e7d792'),
+            dataTest: PRODUCT_ITEM_FILTER_DETAILS_OVERVIEW_EDIT_TEST_ID,
+            onClick: () => openEditProductFilterDrawer({ productFilter }),
+          }}
+        />
+      )}
 
       <div className="flex flex-col gap-4">
         <DetailsPage.InfoGrid
           grid={[
             { label: translate('text_17839807181143h6kt2bdiyi'), value: attachedProductCategory },
             { label: translate('text_17845790210805g4buh2kivc'), value: attachedProduct },
-            { label: translate('text_629728388c4d2300e2d38091'), value: productFilter.name },
-            { label: translate('text_629728388c4d2300e2d380b7'), value: code },
+            { label: translate('text_17883567168609zwqemkhgbu'), value: productFilter.name },
+            { label: translate('text_1788356716860fkisuga4c97'), value: code },
           ]}
         />
 
         {!!productFilter.description && (
           <DetailsPage.InfoGridItem
-            className="col-span-2"
             label={translate('text_6388b923e514213fed58331c')}
-            value={productFilter.description}
-          />
-        )}
-
-        {!!productFilter.invoiceDisplayName && (
-          <DetailsPage.InfoGridItem
-            className="col-span-2"
-            label={translate('text_65018c8e5c6b626f030bcf26')}
-            value={productFilter.invoiceDisplayName}
+            value={
+              <ShowMoreText
+                variant="body"
+                color="grey700"
+                text={productFilter.description}
+                limit={MAX_DESCRIPTION_LENGTH_DISPLAY_LIMIT}
+              />
+            }
           />
         )}
 
@@ -196,6 +200,14 @@ const ProductFilterDetailsOverview = ({ productFilterId }: { productFilterId: st
           label={translate('text_1784590896872igg2htzgnso')}
           value={filterBy}
         />
+
+        {!!productFilter.invoiceDisplayName && (
+          <DetailsPage.InfoGridItem
+            className="col-span-2"
+            label={translate('text_65018c8e5c6b626f030bcf26')}
+            value={productFilter.invoiceDisplayName}
+          />
+        )}
       </div>
     </section>
   )

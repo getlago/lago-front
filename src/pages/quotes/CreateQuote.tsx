@@ -26,7 +26,8 @@ import { useCreateQuote } from './hooks/useCreateQuote'
 export const CREATE_QUOTE_CUSTOMER_COMBOBOX_TEST_ID = 'create-quote-customer-combobox'
 export const CREATE_QUOTE_ORDER_TYPE_TEST_ID = 'create-quote-order-type'
 export const CREATE_QUOTE_SUBSCRIPTION_COMBOBOX_TEST_ID = 'create-quote-subscription-combobox'
-export const CREATE_QUOTE_OWNERS_COMBOBOX_TEST_ID = 'create-quote-owners-combobox'
+const CREATE_QUOTE_OWNERS_COMBOBOX_TEST_ID = 'create-quote-owners-combobox'
+
 export const CREATE_QUOTE_SUBMIT_BUTTON_TEST_ID = 'create-quote-submit-button'
 
 gql`

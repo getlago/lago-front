@@ -87,6 +87,23 @@ describe('ActiveFiltersList', () => {
     })
   })
 
+  describe('GIVEN an active filter with a long value', () => {
+    describe('WHEN the component renders', () => {
+      it('THEN the chip stays on one line and ellipsises its content', () => {
+        mockSearchParams = new URLSearchParams(
+          `f_externalId=${'a-very-long-external-id-value'.repeat(5)}`,
+        )
+
+        renderActiveFiltersList([AvailableFiltersEnum.externalId])
+
+        const chip = screen.getAllByTestId(FILTERS_ACTIVE_FILTER_ITEM_TEST_ID)[0]
+
+        expect(chip).toHaveClass('max-w-full')
+        expect(chip.firstChild).toHaveClass('MuiTypography-noWrap')
+      })
+    })
+  })
+
   describe('GIVEN a URL param that is not part of the available filters', () => {
     describe('WHEN the component renders', () => {
       it('THEN it ignores the unknown param', () => {

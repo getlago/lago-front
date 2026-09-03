@@ -2,7 +2,16 @@
 
 ### Using `data-test` Attributes with Constants
 
-**WHEN POSSIBILE** use constants for `data-test` attributes instead of hardcoded strings or, even worse, using translation label keys from `translations/base.json`. This ensures consistency, maintainability, prevents typos in tests, and prevents test failures when labels change but the software logic remains unchanged.
+Any `data-test` value a test references must be an exported `*_TEST_ID` constant, **and** that constant's value must be a semantic kebab-case string. Those are two separate requirements and both are mandatory: meeting one does not excuse the other.
+
+1. **The indirection** - the string lives in an exported constant, applied in the component and imported in the test. Never an inline literal on either side.
+2. **The value itself** - a hand-written kebab-case string like `'default-badge'`. Never a translation key from `translations/base.json` (`text_1744...`), never translated copy, never a `translate()` call.
+
+`export const DEFAULT_BADGE_TEST_ID = 'text_17440321235444hcxi31f8j6'` satisfies half 1 and still breaks the rule.
+
+An element rendering translated copy is not exempt from either half: it gets its own `data-test` carrying its own constant. A translation key is not a test id, and a test never queries by one.
+
+This keeps tests green when copy changes but the logic under test does not.
 
 **Pattern to Follow**:
 
@@ -17,7 +26,7 @@
    - Import the constant from the component file
    - Use it with `getByTestId()` or `queryByTestId()` from Testing Library
 
-4. **Never rely on translation copy, use exported const instead**
+4. **Never derive the test id from i18n** - not the translation key, not the translated string. The constant's value is written by hand and owes nothing to `translations/base.json`
 
 **Example**:
 
@@ -38,23 +47,29 @@ it('displays default badge', () => {
   expect(badge).toBeInTheDocument()
 })
 
-// ⚠️ Avoid - Using translation keys as test IDs (only if strictly necessary)
-import { PaymentMethodDetailsCell } from '../PaymentMethodDetailsCell'
+// ❌ Bad - Translation key used as the test id
+export const PaymentMethodDetailsCell = ({ item }: Props): JSX.Element => {
+  return <Chip data-test="text_17440321235444hcxi31f8j6" label={translate('text_17440321235444hcxi31f8j6')} />
+}
 
 it('displays default badge', () => {
   render(<PaymentMethodDetailsCell item={paymentMethod} />)
-  // Avoid using translation keys as test IDs - prefer constants instead
-  // Only use this approach if strictly necessary and no better alternative exists
   const badge = screen.getByTestId('text_17440321235444hcxi31f8j6')
   expect(badge).toBeInTheDocument()
 })
 
-// ✅ Good - Constant exported from component
+// ❌ Bad - Exported const, but its value is a translation key. Still wrong.
+export const DEFAULT_BADGE_TEST_ID = 'text_17440321235444hcxi31f8j6'
+
+// ❌ Bad - Test id computed from i18n
+<Chip data-test={translate('text_17440321235444hcxi31f8j6')} label="Default" />
+
+// ✅ Good - Exported constant; the translated copy has nothing to do with the test id
 export const DEFAULT_BADGE_TEST_ID = 'default-badge'
 
 export const PaymentMethodDetailsCell = ({ item }: Props): JSX.Element => {
   return (
-    <Chip data-test={DEFAULT_BADGE_TEST_ID} label="Default" />
+    <Chip data-test={DEFAULT_BADGE_TEST_ID} label={translate('text_17440321235444hcxi31f8j6')} />
   )
 }
 
@@ -71,11 +86,11 @@ it('displays default badge', () => {
 })
 ```
 
-**Why prefer constants**:
+**Why**:
 
 - **Hardcoded strings**: Prone to typos, difficult to refactor, no type safety
-- **Translation keys**: Can change during refactoring, create coupling with i18n implementation, and cause test failures when labels change even if logic is unchanged
-- **Note**: Translation keys can be used if strictly necessary (e.g., legacy code), but constants are preferred
+- **Translation keys**: Couple the test to i18n. Reword the copy or re-mint the key and the test breaks while the logic it covers never moved. `pnpm translations:add` produces opaque ids too, so `getByTestId('text_1744...')` says nothing about what is being queried.
+- There is no "strictly necessary" exception. An existing test id that is a translation key is a reason to replace it, not a precedent to copy.
 
 **Benefits**:
 
