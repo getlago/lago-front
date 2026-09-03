@@ -186,7 +186,10 @@ check_image() {
 
 require_disk() {
   local free
-  free="$(docker run --rm --entrypoint df front_dev -P / 2>/dev/null | awk 'NR==2 {print int($4/1024)}')" || free=""
+  free="$(docker run --rm \
+    --mount "type=volume,src=${PNPM_STORE_VOL},dst=/app/.pnpm-store,readonly" \
+    --entrypoint df front_dev -P /app/.pnpm-store 2>/dev/null \
+    | awk 'NR==2 {print int($4/1024)}')" || free=""
   # Probe failed: never block a boot on a failed measurement.
   if [[ -z "$free" ]]; then return 0; fi
 
@@ -210,13 +213,13 @@ cmd_up() {
   # Before the disk check, so reclaimed space counts towards it.
   sweep_stale
   check_image
+  # Create before probing so df reads the same volume-backed filesystem that
+  # pnpm and each workspace's node_modules volume use.
+  docker volume create "$PNPM_STORE_VOL" >/dev/null
   require_disk
 
   patch_env
   gen_compose
-
-  # Idempotent; external in the compose file, so nothing else creates it.
-  docker volume create "$PNPM_STORE_VOL" >/dev/null
 
   # Shadowed by the shared store volume from here on, so whatever it already
   # holds is dead weight on the host disk.
