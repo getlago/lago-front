@@ -10,6 +10,7 @@ interface ShowMoreTextProps extends TypographyProps {
 }
 
 export const MAX_DESCRIPTION_LENGTH_DISPLAY_LIMIT = 250
+export const SHOW_MORE_TEXT_BUTTON_TEST_ID = 'show-more-text-button'
 
 export const ShowMoreText = ({ text, limit, showMore, ...props }: ShowMoreTextProps) => {
   const { translate } = useInternationalization()
@@ -29,6 +30,7 @@ export const ShowMoreText = ({ text, limit, showMore, ...props }: ShowMoreTextPr
         {!showMore || typeof showMore === 'string' ? (
           <button
             className="h-auto rounded-none p-0 focus:ring"
+            data-test={SHOW_MORE_TEXT_BUTTON_TEST_ID}
             onClick={() => setIsTextTruncated(false)}
           >
             {showMore ? showMore : translate('text_62bdbf07117c3d1f178d6517')}

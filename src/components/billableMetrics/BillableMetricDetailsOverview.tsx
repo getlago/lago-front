@@ -4,6 +4,10 @@ import { useParams } from 'react-router-dom'
 import { CodeSnippet } from '~/components/CodeSnippet'
 import { Accordion } from '~/components/designSystem/Accordion'
 import { Chip } from '~/components/designSystem/Chip'
+import {
+  MAX_DESCRIPTION_LENGTH_DISPLAY_LIMIT,
+  ShowMoreText,
+} from '~/components/designSystem/ShowMoreText'
 import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
@@ -84,7 +88,14 @@ export const BillableMetricDetailsOverview = () => {
             <DetailsPage.InfoGridItem
               className="col-span-2"
               label={translate('text_6388b923e514213fed58331c')}
-              value={billableMetric?.description}
+              value={
+                <ShowMoreText
+                  variant="body"
+                  color="grey700"
+                  text={billableMetric.description}
+                  limit={MAX_DESCRIPTION_LENGTH_DISPLAY_LIMIT}
+                />
+              }
             />
           )}
         </div>

@@ -1,5 +1,7 @@
 import { screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
+import { SHOW_MORE_TEXT_BUTTON_TEST_ID } from '~/components/designSystem/ShowMoreText'
 import { CurrencyEnum, PlanInterval } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
@@ -19,6 +21,8 @@ const basePlan = {
   interval: PlanInterval.Monthly,
   amountCurrency: CurrencyEnum.Usd,
 }
+
+const UNBREAKABLE_DESCRIPTION = 'a'.repeat(500)
 
 describe('PlanSettingsInfo', () => {
   it('renders name, code, interval and currency', () => {
@@ -40,6 +44,21 @@ describe('PlanSettingsInfo', () => {
 
     expect(screen.getByText('text_6388b923e514213fed58331c')).toBeInTheDocument()
     expect(screen.getByText('A pro plan')).toBeInTheDocument()
+  })
+
+  it('truncates a description longer than the display limit behind a "See more" button', () => {
+    render(<PlanSettingsInfo plan={{ ...basePlan, description: UNBREAKABLE_DESCRIPTION }} />)
+
+    expect(screen.queryByText(UNBREAKABLE_DESCRIPTION)).not.toBeInTheDocument()
+    expect(screen.getByTestId(SHOW_MORE_TEXT_BUTTON_TEST_ID)).toBeInTheDocument()
+  })
+
+  it('reveals the whole description when "See more" is clicked', async () => {
+    render(<PlanSettingsInfo plan={{ ...basePlan, description: UNBREAKABLE_DESCRIPTION }} />)
+
+    await userEvent.click(screen.getByTestId(SHOW_MORE_TEXT_BUTTON_TEST_ID))
+
+    expect(screen.getByText(UNBREAKABLE_DESCRIPTION)).toHaveClass('line-break-anywhere')
   })
 
   it('omits the taxes row when the plan has no taxes', () => {

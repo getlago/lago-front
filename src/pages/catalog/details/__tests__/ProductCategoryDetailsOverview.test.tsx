@@ -1,6 +1,7 @@
 import { act, render as rtlRender, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { SHOW_MORE_TEXT_BUTTON_TEST_ID } from '~/components/designSystem/ShowMoreText'
 import { GetProductCategoryForDetailsOverviewDocument } from '~/generated/graphql'
 import { AllTheProviders } from '~/test-utils'
 
@@ -33,6 +34,8 @@ const productCategoryFixture = {
   invoiceDisplayName: 'Storage',
   attachedToPlanOrSubscription: false,
 }
+
+const UNBREAKABLE_DESCRIPTION = 'a'.repeat(500)
 
 const overviewQueryMockFactory = (productCategory: Record<string, unknown>) => ({
   request: { query: GetProductCategoryForDetailsOverviewDocument, variables: { id: 'prod-1' } },
@@ -78,6 +81,20 @@ describe('ProductCategoryDetailsOverview', () => {
     // Row labels (translate is mocked to return the key)
     expect(screen.queryByText('text_6388b923e514213fed58331c')).not.toBeInTheDocument()
     expect(screen.queryByText('text_65018c8e5c6b626f030bcf26')).not.toBeInTheDocument()
+  })
+
+  it('truncates a description longer than the display limit behind a "See more" button', async () => {
+    await act(() =>
+      renderOverview({ ...productCategoryFixture, description: UNBREAKABLE_DESCRIPTION }),
+    )
+
+    await screen.findByText('Object storage')
+
+    expect(screen.queryByText(UNBREAKABLE_DESCRIPTION)).not.toBeInTheDocument()
+
+    await userEvent.click(screen.getByTestId(SHOW_MORE_TEXT_BUTTON_TEST_ID))
+
+    expect(screen.getByText(UNBREAKABLE_DESCRIPTION)).toHaveClass('line-break-anywhere')
   })
 
   it('opens the edit drawer with the loaded productCategory', async () => {
