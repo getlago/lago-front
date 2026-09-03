@@ -122,6 +122,7 @@ const buildRateCard = (
     billableMetric: null,
   },
   productFilter: null,
+  taxes: [],
   activeRate: {
     __typename: 'RateCardRate',
     id: 'rate-1',

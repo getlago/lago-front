@@ -16,6 +16,7 @@ import {
   LagoApiError,
   RateCardBillingTimingEnum,
   RateCardForDrawerFragment,
+  TaxForTaxesSelectorSectionFragmentDoc,
   useCreateRateCardMutation,
   useUpdateRateCardMutation,
 } from '~/generated/graphql'
@@ -72,6 +73,9 @@ gql`
       name
       code
     }
+    taxes {
+      ...TaxForTaxesSelectorSection
+    }
   }
 
   mutation createRateCard($input: CreateRateCardInput!) {
@@ -87,6 +91,8 @@ gql`
       ...RateCardForDrawer
     }
   }
+
+  ${TaxForTaxesSelectorSectionFragmentDoc}
 `
 
 // The create title doubles as the create submit label (identical copy).
@@ -112,6 +118,7 @@ const mapRateCardToFormValues = (rateCard: RateCardForDrawerFragment): RateCardF
   }),
   proration: rateCard.proration,
   walletTargetable: rateCard.walletTargetable ?? false,
+  taxes: rateCard.taxes,
 })
 
 type ProductAttachment = { id: string; name: string }
@@ -166,11 +173,19 @@ const useRateCardForm = ({ onSuccess }: { onSuccess: (result: RateCardFormSucces
 
       let rateCard: RateCardForDrawerFragment | null | undefined
       let errors: FetchResult['errors']
+      const taxCodes = value.taxes.map((tax) => tax.code)
 
       // Update serializes cleared optional fields to null (undefined would be
       // stripped and the previous value would never clear); code, product item
       // and product item filter are create-only, so they are not sent on update.
       if (editedRateCard) {
+        const previousTaxCodes = editedRateCard.taxes.map((tax) => tax.code)
+        const taxesChanged =
+          taxCodes.length !== previousTaxCodes.length ||
+          taxCodes.some((taxCode) => !previousTaxCodes.includes(taxCode))
+        const walletTargetableChanged =
+          value.walletTargetable !== (editedRateCard.walletTargetable ?? false)
+
         const result = await updateRateCard({
           variables: {
             input: {
@@ -179,7 +194,8 @@ const useRateCardForm = ({ onSuccess }: { onSuccess: (result: RateCardFormSucces
               description: value.description || null,
               billingTiming: value.billingTiming,
               proration: value.proration,
-              walletTargetable: value.walletTargetable,
+              ...(walletTargetableChanged ? { walletTargetable: value.walletTargetable } : {}),
+              ...(taxesChanged ? { taxCodes } : {}),
               ...buildUpdatePricingInput({ currency, pricingUnit: value.pricingUnit }),
               ...invoiceFields,
             },
@@ -200,6 +216,7 @@ const useRateCardForm = ({ onSuccess }: { onSuccess: (result: RateCardFormSucces
               billingTiming: value.billingTiming,
               proration: value.proration,
               walletTargetable: value.walletTargetable,
+              taxCodes,
               ...buildCreatePricingInput({ currency, pricingUnit: value.pricingUnit }),
               ...invoiceFields,
             },
@@ -329,8 +346,8 @@ export const useRateCardDrawer = () => {
     resetForm(rateCard, attachToProduct, attachToProductFilter)
 
     const isEdit = !!rateCard
-    // Attaching a rate card to a plan/subscription freezes everything except the
-    // display fields (name / description).
+    // Attaching a rate card to a plan/subscription freezes its billing settings.
+    // Name, description, and taxes remain editable.
     const isLocked = !!(rateCard?.attachedToPlanOrSubscription || rateCard?.attachedToSubscriptions)
 
     const productSource = rateCard?.product ?? attachToProductFilter?.product ?? attachToProduct

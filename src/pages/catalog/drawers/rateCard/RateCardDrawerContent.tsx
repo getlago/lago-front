@@ -18,9 +18,11 @@ import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGrou
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { ChargeInvoicingStrategyOption } from '~/components/plans/chargeAccordion/options/ChargeInvoicingStrategyOption'
 import { LocalUsageChargeInput } from '~/components/plans/types'
+import { TaxesSelectorSection } from '~/components/taxes/TaxesSelectorSection'
 import {
   MUI_INPUT_BASE_ROOT_CLASSNAME,
   SEARCH_PRICING_UNIT_FOR_RATE_CARD_CLASSNAME,
+  SEARCH_TAX_INPUT_FOR_RATE_CARD_CLASSNAME,
 } from '~/core/constants/form'
 import { scrollToAndClickElement } from '~/core/utils/domUtils'
 import {
@@ -37,6 +39,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 import { useChargeForm } from '~/hooks/plans/useChargeForm'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { usePermissions } from '~/hooks/usePermissions'
 import { tw } from '~/styles/utils'
 
 import {
@@ -95,6 +98,9 @@ export const RATE_CARD_DRAWER_AVAILABLE_MODELS_ALERT_TEST_ID =
 export const RATE_CARD_DRAWER_AVAILABLE_MODEL_CHIP_TEST_ID = 'rate-card-drawer-available-model-chip'
 export const RATE_CARD_DRAWER_SHOW_PRICING_UNIT_TEST_ID = 'rate-card-drawer-show-pricing-unit'
 export const RATE_CARD_DRAWER_REMOVE_PRICING_UNIT_TEST_ID = 'rate-card-drawer-remove-pricing-unit'
+
+export const RATE_CARD_TAXES_TITLE_KEY = 'text_1788366458013ubk4410jvj7'
+export const RATE_CARD_TAXES_DESCRIPTION_KEY = 'text_17883664580131qxuvyxjzvs'
 
 export type RateCardComboboxSeed = { value: string; label: string } | null
 
@@ -159,6 +165,7 @@ const RateCardDrawerFormSections = withForm({
   }) {
     const { translate } = useInternationalization()
     const { isPremium } = useCurrentUser()
+    const { hasPermissions } = usePermissions()
     const { getFixedChargeModelComboboxData, getUsageChargeModelComboboxData } = useChargeForm()
     const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
 
@@ -284,6 +291,7 @@ const RateCardDrawerFormSections = withForm({
       (selectedProductMeta.productType === ProductTypeEnum.Fixed || selectedProductMeta.recurring)
 
     const isPayInAdvance = billingTiming === RateCardBillingTimingEnum.Advance
+    const canViewTaxes = hasPermissions(['organizationTaxesView'])
 
     // ChargeInvoicingStrategyOption is bound to the charge-world shape, so adapt
     // the rate card's invoicingStrategy into a synthetic local charge for it.
@@ -535,7 +543,6 @@ const RateCardDrawerFormSections = withForm({
                 }}
               />
             )}
-
             {isProrationVisible && (
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-1">
@@ -594,6 +601,20 @@ const RateCardDrawerFormSections = withForm({
               )}
             </form.AppField>
           </CenteredPage.PageSection>
+
+          {canViewTaxes && (
+            <form.Subscribe selector={(state) => state.values.taxes}>
+              {(taxes) => (
+                <TaxesSelectorSection
+                  title={translate(RATE_CARD_TAXES_TITLE_KEY)}
+                  description={translate(RATE_CARD_TAXES_DESCRIPTION_KEY)}
+                  taxes={taxes}
+                  comboboxSelector={SEARCH_TAX_INPUT_FOR_RATE_CARD_CLASSNAME}
+                  onUpdate={(newTaxes) => form.setFieldValue('taxes', newTaxes)}
+                />
+              )}
+            </form.Subscribe>
+          )}
         </CenteredPage.SubsectionWrapper>
       </>
     )

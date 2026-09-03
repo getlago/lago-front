@@ -1,6 +1,7 @@
 import { act, render as rtlRender, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
   CurrencyEnum,
   GetRateCardForDetailsOverviewDocument,
@@ -12,6 +13,7 @@ import { AllTheProviders, TestMocksType } from '~/test-utils'
 
 import RateCardDetailsOverview, {
   RATE_CARD_DETAILS_OVERVIEW_EDIT_TEST_ID,
+  RATE_CARD_DETAILS_OVERVIEW_TAXES_FALLBACK_KEY,
 } from '../RateCardDetailsOverview'
 
 const CURRENCY_LABEL_KEY = 'text_1784925227817bab1mp540x7'
@@ -76,6 +78,7 @@ const attachedRateCard: RateCardForDetailsOverviewFragment = {
     name: 'EU pro filter',
     code: 'eu_pro_filter',
   },
+  taxes: [{ __typename: 'Tax', id: 'tax-1', code: 'vat_20', name: 'VAT', rate: 20 }],
 } as RateCardForDetailsOverviewFragment
 
 const noFilterRateCard: RateCardForDetailsOverviewFragment = {
@@ -87,6 +90,11 @@ const pricingUnitRateCard: RateCardForDetailsOverviewFragment = {
   ...attachedRateCard,
   currency: CurrencyEnum.Usd,
   appliedPricingUnitCode: 'credit',
+}
+
+const rateCardWithoutTaxes: RateCardForDetailsOverviewFragment = {
+  ...attachedRateCard,
+  taxes: [],
 }
 
 const buildMock = (rateCard: RateCardForDetailsOverviewFragment): TestMocksType => [
@@ -180,6 +188,26 @@ describe('RateCardDetailsOverview', () => {
 
         await screen.findByText('Standard rate card')
         expect(screen.getAllByText('text_176416000997957yqelmt2m2')).toHaveLength(2)
+      })
+
+      it('THEN displays the applied tax rates', async () => {
+        await act(() => renderOverview())
+
+        const formattedRate = intlFormatNumber(0.2, { style: 'percent' })
+
+        expect(await screen.findByText(`VAT (${formattedRate})`)).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a rate card without taxes', () => {
+    describe('WHEN the overview loads', () => {
+      it('THEN displays the inherited tax fallback', async () => {
+        await act(() => renderOverview(rateCardWithoutTaxes))
+
+        expect(
+          await screen.findByText(RATE_CARD_DETAILS_OVERVIEW_TAXES_FALLBACK_KEY),
+        ).toBeInTheDocument()
       })
     })
   })
