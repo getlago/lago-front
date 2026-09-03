@@ -20,7 +20,7 @@ import {
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { topUpAmountError } from '~/pages/wallet/form'
 
-import { walletPageTopUpValidationSchema } from './validationSchema'
+import { walletPageTopUpDefaultValues, walletPageTopUpValidationSchema } from './validationSchema'
 
 gql`
   query customerPortalWallet($id: ID!) {
@@ -73,9 +73,7 @@ const WalletPage = () => {
     })
 
   const form = useAppForm({
-    defaultValues: {
-      amount: '' as number | '',
-    },
+    defaultValues: walletPageTopUpDefaultValues,
     validationLogic: revalidateLogic(),
     validators: {
       onDynamic: walletPageTopUpValidationSchema,
