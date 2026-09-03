@@ -4,6 +4,7 @@ import {
   CurrencyEnum,
   RateCardBillingTimingEnum,
   RateCardRegroupPaidFeesEnum,
+  TaxForTaxesSelectorSectionFragment,
 } from '~/generated/graphql'
 
 export const RATE_CARD_FORM_ID = 'rateCardForm'
@@ -27,6 +28,14 @@ export const rateCardDrawerSchema = z
     billingTiming: z.nativeEnum(RateCardBillingTimingEnum),
     invoicingStrategy: z.enum(['invoiceable', 'regroupPaidFees', 'none']),
     proration: z.boolean(),
+    taxes: z.array(
+      z.object({
+        id: z.string(),
+        code: z.string(),
+        name: z.string(),
+        rate: z.number(),
+      }),
+    ),
   })
   .superRefine((values, ctx) => {
     if (!values.currency) {
@@ -53,6 +62,7 @@ export const RATE_CARD_FORM_DEFAULTS: RateCardFormValues = {
   billingTiming: RateCardBillingTimingEnum.Arrears,
   invoicingStrategy: 'invoiceable',
   proration: false,
+  taxes: [] as TaxForTaxesSelectorSectionFragment[],
 }
 
 export const mapStrategyToInvoiceFields = (

@@ -76,6 +76,7 @@ const rateCardFixture = {
   attachedToPlanOrSubscription: false,
   attachedToSubscriptions: false,
   ratesCount: 0,
+  taxes: [],
   product: {
     __typename: 'Product',
     id: 'pitem-1',
