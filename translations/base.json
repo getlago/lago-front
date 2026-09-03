@@ -5265,5 +5265,9 @@
   "text_1791838459984mz627wmmt51": "{{pricingUnitName}} • 1 {{pricingUnitShortName}} = {{amount}}",
   "text_1791838459984ploipjejyo9": "Minimum spending per interval",
   "text_1791838459984syvvlp15glr": "Rate card in {{currency}}",
-  "text_1791838459984bohwav05qa1": "#"
+  "text_1791838459984bohwav05qa1": "#",
+  "text_1788366458013ubk4410jvj7": "Tax rate (optional)",
+  "text_17883664580131qxuvyxjzvs": "Set specific tax rates to apply to fees generated from this rate card.",
+  "text_1788366458013xjjkd5j2ate": "Tax rates",
+  "text_1788366458013p269p15ecg4": "No tax rates set on this rate card."
 }
