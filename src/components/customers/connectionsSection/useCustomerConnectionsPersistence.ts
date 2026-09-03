@@ -239,7 +239,7 @@ export const useCustomerConnectionsPersistence = ({
             variables: {
               input: {
                 id: existingId,
-                ...(values.code ? { code: values.code } : {}),
+                code: values.code || null,
                 providerCustomerId: values.externalCustomerId || null,
                 syncWithProvider: values.syncWithProvider ?? false,
                 providerPaymentMethods: getEnabledPaymentMethods(values.providerPaymentMethods),
@@ -269,7 +269,7 @@ export const useCustomerConnectionsPersistence = ({
           variables: {
             input: {
               customerId: customer.id,
-              code: values.code || undefined,
+              code: values.code || null,
               paymentProvider,
               paymentProviderCode: values.providerCode,
               providerCustomerId: values.externalCustomerId || null,
@@ -305,7 +305,9 @@ export const useCustomerConnectionsPersistence = ({
     const isSameConnection = existing?.integrationCode === values.providerCode
 
     const linkInput = {
-      ...(values.code ? { code: values.code } : {}),
+      // Explicit null, never omitted nor blank: `set_code` backfills the
+      // provider code on nil, and `''` would defeat its `||=`
+      code: values.code || null,
       externalCustomerId: values.externalCustomerId || null,
       syncWithProvider: values.syncWithProvider ?? false,
       ...(category === ConnectionCategory.Accounting && values.subsidiaryId

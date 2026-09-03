@@ -85,7 +85,7 @@ describe('getIntegrationCustomers', () => {
         expect(result).toEqual([
           {
             id: undefined,
-            code: 'anrok_1',
+            code: null,
             integrationCode: 'anrok_1',
             integrationType: IntegrationTypeEnum.Anrok,
             externalCustomerId: 'tax-123',
@@ -113,7 +113,7 @@ describe('getIntegrationCustomers', () => {
         expect(result).toEqual([
           {
             id: 'anrok-1',
-            code: 'anrok_1',
+            code: null,
             integrationCode: 'anrok_1',
             integrationType: IntegrationTypeEnum.Anrok,
             externalCustomerId: 'tax-123',
@@ -137,7 +137,7 @@ describe('getIntegrationCustomers', () => {
         expect(result).toEqual([
           {
             id: undefined,
-            code: 'avalara_1',
+            code: null,
             integrationCode: 'avalara_1',
             integrationType: IntegrationTypeEnum.Avalara,
             externalCustomerId: 'tax-456',
@@ -158,7 +158,7 @@ describe('getIntegrationCustomers', () => {
         expect(result).toEqual([
           {
             id: undefined,
-            code: 'anrok_1',
+            code: null,
             integrationCode: 'anrok_1',
             integrationType: IntegrationTypeEnum.Anrok,
             externalCustomerId: undefined,
@@ -187,7 +187,7 @@ describe('getIntegrationCustomers', () => {
         expect(result).toEqual([
           {
             id: 'netsuite-1',
-            code: 'netsuite_1',
+            code: null,
             integrationCode: 'netsuite_1',
             integrationType: IntegrationTypeEnum.Netsuite,
             externalCustomerId: 'accounting-123',
@@ -233,7 +233,7 @@ describe('getIntegrationCustomers', () => {
         expect(result).toEqual([
           {
             id: 'xero-1',
-            code: 'xero_1',
+            code: null,
             integrationCode: 'xero_1',
             integrationType: IntegrationTypeEnum.Xero,
             externalCustomerId: 'accounting-456',
@@ -262,7 +262,7 @@ describe('getIntegrationCustomers', () => {
         expect(result).toEqual([
           {
             id: 'hubspot-1',
-            code: 'hubspot_1',
+            code: null,
             integrationCode: 'hubspot_1',
             integrationType: IntegrationTypeEnum.Hubspot,
             externalCustomerId: 'crm-123',
@@ -291,7 +291,7 @@ describe('getIntegrationCustomers', () => {
         expect(result).toEqual([
           {
             id: 'salesforce-1',
-            code: 'salesforce_1',
+            code: null,
             integrationCode: 'salesforce_1',
             integrationType: IntegrationTypeEnum.Salesforce,
             externalCustomerId: 'crm-456',
@@ -337,7 +337,7 @@ describe('getIntegrationCustomers', () => {
         expect(result).toEqual([
           {
             id: 'netsuite-1',
-            code: 'netsuite_1',
+            code: null,
             integrationCode: 'netsuite_1',
             integrationType: IntegrationTypeEnum.Netsuite,
             externalCustomerId: 'accounting-123',
@@ -346,7 +346,7 @@ describe('getIntegrationCustomers', () => {
           },
           {
             id: 'anrok-1',
-            code: 'anrok_1',
+            code: null,
             integrationCode: 'anrok_1',
             integrationType: IntegrationTypeEnum.Anrok,
             externalCustomerId: 'tax-123',
@@ -354,7 +354,7 @@ describe('getIntegrationCustomers', () => {
           },
           {
             id: 'hubspot-1',
-            code: 'hubspot_1',
+            code: null,
             integrationCode: 'hubspot_1',
             integrationType: IntegrationTypeEnum.Hubspot,
             externalCustomerId: 'crm-123',
@@ -382,7 +382,7 @@ describe('getIntegrationCustomers', () => {
   })
   describe('GIVEN a connection with a user-entered code', () => {
     describe('WHEN mapping it to an input item', () => {
-      it('THEN should send the entered code instead of the integration code', () => {
+      it('THEN should send the entered code instead of a null', () => {
         const result = getIntegrationCustomers([
           {
             id: 'anrok-1',

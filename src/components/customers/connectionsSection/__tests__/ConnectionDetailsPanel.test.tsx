@@ -63,6 +63,7 @@ const STRIPE_PAYMENT_CONNECTION = {
 const NETSUITE_INTEGRATION_CONNECTION = {
   __typename: 'NetsuiteCustomer',
   id: 'nc-1',
+  code: 'accounting-eu',
   integrationId: 'int-ns',
   integrationCode: 'ns-1',
   integrationType: IntegrationTypeEnum.Netsuite,
@@ -185,7 +186,7 @@ describe('ConnectionDetailsPanel', () => {
         )
       })
 
-      it('THEN should show the integration name and code', () => {
+      it('THEN should show the integration name and the connection code', () => {
         render(
           <ConnectionDetailsPanel
             row={ACCOUNTING_ROW}
@@ -198,7 +199,30 @@ describe('ConnectionDetailsPanel', () => {
         const panel = screen.getByTestId(CONNECTION_DETAILS_PANEL_TEST_ID)
 
         expect(panel).toHaveTextContent('NetSuite Prod')
-        expect(panel).toHaveTextContent('ns-1')
+        expect(panel).toHaveTextContent('accounting-eu')
+      })
+    })
+
+    describe('WHEN the connection code differs from the integration code', () => {
+      it.each([
+        ['payment', 'PAYMENT_ROW', 'stripe'],
+        ['accounting', 'ACCOUNTING_ROW', 'accounting-eu'],
+      ])('THEN should show the %s connection own code', (_, rowName, expectedCode) => {
+        const row = rowName === 'PAYMENT_ROW' ? PAYMENT_ROW : ACCOUNTING_ROW
+
+        render(
+          <ConnectionDetailsPanel
+            row={row}
+            customer={buildCustomer()}
+            integrationsData={INTEGRATIONS_DATA}
+            integrationsLoading={false}
+          />,
+        )
+
+        const panel = screen.getByTestId(CONNECTION_DETAILS_PANEL_TEST_ID)
+
+        expect(panel).toHaveTextContent(expectedCode)
+        expect(panel).not.toHaveTextContent(row.code as string)
       })
     })
 

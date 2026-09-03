@@ -1,5 +1,4 @@
 import { act, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
 import { createRef } from 'react'
 
 import { render } from '~/test-utils'
@@ -203,7 +202,7 @@ describe('CustomerConnectionDrawer', () => {
         expect(screen.getByTestId(CONNECTION_CODE_FIELD_TEST_ID)).toBeInTheDocument()
       })
 
-      it('THEN should follow the selected connection when the code is still empty', () => {
+      it('THEN should leave the code empty on a connection that has none', () => {
         const { ref } = renderDrawer()
 
         act(() => ref.current?.openDrawer(ConnectionCategory.Payment, VALID_PAYMENT_VALUES))
@@ -214,26 +213,7 @@ describe('CustomerConnectionDrawer', () => {
           .getByTestId(CONNECTION_CODE_FIELD_TEST_ID)
           .querySelector('input') as HTMLInputElement
 
-        expect(input).toHaveValue('stripe-1')
-      })
-
-      it('THEN should never overwrite a code the connection already carries', () => {
-        const { ref } = renderDrawer()
-
-        act(() =>
-          ref.current?.openDrawer(ConnectionCategory.Payment, {
-            ...VALID_PAYMENT_VALUES,
-            code: 'payment-eu',
-          }),
-        )
-
-        render(<>{getLastOpenArgs().children}</>)
-
-        const input = screen
-          .getByTestId(CONNECTION_CODE_FIELD_TEST_ID)
-          .querySelector('input') as HTMLInputElement
-
-        expect(input).toHaveValue('payment-eu')
+        expect(input).toHaveValue('')
       })
 
       it('THEN should stay editable on a connection whose provider is locked', () => {
@@ -307,12 +287,6 @@ describe('CustomerConnectionDrawer', () => {
         act(() => ref.current?.openDrawer(ConnectionCategory.Payment, VALID_PAYMENT_VALUES))
 
         render(<>{getLastOpenArgs().children}</>)
-
-        // The rendered field seeds itself from the connection, so an empty code
-        // is a state the user reaches by clearing the input
-        await userEvent.clear(
-          screen.getByTestId(CONNECTION_CODE_FIELD_TEST_ID).querySelector('input') as HTMLElement,
-        )
 
         await act(async () => {
           await getLastOpenArgs().form.submit()
