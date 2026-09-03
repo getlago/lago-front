@@ -1,7 +1,10 @@
 import { act, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { ConnectionFormValues } from '~/components/customerConnections/CustomerConnectionDrawer'
+import {
+  ConnectionFormValues,
+  CustomerConnectionDrawerFormApi,
+} from '~/components/customerConnections/CustomerConnectionDrawer'
 import {
   getCustomerConnectionMenuTestId,
   getCustomerConnectionRowTestId,
@@ -35,11 +38,13 @@ type CapturedDrawerProps = {
   onSave?: (
     category: ConnectionCategory,
     values: ConnectionFormValues,
-    utils: { isEdition: boolean },
+    utils: { isEdition: boolean; formApi: CustomerConnectionDrawerFormApi },
   ) => Promise<void>
 }
 
 const capturedDrawerProps: { current: CapturedDrawerProps | null } = { current: null }
+
+const STUB_FORM_API = {} as CustomerConnectionDrawerFormApi
 
 // The drawer stack relies on import.meta (unsupported in jest)
 jest.mock('~/components/drawers/useDrawer', () => ({
@@ -207,6 +212,7 @@ const customer = {
     {
       __typename: 'AnrokCustomer',
       id: 'ac-1',
+      code: 'tax-eu',
       integrationId: 'int-anrok',
       integrationCode: 'anrok-1',
       integrationType: IntegrationTypeEnum.Anrok,
@@ -430,7 +436,7 @@ describe('CustomerConnectionsSection', () => {
               externalCustomerId: 'cus_123',
               syncWithProvider: false,
             } as ConnectionFormValues,
-            { isEdition: true },
+            { isEdition: true, formApi: STUB_FORM_API },
           )
         })
 
@@ -458,9 +464,66 @@ describe('CustomerConnectionsSection', () => {
               providerType: ProviderTypeEnum.Stripe,
               externalCustomerId: 'cus_123',
             } as ConnectionFormValues,
-            { isEdition: true },
+            { isEdition: true, formApi: STUB_FORM_API },
           ),
         ).resolves.toBe(false)
+      })
+    })
+  })
+  describe('GIVEN the connection code', () => {
+    describe('WHEN editing a connection through the details panel', () => {
+      it('THEN should prefill the drawer with the persisted code', async () => {
+        render(<CustomerConnectionsSection customer={customer} />)
+
+        await userEvent.click(screen.getByTestId(CONNECTION_DETAILS_EDIT_TEST_ID))
+
+        expect(mockOpenEdit).toHaveBeenCalledWith(
+          ConnectionCategory.Payment,
+          expect.objectContaining({ code: 'stripe' }),
+          expect.anything(),
+        )
+      })
+    })
+
+    describe('WHEN editing an integration connection', () => {
+      it('THEN should prefill the drawer with its persisted code', async () => {
+        render(<CustomerConnectionsSection customer={customer} />)
+
+        await userEvent.click(
+          within(screen.getByTestId(getCustomerConnectionRowTestId('tax-anrok-1'))).getAllByRole(
+            'button',
+          )[0],
+        )
+        await userEvent.click(screen.getByTestId(CONNECTION_DETAILS_EDIT_TEST_ID))
+
+        expect(mockOpenEdit).toHaveBeenCalledWith(
+          ConnectionCategory.Tax,
+          expect.objectContaining({ code: 'tax-eu' }),
+          expect.anything(),
+        )
+      })
+    })
+
+    describe('WHEN the drawer saves a code', () => {
+      it('THEN should forward it, with the drawer form, to the persistence strategy', async () => {
+        render(<CustomerConnectionsSection customer={customer} />)
+
+        await act(async () => {
+          await capturedDrawerProps.current?.onSave?.(
+            ConnectionCategory.Payment,
+            {
+              code: 'payment-eu',
+              providerCode: 'stripe-eu',
+              providerType: ProviderTypeEnum.Stripe,
+              externalCustomerId: 'cus_123',
+            } as ConnectionFormValues,
+            { isEdition: true, formApi: STUB_FORM_API },
+          )
+        })
+
+        expect(mockUpdatePayment).toHaveBeenCalledWith({
+          variables: { input: expect.objectContaining({ code: 'payment-eu' }) },
+        })
       })
     })
   })

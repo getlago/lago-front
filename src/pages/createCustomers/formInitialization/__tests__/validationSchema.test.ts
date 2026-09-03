@@ -293,6 +293,43 @@ describe('validationSchema', () => {
       })
     })
 
+    describe('WHEN a row carries a connection code', () => {
+      it('THEN should keep it on the parsed row', () => {
+        const result = validationSchema.safeParse({
+          externalId: 'customer-123',
+          integrationCustomers: [
+            {
+              id: 'anrok-connection-id',
+              code: 'tax-eu',
+              category: ConnectionCategory.Tax,
+              providerCode: 'anrok-eu',
+              providerType: IntegrationTypeEnum.Anrok,
+            },
+          ],
+          metadata: [],
+        })
+
+        expect(result.success).toBe(true)
+        expect(result.data?.integrationCustomers?.[0]?.code).toBe('tax-eu')
+      })
+
+      it('THEN should accept a row without a code, the field being optional', () => {
+        const result = validationSchema.safeParse({
+          externalId: 'customer-123',
+          integrationCustomers: [
+            {
+              category: ConnectionCategory.Tax,
+              providerCode: 'anrok-eu',
+              providerType: IntegrationTypeEnum.Anrok,
+            },
+          ],
+          metadata: [],
+        })
+
+        expect(result.success).toBe(true)
+      })
+    })
+
     describe('WHEN a row is provided for each integration category', () => {
       it('THEN should accept an accounting row', () => {
         const result = validationSchema.safeParse({

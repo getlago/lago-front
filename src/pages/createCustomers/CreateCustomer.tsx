@@ -9,7 +9,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
-import { extractThirdPartyErrorMessage, hasDefinedGQLError } from '~/core/apolloClient'
+import { addToast, extractThirdPartyErrorMessage, hasDefinedGQLError } from '~/core/apolloClient'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -69,7 +69,7 @@ const CreateCustomer = () => {
 
       const { errors } = answer
 
-      if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
+      if (hasDefinedGQLError('ValueAlreadyExist', errors, 'externalId')) {
         formApi.setErrorMap({
           onDynamic: {
             fields: {
@@ -79,6 +79,16 @@ const CreateCustomer = () => {
               },
             },
           },
+        })
+        return
+      }
+
+      // The connection carrying the code lives in the drawer, closed by the
+      // time the customer is saved — no input left to attach the error to
+      if (hasDefinedGQLError('ValueAlreadyExist', errors, 'code')) {
+        addToast({
+          severity: 'danger',
+          translateKey: 'text_1788430542303frilyf2vb6d',
         })
         return
       }
@@ -102,6 +112,16 @@ const CreateCustomer = () => {
             },
           })
         }
+        return
+      }
+
+      // A duplicate on any other field: the mutation silences 422s, so without
+      // this the save would look like a no-op and the form would still reset
+      if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
+        addToast({
+          severity: 'danger',
+          translateKey: 'text_622f7a3dc32ce100c46a5154',
+        })
         return
       }
 

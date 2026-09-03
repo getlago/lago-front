@@ -572,6 +572,7 @@ describe('mapFromFormToApi', () => {
         expect(result.integrationCustomers).toEqual([
           {
             id: 'anrok-1',
+            code: 'anrok_1',
             integrationCode: 'anrok_1',
             integrationType: IntegrationTypeEnum.Anrok,
             externalCustomerId: 'tax-123',
@@ -579,6 +580,7 @@ describe('mapFromFormToApi', () => {
           },
           {
             id: 'netsuite-1',
+            code: 'netsuite_1',
             integrationCode: 'netsuite_1',
             integrationType: IntegrationTypeEnum.Netsuite,
             externalCustomerId: 'accounting-123',
@@ -587,6 +589,7 @@ describe('mapFromFormToApi', () => {
           },
           {
             id: 'hubspot-1',
+            code: 'hubspot_1',
             integrationCode: 'hubspot_1',
             integrationType: IntegrationTypeEnum.Hubspot,
             externalCustomerId: 'crm-123',
@@ -820,6 +823,7 @@ describe('mapFromFormToApi', () => {
         expect(result.integrationCustomers).toEqual([
           {
             id: 'netsuite-1',
+            code: 'netsuite_1',
             integrationCode: 'netsuite_1',
             integrationType: IntegrationTypeEnum.Netsuite,
             externalCustomerId: 'netsuite-123',
@@ -828,6 +832,7 @@ describe('mapFromFormToApi', () => {
           },
           {
             id: 'anrok-1',
+            code: 'anrok_1',
             integrationCode: 'anrok_1',
             integrationType: IntegrationTypeEnum.Anrok,
             externalCustomerId: 'anrok-123',
@@ -835,6 +840,7 @@ describe('mapFromFormToApi', () => {
           },
           {
             id: 'hubspot-1',
+            code: 'hubspot_1',
             integrationCode: 'hubspot_1',
             integrationType: IntegrationTypeEnum.Hubspot,
             externalCustomerId: 'hubspot-123',
