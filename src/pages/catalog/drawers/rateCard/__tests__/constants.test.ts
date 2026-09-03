@@ -1,4 +1,8 @@
-import { RateCardBillingTimingEnum, RateCardRegroupPaidFeesEnum } from '~/generated/graphql'
+import {
+  CurrencyEnum,
+  RateCardBillingTimingEnum,
+  RateCardRegroupPaidFeesEnum,
+} from '~/generated/graphql'
 
 import {
   buildPricingInput,
@@ -9,19 +13,19 @@ import {
 } from '../constants'
 
 describe('rate card constants', () => {
-  it('defaults billing timing to arrears and pricing unit to currency', () => {
+  it('defaults billing timing to arrears without a pricing unit', () => {
     expect(RATE_CARD_FORM_DEFAULTS.billingTiming).toBe(RateCardBillingTimingEnum.Arrears)
-    expect(RATE_CARD_FORM_DEFAULTS.pricingUnit).toBe('currency')
+    expect(RATE_CARD_FORM_DEFAULTS.pricingUnit).toBeUndefined()
   })
 
   it('requires currency regardless of the pricing unit', () => {
     const base = { ...RATE_CARD_FORM_DEFAULTS, name: 'N', code: 'c', productId: 'pi_1' }
 
     expect(
-      rateCardDrawerSchema.safeParse({ ...base, pricingUnit: 'currency', currency: '' }).success,
+      rateCardDrawerSchema.safeParse({ ...base, pricingUnit: undefined, currency: '' }).success,
     ).toBe(false)
     expect(
-      rateCardDrawerSchema.safeParse({ ...base, pricingUnit: 'currency', currency: 'USD' }).success,
+      rateCardDrawerSchema.safeParse({ ...base, pricingUnit: undefined, currency: 'USD' }).success,
     ).toBe(true)
     expect(
       rateCardDrawerSchema.safeParse({ ...base, pricingUnit: 'tokens', currency: '' }).success,
@@ -64,12 +68,12 @@ describe('rate card constants', () => {
     ).toBe(false)
   })
 
-  it('always includes currency, adding the pricing unit code only when custom', () => {
-    expect(buildPricingInput({ pricingUnit: 'currency', currency: 'USD' as never })).toEqual({
-      currency: 'USD',
+  it('always includes currency, adding the pricing unit code only when there is one', () => {
+    expect(buildPricingInput({ pricingUnit: undefined, currency: CurrencyEnum.Usd })).toEqual({
+      currency: CurrencyEnum.Usd,
     })
-    expect(buildPricingInput({ pricingUnit: 'tokens', currency: 'USD' as never })).toEqual({
-      currency: 'USD',
+    expect(buildPricingInput({ pricingUnit: 'tokens', currency: CurrencyEnum.Usd })).toEqual({
+      currency: CurrencyEnum.Usd,
       appliedPricingUnitCode: 'tokens',
     })
   })
