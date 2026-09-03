@@ -1,6 +1,10 @@
 import { gql } from '@apollo/client'
 import { useParams } from 'react-router-dom'
 
+import {
+  MAX_DESCRIPTION_LENGTH_DISPLAY_LIMIT,
+  ShowMoreText,
+} from '~/components/designSystem/ShowMoreText'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { PageSectionTitle } from '~/components/layouts/Section'
@@ -91,7 +95,14 @@ export const ProductCategoryDetailsOverview = () => {
           <DetailsPage.InfoGridItem
             className="col-span-2"
             label={translate('text_6388b923e514213fed58331c')}
-            value={productCategory?.description || '-'}
+            value={
+              <ShowMoreText
+                variant="body"
+                color="grey700"
+                text={productCategory.description}
+                limit={MAX_DESCRIPTION_LENGTH_DISPLAY_LIMIT}
+              />
+            }
           />
         )}
 
