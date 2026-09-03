@@ -1,12 +1,15 @@
-import { gql } from '@apollo/client'
+import { ApolloError, gql, useApolloClient } from '@apollo/client'
 import { useState } from 'react'
 
-import { addToast } from '~/core/apolloClient'
+import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import {
+  CreateInviteMutationHookResult,
   GetInvitesDocument,
   GetInvitesQuery,
   InviteItemForMembersSettingsFragmentDoc,
   LagoApiError,
+  RevokeInviteMutationHookResult,
+  UpdateInviteRoleMutationHookResult,
   useCreateInviteMutation,
   useRevokeInviteMutation,
   useUpdateInviteRoleMutation,
@@ -43,8 +46,45 @@ gql`
   }
 `
 
-export const useInviteActions = () => {
+export type UseInviteActionsParams = {
+  onInviteNotFound?: () => void
+}
+
+type UseInviteActionsReturn = {
+  inviteToken: string
+  setInviteToken: (token: string) => void
+  createInvite: CreateInviteMutationHookResult[0]
+  createInviteError: ApolloError | undefined
+  updateInviteRole: UpdateInviteRoleMutationHookResult[0]
+  revokeInvite: RevokeInviteMutationHookResult[0]
+}
+
+export const useInviteActions = ({
+  onInviteNotFound,
+}: UseInviteActionsParams = {}): UseInviteActionsReturn => {
+  const client = useApolloClient()
   const [inviteToken, setInviteToken] = useState<string>('')
+
+  const handleInviteError = (error: ApolloError): void => {
+    const isSilencedNotFound = error.graphQLErrors.some(
+      (graphQLError) => graphQLError.extensions?.code === LagoApiError.NotFound,
+    )
+
+    if (!isSilencedNotFound) return
+
+    if (hasDefinedGQLError('NotFound', error, 'invite')) {
+      addToast({
+        severity: 'danger',
+        translateKey: 'text_1788431703232ovdpgmdftnt',
+      })
+      client.refetchQueries({ include: ['getInvites'] })
+      onInviteNotFound?.()
+
+      return
+    }
+
+    addToast({ severity: 'danger', translateKey: 'text_622f7a3dc32ce100c46a5154' })
+  }
 
   const [createInvite, { error }] = useCreateInviteMutation({
     context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
@@ -76,6 +116,8 @@ export const useInviteActions = () => {
   })
 
   const [updateInviteRole] = useUpdateInviteRoleMutation({
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
+    onError: handleInviteError,
     onCompleted(res) {
       if (res?.updateInvite) {
         addToast({
@@ -87,6 +129,8 @@ export const useInviteActions = () => {
   })
 
   const [revokeInvite] = useRevokeInviteMutation({
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
+    onError: handleInviteError,
     onCompleted(data) {
       if (data?.revokeInvite) {
         addToast({
