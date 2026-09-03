@@ -1,4 +1,5 @@
-import { gql } from '@apollo/client'
+import { gql, useApolloClient } from '@apollo/client'
+import { captureException } from '@sentry/react'
 import { embedDashboard, EmbeddedDashboard } from '@superset-ui/embedded-sdk'
 import { debounce } from 'lodash'
 import { useEffect, useMemo, useRef } from 'react'
@@ -15,6 +16,7 @@ import { useSupersetDashboardsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import '~/main.css'
+import { createFetchSupersetGuestToken } from '~/pages/dashboards/fetchSupersetGuestToken'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { PageHeader } from '~/styles'
 
@@ -42,6 +44,7 @@ export type DashboardProps = {
 const Dashboard = ({ contentTitle, dashboardTitle, dashboardTitleTestKey }: DashboardProps) => {
   const { translate } = useInternationalization()
   const { currentMembership } = useCurrentUser()
+  const client = useApolloClient()
 
   const dashboardRef = useRef<string>('')
 
@@ -63,6 +66,7 @@ const Dashboard = ({ contentTitle, dashboardTitle, dashboardTitleTestKey }: Dash
     }
 
     let embedded: null | EmbeddedDashboard = null
+    let disposed = false
 
     const persistFilters = isFeatureFlagActive(FeatureFlags.SUPERSET_PERSISTENT_FILTERS)
     // Filter persistence key is scoped to the org from the URL slug (resolved
@@ -87,6 +91,12 @@ const Dashboard = ({ contentTitle, dashboardTitle, dashboardTitleTestKey }: Dash
         }, 500)
       : null
 
+    const fetchGuestToken = createFetchSupersetGuestToken(
+      client,
+      dashboard.id,
+      dashboard.guestToken,
+    )
+
     const mount = async () => {
       const mountPoint = document.getElementById(mountId)
 
@@ -107,7 +117,7 @@ const Dashboard = ({ contentTitle, dashboardTitle, dashboardTitleTestKey }: Dash
         id: dashboard.embeddedId,
         supersetDomain: lagoSupersetUrl,
         mountPoint,
-        fetchGuestToken: async () => dashboard?.guestToken,
+        fetchGuestToken,
         dashboardUiConfig: {
           hideTitle: true,
           emitDataMasks: persistFilters,
@@ -119,6 +129,14 @@ const Dashboard = ({ contentTitle, dashboardTitle, dashboardTitleTestKey }: Dash
         iframeSandboxExtras: ['allow-top-navigation', 'allow-popups-to-escape-sandbox'],
       })
 
+      // The SDK mounts its iframe before `embedDashboard` resolves, so cleanup that
+      // ran while this was in flight had no `embedded` to unmount.
+      if (disposed) {
+        embedded.unmount()
+
+        return
+      }
+
       if (debouncedSaveFilters) {
         embedded.observeDataMask(debouncedSaveFilters)
       }
@@ -126,14 +144,23 @@ const Dashboard = ({ contentTitle, dashboardTitle, dashboardTitleTestKey }: Dash
       dashboardRef.current = dashboard.id
     }
 
-    mount()
+    // Nothing else observes this promise: uncaught, a bad token from Superset is an
+    // unhandled rejection and a silently blank dashboard.
+    mount().catch((mountError) => {
+      captureException(mountError, {
+        tags: { errorType: 'SupersetDashboardMountError', component: 'Dashboard' },
+        extra: { dashboardId: dashboard.id },
+      })
+    })
 
     return () => {
+      disposed = true
+      fetchGuestToken.cancel()
       debouncedSaveFilters?.cancel()
       embedded?.unmount()
       dashboardRef.current = ''
     }
-  }, [dashboard, currentMembership?.organization.id, dashboardTitle, mountId])
+  }, [dashboard, currentMembership?.organization.id, client, dashboardTitle, mountId])
 
   return (
     <>

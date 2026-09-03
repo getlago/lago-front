@@ -2,7 +2,7 @@ import { screen, waitFor } from '@testing-library/react'
 
 import { GENERIC_PLACEHOLDER_TEST_ID } from '~/components/designSystem/GenericPlaceholder'
 import { getItemFromLS, setItemFromLS } from '~/core/utils/localStorage'
-import { SupersetDashboardsDocument } from '~/generated/graphql'
+import { CreateSupersetGuestTokenDocument, SupersetDashboardsDocument } from '~/generated/graphql'
 import { render, TestMocksType } from '~/test-utils'
 
 import Dashboard, { DASHBOARD_MOUNT_TEST_ID } from '../Dashboard'
@@ -79,6 +79,14 @@ const dashboardsData = {
 
 const successMock: TestMocksType = [
   { request: { query: SupersetDashboardsDocument }, result: { data: dashboardsData } },
+  {
+    request: {
+      query: CreateSupersetGuestTokenDocument,
+      variables: { input: { dashboardId: 'dash-1' } },
+    },
+    // Must differ from the seed above, or the assertion passes on the fallback too.
+    result: { data: { createSupersetGuestToken: { guestToken: 'refreshed-token' } } },
+  },
 ]
 
 const errorMock: TestMocksType = [
@@ -104,6 +112,26 @@ const renderRevenue = (mocks: TestMocksType = successMock) =>
     />,
     { mocks },
   )
+
+// Whether `promise` has settled once microtasks and 0ms timers have flushed.
+const hasSettled = async (promise: Promise<unknown>): Promise<boolean> => {
+  let settled = false
+
+  promise.then(
+    () => {
+      settled = true
+    },
+    () => {
+      settled = true
+    },
+  )
+
+  await new Promise<void>((resolve) => {
+    setTimeout(resolve, 0)
+  })
+
+  return settled
+}
 
 describe('Dashboard', () => {
   beforeEach(() => {
@@ -136,7 +164,7 @@ describe('Dashboard', () => {
       expect(config.supersetDomain).toBe('https://localhost:8089')
       expect(config.mountPoint).toBe(document.getElementById('superset-lago-dashboard'))
       expect(config.dashboardUiConfig.hideTitle).toBe(true)
-      await expect(config.fetchGuestToken()).resolves.toBe('token-1')
+      await expect(config.fetchGuestToken()).resolves.toBe('refreshed-token')
     })
   })
 
@@ -227,6 +255,45 @@ describe('Dashboard', () => {
       unmount()
 
       expect(mockUnmount).toHaveBeenCalled()
+    })
+
+    // The SDK's `unmount()` clears the iframe but not its refresh `setTimeout`
+    // (`index.js:159-163`), so cleanup has to cancel the fetcher itself.
+    it('THEN cancels the guest token fetcher so the refresh chain stops', async () => {
+      const { unmount } = renderAnalytics()
+
+      await waitFor(() => expect(mockEmbedDashboard).toHaveBeenCalledTimes(1))
+
+      const { fetchGuestToken } = mockEmbedDashboard.mock.calls[0][0]
+
+      unmount()
+
+      // A cancelled fetcher never settles; the mutation mock would have resolved it.
+      expect(await hasSettled(fetchGuestToken())).toBe(false)
+    })
+
+    // The SDK mounts its iframe before `embedDashboard` resolves, so an embed still
+    // in flight at cleanup time is orphaned unless it is unmounted once it lands.
+    it('THEN tears down an embed that only resolves after cleanup ran', async () => {
+      let resolveEmbed: (value: unknown) => void = () => {}
+
+      mockEmbedDashboard.mockReturnValue(
+        new Promise((resolve) => {
+          resolveEmbed = resolve
+        }),
+      )
+
+      const { unmount } = renderAnalytics()
+
+      await waitFor(() => expect(mockEmbedDashboard).toHaveBeenCalledTimes(1))
+
+      unmount()
+      expect(mockUnmount).not.toHaveBeenCalled()
+
+      resolveEmbed({ unmount: mockUnmount, observeDataMask: mockObserveDataMask })
+
+      await waitFor(() => expect(mockUnmount).toHaveBeenCalledTimes(1))
+      expect(mockObserveDataMask).not.toHaveBeenCalled()
     })
   })
 })

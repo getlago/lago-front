@@ -16118,6 +16118,13 @@ export type SupersetDashboardsQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type SupersetDashboardsQuery = { __typename?: 'Query', supersetDashboards: Array<{ __typename?: 'SupersetDashboard', id: string, embeddedId: string, dashboardTitle: string, guestToken: string }> };
 
+export type CreateSupersetGuestTokenMutationVariables = Exact<{
+  input: CreateSupersetGuestTokenInput;
+}>;
+
+
+export type CreateSupersetGuestTokenMutation = { __typename?: 'Mutation', createSupersetGuestToken?: { __typename?: 'SupersetGuestToken', guestToken: string } | null };
+
 export type GetApiKeyToEditQueryVariables = Exact<{
   apiKeyId: Scalars['ID']['input'];
 }>;
@@ -43252,6 +43259,39 @@ export type SupersetDashboardsQueryHookResult = ReturnType<typeof useSupersetDas
 export type SupersetDashboardsLazyQueryHookResult = ReturnType<typeof useSupersetDashboardsLazyQuery>;
 export type SupersetDashboardsSuspenseQueryHookResult = ReturnType<typeof useSupersetDashboardsSuspenseQuery>;
 export type SupersetDashboardsQueryResult = Apollo.QueryResult<SupersetDashboardsQuery, SupersetDashboardsQueryVariables>;
+export const CreateSupersetGuestTokenDocument = gql`
+    mutation createSupersetGuestToken($input: CreateSupersetGuestTokenInput!) {
+  createSupersetGuestToken(input: $input) {
+    guestToken
+  }
+}
+    `;
+export type CreateSupersetGuestTokenMutationFn = Apollo.MutationFunction<CreateSupersetGuestTokenMutation, CreateSupersetGuestTokenMutationVariables>;
+
+/**
+ * __useCreateSupersetGuestTokenMutation__
+ *
+ * To run a mutation, you first call `useCreateSupersetGuestTokenMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateSupersetGuestTokenMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createSupersetGuestTokenMutation, { data, loading, error }] = useCreateSupersetGuestTokenMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateSupersetGuestTokenMutation(baseOptions?: Apollo.MutationHookOptions<CreateSupersetGuestTokenMutation, CreateSupersetGuestTokenMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateSupersetGuestTokenMutation, CreateSupersetGuestTokenMutationVariables>(CreateSupersetGuestTokenDocument, options);
+      }
+export type CreateSupersetGuestTokenMutationHookResult = ReturnType<typeof useCreateSupersetGuestTokenMutation>;
+export type CreateSupersetGuestTokenMutationResult = Apollo.MutationResult<CreateSupersetGuestTokenMutation>;
+export type CreateSupersetGuestTokenMutationOptions = Apollo.BaseMutationOptions<CreateSupersetGuestTokenMutation, CreateSupersetGuestTokenMutationVariables>;
 export const GetApiKeyToEditDocument = gql`
     query getApiKeyToEdit($apiKeyId: ID!) {
   apiKey(id: $apiKeyId) {
