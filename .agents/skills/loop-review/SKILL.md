@@ -5,7 +5,7 @@ description: 'Phase 3 of the loop pipeline for lago-front. Takes an ISSUE-ID, re
 
 # Loop Review — phase 3 of loop-run
 
-**Input:** an ISSUE-ID. State dir: `$LOOP_STATE_DIR/<ISSUE-ID>/` (default `~/.claude/loop-state/<ISSUE-ID>/`). Requires `spec.md` and `state.md` (worktree path). If missing, stop and say which phase to run first.
+**Input:** an ISSUE-ID. State dir: `$LOOP_STATE_DIR/<ISSUE-ID>/` (default `~/.claude/loop-state/<ISSUE-ID>/`). Requires `spec.md` and `state.md` (worktree path). If missing, stop and say which phase to run first. The `worktree:` path is all this skill needs — it is a `front-worktrees/` worktree in the `worktree` layout and the operator's own checkout in `in-place`, and every command below is the same either way.
 
 **Clean context:** this skill is designed to run with NO knowledge of how the code was written (loop-run dispatches it in a fresh subagent). Judge only what spec.md, the sources it links, and the diff say. Never assume good intent from the build phase.
 
