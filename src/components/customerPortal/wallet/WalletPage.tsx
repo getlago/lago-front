@@ -1,8 +1,7 @@
 import { gql } from '@apollo/client'
 import InputAdornment from '@mui/material/InputAdornment'
-import { useFormik } from 'formik'
+import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { useParams } from 'react-router-dom'
-import { number, object } from 'yup'
 
 import useCustomerPortalNavigation from '~/components/customerPortal/common/hooks/useCustomerPortalNavigation'
 import PageTitle from '~/components/customerPortal/common/PageTitle'
@@ -10,9 +9,7 @@ import SectionError from '~/components/customerPortal/common/SectionError'
 import { LoaderWalletPage } from '~/components/customerPortal/common/SectionLoading'
 import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
 import { Alert } from '~/components/designSystem/Alert'
-import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
-import { AmountInputField } from '~/components/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import {
@@ -20,7 +17,10 @@ import {
   useCustomerPortalWalletQuery,
   useTopUpPortalWalletMutation,
 } from '~/generated/graphql'
+import { useAppForm } from '~/hooks/forms/useAppform'
 import { topUpAmountError } from '~/pages/wallet/form'
+
+import { walletPageTopUpDefaultValues, walletPageTopUpValidationSchema } from './validationSchema'
 
 gql`
   query customerPortalWallet($id: ID!) {
@@ -59,39 +59,40 @@ const WalletPage = () => {
     },
   })
 
+  const wallet = customerWalletData?.customerPortalWallet
+
   const [topUpPortalWallet, { loading: loadingTopUpPortalWallet, error: errorTopUpPortalWallet }] =
     useTopUpPortalWalletMutation({
       onCompleted(res) {
         if (res) {
-          formikProps.resetForm()
+          form.reset()
 
           goHome?.()
         }
       },
     })
 
-  const wallet = customerWalletData?.customerPortalWallet
-
-  const formikProps = useFormik({
-    initialValues: {
-      amount: undefined,
+  const form = useAppForm({
+    defaultValues: walletPageTopUpDefaultValues,
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: walletPageTopUpValidationSchema,
     },
-    validationSchema: object().shape({
-      amount: number().required(''),
-    }),
-    onSubmit: async ({ amount }) => {
+    onSubmit: async ({ value }) => {
       if (!wallet?.id) return
 
-      topUpPortalWallet({
+      await topUpPortalWallet({
         variables: {
           input: {
             walletId: wallet?.id,
-            paidCredits: String(amount),
+            paidCredits: String(value.amount),
           },
         },
       })
     },
   })
+
+  const amount = useStore(form.store, (state) => state.values.amount)
 
   const isError = !customerWalletLoading && customerWalletError
 
@@ -105,18 +106,17 @@ const WalletPage = () => {
 
   const paidCreditsError = topUpAmountError({
     rateAmount: wallet?.rateAmount?.toString(),
-    paidCredits: formikProps?.values?.amount,
+    paidCredits: amount === '' ? undefined : String(amount),
     paidTopUpMinAmountCents,
     paidTopUpMaxAmountCents,
     currency: wallet?.currency,
     translate,
   })
 
-  const submitButtonDisabled =
-    !formikProps?.values?.amount ||
-    loadingTopUpPortalWallet ||
-    formikProps?.values?.amount <= 0 ||
-    paidCreditsError?.error
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault()
+    form.handleSubmit()
+  }
 
   if (isError) {
     return (
@@ -135,37 +135,39 @@ const WalletPage = () => {
       {customerWalletLoading && <LoaderWalletPage />}
 
       {!customerWalletLoading && (
-        <div>
-          <AmountInputField
-            name="amount"
-            displayErrorText={false}
-            beforeChangeFormatter={['positiveNumber']}
-            helperText={
-              <Typography variant="body" color="grey600" className="mt-1">
-                {translate('text_17279456600803f8on7ku8jo', {
-                  credits: intlFormatNumber(
-                    Number(formikProps?.values?.amount || 0) * Number(wallet?.rateAmount || 0),
-                    {
-                      currencyDisplay: 'narrowSymbol',
-                      currency: wallet?.currency,
-                      locale: documentLocale,
-                    },
+        <form onSubmit={handleSubmit}>
+          <form.AppField name="amount">
+            {(field) => (
+              <field.AmountInputField
+                displayErrorText={false}
+                beforeChangeFormatter={['positiveNumber']}
+                helperText={
+                  <Typography variant="body" color="grey600" className="mt-1">
+                    {translate('text_17279456600803f8on7ku8jo', {
+                      credits: intlFormatNumber(
+                        Number(amount || 0) * Number(wallet?.rateAmount || 0),
+                        {
+                          currencyDisplay: 'narrowSymbol',
+                          currency: wallet?.currency,
+                          locale: documentLocale,
+                        },
+                      ),
+                    })}
+                  </Typography>
+                }
+                label={translate('text_1728377307160d96z1skvnw3')}
+                currency={wallet?.currency || CurrencyEnum.Usd}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      {translate('text_1728377307160iloscj20uc1')}
+                    </InputAdornment>
                   ),
-                })}
-              </Typography>
-            }
-            label={translate('text_1728377307160d96z1skvnw3')}
-            currency={wallet?.currency || CurrencyEnum.Usd}
-            formikProps={formikProps}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  {translate('text_1728377307160iloscj20uc1')}
-                </InputAdornment>
-              ),
-            }}
-            error={paidCreditsError?.label}
-          />
+                }}
+                errorOverride={paidCreditsError?.label}
+              />
+            )}
+          </form.AppField>
 
           {errorTopUpPortalWallet && (
             <Alert className="mt-8" type="danger" data-test="error-alert">
@@ -174,16 +176,16 @@ const WalletPage = () => {
           )}
 
           <div className="mt-8 flex justify-end">
-            <Button
-              disabled={submitButtonDisabled}
-              loading={loadingTopUpPortalWallet}
-              size="medium"
-              onClick={formikProps.submitForm}
-            >
-              {translate('text_1728377307160e831fr4ydtn')}
-            </Button>
+            <form.AppForm>
+              <form.SubmitButton
+                disabled={loadingTopUpPortalWallet || !!paidCreditsError?.error}
+                size="medium"
+              >
+                {translate('text_1728377307160e831fr4ydtn')}
+              </form.SubmitButton>
+            </form.AppForm>
           </div>
-        </div>
+        </form>
       )}
     </div>
   )
