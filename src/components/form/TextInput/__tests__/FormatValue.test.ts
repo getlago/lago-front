@@ -167,6 +167,7 @@ describe('Text input formatValue', () => {
     const shortDecimalValue = formatValue(11.45, 'sextDecimal')
     const veryLongDecimalValue = formatValue(11.134567890123456, 'sextDecimal')
     const stringValue = formatValue('random string', 'sextDecimal')
+    const minus = formatValue('-', 'sextDecimal')
 
     expect(negativeValue).toBe('-12')
     expect(value).toBe('15')
@@ -176,6 +177,15 @@ describe('Text input formatValue', () => {
     expect(shortDecimalValue).toBe('11.45')
     expect(veryLongDecimalValue).toBe('11.134567')
     expect(stringValue).toBe(null)
+    expect(minus).toBe('-')
+  })
+
+  it('should keep a lone "-" for every decimal truncation', () => {
+    expect(formatValue('-', 'decimal')).toBe('-')
+    expect(formatValue('-', 'triDecimal')).toBe('-')
+    expect(formatValue('-', 'quadDecimal')).toBe('-')
+    expect(formatValue('-', 'sextDecimal')).toBe('-')
+    expect(formatValue('-', 'chargeDecimal')).toBe('-')
   })
 
   it('should return a string with no spaces for "code" formatter', () => {
