@@ -1,8 +1,10 @@
 import { gql, useApolloClient } from '@apollo/client'
 
 import { ConnectionFormValues } from '~/components/customerConnections/CustomerConnectionDrawer'
+import { CustomerConnectionRow } from '~/components/customerConnections/CustomerConnectionsList'
 import { ConnectionCategory } from '~/components/customerConnections/types'
 import { useConnectionOptions } from '~/components/customerConnections/useConnectionOptions'
+import { useSetConnectionAsDefault } from '~/components/customerConnections/useSetConnectionAsDefault'
 import {
   getIntegrationCustomerForCategory,
   getProviderPaymentConnection,
@@ -95,6 +97,7 @@ type UseCustomerConnectionsPersistenceReturn = {
     utils: { isEdition: boolean },
   ) => Promise<boolean>
   deleteConnection: (category: ConnectionCategory) => Promise<boolean>
+  setConnectionAsDefault: (row: CustomerConnectionRow) => Promise<boolean>
 }
 
 /**
@@ -124,6 +127,7 @@ export const useCustomerConnectionsPersistence = ({
   const [updateIntegrationConnection] = useUpdateCustomerIntegrationConnectionMutation()
   const [destroyIntegrationConnection] = useDestroyCustomerIntegrationConnectionMutation()
   const [clearPaymentProvider] = useClearCustomerPaymentProviderMutation()
+  const { setConnectionAsDefault: setAsDefault } = useSetConnectionAsDefault()
 
   /**
    * Silent standalone customer read after a write. Integration customers are
@@ -422,5 +426,16 @@ export const useCustomerConnectionsPersistence = ({
     return true
   }
 
-  return { saveConnection, deleteConnection }
+  const setConnectionAsDefault = async (row: CustomerConnectionRow): Promise<boolean> => {
+    const succeeded = await setAsDefault({
+      category: row.category,
+      connectionId: row.connectionId,
+    })
+
+    if (succeeded) await refreshCustomer()
+
+    return succeeded
+  }
+
+  return { saveConnection, deleteConnection, setConnectionAsDefault }
 }

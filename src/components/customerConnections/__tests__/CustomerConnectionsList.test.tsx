@@ -6,9 +6,11 @@ import { render } from '~/test-utils'
 import {
   CustomerConnectionRow,
   CustomerConnectionsList,
+  getCustomerConnectionDefaultBadgeTestId,
   getCustomerConnectionGroupTestId,
   getCustomerConnectionMenuTestId,
   getCustomerConnectionRowTestId,
+  getCustomerConnectionSetDefaultTestId,
 } from '../CustomerConnectionsList'
 import { ConnectionCategory } from '../types'
 
@@ -227,6 +229,112 @@ describe('CustomerConnectionsList', () => {
         })
 
         expect(screen.queryByRole('button', { name: /edit connection/i })).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the default flow', () => {
+    const DEFAULT_ROWS: CustomerConnectionRow[] = [
+      { ...ROWS[0], connectionId: 'pc-1', isDefault: true },
+      { ...ROWS[1], connectionId: 'nc-1', isDefault: false },
+    ]
+
+    describe('WHEN the Status column is shown', () => {
+      it('THEN should badge only the default row', () => {
+        render(<CustomerConnectionsList rows={DEFAULT_ROWS} showStatusColumn />)
+
+        expect(
+          screen.getByTestId(getCustomerConnectionDefaultBadgeTestId('payment-1')),
+        ).toBeInTheDocument()
+        expect(
+          screen.queryByTestId(getCustomerConnectionDefaultBadgeTestId('accounting-1')),
+        ).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the Status column is hidden', () => {
+      it('THEN should badge nothing, even on the default row', () => {
+        render(<CustomerConnectionsList rows={DEFAULT_ROWS} />)
+
+        expect(
+          screen.queryByTestId(getCustomerConnectionDefaultBadgeTestId('payment-1')),
+        ).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN no onSetDefault handler is given', () => {
+      it('THEN should not render the Set as default entry', async () => {
+        render(<CustomerConnectionsList rows={DEFAULT_ROWS} onDelete={jest.fn()} />)
+
+        await userEvent.click(screen.getByTestId(getCustomerConnectionMenuTestId('accounting-1')))
+        await waitFor(() => {
+          expect(screen.getByRole('button', { name: /delete connection/i })).toBeVisible()
+        })
+
+        expect(
+          screen.queryByTestId(getCustomerConnectionSetDefaultTestId('accounting-1')),
+        ).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN onSetDefault is the only handler given', () => {
+      it('THEN should still render the row menu with the entry', async () => {
+        render(<CustomerConnectionsList rows={DEFAULT_ROWS} onSetDefault={jest.fn()} />)
+
+        await userEvent.click(screen.getByTestId(getCustomerConnectionMenuTestId('accounting-1')))
+
+        await waitFor(() => {
+          expect(
+            screen.getByTestId(getCustomerConnectionSetDefaultTestId('accounting-1')),
+          ).toBeVisible()
+        })
+      })
+    })
+
+    describe('WHEN the row can be set as default', () => {
+      it('THEN should call back with the row and close the menu', async () => {
+        const onSetDefault = jest.fn()
+
+        render(
+          <CustomerConnectionsList
+            rows={DEFAULT_ROWS}
+            onEdit={jest.fn()}
+            onSetDefault={onSetDefault}
+            onDelete={jest.fn()}
+          />,
+        )
+
+        await openRowMenu('accounting-1')
+        await userEvent.click(
+          screen.getByTestId(getCustomerConnectionSetDefaultTestId('accounting-1')),
+        )
+
+        expect(onSetDefault).toHaveBeenCalledWith(DEFAULT_ROWS[1])
+        await waitFor(() => {
+          expect(
+            screen.queryByTestId(getCustomerConnectionSetDefaultTestId('accounting-1')),
+          ).not.toBeInTheDocument()
+        })
+      })
+    })
+
+    describe('WHEN the row cannot be set as default', () => {
+      it.each([
+        ['it already is the default', { ...ROWS[0], connectionId: 'pc-1', isDefault: true }],
+        ['it has no persisted connection id', { ...ROWS[0], isDefault: false }],
+      ])('THEN should disable the entry because %s', async (_, row) => {
+        render(<CustomerConnectionsList rows={[row]} onSetDefault={jest.fn()} />)
+
+        await userEvent.click(screen.getByTestId(getCustomerConnectionMenuTestId('payment-1')))
+
+        await waitFor(() => {
+          expect(
+            screen.getByTestId(getCustomerConnectionSetDefaultTestId('payment-1')),
+          ).toBeVisible()
+        })
+        expect(
+          screen.getByTestId(getCustomerConnectionSetDefaultTestId('payment-1')),
+        ).toBeDisabled()
       })
     })
   })

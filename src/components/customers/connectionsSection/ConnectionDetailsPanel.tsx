@@ -30,11 +30,13 @@ import {
 import { Link } from '~/core/router'
 import {
   CustomerDetailsFragment,
+  FeatureFlagEnum,
   IntegrationsListForCustomerMainInfosQuery,
   IntegrationTypeEnum,
   ProviderTypeEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 type ConnectionDetailsPanelProps = {
   row: CustomerConnectionRow
@@ -116,8 +118,7 @@ const ProviderCustomerIdValue = ({
  * Right pane of the connections master-detail: the settings grid of the
  * selected connection. Two variants — the provider payment connection
  * (provider infos, Stripe deep link + enabled payment methods) and the
- * integration connections (org-integration infos + provider deep link). The
- * manual-payment variant lands with the default flow.
+ * integration connections (org-integration infos + provider deep link).
  */
 export const ConnectionDetailsPanel = ({
   row,
@@ -126,6 +127,7 @@ export const ConnectionDetailsPanel = ({
   integrationsLoading,
 }: ConnectionDetailsPanelProps) => {
   const { translate } = useInternationalization()
+  const { hasFeatureFlag } = useOrganizationInfos()
 
   // Connection identity, shown by both variants
   const identityGrid = [
@@ -137,6 +139,16 @@ export const ConnectionDetailsPanel = ({
       label: translate('text_6584550dc4cec7adf8615051'),
       value: row.code,
     },
+    // A payment row without a provider-customer record carries no flag at all
+    // (Cashfree/Flutterwave, or sync off with no external id): asserting "No"
+    // would claim a healthy connection is not the default when it may well be.
+    hasFeatureFlag(FeatureFlagEnum.MultiConnection) &&
+      !!row.connectionId && {
+        label: translate('text_1788511707796mofp375vjec'),
+        value: translate(
+          row.isDefault ? 'text_1764160009979jzn4xunn1z8' : 'text_176416000997957yqelmt2m2',
+        ),
+      },
   ]
 
   const renderContent = (): ReactNode => {

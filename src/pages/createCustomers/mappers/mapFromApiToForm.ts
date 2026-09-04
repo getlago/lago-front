@@ -110,6 +110,7 @@ const mapIntegrationCustomers = (
       {
         id: integrationCustomer.id,
         category,
+        isDefault: integrationCustomer.isDefault,
         providerCode: integrationCustomer.integrationCode ?? '',
         providerType: integrationCustomer.integrationType ?? undefined,
         externalCustomerId: integrationCustomer.externalCustomerId ?? '',

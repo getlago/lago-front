@@ -3,8 +3,10 @@ import userEvent from '@testing-library/user-event'
 
 import { ConnectionFormValues } from '~/components/customerConnections/CustomerConnectionDrawer'
 import {
+  getCustomerConnectionDefaultBadgeTestId,
   getCustomerConnectionMenuTestId,
   getCustomerConnectionRowTestId,
+  getCustomerConnectionSetDefaultTestId,
 } from '~/components/customerConnections/CustomerConnectionsList'
 import { MANUAL_CONNECTION_CODE } from '~/components/customerConnections/customerIntegrationConst'
 import { ConnectionCategory } from '~/components/customerConnections/types'
@@ -30,6 +32,20 @@ const mockDestroyIntegration = jest.fn(() =>
   Promise.resolve({ data: { destroyIntegrationCustomer: { id: 'ac-1' } } }),
 )
 const mockOpenAddPaymentMethodDialog = jest.fn()
+const mockSetPaymentDefault = jest.fn(() =>
+  Promise.resolve({
+    data: { setPaymentProviderCustomerAsDefault: { id: 'pc-1', isDefault: true } },
+  }),
+)
+const mockSetIntegrationDefault = jest.fn(() =>
+  Promise.resolve({ data: { setIntegrationCustomerAsDefault: { __typename: 'AnrokCustomer' } } }),
+)
+const mockHasFeatureFlag = jest.fn(() => false)
+
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  ...jest.requireActual('~/hooks/useOrganizationInfos'),
+  useOrganizationInfos: () => ({ hasFeatureFlag: mockHasFeatureFlag }),
+}))
 
 type CapturedDrawerProps = {
   onSave?: (
@@ -170,6 +186,8 @@ jest.mock('~/generated/graphql', () => ({
     jest.fn(() => Promise.resolve({ errors: undefined })),
   ],
   useDestroyCustomerIntegrationConnectionMutation: () => [mockDestroyIntegration],
+  useSetCustomerPaymentConnectionAsDefaultMutation: () => [mockSetPaymentDefault],
+  useSetCustomerIntegrationConnectionAsDefaultMutation: () => [mockSetIntegrationDefault],
 }))
 
 const ANY_ROW_TEST_ID = new RegExp(`^${getCustomerConnectionRowTestId('')}`)
@@ -226,6 +244,10 @@ describe('CustomerConnectionsSection', () => {
     mockDestroyIntegration.mockResolvedValue({
       data: { destroyIntegrationCustomer: { id: 'ac-1' } },
     } as never)
+    mockSetPaymentDefault.mockResolvedValue({
+      data: { setPaymentProviderCustomerAsDefault: { id: 'pc-1', isDefault: true } },
+    } as never)
+    mockHasFeatureFlag.mockReturnValue(false)
   })
 
   describe('GIVEN a customer with connections', () => {
@@ -265,7 +287,7 @@ describe('CustomerConnectionsSection', () => {
     })
 
     describe('WHEN the customer has no connection but the manual placeholder', () => {
-      it('THEN should show the empty state (manual default view lands with the default flow)', () => {
+      it('THEN should show the empty state', () => {
         render(
           <CustomerConnectionsSection
             customer={
@@ -461,6 +483,94 @@ describe('CustomerConnectionsSection', () => {
             { isEdition: true },
           ),
         ).resolves.toBe(false)
+      })
+    })
+  })
+  describe('GIVEN the multi-connection feature flag is enabled', () => {
+    beforeEach(() => {
+      mockHasFeatureFlag.mockReturnValue(true)
+    })
+
+    describe('WHEN the section renders', () => {
+      it('THEN should badge the default connection', () => {
+        render(<CustomerConnectionsSection customer={customer} />)
+
+        expect(
+          screen.getByTestId(getCustomerConnectionDefaultBadgeTestId('payment-stripe-eu')),
+        ).toBeInTheDocument()
+        expect(
+          screen.queryByTestId(getCustomerConnectionDefaultBadgeTestId('tax-anrok-1')),
+        ).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN setting a non-default connection as default', () => {
+      it('THEN should call the dedicated mutation with the connection id', async () => {
+        render(<CustomerConnectionsSection customer={customer} />)
+
+        await userEvent.click(screen.getByTestId(getCustomerConnectionMenuTestId('tax-anrok-1')))
+        await waitFor(() => {
+          expect(
+            screen.getByTestId(getCustomerConnectionSetDefaultTestId('tax-anrok-1')),
+          ).toBeVisible()
+        })
+
+        await userEvent.click(
+          screen.getByTestId(getCustomerConnectionSetDefaultTestId('tax-anrok-1')),
+        )
+
+        await waitFor(() => {
+          expect(mockSetIntegrationDefault).toHaveBeenCalledWith({
+            variables: { input: { id: 'ac-1' } },
+          })
+        })
+      })
+    })
+
+    describe('WHEN the connection already is the default', () => {
+      it('THEN should disable the Set as default entry', async () => {
+        render(<CustomerConnectionsSection customer={customer} />)
+
+        await userEvent.click(
+          screen.getByTestId(getCustomerConnectionMenuTestId('payment-stripe-eu')),
+        )
+
+        await waitFor(() => {
+          expect(
+            screen.getByTestId(getCustomerConnectionSetDefaultTestId('payment-stripe-eu')),
+          ).toBeVisible()
+        })
+        expect(
+          screen.getByTestId(getCustomerConnectionSetDefaultTestId('payment-stripe-eu')),
+        ).toBeDisabled()
+      })
+    })
+  })
+
+  describe('GIVEN the multi-connection feature flag is disabled', () => {
+    describe('WHEN the section renders', () => {
+      it('THEN should show no Default badge', () => {
+        render(<CustomerConnectionsSection customer={customer} />)
+
+        expect(
+          screen.queryByTestId(getCustomerConnectionDefaultBadgeTestId('payment-stripe-eu')),
+        ).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN a row menu is opened', () => {
+      it('THEN should offer no Set as default entry', async () => {
+        render(<CustomerConnectionsSection customer={customer} />)
+
+        await userEvent.click(screen.getByTestId(getCustomerConnectionMenuTestId('tax-anrok-1')))
+        await waitFor(() => {
+          expect(screen.getByRole('button', { name: /edit connection/i })).toBeVisible()
+        })
+
+        expect(
+          screen.queryByTestId(getCustomerConnectionSetDefaultTestId('tax-anrok-1')),
+        ).not.toBeInTheDocument()
+        expect(mockSetIntegrationDefault).not.toHaveBeenCalled()
       })
     })
   })
