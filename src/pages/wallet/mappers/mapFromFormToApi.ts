@@ -142,7 +142,7 @@ export const mapFormToCreateInput = (
     ...(values.paidTopUpMaxAmountCents
       ? { paidTopUpMaxAmountCents: serializeAmount(values.paidTopUpMaxAmountCents, currency) }
       : {}),
-    priority: priority || WALLET_DEFAULT_PRIORITY,
+    priority: Number(priority) || WALLET_DEFAULT_PRIORITY,
   }
 }
 
@@ -191,6 +191,6 @@ export const mapFormToUpdateInput = (
     ...(values.paidTopUpMaxAmountCents
       ? { paidTopUpMaxAmountCents: serializeAmount(values.paidTopUpMaxAmountCents, currency) }
       : { paidTopUpMaxAmountCents: null }),
-    priority: priority || WALLET_DEFAULT_PRIORITY,
+    priority: Number(priority) || WALLET_DEFAULT_PRIORITY,
   }
 }

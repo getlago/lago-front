@@ -128,7 +128,7 @@ const formatCouponInput = (values: CouponFormInput) => {
     expirationAt:
       values.expiration === CouponExpiration.NoExpiration && expirationAt ? null : expirationAt,
     frequencyDuration:
-      values.frequency === CouponFrequency.Recurring ? frequencyDuration : undefined,
+      values.frequency === CouponFrequency.Recurring ? Number(frequencyDuration) : undefined,
     appliesTo: {
       planIds: hasPlanLimit && limitPlansList?.length ? limitPlansList.map((p) => p.id) : [],
       billableMetricIds:

@@ -10,11 +10,10 @@ export const addOnFormSchema = z
     name: z.string().min(1, ''),
     code: z.string().min(1, ''),
     description: z.string().optional(),
-    amountCents: z.union([z.string(), z.number()]).optional(),
+    amountCents: z.string().optional(),
     amountCurrency: z.enum(CurrencyEnum),
     taxes: z.array(taxSchema).optional(),
   })
-  // Was: yup.number().min(0.01).required() — amountCents is a display string in form state
   .refine(
     (data) => {
       if (data.amountCents === undefined || data.amountCents === '') {

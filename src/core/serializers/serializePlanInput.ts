@@ -128,7 +128,10 @@ export const serializeProperties = (properties: Properties, chargeModel: ChargeM
         }
       : { volumeRanges: undefined }),
     ...(chargeModel === ChargeModelEnum.Package
-      ? { freeUnits: properties?.freeUnits || 0 }
+      ? {
+          packageSize: Number(properties?.packageSize) || undefined,
+          freeUnits: Number(properties?.freeUnits) || 0,
+        }
       : { packageSize: undefined, freeUnits: undefined }),
     ...(chargeModel === ChargeModelEnum.Percentage
       ? {
