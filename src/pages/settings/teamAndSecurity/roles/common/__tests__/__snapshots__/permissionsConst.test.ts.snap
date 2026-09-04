@@ -23,6 +23,8 @@ exports[`permissionsConst snapshot tests allPermissions matches snapshot 1`] = `
   "ChargesCreate",
   "ChargesDelete",
   "ChargesUpdate",
+  "ContractsCreate",
+  "ContractsView",
   "CouponsAttach",
   "CouponsCreate",
   "CouponsDelete",
