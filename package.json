@@ -122,7 +122,7 @@
     "@superset-ui/embedded-sdk": "0.3.0",
     "@tanstack/react-form": "1.33.0",
     "@tanstack/react-virtual": "3.14.10",
-    "@tiptap/core": "3.30.2",
+    "@tiptap/core": "3.30.4",
     "@tiptap/extension-blockquote": "3.30.2",
     "@tiptap/extension-bullet-list": "3.30.2",
     "@tiptap/extension-code-block": "3.30.2",
