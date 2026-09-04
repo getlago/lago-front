@@ -102,7 +102,7 @@ describe('prependOrgSlug', () => {
       // Characterization, not endorsement. These survive the helper unchanged
       // and resolve off-origin. Safe today only because no untrusted value
       // reaches a `navigate()` or `<Link to>`; `isSafeInAppPath` is what makes
-      // that a guarantee rather than an audit. See Task 3.
+      // that a guarantee rather than an audit.
       it.each(PASS_THROUGH_HOSTILE)('THEN %s is returned unchanged, with a slug', (input) => {
         expect(prependOrgSlug(input, 'acme')).toBe(input)
       })

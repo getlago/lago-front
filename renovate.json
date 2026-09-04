@@ -24,7 +24,7 @@
   },
   "packageRules": [
     {
-      "description": "LAGO-1859 owns the 6->7 major. Vulnerability alerts bypass minimumReleaseAge and the schedule, so park it on the dashboard instead of letting Renovate open (and reopen) the PR.",
+      "description": "LAGO-1859 owns the 6->7 major: park the ordinary major on the dependency dashboard so Renovate does not open (and reopen) the PR. This does NOT park the vulnerability-alert path - Renovate's synthetic vulnerabilityAlerts rule force-overrides dependencyDashboardApproval to false - and that is deliberate: alerts #250-253 are the EOL signal and must stay visible until stage 3 lands.",
       "matchPackageNames": ["react-router", "react-router-dom"],
       "matchUpdateTypes": ["major"],
       "dependencyDashboardApproval": true

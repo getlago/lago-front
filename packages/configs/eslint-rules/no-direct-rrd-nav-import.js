@@ -1,8 +1,7 @@
 /**
  * ESLint rule to forbid importing `useNavigate`, `Link`, `useLocation`, and
  * `useMatch` directly from `react-router-dom` or `react-router`. These must be
- * imported from
- * `~/core/router` so the org slug is automatically prepended (for
+ * imported from `~/core/router` so the org slug is automatically prepended (for
  * `useNavigate`/`Link`) or `strippedPathname` is available (for
  * `useLocation`). `useMatch` is banned because it matches against the
  * full pathname (including the slug prefix), so route constants never
