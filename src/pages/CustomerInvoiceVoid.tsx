@@ -8,7 +8,7 @@ import { Status } from '~/components/designSystem/Status'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
-import { addToast } from '~/core/apolloClient'
+import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -24,6 +24,7 @@ import {
   InvoiceForVoidInvoiceDialogFragment,
   InvoiceForVoidInvoiceDialogFragmentDoc,
   InvoiceListItemFragmentDoc,
+  LagoApiError,
   useGetInvoiceDetailsQuery,
   useVoidInvoiceMutation,
   VoidInvoiceInput,
@@ -33,6 +34,8 @@ import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useCustomerHasActiveWallet } from '~/hooks/customer/useCustomerHasActiveWallet'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
+import EmptyImage from '~/public/images/maneki/empty.svg'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { FormLoadingSkeleton } from '~/styles/mainObjectsForm'
 
@@ -56,6 +59,8 @@ gql`
   ${AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc}
 `
 
+export const CUSTOMER_INVOICE_VOID_SUBMIT_BUTTON_TEST_ID = 'customer-invoice-void-submit-button'
+
 const CustomerInvoiceVoid = () => {
   const { translate } = useInternationalization()
   const { goBack } = useLocationHistory()
@@ -63,6 +68,7 @@ const CustomerInvoiceVoid = () => {
   const { timezone } = useOrganizationInfos()
   const navigate = useNavigate()
   const { isPremium } = useCurrentUser()
+  const { canVoid } = usePermissionsInvoiceActions()
 
   const { data, loading, error } = useGetInvoiceDetailsQuery({
     variables: { id: invoiceId as string },
@@ -74,22 +80,7 @@ const CustomerInvoiceVoid = () => {
   })
 
   const [voidInvoice] = useVoidInvoiceMutation({
-    onCompleted(voidedData) {
-      if (voidedData?.voidInvoice && customerId && invoiceId) {
-        addToast({
-          message: translate('text_65269b43d4d2b15dd929a254'),
-          severity: 'success',
-        })
-
-        navigate(
-          generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
-            customerId,
-            invoiceId,
-            tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
-          }),
-        )
-      }
-    },
+    context: { silentErrorCodes: [LagoApiError.NotVoidable] },
     update(cache, { data: invoiceData }) {
       if (!invoiceData?.voidInvoice) return
 
@@ -120,19 +111,45 @@ const CustomerInvoiceVoid = () => {
 
   const hasActiveCustomer = !invoice?.customer?.deletedAt
 
-  const onSubmit = async () => {
-    if (invoiceId) {
-      const input: VoidInvoiceInput = {
-        id: invoiceId,
-        generateCreditNote: false,
+  const isVoidable = !!invoice && canVoid({ status: invoice.status })
+
+  const onSubmit = async (): Promise<void> => {
+    if (!invoiceId || !customerId) return
+
+    const input: VoidInvoiceInput = {
+      id: invoiceId,
+      generateCreditNote: false,
+    }
+
+    const result = await voidInvoice({
+      variables: {
+        input,
+      },
+    })
+
+    if (!result.data?.voidInvoice) {
+      if (hasDefinedGQLError('NotVoidable', result.errors)) {
+        addToast({
+          translateKey: 'text_1788518648182t6oetew3x8x',
+          severity: 'danger',
+        })
       }
 
-      await voidInvoice({
-        variables: {
-          input,
-        },
-      })
+      return
     }
+
+    addToast({
+      message: translate('text_65269b43d4d2b15dd929a254'),
+      severity: 'success',
+    })
+
+    navigate(
+      generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
+        customerId,
+        invoiceId,
+        tab: CustomerInvoiceDetailsTabsOptionsEnum.overview,
+      }),
+    )
   }
 
   const canRegenerate =
@@ -154,6 +171,16 @@ const CustomerInvoiceVoid = () => {
     }
   }
 
+  const header = (
+    <CenteredPage.Header>
+      <Typography className="font-medium text-grey-700">
+        {translate('text_65269b43d4d2b15dd929a259')}
+      </Typography>
+
+      <Button variant="quaternary" icon="close" onClick={() => onClose()} />
+    </CenteredPage.Header>
+  )
+
   if (error) {
     return (
       <GenericPlaceholder
@@ -168,15 +195,26 @@ const CustomerInvoiceVoid = () => {
     )
   }
 
+  if (!loading && !isVoidable) {
+    return (
+      <CenteredPage.Wrapper>
+        {header}
+
+        <CenteredPage.Container>
+          <GenericPlaceholder
+            className="pt-12"
+            title={translate('text_1788518648182zhwh917bcvs')}
+            subtitle={translate('text_1788518648182tnlbh6pdxdd')}
+            image={<EmptyImage width="136" height="104" />}
+          />
+        </CenteredPage.Container>
+      </CenteredPage.Wrapper>
+    )
+  }
+
   return (
     <CenteredPage.Wrapper>
-      <CenteredPage.Header>
-        <Typography className="font-medium text-grey-700">
-          {translate('text_65269b43d4d2b15dd929a259')}
-        </Typography>
-
-        <Button variant="quaternary" icon="close" onClick={() => onClose()} />
-      </CenteredPage.Header>
+      {header}
 
       {loading && (
         <CenteredPage.Container>
@@ -288,27 +326,34 @@ const CustomerInvoiceVoid = () => {
         </CenteredPage.Container>
       )}
 
-      <CenteredPage.StickyFooter>
-        <div className="flex w-full items-center justify-between">
-          <div>
-            {!!canRegenerate && (
-              <Link to={regeneratePath(invoice as Invoice)}>
-                {translate('text_1750678506388eexnh1b36o4')}
-              </Link>
-            )}
-          </div>
+      {!loading && (
+        <CenteredPage.StickyFooter>
+          <div className="flex w-full items-center justify-between">
+            <div>
+              {!!canRegenerate && (
+                <Link to={regeneratePath(invoice as Invoice)}>
+                  {translate('text_1750678506388eexnh1b36o4')}
+                </Link>
+              )}
+            </div>
 
-          <div className="flex gap-3">
-            <Button variant="quaternary" onClick={() => onClose()}>
-              {translate('text_6411e6b530cb47007488b027')}
-            </Button>
+            <div className="flex gap-3">
+              <Button variant="quaternary" onClick={() => onClose()}>
+                {translate('text_6411e6b530cb47007488b027')}
+              </Button>
 
-            <Button variant="primary" danger onClick={() => onSubmit()}>
-              {translate('text_65269b43d4d2b15dd929a259')}
-            </Button>
+              <Button
+                variant="primary"
+                danger
+                data-test={CUSTOMER_INVOICE_VOID_SUBMIT_BUTTON_TEST_ID}
+                onClick={() => onSubmit()}
+              >
+                {translate('text_65269b43d4d2b15dd929a259')}
+              </Button>
+            </div>
           </div>
-        </div>
-      </CenteredPage.StickyFooter>
+        </CenteredPage.StickyFooter>
+      )}
     </CenteredPage.Wrapper>
   )
 }

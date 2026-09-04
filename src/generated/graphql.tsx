@@ -5357,6 +5357,7 @@ export enum LagoApiError {
   NoActiveSubscription = 'no_active_subscription',
   NotFound = 'not_found',
   NotOrganizationMember = 'not_organization_member',
+  NotVoidable = 'not_voidable',
   OktaLoginMethodNotAuthorized = 'okta_login_method_not_authorized',
   OktaUserinfoError = 'okta_userinfo_error',
   PaymentProcessorIsCurrentlyHandlingPayment = 'payment_processor_is_currently_handling_payment',
