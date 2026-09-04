@@ -1,6 +1,7 @@
 import { screen } from '@testing-library/react'
 
 import { Metadatas } from '~/components/invoices/Metadatas'
+import { LagoApiError } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 const mockUseGetInvoiceMetadatasQuery = jest.fn()
@@ -62,7 +63,11 @@ describe('Metadatas', () => {
       render(<Metadatas />, { useParams: { invoiceId: 'invoice-123' } })
 
       expect(mockUseGetInvoiceMetadatasQuery).toHaveBeenCalledWith(
-        expect.objectContaining({ variables: { id: 'invoice-123' }, skip: false }),
+        expect.objectContaining({
+          variables: { id: 'invoice-123' },
+          skip: false,
+          context: { silentErrorCodes: [LagoApiError.NotFound] },
+        }),
       )
       expect(screen.getByText('Purchase order')).toBeInTheDocument()
       expect(screen.getByText('PO-42')).toBeInTheDocument()
