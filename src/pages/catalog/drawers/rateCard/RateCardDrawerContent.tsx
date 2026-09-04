@@ -19,6 +19,11 @@ import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { ChargeInvoicingStrategyOption } from '~/components/plans/chargeAccordion/options/ChargeInvoicingStrategyOption'
 import { LocalUsageChargeInput } from '~/components/plans/types'
 import {
+  MUI_INPUT_BASE_ROOT_CLASSNAME,
+  SEARCH_PRICING_UNIT_FOR_RATE_CARD_CLASSNAME,
+} from '~/core/constants/form'
+import { scrollToAndClickElement } from '~/core/utils/domUtils'
+import {
   AggregationTypeEnum,
   CurrencyEnum,
   ProductTypeEnum,
@@ -37,7 +42,6 @@ import { tw } from '~/styles/utils'
 import {
   mapInvoiceFieldsToStrategy,
   mapStrategyToInvoiceFields,
-  PRICING_UNIT_CURRENCY_OPTION,
   RATE_CARD_FORM_DEFAULTS,
 } from './constants'
 
@@ -89,6 +93,8 @@ export const RATE_CARD_DRAWER_REMOVE_DESCRIPTION_TEST_ID = 'rate-card-drawer-rem
 export const RATE_CARD_DRAWER_AVAILABLE_MODELS_ALERT_TEST_ID =
   'rate-card-drawer-available-models-alert'
 export const RATE_CARD_DRAWER_AVAILABLE_MODEL_CHIP_TEST_ID = 'rate-card-drawer-available-model-chip'
+export const RATE_CARD_DRAWER_SHOW_PRICING_UNIT_TEST_ID = 'rate-card-drawer-show-pricing-unit'
+export const RATE_CARD_DRAWER_REMOVE_PRICING_UNIT_TEST_ID = 'rate-card-drawer-remove-pricing-unit'
 
 export type RateCardComboboxSeed = { value: string; label: string } | null
 
@@ -159,7 +165,9 @@ const RateCardDrawerFormSections = withForm({
     const [shouldDisplayDescription, setShouldDisplayDescription] = useState(
       () => !!form.state.values.description,
     )
-
+    const [shouldDisplayPricingUnit, setShouldDisplayPricingUnit] = useState(
+      () => !!form.state.values.pricingUnit,
+    )
     const productId = useStore(form.store, (state) => state.values.productId)
     const currency = useStore(form.store, (state) => state.values.currency)
     const billingTiming = useStore(form.store, (state) => state.values.billingTiming)
@@ -231,14 +239,12 @@ const RateCardDrawerFormSections = withForm({
     )
 
     const pricingUnitsComboboxData = useMemo(
-      () => [
-        { value: PRICING_UNIT_CURRENCY_OPTION, label: translate('text_1784925227817bab1mp540x7') },
-        ...(pricingUnitsData?.pricingUnits?.collection ?? []).map((unit) => ({
+      () =>
+        (pricingUnitsData?.pricingUnits?.collection ?? []).map((unit) => ({
           value: unit.code,
           label: unit.name,
         })),
-      ],
-      [translate, pricingUnitsData?.pricingUnits?.collection],
+      [pricingUnitsData?.pricingUnits?.collection],
     )
 
     const currencyComboboxData = useMemo(
@@ -296,6 +302,23 @@ const RateCardDrawerFormSections = withForm({
         form.setFieldValue('description', '')
       }
       setShouldDisplayDescription(false)
+    }
+
+    const handleShowPricingUnit = () => {
+      setShouldDisplayPricingUnit(true)
+
+      // The combobox only exists on the next render, hence the deferred click; clicking the
+      // input base both focuses the input and drops the option list open.
+      scrollToAndClickElement({
+        selector: `.${SEARCH_PRICING_UNIT_FOR_RATE_CARD_CLASSNAME} .${MUI_INPUT_BASE_ROOT_CLASSNAME}`,
+      })
+    }
+
+    const handleHidePricingUnit = () => {
+      if (form.state.values.pricingUnit !== undefined) {
+        form.setFieldValue('pricingUnit', undefined)
+      }
+      setShouldDisplayPricingUnit(false)
     }
 
     return (
@@ -413,17 +436,47 @@ const RateCardDrawerFormSections = withForm({
               )}
             </form.AppField>
 
-            {!!currency && pricingUnitsComboboxData.length > 0 && (
-              <form.AppField name="pricingUnit">
-                {(field) => (
-                  <field.ComboBoxField
-                    disableClearable
-                    label={translate('text_1784925227817xt1irx4wum2')}
-                    data={pricingUnitsComboboxData}
+            {!!currency && pricingUnitsComboboxData.length > 0 && shouldDisplayPricingUnit && (
+              <div className="flex items-center gap-3">
+                <form.AppField name="pricingUnit">
+                  {(field) => (
+                    <field.ComboBoxField
+                      disableClearable
+                      containerClassName="flex-1"
+                      className={SEARCH_PRICING_UNIT_FOR_RATE_CARD_CLASSNAME}
+                      label={translate('text_1784925227817xt1irx4wum2')}
+                      placeholder={translate('text_17884232212443zsb3p8b5he')}
+                      data={pricingUnitsComboboxData}
+                      disabled={isLocked}
+                    />
+                  )}
+                </form.AppField>
+                <Tooltip
+                  className="mt-6"
+                  placement="top-end"
+                  title={translate('text_63aa085d28b8510cd46443ff')}
+                >
+                  <Button
+                    icon="trash"
+                    variant="quaternary"
                     disabled={isLocked}
+                    onClick={handleHidePricingUnit}
+                    data-test={RATE_CARD_DRAWER_REMOVE_PRICING_UNIT_TEST_ID}
                   />
-                )}
-              </form.AppField>
+                </Tooltip>
+              </div>
+            )}
+            {!!currency && pricingUnitsComboboxData.length > 0 && !shouldDisplayPricingUnit && (
+              <Button
+                fitContent
+                startIcon="plus"
+                variant="inline"
+                disabled={isLocked}
+                onClick={handleShowPricingUnit}
+                data-test={RATE_CARD_DRAWER_SHOW_PRICING_UNIT_TEST_ID}
+              >
+                {translate('text_1788423201620lrod4vaj4e8')}
+              </Button>
             )}
           </CenteredPage.PageSection>
 
@@ -505,7 +558,7 @@ const RateCardDrawerFormSections = withForm({
               </div>
             )}
 
-            {!!productId && availableRateModelLabels.length > 0 && (
+            {!!selectedProductMeta && availableRateModelLabels.length > 0 && (
               <Alert
                 type="info"
                 data-test={RATE_CARD_DRAWER_AVAILABLE_MODELS_ALERT_TEST_ID}

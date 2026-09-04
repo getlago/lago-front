@@ -67,6 +67,8 @@ export const SEARCH_APPLIES_TO_FEE_TYPE_CLASSNAME = 'searchAppliesToFeeTypeInput
 export const SEARCH_APPLIES_TO_BILLABLE_METRIC_CLASSNAME = 'searchAppliesToBillableMetricInput'
 // Features
 export const SEARCH_PRIVILEGE_SELECT_OPTIONS_INPUT_CLASSNAME = 'searchPrivilegeSelectOptionsInput'
+// Catalog
+export const SEARCH_PRICING_UNIT_FOR_RATE_CARD_CLASSNAME = 'searchPricingUnitForRateCardInput'
 
 /**** DATA ****/
 // Plan form types

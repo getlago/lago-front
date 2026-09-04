@@ -166,15 +166,20 @@ const RateCardDetailsOverview = ({ rateCardId }: { rateCardId: string }) => {
 
   const pricingUnit = pricingUnits.find((unit) => unit.code === rateCard.appliedPricingUnitCode)
 
-  const currencyOrPricingUnitRow = rateCard.appliedPricingUnitCode
-    ? {
-        label: translate('text_1784925227817xt1irx4wum2'),
-        value: pricingUnit?.name || rateCard.appliedPricingUnitCode,
-      }
-    : {
-        label: translate('text_1784925227817bab1mp540x7'),
-        value: rateCard.currency || '-',
-      }
+  const currencyOrPricingUnitRow = [
+    {
+      label: translate('text_1784925227817bab1mp540x7'),
+      value: rateCard.currency || '-',
+    },
+    ...(pricingUnit?.name || rateCard.appliedPricingUnitCode
+      ? [
+          {
+            label: translate('text_1784925227817xt1irx4wum2'),
+            value: pricingUnit?.name || rateCard.appliedPricingUnitCode,
+          },
+        ]
+      : []),
+  ]
 
   return (
     <section>
@@ -214,7 +219,7 @@ const RateCardDetailsOverview = ({ rateCardId }: { rateCardId: string }) => {
 
         <DetailsPage.InfoGrid
           grid={[
-            currencyOrPricingUnitRow,
+            ...currencyOrPricingUnitRow,
             {
               label: translate('text_1784930440656zu20xor7y71'),
               value: translate(BILLING_TIMING_TRANSLATION_KEY[rateCard.billingTiming]),

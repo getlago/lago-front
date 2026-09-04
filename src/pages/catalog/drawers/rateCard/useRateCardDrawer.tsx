@@ -23,10 +23,10 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
 import {
-  buildPricingInput,
+  buildCreatePricingInput,
+  buildUpdatePricingInput,
   mapInvoiceFieldsToStrategy,
   mapStrategyToInvoiceFields,
-  PRICING_UNIT_CURRENCY_OPTION,
   RATE_CARD_FORM_DEFAULTS,
   RATE_CARD_FORM_ID,
   RATE_CARD_FORM_SUBMIT_TEST_ID,
@@ -103,7 +103,7 @@ const mapRateCardToFormValues = (rateCard: RateCardForDrawerFragment): RateCardF
   description: rateCard.description || '',
   productId: rateCard.product.id,
   productFilterId: rateCard.productFilter?.id || '',
-  pricingUnit: rateCard.appliedPricingUnitCode ?? PRICING_UNIT_CURRENCY_OPTION,
+  pricingUnit: rateCard.appliedPricingUnitCode ?? undefined,
   currency: rateCard.currency ?? '',
   billingTiming: rateCard.billingTiming,
   invoicingStrategy: mapInvoiceFieldsToStrategy({
@@ -151,6 +151,11 @@ const useRateCardForm = ({ onSuccess }: { onSuccess: (result: RateCardFormSucces
     },
     onSubmit: async ({ value, formApi }) => {
       const editedRateCard = editedRateCardRef.current
+      const { currency } = value
+
+      // `rateCardDrawerSchema` rejects the empty default, so a submit never reaches here
+      // without a currency; the guard is what narrows it out of `CurrencyEnum | ''`.
+      if (!currency) return
 
       // Pay-in-advance carries the invoicing strategy; arrears is always
       // invoiceable so the invoice fields collapse to their default.
@@ -175,7 +180,7 @@ const useRateCardForm = ({ onSuccess }: { onSuccess: (result: RateCardFormSucces
               billingTiming: value.billingTiming,
               proration: value.proration,
               walletTargetable: value.walletTargetable,
-              ...buildPricingInput(value),
+              ...buildUpdatePricingInput({ currency, pricingUnit: value.pricingUnit }),
               ...invoiceFields,
             },
           },
@@ -195,7 +200,7 @@ const useRateCardForm = ({ onSuccess }: { onSuccess: (result: RateCardFormSucces
               billingTiming: value.billingTiming,
               proration: value.proration,
               walletTargetable: value.walletTargetable,
-              ...buildPricingInput(value),
+              ...buildCreatePricingInput({ currency, pricingUnit: value.pricingUnit }),
               ...invoiceFields,
             },
           },
