@@ -8,6 +8,7 @@
  * href. A legitimate in-app path never contains a raw backslash.
  */
 export const isSafeInAppPath = (path: string): boolean => {
+  if (typeof path !== 'string') return false
   if (!path.startsWith('/')) return false
   if (path.startsWith('//')) return false
   if (path.includes('\\')) return false

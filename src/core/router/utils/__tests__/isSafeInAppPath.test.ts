@@ -43,4 +43,13 @@ describe('isSafeInAppPath', () => {
       },
     )
   })
+
+  describe('GIVEN a non-string value from an untyped caller', () => {
+    it.each([123, null, undefined, true, { redirectPath: '/acme' }, ['/acme']])(
+      'THEN %s is rejected',
+      (path) => {
+        expect(isSafeInAppPath(path as unknown as string)).toBe(false)
+      },
+    )
+  })
 })
