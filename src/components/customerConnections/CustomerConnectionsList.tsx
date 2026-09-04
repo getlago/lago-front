@@ -17,6 +17,10 @@ export const getCustomerConnectionMenuTestId = (rowId: string): string =>
   `customer-connection-menu-${rowId}`
 export const getCustomerConnectionGroupTestId = (category: ConnectionCategory): string =>
   `customer-connection-group-${category}`
+export const getCustomerConnectionDefaultBadgeTestId = (rowId: string): string =>
+  `customer-connection-default-badge-${rowId}`
+export const getCustomerConnectionSetDefaultTestId = (rowId: string): string =>
+  `customer-connection-set-default-${rowId}`
 
 /** Group display order on the information master-detail (per design) */
 const GROUP_ORDER: ConnectionCategory[] = [
@@ -36,6 +40,12 @@ export type CustomerConnectionRow = {
   code?: string
   /** Provider avatar */
   icon?: ReactNode
+  /**
+   * Persisted id of the connection itself — `id` is the row key built by
+   * `getConnectionRowId`, which the set-default mutations cannot address.
+   */
+  connectionId?: string
+  isDefault?: boolean
 }
 
 type CustomerConnectionsListProps = {
@@ -45,16 +55,14 @@ type CustomerConnectionsListProps = {
    * customer information master-detail (narrower panel).
    */
   showTypeColumn?: boolean
-  /**
-   * Status column of the information master-detail. Cells stay empty until
-   * the default flow lands and fills them with the Default badge.
-   */
+  /** Status column, holding the Default badge. Gated on the multi-connection flag. */
   showStatusColumn?: boolean
   /** Renders category header rows (Payment / Accounting / CRM / Tax) */
   grouped?: boolean
   /** Highlights the selected row (information master-detail) */
   selectedRowId?: string
   onEdit?: (row: CustomerConnectionRow) => void
+  onSetDefault?: (row: CustomerConnectionRow) => void
   onDelete?: (row: CustomerConnectionRow) => void
   /** Row click (create/edit surface opens the edit drawer; information view selects) */
   onRowClick?: (row: CustomerConnectionRow) => void
@@ -62,10 +70,10 @@ type CustomerConnectionsListProps = {
 
 /**
  * The shared customer-connections list: one row per connection (provider
- * avatar + name + code, an optional Type chip, a "…" menu with Edit /
- * Delete). Reused by customer create/edit (flat, Type column) and the
- * customer information master-detail (grouped by category, Status column,
- * selectable rows). The `Default` status badge lands with the default flow.
+ * avatar + name + code, an optional Type chip, a Default badge, a "…" menu
+ * with Edit / Set as default / Delete). Reused by customer create/edit (flat,
+ * Type column) and the customer information master-detail (grouped by
+ * category, selectable rows).
  */
 export const CustomerConnectionsList = ({
   rows,
@@ -74,6 +82,7 @@ export const CustomerConnectionsList = ({
   grouped = false,
   selectedRowId,
   onEdit,
+  onSetDefault,
   onDelete,
   onRowClick,
 }: CustomerConnectionsListProps) => {
@@ -147,10 +156,18 @@ export const CustomerConnectionsList = ({
           </div>
         )}
 
-        {/* Status cell: empty placeholder until the Default badge lands */}
-        {showStatusColumn && <div className="w-30" />}
+        {showStatusColumn && (
+          <div className="w-30">
+            {row.isDefault && (
+              <Chip
+                label={translate('text_65281f686a80b400c8e2f6d1')}
+                data-test={getCustomerConnectionDefaultBadgeTestId(row.id)}
+              />
+            )}
+          </div>
+        )}
 
-        {(!!onEdit || !!onDelete) && (
+        {(!!onEdit || !!onSetDefault || !!onDelete) && (
           <div className="relative z-10">
             <Popper
               PopperProps={{ placement: 'bottom-end' }}
@@ -175,6 +192,21 @@ export const CustomerConnectionsList = ({
                       }}
                     >
                       {translate('text_65845f35d7d69c3ab4793dac')}
+                    </Button>
+                  )}
+                  {!!onSetDefault && (
+                    <Button
+                      startIcon="star-filled"
+                      variant="quaternary"
+                      align="left"
+                      disabled={row.isDefault || !row.connectionId}
+                      data-test={getCustomerConnectionSetDefaultTestId(row.id)}
+                      onClick={() => {
+                        onSetDefault(row)
+                        closePopper()
+                      }}
+                    >
+                      {translate('text_1728574726495n9jdse2hnrf')}
                     </Button>
                   )}
                   {!!onDelete && (

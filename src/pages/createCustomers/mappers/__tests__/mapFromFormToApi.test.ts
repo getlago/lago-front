@@ -776,6 +776,7 @@ describe('mapFromFormToApi', () => {
             {
               __typename: 'NetsuiteCustomer',
               id: 'netsuite-1',
+              isDefault: false,
               integrationCode: 'netsuite_1',
               integrationType: IntegrationTypeEnum.Netsuite,
               externalCustomerId: 'netsuite-123',
@@ -785,6 +786,7 @@ describe('mapFromFormToApi', () => {
             {
               __typename: 'AnrokCustomer',
               id: 'anrok-1',
+              isDefault: false,
               integrationCode: 'anrok_1',
               integrationType: IntegrationTypeEnum.Anrok,
               externalCustomerId: 'anrok-123',
@@ -793,6 +795,7 @@ describe('mapFromFormToApi', () => {
             {
               __typename: 'HubspotCustomer',
               id: 'hubspot-1',
+              isDefault: false,
               integrationCode: 'hubspot_1',
               integrationType: IntegrationTypeEnum.Hubspot,
               externalCustomerId: 'hubspot-123',
@@ -866,6 +869,7 @@ describe('mapFromFormToApi', () => {
             {
               __typename: 'AnrokCustomer',
               id: 'anrok-1',
+              isDefault: false,
               integrationCode: 'anrok_1',
               integrationType: IntegrationTypeEnum.Anrok,
               externalCustomerId: 'anrok-123',

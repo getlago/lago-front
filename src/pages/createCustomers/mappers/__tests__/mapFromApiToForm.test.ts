@@ -520,13 +520,17 @@ describe('mapFromApiToForm', () => {
 
   describe('GIVEN a customer with integration connections', () => {
     describe('WHEN mapping them to the form model', () => {
-      it('THEN should map an Anrok connection to the tax category', () => {
+      it.each([
+        ['the default connection of its category', true],
+        ['a non-default connection', false],
+      ])('THEN should map an Anrok connection to the tax category, %s', (_, isDefault) => {
         const result = mapFromApiToForm(
           buildCustomer({
             integrationCustomers: [
               {
                 __typename: 'AnrokCustomer',
                 id: 'anrok-1',
+                isDefault,
                 integrationCode: 'anrok_1',
                 integrationType: IntegrationTypeEnum.Anrok,
                 externalCustomerId: 'anrok-123',
@@ -541,6 +545,7 @@ describe('mapFromApiToForm', () => {
           {
             id: 'anrok-1',
             category: ConnectionCategory.Tax,
+            isDefault,
             providerCode: 'anrok_1',
             providerType: IntegrationTypeEnum.Anrok,
             externalCustomerId: 'anrok-123',
@@ -556,6 +561,7 @@ describe('mapFromApiToForm', () => {
               {
                 __typename: 'AvalaraCustomer',
                 id: 'avalara-1',
+                isDefault: false,
                 integrationCode: 'avalara_1',
                 integrationType: IntegrationTypeEnum.Avalara,
                 externalCustomerId: 'avalara-456',
@@ -570,6 +576,7 @@ describe('mapFromApiToForm', () => {
           {
             id: 'avalara-1',
             category: ConnectionCategory.Tax,
+            isDefault: false,
             providerCode: 'avalara_1',
             providerType: IntegrationTypeEnum.Avalara,
             externalCustomerId: 'avalara-456',
@@ -585,6 +592,7 @@ describe('mapFromApiToForm', () => {
               {
                 __typename: 'NetsuiteCustomer',
                 id: 'netsuite-1',
+                isDefault: true,
                 integrationCode: 'netsuite_1',
                 integrationType: IntegrationTypeEnum.Netsuite,
                 externalCustomerId: 'netsuite-456',
@@ -600,6 +608,7 @@ describe('mapFromApiToForm', () => {
           {
             id: 'netsuite-1',
             category: ConnectionCategory.Accounting,
+            isDefault: true,
             providerCode: 'netsuite_1',
             providerType: IntegrationTypeEnum.Netsuite,
             externalCustomerId: 'netsuite-456',
@@ -616,6 +625,7 @@ describe('mapFromApiToForm', () => {
               {
                 __typename: 'XeroCustomer',
                 id: 'xero-1',
+                isDefault: false,
                 integrationCode: 'xero_1',
                 integrationType: IntegrationTypeEnum.Xero,
                 externalCustomerId: 'xero-123',
@@ -630,6 +640,7 @@ describe('mapFromApiToForm', () => {
           {
             id: 'xero-1',
             category: ConnectionCategory.Accounting,
+            isDefault: false,
             providerCode: 'xero_1',
             providerType: IntegrationTypeEnum.Xero,
             externalCustomerId: 'xero-123',
@@ -645,6 +656,7 @@ describe('mapFromApiToForm', () => {
               {
                 __typename: 'HubspotCustomer',
                 id: 'hubspot-1',
+                isDefault: false,
                 integrationCode: 'hubspot_1',
                 integrationType: IntegrationTypeEnum.Hubspot,
                 externalCustomerId: 'hubspot-123',
@@ -660,6 +672,7 @@ describe('mapFromApiToForm', () => {
           {
             id: 'hubspot-1',
             category: ConnectionCategory.Crm,
+            isDefault: false,
             providerCode: 'hubspot_1',
             providerType: IntegrationTypeEnum.Hubspot,
             externalCustomerId: 'hubspot-123',
@@ -676,6 +689,7 @@ describe('mapFromApiToForm', () => {
               {
                 __typename: 'SalesforceCustomer',
                 id: 'salesforce-1',
+                isDefault: false,
                 integrationCode: 'salesforce_1',
                 integrationType: IntegrationTypeEnum.Salesforce,
                 externalCustomerId: 'salesforce-456',
@@ -690,6 +704,7 @@ describe('mapFromApiToForm', () => {
           {
             id: 'salesforce-1',
             category: ConnectionCategory.Crm,
+            isDefault: false,
             providerCode: 'salesforce_1',
             providerType: IntegrationTypeEnum.Salesforce,
             externalCustomerId: 'salesforce-456',
@@ -705,6 +720,7 @@ describe('mapFromApiToForm', () => {
               {
                 __typename: 'AnrokCustomer',
                 id: 'anrok-1',
+                isDefault: false,
                 integrationCode: 'anrok_1',
                 integrationType: IntegrationTypeEnum.Anrok,
                 externalCustomerId: 'anrok-123',
@@ -713,6 +729,7 @@ describe('mapFromApiToForm', () => {
               {
                 __typename: 'NetsuiteCustomer',
                 id: 'netsuite-1',
+                isDefault: false,
                 integrationCode: 'netsuite_1',
                 integrationType: IntegrationTypeEnum.Netsuite,
                 externalCustomerId: 'netsuite-456',
@@ -722,6 +739,7 @@ describe('mapFromApiToForm', () => {
               {
                 __typename: 'HubspotCustomer',
                 id: 'hubspot-1',
+                isDefault: false,
                 integrationCode: 'hubspot_1',
                 integrationType: IntegrationTypeEnum.Hubspot,
                 externalCustomerId: 'hubspot-123',
@@ -752,6 +770,7 @@ describe('mapFromApiToForm', () => {
               {
                 __typename: 'AnrokCustomer',
                 id: 'anrok-1',
+                isDefault: false,
                 integrationCode: null,
                 integrationType: IntegrationTypeEnum.Anrok,
                 externalCustomerId: null,
@@ -766,6 +785,7 @@ describe('mapFromApiToForm', () => {
           {
             id: 'anrok-1',
             category: ConnectionCategory.Tax,
+            isDefault: false,
             providerCode: '',
             providerType: IntegrationTypeEnum.Anrok,
             externalCustomerId: '',
@@ -781,6 +801,7 @@ describe('mapFromApiToForm', () => {
               {
                 __typename: 'AnrokCustomer',
                 id: 'anrok-1',
+                isDefault: false,
                 integrationCode: 'anrok_1',
                 integrationType: null,
                 externalCustomerId: 'anrok-123',
@@ -800,6 +821,7 @@ describe('mapFromApiToForm', () => {
               {
                 __typename: 'AnrokCustomer',
                 id: 'anrok-1',
+                isDefault: false,
                 integrationCode: 'anrok_1',
                 integrationType: IntegrationTypeEnum.LifetimeUsage,
                 externalCustomerId: 'anrok-123',
@@ -819,6 +841,7 @@ describe('mapFromApiToForm', () => {
               {
                 __typename: 'NetsuiteCustomer',
                 id: 'netsuite-1',
+                isDefault: false,
                 integrationCode: 'netsuite_1',
                 integrationType: IntegrationTypeEnum.Netsuite,
                 externalCustomerId: 'netsuite-123',
@@ -841,6 +864,7 @@ describe('mapFromApiToForm', () => {
               {
                 __typename: 'NetsuiteCustomer',
                 id: 'netsuite-1',
+                isDefault: false,
                 integrationCode: 'netsuite_1',
                 integrationType: IntegrationTypeEnum.Netsuite,
                 externalCustomerId: 'netsuite-123',
@@ -861,6 +885,7 @@ describe('mapFromApiToForm', () => {
               {
                 __typename: 'HubspotCustomer',
                 id: 'hubspot-1',
+                isDefault: false,
                 integrationCode: 'hubspot_1',
                 integrationType: IntegrationTypeEnum.Hubspot,
                 externalCustomerId: 'hubspot-123',
@@ -1003,6 +1028,7 @@ describe('mapFromApiToForm', () => {
             {
               __typename: 'XeroCustomer',
               id: 'xero-1',
+              isDefault: false,
               integrationCode: 'xero_complete',
               integrationType: IntegrationTypeEnum.Xero,
               externalCustomerId: 'xero-complete',
@@ -1011,6 +1037,7 @@ describe('mapFromApiToForm', () => {
             {
               __typename: 'HubspotCustomer',
               id: 'hubspot-1',
+              isDefault: false,
               integrationCode: 'hubspot_complete',
               integrationType: IntegrationTypeEnum.Hubspot,
               externalCustomerId: 'hubspot-complete',
@@ -1020,6 +1047,7 @@ describe('mapFromApiToForm', () => {
             {
               __typename: 'AnrokCustomer',
               id: 'anrok-1',
+              isDefault: false,
               integrationCode: 'anrok_complete',
               integrationType: IntegrationTypeEnum.Anrok,
               externalCustomerId: 'anrok-complete',
@@ -1079,6 +1107,7 @@ describe('mapFromApiToForm', () => {
             {
               id: 'xero-1',
               category: ConnectionCategory.Accounting,
+              isDefault: false,
               providerCode: 'xero_complete',
               providerType: IntegrationTypeEnum.Xero,
               externalCustomerId: 'xero-complete',
@@ -1087,6 +1116,7 @@ describe('mapFromApiToForm', () => {
             {
               id: 'hubspot-1',
               category: ConnectionCategory.Crm,
+              isDefault: false,
               providerCode: 'hubspot_complete',
               providerType: IntegrationTypeEnum.Hubspot,
               externalCustomerId: 'hubspot-complete',
@@ -1096,6 +1126,7 @@ describe('mapFromApiToForm', () => {
             {
               id: 'anrok-1',
               category: ConnectionCategory.Tax,
+              isDefault: false,
               providerCode: 'anrok_complete',
               providerType: IntegrationTypeEnum.Anrok,
               externalCustomerId: 'anrok-complete',

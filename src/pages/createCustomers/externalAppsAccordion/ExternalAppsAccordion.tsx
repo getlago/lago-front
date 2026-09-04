@@ -17,6 +17,7 @@ import { getConnectionRowId } from '~/components/customerConnections/getConnecti
 import { ConnectionCategory } from '~/components/customerConnections/types'
 import { useConnectionOptions } from '~/components/customerConnections/useConnectionOptions'
 import { useCustomerConnectionDrawer } from '~/components/customerConnections/useCustomerConnectionDrawer'
+import { useSetConnectionAsDefault } from '~/components/customerConnections/useSetConnectionAsDefault'
 import {
   getIntegrationCustomerForCategory,
   getProviderPaymentConnection,
@@ -26,11 +27,13 @@ import { Accordion } from '~/components/designSystem/Accordion'
 import { Typography } from '~/components/designSystem/Typography'
 import {
   AddCustomerDrawerFragment,
+  FeatureFlagEnum,
   IntegrationTypeEnum,
   ProviderTypeEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import {
   CreateCustomerDefaultValues,
   emptyCreateCustomerDefaultValues,
@@ -67,7 +70,11 @@ const ExternalAppsAccordion = withForm({
       allCrmIntegrations,
     } = useConnectionOptions()
 
+    const { hasFeatureFlag } = useOrganizationInfos()
+    const isMultiConnectionEnabled = hasFeatureFlag(FeatureFlagEnum.MultiConnection)
+
     const { drawerRef, openCreate, openEdit } = useCustomerConnectionDrawer()
+    const { setConnectionAsDefault } = useSetConnectionAsDefault()
 
     const paymentProviderCustomers = useStore(
       form.store,
@@ -144,6 +151,8 @@ const ExternalAppsAccordion = withForm({
           icon: providerPaymentConnection.providerType
             ? paymentAvatarMapping[providerPaymentConnection.providerType]
             : undefined,
+          connectionId: providerPaymentConnection.id,
+          isDefault: providerPaymentConnection.isDefault,
         })
       }
 
@@ -170,6 +179,8 @@ const ExternalAppsAccordion = withForm({
           icon: connection.providerType
             ? integrationAvatarMapping[connection.providerType]
             : undefined,
+          connectionId: connection.id,
+          isDefault: connection.isDefault,
         })
       }
 
@@ -225,6 +236,7 @@ const ExternalAppsAccordion = withForm({
 
       const nextConnection: FormIntegrationConnection = {
         id: existing?.providerCode === values.providerCode ? existing?.id : undefined,
+        isDefault: existing?.isDefault,
         category,
         providerCode: values.providerCode,
         providerType: (values.providerType as IntegrationTypeEnum) || undefined,
@@ -286,10 +298,53 @@ const ExternalAppsAccordion = withForm({
           : hadInitialConnection[row.category]
 
       const lockedSelection = isProviderLocked
-        ? { title: row.name, subtitle: row.code, icon: row.icon }
+        ? {
+            title: row.name,
+            subtitle: row.code,
+            icon: row.icon,
+            isDefault: isMultiConnectionEnabled && row.isDefault,
+          }
         : undefined
 
       openEdit(row.category, getInitialValues(row.category), lockedSelection)
+    }
+
+    // ------- Set as default: dedicated mutation, then mirror the flag locally -------
+    // The customer arrays carry no isDefault, so the mutation is the only writer
+    // and the mirror is already persisted: `dontUpdateMeta` keeps it out of
+    // `isDirty`, which CreateCustomer reads to prompt on discard.
+    const handleSetDefault = async (row: CustomerConnectionRow): Promise<void> => {
+      const succeeded = await setConnectionAsDefault({
+        category: row.category,
+        connectionId: row.connectionId,
+      })
+
+      if (!succeeded) return
+
+      if (row.category === ConnectionCategory.Payment) {
+        form.setFieldValue(
+          'paymentProviderCustomers',
+          (previous) =>
+            (previous ?? []).map((connection) => ({
+              ...connection,
+              isDefault: connection.id === row.connectionId,
+            })),
+          { dontUpdateMeta: true },
+        )
+
+        return
+      }
+
+      form.setFieldValue(
+        'integrationCustomers',
+        (previous) =>
+          (previous ?? []).map((connection) =>
+            connection.category === row.category
+              ? { ...connection, isDefault: connection.id === row.connectionId }
+              : connection,
+          ),
+        { dontUpdateMeta: true },
+      )
     }
 
     // ------- Delete: remove the connection from the form array -------
@@ -326,8 +381,10 @@ const ExternalAppsAccordion = withForm({
         <div className="flex flex-col gap-6">
           <CustomerConnectionsList
             rows={rows}
+            showStatusColumn={isMultiConnectionEnabled}
             onRowClick={(row) => openConnectionEdit(row)}
             onEdit={(row) => openConnectionEdit(row)}
+            onSetDefault={isMultiConnectionEnabled ? handleSetDefault : undefined}
             onDelete={(row) => handleDeleteConnection(row.category)}
           />
 

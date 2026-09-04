@@ -293,6 +293,45 @@ describe('validationSchema', () => {
       })
     })
 
+    describe('WHEN the default flag is set on a row', () => {
+      it.each([
+        ['accepted when true', true],
+        ['accepted when false', false],
+      ])('THEN should be %s', (_, isDefault) => {
+        const result = validationSchema.safeParse({
+          externalId: 'customer-123',
+          integrationCustomers: [
+            {
+              id: 'anrok-connection-id',
+              category: ConnectionCategory.Tax,
+              isDefault,
+              providerCode: 'anrok-eu',
+              providerType: IntegrationTypeEnum.Anrok,
+            },
+          ],
+          metadata: [],
+        })
+
+        expect(result.success).toBe(true)
+      })
+
+      it('THEN should stay optional, since the flag is only ever read back', () => {
+        const result = validationSchema.safeParse({
+          externalId: 'customer-123',
+          integrationCustomers: [
+            {
+              id: 'anrok-connection-id',
+              category: ConnectionCategory.Tax,
+              providerCode: 'anrok-eu',
+            },
+          ],
+          metadata: [],
+        })
+
+        expect(result.success).toBe(true)
+      })
+    })
+
     describe('WHEN a row is provided for each integration category', () => {
       it('THEN should accept an accounting row', () => {
         const result = validationSchema.safeParse({

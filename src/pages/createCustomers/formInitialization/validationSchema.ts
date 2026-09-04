@@ -66,6 +66,7 @@ export const validationSchema = z.object({
           ConnectionCategory.Tax,
           ConnectionCategory.Crm,
         ]),
+        isDefault: z.boolean().optional(),
         providerCode: z.string().optional(),
         providerType: z.enum(IntegrationTypeEnum).optional(),
         externalCustomerId: z.string().optional(),
