@@ -95,16 +95,28 @@ const numericInputSchema = z.string().optional()
 const isAtLeast = (value: string | undefined, minimum: number): boolean =>
   Number(value ?? '') >= minimum
 
-const defaultFormValues = {
+type AddCouponFormValues = {
+  couponId: string
+  couponType: CouponTypeEnum
+  amountCents: string | undefined
+  amountCurrency: CurrencyEnum | undefined
+  percentageRate: string | undefined
+  frequency: CouponFrequency | undefined
+  frequencyDuration: string | undefined
+  plans: CouponPlansForCustomerFragment[] | undefined
+  billableMetrics: CouponBillableMetricsForCustomerFragment[] | undefined
+}
+
+const defaultFormValues: AddCouponFormValues = {
   couponId: '',
-  couponType: CouponTypeEnum.FixedAmount as CouponTypeEnum,
-  amountCents: undefined as string | undefined,
-  amountCurrency: undefined as CurrencyEnum | undefined,
-  percentageRate: undefined as string | undefined,
-  frequency: undefined as CouponFrequency | undefined,
-  frequencyDuration: undefined as string | undefined,
-  plans: undefined as CouponPlansForCustomerFragment[] | undefined,
-  billableMetrics: undefined as CouponBillableMetricsForCustomerFragment[] | undefined,
+  couponType: CouponTypeEnum.FixedAmount,
+  amountCents: undefined,
+  amountCurrency: undefined,
+  percentageRate: undefined,
+  frequency: undefined,
+  frequencyDuration: undefined,
+  plans: undefined,
+  billableMetrics: undefined,
 }
 
 const validationSchema = z
