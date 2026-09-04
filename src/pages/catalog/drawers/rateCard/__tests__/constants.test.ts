@@ -5,7 +5,8 @@ import {
 } from '~/generated/graphql'
 
 import {
-  buildPricingInput,
+  buildCreatePricingInput,
+  buildUpdatePricingInput,
   mapInvoiceFieldsToStrategy,
   mapStrategyToInvoiceFields,
   RATE_CARD_FORM_DEFAULTS,
@@ -68,11 +69,24 @@ describe('rate card constants', () => {
     ).toBe(false)
   })
 
-  it('always includes currency, adding the pricing unit code only when there is one', () => {
-    expect(buildPricingInput({ pricingUnit: undefined, currency: CurrencyEnum.Usd })).toEqual({
+  it('omits the pricing unit code on create when there is none', () => {
+    expect(buildCreatePricingInput({ pricingUnit: undefined, currency: CurrencyEnum.Usd })).toEqual(
+      { currency: CurrencyEnum.Usd },
+    )
+    expect(buildCreatePricingInput({ pricingUnit: 'tokens', currency: CurrencyEnum.Usd })).toEqual({
       currency: CurrencyEnum.Usd,
+      appliedPricingUnitCode: 'tokens',
     })
-    expect(buildPricingInput({ pricingUnit: 'tokens', currency: CurrencyEnum.Usd })).toEqual({
+  })
+
+  it('nulls the pricing unit code on update when there is none', () => {
+    expect(buildUpdatePricingInput({ pricingUnit: undefined, currency: CurrencyEnum.Usd })).toEqual(
+      {
+        currency: CurrencyEnum.Usd,
+        appliedPricingUnitCode: null,
+      },
+    )
+    expect(buildUpdatePricingInput({ pricingUnit: 'tokens', currency: CurrencyEnum.Usd })).toEqual({
       currency: CurrencyEnum.Usd,
       appliedPricingUnitCode: 'tokens',
     })

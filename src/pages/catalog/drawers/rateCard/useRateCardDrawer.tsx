@@ -23,7 +23,8 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
 import {
-  buildPricingInput,
+  buildCreatePricingInput,
+  buildUpdatePricingInput,
   mapInvoiceFieldsToStrategy,
   mapStrategyToInvoiceFields,
   RATE_CARD_FORM_DEFAULTS,
@@ -179,8 +180,7 @@ const useRateCardForm = ({ onSuccess }: { onSuccess: (result: RateCardFormSucces
               billingTiming: value.billingTiming,
               proration: value.proration,
               walletTargetable: value.walletTargetable,
-              currency,
-              appliedPricingUnitCode: value.pricingUnit ?? null,
+              ...buildUpdatePricingInput({ currency, pricingUnit: value.pricingUnit }),
               ...invoiceFields,
             },
           },
@@ -200,7 +200,7 @@ const useRateCardForm = ({ onSuccess }: { onSuccess: (result: RateCardFormSucces
               billingTiming: value.billingTiming,
               proration: value.proration,
               walletTargetable: value.walletTargetable,
-              ...buildPricingInput({ currency, pricingUnit: value.pricingUnit }),
+              ...buildCreatePricingInput({ currency, pricingUnit: value.pricingUnit }),
               ...invoiceFields,
             },
           },

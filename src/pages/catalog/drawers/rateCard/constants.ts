@@ -77,13 +77,21 @@ export const mapInvoiceFieldsToStrategy = (args: {
   return 'none'
 }
 
-// Create only: an empty pricing unit is omitted, like the other empty optionals on
-// `CreateRateCardInput`. Update writes the field itself, since clearing a unit there has to
-// serialize to null (undefined is stripped and the previous value would survive).
-export const buildPricingInput = (values: {
-  currency: CurrencyEnum
-  pricingUnit?: string
-}): { currency: CurrencyEnum; appliedPricingUnitCode?: string } => ({
+type PricingFormValues = Pick<RateCardFormValues, 'pricingUnit'> & { currency: CurrencyEnum }
+
+// Create omits an empty pricing unit, like the other empty optionals on `CreateRateCardInput`.
+export const buildCreatePricingInput = (
+  values: PricingFormValues,
+): { currency: CurrencyEnum; appliedPricingUnitCode?: string } => ({
   currency: values.currency,
   ...(values.pricingUnit ? { appliedPricingUnitCode: values.pricingUnit } : {}),
+})
+
+// Update clears with an explicit null: undefined is stripped from the payload, so the
+// previously applied unit would survive.
+export const buildUpdatePricingInput = (
+  values: PricingFormValues,
+): { currency: CurrencyEnum; appliedPricingUnitCode: string | null } => ({
+  currency: values.currency,
+  appliedPricingUnitCode: values.pricingUnit ?? null,
 })
