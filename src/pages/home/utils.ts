@@ -8,6 +8,7 @@ import {
   FORBIDDEN_ROUTE,
 } from '~/core/router'
 import { LEGACY_APP_PATH_SEGMENTS } from '~/core/router/legacyPaths'
+import { isSafeInAppPath } from '~/core/router/utils/isSafeInAppPath'
 import { ensureSlugPrefix, pathHasValidSlug, resolveOrgSlug } from '~/core/router/utils/orgSlug'
 import { getRouteForPermission } from '~/core/router/utils/permissionRouteMap'
 import { CurrentUserInfosFragment } from '~/generated/graphql'
@@ -76,14 +77,20 @@ export const resolveRedirectTarget = (
 
   const slug = resolveOrgSlug(currentUser)
 
+  // An off-origin stored path is ignored but still drained, otherwise it replays
+  // on every load. `isSafeInAppPath` is the guard; `ensureSlugPrefix` prefixes
+  // and validates nothing.
+  const hasUnsafeSsoPath = !!ssoRedirectPath && !isSafeInAppPath(ssoRedirectPath)
+  const safeSsoRedirectPath = hasUnsafeSsoPath ? undefined : ssoRedirectPath
+
   if (!slug) {
-    return { to: FORBIDDEN_ROUTE, consumesSsoLs: false }
+    return { to: FORBIDDEN_ROUTE, consumesSsoLs: hasUnsafeSsoPath }
   }
 
   // 1. SSO redirect from localStorage (set by auth guard or OAuth callback).
-  if (ssoRedirectPath) {
+  if (safeSsoRedirectPath) {
     return {
-      to: ensureSlugPrefix(ssoRedirectPath, slug, currentUser),
+      to: ensureSlugPrefix(safeSsoRedirectPath, slug, currentUser),
       consumesSsoLs: true,
     }
   }
@@ -99,7 +106,7 @@ export const resolveRedirectTarget = (
     )
 
     if (belongsToCurrentUser) {
-      return { to: savedLocation, consumesSsoLs: false }
+      return { to: savedLocation, consumesSsoLs: hasUnsafeSsoPath }
     }
 
     const isLegacySegment = LEGACY_APP_PATH_SEGMENTS.has(savedSlug ?? '')
@@ -112,7 +119,7 @@ export const resolveRedirectTarget = (
 
       return {
         to: `/${slug}${savedLocation.pathname}${search}${hash}`,
-        consumesSsoLs: false,
+        consumesSsoLs: hasUnsafeSsoPath,
       }
     }
   }
@@ -121,7 +128,7 @@ export const resolveRedirectTarget = (
   const canSeeAnalytics = hasPermissions(['analyticsView', 'dataApiView'])
 
   if (canSeeAnalytics && !hasAccessToAnalyticsDashboardsFeature) {
-    return { to: `/${slug}${ANALYTIC_ROUTE}`, consumesSsoLs: false }
+    return { to: `/${slug}${ANALYTIC_ROUTE}`, consumesSsoLs: hasUnsafeSsoPath }
   }
 
   if (canSeeAnalytics && hasAccessToAnalyticsDashboardsFeature) {
@@ -129,12 +136,12 @@ export const resolveRedirectTarget = (
       to: `/${slug}${generatePath(ANALYTIC_TABS_ROUTE, {
         tab: NewAnalyticsTabsOptionsEnum.revenueStreams,
       })}`,
-      consumesSsoLs: false,
+      consumesSsoLs: hasUnsafeSsoPath,
     }
   }
 
   if (hasPermissions(['customersView'])) {
-    return { to: `/${slug}${CUSTOMERS_LIST_ROUTE}`, consumesSsoLs: false }
+    return { to: `/${slug}${CUSTOMERS_LIST_ROUTE}`, consumesSsoLs: hasUnsafeSsoPath }
   }
 
   const firstViewPermission = findFirstViewPermission()
@@ -143,10 +150,10 @@ export const resolveRedirectTarget = (
   if (routeForPermission) {
     return {
       to: ensureSlugPrefix(routeForPermission, slug, currentUser),
-      consumesSsoLs: false,
+      consumesSsoLs: hasUnsafeSsoPath,
     }
   }
 
   // 4. No accessible route.
-  return { to: FORBIDDEN_ROUTE, consumesSsoLs: false }
+  return { to: FORBIDDEN_ROUTE, consumesSsoLs: hasUnsafeSsoPath }
 }
