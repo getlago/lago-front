@@ -30,6 +30,7 @@ export const typeDefs = gql`
     invoices_not_overdue
     invoices_not_ready_for_payment_processing
     no_active_subscription
+    not_voidable
     payment_processor_is_currently_handling_payment
     plan_overlapping
     url_is_invalid

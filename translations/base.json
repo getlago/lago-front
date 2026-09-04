@@ -4897,5 +4897,8 @@
   "text_1788356716860fkisuga4c97": "Product filter code",
   "text_1788423201620lrod4vaj4e8": "Add a pricing unit",
   "text_17884232212443zsb3p8b5he": "Search and select a pricing unit",
-  "text_1788431703232ovdpgmdftnt": "This invitation no longer exists, the list has been refreshed."
+  "text_1788431703232ovdpgmdftnt": "This invitation no longer exists, the list has been refreshed.",
+  "text_1788518648182zhwh917bcvs": "This invoice cannot be voided",
+  "text_1788518648182tnlbh6pdxdd": "Only finalized invoices can be voided. This invoice’s status doesn’t allow this action.",
+  "text_1788518648182t6oetew3x8x": "This invoice can no longer be voided because its status has changed"
 }
