@@ -1,11 +1,13 @@
 ---
 name: loop-clean
-description: 'Cleanup phase of the loop pipeline for lago-front. Finds local worktrees whose PR is merged and destroys them via lago-worktree destroy, after user confirmation. Use when user says "/loop-clean", asks to clean up merged worktrees, or the loop-run orchestrator runs its sweep step.'
+description: 'Cleanup phase of the loop pipeline for lago-front, for the `worktree` layout only. Finds local worktrees in front-worktrees/ whose PR is merged and destroys them via lago-worktree destroy, after user confirmation. Use when user says "/loop-clean", asks to clean up merged worktrees, or the loop-run orchestrator runs its sweep step.'
 ---
 
 # Loop Clean — sweep worktrees of merged PRs
 
 **Repo:** the lago monorepo root; worktrees in `front-worktrees/`, slot registry in `.worktree-slots`.
+
+**Scope:** the `worktree` layout only. Runs made with `loop-run --in-place` (a Conductor workspace, a plain `git worktree`, a second clone) own no `front-worktrees/` entry and are invisible here — their cleanup belongs to whoever owns the checkout, which under Conductor means archiving the workspace. loop-run skips the sweep entirely in that layout; invoked directly from a Conductor workspace, report "nothing to do — in-place layout" and stop.
 
 ## Steps
 
