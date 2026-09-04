@@ -1,13 +1,16 @@
 ---
 name: loop-revise
-description: 'Post-PR revision phase of the loop pipeline for lago-front. Takes an ISSUE-ID and feedback on the open PR, applies ONLY the requested changes in the existing worktree, re-runs gates, commits, pushes, and watches CI. Use when user says "/loop-revise <ISSUE-ID> <feedback>", or asks to change something in a PR the loop opened.'
+description: 'Post-PR revision phase of the loop pipeline for lago-front. Takes an ISSUE-ID (or nothing, when run inside the checkout that owns the PR) and feedback, applies ONLY the requested changes in the worktree recorded in state.md — a lago-worktree worktree or, in the `in-place` layout, the current checkout — re-runs gates, commits, pushes, and watches CI. Use when user says "/loop-revise <ISSUE-ID> <feedback>", or asks to change something in a PR the loop opened.'
 ---
 
 # Loop Revise — apply feedback to an open loop PR
 
 **Input:** a task reference + feedback. The reference can be ANY of:
 - an ISSUE-ID (`ING-538`) — direct key of the state dir;
-- a PR number (`4065` / `#4065`) or PR URL — resolve it: `gh pr view <n> --json headRefName` → branch → the `$LOOP_STATE_DIR/*/state.md` whose `branch:` matches → that dir's ISSUE-ID.
+- a PR number (`4065` / `#4065`) or PR URL — resolve it: `gh pr view <n> --json headRefName` → branch → the `$LOOP_STATE_DIR/*/state.md` whose `branch:` matches → that dir's ISSUE-ID;
+- **nothing at all**, when the session already sits in the checkout that owns the PR (the `in-place` layout): resolve from `git rev-parse --abbrev-ref HEAD` → the state dir whose `branch:` matches.
+
+**Layout:** read `layout:` from `state.md` (`worktree` | `in-place`, written by loop-build; missing key = `worktree`, the historical default). It changes exactly two things below — how the app is restarted, and that `in-place` never touches a worktree it did not receive. Scripts live in `<worktree>/scripts` in `in-place` and in `front/scripts` in the `worktree` layout; `$SCRIPTS` below means whichever applies.
 
 **State dir:** `$LOOP_STATE_DIR/<ISSUE-ID>/` (default `~/.claude/loop-state/<ISSUE-ID>/`).
 
@@ -35,24 +38,29 @@ No free-text feedback given → default to the unanswered external PR comments a
    - Verify claims before agreeing: if the feedback asserts something about the code ("this rerenders twice"), check it in the code first. Never implement performatively to please.
    - This evaluation applies IDENTICALLY to external comments (colleagues/bots): a Copilot suggestion gets the same scrutiny as anyone else's. For external feedback, "push back" means the polite not-applied reply of step 8 — only escalate to the operator when the comment is sound but conflicts with the spec.
 
-3. **Apply — ONLY the agreed points.** In the worktree from state.md:
+3. **Apply — ONLY the agreed points.** In the `worktree:` path from state.md (the cwd itself in `in-place`):
    - No opportunistic refactors, no scope creep beyond the agreed feedback.
    - Same build rules as loop-build: design system first, reuse `translations/base.json` labels, no dead keys, follow the Frontend coding styleguide, no dead code.
    - Feedback ambiguous → STOP and ask before coding.
 
-4. **Gates** (in the worktree, all must pass):
+4. **Gates** (in that same path, all must pass):
    - `pnpm lint`, `pnpm types`, `pnpm translations:inspect`, `pnpm translations:ensure-consistency`.
    - If the change touched testable logic: re-invoke the `make-tests` skill on the affected paths, then scoped jest on those paths only. NEVER the full suite.
 
-5. **Restart the worktree app** (reload on the fixed code; the start script cleans the vite cache itself):
+5. **Restart the app** (reload on the fixed code). Use the `container:` name from state.md, or derive it from the layout:
 
    ```bash
-   # BRANCH from state.md (container name derives from the full branch name)
-   SAN=$(echo "<BRANCH>" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/_/g')
-   docker restart lago_front_wt_${SAN}
+   # in-place: lago_front_ct_<SAN(workspace)>   worktree: lago_front_wt_<SAN(branch)>
+   CT="<container: from state.md>"
+   if docker ps --format '{{.Names}}' | grep -qx "$CT"; then
+     docker exec "$CT" sh -c 'rm -rf /app/node_modules/.vite' 2>/dev/null || true
+     docker restart "$CT"
+   else
+     echo "no container $CT — skipping restart"
+   fi
    ```
 
-   Container not running → skip with a warning, don't block.
+   Container absent → skip with a warning, don't block. Clearing `node_modules/.vite` first is what keeps a restart mid-dep-optimization from serving `504 Outdated Optimize Dep`.
 
 6. **Commit and push** on the existing branch:
 
@@ -69,7 +77,7 @@ No free-text feedback given → default to the unanswered external PR comments a
 
    Then `git push` — the open PR updates itself.
 
-7. **CI gate**: `gh pr checks <PR> --watch`. Red → same recovery as loop-run, INCLUDING its pre-budget triage of special cases (codegen companion-PR, code-scanning re-fingerprint — loop-run CI-gate step 5.3); neither applies → charge the budget first with `front/scripts/iter-budget.sh <ISSUE-ID> ci-revise` (exit 1 = exhausted → STOP path), capture failed logs to `ci-failure.md` (previous one appended to `ci-failure-history.md`), fix, recommit. On STOP: write `impediment.md` and notify exactly like loop-run's "Exit notification" section — send via `front/scripts/loop-notify.sh "<MESSAGE>"` (prints `CH`/`TS`/`USER` for the feedback-wait polling); fallback to PushNotification + MCP self-DM if the script fails.
+7. **CI gate**: `gh pr checks <PR> --watch`. Red → same recovery as loop-run, INCLUDING its pre-budget triage of special cases (codegen companion-PR, code-scanning re-fingerprint — loop-run CI-gate step 5.3); neither applies → charge the budget first with `"$SCRIPTS/iter-budget.sh" <ISSUE-ID> ci-revise` (exit 1 = exhausted → STOP path), capture the failure per loop-run's **CI log protocol** (raw log redirected to `ci-raw-<N>.log`, never into context; `ci-failure.md` holds the distilled version, the previous one appended to `ci-failure-history.md`), fix, recommit. On STOP: write `impediment.md` and notify exactly like loop-run's "Exit notification" section — send via `"$SCRIPTS/loop-notify.sh" "<MESSAGE>"` (prints `CH`/`TS`/`USER` for the feedback-wait polling); fallback to PushNotification + MCP self-DM if the script fails.
 
 8. **Reply to every external comment on GitHub — ALWAYS** (colleagues and bots alike, whether the suggestion was applied or not). Short, friendly, in English, no AI attribution:
    - Applied → thank + confirm: `Good catch, thanks! Applied in <short-sha>.`
@@ -92,7 +100,7 @@ No free-text feedback given → default to the unanswered external PR comments a
 ## Hard rules
 
 - **No AI attribution**: commit message contains exactly the template above — no Co-Authored-By: Claude, no "Generated with" lines.
-- Only the existing worktree and branch from state.md — never a new branch, never the main checkout.
+- Only the existing worktree and branch from state.md — never a new branch, never the main checkout, and in `in-place` never `$CONDUCTOR_ROOT_PATH`, another workspace, or a branch rename.
 - Only the changes the feedback asks for.
 - Humans merge. Never merge, never approve.
 - Never run the full jest suite.
