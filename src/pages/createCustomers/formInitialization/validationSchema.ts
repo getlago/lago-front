@@ -61,6 +61,7 @@ export const validationSchema = z.object({
     .array(
       z.object({
         id: z.string().optional(),
+        code: z.string().optional(),
         category: z.enum([
           ConnectionCategory.Accounting,
           ConnectionCategory.Tax,

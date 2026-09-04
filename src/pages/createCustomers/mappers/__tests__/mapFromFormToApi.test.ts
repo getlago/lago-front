@@ -456,19 +456,25 @@ describe('mapFromFormToApi', () => {
         ])
       })
 
-      it('THEN should default the row code to the provider code when the row has none', () => {
+      // `set_code` backfills the provider code on nil, and `''` would defeat
+      // its `||=` — so a code-less row must submit an explicit null
+      it.each([
+        ['the row has no code at all', undefined],
+        ['the user cleared the code', ''],
+      ])('THEN should submit a null code when %s', (_, code) => {
         const result = mapFromFormToApi({
           ...emptyCreateCustomerDefaultValues,
           externalId: 'customer-123',
           paymentProviderCustomers: [
             {
+              code,
               providerCode: 'stripe_1',
               providerType: ProviderTypeEnum.Stripe,
             },
           ],
         })
 
-        expect(result.paymentProviderCustomers?.[0]?.code).toBe('stripe_1')
+        expect(result.paymentProviderCustomers?.[0]?.code).toBeNull()
       })
 
       it('THEN should never submit the default flag, which the backend owns', () => {
@@ -572,6 +578,7 @@ describe('mapFromFormToApi', () => {
         expect(result.integrationCustomers).toEqual([
           {
             id: 'anrok-1',
+            code: null,
             integrationCode: 'anrok_1',
             integrationType: IntegrationTypeEnum.Anrok,
             externalCustomerId: 'tax-123',
@@ -579,6 +586,7 @@ describe('mapFromFormToApi', () => {
           },
           {
             id: 'netsuite-1',
+            code: null,
             integrationCode: 'netsuite_1',
             integrationType: IntegrationTypeEnum.Netsuite,
             externalCustomerId: 'accounting-123',
@@ -587,6 +595,7 @@ describe('mapFromFormToApi', () => {
           },
           {
             id: 'hubspot-1',
+            code: null,
             integrationCode: 'hubspot_1',
             integrationType: IntegrationTypeEnum.Hubspot,
             externalCustomerId: 'crm-123',
@@ -820,6 +829,7 @@ describe('mapFromFormToApi', () => {
         expect(result.integrationCustomers).toEqual([
           {
             id: 'netsuite-1',
+            code: null,
             integrationCode: 'netsuite_1',
             integrationType: IntegrationTypeEnum.Netsuite,
             externalCustomerId: 'netsuite-123',
@@ -828,6 +838,7 @@ describe('mapFromFormToApi', () => {
           },
           {
             id: 'anrok-1',
+            code: null,
             integrationCode: 'anrok_1',
             integrationType: IntegrationTypeEnum.Anrok,
             externalCustomerId: 'anrok-123',
@@ -835,6 +846,7 @@ describe('mapFromFormToApi', () => {
           },
           {
             id: 'hubspot-1',
+            code: null,
             integrationCode: 'hubspot_1',
             integrationType: IntegrationTypeEnum.Hubspot,
             externalCustomerId: 'hubspot-123',
@@ -900,7 +912,9 @@ describe('mapFromFormToApi', () => {
         expect(result.paymentProviderCustomers?.[0]?.paymentProvider).toBe(
           ProviderTypeEnum.Gocardless,
         )
-        expect(result.paymentProviderCustomers?.[0]?.code).toBe('gocardless_1')
+        // The replacement inherits nothing from the row it replaces: the code
+        // goes out null and the backend backfills the new provider's
+        expect(result.paymentProviderCustomers?.[0]?.code).toBeNull()
 
         expect(result.integrationCustomers?.[0]?.id).toBeUndefined()
         expect(result.integrationCustomers?.[0]?.integrationCode).toBe('avalara_1')

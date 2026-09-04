@@ -85,6 +85,7 @@ describe('getIntegrationCustomers', () => {
         expect(result).toEqual([
           {
             id: undefined,
+            code: null,
             integrationCode: 'anrok_1',
             integrationType: IntegrationTypeEnum.Anrok,
             externalCustomerId: 'tax-123',
@@ -112,6 +113,7 @@ describe('getIntegrationCustomers', () => {
         expect(result).toEqual([
           {
             id: 'anrok-1',
+            code: null,
             integrationCode: 'anrok_1',
             integrationType: IntegrationTypeEnum.Anrok,
             externalCustomerId: 'tax-123',
@@ -135,6 +137,7 @@ describe('getIntegrationCustomers', () => {
         expect(result).toEqual([
           {
             id: undefined,
+            code: null,
             integrationCode: 'avalara_1',
             integrationType: IntegrationTypeEnum.Avalara,
             externalCustomerId: 'tax-456',
@@ -155,6 +158,7 @@ describe('getIntegrationCustomers', () => {
         expect(result).toEqual([
           {
             id: undefined,
+            code: null,
             integrationCode: 'anrok_1',
             integrationType: IntegrationTypeEnum.Anrok,
             externalCustomerId: undefined,
@@ -183,6 +187,7 @@ describe('getIntegrationCustomers', () => {
         expect(result).toEqual([
           {
             id: 'netsuite-1',
+            code: null,
             integrationCode: 'netsuite_1',
             integrationType: IntegrationTypeEnum.Netsuite,
             externalCustomerId: 'accounting-123',
@@ -228,6 +233,7 @@ describe('getIntegrationCustomers', () => {
         expect(result).toEqual([
           {
             id: 'xero-1',
+            code: null,
             integrationCode: 'xero_1',
             integrationType: IntegrationTypeEnum.Xero,
             externalCustomerId: 'accounting-456',
@@ -256,6 +262,7 @@ describe('getIntegrationCustomers', () => {
         expect(result).toEqual([
           {
             id: 'hubspot-1',
+            code: null,
             integrationCode: 'hubspot_1',
             integrationType: IntegrationTypeEnum.Hubspot,
             externalCustomerId: 'crm-123',
@@ -284,6 +291,7 @@ describe('getIntegrationCustomers', () => {
         expect(result).toEqual([
           {
             id: 'salesforce-1',
+            code: null,
             integrationCode: 'salesforce_1',
             integrationType: IntegrationTypeEnum.Salesforce,
             externalCustomerId: 'crm-456',
@@ -329,6 +337,7 @@ describe('getIntegrationCustomers', () => {
         expect(result).toEqual([
           {
             id: 'netsuite-1',
+            code: null,
             integrationCode: 'netsuite_1',
             integrationType: IntegrationTypeEnum.Netsuite,
             externalCustomerId: 'accounting-123',
@@ -337,6 +346,7 @@ describe('getIntegrationCustomers', () => {
           },
           {
             id: 'anrok-1',
+            code: null,
             integrationCode: 'anrok_1',
             integrationType: IntegrationTypeEnum.Anrok,
             externalCustomerId: 'tax-123',
@@ -344,6 +354,7 @@ describe('getIntegrationCustomers', () => {
           },
           {
             id: 'hubspot-1',
+            code: null,
             integrationCode: 'hubspot_1',
             integrationType: IntegrationTypeEnum.Hubspot,
             externalCustomerId: 'crm-123',
@@ -366,6 +377,25 @@ describe('getIntegrationCustomers', () => {
         expect(result[0]).not.toHaveProperty('category')
         expect(result[0]).not.toHaveProperty('providerCode')
         expect(result[0]).not.toHaveProperty('providerType')
+      })
+    })
+  })
+  describe('GIVEN a connection with a user-entered code', () => {
+    describe('WHEN mapping it to an input item', () => {
+      it('THEN should send the entered code instead of a null', () => {
+        const result = getIntegrationCustomers([
+          {
+            id: 'anrok-1',
+            code: 'tax-eu',
+            category: ConnectionCategory.Tax,
+            providerCode: 'anrok_1',
+            providerType: IntegrationTypeEnum.Anrok,
+          },
+        ])
+
+        expect(result[0]).toEqual(
+          expect.objectContaining({ code: 'tax-eu', integrationCode: 'anrok_1' }),
+        )
       })
     })
   })

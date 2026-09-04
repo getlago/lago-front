@@ -121,7 +121,8 @@ describe('ProviderSelectionSection', () => {
 
         // Options themselves are virtualized (not mounted in jsdom):
         // the open state is the behaviour under test
-        expect(await screen.findByRole('listbox')).toBeInTheDocument()
+        // 1s default: the popper loses the race under a loaded parallel run
+        expect(await screen.findByRole('listbox', {}, { timeout: 5000 })).toBeInTheDocument()
         expect(input).toHaveAttribute('aria-expanded', 'true')
       })
 

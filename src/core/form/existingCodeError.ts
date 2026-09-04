@@ -13,3 +13,16 @@ export const applyExistingCodeError = (formApi: AnyFormApi): void => {
     errorMap: { ...meta.errorMap, onDynamic: { message: EXISTING_CODE_ERROR_MESSAGE } },
   }))
 }
+
+// Clears that rejection once the user edits the code, so submit re-enables.
+// Gated by the message so a schema-level error is never wiped.
+export const clearExistingCodeError = (formApi: AnyFormApi): void => {
+  const meta = formApi.getFieldMeta('code')
+
+  if (meta?.errorMap?.onDynamic?.message !== EXISTING_CODE_ERROR_MESSAGE) return
+
+  formApi.setFieldMeta('code', (current) => ({
+    ...current,
+    errorMap: { ...current.errorMap, onDynamic: undefined },
+  }))
+}

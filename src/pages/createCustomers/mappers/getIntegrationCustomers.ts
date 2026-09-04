@@ -20,6 +20,7 @@ export const getIntegrationCustomers = (
     return [
       {
         id: integrationCustomer.id,
+        code: integrationCustomer.code || null,
         integrationCode: integrationCustomer.providerCode,
         integrationType: integrationCustomer.providerType,
         syncWithProvider: integrationCustomer.syncWithProvider,
