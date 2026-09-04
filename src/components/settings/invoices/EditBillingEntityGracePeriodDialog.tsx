@@ -8,6 +8,7 @@ import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { DialogResult } from '~/components/dialogs/types'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { addToast } from '~/core/apolloClient'
+import { invoiceGracePeriodSchema } from '~/formValidation/invoiceGracePeriodSchema'
 import { useUpdateBillingEntityGracePeriodMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
@@ -25,9 +26,7 @@ gql`
 `
 
 const editBillingEntityGracePeriodValidationSchema = z.object({
-  invoiceGracePeriod: z.string().refine((value) => Number(value) <= 365, {
-    message: 'text_63bed78ae69de9cad5c348e4',
-  }),
+  invoiceGracePeriod: invoiceGracePeriodSchema,
 })
 
 const EDIT_BILLING_ENTITY_GRACE_PERIOD_FORM_ID = 'edit-billing-entity-grace-period-form'
