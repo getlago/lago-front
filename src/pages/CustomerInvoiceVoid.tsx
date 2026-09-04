@@ -70,7 +70,7 @@ const CustomerInvoiceVoid = () => {
   const { isPremium } = useCurrentUser()
   const { canVoid } = usePermissionsInvoiceActions()
 
-  const { data, loading, error } = useGetInvoiceDetailsQuery({
+  const { data, loading, error, refetch } = useGetInvoiceDetailsQuery({
     variables: { id: invoiceId as string },
     skip: !invoiceId,
   })
@@ -79,7 +79,7 @@ const CustomerInvoiceVoid = () => {
     customerId,
   })
 
-  const [voidInvoice] = useVoidInvoiceMutation({
+  const [voidInvoice, { loading: voidLoading }] = useVoidInvoiceMutation({
     context: { silentErrorCodes: [LagoApiError.NotVoidable] },
     update(cache, { data: invoiceData }) {
       if (!invoiceData?.voidInvoice) return
@@ -133,6 +133,8 @@ const CustomerInvoiceVoid = () => {
           translateKey: 'text_1788518648182t6oetew3x8x',
           severity: 'danger',
         })
+
+        await refetch()
       }
 
       return
@@ -345,6 +347,7 @@ const CustomerInvoiceVoid = () => {
               <Button
                 variant="primary"
                 danger
+                loading={voidLoading}
                 data-test={CUSTOMER_INVOICE_VOID_SUBMIT_BUTTON_TEST_ID}
                 onClick={() => onSubmit()}
               >

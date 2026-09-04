@@ -8,6 +8,7 @@ import {
   InvoicePaymentStatusTypeEnum,
   InvoiceStatusTypeEnum,
   InvoiceTypeEnum,
+  LagoApiError,
 } from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
@@ -18,6 +19,9 @@ import CustomerInvoiceVoid, {
 const mockUseGetInvoiceDetailsQuery = jest.fn()
 const mockVoidInvoice = jest.fn()
 const mockHasPermissions = jest.fn()
+const mockRefetch = jest.fn()
+
+let capturedVoidMutationOptions: { context?: { silentErrorCodes?: unknown[] } } | undefined
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (key: string) => key }),
@@ -47,7 +51,11 @@ jest.mock('~/generated/graphql', () => {
   return {
     ...actual,
     useGetInvoiceDetailsQuery: () => mockUseGetInvoiceDetailsQuery(),
-    useVoidInvoiceMutation: () => [mockVoidInvoice],
+    useVoidInvoiceMutation: (options: { context?: { silentErrorCodes?: unknown[] } }) => {
+      capturedVoidMutationOptions = options
+
+      return [mockVoidInvoice, { loading: false }]
+    },
     useGetCustomerWalletListQuery: () => ({ data: undefined }),
   }
 })
@@ -85,6 +93,7 @@ const mockQueryResult = ({
     data: status ? { invoice: buildInvoice(status) } : undefined,
     loading,
     error: undefined,
+    refetch: mockRefetch,
   })
 }
 
@@ -93,6 +102,7 @@ const renderPage = () => render(<CustomerInvoiceVoid />, { useParams: { customer
 describe('CustomerInvoiceVoid', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    capturedVoidMutationOptions = undefined
     mockHasPermissions.mockReturnValue(true)
   })
 
@@ -155,6 +165,16 @@ describe('CustomerInvoiceVoid', () => {
         renderPage()
 
         expect(screen.queryByTestId(GENERIC_PLACEHOLDER_TEST_ID)).not.toBeInTheDocument()
+      })
+
+      it('THEN should silence only the not_voidable code on the void mutation', () => {
+        mockQueryResult({ status: InvoiceStatusTypeEnum.Finalized })
+
+        renderPage()
+
+        expect(capturedVoidMutationOptions?.context?.silentErrorCodes).toEqual([
+          LagoApiError.NotVoidable,
+        ])
       })
     })
   })
@@ -226,6 +246,28 @@ describe('CustomerInvoiceVoid', () => {
         expect(addToast).toHaveBeenCalledTimes(1)
         expect(addToast).not.toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
         expect(testMockNavigateFn).not.toHaveBeenCalled()
+      })
+
+      it('THEN should refetch the invoice so the page stops offering the action', async () => {
+        mockVoidInvoice.mockResolvedValueOnce({
+          data: null,
+          errors: [
+            {
+              message: 'Method Not Allowed',
+              extensions: { code: 'not_voidable', status: 405 },
+            },
+          ],
+        })
+
+        const user = userEvent.setup()
+
+        renderPage()
+
+        await user.click(screen.getByTestId(CUSTOMER_INVOICE_VOID_SUBMIT_BUTTON_TEST_ID))
+
+        await waitFor(() => {
+          expect(mockRefetch).toHaveBeenCalled()
+        })
       })
     })
 
