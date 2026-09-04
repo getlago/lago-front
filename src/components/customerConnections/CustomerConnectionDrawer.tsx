@@ -246,8 +246,6 @@ export const CustomerConnectionDrawer = forwardRef<
                 lockedSelection={lockedSelection}
               />
 
-              {/* Never pre-filled from the provider: an empty code is submitted as null and
-                  `BaseCustomer#set_code` backfills it, so the value shown always comes from the DB */}
               <form.AppField
                 name="code"
                 listeners={{ onChange: () => clearExistingCodeError(form) }}

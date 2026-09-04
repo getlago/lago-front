@@ -83,8 +83,6 @@ const CreateCustomer = () => {
         return
       }
 
-      // The connection carrying the code lives in the drawer, closed by the
-      // time the customer is saved — no input left to attach the error to
       if (hasDefinedGQLError('ValueAlreadyExist', errors, 'code')) {
         addToast({
           severity: 'danger',
@@ -115,8 +113,6 @@ const CreateCustomer = () => {
         return
       }
 
-      // A duplicate on any other field: the mutation silences 422s, so without
-      // this the save would look like a no-op and the form would still reset
       if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
         addToast({
           severity: 'danger',
