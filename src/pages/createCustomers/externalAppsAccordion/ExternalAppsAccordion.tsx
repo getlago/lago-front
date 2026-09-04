@@ -222,8 +222,6 @@ const ExternalAppsAccordion = withForm({
       }
 
       const existing = getFormIntegrationConnection(category)
-      // Same reason as the payment branch: on a provider switch the replacement
-      // inherits nothing from the connection it replaces
       const preserved = existing?.providerCode === values.providerCode ? existing : undefined
 
       const nextConnection: FormIntegrationConnection = {

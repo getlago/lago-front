@@ -123,8 +123,6 @@ export const useCustomerConnectionsPersistence = ({
 }: UseCustomerConnectionsPersistenceProps): UseCustomerConnectionsPersistenceReturn => {
   const client = useApolloClient()
 
-  // `value_already_exist` is reported by the drawer itself, on any key: the
-  // global error link would otherwise toast it on top
   const silenceExistingCodeError = {
     context: { silentErrorDetails: [LagoApiError.ValueAlreadyExist] },
   }
@@ -184,8 +182,6 @@ export const useCustomerConnectionsPersistence = ({
       const { data, errors } = await mutate()
 
       if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
-        // Silenced globally for this operation, so the drawer owns the report:
-        // under the Code input when it is the code, a toast otherwise
         if (formApi && hasDefinedGQLError('ValueAlreadyExist', errors, 'code')) {
           applyExistingCodeError(formApi)
         } else {
@@ -305,8 +301,6 @@ export const useCustomerConnectionsPersistence = ({
     const isSameConnection = existing?.integrationCode === values.providerCode
 
     const linkInput = {
-      // Explicit null, never omitted nor blank: `set_code` backfills the
-      // provider code on nil, and `''` would defeat its `||=`
       code: values.code || null,
       externalCustomerId: values.externalCustomerId || null,
       syncWithProvider: values.syncWithProvider ?? false,

@@ -127,8 +127,6 @@ export const ConnectionDetailsPanel = ({
 }: ConnectionDetailsPanelProps) => {
   const { translate } = useInternationalization()
 
-  // The connection's own code, not the provider code carried by `row.code`:
-  // the two coincide only until someone edits it in the drawer
   const connectionCode =
     row.category === ConnectionCategory.Payment
       ? getProviderPaymentConnection(customer)?.code
