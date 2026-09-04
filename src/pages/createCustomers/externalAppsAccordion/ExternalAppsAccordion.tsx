@@ -236,8 +236,6 @@ const ExternalAppsAccordion = withForm({
 
       const nextConnection: FormIntegrationConnection = {
         id: existing?.providerCode === values.providerCode ? existing?.id : undefined,
-        // Optimistic, like the payment branch: the arrays never send the flag,
-        // so the backend still decides the replacement's default state
         isDefault: existing?.isDefault,
         category,
         providerCode: values.providerCode,
