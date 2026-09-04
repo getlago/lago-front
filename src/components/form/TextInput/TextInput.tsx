@@ -59,77 +59,69 @@ const numberFormatter = new RegExp(
 export const formatValue = (
   value: string | number | undefined,
   formatterFunctions?: ValueFormatterType[] | ValueFormatterType,
-) => {
-  let formattedValue = value
-
+): string | null => {
   if (value === undefined || value === null || value === '') return ''
-  if (!formatterFunctions || !formatterFunctions.length) return value
+
+  let formattedValue = String(value)
+
+  if (!formatterFunctions || !formatterFunctions.length) return formattedValue
+
   if (
     numberFormatter.test(
       typeof formatterFunctions === 'string' ? formatterFunctions : formatterFunctions.join(''),
-    )
+    ) &&
+    isNaN(Number(formattedValue.replace(/\.|-/g, '')))
   ) {
-    if (
-      (formattedValue !== null || formattedValue !== undefined) &&
-      isNaN(Number(String(formattedValue).replace(/\.|-/g, '')))
-    ) {
-      return null
-    }
+    return null
   }
 
   if (formatterFunctions.includes(ValueFormatter.positiveNumber)) {
-    formattedValue = String(formattedValue).replace('-', '')
+    formattedValue = formattedValue.replace('-', '')
   }
 
-  if (formatterFunctions.includes(ValueFormatter.int)) {
-    formattedValue = formattedValue === '-' ? formattedValue : parseInt(String(formattedValue))
+  if (formatterFunctions.includes(ValueFormatter.int) && formattedValue !== '-') {
+    const parsed = parseInt(formattedValue)
+
+    formattedValue = isNaN(parsed) ? '' : String(parsed)
   }
 
-  if (formatterFunctions.includes(ValueFormatter.decimal)) {
-    if (formattedValue !== '-') {
-      formattedValue = (String(formattedValue).match(/^-?\d+(?:\.\d{0,2})?/) || [])[0]
-    }
+  if (formatterFunctions.includes(ValueFormatter.decimal) && formattedValue !== '-') {
+    formattedValue = formattedValue.match(/^-?\d+(?:\.\d{0,2})?/)?.[0] ?? ''
   }
 
-  if (formatterFunctions.includes(ValueFormatter.triDecimal)) {
-    if (formattedValue !== '-') {
-      formattedValue = (String(formattedValue).match(/^-?\d+(?:\.\d{0,3})?/) || [])[0]
-    }
+  if (formatterFunctions.includes(ValueFormatter.triDecimal) && formattedValue !== '-') {
+    formattedValue = formattedValue.match(/^-?\d+(?:\.\d{0,3})?/)?.[0] ?? ''
   }
 
-  if (formatterFunctions.includes(ValueFormatter.quadDecimal)) {
-    if (formattedValue !== '-') {
-      formattedValue = (String(formattedValue).match(/^-?\d+(?:\.\d{0,4})?/) || [])[0]
-    }
+  if (formatterFunctions.includes(ValueFormatter.quadDecimal) && formattedValue !== '-') {
+    formattedValue = formattedValue.match(/^-?\d+(?:\.\d{0,4})?/)?.[0] ?? ''
   }
 
   if (formatterFunctions.includes(ValueFormatter.sextDecimal)) {
-    formattedValue = (String(formattedValue).match(/^-?\d+(?:\.\d{0,6})?/) || [])[0]
+    formattedValue = formattedValue.match(/^-?\d+(?:\.\d{0,6})?/)?.[0] ?? ''
   }
 
-  if (formatterFunctions.includes(ValueFormatter.chargeDecimal)) {
-    if (formattedValue !== '-') {
-      formattedValue = (String(formattedValue).match(/^-?\d+(?:\.\d{0,15})?/) || [])[0]
-    }
+  if (formatterFunctions.includes(ValueFormatter.chargeDecimal) && formattedValue !== '-') {
+    formattedValue = formattedValue.match(/^-?\d+(?:\.\d{0,15})?/)?.[0] ?? ''
   }
 
   if (formatterFunctions.includes(ValueFormatter.code)) {
-    formattedValue = String(formattedValue).replace(/\s/g, '_')
+    formattedValue = formattedValue.replace(/\s/g, '_')
   }
 
   if (formatterFunctions.includes(ValueFormatter.lowercase)) {
-    formattedValue = String(formattedValue).toLowerCase()
+    formattedValue = formattedValue.toLowerCase()
   }
 
   if (formatterFunctions.includes(ValueFormatter.trim)) {
-    formattedValue = String(formattedValue).trim()
+    formattedValue = formattedValue.trim()
   }
 
   if (formatterFunctions.includes(ValueFormatter.dashSeparator)) {
-    formattedValue = String(formattedValue).replace(/ /g, '-').replace(/_/g, '-')
+    formattedValue = formattedValue.replace(/ /g, '-').replace(/_/g, '-')
   }
 
-  return !formattedValue && formattedValue !== 0 ? '' : formattedValue
+  return formattedValue
 }
 
 export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
@@ -168,12 +160,10 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
       ) => {
         const formattedValue = formatValue(newValue, beforeChangeFormatter)
 
-        if (formattedValue === null || formattedValue === undefined) return
+        if (formattedValue === null) return
 
         setLocalValue(formattedValue)
-        // formattedValue is casted to string to avoid the need to type every TextInput when used (either number or string)
-        // We will need to uniformize this later
-        onChange && onChange(formattedValue as string, event)
+        onChange && onChange(formattedValue, event)
       },
       [beforeChangeFormatter, onChange],
     )

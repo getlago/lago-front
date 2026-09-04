@@ -24,7 +24,6 @@ import {
   CouponExpiration,
   CouponFrequency,
   CouponTypeEnum,
-  CreateCouponInput,
   CurrencyEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -60,7 +59,7 @@ const CreateCoupon = () => {
   const defaultValues: CouponFormValues = {
     amountCents: coupon?.amountCents
       ? String(deserializeAmount(coupon?.amountCents, coupon?.amountCurrency || CurrencyEnum.Usd))
-      : coupon?.amountCents || undefined,
+      : undefined,
     amountCurrency: coupon?.amountCurrency || organization?.defaultCurrency || CurrencyEnum.Usd,
     code: coupon?.code || '',
     couponType: coupon?.couponType || CouponTypeEnum.FixedAmount,
@@ -68,9 +67,9 @@ const CreateCoupon = () => {
     expiration: coupon?.expiration || CouponExpiration.NoExpiration,
     expirationAt: coupon?.expirationAt || undefined,
     frequency: coupon?.frequency || CouponFrequency.Once,
-    frequencyDuration: coupon?.frequencyDuration || undefined,
+    frequencyDuration: coupon?.frequencyDuration?.toString(),
     name: coupon?.name || '',
-    percentageRate: coupon?.percentageRate || undefined,
+    percentageRate: coupon?.percentageRate?.toString(),
     reusable: coupon?.reusable === undefined ? true : coupon.reusable,
     hasPlanLimit: (coupon?.plans?.length ?? 0) > 0,
     limitPlansList: coupon?.plans || [],
@@ -647,7 +646,7 @@ const CreateCoupon = () => {
         <Side>
           <CouponCodeSnippet
             loading={loading}
-            coupon={formValues as unknown as CreateCouponInput}
+            coupon={formValues}
             hasPlanLimit={formHasPlanLimit}
             limitPlansList={limitPlansList}
             hasBillableMetricLimit={formHasBillableMetricLimit}

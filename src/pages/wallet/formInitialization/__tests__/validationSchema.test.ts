@@ -28,7 +28,7 @@ const baseForm = (overrides: Partial<TWalletDataForm> = {}): TWalletDataForm => 
   paidTopUpMinAmountCents: undefined,
   paidTopUpMaxAmountCents: undefined,
   ignorePaidTopUpLimitsOnCreation: false,
-  priority: 50,
+  priority: '50',
   paymentMethod: { paymentMethodType: undefined, paymentMethodId: undefined },
   invoiceCustomSection: { invoiceCustomSections: [], skipInvoiceCustomSections: false },
   ...overrides,
@@ -183,21 +183,18 @@ describe('walletFormValidationSchema', () => {
     })
 
     it('validates priority range 1-50', () => {
-      expect(issuePaths(walletFormValidationSchema.safeParse(baseForm({ priority: 0 })))).toContain(
-        'priority',
-      )
       expect(
-        issuePaths(walletFormValidationSchema.safeParse(baseForm({ priority: 51 }))),
+        issuePaths(walletFormValidationSchema.safeParse(baseForm({ priority: '0' }))),
       ).toContain('priority')
-      expect(walletFormValidationSchema.safeParse(baseForm({ priority: 1 })).success).toBe(true)
+      expect(
+        issuePaths(walletFormValidationSchema.safeParse(baseForm({ priority: '51' }))),
+      ).toContain('priority')
+      expect(walletFormValidationSchema.safeParse(baseForm({ priority: '1' })).success).toBe(true)
       expect(walletFormValidationSchema.safeParse(baseForm({ priority: undefined })).success).toBe(
         true,
       )
       // an emptied priority input ('') counts as absent (default applies)
-      expect(
-        walletFormValidationSchema.safeParse(baseForm({ priority: '' as unknown as number }))
-          .success,
-      ).toBe(true)
+      expect(walletFormValidationSchema.safeParse(baseForm({ priority: '' })).success).toBe(true)
     })
 
     it('fails paidCredits when the paid amount exceeds the max bound', () => {

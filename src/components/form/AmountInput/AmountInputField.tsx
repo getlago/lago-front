@@ -42,7 +42,7 @@ export const AmountInputField = memo(
           cleanable={cleanable}
           inputProps={inputProps}
           error={getAmountInputError(silentError, displayErrorText, touched, errors, name)}
-          onChange={(value: string | number | undefined) => {
+          onChange={(value: string) => {
             setFieldValue(name, value)
           }}
           {...props}

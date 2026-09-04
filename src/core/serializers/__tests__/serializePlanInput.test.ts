@@ -2318,3 +2318,33 @@ describe('serializeProperties — presentationGroupKeys', () => {
     expect(result.presentationGroupKeys).toBeUndefined()
   })
 })
+
+describe('serializeProperties — package charge', () => {
+  const buildPackageProperties = (
+    packageSize: unknown,
+    freeUnits: unknown,
+  ): Parameters<typeof serializeProperties>[0] =>
+    ({ amount: '1', packageSize, freeUnits }) as unknown as Parameters<
+      typeof serializeProperties
+    >[0]
+
+  it('coerces the string values the inputs now store into numbers', () => {
+    const result = serializeProperties(buildPackageProperties('12', '5'), ChargeModelEnum.Package)
+
+    expect(result.packageSize).toBe(12)
+    expect(result.freeUnits).toBe(5)
+  })
+
+  it('still accepts the numbers seeded by getPropertyShape', () => {
+    const result = serializeProperties(buildPackageProperties(12, 5), ChargeModelEnum.Package)
+
+    expect(result.packageSize).toBe(12)
+    expect(result.freeUnits).toBe(5)
+  })
+
+  it('falls back to 0 free units when the field is emptied', () => {
+    const result = serializeProperties(buildPackageProperties('12', ''), ChargeModelEnum.Package)
+
+    expect(result.freeUnits).toBe(0)
+  })
+})

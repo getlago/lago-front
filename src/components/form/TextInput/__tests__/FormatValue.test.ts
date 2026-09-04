@@ -1,4 +1,4 @@
-import { formatValue } from '../TextInput'
+import { formatValue, ValueFormatterType } from '../TextInput'
 
 describe('Text input formatValue', () => {
   it('should return the initial value if no formatter', () => {
@@ -12,9 +12,9 @@ describe('Text input formatValue', () => {
     expect(undefinedValue).toBe('')
     expect(emptyValue).toBe('')
     expect(stringValue).toBe('String test')
-    expect(numberValue).toBe(346)
-    expect(negativeValue).toBe(-349)
-    expect(zeroValue).toBe(0)
+    expect(numberValue).toBe('346')
+    expect(negativeValue).toBe('-349')
+    expect(zeroValue).toBe('0')
   })
 
   it('should return empty string if no value', () => {
@@ -24,10 +24,10 @@ describe('Text input formatValue', () => {
 
     expect(undefinedValue).toBe('')
     expect(emptyValue).toBe('')
-    expect(zeroValue).toBe(0)
+    expect(zeroValue).toBe('0')
   })
 
-  it('should return an int in case of "int" formatter', () => {
+  it('should return a stringified int in case of "int" formatter', () => {
     const negativeValue = formatValue(-12, 'int')
     const value = formatValue(15, 'int')
     const zeroValue = formatValue(0, 'int')
@@ -37,14 +37,47 @@ describe('Text input formatValue', () => {
     const minus = formatValue('-', 'int')
     const writtingDecimals = formatValue('29.', 'int')
 
-    expect(negativeValue).toBe(-12)
-    expect(value).toBe(15)
-    expect(zeroValue).toBe(0)
-    expect(negativeDecimalValue).toBe(-13)
-    expect(decimalValue).toBe(11)
+    expect(negativeValue).toBe('-12')
+    expect(value).toBe('15')
+    expect(zeroValue).toBe('0')
+    expect(negativeDecimalValue).toBe('-13')
+    expect(decimalValue).toBe('11')
     expect(stringValue).toBe(null)
     expect(minus).toBe('-')
-    expect(writtingDecimals).toBe(29)
+    expect(writtingDecimals).toBe('29')
+  })
+
+  it('should swallow a NaN parse for "int" formatter instead of leaking "NaN"', () => {
+    const dotOnly = formatValue('.', 'int')
+    const dotOnlyPositive = formatValue('.', ['positiveNumber', 'int'])
+    const minusStrippedToEmpty = formatValue('-', ['positiveNumber', 'int'])
+
+    expect(dotOnly).toBe('')
+    expect(dotOnlyPositive).toBe('')
+    expect(minusStrippedToEmpty).toBe('')
+  })
+
+  it('should never emit a number, whatever the formatter', () => {
+    const formatters: ValueFormatterType[] = [
+      'int',
+      'decimal',
+      'triDecimal',
+      'quadDecimal',
+      'sextDecimal',
+      'chargeDecimal',
+      'positiveNumber',
+      'code',
+      'lowercase',
+      'trim',
+      'dashSeparator',
+    ]
+
+    formatters.forEach((formatter) => {
+      expect(typeof formatValue(42.5, formatter)).toBe('string')
+      expect(typeof formatValue(0, formatter)).toBe('string')
+    })
+
+    expect(typeof formatValue(42.5)).toBe('string')
   })
 
   it('should return a positive number for "positiveNumber" formatter', () => {
@@ -181,7 +214,7 @@ describe('Text input formatValue', () => {
     const specificCode = formatValue(' CUS_1234 ', ['lowercase', 'trim', 'dashSeparator'])
 
     expect(decimalPositive).toBe('13.45')
-    expect(intPositive).toBe(11)
+    expect(intPositive).toBe('11')
     expect(specificCode).toBe('cus-1234')
   })
 })

@@ -186,7 +186,10 @@ describe('SubscriptionFeeDrawer', () => {
 
         drawerRef.current?.openDrawer(defaultFormValues)
 
-        expect(mockReset).toHaveBeenCalledWith(defaultFormValues, { keepDefaultValues: true })
+        expect(mockReset).toHaveBeenCalledWith(
+          { ...defaultFormValues, trialPeriod: '30' },
+          { keepDefaultValues: true },
+        )
       })
     })
 
@@ -231,12 +234,12 @@ describe('SubscriptionFeeDrawer', () => {
 
   describe('GIVEN the form default values', () => {
     describe('WHEN the form is initialized', () => {
-      it('THEN trialPeriod defaults to 0 as a number', () => {
+      it('THEN trialPeriod defaults to "0" as a string', () => {
         render(<SubscriptionFeeDrawer ref={drawerRef} onSave={mockOnSave} />)
 
         expect(capturedDefaultValues).toBeDefined()
-        expect(capturedDefaultValues?.trialPeriod).toBe(0)
-        expect(typeof capturedDefaultValues?.trialPeriod).toBe('number')
+        expect(capturedDefaultValues?.trialPeriod).toBe('0')
+        expect(typeof capturedDefaultValues?.trialPeriod).toBe('string')
       })
 
       it('THEN trialPeriod is not undefined or an empty string', () => {
@@ -249,31 +252,31 @@ describe('SubscriptionFeeDrawer', () => {
   })
 
   describe('GIVEN the onSubmit handler', () => {
-    describe('WHEN trialPeriod is a valid number', () => {
-      it('THEN should preserve the number value', () => {
+    describe('WHEN trialPeriod holds a numeric string', () => {
+      it('THEN should emit it as a number', () => {
         render(<SubscriptionFeeDrawer ref={drawerRef} onSave={mockOnSave} />)
 
-        capturedOnSubmit?.({ value: { ...defaultFormValues, trialPeriod: 30 } })
+        capturedOnSubmit?.({ value: { ...defaultFormValues, trialPeriod: '30' } })
 
         expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({ trialPeriod: 30 }))
       })
     })
 
-    describe('WHEN trialPeriod is 0', () => {
-      it('THEN should preserve 0 as the value', () => {
+    describe('WHEN trialPeriod is "0"', () => {
+      it('THEN should emit 0', () => {
         render(<SubscriptionFeeDrawer ref={drawerRef} onSave={mockOnSave} />)
 
-        capturedOnSubmit?.({ value: { ...defaultFormValues, trialPeriod: 0 } })
+        capturedOnSubmit?.({ value: { ...defaultFormValues, trialPeriod: '0' } })
 
         expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({ trialPeriod: 0 }))
       })
     })
 
-    describe('WHEN trialPeriod is NaN', () => {
-      it('THEN should normalize to 0', () => {
+    describe('WHEN the user cleared the trialPeriod input', () => {
+      it('THEN should emit 0 rather than NaN', () => {
         render(<SubscriptionFeeDrawer ref={drawerRef} onSave={mockOnSave} />)
 
-        capturedOnSubmit?.({ value: { ...defaultFormValues, trialPeriod: NaN } })
+        capturedOnSubmit?.({ value: { ...defaultFormValues, trialPeriod: '' } })
 
         expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({ trialPeriod: 0 }))
       })
@@ -304,31 +307,31 @@ describe('SubscriptionFeeDrawer', () => {
 
   describe('GIVEN the openDrawer normalization', () => {
     describe('WHEN called with a defined trialPeriod', () => {
-      it('THEN should pass the value as-is to form.reset', () => {
+      it('THEN should stringify the value for the form state', () => {
         render(<SubscriptionFeeDrawer ref={drawerRef} onSave={mockOnSave} />)
 
         drawerRef.current?.openDrawer({ ...defaultFormValues, trialPeriod: 14 })
 
-        expect(mockReset).toHaveBeenCalledWith(expect.objectContaining({ trialPeriod: 14 }), {
+        expect(mockReset).toHaveBeenCalledWith(expect.objectContaining({ trialPeriod: '14' }), {
           keepDefaultValues: true,
         })
       })
     })
 
     describe('WHEN called with trialPeriod as 0', () => {
-      it('THEN should preserve 0', () => {
+      it('THEN should preserve 0 as "0"', () => {
         render(<SubscriptionFeeDrawer ref={drawerRef} onSave={mockOnSave} />)
 
         drawerRef.current?.openDrawer({ ...defaultFormValues, trialPeriod: 0 })
 
-        expect(mockReset).toHaveBeenCalledWith(expect.objectContaining({ trialPeriod: 0 }), {
+        expect(mockReset).toHaveBeenCalledWith(expect.objectContaining({ trialPeriod: '0' }), {
           keepDefaultValues: true,
         })
       })
     })
 
     describe('WHEN called with trialPeriod as undefined (cast)', () => {
-      it('THEN should normalize to 0 via nullish coalescing', () => {
+      it('THEN should normalize to "0" via nullish coalescing', () => {
         render(<SubscriptionFeeDrawer ref={drawerRef} onSave={mockOnSave} />)
 
         drawerRef.current?.openDrawer({
@@ -336,7 +339,7 @@ describe('SubscriptionFeeDrawer', () => {
           trialPeriod: undefined as unknown as number,
         })
 
-        expect(mockReset).toHaveBeenCalledWith(expect.objectContaining({ trialPeriod: 0 }), {
+        expect(mockReset).toHaveBeenCalledWith(expect.objectContaining({ trialPeriod: '0' }), {
           keepDefaultValues: true,
         })
       })

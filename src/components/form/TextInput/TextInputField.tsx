@@ -46,7 +46,7 @@ export const TextInputField = memo(
           onBlur={handleBlur}
           cleanable={cleanable}
           error={error}
-          onChange={(value: string | number | undefined) => {
+          onChange={(value: string) => {
             setFieldValue(name, value)
           }}
           {...props}

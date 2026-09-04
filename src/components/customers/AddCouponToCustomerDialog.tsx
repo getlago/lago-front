@@ -90,32 +90,19 @@ gql`
 
 const ADD_COUPON_TO_CUSTOMER_FORM_ID = 'add-coupon-to-customer-form'
 
-// These three fields can hold either shape, because `formatValue` is not
-// type-consistent (src/components/form/TextInput/TextInput.tsx:59):
-//   - `percentageRate` (`quadDecimal`)      -> always a string
-//   - `frequencyDuration` (`int`)           -> always a number, the `int`
-//     branch is `parseInt` (TextInput.tsx:85) under an `as string` cast
-//   - `amountCents` (`AmountInput`)         -> string, or a number when the
-//     currency has 0 decimals, since AmountInput.tsx:50 pushes `int` then
-// plus a number from the coupon seed below. Accept both and range-check the
-// coerced value. Same call as `useDiscountDrawer` (src/pages/quotes/hooks/
-// useDiscountDrawer.tsx:83-89). Removing the union needs the input layer
-// normalized first: LAGO-1759.
-type NumericInputValue = string | number | undefined
+const numericInputSchema = z.string().optional()
 
-const numericInputSchema = z.union([z.string(), z.number()]).optional()
-
-const isAtLeast = (value: NumericInputValue, minimum: number): boolean =>
+const isAtLeast = (value: string | undefined, minimum: number): boolean =>
   Number(value ?? '') >= minimum
 
 const defaultFormValues = {
   couponId: '',
   couponType: CouponTypeEnum.FixedAmount as CouponTypeEnum,
-  amountCents: undefined as NumericInputValue,
+  amountCents: undefined as string | undefined,
   amountCurrency: undefined as CurrencyEnum | undefined,
-  percentageRate: undefined as NumericInputValue,
+  percentageRate: undefined as string | undefined,
   frequency: undefined as CouponFrequency | undefined,
-  frequencyDuration: undefined as NumericInputValue,
+  frequencyDuration: undefined as string | undefined,
   plans: undefined as CouponPlansForCustomerFragment[] | undefined,
   billableMetrics: undefined as CouponBillableMetricsForCustomerFragment[] | undefined,
 }
@@ -242,16 +229,18 @@ const AddCouponToCustomerDialogContent = withForm({
               form.setFieldValue('couponId', coupon.id)
               form.setFieldValue(
                 'amountCents',
-                deserializeAmount(
-                  coupon.amountCents || 0,
-                  coupon.amountCurrency || CurrencyEnum.Usd,
+                String(
+                  deserializeAmount(
+                    coupon.amountCents || 0,
+                    coupon.amountCurrency || CurrencyEnum.Usd,
+                  ),
                 ),
               )
               form.setFieldValue('amountCurrency', coupon.amountCurrency ?? undefined)
-              form.setFieldValue('percentageRate', coupon.percentageRate ?? undefined)
+              form.setFieldValue('percentageRate', coupon.percentageRate?.toString())
               form.setFieldValue('couponType', coupon.couponType)
               form.setFieldValue('frequency', coupon.frequency)
-              form.setFieldValue('frequencyDuration', coupon.frequencyDuration ?? undefined)
+              form.setFieldValue('frequencyDuration', coupon.frequencyDuration?.toString())
               form.setFieldValue('plans', coupon.plans ?? undefined)
               form.setFieldValue('billableMetrics', coupon.billableMetrics ?? undefined)
             } else {
