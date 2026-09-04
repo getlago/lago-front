@@ -77,11 +77,14 @@
 
 ## Subsystem rules — extracted skills
 
-Four areas carry rules too long and too narrow to live in this file. Each one is a skill
+Five areas carry rules too long and too narrow to live in this file. Each one is a skill
 under `.agents/skills/` whose description auto-triggers on the relevant work. Read the
 skill before writing code in that area — never reconstruct these rules from memory or
 from the nearest existing file.
 
+- **Forms** (new TanStack forms) → `lago-forms`. `useAppForm` + a zod schema, the
+  submit-first validation contract, and the stored value shape of each registered field
+  component that a schema must be written against.
 - **Pagination** (numbered lists & tables) → `lago-pagination`. `PaginatedContent`,
   `usePageSearchParam`, and the `createSinglePageFieldPolicy` cache registration that a
   new paginated field silently breaks without.
