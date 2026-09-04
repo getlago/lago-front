@@ -8,6 +8,7 @@ import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { DialogResult } from '~/components/dialogs/types'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { addToast } from '~/core/apolloClient'
+import { invoiceGracePeriodSchema } from '~/formValidation/invoiceGracePeriodSchema'
 import { useUpdateCustomerInvoiceGracePeriodMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
@@ -29,10 +30,7 @@ gql`
 `
 
 const editCustomerInvoiceGracePeriodValidationSchema = z.object({
-  // An empty input is allowed and submits as 0 (see onSubmit).
-  invoiceGracePeriod: z.string().refine((value) => Number(value) <= 365, {
-    message: 'text_63bed78ae69de9cad5c348e4',
-  }),
+  invoiceGracePeriod: invoiceGracePeriodSchema,
 })
 
 type EditCustomerInvoiceGracePeriodDialogData = {
