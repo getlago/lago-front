@@ -24,12 +24,18 @@
   },
   "packageRules": [
     {
+      "description": "LAGO-1859 owns the 6->7 major. Vulnerability alerts bypass minimumReleaseAge and the schedule, so park it on the dashboard instead of letting Renovate open (and reopen) the PR.",
+      "matchPackageNames": ["react-router", "react-router-dom"],
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true
+    },
+    {
       "matchDepTypes": ["overrides", "pnpm.overrides"],
       "enabled": false,
       "description": "Disable updates for pnpm overrides used to pin transitive security patches"
     },
     {
-      "matchPackageNames": ["@types/react", "@types/react-dom", "@types/react-router-dom"],
+      "matchPackageNames": ["@types/react", "@types/react-dom"],
       "groupName": "React types",
       "commitMessagePrefix": "chore(deps):"
     },
@@ -99,7 +105,6 @@
         "@babel/*",
         "@types/react",
         "@types/react-dom",
-        "@types/react-router-dom",
         "@testing-library/*",
         "cypress",
         "typescript",
