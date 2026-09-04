@@ -5,7 +5,10 @@ import { CustomerConnectionRow } from '~/components/customerConnections/Customer
 import { getConnectionRowId } from '~/components/customerConnections/getConnectionRowId'
 import { ConnectionCategory } from '~/components/customerConnections/types'
 import { useConnectionOptions } from '~/components/customerConnections/useConnectionOptions'
-import { getIntegrationCustomerForCategory } from '~/components/customers/connectionsSection/utils'
+import {
+  getIntegrationCustomerForCategory,
+  getProviderPaymentConnection,
+} from '~/components/customers/connectionsSection/utils'
 import { CustomerDetailsFragment } from '~/generated/graphql'
 
 type UseCustomerConnectionRowsProps = {
@@ -18,8 +21,7 @@ type UseCustomerConnectionRowsProps = {
  * persisted provider payment connection and the one-per-type integration
  * connections. A dangling link (org integration deleted) keeps its row —
  * name falls back to the connection code — so it stays visible and
- * deletable. The hardcoded manual-payment row lands with the default flow:
- * without the Default concept it would be an ambiguous dead row.
+ * deletable. The synthesized manual-payment row is not derived here.
  */
 export const useCustomerConnectionRows = ({
   customer,
@@ -35,6 +37,7 @@ export const useCustomerConnectionRows = ({
       const provider = paymentProviders?.paymentProviders?.collection.find(
         (p) => p.code === customer.paymentProviderCode,
       )
+      const providerConnection = getProviderPaymentConnection(customer)
 
       rows.push({
         id: getConnectionRowId(ConnectionCategory.Payment, customer.paymentProviderCode),
@@ -42,6 +45,8 @@ export const useCustomerConnectionRows = ({
         name: provider?.name ?? customer.paymentProviderCode,
         code: customer.paymentProviderCode,
         icon: paymentAvatarMapping[customer.paymentProvider],
+        connectionId: providerConnection?.id,
+        isDefault: providerConnection?.isDefault,
       })
     }
 
@@ -66,6 +71,8 @@ export const useCustomerConnectionRows = ({
         icon: existing.integrationType
           ? integrationAvatarMapping[existing.integrationType]
           : undefined,
+        connectionId: existing.id,
+        isDefault: existing.isDefault,
       })
     }
 

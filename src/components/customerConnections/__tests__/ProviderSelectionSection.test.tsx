@@ -3,6 +3,8 @@ import { configure, render, screen } from '@testing-library/react'
 import { ConnectionComboBoxDataItem } from '~/components/customerConnections/ConnectionComboBox'
 import type { CustomerConnectionDrawerFormApi } from '~/components/customerConnections/CustomerConnectionDrawer'
 import {
+  type LockedConnectionSelection,
+  PROVIDER_SELECTION_DEFAULT_BADGE_TEST_ID,
   PROVIDER_SELECTION_LOCKED_SELECTOR_TEST_ID,
   PROVIDER_SELECTION_TITLE_TEST_ID,
   ProviderSelectionSection,
@@ -43,7 +45,7 @@ const Harness = ({
   category: ConnectionCategory
   options: ConnectionComboBoxDataItem[]
   providerCode?: string
-  lockedSelection?: { title: string; subtitle?: string; icon: React.ReactNode }
+  lockedSelection?: LockedConnectionSelection
 }) => {
   const form = useAppForm({
     defaultValues: {
@@ -79,6 +81,33 @@ describe('ProviderSelectionSection', () => {
         expect(selector).toBeInTheDocument()
         expect(selector).toHaveTextContent('Stripe EU')
         expect(selector).toHaveTextContent('stripe-conn')
+      })
+
+      it.each([
+        ['display the Default badge when the connection is the default', true],
+        ['hide the Default badge when it is not', false],
+      ])('THEN should %s', (_, isDefault) => {
+        render(
+          <Harness
+            category={ConnectionCategory.Payment}
+            options={PAYMENT_OPTIONS}
+            providerCode="stripe-conn"
+            lockedSelection={{
+              title: 'Stripe EU',
+              subtitle: 'stripe-conn',
+              icon: <svg />,
+              isDefault,
+            }}
+          />,
+        )
+
+        const badge = screen.queryByTestId(PROVIDER_SELECTION_DEFAULT_BADGE_TEST_ID)
+
+        if (isDefault) {
+          expect(badge).toBeInTheDocument()
+        } else {
+          expect(badge).not.toBeInTheDocument()
+        }
       })
 
       it('THEN should not display the provider combobox', () => {

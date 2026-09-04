@@ -48,6 +48,7 @@ gql`
         externalCustomerId
         integrationCode
         integrationType
+        isDefault
         subsidiaryId
         syncWithProvider
       }
@@ -58,6 +59,7 @@ gql`
         externalCustomerId
         integrationCode
         integrationType
+        isDefault
         syncWithProvider
       }
       ... on AvalaraCustomer {
@@ -67,6 +69,7 @@ gql`
         externalCustomerId
         integrationCode
         integrationType
+        isDefault
         syncWithProvider
       }
       ... on XeroCustomer {
@@ -76,6 +79,7 @@ gql`
         externalCustomerId
         integrationCode
         integrationType
+        isDefault
         syncWithProvider
       }
       ... on HubspotCustomer {
@@ -85,6 +89,7 @@ gql`
         externalCustomerId
         integrationCode
         integrationType
+        isDefault
         syncWithProvider
         targetedObject
       }
@@ -95,6 +100,7 @@ gql`
         externalCustomerId
         integrationCode
         integrationType
+        isDefault
         syncWithProvider
       }
     }
