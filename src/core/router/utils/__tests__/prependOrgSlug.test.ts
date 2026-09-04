@@ -71,4 +71,52 @@ describe('prependOrgSlug', () => {
       expect(prependOrgSlug(input, 'acme')).toBe(expected)
     })
   })
+
+  describe('GIVEN a hostile off-origin path', () => {
+    const ORIGIN = 'https://app.lago.dev'
+
+    // Absolute, so the helper prefixes them. These are the cases whose
+    // same-origin outcome depends on downstream normalisation.
+    const ABSOLUTE_HOSTILE = ['//evil.com', '///evil.com', '/\\evil.com']
+
+    // Not absolute, so the helper returns them untouched whether or not a slug
+    // is present. `prependOrgSlug` is not a validator.
+    const PASS_THROUGH_HOSTILE = [
+      '\\/evil.com',
+      '\\\\evil.com',
+      'https://evil.com',
+      'javascript:alert(1)//',
+    ]
+
+    describe('WHEN an org slug is present and the path is absolute', () => {
+      // Pins the property, not the string: `//evil.com` becomes
+      // `/acme//evil.com`, which is same-origin only because the leading
+      // `/acme` stops it being read as protocol-relative. v7.18 widened the
+      // regex that classifies exactly these shapes.
+      it.each(ABSOLUTE_HOSTILE)('THEN the result stays same-origin for %s', (input) => {
+        expect(new URL(prependOrgSlug(input, 'acme'), ORIGIN).origin).toBe(ORIGIN)
+      })
+    })
+
+    describe('WHEN the path is not absolute', () => {
+      // Characterization, not endorsement. These survive the helper unchanged
+      // and resolve off-origin. Safe today only because no untrusted value
+      // reaches a `navigate()` or `<Link to>`; `isSafeInAppPath` is what makes
+      // that a guarantee rather than an audit. See Task 3.
+      it.each(PASS_THROUGH_HOSTILE)('THEN %s is returned unchanged, with a slug', (input) => {
+        expect(prependOrgSlug(input, 'acme')).toBe(input)
+      })
+    })
+
+    describe('WHEN no org slug is present', () => {
+      // With no slug the helper is a pass-through for every shape, absolute
+      // included, so an off-origin value survives.
+      it.each([...ABSOLUTE_HOSTILE, ...PASS_THROUGH_HOSTILE])(
+        'THEN %s is returned unchanged',
+        (input) => {
+          expect(prependOrgSlug(input, undefined)).toBe(input)
+        },
+      )
+    })
+  })
 })

@@ -186,4 +186,26 @@ describe('ensureSlugPrefix', () => {
       expect(ensureSlugPrefix('/org-b/settings', 'org-a', currentUser)).toBe('/org-b/settings')
     })
   })
+
+  describe('GIVEN a hostile off-origin path', () => {
+    const ORIGIN = 'https://app.lago.dev'
+    const HOSTILE_PATHS = [
+      '//evil.com',
+      '///evil.com',
+      '/\\evil.com',
+      '\\/evil.com',
+      '\\\\evil.com',
+      'https://evil.com',
+      'javascript:alert(1)//',
+    ]
+
+    // `ensureSlugPrefix` rejects nothing; it prefixes unconditionally, adding
+    // the `/` separator itself when the input lacks one. That leading
+    // `/${slug}` is what keeps every shape same-origin, on v6 and on v7.
+    it.each(HOSTILE_PATHS)('THEN the result stays same-origin for %s', (input) => {
+      const result = ensureSlugPrefix(input, 'org-a', currentUser)
+
+      expect(new URL(result, ORIGIN).origin).toBe(ORIGIN)
+    })
+  })
 })
