@@ -50,7 +50,15 @@ const mockSetPaymentDefault = jest.fn(() =>
   }),
 )
 const mockSetIntegrationDefault = jest.fn(() =>
-  Promise.resolve({ data: { setIntegrationCustomerAsDefault: { __typename: 'AnrokCustomer' } } }),
+  Promise.resolve({
+    data: {
+      setIntegrationCustomerAsDefault: {
+        __typename: 'AnrokCustomer',
+        id: 'link-1',
+        isDefault: true,
+      },
+    },
+  }),
 )
 const mockHasFeatureFlag = jest.fn(() => false)
 
@@ -382,7 +390,13 @@ describe('ExternalAppsAccordion', () => {
       data: { setPaymentProviderCustomerAsDefault: { id: 'pc-1', isDefault: true } },
     } as never)
     mockSetIntegrationDefault.mockResolvedValue({
-      data: { setIntegrationCustomerAsDefault: { __typename: 'AnrokCustomer' } },
+      data: {
+        setIntegrationCustomerAsDefault: {
+          __typename: 'AnrokCustomer',
+          id: 'link-1',
+          isDefault: true,
+        },
+      },
     } as never)
     mockHasFeatureFlag.mockReturnValue(false)
   })

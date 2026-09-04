@@ -46,7 +46,13 @@ const mockSetPaymentDefault = jest.fn(() =>
 )
 const mockSetIntegrationDefault = jest.fn(() =>
   Promise.resolve({
-    data: { setIntegrationCustomerAsDefault: { __typename: 'NetsuiteCustomer' } },
+    data: {
+      setIntegrationCustomerAsDefault: {
+        __typename: 'NetsuiteCustomer',
+        id: 'link-1',
+        isDefault: true,
+      },
+    },
   }),
 )
 const mockClientQuery = jest.fn(() => Promise.resolve({ data: { customer: null } }))

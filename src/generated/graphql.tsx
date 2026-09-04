@@ -12545,12 +12545,12 @@ export type SetCustomerIntegrationConnectionAsDefaultMutationVariables = Exact<{
 
 
 export type SetCustomerIntegrationConnectionAsDefaultMutation = { __typename?: 'Mutation', setIntegrationCustomerAsDefault?:
-    | { __typename: 'AnrokCustomer' }
-    | { __typename: 'AvalaraCustomer' }
-    | { __typename: 'HubspotCustomer' }
-    | { __typename: 'NetsuiteCustomer' }
-    | { __typename: 'SalesforceCustomer' }
-    | { __typename: 'XeroCustomer' }
+    | { __typename?: 'AnrokCustomer', id: string, isDefault: boolean }
+    | { __typename?: 'AvalaraCustomer', id: string, isDefault: boolean }
+    | { __typename?: 'HubspotCustomer', id: string, isDefault: boolean }
+    | { __typename?: 'NetsuiteCustomer', id: string, isDefault: boolean }
+    | { __typename?: 'SalesforceCustomer', id: string, isDefault: boolean }
+    | { __typename?: 'XeroCustomer', id: string, isDefault: boolean }
    | null };
 
 export type GetTaxIntegrationsForExternalAppsAccordionQueryVariables = Exact<{
@@ -26692,7 +26692,30 @@ export type SetCustomerPaymentConnectionAsDefaultMutationOptions = Apollo.BaseMu
 export const SetCustomerIntegrationConnectionAsDefaultDocument = gql`
     mutation setCustomerIntegrationConnectionAsDefault($input: SetIntegrationCustomerAsDefaultInput!) {
   setIntegrationCustomerAsDefault(input: $input) {
-    __typename
+    ... on NetsuiteCustomer {
+      id
+      isDefault
+    }
+    ... on XeroCustomer {
+      id
+      isDefault
+    }
+    ... on AnrokCustomer {
+      id
+      isDefault
+    }
+    ... on AvalaraCustomer {
+      id
+      isDefault
+    }
+    ... on HubspotCustomer {
+      id
+      isDefault
+    }
+    ... on SalesforceCustomer {
+      id
+      isDefault
+    }
   }
 }
     `;

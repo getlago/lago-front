@@ -38,7 +38,15 @@ const mockSetPaymentDefault = jest.fn(() =>
   }),
 )
 const mockSetIntegrationDefault = jest.fn(() =>
-  Promise.resolve({ data: { setIntegrationCustomerAsDefault: { __typename: 'AnrokCustomer' } } }),
+  Promise.resolve({
+    data: {
+      setIntegrationCustomerAsDefault: {
+        __typename: 'AnrokCustomer',
+        id: 'link-1',
+        isDefault: true,
+      },
+    },
+  }),
 )
 const mockHasFeatureFlag = jest.fn(() => false)
 

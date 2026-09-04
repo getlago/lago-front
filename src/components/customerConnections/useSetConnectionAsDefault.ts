@@ -17,11 +17,36 @@ gql`
     }
   }
 
+  # Both selections carry id + isDefault so the result normalizes: narrowing
+  # either to __typename stops the cache reflecting the new default.
   mutation setCustomerIntegrationConnectionAsDefault(
     $input: SetIntegrationCustomerAsDefaultInput!
   ) {
     setIntegrationCustomerAsDefault(input: $input) {
-      __typename
+      ... on NetsuiteCustomer {
+        id
+        isDefault
+      }
+      ... on XeroCustomer {
+        id
+        isDefault
+      }
+      ... on AnrokCustomer {
+        id
+        isDefault
+      }
+      ... on AvalaraCustomer {
+        id
+        isDefault
+      }
+      ... on HubspotCustomer {
+        id
+        isDefault
+      }
+      ... on SalesforceCustomer {
+        id
+        isDefault
+      }
     }
   }
 `
