@@ -1,7 +1,8 @@
 import { FormikProps } from 'formik'
 import _get from 'lodash/get'
-import _isEqual from 'lodash/isEqual'
 import { memo } from 'react'
+
+import { formikFieldPropsAreEqual } from '~/components/form/formikFieldPropsAreEqual'
 
 import { ComboBox } from './ComboBox'
 import { BasicComboBoxData, ComboboxDataGrouped, ComboBoxProps } from './types'
@@ -56,18 +57,7 @@ export const ComboBoxField = memo(
       />
     )
   },
-  (
-    { formikProps: prevFormikProps, name: prevName, ...prev },
-    { formikProps: nextformikProps, name: nextName, ...next },
-  ) => {
-    return (
-      _isEqual(prev, next) &&
-      prevName === nextName &&
-      _get(prevFormikProps.values, prevName) === _get(nextformikProps.values, nextName) &&
-      _get(prevFormikProps.errors, prevName) === _get(nextformikProps.errors, nextName) &&
-      _get(prevFormikProps.touched, prevName) === _get(nextformikProps.touched, nextName)
-    )
-  },
+  formikFieldPropsAreEqual,
 )
 
 ComboBoxField.displayName = 'ComboBoxField'
