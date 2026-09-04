@@ -5,6 +5,7 @@ import { z } from 'zod'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
+import { clearExistingCodeError } from '~/core/form/existingCodeError'
 import {
   HubspotTargetedObjectsEnum,
   IntegrationTypeEnum,
@@ -14,7 +15,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
-import { ConnectionCodeField } from './ConnectionCodeField'
 import { ConnectionComboBoxDataItem } from './ConnectionComboBox'
 import { ConnectionDrawerSection } from './ConnectionDrawerSection'
 import {
@@ -25,6 +25,8 @@ import { LockedConnectionSelection, ProviderSelectionSection } from './ProviderS
 import { CONNECTION_CATEGORY_SHORT_LABEL_KEYS, ConnectionCategory } from './types'
 
 const CUSTOMER_CONNECTION_FORM_ID = 'customer-connection-drawer-form'
+
+export const CONNECTION_CODE_FIELD_TEST_ID = 'connection-code-field'
 
 const connectionValidationSchema = z
   .object({
@@ -244,7 +246,21 @@ export const CustomerConnectionDrawer = forwardRef<
                 lockedSelection={lockedSelection}
               />
 
-              <ConnectionCodeField form={form} />
+              {/* Never pre-filled from the provider: an empty code is submitted as null and
+                  `BaseCustomer#set_code` backfills it, so the value shown always comes from the DB */}
+              <form.AppField
+                name="code"
+                listeners={{ onChange: () => clearExistingCodeError(form) }}
+              >
+                {(field) => (
+                  <field.TextInputField
+                    data-test={CONNECTION_CODE_FIELD_TEST_ID}
+                    label={translate('text_629728388c4d2300e2d380b7')}
+                    placeholder={translate('text_1788433814031zeagk490c7a')}
+                    beforeChangeFormatter="code"
+                  />
+                )}
+              </form.AppField>
             </ConnectionDrawerSection>
 
             {renderProviderContent?.(form, { category, isEdition })}
