@@ -1,5 +1,5 @@
 import NiceModal from '@ebay/nice-modal-react'
-import { act, cleanup, screen, waitFor, within } from '@testing-library/react'
+import { act, cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ReactNode } from 'react'
 
@@ -46,6 +46,14 @@ const TestComponent = ({ invoiceGracePeriod }: { invoiceGracePeriod: number }) =
 
 const getSubmitButton = () =>
   within(screen.getByTestId(FORM_DIALOG_TEST_ID)).getByRole('button', { name: /save edits/i })
+
+// `fireEvent.change` rather than `userEvent.type`: the field re-renders on every
+// keystroke through `formatValue`, so a cached node goes stale mid-type.
+const setGracePeriod = async (value: string) => {
+  await act(async () => {
+    fireEvent.change(screen.getByRole('textbox'), { target: { value } })
+  })
+}
 
 const buildMutationMock = (invoiceGracePeriod: number) => ({
   request: {
@@ -117,10 +125,7 @@ describe('EditBillingEntityGracePeriodDialog', () => {
 
         await prepare()
 
-        const input = screen.getByRole('textbox')
-
-        await user.clear(input)
-        await user.type(input, '400')
+        await setGracePeriod('400')
         await user.click(getSubmitButton())
 
         await waitFor(() => {
@@ -135,10 +140,7 @@ describe('EditBillingEntityGracePeriodDialog', () => {
 
         await prepare({ mocks: [buildMutationMock(365)] })
 
-        const input = screen.getByRole('textbox')
-
-        await user.clear(input)
-        await user.type(input, '365')
+        await setGracePeriod('365')
         await user.click(getSubmitButton())
 
         await waitFor(() => {
@@ -155,7 +157,7 @@ describe('EditBillingEntityGracePeriodDialog', () => {
 
         await prepare({ mocks: [buildMutationMock(0)] })
 
-        await user.clear(screen.getByRole('textbox'))
+        await setGracePeriod('')
 
         await waitFor(() => {
           expect(getSubmitButton()).not.toBeDisabled()
