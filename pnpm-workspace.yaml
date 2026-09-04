@@ -7,3 +7,6 @@ packages:
 # manager level so it also covers Renovate's weekly lockFileMaintenance
 # regeneration, which bypasses Renovate's own minimumReleaseAge filter.
 minimumReleaseAge: 10080
+minimumReleaseAgeExclude:
+  # Renovate security update: @tiptap/core@3.30.4
+  - "@tiptap/core@3.30.4"
