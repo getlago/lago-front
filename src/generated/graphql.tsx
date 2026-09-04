@@ -1898,6 +1898,7 @@ export type CreateCustomerInput = {
   netPaymentTerm?: InputMaybe<Scalars['Int']['input']>;
   paymentProvider?: InputMaybe<ProviderTypeEnum>;
   paymentProviderCode?: InputMaybe<Scalars['String']['input']>;
+  paymentProviderCustomers?: InputMaybe<Array<PaymentProviderCustomerInput>>;
   phone?: InputMaybe<Scalars['String']['input']>;
   providerCustomer?: InputMaybe<ProviderCustomerInput>;
   shippingAddress?: InputMaybe<CustomerAddressInput>;
@@ -2949,11 +2950,13 @@ export type Customer = {
   activityLogs?: Maybe<Array<ActivityLog>>;
   addressLine1?: Maybe<Scalars['String']['output']>;
   addressLine2?: Maybe<Scalars['String']['output']>;
+  /** @deprecated Use integrationCustomers instead */
   anrokCustomer?: Maybe<AnrokCustomer>;
   applicableTimezone: TimezoneEnum;
   appliedAddOns?: Maybe<Array<AppliedAddOn>>;
   appliedCoupons?: Maybe<Array<AppliedCoupon>>;
   appliedDunningCampaign?: Maybe<DunningCampaign>;
+  /** @deprecated Use integrationCustomers instead */
   avalaraCustomer?: Maybe<AvalaraCustomer>;
   billingConfiguration?: Maybe<CustomerBillingConfiguration>;
   billingEntity: BillingEntity;
@@ -2962,6 +2965,8 @@ export type Customer = {
   city?: Maybe<Scalars['String']['output']>;
   /** Invoice custom sections manually configured for the customer */
   configurableInvoiceCustomSections?: Maybe<Array<InvoiceCustomSection>>;
+  /** Payment connection status derived from the customer's default payment connection */
+  connectionStatus: PaymentProviderConnectionStatusEnum;
   country?: Maybe<CountryCode>;
   createdAt: Scalars['ISO8601DateTime']['output'];
   creditNotes?: Maybe<Array<CreditNote>>;
@@ -2991,8 +2996,10 @@ export type Customer = {
   hasOverdueInvoices: Scalars['Boolean']['output'];
   /** Define if the customer has custom invoice custom sections selection */
   hasOverwrittenInvoiceCustomSectionsSelection?: Maybe<Scalars['Boolean']['output']>;
+  /** @deprecated Use integrationCustomers instead */
   hubspotCustomer?: Maybe<HubspotCustomer>;
   id: Scalars['ID']['output'];
+  integrationCustomers: Array<IntegrationCustomer>;
   invoiceGracePeriod?: Maybe<Scalars['Int']['output']>;
   invoices?: Maybe<Array<Invoice>>;
   lastDunningCampaignAttempt: Scalars['Int']['output'];
@@ -3004,13 +3011,17 @@ export type Customer = {
   metadata?: Maybe<Array<CustomerMetadata>>;
   name?: Maybe<Scalars['String']['output']>;
   netPaymentTerm?: Maybe<Scalars['Int']['output']>;
+  /** @deprecated Use integrationCustomers instead */
   netsuiteCustomer?: Maybe<NetsuiteCustomer>;
   /** Overdue balance per currency */
   overdueBalances: Array<CustomerOverdueBalance>;
   paymentProvider?: Maybe<ProviderTypeEnum>;
   paymentProviderCode?: Maybe<Scalars['String']['output']>;
+  paymentProviderCustomers: Array<ProviderCustomer>;
   phone?: Maybe<Scalars['String']['output']>;
+  /** @deprecated Use paymentProviderCustomers instead */
   providerCustomer?: Maybe<ProviderCustomer>;
+  /** @deprecated Use integrationCustomers instead */
   salesforceCustomer?: Maybe<SalesforceCustomer>;
   sequentialId: Scalars['String']['output'];
   shippingAddress?: Maybe<CustomerAddress>;
@@ -3025,6 +3036,7 @@ export type Customer = {
   timezone?: Maybe<TimezoneEnum>;
   updatedAt: Scalars['ISO8601DateTime']['output'];
   url?: Maybe<Scalars['String']['output']>;
+  /** @deprecated Use integrationCustomers instead */
   xeroCustomer?: Maybe<XeroCustomer>;
   zipcode?: Maybe<Scalars['String']['output']>;
 };
@@ -7430,6 +7442,22 @@ export type PaymentProviderCollection = {
   metadata: CollectionMetadata;
 };
 
+export enum PaymentProviderConnectionStatusEnum {
+  Connected = 'connected',
+  Manual = 'manual',
+  NotConnected = 'not_connected'
+}
+
+export type PaymentProviderCustomerInput = {
+  code?: InputMaybe<Scalars['String']['input']>;
+  id?: InputMaybe<Scalars['ID']['input']>;
+  paymentProvider?: InputMaybe<ProviderTypeEnum>;
+  paymentProviderCode?: InputMaybe<Scalars['String']['input']>;
+  providerCustomerId?: InputMaybe<Scalars['ID']['input']>;
+  providerPaymentMethods?: InputMaybe<Array<ProviderPaymentMethodsEnum>>;
+  syncWithProvider?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
 /** PaymentReceipt */
 export type PaymentReceipt = {
   __typename?: 'PaymentReceipt';
@@ -10945,6 +10973,7 @@ export type UpdateCustomerInput = {
   netPaymentTerm?: InputMaybe<Scalars['Int']['input']>;
   paymentProvider?: InputMaybe<ProviderTypeEnum>;
   paymentProviderCode?: InputMaybe<Scalars['String']['input']>;
+  paymentProviderCustomers?: InputMaybe<Array<PaymentProviderCustomerInput>>;
   phone?: InputMaybe<Scalars['String']['input']>;
   providerCustomer?: InputMaybe<ProviderCustomerInput>;
   shippingAddress?: InputMaybe<CustomerAddressInput>;
@@ -12346,6 +12375,78 @@ export type CreditNoteEstimateQueryVariables = Exact<{
 
 export type CreditNoteEstimateQuery = { __typename?: 'Query', creditNoteEstimate: { __typename?: 'CreditNoteEstimate', couponsAdjustmentAmountCents: any, currency: CurrencyEnum, maxCreditableAmountCents: any, maxRefundableAmountCents: any, maxOffsettableAmountCents: any, subTotalExcludingTaxesAmountCents: any, taxesAmountCents: any, taxesRate: number, appliedTaxes: Array<{ __typename?: 'CreditNoteAppliedTax', taxCode: string, taxName: string, taxRate: number, amountCents: any }>, items: Array<{ __typename?: 'CreditNoteItemEstimate', amountCents: any, fee: { __typename?: 'Fee', id: string } }> } };
 
+export type GetAccountingIntegrationsForExternalAppsAccordionQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetAccountingIntegrationsForExternalAppsAccordionQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<
+      | { __typename?: 'AnrokIntegration' }
+      | { __typename?: 'AvalaraIntegration' }
+      | { __typename?: 'EntraIdIntegration' }
+      | { __typename?: 'HubspotIntegration' }
+      | { __typename: 'NetsuiteIntegration', id: string, code: string, name: string }
+      | { __typename?: 'OktaIntegration' }
+      | { __typename?: 'SalesforceIntegration' }
+      | { __typename: 'XeroIntegration', id: string, code: string, name: string }
+    > } | null };
+
+export type SubsidiariesListForExternalAppsAccordionQueryVariables = Exact<{
+  integrationId?: InputMaybe<Scalars['ID']['input']>;
+}>;
+
+
+export type SubsidiariesListForExternalAppsAccordionQuery = { __typename?: 'Query', integrationSubsidiaries?: { __typename?: 'SubsidiaryCollection', collection: Array<{ __typename?: 'Subsidiary', externalId: string, externalName?: string | null }> } | null };
+
+export type GetCrmIntegrationsForExternalAppsAccordionQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetCrmIntegrationsForExternalAppsAccordionQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<
+      | { __typename?: 'AnrokIntegration' }
+      | { __typename?: 'AvalaraIntegration' }
+      | { __typename?: 'EntraIdIntegration' }
+      | { __typename: 'HubspotIntegration', id: string, code: string, name: string, defaultTargetedObject: HubspotTargetedObjectsEnum }
+      | { __typename?: 'NetsuiteIntegration' }
+      | { __typename?: 'OktaIntegration' }
+      | { __typename: 'SalesforceIntegration', id: string, code: string, name: string }
+      | { __typename?: 'XeroIntegration' }
+    > } | null };
+
+export type PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
+      | { __typename: 'AdyenProvider', id: string, name: string, code: string }
+      | { __typename: 'CashfreeProvider', id: string, name: string, code: string }
+      | { __typename: 'FlutterwaveProvider', id: string, name: string, code: string }
+      | { __typename: 'GocardlessProvider', id: string, name: string, code: string }
+      | { __typename: 'MoneyhashProvider', id: string, name: string, code: string }
+      | { __typename: 'StripeProvider', id: string, name: string, code: string }
+    > } | null };
+
+export type GetTaxIntegrationsForExternalAppsAccordionQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetTaxIntegrationsForExternalAppsAccordionQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<
+      | { __typename: 'AnrokIntegration', id: string, code: string, name: string }
+      | { __typename: 'AvalaraIntegration', id: string, code: string, name: string }
+      | { __typename?: 'EntraIdIntegration' }
+      | { __typename?: 'HubspotIntegration' }
+      | { __typename?: 'NetsuiteIntegration' }
+      | { __typename?: 'OktaIntegration' }
+      | { __typename?: 'SalesforceIntegration' }
+      | { __typename?: 'XeroIntegration' }
+    > } | null };
+
 export type PortalInvoiceListItemFragment = { __typename?: 'Invoice', id: string, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, paymentDisputeLostAt?: any | null, number: string, issuingDate: any, totalAmountCents: any, totalDueAmountCents: any, currency?: CurrencyEnum | null, invoiceType: InvoiceTypeEnum };
 
 export type CustomerPortalInvoicesQueryVariables = Exact<{
@@ -12497,22 +12598,6 @@ export type GetCustomerCreditNotesQueryVariables = Exact<{
 
 export type GetCustomerCreditNotesQuery = { __typename?: 'Query', creditNotes: { __typename?: 'CreditNoteCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'CreditNote', id: string, number: string, totalAmountCents: any, refundAmountCents: any, creditAmountCents: any, offsetAmountCents: any, currency: CurrencyEnum, createdAt: any, canBeVoided: boolean, voidedAt?: any | null, taxProviderSyncable: boolean, errorDetails?: Array<{ __typename?: 'ErrorDetail', id: string, errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, invoice?: { __typename?: 'Invoice', id: string, number: string, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum } } | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, email?: string | null, einvoicing: boolean, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null }, customer: { __typename?: 'Customer', id: string, email?: string | null } }> } };
 
-export type IntegrationsListForCustomerMainInfosQueryVariables = Exact<{
-  limit?: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-export type IntegrationsListForCustomerMainInfosQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<
-      | { __typename: 'AnrokIntegration', id: string, name: string, apiKey: any, externalAccountId?: string | null }
-      | { __typename: 'AvalaraIntegration', id: string, name: string, accountId?: string | null }
-      | { __typename?: 'EntraIdIntegration' }
-      | { __typename: 'HubspotIntegration', id: string, name: string, portalId?: string | null }
-      | { __typename: 'NetsuiteIntegration', id: string, name: string, accountId?: string | null }
-      | { __typename?: 'OktaIntegration' }
-      | { __typename: 'SalesforceIntegration', id: string, name: string, instanceId: string }
-      | { __typename: 'XeroIntegration', id: string, name: string }
-    > } | null };
-
 export type InvoiceListItemFragment = { __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, totalDueAmountCents: any, totalPaidAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, invoiceType: InvoiceTypeEnum, associatedActiveWalletPresent: boolean, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, customer: { __typename?: 'Customer', id: string, externalId: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum, paymentProvider?: ProviderTypeEnum | null, hasActiveWallet: boolean, email?: string | null, deletedAt?: any | null }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, email?: string | null, einvoicing: boolean }, payments?: Array<{ __typename?: 'Payment', createdAt: any, paymentMethodId?: string | null }> | null };
 
 export type InvoiceForInvoiceListFragment = { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, totalDueAmountCents: any, totalPaidAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, invoiceType: InvoiceTypeEnum, associatedActiveWalletPresent: boolean, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, customer: { __typename?: 'Customer', id: string, externalId: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum, paymentProvider?: ProviderTypeEnum | null, hasActiveWallet: boolean, email?: string | null, deletedAt?: any | null }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, email?: string | null, einvoicing: boolean }, payments?: Array<{ __typename?: 'Payment', createdAt: any, paymentMethodId?: string | null }> | null }>, metadata: { __typename?: 'InvoiceCollectionMetadata', currentPage: number, totalCount: number, totalPages: number } };
@@ -12551,21 +12636,14 @@ export type GetCustomerInvoicesQueryVariables = Exact<{
 
 export type GetCustomerInvoicesQuery = { __typename?: 'Query', customerInvoices: { __typename?: 'InvoiceCollection', collection: Array<{ __typename?: 'Invoice', id: string, status: InvoiceStatusTypeEnum, taxStatus?: InvoiceTaxStatusTypeEnum | null, paymentStatus: InvoicePaymentStatusTypeEnum, paymentOverdue: boolean, number: string, issuingDate: any, totalAmountCents: any, totalDueAmountCents: any, totalPaidAmountCents: any, currency?: CurrencyEnum | null, voidable: boolean, paymentDisputeLostAt?: any | null, taxProviderVoidable: boolean, invoiceType: InvoiceTypeEnum, associatedActiveWalletPresent: boolean, voidedInvoiceId?: string | null, regeneratedInvoiceId?: string | null, customer: { __typename?: 'Customer', id: string, externalId: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum, paymentProvider?: ProviderTypeEnum | null, hasActiveWallet: boolean, email?: string | null, deletedAt?: any | null }, errorDetails?: Array<{ __typename?: 'ErrorDetail', errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, email?: string | null, einvoicing: boolean }, payments?: Array<{ __typename?: 'Payment', createdAt: any, paymentMethodId?: string | null }> | null }>, metadata: { __typename?: 'InvoiceCollectionMetadata', currentPage: number, totalCount: number, totalPages: number } } };
 
-export type CustomerMainInfosFragment = { __typename?: 'Customer', id: string, customerType?: CustomerTypeEnum | null, name?: string | null, firstname?: string | null, lastname?: string | null, externalId: string, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, phone?: string | null, email?: string | null, currency?: CurrencyEnum | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, url?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, timezone?: TimezoneEnum | null, paymentProviderCode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, anrokCustomer?: { __typename?: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, avalaraCustomer?: { __typename?: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, netsuiteCustomer?: { __typename?: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null, xeroCustomer?: { __typename?: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, hubspotCustomer?: { __typename?: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, targetedObject?: HubspotTargetedObjectsEnum | null } | null, salesforceCustomer?: { __typename?: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string } };
-
-export type PaymentProvidersListForCustomerMainInfosQueryVariables = Exact<{
-  limit?: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-export type PaymentProvidersListForCustomerMainInfosQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
-      | { __typename?: 'AdyenProvider', id: string, name: string, code: string }
-      | { __typename?: 'CashfreeProvider', id: string, name: string, code: string }
-      | { __typename?: 'FlutterwaveProvider', id: string, name: string, code: string }
-      | { __typename?: 'GocardlessProvider', id: string, name: string, code: string }
-      | { __typename?: 'MoneyhashProvider', id: string, name: string, code: string }
-      | { __typename?: 'StripeProvider', id: string, name: string, code: string }
-    > } | null };
+export type CustomerMainInfosFragment = { __typename?: 'Customer', id: string, customerType?: CustomerTypeEnum | null, name?: string | null, firstname?: string | null, lastname?: string | null, externalId: string, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, phone?: string | null, email?: string | null, currency?: CurrencyEnum | null, addressLine1?: string | null, addressLine2?: string | null, state?: string | null, country?: CountryCode | null, city?: string | null, url?: string | null, zipcode?: string | null, paymentProvider?: ProviderTypeEnum | null, timezone?: TimezoneEnum | null, paymentProviderCode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, paymentProviderCustomers: Array<{ __typename?: 'ProviderCustomer', id: string, code?: string | null, isDefault: boolean, providerCustomerId?: string | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null, syncWithProvider?: boolean | null }>, integrationCustomers: Array<
+    | { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null }
+    | { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null }
+    | { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, targetedObject?: HubspotTargetedObjectsEnum | null }
+    | { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null }
+    | { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null }
+    | { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null }
+  >, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string } };
 
 export type CustomerAppliedTaxRatesForSettingsFragment = { __typename?: 'Customer', id: string, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number, autoGenerated: boolean }> | null };
 
@@ -12694,6 +12772,85 @@ export type CreateCustomerAppliedTaxMutationVariables = Exact<{
 
 
 export type CreateCustomerAppliedTaxMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, taxes?: Array<{ __typename?: 'Tax', id: string, name: string, code: string, rate: number, autoGenerated: boolean }> | null } | null };
+
+export type IntegrationsListForCustomerMainInfosQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type IntegrationsListForCustomerMainInfosQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<
+      | { __typename: 'AnrokIntegration', id: string, name: string, apiKey: any, externalAccountId?: string | null }
+      | { __typename: 'AvalaraIntegration', id: string, name: string, accountId?: string | null }
+      | { __typename?: 'EntraIdIntegration' }
+      | { __typename: 'HubspotIntegration', id: string, name: string, portalId?: string | null }
+      | { __typename: 'NetsuiteIntegration', id: string, name: string, accountId?: string | null }
+      | { __typename?: 'OktaIntegration' }
+      | { __typename: 'SalesforceIntegration', id: string, name: string, instanceId: string }
+      | { __typename: 'XeroIntegration', id: string, name: string }
+    > } | null };
+
+export type CreateCustomerPaymentConnectionMutationVariables = Exact<{
+  input: CreatePaymentProviderCustomerInput;
+}>;
+
+
+export type CreateCustomerPaymentConnectionMutation = { __typename?: 'Mutation', createPaymentProviderCustomer?: { __typename?: 'ProviderCustomer', id: string } | null };
+
+export type UpdateCustomerPaymentConnectionMutationVariables = Exact<{
+  input: UpdatePaymentProviderCustomerInput;
+}>;
+
+
+export type UpdateCustomerPaymentConnectionMutation = { __typename?: 'Mutation', updatePaymentProviderCustomer?: { __typename?: 'ProviderCustomer', id: string } | null };
+
+export type DestroyCustomerPaymentConnectionMutationVariables = Exact<{
+  input: DestroyPaymentProviderCustomerInput;
+}>;
+
+
+export type DestroyCustomerPaymentConnectionMutation = { __typename?: 'Mutation', destroyPaymentProviderCustomer?: { __typename?: 'DestroyPaymentProviderCustomerPayload', id?: string | null } | null };
+
+export type CreateCustomerIntegrationConnectionMutationVariables = Exact<{
+  input: CreateIntegrationCustomerInput;
+}>;
+
+
+export type CreateCustomerIntegrationConnectionMutation = { __typename?: 'Mutation', createIntegrationCustomer?:
+    | { __typename: 'AnrokCustomer' }
+    | { __typename: 'AvalaraCustomer' }
+    | { __typename: 'HubspotCustomer' }
+    | { __typename: 'NetsuiteCustomer' }
+    | { __typename: 'SalesforceCustomer' }
+    | { __typename: 'XeroCustomer' }
+   | null };
+
+export type UpdateCustomerIntegrationConnectionMutationVariables = Exact<{
+  input: UpdateIntegrationCustomerInput;
+}>;
+
+
+export type UpdateCustomerIntegrationConnectionMutation = { __typename?: 'Mutation', updateIntegrationCustomer?:
+    | { __typename: 'AnrokCustomer' }
+    | { __typename: 'AvalaraCustomer' }
+    | { __typename: 'HubspotCustomer' }
+    | { __typename: 'NetsuiteCustomer' }
+    | { __typename: 'SalesforceCustomer' }
+    | { __typename: 'XeroCustomer' }
+   | null };
+
+export type DestroyCustomerIntegrationConnectionMutationVariables = Exact<{
+  input: DestroyIntegrationCustomerInput;
+}>;
+
+
+export type DestroyCustomerIntegrationConnectionMutation = { __typename?: 'Mutation', destroyIntegrationCustomer?: { __typename?: 'DestroyIntegrationCustomerPayload', id?: string | null } | null };
+
+export type ClearCustomerPaymentProviderMutationVariables = Exact<{
+  input: UpdateCustomerInput;
+}>;
+
+
+export type ClearCustomerPaymentProviderMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string } | null };
 
 export type CreditNoteForVoidCreditNoteDialogFragment = { __typename?: 'CreditNote', id: string, totalAmountCents: any, currency: CurrencyEnum };
 
@@ -14456,14 +14613,38 @@ export type CreateSubscriptionMutationVariables = Exact<{
 }>;
 
 
-export type CreateSubscriptionMutation = { __typename?: 'Mutation', createSubscription?: { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, cancellationReason?: CancellationReasonEnum | null, startedAt?: any | null, subscriptionAt?: any | null, endingAt?: any | null, name?: string | null, purchaseOrderNumber?: string | null, externalId: string, paymentMethodType?: PaymentMethodTypeEnum | null, consolidateInvoice: boolean, skipInvoiceCustomSections?: boolean | null, activationRules: Array<{ __typename?: 'SubscriptionActivationRule', id: string, type: ActivationRuleTypeEnum, timeoutHours?: number | null, status: ActivationRuleStatusEnum, expiresAt?: any | null }>, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, customer: { __typename?: 'Customer', id: string, activeSubscriptionsCount: number, customerType?: CustomerTypeEnum | null, name?: string | null, displayName: string, firstname?: string | null, lastname?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, applicableTimezone: TimezoneEnum, hasOverdueInvoices: boolean, accountType: CustomerAccountTypeEnum, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProvider?: ProviderTypeEnum | null, paymentProviderCode?: string | null, creditNotesBalances: Array<{ __typename?: 'CustomerCreditNotesBalance', currency: CurrencyEnum, billingEntityId: string, amountCents: any, creditsAvailableCount: number }>, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, euTaxManagement: boolean }, anrokCustomer?: { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, avalaraCustomer?: { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, netsuiteCustomer?: { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null } | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null, syncWithProvider?: boolean | null } | null, xeroCustomer?: { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, hubspotCustomer?: { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, targetedObject?: HubspotTargetedObjectsEnum | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, salesforceCustomer?: { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null }, plan: { __typename?: 'Plan', id: string, name: string, code: string, interval?: PlanInterval | null } } | null };
+export type CreateSubscriptionMutation = { __typename?: 'Mutation', createSubscription?: { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, cancellationReason?: CancellationReasonEnum | null, startedAt?: any | null, subscriptionAt?: any | null, endingAt?: any | null, name?: string | null, purchaseOrderNumber?: string | null, externalId: string, paymentMethodType?: PaymentMethodTypeEnum | null, consolidateInvoice: boolean, skipInvoiceCustomSections?: boolean | null, activationRules: Array<{ __typename?: 'SubscriptionActivationRule', id: string, type: ActivationRuleTypeEnum, timeoutHours?: number | null, status: ActivationRuleStatusEnum, expiresAt?: any | null }>, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, customer: { __typename?: 'Customer', id: string, activeSubscriptionsCount: number, customerType?: CustomerTypeEnum | null, name?: string | null, displayName: string, firstname?: string | null, lastname?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, applicableTimezone: TimezoneEnum, hasOverdueInvoices: boolean, accountType: CustomerAccountTypeEnum, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProvider?: ProviderTypeEnum | null, paymentProviderCode?: string | null, creditNotesBalances: Array<{ __typename?: 'CustomerCreditNotesBalance', currency: CurrencyEnum, billingEntityId: string, amountCents: any, creditsAvailableCount: number }>, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, euTaxManagement: boolean }, paymentProviderCustomers: Array<{ __typename?: 'ProviderCustomer', id: string, code?: string | null, isDefault: boolean, providerCustomerId?: string | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null, syncWithProvider?: boolean | null }>, integrationCustomers: Array<
+        | { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, syncWithProvider?: boolean | null }
+        | { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, syncWithProvider?: boolean | null }
+        | { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, targetedObject?: HubspotTargetedObjectsEnum | null, integrationCode?: string | null, syncWithProvider?: boolean | null }
+        | { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null }
+        | { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, syncWithProvider?: boolean | null }
+        | { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, syncWithProvider?: boolean | null }
+      > }, plan: { __typename?: 'Plan', id: string, name: string, code: string, interval?: PlanInterval | null } } | null };
 
 export type UpdateSubscriptionMutationVariables = Exact<{
   input: UpdateSubscriptionInput;
 }>;
 
 
-export type UpdateSubscriptionMutation = { __typename?: 'Mutation', updateSubscription?: { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, cancellationReason?: CancellationReasonEnum | null, startedAt?: any | null, subscriptionAt?: any | null, endingAt?: any | null, name?: string | null, purchaseOrderNumber?: string | null, externalId: string, paymentMethodType?: PaymentMethodTypeEnum | null, consolidateInvoice: boolean, skipInvoiceCustomSections?: boolean | null, activationRules: Array<{ __typename?: 'SubscriptionActivationRule', id: string, type: ActivationRuleTypeEnum, timeoutHours?: number | null, status: ActivationRuleStatusEnum, expiresAt?: any | null }>, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, customer: { __typename?: 'Customer', id: string, activeSubscriptionsCount: number, customerType?: CustomerTypeEnum | null, name?: string | null, displayName: string, firstname?: string | null, lastname?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, applicableTimezone: TimezoneEnum, hasOverdueInvoices: boolean, accountType: CustomerAccountTypeEnum, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProvider?: ProviderTypeEnum | null, paymentProviderCode?: string | null, creditNotesBalances: Array<{ __typename?: 'CustomerCreditNotesBalance', currency: CurrencyEnum, billingEntityId: string, amountCents: any, creditsAvailableCount: number }>, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, euTaxManagement: boolean }, anrokCustomer?: { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, avalaraCustomer?: { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, netsuiteCustomer?: { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null } | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null, syncWithProvider?: boolean | null } | null, xeroCustomer?: { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, hubspotCustomer?: { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, targetedObject?: HubspotTargetedObjectsEnum | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, salesforceCustomer?: { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null }, plan: { __typename?: 'Plan', id: string, name: string, code: string, interval?: PlanInterval | null } } | null };
+export type UpdateSubscriptionMutation = { __typename?: 'Mutation', updateSubscription?: { __typename?: 'Subscription', id: string, status?: StatusTypeEnum | null, cancellationReason?: CancellationReasonEnum | null, startedAt?: any | null, subscriptionAt?: any | null, endingAt?: any | null, name?: string | null, purchaseOrderNumber?: string | null, externalId: string, paymentMethodType?: PaymentMethodTypeEnum | null, consolidateInvoice: boolean, skipInvoiceCustomSections?: boolean | null, activationRules: Array<{ __typename?: 'SubscriptionActivationRule', id: string, type: ActivationRuleTypeEnum, timeoutHours?: number | null, status: ActivationRuleStatusEnum, expiresAt?: any | null }>, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, customer: { __typename?: 'Customer', id: string, activeSubscriptionsCount: number, customerType?: CustomerTypeEnum | null, name?: string | null, displayName: string, firstname?: string | null, lastname?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, applicableTimezone: TimezoneEnum, hasOverdueInvoices: boolean, accountType: CustomerAccountTypeEnum, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProvider?: ProviderTypeEnum | null, paymentProviderCode?: string | null, creditNotesBalances: Array<{ __typename?: 'CustomerCreditNotesBalance', currency: CurrencyEnum, billingEntityId: string, amountCents: any, creditsAvailableCount: number }>, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, euTaxManagement: boolean }, paymentProviderCustomers: Array<{ __typename?: 'ProviderCustomer', id: string, code?: string | null, isDefault: boolean, providerCustomerId?: string | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null, syncWithProvider?: boolean | null }>, integrationCustomers: Array<
+        | { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, syncWithProvider?: boolean | null }
+        | { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, syncWithProvider?: boolean | null }
+        | { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, targetedObject?: HubspotTargetedObjectsEnum | null, integrationCode?: string | null, syncWithProvider?: boolean | null }
+        | { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null }
+        | { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, syncWithProvider?: boolean | null }
+        | { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, syncWithProvider?: boolean | null }
+      > }, plan: { __typename?: 'Plan', id: string, name: string, code: string, interval?: PlanInterval | null } } | null };
+
+export type ConnectionPaymentMethodsQueryVariables = Exact<{
+  customerId: Scalars['ID']['input'];
+  withDeleted?: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+export type ConnectionPaymentMethodsQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, paymentMethods: { __typename?: 'PaymentMethodCollection', collection: Array<{ __typename?: 'PaymentMethod', id: string, isDefault: boolean, paymentProviderCode?: string | null, paymentProviderCustomerId?: string | null, paymentProviderType?: ProviderTypeEnum | null, paymentProviderName?: string | null, providerMethodId: string, deletedAt?: any | null, createdAt: any, details?: { __typename?: 'PaymentMethodDetails', brand?: string | null, expirationYear?: string | null, expirationMonth?: string | null, last4?: string | null, type?: string | null } | null }> } } | null } | null };
+
+export type PaymentMethodItemFragment = { __typename?: 'PaymentMethod', id: string, isDefault: boolean, paymentProviderCode?: string | null, paymentProviderCustomerId?: string | null, paymentProviderType?: ProviderTypeEnum | null, paymentProviderName?: string | null, providerMethodId: string, deletedAt?: any | null, createdAt: any, details?: { __typename?: 'PaymentMethodDetails', brand?: string | null, expirationYear?: string | null, expirationMonth?: string | null, last4?: string | null, type?: string | null } | null };
 
 export type PaymentMethodsQueryVariables = Exact<{
   externalCustomerId: Scalars['ID']['input'];
@@ -14680,30 +14861,65 @@ export type UpdateCouponMutationVariables = Exact<{
 
 export type UpdateCouponMutation = { __typename?: 'Mutation', updateCoupon?: { __typename?: 'Coupon', id: string, name: string, code: string, customersCount: number, status: CouponStatusEnum, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, expiration: CouponExpiration, expirationAt?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null } | null };
 
-export type CustomerForExternalAppsAccordionFragment = { __typename?: 'Customer', id: string, customerType?: CustomerTypeEnum | null, currency?: CurrencyEnum | null, paymentProvider?: ProviderTypeEnum | null, paymentProviderCode?: string | null, netsuiteCustomer?: { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null } | null, anrokCustomer?: { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, avalaraCustomer?: { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, xeroCustomer?: { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, hubspotCustomer?: { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null, targetedObject?: HubspotTargetedObjectsEnum | null } | null, salesforceCustomer?: { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null };
+export type CustomerForExternalAppsAccordionFragment = { __typename?: 'Customer', id: string, customerType?: CustomerTypeEnum | null, currency?: CurrencyEnum | null, paymentProvider?: ProviderTypeEnum | null, paymentProviderCode?: string | null, paymentProviderCustomers: Array<{ __typename?: 'ProviderCustomer', id: string, code?: string | null, isDefault: boolean, providerCustomerId?: string | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null, syncWithProvider?: boolean | null }>, integrationCustomers: Array<
+    | { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null }
+    | { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null }
+    | { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null, targetedObject?: HubspotTargetedObjectsEnum | null }
+    | { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null }
+    | { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null }
+    | { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null }
+  > };
 
-export type AddCustomerDrawerFragment = { __typename?: 'Customer', id: string, addressLine1?: string | null, addressLine2?: string | null, applicableTimezone: TimezoneEnum, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, externalId: string, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, customerType?: CustomerTypeEnum | null, name?: string | null, firstname?: string | null, lastname?: string | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, accountType: CustomerAccountTypeEnum, url?: string | null, paymentProvider?: ProviderTypeEnum | null, paymentProviderCode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, euTaxManagement: boolean }, netsuiteCustomer?: { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null } | null, anrokCustomer?: { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, avalaraCustomer?: { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, xeroCustomer?: { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, hubspotCustomer?: { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null, targetedObject?: HubspotTargetedObjectsEnum | null } | null, salesforceCustomer?: { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null };
+export type AddCustomerDrawerFragment = { __typename?: 'Customer', id: string, addressLine1?: string | null, addressLine2?: string | null, applicableTimezone: TimezoneEnum, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, externalId: string, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, customerType?: CustomerTypeEnum | null, name?: string | null, firstname?: string | null, lastname?: string | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, accountType: CustomerAccountTypeEnum, url?: string | null, paymentProvider?: ProviderTypeEnum | null, paymentProviderCode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, euTaxManagement: boolean }, paymentProviderCustomers: Array<{ __typename?: 'ProviderCustomer', id: string, code?: string | null, isDefault: boolean, providerCustomerId?: string | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null, syncWithProvider?: boolean | null }>, integrationCustomers: Array<
+    | { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null }
+    | { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null }
+    | { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null, targetedObject?: HubspotTargetedObjectsEnum | null }
+    | { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null }
+    | { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null }
+    | { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null }
+  > };
 
 export type CreateCustomerMutationVariables = Exact<{
   input: CreateCustomerInput;
 }>;
 
 
-export type CreateCustomerMutation = { __typename?: 'Mutation', createCustomer?: { __typename?: 'Customer', id: string, addressLine1?: string | null, addressLine2?: string | null, applicableTimezone: TimezoneEnum, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, externalId: string, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, customerType?: CustomerTypeEnum | null, name?: string | null, firstname?: string | null, lastname?: string | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, accountType: CustomerAccountTypeEnum, url?: string | null, displayName: string, createdAt: any, activeSubscriptionsCount: number, paymentProvider?: ProviderTypeEnum | null, paymentProviderCode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, euTaxManagement: boolean }, netsuiteCustomer?: { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null } | null, anrokCustomer?: { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, avalaraCustomer?: { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, xeroCustomer?: { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, hubspotCustomer?: { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, targetedObject?: HubspotTargetedObjectsEnum | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, salesforceCustomer?: { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null, syncWithProvider?: boolean | null } | null } | null };
+export type CreateCustomerMutation = { __typename?: 'Mutation', createCustomer?: { __typename?: 'Customer', id: string, addressLine1?: string | null, addressLine2?: string | null, applicableTimezone: TimezoneEnum, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, externalId: string, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, customerType?: CustomerTypeEnum | null, name?: string | null, firstname?: string | null, lastname?: string | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, accountType: CustomerAccountTypeEnum, url?: string | null, displayName: string, createdAt: any, activeSubscriptionsCount: number, paymentProvider?: ProviderTypeEnum | null, paymentProviderCode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, euTaxManagement: boolean }, paymentProviderCustomers: Array<{ __typename?: 'ProviderCustomer', id: string, code?: string | null, isDefault: boolean, providerCustomerId?: string | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null, syncWithProvider?: boolean | null }>, integrationCustomers: Array<
+      | { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, syncWithProvider?: boolean | null }
+      | { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, syncWithProvider?: boolean | null }
+      | { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, targetedObject?: HubspotTargetedObjectsEnum | null, integrationCode?: string | null, syncWithProvider?: boolean | null }
+      | { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null }
+      | { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, syncWithProvider?: boolean | null }
+      | { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, syncWithProvider?: boolean | null }
+    > } | null };
 
 export type UpdateCustomerMutationVariables = Exact<{
   input: UpdateCustomerInput;
 }>;
 
 
-export type UpdateCustomerMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, addressLine1?: string | null, addressLine2?: string | null, applicableTimezone: TimezoneEnum, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, externalId: string, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, customerType?: CustomerTypeEnum | null, name?: string | null, firstname?: string | null, lastname?: string | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, accountType: CustomerAccountTypeEnum, url?: string | null, displayName: string, createdAt: any, activeSubscriptionsCount: number, paymentProvider?: ProviderTypeEnum | null, paymentProviderCode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, euTaxManagement: boolean }, netsuiteCustomer?: { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null } | null, anrokCustomer?: { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, avalaraCustomer?: { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, xeroCustomer?: { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, hubspotCustomer?: { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, targetedObject?: HubspotTargetedObjectsEnum | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, salesforceCustomer?: { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null, syncWithProvider?: boolean | null } | null } | null };
+export type UpdateCustomerMutation = { __typename?: 'Mutation', updateCustomer?: { __typename?: 'Customer', id: string, addressLine1?: string | null, addressLine2?: string | null, applicableTimezone: TimezoneEnum, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, externalId: string, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, customerType?: CustomerTypeEnum | null, name?: string | null, firstname?: string | null, lastname?: string | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, accountType: CustomerAccountTypeEnum, url?: string | null, displayName: string, createdAt: any, activeSubscriptionsCount: number, paymentProvider?: ProviderTypeEnum | null, paymentProviderCode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, euTaxManagement: boolean }, paymentProviderCustomers: Array<{ __typename?: 'ProviderCustomer', id: string, code?: string | null, isDefault: boolean, providerCustomerId?: string | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null, syncWithProvider?: boolean | null }>, integrationCustomers: Array<
+      | { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, syncWithProvider?: boolean | null }
+      | { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, syncWithProvider?: boolean | null }
+      | { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, targetedObject?: HubspotTargetedObjectsEnum | null, integrationCode?: string | null, syncWithProvider?: boolean | null }
+      | { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null }
+      | { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, syncWithProvider?: boolean | null }
+      | { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, syncWithProvider?: boolean | null }
+    > } | null };
 
 export type GetSingleCustomerQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetSingleCustomerQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, addressLine1?: string | null, addressLine2?: string | null, applicableTimezone: TimezoneEnum, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, externalId: string, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, customerType?: CustomerTypeEnum | null, name?: string | null, firstname?: string | null, lastname?: string | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, accountType: CustomerAccountTypeEnum, url?: string | null, paymentProvider?: ProviderTypeEnum | null, paymentProviderCode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, euTaxManagement: boolean }, netsuiteCustomer?: { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null } | null, anrokCustomer?: { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, avalaraCustomer?: { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, xeroCustomer?: { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, hubspotCustomer?: { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null, targetedObject?: HubspotTargetedObjectsEnum | null } | null, salesforceCustomer?: { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null } | null };
+export type GetSingleCustomerQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, addressLine1?: string | null, addressLine2?: string | null, applicableTimezone: TimezoneEnum, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, externalId: string, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, customerType?: CustomerTypeEnum | null, name?: string | null, firstname?: string | null, lastname?: string | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, accountType: CustomerAccountTypeEnum, url?: string | null, paymentProvider?: ProviderTypeEnum | null, paymentProviderCode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, euTaxManagement: boolean }, paymentProviderCustomers: Array<{ __typename?: 'ProviderCustomer', id: string, code?: string | null, isDefault: boolean, providerCustomerId?: string | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null, syncWithProvider?: boolean | null }>, integrationCustomers: Array<
+      | { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null }
+      | { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null }
+      | { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null, targetedObject?: HubspotTargetedObjectsEnum | null }
+      | { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null }
+      | { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null }
+      | { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null }
+    > } | null };
 
 export type DunningCampaignFormFragment = { __typename?: 'DunningCampaign', name: string, code: string, description?: string | null, daysBetweenAttempts: number, maxAttempts: number, appliedToOrganization: boolean, bccEmails?: Array<string> | null, thresholds: Array<{ __typename?: 'DunningCampaignThreshold', amountCents: any, currency: CurrencyEnum }> };
 
@@ -15099,14 +15315,28 @@ export type CreateCreditNotesDataExportMutationVariables = Exact<{
 
 export type CreateCreditNotesDataExportMutation = { __typename?: 'Mutation', createCreditNotesDataExport?: { __typename?: 'DataExport', id: string } | null };
 
-export type CustomerDetailsFragment = { __typename?: 'Customer', id: string, customerType?: CustomerTypeEnum | null, name?: string | null, displayName: string, firstname?: string | null, lastname?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, applicableTimezone: TimezoneEnum, hasOverdueInvoices: boolean, accountType: CustomerAccountTypeEnum, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProvider?: ProviderTypeEnum | null, paymentProviderCode?: string | null, creditNotesBalances: Array<{ __typename?: 'CustomerCreditNotesBalance', currency: CurrencyEnum, billingEntityId: string, amountCents: any, creditsAvailableCount: number }>, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, euTaxManagement: boolean }, anrokCustomer?: { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, avalaraCustomer?: { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, netsuiteCustomer?: { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null } | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null, syncWithProvider?: boolean | null } | null, xeroCustomer?: { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, hubspotCustomer?: { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, targetedObject?: HubspotTargetedObjectsEnum | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, salesforceCustomer?: { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null };
+export type CustomerDetailsFragment = { __typename?: 'Customer', id: string, customerType?: CustomerTypeEnum | null, name?: string | null, displayName: string, firstname?: string | null, lastname?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, applicableTimezone: TimezoneEnum, hasOverdueInvoices: boolean, accountType: CustomerAccountTypeEnum, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProvider?: ProviderTypeEnum | null, paymentProviderCode?: string | null, creditNotesBalances: Array<{ __typename?: 'CustomerCreditNotesBalance', currency: CurrencyEnum, billingEntityId: string, amountCents: any, creditsAvailableCount: number }>, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, euTaxManagement: boolean }, paymentProviderCustomers: Array<{ __typename?: 'ProviderCustomer', id: string, code?: string | null, isDefault: boolean, providerCustomerId?: string | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null, syncWithProvider?: boolean | null }>, integrationCustomers: Array<
+    | { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, syncWithProvider?: boolean | null }
+    | { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, syncWithProvider?: boolean | null }
+    | { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, targetedObject?: HubspotTargetedObjectsEnum | null, integrationCode?: string | null, syncWithProvider?: boolean | null }
+    | { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null }
+    | { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, syncWithProvider?: boolean | null }
+    | { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, syncWithProvider?: boolean | null }
+  > };
 
 export type GetCustomerQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetCustomerQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, customerType?: CustomerTypeEnum | null, name?: string | null, displayName: string, firstname?: string | null, lastname?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, applicableTimezone: TimezoneEnum, hasOverdueInvoices: boolean, accountType: CustomerAccountTypeEnum, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProvider?: ProviderTypeEnum | null, paymentProviderCode?: string | null, creditNotesBalances: Array<{ __typename?: 'CustomerCreditNotesBalance', currency: CurrencyEnum, billingEntityId: string, amountCents: any, creditsAvailableCount: number }>, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, euTaxManagement: boolean }, anrokCustomer?: { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, avalaraCustomer?: { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, netsuiteCustomer?: { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null } | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null, syncWithProvider?: boolean | null } | null, xeroCustomer?: { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, hubspotCustomer?: { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, targetedObject?: HubspotTargetedObjectsEnum | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, salesforceCustomer?: { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null } | null };
+export type GetCustomerQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, customerType?: CustomerTypeEnum | null, name?: string | null, displayName: string, firstname?: string | null, lastname?: string | null, externalId: string, hasActiveWallet: boolean, currency?: CurrencyEnum | null, hasCreditNotes: boolean, applicableTimezone: TimezoneEnum, hasOverdueInvoices: boolean, accountType: CustomerAccountTypeEnum, addressLine1?: string | null, addressLine2?: string | null, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, url?: string | null, paymentProvider?: ProviderTypeEnum | null, paymentProviderCode?: string | null, creditNotesBalances: Array<{ __typename?: 'CustomerCreditNotesBalance', currency: CurrencyEnum, billingEntityId: string, amountCents: any, creditsAvailableCount: number }>, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, euTaxManagement: boolean }, paymentProviderCustomers: Array<{ __typename?: 'ProviderCustomer', id: string, code?: string | null, isDefault: boolean, providerCustomerId?: string | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null, syncWithProvider?: boolean | null }>, integrationCustomers: Array<
+      | { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, syncWithProvider?: boolean | null }
+      | { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, syncWithProvider?: boolean | null }
+      | { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, targetedObject?: HubspotTargetedObjectsEnum | null, integrationCode?: string | null, syncWithProvider?: boolean | null }
+      | { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null }
+      | { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, syncWithProvider?: boolean | null }
+      | { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, syncWithProvider?: boolean | null }
+    > } | null };
 
 export type GenerateCustomerPortalUrlMutationVariables = Exact<{
   input: GenerateCustomerPortalUrlInput;
@@ -15259,7 +15489,14 @@ export type CreatePaymentRequestMutationVariables = Exact<{
 
 export type CreatePaymentRequestMutation = { __typename?: 'Mutation', createPaymentRequest?: { __typename?: 'PaymentRequest', id: string } | null };
 
-export type CustomerItemFragment = { __typename?: 'Customer', id: string, name?: string | null, displayName: string, firstname?: string | null, lastname?: string | null, externalId: string, createdAt: any, activeSubscriptionsCount: number, addressLine1?: string | null, addressLine2?: string | null, applicableTimezone: TimezoneEnum, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, customerType?: CustomerTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, accountType: CustomerAccountTypeEnum, url?: string | null, paymentProvider?: ProviderTypeEnum | null, paymentProviderCode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, euTaxManagement: boolean }, netsuiteCustomer?: { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null } | null, anrokCustomer?: { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, avalaraCustomer?: { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, xeroCustomer?: { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, hubspotCustomer?: { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null, targetedObject?: HubspotTargetedObjectsEnum | null } | null, salesforceCustomer?: { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null };
+export type CustomerItemFragment = { __typename?: 'Customer', id: string, name?: string | null, displayName: string, firstname?: string | null, lastname?: string | null, externalId: string, createdAt: any, activeSubscriptionsCount: number, addressLine1?: string | null, addressLine2?: string | null, applicableTimezone: TimezoneEnum, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, customerType?: CustomerTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, accountType: CustomerAccountTypeEnum, url?: string | null, paymentProvider?: ProviderTypeEnum | null, paymentProviderCode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, euTaxManagement: boolean }, paymentProviderCustomers: Array<{ __typename?: 'ProviderCustomer', id: string, code?: string | null, isDefault: boolean, providerCustomerId?: string | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null, syncWithProvider?: boolean | null }>, integrationCustomers: Array<
+    | { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null }
+    | { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null }
+    | { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null, targetedObject?: HubspotTargetedObjectsEnum | null }
+    | { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null }
+    | { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null }
+    | { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null }
+  > };
 
 export type CustomersQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -15281,7 +15518,14 @@ export type CustomersQueryVariables = Exact<{
 }>;
 
 
-export type CustomersQuery = { __typename?: 'Query', customers: { __typename?: 'CustomerCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Customer', id: string, name?: string | null, displayName: string, firstname?: string | null, lastname?: string | null, externalId: string, createdAt: any, activeSubscriptionsCount: number, addressLine1?: string | null, addressLine2?: string | null, applicableTimezone: TimezoneEnum, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, customerType?: CustomerTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, accountType: CustomerAccountTypeEnum, url?: string | null, paymentProvider?: ProviderTypeEnum | null, paymentProviderCode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, euTaxManagement: boolean }, netsuiteCustomer?: { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null } | null, anrokCustomer?: { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, avalaraCustomer?: { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, xeroCustomer?: { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, hubspotCustomer?: { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null, targetedObject?: HubspotTargetedObjectsEnum | null } | null, salesforceCustomer?: { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null } | null, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, providerCustomerId?: string | null, syncWithProvider?: boolean | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null } | null }> } };
+export type CustomersQuery = { __typename?: 'Query', customers: { __typename?: 'CustomerCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Customer', id: string, name?: string | null, displayName: string, firstname?: string | null, lastname?: string | null, externalId: string, createdAt: any, activeSubscriptionsCount: number, addressLine1?: string | null, addressLine2?: string | null, applicableTimezone: TimezoneEnum, canEditAttributes: boolean, city?: string | null, country?: CountryCode | null, currency?: CurrencyEnum | null, email?: string | null, externalSalesforceId?: string | null, legalName?: string | null, legalNumber?: string | null, taxIdentificationNumber?: string | null, customerType?: CustomerTypeEnum | null, phone?: string | null, state?: string | null, timezone?: TimezoneEnum | null, zipcode?: string | null, accountType: CustomerAccountTypeEnum, url?: string | null, paymentProvider?: ProviderTypeEnum | null, paymentProviderCode?: string | null, shippingAddress?: { __typename?: 'CustomerAddress', addressLine1?: string | null, addressLine2?: string | null, city?: string | null, country?: CountryCode | null, state?: string | null, zipcode?: string | null } | null, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string, displayInInvoice: boolean }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, code: string, name: string, euTaxManagement: boolean }, paymentProviderCustomers: Array<{ __typename?: 'ProviderCustomer', id: string, code?: string | null, isDefault: boolean, providerCustomerId?: string | null, providerPaymentMethods?: Array<ProviderPaymentMethodsEnum> | null, syncWithProvider?: boolean | null }>, integrationCustomers: Array<
+        | { __typename: 'AnrokCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null }
+        | { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null }
+        | { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null, targetedObject?: HubspotTargetedObjectsEnum | null }
+        | { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, subsidiaryId?: string | null, syncWithProvider?: boolean | null }
+        | { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null }
+        | { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, syncWithProvider?: boolean | null }
+      > }> } };
 
 export type GetinviteQueryVariables = Exact<{
   token: Scalars['String']['input'];
@@ -15989,78 +16233,6 @@ export type CreateCreditNoteMutationVariables = Exact<{
 
 
 export type CreateCreditNoteMutation = { __typename?: 'Mutation', createCreditNote?: { __typename?: 'CreditNote', id: string, number: string, totalAmountCents: any, refundAmountCents: any, creditAmountCents: any, offsetAmountCents: any, currency: CurrencyEnum, createdAt: any, canBeVoided: boolean, voidedAt?: any | null, taxProviderSyncable: boolean, errorDetails?: Array<{ __typename?: 'ErrorDetail', id: string, errorCode: ErrorCodesEnum, errorDetails?: string | null }> | null, invoice?: { __typename?: 'Invoice', id: string, number: string, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, applicableTimezone: TimezoneEnum } } | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string, email?: string | null, einvoicing: boolean, emailSettings?: Array<BillingEntityEmailSettingsEnum> | null }, customer: { __typename?: 'Customer', id: string, email?: string | null } } | null };
-
-export type GetAccountingIntegrationsForExternalAppsAccordionQueryVariables = Exact<{
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  page?: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-export type GetAccountingIntegrationsForExternalAppsAccordionQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<
-      | { __typename?: 'AnrokIntegration' }
-      | { __typename?: 'AvalaraIntegration' }
-      | { __typename?: 'EntraIdIntegration' }
-      | { __typename?: 'HubspotIntegration' }
-      | { __typename: 'NetsuiteIntegration', id: string, code: string, name: string }
-      | { __typename?: 'OktaIntegration' }
-      | { __typename?: 'SalesforceIntegration' }
-      | { __typename: 'XeroIntegration', id: string, code: string, name: string }
-    > } | null };
-
-export type GetCrmIntegrationsForExternalAppsAccordionQueryVariables = Exact<{
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  page?: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-export type GetCrmIntegrationsForExternalAppsAccordionQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<
-      | { __typename?: 'AnrokIntegration' }
-      | { __typename?: 'AvalaraIntegration' }
-      | { __typename?: 'EntraIdIntegration' }
-      | { __typename: 'HubspotIntegration', id: string, code: string, name: string, defaultTargetedObject: HubspotTargetedObjectsEnum }
-      | { __typename?: 'NetsuiteIntegration' }
-      | { __typename?: 'OktaIntegration' }
-      | { __typename: 'SalesforceIntegration', id: string, code: string, name: string }
-      | { __typename?: 'XeroIntegration' }
-    > } | null };
-
-export type PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables = Exact<{
-  limit?: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-export type PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery = { __typename?: 'Query', paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
-      | { __typename: 'AdyenProvider', id: string, name: string, code: string }
-      | { __typename: 'CashfreeProvider', id: string, name: string, code: string }
-      | { __typename: 'FlutterwaveProvider', id: string, name: string, code: string }
-      | { __typename: 'GocardlessProvider', id: string, name: string, code: string }
-      | { __typename: 'MoneyhashProvider', id: string, name: string, code: string }
-      | { __typename: 'StripeProvider', id: string, name: string, code: string }
-    > } | null };
-
-export type GetTaxIntegrationsForExternalAppsAccordionQueryVariables = Exact<{
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  page?: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-export type GetTaxIntegrationsForExternalAppsAccordionQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<
-      | { __typename: 'AnrokIntegration', id: string, code: string, name: string }
-      | { __typename: 'AvalaraIntegration', id: string, code: string, name: string }
-      | { __typename?: 'EntraIdIntegration' }
-      | { __typename?: 'HubspotIntegration' }
-      | { __typename?: 'NetsuiteIntegration' }
-      | { __typename?: 'OktaIntegration' }
-      | { __typename?: 'SalesforceIntegration' }
-      | { __typename?: 'XeroIntegration' }
-    > } | null };
-
-export type SubsidiariesListForExternalAppsAccordionQueryVariables = Exact<{
-  integrationId?: InputMaybe<Scalars['ID']['input']>;
-}>;
-
-
-export type SubsidiariesListForExternalAppsAccordionQuery = { __typename?: 'Query', integrationSubsidiaries?: { __typename?: 'SubsidiaryCollection', collection: Array<{ __typename?: 'Subsidiary', externalId: string, externalName?: string | null }> } | null };
 
 export type GetAddonListForInfoiceQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -20919,6 +21091,26 @@ export const FeeForInvoiceFeesToFeeInputFragmentDoc = gql`
   }
 }
     `;
+export const PaymentMethodItemFragmentDoc = gql`
+    fragment PaymentMethodItem on PaymentMethod {
+  id
+  isDefault
+  paymentProviderCode
+  paymentProviderCustomerId
+  paymentProviderType
+  paymentProviderName
+  providerMethodId
+  deletedAt
+  createdAt
+  details {
+    brand
+    expirationYear
+    expirationMonth
+    last4
+    type
+  }
+}
+    `;
 export const EditAddOnFragmentDoc = gql`
     fragment EditAddOn on AddOn {
   id
@@ -21554,67 +21746,71 @@ export const CustomerForExternalAppsAccordionFragmentDoc = gql`
   currency
   paymentProvider
   paymentProviderCode
-  netsuiteCustomer {
-    __typename
+  paymentProviderCustomers {
     id
-    integrationId
-    externalCustomerId
-    integrationCode
-    integrationType
-    subsidiaryId
-    syncWithProvider
-  }
-  anrokCustomer {
-    __typename
-    id
-    integrationId
-    externalCustomerId
-    integrationCode
-    integrationType
-    syncWithProvider
-  }
-  avalaraCustomer {
-    __typename
-    id
-    integrationId
-    externalCustomerId
-    integrationCode
-    integrationType
-    syncWithProvider
-  }
-  xeroCustomer {
-    __typename
-    id
-    integrationId
-    externalCustomerId
-    integrationCode
-    integrationType
-    syncWithProvider
-  }
-  hubspotCustomer {
-    __typename
-    id
-    integrationId
-    externalCustomerId
-    integrationCode
-    integrationType
-    syncWithProvider
-    targetedObject
-  }
-  salesforceCustomer {
-    __typename
-    id
-    integrationId
-    externalCustomerId
-    integrationCode
-    integrationType
-    syncWithProvider
-  }
-  providerCustomer {
-    id
+    code
+    isDefault
     providerCustomerId
-    syncWithProvider
     providerPaymentMethods
+    syncWithProvider
+  }
+  integrationCustomers {
+    ... on NetsuiteCustomer {
+      __typename
+      id
+      integrationId
+      externalCustomerId
+      integrationCode
+      integrationType
+      subsidiaryId
+      syncWithProvider
+    }
+    ... on AnrokCustomer {
+      __typename
+      id
+      integrationId
+      externalCustomerId
+      integrationCode
+      integrationType
+      syncWithProvider
+    }
+    ... on AvalaraCustomer {
+      __typename
+      id
+      integrationId
+      externalCustomerId
+      integrationCode
+      integrationType
+      syncWithProvider
+    }
+    ... on XeroCustomer {
+      __typename
+      id
+      integrationId
+      externalCustomerId
+      integrationCode
+      integrationType
+      syncWithProvider
+    }
+    ... on HubspotCustomer {
+      __typename
+      id
+      integrationId
+      externalCustomerId
+      integrationCode
+      integrationType
+      syncWithProvider
+      targetedObject
+    }
+    ... on SalesforceCustomer {
+      __typename
+      id
+      integrationId
+      externalCustomerId
+      integrationCode
+      integrationType
+      syncWithProvider
+    }
   }
 }
     `;
@@ -21699,42 +21895,59 @@ export const CustomerMainInfosFragmentDoc = gql`
   }
   paymentProvider
   timezone
-  anrokCustomer {
-    id
-    integrationId
-    externalCustomerId
-  }
-  avalaraCustomer {
-    id
-    integrationId
-    externalCustomerId
-  }
-  netsuiteCustomer {
-    id
-    integrationId
-    externalCustomerId
-  }
   paymentProviderCode
-  providerCustomer {
+  paymentProviderCustomers {
     id
+    code
+    isDefault
     providerCustomerId
     providerPaymentMethods
+    syncWithProvider
   }
-  xeroCustomer {
-    id
-    integrationId
-    externalCustomerId
-  }
-  hubspotCustomer {
-    id
-    integrationId
-    externalCustomerId
-    targetedObject
-  }
-  salesforceCustomer {
-    id
-    integrationId
-    externalCustomerId
+  integrationCustomers {
+    ... on NetsuiteCustomer {
+      __typename
+      id
+      integrationId
+      externalCustomerId
+      integrationType
+    }
+    ... on AnrokCustomer {
+      __typename
+      id
+      integrationId
+      externalCustomerId
+      integrationType
+    }
+    ... on AvalaraCustomer {
+      __typename
+      id
+      integrationId
+      externalCustomerId
+      integrationType
+    }
+    ... on XeroCustomer {
+      __typename
+      id
+      integrationId
+      externalCustomerId
+      integrationType
+    }
+    ... on HubspotCustomer {
+      __typename
+      id
+      integrationId
+      externalCustomerId
+      integrationType
+      targetedObject
+    }
+    ... on SalesforceCustomer {
+      __typename
+      id
+      integrationId
+      externalCustomerId
+      integrationType
+    }
   }
   metadata {
     id
@@ -26072,6 +26285,304 @@ export type CreditNoteEstimateQueryHookResult = ReturnType<typeof useCreditNoteE
 export type CreditNoteEstimateLazyQueryHookResult = ReturnType<typeof useCreditNoteEstimateLazyQuery>;
 export type CreditNoteEstimateSuspenseQueryHookResult = ReturnType<typeof useCreditNoteEstimateSuspenseQuery>;
 export type CreditNoteEstimateQueryResult = Apollo.QueryResult<CreditNoteEstimateQuery, CreditNoteEstimateQueryVariables>;
+export const GetAccountingIntegrationsForExternalAppsAccordionDocument = gql`
+    query getAccountingIntegrationsForExternalAppsAccordion($limit: Int, $page: Int) {
+  integrations(limit: $limit, page: $page) {
+    collection {
+      ... on NetsuiteIntegration {
+        __typename
+        id
+        code
+        name
+      }
+      ... on XeroIntegration {
+        __typename
+        id
+        code
+        name
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetAccountingIntegrationsForExternalAppsAccordionQuery__
+ *
+ * To run a query within a React component, call `useGetAccountingIntegrationsForExternalAppsAccordionQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAccountingIntegrationsForExternalAppsAccordionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAccountingIntegrationsForExternalAppsAccordionQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *      page: // value for 'page'
+ *   },
+ * });
+ */
+export function useGetAccountingIntegrationsForExternalAppsAccordionQuery(baseOptions?: Apollo.QueryHookOptions<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>(GetAccountingIntegrationsForExternalAppsAccordionDocument, options);
+      }
+export function useGetAccountingIntegrationsForExternalAppsAccordionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>(GetAccountingIntegrationsForExternalAppsAccordionDocument, options);
+        }
+// @ts-ignore
+export function useGetAccountingIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>;
+export function useGetAccountingIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<GetAccountingIntegrationsForExternalAppsAccordionQuery | undefined, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>;
+export function useGetAccountingIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>(GetAccountingIntegrationsForExternalAppsAccordionDocument, options);
+        }
+export type GetAccountingIntegrationsForExternalAppsAccordionQueryHookResult = ReturnType<typeof useGetAccountingIntegrationsForExternalAppsAccordionQuery>;
+export type GetAccountingIntegrationsForExternalAppsAccordionLazyQueryHookResult = ReturnType<typeof useGetAccountingIntegrationsForExternalAppsAccordionLazyQuery>;
+export type GetAccountingIntegrationsForExternalAppsAccordionSuspenseQueryHookResult = ReturnType<typeof useGetAccountingIntegrationsForExternalAppsAccordionSuspenseQuery>;
+export type GetAccountingIntegrationsForExternalAppsAccordionQueryResult = Apollo.QueryResult<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>;
+export const SubsidiariesListForExternalAppsAccordionDocument = gql`
+    query subsidiariesListForExternalAppsAccordion($integrationId: ID) {
+  integrationSubsidiaries(integrationId: $integrationId) {
+    collection {
+      externalId
+      externalName
+    }
+  }
+}
+    `;
+
+/**
+ * __useSubsidiariesListForExternalAppsAccordionQuery__
+ *
+ * To run a query within a React component, call `useSubsidiariesListForExternalAppsAccordionQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSubsidiariesListForExternalAppsAccordionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSubsidiariesListForExternalAppsAccordionQuery({
+ *   variables: {
+ *      integrationId: // value for 'integrationId'
+ *   },
+ * });
+ */
+export function useSubsidiariesListForExternalAppsAccordionQuery(baseOptions?: Apollo.QueryHookOptions<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>(SubsidiariesListForExternalAppsAccordionDocument, options);
+      }
+export function useSubsidiariesListForExternalAppsAccordionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>(SubsidiariesListForExternalAppsAccordionDocument, options);
+        }
+// @ts-ignore
+export function useSubsidiariesListForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>;
+export function useSubsidiariesListForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<SubsidiariesListForExternalAppsAccordionQuery | undefined, SubsidiariesListForExternalAppsAccordionQueryVariables>;
+export function useSubsidiariesListForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>(SubsidiariesListForExternalAppsAccordionDocument, options);
+        }
+export type SubsidiariesListForExternalAppsAccordionQueryHookResult = ReturnType<typeof useSubsidiariesListForExternalAppsAccordionQuery>;
+export type SubsidiariesListForExternalAppsAccordionLazyQueryHookResult = ReturnType<typeof useSubsidiariesListForExternalAppsAccordionLazyQuery>;
+export type SubsidiariesListForExternalAppsAccordionSuspenseQueryHookResult = ReturnType<typeof useSubsidiariesListForExternalAppsAccordionSuspenseQuery>;
+export type SubsidiariesListForExternalAppsAccordionQueryResult = Apollo.QueryResult<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>;
+export const GetCrmIntegrationsForExternalAppsAccordionDocument = gql`
+    query getCrmIntegrationsForExternalAppsAccordion($limit: Int, $page: Int) {
+  integrations(limit: $limit, page: $page) {
+    collection {
+      ... on HubspotIntegration {
+        __typename
+        id
+        code
+        name
+        defaultTargetedObject
+      }
+      ... on SalesforceIntegration {
+        __typename
+        id
+        code
+        name
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetCrmIntegrationsForExternalAppsAccordionQuery__
+ *
+ * To run a query within a React component, call `useGetCrmIntegrationsForExternalAppsAccordionQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCrmIntegrationsForExternalAppsAccordionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCrmIntegrationsForExternalAppsAccordionQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *      page: // value for 'page'
+ *   },
+ * });
+ */
+export function useGetCrmIntegrationsForExternalAppsAccordionQuery(baseOptions?: Apollo.QueryHookOptions<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>(GetCrmIntegrationsForExternalAppsAccordionDocument, options);
+      }
+export function useGetCrmIntegrationsForExternalAppsAccordionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>(GetCrmIntegrationsForExternalAppsAccordionDocument, options);
+        }
+// @ts-ignore
+export function useGetCrmIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>;
+export function useGetCrmIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<GetCrmIntegrationsForExternalAppsAccordionQuery | undefined, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>;
+export function useGetCrmIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>(GetCrmIntegrationsForExternalAppsAccordionDocument, options);
+        }
+export type GetCrmIntegrationsForExternalAppsAccordionQueryHookResult = ReturnType<typeof useGetCrmIntegrationsForExternalAppsAccordionQuery>;
+export type GetCrmIntegrationsForExternalAppsAccordionLazyQueryHookResult = ReturnType<typeof useGetCrmIntegrationsForExternalAppsAccordionLazyQuery>;
+export type GetCrmIntegrationsForExternalAppsAccordionSuspenseQueryHookResult = ReturnType<typeof useGetCrmIntegrationsForExternalAppsAccordionSuspenseQuery>;
+export type GetCrmIntegrationsForExternalAppsAccordionQueryResult = Apollo.QueryResult<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>;
+export const PaymentProvidersListForCustomerCreateEditExternalAppsAccordionDocument = gql`
+    query paymentProvidersListForCustomerCreateEditExternalAppsAccordion($limit: Int) {
+  paymentProviders(limit: $limit) {
+    collection {
+      ... on CashfreeProvider {
+        __typename
+        id
+        name
+        code
+      }
+      ... on FlutterwaveProvider {
+        __typename
+        id
+        name
+        code
+      }
+      ... on StripeProvider {
+        __typename
+        id
+        name
+        code
+      }
+      ... on GocardlessProvider {
+        __typename
+        id
+        name
+        code
+      }
+      ... on AdyenProvider {
+        __typename
+        id
+        name
+        code
+      }
+      ... on MoneyhashProvider {
+        __typename
+        id
+        name
+        code
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery__
+ *
+ * To run a query within a React component, call `usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery(baseOptions?: Apollo.QueryHookOptions<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>(PaymentProvidersListForCustomerCreateEditExternalAppsAccordionDocument, options);
+      }
+export function usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>(PaymentProvidersListForCustomerCreateEditExternalAppsAccordionDocument, options);
+        }
+// @ts-ignore
+export function usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>;
+export function usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery | undefined, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>;
+export function usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>(PaymentProvidersListForCustomerCreateEditExternalAppsAccordionDocument, options);
+        }
+export type PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryHookResult = ReturnType<typeof usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery>;
+export type PaymentProvidersListForCustomerCreateEditExternalAppsAccordionLazyQueryHookResult = ReturnType<typeof usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionLazyQuery>;
+export type PaymentProvidersListForCustomerCreateEditExternalAppsAccordionSuspenseQueryHookResult = ReturnType<typeof usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionSuspenseQuery>;
+export type PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryResult = Apollo.QueryResult<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>;
+export const GetTaxIntegrationsForExternalAppsAccordionDocument = gql`
+    query getTaxIntegrationsForExternalAppsAccordion($limit: Int, $page: Int) {
+  integrations(limit: $limit, page: $page) {
+    collection {
+      ... on AnrokIntegration {
+        __typename
+        id
+        code
+        name
+      }
+      ... on AvalaraIntegration {
+        __typename
+        id
+        code
+        name
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetTaxIntegrationsForExternalAppsAccordionQuery__
+ *
+ * To run a query within a React component, call `useGetTaxIntegrationsForExternalAppsAccordionQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetTaxIntegrationsForExternalAppsAccordionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetTaxIntegrationsForExternalAppsAccordionQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *      page: // value for 'page'
+ *   },
+ * });
+ */
+export function useGetTaxIntegrationsForExternalAppsAccordionQuery(baseOptions?: Apollo.QueryHookOptions<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>(GetTaxIntegrationsForExternalAppsAccordionDocument, options);
+      }
+export function useGetTaxIntegrationsForExternalAppsAccordionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>(GetTaxIntegrationsForExternalAppsAccordionDocument, options);
+        }
+// @ts-ignore
+export function useGetTaxIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>;
+export function useGetTaxIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<GetTaxIntegrationsForExternalAppsAccordionQuery | undefined, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>;
+export function useGetTaxIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>(GetTaxIntegrationsForExternalAppsAccordionDocument, options);
+        }
+export type GetTaxIntegrationsForExternalAppsAccordionQueryHookResult = ReturnType<typeof useGetTaxIntegrationsForExternalAppsAccordionQuery>;
+export type GetTaxIntegrationsForExternalAppsAccordionLazyQueryHookResult = ReturnType<typeof useGetTaxIntegrationsForExternalAppsAccordionLazyQuery>;
+export type GetTaxIntegrationsForExternalAppsAccordionSuspenseQueryHookResult = ReturnType<typeof useGetTaxIntegrationsForExternalAppsAccordionSuspenseQuery>;
+export type GetTaxIntegrationsForExternalAppsAccordionQueryResult = Apollo.QueryResult<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>;
 export const CustomerPortalInvoicesDocument = gql`
     query customerPortalInvoices($limit: Int, $page: Int, $searchTerm: String, $status: [InvoiceStatusTypeEnum!]) {
   customerPortalInvoices(
@@ -26967,86 +27478,6 @@ export type GetCustomerCreditNotesQueryHookResult = ReturnType<typeof useGetCust
 export type GetCustomerCreditNotesLazyQueryHookResult = ReturnType<typeof useGetCustomerCreditNotesLazyQuery>;
 export type GetCustomerCreditNotesSuspenseQueryHookResult = ReturnType<typeof useGetCustomerCreditNotesSuspenseQuery>;
 export type GetCustomerCreditNotesQueryResult = Apollo.QueryResult<GetCustomerCreditNotesQuery, GetCustomerCreditNotesQueryVariables>;
-export const IntegrationsListForCustomerMainInfosDocument = gql`
-    query integrationsListForCustomerMainInfos($limit: Int) {
-  integrations(limit: $limit) {
-    collection {
-      ... on NetsuiteIntegration {
-        __typename
-        id
-        name
-        accountId
-      }
-      ... on AnrokIntegration {
-        __typename
-        id
-        name
-        apiKey
-        externalAccountId
-      }
-      ... on AvalaraIntegration {
-        __typename
-        id
-        name
-        accountId
-      }
-      ... on XeroIntegration {
-        __typename
-        id
-        name
-      }
-      ... on HubspotIntegration {
-        __typename
-        id
-        name
-        portalId
-      }
-      ... on SalesforceIntegration {
-        __typename
-        id
-        name
-        instanceId
-      }
-    }
-  }
-}
-    `;
-
-/**
- * __useIntegrationsListForCustomerMainInfosQuery__
- *
- * To run a query within a React component, call `useIntegrationsListForCustomerMainInfosQuery` and pass it any options that fit your needs.
- * When your component renders, `useIntegrationsListForCustomerMainInfosQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useIntegrationsListForCustomerMainInfosQuery({
- *   variables: {
- *      limit: // value for 'limit'
- *   },
- * });
- */
-export function useIntegrationsListForCustomerMainInfosQuery(baseOptions?: Apollo.QueryHookOptions<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>(IntegrationsListForCustomerMainInfosDocument, options);
-      }
-export function useIntegrationsListForCustomerMainInfosLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>(IntegrationsListForCustomerMainInfosDocument, options);
-        }
-// @ts-ignore
-export function useIntegrationsListForCustomerMainInfosSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>): Apollo.UseSuspenseQueryResult<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>;
-export function useIntegrationsListForCustomerMainInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>): Apollo.UseSuspenseQueryResult<IntegrationsListForCustomerMainInfosQuery | undefined, IntegrationsListForCustomerMainInfosQueryVariables>;
-export function useIntegrationsListForCustomerMainInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>(IntegrationsListForCustomerMainInfosDocument, options);
-        }
-export type IntegrationsListForCustomerMainInfosQueryHookResult = ReturnType<typeof useIntegrationsListForCustomerMainInfosQuery>;
-export type IntegrationsListForCustomerMainInfosLazyQueryHookResult = ReturnType<typeof useIntegrationsListForCustomerMainInfosLazyQuery>;
-export type IntegrationsListForCustomerMainInfosSuspenseQueryHookResult = ReturnType<typeof useIntegrationsListForCustomerMainInfosSuspenseQuery>;
-export type IntegrationsListForCustomerMainInfosQueryResult = Apollo.QueryResult<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>;
 export const DownloadInvoiceItemDocument = gql`
     mutation downloadInvoiceItem($input: DownloadInvoiceInput!) {
   downloadInvoice(input: $input) {
@@ -27205,80 +27636,6 @@ export type GetCustomerInvoicesQueryHookResult = ReturnType<typeof useGetCustome
 export type GetCustomerInvoicesLazyQueryHookResult = ReturnType<typeof useGetCustomerInvoicesLazyQuery>;
 export type GetCustomerInvoicesSuspenseQueryHookResult = ReturnType<typeof useGetCustomerInvoicesSuspenseQuery>;
 export type GetCustomerInvoicesQueryResult = Apollo.QueryResult<GetCustomerInvoicesQuery, GetCustomerInvoicesQueryVariables>;
-export const PaymentProvidersListForCustomerMainInfosDocument = gql`
-    query paymentProvidersListForCustomerMainInfos($limit: Int) {
-  paymentProviders(limit: $limit) {
-    collection {
-      ... on StripeProvider {
-        id
-        name
-        code
-      }
-      ... on GocardlessProvider {
-        id
-        name
-        code
-      }
-      ... on FlutterwaveProvider {
-        id
-        name
-        code
-      }
-      ... on CashfreeProvider {
-        id
-        name
-        code
-      }
-      ... on MoneyhashProvider {
-        id
-        name
-        code
-      }
-      ... on AdyenProvider {
-        id
-        name
-        code
-      }
-    }
-  }
-}
-    `;
-
-/**
- * __usePaymentProvidersListForCustomerMainInfosQuery__
- *
- * To run a query within a React component, call `usePaymentProvidersListForCustomerMainInfosQuery` and pass it any options that fit your needs.
- * When your component renders, `usePaymentProvidersListForCustomerMainInfosQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = usePaymentProvidersListForCustomerMainInfosQuery({
- *   variables: {
- *      limit: // value for 'limit'
- *   },
- * });
- */
-export function usePaymentProvidersListForCustomerMainInfosQuery(baseOptions?: Apollo.QueryHookOptions<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>(PaymentProvidersListForCustomerMainInfosDocument, options);
-      }
-export function usePaymentProvidersListForCustomerMainInfosLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>(PaymentProvidersListForCustomerMainInfosDocument, options);
-        }
-// @ts-ignore
-export function usePaymentProvidersListForCustomerMainInfosSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>): Apollo.UseSuspenseQueryResult<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>;
-export function usePaymentProvidersListForCustomerMainInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>): Apollo.UseSuspenseQueryResult<PaymentProvidersListForCustomerMainInfosQuery | undefined, PaymentProvidersListForCustomerMainInfosQueryVariables>;
-export function usePaymentProvidersListForCustomerMainInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>(PaymentProvidersListForCustomerMainInfosDocument, options);
-        }
-export type PaymentProvidersListForCustomerMainInfosQueryHookResult = ReturnType<typeof usePaymentProvidersListForCustomerMainInfosQuery>;
-export type PaymentProvidersListForCustomerMainInfosLazyQueryHookResult = ReturnType<typeof usePaymentProvidersListForCustomerMainInfosLazyQuery>;
-export type PaymentProvidersListForCustomerMainInfosSuspenseQueryHookResult = ReturnType<typeof usePaymentProvidersListForCustomerMainInfosSuspenseQuery>;
-export type PaymentProvidersListForCustomerMainInfosQueryResult = Apollo.QueryResult<PaymentProvidersListForCustomerMainInfosQuery, PaymentProvidersListForCustomerMainInfosQueryVariables>;
 export const GetCustomerSettingsDocument = gql`
     query getCustomerSettings($id: ID!) {
   customer(id: $id) {
@@ -27859,6 +28216,317 @@ export function useCreateCustomerAppliedTaxMutation(baseOptions?: Apollo.Mutatio
 export type CreateCustomerAppliedTaxMutationHookResult = ReturnType<typeof useCreateCustomerAppliedTaxMutation>;
 export type CreateCustomerAppliedTaxMutationResult = Apollo.MutationResult<CreateCustomerAppliedTaxMutation>;
 export type CreateCustomerAppliedTaxMutationOptions = Apollo.BaseMutationOptions<CreateCustomerAppliedTaxMutation, CreateCustomerAppliedTaxMutationVariables>;
+export const IntegrationsListForCustomerMainInfosDocument = gql`
+    query integrationsListForCustomerMainInfos($limit: Int) {
+  integrations(limit: $limit) {
+    collection {
+      ... on NetsuiteIntegration {
+        __typename
+        id
+        name
+        accountId
+      }
+      ... on AnrokIntegration {
+        __typename
+        id
+        name
+        apiKey
+        externalAccountId
+      }
+      ... on AvalaraIntegration {
+        __typename
+        id
+        name
+        accountId
+      }
+      ... on XeroIntegration {
+        __typename
+        id
+        name
+      }
+      ... on HubspotIntegration {
+        __typename
+        id
+        name
+        portalId
+      }
+      ... on SalesforceIntegration {
+        __typename
+        id
+        name
+        instanceId
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useIntegrationsListForCustomerMainInfosQuery__
+ *
+ * To run a query within a React component, call `useIntegrationsListForCustomerMainInfosQuery` and pass it any options that fit your needs.
+ * When your component renders, `useIntegrationsListForCustomerMainInfosQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useIntegrationsListForCustomerMainInfosQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useIntegrationsListForCustomerMainInfosQuery(baseOptions?: Apollo.QueryHookOptions<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>(IntegrationsListForCustomerMainInfosDocument, options);
+      }
+export function useIntegrationsListForCustomerMainInfosLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>(IntegrationsListForCustomerMainInfosDocument, options);
+        }
+// @ts-ignore
+export function useIntegrationsListForCustomerMainInfosSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>): Apollo.UseSuspenseQueryResult<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>;
+export function useIntegrationsListForCustomerMainInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>): Apollo.UseSuspenseQueryResult<IntegrationsListForCustomerMainInfosQuery | undefined, IntegrationsListForCustomerMainInfosQueryVariables>;
+export function useIntegrationsListForCustomerMainInfosSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>(IntegrationsListForCustomerMainInfosDocument, options);
+        }
+export type IntegrationsListForCustomerMainInfosQueryHookResult = ReturnType<typeof useIntegrationsListForCustomerMainInfosQuery>;
+export type IntegrationsListForCustomerMainInfosLazyQueryHookResult = ReturnType<typeof useIntegrationsListForCustomerMainInfosLazyQuery>;
+export type IntegrationsListForCustomerMainInfosSuspenseQueryHookResult = ReturnType<typeof useIntegrationsListForCustomerMainInfosSuspenseQuery>;
+export type IntegrationsListForCustomerMainInfosQueryResult = Apollo.QueryResult<IntegrationsListForCustomerMainInfosQuery, IntegrationsListForCustomerMainInfosQueryVariables>;
+export const CreateCustomerPaymentConnectionDocument = gql`
+    mutation createCustomerPaymentConnection($input: CreatePaymentProviderCustomerInput!) {
+  createPaymentProviderCustomer(input: $input) {
+    id
+  }
+}
+    `;
+export type CreateCustomerPaymentConnectionMutationFn = Apollo.MutationFunction<CreateCustomerPaymentConnectionMutation, CreateCustomerPaymentConnectionMutationVariables>;
+
+/**
+ * __useCreateCustomerPaymentConnectionMutation__
+ *
+ * To run a mutation, you first call `useCreateCustomerPaymentConnectionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateCustomerPaymentConnectionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createCustomerPaymentConnectionMutation, { data, loading, error }] = useCreateCustomerPaymentConnectionMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateCustomerPaymentConnectionMutation(baseOptions?: Apollo.MutationHookOptions<CreateCustomerPaymentConnectionMutation, CreateCustomerPaymentConnectionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateCustomerPaymentConnectionMutation, CreateCustomerPaymentConnectionMutationVariables>(CreateCustomerPaymentConnectionDocument, options);
+      }
+export type CreateCustomerPaymentConnectionMutationHookResult = ReturnType<typeof useCreateCustomerPaymentConnectionMutation>;
+export type CreateCustomerPaymentConnectionMutationResult = Apollo.MutationResult<CreateCustomerPaymentConnectionMutation>;
+export type CreateCustomerPaymentConnectionMutationOptions = Apollo.BaseMutationOptions<CreateCustomerPaymentConnectionMutation, CreateCustomerPaymentConnectionMutationVariables>;
+export const UpdateCustomerPaymentConnectionDocument = gql`
+    mutation updateCustomerPaymentConnection($input: UpdatePaymentProviderCustomerInput!) {
+  updatePaymentProviderCustomer(input: $input) {
+    id
+  }
+}
+    `;
+export type UpdateCustomerPaymentConnectionMutationFn = Apollo.MutationFunction<UpdateCustomerPaymentConnectionMutation, UpdateCustomerPaymentConnectionMutationVariables>;
+
+/**
+ * __useUpdateCustomerPaymentConnectionMutation__
+ *
+ * To run a mutation, you first call `useUpdateCustomerPaymentConnectionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCustomerPaymentConnectionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCustomerPaymentConnectionMutation, { data, loading, error }] = useUpdateCustomerPaymentConnectionMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateCustomerPaymentConnectionMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCustomerPaymentConnectionMutation, UpdateCustomerPaymentConnectionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateCustomerPaymentConnectionMutation, UpdateCustomerPaymentConnectionMutationVariables>(UpdateCustomerPaymentConnectionDocument, options);
+      }
+export type UpdateCustomerPaymentConnectionMutationHookResult = ReturnType<typeof useUpdateCustomerPaymentConnectionMutation>;
+export type UpdateCustomerPaymentConnectionMutationResult = Apollo.MutationResult<UpdateCustomerPaymentConnectionMutation>;
+export type UpdateCustomerPaymentConnectionMutationOptions = Apollo.BaseMutationOptions<UpdateCustomerPaymentConnectionMutation, UpdateCustomerPaymentConnectionMutationVariables>;
+export const DestroyCustomerPaymentConnectionDocument = gql`
+    mutation destroyCustomerPaymentConnection($input: DestroyPaymentProviderCustomerInput!) {
+  destroyPaymentProviderCustomer(input: $input) {
+    id
+  }
+}
+    `;
+export type DestroyCustomerPaymentConnectionMutationFn = Apollo.MutationFunction<DestroyCustomerPaymentConnectionMutation, DestroyCustomerPaymentConnectionMutationVariables>;
+
+/**
+ * __useDestroyCustomerPaymentConnectionMutation__
+ *
+ * To run a mutation, you first call `useDestroyCustomerPaymentConnectionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDestroyCustomerPaymentConnectionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [destroyCustomerPaymentConnectionMutation, { data, loading, error }] = useDestroyCustomerPaymentConnectionMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDestroyCustomerPaymentConnectionMutation(baseOptions?: Apollo.MutationHookOptions<DestroyCustomerPaymentConnectionMutation, DestroyCustomerPaymentConnectionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DestroyCustomerPaymentConnectionMutation, DestroyCustomerPaymentConnectionMutationVariables>(DestroyCustomerPaymentConnectionDocument, options);
+      }
+export type DestroyCustomerPaymentConnectionMutationHookResult = ReturnType<typeof useDestroyCustomerPaymentConnectionMutation>;
+export type DestroyCustomerPaymentConnectionMutationResult = Apollo.MutationResult<DestroyCustomerPaymentConnectionMutation>;
+export type DestroyCustomerPaymentConnectionMutationOptions = Apollo.BaseMutationOptions<DestroyCustomerPaymentConnectionMutation, DestroyCustomerPaymentConnectionMutationVariables>;
+export const CreateCustomerIntegrationConnectionDocument = gql`
+    mutation createCustomerIntegrationConnection($input: CreateIntegrationCustomerInput!) {
+  createIntegrationCustomer(input: $input) {
+    __typename
+  }
+}
+    `;
+export type CreateCustomerIntegrationConnectionMutationFn = Apollo.MutationFunction<CreateCustomerIntegrationConnectionMutation, CreateCustomerIntegrationConnectionMutationVariables>;
+
+/**
+ * __useCreateCustomerIntegrationConnectionMutation__
+ *
+ * To run a mutation, you first call `useCreateCustomerIntegrationConnectionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateCustomerIntegrationConnectionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createCustomerIntegrationConnectionMutation, { data, loading, error }] = useCreateCustomerIntegrationConnectionMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateCustomerIntegrationConnectionMutation(baseOptions?: Apollo.MutationHookOptions<CreateCustomerIntegrationConnectionMutation, CreateCustomerIntegrationConnectionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateCustomerIntegrationConnectionMutation, CreateCustomerIntegrationConnectionMutationVariables>(CreateCustomerIntegrationConnectionDocument, options);
+      }
+export type CreateCustomerIntegrationConnectionMutationHookResult = ReturnType<typeof useCreateCustomerIntegrationConnectionMutation>;
+export type CreateCustomerIntegrationConnectionMutationResult = Apollo.MutationResult<CreateCustomerIntegrationConnectionMutation>;
+export type CreateCustomerIntegrationConnectionMutationOptions = Apollo.BaseMutationOptions<CreateCustomerIntegrationConnectionMutation, CreateCustomerIntegrationConnectionMutationVariables>;
+export const UpdateCustomerIntegrationConnectionDocument = gql`
+    mutation updateCustomerIntegrationConnection($input: UpdateIntegrationCustomerInput!) {
+  updateIntegrationCustomer(input: $input) {
+    __typename
+  }
+}
+    `;
+export type UpdateCustomerIntegrationConnectionMutationFn = Apollo.MutationFunction<UpdateCustomerIntegrationConnectionMutation, UpdateCustomerIntegrationConnectionMutationVariables>;
+
+/**
+ * __useUpdateCustomerIntegrationConnectionMutation__
+ *
+ * To run a mutation, you first call `useUpdateCustomerIntegrationConnectionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCustomerIntegrationConnectionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCustomerIntegrationConnectionMutation, { data, loading, error }] = useUpdateCustomerIntegrationConnectionMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateCustomerIntegrationConnectionMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCustomerIntegrationConnectionMutation, UpdateCustomerIntegrationConnectionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateCustomerIntegrationConnectionMutation, UpdateCustomerIntegrationConnectionMutationVariables>(UpdateCustomerIntegrationConnectionDocument, options);
+      }
+export type UpdateCustomerIntegrationConnectionMutationHookResult = ReturnType<typeof useUpdateCustomerIntegrationConnectionMutation>;
+export type UpdateCustomerIntegrationConnectionMutationResult = Apollo.MutationResult<UpdateCustomerIntegrationConnectionMutation>;
+export type UpdateCustomerIntegrationConnectionMutationOptions = Apollo.BaseMutationOptions<UpdateCustomerIntegrationConnectionMutation, UpdateCustomerIntegrationConnectionMutationVariables>;
+export const DestroyCustomerIntegrationConnectionDocument = gql`
+    mutation destroyCustomerIntegrationConnection($input: DestroyIntegrationCustomerInput!) {
+  destroyIntegrationCustomer(input: $input) {
+    id
+  }
+}
+    `;
+export type DestroyCustomerIntegrationConnectionMutationFn = Apollo.MutationFunction<DestroyCustomerIntegrationConnectionMutation, DestroyCustomerIntegrationConnectionMutationVariables>;
+
+/**
+ * __useDestroyCustomerIntegrationConnectionMutation__
+ *
+ * To run a mutation, you first call `useDestroyCustomerIntegrationConnectionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDestroyCustomerIntegrationConnectionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [destroyCustomerIntegrationConnectionMutation, { data, loading, error }] = useDestroyCustomerIntegrationConnectionMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDestroyCustomerIntegrationConnectionMutation(baseOptions?: Apollo.MutationHookOptions<DestroyCustomerIntegrationConnectionMutation, DestroyCustomerIntegrationConnectionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DestroyCustomerIntegrationConnectionMutation, DestroyCustomerIntegrationConnectionMutationVariables>(DestroyCustomerIntegrationConnectionDocument, options);
+      }
+export type DestroyCustomerIntegrationConnectionMutationHookResult = ReturnType<typeof useDestroyCustomerIntegrationConnectionMutation>;
+export type DestroyCustomerIntegrationConnectionMutationResult = Apollo.MutationResult<DestroyCustomerIntegrationConnectionMutation>;
+export type DestroyCustomerIntegrationConnectionMutationOptions = Apollo.BaseMutationOptions<DestroyCustomerIntegrationConnectionMutation, DestroyCustomerIntegrationConnectionMutationVariables>;
+export const ClearCustomerPaymentProviderDocument = gql`
+    mutation clearCustomerPaymentProvider($input: UpdateCustomerInput!) {
+  updateCustomer(input: $input) {
+    id
+  }
+}
+    `;
+export type ClearCustomerPaymentProviderMutationFn = Apollo.MutationFunction<ClearCustomerPaymentProviderMutation, ClearCustomerPaymentProviderMutationVariables>;
+
+/**
+ * __useClearCustomerPaymentProviderMutation__
+ *
+ * To run a mutation, you first call `useClearCustomerPaymentProviderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useClearCustomerPaymentProviderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [clearCustomerPaymentProviderMutation, { data, loading, error }] = useClearCustomerPaymentProviderMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useClearCustomerPaymentProviderMutation(baseOptions?: Apollo.MutationHookOptions<ClearCustomerPaymentProviderMutation, ClearCustomerPaymentProviderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ClearCustomerPaymentProviderMutation, ClearCustomerPaymentProviderMutationVariables>(ClearCustomerPaymentProviderDocument, options);
+      }
+export type ClearCustomerPaymentProviderMutationHookResult = ReturnType<typeof useClearCustomerPaymentProviderMutation>;
+export type ClearCustomerPaymentProviderMutationResult = Apollo.MutationResult<ClearCustomerPaymentProviderMutation>;
+export type ClearCustomerPaymentProviderMutationOptions = Apollo.BaseMutationOptions<ClearCustomerPaymentProviderMutation, ClearCustomerPaymentProviderMutationVariables>;
 export const VoidCreditNoteDocument = gql`
     mutation voidCreditNote($input: VoidCreditNoteInput!) {
   voidCreditNote(input: $input) {
@@ -35146,6 +35814,58 @@ export function useUpdateSubscriptionMutation(baseOptions?: Apollo.MutationHookO
 export type UpdateSubscriptionMutationHookResult = ReturnType<typeof useUpdateSubscriptionMutation>;
 export type UpdateSubscriptionMutationResult = Apollo.MutationResult<UpdateSubscriptionMutation>;
 export type UpdateSubscriptionMutationOptions = Apollo.BaseMutationOptions<UpdateSubscriptionMutation, UpdateSubscriptionMutationVariables>;
+export const ConnectionPaymentMethodsDocument = gql`
+    query ConnectionPaymentMethods($customerId: ID!, $withDeleted: Boolean) {
+  customer(id: $customerId) {
+    id
+    providerCustomer {
+      id
+      paymentMethods(withDeleted: $withDeleted) {
+        collection {
+          ...PaymentMethodItem
+        }
+      }
+    }
+  }
+}
+    ${PaymentMethodItemFragmentDoc}`;
+
+/**
+ * __useConnectionPaymentMethodsQuery__
+ *
+ * To run a query within a React component, call `useConnectionPaymentMethodsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useConnectionPaymentMethodsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useConnectionPaymentMethodsQuery({
+ *   variables: {
+ *      customerId: // value for 'customerId'
+ *      withDeleted: // value for 'withDeleted'
+ *   },
+ * });
+ */
+export function useConnectionPaymentMethodsQuery(baseOptions: Apollo.QueryHookOptions<ConnectionPaymentMethodsQuery, ConnectionPaymentMethodsQueryVariables> & ({ variables: ConnectionPaymentMethodsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ConnectionPaymentMethodsQuery, ConnectionPaymentMethodsQueryVariables>(ConnectionPaymentMethodsDocument, options);
+      }
+export function useConnectionPaymentMethodsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ConnectionPaymentMethodsQuery, ConnectionPaymentMethodsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ConnectionPaymentMethodsQuery, ConnectionPaymentMethodsQueryVariables>(ConnectionPaymentMethodsDocument, options);
+        }
+// @ts-ignore
+export function useConnectionPaymentMethodsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<ConnectionPaymentMethodsQuery, ConnectionPaymentMethodsQueryVariables>): Apollo.UseSuspenseQueryResult<ConnectionPaymentMethodsQuery, ConnectionPaymentMethodsQueryVariables>;
+export function useConnectionPaymentMethodsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ConnectionPaymentMethodsQuery, ConnectionPaymentMethodsQueryVariables>): Apollo.UseSuspenseQueryResult<ConnectionPaymentMethodsQuery | undefined, ConnectionPaymentMethodsQueryVariables>;
+export function useConnectionPaymentMethodsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ConnectionPaymentMethodsQuery, ConnectionPaymentMethodsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ConnectionPaymentMethodsQuery, ConnectionPaymentMethodsQueryVariables>(ConnectionPaymentMethodsDocument, options);
+        }
+export type ConnectionPaymentMethodsQueryHookResult = ReturnType<typeof useConnectionPaymentMethodsQuery>;
+export type ConnectionPaymentMethodsLazyQueryHookResult = ReturnType<typeof useConnectionPaymentMethodsLazyQuery>;
+export type ConnectionPaymentMethodsSuspenseQueryHookResult = ReturnType<typeof useConnectionPaymentMethodsSuspenseQuery>;
+export type ConnectionPaymentMethodsQueryResult = Apollo.QueryResult<ConnectionPaymentMethodsQuery, ConnectionPaymentMethodsQueryVariables>;
 export const PaymentMethodsDocument = gql`
     query PaymentMethods($externalCustomerId: ID!, $withDeleted: Boolean) {
   paymentMethods(
@@ -35153,26 +35873,11 @@ export const PaymentMethodsDocument = gql`
     withDeleted: $withDeleted
   ) {
     collection {
-      id
-      isDefault
-      paymentProviderCode
-      paymentProviderCustomerId
-      paymentProviderType
-      paymentProviderName
-      providerMethodId
-      deletedAt
-      createdAt
-      details {
-        brand
-        expirationYear
-        expirationMonth
-        last4
-        type
-      }
+      ...PaymentMethodItem
     }
   }
 }
-    `;
+    ${PaymentMethodItemFragmentDoc}`;
 
 /**
  * __usePaymentMethodsQuery__
@@ -42607,304 +43312,6 @@ export function useCreateCreditNoteMutation(baseOptions?: Apollo.MutationHookOpt
 export type CreateCreditNoteMutationHookResult = ReturnType<typeof useCreateCreditNoteMutation>;
 export type CreateCreditNoteMutationResult = Apollo.MutationResult<CreateCreditNoteMutation>;
 export type CreateCreditNoteMutationOptions = Apollo.BaseMutationOptions<CreateCreditNoteMutation, CreateCreditNoteMutationVariables>;
-export const GetAccountingIntegrationsForExternalAppsAccordionDocument = gql`
-    query getAccountingIntegrationsForExternalAppsAccordion($limit: Int, $page: Int) {
-  integrations(limit: $limit, page: $page) {
-    collection {
-      ... on NetsuiteIntegration {
-        __typename
-        id
-        code
-        name
-      }
-      ... on XeroIntegration {
-        __typename
-        id
-        code
-        name
-      }
-    }
-  }
-}
-    `;
-
-/**
- * __useGetAccountingIntegrationsForExternalAppsAccordionQuery__
- *
- * To run a query within a React component, call `useGetAccountingIntegrationsForExternalAppsAccordionQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetAccountingIntegrationsForExternalAppsAccordionQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetAccountingIntegrationsForExternalAppsAccordionQuery({
- *   variables: {
- *      limit: // value for 'limit'
- *      page: // value for 'page'
- *   },
- * });
- */
-export function useGetAccountingIntegrationsForExternalAppsAccordionQuery(baseOptions?: Apollo.QueryHookOptions<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>(GetAccountingIntegrationsForExternalAppsAccordionDocument, options);
-      }
-export function useGetAccountingIntegrationsForExternalAppsAccordionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>(GetAccountingIntegrationsForExternalAppsAccordionDocument, options);
-        }
-// @ts-ignore
-export function useGetAccountingIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>;
-export function useGetAccountingIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<GetAccountingIntegrationsForExternalAppsAccordionQuery | undefined, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>;
-export function useGetAccountingIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>(GetAccountingIntegrationsForExternalAppsAccordionDocument, options);
-        }
-export type GetAccountingIntegrationsForExternalAppsAccordionQueryHookResult = ReturnType<typeof useGetAccountingIntegrationsForExternalAppsAccordionQuery>;
-export type GetAccountingIntegrationsForExternalAppsAccordionLazyQueryHookResult = ReturnType<typeof useGetAccountingIntegrationsForExternalAppsAccordionLazyQuery>;
-export type GetAccountingIntegrationsForExternalAppsAccordionSuspenseQueryHookResult = ReturnType<typeof useGetAccountingIntegrationsForExternalAppsAccordionSuspenseQuery>;
-export type GetAccountingIntegrationsForExternalAppsAccordionQueryResult = Apollo.QueryResult<GetAccountingIntegrationsForExternalAppsAccordionQuery, GetAccountingIntegrationsForExternalAppsAccordionQueryVariables>;
-export const GetCrmIntegrationsForExternalAppsAccordionDocument = gql`
-    query getCrmIntegrationsForExternalAppsAccordion($limit: Int, $page: Int) {
-  integrations(limit: $limit, page: $page) {
-    collection {
-      ... on HubspotIntegration {
-        __typename
-        id
-        code
-        name
-        defaultTargetedObject
-      }
-      ... on SalesforceIntegration {
-        __typename
-        id
-        code
-        name
-      }
-    }
-  }
-}
-    `;
-
-/**
- * __useGetCrmIntegrationsForExternalAppsAccordionQuery__
- *
- * To run a query within a React component, call `useGetCrmIntegrationsForExternalAppsAccordionQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetCrmIntegrationsForExternalAppsAccordionQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetCrmIntegrationsForExternalAppsAccordionQuery({
- *   variables: {
- *      limit: // value for 'limit'
- *      page: // value for 'page'
- *   },
- * });
- */
-export function useGetCrmIntegrationsForExternalAppsAccordionQuery(baseOptions?: Apollo.QueryHookOptions<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>(GetCrmIntegrationsForExternalAppsAccordionDocument, options);
-      }
-export function useGetCrmIntegrationsForExternalAppsAccordionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>(GetCrmIntegrationsForExternalAppsAccordionDocument, options);
-        }
-// @ts-ignore
-export function useGetCrmIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>;
-export function useGetCrmIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<GetCrmIntegrationsForExternalAppsAccordionQuery | undefined, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>;
-export function useGetCrmIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>(GetCrmIntegrationsForExternalAppsAccordionDocument, options);
-        }
-export type GetCrmIntegrationsForExternalAppsAccordionQueryHookResult = ReturnType<typeof useGetCrmIntegrationsForExternalAppsAccordionQuery>;
-export type GetCrmIntegrationsForExternalAppsAccordionLazyQueryHookResult = ReturnType<typeof useGetCrmIntegrationsForExternalAppsAccordionLazyQuery>;
-export type GetCrmIntegrationsForExternalAppsAccordionSuspenseQueryHookResult = ReturnType<typeof useGetCrmIntegrationsForExternalAppsAccordionSuspenseQuery>;
-export type GetCrmIntegrationsForExternalAppsAccordionQueryResult = Apollo.QueryResult<GetCrmIntegrationsForExternalAppsAccordionQuery, GetCrmIntegrationsForExternalAppsAccordionQueryVariables>;
-export const PaymentProvidersListForCustomerCreateEditExternalAppsAccordionDocument = gql`
-    query paymentProvidersListForCustomerCreateEditExternalAppsAccordion($limit: Int) {
-  paymentProviders(limit: $limit) {
-    collection {
-      ... on CashfreeProvider {
-        __typename
-        id
-        name
-        code
-      }
-      ... on FlutterwaveProvider {
-        __typename
-        id
-        name
-        code
-      }
-      ... on StripeProvider {
-        __typename
-        id
-        name
-        code
-      }
-      ... on GocardlessProvider {
-        __typename
-        id
-        name
-        code
-      }
-      ... on AdyenProvider {
-        __typename
-        id
-        name
-        code
-      }
-      ... on MoneyhashProvider {
-        __typename
-        id
-        name
-        code
-      }
-    }
-  }
-}
-    `;
-
-/**
- * __usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery__
- *
- * To run a query within a React component, call `usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery` and pass it any options that fit your needs.
- * When your component renders, `usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery({
- *   variables: {
- *      limit: // value for 'limit'
- *   },
- * });
- */
-export function usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery(baseOptions?: Apollo.QueryHookOptions<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>(PaymentProvidersListForCustomerCreateEditExternalAppsAccordionDocument, options);
-      }
-export function usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>(PaymentProvidersListForCustomerCreateEditExternalAppsAccordionDocument, options);
-        }
-// @ts-ignore
-export function usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>;
-export function usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery | undefined, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>;
-export function usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>(PaymentProvidersListForCustomerCreateEditExternalAppsAccordionDocument, options);
-        }
-export type PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryHookResult = ReturnType<typeof usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery>;
-export type PaymentProvidersListForCustomerCreateEditExternalAppsAccordionLazyQueryHookResult = ReturnType<typeof usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionLazyQuery>;
-export type PaymentProvidersListForCustomerCreateEditExternalAppsAccordionSuspenseQueryHookResult = ReturnType<typeof usePaymentProvidersListForCustomerCreateEditExternalAppsAccordionSuspenseQuery>;
-export type PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryResult = Apollo.QueryResult<PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery, PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQueryVariables>;
-export const GetTaxIntegrationsForExternalAppsAccordionDocument = gql`
-    query getTaxIntegrationsForExternalAppsAccordion($limit: Int, $page: Int) {
-  integrations(limit: $limit, page: $page) {
-    collection {
-      ... on AnrokIntegration {
-        __typename
-        id
-        code
-        name
-      }
-      ... on AvalaraIntegration {
-        __typename
-        id
-        code
-        name
-      }
-    }
-  }
-}
-    `;
-
-/**
- * __useGetTaxIntegrationsForExternalAppsAccordionQuery__
- *
- * To run a query within a React component, call `useGetTaxIntegrationsForExternalAppsAccordionQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetTaxIntegrationsForExternalAppsAccordionQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetTaxIntegrationsForExternalAppsAccordionQuery({
- *   variables: {
- *      limit: // value for 'limit'
- *      page: // value for 'page'
- *   },
- * });
- */
-export function useGetTaxIntegrationsForExternalAppsAccordionQuery(baseOptions?: Apollo.QueryHookOptions<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>(GetTaxIntegrationsForExternalAppsAccordionDocument, options);
-      }
-export function useGetTaxIntegrationsForExternalAppsAccordionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>(GetTaxIntegrationsForExternalAppsAccordionDocument, options);
-        }
-// @ts-ignore
-export function useGetTaxIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>;
-export function useGetTaxIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<GetTaxIntegrationsForExternalAppsAccordionQuery | undefined, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>;
-export function useGetTaxIntegrationsForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>(GetTaxIntegrationsForExternalAppsAccordionDocument, options);
-        }
-export type GetTaxIntegrationsForExternalAppsAccordionQueryHookResult = ReturnType<typeof useGetTaxIntegrationsForExternalAppsAccordionQuery>;
-export type GetTaxIntegrationsForExternalAppsAccordionLazyQueryHookResult = ReturnType<typeof useGetTaxIntegrationsForExternalAppsAccordionLazyQuery>;
-export type GetTaxIntegrationsForExternalAppsAccordionSuspenseQueryHookResult = ReturnType<typeof useGetTaxIntegrationsForExternalAppsAccordionSuspenseQuery>;
-export type GetTaxIntegrationsForExternalAppsAccordionQueryResult = Apollo.QueryResult<GetTaxIntegrationsForExternalAppsAccordionQuery, GetTaxIntegrationsForExternalAppsAccordionQueryVariables>;
-export const SubsidiariesListForExternalAppsAccordionDocument = gql`
-    query subsidiariesListForExternalAppsAccordion($integrationId: ID) {
-  integrationSubsidiaries(integrationId: $integrationId) {
-    collection {
-      externalId
-      externalName
-    }
-  }
-}
-    `;
-
-/**
- * __useSubsidiariesListForExternalAppsAccordionQuery__
- *
- * To run a query within a React component, call `useSubsidiariesListForExternalAppsAccordionQuery` and pass it any options that fit your needs.
- * When your component renders, `useSubsidiariesListForExternalAppsAccordionQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useSubsidiariesListForExternalAppsAccordionQuery({
- *   variables: {
- *      integrationId: // value for 'integrationId'
- *   },
- * });
- */
-export function useSubsidiariesListForExternalAppsAccordionQuery(baseOptions?: Apollo.QueryHookOptions<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>(SubsidiariesListForExternalAppsAccordionDocument, options);
-      }
-export function useSubsidiariesListForExternalAppsAccordionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>(SubsidiariesListForExternalAppsAccordionDocument, options);
-        }
-// @ts-ignore
-export function useSubsidiariesListForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>;
-export function useSubsidiariesListForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>): Apollo.UseSuspenseQueryResult<SubsidiariesListForExternalAppsAccordionQuery | undefined, SubsidiariesListForExternalAppsAccordionQueryVariables>;
-export function useSubsidiariesListForExternalAppsAccordionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>) {
-          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>(SubsidiariesListForExternalAppsAccordionDocument, options);
-        }
-export type SubsidiariesListForExternalAppsAccordionQueryHookResult = ReturnType<typeof useSubsidiariesListForExternalAppsAccordionQuery>;
-export type SubsidiariesListForExternalAppsAccordionLazyQueryHookResult = ReturnType<typeof useSubsidiariesListForExternalAppsAccordionLazyQuery>;
-export type SubsidiariesListForExternalAppsAccordionSuspenseQueryHookResult = ReturnType<typeof useSubsidiariesListForExternalAppsAccordionSuspenseQuery>;
-export type SubsidiariesListForExternalAppsAccordionQueryResult = Apollo.QueryResult<SubsidiariesListForExternalAppsAccordionQuery, SubsidiariesListForExternalAppsAccordionQueryVariables>;
 export const GetAddonListForInfoiceDocument = gql`
     query getAddonListForInfoice($page: Int, $limit: Int, $searchTerm: String) {
   addOns(page: $page, limit: $limit, searchTerm: $searchTerm) {
