@@ -1,5 +1,5 @@
 import NiceModal from '@ebay/nice-modal-react'
-import { act, cleanup, screen, waitFor, within } from '@testing-library/react'
+import { act, cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ReactNode } from 'react'
 
@@ -57,6 +57,14 @@ const getSubmitButton = () =>
 
 const getCustomPeriodInput = () =>
   screen.getByTestId(FORM_DIALOG_TEST_ID).querySelector('input[name="customPeriod"]')
+
+// `fireEvent.change` rather than `userEvent.type`: the field re-renders on every
+// keystroke through `formatValue`, so a cached node goes stale mid-type.
+const setCustomPeriod = async (value: string) => {
+  await act(async () => {
+    fireEvent.change(getCustomPeriodInput() as HTMLInputElement, { target: { value } })
+  })
+}
 
 const buildMutationMock = (netPaymentTerm: number) => ({
   request: {
@@ -133,17 +141,14 @@ describe('EditNetPaymentTermDialog', () => {
 
         await prepare({ netPaymentTerm: 45, mocks: [buildMutationMock(12)] })
 
-        const input = getCustomPeriodInput() as HTMLInputElement
-
         await waitFor(() => {
-          expect(input).toHaveValue('45')
+          expect(getCustomPeriodInput()).toHaveValue('45')
         })
 
-        await user.clear(input)
-        await user.type(input, '12')
+        await setCustomPeriod('12')
 
         await waitFor(() => {
-          expect(input).toHaveValue('12')
+          expect(getCustomPeriodInput()).toHaveValue('12')
         })
 
         await user.click(getSubmitButton())
@@ -162,13 +167,11 @@ describe('EditNetPaymentTermDialog', () => {
 
         await prepare({ netPaymentTerm: 45, mocks: [buildMutationMock(0)] })
 
-        const input = getCustomPeriodInput() as HTMLInputElement
-
         await waitFor(() => {
-          expect(input).toHaveValue('45')
+          expect(getCustomPeriodInput()).toHaveValue('45')
         })
 
-        await user.clear(input)
+        await setCustomPeriod('')
         await user.click(getSubmitButton())
 
         await waitFor(() => {
