@@ -56,21 +56,62 @@ const numberFormatter = new RegExp(
   `${ValueFormatter.int}|${ValueFormatter.decimal}|${ValueFormatter.triDecimal}|${ValueFormatter.quadDecimal}|${ValueFormatter.sextDecimal}|${ValueFormatter.positiveNumber}`,
 )
 
+type FormatterFunctions = ValueFormatterType[] | ValueFormatterType
+
+const DECIMAL_TRUNCATIONS: ReadonlyArray<readonly [ValueFormatterType, RegExp]> = [
+  [ValueFormatter.decimal, /^-?\d+(?:\.\d{0,2})?/],
+  [ValueFormatter.triDecimal, /^-?\d+(?:\.\d{0,3})?/],
+  [ValueFormatter.quadDecimal, /^-?\d+(?:\.\d{0,4})?/],
+  [ValueFormatter.sextDecimal, /^-?\d+(?:\.\d{0,6})?/],
+  [ValueFormatter.chargeDecimal, /^-?\d+(?:\.\d{0,15})?/],
+]
+
+const TEXT_TRANSFORMS: ReadonlyArray<readonly [ValueFormatterType, (value: string) => string]> = [
+  [ValueFormatter.code, (value) => value.replace(/\s/g, '_')],
+  [ValueFormatter.lowercase, (value) => value.toLowerCase()],
+  [ValueFormatter.trim, (value) => value.trim()],
+  [ValueFormatter.dashSeparator, (value) => value.replaceAll(' ', '-').replaceAll('_', '-')],
+]
+
+const hasNumberFormatter = (formatterFunctions: FormatterFunctions): boolean =>
+  numberFormatter.test(
+    typeof formatterFunctions === 'string' ? formatterFunctions : formatterFunctions.join(''),
+  )
+
+const applyNumericFormatters = (value: string, formatterFunctions: FormatterFunctions): string => {
+  // A lone '-' is a valid intermediate state: the user is typing a negative number.
+  if (value === '-') return value
+
+  let formatted = value
+
+  if (formatterFunctions.includes(ValueFormatter.int)) {
+    const parsed = Number.parseInt(formatted)
+
+    formatted = Number.isNaN(parsed) ? '' : String(parsed)
+  }
+
+  DECIMAL_TRUNCATIONS.forEach(([formatter, truncation]) => {
+    if (formatterFunctions.includes(formatter)) {
+      formatted = truncation.exec(formatted)?.[0] ?? ''
+    }
+  })
+
+  return formatted
+}
+
 export const formatValue = (
   value: string | number | undefined,
-  formatterFunctions?: ValueFormatterType[] | ValueFormatterType,
+  formatterFunctions?: FormatterFunctions,
 ): string | null => {
   if (value === undefined || value === null || value === '') return ''
 
   let formattedValue = String(value)
 
-  if (!formatterFunctions || !formatterFunctions.length) return formattedValue
+  if (!formatterFunctions?.length) return formattedValue
 
   if (
-    numberFormatter.test(
-      typeof formatterFunctions === 'string' ? formatterFunctions : formatterFunctions.join(''),
-    ) &&
-    isNaN(Number(formattedValue.replace(/\.|-/g, '')))
+    hasNumberFormatter(formatterFunctions) &&
+    Number.isNaN(Number(formattedValue.replace(/[.-]/g, '')))
   ) {
     return null
   }
@@ -79,47 +120,13 @@ export const formatValue = (
     formattedValue = formattedValue.replace('-', '')
   }
 
-  if (formatterFunctions.includes(ValueFormatter.int) && formattedValue !== '-') {
-    const parsed = parseInt(formattedValue)
+  formattedValue = applyNumericFormatters(formattedValue, formatterFunctions)
 
-    formattedValue = isNaN(parsed) ? '' : String(parsed)
-  }
-
-  if (formatterFunctions.includes(ValueFormatter.decimal) && formattedValue !== '-') {
-    formattedValue = formattedValue.match(/^-?\d+(?:\.\d{0,2})?/)?.[0] ?? ''
-  }
-
-  if (formatterFunctions.includes(ValueFormatter.triDecimal) && formattedValue !== '-') {
-    formattedValue = formattedValue.match(/^-?\d+(?:\.\d{0,3})?/)?.[0] ?? ''
-  }
-
-  if (formatterFunctions.includes(ValueFormatter.quadDecimal) && formattedValue !== '-') {
-    formattedValue = formattedValue.match(/^-?\d+(?:\.\d{0,4})?/)?.[0] ?? ''
-  }
-
-  if (formatterFunctions.includes(ValueFormatter.sextDecimal)) {
-    formattedValue = formattedValue.match(/^-?\d+(?:\.\d{0,6})?/)?.[0] ?? ''
-  }
-
-  if (formatterFunctions.includes(ValueFormatter.chargeDecimal) && formattedValue !== '-') {
-    formattedValue = formattedValue.match(/^-?\d+(?:\.\d{0,15})?/)?.[0] ?? ''
-  }
-
-  if (formatterFunctions.includes(ValueFormatter.code)) {
-    formattedValue = formattedValue.replace(/\s/g, '_')
-  }
-
-  if (formatterFunctions.includes(ValueFormatter.lowercase)) {
-    formattedValue = formattedValue.toLowerCase()
-  }
-
-  if (formatterFunctions.includes(ValueFormatter.trim)) {
-    formattedValue = formattedValue.trim()
-  }
-
-  if (formatterFunctions.includes(ValueFormatter.dashSeparator)) {
-    formattedValue = formattedValue.replace(/ /g, '-').replace(/_/g, '-')
-  }
+  TEXT_TRANSFORMS.forEach(([formatter, transform]) => {
+    if (formatterFunctions.includes(formatter)) {
+      formattedValue = transform(formattedValue)
+    }
+  })
 
   return formattedValue
 }
@@ -163,7 +170,7 @@ export const TextInput = forwardRef<HTMLDivElement, TextInputProps>(
         if (formattedValue === null) return
 
         setLocalValue(formattedValue)
-        onChange && onChange(formattedValue, event)
+        onChange?.(formattedValue, event)
       },
       [beforeChangeFormatter, onChange],
     )
