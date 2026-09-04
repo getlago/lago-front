@@ -92,7 +92,7 @@ with no error and no request (the BIL-410 regression).
 
 | Component | Stored value |
 | --------- | ------------ |
-| `TextInputField` | `string` — **unless** `beforeChangeFormatter` includes `'int'`, which stores `number \| ''` |
+| `TextInputField` | `string` — **unless** `beforeChangeFormatter` includes `'int'`, which stores `number \| ''`, plus a transient `'-'` while a negative number is being typed (pair it with `'positiveNumber'`, which strips the sign first, to rule that out) |
 | `AmountInputField` | `string \| number \| undefined` — `'int'` is auto-pushed for 0-decimal currencies (JPY, KRW…), so an amount flips shape with the currency |
 | `ComboBoxField` | `string \| undefined` |
 | `MultipleComboBoxField` | whole options, `{ value, label, … }[]` — schema `z.array(z.looseObject({ value: z.string() }))`, map to ids in `onSubmit`, seed defaults as options |
@@ -159,9 +159,13 @@ formApi.setErrorMap({
 })
 ```
 
-Clear the error when the user edits the field, or submit stays disabled. A duplicate
-`code` rejection has a helper that does both: `applyExistingCodeError(formApi)`
-(`~/core/form/existingCodeError`).
+Clear the error when the user edits the field, or submit stays disabled — setting and
+clearing are two separate jobs. For a duplicate `code`, `applyExistingCodeError(formApi)`
+(`~/core/form/existingCodeError`) does only the setting half, in the mutation catch on
+`LagoApiError.ValueAlreadyExist`. The clearing half belongs to the field, gated on
+`EXISTING_CODE_ERROR_MESSAGE` so it does not wipe the zod required-check — already
+implemented in `NameAndCodeGroup` and `ChargeCodeField`, so mount one of those rather
+than re-wiring the listener.
 
 Validator-produced errors live directly on `errorMap.onDynamic` keyed by field path; the
 `.fields` sub-shape exists only for errors set manually. Reading section validity for
@@ -172,10 +176,13 @@ Validator-produced errors live directly on `errorMap.onDynamic` keyed by field p
 | | `withForm` | `withFieldGroup` |
 | --- | --- | --- |
 | For | a section of one specific form | a field group reused across forms |
-| Receives | `form` | `group` |
-| Call | `<Section form={form} />` | `<NameAndCodeGroup group={form} />` |
+| Call | `<Section form={form} />` | `<NameAndCodeGroup form={form} fields={{ name: 'name', code: 'code' }} />` |
+| `render` receives | `form` | `group`, scoped to the mapped fields |
 
-Both come from `~/hooks/forms/useAppform` and take `{ defaultValues, props, render }`.
+Both come from `~/hooks/forms/useAppform` and take `{ defaultValues, props, render }`. The
+`fields` mapping is what lets a group bind to differently-named fields on the host form,
+so a group's own `defaultValues` keys are its internal names, never the host's.
+
 A form inside a dialog is independent of its parent form: its own `useAppForm`, values
 flowing out through a callback, wired with `dialogFormProps(FORM_ID, form)`.
 
@@ -195,7 +202,11 @@ A test rendering a form inside a drawer or dialog needs the `import.meta` mock �
 
 `CreateSubscription.tsx` + `SubscriptionInformationFormSection.tsx` (multi-section,
 `withForm`), `CreateCoupon.tsx` (conditional sections, server error on `code`),
-`EditFeeBillingPeriod.tsx` (small form in a `FormDialog`),
-`approveQuote/validationSchema.ts` (schema + type + defaults + mapper),
-`src/components/wallets/tanstackForm/` (drawer forms), `CreatePricingUnit.tsx`
+`EditInvoiceItemDescriptionDialog.tsx` (small form in a `FormDialog`, via
+`dialogFormProps`), `approveQuote/validationSchema.ts` (schema + type + defaults +
+mapper), `src/components/wallets/tanstackForm/` (drawer forms), `CreatePricingUnit.tsx`
 (`scrollToFirstInputError`).
+
+Not a model to copy: `EditFeeBillingPeriod.tsx` drives a raw `DatePicker` inside
+`form.AppField` and carries a `message: ''`, both of which this guide rules out. It works,
+but reading it as a template reproduces two things a new form should not do.
