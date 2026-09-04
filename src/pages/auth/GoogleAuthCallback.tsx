@@ -7,6 +7,7 @@ import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
 import { GoogleAuthModeEnum } from '~/components/auth/GoogleAuthButton'
 import { hasDefinedGQLError, LagoGQLError, onLogIn } from '~/core/apolloClient'
 import { INVITATION_ROUTE_FORM, LOGIN_ROUTE, SIGN_UP_ROUTE } from '~/core/router'
+import { isSafeInAppPath } from '~/core/router/utils/isSafeInAppPath'
 import { setItemFromLS } from '~/core/utils/localStorage'
 import { REDIRECT_AFTER_LOGIN_LS_KEY } from '~/core/utils/localStorageKeys'
 import { LagoApiError, useGoogleLoginUserMutation } from '~/generated/graphql'
@@ -93,7 +94,9 @@ const GoogleAuthCallback = () => {
       // authTokenVar, the guard may redirect to HOME before this callback
       // can navigate — localStorage ensures Home.tsx can still find the path.
       // Home.tsx is the SINGLE point of cleanup for REDIRECT_AFTER_LOGIN_LS_KEY.
-      if (redirectPath) {
+      // `state.redirectPath` comes straight off the URL query, so it is
+      // attacker-controlled. Validate before it reaches localStorage.
+      if (redirectPath && isSafeInAppPath(redirectPath)) {
         setItemFromLS(REDIRECT_AFTER_LOGIN_LS_KEY, redirectPath)
       }
 
