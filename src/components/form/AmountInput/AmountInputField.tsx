@@ -1,8 +1,8 @@
 import { FormikProps } from 'formik'
 import _get from 'lodash/get'
-import _isEqual from 'lodash/isEqual'
 import { forwardRef, memo } from 'react'
 
+import { formikFieldPropsAreEqual } from '~/components/form/formikFieldPropsAreEqual'
 import { CurrencyEnum } from '~/generated/graphql'
 
 import { AmountInput, AmountInputProps } from './AmountInput'
@@ -42,7 +42,7 @@ export const AmountInputField = memo(
           cleanable={cleanable}
           inputProps={inputProps}
           error={getAmountInputError(silentError, displayErrorText, touched, errors, name)}
-          onChange={(value: string | number | undefined) => {
+          onChange={(value: string) => {
             setFieldValue(name, value)
           }}
           {...props}
@@ -50,18 +50,7 @@ export const AmountInputField = memo(
       )
     },
   ),
-  (
-    { formikProps: prevFormikProps, name: prevName, ...prev },
-    { formikProps: nextformikProps, name: nextName, ...next },
-  ) => {
-    return (
-      _isEqual(prev, next) &&
-      prevName === nextName &&
-      _get(prevFormikProps.values, prevName) === _get(nextformikProps.values, nextName) &&
-      _get(prevFormikProps.errors, prevName) === _get(nextformikProps.errors, nextName) &&
-      _get(prevFormikProps.touched, prevName) === _get(nextformikProps.touched, nextName)
-    )
-  },
+  formikFieldPropsAreEqual,
 )
 
 AmountInputField.displayName = 'AmountInputField'

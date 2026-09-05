@@ -22,7 +22,7 @@ const baseForm = (overrides: Partial<TWalletTopUpDataForm> = {}): TWalletTopUpDa
   name: undefined,
   metadata: undefined,
   ignorePaidTopUpLimits: undefined,
-  priority: 50,
+  priority: '50',
   ...overrides,
 })
 
@@ -37,7 +37,7 @@ describe('mapFromApiToForm', () => {
           name: undefined,
           metadata: undefined,
           ignorePaidTopUpLimits: undefined,
-          priority: 50,
+          priority: '50',
         })
       })
 
@@ -122,15 +122,17 @@ describe('mapFormToCreateInput', () => {
   describe('GIVEN a missing priority', () => {
     describe('WHEN mapping to the create input', () => {
       it.each([
-        ['emptied to ""', '' as unknown as number],
-        ['zero', 0],
-        ['undefined', undefined as unknown as number],
+        ['emptied to ""', ''],
+        ['zero', '0'],
+        ['undefined', undefined],
       ])('THEN should fall back to the default 50 (%s)', (_, priority) => {
         expect(mapFormToCreateInput(baseForm({ priority }), { walletId: 'w' }).priority).toBe(50)
       })
 
       it('THEN should keep an explicit priority', () => {
-        expect(mapFormToCreateInput(baseForm({ priority: 7 }), { walletId: 'w' }).priority).toBe(7)
+        expect(mapFormToCreateInput(baseForm({ priority: '7' }), { walletId: 'w' }).priority).toBe(
+          7,
+        )
       })
     })
   })

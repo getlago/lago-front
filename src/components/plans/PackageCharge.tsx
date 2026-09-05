@@ -93,12 +93,12 @@ export const PackageCharge = memo(() => {
       <Alert
         type="info"
         data-test={
-          valuePointer?.packageSize
+          serializedPackageCharge > 0
             ? PACKAGE_CHARGE_FILLED_ALERT_TEST_ID
             : PACKAGE_CHARGE_EMPTY_ALERT_TEST_ID
         }
       >
-        {valuePointer?.packageSize ? (
+        {serializedPackageCharge > 0 ? (
           <>
             <Typography variant="bodyHl" color="textSecondary">
               {translate('text_6282085b4f283b0102655892', {
@@ -111,7 +111,7 @@ export const PackageCharge = memo(() => {
                 }),
               })}
             </Typography>
-            {valuePointer?.freeUnits && (
+            {serializedFreeUnits > 0 && (
               <Typography color="textSecondary" data-test={PACKAGE_CHARGE_FREE_UNITS_ALERT_TEST_ID}>
                 {translate('text_6282085b4f283b0102655896', {
                   unit: 1,
