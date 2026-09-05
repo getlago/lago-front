@@ -81,6 +81,17 @@ jest.mock('../RateCardDrawerContent', () => ({
       >
         clear pricing unit
       </button>
+      <button
+        data-test="change-taxes"
+        onClick={() =>
+          form.setFieldValue('taxes', [{ id: 'tax-2', code: 'vat_10', name: 'VAT 10%', rate: 10 }])
+        }
+      >
+        change taxes
+      </button>
+      <button data-test="clear-taxes" onClick={() => form.setFieldValue('taxes', [])}>
+        clear taxes
+      </button>
     </>
   ),
 }))
@@ -113,6 +124,7 @@ const rateCardFixture: RateCardForDrawerFragment = {
     },
   },
   productFilter: null,
+  taxes: [{ id: 'tax-1', code: 'vat_20', name: 'VAT 20%', rate: 20 }],
 }
 
 const updateRateCardMock = (
@@ -182,7 +194,6 @@ describe('useRateCardDrawer edit flow', () => {
       description: 'Old description',
       billingTiming: RateCardBillingTimingEnum.Advance,
       proration: true,
-      walletTargetable: true,
       currency: CurrencyEnum.Usd,
       displayOnInvoice: false,
       regroupPaidFees: RateCardRegroupPaidFeesEnum.Invoice,
@@ -191,6 +202,8 @@ describe('useRateCardDrawer edit flow', () => {
     expect(capturedInput).not.toHaveProperty('code')
     expect(capturedInput).not.toHaveProperty('productId')
     expect(capturedInput).not.toHaveProperty('productFilterId')
+    expect(capturedInput).not.toHaveProperty('taxCodes')
+    expect(capturedInput).not.toHaveProperty('walletTargetable')
 
     expect(mockNavigate).not.toHaveBeenCalled()
     expect(addToast).toHaveBeenCalledWith({
@@ -237,6 +250,65 @@ describe('useRateCardDrawer edit flow', () => {
     await waitFor(() => expect(mockClose).toHaveBeenCalledTimes(1))
 
     expect(capturedInput.appliedPricingUnitCode).toBeNull()
+  })
+
+  it('sends tax codes when taxes change', async () => {
+    let capturedInput: Record<string, unknown> = {}
+    const { result } = renderDrawerHook([updateRateCardMock((input) => (capturedInput = input))])
+
+    act(() => result.current.openDrawer({ rateCard: rateCardFixture }))
+    render(
+      <MockedProvider mocks={[]} addTypename={false}>
+        {lastDrawerArgs?.children}
+      </MockedProvider>,
+    )
+    await userEvent.click(screen.getByTestId('change-taxes'))
+    await submit()
+
+    await waitFor(() => expect(mockClose).toHaveBeenCalledTimes(1))
+
+    expect(capturedInput.taxCodes).toEqual(['vat_10'])
+  })
+
+  it('does not change a nullable wallet target setting when updating taxes', async () => {
+    let capturedInput: Record<string, unknown> = {}
+    const { result } = renderDrawerHook([updateRateCardMock((input) => (capturedInput = input))])
+
+    act(() =>
+      result.current.openDrawer({
+        rateCard: { ...rateCardFixture, walletTargetable: null },
+      }),
+    )
+    render(
+      <MockedProvider mocks={[]} addTypename={false}>
+        {lastDrawerArgs?.children}
+      </MockedProvider>,
+    )
+    await userEvent.click(screen.getByTestId('change-taxes'))
+    await submit()
+
+    await waitFor(() => expect(mockClose).toHaveBeenCalledTimes(1))
+
+    expect(capturedInput.taxCodes).toEqual(['vat_10'])
+    expect(capturedInput).not.toHaveProperty('walletTargetable')
+  })
+
+  it('sends an empty tax code list when all taxes are removed', async () => {
+    let capturedInput: Record<string, unknown> = {}
+    const { result } = renderDrawerHook([updateRateCardMock((input) => (capturedInput = input))])
+
+    act(() => result.current.openDrawer({ rateCard: rateCardFixture }))
+    render(
+      <MockedProvider mocks={[]} addTypename={false}>
+        {lastDrawerArgs?.children}
+      </MockedProvider>,
+    )
+    await userEvent.click(screen.getByTestId('clear-taxes'))
+    await submit()
+
+    await waitFor(() => expect(mockClose).toHaveBeenCalledTimes(1))
+
+    expect(capturedInput.taxCodes).toEqual([])
   })
 
   it('passes locked flags to the content when the rate card is attached', () => {

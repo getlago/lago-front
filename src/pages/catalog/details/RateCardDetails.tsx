@@ -126,7 +126,7 @@ const RateCardDetails = () => {
         // closures capture `rateCard` from the last push. Encode the mutable
         // fields the closures depend on (but that the header does not display)
         // so an edit touching only those re-pushes fresh closures.
-        snapshotKey={`${rateCard?.description}|${rateCard?.billingTiming}|${rateCard?.proration}|${rateCard?.attachedToPlanOrSubscription}|${rateCard?.attachedToSubscriptions}|${rateCard?.currency}|${rateCard?.appliedPricingUnitCode}|${rateCard?.walletTargetable}|${rateCard?.displayOnInvoice}|${rateCard?.regroupPaidFees}|${rateCard?.activeRate?.effectiveFrom}`}
+        snapshotKey={`${rateCard?.description}|${rateCard?.billingTiming}|${rateCard?.proration}|${rateCard?.attachedToPlanOrSubscription}|${rateCard?.attachedToSubscriptions}|${rateCard?.currency}|${rateCard?.appliedPricingUnitCode}|${rateCard?.walletTargetable}|${rateCard?.displayOnInvoice}|${rateCard?.regroupPaidFees}|${rateCard?.taxes.map((tax) => tax.code).join(',')}|${rateCard?.activeRate?.effectiveFrom}`}
         breadcrumb={[
           {
             label: translate('text_1783019143196z1oi70j03vt'),
