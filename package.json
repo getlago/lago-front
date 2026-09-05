@@ -73,7 +73,7 @@
     "babel-jest": "30.4.1",
     "baseline-browser-mapping": "2.11.18",
     "class-variance-authority": "0.7.1",
-    "cssnano": "9.0.0",
+    "cssnano": "9.0.1",
     "cypress": "15.21.0",
     "cypress-vite": "1.10.2",
     "dotenv": "17.4.2",

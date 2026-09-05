@@ -332,8 +332,8 @@ importers:
         specifier: 0.7.1
         version: 0.7.1
       cssnano:
-        specifier: 9.0.0
-        version: 9.0.0(postcss@8.5.26)
+        specifier: 9.0.1
+        version: 9.0.1(postcss@8.5.26)
       cypress:
         specifier: 15.21.0
         version: 15.21.0
@@ -4772,8 +4772,8 @@ packages:
     engines: {node: '>=4'}
     hasBin: true
 
-  cssnano-preset-default@9.0.0:
-    resolution: {integrity: sha512-gup/QorXISDe36Ad6zTyI9pjNrPhZqYx1o9zoKz46RokT1Pga5LxT/3KtKpb9GOvS0t4lqN037IE1zBnv+HT3A==}
+  cssnano-preset-default@9.0.1:
+    resolution: {integrity: sha512-ijTL+PbY00iPaPIBya1V5UBegqzAdCkdqzxKQWjb8oFan3dZ7fKRXDeD5AW0BFYDzvAt95i9xdDqaof8IEoG4g==}
     engines: {node: ^22.22.3 || ^24.15.0 || >=26.0}
     peerDependencies:
       postcss: ^8.5.26
@@ -4784,8 +4784,8 @@ packages:
     peerDependencies:
       postcss: ^8.5.26
 
-  cssnano@9.0.0:
-    resolution: {integrity: sha512-pEVG11SIRqeGUpMo3oRYZmy0C4l2KfKwuKh9dHtgAZXabO6lngvPUEj/SjJI3W06UFATbDCzzW/tFU61rU3pGw==}
+  cssnano@9.0.1:
+    resolution: {integrity: sha512-nTcVXlnodhnQZQlH+8/NdpExRTJ4AEBTcV/sx4Xx1X0UdbrSSw4523RpE3bojlRzZdmdEy9n8F9XeipjUKJ3MQ==}
     engines: {node: ^22.22.3 || ^24.15.0 || >=26.0}
     peerDependencies:
       postcss: ^8.5.26
@@ -7311,14 +7311,14 @@ packages:
     peerDependencies:
       postcss: ^8.4
 
-  postcss-merge-longhand@9.0.0:
-    resolution: {integrity: sha512-JD3DRcpdHjgB+MeN2qHdbsXPmcG9Ash/aA7uKkXvmYe69ioyHAAF+TG9p3+QQnuk5tivUf3b+/u46bbg3E0guQ==}
+  postcss-merge-longhand@9.0.1:
+    resolution: {integrity: sha512-SC93bxL+wBkxmGtYg7R085PUclZyz/C2npIj25EbNr4DFU3IwDGj6+SVomdhd90xD4rPDEVGTOGYHvcTq5K8ZQ==}
     engines: {node: ^22.22.3 || ^24.15.0 || >=26.0}
     peerDependencies:
       postcss: ^8.5.26
 
-  postcss-merge-rules@9.0.0:
-    resolution: {integrity: sha512-whyJ5h4+JQh+uOg3iEacA5Jc022iUPArajWmYsVef0DCcYYZpOcGkf1uePOt4+R68eL0ysGAYppac6LHXV81eg==}
+  postcss-merge-rules@9.0.1:
+    resolution: {integrity: sha512-3YM3QdJvGPxTozNEyRM+bxh52n8bxC5tu/M7sJNiof+20fWmZutPk1a77D8dJt9k8HiUgZFsdbpvNDwWtCsy5Q==}
     engines: {node: ^22.22.3 || ^24.15.0 || >=26.0}
     peerDependencies:
       postcss: ^8.5.26
@@ -7341,8 +7341,8 @@ packages:
     peerDependencies:
       postcss: ^8.5.26
 
-  postcss-minify-selectors@9.0.0:
-    resolution: {integrity: sha512-qVubYH2PML7CqSqBHwgcnSKsGBvgP2mPqBGwwktkH8Wc8PkTxEhfmMxYQlpKS/xE4+y7FsGlYKztwWTqhO6WBg==}
+  postcss-minify-selectors@9.0.1:
+    resolution: {integrity: sha512-O2iEU97c+zJYlaIQ3WLNrbWfR1oEzem0Lm6CmepwdLVxYiKz24f6EwWbtJkdjYpxaw9OnD9hOC3IyLYXFVykTg==}
     engines: {node: ^22.22.3 || ^24.15.0 || >=26.0}
     peerDependencies:
       postcss: ^8.5.26
@@ -8176,8 +8176,8 @@ packages:
   style-to-object@2.0.2:
     resolution: {integrity: sha512-QmbXPUylqU80HAgTOJeEOdbA40W9KtxmjMhQy+tq+b8F2aoh3aQLuy82hh2jm2qsC9hR9eI0+eQidTMydKcqRA==}
 
-  stylehacks@9.0.0:
-    resolution: {integrity: sha512-6pleLbQzWySsInJY88SBJf933nf72EVqhLRBS1SaE2f+gmEY4rmCMDaqXYhHYZl8Ed8YzRx0d+TmPQkmhFcrRg==}
+  stylehacks@9.0.1:
+    resolution: {integrity: sha512-4UVg0FQWpKpTUTNshZmtwbyg9xXavQe27F2ihQDCsjgvnKvP37RswqklL03tSk3JSFjk8h4Emeil4OVWHGugBA==}
     engines: {node: ^22.22.3 || ^24.15.0 || >=26.0}
     peerDependencies:
       postcss: ^8.5.26
@@ -13413,7 +13413,7 @@ snapshots:
 
   cssesc@3.0.0: {}
 
-  cssnano-preset-default@9.0.0(postcss@8.5.26):
+  cssnano-preset-default@9.0.1(postcss@8.5.26):
     dependencies:
       browserslist: 4.28.8
       cssnano-utils: 7.0.0(postcss@8.5.26)
@@ -13425,12 +13425,12 @@ snapshots:
       postcss-discard-duplicates: 9.0.0(postcss@8.5.26)
       postcss-discard-empty: 9.0.0(postcss@8.5.26)
       postcss-discard-overridden: 9.0.0(postcss@8.5.26)
-      postcss-merge-longhand: 9.0.0(postcss@8.5.26)
-      postcss-merge-rules: 9.0.0(postcss@8.5.26)
+      postcss-merge-longhand: 9.0.1(postcss@8.5.26)
+      postcss-merge-rules: 9.0.1(postcss@8.5.26)
       postcss-minify-font-values: 9.0.0(postcss@8.5.26)
       postcss-minify-gradients: 9.0.0(postcss@8.5.26)
       postcss-minify-params: 9.0.0(postcss@8.5.26)
-      postcss-minify-selectors: 9.0.0(postcss@8.5.26)
+      postcss-minify-selectors: 9.0.1(postcss@8.5.26)
       postcss-normalize-charset: 9.0.0(postcss@8.5.26)
       postcss-normalize-display-values: 9.0.0(postcss@8.5.26)
       postcss-normalize-positions: 9.0.0(postcss@8.5.26)
@@ -13450,9 +13450,9 @@ snapshots:
     dependencies:
       postcss: 8.5.26
 
-  cssnano@9.0.0(postcss@8.5.26):
+  cssnano@9.0.1(postcss@8.5.26):
     dependencies:
-      cssnano-preset-default: 9.0.0(postcss@8.5.26)
+      cssnano-preset-default: 9.0.1(postcss@8.5.26)
       postcss: 8.5.26
 
   csso@5.0.5:
@@ -16576,13 +16576,13 @@ snapshots:
       postcss: 8.5.26
       postcss-value-parser: 4.2.0
 
-  postcss-merge-longhand@9.0.0(postcss@8.5.26):
+  postcss-merge-longhand@9.0.1(postcss@8.5.26):
     dependencies:
       postcss: 8.5.26
       postcss-value-parser: 4.2.0
-      stylehacks: 9.0.0(postcss@8.5.26)
+      stylehacks: 9.0.1(postcss@8.5.26)
 
-  postcss-merge-rules@9.0.0(postcss@8.5.26):
+  postcss-merge-rules@9.0.1(postcss@8.5.26):
     dependencies:
       browserslist: 4.28.8
       caniuse-api: 4.0.0
@@ -16609,7 +16609,7 @@ snapshots:
       postcss: 8.5.26
       postcss-value-parser: 4.2.0
 
-  postcss-minify-selectors@9.0.0(postcss@8.5.26):
+  postcss-minify-selectors@9.0.1(postcss@8.5.26):
     dependencies:
       browserslist: 4.28.8
       caniuse-api: 4.0.0
@@ -17622,7 +17622,7 @@ snapshots:
     dependencies:
       inline-style-parser: 0.2.9
 
-  stylehacks@9.0.0(postcss@8.5.26):
+  stylehacks@9.0.1(postcss@8.5.26):
     dependencies:
       browserslist: 4.28.8
       postcss: 8.5.26
