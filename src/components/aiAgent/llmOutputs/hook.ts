@@ -2,7 +2,7 @@ import { codeBlockLookBack, findCompleteCodeBlock, findPartialCodeBlock } from '
 import { markdownLookBack } from '@llm-ui/markdown'
 import { throttleBasic, useLLMOutput } from '@llm-ui/react'
 
-import { Codeblock } from './Codeblock'
+import { LazyCodeblock } from './LazyCodeblock'
 import { Markdown } from './Markdown'
 
 const LLM_THROTTLE_MS = 2000
@@ -16,7 +16,7 @@ export const useCustomLLMOutput = (output: string, isStreamFinished: boolean) =>
     },
     blocks: [
       {
-        component: Codeblock,
+        component: LazyCodeblock,
         findCompleteMatch: findCompleteCodeBlock(),
         findPartialMatch: findPartialCodeBlock(),
         lookBack: codeBlockLookBack(),
