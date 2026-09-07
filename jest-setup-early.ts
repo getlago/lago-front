@@ -34,6 +34,10 @@ const SUPPRESSED_PATTERNS: string[][] = [
   // Apollo cache merge warnings (test environment artifact)
   ['Cache data may be lost when replacing'],
 
+  // `v7_startTransition` stays off: transitions keep the leaving page mounted, so its pending
+  // effect-driven redirect can replace the URL you just navigated to (`SettingsHomePage`).
+  ['React Router Future Flag Warning', 'v7_startTransition'],
+
   // GraphQL fragment duplicate warnings (test environment artifact)
   ['Warning: fragment with name', 'already exists'],
 
