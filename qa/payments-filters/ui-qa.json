@@ -1,0 +1,1285 @@
+[
+  {
+    "label": "baseline",
+    "url": "http://127.0.0.1:8080/payments-filters/payments",
+    "variables": {
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 29,
+    "payment_ids": [
+      "35f92acd-9d6d-4900-a8fd-269abdd33bd1",
+      "4a9969ca-c598-4714-bd78-8bdc4ab2dd99",
+      "4ab08f91-6c21-4cbe-8e5f-e330e9cdc9d4",
+      "5b5c572a-7682-43c7-a2e3-c6a1edbd1c87",
+      "77eac2dd-4475-4239-b562-b9f4b9408aea",
+      "e695aabb-9a8c-4f80-98a8-43d2e06e673a",
+      "64ff022c-0f53-48a5-bae5-a32294392a4d",
+      "8d699c6f-6df9-4f22-84db-9c6f87b56406",
+      "8df057c6-6818-4986-b1b4-d63a3b3a6df9",
+      "9bc38b96-6c5a-4876-930b-8c566df1b344",
+      "d5b52e4f-4b02-4ce9-ad36-60e7aa7e417d",
+      "e20e5548-f3a5-43cc-b507-d5e9e57022fc",
+      "39fa6b17-12a1-474d-a38e-16c0f83ee9ac",
+      "6aa4cc9c-d48b-47a1-931b-5b0d82b25541",
+      "7652abc7-c34c-4926-8685-89fa76cde1aa",
+      "aef55340-f929-48a7-935c-3899a1b2db14",
+      "ce91b5b2-4489-43c7-8fa2-b9d46612e74f",
+      "12aa4435-c9a2-444b-a8ab-a0a89dcca50b",
+      "33804f08-9e77-4299-94bd-cd31ddd57712",
+      "9a6b5689-adbb-4958-a838-d31d5bf0e57d"
+    ],
+    "requests": 1,
+    "rest_count": 29
+  },
+  {
+    "label": "Payment status",
+    "url": "http://127.0.0.1:8080/payments-filters/payments?pa_paymentStatus=succeeded%2Cfailed",
+    "variables": {
+      "paymentStatus": ["succeeded", "failed"],
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 14,
+    "payment_ids": [
+      "35f92acd-9d6d-4900-a8fd-269abdd33bd1",
+      "4ab08f91-6c21-4cbe-8e5f-e330e9cdc9d4",
+      "e695aabb-9a8c-4f80-98a8-43d2e06e673a",
+      "8d699c6f-6df9-4f22-84db-9c6f87b56406",
+      "d5b52e4f-4b02-4ce9-ad36-60e7aa7e417d",
+      "e20e5548-f3a5-43cc-b507-d5e9e57022fc",
+      "39fa6b17-12a1-474d-a38e-16c0f83ee9ac",
+      "6aa4cc9c-d48b-47a1-931b-5b0d82b25541",
+      "12aa4435-c9a2-444b-a8ab-a0a89dcca50b",
+      "fc261c0b-d48f-4505-9f5f-6aef77afbbc1",
+      "1f4c1581-5478-4a79-b460-04c1fe21a15a",
+      "73f36220-3f9b-4f8e-a3c7-d5f5bfc236b1",
+      "c50d097e-c049-433f-895b-9bfe5b1c67e2",
+      "f95089a0-c003-4128-893f-8009fcbc8a33"
+    ],
+    "requests": 1,
+    "rest_count": 14
+  },
+  {
+    "label": "Payment status reload",
+    "url": "http://127.0.0.1:8080/payments-filters/payments?pa_paymentStatus=succeeded%2Cfailed",
+    "variables": {
+      "paymentStatus": ["succeeded", "failed"],
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 14,
+    "payment_ids": [
+      "35f92acd-9d6d-4900-a8fd-269abdd33bd1",
+      "4ab08f91-6c21-4cbe-8e5f-e330e9cdc9d4",
+      "e695aabb-9a8c-4f80-98a8-43d2e06e673a",
+      "8d699c6f-6df9-4f22-84db-9c6f87b56406",
+      "d5b52e4f-4b02-4ce9-ad36-60e7aa7e417d",
+      "e20e5548-f3a5-43cc-b507-d5e9e57022fc",
+      "39fa6b17-12a1-474d-a38e-16c0f83ee9ac",
+      "6aa4cc9c-d48b-47a1-931b-5b0d82b25541",
+      "12aa4435-c9a2-444b-a8ab-a0a89dcca50b",
+      "fc261c0b-d48f-4505-9f5f-6aef77afbbc1",
+      "1f4c1581-5478-4a79-b460-04c1fe21a15a",
+      "73f36220-3f9b-4f8e-a3c7-d5f5bfc236b1",
+      "c50d097e-c049-433f-895b-9bfe5b1c67e2",
+      "f95089a0-c003-4128-893f-8009fcbc8a33"
+    ],
+    "requests": 1,
+    "rest_count": 14
+  },
+  {
+    "label": "clear all",
+    "url": "http://127.0.0.1:8080/payments-filters/payments",
+    "variables": {
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 29,
+    "payment_ids": [
+      "35f92acd-9d6d-4900-a8fd-269abdd33bd1",
+      "4a9969ca-c598-4714-bd78-8bdc4ab2dd99",
+      "4ab08f91-6c21-4cbe-8e5f-e330e9cdc9d4",
+      "5b5c572a-7682-43c7-a2e3-c6a1edbd1c87",
+      "77eac2dd-4475-4239-b562-b9f4b9408aea",
+      "e695aabb-9a8c-4f80-98a8-43d2e06e673a",
+      "64ff022c-0f53-48a5-bae5-a32294392a4d",
+      "8d699c6f-6df9-4f22-84db-9c6f87b56406",
+      "8df057c6-6818-4986-b1b4-d63a3b3a6df9",
+      "9bc38b96-6c5a-4876-930b-8c566df1b344",
+      "d5b52e4f-4b02-4ce9-ad36-60e7aa7e417d",
+      "e20e5548-f3a5-43cc-b507-d5e9e57022fc",
+      "39fa6b17-12a1-474d-a38e-16c0f83ee9ac",
+      "6aa4cc9c-d48b-47a1-931b-5b0d82b25541",
+      "7652abc7-c34c-4926-8685-89fa76cde1aa",
+      "aef55340-f929-48a7-935c-3899a1b2db14",
+      "ce91b5b2-4489-43c7-8fa2-b9d46612e74f",
+      "12aa4435-c9a2-444b-a8ab-a0a89dcca50b",
+      "33804f08-9e77-4299-94bd-cd31ddd57712",
+      "9a6b5689-adbb-4958-a838-d31d5bf0e57d"
+    ],
+    "requests": 1,
+    "rest_count": 29
+  },
+  {
+    "label": "Payment provider",
+    "url": "http://127.0.0.1:8080/payments-filters/payments?pa_paymentProviderType=stripe",
+    "variables": {
+      "paymentProviderType": ["stripe"],
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 10,
+    "payment_ids": [
+      "4a9969ca-c598-4714-bd78-8bdc4ab2dd99",
+      "77eac2dd-4475-4239-b562-b9f4b9408aea",
+      "64ff022c-0f53-48a5-bae5-a32294392a4d",
+      "8d699c6f-6df9-4f22-84db-9c6f87b56406",
+      "39fa6b17-12a1-474d-a38e-16c0f83ee9ac",
+      "ce91b5b2-4489-43c7-8fa2-b9d46612e74f",
+      "fc261c0b-d48f-4505-9f5f-6aef77afbbc1",
+      "fdc6c9f4-b45e-49c2-8acd-9f29acaae519",
+      "1f4c1581-5478-4a79-b460-04c1fe21a15a",
+      "c50d097e-c049-433f-895b-9bfe5b1c67e2"
+    ],
+    "requests": 1,
+    "rest_count": 10
+  },
+  {
+    "label": "Payment provider reload",
+    "url": "http://127.0.0.1:8080/payments-filters/payments?pa_paymentProviderType=stripe",
+    "variables": {
+      "paymentProviderType": ["stripe"],
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 10,
+    "payment_ids": [
+      "4a9969ca-c598-4714-bd78-8bdc4ab2dd99",
+      "77eac2dd-4475-4239-b562-b9f4b9408aea",
+      "64ff022c-0f53-48a5-bae5-a32294392a4d",
+      "8d699c6f-6df9-4f22-84db-9c6f87b56406",
+      "39fa6b17-12a1-474d-a38e-16c0f83ee9ac",
+      "ce91b5b2-4489-43c7-8fa2-b9d46612e74f",
+      "fc261c0b-d48f-4505-9f5f-6aef77afbbc1",
+      "fdc6c9f4-b45e-49c2-8acd-9f29acaae519",
+      "1f4c1581-5478-4a79-b460-04c1fe21a15a",
+      "c50d097e-c049-433f-895b-9bfe5b1c67e2"
+    ],
+    "requests": 1,
+    "rest_count": 10
+  },
+  {
+    "label": "clear all",
+    "url": "http://127.0.0.1:8080/payments-filters/payments",
+    "variables": {
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 29,
+    "payment_ids": [
+      "35f92acd-9d6d-4900-a8fd-269abdd33bd1",
+      "4a9969ca-c598-4714-bd78-8bdc4ab2dd99",
+      "4ab08f91-6c21-4cbe-8e5f-e330e9cdc9d4",
+      "5b5c572a-7682-43c7-a2e3-c6a1edbd1c87",
+      "77eac2dd-4475-4239-b562-b9f4b9408aea",
+      "e695aabb-9a8c-4f80-98a8-43d2e06e673a",
+      "64ff022c-0f53-48a5-bae5-a32294392a4d",
+      "8d699c6f-6df9-4f22-84db-9c6f87b56406",
+      "8df057c6-6818-4986-b1b4-d63a3b3a6df9",
+      "9bc38b96-6c5a-4876-930b-8c566df1b344",
+      "d5b52e4f-4b02-4ce9-ad36-60e7aa7e417d",
+      "e20e5548-f3a5-43cc-b507-d5e9e57022fc",
+      "39fa6b17-12a1-474d-a38e-16c0f83ee9ac",
+      "6aa4cc9c-d48b-47a1-931b-5b0d82b25541",
+      "7652abc7-c34c-4926-8685-89fa76cde1aa",
+      "aef55340-f929-48a7-935c-3899a1b2db14",
+      "ce91b5b2-4489-43c7-8fa2-b9d46612e74f",
+      "12aa4435-c9a2-444b-a8ab-a0a89dcca50b",
+      "33804f08-9e77-4299-94bd-cd31ddd57712",
+      "9a6b5689-adbb-4958-a838-d31d5bf0e57d"
+    ],
+    "requests": 1,
+    "rest_count": 29
+  },
+  {
+    "label": "Payment method",
+    "url": "http://127.0.0.1:8080/payments-filters/payments?pa_paymentMethodType=card%2Csepa_debit",
+    "variables": {
+      "paymentMethodType": ["card", "sepa_debit"],
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 5,
+    "payment_ids": [
+      "77eac2dd-4475-4239-b562-b9f4b9408aea",
+      "64ff022c-0f53-48a5-bae5-a32294392a4d",
+      "9bc38b96-6c5a-4876-930b-8c566df1b344",
+      "9a6b5689-adbb-4958-a838-d31d5bf0e57d",
+      "43d63e21-133b-4092-acf4-8c1a909a2974"
+    ],
+    "requests": 1,
+    "rest_count": 5
+  },
+  {
+    "label": "Payment method reload",
+    "url": "http://127.0.0.1:8080/payments-filters/payments?pa_paymentMethodType=card%2Csepa_debit",
+    "variables": {
+      "paymentMethodType": ["card", "sepa_debit"],
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 5,
+    "payment_ids": [
+      "77eac2dd-4475-4239-b562-b9f4b9408aea",
+      "64ff022c-0f53-48a5-bae5-a32294392a4d",
+      "9bc38b96-6c5a-4876-930b-8c566df1b344",
+      "9a6b5689-adbb-4958-a838-d31d5bf0e57d",
+      "43d63e21-133b-4092-acf4-8c1a909a2974"
+    ],
+    "requests": 1,
+    "rest_count": 5
+  },
+  {
+    "label": "clear all",
+    "url": "http://127.0.0.1:8080/payments-filters/payments",
+    "variables": {
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 29,
+    "payment_ids": [
+      "35f92acd-9d6d-4900-a8fd-269abdd33bd1",
+      "4a9969ca-c598-4714-bd78-8bdc4ab2dd99",
+      "4ab08f91-6c21-4cbe-8e5f-e330e9cdc9d4",
+      "5b5c572a-7682-43c7-a2e3-c6a1edbd1c87",
+      "77eac2dd-4475-4239-b562-b9f4b9408aea",
+      "e695aabb-9a8c-4f80-98a8-43d2e06e673a",
+      "64ff022c-0f53-48a5-bae5-a32294392a4d",
+      "8d699c6f-6df9-4f22-84db-9c6f87b56406",
+      "8df057c6-6818-4986-b1b4-d63a3b3a6df9",
+      "9bc38b96-6c5a-4876-930b-8c566df1b344",
+      "d5b52e4f-4b02-4ce9-ad36-60e7aa7e417d",
+      "e20e5548-f3a5-43cc-b507-d5e9e57022fc",
+      "39fa6b17-12a1-474d-a38e-16c0f83ee9ac",
+      "6aa4cc9c-d48b-47a1-931b-5b0d82b25541",
+      "7652abc7-c34c-4926-8685-89fa76cde1aa",
+      "aef55340-f929-48a7-935c-3899a1b2db14",
+      "ce91b5b2-4489-43c7-8fa2-b9d46612e74f",
+      "12aa4435-c9a2-444b-a8ab-a0a89dcca50b",
+      "33804f08-9e77-4299-94bd-cd31ddd57712",
+      "9a6b5689-adbb-4958-a838-d31d5bf0e57d"
+    ],
+    "requests": 1,
+    "rest_count": 29
+  },
+  {
+    "label": "Currency",
+    "url": "http://127.0.0.1:8080/payments-filters/payments?pa_currency=EUR",
+    "variables": {
+      "currency": "EUR",
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 15,
+    "payment_ids": [
+      "4a9969ca-c598-4714-bd78-8bdc4ab2dd99",
+      "77eac2dd-4475-4239-b562-b9f4b9408aea",
+      "e695aabb-9a8c-4f80-98a8-43d2e06e673a",
+      "64ff022c-0f53-48a5-bae5-a32294392a4d",
+      "8d699c6f-6df9-4f22-84db-9c6f87b56406",
+      "e20e5548-f3a5-43cc-b507-d5e9e57022fc",
+      "39fa6b17-12a1-474d-a38e-16c0f83ee9ac",
+      "aef55340-f929-48a7-935c-3899a1b2db14",
+      "ce91b5b2-4489-43c7-8fa2-b9d46612e74f",
+      "33804f08-9e77-4299-94bd-cd31ddd57712",
+      "fc261c0b-d48f-4505-9f5f-6aef77afbbc1",
+      "fdc6c9f4-b45e-49c2-8acd-9f29acaae519",
+      "1f4c1581-5478-4a79-b460-04c1fe21a15a",
+      "c50d097e-c049-433f-895b-9bfe5b1c67e2",
+      "f910d6f0-e458-4c2f-a859-0b2d55eda7fa"
+    ],
+    "requests": 1,
+    "rest_count": 15
+  },
+  {
+    "label": "Currency reload",
+    "url": "http://127.0.0.1:8080/payments-filters/payments?pa_currency=EUR",
+    "variables": {
+      "currency": "EUR",
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 15,
+    "payment_ids": [
+      "4a9969ca-c598-4714-bd78-8bdc4ab2dd99",
+      "77eac2dd-4475-4239-b562-b9f4b9408aea",
+      "e695aabb-9a8c-4f80-98a8-43d2e06e673a",
+      "64ff022c-0f53-48a5-bae5-a32294392a4d",
+      "8d699c6f-6df9-4f22-84db-9c6f87b56406",
+      "e20e5548-f3a5-43cc-b507-d5e9e57022fc",
+      "39fa6b17-12a1-474d-a38e-16c0f83ee9ac",
+      "aef55340-f929-48a7-935c-3899a1b2db14",
+      "ce91b5b2-4489-43c7-8fa2-b9d46612e74f",
+      "33804f08-9e77-4299-94bd-cd31ddd57712",
+      "fc261c0b-d48f-4505-9f5f-6aef77afbbc1",
+      "fdc6c9f4-b45e-49c2-8acd-9f29acaae519",
+      "1f4c1581-5478-4a79-b460-04c1fe21a15a",
+      "c50d097e-c049-433f-895b-9bfe5b1c67e2",
+      "f910d6f0-e458-4c2f-a859-0b2d55eda7fa"
+    ],
+    "requests": 1,
+    "rest_count": 15
+  },
+  {
+    "label": "clear all",
+    "url": "http://127.0.0.1:8080/payments-filters/payments",
+    "variables": {
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 29,
+    "payment_ids": [
+      "35f92acd-9d6d-4900-a8fd-269abdd33bd1",
+      "4a9969ca-c598-4714-bd78-8bdc4ab2dd99",
+      "4ab08f91-6c21-4cbe-8e5f-e330e9cdc9d4",
+      "5b5c572a-7682-43c7-a2e3-c6a1edbd1c87",
+      "77eac2dd-4475-4239-b562-b9f4b9408aea",
+      "e695aabb-9a8c-4f80-98a8-43d2e06e673a",
+      "64ff022c-0f53-48a5-bae5-a32294392a4d",
+      "8d699c6f-6df9-4f22-84db-9c6f87b56406",
+      "8df057c6-6818-4986-b1b4-d63a3b3a6df9",
+      "9bc38b96-6c5a-4876-930b-8c566df1b344",
+      "d5b52e4f-4b02-4ce9-ad36-60e7aa7e417d",
+      "e20e5548-f3a5-43cc-b507-d5e9e57022fc",
+      "39fa6b17-12a1-474d-a38e-16c0f83ee9ac",
+      "6aa4cc9c-d48b-47a1-931b-5b0d82b25541",
+      "7652abc7-c34c-4926-8685-89fa76cde1aa",
+      "aef55340-f929-48a7-935c-3899a1b2db14",
+      "ce91b5b2-4489-43c7-8fa2-b9d46612e74f",
+      "12aa4435-c9a2-444b-a8ab-a0a89dcca50b",
+      "33804f08-9e77-4299-94bd-cd31ddd57712",
+      "9a6b5689-adbb-4958-a838-d31d5bf0e57d"
+    ],
+    "requests": 1,
+    "rest_count": 29
+  },
+  {
+    "label": "Receipt number",
+    "url": "http://127.0.0.1:8080/payments-filters/payments?pa_receiptNumber=rcpt-2026-0001",
+    "variables": {
+      "receiptNumber": "rcpt-2026-0001",
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 1,
+    "payment_ids": ["33804f08-9e77-4299-94bd-cd31ddd57712"],
+    "requests": 1,
+    "rest_count": 1
+  },
+  {
+    "label": "Receipt number reload",
+    "url": "http://127.0.0.1:8080/payments-filters/payments?pa_receiptNumber=rcpt-2026-0001",
+    "variables": {
+      "receiptNumber": "rcpt-2026-0001",
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 1,
+    "payment_ids": ["33804f08-9e77-4299-94bd-cd31ddd57712"],
+    "requests": 1,
+    "rest_count": 1
+  },
+  {
+    "label": "clear all",
+    "url": "http://127.0.0.1:8080/payments-filters/payments",
+    "variables": {
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 29,
+    "payment_ids": [
+      "35f92acd-9d6d-4900-a8fd-269abdd33bd1",
+      "4a9969ca-c598-4714-bd78-8bdc4ab2dd99",
+      "4ab08f91-6c21-4cbe-8e5f-e330e9cdc9d4",
+      "5b5c572a-7682-43c7-a2e3-c6a1edbd1c87",
+      "77eac2dd-4475-4239-b562-b9f4b9408aea",
+      "e695aabb-9a8c-4f80-98a8-43d2e06e673a",
+      "64ff022c-0f53-48a5-bae5-a32294392a4d",
+      "8d699c6f-6df9-4f22-84db-9c6f87b56406",
+      "8df057c6-6818-4986-b1b4-d63a3b3a6df9",
+      "9bc38b96-6c5a-4876-930b-8c566df1b344",
+      "d5b52e4f-4b02-4ce9-ad36-60e7aa7e417d",
+      "e20e5548-f3a5-43cc-b507-d5e9e57022fc",
+      "39fa6b17-12a1-474d-a38e-16c0f83ee9ac",
+      "6aa4cc9c-d48b-47a1-931b-5b0d82b25541",
+      "7652abc7-c34c-4926-8685-89fa76cde1aa",
+      "aef55340-f929-48a7-935c-3899a1b2db14",
+      "ce91b5b2-4489-43c7-8fa2-b9d46612e74f",
+      "12aa4435-c9a2-444b-a8ab-a0a89dcca50b",
+      "33804f08-9e77-4299-94bd-cd31ddd57712",
+      "9a6b5689-adbb-4958-a838-d31d5bf0e57d"
+    ],
+    "requests": 1,
+    "rest_count": 29
+  },
+  {
+    "label": "Invoice number",
+    "url": "http://127.0.0.1:8080/payments-filters/payments?pa_invoiceNumber=lag-1234-001-002",
+    "variables": {
+      "invoiceNumber": "lag-1234-001-002",
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 1,
+    "payment_ids": ["c50d097e-c049-433f-895b-9bfe5b1c67e2"],
+    "requests": 1,
+    "rest_count": 1
+  },
+  {
+    "label": "Invoice number reload",
+    "url": "http://127.0.0.1:8080/payments-filters/payments?pa_invoiceNumber=lag-1234-001-002",
+    "variables": {
+      "invoiceNumber": "lag-1234-001-002",
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 1,
+    "payment_ids": ["c50d097e-c049-433f-895b-9bfe5b1c67e2"],
+    "requests": 1,
+    "rest_count": 1
+  },
+  {
+    "label": "clear all",
+    "url": "http://127.0.0.1:8080/payments-filters/payments",
+    "variables": {
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 29,
+    "payment_ids": [
+      "35f92acd-9d6d-4900-a8fd-269abdd33bd1",
+      "4a9969ca-c598-4714-bd78-8bdc4ab2dd99",
+      "4ab08f91-6c21-4cbe-8e5f-e330e9cdc9d4",
+      "5b5c572a-7682-43c7-a2e3-c6a1edbd1c87",
+      "77eac2dd-4475-4239-b562-b9f4b9408aea",
+      "e695aabb-9a8c-4f80-98a8-43d2e06e673a",
+      "64ff022c-0f53-48a5-bae5-a32294392a4d",
+      "8d699c6f-6df9-4f22-84db-9c6f87b56406",
+      "8df057c6-6818-4986-b1b4-d63a3b3a6df9",
+      "9bc38b96-6c5a-4876-930b-8c566df1b344",
+      "d5b52e4f-4b02-4ce9-ad36-60e7aa7e417d",
+      "e20e5548-f3a5-43cc-b507-d5e9e57022fc",
+      "39fa6b17-12a1-474d-a38e-16c0f83ee9ac",
+      "6aa4cc9c-d48b-47a1-931b-5b0d82b25541",
+      "7652abc7-c34c-4926-8685-89fa76cde1aa",
+      "aef55340-f929-48a7-935c-3899a1b2db14",
+      "ce91b5b2-4489-43c7-8fa2-b9d46612e74f",
+      "12aa4435-c9a2-444b-a8ab-a0a89dcca50b",
+      "33804f08-9e77-4299-94bd-cd31ddd57712",
+      "9a6b5689-adbb-4958-a838-d31d5bf0e57d"
+    ],
+    "requests": 1,
+    "rest_count": 29
+  },
+  {
+    "label": "Payment type",
+    "url": "http://127.0.0.1:8080/payments-filters/payments?pa_paymentType=manual",
+    "variables": {
+      "paymentType": ["manual"],
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 10,
+    "payment_ids": [
+      "35f92acd-9d6d-4900-a8fd-269abdd33bd1",
+      "e695aabb-9a8c-4f80-98a8-43d2e06e673a",
+      "8df057c6-6818-4986-b1b4-d63a3b3a6df9",
+      "e20e5548-f3a5-43cc-b507-d5e9e57022fc",
+      "7652abc7-c34c-4926-8685-89fa76cde1aa",
+      "aef55340-f929-48a7-935c-3899a1b2db14",
+      "12aa4435-c9a2-444b-a8ab-a0a89dcca50b",
+      "33804f08-9e77-4299-94bd-cd31ddd57712",
+      "73f36220-3f9b-4f8e-a3c7-d5f5bfc236b1",
+      "f910d6f0-e458-4c2f-a859-0b2d55eda7fa"
+    ],
+    "requests": 1,
+    "rest_count": 10
+  },
+  {
+    "label": "Payment type reload",
+    "url": "http://127.0.0.1:8080/payments-filters/payments?pa_paymentType=manual",
+    "variables": {
+      "paymentType": ["manual"],
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 10,
+    "payment_ids": [
+      "35f92acd-9d6d-4900-a8fd-269abdd33bd1",
+      "e695aabb-9a8c-4f80-98a8-43d2e06e673a",
+      "8df057c6-6818-4986-b1b4-d63a3b3a6df9",
+      "e20e5548-f3a5-43cc-b507-d5e9e57022fc",
+      "7652abc7-c34c-4926-8685-89fa76cde1aa",
+      "aef55340-f929-48a7-935c-3899a1b2db14",
+      "12aa4435-c9a2-444b-a8ab-a0a89dcca50b",
+      "33804f08-9e77-4299-94bd-cd31ddd57712",
+      "73f36220-3f9b-4f8e-a3c7-d5f5bfc236b1",
+      "f910d6f0-e458-4c2f-a859-0b2d55eda7fa"
+    ],
+    "requests": 1,
+    "rest_count": 10
+  },
+  {
+    "label": "clear all",
+    "url": "http://127.0.0.1:8080/payments-filters/payments",
+    "variables": {
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 29,
+    "payment_ids": [
+      "35f92acd-9d6d-4900-a8fd-269abdd33bd1",
+      "4a9969ca-c598-4714-bd78-8bdc4ab2dd99",
+      "4ab08f91-6c21-4cbe-8e5f-e330e9cdc9d4",
+      "5b5c572a-7682-43c7-a2e3-c6a1edbd1c87",
+      "77eac2dd-4475-4239-b562-b9f4b9408aea",
+      "e695aabb-9a8c-4f80-98a8-43d2e06e673a",
+      "64ff022c-0f53-48a5-bae5-a32294392a4d",
+      "8d699c6f-6df9-4f22-84db-9c6f87b56406",
+      "8df057c6-6818-4986-b1b4-d63a3b3a6df9",
+      "9bc38b96-6c5a-4876-930b-8c566df1b344",
+      "d5b52e4f-4b02-4ce9-ad36-60e7aa7e417d",
+      "e20e5548-f3a5-43cc-b507-d5e9e57022fc",
+      "39fa6b17-12a1-474d-a38e-16c0f83ee9ac",
+      "6aa4cc9c-d48b-47a1-931b-5b0d82b25541",
+      "7652abc7-c34c-4926-8685-89fa76cde1aa",
+      "aef55340-f929-48a7-935c-3899a1b2db14",
+      "ce91b5b2-4489-43c7-8fa2-b9d46612e74f",
+      "12aa4435-c9a2-444b-a8ab-a0a89dcca50b",
+      "33804f08-9e77-4299-94bd-cd31ddd57712",
+      "9a6b5689-adbb-4958-a838-d31d5bf0e57d"
+    ],
+    "requests": 1,
+    "rest_count": 29
+  },
+  {
+    "label": "Payable type",
+    "url": "http://127.0.0.1:8080/payments-filters/payments?pa_payableType=PaymentRequest",
+    "variables": {
+      "payableType": ["PaymentRequest"],
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 7,
+    "payment_ids": [
+      "e695aabb-9a8c-4f80-98a8-43d2e06e673a",
+      "8d699c6f-6df9-4f22-84db-9c6f87b56406",
+      "e20e5548-f3a5-43cc-b507-d5e9e57022fc",
+      "39fa6b17-12a1-474d-a38e-16c0f83ee9ac",
+      "fc261c0b-d48f-4505-9f5f-6aef77afbbc1",
+      "1f4c1581-5478-4a79-b460-04c1fe21a15a",
+      "c50d097e-c049-433f-895b-9bfe5b1c67e2"
+    ],
+    "requests": 1,
+    "rest_count": 7
+  },
+  {
+    "label": "Payable type reload",
+    "url": "http://127.0.0.1:8080/payments-filters/payments?pa_payableType=PaymentRequest",
+    "variables": {
+      "payableType": ["PaymentRequest"],
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 7,
+    "payment_ids": [
+      "e695aabb-9a8c-4f80-98a8-43d2e06e673a",
+      "8d699c6f-6df9-4f22-84db-9c6f87b56406",
+      "e20e5548-f3a5-43cc-b507-d5e9e57022fc",
+      "39fa6b17-12a1-474d-a38e-16c0f83ee9ac",
+      "fc261c0b-d48f-4505-9f5f-6aef77afbbc1",
+      "1f4c1581-5478-4a79-b460-04c1fe21a15a",
+      "c50d097e-c049-433f-895b-9bfe5b1c67e2"
+    ],
+    "requests": 1,
+    "rest_count": 7
+  },
+  {
+    "label": "clear all",
+    "url": "http://127.0.0.1:8080/payments-filters/payments",
+    "variables": {
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 29,
+    "payment_ids": [
+      "35f92acd-9d6d-4900-a8fd-269abdd33bd1",
+      "4a9969ca-c598-4714-bd78-8bdc4ab2dd99",
+      "4ab08f91-6c21-4cbe-8e5f-e330e9cdc9d4",
+      "5b5c572a-7682-43c7-a2e3-c6a1edbd1c87",
+      "77eac2dd-4475-4239-b562-b9f4b9408aea",
+      "e695aabb-9a8c-4f80-98a8-43d2e06e673a",
+      "64ff022c-0f53-48a5-bae5-a32294392a4d",
+      "8d699c6f-6df9-4f22-84db-9c6f87b56406",
+      "8df057c6-6818-4986-b1b4-d63a3b3a6df9",
+      "9bc38b96-6c5a-4876-930b-8c566df1b344",
+      "d5b52e4f-4b02-4ce9-ad36-60e7aa7e417d",
+      "e20e5548-f3a5-43cc-b507-d5e9e57022fc",
+      "39fa6b17-12a1-474d-a38e-16c0f83ee9ac",
+      "6aa4cc9c-d48b-47a1-931b-5b0d82b25541",
+      "7652abc7-c34c-4926-8685-89fa76cde1aa",
+      "aef55340-f929-48a7-935c-3899a1b2db14",
+      "ce91b5b2-4489-43c7-8fa2-b9d46612e74f",
+      "12aa4435-c9a2-444b-a8ab-a0a89dcca50b",
+      "33804f08-9e77-4299-94bd-cd31ddd57712",
+      "9a6b5689-adbb-4958-a838-d31d5bf0e57d"
+    ],
+    "requests": 1,
+    "rest_count": 29
+  },
+  {
+    "label": "Customer",
+    "url": "http://127.0.0.1:8080/payments-filters/payments?pa_customerExternalId=cust_1%7C-_-%7CCrist-Schaden+-+Terrance+Runolfsson",
+    "variables": {
+      "externalCustomerId": "cust_1",
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 10,
+    "payment_ids": [
+      "35f92acd-9d6d-4900-a8fd-269abdd33bd1",
+      "e695aabb-9a8c-4f80-98a8-43d2e06e673a",
+      "8df057c6-6818-4986-b1b4-d63a3b3a6df9",
+      "e20e5548-f3a5-43cc-b507-d5e9e57022fc",
+      "7652abc7-c34c-4926-8685-89fa76cde1aa",
+      "aef55340-f929-48a7-935c-3899a1b2db14",
+      "12aa4435-c9a2-444b-a8ab-a0a89dcca50b",
+      "33804f08-9e77-4299-94bd-cd31ddd57712",
+      "73f36220-3f9b-4f8e-a3c7-d5f5bfc236b1",
+      "f910d6f0-e458-4c2f-a859-0b2d55eda7fa"
+    ],
+    "requests": 1,
+    "rest_count": 10
+  },
+  {
+    "label": "Customer reload",
+    "url": "http://127.0.0.1:8080/payments-filters/payments?pa_customerExternalId=cust_1%7C-_-%7CCrist-Schaden+-+Terrance+Runolfsson",
+    "variables": {
+      "externalCustomerId": "cust_1",
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 10,
+    "payment_ids": [
+      "35f92acd-9d6d-4900-a8fd-269abdd33bd1",
+      "e695aabb-9a8c-4f80-98a8-43d2e06e673a",
+      "8df057c6-6818-4986-b1b4-d63a3b3a6df9",
+      "e20e5548-f3a5-43cc-b507-d5e9e57022fc",
+      "7652abc7-c34c-4926-8685-89fa76cde1aa",
+      "aef55340-f929-48a7-935c-3899a1b2db14",
+      "12aa4435-c9a2-444b-a8ab-a0a89dcca50b",
+      "33804f08-9e77-4299-94bd-cd31ddd57712",
+      "73f36220-3f9b-4f8e-a3c7-d5f5bfc236b1",
+      "f910d6f0-e458-4c2f-a859-0b2d55eda7fa"
+    ],
+    "requests": 1,
+    "rest_count": 10
+  },
+  {
+    "label": "clear all",
+    "url": "http://127.0.0.1:8080/payments-filters/payments",
+    "variables": {
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 29,
+    "payment_ids": [
+      "35f92acd-9d6d-4900-a8fd-269abdd33bd1",
+      "4a9969ca-c598-4714-bd78-8bdc4ab2dd99",
+      "4ab08f91-6c21-4cbe-8e5f-e330e9cdc9d4",
+      "5b5c572a-7682-43c7-a2e3-c6a1edbd1c87",
+      "77eac2dd-4475-4239-b562-b9f4b9408aea",
+      "e695aabb-9a8c-4f80-98a8-43d2e06e673a",
+      "64ff022c-0f53-48a5-bae5-a32294392a4d",
+      "8d699c6f-6df9-4f22-84db-9c6f87b56406",
+      "8df057c6-6818-4986-b1b4-d63a3b3a6df9",
+      "9bc38b96-6c5a-4876-930b-8c566df1b344",
+      "d5b52e4f-4b02-4ce9-ad36-60e7aa7e417d",
+      "e20e5548-f3a5-43cc-b507-d5e9e57022fc",
+      "39fa6b17-12a1-474d-a38e-16c0f83ee9ac",
+      "6aa4cc9c-d48b-47a1-931b-5b0d82b25541",
+      "7652abc7-c34c-4926-8685-89fa76cde1aa",
+      "aef55340-f929-48a7-935c-3899a1b2db14",
+      "ce91b5b2-4489-43c7-8fa2-b9d46612e74f",
+      "12aa4435-c9a2-444b-a8ab-a0a89dcca50b",
+      "33804f08-9e77-4299-94bd-cd31ddd57712",
+      "9a6b5689-adbb-4958-a838-d31d5bf0e57d"
+    ],
+    "requests": 1,
+    "rest_count": 29
+  },
+  {
+    "label": "Date",
+    "url": "http://127.0.0.1:8080/payments-filters/payments?pa_paymentCreatedAt=2026-09-01T00%3A00%3A00.000-07%3A00%2C2026-09-07T23%3A59%3A59.999-07%3A00",
+    "variables": {
+      "createdAtFrom": "2026-09-01",
+      "createdAtTo": "2026-09-07",
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 17,
+    "payment_ids": [
+      "64ff022c-0f53-48a5-bae5-a32294392a4d",
+      "8d699c6f-6df9-4f22-84db-9c6f87b56406",
+      "8df057c6-6818-4986-b1b4-d63a3b3a6df9",
+      "9bc38b96-6c5a-4876-930b-8c566df1b344",
+      "d5b52e4f-4b02-4ce9-ad36-60e7aa7e417d",
+      "e20e5548-f3a5-43cc-b507-d5e9e57022fc",
+      "39fa6b17-12a1-474d-a38e-16c0f83ee9ac",
+      "6aa4cc9c-d48b-47a1-931b-5b0d82b25541",
+      "7652abc7-c34c-4926-8685-89fa76cde1aa",
+      "aef55340-f929-48a7-935c-3899a1b2db14",
+      "ce91b5b2-4489-43c7-8fa2-b9d46612e74f",
+      "12aa4435-c9a2-444b-a8ab-a0a89dcca50b",
+      "33804f08-9e77-4299-94bd-cd31ddd57712",
+      "9a6b5689-adbb-4958-a838-d31d5bf0e57d",
+      "db4a8667-853f-4ddf-a8cd-28025ea482ee",
+      "fc261c0b-d48f-4505-9f5f-6aef77afbbc1",
+      "fdc6c9f4-b45e-49c2-8acd-9f29acaae519"
+    ],
+    "requests": 1,
+    "rest_count": 17
+  },
+  {
+    "label": "Date reload",
+    "url": "http://127.0.0.1:8080/payments-filters/payments?pa_paymentCreatedAt=2026-09-01T00%3A00%3A00.000-07%3A00%2C2026-09-07T23%3A59%3A59.999-07%3A00",
+    "variables": {
+      "createdAtFrom": "2026-09-01",
+      "createdAtTo": "2026-09-07",
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 17,
+    "payment_ids": [
+      "64ff022c-0f53-48a5-bae5-a32294392a4d",
+      "8d699c6f-6df9-4f22-84db-9c6f87b56406",
+      "8df057c6-6818-4986-b1b4-d63a3b3a6df9",
+      "9bc38b96-6c5a-4876-930b-8c566df1b344",
+      "d5b52e4f-4b02-4ce9-ad36-60e7aa7e417d",
+      "e20e5548-f3a5-43cc-b507-d5e9e57022fc",
+      "39fa6b17-12a1-474d-a38e-16c0f83ee9ac",
+      "6aa4cc9c-d48b-47a1-931b-5b0d82b25541",
+      "7652abc7-c34c-4926-8685-89fa76cde1aa",
+      "aef55340-f929-48a7-935c-3899a1b2db14",
+      "ce91b5b2-4489-43c7-8fa2-b9d46612e74f",
+      "12aa4435-c9a2-444b-a8ab-a0a89dcca50b",
+      "33804f08-9e77-4299-94bd-cd31ddd57712",
+      "9a6b5689-adbb-4958-a838-d31d5bf0e57d",
+      "db4a8667-853f-4ddf-a8cd-28025ea482ee",
+      "fc261c0b-d48f-4505-9f5f-6aef77afbbc1",
+      "fdc6c9f4-b45e-49c2-8acd-9f29acaae519"
+    ],
+    "requests": 1,
+    "rest_count": 17
+  },
+  {
+    "label": "clear all",
+    "url": "http://127.0.0.1:8080/payments-filters/payments",
+    "variables": {
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 29,
+    "payment_ids": [
+      "35f92acd-9d6d-4900-a8fd-269abdd33bd1",
+      "4a9969ca-c598-4714-bd78-8bdc4ab2dd99",
+      "4ab08f91-6c21-4cbe-8e5f-e330e9cdc9d4",
+      "5b5c572a-7682-43c7-a2e3-c6a1edbd1c87",
+      "77eac2dd-4475-4239-b562-b9f4b9408aea",
+      "e695aabb-9a8c-4f80-98a8-43d2e06e673a",
+      "64ff022c-0f53-48a5-bae5-a32294392a4d",
+      "8d699c6f-6df9-4f22-84db-9c6f87b56406",
+      "8df057c6-6818-4986-b1b4-d63a3b3a6df9",
+      "9bc38b96-6c5a-4876-930b-8c566df1b344",
+      "d5b52e4f-4b02-4ce9-ad36-60e7aa7e417d",
+      "e20e5548-f3a5-43cc-b507-d5e9e57022fc",
+      "39fa6b17-12a1-474d-a38e-16c0f83ee9ac",
+      "6aa4cc9c-d48b-47a1-931b-5b0d82b25541",
+      "7652abc7-c34c-4926-8685-89fa76cde1aa",
+      "aef55340-f929-48a7-935c-3899a1b2db14",
+      "ce91b5b2-4489-43c7-8fa2-b9d46612e74f",
+      "12aa4435-c9a2-444b-a8ab-a0a89dcca50b",
+      "33804f08-9e77-4299-94bd-cd31ddd57712",
+      "9a6b5689-adbb-4958-a838-d31d5bf0e57d"
+    ],
+    "requests": 1,
+    "rest_count": 29
+  },
+  {
+    "label": "baseline",
+    "url": "http://127.0.0.1:8080/payments-filters/payments",
+    "variables": {
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 29,
+    "payment_ids": [
+      "35f92acd-9d6d-4900-a8fd-269abdd33bd1",
+      "4a9969ca-c598-4714-bd78-8bdc4ab2dd99",
+      "4ab08f91-6c21-4cbe-8e5f-e330e9cdc9d4",
+      "5b5c572a-7682-43c7-a2e3-c6a1edbd1c87",
+      "77eac2dd-4475-4239-b562-b9f4b9408aea",
+      "e695aabb-9a8c-4f80-98a8-43d2e06e673a",
+      "64ff022c-0f53-48a5-bae5-a32294392a4d",
+      "8d699c6f-6df9-4f22-84db-9c6f87b56406",
+      "8df057c6-6818-4986-b1b4-d63a3b3a6df9",
+      "9bc38b96-6c5a-4876-930b-8c566df1b344",
+      "d5b52e4f-4b02-4ce9-ad36-60e7aa7e417d",
+      "e20e5548-f3a5-43cc-b507-d5e9e57022fc",
+      "39fa6b17-12a1-474d-a38e-16c0f83ee9ac",
+      "6aa4cc9c-d48b-47a1-931b-5b0d82b25541",
+      "7652abc7-c34c-4926-8685-89fa76cde1aa",
+      "aef55340-f929-48a7-935c-3899a1b2db14",
+      "ce91b5b2-4489-43c7-8fa2-b9d46612e74f",
+      "12aa4435-c9a2-444b-a8ab-a0a89dcca50b",
+      "33804f08-9e77-4299-94bd-cd31ddd57712",
+      "9a6b5689-adbb-4958-a838-d31d5bf0e57d"
+    ],
+    "requests": 1,
+    "rest_count": 29
+  },
+  {
+    "label": "Amount Is at least 50000000",
+    "url": "http://127.0.0.1:8080/payments-filters/payments?pa_amount=isAtLeast%2C50000000%2C",
+    "variables": {
+      "amountFrom": "5000000000",
+      "amountTo": null,
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 8,
+    "payment_ids": [
+      "5b5c572a-7682-43c7-a2e3-c6a1edbd1c87",
+      "8d699c6f-6df9-4f22-84db-9c6f87b56406",
+      "d5b52e4f-4b02-4ce9-ad36-60e7aa7e417d",
+      "aef55340-f929-48a7-935c-3899a1b2db14",
+      "9a6b5689-adbb-4958-a838-d31d5bf0e57d",
+      "fc261c0b-d48f-4505-9f5f-6aef77afbbc1",
+      "73f36220-3f9b-4f8e-a3c7-d5f5bfc236b1",
+      "f910d6f0-e458-4c2f-a859-0b2d55eda7fa"
+    ],
+    "requests": 1,
+    "rest_count": 8
+  },
+  {
+    "label": "clear all",
+    "url": "http://127.0.0.1:8080/payments-filters/payments",
+    "variables": {
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 29,
+    "payment_ids": [
+      "35f92acd-9d6d-4900-a8fd-269abdd33bd1",
+      "4a9969ca-c598-4714-bd78-8bdc4ab2dd99",
+      "4ab08f91-6c21-4cbe-8e5f-e330e9cdc9d4",
+      "5b5c572a-7682-43c7-a2e3-c6a1edbd1c87",
+      "77eac2dd-4475-4239-b562-b9f4b9408aea",
+      "e695aabb-9a8c-4f80-98a8-43d2e06e673a",
+      "64ff022c-0f53-48a5-bae5-a32294392a4d",
+      "8d699c6f-6df9-4f22-84db-9c6f87b56406",
+      "8df057c6-6818-4986-b1b4-d63a3b3a6df9",
+      "9bc38b96-6c5a-4876-930b-8c566df1b344",
+      "d5b52e4f-4b02-4ce9-ad36-60e7aa7e417d",
+      "e20e5548-f3a5-43cc-b507-d5e9e57022fc",
+      "39fa6b17-12a1-474d-a38e-16c0f83ee9ac",
+      "6aa4cc9c-d48b-47a1-931b-5b0d82b25541",
+      "7652abc7-c34c-4926-8685-89fa76cde1aa",
+      "aef55340-f929-48a7-935c-3899a1b2db14",
+      "ce91b5b2-4489-43c7-8fa2-b9d46612e74f",
+      "12aa4435-c9a2-444b-a8ab-a0a89dcca50b",
+      "33804f08-9e77-4299-94bd-cd31ddd57712",
+      "9a6b5689-adbb-4958-a838-d31d5bf0e57d"
+    ],
+    "requests": 1,
+    "rest_count": 29
+  },
+  {
+    "label": "Amount Is up to 50",
+    "url": "http://127.0.0.1:8080/payments-filters/payments?pa_amount=isUpTo%2C%2C50",
+    "variables": {
+      "amountFrom": null,
+      "amountTo": "5000",
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 15,
+    "payment_ids": [
+      "35f92acd-9d6d-4900-a8fd-269abdd33bd1",
+      "4a9969ca-c598-4714-bd78-8bdc4ab2dd99",
+      "e695aabb-9a8c-4f80-98a8-43d2e06e673a",
+      "64ff022c-0f53-48a5-bae5-a32294392a4d",
+      "9bc38b96-6c5a-4876-930b-8c566df1b344",
+      "e20e5548-f3a5-43cc-b507-d5e9e57022fc",
+      "39fa6b17-12a1-474d-a38e-16c0f83ee9ac",
+      "6aa4cc9c-d48b-47a1-931b-5b0d82b25541",
+      "ce91b5b2-4489-43c7-8fa2-b9d46612e74f",
+      "12aa4435-c9a2-444b-a8ab-a0a89dcca50b",
+      "33804f08-9e77-4299-94bd-cd31ddd57712",
+      "db4a8667-853f-4ddf-a8cd-28025ea482ee",
+      "fdc6c9f4-b45e-49c2-8acd-9f29acaae519",
+      "43d63e21-133b-4092-acf4-8c1a909a2974",
+      "c50d097e-c049-433f-895b-9bfe5b1c67e2"
+    ],
+    "requests": 1,
+    "rest_count": 15
+  },
+  {
+    "label": "clear all",
+    "url": "http://127.0.0.1:8080/payments-filters/payments",
+    "variables": {
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 29,
+    "payment_ids": [
+      "35f92acd-9d6d-4900-a8fd-269abdd33bd1",
+      "4a9969ca-c598-4714-bd78-8bdc4ab2dd99",
+      "4ab08f91-6c21-4cbe-8e5f-e330e9cdc9d4",
+      "5b5c572a-7682-43c7-a2e3-c6a1edbd1c87",
+      "77eac2dd-4475-4239-b562-b9f4b9408aea",
+      "e695aabb-9a8c-4f80-98a8-43d2e06e673a",
+      "64ff022c-0f53-48a5-bae5-a32294392a4d",
+      "8d699c6f-6df9-4f22-84db-9c6f87b56406",
+      "8df057c6-6818-4986-b1b4-d63a3b3a6df9",
+      "9bc38b96-6c5a-4876-930b-8c566df1b344",
+      "d5b52e4f-4b02-4ce9-ad36-60e7aa7e417d",
+      "e20e5548-f3a5-43cc-b507-d5e9e57022fc",
+      "39fa6b17-12a1-474d-a38e-16c0f83ee9ac",
+      "6aa4cc9c-d48b-47a1-931b-5b0d82b25541",
+      "7652abc7-c34c-4926-8685-89fa76cde1aa",
+      "aef55340-f929-48a7-935c-3899a1b2db14",
+      "ce91b5b2-4489-43c7-8fa2-b9d46612e74f",
+      "12aa4435-c9a2-444b-a8ab-a0a89dcca50b",
+      "33804f08-9e77-4299-94bd-cd31ddd57712",
+      "9a6b5689-adbb-4958-a838-d31d5bf0e57d"
+    ],
+    "requests": 1,
+    "rest_count": 29
+  },
+  {
+    "label": "Amount Is between 50",
+    "url": "http://127.0.0.1:8080/payments-filters/payments?pa_amount=isBetween%2C50%2C10",
+    "variables": {
+      "amountFrom": "1000",
+      "amountTo": "5000",
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 6,
+    "payment_ids": [
+      "e695aabb-9a8c-4f80-98a8-43d2e06e673a",
+      "e20e5548-f3a5-43cc-b507-d5e9e57022fc",
+      "6aa4cc9c-d48b-47a1-931b-5b0d82b25541",
+      "ce91b5b2-4489-43c7-8fa2-b9d46612e74f",
+      "db4a8667-853f-4ddf-a8cd-28025ea482ee",
+      "fdc6c9f4-b45e-49c2-8acd-9f29acaae519"
+    ],
+    "requests": 1,
+    "rest_count": 6
+  },
+  {
+    "label": "clear all",
+    "url": "http://127.0.0.1:8080/payments-filters/payments",
+    "variables": {
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 29,
+    "payment_ids": [
+      "35f92acd-9d6d-4900-a8fd-269abdd33bd1",
+      "4a9969ca-c598-4714-bd78-8bdc4ab2dd99",
+      "4ab08f91-6c21-4cbe-8e5f-e330e9cdc9d4",
+      "5b5c572a-7682-43c7-a2e3-c6a1edbd1c87",
+      "77eac2dd-4475-4239-b562-b9f4b9408aea",
+      "e695aabb-9a8c-4f80-98a8-43d2e06e673a",
+      "64ff022c-0f53-48a5-bae5-a32294392a4d",
+      "8d699c6f-6df9-4f22-84db-9c6f87b56406",
+      "8df057c6-6818-4986-b1b4-d63a3b3a6df9",
+      "9bc38b96-6c5a-4876-930b-8c566df1b344",
+      "d5b52e4f-4b02-4ce9-ad36-60e7aa7e417d",
+      "e20e5548-f3a5-43cc-b507-d5e9e57022fc",
+      "39fa6b17-12a1-474d-a38e-16c0f83ee9ac",
+      "6aa4cc9c-d48b-47a1-931b-5b0d82b25541",
+      "7652abc7-c34c-4926-8685-89fa76cde1aa",
+      "aef55340-f929-48a7-935c-3899a1b2db14",
+      "ce91b5b2-4489-43c7-8fa2-b9d46612e74f",
+      "12aa4435-c9a2-444b-a8ab-a0a89dcca50b",
+      "33804f08-9e77-4299-94bd-cd31ddd57712",
+      "9a6b5689-adbb-4958-a838-d31d5bf0e57d"
+    ],
+    "requests": 1,
+    "rest_count": 29
+  },
+  {
+    "label": "Amount Is equal to 90071992547409.93",
+    "url": "http://127.0.0.1:8080/payments-filters/payments?pa_amount=isEqualTo%2C90071992547409.93%2C90071992547409.93",
+    "variables": {
+      "amountFrom": "9007199254740993",
+      "amountTo": "9007199254740993",
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 2,
+    "payment_ids": ["8d699c6f-6df9-4f22-84db-9c6f87b56406", "f910d6f0-e458-4c2f-a859-0b2d55eda7fa"],
+    "requests": 1,
+    "rest_count": 2
+  },
+  {
+    "label": "clear all",
+    "url": "http://127.0.0.1:8080/payments-filters/payments",
+    "variables": {
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 29,
+    "payment_ids": [
+      "35f92acd-9d6d-4900-a8fd-269abdd33bd1",
+      "4a9969ca-c598-4714-bd78-8bdc4ab2dd99",
+      "4ab08f91-6c21-4cbe-8e5f-e330e9cdc9d4",
+      "5b5c572a-7682-43c7-a2e3-c6a1edbd1c87",
+      "77eac2dd-4475-4239-b562-b9f4b9408aea",
+      "e695aabb-9a8c-4f80-98a8-43d2e06e673a",
+      "64ff022c-0f53-48a5-bae5-a32294392a4d",
+      "8d699c6f-6df9-4f22-84db-9c6f87b56406",
+      "8df057c6-6818-4986-b1b4-d63a3b3a6df9",
+      "9bc38b96-6c5a-4876-930b-8c566df1b344",
+      "d5b52e4f-4b02-4ce9-ad36-60e7aa7e417d",
+      "e20e5548-f3a5-43cc-b507-d5e9e57022fc",
+      "39fa6b17-12a1-474d-a38e-16c0f83ee9ac",
+      "6aa4cc9c-d48b-47a1-931b-5b0d82b25541",
+      "7652abc7-c34c-4926-8685-89fa76cde1aa",
+      "aef55340-f929-48a7-935c-3899a1b2db14",
+      "ce91b5b2-4489-43c7-8fa2-b9d46612e74f",
+      "12aa4435-c9a2-444b-a8ab-a0a89dcca50b",
+      "33804f08-9e77-4299-94bd-cd31ddd57712",
+      "9a6b5689-adbb-4958-a838-d31d5bf0e57d"
+    ],
+    "requests": 1,
+    "rest_count": 29
+  },
+  {
+    "label": "Amount Is equal to 92233720368547758.07",
+    "url": "http://127.0.0.1:8080/payments-filters/payments?pa_amount=isEqualTo%2C92233720368547758.07%2C92233720368547758.07",
+    "variables": {
+      "amountFrom": "9223372036854775807",
+      "amountTo": "9223372036854775807",
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 2,
+    "payment_ids": ["5b5c572a-7682-43c7-a2e3-c6a1edbd1c87", "73f36220-3f9b-4f8e-a3c7-d5f5bfc236b1"],
+    "requests": 1,
+    "rest_count": 2
+  },
+  {
+    "label": "clear all",
+    "url": "http://127.0.0.1:8080/payments-filters/payments",
+    "variables": {
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 29,
+    "payment_ids": [
+      "35f92acd-9d6d-4900-a8fd-269abdd33bd1",
+      "4a9969ca-c598-4714-bd78-8bdc4ab2dd99",
+      "4ab08f91-6c21-4cbe-8e5f-e330e9cdc9d4",
+      "5b5c572a-7682-43c7-a2e3-c6a1edbd1c87",
+      "77eac2dd-4475-4239-b562-b9f4b9408aea",
+      "e695aabb-9a8c-4f80-98a8-43d2e06e673a",
+      "64ff022c-0f53-48a5-bae5-a32294392a4d",
+      "8d699c6f-6df9-4f22-84db-9c6f87b56406",
+      "8df057c6-6818-4986-b1b4-d63a3b3a6df9",
+      "9bc38b96-6c5a-4876-930b-8c566df1b344",
+      "d5b52e4f-4b02-4ce9-ad36-60e7aa7e417d",
+      "e20e5548-f3a5-43cc-b507-d5e9e57022fc",
+      "39fa6b17-12a1-474d-a38e-16c0f83ee9ac",
+      "6aa4cc9c-d48b-47a1-931b-5b0d82b25541",
+      "7652abc7-c34c-4926-8685-89fa76cde1aa",
+      "aef55340-f929-48a7-935c-3899a1b2db14",
+      "ce91b5b2-4489-43c7-8fa2-b9d46612e74f",
+      "12aa4435-c9a2-444b-a8ab-a0a89dcca50b",
+      "33804f08-9e77-4299-94bd-cd31ddd57712",
+      "9a6b5689-adbb-4958-a838-d31d5bf0e57d"
+    ],
+    "requests": 1,
+    "rest_count": 29
+  },
+  {
+    "label": "page 2",
+    "url": "http://127.0.0.1:8080/payments-filters/payments?page=2",
+    "variables": {
+      "limit": 20,
+      "page": 2
+    },
+    "status": 200,
+    "total_count": 29,
+    "payment_ids": [
+      "db4a8667-853f-4ddf-a8cd-28025ea482ee",
+      "fc261c0b-d48f-4505-9f5f-6aef77afbbc1",
+      "fdc6c9f4-b45e-49c2-8acd-9f29acaae519",
+      "1f4c1581-5478-4a79-b460-04c1fe21a15a",
+      "43d63e21-133b-4092-acf4-8c1a909a2974",
+      "73f36220-3f9b-4f8e-a3c7-d5f5bfc236b1",
+      "c50d097e-c049-433f-895b-9bfe5b1c67e2",
+      "f910d6f0-e458-4c2f-a859-0b2d55eda7fa",
+      "f95089a0-c003-4128-893f-8009fcbc8a33"
+    ],
+    "requests": 1,
+    "rest_count": 29
+  },
+  {
+    "label": "three filters reset page 1",
+    "url": "http://127.0.0.1:8080/payments-filters/payments?pa_paymentStatus=succeeded&pa_currency=EUR&pa_paymentProviderType=stripe",
+    "variables": {
+      "paymentStatus": ["succeeded"],
+      "currency": "EUR",
+      "paymentProviderType": ["stripe"],
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 5,
+    "payment_ids": [
+      "8d699c6f-6df9-4f22-84db-9c6f87b56406",
+      "39fa6b17-12a1-474d-a38e-16c0f83ee9ac",
+      "fc261c0b-d48f-4505-9f5f-6aef77afbbc1",
+      "1f4c1581-5478-4a79-b460-04c1fe21a15a",
+      "c50d097e-c049-433f-895b-9bfe5b1c67e2"
+    ],
+    "requests": 1,
+    "rest_count": 5
+  },
+  {
+    "label": "three filters plus search",
+    "url": "http://127.0.0.1:8080/payments-filters/payments?pa_paymentStatus=succeeded&pa_currency=EUR&pa_paymentProviderType=stripe",
+    "variables": {
+      "paymentStatus": ["succeeded"],
+      "currency": "EUR",
+      "paymentProviderType": ["stripe"],
+      "limit": 20,
+      "page": 1,
+      "searchTerm": "pi_3"
+    },
+    "status": 200,
+    "total_count": 5,
+    "payment_ids": [
+      "8d699c6f-6df9-4f22-84db-9c6f87b56406",
+      "39fa6b17-12a1-474d-a38e-16c0f83ee9ac",
+      "fc261c0b-d48f-4505-9f5f-6aef77afbbc1",
+      "1f4c1581-5478-4a79-b460-04c1fe21a15a",
+      "c50d097e-c049-433f-895b-9bfe5b1c67e2"
+    ],
+    "requests": 1,
+    "rest_count": 5
+  },
+  {
+    "label": "clear search",
+    "url": "http://127.0.0.1:8080/payments-filters/payments?pa_paymentStatus=succeeded&pa_currency=EUR&pa_paymentProviderType=stripe",
+    "variables": {
+      "paymentStatus": ["succeeded"],
+      "currency": "EUR",
+      "paymentProviderType": ["stripe"],
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 5,
+    "payment_ids": [
+      "8d699c6f-6df9-4f22-84db-9c6f87b56406",
+      "39fa6b17-12a1-474d-a38e-16c0f83ee9ac",
+      "fc261c0b-d48f-4505-9f5f-6aef77afbbc1",
+      "1f4c1581-5478-4a79-b460-04c1fe21a15a",
+      "c50d097e-c049-433f-895b-9bfe5b1c67e2"
+    ],
+    "requests": 1,
+    "rest_count": 5
+  },
+  {
+    "label": "clear all",
+    "url": "http://127.0.0.1:8080/payments-filters/payments",
+    "variables": {
+      "limit": 20,
+      "page": 1
+    },
+    "status": 200,
+    "total_count": 29,
+    "payment_ids": [
+      "35f92acd-9d6d-4900-a8fd-269abdd33bd1",
+      "4a9969ca-c598-4714-bd78-8bdc4ab2dd99",
+      "4ab08f91-6c21-4cbe-8e5f-e330e9cdc9d4",
+      "5b5c572a-7682-43c7-a2e3-c6a1edbd1c87",
+      "77eac2dd-4475-4239-b562-b9f4b9408aea",
+      "e695aabb-9a8c-4f80-98a8-43d2e06e673a",
+      "64ff022c-0f53-48a5-bae5-a32294392a4d",
+      "8d699c6f-6df9-4f22-84db-9c6f87b56406",
+      "8df057c6-6818-4986-b1b4-d63a3b3a6df9",
+      "9bc38b96-6c5a-4876-930b-8c566df1b344",
+      "d5b52e4f-4b02-4ce9-ad36-60e7aa7e417d",
+      "e20e5548-f3a5-43cc-b507-d5e9e57022fc",
+      "39fa6b17-12a1-474d-a38e-16c0f83ee9ac",
+      "6aa4cc9c-d48b-47a1-931b-5b0d82b25541",
+      "7652abc7-c34c-4926-8685-89fa76cde1aa",
+      "aef55340-f929-48a7-935c-3899a1b2db14",
+      "ce91b5b2-4489-43c7-8fa2-b9d46612e74f",
+      "12aa4435-c9a2-444b-a8ab-a0a89dcca50b",
+      "33804f08-9e77-4299-94bd-cd31ddd57712",
+      "9a6b5689-adbb-4958-a838-d31d5bf0e57d"
+    ],
+    "requests": 1,
+    "rest_count": 29
+  }
+]

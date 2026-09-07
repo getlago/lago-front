@@ -15,7 +15,7 @@ export const FILTERS_ACTIVE_FILTER_ITEM_TEST_ID = 'active-filter-item'
 export const ActiveFiltersList = () => {
   const { translate } = useInternationalization()
   const [searchParams] = useSearchParams()
-  const { availableFilters, staticFilters, keyWithoutPrefix } = useFilters()
+  const { availableFilters, staticFilters, keyWithoutPrefix, filtersNamePrefix } = useFilters()
 
   const activeFilters = useMemo(() => {
     const setFilters = Object.fromEntries(searchParams.entries())
@@ -33,7 +33,12 @@ export const ActiveFiltersList = () => {
           ...acc,
           {
             label: mapFilterToTranslationKey(_keyWithoutPrefix),
-            value: formatActiveFilterValueDisplay(_keyWithoutPrefix, value, translate),
+            value: formatActiveFilterValueDisplay(
+              _keyWithoutPrefix,
+              value,
+              translate,
+              filtersNamePrefix,
+            ),
           },
         ]
       },

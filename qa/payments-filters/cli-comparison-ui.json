@@ -1,0 +1,18 @@
+{
+  "variables": {
+    "paymentStatus": ["succeeded"],
+    "currency": "EUR",
+    "limit": 20,
+    "page": 1
+  },
+  "total_count": 7,
+  "ids": [
+    "e695aabb-9a8c-4f80-98a8-43d2e06e673a",
+    "8d699c6f-6df9-4f22-84db-9c6f87b56406",
+    "e20e5548-f3a5-43cc-b507-d5e9e57022fc",
+    "39fa6b17-12a1-474d-a38e-16c0f83ee9ac",
+    "fc261c0b-d48f-4505-9f5f-6aef77afbbc1",
+    "1f4c1581-5478-4a79-b460-04c1fe21a15a",
+    "c50d097e-c049-433f-895b-9bfe5b1c67e2"
+  ]
+}

@@ -14,6 +14,7 @@ export const MRR_BREAKDOWN_PLANS_FILTER_PREFIX = 'mbp'
 export const FORECASTS_FILTER_PREFIX = 'for'
 
 export const INVOICE_LIST_FILTER_PREFIX = 'in'
+export const PAYMENT_LIST_FILTER_PREFIX = 'pa'
 
 export const CREDIT_NOTE_LIST_FILTER_PREFIX = 'cn'
 

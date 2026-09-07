@@ -27,6 +27,7 @@ import {
   MrrOverviewAvailableFilters,
   OrderAvailableFilters,
   OrderFormAvailableFilters,
+  PaymentAvailableFilters,
   ProductAvailableFilters,
   ProductFilterAvailableFilters,
   QuoteAvailableFilters,
@@ -61,6 +62,7 @@ import {
   MRR_BREAKDOWN_PLANS_FILTER_PREFIX,
   ORDER_FORM_LIST_FILTER_PREFIX,
   ORDER_LIST_FILTER_PREFIX,
+  PAYMENT_LIST_FILTER_PREFIX,
   PREPAID_CREDITS_OVERVIEW_FILTER_PREFIX,
   PRODUCT_FILTER_LIST_FILTER_PREFIX,
   PRODUCT_LIST_FILTER_PREFIX,
@@ -89,6 +91,7 @@ import {
   type GetMrrsQueryVariables,
   type GetOrderFormsQueryVariables,
   type GetOrdersQueryVariables,
+  type GetPaymentsListQueryVariables,
   type GetPrepaidCreditsQueryVariables,
   type GetQuotesQueryVariables,
   type GetRevenueStreamsQueryVariables,
@@ -103,6 +106,17 @@ import {
   type ProductsQueryVariables,
 } from '~/generated/graphql'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
+
+import {
+  orderPaymentAmountBounds,
+  parsePaymentAmountValue,
+  payableTypeLabels,
+  paymentAmountToCents,
+  paymentMethodLabels,
+  paymentProviderLabels,
+  paymentStatusLabels,
+  paymentTypeLabels,
+} from './paymentFilterValues'
 
 export const keyWithPrefix = (key: string, prefix?: string) => (prefix ? `${prefix}_${key}` : key)
 
@@ -221,6 +235,17 @@ export const isValidDateRangeValue = (value?: string): boolean => {
   return fromDate <= toDate
 }
 
+export const isValidPaymentDateRangeValue = (value?: string): boolean => {
+  if (!value) return false
+
+  const [from, to] = value.split(',')
+  if (!from && !to) return false
+  if (from && !DateTime.fromISO(from, { setZone: true }).isValid) return false
+  if (to && !DateTime.fromISO(to, { setZone: true }).isValid) return false
+
+  return !from || !to || DateTime.fromISO(from) <= DateTime.fromISO(to)
+}
+
 export const FiltersItemDates = [
   AvailableFiltersEnum.date,
   AvailableFiltersEnum.issuingDate,
@@ -229,6 +254,7 @@ export const FiltersItemDates = [
   AvailableFiltersEnum.quoteCreatedAt,
   AvailableFiltersEnum.orderFormCreatedAt,
   AvailableFiltersEnum.orderExecutedAt,
+  AvailableFiltersEnum.paymentCreatedAt,
 ]
 
 // TODO: Fix this type
@@ -298,6 +324,19 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.paymentDisputeLost]: (value: string) => value === 'true',
   [AvailableFiltersEnum.paymentOverdue]: (value: string) => value === 'true',
   [AvailableFiltersEnum.paymentStatus]: (value: string) => (value as string).split(','),
+  [AvailableFiltersEnum.receiptNumber]: (value: string) => value,
+  [AvailableFiltersEnum.paymentProviderType]: (value: string) => value.split(',').filter(Boolean),
+  [AvailableFiltersEnum.paymentMethodType]: (value: string) => value.split(',').filter(Boolean),
+  [AvailableFiltersEnum.paymentType]: (value: string) => value.split(',').filter(Boolean),
+  [AvailableFiltersEnum.payableType]: (value: string) => value.split(',').filter(Boolean),
+  [AvailableFiltersEnum.paymentCreatedAt]: (value: string) => {
+    const [from, to] = value.split(',')
+
+    return {
+      createdAtFrom: from ? DateTime.fromISO(from, { setZone: true }).toISODate() : undefined,
+      createdAtTo: to ? DateTime.fromISO(to, { setZone: true }).toISODate() : undefined,
+    }
+  },
   [AvailableFiltersEnum.planCode]: (value: string) => value,
   [AvailableFiltersEnum.purchaseOrderNumber]: (value: string) => value,
   [AvailableFiltersEnum.productProductCategory]: (value: string) => {
@@ -672,6 +711,44 @@ export const formatFiltersForInvoiceQuery = (
     availableFilters: InvoiceAvailableFilters,
     filtersNamePrefix: INVOICE_LIST_FILTER_PREFIX,
   })
+}
+
+type PaymentsQueryFilters = Partial<
+  Omit<GetPaymentsListQueryVariables, 'page' | 'limit' | 'searchTerm'>
+>
+
+export const formatFiltersForPaymentsQuery = (
+  searchParams: URLSearchParams,
+  defaultCurrency: CurrencyEnum = CurrencyEnum.Usd,
+): PaymentsQueryFilters => {
+  const paymentParams = new URLSearchParams(
+    [...searchParams.entries()].filter(([key]) => key.startsWith(`${PAYMENT_LIST_FILTER_PREFIX}_`)),
+  )
+  const keyMap: Partial<Record<AvailableFiltersEnum, keyof PaymentsQueryFilters & string>> = {
+    [AvailableFiltersEnum.customerExternalId]: 'externalCustomerId',
+    [AvailableFiltersEnum.paymentStatus]: 'paymentStatus',
+  }
+  const filters = formatFiltersForQuery<PaymentsQueryFilters>({
+    searchParams: paymentParams,
+    keyMap,
+    availableFilters: PaymentAvailableFilters.filter(
+      (filter) => filter !== AvailableFiltersEnum.amount,
+    ),
+    filtersNamePrefix: PAYMENT_LIST_FILTER_PREFIX,
+  })
+  const amount = paymentParams.get(
+    keyWithPrefix(AvailableFiltersEnum.amount, PAYMENT_LIST_FILTER_PREFIX),
+  )
+
+  if (amount) {
+    const { amountFrom, amountTo } = parsePaymentAmountValue(orderPaymentAmountBounds(amount))
+    const currency = filters.currency || defaultCurrency
+
+    filters.amountFrom = paymentAmountToCents(amountFrom, currency)
+    filters.amountTo = paymentAmountToCents(amountTo, currency)
+  }
+
+  return filters
 }
 
 type CustomerQueryFilters = Partial<
@@ -1118,9 +1195,33 @@ export const formatActiveFilterValueDisplay = (
   key: AvailableFiltersEnum,
   value: string,
   translate?: TranslateFunc,
+  filtersNamePrefix?: string,
 ): string => {
+  if (filtersNamePrefix === PAYMENT_LIST_FILTER_PREFIX) {
+    const labels: Partial<Record<AvailableFiltersEnum, Record<string, string>>> = {
+      [AvailableFiltersEnum.paymentStatus]: paymentStatusLabels,
+      [AvailableFiltersEnum.paymentProviderType]: paymentProviderLabels,
+      [AvailableFiltersEnum.paymentMethodType]: paymentMethodLabels,
+      [AvailableFiltersEnum.paymentType]: paymentTypeLabels,
+      [AvailableFiltersEnum.payableType]: payableTypeLabels,
+    }
+    const valueLabels = labels[key]
+
+    if (valueLabels) {
+      return value
+        .split(',')
+        .map((item) => translate?.(valueLabels[item]) || item)
+        .join(', ')
+    }
+    if (key === AvailableFiltersEnum.invoiceNumber) return value
+  }
+
   if (key === AvailableFiltersEnum.amount) {
-    const [interval, from, to] = orderIntervalBounds(value).split(',')
+    const [interval, from, to] = (
+      filtersNamePrefix === PAYMENT_LIST_FILTER_PREFIX
+        ? orderPaymentAmountBounds(value)
+        : orderIntervalBounds(value)
+    ).split(',')
 
     const intervalLabel = translate?.(
       AMOUNT_INTERVALS_TRANSLATION_MAP[interval as AmountFilterInterval],
@@ -1191,6 +1292,15 @@ export const formatActiveFilterValueDisplay = (
             : 'text_1744018116743ntlygtcnq95',
         ) || ''
       )
+    case AvailableFiltersEnum.paymentCreatedAt:
+      return value
+        .split(',')
+        .filter(Boolean)
+        .map(
+          (date) =>
+            intlFormatDateTime(date, { formatDate: DateFormat.DATE_SHORT, setZone: true }).date,
+        )
+        .join(' - ')
     case AvailableFiltersEnum.date:
     case AvailableFiltersEnum.issuingDate:
     case AvailableFiltersEnum.loggedDate:
@@ -1234,6 +1344,7 @@ export const formatActiveFilterValueDisplay = (
     case AvailableFiltersEnum.externalId:
       return value
     case AvailableFiltersEnum.purchaseOrderNumber:
+    case AvailableFiltersEnum.receiptNumber:
       return value
     default:
       return value

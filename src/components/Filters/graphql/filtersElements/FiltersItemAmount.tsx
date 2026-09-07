@@ -2,6 +2,7 @@ import { useFormik } from 'formik'
 import { useEffect } from 'react'
 
 import { Typography } from '~/components/designSystem/Typography'
+import { parsePaymentAmountValue } from '~/components/Filters/graphql/paymentFilterValues'
 import { parseFromToValue } from '~/components/Filters/graphql/utils'
 import {
   AMOUNT_INTERVALS_TRANSLATION_MAP,
@@ -14,6 +15,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 type FiltersItemAmountProps = {
   value: FiltersFormValues['filters'][0]['value']
   setFilterValue: (value: string) => void
+  preservePrecision?: boolean
 }
 
 const AMOUNT_INTERVALS = [
@@ -31,7 +33,11 @@ const FROM_INTERVALS = [
 
 const TO_INTERVALS = [AmountFilterInterval.isUpTo, AmountFilterInterval.isBetween]
 
-export const FiltersItemAmount = ({ value = '', setFilterValue }: FiltersItemAmountProps) => {
+export const FiltersItemAmount = ({
+  value = '',
+  setFilterValue,
+  preservePrecision = false,
+}: FiltersItemAmountProps) => {
   const { translate } = useInternationalization()
 
   const formikProps = useFormik({
@@ -51,10 +57,10 @@ export const FiltersItemAmount = ({ value = '', setFilterValue }: FiltersItemAmo
   useEffect(() => {
     const { interval, amountFrom, amountTo } = formikProps.values
 
-    const { amountFrom: from, amountTo: to } = parseFromToValue(
-      `${interval},${amountFrom},${amountTo}`,
-      { from: 'amountFrom', to: 'amountTo' },
-    )
+    const amountValue = `${interval},${amountFrom},${amountTo}`
+    const { amountFrom: from, amountTo: to } = preservePrecision
+      ? parsePaymentAmountValue(amountValue)
+      : parseFromToValue(amountValue, { from: 'amountFrom', to: 'amountTo' })
 
     setFilterValue?.(`${interval},${from !== null ? from : ''},${to !== null ? to : ''}`)
 
@@ -78,7 +84,8 @@ export const FiltersItemAmount = ({ value = '', setFilterValue }: FiltersItemAmo
         <TextInputField
           name="amountFrom"
           beforeChangeFormatter={['chargeDecimal']}
-          type="number"
+          type={preservePrecision ? 'text' : 'number'}
+          inputProps={preservePrecision ? { inputMode: 'decimal' } : undefined}
           placeholder="0"
           formikProps={formikProps}
         />
@@ -90,7 +97,8 @@ export const FiltersItemAmount = ({ value = '', setFilterValue }: FiltersItemAmo
         <TextInputField
           name="amountTo"
           beforeChangeFormatter={['chargeDecimal']}
-          type="number"
+          type={preservePrecision ? 'text' : 'number'}
+          inputProps={preservePrecision ? { inputMode: 'decimal' } : undefined}
           placeholder="0"
           formikProps={formikProps}
         />

@@ -1,3 +1,5 @@
+import { useContext } from 'react'
+
 import { Typography } from '~/components/designSystem/Typography'
 import { FiltersItemActiveSubscriptions } from '~/components/Filters/graphql/filtersElements/FiltersItemActiveSubscriptions'
 import { FiltersItemActivityIds } from '~/components/Filters/graphql/filtersElements/FiltersItemActivityIds'
@@ -73,9 +75,20 @@ import { FiltersItemWebhookHttpStatuses } from '~/components/Filters/graphql/fil
 import { FiltersItemWebhookStatus } from '~/components/Filters/graphql/filtersElements/FiltersItemWebhookStatus'
 import { FiltersItemZipcodes } from '~/components/Filters/graphql/filtersElements/FiltersItemZipcodes'
 import { FiltersItemDates } from '~/components/Filters/graphql/utils'
+import { FilterContext } from '~/components/Filters/presentation/context'
 import { AvailableFiltersEnum, FiltersFormValues } from '~/components/Filters/presentation/types'
+import { PAYMENT_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { LogEventEnum, LogTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+
+import { FiltersItemPayablePaymentStatus } from './filtersElements/FiltersItemPayablePaymentStatus'
+import { FiltersItemPayableType } from './filtersElements/FiltersItemPayableType'
+import { FiltersItemPaymentCreatedAt } from './filtersElements/FiltersItemPaymentCreatedAt'
+import { FiltersItemPaymentInvoiceNumber } from './filtersElements/FiltersItemPaymentInvoiceNumber'
+import { FiltersItemPaymentMethodType } from './filtersElements/FiltersItemPaymentMethodType'
+import { FiltersItemPaymentProviderType } from './filtersElements/FiltersItemPaymentProviderType'
+import { FiltersItemPaymentType } from './filtersElements/FiltersItemPaymentType'
+import { FiltersItemReceiptNumber } from './filtersElements/FiltersItemReceiptNumber'
 
 export const FILTERS_PANEL_ITEM_TYPE_SWITCH_PLACEHOLDER_TEST_ID =
   'filters-panel-item-type-switch-placeholder'
@@ -94,6 +107,7 @@ export const FiltersPanelItemTypeSwitch = ({
   ...props
 }: FiltersPanelItemTypeSwitchProps) => {
   const { translate } = useInternationalization()
+  const paymentFilters = useContext(FilterContext)?.filtersNamePrefix === PAYMENT_LIST_FILTER_PREFIX
 
   if (!filterType) {
     return (
@@ -109,7 +123,9 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.activitySources]: <FiltersItemActivitySources {...props} />,
     [AvailableFiltersEnum.activityTypes]: <FiltersItemActivityTypes {...props} />,
     [AvailableFiltersEnum.activeSubscriptions]: <FiltersItemActiveSubscriptions {...props} />,
-    [AvailableFiltersEnum.amount]: <FiltersItemAmount {...props} />,
+    [AvailableFiltersEnum.amount]: (
+      <FiltersItemAmount {...props} preservePrecision={paymentFilters} />
+    ),
     [AvailableFiltersEnum.apiKeyIds]: <FiltersItemApiKeyIds {...props} />,
     [AvailableFiltersEnum.billingEntityIds]: <FiltersItemBillingEntity {...props} />,
     [AvailableFiltersEnum.billingEntityId]: <FiltersItemBillingEntityId {...props} />,
@@ -131,7 +147,11 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.hasCustomerType]: <FiltersItemHasCustomerType {...props} />,
     [AvailableFiltersEnum.httpMethods]: <FiltersItemHttpMethods {...props} />,
     [AvailableFiltersEnum.httpStatuses]: <FiltersItemHttpStatuses {...props} />,
-    [AvailableFiltersEnum.invoiceNumber]: <FiltersItemInvoiceNumber {...props} />,
+    [AvailableFiltersEnum.invoiceNumber]: paymentFilters ? (
+      <FiltersItemPaymentInvoiceNumber {...props} />
+    ) : (
+      <FiltersItemInvoiceNumber {...props} />
+    ),
     [AvailableFiltersEnum.invoiceType]: <FiltersItemInvoiceType {...props} />,
     [AvailableFiltersEnum.issuingDate]: <FiltersItemIssuingDate {...props} />,
     [AvailableFiltersEnum.loggedDate]: <FiltersItemLoggedDate {...props} />,
@@ -146,7 +166,17 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.partiallyPaid]: <FiltersItemPartiallyPaid {...props} />,
     [AvailableFiltersEnum.paymentDisputeLost]: <FiltersItemPaymentDisputeLost {...props} />,
     [AvailableFiltersEnum.paymentOverdue]: <FiltersItemPaymentOverdue {...props} />,
-    [AvailableFiltersEnum.paymentStatus]: <FiltersItemPaymentStatus {...props} />,
+    [AvailableFiltersEnum.paymentStatus]: paymentFilters ? (
+      <FiltersItemPayablePaymentStatus {...props} />
+    ) : (
+      <FiltersItemPaymentStatus {...props} />
+    ),
+    [AvailableFiltersEnum.receiptNumber]: <FiltersItemReceiptNumber {...props} />,
+    [AvailableFiltersEnum.paymentProviderType]: <FiltersItemPaymentProviderType {...props} />,
+    [AvailableFiltersEnum.paymentMethodType]: <FiltersItemPaymentMethodType {...props} />,
+    [AvailableFiltersEnum.paymentType]: <FiltersItemPaymentType {...props} />,
+    [AvailableFiltersEnum.payableType]: <FiltersItemPayableType {...props} />,
+    [AvailableFiltersEnum.paymentCreatedAt]: <FiltersItemPaymentCreatedAt {...props} />,
     [AvailableFiltersEnum.period]: <FiltersItemPeriod {...props} />,
     [AvailableFiltersEnum.planCode]: <FiltersItemPlanCode {...props} />,
     [AvailableFiltersEnum.productProductCategory]: <FiltersItemProductProductCategory {...props} />,
