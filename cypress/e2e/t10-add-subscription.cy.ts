@@ -1,5 +1,12 @@
 import { DateTime } from 'luxon'
 
+import { CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID } from '~/components/dialogs/const'
+import {
+  SUBSCRIPTION_DETAILS_ACTIONS_TEST_ID,
+  SUBSCRIPTION_DETAILS_CANCEL_TEST_ID,
+  SUBSCRIPTION_INFORMATION_FIELDS_TEST_ID,
+} from '~/components/subscriptions/subscriptionTestIds'
+
 import { customerName } from '../support/reusableConstants'
 
 describe('Subscriptions', () => {
@@ -16,11 +23,11 @@ describe('Subscriptions', () => {
     cy.get(`[data-test="add-subscription"]`).click({ force: true })
     cy.url().should('include', '/create/subscription')
 
-    // Submit without selecting a plan — should show validation error
+    // Submit without selecting a plan to show validation error
     cy.get('[data-test="submit"]').should('not.be.disabled').click()
     cy.get('input[name="planId"]').should('exist')
 
-    // Select a plan from the combobox — form sections appear
+    // Select a plan from the combobox to show form sections
     cy.get('input[name="planId"]').click({ force: true })
     cy.get('[data-option-index="0"]', { timeout: 10000 }).click({ force: true })
 
@@ -44,11 +51,45 @@ describe('Subscriptions', () => {
     cy.get(`[data-test="${subscriptionName}"]`).should('exist')
     cy.get(`[data-test="${subscriptionName}"]`).click({ force: true })
 
-    cy.get('[data-test="status"]').should('have.text', 'Pending')
-    cy.get('[data-test="subscription-details-actions"]').click()
-    cy.get('[data-test="subscription-details-cancel"]').click()
+    cy.get(`[data-test="${SUBSCRIPTION_INFORMATION_FIELDS_TEST_ID}"]`)
+      .should('contain.text', subscriptionName)
+      .and('contain.text', 'Pending')
 
-    // Pending subscriptions use a CentralizedDialog (not FormDialog)
-    cy.get('[data-test="centralized-confirm"]').click({ force: true })
+    cy.location('pathname').then((pathname) => {
+      const subscriptionPath = pathname.replace(/^\/[^/]+/, '')
+
+      cy.intercept('POST', '**/graphql', (request) => {
+        if (request.body.operationName === 'terminateCustomerSubscription') {
+          request.alias = 'cancelSubscription'
+        }
+      })
+
+      cy.get(`[data-test="${SUBSCRIPTION_DETAILS_ACTIONS_TEST_ID}"]`).click()
+      cy.get(`[data-test="${SUBSCRIPTION_DETAILS_CANCEL_TEST_ID}"]`).click()
+      cy.get(`[data-test="${CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID}"]`).click()
+
+      cy.wait('@cancelSubscription')
+        .its('response.body.data.terminateSubscription.status')
+        .should('eq', 'canceled')
+      cy.location('pathname').should('match', /^\/[^/]+\/customer\/[^/]+$/)
+
+      cy.visitApp(subscriptionPath)
+      cy.get(`[data-test="${SUBSCRIPTION_INFORMATION_FIELDS_TEST_ID}"]`)
+        .should('contain.text', subscriptionName)
+        .and('contain.text', 'Canceled')
+
+      cy.intercept('POST', '**/graphql', (request) => {
+        if (request.body.operationName === 'getSubscriptionForDetails') {
+          request.alias = 'reloadedSubscription'
+        }
+      })
+      cy.reload()
+      cy.wait('@reloadedSubscription')
+        .its('response.body.data.subscription')
+        .should('include', { name: subscriptionName, status: 'canceled' })
+      cy.get(`[data-test="${SUBSCRIPTION_INFORMATION_FIELDS_TEST_ID}"]`)
+        .should('contain.text', subscriptionName)
+        .and('contain.text', 'Canceled')
+    })
   })
 })

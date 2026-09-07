@@ -26,6 +26,8 @@ import {
 import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
+import { SUBSCRIPTION_INFORMATION_FIELDS_TEST_ID } from './subscriptionTestIds'
+
 gql`
   fragment SubscriptionInformationFields on Subscription {
     id
@@ -271,7 +273,10 @@ export const SubscriptionInformationFields = ({
   const parentPlanId = subscription?.plan?.parent?.id
 
   return (
-    <div className="flex max-w-168 flex-col gap-4">
+    <div
+      className="flex max-w-168 flex-col gap-4"
+      data-test={SUBSCRIPTION_INFORMATION_FIELDS_TEST_ID}
+    >
       <SubscriptionDetailAlerts subscription={subscription} />
 
       <DetailsPage.InfoGridItem
