@@ -3,27 +3,13 @@ import { ComponentType, lazy, LazyExoticComponent } from 'react'
 
 import { envGlobalVar } from '~/core/apolloClient/reactiveVars/envGlobalVar'
 import { reloadWithCacheBust } from '~/core/utils/reloadWithCacheBust'
-import { hasReloadedRecently, markReloaded } from '~/core/utils/staleAssetRecovery'
+import {
+  hasReloadedRecently,
+  markReloaded,
+  showPersistentToast,
+} from '~/core/utils/staleAssetRecovery'
 
 const CHUNK_LOAD_FINGERPRINT = 'chunk-load-failure'
-
-function showPersistentToast(): void {
-  import('~/core/apolloClient/reactiveVars/toastVar')
-    .then(({ addToast }) => {
-      addToast({
-        severity: 'info',
-        message:
-          'Something went wrong while loading the page. Please try refreshing or clearing your cache.',
-        autoDismiss: false,
-      })
-    })
-    .catch((error) => {
-      // Toast module also failed to load, nothing more we can do.
-      // The rejected import is already surfaced by the route error boundary.
-      // eslint-disable-next-line no-console
-      console.error('Failed to load fallback toast module', error)
-    })
-}
 
 const retry = (
   fn: () => Promise<{ default: ComponentType<Record<string, never>> }>,

@@ -8,7 +8,11 @@ import { AppEnvEnum } from '~/core/constants/globalTypes'
 import { reportMissingAppEnv } from '~/core/utils/appEnv'
 import { installLagoWindowApi } from '~/core/utils/featureFlagsConsole'
 import { reloadWithCacheBust } from '~/core/utils/reloadWithCacheBust'
-import { hasReloadedRecently, markReloaded } from '~/core/utils/staleAssetRecovery'
+import {
+  hasReloadedRecently,
+  markReloaded,
+  showPersistentToast,
+} from '~/core/utils/staleAssetRecovery'
 
 import './main.css'
 
@@ -98,9 +102,26 @@ window.addEventListener('vite:preloadError', (event) => {
 // cache-bust reload once, then stop trying so we can't loop.
 const WORKER_IMPORT_SCRIPTS_FAILURE = /Failed to execute 'importScripts' on 'WorkerGlobalScope'/
 const WORKER_LOAD_FINGERPRINT = 'worker-load-failure'
+// A single failure could be a transient network blip, not a stale deploy -
+// only reload once it repeats.
+const WORKER_LOAD_RELOAD_THRESHOLD = 2
+
+let workerLoadFailureCount = 0
 
 window.addEventListener('error', (event) => {
   if (!WORKER_IMPORT_SCRIPTS_FAILURE.test(event.message)) return
+
+  workerLoadFailureCount += 1
+
+  if (workerLoadFailureCount < WORKER_LOAD_RELOAD_THRESHOLD) {
+    Sentry.captureMessage('Worker script load failed once, waiting for a repeat before reloading', {
+      level: 'warning',
+      tags: { workerLoad: true, phase: 'first-failure' },
+      fingerprint: [WORKER_LOAD_FINGERPRINT],
+    })
+
+    return
+  }
 
   if (hasReloadedRecently()) {
     Sentry.captureException(event.error ?? new Error(event.message), {
@@ -108,6 +129,7 @@ window.addEventListener('error', (event) => {
       extra: { href: window.location.href, appVersion },
       fingerprint: [WORKER_LOAD_FINGERPRINT],
     })
+    showPersistentToast()
 
     return
   }
