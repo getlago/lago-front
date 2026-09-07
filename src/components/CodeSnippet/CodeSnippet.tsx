@@ -95,6 +95,7 @@ export const CodeSnippet = memo(
                 // Line-numbers is a Prism className and is required
                 // https://prismjs.com/plugins/line-numbers/
                 'line-numbers',
+                `language-${language}`,
                 'pb-30',
                 displayHead ? 'h-[calc(100%-theme(space.nav))]' : 'h-full',
                 variant === 'minimal' && '!m-0',
