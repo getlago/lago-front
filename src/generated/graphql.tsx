@@ -81,7 +81,7 @@ export type ActivityLogCollection = {
 };
 
 /** Activity log resource */
-export type ActivityLogResourceObject = BillableMetric | BillingEntity | Coupon | CreditNote | Customer | FeatureObject | Invoice | Order | OrderForm | PaymentReceipt | PaymentRequest | Plan | Product | ProductCategory | ProductFilter | Quote | RateCard | Subscription | Wallet;
+export type ActivityLogResourceObject = BillableMetric | BillingEntity | CatalogPlan | Coupon | CreditNote | Customer | FeatureObject | Invoice | Order | OrderForm | PaymentReceipt | PaymentRequest | Plan | Product | ProductCategory | ProductFilter | Quote | RateCard | Subscription | Wallet;
 
 /** Activity Logs source enums */
 export enum ActivitySourceEnum {
@@ -900,6 +900,20 @@ export type CashfreeProvider = {
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   successRedirectUrl?: Maybe<Scalars['String']['output']>;
+};
+
+/** A product-catalog plan */
+export type CatalogPlan = {
+  __typename?: 'CatalogPlan';
+  code: Scalars['String']['output'];
+  createdAt: Scalars['ISO8601DateTime']['output'];
+  currency: CurrencyEnum;
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  invoiceDisplayName?: Maybe<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
+  organization?: Maybe<Organization>;
+  updatedAt: Scalars['ISO8601DateTime']['output'];
 };
 
 export type Charge = {
@@ -2376,6 +2390,7 @@ export type CreateRateCardInput = {
   proration?: InputMaybe<Scalars['Boolean']['input']>;
   rates?: InputMaybe<Array<RateCardRateInput>>;
   regroupPaidFees?: InputMaybe<RateCardRegroupPaidFeesEnum>;
+  taxCodes?: InputMaybe<Array<Scalars['String']['input']>>;
   walletTargetable?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
@@ -4403,6 +4418,7 @@ export type ExportFinanceAssistantResultInput = {
 
 /** Organization Feature Flag Values */
 export enum FeatureFlagEnum {
+  AccountTree = 'account_tree',
   EnrichedEventsAggregation = 'enriched_events_aggregation',
   FixedChargeUsageDeltaMigration = 'fixed_charge_usage_delta_migration',
   LazyChargeUsageCache = 'lazy_charge_usage_cache',
@@ -5641,7 +5657,7 @@ export type Mutation = {
   /** Creates a new Billing Entity */
   createBillingEntity?: Maybe<BillingEntity>;
   /** Creates a new catalog plan */
-  createCatalogPlan?: Maybe<Plan>;
+  createCatalogPlan?: Maybe<CatalogPlan>;
   /** Creates a new Charge for a Plan */
   createCharge?: Maybe<Charge>;
   /** Creates a new Charge Filter */
@@ -5938,7 +5954,7 @@ export type Mutation = {
   /** Update Cashfree payment provider */
   updateCashfreePaymentProvider?: Maybe<CashfreeProvider>;
   /** Updates an existing catalog plan */
-  updateCatalogPlan?: Maybe<Plan>;
+  updateCatalogPlan?: Maybe<CatalogPlan>;
   /** Updates an existing Charge */
   updateCharge?: Maybe<Charge>;
   /** Updates an existing Charge Filter */
@@ -7439,6 +7455,11 @@ export enum PayablePaymentStatusEnum {
   Succeeded = 'succeeded'
 }
 
+export enum PayableTypeEnum {
+  Invoice = 'Invoice',
+  PaymentRequest = 'PaymentRequest'
+}
+
 export type Payment = {
   __typename?: 'Payment';
   amountCents: Scalars['BigInt']['output'];
@@ -7537,6 +7558,17 @@ export type PaymentProviderCustomerInput = {
   providerPaymentMethods?: InputMaybe<Array<ProviderPaymentMethodsEnum>>;
   syncWithProvider?: InputMaybe<Scalars['Boolean']['input']>;
 };
+
+export enum PaymentProviderMethodTypeEnum {
+  BacsDebit = 'bacs_debit',
+  Boleto = 'boleto',
+  Card = 'card',
+  Crypto = 'crypto',
+  CustomerBalance = 'customer_balance',
+  Link = 'link',
+  SepaDebit = 'sepa_debit',
+  UsBankAccount = 'us_bank_account'
+}
 
 /** PaymentReceipt */
 export type PaymentReceipt = {
@@ -9329,11 +9361,22 @@ export type QueryPaymentRequestsArgs = {
 
 
 export type QueryPaymentsArgs = {
+  amountFrom?: InputMaybe<Scalars['BigInt']['input']>;
+  amountTo?: InputMaybe<Scalars['BigInt']['input']>;
+  createdAtFrom?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  createdAtTo?: InputMaybe<Scalars['ISO8601Date']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
   externalCustomerId?: InputMaybe<Scalars['ID']['input']>;
   invoiceId?: InputMaybe<Scalars['ID']['input']>;
+  invoiceNumber?: InputMaybe<Scalars['String']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
+  payableType?: InputMaybe<Array<PayableTypeEnum>>;
+  paymentMethodType?: InputMaybe<Array<PaymentProviderMethodTypeEnum>>;
+  paymentProviderType?: InputMaybe<Array<ProviderTypeEnum>>;
+  paymentStatus?: InputMaybe<Array<PayablePaymentStatusEnum>>;
+  paymentType?: InputMaybe<Array<PaymentTypeEnum>>;
+  receiptNumber?: InputMaybe<Scalars['String']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -9711,6 +9754,7 @@ export type RateCard = {
   proration: Scalars['Boolean']['output'];
   ratesCount: Scalars['Int']['output'];
   regroupPaidFees: RateCardRegroupPaidFeesEnum;
+  taxes: Array<Tax>;
   updatedAt: Scalars['ISO8601DateTime']['output'];
   walletTargetable?: Maybe<Scalars['Boolean']['output']>;
 };
@@ -10010,6 +10054,8 @@ export enum ResourceTypeEnum {
   BillableMetric = 'billable_metric',
   /** BillingEntity */
   BillingEntity = 'billing_entity',
+  /** CatalogPlan */
+  CatalogPlan = 'catalog_plan',
   /** Coupon */
   Coupon = 'coupon',
   /** CreditNote */
@@ -11513,6 +11559,7 @@ export type UpdateRateCardInput = {
   name?: InputMaybe<Scalars['String']['input']>;
   proration?: InputMaybe<Scalars['Boolean']['input']>;
   regroupPaidFees?: InputMaybe<RateCardRegroupPaidFeesEnum>;
+  taxCodes?: InputMaybe<Array<Scalars['String']['input']>>;
   walletTargetable?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
@@ -13048,6 +13095,7 @@ export type GetAddOnsForPricingSectionQuery = { __typename?: 'Query', addOns: { 
 export type ActivityLogDetailsFragment = { __typename?: 'ActivityLog', activityType: ActivityTypeEnum, activitySource: ActivitySourceEnum, activityObject?: any | null, activityObjectChanges?: any | null, loggedAt: any, userEmail?: string | null, externalSubscriptionId?: string | null, externalCustomerId?: string | null, apiKey?: { __typename?: 'SanitizedApiKey', value: string, name?: string | null } | null, resource?:
     | { __typename?: 'BillableMetric', id: string }
     | { __typename?: 'BillingEntity', id: string, code: string }
+    | { __typename?: 'CatalogPlan', id: string }
     | { __typename?: 'Coupon', id: string }
     | { __typename?: 'CreditNote', id: string, customer: { __typename?: 'Customer', id: string }, invoice?: { __typename?: 'Invoice', id: string } | null }
     | { __typename?: 'Customer', id: string }
@@ -13075,6 +13123,7 @@ export type GetSingleActivityLogQueryVariables = Exact<{
 export type GetSingleActivityLogQuery = { __typename?: 'Query', activityLog?: { __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activitySource: ActivitySourceEnum, activityObject?: any | null, activityObjectChanges?: any | null, loggedAt: any, userEmail?: string | null, externalSubscriptionId?: string | null, externalCustomerId?: string | null, apiKey?: { __typename?: 'SanitizedApiKey', value: string, name?: string | null } | null, resource?:
       | { __typename?: 'BillableMetric', id: string }
       | { __typename?: 'BillingEntity', id: string, code: string }
+      | { __typename?: 'CatalogPlan', id: string }
       | { __typename?: 'Coupon', id: string }
       | { __typename?: 'CreditNote', id: string, customer: { __typename?: 'Customer', id: string }, invoice?: { __typename?: 'Invoice', id: string } | null }
       | { __typename?: 'Customer', id: string }
@@ -15751,6 +15800,17 @@ export type GetPaymentsListQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
   currency?: InputMaybe<CurrencyEnum>;
+  paymentStatus?: InputMaybe<Array<PayablePaymentStatusEnum> | PayablePaymentStatusEnum>;
+  amountFrom?: InputMaybe<Scalars['BigInt']['input']>;
+  amountTo?: InputMaybe<Scalars['BigInt']['input']>;
+  receiptNumber?: InputMaybe<Scalars['String']['input']>;
+  createdAtFrom?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  createdAtTo?: InputMaybe<Scalars['ISO8601Date']['input']>;
+  paymentProviderType?: InputMaybe<Array<ProviderTypeEnum> | ProviderTypeEnum>;
+  paymentMethodType?: InputMaybe<Array<PaymentProviderMethodTypeEnum> | PaymentProviderMethodTypeEnum>;
+  invoiceNumber?: InputMaybe<Scalars['String']['input']>;
+  paymentType?: InputMaybe<Array<PaymentTypeEnum> | PaymentTypeEnum>;
+  payableType?: InputMaybe<Array<PayableTypeEnum> | PayableTypeEnum>;
 }>;
 
 
@@ -18913,6 +18973,9 @@ export const ActivityLogDetailsFragmentDoc = gql`
     ... on BillingEntity {
       id
       code
+    }
+    ... on CatalogPlan {
+      id
     }
     ... on Coupon {
       id
@@ -40621,7 +40684,7 @@ export type GetPaymentDetailsLazyQueryHookResult = ReturnType<typeof useGetPayme
 export type GetPaymentDetailsSuspenseQueryHookResult = ReturnType<typeof useGetPaymentDetailsSuspenseQuery>;
 export type GetPaymentDetailsQueryResult = Apollo.QueryResult<GetPaymentDetailsQuery, GetPaymentDetailsQueryVariables>;
 export const GetPaymentsListDocument = gql`
-    query getPaymentsList($invoiceId: ID, $externalCustomerId: ID, $limit: Int, $page: Int, $searchTerm: String, $currency: CurrencyEnum) {
+    query getPaymentsList($invoiceId: ID, $externalCustomerId: ID, $limit: Int, $page: Int, $searchTerm: String, $currency: CurrencyEnum, $paymentStatus: [PayablePaymentStatusEnum!], $amountFrom: BigInt, $amountTo: BigInt, $receiptNumber: String, $createdAtFrom: ISO8601Date, $createdAtTo: ISO8601Date, $paymentProviderType: [ProviderTypeEnum!], $paymentMethodType: [PaymentProviderMethodTypeEnum!], $invoiceNumber: String, $paymentType: [PaymentTypeEnum!], $payableType: [PayableTypeEnum!]) {
   payments(
     invoiceId: $invoiceId
     externalCustomerId: $externalCustomerId
@@ -40629,6 +40692,17 @@ export const GetPaymentsListDocument = gql`
     page: $page
     searchTerm: $searchTerm
     currency: $currency
+    paymentStatus: $paymentStatus
+    amountFrom: $amountFrom
+    amountTo: $amountTo
+    receiptNumber: $receiptNumber
+    createdAtFrom: $createdAtFrom
+    createdAtTo: $createdAtTo
+    paymentProviderType: $paymentProviderType
+    paymentMethodType: $paymentMethodType
+    invoiceNumber: $invoiceNumber
+    paymentType: $paymentType
+    payableType: $payableType
   ) {
     metadata {
       currentPage
@@ -40660,6 +40734,17 @@ export const GetPaymentsListDocument = gql`
  *      page: // value for 'page'
  *      searchTerm: // value for 'searchTerm'
  *      currency: // value for 'currency'
+ *      paymentStatus: // value for 'paymentStatus'
+ *      amountFrom: // value for 'amountFrom'
+ *      amountTo: // value for 'amountTo'
+ *      receiptNumber: // value for 'receiptNumber'
+ *      createdAtFrom: // value for 'createdAtFrom'
+ *      createdAtTo: // value for 'createdAtTo'
+ *      paymentProviderType: // value for 'paymentProviderType'
+ *      paymentMethodType: // value for 'paymentMethodType'
+ *      invoiceNumber: // value for 'invoiceNumber'
+ *      paymentType: // value for 'paymentType'
+ *      payableType: // value for 'payableType'
  *   },
  * });
  */

@@ -99,6 +99,12 @@ export enum AvailableFiltersEnum {
   paymentDisputeLost = 'paymentDisputeLost',
   paymentOverdue = 'paymentOverdue',
   paymentStatus = 'paymentStatus',
+  receiptNumber = 'receiptNumber',
+  paymentProviderType = 'paymentProviderType',
+  paymentMethodType = 'paymentMethodType',
+  paymentType = 'paymentType',
+  payableType = 'payableType',
+  paymentCreatedAt = 'paymentCreatedAt',
   planCode = 'planCode',
   purchaseOrderNumber = 'purchaseOrderNumber',
   productProductCategory = 'productProductCategory',
@@ -169,6 +175,20 @@ export const InvoiceAvailableFilters = [
   AvailableFiltersEnum.selfBilled,
   AvailableFiltersEnum.billingEntityIds,
   AvailableFiltersEnum.purchaseOrderNumber,
+]
+
+export const PaymentAvailableFilters = [
+  AvailableFiltersEnum.paymentStatus,
+  AvailableFiltersEnum.amount,
+  AvailableFiltersEnum.receiptNumber,
+  AvailableFiltersEnum.paymentCreatedAt,
+  AvailableFiltersEnum.paymentProviderType,
+  AvailableFiltersEnum.paymentMethodType,
+  AvailableFiltersEnum.currency,
+  AvailableFiltersEnum.invoiceNumber,
+  AvailableFiltersEnum.customerExternalId,
+  AvailableFiltersEnum.paymentType,
+  AvailableFiltersEnum.payableType,
 ]
 
 export const RevenueStreamsAvailablePopperFilters = [
@@ -425,6 +445,12 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.paymentDisputeLost]: 'text_66141e30699a0631f0b2ed32',
   [AvailableFiltersEnum.paymentOverdue]: 'text_666c5b12fea4aa1e1b26bf55',
   [AvailableFiltersEnum.paymentStatus]: 'text_63eba8c65a6c8043feee2a0f',
+  [AvailableFiltersEnum.receiptNumber]: 'text_17416040051091zpga3ugijs',
+  [AvailableFiltersEnum.paymentProviderType]: 'text_634ea0ecc6147de10ddb6631',
+  [AvailableFiltersEnum.paymentMethodType]: 'text_17440371192353kif37ol194',
+  [AvailableFiltersEnum.paymentType]: 'text_1788818972604tg2ogag4h2r',
+  [AvailableFiltersEnum.payableType]: 'text_17888189726040erbp5xejy9',
+  [AvailableFiltersEnum.paymentCreatedAt]: 'text_664cb90097bfa800e6efa3f5',
   [AvailableFiltersEnum.planCode]: 'text_642d5eb2783a2ad10d670320',
   [AvailableFiltersEnum.purchaseOrderNumber]: 'text_17822197712867qhfbaf9fpk',
   // Catalog list filters reuse the "Product category" / "Product" / "Product filter"

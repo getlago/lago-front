@@ -11,6 +11,7 @@ import {
   formatFiltersForMrrQuery,
   formatFiltersForOrderFormsQuery,
   formatFiltersForOrdersQuery,
+  formatFiltersForPaymentsQuery,
   formatFiltersForProductFiltersQuery,
   formatFiltersForProductsQuery,
   formatFiltersForQuery,
@@ -23,6 +24,7 @@ import {
   formatMetadataFilter,
   getFilterValue,
   isValidDateRangeValue,
+  isValidPaymentDateRangeValue,
   keyWithPrefix,
   mapRateCardFilterVars,
   orderIntervalBounds,
@@ -38,7 +40,203 @@ import {
   filterWithoutProductCategoryValue,
   filterWithoutProductValue,
 } from '~/components/Filters/presentation/types'
+import { CurrencyEnum } from '~/generated/graphql'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
+
+import { orderPaymentAmountBounds, parsePaymentAmountValue } from '../paymentFilterValues'
+
+describe('formatFiltersForPaymentsQuery', () => {
+  it.each([
+    [
+      'paymentStatus',
+      'pending,processing,succeeded,failed',
+      { paymentStatus: ['pending', 'processing', 'succeeded', 'failed'] },
+    ],
+    ['receiptNumber', 'rcpt-2026-0001', { receiptNumber: 'rcpt-2026-0001' }],
+    ['paymentProviderType', 'stripe,gocardless', { paymentProviderType: ['stripe', 'gocardless'] }],
+    ['paymentMethodType', 'card,sepa_debit', { paymentMethodType: ['card', 'sepa_debit'] }],
+    ['paymentType', 'manual,provider', { paymentType: ['manual', 'provider'] }],
+    ['payableType', 'Invoice,PaymentRequest', { payableType: ['Invoice', 'PaymentRequest'] }],
+    ['invoiceNumber', 'lag-1234-001-002', { invoiceNumber: 'lag-1234-001-002' }],
+    ['currency', 'EUR', { currency: 'EUR' }],
+    [
+      'customerExternalId',
+      `cust_1${filterDataInlineSeparator}Customer`,
+      { externalCustomerId: 'cust_1' },
+    ],
+    [
+      'paymentCreatedAt',
+      '2026-09-01T00:00:00-07:00,2026-09-07T23:59:59-07:00',
+      { createdAtFrom: '2026-09-01', createdAtTo: '2026-09-07' },
+    ],
+    ['paymentCreatedAt', '2026-09-01,', { createdAtFrom: '2026-09-01', createdAtTo: undefined }],
+    ['paymentCreatedAt', ',2026-09-07', { createdAtFrom: undefined, createdAtTo: '2026-09-07' }],
+  ])('maps %s to its API argument', (key, value, expected) => {
+    expect(formatFiltersForPaymentsQuery(new URLSearchParams({ [`pa_${key}`]: value }))).toEqual(
+      expected,
+    )
+  })
+
+  it.each([
+    ['isAtLeast,10,', { amountFrom: '1000', amountTo: null }],
+    ['isUpTo,,50', { amountFrom: null, amountTo: '5000' }],
+    ['isBetween,50,10', { amountFrom: '1000', amountTo: '5000' }],
+    ['isEqualTo,0,', { amountFrom: '0', amountTo: '0' }],
+    ['isEqualTo,50000000,', { amountFrom: '5000000000', amountTo: '5000000000' }],
+    [
+      'isBetween,90071992547409.93,90071992547409.92',
+      { amountFrom: '9007199254740992', amountTo: '9007199254740993' },
+    ],
+    [
+      'isEqualTo,92233720368547758.07,',
+      { amountFrom: '9223372036854775807', amountTo: '9223372036854775807' },
+    ],
+    ['isAtLeast,1.005,', { amountFrom: '101', amountTo: null }],
+  ])('converts %s to exact integer cents', (value, expected) => {
+    expect(formatFiltersForPaymentsQuery(new URLSearchParams({ pa_amount: value }))).toEqual(
+      expected,
+    )
+  })
+
+  it('uses the selected currency precision', () => {
+    expect(
+      formatFiltersForPaymentsQuery(
+        new URLSearchParams({ pa_currency: 'JPY', pa_amount: 'isEqualTo,9007199254740993,' }),
+      ),
+    ).toEqual({
+      currency: 'JPY',
+      amountFrom: '9007199254740993',
+      amountTo: '9007199254740993',
+    })
+    expect(
+      formatFiltersForPaymentsQuery(
+        new URLSearchParams({ pa_amount: 'isEqualTo,1.234,' }),
+        CurrencyEnum.Bhd,
+      ),
+    ).toEqual({
+      amountFrom: '1234',
+      amountTo: '1234',
+    })
+  })
+
+  it('composes filters and ignores other pages and unprefixed parameters', () => {
+    expect(
+      formatFiltersForPaymentsQuery(
+        new URLSearchParams({
+          pa_paymentStatus: 'succeeded',
+          pa_currency: 'EUR',
+          pa_amount: 'isAtLeast,10,',
+          pa_customerExternalId: `cust_1${filterDataInlineSeparator}Customer`,
+          in_currency: 'USD',
+          currency: 'GBP',
+          page: '2',
+          pa_unknown: 'invalid',
+        }),
+      ),
+    ).toEqual({
+      paymentStatus: ['succeeded'],
+      currency: 'EUR',
+      amountFrom: '1000',
+      amountTo: null,
+      externalCustomerId: 'cust_1',
+    })
+  })
+
+  it('keeps exact amounts and human enum labels in payment chips', () => {
+    const translate = ((key: string) =>
+      ({
+        text_1734774653389kvylgxjiltu: 'is between',
+        text_65f8472df7593301061e27d6: 'And',
+        text_1740135074392314rc3ldv02: 'Processing',
+        text_634ea0ecc6147de10ddb6625: 'GoCardless',
+        text_64aeb7b998c4322918c8420c: 'SEPA Direct Debit',
+        text_1737110192586abtitcui0xt: 'Manual',
+        text_17495622741665lrk6dp6czk: 'Payment request',
+      })[key] || key) as TranslateFunc
+
+    expect(
+      formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.amount,
+        'isBetween,90071992547409.93,90071992547409.92',
+        translate,
+        'pa',
+      ),
+    ).toBe('is between 90071992547409.92 and 90071992547409.93')
+    expect(
+      formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.paymentStatus,
+        'processing',
+        translate,
+        'pa',
+      ),
+    ).toBe('Processing')
+    expect(
+      formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.paymentProviderType,
+        'gocardless',
+        translate,
+        'pa',
+      ),
+    ).toBe('GoCardless')
+    expect(
+      formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.paymentMethodType,
+        'sepa_debit',
+        translate,
+        'pa',
+      ),
+    ).toBe('SEPA Direct Debit')
+    expect(
+      formatActiveFilterValueDisplay(AvailableFiltersEnum.paymentType, 'manual', translate, 'pa'),
+    ).toBe('Manual')
+    expect(
+      formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.payableType,
+        'PaymentRequest',
+        translate,
+        'pa',
+      ),
+    ).toBe('Payment request')
+    expect(
+      formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.invoiceNumber,
+        'lower-case',
+        translate,
+        'pa',
+      ),
+    ).toBe('lower-case')
+    expect(
+      formatActiveFilterValueDisplay(
+        AvailableFiltersEnum.receiptNumber,
+        'lower-case',
+        translate,
+        'pa',
+      ),
+    ).toBe('lower-case')
+  })
+
+  it.each(['', ',', 'invalid,2026-09-07', '2026-09-01,invalid', '2026-09-08,2026-09-01'])(
+    'rejects the invalid date range %s',
+    (value) => {
+      expect(isValidPaymentDateRangeValue(value)).toBe(false)
+    },
+  )
+
+  it.each(['2026-09-01,', ',2026-09-07', '2026-09-01,2026-09-07'])(
+    'accepts the date range %s',
+    (value) => {
+      expect(isValidPaymentDateRangeValue(value)).toBe(true)
+    },
+  )
+
+  it('handles partial or malformed amount input without throwing', () => {
+    expect(orderPaymentAmountBounds('isBetween,foo,1')).toBe('isBetween,foo,1')
+    expect(orderPaymentAmountBounds('isBetween,1,')).toBe('isBetween,1,')
+    expect(orderPaymentAmountBounds('isBetween,1,2')).toBe('isBetween,1,2')
+    expect(parsePaymentAmountValue('isBetween,foo,1')).toEqual({ amountFrom: null, amountTo: '1' })
+    expect(parsePaymentAmountValue('unknown,,')).toEqual({ amountFrom: null, amountTo: null })
+  })
+})
 
 describe('Filters utils', () => {
   describe('formatFiltersForInvoiceQuery', () => {

@@ -13,6 +13,7 @@ import { useFilters } from '~/components/Filters/graphql/useFilters'
 import {
   FiltersItemDates,
   isValidDateRangeValue,
+  isValidPaymentDateRangeValue,
   METADATA_SPLITTER,
 } from '~/components/Filters/graphql/utils'
 import {
@@ -72,6 +73,7 @@ export const FiltersPanelPopper = () => {
                 is: (filterType: AvailableFiltersEnum) =>
                   !!filterType &&
                   FiltersItemDates.includes(filterType) &&
+                  filterType !== AvailableFiltersEnum.paymentCreatedAt &&
                   filterType !== AvailableFiltersEnum.metadata,
                 then: (schema) =>
                   schema.required('').test({
@@ -80,6 +82,15 @@ export const FiltersPanelPopper = () => {
                     test: isValidDateRangeValue,
                   }),
                 otherwise: (schema) => schema.required(''),
+              })
+              .when('filterType', {
+                is: AvailableFiltersEnum.paymentCreatedAt,
+                then: (schema) =>
+                  schema.test({
+                    name: 'payment-date-range-order',
+                    message: '',
+                    test: isValidPaymentDateRangeValue,
+                  }),
               })
               .when('filterType', {
                 is: (filterType: AvailableFiltersEnum) =>
