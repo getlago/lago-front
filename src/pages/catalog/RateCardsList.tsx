@@ -89,7 +89,7 @@ const RateCardsList = () => {
   const searchInputOnChange = useCallback(
     (value: string) => {
       goToPage(1)
-      debouncedSearch?.(value)
+      debouncedSearch(value)
     },
     [goToPage, debouncedSearch],
   )

@@ -1,4 +1,4 @@
-import { render as rtlRender, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render as rtlRender, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { useGetWebhookLogLazyQuery } from '~/generated/graphql'
@@ -140,6 +140,14 @@ describe('WebhookLogs', () => {
         expect(screen.getByTestId('filters-component-mock')).toBeInTheDocument()
       })
     })
+  })
+
+  it('passes the typed search string to the debounce handler', () => {
+    renderWithParams(<WebhookLogs webhookId="webhook-123" />)
+
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'customer.created' } })
+
+    expect(mockDebouncedSearch).toHaveBeenCalledWith('customer.created')
   })
 
   describe('GIVEN no logId in params and data has logs', () => {

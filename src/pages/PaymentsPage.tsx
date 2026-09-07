@@ -100,7 +100,7 @@ const PaymentsPage = () => {
           <SearchInput
             onChange={(value) => {
               goToPage(1)
-              paymentsDebounceSearch?.(value)
+              paymentsDebounceSearch(value)
             }}
             placeholder={translate('text_17370296250897aidak5kjcg')}
           />

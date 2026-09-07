@@ -143,7 +143,7 @@ const ProductFilterPreviewList = ({ product }: { product: ProductForFilterPrevie
   return (
     <div className="flex flex-col gap-4">
       <SearchInput
-        onChange={(value) => debouncedSearch?.(value)}
+        onChange={debouncedSearch}
         placeholder={translate('text_17845854002450t175dwblcq')}
         data-test="product-item-filter-preview-search-input"
       />

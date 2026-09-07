@@ -246,7 +246,7 @@ const CreditNotesPage = () => {
               <SearchInput
                 onChange={(value) => {
                   goToPage(1)
-                  creditNoteDebounceSearch?.(value)
+                  creditNoteDebounceSearch(value)
                 }}
                 placeholder={translate('text_63c6edd80c57d0dfaae3898e')}
               />

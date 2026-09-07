@@ -107,7 +107,7 @@ const ProductsPreview = ({ productCategory }: { productCategory: ProductCategory
   return (
     <div className="flex flex-col gap-4">
       <SearchInput
-        onChange={(value) => debouncedSearch?.(value)}
+        onChange={debouncedSearch}
         placeholder={translate('text_1783980718114714izppxdwq')}
         data-test="product-details-product-items-search-input"
       />

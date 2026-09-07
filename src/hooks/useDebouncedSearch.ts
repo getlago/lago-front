@@ -1,6 +1,6 @@
 import { LazyQueryExecFunction } from '@apollo/client'
-import { debounce, DebouncedFunc } from 'lodash'
-import { DateTime } from 'luxon'
+import { DebouncedFunc } from 'lodash'
+import debounce from 'lodash/debounce'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 export const DEBOUNCE_SEARCH_MS = window.Cypress ? 0 : 500
@@ -15,13 +15,13 @@ export type UseDebouncedSearch = (
   >,
   loading?: boolean,
 ) => {
-  debouncedSearch?: DebouncedFunc<(value: unknown) => void>
+  debouncedSearch: DebouncedFunc<(value: string) => void>
   isLoading: boolean
 }
 
 export const useDebouncedSearch: UseDebouncedSearch = (searchQuery, loading) => {
   const [isLoading, setIsLoading] = useState(true)
-  const startLoading = useRef<DateTime | null>(null)
+  const startLoading = useRef<number | null>(null)
   const lastSearchTerm = useRef<string | undefined>(undefined)
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -36,10 +36,7 @@ export const useDebouncedSearch: UseDebouncedSearch = (searchQuery, loading) => 
 
       lastSearchTerm.current = searchTerm
 
-      searchQuery &&
-        searchQuery({
-          variables: { searchTerm },
-        })
+      searchQuery?.({ variables: { searchTerm } })
     }, DEBOUNCE_SEARCH_MS),
     [],
   )
@@ -49,22 +46,15 @@ export const useDebouncedSearch: UseDebouncedSearch = (searchQuery, loading) => 
 
     if (loading) {
       setIsLoading(true)
-      // If query is loading, save the start time
-      startLoading.current = DateTime.now()
+      startLoading.current = Date.now()
     } else {
-      // If query is not loading anymore, get the diff between the start time and now
-      const diff =
-        DateTime.now().diff(startLoading.current || DateTime.now(), 'milliseconds')?.milliseconds ||
-        0
+      const elapsed = Date.now() - (startLoading.current ?? Date.now())
 
-      // If the diff is bellow the minimum debounce time
-      if (diff <= DEBOUNCE_SEARCH_MS) {
-        // Timeout the loading to be set to false, to prevent loading blink (if loading is too fast)
+      if (elapsed <= DEBOUNCE_SEARCH_MS) {
         loadingStateTimeOut = setTimeout(() => {
           setIsLoading(false)
-        }, DEBOUNCE_SEARCH_MS - diff)
+        }, DEBOUNCE_SEARCH_MS - elapsed)
       } else {
-        // If time diff is acceptable already, set loading to false
         setIsLoading(false)
       }
     }
@@ -75,7 +65,7 @@ export const useDebouncedSearch: UseDebouncedSearch = (searchQuery, loading) => 
   }, [loading])
 
   useEffect(() => {
-    searchQuery && searchQuery()
+    searchQuery?.()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -85,5 +75,5 @@ export const useDebouncedSearch: UseDebouncedSearch = (searchQuery, loading) => 
     }
   }, [debouncedSearch])
 
-  return { debouncedSearch: debouncedSearch || undefined, isLoading: isLoading || loading || false }
+  return { debouncedSearch, isLoading: isLoading || !!loading }
 }
