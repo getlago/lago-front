@@ -16,7 +16,7 @@ import {
 import { API_LOGS_FILTER_PREFIX } from '~/core/constants/filters'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { useNavigate } from '~/core/router'
-import { getCurrentBreakpoint } from '~/core/utils/getCurrentBreakpoint'
+import { isMobileViewport } from '~/core/utils/isMobileViewport'
 import { ApiLogItemFragment, useGetApiLogsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -88,7 +88,7 @@ export const ApiLogs = () => {
       if (logCollection?.length) {
         const firstLog = logCollection[0]
 
-        if (firstLog && getCurrentBreakpoint() !== 'sm') {
+        if (firstLog && !isMobileViewport()) {
           navigate(
             {
               pathname: generatePath(API_LOG_ROUTE, { logId: firstLog.requestId }),

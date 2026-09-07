@@ -7,7 +7,7 @@ import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { buildEventLink, serializeEventKey } from '~/components/developers/events/eventKey'
 import { ListSectionRef } from '~/components/developers/LogsLayout'
-import { getCurrentBreakpoint } from '~/core/utils/getCurrentBreakpoint'
+import { isMobileViewport } from '~/core/utils/isMobileViewport'
 import { EventsQueryResult } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useFormatterDateHelper } from '~/hooks/helpers/useFormatterDateHelper'
@@ -70,7 +70,7 @@ export const EventTable: FC<EventTableProps> = ({
         isLoading={loading}
         loadingRowCount={pageSize}
         onRowActionLink={(event) => {
-          if (getCurrentBreakpoint() === 'sm') {
+          if (isMobileViewport()) {
             logListRef.current?.updateView('forward')
           }
 

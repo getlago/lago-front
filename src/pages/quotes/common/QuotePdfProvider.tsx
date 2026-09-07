@@ -1,5 +1,7 @@
 import {
+  type ComponentType,
   createContext,
+  type ReactElement,
   type ReactNode,
   useCallback,
   useContext,
@@ -9,15 +11,11 @@ import {
   useState,
 } from 'react'
 
-import { printHtmlContent } from '~/components/designSystem/RichTextEditor/common/printHtmlContent'
-import RichTextEditor from '~/components/designSystem/RichTextEditor/RichTextEditor'
 import { addToast } from '~/core/apolloClient'
 import { preloadContextualLocale } from '~/hooks/core/useContextualLocale'
 
 import type { QuotePreviewProps } from './buildQuotePreviewProps'
-import { QuotePdfHeader } from './QuotePdfHeader'
-
-const PREVIEW_RENDER_TIMEOUT_MS = 5000
+import type { QuotePdfRendererProps } from './QuotePdfRenderer'
 
 interface QuotePdfContextValue {
   download: (props: QuotePreviewProps) => Promise<void>
@@ -32,14 +30,14 @@ interface PendingRequest {
 
 const QuotePdfContext = createContext<QuotePdfContextValue | undefined>(undefined)
 
-export const QuotePdfProvider = ({ children }: { children: ReactNode }) => {
+export const QuotePdfProvider = ({ children }: { children: ReactNode }): ReactElement => {
   const [current, setCurrent] = useState<PendingRequest | null>(null)
+  const [Renderer, setRenderer] = useState<ComponentType<QuotePdfRendererProps> | null>(null)
   const currentRef = useRef<PendingRequest | null>(null)
   const queueRef = useRef<PendingRequest[]>([])
   const requestIdRef = useRef(0)
-  const headerRef = useRef<HTMLDivElement>(null)
 
-  const advance = useCallback(() => {
+  const advance = useCallback((): void => {
     const next = queueRef.current.shift() ?? null
 
     currentRef.current = next
@@ -51,10 +49,8 @@ export const QuotePdfProvider = ({ children }: { children: ReactNode }) => {
   const download = useCallback((previewProps: QuotePreviewProps): Promise<void> => {
     if (!previewProps.content) return Promise.resolve()
 
-    // Warm the customer-locale translation bundle before mounting the off-screen
-    // preview editor. The editor snapshots its DOM two animation frames after mount,
-    // which is faster than the async locale import resolves — so without this, a
-    // first-time non-English render captures empty pricing-table headers (LAGO-1686).
+    // The editor snapshots its DOM after two animation frames, so the customer
+    // locale must be ready before mounting to capture translated pricing headers.
     const result = preloadContextualLocale(previewProps.customerLocale).then(() => {
       return new Promise<void>((resolve, reject) => {
         requestIdRef.current += 1
@@ -81,63 +77,54 @@ export const QuotePdfProvider = ({ children }: { children: ReactNode }) => {
     return result
   }, [])
 
-  const handleReady = useCallback(
-    (html: string) => {
-      if (!current) return
+  const handleComplete = useCallback((): void => {
+    if (!current || currentRef.current !== current) return
 
-      const header = current.props.header
-      // The header is mounted live (below), so we capture its already-rendered
-      // DOM — this carries the resolved MUI/emotion styles into the print HTML.
-      const headerHtml = header && headerRef.current ? headerRef.current.innerHTML : ''
-      const fullHtml = `<div class="rich-text-editor">${headerHtml}<div class="ProseMirror" contenteditable="false">${html}</div></div>`
+    current.resolve()
+    advance()
+  }, [current, advance])
 
-      if (header) {
-        printHtmlContent(fullHtml, { title: header.documentNumber })
-      } else {
-        printHtmlContent(fullHtml)
-      }
-      current.resolve()
+  const handleError = useCallback(
+    (error: Error): void => {
+      if (!current || currentRef.current !== current) return
+
+      addToast({ severity: 'danger', translateKey: 'text_62b31e1f6a5b8b1b745ece48' })
+      current.reject(error)
       advance()
     },
     [current, advance],
   )
 
   useEffect(() => {
-    if (!current) return
+    if (!current || Renderer) return
 
-    const timer = setTimeout(() => {
-      addToast({ severity: 'danger', translateKey: 'text_62b31e1f6a5b8b1b745ece48' })
-      current.reject(new Error('Quote preview render timed out'))
-      advance()
-    }, PREVIEW_RENDER_TIMEOUT_MS)
+    let active = true
 
-    return () => clearTimeout(timer)
-  }, [current, advance])
+    import('./QuotePdfRenderer')
+      .then(({ default: loadedRenderer }) => {
+        if (active) setRenderer(() => loadedRenderer)
+      })
+      .catch((error: Error) => {
+        if (active) handleError(error)
+      })
+
+    return () => {
+      active = false
+    }
+  }, [current, Renderer, handleError])
 
   const contextValue = useMemo(() => ({ download }), [download])
 
   return (
     <QuotePdfContext.Provider value={contextValue}>
       {children}
-      {current && (
-        <div key={current.id} className="fixed left-[-9999px] top-0" aria-hidden>
-          {current.props.header && (
-            <div ref={headerRef}>
-              <QuotePdfHeader header={current.props.header} />
-            </div>
-          )}
-          <RichTextEditor
-            mode="preview"
-            isCompact
-            content={current.props.content}
-            entities={current.props.entities}
-            mentionValues={current.props.mentionValues}
-            images={current.props.images}
-            customerLocale={current.props.customerLocale}
-            documentCurrency={current.props.documentCurrency}
-            onPreviewReady={handleReady}
-          />
-        </div>
+      {current && Renderer && (
+        <Renderer
+          key={current.id}
+          previewProps={current.props}
+          onComplete={handleComplete}
+          onError={handleError}
+        />
       )}
     </QuotePdfContext.Provider>
   )
