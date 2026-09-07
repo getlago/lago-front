@@ -6,6 +6,7 @@ import {
   DeveloperToolProvider,
   resetDevtoolsNavigation,
   useDeveloperTool,
+  useDevtoolTabParam,
 } from '~/hooks/useDeveloperTool'
 
 // Mock useCurrentUser — mutable so a cold cache (user still loading) can be simulated
@@ -33,6 +34,12 @@ jest.mock('~/hooks/ui/usePanel', () => ({
   }),
 }))
 
+// `jest-setup.ts` mocks `react-router-dom`'s useNavigate globally, so navigation is
+// observed through this spy rather than through the router's own location.
+const { mockNavigate } = (
+  globalThis as unknown as { __testRouterMocks: { mockNavigate: jest.Mock } }
+).__testRouterMocks
+
 const wrapper = ({ children }: { children: ReactNode }) => (
   <MemoryRouter>
     <DeveloperToolProvider>{children}</DeveloperToolProvider>
@@ -42,7 +49,6 @@ const wrapper = ({ children }: { children: ReactNode }) => (
 describe('useDeveloperTool', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    window.history.replaceState({}, '', '/')
     mockCurrentUser = { id: 'test-user' }
   })
 
@@ -79,11 +85,9 @@ describe('useDeveloperTool', () => {
         it('THEN it should throw an error', () => {
           const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
 
-          // Note: The hook uses useNavigate() which requires Router context,
-          // so Router error is thrown before the DeveloperToolProvider context check
           expect(() => {
             renderHook(() => useDeveloperTool())
-          }).toThrow()
+          }).toThrow('useDeveloperTool must be used within a DeveloperToolProvider')
 
           consoleSpy.mockRestore()
         })
@@ -171,17 +175,31 @@ describe('useDeveloperTool', () => {
     })
   })
 
-  describe('checkParamsFromUrl (devtool-tab bridge)', () => {
+  describe('useDevtoolTabParam (devtool-tab bridge)', () => {
+    const renderBridge = (initialEntry: string) =>
+      renderHook(
+        () => {
+          useDevtoolTabParam()
+
+          return useDeveloperTool()
+        },
+        {
+          wrapper: ({ children }: { children: ReactNode }) => (
+            <MemoryRouter initialEntries={[initialEntry]}>
+              <DeveloperToolProvider>{children}</DeveloperToolProvider>
+            </MemoryRouter>
+          ),
+        },
+      )
+
     const openWith = (devtoolTab: string) => {
       const params = new URLSearchParams({ 'devtool-tab': devtoolTab })
 
-      window.history.replaceState({}, '', `/?${params.toString()}`)
-
-      return renderHook(() => useDeveloperTool(), { wrapper })
+      return renderBridge(`/analytics?${params.toString()}`)
     }
 
     describe('GIVEN a copied link whose devtools address carries search params', () => {
-      describe('WHEN the hook mounts', () => {
+      describe('WHEN the bridge mounts', () => {
         it('THEN it should reopen the panel on the full address, search string included', () => {
           const address =
             '/devtool/events/transaction-1?externalSubscriptionId=subscription-1&timestampMs=1740000000123&code=api_calls'
@@ -191,11 +209,26 @@ describe('useDeveloperTool', () => {
           expect(result.current.url).toBe(address)
           expect(mockOpenPanel).toHaveBeenCalled()
         })
+
+        it('THEN it should strip the consumed param from the browser location', () => {
+          renderBridge('/analytics?devtool-tab=%2Fdevtool%2Fwebhooks&currency=EUR')
+
+          expect(mockNavigate).toHaveBeenCalledWith(
+            { pathname: '/analytics', search: '?currency=EUR' },
+            { replace: true },
+          )
+        })
+
+        it('THEN it should open the panel only once', () => {
+          openWith('/devtool/webhooks')
+
+          expect(mockOpenPanel).toHaveBeenCalledTimes(1)
+        })
       })
     })
 
     describe('GIVEN a devtools address containing a percent-encoded character', () => {
-      describe('WHEN the hook mounts', () => {
+      describe('WHEN the bridge mounts', () => {
         it('THEN it should not decode it a second time', () => {
           const address = '/devtool/events/transaction%3F1?code=api_calls'
 
@@ -207,7 +240,7 @@ describe('useDeveloperTool', () => {
     })
 
     describe('GIVEN a cold cache, with the user still loading', () => {
-      describe('WHEN the hook mounts', () => {
+      describe('WHEN the bridge mounts', () => {
         it('THEN it should not open the panel yet', () => {
           mockCurrentUser = undefined
 
@@ -215,6 +248,14 @@ describe('useDeveloperTool', () => {
 
           expect(mockOpenPanel).not.toHaveBeenCalled()
           expect(result.current.url).toBe('')
+        })
+
+        it('THEN it should leave the param in the URL so it survives until the user lands', () => {
+          mockCurrentUser = undefined
+
+          openWith('/devtool/events')
+
+          expect(mockNavigate).not.toHaveBeenCalled()
         })
 
         it('THEN it should still open the panel once the user lands', () => {
@@ -234,9 +275,36 @@ describe('useDeveloperTool', () => {
     })
 
     describe('GIVEN no devtool-tab param', () => {
-      describe('WHEN the hook mounts', () => {
+      describe('WHEN the bridge mounts', () => {
         it('THEN it should not open the panel', () => {
-          renderHook(() => useDeveloperTool(), { wrapper })
+          renderBridge('/analytics')
+
+          expect(mockOpenPanel).not.toHaveBeenCalled()
+        })
+
+        it('THEN it should leave the location untouched', () => {
+          renderBridge('/analytics?currency=EUR')
+
+          expect(mockNavigate).not.toHaveBeenCalled()
+        })
+      })
+    })
+
+    describe('GIVEN the consumer hook alone', () => {
+      describe('WHEN it mounts on a devtool-tab link', () => {
+        // The bridge used to live in `useDeveloperTool`, so all 14 consumers raced to
+        // consume the param — including those inside the devtools MemoryRouter, which
+        // navigated the wrong router and left the panel blank.
+        it('THEN it should not touch the panel', () => {
+          const params = new URLSearchParams({ 'devtool-tab': '/devtool/webhooks' })
+
+          renderHook(() => useDeveloperTool(), {
+            wrapper: ({ children }: { children: ReactNode }) => (
+              <MemoryRouter initialEntries={[`/analytics?${params.toString()}`]}>
+                <DeveloperToolProvider>{children}</DeveloperToolProvider>
+              </MemoryRouter>
+            ),
+          })
 
           expect(mockOpenPanel).not.toHaveBeenCalled()
         })

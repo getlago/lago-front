@@ -23,12 +23,15 @@ jest.mock('react-router-dom', () => ({
 const mockSetMainRouterUrl = jest.fn()
 let mockMainRouterUrl = ''
 
+const mockUseDevtoolTabParam = jest.fn()
+
 jest.mock('~/hooks/useDeveloperTool', () => ({
   DEVTOOL_TAB_PARAMS: 'devtool-tab',
   useDeveloperTool: () => ({
     mainRouterUrl: mockMainRouterUrl,
     setMainRouterUrl: mockSetMainRouterUrl,
   }),
+  useDevtoolTabParam: () => mockUseDevtoolTabParam(),
 }))
 
 jest.mock('~/hooks/auth/useIsAuthenticated', () => ({
@@ -158,6 +161,24 @@ describe('RouteWrapper', () => {
             })
             expect(mockSetMainRouterUrl).toHaveBeenCalledWith('')
           })
+        })
+      })
+    })
+  })
+
+  describe('devtool-tab bridge', () => {
+    describe('GIVEN RouteWrapper is the single host inside the BrowserRouter', () => {
+      describe('WHEN it renders', () => {
+        // The bridge used to live in `useDeveloperTool`, so it ran in all 14 consumers
+        // and raced to consume the param.
+        it('THEN it should mount the devtool-tab bridge exactly once', () => {
+          render(
+            <MemoryRouter>
+              <RouteWrapper />
+            </MemoryRouter>,
+          )
+
+          expect(mockUseDevtoolTabParam).toHaveBeenCalledTimes(1)
         })
       })
     })

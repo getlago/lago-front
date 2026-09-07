@@ -2,10 +2,8 @@ import { configure, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ReactNode } from 'react'
 
-import {
-  DEVTOOLS_COPY_INSPECTOR_LINK_TEST_ID,
-  DevtoolsView,
-} from '~/components/developers/DevtoolsView'
+import { DevtoolsView } from '~/components/developers/DevtoolsView'
+import { DEVTOOLS_COPY_INSPECTOR_LINK_TEST_ID } from '~/components/developers/utils/dataTestConstants'
 import { currentOrganizationVar } from '~/core/apolloClient/reactiveVars/currentOrganizationVar'
 
 configure({ testIdAttribute: 'data-test' })

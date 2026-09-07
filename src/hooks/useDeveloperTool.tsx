@@ -1,6 +1,7 @@
-import { createContext, ReactNode, useContext, useEffect, useState } from 'react'
+import { createContext, ReactNode, useContext, useEffect, useRef, useState } from 'react'
 
 import { DEVTOOL_ROUTE } from '~/components/developers/devtoolsRoutes'
+import { useLocation } from '~/core/router/useLocation'
 import { useNavigate } from '~/core/router/useNavigate'
 import { usePanel, UsePanelReturn } from '~/hooks/ui/usePanel'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -84,44 +85,6 @@ export function DeveloperToolProvider({ children }: { children: ReactNode }) {
 
 export function useDeveloperTool(): DeveloperToolContextType {
   const context = useContext(DeveloperToolContext)
-  const { currentUser } = useCurrentUser()
-
-  const navigate = useNavigate()
-
-  // We can copy/paste the URL of the devtools in the browser and it will open the devtools with the correct tab
-  const checkParamsFromUrl = () => {
-    const params = new URLSearchParams(window.location.search)
-    // `params.get` already percent-decodes; decoding twice corrupts any value that legitimately
-    // contains an escape, such as the percent-encoded transaction id of an event.
-    const devtoolTab = params.get(DEVTOOL_TAB_PARAMS) ?? ''
-
-    // On a cold cache the user is still loading on the first render. Consuming the param
-    // then would drop it before it could open anything, so it is left in the URL and the
-    // effect below runs again once the user lands.
-    if (!currentUser || !devtoolTab) return
-
-    // Use setUrl to navigate in the MemoryRouter (devtools panel), not navigate() which would
-    // navigate in the BrowserRouter
-    context?.setUrl(devtoolTab)
-    context?.openPanel()
-
-    // Remove the devtool-tab param from the URL using React Router's navigate with replace.
-    // This ensures the location object is updated (not just the browser URL), so the location
-    // history won't contain the devtool-tab param when goBack() is called later.
-    params.delete(DEVTOOL_TAB_PARAMS)
-    const search = params.toString()
-
-    navigate(
-      { pathname: window.location.pathname, search: search ? `?${search}` : '' },
-      { replace: true },
-    )
-  }
-
-  useEffect(() => {
-    checkParamsFromUrl()
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser?.id])
 
   // Throw an error if the hook is used outside of the provider
   if (!context) {
@@ -129,4 +92,49 @@ export function useDeveloperTool(): DeveloperToolContextType {
   }
 
   return context
+}
+
+/**
+ * Reopens the devtools panel from a copied inspector link (`?devtool-tab=…`). Mount it once,
+ * inside the app's BrowserRouter — the devtools MemoryRouter cannot strip the consumed param.
+ */
+export function useDevtoolTabParam(): void {
+  const { pathname, search } = useLocation()
+  const navigate = useNavigate()
+  const { currentUser } = useCurrentUser()
+  const { setUrl, openPanel } = useDeveloperTool()
+  const consumedTab = useRef<string | null>(null)
+  const isUserLoaded = !!currentUser
+
+  useEffect(() => {
+    const params = new URLSearchParams(search)
+    // `params.get` already percent-decodes; decoding twice corrupts any value that legitimately
+    // contains an escape, such as the percent-encoded transaction id of an event.
+    const devtoolTab = params.get(DEVTOOL_TAB_PARAMS) ?? ''
+
+    if (!devtoolTab) {
+      consumedTab.current = null
+      return
+    }
+
+    // On a cold cache the user is still loading on the first render. Consuming the param
+    // then would drop it before it could open anything, so it is left in the URL and the
+    // effect runs again once the user lands.
+    if (!isUserLoaded || consumedTab.current === devtoolTab) return
+
+    consumedTab.current = devtoolTab
+
+    // Use setUrl to navigate in the MemoryRouter (devtools panel), not navigate() which would
+    // navigate in the BrowserRouter
+    setUrl(devtoolTab)
+    openPanel()
+
+    // Remove the devtool-tab param from the URL using React Router's navigate with replace.
+    // This ensures the location object is updated (not just the browser URL), so the location
+    // history won't contain the devtool-tab param when goBack() is called later.
+    params.delete(DEVTOOL_TAB_PARAMS)
+    const nextSearch = params.toString()
+
+    navigate({ pathname, search: nextSearch ? `?${nextSearch}` : '' }, { replace: true })
+  }, [pathname, search, isUserLoaded, navigate, openPanel, setUrl])
 }

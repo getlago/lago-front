@@ -10,7 +10,7 @@ import { CustomRouteObject, routes, useLocation, useNavigate } from '~/core/rout
 import { NEVER_SLUG_PREFIXES } from '~/core/router/slugPrefixes'
 import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
-import { DEVTOOL_TAB_PARAMS, useDeveloperTool } from '~/hooks/useDeveloperTool'
+import { DEVTOOL_TAB_PARAMS, useDeveloperTool, useDevtoolTabParam } from '~/hooks/useDeveloperTool'
 
 interface PageWrapperProps {
   routeConfig: CustomRouteObject
@@ -95,6 +95,8 @@ export const RouteWrapper = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const { mainRouterUrl, setMainRouterUrl } = useDeveloperTool()
+
+  useDevtoolTabParam()
 
   // Clear all open drawers on browser navigation (back/forward buttons)
   useEffect(() => {

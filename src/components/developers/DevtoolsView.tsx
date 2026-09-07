@@ -7,6 +7,7 @@ import { NavigationTab, TabManagedBy } from '~/components/designSystem/Navigatio
 import { Spinner } from '~/components/designSystem/Spinner'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { devToolsNavigationMapping, DevtoolsRouter } from '~/components/developers/DevtoolsRouter'
+import { DEVTOOLS_COPY_INSPECTOR_LINK_TEST_ID } from '~/components/developers/utils/dataTestConstants'
 import { addToast } from '~/core/apolloClient'
 import { currentOrganizationVar } from '~/core/apolloClient/reactiveVars/currentOrganizationVar'
 import { useLocation, useNavigate } from '~/core/router'
@@ -22,8 +23,6 @@ import {
   useDeveloperTool,
 } from '~/hooks/useDeveloperTool'
 import { usePermissions } from '~/hooks/usePermissions'
-
-export const DEVTOOLS_COPY_INSPECTOR_LINK_TEST_ID = 'devtools-copy-inspector-link'
 
 export const DevtoolsView: FC = () => {
   const { panelRef, panelOpen, isFullscreen, expandPanel, resizePanel, closePanel, url, setUrl } =
