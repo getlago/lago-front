@@ -25,6 +25,7 @@ import {
 } from '~/core/apolloClient'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
 import '~/core/overlays/registeredDialogs'
+import { ROUTER_FUTURE_FLAGS } from '~/core/router/futureFlags'
 import { initializeYup } from '~/formValidation/initializeYup'
 import '~/formValidation/initializeZod'
 import { AiAgentProvider } from '~/hooks/aiAgent/useAiAgent'
@@ -124,10 +125,7 @@ const App = () => {
                 <NiceModalProvider>
                   <QuotePdfProvider>
                     <PanelGroup direction="vertical" autoSaveId={DEVTOOL_AUTO_SAVE_ID}>
-                      <BrowserRouter
-                        basename="/"
-                        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-                      >
+                      <BrowserRouter basename="/" future={ROUTER_FUTURE_FLAGS}>
                         <Panel id="app-panel-group">
                           <PanelGroup direction="horizontal">
                             <Panel id="app-panel">
@@ -140,10 +138,7 @@ const App = () => {
                         </Panel>
                         <ToastContainer />
                       </BrowserRouter>
-                      <MemoryRouter
-                        initialEntries={[DEVTOOL_ROUTE]}
-                        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-                      >
+                      <MemoryRouter initialEntries={[DEVTOOL_ROUTE]} future={ROUTER_FUTURE_FLAGS}>
                         <DevtoolsErrorBoundary>
                           <DevtoolsView />
                         </DevtoolsErrorBoundary>

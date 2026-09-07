@@ -1,6 +1,6 @@
-import { ComponentType, createElement } from 'react'
+import { ComponentType, createElement, ReactElement } from 'react'
 
-const FUTURE = { v7_startTransition: true, v7_relativeSplatPath: true }
+import { ROUTER_FUTURE_FLAGS } from '~/core/router/futureFlags'
 
 type RouterModule = {
   BrowserRouter: ComponentType<Record<string, unknown>>
@@ -8,8 +8,8 @@ type RouterModule = {
 }
 
 export const withRouterFuture = (actual: RouterModule): RouterModule => ({
-  BrowserRouter: (props: Record<string, unknown>) =>
-    createElement(actual.BrowserRouter, { future: FUTURE, ...props }),
-  MemoryRouter: (props: Record<string, unknown>) =>
-    createElement(actual.MemoryRouter, { future: FUTURE, ...props }),
+  BrowserRouter: (props: Record<string, unknown>): ReactElement =>
+    createElement(actual.BrowserRouter, { future: ROUTER_FUTURE_FLAGS, ...props }),
+  MemoryRouter: (props: Record<string, unknown>): ReactElement =>
+    createElement(actual.MemoryRouter, { future: ROUTER_FUTURE_FLAGS, ...props }),
 })
