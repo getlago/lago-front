@@ -1,14 +1,14 @@
 import { gql } from '@apollo/client'
-import { useFormik } from 'formik'
-import { FC, useEffect, useRef } from 'react'
+import { revalidateLogic } from '@tanstack/react-form'
+import { FC, FormEvent, useEffect, useRef } from 'react'
 import { generatePath, useParams, useSearchParams } from 'react-router-dom'
-import { object, string } from 'yup'
 
 import { Button } from '~/components/designSystem/Button'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
+import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
   CUSTOMER_DETAILS_ROUTE,
@@ -32,18 +32,21 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
+import { useAppForm } from '~/hooks/forms/useAppform'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useIsCustomerReadyForOverduePayment } from '~/hooks/useIsCustomerReadyForOverduePayment'
 import { EmailPreview } from '~/pages/CustomerRequestOverduePayment/components/EmailPreview'
 import { PageHeader } from '~/styles'
 
 import { FreemiumAlert } from './components/FreemiumAlert'
+import { RequestPaymentForm } from './components/RequestPaymentForm'
 import {
   CustomerRequestOverduePaymentForm,
-  RequestPaymentForm,
-} from './components/RequestPaymentForm'
+  requestOverduePaymentValidationSchema,
+} from './validationSchema'
 
 export const SUBMIT_PAYMENT_REQUEST_TEST_ID = 'submit-payment-request'
+const CUSTOMER_REQUEST_OVERDUE_PAYMENT_FORM_ID = 'customer-request-overdue-payment-form'
 
 gql`
   query getRequestOverduePaymentInfos(
@@ -246,20 +249,21 @@ const CustomerRequestOverduePayment: FC = () => {
     (organization?.billingConfiguration?.documentLocale as Locale) ||
     'en'
 
-  const formikProps = useFormik<CustomerRequestOverduePaymentForm>({
-    initialValues: {
-      emails: customer?.email || '',
-      paymentMethod: {
-        paymentMethodId: undefined,
-        paymentMethodType: undefined,
-      },
+  const defaultValues: CustomerRequestOverduePaymentForm = {
+    emails: customer?.email || '',
+    paymentMethod: {
+      paymentMethodId: undefined,
+      paymentMethodType: undefined,
     },
-    validationSchema: object({
-      emails: string().required('').emails('text_66b258f62100490d0eb5ca8b'),
-    }),
-    validateOnMount: true,
-    enableReinitialize: true,
-    onSubmit: async (values) => {
+  }
+
+  const form = useAppForm({
+    defaultValues,
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: requestOverduePaymentValidationSchema,
+    },
+    onSubmit: async ({ value }) => {
       if (!hasDunningIntegration) {
         return
       }
@@ -268,19 +272,39 @@ const CustomerRequestOverduePayment: FC = () => {
         variables: {
           input: {
             externalCustomerId: customer?.externalId ?? '',
-            email: values.emails.replaceAll(' ', ''),
+            email: value.emails.replaceAll(' ', ''),
             lagoInvoiceIds: invoices?.collection?.map((invoice) => invoice.id),
-            paymentMethod: values.paymentMethod.paymentMethodId
+            paymentMethod: value.paymentMethod.paymentMethodId
               ? {
-                  paymentMethodId: values.paymentMethod.paymentMethodId,
-                  paymentMethodType: values.paymentMethod.paymentMethodType,
+                  paymentMethodId: value.paymentMethod.paymentMethodId,
+                  paymentMethodType: value.paymentMethod.paymentMethodType,
                 }
               : undefined,
           },
         },
       })
     },
+    onSubmitInvalid({ formApi }) {
+      scrollToFirstInputError(
+        CUSTOMER_REQUEST_OVERDUE_PAYMENT_FORM_ID,
+        formApi.state.errorMap.onDynamic || {},
+      )
+    },
   })
+
+  // The recipient default comes from the query, which resolves after the form has
+  // already mounted on an empty email.
+  useEffect(() => {
+    if (!customer?.email) return
+
+    form.reset(defaultValues)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [customer?.email])
+
+  const handleSubmit = (event: FormEvent): void => {
+    event.preventDefault()
+    form.handleSubmit()
+  }
 
   const defaultCurrency = customer?.currency || organization?.defaultCurrency || CurrencyEnum.Usd
   const invoicesCollection = invoices?.collection ?? []
@@ -336,7 +360,7 @@ const CustomerRequestOverduePayment: FC = () => {
   if (isUnscopedAccess) return null
 
   return (
-    <>
+    <form id={CUSTOMER_REQUEST_OVERDUE_PAYMENT_FORM_ID} onSubmit={handleSubmit}>
       <PageHeader.Wrapper>
         {loading ? (
           <Skeleton variant="text" className="w-60" />
@@ -372,8 +396,8 @@ const CustomerRequestOverduePayment: FC = () => {
           {!hasDunningIntegration && <FreemiumAlert />}
           <div className="px-4 py-12 md:px-12">
             <RequestPaymentForm
+              form={form}
               invoicesLoading={loading}
-              formikProps={formikProps}
               overdueAmount={totalAmount}
               currency={defaultCurrency}
               invoices={invoicesCollection}
@@ -410,18 +434,19 @@ const CustomerRequestOverduePayment: FC = () => {
           >
             {translate('text_6411e6b530cb47007488b027')}
           </Button>
-          <Button
-            variant="primary"
-            size="large"
-            onClick={formikProps.submitForm}
-            data-test={SUBMIT_PAYMENT_REQUEST_TEST_ID}
-            disabled={!hasDunningIntegration || totalAmount === 0 || !formikProps.isValid}
-          >
-            {translate('text_66b258f62100490d0eb5caa2')}
-          </Button>
+          <form.AppForm>
+            <form.SubmitButton
+              variant="primary"
+              size="large"
+              dataTest={SUBMIT_PAYMENT_REQUEST_TEST_ID}
+              disabled={!hasDunningIntegration || totalAmount === 0}
+            >
+              {translate('text_66b258f62100490d0eb5caa2')}
+            </form.SubmitButton>
+          </form.AppForm>
         </div>
       </footer>
-    </>
+    </form>
   )
 }
 

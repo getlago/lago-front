@@ -4,14 +4,11 @@ import userEvent from '@testing-library/user-event'
 
 import { addToast } from '~/core/apolloClient'
 import { ERROR_404_ROUTE } from '~/core/router'
-import { initializeYup } from '~/formValidation/initializeYup'
 import { LagoApiError } from '~/generated/graphql'
 import * as useIsCustomerReadyForOverduePaymentModule from '~/hooks/useIsCustomerReadyForOverduePayment'
 import { render } from '~/test-utils'
 
 import CustomerRequestOverduePayment, { SUBMIT_PAYMENT_REQUEST_TEST_ID } from '../index'
-
-initializeYup()
 
 const mockNavigate = jest.fn()
 const mockGoBack = jest.fn()

@@ -36,7 +36,7 @@ export const EMAIL_REGEX: RegExp =
 const DOMAIN_REGEX: RegExp =
   /^((?!-))(xn--)?[a-z0-9][a-z0-9-_]{0,61}[a-z0-9]{0,1}\.(xn--)?([a-z0-9-]{1,61}|[a-z0-9-]{1,30}\.[a-z]{2,})$/
 
-export const zodMultipleEmails = z.string().refine((val) => {
+export const isMultipleEmailsValid = (val: string): boolean => {
   if (!val) return true
   if (typeof val !== 'string') return false
   const separatedEmails = val.split(',').map((mail) => mail.trim())
@@ -48,7 +48,11 @@ export const zodMultipleEmails = z.string().refine((val) => {
   }
 
   return true
-}, 'text_620bc4d4269a55014d493fc3')
+}
+
+export const zodMultipleEmails = z
+  .string()
+  .refine(isMultipleEmailsValid, 'text_620bc4d4269a55014d493fc3')
 
 export const zodDomain = z.string().refine((val) => {
   if (typeof val !== 'string') return false
