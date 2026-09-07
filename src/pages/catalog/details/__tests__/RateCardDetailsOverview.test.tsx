@@ -14,6 +14,9 @@ import RateCardDetailsOverview, {
   RATE_CARD_DETAILS_OVERVIEW_EDIT_TEST_ID,
 } from '../RateCardDetailsOverview'
 
+const CURRENCY_LABEL_KEY = 'text_1784925227817bab1mp540x7'
+const PRICING_UNIT_LABEL_KEY = 'text_1784925227817xt1irx4wum2'
+
 const mockOpenEditRateCardDrawer = jest.fn()
 const mockHasPermissions = jest.fn()
 let mockPricingUnits: Array<{ id: string; name: string; code: string; shortName?: string }> = []
@@ -153,6 +156,13 @@ describe('RateCardDetailsOverview', () => {
         expect(await screen.findByText('USD')).toBeInTheDocument()
       })
 
+      it('THEN omits the pricing unit row entirely', async () => {
+        await act(() => renderOverview())
+
+        expect(await screen.findByText(CURRENCY_LABEL_KEY)).toBeInTheDocument()
+        expect(screen.queryByText(PRICING_UNIT_LABEL_KEY)).not.toBeInTheDocument()
+      })
+
       it('THEN displays the billing timing as a human label', async () => {
         await act(() => renderOverview())
 
@@ -187,13 +197,13 @@ describe('RateCardDetailsOverview', () => {
 
   describe('GIVEN a rate card priced in a custom pricing unit', () => {
     describe('WHEN the pricing unit is known', () => {
-      it('THEN displays the pricing unit name instead of the currency', async () => {
+      it('THEN displays the pricing unit name alongside the currency', async () => {
         mockPricingUnits = [{ id: 'pu-1', name: 'Credits', code: 'credit' }]
 
         await act(() => renderOverview(pricingUnitRateCard))
 
         expect(await screen.findByText('Credits')).toBeInTheDocument()
-        expect(screen.queryByText('USD')).not.toBeInTheDocument()
+        expect(screen.getByText('USD')).toBeInTheDocument()
       })
     })
 

@@ -7,9 +7,9 @@ Six skills, one per phase:
 | Skill | Phase | What it does |
 |---|---|---|
 | `loop-run` | orchestrator | runs the whole thing; owns the retry budgets, ship, CI gate, Slack |
-| `loop-clean` | sweep | destroys worktrees whose PR is already merged (asks first) |
+| `loop-clean` | sweep | destroys worktrees whose PR is already merged (asks first) — `worktree` layout only |
 | `loop-spec` | 1 | reads Linear + Notion + the codebase, writes an operational spec |
-| `loop-build` | 2 | implements in a dedicated worktree, gets lint/types/translations green |
+| `loop-build` | 2 | implements in the run's worktree, gets lint/types/translations green |
 | `loop-review` | 3 | reviews the diff against the spec in a clean context, PASS/FAIL |
 | `loop-revise` | post-PR | applies feedback to an open loop PR, replies to PR comments |
 
@@ -20,6 +20,37 @@ Usual entry point:
 ```
 
 Optionally with Notion spec pages: `/loop-run <linear-url> <notion-url> <notion-url>`.
+
+## Two layouts: a fresh worktree, or the current one
+
+The pipeline is identical either way — the layout only decides who owns the workspace it builds in.
+`loop-run` resolves it once and records it in `state.md`; every phase reads it from there.
+
+|  | `worktree` (default) | `in-place` (`--in-place`) |
+|---|---|---|
+| Workspace | `lago-worktree create` builds `front-worktrees/<BRANCH>/` | the checkout the session already sits in — nothing is created |
+| Branch | forced to `<ISSUE-ID>-<topic-slug>` | whatever the checkout carries, **never renamed** |
+| Working dir | lago monorepo root, `git -C <worktree>` everywhere | the checkout itself, plain cwd |
+| Scripts | `front/scripts/` | `<checkout>/scripts/` |
+| Container | `lago_front_wt_<branch>` | `lago_front_ct_<workspace>` under Conductor, none otherwise |
+| Sweep / cleanup | `loop-clean` + `lago-worktree destroy` | the checkout's owner — under Conductor, archiving the workspace |
+| Docker preflight | hard STOP without the stack | warning only; the restart step skips itself when there is no container |
+
+`in-place` turns on automatically when `$CONDUCTOR_WORKSPACE_PATH` is set, so inside a
+[Conductor](https://www.conductor.build) workspace the plain entry point already does the right
+thing — the workspace **is** the worktree, the branch, the port and the container, and archiving it
+is the cleanup. Anywhere else, pass the flag explicitly:
+
+```bash
+/loop-run https://linear.app/getlago/issue/LAGO-1234/some-ticket --in-place
+```
+
+Use it when you are already on the branch you want the PR to carry: a Conductor workspace, a plain
+`git worktree`, a second clone. **One checkout, one ticket** — start a fresh workspace per ticket.
+
+Why the branch is never renamed in `in-place`: Conductor persists `workspaces.branch` in its own
+SQLite database. A `git branch -m` inside the workspace changes git but not that record, which
+desyncs Conductor's diff view and its archive-time branch deletion.
 
 ## Why it is built this way
 
@@ -36,7 +67,7 @@ Nothing about any specific person is in these files. Each developer configures t
 **1. Required tooling**
 
 - `gh` authenticated (`gh auth status`) — the PR self-assigns to whoever runs the loop.
-- Docker stack up (`lago_front_dev` running) and the `lago-worktree` helper available (`front/scripts/lago-worktree.sh`).
+- Docker stack up (`lago_front_dev` running). The `worktree` layout also needs the `lago-worktree` helper (`front/scripts/lago-worktree.sh`) and hard-stops without the stack; `in-place` only warns, since its gates run on the host.
 - MCP connectors: Linear (read ticket, move to In Review), Notion (specs + Frontend coding styleguide), Slack (the `#frontend` announcement).
 - `jq` and `curl` for the notification script.
 
@@ -51,7 +82,9 @@ The loop DMs you when it gives up. It needs a bot token because a self-DM throug
 
 **3. Environment**
 
-Put these in your shell profile or your own `.claude/settings.local.json` (never in a tracked file):
+Put these in your shell profile or your own `.claude/settings.local.json` (never in a tracked file).
+Under Conductor the script environment captures your login shell, so the same profile works; per
+repository you can also use `.conductor/settings.local.toml` (gitignored).
 
 | Variable | Required | Meaning |
 |---|---|---|
@@ -64,7 +97,8 @@ Put these in your shell profile or your own `.claude/settings.local.json` (never
 **4. Verify**
 
 ```bash
-front/scripts/loop-notify.sh --check
+front/scripts/loop-notify.sh --check          # worktree layout
+"$(git rev-parse --show-toplevel)/scripts/loop-notify.sh" --check   # in-place
 ```
 
 Prints the resolved recipient and DM channel without sending anything.
@@ -73,13 +107,13 @@ Prints the resolved recipient and DM channel without sending anything.
 
 Adopting the loop means accepting these. They are enforced in the skills as hard rules.
 
-- **The pipeline commits, pushes and opens the PR.** It is the one place where an agent performs git write operations, and only ever on its own branch in its own worktree. It never force-pushes and never touches the main checkout.
+- **The pipeline commits, pushes and opens the PR.** It is the one place where an agent performs git write operations, and only ever on its own branch in the worktree recorded in `state.md`. It never force-pushes and never touches the main checkout (`$CONDUCTOR_ROOT_PATH` included).
 - **Humans merge.** No self-approval, no merge, no auto-merge flag — ever.
 - **No AI attribution** in commits, PR bodies or Slack messages.
 - **`#frontend` is posted only when CI is green** — sole exception: a red `Run Codegen` caused by a verified unmerged companion lago-api PR (loop-run CI-gate step 5.3), which is announced anyway since only the API merge plus a rerun stand between it and green.
 - **The full jest suite is never run.** Only scoped paths for the touched domain.
 - **Every external PR comment gets a reply** — applied with the sha, or not applied with a one-line technical reason.
-- **Destructive cleanup always asks.** `loop-clean` never destroys a dirty worktree or one with unpushed commits.
+- **Destructive cleanup always asks.** `loop-clean` never destroys a dirty worktree or one with unpushed commits — and in `in-place` the pipeline manages no workspace at all: it never creates, archives or renames one, and never renames a branch.
 
 ## Run state
 
@@ -88,10 +122,11 @@ Per-developer, outside the repo, in `$LOOP_STATE_DIR/<ISSUE-ID>/`:
 | File | Written by | Purpose |
 |---|---|---|
 | `spec.md` | loop-spec | the operational spec the whole run is judged against |
-| `state.md` | loop-build | worktree path, branch, dev port |
+| `state.md` | loop-build | layout, worktree path, branch, dev port, workspace + container when there is one |
 | `review.md` | loop-review | current PASS/FAIL verdict |
 | `review-history.md` | loop-run | every previous FAIL verdict — fuel for the escalating retry |
-| `ci-failure.md` / `ci-failure-history.md` | loop-run | current and past CI failure logs |
+| `ci-failure.md` / `ci-failure-history.md` | loop-run | current and past CI failures, **distilled** (~60 lines: failing job, matched error lines, file:line) |
+| `ci-raw-<N>.log` | loop-run / loop-revise | the raw `--log-failed` output, on disk for you — never read into an agent's context |
 | `feedback.md` | loop-revise | every round of human feedback |
 | `impediment.md` | loop-run / loop-revise | why the loop gave up: stage, cause, what it tried, what it needs |
 | `counters/` | iter-budget.sh | the retry budgets |
@@ -102,4 +137,4 @@ Plus two files shared across runs: `_journal.md` (one row per run — iterations
 
 Every run that struggles writes down why. `_flywheel.md` collects proposed edits to the skills, evidence attached; the loop never edits its own instructions. Read it when you have a moment, and turn a proposal that keeps recurring into a PR against `.agents/skills/loop-*`. `_journal.md` is how you tell whether such a change actually helped — average iterations per run should fall.
 
-Scripts live in `front/scripts/`: `iter-budget.sh` (retry budget) and `loop-notify.sh` (exit DM). Both are standalone and documented in their headers.
+Scripts live in the front checkout's `scripts/` (`front/scripts/` from the monorepo root): `iter-budget.sh` (retry budget) and `loop-notify.sh` (exit DM). Both are standalone and documented in their headers.

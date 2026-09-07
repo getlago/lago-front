@@ -1,8 +1,9 @@
-import { screen } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import {
   AggregationTypeEnum,
+  CurrencyEnum,
   GetPricingUnitsForRateCardDrawerDocument,
   GetProductFiltersForRateCardDrawerDocument,
   ProductTypeEnum,
@@ -16,7 +17,9 @@ import {
   RATE_CARD_DRAWER_AVAILABLE_MODELS_ALERT_TEST_ID,
   RATE_CARD_DRAWER_DESCRIPTION_TEST_ID,
   RATE_CARD_DRAWER_REMOVE_DESCRIPTION_TEST_ID,
+  RATE_CARD_DRAWER_REMOVE_PRICING_UNIT_TEST_ID,
   RATE_CARD_DRAWER_SHOW_DESCRIPTION_TEST_ID,
+  RATE_CARD_DRAWER_SHOW_PRICING_UNIT_TEST_ID,
   RateCardDrawerContent,
   RateCardProductSeed,
 } from '../RateCardDrawerContent'
@@ -29,8 +32,13 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
+// jsdom has no scrollIntoView, and `scrollToAndClickElement` calls it before the click that
+// opens the pricing unit combobox.
+Element.prototype.scrollIntoView = jest.fn()
+
 const DESCRIPTION_PROBE_TEST_ID = 'description-probe'
 const DIRTY_PROBE_TEST_ID = 'dirty-probe'
+const PRICING_UNIT_PROBE_TEST_ID = 'pricing-unit-probe'
 
 const DYNAMIC_MODEL_KEY = 'text_1727711520232zpp50zgnam5'
 const STANDARD_MODEL_KEY = 'text_624aa732d6af4e0103d40e6f'
@@ -42,13 +50,15 @@ const GRADUATED_PERCENTAGE_MODEL_KEY = 'text_64de472463e2da6b31737db0'
 
 const PRODUCT_ID = 'product-1'
 
-const mocks: TestMocksType = [
+const buildMocks = (
+  pricingUnits: Array<{ id: string; name: string; code: string }> = [],
+): TestMocksType => [
   {
     request: {
       query: GetPricingUnitsForRateCardDrawerDocument,
       variables: { page: 1, limit: 100 },
     },
-    result: { data: { pricingUnits: { collection: [] } } },
+    result: { data: { pricingUnits: { collection: pricingUnits } } },
   },
   {
     request: {
@@ -58,6 +68,9 @@ const mocks: TestMocksType = [
     result: { data: { productFilters: { collection: [] } } },
   },
 ]
+
+const mocks = buildMocks()
+const mocksWithPricingUnits = buildMocks([{ id: 'pu-1', name: 'Credits', code: 'credits' }])
 
 const buildUsageSeed = (aggregationType: AggregationTypeEnum): RateCardProductSeed => ({
   value: PRODUCT_ID,
@@ -83,6 +96,9 @@ const Harness = ({ values, productSeed = null }: HarnessProps): JSX.Element => {
       <form.Subscribe selector={(state) => state.isDirty}>
         {(isDirty) => <span data-test={DIRTY_PROBE_TEST_ID}>{String(isDirty)}</span>}
       </form.Subscribe>
+      <form.Subscribe selector={(state) => state.values.pricingUnit}>
+        {(pricingUnit) => <span data-test={PRICING_UNIT_PROBE_TEST_ID}>{String(pricingUnit)}</span>}
+      </form.Subscribe>
       <RateCardDrawerContent
         form={form}
         isEdit={false}
@@ -95,8 +111,18 @@ const Harness = ({ values, productSeed = null }: HarnessProps): JSX.Element => {
   )
 }
 
-const renderContent = (props: HarnessProps = {}): ReturnType<typeof render> =>
-  render(<Harness {...props} />, { mocks })
+const renderContent = (
+  props: HarnessProps = {},
+  testMocks: TestMocksType = mocks,
+): ReturnType<typeof render> => render(<Harness {...props} />, { mocks: testMocks })
+
+const renderWithPricingUnits = (
+  values: Partial<RateCardFormValues> = {},
+): ReturnType<typeof render> =>
+  renderContent({ values: { currency: CurrencyEnum.Usd, ...values } }, mocksWithPricingUnits)
+
+const queryPricingUnitInput = (): HTMLInputElement | null =>
+  document.querySelector<HTMLInputElement>('input[name="pricingUnit"]')
 
 const getDescriptionInput = (): HTMLTextAreaElement =>
   screen
@@ -254,6 +280,104 @@ describe('RateCardDrawerContent', () => {
           PACKAGE_MODEL_KEY,
           VOLUME_MODEL_KEY,
         ])
+      })
+    })
+  })
+
+  describe('GIVEN no currency selected', () => {
+    describe('WHEN the content renders', () => {
+      it('THEN hides both the pricing unit combobox and its add action', async () => {
+        renderContent({}, mocksWithPricingUnits)
+
+        expect(
+          await screen.findByTestId(RATE_CARD_DRAWER_SHOW_DESCRIPTION_TEST_ID),
+        ).toBeInTheDocument()
+        expect(
+          screen.queryByTestId(RATE_CARD_DRAWER_SHOW_PRICING_UNIT_TEST_ID),
+        ).not.toBeInTheDocument()
+        expect(queryPricingUnitInput()).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a currency but no pricing unit defined on the organization', () => {
+    describe('WHEN the content renders', () => {
+      it('THEN hides both the pricing unit combobox and its add action', () => {
+        renderContent({ values: { currency: CurrencyEnum.Usd } })
+
+        expect(
+          screen.queryByTestId(RATE_CARD_DRAWER_SHOW_PRICING_UNIT_TEST_ID),
+        ).not.toBeInTheDocument()
+        expect(queryPricingUnitInput()).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a currency and available pricing units, on a rate card without one', () => {
+    describe('WHEN the content renders', () => {
+      it('THEN shows the add-pricing-unit action only', async () => {
+        renderWithPricingUnits()
+
+        expect(
+          await screen.findByTestId(RATE_CARD_DRAWER_SHOW_PRICING_UNIT_TEST_ID),
+        ).toBeInTheDocument()
+        expect(queryPricingUnitInput()).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the user clicks the add-pricing-unit action', () => {
+      it('THEN reveals the combobox, focuses it and drops its options open', async () => {
+        renderWithPricingUnits()
+
+        await userEvent.click(await screen.findByTestId(RATE_CARD_DRAWER_SHOW_PRICING_UNIT_TEST_ID))
+
+        expect(queryPricingUnitInput()).toBeInTheDocument()
+        expect(
+          screen.queryByTestId(RATE_CARD_DRAWER_SHOW_PRICING_UNIT_TEST_ID),
+        ).not.toBeInTheDocument()
+
+        await waitFor(() => expect(queryPricingUnitInput()).toHaveFocus())
+        expect(await screen.findByRole('listbox')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a rate card already priced in a pricing unit', () => {
+    describe('WHEN the content renders', () => {
+      it('THEN shows the combobox and its remove button', async () => {
+        renderWithPricingUnits({ pricingUnit: 'credits' })
+
+        expect(
+          await screen.findByTestId(RATE_CARD_DRAWER_REMOVE_PRICING_UNIT_TEST_ID),
+        ).toBeInTheDocument()
+        expect(queryPricingUnitInput()).toBeInTheDocument()
+        expect(
+          screen.queryByTestId(RATE_CARD_DRAWER_SHOW_PRICING_UNIT_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+
+      it('THEN leaves the combobox closed and unfocused', async () => {
+        renderWithPricingUnits({ pricingUnit: 'credits' })
+
+        expect(
+          await screen.findByTestId(RATE_CARD_DRAWER_REMOVE_PRICING_UNIT_TEST_ID),
+        ).toBeVisible()
+        expect(queryPricingUnitInput()).not.toHaveFocus()
+        expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the user removes the pricing unit', () => {
+      it('THEN hides the combobox and clears the value', async () => {
+        renderWithPricingUnits({ pricingUnit: 'credits' })
+
+        await userEvent.click(
+          await screen.findByTestId(RATE_CARD_DRAWER_REMOVE_PRICING_UNIT_TEST_ID),
+        )
+
+        expect(queryPricingUnitInput()).not.toBeInTheDocument()
+        expect(screen.getByTestId(PRICING_UNIT_PROBE_TEST_ID)).toHaveTextContent('undefined')
+        expect(screen.getByTestId(RATE_CARD_DRAWER_SHOW_PRICING_UNIT_TEST_ID)).toBeInTheDocument()
       })
     })
   })

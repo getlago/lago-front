@@ -71,9 +71,17 @@ jest.mock('../RateCardDrawerContent', () => ({
       setFieldValue: (name: string, value: unknown) => void
     }
   }) => (
-    <button data-test="clear-description" onClick={() => form.setFieldValue('description', '')}>
-      clear
-    </button>
+    <>
+      <button data-test="clear-description" onClick={() => form.setFieldValue('description', '')}>
+        clear description
+      </button>
+      <button
+        data-test="clear-pricing-unit"
+        onClick={() => form.setFieldValue('pricingUnit', undefined)}
+      >
+        clear pricing unit
+      </button>
+    </>
   ),
 }))
 
@@ -207,6 +215,28 @@ describe('useRateCardDrawer edit flow', () => {
     await waitFor(() => expect(mockClose).toHaveBeenCalledTimes(1))
 
     expect(capturedInput.description).toBeNull()
+  })
+
+  it('serializes a removed pricing unit as null', async () => {
+    let capturedInput: Record<string, unknown> = {}
+    const { result } = renderDrawerHook([updateRateCardMock((input) => (capturedInput = input))])
+
+    act(() =>
+      result.current.openDrawer({
+        rateCard: { ...rateCardFixture, appliedPricingUnitCode: 'credits' },
+      }),
+    )
+    render(
+      <MockedProvider mocks={[]} addTypename={false}>
+        {lastDrawerArgs?.children}
+      </MockedProvider>,
+    )
+    await userEvent.click(screen.getByTestId('clear-pricing-unit'))
+    await submit()
+
+    await waitFor(() => expect(mockClose).toHaveBeenCalledTimes(1))
+
+    expect(capturedInput.appliedPricingUnitCode).toBeNull()
   })
 
   it('passes locked flags to the content when the rate card is attached', () => {

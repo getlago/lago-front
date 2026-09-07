@@ -177,6 +177,16 @@ Write one **only** for:
 - **A trap that bites on edit** - renaming this breaks a string reference
   elsewhere, narrowing this fragment clobbers the cache.
 
+Those three categories are rationalisable, so two tests decide the borderline
+cases. **The commit-body test**: would you also write this sentence in the
+commit or PR body? Then it belongs there - read once by a reviewer - not next
+to code, re-read forever. **The iteration test**: a comment written while
+addressing review feedback is an artifact of how the change was reached, not
+knowledge about the code. The merged PR reads as one coherent change; the
+objection that produced the line is invisible to whoever reads it next. Answer
+the reviewer in the reply, and if the code needed the explanation, rename
+something instead.
+
 ```tsx
 // ❌ Bad - restates the code
 // uppercase first letter
@@ -185,6 +195,14 @@ return label.charAt(0).toUpperCase() + label.slice(1)
 // ❌ Bad - changelog; git already has it
 // Previously `z.string().min(1)` on the object; kept here so it survives
 // an `undefined` on any other field.
+
+// ❌ Bad - justifies the diff; belongs in the commit body
+// Explicit null, never omitted nor blank: the backend backfills the default on
+// nil, and an empty string would defeat it.
+
+// ❌ Bad - answers a reviewer, not a reader
+// Same reason as the payment branch: on a provider switch the replacement
+// inherits nothing from the connection it replaces.
 
 // ❌ Bad - an essay where one line does
 /**

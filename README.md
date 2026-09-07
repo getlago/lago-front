@@ -122,6 +122,7 @@ What the shared config provides:
 - **Setup**: `pnpm install` on every new workspace.
 - **Run (`container`)**: runs the workspace in its own Docker container on the shared lago stack network, via `scripts/conductor-front-container.sh`. Requires the Docker superproject stack: `lago up -d` and the `front_dev` image. The script locates itself and the superproject via Conductor's `$CONDUCTOR_WORKSPACE_PATH` / `$CONDUCTOR_ROOT_PATH`, so no `$LAGO_PATH` shell var is needed (Conductor's headless script env doesn't source your `.zshrc`).
 - **Git**: deletes the branch when a workspace is archived.
+- **Loop skills**: the `loop-*` pipeline (`.agents/skills/`, Linear ticket in, review-ready PR out) detects a Conductor workspace and runs in it directly — the workspace already is the worktree, the branch and the cwd, so no `lago-worktree` worktree is created and cleanup is archiving the workspace. Outside Conductor the same behaviour is available with `/loop-run <linear-url> --in-place`. Setup and per-developer configuration: `.agents/skills/loop-run/README.md`.
 
 ### Personal overrides
 

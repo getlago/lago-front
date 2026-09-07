@@ -14,6 +14,8 @@ allowed-tools: Read, Glob, Grep, Edit, Write, Bash, AskUserQuestion
 
 This skill guides the migration of React form components from Formik to TanStack Form, following the established patterns in this codebase.
 
+> Building a form that has no Formik ancestor is a different job: read `lago-forms`, which owns the conventions for new forms. This skill covers only what a migration adds on top — the yup→zod mapping, the value-shape audit and the parity check.
+
 ## Prerequisites
 
 Before starting, gather context by reading these reference files:
@@ -521,7 +523,7 @@ If the form has `name` and `code` fields, use the `NameAndCodeGroup` reusable co
 import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
 
 // In your form JSX:
-<NameAndCodeGroup group={form} isDisabled={isEdition} />
+<NameAndCodeGroup form={form} fields={{ name: 'name', code: 'code' }} disableCodeInput={isEdition} />
 ```
 
 This component:
@@ -1172,7 +1174,7 @@ const NameAndCodeGroup = withFieldGroup({
 | -------- | -------------------------------- | ----------------------------------------------------- |
 | Purpose  | Sub-component of a specific form | Reusable field group across multiple forms            |
 | Receives | `form` prop                      | `group` prop                                          |
-| Usage    | `<MySection form={form} />`      | `<NameAndCodeGroup group={form} />`                   |
+| Usage    | `<MySection form={form} />`      | `<NameAndCodeGroup form={form} fields={{ name: 'name', code: 'code' }} />` |
 | Scope    | Specific to one form's structure | Generic, works with any form that has matching fields |
 
 ### Pattern 9: Dialog with Independent Form
