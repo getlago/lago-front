@@ -60,6 +60,9 @@ gql`
         id
         code
       }
+      ... on CatalogPlan {
+        id
+      }
       ... on Coupon {
         id
       }
