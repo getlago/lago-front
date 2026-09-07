@@ -72,6 +72,52 @@ describe('Link', () => {
     })
   })
 
+  // Tripwire pinning v6 router behaviour for these inputs; stage 3's bump to
+  // react-router 7.18 is EXPECTED to change them, so a failure here is the signal.
+  describe('GIVEN a protocol-relative or backslash-tricked "to" prop', () => {
+    describe('WHEN rendering "//evil.com" with an organization slug', () => {
+      it('THEN should render the v6-observed href', () => {
+        renderWithRouter(<Link to="//evil.com">Evil</Link>)
+
+        const link = screen.getByText('Evil')
+
+        expect(link).toHaveAttribute('href', '/acme/evil.com')
+      })
+    })
+
+    describe('WHEN rendering "/\\evil.com" with an organization slug', () => {
+      it('THEN should render the v6-observed href', () => {
+        renderWithRouter(<Link to={'/\\evil.com'}>Evil</Link>)
+
+        const link = screen.getByText('Evil')
+
+        expect(link).toHaveAttribute('href', '/acme/\\evil.com')
+      })
+    })
+
+    describe('WHEN rendering "/acme//evil.com" with an organization slug', () => {
+      it('THEN should render the v6-observed href', () => {
+        renderWithRouter(<Link to="/acme//evil.com">Evil</Link>)
+
+        const link = screen.getByText('Evil')
+
+        expect(link).toHaveAttribute('href', '/acme/evil.com')
+      })
+    })
+
+    describe('WHEN rendering "//evil.com" with no organization slug', () => {
+      it('THEN should render the v6-observed href', () => {
+        mockUseParams.mockReturnValue({})
+
+        renderWithRouter(<Link to="//evil.com">Evil</Link>)
+
+        const link = screen.getByText('Evil')
+
+        expect(link).toHaveAttribute('href', '//evil.com')
+      })
+    })
+  })
+
   describe('GIVEN a ref is passed to Link', () => {
     describe('WHEN the component renders', () => {
       it('THEN should forward the ref to the anchor element', () => {

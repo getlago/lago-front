@@ -112,6 +112,52 @@ describe('LoginOkta', () => {
     })
   })
 
+  describe('GIVEN the redirect location points off-origin', () => {
+    it.each(['//evil.com', '/\\evil.com', 'https://evil.com', 'javascript:alert(1)//'])(
+      'THEN %s is not persisted for the post-login redirect',
+      async (hostilePath) => {
+        mockUseLocation.mockReturnValue({
+          state: {
+            from: { pathname: hostilePath, search: '', hash: '', state: null, key: 'test' },
+          },
+          pathname: '/login/okta',
+          search: '',
+          hash: '',
+          key: 'default',
+        })
+
+        mockFetchOktaAuthorizeUrl.mockResolvedValue({
+          data: { oktaAuthorize: { url: 'https://okta.example.com/authorize?state=test' } },
+        })
+
+        const user = userEvent.setup()
+
+        await act(async () => {
+          render(
+            <MemoryRouter>
+              <LoginOkta />
+            </MemoryRouter>,
+          )
+        })
+
+        const emailInput = document.querySelector('input') as HTMLInputElement
+
+        await user.type(emailInput, 'user@example.com')
+
+        await user.click(screen.getByTestId('submit'))
+
+        await waitFor(() => {
+          expect(mockFetchOktaAuthorizeUrl).toHaveBeenCalled()
+        })
+
+        expect(mockSetItemFromLS).not.toHaveBeenCalledWith(
+          REDIRECT_AFTER_LOGIN_LS_KEY,
+          expect.anything(),
+        )
+      },
+    )
+  })
+
   describe('GIVEN the user navigated directly to the Okta login page', () => {
     beforeEach(() => {
       mockUseLocation.mockReturnValue({

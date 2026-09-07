@@ -155,6 +155,40 @@ describe('GoogleAuthCallback', () => {
     })
   })
 
+  describe('GIVEN a successful Google login with an off-origin redirect path', () => {
+    // `state` is parsed straight off the URL query at GoogleAuthCallback.tsx:35,
+    // so this value is attacker-controlled.
+    it.each([
+      '//evil.com',
+      '///evil.com',
+      '/\\evil.com',
+      '\\/evil.com',
+      'https://evil.com',
+      'javascript:alert(1)//',
+    ])('THEN %s is never persisted to localStorage', async (redirectPath) => {
+      mockUseSearchParams.mockReturnValue(
+        buildSearchParams({
+          code: 'google-auth-code',
+          state: JSON.stringify({ mode: 'login', redirectPath }),
+        }),
+      )
+      mockGoogleLoginUser.mockResolvedValue({
+        data: { googleLoginUser: { token: 'test-token' } },
+      })
+
+      renderHook(() => GoogleAuthCallback())
+
+      await waitFor(() => {
+        expect(mockOnLogIn).toHaveBeenCalled()
+      })
+
+      expect(mockSetItemFromLS).not.toHaveBeenCalledWith(
+        REDIRECT_AFTER_LOGIN_LS_KEY,
+        expect.anything(),
+      )
+    })
+  })
+
   describe('GIVEN Google login returns an error', () => {
     beforeEach(() => {
       mockUseSearchParams.mockReturnValue(
