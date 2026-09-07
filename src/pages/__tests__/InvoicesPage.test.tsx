@@ -1,5 +1,7 @@
-import { screen } from '@testing-library/react'
+import { fireEvent, screen } from '@testing-library/react'
+import { ComponentProps } from 'react'
 
+import { Filters } from '~/components/Filters'
 import { MainHeaderConfig } from '~/components/MainHeader/types'
 import { GetInvoicesListDocument, GetInvoicesListQueryVariables } from '~/generated/graphql'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
@@ -38,12 +40,30 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 }))
 
 const mockDebouncedSearch = jest.fn()
+const mockGoToPage = jest.fn()
+let mockPage = 1
+
+jest.mock('~/components/Filters', () => ({
+  ...jest.requireActual('~/components/Filters'),
+  Filters: {
+    Provider: ({ children }: ComponentProps<typeof Filters.Provider>): JSX.Element => (
+      <>{children}</>
+    ),
+    Component: (): null => null,
+    QuickFilters: (): null => null,
+  },
+}))
 
 jest.mock('~/hooks/useDebouncedSearch', () => ({
   useDebouncedSearch: () => ({
     debouncedSearch: mockDebouncedSearch,
     isLoading: false,
   }),
+}))
+
+jest.mock('~/components/designSystem/Pagination', () => ({
+  ...jest.requireActual('~/components/designSystem/Pagination'),
+  usePageSearchParam: () => ({ page: mockPage, goToPage: mockGoToPage }),
 }))
 
 jest.mock('~/hooks/useOrganizationInfos', () => ({
@@ -143,9 +163,36 @@ const openExportDialogFromHeader = (): void => {
 describe('InvoicesPage', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockPage = 1
     capturedConfig = null
     capturedListVariables = null
     mockInvoicesMetadata = UNCAPPED_METADATA
+  })
+
+  describe('GIVEN the list is on page 3', (): void => {
+    it('WHEN search is edited or cleared THEN resets the page before searching', (): void => {
+      mockPage = 3
+      render(<InvoicesPage />)
+      render(<>{capturedConfig?.filtersSection}</>)
+
+      const input = screen.getByRole('textbox')
+
+      for (const value of [' new query ', '']) {
+        mockGoToPage.mockClear()
+        mockDebouncedSearch.mockClear()
+
+        fireEvent.change(input, { target: { value } })
+
+        expect(input).toHaveValue(value)
+        expect(mockGoToPage).toHaveBeenCalledTimes(1)
+        expect(mockGoToPage).toHaveBeenCalledWith(1)
+        expect(mockDebouncedSearch).toHaveBeenCalledTimes(1)
+        expect(mockDebouncedSearch).toHaveBeenCalledWith(value)
+        expect(mockGoToPage.mock.invocationCallOrder[0]).toBeLessThan(
+          mockDebouncedSearch.mock.invocationCallOrder[0],
+        )
+      }
+    })
   })
 
   describe('GIVEN the page is rendered', () => {
