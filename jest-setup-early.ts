@@ -34,10 +34,6 @@ const SUPPRESSED_PATTERNS: string[][] = [
   // Apollo cache merge warnings (test environment artifact)
   ['Cache data may be lost when replacing'],
 
-  // React Router v7 future flag warnings
-  ['React Router Future Flag Warning', 'v7_startTransition'],
-  ['React Router Future Flag Warning', 'v7_relativeSplatPath'],
-
   // GraphQL fragment duplicate warnings (test environment artifact)
   ['Warning: fragment with name', 'already exists'],
 
