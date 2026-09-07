@@ -29,7 +29,7 @@ jest.mock('@tanstack/react-virtual', () => ({
 
 // Local privilege options do not need the search hook's loading timer.
 jest.mock('~/hooks/useDebouncedSearch', () => ({
-  useDebouncedSearch: () => ({ debouncedSearch: undefined, isLoading: false }),
+  useDebouncedSearch: () => ({ debouncedSearch: jest.fn(), isLoading: false }),
 }))
 
 jest.mock('~/components/drawers/useDrawer', () => ({
