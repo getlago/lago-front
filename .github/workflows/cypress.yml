@@ -81,6 +81,7 @@ jobs:
             cypress/e2e/t10-*
             cypress/e2e/t20-*
             cypress/e2e/t30-*
+            cypress/e2e/t50-*
 
       - name: Upload screenshots
         uses: actions/upload-artifact@v7.0.1
