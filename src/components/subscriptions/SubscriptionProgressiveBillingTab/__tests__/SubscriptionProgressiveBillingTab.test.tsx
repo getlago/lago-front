@@ -106,14 +106,14 @@ const createSwitchMutationMock = (
       },
     },
   },
-  result: {
+  result: jest.fn(() => ({
     data: {
       updateSubscription: {
         id: subscriptionId,
         progressiveBillingDisabled: newDisabledValue,
       },
     },
-  },
+  })),
 })
 
 describe('SubscriptionProgressiveBillingTab', () => {
@@ -385,7 +385,8 @@ describe('SubscriptionProgressiveBillingTab', () => {
     it('calls mutation when toggle button is clicked', async () => {
       const user = userEvent.setup()
       const subscription = createMockSubscription({ progressiveBillingDisabled: false })
-      const mocks: TestMocksType = [createSwitchMutationMock(subscription.id, true)]
+      const mutationMock = createSwitchMutationMock(subscription.id, true)
+      const mocks: TestMocksType = [mutationMock]
 
       render(<SubscriptionProgressiveBillingTab subscription={subscription} loading={false} />, {
         mocks,
@@ -399,11 +400,14 @@ describe('SubscriptionProgressiveBillingTab', () => {
         expect(screen.getByTestId(PROGRESSIVE_BILLING_TOGGLE_BUTTON_TEST_ID)).toBeInTheDocument()
       })
 
-      await act(async () => {
-        await user.click(screen.getByTestId(PROGRESSIVE_BILLING_TOGGLE_BUTTON_TEST_ID))
-      })
+      await user.click(screen.getByTestId(PROGRESSIVE_BILLING_TOGGLE_BUTTON_TEST_ID))
 
-      // The mutation should have been called (no error thrown)
+      await waitFor(() => {
+        expect(mutationMock.result).toHaveBeenCalledTimes(1)
+        expect(
+          screen.queryByTestId(PROGRESSIVE_BILLING_TOGGLE_BUTTON_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
     })
   })
 

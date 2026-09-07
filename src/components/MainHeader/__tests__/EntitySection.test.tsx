@@ -1,6 +1,7 @@
 import { screen } from '@testing-library/react'
 
 import { StatusType } from '~/components/designSystem/Status'
+import { preloadContextualLocale } from '~/hooks/core/useContextualLocale'
 import { render } from '~/test-utils'
 
 import { EntitySection } from '../EntitySection'
@@ -10,6 +11,10 @@ import {
   ENTITY_SECTION_VIEW_NAME_TEST_ID,
 } from '../mainHeaderTestIds'
 import { MainHeaderEntityConfig } from '../types'
+
+beforeEach(async () => {
+  await preloadContextualLocale('en')
+})
 
 describe('EntitySection', () => {
   describe('GIVEN no entity', () => {

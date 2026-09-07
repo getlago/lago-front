@@ -1,12 +1,18 @@
 // For future me, fixture like that are terrible, I know.
 // We should have an other system for that, but I don't have time for that right now.
-import { InvoiceTypeEnum } from '~/generated/graphql'
+import { InvoiceStatusTypeEnum, InvoiceTypeEnum } from '~/generated/graphql'
 
 export const INVOICE_FIXTURE_ID = '1234'
 
 export const fullSubscriptionInvoiceMockAndExpect = () => ({
   mock: {
     invoice: {
+      status: InvoiceStatusTypeEnum.Finalized,
+      offsettableAmountCents: '0',
+      availableToCreditAmountCents: '2700000',
+      totalPaidAmountCents: '0',
+      totalAmountCents: '2700100',
+      totalDueAmountCents: '2700100',
       id: INVOICE_FIXTURE_ID,
       refundableAmountCents: '0',
       creditableAmountCents: '2700000',
@@ -14,6 +20,9 @@ export const fullSubscriptionInvoiceMockAndExpect = () => ({
       paymentDisputeLostAt: null,
       fees: [
         {
+          offsettableAmountCents: '0',
+          succeededAt: null,
+          groupedBy: null,
           id: 'fee-1-id',
           amountCurrency: 'EUR',
           itemCode: 'standard_plan',
@@ -26,6 +35,9 @@ export const fullSubscriptionInvoiceMockAndExpect = () => ({
           __typename: 'Fee',
         },
         {
+          offsettableAmountCents: '0',
+          succeededAt: null,
+          groupedBy: null,
           id: 'fee-2-id',
           amountCurrency: 'EUR',
           itemCode: 'sum_bm',
@@ -53,6 +65,9 @@ export const fullSubscriptionInvoiceMockAndExpect = () => ({
           },
           fees: [
             {
+              offsettableAmountCents: '0',
+              succeededAt: null,
+              groupedBy: null,
               id: 'invoice-subscription-fee-1-id',
               amountCurrency: 'EUR',
               feeType: 'subscription',
@@ -68,6 +83,9 @@ export const fullSubscriptionInvoiceMockAndExpect = () => ({
               __typename: 'Fee',
             },
             {
+              offsettableAmountCents: '0',
+              succeededAt: null,
+              groupedBy: null,
               id: 'invoice-subscription-fee-2-id',
               amountCurrency: 'EUR',
               feeType: 'charge',
@@ -110,6 +128,12 @@ export const fullSubscriptionInvoiceMockAndExpect = () => ({
 export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
   mock: {
     invoice: {
+      status: InvoiceStatusTypeEnum.Finalized,
+      offsettableAmountCents: '0',
+      availableToCreditAmountCents: '62833',
+      totalPaidAmountCents: '0',
+      totalAmountCents: '62833',
+      totalDueAmountCents: '62833',
       id: INVOICE_FIXTURE_ID,
       refundableAmountCents: '0',
       creditableAmountCents: '62833',
@@ -117,6 +141,9 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
       paymentDisputeLostAt: null,
       fees: [
         {
+          offsettableAmountCents: '0',
+          succeededAt: null,
+          groupedBy: null,
           id: 'b7e53061-73b5-46bf-8f1a-2f49d50c672c',
           amountCurrency: 'EUR',
           itemCode: 'group_true_up',
@@ -133,6 +160,9 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
           __typename: 'Fee',
         },
         {
+          offsettableAmountCents: '0',
+          succeededAt: null,
+          groupedBy: null,
           id: 'e94a7773-7641-4d81-a869-bb5c021c2817',
           amountCurrency: 'EUR',
           itemCode: 'count_bm_two_dimensions',
@@ -152,6 +182,9 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
           __typename: 'Fee',
         },
         {
+          offsettableAmountCents: '0',
+          succeededAt: null,
+          groupedBy: null,
           id: 'df9b74ff-b050-44a5-aad4-3ec87999f3c6',
           amountCurrency: 'EUR',
           itemCode: 'count_bm_two_dimensions',
@@ -168,6 +201,9 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
           __typename: 'Fee',
         },
         {
+          offsettableAmountCents: '0',
+          succeededAt: null,
+          groupedBy: null,
           id: '0e1bd51c-07fe-445b-aade-28fdc88a488c',
           amountCurrency: 'EUR',
           itemCode: 'count_bm_two_dimensions',
@@ -184,6 +220,9 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
           __typename: 'Fee',
         },
         {
+          offsettableAmountCents: '0',
+          succeededAt: null,
+          groupedBy: null,
           id: 'af3ca6df-02ba-4442-a455-c7eb6b0edc6b',
           amountCurrency: 'EUR',
           itemCode: 'count_bm_two_dimensions',
@@ -200,6 +239,9 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
           __typename: 'Fee',
         },
         {
+          offsettableAmountCents: '0',
+          succeededAt: null,
+          groupedBy: null,
           id: '58b6e874-7d5f-4871-a9b3-7379dfbfd787',
           amountCurrency: 'EUR',
           itemCode: 'count_bm_one_dimension',
@@ -216,6 +258,9 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
           __typename: 'Fee',
         },
         {
+          offsettableAmountCents: '0',
+          succeededAt: null,
+          groupedBy: null,
           id: '0769b8c4-38ed-4248-bda9-d62218c91b37',
           amountCurrency: 'EUR',
           itemCode: 'count_bm_one_dimension',
@@ -232,6 +277,9 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
           __typename: 'Fee',
         },
         {
+          offsettableAmountCents: '0',
+          succeededAt: null,
+          groupedBy: null,
           id: '18892329-3951-4134-ac57-fe7233b1c723',
           amountCurrency: 'EUR',
           itemCode: 'sum_bm',
@@ -248,6 +296,9 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
           __typename: 'Fee',
         },
         {
+          offsettableAmountCents: '0',
+          succeededAt: null,
+          groupedBy: null,
           id: '18892321-3951-4114-ac17-fe723311c723',
           amountCurrency: 'EUR',
           itemCode: 'sum_bm',
@@ -279,6 +330,9 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
           },
           fees: [
             {
+              offsettableAmountCents: '0',
+              succeededAt: null,
+              groupedBy: null,
               id: 'b7e53061-73b5-46bf-8f1a-2f49d50c672c',
               amountCurrency: 'EUR',
               feeType: 'subscription',
@@ -294,6 +348,9 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
               __typename: 'Fee',
             },
             {
+              offsettableAmountCents: '0',
+              succeededAt: null,
+              groupedBy: null,
               id: 'e94a7773-7641-4d81-a869-bb5c021c2817',
               amountCurrency: 'EUR',
               feeType: 'charge',
@@ -327,6 +384,9 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
               __typename: 'Fee',
             },
             {
+              offsettableAmountCents: '0',
+              succeededAt: null,
+              groupedBy: null,
               id: 'df9b74ff-b050-44a5-aad4-3ec87999f3c6',
               amountCurrency: 'EUR',
               feeType: 'charge',
@@ -357,6 +417,9 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
               __typename: 'Fee',
             },
             {
+              offsettableAmountCents: '0',
+              succeededAt: null,
+              groupedBy: null,
               id: '0e1bd51c-07fe-445b-aade-28fdc88a488c',
               amountCurrency: 'EUR',
               feeType: 'charge',
@@ -387,6 +450,9 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
               __typename: 'Fee',
             },
             {
+              offsettableAmountCents: '0',
+              succeededAt: null,
+              groupedBy: null,
               id: 'af3ca6df-02ba-4442-a455-c7eb6b0edc6b',
               amountCurrency: 'EUR',
               feeType: 'charge',
@@ -410,6 +476,9 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
               __typename: 'Fee',
             },
             {
+              offsettableAmountCents: '0',
+              succeededAt: null,
+              groupedBy: null,
               id: '58b6e874-7d5f-4871-a9b3-7379dfbfd787',
               amountCurrency: 'EUR',
               feeType: 'charge',
@@ -439,6 +508,9 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
               __typename: 'Fee',
             },
             {
+              offsettableAmountCents: '0',
+              succeededAt: null,
+              groupedBy: null,
               id: '0769b8c4-38ed-4248-bda9-d62218c91b37',
               amountCurrency: 'EUR',
               feeType: 'charge',
@@ -470,6 +542,9 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
               __typename: 'Fee',
             },
             {
+              offsettableAmountCents: '0',
+              succeededAt: null,
+              groupedBy: null,
               id: '18892329-3951-4134-ac57-fe7233b1c723',
               amountCurrency: 'EUR',
               feeType: 'charge',
@@ -493,6 +568,9 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
               __typename: 'Fee',
             },
             {
+              offsettableAmountCents: '0',
+              succeededAt: null,
+              groupedBy: null,
               id: '18892321-3951-4114-ac17-fe723311c723',
               amountCurrency: 'EUR',
               feeType: 'charge',
@@ -541,7 +619,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
           isTrueUpFee: false,
           maxAmount: 167,
           appliedTaxes: [],
-          succeededAt: undefined,
+          succeededAt: null,
           isReadOnly: false,
         },
         {
@@ -552,7 +630,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
           name: 'Invoice custom name',
           maxAmount: 3000,
           appliedTaxes: [],
-          succeededAt: undefined,
+          succeededAt: null,
           isReadOnly: false,
         },
         {
@@ -563,7 +641,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
           isTrueUpFee: true,
           maxAmount: 10666,
           appliedTaxes: [],
-          succeededAt: undefined,
+          succeededAt: null,
           isReadOnly: false,
         },
         {
@@ -574,7 +652,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
           name: 'Invoice custom name',
           maxAmount: 2000,
           appliedTaxes: [],
-          succeededAt: undefined,
+          succeededAt: null,
           isReadOnly: false,
         },
         {
@@ -585,7 +663,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
           name: 'Standard Plan • Google • usa',
           maxAmount: 1000,
           appliedTaxes: [],
-          succeededAt: undefined,
+          succeededAt: null,
           isReadOnly: false,
         },
         {
@@ -596,7 +674,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
           name: 'Standard Plan • Invoice custom name for France value',
           maxAmount: 3000,
           appliedTaxes: [],
-          succeededAt: undefined,
+          succeededAt: null,
           isReadOnly: false,
         },
         {
@@ -607,7 +685,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
           name: 'Standard Plan • italy',
           maxAmount: 3000,
           appliedTaxes: [],
-          succeededAt: undefined,
+          succeededAt: null,
           isReadOnly: false,
         },
         {
@@ -618,7 +696,7 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
           isTrueUpFee: false,
           maxAmount: 40000,
           appliedTaxes: [],
-          succeededAt: undefined,
+          succeededAt: null,
           isReadOnly: false,
         },
       ],
@@ -629,6 +707,12 @@ export const fullSubscriptionInvoiceGroupTrueUpMockAndExpect = () => ({
 export const fullOneOffInvoiceMockAndExpect = () => ({
   mock: {
     invoice: {
+      status: InvoiceStatusTypeEnum.Finalized,
+      offsettableAmountCents: '0',
+      availableToCreditAmountCents: '2700000',
+      totalPaidAmountCents: '0',
+      totalAmountCents: '2700100',
+      totalDueAmountCents: '2700100',
       id: INVOICE_FIXTURE_ID,
       refundableAmountCents: '0',
       creditableAmountCents: '2700000',
@@ -636,6 +720,8 @@ export const fullOneOffInvoiceMockAndExpect = () => ({
       paymentDisputeLostAt: null,
       fees: [
         {
+          succeededAt: null,
+          groupedBy: null,
           id: 'fee-1-id',
           amountCurrency: 'EUR',
           itemCode: 'standard_plan',
@@ -649,6 +735,8 @@ export const fullOneOffInvoiceMockAndExpect = () => ({
           __typename: 'Fee',
         },
         {
+          succeededAt: null,
+          groupedBy: null,
           id: 'fee-2-id',
           amountCurrency: 'EUR',
           itemCode: 'sum_bm',
@@ -662,6 +750,8 @@ export const fullOneOffInvoiceMockAndExpect = () => ({
           __typename: 'Fee',
         },
         {
+          succeededAt: null,
+          groupedBy: null,
           id: 'fee-3-id',
           amountCurrency: 'EUR',
           itemCode: 'sum_bm',
@@ -712,6 +802,12 @@ export const fullOneOffInvoiceMockAndExpect = () => ({
 export const invoiceWithNoCredOrRefundAmountMockAndExpect = () => ({
   mock: {
     invoice: {
+      status: InvoiceStatusTypeEnum.Finalized,
+      offsettableAmountCents: '15000',
+      availableToCreditAmountCents: '0',
+      totalPaidAmountCents: '0',
+      totalAmountCents: '15000',
+      totalDueAmountCents: '15000',
       id: INVOICE_FIXTURE_ID,
       refundableAmountCents: '0',
       creditableAmountCents: '0',
@@ -719,6 +815,8 @@ export const invoiceWithNoCredOrRefundAmountMockAndExpect = () => ({
       paymentDisputeLostAt: null,
       fees: [
         {
+          succeededAt: null,
+          groupedBy: null,
           id: 'fee-1-id',
           amountCurrency: 'EUR',
           itemCode: 'standard_plan',
@@ -732,6 +830,8 @@ export const invoiceWithNoCredOrRefundAmountMockAndExpect = () => ({
           __typename: 'Fee',
         },
         {
+          succeededAt: null,
+          groupedBy: null,
           id: 'fee-2-id',
           amountCurrency: 'EUR',
           itemCode: 'sum_bm',

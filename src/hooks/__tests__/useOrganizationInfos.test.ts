@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react'
+import { act, renderHook } from '@testing-library/react'
 
 import { currentOrganizationVar } from '~/core/apolloClient/reactiveVars'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -30,7 +30,7 @@ describe('useOrganizationInfos — skip-on-null-var guard', () => {
   })
 
   it('skips the org query when there is no current org id (no header to send)', () => {
-    currentOrganizationVar(null)
+    act(() => currentOrganizationVar(null))
 
     renderHook(() => useOrganizationInfos())
 
@@ -48,6 +48,6 @@ describe('useOrganizationInfos — skip-on-null-var guard', () => {
       expect.objectContaining({ skip: false }),
     )
 
-    currentOrganizationVar(null)
+    act(() => currentOrganizationVar(null))
   })
 })

@@ -2,6 +2,7 @@ import { screen } from '@testing-library/react'
 
 import { filterDataInlineSeparator } from '~/components/Filters/presentation/types'
 import { OrderTypeEnum, StatusEnum } from '~/generated/graphql'
+import { preloadContextualLocale } from '~/hooks/core/useContextualLocale'
 import { render } from '~/test-utils'
 
 import { useQuotes } from '../hooks/useQuotes'
@@ -66,6 +67,10 @@ const mockQuotes = [
 ]
 
 describe('QuotesList', () => {
+  beforeAll(async () => {
+    await preloadContextualLocale('en')
+  })
+
   beforeEach(() => {
     jest.clearAllMocks()
     mockUseQuotes.mockReturnValue({

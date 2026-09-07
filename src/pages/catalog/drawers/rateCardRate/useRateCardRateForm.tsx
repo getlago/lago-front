@@ -35,10 +35,10 @@ import { mapRateToFormValues } from './mapRateToFormValues'
 import { buildRateCardRateSchema, RateCardRateSchemaContext } from './schema'
 import { deriveEffectiveFromBoundary, laterEffectiveFrom, toChargeModel } from './utils'
 
+// PropertiesForRateCardRate must include PropertiesForActiveRate: Apollo replaces array
+// fields wholesale, so a narrower selection strips cached range fields.
 gql`
   fragment PropertiesForRateCardRate on Properties {
-    # Must stay a strict superset of PropertiesForActiveRate: Apollo replaces array fields
-    # wholesale, so a narrower write would strip range fields the other one cached.
     ...PropertiesForActiveRate
     ...StandardCharge
     ...PackageCharge

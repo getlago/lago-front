@@ -70,7 +70,12 @@ const captureMock = (
 
       return true
     },
-    result: { data: null },
+    result: {
+      data:
+        query === CreateSubscriptionDocument
+          ? { createSubscription: null }
+          : { updateSubscription: null },
+    },
   },
 ]
 

@@ -1,4 +1,4 @@
-import { fireEvent, screen, within } from '@testing-library/react'
+import { act, fireEvent, screen, within } from '@testing-library/react'
 import { useState } from 'react'
 
 import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
@@ -136,7 +136,9 @@ describe('PaymentMethodFields', () => {
       v: SelectedPaymentMethod,
     ) => void
 
-    setSelected({ paymentMethodId: 'pm_2', paymentMethodType: PaymentMethodTypeEnum.Provider })
+    act(() => {
+      setSelected({ paymentMethodId: 'pm_2', paymentMethodType: PaymentMethodTypeEnum.Provider })
+    })
 
     expect(onChange).toHaveBeenCalledWith({
       paymentMethodId: 'pm_2',

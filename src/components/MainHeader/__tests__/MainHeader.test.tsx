@@ -1,6 +1,7 @@
 import { screen } from '@testing-library/react'
 import React from 'react'
 
+import { preloadContextualLocale } from '~/hooks/core/useContextualLocale'
 import { render } from '~/test-utils'
 
 import { BREADCRUMB_NAV_TEST_ID } from '../Breadcrumb'
@@ -21,6 +22,10 @@ jest.mock('../MainHeaderContext', () => ({
   ...jest.requireActual('../MainHeaderContext'),
   useMainHeaderReader: () => mockUseMainHeaderReader(),
 }))
+
+beforeEach(async () => {
+  await preloadContextualLocale('en')
+})
 
 describe('MainHeader', () => {
   beforeEach(() => {

@@ -1,5 +1,6 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { act } from 'react'
 
 import {
   CouponExpiration,
@@ -388,7 +389,9 @@ describe('CreateCoupon', () => {
           expect(capturedAddPlanOnSubmit).toBeDefined()
         })
 
-        capturedAddPlanOnSubmit?.(mockPlan)
+        act(() => {
+          capturedAddPlanOnSubmit?.(mockPlan)
+        })
 
         await waitFor(() => {
           expect(screen.getByTestId('limited-plan-0')).toBeInTheDocument()
@@ -431,7 +434,9 @@ describe('CreateCoupon', () => {
           expect(capturedAddPlanOnSubmit).toBeDefined()
         })
 
-        capturedAddPlanOnSubmit?.(newPlan)
+        act(() => {
+          capturedAddPlanOnSubmit?.(newPlan)
+        })
 
         await waitFor(() => {
           expect(screen.getByTestId('limited-plan-0')).toBeInTheDocument()
@@ -464,7 +469,9 @@ describe('CreateCoupon', () => {
           expect(capturedAddBillableMetricOnSubmit).toBeDefined()
         })
 
-        capturedAddBillableMetricOnSubmit?.(mockBillableMetric)
+        act(() => {
+          capturedAddBillableMetricOnSubmit?.(mockBillableMetric)
+        })
 
         await waitFor(() => {
           expect(screen.getByTestId('limited-billable-metric-0')).toBeInTheDocument()
@@ -507,7 +514,9 @@ describe('CreateCoupon', () => {
           expect(capturedAddBillableMetricOnSubmit).toBeDefined()
         })
 
-        capturedAddBillableMetricOnSubmit?.(newBM)
+        act(() => {
+          capturedAddBillableMetricOnSubmit?.(newBM)
+        })
 
         await waitFor(() => {
           expect(screen.getByTestId('limited-billable-metric-0')).toBeInTheDocument()
@@ -556,7 +565,9 @@ describe('CreateCoupon', () => {
           expect(capturedWarningOnAction).toBeDefined()
         })
 
-        capturedWarningOnAction?.()
+        act(() => {
+          capturedWarningOnAction?.()
+        })
 
         expect(testMockNavigateFn).toHaveBeenCalledWith('/coupon/coupon-123/overview')
       })
@@ -580,7 +591,9 @@ describe('CreateCoupon', () => {
           expect(capturedWarningOnAction).toBeDefined()
         })
 
-        capturedWarningOnAction?.()
+        act(() => {
+          capturedWarningOnAction?.()
+        })
 
         expect(testMockNavigateFn).toHaveBeenCalledWith('/coupons')
       })
@@ -775,7 +788,9 @@ describe('CreateCoupon', () => {
           expect(capturedAddPlanOnSubmit).toBeDefined()
         })
 
-        capturedAddPlanOnSubmit?.({ id: 'plan-1', name: 'Plan 1', code: 'plan_1' })
+        act(() => {
+          capturedAddPlanOnSubmit?.({ id: 'plan-1', name: 'Plan 1', code: 'plan_1' })
+        })
 
         // Error should disappear after adding a plan
         await waitFor(() => {
@@ -813,7 +828,9 @@ describe('CreateCoupon', () => {
           expect(capturedAddBillableMetricOnSubmit).toBeDefined()
         })
 
-        capturedAddBillableMetricOnSubmit?.({ id: 'bm-1', name: 'BM 1', code: 'bm_1' })
+        act(() => {
+          capturedAddBillableMetricOnSubmit?.({ id: 'bm-1', name: 'BM 1', code: 'bm_1' })
+        })
 
         // Error should disappear after adding a billable metric
         await waitFor(() => {

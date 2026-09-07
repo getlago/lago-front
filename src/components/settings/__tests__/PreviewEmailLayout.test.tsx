@@ -1,9 +1,10 @@
-import { act, cleanup, screen } from '@testing-library/react'
+import { cleanup, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { PreviewEmailLayout } from '~/components/settings/PreviewEmailLayout'
 import { LocaleEnum } from '~/core/translations'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
+import { preloadContextualLocale } from '~/hooks/core/useContextualLocale'
 import { render } from '~/test-utils'
 
 const mockOrganizationInfos = {
@@ -23,8 +24,12 @@ jest.mock('~/components/settings/emails/UpdateBillingEntityLogoDialog', () => ({
 }))
 
 describe('PreviewEmailLayout', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     mockOrganizationInfos.hasOrganizationPremiumAddon.mockReturnValue(false)
+    await Promise.all([
+      preloadContextualLocale(LocaleEnum.en),
+      preloadContextualLocale(LocaleEnum.fr),
+    ])
   })
 
   afterEach(() => {
@@ -149,9 +154,7 @@ describe('PreviewEmailLayout', () => {
 
     const logoButton = screen.getByRole('button')
 
-    await act(async () => {
-      await userEvent.click(logoButton)
-    })
+    await userEvent.click(logoButton)
 
     expect(mockOpenUpdateBillingEntityLogoDialog).toHaveBeenCalledWith({
       existingLogoUrl: 'https://example.com/logo.png',
@@ -167,9 +170,7 @@ describe('PreviewEmailLayout', () => {
 
     const plusButton = screen.getByRole('button')
 
-    await act(async () => {
-      await userEvent.click(plusButton)
-    })
+    await userEvent.click(plusButton)
 
     expect(mockOpenUpdateBillingEntityLogoDialog).toHaveBeenCalledWith({
       existingLogoUrl: null,
@@ -306,8 +307,8 @@ describe('PreviewEmailLayout', () => {
       </PreviewEmailLayout>,
     )
 
-    // Should render without errors using French locale
     expect(screen.getByText('Test Company')).toBeInTheDocument()
+    expect(screen.getByText('Généré par')).toBeInTheDocument()
   })
 
   it('renders without name', () => {

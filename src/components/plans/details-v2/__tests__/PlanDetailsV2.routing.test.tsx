@@ -61,10 +61,13 @@ jest.mock('~/components/plans/drawers/fixedCharge/FixedChargeDrawer', () => {
   return { __esModule: true, FixedChargeDrawer }
 })
 
-const accordionStub = (id: string) => () => {
-  const { createElement } = jest.requireActual('react')
+const accordionStub = (id: string) => {
+  const { createElement, forwardRef, useImperativeHandle } = jest.requireActual('react')
 
-  return createElement('section', { id })
+  return forwardRef((_props: unknown, ref: React.Ref<unknown>) => {
+    useImperativeHandle(ref, () => ({ openCreate: jest.fn() }))
+    return createElement('section', { id })
+  })
 }
 
 jest.mock('~/components/plans/details-v2/accordions/MinimumCommitmentAccordion', () => ({

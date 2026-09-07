@@ -117,6 +117,9 @@ describe('MembersList', () => {
       it('THEN should display the search input', async () => {
         await prepare()
 
+        expect(
+          await screen.findByText('admin@example.com', {}, { timeout: SEARCH_TIMEOUT }),
+        ).toBeInTheDocument()
         expect(screen.getByPlaceholderText(SEARCH_PLACEHOLDER)).toBeInTheDocument()
       })
 
@@ -362,19 +365,23 @@ describe('MembersList', () => {
           ...rolesListMock,
           delay: Infinity,
         }
+        const unfilteredResult = jest.fn(() => buildMembershipsResult())
         // The response the component would get if it queried before resolving the role id
         const unfilteredMock = {
           request: {
             query: GetMembersDocument,
             variables: DEFAULT_VARIABLES,
           },
-          result: buildMembershipsResult(),
+          result: unfilteredResult,
         }
 
         await prepare({ mocks: [unfilteredMock, pendingRolesMock], url: '/?roles=Admin' })
 
-        await new Promise((resolve) => setTimeout(resolve, 1000))
+        await act(async () => {
+          await new Promise((resolve) => setTimeout(resolve, 1000))
+        })
 
+        expect(unfilteredResult).toHaveBeenCalledTimes(1)
         expect(screen.queryByText('admin@example.com')).not.toBeInTheDocument()
         expect(screen.queryByText('finance@example.com')).not.toBeInTheDocument()
       })
@@ -406,6 +413,10 @@ describe('MembersList', () => {
 
         fireEvent.click(screen.getAllByTestId('open-action-button')[0])
         fireEvent.click(await screen.findByTestId(MEMBERS_LIST_DELETE_ACTION_TEST_ID))
+
+        await waitFor(() => {
+          expect(screen.queryByTestId(MEMBERS_LIST_DELETE_ACTION_TEST_ID)).not.toBeInTheDocument()
+        })
 
         expect(mockOpenRevokeMembershipDialog).toHaveBeenCalledWith(
           expect.objectContaining({
@@ -444,6 +455,10 @@ describe('MembersList', () => {
         fireEvent.click(screen.getAllByTestId('open-action-button')[0])
         fireEvent.click(await screen.findByTestId(MEMBERS_LIST_DELETE_ACTION_TEST_ID))
 
+        await waitFor(() => {
+          expect(screen.queryByTestId(MEMBERS_LIST_DELETE_ACTION_TEST_ID)).not.toBeInTheDocument()
+        })
+
         expect(mockOpenRevokeMembershipDialog).toHaveBeenCalledWith(
           expect.objectContaining({
             email: 'admin@example.com',
@@ -477,6 +492,10 @@ describe('MembersList', () => {
 
         fireEvent.click(screen.getAllByTestId('open-action-button')[0])
         fireEvent.click(await screen.findByTestId(MEMBERS_LIST_EDIT_ACTION_TEST_ID))
+
+        await waitFor(() => {
+          expect(screen.queryByTestId(MEMBERS_LIST_EDIT_ACTION_TEST_ID)).not.toBeInTheDocument()
+        })
 
         expect(mockOpenEditMemberRoleDialog).toHaveBeenCalledWith(
           expect.objectContaining({

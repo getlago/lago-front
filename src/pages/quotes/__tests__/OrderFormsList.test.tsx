@@ -2,6 +2,7 @@ import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { OrderFormStatusEnum } from '~/generated/graphql'
+import { preloadContextualLocale } from '~/hooks/core/useContextualLocale'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import { useOrderForms } from '../hooks/useOrderForms'
@@ -105,6 +106,10 @@ const mockOrderForms = [
     },
   },
 ]
+
+beforeEach(async () => {
+  await preloadContextualLocale('en')
+})
 
 describe('OrderFormsList', () => {
   beforeEach(() => {

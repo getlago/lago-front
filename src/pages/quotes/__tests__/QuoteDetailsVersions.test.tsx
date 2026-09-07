@@ -2,6 +2,7 @@ import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { OrderTypeEnum, QuoteDetailItemFragment, StatusEnum } from '~/generated/graphql'
+import { preloadContextualLocale } from '~/hooks/core/useContextualLocale'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import { useQuoteVersionActions } from '../hooks/useQuoteVersionActions'
@@ -81,6 +82,10 @@ const mockQuote: QuoteDetailItemFragment = {
 }
 
 describe('QuoteDetailsVersions', () => {
+  beforeAll(async () => {
+    await preloadContextualLocale('en')
+  })
+
   beforeEach(() => {
     jest.clearAllMocks()
     mockGetActions.mockReturnValue([])

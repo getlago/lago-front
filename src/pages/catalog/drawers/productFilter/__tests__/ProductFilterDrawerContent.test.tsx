@@ -1,8 +1,13 @@
-import { MockedProvider } from '@apollo/client/testing'
+import { MockedProvider, MockedResponse } from '@apollo/client/testing'
 import { revalidateLogic } from '@tanstack/react-form'
 import { act, screen, within } from '@testing-library/react'
 import { useEffect } from 'react'
 
+import {
+  ProductsForItemFilterDrawerDocument,
+  ProductsForItemFilterDrawerQuery,
+  ProductTypeEnum,
+} from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { render } from '~/test-utils'
 
@@ -30,6 +35,43 @@ const PRODUCT_ITEM_COMBOBOX_PLACEHOLDER_KEY = 'text_1784579021080kajutbc14la'
 
 const SEEDED_FILTERS = [{ id: 'bmf-1', key: 'payment_method', values: ['card', 'cash'] }]
 const PRODUCT_ITEM_SEED: ComboboxSeed = { value: 'pi-1', label: 'Storage' }
+
+const productMocks: MockedResponse<ProductsForItemFilterDrawerQuery>[] = [
+  {
+    request: {
+      query: ProductsForItemFilterDrawerDocument,
+      variables: { page: 1, limit: 20 },
+    },
+    result: {
+      data: {
+        products: {
+          collection: [
+            {
+              id: 'pi-1',
+              name: 'Storage',
+              code: 'storage',
+              invoiceDisplayName: null,
+              productType: ProductTypeEnum.Usage,
+              billableMetric: { id: 'bm-1', filters: SEEDED_FILTERS },
+            },
+            {
+              id: 'pi-2',
+              name: 'Compute',
+              code: 'compute',
+              invoiceDisplayName: null,
+              productType: ProductTypeEnum.Usage,
+              billableMetric: {
+                id: 'bm-2',
+                filters: [{ id: 'bmf-2', key: 'region', values: ['eu', 'us'] }],
+              },
+            },
+          ],
+          metadata: { currentPage: 1, totalPages: 1 },
+        },
+      },
+    },
+  },
+]
 
 // Test-facing handles onto the harness form so cases can drive the real
 // validation lifecycle (submit-first, then dynamic) exactly as the drawer does.
@@ -87,7 +129,7 @@ const ContentHarness = ({
 
 const renderContent = (props: HarnessProps = {}) =>
   render(
-    <MockedProvider mocks={[]} addTypename={false}>
+    <MockedProvider mocks={productMocks} addTypename={false}>
       <ContentHarness {...props} />
     </MockedProvider>,
   )

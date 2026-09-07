@@ -7,6 +7,7 @@ import {
   RateCardRateModelEnum,
   RateCardRateStatusEnum,
 } from '~/generated/graphql'
+import { preloadContextualLocale } from '~/hooks/core/useContextualLocale'
 import { AllTheProviders } from '~/test-utils'
 
 import {
@@ -64,6 +65,10 @@ const renderOverview = ({
       wrapper: ({ children }) => <AllTheProviders mocks={[]}>{children}</AllTheProviders>,
     },
   )
+
+beforeEach(async () => {
+  await preloadContextualLocale('en')
+})
 
 describe('RateCardRateDetailsOverview', () => {
   beforeEach(() => {

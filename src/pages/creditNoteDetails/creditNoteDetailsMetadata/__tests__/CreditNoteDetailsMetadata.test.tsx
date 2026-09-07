@@ -6,11 +6,16 @@ import { render } from '~/test-utils'
 import CreditNoteDetailsMetadata from '../CreditNoteDetailsMetadata'
 
 // Mock the MetadataEditDrawer component
-jest.mock('~/pages/creditNoteDetails/metadataEditDrawer/MetadataEditDrawer', () => ({
-  MetadataEditDrawer: jest.fn().mockImplementation(() => {
-    return <div data-test="metadata-edit-drawer" />
-  }),
-}))
+jest.mock('~/pages/creditNoteDetails/metadataEditDrawer/MetadataEditDrawer', () => {
+  const { forwardRef, useImperativeHandle } = jest.requireActual('react')
+
+  return {
+    MetadataEditDrawer: forwardRef((_props: unknown, ref: React.Ref<unknown>) => {
+      useImperativeHandle(ref, () => ({ openDrawer: jest.fn(), closeDrawer: jest.fn() }))
+      return <div data-test="metadata-edit-drawer" />
+    }),
+  }
+})
 
 type CreditNoteType = GetCreditNoteForDetailsQuery['creditNote']
 

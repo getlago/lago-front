@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 
 import { addToast } from '~/core/apolloClient'
 import { CurrencyEnum, OrderFormStatusEnum } from '~/generated/graphql'
+import { preloadContextualLocale } from '~/hooks/core/useContextualLocale'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import VoidOrderForm, {
@@ -87,6 +88,10 @@ const mockOrderForm = {
     },
   },
 }
+
+beforeEach(async () => {
+  await preloadContextualLocale('en')
+})
 
 describe('VoidOrderForm', () => {
   beforeEach(() => {

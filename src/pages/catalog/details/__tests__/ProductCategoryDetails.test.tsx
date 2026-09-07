@@ -7,7 +7,10 @@ import {
   ENTITY_SECTION_VIEW_NAME_TEST_ID,
 } from '~/components/MainHeader/mainHeaderTestIds'
 import { ProductCategoryDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { GetProductCategoryForDetailsDocument } from '~/generated/graphql'
+import {
+  GetProductCategoryForDetailsDocument,
+  GetProductCategoryForDetailsOverviewDocument,
+} from '~/generated/graphql'
 import { AllTheProviders, testMockNavigateFn } from '~/test-utils'
 
 import ProductCategoryDetails from '../ProductCategoryDetails'
@@ -88,7 +91,16 @@ const renderPage = (
     wrapper: ({ children }) => (
       <AllTheProviders
         forceTypenames
-        mocks={[detailsQueryMock]}
+        mocks={[
+          detailsQueryMock,
+          {
+            ...detailsQueryMock,
+            request: {
+              query: GetProductCategoryForDetailsOverviewDocument,
+              variables: { id: 'prod-1' },
+            },
+          },
+        ]}
         useParams={{ productCategoryId: 'prod-1', tab }}
       >
         {children}

@@ -61,6 +61,7 @@ const createMocks = (webhookData = baseWebhookData, mutationResponse = { id: 'we
       query: GetSingleWebhookLogDocument,
       variables: { id: 'webhook-123' },
     },
+    maxUsageCount: 2,
     result: {
       data: {
         webhook: {
@@ -114,7 +115,7 @@ describe('WebhookLogDetails', () => {
 
       await act(async () => {
         render(<WebhookLogDetails goBack={mockGoBack} />, {
-          mocks: [],
+          mocks: [{ ...createMocks()[0], delay: Infinity }],
         })
         await new Promise((resolve) => setTimeout(resolve, 0))
       })
@@ -501,7 +502,7 @@ describe('WebhookLogDetails', () => {
 
       await act(async () => {
         render(<WebhookLogDetails goBack={mockGoBack} />, {
-          mocks: [],
+          mocks: [{ ...createMocks()[0], delay: Infinity }],
         })
         await new Promise((resolve) => setTimeout(resolve, 0))
       })

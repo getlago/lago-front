@@ -3,6 +3,7 @@ import { cleanup, screen } from '@testing-library/react'
 import { DunningEmail, DunningEmailSkeleton } from '~/components/emails/DunningEmail'
 import { LocaleEnum } from '~/core/translations'
 import { CurrencyEnum, ProviderTypeEnum } from '~/generated/graphql'
+import { preloadContextualLocale } from '~/hooks/core/useContextualLocale'
 import { render } from '~/test-utils'
 
 const mockInvoices = [
@@ -38,6 +39,10 @@ const mockOrganization = {
     documentLocale: LocaleEnum.en,
   },
 }
+
+beforeEach(async () => {
+  await preloadContextualLocale('en')
+})
 
 describe('DunningEmail', () => {
   afterEach(cleanup)

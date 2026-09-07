@@ -52,6 +52,7 @@ const defaultMocks: TestMocksType = [
               legalNumber: null,
               taxIdentificationNumber: null,
               email: null,
+              phone: null,
               addressLine1: null,
               addressLine2: null,
               zipcode: null,

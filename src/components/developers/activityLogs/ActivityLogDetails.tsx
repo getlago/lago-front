@@ -40,6 +40,7 @@ const remapResourceTypeNames = (resourceType: string): keyof typeof ResourceType
   return resourceType as keyof typeof ResourceTypeEnum
 }
 
+// When a resource type adds fields beyond id, update formatResourceObject as well.
 gql`
   fragment ActivityLogDetails on ActivityLog {
     activityType
@@ -50,8 +51,6 @@ gql`
       value
       name
     }
-    # If adding a new resource type with other fields than id,
-    # consider updating the formatResourceObject function
     resource {
       ... on BillableMetric {
         id

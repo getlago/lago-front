@@ -1,7 +1,10 @@
+import { useApolloClient } from '@apollo/client'
 import { act, renderHook, waitFor } from '@testing-library/react'
 
 import {
   CreateInviteDocument,
+  GetInvitesDocument,
+  GetInvitesQuery,
   RevokeInviteDocument,
   UpdateInviteRoleDocument,
 } from '~/generated/graphql'
@@ -68,13 +71,22 @@ describe('useInviteActions', () => {
         },
       }
 
-      const { result } = renderHook(() => useInviteActions(), {
+      const { result } = renderHook(() => ({ ...useInviteActions(), client: useApolloClient() }), {
         wrapper: createWrapper([createInviteMock]),
       })
 
       expect(result.current.inviteToken).toBe('')
 
       await act(async () => {
+        result.current.client.cache.writeQuery<GetInvitesQuery>({
+          query: GetInvitesDocument,
+          data: {
+            invites: {
+              metadata: { currentPage: 1, totalPages: 1, totalCount: 0 },
+              collection: [],
+            },
+          },
+        })
         await result.current.createInvite({
           variables: {
             input: {
@@ -88,6 +100,10 @@ describe('useInviteActions', () => {
       await waitFor(() => {
         expect(result.current.inviteToken).toBe('new-token-123')
       })
+      expect(
+        result.current.client.cache.readQuery<GetInvitesQuery>({ query: GetInvitesDocument })
+          ?.invites.metadata,
+      ).toEqual({ currentPage: 1, totalPages: 1, totalCount: 1 })
     })
 
     it('exposes setInviteToken function', () => {

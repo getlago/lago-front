@@ -6,6 +6,8 @@ import {
   CurrencyEnum,
   GetPricingUnitsForRateCardDrawerDocument,
   GetProductFiltersForRateCardDrawerDocument,
+  GetProductsForRateCardDrawerDocument,
+  GetProductsForRateCardDrawerQuery,
   ProductTypeEnum,
 } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
@@ -52,7 +54,38 @@ const PRODUCT_ID = 'product-1'
 
 const buildMocks = (
   pricingUnits: Array<{ id: string; name: string; code: string }> = [],
+  productSeed: RateCardProductSeed = null,
 ): TestMocksType => [
+  {
+    request: {
+      query: GetProductsForRateCardDrawerDocument,
+      variables: { page: 1, limit: 20 },
+    },
+    result: {
+      data: {
+        products: {
+          collection: productSeed?.productType
+            ? [
+                {
+                  id: productSeed.value,
+                  name: productSeed.label,
+                  code: productSeed.value,
+                  productType: productSeed.productType,
+                  billableMetric: productSeed.aggregationType
+                    ? {
+                        id: 'bm-1',
+                        aggregationType: productSeed.aggregationType,
+                        recurring: !!productSeed.recurring,
+                      }
+                    : null,
+                },
+              ]
+            : [],
+          metadata: { currentPage: 1, totalPages: 1 },
+        },
+      } satisfies GetProductsForRateCardDrawerQuery,
+    },
+  },
   {
     request: {
       query: GetPricingUnitsForRateCardDrawerDocument,
@@ -69,7 +102,6 @@ const buildMocks = (
   },
 ]
 
-const mocks = buildMocks()
 const mocksWithPricingUnits = buildMocks([{ id: 'pu-1', name: 'Credits', code: 'credits' }])
 
 const buildUsageSeed = (aggregationType: AggregationTypeEnum): RateCardProductSeed => ({
@@ -113,7 +145,7 @@ const Harness = ({ values, productSeed = null }: HarnessProps): JSX.Element => {
 
 const renderContent = (
   props: HarnessProps = {},
-  testMocks: TestMocksType = mocks,
+  testMocks: TestMocksType = buildMocks([], props.productSeed),
 ): ReturnType<typeof render> => render(<Harness {...props} />, { mocks: testMocks })
 
 const renderWithPricingUnits = (

@@ -3,6 +3,7 @@ import { cleanup, screen } from '@testing-library/react'
 import EmailPreview, { DisplayEnum } from '~/components/emails/EmailPreview'
 import { LocaleEnum } from '~/core/translations'
 import { BillingEntityEmailSettingsEnum } from '~/generated/graphql'
+import { preloadContextualLocale } from '~/hooks/core/useContextualLocale'
 import { render } from '~/test-utils'
 
 jest.mock('~/core/apolloClient', () => ({
@@ -24,6 +25,10 @@ const mockBillingEntity = {
   logoUrl: 'https://example.com/logo.png',
   einvoicing: true,
 }
+
+beforeEach(async () => {
+  await Promise.all([preloadContextualLocale('en'), preloadContextualLocale('fr')])
+})
 
 describe('EmailPreview', () => {
   afterEach(() => {

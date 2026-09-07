@@ -42,7 +42,7 @@ const SelectedItemTypeEnumTranslation = {
 
 gql`
   fragment AvalaraIntegrationItems on AvalaraIntegration {
-    id # integrationId received in props
+    id
   }
 
   query getAvalaraIntegrationCollectionMappings($integrationId: ID!) {

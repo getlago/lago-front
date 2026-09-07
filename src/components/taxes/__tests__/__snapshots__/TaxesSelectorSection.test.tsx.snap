@@ -253,6 +253,7 @@ exports[`TaxesSelectorSection Snapshots renders with title only 1`] = `
           />
         </svg>
       </span>
+      Add a tax rate
     </button>
   </div>
 </div>

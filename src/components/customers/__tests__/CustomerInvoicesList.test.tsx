@@ -9,6 +9,7 @@ import {
   InvoiceTypeEnum,
   TimezoneEnum,
 } from '~/generated/graphql'
+import { preloadContextualLocale } from '~/hooks/core/useContextualLocale'
 import { AllTheProviders } from '~/test-utils'
 
 import { CustomerInvoicesList } from '../CustomerInvoicesList'
@@ -114,6 +115,10 @@ const renderComponent = (props = {}) => {
     wrapper: AllTheProviders,
   })
 }
+
+beforeEach(async () => {
+  await preloadContextualLocale('en')
+})
 
 describe('CustomerInvoicesList', () => {
   describe('GIVEN invoices data', () => {

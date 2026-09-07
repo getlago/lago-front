@@ -1,5 +1,5 @@
 import NiceModal from '@ebay/nice-modal-react'
-import { act, cleanup, screen, waitFor } from '@testing-library/react'
+import { cleanup, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ReactNode } from 'react'
 
@@ -60,9 +60,7 @@ describe('useCascadeFormDialog', () => {
       </NiceModalWrapper>,
     )
 
-    await act(async () => {
-      await userEvent.click(screen.getByTestId('open-cascade'))
-    })
+    await userEvent.click(screen.getByTestId('open-cascade'))
 
     expect(onConfirm).toHaveBeenCalledWith(false)
     expect(screen.queryByText('cascade-title')).not.toBeInTheDocument()
@@ -77,9 +75,7 @@ describe('useCascadeFormDialog', () => {
       </NiceModalWrapper>,
     )
 
-    await act(async () => {
-      await userEvent.click(screen.getByTestId('open-cascade'))
-    })
+    await userEvent.click(screen.getByTestId('open-cascade'))
 
     await waitFor(() => expect(screen.getByText('cascade-title')).toBeInTheDocument())
 
@@ -87,9 +83,7 @@ describe('useCascadeFormDialog', () => {
     expect(screen.getByText('text_1779289915866s3gisblcite')).toBeInTheDocument()
     expect(screen.getByText('text_1779289915866itrqeyj7658')).toBeInTheDocument()
 
-    await act(async () => {
-      await userEvent.click(screen.getByRole('button', { name: /save-edits/i }))
-    })
+    await userEvent.click(screen.getByRole('button', { name: /save-edits/i }))
 
     await waitFor(() => expect(onConfirm).toHaveBeenCalledWith(true))
   })
@@ -103,16 +97,12 @@ describe('useCascadeFormDialog', () => {
       </NiceModalWrapper>,
     )
 
-    await act(async () => {
-      await userEvent.click(screen.getByTestId('open-cascade'))
-    })
+    await userEvent.click(screen.getByTestId('open-cascade'))
 
     const toggle = await screen.findByRole('checkbox', { name: 'cascadeUpdates' })
 
-    await act(async () => {
-      await userEvent.click(toggle)
-      await userEvent.click(screen.getByRole('button', { name: /save-edits/i }))
-    })
+    await userEvent.click(toggle)
+    await userEvent.click(screen.getByRole('button', { name: /save-edits/i }))
 
     await waitFor(() => expect(onConfirm).toHaveBeenCalledWith(false))
   })

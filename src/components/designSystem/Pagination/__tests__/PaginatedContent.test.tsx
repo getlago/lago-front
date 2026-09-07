@@ -6,12 +6,16 @@ configure({ testIdAttribute: 'data-test' })
 
 const mockPaginationSpy = jest.fn()
 
-jest.mock('~/components/designSystem/Pagination/Pagination', () => ({
-  Pagination: (props: Record<string, unknown>) => {
-    mockPaginationSpy(props)
-    return <div data-test="pagination-stub" className={props.className as string} />
-  },
-}))
+jest.mock('~/components/designSystem/Pagination/Pagination', () => {
+  const { forwardRef } = jest.requireActual('react')
+
+  return {
+    Pagination: forwardRef((props: Record<string, unknown>, ref: React.Ref<HTMLDivElement>) => {
+      mockPaginationSpy(props)
+      return <div ref={ref} data-test="pagination-stub" className={props.className as string} />
+    }),
+  }
+})
 
 describe('PaginatedContent', () => {
   const onPageChange = jest.fn()

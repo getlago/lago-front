@@ -141,7 +141,7 @@ describe('ActivityLogDetails', () => {
   describe('GIVEN the data is loading', () => {
     describe('WHEN the component renders', () => {
       it('THEN should display loading skeletons', () => {
-        renderComponent([])
+        renderComponent(buildActivityLogMock().map((mock) => ({ ...mock, delay: Infinity })))
 
         expect(screen.getByTestId(ACTIVITY_LOG_DETAILS_LOADING_TEST_ID)).toBeInTheDocument()
         expect(screen.queryByTestId(ACTIVITY_LOG_DETAILS_CONTENT_TEST_ID)).not.toBeInTheDocument()

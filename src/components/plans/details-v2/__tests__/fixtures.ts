@@ -15,6 +15,7 @@ type FixedCharge = NonNullable<PlanDetailsV2Fragment['fixedCharges']>[number]
 export const buildFixedChargeFixture = (overrides: Partial<FixedCharge> = {}): FixedCharge => ({
   __typename: 'FixedCharge',
   id: 'fc_default',
+  code: 'fixed_charge',
   invoiceDisplayName: null,
   chargeModel: FixedChargeChargeModelEnum.Standard,
   units: '1',
@@ -31,6 +32,7 @@ type UsageCharge = NonNullable<PlanDetailsV2Fragment['charges']>[number]
 export const buildUsageChargeFixture = (overrides: Partial<UsageCharge> = {}): UsageCharge => ({
   __typename: 'Charge',
   id: 'ch_default',
+  code: 'usage_charge',
   chargeModel: ChargeModelEnum.Standard,
   invoiceDisplayName: null,
   invoiceable: true,
@@ -38,7 +40,12 @@ export const buildUsageChargeFixture = (overrides: Partial<UsageCharge> = {}): U
   prorated: false,
   minAmountCents: '0',
   regroupPaidFees: null,
-  properties: { amount: '10', graduatedRanges: null, volumeRanges: null } as never,
+  properties: {
+    amount: '10',
+    graduatedRanges: null,
+    graduatedPercentageRanges: null,
+    volumeRanges: null,
+  } as never,
   filters: [],
   appliedPricingUnit: null,
   taxes: [],
@@ -71,6 +78,7 @@ export const planDetailsV2Fixture: PlanDetailsV2Fragment & { __typename: 'Plan' 
   billFixedChargesMonthly: false,
   billChargesMonthly: false,
   taxes: [],
+  metadata: [],
   fixedCharges: [],
   charges: [],
   minimumCommitment: {

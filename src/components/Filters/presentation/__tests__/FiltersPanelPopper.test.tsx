@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ReactNode } from 'react'
 
@@ -37,17 +37,21 @@ const hydrateUrlWithFilters = (search: string): void => {
   window.history.replaceState({}, '', search)
 }
 
-const renderPanel = (props: Partial<Parameters<typeof FiltersProvider>[0]> = {}): void => {
-  render(
-    <FiltersProvider filtersNamePrefix="f" availableFilters={AVAILABLE_FILTERS} {...props}>
-      <FiltersPanelPopper />
-    </FiltersProvider>,
-    {
-      wrapper: ({ children }: { children: ReactNode }) => (
-        <AllTheProviders>{children}</AllTheProviders>
-      ),
-    },
-  )
+const renderPanel = async (
+  props: Partial<Parameters<typeof FiltersProvider>[0]> = {},
+): Promise<void> => {
+  await act(async () => {
+    render(
+      <FiltersProvider filtersNamePrefix="f" availableFilters={AVAILABLE_FILTERS} {...props}>
+        <FiltersPanelPopper />
+      </FiltersProvider>,
+      {
+        wrapper: ({ children }: { children: ReactNode }) => (
+          <AllTheProviders>{children}</AllTheProviders>
+        ),
+      },
+    )
+  })
 }
 
 const openPanel = async (): Promise<void> => {
@@ -67,8 +71,8 @@ describe('FiltersPanelPopper', () => {
 
   describe('GIVEN the default opener', () => {
     describe('WHEN the component renders', () => {
-      it('THEN it shows the opener button and the panel stays closed', () => {
-        renderPanel()
+      it('THEN it shows the opener button and the panel stays closed', async () => {
+        await renderPanel()
 
         expect(screen.getByTestId(FILTERS_PANEL_OPENER_TEST_ID)).toBeInTheDocument()
         expect(screen.queryByTestId(FILTERS_PANEL_TEST_ID)).not.toBeInTheDocument()
@@ -77,7 +81,7 @@ describe('FiltersPanelPopper', () => {
 
     describe('WHEN the opener is clicked', () => {
       it('THEN it opens the panel with a single empty filter row', async () => {
-        renderPanel()
+        await renderPanel()
 
         await openPanel()
 
@@ -86,7 +90,7 @@ describe('FiltersPanelPopper', () => {
       })
 
       it('THEN the apply button is disabled until the form is dirty and valid', async () => {
-        renderPanel()
+        await renderPanel()
 
         await openPanel()
 
@@ -97,8 +101,8 @@ describe('FiltersPanelPopper', () => {
 
   describe('GIVEN a custom button opener', () => {
     describe('WHEN the component renders', () => {
-      it('THEN it renders the custom opener instead of the default one', () => {
-        renderPanel({
+      it('THEN it renders the custom opener instead of the default one', async () => {
+        await renderPanel({
           buttonOpener: <button data-test={CUSTOM_OPENER_TEST_ID}>open</button>,
         })
 
@@ -111,7 +115,7 @@ describe('FiltersPanelPopper', () => {
   describe('GIVEN the panel is open', () => {
     describe('WHEN the add-filter button is clicked', () => {
       it('THEN it appends a new empty filter row', async () => {
-        renderPanel()
+        await renderPanel()
         await openPanel()
 
         await userEvent.click(screen.getByTestId(FILTERS_PANEL_ADD_FILTER_TEST_ID))
@@ -122,7 +126,7 @@ describe('FiltersPanelPopper', () => {
 
     describe('WHEN the clear-all button is clicked after adding a row', () => {
       it('THEN it resets back to a single empty filter row', async () => {
-        renderPanel()
+        await renderPanel()
         await openPanel()
         await userEvent.click(screen.getByTestId(FILTERS_PANEL_ADD_FILTER_TEST_ID))
 
@@ -136,7 +140,7 @@ describe('FiltersPanelPopper', () => {
 
     describe('WHEN a filter row is removed after adding one', () => {
       it('THEN it drops that row', async () => {
-        renderPanel()
+        await renderPanel()
         await openPanel()
         await userEvent.click(screen.getByTestId(FILTERS_PANEL_ADD_FILTER_TEST_ID))
 
@@ -152,7 +156,7 @@ describe('FiltersPanelPopper', () => {
 
     describe('WHEN the cancel button is clicked', () => {
       it('THEN it closes the panel', async () => {
-        renderPanel()
+        await renderPanel()
         await openPanel()
 
         expect(screen.getByTestId(FILTERS_PANEL_TEST_ID)).toBeInTheDocument()
@@ -172,12 +176,16 @@ describe('FiltersPanelPopper', () => {
     describe('WHEN the range cannot be queried and the user edits one bound', () => {
       it('THEN it keeps the apply button disabled', async () => {
         hydrateUrlWithFilters('/?f_issuingDate=not-a-date,2024-01-31T23:59:59.999Z')
-        renderPanel({ availableFilters: DATE_AVAILABLE_FILTERS })
+        await renderPanel({ availableFilters: DATE_AVAILABLE_FILTERS })
         await openPanel()
 
         const toInput = screen.getAllByRole('textbox')[1]
 
-        fireEvent.change(toInput, { target: { value: '02/15/2024' } })
+        await act(async () => {
+          fireEvent.change(toInput, { target: { value: '02/15/2024' } })
+        })
+
+        expect(toInput).toHaveValue('02/15/2024')
 
         expect(screen.getByTestId(FILTERS_PANEL_APPLY_TEST_ID)).toBeDisabled()
       })
@@ -186,12 +194,16 @@ describe('FiltersPanelPopper', () => {
     describe('WHEN the range is ordered and the user edits one bound', () => {
       it('THEN it enables the apply button', async () => {
         hydrateUrlWithFilters('/?f_issuingDate=2024-01-01T00:00:00.000Z,2024-01-31T23:59:59.999Z')
-        renderPanel({ availableFilters: DATE_AVAILABLE_FILTERS })
+        await renderPanel({ availableFilters: DATE_AVAILABLE_FILTERS })
         await openPanel()
 
         const toInput = screen.getAllByRole('textbox')[1]
 
-        fireEvent.change(toInput, { target: { value: '02/15/2024' } })
+        await act(async () => {
+          fireEvent.change(toInput, { target: { value: '02/15/2024' } })
+        })
+
+        expect(toInput).toHaveValue('02/15/2024')
 
         expect(screen.getByTestId(FILTERS_PANEL_APPLY_TEST_ID)).not.toBeDisabled()
       })

@@ -167,10 +167,8 @@ describe('ChargeFilterDrawerContent (integration)', () => {
       // Edit the invoice display name
       const input = document.querySelector('input[name="invoiceDisplayName"]') as HTMLInputElement
 
-      await act(async () => {
-        await userEvent.clear(input)
-        await userEvent.type(input, 'Updated Name')
-      })
+      await userEvent.clear(input)
+      await userEvent.type(input, 'Updated Name')
 
       // canSubmit should still be true after editing
       await waitFor(() => {
@@ -186,20 +184,17 @@ describe('ChargeFilterDrawerContent (integration)', () => {
       // Edit the invoice display name
       const input = document.querySelector('input[name="invoiceDisplayName"]') as HTMLInputElement
 
-      await act(async () => {
-        await userEvent.clear(input)
-        await userEvent.type(input, 'Updated Name')
-      })
+      await userEvent.clear(input)
+      await userEvent.type(input, 'Updated Name')
 
       // Submit the form
-      await act(async () => {
-        await userEvent.click(screen.getByTestId('submit-btn'))
-      })
+      await userEvent.click(screen.getByTestId('submit-btn'))
 
       await waitFor(() => {
         expect(onSubmit).toHaveBeenCalledWith(
           expect.objectContaining({ invoiceDisplayName: 'Updated Name' }),
         )
+        expect(screen.getByTestId('can-submit')).toHaveTextContent('true')
       })
     })
   })
@@ -210,9 +205,7 @@ describe('ChargeFilterDrawerContent (integration)', () => {
 
       render(<FilterDrawerHarness onSubmit={onSubmit} />)
 
-      await act(async () => {
-        await userEvent.click(screen.getByTestId('submit-btn'))
-      })
+      await userEvent.click(screen.getByTestId('submit-btn'))
 
       // onSubmit should NOT have been called — validation should have blocked it
       expect(onSubmit).not.toHaveBeenCalled()
@@ -245,9 +238,7 @@ describe('ChargeFilterDrawerContent (integration)', () => {
         />,
       )
 
-      await act(async () => {
-        await userEvent.click(screen.getByTestId('submit-btn'))
-      })
+      await userEvent.click(screen.getByTestId('submit-btn'))
 
       expect(onSubmit).not.toHaveBeenCalled()
 
@@ -278,9 +269,7 @@ describe('ChargeFilterDrawerContent (integration)', () => {
         />,
       )
 
-      await act(async () => {
-        await userEvent.click(screen.getByTestId('submit-btn'))
-      })
+      await userEvent.click(screen.getByTestId('submit-btn'))
 
       expect(onSubmit).not.toHaveBeenCalled()
 
@@ -301,10 +290,10 @@ describe('ChargeFilterDrawerContent (integration)', () => {
       const input = document.querySelector('input[name="invoiceDisplayName"]') as HTMLInputElement
 
       // Focus the input and press Enter
-      await act(async () => {
-        input?.focus()
-        await userEvent.keyboard('{Enter}')
+      act(() => {
+        input.focus()
       })
+      await userEvent.keyboard('{Enter}')
 
       // The form's onSubmit handler should have been triggered
       // (validation may prevent the actual onSubmit callback, but the form submission should fire)

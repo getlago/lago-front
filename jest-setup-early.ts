@@ -17,38 +17,9 @@ const SUPPRESSED_PATTERNS: string[][] = [
   ['cache.diff', 'canonizeResults', 'deprecated'],
   ['ApolloLink', 'onError', 'deprecated'],
 
-  // Apollo Client 4.0 deprecation warnings (URL-encoded format)
-  // These show as "An error occurred! For more details, see the full error text at https://go.apollo.dev/c/err#..."
-  ['go.apollo.dev/c/err'],
-
-  // Apollo MockLink warnings - these indicate missing mocks in tests
-  // but the full stack trace is too verbose for CI logs
-  ['No more mocked responses for the query'],
-
-  // Apollo refetchQueries warnings in test environment
-  ['Unknown query named', 'refetchQueries'],
-
-  // Apollo cache warnings about missing fields in mock data
-  ['Missing field', 'while writing result'],
-
-  // Apollo cache merge warnings (test environment artifact)
-  ['Cache data may be lost when replacing'],
-
   // React Router v7 future flag warnings
   ['React Router Future Flag Warning', 'v7_startTransition'],
   ['React Router Future Flag Warning', 'v7_relativeSplatPath'],
-
-  // GraphQL fragment duplicate warnings (test environment artifact)
-  ['Warning: fragment with name', 'already exists'],
-
-  // React act() warnings - often false positives in async tests
-  ['not wrapped in act'],
-
-  // React testing environment warnings
-  ['testing environment is not configured to support act'],
-
-  // React ref warnings on mocked components
-  ['Function components cannot be given refs'],
 
   // jsdom does not implement navigation; components that redirect via
   // `window.location.href = ...` (SSO login, invitations, Google auth) emit a
@@ -64,7 +35,24 @@ const SUPPRESSED_PATTERNS: string[][] = [
  * So we need to check ALL arguments, not just the first one.
  */
 function shouldSuppressWarning(args: unknown[]): boolean {
-  const fullMessage = args.map(String).join(' ')
+  const fullMessage = args
+    .map((arg) => {
+      if (typeof arg === 'string') return arg
+
+      try {
+        if (
+          Object.prototype.toString.call(arg) === '[object Error]' &&
+          typeof (arg as Error).message === 'string'
+        ) {
+          return (arg as Error).message
+        }
+      } catch {
+        // Opaque payloads still reach the original console unchanged.
+      }
+
+      return ''
+    })
+    .join(' ')
   return SUPPRESSED_PATTERNS.some((pattern) => pattern.every((term) => fullMessage.includes(term)))
 }
 

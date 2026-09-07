@@ -4,6 +4,7 @@ import { NodeViewProps } from '@tiptap/react'
 
 import type { Locale } from '~/core/translations'
 import { CurrencyEnum, PlanInterval } from '~/generated/graphql'
+import { preloadContextualLocale } from '~/hooks/core/useContextualLocale'
 import { render } from '~/test-utils'
 
 import {
@@ -91,6 +92,10 @@ const renderPricingBlockView = ({
     onPricingCommand,
   }
 }
+
+beforeEach(async () => {
+  await preloadContextualLocale('en')
+})
 
 describe('PricingBlockView', () => {
   beforeEach(() => {

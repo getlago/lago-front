@@ -1,4 +1,4 @@
-import { fireEvent, screen } from '@testing-library/react'
+import { act, fireEvent, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { StatusTypeEnum } from '~/generated/graphql'
@@ -77,22 +77,28 @@ describe('CreateQuote', () => {
         ['customer combobox', CREATE_QUOTE_CUSTOMER_COMBOBOX_TEST_ID],
         ['order type selector', CREATE_QUOTE_ORDER_TYPE_TEST_ID],
         ['submit button', CREATE_QUOTE_SUBMIT_BUTTON_TEST_ID],
-      ])('THEN should render the %s', (_, testId) => {
-        render(<CreateQuote />)
+      ])('THEN should render the %s', async (_, testId) => {
+        await act(async () => {
+          render(<CreateQuote />)
+        })
 
         expect(screen.getByTestId(testId)).toBeInTheDocument()
       })
 
-      it('THEN should not show the subscription combobox by default', () => {
-        render(<CreateQuote />)
+      it('THEN should not show the subscription combobox by default', async () => {
+        await act(async () => {
+          render(<CreateQuote />)
+        })
 
         expect(
           screen.queryByTestId(CREATE_QUOTE_SUBSCRIPTION_COMBOBOX_TEST_ID),
         ).not.toBeInTheDocument()
       })
 
-      it('THEN should render the form with the correct id', () => {
-        render(<CreateQuote />)
+      it('THEN should render the form with the correct id', async () => {
+        await act(async () => {
+          render(<CreateQuote />)
+        })
 
         const form = document.getElementById('create-quote')
 
@@ -103,10 +109,12 @@ describe('CreateQuote', () => {
 
   describe('GIVEN the mutation is loading', () => {
     describe('WHEN the page renders', () => {
-      it('THEN should disable the submit button', () => {
+      it('THEN should disable the submit button', async () => {
         mockLoading = true
 
-        render(<CreateQuote />)
+        await act(async () => {
+          render(<CreateQuote />)
+        })
 
         const submitButton = screen.getByTestId(CREATE_QUOTE_SUBMIT_BUTTON_TEST_ID)
 
@@ -117,10 +125,12 @@ describe('CreateQuote', () => {
 
   describe('GIVEN the mutation is not loading', () => {
     describe('WHEN the page renders', () => {
-      it('THEN should not disable the submit button', () => {
+      it('THEN should not disable the submit button', async () => {
         mockLoading = false
 
-        render(<CreateQuote />)
+        await act(async () => {
+          render(<CreateQuote />)
+        })
 
         const submitButton = screen.getByTestId(CREATE_QUOTE_SUBMIT_BUTTON_TEST_ID)
 
@@ -131,12 +141,16 @@ describe('CreateQuote', () => {
 
   describe('GIVEN the form is submitted', () => {
     describe('WHEN the submit event fires', () => {
-      it('THEN should prevent default and trigger form validation', () => {
-        render(<CreateQuote />)
+      it('THEN should prevent default and trigger form validation', async () => {
+        await act(async () => {
+          render(<CreateQuote />)
+        })
 
         const form = document.getElementById('create-quote') as HTMLFormElement
 
-        fireEvent.submit(form)
+        await act(async () => {
+          fireEvent.submit(form)
+        })
 
         // handleSubmit is called which calls e.preventDefault() and form.handleSubmit()
         // Validation will fail (no customerId), but handleSubmit itself is exercised
@@ -150,7 +164,9 @@ describe('CreateQuote', () => {
       it('THEN should not open the warning dialog', async () => {
         const user = userEvent.setup()
 
-        render(<CreateQuote />)
+        await act(async () => {
+          render(<CreateQuote />)
+        })
 
         // The Button component renders data-test="button" on the <button> element.
         // The first button in the DOM is the close icon in the header.
@@ -166,7 +182,7 @@ describe('CreateQuote', () => {
 
   describe('GIVEN customer data is loaded', () => {
     describe('WHEN the customers query returns results', () => {
-      it('THEN should render without errors', () => {
+      it('THEN should render without errors', async () => {
         mockCustomersQueryData = {
           customers: {
             collection: [
@@ -176,7 +192,9 @@ describe('CreateQuote', () => {
           },
         }
 
-        render(<CreateQuote />)
+        await act(async () => {
+          render(<CreateQuote />)
+        })
 
         expect(screen.getByTestId(CREATE_QUOTE_CUSTOMER_COMBOBOX_TEST_ID)).toBeInTheDocument()
       })
@@ -191,10 +209,12 @@ describe('CreateQuote', () => {
         { customers: { collection: [{ id: 'cust-1', displayName: 'One', externalId: 'ext-1' }] } },
       ],
     ])('WHEN %s', (_, customersData) => {
-      it('THEN should not render a currency field', () => {
+      it('THEN should not render a currency field', async () => {
         mockCustomersQueryData = customersData
 
-        render(<CreateQuote />)
+        await act(async () => {
+          render(<CreateQuote />)
+        })
 
         // text_632b4acf0c41206cbcb8c324 is the "Currency" label
         expect(screen.queryByText('text_632b4acf0c41206cbcb8c324')).not.toBeInTheDocument()
@@ -204,7 +224,7 @@ describe('CreateQuote', () => {
 
   describe('GIVEN members data is loaded', () => {
     describe('WHEN the members query returns results', () => {
-      it('THEN should render the form without errors', () => {
+      it('THEN should render the form without errors', async () => {
         mockMembersQueryData = {
           memberships: {
             collection: [
@@ -214,14 +234,16 @@ describe('CreateQuote', () => {
           },
         }
 
-        render(<CreateQuote />)
+        await act(async () => {
+          render(<CreateQuote />)
+        })
 
         expect(screen.getByTestId(CREATE_QUOTE_CUSTOMER_COMBOBOX_TEST_ID)).toBeInTheDocument()
       })
     })
 
     describe('WHEN the members query returns members with null email', () => {
-      it('THEN should render the form filtering out null emails without errors', () => {
+      it('THEN should render the form filtering out null emails without errors', async () => {
         mockMembersQueryData = {
           memberships: {
             collection: [
@@ -231,7 +253,9 @@ describe('CreateQuote', () => {
           },
         }
 
-        render(<CreateQuote />)
+        await act(async () => {
+          render(<CreateQuote />)
+        })
 
         expect(screen.getByTestId(CREATE_QUOTE_CUSTOMER_COMBOBOX_TEST_ID)).toBeInTheDocument()
       })
@@ -240,7 +264,7 @@ describe('CreateQuote', () => {
 
   describe('GIVEN subscription data is loaded', () => {
     describe('WHEN the subscriptions query returns results with mixed statuses', () => {
-      it('THEN should render without errors', () => {
+      it('THEN should render without errors', async () => {
         mockSubscriptionsQueryData = {
           customer: {
             id: 'cust-1',
@@ -263,7 +287,9 @@ describe('CreateQuote', () => {
           },
         }
 
-        render(<CreateQuote />)
+        await act(async () => {
+          render(<CreateQuote />)
+        })
 
         expect(screen.getByTestId(CREATE_QUOTE_ORDER_TYPE_TEST_ID)).toBeInTheDocument()
       })

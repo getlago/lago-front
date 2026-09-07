@@ -72,11 +72,13 @@ const mockCustomerCustomSections = {
         __typename: 'InvoiceCustomSection',
         id: 'section-1',
         name: 'Section 1',
+        code: 'SECTION_1',
       },
       {
         __typename: 'InvoiceCustomSection',
         id: 'section-2',
         name: 'Section 2',
+        code: 'SECTION_2',
       },
     ],
     hasOverwrittenInvoiceCustomSectionsSelection: true,

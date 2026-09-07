@@ -1,5 +1,6 @@
 import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { act } from 'react'
 
 import { UNSUPPORTED_DATE_ERROR } from '~/core/constants/form'
 import { CurrencyEnum } from '~/generated/graphql'
@@ -374,9 +375,11 @@ describe('AddOnSelectionContent', () => {
         const drawerArgs = mockEditDrawerOpen.mock.calls[0][0]
 
         // submit() triggers editForm.handleSubmit(), exercising the onSubmit handler
-        await drawerArgs.form.submit().catch(() => {
-          // Validation may fail since the edit form fields are populated
-          // but that still exercises the submit path
+        await act(async () => {
+          await drawerArgs.form.submit().catch(() => {
+            // Validation may fail since the edit form fields are populated
+            // but that still exercises the submit path
+          })
         })
 
         // The form submit was invoked (the edit drawer was opened with form data)

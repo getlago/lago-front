@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react'
+import { act, cleanup, screen } from '@testing-library/react'
 
 import {
   OrderExecutionModeEnum,
@@ -57,14 +57,24 @@ const order = {
 }
 
 describe('OrderDetails', () => {
-  it('renders the order number, customer and execution settings read-only', () => {
+  afterEach(async () => {
+    await act(async () => {
+      cleanup()
+      // useEditor defers destruction by one millisecond, including decoration work.
+      await new Promise((resolve) => setTimeout(resolve, 1))
+    })
+  })
+
+  it('renders the order number, customer and execution settings read-only', async () => {
     mockUseGetOrderForEditQuery.mockReturnValue({
       data: { order },
       loading: false,
       error: undefined,
     } as unknown as ReturnType<typeof useGetOrderForEditQuery>)
 
-    render(<OrderDetails />)
+    await act(async () => {
+      render(<OrderDetails />)
+    })
 
     expect(screen.getAllByText('ORD-2026-0001').length).toBeGreaterThan(0)
     expect(screen.getByText('Acme Corp')).toBeInTheDocument()
@@ -72,14 +82,16 @@ describe('OrderDetails', () => {
     expect(screen.getByText('4/10/2026')).toBeInTheDocument()
   })
 
-  it('links the customer to the customer detail page', () => {
+  it('links the customer to the customer detail page', async () => {
     mockUseGetOrderForEditQuery.mockReturnValue({
       data: { order },
       loading: false,
       error: undefined,
     } as unknown as ReturnType<typeof useGetOrderForEditQuery>)
 
-    render(<OrderDetails />)
+    await act(async () => {
+      render(<OrderDetails />)
+    })
 
     const link = screen.getByTestId(ORDER_DETAILS_CUSTOMER_LINK_TEST_ID)
 
@@ -87,14 +99,16 @@ describe('OrderDetails', () => {
     expect(link).toHaveAttribute('href', expect.stringContaining('/customer/c-1'))
   })
 
-  it('shows the loading skeleton while fetching', () => {
+  it('shows the loading skeleton while fetching', async () => {
     mockUseGetOrderForEditQuery.mockReturnValue({
       data: undefined,
       loading: true,
       error: undefined,
     } as unknown as ReturnType<typeof useGetOrderForEditQuery>)
 
-    render(<OrderDetails />)
+    await act(async () => {
+      render(<OrderDetails />)
+    })
 
     expect(screen.queryByText('Acme Corp')).not.toBeInTheDocument()
   })

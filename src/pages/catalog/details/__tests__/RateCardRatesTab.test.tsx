@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event'
 import { GENERIC_PLACEHOLDER_TEST_ID } from '~/components/designSystem/GenericPlaceholder'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import {
+  GetCustomPricingUnitsDocument,
   RateCardRateForListFragment,
   RateCardRatesDocument,
   RateCardRateStatusEnum,
@@ -75,11 +76,24 @@ const ratesQueryMock = (
   },
 })
 
+const pricingUnitsQueryMock: MockedResponse = {
+  request: { query: GetCustomPricingUnitsDocument, variables: { limit: 100, page: 1 } },
+  result: {
+    data: {
+      pricingUnits: {
+        __typename: 'PricingUnitCollection',
+        collection: [],
+        metadata: { __typename: 'CollectionMetadata', currentPage: 1, totalPages: 1 },
+      },
+    },
+  },
+}
+
 // `null` stands for "the parent card query has not resolved yet", which the tab must handle.
 const renderTab = (mocks: MockedResponse[], card: typeof rateCard | null = rateCard) =>
   rtlRender(<RateCardRatesTab rateCardId="rc-1" rateCard={card} />, {
     wrapper: ({ children }) => (
-      <AllTheProviders forceTypenames mocks={mocks}>
+      <AllTheProviders forceTypenames mocks={[...mocks, pricingUnitsQueryMock]}>
         {children}
       </AllTheProviders>
     ),

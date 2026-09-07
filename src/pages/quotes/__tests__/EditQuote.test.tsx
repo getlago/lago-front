@@ -5,6 +5,7 @@ import { act } from 'react'
 import { RIGHT_ASIDE_PAGE_HEADER_TEST_ID } from '~/components/layouts/RightAsidePage'
 import { makeEmptyWalletItem, toWallets } from '~/core/serializers/serializeQuoteWallets'
 import { CurrencyEnum } from '~/generated/graphql'
+import { preloadContextualLocale } from '~/hooks/core/useContextualLocale'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import EditQuote, { EDIT_QUOTE_PRICING_CTA_TEST_ID } from '../EditQuote'
@@ -320,6 +321,10 @@ const getCloseButton = () => {
 // --- Tests ---
 
 describe('EditQuote', () => {
+  beforeAll(async () => {
+    await preloadContextualLocale('en')
+  })
+
   beforeEach(() => {
     jest.clearAllMocks()
 

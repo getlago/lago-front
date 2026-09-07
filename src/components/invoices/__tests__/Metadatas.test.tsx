@@ -11,9 +11,16 @@ jest.mock('~/generated/graphql', () => ({
   useGetInvoiceMetadatasQuery: (...args: unknown[]) => mockUseGetInvoiceMetadatasQuery(...args),
 }))
 
-jest.mock('~/components/invoices/AddMetadataDrawer', () => ({
-  AddMetadataDrawer: () => null,
-}))
+jest.mock('~/components/invoices/AddMetadataDrawer', () => {
+  const { forwardRef, useImperativeHandle } = jest.requireActual('react')
+
+  return {
+    AddMetadataDrawer: forwardRef((_props: unknown, ref: React.Ref<unknown>) => {
+      useImperativeHandle(ref, () => ({ openDrawer: jest.fn(), closeDrawer: jest.fn() }))
+      return null
+    }),
+  }
+})
 
 describe('Metadatas', () => {
   beforeEach(() => {

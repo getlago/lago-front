@@ -1,3 +1,5 @@
+import { act } from '@testing-library/react'
+
 import { LagoApiError } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
@@ -24,8 +26,10 @@ describe('AddMetadataDrawer', () => {
   })
 
   describe('GIVEN an invoice id', () => {
-    it('THEN should silence an expected not_found response from the metadata query', () => {
-      render(<AddMetadataDrawer invoiceId="invoice-123" />)
+    it('THEN should silence an expected not_found response from the metadata query', async () => {
+      await act(async () => {
+        render(<AddMetadataDrawer invoiceId="invoice-123" />)
+      })
 
       expect(mockUseGetInvoiceMetadataForEditionQuery).toHaveBeenCalledWith(
         expect.objectContaining({

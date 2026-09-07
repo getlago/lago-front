@@ -1,4 +1,4 @@
-import { configure, render, screen } from '@testing-library/react'
+import { act, configure, render, screen } from '@testing-library/react'
 
 import { ConnectionComboBoxDataItem } from '~/components/customerConnections/ConnectionComboBox'
 import type { CustomerConnectionDrawerFormApi } from '~/components/customerConnections/CustomerConnectionDrawer'
@@ -117,7 +117,7 @@ describe('ProviderSelectionSection', () => {
 
         const input = screen.getByRole('combobox') as HTMLInputElement
 
-        input.focus()
+        act(() => input.focus())
 
         // Options themselves are virtualized (not mounted in jsdom):
         // the open state is the behaviour under test
@@ -136,7 +136,7 @@ describe('ProviderSelectionSection', () => {
 
         const input = screen.getByRole('combobox') as HTMLInputElement
 
-        input.focus()
+        act(() => input.focus())
 
         expect(input).toHaveAttribute('aria-expanded', 'false')
       })

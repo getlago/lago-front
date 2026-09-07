@@ -22,10 +22,10 @@ const TABLE_CONTENT = `
 <p>After table</p>
 `
 
-const createEditor = (content = '<p>First</p><p>Second</p>') => {
+const createEditor = async (content = '<p>First</p><p>Second</p>'): Promise<Editor> => {
   let editor!: Editor
 
-  act(() => {
+  await act(async () => {
     editor = new Editor({
       extensions: [StarterKit, DragHandle, BlockColors, Table, TableRow, TableCell, TableHeader],
       content,
@@ -74,17 +74,19 @@ describe('DragHandle', () => {
 
   describe('GIVEN the editor is initialized with DragHandle', () => {
     describe('WHEN the document has block nodes', () => {
-      it('THEN should create drag handle decorations for each top-level block', () => {
-        const editor = createEditor('<p>First</p><p>Second</p>')
+      it('THEN should create drag handle decorations for each top-level block', async () => {
+        const editor = await createEditor('<p>First</p><p>Second</p>')
         const handles = editor.view.dom.querySelectorAll('.block-handle-group')
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
 
         expect(handles.length).toBe(2)
       })
 
       it('THEN should render each handle with the grip SVG', async () => {
-        const editor = createEditor('<p>Hello</p>')
+        const editor = await createEditor('<p>Hello</p>')
         const handle = editor.view.dom.querySelector('.block-handle-group')
 
         // renderGripIcon is deferred via queueMicrotask to avoid nested React render warnings.
@@ -93,34 +95,40 @@ describe('DragHandle', () => {
           await new Promise((resolve) => setTimeout(resolve, 0))
         })
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
 
         expect(handle).not.toBeNull()
         expect(handle?.querySelector('svg')).not.toBeNull()
       })
 
-      it('THEN should set draggable to true on the grip button', () => {
-        const editor = createEditor('<p>Hello</p>')
+      it('THEN should set draggable to true on the grip button', async () => {
+        const editor = await createEditor('<p>Hello</p>')
         const gripButton = editor.view.dom.querySelector('.block-handle-grip') as HTMLElement
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
 
         expect(gripButton.draggable).toBe(true)
       })
 
-      it('THEN should set contentEditable to false on each handle', () => {
-        const editor = createEditor('<p>Hello</p>')
+      it('THEN should set contentEditable to false on each handle', async () => {
+        const editor = await createEditor('<p>Hello</p>')
         const handle = editor.view.dom.querySelector('.block-handle-group') as HTMLElement
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
 
         expect(handle.contentEditable).toBe('false')
       })
     })
 
     describe('WHEN the document changes', () => {
-      it('THEN should rebuild decorations to match the new block count', () => {
-        const editor = createEditor('<p>First</p><p>Second</p>')
+      it('THEN should rebuild decorations to match the new block count', async () => {
+        const editor = await createEditor('<p>First</p><p>Second</p>')
 
         // Add a third paragraph
         editor.commands.setTextSelection(editor.state.doc.content.size - 1)
@@ -129,15 +137,17 @@ describe('DragHandle', () => {
 
         const handles = editor.view.dom.querySelectorAll('.block-handle-group')
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
 
         expect(handles.length).toBe(3)
       })
     })
 
     describe('WHEN a drag handle is clicked', () => {
-      it('THEN should select the corresponding block via NodeSelection', () => {
-        const editor = createEditor('<p>First</p><p>Second</p>')
+      it('THEN should select the corresponding block via NodeSelection', async () => {
+        const editor = await createEditor('<p>First</p><p>Second</p>')
         const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
         const firstGrip = grips[0] as HTMLElement
 
@@ -146,7 +156,9 @@ describe('DragHandle', () => {
         const { selection } = editor.state
         const selectedNode = editor.state.doc.nodeAt(selection.from)
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
 
         expect(selectedNode?.textContent).toBe('First')
       })
@@ -155,8 +167,8 @@ describe('DragHandle', () => {
 
   describe('GIVEN a drag handle dragstart event', () => {
     describe('WHEN a handle is dragged', () => {
-      it('THEN should set editor.view.dragging with selection content', () => {
-        const editor = createEditor('<p>First</p><p>Second</p>')
+      it('THEN should set editor.view.dragging with selection content', async () => {
+        const editor = await createEditor('<p>First</p><p>Second</p>')
         const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
         const firstGrip = grips[0] as HTMLElement
 
@@ -177,11 +189,13 @@ describe('DragHandle', () => {
         expect(editor.view.dragging?.move).toBe(true)
         expect((dragEvent as DragEvent).dataTransfer?.effectAllowed).toBe('move')
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
       })
 
-      it('THEN should add the is-dragging class on dragstart and remove it on dragend', () => {
-        const editor = createEditor('<p>First</p>')
+      it('THEN should add the is-dragging class on dragstart and remove it on dragend', async () => {
+        const editor = await createEditor('<p>First</p>')
         const grip = editor.view.dom.querySelector('.block-handle-grip') as HTMLElement
 
         const dragStartEvent = new Event('dragstart', { bubbles: false }) as DragEvent
@@ -203,11 +217,13 @@ describe('DragHandle', () => {
 
         expect(editor.view.dom.classList.contains('is-dragging')).toBe(false)
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
       })
 
-      it('THEN should handle dragstart without dataTransfer gracefully', () => {
-        const editor = createEditor('<p>First</p>')
+      it('THEN should handle dragstart without dataTransfer gracefully', async () => {
+        const editor = await createEditor('<p>First</p>')
         const grip = editor.view.dom.querySelector('.block-handle-grip') as HTMLElement
 
         const dragEvent = new Event('dragstart', { bubbles: false })
@@ -217,11 +233,13 @@ describe('DragHandle', () => {
         expect(editor.view.dragging).toBeTruthy()
         expect(editor.view.dragging?.move).toBe(true)
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
       })
 
-      it('THEN should set the drag image to the block DOM element', () => {
-        const editor = createEditor('<p>First</p>')
+      it('THEN should set the drag image to the block DOM element', async () => {
+        const editor = await createEditor('<p>First</p>')
         const grip = editor.view.dom.querySelector('.block-handle-grip') as HTMLElement
 
         const setDragImage = jest.fn()
@@ -238,15 +256,17 @@ describe('DragHandle', () => {
 
         expect(setDragImage).toHaveBeenCalledWith(expect.any(HTMLElement), 0, 0)
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
       })
     })
   })
 
   describe('GIVEN the decoration mapping optimization', () => {
     describe('WHEN a transaction does not change the document', () => {
-      it('THEN should preserve existing decorations without rebuilding', () => {
-        const editor = createEditor('<p>First</p><p>Second</p>')
+      it('THEN should preserve existing decorations without rebuilding', async () => {
+        const editor = await createEditor('<p>First</p><p>Second</p>')
 
         const handlesBefore = editor.view.dom.querySelectorAll('.block-handle-group')
 
@@ -259,13 +279,15 @@ describe('DragHandle', () => {
 
         expect(handlesAfter.length).toBe(2)
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
       })
     })
 
     describe('WHEN a block type changes without changing block count', () => {
-      it('THEN should rebuild decorations to keep handles in sync', () => {
-        const editor = createEditor('<p>First</p><p>Second</p>')
+      it('THEN should rebuild decorations to keep handles in sync', async () => {
+        const editor = await createEditor('<p>First</p><p>Second</p>')
 
         // Transform first paragraph into a bullet list — block count stays at 2
         editor.commands.setTextSelection(1)
@@ -275,13 +297,15 @@ describe('DragHandle', () => {
 
         expect(handles.length).toBe(2)
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
       })
     })
 
     describe('WHEN a block attribute changes without changing block count or type', () => {
-      it('THEN should rebuild decorations to keep handles in sync', () => {
-        const editor = createEditor('<p>First</p><p>Second</p>')
+      it('THEN should rebuild decorations to keep handles in sync', async () => {
+        const editor = await createEditor('<p>First</p><p>Second</p>')
 
         // Change background color on first block — count and types stay the same
         editor.commands.setTextSelection(1)
@@ -291,13 +315,15 @@ describe('DragHandle', () => {
 
         expect(handles.length).toBe(2)
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
       })
     })
 
     describe('WHEN an in-block edit occurs without changing block count', () => {
-      it('THEN should map decorations instead of rebuilding', () => {
-        const editor = createEditor('<p>First</p><p>Second</p>')
+      it('THEN should map decorations instead of rebuilding', async () => {
+        const editor = await createEditor('<p>First</p><p>Second</p>')
 
         // Type within first paragraph — block count stays at 2
         editor.commands.setTextSelection(1)
@@ -307,18 +333,22 @@ describe('DragHandle', () => {
 
         expect(handles.length).toBe(2)
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
       })
     })
   })
 
   describe('GIVEN an empty document', () => {
     describe('WHEN the editor is initialized', () => {
-      it('THEN should create a handle for the empty paragraph', () => {
-        const editor = createEditor('')
+      it('THEN should create a handle for the empty paragraph', async () => {
+        const editor = await createEditor('')
         const handles = editor.view.dom.querySelectorAll('.block-handle-group')
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
 
         // Empty editor still has one paragraph node
         expect(handles.length).toBe(1)
@@ -328,30 +358,34 @@ describe('DragHandle', () => {
 
   describe('GIVEN the DragHandle storage', () => {
     describe('WHEN the editor is initialized', () => {
-      it('THEN should have selectedBlock as null', () => {
-        const editor = createEditor()
+      it('THEN should have selectedBlock as null', async () => {
+        const editor = await createEditor()
         const storage = getDragHandleStorage(editor)
 
         expect(storage.selectedBlock).toBeNull()
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
       })
 
-      it('THEN should have hideMenu as false', () => {
-        const editor = createEditor()
+      it('THEN should have hideMenu as false', async () => {
+        const editor = await createEditor()
         const storage = getDragHandleStorage(editor)
 
         expect(storage.hideMenu).toBe(false)
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
       })
     })
   })
 
   describe('GIVEN a document with a table', () => {
     describe('WHEN a table drag handle is clicked', () => {
-      it('THEN should store the table position in selectedBlock storage', () => {
-        const editor = createEditor(TABLE_CONTENT)
+      it('THEN should store the table position in selectedBlock storage', async () => {
+        const editor = await createEditor(TABLE_CONTENT)
         const storage = getDragHandleStorage(editor)
         const tablePos = findTablePos(editor)
 
@@ -365,11 +399,13 @@ describe('DragHandle', () => {
 
         expect(storage.selectedBlock).toEqual({ pos: tablePos })
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
       })
 
-      it('THEN should place cursor inside the table via TextSelection', () => {
-        const editor = createEditor(TABLE_CONTENT)
+      it('THEN should place cursor inside the table via TextSelection', async () => {
+        const editor = await createEditor(TABLE_CONTENT)
         const tablePos = findTablePos(editor)
 
         const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
@@ -385,13 +421,15 @@ describe('DragHandle', () => {
         expect(from).toBeGreaterThan(tablePos)
         expect(from).toBeLessThan(tableEnd)
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
       })
     })
 
     describe('WHEN a non-table drag handle is clicked', () => {
-      it('THEN should not set selectedBlock in storage', () => {
-        const editor = createEditor(TABLE_CONTENT)
+      it('THEN should not set selectedBlock in storage', async () => {
+        const editor = await createEditor(TABLE_CONTENT)
         const storage = getDragHandleStorage(editor)
 
         // Click the first grip (paragraph "Before table")
@@ -402,13 +440,15 @@ describe('DragHandle', () => {
 
         expect(storage.selectedBlock).toBeNull()
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
       })
     })
 
     describe('WHEN a table is selected and then cursor moves outside the table', () => {
-      it('THEN should clear selectedBlock on selection update', () => {
-        const editor = createEditor(TABLE_CONTENT)
+      it('THEN should clear selectedBlock on selection update', async () => {
+        const editor = await createEditor(TABLE_CONTENT)
         const storage = getDragHandleStorage(editor)
 
         // Click table grip
@@ -424,13 +464,15 @@ describe('DragHandle', () => {
 
         expect(storage.selectedBlock).toBeNull()
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
       })
     })
 
     describe('WHEN a table is selected and cursor stays inside the table', () => {
-      it('THEN should keep selectedBlock in storage', () => {
-        const editor = createEditor(TABLE_CONTENT)
+      it('THEN should keep selectedBlock in storage', async () => {
+        const editor = await createEditor(TABLE_CONTENT)
         const storage = getDragHandleStorage(editor)
 
         // Click table grip
@@ -452,52 +494,60 @@ describe('DragHandle', () => {
 
         expect(storage.selectedBlock).toEqual({ pos: tablePos })
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
       })
     })
   })
 
   describe('GIVEN the resolveSelectedTable helper', () => {
     describe('WHEN no block is stored', () => {
-      it('THEN should return null', () => {
-        const editor = createEditor(TABLE_CONTENT)
+      it('THEN should return null', async () => {
+        const editor = await createEditor(TABLE_CONTENT)
         const result = resolveSelectedTable(editor.state, null)
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
 
         expect(result).toBeNull()
       })
     })
 
     describe('WHEN the stored position does not hold a table', () => {
-      it('THEN should return null', () => {
-        const editor = createEditor(TABLE_CONTENT)
+      it('THEN should return null', async () => {
+        const editor = await createEditor(TABLE_CONTENT)
         const result = resolveSelectedTable(editor.state, { pos: 0 })
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
 
         expect(result).toBeNull()
       })
     })
 
     describe('WHEN the caret sits outside the stored table', () => {
-      it('THEN should return null', () => {
-        const editor = createEditor(TABLE_CONTENT)
+      it('THEN should return null', async () => {
+        const editor = await createEditor(TABLE_CONTENT)
         const tablePos = findTablePos(editor)
 
         editor.commands.setTextSelection(1)
 
         const result = resolveSelectedTable(editor.state, { pos: tablePos })
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
 
         expect(result).toBeNull()
       })
     })
 
     describe('WHEN the caret sits inside the stored table', () => {
-      it('THEN should return the table position and node', () => {
-        const editor = createEditor(TABLE_CONTENT)
+      it('THEN should return the table position and node', async () => {
+        const editor = await createEditor(TABLE_CONTENT)
         const tablePos = findTablePos(editor)
 
         // The table grip drops a valid caret in the table's first cell
@@ -507,7 +557,9 @@ describe('DragHandle', () => {
         const resultPos = result?.pos
         const resultNodeName = result?.node.type.name
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
 
         expect(resultPos).toBe(tablePos)
         expect(resultNodeName).toBe('table')
@@ -517,8 +569,8 @@ describe('DragHandle', () => {
 
   describe('GIVEN a table selected through its drag handle', () => {
     describe.each([['Backspace'], ['Delete']])('WHEN %s is pressed', (key) => {
-      it('THEN should remove the whole table from the document', () => {
-        const editor = createEditor(TABLE_CONTENT)
+      it('THEN should remove the whole table from the document', async () => {
+        const editor = await createEditor(TABLE_CONTENT)
 
         selectTableViaGrip(editor)
 
@@ -529,15 +581,17 @@ describe('DragHandle', () => {
         const stillHasTable = hasTable(editor)
         const remainingText = editor.state.doc.textContent
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
 
         expect(stillHasTable).toBe(false)
         expect(remainingText).toContain('Before table')
         expect(remainingText).toContain('After table')
       })
 
-      it('THEN should clear the stored block selection', () => {
-        const editor = createEditor(TABLE_CONTENT)
+      it('THEN should clear the stored block selection', async () => {
+        const editor = await createEditor(TABLE_CONTENT)
         const storage = getDragHandleStorage(editor)
 
         selectTableViaGrip(editor)
@@ -545,15 +599,17 @@ describe('DragHandle', () => {
 
         const selectedBlockAfter = storage.selectedBlock
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
 
         expect(selectedBlockAfter).toBeNull()
       })
     })
 
     describe('WHEN the caret has moved out of the table before pressing Backspace', () => {
-      it('THEN should keep the table in the document', () => {
-        const editor = createEditor(TABLE_CONTENT)
+      it('THEN should keep the table in the document', async () => {
+        const editor = await createEditor(TABLE_CONTENT)
 
         selectTableViaGrip(editor)
 
@@ -565,7 +621,9 @@ describe('DragHandle', () => {
 
         const stillHasTable = hasTable(editor)
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
 
         expect(stillHasTable).toBe(true)
       })
@@ -574,8 +632,8 @@ describe('DragHandle', () => {
 
   describe('GIVEN no table is selected through a drag handle', () => {
     describe('WHEN Backspace is pressed on a paragraph selected via its drag handle', () => {
-      it('THEN should still delete that paragraph through the default behaviour', () => {
-        const editor = createEditor('<p>First</p><p>Second</p>')
+      it('THEN should still delete that paragraph through the default behaviour', async () => {
+        const editor = await createEditor('<p>First</p><p>Second</p>')
         const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
 
         ;(grips[0] as HTMLElement).click()
@@ -584,7 +642,9 @@ describe('DragHandle', () => {
 
         const remainingText = editor.state.doc.textContent
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
 
         expect(remainingText).not.toContain('First')
         expect(remainingText).toContain('Second')
@@ -592,8 +652,8 @@ describe('DragHandle', () => {
     })
 
     describe('WHEN Backspace is pressed with a caret inside a table cell', () => {
-      it('THEN should keep the table in the document', () => {
-        const editor = createEditor(TABLE_CONTENT)
+      it('THEN should keep the table in the document', async () => {
+        const editor = await createEditor(TABLE_CONTENT)
         const storage = getDragHandleStorage(editor)
 
         // Caret inside the table, but the table is not block-selected
@@ -604,7 +664,9 @@ describe('DragHandle', () => {
 
         const stillHasTable = hasTable(editor)
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
 
         expect(stillHasTable).toBe(true)
       })
@@ -613,51 +675,59 @@ describe('DragHandle', () => {
 
   describe('GIVEN the plus button in the handle group', () => {
     describe('WHEN the document has block nodes', () => {
-      it('THEN should render a plus button for each block', () => {
-        const editor = createEditor('<p>First</p><p>Second</p>')
+      it('THEN should render a plus button for each block', async () => {
+        const editor = await createEditor('<p>First</p><p>Second</p>')
         const plusButtons = editor.view.dom.querySelectorAll('.block-handle-plus')
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
 
         expect(plusButtons.length).toBe(2)
       })
 
       it('THEN should render the plus icon via queueMicrotask', async () => {
-        const editor = createEditor('<p>Hello</p>')
+        const editor = await createEditor('<p>Hello</p>')
         const plusButton = editor.view.dom.querySelector('.block-handle-plus')
 
         await act(async () => {
           await new Promise((resolve) => setTimeout(resolve, 0))
         })
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
 
         expect(plusButton).not.toBeNull()
         expect(plusButton?.querySelector('svg')).not.toBeNull()
       })
 
-      it('THEN should have the block-handle-button class', () => {
-        const editor = createEditor('<p>Hello</p>')
+      it('THEN should have the block-handle-button class', async () => {
+        const editor = await createEditor('<p>Hello</p>')
         const plusButton = editor.view.dom.querySelector('.block-handle-plus') as HTMLElement
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
 
         expect(plusButton.classList.contains('block-handle-button')).toBe(true)
       })
 
-      it('THEN should not be draggable', () => {
-        const editor = createEditor('<p>Hello</p>')
+      it('THEN should not be draggable', async () => {
+        const editor = await createEditor('<p>Hello</p>')
         const plusButton = editor.view.dom.querySelector('.block-handle-plus') as HTMLElement
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
 
         expect(plusButton.draggable).toBe(false)
       })
     })
 
     describe('WHEN the plus button is clicked with slashCommands storage available', () => {
-      it('THEN should call triggerMenu with a clientRect function', () => {
-        const editor = createEditor('<p>Hello</p>')
+      it('THEN should call triggerMenu with a clientRect function', async () => {
+        const editor = await createEditor('<p>Hello</p>')
         const triggerMenu = jest.fn()
 
         ;(editor.storage as any).slashCommands = { triggerMenu }
@@ -668,11 +738,13 @@ describe('DragHandle', () => {
 
         expect(triggerMenu).toHaveBeenCalledWith(expect.any(Function))
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
       })
 
-      it('THEN should pass a function that returns the plus button bounding rect', () => {
-        const editor = createEditor('<p>Hello</p>')
+      it('THEN should pass a function that returns the plus button bounding rect', async () => {
+        const editor = await createEditor('<p>Hello</p>')
         const triggerMenu = jest.fn()
 
         ;(editor.storage as any).slashCommands = { triggerMenu }
@@ -693,24 +765,28 @@ describe('DragHandle', () => {
           }),
         )
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
       })
     })
 
     describe('WHEN the plus button is clicked without slashCommands storage', () => {
-      it('THEN should not throw an error', () => {
-        const editor = createEditor('<p>Hello</p>')
+      it('THEN should not throw an error', async () => {
+        const editor = await createEditor('<p>Hello</p>')
         const plusButton = editor.view.dom.querySelector('.block-handle-plus') as HTMLElement
 
         expect(() => plusButton.click()).not.toThrow()
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
       })
     })
 
     describe('WHEN the plus button is clicked with triggerMenu as null', () => {
-      it('THEN should not throw an error', () => {
-        const editor = createEditor('<p>Hello</p>')
+      it('THEN should not throw an error', async () => {
+        const editor = await createEditor('<p>Hello</p>')
 
         ;(editor.storage as any).slashCommands = { triggerMenu: null }
 
@@ -718,15 +794,17 @@ describe('DragHandle', () => {
 
         expect(() => plusButton.click()).not.toThrow()
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
       })
     })
   })
 
   describe('GIVEN the selectBlock function resets hideMenu', () => {
     describe('WHEN a block is selected via grip click after hideMenu was true', () => {
-      it('THEN should reset hideMenu to false', () => {
-        const editor = createEditor('<p>First</p><p>Second</p>')
+      it('THEN should reset hideMenu to false', async () => {
+        const editor = await createEditor('<p>First</p><p>Second</p>')
         const storage = getDragHandleStorage(editor)
 
         // Manually set hideMenu to true (simulating a prior ESC press)
@@ -740,15 +818,17 @@ describe('DragHandle', () => {
 
         expect(storage.hideMenu).toBe(false)
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
       })
     })
   })
 
   describe('GIVEN the ESC key handler', () => {
     describe('WHEN ESC is pressed with no block selected', () => {
-      it('THEN should not consume the event', () => {
-        const editor = createEditor('<p>First</p><p>Second</p>')
+      it('THEN should not consume the event', async () => {
+        const editor = await createEditor('<p>First</p><p>Second</p>')
 
         // Place a normal text cursor
         editor.commands.setTextSelection(1)
@@ -756,7 +836,9 @@ describe('DragHandle', () => {
         const event = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })
         const prevented = !editor.view.dom.dispatchEvent(event)
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
 
         // The handler returns false so the event is not consumed
         expect(prevented).toBe(false)
@@ -764,8 +846,8 @@ describe('DragHandle', () => {
     })
 
     describe('WHEN a non-Escape key is pressed with a block selected', () => {
-      it('THEN should not consume the event', () => {
-        const editor = createEditor('<p>First</p><p>Second</p>')
+      it('THEN should not consume the event', async () => {
+        const editor = await createEditor('<p>First</p><p>Second</p>')
 
         // Select the first block
         const grips = editor.view.dom.querySelectorAll('.block-handle-grip')
@@ -785,15 +867,17 @@ describe('DragHandle', () => {
           result = f(editor.view, event)
         })
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
 
         expect(result).toBe(false)
       })
     })
 
     describe('WHEN ESC is pressed once with a node selected', () => {
-      it('THEN should set hideMenu to true and keep the selection', () => {
-        const editor = createEditor('<p>First</p><p>Second</p>')
+      it('THEN should set hideMenu to true and keep the selection', async () => {
+        const editor = await createEditor('<p>First</p><p>Second</p>')
         const storage = getDragHandleStorage(editor)
 
         // Select first block via grip
@@ -818,15 +902,17 @@ describe('DragHandle', () => {
 
         const isStillNodeSelected = editor.state.selection instanceof NodeSelection
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
 
         expect(isStillNodeSelected).toBe(true)
       })
     })
 
     describe('WHEN ESC is pressed twice with a node selected', () => {
-      it('THEN should deselect the block and reset hideMenu', () => {
-        const editor = createEditor('<p>First</p><p>Second</p>')
+      it('THEN should deselect the block and reset hideMenu', async () => {
+        const editor = await createEditor('<p>First</p><p>Second</p>')
         const storage = getDragHandleStorage(editor)
 
         // Select first block
@@ -858,15 +944,17 @@ describe('DragHandle', () => {
 
         const isNodeSelected = editor.state.selection instanceof NodeSelection
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
 
         expect(isNodeSelected).toBe(false)
       })
     })
 
     describe('WHEN ESC is pressed once with a table selected', () => {
-      it('THEN should set hideMenu to true and keep the table selection', () => {
-        const editor = createEditor(TABLE_CONTENT)
+      it('THEN should set hideMenu to true and keep the table selection', async () => {
+        const editor = await createEditor(TABLE_CONTENT)
         const storage = getDragHandleStorage(editor)
 
         // Select table via grip
@@ -888,13 +976,15 @@ describe('DragHandle', () => {
         expect(storage.hideMenu).toBe(true)
         expect(storage.selectedBlock).not.toBeNull()
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
       })
     })
 
     describe('WHEN ESC is pressed twice with a table selected', () => {
-      it('THEN should clear the table selection and reset hideMenu', () => {
-        const editor = createEditor(TABLE_CONTENT)
+      it('THEN should clear the table selection and reset hideMenu', async () => {
+        const editor = await createEditor(TABLE_CONTENT)
         const storage = getDragHandleStorage(editor)
 
         // Select table via grip
@@ -925,7 +1015,9 @@ describe('DragHandle', () => {
         expect(storage.hideMenu).toBe(false)
         expect(storage.selectedBlock).toBeNull()
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
       })
     })
   })
@@ -942,8 +1034,8 @@ describe('DragHandle', () => {
     }
 
     describe('WHEN clicking outside the editor with a node selected', () => {
-      it('THEN should deselect the block', () => {
-        const editor = createEditor('<p>First</p><p>Second</p>')
+      it('THEN should deselect the block', async () => {
+        const editor = await createEditor('<p>First</p><p>Second</p>')
         const container = wrapEditorInContainer(editor)
 
         // Select first block
@@ -966,15 +1058,17 @@ describe('DragHandle', () => {
 
         document.body.removeChild(outsideEl)
         document.body.removeChild(container)
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
 
         expect(isStillNodeSelected).toBe(false)
       })
     })
 
     describe('WHEN clicking outside the editor with a table selected', () => {
-      it('THEN should clear the table selection', () => {
-        const editor = createEditor(TABLE_CONTENT)
+      it('THEN should clear the table selection', async () => {
+        const editor = await createEditor(TABLE_CONTENT)
         const container = wrapEditorInContainer(editor)
         const storage = getDragHandleStorage(editor)
 
@@ -998,15 +1092,17 @@ describe('DragHandle', () => {
 
         document.body.removeChild(outsideEl)
         document.body.removeChild(container)
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
 
         expect(selectedBlockAfter).toBeNull()
       })
     })
 
     describe('WHEN clicking inside the editor with a node selected', () => {
-      it('THEN should not trigger outside-click deselection', () => {
-        const editor = createEditor('<p>First</p><p>Second</p>')
+      it('THEN should not trigger outside-click deselection', async () => {
+        const editor = await createEditor('<p>First</p><p>Second</p>')
         const container = wrapEditorInContainer(editor)
 
         // Select first block
@@ -1032,15 +1128,17 @@ describe('DragHandle', () => {
         const isStillNodeSelected = editor.state.selection instanceof NodeSelection
 
         document.body.removeChild(container)
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
 
         expect(isStillNodeSelected).toBe(true)
       })
     })
 
     describe('WHEN clicking editor UI marked to preserve selection (e.g. a portaled color picker)', () => {
-      it('THEN should keep the block NodeSelection intact', () => {
-        const editor = createEditor('<p>First</p><p>Second</p>')
+      it('THEN should keep the block NodeSelection intact', async () => {
+        const editor = await createEditor('<p>First</p><p>Second</p>')
         const container = wrapEditorInContainer(editor)
 
         // Select first block
@@ -1070,15 +1168,17 @@ describe('DragHandle', () => {
 
         document.body.removeChild(popper)
         document.body.removeChild(container)
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
 
         expect(isStillNodeSelected).toBe(true)
       })
     })
 
     describe('WHEN clicking outside with no block selected', () => {
-      it('THEN should not change the selection', () => {
-        const editor = createEditor('<p>First</p><p>Second</p>')
+      it('THEN should not change the selection', async () => {
+        const editor = await createEditor('<p>First</p><p>Second</p>')
 
         wrapEditorInContainer(editor)
 
@@ -1099,18 +1199,22 @@ describe('DragHandle', () => {
         const selAfter = editor.state.selection.from
 
         document.body.removeChild(outsideEl)
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
 
         expect(selAfter).toBe(selBefore)
       })
     })
 
     describe('WHEN the editor is destroyed', () => {
-      it('THEN should remove the mousedown listener', () => {
+      it('THEN should remove the mousedown listener', async () => {
         const removeSpy = jest.spyOn(document, 'removeEventListener')
-        const editor = createEditor('<p>Hello</p>')
+        const editor = await createEditor('<p>Hello</p>')
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
 
         expect(removeSpy).toHaveBeenCalledWith('mousedown', expect.any(Function))
 
@@ -1141,8 +1245,8 @@ describe('DragHandle', () => {
     }
 
     describe('WHEN text is inserted into an earlier block and a later grip is clicked', () => {
-      it('THEN should select the block at its current position', () => {
-        const editor = createEditor('<p>Alpha</p><p>Beta</p><p>Gamma</p>')
+      it('THEN should select the block at its current position', async () => {
+        const editor = await createEditor('<p>Alpha</p><p>Beta</p><p>Gamma</p>')
 
         editor.commands.insertContentAt(6, 'XXXXXXXXXX')
 
@@ -1154,7 +1258,9 @@ describe('DragHandle', () => {
         const selectedFrom = selection.from
         const selectedText = isNodeSelection ? selection.node.textContent : null
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
 
         expect(errors).toHaveLength(0)
         expect(isNodeSelection).toBe(true)
@@ -1162,8 +1268,8 @@ describe('DragHandle', () => {
         expect(selectedText).toBe('Beta')
       })
 
-      it('THEN should select the last block at its current position', () => {
-        const editor = createEditor('<p>Alpha</p><p>Beta</p><p>Gamma</p>')
+      it('THEN should select the last block at its current position', async () => {
+        const editor = await createEditor('<p>Alpha</p><p>Beta</p><p>Gamma</p>')
 
         editor.commands.insertContentAt(6, 'XXXXXXXXXX')
 
@@ -1175,7 +1281,9 @@ describe('DragHandle', () => {
         const selectedFrom = selection.from
         const selectedText = isNodeSelection ? selection.node.textContent : null
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
 
         expect(errors).toHaveLength(0)
         expect(isNodeSelection).toBe(true)
@@ -1183,8 +1291,8 @@ describe('DragHandle', () => {
         expect(selectedText).toBe('Gamma')
       })
 
-      it('THEN should point the selection at a block whose DOM node is resolvable', () => {
-        const editor = createEditor('<p>Alpha</p><p>Beta</p><p>Gamma</p>')
+      it('THEN should point the selection at a block whose DOM node is resolvable', async () => {
+        const editor = await createEditor('<p>Alpha</p><p>Beta</p><p>Gamma</p>')
 
         editor.commands.insertContentAt(6, 'XXXXXXXXXX')
 
@@ -1195,15 +1303,17 @@ describe('DragHandle', () => {
         // BlockToolbar only renders the menu when nodeDOM resolves to an element.
         const blockDom = editor.view.nodeDOM(editor.state.selection.from)
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
 
         expect(blockDom).toBeInstanceOf(HTMLElement)
       })
     })
 
     describe('WHEN a single character is inserted and a later grip is clicked', () => {
-      it('THEN should select the block without throwing in the click listener', () => {
-        const editor = createEditor('<p>Alpha</p><p>Beta</p>')
+      it('THEN should select the block without throwing in the click listener', async () => {
+        const editor = await createEditor('<p>Alpha</p><p>Beta</p>')
 
         editor.commands.insertContentAt(6, 'X')
 
@@ -1215,7 +1325,9 @@ describe('DragHandle', () => {
         const selectedFrom = selection.from
         const selectedText = isNodeSelection ? selection.node.textContent : null
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
 
         expect(errors).toHaveLength(0)
         expect(isNodeSelection).toBe(true)
@@ -1225,7 +1337,7 @@ describe('DragHandle', () => {
     })
 
     describe('WHEN markdown is pasted into an earlier block and a later grip is clicked', () => {
-      it('THEN should select the block at its current position', () => {
+      it('THEN should select the block at its current position', async () => {
         let editor!: Editor
 
         act(() => {
@@ -1260,7 +1372,9 @@ describe('DragHandle', () => {
         const selectedFrom = selection.from
         const selectedText = isNodeSelection ? selection.node.textContent : null
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
 
         expect(errors).toHaveLength(0)
         expect(isNodeSelection).toBe(true)
@@ -1270,8 +1384,8 @@ describe('DragHandle', () => {
     })
 
     describe('WHEN text is inserted before a table and the table grip is clicked', () => {
-      it('THEN should store the table at its current position', () => {
-        const editor = createEditor(
+      it('THEN should store the table at its current position', async () => {
+        const editor = await createEditor(
           '<p>Before</p><table><tbody><tr><td>A1</td><td>B1</td></tr></tbody></table><p>After</p>',
         )
         const storage = getDragHandleStorage(editor)
@@ -1286,7 +1400,9 @@ describe('DragHandle', () => {
         const resolved = resolveSelectedTable(editor.state, selectedBlock)
         const resolvedNodeName = resolved?.node.type.name
 
-        editor.destroy()
+        await act(async () => {
+          editor.destroy()
+        })
 
         expect(errors).toHaveLength(0)
         expect(selectedBlock).toEqual({ pos: tablePos })

@@ -4,6 +4,7 @@ import React from 'react'
 
 import { GetCrmIntegrationsForExternalAppsAccordionDocument } from '~/generated/graphql'
 import { AllTheProviders } from '~/test-utils'
+import { expectConsoleError } from '~/test-utils/expectConsoleError'
 
 import { useCrmProviders } from '../useCrmProviders'
 
@@ -602,26 +603,35 @@ describe('useCrmProviders', () => {
       })
 
       it('should handle integration without code property', async () => {
-        const { result } = await prepare({
-          mockData: {
-            integrations: {
-              collection: [
-                {
-                  __typename: 'HubspotIntegration',
-                  id: '1',
-                  name: 'No Code Integration',
-                  defaultTargetedObject: 'COMPANIES',
+        await expectConsoleError(
+          [
+            "Missing field '%s' while writing result %o",
+            'code',
+            expect.objectContaining({ id: '1' }),
+          ],
+          async () => {
+            const { result } = await prepare({
+              mockData: {
+                integrations: {
+                  collection: [
+                    {
+                      __typename: 'HubspotIntegration',
+                      id: '1',
+                      name: 'No Code Integration',
+                      defaultTargetedObject: 'COMPANIES',
+                    },
+                  ],
                 },
-              ],
-            },
+              },
+            })
+
+            await act(() => wait(0))
+
+            const providerType = result.current.getCrmProviderFromCode('any-code')
+
+            expect(providerType).toBeUndefined()
           },
-        })
-
-        await act(() => wait(0))
-
-        const providerType = result.current.getCrmProviderFromCode('any-code')
-
-        expect(providerType).toBeUndefined()
+        )
       })
 
       it('should handle whitespace in codes', async () => {
@@ -651,26 +661,35 @@ describe('useCrmProviders', () => {
       })
 
       it('should handle Hubspot integration without defaultTargetedObject', async () => {
-        const { result } = await prepare({
-          mockData: {
-            integrations: {
-              collection: [
-                {
-                  __typename: 'HubspotIntegration',
-                  id: '1',
-                  code: 'hubspot-no-target',
-                  name: 'Hubspot No Target',
+        await expectConsoleError(
+          [
+            "Missing field '%s' while writing result %o",
+            'defaultTargetedObject',
+            expect.objectContaining({ id: '1' }),
+          ],
+          async () => {
+            const { result } = await prepare({
+              mockData: {
+                integrations: {
+                  collection: [
+                    {
+                      __typename: 'HubspotIntegration',
+                      id: '1',
+                      code: 'hubspot-no-target',
+                      name: 'Hubspot No Target',
+                    },
+                  ],
                 },
-              ],
-            },
+              },
+            })
+
+            await act(() => wait(0))
+
+            const providerType = result.current.getCrmProviderFromCode('hubspot-no-target')
+
+            expect(providerType).toBe('hubspot')
           },
-        })
-
-        await act(() => wait(0))
-
-        const providerType = result.current.getCrmProviderFromCode('hubspot-no-target')
-
-        expect(providerType).toBe('hubspot')
+        )
       })
     })
   })

@@ -7,6 +7,7 @@ import { createRef, ReactNode } from 'react'
 import CentralizedDialog from '~/components/dialogs/CentralizedDialog'
 import { CENTRALIZED_DIALOG_NAME, FORM_DIALOG_NAME } from '~/components/dialogs/const'
 import FormDialog from '~/components/dialogs/FormDialog'
+import { GetCustomPricingUnitsDocument } from '~/generated/graphql'
 
 import { buildUsageChargeFixture, planDetailsV2Fixture } from './fixtures'
 
@@ -76,7 +77,17 @@ jest.mock('~/core/utils/domUtils', () => ({
 }))
 
 const Wrapper = ({ children }: { children: ReactNode }) => (
-  <MockedProvider mocks={[]} addTypename={false}>
+  <MockedProvider
+    mocks={[
+      {
+        request: { query: GetCustomPricingUnitsDocument, variables: { limit: 100, page: 1 } },
+        result: {
+          data: { pricingUnits: { collection: [], metadata: { currentPage: 1, totalPages: 1 } } },
+        },
+      },
+    ]}
+    addTypename={false}
+  >
     <NiceModal.Provider>{children}</NiceModal.Provider>
   </MockedProvider>
 )

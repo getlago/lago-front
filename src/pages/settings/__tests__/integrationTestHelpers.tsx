@@ -5,6 +5,59 @@ import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { ProviderTypeEnum } from '~/generated/graphql'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
+const providerDetails: Record<string, Record<string, unknown>> = {
+  AdyenProvider: {
+    apiKey: 'test-api-key',
+    hmacKey: 'test-hmac-key',
+    livePrefix: 'test',
+    merchantAccount: 'test-merchant',
+  },
+  CashfreeProvider: {
+    clientId: 'test-client',
+    clientSecret: 'test-secret',
+    successRedirectUrl: 'https://example.com/success',
+  },
+  MoneyhashProvider: { apiKey: 'test-api-key', flowId: 'test-flow' },
+  StripeProvider: {
+    secretKey: 'sk_test_fixture',
+    supports3ds: false,
+    requireTermsOfServiceConsent: false,
+  },
+}
+
+const integrationDetails: Record<string, Record<string, unknown>> = {
+  AnrokIntegration: { apiKey: 'test-api-key' },
+  AvalaraIntegration: {
+    accountId: 'test-account',
+    companyCode: 'test-company',
+    licenseKey: 'test-license',
+  },
+  HubspotIntegration: {
+    defaultTargetedObject: 'COMPANIES',
+    syncInvoices: false,
+    syncSubscriptions: false,
+  },
+  SalesforceIntegration: { instanceId: 'test-instance' },
+  NetsuiteIntegration: {
+    accountId: 'test-account',
+    clientId: 'test-client',
+    clientSecret: 'test-secret',
+    scriptEndpointUrl: 'https://example.com/script',
+    syncCreditNotes: false,
+    syncInvoices: false,
+    syncPayments: false,
+    tokenId: 'test-token',
+    tokenSecret: 'test-token-secret',
+  },
+  XeroIntegration: {
+    connectionId: 'test-connection',
+    hasMappingsConfigured: false,
+    syncCreditNotes: false,
+    syncInvoices: false,
+    syncPayments: false,
+  },
+}
+
 export function createPaymentProviderListMock(
   document: DocumentNode,
   providerType: ProviderTypeEnum,
@@ -25,6 +78,7 @@ export function createPaymentProviderListMock(
             __typename: 'PaymentProviderCollection',
             collection: connections.map((c) => ({
               __typename: typename,
+              ...providerDetails[typename],
               ...c,
             })),
           },
@@ -77,6 +131,7 @@ export function createIntegrationListMock(
             __typename: 'IntegrationCollection',
             collection: connections.map((c) => ({
               __typename: typename,
+              ...integrationDetails[typename],
               ...c,
             })),
           },

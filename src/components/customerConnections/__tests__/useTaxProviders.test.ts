@@ -4,6 +4,7 @@ import React from 'react'
 
 import { GetTaxIntegrationsForExternalAppsAccordionDocument } from '~/generated/graphql'
 import { AllTheProviders } from '~/test-utils'
+import { expectConsoleError } from '~/test-utils/expectConsoleError'
 
 import { useTaxProviders } from '../useTaxProviders'
 
@@ -595,25 +596,34 @@ describe('useTaxProviders', () => {
       })
 
       it('should handle integration without code property', async () => {
-        const { result } = await prepare({
-          mockData: {
-            integrations: {
-              collection: [
-                {
-                  __typename: 'AnrokIntegration',
-                  id: '1',
-                  name: 'No Code Integration',
+        await expectConsoleError(
+          [
+            "Missing field '%s' while writing result %o",
+            'code',
+            expect.objectContaining({ id: '1' }),
+          ],
+          async () => {
+            const { result } = await prepare({
+              mockData: {
+                integrations: {
+                  collection: [
+                    {
+                      __typename: 'AnrokIntegration',
+                      id: '1',
+                      name: 'No Code Integration',
+                    },
+                  ],
                 },
-              ],
-            },
+              },
+            })
+
+            await act(() => wait(0))
+
+            const providerType = result.current.getTaxProviderFromCode('any-code')
+
+            expect(providerType).toBeUndefined()
           },
-        })
-
-        await act(() => wait(0))
-
-        const providerType = result.current.getTaxProviderFromCode('any-code')
-
-        expect(providerType).toBeUndefined()
+        )
       })
 
       it('should handle whitespace in codes', async () => {

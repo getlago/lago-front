@@ -7,7 +7,11 @@ import {
   ENTITY_SECTION_VIEW_NAME_TEST_ID,
 } from '~/components/MainHeader/mainHeaderTestIds'
 import { ProductDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { GetProductForDetailsDocument, ProductTypeEnum } from '~/generated/graphql'
+import {
+  GetProductForDetailsDocument,
+  GetProductForDetailsOverviewDocument,
+  ProductTypeEnum,
+} from '~/generated/graphql'
 import { AllTheProviders, testMockNavigateFn } from '~/test-utils'
 
 import ProductDetails from '../ProductDetails'
@@ -87,6 +91,11 @@ const detailsQueryMock = {
   result: { data: { product: productFixture } },
 }
 
+const overviewQueryMock = {
+  request: { query: GetProductForDetailsOverviewDocument, variables: { id: 'pitem-1' } },
+  result: { data: { product: productFixture } },
+}
+
 const ProductDetailsWithHeader = () => (
   <>
     <MainHeader />
@@ -105,7 +114,7 @@ const renderPage = (
     wrapper: ({ children }) => (
       <AllTheProviders
         forceTypenames
-        mocks={[detailsQueryMock]}
+        mocks={[detailsQueryMock, overviewQueryMock]}
         useParams={{ productId: 'pitem-1', tab }}
       >
         {children}

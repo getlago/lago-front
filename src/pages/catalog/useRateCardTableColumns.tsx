@@ -25,6 +25,7 @@ import { formatActiveRate } from './utils/formatActiveRate'
 // rather than a list query file: the standalone list query (Task 8) and the
 // product-item / product-item-filter preview queries (Task 10) all import this
 // fragment instead of declaring their own field lists.
+// RateCardForList uses PropertiesForRateCardRate to preserve all cached array fields.
 gql`
   fragment RateCardForList on RateCard {
     id
@@ -45,8 +46,6 @@ gql`
     activeRate {
       id
       rateModel
-      # Superset on purpose: Apollo replaces array fields wholesale, so the narrower
-      # PropertiesForActiveRate would strip range fields the rate pages cached.
       rateProperties {
         ...PropertiesForRateCardRate
       }

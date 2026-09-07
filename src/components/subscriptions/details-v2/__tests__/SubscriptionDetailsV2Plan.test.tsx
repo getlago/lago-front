@@ -50,7 +50,7 @@ const queryMock = {
     data: {
       subscription: {
         id: SUB_ID,
-        plan: { id: 'plan_override_1' },
+        plan: { id: 'plan_override_1', parent: null },
       },
     },
   },
@@ -79,7 +79,7 @@ describe('SubscriptionDetailsV2Plan', () => {
 
   it('renders PlanDetailsV2 in subscription mode with the override plan id (premium)', async () => {
     render(
-      <MockedProvider mocks={[queryMock]} addTypename={false}>
+      <MockedProvider mocks={[queryMock, overridesMock]} addTypename={false}>
         <SubscriptionDetailsV2Plan subscriptionId={SUB_ID} />
       </MockedProvider>,
     )
@@ -116,7 +116,7 @@ describe('SubscriptionDetailsV2Plan', () => {
     mockIsPremium = false
 
     render(
-      <MockedProvider mocks={[queryMock]} addTypename={false}>
+      <MockedProvider mocks={[queryMock, overridesMock]} addTypename={false}>
         <SubscriptionDetailsV2Plan subscriptionId={SUB_ID} />
       </MockedProvider>,
     )

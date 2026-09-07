@@ -1,4 +1,4 @@
-import { configure, render, screen } from '@testing-library/react'
+import { act, configure, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ReactNode } from 'react'
 
@@ -56,10 +56,17 @@ jest.mock('~/hooks/useDeveloperTool', () => ({
   }),
 }))
 
-jest.mock('react-resizable-panels', () => ({
-  Panel: ({ children }: { children: ReactNode }) => <div>{children}</div>,
-  PanelResizeHandle: ({ children }: { children: ReactNode }) => <div>{children}</div>,
-}))
+jest.mock('react-resizable-panels', () => {
+  const { forwardRef, useImperativeHandle } = jest.requireActual('react')
+
+  return {
+    Panel: forwardRef(({ children }: { children: React.ReactNode }, ref: React.Ref<unknown>) => {
+      useImperativeHandle(ref, () => ({ resize: jest.fn() }))
+      return <div>{children}</div>
+    }),
+    PanelResizeHandle: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  }
+})
 
 jest.mock('~/components/designSystem/NavigationTab', () => ({
   NavigationTab: ({ children }: { children: ReactNode }) => <div>{children}</div>,
@@ -89,7 +96,7 @@ describe('DevtoolsView', () => {
   })
 
   afterEach(() => {
-    currentOrganizationVar(null)
+    act(() => currentOrganizationVar(null))
   })
 
   describe('GIVEN the events tab has an event selected', () => {
@@ -128,7 +135,7 @@ describe('DevtoolsView', () => {
   describe('GIVEN the current organization is not known yet', () => {
     describe('WHEN the panel renders', () => {
       it('THEN it should not render the devtools routes', () => {
-        currentOrganizationVar(null)
+        act(() => currentOrganizationVar(null))
 
         render(<DevtoolsView />)
 
@@ -139,7 +146,7 @@ describe('DevtoolsView', () => {
       })
 
       it('THEN it should still render the panel chrome', () => {
-        currentOrganizationVar(null)
+        act(() => currentOrganizationVar(null))
 
         render(<DevtoolsView />)
 

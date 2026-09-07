@@ -687,6 +687,11 @@ describe('cacheHelpers', () => {
     it('cacheArrayInsert appends a new item to the parent field', () => {
       const cache = buildCache()
 
+      cache.writeFragment({
+        fragment: parse('fragment NewCharge on Charge { id invoiceDisplayName }'),
+        data: { __typename: 'Charge', id: 'charge_c', invoiceDisplayName: 'C' },
+      })
+
       cacheArrayInsert(cache, { __typename: 'Plan', id: 'plan_1' }, 'charges', {
         __typename: 'Charge',
         id: 'charge_c',

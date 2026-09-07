@@ -7,6 +7,7 @@ import CentralizedDialog from '~/components/dialogs/CentralizedDialog'
 import {
   CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID,
   CENTRALIZED_DIALOG_NAME,
+  CENTRALIZED_DIALOG_TEST_ID,
   DIALOG_TITLE_TEST_ID,
   FORM_DIALOG_NAME,
   FORM_DIALOG_TEST_ID,
@@ -227,14 +228,16 @@ describe('TerminateCustomerSubscriptionDialog', () => {
           expect(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID)).toBeInTheDocument()
         })
 
-        await act(async () => {
-          await userEvent.click(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID))
-        })
+        await userEvent.click(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID))
 
         await waitFor(() => {
           expect(mockTerminate).toHaveBeenCalledWith({
             variables: { input: { id: 'sub-123' } },
           })
+        })
+
+        await waitFor(() => {
+          expect(screen.queryByTestId(CENTRALIZED_DIALOG_TEST_ID)).not.toBeInTheDocument()
         })
       })
     })
@@ -422,9 +425,7 @@ describe('TerminateCustomerSubscriptionDialog', () => {
           expect(screen.getByTestId(FORM_DIALOG_TEST_ID)).toBeInTheDocument()
         })
 
-        await act(async () => {
-          await userEvent.click(screen.getByTestId(TERMINATE_SUBSCRIPTION_SUBMIT_BUTTON_TEST_ID))
-        })
+        await userEvent.click(screen.getByTestId(TERMINATE_SUBSCRIPTION_SUBMIT_BUTTON_TEST_ID))
 
         await waitFor(() => {
           expect(mockTerminate).toHaveBeenCalledWith({
@@ -436,6 +437,10 @@ describe('TerminateCustomerSubscriptionDialog', () => {
               },
             },
           })
+        })
+
+        await waitFor(() => {
+          expect(screen.queryByTestId(FORM_DIALOG_TEST_ID)).not.toBeInTheDocument()
         })
       })
     })
@@ -469,12 +474,14 @@ describe('TerminateCustomerSubscriptionDialog', () => {
           expect(screen.getByTestId(FORM_DIALOG_TEST_ID)).toBeInTheDocument()
         })
 
-        await act(async () => {
-          await userEvent.click(screen.getByTestId(TERMINATE_SUBSCRIPTION_SUBMIT_BUTTON_TEST_ID))
-        })
+        await userEvent.click(screen.getByTestId(TERMINATE_SUBSCRIPTION_SUBMIT_BUTTON_TEST_ID))
 
         await waitFor(() => {
           expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+        })
+
+        await waitFor(() => {
+          expect(screen.queryByTestId(FORM_DIALOG_TEST_ID)).not.toBeInTheDocument()
         })
       })
 
@@ -516,12 +523,14 @@ describe('TerminateCustomerSubscriptionDialog', () => {
           expect(screen.getByTestId(FORM_DIALOG_TEST_ID)).toBeInTheDocument()
         })
 
-        await act(async () => {
-          await userEvent.click(screen.getByTestId(TERMINATE_SUBSCRIPTION_SUBMIT_BUTTON_TEST_ID))
-        })
+        await userEvent.click(screen.getByTestId(TERMINATE_SUBSCRIPTION_SUBMIT_BUTTON_TEST_ID))
 
         await waitFor(() => {
           expect(mockCallback).toHaveBeenCalledWith('2024-01-01T00:00:00Z')
+        })
+
+        await waitFor(() => {
+          expect(screen.queryByTestId(FORM_DIALOG_TEST_ID)).not.toBeInTheDocument()
         })
       })
     })

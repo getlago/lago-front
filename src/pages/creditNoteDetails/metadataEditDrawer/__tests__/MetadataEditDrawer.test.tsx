@@ -100,7 +100,7 @@ describe('MetadataEditDrawer', () => {
       render(<MetadataEditDrawer ref={ref} />)
 
       expect(() => {
-        ref.current?.openDrawer({ creditNote })
+        act(() => ref.current?.openDrawer({ creditNote }))
       }).not.toThrow()
     })
 
@@ -110,7 +110,7 @@ describe('MetadataEditDrawer', () => {
       render(<MetadataEditDrawer ref={ref} />)
 
       expect(() => {
-        ref.current?.closeDrawer()
+        act(() => ref.current?.closeDrawer())
       }).not.toThrow()
     })
   })

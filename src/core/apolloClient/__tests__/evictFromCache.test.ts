@@ -1,4 +1,4 @@
-import { ApolloClient, InMemoryCache } from '@apollo/client'
+import { ApolloClient, ApolloLink, InMemoryCache } from '@apollo/client'
 import { parse } from 'graphql'
 
 import { evictFromCache } from '../evictFromCache'
@@ -41,7 +41,7 @@ const SECOND_LIST_QUERY = parse(`
 
 function createTestClient() {
   const cache = new InMemoryCache()
-  const client = new ApolloClient({ cache, link: undefined as never })
+  const client = new ApolloClient({ cache, link: ApolloLink.empty() })
 
   return client
 }

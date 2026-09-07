@@ -1,5 +1,5 @@
 import { MockedResponse } from '@apollo/client/testing'
-import { act, screen, waitFor } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { INVOICING_SETTINGS_SELECTOR_TEST_ID } from '~/components/invoicingSettings/InvoicingSettingsSelector'
@@ -23,7 +23,7 @@ import {
   GetWalletForTopUpDocument,
   VoidInvoiceDocument,
 } from '~/generated/graphql'
-import { render, TestMocksType } from '~/test-utils'
+import { render, testMockNavigateFn, TestMocksType } from '~/test-utils'
 
 import CreateWalletTopUp from '../CreateWalletTopUp'
 
@@ -89,6 +89,7 @@ const mockCustomerData = {
     externalId: 'ext-customer-1',
     currency: CurrencyEnum.Usd,
     timezone: 'UTC',
+    billingEntity: { id: 'billing-entity-1' },
   },
 }
 
@@ -126,7 +127,7 @@ const createMutationMock = (
   result: {
     data: {
       createCustomerWalletTransaction: {
-        collection: [{ id: 'trans-1' }],
+        collection: [{ id: 'trans-1', wallet: null }],
       },
     },
   },
@@ -366,15 +367,19 @@ describe('CreateWalletTopUp', () => {
           '10',
         )
 
-        await act(async () => {
-          await user.click(screen.getByTestId(SUBMIT_WALLET_DATA_TEST))
-        })
+        await user.click(screen.getByTestId(SUBMIT_WALLET_DATA_TEST))
 
         await waitFor(() => {
           expect(capturedVars).toBeDefined()
           expect(
             (capturedVars as Record<string, Record<string, unknown>>).input.purchaseOrderNumber,
           ).toBeNull()
+        })
+
+        await waitFor(() => {
+          expect(testMockNavigateFn).toHaveBeenCalledWith(
+            '/customer/customer-1/wallet-details/wallet-1/transactions',
+          )
         })
       })
 
@@ -423,15 +428,19 @@ describe('CreateWalletTopUp', () => {
           expect(screen.getByTestId(SUBMIT_WALLET_DATA_TEST)).not.toBeDisabled()
         })
 
-        await act(async () => {
-          await user.click(screen.getByTestId(SUBMIT_WALLET_DATA_TEST))
-        })
+        await user.click(screen.getByTestId(SUBMIT_WALLET_DATA_TEST))
 
         await waitFor(() => {
           expect(capturedVariables).toBeDefined()
           expect(
             (capturedVariables as Record<string, Record<string, unknown>>).input.priority,
           ).toBe(50)
+        })
+
+        await waitFor(() => {
+          expect(testMockNavigateFn).toHaveBeenCalledWith(
+            '/customer/customer-1/wallet-details/wallet-1/transactions',
+          )
         })
       })
     })
@@ -462,15 +471,19 @@ describe('CreateWalletTopUp', () => {
           expect(screen.getByTestId(SUBMIT_WALLET_DATA_TEST)).not.toBeDisabled()
         })
 
-        await act(async () => {
-          await user.click(screen.getByTestId(SUBMIT_WALLET_DATA_TEST))
-        })
+        await user.click(screen.getByTestId(SUBMIT_WALLET_DATA_TEST))
 
         await waitFor(() => {
           expect(capturedVariables).toBeDefined()
           expect(
             (capturedVariables as Record<string, Record<string, unknown>>).input.priority,
           ).toBe(25)
+        })
+
+        await waitFor(() => {
+          expect(testMockNavigateFn).toHaveBeenCalledWith(
+            '/customer/customer-1/wallet-details/wallet-1/transactions',
+          )
         })
       })
     })
@@ -506,9 +519,7 @@ describe('CreateWalletTopUp', () => {
           expect(screen.getByTestId(SUBMIT_WALLET_DATA_TEST)).not.toBeDisabled()
         })
 
-        await act(async () => {
-          await user.click(screen.getByTestId(SUBMIT_WALLET_DATA_TEST))
-        })
+        await user.click(screen.getByTestId(SUBMIT_WALLET_DATA_TEST))
 
         await waitFor(() => {
           expect(capturedVariables).toBeDefined()
@@ -518,6 +529,12 @@ describe('CreateWalletTopUp', () => {
           expect(input.grantedCredits).toBe('5')
           expect(input.paidCredits).toBe('0')
           expect(input.priority).toBe(50)
+        })
+
+        await waitFor(() => {
+          expect(testMockNavigateFn).toHaveBeenCalledWith(
+            '/customer/customer-1/wallet-details/wallet-1/transactions',
+          )
         })
       })
     })
@@ -560,9 +577,7 @@ describe('CreateWalletTopUp', () => {
           expect(screen.getByTestId(SUBMIT_WALLET_DATA_TEST)).not.toBeDisabled()
         })
 
-        await act(async () => {
-          await user.click(screen.getByTestId(SUBMIT_WALLET_DATA_TEST))
-        })
+        await user.click(screen.getByTestId(SUBMIT_WALLET_DATA_TEST))
 
         await waitFor(() => {
           expect(voidCapturedVars).toBeDefined()
@@ -576,6 +591,12 @@ describe('CreateWalletTopUp', () => {
           expect(
             (createCapturedVars as Record<string, Record<string, unknown>>).input.priority,
           ).toBe(50)
+        })
+
+        await waitFor(() => {
+          expect(testMockNavigateFn).toHaveBeenCalledWith(
+            '/customer/customer-1/wallet-details/wallet-1/transactions',
+          )
         })
       })
     })
@@ -627,9 +648,7 @@ describe('CreateWalletTopUp', () => {
           expect(screen.getByTestId(SUBMIT_WALLET_DATA_TEST)).not.toBeDisabled()
         })
 
-        await act(async () => {
-          await user.click(screen.getByTestId(SUBMIT_WALLET_DATA_TEST))
-        })
+        await user.click(screen.getByTestId(SUBMIT_WALLET_DATA_TEST))
 
         await waitFor(() => {
           expect(createCapturedVars).toBeDefined()
@@ -637,6 +656,12 @@ describe('CreateWalletTopUp', () => {
             (createCapturedVars as Record<string, Record<string, unknown>>).input
               .purchaseOrderNumber,
           ).toBe('PO-1')
+        })
+
+        await waitFor(() => {
+          expect(testMockNavigateFn).toHaveBeenCalledWith(
+            '/customer/customer-1/wallet-details/wallet-1/transactions',
+          )
         })
       })
     })
@@ -657,12 +682,16 @@ describe('CreateWalletTopUp', () => {
           expect(screen.getByTestId(SUBMIT_WALLET_DATA_TEST)).not.toBeDisabled()
         })
 
-        await act(async () => {
-          await user.click(screen.getByTestId(SUBMIT_WALLET_DATA_TEST))
-        })
+        await user.click(screen.getByTestId(SUBMIT_WALLET_DATA_TEST))
 
         await waitFor(() => {
           expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+        })
+
+        await waitFor(() => {
+          expect(testMockNavigateFn).toHaveBeenCalledWith(
+            '/customer/customer-1/wallet-details/wallet-1/transactions',
+          )
         })
       })
     })
@@ -684,9 +713,7 @@ describe('CreateWalletTopUp', () => {
           expect(getPaidCreditsInput()).toBeInTheDocument()
         })
 
-        await act(async () => {
-          await user.click(screen.getByTestId(SUBMIT_WALLET_DATA_TEST))
-        })
+        await user.click(screen.getByTestId(SUBMIT_WALLET_DATA_TEST))
 
         await waitFor(() => {
           expect(getPaidCreditsInput()).toHaveAttribute('aria-invalid', 'true')
@@ -704,9 +731,7 @@ describe('CreateWalletTopUp', () => {
           expect(getPaidCreditsInput()).toBeInTheDocument()
         })
 
-        await act(async () => {
-          await user.click(screen.getByTestId(SUBMIT_WALLET_DATA_TEST))
-        })
+        await user.click(screen.getByTestId(SUBMIT_WALLET_DATA_TEST))
 
         await waitFor(() => {
           expect(getPaidCreditsInput()).toHaveAttribute('aria-invalid', 'true')

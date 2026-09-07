@@ -34,13 +34,21 @@ jest.mock('~/components/subscriptions/SubscriptionInvoiceCustomSectionDetails', 
   },
 }))
 
-jest.mock('~/components/invoicingSettings/InvoicingSettingsDrawer', () => ({
-  InvoicingSettingsDrawer: (props: Record<string, unknown>) => {
-    mockDrawer(props)
+jest.mock('~/components/invoicingSettings/InvoicingSettingsDrawer', () => {
+  const { forwardRef, useImperativeHandle } = jest.requireActual('react')
 
-    return null
-  },
-}))
+  return {
+    InvoicingSettingsDrawer: forwardRef(
+      (props: Record<string, unknown>, ref: React.Ref<unknown>) => {
+        useImperativeHandle(ref, () => ({ openDrawer: jest.fn(), closeDrawer: jest.fn() }))
+
+        mockDrawer(props)
+
+        return null
+      },
+    ),
+  }
+})
 
 jest.mock('~/hooks/customer/useUpdateSubscriptionSettings', () => ({
   useUpdateSubscriptionSettings: () => ({

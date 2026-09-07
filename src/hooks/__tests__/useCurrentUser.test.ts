@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react'
+import { act, renderHook } from '@testing-library/react'
 
 import { currentOrganizationVar } from '~/core/apolloClient/reactiveVars'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -44,7 +44,7 @@ describe('useCurrentUser — stale-cache refetch safety net', () => {
     jest.clearAllMocks()
     mockIsAuthenticated.mockReturnValue(true)
     mockUseParams.mockReturnValue({})
-    currentOrganizationVar(null)
+    act(() => currentOrganizationVar(null))
     mockUseGetCurrentUserInfosQuery.mockReturnValue({
       data: undefined,
       loading: false,
@@ -53,7 +53,7 @@ describe('useCurrentUser — stale-cache refetch safety net', () => {
   })
 
   afterEach(() => {
-    currentOrganizationVar(null)
+    act(() => currentOrganizationVar(null))
   })
 
   // Regression for the t30-multi-org-redirect E2E failure: on a hard reload the

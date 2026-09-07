@@ -8,13 +8,19 @@ import {
   StatusTypeEnum,
   SubscriptionInformationFieldsFragment,
 } from '~/generated/graphql'
+import { preloadContextualLocale } from '~/hooks/core/useContextualLocale'
 import { render } from '~/test-utils'
+import { emptyBillingEntitiesMock } from '~/test-utils/fixtures/billingEntity'
 
 import {
   SubscriptionDetailAlerts,
   SubscriptionDowngradeAlert,
 } from '../SubscriptionInformationFields'
 import { SubscriptionInformations } from '../SubscriptionInformations'
+
+beforeEach(async () => {
+  await preloadContextualLocale('en')
+})
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -65,13 +71,17 @@ const baseSubscription = (
 
 describe('SubscriptionDowngradeAlert', () => {
   it('renders nothing when subscription is null', () => {
-    const { container } = render(<SubscriptionDowngradeAlert subscription={null} />)
+    const { container } = render(<SubscriptionDowngradeAlert subscription={null} />, {
+      mocks: [emptyBillingEntitiesMock],
+    })
 
     expect(container).toBeEmptyDOMElement()
   })
 
   it('renders nothing when no downgrade conditions are met', () => {
-    const { container } = render(<SubscriptionDowngradeAlert subscription={baseSubscription()} />)
+    const { container } = render(<SubscriptionDowngradeAlert subscription={baseSubscription()} />, {
+      mocks: [emptyBillingEntitiesMock],
+    })
 
     expect(container).toBeEmptyDOMElement()
   })
@@ -85,7 +95,9 @@ describe('SubscriptionDowngradeAlert', () => {
         downgradePlanDate: '2026-05-22',
       })
 
-      render(<SubscriptionDowngradeAlert subscription={subscription} />)
+      render(<SubscriptionDowngradeAlert subscription={subscription} />, {
+        mocks: [emptyBillingEntitiesMock],
+      })
 
       expect(screen.getByText('text_62681c60582e4f00aa82938a')).toBeInTheDocument()
     })
@@ -97,7 +109,9 @@ describe('SubscriptionDowngradeAlert', () => {
         downgradePlanDate: '2026-05-22',
       })
 
-      const { container } = render(<SubscriptionDowngradeAlert subscription={subscription} />)
+      const { container } = render(<SubscriptionDowngradeAlert subscription={subscription} />, {
+        mocks: [emptyBillingEntitiesMock],
+      })
 
       expect(container).toBeEmptyDOMElement()
     })
@@ -114,7 +128,9 @@ describe('SubscriptionDowngradeAlert', () => {
         } as SubscriptionInformationFieldsFragment['previousSubscription'],
       })
 
-      render(<SubscriptionDowngradeAlert subscription={subscription} />)
+      render(<SubscriptionDowngradeAlert subscription={subscription} />, {
+        mocks: [emptyBillingEntitiesMock],
+      })
 
       expect(screen.getByText('text_1776951742342o96gqg8qg8j')).toBeInTheDocument()
     })
@@ -129,7 +145,9 @@ describe('SubscriptionDowngradeAlert', () => {
         } as SubscriptionInformationFieldsFragment['previousSubscription'],
       })
 
-      const { container } = render(<SubscriptionDowngradeAlert subscription={subscription} />)
+      const { container } = render(<SubscriptionDowngradeAlert subscription={subscription} />, {
+        mocks: [emptyBillingEntitiesMock],
+      })
 
       expect(container).toBeEmptyDOMElement()
     })
@@ -149,7 +167,9 @@ describe('SubscriptionDowngradeAlert', () => {
         } as SubscriptionInformationFieldsFragment['previousSubscription'],
       })
 
-      render(<SubscriptionDowngradeAlert subscription={subscription} />)
+      render(<SubscriptionDowngradeAlert subscription={subscription} />, {
+        mocks: [emptyBillingEntitiesMock],
+      })
 
       expect(screen.getByText('text_62681c60582e4f00aa82938a')).toBeInTheDocument()
       expect(screen.queryByText('text_1776951742342o96gqg8qg8j')).not.toBeInTheDocument()
@@ -163,6 +183,7 @@ describe('SubscriptionDetailAlerts', () => {
       <SubscriptionDetailAlerts
         subscription={baseSubscription({ status: StatusTypeEnum.Incomplete })}
       />,
+      { mocks: [emptyBillingEntitiesMock] },
     )
 
     expect(screen.getByText('text_1779882021466ft5t6uhchje')).toBeInTheDocument()
@@ -176,6 +197,7 @@ describe('SubscriptionDetailAlerts', () => {
           cancellationReason: CancellationReasonEnum.Timeout,
         })}
       />,
+      { mocks: [emptyBillingEntitiesMock] },
     )
 
     expect(screen.getByText('text_17798820214667pspf9fl978')).toBeInTheDocument()
@@ -197,6 +219,7 @@ describe('SubscriptionDetailAlerts', () => {
           ],
         })}
       />,
+      { mocks: [emptyBillingEntitiesMock] },
     )
 
     expect(screen.getByText('text_17798820214667pspf9fl978')).toBeInTheDocument()
@@ -220,6 +243,7 @@ describe('SubscriptionInformations payment activation fields', () => {
           ],
         })}
       />,
+      { mocks: [emptyBillingEntitiesMock] },
     )
 
     expect(screen.getByText('text_1779882021466qvd6vq3z01j')).toBeInTheDocument()

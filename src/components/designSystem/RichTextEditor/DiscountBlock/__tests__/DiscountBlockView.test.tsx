@@ -2,6 +2,7 @@ import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { NodeViewProps } from '@tiptap/react'
 
+import { preloadContextualLocale } from '~/hooks/core/useContextualLocale'
 import { render } from '~/test-utils'
 
 import {
@@ -80,6 +81,10 @@ const renderDiscountBlockView = ({
     onDiscountCommand,
   }
 }
+
+beforeEach(async () => {
+  await preloadContextualLocale('en')
+})
 
 describe('DiscountBlockView', () => {
   beforeEach(() => {

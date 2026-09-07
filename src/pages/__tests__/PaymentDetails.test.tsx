@@ -9,6 +9,7 @@ import {
   PaymentTypeEnum,
   ProviderTypeEnum,
 } from '~/generated/graphql'
+import { preloadContextualLocale } from '~/hooks/core/useContextualLocale'
 import { render } from '~/test-utils'
 
 import PaymentDetails from '../PaymentDetails'
@@ -128,6 +129,10 @@ jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
   useGetPaymentDetailsQuery: () => mockUseGetPaymentDetailsQuery(),
 }))
+
+beforeEach(async () => {
+  await preloadContextualLocale('en')
+})
 
 describe('PaymentDetails', () => {
   beforeEach(() => {

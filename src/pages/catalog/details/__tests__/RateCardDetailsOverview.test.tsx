@@ -46,6 +46,7 @@ const attachedRateCard: RateCardForDetailsOverviewFragment = {
   name: 'Standard rate card',
   code: 'standard_rate_card',
   description: 'The standard rate card',
+  invoiceDisplayName: null,
   currency: 'USD',
   appliedPricingUnitCode: null,
   billingTiming: RateCardBillingTimingEnum.Arrears,
@@ -60,7 +61,9 @@ const attachedRateCard: RateCardForDetailsOverviewFragment = {
     id: 'pitem-1',
     name: 'Seats',
     code: 'seats',
+    invoiceDisplayName: null,
     productType: 'usage',
+    productCategory: null,
     billableMetric: {
       __typename: 'BillableMetric',
       id: 'bm-1',

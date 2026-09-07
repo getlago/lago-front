@@ -9,6 +9,7 @@ import FormDialog from '~/components/dialogs/FormDialog'
 import { LocalUsageChargeInput } from '~/components/plans/types'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import {
+  AggregationTypeEnum,
   ChargeCreateInput,
   ChargeModelEnum,
   CreateChargeDocument,
@@ -55,6 +56,7 @@ const buildCharge = (overrides: Partial<LocalUsageChargeInput> = {}): LocalUsage
 const chargeResult = {
   __typename: 'Charge' as const,
   id: 'ch_1',
+  code: 'api_calls',
   chargeModel: ChargeModelEnum.Standard,
   invoiceDisplayName: null,
   invoiceable: true,
@@ -62,7 +64,12 @@ const chargeResult = {
   prorated: false,
   minAmountCents: '0',
   regroupPaidFees: null,
-  properties: { amount: '10' },
+  properties: {
+    amount: '10',
+    graduatedRanges: null,
+    graduatedPercentageRanges: null,
+    volumeRanges: null,
+  },
   filters: [],
   appliedPricingUnit: null,
   taxes: [],
@@ -71,6 +78,7 @@ const chargeResult = {
     id: 'bm_1',
     name: 'API calls',
     code: 'api_calls',
+    aggregationType: AggregationTypeEnum.CountAgg,
     recurring: false,
     filters: [],
   },
@@ -239,7 +247,9 @@ describe('useChargeMutationsWithCascade', () => {
       { wrapper: wrapper([]) },
     )
 
-    void result.current.handleSaveCharge(buildCharge(), null)
+    act(() => {
+      void result.current.handleSaveCharge(buildCharge(), null)
+    })
 
     await waitFor(() => {
       expect(document.body.textContent).toContain('text_1729604107534r3hsj7i64gp')
@@ -257,7 +267,9 @@ describe('useChargeMutationsWithCascade', () => {
       { wrapper: wrapper([]) },
     )
 
-    void result.current.handleDeleteCharge('ch_to_delete')
+    act(() => {
+      void result.current.handleDeleteCharge('ch_to_delete')
+    })
 
     await waitFor(() => {
       expect(document.body.textContent).toContain('text_1729604107534r3hsj7i64gp')

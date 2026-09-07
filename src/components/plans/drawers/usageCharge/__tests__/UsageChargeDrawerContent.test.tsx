@@ -127,6 +127,13 @@ const mockForm = {
   getFieldValue: mockGetFieldValue,
   store: mockCreateStore(mockDefaultFormValues),
   state: { values: mockDefaultFormValues },
+  Subscribe: <T,>({
+    selector,
+    children,
+  }: {
+    selector: (state: { canSubmit: boolean; isSubmitting: boolean }) => T
+    children: (value: T) => React.ReactNode
+  }) => children(selector({ canSubmit: true, isSubmitting: false })),
   AppField: ({
     children,
     name,

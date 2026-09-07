@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react'
 
 import { RoleItem } from '~/core/constants/roles'
 import { PermissionEnum } from '~/generated/graphql'
+import { preloadContextualLocale } from '~/hooks/core/useContextualLocale'
 
 import RoleTypeChip from '../RoleTypeChip'
 
@@ -17,6 +18,10 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
     },
   }),
 }))
+
+beforeEach(async () => {
+  await preloadContextualLocale('en')
+})
 
 describe('RoleTypeChip', () => {
   it('renders null when role is undefined', () => {

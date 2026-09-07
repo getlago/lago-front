@@ -1,5 +1,5 @@
 import { MockedResponse } from '@apollo/client/testing'
-import { act, screen, waitFor } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import {
@@ -200,9 +200,7 @@ describe('SubscriptionProgressiveBillingTabThresholdsHeader', () => {
         />,
       )
 
-      await act(async () => {
-        await user.click(screen.getByTestId(PROGRESSIVE_BILLING_MENU_BUTTON_TEST_ID))
-      })
+      await user.click(screen.getByTestId(PROGRESSIVE_BILLING_MENU_BUTTON_TEST_ID))
 
       await waitFor(() => {
         expect(screen.getByTestId(PROGRESSIVE_BILLING_EDIT_BUTTON_TEST_ID)).toBeInTheDocument()
@@ -218,9 +216,7 @@ describe('SubscriptionProgressiveBillingTabThresholdsHeader', () => {
         />,
       )
 
-      await act(async () => {
-        await user.click(screen.getByTestId(PROGRESSIVE_BILLING_MENU_BUTTON_TEST_ID))
-      })
+      await user.click(screen.getByTestId(PROGRESSIVE_BILLING_MENU_BUTTON_TEST_ID))
 
       await waitFor(() => {
         expect(screen.getByTestId(PROGRESSIVE_BILLING_RESET_BUTTON_TEST_ID)).toBeInTheDocument()
@@ -236,9 +232,7 @@ describe('SubscriptionProgressiveBillingTabThresholdsHeader', () => {
         />,
       )
 
-      await act(async () => {
-        await user.click(screen.getByTestId(PROGRESSIVE_BILLING_MENU_BUTTON_TEST_ID))
-      })
+      await user.click(screen.getByTestId(PROGRESSIVE_BILLING_MENU_BUTTON_TEST_ID))
 
       await waitFor(() => {
         expect(screen.getByTestId(PROGRESSIVE_BILLING_EDIT_BUTTON_TEST_ID)).toBeInTheDocument()
@@ -256,9 +250,7 @@ describe('SubscriptionProgressiveBillingTabThresholdsHeader', () => {
         />,
       )
 
-      await act(async () => {
-        await user.click(screen.getByTestId(PROGRESSIVE_BILLING_MENU_BUTTON_TEST_ID))
-      })
+      await user.click(screen.getByTestId(PROGRESSIVE_BILLING_MENU_BUTTON_TEST_ID))
 
       await waitFor(() => {
         const toggleButton = screen.getByTestId(PROGRESSIVE_BILLING_TOGGLE_BUTTON_TEST_ID)
@@ -276,9 +268,7 @@ describe('SubscriptionProgressiveBillingTabThresholdsHeader', () => {
         />,
       )
 
-      await act(async () => {
-        await user.click(screen.getByTestId(PROGRESSIVE_BILLING_MENU_BUTTON_TEST_ID))
-      })
+      await user.click(screen.getByTestId(PROGRESSIVE_BILLING_MENU_BUTTON_TEST_ID))
 
       await waitFor(() => {
         const toggleButton = screen.getByTestId(PROGRESSIVE_BILLING_TOGGLE_BUTTON_TEST_ID)
@@ -300,17 +290,13 @@ describe('SubscriptionProgressiveBillingTabThresholdsHeader', () => {
         />,
       )
 
-      await act(async () => {
-        await user.click(screen.getByTestId(PROGRESSIVE_BILLING_MENU_BUTTON_TEST_ID))
-      })
+      await user.click(screen.getByTestId(PROGRESSIVE_BILLING_MENU_BUTTON_TEST_ID))
 
       await waitFor(() => {
         expect(screen.getByTestId(PROGRESSIVE_BILLING_EDIT_BUTTON_TEST_ID)).toBeInTheDocument()
       })
 
-      await act(async () => {
-        await user.click(screen.getByTestId(PROGRESSIVE_BILLING_EDIT_BUTTON_TEST_ID))
-      })
+      await user.click(screen.getByTestId(PROGRESSIVE_BILLING_EDIT_BUTTON_TEST_ID))
 
       expect(testMockNavigateFn).toHaveBeenCalled()
     })
@@ -328,20 +314,19 @@ describe('SubscriptionProgressiveBillingTabThresholdsHeader', () => {
         { mocks },
       )
 
-      await act(async () => {
-        await user.click(screen.getByTestId(PROGRESSIVE_BILLING_MENU_BUTTON_TEST_ID))
-      })
+      await user.click(screen.getByTestId(PROGRESSIVE_BILLING_MENU_BUTTON_TEST_ID))
 
       await waitFor(() => {
         expect(screen.getByTestId(PROGRESSIVE_BILLING_TOGGLE_BUTTON_TEST_ID)).toBeInTheDocument()
       })
 
-      await act(async () => {
-        await user.click(screen.getByTestId(PROGRESSIVE_BILLING_TOGGLE_BUTTON_TEST_ID))
-      })
+      await user.click(screen.getByTestId(PROGRESSIVE_BILLING_TOGGLE_BUTTON_TEST_ID))
 
-      // Menu closes after clicking toggle - verify header is still visible (no crash)
+      // Wait for mutation completion to close the menu.
       await waitFor(() => {
+        expect(
+          screen.queryByTestId(PROGRESSIVE_BILLING_TOGGLE_BUTTON_TEST_ID),
+        ).not.toBeInTheDocument()
         expect(screen.getByText('text_17696267549792unv7l25frt')).toBeInTheDocument()
       })
     })
