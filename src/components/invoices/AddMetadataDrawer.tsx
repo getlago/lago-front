@@ -13,6 +13,7 @@ import { TextInputField } from '~/components/form'
 import { addToast } from '~/core/apolloClient'
 import { MetadataErrorsEnum, metadataSchema } from '~/formValidation/metadataSchema'
 import {
+  LagoApiError,
   UpdateInvoiceInput,
   useGetInvoiceMetadataForEditionQuery,
   useUpdateInvoiceMetadataMutation,
@@ -64,6 +65,7 @@ export const AddMetadataDrawer = forwardRef<DrawerRef, AddMetadataDrawerProps>(
         id: invoiceId || '',
       },
       skip: !invoiceId,
+      context: { silentErrorCodes: [LagoApiError.NotFound] },
     })
 
     const isEdition = !!data?.invoice?.metadata?.length
