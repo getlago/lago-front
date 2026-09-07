@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useStore } from '@tanstack/react-form'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'
@@ -87,7 +87,6 @@ export const FixedChargesSection = ({
   const hasAnyFixedCharge = !!fixedCharges.length
   const { openRemoveChargeWarningDialog } = useRemoveChargeWarningDialog()
   const fixedChargeDrawerRef = useRef<FixedChargeDrawerRef>(null)
-  const [alreadyUsedAddOnIds, setAlreadyUsedAddOnIds] = useState<Map<string, number>>(new Map())
 
   const handleDrawerSave = useCallback(
     (charge: LocalFixedChargeInput, index: number | null) => {
@@ -113,16 +112,17 @@ export const FixedChargesSection = ({
     [form],
   )
 
-  useEffect(() => {
-    setAlreadyUsedAddOnIds(
-      fixedCharges?.reduce((prev, curr) => {
-        const id = curr.addOn.id
+  const alreadyUsedAddOnIds = useMemo(() => {
+    const counts = new Map<string, number>()
 
-        return prev.set(id, (prev.get(id) || 0) + 1)
-      }, new Map()),
-    )
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fixedCharges?.length])
+    for (const charge of fixedCharges) {
+      const id = charge.addOn.id
+
+      counts.set(id, (counts.get(id) ?? 0) + 1)
+    }
+
+    return counts
+  }, [fixedCharges])
 
   const isAnnual = [PlanInterval.Semiannual, PlanInterval.Yearly].includes(interval)
 
