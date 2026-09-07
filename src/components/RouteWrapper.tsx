@@ -96,8 +96,6 @@ export const RouteWrapper = () => {
   const navigate = useNavigate()
   const { mainRouterUrl, setMainRouterUrl } = useDeveloperTool()
 
-  // Browser URL → devtools panel. Mounted here because RouteWrapper is the single
-  // stable host inside the BrowserRouter.
   useDevtoolTabParam()
 
   // Clear all open drawers on browser navigation (back/forward buttons)
