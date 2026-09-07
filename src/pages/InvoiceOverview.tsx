@@ -28,6 +28,7 @@ import {
 } from '~/core/constants/externalUrls'
 import { CustomerInvoiceDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CUSTOMER_INVOICE_DETAILS_ROUTE, Link } from '~/core/router'
+import { formattedDateWithTimezone } from '~/core/timezone/utils'
 import { isProductionAppEnv } from '~/core/utils/appEnv'
 import {
   AllInvoiceDetailsForCustomerInvoiceDetailsFragment,
@@ -53,7 +54,6 @@ import {
   useGetInvoiceNumberQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useFormatterDateHelper } from '~/hooks/helpers/useFormatterDateHelper'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { SectionHeader } from '~/styles/customer'
 import { tw } from '~/styles/utils'
@@ -393,7 +393,6 @@ const InvoiceOverview = memo(
     customer,
     fees,
   }: InvoiceOverviewProps) => {
-    const { formattedDateWithTimezone } = useFormatterDateHelper()
     const { translate } = useInternationalization()
     const { invoiceId } = useParams()
 

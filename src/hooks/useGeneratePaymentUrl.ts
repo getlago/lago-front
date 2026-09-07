@@ -4,12 +4,10 @@ import {
   hasDefinedGQLError,
   PspErrorCode,
 } from '~/core/apolloClient'
+import { openNewTab } from '~/core/utils/downloadFile'
 import { LagoApiError, useGeneratePaymentUrlMutation } from '~/generated/graphql'
-import { useDownloadFile } from '~/hooks/useDownloadFile'
 
 export const useGeneratePaymentUrl = () => {
-  const { openNewTab } = useDownloadFile()
-
   const [generatePaymentUrl] = useGeneratePaymentUrlMutation({
     context: {
       silentErrorCodes: [LagoApiError.UnprocessableEntity, PspErrorCode.ThirdPartyError],

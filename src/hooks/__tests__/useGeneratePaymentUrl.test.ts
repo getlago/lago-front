@@ -6,10 +6,8 @@ import { AllTheProviders } from '~/test-utils'
 
 const mockOpenNewTab = jest.fn()
 
-jest.mock('~/hooks/useDownloadFile', () => ({
-  useDownloadFile: () => ({
-    openNewTab: mockOpenNewTab,
-  }),
+jest.mock('~/core/utils/downloadFile', () => ({
+  openNewTab: (...args: unknown[]) => mockOpenNewTab(...args),
 }))
 
 const mockGeneratePaymentUrl = jest.fn()

@@ -49,10 +49,8 @@ jest.mock('~/hooks/useCurrentUser', () => ({
   })),
 }))
 
-jest.mock('~/hooks/useDownloadFile', () => ({
-  useDownloadFile: jest.fn(() => ({
-    handleDownloadFile: jest.fn(),
-  })),
+jest.mock('~/core/utils/downloadFile', () => ({
+  handleDownloadFile: jest.fn(),
 }))
 
 const mockNavigate = jest.fn()
