@@ -1,6 +1,7 @@
 import { act, waitFor } from '@testing-library/react'
+import { StrictMode } from 'react'
 // eslint-disable-next-line lago/no-direct-rrd-nav-import
-import { useLocation } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom'
 
 import { initializeYup } from '~/formValidation/initializeYup'
 import { IntegrationTypeEnum } from '~/generated/graphql'
@@ -110,11 +111,11 @@ const XERO_INTEGRATION_CUSTOMER = {
 }
 
 describe('CustomerDetails', () => {
-  const mockStartPolling = jest.fn()
-  const mockStopPolling = jest.fn()
+  const mockRefetch = jest.fn()
 
   beforeEach(() => {
     jest.clearAllMocks()
+    jest.mocked(useParams).mockReturnValue({ customerId: 'test-customer-id', tab: 'overview' })
 
     mockUseGetCustomerQuery.mockReturnValue({
       data: {
@@ -128,272 +129,321 @@ describe('CustomerDetails', () => {
           currency: 'USD',
           applicableTimezone: 'UTC',
           accountType: 'standard',
+          integrationCustomers: [],
         },
       },
       loading: false,
       error: undefined,
-      startPolling: mockStartPolling,
-      stopPolling: mockStopPolling,
+      refetch: mockRefetch,
     })
   })
 
   describe('Integration polling', () => {
-    it('should start polling when shouldPollIntegrations is true and no integrations exist', async () => {
+    const pathname = '/acme/customers/test-customer-id/information'
+
+    const advancePolling = async (milliseconds = 1000): Promise<void> => {
+      await act(async () => {
+        await jest.advanceTimersByTimeAsync(milliseconds)
+      })
+    }
+
+    beforeEach(() => {
+      jest.useFakeTimers()
+      jest.mocked(useParams).mockReturnValue({
+        customerId: 'test-customer-id',
+        organizationSlug: 'acme',
+        tab: 'information',
+      })
       jest.mocked(useLocation).mockReturnValue({
-        pathname: '/customers/test-customer-id/information',
+        pathname,
         state: { shouldPollIntegrations: true },
         search: '',
         hash: '',
-        key: 'default',
+        key: 'polling-visit',
+      })
+      mockRefetch.mockReset()
+      mockRefetch.mockResolvedValue({ data: mockUseGetCustomerQuery().data })
+    })
+
+    afterEach(() => {
+      jest.useRealTimers()
+    })
+
+    it('counts three identical completed polls without consuming attempts on rerenders', async () => {
+      const { rerender } = render(<CustomerDetails />)
+
+      for (let renderCount = 0; renderCount < 5; renderCount += 1) {
+        rerender(<CustomerDetails />)
+      }
+
+      expect(mockRefetch).not.toHaveBeenCalled()
+      expect(mockNavigate).not.toHaveBeenCalled()
+
+      for (let pollCount = 1; pollCount < 3; pollCount += 1) {
+        await advancePolling()
+        expect(mockRefetch).toHaveBeenCalledTimes(pollCount)
+        expect(mockNavigate).not.toHaveBeenCalled()
+        rerender(<CustomerDetails />)
+      }
+
+      await advancePolling()
+      expect(mockRefetch).toHaveBeenCalledTimes(3)
+      expect(mockNavigate).toHaveBeenCalledTimes(1)
+      expect(mockNavigate).toHaveBeenCalledWith(pathname, {
+        replace: true,
+        state: {},
       })
 
+      rerender(<CustomerDetails />)
+      await advancePolling(10_000)
+      expect(mockRefetch).toHaveBeenCalledTimes(3)
+      expect(mockNavigate).toHaveBeenCalledTimes(1)
+    })
+
+    it('waits for the initial query without counting it as a poll', async () => {
+      const initialResult = mockUseGetCustomerQuery()
+
+      mockUseGetCustomerQuery.mockReturnValue({ ...initialResult, data: undefined, loading: true })
+      const { rerender } = render(<CustomerDetails />)
+
+      await advancePolling(5000)
+      expect(mockRefetch).not.toHaveBeenCalled()
+      expect(mockNavigate).not.toHaveBeenCalled()
+
+      mockUseGetCustomerQuery.mockReturnValue(initialResult)
+      rerender(<CustomerDetails />)
+      await advancePolling(2000)
+      expect(mockRefetch).toHaveBeenCalledTimes(2)
+      expect(mockNavigate).not.toHaveBeenCalled()
+      await advancePolling()
+      expect(mockRefetch).toHaveBeenCalledTimes(3)
+      expect(mockNavigate).toHaveBeenCalledTimes(1)
+    })
+
+    it('stops without polling when the initial query returns an integration', async () => {
+      const initialResult = mockUseGetCustomerQuery()
+
+      mockUseGetCustomerQuery.mockReturnValue({ ...initialResult, data: undefined, loading: true })
+      const { rerender } = render(<CustomerDetails />)
+
+      await advancePolling()
       mockUseGetCustomerQuery.mockReturnValue({
+        ...initialResult,
         data: {
           customer: {
-            id: 'test-customer-id',
-            displayName: 'Test Customer',
-            externalId: 'ext-123',
-            hasOverdueInvoices: false,
-            hasActiveWallet: false,
-            hasCreditNotes: false,
-            currency: 'USD',
-            applicableTimezone: 'UTC',
-            accountType: 'standard',
-            integrationCustomers: [],
-          },
-        },
-        loading: false,
-        error: undefined,
-        startPolling: mockStartPolling,
-        stopPolling: mockStopPolling,
-      })
-
-      await act(async () => {
-        render(<CustomerDetails />)
-      })
-
-      await waitFor(() => {
-        expect(mockStartPolling).toHaveBeenCalledWith(1000)
-      })
-    })
-
-    it('should not start polling when shouldPollIntegrations is false', async () => {
-      jest.mocked(useLocation).mockReturnValue({
-        pathname: '/customers/test-customer-id/information',
-        state: { shouldPollIntegrations: false },
-        search: '',
-        hash: '',
-        key: 'default',
-      })
-
-      await act(async () => {
-        render(<CustomerDetails />)
-      })
-
-      // Wait a tick to ensure effects have run
-      await waitFor(() => {
-        expect(mockStartPolling).not.toHaveBeenCalled()
-      })
-    })
-
-    it('should not start polling when shouldPollIntegrations is not present in state', async () => {
-      jest.mocked(useLocation).mockReturnValue({
-        pathname: '/customers/test-customer-id/information',
-        state: null,
-        search: '',
-        hash: '',
-        key: 'default',
-      })
-
-      await act(async () => {
-        render(<CustomerDetails />)
-      })
-
-      await waitFor(() => {
-        expect(mockStartPolling).not.toHaveBeenCalled()
-      })
-    })
-
-    it('should not start polling when integrations already exist at mount', async () => {
-      jest.mocked(useLocation).mockReturnValue({
-        pathname: '/customers/test-customer-id/information',
-        state: { shouldPollIntegrations: true },
-        search: '',
-        hash: '',
-        key: 'default',
-      })
-
-      mockUseGetCustomerQuery.mockReturnValue({
-        data: {
-          customer: {
-            id: 'test-customer-id',
-            displayName: 'Test Customer',
-            externalId: 'ext-123',
-            hasOverdueInvoices: false,
-            hasActiveWallet: false,
-            hasCreditNotes: false,
-            currency: 'USD',
-            applicableTimezone: 'UTC',
-            accountType: 'standard',
+            ...initialResult.data.customer,
             integrationCustomers: [NETSUITE_INTEGRATION_CUSTOMER],
           },
         },
-        loading: false,
-        error: undefined,
-        startPolling: mockStartPolling,
-        stopPolling: mockStopPolling,
       })
-
-      await act(async () => {
-        render(<CustomerDetails />)
-      })
-
-      // startPolling should NOT be called because integrations already exist
-      expect(mockStartPolling).not.toHaveBeenCalled()
-
-      // But stopPolling and navigate should be called to clean up the state
-      await waitFor(() => {
-        expect(mockStopPolling).toHaveBeenCalled()
-      })
+      rerender(<CustomerDetails />)
+      await advancePolling(5000)
+      expect(mockRefetch).not.toHaveBeenCalled()
+      expect(mockNavigate).toHaveBeenCalledTimes(1)
+      expect(mockNavigate).toHaveBeenCalledWith(pathname, { replace: true, state: {} })
     })
 
-    it('should stop polling and clear state when integrations are loaded', async () => {
+    it('keeps a single polling loop when StrictMode replays effects', async () => {
+      render(
+        <StrictMode>
+          <CustomerDetails />
+        </StrictMode>,
+      )
+      await advancePolling(3000)
+      expect(mockRefetch).toHaveBeenCalledTimes(3)
+      expect(mockNavigate).toHaveBeenCalledTimes(1)
+    })
+
+    it.each([false, undefined])('does not poll when the navigation flag is %s', async (flag) => {
       jest.mocked(useLocation).mockReturnValue({
-        pathname: '/customers/test-customer-id/information',
-        state: { shouldPollIntegrations: true },
-        search: '',
-        hash: '',
-        key: 'default',
+        ...useLocation(),
+        state: flag === undefined ? null : { shouldPollIntegrations: flag },
       })
+      render(<CustomerDetails />)
+      await advancePolling(5000)
+      expect(mockRefetch).not.toHaveBeenCalled()
+      expect(mockNavigate).not.toHaveBeenCalled()
+    })
 
-      mockUseGetCustomerQuery.mockReturnValue({
-        data: {
-          customer: {
-            id: 'test-customer-id',
-            displayName: 'Test Customer',
-            externalId: 'ext-123',
-            hasOverdueInvoices: false,
-            hasActiveWallet: false,
-            hasCreditNotes: false,
-            currency: 'USD',
-            applicableTimezone: 'UTC',
-            accountType: 'standard',
-            integrationCustomers: [NETSUITE_INTEGRATION_CUSTOMER],
+    it.each([
+      ['NetsuiteCustomer', IntegrationTypeEnum.Netsuite],
+      ['AnrokCustomer', IntegrationTypeEnum.Anrok],
+      ['AvalaraCustomer', IntegrationTypeEnum.Avalara],
+      ['XeroCustomer', IntegrationTypeEnum.Xero],
+      ['HubspotCustomer', IntegrationTypeEnum.Hubspot],
+      ['SalesforceCustomer', IntegrationTypeEnum.Salesforce],
+    ])(
+      'clears the slug-prefixed route state when %s already exists',
+      async (__typename, integrationType) => {
+        const initialResult = mockUseGetCustomerQuery()
+
+        mockUseGetCustomerQuery.mockReturnValue({
+          ...initialResult,
+          data: {
+            customer: {
+              ...initialResult.data.customer,
+              integrationCustomers: [{ __typename, id: 'integration-id', integrationType }],
+            },
           },
-        },
-        loading: false,
-        error: undefined,
-        startPolling: mockStartPolling,
-        stopPolling: mockStopPolling,
-      })
-
-      await act(async () => {
+        })
         render(<CustomerDetails />)
-      })
-
-      await waitFor(() => {
-        expect(mockStopPolling).toHaveBeenCalled()
-      })
-
-      await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith('/customers/test-customer-id/information', {
+        await advancePolling(5000)
+        expect(mockRefetch).not.toHaveBeenCalled()
+        expect(mockNavigate).toHaveBeenCalledTimes(1)
+        expect(mockNavigate).toHaveBeenCalledWith(pathname, {
           replace: true,
           state: {},
         })
-      })
-    })
+      },
+    )
 
-    it('should stop polling when any integration customer exists', async () => {
-      jest.mocked(useLocation).mockReturnValue({
-        pathname: '/customers/test-customer-id/information',
-        state: { shouldPollIntegrations: true },
-        search: '',
-        hash: '',
-        key: 'default',
-      })
-
-      mockUseGetCustomerQuery.mockReturnValue({
+    it('stops when an integration appears in a completed poll', async () => {
+      mockRefetch.mockResolvedValueOnce({
         data: {
           customer: {
-            id: 'test-customer-id',
-            displayName: 'Test Customer',
-            externalId: 'ext-123',
-            hasOverdueInvoices: false,
-            hasActiveWallet: false,
-            hasCreditNotes: false,
-            currency: 'USD',
-            applicableTimezone: 'UTC',
-            accountType: 'standard',
+            ...mockUseGetCustomerQuery().data.customer,
             integrationCustomers: [XERO_INTEGRATION_CUSTOMER],
           },
         },
-        loading: false,
-        error: undefined,
-        startPolling: mockStartPolling,
-        stopPolling: mockStopPolling,
       })
-
-      await act(async () => {
-        render(<CustomerDetails />)
+      render(<CustomerDetails />)
+      await advancePolling()
+      expect(mockNavigate).toHaveBeenCalledTimes(1)
+      expect(mockNavigate).toHaveBeenCalledWith(pathname, {
+        replace: true,
+        state: {},
       })
-
-      await waitFor(() => {
-        expect(mockStopPolling).toHaveBeenCalled()
-      })
+      await advancePolling(5000)
+      expect(mockRefetch).toHaveBeenCalledTimes(1)
     })
 
-    it('should call stopPolling on component unmount', async () => {
+    it('does not overlap requests or count a pending request as completed', async () => {
+      let completePoll!: (result: unknown) => void
+
+      mockRefetch.mockReturnValueOnce(
+        new Promise((resolve) => {
+          completePoll = resolve
+        }),
+      )
+      const { rerender } = render(<CustomerDetails />)
+
+      await advancePolling(10_000)
+      expect(mockRefetch).toHaveBeenCalledTimes(1)
+      expect(mockNavigate).not.toHaveBeenCalled()
+      const initialResult = mockUseGetCustomerQuery()
+
+      mockUseGetCustomerQuery.mockReturnValue({ ...initialResult, loading: true })
+      rerender(<CustomerDetails />)
+      mockUseGetCustomerQuery.mockReturnValue(initialResult)
+      rerender(<CustomerDetails />)
+      await act(async () => {
+        completePoll({ data: initialResult.data })
+      })
+      await advancePolling()
+      expect(mockRefetch).toHaveBeenCalledTimes(2)
+      expect(mockNavigate).not.toHaveBeenCalled()
+      await advancePolling()
+      expect(mockNavigate).toHaveBeenCalledTimes(1)
+    })
+
+    it('bounds rejected refetches and clears state after the third failure', async () => {
+      mockRefetch.mockRejectedValue(new Error('Network unavailable'))
+      render(<CustomerDetails />)
+      await advancePolling(2000)
+      expect(mockNavigate).not.toHaveBeenCalled()
+      await advancePolling()
+      expect(mockRefetch).toHaveBeenCalledTimes(3)
+      expect(mockNavigate).toHaveBeenCalledTimes(1)
+      await advancePolling(5000)
+      expect(mockRefetch).toHaveBeenCalledTimes(3)
+    })
+
+    it('cancels the scheduled poll on unmount', async () => {
+      const { unmount } = render(<CustomerDetails />)
+
+      unmount()
+      await advancePolling(5000)
+      expect(mockRefetch).not.toHaveBeenCalled()
+      expect(mockNavigate).not.toHaveBeenCalled()
+    })
+
+    it('ignores an in-flight completion after unmount', async () => {
+      let completePoll!: (result: unknown) => void
+
+      mockRefetch.mockReturnValueOnce(
+        new Promise((resolve) => {
+          completePoll = resolve
+        }),
+      )
+      const { unmount } = render(<CustomerDetails />)
+
+      await advancePolling()
+      unmount()
+      await act(async () => {
+        completePoll({
+          data: { customer: { integrationCustomers: [XERO_INTEGRATION_CUSTOMER] } },
+        })
+      })
+      await advancePolling(5000)
+      expect(mockRefetch).toHaveBeenCalledTimes(1)
+      expect(mockNavigate).not.toHaveBeenCalled()
+    })
+
+    it('cancels polling when navigation removes the flag', async () => {
+      const { rerender } = render(<CustomerDetails />)
+
+      await advancePolling()
+      jest.mocked(useLocation).mockReturnValue({ ...useLocation(), state: {} })
+      rerender(<CustomerDetails />)
+      await advancePolling(5000)
+      expect(mockRefetch).toHaveBeenCalledTimes(1)
+      expect(mockNavigate).not.toHaveBeenCalled()
+    })
+
+    it('ignores the previous customer response and resets attempts on a new route', async () => {
+      let completeOldPoll!: (result: unknown) => void
+
+      mockRefetch.mockReturnValueOnce(
+        new Promise((resolve) => {
+          completeOldPoll = resolve
+        }),
+      )
+      const { rerender } = render(<CustomerDetails />)
+
+      await advancePolling()
+      jest.mocked(useParams).mockReturnValue({
+        customerId: 'other-customer',
+        organizationSlug: 'other-org',
+        tab: 'information',
+      })
+      const nextPathname = '/other-org/customers/other-customer/information'
+
       jest.mocked(useLocation).mockReturnValue({
-        pathname: '/customers/test-customer-id/information',
-        state: { shouldPollIntegrations: true },
-        search: '',
-        hash: '',
-        key: 'default',
+        ...useLocation(),
+        pathname: nextPathname,
+        key: 'next-visit',
       })
-
-      mockUseGetCustomerQuery.mockReturnValue({
-        data: {
-          customer: {
-            id: 'test-customer-id',
-            displayName: 'Test Customer',
-            externalId: 'ext-123',
-            hasOverdueInvoices: false,
-            hasActiveWallet: false,
-            hasCreditNotes: false,
-            currency: 'USD',
-            applicableTimezone: 'UTC',
-            accountType: 'standard',
-            integrationCustomers: [],
+      rerender(<CustomerDetails />)
+      await act(async () => {
+        completeOldPoll({
+          data: {
+            customer: {
+              integrationCustomers: [{ ...XERO_INTEGRATION_CUSTOMER, id: 'old-integration' }],
+            },
           },
-        },
-        loading: false,
-        error: undefined,
-        startPolling: mockStartPolling,
-        stopPolling: mockStopPolling,
+        })
       })
-
-      let unmount: () => void
-
-      await act(async () => {
-        const result = render(<CustomerDetails />)
-
-        unmount = result.unmount
+      expect(mockNavigate).not.toHaveBeenCalled()
+      await advancePolling(2000)
+      expect(mockRefetch).toHaveBeenCalledTimes(3)
+      expect(mockNavigate).not.toHaveBeenCalled()
+      await advancePolling()
+      expect(mockRefetch).toHaveBeenCalledTimes(4)
+      expect(mockNavigate).toHaveBeenCalledTimes(1)
+      expect(mockNavigate).toHaveBeenCalledWith(nextPathname, {
+        replace: true,
+        state: {},
       })
-
-      // Wait for effects to run
-      await waitFor(() => {
-        expect(mockStartPolling).toHaveBeenCalled()
-      })
-
-      // Clear mock to isolate unmount behavior
-      mockStopPolling.mockClear()
-
-      await act(async () => {
-        unmount()
-      })
-
-      // stopPolling is called in cleanup
-      expect(mockStopPolling).toHaveBeenCalled()
     })
   })
 
@@ -413,8 +463,7 @@ describe('CustomerDetails', () => {
         data: undefined,
         loading: false,
         error: { graphQLErrors: [{ extensions: { code: 'not_found' } }] },
-        startPolling: mockStartPolling,
-        stopPolling: mockStopPolling,
+        refetch: mockRefetch,
       })
 
       await act(async () => {
@@ -457,8 +506,7 @@ describe('CustomerDetails', () => {
         },
         loading: false,
         error: undefined,
-        startPolling: mockStartPolling,
-        stopPolling: mockStopPolling,
+        refetch: mockRefetch,
       })
 
       await act(async () => {
@@ -484,8 +532,7 @@ describe('CustomerDetails', () => {
         data: undefined,
         loading: true,
         error: undefined,
-        startPolling: mockStartPolling,
-        stopPolling: mockStopPolling,
+        refetch: mockRefetch,
       })
 
       await act(async () => {

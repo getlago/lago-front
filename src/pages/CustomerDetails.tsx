@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useEffect, useRef } from 'react'
+import { ReactElement, useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { useAddCouponToCustomerDialog } from '~/components/customers/AddCouponToCustomerDialog'
@@ -15,6 +15,7 @@ import { CUSTOMERS_LIST_ROUTE, useLocation, useNavigate } from '~/core/router'
 import {
   AddCustomerDrawerFragmentDoc,
   CustomerMainInfosFragmentDoc,
+  GetCustomerQuery,
   LagoApiError,
   useGetCustomerQuery,
 } from '~/generated/graphql'
@@ -66,9 +67,11 @@ gql`
   ${CustomerMainInfosFragmentDoc}
 `
 
-const CustomerDetails = () => {
+const hasIntegrationCustomer = (customer: GetCustomerQuery['customer'] | undefined): boolean =>
+  !!customer?.integrationCustomers?.length
+
+const CustomerDetails = (): ReactElement => {
   const { openAddCouponToCustomerDialog } = useAddCouponToCustomerDialog()
-  const pollingAttemptsRef = useRef(0)
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const location = useLocation()
@@ -77,7 +80,7 @@ const CustomerDetails = () => {
   const shouldPollIntegrations = (location.state as { shouldPollIntegrations?: boolean })
     ?.shouldPollIntegrations
 
-  const { data, loading, error, startPolling, stopPolling } = useGetCustomerQuery({
+  const { data, loading, error, refetch } = useGetCustomerQuery({
     variables: { id: customerId as string },
     skip: !customerId,
     notifyOnNetworkStatusChange: true,
@@ -86,36 +89,78 @@ const CustomerDetails = () => {
   })
 
   const customer = data?.customer
-  const hasAnyIntegrationCustomer = !!customer?.integrationCustomers?.length
+  const pollingContextRef = useRef({ customer, loading, navigate })
 
-  // Start polling when coming from edit page with integrations (backend may process them async)
   useEffect(() => {
-    if (shouldPollIntegrations && !hasAnyIntegrationCustomer) {
-      pollingAttemptsRef.current = 0
-      startPolling(INTEGRATION_POLLING_INTERVAL)
+    pollingContextRef.current = { customer, loading, navigate }
+  }, [customer, loading, navigate])
+
+  useEffect(() => {
+    if (!shouldPollIntegrations || !customerId) return
+
+    let cancelled = false
+    let completedPolls = 0
+    let timeout: ReturnType<typeof setTimeout>
+
+    const finishPolling = (): void => {
+      pollingContextRef.current.navigate(location.pathname, { replace: true, state: {} })
+    }
+
+    const poll = async (): Promise<void> => {
+      const currentQuery = pollingContextRef.current
+
+      if (currentQuery.loading) {
+        timeout = setTimeout(() => void poll(), INTEGRATION_POLLING_INTERVAL)
+        return
+      }
+
+      if (
+        currentQuery.customer?.id === customerId &&
+        hasIntegrationCustomer(currentQuery.customer)
+      ) {
+        finishPolling()
+        return
+      }
+
+      let integrationFound = false
+
+      try {
+        const result = await refetch()
+
+        integrationFound = hasIntegrationCustomer(result.data.customer)
+      } catch {
+        // Apollo exposes refetch failures through the query's error state.
+      }
+
+      if (cancelled) return
+
+      completedPolls += 1
+
+      if (integrationFound || completedPolls >= MAX_INTEGRATION_POLLING_ATTEMPTS) {
+        finishPolling()
+        return
+      }
+
+      timeout = setTimeout(() => void poll(), INTEGRATION_POLLING_INTERVAL)
+    }
+
+    const initialCustomer = pollingContextRef.current.customer
+
+    if (
+      !pollingContextRef.current.loading &&
+      initialCustomer?.id === customerId &&
+      hasIntegrationCustomer(initialCustomer)
+    ) {
+      finishPolling()
+    } else {
+      timeout = setTimeout(() => void poll(), INTEGRATION_POLLING_INTERVAL)
     }
 
     return () => {
-      stopPolling()
+      cancelled = true
+      clearTimeout(timeout)
     }
-    // Only run on mount when shouldPollIntegrations is true
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shouldPollIntegrations])
-
-  // Stop polling when integrations are loaded or max attempts reached
-  useEffect(() => {
-    if (!shouldPollIntegrations) return
-
-    pollingAttemptsRef.current += 1
-
-    if (
-      hasAnyIntegrationCustomer ||
-      pollingAttemptsRef.current >= MAX_INTEGRATION_POLLING_ATTEMPTS
-    ) {
-      stopPolling()
-      navigate(location.pathname, { replace: true, state: {} })
-    }
-  }, [shouldPollIntegrations, hasAnyIntegrationCustomer, stopPolling, navigate, location.pathname])
+  }, [customerId, shouldPollIntegrations, refetch, location.pathname, location.key])
 
   useNotFoundRedirect({
     error,
