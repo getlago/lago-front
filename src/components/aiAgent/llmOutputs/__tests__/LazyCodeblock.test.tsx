@@ -56,4 +56,33 @@ describe('LazyCodeblock', () => {
     await act(async () => undefined)
     expect(screen.getByText(/highlighted:/)).toBeInTheDocument()
   })
+
+  it('preserves fallback DOM and retry focus across parent updates after import failure', async () => {
+    const { rerender } = render(
+      <LazyCodeblock blockMatch={createBlockMatch('```go\npackage main\n```')} />,
+    )
+    const retry = await screen.findByRole('button', { name: 'Retry' })
+    const plaintext = screen.getByText('package main')
+
+    retry.focus()
+    expect(retry).toHaveFocus()
+
+    rerender(<LazyCodeblock blockMatch={createBlockMatch('```go\npackage main\n```')} />)
+
+    expect(screen.getByRole('button', { name: 'Retry' })).toBe(retry)
+    expect(screen.getByText('package main')).toBe(plaintext)
+    expect(retry).toHaveFocus()
+
+    rerender(<LazyCodeblock blockMatch={createBlockMatch('```go\npackage updated\n```')} />)
+
+    expect(screen.getByRole('button', { name: 'Retry' })).toBe(retry)
+    expect(screen.getByText('package updated')).toBe(plaintext)
+    expect(retry).toHaveFocus()
+
+    mockFailImport = false
+    await userEvent.click(retry)
+
+    expect(await screen.findByText(/highlighted:/)).toHaveTextContent('package updated')
+    expect(screen.queryByRole('button', { name: 'Retry' })).not.toBeInTheDocument()
+  })
 })
