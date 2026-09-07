@@ -409,7 +409,7 @@ const ViewFeeDetailsBody = ({ fee }: { fee: FeeForViewFeeDetailsDrawerFragment }
   const hasBreakdowns = (fee.presentationBreakdowns?.length ?? 0) > 0
 
   return (
-    <MemoryRouter>
+    <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <div data-test={VIEW_FEE_DETAILS_DRAWER_TEST_ID}>
         <CenteredPage.SectionWrapper>
           <div>

@@ -43,7 +43,7 @@ export const AllTheProviders = ({
   !!useParams && jest.spyOn(Router, 'useParams').mockReturnValue(useParams)
 
   return (
-    <BrowserRouter basename="/">
+    <BrowserRouter basename="/" future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <MockedProvider addTypename={forceTypenames} mocks={mocks}>
         <ThemeProvider theme={theme}>
           <MainHeaderProvider>{children}</MainHeaderProvider>

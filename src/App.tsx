@@ -124,7 +124,10 @@ const App = () => {
                 <NiceModalProvider>
                   <QuotePdfProvider>
                     <PanelGroup direction="vertical" autoSaveId={DEVTOOL_AUTO_SAVE_ID}>
-                      <BrowserRouter basename="/">
+                      <BrowserRouter
+                        basename="/"
+                        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+                      >
                         <Panel id="app-panel-group">
                           <PanelGroup direction="horizontal">
                             <Panel id="app-panel">
@@ -137,7 +140,10 @@ const App = () => {
                         </Panel>
                         <ToastContainer />
                       </BrowserRouter>
-                      <MemoryRouter initialEntries={[DEVTOOL_ROUTE]}>
+                      <MemoryRouter
+                        initialEntries={[DEVTOOL_ROUTE]}
+                        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+                      >
                         <DevtoolsErrorBoundary>
                           <DevtoolsView />
                         </DevtoolsErrorBoundary>
