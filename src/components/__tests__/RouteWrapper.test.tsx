@@ -37,12 +37,6 @@ jest.mock('~/hooks/useDeveloperTool', () => ({
   }),
 }))
 
-jest.mock('~/hooks/auth/useIsAuthenticated', () => ({
-  useIsAuthenticated: () => ({
-    isAuthenticated: true,
-  }),
-}))
-
 jest.mock('~/hooks/core/useLocationHistory', () => ({
   useLocationHistory: () => ({
     onRouteEnter: jest.fn(),
