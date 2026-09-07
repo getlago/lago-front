@@ -3,35 +3,9 @@ import { ComponentType, lazy, LazyExoticComponent } from 'react'
 
 import { envGlobalVar } from '~/core/apolloClient/reactiveVars/envGlobalVar'
 import { reloadWithCacheBust } from '~/core/utils/reloadWithCacheBust'
+import { hasReloadedRecently, markReloaded } from '~/core/utils/staleAssetRecovery'
 
-const CHUNK_RELOAD_KEY = 'lago_chunk_reload'
-const RELOAD_COOLDOWN_MS = 10_000
 const CHUNK_LOAD_FINGERPRINT = 'chunk-load-failure'
-
-function hasReloadedRecently(): boolean {
-  try {
-    const timestamp = sessionStorage.getItem(CHUNK_RELOAD_KEY)
-
-    if (!timestamp) return false
-
-    return Date.now() - parseInt(timestamp, 10) < RELOAD_COOLDOWN_MS
-  } catch {
-    // Storage unavailable (blocked, partitioned, sandboxed iframe)
-    // Assume already reloaded to avoid infinite reload loop
-    return true
-  }
-}
-
-function markReloaded(): void {
-  try {
-    sessionStorage.setItem(CHUNK_RELOAD_KEY, Date.now().toString())
-  } catch {
-    // Storage became unavailable after hasAlreadyReloaded() check.
-    // In environments where sessionStorage is always unavailable,
-    // hasAlreadyReloaded() returns true and we never reach the reload path,
-    // so users see the fallback toast instead of an automatic reload.
-  }
-}
 
 function showPersistentToast(): void {
   import('~/core/apolloClient/reactiveVars/toastVar')

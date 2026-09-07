@@ -7,6 +7,8 @@ import { envGlobalVar } from '~/core/apolloClient'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
 import { reportMissingAppEnv } from '~/core/utils/appEnv'
 import { installLagoWindowApi } from '~/core/utils/featureFlagsConsole'
+import { reloadWithCacheBust } from '~/core/utils/reloadWithCacheBust'
+import { hasReloadedRecently, markReloaded } from '~/core/utils/staleAssetRecovery'
 
 import './main.css'
 
@@ -85,6 +87,38 @@ window.addEventListener('vite:preloadError', (event) => {
       appVersion,
     },
   })
+})
+
+// A web worker (e.g. ace-builds' JSON linter) loads its script via
+// `importScripts` inside a blob URL. After a deploy re-hashes `/assets/*`, a
+// tab that's still open can point that call at a filename that no longer
+// exists — same stale-bundle failure the router's chunk `retry()` handles,
+// but this one throws inside the worker's own global scope, so no React
+// error boundary or route-level retry ever sees it. Recover the same way:
+// cache-bust reload once, then stop trying so we can't loop.
+const WORKER_IMPORT_SCRIPTS_FAILURE = /Failed to execute 'importScripts' on 'WorkerGlobalScope'/
+const WORKER_LOAD_FINGERPRINT = 'worker-load-failure'
+
+window.addEventListener('error', (event) => {
+  if (!WORKER_IMPORT_SCRIPTS_FAILURE.test(event.message)) return
+
+  if (hasReloadedRecently()) {
+    Sentry.captureException(event.error ?? new Error(event.message), {
+      tags: { workerLoad: true, phase: 'dead-end' },
+      extra: { href: window.location.href, appVersion },
+      fingerprint: [WORKER_LOAD_FINGERPRINT],
+    })
+
+    return
+  }
+
+  markReloaded()
+  Sentry.captureMessage('Worker script load failed - reloading with cache-bust', {
+    level: 'warning',
+    tags: { workerLoad: true, phase: 'reload' },
+    fingerprint: [WORKER_LOAD_FINGERPRINT],
+  })
+  reloadWithCacheBust()
 })
 
 reportMissingAppEnv(appEnv)
