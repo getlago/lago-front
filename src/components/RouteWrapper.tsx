@@ -8,7 +8,6 @@ import { ErrorBoundary } from '~/components/ErrorBoundary'
 import { ErrorFallback } from '~/components/ErrorFallback'
 import { CustomRouteObject, routes, useLocation, useNavigate } from '~/core/router'
 import { NEVER_SLUG_PREFIXES } from '~/core/router/slugPrefixes'
-import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { DEVTOOL_TAB_PARAMS, useDeveloperTool } from '~/hooks/useDeveloperTool'
 
@@ -90,7 +89,6 @@ const routesFormatter: (routesToFormat: CustomRouteObject[]) => RouteObject[] = 
 }
 
 export const RouteWrapper = () => {
-  const { isAuthenticated } = useIsAuthenticated()
   const location = useLocation()
   const navigate = useNavigate()
   const { mainRouterUrl, setMainRouterUrl } = useDeveloperTool()
