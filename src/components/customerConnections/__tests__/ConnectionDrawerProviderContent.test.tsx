@@ -19,7 +19,7 @@ const PAYMENT_PROVIDER_BY_CODE: Record<string, string> = {
   'cashfree-conn': 'cashfree',
 }
 
-jest.mock('~/pages/createCustomers/common/usePaymentProviders', () => ({
+jest.mock('~/components/customerConnections/usePaymentProviders', () => ({
   usePaymentProviders: () => ({
     paymentProviders: undefined,
     isLoadingPaymentProviders: false,
@@ -32,7 +32,7 @@ const ACCOUNTING_PROVIDER_BY_CODE: Record<string, string> = {
   'xero-conn': 'xero',
 }
 
-jest.mock('~/pages/createCustomers/common/useAccountingProviders', () => ({
+jest.mock('~/components/customerConnections/useAccountingProviders', () => ({
   useAccountingProviders: () => ({
     accountingProviders: undefined,
     isLoadingAccountProviders: false,
@@ -41,7 +41,7 @@ jest.mock('~/pages/createCustomers/common/useAccountingProviders', () => ({
   }),
 }))
 
-jest.mock('~/pages/createCustomers/common/useTaxProviders', () => ({
+jest.mock('~/components/customerConnections/useTaxProviders', () => ({
   useTaxProviders: () => ({
     taxProviders: undefined,
     isLoadingTaxProviders: false,
@@ -49,7 +49,7 @@ jest.mock('~/pages/createCustomers/common/useTaxProviders', () => ({
   }),
 }))
 
-jest.mock('~/pages/createCustomers/common/useCrmProviders', () => ({
+jest.mock('~/components/customerConnections/useCrmProviders', () => ({
   useCrmProviders: () => ({
     crmProviders: undefined,
     isLoadingCrmProviders: false,
@@ -58,12 +58,9 @@ jest.mock('~/pages/createCustomers/common/useCrmProviders', () => ({
 }))
 
 // The NetSuite subsidiaries query hook needs an ApolloProvider — inert here
-jest.mock(
-  '~/pages/createCustomers/externalAppsAccordion/accountingProvidersAccordion/useAccountingProvidersSubsidaries',
-  () => ({
-    useAccountingProvidersSubsidaries: () => ({ subsidiariesData: undefined }),
-  }),
-)
+jest.mock('~/components/customerConnections/useAccountingProvidersSubsidaries', () => ({
+  useAccountingProvidersSubsidaries: () => ({ subsidiariesData: undefined }),
+}))
 
 type Values = {
   providerCode: string | undefined
@@ -129,6 +126,7 @@ const Harness = ({
       category={category}
       hadInitialConnection={hadInitialConnection}
       isCustomerEdition={true}
+      showDeferredSyncNotice={true}
     />
   )
 }

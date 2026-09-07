@@ -33,7 +33,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
       >
         <label
           class="flex flex-col cursor-pointer"
-          data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.card"
+          data-test="checkbox-paymentProviderCustomers[0].providerPaymentMethods.card"
           for=:r-mui-id:
         >
           <div
@@ -106,7 +106,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         </label>
         <label
           class="flex flex-col cursor-pointer"
-          data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.link"
+          data-test="checkbox-paymentProviderCustomers[0].providerPaymentMethods.link"
           for=:r-mui-id:
         >
           <div
@@ -161,7 +161,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         </label>
         <label
           class="flex flex-col cursor-pointer"
-          data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.customer_balance"
+          data-test="checkbox-paymentProviderCustomers[0].providerPaymentMethods.customer_balance"
           for=:r-mui-id:
         >
           <div
@@ -230,7 +230,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
       >
         <label
           class="flex flex-col cursor-pointer"
-          data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.sepa_debit"
+          data-test="checkbox-paymentProviderCustomers[0].providerPaymentMethods.sepa_debit"
           for=:r-mui-id:
         >
           <div
@@ -285,7 +285,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         </label>
         <label
           class="flex flex-col cursor-pointer"
-          data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.us_bank_account"
+          data-test="checkbox-paymentProviderCustomers[0].providerPaymentMethods.us_bank_account"
           for=:r-mui-id:
         >
           <div
@@ -340,7 +340,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         </label>
         <label
           class="flex flex-col cursor-pointer"
-          data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.bacs_debit"
+          data-test="checkbox-paymentProviderCustomers[0].providerPaymentMethods.bacs_debit"
           for=:r-mui-id:
         >
           <div
@@ -395,7 +395,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         </label>
         <label
           class="flex flex-col cursor-pointer"
-          data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.boleto"
+          data-test="checkbox-paymentProviderCustomers[0].providerPaymentMethods.boleto"
           for=:r-mui-id:
         >
           <div
@@ -450,7 +450,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         </label>
         <label
           class="flex flex-col cursor-pointer"
-          data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.crypto"
+          data-test="checkbox-paymentProviderCustomers[0].providerPaymentMethods.crypto"
           for=:r-mui-id:
         >
           <div
@@ -575,7 +575,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
       >
         <label
           class="flex flex-col cursor-pointer"
-          data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.card"
+          data-test="checkbox-paymentProviderCustomers[0].providerPaymentMethods.card"
           for=:r-mui-id:
         >
           <div
@@ -630,7 +630,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         </label>
         <label
           class="flex flex-col"
-          data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.link"
+          data-test="checkbox-paymentProviderCustomers[0].providerPaymentMethods.link"
           for=:r-mui-id:
         >
           <div
@@ -686,7 +686,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         </label>
         <label
           class="flex flex-col cursor-pointer"
-          data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.customer_balance"
+          data-test="checkbox-paymentProviderCustomers[0].providerPaymentMethods.customer_balance"
           for=:r-mui-id:
         >
           <div
@@ -773,7 +773,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
       >
         <label
           class="flex flex-col"
-          data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.sepa_debit"
+          data-test="checkbox-paymentProviderCustomers[0].providerPaymentMethods.sepa_debit"
           for=:r-mui-id:
         >
           <div
@@ -829,7 +829,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         </label>
         <label
           class="flex flex-col"
-          data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.us_bank_account"
+          data-test="checkbox-paymentProviderCustomers[0].providerPaymentMethods.us_bank_account"
           for=:r-mui-id:
         >
           <div
@@ -885,7 +885,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         </label>
         <label
           class="flex flex-col"
-          data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.bacs_debit"
+          data-test="checkbox-paymentProviderCustomers[0].providerPaymentMethods.bacs_debit"
           for=:r-mui-id:
         >
           <div
@@ -941,7 +941,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         </label>
         <label
           class="flex flex-col"
-          data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.boleto"
+          data-test="checkbox-paymentProviderCustomers[0].providerPaymentMethods.boleto"
           for=:r-mui-id:
         >
           <div
@@ -997,7 +997,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         </label>
         <label
           class="flex flex-col"
-          data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.crypto"
+          data-test="checkbox-paymentProviderCustomers[0].providerPaymentMethods.crypto"
           for=:r-mui-id:
         >
           <div
@@ -1123,7 +1123,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
       >
         <label
           class="flex flex-col cursor-pointer"
-          data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.card"
+          data-test="checkbox-paymentProviderCustomers[0].providerPaymentMethods.card"
           for=:r-mui-id:
         >
           <div
@@ -1196,7 +1196,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         </label>
         <label
           class="flex flex-col cursor-pointer"
-          data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.link"
+          data-test="checkbox-paymentProviderCustomers[0].providerPaymentMethods.link"
           for=:r-mui-id:
         >
           <div
@@ -1269,7 +1269,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         </label>
         <label
           class="flex flex-col cursor-pointer"
-          data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.customer_balance"
+          data-test="checkbox-paymentProviderCustomers[0].providerPaymentMethods.customer_balance"
           for=:r-mui-id:
         >
           <div
@@ -1338,7 +1338,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
       >
         <label
           class="flex flex-col cursor-pointer"
-          data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.sepa_debit"
+          data-test="checkbox-paymentProviderCustomers[0].providerPaymentMethods.sepa_debit"
           for=:r-mui-id:
         >
           <div
@@ -1411,7 +1411,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         </label>
         <label
           class="flex flex-col cursor-pointer"
-          data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.us_bank_account"
+          data-test="checkbox-paymentProviderCustomers[0].providerPaymentMethods.us_bank_account"
           for=:r-mui-id:
         >
           <div
@@ -1466,7 +1466,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         </label>
         <label
           class="flex flex-col cursor-pointer"
-          data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.bacs_debit"
+          data-test="checkbox-paymentProviderCustomers[0].providerPaymentMethods.bacs_debit"
           for=:r-mui-id:
         >
           <div
@@ -1521,7 +1521,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         </label>
         <label
           class="flex flex-col cursor-pointer"
-          data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.boleto"
+          data-test="checkbox-paymentProviderCustomers[0].providerPaymentMethods.boleto"
           for=:r-mui-id:
         >
           <div
@@ -1576,7 +1576,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN rendering the compo
         </label>
         <label
           class="flex flex-col cursor-pointer"
-          data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.crypto"
+          data-test="checkbox-paymentProviderCustomers[0].providerPaymentMethods.crypto"
           for=:r-mui-id:
         >
           <div
@@ -1701,7 +1701,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN testing edge cases 
       >
         <label
           class="flex flex-col cursor-pointer"
-          data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.card"
+          data-test="checkbox-paymentProviderCustomers[0].providerPaymentMethods.card"
           for=:r-mui-id:
         >
           <div
@@ -1774,7 +1774,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN testing edge cases 
         </label>
         <label
           class="flex flex-col cursor-pointer"
-          data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.link"
+          data-test="checkbox-paymentProviderCustomers[0].providerPaymentMethods.link"
           for=:r-mui-id:
         >
           <div
@@ -1847,7 +1847,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN testing edge cases 
         </label>
         <label
           class="flex flex-col cursor-pointer"
-          data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.customer_balance"
+          data-test="checkbox-paymentProviderCustomers[0].providerPaymentMethods.customer_balance"
           for=:r-mui-id:
         >
           <div
@@ -1916,7 +1916,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN testing edge cases 
       >
         <label
           class="flex flex-col cursor-pointer"
-          data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.sepa_debit"
+          data-test="checkbox-paymentProviderCustomers[0].providerPaymentMethods.sepa_debit"
           for=:r-mui-id:
         >
           <div
@@ -1989,7 +1989,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN testing edge cases 
         </label>
         <label
           class="flex flex-col cursor-pointer"
-          data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.us_bank_account"
+          data-test="checkbox-paymentProviderCustomers[0].providerPaymentMethods.us_bank_account"
           for=:r-mui-id:
         >
           <div
@@ -2062,7 +2062,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN testing edge cases 
         </label>
         <label
           class="flex flex-col cursor-pointer"
-          data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.bacs_debit"
+          data-test="checkbox-paymentProviderCustomers[0].providerPaymentMethods.bacs_debit"
           for=:r-mui-id:
         >
           <div
@@ -2135,7 +2135,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN testing edge cases 
         </label>
         <label
           class="flex flex-col cursor-pointer"
-          data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.boleto"
+          data-test="checkbox-paymentProviderCustomers[0].providerPaymentMethods.boleto"
           for=:r-mui-id:
         >
           <div
@@ -2208,7 +2208,7 @@ exports[`StripePaymentProviderContent Integration Tests WHEN testing edge cases 
         </label>
         <label
           class="flex flex-col cursor-pointer"
-          data-test="checkbox-paymentProviderCustomer.providerPaymentMethods.crypto"
+          data-test="checkbox-paymentProviderCustomers[0].providerPaymentMethods.crypto"
           for=:r-mui-id:
         >
           <div

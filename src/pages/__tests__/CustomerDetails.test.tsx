@@ -3,6 +3,7 @@ import { act, waitFor } from '@testing-library/react'
 import { useLocation } from 'react-router-dom'
 
 import { initializeYup } from '~/formValidation/initializeYup'
+import { IntegrationTypeEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import CustomerDetails from '../CustomerDetails'
@@ -15,6 +16,13 @@ jest.mock('~/components/MainHeader/MainHeader', () => ({
 
 jest.mock('~/components/MainHeader/useMainHeaderTabContent', () => ({
   useMainHeaderTabContent: () => null,
+}))
+
+// The drawer stack uses `import.meta`, unsupported by jest: the connections
+// section reached through the information tab pulls it in transitively
+jest.mock('~/components/drawers/useDrawer', () => ({
+  useDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+  useFormDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
 }))
 
 initializeYup()
@@ -88,6 +96,19 @@ jest.mock('~/generated/graphql', () => ({
   ]),
 }))
 
+/** Integration customers now reach the page through the `integrationCustomers` array */
+const NETSUITE_INTEGRATION_CUSTOMER = {
+  __typename: 'NetsuiteCustomer',
+  id: 'netsuite-123',
+  integrationType: IntegrationTypeEnum.Netsuite,
+}
+
+const XERO_INTEGRATION_CUSTOMER = {
+  __typename: 'XeroCustomer',
+  id: 'xero-123',
+  integrationType: IntegrationTypeEnum.Xero,
+}
+
 describe('CustomerDetails', () => {
   const mockStartPolling = jest.fn()
   const mockStopPolling = jest.fn()
@@ -138,11 +159,7 @@ describe('CustomerDetails', () => {
             currency: 'USD',
             applicableTimezone: 'UTC',
             accountType: 'standard',
-            netsuiteCustomer: null,
-            anrokCustomer: null,
-            xeroCustomer: null,
-            hubspotCustomer: null,
-            salesforceCustomer: null,
+            integrationCustomers: [],
           },
         },
         loading: false,
@@ -218,11 +235,7 @@ describe('CustomerDetails', () => {
             currency: 'USD',
             applicableTimezone: 'UTC',
             accountType: 'standard',
-            netsuiteCustomer: { id: 'netsuite-123' },
-            anrokCustomer: null,
-            xeroCustomer: null,
-            hubspotCustomer: null,
-            salesforceCustomer: null,
+            integrationCustomers: [NETSUITE_INTEGRATION_CUSTOMER],
           },
         },
         loading: false,
@@ -265,11 +278,7 @@ describe('CustomerDetails', () => {
             currency: 'USD',
             applicableTimezone: 'UTC',
             accountType: 'standard',
-            netsuiteCustomer: { id: 'netsuite-123' },
-            anrokCustomer: null,
-            xeroCustomer: null,
-            hubspotCustomer: null,
-            salesforceCustomer: null,
+            integrationCustomers: [NETSUITE_INTEGRATION_CUSTOMER],
           },
         },
         loading: false,
@@ -315,11 +324,7 @@ describe('CustomerDetails', () => {
             currency: 'USD',
             applicableTimezone: 'UTC',
             accountType: 'standard',
-            netsuiteCustomer: null,
-            anrokCustomer: null,
-            xeroCustomer: { id: 'xero-123' },
-            hubspotCustomer: null,
-            salesforceCustomer: null,
+            integrationCustomers: [XERO_INTEGRATION_CUSTOMER],
           },
         },
         loading: false,
@@ -358,11 +363,7 @@ describe('CustomerDetails', () => {
             currency: 'USD',
             applicableTimezone: 'UTC',
             accountType: 'standard',
-            netsuiteCustomer: null,
-            anrokCustomer: null,
-            xeroCustomer: null,
-            hubspotCustomer: null,
-            salesforceCustomer: null,
+            integrationCustomers: [],
           },
         },
         loading: false,

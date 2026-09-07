@@ -2,6 +2,8 @@ import { gql } from '@apollo/client'
 import { useEffect, useRef, useState } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
+import { ConnectionCategory } from '~/components/customerConnections/types'
+import { getIntegrationCustomerForCategory } from '~/components/customers/connectionsSection/utils'
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
@@ -122,8 +124,10 @@ const CustomerInvoiceRegenerate = () => {
 
   const customer = invoice?.customer
   const billingEntity = invoice?.billingEntity
-  const hasTaxProvider =
-    !!fullCustomer?.customer?.anrokCustomer?.id || !!fullCustomer?.customer?.avalaraCustomer?.id
+  const hasTaxProvider = !!(
+    fullCustomer?.customer &&
+    getIntegrationCustomerForCategory(fullCustomer.customer, ConnectionCategory.Tax)
+  )
 
   const [fees, setFees] = useState(fullFees || [])
   // Store a deep copy of the original fees from the query, to avoid Apollo cache pollution

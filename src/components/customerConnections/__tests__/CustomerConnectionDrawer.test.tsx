@@ -35,7 +35,8 @@ const renderDrawer = (overrides?: {
   onSave?: jest.Mock
   connectionOptions?: Record<string, unknown>
 }) => {
-  const onSave = overrides?.onSave ?? jest.fn()
+  // onSave reports whether the values were saved — the drawer closes on true
+  const onSave = overrides?.onSave ?? jest.fn().mockResolvedValue(true)
   const ref = createRef<CustomerConnectionDrawerRef>()
 
   render(
@@ -115,7 +116,7 @@ describe('CustomerConnectionDrawer', () => {
   describe('GIVEN the drawer is opened in edit mode with valid values', () => {
     describe('WHEN the form is submitted', () => {
       it('THEN should persist through onSave (isEdition true) and close the drawer', async () => {
-        const onSave = jest.fn()
+        const onSave = jest.fn().mockResolvedValue(true)
         const { ref } = renderDrawer({ onSave })
 
         act(() => ref.current?.openDrawer(ConnectionCategory.Payment, VALID_PAYMENT_VALUES))
@@ -130,6 +131,22 @@ describe('CustomerConnectionDrawer', () => {
           { isEdition: true },
         )
         expect(mockClose).toHaveBeenCalledTimes(1)
+      })
+
+      it('THEN should keep the drawer open, without rejecting, when onSave reports a failure', async () => {
+        const onSave = jest.fn().mockResolvedValue(false)
+        const { ref } = renderDrawer({ onSave })
+
+        act(() => ref.current?.openDrawer(ConnectionCategory.Payment, VALID_PAYMENT_VALUES))
+
+        // Must RESOLVE: BaseDrawer calls form.submit() without catching, so a
+        // rejection here would escape as an unhandled promise rejection
+        await act(async () => {
+          await expect(getLastOpenArgs().form.submit()).resolves.toBeUndefined()
+        })
+
+        expect(onSave).toHaveBeenCalledTimes(1)
+        expect(mockClose).not.toHaveBeenCalled()
       })
     })
   })

@@ -43,6 +43,7 @@
 
 ## Code Quality
 
+- Never put Linear ticket IDs (e.g. ING-123, LAGO-456) in code comments — describe, if needed, the pending work itself instead
 - TypeScript strict mode with proper typing
 - ESLint rules from `lago-configs` package
 - Consistent naming: camelCase for variables, PascalCase for components

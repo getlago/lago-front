@@ -1,4 +1,4 @@
-import { getSubsidiaryLabel } from '../utils'
+import { getSubsidiaryLabel } from '../getSubsidiaryLabel'
 
 describe('getSubsidiaryLabel', () => {
   describe('GIVEN a subsidiary with an external name', () => {

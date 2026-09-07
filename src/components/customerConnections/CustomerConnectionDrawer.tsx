@@ -16,19 +16,11 @@ import { useAppForm } from '~/hooks/forms/useAppform'
 
 import { ConnectionComboBoxDataItem } from './ConnectionComboBox'
 import { ConnectionDrawerSection } from './ConnectionDrawerSection'
+import { PROVIDERS_WITHOUT_CUSTOMER_MAPPING } from './customerIntegrationConst'
 import { LockedConnectionSelection, ProviderSelectionSection } from './ProviderSelectionSection'
 import { CONNECTION_CATEGORY_SHORT_LABEL_KEYS, ConnectionCategory } from './types'
 
 const CUSTOMER_CONNECTION_FORM_ID = 'customer-connection-drawer-form'
-
-/**
- * Provider types that don't support linking an existing provider customer id
- * (mirrors the customer-form rule for the payment section).
- */
-const PROVIDERS_WITHOUT_EXTERNAL_ID: ReadonlySet<string> = new Set([
-  ProviderTypeEnum.Cashfree,
-  ProviderTypeEnum.Flutterwave,
-])
 
 const connectionValidationSchema = z
   .object({
@@ -54,7 +46,7 @@ const connectionValidationSchema = z
   .refine(
     (data) => {
       if (!data.providerType) return true
-      if (PROVIDERS_WITHOUT_EXTERNAL_ID.has(data.providerType)) return true
+      if (PROVIDERS_WITHOUT_CUSTOMER_MAPPING.has(data.providerType as ProviderTypeEnum)) return true
       if (data.syncWithProvider) return true
 
       return !!data.externalCustomerId
@@ -142,12 +134,17 @@ type CustomerConnectionDrawerProps = {
    * written into the customer form state (deferred to the customer save); on
    * the customer information view they are persisted immediately via the
    * dedicated mutations.
+   *
+   * Returns whether the values were saved: false keeps the drawer open with
+   * its values intact. It must not THROW to signal a failure — `BaseDrawer`
+   * calls `form.handleSubmit` without catching, and TanStack re-throws
+   * whatever `onSubmit` throws, so the rejection would escape unhandled.
    */
   onSave: (
     category: ConnectionCategory,
     values: ConnectionFormValues,
     utils: { isEdition: boolean },
-  ) => void | Promise<void>
+  ) => boolean | Promise<boolean>
   /** Org-level provider/integration options per category */
   connectionOptions: Partial<Record<ConnectionCategory, ConnectionComboBoxDataItem[]>>
   /**
@@ -200,8 +197,9 @@ export const CustomerConnectionDrawer = forwardRef<
   const form = useConnectionDrawerForm({
     defaultValues: openedValues,
     onSubmit: async (values) => {
-      await onSave(context.category, values, { isEdition: context.isEdition })
-      drawer.close()
+      const saved = await onSave(context.category, values, { isEdition: context.isEdition })
+
+      if (saved) drawer.close()
     },
   })
 
