@@ -1,6 +1,3 @@
-import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
-
 import { fixupPluginRules } from '@eslint/compat'
 import pluginJs from '@eslint/js'
 import pluginImport from 'eslint-plugin-import'
@@ -10,6 +7,8 @@ import pluginReact from 'eslint-plugin-react'
 import pluginReactHooks from 'eslint-plugin-react-hooks'
 import pluginTailwind from 'eslint-plugin-tailwindcss'
 import globals from 'globals'
+import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import pluginTypescriptEslint from 'typescript-eslint'
 
 import noDirectRrdNavImport from './eslint-rules/no-direct-rrd-nav-import.js'
@@ -106,22 +105,15 @@ export default [
       'no-unneeded-ternary': 'warn',
       'no-duplicate-imports': 'error',
 
-      // Prevent barrel imports from large libraries (impacts bundle size and dev performance)
-      'no-restricted-imports': [
+      'no-restricted-syntax': [
         'error',
         {
-          paths: [
-            {
-              name: '@mui/material',
-              message:
-                'Import from @mui/material/* instead. E.g., import Button from "@mui/material/Button"',
-            },
-          ],
+          selector:
+            ":matches(ImportDeclaration, ExportNamedDeclaration, ExportAllDeclaration)[source.value='@mui/material']",
+          message:
+            'Import from @mui/material/* instead. E.g., import Button from "@mui/material/Button"',
         },
       ],
-      // Enforce slug-aware navigation wrappers (custom rule — error level,
-      // kept separate from `no-restricted-imports` which is also used below
-      // at `warn` severity for formik/dialog deprecations).
       'lago/no-direct-rrd-nav-import': 'error',
 
       // Plugins

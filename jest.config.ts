@@ -42,7 +42,7 @@ export default {
     '!src/**/*Const.ts',
   ],
   coverageReporters: ['text-summary', 'lcov'],
-  collectCoverage: true,
+  collectCoverage: false,
 
   testEnvironment: 'jsdom',
 

@@ -3,6 +3,8 @@ import path from 'path'
 import { defineConfig } from 'vite'
 import svgr from 'vite-plugin-svgr'
 
+const peers = ['react', 'react-dom', '@mui/material', '@mui/x-date-pickers']
+
 /**
  * Vite configuration for building a React component library
  */
@@ -43,7 +45,8 @@ export default defineConfig({
           '@mui/x-date-pickers': 'MaterialUIXDatePickers',
         },
       },
-      external: ['react', 'react-dom', '@mui/material', '@mui/x-date-pickers'],
+      external: (id: string): boolean =>
+        peers.some((peer) => id === peer || id.startsWith(`${peer}/`)),
     },
     cssCodeSplit: false,
   },

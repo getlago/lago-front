@@ -30,6 +30,7 @@
     "codegen:watch": "graphql-codegen --config codegen.yml -r dotenv/config --watch",
     "test": "jest --config jest.config.ts",
     "test:coverage": "jest --config jest.config.ts --coverage --runInBand",
+    "test:tooling": "node --test packages/configs/eslint.config.test.mjs",
     "test:e2e": "cypress open --config-file cypress/cypress.config.js",
     "translations:add": "node scripts/translations/add",
     "translations:inspect": "node scripts/translations/inspect",
