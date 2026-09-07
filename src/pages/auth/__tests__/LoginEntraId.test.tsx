@@ -15,10 +15,16 @@ const mockSetItemFromLS = setItemFromLS as jest.Mock
 const mockFetchEntraIdAuthorizeUrl = jest.fn()
 const mockUseLocation = jest.fn()
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useLocation: () => mockUseLocation(),
-}))
+jest.mock('react-router-dom', () => {
+  const actual = jest.requireActual('react-router-dom')
+  const { withRouterFuture } = jest.requireActual('~/test-utils/routerFutureMock')
+
+  return {
+    ...actual,
+    ...withRouterFuture(actual),
+    useLocation: () => mockUseLocation(),
+  }
+})
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
