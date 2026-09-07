@@ -61,3 +61,6 @@ Compatibility notes:
   visibility rule; the seed's open-invoice payment stays hidden.
 - Bullet reports existing lazy payment associations on unfiltered and filtered list
   requests. The payment fragment and list component are unchanged by this feature.
+
+
+The final `cross-client-qa.json` compares the same succeeded/EUR predicate across REST, GraphQL, the UI, all six SDKs and the regenerated CLI: seven identical payment IDs. The CLI also passes array, max-int64 and customer-scoped checks. Local HTTP CLI checks explicitly use `--insecure` against the isolated development server.
