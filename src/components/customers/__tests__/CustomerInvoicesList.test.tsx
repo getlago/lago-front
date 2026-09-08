@@ -24,6 +24,8 @@ mockIntersectionObserver.mockReturnValue({
 window.IntersectionObserver = mockIntersectionObserver
 
 const mockCanDelete = jest.fn(() => false)
+const mockCanVoid = jest.fn(() => false)
+const mockCanIssueCreditNote = jest.fn(() => false)
 
 jest.mock('~/hooks/usePermissionsInvoiceActions', () => ({
   usePermissionsInvoiceActions: () => ({
@@ -32,9 +34,9 @@ jest.mock('~/hooks/usePermissionsInvoiceActions', () => ({
     canRetryCollect: () => false,
     canGeneratePaymentUrl: () => false,
     canUpdatePaymentStatus: () => false,
-    canVoid: () => false,
+    canVoid: mockCanVoid,
     canDelete: mockCanDelete,
-    canIssueCreditNote: () => false,
+    canIssueCreditNote: mockCanIssueCreditNote,
     canRecordPayment: () => false,
     canResendEmail: () => false,
     canRegenerate: () => false,
@@ -168,6 +170,37 @@ describe('CustomerInvoicesList', () => {
       await waitFor(() => user.click(deleteButton))
 
       expect(mockOpenDeleteInvoiceDialog).toHaveBeenCalled()
+    })
+  })
+
+  describe('GIVEN a finalized invoice whose row menu navigates', () => {
+    beforeEach(() => {
+      mockCanVoid.mockReturnValue(false)
+      mockCanIssueCreditNote.mockReturnValue(false)
+    })
+
+    it.each([
+      ['void', 'Void invoice', mockCanVoid, '/customer/customer-1/invoice/void/invoice-1'],
+      [
+        'issue credit note',
+        'Issue a credit note',
+        mockCanIssueCreditNote,
+        '/customer/customer-1/invoice/invoice-1/create/credit-notes',
+      ],
+    ])('THEN the %s entry is an anchor to its route', async (_, name, permission, expectedHref) => {
+      const user = userEvent.setup()
+
+      permission.mockReturnValue(true)
+
+      renderComponent({
+        invoiceData: createMockInvoiceData([
+          createMockInvoice({ status: InvoiceStatusTypeEnum.Finalized }),
+        ]),
+      })
+
+      await waitFor(() => user.click(screen.getByTestId('open-action-button')))
+
+      expect(screen.getByRole('link', { name })).toHaveAttribute('href', expectedHref)
     })
   })
 })

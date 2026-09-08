@@ -1,3 +1,6 @@
+import { generatePath } from 'react-router-dom'
+
+import { ActionItem } from '~/components/designSystem/Table/types'
 import { render } from '~/test-utils'
 
 import BillableMetricsList from '../BillableMetricsList'
@@ -269,6 +272,23 @@ describe('BillableMetricsList', () => {
       render(<BillableMetricsList />)
 
       expect(getTooltipFor(ROW)).toBe(expected)
+    })
+  })
+
+  describe('GIVEN the navigation actions are links', () => {
+    it.each([
+      ['edit', 0, '/update/billable-metric/:billableMetricId'],
+      ['duplicate', 1, '/duplicate/billable-metric/:billableMetricId'],
+    ])('WHEN the %s target is built THEN it points at its route', (_, index, route) => {
+      setPermissions(['billableMetricsUpdate', 'billableMetricsCreate', 'billableMetricsDelete'])
+
+      render(<BillableMetricsList />)
+
+      const actions = getActionsFor(ROW) as unknown as ActionItem<{ id: string }>[]
+
+      actions[index]?.link?.({ id: 'bm-1' })
+
+      expect(generatePath).toHaveBeenLastCalledWith(route, { billableMetricId: 'bm-1' })
     })
   })
 })

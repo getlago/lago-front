@@ -1,3 +1,6 @@
+import { generatePath } from 'react-router-dom'
+
+import { ActionItem } from '~/components/designSystem/Table/types'
 import { render } from '~/test-utils'
 
 import AddOnsList from '../AddOnsList'
@@ -216,6 +219,28 @@ describe('AddOnsList', () => {
 
         expect(actions).toHaveLength(1)
         expect(actions[0]).toEqual(expect.objectContaining({ startIcon: 'trash' }))
+      })
+    })
+  })
+
+  describe('GIVEN the edit action is a link', () => {
+    describe('WHEN its target is built', () => {
+      it('THEN should point at the add-on edit route', () => {
+        mockHasPermissions.mockReturnValue(true)
+
+        render(<AddOnsList />)
+
+        const actionColumn = mockTableProps.mock.calls[0]?.[0]?.actionColumn as (
+          item: Record<string, unknown>,
+        ) => ActionItem<{ id: string }>[]
+
+        const [editAction] = actionColumn({ id: 'addon-1', name: 'Test AddOn' })
+
+        editAction?.link?.({ id: 'addon-1' })
+
+        expect(generatePath).toHaveBeenLastCalledWith('/update/add-on/:addOnId', {
+          addOnId: 'addon-1',
+        })
       })
     })
   })
