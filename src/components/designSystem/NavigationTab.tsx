@@ -90,9 +90,9 @@ export const NavigationTab = ({
   const [value, setValue] = useState<number | null>(currentTab || null)
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    // MUI fires this before the tab's own onClick. On a modified click the
-    // browser opens the target elsewhere, so the current panel must not move.
-    if ('button' in event && isModifiedClick(event as MouseEvent)) {
+    // MUI fires this before the tab's own onClick. On a modified click of a link
+    // tab the browser opens the target elsewhere, so the current panel must not move.
+    if (event.currentTarget instanceof HTMLAnchorElement && isModifiedClick(event as MouseEvent)) {
       return
     }
 

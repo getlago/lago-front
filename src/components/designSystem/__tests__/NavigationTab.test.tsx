@@ -10,6 +10,11 @@ const urlTabs = [
   { title: 'Invoices', link: '/customers/1/invoices', dataTest: 'tab-invoices' },
 ]
 
+const indexTabs = [
+  { title: 'First', component: <div>first panel</div>, dataTest: 'tab-first' },
+  { title: 'Second', component: <div>second panel</div>, dataTest: 'tab-second' },
+]
+
 describe('NavigationTab', () => {
   beforeEach(() => {
     jest.clearAllMocks()
@@ -105,15 +110,7 @@ describe('NavigationTab', () => {
       it('THEN should swap the panel without rendering an anchor', async () => {
         const user = userEvent.setup()
 
-        render(
-          <NavigationTab
-            managedBy={TabManagedBy.INDEX}
-            tabs={[
-              { title: 'First', component: <div>first panel</div>, dataTest: 'tab-first' },
-              { title: 'Second', component: <div>second panel</div>, dataTest: 'tab-second' },
-            ]}
-          />,
-        )
+        render(<NavigationTab managedBy={TabManagedBy.INDEX} tabs={indexTabs} />)
 
         expect(screen.getByTestId('tab-first')).not.toHaveAttribute('href')
         expect(screen.getByText('first panel')).toBeInTheDocument()
@@ -121,6 +118,22 @@ describe('NavigationTab', () => {
         await user.click(screen.getByTestId('tab-second'))
 
         expect(screen.getByText('second panel')).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the user shift-clicks another tab', () => {
+      // A button tab has no browser default to defer to: the panel swaps, so the
+      // consumer must still learn which tab is active.
+      it('THEN should still report the tab change', () => {
+        const onChange = jest.fn()
+
+        render(
+          <NavigationTab managedBy={TabManagedBy.INDEX} tabs={indexTabs} onChange={onChange} />,
+        )
+
+        fireEvent.click(screen.getByText('Second'), { shiftKey: true })
+
+        expect(onChange).toHaveBeenCalledWith(1)
       })
     })
   })
