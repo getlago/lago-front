@@ -1391,7 +1391,7 @@ describe('InvoicesList', () => {
   })
 
   describe('Premium User Action Handlers', () => {
-    it('navigates to record payment route when premium user clicks record payment', async () => {
+    it('links the record payment action to the create payment route for a premium user', async () => {
       const user = userEvent.setup()
 
       mockIsPremium.mockReturnValue(true)
@@ -1411,13 +1411,10 @@ describe('InvoicesList', () => {
 
       await waitFor(() => user.click(actionButton))
 
-      const recordPaymentButton = screen.getByRole('button', {
-        name: 'text_1737471851634wpeojigr27w',
-      })
-
-      await waitFor(() => user.click(recordPaymentButton))
-
-      expect(testMockNavigateFn).toHaveBeenCalled()
+      expect(screen.getByRole('link', { name: 'text_1737471851634wpeojigr27w' })).toHaveAttribute(
+        'href',
+        '/invoice/invoice-1/create/payment',
+      )
     })
 
     it('navigates to create credit note route when premium user clicks issue credit note', async () => {

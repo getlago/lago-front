@@ -32,7 +32,6 @@ import {
   CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
   CUSTOMER_INVOICE_DETAILS_ROUTE,
   CUSTOMER_INVOICE_VOID_ROUTE,
-  useNavigate,
 } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { getTimezoneConfig, intlFormatDateTime } from '~/core/timezone'
@@ -176,7 +175,6 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
   pageSize = DEFAULT_PAGE_SIZE,
   onPageChange,
 }) => {
-  const navigate = useNavigate()
   const { isPremium } = useCurrentUser()
   const { translate } = useInternationalization()
   const actions = usePermissionsInvoiceActions()
@@ -196,6 +194,29 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
   const { openFinalizeInvoiceDialog } = useFinalizeInvoiceDialog()
   const { openDeleteInvoiceDialog } = useDeleteInvoiceDialog()
   const { openUpdateInvoicePaymentStatusDialog } = useUpdateInvoicePaymentStatusDialog()
+
+  const createRecordPaymentAction = (): ActionItem<
+    InvoiceForInvoiceListFragment['collection'][number]
+  > => {
+    const title = translate('text_1737471851634wpeojigr27w')
+
+    if (!isPremium) {
+      return {
+        startIcon: 'receipt',
+        title,
+        endIcon: 'sparkles',
+        onAction: () => {
+          openPremiumWarningDialog()
+        },
+      }
+    }
+
+    return {
+      startIcon: 'receipt',
+      title,
+      link: ({ id }) => generatePath(CREATE_INVOICE_PAYMENT_ROUTE, { invoiceId: id }),
+    }
+  }
 
   return (
     <>
@@ -486,21 +507,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                   }
                 : null,
 
-              canRecordPayment(invoice)
-                ? {
-                    startIcon: 'receipt',
-                    title: translate('text_1737471851634wpeojigr27w'),
-
-                    endIcon: isPremium ? undefined : 'sparkles',
-                    onAction: ({ id }) => {
-                      if (isPremium) {
-                        navigate(generatePath(CREATE_INVOICE_PAYMENT_ROUTE, { invoiceId: id }))
-                      } else {
-                        openPremiumWarningDialog()
-                      }
-                    },
-                  }
-                : null,
+              canRecordPayment(invoice) ? createRecordPaymentAction() : null,
 
               canRetryCollect(invoice)
                 ? {

@@ -33,7 +33,6 @@ import {
   CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
   CUSTOMER_INVOICE_DETAILS_ROUTE,
   CUSTOMER_INVOICE_VOID_ROUTE,
-  useNavigate,
 } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
@@ -82,7 +81,6 @@ const InvoicesList = ({
 }: TInvoiceListProps) => {
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
-  const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const actions = usePermissionsInvoiceActions()
   const { showResendEmailDialog } = useResendEmailDialog()
@@ -130,17 +128,23 @@ const InvoicesList = ({
   const createRecordPaymentAction = (invoice: InvoiceItem): ActionItem<InvoiceItem> | null => {
     if (!actions.canRecordPayment(invoice)) return null
 
+    const title = translate('text_1737471851634wpeojigr27w')
+
+    if (!isPremium) {
+      return {
+        startIcon: 'receipt',
+        title,
+        endIcon: 'sparkles',
+        onAction: () => {
+          openPremiumWarningDialog()
+        },
+      }
+    }
+
     return {
       startIcon: 'receipt',
-      title: translate('text_1737471851634wpeojigr27w'),
-      endIcon: isPremium ? undefined : 'sparkles',
-      onAction: ({ id }) => {
-        if (isPremium) {
-          navigate(generatePath(CREATE_INVOICE_PAYMENT_ROUTE, { invoiceId: id }))
-        } else {
-          openPremiumWarningDialog()
-        }
-      },
+      title,
+      link: ({ id }) => generatePath(CREATE_INVOICE_PAYMENT_ROUTE, { invoiceId: id }),
     }
   }
 
