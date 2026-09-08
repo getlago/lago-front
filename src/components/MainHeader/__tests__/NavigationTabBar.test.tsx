@@ -132,4 +132,21 @@ describe('NavigationTabBar', () => {
       })
     })
   })
+
+  describe('GIVEN the tab already matching the URL', () => {
+    describe('WHEN the user clicks it', () => {
+      // A plain anchor would push a duplicate history entry for the page you are on.
+      it('THEN should suppress the navigation', async () => {
+        const user = userEvent.setup()
+
+        window.history.pushState({}, '', '/customers/1/overview')
+
+        render(<NavigationTabBar tabs={baseTabs} />)
+
+        await user.click(screen.getByTestId('tab-overview'))
+
+        expect(window.location.pathname).toBe('/customers/1/overview')
+      })
+    })
+  })
 })

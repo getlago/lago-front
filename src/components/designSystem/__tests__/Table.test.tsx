@@ -241,6 +241,36 @@ describe('Table', () => {
     })
   })
 
+  describe('GIVEN a focused row', () => {
+    describe('WHEN Enter is pressed', () => {
+      // The row is the list's tab stop; before this the link was built and thrown
+      // away, so keyboard activation did nothing at all.
+      it('THEN should navigate to the row target', async () => {
+        await prepare({ props: { onRowActionLink: (row: any) => `/rows/${row.id}` } })
+
+        const bodyRows = within(screen.queryAllByRole('rowgroup')[1]).queryAllByRole('row')
+
+        bodyRows[1].focus()
+        await userEvent.keyboard('{Enter}')
+
+        expect(testMockNavigateFn).toHaveBeenCalledWith('/rows/2')
+      })
+
+      it('THEN should run the click handler when the row has no link', async () => {
+        const onRowActionClick = jest.fn()
+
+        await prepare({ props: { onRowActionClick } })
+
+        const bodyRows = within(screen.queryAllByRole('rowgroup')[1]).queryAllByRole('row')
+
+        bodyRows[0].focus()
+        await userEvent.keyboard('{Enter}')
+
+        expect(onRowActionClick).toHaveBeenCalledWith(data[0])
+      })
+    })
+  })
+
   describe('GIVEN an action item declared as a link', () => {
     describe('WHEN the action menu opens', () => {
       it('THEN should render the entry as an anchor to its target', async () => {
