@@ -1,6 +1,7 @@
 import { RenderResult, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { EditFeeDrawerRef } from '~/components/invoices/details/EditFeeDrawer'
 import {
   AllInvoiceDetailsForCustomerInvoiceDetailsFragment,
   CustomerForInvoiceOverviewFragment,
@@ -24,9 +25,16 @@ jest.mock('~/components/invoices/details/ViewFeeDetailsDrawer', () => ({
   useViewFeeDetailsDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
 }))
 
-jest.mock('~/components/invoices/details/EditFeeDrawer', () => ({
-  EditFeeDrawer: () => null,
-}))
+jest.mock('~/components/invoices/details/EditFeeDrawer', () => {
+  const { forwardRef, useImperativeHandle } = jest.requireActual<typeof import('react')>('react')
+
+  return {
+    EditFeeDrawer: forwardRef<EditFeeDrawerRef>((_props, ref): null => {
+      useImperativeHandle(ref, () => ({ openDrawer: jest.fn(), closeDrawer: jest.fn() }))
+      return null
+    }),
+  }
+})
 
 jest.mock('~/components/invoices/details/InvoiceDetailsTable', () => ({
   InvoiceDetailsTable: () => null,

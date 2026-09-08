@@ -12,7 +12,7 @@ const CUSTOMER_ID = 'customer-123'
 type PrepareType = {
   mock?: {
     invoices?: {
-      collection?: Array<{ readyForPaymentProcessing: boolean }>
+      collection?: Array<{ id: string; readyForPaymentProcessing: boolean }>
     }
   }
   delay?: number
@@ -28,7 +28,10 @@ async function prepare({ mock, delay = 0 }: PrepareType = {}) {
       result: {
         data: mock || {
           invoices: {
-            collection: [{ readyForPaymentProcessing: true }, { readyForPaymentProcessing: true }],
+            collection: [
+              { id: 'invoice-1', readyForPaymentProcessing: true },
+              { id: 'invoice-2', readyForPaymentProcessing: true },
+            ],
           },
         },
         delay,
@@ -57,7 +60,10 @@ describe('useIsCustomerReadyForOverduePayment', () => {
       const { result } = await prepare({
         mock: {
           invoices: {
-            collection: [{ readyForPaymentProcessing: true }, { readyForPaymentProcessing: true }],
+            collection: [
+              { id: 'invoice-1', readyForPaymentProcessing: true },
+              { id: 'invoice-2', readyForPaymentProcessing: true },
+            ],
           },
         },
       })
@@ -74,7 +80,10 @@ describe('useIsCustomerReadyForOverduePayment', () => {
       const { result } = await prepare({
         mock: {
           invoices: {
-            collection: [{ readyForPaymentProcessing: true }, { readyForPaymentProcessing: false }],
+            collection: [
+              { id: 'invoice-1', readyForPaymentProcessing: true },
+              { id: 'invoice-2', readyForPaymentProcessing: false },
+            ],
           },
         },
       })

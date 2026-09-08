@@ -1,6 +1,7 @@
 import { screen } from '@testing-library/react'
 import { generatePath } from 'react-router-dom'
 
+import { EditFeeDrawerRef } from '~/components/invoices/details/EditFeeDrawer'
 import { InvoiceDetailsTable } from '~/components/invoices/details/InvoiceDetailsTable'
 import {
   CustomerDetailsTabsOptions,
@@ -42,9 +43,16 @@ jest.mock('~/components/invoices/details/DeleteAdjustedFeeDialog', () => ({
   useDeleteAdjustedFeeDialog: () => ({ openDeleteAdjustedFeeDialog: jest.fn() }),
 }))
 
-jest.mock('~/components/invoices/details/EditFeeDrawer', () => ({
-  EditFeeDrawer: jest.fn(() => null),
-}))
+jest.mock('~/components/invoices/details/EditFeeDrawer', () => {
+  const { forwardRef, useImperativeHandle } = jest.requireActual<typeof import('react')>('react')
+
+  return {
+    EditFeeDrawer: forwardRef<EditFeeDrawerRef>((_props, ref): null => {
+      useImperativeHandle(ref, () => ({ openDrawer: jest.fn(), closeDrawer: jest.fn() }))
+      return null
+    }),
+  }
+})
 
 jest.mock('~/components/invoices/details/InvoiceDetailsTable', () => ({
   InvoiceDetailsTable: jest.fn(() => null),

@@ -5,9 +5,15 @@ import {
   StatusTypeEnum,
   SubscriptionInformationFieldsFragment,
 } from '~/generated/graphql'
+import { preloadContextualLocale } from '~/hooks/core/useContextualLocale'
 import { render } from '~/test-utils'
+import { emptyBillingEntitiesMock } from '~/test-utils/fixtures/billingEntity'
 
 import { SubscriptionInformationFields } from '../SubscriptionInformationFields'
+
+beforeEach(async () => {
+  await preloadContextualLocale('en')
+})
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -65,7 +71,9 @@ describe('SubscriptionInformationFields', () => {
     within(screen.getByText(labelKey).parentElement as HTMLElement)
 
   it('renders the external id, customer name and the start date from startedAt', () => {
-    render(<SubscriptionInformationFields subscription={baseSubscription()} />)
+    render(<SubscriptionInformationFields subscription={baseSubscription()} />, {
+      mocks: [emptyBillingEntitiesMock],
+    })
 
     expect(screen.getByText('ext-1')).toBeInTheDocument()
     expect(screen.getByText('Acme')).toBeInTheDocument()
@@ -86,6 +94,7 @@ describe('SubscriptionInformationFields', () => {
       <SubscriptionInformationFields
         subscription={baseSubscription({ startedAt: '2026-03-15', subscriptionAt: '2026-01-01' })}
       />,
+      { mocks: [emptyBillingEntitiesMock] },
     )
 
     expect(
@@ -106,6 +115,7 @@ describe('SubscriptionInformationFields', () => {
           subscriptionAt: '2026-06-01',
         })}
       />,
+      { mocks: [emptyBillingEntitiesMock] },
     )
 
     expect(
@@ -121,6 +131,7 @@ describe('SubscriptionInformationFields', () => {
       <SubscriptionInformationFields
         subscription={baseSubscription({ startedAt: null, subscriptionAt: null })}
       />,
+      { mocks: [emptyBillingEntitiesMock] },
     )
 
     expect(getValueUnderLabel(START_DATE_LABEL).getByText('-')).toBeInTheDocument()
@@ -129,6 +140,7 @@ describe('SubscriptionInformationFields', () => {
   it('shows "-" instead of an invalid date when the subscription has no billing anchor date', () => {
     render(
       <SubscriptionInformationFields subscription={baseSubscription({ subscriptionAt: null })} />,
+      { mocks: [emptyBillingEntitiesMock] },
     )
 
     expect(getValueUnderLabel(BILLING_ANCHOR_LABEL).getByText('-')).toBeInTheDocument()
@@ -142,13 +154,16 @@ describe('SubscriptionInformationFields', () => {
           terminatedAt: null,
         })}
       />,
+      { mocks: [emptyBillingEntitiesMock] },
     )
 
     expect(getValueUnderLabel(END_DATE_LABEL).getByText('-')).toBeInTheDocument()
   })
 
   it('shows "-" for the end date when the subscription is active without an ending date', () => {
-    render(<SubscriptionInformationFields subscription={baseSubscription()} />)
+    render(<SubscriptionInformationFields subscription={baseSubscription()} />, {
+      mocks: [emptyBillingEntitiesMock],
+    })
 
     expect(getValueUnderLabel(END_DATE_LABEL).getByText('-')).toBeInTheDocument()
   })
@@ -156,6 +171,7 @@ describe('SubscriptionInformationFields', () => {
   it('renders the ending date when set on an active subscription', () => {
     render(
       <SubscriptionInformationFields subscription={baseSubscription({ endingAt: '2026-03-15' })} />,
+      { mocks: [emptyBillingEntitiesMock] },
     )
 
     expect(screen.getByText('formatted-2026-03-15')).toBeInTheDocument()
@@ -169,13 +185,17 @@ describe('SubscriptionInformationFields', () => {
           terminatedAt: '2026-02-20',
         })}
       />,
+      { mocks: [emptyBillingEntitiesMock] },
     )
 
     expect(screen.getByText('formatted-2026-02-20')).toBeInTheDocument()
   })
 
   it('renders the parent-plan field only when the plan has a parent', () => {
-    const { rerender } = render(<SubscriptionInformationFields subscription={baseSubscription()} />)
+    const { rerender } = render(
+      <SubscriptionInformationFields subscription={baseSubscription()} />,
+      { mocks: [emptyBillingEntitiesMock] },
+    )
 
     expect(screen.queryByText('text_65201c5a175a4b0238abf2a2')).not.toBeInTheDocument()
 
@@ -210,6 +230,7 @@ describe('SubscriptionInformationFields', () => {
           },
         })}
       />,
+      { mocks: [emptyBillingEntitiesMock] },
     )
 
     expect(screen.getByText('Acme text_1764874328964clrgkmh7i9h')).toBeInTheDocument()

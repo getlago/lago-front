@@ -5,6 +5,8 @@ import { ReactNode } from 'react'
 
 import { addToast } from '~/core/apolloClient'
 import {
+  GetBillableMetricsForProductDrawerDocument,
+  GetProductCategoriesForProductDrawerDocument,
   ProductForDrawerFragment,
   ProductTypeEnum,
   UpdateProductDocument,
@@ -81,6 +83,27 @@ const usageProductFixture: ProductForDrawerFragment = {
   billableMetric: { id: 'bm-1', name: 'API calls', code: 'api_calls' },
 }
 
+const drawerBodyMocks: MockedResponse[] = [
+  {
+    request: {
+      query: GetProductCategoriesForProductDrawerDocument,
+      variables: { page: 1, limit: 20 },
+    },
+    result: {
+      data: { productCategories: { collection: [productFixture.productCategory] } },
+    },
+  },
+  {
+    request: {
+      query: GetBillableMetricsForProductDrawerDocument,
+      variables: { page: 1, limit: 20 },
+    },
+    result: {
+      data: { billableMetrics: { collection: [usageProductFixture.billableMetric] } },
+    },
+  },
+]
+
 const renderDrawerHook = (mocks: MockedResponse[] = []) =>
   renderHook(() => useProductDrawer(), {
     wrapper: ({ children }: { children: ReactNode }) => (
@@ -99,7 +122,7 @@ const renderDrawerBody = () => {
     throw new Error('Drawer was not opened')
   }
   return render(
-    <MockedProvider mocks={[]} addTypename={false}>
+    <MockedProvider mocks={drawerBodyMocks} addTypename={false}>
       {lastDrawerArgs.children}
     </MockedProvider>,
   )

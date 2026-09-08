@@ -1,8 +1,7 @@
-import { loadDevMessages, loadErrorMessages } from '@apollo/client/dev'
 import { MockedProvider, MockedResponse } from '@apollo/client/testing'
 import { ThemeProvider } from '@mui/material/styles'
 import { configure, render, RenderOptions } from '@testing-library/react'
-import React, { ReactElement, useEffect } from 'react'
+import React, { ReactElement } from 'react'
 import Router, { BrowserRouter } from 'react-router-dom'
 
 import { MainHeaderProvider } from '~/components/MainHeader/MainHeaderContext'
@@ -11,6 +10,11 @@ import { initializeYup } from '~/formValidation/initializeYup'
 import { theme } from '~/styles'
 
 configure({ testIdAttribute: 'data-test' })
+
+beforeEach(async () => {
+  await initializeTranslations()
+  initializeYup()
+})
 
 const { mockNavigate } = (
   globalThis as unknown as { __testRouterMocks: { mockNavigate: jest.Mock } }
@@ -32,14 +36,6 @@ export const AllTheProviders = ({
   useParams?: { [key: string]: string }
   forceTypenames?: boolean
 }) => {
-  useEffect(() => {
-    initializeTranslations()
-    initializeYup()
-  }, [])
-  // Get Apollo error messages explicitely
-  loadDevMessages()
-  loadErrorMessages()
-
   !!useParams && jest.spyOn(Router, 'useParams').mockReturnValue(useParams)
 
   return (

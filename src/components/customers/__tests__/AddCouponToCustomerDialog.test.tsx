@@ -1,6 +1,11 @@
 import { act, fireEvent, renderHook } from '@testing-library/react'
 
-import { CouponFrequency, CouponTypeEnum, CurrencyEnum } from '~/generated/graphql'
+import {
+  CouponFrequency,
+  CouponTypeEnum,
+  CurrencyEnum,
+  GetCouponForCustomerDocument,
+} from '~/generated/graphql'
 import { AllTheProviders, render } from '~/test-utils'
 
 import { useAddCouponToCustomerDialog } from '../AddCouponToCustomerDialog'
@@ -358,7 +363,19 @@ describe('useAddCouponToCustomerDialog', () => {
           form.setFieldValue('frequency', CouponFrequency.Recurring)
         })
 
-        const { container } = render(config.children)
+        const { container } = render(config.children, {
+          mocks: [
+            {
+              request: {
+                query: GetCouponForCustomerDocument,
+                variables: { limit: 50, status: 'active' },
+              },
+              result: {
+                data: { coupons: { collection: [], metadata: { currentPage: 1, totalPages: 1 } } },
+              },
+            },
+          ],
+        })
         const input = container.querySelector<HTMLInputElement>('input[name="frequencyDuration"]')
 
         expect(input).not.toBeNull()

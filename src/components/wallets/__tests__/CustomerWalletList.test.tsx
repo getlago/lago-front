@@ -1,5 +1,6 @@
 import { screen } from '@testing-library/react'
 
+import { preloadContextualLocale } from '~/hooks/core/useContextualLocale'
 import { render } from '~/test-utils'
 
 import {
@@ -59,6 +60,10 @@ mockIntersectionObserver.mockReturnValue({
   disconnect: jest.fn(),
 })
 window.IntersectionObserver = mockIntersectionObserver
+
+beforeEach(async () => {
+  await preloadContextualLocale('en')
+})
 
 describe('CustomerWalletsList', () => {
   beforeEach(() => {

@@ -5,7 +5,11 @@ import { AI_AGENT_ERROR_TEST_ID, AI_AGENT_NAV_TEST_ID, AiAgent } from '~/compone
 import { CHAT_CONVERSATION_TEST_ID } from '~/components/aiAgent/ChatConversation'
 import { CHAT_HISTORY_ITEM_TEST_ID, CHAT_HISTORY_TEST_ID } from '~/components/aiAgent/ChatHistory'
 import { PANEL_AI_AGENT_WELCOME_TEST_ID } from '~/components/aiAgent/PanelAiAgent'
-import { GetAiConversationDocument, ListAiConversationsDocument } from '~/generated/graphql'
+import {
+  GetAiConversationDocument,
+  ListAiConversationsDocument,
+  OnConversationDocument,
+} from '~/generated/graphql'
 import { AiAgentProvider, AiAgentTypeEnum, useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { render, TestMocksType } from '~/test-utils'
 
@@ -15,12 +19,17 @@ jest.mock('~/components/aiAgent/llmOutputs', () => ({
 
 const PANEL_TEST_ID = 'ai-panel-element'
 
-jest.mock('react-resizable-panels', () => ({
-  Panel: ({ children }: { children: React.ReactNode }) => (
-    <div data-test="ai-panel-element">{children}</div>
-  ),
-  PanelGroup: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-}))
+jest.mock('react-resizable-panels', () => {
+  const { forwardRef, useImperativeHandle } = jest.requireActual('react')
+
+  return {
+    Panel: forwardRef(({ children }: { children: React.ReactNode }, ref: React.Ref<unknown>) => {
+      useImperativeHandle(ref, () => ({ resize: jest.fn() }))
+      return <div data-test="ai-panel-element">{children}</div>
+    }),
+    PanelGroup: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  }
+})
 
 let mockPanelShouldThrow = false
 
@@ -66,6 +75,11 @@ const OpenPanelProbe = ({ agentType }: { agentType: AiAgentTypeEnum }) => {
 }
 
 const mocks: TestMocksType = [
+  {
+    request: { query: OnConversationDocument, variables: { id: 'conv-1' } },
+    delay: Infinity,
+    result: { data: { aiConversationStreamed: { chunk: '', done: true } } },
+  },
   {
     request: {
       query: ListAiConversationsDocument,

@@ -4,6 +4,7 @@ import React from 'react'
 
 import { GetAccountingIntegrationsForExternalAppsAccordionDocument } from '~/generated/graphql'
 import { AllTheProviders } from '~/test-utils'
+import { expectConsoleError } from '~/test-utils/expectConsoleError'
 
 import { useAccountingProviders } from '../useAccountingProviders'
 
@@ -481,25 +482,34 @@ describe('useAccountingProviders', () => {
       })
 
       it('should handle integration without code property', async () => {
-        const { result } = await prepare({
-          mockData: {
-            integrations: {
-              collection: [
-                {
-                  __typename: 'NetsuiteIntegration',
-                  id: '1',
-                  name: 'No Code Integration',
+        await expectConsoleError(
+          [
+            "Missing field '%s' while writing result %o",
+            'code',
+            expect.objectContaining({ id: '1' }),
+          ],
+          async () => {
+            const { result } = await prepare({
+              mockData: {
+                integrations: {
+                  collection: [
+                    {
+                      __typename: 'NetsuiteIntegration',
+                      id: '1',
+                      name: 'No Code Integration',
+                    },
+                  ],
                 },
-              ],
-            },
+              },
+            })
+
+            await act(() => wait(0))
+
+            const providerType = result.current.getAccountingProviderFromCode('any-code')
+
+            expect(providerType).toBeUndefined()
           },
-        })
-
-        await act(() => wait(0))
-
-        const providerType = result.current.getAccountingProviderFromCode('any-code')
-
-        expect(providerType).toBeUndefined()
+        )
       })
 
       it('should handle whitespace in codes', async () => {

@@ -1,14 +1,16 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 
 import { FiltersItemActiveSubscriptions } from '~/components/Filters/graphql/filtersElements/FiltersItemActiveSubscriptions'
 import { ActiveSubscriptionsFilterInterval } from '~/components/Filters/presentation/types'
 import { AllTheProviders } from '~/test-utils'
 
-const renderComponent = (value?: string): { setFilterValue: jest.Mock } => {
+const renderComponent = async (value?: string): Promise<{ setFilterValue: jest.Mock }> => {
   const setFilterValue = jest.fn()
 
-  render(<FiltersItemActiveSubscriptions value={value} setFilterValue={setFilterValue} />, {
-    wrapper: AllTheProviders,
+  await act(async () => {
+    render(<FiltersItemActiveSubscriptions value={value} setFilterValue={setFilterValue} />, {
+      wrapper: AllTheProviders,
+    })
   })
 
   return { setFilterValue }
@@ -17,8 +19,8 @@ const renderComponent = (value?: string): { setFilterValue: jest.Mock } => {
 describe('FiltersItemActiveSubscriptions', () => {
   describe('GIVEN no initial value', () => {
     describe('WHEN the component is rendered', () => {
-      it('THEN should only display the interval combobox and initialize the filter value', () => {
-        const { setFilterValue } = renderComponent()
+      it('THEN should only display the interval combobox and initialize the filter value', async () => {
+        const { setFilterValue } = await renderComponent()
 
         expect(screen.getByRole('combobox')).toBeInTheDocument()
         expect(screen.queryAllByRole('textbox')).toHaveLength(0)
@@ -29,8 +31,8 @@ describe('FiltersItemActiveSubscriptions', () => {
 
   describe('GIVEN an "isBetween" value', () => {
     describe('WHEN the component is rendered', () => {
-      it('THEN should display both count inputs with the parsed values', () => {
-        const { setFilterValue } = renderComponent(
+      it('THEN should display both count inputs with the parsed values', async () => {
+        const { setFilterValue } = await renderComponent(
           `${ActiveSubscriptionsFilterInterval.isBetween},1,5`,
         )
 
@@ -47,14 +49,16 @@ describe('FiltersItemActiveSubscriptions', () => {
     })
 
     describe('WHEN the "from" count is changed', () => {
-      it('THEN should call setFilterValue with the updated from count', () => {
-        const { setFilterValue } = renderComponent(
+      it('THEN should call setFilterValue with the updated from count', async () => {
+        const { setFilterValue } = await renderComponent(
           `${ActiveSubscriptionsFilterInterval.isBetween},1,5`,
         )
 
         const [fromInput] = screen.getAllByRole('textbox')
 
-        fireEvent.change(fromInput, { target: { value: '3' } })
+        await act(async () => {
+          fireEvent.change(fromInput, { target: { value: '3' } })
+        })
 
         expect(setFilterValue).toHaveBeenLastCalledWith(
           `${ActiveSubscriptionsFilterInterval.isBetween},3,5`,
@@ -65,8 +69,8 @@ describe('FiltersItemActiveSubscriptions', () => {
 
   describe('GIVEN an "isGreaterThan" value', () => {
     describe('WHEN the component is rendered', () => {
-      it('THEN should display only the "from" count input', () => {
-        const { setFilterValue } = renderComponent(
+      it('THEN should display only the "from" count input', async () => {
+        const { setFilterValue } = await renderComponent(
           `${ActiveSubscriptionsFilterInterval.isGreaterThan},3,`,
         )
 
@@ -83,8 +87,8 @@ describe('FiltersItemActiveSubscriptions', () => {
 
   describe('GIVEN an "isLessThan" value', () => {
     describe('WHEN the component is rendered', () => {
-      it('THEN should display only the "to" count input', () => {
-        const { setFilterValue } = renderComponent(
+      it('THEN should display only the "to" count input', async () => {
+        const { setFilterValue } = await renderComponent(
           `${ActiveSubscriptionsFilterInterval.isLessThan},,7`,
         )
 

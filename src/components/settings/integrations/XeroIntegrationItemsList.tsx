@@ -43,7 +43,7 @@ const SelectedItemTypeEnumTranslation = {
 
 gql`
   fragment XeroIntegrationItems on XeroIntegration {
-    id # integrationId received in props
+    id
   }
 
   query getXeroIntegrationCollectionMappings($integrationId: ID!) {

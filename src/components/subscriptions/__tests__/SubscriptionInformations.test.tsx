@@ -6,6 +6,7 @@ import {
   StatusTypeEnum,
   SubscriptionForSubscriptionInformationsFragment,
 } from '~/generated/graphql'
+import { preloadContextualLocale } from '~/hooks/core/useContextualLocale'
 import { render } from '~/test-utils'
 
 import { SubscriptionDowngradeAlert, SubscriptionInformations } from '../SubscriptionInformations'
@@ -68,6 +69,10 @@ const baseSubscription: SubscriptionForSubscriptionInformationsFragment = {
     parent: null,
   },
 }
+
+beforeEach(async () => {
+  await preloadContextualLocale('en')
+})
 
 describe('SubscriptionInformations', () => {
   beforeEach(() => {

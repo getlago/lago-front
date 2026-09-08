@@ -104,9 +104,7 @@ describe('Login', () => {
 
       await renderLogin()
 
-      await act(async () => {
-        await user.click(getByDataTest('submit') as HTMLButtonElement)
-      })
+      await user.click(getByDataTest('submit') as HTMLButtonElement)
 
       await waitFor(() => {
         expect(document.querySelectorAll('[data-test="text-field-error"]')).toHaveLength(2)
@@ -131,9 +129,7 @@ describe('Login', () => {
         'password',
       )
 
-      await act(async () => {
-        await user.click(getByDataTest('submit') as HTMLButtonElement)
-      })
+      await user.click(getByDataTest('submit') as HTMLButtonElement)
 
       await waitFor(() => {
         expect(mockLoginUser).toHaveBeenCalledWith(
@@ -141,6 +137,7 @@ describe('Login', () => {
             variables: { input: { email: 'foo@bar.com', password: 'password' } },
           }),
         )
+        expect(getByDataTest('submit')).toBeEnabled()
       })
     })
 
@@ -158,12 +155,11 @@ describe('Login', () => {
 
       await user.type(passwordInput, 'password')
 
-      await act(async () => {
-        await user.type(passwordInput, '{Enter}')
-      })
+      await user.type(passwordInput, '{Enter}')
 
       await waitFor(() => {
         expect(mockLoginUser).toHaveBeenCalled()
+        expect(getByDataTest('submit')).toBeEnabled()
       })
     })
   })

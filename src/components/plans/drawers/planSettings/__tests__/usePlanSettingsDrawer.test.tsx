@@ -6,7 +6,7 @@ import { ReactNode } from 'react'
 
 import { FORM_DIALOG_NAME } from '~/components/dialogs/const'
 import FormDialog from '~/components/dialogs/FormDialog'
-import { PlanDetailsV2Fragment, UpdatePlanDocument } from '~/generated/graphql'
+import { PlanDetailsV2Fragment, UpdatePlanDocument, UpdatePlanMutation } from '~/generated/graphql'
 
 import { planDetailsV2Fixture } from '../../../details-v2/__tests__/fixtures'
 import { usePlanSettingsDrawer } from '../usePlanSettingsDrawer'
@@ -45,7 +45,9 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
-const updateMockFactory = (cascadeUpdates: boolean | undefined): MockedResponse => ({
+const updateMockFactory = (
+  cascadeUpdates: boolean | undefined,
+): MockedResponse<UpdatePlanMutation> => ({
   request: { query: UpdatePlanDocument },
   variableMatcher: (vars) => {
     const input = vars?.input
@@ -59,7 +61,16 @@ const updateMockFactory = (cascadeUpdates: boolean | undefined): MockedResponse 
     return input.cascadeUpdates === cascadeUpdates
   },
   result: {
-    data: { updatePlan: { ...planDetailsV2Fixture, name: 'Pro Renamed' } },
+    data: {
+      updatePlan: {
+        ...planDetailsV2Fixture,
+        name: 'Pro Renamed',
+        chargesCount: 0,
+        activeSubscriptionsCount: 0,
+        createdAt: '2024-01-01T00:00:00Z',
+        draftInvoicesCount: 0,
+      },
+    },
   },
 })
 
@@ -86,7 +97,18 @@ const renderDrawerBody = () => {
   }
   return render(
     <MockedProvider mocks={[]} addTypename={false}>
-      <NiceModal.Provider>{lastDrawerArgs.children}</NiceModal.Provider>
+      <NiceModal.Provider>
+        <form
+          id={lastDrawerArgs.form?.id}
+          onSubmit={(event) => {
+            event.preventDefault()
+            lastDrawerArgs?.form?.submit()
+          }}
+        >
+          {lastDrawerArgs.children}
+          {lastDrawerArgs.mainAction}
+        </form>
+      </NiceModal.Provider>
     </MockedProvider>,
   )
 }
@@ -133,6 +155,7 @@ describe('usePlanSettingsDrawer', () => {
     })
 
     await waitFor(() => {
+      expect(mockClose).toHaveBeenCalled()
       expect(screen.queryByText('text_1729604107534r3hsj7i64gp')).not.toBeInTheDocument()
     })
   })
@@ -294,9 +317,7 @@ describe('usePlanSettingsDrawer', () => {
     await userEvent.clear(nameInput)
     await userEvent.type(nameInput, 'Pro Renamed')
 
-    await act(async () => {
-      lastDrawerArgs?.form?.submit()
-    })
+    await userEvent.click(screen.getByRole('button', { name: 'text_17295436903260tlyb1gp1i7' }))
 
     await waitFor(() => {
       expect(screen.getByText('text_1729604107534r3hsj7i64gp')).toBeInTheDocument()

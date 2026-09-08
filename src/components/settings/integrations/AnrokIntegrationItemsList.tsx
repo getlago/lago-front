@@ -43,7 +43,7 @@ const SelectedItemTypeEnumTranslation = {
 
 gql`
   fragment AnrokIntegrationItems on AnrokIntegration {
-    id # integrationId received in props
+    id
   }
 
   query getAnrokIntegrationCollectionMappings($integrationId: ID!) {

@@ -1,5 +1,6 @@
 import { screen } from '@testing-library/react'
 
+import { AddMetadataDrawerRef } from '~/components/invoices/AddMetadataDrawer'
 import { MainHeaderConfig } from '~/components/MainHeader/types'
 import { addToast } from '~/core/apolloClient'
 import {
@@ -249,9 +250,16 @@ jest.mock('~/components/invoices/DisputeInvoiceDialog', () => ({
   useDisputeInvoiceDialog: () => ({ openDisputeInvoiceDialog: jest.fn() }),
 }))
 
-jest.mock('~/components/invoices/AddMetadataDrawer', () => ({
-  AddMetadataDrawer: () => null,
-}))
+jest.mock('~/components/invoices/AddMetadataDrawer', () => {
+  const { forwardRef, useImperativeHandle } = jest.requireActual<typeof import('react')>('react')
+
+  return {
+    AddMetadataDrawer: forwardRef<AddMetadataDrawerRef>((_props, ref): null => {
+      useImperativeHandle(ref, () => ({ openDrawer: jest.fn(), closeDrawer: jest.fn() }))
+      return null
+    }),
+  }
+})
 
 jest.mock('~/components/dialogs/PremiumWarningDialog', () => ({
   usePremiumWarningDialog: () => ({ open: jest.fn(), close: jest.fn() }),

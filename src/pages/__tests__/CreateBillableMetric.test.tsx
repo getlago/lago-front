@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react'
+import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { AggregationTypeEnum } from '~/generated/graphql'
@@ -33,9 +33,16 @@ jest.mock('~/core/router', () => ({
 jest.mock('~/components/billableMetrics/BillableMetricCodeSnippet', () => ({
   BillableMetricCodeSnippet: () => null,
 }))
-jest.mock('~/components/billableMetrics/CustomExpressionDrawer', () => ({
-  CustomExpressionDrawer: () => null,
-}))
+jest.mock('~/components/billableMetrics/CustomExpressionDrawer', () => {
+  const { forwardRef, useImperativeHandle } = jest.requireActual('react')
+
+  return {
+    CustomExpressionDrawer: forwardRef((_props: unknown, ref: React.Ref<unknown>) => {
+      useImperativeHandle(ref, () => ({ openDrawer: jest.fn(), closeDrawer: jest.fn() }))
+      return null
+    }),
+  }
+})
 
 const buildMetric = (overrides = {}) => ({
   id: 'bm-1',
@@ -73,28 +80,34 @@ describe('CreateBillableMetric', () => {
 
   describe('GIVEN a filter-value warning banner', () => {
     describe('WHEN editing a metric attached to plans or subscriptions', () => {
-      it('THEN should display the warning banner', () => {
-        render(<CreateBillableMetric />)
+      it('THEN should display the warning banner', async () => {
+        await act(async () => {
+          render(<CreateBillableMetric />)
+        })
 
         expect(screen.getByTestId(FILTER_VALUE_WARNING_ALERT_TEST_ID)).toBeInTheDocument()
       })
     })
 
     describe('WHEN editing a metric that is not in use', () => {
-      it('THEN should not display the warning banner', () => {
+      it('THEN should not display the warning banner', async () => {
         setHook({ billableMetric: buildMetric({ hasPlans: false, hasSubscriptions: false }) })
 
-        render(<CreateBillableMetric />)
+        await act(async () => {
+          render(<CreateBillableMetric />)
+        })
 
         expect(screen.queryByTestId(FILTER_VALUE_WARNING_ALERT_TEST_ID)).not.toBeInTheDocument()
       })
     })
 
     describe('WHEN creating a new metric', () => {
-      it('THEN should not display the warning banner', () => {
+      it('THEN should not display the warning banner', async () => {
         setHook({ isEdition: false, billableMetric: undefined })
 
-        render(<CreateBillableMetric />)
+        await act(async () => {
+          render(<CreateBillableMetric />)
+        })
 
         expect(screen.queryByTestId(FILTER_VALUE_WARNING_ALERT_TEST_ID)).not.toBeInTheDocument()
       })

@@ -1,6 +1,6 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { createRef } from 'react'
+import { act, createRef } from 'react'
 
 import { render } from '~/test-utils'
 
@@ -122,7 +122,9 @@ describe('Tooltip', () => {
 
       const trigger = screen.getByTestId(TOOLTIP_TRIGGER_TEST_ID)
 
-      trigger.focus()
+      act(() => {
+        trigger.focus()
+      })
 
       await waitFor(() => {
         expect(screen.getByText('Test tooltip')).toBeInTheDocument()
@@ -138,13 +140,17 @@ describe('Tooltip', () => {
 
       const trigger = screen.getByTestId(TOOLTIP_TRIGGER_TEST_ID)
 
-      trigger.focus()
+      act(() => {
+        trigger.focus()
+      })
 
       await waitFor(() => {
         expect(screen.getByText('Test tooltip')).toBeInTheDocument()
       })
 
-      trigger.blur()
+      act(() => {
+        trigger.blur()
+      })
 
       await waitFor(() => {
         expect(screen.queryByText('Test tooltip')).not.toBeInTheDocument()
@@ -181,7 +187,9 @@ describe('Tooltip', () => {
 
       const trigger = screen.getByTestId(TOOLTIP_TRIGGER_TEST_ID)
 
-      trigger.focus()
+      act(() => {
+        trigger.focus()
+      })
 
       // Wait a bit to ensure tooltip doesn't appear
       await new Promise((resolve) => setTimeout(resolve, 500))

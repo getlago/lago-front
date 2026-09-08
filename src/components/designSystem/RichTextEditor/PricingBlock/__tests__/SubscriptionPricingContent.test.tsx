@@ -207,9 +207,16 @@ jest.mock('~/components/plans/ProgressiveBillingSection', () => ({
   ),
 }))
 
-jest.mock('~/components/plans/drawers/subscriptionFee/SubscriptionFeeDrawer', () => ({
-  SubscriptionFeeDrawer: () => null,
-}))
+jest.mock('~/components/plans/drawers/subscriptionFee/SubscriptionFeeDrawer', () => {
+  const { forwardRef, useImperativeHandle } = jest.requireActual('react')
+
+  return {
+    SubscriptionFeeDrawer: forwardRef((_props: unknown, ref: React.Ref<unknown>) => {
+      useImperativeHandle(ref, () => ({ openDrawer: jest.fn(), closeDrawer: jest.fn() }))
+      return null
+    }),
+  }
+})
 
 describe('SubscriptionPricingContent', () => {
   beforeEach(() => {

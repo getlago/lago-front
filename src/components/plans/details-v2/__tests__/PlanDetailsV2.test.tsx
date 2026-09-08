@@ -72,7 +72,13 @@ jest.mock('~/components/plans/details-v2/accordions/EntitlementAccordion', () =>
 
   return {
     __esModule: true,
-    EntitlementAccordion: () => React.createElement('section', { id: 'entitlements' }),
+    EntitlementAccordion: React.forwardRef(function EntitlementAccordion(
+      _props: unknown,
+      ref: React.Ref<unknown>,
+    ) {
+      React.useImperativeHandle(ref, () => ({ openCreate: jest.fn() }))
+      return React.createElement('section', { id: 'entitlements' })
+    }),
   }
 })
 

@@ -2,6 +2,7 @@ import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { OrderExecutionModeEnum, OrderStatusEnum } from '~/generated/graphql'
+import { preloadContextualLocale } from '~/hooks/core/useContextualLocale'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import { useOrders } from '../hooks/useOrders'
@@ -79,6 +80,10 @@ const mockOrders = [
     },
   },
 ]
+
+beforeEach(async () => {
+  await preloadContextualLocale('en')
+})
 
 describe('OrdersList', () => {
   beforeEach(() => {

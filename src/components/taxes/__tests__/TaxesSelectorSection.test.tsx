@@ -1,8 +1,11 @@
 import { act, cleanup, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { TaxForTaxesSelectorSectionFragment } from '~/generated/graphql'
-import { render } from '~/test-utils'
+import {
+  GetTaxesForTaxesSelectorSectionDocument,
+  TaxForTaxesSelectorSectionFragment,
+} from '~/generated/graphql'
+import { render, TestMocksType } from '~/test-utils'
 
 import {
   buildTaxChipTestId,
@@ -36,8 +39,19 @@ const mockTaxes: TaxForTaxesSelectorSectionFragment[] = [
   { id: 'tax-2', code: 'GST', name: 'GST', rate: 10 },
 ]
 
+const taxMocks: TestMocksType = [
+  {
+    request: { query: GetTaxesForTaxesSelectorSectionDocument, variables: { limit: 500 } },
+    result: {
+      data: { taxes: { collection: mockTaxes, metadata: { currentPage: 1, totalPages: 1 } } },
+    },
+  },
+]
+
 async function prepare(props: Partial<TestProps> = {}): Promise<void> {
-  await act(() => render(<TaxesSelectorSection {...defaultProps} {...props} />))
+  await act(() =>
+    render(<TaxesSelectorSection {...defaultProps} {...props} />, { mocks: taxMocks }),
+  )
 }
 
 describe('TaxesSelectorSection', () => {
@@ -50,6 +64,7 @@ describe('TaxesSelectorSection', () => {
     it('renders with title only', async () => {
       const { container } = render(<TaxesSelectorSection {...defaultProps} />)
 
+      expect(screen.getByRole('button', { name: 'Add a tax rate' })).toBeInTheDocument()
       expect(container).toMatchSnapshot()
     })
 

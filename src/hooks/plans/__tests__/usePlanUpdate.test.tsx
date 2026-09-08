@@ -3,7 +3,14 @@ import { act, renderHook, waitFor } from '@testing-library/react'
 import { ReactNode } from 'react'
 
 import { addToast } from '~/core/apolloClient'
-import { UpdatePlanDocument, UpdatePlanInput } from '~/generated/graphql'
+import {
+  CurrencyEnum,
+  PlanInterval,
+  UpdatePlanDocument,
+  UpdatePlanInput,
+  UpdatePlanMutation,
+  UpdatePlanMutationVariables,
+} from '~/generated/graphql'
 
 import { usePlanUpdate } from '../usePlanUpdate'
 
@@ -26,13 +33,42 @@ const PLAN_ID = 'plan_1'
 
 const mutationInput = { id: PLAN_ID, name: 'X' } as unknown as UpdatePlanInput
 
-const updateMock: MockedResponse = {
+const updateMock: MockedResponse<UpdatePlanMutation, UpdatePlanMutationVariables> = {
   request: {
     query: UpdatePlanDocument,
     variables: { input: mutationInput },
   },
   result: {
-    data: { updatePlan: { __typename: 'Plan', id: PLAN_ID, name: 'X' } },
+    data: {
+      updatePlan: {
+        __typename: 'Plan',
+        id: PLAN_ID,
+        name: 'X',
+        code: 'plan_1',
+        chargesCount: 0,
+        activeSubscriptionsCount: 0,
+        createdAt: '2024-01-01T00:00:00Z',
+        draftInvoicesCount: 0,
+        description: null,
+        interval: PlanInterval.Monthly,
+        payInAdvance: false,
+        invoiceDisplayName: null,
+        amountCents: '1000',
+        amountCurrency: CurrencyEnum.Usd,
+        trialPeriod: null,
+        subscriptionsCount: 0,
+        billChargesMonthly: false,
+        hasOverriddenPlans: false,
+        billFixedChargesMonthly: false,
+        minimumCommitment: null,
+        taxes: [],
+        charges: [],
+        usageThresholds: [],
+        fixedCharges: [],
+        entitlements: [],
+        metadata: [],
+      },
+    },
   },
 }
 

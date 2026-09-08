@@ -98,6 +98,7 @@ const buildMocks = (collection = [mockAppliedCouponActive]): TestMocksType => [
             __typename: 'CollectionMetadata',
             currentPage: 1,
             totalPages: 1,
+            totalCount: collection.length,
           },
           collection,
         },

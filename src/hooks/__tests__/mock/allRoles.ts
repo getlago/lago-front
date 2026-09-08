@@ -13,6 +13,7 @@ export const allRoles: Array<RoleItem> = [
       {
         __typename: 'Membership',
         id: '1',
+        revokedAt: null,
         user: {
           __typename: 'User',
           id: '1',
@@ -22,6 +23,7 @@ export const allRoles: Array<RoleItem> = [
       {
         __typename: 'Membership',
         id: '2',
+        revokedAt: null,
         user: {
           __typename: 'User',
           id: '2',
@@ -31,6 +33,7 @@ export const allRoles: Array<RoleItem> = [
       {
         __typename: 'Membership',
         id: '4',
+        revokedAt: null,
         user: {
           __typename: 'User',
           id: '4',
@@ -66,6 +69,7 @@ export const allRoles: Array<RoleItem> = [
       {
         __typename: 'Membership',
         id: '3',
+        revokedAt: null,
         user: {
           __typename: 'User',
           id: '3',

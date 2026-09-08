@@ -1,7 +1,7 @@
 import NiceModal from '@ebay/nice-modal-react'
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { createRef, ReactNode } from 'react'
+import { act, createRef, ReactNode } from 'react'
 
 import CentralizedDialog from '~/components/dialogs/CentralizedDialog'
 import { CENTRALIZED_DIALOG_NAME } from '~/components/dialogs/const'
@@ -203,7 +203,9 @@ describe('Drawer', () => {
         </Drawer>,
       )
 
-      ref.current?.openDrawer()
+      act(() => {
+        ref.current?.openDrawer()
+      })
 
       expect(onOpen).toHaveBeenCalledTimes(1)
     })
@@ -264,7 +266,9 @@ describe('Drawer', () => {
 
       expect(screen.queryByTestId(DRAWER_CONTENT_TEST_ID)).not.toBeInTheDocument()
 
-      ref.current?.openDrawer()
+      act(() => {
+        ref.current?.openDrawer()
+      })
 
       await waitFor(() => {
         expect(screen.getByTestId(DRAWER_CONTENT_TEST_ID)).toBeInTheDocument()
@@ -282,7 +286,9 @@ describe('Drawer', () => {
 
       expect(screen.getByTestId(DRAWER_CONTENT_TEST_ID)).toBeVisible()
 
-      ref.current?.closeDrawer()
+      act(() => {
+        ref.current?.closeDrawer()
+      })
 
       await waitFor(() => {
         expect(screen.queryByTestId(DRAWER_CONTENT_TEST_ID)).not.toBeInTheDocument()

@@ -1,9 +1,14 @@
-import { screen } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
 
-import { PaymentMethodTypeEnum, WalletDetailsFragment } from '~/generated/graphql'
+import {
+  GetBillingEntitiesDocument,
+  PaymentMethodTypeEnum,
+  WalletDetailsFragment,
+} from '~/generated/graphql'
 import { createMockPaymentMethod } from '~/hooks/customer/__tests__/factories/PaymentMethod.factory'
 import { PaymentMethodItem } from '~/hooks/customer/usePaymentMethodsList'
 import { render } from '~/test-utils'
+import { buildBillingEntity } from '~/test-utils/fixtures/billingEntity'
 
 import WalletInformations, { WALLET_INFORMATIONS_CONTAINER_TEST_ID } from '../WalletInformations'
 
@@ -85,6 +90,23 @@ const createMockWallet = (overrides = {}) =>
     ...overrides,
   }) as unknown as WalletDetailsFragment
 
+const renderWallet = async (wallet: WalletDetailsFragment): Promise<void> => {
+  const billingEntitiesResult = jest.fn(() => ({
+    data: { billingEntities: { collection: [buildBillingEntity()] } },
+  }))
+
+  render(<WalletInformations wallet={wallet} />, {
+    mocks: [
+      {
+        request: { query: GetBillingEntitiesDocument, variables: {} },
+        result: billingEntitiesResult,
+      },
+    ],
+  })
+
+  await waitFor(() => expect(billingEntitiesResult).toHaveBeenCalledTimes(1))
+}
+
 describe('WalletInformations', () => {
   beforeEach(() => {
     mockHasFeatureFlag = false
@@ -104,8 +126,8 @@ describe('WalletInformations', () => {
 
   describe('GIVEN wallet data', () => {
     describe('WHEN rendered', () => {
-      it('THEN should show wallet informations container', () => {
-        render(<WalletInformations wallet={createMockWallet()} />)
+      it('THEN should show wallet informations container', async () => {
+        await renderWallet(createMockWallet())
 
         expect(screen.getByTestId(WALLET_INFORMATIONS_CONTAINER_TEST_ID)).toBeInTheDocument()
       })
@@ -114,15 +136,13 @@ describe('WalletInformations', () => {
 
   describe('GIVEN payment method details are empty ({})', () => {
     describe('WHEN the payment method is manual', () => {
-      it('THEN resolves "Manual payment" without an inherited badge', () => {
-        render(
-          <WalletInformations
-            wallet={createMockWallet({
-              customer: { id: 'cust-1', externalId: 'ext-1' },
-              paymentMethodType: PaymentMethodTypeEnum.Manual,
-              paymentMethod: { details: {} },
-            })}
-          />,
+      it('THEN resolves "Manual payment" without an inherited badge', async () => {
+        await renderWallet(
+          createMockWallet({
+            customer: { id: 'cust-1', externalId: 'ext-1' },
+            paymentMethodType: PaymentMethodTypeEnum.Manual,
+            paymentMethod: { details: {} },
+          }),
         )
 
         expect(screen.getByText(MANUAL_PAYMENT_TRANSLATION_KEY)).toBeInTheDocument()
@@ -131,20 +151,18 @@ describe('WalletInformations', () => {
     })
 
     describe('WHEN a specific provider card is selected (resolved from the list)', () => {
-      it('THEN shows the card and NOT the inherited badge', () => {
+      it('THEN shows the card and NOT the inherited badge', async () => {
         mockPaymentMethodsList = [
           createMockPaymentMethod({ id: 'pm_default', isDefault: true }),
           createMockPaymentMethod({ id: 'pm_specific', isDefault: false }),
         ]
 
-        render(
-          <WalletInformations
-            wallet={createMockWallet({
-              customer: { id: 'cust-1', externalId: 'ext-1' },
-              paymentMethodType: PaymentMethodTypeEnum.Provider,
-              paymentMethod: { id: 'pm_specific', details: {} },
-            })}
-          />,
+        await renderWallet(
+          createMockWallet({
+            customer: { id: 'cust-1', externalId: 'ext-1' },
+            paymentMethodType: PaymentMethodTypeEnum.Provider,
+            paymentMethod: { id: 'pm_specific', details: {} },
+          }),
         )
 
         expect(
@@ -157,17 +175,15 @@ describe('WalletInformations', () => {
     })
 
     describe('WHEN it falls back to the customer default (no specific method)', () => {
-      it('THEN shows the inherited badge', () => {
+      it('THEN shows the inherited badge', async () => {
         mockPaymentMethodsList = [createMockPaymentMethod({ id: 'pm_default', isDefault: true })]
 
-        render(
-          <WalletInformations
-            wallet={createMockWallet({
-              customer: { id: 'cust-1', externalId: 'ext-1' },
-              paymentMethodType: PaymentMethodTypeEnum.Provider,
-              paymentMethod: null,
-            })}
-          />,
+        await renderWallet(
+          createMockWallet({
+            customer: { id: 'cust-1', externalId: 'ext-1' },
+            paymentMethodType: PaymentMethodTypeEnum.Provider,
+            paymentMethod: null,
+          }),
         )
 
         expect(
@@ -179,8 +195,8 @@ describe('WalletInformations', () => {
 
   describe('GIVEN empty top-up min/max limits', () => {
     describe('WHEN rendered', () => {
-      it('THEN shows "-" instead of the grey "Not defined" label', () => {
-        render(<WalletInformations wallet={createMockWallet()} />)
+      it('THEN shows "-" instead of the grey "Not defined" label', async () => {
+        await renderWallet(createMockWallet())
 
         expect(screen.queryByText(NOT_DEFINED_TRANSLATION_KEY)).not.toBeInTheDocument()
         expect(screen.getByText(TOPUP_MIN_LABEL_TRANSLATION_KEY).parentElement).toHaveTextContent(
@@ -195,21 +211,19 @@ describe('WalletInformations', () => {
 
   describe('GIVEN no explicitly selected invoice custom sections', () => {
     describe('WHEN the customer inherits sections from the billing entity', () => {
-      it('THEN still shows the invoice custom sections (fallback), like the subscription overview', () => {
+      it('THEN still shows the invoice custom sections (fallback), like the subscription overview', async () => {
         mockCustomerIcsData = {
           configurableInvoiceCustomSections: [{ id: 'ics-1', name: 'Footer A' }],
           hasOverwrittenInvoiceCustomSectionsSelection: false,
           skipInvoiceCustomSections: false,
         }
 
-        render(
-          <WalletInformations
-            wallet={createMockWallet({
-              customer: { id: 'cust-1', externalId: 'ext-1' },
-              selectedInvoiceCustomSections: [],
-              skipInvoiceCustomSections: false,
-            })}
-          />,
+        await renderWallet(
+          createMockWallet({
+            customer: { id: 'cust-1', externalId: 'ext-1' },
+            selectedInvoiceCustomSections: [],
+            skipInvoiceCustomSections: false,
+          }),
         )
 
         expect(screen.getByText('Footer A')).toBeInTheDocument()

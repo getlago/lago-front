@@ -49,6 +49,7 @@ const buildCharge = (overrides: Partial<LocalFixedChargeInput> = {}): LocalFixed
 const fixedChargeResult = {
   __typename: 'FixedCharge' as const,
   id: 'fc_1',
+  code: 'onboarding',
   invoiceDisplayName: null,
   chargeModel: FixedChargeChargeModelEnum.Standard,
   units: '1',
@@ -255,7 +256,9 @@ describe('useFixedChargeMutationsWithCascade', () => {
       { wrapper: wrapper([]) },
     )
 
-    void result.current.handleSaveCharge(buildCharge(), null)
+    act(() => {
+      void result.current.handleSaveCharge(buildCharge(), null)
+    })
 
     // Cascade dialog is rendered via NiceModal portal; its title key should appear.
     await waitFor(() => {

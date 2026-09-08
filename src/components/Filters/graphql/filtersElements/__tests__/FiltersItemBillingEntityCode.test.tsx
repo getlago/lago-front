@@ -3,6 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react'
 import { FiltersItemBillingEntityCode } from '~/components/Filters/graphql/filtersElements/FiltersItemBillingEntityCode'
 import { GetBillingEntitiesDocument } from '~/generated/graphql'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
+import { buildBillingEntity } from '~/test-utils/fixtures/billingEntity'
 
 const mockSetFilterValue = jest.fn()
 
@@ -14,12 +15,11 @@ const billingEntitiesMock: TestMocksType = [
         billingEntities: {
           __typename: 'BillingEntityCollection',
           collection: [
-            {
-              __typename: 'BillingEntity',
+            buildBillingEntity({
               id: 'entity-1',
               code: 'entity-code-1',
               name: 'Acme Billing',
-            },
+            }),
           ],
         },
       },

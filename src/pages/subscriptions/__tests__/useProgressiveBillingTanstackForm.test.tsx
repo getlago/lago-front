@@ -56,8 +56,9 @@ const createUpdateMutationMock = (
       updateSubscription: {
         id: resultId,
         progressiveBillingDisabled: expectedInput.progressiveBillingDisabled,
-        usageThresholds: expectedInput.usageThresholds.map((t) => ({
+        usageThresholds: expectedInput.usageThresholds.map((t, index) => ({
           ...t,
+          id: `threshold-${index + 1}`,
           thresholdDisplayName: t.thresholdDisplayName || null,
         })),
       },

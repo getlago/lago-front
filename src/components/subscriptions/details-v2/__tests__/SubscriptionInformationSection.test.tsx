@@ -1,11 +1,14 @@
-import { fireEvent, screen } from '@testing-library/react'
+import { fireEvent, screen, waitFor } from '@testing-library/react'
 
 import {
   BillingTimeEnum,
+  GetBillingEntitiesDocument,
   StatusTypeEnum,
   SubscriptionInformationSectionFragment,
 } from '~/generated/graphql'
+import { preloadContextualLocale } from '~/hooks/core/useContextualLocale'
 import { render } from '~/test-utils'
+import { buildBillingEntity } from '~/test-utils/fixtures/billingEntity'
 
 import { SubscriptionInformationSection } from '../SubscriptionInformationSection'
 
@@ -65,14 +68,35 @@ const subscription = {
   plan: { id: 'plan-1', name: 'Current', interval: null, parent: null },
 } as unknown as SubscriptionInformationSectionFragment
 
+const renderSection = async (): Promise<void> => {
+  const billingEntitiesResult = jest.fn(() => ({
+    data: { billingEntities: { collection: [buildBillingEntity()] } },
+  }))
+
+  render(<SubscriptionInformationSection subscription={subscription} />, {
+    mocks: [
+      {
+        request: { query: GetBillingEntitiesDocument, variables: {} },
+        result: billingEntitiesResult,
+      },
+    ],
+  })
+
+  await waitFor(() => expect(billingEntitiesResult).toHaveBeenCalledTimes(1))
+}
+
+beforeEach(async () => {
+  await preloadContextualLocale('en')
+})
+
 describe('SubscriptionInformationSection', () => {
   beforeEach(() => {
     mockOpenDrawer.mockClear()
     mockHasPermission = true
   })
 
-  it('renders the read-only subscription information fields', () => {
-    render(<SubscriptionInformationSection subscription={subscription} />)
+  it('renders the read-only subscription information fields', async () => {
+    await renderSection()
 
     expect(screen.getByText('text_6335e8900c69f8ebdfef5312')).toBeInTheDocument() // title
     expect(screen.getByText('ext-1')).toBeInTheDocument()
@@ -82,18 +106,18 @@ describe('SubscriptionInformationSection', () => {
     expect(screen.getByText('formatted-2026-01-01')).toBeInTheDocument()
   })
 
-  it('opens the edit drawer when the Edit action is clicked', () => {
-    render(<SubscriptionInformationSection subscription={subscription} />)
+  it('opens the edit drawer when the Edit action is clicked', async () => {
+    await renderSection()
 
     fireEvent.click(screen.getByRole('button', { name: 'text_63e51ef4985f0ebd75c212fc' }))
 
     expect(mockOpenDrawer).toHaveBeenCalledTimes(1)
   })
 
-  it('hides the Edit action without the subscriptionsUpdate permission', () => {
+  it('hides the Edit action without the subscriptionsUpdate permission', async () => {
     mockHasPermission = false
 
-    render(<SubscriptionInformationSection subscription={subscription} />)
+    await renderSection()
 
     expect(
       screen.queryByRole('button', { name: 'text_63e51ef4985f0ebd75c212fc' }),

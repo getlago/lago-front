@@ -10,6 +10,7 @@ import {
   InvoiceTypeEnum,
   LagoApiError,
 } from '~/generated/graphql'
+import { preloadContextualLocale } from '~/hooks/core/useContextualLocale'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import CustomerInvoiceVoid, {
@@ -98,6 +99,10 @@ const mockQueryResult = ({
 }
 
 const renderPage = () => render(<CustomerInvoiceVoid />, { useParams: { customerId, invoiceId } })
+
+beforeEach(async () => {
+  await preloadContextualLocale('en')
+})
 
 describe('CustomerInvoiceVoid', () => {
   beforeEach(() => {

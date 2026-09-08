@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 
 import { buildPreviewEntities } from '~/core/serializers/serializeQuoteBillingItems'
 import { OrderTypeEnum, StatusEnum } from '~/generated/graphql'
+import { preloadContextualLocale } from '~/hooks/core/useContextualLocale'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import { useQuotePreviewVersion } from '../hooks/useQuotePreviewVersion'
@@ -82,6 +83,10 @@ const mockQuote = {
 
 const renderPage = (params: { quoteId: string; versionId: string }) =>
   render(<QuoteVersionPreview />, { useParams: params })
+
+beforeEach(async () => {
+  await preloadContextualLocale('en')
+})
 
 describe('QuoteVersionPreview', () => {
   beforeEach(() => {

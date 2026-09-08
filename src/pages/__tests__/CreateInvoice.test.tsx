@@ -13,6 +13,7 @@ import {
 import { FEES_SECTION_AT_LEAST_ONE_FEE_ERROR_TEST_ID } from '~/pages/createInvoice/components/FeesSection'
 import { useInvoiceBuildRegenerationPreview } from '~/pages/invoiceDetails/common/useInvoiceBuildRegenerationPreview'
 import { render } from '~/test-utils'
+import { emptyBillingEntitiesMock } from '~/test-utils/fixtures/billingEntity'
 
 import CreateInvoice, {
   computeHasTaxProvider,
@@ -377,13 +378,19 @@ describe('CreateInvoice - form behavior', () => {
   describe('GIVEN the page is loaded with a customer', () => {
     describe('WHEN the form is pristine', () => {
       it('THEN should enable the submit button upfront', () => {
-        render(<CreateInvoice />, { useParams: { customerId: 'cus_1' } })
+        render(<CreateInvoice />, {
+          mocks: [emptyBillingEntitiesMock],
+          useParams: { customerId: 'cus_1' },
+        })
 
         expect(screen.getByTestId(CREATE_INVOICE_SUBMIT_BUTTON_TEST_ID)).not.toBeDisabled()
       })
 
       it('THEN should not display the at-least-one-item error', () => {
-        render(<CreateInvoice />, { useParams: { customerId: 'cus_1' } })
+        render(<CreateInvoice />, {
+          mocks: [emptyBillingEntitiesMock],
+          useParams: { customerId: 'cus_1' },
+        })
 
         expect(
           screen.queryByTestId(FEES_SECTION_AT_LEAST_ONE_FEE_ERROR_TEST_ID),
@@ -395,7 +402,10 @@ describe('CreateInvoice - form behavior', () => {
       it('THEN should display the at-least-one-item error, disable the button and not create the invoice', async () => {
         const user = userEvent.setup()
 
-        render(<CreateInvoice />, { useParams: { customerId: 'cus_1' } })
+        render(<CreateInvoice />, {
+          mocks: [emptyBillingEntitiesMock],
+          useParams: { customerId: 'cus_1' },
+        })
 
         await user.click(screen.getByTestId(CREATE_INVOICE_SUBMIT_BUTTON_TEST_ID))
 
@@ -421,7 +431,10 @@ describe('CreateInvoice - form behavior', () => {
         error: undefined,
       })
 
-      render(<CreateInvoice />, { useParams: { customerId: 'cus_1' } })
+      render(<CreateInvoice />, {
+        mocks: [emptyBillingEntitiesMock],
+        useParams: { customerId: 'cus_1' },
+      })
     }
 
     describe('WHEN the customer has both an id and an externalId', () => {
@@ -468,6 +481,7 @@ describe('CreateInvoice - hook integration', () => {
     describe('WHEN a voidedInvoiceId is present in the URL', () => {
       it('THEN should call useInvoiceBuildRegenerationPreview with the voidedInvoiceId', () => {
         render(<CreateInvoice />, {
+          mocks: [emptyBillingEntitiesMock],
           useParams: { customerId: 'test-customer-id', voidedInvoiceId: 'voided-invoice-123' },
         })
 
@@ -478,6 +492,7 @@ describe('CreateInvoice - hook integration', () => {
     describe('WHEN no voidedInvoiceId is in the URL', () => {
       it('THEN should call useInvoiceBuildRegenerationPreview with an empty string', () => {
         render(<CreateInvoice />, {
+          mocks: [emptyBillingEntitiesMock],
           useParams: { customerId: 'test-customer-id' },
         })
 

@@ -93,9 +93,9 @@ gql`
       }
     }
     amountDetails {
-      freeUnits # for package charge model
-      fixedFeeUnitAmount # for percentage charge model
-      flatUnitAmount # for volume charge model
+      freeUnits
+      fixedFeeUnitAmount
+      flatUnitAmount
       graduatedRanges {
         toValue
       }

@@ -131,6 +131,9 @@ jest.mock('~/hooks/forms/useAppform', () => ({
       AppField: () => null,
       AppForm: () => null,
       Subscribe: () => null,
+      SubmitButton: ({ children }: { children: React.ReactNode }) => (
+        <button type="submit">{children}</button>
+      ),
     }
   },
 }))
@@ -1050,7 +1053,7 @@ describe('useOneOffPricingDrawer', () => {
     })
 
     describe('WHEN submitting for a one-off with no confirmed add-on items', () => {
-      it('THEN should not call onSave', () => {
+      it('THEN should not call onSave', async () => {
         const mockOnSave = jest.fn()
 
         const { result } = renderHook(() => useOneOffPricingDrawer(), {
@@ -1070,8 +1073,8 @@ describe('useOneOffPricingDrawer', () => {
           addOnItems: [{ localId: 'local-uuid-pending', addOnId: '', name: '', code: '' }],
         }
 
-        act(() => {
-          capturedOnSubmit?.({ value: mockFormValues })
+        await act(async () => {
+          await capturedOnSubmit?.({ value: mockFormValues })
         })
 
         expect(mockOnSave).not.toHaveBeenCalled()
@@ -1081,7 +1084,7 @@ describe('useOneOffPricingDrawer', () => {
 
   describe('GIVEN the captureAddOnPayload callback', () => {
     describe('WHEN an add-on is selected in the drawer', () => {
-      it('THEN should store the add-on payload for later serialization', () => {
+      it('THEN should store the add-on payload for later serialization', async () => {
         const { result } = renderHook(() => useOneOffPricingDrawer(), { wrapper })
 
         act(() => {
@@ -1145,8 +1148,8 @@ describe('useOneOffPricingDrawer', () => {
           })
         })
 
-        act(() => {
-          capturedOnSubmit?.({ value: mockFormValues })
+        await act(async () => {
+          await capturedOnSubmit?.({ value: mockFormValues })
         })
 
         expect(mockOnSave).toHaveBeenCalledWith(
@@ -1166,7 +1169,7 @@ describe('useOneOffPricingDrawer', () => {
     })
 
     describe('WHEN the quote already owns a currency', () => {
-      it('THEN should not forward the add-on currency', () => {
+      it('THEN should not forward the add-on currency', async () => {
         const { result } = renderHook(
           () =>
             useOneOffPricingDrawer(undefined, {
@@ -1228,8 +1231,8 @@ describe('useOneOffPricingDrawer', () => {
           })
         })
 
-        act(() => {
-          capturedOnSubmit?.({ value: mockFormValues })
+        await act(async () => {
+          await capturedOnSubmit?.({ value: mockFormValues })
         })
 
         expect(mockOnSave.mock.calls[0][3]).toBeUndefined()

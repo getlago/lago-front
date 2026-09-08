@@ -107,6 +107,9 @@ describe('MembersInvitationList', () => {
       it('THEN should display the search input', async () => {
         await prepare()
 
+        expect(
+          await screen.findByText('test1@example.com', {}, { timeout: SEARCH_TIMEOUT }),
+        ).toBeInTheDocument()
         expect(screen.getByPlaceholderText(SEARCH_PLACEHOLDER)).toBeInTheDocument()
       })
 
@@ -141,13 +144,11 @@ describe('MembersInvitationList', () => {
       it('THEN should display the email and role column headers', async () => {
         await prepare()
 
-        await waitFor(
-          () => {
-            expect(screen.getByText('text_63208b630aaf8df6bbfb2655')).toBeInTheDocument()
-          },
-          { timeout: SEARCH_TIMEOUT },
-        )
+        expect(
+          await screen.findByText('test1@example.com', {}, { timeout: SEARCH_TIMEOUT }),
+        ).toBeInTheDocument()
 
+        expect(screen.getByText('text_63208b630aaf8df6bbfb2655')).toBeInTheDocument()
         expect(screen.getByText('text_664f035a68227f00e261b7ec')).toBeInTheDocument()
       })
 
@@ -409,19 +410,23 @@ describe('MembersInvitationList', () => {
           ...rolesListMock,
           delay: Infinity,
         }
+        const unfilteredResult = jest.fn(() => buildInvitesResult())
         // The response the component would get if it queried before resolving the role id
         const unfilteredMock = {
           request: {
             query: GetInvitesDocument,
             variables: DEFAULT_VARIABLES,
           },
-          result: buildInvitesResult(),
+          result: unfilteredResult,
         }
 
         await prepare({ mocks: [unfilteredMock, pendingRolesMock], url: '/?roles=Admin' })
 
-        await new Promise((resolve) => setTimeout(resolve, 1000))
+        await act(async () => {
+          await new Promise((resolve) => setTimeout(resolve, 1000))
+        })
 
+        expect(unfilteredResult).toHaveBeenCalledTimes(1)
         expect(screen.queryByText('test1@example.com')).not.toBeInTheDocument()
         expect(screen.queryByText('test2@example.com')).not.toBeInTheDocument()
       })

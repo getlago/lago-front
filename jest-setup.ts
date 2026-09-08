@@ -1,10 +1,14 @@
 // Console suppression is handled in jest-setup-early.ts (runs before imports)
+import { loadDevMessages, loadErrorMessages } from '@apollo/client/dev'
 import '@testing-library/jest-dom'
 
 // Registers the default Zod error message for every suite — pure schema tests never go
 // through `test-utils`, so they would otherwise see a different default than the app.
 import './src/formValidation/initializeZod'
 import muiSnapshotSerializer from './src/test-utils/snapshotSerializer'
+
+loadDevMessages()
+loadErrorMessages()
 
 // jsdom has no ResizeObserver; components that observe layout (virtualized lists, the
 // plan-details sidebar) reference it on mount. Provide a global no-op so any test that

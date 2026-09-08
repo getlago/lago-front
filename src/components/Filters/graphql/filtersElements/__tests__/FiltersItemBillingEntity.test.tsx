@@ -4,6 +4,7 @@ import { FiltersItemBillingEntity } from '~/components/Filters/graphql/filtersEl
 import { filterDataInlineSeparator } from '~/components/Filters/presentation/types'
 import { GetBillingEntitiesDocument } from '~/generated/graphql'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
+import { buildBillingEntity } from '~/test-utils/fixtures/billingEntity'
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -21,18 +22,16 @@ const billingEntitiesMock: TestMocksType = [
         billingEntities: {
           __typename: 'BillingEntityCollection',
           collection: [
-            {
-              __typename: 'BillingEntity',
+            buildBillingEntity({
               id: 'entity-1',
               code: 'entity-code-1',
               name: 'Acme Billing',
-            },
-            {
-              __typename: 'BillingEntity',
+            }),
+            buildBillingEntity({
               id: 'entity-2',
               code: 'entity-code-2',
               name: 'Beta Billing',
-            },
+            }),
           ],
         },
       },

@@ -43,7 +43,7 @@ const SelectedItemTypeEnumTranslation = {
 
 gql`
   fragment NetsuiteIntegrationItems on NetsuiteIntegration {
-    id # integrationId received in props
+    id
   }
 
   query getNetsuiteIntegrationCollectionMappings($integrationId: ID!) {

@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 
 import { addToast } from '~/core/apolloClient'
 import { CurrencyEnum, OrderTypeEnum, StatusEnum } from '~/generated/graphql'
+import { preloadContextualLocale } from '~/hooks/core/useContextualLocale'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import { useQuote } from '../hooks/useQuote'
@@ -120,6 +121,10 @@ const mockQuote = {
     },
   },
 }
+
+beforeEach(async () => {
+  await preloadContextualLocale('en')
+})
 
 describe('VoidQuote', () => {
   beforeEach(() => {

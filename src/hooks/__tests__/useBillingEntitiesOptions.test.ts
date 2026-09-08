@@ -1,45 +1,13 @@
 import { renderHook, waitFor } from '@testing-library/react'
 
-import {
-  BillingEntityDocumentNumberingEnum,
-  CurrencyEnum,
-  GetBillingEntitiesDocument,
-} from '~/generated/graphql'
+import { GetBillingEntitiesDocument } from '~/generated/graphql'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
+import { buildBillingEntity as buildEntity } from '~/test-utils/fixtures/billingEntity'
 
 import {
   BILLING_ENTITY_INHERIT_CODE,
   useBillingEntitiesOptions,
 } from '../useBillingEntitiesOptions'
-
-const buildEntity = (overrides: Record<string, unknown>) => ({
-  __typename: 'BillingEntity' as const,
-  id: 'entity-id',
-  code: 'entity-code',
-  name: 'Entity name',
-  documentNumbering: BillingEntityDocumentNumberingEnum.PerCustomer,
-  documentNumberPrefix: 'INV',
-  logoUrl: null,
-  legalName: null,
-  legalNumber: null,
-  taxIdentificationNumber: null,
-  email: null,
-  addressLine1: null,
-  addressLine2: null,
-  zipcode: null,
-  city: null,
-  state: null,
-  country: null,
-  emailSettings: [],
-  timezone: null,
-  isDefault: false,
-  defaultCurrency: CurrencyEnum.Usd,
-  euTaxManagement: false,
-  einvoicing: false,
-  selectedInvoiceCustomSections: [],
-  appliedDunningCampaign: null,
-  ...overrides,
-})
 
 const billingEntitiesMock = (entities: ReturnType<typeof buildEntity>[]): TestMocksType => [
   {

@@ -182,7 +182,8 @@ describe('CreateTaxRate', () => {
         await user.type(getNameInput(), 'Enter Tax')
         await user.type(getRateInput(), '20')
 
-        getNameInput().focus()
+        await user.click(getNameInput())
+        expect(getNameInput()).toHaveFocus()
         await user.keyboard('{Enter}')
 
         await waitFor(() => {

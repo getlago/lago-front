@@ -67,6 +67,7 @@ const createCreditNoteEstimateMock = (
         ],
         maxCreditableAmountCents,
         maxRefundableAmountCents,
+        maxOffsettableAmountCents: '0',
         subTotalExcludingTaxesAmountCents: '10000',
         taxesAmountCents: '0',
         taxesRate: 0,

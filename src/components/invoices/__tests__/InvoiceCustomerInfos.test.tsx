@@ -16,9 +16,14 @@ import {
   InvoiceTypeEnum,
   TimezoneEnum,
 } from '~/generated/graphql'
+import { preloadContextualLocale } from '~/hooks/core/useContextualLocale'
 import { render } from '~/test-utils'
 
 const originalDefaultZone = Settings.defaultZone
+
+beforeEach(async () => {
+  await preloadContextualLocale('en')
+})
 
 describe('InvoiceCustomerInfos', () => {
   beforeAll(() => {

@@ -1,6 +1,7 @@
 import { renderHook, screen } from '@testing-library/react'
 
 import { OrderFormStatusEnum } from '~/generated/graphql'
+import { preloadContextualLocale } from '~/hooks/core/useContextualLocale'
 import { render } from '~/test-utils'
 
 import { useOrderFormsColumns } from '../useOrderFormsColumns'
@@ -41,7 +42,9 @@ describe('useOrderFormsColumns', () => {
     expect(result.current[0].title).toBe('text_1781624189693d7zcv2vog4c')
   })
 
-  it('status column renders a Status badge', () => {
+  it('status column renders a Status badge', async () => {
+    await preloadContextualLocale('en')
+
     const { result } = renderHook(() => useOrderFormsColumns())
     const statusColumn = result.current[2]
 

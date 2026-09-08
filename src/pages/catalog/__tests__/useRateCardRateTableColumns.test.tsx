@@ -8,6 +8,7 @@ import {
   RateCardRateModelEnum,
   RateCardRateStatusEnum,
 } from '~/generated/graphql'
+import { preloadContextualLocale } from '~/hooks/core/useContextualLocale'
 import { render } from '~/test-utils'
 
 import { buildRateCardRate, buildRateProperties } from './fixtures'
@@ -77,6 +78,10 @@ const getColumnContent = (
 
   return column.content
 }
+
+beforeEach(async () => {
+  await preloadContextualLocale('en')
+})
 
 describe('useRateCardRateTableColumns', () => {
   describe('GIVEN the rates list', () => {

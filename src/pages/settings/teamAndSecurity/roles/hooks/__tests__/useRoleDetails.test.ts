@@ -162,6 +162,7 @@ describe('useRoleDetails', () => {
       __typename: 'Role' as const,
       id: '100',
       name: 'custom-role',
+      code: 'custom-role',
       description: 'A custom role',
       admin: false,
       memberships: [],
@@ -172,12 +173,14 @@ describe('useRoleDetails', () => {
       __typename: 'Role' as const,
       id: '101',
       name: 'custom-role-with-members',
+      code: 'custom-role-with-members',
       description: 'A custom role with members',
       admin: false,
       memberships: [
         {
           __typename: 'Membership' as const,
           id: '10',
+          revokedAt: null,
           user: {
             __typename: 'User' as const,
             id: '10',

@@ -8,7 +8,11 @@ import {
   CENTRALIZED_DIALOG_NAME,
 } from '~/components/dialogs/const'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import { CountryCode } from '~/generated/graphql'
+import {
+  CountryCode,
+  GetTaxProviderPresenceDocument,
+  IntegrationTypeEnum,
+} from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import LagoTaxManagementIntegration, {
@@ -89,8 +93,29 @@ describe('LagoTaxManagementIntegration', () => {
   afterEach(cleanup)
 
   const renderPage = async () => {
+    const taxProviderPresenceResult = jest.fn(() => ({
+      data: { integrations: { collection: [] } },
+    }))
+
     await act(async () => {
-      render(<Page />)
+      render(<Page />, {
+        mocks: [
+          {
+            request: {
+              query: GetTaxProviderPresenceDocument,
+              variables: {
+                limit: 1,
+                integrationsType: [IntegrationTypeEnum.Anrok, IntegrationTypeEnum.Avalara],
+              },
+            },
+            result: taxProviderPresenceResult,
+          },
+        ],
+      })
+    })
+
+    await waitFor(() => {
+      expect(taxProviderPresenceResult).toHaveBeenCalledTimes(1)
     })
   }
 

@@ -82,12 +82,14 @@ const settleDrawerTransition = async (): Promise<void> => {
   })
 }
 
-const renderAndOpenDrawer = (data: Parameters<EditFeeDrawerRef['openDrawer']>[0]): void => {
+const renderAndOpenDrawer = async (
+  data: Parameters<EditFeeDrawerRef['openDrawer']>[0],
+): Promise<void> => {
   const ref = createRef<EditFeeDrawerRef>()
 
   render(<EditFeeDrawer ref={ref} />)
 
-  act(() => {
+  await act(async () => {
     ref.current?.openDrawer(data)
   })
 
@@ -96,7 +98,7 @@ const renderAndOpenDrawer = (data: Parameters<EditFeeDrawerRef['openDrawer']>[0]
   expect(screen.getByTestId(EDIT_FEE_DRAWER_SUBMIT_BUTTON_TEST_ID)).toBeInTheDocument()
 }
 
-const renderEditDrawer = (): void =>
+const renderEditDrawer = (): Promise<void> =>
   renderAndOpenDrawer({ mode: 'edit', invoiceId: 'invoice-1', fee: buildFee() })
 
 describe('EditFeeDrawer', () => {
@@ -107,16 +109,16 @@ describe('EditFeeDrawer', () => {
 
   describe('GIVEN the drawer is open in edit mode', () => {
     describe('WHEN openDrawer is called with a fee', () => {
-      it('THEN should render the drawer body', () => {
-        renderEditDrawer()
+      it('THEN should render the drawer body', async () => {
+        await renderEditDrawer()
 
         expect(screen.getByTestId(EDIT_FEE_DRAWER_SUBMIT_BUTTON_TEST_ID)).toBeInTheDocument()
       })
     })
 
     describe('WHEN the createAdjustedFee mutation is configured', () => {
-      it('THEN should silence not_found so the global error link stops toasting it generically', () => {
-        renderEditDrawer()
+      it('THEN should silence not_found so the global error link stops toasting it generically', async () => {
+        await renderEditDrawer()
 
         expect(mockMutationConfig?.context?.silentErrorCodes).toContain(LagoApiError.NotFound)
       })
@@ -126,16 +128,16 @@ describe('EditFeeDrawer', () => {
       // Draft fees are recreated with new ids when the draft is refreshed server-side, so a row
       // rendered before that refresh submits a feeId the API 404s on. Before this was handled the
       // user got the generic "an error occurred" toast and a drawer stuck on the stale id.
-      const failWithStaleFee = (): void => {
-        renderEditDrawer()
+      const failWithStaleFee = async (): Promise<void> => {
+        await renderEditDrawer()
 
-        act(() => {
+        await act(async () => {
           mockMutationConfig?.onError?.(buildError(LagoApiError.NotFound, { fee: ['not_found'] }))
         })
       }
 
-      it('THEN should show the dedicated stale-fee toast rather than the generic one', () => {
-        failWithStaleFee()
+      it('THEN should show the dedicated stale-fee toast rather than the generic one', async () => {
+        await failWithStaleFee()
 
         expect(mockAddToast).toHaveBeenCalledWith({
           severity: 'danger',
@@ -144,15 +146,15 @@ describe('EditFeeDrawer', () => {
       })
 
       it('THEN should close the drawer instead of leaving it on the stale fee', async () => {
-        failWithStaleFee()
+        await failWithStaleFee()
 
         await settleDrawerTransition()
 
         expect(screen.queryByTestId(EDIT_FEE_DRAWER_SUBMIT_BUTTON_TEST_ID)).not.toBeInTheDocument()
       })
 
-      it('THEN should refetch the invoice so the rows carry the new fee ids', () => {
-        failWithStaleFee()
+      it('THEN should refetch the invoice so the rows carry the new fee ids', async () => {
+        await failWithStaleFee()
 
         expect(mockRefetchQueries).toHaveBeenCalledWith({
           include: ['getInvoiceDetails', 'getInvoiceFees'],
@@ -161,8 +163,8 @@ describe('EditFeeDrawer', () => {
     })
 
     describe('WHEN the mutation fails with a not_found pointing at another resource', () => {
-      const failWithOtherNotFound = (): void => {
-        renderEditDrawer()
+      const failWithOtherNotFound = async (): Promise<void> => {
+        await renderEditDrawer()
 
         act(() => {
           mockMutationConfig?.onError?.(
@@ -171,8 +173,8 @@ describe('EditFeeDrawer', () => {
         })
       }
 
-      it('THEN should fall back to the generic toast, since not_found is silenced here', () => {
-        failWithOtherNotFound()
+      it('THEN should fall back to the generic toast, since not_found is silenced here', async () => {
+        await failWithOtherNotFound()
 
         expect(mockAddToast).toHaveBeenCalledWith({
           severity: 'danger',
@@ -181,15 +183,15 @@ describe('EditFeeDrawer', () => {
       })
 
       it('THEN should keep the drawer open so the user can retry', async () => {
-        failWithOtherNotFound()
+        await failWithOtherNotFound()
 
         await settleDrawerTransition()
 
         expect(screen.getByTestId(EDIT_FEE_DRAWER_SUBMIT_BUTTON_TEST_ID)).toBeInTheDocument()
       })
 
-      it('THEN should not refetch the invoice', () => {
-        failWithOtherNotFound()
+      it('THEN should not refetch the invoice', async () => {
+        await failWithOtherNotFound()
 
         expect(mockRefetchQueries).not.toHaveBeenCalled()
       })
@@ -205,8 +207,8 @@ describe('EditFeeDrawer', () => {
           LagoApiError.UnprocessableEntity,
           { units: ['value_is_out_of_range'] },
         ],
-      ])('THEN should leave the toast to the error link on %s', (_, code, details) => {
-        renderEditDrawer()
+      ])('THEN should leave the toast to the error link on %s', async (_, code, details) => {
+        await renderEditDrawer()
 
         act(() => {
           mockMutationConfig?.onError?.(buildError(code, details))
@@ -216,7 +218,7 @@ describe('EditFeeDrawer', () => {
       })
 
       it('THEN should keep the drawer open and not refetch', async () => {
-        renderEditDrawer()
+        await renderEditDrawer()
 
         act(() => {
           mockMutationConfig?.onError?.(buildError(LagoApiError.UnprocessableEntity))
@@ -234,8 +236,8 @@ describe('EditFeeDrawer', () => {
     describe('WHEN the mutation fails with a bare not_found', () => {
       // No feeId is submitted in add mode, so a not_found can never be the stale-fee case —
       // claiming "this fee no longer exists" there would be plainly wrong.
-      it('THEN should fall back to the generic toast', () => {
-        renderAndOpenDrawer({
+      it('THEN should fall back to the generic toast', async () => {
+        await renderAndOpenDrawer({
           mode: 'add',
           invoiceId: 'invoice-1',
           invoiceSubscriptionId: 'sub-1',

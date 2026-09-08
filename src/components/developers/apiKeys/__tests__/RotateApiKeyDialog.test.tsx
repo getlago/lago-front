@@ -102,9 +102,7 @@ describe('RotateApiKeyDialog', () => {
         await prepare()
 
         // "Now" is the default selected option, no need to click any radio.
-        await act(async () => {
-          await user.click(screen.getByTestId(ROTATE_API_KEY_DIALOG_SUBMIT_BUTTON_TEST_ID))
-        })
+        await user.click(screen.getByTestId(ROTATE_API_KEY_DIALOG_SUBMIT_BUTTON_TEST_ID))
 
         await waitFor(() => {
           expect(mockRotate).toHaveBeenCalledWith({
@@ -143,13 +141,9 @@ describe('RotateApiKeyDialog', () => {
 
         expect(oneWeekRadio).toBeDefined()
 
-        await act(async () => {
-          await user.click(oneWeekRadio as HTMLElement)
-        })
+        await user.click(oneWeekRadio as HTMLElement)
 
-        await act(async () => {
-          await user.click(screen.getByTestId(ROTATE_API_KEY_DIALOG_SUBMIT_BUTTON_TEST_ID))
-        })
+        await user.click(screen.getByTestId(ROTATE_API_KEY_DIALOG_SUBMIT_BUTTON_TEST_ID))
 
         await waitFor(() => {
           expect(mockRotate).toHaveBeenCalledTimes(1)

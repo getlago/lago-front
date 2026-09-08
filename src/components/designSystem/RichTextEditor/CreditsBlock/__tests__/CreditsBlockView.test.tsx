@@ -4,6 +4,7 @@ import { NodeViewProps } from '@tiptap/react'
 import type { EntityData } from '~/components/designSystem/RichTextEditor/common/RichTextEditorContext'
 import type { WalletPreviewData } from '~/core/serializers/buildWalletPreviewData'
 import { CurrencyEnum } from '~/generated/graphql'
+import { preloadContextualLocale } from '~/hooks/core/useContextualLocale'
 import { render } from '~/test-utils'
 
 import * as ctx from '../../common/RichTextEditorContext'
@@ -55,6 +56,10 @@ const renderView = (attrs: { localId: string }, override = {}) => {
 
   return render(<CreditsBlockView {...nodeViewProps} />)
 }
+
+beforeEach(async () => {
+  await preloadContextualLocale('en')
+})
 
 describe('CreditsBlockView', () => {
   it('renders the empty state when there is no resolved wallet', () => {

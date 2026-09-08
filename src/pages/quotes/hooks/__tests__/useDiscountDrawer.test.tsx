@@ -1366,7 +1366,9 @@ describe('useDiscountDrawer', () => {
     // Clearing the combobox runs the `!coupon` branch: couponId and the four
     // captured base fields reset, so the coupon-dependent amount field unmounts.
     await userEvent.clear(comboBoxInput)
-    comboBoxInput.blur()
+    act(() => {
+      comboBoxInput.blur()
+    })
 
     await waitFor(() => {
       expect(screen.queryByDisplayValue('10')).not.toBeInTheDocument()
