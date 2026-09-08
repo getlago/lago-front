@@ -363,6 +363,18 @@ describe('EditQuote', () => {
     })
   })
 
+  describe('GIVEN the page is opened', () => {
+    describe('WHEN the quote is fetched', () => {
+      // The restored persisted cache would otherwise initialize the editor with the previous
+      // content, which it keeps until the next reload.
+      it('THEN should bypass the cache and read the quote from the server', () => {
+        render(<EditQuote />)
+
+        expect(mockUseQuote).toHaveBeenCalledWith('quote-123', { fetchPolicy: 'network-only' })
+      })
+    })
+  })
+
   describe('GIVEN the quote is loaded', () => {
     describe('WHEN rendered', () => {
       it('THEN should display quote number and version', () => {
