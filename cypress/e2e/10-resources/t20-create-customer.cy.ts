@@ -49,7 +49,7 @@ describe('Create customer', () => {
       cy.url().should('include', '/customer/')
       cy.contains(randomId).should('exist')
 
-      cy.get('button[role="tab"]').contains('Settings').click()
+      cy.get('[role="tab"]').contains('Settings').click()
       cy.get('[data-test="add-vat-rate-button"]').last().click()
       cy.get('[data-test="form-dialog"]').should('exist')
     })
