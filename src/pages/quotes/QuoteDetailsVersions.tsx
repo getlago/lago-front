@@ -110,11 +110,11 @@ const QuoteDetailsVersions = ({ quote }: QuoteDetailsVersionsProps): JSX.Element
 
     if (actions.length === 0) return null
 
-    return actions.map(({ icon, label, onAction }) => ({
-      startIcon: icon,
-      title: label,
-      onAction: () => onAction(),
-    }))
+    return actions.map((action) =>
+      action.link
+        ? { startIcon: action.icon, title: action.label, link: action.link }
+        : { startIcon: action.icon, title: action.label, onAction: () => action.onAction() },
+    )
   }
 
   return (

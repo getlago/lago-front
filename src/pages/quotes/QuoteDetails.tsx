@@ -72,11 +72,16 @@ const QuoteDetails = (): JSX.Element => {
       {
         type: 'dropdown' as const,
         label: translate('text_1776414006125pcxcyeblul7'),
-        items: actions.map(({ icon, label, onAction }) => ({
-          label,
-          startIcon: icon,
+        // The header dropdown takes handlers only, so a link entry navigates here.
+        items: actions.map((action) => ({
+          label: action.label,
+          startIcon: action.icon,
           onClick: (closePopper: () => void) => {
-            onAction()
+            if (action.link) {
+              navigate(action.link())
+            } else {
+              action.onAction()
+            }
             closePopper()
           },
         })),

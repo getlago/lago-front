@@ -2,6 +2,7 @@ import { act, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { Button } from '~/components/designSystem/Button'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { render, testMockNavigateFn } from '~/test-utils'
 
@@ -188,9 +189,43 @@ describe('Table', () => {
       })
     })
 
-    describe('WHEN a cell nests its own button', () => {
-      // The first cell is wrapped in the row anchor, so a nested control would
-      // otherwise navigate the row away on top of running its own handler.
+    describe('WHEN the first cell renders its own control', () => {
+      // An anchor may not contain interactive descendants, so the cell keeps the
+      // plain row click. Guards the real case: an inline copy button.
+      it.each([
+        ['a button', (row: any) => <Button onClick={jest.fn()}>copy {row.name}</Button>],
+        [
+          'a TypographyWithCopy',
+          (row: any) => <TypographyWithCopy variant="body">{row.name}</TypographyWithCopy>,
+        ],
+      ])('THEN should not wrap %s in the row anchor', async (_, content) => {
+        await prepare({
+          props: {
+            onRowActionLink: (row: any) => `/rows/${row.id}`,
+            columns: [{ key: 'name' as const, title: 'Name', content }],
+          },
+        })
+
+        expect(screen.queryAllByRole('link')).toHaveLength(0)
+      })
+
+      it('THEN should still wrap a cell whose content is inert', async () => {
+        await prepare({
+          props: {
+            onRowActionLink: (row: any) => `/rows/${row.id}`,
+            columns: [
+              {
+                key: 'name' as const,
+                title: 'Name',
+                content: (row: any) => <div>{row.name}</div>,
+              },
+            ],
+          },
+        })
+
+        expect(screen.getAllByRole('link')[0]).toHaveAttribute('href', '/rows/1')
+      })
+
       it('THEN should run only the nested handler', async () => {
         const onCellButtonClick = jest.fn()
 

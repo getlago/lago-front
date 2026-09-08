@@ -3,7 +3,7 @@ import MUITableBody from '@mui/material/TableBody'
 import { type TableCellProps } from '@mui/material/TableCell'
 import MUITableHead from '@mui/material/TableHead'
 import MUITableRow, { type TableRowProps } from '@mui/material/TableRow'
-import { MouseEvent, PropsWithChildren, ReactNode, useRef } from 'react'
+import { isValidElement, MouseEvent, PropsWithChildren, ReactNode, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
@@ -16,6 +16,7 @@ import { Popper } from '~/components/designSystem/Popper'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { Link, useNavigate } from '~/core/router'
 import { prependOrgSlug } from '~/core/router/utils/prependOrgSlug'
@@ -79,9 +80,6 @@ export interface TableProps<T> {
   loadingRowCount?: number
   placeholder?: TablePlaceholder
   activeRowId?: string
-  // Called while rendering to build the row's anchor href, so it must stay pure.
-  // A side effect on row activation belongs in `onRowActionClick`, which runs
-  // alongside the navigation when both are given.
   onRowActionLink?: (item: T) => string
   onRowActionClick?: (item: T) => void
   actionColumn?: ActionColumn<T>
@@ -91,6 +89,35 @@ export interface TableProps<T> {
   rowSize?: RowSize
   tableInDialog?: boolean
   containerClassName?: string
+}
+
+const INTERACTIVE_CELL_COMPONENTS: ReadonlySet<unknown> = new Set([
+  Button,
+  ButtonLink,
+  TypographyWithCopy,
+])
+
+// An anchor may not contain interactive descendants, and several first columns
+// render their own control (the inline copy button). Those cells keep the plain
+// row click instead of gaining a link.
+const hasInteractiveContent = (node: ReactNode): boolean => {
+  if (Array.isArray(node)) {
+    return node.some(hasInteractiveContent)
+  }
+
+  if (!isValidElement(node)) {
+    return false
+  }
+
+  if (node.type === 'button' || node.type === 'a') {
+    return true
+  }
+
+  if (INTERACTIVE_CELL_COMPONENTS.has(node.type)) {
+    return true
+  }
+
+  return hasInteractiveContent((node.props as { children?: ReactNode })?.children)
 }
 
 const ACTION_COLUMN_ID = 'actionColumn'
@@ -437,7 +464,7 @@ export const Table = <T extends DataItem>({
     const content = column.content(item)
     const link = onRowActionLink?.(item)
 
-    if (!link) {
+    if (!link || hasInteractiveContent(content)) {
       return content
     }
 

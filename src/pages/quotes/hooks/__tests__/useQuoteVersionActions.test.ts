@@ -1,7 +1,6 @@
 import { renderHook } from '@testing-library/react'
 
 import { QuoteListItemFragment, StatusEnum } from '~/generated/graphql'
-import { testMockNavigateFn } from '~/test-utils'
 
 import { useQuoteVersionActions } from '../useQuoteVersionActions'
 
@@ -97,14 +96,14 @@ describe('useQuoteVersionActions', () => {
           }),
         )
 
-        actions[0].onAction()
+        actions[0].onAction?.()
 
         expect(mockGoToApproveQuote).toHaveBeenCalledWith('draft-1', 'version-draft-1')
       })
     })
 
     describe('WHEN edit action is triggered', () => {
-      it('THEN should navigate to the edit quote route', () => {
+      it('THEN should link to the edit quote route', () => {
         const { result } = renderHook(() => useQuoteVersionActions())
 
         const actions = result.current.getActions(
@@ -115,16 +114,12 @@ describe('useQuoteVersionActions', () => {
           }),
         )
 
-        actions[1].onAction()
-
-        expect(testMockNavigateFn).toHaveBeenCalledWith(
-          '/quote/draft-1/version/version-draft-1/edit',
-        )
+        expect(actions[1].link?.()).toBe('/quote/draft-1/version/version-draft-1/edit')
       })
     })
 
     describe('WHEN void action is triggered', () => {
-      it('THEN should navigate to the void quote route', () => {
+      it('THEN should link to the void quote route', () => {
         const { result } = renderHook(() => useQuoteVersionActions())
 
         const actions = result.current.getActions(
@@ -135,11 +130,7 @@ describe('useQuoteVersionActions', () => {
           }),
         )
 
-        actions[2].onAction()
-
-        expect(testMockNavigateFn).toHaveBeenCalledWith(
-          '/quote/draft-1/version/version-draft-1/void',
-        )
+        expect(actions[2].link?.()).toBe('/quote/draft-1/version/version-draft-1/void')
       })
     })
 
@@ -157,7 +148,7 @@ describe('useQuoteVersionActions', () => {
           }),
         )
 
-        actions[3].onAction()
+        actions[3].onAction?.()
 
         expect(mockOpenCloneDialog).toHaveBeenCalledWith('version-draft-1', 'QT-001 - v3')
       })

@@ -2,7 +2,6 @@ import { renderHook } from '@testing-library/react'
 
 import { OrderFormListItemFragment, OrderFormStatusEnum } from '~/generated/graphql'
 import { buildQuotePreviewProps } from '~/pages/quotes/common/buildQuotePreviewProps'
-import { testMockNavigateFn } from '~/test-utils'
 
 import { useOrderFormActions } from '../useOrderFormActions'
 
@@ -182,28 +181,24 @@ describe('useOrderFormActions', () => {
 
   describe('GIVEN the void action', () => {
     describe('WHEN triggered', () => {
-      it('THEN should navigate to the void order form route', () => {
+      it('THEN should link to the void order form route', () => {
         const { result } = renderHook(() => useOrderFormActions())
         const actions = result.current.getActions(createMockOrderForm({ id: 'of-42' }))
         const voidAction = actions.find((a) => a.icon === 'stop')
 
-        voidAction?.onAction()
-
-        expect(testMockNavigateFn).toHaveBeenCalledWith('/order-form/of-42/void')
+        expect(voidAction?.link?.()).toBe('/order-form/of-42/void')
       })
     })
   })
 
   describe('GIVEN the sign action', () => {
     describe('WHEN triggered', () => {
-      it('THEN should navigate to the sign order form route', () => {
+      it('THEN should link to the sign order form route', () => {
         const { result } = renderHook(() => useOrderFormActions())
         const actions = result.current.getActions(createMockOrderForm({ id: 'of-99' }))
         const signAction = actions.find((a) => a.icon === 'writing-sign')
 
-        signAction?.onAction()
-
-        expect(testMockNavigateFn).toHaveBeenCalledWith('/order-form/of-99/sign')
+        expect(signAction?.link?.()).toBe('/order-form/of-99/sign')
       })
     })
   })
@@ -216,7 +211,7 @@ describe('useOrderFormActions', () => {
         const actions = result.current.getActions(orderForm)
         const downloadAction = actions.find((a) => a.icon === 'download')
 
-        downloadAction?.onAction()
+        downloadAction?.onAction?.()
 
         expect(mockedBuildQuotePreviewProps).toHaveBeenCalledWith({
           version: orderForm.quote.currentVersion,
@@ -238,7 +233,7 @@ describe('useOrderFormActions', () => {
       const orderForm = createMockOrderForm({ expiresAt: '2026-12-31T00:00:00Z' })
       const actions = result.current.getActions(orderForm)
 
-      actions.find((a) => a.icon === 'download')?.onAction()
+      actions.find((a) => a.icon === 'download')?.onAction?.()
 
       const headerArg = mockedBuildQuotePreviewProps.mock.calls[0][0].header
 
