@@ -610,6 +610,7 @@ const RateCardDrawerFormSections = withForm({
                   description={translate(RATE_CARD_TAXES_DESCRIPTION_KEY)}
                   taxes={taxes}
                   comboboxSelector={SEARCH_TAX_INPUT_FOR_RATE_CARD_CLASSNAME}
+                  chipAppearance="filled"
                   onUpdate={(newTaxes) => form.setFieldValue('taxes', newTaxes)}
                 />
               )}
