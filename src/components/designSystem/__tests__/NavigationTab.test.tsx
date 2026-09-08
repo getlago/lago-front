@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react'
+import { fireEvent, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { render, testMockNavigateFn } from '~/test-utils'
@@ -41,6 +41,30 @@ describe('NavigationTab', () => {
 
         expect(window.location.pathname).toBe('/customers/1/invoices')
         expect(testMockNavigateFn).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the user cmd-clicks another tab', () => {
+      // MUI fires Tabs.onChange before the tab's own onClick. The browser owns a
+      // modified click, so the consumer must not be told the tab changed.
+      it('THEN should not report a tab change', () => {
+        const onChange = jest.fn()
+
+        render(<NavigationTab tabs={urlTabs} onChange={onChange} />)
+
+        fireEvent.click(screen.getByText('Invoices'), { metaKey: true })
+
+        expect(onChange).not.toHaveBeenCalled()
+      })
+
+      it('THEN should still report a plain click', () => {
+        const onChange = jest.fn()
+
+        render(<NavigationTab tabs={urlTabs} onChange={onChange} />)
+
+        fireEvent.click(screen.getByText('Invoices'))
+
+        expect(onChange).toHaveBeenCalledWith(1)
       })
     })
 
