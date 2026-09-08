@@ -96,13 +96,19 @@ describe('NavigationTabBar', () => {
     })
 
     describe('WHEN the user clicks it', () => {
-      it('THEN should let the anchor route instead of navigating imperatively', async () => {
+      // Clicking the inner label rather than the tab root mirrors how the e2e
+      // suite drives tabs: `cy.get('[role="tab"]').contains(...)` resolves to
+      // the deepest element holding the text.
+      it('THEN should navigate to that tab through the anchor', async () => {
         const user = userEvent.setup()
+
+        window.history.pushState({}, '', '/customers/1/overview')
 
         render(<NavigationTabBar tabs={baseTabs} />)
 
-        await user.click(screen.getByTestId('tab-invoices'))
+        await user.click(screen.getByText('Invoices'))
 
+        expect(window.location.pathname).toBe('/customers/1/invoices')
         expect(testMockNavigateFn).not.toHaveBeenCalled()
       })
     })
