@@ -3,6 +3,7 @@ import { ReactNode } from 'react'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Avatar } from '~/components/designSystem/Avatar'
+import { Chip } from '~/components/designSystem/Chip'
 import { Selector } from '~/components/designSystem/Selector'
 import { Typography } from '~/components/designSystem/Typography'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -21,10 +22,12 @@ export type LockedConnectionSelection = {
   title: string
   subtitle?: string
   icon: ReactNode
+  isDefault?: boolean
 }
 
 export const PROVIDER_SELECTION_TITLE_TEST_ID = 'provider-selection-title'
 export const PROVIDER_SELECTION_LOCKED_SELECTOR_TEST_ID = 'provider-selection-locked-selector'
+export const PROVIDER_SELECTION_DEFAULT_BADGE_TEST_ID = 'provider-selection-default-badge'
 
 /** Payment provider info alerts, shown right in the selection block */
 const PAYMENT_PROVIDER_INFO_ALERT_KEYS: Record<string, string> = {
@@ -80,6 +83,14 @@ export const ProviderSelectionSection = ({
             <Avatar size="big" variant="connector-full">
               {lockedSelection.icon}
             </Avatar>
+          }
+          endContent={
+            lockedSelection.isDefault ? (
+              <Chip
+                label={translate('text_65281f686a80b400c8e2f6d1')}
+                data-test={PROVIDER_SELECTION_DEFAULT_BADGE_TEST_ID}
+              />
+            ) : undefined
           }
         />
       ) : (

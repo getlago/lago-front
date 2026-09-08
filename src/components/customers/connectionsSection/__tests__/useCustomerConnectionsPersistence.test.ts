@@ -43,6 +43,22 @@ const mockDestroyIntegration = jest.fn(() =>
 const mockClearPaymentProvider = jest.fn(() =>
   Promise.resolve({ data: { updateCustomer: { id: 'cust-1' } } }),
 )
+const mockSetPaymentDefault = jest.fn(() =>
+  Promise.resolve({
+    data: { setPaymentProviderCustomerAsDefault: { id: 'pc-1', isDefault: true } },
+  }),
+)
+const mockSetIntegrationDefault = jest.fn(() =>
+  Promise.resolve({
+    data: {
+      setIntegrationCustomerAsDefault: {
+        __typename: 'NetsuiteCustomer',
+        id: 'link-1',
+        isDefault: true,
+      },
+    },
+  }),
+)
 const mockClientQuery = jest.fn(() => Promise.resolve({ data: { customer: null } }))
 const mockAddToast = jest.fn()
 const mockApplyExistingCodeError = jest.fn()
@@ -77,6 +93,8 @@ jest.mock('~/generated/graphql', () => ({
   },
   useDestroyCustomerIntegrationConnectionMutation: () => [mockDestroyIntegration],
   useClearCustomerPaymentProviderMutation: () => [mockClearPaymentProvider],
+  useSetCustomerPaymentConnectionAsDefaultMutation: () => [mockSetPaymentDefault],
+  useSetCustomerIntegrationConnectionAsDefaultMutation: () => [mockSetIntegrationDefault],
 }))
 
 jest.mock('@apollo/client', () => ({
@@ -726,6 +744,7 @@ describe('useCustomerConnectionsPersistence', () => {
       expect(mockAddToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
     })
   })
+
   describe('GIVEN the connection code', () => {
     describe('WHEN creating a payment connection with a code', () => {
       it('THEN should send it to the create mutation', async () => {
@@ -894,6 +913,89 @@ describe('useCustomerConnectionsPersistence', () => {
 
         expect(succeeded).toBe(false)
         expect(mockApplyExistingCodeError).toHaveBeenCalledWith(formApi)
+        expect(mockAddToast).not.toHaveBeenCalledWith(
+          expect.objectContaining({ severity: 'success' }),
+        )
+      })
+    })
+  })
+
+  describe('GIVEN a set-connection-as-default', () => {
+    describe('WHEN the row is a payment connection', () => {
+      it('THEN should call the payment mutation with the connection id and refresh the customer', async () => {
+        const result = setup()
+
+        const succeeded = await result.current.setConnectionAsDefault({
+          id: 'payment-stripe-eu',
+          category: ConnectionCategory.Payment,
+          name: 'Stripe EU',
+          connectionId: 'pc-1',
+          isDefault: false,
+        })
+
+        expect(succeeded).toBe(true)
+        expect(mockSetPaymentDefault).toHaveBeenCalledWith({
+          variables: { input: { id: 'pc-1' } },
+        })
+        expect(mockSetIntegrationDefault).not.toHaveBeenCalled()
+        expect(mockClientQuery).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    describe('WHEN the row is an integration connection', () => {
+      it('THEN should call the integration mutation with the connection id', async () => {
+        const result = setup()
+
+        const succeeded = await result.current.setConnectionAsDefault({
+          id: 'accounting-ns-1',
+          category: ConnectionCategory.Accounting,
+          name: 'NetSuite Prod',
+          connectionId: 'nc-1',
+          isDefault: false,
+        })
+
+        expect(succeeded).toBe(true)
+        expect(mockSetIntegrationDefault).toHaveBeenCalledWith({
+          variables: { input: { id: 'nc-1' } },
+        })
+        expect(mockSetPaymentDefault).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the row carries no persisted connection id', () => {
+      it('THEN should abort without calling any mutation and without refreshing', async () => {
+        const result = setup()
+
+        const succeeded = await result.current.setConnectionAsDefault({
+          id: 'payment-cashfree',
+          category: ConnectionCategory.Payment,
+          name: 'Cashfree',
+        })
+
+        expect(succeeded).toBe(false)
+        expect(mockSetPaymentDefault).not.toHaveBeenCalled()
+        expect(mockSetIntegrationDefault).not.toHaveBeenCalled()
+        expect(mockClientQuery).not.toHaveBeenCalled()
+        expect(mockAddToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
+      })
+    })
+
+    describe('WHEN the mutation returns no payload', () => {
+      it('THEN should resolve false and skip the refresh', async () => {
+        mockSetPaymentDefault.mockResolvedValueOnce({ data: {} } as never)
+
+        const result = setup()
+
+        const succeeded = await result.current.setConnectionAsDefault({
+          id: 'payment-stripe-eu',
+          category: ConnectionCategory.Payment,
+          name: 'Stripe EU',
+          connectionId: 'pc-1',
+          isDefault: false,
+        })
+
+        expect(succeeded).toBe(false)
+        expect(mockClientQuery).not.toHaveBeenCalled()
         expect(mockAddToast).not.toHaveBeenCalledWith(
           expect.objectContaining({ severity: 'success' }),
         )

@@ -49,6 +49,7 @@ gql`
         integrationCode
         code
         integrationType
+        isDefault
         subsidiaryId
         syncWithProvider
       }
@@ -60,6 +61,7 @@ gql`
         integrationCode
         code
         integrationType
+        isDefault
         syncWithProvider
       }
       ... on AvalaraCustomer {
@@ -70,6 +72,7 @@ gql`
         integrationCode
         code
         integrationType
+        isDefault
         syncWithProvider
       }
       ... on XeroCustomer {
@@ -80,6 +83,7 @@ gql`
         integrationCode
         code
         integrationType
+        isDefault
         syncWithProvider
       }
       ... on HubspotCustomer {
@@ -90,6 +94,7 @@ gql`
         integrationCode
         code
         integrationType
+        isDefault
         syncWithProvider
         targetedObject
       }
@@ -101,6 +106,7 @@ gql`
         integrationCode
         code
         integrationType
+        isDefault
         syncWithProvider
       }
     }
