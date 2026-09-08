@@ -157,7 +157,7 @@ export const CustomerConnectionsList = ({
         )}
 
         {showStatusColumn && (
-          <div className="w-30">
+          <div className="w-20">
             {row.isDefault && (
               <Chip
                 label={translate('text_65281f686a80b400c8e2f6d1')}
@@ -263,7 +263,7 @@ export const CustomerConnectionsList = ({
           </Typography>
         )}
         {showStatusColumn && (
-          <Typography className="w-30" variant="captionHl" color="grey600">
+          <Typography className="w-20" variant="captionHl" color="grey600">
             {translate('text_63ac86d797f728a87b2f9fa7')}
           </Typography>
         )}
