@@ -27,6 +27,10 @@ const FetchableIntegrationItemEmpty = ({
         title: translate('text_629728388c4d2300e2d380d5'),
         subtitle: translate('text_63bab307a61c62af497e0599'),
       },
+      [MappableTypeEnum.Product]: {
+        title: translate('text_1783980718114wya9wp01m5i'),
+        subtitle: translate('text_1783980718114522760cy1qb'),
+      },
     },
     false: {
       [MappableTypeEnum.AddOn]: {
@@ -40,6 +44,13 @@ const FetchableIntegrationItemEmpty = ({
         title: translate('text_623b53fea66c76017eaebb70'),
         subtitle: translate('text_623b53fea66c76017eaebb78'),
         buttonTitle: translate('text_623b53fea66c76017eaebb7c'),
+        buttonVariant: 'primary',
+        buttonAction: () => navigate(createRoute),
+      },
+      [MappableTypeEnum.Product]: {
+        title: translate('text_1783980718114bqx4jce32fv'),
+        subtitle: translate('text_1783980718114kj0fch41rw4'),
+        buttonTitle: translate('text_1788865200000t74x8pgm9ra'),
         buttonVariant: 'primary',
         buttonAction: () => navigate(createRoute),
       },
