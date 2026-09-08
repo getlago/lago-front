@@ -62,7 +62,7 @@ exports[`Members Snapshot matches snapshot 1`] = `
                 <a
                   aria-controls="simple-tabpanel-0"
                   aria-selected="true"
-                  class=MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected relative my-2 h-9 justify-between gap-1 overflow-visible rounded-xl p-2 text-grey-600 no-underline [min-height:unset] [min-width:unset] first:-ml-2 last:-mr-2 hover:bg-grey-100 hover:text-grey-700 hover:no-underline css-hash-MuiButtonBase-root-MuiTab-root
+                  class=MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected relative my-2 h-9 justify-between gap-1 overflow-visible rounded-xl p-2 text-grey-600 no-underline [min-height:unset] [min-width:unset] first:-ml-2 last:-mr-2 hover:bg-grey-100 hover:text-grey-700 hover:no-underline focus:rounded-xl focus:ring-0 css-hash-MuiButtonBase-root-MuiTab-root
                   href="/settings/team-and-security/members/members"
                   id="simple-tab-0"
                   role="tab"
@@ -77,7 +77,7 @@ exports[`Members Snapshot matches snapshot 1`] = `
                 <a
                   aria-controls="simple-tabpanel-1"
                   aria-selected="false"
-                  class=MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary relative my-2 h-9 justify-between gap-1 overflow-visible rounded-xl p-2 text-grey-600 no-underline [min-height:unset] [min-width:unset] first:-ml-2 last:-mr-2 hover:bg-grey-100 hover:text-grey-700 hover:no-underline css-hash-MuiButtonBase-root-MuiTab-root
+                  class=MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary relative my-2 h-9 justify-between gap-1 overflow-visible rounded-xl p-2 text-grey-600 no-underline [min-height:unset] [min-width:unset] first:-ml-2 last:-mr-2 hover:bg-grey-100 hover:text-grey-700 hover:no-underline focus:rounded-xl focus:ring-0 css-hash-MuiButtonBase-root-MuiTab-root
                   href="/settings/team-and-security/members/invitations"
                   id="simple-tab-1"
                   role="tab"
