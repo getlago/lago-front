@@ -19,6 +19,8 @@ export const useAnrokIntegrationMappingCUD = (
       return ['getBillableMetricsForAnrokItemsList']
     }
 
+    if (formType === MappableTypeEnum.Product) return ['getProductsForAnrokItemsList']
+
     return ['getAnrokIntegrationCollectionMappings']
   }
 

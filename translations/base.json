@@ -4904,5 +4904,8 @@
   "text_1788366458013ubk4410jvj7": "Tax rate (optional)",
   "text_17883664580131qxuvyxjzvs": "Set specific tax rates to apply to fees generated from this rate card.",
   "text_1788366458013xjjkd5j2ate": "Tax rates",
-  "text_1788366458013p269p15ecg4": "No tax rates set on this rate card."
+  "text_1788366458013p269p15ecg4": "No tax rates set on this rate card.",
+  "text_1788865200000t74x8pgm9ra": "Go to product catalog",
+  "text_1788865200001q3w6mz2nk5d": "Map {{productName}} with a {{integrationType}} item",
+  "text_1788865200002h9r4cv7yx1b": "To link this product with {{integrationType}}, define the corresponding item in your {{integrationType}} account."
 }

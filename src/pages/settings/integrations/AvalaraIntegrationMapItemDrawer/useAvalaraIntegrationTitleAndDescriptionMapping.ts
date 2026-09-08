@@ -76,6 +76,18 @@ export const useAvalaraIntegrationTitleAndDescriptionMapping = () => {
             integrationType: translate('text_1744293609277s53zn6jcoq4'),
           }),
         }
+      case MappableTypeEnum.Product:
+        return {
+          title: translate('text_1788865200001q3w6mz2nk5d', {
+            productName: isDefaultMappingInMappableContext(dataToTest)
+              ? dataToTest.itemMappings.default.lagoMappableName
+              : '',
+            integrationType: translate('text_1744293609277s53zn6jcoq4'),
+          }),
+          description: translate('text_1788865200002h9r4cv7yx1b', {
+            integrationType: translate('text_1744293609277s53zn6jcoq4'),
+          }),
+        }
       default:
         return { title: '', description: '' }
     }
