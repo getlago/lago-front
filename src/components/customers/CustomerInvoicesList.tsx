@@ -551,14 +551,11 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                     startIcon: 'document',
                     title: translate('text_636bdef6565341dcb9cfb127'),
                     disabled: disabledIssueCreditNoteButton,
-                    onAction: () => {
-                      navigate(
-                        generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, {
-                          customerId: invoice?.customer?.id,
-                          invoiceId: invoice.id,
-                        }),
-                      )
-                    },
+                    link: () =>
+                      generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, {
+                        customerId: invoice?.customer?.id,
+                        invoiceId: invoice.id,
+                      }),
                     tooltip: disabledIssueCreditNoteButtonLabel
                       ? translate(disabledIssueCreditNoteButtonLabel)
                       : undefined,
@@ -569,13 +566,11 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                 ? {
                     startIcon: 'stop',
                     title: translate('text_65269b43d4d2b15dd929a259'),
-                    onAction: () =>
-                      navigate(
-                        generatePath(CUSTOMER_INVOICE_VOID_ROUTE, {
-                          customerId: invoice?.customer?.id,
-                          invoiceId: invoice.id,
-                        }),
-                      ),
+                    link: () =>
+                      generatePath(CUSTOMER_INVOICE_VOID_ROUTE, {
+                        customerId: invoice?.customer?.id,
+                        invoiceId: invoice.id,
+                      }),
                   }
                 : null,
 

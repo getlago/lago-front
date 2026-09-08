@@ -167,14 +167,11 @@ const InvoicesList = ({
       startIcon: 'document',
       title: translate('text_636bdef6565341dcb9cfb127'),
       disabled: isDisabledIssueCreditNoteButton,
-      onAction: () => {
-        navigate(
-          generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, {
-            customerId: invoice?.customer?.id,
-            invoiceId: invoice.id,
-          }),
-        )
-      },
+      link: () =>
+        generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, {
+          customerId: invoice?.customer?.id,
+          invoiceId: invoice.id,
+        }),
       tooltip: disabledIssueCreditNoteButtonLabel
         ? translate(disabledIssueCreditNoteButtonLabel)
         : undefined,
@@ -300,13 +297,11 @@ const InvoicesList = ({
           title: invoice?.customer?.deletedAt
             ? translate('text_65269b43d4d2b15dd929a259')
             : translate('text_1750678506388d4fr5etxbhh'),
-          onAction: () =>
-            navigate(
-              generatePath(CUSTOMER_INVOICE_VOID_ROUTE, {
-                customerId: invoice?.customer?.id,
-                invoiceId: invoice.id,
-              }),
-            ),
+          link: () =>
+            generatePath(CUSTOMER_INVOICE_VOID_ROUTE, {
+              customerId: invoice?.customer?.id,
+              invoiceId: invoice.id,
+            }),
         }
       : null
 
@@ -327,7 +322,7 @@ const InvoicesList = ({
       ? {
           startIcon: 'stop',
           title: translate('text_1750678506388oynw9hd01l9'),
-          onAction: () => navigate(regeneratePath(invoice as Invoice)),
+          link: () => regeneratePath(invoice as Invoice),
         }
       : null
 

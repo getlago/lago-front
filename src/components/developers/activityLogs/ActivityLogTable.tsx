@@ -42,10 +42,6 @@ export const ActivityLogTable: FC<ActivityLogTableProps> = ({
         error={error}
         refetch={refetch}
         onRowActionLink={({ activityId }) => {
-          if (getCurrentBreakpoint() === 'sm') {
-            logListRef.current?.updateView('forward')
-          }
-
           const path = generatePath(ACTIVITY_LOG_ROUTE, {
             logId: activityId,
           })
@@ -54,6 +50,11 @@ export const ActivityLogTable: FC<ActivityLogTableProps> = ({
           const search = query ? `?${query}` : ''
 
           return `${path}${search}`
+        }}
+        onRowActionClick={() => {
+          if (getCurrentBreakpoint() === 'sm') {
+            logListRef.current?.updateView('forward')
+          }
         }}
       />
     </PaginatedContent>

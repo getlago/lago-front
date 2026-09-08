@@ -74,14 +74,12 @@ describe('useRateCardRateTableActions', () => {
         expect(actions.map((action) => action.startIcon)).toEqual(['eye', 'pen', 'trash'])
       })
 
-      it('THEN the view action navigates to the rate details page', () => {
+      it('THEN the view action links to the rate details page', () => {
         const { result } = renderActions()
         const rate = buildRateCardRate()
         const [viewAction] = getActions(result.current.actionColumn, rate)
 
-        viewAction?.onAction(rate)
-
-        expect(mockNavigate).toHaveBeenCalledWith(
+        expect(viewAction?.link?.(rate)).toBe(
           '/product-catalog/rate-cards/rc-1/rates/rate-1/overview',
         )
       })
@@ -92,7 +90,7 @@ describe('useRateCardRateTableActions', () => {
         const rate = buildRateCardRate()
         const editAction = getActions(result.current.actionColumn, rate)[1]
 
-        editAction?.onAction(rate)
+        editAction?.onAction?.(rate)
 
         expect(mockOpenRateDrawer).toHaveBeenCalledWith({ rateCard, rate })
       })
@@ -102,7 +100,7 @@ describe('useRateCardRateTableActions', () => {
         const rate = buildRateCardRate()
         const deleteAction = getActions(result.current.actionColumn, rate)[2]
 
-        deleteAction?.onAction(rate)
+        deleteAction?.onAction?.(rate)
 
         expect(mockOpenDeleteRateDialog).toHaveBeenCalledWith({ rate })
       })

@@ -1,5 +1,5 @@
 import { FC } from 'react'
-import { generatePath, NavigateFunction } from 'react-router-dom'
+import { generatePath } from 'react-router-dom'
 
 import { useTerminateCustomerSubscriptionDialog } from '~/components/customers/subscriptions/TerminateCustomerSubscriptionDialog'
 import { StatusProps, StatusType } from '~/components/designSystem/Status'
@@ -11,11 +11,7 @@ import {
   subscriptionStatusMapping,
 } from '~/core/constants/statusSubscriptionMapping'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import {
-  CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
-  UPGRADE_DOWNGRADE_SUBSCRIPTION,
-  useNavigate,
-} from '~/core/router'
+import { CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, UPGRADE_DOWNGRADE_SUBSCRIPTION } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
   NextSubscriptionTypeEnum,
@@ -149,7 +145,6 @@ const generateActionColumn = ({
   hasSubscriptionsUpdatePermission,
   openTerminateDialog,
   translate,
-  navigate,
 }: {
   subscription: AnnotatedSubscription
   hasSubscriptionsUpdatePermission: boolean
@@ -157,7 +152,6 @@ const generateActionColumn = ({
     typeof useTerminateCustomerSubscriptionDialog
   >['openTerminateCustomerSubscriptionDialog']
   translate: TranslateFunc
-  navigate: NavigateFunction
 }) => {
   let actions: ActionItem<AnnotatedSubscription>[] = []
 
@@ -217,37 +211,31 @@ const generateActionColumn = ({
       {
         startIcon: 'text',
         title: translate('text_62d7f6178ec94cd09370e63c'),
-        onAction: () =>
-          navigate(
-            generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
-              customerId: subscription.customer.id,
-              subscriptionId: subscription.id,
-              tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
-            }),
-          ),
+        link: () =>
+          generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+            customerId: subscription.customer.id,
+            subscriptionId: subscription.id,
+            tab: CustomerSubscriptionDetailsTabsOptionsEnum.overview,
+          }),
       },
       {
         startIcon: 'board',
         title: translate('text_17810297639135ya0hmsldpi'),
-        onAction: () =>
-          navigate(
-            generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
-              customerId: subscription.customer.id,
-              subscriptionId: subscription.id,
-              tab: CustomerSubscriptionDetailsTabsOptionsEnum.subscriptionPlan,
-            }),
-          ),
+        link: () =>
+          generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+            customerId: subscription.customer.id,
+            subscriptionId: subscription.id,
+            tab: CustomerSubscriptionDetailsTabsOptionsEnum.subscriptionPlan,
+          }),
       },
       {
         startIcon: 'pen',
         title: translate('text_62d7f6178ec94cd09370e64a'),
-        onAction: () =>
-          navigate(
-            generatePath(UPGRADE_DOWNGRADE_SUBSCRIPTION, {
-              customerId: subscription.customer.id,
-              subscriptionId: subscription.id,
-            }),
-          ),
+        link: () =>
+          generatePath(UPGRADE_DOWNGRADE_SUBSCRIPTION, {
+            customerId: subscription.customer.id,
+            subscriptionId: subscription.id,
+          }),
       },
     ])
   }
@@ -257,15 +245,12 @@ const generateActionColumn = ({
   actions = actions.concat({
     startIcon: 'bell',
     title: translate('text_1746785137190vu5wwlsmzmz'),
-    onAction: () => {
-      navigate(
-        generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
-          customerId: subscription.customer.id,
-          subscriptionId: subscription.id,
-          tab: CustomerSubscriptionDetailsTabsOptionsEnum.alerts,
-        }),
-      )
-    },
+    link: () =>
+      generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
+        customerId: subscription.customer.id,
+        subscriptionId: subscription.id,
+        tab: CustomerSubscriptionDetailsTabsOptionsEnum.alerts,
+      }),
   })
 
   if (hasSubscriptionsUpdatePermission) {
@@ -287,7 +272,6 @@ export const SubscriptionsList: FC<SubscriptionsListProps> = ({
   customerId,
   ...tableProps
 }) => {
-  const navigate = useNavigate()
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const { isStatusEditable } = useSubscriptionPermissionsActions()
@@ -309,7 +293,6 @@ export const SubscriptionsList: FC<SubscriptionsListProps> = ({
         actionColumn={(subscription) =>
           generateActionColumn({
             subscription,
-            navigate,
             translate,
             openTerminateDialog: openTerminateCustomerSubscriptionDialog,
             hasSubscriptionsUpdatePermission: hasPermissions(['subscriptionsUpdate']),

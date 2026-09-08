@@ -82,16 +82,43 @@ describe('NavigationTabBar', () => {
     })
   })
 
-  describe('GIVEN a user clicks on a tab', () => {
-    describe('WHEN the tab has a link different from current path', () => {
-      it('THEN should navigate to the tab link', async () => {
+  describe('GIVEN a tab with a link', () => {
+    describe('WHEN the component renders', () => {
+      it.each([
+        ['tab-overview', '/customers/1/overview'],
+        ['tab-invoices', '/customers/1/invoices'],
+        ['tab-usage', '/customers/1/usage'],
+      ])('THEN should render %s as an anchor to its target', (testId, href) => {
+        render(<NavigationTabBar tabs={baseTabs} />)
+
+        expect(screen.getByTestId(testId)).toHaveAttribute('href', href)
+      })
+    })
+
+    describe('WHEN the user clicks it', () => {
+      it('THEN should let the anchor route instead of navigating imperatively', async () => {
         const user = userEvent.setup()
 
         render(<NavigationTabBar tabs={baseTabs} />)
 
         await user.click(screen.getByTestId('tab-invoices'))
 
-        expect(testMockNavigateFn).toHaveBeenCalledWith('/customers/1/invoices')
+        expect(testMockNavigateFn).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN a disabled tab', () => {
+    describe('WHEN the component renders', () => {
+      it('THEN should keep it a button so it stays unfollowable', () => {
+        const tabsWithDisabledLink: NavigationTabBarItem[] = [
+          { title: 'Overview', link: '/overview', dataTest: 'tab-overview' },
+          { title: 'Disabled', link: '/disabled', disabled: true, dataTest: 'tab-disabled' },
+        ]
+
+        render(<NavigationTabBar tabs={tabsWithDisabledLink} />)
+
+        expect(screen.getByTestId('tab-disabled')).not.toHaveAttribute('href')
       })
     })
   })

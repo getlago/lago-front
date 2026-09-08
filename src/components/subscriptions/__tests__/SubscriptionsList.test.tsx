@@ -105,7 +105,7 @@ describe('SubscriptionsList', () => {
           (action) => action.dataTest === SUBSCRIPTIONS_LIST_CANCEL_TEST_ID,
         )
 
-        cancelAction?.onAction({} as AnnotatedSubscription)
+        cancelAction?.onAction?.({} as AnnotatedSubscription)
 
         expect(mockOpenTerminateDialog).toHaveBeenCalledWith({
           id: 'subscription-1',

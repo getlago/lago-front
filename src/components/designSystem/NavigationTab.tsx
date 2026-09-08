@@ -2,13 +2,17 @@ import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 import Typography from '@mui/material/Typography'
 import { Icon, IconName } from 'lago-design-system'
-import { ReactNode, useEffect, useState } from 'react'
+import { MouseEvent, ReactNode, useEffect, useState } from 'react'
 import { matchPath } from 'react-router-dom'
 
-import { useLocation, useNavigate } from '~/core/router'
+import { Link, useLocation } from '~/core/router'
+import { isModifiedClick } from '~/core/utils/isModifiedClick'
 import { tw } from '~/styles/utils'
 
 import { Skeleton } from './Skeleton'
+
+const TAB_CLASSNAME =
+  'relative my-2 h-9 justify-between gap-1 overflow-visible rounded-xl p-2 text-grey-600 no-underline [min-height:unset] [min-width:unset] first:-ml-2 last:-mr-2 hover:bg-grey-100 hover:text-grey-700 hover:no-underline'
 
 export enum TabManagedBy {
   URL = 'url',
@@ -79,7 +83,6 @@ export const NavigationTab = ({
   onChange,
   currentTab,
 }: NavigationTabProps) => {
-  const navigate = useNavigate()
   const { strippedPathname: pathname } = useLocation()
   const nonHiddenTabs = tabs.filter((t) => !t.hidden)
 
@@ -125,6 +128,67 @@ export const NavigationTab = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nonHiddenTabs, pathname])
 
+  const renderTab = (tab: NavigationTabItem, tabIndex: number) => {
+    if (loading) {
+      return (
+        <Skeleton
+          key={`loding-tab-${tabIndex}`}
+          className={tw('mr-0 h-3 w-20', {
+            'mr-2': tabIndex !== nonHiddenTabs.length - 1,
+          })}
+          variant="text"
+        />
+      )
+    }
+
+    const sharedProps = {
+      disableFocusRipple: true,
+      disableRipple: true,
+      role: 'tab',
+      className: TAB_CLASSNAME,
+      disabled: tab.disabled,
+      icon: !!tab.icon ? <Icon name={tab.icon} /> : undefined,
+      iconPosition: 'start' as const,
+      label: <Typography variant="captionHl">{tab.title}</Typography>,
+      value: tabIndex,
+      ...a11yProps(tabIndex),
+      'data-test': tab.dataTest || undefined,
+    }
+
+    // A disabled tab stays a button: MUI only forwards `disabled` to real
+    // buttons, an anchor would still be followable.
+    if (managedBy === TabManagedBy.URL && !!tab.link && !tab.disabled) {
+      const link = tab.link
+
+      return (
+        <Tab
+          key={`tab-${tabIndex}`}
+          {...sharedProps}
+          component={Link}
+          to={link}
+          onClick={(event: MouseEvent<HTMLAnchorElement>) => {
+            if (!isModifiedClick(event) && !!matchPath(link, pathname)) {
+              event.preventDefault()
+            }
+          }}
+        />
+      )
+    }
+
+    return (
+      <Tab
+        key={`tab-${tabIndex}`}
+        {...sharedProps}
+        component="button"
+        onClick={() => {
+          if (managedBy === TabManagedBy.INDEX && tabIndex !== value) {
+            setValue(tabIndex)
+          }
+        }}
+      />
+    )
+  }
+
   // Prevent blink on first render
   if (value === null) return null
 
@@ -143,53 +207,7 @@ export const NavigationTab = ({
           value={value}
         >
           {nonHiddenTabs.length >= 2
-            ? nonHiddenTabs.map((tab, tabIndex) => {
-                if (loading) {
-                  return (
-                    <Skeleton
-                      key={`loding-tab-${tabIndex}`}
-                      className={tw('mr-0 h-3 w-20', {
-                        'mr-2': tabIndex !== nonHiddenTabs.length - 1,
-                      })}
-                      variant="text"
-                    />
-                  )
-                }
-
-                return (
-                  <Tab
-                    key={`tab-${tabIndex}`}
-                    disableFocusRipple
-                    disableRipple
-                    role="tab"
-                    component="button"
-                    className="relative my-2 h-9 justify-between gap-1 overflow-visible rounded-xl p-2 text-grey-600 no-underline [min-height:unset] [min-width:unset] first:-ml-2 last:-mr-2 hover:bg-grey-100 hover:text-grey-700"
-                    disabled={loading || tab.disabled}
-                    icon={!!tab.icon ? <Icon name={tab.icon} /> : undefined}
-                    iconPosition="start"
-                    label={<Typography variant="captionHl">{tab.title}</Typography>}
-                    value={tabIndex}
-                    onClick={() => {
-                      const onClickActionLookup: Record<TabManagedBy, () => void> = {
-                        [TabManagedBy.URL]: () => {
-                          if (!!tab.link && !matchPath(tab.link, pathname)) {
-                            navigate(tab.link)
-                          }
-                        },
-                        [TabManagedBy.INDEX]: () => {
-                          if (tabIndex !== value) {
-                            setValue(tabIndex)
-                          }
-                        },
-                      }
-
-                      onClickActionLookup[managedBy]()
-                    }}
-                    {...a11yProps(tabIndex)}
-                    data-test={tab.dataTest || undefined}
-                  />
-                )
-              })
+            ? nonHiddenTabs.map((tab, tabIndex) => renderTab(tab, tabIndex))
             : null}
         </Tabs>
         {children && (

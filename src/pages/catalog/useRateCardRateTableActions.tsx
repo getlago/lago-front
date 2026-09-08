@@ -3,7 +3,7 @@ import { generatePath } from 'react-router-dom'
 
 import { ActionColumn, ActionItem } from '~/components/designSystem/Table/types'
 import { RateCardRateDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { RATE_CARD_RATE_DETAILS_ROUTE, useNavigate } from '~/core/router'
+import { RATE_CARD_RATE_DETAILS_ROUTE } from '~/core/router'
 import { RateCardForRateDrawerFragment, RateCardRateForListFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
@@ -47,7 +47,6 @@ export const useRateCardRateTableActions = ({
   rateCard,
 }: UseRateCardRateTableActionsProps): UseRateCardRateTableActionsReturn => {
   const { translate } = useInternationalization()
-  const navigate = useNavigate()
   const { hasPermissions } = usePermissions()
   const { openDrawer: openRateDrawer } = useRateCardRateDrawer()
   const { openDeleteRateCardRateDialog } = useDeleteRateCardRateDialog()
@@ -85,7 +84,7 @@ export const useRateCardRateTableActions = ({
       {
         startIcon: 'eye',
         title: translate('text_1787737220228sypguqmiv1l'),
-        onAction: () => navigate(buildRateCardRateDetailsPath({ rateCardId, rateId: rate.id })),
+        link: () => buildRateCardRateDetailsPath({ rateCardId, rateId: rate.id }),
       },
     ]
 

@@ -129,7 +129,7 @@ const CouponsList = () => {
         startIcon: 'pen',
         title: translate('text_625fd39a15394c0117e7d792'),
         dataTest: 'edit-coupon',
-        onAction: () => navigate(generatePath(UPDATE_COUPON_ROUTE, { couponId: coupon.id })),
+        link: () => generatePath(UPDATE_COUPON_ROUTE, { couponId: coupon.id }),
       })
     }
 

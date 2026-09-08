@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 
 import { Button } from '~/components/designSystem/Button'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
-import { render } from '~/test-utils'
+import { render, testMockNavigateFn } from '~/test-utils'
 
 import { Table } from '../Table/Table'
 
@@ -57,6 +57,10 @@ async function prepare({ props }: { props?: Record<string, any> } = {}) {
 }
 
 describe('Table', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
   it('renders some basic table', async () => {
     await prepare()
 
@@ -131,12 +135,11 @@ describe('Table', () => {
 
   it('renders with custom action element', async () => {
     const onClick = jest.fn()
-    const onRow = jest.fn()
 
     await prepare({
       props: {
         actionColumn: (row: any) => <Button onClick={onClick(row)}>Click me</Button>,
-        onRowActionLink: (row: any) => onRow(row),
+        onRowActionLink: (row: any) => `/rows/${row.id}`,
       },
     })
 
@@ -148,12 +151,117 @@ describe('Table', () => {
     const bodyRows = within(screen.queryAllByRole('rowgroup')[1]).queryAllByRole('row')
 
     await userEvent.click(bodyRows[0])
-    expect(onRow).toHaveBeenNthCalledWith(1, data[0])
+    expect(testMockNavigateFn).toHaveBeenNthCalledWith(1, '/rows/1')
 
     // On click action
     await userEvent.click(within(bodyRows[0]).getByText('Click me'))
     expect(onClick).toHaveBeenNthCalledWith(1, data[0])
-    expect(onRow).toHaveBeenCalledTimes(1)
+    expect(testMockNavigateFn).toHaveBeenCalledTimes(1)
+  })
+
+  describe('GIVEN a table whose rows navigate', () => {
+    describe('WHEN the rows render', () => {
+      it('THEN should expose the row target as a real anchor in the first cell', async () => {
+        await prepare({ props: { onRowActionLink: (row: any) => `/rows/${row.id}` } })
+
+        const bodyRows = within(screen.queryAllByRole('rowgroup')[1]).queryAllByRole('row')
+        const rowLink = within(bodyRows[0]).getByRole('link', { name: 'John Doe' })
+
+        expect(rowLink).toHaveAttribute('href', '/rows/1')
+      })
+
+      it('THEN should keep the anchor out of the tab order, the row being the tab stop', async () => {
+        await prepare({ props: { onRowActionLink: (row: any) => `/rows/${row.id}` } })
+
+        const bodyRows = within(screen.queryAllByRole('rowgroup')[1]).queryAllByRole('row')
+
+        expect(within(bodyRows[0]).getByRole('link', { name: 'John Doe' })).toHaveAttribute(
+          'tabindex',
+          '-1',
+        )
+      })
+
+      it('THEN should not render an anchor when the row only has a click handler', async () => {
+        await prepare({ props: { onRowActionClick: jest.fn() } })
+
+        expect(screen.queryAllByRole('link')).toHaveLength(0)
+      })
+    })
+
+    describe('WHEN a cell nests its own button', () => {
+      // The first cell is wrapped in the row anchor, so a nested control would
+      // otherwise navigate the row away on top of running its own handler.
+      it('THEN should run only the nested handler', async () => {
+        const onCellButtonClick = jest.fn()
+
+        await prepare({
+          props: {
+            onRowActionLink: (row: any) => `/rows/${row.id}`,
+            columns: [
+              {
+                key: 'name' as const,
+                title: 'Name',
+                content: (row: any) => <Button onClick={onCellButtonClick}>copy {row.name}</Button>,
+              },
+            ],
+          },
+        })
+
+        await userEvent.click(screen.getByRole('button', { name: 'copy John Doe' }))
+
+        expect(onCellButtonClick).toHaveBeenCalledTimes(1)
+        expect(testMockNavigateFn).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN a side effect is declared next to the row link', () => {
+      // The href is built during render, so a side effect can no longer live in
+      // `onRowActionLink`; it rides on `onRowActionClick` and must not replace
+      // the navigation.
+      it.each([
+        ['the row', (row: HTMLElement) => row],
+        ['the row anchor', (row: HTMLElement) => within(row).getByRole('link')],
+      ])('THEN should run it once and still navigate when clicking %s', async (_, getTarget) => {
+        const onSideEffect = jest.fn()
+
+        await prepare({
+          props: {
+            onRowActionLink: (row: any) => `/rows/${row.id}`,
+            onRowActionClick: onSideEffect,
+          },
+        })
+
+        const bodyRows = within(screen.queryAllByRole('rowgroup')[1]).queryAllByRole('row')
+
+        await userEvent.click(getTarget(bodyRows[0]))
+
+        expect(onSideEffect).toHaveBeenCalledTimes(1)
+        expect(onSideEffect).toHaveBeenCalledWith(data[0])
+      })
+    })
+  })
+
+  describe('GIVEN an action item declared as a link', () => {
+    describe('WHEN the action menu opens', () => {
+      it('THEN should render the entry as an anchor to its target', async () => {
+        await prepare({
+          props: {
+            actionColumn: () => [{ title: 'Edit', link: (row: any) => `/rows/${row.id}/edit` }],
+          },
+        })
+
+        const bodyRows = within(screen.queryAllByRole('rowgroup')[1]).queryAllByRole('row')
+
+        await userEvent.click(
+          within(bodyRows[0]).queryByTestId('open-action-button') as HTMLButtonElement,
+        )
+
+        expect(within(screen.getByRole('tooltip')).getByRole('link')).toHaveAttribute(
+          'href',
+          '/rows/1/edit',
+        )
+      })
+    })
   })
 
   it('renders with loading state', async () => {

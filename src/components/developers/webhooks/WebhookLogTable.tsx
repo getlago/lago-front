@@ -62,11 +62,12 @@ export const WebhookLogTable: FC<WebhookLogTableProps> = ({
             logId: id,
           })
 
+          return currentParams ? `${path}?${currentParams}` : path
+        }}
+        onRowActionClick={() => {
           if (getCurrentBreakpoint() === 'sm') {
             logListRef.current?.updateView('forward')
           }
-
-          return currentParams ? `${path}?${currentParams}` : path
         }}
         columns={[
           {

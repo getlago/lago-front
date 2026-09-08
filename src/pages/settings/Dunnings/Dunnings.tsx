@@ -224,13 +224,10 @@ const Dunnings = () => {
                                 startIcon: 'pen',
                                 title: translate('text_17321873136602nzwuvcycbr'),
                                 disabled: !hasPermissions(['dunningCampaignsUpdate']),
-                                onAction: () => {
-                                  navigate(
-                                    generatePath(UPDATE_DUNNING_ROUTE, {
-                                      campaignId: campaign?.id || '',
-                                    }),
-                                  )
-                                },
+                                link: () =>
+                                  generatePath(UPDATE_DUNNING_ROUTE, {
+                                    campaignId: campaign?.id || '',
+                                  }),
                               },
                               {
                                 startIcon: 'trash',

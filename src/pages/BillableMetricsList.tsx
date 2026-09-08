@@ -77,12 +77,10 @@ const BillableMetricsList = () => {
       actions.push({
         startIcon: 'pen',
         title: translate('text_6256de3bba111e00b3bfa531'),
-        onAction: () =>
-          navigate(
-            generatePath(UPDATE_BILLABLE_METRIC_ROUTE, {
-              billableMetricId: id,
-            }),
-          ),
+        link: () =>
+          generatePath(UPDATE_BILLABLE_METRIC_ROUTE, {
+            billableMetricId: id,
+          }),
       })
     }
 
@@ -90,12 +88,10 @@ const BillableMetricsList = () => {
       actions.push({
         startIcon: 'duplicate',
         title: translate('text_64fa170e02f348164797a6af'),
-        onAction: () =>
-          navigate(
-            generatePath(DUPLICATE_BILLABLE_METRIC_ROUTE, {
-              billableMetricId: id,
-            }),
-          ),
+        link: () =>
+          generatePath(DUPLICATE_BILLABLE_METRIC_ROUTE, {
+            billableMetricId: id,
+          }),
       })
     }
 
