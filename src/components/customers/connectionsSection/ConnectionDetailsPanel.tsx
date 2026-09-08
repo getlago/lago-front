@@ -127,6 +127,11 @@ export const ConnectionDetailsPanel = ({
 }: ConnectionDetailsPanelProps) => {
   const { translate } = useInternationalization()
 
+  const connectionCode =
+    row.category === ConnectionCategory.Payment
+      ? getProviderPaymentConnection(customer)?.code
+      : getIntegrationCustomerForCategory(customer, row.category)?.code
+
   // Connection identity, shown by both variants
   const identityGrid = [
     {
@@ -135,7 +140,7 @@ export const ConnectionDetailsPanel = ({
     },
     {
       label: translate('text_6584550dc4cec7adf8615051'),
-      value: row.code,
+      value: connectionCode,
     },
   ]
 

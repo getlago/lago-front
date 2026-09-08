@@ -1,6 +1,9 @@
 import { renderHook } from '@testing-library/react'
 
-import { ConnectionFormValues } from '~/components/customerConnections/CustomerConnectionDrawer'
+import {
+  ConnectionFormValues,
+  CustomerConnectionDrawerFormApi,
+} from '~/components/customerConnections/CustomerConnectionDrawer'
 import { MANUAL_CONNECTION_CODE } from '~/components/customerConnections/customerIntegrationConst'
 import { ConnectionCategory } from '~/components/customerConnections/types'
 import { useConnectionOptions } from '~/components/customerConnections/useConnectionOptions'
@@ -12,6 +15,7 @@ import {
   AddCustomerDrawerFragment,
   HubspotTargetedObjectsEnum,
   IntegrationTypeEnum,
+  LagoApiError,
   ProviderPaymentMethodsEnum,
   ProviderTypeEnum,
 } from '~/generated/graphql'
@@ -41,14 +45,36 @@ const mockClearPaymentProvider = jest.fn(() =>
 )
 const mockClientQuery = jest.fn(() => Promise.resolve({ data: { customer: null } }))
 const mockAddToast = jest.fn()
+const mockApplyExistingCodeError = jest.fn()
+
+const formApi = {} as CustomerConnectionDrawerFormApi
+
+/** Options the four save mutations are registered with, keyed by mutation name */
+const mutationOptions: Record<string, unknown> = {}
 
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
-  useCreateCustomerPaymentConnectionMutation: () => [mockCreatePayment],
-  useUpdateCustomerPaymentConnectionMutation: () => [mockUpdatePayment],
+  useCreateCustomerPaymentConnectionMutation: (options: unknown) => {
+    mutationOptions.createPayment = options
+
+    return [mockCreatePayment]
+  },
+  useUpdateCustomerPaymentConnectionMutation: (options: unknown) => {
+    mutationOptions.updatePayment = options
+
+    return [mockUpdatePayment]
+  },
   useDestroyCustomerPaymentConnectionMutation: () => [mockDestroyPayment],
-  useCreateCustomerIntegrationConnectionMutation: () => [mockCreateIntegration],
-  useUpdateCustomerIntegrationConnectionMutation: () => [mockUpdateIntegration],
+  useCreateCustomerIntegrationConnectionMutation: (options: unknown) => {
+    mutationOptions.createIntegration = options
+
+    return [mockCreateIntegration]
+  },
+  useUpdateCustomerIntegrationConnectionMutation: (options: unknown) => {
+    mutationOptions.updateIntegration = options
+
+    return [mockUpdateIntegration]
+  },
   useDestroyCustomerIntegrationConnectionMutation: () => [mockDestroyIntegration],
   useClearCustomerPaymentProviderMutation: () => [mockClearPaymentProvider],
 }))
@@ -61,6 +87,11 @@ jest.mock('@apollo/client', () => ({
 jest.mock('~/core/apolloClient', () => ({
   ...jest.requireActual('~/core/apolloClient'),
   addToast: (...args: unknown[]) => mockAddToast(...args),
+}))
+
+jest.mock('~/core/form/existingCodeError', () => ({
+  ...jest.requireActual('~/core/form/existingCodeError'),
+  applyExistingCodeError: (...args: unknown[]) => mockApplyExistingCodeError(...args),
 }))
 
 /** The backend's non-persisted manual placeholder, prepended to the array */
@@ -155,13 +186,14 @@ describe('useCustomerConnectionsPersistence', () => {
               [ProviderPaymentMethodsEnum.SepaDebit]: false,
             },
           } as ConnectionFormValues,
-          { isEdition: true },
+          { isEdition: true, formApi },
         )
 
         expect(succeeded).toBe(true)
         expect(mockUpdatePayment).toHaveBeenCalledWith({
           variables: {
             input: {
+              code: null,
               id: 'pc-1',
               providerCustomerId: 'cus_456',
               syncWithProvider: true,
@@ -186,7 +218,7 @@ describe('useCustomerConnectionsPersistence', () => {
             externalCustomerId: 'adyen_cus_1',
             syncWithProvider: false,
           } as ConnectionFormValues,
-          { isEdition: true },
+          { isEdition: true, formApi },
         )
 
         expect(mockDestroyPayment).toHaveBeenCalledWith({
@@ -195,6 +227,7 @@ describe('useCustomerConnectionsPersistence', () => {
         expect(mockCreatePayment).toHaveBeenCalledWith({
           variables: {
             input: {
+              code: null,
               customerId: 'cust-1',
               paymentProvider: ProviderTypeEnum.Adyen,
               paymentProviderCode: 'adyen-eu',
@@ -222,7 +255,7 @@ describe('useCustomerConnectionsPersistence', () => {
             providerType: ProviderTypeEnum.Adyen,
             externalCustomerId: 'adyen_cus_1',
           } as ConnectionFormValues,
-          { isEdition: true },
+          { isEdition: true, formApi },
         )
 
         expect(succeeded).toBe(false)
@@ -250,7 +283,7 @@ describe('useCustomerConnectionsPersistence', () => {
             providerType: ProviderTypeEnum.Stripe,
             externalCustomerId: 'cus_123',
           } as ConnectionFormValues,
-          { isEdition: false },
+          { isEdition: false, formApi },
         )
 
         expect(mockCreatePayment).toHaveBeenCalledTimes(1)
@@ -265,7 +298,7 @@ describe('useCustomerConnectionsPersistence', () => {
         const succeeded = await result.current.saveConnection(
           ConnectionCategory.Payment,
           { providerCode: 'stripe-eu', providerType: undefined } as ConnectionFormValues,
-          { isEdition: true },
+          { isEdition: true, formApi },
         )
 
         expect(succeeded).toBe(false)
@@ -289,13 +322,14 @@ describe('useCustomerConnectionsPersistence', () => {
             externalCustomerId: 'anrok_cus_1',
             syncWithProvider: false,
           } as ConnectionFormValues,
-          { isEdition: false },
+          { isEdition: false, formApi },
         )
 
         expect(succeeded).toBe(true)
         expect(mockCreateIntegration).toHaveBeenCalledWith({
           variables: {
             input: {
+              code: null,
               customerId: 'cust-1',
               integrationId: 'org-int-anrok',
               externalCustomerId: 'anrok_cus_1',
@@ -321,12 +355,13 @@ describe('useCustomerConnectionsPersistence', () => {
             syncWithProvider: true,
             subsidiaryId: 'sub-2',
           } as ConnectionFormValues,
-          { isEdition: true },
+          { isEdition: true, formApi },
         )
 
         expect(mockUpdateIntegration).toHaveBeenCalledWith({
           variables: {
             input: {
+              code: null,
               id: 'nc-1',
               externalCustomerId: 'ns_cus_UPDATED',
               syncWithProvider: true,
@@ -351,12 +386,13 @@ describe('useCustomerConnectionsPersistence', () => {
             syncWithProvider: true,
             targetedObject: HubspotTargetedObjectsEnum.Contacts,
           } as ConnectionFormValues,
-          { isEdition: true },
+          { isEdition: true, formApi },
         )
 
         expect(mockUpdateIntegration).toHaveBeenCalledWith({
           variables: {
             input: {
+              code: null,
               id: 'hc-1',
               externalCustomerId: 'hub_cus_1',
               syncWithProvider: true,
@@ -379,7 +415,7 @@ describe('useCustomerConnectionsPersistence', () => {
             externalCustomerId: 'xero_cus_1',
             syncWithProvider: false,
           } as ConnectionFormValues,
-          { isEdition: true },
+          { isEdition: true, formApi },
         )
 
         expect(mockDestroyIntegration).toHaveBeenCalledWith({
@@ -388,6 +424,7 @@ describe('useCustomerConnectionsPersistence', () => {
         expect(mockCreateIntegration).toHaveBeenCalledWith({
           variables: {
             input: {
+              code: null,
               customerId: 'cust-1',
               integrationId: 'org-int-xero',
               externalCustomerId: 'xero_cus_1',
@@ -412,7 +449,7 @@ describe('useCustomerConnectionsPersistence', () => {
             providerType: IntegrationTypeEnum.Anrok,
             externalCustomerId: 'anrok_cus_1',
           } as ConnectionFormValues,
-          { isEdition: false },
+          { isEdition: false, formApi },
         )
 
         expect(succeeded).toBe(false)
@@ -507,7 +544,7 @@ describe('useCustomerConnectionsPersistence', () => {
             providerType: IntegrationTypeEnum.Netsuite,
             externalCustomerId: 'ns_cus_1',
           } as ConnectionFormValues,
-          { isEdition: true },
+          { isEdition: true, formApi },
         )
 
         expect(mockClientQuery).toHaveBeenCalledTimes(1)
@@ -530,7 +567,7 @@ describe('useCustomerConnectionsPersistence', () => {
             providerType: ProviderTypeEnum.Adyen,
             externalCustomerId: 'adyen_cus_1',
           } as ConnectionFormValues,
-          { isEdition: true },
+          { isEdition: true, formApi },
         )
 
         expect(succeeded).toBe(false)
@@ -554,7 +591,7 @@ describe('useCustomerConnectionsPersistence', () => {
             providerType: IntegrationTypeEnum.Anrok,
             externalCustomerId: 'anrok_cus_1',
           } as ConnectionFormValues,
-          { isEdition: false },
+          { isEdition: false, formApi },
         )
 
       it('THEN should read again until the saved link shows up', async () => {
@@ -636,7 +673,7 @@ describe('useCustomerConnectionsPersistence', () => {
             providerType: IntegrationTypeEnum.Netsuite,
             externalCustomerId: 'ns_cus_1',
           } as ConnectionFormValues,
-          { isEdition: true },
+          { isEdition: true, formApi },
         )
 
         expect(succeeded).toBe(false)
@@ -661,7 +698,7 @@ describe('useCustomerConnectionsPersistence', () => {
             providerType: IntegrationTypeEnum.Netsuite,
             externalCustomerId: 'ns_cus_1',
           } as ConnectionFormValues,
-          { isEdition: true },
+          { isEdition: true, formApi },
         )
 
         expect(succeeded).toBe(false)
@@ -683,10 +720,184 @@ describe('useCustomerConnectionsPersistence', () => {
           providerType: IntegrationTypeEnum.Netsuite,
           externalCustomerId: 'ns_cus_1',
         } as ConnectionFormValues,
-        { isEdition },
+        { isEdition, formApi },
       )
 
       expect(mockAddToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+    })
+  })
+  describe('GIVEN the connection code', () => {
+    describe('WHEN creating a payment connection with a code', () => {
+      it('THEN should send it to the create mutation', async () => {
+        const result = setup()
+
+        await result.current.saveConnection(
+          ConnectionCategory.Payment,
+          {
+            code: 'stripe-eu-2',
+            providerCode: 'adyen-eu',
+            providerType: ProviderTypeEnum.Adyen,
+            externalCustomerId: 'adyen_cus_1',
+          } as ConnectionFormValues,
+          { isEdition: false, formApi },
+        )
+
+        expect(mockCreatePayment).toHaveBeenCalledWith({
+          variables: { input: expect.objectContaining({ code: 'stripe-eu-2' }) },
+        })
+      })
+    })
+
+    describe('WHEN editing a payment connection code', () => {
+      it('THEN should send it to the update mutation', async () => {
+        const result = setup()
+
+        await result.current.saveConnection(
+          ConnectionCategory.Payment,
+          {
+            code: 'stripe-renamed',
+            providerCode: 'stripe-eu',
+            providerType: ProviderTypeEnum.Stripe,
+            externalCustomerId: 'cus_123',
+          } as ConnectionFormValues,
+          { isEdition: true, formApi },
+        )
+
+        expect(mockUpdatePayment).toHaveBeenCalledWith({
+          variables: { input: expect.objectContaining({ code: 'stripe-renamed' }) },
+        })
+      })
+    })
+
+    describe('WHEN the code input is left empty', () => {
+      it.each([
+        ['payment', ConnectionCategory.Payment, () => mockUpdatePayment],
+        ['integration', ConnectionCategory.Accounting, () => mockUpdateIntegration],
+      ])(
+        'THEN should send an explicit null on the %s update mutation, for the backend to backfill',
+        async (_, category, getMock) => {
+          const result = setup()
+
+          await result.current.saveConnection(
+            category,
+            {
+              code: '',
+              providerCode: category === ConnectionCategory.Payment ? 'stripe-eu' : 'ns-1',
+              providerType:
+                category === ConnectionCategory.Payment
+                  ? ProviderTypeEnum.Stripe
+                  : IntegrationTypeEnum.Netsuite,
+              externalCustomerId: 'cus_123',
+            } as ConnectionFormValues,
+            { isEdition: true, formApi },
+          )
+
+          expect(getMock()).toHaveBeenCalledWith({
+            variables: { input: expect.objectContaining({ code: null }) },
+          })
+        },
+      )
+    })
+
+    describe('WHEN creating an integration connection with a code', () => {
+      it('THEN should send it to the create mutation', async () => {
+        const result = setup()
+
+        await result.current.saveConnection(
+          ConnectionCategory.Tax,
+          {
+            code: 'anrok-eu',
+            providerCode: 'anrok-1',
+            providerType: IntegrationTypeEnum.Anrok,
+            externalCustomerId: 'anrok_cus_1',
+          } as ConnectionFormValues,
+          { isEdition: false, formApi },
+        )
+
+        expect(mockCreateIntegration).toHaveBeenCalledWith({
+          variables: { input: expect.objectContaining({ code: 'anrok-eu' }) },
+        })
+      })
+    })
+
+    describe('WHEN the save mutations are registered', () => {
+      it.each([
+        ['payment create', 'createPayment'],
+        ['payment update', 'updatePayment'],
+        ['integration create', 'createIntegration'],
+        ['integration update', 'updateIntegration'],
+      ])(
+        'THEN should let the %s mutation report a duplicate value itself, not the global link',
+        (_, mutationName) => {
+          setup()
+
+          expect(mutationOptions[mutationName]).toEqual({
+            context: { silentErrorDetails: [LagoApiError.ValueAlreadyExist] },
+          })
+        },
+      )
+    })
+
+    describe('WHEN the backend rejects another field as already used', () => {
+      it('THEN should report it on a toast rather than on the Code input', async () => {
+        mockUpdatePayment.mockResolvedValueOnce({
+          errors: [
+            {
+              message: 'Unprocessable Entity',
+              extensions: { details: { providerCustomerId: ['value_already_exist'] } },
+            },
+          ],
+        } as never)
+
+        const result = setup()
+
+        const succeeded = await result.current.saveConnection(
+          ConnectionCategory.Payment,
+          {
+            code: 'payment-eu',
+            providerCode: 'stripe-eu',
+            providerType: ProviderTypeEnum.Stripe,
+            externalCustomerId: 'cus_123',
+          } as ConnectionFormValues,
+          { isEdition: true, formApi },
+        )
+
+        expect(succeeded).toBe(false)
+        expect(mockApplyExistingCodeError).not.toHaveBeenCalled()
+        expect(mockAddToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
+      })
+    })
+
+    describe('WHEN the backend rejects the code as already used', () => {
+      it('THEN should surface it on the drawer Code input', async () => {
+        mockUpdatePayment.mockResolvedValueOnce({
+          errors: [
+            {
+              message: 'Unprocessable Entity',
+              extensions: { details: { code: ['value_already_exist'] } },
+            },
+          ],
+        } as never)
+
+        const result = setup()
+
+        const succeeded = await result.current.saveConnection(
+          ConnectionCategory.Payment,
+          {
+            code: 'already-used',
+            providerCode: 'stripe-eu',
+            providerType: ProviderTypeEnum.Stripe,
+            externalCustomerId: 'cus_123',
+          } as ConnectionFormValues,
+          { isEdition: true, formApi },
+        )
+
+        expect(succeeded).toBe(false)
+        expect(mockApplyExistingCodeError).toHaveBeenCalledWith(formApi)
+        expect(mockAddToast).not.toHaveBeenCalledWith(
+          expect.objectContaining({ severity: 'success' }),
+        )
+      })
     })
   })
 })

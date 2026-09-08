@@ -109,6 +109,7 @@ const mapIntegrationCustomers = (
     return [
       {
         id: integrationCustomer.id,
+        code: integrationCustomer.code ?? undefined,
         category,
         providerCode: integrationCustomer.integrationCode ?? '',
         providerType: integrationCustomer.integrationType ?? undefined,

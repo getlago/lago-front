@@ -1127,4 +1127,89 @@ describe('mapFromApiToForm', () => {
       })
     })
   })
+  describe('GIVEN connections carrying a persisted code', () => {
+    describe('WHEN mapping them to the form model', () => {
+      it('THEN should keep the code of both the payment and the integration connection', () => {
+        const result = mapFromApiToForm(
+          buildCustomer({
+            paymentProvider: ProviderTypeEnum.Stripe,
+            paymentProviderCode: 'stripe_1',
+            paymentProviderCustomers: [
+              {
+                __typename: 'ProviderCustomer',
+                id: 'pc-1',
+                code: 'payment-eu',
+                isDefault: true,
+                providerCustomerId: 'cus_123',
+                syncWithProvider: false,
+                providerPaymentMethods: [ProviderPaymentMethodsEnum.Card],
+              },
+            ],
+            integrationCustomers: [
+              {
+                __typename: 'AnrokCustomer',
+                id: 'anrok-1',
+                code: 'tax-eu',
+                integrationCode: 'anrok_1',
+                integrationType: IntegrationTypeEnum.Anrok,
+                externalCustomerId: 'anrok-123',
+                syncWithProvider: true,
+              },
+            ],
+          }),
+          mockDefaultBillingEntity,
+        )
+
+        expect(result.paymentProviderCustomers?.[0]).toEqual(
+          expect.objectContaining({ code: 'payment-eu' }),
+        )
+        expect(result.integrationCustomers?.[0]).toEqual(
+          expect.objectContaining({ code: 'tax-eu' }),
+        )
+      })
+    })
+
+    describe('WHEN piping the form model back to the mutation input', () => {
+      it('THEN should round-trip both codes untouched', () => {
+        const formValues = mapFromApiToForm(
+          buildCustomer({
+            paymentProvider: ProviderTypeEnum.Stripe,
+            paymentProviderCode: 'stripe_1',
+            paymentProviderCustomers: [
+              {
+                __typename: 'ProviderCustomer',
+                id: 'pc-1',
+                code: 'payment-eu',
+                isDefault: true,
+                providerCustomerId: 'cus_123',
+                syncWithProvider: false,
+                providerPaymentMethods: [ProviderPaymentMethodsEnum.Card],
+              },
+            ],
+            integrationCustomers: [
+              {
+                __typename: 'AnrokCustomer',
+                id: 'anrok-1',
+                code: 'tax-eu',
+                integrationCode: 'anrok_1',
+                integrationType: IntegrationTypeEnum.Anrok,
+                externalCustomerId: 'anrok-123',
+                syncWithProvider: true,
+              },
+            ],
+          }),
+          mockDefaultBillingEntity,
+        )
+
+        const result = mapFromFormToApi(formValues)
+
+        expect(result.paymentProviderCustomers?.[0]).toEqual(
+          expect.objectContaining({ code: 'payment-eu' }),
+        )
+        expect(result.integrationCustomers?.[0]).toEqual(
+          expect.objectContaining({ code: 'tax-eu' }),
+        )
+      })
+    })
+  })
 })

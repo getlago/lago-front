@@ -5,6 +5,7 @@ import { z } from 'zod'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
+import { clearExistingCodeError } from '~/core/form/existingCodeError'
 import {
   HubspotTargetedObjectsEnum,
   IntegrationTypeEnum,
@@ -16,14 +17,27 @@ import { useAppForm } from '~/hooks/forms/useAppform'
 
 import { ConnectionComboBoxDataItem } from './ConnectionComboBox'
 import { ConnectionDrawerSection } from './ConnectionDrawerSection'
-import { PROVIDERS_WITHOUT_CUSTOMER_MAPPING } from './customerIntegrationConst'
+import {
+  MANUAL_CONNECTION_CODE,
+  PROVIDERS_WITHOUT_CUSTOMER_MAPPING,
+} from './customerIntegrationConst'
 import { LockedConnectionSelection, ProviderSelectionSection } from './ProviderSelectionSection'
 import { CONNECTION_CATEGORY_SHORT_LABEL_KEYS, ConnectionCategory } from './types'
 
 const CUSTOMER_CONNECTION_FORM_ID = 'customer-connection-drawer-form'
 
+export const CONNECTION_CODE_FIELD_TEST_ID = 'connection-code-field'
+
 const connectionValidationSchema = z
   .object({
+    code: z
+      .string()
+      .optional()
+      // `lago_manual` identifies the reserved manual payment row: a connection
+      // saved under it is filtered out of the customer payload and destroyed
+      .refine((value) => value !== MANUAL_CONNECTION_CODE, {
+        message: 'text_17884323756206sq3idxonjv',
+      }),
     providerCode: z
       .string()
       .optional()
@@ -91,6 +105,7 @@ const connectionValidationSchema = z
 export type ConnectionFormValues = z.infer<typeof connectionValidationSchema>
 
 const DEFAULT_VALUES: ConnectionFormValues = {
+  code: '',
   providerCode: undefined,
   providerType: undefined,
   externalCustomerId: '',
@@ -143,7 +158,7 @@ type CustomerConnectionDrawerProps = {
   onSave: (
     category: ConnectionCategory,
     values: ConnectionFormValues,
-    utils: { isEdition: boolean },
+    utils: { isEdition: boolean; formApi: CustomerConnectionDrawerFormApi },
   ) => boolean | Promise<boolean>
   /** Org-level provider/integration options per category */
   connectionOptions: Partial<Record<ConnectionCategory, ConnectionComboBoxDataItem[]>>
@@ -170,9 +185,6 @@ export type CustomerConnectionDrawerRef = {
 /**
  * The shared per-type connection editor drawer (create + edit), reused across
  * customer creation/edition and the customer information view.
- *
- * The `code` field and default selection are intentionally NOT part of this
- * phase (Milestone 2).
  */
 export const CustomerConnectionDrawer = forwardRef<
   CustomerConnectionDrawerRef,
@@ -197,7 +209,10 @@ export const CustomerConnectionDrawer = forwardRef<
   const form = useConnectionDrawerForm({
     defaultValues: openedValues,
     onSubmit: async (values) => {
-      const saved = await onSave(context.category, values, { isEdition: context.isEdition })
+      const saved = await onSave(context.category, values, {
+        isEdition: context.isEdition,
+        formApi: form,
+      })
 
       if (saved) drawer.close()
     },
@@ -230,6 +245,20 @@ export const CustomerConnectionDrawer = forwardRef<
                 options={connectionOptions[category] ?? []}
                 lockedSelection={lockedSelection}
               />
+
+              <form.AppField
+                name="code"
+                listeners={{ onChange: () => clearExistingCodeError(form) }}
+              >
+                {(field) => (
+                  <field.TextInputField
+                    data-test={CONNECTION_CODE_FIELD_TEST_ID}
+                    label={translate('text_629728388c4d2300e2d380b7')}
+                    placeholder={translate('text_1788433814031zeagk490c7a')}
+                    beforeChangeFormatter="code"
+                  />
+                )}
+              </form.AppField>
             </ConnectionDrawerSection>
 
             {renderProviderContent?.(form, { category, isEdition })}
