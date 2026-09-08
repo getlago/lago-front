@@ -16775,7 +16775,7 @@ export type UpdateQuoteVersionMutationVariables = Exact<{
 }>;
 
 
-export type UpdateQuoteVersionMutation = { __typename?: 'Mutation', updateQuoteVersion?: { __typename?: 'QuoteVersion', id: string, currency?: CurrencyEnum | null, billingEntityId?: string | null, mentionVariables: any, billingItems?: any | null } | null };
+export type UpdateQuoteVersionMutation = { __typename?: 'Mutation', updateQuoteVersion?: { __typename?: 'QuoteVersion', id: string, currency?: CurrencyEnum | null, billingEntityId?: string | null, mentionVariables: any, billingItems?: any | null, content?: string | null } | null };
 
 export type UpdateQuoteMutationVariables = Exact<{
   input: UpdateQuoteInput;
@@ -45689,6 +45689,7 @@ export const UpdateQuoteVersionDocument = gql`
     billingEntityId
     mentionVariables
     billingItems
+    content
   }
 }
     `;

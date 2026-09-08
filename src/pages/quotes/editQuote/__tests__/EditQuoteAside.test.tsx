@@ -480,6 +480,29 @@ describe('EditQuoteAside', () => {
           }),
         )
       })
+
+      it('THEN should send the content of the version it was last given', () => {
+        const { rerender } = render(<EditQuoteAside {...defaultPricingProps} quote={mockQuote} />)
+
+        fireEvent.click(screen.getByTestId(EDIT_QUOTE_ASIDE_DOWNLOAD_PDF_TEST_ID))
+
+        expect(mockDownload).toHaveBeenLastCalledWith(
+          expect.objectContaining({ content: 'Some content' }),
+        )
+
+        const editedQuote: QuoteDetailItemFragment = {
+          ...mockQuote,
+          currentVersion: { ...mockQuote.currentVersion, content: 'Edited content' },
+        }
+
+        rerender(<EditQuoteAside {...defaultPricingProps} quote={editedQuote} />)
+
+        fireEvent.click(screen.getByTestId(EDIT_QUOTE_ASIDE_DOWNLOAD_PDF_TEST_ID))
+
+        expect(mockDownload).toHaveBeenLastCalledWith(
+          expect.objectContaining({ content: 'Edited content' }),
+        )
+      })
     })
 
     describe('WHEN the Approve button is clicked', () => {
