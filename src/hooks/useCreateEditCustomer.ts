@@ -47,6 +47,7 @@ gql`
         integrationId
         externalCustomerId
         integrationCode
+        code
         integrationType
         isDefault
         subsidiaryId
@@ -58,6 +59,7 @@ gql`
         integrationId
         externalCustomerId
         integrationCode
+        code
         integrationType
         isDefault
         syncWithProvider
@@ -68,6 +70,7 @@ gql`
         integrationId
         externalCustomerId
         integrationCode
+        code
         integrationType
         isDefault
         syncWithProvider
@@ -78,6 +81,7 @@ gql`
         integrationId
         externalCustomerId
         integrationCode
+        code
         integrationType
         isDefault
         syncWithProvider
@@ -88,6 +92,7 @@ gql`
         integrationId
         externalCustomerId
         integrationCode
+        code
         integrationType
         isDefault
         syncWithProvider
@@ -99,6 +104,7 @@ gql`
         integrationId
         externalCustomerId
         integrationCode
+        code
         integrationType
         isDefault
         syncWithProvider

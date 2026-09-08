@@ -129,6 +129,11 @@ export const ConnectionDetailsPanel = ({
   const { translate } = useInternationalization()
   const { hasFeatureFlag } = useOrganizationInfos()
 
+  const connectionCode =
+    row.category === ConnectionCategory.Payment
+      ? getProviderPaymentConnection(customer)?.code
+      : getIntegrationCustomerForCategory(customer, row.category)?.code
+
   // Connection identity, shown by both variants
   const identityGrid = [
     {
@@ -137,7 +142,7 @@ export const ConnectionDetailsPanel = ({
     },
     {
       label: translate('text_6584550dc4cec7adf8615051'),
-      value: row.code,
+      value: connectionCode,
     },
     // A payment row without a provider-customer record carries no flag at all
     // (Cashfree/Flutterwave, or sync off with no external id): asserting "No"
