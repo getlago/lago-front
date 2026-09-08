@@ -93,6 +93,7 @@ const buildRow = (index: number): RateCardForListFragment => ({
     billableMetric: null,
   },
   productFilter: null,
+  taxes: [],
   activeRate: {
     __typename: 'RateCardRate',
     id: `rate-${index}`,

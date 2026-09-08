@@ -10,6 +10,7 @@ import {
   ProductDetailsTabsOptionsEnum,
   ProductFilterDetailsTabsOptionsEnum,
 } from '~/core/constants/tabsOptions'
+import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import {
   Link,
   PRODUCT_CATEGORY_DETAILS_ROUTE,
@@ -33,6 +34,9 @@ import {
 } from '../drawers/rateCard/useRateCardDrawer'
 
 export const RATE_CARD_DETAILS_OVERVIEW_EDIT_TEST_ID = 'rate-card-details-overview-edit'
+
+export const RATE_CARD_DETAILS_OVERVIEW_TAXES_LABEL_KEY = 'text_1788366458013xjjkd5j2ate'
+export const RATE_CARD_DETAILS_OVERVIEW_TAXES_FALLBACK_KEY = 'text_1788366458013p269p15ecg4'
 
 const YES_TRANSLATION_KEY = 'text_1764160009979jzn4xunn1z8'
 const NO_TRANSLATION_KEY = 'text_176416000997957yqelmt2m2'
@@ -181,6 +185,18 @@ const RateCardDetailsOverview = ({ rateCardId }: { rateCardId: string }) => {
       : []),
   ]
 
+  const taxes = rateCard.taxes.length ? (
+    <div className="flex flex-col gap-1">
+      {rateCard.taxes.map((tax) => (
+        <Typography key={tax.id} variant="body" color="grey700">
+          {`${tax.name} (${intlFormatNumber(Number(tax.rate) / 100 || 0, { style: 'percent' })})`}
+        </Typography>
+      ))}
+    </div>
+  ) : (
+    translate(RATE_CARD_DETAILS_OVERVIEW_TAXES_FALLBACK_KEY)
+  )
+
   return (
     <section>
       {hasPermissions(['rateCardsUpdate']) && (
@@ -239,6 +255,10 @@ const RateCardDetailsOverview = ({ rateCardId }: { rateCardId: string }) => {
               value: rateCard.walletTargetable
                 ? translate(YES_TRANSLATION_KEY)
                 : translate(NO_TRANSLATION_KEY),
+            },
+            {
+              label: translate(RATE_CARD_DETAILS_OVERVIEW_TAXES_LABEL_KEY),
+              value: taxes,
             },
           ]}
         />

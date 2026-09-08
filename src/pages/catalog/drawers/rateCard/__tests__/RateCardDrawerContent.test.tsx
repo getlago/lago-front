@@ -24,12 +24,35 @@ import {
   RateCardProductSeed,
 } from '../RateCardDrawerContent'
 
+const mockHasPermissions = jest.fn()
+
 // `translate` must echo the key: the available-models memo excludes it from its
 // deps, so the real hook would cache the labels of the untranslated first render.
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
     translate: (key: string) => key,
   }),
+}))
+
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({ hasPermissions: mockHasPermissions }),
+}))
+
+jest.mock('~/components/taxes/TaxesSelectorSection', () => ({
+  TaxesSelectorSection: ({
+    onUpdate,
+  }: {
+    onUpdate: (taxes: Array<{ id: string; code: string; name: string; rate: number }>) => void
+  }) => (
+    <div data-test="taxes-selector-section">
+      <button
+        data-test="select-tax"
+        onClick={() => onUpdate([{ id: 'tax-1', code: 'vat_20', name: 'VAT', rate: 20 }])}
+      >
+        Select tax
+      </button>
+    </div>
+  ),
 }))
 
 // jsdom has no scrollIntoView, and `scrollToAndClickElement` calls it before the click that
@@ -39,6 +62,7 @@ Element.prototype.scrollIntoView = jest.fn()
 const DESCRIPTION_PROBE_TEST_ID = 'description-probe'
 const DIRTY_PROBE_TEST_ID = 'dirty-probe'
 const PRICING_UNIT_PROBE_TEST_ID = 'pricing-unit-probe'
+const SELECTED_TAX_CODES_TEST_ID = 'selected-tax-codes'
 
 const DYNAMIC_MODEL_KEY = 'text_1727711520232zpp50zgnam5'
 const STANDARD_MODEL_KEY = 'text_624aa732d6af4e0103d40e6f'
@@ -83,9 +107,10 @@ const buildUsageSeed = (aggregationType: AggregationTypeEnum): RateCardProductSe
 type HarnessProps = {
   values?: Partial<RateCardFormValues>
   productSeed?: RateCardProductSeed
+  isLocked?: boolean
 }
 
-const Harness = ({ values, productSeed = null }: HarnessProps): JSX.Element => {
+const Harness = ({ values, productSeed = null, isLocked = false }: HarnessProps): JSX.Element => {
   const form = useAppForm({ defaultValues: { ...RATE_CARD_FORM_DEFAULTS, ...values } })
 
   return (
@@ -99,10 +124,17 @@ const Harness = ({ values, productSeed = null }: HarnessProps): JSX.Element => {
       <form.Subscribe selector={(state) => state.values.pricingUnit}>
         {(pricingUnit) => <span data-test={PRICING_UNIT_PROBE_TEST_ID}>{String(pricingUnit)}</span>}
       </form.Subscribe>
+      <form.Subscribe selector={(state) => state.values.taxes}>
+        {(taxes) => (
+          <span data-test={SELECTED_TAX_CODES_TEST_ID}>
+            {taxes.map((tax) => tax.code).join(',')}
+          </span>
+        )}
+      </form.Subscribe>
       <RateCardDrawerContent
         form={form}
         isEdit={false}
-        isLocked={false}
+        isLocked={isLocked}
         disableCodeInput={false}
         productSeed={productSeed}
         productFilterSeed={null}
@@ -137,6 +169,11 @@ const getAvailableModelLabels = (): string[] =>
     .map((chip) => chip.textContent ?? '')
 
 describe('RateCardDrawerContent', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+    mockHasPermissions.mockReturnValue(true)
+  })
+
   describe('GIVEN a rate card without a description', () => {
     describe('WHEN the content renders', () => {
       it('THEN shows the add-description button only', () => {
@@ -379,6 +416,30 @@ describe('RateCardDrawerContent', () => {
         expect(screen.getByTestId(PRICING_UNIT_PROBE_TEST_ID)).toHaveTextContent('undefined')
         expect(screen.getByTestId(RATE_CARD_DRAWER_SHOW_PRICING_UNIT_TEST_ID)).toBeInTheDocument()
       })
+    })
+  })
+
+  describe('GIVEN organization tax permissions', () => {
+    it('THEN shows the tax selector', () => {
+      renderContent()
+
+      expect(screen.getByTestId('taxes-selector-section')).toBeInTheDocument()
+    })
+
+    it('THEN hides the tax selector without the view permission', () => {
+      mockHasPermissions.mockReturnValue(false)
+
+      renderContent()
+
+      expect(screen.queryByTestId('taxes-selector-section')).not.toBeInTheDocument()
+    })
+
+    it('THEN allows changing taxes when the rate card settings are locked', async () => {
+      renderContent({ isLocked: true })
+
+      await userEvent.click(screen.getByTestId('select-tax'))
+
+      expect(screen.getByTestId(SELECTED_TAX_CODES_TEST_ID)).toHaveTextContent('vat_20')
     })
   })
 })

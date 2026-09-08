@@ -2,7 +2,7 @@ import { MockedProvider, MockedResponse } from '@apollo/client/testing'
 import { act, renderHook, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { GraphQLError } from 'graphql'
-import { ReactNode } from 'react'
+import { ReactElement, ReactNode } from 'react'
 
 import { CREATE_MORE_SWITCH_TEST_ID } from '~/components/drawers/createMore/CreateMoreControl'
 import { addToast } from '~/core/apolloClient'
@@ -110,6 +110,14 @@ jest.mock('../RateCardDrawerContent', () => ({
       >
         seed pricing unit
       </button>
+      <button
+        data-test="seed-taxes"
+        onClick={() => {
+          form.setFieldValue('taxes', [{ id: 'tax-1', code: 'vat_20', name: 'VAT', rate: 20 }])
+        }}
+      >
+        seed taxes
+      </button>
     </>
   ),
 }))
@@ -142,6 +150,7 @@ const rateCardResult = {
     },
   },
   productFilter: null,
+  taxes: [],
 }
 
 const createRateCardMock = (
@@ -234,6 +243,7 @@ describe('useRateCardDrawer create flow', () => {
       currency: CurrencyEnum.Usd,
       displayOnInvoice: true,
       regroupPaidFees: null,
+      taxCodes: [],
     })
     expect(capturedInput).not.toHaveProperty('appliedPricingUnitCode')
     expect(capturedInput).not.toHaveProperty('productFilterId')
@@ -281,6 +291,21 @@ describe('useRateCardDrawer create flow', () => {
     expect(capturedInput).toMatchObject({ currency: 'USD', appliedPricingUnitCode: 'credits' })
   })
 
+  it('sends the selected tax codes', async () => {
+    let capturedInput: Record<string, unknown> = {}
+    const { result } = renderDrawerHook([createRateCardMock((input) => (capturedInput = input))])
+
+    act(() => result.current.openDrawer())
+    renderDrawerBody()
+    await userEvent.click(screen.getByTestId('seed-base'))
+    await userEvent.click(screen.getByTestId('seed-taxes'))
+    await submit()
+
+    await waitFor(() => expect(mockClose).toHaveBeenCalledTimes(1))
+
+    expect(capturedInput.taxCodes).toEqual(['vat_20'])
+  })
+
   it('keeps the drawer open and links the rate card in the toast when create more is on', async () => {
     let capturedInput: Record<string, unknown> = {}
     const { result } = renderDrawerHook([createRateCardMock((input) => (capturedInput = input))])
@@ -305,19 +330,28 @@ describe('useRateCardDrawer create flow', () => {
     expect(mockNavigate).not.toHaveBeenCalled()
   })
 
-  it('keeps the drawer open on a duplicate code without toasting', async () => {
+  it('keeps the drawer and selected taxes on a duplicate code error', async () => {
     const { result } = renderDrawerHook([
-      createRateCardMock(() => undefined, { data: null, errors: [duplicateCodeError] }),
+      createRateCardMock(() => undefined, {
+        data: null,
+        errors: [duplicateCodeError],
+      }),
     ])
 
     act(() => result.current.openDrawer())
     renderDrawerBody()
     await userEvent.click(screen.getByTestId('seed-base'))
+    await userEvent.click(screen.getByTestId('seed-taxes'))
     await submit()
 
-    await waitFor(() => expect(result.current).toBeDefined())
     expect(mockClose).not.toHaveBeenCalled()
     expect(mockNavigate).not.toHaveBeenCalled()
     expect(addToast).not.toHaveBeenCalled()
+
+    const content = lastDrawerArgs?.children as ReactElement<{
+      form: { state: { values: { taxes: Array<{ code: string }> } } }
+    }>
+
+    expect(content.props.form.state.values.taxes.map((tax) => tax.code)).toEqual(['vat_20'])
   })
 })
