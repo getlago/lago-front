@@ -13838,11 +13838,23 @@ export type GetBillableMetricsForAnrokItemsListQueryVariables = Exact<{
 
 export type GetBillableMetricsForAnrokItemsListQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null }> | null }> } };
 
+export type GetProductsForAnrokItemsListQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+  integrationId: Scalars['ID']['input'];
+}>;
+
+
+export type GetProductsForAnrokItemsListQuery = { __typename?: 'Query', products: { __typename?: 'ProductCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Product', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null }> | null }> } };
+
 export type AnrokIntegrationItemsListAddonsFragment = { __typename?: 'AddOn', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null }> | null };
 
 export type AnrokIntegrationItemsListBillableMetricsFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null }> | null };
 
 export type AnrokIntegrationItemsListDefaultFragment = { __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId?: string | null, externalAccountCode?: string | null, externalName?: string | null, billingEntityId?: string | null };
+
+export type AnrokIntegrationItemsListProductsFragment = { __typename?: 'Product', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null }> | null };
 
 export type AnrokIntegrationSettingsFragment = { __typename?: 'AnrokIntegration', id: string, name: string, code: string, apiKey: any, hasMappingsConfigured?: boolean | null, failedInvoicesCount?: number | null };
 
@@ -13908,11 +13920,23 @@ export type GetBillableMetricsForAvalaraItemsListQueryVariables = Exact<{
 
 export type GetBillableMetricsForAvalaraItemsListQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null }> | null }> } };
 
+export type GetProductsForAvalaraItemsListQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+  integrationId: Scalars['ID']['input'];
+}>;
+
+
+export type GetProductsForAvalaraItemsListQuery = { __typename?: 'Query', products: { __typename?: 'ProductCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Product', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null }> | null }> } };
+
 export type AvalaraIntegrationItemsListAddonsFragment = { __typename?: 'AddOn', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null }> | null };
 
 export type AvalaraIntegrationItemsListBillableMetricsFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null }> | null };
 
 export type AvalaraIntegrationItemsListDefaultFragment = { __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId?: string | null, externalAccountCode?: string | null, externalName?: string | null, billingEntityId?: string | null };
+
+export type AvalaraIntegrationItemsListProductsFragment = { __typename?: 'Product', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null }> | null };
 
 export type AvalaraIntegrationSettingsFragment = { __typename?: 'AvalaraIntegration', id: string, accountId?: string | null, code: string, companyCode: string, failedInvoicesCount?: number | null, hasMappingsConfigured?: boolean | null, licenseKey: any, name: string };
 
@@ -20107,6 +20131,21 @@ export const AnrokIntegrationItemsListDefaultFragmentDoc = gql`
   billingEntityId
 }
     `;
+export const AnrokIntegrationItemsListProductsFragmentDoc = gql`
+    fragment AnrokIntegrationItemsListProducts on Product {
+  id
+  name
+  code
+  integrationMappings(integrationId: $integrationId) {
+    id
+    externalId
+    externalAccountCode
+    externalName
+    mappableType
+    billingEntityId
+  }
+}
+    `;
 export const AnrokIntegrationSettingsFragmentDoc = gql`
     fragment AnrokIntegrationSettings on AnrokIntegration {
   id
@@ -20160,6 +20199,21 @@ export const AvalaraIntegrationItemsListDefaultFragmentDoc = gql`
   externalAccountCode
   externalName
   billingEntityId
+}
+    `;
+export const AvalaraIntegrationItemsListProductsFragmentDoc = gql`
+    fragment AvalaraIntegrationItemsListProducts on Product {
+  id
+  name
+  code
+  integrationMappings(integrationId: $integrationId) {
+    id
+    externalId
+    externalAccountCode
+    externalName
+    mappableType
+    billingEntityId
+  }
 }
     `;
 export const AvalaraIntegrationSettingsFragmentDoc = gql`
@@ -32251,6 +32305,60 @@ export type GetBillableMetricsForAnrokItemsListQueryHookResult = ReturnType<type
 export type GetBillableMetricsForAnrokItemsListLazyQueryHookResult = ReturnType<typeof useGetBillableMetricsForAnrokItemsListLazyQuery>;
 export type GetBillableMetricsForAnrokItemsListSuspenseQueryHookResult = ReturnType<typeof useGetBillableMetricsForAnrokItemsListSuspenseQuery>;
 export type GetBillableMetricsForAnrokItemsListQueryResult = Apollo.QueryResult<GetBillableMetricsForAnrokItemsListQuery, GetBillableMetricsForAnrokItemsListQueryVariables>;
+export const GetProductsForAnrokItemsListDocument = gql`
+    query getProductsForAnrokItemsList($page: Int, $limit: Int, $searchTerm: String, $integrationId: ID!) {
+  products(page: $page, limit: $limit, searchTerm: $searchTerm) {
+    metadata {
+      currentPage
+      totalPages
+      totalCount
+    }
+    collection {
+      id
+      ...AnrokIntegrationItemsListProducts
+    }
+  }
+}
+    ${AnrokIntegrationItemsListProductsFragmentDoc}`;
+
+/**
+ * __useGetProductsForAnrokItemsListQuery__
+ *
+ * To run a query within a React component, call `useGetProductsForAnrokItemsListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetProductsForAnrokItemsListQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetProductsForAnrokItemsListQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *      integrationId: // value for 'integrationId'
+ *   },
+ * });
+ */
+export function useGetProductsForAnrokItemsListQuery(baseOptions: Apollo.QueryHookOptions<GetProductsForAnrokItemsListQuery, GetProductsForAnrokItemsListQueryVariables> & ({ variables: GetProductsForAnrokItemsListQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetProductsForAnrokItemsListQuery, GetProductsForAnrokItemsListQueryVariables>(GetProductsForAnrokItemsListDocument, options);
+      }
+export function useGetProductsForAnrokItemsListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetProductsForAnrokItemsListQuery, GetProductsForAnrokItemsListQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetProductsForAnrokItemsListQuery, GetProductsForAnrokItemsListQueryVariables>(GetProductsForAnrokItemsListDocument, options);
+        }
+// @ts-ignore
+export function useGetProductsForAnrokItemsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetProductsForAnrokItemsListQuery, GetProductsForAnrokItemsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetProductsForAnrokItemsListQuery, GetProductsForAnrokItemsListQueryVariables>;
+export function useGetProductsForAnrokItemsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProductsForAnrokItemsListQuery, GetProductsForAnrokItemsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetProductsForAnrokItemsListQuery | undefined, GetProductsForAnrokItemsListQueryVariables>;
+export function useGetProductsForAnrokItemsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProductsForAnrokItemsListQuery, GetProductsForAnrokItemsListQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetProductsForAnrokItemsListQuery, GetProductsForAnrokItemsListQueryVariables>(GetProductsForAnrokItemsListDocument, options);
+        }
+export type GetProductsForAnrokItemsListQueryHookResult = ReturnType<typeof useGetProductsForAnrokItemsListQuery>;
+export type GetProductsForAnrokItemsListLazyQueryHookResult = ReturnType<typeof useGetProductsForAnrokItemsListLazyQuery>;
+export type GetProductsForAnrokItemsListSuspenseQueryHookResult = ReturnType<typeof useGetProductsForAnrokItemsListSuspenseQuery>;
+export type GetProductsForAnrokItemsListQueryResult = Apollo.QueryResult<GetProductsForAnrokItemsListQuery, GetProductsForAnrokItemsListQueryVariables>;
 export const GetAnrokIntegrationsSettingsDocument = gql`
     query getAnrokIntegrationsSettings($id: ID!, $limit: Int) {
   integration(id: $id) {
@@ -32498,6 +32606,60 @@ export type GetBillableMetricsForAvalaraItemsListQueryHookResult = ReturnType<ty
 export type GetBillableMetricsForAvalaraItemsListLazyQueryHookResult = ReturnType<typeof useGetBillableMetricsForAvalaraItemsListLazyQuery>;
 export type GetBillableMetricsForAvalaraItemsListSuspenseQueryHookResult = ReturnType<typeof useGetBillableMetricsForAvalaraItemsListSuspenseQuery>;
 export type GetBillableMetricsForAvalaraItemsListQueryResult = Apollo.QueryResult<GetBillableMetricsForAvalaraItemsListQuery, GetBillableMetricsForAvalaraItemsListQueryVariables>;
+export const GetProductsForAvalaraItemsListDocument = gql`
+    query getProductsForAvalaraItemsList($page: Int, $limit: Int, $searchTerm: String, $integrationId: ID!) {
+  products(page: $page, limit: $limit, searchTerm: $searchTerm) {
+    metadata {
+      currentPage
+      totalPages
+      totalCount
+    }
+    collection {
+      id
+      ...AvalaraIntegrationItemsListProducts
+    }
+  }
+}
+    ${AvalaraIntegrationItemsListProductsFragmentDoc}`;
+
+/**
+ * __useGetProductsForAvalaraItemsListQuery__
+ *
+ * To run a query within a React component, call `useGetProductsForAvalaraItemsListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetProductsForAvalaraItemsListQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetProductsForAvalaraItemsListQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *      integrationId: // value for 'integrationId'
+ *   },
+ * });
+ */
+export function useGetProductsForAvalaraItemsListQuery(baseOptions: Apollo.QueryHookOptions<GetProductsForAvalaraItemsListQuery, GetProductsForAvalaraItemsListQueryVariables> & ({ variables: GetProductsForAvalaraItemsListQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetProductsForAvalaraItemsListQuery, GetProductsForAvalaraItemsListQueryVariables>(GetProductsForAvalaraItemsListDocument, options);
+      }
+export function useGetProductsForAvalaraItemsListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetProductsForAvalaraItemsListQuery, GetProductsForAvalaraItemsListQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetProductsForAvalaraItemsListQuery, GetProductsForAvalaraItemsListQueryVariables>(GetProductsForAvalaraItemsListDocument, options);
+        }
+// @ts-ignore
+export function useGetProductsForAvalaraItemsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetProductsForAvalaraItemsListQuery, GetProductsForAvalaraItemsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetProductsForAvalaraItemsListQuery, GetProductsForAvalaraItemsListQueryVariables>;
+export function useGetProductsForAvalaraItemsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProductsForAvalaraItemsListQuery, GetProductsForAvalaraItemsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetProductsForAvalaraItemsListQuery | undefined, GetProductsForAvalaraItemsListQueryVariables>;
+export function useGetProductsForAvalaraItemsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProductsForAvalaraItemsListQuery, GetProductsForAvalaraItemsListQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetProductsForAvalaraItemsListQuery, GetProductsForAvalaraItemsListQueryVariables>(GetProductsForAvalaraItemsListDocument, options);
+        }
+export type GetProductsForAvalaraItemsListQueryHookResult = ReturnType<typeof useGetProductsForAvalaraItemsListQuery>;
+export type GetProductsForAvalaraItemsListLazyQueryHookResult = ReturnType<typeof useGetProductsForAvalaraItemsListLazyQuery>;
+export type GetProductsForAvalaraItemsListSuspenseQueryHookResult = ReturnType<typeof useGetProductsForAvalaraItemsListSuspenseQuery>;
+export type GetProductsForAvalaraItemsListQueryResult = Apollo.QueryResult<GetProductsForAvalaraItemsListQuery, GetProductsForAvalaraItemsListQueryVariables>;
 export const GetAvalaraIntegrationSettingsDocument = gql`
     query getAvalaraIntegrationSettings($id: ID!, $limit: Int) {
   integration(id: $id) {
