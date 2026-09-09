@@ -87,6 +87,7 @@ gql`
   }
 `
 
+export const RATE_CARD_DRAWER_CODE_TEST_ID = 'rate-card-drawer-code'
 export const RATE_CARD_DRAWER_SHOW_DESCRIPTION_TEST_ID = 'rate-card-drawer-show-description'
 export const RATE_CARD_DRAWER_DESCRIPTION_TEST_ID = 'rate-card-drawer-description'
 export const RATE_CARD_DRAWER_REMOVE_DESCRIPTION_TEST_ID = 'rate-card-drawer-remove-description'
@@ -111,7 +112,8 @@ export type RateCardProductSeed = {
 
 type RateCardDrawerSectionsExtraProps = {
   isEdit: boolean
-  isLocked: boolean
+  isAttached: boolean
+  hasRates: boolean
   disableCodeInput: boolean
   productSeed: RateCardProductSeed
   productFilterSeed: RateCardComboboxSeed
@@ -119,7 +121,8 @@ type RateCardDrawerSectionsExtraProps = {
 
 const rateCardDrawerSectionsDefaultProps: RateCardDrawerSectionsExtraProps = {
   isEdit: false,
-  isLocked: false,
+  isAttached: false,
+  hasRates: false,
   disableCodeInput: false,
   productSeed: null,
   productFilterSeed: null,
@@ -152,7 +155,8 @@ const RateCardDrawerFormSections = withForm({
   render: function RateCardDrawerFormSectionsRender({
     form,
     isEdit,
-    isLocked,
+    isAttached,
+    hasRates,
     disableCodeInput,
     productSeed,
     productFilterSeed,
@@ -343,6 +347,7 @@ const RateCardDrawerFormSections = withForm({
               fields={{ name: 'name', code: 'code' }}
               disableCodeInput={disableCodeInput}
               disableAutoGenerateCode={isEdit}
+              codeDataTest={RATE_CARD_DRAWER_CODE_TEST_ID}
               nameProps={{ autoFocus: true }}
             />
 
@@ -431,7 +436,7 @@ const RateCardDrawerFormSections = withForm({
                   label={translate('text_1784925227817bab1mp540x7')}
                   placeholder={translate('text_632c6e59b73f9a54d4c7224b')}
                   data={currencyComboboxData}
-                  disabled={isLocked}
+                  disabled={hasRates || isAttached}
                 />
               )}
             </form.AppField>
@@ -447,7 +452,7 @@ const RateCardDrawerFormSections = withForm({
                       label={translate('text_1784925227817xt1irx4wum2')}
                       placeholder={translate('text_17884232212443zsb3p8b5he')}
                       data={pricingUnitsComboboxData}
-                      disabled={isLocked}
+                      disabled={hasRates}
                     />
                   )}
                 </form.AppField>
@@ -459,7 +464,7 @@ const RateCardDrawerFormSections = withForm({
                   <Button
                     icon="trash"
                     variant="quaternary"
-                    disabled={isLocked}
+                    disabled={hasRates}
                     onClick={handleHidePricingUnit}
                     data-test={RATE_CARD_DRAWER_REMOVE_PRICING_UNIT_TEST_ID}
                   />
@@ -471,7 +476,7 @@ const RateCardDrawerFormSections = withForm({
                 fitContent
                 startIcon="plus"
                 variant="inline"
-                disabled={isLocked}
+                disabled={hasRates}
                 onClick={handleShowPricingUnit}
                 data-test={RATE_CARD_DRAWER_SHOW_PRICING_UNIT_TEST_ID}
               >
@@ -503,7 +508,7 @@ const RateCardDrawerFormSections = withForm({
                   label={translate('text_6682c52081acea90520743a8')}
                   description={translate('text_1781703119230q5zam349txb')}
                   optionLabelVariant="body"
-                  disabled={isLocked}
+                  disabled={hasRates}
                   options={[
                     {
                       label: translate('text_6682c52081acea90520743ac'),
@@ -521,7 +526,7 @@ const RateCardDrawerFormSections = withForm({
             {isPayInAdvance && (
               <ChargeInvoicingStrategyOption
                 localCharge={strategyLocalCharge}
-                disabled={isLocked}
+                disabled={hasRates}
                 openPremiumDialog={() => openPremiumWarningDialog()}
                 handleUpdate={({ invoiceable, regroupPaidFees }) => {
                   form.setFieldValue(
@@ -551,7 +556,7 @@ const RateCardDrawerFormSections = withForm({
                   {(field) => (
                     <field.SwitchField
                       label={translate('text_177488074309762bkd4znl3p')}
-                      disabled={isLocked}
+                      disabled={hasRates}
                     />
                   )}
                 </form.AppField>
@@ -569,7 +574,7 @@ const RateCardDrawerFormSections = withForm({
                   color="grey700"
                 >{`${translate('text_1784925227817ukilytyxozn')} `}</Typography>
 
-                <span className="flex flex-wrap gap-2">
+                <span className="flex flex-wrap gap-1">
                   {availableRateModelLabels.map((label) => (
                     <Chip
                       key={label}
@@ -589,7 +594,7 @@ const RateCardDrawerFormSections = withForm({
                 <field.SwitchField
                   label={translate('text_1784925227817ffwix51pkv1')}
                   subLabel={translate('text_17849252278174oqykkuidsn')}
-                  disabled={isLocked}
+                  disabled={hasRates}
                 />
               )}
             </form.AppField>
@@ -619,7 +624,8 @@ export const RateCardDrawerContent = withForm({
   render: function RateCardDrawerContentRender({
     form,
     isEdit,
-    isLocked,
+    isAttached,
+    hasRates,
     disableCodeInput,
     productSeed,
     productFilterSeed,
@@ -646,7 +652,8 @@ export const RateCardDrawerContent = withForm({
           <RateCardDrawerFormSections
             form={form}
             isEdit={isEdit}
-            isLocked={isLocked}
+            isAttached={isAttached}
+            hasRates={hasRates}
             disableCodeInput={disableCodeInput}
             productSeed={productSeed}
             productFilterSeed={productFilterSeed}

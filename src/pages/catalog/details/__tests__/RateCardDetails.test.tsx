@@ -10,6 +10,7 @@ import { GetRateCardForDetailsDocument, RateCardBillingTimingEnum } from '~/gene
 import { AllTheProviders, testMockNavigateFn } from '~/test-utils'
 
 import RateCardDetails, {
+  buildRateCardSnapshotKey,
   RATE_CARD_DETAILS_ACTIONS_TEST_ID,
   RATE_CARD_DETAILS_DELETE_TEST_ID,
   RATE_CARD_DETAILS_EDIT_TEST_ID,
@@ -75,6 +76,7 @@ const rateCardFixture = {
   walletTargetable: false,
   attachedToPlanOrSubscription: false,
   attachedToSubscriptions: false,
+  ratesCount: 0,
   product: {
     __typename: 'Product',
     id: 'pitem-1',
@@ -286,6 +288,35 @@ describe('RateCardDetails', () => {
     await waitFor(() => {
       expect(testMockNavigateFn).toHaveBeenCalledWith('/product-catalog/rate-cards', {
         replace: true,
+      })
+    })
+  })
+})
+
+describe('buildRateCardSnapshotKey', () => {
+  type SnapshotArg = Parameters<typeof buildRateCardSnapshotKey>[0]
+
+  const rateCard = rateCardFixture as unknown as NonNullable<SnapshotArg>
+
+  describe('GIVEN two rate cards differing only in one mutable field', () => {
+    describe('WHEN their snapshot keys are compared', () => {
+      it.each([
+        ['the code', { code: 'renamed_rate_card' }],
+        ['the rate count', { ratesCount: 1 }],
+        ['the description', { description: 'Another description' }],
+        ['the attachment', { attachedToPlanOrSubscription: true }],
+      ])('THEN %s changes the key', (_, override) => {
+        expect(buildRateCardSnapshotKey(rateCard)).not.toBe(
+          buildRateCardSnapshotKey({ ...rateCard, ...override }),
+        )
+      })
+    })
+  })
+
+  describe('GIVEN the very same rate card', () => {
+    describe('WHEN the snapshot keys are compared', () => {
+      it('THEN the key is stable, so the header is not re-pushed on every render', () => {
+        expect(buildRateCardSnapshotKey(rateCard)).toBe(buildRateCardSnapshotKey(rateCard))
       })
     })
   })

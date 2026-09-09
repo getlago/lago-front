@@ -12,6 +12,7 @@ import {
 } from '~/core/constants/tabsOptions'
 import { PRODUCT_CATALOG_TAB_ROUTE, RATE_CARD_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import {
+  GetRateCardForDetailsQuery,
   LagoApiError,
   RateCardForDeleteRateCardDialogFragmentDoc,
   RateCardForDrawerFragmentDoc,
@@ -51,6 +52,28 @@ gql`
   ${RateCardForDeleteRateCardDialogFragmentDoc}
   ${RateCardForRateDrawerFragmentDoc}
 `
+
+// The header config is only re-pushed when this key changes, and its closures capture the
+// rate card, so the key must encode every mutable field they read - including `code`, which
+// the header renders through a React node the config snapshot strips.
+export const buildRateCardSnapshotKey = (
+  rateCard?: GetRateCardForDetailsQuery['rateCard'],
+): string =>
+  [
+    rateCard?.code,
+    rateCard?.description,
+    rateCard?.billingTiming,
+    rateCard?.proration,
+    rateCard?.attachedToPlanOrSubscription,
+    rateCard?.attachedToSubscriptions,
+    rateCard?.ratesCount,
+    rateCard?.currency,
+    rateCard?.appliedPricingUnitCode,
+    rateCard?.walletTargetable,
+    rateCard?.displayOnInvoice,
+    rateCard?.regroupPaidFees,
+    rateCard?.activeRate?.effectiveFrom,
+  ].join('|')
 
 const RATE_CARDS_LIST_PATH = generatePath(PRODUCT_CATALOG_TAB_ROUTE, {
   tab: ProductCatalogTabsOptionsEnum.rateCards,
@@ -122,11 +145,7 @@ const RateCardDetails = () => {
   return (
     <>
       <MainHeader.Configure
-        // The MainHeader config snapshot strips functions, so the action
-        // closures capture `rateCard` from the last push. Encode the mutable
-        // fields the closures depend on (but that the header does not display)
-        // so an edit touching only those re-pushes fresh closures.
-        snapshotKey={`${rateCard?.description}|${rateCard?.billingTiming}|${rateCard?.proration}|${rateCard?.attachedToPlanOrSubscription}|${rateCard?.attachedToSubscriptions}|${rateCard?.currency}|${rateCard?.appliedPricingUnitCode}|${rateCard?.walletTargetable}|${rateCard?.displayOnInvoice}|${rateCard?.regroupPaidFees}|${rateCard?.activeRate?.effectiveFrom}`}
+        snapshotKey={buildRateCardSnapshotKey(rateCard)}
         breadcrumb={[
           {
             label: translate('text_1783019143196z1oi70j03vt'),

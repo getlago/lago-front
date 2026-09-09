@@ -390,6 +390,19 @@ describe('buildRateCardRateSnapshotKey', () => {
     })
   })
 
+  describe('GIVEN the parent card was renamed', () => {
+    describe('WHEN the snapshot keys are compared', () => {
+      it('THEN the key changes, so the header stops showing the old card code', () => {
+        expect(buildRateCardRateSnapshotKey({ rate, rateCard })).not.toBe(
+          buildRateCardRateSnapshotKey({
+            rate,
+            rateCard: { ...rateCard, code: 'renamed_rate_card' },
+          }),
+        )
+      })
+    })
+  })
+
   describe('GIVEN the card gained an active rate', () => {
     describe('WHEN the snapshot keys are compared', () => {
       it('THEN the key changes, so the append boundary handed down cannot go stale', () => {

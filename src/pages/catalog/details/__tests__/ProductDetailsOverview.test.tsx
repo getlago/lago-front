@@ -8,10 +8,13 @@ import {
 } from '~/generated/graphql'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
+import { CATALOG_RELATIONS_NO_PRODUCT_CATEGORY_TEST_ID } from '../CatalogRelationsInfoGrid'
 import {
   PRODUCT_ITEM_OVERVIEW_EDIT_TEST_ID,
   ProductDetailsOverview,
 } from '../ProductDetailsOverview'
+
+const PRODUCT_CATEGORY_LABEL_KEY = 'text_17877372202296ejgkqky70w'
 
 const mockOpenEditProductDrawer = jest.fn()
 const mockHasPermissions = jest.fn()
@@ -42,8 +45,20 @@ const fixedProduct: ProductForDetailsOverviewFragment = {
     id: 'prod-1',
     name: 'Object storage',
     code: 'object_storage',
+    invoiceDisplayName: null,
   },
   billableMetric: null,
+}
+
+const invoiceDisplayNameCategoryProduct: ProductForDetailsOverviewFragment = {
+  ...fixedProduct,
+  productCategory: {
+    __typename: 'ProductCategory',
+    id: 'prod-1',
+    name: 'Object storage',
+    code: 'object_storage',
+    invoiceDisplayName: 'Storage (billed)',
+  },
 }
 
 const usageProduct: ProductForDetailsOverviewFragment = {
@@ -193,6 +208,30 @@ describe('ProductDetailsOverview', () => {
         )
 
         expect(screen.getByText(UNBREAKABLE_DESCRIPTION)).toHaveClass('line-break-anywhere')
+      })
+    })
+  })
+
+  describe('GIVEN a product with no product category', () => {
+    describe('WHEN the overview loads', () => {
+      it('THEN keeps the label and shows the no-category placeholder', async () => {
+        await act(() => renderOverview(usageProduct))
+
+        expect(await screen.findByText(PRODUCT_CATEGORY_LABEL_KEY)).toBeInTheDocument()
+        expect(
+          screen.getByTestId(CATALOG_RELATIONS_NO_PRODUCT_CATEGORY_TEST_ID),
+        ).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a product category with an invoice display name', () => {
+    describe('WHEN the overview loads', () => {
+      it('THEN prefers it over the name in the link', async () => {
+        await act(() => renderOverview(invoiceDisplayNameCategoryProduct))
+
+        expect(await screen.findByRole('link', { name: 'Storage (billed)' })).toBeInTheDocument()
+        expect(screen.queryByRole('link', { name: 'Object storage' })).not.toBeInTheDocument()
       })
     })
   })

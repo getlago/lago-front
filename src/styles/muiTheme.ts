@@ -153,7 +153,7 @@ export const theme = createTheme({
           outlineOffset: '-1px',
           '&.chip-size--small': {
             minHeight: '20px',
-            padding: '0px 4px',
+            padding: '0px 8px',
           },
           '&.chip-size--big': {
             minHeight: '40px',

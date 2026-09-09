@@ -211,13 +211,14 @@ describe('useRateCardRateDrawer edit flow', () => {
 
         expect(capturedInput).toMatchObject({ id: 'rate-1' })
         expect(capturedInput).toHaveProperty('rateProperties')
-        // FROZEN_ON_ACTIVE + the code, which the design freezes too.
         expect(capturedInput).not.toHaveProperty('effectiveFrom')
         expect(capturedInput).not.toHaveProperty('rateModel')
         expect(capturedInput).not.toHaveProperty('billingIntervalCount')
         expect(capturedInput).not.toHaveProperty('billingIntervalUnit')
         expect(capturedInput).not.toHaveProperty('minAmountCents')
-        expect(capturedInput).not.toHaveProperty('code')
+        // `code` is not in FROZEN_ON_ACTIVE, and the service only rejects it when it
+        // actually changed, so an unchanged code rides along like everywhere else.
+        expect(capturedInput).toHaveProperty('code')
       })
 
       it('THEN tells the body to lock the timeline fields', () => {

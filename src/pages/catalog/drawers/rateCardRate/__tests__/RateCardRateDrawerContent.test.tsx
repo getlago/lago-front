@@ -1,6 +1,7 @@
 import { act, configure, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { applyExistingCodeError, EXISTING_CODE_ERROR_MESSAGE } from '~/core/form/existingCodeError'
 import {
   AggregationTypeEnum,
   CurrencyEnum,
@@ -27,6 +28,7 @@ const CODE_PROBE_TEST_ID = 'code-probe'
 const DIRTY_PROBE_TEST_ID = 'dirty-probe'
 const CUSTOM_PROPERTIES_PROBE_TEST_ID = 'custom-properties-probe'
 const SET_DATE_BUTTON_TEST_ID = 'set-date'
+const APPLY_CODE_ERROR_BUTTON_TEST_ID = 'apply-code-error'
 const SET_SECOND_DATE_BUTTON_TEST_ID = 'set-second-date'
 const CHANGE_MODEL_BUTTON_TEST_ID = 'change-model'
 const SET_SPENDING_MINIMUM_BUTTON_TEST_ID = 'clear-spending-minimum'
@@ -137,6 +139,12 @@ const Host = ({
 
   return (
     <>
+      <button
+        data-test={APPLY_CODE_ERROR_BUTTON_TEST_ID}
+        onClick={() => applyExistingCodeError(form)}
+      >
+        apply code error
+      </button>
       <button
         data-test={SET_DATE_BUTTON_TEST_ID}
         onClick={() => form.setFieldValue('effectiveFrom', '2026-01-24T00:00:00.000Z')}
@@ -386,13 +394,27 @@ describe('RateCardRateDrawerContent', () => {
 
   describe('GIVEN the edited rate is already active', () => {
     describe('WHEN the drawer body renders', () => {
-      it.each([
-        ['code', RATE_CARD_RATE_DRAWER_CODE_TEST_ID],
-        ['billing interval count', RATE_CARD_RATE_DRAWER_BILLING_INTERVAL_COUNT_TEST_ID],
-      ])('THEN disables the %s input', (_, testId) => {
+      it('THEN disables the billing interval count input', () => {
         render(<Host isEdit isActiveRate />)
 
-        expect(screen.getByTestId(testId).querySelector('input')).toBeDisabled()
+        expect(
+          screen
+            .getByTestId(RATE_CARD_RATE_DRAWER_BILLING_INTERVAL_COUNT_TEST_ID)
+            .querySelector('input'),
+        ).toBeDisabled()
+      })
+
+      // `code` is not in `FROZEN_ON_ACTIVE`; only the parent card's attachment freezes it.
+      it('THEN keeps the code input editable while the parent card is unattached', () => {
+        render(<Host isEdit isActiveRate />)
+
+        expect(codeInput()).toBeEnabled()
+      })
+
+      it('THEN disables the code input once the parent card is attached', () => {
+        render(<Host isEdit isActiveRate isCodeLocked />)
+
+        expect(codeInput()).toBeDisabled()
       })
 
       it('THEN disables the billing interval unit', () => {
@@ -501,6 +523,26 @@ describe('RateCardRateDrawerContent', () => {
           screen.getByTestId(RATE_CARD_RATE_DRAWER_CODE_TEST_ID).querySelector('input'),
         ).not.toBeDisabled()
         expect(mockChargeModelSelectorProps.disabled).toBe(false)
+      })
+    })
+  })
+
+  describe('GIVEN the backend rejected the code as already existing', () => {
+    describe('WHEN the user retypes the code', () => {
+      // Left set, the manual error survives every later validation pass and the
+      // submit button stays disabled until the drawer is reopened.
+      it('THEN clears the error', async () => {
+        const user = userEvent.setup()
+
+        await act(() => render(<Host />))
+
+        await user.click(screen.getByTestId(APPLY_CODE_ERROR_BUTTON_TEST_ID))
+
+        expect(screen.getByText(EXISTING_CODE_ERROR_MESSAGE)).toBeInTheDocument()
+
+        await user.type(codeInput(), 'x')
+
+        expect(screen.queryByText(EXISTING_CODE_ERROR_MESSAGE)).not.toBeInTheDocument()
       })
     })
   })

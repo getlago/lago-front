@@ -162,6 +162,9 @@ const createRateCardMock = (
 const duplicateCodeError = new GraphQLError('Value already exists', {
   extensions: { code: 'value_already_exist', details: { code: ['value_already_exist'] } },
 })
+const otherFieldError = new GraphQLError('Value already exists', {
+  extensions: { code: 'value_already_exist', details: { productId: ['value_already_exist'] } },
+})
 
 const renderDrawerHook = (mocks: MockedResponse[] = []) =>
   renderHook(() => useRateCardDrawer(), {
@@ -319,5 +322,21 @@ describe('useRateCardDrawer create flow', () => {
     expect(mockClose).not.toHaveBeenCalled()
     expect(mockNavigate).not.toHaveBeenCalled()
     expect(addToast).not.toHaveBeenCalled()
+  })
+
+  it('toasts instead of failing silently when the rejection is on another field', async () => {
+    const { result } = renderDrawerHook([
+      createRateCardMock(() => undefined, { data: null, errors: [otherFieldError] }),
+    ])
+
+    act(() => result.current.openDrawer())
+    renderDrawerBody()
+    await userEvent.click(screen.getByTestId('seed-base'))
+    await submit()
+
+    await waitFor(() =>
+      expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' })),
+    )
+    expect(mockClose).not.toHaveBeenCalled()
   })
 })

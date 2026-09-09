@@ -185,12 +185,12 @@ export const useRateCardRateForm = ({
         const isActiveRate = editedRate.status === RateCardRateStatusEnum.Active
         const input: UpdateRateCardRateInput = {
           id: editedRate.id,
+          code: value.code,
           rateProperties,
           ...conversionRate,
           ...(isActiveRate
             ? {}
             : {
-                code: value.code,
                 effectiveFrom: value.effectiveFrom,
                 rateModel: value.rateModel,
                 billingIntervalCount: Number(value.billingIntervalCount),
