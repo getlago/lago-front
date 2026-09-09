@@ -1,5 +1,4 @@
 export enum FeatureFlags {
-  SUPERSET_PERSISTENT_FILTERS = 'superset_persistent_filters',
   REVENUE_RECOGNITION = 'revenue_recognition',
 }
 
