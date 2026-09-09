@@ -49,6 +49,19 @@ describe('NavigationTab', () => {
       })
     })
 
+    describe('WHEN the user presses Space on another tab', () => {
+      it('THEN should navigate to that tab', async () => {
+        const user = userEvent.setup()
+
+        render(<NavigationTab tabs={urlTabs} />)
+
+        screen.getByTestId('tab-invoices').focus()
+        await user.keyboard(' ')
+
+        expect(window.location.pathname).toBe('/customers/1/invoices')
+      })
+    })
+
     describe('WHEN the user cmd-clicks another tab', () => {
       // MUI fires Tabs.onChange before the tab's own onClick. The browser owns a
       // modified click, so the consumer must not be told the tab changed.

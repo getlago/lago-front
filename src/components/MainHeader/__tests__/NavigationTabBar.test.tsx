@@ -114,6 +114,23 @@ describe('NavigationTabBar', () => {
     })
   })
 
+  describe('GIVEN a tab with a link and the keyboard focus', () => {
+    describe('WHEN the user presses Space', () => {
+      it('THEN should activate that tab', async () => {
+        const user = userEvent.setup()
+
+        window.history.pushState({}, '', '/customers/1/overview')
+
+        render(<NavigationTabBar tabs={baseTabs} />)
+
+        screen.getByTestId('tab-invoices').focus()
+        await user.keyboard(' ')
+
+        expect(window.location.pathname).toBe('/customers/1/invoices')
+      })
+    })
+  })
+
   describe('GIVEN a disabled tab', () => {
     describe('WHEN the component renders', () => {
       it('THEN should keep it a button so it stays unfollowable', () => {

@@ -7,6 +7,7 @@ import { matchPath } from 'react-router-dom'
 
 import { Link, useLocation } from '~/core/router'
 import { isModifiedClick } from '~/core/utils/isModifiedClick'
+import { spaceActivatesAnchorProps } from '~/core/utils/spaceActivatesAnchor'
 import { tw } from '~/styles/utils'
 
 import { Skeleton } from './Skeleton'
@@ -170,6 +171,7 @@ export const NavigationTab = ({
         <Tab
           key={`tab-${tabIndex}`}
           {...sharedProps}
+          {...spaceActivatesAnchorProps}
           component={Link}
           to={link}
           onClick={(event: MouseEvent<HTMLAnchorElement>) => {
