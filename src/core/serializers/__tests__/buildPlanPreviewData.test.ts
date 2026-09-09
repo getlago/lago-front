@@ -137,6 +137,30 @@ describe('buildPlanPreviewData', () => {
     })
   })
 
+  // `deserializeMinimumCommitment` returns `{}` for a plan with no negotiated commitment,
+  // which is truthy — a bare truthiness guard rendered a phantom "0" commitment row.
+  it.each([
+    ['an empty object (what the deserializer returns for none)', {}],
+    ['an explicit zero amount', { amountCents: '0' }],
+    ['an empty amount', { amountCents: '' }],
+    ['no commitment at all', undefined],
+  ])('omits the minimum-commitment row for %s', (_label, minimumCommitment) => {
+    const data = buildPlanPreviewData(
+      baseForm({
+        amountCents: '13050',
+        minimumCommitment: minimumCommitment as PlanFormInput['minimumCommitment'],
+      }),
+    )
+
+    expect(
+      data.rows.find((r) => r.kind === 'main' && r.rowType === 'minimumCommitment'),
+    ).toBeUndefined()
+    // the rest of the plan still renders
+    expect(
+      data.rows.find((r) => r.kind === 'main' && r.rowType === 'subscriptionFee'),
+    ).toBeDefined()
+  })
+
   it('renders graduated ranges: per-unit row per tier, flat-fee row only when present', () => {
     const data = buildPlanPreviewData(
       baseForm({

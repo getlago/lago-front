@@ -386,18 +386,22 @@ export const buildPlanPreviewData = (formValues: PlanFormInput | null): PlanPrev
   }
 
   // 4) Plan minimum commitment (own row)
-  if (formValues.minimumCommitment) {
+  // `deserializeMinimumCommitment` returns `{}` for "no commitment", which is truthy, so
+  // gate on the amount the way the subscription fee above does.
+  const minimumCommitment = formValues.minimumCommitment
+
+  if (minimumCommitment && num(minimumCommitment.amountCents) > 0) {
     rows.push({
       kind: 'main',
       rowType: 'minimumCommitment',
-      name: formValues.minimumCommitment.invoiceDisplayName || undefined,
+      name: minimumCommitment.invoiceDisplayName || undefined,
       description: undefined,
       interval: formValues.interval,
       timing: fixedTiming(formValues.payInAdvance),
       units: { type: 'count', value: 1 },
       price: {
         type: 'displayAmount',
-        amount: String(formValues.minimumCommitment.amountCents ?? '0'),
+        amount: String(minimumCommitment.amountCents),
       },
     })
   }
