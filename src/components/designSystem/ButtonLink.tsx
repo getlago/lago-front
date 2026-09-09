@@ -105,7 +105,7 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
             to={to}
             state={routerState}
             ref={ref}
-            data-test={`tab-internal-button-link-${title?.toLowerCase()}`}
+            data-test={title ? `tab-internal-button-link-${title.toLowerCase()}` : undefined}
           >
             {wrapperChildren}
           </Link>
