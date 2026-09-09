@@ -554,6 +554,7 @@ const InvoicesList = ({
               ),
             },
           ]}
+          rowLinkLabel={({ number }) => number}
           onRowActionLink={(invoice) =>
             generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
               customerId: invoice?.customer?.id,

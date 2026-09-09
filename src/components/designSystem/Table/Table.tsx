@@ -82,6 +82,11 @@ export interface TableProps<T> {
   placeholder?: TablePlaceholder
   activeRowId?: string
   onRowActionLink?: (item: T) => string
+  /**
+   * Names the row link. Without it the link inherits the first cell's text, which
+   * on a status-first table is the same word on every row.
+   */
+  rowLinkLabel?: (item: T) => string
   onRowActionClick?: (item: T) => void
   actionColumn?: ActionColumn<T>
   actionColumnTooltip?: (item: T) => string
@@ -348,6 +353,7 @@ export const Table = <T extends DataItem>({
   containerClassName,
   activeRowId,
   onRowActionLink,
+  rowLinkLabel,
   onRowActionClick,
   actionColumn,
   actionColumnTooltip,
@@ -486,6 +492,7 @@ export const Table = <T extends DataItem>({
         // The row is the tab stop and handles Enter; a focusable anchor per row
         // would double every tab stop in the list.
         tabIndex={-1}
+        aria-label={rowLinkLabel?.(item)}
         className="text-inherit hover:no-underline focus:ring-0"
         to={link}
         onClick={(e) => {

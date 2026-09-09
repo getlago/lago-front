@@ -278,6 +278,7 @@ const CreditNotesTable = ({
 
           return actions
         }}
+        rowLinkLabel={({ number }) => number}
         onRowActionLink={(creditNote) =>
           creditNote.invoice
             ? generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE, {

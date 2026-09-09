@@ -4201,6 +4201,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                 data-test="body"
               >
                 <a
+                  aria-label="INV-DRAFT"
                   class="text-inherit hover:no-underline focus:ring-0"
                   href="/customer/customer-1/invoice/invoice-draft/overview"
                   tabindex="-1"
@@ -4209,7 +4210,6 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                     class=""
                   >
                     <div
-                      aria-label="text_1724674592260h33v56rycaw"
                       class=""
                       data-mui-internal-clone-element="true"
                     >
@@ -4486,6 +4486,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                 data-test="body"
               >
                 <a
+                  aria-label="INV-FINALIZED"
                   class="text-inherit hover:no-underline focus:ring-0"
                   href="/customer/customer-1/invoice/invoice-finalized/overview"
                   tabindex="-1"
@@ -4494,7 +4495,6 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                     class=""
                   >
                     <div
-                      aria-label="text_1724674592260h33v56rycaw"
                       class=""
                       data-mui-internal-clone-element="true"
                     >
@@ -4792,6 +4792,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                 data-test="body"
               >
                 <a
+                  aria-label="INV-VOIDED"
                   class="text-inherit hover:no-underline focus:ring-0"
                   href="/customer/customer-1/invoice/invoice-voided/overview"
                   tabindex="-1"
@@ -4800,7 +4801,6 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                     class=""
                   >
                     <div
-                      aria-label="text_1724674592260h33v56rycaw"
                       class=""
                       data-mui-internal-clone-element="true"
                     >
@@ -5215,6 +5215,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                 data-test="body"
               >
                 <a
+                  aria-label="INV-PENDING"
                   class="text-inherit hover:no-underline focus:ring-0"
                   href="/customer/customer-1/invoice/invoice-pending/overview"
                   tabindex="-1"
@@ -5223,7 +5224,6 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                     class=""
                   >
                     <div
-                      aria-label="text_1724674592260h33v56rycaw"
                       class=""
                       data-mui-internal-clone-element="true"
                     >
@@ -5521,6 +5521,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                 data-test="body"
               >
                 <a
+                  aria-label="INV-SUCCEEDED"
                   class="text-inherit hover:no-underline focus:ring-0"
                   href="/customer/customer-1/invoice/invoice-succeeded/overview"
                   tabindex="-1"
@@ -5529,7 +5530,6 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                     class=""
                   >
                     <div
-                      aria-label="text_1724674592260h33v56rycaw"
                       class=""
                       data-mui-internal-clone-element="true"
                     >
@@ -5827,6 +5827,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                 data-test="body"
               >
                 <a
+                  aria-label="INV-FAILED"
                   class="text-inherit hover:no-underline focus:ring-0"
                   href="/customer/customer-1/invoice/invoice-failed/overview"
                   tabindex="-1"
@@ -5835,7 +5836,6 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                     class=""
                   >
                     <div
-                      aria-label="text_1724674592260h33v56rycaw"
                       class=""
                       data-mui-internal-clone-element="true"
                     >
@@ -6624,6 +6624,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                 data-test="body"
               >
                 <a
+                  aria-label="INV-001"
                   class="text-inherit hover:no-underline focus:ring-0"
                   href="/customer/customer-1/invoice/invoice-1/overview"
                   tabindex="-1"
@@ -6632,7 +6633,6 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                     class=""
                   >
                     <div
-                      aria-label="text_1724674592260h33v56rycaw"
                       class=""
                       data-mui-internal-clone-element="true"
                     >
@@ -6930,6 +6930,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                 data-test="body"
               >
                 <a
+                  aria-label="INV-002"
                   class="text-inherit hover:no-underline focus:ring-0"
                   href="/customer/customer-2/invoice/invoice-2/overview"
                   tabindex="-1"
@@ -6938,7 +6939,6 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                     class=""
                   >
                     <div
-                      aria-label="text_1724674592260h33v56rycaw"
                       class=""
                       data-mui-internal-clone-element="true"
                     >
@@ -7236,6 +7236,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                 data-test="body"
               >
                 <a
+                  aria-label="INV-003"
                   class="text-inherit hover:no-underline focus:ring-0"
                   href="/customer/customer-3/invoice/invoice-3/overview"
                   tabindex="-1"
@@ -7244,7 +7245,6 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                     class=""
                   >
                     <div
-                      aria-label="text_1724674592260h33v56rycaw"
                       class=""
                       data-mui-internal-clone-element="true"
                     >
@@ -7680,6 +7680,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with overdue invoice 1`] =
                 data-test="body"
               >
                 <a
+                  aria-label="INV-001"
                   class="text-inherit hover:no-underline focus:ring-0"
                   href="/customer/customer-1/invoice/invoice-1/overview"
                   tabindex="-1"
@@ -7688,7 +7689,6 @@ exports[`InvoicesList Snapshot Tests matches snapshot with overdue invoice 1`] =
                     class=""
                   >
                     <div
-                      aria-label="text_1724674592260h33v56rycaw"
                       class=""
                       data-mui-internal-clone-element="true"
                     >
@@ -8136,6 +8136,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with partially paid invoic
                 data-test="body"
               >
                 <a
+                  aria-label="INV-001"
                   class="text-inherit hover:no-underline focus:ring-0"
                   href="/customer/customer-1/invoice/invoice-1/overview"
                   tabindex="-1"
@@ -8144,7 +8145,6 @@ exports[`InvoicesList Snapshot Tests matches snapshot with partially paid invoic
                     class=""
                   >
                     <div
-                      aria-label="text_1724674592260h33v56rycaw"
                       class=""
                       data-mui-internal-clone-element="true"
                     >

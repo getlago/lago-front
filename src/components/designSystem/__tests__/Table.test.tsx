@@ -433,6 +433,29 @@ describe('Table', () => {
     })
   })
 
+  describe('GIVEN a row link label', () => {
+    describe('WHEN the rows render', () => {
+      // Without it a status-first table names every row link with the same word.
+      it('THEN should name the row link with it instead of the cell text', async () => {
+        await prepare({
+          props: {
+            onRowActionLink: (row: any) => `/rows/${row.id}`,
+            rowLinkLabel: (row: any) => `Invoice ${row.name}`,
+          },
+        })
+
+        const bodyRows = within(screen.queryAllByRole('rowgroup')[1]).queryAllByRole('row')
+
+        expect(
+          within(bodyRows[0]).getByRole('link', { name: 'Invoice John Doe' }),
+        ).toBeInTheDocument()
+        expect(
+          within(bodyRows[0]).queryByRole('link', { name: 'John Doe' }),
+        ).not.toBeInTheDocument()
+      })
+    })
+  })
+
   describe('GIVEN a first cell that renders nothing', () => {
     describe('WHEN the rows render', () => {
       // An empty anchor has no accessible name; several first columns return
