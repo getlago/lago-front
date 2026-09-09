@@ -15,7 +15,7 @@ to page 1 when filters change. No export action is present.
 | baseline                                |                29 |
 | Payment status                          |                14 |
 | Payment provider                        |                10 |
-| Payment method                          |                 5 |
+| Payment method                          |    5 (filter since removed) |
 | Currency                                |                15 |
 | Receipt number                          |                 1 |
 | Invoice number                          |                 1 |
@@ -51,8 +51,9 @@ The generated GraphQL document is tested to declare both amount variables as Big
 
 Compatibility notes:
 
-- The existing GraphQL `PaymentMethodTypeEnum` already names manual/provider, so the
-  API adds `PaymentProviderMethodTypeEnum` for provider method options.
+- The payment method type filter recorded above was removed afterwards for performance
+  reasons (API: getlago/lago-api#6325, "Not shipped for performance reasons"); its checks
+  are historical and cannot be replayed.
 - Exact decimal handling is enabled only for the payments amount input and adapter;
   invoice and credit-note filters keep their existing behavior.
 - The existing table formats very large displayed amounts through JavaScript Number,
