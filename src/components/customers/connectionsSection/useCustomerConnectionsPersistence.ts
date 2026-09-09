@@ -21,6 +21,7 @@ import {
 import { applyExistingCodeError } from '~/core/form/existingCodeError'
 import {
   AddCustomerDrawerFragment,
+  FeatureFlagEnum,
   GetCustomerDocument,
   GetCustomerQuery,
   LagoApiError,
@@ -34,6 +35,7 @@ import {
   useUpdateCustomerIntegrationConnectionMutation,
   useUpdateCustomerPaymentConnectionMutation,
 } from '~/generated/graphql'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 gql`
   mutation createCustomerPaymentConnection($input: CreatePaymentProviderCustomerInput!) {
@@ -125,6 +127,8 @@ export const useCustomerConnectionsPersistence = ({
   connectionOptions,
 }: UseCustomerConnectionsPersistenceProps): UseCustomerConnectionsPersistenceReturn => {
   const client = useApolloClient()
+  const { hasFeatureFlag } = useOrganizationInfos()
+  const isMultiConnectionEnabled = hasFeatureFlag(FeatureFlagEnum.MultiConnection)
 
   const silenceExistingCodeError = {
     context: { silentErrorDetails: [LagoApiError.ValueAlreadyExist] },
@@ -186,7 +190,13 @@ export const useCustomerConnectionsPersistence = ({
       const { data, errors } = await mutate()
 
       if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
-        if (formApi && hasDefinedGQLError('ValueAlreadyExist', errors, 'code')) {
+        // Gated off, the code input is not rendered: painting the error on it
+        // would leave a silent failure behind a permanently invalid form
+        if (
+          formApi &&
+          isMultiConnectionEnabled &&
+          hasDefinedGQLError('ValueAlreadyExist', errors, 'code')
+        ) {
           applyExistingCodeError(formApi)
         } else {
           addToast({ severity: 'danger', translateKey: 'text_622f7a3dc32ce100c46a5154' })

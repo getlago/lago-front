@@ -25,10 +25,12 @@ const mockNavigate = jest.fn()
 
 jest.mock('react-router-dom', () => {
   const actual = jest.requireActual('react-router-dom')
+  const { withRouterFuture } = jest.requireActual('~/test-utils/routerFutureMock')
   const mockUseParams = jest.fn(actual.useParams)
 
   return {
     ...actual,
+    ...withRouterFuture(actual),
     useNavigate: () => mockNavigate,
     useParams: mockUseParams,
   }

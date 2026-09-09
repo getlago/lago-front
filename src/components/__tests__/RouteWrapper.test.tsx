@@ -15,10 +15,16 @@ jest.mock('~/core/apolloClient/reactiveVars/toastVar', () => ({
   addToast: (...args: unknown[]) => mockAddToast(...args),
 }))
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => mockNavigate,
-}))
+jest.mock('react-router-dom', () => {
+  const actual = jest.requireActual('react-router-dom')
+  const { withRouterFuture } = jest.requireActual('~/test-utils/routerFutureMock')
+
+  return {
+    ...actual,
+    ...withRouterFuture(actual),
+    useNavigate: () => mockNavigate,
+  }
+})
 
 const mockSetMainRouterUrl = jest.fn()
 let mockMainRouterUrl = ''
@@ -32,12 +38,6 @@ jest.mock('~/hooks/useDeveloperTool', () => ({
     setMainRouterUrl: mockSetMainRouterUrl,
   }),
   useDevtoolTabParam: () => mockUseDevtoolTabParam(),
-}))
-
-jest.mock('~/hooks/auth/useIsAuthenticated', () => ({
-  useIsAuthenticated: () => ({
-    isAuthenticated: true,
-  }),
 }))
 
 jest.mock('~/hooks/core/useLocationHistory', () => ({

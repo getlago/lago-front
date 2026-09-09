@@ -7,6 +7,7 @@ import Router, { BrowserRouter } from 'react-router-dom'
 
 import { MainHeaderProvider } from '~/components/MainHeader/MainHeaderContext'
 import { initializeTranslations } from '~/core/apolloClient'
+import { ROUTER_FUTURE_FLAGS } from '~/core/router/futureFlags'
 import { initializeYup } from '~/formValidation/initializeYup'
 import { theme } from '~/styles'
 
@@ -43,7 +44,7 @@ export const AllTheProviders = ({
   !!useParams && jest.spyOn(Router, 'useParams').mockReturnValue(useParams)
 
   return (
-    <BrowserRouter basename="/">
+    <BrowserRouter basename="/" future={ROUTER_FUTURE_FLAGS}>
       <MockedProvider addTypename={forceTypenames} mocks={mocks}>
         <ThemeProvider theme={theme}>
           <MainHeaderProvider>{children}</MainHeaderProvider>

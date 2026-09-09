@@ -12,6 +12,7 @@ const UsageChargeDrawerContent = OriginalUsageChargeDrawerContent as unknown as 
   isCreateMode: boolean
   disabled?: boolean
   isInSubscriptionForm?: boolean
+  isInQuoteForm?: boolean
   showCode?: boolean
   existingChargeCodes?: (string | null | undefined)[]
   amountCurrency?: string
@@ -36,6 +37,7 @@ const CHARGE_MODEL_SELECTOR_TEST_ID = 'charge-model-selector'
 const CHARGE_WRAPPER_SWITCH_TEST_ID = 'charge-wrapper-switch'
 const PLAN_BILLING_PERIOD_INFO_SECTION_TEST_ID = 'plan-billing-period-info-section'
 const CHARGE_PAY_IN_ADVANCE_OPTION_TEST_ID = 'charge-pay-in-advance-option'
+const CHARGE_DISPLAY_IN_QUOTE_DOCUMENT_OPTION_TEST_ID = 'charge-display-in-quote-document-option'
 const TAXES_SELECTOR_SECTION_TEST_ID = 'taxes-selector-section'
 const BM_PICKER_COMBOBOX_TEST_ID = 'bm-picker-combobox'
 
@@ -153,7 +155,12 @@ const mockForm = {
         </div>
       ),
       SwitchField: (props: Record<string, unknown>) => (
-        <input type="checkbox" data-test={`field-${name}`} aria-label={props.label as string} />
+        <input
+          type="checkbox"
+          data-test={`field-${name}`}
+          aria-label={props.label as string}
+          disabled={props.disabled as boolean}
+        />
       ),
     }
 
@@ -287,6 +294,15 @@ jest.mock('~/components/plans/chargeAccordion/CustomPricingUnitSelector', () => 
 
 jest.mock('~/components/plans/drawers/common/PlanBillingPeriodInfoSection', () => ({
   PlanBillingPeriodInfoSection: () => <div data-test={PLAN_BILLING_PERIOD_INFO_SECTION_TEST_ID} />,
+}))
+
+jest.mock('~/components/plans/chargeAccordion/options/ChargeDisplayInQuoteDocumentOption', () => ({
+  ChargeDisplayInQuoteDocumentOption: (props: Record<string, unknown>) => (
+    <div
+      data-test={CHARGE_DISPLAY_IN_QUOTE_DOCUMENT_OPTION_TEST_ID}
+      data-disabled={String(!!props.disabled)}
+    />
+  ),
 }))
 
 jest.mock('~/components/plans/chargeAccordion/options/ChargePayInAdvanceOption', () => ({
@@ -935,5 +951,66 @@ describe('VirtualFilterList drift test', () => {
     )
 
     expect(capturedVirtualList.props?.items).toHaveLength(3)
+  })
+
+  describe('GIVEN the quote-only "display in quote document" switch', () => {
+    describe('WHEN the drawer is not opened from a quote', () => {
+      it('THEN should not render the switch', () => {
+        mockCurrentFormValues = mockEditFormValues
+
+        render(
+          <UsageChargeDrawerContent
+            isCreateMode={false}
+            editIndex={0}
+            currency="USD"
+            interval="monthly"
+          />,
+        )
+
+        expect(
+          screen.queryByTestId(CHARGE_DISPLAY_IN_QUOTE_DOCUMENT_OPTION_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+
+      it('THEN should not render it either inside the subscription form', () => {
+        mockCurrentFormValues = mockEditFormValues
+
+        render(
+          <UsageChargeDrawerContent
+            isCreateMode={false}
+            isInSubscriptionForm
+            editIndex={0}
+            currency="USD"
+            interval="monthly"
+          />,
+        )
+
+        expect(
+          screen.queryByTestId(CHARGE_DISPLAY_IN_QUOTE_DOCUMENT_OPTION_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the drawer is opened from a quote', () => {
+      it('THEN should render the switch, enabled even inside the subscription form', () => {
+        mockCurrentFormValues = mockEditFormValues
+
+        render(
+          <UsageChargeDrawerContent
+            isCreateMode={false}
+            isInSubscriptionForm
+            isInQuoteForm
+            editIndex={0}
+            currency="USD"
+            interval="monthly"
+          />,
+        )
+
+        const field = screen.getByTestId(CHARGE_DISPLAY_IN_QUOTE_DOCUMENT_OPTION_TEST_ID)
+
+        expect(field).toBeInTheDocument()
+        expect(field).toHaveAttribute('data-disabled', 'false')
+      })
+    })
   })
 })
