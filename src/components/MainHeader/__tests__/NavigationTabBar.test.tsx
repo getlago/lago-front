@@ -157,18 +157,28 @@ describe('NavigationTabBar', () => {
   })
 
   describe('GIVEN the tab already matching the URL', () => {
+    afterEach(() => {
+      jest.restoreAllMocks()
+    })
+
     describe('WHEN the user clicks it', () => {
-      // Not a duplicate history entry: react-router replaces an identical target.
-      // The guard spares a pointless re-navigation of the page you are already on.
-      it('THEN should suppress the navigation', async () => {
+      // The pathname cannot see the guard: react-router replaces an identical
+      // target, so the URL is unchanged with or without it. Whether history was
+      // touched at all is the only observable difference.
+      it('THEN should not touch history at all', async () => {
         const user = userEvent.setup()
 
         window.history.pushState({}, '', '/customers/1/overview')
 
         render(<NavigationTabBar tabs={baseTabs} />)
 
+        const pushState = jest.spyOn(window.history, 'pushState')
+        const replaceState = jest.spyOn(window.history, 'replaceState')
+
         await user.click(screen.getByTestId('tab-overview'))
 
+        expect(pushState).not.toHaveBeenCalled()
+        expect(replaceState).not.toHaveBeenCalled()
         expect(window.location.pathname).toBe('/customers/1/overview')
       })
     })
