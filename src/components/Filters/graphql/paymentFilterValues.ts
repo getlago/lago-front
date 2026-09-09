@@ -6,7 +6,6 @@ import {
   CurrencyEnum,
   PayablePaymentStatusEnum,
   PayableTypeEnum,
-  PaymentProviderMethodTypeEnum,
   PaymentTypeEnum,
   ProviderTypeEnum,
 } from '~/generated/graphql'
@@ -74,17 +73,6 @@ export const paymentProviderLabels: Record<ProviderTypeEnum, string> = {
   [ProviderTypeEnum.Adyen]: 'text_645d071272418a14c1c76a6d',
   [ProviderTypeEnum.Flutterwave]: 'text_1749724395108m0swrna0zt4',
   [ProviderTypeEnum.Moneyhash]: 'text_1733427981129n3wxjui0bex',
-}
-
-export const paymentMethodLabels: Record<PaymentProviderMethodTypeEnum, string> = {
-  [PaymentProviderMethodTypeEnum.Card]: 'text_64aeb7b998c4322918c84208',
-  [PaymentProviderMethodTypeEnum.SepaDebit]: 'text_64aeb7b998c4322918c8420c',
-  [PaymentProviderMethodTypeEnum.UsBankAccount]: 'text_1788818972604ba69nnh1s7s',
-  [PaymentProviderMethodTypeEnum.BacsDebit]: 'text_1788818972604ah9hl3coiuc',
-  [PaymentProviderMethodTypeEnum.Link]: 'text_6686b316b672a6e75a29eea0',
-  [PaymentProviderMethodTypeEnum.Boleto]: 'text_1788818972604hkjgjtydcfx',
-  [PaymentProviderMethodTypeEnum.Crypto]: 'text_1788818972604tcp0p5uii7y',
-  [PaymentProviderMethodTypeEnum.CustomerBalance]: 'text_1788818972605qax533ui68v',
 }
 
 export const paymentTypeLabels: Record<PaymentTypeEnum, string> = {

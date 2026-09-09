@@ -85,7 +85,6 @@ import { FiltersItemPayablePaymentStatus } from './filtersElements/FiltersItemPa
 import { FiltersItemPayableType } from './filtersElements/FiltersItemPayableType'
 import { FiltersItemPaymentCreatedAt } from './filtersElements/FiltersItemPaymentCreatedAt'
 import { FiltersItemPaymentInvoiceNumber } from './filtersElements/FiltersItemPaymentInvoiceNumber'
-import { FiltersItemPaymentMethodType } from './filtersElements/FiltersItemPaymentMethodType'
 import { FiltersItemPaymentProviderType } from './filtersElements/FiltersItemPaymentProviderType'
 import { FiltersItemPaymentType } from './filtersElements/FiltersItemPaymentType'
 import { FiltersItemReceiptNumber } from './filtersElements/FiltersItemReceiptNumber'
@@ -173,7 +172,6 @@ export const FiltersPanelItemTypeSwitch = ({
     ),
     [AvailableFiltersEnum.receiptNumber]: <FiltersItemReceiptNumber {...props} />,
     [AvailableFiltersEnum.paymentProviderType]: <FiltersItemPaymentProviderType {...props} />,
-    [AvailableFiltersEnum.paymentMethodType]: <FiltersItemPaymentMethodType {...props} />,
     [AvailableFiltersEnum.paymentType]: <FiltersItemPaymentType {...props} />,
     [AvailableFiltersEnum.payableType]: <FiltersItemPayableType {...props} />,
     [AvailableFiltersEnum.paymentCreatedAt]: <FiltersItemPaymentCreatedAt {...props} />,

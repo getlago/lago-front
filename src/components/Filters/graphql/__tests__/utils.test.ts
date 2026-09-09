@@ -54,7 +54,6 @@ describe('formatFiltersForPaymentsQuery', () => {
     ],
     ['receiptNumber', 'rcpt-2026-0001', { receiptNumber: 'rcpt-2026-0001' }],
     ['paymentProviderType', 'stripe,gocardless', { paymentProviderType: ['stripe', 'gocardless'] }],
-    ['paymentMethodType', 'card,sepa_debit', { paymentMethodType: ['card', 'sepa_debit'] }],
     ['paymentType', 'manual,provider', { paymentType: ['manual', 'provider'] }],
     ['payableType', 'Invoice,PaymentRequest', { payableType: ['Invoice', 'PaymentRequest'] }],
     ['invoiceNumber', 'lag-1234-001-002', { invoiceNumber: 'lag-1234-001-002' }],
@@ -178,14 +177,6 @@ describe('formatFiltersForPaymentsQuery', () => {
         'pa',
       ),
     ).toBe('GoCardless')
-    expect(
-      formatActiveFilterValueDisplay(
-        AvailableFiltersEnum.paymentMethodType,
-        'sepa_debit',
-        translate,
-        'pa',
-      ),
-    ).toBe('SEPA Direct Debit')
     expect(
       formatActiveFilterValueDisplay(AvailableFiltersEnum.paymentType, 'manual', translate, 'pa'),
     ).toBe('Manual')

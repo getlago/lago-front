@@ -112,7 +112,6 @@ import {
   parsePaymentAmountValue,
   payableTypeLabels,
   paymentAmountToCents,
-  paymentMethodLabels,
   paymentProviderLabels,
   paymentStatusLabels,
   paymentTypeLabels,
@@ -326,7 +325,6 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.paymentStatus]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.receiptNumber]: (value: string) => value,
   [AvailableFiltersEnum.paymentProviderType]: (value: string) => value.split(',').filter(Boolean),
-  [AvailableFiltersEnum.paymentMethodType]: (value: string) => value.split(',').filter(Boolean),
   [AvailableFiltersEnum.paymentType]: (value: string) => value.split(',').filter(Boolean),
   [AvailableFiltersEnum.payableType]: (value: string) => value.split(',').filter(Boolean),
   [AvailableFiltersEnum.paymentCreatedAt]: (value: string) => {
@@ -1201,7 +1199,6 @@ export const formatActiveFilterValueDisplay = (
     const labels: Partial<Record<AvailableFiltersEnum, Record<string, string>>> = {
       [AvailableFiltersEnum.paymentStatus]: paymentStatusLabels,
       [AvailableFiltersEnum.paymentProviderType]: paymentProviderLabels,
-      [AvailableFiltersEnum.paymentMethodType]: paymentMethodLabels,
       [AvailableFiltersEnum.paymentType]: paymentTypeLabels,
       [AvailableFiltersEnum.payableType]: payableTypeLabels,
     }

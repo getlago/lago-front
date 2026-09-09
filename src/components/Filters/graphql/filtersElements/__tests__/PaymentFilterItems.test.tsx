@@ -6,7 +6,6 @@ import { AvailableFiltersEnum } from '~/components/Filters/presentation/types'
 import {
   PayablePaymentStatusEnum,
   PayableTypeEnum,
-  PaymentProviderMethodTypeEnum,
   PaymentTypeEnum,
   ProviderTypeEnum,
 } from '~/generated/graphql'
@@ -19,7 +18,6 @@ import { FiltersItemPayablePaymentStatus } from '../FiltersItemPayablePaymentSta
 import { FiltersItemPayableType } from '../FiltersItemPayableType'
 import { FiltersItemPaymentCreatedAt } from '../FiltersItemPaymentCreatedAt'
 import { FiltersItemPaymentInvoiceNumber } from '../FiltersItemPaymentInvoiceNumber'
-import { FiltersItemPaymentMethodType } from '../FiltersItemPaymentMethodType'
 import { FiltersItemPaymentProviderType } from '../FiltersItemPaymentProviderType'
 import { FiltersItemPaymentType } from '../FiltersItemPaymentType'
 import { FiltersItemReceiptNumber } from '../FiltersItemReceiptNumber'
@@ -92,13 +90,6 @@ describe('Payment filter items', () => {
       ProviderTypeEnum,
       'gocardless',
       'GoCardless',
-    ],
-    [
-      AvailableFiltersEnum.paymentMethodType,
-      FiltersItemPaymentMethodType,
-      PaymentProviderMethodTypeEnum,
-      'sepa_debit',
-      'SEPA Direct Debit',
     ],
     [AvailableFiltersEnum.paymentType, FiltersItemPaymentType, PaymentTypeEnum, 'manual', 'Manual'],
     [

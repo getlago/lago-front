@@ -37,7 +37,6 @@ gql`
     $createdAtFrom: ISO8601Date
     $createdAtTo: ISO8601Date
     $paymentProviderType: [ProviderTypeEnum!]
-    $paymentMethodType: [PaymentProviderMethodTypeEnum!]
     $invoiceNumber: String
     $paymentType: [PaymentTypeEnum!]
     $payableType: [PayableTypeEnum!]
@@ -56,7 +55,6 @@ gql`
       createdAtFrom: $createdAtFrom
       createdAtTo: $createdAtTo
       paymentProviderType: $paymentProviderType
-      paymentMethodType: $paymentMethodType
       invoiceNumber: $invoiceNumber
       paymentType: $paymentType
       payableType: $payableType

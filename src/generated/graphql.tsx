@@ -15,7 +15,10 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
-  /** Represents non-fractional signed whole numeric values. Since the value may exceed the size of a 32-bit integer, it's encoded as a string. */
+  /**
+   * Represents non-fractional signed whole numeric values. Since the value may
+   * exceed the size of a 32-bit integer, it's encoded as a string.
+   */
   BigInt: { input: any; output: any; }
   ChargeFilterValues: { input: any; output: any; }
   /** Api Logs HTTP status */
@@ -7559,17 +7562,6 @@ export type PaymentProviderCustomerInput = {
   syncWithProvider?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-export enum PaymentProviderMethodTypeEnum {
-  BacsDebit = 'bacs_debit',
-  Boleto = 'boleto',
-  Card = 'card',
-  Crypto = 'crypto',
-  CustomerBalance = 'customer_balance',
-  Link = 'link',
-  SepaDebit = 'sepa_debit',
-  UsBankAccount = 'us_bank_account'
-}
-
 /** PaymentReceipt */
 export type PaymentReceipt = {
   __typename?: 'PaymentReceipt';
@@ -9372,7 +9364,6 @@ export type QueryPaymentsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   payableType?: InputMaybe<Array<PayableTypeEnum>>;
-  paymentMethodType?: InputMaybe<Array<PaymentProviderMethodTypeEnum>>;
   paymentProviderType?: InputMaybe<Array<ProviderTypeEnum>>;
   paymentStatus?: InputMaybe<Array<PayablePaymentStatusEnum>>;
   paymentType?: InputMaybe<Array<PaymentTypeEnum>>;
@@ -15807,7 +15798,6 @@ export type GetPaymentsListQueryVariables = Exact<{
   createdAtFrom?: InputMaybe<Scalars['ISO8601Date']['input']>;
   createdAtTo?: InputMaybe<Scalars['ISO8601Date']['input']>;
   paymentProviderType?: InputMaybe<Array<ProviderTypeEnum> | ProviderTypeEnum>;
-  paymentMethodType?: InputMaybe<Array<PaymentProviderMethodTypeEnum> | PaymentProviderMethodTypeEnum>;
   invoiceNumber?: InputMaybe<Scalars['String']['input']>;
   paymentType?: InputMaybe<Array<PaymentTypeEnum> | PaymentTypeEnum>;
   payableType?: InputMaybe<Array<PayableTypeEnum> | PayableTypeEnum>;
@@ -40684,7 +40674,7 @@ export type GetPaymentDetailsLazyQueryHookResult = ReturnType<typeof useGetPayme
 export type GetPaymentDetailsSuspenseQueryHookResult = ReturnType<typeof useGetPaymentDetailsSuspenseQuery>;
 export type GetPaymentDetailsQueryResult = Apollo.QueryResult<GetPaymentDetailsQuery, GetPaymentDetailsQueryVariables>;
 export const GetPaymentsListDocument = gql`
-    query getPaymentsList($invoiceId: ID, $externalCustomerId: ID, $limit: Int, $page: Int, $searchTerm: String, $currency: CurrencyEnum, $paymentStatus: [PayablePaymentStatusEnum!], $amountFrom: BigInt, $amountTo: BigInt, $receiptNumber: String, $createdAtFrom: ISO8601Date, $createdAtTo: ISO8601Date, $paymentProviderType: [ProviderTypeEnum!], $paymentMethodType: [PaymentProviderMethodTypeEnum!], $invoiceNumber: String, $paymentType: [PaymentTypeEnum!], $payableType: [PayableTypeEnum!]) {
+    query getPaymentsList($invoiceId: ID, $externalCustomerId: ID, $limit: Int, $page: Int, $searchTerm: String, $currency: CurrencyEnum, $paymentStatus: [PayablePaymentStatusEnum!], $amountFrom: BigInt, $amountTo: BigInt, $receiptNumber: String, $createdAtFrom: ISO8601Date, $createdAtTo: ISO8601Date, $paymentProviderType: [ProviderTypeEnum!], $invoiceNumber: String, $paymentType: [PaymentTypeEnum!], $payableType: [PayableTypeEnum!]) {
   payments(
     invoiceId: $invoiceId
     externalCustomerId: $externalCustomerId
@@ -40699,7 +40689,6 @@ export const GetPaymentsListDocument = gql`
     createdAtFrom: $createdAtFrom
     createdAtTo: $createdAtTo
     paymentProviderType: $paymentProviderType
-    paymentMethodType: $paymentMethodType
     invoiceNumber: $invoiceNumber
     paymentType: $paymentType
     payableType: $payableType
@@ -40741,7 +40730,6 @@ export const GetPaymentsListDocument = gql`
  *      createdAtFrom: // value for 'createdAtFrom'
  *      createdAtTo: // value for 'createdAtTo'
  *      paymentProviderType: // value for 'paymentProviderType'
- *      paymentMethodType: // value for 'paymentMethodType'
  *      invoiceNumber: // value for 'invoiceNumber'
  *      paymentType: // value for 'paymentType'
  *      payableType: // value for 'payableType'
