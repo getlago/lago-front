@@ -13,6 +13,7 @@ import {
 } from '../constants'
 import {
   ComboboxSeed,
+  PRODUCT_ITEM_FILTER_DRAWER_CODE_TEST_ID,
   PRODUCT_ITEM_FILTER_DRAWER_MISSING_VALUES_ALERT_TEST_ID,
   ProductFilterDrawerContent,
 } from '../ProductFilterDrawerContent'
@@ -25,7 +26,6 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 
 // The code input placeholder / product combobox placeholder keys, used to
 // find the inputs (the translate mock echoes the key back).
-const CODE_INPUT_PLACEHOLDER_KEY = 'text_629728388c4d2300e2d380d9'
 const PRODUCT_ITEM_COMBOBOX_PLACEHOLDER_KEY = 'text_1784579021080kajutbc14la'
 
 const SEEDED_FILTERS = [{ id: 'bmf-1', key: 'payment_method', values: ['card', 'cash'] }]
@@ -101,6 +101,11 @@ const findMissingValuesAlert = () =>
 const getValuesEditorInput = () =>
   within(screen.getByTestId(PRODUCT_ITEM_FILTER_VALUES_COMBOBOX_TEST_ID)).getByRole('combobox')
 
+const codeInput = () =>
+  screen
+    .getByTestId(PRODUCT_ITEM_FILTER_DRAWER_CODE_TEST_ID)
+    .querySelector('input') as HTMLInputElement
+
 describe('ProductFilterDrawerContent', () => {
   describe('GIVEN edit mode with an attached filter', () => {
     it('locks the code input and the attached product selector', () => {
@@ -117,7 +122,7 @@ describe('ProductFilterDrawerContent', () => {
         },
       })
 
-      expect(screen.getByPlaceholderText(CODE_INPUT_PLACEHOLDER_KEY)).toBeDisabled()
+      expect(codeInput()).toBeDisabled()
       expect(screen.getByPlaceholderText(PRODUCT_ITEM_COMBOBOX_PLACEHOLDER_KEY)).toBeDisabled()
     })
   })

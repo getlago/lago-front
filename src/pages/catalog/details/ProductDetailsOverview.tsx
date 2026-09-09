@@ -9,11 +9,8 @@ import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { PageSectionTitle } from '~/components/layouts/Section'
-import {
-  BillableMetricDetailsTabsOptionsEnum,
-  ProductCategoryDetailsTabsOptionsEnum,
-} from '~/core/constants/tabsOptions'
-import { BILLABLE_METRIC_DETAILS_ROUTE, Link, PRODUCT_CATEGORY_DETAILS_ROUTE } from '~/core/router'
+import { BillableMetricDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { BILLABLE_METRIC_DETAILS_ROUTE, Link } from '~/core/router'
 import {
   LagoApiError,
   ProductForDrawerFragmentDoc,
@@ -22,6 +19,8 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
+
+import { CatalogRelationsInfoGrid } from './CatalogRelationsInfoGrid'
 
 import { useProductDrawer } from '../drawers/product/useProductDrawer'
 
@@ -44,6 +43,7 @@ gql`
       id
       name
       code
+      invoiceDisplayName
     }
     billableMetric {
       id
@@ -79,21 +79,6 @@ export const ProductDetailsOverview = () => {
   if (!product && loading) {
     return <DetailsPage.Skeleton />
   }
-
-  const attachedProductCategory = product?.productCategory ? (
-    <Link
-      to={generatePath(PRODUCT_CATEGORY_DETAILS_ROUTE, {
-        productCategoryId: product.productCategory.id,
-        tab: ProductCategoryDetailsTabsOptionsEnum.overview,
-      })}
-    >
-      {product.productCategory.name}
-    </Link>
-  ) : (
-    <Typography variant="body" color="grey600">
-      {translate('text_1784590896872hcbug1hthjl')}
-    </Typography>
-  )
 
   const productType = product?.productType ? (
     <Typography variant="body" color="grey700">
@@ -139,11 +124,7 @@ export const ProductDetailsOverview = () => {
       )}
 
       <div className="flex flex-col gap-4">
-        <DetailsPage.InfoGridItem
-          className="col-span-2"
-          label={translate('text_17877372202296ejgkqky70w')}
-          value={attachedProductCategory}
-        />
+        <CatalogRelationsInfoGrid productCategory={product?.productCategory} />
 
         <DetailsPage.InfoGrid
           grid={[

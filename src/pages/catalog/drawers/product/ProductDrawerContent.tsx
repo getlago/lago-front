@@ -24,6 +24,7 @@ import { tw } from '~/styles/utils'
 
 import { PRODUCT_ITEM_FORM_DEFAULTS } from './constants'
 
+export const PRODUCT_ITEM_DRAWER_CODE_TEST_ID = 'product-item-drawer-code'
 export const PRODUCT_ITEM_DRAWER_REMOVE_DESCRIPTION_TEST_ID =
   'product-item-drawer-remove-description'
 export const PRODUCT_ITEM_DRAWER_SHOW_DESCRIPTION_TEST_ID = 'product-item-drawer-show-description'
@@ -170,6 +171,7 @@ const ProductDrawerFormSections = withForm({
               fields={{ name: 'name', code: 'code' }}
               disableCodeInput={disableCodeInput}
               disableAutoGenerateCode={isEdit}
+              codeDataTest={PRODUCT_ITEM_DRAWER_CODE_TEST_ID}
               nameProps={{
                 autoFocus: true,
                 placeholder: translate('text_1783980718113x7oxinm95hb'),

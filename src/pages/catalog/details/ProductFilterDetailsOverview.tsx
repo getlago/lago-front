@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 import { Fragment } from 'react'
-import { generatePath } from 'react-router-dom'
 
 import { Chip } from '~/components/designSystem/Chip'
 import {
@@ -12,11 +11,6 @@ import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import {
-  ProductCategoryDetailsTabsOptionsEnum,
-  ProductDetailsTabsOptionsEnum,
-} from '~/core/constants/tabsOptions'
-import { Link, PRODUCT_CATEGORY_DETAILS_ROUTE, PRODUCT_DETAILS_ROUTE } from '~/core/router'
-import {
   LagoApiError,
   ProductFilterForDrawerFragmentDoc,
   useGetProductFilterForDetailsOverviewQuery,
@@ -24,12 +18,12 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 
+import { CatalogRelationsInfoGrid } from './CatalogRelationsInfoGrid'
+
 import { useProductFilterDrawer } from '../drawers/productFilter/useProductFilterDrawer'
 
 export const PRODUCT_ITEM_FILTER_DETAILS_OVERVIEW_EDIT_TEST_ID =
   'product-item-filter-details-overview-edit'
-export const PRODUCT_ITEM_FILTER_DETAILS_OVERVIEW_NO_PRODUCT_CATEGORY_TEST_ID =
-  'product-item-filter-details-overview-no-product-category'
 
 gql`
   fragment ProductFilterForDetailsOverview on ProductFilter {
@@ -48,6 +42,7 @@ gql`
         id
         name
         code
+        invoiceDisplayName
       }
     }
     values {
@@ -97,36 +92,6 @@ const ProductFilterDetailsOverview = ({ productFilterId }: { productFilterId: st
 
   const { product, values } = productFilter
 
-  const attachedProductCategory = product.productCategory ? (
-    <Link
-      to={generatePath(PRODUCT_CATEGORY_DETAILS_ROUTE, {
-        productCategoryId: product.productCategory.id,
-        tab: ProductCategoryDetailsTabsOptionsEnum.overview,
-      })}
-    >
-      {product.productCategory.name}
-    </Link>
-  ) : (
-    <Typography
-      variant="body"
-      color="grey600"
-      data-test={PRODUCT_ITEM_FILTER_DETAILS_OVERVIEW_NO_PRODUCT_CATEGORY_TEST_ID}
-    >
-      {translate('text_1784590896872hcbug1hthjl')}
-    </Typography>
-  )
-
-  const attachedProduct = (
-    <Link
-      to={generatePath(PRODUCT_DETAILS_ROUTE, {
-        productId: product.id,
-        tab: ProductDetailsTabsOptionsEnum.overview,
-      })}
-    >
-      {product.invoiceDisplayName || product.name}
-    </Link>
-  )
-
   const code = (
     <TypographyWithCopy variant="body" color="grey700">
       {productFilter.code}
@@ -172,10 +137,10 @@ const ProductFilterDetailsOverview = ({ productFilterId }: { productFilterId: st
       )}
 
       <div className="flex flex-col gap-4">
+        <CatalogRelationsInfoGrid productCategory={product.productCategory} product={product} />
+
         <DetailsPage.InfoGrid
           grid={[
-            { label: translate('text_17839807181143h6kt2bdiyi'), value: attachedProductCategory },
-            { label: translate('text_17845790210805g4buh2kivc'), value: attachedProduct },
             { label: translate('text_17883567168609zwqemkhgbu'), value: productFilter.name },
             { label: translate('text_1788356716860fkisuga4c97'), value: code },
           ]}

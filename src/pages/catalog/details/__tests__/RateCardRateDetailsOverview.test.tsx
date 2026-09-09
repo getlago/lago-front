@@ -14,10 +14,10 @@ import {
   buildRateCardRate,
   buildRateProperties,
 } from '../../__tests__/fixtures'
+import { CATALOG_RELATIONS_NO_PRODUCT_CATEGORY_TEST_ID } from '../CatalogRelationsInfoGrid'
 import RateCardRateDetailsOverview, {
   RATE_CARD_RATE_DETAILS_BILLING_INTERVAL_VALUE_KEY,
   RATE_CARD_RATE_DETAILS_OVERVIEW_EDIT_TEST_ID,
-  RATE_CARD_RATE_DETAILS_OVERVIEW_NO_PRODUCT_CATEGORY_TEST_ID,
   RATE_CARD_RATE_DETAILS_OVERVIEW_STATUS_TEST_ID,
 } from '../RateCardRateDetailsOverview'
 
@@ -134,9 +134,8 @@ describe('RateCardRateDetailsOverview', () => {
         )
       })
 
-      it('THEN falls back to a dash on the product filter and to a label on the category', () => {
+      it('THEN hides the product filter row and labels the missing category', () => {
         renderOverview({
-          // A spending minimum, so the only dash left is the product filter row.
           rate: buildRateCardRate({ minAmountCents: '2500' }),
           rateCard: buildRateCardForRateDetails({
             product: {
@@ -149,9 +148,9 @@ describe('RateCardRateDetailsOverview', () => {
           }),
         })
 
-        expect(screen.getAllByText('-')).toHaveLength(1)
+        expect(screen.queryByText('text_17849304406579sbwz4df14p')).not.toBeInTheDocument()
         expect(
-          screen.getByTestId(RATE_CARD_RATE_DETAILS_OVERVIEW_NO_PRODUCT_CATEGORY_TEST_ID),
+          screen.getByTestId(CATALOG_RELATIONS_NO_PRODUCT_CATEGORY_TEST_ID),
         ).toBeInTheDocument()
       })
 

@@ -135,7 +135,7 @@ const useProductCategoryForm = ({
 
       // Backend rejected a duplicate code: surface it under the Code input and
       // keep the drawer open.
-      if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
+      if (hasDefinedGQLError('ValueAlreadyExist', errors, 'code')) {
         applyExistingCodeError(formApi)
         return
       }

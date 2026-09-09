@@ -1,21 +1,8 @@
 import { gql } from '@apollo/client'
-import { generatePath } from 'react-router-dom'
 
-import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { PageSectionTitle } from '~/components/layouts/Section'
-import {
-  ProductCategoryDetailsTabsOptionsEnum,
-  ProductDetailsTabsOptionsEnum,
-  ProductFilterDetailsTabsOptionsEnum,
-} from '~/core/constants/tabsOptions'
-import {
-  Link,
-  PRODUCT_CATEGORY_DETAILS_ROUTE,
-  PRODUCT_DETAILS_ROUTE,
-  PRODUCT_FILTER_DETAILS_ROUTE,
-} from '~/core/router'
 import {
   LagoApiError,
   RateCardBillingTimingEnum,
@@ -25,6 +12,8 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCustomPricingUnits } from '~/hooks/plans/useCustomPricingUnits'
 import { usePermissions } from '~/hooks/usePermissions'
+
+import { CatalogRelationsInfoGrid } from './CatalogRelationsInfoGrid'
 
 import { InvoicingStrategy, mapInvoiceFieldsToStrategy } from '../drawers/rateCard/constants'
 import {
@@ -69,12 +58,14 @@ gql`
       productCategory {
         id
         name
+        invoiceDisplayName
       }
     }
     productFilter {
       id
       name
       code
+      invoiceDisplayName
     }
     ...RateCardForDrawer
   }
@@ -114,45 +105,6 @@ const RateCardDetailsOverview = ({ rateCardId }: { rateCardId: string }) => {
 
   const { product, productFilter } = rateCard
 
-  const attachedProductCategory = product.productCategory ? (
-    <Link
-      to={generatePath(PRODUCT_CATEGORY_DETAILS_ROUTE, {
-        productCategoryId: product.productCategory.id,
-        tab: ProductCategoryDetailsTabsOptionsEnum.overview,
-      })}
-    >
-      {product.productCategory.name}
-    </Link>
-  ) : (
-    <Typography variant="body" color="grey600">
-      {translate('text_1784590896872hcbug1hthjl')}
-    </Typography>
-  )
-
-  const attachedProduct = (
-    <Link
-      to={generatePath(PRODUCT_DETAILS_ROUTE, {
-        productId: product.id,
-        tab: ProductDetailsTabsOptionsEnum.overview,
-      })}
-    >
-      {product.invoiceDisplayName || product.name}
-    </Link>
-  )
-
-  const attachedProductFilter = productFilter ? (
-    <Link
-      to={generatePath(PRODUCT_FILTER_DETAILS_ROUTE, {
-        productFilterId: productFilter.id,
-        tab: ProductFilterDetailsTabsOptionsEnum.overview,
-      })}
-    >
-      {productFilter.name}
-    </Link>
-  ) : (
-    '-'
-  )
-
   const code = (
     <TypographyWithCopy variant="body" color="grey700">
       {rateCard.code}
@@ -165,21 +117,6 @@ const RateCardDetailsOverview = ({ rateCardId }: { rateCardId: string }) => {
   })
 
   const pricingUnit = pricingUnits.find((unit) => unit.code === rateCard.appliedPricingUnitCode)
-
-  const currencyOrPricingUnitRow = [
-    {
-      label: translate('text_1784925227817bab1mp540x7'),
-      value: rateCard.currency || '-',
-    },
-    ...(pricingUnit?.name || rateCard.appliedPricingUnitCode
-      ? [
-          {
-            label: translate('text_1784925227817xt1irx4wum2'),
-            value: pricingUnit?.name || rateCard.appliedPricingUnitCode,
-          },
-        ]
-      : []),
-  ]
 
   return (
     <section>
@@ -196,14 +133,14 @@ const RateCardDetailsOverview = ({ rateCardId }: { rateCardId: string }) => {
       )}
 
       <div className="flex flex-col gap-4">
+        <CatalogRelationsInfoGrid
+          productCategory={product.productCategory}
+          product={product}
+          productFilter={productFilter}
+        />
+
         <DetailsPage.InfoGrid
           grid={[
-            { label: translate('text_17839807181143h6kt2bdiyi'), value: attachedProductCategory },
-            { label: translate('text_1784925227817ekmphmxz74c'), value: attachedProduct },
-            {
-              label: translate('text_17849304406579sbwz4df14p'),
-              value: attachedProductFilter,
-            },
             { label: translate('text_1784930440656rjmo1lmed8k'), value: rateCard.name },
             { label: translate('text_178493044065618ejwmmneyl'), value: code },
           ]}
@@ -219,7 +156,14 @@ const RateCardDetailsOverview = ({ rateCardId }: { rateCardId: string }) => {
 
         <DetailsPage.InfoGrid
           grid={[
-            ...currencyOrPricingUnitRow,
+            {
+              label: translate('text_1784925227817bab1mp540x7'),
+              value: rateCard.currency || '-',
+            },
+            {
+              label: translate('text_1784925227817xt1irx4wum2'),
+              value: pricingUnit?.name || rateCard.appliedPricingUnitCode || '-',
+            },
             {
               label: translate('text_1784930440656zu20xor7y71'),
               value: translate(BILLING_TIMING_TRANSLATION_KEY[rateCard.billingTiming]),

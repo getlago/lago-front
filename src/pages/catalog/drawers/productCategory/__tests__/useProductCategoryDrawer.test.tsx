@@ -14,6 +14,7 @@ import {
 import { render } from '~/test-utils'
 
 import {
+  PRODUCT_DRAWER_CODE_TEST_ID,
   PRODUCT_DRAWER_REMOVE_DESCRIPTION_TEST_ID,
   PRODUCT_DRAWER_SHOW_DESCRIPTION_TEST_ID,
 } from '../ProductCategoryDrawerContent'
@@ -123,6 +124,9 @@ const renderDrawerBody = () => {
     </MockedProvider>,
   )
 }
+
+const codeInput = () =>
+  screen.getByTestId(PRODUCT_DRAWER_CODE_TEST_ID).querySelector('input') as HTMLInputElement
 
 describe('useProductCategoryDrawer', () => {
   beforeEach(() => {
@@ -313,7 +317,7 @@ describe('useProductCategoryDrawer', () => {
       )
       renderDrawerBody()
 
-      await waitFor(() => expect(screen.getByDisplayValue('object_storage')).toBeDisabled())
+      await waitFor(() => expect(codeInput()).toBeDisabled())
     })
 
     it('keeps the code input editable when the productCategory is not attached', async () => {
@@ -322,7 +326,7 @@ describe('useProductCategoryDrawer', () => {
       act(() => result.current.openDrawer(productCategoryFixture))
       renderDrawerBody()
 
-      await waitFor(() => expect(screen.getByDisplayValue('object_storage')).not.toBeDisabled())
+      await waitFor(() => expect(codeInput()).toBeEnabled())
     })
 
     it('updates the productCategory, closes the drawer and toasts without navigating', async () => {
