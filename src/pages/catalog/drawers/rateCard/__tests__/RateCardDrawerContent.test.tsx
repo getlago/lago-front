@@ -913,27 +913,32 @@ describe('selected product reset lifecycle', () => {
       }
     },
   )
-  describe('GIVEN organization tax permissions', () => {
-    it('THEN shows the tax selector', () => {
-      renderContent()
+})
 
-      expect(screen.getByTestId('taxes-selector-section')).toBeInTheDocument()
-    })
+describe('GIVEN organization tax permissions', () => {
+  beforeEach(() => {
+    mockHasPermissions.mockReturnValue(true)
+  })
 
-    it('THEN hides the tax selector without the view permission', () => {
-      mockHasPermissions.mockReturnValue(false)
+  it('THEN shows the tax selector', () => {
+    renderContent()
 
-      renderContent()
+    expect(screen.getByTestId('taxes-selector-section')).toBeInTheDocument()
+  })
 
-      expect(screen.queryByTestId('taxes-selector-section')).not.toBeInTheDocument()
-    })
+  it('THEN hides the tax selector without the view permission', () => {
+    mockHasPermissions.mockReturnValue(false)
 
-    it('THEN allows changing taxes when the rate card settings are locked', async () => {
-      renderContent({ isAttached: true, hasRates: true })
+    renderContent()
 
-      await userEvent.click(screen.getByTestId('select-tax'))
+    expect(screen.queryByTestId('taxes-selector-section')).not.toBeInTheDocument()
+  })
 
-      expect(screen.getByTestId(SELECTED_TAX_CODES_TEST_ID)).toHaveTextContent('vat_20')
-    })
+  it('THEN allows changing taxes when the rate card settings are locked', async () => {
+    renderContent({ isAttached: true, hasRates: true })
+
+    await userEvent.click(screen.getByTestId('select-tax'))
+
+    expect(screen.getByTestId(SELECTED_TAX_CODES_TEST_ID)).toHaveTextContent('vat_20')
   })
 })
