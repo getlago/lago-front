@@ -136,6 +136,7 @@ const RateCardDetailsOverview = ({ rateCardId }: { rateCardId: string }) => {
   ) : (
     translate(RATE_CARD_DETAILS_OVERVIEW_TAXES_FALLBACK_KEY)
   )
+
   return (
     <section>
       {hasPermissions(['rateCardsUpdate']) && (
