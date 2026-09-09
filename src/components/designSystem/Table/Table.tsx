@@ -270,19 +270,30 @@ const ActionItemButton = <T,>({
   closePopper: VoidFunction
 }) => {
   const renderAction = () => {
+    const buttonProps = {
+      fullWidth: true,
+      align: 'left' as const,
+      variant: 'quaternary' as const,
+      startIcon: action.startIcon,
+      endIcon: action.endIcon,
+    }
+
+    // A disabled navigation action stays a button: `ButtonLink` keeps its `href`,
+    // so the anchor would remain followable outside of pointer events.
+    if (action.disabled) {
+      return (
+        <Button {...buttonProps} disabled data-test={action.dataTest}>
+          {action.title}
+        </Button>
+      )
+    }
+
     if (action.link) {
       return (
         <ButtonLink
           type="button"
           to={action.link(item)}
-          disabled={action.disabled}
-          buttonProps={{
-            fullWidth: true,
-            align: 'left',
-            variant: 'quaternary',
-            startIcon: action.startIcon,
-            endIcon: action.endIcon,
-          }}
+          buttonProps={buttonProps}
           onClick={closePopper}
           data-test={action.dataTest}
         >
@@ -293,12 +304,7 @@ const ActionItemButton = <T,>({
 
     return (
       <Button
-        fullWidth
-        startIcon={action.startIcon}
-        endIcon={action.endIcon}
-        variant="quaternary"
-        align="left"
-        disabled={action.disabled}
+        {...buttonProps}
         onClick={async () => {
           await action.onAction(item)
           closePopper()

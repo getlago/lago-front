@@ -326,6 +326,28 @@ describe('Table', () => {
           '/rows/1/edit',
         )
       })
+
+      it('THEN should render a disabled entry as a button, exposing no link', async () => {
+        await prepare({
+          props: {
+            actionColumn: () => [
+              { title: 'Edit', disabled: true, link: (row: any) => `/rows/${row.id}/edit` },
+            ],
+          },
+        })
+
+        const bodyRows = within(screen.queryAllByRole('rowgroup')[1]).queryAllByRole('row')
+
+        await userEvent.click(
+          within(bodyRows[0]).queryByTestId('open-action-button') as HTMLButtonElement,
+        )
+
+        const menu = screen.getByRole('tooltip')
+
+        expect(within(menu).queryByRole('link')).not.toBeInTheDocument()
+        expect(menu.querySelector('[href]')).toBeNull()
+        expect(within(menu).getByRole('button', { name: 'Edit' })).toBeDisabled()
+      })
     })
   })
 
