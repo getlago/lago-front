@@ -8,7 +8,6 @@ import { ErrorBoundary } from '~/components/ErrorBoundary'
 import { ErrorFallback } from '~/components/ErrorFallback'
 import { CustomRouteObject, routes, useLocation, useNavigate } from '~/core/router'
 import { NEVER_SLUG_PREFIXES } from '~/core/router/slugPrefixes'
-import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { DEVTOOL_TAB_PARAMS, useDeveloperTool, useDevtoolTabParam } from '~/hooks/useDeveloperTool'
 
@@ -46,9 +45,8 @@ const PageWrapper = ({ children, routeConfig }: PageWrapperProps) => {
   return <>{children}</>
 }
 
-const routesFormatter: (routesToFormat: CustomRouteObject[], loggedIn: boolean) => RouteObject[] = (
+const routesFormatter: (routesToFormat: CustomRouteObject[]) => RouteObject[] = (
   routesToFormat,
-  loggedIn,
 ) => {
   return routesToFormat.reduce<RouteObject[]>((acc, route) => {
     // A route chunk that cannot be downloaded rejects instead of hanging, so the
@@ -62,7 +60,7 @@ const routesFormatter: (routesToFormat: CustomRouteObject[], loggedIn: boolean) 
           </ErrorBoundary>
         </PageWrapper>
       ),
-      ...(route?.children ? { children: routesFormatter(route.children, loggedIn) } : {}),
+      ...(route?.children ? { children: routesFormatter(route.children) } : {}),
     }
 
     if (route.index) {
@@ -91,7 +89,6 @@ const routesFormatter: (routesToFormat: CustomRouteObject[], loggedIn: boolean) 
 }
 
 export const RouteWrapper = () => {
-  const { isAuthenticated } = useIsAuthenticated()
   const location = useLocation()
   const navigate = useNavigate()
   const { mainRouterUrl, setMainRouterUrl } = useDeveloperTool()
@@ -121,7 +118,7 @@ export const RouteWrapper = () => {
     setMainRouterUrl('')
   }, [mainRouterUrl, location.pathname, navigate, setMainRouterUrl])
 
-  const formattedRoutes = routesFormatter(routes, isAuthenticated)
+  const formattedRoutes = routesFormatter(routes)
 
   return useRoutes(formattedRoutes)
 }

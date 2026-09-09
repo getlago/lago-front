@@ -7,7 +7,15 @@ import { MainHeaderConfig, MainHeaderTab } from '../types'
 import { useMainHeaderTabContent } from '../useMainHeaderTabContent'
 
 // We need a real router for pathname matching, so don't use the global mock
-jest.unmock('react-router-dom')
+jest.mock('react-router-dom', () => {
+  const actual = jest.requireActual('react-router-dom')
+  const { withRouterFuture } = jest.requireActual('~/test-utils/routerFutureMock')
+
+  return {
+    ...actual,
+    ...withRouterFuture(actual),
+  }
+})
 
 const createWrapper = (initialPath: string): FC<PropsWithChildren> => {
   const Wrapper: FC<PropsWithChildren> = ({ children }) => (
