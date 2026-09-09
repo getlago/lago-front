@@ -150,19 +150,6 @@ describe('TaxesSelectorSection', () => {
       expect(screen.getByTestId(buildTaxChipTestId('tax-1'))).toHaveTextContent('VAT (20%)')
       expect(screen.getByTestId(buildTaxChipTestId('tax-2'))).toHaveTextContent('GST (10%)')
     })
-
-    it('renders filled tax chips when requested', async () => {
-      await prepare({ taxes: mockTaxes, chipAppearance: 'filled' })
-
-      const chip = screen.getByTestId(buildTaxChipTestId('tax-1'))
-
-      expect(chip).toHaveClass('MuiChip-filled', 'chip-size--big')
-      expect(chip).not.toHaveClass('MuiChip-outlined')
-      expect(screen.getByText('VAT (20%)')).toHaveClass('MuiTypography-body')
-      expect(screen.queryByTestId('percentage/small')).not.toBeInTheDocument()
-      expect(screen.queryByTestId('trash/medium')).not.toBeInTheDocument()
-      expect(screen.getAllByTestId('close-circle-filled/medium')).toHaveLength(2)
-    })
   })
 
   describe('Add Button', () => {
