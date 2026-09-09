@@ -12,7 +12,9 @@ import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import {
   LagoApiError,
+  ProductCategoryForCatalogRelationsFragmentDoc,
   ProductFilterForDrawerFragmentDoc,
+  ProductForCatalogRelationsFragmentDoc,
   useGetProductFilterForDetailsOverviewQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -35,14 +37,12 @@ gql`
     attachedToPlanOrSubscription
     product {
       id
-      name
       code
-      invoiceDisplayName
+      ...ProductForCatalogRelations
       productCategory {
         id
-        name
         code
-        invoiceDisplayName
+        ...ProductCategoryForCatalogRelations
       }
     }
     values {
@@ -66,6 +66,8 @@ gql`
   }
 
   ${ProductFilterForDrawerFragmentDoc}
+  ${ProductCategoryForCatalogRelationsFragmentDoc}
+  ${ProductForCatalogRelationsFragmentDoc}
 `
 
 const ProductFilterDetailsOverview = ({ productFilterId }: { productFilterId: string }) => {

@@ -223,6 +223,13 @@ const useProductFilterForm = ({
         return
       }
 
+      // `silentErrorCodes` swallows everything else, so without this the submit looks like a
+      // no-op.
+      if (errors?.length) {
+        addToast({ severity: 'danger', translateKey: 'text_1788957148209054ur2tx4nr' })
+        return
+      }
+
       if (productFilter) {
         onSuccess({ productFilter, wasEdit: !!editedProductFilter })
       }

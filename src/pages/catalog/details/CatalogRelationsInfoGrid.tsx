@@ -1,3 +1,4 @@
+import { gql } from '@apollo/client'
 import { ReactNode } from 'react'
 import { generatePath } from 'react-router-dom'
 
@@ -14,20 +15,41 @@ import {
   PRODUCT_DETAILS_ROUTE,
   PRODUCT_FILTER_DETAILS_ROUTE,
 } from '~/core/router'
+import {
+  ProductCategoryForCatalogRelationsFragment,
+  ProductFilterForCatalogRelationsFragment,
+  ProductForCatalogRelationsFragment,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+
+gql`
+  fragment ProductCategoryForCatalogRelations on ProductCategory {
+    id
+    name
+    invoiceDisplayName
+  }
+
+  fragment ProductForCatalogRelations on Product {
+    id
+    name
+    invoiceDisplayName
+  }
+
+  fragment ProductFilterForCatalogRelations on ProductFilter {
+    id
+    name
+    invoiceDisplayName
+  }
+`
 
 export const CATALOG_RELATIONS_NO_PRODUCT_CATEGORY_TEST_ID = 'catalog-relations-no-product-category'
 
-type CatalogRelation = {
-  id: string
-  name: string
-  invoiceDisplayName?: string | null
-}
+type CatalogRelation = { name: string; invoiceDisplayName?: string | null }
 
 type CatalogRelationsInfoGridProps = {
-  productCategory: CatalogRelation | null | undefined
-  product?: CatalogRelation
-  productFilter?: CatalogRelation | null
+  productCategory: ProductCategoryForCatalogRelationsFragment | null | undefined
+  product?: ProductForCatalogRelationsFragment
+  productFilter?: ProductFilterForCatalogRelationsFragment | null
 }
 
 const getDisplayName = (relation: CatalogRelation): string =>

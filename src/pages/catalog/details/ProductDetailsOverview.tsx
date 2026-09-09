@@ -13,6 +13,7 @@ import { BillableMetricDetailsTabsOptionsEnum } from '~/core/constants/tabsOptio
 import { BILLABLE_METRIC_DETAILS_ROUTE, Link } from '~/core/router'
 import {
   LagoApiError,
+  ProductCategoryForCatalogRelationsFragmentDoc,
   ProductForDrawerFragmentDoc,
   ProductTypeEnum,
   useGetProductForDetailsOverviewQuery,
@@ -41,9 +42,8 @@ gql`
     productType
     productCategory {
       id
-      name
       code
-      invoiceDisplayName
+      ...ProductCategoryForCatalogRelations
     }
     billableMetric {
       id
@@ -61,6 +61,7 @@ gql`
   }
 
   ${ProductForDrawerFragmentDoc}
+  ${ProductCategoryForCatalogRelationsFragmentDoc}
 `
 
 export const ProductDetailsOverview = () => {

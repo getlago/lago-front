@@ -14,6 +14,9 @@ import { Link, RATE_CARD_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
 import {
+  ProductCategoryForCatalogRelationsFragmentDoc,
+  ProductFilterForCatalogRelationsFragmentDoc,
+  ProductForCatalogRelationsFragmentDoc,
   RateCardBillingTimingEnum,
   RateCardForRateDetailsFragment,
   RateCardRateForDetailsFragment,
@@ -41,20 +44,21 @@ gql`
     billingTiming
     product {
       id
-      name
-      invoiceDisplayName
+      ...ProductForCatalogRelations
       productCategory {
         id
-        name
-        invoiceDisplayName
+        ...ProductCategoryForCatalogRelations
       }
     }
     productFilter {
       id
-      name
-      invoiceDisplayName
+      ...ProductFilterForCatalogRelations
     }
   }
+
+  ${ProductCategoryForCatalogRelationsFragmentDoc}
+  ${ProductForCatalogRelationsFragmentDoc}
+  ${ProductFilterForCatalogRelationsFragmentDoc}
 `
 
 export const RATE_CARD_RATE_DETAILS_OVERVIEW_EDIT_TEST_ID = 'rate-card-rate-details-overview-edit'

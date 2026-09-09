@@ -179,6 +179,13 @@ const useProductForm = ({ onSuccess }: { onSuccess: (result: ProductFormSuccess)
         return
       }
 
+      // `silentErrorCodes` swallows everything else, so without this the submit looks like a
+      // no-op.
+      if (errors?.length) {
+        addToast({ severity: 'danger', translateKey: 'text_1788957148209uhcnfxybu4e' })
+        return
+      }
+
       if (product) {
         onSuccess({ product, wasEdit: !!editedProduct })
       }

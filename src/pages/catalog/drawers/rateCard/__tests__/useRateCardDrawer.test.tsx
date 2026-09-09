@@ -240,14 +240,16 @@ describe('useRateCardDrawer edit flow', () => {
     expect(capturedInput.appliedPricingUnitCode).toBeNull()
   })
 
-  it('passes the attachment flag to the content when the rate card bills subscriptions', () => {
+  // Locking follows `attached_to_plan_or_subscription?`; the narrower subscriptions flag
+  // must not freeze anything on its own.
+  it('leaves everything editable when only the subscriptions flag is set', () => {
     const { result } = renderDrawerHook()
 
     act(() =>
       result.current.openDrawer({
         rateCard: {
           ...rateCardFixture,
-          attachedToPlanOrSubscription: true,
+          attachedToPlanOrSubscription: false,
           attachedToSubscriptions: true,
         },
       }),
@@ -255,8 +257,8 @@ describe('useRateCardDrawer edit flow', () => {
 
     const contentProps = (lastDrawerArgs?.children as ReactElement)?.props
 
-    expect(contentProps?.isAttached).toBe(true)
-    expect(contentProps?.disableCodeInput).toBe(true)
+    expect(contentProps?.isAttached).toBe(false)
+    expect(contentProps?.disableCodeInput).toBe(false)
   })
 
   // `LOCKED_WITH_RATES` keys off `rate_card.rates.exists?`, not off any attachment.

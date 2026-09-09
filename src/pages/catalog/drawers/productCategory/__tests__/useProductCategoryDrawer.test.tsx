@@ -101,6 +101,10 @@ const duplicateCodeError = new GraphQLError('Value already exists', {
   extensions: { code: 'value_already_exist', details: { code: ['value_already_exist'] } },
 })
 
+const otherFieldError = new GraphQLError('Value already exists', {
+  extensions: { code: 'value_already_exist', details: { name: ['value_already_exist'] } },
+})
+
 const renderDrawerHook = (mocks: MockedResponse[] = []) =>
   renderHook(() => useProductCategoryDrawer(), {
     wrapper: ({ children }: { children: ReactNode }) => (
@@ -274,6 +278,27 @@ describe('useProductCategoryDrawer', () => {
       )
       expect(mockClose).not.toHaveBeenCalled()
       expect(addToast).not.toHaveBeenCalled()
+    })
+
+    it('toasts instead of failing silently when the rejection is on another field', async () => {
+      const { result } = renderDrawerHook([
+        createProductCategoryMockFactory({ data: null, errors: [otherFieldError] }),
+      ])
+
+      act(() => result.current.openDrawer())
+      renderDrawerBody()
+
+      await userEvent.type(screen.getByPlaceholderText('text_17836270312839ylvd3gjr17'), 'Storage')
+      await waitFor(() => expect(screen.getByDisplayValue('storage')).toBeInTheDocument())
+
+      await act(async () => {
+        await lastDrawerArgs?.form?.submit()
+      })
+
+      await waitFor(() =>
+        expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' })),
+      )
+      expect(mockClose).not.toHaveBeenCalled()
     })
   })
 

@@ -4919,5 +4919,9 @@
   "text_178851170779693if5ma3vv3": "Connection successfully set as default",
   "text_1788511707796mofp375vjec": "Default on customer",
   "text_1788938888298p8mb2uxfk5l": "Display in quote document",
-  "text_1788938888298tobp5ik7edt": "When turned off, this charge is hidden from the quote’s pricing table. It is still part of the quote and is billed normally once the quote is approved."
+  "text_1788938888298tobp5ik7edt": "When turned off, this charge is hidden from the quote’s pricing table. It is still part of the quote and is billed normally once the quote is approved.",
+  "text_1788957148209uhcnfxybu4e": "This product could not be saved. Please check its settings and try again.",
+  "text_1788957148209wyppwdnny7d": "This product category could not be saved. Please check its settings and try again.",
+  "text_1788957148209054ur2tx4nr": "This product filter could not be saved. Please check its settings and try again.",
+  "text_1788957148209tdcqiord3ut": "This rate card could not be saved. Please check its settings and try again."
 }

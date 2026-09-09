@@ -16001,6 +16001,12 @@ export type RateCardsQueryVariables = Exact<{
 
 export type RateCardsQuery = { __typename?: 'Query', rateCards: { __typename?: 'RateCardCollection', collection: Array<{ __typename?: 'RateCard', id: string, name: string, code: string, createdAt: any, ratesCount: number, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, description?: string | null, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean, regroupPaidFees: RateCardRegroupPaidFeesEnum, proration: boolean, walletTargetable?: boolean | null, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, product: { __typename?: 'Product', id: string, name: string, code: string, productType: ProductTypeEnum, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, code: string } | null, activeRate?: { __typename?: 'RateCardRate', id: string, rateModel: RateCardRateModelEnum, minAmountCents: any, rateProperties: { __typename?: 'Properties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', perUnitAmount: string, flatAmount: string, fromValue: number, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', rate: string, flatAmount: string, fromValue: number, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', perUnitAmount: string, flatAmount: string, fromValue: any, toValue?: any | null }> | null } } | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
+export type ProductCategoryForCatalogRelationsFragment = { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null };
+
+export type ProductForCatalogRelationsFragment = { __typename?: 'Product', id: string, name: string, invoiceDisplayName?: string | null };
+
+export type ProductFilterForCatalogRelationsFragment = { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null };
+
 export type ProductActivityLogsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -16057,14 +16063,14 @@ export type GetProductForDetailsQueryVariables = Exact<{
 
 export type GetProductForDetailsQuery = { __typename?: 'Query', product?: { __typename?: 'Product', id: string, name: string, code: string, description?: string | null, invoiceDisplayName?: string | null, productType: ProductTypeEnum, attachedToPlanOrSubscription: boolean, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, filters?: Array<{ __typename?: 'BillableMetricFilter', id: string, key: string, values: Array<string> }> | null } | null, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, code: string } | null } | null };
 
-export type ProductForDetailsOverviewFragment = { __typename?: 'Product', id: string, name: string, code: string, description?: string | null, invoiceDisplayName?: string | null, productType: ProductTypeEnum, attachedToPlanOrSubscription: boolean, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, code: string, invoiceDisplayName?: string | null } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, code: string, name: string } | null };
+export type ProductForDetailsOverviewFragment = { __typename?: 'Product', id: string, name: string, code: string, description?: string | null, invoiceDisplayName?: string | null, productType: ProductTypeEnum, attachedToPlanOrSubscription: boolean, productCategory?: { __typename?: 'ProductCategory', id: string, code: string, name: string, invoiceDisplayName?: string | null } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, code: string, name: string } | null };
 
 export type GetProductForDetailsOverviewQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetProductForDetailsOverviewQuery = { __typename?: 'Query', product?: { __typename?: 'Product', id: string, name: string, code: string, description?: string | null, invoiceDisplayName?: string | null, productType: ProductTypeEnum, attachedToPlanOrSubscription: boolean, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, code: string, invoiceDisplayName?: string | null } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, code: string, name: string } | null } | null };
+export type GetProductForDetailsOverviewQuery = { __typename?: 'Query', product?: { __typename?: 'Product', id: string, name: string, code: string, description?: string | null, invoiceDisplayName?: string | null, productType: ProductTypeEnum, attachedToPlanOrSubscription: boolean, productCategory?: { __typename?: 'ProductCategory', id: string, code: string, name: string, invoiceDisplayName?: string | null } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, code: string, name: string } | null } | null };
 
 export type ProductFilterActivityLogsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -16085,14 +16091,14 @@ export type GetProductFilterForDetailsQueryVariables = Exact<{
 
 export type GetProductFilterForDetailsQuery = { __typename?: 'Query', productFilter?: { __typename?: 'ProductFilter', id: string, name: string, code: string, description?: string | null, invoiceDisplayName?: string | null, attachedToPlanOrSubscription: boolean, product: { __typename?: 'Product', id: string, name: string, code: string }, values: Array<{ __typename?: 'ProductFilterValue', id: string, value?: string | null, billableMetricFilter: { __typename?: 'BillableMetricFilter', id: string, key: string, values: Array<string> } }> } | null };
 
-export type ProductFilterForDetailsOverviewFragment = { __typename?: 'ProductFilter', id: string, name: string, code: string, description?: string | null, invoiceDisplayName?: string | null, attachedToPlanOrSubscription: boolean, product: { __typename?: 'Product', id: string, name: string, code: string, invoiceDisplayName?: string | null, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, code: string, invoiceDisplayName?: string | null } | null }, values: Array<{ __typename?: 'ProductFilterValue', id: string, key: string, value?: string | null, billableMetricFilter: { __typename?: 'BillableMetricFilter', id: string, key: string, values: Array<string> } }> };
+export type ProductFilterForDetailsOverviewFragment = { __typename?: 'ProductFilter', id: string, name: string, code: string, description?: string | null, invoiceDisplayName?: string | null, attachedToPlanOrSubscription: boolean, product: { __typename?: 'Product', id: string, code: string, name: string, invoiceDisplayName?: string | null, productCategory?: { __typename?: 'ProductCategory', id: string, code: string, name: string, invoiceDisplayName?: string | null } | null }, values: Array<{ __typename?: 'ProductFilterValue', id: string, key: string, value?: string | null, billableMetricFilter: { __typename?: 'BillableMetricFilter', id: string, key: string, values: Array<string> } }> };
 
 export type GetProductFilterForDetailsOverviewQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetProductFilterForDetailsOverviewQuery = { __typename?: 'Query', productFilter?: { __typename?: 'ProductFilter', id: string, name: string, code: string, description?: string | null, invoiceDisplayName?: string | null, attachedToPlanOrSubscription: boolean, product: { __typename?: 'Product', id: string, name: string, code: string, invoiceDisplayName?: string | null, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, code: string, invoiceDisplayName?: string | null } | null }, values: Array<{ __typename?: 'ProductFilterValue', id: string, key: string, value?: string | null, billableMetricFilter: { __typename?: 'BillableMetricFilter', id: string, key: string, values: Array<string> } }> } | null };
+export type GetProductFilterForDetailsOverviewQuery = { __typename?: 'Query', productFilter?: { __typename?: 'ProductFilter', id: string, name: string, code: string, description?: string | null, invoiceDisplayName?: string | null, attachedToPlanOrSubscription: boolean, product: { __typename?: 'Product', id: string, code: string, name: string, invoiceDisplayName?: string | null, productCategory?: { __typename?: 'ProductCategory', id: string, code: string, name: string, invoiceDisplayName?: string | null } | null }, values: Array<{ __typename?: 'ProductFilterValue', id: string, key: string, value?: string | null, billableMetricFilter: { __typename?: 'BillableMetricFilter', id: string, key: string, values: Array<string> } }> } | null };
 
 export type ProductForFilterPreviewFragment = { __typename?: 'Product', id: string, name: string, code: string, billableMetric?: { __typename?: 'BillableMetric', id: string, filters?: Array<{ __typename?: 'BillableMetricFilter', id: string, key: string, values: Array<string> }> | null } | null };
 
@@ -16124,14 +16130,14 @@ export type GetRateCardForDetailsQueryVariables = Exact<{
 
 export type GetRateCardForDetailsQuery = { __typename?: 'Query', rateCard?: { __typename?: 'RateCard', id: string, name: string, code: string, description?: string | null, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean, regroupPaidFees: RateCardRegroupPaidFeesEnum, proration: boolean, walletTargetable?: boolean | null, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, ratesCount: number, product: { __typename?: 'Product', id: string, name: string, code: string, productType: ProductTypeEnum, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, code: string } | null, activeRate?: { __typename?: 'RateCardRate', id: string, effectiveFrom: any } | null } | null };
 
-export type RateCardForDetailsOverviewFragment = { __typename?: 'RateCard', id: string, name: string, code: string, description?: string | null, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean, regroupPaidFees: RateCardRegroupPaidFeesEnum, proration: boolean, walletTargetable?: boolean | null, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, ratesCount: number, product: { __typename?: 'Product', id: string, name: string, code: string, invoiceDisplayName?: string | null, productType: ProductTypeEnum, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, code: string, invoiceDisplayName?: string | null } | null };
+export type RateCardForDetailsOverviewFragment = { __typename?: 'RateCard', id: string, name: string, code: string, description?: string | null, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean, regroupPaidFees: RateCardRegroupPaidFeesEnum, proration: boolean, walletTargetable?: boolean | null, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, ratesCount: number, product: { __typename?: 'Product', id: string, code: string, name: string, productType: ProductTypeEnum, invoiceDisplayName?: string | null, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, code: string, name: string, invoiceDisplayName?: string | null } | null };
 
 export type GetRateCardForDetailsOverviewQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetRateCardForDetailsOverviewQuery = { __typename?: 'Query', rateCard?: { __typename?: 'RateCard', id: string, name: string, code: string, description?: string | null, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean, regroupPaidFees: RateCardRegroupPaidFeesEnum, proration: boolean, walletTargetable?: boolean | null, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, ratesCount: number, product: { __typename?: 'Product', id: string, name: string, code: string, invoiceDisplayName?: string | null, productType: ProductTypeEnum, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, code: string, invoiceDisplayName?: string | null } | null } | null };
+export type GetRateCardForDetailsOverviewQuery = { __typename?: 'Query', rateCard?: { __typename?: 'RateCard', id: string, name: string, code: string, description?: string | null, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean, regroupPaidFees: RateCardRegroupPaidFeesEnum, proration: boolean, walletTargetable?: boolean | null, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, ratesCount: number, product: { __typename?: 'Product', id: string, code: string, name: string, productType: ProductTypeEnum, invoiceDisplayName?: string | null, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, code: string, name: string, invoiceDisplayName?: string | null } | null } | null };
 
 export type RateCardForPreviewProductFragment = { __typename?: 'Product', id: string, name: string };
 
@@ -16163,7 +16169,7 @@ export type GetRateCardRateForDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetRateCardRateForDetailsQuery = { __typename?: 'Query', rateCardRate?: { __typename?: 'RateCardRate', id: string, code: string, effectiveFrom: any, status: RateCardRateStatusEnum, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'Properties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', perUnitAmount: string, flatAmount: string, fromValue: number, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', rate: string, flatAmount: string, fromValue: number, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', perUnitAmount: string, flatAmount: string, fromValue: any, toValue?: any | null }> | null } } | null, rateCard?: { __typename?: 'RateCard', id: string, name: string, code: string, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, billingTiming: RateCardBillingTimingEnum, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, product: { __typename?: 'Product', id: string, name: string, invoiceDisplayName?: string | null, productType: ProductTypeEnum, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, aggregationType: AggregationTypeEnum } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null } | null, activeRate?: { __typename?: 'RateCardRate', id: string, effectiveFrom: any } | null } | null };
+export type GetRateCardRateForDetailsQuery = { __typename?: 'Query', rateCardRate?: { __typename?: 'RateCardRate', id: string, code: string, effectiveFrom: any, status: RateCardRateStatusEnum, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'Properties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', perUnitAmount: string, flatAmount: string, fromValue: number, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', rate: string, flatAmount: string, fromValue: number, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', perUnitAmount: string, flatAmount: string, fromValue: any, toValue?: any | null }> | null } } | null, rateCard?: { __typename?: 'RateCard', id: string, name: string, code: string, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, billingTiming: RateCardBillingTimingEnum, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, product: { __typename?: 'Product', id: string, productType: ProductTypeEnum, name: string, invoiceDisplayName?: string | null, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null } | null, billableMetric?: { __typename?: 'BillableMetric', id: string, aggregationType: AggregationTypeEnum } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null } | null, activeRate?: { __typename?: 'RateCardRate', id: string, effectiveFrom: any } | null } | null };
 
 export type RateCardForRateDetailsFragment = { __typename?: 'RateCard', id: string, name: string, code: string, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, billingTiming: RateCardBillingTimingEnum, product: { __typename?: 'Product', id: string, name: string, invoiceDisplayName?: string | null, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null } | null };
 
@@ -22799,6 +22805,13 @@ export const ProductForProductDetailsFragmentDoc = gql`
 ${ProductForFilterPreviewFragmentDoc}
 ${ProductForDrawerFragmentDoc}
 ${ProductForDeleteProductDialogFragmentDoc}`;
+export const ProductCategoryForCatalogRelationsFragmentDoc = gql`
+    fragment ProductCategoryForCatalogRelations on ProductCategory {
+  id
+  name
+  invoiceDisplayName
+}
+    `;
 export const ProductForDetailsOverviewFragmentDoc = gql`
     fragment ProductForDetailsOverview on Product {
   id
@@ -22809,9 +22822,8 @@ export const ProductForDetailsOverviewFragmentDoc = gql`
   productType
   productCategory {
     id
-    name
     code
-    invoiceDisplayName
+    ...ProductCategoryForCatalogRelations
   }
   billableMetric {
     id
@@ -22820,7 +22832,8 @@ export const ProductForDetailsOverviewFragmentDoc = gql`
   }
   ...ProductForDrawer
 }
-    ${ProductForDrawerFragmentDoc}`;
+    ${ProductCategoryForCatalogRelationsFragmentDoc}
+${ProductForDrawerFragmentDoc}`;
 export const RateCardForPreviewProductFilterFragmentDoc = gql`
     fragment RateCardForPreviewProductFilter on ProductFilter {
   id
@@ -22841,6 +22854,13 @@ export const ProductFilterForProductFilterDetailsFragmentDoc = gql`
     ${RateCardForPreviewProductFilterFragmentDoc}
 ${ProductFilterForDrawerFragmentDoc}
 ${ProductFilterForDeleteProductFilterDialogFragmentDoc}`;
+export const ProductForCatalogRelationsFragmentDoc = gql`
+    fragment ProductForCatalogRelations on Product {
+  id
+  name
+  invoiceDisplayName
+}
+    `;
 export const ProductFilterForDetailsOverviewFragmentDoc = gql`
     fragment ProductFilterForDetailsOverview on ProductFilter {
   id
@@ -22851,14 +22871,12 @@ export const ProductFilterForDetailsOverviewFragmentDoc = gql`
   attachedToPlanOrSubscription
   product {
     id
-    name
     code
-    invoiceDisplayName
+    ...ProductForCatalogRelations
     productCategory {
       id
-      name
       code
-      invoiceDisplayName
+      ...ProductCategoryForCatalogRelations
     }
   }
   values {
@@ -22873,10 +22891,19 @@ export const ProductFilterForDetailsOverviewFragmentDoc = gql`
   }
   ...ProductFilterForDrawer
 }
-    ${ProductFilterForDrawerFragmentDoc}`;
+    ${ProductForCatalogRelationsFragmentDoc}
+${ProductCategoryForCatalogRelationsFragmentDoc}
+${ProductFilterForDrawerFragmentDoc}`;
 export const RateCardForRateCardDetailsFragmentDoc = gql`
     fragment RateCardForRateCardDetails on RateCard {
   id
+}
+    `;
+export const ProductFilterForCatalogRelationsFragmentDoc = gql`
+    fragment ProductFilterForCatalogRelations on ProductFilter {
+  id
+  name
+  invoiceDisplayName
 }
     `;
 export const RateCardForDrawerFragmentDoc = gql`
@@ -22930,24 +22957,24 @@ export const RateCardForDetailsOverviewFragmentDoc = gql`
   walletTargetable
   product {
     id
-    name
     code
-    invoiceDisplayName
+    ...ProductForCatalogRelations
     productCategory {
       id
-      name
-      invoiceDisplayName
+      ...ProductCategoryForCatalogRelations
     }
   }
   productFilter {
     id
-    name
     code
-    invoiceDisplayName
+    ...ProductFilterForCatalogRelations
   }
   ...RateCardForDrawer
 }
-    ${RateCardForDrawerFragmentDoc}`;
+    ${ProductForCatalogRelationsFragmentDoc}
+${ProductCategoryForCatalogRelationsFragmentDoc}
+${ProductFilterForCatalogRelationsFragmentDoc}
+${RateCardForDrawerFragmentDoc}`;
 export const PropertiesForActiveRateFragmentDoc = gql`
     fragment PropertiesForActiveRate on Properties {
   amount
@@ -23031,21 +23058,20 @@ export const RateCardForRateDetailsFragmentDoc = gql`
   billingTiming
   product {
     id
-    name
-    invoiceDisplayName
+    ...ProductForCatalogRelations
     productCategory {
       id
-      name
-      invoiceDisplayName
+      ...ProductCategoryForCatalogRelations
     }
   }
   productFilter {
     id
-    name
-    invoiceDisplayName
+    ...ProductFilterForCatalogRelations
   }
 }
-    `;
+    ${ProductForCatalogRelationsFragmentDoc}
+${ProductCategoryForCatalogRelationsFragmentDoc}
+${ProductFilterForCatalogRelationsFragmentDoc}`;
 export const RateCardForRateDrawerFragmentDoc = gql`
     fragment RateCardForRateDrawer on RateCard {
   id

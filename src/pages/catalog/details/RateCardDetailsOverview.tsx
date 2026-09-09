@@ -5,6 +5,9 @@ import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import {
   LagoApiError,
+  ProductCategoryForCatalogRelationsFragmentDoc,
+  ProductFilterForCatalogRelationsFragmentDoc,
+  ProductForCatalogRelationsFragmentDoc,
   RateCardBillingTimingEnum,
   RateCardForDrawerFragmentDoc,
   useGetRateCardForDetailsOverviewQuery,
@@ -52,20 +55,17 @@ gql`
     walletTargetable
     product {
       id
-      name
       code
-      invoiceDisplayName
+      ...ProductForCatalogRelations
       productCategory {
         id
-        name
-        invoiceDisplayName
+        ...ProductCategoryForCatalogRelations
       }
     }
     productFilter {
       id
-      name
       code
-      invoiceDisplayName
+      ...ProductFilterForCatalogRelations
     }
     ...RateCardForDrawer
   }
@@ -78,6 +78,9 @@ gql`
   }
 
   ${RateCardForDrawerFragmentDoc}
+  ${ProductCategoryForCatalogRelationsFragmentDoc}
+  ${ProductForCatalogRelationsFragmentDoc}
+  ${ProductFilterForCatalogRelationsFragmentDoc}
 `
 
 const RateCardDetailsOverview = ({ rateCardId }: { rateCardId: string }) => {
