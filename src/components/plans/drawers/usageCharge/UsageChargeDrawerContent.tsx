@@ -14,6 +14,7 @@ import { buildChargeFilterAddFilterButtonId } from '~/components/plans/chargeAcc
 import { ChargeModelSelector } from '~/components/plans/chargeAccordion/ChargeModelSelector'
 import { ChargeWrapperSwitch } from '~/components/plans/chargeAccordion/ChargeWrapperSwitch'
 import { CustomPricingUnitSelector } from '~/components/plans/chargeAccordion/CustomPricingUnitSelector'
+import { ChargeDisplayInQuoteDocumentOption } from '~/components/plans/chargeAccordion/options/ChargeDisplayInQuoteDocumentOption'
 import { ChargeInvoicingStrategyOption } from '~/components/plans/chargeAccordion/options/ChargeInvoicingStrategyOption'
 import { ChargePayInAdvanceOption } from '~/components/plans/chargeAccordion/options/ChargePayInAdvanceOption'
 import { SpendingMinimumOptionSection } from '~/components/plans/chargeAccordion/SpendingMinimumOptionSection'
@@ -699,25 +700,11 @@ export const UsageChargeDrawerContent = withForm({
               )}
 
               {isInQuoteForm && (
-                <div className="flex flex-col gap-4">
-                  <div className="flex flex-col gap-1">
-                    <Typography variant="captionHl" color="grey700">
-                      {translate('text_1788938888298p8mb2uxfk5l')}
-                    </Typography>
-                    <Typography variant="caption" color="grey600">
-                      {translate('text_1788938888298tobp5ik7edt')}
-                    </Typography>
-                  </div>
-
-                  <form.AppField name="displayInQuoteDocument">
-                    {(field) => (
-                      <field.SwitchField
-                        label={translate('text_1788938888298p8mb2uxfk5l')}
-                        disabled={disabled}
-                      />
-                    )}
-                  </form.AppField>
-                </div>
+                <ChargeDisplayInQuoteDocumentOption
+                  form={form}
+                  fields={{ displayInQuoteDocument: 'displayInQuoteDocument' }}
+                  disabled={disabled}
+                />
               )}
 
               {!formValues.payInAdvance && (

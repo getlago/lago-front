@@ -9,6 +9,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { ChargeModelSelector } from '~/components/plans/chargeAccordion/ChargeModelSelector'
 import { ChargeWrapperSwitch } from '~/components/plans/chargeAccordion/ChargeWrapperSwitch'
+import { ChargeDisplayInQuoteDocumentOption } from '~/components/plans/chargeAccordion/options/ChargeDisplayInQuoteDocumentOption'
 import { ChargePayInAdvanceOption } from '~/components/plans/chargeAccordion/options/ChargePayInAdvanceOption'
 import { seedChargeCode } from '~/components/plans/drawers/common/chargeCode'
 import ChargeCodeField from '~/components/plans/drawers/common/ChargeCodeField'
@@ -351,25 +352,11 @@ export const FixedChargeDrawerContent = withForm({
               </div>
 
               {isInQuoteForm && (
-                <div className="flex flex-col gap-4">
-                  <div className="flex flex-col gap-1">
-                    <Typography variant="captionHl" color="grey700">
-                      {translate('text_1788938888298p8mb2uxfk5l')}
-                    </Typography>
-                    <Typography variant="caption" color="grey600">
-                      {translate('text_1788938888298tobp5ik7edt')}
-                    </Typography>
-                  </div>
-
-                  <form.AppField name="displayInQuoteDocument">
-                    {(field) => (
-                      <field.SwitchField
-                        label={translate('text_1788938888298p8mb2uxfk5l')}
-                        disabled={disabled}
-                      />
-                    )}
-                  </form.AppField>
-                </div>
+                <ChargeDisplayInQuoteDocumentOption
+                  form={form}
+                  fields={{ displayInQuoteDocument: 'displayInQuoteDocument' }}
+                  disabled={disabled}
+                />
               )}
 
               <TaxesSelectorSection

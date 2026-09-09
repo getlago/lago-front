@@ -37,6 +37,7 @@ const CHARGE_MODEL_SELECTOR_TEST_ID = 'charge-model-selector'
 const CHARGE_WRAPPER_SWITCH_TEST_ID = 'charge-wrapper-switch'
 const PLAN_BILLING_PERIOD_INFO_SECTION_TEST_ID = 'plan-billing-period-info-section'
 const CHARGE_PAY_IN_ADVANCE_OPTION_TEST_ID = 'charge-pay-in-advance-option'
+const CHARGE_DISPLAY_IN_QUOTE_DOCUMENT_OPTION_TEST_ID = 'charge-display-in-quote-document-option'
 const TAXES_SELECTOR_SECTION_TEST_ID = 'taxes-selector-section'
 const BM_PICKER_COMBOBOX_TEST_ID = 'bm-picker-combobox'
 
@@ -293,6 +294,15 @@ jest.mock('~/components/plans/chargeAccordion/CustomPricingUnitSelector', () => 
 
 jest.mock('~/components/plans/drawers/common/PlanBillingPeriodInfoSection', () => ({
   PlanBillingPeriodInfoSection: () => <div data-test={PLAN_BILLING_PERIOD_INFO_SECTION_TEST_ID} />,
+}))
+
+jest.mock('~/components/plans/chargeAccordion/options/ChargeDisplayInQuoteDocumentOption', () => ({
+  ChargeDisplayInQuoteDocumentOption: (props: Record<string, unknown>) => (
+    <div
+      data-test={CHARGE_DISPLAY_IN_QUOTE_DOCUMENT_OPTION_TEST_ID}
+      data-disabled={String(!!props.disabled)}
+    />
+  ),
 }))
 
 jest.mock('~/components/plans/chargeAccordion/options/ChargePayInAdvanceOption', () => ({
@@ -957,7 +967,9 @@ describe('VirtualFilterList drift test', () => {
           />,
         )
 
-        expect(screen.queryByTestId('field-displayInQuoteDocument')).not.toBeInTheDocument()
+        expect(
+          screen.queryByTestId(CHARGE_DISPLAY_IN_QUOTE_DOCUMENT_OPTION_TEST_ID),
+        ).not.toBeInTheDocument()
       })
 
       it('THEN should not render it either inside the subscription form', () => {
@@ -973,7 +985,9 @@ describe('VirtualFilterList drift test', () => {
           />,
         )
 
-        expect(screen.queryByTestId('field-displayInQuoteDocument')).not.toBeInTheDocument()
+        expect(
+          screen.queryByTestId(CHARGE_DISPLAY_IN_QUOTE_DOCUMENT_OPTION_TEST_ID),
+        ).not.toBeInTheDocument()
       })
     })
 
@@ -992,10 +1006,10 @@ describe('VirtualFilterList drift test', () => {
           />,
         )
 
-        const field = screen.getByTestId('field-displayInQuoteDocument')
+        const field = screen.getByTestId(CHARGE_DISPLAY_IN_QUOTE_DOCUMENT_OPTION_TEST_ID)
 
         expect(field).toBeInTheDocument()
-        expect(field).not.toBeDisabled()
+        expect(field).toHaveAttribute('data-disabled', 'false')
       })
     })
   })
