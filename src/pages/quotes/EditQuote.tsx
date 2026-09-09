@@ -52,7 +52,16 @@ const EditQuote = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { quoteId } = useParams()
-  const { quote, loading, refetch: refetchQuote } = useQuote(quoteId)
+  // Not the default `cache-and-network`: the persisted cache is restored at boot and that
+  // policy hands out a `loading: false` render still carrying it, which the editor — content
+  // is read once at init — would mount, showing the previous content until the next reload.
+  const {
+    quote,
+    loading,
+    refetch: refetchQuote,
+  } = useQuote(quoteId, {
+    fetchPolicy: 'network-only',
+  })
   const { organization } = useOrganizationInfos()
 
   const { addQuoteImage } = useAddQuoteImage()

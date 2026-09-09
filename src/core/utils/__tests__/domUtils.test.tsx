@@ -5,7 +5,6 @@ import React from 'react'
 import { Accordion } from '~/components/designSystem/Accordion'
 import { Button } from '~/components/designSystem/Button'
 import { ComboBox } from '~/components/form'
-import { MUI_BUTTON_BASE_ROOT_CLASSNAME } from '~/core/constants/form'
 
 import {
   openAccordionThenScrollTo,
@@ -427,7 +426,7 @@ describe('DomUtils', () => {
 
       render(<TestComboboxElement elementClass={elementClass} />)
 
-      const selector = `.${elementClass} .${MUI_BUTTON_BASE_ROOT_CLASSNAME}`
+      const selector = `.${elementClass} .MuiButtonBase-root`
 
       scrollToAndClickElement({ selector })
 

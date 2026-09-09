@@ -21,6 +21,13 @@ import {
   CONNECTION_PROVIDER_ID_PLACEHOLDER_TEST_ID,
 } from '../constants'
 
+const mockHasFeatureFlag = jest.fn(() => false)
+
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  ...jest.requireActual('~/hooks/useOrganizationInfos'),
+  useOrganizationInfos: () => ({ hasFeatureFlag: mockHasFeatureFlag }),
+}))
+
 const PAYMENT_ROW: CustomerConnectionRow = {
   id: 'payment-stripe-eu',
   category: ConnectionCategory.Payment,
@@ -63,6 +70,7 @@ const STRIPE_PAYMENT_CONNECTION = {
 const NETSUITE_INTEGRATION_CONNECTION = {
   __typename: 'NetsuiteCustomer',
   id: 'nc-1',
+  code: 'accounting-eu',
   integrationId: 'int-ns',
   integrationCode: 'ns-1',
   integrationType: IntegrationTypeEnum.Netsuite,
@@ -103,6 +111,10 @@ const INTEGRATIONS_DATA = {
 } as unknown as IntegrationsListForCustomerMainInfosQuery
 
 describe('ConnectionDetailsPanel', () => {
+  beforeEach(() => {
+    mockHasFeatureFlag.mockReturnValue(false)
+  })
+
   describe('GIVEN the Stripe payment connection', () => {
     describe('WHEN it is selected', () => {
       it('THEN should deep-link the provider customer id to Stripe', () => {
@@ -185,7 +197,7 @@ describe('ConnectionDetailsPanel', () => {
         )
       })
 
-      it('THEN should show the integration name and code', () => {
+      it('THEN should show the integration name and the connection code', () => {
         render(
           <ConnectionDetailsPanel
             row={ACCOUNTING_ROW}
@@ -198,7 +210,30 @@ describe('ConnectionDetailsPanel', () => {
         const panel = screen.getByTestId(CONNECTION_DETAILS_PANEL_TEST_ID)
 
         expect(panel).toHaveTextContent('NetSuite Prod')
-        expect(panel).toHaveTextContent('ns-1')
+        expect(panel).toHaveTextContent('accounting-eu')
+      })
+    })
+
+    describe('WHEN the connection code differs from the integration code', () => {
+      it.each([
+        ['payment', 'PAYMENT_ROW', 'stripe'],
+        ['accounting', 'ACCOUNTING_ROW', 'accounting-eu'],
+      ])('THEN should show the %s connection own code', (_, rowName, expectedCode) => {
+        const row = rowName === 'PAYMENT_ROW' ? PAYMENT_ROW : ACCOUNTING_ROW
+
+        render(
+          <ConnectionDetailsPanel
+            row={row}
+            customer={buildCustomer()}
+            integrationsData={INTEGRATIONS_DATA}
+            integrationsLoading={false}
+          />,
+        )
+
+        const panel = screen.getByTestId(CONNECTION_DETAILS_PANEL_TEST_ID)
+
+        expect(panel).toHaveTextContent(expectedCode)
+        expect(panel).not.toHaveTextContent(row.code as string)
       })
     })
 
@@ -419,6 +454,24 @@ describe('ConnectionDetailsPanel', () => {
   })
 
   describe('GIVEN a payment provider that has no provider-customer mapping', () => {
+    describe('WHEN the payment row has no provider-customer record at all', () => {
+      it('THEN should omit the cell for a synced-off Stripe connection too', () => {
+        mockHasFeatureFlag.mockReturnValue(true)
+
+        render(
+          <ConnectionDetailsPanel
+            // No connectionId: `getProviderPaymentConnection` found nothing, so
+            // there is no flag to report even though Stripe maps customers
+            row={PAYMENT_ROW}
+            customer={buildCustomer({ paymentProviderCustomers: [] })}
+            integrationsLoading={false}
+          />,
+        )
+
+        expect(screen.queryByText('Default on customer')).not.toBeInTheDocument()
+      })
+    })
+
     describe.each([
       ['Cashfree', ProviderTypeEnum.Cashfree],
       ['Flutterwave', ProviderTypeEnum.Flutterwave],
@@ -437,6 +490,80 @@ describe('ConnectionDetailsPanel', () => {
         expect(
           screen.queryByTestId(CONNECTION_PROVIDER_ID_PLACEHOLDER_TEST_ID),
         ).not.toBeInTheDocument()
+      })
+    })
+  })
+  describe('GIVEN the multi-connection feature flag', () => {
+    describe('WHEN it is enabled', () => {
+      beforeEach(() => {
+        mockHasFeatureFlag.mockReturnValue(true)
+      })
+
+      it.each([
+        ['Yes', true],
+        ['No', false],
+      ])('THEN should report the default state as %s', (expected, isDefault) => {
+        render(
+          <ConnectionDetailsPanel
+            row={{ ...PAYMENT_ROW, connectionId: 'pc-1', isDefault }}
+            customer={buildCustomer()}
+            integrationsLoading={false}
+          />,
+        )
+
+        expect(screen.getByText('Default on customer')).toBeInTheDocument()
+        expect(screen.getByText(expected)).toBeInTheDocument()
+      })
+
+      it('THEN should report it on an integration connection too', () => {
+        render(
+          <ConnectionDetailsPanel
+            row={{ ...ACCOUNTING_ROW, connectionId: 'nc-1', isDefault: true }}
+            customer={buildCustomer()}
+            integrationsLoading={false}
+          />,
+        )
+
+        expect(screen.getByText('Default on customer')).toBeInTheDocument()
+        expect(screen.getByText('Yes')).toBeInTheDocument()
+      })
+    })
+
+    describe.each([
+      ['Cashfree', ProviderTypeEnum.Cashfree],
+      ['Flutterwave', ProviderTypeEnum.Flutterwave],
+    ])(
+      'WHEN the %s connection has no provider-customer row to carry the flag',
+      (_, paymentProvider) => {
+        it('THEN should omit the cell instead of claiming it is not the default', () => {
+          mockHasFeatureFlag.mockReturnValue(true)
+
+          render(
+            <ConnectionDetailsPanel
+              row={PAYMENT_ROW}
+              customer={buildCustomer({ paymentProvider, paymentProviderCustomers: [] })}
+              integrationsLoading={false}
+            />,
+          )
+
+          expect(screen.queryByText('Default on customer')).not.toBeInTheDocument()
+        })
+      },
+    )
+
+    describe('WHEN it is disabled', () => {
+      it('THEN should not report the default state at all', () => {
+        mockHasFeatureFlag.mockReturnValue(false)
+
+        render(
+          <ConnectionDetailsPanel
+            row={{ ...PAYMENT_ROW, connectionId: 'pc-1', isDefault: true }}
+            customer={buildCustomer()}
+            integrationsLoading={false}
+          />,
+        )
+
+        expect(screen.queryByText('Default on customer')).not.toBeInTheDocument()
       })
     })
   })

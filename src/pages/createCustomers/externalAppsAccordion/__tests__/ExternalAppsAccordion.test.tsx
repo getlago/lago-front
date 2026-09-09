@@ -1,12 +1,18 @@
 import { act, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { ConnectionFormValues } from '~/components/customerConnections/CustomerConnectionDrawer'
 import {
+  ConnectionFormValues,
+  CustomerConnectionDrawerFormApi,
+} from '~/components/customerConnections/CustomerConnectionDrawer'
+import {
+  getCustomerConnectionDefaultBadgeTestId,
   getCustomerConnectionMenuTestId,
   getCustomerConnectionRowTestId,
+  getCustomerConnectionSetDefaultTestId,
 } from '~/components/customerConnections/CustomerConnectionsList'
 import { MANUAL_CONNECTION_CODE } from '~/components/customerConnections/customerIntegrationConst'
+import type { LockedConnectionSelection } from '~/components/customerConnections/ProviderSelectionSection'
 import { ConnectionCategory } from '~/components/customerConnections/types'
 import {
   AddCustomerDrawerFragment,
@@ -41,6 +47,34 @@ jest.mock('~/components/customerConnections/useAccountingProvidersSubsidaries', 
 
 const mockOpenCreate = jest.fn()
 const mockOpenEdit = jest.fn()
+const mockSetPaymentDefault = jest.fn(() =>
+  Promise.resolve({
+    data: { setPaymentProviderCustomerAsDefault: { id: 'pc-1', isDefault: true } },
+  }),
+)
+const mockSetIntegrationDefault = jest.fn(() =>
+  Promise.resolve({
+    data: {
+      setIntegrationCustomerAsDefault: {
+        __typename: 'AnrokCustomer',
+        id: 'link-1',
+        isDefault: true,
+      },
+    },
+  }),
+)
+const mockHasFeatureFlag = jest.fn(() => false)
+
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  ...jest.requireActual('~/hooks/useOrganizationInfos'),
+  useOrganizationInfos: () => ({ hasFeatureFlag: mockHasFeatureFlag }),
+}))
+
+jest.mock('~/generated/graphql', () => ({
+  ...jest.requireActual('~/generated/graphql'),
+  useSetCustomerPaymentConnectionAsDefaultMutation: () => [mockSetPaymentDefault],
+  useSetCustomerIntegrationConnectionAsDefaultMutation: () => [mockSetIntegrationDefault],
+}))
 
 // Spied entry points that still drive the REAL drawer through its ref, so the
 // prefill/locked-provider arguments can be asserted without losing the
@@ -62,7 +96,7 @@ jest.mock('~/components/customerConnections/useCustomerConnectionDrawer', () => 
           openEdit: (
             category: ConnectionCategory,
             initialValues: Partial<ConnectionFormValues>,
-            lockedSelection?: unknown,
+            lockedSelection?: LockedConnectionSelection,
           ) => {
             mockOpenEdit(category, initialValues, lockedSelection)
             drawerRef.current?.openDrawer(category, initialValues, lockedSelection)
@@ -78,7 +112,7 @@ type CapturedDrawerProps = {
   onSave?: (
     category: ConnectionCategory,
     values: ConnectionFormValues,
-    utils: { isEdition: boolean },
+    utils: { isEdition: boolean; formApi: CustomerConnectionDrawerFormApi },
   ) => void | Promise<void>
 }
 
@@ -346,6 +380,7 @@ const saveFromDrawer = async (
   await act(async () => {
     await capturedDrawerProps.current?.onSave?.(category, values as ConnectionFormValues, {
       isEdition: true,
+      formApi: {} as CustomerConnectionDrawerFormApi,
     })
   })
 }
@@ -355,6 +390,19 @@ describe('ExternalAppsAccordion', () => {
     jest.clearAllMocks()
     capturedDrawerProps.current = null
     readFormValues.current = null
+    mockSetPaymentDefault.mockResolvedValue({
+      data: { setPaymentProviderCustomerAsDefault: { id: 'pc-1', isDefault: true } },
+    } as never)
+    mockSetIntegrationDefault.mockResolvedValue({
+      data: {
+        setIntegrationCustomerAsDefault: {
+          __typename: 'AnrokCustomer',
+          id: 'link-1',
+          isDefault: true,
+        },
+      },
+    } as never)
+    mockHasFeatureFlag.mockReturnValue(false)
   })
 
   describe('GIVEN a customer form with payment and tax connections in its arrays', () => {
@@ -657,11 +705,13 @@ describe('ExternalAppsAccordion', () => {
 
   describe('GIVEN a payment connection save from the drawer', () => {
     describe('WHEN the provider is unchanged', () => {
-      it('THEN should preserve the persisted id, code and isDefault', async () => {
+      it('THEN should preserve the persisted id, the submitted code and isDefault', async () => {
         render(<Harness defaultValues={buildDefaultValues()} customer={buildPersistedCustomer()} />)
 
         await openAccordion()
+        // The drawer submits the code it was prefilled with from the DB
         await saveFromDrawer(ConnectionCategory.Payment, {
+          code: 'stripe',
           providerCode: 'stripe-eu',
           providerType: ProviderTypeEnum.Stripe,
           externalCustomerId: 'cus_999',
@@ -818,6 +868,363 @@ describe('ExternalAppsAccordion', () => {
             screen.getByTestId(getCustomerConnectionRowTestId(ROW_IDS[ConnectionCategory.Crm])),
           ).toBeVisible()
         })
+      })
+    })
+  })
+
+  describe('GIVEN the connection code', () => {
+    describe('WHEN editing a connection that carries one', () => {
+      it.each([
+        ['payment', ConnectionCategory.Payment, 'stripe'],
+        ['tax', ConnectionCategory.Tax, 'tax-eu'],
+      ])('THEN should prefill the %s drawer with it', async (_, category, expectedCode) => {
+        render(
+          <Harness
+            defaultValues={buildDefaultValues({
+              integrationCustomers: [{ ...TAX_CONNECTION, code: 'tax-eu' }],
+            })}
+          />,
+        )
+
+        await openAccordion()
+        await clickRow(category)
+
+        expect(mockOpenEdit).toHaveBeenCalledWith(
+          category,
+          expect.objectContaining({ code: expectedCode }),
+          undefined,
+        )
+      })
+    })
+
+    describe('WHEN the drawer saves a typed code', () => {
+      it('THEN should store it on the payment connection of the form array', async () => {
+        render(<Harness />)
+
+        await openAccordion()
+        await saveFromDrawer(ConnectionCategory.Payment, {
+          code: 'payment-eu',
+          providerCode: 'stripe-eu',
+          providerType: ProviderTypeEnum.Stripe,
+          externalCustomerId: 'cus_123',
+        })
+
+        expect(getFormValues().paymentProviderCustomers).toEqual([
+          expect.objectContaining({ id: 'pc-1', code: 'payment-eu' }),
+        ])
+      })
+
+      it('THEN should store it on the integration connection of the form array', async () => {
+        render(<Harness />)
+
+        await openAccordion()
+        await saveFromDrawer(ConnectionCategory.Tax, {
+          code: 'tax-eu',
+          providerCode: 'anrok-1',
+          providerType: IntegrationTypeEnum.Anrok,
+          externalCustomerId: 'anrok_cus_1',
+        })
+
+        expect(getFormValues().integrationCustomers).toEqual([
+          expect.objectContaining({ id: 'tax-row-id', code: 'tax-eu' }),
+        ])
+      })
+    })
+
+    describe('WHEN the drawer switches the integration to another provider', () => {
+      it('THEN should not carry the replaced connection code over', async () => {
+        render(
+          <Harness
+            defaultValues={buildDefaultValues({
+              integrationCustomers: [{ ...TAX_CONNECTION, code: 'tax-eu' }],
+            })}
+          />,
+        )
+
+        await openAccordion()
+        // The code the drawer emits after a switch: its field re-seeds on the
+        // new provider
+        await saveFromDrawer(ConnectionCategory.Tax, {
+          code: 'avalara-1',
+          providerCode: 'avalara-1',
+          providerType: IntegrationTypeEnum.Avalara,
+          externalCustomerId: 'avalara_cus_1',
+        })
+
+        expect(getFormValues().integrationCustomers).toEqual([
+          expect.objectContaining({ id: undefined, code: 'avalara-1', providerCode: 'avalara-1' }),
+        ])
+      })
+    })
+
+    describe('WHEN the drawer saves a switched provider with an emptied code', () => {
+      it('THEN should not fall back to the replaced connection code', async () => {
+        render(
+          <Harness
+            defaultValues={buildDefaultValues({
+              integrationCustomers: [{ ...TAX_CONNECTION, code: 'tax-eu' }],
+            })}
+          />,
+        )
+
+        await openAccordion()
+        await saveFromDrawer(ConnectionCategory.Tax, {
+          code: '',
+          providerCode: 'avalara-1',
+          providerType: IntegrationTypeEnum.Avalara,
+          externalCustomerId: 'avalara_cus_1',
+        })
+
+        expect(getFormValues().integrationCustomers?.[0]?.code).toBeUndefined()
+      })
+    })
+
+    describe('WHEN the drawer saves without a code', () => {
+      it('THEN should drop it so the backend backfills the provider code', async () => {
+        render(<Harness />)
+
+        await openAccordion()
+        await saveFromDrawer(ConnectionCategory.Payment, {
+          code: '',
+          providerCode: 'stripe-eu',
+          providerType: ProviderTypeEnum.Stripe,
+          externalCustomerId: 'cus_123',
+        })
+
+        expect(getFormValues().paymentProviderCustomers).toEqual([
+          expect.objectContaining({ code: undefined }),
+        ])
+      })
+    })
+  })
+
+  describe('GIVEN the multi-connection feature flag is enabled', () => {
+    beforeEach(() => {
+      mockHasFeatureFlag.mockReturnValue(true)
+    })
+
+    describe('WHEN the section is opened', () => {
+      it('THEN should badge only the default connection of each category', async () => {
+        render(<Harness defaultValues={buildDefaultValues()} />)
+        await openAccordion()
+
+        expect(
+          screen.getByTestId(
+            getCustomerConnectionDefaultBadgeTestId(ROW_IDS[ConnectionCategory.Payment]),
+          ),
+        ).toBeInTheDocument()
+        expect(
+          screen.queryByTestId(
+            getCustomerConnectionDefaultBadgeTestId(ROW_IDS[ConnectionCategory.Tax]),
+          ),
+        ).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN setting a persisted connection as default', () => {
+      it('THEN should call the dedicated mutation and mirror the flag into the form array', async () => {
+        render(<Harness defaultValues={buildDefaultValues()} />)
+        await openAccordion()
+
+        await userEvent.click(
+          screen.getByTestId(getCustomerConnectionMenuTestId(ROW_IDS[ConnectionCategory.Tax])),
+        )
+        await waitFor(() => {
+          expect(
+            screen.getByTestId(
+              getCustomerConnectionSetDefaultTestId(ROW_IDS[ConnectionCategory.Tax]),
+            ),
+          ).toBeVisible()
+        })
+
+        await userEvent.click(
+          screen.getByTestId(
+            getCustomerConnectionSetDefaultTestId(ROW_IDS[ConnectionCategory.Tax]),
+          ),
+        )
+
+        await waitFor(() => {
+          expect(mockSetIntegrationDefault).toHaveBeenCalledWith({
+            variables: { input: { id: 'tax-row-id' } },
+          })
+        })
+        await waitFor(() => {
+          expect(getFormValues().integrationCustomers).toEqual([
+            expect.objectContaining({ id: 'tax-row-id', isDefault: true }),
+          ])
+        })
+      })
+
+      it("THEN should leave the other categories' rows untouched", async () => {
+        render(<Harness defaultValues={buildDefaultValues()} />)
+        await openAccordion()
+
+        await userEvent.click(
+          screen.getByTestId(getCustomerConnectionMenuTestId(ROW_IDS[ConnectionCategory.Tax])),
+        )
+        await waitFor(() => {
+          expect(
+            screen.getByTestId(
+              getCustomerConnectionSetDefaultTestId(ROW_IDS[ConnectionCategory.Tax]),
+            ),
+          ).toBeVisible()
+        })
+        await userEvent.click(
+          screen.getByTestId(
+            getCustomerConnectionSetDefaultTestId(ROW_IDS[ConnectionCategory.Tax]),
+          ),
+        )
+
+        await waitFor(() => {
+          expect(mockSetIntegrationDefault).toHaveBeenCalled()
+        })
+        expect(getFormValues().paymentProviderCustomers).toEqual([
+          expect.objectContaining({ id: 'pc-1', isDefault: true }),
+        ])
+      })
+    })
+
+    describe('WHEN the payment connection is not the default (manual holds it)', () => {
+      it('THEN should set it as default through the payment mutation and mirror the flag', async () => {
+        render(
+          <Harness
+            defaultValues={buildDefaultValues({
+              paymentProviderCustomers: [{ ...PAYMENT_CONNECTION, isDefault: false }],
+            })}
+          />,
+        )
+        await openAccordion()
+
+        await userEvent.click(
+          screen.getByTestId(getCustomerConnectionMenuTestId(ROW_IDS[ConnectionCategory.Payment])),
+        )
+        await waitFor(() => {
+          expect(
+            screen.getByTestId(
+              getCustomerConnectionSetDefaultTestId(ROW_IDS[ConnectionCategory.Payment]),
+            ),
+          ).toBeEnabled()
+        })
+
+        await userEvent.click(
+          screen.getByTestId(
+            getCustomerConnectionSetDefaultTestId(ROW_IDS[ConnectionCategory.Payment]),
+          ),
+        )
+
+        await waitFor(() => {
+          expect(mockSetPaymentDefault).toHaveBeenCalledWith({
+            variables: { input: { id: 'pc-1' } },
+          })
+        })
+        await waitFor(() => {
+          expect(getFormValues().paymentProviderCustomers).toEqual([
+            expect.objectContaining({ id: 'pc-1', isDefault: true }),
+          ])
+        })
+      })
+    })
+
+    describe('WHEN the edit drawer is opened on the default connection', () => {
+      it('THEN should pass the default flag into the locked selection', async () => {
+        render(<Harness defaultValues={buildDefaultValues()} customer={buildPersistedCustomer()} />)
+        await openAccordion()
+
+        await clickRow(ConnectionCategory.Payment)
+
+        expect(mockOpenEdit).toHaveBeenCalledWith(
+          ConnectionCategory.Payment,
+          expect.anything(),
+          expect.objectContaining({ isDefault: true }),
+        )
+      })
+    })
+
+    describe('WHEN the connection was added in this form session', () => {
+      it('THEN should disable the Set as default entry, having no persisted id to address', async () => {
+        render(
+          <Harness
+            defaultValues={buildDefaultValues({
+              integrationCustomers: [{ ...TAX_CONNECTION, id: undefined, isDefault: false }],
+            })}
+          />,
+        )
+        await openAccordion()
+
+        await userEvent.click(
+          screen.getByTestId(getCustomerConnectionMenuTestId(ROW_IDS[ConnectionCategory.Tax])),
+        )
+
+        await waitFor(() => {
+          expect(
+            screen.getByTestId(
+              getCustomerConnectionSetDefaultTestId(ROW_IDS[ConnectionCategory.Tax]),
+            ),
+          ).toBeVisible()
+        })
+        expect(
+          screen.getByTestId(
+            getCustomerConnectionSetDefaultTestId(ROW_IDS[ConnectionCategory.Tax]),
+          ),
+        ).toBeDisabled()
+      })
+    })
+
+    describe('WHEN an integration connection is switched to another provider', () => {
+      it('THEN should carry the default flag onto the replacement', async () => {
+        render(
+          <Harness
+            defaultValues={buildDefaultValues({
+              integrationCustomers: [{ ...ACCOUNTING_CONNECTION, isDefault: true }],
+            })}
+          />,
+        )
+        await openAccordion()
+
+        await saveFromDrawer(ConnectionCategory.Accounting, {
+          providerCode: 'xero-1',
+          providerType: IntegrationTypeEnum.Xero,
+          externalCustomerId: 'xero_cus_1',
+        })
+
+        expect(getFormValues().integrationCustomers).toEqual([
+          expect.objectContaining({ id: undefined, providerCode: 'xero-1', isDefault: true }),
+        ])
+      })
+    })
+  })
+
+  describe('GIVEN the multi-connection feature flag is disabled', () => {
+    describe('WHEN the section is opened', () => {
+      it('THEN should show no Default badge', async () => {
+        render(<Harness defaultValues={buildDefaultValues()} />)
+        await openAccordion()
+
+        expect(
+          screen.queryByTestId(
+            getCustomerConnectionDefaultBadgeTestId(ROW_IDS[ConnectionCategory.Payment]),
+          ),
+        ).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN a row menu is opened', () => {
+      it('THEN should offer no Set as default entry', async () => {
+        render(<Harness defaultValues={buildDefaultValues()} />)
+        await openAccordion()
+
+        await userEvent.click(
+          screen.getByTestId(getCustomerConnectionMenuTestId(ROW_IDS[ConnectionCategory.Tax])),
+        )
+        await waitFor(() => {
+          expect(screen.getByRole('button', { name: /edit connection/i })).toBeVisible()
+        })
+
+        expect(
+          screen.queryByTestId(
+            getCustomerConnectionSetDefaultTestId(ROW_IDS[ConnectionCategory.Tax]),
+          ),
+        ).not.toBeInTheDocument()
       })
     })
   })

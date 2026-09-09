@@ -7,6 +7,7 @@ import { envGlobalVar } from '~/core/apolloClient'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
 import { reportMissingAppEnv } from '~/core/utils/appEnv'
 import { installLagoWindowApi } from '~/core/utils/featureFlagsConsole'
+import { createWorkerLoadErrorHandler } from '~/core/utils/workerLoadRecovery'
 
 import './main.css'
 
@@ -86,6 +87,15 @@ window.addEventListener('vite:preloadError', (event) => {
     },
   })
 })
+
+// A web worker (e.g. ace-builds' JSON linter) loads its script via
+// `importScripts` inside a blob URL. After a deploy re-hashes `/assets/*`, a
+// tab that's still open can point that call at a filename that no longer
+// exists — same stale-bundle failure the router's chunk `retry()` handles,
+// but this one throws inside the worker's own global scope, so no React
+// error boundary or route-level retry ever sees it. Recover the same way:
+// cache-bust reload once, then stop trying so we can't loop.
+window.addEventListener('error', createWorkerLoadErrorHandler())
 
 reportMissingAppEnv(appEnv)
 

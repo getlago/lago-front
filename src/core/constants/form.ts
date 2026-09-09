@@ -29,7 +29,6 @@ export const MIN_AMOUNT_SHOULD_BE_LOWER_THAN_MAX_ERROR = 'minAmountShouldBeLower
 
 /**** Selectors ****/
 export const MUI_INPUT_BASE_ROOT_CLASSNAME = 'MuiInputBase-root'
-export const MUI_BUTTON_BASE_ROOT_CLASSNAME = 'MuiButtonBase-root'
 // Plans
 export const SEARCH_ADD_ON_IN_FIXED_CHARGE_DRAWER_INPUT_CLASSNAME =
   'searchAddOnInFixedChargeDrawerInput'
