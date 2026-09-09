@@ -4917,5 +4917,7 @@
   "text_1788518648182tnlbh6pdxdd": "Only finalized invoices can be voided. This invoice’s status doesn’t allow this action.",
   "text_1788518648182t6oetew3x8x": "This invoice can no longer be voided because its status has changed",
   "text_178851170779693if5ma3vv3": "Connection successfully set as default",
-  "text_1788511707796mofp375vjec": "Default on customer"
+  "text_1788511707796mofp375vjec": "Default on customer",
+  "text_1788938888298p8mb2uxfk5l": "Display in quote document",
+  "text_1788938888298tobp5ik7edt": "When turned off, this charge is hidden from the quote’s pricing table. It is still part of the quote and is billed normally once the quote is approved."
 }

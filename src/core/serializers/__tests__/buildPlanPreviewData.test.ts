@@ -137,6 +137,30 @@ describe('buildPlanPreviewData', () => {
     })
   })
 
+  // `deserializeMinimumCommitment` returns `{}` for a plan with no negotiated commitment,
+  // which is truthy — a bare truthiness guard rendered a phantom "0" commitment row.
+  it.each([
+    ['an empty object (what the deserializer returns for none)', {}],
+    ['an explicit zero amount', { amountCents: '0' }],
+    ['an empty amount', { amountCents: '' }],
+    ['no commitment at all', undefined],
+  ])('omits the minimum-commitment row for %s', (_label, minimumCommitment) => {
+    const data = buildPlanPreviewData(
+      baseForm({
+        amountCents: '13050',
+        minimumCommitment: minimumCommitment as PlanFormInput['minimumCommitment'],
+      }),
+    )
+
+    expect(
+      data.rows.find((r) => r.kind === 'main' && r.rowType === 'minimumCommitment'),
+    ).toBeUndefined()
+    // the rest of the plan still renders
+    expect(
+      data.rows.find((r) => r.kind === 'main' && r.rowType === 'subscriptionFee'),
+    ).toBeDefined()
+  })
+
   it('renders graduated ranges: per-unit row per tier, flat-fee row only when present', () => {
     const data = buildPlanPreviewData(
       baseForm({
@@ -571,5 +595,177 @@ describe('buildPlanPreviewData', () => {
     const main = data.rows.find((r) => r.kind === 'main' && r.rowType === 'usageCharge')
 
     expect(main).toMatchObject({ timing: 'endOfPeriod' })
+  })
+
+  describe('displayInQuoteDocument', () => {
+    it('drops a hidden usage charge and its detail rows, keeping the visible one', () => {
+      const data = buildPlanPreviewData(
+        baseForm({
+          charges: [
+            {
+              chargeModel: ChargeModelEnum.Standard,
+              payInAdvance: false,
+              invoiceDisplayName: 'Hidden',
+              billableMetric: { name: 'Hidden', code: 'hidden' },
+              properties: { amount: '9.99' },
+              filters: [],
+              displayInQuoteDocument: false,
+            },
+            {
+              chargeModel: ChargeModelEnum.Standard,
+              payInAdvance: false,
+              invoiceDisplayName: 'Visible',
+              billableMetric: { name: 'Visible', code: 'visible' },
+              properties: { amount: '1.20' },
+              filters: [],
+            },
+          ] as unknown as PlanFormInput['charges'],
+        }),
+      )
+
+      const mainRows = data.rows.filter((r) => r.kind === 'main' && r.rowType === 'usageCharge')
+
+      expect(mainRows).toHaveLength(1)
+      expect(mainRows[0]).toMatchObject({ name: 'Visible' })
+      expect(data.rows).not.toContainEqual(
+        expect.objectContaining({ value: { type: 'displayAmount', amount: '9.99' } }),
+      )
+    })
+
+    it('drops the tier rows of a hidden graduated usage charge', () => {
+      const data = buildPlanPreviewData(
+        baseForm({
+          charges: [
+            {
+              chargeModel: ChargeModelEnum.Graduated,
+              payInAdvance: false,
+              billableMetric: { name: 'Graduated', code: 'graduated' },
+              filters: [],
+              properties: {
+                graduatedRanges: [
+                  { fromValue: 0, toValue: 10, perUnitAmount: '0.10', flatAmount: '10.00' },
+                ],
+              },
+              displayInQuoteDocument: false,
+            },
+          ] as unknown as PlanFormInput['charges'],
+        }),
+      )
+
+      expect(data.rows).toEqual([])
+    })
+
+    it('drops the minimum-spending row of a hidden usage charge', () => {
+      const data = buildPlanPreviewData(
+        baseForm({
+          charges: [
+            {
+              chargeModel: ChargeModelEnum.Standard,
+              payInAdvance: false,
+              billableMetric: { name: 'Usage', code: 'u' },
+              filters: [],
+              properties: { amount: '1.20' },
+              minAmountCents: '100.00',
+              displayInQuoteDocument: false,
+            },
+          ] as unknown as PlanFormInput['charges'],
+        }),
+      )
+
+      expect(data.rows).toEqual([])
+    })
+
+    it('drops a hidden standard fixed charge', () => {
+      const data = buildPlanPreviewData(
+        baseForm({
+          fixedCharges: [
+            {
+              chargeModel: FixedChargeChargeModelEnum.Standard,
+              payInAdvance: false,
+              units: '5',
+              invoiceDisplayName: 'Seats',
+              properties: { amount: '200.00' },
+              addOn: { name: 'Seat add-on', code: 'seat' },
+              displayInQuoteDocument: false,
+            },
+          ] as unknown as PlanFormInput['fixedCharges'],
+        }),
+      )
+
+      expect(data.rows).toEqual([])
+    })
+
+    it('drops a hidden graduated fixed charge along with its tier rows', () => {
+      const data = buildPlanPreviewData(
+        baseForm({
+          fixedCharges: [
+            {
+              chargeModel: FixedChargeChargeModelEnum.Graduated,
+              payInAdvance: false,
+              units: '5',
+              invoiceDisplayName: 'Graduated FC',
+              properties: {
+                graduatedRanges: [
+                  { fromValue: 0, toValue: 10, perUnitAmount: '0.10', flatAmount: '10.00' },
+                ],
+              },
+              displayInQuoteDocument: false,
+            },
+          ] as unknown as PlanFormInput['fixedCharges'],
+        }),
+      )
+
+      expect(data.rows).toEqual([])
+    })
+
+    // Charges stored before the flag existed carry no key and must stay visible.
+    it.each([undefined, true])('renders the charge when the flag is %s', (flag) => {
+      const data = buildPlanPreviewData(
+        baseForm({
+          charges: [
+            {
+              chargeModel: ChargeModelEnum.Standard,
+              payInAdvance: false,
+              invoiceDisplayName: 'API calls',
+              billableMetric: { name: 'API calls', code: 'api' },
+              properties: { amount: '1.20' },
+              filters: [],
+              displayInQuoteDocument: flag,
+            },
+          ] as unknown as PlanFormInput['charges'],
+        }),
+      )
+
+      expect(data.rows.find((r) => r.kind === 'main' && r.rowType === 'usageCharge')).toMatchObject(
+        { name: 'API calls' },
+      )
+    })
+
+    it('leaves the subscription-fee and minimum-commitment rows untouched', () => {
+      const data = buildPlanPreviewData(
+        baseForm({
+          amountCents: '13050',
+          minimumCommitment: {
+            amountCents: '1000.00',
+            invoiceDisplayName: undefined,
+          } as unknown as PlanFormInput['minimumCommitment'],
+          charges: [
+            {
+              chargeModel: ChargeModelEnum.Standard,
+              payInAdvance: false,
+              billableMetric: { name: 'Hidden', code: 'hidden' },
+              properties: { amount: '1.20' },
+              filters: [],
+              displayInQuoteDocument: false,
+            },
+          ] as unknown as PlanFormInput['charges'],
+        }),
+      )
+
+      expect(data.rows.map((r) => (r.kind === 'main' ? r.rowType : 'detail'))).toEqual([
+        'subscriptionFee',
+        'minimumCommitment',
+      ])
+    })
   })
 })

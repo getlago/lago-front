@@ -9,6 +9,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { ChargeModelSelector } from '~/components/plans/chargeAccordion/ChargeModelSelector'
 import { ChargeWrapperSwitch } from '~/components/plans/chargeAccordion/ChargeWrapperSwitch'
+import { ChargeDisplayInQuoteDocumentOption } from '~/components/plans/chargeAccordion/options/ChargeDisplayInQuoteDocumentOption'
 import { ChargePayInAdvanceOption } from '~/components/plans/chargeAccordion/options/ChargePayInAdvanceOption'
 import { seedChargeCode } from '~/components/plans/drawers/common/chargeCode'
 import ChargeCodeField from '~/components/plans/drawers/common/ChargeCodeField'
@@ -64,6 +65,7 @@ interface FixedChargeDrawerContentExtraProps {
   isCreateMode: boolean
   isEdition: boolean
   isInSubscriptionForm: boolean
+  isInQuoteForm: boolean
   disabled: boolean
   alertMessage?: string
   // TEMP (LAGO-1498): Code is shown only via the v2 details/edition UI.
@@ -75,6 +77,7 @@ const fixedChargeDrawerContentDefaultProps: FixedChargeDrawerContentExtraProps =
   isCreateMode: false,
   isEdition: false,
   isInSubscriptionForm: false,
+  isInQuoteForm: false,
   disabled: false,
   alertMessage: undefined,
   showCode: false,
@@ -89,6 +92,7 @@ export const FixedChargeDrawerContent = withForm({
     isCreateMode,
     isEdition,
     isInSubscriptionForm,
+    isInQuoteForm,
     disabled,
     alertMessage,
     showCode,
@@ -346,6 +350,14 @@ export const FixedChargeDrawerContent = withForm({
                   )}
                 </form.AppField>
               </div>
+
+              {isInQuoteForm && (
+                <ChargeDisplayInQuoteDocumentOption
+                  form={form}
+                  fields={{ displayInQuoteDocument: 'displayInQuoteDocument' }}
+                  disabled={disabled}
+                />
+              )}
 
               <TaxesSelectorSection
                 title={translate('text_1760729707267seik64l67k8')}

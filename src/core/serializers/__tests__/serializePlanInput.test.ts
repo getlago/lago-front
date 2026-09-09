@@ -486,6 +486,7 @@ describe('serializePlanInput()', () => {
         charges: [
           {
             billableMetricId: '1234',
+            displayInQuoteDocument: undefined,
             minAmountCents: 10003,
             payInAdvance: false,
             chargeModel: 'graduated',
@@ -576,6 +577,7 @@ describe('serializePlanInput()', () => {
         charges: [
           {
             billableMetricId: '1234',
+            displayInQuoteDocument: undefined,
             minAmountCents: 10003,
             payInAdvance: false,
             chargeModel: 'graduated_percentage',
@@ -666,6 +668,7 @@ describe('serializePlanInput()', () => {
         charges: [
           {
             billableMetricId: '1234',
+            displayInQuoteDocument: undefined,
             chargeModel: 'package',
             appliedPricingUnit: undefined,
             filters: [],
@@ -744,6 +747,7 @@ describe('serializePlanInput()', () => {
         charges: [
           {
             billableMetricId: '1234',
+            displayInQuoteDocument: undefined,
             chargeModel: 'percentage',
             appliedPricingUnit: undefined,
             minAmountCents: undefined,
@@ -822,6 +826,7 @@ describe('serializePlanInput()', () => {
         charges: [
           {
             billableMetricId: '1234',
+            displayInQuoteDocument: undefined,
             chargeModel: 'standard',
             appliedPricingUnit: undefined,
             minAmountCents: undefined,
@@ -898,6 +903,7 @@ describe('serializePlanInput()', () => {
         charges: [
           {
             billableMetricId: '1234',
+            displayInQuoteDocument: undefined,
             chargeModel: 'standard',
             appliedPricingUnit: undefined,
             minAmountCents: undefined,
@@ -975,6 +981,7 @@ describe('serializePlanInput()', () => {
         charges: [
           {
             billableMetricId: '1234',
+            displayInQuoteDocument: undefined,
             chargeModel: 'standard',
             appliedPricingUnit: undefined,
             minAmountCents: undefined,
@@ -1078,6 +1085,7 @@ describe('serializePlanInput()', () => {
         charges: [
           {
             billableMetricId: '1234',
+            displayInQuoteDocument: undefined,
             chargeModel: 'standard',
             minAmountCents: undefined,
             appliedPricingUnit: undefined,
@@ -1193,6 +1201,7 @@ describe('serializePlanInput()', () => {
         charges: [
           {
             billableMetricId: '1234',
+            displayInQuoteDocument: undefined,
             chargeModel: 'volume',
             appliedPricingUnit: undefined,
             minAmountCents: undefined,
@@ -1282,6 +1291,7 @@ describe('serializePlanInput()', () => {
         charges: [
           {
             billableMetricId: '1234',
+            displayInQuoteDocument: undefined,
             chargeModel: 'custom',
             appliedPricingUnit: undefined,
             minAmountCents: undefined,
@@ -1557,6 +1567,7 @@ describe('serializePlanInput()', () => {
         charges: [
           {
             billableMetricId: '1234',
+            displayInQuoteDocument: undefined,
             chargeModel: 'standard',
             minAmountCents: undefined,
             payInAdvance: false,
@@ -1638,6 +1649,7 @@ describe('serializePlanInput()', () => {
         charges: [
           {
             billableMetricId: '1234',
+            displayInQuoteDocument: undefined,
             chargeModel: 'standard',
             minAmountCents: undefined,
             appliedPricingUnit: undefined,
@@ -1782,6 +1794,7 @@ describe('serializePlanInput()', () => {
         charges: [
           {
             billableMetricId: '1234',
+            displayInQuoteDocument: undefined,
             chargeModel: 'standard',
             minAmountCents: 10000,
             appliedPricingUnit: undefined,
@@ -1856,6 +1869,7 @@ describe('serializePlanInput()', () => {
         charges: [
           {
             billableMetricId: '1234',
+            displayInQuoteDocument: undefined,
             chargeModel: 'standard',
             minAmountCents: undefined,
             appliedPricingUnit: undefined,
@@ -1932,6 +1946,7 @@ describe('serializePlanInput()', () => {
               addOnId: '5678',
               addon: undefined,
               taxes: undefined,
+              displayInQuoteDocument: undefined,
               // Only amount is valid for a standard FixedChargePropertiesInput;
               // usage-only fields must not leak through.
               properties: {
@@ -1994,6 +2009,7 @@ describe('serializePlanInput()', () => {
               addOnId: '5678',
               addon: undefined,
               taxes: undefined,
+              displayInQuoteDocument: undefined,
               // Only volumeRanges is valid for a volume FixedChargePropertiesInput.
               properties: {
                 volumeRanges: [
@@ -2070,6 +2086,7 @@ describe('serializePlanInput()', () => {
               units: '10.123456',
               addon: undefined,
               taxes: undefined,
+              displayInQuoteDocument: undefined,
               properties: {
                 amount: '5',
               },
@@ -2145,6 +2162,7 @@ describe('serializePlanInput()', () => {
               addOnId: '5678',
               addon: undefined,
               taxes: undefined,
+              displayInQuoteDocument: undefined,
               properties: {
                 graduatedRanges: [
                   {
@@ -2231,6 +2249,7 @@ describe('serializePlanInput()', () => {
               addOnId: '5678',
               addon: undefined,
               taxes: undefined,
+              displayInQuoteDocument: undefined,
               properties: {
                 graduatedRanges: [
                   {
@@ -2316,5 +2335,54 @@ describe('serializeProperties — presentationGroupKeys', () => {
     )
 
     expect(result.presentationGroupKeys).toBeUndefined()
+  })
+
+  // The charge drawers are shared with the quote form, so a quote-only field can reach
+  // this serializer; the API rejects an undeclared key on ChargeInput / FixedChargeInput.
+  describe('a plan whose charges carry the quote-only displayInQuoteDocument', () => {
+    it('never forwards the key to the API input', () => {
+      const plan = serializePlanInput({
+        amountCents: '1',
+        amountCurrency: CurrencyEnum.Eur,
+        billChargesMonthly: true,
+        fixedCharges: [
+          {
+            chargeModel: FixedChargeChargeModelEnum.Standard,
+            addOn: { id: '5678', name: 'simpleAddOn', code: 'simple-add-on' },
+            units: '1',
+            properties: { amount: '1' },
+            taxCodes: [],
+            displayInQuoteDocument: false,
+          },
+        ],
+        charges: [
+          {
+            chargeModel: ChargeModelEnum.Standard,
+            billableMetric: {
+              id: '1234',
+              name: 'simpleBM',
+              code: 'simple-bm',
+              recurring: false,
+              aggregationType: AggregationTypeEnum.CountAgg,
+            },
+            properties: fullProperty,
+            taxCodes: [],
+            displayInQuoteDocument: false,
+          },
+        ],
+        code: 'my-plan',
+        interval: PlanInterval.Monthly,
+        name: 'My plan',
+        payInAdvance: true,
+        trialPeriod: 1,
+        taxCodes: [],
+        nonRecurringUsageThresholds: [],
+        recurringUsageThreshold: undefined,
+        entitlements: [],
+      } as unknown as PlanFormInput)
+
+      expect(plan.charges[0].displayInQuoteDocument).toBeUndefined()
+      expect(plan.fixedCharges[0].displayInQuoteDocument).toBeUndefined()
+    })
   })
 })

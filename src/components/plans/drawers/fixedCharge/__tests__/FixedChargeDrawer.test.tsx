@@ -383,6 +383,7 @@ describe('FixedChargeDrawer', () => {
           applyUnitsImmediately: false,
           chargeModel: 'standard' as FixedChargeDrawerFormValues['chargeModel'],
           code: 'setup',
+          displayInQuoteDocument: true,
           invoiceDisplayName: 'Test',
           payInAdvance: false,
           properties: { amount: '100' },
@@ -399,6 +400,7 @@ describe('FixedChargeDrawer', () => {
             code: 'setup',
             payInAdvance: false,
             units: '5',
+            displayInQuoteDocument: true,
           }),
           -1,
         )
@@ -469,6 +471,8 @@ describe('FixedChargeDrawer', () => {
             prorated: false,
             taxes: [],
             units: '',
+            // A charge stored before the flag existed must open with the switch on
+            displayInQuoteDocument: true,
           }),
           { keepDefaultValues: true },
         )

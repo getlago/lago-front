@@ -370,6 +370,7 @@ describe('UsageChargeDrawer', () => {
           },
           chargeModel: 'standard' as UsageChargeDrawerFormValues['chargeModel'],
           code: 'calls',
+          displayInQuoteDocument: true,
           invoiceDisplayName: 'Test',
           invoiceable: true,
           minAmountCents: '100',
@@ -389,6 +390,7 @@ describe('UsageChargeDrawer', () => {
             code: 'calls',
             invoiceable: true,
             payInAdvance: false,
+            displayInQuoteDocument: true,
           }),
           -1,
         )
@@ -504,6 +506,7 @@ describe('UsageChargeDrawer', () => {
       },
       chargeModel: 'standard',
       code: 'api_calls',
+      displayInQuoteDocument: true,
       invoiceDisplayName: '',
       invoiceable: true,
       minAmountCents: '',
@@ -577,6 +580,8 @@ describe('UsageChargeDrawer', () => {
             filters: [],
             regroupPaidFees: null,
             taxes: [],
+            // A charge stored before the flag existed must open with the switch on
+            displayInQuoteDocument: true,
           }),
           { keepDefaultValues: true },
         )

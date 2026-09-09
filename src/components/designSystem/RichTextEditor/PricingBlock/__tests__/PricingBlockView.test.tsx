@@ -416,6 +416,39 @@ describe('PricingBlockView', () => {
       })
     })
 
+    describe('WHEN every charge of the resolved plan is hidden from the document', () => {
+      const hiddenPlanEntity: EntityData = {
+        entityId: 'plan-1',
+        entityType: 'plan',
+        name: 'My Plan',
+        code: 'plan_code',
+        plan: { rows: [] },
+      }
+
+      it('THEN should render no table in preview mode', () => {
+        renderPricingBlockView({
+          mode: 'preview',
+          entities: { 'plan-1': hiddenPlanEntity },
+          attrs: { pricingType: 'plan', entityIds: ['plan-1'], localEntityIds: [] },
+        })
+
+        expect(
+          screen.queryByTestId(SUBSCRIPTION_PLAN_PREVIEW_TABLE_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+
+      it('THEN should still render the editable block in edit mode', () => {
+        renderPricingBlockView({
+          mode: 'edit',
+          entities: { 'plan-1': hiddenPlanEntity },
+          attrs: { pricingType: 'plan', entityIds: ['plan-1'], localEntityIds: [] },
+        })
+
+        expect(screen.getByTestId(SLASH_COMMAND_BLOCK_VIEW_TEST_ID)).toBeInTheDocument()
+        expect(screen.getByText('My Plan')).toBeInTheDocument()
+      })
+    })
+
     describe('WHEN rendered with plan pricing type but no resolved plan', () => {
       it('THEN should render nothing (no Select-pricing button)', () => {
         renderPricingBlockView({
