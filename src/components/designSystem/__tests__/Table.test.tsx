@@ -323,6 +323,28 @@ describe('Table', () => {
     })
 
     describe('WHEN an action menu entry holds the focus', () => {
+      it('THEN should not move the focus to another row on an arrow key', async () => {
+        await prepare({
+          props: {
+            onRowActionLink: (row: any) => `/rows/${row.id}`,
+            actionColumn: () => [{ title: 'Edit', onAction: jest.fn() }],
+          },
+        })
+
+        const bodyRows = within(screen.queryAllByRole('rowgroup')[1]).queryAllByRole('row')
+
+        await userEvent.click(
+          within(bodyRows[0]).queryByTestId('open-action-button') as HTMLButtonElement,
+        )
+
+        const entry = within(screen.getByRole('tooltip')).getByRole('button', { name: 'Edit' })
+
+        entry.focus()
+        await userEvent.keyboard('{ArrowDown}')
+
+        expect(entry).toHaveFocus()
+      })
+
       it('THEN should not navigate the row', async () => {
         const onAction = jest.fn()
 

@@ -22,6 +22,12 @@ export const useListKeysNavigation: UseKeyNavigation = ({
           return
         }
 
+        // A portaled menu bubbles its keystroke here through the React tree while
+        // owning its own arrows. It is no DOM descendant, unlike the row link.
+        if (e.target instanceof Node && !e.currentTarget.contains(e.target)) {
+          return
+        }
+
         // Not `document.activeElement`: a click on a focusable descendant (the
         // row-link anchor) leaves focus inside the row, not on the row itself.
         const getIndex = (e.currentTarget?.id || '').split(getElmId(''))[1]
