@@ -278,14 +278,11 @@ const usageDetailRows = (charge: LocalUsageChargeInput): PlanPreviewDetailRow[] 
   }
 }
 
-export const buildPlanPreviewData = (formValues: PlanFormInput | null): PlanPreviewData => {
-  if (!formValues) return { rows: [] }
+const subscriptionFeeRows = (formValues: PlanFormInput): PlanPreviewRow[] => {
+  if (num(formValues.amountCents) <= 0) return []
 
-  const rows: PlanPreviewRow[] = []
-
-  // 1) Subscription fee
-  if (num(formValues.amountCents) > 0) {
-    rows.push({
+  return [
+    {
       kind: 'main',
       rowType: 'subscriptionFee',
       name: formValues.invoiceDisplayName || undefined,
@@ -294,117 +291,107 @@ export const buildPlanPreviewData = (formValues: PlanFormInput | null): PlanPrev
       timing: fixedTiming(formValues.payInAdvance),
       units: { type: 'count', value: 1 },
       price: { type: 'displayAmount', amount: String(formValues.amountCents) },
+    },
+  ]
+}
+
+const fixedChargeRows = (
+  charge: LocalFixedChargeInput,
+  formValues: PlanFormInput,
+): PlanPreviewRow[] => {
+  // Filter here, not in the table: SubscriptionPlanPreviewTable groups a charge with its
+  // detail rows by array index, so a gap there would misplace the dividers.
+  if (charge.displayInQuoteDocument === false) return []
+
+  const props = (charge.properties ?? {}) as Record<string, unknown>
+  const mainRow = (price: PreviewCellValue): PlanPreviewRow => ({
+    kind: 'main',
+    rowType: 'fixedCharge',
+    name: charge.invoiceDisplayName || charge.addOn?.name || undefined,
+    description: undefined,
+    interval: fixedInterval(formValues),
+    timing: fixedTiming(charge.payInAdvance ?? false),
+    units: { type: 'count', value: num(charge.units) },
+    price,
+  })
+
+  if (charge.chargeModel === FixedChargeChargeModelEnum.Graduated) {
+    return [mainRow({ type: 'empty' }), ...tierRows((props.graduatedRanges ?? []) as Range[])]
+  }
+
+  if (charge.chargeModel === FixedChargeChargeModelEnum.Volume) {
+    return [mainRow({ type: 'empty' }), ...tierRows((props.volumeRanges ?? []) as Range[])]
+  }
+
+  return [mainRow({ type: 'displayAmount', amount: amountStr(props.amount) })]
+}
+
+const usageChargeRows = (
+  charge: LocalUsageChargeInput,
+  formValues: PlanFormInput,
+): PlanPreviewRow[] => {
+  if (charge.displayInQuoteDocument === false) return []
+
+  const rows: PlanPreviewRow[] = [
+    {
+      kind: 'main',
+      rowType: 'usageCharge',
+      name: chargeName(charge) || undefined,
+      description: undefined,
+      interval: usageInterval(formValues),
+      timing: usageChargeTiming(charge),
+      units: { type: 'usageBased' },
+      price: { type: 'variesWithUsage' },
+    },
+    ...usageDetailRows(charge),
+  ]
+
+  if (num(charge.minAmountCents) > 0) {
+    rows.push({
+      kind: 'detail',
+      label: { type: 'text', key: 'labelMinimumSpending' },
+      qualifier: { type: 'commitment' },
+      value: { type: 'displayAmount', amount: String(charge.minAmountCents) },
     })
   }
 
-  // 2) Fixed charges
-  for (const fc of formValues.fixedCharges ?? []) {
-    const typedFc = fc as LocalFixedChargeInput
+  return rows
+}
 
-    // Filter here, not in the table: SubscriptionPlanPreviewTable groups a charge with its
-    // detail rows by array index, so a gap there would misplace the dividers.
-    if (typedFc.displayInQuoteDocument === false) continue
+const minimumCommitmentRows = (formValues: PlanFormInput): PlanPreviewRow[] => {
+  const commitment = formValues.minimumCommitment
 
-    const fcProps = (typedFc.properties ?? {}) as Record<string, unknown>
-    const fcName = typedFc.invoiceDisplayName || typedFc.addOn?.name || undefined
-    const fcInterval = fixedInterval(formValues)
-    const fcTiming = fixedTiming(typedFc.payInAdvance ?? false)
-    const fcUnits: PreviewCellValue = { type: 'count', value: num(typedFc.units) }
-
-    if (typedFc.chargeModel === FixedChargeChargeModelEnum.Graduated) {
-      rows.push(
-        {
-          kind: 'main',
-          rowType: 'fixedCharge',
-          name: fcName,
-          description: undefined,
-          interval: fcInterval,
-          timing: fcTiming,
-          units: fcUnits,
-          price: { type: 'empty' },
-        },
-        ...tierRows((fcProps.graduatedRanges ?? []) as Range[]),
-      )
-    } else if (typedFc.chargeModel === FixedChargeChargeModelEnum.Volume) {
-      rows.push(
-        {
-          kind: 'main',
-          rowType: 'fixedCharge',
-          name: fcName,
-          description: undefined,
-          interval: fcInterval,
-          timing: fcTiming,
-          units: fcUnits,
-          price: { type: 'empty' },
-        },
-        ...tierRows((fcProps.volumeRanges ?? []) as Range[]),
-      )
-    } else {
-      // Standard (default)
-      rows.push({
-        kind: 'main',
-        rowType: 'fixedCharge',
-        name: fcName,
-        description: undefined,
-        interval: fcInterval,
-        timing: fcTiming,
-        units: fcUnits,
-        price: { type: 'displayAmount', amount: amountStr(fcProps.amount) },
-      })
-    }
-  }
-
-  // 3) Usage charges (each is a main row + model-specific detail rows)
-  for (const charge of formValues.charges ?? []) {
-    const typedCharge = charge as LocalUsageChargeInput
-
-    if (typedCharge.displayInQuoteDocument === false) continue
-
-    rows.push(
-      {
-        kind: 'main',
-        rowType: 'usageCharge',
-        name: chargeName(typedCharge) || undefined,
-        description: undefined,
-        interval: usageInterval(formValues),
-        timing: usageChargeTiming(typedCharge),
-        units: { type: 'usageBased' },
-        price: { type: 'variesWithUsage' },
-      },
-      ...usageDetailRows(typedCharge),
-    )
-    const minAmount = typedCharge.minAmountCents
-
-    if (num(minAmount) > 0) {
-      rows.push({
-        kind: 'detail',
-        label: { type: 'text', key: 'labelMinimumSpending' },
-        qualifier: { type: 'commitment' },
-        value: { type: 'displayAmount', amount: String(minAmount) },
-      })
-    }
-  }
-
-  // 4) Plan minimum commitment (own row)
   // `deserializeMinimumCommitment` returns `{}` for "no commitment", which is truthy, so
-  // gate on the amount the way the subscription fee above does.
-  const minimumCommitment = formValues.minimumCommitment
+  // gate on the amount the way the subscription fee does.
+  if (!commitment || num(commitment.amountCents) <= 0) return []
 
-  if (minimumCommitment && num(minimumCommitment.amountCents) > 0) {
-    rows.push({
+  return [
+    {
       kind: 'main',
       rowType: 'minimumCommitment',
-      name: minimumCommitment.invoiceDisplayName || undefined,
+      name: commitment.invoiceDisplayName || undefined,
       description: undefined,
       interval: formValues.interval,
       timing: fixedTiming(formValues.payInAdvance),
       units: { type: 'count', value: 1 },
-      price: {
-        type: 'displayAmount',
-        amount: String(minimumCommitment.amountCents),
-      },
-    })
-  }
+      price: { type: 'displayAmount', amount: String(commitment.amountCents) },
+    },
+  ]
+}
 
-  return { rows }
+export const buildPlanPreviewData = (formValues: PlanFormInput | null): PlanPreviewData => {
+  if (!formValues) return { rows: [] }
+
+  return {
+    rows: [
+      ...subscriptionFeeRows(formValues),
+      ...(formValues.fixedCharges ?? []).flatMap((fc) =>
+        fixedChargeRows(fc as LocalFixedChargeInput, formValues),
+      ),
+      ...(formValues.charges ?? []).flatMap((charge) =>
+        usageChargeRows(charge as LocalUsageChargeInput, formValues),
+      ),
+      ...minimumCommitmentRows(formValues),
+    ],
+  }
 }
