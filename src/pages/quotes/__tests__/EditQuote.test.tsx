@@ -549,7 +549,7 @@ describe('EditQuote', () => {
         await user.click(screen.getByTestId(EDIT_QUOTE_DOCUMENTATION_TEST_ID))
 
         expect(openSpy).toHaveBeenCalledWith(
-          'https://getlago.com/docs/guide/quotes/quote-editor',
+          'https://docs.getlago.com/guide/quotes/quote-editor',
           '_blank',
         )
 
