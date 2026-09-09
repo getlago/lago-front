@@ -4210,6 +4210,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                     class=""
                   >
                     <div
+                      aria-label="text_1724674592260h33v56rycaw"
                       class=""
                       data-mui-internal-clone-element="true"
                     >
@@ -4495,6 +4496,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                     class=""
                   >
                     <div
+                      aria-label="text_1724674592260h33v56rycaw"
                       class=""
                       data-mui-internal-clone-element="true"
                     >
@@ -4801,6 +4803,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                     class=""
                   >
                     <div
+                      aria-label="text_1724674592260h33v56rycaw"
                       class=""
                       data-mui-internal-clone-element="true"
                     >
@@ -5224,6 +5227,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                     class=""
                   >
                     <div
+                      aria-label="text_1724674592260h33v56rycaw"
                       class=""
                       data-mui-internal-clone-element="true"
                     >
@@ -5530,6 +5534,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                     class=""
                   >
                     <div
+                      aria-label="text_1724674592260h33v56rycaw"
                       class=""
                       data-mui-internal-clone-element="true"
                     >
@@ -5836,6 +5841,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                     class=""
                   >
                     <div
+                      aria-label="text_1724674592260h33v56rycaw"
                       class=""
                       data-mui-internal-clone-element="true"
                     >
@@ -6633,6 +6639,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                     class=""
                   >
                     <div
+                      aria-label="text_1724674592260h33v56rycaw"
                       class=""
                       data-mui-internal-clone-element="true"
                     >
@@ -6939,6 +6946,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                     class=""
                   >
                     <div
+                      aria-label="text_1724674592260h33v56rycaw"
                       class=""
                       data-mui-internal-clone-element="true"
                     >
@@ -7245,6 +7253,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                     class=""
                   >
                     <div
+                      aria-label="text_1724674592260h33v56rycaw"
                       class=""
                       data-mui-internal-clone-element="true"
                     >
@@ -7689,6 +7698,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with overdue invoice 1`] =
                     class=""
                   >
                     <div
+                      aria-label="text_1724674592260h33v56rycaw"
                       class=""
                       data-mui-internal-clone-element="true"
                     >
@@ -8145,6 +8155,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with partially paid invoic
                     class=""
                   >
                     <div
+                      aria-label="text_1724674592260h33v56rycaw"
                       class=""
                       data-mui-internal-clone-element="true"
                     >

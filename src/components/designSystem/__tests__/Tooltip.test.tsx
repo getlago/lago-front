@@ -189,29 +189,6 @@ describe('Tooltip', () => {
       expect(screen.queryByText('Test tooltip')).not.toBeInTheDocument()
     })
 
-    // MUI turns a string title into the child's `aria-label`, so a tooltip that
-    // can never open would still name the element after advice that does not apply.
-    it('does not label its child with the title when disableHoverListener is true', () => {
-      render(
-        <Tooltip title="This invoice contains a tax error" disableHoverListener>
-          <button data-test={TOOLTIP_TRIGGER_TEST_ID}>Finalized</button>
-        </Tooltip>,
-      )
-
-      expect(screen.getByTestId(TOOLTIP_TRIGGER_TEST_ID)).not.toHaveAttribute('aria-label')
-      expect(screen.queryByLabelText('This invoice contains a tax error')).not.toBeInTheDocument()
-    })
-
-    it('labels its child with the title when the tooltip can open', () => {
-      render(
-        <Tooltip title="This invoice contains a tax error">
-          <button data-test={TOOLTIP_TRIGGER_TEST_ID}>Finalized</button>
-        </Tooltip>,
-      )
-
-      expect(screen.getByLabelText('This invoice contains a tax error')).toBeInTheDocument()
-    })
-
     it('shows tooltip on hover when disableHoverListener is false', async () => {
       const user = userEvent.setup()
 

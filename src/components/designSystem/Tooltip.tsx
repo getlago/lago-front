@@ -13,7 +13,7 @@ export interface TooltipProps extends Pick<
 }
 
 export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
-  ({ children, disableHoverListener, className, maxWidth = '320px', title, ...props }, ref) => {
+  ({ children, disableHoverListener, className, maxWidth = '320px', ...props }, ref) => {
     const [isOpen, setIsOpen] = useState(false)
 
     const handleOpen = useCallback(() => {
@@ -44,9 +44,6 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
           open={isOpen}
           enterDelay={400}
           leaveDelay={0}
-          // MUI names the child with a string title even when the tooltip can never
-          // open, so advice that does not apply would become the element's label.
-          title={disableHoverListener ? undefined : title}
           {...props}
         >
           {/* eslint-disable-next-line */}
