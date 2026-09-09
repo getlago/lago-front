@@ -98,6 +98,7 @@ interface SerializedCharge {
   taxes: SerializedTax[]
   filters: SerializedChargeFilter[]
   appliedPricingUnit: SerializedAppliedPricingUnit | null
+  displayInQuoteDocument?: boolean
 }
 
 interface SerializedAddOn {
@@ -118,6 +119,7 @@ interface SerializedFixedCharge {
   properties: Record<string, unknown>
   taxCodes: string[]
   taxes: SerializedTax[]
+  displayInQuoteDocument?: boolean
 }
 
 interface SerializedMinimumCommitment {
@@ -273,6 +275,7 @@ const serializeCharge = (charge: LocalUsageChargeInput): SerializedCharge => {
           conversionRate: charge.appliedPricingUnit.conversionRate ?? '',
         }
       : null,
+    displayInQuoteDocument: charge.displayInQuoteDocument ?? true,
   }
 }
 
@@ -317,6 +320,7 @@ const serializeFixedCharge = (charge: LocalFixedChargeInput): SerializedFixedCha
     properties: charge.properties ?? {},
     taxCodes: charge.taxCodes ?? [],
     taxes: serializeTaxes(charge.taxes),
+    displayInQuoteDocument: charge.displayInQuoteDocument ?? true,
   }
 }
 
@@ -643,6 +647,7 @@ const deserializeCharge = (charge: SerializedCharge): LocalUsageChargeInput => {
           conversionRate: charge.appliedPricingUnit.conversionRate,
         } as LocalUsageChargeInput['appliedPricingUnit'])
       : undefined,
+    displayInQuoteDocument: charge.displayInQuoteDocument ?? true,
   }
 }
 
@@ -663,6 +668,7 @@ const deserializeFixedCharge = (charge: SerializedFixedCharge): LocalFixedCharge
     properties: charge.properties,
     taxCodes: charge.taxCodes,
     taxes: deserializeTaxes(charge.taxes),
+    displayInQuoteDocument: charge.displayInQuoteDocument ?? true,
   }
 }
 

@@ -63,6 +63,7 @@ interface UsageChargeDrawerContentExtraProps {
   isCreateMode: boolean
   disabled?: boolean
   isInSubscriptionForm?: boolean
+  isInQuoteForm?: boolean
   // TEMP (LAGO-1498): Code is shown only via the v2 details/edition UI.
   showCode?: boolean
   existingChargeCodes?: (string | null | undefined)[]
@@ -79,6 +80,7 @@ const usageChargeDrawerContentDefaultProps: UsageChargeDrawerContentExtraProps =
   isCreateMode: false,
   disabled: false,
   isInSubscriptionForm: false,
+  isInQuoteForm: false,
   showCode: false,
   existingChargeCodes: undefined,
   subscriptionFormType: undefined,
@@ -98,6 +100,7 @@ export const UsageChargeDrawerContent = withForm({
     isCreateMode,
     disabled,
     isInSubscriptionForm,
+    isInQuoteForm,
     showCode,
     existingChargeCodes,
     subscriptionFormType,
@@ -689,6 +692,28 @@ export const UsageChargeDrawerContent = withForm({
                               })
                             : ''
                         }
+                      />
+                    )}
+                  </form.AppField>
+                </div>
+              )}
+
+              {isInQuoteForm && (
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-1">
+                    <Typography variant="captionHl" color="grey700">
+                      {translate('text_1788938888298p8mb2uxfk5l')}
+                    </Typography>
+                    <Typography variant="caption" color="grey600">
+                      {translate('text_1788938888298tobp5ik7edt')}
+                    </Typography>
+                  </div>
+
+                  <form.AppField name="displayInQuoteDocument">
+                    {(field) => (
+                      <field.SwitchField
+                        label={translate('text_1788938888298p8mb2uxfk5l')}
+                        disabled={disabled}
                       />
                     )}
                   </form.AppField>

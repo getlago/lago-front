@@ -12,6 +12,7 @@ const UsageChargeDrawerContent = OriginalUsageChargeDrawerContent as unknown as 
   isCreateMode: boolean
   disabled?: boolean
   isInSubscriptionForm?: boolean
+  isInQuoteForm?: boolean
   showCode?: boolean
   existingChargeCodes?: (string | null | undefined)[]
   amountCurrency?: string
@@ -153,7 +154,12 @@ const mockForm = {
         </div>
       ),
       SwitchField: (props: Record<string, unknown>) => (
-        <input type="checkbox" data-test={`field-${name}`} aria-label={props.label as string} />
+        <input
+          type="checkbox"
+          data-test={`field-${name}`}
+          aria-label={props.label as string}
+          disabled={props.disabled as boolean}
+        />
       ),
     }
 
@@ -935,5 +941,62 @@ describe('VirtualFilterList drift test', () => {
     )
 
     expect(capturedVirtualList.props?.items).toHaveLength(3)
+  })
+
+  describe('GIVEN the quote-only "display in quote document" switch', () => {
+    describe('WHEN the drawer is not opened from a quote', () => {
+      it('THEN should not render the switch', () => {
+        mockCurrentFormValues = mockEditFormValues
+
+        render(
+          <UsageChargeDrawerContent
+            isCreateMode={false}
+            editIndex={0}
+            currency="USD"
+            interval="monthly"
+          />,
+        )
+
+        expect(screen.queryByTestId('field-displayInQuoteDocument')).not.toBeInTheDocument()
+      })
+
+      it('THEN should not render it either inside the subscription form', () => {
+        mockCurrentFormValues = mockEditFormValues
+
+        render(
+          <UsageChargeDrawerContent
+            isCreateMode={false}
+            isInSubscriptionForm
+            editIndex={0}
+            currency="USD"
+            interval="monthly"
+          />,
+        )
+
+        expect(screen.queryByTestId('field-displayInQuoteDocument')).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the drawer is opened from a quote', () => {
+      it('THEN should render the switch, enabled even inside the subscription form', () => {
+        mockCurrentFormValues = mockEditFormValues
+
+        render(
+          <UsageChargeDrawerContent
+            isCreateMode={false}
+            isInSubscriptionForm
+            isInQuoteForm
+            editIndex={0}
+            currency="USD"
+            interval="monthly"
+          />,
+        )
+
+        const field = screen.getByTestId('field-displayInQuoteDocument')
+
+        expect(field).toBeInTheDocument()
+        expect(field).not.toBeDisabled()
+      })
+    })
   })
 })

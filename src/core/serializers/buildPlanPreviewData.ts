@@ -300,6 +300,11 @@ export const buildPlanPreviewData = (formValues: PlanFormInput | null): PlanPrev
   // 2) Fixed charges
   for (const fc of formValues.fixedCharges ?? []) {
     const typedFc = fc as LocalFixedChargeInput
+
+    // Filter here, not in the table: SubscriptionPlanPreviewTable groups a charge with its
+    // detail rows by array index, so a gap there would misplace the dividers.
+    if (typedFc.displayInQuoteDocument === false) continue
+
     const fcProps = (typedFc.properties ?? {}) as Record<string, unknown>
     const fcName = typedFc.invoiceDisplayName || typedFc.addOn?.name || undefined
     const fcInterval = fixedInterval(formValues)
@@ -352,6 +357,8 @@ export const buildPlanPreviewData = (formValues: PlanFormInput | null): PlanPrev
   // 3) Usage charges (each is a main row + model-specific detail rows)
   for (const charge of formValues.charges ?? []) {
     const typedCharge = charge as LocalUsageChargeInput
+
+    if (typedCharge.displayInQuoteDocument === false) continue
 
     rows.push(
       {

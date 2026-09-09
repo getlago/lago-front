@@ -11,6 +11,7 @@ const FixedChargeDrawerContent = OriginalFixedChargeDrawerContent as unknown as 
   isEdition?: boolean
   disabled?: boolean
   isInSubscriptionForm?: boolean
+  isInQuoteForm?: boolean
   alertMessage?: string
   showCode?: boolean
   existingChargeCodes?: (string | null | undefined)[]
@@ -567,6 +568,33 @@ describe('FixedChargeDrawerContent', () => {
         })
 
         expect(mockSetFieldValue).not.toHaveBeenCalledWith('code', expect.anything())
+      })
+    })
+  })
+
+  describe('GIVEN the quote-only "display in quote document" switch', () => {
+    describe('WHEN the drawer is not opened from a quote', () => {
+      it('THEN should not render the switch', () => {
+        render(<FixedChargeDrawerContent isCreateMode={false} />)
+
+        expect(screen.queryByTestId('field-displayInQuoteDocument')).not.toBeInTheDocument()
+      })
+
+      it('THEN should not render it either inside the subscription form', () => {
+        render(<FixedChargeDrawerContent isCreateMode={false} isInSubscriptionForm />)
+
+        expect(screen.queryByTestId('field-displayInQuoteDocument')).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the drawer is opened from a quote', () => {
+      it('THEN should render the switch, enabled even inside the subscription form', () => {
+        render(<FixedChargeDrawerContent isCreateMode={false} isInSubscriptionForm isInQuoteForm />)
+
+        const field = screen.getByTestId('field-displayInQuoteDocument')
+
+        expect(field).toBeInTheDocument()
+        expect(field).not.toBeDisabled()
       })
     })
   })

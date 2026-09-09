@@ -64,6 +64,7 @@ interface FixedChargeDrawerContentExtraProps {
   isCreateMode: boolean
   isEdition: boolean
   isInSubscriptionForm: boolean
+  isInQuoteForm: boolean
   disabled: boolean
   alertMessage?: string
   // TEMP (LAGO-1498): Code is shown only via the v2 details/edition UI.
@@ -75,6 +76,7 @@ const fixedChargeDrawerContentDefaultProps: FixedChargeDrawerContentExtraProps =
   isCreateMode: false,
   isEdition: false,
   isInSubscriptionForm: false,
+  isInQuoteForm: false,
   disabled: false,
   alertMessage: undefined,
   showCode: false,
@@ -89,6 +91,7 @@ export const FixedChargeDrawerContent = withForm({
     isCreateMode,
     isEdition,
     isInSubscriptionForm,
+    isInQuoteForm,
     disabled,
     alertMessage,
     showCode,
@@ -346,6 +349,28 @@ export const FixedChargeDrawerContent = withForm({
                   )}
                 </form.AppField>
               </div>
+
+              {isInQuoteForm && (
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-1">
+                    <Typography variant="captionHl" color="grey700">
+                      {translate('text_1788938888298p8mb2uxfk5l')}
+                    </Typography>
+                    <Typography variant="caption" color="grey600">
+                      {translate('text_1788938888298tobp5ik7edt')}
+                    </Typography>
+                  </div>
+
+                  <form.AppField name="displayInQuoteDocument">
+                    {(field) => (
+                      <field.SwitchField
+                        label={translate('text_1788938888298p8mb2uxfk5l')}
+                        disabled={disabled}
+                      />
+                    )}
+                  </form.AppField>
+                </div>
+              )}
 
               <TaxesSelectorSection
                 title={translate('text_1760729707267seik64l67k8')}
