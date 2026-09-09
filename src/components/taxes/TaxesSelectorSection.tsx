@@ -55,7 +55,6 @@ export type TaxesSelectorSectionProps<T extends TaxForTaxesSelectorSectionFragme
   description?: string
   taxes: T[]
   comboboxSelector: string
-  chipAppearance?: 'filled' | 'outlined'
   onUpdate: (newTaxArray: T[]) => void
 }
 
@@ -64,7 +63,6 @@ export const TaxesSelectorSection = <T extends TaxForTaxesSelectorSectionFragmen
   description,
   taxes,
   comboboxSelector,
-  chipAppearance = 'outlined',
   onUpdate,
 }: TaxesSelectorSectionProps<T>): JSX.Element => {
   const { translate } = useInternationalization()
@@ -148,12 +146,10 @@ export const TaxesSelectorSection = <T extends TaxForTaxesSelectorSectionFragmen
               key={localTaxId}
               data-test={buildTaxChipTestId(localTaxId)}
               label={`${name} (${rate}%)`}
-              type={chipAppearance === 'outlined' ? 'secondary' : undefined}
-              size={chipAppearance === 'filled' ? 'big' : 'medium'}
-              className={chipAppearance === 'filled' ? '[&_.MuiChip-deleteIcon]:!m-0' : undefined}
-              deleteIcon={chipAppearance === 'outlined' ? 'trash' : undefined}
-              icon={chipAppearance === 'outlined' ? 'percentage' : undefined}
-              variant={chipAppearance === 'filled' ? 'body' : undefined}
+              type="secondary"
+              size="medium"
+              deleteIcon="trash"
+              icon="percentage"
               deleteIconLabel={translate('text_63aa085d28b8510cd46443ff')}
               onDelete={() => deleteTax(localTaxId)}
             />
