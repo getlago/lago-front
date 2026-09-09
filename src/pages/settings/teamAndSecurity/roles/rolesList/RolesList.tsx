@@ -32,7 +32,7 @@ const RolesList = () => {
 
   const { translate } = useInternationalization()
   const { roles, isLoadingRoles } = useRolesList()
-  const { navigateToDuplicate, navigateToEdit } = useRoleActions()
+  const { getDuplicateRolePath, getEditRolePath } = useRoleActions()
   const { hasPermissions } = usePermissions()
 
   const canCreateRoles = hasPermissions(['rolesCreate'])
@@ -125,7 +125,7 @@ const RolesList = () => {
           startIcon: 'duplicate',
           title: translate('text_64fa170e02f348164797a6af'),
           disabled: !canCreateRoles,
-          onAction: () => navigateToDuplicate(role.id),
+          link: () => getDuplicateRolePath(role.id),
         },
       ]
     }
@@ -135,13 +135,13 @@ const RolesList = () => {
         startIcon: 'duplicate',
         title: translate('text_64fa170e02f348164797a6af'),
         disabled: !canCreateRoles,
-        onAction: () => navigateToDuplicate(role.id),
+        link: () => getDuplicateRolePath(role.id),
       },
       {
         startIcon: 'pen',
         title: translate('text_1765528921745ibx4b56q1mt'),
         disabled: !canEditRoles,
-        onAction: () => navigateToEdit(role.id),
+        link: () => getEditRolePath(role.id),
       },
       {
         startIcon: 'trash',

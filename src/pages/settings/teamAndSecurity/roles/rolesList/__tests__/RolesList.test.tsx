@@ -1,4 +1,4 @@
-import { act, screen } from '@testing-library/react'
+import { act, fireEvent, screen, within } from '@testing-library/react'
 
 import { render } from '~/test-utils'
 
@@ -118,6 +118,22 @@ describe('RolesList', () => {
     const actionButtons = screen.getAllByTestId('open-action-button')
 
     expect(actionButtons.length).toBeGreaterThan(0)
+  })
+
+  describe('the row menu of a custom role', () => {
+    it.each([
+      ['duplicate', 'text_64fa170e02f348164797a6af', '/settings/team-and-security/roles/create'],
+      ['edit', 'text_1765528921745ibx4b56q1mt', '/settings/team-and-security/roles/2/edit'],
+    ])('renders the %s entry as an anchor to its route', async (_, name, href) => {
+      await act(() => render(<RolesList />))
+
+      fireEvent.click(screen.getAllByTestId('open-action-button')[1])
+
+      expect(within(screen.getByRole('tooltip')).getByRole('link', { name })).toHaveAttribute(
+        'href',
+        href,
+      )
+    })
   })
 
   describe('with premium addon', () => {

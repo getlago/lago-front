@@ -25,6 +25,8 @@ export const useRoleActions = (): {
   deleteRole: (roleParams: DestroyRoleInput) => Promise<void>
   isDeletingRole: boolean
   deleteRoleError: ApolloError | undefined
+  getDuplicateRolePath: (roleId: string) => string
+  getEditRolePath: (roleId: string) => string
   navigateToDuplicate: (roleId: string) => void
   navigateToEdit: (roleId: string) => void
 } => {
@@ -61,22 +63,28 @@ export const useRoleActions = (): {
     })
   }
 
-  const navigateToDuplicate = (roleId: string) => {
+  const getDuplicateRolePath = (roleId: string) => {
     const query = `duplicate-from=${roleId}`
-    const path = generatePath(ROLE_CREATE_ROUTE, {
+
+    return generatePath(ROLE_CREATE_ROUTE, {
       search: query,
     })
+  }
+  const getEditRolePath = (roleId: string) => generatePath(ROLE_EDIT_ROUTE, { roleId })
 
-    navigate(path)
+  const navigateToDuplicate = (roleId: string) => {
+    navigate(getDuplicateRolePath(roleId))
   }
   const navigateToEdit = (roleId: string) => {
-    navigate(generatePath(ROLE_EDIT_ROUTE, { roleId }))
+    navigate(getEditRolePath(roleId))
   }
 
   return {
     deleteRole,
     isDeletingRole,
     deleteRoleError,
+    getDuplicateRolePath,
+    getEditRolePath,
     navigateToDuplicate,
     navigateToEdit,
   }
