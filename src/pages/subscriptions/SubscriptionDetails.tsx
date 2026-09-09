@@ -14,6 +14,10 @@ import { SubscriptionActivityLogs } from '~/components/subscriptions/Subscriptio
 import { SubscriptionAlertsList } from '~/components/subscriptions/SubscriptionAlertsList'
 import { SubscriptionEntitlementsTabContent } from '~/components/subscriptions/SubscriptionEntitlementsTabContent'
 import { SubscriptionProgressiveBillingTab } from '~/components/subscriptions/SubscriptionProgressiveBillingTab/SubscriptionProgressiveBillingTab'
+import {
+  SUBSCRIPTION_DETAILS_ACTIONS_TEST_ID,
+  SUBSCRIPTION_DETAILS_CANCEL_TEST_ID,
+} from '~/components/subscriptions/subscriptionTestIds'
 import { SubscriptionUsageTabContent } from '~/components/subscriptions/SubscriptionUsageTabContent'
 import { addToast } from '~/core/apolloClient'
 import { isSubscriptionCancellation } from '~/core/constants/statusSubscriptionMapping'
@@ -40,6 +44,8 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 import { usePermissions } from '~/hooks/usePermissions'
 import { useSubscriptionPermissionsActions } from '~/hooks/useSubscriptionPermissionsActions'
+
+export { SUBSCRIPTION_DETAILS_CANCEL_TEST_ID } from '~/components/subscriptions/subscriptionTestIds'
 
 gql`
   query getSubscriptionForDetails($subscriptionId: ID!) {
@@ -69,12 +75,9 @@ gql`
   ${SubscriptionForProgressiveBillingTabFragmentDoc}
 `
 
-const SUBSCRIPTION_DETAILS_ACTIONS_TEST_ID = 'subscription-details-actions'
-
 export const SUBSCRIPTION_DETAILS_UPGRADE_DOWNGRADE_TEST_ID =
   'subscription-details-upgrade-downgrade'
 export const SUBSCRIPTION_DETAILS_TERMINATE_TEST_ID = 'subscription-details-terminate'
-export const SUBSCRIPTION_DETAILS_CANCEL_TEST_ID = 'subscription-details-cancel'
 
 const SubscriptionDetails = () => {
   const navigate = useNavigate()
