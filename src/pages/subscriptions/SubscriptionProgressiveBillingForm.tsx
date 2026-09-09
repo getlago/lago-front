@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { InputAdornment } from '@mui/material'
+import InputAdornment from '@mui/material/InputAdornment'
 import { useCallback, useMemo } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 

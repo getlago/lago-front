@@ -25,6 +25,6 @@ jobs:
       - name: Install Node.js dependencies
         run: pnpm install
 
-      - name: Run code:style check
+      - name: Run lint, tooling, and translation checks
         run: |
-          pnpm run code:style
+          pnpm exec run-p lint test:tooling translations:inspect translations:ensure-consistency
