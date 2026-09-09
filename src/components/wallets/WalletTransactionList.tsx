@@ -195,7 +195,7 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
             buttonAction={() => {
               navigate(
                 generatePath(CREATE_WALLET_TOP_UP_ROUTE, {
-                  customerId: customerId ?? null,
+                  customerId: customerId as string,
                   walletId: wallet.id,
                 }),
               )

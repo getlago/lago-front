@@ -16,11 +16,9 @@ const mockUseLocation = jest.fn()
 
 jest.mock('react-router-dom', () => {
   const actual = jest.requireActual('react-router-dom')
-  const { withRouterFuture } = jest.requireActual('~/test-utils/routerFutureMock')
 
   return {
     ...actual,
-    ...withRouterFuture(actual),
     useLocation: () => mockUseLocation(),
   }
 })
