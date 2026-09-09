@@ -12,6 +12,7 @@ export const DOCUMENTATION_ENV_VARS =
   'https://docs.getlago.com/guide/lago-self-hosted/docker#environment-variables'
 export const DOCUMENTATION_EINVOICING =
   'https://docs.getlago.com/guide/invoicing/e-invoicing/overview'
+export const DOCUMENTATION_QUOTE_EDITOR = 'https://getlago.com/docs/guide/quotes/quote-editor'
 export const FEATURE_REQUESTS_URL = 'https://getlago.canny.io/feature-requests'
 export const ADYEN_SUCCESS_LINK_SPEC_URL =
   'https://docs.adyen.com/api-explorer/Checkout/latest/post/payments#request-returnUrl'

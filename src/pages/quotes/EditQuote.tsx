@@ -21,6 +21,7 @@ import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Status, StatusType } from '~/components/designSystem/Status'
 import { Typography } from '~/components/designSystem/Typography'
 import { RightAsidePage } from '~/components/layouts/RightAsidePage'
+import { DOCUMENTATION_QUOTE_EDITOR } from '~/core/constants/externalUrls'
 import { QuoteDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { QUOTE_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import type { BillingItemsPayload } from '~/core/serializers/serializeQuoteBillingItems'
@@ -42,6 +43,7 @@ import { useUpdateQuote } from './hooks/useUpdateQuote'
 const AUTO_SAVE_DELAY_MS = 2000
 
 export const EDIT_QUOTE_PRICING_CTA_TEST_ID = 'edit-quote-pricing-cta'
+export const EDIT_QUOTE_DOCUMENTATION_TEST_ID = 'edit-quote-documentation'
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
 
@@ -566,6 +568,14 @@ const EditQuote = () => {
         onClose={handleClose}
         isCloseButtonDisabled={isUpdating}
       >
+        <Button
+          variant="quaternary"
+          startIcon="book"
+          data-test={EDIT_QUOTE_DOCUMENTATION_TEST_ID}
+          onClick={() => window.open(DOCUMENTATION_QUOTE_EDITOR, '_blank')}
+        >
+          {translate('text_6295e58352f39200d902b01c')}
+        </Button>
         <Button
           variant="tertiary"
           onClick={() => setEditorMode((m) => (m === 'edit' ? 'preview' : 'edit'))}
