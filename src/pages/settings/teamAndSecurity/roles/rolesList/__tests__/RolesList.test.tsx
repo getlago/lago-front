@@ -122,7 +122,11 @@ describe('RolesList', () => {
 
   describe('the row menu of a custom role', () => {
     it.each([
-      ['duplicate', 'text_64fa170e02f348164797a6af', '/settings/team-and-security/roles/create'],
+      [
+        'duplicate',
+        'text_64fa170e02f348164797a6af',
+        '/settings/team-and-security/roles/create?duplicate-from=2',
+      ],
       ['edit', 'text_1765528921745ibx4b56q1mt', '/settings/team-and-security/roles/2/edit'],
     ])('renders the %s entry as an anchor to its route', async (_, name, href) => {
       await act(() => render(<RolesList />))

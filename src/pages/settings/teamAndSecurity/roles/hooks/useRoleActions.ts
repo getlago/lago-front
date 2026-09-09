@@ -63,13 +63,10 @@ export const useRoleActions = (): {
     })
   }
 
-  const getDuplicateRolePath = (roleId: string) => {
-    const query = `duplicate-from=${roleId}`
-
-    return generatePath(ROLE_CREATE_ROUTE, {
-      search: query,
-    })
-  }
+  // `generatePath` only fills `:params`, so the query has to be appended:
+  // `useRoleCreateEdit` reads `duplicate-from` off the search to prefill the form.
+  const getDuplicateRolePath = (roleId: string) =>
+    `${generatePath(ROLE_CREATE_ROUTE)}?duplicate-from=${roleId}`
   const getEditRolePath = (roleId: string) => generatePath(ROLE_EDIT_ROUTE, { roleId })
 
   const navigateToDuplicate = (roleId: string) => {
