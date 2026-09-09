@@ -42,9 +42,13 @@ export default {
     '!src/**/*Const.ts',
   ],
   coverageReporters: ['text-summary', 'lcov'],
-  collectCoverage: true,
 
   testEnvironment: 'jsdom',
+
+  // Each worker is a full jsdom + babel process, so an uncapped run starves a
+  // dev machine also hosting the Docker stack. CI passes --shard on top of this.
+  maxWorkers: '50%',
+  workerIdleMemoryLimit: '512MB',
 
   // Load early setup for console suppression (runs before test framework and imports)
   setupFiles: ['./jest-setup-early.ts'],
