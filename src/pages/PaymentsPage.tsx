@@ -63,6 +63,8 @@ gql`
         currentPage
         totalPages
         totalCount
+        totalCountCapped
+        hasNextPage
       }
       collection {
         ...PaymentForPaymentsList
@@ -133,13 +135,15 @@ const PaymentsPage = () => {
   const paymentsIsLoading = loading || queryPending
 
   const paymentsTotalCount = data?.payments?.metadata?.totalCount
+  // Above the API's counting limit the total is a lower bound: print "10,000+", as invoices do.
+  const paymentsTotalCountCapped = data?.payments?.metadata?.totalCountCapped
 
   return (
     <>
       <MainHeader.Configure
         entity={{
           viewName: translate('text_6672ebb8b1b50be550eccbed'),
-          metadata: formatCountToMetadata(paymentsTotalCount, translate),
+          metadata: formatCountToMetadata(paymentsTotalCount, translate, paymentsTotalCountCapped),
           metadataLoading: paymentsIsLoading && paymentsTotalCount === undefined,
         }}
         actions={{

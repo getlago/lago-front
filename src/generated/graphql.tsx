@@ -7488,7 +7488,24 @@ export type PaymentCollection = {
   /** A collection of paginated PaymentCollection */
   collection: Array<Payment>;
   /** Pagination Metadata for navigating the Pagination */
-  metadata: CollectionMetadata;
+  metadata: PaymentCollectionMetadata;
+};
+
+/** Pagination metadata for a collection of payments */
+export type PaymentCollectionMetadata = {
+  __typename?: 'PaymentCollectionMetadata';
+  /** Current Page of loaded data */
+  currentPage: Scalars['Int']['output'];
+  /** True when another page follows, even when `totalCount` is capped */
+  hasNextPage: Scalars['Boolean']['output'];
+  /** The number of items per page */
+  limitValue: Scalars['Int']['output'];
+  /** The total number of items to be paginated */
+  totalCount: Scalars['Int']['output'];
+  /** True when `totalCount` hit the counting limit and is a lower bound, not the exact total */
+  totalCountCapped: Scalars['Boolean']['output'];
+  /** The total number of pages in the pagination */
+  totalPages: Scalars['Int']['output'];
 };
 
 export type PaymentMethod = {
@@ -15804,7 +15821,7 @@ export type GetPaymentsListQueryVariables = Exact<{
 }>;
 
 
-export type GetPaymentsListQuery = { __typename?: 'Query', payments: { __typename?: 'PaymentCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Payment', amountCents: any, amountCurrency: CurrencyEnum, createdAt: any, id: string, payablePaymentStatus?: PayablePaymentStatusEnum | null, paymentProviderType?: ProviderTypeEnum | null, paymentType: PaymentTypeEnum, providerPaymentId?: string | null, reference?: string | null, payable:
+export type GetPaymentsListQuery = { __typename?: 'Query', payments: { __typename?: 'PaymentCollection', metadata: { __typename?: 'PaymentCollectionMetadata', currentPage: number, totalPages: number, totalCount: number, totalCountCapped: boolean, hasNextPage: boolean }, collection: Array<{ __typename?: 'Payment', amountCents: any, amountCurrency: CurrencyEnum, createdAt: any, id: string, payablePaymentStatus?: PayablePaymentStatusEnum | null, paymentProviderType?: ProviderTypeEnum | null, paymentType: PaymentTypeEnum, providerPaymentId?: string | null, reference?: string | null, payable:
         | { __typename?: 'Invoice', id: string, number: string, payableType: string }
         | { __typename?: 'PaymentRequest', payableType: string, invoices: Array<{ __typename?: 'Invoice', id: string, number: string }> }
       , paymentProvider?:
@@ -40697,6 +40714,8 @@ export const GetPaymentsListDocument = gql`
       currentPage
       totalPages
       totalCount
+      totalCountCapped
+      hasNextPage
     }
     collection {
       ...PaymentForPaymentsList
