@@ -22,7 +22,9 @@ export const useListKeysNavigation: UseKeyNavigation = ({
           return
         }
 
-        const getIndex = (document.activeElement?.id || '').split(getElmId(''))[1]
+        // Not `document.activeElement`: a click on a focusable descendant (the
+        // row-link anchor) leaves focus inside the row, not on the row itself.
+        const getIndex = (e.currentTarget?.id || '').split(getElmId(''))[1]
         let nextId = null
 
         if (['ArrowDown', 'KeyJ'].includes(e.code)) {

@@ -351,6 +351,58 @@ describe('Table', () => {
     })
   })
 
+  describe('GIVEN a first cell that renders nothing', () => {
+    describe('WHEN the rows render', () => {
+      // An empty anchor has no accessible name; several first columns return
+      // `null` for rows in a state that has no detail page.
+      it('THEN should not wrap it in an anchor', async () => {
+        await prepare({
+          props: {
+            onRowActionLink: (row: any) => `/rows/${row.id}`,
+            columns: [{ key: 'name' as const, title: 'Name', content: () => null }],
+          },
+        })
+
+        expect(screen.queryAllByRole('link')).toHaveLength(0)
+      })
+    })
+  })
+
+  describe('GIVEN a row link builder that returns nothing', () => {
+    describe('WHEN a row is clicked', () => {
+      // A builder legitimately returns '' for an item with no target; navigating
+      // there resolves to the current route and drops its query params.
+      it('THEN should neither render an anchor nor navigate', async () => {
+        await prepare({ props: { onRowActionLink: () => '' } })
+
+        const bodyRows = within(screen.queryAllByRole('rowgroup')[1]).queryAllByRole('row')
+
+        expect(screen.queryAllByRole('link')).toHaveLength(0)
+
+        await userEvent.click(bodyRows[0])
+
+        expect(testMockNavigateFn).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the row anchor holds the focus', () => {
+    describe('WHEN ArrowDown is pressed', () => {
+      // Clicking the first cell focuses the anchor, not the row, so resolving the
+      // current row from `document.activeElement` finds no row at all.
+      it('THEN should move the focus to the next row', async () => {
+        await prepare({ props: { onRowActionLink: (row: any) => `/rows/${row.id}` } })
+
+        const bodyRows = within(screen.queryAllByRole('rowgroup')[1]).queryAllByRole('row')
+
+        within(bodyRows[0]).getByRole('link').focus()
+        await userEvent.keyboard('{ArrowDown}')
+
+        expect(bodyRows[1]).toHaveFocus()
+      })
+    })
+  })
+
   it('renders with loading state', async () => {
     await prepare({
       props: {

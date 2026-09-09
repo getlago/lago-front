@@ -453,6 +453,10 @@ export const Table = <T extends DataItem>({
 
     const link = onRowActionLink(item)
 
+    if (!link) {
+      return
+    }
+
     // `window.open` bypasses the `useNavigate` wrapper, so prepend the org
     // slug manually via the shared util (same guard logic as the wrapper).
     const prefixedLink = prependOrgSlug(link, organizationSlug)
@@ -469,8 +473,10 @@ export const Table = <T extends DataItem>({
   const renderFirstCellContent = (column: TableColumn<T>, item: T) => {
     const content = column.content(item)
     const link = onRowActionLink?.(item)
+    const isRenderedContent =
+      content !== null && content !== undefined && typeof content !== 'boolean'
 
-    if (!link || hasInteractiveContent(content)) {
+    if (!link || !isRenderedContent || hasInteractiveContent(content)) {
       return content
     }
 

@@ -279,11 +279,13 @@ const CreditNotesTable = ({
           return actions
         }}
         onRowActionLink={(creditNote) =>
-          generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE, {
-            customerId: creditNote?.invoice?.customer?.id as string,
-            invoiceId: creditNote?.invoice?.id as string,
-            creditNoteId: creditNote?.id as string,
-          })
+          creditNote.invoice
+            ? generatePath(CUSTOMER_INVOICE_CREDIT_NOTE_DETAILS_ROUTE, {
+                customerId: creditNote.invoice.customer.id,
+                invoiceId: creditNote.invoice.id,
+                creditNoteId: creditNote.id,
+              })
+            : ''
         }
         columns={[
           {
