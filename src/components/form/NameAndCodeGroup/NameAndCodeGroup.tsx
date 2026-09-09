@@ -14,6 +14,8 @@ type NameAndCodeGroupProps = {
   disableAutoGenerateCode?: boolean
   nameProps?: Partial<TextInputProps>
   codeProps?: Partial<TextInputProps>
+  nameDataTest?: string
+  codeDataTest?: string
 }
 
 const defaultValues: NameAndCodeGroupValues = {
@@ -35,6 +37,8 @@ const NameAndCodeGroup = withFieldGroup({
     disableAutoGenerateCode,
     nameProps,
     codeProps,
+    nameDataTest,
+    codeDataTest,
   }) {
     const { translate } = useInternationalization()
 
@@ -68,6 +72,7 @@ const NameAndCodeGroup = withFieldGroup({
               label={translate('text_629728388c4d2300e2d38091')}
               placeholder={translate('text_629728388c4d2300e2d380a5')}
               {...nameProps}
+              data-test={nameDataTest}
             />
           )}
         </group.AppField>
@@ -77,8 +82,9 @@ const NameAndCodeGroup = withFieldGroup({
               label={translate('text_629728388c4d2300e2d380b7')}
               beforeChangeFormatter="code"
               placeholder={translate('text_629728388c4d2300e2d380d9')}
-              disabled={disableCodeInput}
               {...codeProps}
+              disabled={disableCodeInput}
+              data-test={codeDataTest}
             />
           )}
         </group.AppField>

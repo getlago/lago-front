@@ -99,6 +99,7 @@ export const buildRateCardRateSnapshotKey = ({
     rate?.minAmountCents,
     rate?.appliedPricingUnitConversionRate,
     JSON.stringify(rate?.rateProperties),
+    rateCard?.code,
     rateCard?.attachedToSubscriptions,
     rateCard?.attachedToPlanOrSubscription,
     rateCard?.activeRate?.effectiveFrom,

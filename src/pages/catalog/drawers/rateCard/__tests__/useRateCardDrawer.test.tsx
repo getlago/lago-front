@@ -99,6 +99,7 @@ const rateCardFixture: RateCardForDrawerFragment = {
   walletTargetable: true,
   attachedToPlanOrSubscription: false,
   attachedToSubscriptions: false,
+  ratesCount: 0,
   product: {
     id: 'pi-1',
     name: 'Metered API',
@@ -167,7 +168,7 @@ describe('useRateCardDrawer edit flow', () => {
     )
   })
 
-  it('updates editable fields only, closes and toasts without navigating', async () => {
+  it('updates the editable fields, closes and toasts without navigating', async () => {
     let capturedInput: Record<string, unknown> = {}
     const { result } = renderDrawerHook([updateRateCardMock((input) => (capturedInput = input))])
 
@@ -186,9 +187,9 @@ describe('useRateCardDrawer edit flow', () => {
       currency: CurrencyEnum.Usd,
       displayOnInvoice: false,
       regroupPaidFees: RateCardRegroupPaidFeesEnum.Invoice,
+      code: 'metered_api',
     })
     // Create-only fields must never be sent on update.
-    expect(capturedInput).not.toHaveProperty('code')
     expect(capturedInput).not.toHaveProperty('productId')
     expect(capturedInput).not.toHaveProperty('productFilterId')
 
@@ -239,29 +240,78 @@ describe('useRateCardDrawer edit flow', () => {
     expect(capturedInput.appliedPricingUnitCode).toBeNull()
   })
 
-  it('passes locked flags to the content when the rate card is attached', () => {
+  // Locking follows `attached_to_plan_or_subscription?`; the narrower subscriptions flag
+  // must not freeze anything on its own.
+  it('leaves everything editable when only the subscriptions flag is set', () => {
     const { result } = renderDrawerHook()
 
     act(() =>
       result.current.openDrawer({
-        rateCard: { ...rateCardFixture, attachedToSubscriptions: true },
+        rateCard: {
+          ...rateCardFixture,
+          attachedToPlanOrSubscription: false,
+          attachedToSubscriptions: true,
+        },
       }),
     )
 
     const contentProps = (lastDrawerArgs?.children as ReactElement)?.props
 
-    expect(contentProps?.isLocked).toBe(true)
+    expect(contentProps?.isAttached).toBe(false)
+    expect(contentProps?.disableCodeInput).toBe(false)
+  })
+
+  // `LOCKED_WITH_RATES` keys off `rate_card.rates.exists?`, not off any attachment.
+  it('flags the billing-semantic fields as frozen as soon as the card has a rate', () => {
+    const { result } = renderDrawerHook()
+
+    act(() => result.current.openDrawer({ rateCard: { ...rateCardFixture, ratesCount: 2 } }))
+
+    const contentProps = (lastDrawerArgs?.children as ReactElement)?.props
+
+    expect(contentProps?.hasRates).toBe(true)
+    expect(contentProps?.isAttached).toBe(false)
+  })
+
+  it('leaves them editable while the card has no rate, even when attached', () => {
+    const { result } = renderDrawerHook()
+
+    act(() =>
+      result.current.openDrawer({
+        rateCard: { ...rateCardFixture, attachedToPlanOrSubscription: true, ratesCount: 0 },
+      }),
+    )
+
+    const contentProps = (lastDrawerArgs?.children as ReactElement)?.props
+
+    expect(contentProps?.hasRates).toBe(false)
+    expect(contentProps?.isAttached).toBe(true)
+  })
+
+  // `RateCards::UpdateService` rejects a changed code on `attached_to_plan_or_subscription?`,
+  // so the input follows that flag rather than the narrower subscriptions one.
+  it('locks the code input as soon as the rate card sits in a plan', () => {
+    const { result } = renderDrawerHook()
+
+    act(() =>
+      result.current.openDrawer({
+        rateCard: { ...rateCardFixture, attachedToPlanOrSubscription: true },
+      }),
+    )
+
+    const contentProps = (lastDrawerArgs?.children as ReactElement)?.props
+
     expect(contentProps?.disableCodeInput).toBe(true)
   })
 
-  it('locks only the code input (not the whole form) on an unattached edit', () => {
+  it('keeps the code input editable on an unattached edit', () => {
     const { result } = renderDrawerHook()
 
     act(() => result.current.openDrawer({ rateCard: rateCardFixture }))
 
     const contentProps = (lastDrawerArgs?.children as ReactElement)?.props
 
-    expect(contentProps?.isLocked).toBe(false)
-    expect(contentProps?.disableCodeInput).toBe(true)
+    expect(contentProps?.isAttached).toBe(false)
+    expect(contentProps?.disableCodeInput).toBe(false)
   })
 })
