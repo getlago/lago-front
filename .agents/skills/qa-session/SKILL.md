@@ -20,9 +20,25 @@ failure mode cannot end in a PASS.
 
 Either missing → AskUserQuestion, stop until answered.
 
-**auto mode uses Chrome only** (`mcp__claude-in-chrome__*`, load via ToolSearch) — the operator is already
-logged in there. Never the built-in Browser pane, never type credentials. Prefer `browser_batch`; re-read
-refs after every navigation (stale refs click the backdrop and close drawers).
+**auto mode drives two browsers and they are not interchangeable.** Never the built-in Browser pane, and
+never type credentials in either.
+
+- **Claude in Chrome** (`mcp__claude-in-chrome__*`) carries the operator's session, so it reaches the app
+  with no login. Use it for navigation, DOM and computed-style probes, and plain clicks. It has NO
+  middle-click action at all, and its input channel can die mid-run, delivering zero events to the page
+  while every call still returns success. Prefer `browser_batch`; re-read refs after every navigation
+  (stale refs click the backdrop and close drawers).
+- **Playwright** (`mcp__plugin_playwright_playwright__*`) has real CDP input: `browser_click` takes
+  `button: "middle"` and `modifiers: ["ControlOrMeta"]`, `browser_press_key` sends genuine keypresses,
+  `browser_tabs` lists what a gesture opened. Its browser is a separate profile with NO app session, so ask
+  the operator to log in there once — after that the whole real-gesture round runs unattended.
+
+**Any check whose verdict depends on a browser default — middle-click, modifier-click, a keypress — MUST run
+on Playwright.** A dispatched `MouseEvent` or `KeyboardEvent` exercises the app's handlers and nothing else,
+so a round driven that way has verified the handler, not the gesture: report it as such.
+
+**Prove the instrument before trusting a negative.** Install a capture listener, fire one harmless click, and
+confirm an event actually reached the page. A dead input channel reads exactly like an app ignoring the click.
 
 ## Step 1 — Resolve the app under test
 
@@ -144,6 +160,9 @@ value also arrives from a second path (hydration, refetch), so the fix isn't mas
 - **Presence is not visibility.** `!!document.querySelector('[data-test=x]')` passes on an element rendered
   off-screen, clipped or collapsed. For anything floating (menu, toolbar, popper, tooltip, drawer) assert the
   **geometry**: rect inside the visible box of its scroll container, non-zero size, not covered.
+- **When two code paths end at the same URL, the URL cannot tell them apart.** Intercept
+  `history.pushState` and `history.replaceState` and count the calls: that is what separates one navigation
+  from two, and a suppressed navigation from a `replace` onto an identical target.
 - **Scroll is a test dimension**, not a detail: run the check at `scrollTop` 0 **and** with the container
   scrolled. An absolutely-positioned overlay inside a scrolled `position: relative` container is a standing
   trap — its offset must include `scrollTop`/`scrollLeft`, and at scroll 0 a broken one looks perfect.
@@ -158,6 +177,8 @@ Read the handler BEFORE calling anything a bug.
 | Menu entry / page missing | feature flag or permission on the route |
 | Blank page, `504 Outdated Optimize Dep` | vite cache → Step 1 |
 | Stale behavior after a rebuild | container running old code → restart |
+| A real gesture does nothing at all | prove the input channel is alive before blaming the app (Step 0) |
+| Middle-click appears to move the current tab too | re-run it once the page has settled: a click landing mid-hydration can do both |
 | Click does nothing on part of a block | hitbox is the inner content, not the row |
 | Menu / popper / tooltip "never opens" | it may be in the DOM but positioned out of view — compare its rect with the scroll container's, check `offsetParent`, `scrollTop` in the offset math, clipping and z-index |
 | Looks off (spacing, alignment) | measure from the CSS source and fix the computed delta, never by eye |
@@ -170,6 +191,12 @@ Append results to `$LOOP_STATE_DIR/<ISSUE-ID>/qa.md`, or `$LOOP_STATE_DIR/qa/<br
 is no ISSUE-ID: one row per check, mode, PASS/FAIL, the control outcome, what was deliberately not covered,
 anomalies with root cause. Genuine side-findings → propose as a
 separate ticket; never fix unasked.
+
+**Parity with `main` is not a finding.** Before reporting anything as a defect, a risk, or a decision for the
+operator, run the same check on `main`. A gap that behaves identically there is out of scope: say so once and
+close it, never escalate it as a choice to be made. The same yardstick applies to a fix of your own — audit
+its blast radius, and when a defect can be corrected either at the call site or in a shared component, choose
+the call site.
 
 Then close the reply with this block as the **very last thing** — nothing after it:
 
@@ -195,7 +222,10 @@ Next: <nothing to do | what needs another round | what is still broken>
 - Signing off a fix for a defect nobody reported while the filed symptom is still there.
 - Asserting an element exists instead of asserting it is visible where the user looks.
 - Verifying only on `/design-system/*`, whose layout can't reproduce the product surface's scroll or clipping.
-- auto mode on the built-in pane instead of Chrome, or typing credentials.
+- auto mode on the built-in pane, or typing credentials in either browser.
+- Driving a real-gesture check with dispatched events, then reporting the gesture as verified.
+- Calling a check failed when it was the harness's input channel that was dead.
+- Reporting behaviour `main` already had as a finding, or handing it to the operator as a decision.
 - Guessing URLs and labels instead of reading routes, components, and translations.
 - Proving the fix on the wrong surface.
 - Calling a silent validation gate a bug.
