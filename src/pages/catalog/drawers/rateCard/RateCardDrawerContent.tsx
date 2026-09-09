@@ -574,7 +574,7 @@ const RateCardDrawerFormSections = withForm({
                   color="grey700"
                 >{`${translate('text_1784925227817ukilytyxozn')} `}</Typography>
 
-                <span className="flex flex-wrap gap-2">
+                <span className="flex flex-wrap gap-1">
                   {availableRateModelLabels.map((label) => (
                     <Chip
                       key={label}
