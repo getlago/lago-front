@@ -110,36 +110,39 @@ describe('Multi-organization redirect flows', () => {
       // 2. Ensure we're in Org1 by clicking on orga 1
       cy.get('[data-test="side-nav-user-infos"]').click()
       cy.contains(testUsers.userA.org1Name).click()
+      cy.get('[data-test="side-nav-user-infos"]').should('contain', testUsers.userA.org1Name)
       // 3. Create a customer in Org1
-      cy.visitApp('/customers')
+      cy.get('[data-test="main-nav-menu-sections"]').contains('a', 'Customers').click()
       cy.get(`[data-test="${ACTIONS_BLOCK_TEST_ID}"] [data-test="${CREATE_CUSTOMER_DATA_TEST}"]`, {
         timeout: 10000,
       }).click()
       cy.get('input[name="name"]').type('Customer Org1 Multi-Org Test')
       cy.get('input[name="externalId"]').type(`customer-org1-${Date.now()}`)
       cy.get(`[data-test="${SUBMIT_CUSTOMER_DATA_TEST}"]`).click()
-      cy.url().should('include', '/customer/')
       // Save the customer URL from Org1
-      cy.url().then((org1CustomerUrl) => {
-        const customerIdMatch = org1CustomerUrl.match(/\/customer\/([^/]+)/)
-        const org1CustomerId = customerIdMatch ? customerIdMatch[1] : null
-        cy.log('Org1 Customer ID:', org1CustomerId)
-        // 4. logout, visit orga 1 url and login with customer in org2.
-        // Slug-less path is intentional: the test probes what happens when
-        // a logged-out user visits a legacy cross-org URL. Auth guard fires,
-        // saves state, redirects to login. After login as User B, Home.tsx
-        // cannot resolve a slug from `location.state.from` so falls to the
-        // permission-based default (Org2 home).
-        cy.logout()
-        cy.visit(`/customer/${org1CustomerId}`)
-        cy.get('input[name="email"]').type(testUsers.userB.email)
-        cy.get('input[name="password"]').type(testUsers.userB.password)
-        cy.get('[data-test="submit"]').click()
-        // 5. Verify we're now in Org2 on home page (not the Org1 customer page)
-        cy.url().should('not.include', `/customer/${org1CustomerId}`)
-        cy.url().should('match', /\/(analytics|customers)/)
-        cy.get('[data-test="side-nav-user-infos"]').should('contain', testUsers.userB.org2Name)
-      })
+      cy.url()
+        .should('include', '/customer/')
+        .and('not.include', '/customer/create')
+        .then((org1CustomerUrl) => {
+          const customerIdMatch = org1CustomerUrl.match(/\/customer\/([^/]+)/)
+          const org1CustomerId = customerIdMatch ? customerIdMatch[1] : null
+          cy.log('Org1 Customer ID:', org1CustomerId)
+          // 4. logout, visit orga 1 url and login with customer in org2.
+          // Slug-less path is intentional: the test probes what happens when
+          // a logged-out user visits a legacy cross-org URL. Auth guard fires,
+          // saves state, redirects to login. After login as User B, Home.tsx
+          // cannot resolve a slug from `location.state.from` so falls to the
+          // permission-based default (Org2 home).
+          cy.logout()
+          cy.visit(`/customer/${org1CustomerId}`)
+          cy.get('input[name="email"]').type(testUsers.userB.email)
+          cy.get('input[name="password"]').type(testUsers.userB.password)
+          cy.get('[data-test="submit"]').click()
+          // 5. Verify we're now in Org2 on home page (not the Org1 customer page)
+          cy.url().should('not.include', `/customer/${org1CustomerId}`)
+          cy.url().should('match', /\/(analytics|customers)/)
+          cy.get('[data-test="side-nav-user-infos"]').should('contain', testUsers.userB.org2Name)
+        })
     })
   })
 
@@ -157,17 +160,18 @@ describe('Multi-organization redirect flows', () => {
       cy.get('input[name="name"]').type('Customer for Org Switch Test')
       cy.get('input[name="externalId"]').type(`customer-org-switch-${Date.now()}`)
       cy.get(`[data-test="${SUBMIT_CUSTOMER_DATA_TEST}"]`).click()
-      cy.url().should('include', '/customer/')
+      cy.url()
+        .should('include', '/customer/')
+        .and('not.include', '/customer/create')
+        .then((urlToAvoidAfterLogin) => {
+          // 3. switch organizations
+          cy.get('[data-test="side-nav-user-infos"]', { timeout: 10000 }).click()
+          cy.contains(testUsers.userB.org2Name).click()
 
-      const urlToAvoidAfterLogin = cy.url()
-
-      // 3. switch organizations
-      cy.get('[data-test="side-nav-user-infos"]', { timeout: 10000 }).click()
-      cy.contains(testUsers.userB.org2Name).click()
-
-      // Make sure we're on home page of Org2 (not the deep link)
-      cy.url().should('match', /\/(analytics|customers)/)
-      cy.url().should('not.equal', urlToAvoidAfterLogin)
+          // Make sure we're on home page of Org2 (not the deep link)
+          cy.url().should('match', /\/(analytics|customers)/)
+          cy.url().should('not.equal', urlToAvoidAfterLogin)
+        })
     })
 
     it('should preserve query params after logout', () => {
