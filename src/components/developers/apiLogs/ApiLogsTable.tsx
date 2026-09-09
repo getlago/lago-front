@@ -61,6 +61,7 @@ export const ApiLogsTable: FC<ApiLogsTableProps> = ({
         loadingRowCount={pageSize}
         hasError={!!error}
         isLoading={loading}
+        rowLinkLabel={({ requestPath }) => requestPath ?? ''}
         onRowActionLink={({ id }) => {
           const path = generatePath(API_LOG_ROUTE, { logId: id })
           const search = searchParams.toString()

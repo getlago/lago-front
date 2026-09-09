@@ -147,6 +147,7 @@ const QuoteDetailsVersions = ({ quote }: QuoteDetailsVersionsProps): JSX.Element
           data={quote.versions}
           containerSize={0}
           columns={versionColumns}
+          rowLinkLabel={({ version }) => String(version)}
           onRowActionLink={getRowLink}
           actionColumnTooltip={() => translate('text_1776414006125pcxcyeblul7')}
           actionColumn={versionActionColumn}

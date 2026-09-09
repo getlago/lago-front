@@ -55,6 +55,7 @@ export const WebhookLogTable: FC<WebhookLogTableProps> = ({
         hasError={!!error}
         isLoading={isLoading}
         loadingRowCount={pageSize}
+        rowLinkLabel={({ webhookType }) => webhookType}
         onRowActionLink={({ id }) => {
           const currentParams = searchParams.toString()
           const path = generatePath(WEBHOOK_LOGS_ROUTE, {
