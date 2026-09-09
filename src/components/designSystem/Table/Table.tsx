@@ -20,6 +20,7 @@ import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { Link, useNavigate } from '~/core/router'
 import { prependOrgSlug } from '~/core/router/utils/prependOrgSlug'
+import { isModifiedClick } from '~/core/utils/isModifiedClick'
 import { ResponsiveStyleValue, setResponsiveProperty } from '~/core/utils/responsiveProps'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
@@ -492,6 +493,12 @@ export const Table = <T extends DataItem>({
           // Let those own the click rather than navigating the row away.
           if (e.target instanceof Element && e.target.closest('a, button') !== e.currentTarget) {
             e.preventDefault()
+            return
+          }
+
+          // The browser owns a modified click and opens the target elsewhere,
+          // so the current view must not move with it.
+          if (isModifiedClick(e)) {
             return
           }
 

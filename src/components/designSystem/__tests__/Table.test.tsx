@@ -1,4 +1,4 @@
-import { act, screen, within } from '@testing-library/react'
+import { act, fireEvent, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { Button } from '~/components/designSystem/Button'
@@ -302,6 +302,66 @@ describe('Table', () => {
         await userEvent.keyboard('{Enter}')
 
         expect(onRowActionClick).toHaveBeenCalledWith(data[0])
+      })
+    })
+  })
+
+  describe('GIVEN Enter pressed on something inside a row', () => {
+    // React events bubble through the component tree, so a keystroke on a
+    // descendant — including a portaled menu entry — reaches the row handler.
+    describe('WHEN the row anchor holds the focus', () => {
+      it('THEN should leave the activation to the anchor', async () => {
+        await prepare({ props: { onRowActionLink: (row: any) => `/rows/${row.id}` } })
+
+        const bodyRows = within(screen.queryAllByRole('rowgroup')[1]).queryAllByRole('row')
+
+        within(bodyRows[0]).getByRole('link').focus()
+        await userEvent.keyboard('{Enter}')
+
+        expect(testMockNavigateFn).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN an action menu entry holds the focus', () => {
+      it('THEN should not navigate the row', async () => {
+        const onAction = jest.fn()
+
+        await prepare({
+          props: {
+            onRowActionLink: (row: any) => `/rows/${row.id}`,
+            actionColumn: () => [{ title: 'Edit', onAction }],
+          },
+        })
+
+        const bodyRows = within(screen.queryAllByRole('rowgroup')[1]).queryAllByRole('row')
+
+        await userEvent.click(
+          within(bodyRows[0]).queryByTestId('open-action-button') as HTMLButtonElement,
+        )
+
+        within(screen.getByRole('tooltip')).getByRole('button', { name: 'Edit' }).focus()
+        await userEvent.keyboard('{Enter}')
+
+        expect(testMockNavigateFn).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN a row link with a side effect', () => {
+    describe('WHEN the anchor is cmd-clicked', () => {
+      // The browser opens the target elsewhere, so the current view must not move.
+      it('THEN should not run the side effect', async () => {
+        const onRowActionClick = jest.fn()
+
+        await prepare({
+          props: { onRowActionLink: (row: any) => `/rows/${row.id}`, onRowActionClick },
+        })
+
+        const bodyRows = within(screen.queryAllByRole('rowgroup')[1]).queryAllByRole('row')
+
+        fireEvent.click(within(bodyRows[0]).getByRole('link'), { metaKey: true })
+
+        expect(onRowActionClick).not.toHaveBeenCalled()
       })
     })
   })

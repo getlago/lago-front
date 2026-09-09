@@ -158,7 +158,8 @@ describe('NavigationTabBar', () => {
 
   describe('GIVEN the tab already matching the URL', () => {
     describe('WHEN the user clicks it', () => {
-      // A plain anchor would push a duplicate history entry for the page you are on.
+      // Not a duplicate history entry: react-router replaces an identical target.
+      // The guard spares a pointless re-navigation of the page you are already on.
       it('THEN should suppress the navigation', async () => {
         const user = userEvent.setup()
 

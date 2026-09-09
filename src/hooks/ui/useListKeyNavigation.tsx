@@ -38,6 +38,12 @@ export const useListKeysNavigation: UseKeyNavigation = ({
         }
 
         if (['Enter'].includes(e.code) && !!navigate) {
+          // A link or button inside the item owns its own Enter, a portaled menu
+          // entry included: React bubbles its keystroke here through the tree.
+          if (e.target !== e.currentTarget) {
+            return
+          }
+
           e.stopPropagation()
           const id = getElmId(parseInt(getIndex))
           const elementToNavigateTo = document.getElementById(id)
