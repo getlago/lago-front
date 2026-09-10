@@ -38,14 +38,22 @@ export const CodeSnippet = memo(
     displayHead = true,
     variant = 'default',
   }: CodeSnippetProps) => {
-    const codeRef = useRef(null)
+    const codeRef = useRef<HTMLElement>(null)
     const { translate } = useInternationalization()
 
     useEffect(() => {
       if (codeRef?.current) {
         Prism.highlightElement(codeRef.current)
       }
-    })
+    }, [code, language, loading])
+
+    useEffect(() => {
+      const pre = codeRef.current?.parentElement
+
+      if (pre) {
+        Prism.plugins.lineNumbers.resize(pre)
+      }
+    }, [className, displayHead, variant, canCopy, loading])
 
     const handleCopy = () => {
       copyToClipboard(code, { ignoreComment: true })
@@ -87,6 +95,7 @@ export const CodeSnippet = memo(
                 // Line-numbers is a Prism className and is required
                 // https://prismjs.com/plugins/line-numbers/
                 'line-numbers',
+                `language-${language}`,
                 'pb-30',
                 displayHead ? 'h-[calc(100%-theme(space.nav))]' : 'h-full',
                 variant === 'minimal' && '!m-0',
