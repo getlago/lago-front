@@ -3,8 +3,13 @@ import { act, cleanup, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ReactNode } from 'react'
 
-import { DIALOG_TITLE_TEST_ID, FORM_DIALOG_NAME } from '~/components/dialogs/const'
+import {
+  DIALOG_TITLE_TEST_ID,
+  FORM_DIALOG_NAME,
+  FORM_DIALOG_TEST_ID,
+} from '~/components/dialogs/const'
 import FormDialog from '~/components/dialogs/FormDialog'
+import { PAYMENT_TERM_INHERIT } from '~/core/constants/paymentTerm'
 import {
   EditBillingEntityPaymentTermForDialogFragment,
   EditCustomerPaymentTermForDialogFragment,
@@ -17,6 +22,21 @@ import {
   EDIT_PAYMENT_TERM_SUBMIT_BUTTON_TEST_ID,
   useEditPaymentTermDialog,
 } from '../EditPaymentTermDialog'
+
+jest.mock('@tanstack/react-virtual', () => ({
+  useVirtualizer: ({ count }: { count: number }) => ({
+    getTotalSize: () => count * 56,
+    getVirtualItems: () =>
+      Array.from({ length: count }, (_, i) => ({
+        index: i,
+        key: String(i),
+        start: i * 56,
+        size: 56,
+      })),
+    scrollToIndex: jest.fn(),
+    measureElement: jest.fn(),
+  }),
+}))
 
 NiceModal.register(FORM_DIALOG_NAME, FormDialog)
 
@@ -50,6 +70,9 @@ jest.mock('~/generated/graphql', () => ({
     return [mockUpdateBillingEntity, { loading: false }]
   },
 }))
+
+/** `translate` is stubbed to the key, so the inherit row renders as its own key. */
+const INHERIT_OPTION_LABEL_KEY = 'text_1728374331992d2alok9y3kr'
 
 const CUSTOMER_ID = 'customer-1'
 const CUSTOMER_EXTERNAL_ID = 'customer-external-1'
@@ -141,6 +164,22 @@ const resolveBillingEntityMutation = () =>
 
     return { data: { updateBillingEntity: { id: BILLING_ENTITY_ID } } }
   })
+
+/**
+ * `combobox-item-<label>` is only the wrapper; MUI's own click handler is spread onto the
+ * inner row, which `ComboBoxItemWrapper` tags with the option's value.
+ */
+const selectTermTypeOption = async (label: string, value: string): Promise<void> => {
+  const input = screen
+    .getByTestId(FORM_DIALOG_TEST_ID)
+    .querySelector('[role="combobox"]') as HTMLElement
+
+  await userEvent.click(input)
+
+  const option = await screen.findByTestId(`combobox-item-${label}`)
+
+  await userEvent.click(option.querySelector(`[data-test="${value}"]`) as HTMLElement)
+}
 
 const submittedCustomerTerm = (): PaymentTermInput | null =>
   mockUpdateCustomer.mock.calls[0][0].variables.input.paymentTerm
@@ -254,14 +293,19 @@ describe('EditPaymentTermDialog', () => {
       })
     })
 
-    // The billing entity is the last level of the chain, so it can never inherit. An empty
-    // term type there is a no-op rather than a clear.
+    // The billing entity is the last level of the chain, so it can never inherit and is
+    // seeded with no term type at all.
     describe('WHEN no term type is selected', () => {
-      it('THEN should submit nothing', async () => {
+      it('THEN should submit nothing and report the missing term type', async () => {
         resolveBillingEntityMutation()
 
         await renderAndOpenDialog({ model: buildBillingEntity() })
         await submit()
+
+        // Without the required check the button spins forever and no error is ever shown.
+        await waitFor(() =>
+          expect(screen.getByText('text_1789042962229hmb871mrfas')).toBeInTheDocument(),
+        )
 
         expect(mockUpdateBillingEntity).not.toHaveBeenCalled()
       })
@@ -269,12 +313,30 @@ describe('EditPaymentTermDialog', () => {
   })
 
   describe('GIVEN a customer inheriting from its billing entity', () => {
+    describe('WHEN the inherit choice is submitted unchanged', () => {
+      it('THEN should submit nothing rather than clear an absent term', async () => {
+        resolveCustomerMutation()
+
+        await renderAndOpenDialog({ model: buildCustomer() })
+        await submit()
+
+        expect(mockUpdateCustomer).not.toHaveBeenCalled()
+        // The Add flow used to send a no-op clear and toast "successfully deleted".
+        expect(mockAddToast).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN a customer with a term of its own', () => {
     describe('WHEN the inherit choice is submitted', () => {
       it('THEN should clear the override and report it as a deletion', async () => {
         resolveCustomerMutation()
 
-        // No term of its own is exactly the state the inherit option submits.
-        await renderAndOpenDialog({ model: buildCustomer() })
+        await renderAndOpenDialog({
+          model: buildCustomer(term({ termType: PaymentTermTypeEnum.Net, days: 15 })),
+        })
+
+        await selectTermTypeOption(INHERIT_OPTION_LABEL_KEY, PAYMENT_TERM_INHERIT)
         await submit()
 
         await waitFor(() => expect(mockUpdateCustomer).toHaveBeenCalled())

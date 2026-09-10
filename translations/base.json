@@ -4943,5 +4943,9 @@
   "text_1787603382163macepxq32tf": "Payment terms successfully deleted",
   "text_178760338216360dag3pqr3v": "Search or select a payment term",
   "text_1787603382163xl4mmi1owjh": "You’re about to delete these payment terms",
-  "text_1787603382163x1yp1dfhgcb": "After deleting these payment terms, {{customerName}}’s upcoming invoices will automatically adopt the ones defined at the billing entity level. Invoices already in draft keep the terms they were created with. Are you sure to delete it?"
+  "text_1787603382163x1yp1dfhgcb": "After deleting these payment terms, {{customerName}}’s upcoming invoices will automatically adopt the ones defined at the billing entity level. Invoices already in draft keep the terms they were created with. Are you sure to delete it?",
+  "text_1789042962229hmb871mrfas": "a term type is required",
+  "text_1789042962229bk0kdnqlbpc": "the number of days is invalid",
+  "text_1789042962229ojqymcu3289": "the day of month is invalid",
+  "text_1789042962229esmw981wwyt": "the month offset is invalid"
 }

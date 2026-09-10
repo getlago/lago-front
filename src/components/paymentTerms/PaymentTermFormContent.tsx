@@ -10,6 +10,7 @@ import {
   PAYMENT_TERM_DAY_OF_MONTH_MIN,
   PAYMENT_TERM_DEFAULT_MONTH_OFFSET,
   PAYMENT_TERM_FIELDS_BY_TYPE,
+  PAYMENT_TERM_INHERIT,
   PAYMENT_TERM_MONTH_OFFSET_MAX,
   PAYMENT_TERM_MONTH_OFFSET_MIN,
 } from '~/core/constants/paymentTerm'
@@ -22,24 +23,30 @@ import { usePaymentTerm } from '~/hooks/usePaymentTerm'
 export const PAYMENT_TERM_TYPE_COMBOBOX_TEST_CLASSNAME = PAYMENT_TERM_INPUT_CLASSNAME
 export const PAYMENT_TERM_DUE_DATE_PREVIEW_TEST_ID = 'payment-term-due-date-preview'
 
+export type PaymentTermType = PaymentTermTypeEnum | typeof PAYMENT_TERM_INHERIT
+
 /**
- * `termType` is empty only where the level can inherit from its parent — see the
- * `inheritedFrom` option on the combo box data.
+ * `termType` starts out unset, so a level with no term of its own and nothing to inherit
+ * from reports a required-field error instead of submitting an empty term. A level that
+ * can inherit is seeded with `PAYMENT_TERM_INHERIT` by its caller.
  *
  * The numeric fields are seeded rather than left blank so that switching term type
  * reveals a usable value straight away. Values belonging to a type the user moved away
  * from are simply not sent: `buildPaymentTermInput` emits only the chosen type's fields.
  */
 export const PAYMENT_TERM_FORM_DEFAULT_VALUES = {
-  // The combo box maps its empty option to `undefined`, so an empty term type arrives as
-  // either. Both mean "inherit from the level above".
-  termType: '' as PaymentTermTypeEnum | '' | undefined,
+  termType: undefined as PaymentTermType | undefined,
   days: 0 as number | '',
   dayOfMonth: PAYMENT_TERM_DAY_OF_MONTH_MIN as number | '',
   monthOffset: PAYMENT_TERM_DEFAULT_MONTH_OFFSET as number | '',
 }
 
 export type PaymentTermFormValues = typeof PAYMENT_TERM_FORM_DEFAULT_VALUES
+
+/** Whether the value stands for a concrete term rather than the inherit choice. */
+export const isConcreteTermType = (
+  termType: PaymentTermType | undefined,
+): termType is PaymentTermTypeEnum => !!termType && termType !== PAYMENT_TERM_INHERIT
 
 const isPositiveIntegerWithin = (value: number | '', min: number, max: number): boolean =>
   typeof value === 'number' && Number.isInteger(value) && value >= min && value <= max
@@ -50,13 +57,15 @@ const isPositiveIntegerWithin = (value: number | '', min: number, max: number): 
  */
 export const paymentTermFormSchema = z
   .object({
-    termType: z.union([z.enum(PaymentTermTypeEnum), z.literal(''), z.undefined()]),
+    termType: z.union([z.enum(PaymentTermTypeEnum), z.literal(PAYMENT_TERM_INHERIT)], {
+      message: 'text_1789042962229hmb871mrfas',
+    }),
     days: z.union([z.number(), z.literal('')]),
     dayOfMonth: z.union([z.number(), z.literal('')]),
     monthOffset: z.union([z.number(), z.literal('')]),
   })
   .superRefine((values, ctx) => {
-    if (!values.termType) return
+    if (!isConcreteTermType(values.termType)) return
 
     const fields = PAYMENT_TERM_FIELDS_BY_TYPE[values.termType]
 
@@ -64,7 +73,11 @@ export const paymentTermFormSchema = z
       fields.includes('days') &&
       !isPositiveIntegerWithin(values.days, 0, Number.MAX_SAFE_INTEGER)
     ) {
-      ctx.addIssue({ code: 'custom', path: ['days'], message: '' })
+      ctx.addIssue({
+        code: 'custom',
+        path: ['days'],
+        message: 'text_1789042962229bk0kdnqlbpc',
+      })
     }
 
     if (
@@ -75,7 +88,11 @@ export const paymentTermFormSchema = z
         PAYMENT_TERM_DAY_OF_MONTH_MAX,
       )
     ) {
-      ctx.addIssue({ code: 'custom', path: ['dayOfMonth'], message: '' })
+      ctx.addIssue({
+        code: 'custom',
+        path: ['dayOfMonth'],
+        message: 'text_1789042962229ojqymcu3289',
+      })
     }
 
     // Absent is valid — the API fills the default — but a value that is present must be in range.
@@ -88,7 +105,11 @@ export const paymentTermFormSchema = z
         PAYMENT_TERM_MONTH_OFFSET_MAX,
       )
     ) {
-      ctx.addIssue({ code: 'custom', path: ['monthOffset'], message: '' })
+      ctx.addIssue({
+        code: 'custom',
+        path: ['monthOffset'],
+        message: 'text_1789042962229esmw981wwyt',
+      })
     }
   })
 
@@ -96,7 +117,7 @@ export const paymentTermFormSchema = z
 export const paymentTermFromFormValues = (
   values: PaymentTermFormValues,
 ): ResolvablePaymentTerm | null => {
-  if (!values.termType) return null
+  if (!isConcreteTermType(values.termType)) return null
 
   return {
     termType: values.termType,
@@ -138,7 +159,7 @@ export const PaymentTermFormContent = withForm({
     const dayOfMonth = useStore(form.store, (state) => state.values.dayOfMonth)
     const monthOffset = useStore(form.store, (state) => state.values.monthOffset)
 
-    const fields = termType ? PAYMENT_TERM_FIELDS_BY_TYPE[termType] : []
+    const fields = isConcreteTermType(termType) ? PAYMENT_TERM_FIELDS_BY_TYPE[termType] : []
     const previewTerm = paymentTermFromFormValues({ termType, days, dayOfMonth, monthOffset })
 
     return (
