@@ -19,6 +19,7 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 
 const NAME_LABEL_KEY = 'text_629728388c4d2300e2d38091'
 const CODE_LABEL_KEY = 'text_629728388c4d2300e2d380b7'
+const DESCRIPTION_LABEL_KEY = 'text_6388b923e514213fed58331c'
 const INVOICE_DISPLAY_NAME_LABEL_KEY = 'text_65a6b4e2cb38d9b70ec53d39'
 const ADD_DESCRIPTION_BUTTON_KEY = 'text_642d5eb2783a2ad10d670324'
 
@@ -61,6 +62,7 @@ const codeInput = (): HTMLElement => screen.getByLabelText(CODE_LABEL_KEY)
 const currencyInput = (): HTMLElement => screen.getByRole('combobox')
 const invoiceDisplayNameInput = (): HTMLElement =>
   screen.getByLabelText(INVOICE_DISPLAY_NAME_LABEL_KEY)
+const descriptionInput = (): HTMLElement => screen.getByLabelText(DESCRIPTION_LABEL_KEY)
 
 describe('CatalogPlanDrawerContent', () => {
   describe('lock matrix', () => {
@@ -93,12 +95,18 @@ describe('CatalogPlanDrawerContent', () => {
 
     // `updateCatalogPlan` accepts name and invoiceDisplayName on a
     // contract-attached plan; re-freezing them here would block a legal edit.
-    it('GIVEN both locks THEN name and invoice display name stay editable', () => {
-      renderHost({ isEdit: true, disableCodeInput: true, disableCurrencyInput: true })
+    it('GIVEN both locks THEN name, description and invoice display name stay editable', () => {
+      renderHost({
+        isEdit: true,
+        disableCodeInput: true,
+        disableCurrencyInput: true,
+        values: { description: 'Existing' },
+      })
 
       expect(codeInput()).toBeDisabled()
       expect(currencyInput()).toBeDisabled()
       expect(nameInput()).toBeEnabled()
+      expect(descriptionInput()).toBeEnabled()
       expect(invoiceDisplayNameInput()).toBeEnabled()
     })
   })
