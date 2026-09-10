@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 import { CodeSnippet } from '~/components/CodeSnippet'
 import { Accordion } from '~/components/designSystem/Accordion'

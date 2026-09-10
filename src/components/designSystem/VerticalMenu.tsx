@@ -1,7 +1,7 @@
 import { Icon, IconName } from 'lago-design-system'
 import _omit from 'lodash/omit'
 import { ReactNode } from 'react'
-import { matchPath } from 'react-router-dom'
+import { matchPath } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'

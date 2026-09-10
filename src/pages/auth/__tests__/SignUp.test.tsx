@@ -1,6 +1,6 @@
 import { MockedProvider } from '@apollo/client/testing'
 import { act, render, waitFor } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter } from 'react-router'
 
 import { PASSWORD_HINTS_TEST_IDS } from '~/components/form/PasswordValidationHints/PasswordValidationHints'
 

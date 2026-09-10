@@ -1,4 +1,4 @@
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { EVENT_LOG_ROUTE } from '~/components/developers/devtoolsRoutes'
 

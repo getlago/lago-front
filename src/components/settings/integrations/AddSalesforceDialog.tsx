@@ -2,7 +2,7 @@ import { gql, useApolloClient } from '@apollo/client'
 import { revalidateLogic } from '@tanstack/react-form'
 import { GraphQLFormattedError } from 'graphql'
 import { useRef, useState } from 'react'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 import { z } from 'zod'
 
 import { Alert } from '~/components/designSystem/Alert'

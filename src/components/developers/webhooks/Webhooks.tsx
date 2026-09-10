@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useState } from 'react'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import { Table } from '~/components/designSystem/Table/Table'

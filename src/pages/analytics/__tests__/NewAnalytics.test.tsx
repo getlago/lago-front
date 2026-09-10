@@ -1,5 +1,5 @@
 import { screen } from '@testing-library/react'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { MainHeaderConfig } from '~/components/MainHeader/types'
 import { NewAnalyticsTabsOptionsEnum } from '~/core/constants/tabsOptions'

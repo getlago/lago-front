@@ -1,11 +1,11 @@
 import { renderHook } from '@testing-library/react'
 // eslint-disable-next-line lago/no-direct-rrd-nav-import
-import { useLocation as useRRLocation } from 'react-router-dom'
+import { useLocation as useRRLocation } from 'react-router'
 
 import { useLocation } from '../useLocation'
 
-jest.mock('react-router-dom', () => {
-  const actual = jest.requireActual('react-router-dom')
+jest.mock('react-router', () => {
+  const actual = jest.requireActual('react-router')
   const mockUseParams = jest.fn(actual.useParams)
 
   return {
@@ -17,7 +17,7 @@ jest.mock('react-router-dom', () => {
 })
 
 const mockUseRRLocation = useRRLocation as jest.Mock
-const mockUseParams = jest.requireMock('react-router-dom').useParams as jest.Mock
+const mockUseParams = jest.requireMock('react-router').useParams as jest.Mock
 
 describe('useLocation', () => {
   beforeEach(() => {

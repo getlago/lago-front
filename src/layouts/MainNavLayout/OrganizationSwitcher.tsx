@@ -1,7 +1,7 @@
 import { ApolloClient, ApolloError } from '@apollo/client'
 import { captureException } from '@sentry/react'
 import { ConditionalWrapper, Icon } from 'lago-design-system'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'

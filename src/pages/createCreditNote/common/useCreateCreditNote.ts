@@ -1,6 +1,6 @@
 import { ApolloError, gql } from '@apollo/client'
 import { useMemo } from 'react'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 
 import { CreditNoteForm, FeesPerInvoice, FromFee } from '~/components/creditNote/types'
 import {

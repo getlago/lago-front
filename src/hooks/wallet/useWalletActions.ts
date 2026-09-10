@@ -1,5 +1,5 @@
 import { IconName } from 'lago-design-system'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { buildLinkToActivityLog } from '~/components/activityLogs/utils'
 import { AvailableFiltersEnum } from '~/components/Filters'

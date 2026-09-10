@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { addToast } from '~/core/apolloClient'
 import { EDIT_QUOTE_ROUTE, useNavigate } from '~/core/router'

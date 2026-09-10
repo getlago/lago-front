@@ -1,6 +1,6 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 import {
   GENERIC_PLACEHOLDER_BUTTON_TEST_ID,
@@ -66,7 +66,7 @@ describe('WalletTransactionList', () => {
 
   it('GIVEN a customer ID THEN the empty state can navigate to top-up', async () => {
     const user = userEvent.setup()
-    const navigate = jest.requireMock('react-router-dom').useNavigate()
+    const navigate = jest.requireMock('react-router').useNavigate()
 
     render(<WalletTransactionList isOpen wallet={wallet} footer={null} />)
     await user.click(screen.getByTestId(GENERIC_PLACEHOLDER_BUTTON_TEST_ID))

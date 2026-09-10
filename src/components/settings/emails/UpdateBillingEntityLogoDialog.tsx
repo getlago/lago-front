@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { revalidateLogic } from '@tanstack/react-form'
 import { useRef } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 import { z } from 'zod'
 
 import { useFormDialog } from '~/components/dialogs/FormDialog'

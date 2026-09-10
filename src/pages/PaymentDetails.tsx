@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { Icon, IconName } from 'lago-design-system'
 import { ReactNode } from 'react'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Button } from '~/components/designSystem/Button'

@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { useStore } from '@tanstack/react-form'
 import { useEffect, useMemo } from 'react'
-import { generatePath, useParams, useSearchParams } from 'react-router-dom'
+import { generatePath, useParams, useSearchParams } from 'react-router'
 
 import {
   LocalPricingUnitType,

@@ -1,5 +1,5 @@
 import { Fragment } from 'react'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { Chip } from '~/components/designSystem/Chip'
 import { Status } from '~/components/designSystem/Status'

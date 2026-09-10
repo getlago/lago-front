@@ -5,7 +5,7 @@ import {
   useParams,
   // eslint-disable-next-line lago/no-direct-rrd-nav-import
   useNavigate as useRRNavigate,
-} from 'react-router-dom'
+} from 'react-router'
 
 import { prependOrgSlug } from './utils/prependOrgSlug'
 

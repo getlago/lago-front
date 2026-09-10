@@ -26,8 +26,8 @@ jest.mock('~/components/Filters/presentation/ActiveFiltersList', () => ({
 
 let mockSearchParams = new URLSearchParams()
 
-jest.mock('react-router-dom', () => {
-  const actual = jest.requireActual('react-router-dom')
+jest.mock('react-router', () => {
+  const actual = jest.requireActual('react-router')
   const { mockNavigate } = (
     globalThis as unknown as { __testRouterMocks: { mockNavigate: jest.Mock } }
   ).__testRouterMocks

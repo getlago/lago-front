@@ -117,7 +117,7 @@ describe('QuoteDetails', () => {
     jest.clearAllMocks()
     mockHasPermissions.mockReturnValue(true)
     mockIsPremium.mockReturnValue(true)
-    const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
+    const useParamsMock = jest.requireMock('react-router').useParams as jest.Mock
 
     useParamsMock.mockReturnValue({ quoteId: 'quote-draft-001' })
 
@@ -384,7 +384,7 @@ describe('QuoteDetails', () => {
         refetch: jest.fn(),
       })
 
-      const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
+      const useParamsMock = jest.requireMock('react-router').useParams as jest.Mock
 
       useParamsMock.mockReturnValue({ quoteId: 'non-existent-id' })
 

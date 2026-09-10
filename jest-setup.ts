@@ -1,7 +1,7 @@
 // Console suppression is handled in jest-setup-early.ts (runs before imports)
 import '@testing-library/jest-dom'
 import type { ReactElement } from 'react'
-import type { BrowserRouterProps, MemoryRouterProps } from 'react-router-dom'
+import type { BrowserRouterProps, MemoryRouterProps } from 'react-router'
 
 // Registers the default Zod error message for every suite — pure schema tests never go
 // through `test-utils`, so they would otherwise see a different default than the app.
@@ -25,8 +25,8 @@ const mockNavigate = jest.fn()
   mockNavigate,
 }
 
-jest.mock('react-router-dom', () => {
-  const actual = jest.requireActual<typeof import('react-router-dom')>('react-router-dom')
+jest.mock('react-router', () => {
+  const actual = jest.requireActual<typeof import('react-router')>('react-router')
   const { createElement } = jest.requireActual<typeof import('react')>('react')
   const mockUseParams = jest.fn(actual.useParams)
 
