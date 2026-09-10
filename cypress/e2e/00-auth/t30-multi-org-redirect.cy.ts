@@ -3,6 +3,7 @@ import {
   SUBMIT_CUSTOMER_DATA_TEST,
 } from '~/components/customers/utils/dataTestConstants'
 import { ACTIONS_BLOCK_TEST_ID } from '~/components/MainHeader/mainHeaderTestIds'
+import { MAIN_NAV_CUSTOMERS_TEST_ID } from '~/layouts/MainNavLayout/mainNavTestIds'
 
 // Note: some login are done manually without using cy.login command
 // to preserve the router state needed for redirect testing
@@ -112,7 +113,7 @@ describe('Multi-organization redirect flows', () => {
       cy.contains(testUsers.userA.org1Name).click()
       cy.get('[data-test="side-nav-user-infos"]').should('contain', testUsers.userA.org1Name)
       // 3. Create a customer in Org1
-      cy.get('[data-test="main-nav-menu-sections"]').contains('a', 'Customers').click()
+      cy.get(`[data-test="${MAIN_NAV_CUSTOMERS_TEST_ID}"]`).click()
       cy.get(`[data-test="${ACTIONS_BLOCK_TEST_ID}"] [data-test="${CREATE_CUSTOMER_DATA_TEST}"]`, {
         timeout: 10000,
       }).click()

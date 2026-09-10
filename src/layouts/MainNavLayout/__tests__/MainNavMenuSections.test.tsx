@@ -1,5 +1,6 @@
 import { screen, within } from '@testing-library/react'
 
+import { CUSTOMERS_LIST_ROUTE } from '~/core/router'
 import { FeatureFlagEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
@@ -11,6 +12,7 @@ import {
   MAIN_NAV_REPORTS_SECTION_TEST_ID,
   MainNavMenuSections,
 } from '../MainNavMenuSections'
+import { MAIN_NAV_CUSTOMERS_TEST_ID } from '../mainNavTestIds'
 
 const mockHasPermissions = jest.fn()
 const mockHasPermissionsOr = jest.fn()
@@ -86,6 +88,15 @@ describe('MainNavMenuSections', () => {
   })
 
   describe('Component rendering', () => {
+    it('exposes a stable selector for the Customers navigation item', () => {
+      render(<MainNavMenuSections {...defaultProps} />)
+
+      expect(screen.getByTestId(MAIN_NAV_CUSTOMERS_TEST_ID).closest('a')).toHaveAttribute(
+        'href',
+        CUSTOMERS_LIST_ROUTE,
+      )
+    })
+
     it('renders the menu sections container', () => {
       render(<MainNavMenuSections {...defaultProps} />)
 
