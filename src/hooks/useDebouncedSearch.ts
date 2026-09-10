@@ -3,7 +3,7 @@ import { debounce, DebouncedFunc } from 'lodash'
 import { DateTime } from 'luxon'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-export const DEBOUNCE_SEARCH_MS = window.Cypress ? 0 : 500
+export const DEBOUNCE_SEARCH_MS = window.Cypress || process.env.NODE_ENV === 'test' ? 0 : 500
 const MIN_SEARCH_CHARS = 3
 
 export type UseDebouncedSearch = (

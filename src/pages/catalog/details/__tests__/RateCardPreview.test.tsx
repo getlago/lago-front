@@ -1,13 +1,5 @@
 import { MockedResponse } from '@apollo/client/testing'
-import {
-  act,
-  configure,
-  fireEvent,
-  getConfig,
-  render as rtlRender,
-  screen,
-  waitFor,
-} from '@testing-library/react'
+import { act, fireEvent, render as rtlRender, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { GENERIC_PLACEHOLDER_TEST_ID } from '~/components/designSystem/GenericPlaceholder'
@@ -146,18 +138,6 @@ const renderPreview = (mocks: MockedResponse[], scope: RateCardPreviewScope = pr
   })
 
 describe('RateCardPreview', () => {
-  // Every case here renders behind useDebouncedSearch's loading-blink timer, which burns up
-  // to DEBOUNCE_SEARCH_MS of real time before rows paint. RTL's 1s default leaves almost no
-  // headroom for that on a loaded CI runner, so widen it for this file only.
-  const originalAsyncUtilTimeout = getConfig().asyncUtilTimeout
-
-  beforeAll(() => {
-    configure({ asyncUtilTimeout: 5000 })
-  })
-
-  afterAll(() => {
-    configure({ asyncUtilTimeout: originalAsyncUtilTimeout })
-  })
   beforeEach(() => {
     jest.clearAllMocks()
     mockHasPermissions.mockReturnValue(true)
