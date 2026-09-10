@@ -16270,6 +16270,22 @@ export type DestroyRateCardRateMutationVariables = Exact<{
 
 export type DestroyRateCardRateMutation = { __typename?: 'Mutation', destroyRateCardRate?: { __typename?: 'DestroyRateCardRatePayload', id?: string | null } | null };
 
+export type CatalogPlanForCatalogPlanDrawerFragment = { __typename?: 'CatalogPlan', id: string, name: string, code: string, currency: CurrencyEnum, description?: string | null, invoiceDisplayName?: string | null, appliedRateCardsCount: number, attachedToContracts: boolean };
+
+export type CreateCatalogPlanMutationVariables = Exact<{
+  input: CreateCatalogPlanInput;
+}>;
+
+
+export type CreateCatalogPlanMutation = { __typename?: 'Mutation', createCatalogPlan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string, currency: CurrencyEnum, description?: string | null, invoiceDisplayName?: string | null, appliedRateCardsCount: number, attachedToContracts: boolean } | null };
+
+export type UpdateCatalogPlanMutationVariables = Exact<{
+  input: UpdateCatalogPlanInput;
+}>;
+
+
+export type UpdateCatalogPlanMutation = { __typename?: 'Mutation', updateCatalogPlan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string, currency: CurrencyEnum, description?: string | null, invoiceDisplayName?: string | null, appliedRateCardsCount: number, attachedToContracts: boolean } | null };
+
 export type GetProductCategoriesForProductDrawerQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -23085,6 +23101,18 @@ export const RateCardForRateDetailsFragmentDoc = gql`
     id
     name
   }
+}
+    `;
+export const CatalogPlanForCatalogPlanDrawerFragmentDoc = gql`
+    fragment CatalogPlanForCatalogPlanDrawer on CatalogPlan {
+  id
+  name
+  code
+  currency
+  description
+  invoiceDisplayName
+  appliedRateCardsCount
+  attachedToContracts
 }
     `;
 export const RateCardForRateDrawerFragmentDoc = gql`
@@ -42811,6 +42839,74 @@ export function useDestroyRateCardRateMutation(baseOptions?: Apollo.MutationHook
 export type DestroyRateCardRateMutationHookResult = ReturnType<typeof useDestroyRateCardRateMutation>;
 export type DestroyRateCardRateMutationResult = Apollo.MutationResult<DestroyRateCardRateMutation>;
 export type DestroyRateCardRateMutationOptions = Apollo.BaseMutationOptions<DestroyRateCardRateMutation, DestroyRateCardRateMutationVariables>;
+export const CreateCatalogPlanDocument = gql`
+    mutation createCatalogPlan($input: CreateCatalogPlanInput!) {
+  createCatalogPlan(input: $input) {
+    id
+    ...CatalogPlanForCatalogPlanDrawer
+  }
+}
+    ${CatalogPlanForCatalogPlanDrawerFragmentDoc}`;
+export type CreateCatalogPlanMutationFn = Apollo.MutationFunction<CreateCatalogPlanMutation, CreateCatalogPlanMutationVariables>;
+
+/**
+ * __useCreateCatalogPlanMutation__
+ *
+ * To run a mutation, you first call `useCreateCatalogPlanMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateCatalogPlanMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createCatalogPlanMutation, { data, loading, error }] = useCreateCatalogPlanMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateCatalogPlanMutation(baseOptions?: Apollo.MutationHookOptions<CreateCatalogPlanMutation, CreateCatalogPlanMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateCatalogPlanMutation, CreateCatalogPlanMutationVariables>(CreateCatalogPlanDocument, options);
+      }
+export type CreateCatalogPlanMutationHookResult = ReturnType<typeof useCreateCatalogPlanMutation>;
+export type CreateCatalogPlanMutationResult = Apollo.MutationResult<CreateCatalogPlanMutation>;
+export type CreateCatalogPlanMutationOptions = Apollo.BaseMutationOptions<CreateCatalogPlanMutation, CreateCatalogPlanMutationVariables>;
+export const UpdateCatalogPlanDocument = gql`
+    mutation updateCatalogPlan($input: UpdateCatalogPlanInput!) {
+  updateCatalogPlan(input: $input) {
+    id
+    ...CatalogPlanForCatalogPlanDrawer
+  }
+}
+    ${CatalogPlanForCatalogPlanDrawerFragmentDoc}`;
+export type UpdateCatalogPlanMutationFn = Apollo.MutationFunction<UpdateCatalogPlanMutation, UpdateCatalogPlanMutationVariables>;
+
+/**
+ * __useUpdateCatalogPlanMutation__
+ *
+ * To run a mutation, you first call `useUpdateCatalogPlanMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCatalogPlanMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCatalogPlanMutation, { data, loading, error }] = useUpdateCatalogPlanMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateCatalogPlanMutation(baseOptions?: Apollo.MutationHookOptions<UpdateCatalogPlanMutation, UpdateCatalogPlanMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateCatalogPlanMutation, UpdateCatalogPlanMutationVariables>(UpdateCatalogPlanDocument, options);
+      }
+export type UpdateCatalogPlanMutationHookResult = ReturnType<typeof useUpdateCatalogPlanMutation>;
+export type UpdateCatalogPlanMutationResult = Apollo.MutationResult<UpdateCatalogPlanMutation>;
+export type UpdateCatalogPlanMutationOptions = Apollo.BaseMutationOptions<UpdateCatalogPlanMutation, UpdateCatalogPlanMutationVariables>;
 export const GetProductCategoriesForProductDrawerDocument = gql`
     query getProductCategoriesForProductDrawer($page: Int, $limit: Int, $searchTerm: String) {
   productCategories(page: $page, limit: $limit, searchTerm: $searchTerm) {
