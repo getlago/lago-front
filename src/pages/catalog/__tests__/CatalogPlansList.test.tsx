@@ -22,6 +22,7 @@ const PLAN_DEFINITION_KEY = 'text_17890300495297g290y7et77'
 
 const mockMainHeaderConfigure = jest.fn()
 const mockTableProps = jest.fn()
+const mockPaginatedContentProps = jest.fn()
 const mockSearchInputProps = jest.fn()
 const mockHasPermissions = jest.fn()
 const mockGoToPage = jest.fn()
@@ -49,7 +50,10 @@ jest.mock('~/components/designSystem/Table/Table', () => ({
 }))
 
 jest.mock('~/components/designSystem/Pagination', () => ({
-  PaginatedContent: ({ children }: { children: ReactNode }) => <>{children}</>,
+  PaginatedContent: ({ children, ...props }: { children: ReactNode }) => {
+    mockPaginatedContentProps(props)
+    return <>{children}</>
+  },
   usePageSearchParam: () => ({ page: 1, goToPage: mockGoToPage }),
 }))
 
@@ -137,6 +141,19 @@ describe('CatalogPlansList', () => {
       variables: { limit: DEFAULT_PAGE_SIZE, page: 1 },
       notifyOnNetworkStatusChange: true,
     })
+  })
+
+  it('renders as a full-page list: inset pager, default sticky, and the page-gutter container size', () => {
+    render(<CatalogPlansList />)
+
+    const paginatedContentProps = mockPaginatedContentProps.mock.calls[0][0] as {
+      insetPager?: boolean
+      sticky?: boolean
+    }
+
+    expect(paginatedContentProps.insetPager).toBe(true)
+    expect(paginatedContentProps.sticky).toBeUndefined()
+    expect(getTableProps().containerSize).toEqual({ default: 16, md: 48 })
   })
 
   it('renders the four list columns, with the counts and the date right-aligned', () => {
