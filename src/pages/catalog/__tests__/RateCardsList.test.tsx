@@ -110,7 +110,6 @@ const buildRateCard = (
   displayOnInvoice: true,
   regroupPaidFees: RateCardRegroupPaidFeesEnum.None,
   proration: false,
-  walletTargetable: false,
   attachedToPlanOrSubscription: false,
   attachedToSubscriptions: false,
   product: {

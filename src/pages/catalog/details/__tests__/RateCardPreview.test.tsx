@@ -81,7 +81,6 @@ const buildRow = (index: number): RateCardForListFragment => ({
   displayOnInvoice: true,
   regroupPaidFees: RateCardRegroupPaidFeesEnum.None,
   proration: false,
-  walletTargetable: false,
   attachedToPlanOrSubscription: false,
   attachedToSubscriptions: false,
   product: {

@@ -125,7 +125,6 @@ const rateCardResult = {
   displayOnInvoice: true,
   regroupPaidFees: null,
   proration: false,
-  walletTargetable: false,
   attachedToPlanOrSubscription: false,
   attachedToSubscriptions: false,
   product: {
@@ -233,7 +232,6 @@ describe('useRateCardDrawer create flow', () => {
       productId: 'pi-1',
       billingTiming: RateCardBillingTimingEnum.Arrears,
       proration: false,
-      walletTargetable: false,
       currency: CurrencyEnum.Usd,
       displayOnInvoice: true,
       regroupPaidFees: null,

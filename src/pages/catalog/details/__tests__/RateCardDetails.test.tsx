@@ -73,7 +73,6 @@ const rateCardFixture = {
   displayOnInvoice: true,
   regroupPaidFees: null,
   proration: false,
-  walletTargetable: false,
   attachedToPlanOrSubscription: false,
   attachedToSubscriptions: false,
   ratesCount: 0,
