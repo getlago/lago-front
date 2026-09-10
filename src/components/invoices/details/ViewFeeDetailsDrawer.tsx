@@ -14,7 +14,6 @@ import { useDrawer } from '~/components/drawers/useDrawer'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { DetailRow, GRID } from '~/components/wallets/WalletDetailsDrawer'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import { ROUTER_FUTURE_FLAGS } from '~/core/router/futureFlags'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { FeeForViewFeeDetailsDrawerFragment, FeeTypesEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -410,7 +409,7 @@ const ViewFeeDetailsBody = ({ fee }: { fee: FeeForViewFeeDetailsDrawerFragment }
   const hasBreakdowns = (fee.presentationBreakdowns?.length ?? 0) > 0
 
   return (
-    <MemoryRouter future={ROUTER_FUTURE_FLAGS}>
+    <MemoryRouter useTransitions={false}>
       <div data-test={VIEW_FEE_DETAILS_DRAWER_TEST_ID}>
         <CenteredPage.SectionWrapper>
           <div>

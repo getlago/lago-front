@@ -17,11 +17,9 @@ jest.mock('~/core/apolloClient/reactiveVars/toastVar', () => ({
 
 jest.mock('react-router-dom', () => {
   const actual = jest.requireActual('react-router-dom')
-  const { withRouterFuture } = jest.requireActual('~/test-utils/routerFutureMock')
 
   return {
     ...actual,
-    ...withRouterFuture(actual),
     useNavigate: () => mockNavigate,
   }
 })

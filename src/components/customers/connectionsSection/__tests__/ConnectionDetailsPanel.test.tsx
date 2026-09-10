@@ -113,6 +113,7 @@ const INTEGRATIONS_DATA = {
 describe('ConnectionDetailsPanel', () => {
   beforeEach(() => {
     mockHasFeatureFlag.mockReturnValue(false)
+    jest.requireMock('react-router-dom').useParams.mockReturnValue({ organizationSlug: 'acme' })
   })
 
   describe('GIVEN the Stripe payment connection', () => {
@@ -129,6 +130,7 @@ describe('ConnectionDetailsPanel', () => {
         const link = screen.getByTestId(CONNECTION_EXTERNAL_LINK_TEST_ID)
 
         expect(link).toHaveAttribute('href', buildStripeCustomerUrl('cus_123'))
+        expect(link).toHaveProperty('origin', 'https://dashboard.stripe.com')
         expect(link).toHaveTextContent('cus_123')
       })
 
@@ -194,6 +196,10 @@ describe('ConnectionDetailsPanel', () => {
         expect(screen.getByTestId(CONNECTION_EXTERNAL_LINK_TEST_ID)).toHaveAttribute(
           'href',
           buildNetsuiteCustomerUrl('acc-1', 'ns_cus_1'),
+        )
+        expect(screen.getByTestId(CONNECTION_EXTERNAL_LINK_TEST_ID)).toHaveProperty(
+          'origin',
+          'https://acc-1.app.netsuite.com',
         )
       })
 

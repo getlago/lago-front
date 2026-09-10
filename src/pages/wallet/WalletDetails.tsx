@@ -169,10 +169,9 @@ const WalletDetails = () => {
   const { hasPermissions } = usePermissions()
   const activeTabContent = useMainHeaderTabContent()
 
-  const { data, error, loading } = useGetWalletDetailsQuery({
-    variables: { walletId: walletId as string },
-    skip: !walletId,
-  })
+  const { data, error, loading } = useGetWalletDetailsQuery(
+    walletId ? { variables: { walletId } } : { skip: true },
+  )
 
   const wallet = data?.wallet
 
@@ -218,12 +217,14 @@ const WalletDetails = () => {
   ].join('|')
 
   const tabs = useMemo(() => {
+    if (!walletId || !customerId) return []
+
     return [
       {
         title: translate('text_1772536695408epr1ktf2hy9'),
         link: generatePath(WALLET_DETAILS_ROUTE, {
-          walletId: walletId as string,
-          customerId: customerId as string,
+          walletId,
+          customerId,
           tab: WalletDetailsTabsOptionsEnum.overview,
         }),
         content: (
@@ -240,8 +241,8 @@ const WalletDetails = () => {
                       }}
                       type="button"
                       to={generatePath(EDIT_WALLET_ROUTE, {
-                        walletId: walletId as string,
-                        customerId: customerId ?? null,
+                        walletId,
+                        customerId,
                       })}
                       data-test="edit-wallet"
                     >
@@ -259,8 +260,8 @@ const WalletDetails = () => {
       {
         title: translate('text_1772536695409spdoskvq4w5'),
         link: generatePath(WALLET_DETAILS_ROUTE, {
-          walletId: walletId as string,
-          customerId: customerId as string,
+          walletId,
+          customerId,
           tab: WalletDetailsTabsOptionsEnum.recurringRule,
         }),
         content: (
@@ -277,8 +278,8 @@ const WalletDetails = () => {
                       }}
                       type="button"
                       to={generatePath(EDIT_WALLET_ROUTE, {
-                        walletId: walletId as string,
-                        customerId: customerId ?? null,
+                        walletId,
+                        customerId,
                       })}
                       routerState={{ openRecurringRuleDrawer: true }}
                     >
@@ -296,8 +297,8 @@ const WalletDetails = () => {
       {
         title: translate('text_1772536695408zfepv8jb948'),
         link: generatePath(WALLET_DETAILS_ROUTE, {
-          walletId: walletId as string,
-          customerId: customerId as string,
+          walletId,
+          customerId,
           tab: WalletDetailsTabsOptionsEnum.transactions,
         }),
         content: (
@@ -314,8 +315,8 @@ const WalletDetails = () => {
       {
         title: translate('text_177253669540873hdqaoks8e'),
         link: generatePath(WALLET_DETAILS_ROUTE, {
-          walletId: walletId as string,
-          customerId: customerId as string,
+          walletId,
+          customerId,
           tab: WalletDetailsTabsOptionsEnum.alerts,
         }),
         content: (
@@ -332,8 +333,8 @@ const WalletDetails = () => {
                       }}
                       type="button"
                       to={generatePath(CREATE_ALERT_WALLET_ROUTE, {
-                        walletId: walletId as string,
-                        customerId: customerId ?? null,
+                        walletId,
+                        customerId,
                       })}
                       data-test="create-wallet-alert"
                     >
@@ -387,10 +388,12 @@ const WalletDetails = () => {
           },
           {
             label: customerName,
-            path: generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
-              customerId: customerId as string,
-              tab: CustomerDetailsTabsOptions.wallet,
-            }),
+            path: customerId
+              ? generatePath(CUSTOMER_DETAILS_TAB_ROUTE, {
+                  customerId,
+                  tab: CustomerDetailsTabsOptions.wallet,
+                })
+              : undefined,
             loading,
           },
         ]}

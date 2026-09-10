@@ -51,6 +51,7 @@ import { usePermissions } from '~/hooks/usePermissions'
 import { NavLayout } from '~/layouts/NavLayout'
 import { BadgeAI } from '~/pages/forecasts/Forecasts'
 
+import { MAIN_NAV_CUSTOMERS_TEST_ID } from './mainNavTestIds'
 import { getNavTabs, NavTab } from './utils'
 import { VerticalMenuSkeleton } from './VerticalMenuSkeleton'
 
@@ -176,6 +177,7 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
 
   const getBillingTabs = (): NavTab[] => [
     {
+      'data-test': MAIN_NAV_CUSTOMERS_TEST_ID,
       title: translate('text_624efab67eb2570101d117a5'),
       icon: 'user-multiple',
       link: CUSTOMERS_LIST_ROUTE,
