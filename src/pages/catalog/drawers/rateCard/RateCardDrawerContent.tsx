@@ -18,7 +18,6 @@ import { BasicComboBoxData } from '~/components/form/ComboBox/types'
 import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { ChargeInvoicingStrategyOption } from '~/components/plans/chargeAccordion/options/ChargeInvoicingStrategyOption'
-import { LocalUsageChargeInput } from '~/components/plans/types'
 import {
   MUI_INPUT_BASE_ROOT_CLASSNAME,
   SEARCH_PRICING_UNIT_FOR_RATE_CARD_CLASSNAME,
@@ -30,6 +29,7 @@ import {
   ProductTypeEnum,
   RateCardBillingTimingEnum,
   RateCardRegroupPaidFeesEnum,
+  RegroupPaidFeesEnum,
   useGetPricingUnitsForRateCardDrawerQuery,
   useGetProductFiltersForRateCardDrawerLazyQuery,
   useGetProductsForRateCardDrawerLazyQuery,
@@ -40,11 +40,7 @@ import { useChargeForm } from '~/hooks/plans/useChargeForm'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { tw } from '~/styles/utils'
 
-import {
-  mapInvoiceFieldsToStrategy,
-  mapStrategyToInvoiceFields,
-  RATE_CARD_FORM_DEFAULTS,
-} from './constants'
+import { mapInvoiceFieldsToStrategy, RATE_CARD_FORM_DEFAULTS } from './constants'
 
 import {
   getAvailableRateModels,
@@ -253,7 +249,7 @@ const RateCardDrawerFormSections = withForm({
       [],
     )
 
-    const availableRateModels = getAvailableRateModels({
+    const availableRateModels: readonly string[] | undefined = getAvailableRateModels({
       productType: selectedProductMeta?.productType,
       aggregationType: selectedProductMeta?.aggregationType,
       recurring: selectedProductMeta?.recurring,
@@ -272,22 +268,37 @@ const RateCardDrawerFormSections = withForm({
     }
 
     const availableRateModelLabels = rateModelOptions.flatMap((option) =>
-      option.label && availableRateModels?.some((model) => model === option.value)
-        ? [option.label]
-        : [],
+      option.label && availableRateModels?.includes(option.value) ? [option.label] : [],
     )
-    const isProrationVisible = isRateCardProrationSupported(selectedProductMeta ?? {}) === true
+    const isProrationVisible =
+      proration || isRateCardProrationSupported(selectedProductMeta ?? {}) === true
 
     const isPayInAdvance = billingTiming === RateCardBillingTimingEnum.Advance
 
-    // ChargeInvoicingStrategyOption is bound to the charge-world shape, so adapt
-    // the rate card's invoicingStrategy into a synthetic local charge for it.
-    const invoiceFields = mapStrategyToInvoiceFields(invoicingStrategy)
     const strategyLocalCharge = {
       payInAdvance: true,
-      invoiceable: invoiceFields.displayOnInvoice,
-      regroupPaidFees: invoiceFields.regroupPaidFees,
-    } as unknown as LocalUsageChargeInput
+      invoiceable: invoicingStrategy === 'invoiceable',
+      regroupPaidFees: invoicingStrategy === 'regroupPaidFees' ? RegroupPaidFeesEnum.Invoice : null,
+    }
+
+    const handleProductChange = (value: string): void => {
+      const nextProduct =
+        queriedProducts.find((product) => product.value === value) ??
+        (selectedProductMeta?.value === value ? selectedProductMeta : null)
+
+      setRetainedProduct(nextProduct)
+      if (
+        nextProduct &&
+        isRateCardProrationSupported(nextProduct) === false &&
+        form.state.values.proration
+      ) {
+        form.setFieldValue('proration', false)
+      }
+
+      if (form.state.values.productFilterId) {
+        form.setFieldValue('productFilterId', '')
+      }
+    }
 
     const handleHideDescription = () => {
       // Skip the write when already empty: setFieldValue always marks the field
@@ -385,25 +396,7 @@ const RateCardDrawerFormSections = withForm({
             <form.AppField
               name="productId"
               listeners={{
-                // Switching the product item invalidates the selected item filter
-                // (it belongs to the previous item), so clear it.
-                onChange: ({ value }) => {
-                  const nextProduct =
-                    queriedProducts.find((product) => product.value === value) ??
-                    (selectedProductMeta?.value === value ? selectedProductMeta : null)
-
-                  setRetainedProduct(nextProduct)
-                  if (
-                    nextProduct &&
-                    isRateCardProrationSupported(nextProduct) === false &&
-                    form.state.values.proration
-                  ) {
-                    form.setFieldValue('proration', false)
-                  }
-                  if (form.state.values.productFilterId) {
-                    form.setFieldValue('productFilterId', '')
-                  }
-                },
+                onChange: ({ value }) => handleProductChange(value),
               }}
             >
               {(field) => (
@@ -488,7 +481,7 @@ const RateCardDrawerFormSections = withForm({
             )}
           </CenteredPage.PageSection>
 
-          {Boolean(productId) && (
+          {!!productId && (
             <CenteredPage.PageSection>
               <CenteredPage.PageSectionTitle title={translate('text_17423672025282dl7iozy1ru')} />
 
@@ -537,8 +530,10 @@ const RateCardDrawerFormSections = withForm({
                       'invoicingStrategy',
                       mapInvoiceFieldsToStrategy({
                         displayOnInvoice: invoiceable,
-                        regroupPaidFees: (regroupPaidFees ??
-                          null) as unknown as RateCardRegroupPaidFeesEnum | null,
+                        regroupPaidFees:
+                          regroupPaidFees === RegroupPaidFeesEnum.Invoice
+                            ? RateCardRegroupPaidFeesEnum.Invoice
+                            : null,
                       }),
                     )
                   }}
