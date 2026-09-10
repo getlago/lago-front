@@ -108,7 +108,7 @@ const mockQuote = {
     name: 'Acme',
     displayName: 'Acme',
     externalId: 'ext-acme-001',
-    netPaymentTerm: null,
+    paymentTerm: null,
     billingConfiguration: { documentLocale: 'en' },
     currency: CurrencyEnum.Usd,
     billingEntity: {
@@ -116,7 +116,7 @@ const mockQuote = {
       id: 'be-1',
       code: 'default',
       name: 'Default Entity',
-      netPaymentTerm: 0,
+      paymentTerm: null,
     },
   },
 }
