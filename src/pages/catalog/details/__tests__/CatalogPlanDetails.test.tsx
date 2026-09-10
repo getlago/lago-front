@@ -80,7 +80,6 @@ const catalogPlanFixture = {
   description: 'A premium plan',
   invoiceDisplayName: 'Premium invoice name',
   appliedRateCardsCount: 2,
-  contractsCount: 0,
   attachedToContracts: false,
 }
 

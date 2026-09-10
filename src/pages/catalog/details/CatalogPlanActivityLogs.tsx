@@ -66,7 +66,7 @@ const CatalogPlanActivityLogs = ({ catalogPlanId }: CatalogPlanActivityLogsProps
   return (
     <section>
       <ActivityLogsSection
-        subtitle={translate('text_1788165722542bcdlld0bbxg')}
+        subtitle={translate('text_1748867310812uxo0zoljxaj')}
         activityLogs={data?.activityLogs}
         loading={loading}
         error={error}

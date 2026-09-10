@@ -34,7 +34,6 @@ gql`
     description
     invoiceDisplayName
     appliedRateCardsCount
-    contractsCount
     attachedToContracts
     ...CatalogPlanForCatalogPlanDrawer
     ...CatalogPlanForDeleteCatalogPlanDialog

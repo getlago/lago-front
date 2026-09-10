@@ -16071,14 +16071,14 @@ export type CatalogPlanActivityLogsQueryVariables = Exact<{
 
 export type CatalogPlanActivityLogsQuery = { __typename?: 'Query', activityLogs?: { __typename?: 'ActivityLogCollection', collection: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } | null };
 
-export type CatalogPlanForCatalogPlanDetailsFragment = { __typename?: 'CatalogPlan', id: string, name: string, code: string, currency: CurrencyEnum, description?: string | null, invoiceDisplayName?: string | null, appliedRateCardsCount: number, contractsCount: number, attachedToContracts: boolean };
+export type CatalogPlanForCatalogPlanDetailsFragment = { __typename?: 'CatalogPlan', id: string, name: string, code: string, currency: CurrencyEnum, description?: string | null, invoiceDisplayName?: string | null, appliedRateCardsCount: number, attachedToContracts: boolean };
 
 export type GetCatalogPlanForDetailsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetCatalogPlanForDetailsQuery = { __typename?: 'Query', catalogPlan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string, currency: CurrencyEnum, description?: string | null, invoiceDisplayName?: string | null, appliedRateCardsCount: number, contractsCount: number, attachedToContracts: boolean } | null };
+export type GetCatalogPlanForDetailsQuery = { __typename?: 'Query', catalogPlan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string, currency: CurrencyEnum, description?: string | null, invoiceDisplayName?: string | null, appliedRateCardsCount: number, attachedToContracts: boolean } | null };
 
 export type CatalogPlanForCatalogPlanDetailsOverviewFragment = { __typename?: 'CatalogPlan', id: string, name: string, code: string, currency: CurrencyEnum, description?: string | null, invoiceDisplayName?: string | null, appliedRateCardsCount: number, attachedToContracts: boolean };
 
@@ -22910,7 +22910,6 @@ export const CatalogPlanForCatalogPlanDetailsFragmentDoc = gql`
   description
   invoiceDisplayName
   appliedRateCardsCount
-  contractsCount
   attachedToContracts
   ...CatalogPlanForCatalogPlanDrawer
   ...CatalogPlanForDeleteCatalogPlanDialog
