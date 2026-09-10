@@ -16,6 +16,19 @@ export const PAYMENT_TERM_TYPES = [
 export type PaymentTermField = 'days' | 'dayOfMonth' | 'monthOffset'
 
 /**
+ * The inherit choice's option value. Not the empty string: `ComboBoxField` normalises `''`
+ * to `undefined` and `ComboBox` renders `value={value || null}`, so an empty value can
+ * never show as the selected option.
+ */
+export const PAYMENT_TERM_INHERIT = 'inherit'
+
+/**
+ * Fixed issuing date behind the dialog's due-date preview. A preview built from the reader's
+ * clock changes meaning between two people looking at the same term.
+ */
+export const PAYMENT_TERM_PREVIEW_ISSUING_DATE = '2026-07-15'
+
+/**
  * The API validates the term as a discriminated union: each type accepts only its own
  * fields, anything extra is rejected. This map is the single source of that truth — it
  * drives both which inputs are rendered and which fields are sent, so the two can't drift.

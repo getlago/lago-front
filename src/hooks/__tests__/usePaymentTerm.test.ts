@@ -2,6 +2,7 @@ import { renderHook } from '@testing-library/react'
 import { DateTime } from 'luxon'
 
 import {
+  PAYMENT_TERM_INHERIT,
   PAYMENT_TERM_TYPE_LABEL_KEYS,
   PAYMENT_TERM_TYPES,
   PAYMENT_TERM_VALUE_KEYS,
@@ -51,13 +52,14 @@ describe('usePaymentTerm', () => {
 
     describe('GIVEN a level that can inherit from its parent', () => {
       describe('WHEN the options are built', () => {
-        it('THEN should prepend an empty-valued inherit choice', () => {
+        it('THEN should prepend the inherit choice', () => {
           const options = setup().getTermTypeComboboxData({
             inheritedFrom: { term: NET_30, labelKey: 'inherit_key' },
           })
 
           expect(options).toHaveLength(7)
-          expect(options[0].value).toBe('')
+          // An empty value would be indistinguishable from "nothing selected" in ComboBox.
+          expect(options[0].value).toBe(PAYMENT_TERM_INHERIT)
           expect(options.slice(1).map((option) => option.value)).toEqual([...PAYMENT_TERM_TYPES])
         })
 
@@ -158,6 +160,35 @@ describe('usePaymentTerm', () => {
           )
 
           expect(us).not.toEqual(eu)
+        })
+      })
+    })
+
+    describe('GIVEN a term whose due date lands on the last day of a month', () => {
+      describe('WHEN the reader sits in a negative-offset timezone', () => {
+        it('THEN should still name that last day', () => {
+          const { getDueDatePreviewCopy } = setup()
+
+          // `endOf('month')` is 23:59:59.999. Read in a zone behind UTC it formats as the
+          // 1st of the next month, so every End-of-month preview named the wrong date.
+          const copy = getDueDatePreviewCopy(
+            { termType: PaymentTermTypeEnum.EndOfMonth },
+            DateTime.fromISO('2026-07-15', { zone: 'America/New_York' }),
+          )
+
+          expect(copy).toContain('Jul 31, 2026')
+        })
+      })
+    })
+
+    describe('GIVEN no issuing date is supplied', () => {
+      describe('WHEN a term is previewed', () => {
+        it("THEN should use the fixed example date rather than the reader's clock", () => {
+          const { getDueDatePreviewCopy } = setup()
+
+          const copy = getDueDatePreviewCopy({ termType: PaymentTermTypeEnum.DueOnReceipt })
+
+          expect(copy).toContain('Jul 15, 2026')
         })
       })
     })
