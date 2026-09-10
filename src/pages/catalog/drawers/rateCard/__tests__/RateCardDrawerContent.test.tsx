@@ -31,6 +31,11 @@ import {
 } from '../RateCardDrawerContent'
 
 let mockTranslationSuffix = ''
+let mockIsPremium = false
+
+jest.mock('~/hooks/useCurrentUser', () => ({
+  useCurrentUser: () => ({ isPremium: mockIsPremium }),
+}))
 
 jest.mock('~/components/form/ComboBox/ComboBox', () => {
   const { ComboBox } = jest.requireActual('~/components/form/ComboBox/ComboBox')
@@ -57,6 +62,7 @@ const DIRTY_PROBE_TEST_ID = 'dirty-probe'
 const PRICING_UNIT_PROBE_TEST_ID = 'pricing-unit-probe'
 const PRODUCT_ID_PROBE_TEST_ID = 'product-id-probe'
 const PRORATION_PROBE_TEST_ID = 'proration-probe'
+const INVOICING_STRATEGY_PROBE_TEST_ID = 'invoicing-strategy-probe'
 
 const DYNAMIC_MODEL_KEY = 'text_1727711520232zpp50zgnam5'
 const STANDARD_MODEL_KEY = 'text_624aa732d6af4e0103d40e6f'
@@ -138,6 +144,9 @@ const Harness = ({
       </form.Subscribe>
       <form.Subscribe selector={(state) => state.values.proration}>
         {(proration) => <span data-test={PRORATION_PROBE_TEST_ID}>{String(proration)}</span>}
+      </form.Subscribe>
+      <form.Subscribe selector={(state) => state.values.invoicingStrategy}>
+        {(strategy) => <span data-test={INVOICING_STRATEGY_PROBE_TEST_ID}>{strategy}</span>}
       </form.Subscribe>
       <button type="button" onClick={() => form.setFieldValue('productId', PRODUCT_ID)}>
         select product
@@ -736,17 +745,96 @@ describe('rate card model compatibility', () => {
     },
   )
 
-  it('preserves an unsupported saved proration and explains its empty model set', () => {
+  it.each([
+    { aggregationType: AggregationTypeEnum.SumAgg, recurring: false },
+    { aggregationType: AggregationTypeEnum.WeightedSumAgg, recurring: true },
+  ])('lets unsupported saved proration be turned off for $aggregationType', async (metric) => {
     renderContent({
       isEdit: true,
+      values: { productId: PRODUCT_ID, proration: true },
+      productSeed: { ...buildUsageSeed(metric.aggregationType), recurring: metric.recurring },
+    })
+
+    const savedProrationSwitch = screen.getByRole('checkbox', { name: 'proration' })
+
+    expect(screen.getByTestId(PRORATION_PROBE_TEST_ID)).toHaveTextContent('true')
+    expect(screen.getByTestId(DIRTY_PROBE_TEST_ID)).toHaveTextContent('false')
+    expect(savedProrationSwitch).toBeChecked()
+    expect(savedProrationSwitch).toBeEnabled()
+    expect(screen.queryAllByTestId(RATE_CARD_DRAWER_AVAILABLE_MODEL_CHIP_TEST_ID)).toHaveLength(0)
+    expect(screen.getByTestId(RATE_CARD_DRAWER_AVAILABLE_MODELS_ALERT_TEST_ID)).toBeInTheDocument()
+
+    await userEvent.click(savedProrationSwitch)
+
+    expect(screen.getByTestId(PRORATION_PROBE_TEST_ID)).toHaveTextContent('false')
+    expect(prorationSwitch()).not.toBeInTheDocument()
+    expect(getAvailableModelLabels().length).toBeGreaterThan(0)
+  })
+
+  it('keeps unsupported saved proration locked when the card already has rates', () => {
+    renderContent({
+      isEdit: true,
+      hasRates: true,
       values: { productId: PRODUCT_ID, proration: true },
       productSeed: { ...buildUsageSeed(AggregationTypeEnum.WeightedSumAgg), recurring: true },
     })
 
-    expect(screen.getByTestId(PRORATION_PROBE_TEST_ID)).toHaveTextContent('true')
-    expect(prorationSwitch()).not.toBeInTheDocument()
-    expect(screen.queryAllByTestId(RATE_CARD_DRAWER_AVAILABLE_MODEL_CHIP_TEST_ID)).toHaveLength(0)
-    expect(screen.getByTestId(RATE_CARD_DRAWER_AVAILABLE_MODELS_ALERT_TEST_ID)).toBeInTheDocument()
+    expect(screen.getByRole('checkbox', { name: 'proration' })).toBeChecked()
+    expect(screen.getByRole('checkbox', { name: 'proration' })).toBeDisabled()
+  })
+})
+
+describe('invoicing strategy selection', () => {
+  beforeEach(() => {
+    mockIsPremium = true
+  })
+
+  afterEach(() => {
+    mockIsPremium = false
+  })
+
+  it('preserves the saved strategy, updates all choices, and resets it after switching to arrears', async () => {
+    renderContent({
+      isEdit: true,
+      values: {
+        productId: PRODUCT_ID,
+        billingTiming: RateCardBillingTimingEnum.Advance,
+        invoicingStrategy: 'regroupPaidFees',
+      },
+      productSeed: { value: PRODUCT_ID, label: 'Seats', productType: ProductTypeEnum.Fixed },
+    })
+
+    expect(
+      screen
+        .getByRole('radio', { name: 'text_6687b0081931407697975945' })
+        .closest('label')
+        ?.querySelector('circle[r="4"]'),
+    ).toBeInTheDocument()
+    expect(screen.getByTestId(DIRTY_PROBE_TEST_ID)).toHaveTextContent('false')
+
+    await userEvent.click(screen.getByRole('radio', { name: 'text_6687b0081931407697975947' }))
+    expect(screen.getByTestId(INVOICING_STRATEGY_PROBE_TEST_ID)).toHaveTextContent('none')
+
+    await userEvent.click(screen.getByRole('radio', { name: 'text_6687b0081931407697975943' }))
+    expect(screen.getByTestId(INVOICING_STRATEGY_PROBE_TEST_ID)).toHaveTextContent('invoiceable')
+
+    await userEvent.click(screen.getByRole('radio', { name: 'text_6687b0081931407697975945' }))
+    expect(screen.getByTestId(INVOICING_STRATEGY_PROBE_TEST_ID)).toHaveTextContent(
+      'regroupPaidFees',
+    )
+
+    const [arrearsRadio, advanceRadio] = screen.getAllByRole('radio', { name: 'billingTiming' })
+
+    await userEvent.click(arrearsRadio)
+    expect(screen.getByTestId(INVOICING_STRATEGY_PROBE_TEST_ID)).toHaveTextContent('invoiceable')
+
+    await userEvent.click(advanceRadio)
+    expect(
+      screen
+        .getByRole('radio', { name: 'text_6687b0081931407697975943' })
+        .closest('label')
+        ?.querySelector('circle[r="4"]'),
+    ).toBeInTheDocument()
   })
 })
 

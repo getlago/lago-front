@@ -219,9 +219,13 @@ const Host = ({
           <form.AppField name="properties.amount">
             {(field) => <field.TextInputField label="Test rate amount" />}
           </form.AppField>
-          <button type="button" onClick={() => form.handleSubmit()}>
-            submit rate
-          </button>
+          <form.Subscribe selector={(state) => state.isSubmitting}>
+            {(isSubmitting) => (
+              <button type="button" disabled={isSubmitting} onClick={() => form.handleSubmit()}>
+                submit rate
+              </button>
+            )}
+          </form.Subscribe>
         </>
       )}
       <RateCardRateDrawerContent
@@ -595,6 +599,7 @@ describe('rate editor compatibility', () => {
 
     expect(screen.getAllByRole('option')).toHaveLength(1)
     expect(screen.getByRole('option')).toHaveTextContent('text_624aa732d6af4e0103d40e6f')
+    expect(screen.getByRole('option')).not.toHaveAttribute('aria-disabled', 'true')
   })
 
   it('keeps an incompatible existing model and pricing when the options change', async () => {
@@ -739,14 +744,20 @@ describe('correcting an incompatible rate', () => {
       />,
     )
 
-    await userEvent.click(screen.getByRole('button', { name: 'submit rate' }))
+    const submitButton = screen.getByRole('button', { name: 'submit rate' })
+
+    await userEvent.click(submitButton)
+    await waitFor(() => expect(submitButton).toBeEnabled())
     expect(onSubmit).not.toHaveBeenCalled()
 
     await userEvent.click(document.querySelector('input[name="chargeModel"]') as HTMLElement)
     await userEvent.keyboard('{ArrowDown}')
     await userEvent.click(screen.getByRole('option', { name: /text_624aa732d6af4e0103d40e6f/ }))
+    await waitFor(() =>
+      expect(screen.getByTestId(RATE_MODEL_PROBE_TEST_ID)).toHaveTextContent('standard'),
+    )
     await userEvent.type(screen.getByLabelText('Test rate amount'), '12')
-    await userEvent.click(screen.getByRole('button', { name: 'submit rate' }))
+    await userEvent.click(submitButton)
 
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
   })

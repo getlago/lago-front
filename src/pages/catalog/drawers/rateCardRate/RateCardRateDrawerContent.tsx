@@ -135,6 +135,8 @@ const RateCardRateDrawerFormSections = withForm({
     const isSeedingCodeRef = useRef(false)
 
     const availableRateModels = getAvailableRateModels(rateCard)
+    const availableRateModelValues: readonly string[] = availableRateModels ?? []
+    const isRateModelAvailable = availableRateModelValues.includes(rateModel)
     let rateModelOptions: BasicComboBoxData[] = []
 
     if (rateCard.productType === ProductTypeEnum.Fixed) {
@@ -146,24 +148,24 @@ const RateCardRateDrawerFormSections = withForm({
       })
     }
 
-    let rateModelComboboxData = rateModelOptions.filter((option) =>
-      availableRateModels?.some((model) => model === option.value),
+    const rateModelComboboxData = rateModelOptions.filter((option) =>
+      availableRateModelValues.includes(option.value),
     )
 
-    if (!rateModelComboboxData.some((option) => option.value === rateModel)) {
+    if (!isRateModelAvailable) {
       const currentModelOption = rateModelOptions.find((option) => option.value === rateModel) ?? {
         label: translate(chargeModelLookupTranslation[toChargeModel(rateModel)]),
         value: rateModel,
       }
 
-      rateModelComboboxData = [...rateModelComboboxData, { ...currentModelOption, disabled: true }]
+      rateModelComboboxData.push({ ...currentModelOption, disabled: true })
     }
 
     let modelCompatibilityMessage: string | undefined
 
     if (availableRateModels?.length === 0) {
       modelCompatibilityMessage = translate(NO_AVAILABLE_RATE_MODELS_KEY)
-    } else if (availableRateModels && !availableRateModels.includes(rateModel)) {
+    } else if (availableRateModels && !isRateModelAvailable) {
       modelCompatibilityMessage = translate(RATE_MODEL_UNAVAILABLE_KEY)
     }
 
