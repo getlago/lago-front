@@ -150,4 +150,68 @@ describe('CustomPricingUnitSelector', () => {
       })
     })
   })
+  describe('GIVEN the charge currency displayed value', () => {
+    describe('WHEN no pricing unit is applied', () => {
+      it('THEN should display the context currency', () => {
+        render(<CustomPricingUnitSelector {...defaultProps} localCharge={buildLocalCharge()} />)
+
+        const input = screen
+          .getByTestId(PRICING_UNIT_COMBOBOX_TEST_ID)
+          .querySelector('input') as HTMLInputElement
+
+        expect(input.value).toBe(CurrencyEnum.Usd)
+      })
+    })
+
+    describe('WHEN the applied pricing unit is fiat with a code differing from the currency', () => {
+      it('THEN should display the context currency', () => {
+        render(
+          <CustomPricingUnitSelector
+            {...defaultProps}
+            localCharge={buildLocalCharge({ type: LocalPricingUnitType.Fiat, code: 'EUR' })}
+          />,
+        )
+
+        const input = screen
+          .getByTestId(PRICING_UNIT_COMBOBOX_TEST_ID)
+          .querySelector('input') as HTMLInputElement
+
+        expect(input.value).toBe(CurrencyEnum.Usd)
+      })
+    })
+
+    describe('WHEN a known custom pricing unit is applied', () => {
+      it('THEN should display the pricing unit name', () => {
+        render(
+          <CustomPricingUnitSelector
+            {...defaultProps}
+            localCharge={buildLocalCharge({ code: 'credits' })}
+          />,
+        )
+
+        const input = screen
+          .getByTestId(PRICING_UNIT_COMBOBOX_TEST_ID)
+          .querySelector('input') as HTMLInputElement
+
+        expect(input.value).toBe('Credits')
+      })
+    })
+
+    describe('WHEN the applied custom pricing unit is no longer configured', () => {
+      it('THEN should display its raw code', () => {
+        render(
+          <CustomPricingUnitSelector
+            {...defaultProps}
+            localCharge={buildLocalCharge({ code: 'deleted-unit' })}
+          />,
+        )
+
+        const input = screen
+          .getByTestId(PRICING_UNIT_COMBOBOX_TEST_ID)
+          .querySelector('input') as HTMLInputElement
+
+        expect(input.value).toBe('deleted-unit')
+      })
+    })
+  })
 })
