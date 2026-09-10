@@ -14,6 +14,10 @@ import {
   SettingsPaddedContainer,
 } from '~/components/layouts/Settings'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
+import {
+  PAYMENT_TERM_EDIT_BUTTON_TEST_ID,
+  PAYMENT_TERM_SETTINGS_ROW_TEST_ID,
+} from '~/components/paymentTerms/dataTestConstants'
 import { useEditBillingEntityDocumentLocaleDialog } from '~/components/settings/invoices/EditBillingEntityDocumentLocaleDialog'
 import { useEditBillingEntityGracePeriodDialog } from '~/components/settings/invoices/EditBillingEntityGracePeriodDialog'
 import { useEditBillingEntityInvoiceIssuingDatePolicyDialog } from '~/components/settings/invoices/EditBillingEntityInvoiceIssuingDatePolicyDialog'
@@ -50,7 +54,6 @@ import { usePaymentTerm } from '~/hooks/usePaymentTerm'
 import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
-export const BILLING_ENTITY_NET_PAYMENT_TERM_TEST_ID = 'billing-entity-net-payment-term'
 export const BILLING_ENTITY_ISSUING_DATE_POLICY_TEST_ID = 'billing-entity-issuing-date-policy'
 
 const NET_PAYMENT_TERM_ITEM_ID = 'invoice-settings-net-payment-term'
@@ -363,7 +366,7 @@ const BillingEntityInvoiceSettings = () => {
     },
     {
       id: NET_PAYMENT_TERM_ITEM_ID,
-      dataTest: BILLING_ENTITY_NET_PAYMENT_TERM_TEST_ID,
+      dataTest: PAYMENT_TERM_SETTINGS_ROW_TEST_ID,
       label: translate('text_17876033821633o4yokqvqdl'),
       sublabel: translate('text_1728031300577aivplw3hqav'),
       action: (
@@ -371,6 +374,7 @@ const BillingEntityInvoiceSettings = () => {
           variant="inline"
           disabled={!canEditInvoiceSettings}
           onClick={() => openEditPaymentTermDialog({ model: billingEntity })}
+          data-test={PAYMENT_TERM_EDIT_BUTTON_TEST_ID}
         >
           {translate('text_637f819eff19cd55a56d55e4')}
         </Button>
