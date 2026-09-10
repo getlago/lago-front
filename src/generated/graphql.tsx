@@ -16070,6 +16070,17 @@ export type GetCatalogPlanForDetailsOverviewQueryVariables = Exact<{
 
 export type GetCatalogPlanForDetailsOverviewQuery = { __typename?: 'Query', catalogPlan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string, currency: CurrencyEnum, description?: string | null, invoiceDisplayName?: string | null, appliedRateCardsCount: number, attachedToContracts: boolean } | null };
 
+export type ContractForCatalogPlanSubscriptionsFragment = { __typename?: 'Contract', id: string, externalId: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, externalId: string } };
+
+export type GetCatalogPlanContractsQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  planCode?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetCatalogPlanContractsQuery = { __typename?: 'Query', contracts: { __typename?: 'ContractCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Contract', id: string, externalId: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, externalId: string } }> } };
+
 export type ProductActivityLogsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -22883,6 +22894,21 @@ export const CatalogPlanForCatalogPlanDetailsOverviewFragmentDoc = gql`
   ...CatalogPlanForCatalogPlanDrawer
 }
     ${CatalogPlanForCatalogPlanDrawerFragmentDoc}`;
+export const ContractForCatalogPlanSubscriptionsFragmentDoc = gql`
+    fragment ContractForCatalogPlanSubscriptions on Contract {
+  id
+  externalId
+  status
+  startedAt
+  endedAt
+  customer {
+    id
+    name
+    displayName
+    externalId
+  }
+}
+    `;
 export const ProductCategoryForProductCategoryDetailsFragmentDoc = gql`
     fragment ProductCategoryForProductCategoryDetails on ProductCategory {
   id
@@ -41924,6 +41950,59 @@ export type GetCatalogPlanForDetailsOverviewQueryHookResult = ReturnType<typeof 
 export type GetCatalogPlanForDetailsOverviewLazyQueryHookResult = ReturnType<typeof useGetCatalogPlanForDetailsOverviewLazyQuery>;
 export type GetCatalogPlanForDetailsOverviewSuspenseQueryHookResult = ReturnType<typeof useGetCatalogPlanForDetailsOverviewSuspenseQuery>;
 export type GetCatalogPlanForDetailsOverviewQueryResult = Apollo.QueryResult<GetCatalogPlanForDetailsOverviewQuery, GetCatalogPlanForDetailsOverviewQueryVariables>;
+export const GetCatalogPlanContractsDocument = gql`
+    query getCatalogPlanContracts($page: Int, $limit: Int, $planCode: String) {
+  contracts(page: $page, limit: $limit, planCode: $planCode) {
+    metadata {
+      currentPage
+      totalPages
+      totalCount
+    }
+    collection {
+      id
+      ...ContractForCatalogPlanSubscriptions
+    }
+  }
+}
+    ${ContractForCatalogPlanSubscriptionsFragmentDoc}`;
+
+/**
+ * __useGetCatalogPlanContractsQuery__
+ *
+ * To run a query within a React component, call `useGetCatalogPlanContractsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCatalogPlanContractsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCatalogPlanContractsQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      planCode: // value for 'planCode'
+ *   },
+ * });
+ */
+export function useGetCatalogPlanContractsQuery(baseOptions?: Apollo.QueryHookOptions<GetCatalogPlanContractsQuery, GetCatalogPlanContractsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCatalogPlanContractsQuery, GetCatalogPlanContractsQueryVariables>(GetCatalogPlanContractsDocument, options);
+      }
+export function useGetCatalogPlanContractsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCatalogPlanContractsQuery, GetCatalogPlanContractsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCatalogPlanContractsQuery, GetCatalogPlanContractsQueryVariables>(GetCatalogPlanContractsDocument, options);
+        }
+// @ts-ignore
+export function useGetCatalogPlanContractsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCatalogPlanContractsQuery, GetCatalogPlanContractsQueryVariables>): Apollo.UseSuspenseQueryResult<GetCatalogPlanContractsQuery, GetCatalogPlanContractsQueryVariables>;
+export function useGetCatalogPlanContractsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCatalogPlanContractsQuery, GetCatalogPlanContractsQueryVariables>): Apollo.UseSuspenseQueryResult<GetCatalogPlanContractsQuery | undefined, GetCatalogPlanContractsQueryVariables>;
+export function useGetCatalogPlanContractsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCatalogPlanContractsQuery, GetCatalogPlanContractsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetCatalogPlanContractsQuery, GetCatalogPlanContractsQueryVariables>(GetCatalogPlanContractsDocument, options);
+        }
+export type GetCatalogPlanContractsQueryHookResult = ReturnType<typeof useGetCatalogPlanContractsQuery>;
+export type GetCatalogPlanContractsLazyQueryHookResult = ReturnType<typeof useGetCatalogPlanContractsLazyQuery>;
+export type GetCatalogPlanContractsSuspenseQueryHookResult = ReturnType<typeof useGetCatalogPlanContractsSuspenseQuery>;
+export type GetCatalogPlanContractsQueryResult = Apollo.QueryResult<GetCatalogPlanContractsQuery, GetCatalogPlanContractsQueryVariables>;
 export const ProductActivityLogsDocument = gql`
     query ProductActivityLogs($page: Int, $limit: Int, $resourceTypes: [ResourceTypeEnum!], $resourceIds: [String!]) {
   activityLogs(
