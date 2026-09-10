@@ -3,6 +3,8 @@ import { DateTime } from 'luxon'
 import { BasicComboBoxData } from '~/components/form/ComboBox/types'
 import {
   PAYMENT_TERM_DUE_DATE_PREVIEW_KEYS,
+  PAYMENT_TERM_INHERIT,
+  PAYMENT_TERM_PREVIEW_ISSUING_DATE,
   PAYMENT_TERM_TYPE_DESCRIPTION_KEYS,
   PAYMENT_TERM_TYPE_LABEL_KEYS,
   PAYMENT_TERM_TYPES,
@@ -48,6 +50,13 @@ const termCopyData = (
   }
 }
 
+/**
+ * A due date is a calendar date, not an instant. Anchoring it to UTC keeps `endOf('month')`
+ * on the last day of the month: read in the browser zone it is 23:59:59.999, which
+ * `intlFormatDateTime` then renders as the 1st anywhere west of Greenwich.
+ */
+const asCalendarDate = (date: DateTime): DateTime => date.setZone('utc', { keepLocalTime: true })
+
 export const usePaymentTerm = () => {
   const { translate } = useInternationalization()
 
@@ -86,9 +95,10 @@ export const usePaymentTerm = () => {
    */
   const getDueDatePreviewCopy = (
     term: ResolvablePaymentTerm,
-    issuingDate: DateTime = DateTime.now(),
+    issuingDate: DateTime = DateTime.fromISO(PAYMENT_TERM_PREVIEW_ISSUING_DATE, { zone: 'utc' }),
   ): string => {
     const { data, plural } = termCopyData(term)
+    const issuedOn = asCalendarDate(issuingDate)
     const formatDate = (date: DateTime): string =>
       intlFormatDateTime(date.toISO() ?? '', { formatDate: DateFormat.DATE_MED }).date
 
@@ -96,8 +106,8 @@ export const usePaymentTerm = () => {
       PAYMENT_TERM_DUE_DATE_PREVIEW_KEYS[term.termType],
       {
         ...data,
-        issuingDate: formatDate(issuingDate),
-        dueDate: formatDate(paymentTermDueDate(issuingDate, term)),
+        issuingDate: formatDate(issuedOn),
+        dueDate: formatDate(paymentTermDueDate(issuedOn, term)),
       },
       plural,
     )
@@ -123,7 +133,7 @@ export const usePaymentTerm = () => {
 
     return [
       {
-        value: '',
+        value: PAYMENT_TERM_INHERIT,
         label: translate(options.inheritedFrom.labelKey, {
           value: formatPaymentTerm(options.inheritedFrom.term),
         }),

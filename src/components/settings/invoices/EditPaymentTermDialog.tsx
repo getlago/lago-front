@@ -5,6 +5,7 @@ import { useRef } from 'react'
 import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { DialogResult } from '~/components/dialogs/types'
 import {
+  isConcreteTermType,
   PAYMENT_TERM_FORM_DEFAULT_VALUES,
   PaymentTermFormContent,
   paymentTermFormSchema,
@@ -15,6 +16,7 @@ import { MUI_INPUT_BASE_ROOT_CLASSNAME, PAYMENT_TERM_INPUT_CLASSNAME } from '~/c
 import {
   DEFAULT_PAYMENT_TERM,
   PAYMENT_TERM_DEFAULT_MONTH_OFFSET,
+  PAYMENT_TERM_INHERIT,
 } from '~/core/constants/paymentTerm'
 import { buildPaymentTermInput } from '~/core/utils/paymentTerm'
 import {
@@ -100,10 +102,18 @@ const getInheritedFrom = (model: ModelData | null) => {
   }
 }
 
-const getInitialFormValues = (model: ModelData | null): PaymentTermFormValues => {
+const getInitialFormValues = (
+  model: ModelData | null,
+  canInherit: boolean,
+): PaymentTermFormValues => {
   const paymentTerm = model?.paymentTerm
 
-  if (!paymentTerm) return PAYMENT_TERM_FORM_DEFAULT_VALUES
+  if (!paymentTerm) {
+    return {
+      ...PAYMENT_TERM_FORM_DEFAULT_VALUES,
+      termType: canInherit ? PAYMENT_TERM_INHERIT : undefined,
+    }
+  }
 
   return {
     termType: paymentTerm.termType,
@@ -161,12 +171,12 @@ export const useEditPaymentTermDialog = () => {
 
       if (!model) return
 
-      // An empty term type is the inherit choice: `null` clears the override so the level
-      // above wins again, the same payload the delete dialog sends.
+      // The inherit choice sends `null`, which clears the override so the level above wins
+      // again — the same payload the delete dialog sends.
       //
       // Otherwise only the chosen type's own fields are sent — the API rejects the others.
       // Never send `netPaymentTerm` alongside: the API mirrors the legacy alias itself.
-      const paymentTerm = value.termType
+      const paymentTerm = isConcreteTermType(value.termType)
         ? buildPaymentTermInput({
             termType: value.termType,
             days: value.days === '' ? 0 : Number(value.days),
@@ -175,10 +185,15 @@ export const useEditPaymentTermDialog = () => {
           })
         : null
 
-      isClearingRef.current = paymentTerm === null
+      // Inheriting a level that carries no term of its own changes nothing. Closing here
+      // keeps the Add flow from clearing an absent term and reporting a deletion.
+      if (!paymentTerm && !isEditRef.current) {
+        successRef.current = true
 
-      // The billing entity has nothing to inherit from, so it offers no way to clear.
-      if (!paymentTerm && !isCustomer(model)) return
+        return
+      }
+
+      isClearingRef.current = !paymentTerm
 
       if (isCustomer(model)) {
         await updateCustomer({
@@ -212,9 +227,10 @@ export const useEditPaymentTermDialog = () => {
   const openEditPaymentTermDialog = ({ model }: EditPaymentTermDialogData) => {
     modelRef.current = model ?? null
     isEditRef.current = !!model?.paymentTerm
+    isClearingRef.current = false
 
-    const seeded = getInitialFormValues(model ?? null)
     const inheritedFrom = getInheritedFrom(model ?? null)
+    const seeded = getInitialFormValues(model ?? null, !!inheritedFrom)
 
     form.reset()
     form.setFieldValue('termType', seeded.termType)
