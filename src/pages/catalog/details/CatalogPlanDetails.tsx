@@ -106,8 +106,7 @@ const CatalogPlanDetails = (): JSX.Element => {
     <>
       <MainHeader.Configure
         // Snapshot strips functions and tab content, so encode every mutable field the
-        // action closures/panes use but the header itself doesn't render, including
-        // the two fields that drive the drawer and delete-action locks.
+        // closures/panes use but the header doesn't render, including the two lock-driving fields.
         snapshotKey={`${catalogPlan?.description}|${catalogPlan?.invoiceDisplayName}|${catalogPlan?.currency}|${catalogPlan?.appliedRateCardsCount}|${catalogPlan?.attachedToContracts}`}
         breadcrumb={[
           { label: translate('text_62442e40cea25600b0b6d85a'), path: PLAN_PRICING_ROUTE },
@@ -126,8 +125,8 @@ const CatalogPlanDetails = (): JSX.Element => {
           {
             title: translate('text_628cf761cbe6820138b8f2e4'),
             link: overviewLink,
-            // `generatePath` would URL-encode a literal `:section` placeholder, so the
-            // nested-section pattern is built by string-suffixing the concrete link instead.
+            // matchPath is exact, so the nested section URL needs its own entry; suffixing
+            // states that directly rather than passing a literal ':section' as a param value.
             match: [overviewLink, `${overviewLink}/:section`],
             content: (
               <DetailsPage.Container className="pt-6">

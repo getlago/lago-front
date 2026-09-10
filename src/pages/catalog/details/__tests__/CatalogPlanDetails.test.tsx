@@ -2,6 +2,7 @@ import { act, render as rtlRender, screen, waitFor } from '@testing-library/reac
 import userEvent from '@testing-library/user-event'
 
 import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { useMainHeaderReader } from '~/components/MainHeader/MainHeaderContext'
 import {
   ENTITY_SECTION_METADATA_TEST_ID,
   ENTITY_SECTION_VIEW_NAME_TEST_ID,
@@ -88,9 +89,19 @@ const detailsQueryMock = {
   result: { data: { catalogPlan: catalogPlanFixture } },
 }
 
+const mainHeaderConfigSpy = jest.fn()
+
+const MainHeaderConfigSpy = (): null => {
+  const { config } = useMainHeaderReader()
+
+  mainHeaderConfigSpy(config)
+  return null
+}
+
 const CatalogPlanDetailsWithHeader = () => (
   <>
     <MainHeader />
+    <MainHeaderConfigSpy />
     <CatalogPlanDetails />
   </>
 )
@@ -189,15 +200,33 @@ describe('CatalogPlanDetails', () => {
     })
   })
 
-  // The overview tab's `match` covers its own link plus `<link>/:section`: without both
-  // entries a nested section URL falls through to the first visible tab instead.
-  it('keeps the overview tab active on a nested rate-cards section URL', async () => {
+  // Content only: the tab-content fallback (first visible tab) can mask a broken `match` array.
+  it('renders the overview content on a nested rate-cards section URL', async () => {
     await act(() => renderPage(CatalogPlanDetailsTabsOptionsEnum.overview, 'rate-cards'))
 
     await waitFor(() => {
       expect(screen.getByTestId('overview-tab')).toBeInTheDocument()
     })
     expect(screen.queryByTestId('subscriptions-tab')).not.toBeInTheDocument()
+  })
+
+  // That fallback happens to land on overview regardless of `match` (it's tab 0), so this
+  // asserts the literal array instead of relying on which content renders.
+  it('covers both the bare overview link and its nested sections in match', async () => {
+    await act(() => renderPage())
+
+    await waitFor(() => {
+      expect(mainHeaderConfigSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          tabs: expect.arrayContaining([
+            expect.objectContaining({
+              title: OVERVIEW_TAB_KEY,
+              match: ['/plan-pricing/plan-1/overview', '/plan-pricing/plan-1/overview/:section'],
+            }),
+          ]),
+        }),
+      )
+    })
   })
 
   it('opens the edit drawer with the loaded plan from the actions dropdown', async () => {
