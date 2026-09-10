@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { tw } from 'lago-design-system'
 import { useCallback } from 'react'
 import { generatePath } from 'react-router'
 
@@ -214,7 +213,7 @@ const ProductCategoriesList = () => {
   // at it instead of running edge to edge; the table keeps only the minimal
   // 4px cell gutter.
   return (
-    <div className="px-4 md:px-12">
+    <div className="flex flex-1 flex-col px-4 md:px-12">
       <div className="py-4">
         <SearchInput
           onChange={searchInputOnChange}
@@ -226,13 +225,12 @@ const ProductCategoriesList = () => {
         metadata={data?.productCategories?.metadata}
         loading={isLoading}
         onPageChange={goToPage}
-        sticky={false}
       >
         <Table
           name="productCategories-list"
           data={data?.productCategories?.collection ?? []}
           containerSize={4}
-          containerClassName={tw('border-t border-grey-300')}
+          containerClassName="-mb-px h-auto shrink-0 border-t border-grey-300"
           rowSize={72}
           isLoading={isLoading}
           hasError={!!error}
