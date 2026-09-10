@@ -1,11 +1,11 @@
 import { act, screen } from '@testing-library/react'
 
+import { PAYMENT_TERM_SETTINGS_ROW_TEST_ID } from '~/components/paymentTerms/dataTestConstants'
 import { FeatureFlagEnum, GetBillingEntitySettingsQuery } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import BillingEntityInvoiceSettings, {
   BILLING_ENTITY_ISSUING_DATE_POLICY_TEST_ID,
-  BILLING_ENTITY_NET_PAYMENT_TERM_TEST_ID,
 } from '../BillingEntityInvoiceSettings'
 
 const mockFeatureFlags = new Set<FeatureFlagEnum>()
@@ -104,7 +104,7 @@ describe('BillingEntityInvoiceSettings', () => {
   it('GIVEN the product catalog flag is off WHEN rendered THEN the net payment term item is shown', async () => {
     await renderSettings()
 
-    expect(screen.getByTestId(BILLING_ENTITY_NET_PAYMENT_TERM_TEST_ID)).toBeInTheDocument()
+    expect(screen.getByTestId(PAYMENT_TERM_SETTINGS_ROW_TEST_ID)).toBeInTheDocument()
   })
 
   it('GIVEN the product catalog flag is on WHEN rendered THEN the net payment term item is hidden', async () => {
@@ -112,7 +112,7 @@ describe('BillingEntityInvoiceSettings', () => {
 
     await renderSettings()
 
-    expect(screen.queryByTestId(BILLING_ENTITY_NET_PAYMENT_TERM_TEST_ID)).not.toBeInTheDocument()
+    expect(screen.queryByTestId(PAYMENT_TERM_SETTINGS_ROW_TEST_ID)).not.toBeInTheDocument()
   })
 
   it('GIVEN the product catalog flag is on WHEN rendered THEN the issuing date policy item is still shown', async () => {

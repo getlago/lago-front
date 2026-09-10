@@ -1,5 +1,6 @@
 import { act, cleanup, screen, waitFor } from '@testing-library/react'
 
+import { PAYMENT_TERM_SETTINGS_ROW_TEST_ID } from '~/components/paymentTerms/dataTestConstants'
 import {
   CurrencyEnum,
   FeatureFlagEnum,
@@ -11,7 +12,6 @@ import { render, TestMocksType } from '~/test-utils'
 
 import {
   CUSTOMER_SETTINGS_DUNNING_CAMPAIGN_TEST_ID,
-  CUSTOMER_SETTINGS_NET_PAYMENT_TERM_TEST_ID,
   CustomerSettings,
 } from '../CustomerSettings'
 
@@ -711,7 +711,7 @@ describe('CustomerSettings', () => {
         await prepare()
 
         await waitFor(() => {
-          expect(screen.getByTestId(CUSTOMER_SETTINGS_NET_PAYMENT_TERM_TEST_ID)).toBeInTheDocument()
+          expect(screen.getByTestId(PAYMENT_TERM_SETTINGS_ROW_TEST_ID)).toBeInTheDocument()
           expect(screen.getByTestId(CUSTOMER_SETTINGS_DUNNING_CAMPAIGN_TEST_ID)).toBeInTheDocument()
         })
       })
@@ -730,7 +730,7 @@ describe('CustomerSettings', () => {
         })
 
         expect(
-          screen.queryByTestId(CUSTOMER_SETTINGS_NET_PAYMENT_TERM_TEST_ID),
+          screen.queryByTestId(PAYMENT_TERM_SETTINGS_ROW_TEST_ID),
         ).not.toBeInTheDocument()
         expect(
           screen.queryByTestId(CUSTOMER_SETTINGS_DUNNING_CAMPAIGN_TEST_ID),
