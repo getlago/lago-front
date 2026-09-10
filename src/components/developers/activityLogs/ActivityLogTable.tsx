@@ -5,7 +5,7 @@ import { ActivityLogsTable as Table } from '~/components/activityLogs/ActivityLo
 import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { ACTIVITY_LOG_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { ListSectionRef } from '~/components/developers/LogsLayout'
-import { getCurrentBreakpoint } from '~/core/utils/getCurrentBreakpoint'
+import { isMobileViewport } from '~/core/utils/isMobileViewport'
 import { ActivityLogsQueryResult } from '~/generated/graphql'
 
 interface ActivityLogTableProps {
@@ -42,7 +42,7 @@ export const ActivityLogTable: FC<ActivityLogTableProps> = ({
         error={error}
         refetch={refetch}
         onRowActionLink={({ activityId }) => {
-          if (getCurrentBreakpoint() === 'sm') {
+          if (isMobileViewport()) {
             logListRef.current?.updateView('forward')
           }
 

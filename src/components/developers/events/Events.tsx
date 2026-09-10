@@ -14,7 +14,7 @@ import { EventTable } from '~/components/developers/events/EventTable'
 import { ListSectionRef, LogsLayout } from '~/components/developers/LogsLayout'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { useNavigate } from '~/core/router'
-import { getCurrentBreakpoint } from '~/core/utils/getCurrentBreakpoint'
+import { isMobileViewport } from '~/core/utils/isMobileViewport'
 import { EventItemFragment, useEventsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -69,7 +69,7 @@ export const Events = () => {
     (eventCollection?: EventItemFragment[], currentSearchParams?: URLSearchParams) => {
       const firstEvent = eventCollection?.[0]
 
-      if (!firstEvent || getCurrentBreakpoint() === 'sm') return
+      if (!firstEvent || isMobileViewport()) return
 
       navigate(buildEventLink(firstEvent, currentSearchParams), { replace: true })
     },

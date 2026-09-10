@@ -8,7 +8,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { WEBHOOK_LOGS_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { ListSectionRef } from '~/components/developers/LogsLayout'
 import { statusWebhookMapping } from '~/components/developers/webhooks/utils'
-import { getCurrentBreakpoint } from '~/core/utils/getCurrentBreakpoint'
+import { isMobileViewport } from '~/core/utils/isMobileViewport'
 import { GetWebhookLogQueryResult } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useFormatterDateHelper } from '~/hooks/helpers/useFormatterDateHelper'
@@ -62,7 +62,7 @@ export const WebhookLogTable: FC<WebhookLogTableProps> = ({
             logId: id,
           })
 
-          if (getCurrentBreakpoint() === 'sm') {
+          if (isMobileViewport()) {
             logListRef.current?.updateView('forward')
           }
 

@@ -8,7 +8,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { variantByHTTPMethod } from '~/components/developers/apiLogs/mapping'
 import { API_LOG_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { ListSectionRef } from '~/components/developers/LogsLayout'
-import { getCurrentBreakpoint } from '~/core/utils/getCurrentBreakpoint'
+import { isMobileViewport } from '~/core/utils/isMobileViewport'
 import { GetApiLogsQueryResult } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useFormatterDateHelper } from '~/hooks/helpers/useFormatterDateHelper'
@@ -62,7 +62,7 @@ export const ApiLogsTable: FC<ApiLogsTableProps> = ({
         hasError={!!error}
         isLoading={loading}
         onRowActionLink={({ id }) => {
-          if (getCurrentBreakpoint() === 'sm') {
+          if (isMobileViewport()) {
             logListRef.current?.updateView('forward')
           }
 

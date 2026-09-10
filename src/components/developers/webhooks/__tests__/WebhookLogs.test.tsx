@@ -33,8 +33,8 @@ jest.mock('~/generated/graphql', () => ({
   useGetWebhookLogLazyQuery: jest.fn(),
 }))
 
-jest.mock('~/core/utils/getCurrentBreakpoint', () => ({
-  getCurrentBreakpoint: () => 'md',
+jest.mock('~/core/utils/isMobileViewport', () => ({
+  isMobileViewport: () => false,
 }))
 
 jest.mock('~/components/Filters', () => ({
