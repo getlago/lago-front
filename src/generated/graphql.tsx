@@ -16089,7 +16089,7 @@ export type GetCatalogPlanForDetailsOverviewQueryVariables = Exact<{
 
 export type GetCatalogPlanForDetailsOverviewQuery = { __typename?: 'Query', catalogPlan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string, currency: CurrencyEnum, description?: string | null, invoiceDisplayName?: string | null, appliedRateCardsCount: number, attachedToContracts: boolean } | null };
 
-export type ContractForCatalogPlanSubscriptionsFragment = { __typename?: 'Contract', id: string, externalId: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, externalId: string } };
+export type ContractForCatalogPlanSubscriptionsFragment = { __typename?: 'Contract', id: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, externalId: string } };
 
 export type GetCatalogPlanContractsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -16098,7 +16098,7 @@ export type GetCatalogPlanContractsQueryVariables = Exact<{
 }>;
 
 
-export type GetCatalogPlanContractsQuery = { __typename?: 'Query', contracts: { __typename?: 'ContractCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Contract', id: string, externalId: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, externalId: string } }> } };
+export type GetCatalogPlanContractsQuery = { __typename?: 'Query', contracts: { __typename?: 'ContractCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Contract', id: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, externalId: string } }> } };
 
 export type ProductActivityLogsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -22932,7 +22932,6 @@ export const CatalogPlanForCatalogPlanDetailsOverviewFragmentDoc = gql`
 export const ContractForCatalogPlanSubscriptionsFragmentDoc = gql`
     fragment ContractForCatalogPlanSubscriptions on Contract {
   id
-  externalId
   status
   startedAt
   endedAt

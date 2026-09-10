@@ -52,7 +52,6 @@ const buildContract = (
 ): ContractForCatalogPlanSubscriptionsFragment => ({
   __typename: 'Contract',
   id: 'contract-1',
-  externalId: 'ext-1',
   status: ContractStatusEnum.Active,
   startedAt: '2026-06-11T00:00:00Z',
   endedAt: null,
@@ -235,9 +234,9 @@ describe('CatalogPlanSubscriptions', () => {
     })
   })
 
-  describe('GIVEN no contract', () => {
+  describe('GIVEN the table placeholder', () => {
     describe('WHEN the tab renders', () => {
-      it('THEN offers the empty-state copy', () => {
+      it('THEN the placeholder carries the empty-state copy', () => {
         render(<CatalogPlanSubscriptions planCode="premium" />)
 
         expect(getTableProps().placeholder?.emptyState?.title).toBe('text_1789030049530zaego9s9413')

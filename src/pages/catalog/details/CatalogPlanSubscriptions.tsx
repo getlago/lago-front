@@ -19,7 +19,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 gql`
   fragment ContractForCatalogPlanSubscriptions on Contract {
     id
-    externalId
     status
     startedAt
     endedAt
@@ -73,7 +72,7 @@ export const CatalogPlanSubscriptions = ({
           <Avatar
             size="big"
             variant="user"
-            identifier={customer.displayName as string}
+            identifier={customer.displayName}
             initials={computeCustomerInitials(customer)}
           />
           <div className="flex flex-col">
