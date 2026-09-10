@@ -119,7 +119,7 @@ const PlansList = () => {
           <SearchInput
             onChange={(value) => {
               goToPage(1)
-              debouncedSearch?.(value)
+              debouncedSearch(value)
             }}
             placeholder={translate('text_63bee1cc88d85f04deb0d63c')}
           />

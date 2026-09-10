@@ -219,7 +219,7 @@ const BillableMetricsList = () => {
           <SearchInput
             onChange={(value) => {
               goToPage(1)
-              debouncedSearch?.(value)
+              debouncedSearch(value)
             }}
             placeholder={translate('text_63ba9ee977a67c9693f50aea')}
           />

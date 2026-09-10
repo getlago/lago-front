@@ -230,7 +230,7 @@ const RateCardPreviewListForProduct = ({
       isLoading={isLoading}
       hasError={!!error}
       isSearching={!!variables?.searchTerm}
-      onSearch={(value) => debouncedSearch?.(value)}
+      onSearch={debouncedSearch}
       viewAllTo={viewAllTo}
     />
   )
@@ -268,7 +268,7 @@ const RateCardPreviewListForProductFilter = ({
       isLoading={isLoading}
       hasError={!!error}
       isSearching={!!variables?.searchTerm}
-      onSearch={(value) => debouncedSearch?.(value)}
+      onSearch={debouncedSearch}
       viewAllTo={viewAllTo}
     />
   )

@@ -28,6 +28,18 @@ export const mergePaginatedCollection = (
   }
 }
 
+const createPaginationKeyArgs = (additionalExclusions: string[] = []): FieldPolicy['keyArgs'] => {
+  const excludedArgs = new Set(['page', 'limit', 'offset', ...additionalExclusions])
+
+  return (args) => {
+    if (!args) return false
+
+    return Object.keys(args)
+      .filter((key) => !excludedArgs.has(key))
+      .sort((a, b) => a.localeCompare(b))
+  }
+}
+
 /**
  * Creates a standard field policy for paginated queries.
  *
@@ -48,20 +60,7 @@ export const mergePaginatedCollection = (
  * ```
  */
 export const createPaginatedFieldPolicy = (additionalExclusions: string[] = []): FieldPolicy => ({
-  keyArgs(args) {
-    // If no args, return false to use single shared cache entry
-    if (!args) return false
-
-    // Standard pagination args that should NOT affect cache key
-    const excludedArgs = new Set(['page', 'limit', 'offset', ...additionalExclusions])
-
-    // Return sorted array of arg keys to include in cache key
-    // Sorting ensures consistent cache keys regardless of argument order
-    // Apollo will automatically hash the values
-    return Object.keys(args)
-      .filter((key) => !excludedArgs.has(key))
-      .sort((a, b) => a.localeCompare(b))
-  },
+  keyArgs: createPaginationKeyArgs(additionalExclusions),
   merge: mergePaginatedCollection,
 })
 
@@ -75,15 +74,7 @@ export const createPaginatedFieldPolicy = (additionalExclusions: string[] = []):
  * scroll; navigate pages with `fetchMore({ variables: { page } })`.
  */
 export const createSinglePageFieldPolicy = (additionalExclusions: string[] = []): FieldPolicy => ({
-  keyArgs(args) {
-    if (!args) return false
-
-    const excludedArgs = new Set(['page', 'limit', 'offset', ...additionalExclusions])
-
-    return Object.keys(args)
-      .filter((key) => !excludedArgs.has(key))
-      .sort((a, b) => a.localeCompare(b))
-  },
+  keyArgs: createPaginationKeyArgs(additionalExclusions),
   merge: (_existing, incoming) => incoming,
 })
 
