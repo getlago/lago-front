@@ -174,7 +174,7 @@ const NetsuiteIntegrationDetails = () => {
               tab: NetsuiteIntegrationDetailsTabs.Items,
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
             }),
-            content: <NetsuiteIntegrationItemsList integrationId={netsuiteIntegration?.id ?? ''} />,
+            content: <NetsuiteIntegrationItemsList integrationId={integrationId} />,
           },
           {
             title: translate('text_1762436248915jmmwifqjtqd'),

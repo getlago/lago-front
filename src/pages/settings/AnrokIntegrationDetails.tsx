@@ -170,7 +170,7 @@ const AnrokIntegrationDetails = () => {
               tab: AnrokIntegrationDetailsTabs.Items,
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
             }),
-            content: <AnrokIntegrationItemsList integrationId={anrokIntegration?.id} />,
+            content: <AnrokIntegrationItemsList integrationId={integrationId} />,
           },
         ]}
       />
