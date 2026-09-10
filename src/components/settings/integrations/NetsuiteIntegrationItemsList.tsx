@@ -167,13 +167,16 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
   const { debouncedSearch: debouncedSearchAddons, isLoading: isLoadingAddons } = useDebouncedSearch(
     getAddonList,
     addonLoading,
+    !!integrationId,
   )
 
   const { debouncedSearch: debouncedSearchBillableMetrics, isLoading: isLoadingBillableMetrics } =
-    useDebouncedSearch(getBillableMetricsList, billableMetricsLoading)
+    useDebouncedSearch(getBillableMetricsList, billableMetricsLoading, !!integrationId)
 
   // handling data fetching
   useEffect(() => {
+    if (!integrationId) return
+
     if (selectedItemType === SelectedItemTypeEnum.Default) {
       getDefaultItems()
     } else if (selectedItemType === MappableTypeEnum.AddOn) {
@@ -181,7 +184,7 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
     } else if (selectedItemType === MappableTypeEnum.BillableMetric) {
       getBillableMetricsList()
     }
-  }, [selectedItemType, getAddonList, getDefaultItems, getBillableMetricsList])
+  }, [integrationId, selectedItemType, getAddonList, getDefaultItems, getBillableMetricsList])
 
   return (
     <>
@@ -256,7 +259,7 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
         <NetsuiteIntegrationItemsListDefault
           defaultItems={collectionMappingData?.integrationCollectionMappings?.collection}
           integrationId={integrationId}
-          isLoading={collectionMappingLoading}
+          isLoading={collectionMappingLoading || !integrationId}
           hasError={!!collectionMappingError}
           netsuiteIntegrationMapItemDrawerRef={netsuiteIntegrationMapItemDrawerRef}
         />
@@ -267,7 +270,7 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
           data={addonData}
           fetchMoreAddons={fetchMoreAddons}
           integrationId={integrationId}
-          isLoading={isLoadingAddons}
+          isLoading={isLoadingAddons || !integrationId}
           hasError={!!addonError}
           netsuiteIntegrationMapItemDrawerRef={netsuiteIntegrationMapItemDrawerRef}
           searchTerm={addonVariables?.searchTerm}
@@ -279,7 +282,7 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
           data={billableMetricsData}
           fetchMoreBillableMetrics={fetchMoreBillableMetrics}
           integrationId={integrationId}
-          isLoading={isLoadingBillableMetrics}
+          isLoading={isLoadingBillableMetrics || !integrationId}
           hasError={!!billableMetricsError}
           netsuiteIntegrationMapItemDrawerRef={netsuiteIntegrationMapItemDrawerRef}
           searchTerm={billableMetricsVariables?.searchTerm}

@@ -166,13 +166,16 @@ const AnrokIntegrationItemsList = ({ integrationId }: { integrationId: string })
   const { debouncedSearch: debouncedSearchAddons, isLoading: isLoadingAddons } = useDebouncedSearch(
     getAddonList,
     addonLoading,
+    !!integrationId,
   )
 
   const { debouncedSearch: debouncedSearchBillableMetrics, isLoading: isLoadingBillableMetrics } =
-    useDebouncedSearch(getBillableMetricsList, billableMetricsLoading)
+    useDebouncedSearch(getBillableMetricsList, billableMetricsLoading, !!integrationId)
 
   // handeling data fetching
   useEffect(() => {
+    if (!integrationId) return
+
     if (selectedItemType === SelectedItemTypeEnum.Default) {
       getDefaultItems()
     } else if (selectedItemType === MappableTypeEnum.AddOn) {
@@ -180,7 +183,7 @@ const AnrokIntegrationItemsList = ({ integrationId }: { integrationId: string })
     } else if (selectedItemType === MappableTypeEnum.BillableMetric) {
       getBillableMetricsList()
     }
-  }, [selectedItemType, getAddonList, getDefaultItems, getBillableMetricsList])
+  }, [integrationId, selectedItemType, getAddonList, getDefaultItems, getBillableMetricsList])
 
   return (
     <>
@@ -255,7 +258,7 @@ const AnrokIntegrationItemsList = ({ integrationId }: { integrationId: string })
         <AnrokIntegrationItemsListDefault
           defaultItems={collectionMappingData?.integrationCollectionMappings?.collection}
           integrationId={integrationId}
-          isLoading={collectionMappingLoading}
+          isLoading={collectionMappingLoading || !integrationId}
           hasError={!!collectionMappingError}
           anrokIntegrationMapItemDrawerRef={anrokIntegrationMapItemDrawerRef}
         />
@@ -265,7 +268,7 @@ const AnrokIntegrationItemsList = ({ integrationId }: { integrationId: string })
           data={addonData}
           fetchMoreAddons={fetchMoreAddons}
           integrationId={integrationId}
-          isLoading={isLoadingAddons}
+          isLoading={isLoadingAddons || !integrationId}
           hasError={!!addonError}
           anrokIntegrationMapItemDrawerRef={anrokIntegrationMapItemDrawerRef}
           searchTerm={addonVariables?.searchTerm}
@@ -276,7 +279,7 @@ const AnrokIntegrationItemsList = ({ integrationId }: { integrationId: string })
           data={billableMetricsData}
           fetchMoreBillableMetrics={fetchMoreBillableMetrics}
           integrationId={integrationId}
-          isLoading={isLoadingBillableMetrics}
+          isLoading={isLoadingBillableMetrics || !integrationId}
           hasError={!!billableMetricsError}
           anrokIntegrationMapItemDrawerRef={anrokIntegrationMapItemDrawerRef}
           searchTerm={billableMetricsVariables?.searchTerm}

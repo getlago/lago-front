@@ -14,15 +14,17 @@ export type UseDebouncedSearch = (
     any
   >,
   loading?: boolean,
+  enabled?: boolean,
 ) => {
   debouncedSearch?: DebouncedFunc<(value: unknown) => void>
   isLoading: boolean
 }
 
-export const useDebouncedSearch: UseDebouncedSearch = (searchQuery, loading) => {
+export const useDebouncedSearch: UseDebouncedSearch = (searchQuery, loading, enabled = true) => {
   const [isLoading, setIsLoading] = useState(true)
   const startLoading = useRef<DateTime | null>(null)
   const lastSearchTerm = useRef<string | undefined>(undefined)
+  const hasRunInitialQuery = useRef(false)
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedSearch = useCallback(
@@ -75,9 +77,12 @@ export const useDebouncedSearch: UseDebouncedSearch = (searchQuery, loading) => 
   }, [loading])
 
   useEffect(() => {
+    if (!enabled || hasRunInitialQuery.current) return
+
+    hasRunInitialQuery.current = true
     searchQuery && searchQuery()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [enabled])
 
   useEffect(() => {
     return () => {

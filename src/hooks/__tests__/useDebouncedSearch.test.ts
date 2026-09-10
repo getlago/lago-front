@@ -149,6 +149,49 @@ describe('useDebouncedSearch', () => {
     })
   })
 
+  describe('GIVEN the initial query is gated through the enabled argument', () => {
+    const prepareGated = ({ enabled }: { enabled: boolean }) => {
+      const callback = jest.fn()
+      const customWrapper = ({ children }: { children: React.ReactNode }) =>
+        AllTheProviders({ children })
+
+      const { rerender } = renderHook(
+        ({ isEnabled }: { isEnabled: boolean }) => useDebouncedSearch(callback, false, isEnabled),
+        { wrapper: customWrapper, initialProps: { isEnabled: enabled } },
+      )
+
+      return { callback, rerender }
+    }
+
+    describe('WHEN enabled is false', () => {
+      it('THEN should not run the initial query', () => {
+        const { callback } = prepareGated({ enabled: false })
+
+        expect(callback).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN enabled turns true after the first render', () => {
+      it('THEN should run the initial query once', () => {
+        const { callback, rerender } = prepareGated({ enabled: false })
+
+        rerender({ isEnabled: true })
+
+        expect(callback).toHaveBeenCalledTimes(1)
+      })
+
+      it('THEN should not run the initial query again on later re-renders', () => {
+        const { callback, rerender } = prepareGated({ enabled: false })
+
+        rerender({ isEnabled: true })
+        rerender({ isEnabled: false })
+        rerender({ isEnabled: true })
+
+        expect(callback).toHaveBeenCalledTimes(1)
+      })
+    })
+  })
+
   describe('anti-regression', () => {
     // Fixes https://github.com/getlago/lago-front/pull/1272
     it('should fallback loading to initial if debounce timer is passed', async () => {
