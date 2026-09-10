@@ -165,11 +165,10 @@ const AvalaraIntegrationItemsList = ({ integrationId }: { integrationId: string 
   const { debouncedSearch: debouncedSearchAddons, isLoading: isLoadingAddons } = useDebouncedSearch(
     getAddonList,
     addonLoading,
-    !!integrationId,
   )
 
   const { debouncedSearch: debouncedSearchBillableMetrics, isLoading: isLoadingBillableMetrics } =
-    useDebouncedSearch(getBillableMetricsList, billableMetricsLoading, !!integrationId)
+    useDebouncedSearch(getBillableMetricsList, billableMetricsLoading)
 
   // handeling data fetching
   useEffect(() => {
@@ -257,7 +256,7 @@ const AvalaraIntegrationItemsList = ({ integrationId }: { integrationId: string 
         <AvalaraIntegrationItemsListDefault
           defaultItems={collectionMappingData?.integrationCollectionMappings?.collection}
           integrationId={integrationId}
-          isLoading={collectionMappingLoading || !integrationId}
+          isLoading={collectionMappingLoading}
           hasError={!!collectionMappingError}
           avalaraIntegrationMapItemDrawerRef={avalaraIntegrationMapItemDrawerRef}
         />
@@ -267,7 +266,7 @@ const AvalaraIntegrationItemsList = ({ integrationId }: { integrationId: string 
           data={addonData}
           fetchMoreAddons={fetchMoreAddons}
           integrationId={integrationId}
-          isLoading={isLoadingAddons || !integrationId}
+          isLoading={isLoadingAddons}
           hasError={!!addonError}
           avalaraIntegrationMapItemDrawerRef={avalaraIntegrationMapItemDrawerRef}
           searchTerm={addonVariables?.searchTerm}
@@ -278,7 +277,7 @@ const AvalaraIntegrationItemsList = ({ integrationId }: { integrationId: string 
           data={billableMetricsData}
           fetchMoreBillableMetrics={fetchMoreBillableMetrics}
           integrationId={integrationId}
-          isLoading={isLoadingBillableMetrics || !integrationId}
+          isLoading={isLoadingBillableMetrics}
           hasError={!!billableMetricsError}
           avalaraIntegrationMapItemDrawerRef={avalaraIntegrationMapItemDrawerRef}
           searchTerm={billableMetricsVariables?.searchTerm}

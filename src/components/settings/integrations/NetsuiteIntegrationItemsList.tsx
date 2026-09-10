@@ -167,11 +167,10 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
   const { debouncedSearch: debouncedSearchAddons, isLoading: isLoadingAddons } = useDebouncedSearch(
     getAddonList,
     addonLoading,
-    !!integrationId,
   )
 
   const { debouncedSearch: debouncedSearchBillableMetrics, isLoading: isLoadingBillableMetrics } =
-    useDebouncedSearch(getBillableMetricsList, billableMetricsLoading, !!integrationId)
+    useDebouncedSearch(getBillableMetricsList, billableMetricsLoading)
 
   // handling data fetching
   useEffect(() => {
@@ -259,7 +258,7 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
         <NetsuiteIntegrationItemsListDefault
           defaultItems={collectionMappingData?.integrationCollectionMappings?.collection}
           integrationId={integrationId}
-          isLoading={collectionMappingLoading || !integrationId}
+          isLoading={collectionMappingLoading}
           hasError={!!collectionMappingError}
           netsuiteIntegrationMapItemDrawerRef={netsuiteIntegrationMapItemDrawerRef}
         />
@@ -270,7 +269,7 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
           data={addonData}
           fetchMoreAddons={fetchMoreAddons}
           integrationId={integrationId}
-          isLoading={isLoadingAddons || !integrationId}
+          isLoading={isLoadingAddons}
           hasError={!!addonError}
           netsuiteIntegrationMapItemDrawerRef={netsuiteIntegrationMapItemDrawerRef}
           searchTerm={addonVariables?.searchTerm}
@@ -282,7 +281,7 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
           data={billableMetricsData}
           fetchMoreBillableMetrics={fetchMoreBillableMetrics}
           integrationId={integrationId}
-          isLoading={isLoadingBillableMetrics || !integrationId}
+          isLoading={isLoadingBillableMetrics}
           hasError={!!billableMetricsError}
           netsuiteIntegrationMapItemDrawerRef={netsuiteIntegrationMapItemDrawerRef}
           searchTerm={billableMetricsVariables?.searchTerm}

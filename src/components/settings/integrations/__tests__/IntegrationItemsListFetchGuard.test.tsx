@@ -1,4 +1,3 @@
-import { screen } from '@testing-library/react'
 import { ComponentType } from 'react'
 
 import { render } from '~/test-utils'
@@ -7,11 +6,6 @@ import AnrokIntegrationItemsList from '../AnrokIntegrationItemsList'
 import AvalaraIntegrationItemsList from '../AvalaraIntegrationItemsList'
 import NetsuiteIntegrationItemsList from '../NetsuiteIntegrationItemsList'
 import XeroIntegrationItemsList from '../XeroIntegrationItemsList'
-
-const ANROK_DEFAULT_LIST_TEST_ID = 'anrok-default-list'
-const AVALARA_DEFAULT_LIST_TEST_ID = 'avalara-default-list'
-const NETSUITE_DEFAULT_LIST_TEST_ID = 'netsuite-default-list'
-const XERO_DEFAULT_LIST_TEST_ID = 'xero-default-list'
 
 type ProviderExecs = {
   getDefaultItems: jest.Mock
@@ -100,27 +94,19 @@ jest.mock('~/generated/graphql', () => ({
 
 jest.mock('~/components/settings/integrations/AnrokIntegrationItemsListDefault', () => ({
   __esModule: true,
-  default: ({ isLoading }: { isLoading: boolean }) => (
-    <div data-test="anrok-default-list" data-loading={String(isLoading)} />
-  ),
+  default: () => null,
 }))
 jest.mock('~/components/settings/integrations/AvalaraIntegrationItemsListDefault', () => ({
   __esModule: true,
-  default: ({ isLoading }: { isLoading: boolean }) => (
-    <div data-test="avalara-default-list" data-loading={String(isLoading)} />
-  ),
+  default: () => null,
 }))
 jest.mock('~/components/settings/integrations/NetsuiteIntegrationItemsListDefault', () => ({
   __esModule: true,
-  default: ({ isLoading }: { isLoading: boolean }) => (
-    <div data-test="netsuite-default-list" data-loading={String(isLoading)} />
-  ),
+  default: () => null,
 }))
 jest.mock('~/components/settings/integrations/XeroIntegrationItemsListDefault', () => ({
   __esModule: true,
-  default: ({ isLoading }: { isLoading: boolean }) => (
-    <div data-test="xero-default-list" data-loading={String(isLoading)} />
-  ),
+  default: () => null,
 }))
 
 jest.mock('~/pages/settings/integrations/AnrokIntegrationMapItemDrawer', () => ({
@@ -140,34 +126,13 @@ type ProviderCase = {
   provider: string
   Component: ComponentType<{ integrationId: string }>
   key: keyof typeof mockExecs
-  defaultListTestId: string
 }
 
 const PROVIDER_CASES: ProviderCase[] = [
-  {
-    provider: 'Anrok',
-    Component: AnrokIntegrationItemsList,
-    key: 'anrok',
-    defaultListTestId: ANROK_DEFAULT_LIST_TEST_ID,
-  },
-  {
-    provider: 'Avalara',
-    Component: AvalaraIntegrationItemsList,
-    key: 'avalara',
-    defaultListTestId: AVALARA_DEFAULT_LIST_TEST_ID,
-  },
-  {
-    provider: 'Netsuite',
-    Component: NetsuiteIntegrationItemsList,
-    key: 'netsuite',
-    defaultListTestId: NETSUITE_DEFAULT_LIST_TEST_ID,
-  },
-  {
-    provider: 'Xero',
-    Component: XeroIntegrationItemsList,
-    key: 'xero',
-    defaultListTestId: XERO_DEFAULT_LIST_TEST_ID,
-  },
+  { provider: 'Anrok', Component: AnrokIntegrationItemsList, key: 'anrok' },
+  { provider: 'Avalara', Component: AvalaraIntegrationItemsList, key: 'avalara' },
+  { provider: 'Netsuite', Component: NetsuiteIntegrationItemsList, key: 'netsuite' },
+  { provider: 'Xero', Component: XeroIntegrationItemsList, key: 'xero' },
 ]
 
 describe('IntegrationItemsList fetch guard', () => {
@@ -175,25 +140,14 @@ describe('IntegrationItemsList fetch guard', () => {
     jest.clearAllMocks()
   })
 
-  describe('GIVEN the parent details query has not resolved yet', () => {
-    describe('WHEN the items list mounts without an integration id', () => {
+  describe('GIVEN the integration id is not known', () => {
+    describe('WHEN the items list mounts', () => {
       it.each(PROVIDER_CASES)(
-        'THEN should not execute any $provider items query',
+        'THEN should not query the $provider items of an empty integration id',
         ({ Component, key }) => {
           render(<Component integrationId="" />)
 
           expect(mockExecs[key].getDefaultItems).not.toHaveBeenCalled()
-          expect(mockExecs[key].getAddonList).not.toHaveBeenCalled()
-          expect(mockExecs[key].getBillableMetricsList).not.toHaveBeenCalled()
-        },
-      )
-
-      it.each(PROVIDER_CASES)(
-        'THEN should keep the $provider list in its loading state',
-        ({ Component, defaultListTestId }) => {
-          render(<Component integrationId="" />)
-
-          expect(screen.getByTestId(defaultListTestId)).toHaveAttribute('data-loading', 'true')
         },
       )
     })
@@ -202,29 +156,20 @@ describe('IntegrationItemsList fetch guard', () => {
   describe('GIVEN the integration id is known', () => {
     describe('WHEN the items list mounts', () => {
       it.each(PROVIDER_CASES)(
-        'THEN should execute the $provider default items query once',
+        'THEN should query the $provider items once',
         ({ Component, key }) => {
           render(<Component integrationId="integration-1" />)
 
           expect(mockExecs[key].getDefaultItems).toHaveBeenCalledTimes(1)
         },
       )
-
-      it.each(PROVIDER_CASES)(
-        'THEN should leave the $provider list out of its loading state',
-        ({ Component, defaultListTestId }) => {
-          render(<Component integrationId="integration-1" />)
-
-          expect(screen.getByTestId(defaultListTestId)).toHaveAttribute('data-loading', 'false')
-        },
-      )
     })
   })
 
   describe('GIVEN the items list mounted without an integration id', () => {
-    describe('WHEN the parent details query resolves and passes the real id', () => {
+    describe('WHEN the id arrives on a later render', () => {
       it.each(PROVIDER_CASES)(
-        'THEN should execute the $provider default items query exactly once',
+        'THEN should query the $provider items exactly once',
         ({ Component, key }) => {
           const { rerender } = render(<Component integrationId="" />)
 
@@ -233,22 +178,6 @@ describe('IntegrationItemsList fetch guard', () => {
           rerender(<Component integrationId="integration-1" />)
 
           expect(mockExecs[key].getDefaultItems).toHaveBeenCalledTimes(1)
-        },
-      )
-    })
-  })
-
-  describe('GIVEN the searchable lists are gated until the integration id is known', () => {
-    describe('WHEN the parent details query resolves and passes the real id', () => {
-      it.each(PROVIDER_CASES)(
-        'THEN should run the deferred $provider add-on and billable metric queries once',
-        ({ Component, key }) => {
-          const { rerender } = render(<Component integrationId="" />)
-
-          rerender(<Component integrationId="integration-1" />)
-
-          expect(mockExecs[key].getAddonList).toHaveBeenCalledTimes(1)
-          expect(mockExecs[key].getBillableMetricsList).toHaveBeenCalledTimes(1)
         },
       )
     })

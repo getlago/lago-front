@@ -167,7 +167,7 @@ const AvalaraIntegrationDetails = () => {
               tab: AvalaraIntegrationDetailsTabs.Items,
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
             }),
-            content: <AvalaraIntegrationItemsList integrationId={avalaraIntegration?.id ?? ''} />,
+            content: <AvalaraIntegrationItemsList integrationId={integrationId} />,
           },
         ]}
       />

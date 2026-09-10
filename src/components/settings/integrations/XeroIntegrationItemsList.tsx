@@ -166,11 +166,10 @@ const XeroIntegrationItemsList = ({ integrationId }: { integrationId: string }) 
   const { debouncedSearch: debouncedSearchAddons, isLoading: isLoadingAddons } = useDebouncedSearch(
     getAddonList,
     addonLoading,
-    !!integrationId,
   )
 
   const { debouncedSearch: debouncedSearchBillableMetrics, isLoading: isLoadingBillableMetrics } =
-    useDebouncedSearch(getBillableMetricsList, billableMetricsLoading, !!integrationId)
+    useDebouncedSearch(getBillableMetricsList, billableMetricsLoading)
 
   // handling data fetching
   useEffect(() => {
@@ -258,7 +257,7 @@ const XeroIntegrationItemsList = ({ integrationId }: { integrationId: string }) 
         <XeroIntegrationItemsListDefault
           defaultItems={collectionMappingData?.integrationCollectionMappings?.collection}
           integrationId={integrationId}
-          isLoading={collectionMappingLoading || !integrationId}
+          isLoading={collectionMappingLoading}
           hasError={!!collectionMappingError}
           xeroIntegrationMapItemDrawerRef={xeroIntegrationMapItemDrawerRef}
         />
@@ -269,7 +268,7 @@ const XeroIntegrationItemsList = ({ integrationId }: { integrationId: string }) 
               data={addonData}
               fetchMoreAddons={fetchMoreAddons}
               integrationId={integrationId}
-              isLoading={isLoadingAddons || !integrationId}
+              isLoading={isLoadingAddons}
               hasError={!!addonError}
               xeroIntegrationMapItemDrawerRef={xeroIntegrationMapItemDrawerRef}
               searchTerm={addonVariables?.searchTerm}
@@ -280,7 +279,7 @@ const XeroIntegrationItemsList = ({ integrationId }: { integrationId: string }) 
               data={billableMetricsData}
               fetchMoreBillableMetrics={fetchMoreBillableMetrics}
               integrationId={integrationId}
-              isLoading={isLoadingBillableMetrics || !integrationId}
+              isLoading={isLoadingBillableMetrics}
               hasError={!!billableMetricsError}
               xeroIntegrationMapItemDrawerRef={xeroIntegrationMapItemDrawerRef}
               searchTerm={billableMetricsVariables?.searchTerm}

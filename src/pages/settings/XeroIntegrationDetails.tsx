@@ -199,7 +199,7 @@ const XeroIntegrationDetails = () => {
               tab: XeroIntegrationDetailsTabs.Items,
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
             }),
-            content: <XeroIntegrationItemsList integrationId={xeroIntegration?.id ?? ''} />,
+            content: <XeroIntegrationItemsList integrationId={integrationId} />,
           },
         ]}
       />
