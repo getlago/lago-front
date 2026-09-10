@@ -16061,6 +16061,15 @@ export type RateCardsQueryVariables = Exact<{
 
 export type RateCardsQuery = { __typename?: 'Query', rateCards: { __typename?: 'RateCardCollection', collection: Array<{ __typename?: 'RateCard', id: string, name: string, code: string, createdAt: any, ratesCount: number, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, description?: string | null, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean, regroupPaidFees: RateCardRegroupPaidFeesEnum, proration: boolean, walletTargetable?: boolean | null, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, product: { __typename?: 'Product', id: string, name: string, code: string, productType: ProductTypeEnum, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, code: string } | null, activeRate?: { __typename?: 'RateCardRate', id: string, rateModel: RateCardRateModelEnum, minAmountCents: any, rateProperties: { __typename?: 'Properties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', perUnitAmount: string, flatAmount: string, fromValue: number, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', rate: string, flatAmount: string, fromValue: number, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', perUnitAmount: string, flatAmount: string, fromValue: any, toValue?: any | null }> | null } } | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
+export type CatalogPlanForCatalogPlanDetailsOverviewFragment = { __typename?: 'CatalogPlan', id: string, name: string, code: string, currency: CurrencyEnum, description?: string | null, invoiceDisplayName?: string | null, appliedRateCardsCount: number, attachedToContracts: boolean };
+
+export type GetCatalogPlanForDetailsOverviewQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetCatalogPlanForDetailsOverviewQuery = { __typename?: 'Query', catalogPlan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string, currency: CurrencyEnum, description?: string | null, invoiceDisplayName?: string | null, appliedRateCardsCount: number, attachedToContracts: boolean } | null };
+
 export type ProductActivityLogsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -22862,6 +22871,18 @@ export const ProductForListFragmentDoc = gql`
 }
     ${ProductForDrawerFragmentDoc}
 ${ProductForDeleteProductDialogFragmentDoc}`;
+export const CatalogPlanForCatalogPlanDetailsOverviewFragmentDoc = gql`
+    fragment CatalogPlanForCatalogPlanDetailsOverview on CatalogPlan {
+  id
+  name
+  code
+  currency
+  description
+  invoiceDisplayName
+  appliedRateCardsCount
+  ...CatalogPlanForCatalogPlanDrawer
+}
+    ${CatalogPlanForCatalogPlanDrawerFragmentDoc}`;
 export const ProductCategoryForProductCategoryDetailsFragmentDoc = gql`
     fragment ProductCategoryForProductCategoryDetails on ProductCategory {
   id
@@ -41859,6 +41880,50 @@ export type RateCardsQueryHookResult = ReturnType<typeof useRateCardsQuery>;
 export type RateCardsLazyQueryHookResult = ReturnType<typeof useRateCardsLazyQuery>;
 export type RateCardsSuspenseQueryHookResult = ReturnType<typeof useRateCardsSuspenseQuery>;
 export type RateCardsQueryResult = Apollo.QueryResult<RateCardsQuery, RateCardsQueryVariables>;
+export const GetCatalogPlanForDetailsOverviewDocument = gql`
+    query getCatalogPlanForDetailsOverview($id: ID!) {
+  catalogPlan(id: $id) {
+    id
+    ...CatalogPlanForCatalogPlanDetailsOverview
+  }
+}
+    ${CatalogPlanForCatalogPlanDetailsOverviewFragmentDoc}`;
+
+/**
+ * __useGetCatalogPlanForDetailsOverviewQuery__
+ *
+ * To run a query within a React component, call `useGetCatalogPlanForDetailsOverviewQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCatalogPlanForDetailsOverviewQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCatalogPlanForDetailsOverviewQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetCatalogPlanForDetailsOverviewQuery(baseOptions: Apollo.QueryHookOptions<GetCatalogPlanForDetailsOverviewQuery, GetCatalogPlanForDetailsOverviewQueryVariables> & ({ variables: GetCatalogPlanForDetailsOverviewQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCatalogPlanForDetailsOverviewQuery, GetCatalogPlanForDetailsOverviewQueryVariables>(GetCatalogPlanForDetailsOverviewDocument, options);
+      }
+export function useGetCatalogPlanForDetailsOverviewLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCatalogPlanForDetailsOverviewQuery, GetCatalogPlanForDetailsOverviewQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCatalogPlanForDetailsOverviewQuery, GetCatalogPlanForDetailsOverviewQueryVariables>(GetCatalogPlanForDetailsOverviewDocument, options);
+        }
+// @ts-ignore
+export function useGetCatalogPlanForDetailsOverviewSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCatalogPlanForDetailsOverviewQuery, GetCatalogPlanForDetailsOverviewQueryVariables>): Apollo.UseSuspenseQueryResult<GetCatalogPlanForDetailsOverviewQuery, GetCatalogPlanForDetailsOverviewQueryVariables>;
+export function useGetCatalogPlanForDetailsOverviewSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCatalogPlanForDetailsOverviewQuery, GetCatalogPlanForDetailsOverviewQueryVariables>): Apollo.UseSuspenseQueryResult<GetCatalogPlanForDetailsOverviewQuery | undefined, GetCatalogPlanForDetailsOverviewQueryVariables>;
+export function useGetCatalogPlanForDetailsOverviewSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCatalogPlanForDetailsOverviewQuery, GetCatalogPlanForDetailsOverviewQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetCatalogPlanForDetailsOverviewQuery, GetCatalogPlanForDetailsOverviewQueryVariables>(GetCatalogPlanForDetailsOverviewDocument, options);
+        }
+export type GetCatalogPlanForDetailsOverviewQueryHookResult = ReturnType<typeof useGetCatalogPlanForDetailsOverviewQuery>;
+export type GetCatalogPlanForDetailsOverviewLazyQueryHookResult = ReturnType<typeof useGetCatalogPlanForDetailsOverviewLazyQuery>;
+export type GetCatalogPlanForDetailsOverviewSuspenseQueryHookResult = ReturnType<typeof useGetCatalogPlanForDetailsOverviewSuspenseQuery>;
+export type GetCatalogPlanForDetailsOverviewQueryResult = Apollo.QueryResult<GetCatalogPlanForDetailsOverviewQuery, GetCatalogPlanForDetailsOverviewQueryVariables>;
 export const ProductActivityLogsDocument = gql`
     query ProductActivityLogs($page: Int, $limit: Int, $resourceTypes: [ResourceTypeEnum!], $resourceIds: [String!]) {
   activityLogs(
