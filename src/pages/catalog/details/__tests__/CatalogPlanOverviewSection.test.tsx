@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
 import { GetCatalogPlanForDetailsOverviewDocument } from '~/generated/graphql'
 import { AllTheProviders } from '~/test-utils'
@@ -9,10 +10,11 @@ import {
   CatalogPlanOverviewSection,
 } from '../CatalogPlanOverviewSection'
 
+const mockOpenEditCatalogPlanDrawer = jest.fn()
 const mockHasPermissions = jest.fn()
 
 jest.mock('../../drawers/catalogPlan/useCatalogPlanDrawer', () => ({
-  useCatalogPlanDrawer: () => ({ openDrawer: jest.fn() }),
+  useCatalogPlanDrawer: () => ({ openDrawer: mockOpenEditCatalogPlanDrawer }),
 }))
 
 jest.mock('~/hooks/usePermissions', () => ({
@@ -28,7 +30,10 @@ jest.mock('react-router-dom', () => ({
   useParams: () => ({ catalogPlanId: 'plan-1' }),
 }))
 
-const buildMock = (appliedRateCardsCount: number) => ({
+const buildMock = (
+  appliedRateCardsCount: number,
+  description: string | null = 'A description',
+) => ({
   request: {
     query: GetCatalogPlanForDetailsOverviewDocument,
     variables: { id: 'plan-1' },
@@ -41,7 +46,7 @@ const buildMock = (appliedRateCardsCount: number) => ({
         name: 'Premium',
         code: 'premium',
         currency: 'USD',
-        description: 'A description',
+        description,
         invoiceDisplayName: 'Cards',
         appliedRateCardsCount,
         attachedToContracts: false,
@@ -50,10 +55,13 @@ const buildMock = (appliedRateCardsCount: number) => ({
   },
 })
 
-const renderSection = (appliedRateCardsCount = 0): void => {
+const renderSection = (
+  appliedRateCardsCount = 0,
+  description: string | null = 'A description',
+): void => {
   render(<CatalogPlanOverviewSection />, {
     wrapper: ({ children }) => (
-      <AllTheProviders forceTypenames mocks={[buildMock(appliedRateCardsCount)]}>
+      <AllTheProviders forceTypenames mocks={[buildMock(appliedRateCardsCount, description)]}>
         {children}
       </AllTheProviders>
     ),
@@ -76,11 +84,31 @@ describe('CatalogPlanOverviewSection', () => {
     expect(screen.getByText('A description')).toBeInTheDocument()
   })
 
+  it('GIVEN no description THEN hides the description row', async () => {
+    renderSection(0, null)
+
+    await waitFor(() => expect(screen.getByText('Premium')).toBeInTheDocument())
+    expect(screen.queryByText('text_6388b923e514213fed58331c')).not.toBeInTheDocument()
+  })
+
   it('GIVEN update permission THEN offers Edit plan', async () => {
     renderSection()
 
     await waitFor(() =>
       expect(screen.getByTestId(CATALOG_PLAN_OVERVIEW_EDIT_TEST_ID)).toBeInTheDocument(),
+    )
+  })
+
+  it('GIVEN a click on Edit plan THEN opens the drawer seeded with the plan', async () => {
+    renderSection()
+
+    await waitFor(() =>
+      expect(screen.getByTestId(CATALOG_PLAN_OVERVIEW_EDIT_TEST_ID)).toBeInTheDocument(),
+    )
+    await userEvent.click(screen.getByTestId(CATALOG_PLAN_OVERVIEW_EDIT_TEST_ID))
+
+    expect(mockOpenEditCatalogPlanDrawer).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'plan-1', code: 'premium' }),
     )
   })
 
