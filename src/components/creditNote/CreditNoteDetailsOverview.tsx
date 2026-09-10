@@ -1,6 +1,6 @@
 import { gql, MutationFunction } from '@apollo/client'
 import { ConditionalWrapper } from 'lago-design-system'
-import { FC, useMemo } from 'react'
+import { FC } from 'react'
 import { generatePath, useParams } from 'react-router-dom'
 
 import { CreditNoteDetailsOverviewTable } from '~/components/creditNote/CreditNoteDetailsOverviewTable'
@@ -102,13 +102,10 @@ export const CreditNoteDetailsOverview: FC<CreditNoteDetailsOverviewProps> = ({
     ? creditNoteRefundStatusMapping(creditNote?.refundStatus)
     : creditNoteCreditStatusMapping(creditNote?.creditStatus)
 
-  const canDownloadCreditNote = useMemo(() => {
-    return !hasError && !loading && hasPermissions(['creditNotesView']) && !disablePdfGeneration
-  }, [hasError, loading, hasPermissions])
+  const canDownloadCreditNote =
+    !hasError && !loading && hasPermissions(['creditNotesView']) && !disablePdfGeneration
 
-  const canDownloadXmlFile = useMemo(() => {
-    return creditNote?.billingEntity.einvoicing || !!creditNote?.xmlUrl
-  }, [creditNote])
+  const canDownloadXmlFile = creditNote?.billingEntity.einvoicing || !!creditNote?.xmlUrl
 
   return (
     <div>
