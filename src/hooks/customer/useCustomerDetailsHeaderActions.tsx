@@ -10,9 +10,9 @@ import {
   UPDATE_CUSTOMER_ROUTE,
   useNavigate,
 } from '~/core/router'
+import { handleDownloadFile } from '~/core/utils/downloadFile'
 import { CustomerDetailsFragment, useGenerateCustomerPortalUrlMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useDownloadFile } from '~/hooks/useDownloadFile'
 import { usePermissions } from '~/hooks/usePermissions'
 
 const CUSTOMER_ACTIONS_BUTTON_TEST_ID = 'customer-actions'
@@ -31,7 +31,6 @@ export function useCustomerDetailsHeaderActions({
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const navigate = useNavigate()
-  const { handleDownloadFile } = useDownloadFile()
   const { openDeleteCustomerDialog } = useDeleteCustomerDialog()
 
   const [generatePortalUrl] = useGenerateCustomerPortalUrlMutation({

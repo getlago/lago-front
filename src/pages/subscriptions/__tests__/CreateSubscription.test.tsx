@@ -343,6 +343,27 @@ describe('CreateSubscription', () => {
   })
 
   describe('GIVEN the submit button reactive state', () => {
+    it('preserves the focused submit button when plan dirty state changes', async () => {
+      const user = userEvent.setup()
+      const { rerender } = renderCreateSubscription()
+      const submitButton = screen.getByRole('button', { name: 'text_65118a52df984447c1869463' })
+
+      submitButton.focus()
+      mockPlanFormIsDirty = true
+      rerender(
+        <NiceModal.Provider>
+          <CreateSubscription />
+        </NiceModal.Provider>,
+      )
+
+      expect(screen.getByRole('button', { name: 'text_65118a52df984447c1869463' })).toBe(
+        submitButton,
+      )
+      expect(submitButton).toHaveFocus()
+      await user.keyboard('{Enter}')
+      expect(mockSubscriptionForm.handleSubmit).toHaveBeenCalledTimes(1)
+    })
+
     describe('WHEN planFormCanSubmit is false', () => {
       it('THEN the submit button should be disabled', () => {
         mockPlanFormCanSubmit = false
