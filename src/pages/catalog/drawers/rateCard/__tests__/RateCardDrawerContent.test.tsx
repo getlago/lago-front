@@ -138,9 +138,6 @@ const queryPricingUnitInput = (): HTMLInputElement | null =>
 const currencyInput = (): HTMLInputElement =>
   document.querySelector('input[name="currency"]') as HTMLInputElement
 
-const walletTargetableSwitch = (): HTMLElement =>
-  screen.getByRole('checkbox', { name: 'walletTargetable' })
-
 const codeInput = (): HTMLInputElement =>
   screen.getByTestId(RATE_CARD_DRAWER_CODE_TEST_ID).querySelector('input') as HTMLInputElement
 
@@ -423,21 +420,18 @@ describe('RateCardDrawerContent', () => {
       renderContent()
 
       expect(currencyInput()).toBeEnabled()
-      expect(walletTargetableSwitch()).toBeEnabled()
     })
 
     it('WHEN the card has a rate THEN they freeze', () => {
       renderContent({ hasRates: true })
 
       expect(currencyInput()).toBeDisabled()
-      expect(walletTargetableSwitch()).toBeDisabled()
     })
 
     it('WHEN the card is attached but has no rate THEN only the currency freezes', () => {
       renderContent({ isAttached: true })
 
       expect(currencyInput()).toBeDisabled()
-      expect(walletTargetableSwitch()).toBeEnabled()
     })
   })
 })

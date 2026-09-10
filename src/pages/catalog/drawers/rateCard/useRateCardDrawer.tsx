@@ -51,7 +51,6 @@ gql`
     displayOnInvoice
     regroupPaidFees
     proration
-    walletTargetable
     attachedToPlanOrSubscription
     attachedToSubscriptions
     ratesCount
@@ -112,7 +111,6 @@ const mapRateCardToFormValues = (rateCard: RateCardForDrawerFragment): RateCardF
     regroupPaidFees: rateCard.regroupPaidFees,
   }),
   proration: rateCard.proration,
-  walletTargetable: rateCard.walletTargetable ?? false,
 })
 
 type ProductAttachment = { id: string; name: string }
@@ -181,7 +179,6 @@ const useRateCardForm = ({ onSuccess }: { onSuccess: (result: RateCardFormSucces
               description: value.description || null,
               billingTiming: value.billingTiming,
               proration: value.proration,
-              walletTargetable: value.walletTargetable,
               ...buildUpdatePricingInput({ currency, pricingUnit: value.pricingUnit }),
               ...invoiceFields,
             },
@@ -201,7 +198,6 @@ const useRateCardForm = ({ onSuccess }: { onSuccess: (result: RateCardFormSucces
               ...(value.description ? { description: value.description } : {}),
               billingTiming: value.billingTiming,
               proration: value.proration,
-              walletTargetable: value.walletTargetable,
               ...buildCreatePricingInput({ currency, pricingUnit: value.pricingUnit }),
               ...invoiceFields,
             },

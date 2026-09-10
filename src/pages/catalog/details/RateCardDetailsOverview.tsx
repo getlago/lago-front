@@ -52,7 +52,6 @@ gql`
     displayOnInvoice
     regroupPaidFees
     proration
-    walletTargetable
     product {
       id
       code
@@ -178,12 +177,6 @@ const RateCardDetailsOverview = ({ rateCardId }: { rateCardId: string }) => {
             {
               label: translate('text_177488074309762bkd4znl3p'),
               value: rateCard.proration
-                ? translate(YES_TRANSLATION_KEY)
-                : translate(NO_TRANSLATION_KEY),
-            },
-            {
-              label: translate('text_17849304406576mhltomszbh'),
-              value: rateCard.walletTargetable
                 ? translate(YES_TRANSLATION_KEY)
                 : translate(NO_TRANSLATION_KEY),
             },
