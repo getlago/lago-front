@@ -1,5 +1,7 @@
-import { act, render } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
+import { CREATE_MORE_SWITCH_TEST_ID } from '~/components/drawers/createMore/CreateMoreControl'
 import { addToast } from '~/core/apolloClient'
 import { CatalogPlanForCatalogPlanDrawerFragment, CurrencyEnum } from '~/generated/graphql'
 import { AllTheProviders } from '~/test-utils'
@@ -26,6 +28,11 @@ jest.mock('~/core/router', () => ({
   useNavigate: () => mockNavigate,
 }))
 
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useParams: () => ({ organizationSlug: 'acme' }),
+}))
+
 jest.mock('~/core/apolloClient', () => ({
   ...jest.requireActual('~/core/apolloClient'),
   addToast: jest.fn(),
@@ -38,11 +45,16 @@ jest.mock('~/generated/graphql', () => ({
 }))
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
-  useInternationalization: () => ({ translate: (key: string) => key }),
+  useInternationalization: () => ({
+    translate: (key: string, vars?: Record<string, unknown>) =>
+      vars ? [key, ...Object.values(vars)].join('|') : key,
+  }),
 }))
 
+// Non-USD on purpose: CurrencyEnum.Usd is also the hook's hardcoded fallback, so a
+// USD fixture could not tell a real org default apart from a dropped one.
 jest.mock('~/hooks/useOrganizationInfos', () => ({
-  useOrganizationInfos: () => ({ organization: { defaultCurrency: 'USD' } }),
+  useOrganizationInfos: () => ({ organization: { defaultCurrency: 'EUR' } }),
 }))
 
 const existingPlan: CatalogPlanForCatalogPlanDrawerFragment = {
@@ -71,6 +83,15 @@ const mountHost = (): void => {
 
 const lastOpenPayload = () => mockOpen.mock.calls.at(-1)?.[0]
 
+const fillValidCreateValues = (): void => {
+  const { form } = lastOpenPayload().children.props
+
+  act(() => {
+    form.setFieldValue('name', 'New plan')
+    form.setFieldValue('code', 'new_plan')
+  })
+}
+
 describe('useCatalogPlanDrawer', () => {
   beforeEach(() => {
     jest.clearAllMocks()
@@ -88,7 +109,7 @@ describe('useCatalogPlanDrawer', () => {
       expect(lastOpenPayload().closeOnSubmitSuccess).toBe(false)
     })
 
-    it('GIVEN a submit THEN omits cleared optionals and navigates to the new plan', async () => {
+    it('GIVEN empty values THEN submit-first validation blocks the create mutation', async () => {
       mountHost()
       act(() => openDrawer())
 
@@ -97,6 +118,58 @@ describe('useCatalogPlanDrawer', () => {
       })
 
       expect(mockCreate).not.toHaveBeenCalled()
+    })
+
+    it('GIVEN valid values THEN creates the plan, closes, navigates and toasts', async () => {
+      mountHost()
+      act(() => openDrawer())
+      fillValidCreateValues()
+
+      await act(async () => {
+        await lastOpenPayload().form.submit()
+      })
+
+      expect(mockCreate).toHaveBeenCalledWith({
+        variables: {
+          input: {
+            name: 'New plan',
+            code: 'new_plan',
+            currency: CurrencyEnum.Eur,
+            description: undefined,
+            invoiceDisplayName: undefined,
+          },
+        },
+      })
+      expect(mockClose).toHaveBeenCalled()
+      expect(mockNavigate).toHaveBeenCalledWith('/plan-pricing/new-1/overview')
+      expect(addToast).toHaveBeenCalledWith(
+        expect.objectContaining({
+          severity: 'success',
+          message: 'text_1789030049529bjp3ly202fr',
+        }),
+      )
+    })
+
+    it('GIVEN create more is enabled THEN keeps the drawer open and links the new plan with the slug prepended', async () => {
+      mountHost()
+      act(() => openDrawer())
+
+      render(<>{lastOpenPayload().secondaryAction}</>, { wrapper: AllTheProviders })
+      await userEvent.click(screen.getByTestId(CREATE_MORE_SWITCH_TEST_ID))
+
+      fillValidCreateValues()
+
+      await act(async () => {
+        await lastOpenPayload().form.submit()
+      })
+
+      expect(mockClose).not.toHaveBeenCalled()
+      expect(addToast).toHaveBeenCalledWith(
+        expect.objectContaining({
+          severity: 'success',
+          message: 'text_1789030049529lpefaj6vz74|Premium|/acme/plan-pricing/new-1/overview',
+        }),
+      )
     })
   })
 

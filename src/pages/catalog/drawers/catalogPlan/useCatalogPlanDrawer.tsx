@@ -173,8 +173,6 @@ const useCatalogPlanForm = ({
   return { form, resetForm }
 }
 
-// Dual-mode drawer: `openDrawer()` creates, `openDrawer(catalogPlan)` edits. Create mode
-// keeps a "Create more" toggle that reopens the form and links the new plan in the toast.
 export const useCatalogPlanDrawer = (): {
   openDrawer: (catalogPlan?: CatalogPlanForCatalogPlanDrawerFragment) => void
 } => {
