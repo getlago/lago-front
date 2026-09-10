@@ -1,9 +1,12 @@
 import { ApolloError } from '@apollo/client'
 import { screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { useParams } from 'react-router-dom'
 
 import { GENERIC_PLACEHOLDER_TEST_ID } from '~/components/designSystem/GenericPlaceholder'
 import WalletAlerts, {
   WALLET_ALERT_ACTIONS_DATA_TEST,
+  WALLET_ALERT_EDIT_BUTTON_TEST_ID,
   WALLET_ALERTS_EMPTY_TEST_ID,
   WALLET_ALERTS_LIST_TEST_ID,
   WALLET_ALERTS_LOADING_TEST_ID,
@@ -61,6 +64,38 @@ describe('WalletAlerts', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockIsPremium = true
+    jest.mocked(useParams).mockReturnValue({ customerId: 'customer-1' })
+  })
+
+  it.each([undefined, ''])(
+    'GIVEN customer ID is %p THEN omits alert editing while keeping the alert list',
+    async (customerId) => {
+      jest.mocked(useParams).mockReturnValue({ customerId })
+      mockUseGetWalletAlertsQuery.mockReturnValue({
+        data: { walletAlerts: { collection: [mockAlert] } },
+        loading: false,
+      })
+      const user = userEvent.setup()
+
+      render(<WalletAlerts wallet={mockWallet} />)
+      await user.click(screen.getByTestId(WALLET_ALERT_ACTIONS_DATA_TEST))
+
+      expect(screen.getByTestId(WALLET_ALERTS_LIST_TEST_ID)).toBeInTheDocument()
+      expect(screen.queryByTestId(WALLET_ALERT_EDIT_BUTTON_TEST_ID)).not.toBeInTheDocument()
+    },
+  )
+
+  it('GIVEN a customer ID THEN offers alert editing', async () => {
+    mockUseGetWalletAlertsQuery.mockReturnValue({
+      data: { walletAlerts: { collection: [mockAlert] } },
+      loading: false,
+    })
+    const user = userEvent.setup()
+
+    render(<WalletAlerts wallet={mockWallet} />)
+    await user.click(screen.getByTestId(WALLET_ALERT_ACTIONS_DATA_TEST))
+
+    expect(await screen.findByTestId(WALLET_ALERT_EDIT_BUTTON_TEST_ID)).toBeInTheDocument()
   })
 
   afterEach(() => {
