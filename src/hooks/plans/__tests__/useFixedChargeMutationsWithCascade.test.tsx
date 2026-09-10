@@ -13,6 +13,7 @@ import {
   DestroyFixedChargeDocument,
   FixedChargeChargeModelEnum,
   FixedChargeCreateInput,
+  FixedChargeUpdateInput,
   PropertiesInput,
   UpdateFixedChargeDocument,
 } from '~/generated/graphql'
@@ -75,6 +76,69 @@ const wrapper = (mocks: MockedResponse[]) =>
   }
 
 describe('useFixedChargeMutationsWithCascade', () => {
+  it.each(['2.5', '0'])('keeps create and update fields equal for units=%s', async (units) => {
+    let createInput: FixedChargeCreateInput | undefined
+    let updateInput: FixedChargeUpdateInput | undefined
+    const mocks: MockedResponse[] = [
+      {
+        request: { query: CreateFixedChargeDocument },
+        variableMatcher: (vars) => {
+          createInput = vars.input
+          return true
+        },
+        result: { data: { createFixedCharge: fixedChargeResult } },
+      },
+      {
+        request: { query: UpdateFixedChargeDocument },
+        variableMatcher: (vars) => {
+          updateInput = vars.input
+          return true
+        },
+        result: { data: { updateFixedCharge: fixedChargeResult } },
+      },
+    ]
+    const charge = buildCharge({
+      code: 'setup_custom',
+      invoiceDisplayName: 'Custom setup',
+      units,
+      applyUnitsImmediately: true,
+      payInAdvance: true,
+      prorated: true,
+      properties: { amount: '12.34' },
+      taxes: [{ id: 'tax_1', code: 'vat', name: 'VAT', rate: 20 }],
+    })
+    const { result } = renderHook(
+      () => useFixedChargeMutationsWithCascade({ planId: PLAN_ID, hasOverriddenPlans: false }),
+      { wrapper: wrapper(mocks) },
+    )
+
+    await act(async () => {
+      await result.current.handleSaveCharge(charge, null)
+      await result.current.handleSaveCharge({ ...charge, id: 'fc_1' }, 0)
+    })
+
+    expect(createInput).toMatchObject({ planId: PLAN_ID, addOnId: 'addon_1' })
+    if (!createInput) throw new Error('Missing create input')
+
+    const { planId, addOnId, ...fields } = createInput
+
+    expect(planId).toBe(PLAN_ID)
+    expect(addOnId).toBe('addon_1')
+    expect(updateInput).toEqual({ id: 'fc_1', ...fields })
+    expect(fields).toEqual({
+      code: 'setup_custom',
+      chargeModel: FixedChargeChargeModelEnum.Standard,
+      invoiceDisplayName: 'Custom setup',
+      units,
+      applyUnitsImmediately: true,
+      payInAdvance: true,
+      prorated: true,
+      cascadeUpdates: false,
+      properties: { amount: '12.34' },
+      taxCodes: ['vat'],
+    })
+  })
+
   it('createFixedCharge fires direct when hasOverriddenPlans=false', async () => {
     let called = false
 
