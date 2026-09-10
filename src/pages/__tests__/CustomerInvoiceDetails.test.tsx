@@ -8,7 +8,12 @@ import {
   CUSTOMER_INVOICE_VOID_ROUTE,
 } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { CurrencyEnum, InvoiceStatusTypeEnum, InvoiceTaxStatusTypeEnum } from '~/generated/graphql'
+import {
+  CurrencyEnum,
+  InvoiceStatusTypeEnum,
+  InvoiceTaxStatusTypeEnum,
+  LagoApiError,
+} from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import CustomerInvoiceDetails from '../CustomerInvoiceDetails'
@@ -981,6 +986,46 @@ describe('CustomerInvoiceDetails', () => {
         })
 
         expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
+      })
+    })
+
+    describe('WHEN retryInvoice is rejected with invalid_status', () => {
+      const invalidStatusError = {
+        graphQLErrors: [{ extensions: { code: LagoApiError.InvalidStatus, status: 405 } }],
+      }
+
+      it('THEN should silence the code so the global link reports neither a toast nor Sentry', () => {
+        render(<CustomerInvoiceDetails />)
+
+        expect(mockMutationOptions.retryInvoice?.context?.silentErrorCodes).toContain(
+          LagoApiError.InvalidStatus,
+        )
+      })
+
+      it('THEN should show a single dedicated danger toast', async () => {
+        render(<CustomerInvoiceDetails />)
+
+        await mockMutationOptions.retryInvoice?.onError?.(invalidStatusError)
+
+        expect(addToast).toHaveBeenCalledTimes(1)
+        expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
+      })
+
+      it('THEN should refetch the invoice so the stale retry action disappears', async () => {
+        const mockRefetch = jest.fn()
+
+        mockUseGetInvoiceDetailsQuery.mockReturnValue({
+          data: mockInvoiceData,
+          loading: false,
+          error: null,
+          refetch: mockRefetch,
+        })
+
+        render(<CustomerInvoiceDetails />)
+
+        await mockMutationOptions.retryInvoice?.onError?.(invalidStatusError)
+
+        expect(mockRefetch).toHaveBeenCalled()
       })
     })
 
