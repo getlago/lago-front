@@ -204,6 +204,7 @@ interface InvoiceOverviewProps {
   downloadInvoiceXml: DownloadInvoiceItemMutationFn
   hasError: boolean
   hasTaxProviderError: boolean
+  canRetryInvoice: boolean
   invoice: AllInvoiceDetailsForCustomerInvoiceDetailsFragment | null | undefined
   loading: boolean
   loadingInvoiceDownload: boolean
@@ -371,6 +372,7 @@ const InvoiceOverview = memo(
     downloadInvoiceXml,
     hasError,
     hasTaxProviderError,
+    canRetryInvoice,
     invoice,
     loading,
     loadingInvoiceDownload,
@@ -481,7 +483,7 @@ const InvoiceOverview = memo(
               loadingInvoiceDownload={loadingInvoiceDownload}
               loadingInvoiceXmlDownload={loadingInvoiceXmlDownload}
               hasError={hasError}
-              hasTaxProviderError={hasTaxProviderError}
+              canRetryInvoice={canRetryInvoice}
               refreshInvoice={refreshInvoice}
               retryInvoice={retryInvoice}
               downloadInvoice={downloadInvoice}

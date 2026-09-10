@@ -6,6 +6,7 @@ import {
   Customer,
   CustomerForInvoiceDetailsFragment,
   ErrorCodesEnum,
+  InvoiceStatusTypeEnum,
   LagoApiError,
 } from '~/generated/graphql'
 import { useCustomerHasActiveWallet } from '~/hooks/customer/useCustomerHasActiveWallet'
@@ -132,7 +133,9 @@ export const useInvoiceAuthorizations = ({
 
   const authorizations = useMemo((): InvoiceAuthorizations => {
     return {
-      canRetryInvoice: hasTaxProviderError,
+      // `Invoices::RetryService` only reopens a `failed` invoice; the stale tax errors of a
+      // retried one are cleared later by an async job, so the flag alone outlives the window.
+      canRetryInvoice: hasTaxProviderError && status === InvoiceStatusTypeEnum.Failed,
       canFinalizeInvoice: !hasTaxProviderError && canFinalize,
       canDownloadOnlyPdf:
         !hasTaxProviderError && !canFinalize && canDownload && !canDownloadXmlFile,

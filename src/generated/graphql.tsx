@@ -5380,6 +5380,7 @@ export enum LagoApiError {
   InternalError = 'internal_error',
   InvalidGoogleCode = 'invalid_google_code',
   InvalidGoogleToken = 'invalid_google_token',
+  InvalidStatus = 'invalid_status',
   InviteAlreadyExists = 'invite_already_exists',
   InviteEmailMistmatch = 'invite_email_mistmatch',
   InviteNotFound = 'invite_not_found',
