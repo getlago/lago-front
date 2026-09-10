@@ -179,15 +179,14 @@ const CatalogPlansList = (): JSX.Element => {
       <MainHeader.Configure
         entity={{ viewName: translate('text_62442e40cea25600b0b6d85a') }}
         actions={{ items: actions }}
+        filtersSection={
+          <SearchInput
+            onChange={searchInputOnChange}
+            placeholder={translate('text_1789030049528lqtvvif9k1p')}
+            data-test={CATALOG_PLANS_LIST_SEARCH_TEST_ID}
+          />
+        }
       />
-
-      <div className="px-4 pt-4 md:px-12">
-        <SearchInput
-          onChange={searchInputOnChange}
-          placeholder={translate('text_1789030049528lqtvvif9k1p')}
-          data-test={CATALOG_PLANS_LIST_SEARCH_TEST_ID}
-        />
-      </div>
 
       <PaginatedContent
         insetPager

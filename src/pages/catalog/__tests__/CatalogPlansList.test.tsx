@@ -1,8 +1,9 @@
 import { screen } from '@testing-library/react'
-import { ReactNode } from 'react'
+import { ReactElement, ReactNode } from 'react'
 
 import { TableProps } from '~/components/designSystem/Table/Table'
 import { MainHeaderInPageAction } from '~/components/MainHeader/types'
+import { SearchInput } from '~/components/SearchInput'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { CatalogPlanForListFragment } from '~/generated/graphql'
 import { render } from '~/test-utils'
@@ -23,7 +24,6 @@ const PLAN_DEFINITION_KEY = 'text_17890300495297g290y7et77'
 const mockMainHeaderConfigure = jest.fn()
 const mockTableProps = jest.fn()
 const mockPaginatedContentProps = jest.fn()
-const mockSearchInputProps = jest.fn()
 const mockHasPermissions = jest.fn()
 const mockGoToPage = jest.fn()
 const mockDebouncedSearch = jest.fn()
@@ -58,10 +58,7 @@ jest.mock('~/components/designSystem/Pagination', () => ({
 }))
 
 jest.mock('~/components/SearchInput', () => ({
-  SearchInput: (props: Record<string, unknown>) => {
-    mockSearchInputProps(props)
-    return null
-  },
+  SearchInput: () => null,
 }))
 
 jest.mock('../drawers/catalogPlan/useCatalogPlanDrawer', () => ({
@@ -116,6 +113,16 @@ const getTableProps = (): TableProps<CatalogPlanForListFragment> =>
 const getCreateAction = (): MainHeaderInPageAction =>
   (mockMainHeaderConfigure.mock.calls[0][0] as { actions: { items: MainHeaderInPageAction[] } })
     .actions.items[0]
+
+type SearchInputElement = ReactElement<{
+  onChange: (value: string) => void
+  placeholder: string
+  'data-test': string
+}>
+
+const getSearchInputElement = (): SearchInputElement =>
+  (mockMainHeaderConfigure.mock.calls[0][0] as { filtersSection: SearchInputElement })
+    .filtersSection
 
 const catalogPlan = {
   id: '1',
@@ -224,21 +231,16 @@ describe('CatalogPlansList', () => {
     expect(onRowActionLink).toBe(mockGetRowActionLink)
   })
 
-  it('renders the search input and resets to page 1 before searching', () => {
+  it('renders the search input in the header filters section and resets to page 1 before searching', () => {
     render(<CatalogPlansList />)
 
-    expect(mockSearchInputProps).toHaveBeenCalledWith(
-      expect.objectContaining({
-        placeholder: SEARCH_PLANS_KEY,
-        'data-test': CATALOG_PLANS_LIST_SEARCH_TEST_ID,
-      }),
-    )
+    const searchInputElement = getSearchInputElement()
 
-    const { onChange } = mockSearchInputProps.mock.calls[0][0] as {
-      onChange: (value: string) => void
-    }
+    expect(searchInputElement.type).toBe(SearchInput)
+    expect(searchInputElement.props.placeholder).toBe(SEARCH_PLANS_KEY)
+    expect(searchInputElement.props['data-test']).toBe(CATALOG_PLANS_LIST_SEARCH_TEST_ID)
 
-    onChange('premium')
+    searchInputElement.props.onChange('premium')
 
     expect(mockGoToPage).toHaveBeenCalledWith(1)
     expect(mockDebouncedSearch).toHaveBeenCalledWith('premium')
