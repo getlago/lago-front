@@ -29,6 +29,12 @@ import {
   SettingsListWrapper,
   SettingsPaddedContainer,
 } from '~/components/layouts/Settings'
+import {
+  PAYMENT_TERM_ADD_BUTTON_TEST_ID,
+  PAYMENT_TERM_DELETE_BUTTON_TEST_ID,
+  PAYMENT_TERM_EDIT_BUTTON_TEST_ID,
+  PAYMENT_TERM_SETTINGS_ROW_TEST_ID,
+} from '~/components/paymentTerms/dataTestConstants'
 import { useEditFinalizeZeroAmountInvoiceDialog } from '~/components/settings/invoices/EditFinalizeZeroAmountInvoiceDialog'
 import { useEditPaymentTermDialog } from '~/components/settings/invoices/EditPaymentTermDialog'
 import {
@@ -699,7 +705,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
               </SettingsListItem>
 
               {/* Payment terms */}
-              <SettingsListItem>
+              <SettingsListItem dataTest={PAYMENT_TERM_SETTINGS_ROW_TEST_ID}>
                 <SettingsListItemHeader
                   label={translate('text_17876033821633o4yokqvqdl')}
                   sublabel={translate('text_1728031300577aivplw3hqav')}
@@ -711,6 +717,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                             disabled={loading}
                             variant="inline"
                             onClick={() => openEditPaymentTermDialog({ model: customer })}
+                            data-test={PAYMENT_TERM_ADD_BUTTON_TEST_ID}
                           >
                             {translate('text_645bb193927b375079d28ad2')}
                           </Button>
@@ -736,6 +743,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                                     openEditPaymentTermDialog({ model: customer })
                                     closePopper()
                                   }}
+                                  data-test={PAYMENT_TERM_EDIT_BUTTON_TEST_ID}
                                 >
                                   {translate('text_63aa15caab5b16980b21b0b8')}
                                 </Button>
@@ -750,6 +758,7 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                                     }
                                     closePopper()
                                   }}
+                                  data-test={PAYMENT_TERM_DELETE_BUTTON_TEST_ID}
                                 >
                                   {translate('text_63aa15caab5b16980b21b0ba')}
                                 </Button>

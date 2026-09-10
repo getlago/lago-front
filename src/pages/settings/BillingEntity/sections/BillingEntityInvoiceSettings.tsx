@@ -14,6 +14,10 @@ import {
   SettingsPaddedContainer,
 } from '~/components/layouts/Settings'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
+import {
+  PAYMENT_TERM_EDIT_BUTTON_TEST_ID,
+  PAYMENT_TERM_SETTINGS_ROW_TEST_ID,
+} from '~/components/paymentTerms/dataTestConstants'
 import { useEditBillingEntityDocumentLocaleDialog } from '~/components/settings/invoices/EditBillingEntityDocumentLocaleDialog'
 import { useEditBillingEntityGracePeriodDialog } from '~/components/settings/invoices/EditBillingEntityGracePeriodDialog'
 import { useEditBillingEntityInvoiceIssuingDatePolicyDialog } from '~/components/settings/invoices/EditBillingEntityInvoiceIssuingDatePolicyDialog'
@@ -352,7 +356,7 @@ const BillingEntityInvoiceSettings = () => {
       ),
     },
     {
-      id: 'invoice-settings-payment-term',
+      id: PAYMENT_TERM_SETTINGS_ROW_TEST_ID,
       label: translate('text_17876033821633o4yokqvqdl'),
       sublabel: translate('text_1728031300577aivplw3hqav'),
       action: (
@@ -360,6 +364,7 @@ const BillingEntityInvoiceSettings = () => {
           variant="inline"
           disabled={!canEditInvoiceSettings}
           onClick={() => openEditPaymentTermDialog({ model: billingEntity })}
+          data-test={PAYMENT_TERM_EDIT_BUTTON_TEST_ID}
         >
           {translate('text_637f819eff19cd55a56d55e4')}
         </Button>
@@ -395,7 +400,7 @@ const BillingEntityInvoiceSettings = () => {
 
           {!loading &&
             items.map((item) => (
-              <SettingsListItem key={item.id}>
+              <SettingsListItem key={item.id} dataTest={item.id}>
                 <SettingsListItemHeader
                   label={item.label}
                   sublabel={item.sublabel}
