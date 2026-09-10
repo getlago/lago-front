@@ -16225,6 +16225,15 @@ export type RateCardRatesQueryVariables = Exact<{
 
 export type RateCardRatesQuery = { __typename?: 'Query', rateCardRates: { __typename?: 'RateCardRateCollection', collection: Array<{ __typename?: 'RateCardRate', id: string, createdAt: any, code: string, effectiveFrom: any, status: RateCardRateStatusEnum, rateModel: RateCardRateModelEnum, billingIntervalCount: number, billingIntervalUnit: RateCardRateBillingIntervalUnitEnum, minAmountCents: any, appliedPricingUnitConversionRate?: number | null, rateProperties: { __typename?: 'Properties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', perUnitAmount: string, flatAmount: string, fromValue: number, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', rate: string, flatAmount: string, fromValue: number, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', perUnitAmount: string, flatAmount: string, fromValue: any, toValue?: any | null }> | null } }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
+export type CatalogPlanForDeleteCatalogPlanDialogFragment = { __typename?: 'CatalogPlan', id: string, name: string };
+
+export type DestroyCatalogPlanMutationVariables = Exact<{
+  input: DestroyCatalogPlanInput;
+}>;
+
+
+export type DestroyCatalogPlanMutation = { __typename?: 'Mutation', destroyCatalogPlan?: { __typename?: 'DestroyCatalogPlanPayload', id?: string | null } | null };
+
 export type ProductCategoryForDeleteProductCategoryDialogFragment = { __typename?: 'ProductCategory', id: string, name: string };
 
 export type DeleteProductCategoryMutationVariables = Exact<{
@@ -23101,6 +23110,12 @@ export const RateCardForRateDetailsFragmentDoc = gql`
     id
     name
   }
+}
+    `;
+export const CatalogPlanForDeleteCatalogPlanDialogFragmentDoc = gql`
+    fragment CatalogPlanForDeleteCatalogPlanDialog on CatalogPlan {
+  id
+  name
 }
     `;
 export const CatalogPlanForCatalogPlanDrawerFragmentDoc = gql`
@@ -42674,6 +42689,39 @@ export type RateCardRatesQueryHookResult = ReturnType<typeof useRateCardRatesQue
 export type RateCardRatesLazyQueryHookResult = ReturnType<typeof useRateCardRatesLazyQuery>;
 export type RateCardRatesSuspenseQueryHookResult = ReturnType<typeof useRateCardRatesSuspenseQuery>;
 export type RateCardRatesQueryResult = Apollo.QueryResult<RateCardRatesQuery, RateCardRatesQueryVariables>;
+export const DestroyCatalogPlanDocument = gql`
+    mutation destroyCatalogPlan($input: DestroyCatalogPlanInput!) {
+  destroyCatalogPlan(input: $input) {
+    id
+  }
+}
+    `;
+export type DestroyCatalogPlanMutationFn = Apollo.MutationFunction<DestroyCatalogPlanMutation, DestroyCatalogPlanMutationVariables>;
+
+/**
+ * __useDestroyCatalogPlanMutation__
+ *
+ * To run a mutation, you first call `useDestroyCatalogPlanMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDestroyCatalogPlanMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [destroyCatalogPlanMutation, { data, loading, error }] = useDestroyCatalogPlanMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDestroyCatalogPlanMutation(baseOptions?: Apollo.MutationHookOptions<DestroyCatalogPlanMutation, DestroyCatalogPlanMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DestroyCatalogPlanMutation, DestroyCatalogPlanMutationVariables>(DestroyCatalogPlanDocument, options);
+      }
+export type DestroyCatalogPlanMutationHookResult = ReturnType<typeof useDestroyCatalogPlanMutation>;
+export type DestroyCatalogPlanMutationResult = Apollo.MutationResult<DestroyCatalogPlanMutation>;
+export type DestroyCatalogPlanMutationOptions = Apollo.BaseMutationOptions<DestroyCatalogPlanMutation, DestroyCatalogPlanMutationVariables>;
 export const DeleteProductCategoryDocument = gql`
     mutation deleteProductCategory($input: DestroyProductCategoryInput!) {
   destroyProductCategory(input: $input) {
