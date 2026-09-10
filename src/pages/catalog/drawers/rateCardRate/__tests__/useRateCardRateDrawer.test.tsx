@@ -5,6 +5,7 @@ import { ReactElement, ReactNode } from 'react'
 
 import { addToast } from '~/core/apolloClient'
 import {
+  AggregationTypeEnum,
   CurrencyEnum,
   ProductTypeEnum,
   RateCardBillingTimingEnum,
@@ -464,8 +465,98 @@ describe('useRateCardRateDrawer edit flow', () => {
           billingTiming: RateCardBillingTimingEnum.Arrears,
           productType: ProductTypeEnum.Usage,
           aggregationType: 'sum_agg',
+          recurring: false,
+          proration: false,
         })
       })
     })
+  })
+})
+
+describe('rate submission compatibility', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  it.each([RateCardRateStatusEnum.Pending, RateCardRateStatusEnum.Active])(
+    'rejects an unchanged incompatible %s rate without altering its pricing',
+    async (status) => {
+      const captureInput = jest.fn()
+      const { result } = renderDrawerHook([updateMock(captureInput)])
+      const rate = {
+        ...pendingRate,
+        status,
+        rateModel: RateCardRateModelEnum.Volume,
+        rateProperties: {
+          volumeRanges: [{ fromValue: 0, toValue: null, perUnitAmount: '12', flatAmount: '0' }],
+        },
+      }
+      const card = buildRateCardForRateDrawer({
+        billingTiming: RateCardBillingTimingEnum.Advance,
+        activeRate:
+          status === RateCardRateStatusEnum.Active
+            ? { id: rate.id, effectiveFrom: rate.effectiveFrom }
+            : null,
+      })
+
+      act(() => result.current.openDrawer({ rateCard: card, rate }))
+      const savedProperties = contentProps().form.state.values.properties
+
+      await submit()
+
+      expect(captureInput).not.toHaveBeenCalled()
+      expect(contentProps().form.state.isValid).toBe(false)
+      expect(contentProps().form.state.values.rateModel).toBe(RateCardRateModelEnum.Volume)
+      expect(contentProps().form.state.values.properties).toEqual(savedProperties)
+      expect(mockClose).not.toHaveBeenCalled()
+    },
+  )
+
+  it('uses the new configuration when the same drawer opens for an active rate', async () => {
+    const captureInput = jest.fn()
+    const { result } = renderDrawerHook([updateMock(captureInput)])
+    const validCard = buildRateCardForRateDrawer({
+      activeRate: { id: activeRate.id, effectiveFrom: activeRate.effectiveFrom },
+    })
+    const invalidCard = buildRateCardForRateDrawer({
+      ...validCard,
+      billingTiming: RateCardBillingTimingEnum.Advance,
+      product: {
+        ...validCard.product,
+        billableMetric: {
+          id: 'metric-max',
+          aggregationType: AggregationTypeEnum.MaxAgg,
+          recurring: false,
+        },
+      },
+    })
+
+    act(() => result.current.openDrawer({ rateCard: validCard, rate: activeRate }))
+    await submit()
+    await waitFor(() => expect(captureInput).toHaveBeenCalledTimes(1))
+    captureInput.mockClear()
+
+    act(() => result.current.openDrawer({ rateCard: invalidCard, rate: activeRate }))
+    await submit()
+
+    expect(captureInput).not.toHaveBeenCalled()
+    expect(contentProps().form.state.isValid).toBe(false)
+  })
+
+  it('does not submit while the card metric is unresolved', async () => {
+    const captureInput = jest.fn()
+    const { result } = renderDrawerHook([updateMock(captureInput)])
+    const card = buildRateCardForRateDrawer()
+
+    act(() =>
+      result.current.openDrawer({
+        rateCard: { ...card, product: { ...card.product, billableMetric: null } },
+        rate: pendingRate,
+      }),
+    )
+    await submit()
+
+    expect(captureInput).not.toHaveBeenCalled()
+    expect(contentProps().form.state.isValid).toBe(false)
   })
 })

@@ -1,6 +1,18 @@
 import { UNSUPPORTED_DATE_ERROR } from '~/core/constants/form'
-import { RateCardRateBillingIntervalUnitEnum, RateCardRateModelEnum } from '~/generated/graphql'
+import {
+  AggregationTypeEnum,
+  ProductTypeEnum,
+  RateCardBillingTimingEnum,
+  RateCardRateBillingIntervalUnitEnum,
+  RateCardRateModelEnum,
+} from '~/generated/graphql'
 
+import {
+  NO_AVAILABLE_RATE_MODELS_KEY,
+  RATE_MODEL_AVAILABILITY_LOADING_KEY,
+  RATE_MODEL_UNAVAILABLE_KEY,
+  RateModelConfiguration,
+} from '../../../utils/rateModelAvailability'
 import {
   RATE_CARD_RATE_EFFECTIVE_DATE_AFTER_ACTIVE_KEY,
   RATE_CARD_RATE_FORM_DEFAULTS,
@@ -9,6 +21,18 @@ import {
 import { buildRateCardRateSchema, RateCardRateSchemaContext } from '../schema'
 
 describe('buildRateCardRateSchema', () => {
+  const validConfiguration: RateModelConfiguration = {
+    productType: ProductTypeEnum.Usage,
+    aggregationType: AggregationTypeEnum.SumAgg,
+    recurring: false,
+    billingTiming: RateCardBillingTimingEnum.Arrears,
+    proration: false,
+  }
+  const validContext: RateCardRateSchemaContext = {
+    requiresConversionRate: false,
+    effectiveFromBoundary: null,
+    rateModelConfiguration: validConfiguration,
+  }
   const validValues = {
     ...RATE_CARD_RATE_FORM_DEFAULTS,
     effectiveFrom: '2026-06-25T00:00:00.000Z',
@@ -19,11 +43,8 @@ describe('buildRateCardRateSchema', () => {
 
   const parse = (
     values: Record<string, unknown>,
-    context: RateCardRateSchemaContext = {
-      requiresConversionRate: false,
-      effectiveFromBoundary: null,
-    },
-  ) => buildRateCardRateSchema(() => context).safeParse(values)
+    context: Partial<RateCardRateSchemaContext> = {},
+  ) => buildRateCardRateSchema(() => ({ ...validContext, ...context })).safeParse(values)
 
   const issuePathsAndMessages = (result: ReturnType<typeof parse>) =>
     result.success ? [] : result.error.issues.map((issue) => [issue.path.join('.'), issue.message])
@@ -127,6 +148,7 @@ describe('buildRateCardRateSchema', () => {
 
   describe('GIVEN the card prices in a custom pricing unit', () => {
     const context: RateCardRateSchemaContext = {
+      ...validContext,
       requiresConversionRate: true,
       effectiveFromBoundary: null,
     }
@@ -186,5 +208,72 @@ describe('buildRateCardRateSchema', () => {
         )
       })
     })
+  })
+
+  it('rejects an incompatible saved model even when it is unchanged', () => {
+    const result = parse(
+      { ...validValues, rateModel: RateCardRateModelEnum.Volume },
+      {
+        rateModelConfiguration: {
+          ...validConfiguration,
+          billingTiming: RateCardBillingTimingEnum.Advance,
+        },
+      },
+    )
+
+    expect(issuePathsAndMessages(result)).toContainEqual(['rateModel', RATE_MODEL_UNAVAILABLE_KEY])
+  })
+
+  it('accepts an explicit compatible replacement', () => {
+    expect(
+      parse(validValues, {
+        rateModelConfiguration: {
+          ...validConfiguration,
+          billingTiming: RateCardBillingTimingEnum.Advance,
+        },
+      }).success,
+    ).toBe(true)
+  })
+
+  it('blocks Standard when no models are available', () => {
+    const result = parse(validValues, {
+      rateModelConfiguration: {
+        ...validConfiguration,
+        aggregationType: AggregationTypeEnum.MaxAgg,
+        billingTiming: RateCardBillingTimingEnum.Advance,
+      },
+    })
+
+    expect(issuePathsAndMessages(result)).toContainEqual([
+      'rateModel',
+      NO_AVAILABLE_RATE_MODELS_KEY,
+    ])
+  })
+
+  it('blocks submission while metadata is unresolved', () => {
+    const result = parse(validValues, {
+      rateModelConfiguration: { ...validConfiguration, recurring: undefined },
+    })
+
+    expect(issuePathsAndMessages(result)).toContainEqual([
+      'rateModel',
+      RATE_MODEL_AVAILABILITY_LOADING_KEY,
+    ])
+  })
+
+  it('reads the current configuration when the drawer opens on another card', () => {
+    let context = validContext
+    const schema = buildRateCardRateSchema(() => context)
+
+    expect(schema.safeParse(validValues).success).toBe(true)
+
+    context = {
+      ...validContext,
+      rateModelConfiguration: { ...validConfiguration, proration: true },
+    }
+    expect(issuePathsAndMessages(schema.safeParse(validValues))).toContainEqual([
+      'rateModel',
+      NO_AVAILABLE_RATE_MODELS_KEY,
+    ])
   })
 })

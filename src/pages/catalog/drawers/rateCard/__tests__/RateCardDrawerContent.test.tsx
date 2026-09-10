@@ -1,15 +1,20 @@
-import { screen, waitFor } from '@testing-library/react'
+import { render as rtlRender, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { useCreateMore } from '~/components/drawers/createMore/useCreateMore'
+import { ComboBoxProps } from '~/components/form/ComboBox/types'
 import {
   AggregationTypeEnum,
   CurrencyEnum,
   GetPricingUnitsForRateCardDrawerDocument,
   GetProductFiltersForRateCardDrawerDocument,
+  GetProductsForRateCardDrawerDocument,
+  GetProductsForRateCardDrawerQuery,
   ProductTypeEnum,
+  RateCardBillingTimingEnum,
 } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
-import { render, TestMocksType } from '~/test-utils'
+import { AllTheProviders, render, TestMocksType } from '~/test-utils'
 
 import { RATE_CARD_FORM_DEFAULTS, RateCardFormValues } from '../constants'
 import {
@@ -25,11 +30,21 @@ import {
   RateCardProductSeed,
 } from '../RateCardDrawerContent'
 
-// `translate` must echo the key: the available-models memo excludes it from its
-// deps, so the real hook would cache the labels of the untranslated first render.
+let mockTranslationSuffix = ''
+
+jest.mock('~/components/form/ComboBox/ComboBox', () => {
+  const { ComboBox } = jest.requireActual('~/components/form/ComboBox/ComboBox')
+
+  return {
+    ComboBox: (props: ComboBoxProps) => (
+      <ComboBox {...props} virtualized={props.name === 'productId' ? false : props.virtualized} />
+    ),
+  }
+})
+
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
-    translate: (key: string) => key,
+    translate: (key: string) => `${key}${mockTranslationSuffix}`,
   }),
 }))
 
@@ -40,6 +55,8 @@ Element.prototype.scrollIntoView = jest.fn()
 const DESCRIPTION_PROBE_TEST_ID = 'description-probe'
 const DIRTY_PROBE_TEST_ID = 'dirty-probe'
 const PRICING_UNIT_PROBE_TEST_ID = 'pricing-unit-probe'
+const PRODUCT_ID_PROBE_TEST_ID = 'product-id-probe'
+const PRORATION_PROBE_TEST_ID = 'proration-probe'
 
 const DYNAMIC_MODEL_KEY = 'text_1727711520232zpp50zgnam5'
 const STANDARD_MODEL_KEY = 'text_624aa732d6af4e0103d40e6f'
@@ -50,6 +67,7 @@ const VOLUME_MODEL_KEY = 'text_6304e74aab6dbc18d615f386'
 const GRADUATED_PERCENTAGE_MODEL_KEY = 'text_64de472463e2da6b31737db0'
 
 const PRODUCT_ID = 'product-1'
+const INVOICING_SETTINGS_TITLE = 'text_17423672025282dl7iozy1ru'
 
 const buildMocks = (
   pricingUnits: Array<{ id: string; name: string; code: string }> = [],
@@ -66,6 +84,7 @@ const buildMocks = (
       query: GetProductFiltersForRateCardDrawerDocument,
       variables: { productId: PRODUCT_ID },
     },
+    maxUsageCount: Number.POSITIVE_INFINITY,
     result: { data: { productFilters: { collection: [] } } },
   },
 ]
@@ -73,7 +92,9 @@ const buildMocks = (
 const mocks = buildMocks()
 const mocksWithPricingUnits = buildMocks([{ id: 'pu-1', name: 'Credits', code: 'credits' }])
 
-const buildUsageSeed = (aggregationType: AggregationTypeEnum): RateCardProductSeed => ({
+const buildUsageSeed = (
+  aggregationType: AggregationTypeEnum,
+): NonNullable<RateCardProductSeed> => ({
   value: PRODUCT_ID,
   label: 'Metered API',
   productType: ProductTypeEnum.Usage,
@@ -84,6 +105,7 @@ const buildUsageSeed = (aggregationType: AggregationTypeEnum): RateCardProductSe
 type HarnessProps = {
   disableCodeInput?: boolean
   isAttached?: boolean
+  isEdit?: boolean
   hasRates?: boolean
   values?: Partial<RateCardFormValues>
   productSeed?: RateCardProductSeed
@@ -94,9 +116,11 @@ const Harness = ({
   productSeed = null,
   disableCodeInput = false,
   isAttached = false,
+  isEdit = false,
   hasRates = false,
 }: HarnessProps): JSX.Element => {
   const form = useAppForm({ defaultValues: { ...RATE_CARD_FORM_DEFAULTS, ...values } })
+  const { resetSignal, notifyReset } = useCreateMore()
 
   return (
     <>
@@ -109,9 +133,31 @@ const Harness = ({
       <form.Subscribe selector={(state) => state.values.pricingUnit}>
         {(pricingUnit) => <span data-test={PRICING_UNIT_PROBE_TEST_ID}>{String(pricingUnit)}</span>}
       </form.Subscribe>
+      <form.Subscribe selector={(state) => state.values.productId}>
+        {(productId) => <span data-test={PRODUCT_ID_PROBE_TEST_ID}>{productId}</span>}
+      </form.Subscribe>
+      <form.Subscribe selector={(state) => state.values.proration}>
+        {(proration) => <span data-test={PRORATION_PROBE_TEST_ID}>{String(proration)}</span>}
+      </form.Subscribe>
+      <button type="button" onClick={() => form.setFieldValue('productId', PRODUCT_ID)}>
+        select product
+      </button>
+      <button type="button" onClick={() => form.setFieldValue('productId', '')}>
+        clear product
+      </button>
+      <button
+        type="button"
+        onClick={() => {
+          form.reset({ ...RATE_CARD_FORM_DEFAULTS, productId: productSeed?.value ?? '' })
+          notifyReset()
+        }}
+      >
+        reset for next create
+      </button>
       <RateCardDrawerContent
         form={form}
-        isEdit={false}
+        resetSignal={resetSignal}
+        isEdit={isEdit}
         isAttached={isAttached}
         hasRates={hasRates}
         disableCodeInput={disableCodeInput}
@@ -125,7 +171,14 @@ const Harness = ({
 const renderContent = (
   props: HarnessProps = {},
   testMocks: TestMocksType = mocks,
-): ReturnType<typeof render> => render(<Harness {...props} />, { mocks: testMocks })
+): ReturnType<typeof render> =>
+  rtlRender(<Harness {...props} />, {
+    wrapper: ({ children }) => (
+      <AllTheProviders forceTypenames mocks={testMocks}>
+        {children}
+      </AllTheProviders>
+    ),
+  })
 
 const renderWithPricingUnits = (
   values: Partial<RateCardFormValues> = {},
@@ -154,6 +207,46 @@ const getAvailableModelLabels = (): string[] =>
     .map((chip) => chip.textContent ?? '')
 
 describe('RateCardDrawerContent', () => {
+  describe('GIVEN the product selection', () => {
+    it('WHEN no product is selected THEN hides invoicing settings', () => {
+      renderContent()
+
+      expect(screen.queryByText(INVOICING_SETTINGS_TITLE)).not.toBeInTheDocument()
+    })
+
+    it('WHEN a product is selected and cleared THEN shows and hides invoicing settings', async () => {
+      renderContent()
+
+      await userEvent.click(screen.getByRole('button', { name: 'select product' }))
+
+      expect(screen.getByText(INVOICING_SETTINGS_TITLE)).toBeInTheDocument()
+
+      await userEvent.click(screen.getByRole('button', { name: 'clear product' }))
+
+      expect(screen.queryByText(INVOICING_SETTINGS_TITLE)).not.toBeInTheDocument()
+    })
+
+    it('WHEN attach mode is prefilled before product metadata loads THEN shows invoicing settings', () => {
+      renderContent({
+        isAttached: true,
+        values: { productId: PRODUCT_ID },
+        productSeed: { value: PRODUCT_ID, label: 'Metered API' },
+      })
+
+      expect(screen.getByText(INVOICING_SETTINGS_TITLE)).toBeInTheDocument()
+    })
+
+    it('WHEN edit mode is prefilled with a product THEN shows invoicing settings', () => {
+      renderContent({
+        isEdit: true,
+        values: { productId: PRODUCT_ID },
+        productSeed: buildUsageSeed(AggregationTypeEnum.SumAgg),
+      })
+
+      expect(screen.getByText(INVOICING_SETTINGS_TITLE)).toBeInTheDocument()
+    })
+  })
+
   describe('GIVEN a rate card without a description', () => {
     describe('WHEN the content renders', () => {
       it('THEN shows the add-description button only', () => {
@@ -417,21 +510,284 @@ describe('RateCardDrawerContent', () => {
   // and the currency freezes on that OR on `attached_to_plan_or_subscription?`.
   describe('GIVEN the billing-semantic fields', () => {
     it('WHEN the card has neither rates nor attachments THEN they stay editable', () => {
-      renderContent()
+      renderContent({ values: { productId: PRODUCT_ID } })
 
       expect(currencyInput()).toBeEnabled()
     })
 
     it('WHEN the card has a rate THEN they freeze', () => {
-      renderContent({ hasRates: true })
+      renderContent({ hasRates: true, values: { productId: PRODUCT_ID } })
 
       expect(currencyInput()).toBeDisabled()
     })
 
     it('WHEN the card is attached but has no rate THEN only the currency freezes', () => {
-      renderContent({ isAttached: true })
+      renderContent({ isAttached: true, values: { productId: PRODUCT_ID } })
 
       expect(currencyInput()).toBeDisabled()
     })
   })
+})
+
+type QueriedProduct = NonNullable<
+  GetProductsForRateCardDrawerQuery['products']
+>['collection'][number]
+
+const alphaProduct: QueriedProduct = {
+  __typename: 'Product',
+  id: PRODUCT_ID,
+  name: 'Alpha seats',
+  code: 'alpha',
+  productType: ProductTypeEnum.Fixed,
+  billableMetric: null,
+}
+const betaProduct: QueriedProduct = {
+  __typename: 'Product',
+  id: 'product-2',
+  name: 'Beta API',
+  code: 'beta',
+  productType: ProductTypeEnum.Usage,
+  billableMetric: {
+    __typename: 'BillableMetric',
+    id: 'metric-2',
+    aggregationType: AggregationTypeEnum.SumAgg,
+    recurring: false,
+  },
+}
+
+const productQueryMock = (
+  collection: QueriedProduct[],
+  searchTerm?: string,
+): TestMocksType[number] => ({
+  request: {
+    query: GetProductsForRateCardDrawerDocument,
+    variables: { page: 1, limit: 20, ...(searchTerm ? { searchTerm } : {}) },
+  },
+  maxUsageCount: Number.POSITIVE_INFINITY,
+  result: { data: { products: { collection, metadata: { currentPage: 1, totalPages: 2 } } } },
+})
+
+const filterQueryMock: TestMocksType[number] = {
+  request: {
+    query: GetProductFiltersForRateCardDrawerDocument,
+    variables: { productId: betaProduct.id },
+  },
+  result: { data: { productFilters: { collection: [] } } },
+}
+
+const productInput = (): HTMLInputElement =>
+  document.querySelector('input[name="productId"]') as HTMLInputElement
+
+const prorationSwitch = (): HTMLElement | null =>
+  screen.queryByRole('checkbox', { name: 'proration' })
+
+describe('rate card model compatibility', () => {
+  afterEach(() => {
+    mockTranslationSuffix = ''
+  })
+
+  it('updates chips when billing timing and proration change', async () => {
+    renderContent({
+      values: { productId: PRODUCT_ID },
+      productSeed: { value: PRODUCT_ID, label: 'Seats', productType: ProductTypeEnum.Fixed },
+    })
+
+    await userEvent.click(
+      document.querySelector('input[name="billingTiming"][value="advance"]') as HTMLElement,
+    )
+    expect(getAvailableModelLabels()).toEqual([GRADUATED_MODEL_KEY, STANDARD_MODEL_KEY])
+
+    await userEvent.click(prorationSwitch() as HTMLElement)
+    expect(getAvailableModelLabels()).toEqual([STANDARD_MODEL_KEY])
+  })
+
+  it('updates translated chips without changing the selected product', () => {
+    const props: HarnessProps = {
+      values: { productId: PRODUCT_ID },
+      productSeed: { value: PRODUCT_ID, label: 'Seats', productType: ProductTypeEnum.Fixed },
+    }
+    const view = renderContent(props)
+
+    mockTranslationSuffix = '-translated'
+    view.rerender(<Harness {...props} />)
+
+    expect(getAvailableModelLabels()).toEqual([
+      `${GRADUATED_MODEL_KEY}-translated`,
+      `${STANDARD_MODEL_KEY}-translated`,
+      `${VOLUME_MODEL_KEY}-translated`,
+    ])
+  })
+
+  it('explains a resolved empty model set without advertising Standard', () => {
+    renderContent({
+      values: { productId: PRODUCT_ID, billingTiming: RateCardBillingTimingEnum.Advance },
+      productSeed: buildUsageSeed(AggregationTypeEnum.MaxAgg),
+    })
+
+    expect(screen.getByTestId(RATE_CARD_DRAWER_AVAILABLE_MODELS_ALERT_TEST_ID)).toBeInTheDocument()
+    expect(screen.queryAllByTestId(RATE_CARD_DRAWER_AVAILABLE_MODEL_CHIP_TEST_ID)).toHaveLength(0)
+  })
+
+  it('does not claim model availability when recurrence is unresolved', () => {
+    renderContent({
+      values: { productId: PRODUCT_ID },
+      productSeed: { ...buildUsageSeed(AggregationTypeEnum.SumAgg), recurring: undefined },
+    })
+
+    expect(
+      screen.queryByTestId(RATE_CARD_DRAWER_AVAILABLE_MODELS_ALERT_TEST_ID),
+    ).not.toBeInTheDocument()
+  })
+
+  it('retains the selected option and metadata through a search, then selects the new product explicitly', async () => {
+    renderContent({}, [
+      ...buildMocks(),
+      productQueryMock([alphaProduct]),
+      productQueryMock([betaProduct], 'Beta'),
+      filterQueryMock,
+    ])
+
+    await userEvent.click(productInput())
+    await userEvent.keyboard('{ArrowDown}')
+    await userEvent.click(
+      await screen.findByRole('option', { name: new RegExp(alphaProduct.name) }),
+    )
+    expect(getAvailableModelLabels()).toEqual([
+      GRADUATED_MODEL_KEY,
+      STANDARD_MODEL_KEY,
+      VOLUME_MODEL_KEY,
+    ])
+
+    await userEvent.tripleClick(productInput())
+    await userEvent.keyboard('Beta')
+    await screen.findByRole('option', { name: new RegExp(betaProduct.name) })
+
+    expect(screen.getByTestId(PRODUCT_ID_PROBE_TEST_ID)).toHaveTextContent(PRODUCT_ID)
+    expect(screen.getByRole('option', { name: new RegExp(alphaProduct.name) })).toBeInTheDocument()
+    expect(getAvailableModelLabels()).toEqual([
+      GRADUATED_MODEL_KEY,
+      STANDARD_MODEL_KEY,
+      VOLUME_MODEL_KEY,
+    ])
+
+    await userEvent.click(screen.getByRole('option', { name: new RegExp(betaProduct.name) }))
+    expect(screen.getByTestId(PRODUCT_ID_PROBE_TEST_ID)).toHaveTextContent(betaProduct.id)
+    expect(productInput()).toHaveValue(betaProduct.name)
+    expect(getAvailableModelLabels()).toContain(DYNAMIC_MODEL_KEY)
+  })
+
+  it('uses attached metadata when the product is absent from the initial page', async () => {
+    renderContent(
+      {
+        isAttached: true,
+        values: { productId: PRODUCT_ID },
+        productSeed: {
+          value: PRODUCT_ID,
+          label: alphaProduct.name,
+          productType: ProductTypeEnum.Fixed,
+        },
+      },
+      [...buildMocks(), productQueryMock([betaProduct])],
+    )
+
+    await userEvent.click(productInput())
+    await userEvent.keyboard('{ArrowDown}')
+    await screen.findByRole('option', { name: new RegExp(betaProduct.name) })
+    expect(getAvailableModelLabels()).toEqual([
+      GRADUATED_MODEL_KEY,
+      STANDARD_MODEL_KEY,
+      VOLUME_MODEL_KEY,
+    ])
+    expect(screen.getByTestId(PRODUCT_ID_PROBE_TEST_ID)).toHaveTextContent(PRODUCT_ID)
+  })
+
+  it.each([
+    { aggregationType: AggregationTypeEnum.SumAgg, recurring: false },
+    { aggregationType: AggregationTypeEnum.WeightedSumAgg, recurring: true },
+  ])(
+    'resets hidden proration after selecting $aggregationType with recurring=$recurring',
+    async (metric) => {
+      const nextProduct: QueriedProduct = {
+        ...betaProduct,
+        billableMetric: { __typename: 'BillableMetric', id: 'metric-2', ...metric },
+      }
+
+      renderContent(
+        {
+          values: { productId: PRODUCT_ID, proration: true },
+          productSeed: {
+            value: PRODUCT_ID,
+            label: alphaProduct.name,
+            productType: ProductTypeEnum.Fixed,
+          },
+        },
+        [...buildMocks(), productQueryMock([nextProduct]), filterQueryMock],
+      )
+
+      await userEvent.click(productInput())
+      await userEvent.keyboard('{ArrowDown}')
+      await userEvent.click(
+        await screen.findByRole('option', { name: new RegExp(nextProduct.name) }),
+      )
+
+      expect(screen.getByTestId(PRORATION_PROBE_TEST_ID)).toHaveTextContent('false')
+      expect(prorationSwitch()).not.toBeInTheDocument()
+      expect(getAvailableModelLabels().length).toBeGreaterThan(0)
+    },
+  )
+
+  it('preserves an unsupported saved proration and explains its empty model set', () => {
+    renderContent({
+      isEdit: true,
+      values: { productId: PRODUCT_ID, proration: true },
+      productSeed: { ...buildUsageSeed(AggregationTypeEnum.WeightedSumAgg), recurring: true },
+    })
+
+    expect(screen.getByTestId(PRORATION_PROBE_TEST_ID)).toHaveTextContent('true')
+    expect(prorationSwitch()).not.toBeInTheDocument()
+    expect(screen.queryAllByTestId(RATE_CARD_DRAWER_AVAILABLE_MODEL_CHIP_TEST_ID)).toHaveLength(0)
+    expect(screen.getByTestId(RATE_CARD_DRAWER_AVAILABLE_MODELS_ALERT_TEST_ID)).toBeInTheDocument()
+  })
+})
+
+describe('selected product reset lifecycle', () => {
+  it.each([false, true])(
+    'resets retained metadata for create-more with attachment=%s',
+    async (isSeeded) => {
+      renderContent(
+        {
+          values: { productId: isSeeded ? PRODUCT_ID : '' },
+          productSeed: isSeeded
+            ? { value: PRODUCT_ID, label: alphaProduct.name, productType: ProductTypeEnum.Fixed }
+            : null,
+        },
+        [...buildMocks(), productQueryMock([betaProduct]), filterQueryMock],
+      )
+
+      await userEvent.click(productInput())
+      await userEvent.keyboard('{ArrowDown}')
+      await userEvent.click(
+        await screen.findByRole('option', { name: new RegExp(betaProduct.name) }),
+      )
+      expect(getAvailableModelLabels()).toContain(DYNAMIC_MODEL_KEY)
+
+      await userEvent.click(screen.getByRole('button', { name: 'reset for next create' }))
+
+      if (isSeeded) {
+        expect(screen.getByTestId(PRODUCT_ID_PROBE_TEST_ID)).toHaveTextContent(PRODUCT_ID)
+        expect(productInput()).toHaveValue(alphaProduct.name)
+        expect(getAvailableModelLabels()).toEqual([
+          GRADUATED_MODEL_KEY,
+          STANDARD_MODEL_KEY,
+          VOLUME_MODEL_KEY,
+        ])
+      } else {
+        expect(screen.getByTestId(PRODUCT_ID_PROBE_TEST_ID)).toBeEmptyDOMElement()
+        expect(productInput()).toHaveValue('')
+        expect(
+          screen.queryByTestId(RATE_CARD_DRAWER_AVAILABLE_MODELS_ALERT_TEST_ID),
+        ).not.toBeInTheDocument()
+      }
+    },
+  )
 })

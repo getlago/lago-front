@@ -1,6 +1,9 @@
-import { act, configure, render, screen } from '@testing-library/react'
+import { revalidateLogic } from '@tanstack/react-form'
+import { act, configure, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { ComboBoxProps } from '~/components/form/ComboBox/types'
+import { chargeModelLookupTranslation } from '~/core/constants/form'
 import {
   AggregationTypeEnum,
   CurrencyEnum,
@@ -10,7 +13,7 @@ import {
 } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
-import { RATE_CARD_RATE_FORM_DEFAULTS } from '../constants'
+import { RATE_CARD_RATE_FORM_DEFAULTS, RateCardRateFormValues } from '../constants'
 import {
   RATE_CARD_RATE_DRAWER_BILLING_INTERVAL_COUNT_TEST_ID,
   RATE_CARD_RATE_DRAWER_BILLING_INTERVAL_UNIT_TEST_ID,
@@ -20,6 +23,7 @@ import {
   RateCardRateDrawerContent,
   RateCardRateDrawerRateCard,
 } from '../RateCardRateDrawerContent'
+import { buildRateCardRateSchema } from '../schema'
 
 configure({ testIdAttribute: 'data-test' })
 
@@ -30,11 +34,14 @@ const SET_DATE_BUTTON_TEST_ID = 'set-date'
 const SET_SECOND_DATE_BUTTON_TEST_ID = 'set-second-date'
 const CHANGE_MODEL_BUTTON_TEST_ID = 'change-model'
 const SET_SPENDING_MINIMUM_BUTTON_TEST_ID = 'clear-spending-minimum'
-const mockChargeModelSelectorTestId = 'charge-model-selector'
+const RATE_MODEL_PROBE_TEST_ID = 'rate-model-probe'
+const RATE_AMOUNT_PROBE_TEST_ID = 'rate-amount-probe'
 const mockChargeWrapperSwitchTestId = 'charge-wrapper-switch'
 
 const mockOpenPremiumWarningDialog = jest.fn()
 let mockIsPremium = true
+let mockTranslationSuffix = ''
+let mockTranslations: Record<string, string> = {}
 let mockChargeModelSelectorProps: Record<string, unknown> = {}
 let mockChargeWrapperSwitchProps: Record<string, unknown> = {}
 
@@ -67,10 +74,18 @@ jest.mock('~/hooks/useCurrentUser', () => ({
   useCurrentUser: () => ({ isPremium: mockIsPremium }),
 }))
 
+jest.mock('~/components/form/ComboBox/ComboBox', () => {
+  const { ComboBox } = jest.requireActual('~/components/form/ComboBox/ComboBox')
+
+  return { ComboBox: (props: ComboBoxProps) => <ComboBox {...props} virtualized={false} /> }
+})
+
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
     translate: (key: string, vars?: Record<string, unknown>) =>
-      vars ? `${key}|${Object.values(vars).join('|')}` : key,
+      vars
+        ? `${key}|${Object.values(vars).join('|')}`
+        : `${mockTranslations[key] ?? key}${mockTranslationSuffix}`,
   }),
 }))
 
@@ -90,7 +105,11 @@ jest.mock('~/components/plans/chargeAccordion/ChargeModelSelector', () => ({
     mockChargeModelSelectorProps = props
     mockHandleChargeModelUpdate = props.handleUpdate as ChargeModelUpdater
 
-    return <div data-test={mockChargeModelSelectorTestId} />
+    const { ChargeModelSelector } = jest.requireActual(
+      '~/components/plans/chargeAccordion/ChargeModelSelector',
+    )
+
+    return <ChargeModelSelector {...props} />
   },
 }))
 
@@ -116,6 +135,8 @@ const arrearsUsageCard: RateCardRateDrawerRateCard = {
   billingTiming: RateCardBillingTimingEnum.Arrears,
   productType: ProductTypeEnum.Usage,
   aggregationType: AggregationTypeEnum.SumAgg,
+  recurring: false,
+  proration: false,
 }
 
 const Host = ({
@@ -125,6 +146,8 @@ const Host = ({
   isCodeLocked = false,
   effectiveFromBoundary = null,
   initialMinAmountCents = '',
+  initialValues,
+  onSubmit,
 }: {
   rateCard?: RateCardRateDrawerRateCard
   isEdit?: boolean
@@ -132,8 +155,21 @@ const Host = ({
   isCodeLocked?: boolean
   effectiveFromBoundary?: string | null
   initialMinAmountCents?: string
+  initialValues?: Partial<RateCardRateFormValues>
+  onSubmit?: () => void
 }) => {
-  const form = useAppForm({ defaultValues: RATE_CARD_RATE_FORM_DEFAULTS })
+  const form = useAppForm({
+    defaultValues: { ...RATE_CARD_RATE_FORM_DEFAULTS, ...initialValues },
+    validationLogic: revalidateLogic(),
+    validators: {
+      onDynamic: buildRateCardRateSchema(() => ({
+        requiresConversionRate: false,
+        effectiveFromBoundary,
+        rateModelConfiguration: rateCard,
+      })),
+    },
+    onSubmit: () => onSubmit?.(),
+  })
 
   return (
     <>
@@ -167,11 +203,27 @@ const Host = ({
       <form.Subscribe selector={(state) => state.isDirty}>
         {(isDirty) => <span data-test={DIRTY_PROBE_TEST_ID}>{String(isDirty)}</span>}
       </form.Subscribe>
+      <form.Subscribe selector={(state) => state.values.rateModel}>
+        {(rateModel) => <span data-test={RATE_MODEL_PROBE_TEST_ID}>{rateModel}</span>}
+      </form.Subscribe>
+      <form.Subscribe selector={(state) => state.values.properties?.amount}>
+        {(amount) => <span data-test={RATE_AMOUNT_PROBE_TEST_ID}>{amount}</span>}
+      </form.Subscribe>
       <form.Subscribe selector={(state) => state.values.properties?.customProperties}>
         {(customProperties) => (
           <span data-test={CUSTOM_PROPERTIES_PROBE_TEST_ID}>{String(customProperties)}</span>
         )}
       </form.Subscribe>
+      {onSubmit && (
+        <>
+          <form.AppField name="properties.amount">
+            {(field) => <field.TextInputField label="Test rate amount" />}
+          </form.AppField>
+          <button type="button" onClick={() => form.handleSubmit()}>
+            submit rate
+          </button>
+        </>
+      )}
       <RateCardRateDrawerContent
         form={form}
         rateCard={rateCard}
@@ -192,6 +244,7 @@ describe('RateCardRateDrawerContent', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockIsPremium = true
+    mockTranslationSuffix = ''
     mockChargeModelSelectorProps = {}
     mockChargeWrapperSwitchProps = {}
     mockHandleChargeModelUpdate = undefined
@@ -517,5 +570,184 @@ describe('RateCardRateDrawerContent', () => {
         expect(mockChargeModelSelectorProps.disabled).toBe(false)
       })
     })
+  })
+})
+
+describe('rate editor compatibility', () => {
+  afterEach(() => {
+    mockIsPremium = true
+    mockTranslationSuffix = ''
+    mockTranslations = {}
+  })
+
+  const advanceCard: RateCardRateDrawerRateCard = {
+    ...arrearsUsageCard,
+    billingTiming: RateCardBillingTimingEnum.Advance,
+  }
+  const modelInput = (): HTMLInputElement =>
+    document.querySelector('input[name="chargeModel"]') as HTMLInputElement
+
+  it('offers the same single model as a prorated advance card', async () => {
+    render(<Host rateCard={{ ...advanceCard, recurring: true, proration: true }} />)
+
+    await userEvent.click(modelInput())
+    await userEvent.keyboard('{ArrowDown}')
+
+    expect(screen.getAllByRole('option')).toHaveLength(1)
+    expect(screen.getByRole('option')).toHaveTextContent('text_624aa732d6af4e0103d40e6f')
+  })
+
+  it('keeps an incompatible existing model and pricing when the options change', async () => {
+    const initialValues: Partial<RateCardRateFormValues> = {
+      rateModel: RateCardRateModelEnum.Volume,
+      properties: { amount: '42' },
+    }
+    const view = render(<Host isEdit initialValues={initialValues} />)
+
+    view.rerender(<Host isEdit initialValues={initialValues} rateCard={advanceCard} />)
+
+    expect(modelInput()).toHaveValue('text_6304e74aab6dbc18d615f386')
+    expect(screen.getByTestId(RATE_MODEL_PROBE_TEST_ID)).toHaveTextContent('volume')
+    expect(screen.getByTestId(RATE_AMOUNT_PROBE_TEST_ID)).toHaveTextContent('42')
+    await userEvent.click(modelInput())
+    await userEvent.keyboard('{ArrowDown}')
+    expect(screen.getByRole('option', { name: /text_6304e74aab6dbc18d615f386/ })).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    )
+  })
+
+  describe('with an incompatible Graduated Percentage model', () => {
+    beforeEach(async () => {
+      mockIsPremium = false
+      mockTranslations = {
+        text_62793bbb599f1c01522e919f: 'Graduated',
+        text_64de472463e2da6b31737db0: 'Graduated Percentage',
+        text_65201b8216455901fe273e32: 'Graduated Percentage',
+        text_624aa732d6af4e0103d40e6f: 'Standard',
+        text_6304e74aab6dbc18d615f386: 'Volume',
+      }
+
+      render(
+        <Host
+          isEdit
+          rateCard={{
+            ...arrearsUsageCard,
+            aggregationType: AggregationTypeEnum.SumAgg,
+            recurring: true,
+            proration: true,
+          }}
+          initialValues={{ rateModel: RateCardRateModelEnum.GraduatedPercentage }}
+        />,
+      )
+
+      await userEvent.click(modelInput())
+      await userEvent.keyboard('{ArrowDown}')
+    })
+
+    it('keeps the retained option in alphabetical order', () => {
+      expect(
+        screen
+          .getAllByRole('option')
+          .map((option) => within(option).getByRole('radio').getAttribute('value')),
+      ).toEqual(['graduated', 'graduated_percentage', 'standard', 'volume'])
+    })
+
+    it("preserves the disabled retained option's premium rendering", () => {
+      const option = screen.getByRole('option', { name: /Graduated Percentage/ })
+
+      expect(option).toHaveAttribute('aria-disabled', 'true')
+      expect(within(option).getByTitle('sparkles/medium')).toBeInTheDocument()
+    })
+  })
+
+  it('rejects attempts to select an ineligible model without resetting pricing', async () => {
+    render(<Host rateCard={advanceCard} initialValues={{ properties: { amount: '42' } }} />)
+
+    await act(async () => {
+      mockHandleChargeModelUpdate?.('chargeModel', RateCardRateModelEnum.Volume)
+    })
+
+    expect(screen.getByTestId(RATE_MODEL_PROBE_TEST_ID)).toHaveTextContent('standard')
+    expect(screen.getByTestId(RATE_AMOUNT_PROBE_TEST_ID)).toHaveTextContent('42')
+  })
+
+  it('lets a pending rate replace an incompatible model explicitly', async () => {
+    render(
+      <Host
+        isEdit
+        rateCard={advanceCard}
+        initialValues={{ rateModel: RateCardRateModelEnum.Volume }}
+      />,
+    )
+
+    await userEvent.click(modelInput())
+    await userEvent.keyboard('{ArrowDown}')
+    await userEvent.click(screen.getByRole('option', { name: /text_624aa732d6af4e0103d40e6f/ }))
+
+    expect(screen.getByTestId(RATE_MODEL_PROBE_TEST_ID)).toHaveTextContent('standard')
+    expect(mockChargeModelSelectorProps.alreadyUsedChargeAlertMessage).toBeUndefined()
+  })
+
+  it('explains a resolved empty set and keeps the default model disabled', async () => {
+    render(<Host rateCard={{ ...advanceCard, aggregationType: AggregationTypeEnum.MaxAgg }} />)
+
+    expect(mockChargeModelSelectorProps.alreadyUsedChargeAlertMessage).toBeTruthy()
+    await userEvent.click(modelInput())
+    await userEvent.keyboard('{ArrowDown}')
+    expect(screen.getAllByRole('option')).toHaveLength(1)
+    expect(screen.getByRole('option')).toHaveAttribute('aria-disabled', 'true')
+  })
+
+  it('keeps metadata loading distinct from incompatible settings', () => {
+    render(
+      <Host rateCard={{ ...arrearsUsageCard, aggregationType: undefined, recurring: undefined }} />,
+    )
+
+    expect(modelInput()).toBeDisabled()
+    expect(modelInput()).toHaveValue(chargeModelLookupTranslation.standard)
+    expect(mockChargeModelSelectorProps.alreadyUsedChargeAlertMessage).toBeUndefined()
+  })
+
+  it('updates translated model options while the configuration stays the same', () => {
+    const view = render(<Host />)
+
+    mockTranslationSuffix = '-translated'
+    view.rerender(<Host />)
+
+    expect(modelInput()).toHaveValue('text_624aa732d6af4e0103d40e6f-translated')
+  })
+})
+
+describe('correcting an incompatible rate', () => {
+  it('allows saving again after the user chooses a valid model and enters its price', async () => {
+    const onSubmit = jest.fn()
+
+    render(
+      <Host
+        isEdit
+        onSubmit={onSubmit}
+        rateCard={{ ...arrearsUsageCard, billingTiming: RateCardBillingTimingEnum.Advance }}
+        initialValues={{
+          effectiveFrom: '2026-01-24',
+          code: 'saved-volume',
+          rateModel: RateCardRateModelEnum.Volume,
+          properties: {
+            volumeRanges: [{ fromValue: 0, toValue: null, perUnitAmount: '12', flatAmount: '0' }],
+          },
+        }}
+      />,
+    )
+
+    await userEvent.click(screen.getByRole('button', { name: 'submit rate' }))
+    expect(onSubmit).not.toHaveBeenCalled()
+
+    await userEvent.click(document.querySelector('input[name="chargeModel"]') as HTMLElement)
+    await userEvent.keyboard('{ArrowDown}')
+    await userEvent.click(screen.getByRole('option', { name: /text_624aa732d6af4e0103d40e6f/ }))
+    await userEvent.type(screen.getByLabelText('Test rate amount'), '12')
+    await userEvent.click(screen.getByRole('button', { name: 'submit rate' }))
+
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
   })
 })

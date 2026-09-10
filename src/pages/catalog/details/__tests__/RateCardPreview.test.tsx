@@ -12,9 +12,11 @@ import userEvent from '@testing-library/user-event'
 
 import { GENERIC_PLACEHOLDER_TEST_ID } from '~/components/designSystem/GenericPlaceholder'
 import {
+  AggregationTypeEnum,
   CurrencyEnum,
   GetRateCardsForProductDetailsDocument,
   GetRateCardsForProductFilterDetailsDocument,
+  ProductTypeEnum,
   RateCardForListFragment,
   RateCardRateModelEnum,
   RateCardRegroupPaidFeesEnum,
@@ -56,14 +58,32 @@ const PRODUCT_ITEM_ID = 'pitem-1'
 const PRODUCT_ITEM_FILTER_ID = 'pif-1'
 
 const productScope: RateCardPreviewScope = {
-  product: { id: PRODUCT_ITEM_ID, name: 'Seats' },
+  product: {
+    id: PRODUCT_ITEM_ID,
+    name: 'Seats',
+    productType: ProductTypeEnum.Usage,
+    billableMetric: {
+      id: 'metric-1',
+      aggregationType: AggregationTypeEnum.SumAgg,
+      recurring: true,
+    },
+  },
 }
 
 const productFilterScope: RateCardPreviewScope = {
   productFilter: {
     id: PRODUCT_ITEM_FILTER_ID,
     name: 'Region',
-    product: { id: PRODUCT_ITEM_ID, name: 'Seats' },
+    product: {
+      id: PRODUCT_ITEM_ID,
+      name: 'Seats',
+      productType: ProductTypeEnum.Usage,
+      billableMetric: {
+        id: 'metric-1',
+        aggregationType: AggregationTypeEnum.SumAgg,
+        recurring: true,
+      },
+    },
   },
 }
 
@@ -261,7 +281,16 @@ describe('RateCardPreview', () => {
     await userEvent.click(screen.getByTestId(RATE_CARD_PREVIEW_CREATE_TEST_ID))
 
     expect(mockOpenDrawer).toHaveBeenCalledWith({
-      attachToProduct: { id: PRODUCT_ITEM_ID, name: 'Seats' },
+      attachToProduct: {
+        id: PRODUCT_ITEM_ID,
+        name: 'Seats',
+        productType: ProductTypeEnum.Usage,
+        billableMetric: {
+          id: 'metric-1',
+          aggregationType: AggregationTypeEnum.SumAgg,
+          recurring: true,
+        },
+      },
     })
   })
 
@@ -314,7 +343,16 @@ describe('RateCardPreview', () => {
         attachToProductFilter: {
           id: PRODUCT_ITEM_FILTER_ID,
           name: 'Region',
-          product: { id: PRODUCT_ITEM_ID, name: 'Seats' },
+          product: {
+            id: PRODUCT_ITEM_ID,
+            name: 'Seats',
+            productType: ProductTypeEnum.Usage,
+            billableMetric: {
+              id: 'metric-1',
+              aggregationType: AggregationTypeEnum.SumAgg,
+              recurring: true,
+            },
+          },
         },
       })
     })

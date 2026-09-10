@@ -14,6 +14,7 @@ import {
   useCreateMoreResetIteration,
 } from '~/components/drawers/createMore/useCreateMore'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
+import { BasicComboBoxData } from '~/components/form/ComboBox/types'
 import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { ChargeInvoicingStrategyOption } from '~/components/plans/chargeAccordion/options/ChargeInvoicingStrategyOption'
@@ -45,19 +46,30 @@ import {
   RATE_CARD_FORM_DEFAULTS,
 } from './constants'
 
+import {
+  getAvailableRateModels,
+  isRateCardProrationSupported,
+  NO_AVAILABLE_RATE_MODELS_KEY,
+} from '../../utils/rateModelAvailability'
+
 gql`
+  fragment ProductForRateCardDrawer on Product {
+    id
+    name
+    productType
+    billableMetric {
+      id
+      aggregationType
+      recurring
+    }
+  }
+
   query getProductsForRateCardDrawer($page: Int, $limit: Int, $searchTerm: String) {
     products(page: $page, limit: $limit, searchTerm: $searchTerm) {
       collection {
         id
-        name
         code
-        productType
-        billableMetric {
-          id
-          aggregationType
-          recurring
-        }
+        ...ProductForRateCardDrawer
       }
       metadata {
         currentPage
@@ -99,9 +111,6 @@ export const RATE_CARD_DRAWER_REMOVE_PRICING_UNIT_TEST_ID = 'rate-card-drawer-re
 
 export type RateCardComboboxSeed = { value: string; label: string } | null
 
-// The attached product item seed carries the metadata needed to drive the
-// proration + available-models sections before the options query resolves (edit
-// mode seeds it from the rate card fragment; attach mode has only value/label).
 export type RateCardProductSeed = {
   value: string
   label: string
@@ -140,12 +149,6 @@ const mergeSeededOptions = (
   return [seed, ...options.filter((option) => option.value !== seed.value)]
 }
 
-type ProductMeta = {
-  productType: ProductTypeEnum
-  aggregationType?: AggregationTypeEnum
-  recurring: boolean
-}
-
 // Holds the reactive form state (description reveal + the derived sections that
 // depend on the selected product item) so it resets alongside the form when the
 // keyed wrapper remounts after a "create more" save.
@@ -175,6 +178,7 @@ const RateCardDrawerFormSections = withForm({
     const productId = useStore(form.store, (state) => state.values.productId)
     const currency = useStore(form.store, (state) => state.values.currency)
     const billingTiming = useStore(form.store, (state) => state.values.billingTiming)
+    const proration = useStore(form.store, (state) => state.values.proration)
     const invoicingStrategy = useStore(form.store, (state) => state.values.invoicingStrategy)
 
     const [getProducts, { data: productsData, loading: productsLoading }] =
@@ -194,41 +198,34 @@ const RateCardDrawerFormSections = withForm({
       }
     }, [productId, getProductFilters])
 
-    const productsComboboxData = useMemo(
-      () =>
-        mergeSeededOptions(
-          productSeed ? { value: productSeed.value, label: productSeed.label } : null,
-          (productsData?.products?.collection ?? []).map((product) => ({
-            value: product.id,
-            label: product.name,
-          })),
-        ),
-      [productSeed, productsData?.products?.collection],
+    const [retainedProduct, setRetainedProduct] = useState<RateCardProductSeed>(() =>
+      productSeed?.value === productId ? productSeed : null,
     )
-
-    const productMetaById = useMemo(() => {
-      const byId = new Map<string, ProductMeta>()
-
-      if (productSeed?.productType) {
-        byId.set(productSeed.value, {
-          productType: productSeed.productType,
-          aggregationType: productSeed.aggregationType ?? undefined,
-          recurring: !!productSeed.recurring,
-        })
-      }
-
-      ;(productsData?.products?.collection ?? []).forEach((product) => {
-        byId.set(product.id, {
+    const queriedProducts = useMemo(
+      () =>
+        (productsData?.products?.collection ?? []).map((product) => ({
+          value: product.id,
+          label: product.name,
           productType: product.productType,
           aggregationType: product.billableMetric?.aggregationType,
-          recurring: !!product.billableMetric?.recurring,
-        })
-      })
+          recurring: product.billableMetric?.recurring,
+        })),
+      [productsData?.products?.collection],
+    )
+    const queriedSelectedProduct = queriedProducts.find((product) => product.value === productId)
+    const selectedProductMeta =
+      queriedSelectedProduct ?? (retainedProduct?.value === productId ? retainedProduct : undefined)
 
-      return byId
-    }, [productSeed, productsData?.products?.collection])
+    useEffect(() => {
+      if (queriedSelectedProduct && form.state.values.productId === queriedSelectedProduct.value) {
+        setRetainedProduct(queriedSelectedProduct)
+      }
+    }, [queriedSelectedProduct, form])
 
-    const selectedProductMeta = productId ? productMetaById.get(productId) : undefined
+    const productsComboboxData = useMemo(
+      () => mergeSeededOptions(selectedProductMeta ?? null, queriedProducts),
+      [selectedProductMeta, queriedProducts],
+    )
 
     const productFiltersComboboxData = useMemo(
       () =>
@@ -256,36 +253,30 @@ const RateCardDrawerFormSections = withForm({
       [],
     )
 
-    // Which rate models the attached item can carry: fixed items use the fixed
-    // model set, usage items derive theirs from the billable metric aggregation.
-    const availableRateModelLabels: string[] = useMemo(() => {
-      if (!selectedProductMeta) return []
+    const availableRateModels = getAvailableRateModels({
+      productType: selectedProductMeta?.productType,
+      aggregationType: selectedProductMeta?.aggregationType,
+      recurring: selectedProductMeta?.recurring,
+      billingTiming,
+      proration,
+    })
+    let rateModelOptions: BasicComboBoxData[] = []
 
-      if (selectedProductMeta.productType === ProductTypeEnum.Fixed) {
-        return getFixedChargeModelComboboxData()
-          .map((model) => model.label)
-          .filter((label): label is string => !!label)
-      }
-
-      if (!selectedProductMeta.aggregationType) return []
-
-      return getUsageChargeModelComboboxData({
+    if (selectedProductMeta?.productType === ProductTypeEnum.Fixed) {
+      rateModelOptions = getFixedChargeModelComboboxData()
+    } else if (selectedProductMeta?.aggregationType) {
+      rateModelOptions = getUsageChargeModelComboboxData({
         isPremium,
         aggregationType: selectedProductMeta.aggregationType,
       })
-        .map((model) => model.label)
-        .filter((label): label is string => !!label)
-      // getFixedChargeModelComboboxData and getUsageChargeModelComboboxData are recreated every
-      // render by useChargeForm (not memoized there), so including them would defeat this
-      // memoization; the labels they return only vary with the deps kept below.
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedProductMeta?.productType, selectedProductMeta?.aggregationType, isPremium])
+    }
 
-    // Proration only applies to fixed items or recurring usage metrics (mirrors
-    // the usage-charge drawer render guard).
-    const isProrationVisible =
-      !!selectedProductMeta &&
-      (selectedProductMeta.productType === ProductTypeEnum.Fixed || selectedProductMeta.recurring)
+    const availableRateModelLabels = rateModelOptions.flatMap((option) =>
+      option.label && availableRateModels?.some((model) => model === option.value)
+        ? [option.label]
+        : [],
+    )
+    const isProrationVisible = isRateCardProrationSupported(selectedProductMeta ?? {}) === true
 
     const isPayInAdvance = billingTiming === RateCardBillingTimingEnum.Advance
 
@@ -396,7 +387,19 @@ const RateCardDrawerFormSections = withForm({
               listeners={{
                 // Switching the product item invalidates the selected item filter
                 // (it belongs to the previous item), so clear it.
-                onChange: () => {
+                onChange: ({ value }) => {
+                  const nextProduct =
+                    queriedProducts.find((product) => product.value === value) ??
+                    (selectedProductMeta?.value === value ? selectedProductMeta : null)
+
+                  setRetainedProduct(nextProduct)
+                  if (
+                    nextProduct &&
+                    isRateCardProrationSupported(nextProduct) === false &&
+                    form.state.values.proration
+                  ) {
+                    form.setFieldValue('proration', false)
+                  }
                   if (form.state.values.productFilterId) {
                     form.setFieldValue('productFilterId', '')
                   }
@@ -485,110 +488,115 @@ const RateCardDrawerFormSections = withForm({
             )}
           </CenteredPage.PageSection>
 
-          <CenteredPage.PageSection>
-            <CenteredPage.PageSectionTitle title={translate('text_17423672025282dl7iozy1ru')} />
+          {Boolean(productId) && (
+            <CenteredPage.PageSection>
+              <CenteredPage.PageSectionTitle title={translate('text_17423672025282dl7iozy1ru')} />
 
-            <form.AppField
-              name="billingTiming"
-              listeners={{
-                // Invoicing strategy only exists for pay-in-advance; reset it when
-                // switching to arrears so a stale strategy is not serialized.
-                onChange: ({ value }) => {
-                  if (
-                    value === RateCardBillingTimingEnum.Arrears &&
-                    form.state.values.invoicingStrategy !== 'invoiceable'
-                  ) {
-                    form.setFieldValue('invoicingStrategy', 'invoiceable')
-                  }
-                },
-              }}
-            >
-              {(field) => (
-                <field.RadioGroupField
-                  label={translate('text_6682c52081acea90520743a8')}
-                  description={translate('text_1781703119230q5zam349txb')}
-                  optionLabelVariant="body"
+              <form.AppField
+                name="billingTiming"
+                listeners={{
+                  // Invoicing strategy only exists for pay-in-advance; reset it when
+                  // switching to arrears so a stale strategy is not serialized.
+                  onChange: ({ value }) => {
+                    if (
+                      value === RateCardBillingTimingEnum.Arrears &&
+                      form.state.values.invoicingStrategy !== 'invoiceable'
+                    ) {
+                      form.setFieldValue('invoicingStrategy', 'invoiceable')
+                    }
+                  },
+                }}
+              >
+                {(field) => (
+                  <field.RadioGroupField
+                    label={translate('text_6682c52081acea90520743a8')}
+                    description={translate('text_1781703119230q5zam349txb')}
+                    optionLabelVariant="body"
+                    disabled={hasRates}
+                    options={[
+                      {
+                        label: translate('text_6682c52081acea90520743ac'),
+                        value: RateCardBillingTimingEnum.Arrears,
+                      },
+                      {
+                        label: translate('text_6682c52081acea90520743ae'),
+                        value: RateCardBillingTimingEnum.Advance,
+                      },
+                    ]}
+                  />
+                )}
+              </form.AppField>
+
+              {isPayInAdvance && (
+                <ChargeInvoicingStrategyOption
+                  localCharge={strategyLocalCharge}
                   disabled={hasRates}
-                  options={[
-                    {
-                      label: translate('text_6682c52081acea90520743ac'),
-                      value: RateCardBillingTimingEnum.Arrears,
-                    },
-                    {
-                      label: translate('text_6682c52081acea90520743ae'),
-                      value: RateCardBillingTimingEnum.Advance,
-                    },
-                  ]}
+                  openPremiumDialog={() => openPremiumWarningDialog()}
+                  handleUpdate={({ invoiceable, regroupPaidFees }) => {
+                    form.setFieldValue(
+                      'invoicingStrategy',
+                      mapInvoiceFieldsToStrategy({
+                        displayOnInvoice: invoiceable,
+                        regroupPaidFees: (regroupPaidFees ??
+                          null) as unknown as RateCardRegroupPaidFeesEnum | null,
+                      }),
+                    )
+                  }}
                 />
               )}
-            </form.AppField>
 
-            {isPayInAdvance && (
-              <ChargeInvoicingStrategyOption
-                localCharge={strategyLocalCharge}
-                disabled={hasRates}
-                openPremiumDialog={() => openPremiumWarningDialog()}
-                handleUpdate={({ invoiceable, regroupPaidFees }) => {
-                  form.setFieldValue(
-                    'invoicingStrategy',
-                    mapInvoiceFieldsToStrategy({
-                      displayOnInvoice: invoiceable,
-                      regroupPaidFees: (regroupPaidFees ??
-                        null) as unknown as RateCardRegroupPaidFeesEnum | null,
-                    }),
-                  )
-                }}
-              />
-            )}
+              {isProrationVisible && (
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-1">
+                    <Typography variant="captionHl" color="grey700">
+                      {translate('text_177488074309762bkd4znl3p')}
+                    </Typography>
+                    <Typography variant="caption" color="grey600">
+                      {translate('text_1774880743098ioxd3oxanxo')}
+                    </Typography>
+                  </div>
 
-            {isProrationVisible && (
-              <div className="flex flex-col gap-4">
-                <div className="flex flex-col gap-1">
-                  <Typography variant="captionHl" color="grey700">
-                    {translate('text_177488074309762bkd4znl3p')}
-                  </Typography>
-                  <Typography variant="caption" color="grey600">
-                    {translate('text_1774880743098ioxd3oxanxo')}
-                  </Typography>
+                  <form.AppField name="proration">
+                    {(field) => (
+                      <field.SwitchField
+                        label={translate('text_177488074309762bkd4znl3p')}
+                        disabled={hasRates}
+                      />
+                    )}
+                  </form.AppField>
                 </div>
+              )}
 
-                <form.AppField name="proration">
-                  {(field) => (
-                    <field.SwitchField
-                      label={translate('text_177488074309762bkd4znl3p')}
-                      disabled={hasRates}
-                    />
-                  )}
-                </form.AppField>
-              </div>
-            )}
+              {availableRateModels !== undefined && (
+                <Alert
+                  type="info"
+                  data-test={RATE_CARD_DRAWER_AVAILABLE_MODELS_ALERT_TEST_ID}
+                  className="flex flex-col gap-1"
+                >
+                  <Typography variant="body" color="grey700">
+                    {translate(
+                      availableRateModels.length > 0
+                        ? 'text_1784925227817ukilytyxozn'
+                        : NO_AVAILABLE_RATE_MODELS_KEY,
+                    )}
+                  </Typography>
 
-            {!!selectedProductMeta && availableRateModelLabels.length > 0 && (
-              <Alert
-                type="info"
-                data-test={RATE_CARD_DRAWER_AVAILABLE_MODELS_ALERT_TEST_ID}
-                className="flex flex-col gap-1"
-              >
-                <Typography
-                  variant="body"
-                  color="grey700"
-                >{`${translate('text_1784925227817ukilytyxozn')} `}</Typography>
-
-                <span className="flex flex-wrap gap-1">
-                  {availableRateModelLabels.map((label) => (
-                    <Chip
-                      key={label}
-                      data-test={RATE_CARD_DRAWER_AVAILABLE_MODEL_CHIP_TEST_ID}
-                      variant="captionCode"
-                      color="danger600"
-                      label={label}
-                      size="small"
-                    />
-                  ))}
-                </span>
-              </Alert>
-            )}
-          </CenteredPage.PageSection>
+                  <span className="flex flex-wrap gap-1">
+                    {availableRateModelLabels.map((label) => (
+                      <Chip
+                        key={label}
+                        data-test={RATE_CARD_DRAWER_AVAILABLE_MODEL_CHIP_TEST_ID}
+                        variant="captionCode"
+                        color="danger600"
+                        label={label}
+                        size="small"
+                      />
+                    ))}
+                  </span>
+                </Alert>
+              )}
+            </CenteredPage.PageSection>
+          )}
         </CenteredPage.SubsectionWrapper>
       </>
     )
