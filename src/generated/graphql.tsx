@@ -5510,7 +5510,8 @@ export type LoseInvoiceDisputeInput = {
 
 export enum MappableTypeEnum {
   AddOn = 'AddOn',
-  BillableMetric = 'BillableMetric'
+  BillableMetric = 'BillableMetric',
+  Product = 'Product'
 }
 
 export type Mapping = {
@@ -8160,12 +8161,19 @@ export type Product = {
   description?: Maybe<Scalars['String']['output']>;
   filtersCount: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
+  integrationMappings?: Maybe<Array<Mapping>>;
   invoiceDisplayName?: Maybe<Scalars['String']['output']>;
   name: Scalars['String']['output'];
   organization?: Maybe<Organization>;
   productCategory?: Maybe<ProductCategory>;
   productType: ProductTypeEnum;
   updatedAt: Scalars['ISO8601DateTime']['output'];
+};
+
+
+/** Base product */
+export type ProductIntegrationMappingsArgs = {
+  integrationId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 /** Base product_category */
