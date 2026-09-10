@@ -5,6 +5,7 @@ import { addToast } from '~/core/apolloClient'
 import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import {
   CatalogPlanForDeleteCatalogPlanDialogFragment,
+  CatalogPlansDocument,
   useDestroyCatalogPlanMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -60,8 +61,7 @@ export const useDeleteCatalogPlanDialog = (): {
           id: destroyedId,
           __typename: 'CatalogPlan',
           listFieldName: 'catalogPlans',
-          // No catalog plans list query exists yet, so there is no watcher to allow through.
-          listQueryDocument: [],
+          listQueryDocument: [CatalogPlansDocument],
         })
 
         callback?.()
