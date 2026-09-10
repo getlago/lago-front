@@ -16061,6 +16061,25 @@ export type RateCardsQueryVariables = Exact<{
 
 export type RateCardsQuery = { __typename?: 'Query', rateCards: { __typename?: 'RateCardCollection', collection: Array<{ __typename?: 'RateCard', id: string, name: string, code: string, createdAt: any, ratesCount: number, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, description?: string | null, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean, regroupPaidFees: RateCardRegroupPaidFeesEnum, proration: boolean, walletTargetable?: boolean | null, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, product: { __typename?: 'Product', id: string, name: string, code: string, productType: ProductTypeEnum, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, code: string } | null, activeRate?: { __typename?: 'RateCardRate', id: string, rateModel: RateCardRateModelEnum, minAmountCents: any, rateProperties: { __typename?: 'Properties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', perUnitAmount: string, flatAmount: string, fromValue: number, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', rate: string, flatAmount: string, fromValue: number, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', perUnitAmount: string, flatAmount: string, fromValue: any, toValue?: any | null }> | null } } | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
+export type CatalogPlanActivityLogsQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  resourceTypes?: InputMaybe<Array<ResourceTypeEnum> | ResourceTypeEnum>;
+  resourceIds?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+}>;
+
+
+export type CatalogPlanActivityLogsQuery = { __typename?: 'Query', activityLogs?: { __typename?: 'ActivityLogCollection', collection: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } | null };
+
+export type CatalogPlanForCatalogPlanDetailsFragment = { __typename?: 'CatalogPlan', id: string, name: string, code: string, currency: CurrencyEnum, description?: string | null, invoiceDisplayName?: string | null, appliedRateCardsCount: number, contractsCount: number, attachedToContracts: boolean };
+
+export type GetCatalogPlanForDetailsQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetCatalogPlanForDetailsQuery = { __typename?: 'Query', catalogPlan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string, currency: CurrencyEnum, description?: string | null, invoiceDisplayName?: string | null, appliedRateCardsCount: number, contractsCount: number, attachedToContracts: boolean } | null };
+
 export type CatalogPlanForCatalogPlanDetailsOverviewFragment = { __typename?: 'CatalogPlan', id: string, name: string, code: string, currency: CurrencyEnum, description?: string | null, invoiceDisplayName?: string | null, appliedRateCardsCount: number, attachedToContracts: boolean };
 
 export type GetCatalogPlanForDetailsOverviewQueryVariables = Exact<{
@@ -22882,6 +22901,22 @@ export const ProductForListFragmentDoc = gql`
 }
     ${ProductForDrawerFragmentDoc}
 ${ProductForDeleteProductDialogFragmentDoc}`;
+export const CatalogPlanForCatalogPlanDetailsFragmentDoc = gql`
+    fragment CatalogPlanForCatalogPlanDetails on CatalogPlan {
+  id
+  name
+  code
+  currency
+  description
+  invoiceDisplayName
+  appliedRateCardsCount
+  contractsCount
+  attachedToContracts
+  ...CatalogPlanForCatalogPlanDrawer
+  ...CatalogPlanForDeleteCatalogPlanDialog
+}
+    ${CatalogPlanForCatalogPlanDrawerFragmentDoc}
+${CatalogPlanForDeleteCatalogPlanDialogFragmentDoc}`;
 export const CatalogPlanForCatalogPlanDetailsOverviewFragmentDoc = gql`
     fragment CatalogPlanForCatalogPlanDetailsOverview on CatalogPlan {
   id
@@ -41906,6 +41941,108 @@ export type RateCardsQueryHookResult = ReturnType<typeof useRateCardsQuery>;
 export type RateCardsLazyQueryHookResult = ReturnType<typeof useRateCardsLazyQuery>;
 export type RateCardsSuspenseQueryHookResult = ReturnType<typeof useRateCardsSuspenseQuery>;
 export type RateCardsQueryResult = Apollo.QueryResult<RateCardsQuery, RateCardsQueryVariables>;
+export const CatalogPlanActivityLogsDocument = gql`
+    query CatalogPlanActivityLogs($page: Int, $limit: Int, $resourceTypes: [ResourceTypeEnum!], $resourceIds: [String!]) {
+  activityLogs(
+    page: $page
+    limit: $limit
+    resourceTypes: $resourceTypes
+    resourceIds: $resourceIds
+  ) {
+    collection {
+      ...ActivityLogsTableData
+    }
+    metadata {
+      currentPage
+      totalPages
+      totalCount
+    }
+  }
+}
+    ${ActivityLogsTableDataFragmentDoc}`;
+
+/**
+ * __useCatalogPlanActivityLogsQuery__
+ *
+ * To run a query within a React component, call `useCatalogPlanActivityLogsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCatalogPlanActivityLogsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCatalogPlanActivityLogsQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      resourceTypes: // value for 'resourceTypes'
+ *      resourceIds: // value for 'resourceIds'
+ *   },
+ * });
+ */
+export function useCatalogPlanActivityLogsQuery(baseOptions?: Apollo.QueryHookOptions<CatalogPlanActivityLogsQuery, CatalogPlanActivityLogsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CatalogPlanActivityLogsQuery, CatalogPlanActivityLogsQueryVariables>(CatalogPlanActivityLogsDocument, options);
+      }
+export function useCatalogPlanActivityLogsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CatalogPlanActivityLogsQuery, CatalogPlanActivityLogsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CatalogPlanActivityLogsQuery, CatalogPlanActivityLogsQueryVariables>(CatalogPlanActivityLogsDocument, options);
+        }
+// @ts-ignore
+export function useCatalogPlanActivityLogsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<CatalogPlanActivityLogsQuery, CatalogPlanActivityLogsQueryVariables>): Apollo.UseSuspenseQueryResult<CatalogPlanActivityLogsQuery, CatalogPlanActivityLogsQueryVariables>;
+export function useCatalogPlanActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CatalogPlanActivityLogsQuery, CatalogPlanActivityLogsQueryVariables>): Apollo.UseSuspenseQueryResult<CatalogPlanActivityLogsQuery | undefined, CatalogPlanActivityLogsQueryVariables>;
+export function useCatalogPlanActivityLogsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CatalogPlanActivityLogsQuery, CatalogPlanActivityLogsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<CatalogPlanActivityLogsQuery, CatalogPlanActivityLogsQueryVariables>(CatalogPlanActivityLogsDocument, options);
+        }
+export type CatalogPlanActivityLogsQueryHookResult = ReturnType<typeof useCatalogPlanActivityLogsQuery>;
+export type CatalogPlanActivityLogsLazyQueryHookResult = ReturnType<typeof useCatalogPlanActivityLogsLazyQuery>;
+export type CatalogPlanActivityLogsSuspenseQueryHookResult = ReturnType<typeof useCatalogPlanActivityLogsSuspenseQuery>;
+export type CatalogPlanActivityLogsQueryResult = Apollo.QueryResult<CatalogPlanActivityLogsQuery, CatalogPlanActivityLogsQueryVariables>;
+export const GetCatalogPlanForDetailsDocument = gql`
+    query getCatalogPlanForDetails($id: ID!) {
+  catalogPlan(id: $id) {
+    id
+    ...CatalogPlanForCatalogPlanDetails
+  }
+}
+    ${CatalogPlanForCatalogPlanDetailsFragmentDoc}`;
+
+/**
+ * __useGetCatalogPlanForDetailsQuery__
+ *
+ * To run a query within a React component, call `useGetCatalogPlanForDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCatalogPlanForDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCatalogPlanForDetailsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetCatalogPlanForDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetCatalogPlanForDetailsQuery, GetCatalogPlanForDetailsQueryVariables> & ({ variables: GetCatalogPlanForDetailsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCatalogPlanForDetailsQuery, GetCatalogPlanForDetailsQueryVariables>(GetCatalogPlanForDetailsDocument, options);
+      }
+export function useGetCatalogPlanForDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCatalogPlanForDetailsQuery, GetCatalogPlanForDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCatalogPlanForDetailsQuery, GetCatalogPlanForDetailsQueryVariables>(GetCatalogPlanForDetailsDocument, options);
+        }
+// @ts-ignore
+export function useGetCatalogPlanForDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCatalogPlanForDetailsQuery, GetCatalogPlanForDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetCatalogPlanForDetailsQuery, GetCatalogPlanForDetailsQueryVariables>;
+export function useGetCatalogPlanForDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCatalogPlanForDetailsQuery, GetCatalogPlanForDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetCatalogPlanForDetailsQuery | undefined, GetCatalogPlanForDetailsQueryVariables>;
+export function useGetCatalogPlanForDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCatalogPlanForDetailsQuery, GetCatalogPlanForDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetCatalogPlanForDetailsQuery, GetCatalogPlanForDetailsQueryVariables>(GetCatalogPlanForDetailsDocument, options);
+        }
+export type GetCatalogPlanForDetailsQueryHookResult = ReturnType<typeof useGetCatalogPlanForDetailsQuery>;
+export type GetCatalogPlanForDetailsLazyQueryHookResult = ReturnType<typeof useGetCatalogPlanForDetailsLazyQuery>;
+export type GetCatalogPlanForDetailsSuspenseQueryHookResult = ReturnType<typeof useGetCatalogPlanForDetailsSuspenseQuery>;
+export type GetCatalogPlanForDetailsQueryResult = Apollo.QueryResult<GetCatalogPlanForDetailsQuery, GetCatalogPlanForDetailsQueryVariables>;
 export const GetCatalogPlanForDetailsOverviewDocument = gql`
     query getCatalogPlanForDetailsOverview($id: ID!) {
   catalogPlan(id: $id) {
