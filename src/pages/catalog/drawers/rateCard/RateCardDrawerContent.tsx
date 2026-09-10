@@ -588,16 +588,6 @@ const RateCardDrawerFormSections = withForm({
                 </span>
               </Alert>
             )}
-
-            <form.AppField name="walletTargetable">
-              {(field) => (
-                <field.SwitchField
-                  label={translate('text_1784925227817ffwix51pkv1')}
-                  subLabel={translate('text_17849252278174oqykkuidsn')}
-                  disabled={hasRates}
-                />
-              )}
-            </form.AppField>
           </CenteredPage.PageSection>
         </CenteredPage.SubsectionWrapper>
       </>

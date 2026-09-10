@@ -55,7 +55,6 @@ const attachedRateCard: RateCardForDetailsOverviewFragment = {
   displayOnInvoice: true,
   regroupPaidFees: RateCardRegroupPaidFeesEnum.None,
   proration: false,
-  walletTargetable: false,
   attachedToPlanOrSubscription: false,
   attachedToSubscriptions: false,
   product: {
@@ -196,11 +195,11 @@ describe('RateCardDetailsOverview', () => {
         expect(await screen.findByText('text_66968fba80f8f89a8aefdebf')).toBeInTheDocument()
       })
 
-      it('THEN displays prorate amount and supports target wallet as No', async () => {
+      it('THEN displays the proration as No', async () => {
         await act(() => renderOverview())
 
         await screen.findByText('Standard rate card')
-        expect(screen.getAllByText('text_176416000997957yqelmt2m2')).toHaveLength(2)
+        expect(screen.getAllByText('text_176416000997957yqelmt2m2')).toHaveLength(1)
       })
     })
   })

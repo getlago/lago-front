@@ -25,7 +25,6 @@ export const rateCardDrawerSchema = z
     billingTiming: z.nativeEnum(RateCardBillingTimingEnum),
     invoicingStrategy: z.enum(['invoiceable', 'regroupPaidFees', 'none']),
     proration: z.boolean(),
-    walletTargetable: z.boolean(),
   })
   .superRefine((values, ctx) => {
     if (!values.currency) {
@@ -52,7 +51,6 @@ export const RATE_CARD_FORM_DEFAULTS: RateCardFormValues = {
   billingTiming: RateCardBillingTimingEnum.Arrears,
   invoicingStrategy: 'invoiceable',
   proration: false,
-  walletTargetable: false,
 }
 
 export const mapStrategyToInvoiceFields = (

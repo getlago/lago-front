@@ -69,7 +69,6 @@ export const buildRateCardSnapshotKey = (
     rateCard?.ratesCount,
     rateCard?.currency,
     rateCard?.appliedPricingUnitCode,
-    rateCard?.walletTargetable,
     rateCard?.displayOnInvoice,
     rateCard?.regroupPaidFees,
     rateCard?.activeRate?.effectiveFrom,
