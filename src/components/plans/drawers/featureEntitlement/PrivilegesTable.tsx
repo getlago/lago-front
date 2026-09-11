@@ -117,7 +117,7 @@ function PrivilegeValueCell({ row }: Readonly<{ row: LocalPrivilegeInput }>) {
       <TextInput
         name={field.name}
         value={field.state.value}
-        onChange={(value) => field.handleChange(String(value ?? ''))}
+        onChange={(value) => field.handleChange(value)}
         onBlur={field.handleBlur}
         error={hasError}
         variant="outlined"

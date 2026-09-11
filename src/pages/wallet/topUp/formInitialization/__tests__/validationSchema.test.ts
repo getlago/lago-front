@@ -30,7 +30,7 @@ const baseForm = (overrides: Partial<TWalletTopUpDataForm> = {}): TWalletTopUpDa
   name: undefined,
   metadata: undefined,
   ignorePaidTopUpLimits: undefined,
-  priority: 50,
+  priority: '50',
   ...overrides,
 })
 
@@ -205,7 +205,7 @@ describe('getTopUpFormValidationSchema', () => {
       it('THEN should not fail on priority, name or paymentMethod', () => {
         const result = parse(
           baseForm({
-            priority: '' as unknown as number,
+            priority: '',
             name: 'My top-up',
             paymentMethod: { paymentMethodId: 'pm_1' },
           }),

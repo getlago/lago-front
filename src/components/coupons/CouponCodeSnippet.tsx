@@ -14,12 +14,22 @@ import {
 
 const { apiUrl } = envGlobalVar()
 
+// These three are display values coming from the form, so they arrive as strings
+type CouponCodeSnippetInput = Omit<
+  CreateCouponInput,
+  'amountCents' | 'percentageRate' | 'frequencyDuration'
+> & {
+  amountCents?: string | number
+  percentageRate?: string | number
+  frequencyDuration?: string | number
+}
+
 const getSnippets = (
   hasPlanLimit: boolean,
   hasBillableMetricLimit: boolean,
   limitPlansList?: PlansForCouponsFragment[],
   limitBillableMetricsList?: BillableMetricsForCouponsFragment[],
-  coupon?: CreateCouponInput,
+  coupon?: CouponCodeSnippetInput,
 ) => {
   if (!coupon || !coupon.code) return '# Fill the form to generate the code snippet'
   const {
@@ -53,12 +63,14 @@ const getSnippets = (
               amount_currency: amountCurrency,
             }
           : {
-              percentage_rate: percentageRate ? percentageRate : SnippetVariables.MUST_BE_DEFINED,
+              percentage_rate: percentageRate
+                ? Number(percentageRate)
+                : SnippetVariables.MUST_BE_DEFINED,
             }),
         frequency: frequency,
         ...(frequency === CouponFrequency.Recurring && {
           frequency_duration: frequencyDuration
-            ? frequencyDuration
+            ? Number(frequencyDuration)
             : SnippetVariables.MUST_BE_DEFINED,
         }),
         expiration: expiration,
@@ -81,7 +93,7 @@ const getSnippets = (
 
 interface CouponCodeSnippetProps {
   loading?: boolean
-  coupon?: CreateCouponInput
+  coupon?: CouponCodeSnippetInput
   limitPlansList?: PlansForCouponsFragment[]
   limitBillableMetricsList?: BillableMetricsForCouponsFragment[]
   hasPlanLimit: boolean

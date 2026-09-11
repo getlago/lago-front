@@ -104,7 +104,7 @@ describe('Wallet Utils', () => {
       grantedCredits: '200',
       paidCredits: '100',
       rateAmount: '1',
-      priority: 1,
+      priority: '1',
       recurringTransactionRules: [
         {
           trigger: RecurringTransactionTriggerEnum.Threshold,
