@@ -5,7 +5,7 @@ import { useMemo } from 'react'
 import { useDeleteCustomerDocumentLocaleDialog } from '~/components/customers/DeleteCustomerDocumentLocaleDialog'
 import { useDeleteCustomerFinalizeZeroAmountInvoiceDialog } from '~/components/customers/DeleteCustomerFinalizeZeroAmountInvoiceDialog'
 import { useDeleteCustomerGracePeriodeDialog } from '~/components/customers/DeleteCustomerGracePeriodeDialog'
-import { useDeleteCustomerNetPaymentTermDialog } from '~/components/customers/DeleteCustomerNetPaymentTermDialog'
+import { useDeleteCustomerPaymentTermDialog } from '~/components/customers/DeleteCustomerPaymentTermDialog'
 import { useDeleteCustomerVatRateDialog } from '~/components/customers/DeleteCustomerVatRateDialog'
 import { useEditCustomerDocumentLocaleDialog } from '~/components/customers/EditCustomerDocumentLocaleDialog'
 import { useEditCustomerDunningCampaignDialog } from '~/components/customers/EditCustomerDunningCampaignDialog'
@@ -29,8 +29,14 @@ import {
   SettingsListWrapper,
   SettingsPaddedContainer,
 } from '~/components/layouts/Settings'
+import {
+  PAYMENT_TERM_ADD_BUTTON_TEST_ID,
+  PAYMENT_TERM_DELETE_BUTTON_TEST_ID,
+  PAYMENT_TERM_EDIT_BUTTON_TEST_ID,
+  PAYMENT_TERM_SETTINGS_ROW_TEST_ID,
+} from '~/components/paymentTerms/dataTestConstants'
 import { useEditFinalizeZeroAmountInvoiceDialog } from '~/components/settings/invoices/EditFinalizeZeroAmountInvoiceDialog'
-import { useEditNetPaymentTermDialog } from '~/components/settings/invoices/EditNetPaymentTermDialog'
+import { useEditPaymentTermDialog } from '~/components/settings/invoices/EditPaymentTermDialog'
 import {
   INVOICE_ISSUING_DATE_ADJUSTMENT_SETTING_KEYS,
   INVOICE_ISSUING_DATE_ANCHOR_SETTING_KEYS,
@@ -45,12 +51,13 @@ import {
   CustomerSubscriptionInvoiceIssuingDateAnchorEnum,
   DeleteCustomerDocumentLocaleFragmentDoc,
   DeleteCustomerGracePeriodFragmentDoc,
-  DeleteCustomerNetPaymentTermFragmentDoc,
+  DeleteCustomerPaymentTermFragmentDoc,
   EditCustomerDocumentLocaleFragmentDoc,
   EditCustomerDunningCampaignFragmentDoc,
   EditCustomerInvoiceCustomSectionFragmentDoc,
   EditCustomerInvoiceGracePeriodFragmentDoc,
   EditCustomerIssuingDatePolicyDialogFragmentDoc,
+  EditCustomerPaymentTermForDialogFragmentDoc,
   EditCustomerVatRateFragmentDoc,
   FinalizeZeroAmountInvoiceEnum,
   PremiumIntegrationTypeEnum,
@@ -59,6 +66,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { usePaymentTerm } from '~/hooks/usePaymentTerm'
 import { usePermissions } from '~/hooks/usePermissions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { MenuPopper } from '~/styles'
@@ -103,12 +111,10 @@ gql`
     customer(id: $id) {
       id
       invoiceGracePeriod
-      netPaymentTerm
       finalizeZeroAmountInvoice
 
       billingEntity {
         id
-        netPaymentTerm
         finalizeZeroAmountInvoice
         billingConfiguration {
           id
@@ -146,7 +152,8 @@ gql`
       ...DeleteCustomerGracePeriod
       ...DeleteCustomerDocumentLocale
       ...CustomerForDeleteVatRateDialog
-      ...DeleteCustomerNetPaymentTerm
+      ...DeleteCustomerPaymentTerm
+      ...EditCustomerPaymentTermForDialog
       ...EditCustomerIssuingDatePolicyDialog
     }
   }
@@ -159,7 +166,8 @@ gql`
   ${DeleteCustomerGracePeriodFragmentDoc}
   ${DeleteCustomerDocumentLocaleFragmentDoc}
   ${CustomerForDeleteVatRateDialogFragmentDoc}
-  ${DeleteCustomerNetPaymentTermFragmentDoc}
+  ${DeleteCustomerPaymentTermFragmentDoc}
+  ${EditCustomerPaymentTermForDialogFragmentDoc}
   ${EditCustomerIssuingDatePolicyDialogFragmentDoc}
 `
 
@@ -189,9 +197,9 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
     useEditCustomerInvoiceCustomSectionsDialog(customerId)
   const { openDeleteCustomerDocumentLocaleDialog } = useDeleteCustomerDocumentLocaleDialog()
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
-  const { openEditNetPaymentTermDialog } = useEditNetPaymentTermDialog()
-  const netPaymentTermDialogDescription = translate('text_64c7a89b6c67eb6c988980eb')
-  const { openDeleteCustomerNetPaymentTermDialog } = useDeleteCustomerNetPaymentTermDialog()
+  const { openEditPaymentTermDialog } = useEditPaymentTermDialog()
+  const { openDeleteCustomerPaymentTermDialog } = useDeleteCustomerPaymentTermDialog()
+  const { getPaymentTermCopy } = usePaymentTerm()
   const { openEditFinalizeZeroAmountInvoiceDialog } = useEditFinalizeZeroAmountInvoiceDialog()
   const { openDeleteCustomerFinalizeZeroAmountInvoiceDialog } =
     useDeleteCustomerFinalizeZeroAmountInvoiceDialog()
@@ -272,35 +280,6 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
     !!dunningCampaign?.thresholds?.some((threshold) => threshold.currency === customer?.currency)
 
   const isInvoiceCustomSectionConfigurable = !!customer?.configurableInvoiceCustomSections?.length
-
-  function getNetPaymentTermCopy(
-    customerNetPaymentTerm: number | null | undefined,
-    billingEntityNetPaymentTerm: number,
-  ): string {
-    const isCustomerNetPaymentTermDefined = typeof customerNetPaymentTerm === 'number'
-
-    if (!isCustomerNetPaymentTermDefined) {
-      return translate(
-        'text_64c7a89b6c67eb6c98898241',
-        {
-          days: billingEntityNetPaymentTerm ?? 0,
-        },
-        billingEntityNetPaymentTerm ?? 0,
-      )
-    }
-
-    if (customerNetPaymentTerm === 0) {
-      return translate('text_64c7a89b6c67eb6c98898125')
-    }
-
-    return translate(
-      'text_64c7a89b6c67eb6c9889815f',
-      {
-        days: customerNetPaymentTerm,
-      },
-      customerNetPaymentTerm,
-    )
-  }
 
   function getDunningCampaignContent(): React.ReactNode {
     if (!dunningCampaign || customer?.excludeFromDunningCampaign) {
@@ -725,24 +704,20 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                 )}
               </SettingsListItem>
 
-              {/* Net payment term */}
-              <SettingsListItem>
+              {/* Payment terms */}
+              <SettingsListItem dataTest={PAYMENT_TERM_SETTINGS_ROW_TEST_ID}>
                 <SettingsListItemHeader
-                  label={translate('text_64c7a89b6c67eb6c98898167')}
+                  label={translate('text_17876033821633o4yokqvqdl')}
                   sublabel={translate('text_1728031300577aivplw3hqav')}
                   action={
                     hasPermissions(['customersUpdate']) ? (
                       <>
-                        {typeof customer?.netPaymentTerm !== 'number' ? (
+                        {!customer?.paymentTerm ? (
                           <Button
                             disabled={loading}
                             variant="inline"
-                            onClick={() =>
-                              openEditNetPaymentTermDialog({
-                                model: customer,
-                                description: netPaymentTermDialogDescription,
-                              })
-                            }
+                            onClick={() => openEditPaymentTermDialog({ model: customer })}
+                            data-test={PAYMENT_TERM_ADD_BUTTON_TEST_ID}
                           >
                             {translate('text_645bb193927b375079d28ad2')}
                           </Button>
@@ -765,12 +740,10 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                                   variant="quaternary"
                                   align="left"
                                   onClick={() => {
-                                    openEditNetPaymentTermDialog({
-                                      model: customer,
-                                      description: netPaymentTermDialogDescription,
-                                    })
+                                    openEditPaymentTermDialog({ model: customer })
                                     closePopper()
                                   }}
+                                  data-test={PAYMENT_TERM_EDIT_BUTTON_TEST_ID}
                                 >
                                   {translate('text_63aa15caab5b16980b21b0b8')}
                                 </Button>
@@ -781,10 +754,11 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                                   align="left"
                                   onClick={() => {
                                     if (customer) {
-                                      openDeleteCustomerNetPaymentTermDialog({ customer })
+                                      openDeleteCustomerPaymentTermDialog({ customer })
                                     }
                                     closePopper()
                                   }}
+                                  data-test={PAYMENT_TERM_DELETE_BUTTON_TEST_ID}
                                 >
                                   {translate('text_63aa15caab5b16980b21b0ba')}
                                 </Button>
@@ -798,10 +772,10 @@ export const CustomerSettings = ({ customerId }: CustomerSettingsProps) => {
                 />
 
                 <Typography variant="body" color="grey700">
-                  {getNetPaymentTermCopy(
-                    customer?.netPaymentTerm,
-                    billingEntity?.netPaymentTerm || 0,
-                  )}
+                  {getPaymentTermCopy({
+                    ownTerm: customer?.paymentTerm,
+                    parentTerm: billingEntity?.paymentTerm,
+                  })}
                 </Typography>
               </SettingsListItem>
 

@@ -32,9 +32,11 @@ export const SettingsListWrapper = ({
 export const SettingsListItem = ({
   children,
   className,
-}: PropsWithChildren & { className?: string }) => (
+  dataTest,
+}: PropsWithChildren & { className?: string; dataTest?: string }) => (
   <div
     className={tw('flex flex-col gap-4 pb-12 shadow-b last:pb-0 last:[box-shadow:none]', className)}
+    data-test={dataTest}
   >
     {children}
   </div>
