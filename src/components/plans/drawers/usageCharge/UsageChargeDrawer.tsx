@@ -6,10 +6,7 @@ import { z } from 'zod'
 import { Button } from '~/components/designSystem/Button'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
-import {
-  applyExistingCodeError,
-  buildChargeCodeSchema,
-} from '~/components/plans/drawers/common/chargeCode'
+import { buildChargeCodeSchema } from '~/components/plans/drawers/common/chargeCode'
 import {
   LocalChargeFilterInput,
   LocalPricingUnitInput,
@@ -24,6 +21,7 @@ import {
   MUI_INPUT_BASE_ROOT_CLASSNAME,
   SEARCH_BILLABLE_METRIC_IN_USAGE_CHARGE_DRAWER_INPUT_CLASSNAME,
 } from '~/core/constants/form'
+import { applyExistingCodeError } from '~/core/form/existingCodeError'
 import getPropertyShape from '~/core/serializers/getPropertyShape'
 import {
   PropertiesZodInput,

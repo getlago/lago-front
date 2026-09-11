@@ -15,7 +15,6 @@ import { ChargeModelSelector } from '~/components/plans/chargeAccordion/ChargeMo
 import { ChargeWrapperSwitch } from '~/components/plans/chargeAccordion/ChargeWrapperSwitch'
 import { SpendingMinimumOptionSection } from '~/components/plans/chargeAccordion/SpendingMinimumOptionSection'
 import { useCustomChargeDrawer } from '~/components/plans/drawers/common/useCustomChargeDrawer'
-import { clearExistingCodeError } from '~/core/form/existingCodeError'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import getPropertyShape from '~/core/serializers/getPropertyShape'
 import { getTimezoneConfig } from '~/core/timezone'
@@ -230,8 +229,6 @@ const RateCardRateDrawerFormSections = withForm({
             name="code"
             listeners={{
               onChange: () => {
-                clearExistingCodeError(form)
-
                 if (isSeedingCodeRef.current) return
 
                 isCodeDerivedFromDateRef.current = false

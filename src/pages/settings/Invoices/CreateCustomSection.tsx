@@ -12,6 +12,7 @@ import {
   PreviewCustomSectionDrawerRef,
 } from '~/components/settings/invoices/PreviewCustomSectionDrawer'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
+import { applyExistingCodeError } from '~/core/form/existingCodeError'
 import { INVOICE_SETTINGS_ROUTE, useNavigate } from '~/core/router'
 import { scrollToTop } from '~/core/utils/domUtils'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -37,12 +38,6 @@ export const CREATE_CUSTOM_SECTION_DISPLAY_NAME_INPUT_TEST_ID =
   'create-custom-section-display-name-input'
 export const CREATE_CUSTOM_SECTION_DETAILS_INPUT_TEST_ID = 'create-custom-section-details-input'
 export const CREATE_CUSTOM_SECTION_PREVIEW_BUTTON_TEST_ID = 'create-custom-section-preview-button'
-
-// Server "code already exists" error. Written into the code field's `onSubmit`
-// errorMap slot (not `onDynamic`, which the Zod validator owns and periodically
-// recomputes, silently wiping any manual value written there) and cleared only
-// when it's still the message we set, so a Zod validation error is never wiped.
-const EXISTING_CODE_ERROR_MESSAGE = 'text_632a2d437e341dcc76817556'
 
 const CreateInvoiceCustomSection = () => {
   const { translate } = useInternationalization()
@@ -107,42 +102,11 @@ const CreateInvoiceCustomSection = () => {
 
   useEffect(() => {
     if (errorCode === FORM_ERRORS_ENUM.existingCode) {
-      form.setFieldMeta('code', (meta) => ({
-        ...meta,
-        errorMap: {
-          ...meta.errorMap,
-          onSubmit: { message: EXISTING_CODE_ERROR_MESSAGE },
-        },
-      }))
+      applyExistingCodeError(form)
       scrollToTop()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [errorCode])
-
-  const codeValue = useStore(form.store, (state) => state.values.code)
-  const isFirstCodeValueRender = useRef(true)
-
-  useEffect(() => {
-    // Skip the mount-time run: `codeValue`'s first effect fires alongside the
-    // errorCode effect above (both deps get their initial value on the same
-    // mount), which would otherwise immediately clear the error we just set.
-    if (isFirstCodeValueRender.current) {
-      isFirstCodeValueRender.current = false
-      return
-    }
-
-    // Only clear our own server error, keyed under its own `onSubmit` errorMap
-    // slot so it's never wiped by the Zod validator's `onDynamic` revalidation.
-    const meta = form.getFieldMeta('code')
-
-    if (meta?.errorMap?.onSubmit?.message !== EXISTING_CODE_ERROR_MESSAGE) return
-
-    form.setFieldMeta('code', (current) => ({
-      ...current,
-      errorMap: { ...current.errorMap, onSubmit: undefined },
-    }))
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [codeValue])
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault()
