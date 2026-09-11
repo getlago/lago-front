@@ -15,6 +15,8 @@ import { useAppForm } from '~/hooks/forms/useAppform'
 
 export const EDIT_FEE_BILLING_PERIOD_FORM_ID = 'edit-fee-billing-period-form'
 
+const BILLING_PERIOD_ZONE = getTimezoneConfig(TimezoneEnum.TzUtc).name
+
 type OpenEditFeeBillingPeriodDialogParams = {
   fromDatetime: string
   toDatetime: string
@@ -89,12 +91,15 @@ export const useEditFeeBillingPeriodDialog = () => {
                 <DatePicker
                   name="fromDatetime"
                   label={translate('text_1754596347194ycmhkuol77d')}
-                  defaultZone={getTimezoneConfig(TimezoneEnum.TzUtc).name}
+                  defaultZone={BILLING_PERIOD_ZONE}
                   value={field.state.value}
                   onChange={(value) => {
-                    // value should be start of day
                     field.handleChange(
-                      value ? DateTime.fromISO(value).startOf('day').toISO() || '' : '',
+                      value
+                        ? DateTime.fromISO(value, { zone: BILLING_PERIOD_ZONE })
+                            .startOf('day')
+                            .toISO() || ''
+                        : '',
                     )
                   }}
                 />
@@ -105,7 +110,7 @@ export const useEditFeeBillingPeriodDialog = () => {
                 <DatePicker
                   name="toDatetime"
                   label={translate('text_1754596347194hgyj8fzogqm')}
-                  defaultZone={getTimezoneConfig(TimezoneEnum.TzUtc).name}
+                  defaultZone={BILLING_PERIOD_ZONE}
                   value={field.state.value}
                   error={
                     field.state.meta.errors?.[0]?.message ===
@@ -115,7 +120,11 @@ export const useEditFeeBillingPeriodDialog = () => {
                   }
                   onChange={(value) => {
                     field.handleChange(
-                      value ? DateTime.fromISO(value).endOf('day').toISO() || '' : '',
+                      value
+                        ? DateTime.fromISO(value, { zone: BILLING_PERIOD_ZONE })
+                            .endOf('day')
+                            .toISO() || ''
+                        : '',
                     )
                   }}
                 />
