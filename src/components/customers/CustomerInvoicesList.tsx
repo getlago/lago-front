@@ -32,7 +32,6 @@ import {
   CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE,
   CUSTOMER_INVOICE_DETAILS_ROUTE,
   CUSTOMER_INVOICE_VOID_ROUTE,
-  useNavigate,
 } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { getTimezoneConfig, intlFormatDateTime } from '~/core/timezone'
@@ -176,7 +175,6 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
   pageSize = DEFAULT_PAGE_SIZE,
   onPageChange,
 }) => {
-  const navigate = useNavigate()
   const { isPremium } = useCurrentUser()
   const { translate } = useInternationalization()
   const actions = usePermissionsInvoiceActions()
@@ -197,6 +195,29 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
   const { openDeleteInvoiceDialog } = useDeleteInvoiceDialog()
   const { openUpdateInvoicePaymentStatusDialog } = useUpdateInvoicePaymentStatusDialog()
 
+  const createRecordPaymentAction = (): ActionItem<
+    InvoiceForInvoiceListFragment['collection'][number]
+  > => {
+    const title = translate('text_1737471851634wpeojigr27w')
+
+    if (!isPremium) {
+      return {
+        startIcon: 'receipt',
+        title,
+        endIcon: 'sparkles',
+        onAction: () => {
+          openPremiumWarningDialog()
+        },
+      }
+    }
+
+    return {
+      startIcon: 'receipt',
+      title,
+      link: ({ id }) => generatePath(CREATE_INVOICE_PAYMENT_ROUTE, { invoiceId: id }),
+    }
+  }
+
   return (
     <>
       <PaginatedContent
@@ -213,6 +234,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
           loadingRowCount={pageSize}
           hasError={hasError}
           data={invoiceData?.collection ?? []}
+          rowLinkLabel={({ number }) => number}
           onRowActionLink={({ id }) =>
             generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
               customerId,
@@ -486,21 +508,7 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                   }
                 : null,
 
-              canRecordPayment(invoice)
-                ? {
-                    startIcon: 'receipt',
-                    title: translate('text_1737471851634wpeojigr27w'),
-
-                    endIcon: isPremium ? undefined : 'sparkles',
-                    onAction: ({ id }) => {
-                      if (isPremium) {
-                        navigate(generatePath(CREATE_INVOICE_PAYMENT_ROUTE, { invoiceId: id }))
-                      } else {
-                        openPremiumWarningDialog()
-                      }
-                    },
-                  }
-                : null,
+              canRecordPayment(invoice) ? createRecordPaymentAction() : null,
 
               canRetryCollect(invoice)
                 ? {
@@ -551,14 +559,11 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                     startIcon: 'document',
                     title: translate('text_636bdef6565341dcb9cfb127'),
                     disabled: disabledIssueCreditNoteButton,
-                    onAction: () => {
-                      navigate(
-                        generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, {
-                          customerId: invoice?.customer?.id,
-                          invoiceId: invoice.id,
-                        }),
-                      )
-                    },
+                    link: () =>
+                      generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, {
+                        customerId: invoice?.customer?.id,
+                        invoiceId: invoice.id,
+                      }),
                     tooltip: disabledIssueCreditNoteButtonLabel
                       ? translate(disabledIssueCreditNoteButtonLabel)
                       : undefined,
@@ -569,13 +574,11 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
                 ? {
                     startIcon: 'stop',
                     title: translate('text_65269b43d4d2b15dd929a259'),
-                    onAction: () =>
-                      navigate(
-                        generatePath(CUSTOMER_INVOICE_VOID_ROUTE, {
-                          customerId: invoice?.customer?.id,
-                          invoiceId: invoice.id,
-                        }),
-                      ),
+                    link: () =>
+                      generatePath(CUSTOMER_INVOICE_VOID_ROUTE, {
+                        customerId: invoice?.customer?.id,
+                        invoiceId: invoice.id,
+                      }),
                   }
                 : null,
 

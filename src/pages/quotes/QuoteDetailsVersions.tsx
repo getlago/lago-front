@@ -110,11 +110,11 @@ const QuoteDetailsVersions = ({ quote }: QuoteDetailsVersionsProps): JSX.Element
 
     if (actions.length === 0) return null
 
-    return actions.map(({ icon, label, onAction }) => ({
-      startIcon: icon,
-      title: label,
-      onAction: () => onAction(),
-    }))
+    return actions.map((action) =>
+      action.link
+        ? { startIcon: action.icon, title: action.label, link: action.link }
+        : { startIcon: action.icon, title: action.label, onAction: () => action.onAction() },
+    )
   }
 
   return (
@@ -147,6 +147,7 @@ const QuoteDetailsVersions = ({ quote }: QuoteDetailsVersionsProps): JSX.Element
           data={quote.versions}
           containerSize={0}
           columns={versionColumns}
+          rowLinkLabel={({ version }) => String(version)}
           onRowActionLink={getRowLink}
           actionColumnTooltip={() => translate('text_1776414006125pcxcyeblul7')}
           actionColumn={versionActionColumn}

@@ -5,9 +5,8 @@ import { TooltipProps } from '../Tooltip'
 
 export type Align = 'left' | 'center' | 'right'
 
-export type ActionItem<T> = {
+type ActionItemBase = {
   title: string | ReactNode
-  onAction: (item: T) => void | Promise<void>
   startIcon?: IconName
   endIcon?: IconName
   disabled?: boolean
@@ -16,5 +15,11 @@ export type ActionItem<T> = {
   tooltipPlacement?: TooltipProps['placement']
   dataTest?: string
 }
+
+export type ActionItem<T> = ActionItemBase &
+  (
+    | { onAction: (item: T) => void | Promise<void>; link?: never }
+    | { link: (item: T) => string; onAction?: never }
+  )
 
 export type ActionColumn<T> = (item: T) => Array<ActionItem<T> | null> | ReactNode

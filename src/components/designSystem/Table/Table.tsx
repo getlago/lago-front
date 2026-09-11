@@ -3,10 +3,11 @@ import MUITableBody from '@mui/material/TableBody'
 import { type TableCellProps } from '@mui/material/TableCell'
 import MUITableHead from '@mui/material/TableHead'
 import MUITableRow, { type TableRowProps } from '@mui/material/TableRow'
-import { MouseEvent, PropsWithChildren, ReactNode, useRef } from 'react'
+import { isValidElement, MouseEvent, PropsWithChildren, ReactNode, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { Button } from '~/components/designSystem/Button'
+import { ButtonLink } from '~/components/designSystem/ButtonLink'
 import {
   GenericPlaceholder,
   GenericPlaceholderProps,
@@ -15,9 +16,11 @@ import { Popper } from '~/components/designSystem/Popper'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
+import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
-import { useNavigate } from '~/core/router'
+import { Link, useNavigate } from '~/core/router'
 import { prependOrgSlug } from '~/core/router/utils/prependOrgSlug'
+import { isModifiedClick } from '~/core/utils/isModifiedClick'
 import { ResponsiveStyleValue, setResponsiveProperty } from '~/core/utils/responsiveProps'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useListKeysNavigation } from '~/hooks/ui/useListKeyNavigation'
@@ -79,6 +82,11 @@ export interface TableProps<T> {
   placeholder?: TablePlaceholder
   activeRowId?: string
   onRowActionLink?: (item: T) => string
+  /**
+   * Names the row link. Without it the link inherits the first cell's text, which
+   * on a status-first table is the same word on every row.
+   */
+  rowLinkLabel?: (item: T) => string
   onRowActionClick?: (item: T) => void
   actionColumn?: ActionColumn<T>
   actionColumnTooltip?: (item: T) => string
@@ -87,6 +95,35 @@ export interface TableProps<T> {
   rowSize?: RowSize
   tableInDialog?: boolean
   containerClassName?: string
+}
+
+const INTERACTIVE_CELL_COMPONENTS: ReadonlySet<unknown> = new Set([
+  Button,
+  ButtonLink,
+  TypographyWithCopy,
+])
+
+// An anchor may not contain interactive descendants, and several first columns
+// render their own control (the inline copy button). Those cells keep the plain
+// row click instead of gaining a link.
+const hasInteractiveContent = (node: ReactNode): boolean => {
+  if (Array.isArray(node)) {
+    return node.some(hasInteractiveContent)
+  }
+
+  if (!isValidElement(node)) {
+    return false
+  }
+
+  if (node.type === 'button' || node.type === 'a') {
+    return true
+  }
+
+  if (INTERACTIVE_CELL_COMPONENTS.has(node.type)) {
+    return true
+  }
+
+  return hasInteractiveContent((node.props as { children?: ReactNode })?.children)
 }
 
 const ACTION_COLUMN_ID = 'actionColumn'
@@ -238,39 +275,68 @@ const ActionItemButton = <T,>({
   item: T
   closePopper: VoidFunction
 }) => {
-  const button = (
-    <Button
-      fullWidth
-      startIcon={action.startIcon}
-      endIcon={action.endIcon}
-      variant="quaternary"
-      align="left"
-      disabled={action.disabled}
-      onClick={async () => {
-        await action.onAction(item)
-        closePopper()
-      }}
-      data-test={action.dataTest}
-    >
-      {action.title}
-    </Button>
-  )
+  const renderAction = () => {
+    const buttonProps = {
+      fullWidth: true,
+      align: 'left' as const,
+      variant: 'quaternary' as const,
+      startIcon: action.startIcon,
+      endIcon: action.endIcon,
+    }
 
-  const withTooltip = (
-    <Tooltip
-      title={action.tooltip}
-      disableHoverListener={action.tooltipListener}
-      placement={action.tooltipPlacement}
-    >
-      {button}
-    </Tooltip>
-  )
+    // A disabled navigation action stays a button: `ButtonLink` keeps its `href`,
+    // so the anchor would remain followable outside of pointer events.
+    if (action.disabled) {
+      return (
+        <Button {...buttonProps} disabled data-test={action.dataTest}>
+          {action.title}
+        </Button>
+      )
+    }
 
-  if (action.tooltip) {
-    return withTooltip
+    if (action.link) {
+      return (
+        <ButtonLink
+          type="button"
+          to={action.link(item)}
+          buttonProps={buttonProps}
+          onClick={closePopper}
+          data-test={action.dataTest}
+        >
+          {action.title}
+        </ButtonLink>
+      )
+    }
+
+    return (
+      <Button
+        {...buttonProps}
+        onClick={async () => {
+          await action.onAction(item)
+          closePopper()
+        }}
+        data-test={action.dataTest}
+      >
+        {action.title}
+      </Button>
+    )
   }
 
-  return button
+  const actionElement = renderAction()
+
+  if (action.tooltip) {
+    return (
+      <Tooltip
+        title={action.tooltip}
+        disableHoverListener={action.tooltipListener}
+        placement={action.tooltipPlacement}
+      >
+        {actionElement}
+      </Tooltip>
+    )
+  }
+
+  return actionElement
 }
 
 export const Table = <T extends DataItem>({
@@ -287,6 +353,7 @@ export const Table = <T extends DataItem>({
   containerClassName,
   activeRowId,
   onRowActionLink,
+  rowLinkLabel,
   onRowActionClick,
   actionColumn,
   actionColumnTooltip,
@@ -317,8 +384,14 @@ export const Table = <T extends DataItem>({
     navigate: (id) => {
       const item = data.find((dataItem) => dataItem.id === id)
 
-      if (item) {
-        onRowActionLink?.(item)
+      if (!item) return
+
+      onRowActionClick?.(item)
+
+      const link = onRowActionLink?.(item)
+
+      if (link) {
+        navigate(link)
       }
     },
   })
@@ -359,8 +432,14 @@ export const Table = <T extends DataItem>({
       return
     }
 
-    // Prevent row action when clicking on button or link in cell
-    if (e.target instanceof HTMLAnchorElement || e.target instanceof HTMLButtonElement) {
+    if (!(e.target instanceof HTMLElement)) {
+      return
+    }
+
+    // Anything interactive in a cell owns its own click — the row-link anchor,
+    // inline copy buttons, the action column opener — including a label nested
+    // inside one, which an `instanceof` check on the target would miss.
+    if (e.target.closest('a, button')) {
       return
     }
 
@@ -371,29 +450,19 @@ export const Table = <T extends DataItem>({
       return
     }
 
-    if (!(e.target instanceof HTMLElement)) {
-      return
-    }
-
-    const actionColumnButton = e.target.closest('button')?.dataset.id
-
     const hasSideKeyPressed = e.metaKey || e.ctrlKey
 
-    if (actionColumnButton === ACTION_COLUMN_ID) {
-      return
-    }
-
-    if (onRowActionClick) {
-      onRowActionClick(item)
-      return
-    }
+    onRowActionClick?.(item)
 
     if (!onRowActionLink) {
       return
     }
 
-    // Make sure anything other than the action column button is clicked
     const link = onRowActionLink(item)
+
+    if (!link) {
+      return
+    }
 
     // `window.open` bypasses the `useNavigate` wrapper, so prepend the org
     // slug manually via the shared util (same guard logic as the wrapper).
@@ -404,6 +473,48 @@ export const Table = <T extends DataItem>({
     } else {
       navigate(link)
     }
+  }
+
+  // The first cell doubles as the row's real anchor, so the row target can be
+  // middle-clicked, opened in a new tab, copied and announced as a link.
+  const renderFirstCellContent = (column: TableColumn<T>, item: T) => {
+    const content = column.content(item)
+    const link = onRowActionLink?.(item)
+    const isRenderedContent =
+      content !== null && content !== undefined && typeof content !== 'boolean'
+
+    if (!link || !isRenderedContent || hasInteractiveContent(content)) {
+      return content
+    }
+
+    return (
+      <Link
+        // The row is the tab stop and handles Enter; a focusable anchor per row
+        // would double every tab stop in the list.
+        tabIndex={-1}
+        aria-label={rowLinkLabel?.(item)}
+        className="text-inherit hover:no-underline focus:ring-0"
+        to={link}
+        onClick={(e) => {
+          // Some first columns nest their own button (inline copy) or link.
+          // Let those own the click rather than navigating the row away.
+          if (e.target instanceof Element && e.target.closest('a, button') !== e.currentTarget) {
+            e.preventDefault()
+            return
+          }
+
+          // The browser owns a modified click and opens the target elsewhere,
+          // so the current view must not move with it.
+          if (isModifiedClick(e)) {
+            return
+          }
+
+          onRowActionClick?.(item)
+        }}
+      >
+        {content}
+      </Link>
+    )
   }
 
   const renderPlaceholder = () => {
@@ -551,7 +662,7 @@ export const Table = <T extends DataItem>({
                         truncateOverflow={column.truncateOverflow}
                       >
                         <Typography className="-ml-1 pl-1" noWrap>
-                          {column.content(item)}
+                          {j === 0 ? renderFirstCellContent(column, item) : column.content(item)}
                         </Typography>
                       </TableInnerCell>
                     </TableCell>

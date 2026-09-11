@@ -237,9 +237,7 @@ const FeaturesList = () => {
               actions.push({
                 title: translate('text_63e51ef4985f0ebd75c212fc'),
                 startIcon: 'pen',
-                onAction: async ({ id }: { id: string }) => {
-                  navigate(generatePath(UPDATE_FEATURE_ROUTE, { featureId: id }))
-                },
+                link: ({ id }) => generatePath(UPDATE_FEATURE_ROUTE, { featureId: id }),
               })
             }
 

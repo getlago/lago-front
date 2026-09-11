@@ -199,6 +199,7 @@ export const CustomerAppliedCouponsList = ({
               subtitle: translate('text_17744692844137gqe9ung3gl'),
             },
           }}
+          rowLinkLabel={({ coupon }) => coupon?.name ?? ''}
           onRowActionLink={getRowActionLink}
           columns={columns}
           actionColumn={actionColumn}

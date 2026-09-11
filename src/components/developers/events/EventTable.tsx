@@ -69,12 +69,11 @@ export const EventTable: FC<EventTableProps> = ({
         hasError={!!error}
         isLoading={loading}
         loadingRowCount={pageSize}
-        onRowActionLink={(event) => {
+        onRowActionLink={(event) => buildEventLink(event, searchParams)}
+        onRowActionClick={() => {
           if (getCurrentBreakpoint() === 'sm') {
             logListRef.current?.updateView('forward')
           }
-
-          return buildEventLink(event, searchParams)
         }}
         columns={[
           {

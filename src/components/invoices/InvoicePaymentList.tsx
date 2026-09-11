@@ -14,7 +14,7 @@ import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CREATE_INVOICE_PAYMENT_ROUTE, PAYMENT_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
-import { isInvoice, isPaymentRequest } from '~/core/utils/payableUtils'
+import { getPayableNumber, isInvoice, isPaymentRequest } from '~/core/utils/payableUtils'
 import { CurrencyEnum, PaymentTypeEnum, useGetPaymentsListQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import useDownloadPaymentReceipts from '~/hooks/paymentReceipts/useDownloadPaymentReceipts'
@@ -83,6 +83,7 @@ export const InvoicePaymentList: FC<{
             }}
             isLoading={loading}
             hasError={!!error}
+            rowLinkLabel={({ payable }) => getPayableNumber(payable)}
             onRowActionLink={(request) =>
               generatePath(PAYMENT_DETAILS_ROUTE, {
                 paymentId: request.id,

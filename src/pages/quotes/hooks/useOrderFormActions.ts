@@ -1,7 +1,7 @@
 import { IconName } from 'lago-design-system'
 import { generatePath } from 'react-router-dom'
 
-import { SIGN_ORDER_FORM_ROUTE, useNavigate, VOID_ORDER_FORM_ROUTE } from '~/core/router'
+import { SIGN_ORDER_FORM_ROUTE, VOID_ORDER_FORM_ROUTE } from '~/core/router'
 import { OrderFormListItemFragment, OrderFormStatusEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -10,16 +10,14 @@ import { buildOrderFormHeader } from '~/pages/quotes/common/buildOrderFormHeader
 import { buildQuotePreviewProps } from '~/pages/quotes/common/buildQuotePreviewProps'
 import { useDownloadQuotePdf } from '~/pages/quotes/common/QuotePdfProvider'
 
-export interface OrderFormAction {
+export type OrderFormAction = {
   icon: IconName
   label: string
-  onAction: () => void
-}
+} & ({ onAction: () => void; link?: never } | { link: () => string; onAction?: never })
 
 export const useOrderFormActions = () => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
-  const navigate = useNavigate()
   const { download } = useDownloadQuotePdf()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
 
@@ -35,8 +33,7 @@ export const useOrderFormActions = () => {
       actions.push({
         icon: 'writing-sign',
         label: translate('text_1781686594125upfeikkemuy'),
-        onAction: () =>
-          navigate(generatePath(SIGN_ORDER_FORM_ROUTE, { orderFormId: orderForm.id })),
+        link: () => generatePath(SIGN_ORDER_FORM_ROUTE, { orderFormId: orderForm.id }),
       })
     }
 
@@ -68,8 +65,7 @@ export const useOrderFormActions = () => {
       actions.push({
         icon: 'stop',
         label: translate('text_1779715648584xw9xgemkv9y'),
-        onAction: () =>
-          navigate(generatePath(VOID_ORDER_FORM_ROUTE, { orderFormId: orderForm.id })),
+        link: () => generatePath(VOID_ORDER_FORM_ROUTE, { orderFormId: orderForm.id }),
       })
     }
 

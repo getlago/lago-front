@@ -24,6 +24,10 @@ mockIntersectionObserver.mockReturnValue({
 window.IntersectionObserver = mockIntersectionObserver
 
 const mockCanDelete = jest.fn(() => false)
+const mockCanVoid = jest.fn(() => false)
+const mockCanRecordPayment = jest.fn(() => false)
+const mockIsPremium = jest.fn(() => true)
+const mockCanIssueCreditNote = jest.fn(() => false)
 
 jest.mock('~/hooks/usePermissionsInvoiceActions', () => ({
   usePermissionsInvoiceActions: () => ({
@@ -32,10 +36,10 @@ jest.mock('~/hooks/usePermissionsInvoiceActions', () => ({
     canRetryCollect: () => false,
     canGeneratePaymentUrl: () => false,
     canUpdatePaymentStatus: () => false,
-    canVoid: () => false,
+    canVoid: mockCanVoid,
     canDelete: mockCanDelete,
-    canIssueCreditNote: () => false,
-    canRecordPayment: () => false,
+    canIssueCreditNote: mockCanIssueCreditNote,
+    canRecordPayment: mockCanRecordPayment,
     canResendEmail: () => false,
     canRegenerate: () => false,
   }),
@@ -50,7 +54,16 @@ jest.mock('~/components/invoices/DeleteInvoiceDialog', () => ({
 }))
 
 jest.mock('~/hooks/useCurrentUser', () => ({
-  useCurrentUser: () => ({ isPremium: true }),
+  useCurrentUser: () => ({ isPremium: mockIsPremium() }),
+}))
+
+const mockOpenPremiumWarningDialog = jest.fn()
+
+jest.mock('~/components/dialogs/PremiumWarningDialog', () => ({
+  usePremiumWarningDialog: () => ({
+    open: mockOpenPremiumWarningDialog,
+    close: jest.fn(),
+  }),
 }))
 
 const createMockInvoice = (
@@ -168,6 +181,82 @@ describe('CustomerInvoicesList', () => {
       await waitFor(() => user.click(deleteButton))
 
       expect(mockOpenDeleteInvoiceDialog).toHaveBeenCalled()
+    })
+  })
+
+  describe('GIVEN a finalized invoice whose row menu navigates', () => {
+    beforeEach(() => {
+      mockCanVoid.mockReturnValue(false)
+      mockCanIssueCreditNote.mockReturnValue(false)
+    })
+
+    it.each([
+      ['void', 'Void invoice', mockCanVoid, '/customer/customer-1/invoice/void/invoice-1'],
+      [
+        'issue credit note',
+        'Issue a credit note',
+        mockCanIssueCreditNote,
+        '/customer/customer-1/invoice/invoice-1/create/credit-notes',
+      ],
+    ])('THEN the %s entry is an anchor to its route', async (_, name, permission, expectedHref) => {
+      const user = userEvent.setup()
+
+      permission.mockReturnValue(true)
+
+      renderComponent({
+        invoiceData: createMockInvoiceData([
+          createMockInvoice({ status: InvoiceStatusTypeEnum.Finalized }),
+        ]),
+      })
+
+      await waitFor(() => user.click(screen.getByTestId('open-action-button')))
+
+      expect(screen.getByRole('link', { name })).toHaveAttribute('href', expectedHref)
+    })
+  })
+
+  describe('GIVEN the record payment action', () => {
+    beforeEach(() => {
+      mockCanRecordPayment.mockReturnValue(true)
+      mockIsPremium.mockReturnValue(true)
+    })
+
+    it('THEN should be an anchor to the create payment route for a premium user', async () => {
+      const user = userEvent.setup()
+
+      renderComponent({
+        invoiceData: createMockInvoiceData([
+          createMockInvoice({ status: InvoiceStatusTypeEnum.Finalized }),
+        ]),
+      })
+
+      await waitFor(() => user.click(screen.getByTestId('open-action-button')))
+
+      expect(screen.getByRole('link', { name: 'Record a payment' })).toHaveAttribute(
+        'href',
+        '/invoice/invoice-1/create/payment',
+      )
+    })
+
+    // The non-premium branch must keep its handler: it opens the paywall, it does not navigate.
+    it('THEN should stay a button opening the premium warning for a non-premium user', async () => {
+      const user = userEvent.setup()
+
+      mockIsPremium.mockReturnValue(false)
+
+      renderComponent({
+        invoiceData: createMockInvoiceData([
+          createMockInvoice({ status: InvoiceStatusTypeEnum.Finalized }),
+        ]),
+      })
+
+      await waitFor(() => user.click(screen.getByTestId('open-action-button')))
+
+      expect(screen.queryByRole('link', { name: 'Record a payment' })).not.toBeInTheDocument()
+
+      await waitFor(() => user.click(screen.getByRole('button', { name: 'Record a payment' })))
+
+      expect(mockOpenPremiumWarningDialog).toHaveBeenCalled()
     })
   })
 })

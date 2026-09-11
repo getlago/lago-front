@@ -1,7 +1,7 @@
 import { IconName } from 'lago-design-system'
 import { generatePath } from 'react-router-dom'
 
-import { EDIT_ORDER_ROUTE, EXECUTE_ORDER_ROUTE, useNavigate } from '~/core/router'
+import { EDIT_ORDER_ROUTE, EXECUTE_ORDER_ROUTE } from '~/core/router'
 import { OrderListItemFragment, OrderStatusEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
@@ -9,16 +9,14 @@ import { buildOrderHeader } from '~/pages/quotes/common/buildOrderHeader'
 import { buildQuotePreviewProps } from '~/pages/quotes/common/buildQuotePreviewProps'
 import { useDownloadQuotePdf } from '~/pages/quotes/common/QuotePdfProvider'
 
-export interface OrderAction {
+export type OrderAction = {
   icon: IconName
   label: string
-  onAction: () => void
-}
+} & ({ onAction: () => void; link?: never } | { link: () => string; onAction?: never })
 
 export const useOrderActions = () => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
-  const navigate = useNavigate()
   const { download } = useDownloadQuotePdf()
 
   const getActions = (order: OrderListItemFragment): OrderAction[] => {
@@ -29,7 +27,7 @@ export const useOrderActions = () => {
       actions.push({
         icon: 'flash',
         label: translate('text_17836939541574skv5dmaj06'),
-        onAction: () => navigate(generatePath(EXECUTE_ORDER_ROUTE, { orderId: order.id })),
+        link: () => generatePath(EXECUTE_ORDER_ROUTE, { orderId: order.id }),
       })
     }
 
@@ -38,7 +36,7 @@ export const useOrderActions = () => {
       actions.push({
         icon: 'pen',
         label: translate('text_17827235919844cwbnt9ltfe'),
-        onAction: () => navigate(generatePath(EDIT_ORDER_ROUTE, { orderId: order.id })),
+        link: () => generatePath(EDIT_ORDER_ROUTE, { orderId: order.id }),
       })
     }
 

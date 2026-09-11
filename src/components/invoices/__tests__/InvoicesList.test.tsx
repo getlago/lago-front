@@ -1120,7 +1120,7 @@ describe('InvoicesList', () => {
       })
     })
 
-    it('navigates to void invoice route when void action is clicked', async () => {
+    it('links the void action to the void invoice route', async () => {
       const user = userEvent.setup()
 
       await renderInvoicesList({
@@ -1131,11 +1131,9 @@ describe('InvoicesList', () => {
 
       await waitFor(() => user.click(actionButton))
 
-      const voidButton = screen.getByRole('button', { name: 'text_1750678506388d4fr5etxbhh' })
+      const voidLink = screen.getByRole('link', { name: 'text_1750678506388d4fr5etxbhh' })
 
-      await waitFor(() => user.click(voidButton))
-
-      expect(testMockNavigateFn).toHaveBeenCalled()
+      expect(voidLink).toHaveAttribute('href', '/customer/customer-1/invoice/void/invoice-1')
     })
 
     it('opens the delete dialog when the delete action is clicked', async () => {
@@ -1158,7 +1156,7 @@ describe('InvoicesList', () => {
       expect(mockOpenDeleteInvoiceDialog).toHaveBeenCalled()
     })
 
-    it('shows regenerate action for voided invoice and navigates', async () => {
+    it('links the regenerate action for a voided invoice to the regenerate route', async () => {
       const user = userEvent.setup()
 
       mockCanRegenerate.mockReturnValue(true)
@@ -1176,11 +1174,12 @@ describe('InvoicesList', () => {
 
       await waitFor(() => user.click(actionButton))
 
-      const regenerateButton = screen.getByRole('button', { name: 'text_1750678506388oynw9hd01l9' })
+      const regenerateLink = screen.getByRole('link', { name: 'text_1750678506388oynw9hd01l9' })
 
-      await waitFor(() => user.click(regenerateButton))
-
-      expect(testMockNavigateFn).toHaveBeenCalled()
+      expect(regenerateLink).toHaveAttribute(
+        'href',
+        '/customer/customer-1/invoice/regenerate/invoice-1',
+      )
     })
   })
 
@@ -1392,7 +1391,7 @@ describe('InvoicesList', () => {
   })
 
   describe('Premium User Action Handlers', () => {
-    it('navigates to record payment route when premium user clicks record payment', async () => {
+    it('links the record payment action to the create payment route for a premium user', async () => {
       const user = userEvent.setup()
 
       mockIsPremium.mockReturnValue(true)
@@ -1412,13 +1411,10 @@ describe('InvoicesList', () => {
 
       await waitFor(() => user.click(actionButton))
 
-      const recordPaymentButton = screen.getByRole('button', {
-        name: 'text_1737471851634wpeojigr27w',
-      })
-
-      await waitFor(() => user.click(recordPaymentButton))
-
-      expect(testMockNavigateFn).toHaveBeenCalled()
+      expect(screen.getByRole('link', { name: 'text_1737471851634wpeojigr27w' })).toHaveAttribute(
+        'href',
+        '/invoice/invoice-1/create/payment',
+      )
     })
 
     it('navigates to create credit note route when premium user clicks issue credit note', async () => {
@@ -1434,13 +1430,14 @@ describe('InvoicesList', () => {
 
       await waitFor(() => user.click(actionButton))
 
-      const issueCreditNoteButton = screen.getByRole('button', {
+      const issueCreditNoteLink = screen.getByRole('link', {
         name: 'text_636bdef6565341dcb9cfb127',
       })
 
-      await waitFor(() => user.click(issueCreditNoteButton))
-
-      expect(testMockNavigateFn).toHaveBeenCalled()
+      expect(issueCreditNoteLink).toHaveAttribute(
+        'href',
+        '/customer/customer-1/invoice/invoice-1/create/credit-notes',
+      )
     })
   })
 

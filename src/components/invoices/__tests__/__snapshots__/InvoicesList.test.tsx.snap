@@ -4200,27 +4200,34 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                 class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                 data-test="body"
               >
-                <div
-                  class=""
+                <a
+                  aria-label="INV-DRAFT"
+                  class="text-inherit hover:no-underline focus:ring-0"
+                  href="/customer/customer-1/invoice/invoice-draft/overview"
+                  tabindex="-1"
                 >
                   <div
-                    aria-label="text_1724674592260h33v56rycaw"
                     class=""
-                    data-mui-internal-clone-element="true"
                   >
                     <div
-                      class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-white outline-grey-400"
-                      data-test="status"
+                      aria-label="text_1724674592260h33v56rycaw"
+                      class=""
+                      data-mui-internal-clone-element="true"
                     >
                       <div
-                        class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
-                        data-test="captionHl"
+                        class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-white outline-grey-400"
+                        data-test="status"
                       >
-                        Draft
+                        <div
+                          class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
+                          data-test="captionHl"
+                        >
+                          Draft
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                </a>
               </div>
             </div>
           </td>
@@ -4479,27 +4486,34 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                 class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                 data-test="body"
               >
-                <div
-                  class=""
+                <a
+                  aria-label="INV-FINALIZED"
+                  class="text-inherit hover:no-underline focus:ring-0"
+                  href="/customer/customer-1/invoice/invoice-finalized/overview"
+                  tabindex="-1"
                 >
                   <div
-                    aria-label="text_1724674592260h33v56rycaw"
                     class=""
-                    data-mui-internal-clone-element="true"
                   >
                     <div
-                      class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-green-100 outline-green-200"
-                      data-test="status"
+                      aria-label="text_1724674592260h33v56rycaw"
+                      class=""
+                      data-mui-internal-clone-element="true"
                     >
                       <div
-                        class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
-                        data-test="captionHl"
+                        class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-green-100 outline-green-200"
+                        data-test="status"
                       >
-                        Finalized
+                        <div
+                          class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
+                          data-test="captionHl"
+                        >
+                          Finalized
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                </a>
               </div>
             </div>
           </td>
@@ -4779,27 +4793,34 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                 class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                 data-test="body"
               >
-                <div
-                  class=""
+                <a
+                  aria-label="INV-VOIDED"
+                  class="text-inherit hover:no-underline focus:ring-0"
+                  href="/customer/customer-1/invoice/invoice-voided/overview"
+                  tabindex="-1"
                 >
                   <div
-                    aria-label="text_1724674592260h33v56rycaw"
                     class=""
-                    data-mui-internal-clone-element="true"
                   >
                     <div
-                      class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-grey-100 outline-grey-400"
-                      data-test="status"
+                      aria-label="text_1724674592260h33v56rycaw"
+                      class=""
+                      data-mui-internal-clone-element="true"
                     >
                       <div
-                        class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
-                        data-test="captionHl"
+                        class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-grey-100 outline-grey-400"
+                        data-test="status"
                       >
-                        Voided
+                        <div
+                          class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
+                          data-test="captionHl"
+                        >
+                          Voided
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                </a>
               </div>
             </div>
           </td>
@@ -5196,27 +5217,34 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                 class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                 data-test="body"
               >
-                <div
-                  class=""
+                <a
+                  aria-label="INV-PENDING"
+                  class="text-inherit hover:no-underline focus:ring-0"
+                  href="/customer/customer-1/invoice/invoice-pending/overview"
+                  tabindex="-1"
                 >
                   <div
-                    aria-label="text_1724674592260h33v56rycaw"
                     class=""
-                    data-mui-internal-clone-element="true"
                   >
                     <div
-                      class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-green-100 outline-green-200"
-                      data-test="status"
+                      aria-label="text_1724674592260h33v56rycaw"
+                      class=""
+                      data-mui-internal-clone-element="true"
                     >
                       <div
-                        class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
-                        data-test="captionHl"
+                        class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-green-100 outline-green-200"
+                        data-test="status"
                       >
-                        Finalized
+                        <div
+                          class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
+                          data-test="captionHl"
+                        >
+                          Finalized
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                </a>
               </div>
             </div>
           </td>
@@ -5496,27 +5524,34 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                 class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                 data-test="body"
               >
-                <div
-                  class=""
+                <a
+                  aria-label="INV-SUCCEEDED"
+                  class="text-inherit hover:no-underline focus:ring-0"
+                  href="/customer/customer-1/invoice/invoice-succeeded/overview"
+                  tabindex="-1"
                 >
                   <div
-                    aria-label="text_1724674592260h33v56rycaw"
                     class=""
-                    data-mui-internal-clone-element="true"
                   >
                     <div
-                      class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-green-100 outline-green-200"
-                      data-test="status"
+                      aria-label="text_1724674592260h33v56rycaw"
+                      class=""
+                      data-mui-internal-clone-element="true"
                     >
                       <div
-                        class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
-                        data-test="captionHl"
+                        class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-green-100 outline-green-200"
+                        data-test="status"
                       >
-                        Finalized
+                        <div
+                          class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
+                          data-test="captionHl"
+                        >
+                          Finalized
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                </a>
               </div>
             </div>
           </td>
@@ -5796,27 +5831,34 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                 class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                 data-test="body"
               >
-                <div
-                  class=""
+                <a
+                  aria-label="INV-FAILED"
+                  class="text-inherit hover:no-underline focus:ring-0"
+                  href="/customer/customer-1/invoice/invoice-failed/overview"
+                  tabindex="-1"
                 >
                   <div
-                    aria-label="text_1724674592260h33v56rycaw"
                     class=""
-                    data-mui-internal-clone-element="true"
                   >
                     <div
-                      class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-green-100 outline-green-200"
-                      data-test="status"
+                      aria-label="text_1724674592260h33v56rycaw"
+                      class=""
+                      data-mui-internal-clone-element="true"
                     >
                       <div
-                        class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
-                        data-test="captionHl"
+                        class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-green-100 outline-green-200"
+                        data-test="status"
                       >
-                        Finalized
+                        <div
+                          class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
+                          data-test="captionHl"
+                        >
+                          Finalized
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                </a>
               </div>
             </div>
           </td>
@@ -6587,27 +6629,34 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                 class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                 data-test="body"
               >
-                <div
-                  class=""
+                <a
+                  aria-label="INV-001"
+                  class="text-inherit hover:no-underline focus:ring-0"
+                  href="/customer/customer-1/invoice/invoice-1/overview"
+                  tabindex="-1"
                 >
                   <div
-                    aria-label="text_1724674592260h33v56rycaw"
                     class=""
-                    data-mui-internal-clone-element="true"
                   >
                     <div
-                      class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-green-100 outline-green-200"
-                      data-test="status"
+                      aria-label="text_1724674592260h33v56rycaw"
+                      class=""
+                      data-mui-internal-clone-element="true"
                     >
                       <div
-                        class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
-                        data-test="captionHl"
+                        class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-green-100 outline-green-200"
+                        data-test="status"
                       >
-                        Finalized
+                        <div
+                          class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
+                          data-test="captionHl"
+                        >
+                          Finalized
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                </a>
               </div>
             </div>
           </td>
@@ -6887,27 +6936,34 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                 class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                 data-test="body"
               >
-                <div
-                  class=""
+                <a
+                  aria-label="INV-002"
+                  class="text-inherit hover:no-underline focus:ring-0"
+                  href="/customer/customer-2/invoice/invoice-2/overview"
+                  tabindex="-1"
                 >
                   <div
-                    aria-label="text_1724674592260h33v56rycaw"
                     class=""
-                    data-mui-internal-clone-element="true"
                   >
                     <div
-                      class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-green-100 outline-green-200"
-                      data-test="status"
+                      aria-label="text_1724674592260h33v56rycaw"
+                      class=""
+                      data-mui-internal-clone-element="true"
                     >
                       <div
-                        class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
-                        data-test="captionHl"
+                        class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-green-100 outline-green-200"
+                        data-test="status"
                       >
-                        Finalized
+                        <div
+                          class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
+                          data-test="captionHl"
+                        >
+                          Finalized
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                </a>
               </div>
             </div>
           </td>
@@ -7187,27 +7243,34 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                 class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                 data-test="body"
               >
-                <div
-                  class=""
+                <a
+                  aria-label="INV-003"
+                  class="text-inherit hover:no-underline focus:ring-0"
+                  href="/customer/customer-3/invoice/invoice-3/overview"
+                  tabindex="-1"
                 >
                   <div
-                    aria-label="text_1724674592260h33v56rycaw"
                     class=""
-                    data-mui-internal-clone-element="true"
                   >
                     <div
-                      class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-green-100 outline-green-200"
-                      data-test="status"
+                      aria-label="text_1724674592260h33v56rycaw"
+                      class=""
+                      data-mui-internal-clone-element="true"
                     >
                       <div
-                        class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
-                        data-test="captionHl"
+                        class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-green-100 outline-green-200"
+                        data-test="status"
                       >
-                        Finalized
+                        <div
+                          class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
+                          data-test="captionHl"
+                        >
+                          Finalized
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                </a>
               </div>
             </div>
           </td>
@@ -7625,27 +7688,34 @@ exports[`InvoicesList Snapshot Tests matches snapshot with overdue invoice 1`] =
                 class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                 data-test="body"
               >
-                <div
-                  class=""
+                <a
+                  aria-label="INV-001"
+                  class="text-inherit hover:no-underline focus:ring-0"
+                  href="/customer/customer-1/invoice/invoice-1/overview"
+                  tabindex="-1"
                 >
                   <div
-                    aria-label="text_1724674592260h33v56rycaw"
                     class=""
-                    data-mui-internal-clone-element="true"
                   >
                     <div
-                      class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-green-100 outline-green-200"
-                      data-test="status"
+                      aria-label="text_1724674592260h33v56rycaw"
+                      class=""
+                      data-mui-internal-clone-element="true"
                     >
                       <div
-                        class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
-                        data-test="captionHl"
+                        class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-green-100 outline-green-200"
+                        data-test="status"
                       >
-                        Finalized
+                        <div
+                          class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
+                          data-test="captionHl"
+                        >
+                          Finalized
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                </a>
               </div>
             </div>
           </td>
@@ -8075,27 +8145,34 @@ exports[`InvoicesList Snapshot Tests matches snapshot with partially paid invoic
                 class=MuiTypography-root MuiTypography-body MuiTypography-noWrap -ml-1 pl-1 css-hash-MuiTypography-root
                 data-test="body"
               >
-                <div
-                  class=""
+                <a
+                  aria-label="INV-001"
+                  class="text-inherit hover:no-underline focus:ring-0"
+                  href="/customer/customer-1/invoice/invoice-1/overview"
+                  tabindex="-1"
                 >
                   <div
-                    aria-label="text_1724674592260h33v56rycaw"
                     class=""
-                    data-mui-internal-clone-element="true"
                   >
                     <div
-                      class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-green-100 outline-green-200"
-                      data-test="status"
+                      aria-label="text_1724674592260h33v56rycaw"
+                      class=""
+                      data-mui-internal-clone-element="true"
                     >
                       <div
-                        class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
-                        data-test="captionHl"
+                        class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-green-100 outline-green-200"
+                        data-test="status"
                       >
-                        Finalized
+                        <div
+                          class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
+                          data-test="captionHl"
+                        >
+                          Finalized
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                </a>
               </div>
             </div>
           </td>
