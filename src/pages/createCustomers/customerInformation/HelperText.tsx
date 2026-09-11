@@ -1,4 +1,4 @@
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { Typography } from '~/components/designSystem/Typography'
 import { BILLING_ENTITY_GENERAL_ROUTE } from '~/core/router'

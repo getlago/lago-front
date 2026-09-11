@@ -2,7 +2,7 @@ import { ApolloError } from '@apollo/client'
 import type { GraphQLFormattedError } from 'graphql'
 import { debounce } from 'lodash'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'

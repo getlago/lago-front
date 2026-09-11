@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useMemo } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import { PaginatedContent } from '~/components/designSystem/Pagination'

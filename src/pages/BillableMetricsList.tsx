@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { Icon, tw } from 'lago-design-system'
 import { useState } from 'react'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { useDeleteBillableMetricDialog } from '~/components/billableMetrics/DeleteBillableMetricDialog'
 import { Avatar } from '~/components/designSystem/Avatar'

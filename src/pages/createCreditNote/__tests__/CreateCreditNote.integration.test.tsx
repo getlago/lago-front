@@ -120,7 +120,7 @@ describe('CreateCreditNote', () => {
   beforeEach(() => {
     jest.clearAllMocks()
 
-    const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
+    const useParamsMock = jest.requireMock('react-router').useParams as jest.Mock
 
     useParamsMock.mockReturnValue({
       customerId: 'customer-123',

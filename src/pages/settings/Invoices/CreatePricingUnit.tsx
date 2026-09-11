@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'

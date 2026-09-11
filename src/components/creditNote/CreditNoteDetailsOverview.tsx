@@ -1,7 +1,7 @@
 import { gql, MutationFunction } from '@apollo/client'
 import { ConditionalWrapper } from 'lago-design-system'
 import { FC } from 'react'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 
 import { CreditNoteDetailsOverviewTable } from '~/components/creditNote/CreditNoteDetailsOverviewTable'
 import { Button } from '~/components/designSystem/Button'

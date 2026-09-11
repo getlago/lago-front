@@ -1,6 +1,6 @@
 import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { useEffect, useState } from 'react'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 
 import { AddOnCodeSnippet } from '~/components/addOns/AddOnCodeSnippet'
 import { Button } from '~/components/designSystem/Button'

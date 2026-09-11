@@ -1,5 +1,5 @@
 import { Icon, IconName } from 'lago-design-system'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'

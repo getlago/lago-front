@@ -1,7 +1,7 @@
 import { ApolloError, gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
 import { useMemo } from 'react'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { ButtonLink } from '~/components/designSystem/ButtonLink'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'

@@ -2,7 +2,7 @@ import InputAdornment from '@mui/material/InputAdornment'
 import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { Icon } from 'lago-design-system'
 import { useEffect, useState } from 'react'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { CouponCodeSnippet } from '~/components/coupons/CouponCodeSnippet'
 import { Alert } from '~/components/designSystem/Alert'

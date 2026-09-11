@@ -1,6 +1,6 @@
 import { tw } from 'lago-design-system'
 import { useState } from 'react'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
 import { UsageBreakdownType } from '~/components/analytics/usage/types'

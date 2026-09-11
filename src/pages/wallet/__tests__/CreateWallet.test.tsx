@@ -1,7 +1,7 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { StrictMode } from 'react'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import {
   CLOSE_CREATE_WALLET_BUTTON_DATA_TEST,
@@ -35,8 +35,8 @@ jest.mock('~/components/drawers/useDrawer', () => ({
   useFormDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
 }))
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useParams: () => ({
     customerId: 'customer-id',
     walletId: mockWalletData || mockWalletLoading ? 'wallet-id' : '',

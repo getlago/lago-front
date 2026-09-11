@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useEffect } from 'react'
-import { generatePath, useSearchParams } from 'react-router-dom'
+import { generatePath, useSearchParams } from 'react-router'
 
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Spinner } from '~/components/designSystem/Spinner'

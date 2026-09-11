@@ -1,5 +1,5 @@
 import { screen } from '@testing-library/react'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { InvoiceDetailsTable } from '~/components/invoices/details/InvoiceDetailsTable'
 import {

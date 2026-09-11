@@ -1,5 +1,5 @@
 import { renderHook, waitFor } from '@testing-library/react'
-import type { Location } from 'react-router-dom'
+import type { Location } from 'react-router'
 
 import { getItemFromLS, removeItemFromLS } from '~/core/utils/localStorage'
 import { REDIRECT_AFTER_LOGIN_LS_KEY } from '~/core/utils/localStorageKeys'
@@ -31,8 +31,8 @@ const defaultMemberships = [
   },
 ]
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useNavigate: () => mockNavigate,
   useLocation: () => mockUseLocation(),
   generatePath: jest.fn((route, params) => {

@@ -1,5 +1,5 @@
 import { ApolloError, gql, LazyQueryHookOptions } from '@apollo/client'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import CreditNoteBadge from '~/components/creditNote/CreditNoteBadge'
 import { useVoidCreditNoteDialog } from '~/components/customers/creditNotes/VoidCreditNoteDialog'

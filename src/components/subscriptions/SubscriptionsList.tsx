@@ -1,5 +1,5 @@
 import { FC } from 'react'
-import { generatePath, NavigateFunction } from 'react-router-dom'
+import { generatePath, NavigateFunction } from 'react-router'
 
 import { useTerminateCustomerSubscriptionDialog } from '~/components/customers/subscriptions/TerminateCustomerSubscriptionDialog'
 import { StatusProps, StatusType } from '~/components/designSystem/Status'

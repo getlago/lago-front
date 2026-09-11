@@ -69,7 +69,7 @@ interface MainHeaderTabConfig {
 describe('FeatureDetails', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
+    const useParamsMock = jest.requireMock('react-router').useParams as jest.Mock
 
     useParamsMock.mockReturnValue({ featureId: 'feat-123' })
     mockIsPremium.mockReturnValue(true)

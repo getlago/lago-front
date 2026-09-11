@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { tw } from 'lago-design-system'
 import { useCallback, useMemo } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router'
 
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Table, TablePlaceholder } from '~/components/designSystem/Table/Table'

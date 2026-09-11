@@ -1,7 +1,7 @@
 import { FetchResult, useApolloClient } from '@apollo/client'
 import { useEffect, useRef } from 'react'
 // eslint-disable-next-line lago/no-direct-rrd-nav-import -- Auth callback renders outside /:organizationSlug; the slug wrapper would be incorrect here.
-import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
+import { generatePath, useNavigate, useSearchParams } from 'react-router'
 
 import { hasDefinedGQLError, LagoGQLError, onLogIn } from '~/core/apolloClient'
 import { INVITATION_ROUTE_FORM, LOGIN_ROUTE } from '~/core/router'

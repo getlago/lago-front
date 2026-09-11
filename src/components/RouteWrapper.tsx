@@ -1,5 +1,5 @@
 import { ReactNode, Suspense, useEffect } from 'react'
-import { RouteObject, useRoutes } from 'react-router-dom'
+import { RouteObject, useRoutes } from 'react-router'
 
 import { Spinner } from '~/components/designSystem/Spinner'
 import { DEVTOOL_ROUTE } from '~/components/developers/devtoolsRoutes'

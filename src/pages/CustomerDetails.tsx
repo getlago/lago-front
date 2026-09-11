@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useEffect, useRef } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 import { useAddCouponToCustomerDialog } from '~/components/customers/AddCouponToCustomerDialog'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'

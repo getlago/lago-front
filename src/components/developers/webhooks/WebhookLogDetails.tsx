@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { Fragment, useEffect, useRef } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 import { CodeSnippet } from '~/components/CodeSnippet'
 import { Button } from '~/components/designSystem/Button'

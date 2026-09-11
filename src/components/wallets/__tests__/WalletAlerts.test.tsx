@@ -1,7 +1,7 @@
 import { ApolloError } from '@apollo/client'
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 import { GENERIC_PLACEHOLDER_TEST_ID } from '~/components/designSystem/GenericPlaceholder'
 import WalletAlerts, {

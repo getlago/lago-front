@@ -1,4 +1,4 @@
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import { NavigationTab } from '~/components/designSystem/NavigationTab'

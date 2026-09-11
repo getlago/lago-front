@@ -1,7 +1,7 @@
 import { useApolloClient, useReactiveVar } from '@apollo/client'
 import * as Sentry from '@sentry/react'
 import { lazy, Suspense, useEffect } from 'react'
-import { Outlet, useParams } from 'react-router-dom'
+import { Outlet, useParams } from 'react-router'
 
 import { Spinner } from '~/components/designSystem/Spinner'
 import { switchCurrentOrganization } from '~/core/apolloClient'

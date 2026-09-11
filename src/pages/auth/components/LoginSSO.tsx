@@ -2,7 +2,7 @@ import { MutationHookOptions, MutationTuple } from '@apollo/client'
 import Stack from '@mui/material/Stack'
 import { revalidateLogic } from '@tanstack/react-form'
 import { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router'
 import { z } from 'zod'
 
 import { Alert } from '~/components/designSystem/Alert'

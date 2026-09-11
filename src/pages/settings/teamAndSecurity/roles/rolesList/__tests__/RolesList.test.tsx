@@ -52,8 +52,8 @@ jest.mock('~/hooks/useRolesList', () => ({
   }),
 }))
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useNavigate: () => mockNavigate,
   generatePath: (path: string, params?: Record<string, string>) => {
     if (params) {

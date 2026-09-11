@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useMemo } from 'react'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 
 import { ButtonLink } from '~/components/designSystem/ButtonLink'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'

@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router'
 
 import { Typography } from '~/components/designSystem/Typography'
 import { useFilters } from '~/components/Filters/graphql/useFilters'

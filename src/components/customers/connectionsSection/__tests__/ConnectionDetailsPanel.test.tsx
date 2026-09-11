@@ -113,7 +113,7 @@ const INTEGRATIONS_DATA = {
 describe('ConnectionDetailsPanel', () => {
   beforeEach(() => {
     mockHasFeatureFlag.mockReturnValue(false)
-    jest.requireMock('react-router-dom').useParams.mockReturnValue({ organizationSlug: 'acme' })
+    jest.requireMock('react-router').useParams.mockReturnValue({ organizationSlug: 'acme' })
   })
 
   describe('GIVEN the Stripe payment connection', () => {

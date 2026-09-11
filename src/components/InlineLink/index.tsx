@@ -1,5 +1,5 @@
 import { FC, PropsWithChildren } from 'react'
-import { LinkProps } from 'react-router-dom'
+import { LinkProps } from 'react-router'
 
 import { Link } from '~/core/router'
 

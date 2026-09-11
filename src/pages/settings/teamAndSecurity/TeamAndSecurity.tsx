@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react'
-import { generatePath, matchPath } from 'react-router-dom'
+import { generatePath, matchPath } from 'react-router'
 
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'

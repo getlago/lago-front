@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { FinanceAssistantAnalyticsCta } from '~/components/aiAgent/FinanceAssistantAnalyticsCta'
 import { MainHeader } from '~/components/MainHeader/MainHeader'

@@ -1,7 +1,7 @@
 import { FetchResult, gql } from '@apollo/client'
 import { revalidateLogic } from '@tanstack/react-form'
 import { useRef } from 'react'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 
 import { useCreateMore } from '~/components/drawers/createMore/useCreateMore'
 import { useFormDrawer } from '~/components/drawers/useDrawer'

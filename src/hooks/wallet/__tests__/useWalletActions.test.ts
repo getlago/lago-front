@@ -12,8 +12,8 @@ const mockAddToast = jest.fn()
 const mockSetUrl = jest.fn()
 const mockOpenPanel = jest.fn()
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useNavigate: () => mockNavigate,
   generatePath: (route: string, params: Record<string, string>) => {
     let result = route

@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { memo, useRef } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'

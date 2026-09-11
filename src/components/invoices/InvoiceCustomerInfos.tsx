@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
 import { memo } from 'react'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Status, StatusType } from '~/components/designSystem/Status'

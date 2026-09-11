@@ -2,7 +2,7 @@ import { gql, useApolloClient } from '@apollo/client'
 import { Icon } from 'lago-design-system'
 import { useEffect, useRef } from 'react'
 // eslint-disable-next-line lago/no-direct-rrd-nav-import -- Auth callback renders outside /:organizationSlug; the slug wrapper would be incorrect here.
-import { generatePath, useNavigate, useSearchParams } from 'react-router-dom'
+import { generatePath, useNavigate, useSearchParams } from 'react-router'
 
 import { GoogleAuthModeEnum } from '~/components/auth/GoogleAuthButton'
 import { hasDefinedGQLError, LagoGQLError, onLogIn } from '~/core/apolloClient'

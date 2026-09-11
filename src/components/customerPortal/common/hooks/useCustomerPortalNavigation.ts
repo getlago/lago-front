@@ -1,4 +1,4 @@
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 
 import { useLocation, useNavigate } from '~/core/router'
 import {

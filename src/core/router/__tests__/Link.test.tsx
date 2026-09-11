@@ -1,10 +1,10 @@
 import { render, screen } from '@testing-library/react'
 import { createRef } from 'react'
-import { BrowserRouter } from 'react-router-dom'
+import { BrowserRouter } from 'react-router'
 
 import { Link } from '../Link'
 
-const mockUseParams = jest.requireMock('react-router-dom').useParams as jest.Mock
+const mockUseParams = jest.requireMock('react-router').useParams as jest.Mock
 
 describe('Link', () => {
   beforeEach(() => {

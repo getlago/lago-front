@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import { tw } from 'lago-design-system'
 import { DateTime } from 'luxon'
 import { createContext, ReactNode, useCallback, useContext, useMemo, useState } from 'react'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'

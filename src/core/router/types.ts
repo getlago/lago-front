@@ -1,4 +1,4 @@
-import type { RouteObject } from 'react-router-dom'
+import type { RouteObject } from 'react-router'
 
 import { FeatureFlagEnum } from '~/generated/graphql'
 import { TMembershipPermissions } from '~/hooks/usePermissions'

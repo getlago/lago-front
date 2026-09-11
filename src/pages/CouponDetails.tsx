@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 
 import { CouponDetailsActivityLogs } from '~/components/coupons/CouponDetailsActivityLogs'
 import { CouponDetailsAppliedCoupons } from '~/components/coupons/CouponDetailsAppliedCoupons'

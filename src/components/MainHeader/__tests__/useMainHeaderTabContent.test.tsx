@@ -1,13 +1,13 @@
 import { renderHook } from '@testing-library/react'
 import React, { FC, PropsWithChildren } from 'react'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter } from 'react-router'
 
 import { MainHeaderProvider, useMainHeaderWriter } from '../MainHeaderContext'
 import { MainHeaderConfig, MainHeaderTab } from '../types'
 import { useMainHeaderTabContent } from '../useMainHeaderTabContent'
 
 // We need a real router for pathname matching, so don't use the global mock
-jest.unmock('react-router-dom')
+jest.unmock('react-router')
 
 const createWrapper = (initialPath: string): FC<PropsWithChildren> => {
   const Wrapper: FC<PropsWithChildren> = ({ children }) => (

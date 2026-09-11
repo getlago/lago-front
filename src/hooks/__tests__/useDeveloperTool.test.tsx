@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react'
 import { ReactNode } from 'react'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter } from 'react-router'
 
 import {
   DeveloperToolProvider,
@@ -34,7 +34,7 @@ jest.mock('~/hooks/ui/usePanel', () => ({
   }),
 }))
 
-// `jest-setup.ts` mocks `react-router-dom`'s useNavigate globally, so navigation is
+// `jest-setup.ts` mocks `react-router`'s useNavigate globally, so navigation is
 // observed through this spy rather than through the router's own location.
 const { mockNavigate } = (
   globalThis as unknown as { __testRouterMocks: { mockNavigate: jest.Mock } }
