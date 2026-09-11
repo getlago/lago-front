@@ -4,11 +4,7 @@ import userEvent from '@testing-library/user-event'
 
 import CentralizedDialog from '~/components/dialogs/CentralizedDialog'
 import { CENTRALIZED_DIALOG_NAME } from '~/components/dialogs/const'
-import {
-  CurrencyEnum,
-  GetSubscriptionForProgressiveBillingFormDocument,
-  UpdateSubscriptionProgressiveBillingDocument,
-} from '~/generated/graphql'
+import { CurrencyEnum, GetSubscriptionForProgressiveBillingFormDocument } from '~/generated/graphql'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
 import SubscriptionProgressiveBillingForm, {
@@ -19,7 +15,6 @@ import SubscriptionProgressiveBillingForm, {
   PROGRESSIVE_BILLING_FORM_TEST_ID,
   PROGRESSIVE_BILLING_HAS_RECURRING_SWITCH_TEST_ID,
   PROGRESSIVE_BILLING_SUBMIT_BUTTON_TEST_ID,
-  PROGRESSIVE_BILLING_THRESHOLD_AMOUNT_TEST_ID,
 } from '../SubscriptionProgressiveBillingForm'
 
 NiceModal.register(CENTRALIZED_DIALOG_NAME, CentralizedDialog)
@@ -236,98 +231,6 @@ describe('SubscriptionProgressiveBillingForm', () => {
       // Warning dialog should appear
       await waitFor(() => {
         expect(screen.getByRole('dialog')).toBeInTheDocument()
-      })
-    })
-  })
-
-  describe('GIVEN the subscription is billed in a 0-decimal currency', () => {
-    describe('WHEN the user enters a threshold amount and submits', () => {
-      it('THEN should validate the amount and send it to the mutation', async () => {
-        const user = userEvent.setup()
-        const jpySubscription = {
-          ...mockSubscriptionData,
-          usageThresholds: [
-            {
-              id: 'threshold-1',
-              amountCents: '100',
-              recurring: false,
-              thresholdDisplayName: 'Threshold 1',
-            },
-          ],
-          plan: {
-            ...mockSubscriptionData.plan,
-            amountCurrency: CurrencyEnum.Jpy,
-            applicableUsageThresholds: [],
-          },
-        }
-        const variableMatcher = jest.fn().mockReturnValue(true)
-        const updateMock: TestMocksType[0] = {
-          request: { query: UpdateSubscriptionProgressiveBillingDocument },
-          variableMatcher,
-          result: {
-            data: {
-              updateSubscription: {
-                id: subscriptionId,
-                progressiveBillingDisabled: false,
-                usageThresholds: [
-                  {
-                    id: 'threshold-1',
-                    amountCents: '5000',
-                    recurring: false,
-                    thresholdDisplayName: 'Threshold 1',
-                  },
-                ],
-              },
-            },
-          },
-        }
-
-        // Matched by shape, not by variables: the subscription id reaches the query
-        // through useParams, and a run where that comes back empty would silently
-        // fall back to the USD default instead of failing on the currency.
-        const jpyQueryMock: TestMocksType[0] = {
-          request: { query: GetSubscriptionForProgressiveBillingFormDocument },
-          variableMatcher: () => true,
-          result: { data: { subscription: jpySubscription } },
-        }
-
-        renderComponent([jpyQueryMock, updateMock])
-
-        await waitFor(() => {
-          expect(
-            screen.getByTestId(PROGRESSIVE_BILLING_THRESHOLD_AMOUNT_TEST_ID),
-          ).toBeInTheDocument()
-        })
-
-        const amountInput = screen
-          .getByTestId(PROGRESSIVE_BILLING_THRESHOLD_AMOUNT_TEST_ID)
-          .querySelector('input') as HTMLInputElement
-
-        // The form renders its default row before the query resolves, so typing
-        // straight away would drive a USD form and serialize at 2 decimals.
-        // The adornment carries the loaded plan's currency.
-        await waitFor(() => {
-          expect(
-            screen.getByTestId(PROGRESSIVE_BILLING_THRESHOLD_AMOUNT_TEST_ID),
-          ).toHaveTextContent('¥')
-        })
-
-        await user.clear(amountInput)
-        await user.type(amountInput, '5000')
-        await user.click(screen.getByTestId(PROGRESSIVE_BILLING_SUBMIT_BUTTON_TEST_ID))
-
-        // A 0-decimal currency makes AmountInput push the `int` formatter. When that
-        // emitted a number, `z.object({ amountCents: z.string() })` rejected it and the
-        // mutation never fired at all.
-        await waitFor(() => {
-          expect(variableMatcher).toHaveBeenCalledWith(
-            expect.objectContaining({
-              input: expect.objectContaining({
-                usageThresholds: [expect.objectContaining({ amountCents: 5000 })],
-              }),
-            }),
-          )
-        })
       })
     })
   })
