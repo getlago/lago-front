@@ -29,7 +29,7 @@ export const PRODUCT_ITEM_OVERVIEW_EDIT_TEST_ID = 'product-item-overview-edit'
 
 const ITEM_TYPE_TRANSLATION_KEY: Record<ProductTypeEnum, string> = {
   [ProductTypeEnum.Fixed]: 'text_1783980718113ritmy7z94je',
-  [ProductTypeEnum.Usage]: 'text_17839807181133l3z83156s6',
+  [ProductTypeEnum.Metered]: 'text_17839807181133l3z83156s6',
 }
 
 gql`
@@ -151,7 +151,7 @@ export const ProductDetailsOverview = () => {
         <DetailsPage.InfoGrid
           grid={[
             { label: translate('text_1783980718113na6t9imp2k0'), value: productType },
-            product?.productType === ProductTypeEnum.Usage && {
+            product?.productType === ProductTypeEnum.Metered && {
               label: translate('text_178398071811327xropcsqmr'),
               value: attachedBillableMetric,
             },

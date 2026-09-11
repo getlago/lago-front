@@ -32,7 +32,7 @@ describe('FiltersItemProductType', () => {
   describe('GIVEN a selected value', () => {
     it.each([
       ['fixed', ProductTypeEnum.Fixed, 'Fixed'],
-      ['usage', ProductTypeEnum.Usage, 'Usage'],
+      ['usage', ProductTypeEnum.Metered, 'Usage'],
     ])('THEN displays the %s type label in the input', async (_, value, label) => {
       renderComponent(value)
 

@@ -8242,7 +8242,7 @@ export type ProductFilterValueInput = {
 
 export enum ProductTypeEnum {
   Fixed = 'fixed',
-  Usage = 'usage'
+  Metered = 'metered'
 }
 
 export type ProjectedChargeFilterUsage = {

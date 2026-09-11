@@ -81,7 +81,7 @@ const rateCardFixture = {
     id: 'pitem-1',
     name: 'Seats',
     code: 'seats',
-    productType: 'usage',
+    productType: 'metered',
     billableMetric: {
       __typename: 'BillableMetric',
       id: 'bm-1',

@@ -133,7 +133,7 @@ const ProductDrawerFormSections = withForm({
     const productTypeData = useMemo(
       () => [
         { value: ProductTypeEnum.Fixed, label: translate('text_1783980718113ritmy7z94je') },
-        { value: ProductTypeEnum.Usage, label: translate('text_17839807181133l3z83156s6') },
+        { value: ProductTypeEnum.Metered, label: translate('text_17839807181133l3z83156s6') },
       ],
       [translate],
     )
@@ -246,7 +246,7 @@ const ProductDrawerFormSections = withForm({
               )}
             </form.AppField>
 
-            {productType === ProductTypeEnum.Usage && (
+            {productType === ProductTypeEnum.Metered && (
               <form.AppField name="billableMetricId">
                 {(field) => (
                   <field.ComboBoxField

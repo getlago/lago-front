@@ -14,7 +14,7 @@ const productTypeMapping = (productType: ProductTypeEnum): string => {
   switch (productType) {
     case ProductTypeEnum.Fixed:
       return 'text_1783980718113ritmy7z94je'
-    case ProductTypeEnum.Usage:
+    case ProductTypeEnum.Metered:
       return 'text_17839807181133l3z83156s6'
     default:
       return ''

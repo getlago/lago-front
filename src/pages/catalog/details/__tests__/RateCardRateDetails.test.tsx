@@ -102,7 +102,7 @@ const rateCardFixture = {
     __typename: 'Product',
     id: 'product-1',
     name: 'API calls',
-    productType: 'usage',
+    productType: 'metered',
     productCategory: { __typename: 'ProductCategory', id: 'pcategory-1', name: 'Platform' },
     billableMetric: {
       __typename: 'BillableMetric',

@@ -8,7 +8,7 @@ import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 export const PRODUCT_ITEM_TYPE_TRANSLATION_KEY: Record<ProductTypeEnum, string> = {
   [ProductTypeEnum.Fixed]: 'text_1783980718113ritmy7z94je',
-  [ProductTypeEnum.Usage]: 'text_17839807181133l3z83156s6',
+  [ProductTypeEnum.Metered]: 'text_17839807181133l3z83156s6',
 }
 
 // Shared between the full product-items list and the product-details preview:

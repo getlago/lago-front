@@ -462,7 +462,7 @@ describe('useRateCardRateDrawer edit flow', () => {
           currency: CurrencyEnum.Usd,
           appliedPricingUnitCode: null,
           billingTiming: RateCardBillingTimingEnum.Arrears,
-          productType: ProductTypeEnum.Usage,
+          productType: ProductTypeEnum.Metered,
           aggregationType: 'sum_agg',
         })
       })
