@@ -1,6 +1,9 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { FORM_ERRORS_ENUM } from '~/core/constants/form'
+import { EXISTING_CODE_ERROR_MESSAGE } from '~/core/form/existingCodeError'
+import { scrollToTop } from '~/core/utils/domUtils'
 import { CurrencyEnum } from '~/generated/graphql'
 import { useCreateEditAddOn } from '~/hooks/useCreateEditAddOn'
 import { render } from '~/test-utils'
@@ -238,6 +241,31 @@ describe('CreateAddOn', () => {
         render(<CreateAddOn />)
 
         expect(getDescriptionTextarea()).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the server rejected the code as already existing', () => {
+    beforeEach(() => {
+      mockedUseCreateEditAddOn.mockReturnValue({
+        ...mockDefaultUseCreateEditAddOn,
+        errorCode: FORM_ERRORS_ENUM.existingCode,
+      })
+    })
+
+    describe('WHEN the page renders', () => {
+      it('THEN should surface the duplicate-code error', async () => {
+        render(<CreateAddOn />)
+
+        expect(await screen.findByText(EXISTING_CODE_ERROR_MESSAGE)).toBeInTheDocument()
+      })
+
+      it('THEN should scroll back to the code field', async () => {
+        render(<CreateAddOn />)
+
+        await waitFor(() => {
+          expect(scrollToTop).toHaveBeenCalled()
+        })
       })
     })
   })

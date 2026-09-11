@@ -13,7 +13,6 @@ import { TextInput, TextInputField } from '~/components/form'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { FeatureDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { EXISTING_CODE_ERROR_MESSAGE } from '~/core/form/existingCodeError'
 import { FEATURE_DETAILS_ROUTE, FEATURES_ROUTE, useNavigate } from '~/core/router'
 import { scrollToAndExpandAccordion } from '~/core/utils/domUtils'
 import { updateNameAndMaybeCode } from '~/core/utils/updateNameAndMaybeCode'
@@ -160,7 +159,7 @@ const FeatureForm = () => {
         if (firstPrivilegeIndexWithDuplicateCode !== -1) {
           formikProps.setFieldError(
             `privileges.${firstPrivilegeIndexWithDuplicateCode}.code`,
-            EXISTING_CODE_ERROR_MESSAGE,
+            'text_632a2d437e341dcc76817556',
           )
 
           scrollToAndExpandAccordion(`privilege-accordion-${firstPrivilegeIndexWithDuplicateCode}`)
@@ -230,7 +229,7 @@ const FeatureForm = () => {
 
   useEffect(() => {
     if (hasDefinedGQLError('ValueAlreadyExist', createError || updateError)) {
-      formikProps.setFieldError('code', EXISTING_CODE_ERROR_MESSAGE)
+      formikProps.setFieldError('code', 'text_632a2d437e341dcc76817556')
       const rootElement = document.getElementById('root')
 
       if (!rootElement) return

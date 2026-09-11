@@ -1,6 +1,8 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { FORM_ERRORS_ENUM } from '~/core/constants/form'
+import { EXISTING_CODE_ERROR_MESSAGE } from '~/core/form/existingCodeError'
 import {
   CouponExpiration,
   CouponFrequency,
@@ -849,6 +851,20 @@ describe('CreateCoupon', () => {
         await waitFor(() => {
           expect(screen.queryByTestId(COUPON_LIMIT_ERROR_TEST_ID)).not.toBeInTheDocument()
         })
+      })
+    })
+  })
+  describe('GIVEN the server rejected the code as already existing', () => {
+    describe('WHEN the page renders', () => {
+      it('THEN should surface the duplicate-code error', async () => {
+        mockedUseCreateEditCoupon.mockReturnValue({
+          ...mockDefaultUseCreateEditCoupon,
+          errorCode: FORM_ERRORS_ENUM.existingCode,
+        })
+
+        render(<CreateCoupon />)
+
+        expect(await screen.findByText(EXISTING_CODE_ERROR_MESSAGE)).toBeInTheDocument()
       })
     })
   })

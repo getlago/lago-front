@@ -14,7 +14,7 @@ import {
   EDIT_WALLET_ROUTE,
   WALLET_DETAILS_ROUTE,
 } from '~/core/router'
-import { CurrencyEnum } from '~/generated/graphql'
+import { CurrencyEnum, LagoApiError } from '~/generated/graphql'
 import CreateWallet from '~/pages/wallet/CreateWallet'
 import { WalletDetailsTabsOptionsEnum } from '~/pages/wallet/WalletDetails'
 import { render } from '~/test-utils'
@@ -389,6 +389,26 @@ describe('CreateWallet', () => {
         render(<CreateWallet />)
 
         expect(mockOpenRuleDrawer).not.toHaveBeenCalled()
+      })
+    })
+  })
+  describe('GIVEN the server rejected the code as already existing', () => {
+    describe('WHEN the create mutation comes back', () => {
+      it('THEN should surface the duplicate-code error under the code field', async () => {
+        const user = userEvent.setup()
+
+        mockCreateWallet.mockResolvedValueOnce({
+          errors: [{ extensions: { details: { code: [LagoApiError.ValueAlreadyExist] } } }],
+        } as never)
+
+        render(<CreateWallet />)
+
+        await user.type(queryInput('name'), 'My wallet')
+        await user.click(screen.getByTestId(SUBMIT_WALLET_DATA_TEST))
+
+        // The form validated before submitting, so the code field is the only
+        // one that can carry an error at this point.
+        expect(await screen.findByTestId('text-field-error')).toBeInTheDocument()
       })
     })
   })
