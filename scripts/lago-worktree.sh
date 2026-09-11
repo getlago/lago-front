@@ -529,8 +529,16 @@ YAML
 }
 
 cmd_t3_down() {
-  local name="${1:-}"
-  [[ -z "$name" ]] && { echo "Usage: lago-worktree t3-down <name>" >&2; exit 1; }
+  # Arg may be a worktree path (t3:down script, no arg -> pwd) or a bare name
+  # (t3-worktree-exit-hook.sh, which already resolved the name before the
+  # worktree directory was removed). Only cd when the arg actually resolves
+  # to a directory; otherwise use it as the name directly.
+  local arg="${1:-$(pwd)}" name
+  if [[ -d "$arg" ]]; then
+    name="$(basename "$(cd "$arg" && pwd)")"
+  else
+    name="$arg"
+  fi
 
   local san compose_file
   san="$(sanitize "$name")"
@@ -541,6 +549,20 @@ cmd_t3_down() {
     rm -f "$compose_file"
   fi
   t3_unregister "$name"
+}
+
+cmd_t3_open() {
+  # No <name>: derive from the worktree dir itself, same default as t3-up.
+  local wt_path="${1:-$(pwd)}"
+  wt_path="$(cd "$wt_path" && pwd)"
+  local name; name="$(basename "$wt_path")"
+
+  local port; port="$(t3_get_port "$name")"
+  [[ -z "$port" ]] && { echo "Error: no T3 container running for '$name'. Run: lago-worktree t3-up" >&2; exit 1; }
+
+  local url="http://localhost:${port}"
+  echo "$url"
+  open "$url" 2>/dev/null || true
 }
 
 cmd_ps() {
@@ -606,6 +628,7 @@ case "$cmd" in
   ps)      cmd_ps ;;
   t3-up)   cmd_t3_up "$@" ;;
   t3-down) cmd_t3_down "$@" ;;
+  t3-open) cmd_t3_open "$@" ;;
   *)
     cat << 'EOF'
 lago-worktree — Isolated frontend (+ optional API) per git worktree
@@ -625,7 +648,8 @@ Commands:
                                      (.claude/worktrees/<name>). Opt-in: run by
                                      hand from inside the worktree, or pass its
                                      path. Not started automatically.
-  t3-down <name>                    Stop + remove that container
+  t3-down [path]                    Stop + remove that container
+  t3-open [path]                    Print + open that container's URL
 
 Without --from-api, the front uses the shared main API (:3000).
 With --from-api=<branch>, a dedicated API container is created.
