@@ -36,8 +36,8 @@ jest.mock('~/core/router', () => ({
   useNavigate: () => jest.fn(),
 }))
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useParams: () => ({ planId: 'plan-1' }),
   useSearchParams: () => [new URLSearchParams(), jest.fn()],
 }))
