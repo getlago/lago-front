@@ -32,6 +32,7 @@ describe('buildRateCardRateSchema', () => {
     requiresConversionRate: false,
     effectiveFromBoundary: null,
     rateModelConfiguration: validConfiguration,
+    lockedRateModel: undefined,
   }
   const validValues = {
     ...RATE_CARD_RATE_FORM_DEFAULTS,
@@ -210,7 +211,7 @@ describe('buildRateCardRateSchema', () => {
     })
   })
 
-  it('rejects an incompatible saved model even when it is unchanged', () => {
+  it('rejects an incompatible pending model even when it is unchanged', () => {
     const result = parse(
       { ...validValues, rateModel: RateCardRateModelEnum.Volume },
       {
@@ -222,6 +223,42 @@ describe('buildRateCardRateSchema', () => {
     )
 
     expect(issuePathsAndMessages(result)).toContainEqual(['rateModel', RATE_MODEL_UNAVAILABLE_KEY])
+  })
+
+  describe('with a locked active model', () => {
+    const context = {
+      lockedRateModel: RateCardRateModelEnum.Volume,
+      rateModelConfiguration: {
+        ...validConfiguration,
+        billingTiming: RateCardBillingTimingEnum.Advance,
+      },
+    }
+    const values = {
+      ...validValues,
+      rateModel: RateCardRateModelEnum.Volume,
+      properties: {
+        volumeRanges: [{ fromValue: 0, toValue: null, perUnitAmount: '12', flatAmount: '0' }],
+      },
+    }
+
+    it('accepts the unchanged model when it is no longer available', () => {
+      expect(parse(values, context).success).toBe(true)
+    })
+
+    it('rejects a different model even when it is compatible', () => {
+      expect(issuePathsAndMessages(parse(validValues, context))).toContainEqual([
+        'rateModel',
+        RATE_MODEL_UNAVAILABLE_KEY,
+      ])
+    })
+
+    it('still validates the code and pricing properties', () => {
+      const issues = issuePathsAndMessages(parse({ ...values, code: '', properties: {} }, context))
+
+      expect(issues).toContainEqual(['code', VALUE_REQUIRED_KEY])
+      expect(issues.some(([path]) => path.startsWith('properties'))).toBe(true)
+      expect(issues.map(([path]) => path)).not.toContain('rateModel')
+    })
   })
 
   it('accepts an explicit compatible replacement', () => {

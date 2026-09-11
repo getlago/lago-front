@@ -142,6 +142,7 @@ export const useRateCardRateForm = ({
     requiresConversionRate: false,
     effectiveFromBoundary: null,
     rateModelConfiguration: undefined,
+    lockedRateModel: undefined,
   })
   // A boundary moved by a save in this session: the card snapshot the drawer opened with does
   // not know about it, so re-deriving alone would walk the boundary back on every reset.
@@ -268,6 +269,7 @@ export const useRateCardRateForm = ({
     editedRateRef.current = rate
     schemaContextRef.current = {
       requiresConversionRate: !!rateCard.appliedPricingUnitCode,
+      lockedRateModel: rate?.status === RateCardRateStatusEnum.Active ? rate.rateModel : undefined,
       rateModelConfiguration: {
         productType: rateCard.product.productType,
         aggregationType: rateCard.product.billableMetric?.aggregationType,

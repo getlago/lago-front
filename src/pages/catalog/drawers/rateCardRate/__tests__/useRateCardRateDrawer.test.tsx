@@ -478,41 +478,71 @@ describe('rate submission compatibility', () => {
     jest.clearAllMocks()
   })
 
-  it.each([RateCardRateStatusEnum.Pending, RateCardRateStatusEnum.Active])(
-    'rejects an unchanged incompatible %s rate without altering its pricing',
-    async (status) => {
-      const captureInput = jest.fn()
-      const { result } = renderDrawerHook([updateMock(captureInput)])
-      const rate = {
-        ...pendingRate,
-        status,
-        rateModel: RateCardRateModelEnum.Volume,
-        rateProperties: {
-          volumeRanges: [{ fromValue: 0, toValue: null, perUnitAmount: '12', flatAmount: '0' }],
-        },
-      }
-      const card = buildRateCardForRateDrawer({
-        billingTiming: RateCardBillingTimingEnum.Advance,
-        activeRate:
-          status === RateCardRateStatusEnum.Active
-            ? { id: rate.id, effectiveFrom: rate.effectiveFrom }
-            : null,
-      })
+  it('rejects an unchanged incompatible pending rate without altering its pricing', async () => {
+    const captureInput = jest.fn()
+    const { result } = renderDrawerHook([updateMock(captureInput)])
+    const rate = {
+      ...pendingRate,
+      rateModel: RateCardRateModelEnum.Volume,
+      rateProperties: {
+        volumeRanges: [{ fromValue: 0, toValue: null, perUnitAmount: '12', flatAmount: '0' }],
+      },
+    }
+    const card = buildRateCardForRateDrawer({
+      billingTiming: RateCardBillingTimingEnum.Advance,
+      activeRate: null,
+    })
 
-      act(() => result.current.openDrawer({ rateCard: card, rate }))
-      const savedProperties = contentProps().form.state.values.properties
+    act(() => result.current.openDrawer({ rateCard: card, rate }))
+    const savedProperties = contentProps().form.state.values.properties
 
-      await submit()
+    await submit()
 
-      expect(captureInput).not.toHaveBeenCalled()
-      expect(contentProps().form.state.isValid).toBe(false)
-      expect(contentProps().form.state.values.rateModel).toBe(RateCardRateModelEnum.Volume)
-      expect(contentProps().form.state.values.properties).toEqual(savedProperties)
-      expect(mockClose).not.toHaveBeenCalled()
-    },
-  )
+    expect(captureInput).not.toHaveBeenCalled()
+    expect(contentProps().form.state.isValid).toBe(false)
+    expect(contentProps().form.state.values.rateModel).toBe(RateCardRateModelEnum.Volume)
+    expect(contentProps().form.state.values.properties).toEqual(savedProperties)
+    expect(mockClose).not.toHaveBeenCalled()
+  })
 
-  it('uses the new configuration when the same drawer opens for an active rate', async () => {
+  it('submits price and code edits for an unchanged incompatible active model', async () => {
+    const captureInput = jest.fn()
+    const { result } = renderDrawerHook([updateMock(captureInput)])
+    const rate = {
+      ...activeRate,
+      rateModel: RateCardRateModelEnum.Volume,
+      minAmountCents: '0',
+      rateProperties: {
+        volumeRanges: [{ fromValue: 0, toValue: null, perUnitAmount: '12', flatAmount: '0' }],
+      },
+    }
+    const card = buildRateCardForRateDrawer({
+      billingTiming: RateCardBillingTimingEnum.Advance,
+      activeRate: { id: rate.id, effectiveFrom: rate.effectiveFrom },
+    })
+    const updatedProperties = {
+      volumeRanges: [{ fromValue: 0, toValue: null, perUnitAmount: '15', flatAmount: '0' }],
+    }
+
+    act(() => result.current.openDrawer({ rateCard: card, rate }))
+    act(() => {
+      contentProps().form.setFieldValue('code', 'updated-volume')
+      contentProps().form.setFieldValue('properties', updatedProperties)
+    })
+    await submit()
+
+    await waitFor(() => expect(mockClose).toHaveBeenCalledTimes(1))
+    expect(captureInput).toHaveBeenCalledWith({
+      id: rate.id,
+      code: 'updated-volume',
+      rateProperties: updatedProperties,
+    })
+  })
+
+  it.each([
+    { name: 'pending rate', rate: pendingRate },
+    { name: 'new rate', rate: undefined },
+  ])('clears the active model exception when reopening for a $name', async ({ rate }) => {
     const captureInput = jest.fn()
     const { result } = renderDrawerHook([updateMock(captureInput)])
     const validCard = buildRateCardForRateDrawer({
@@ -536,7 +566,12 @@ describe('rate submission compatibility', () => {
     await waitFor(() => expect(captureInput).toHaveBeenCalledTimes(1))
     captureInput.mockClear()
 
-    act(() => result.current.openDrawer({ rateCard: invalidCard, rate: activeRate }))
+    act(() => result.current.openDrawer({ rateCard: { ...invalidCard, activeRate: null }, rate }))
+    act(() => {
+      contentProps().form.setFieldValue('effectiveFrom', pendingRate.effectiveFrom)
+      contentProps().form.setFieldValue('code', pendingRate.code)
+      contentProps().form.setFieldValue('properties', pendingRate.rateProperties)
+    })
     await submit()
 
     expect(captureInput).not.toHaveBeenCalled()

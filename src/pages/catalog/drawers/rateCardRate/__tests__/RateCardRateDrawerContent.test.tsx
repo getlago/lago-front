@@ -166,6 +166,9 @@ const Host = ({
         requiresConversionRate: false,
         effectiveFromBoundary,
         rateModelConfiguration: rateCard,
+        lockedRateModel: isActiveRate
+          ? (initialValues?.rateModel ?? RATE_CARD_RATE_FORM_DEFAULTS.rateModel)
+          : undefined,
       })),
     },
     onSubmit: () => onSubmit?.(),
@@ -692,6 +695,27 @@ describe('rate editor compatibility', () => {
 
     expect(screen.getByTestId(RATE_MODEL_PROBE_TEST_ID)).toHaveTextContent('standard')
     expect(mockChargeModelSelectorProps.alreadyUsedChargeAlertMessage).toBeUndefined()
+  })
+
+  it('keeps an incompatible active model locked without asking for a replacement', async () => {
+    render(
+      <Host
+        isEdit
+        isActiveRate
+        rateCard={advanceCard}
+        initialValues={{ rateModel: RateCardRateModelEnum.Volume }}
+      />,
+    )
+
+    expect(modelInput()).toBeDisabled()
+    expect(modelInput()).toHaveValue('text_6304e74aab6dbc18d615f386')
+    expect(mockChargeModelSelectorProps.alreadyUsedChargeAlertMessage).toBeUndefined()
+
+    await act(async () => {
+      mockHandleChargeModelUpdate?.('chargeModel', RateCardRateModelEnum.Standard)
+    })
+
+    expect(screen.getByTestId(RATE_MODEL_PROBE_TEST_ID)).toHaveTextContent('volume')
   })
 
   it('explains a resolved empty set and keeps the default model disabled', async () => {

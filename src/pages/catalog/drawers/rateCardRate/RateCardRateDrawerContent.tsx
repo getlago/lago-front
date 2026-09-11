@@ -163,10 +163,12 @@ const RateCardRateDrawerFormSections = withForm({
 
     let modelCompatibilityMessage: string | undefined
 
-    if (availableRateModels?.length === 0) {
-      modelCompatibilityMessage = translate(NO_AVAILABLE_RATE_MODELS_KEY)
-    } else if (availableRateModels && !isRateModelAvailable) {
-      modelCompatibilityMessage = translate(RATE_MODEL_UNAVAILABLE_KEY)
+    if (!isActiveRate) {
+      if (availableRateModels?.length === 0) {
+        modelCompatibilityMessage = translate(NO_AVAILABLE_RATE_MODELS_KEY)
+      } else if (availableRateModels && !isRateModelAvailable) {
+        modelCompatibilityMessage = translate(RATE_MODEL_UNAVAILABLE_KEY)
+      }
     }
 
     const billingIntervalUnitComboboxData = useMemo(
@@ -363,7 +365,7 @@ const RateCardRateDrawerFormSections = withForm({
             </div>
           )}
 
-          {availableRateModels === undefined && (
+          {!isActiveRate && availableRateModels === undefined && (
             <Alert type="info">{translate(RATE_MODEL_AVAILABILITY_LOADING_KEY)}</Alert>
           )}
           <form.AppField name="rateModel">
