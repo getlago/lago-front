@@ -76,7 +76,7 @@ const mocksWithPricingUnits = buildMocks([{ id: 'pu-1', name: 'Credits', code: '
 const buildUsageSeed = (aggregationType: AggregationTypeEnum): RateCardProductSeed => ({
   value: PRODUCT_ID,
   label: 'Metered API',
-  productType: ProductTypeEnum.Usage,
+  productType: ProductTypeEnum.Metered,
   aggregationType,
   recurring: false,
 })

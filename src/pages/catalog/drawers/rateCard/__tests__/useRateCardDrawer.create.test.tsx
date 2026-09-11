@@ -131,7 +131,7 @@ const rateCardResult = {
     id: 'pi-1',
     name: 'Metered API',
     code: 'metered_api',
-    productType: ProductTypeEnum.Usage,
+    productType: ProductTypeEnum.Metered,
     billableMetric: {
       id: 'bm-1',
       name: 'API calls',
