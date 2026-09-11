@@ -282,7 +282,16 @@ describe('SubscriptionProgressiveBillingForm', () => {
           },
         }
 
-        renderComponent([createQueryMock(jpySubscription), updateMock])
+        // Matched by shape, not by variables: the subscription id reaches the query
+        // through useParams, and a run where that comes back empty would silently
+        // fall back to the USD default instead of failing on the currency.
+        const jpyQueryMock: TestMocksType[0] = {
+          request: { query: GetSubscriptionForProgressiveBillingFormDocument },
+          variableMatcher: () => true,
+          result: { data: { subscription: jpySubscription } },
+        }
+
+        renderComponent([jpyQueryMock, updateMock])
 
         await waitFor(() => {
           expect(
@@ -293,6 +302,15 @@ describe('SubscriptionProgressiveBillingForm', () => {
         const amountInput = screen
           .getByTestId(PROGRESSIVE_BILLING_THRESHOLD_AMOUNT_TEST_ID)
           .querySelector('input') as HTMLInputElement
+
+        // The form renders its default row before the query resolves, so typing
+        // straight away would drive a USD form and serialize at 2 decimals.
+        // The adornment carries the loaded plan's currency.
+        await waitFor(() => {
+          expect(
+            screen.getByTestId(PROGRESSIVE_BILLING_THRESHOLD_AMOUNT_TEST_ID),
+          ).toHaveTextContent('¥')
+        })
 
         await user.clear(amountInput)
         await user.type(amountInput, '5000')
