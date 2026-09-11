@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { render, testMockNavigateFn } from '~/test-utils'
+import { render } from '~/test-utils'
 
 import {
   NAVIGATION_TAB_BAR_TEST_ID,
@@ -18,6 +18,7 @@ const baseTabs: NavigationTabBarItem[] = [
 describe('NavigationTabBar', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    window.history.pushState({}, '', '/')
   })
 
   describe('GIVEN tabs are provided', () => {
@@ -82,6 +83,34 @@ describe('NavigationTabBar', () => {
     })
   })
 
+  describe('GIVEN a tab with a link', () => {
+    describe('WHEN the component renders', () => {
+      // An anchor is what makes cmd-click / middle-click open the tab in a new browser tab.
+      it('THEN should render it as an anchor carrying the link as href', () => {
+        render(<NavigationTabBar tabs={baseTabs} />)
+
+        const tab = screen.getByTestId('tab-invoices')
+
+        expect(tab.tagName).toBe('A')
+        expect(tab).toHaveAttribute('href', '/customers/1/invoices')
+      })
+    })
+  })
+
+  describe('GIVEN a disabled tab', () => {
+    describe('WHEN the component renders', () => {
+      it('THEN should keep it a button rather than a link', () => {
+        render(
+          <NavigationTabBar
+            tabs={[{ title: 'Disabled', link: '/disabled', disabled: true, dataTest: 'tab-off' }]}
+          />,
+        )
+
+        expect(screen.getByTestId('tab-off').tagName).toBe('BUTTON')
+      })
+    })
+  })
+
   describe('GIVEN a user clicks on a tab', () => {
     describe('WHEN the tab has a link different from current path', () => {
       it('THEN should navigate to the tab link', async () => {
@@ -91,7 +120,7 @@ describe('NavigationTabBar', () => {
 
         await user.click(screen.getByTestId('tab-invoices'))
 
-        expect(testMockNavigateFn).toHaveBeenCalledWith('/customers/1/invoices')
+        expect(window.location.pathname).toBe('/customers/1/invoices')
       })
     })
   })

@@ -2,10 +2,10 @@ import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 import Typography from '@mui/material/Typography'
 import { Icon, IconName } from 'lago-design-system'
-import { useMemo } from 'react'
+import { MouseEvent, useMemo } from 'react'
 import { matchPath } from 'react-router'
 
-import { useLocation, useNavigate } from '~/core/router'
+import { Link, useLocation } from '~/core/router'
 import { tw } from '~/styles/utils'
 
 import { isTabActive } from './utils'
@@ -28,6 +28,9 @@ type NavigationTabBarProps = {
   tabs: Array<NavigationTabBarItem>
 }
 
+const TAB_CLASSNAME =
+  'relative my-2 h-9 justify-between gap-1 overflow-visible rounded-xl p-2 text-grey-600 no-underline [min-height:unset] [min-width:unset] first:-ml-2 last:-mr-2 hover:bg-grey-100 hover:text-grey-700 hover:no-underline'
+
 const a11yProps = (index: number) => {
   return {
     id: `tab-bar-${index}`,
@@ -38,14 +41,14 @@ const a11yProps = (index: number) => {
 /**
  * NavigationTabBar — renders only the tab buttons (no content panels).
  * Tab content is resolved by the page via useMainHeaderTabContent hook.
- * Tabs are URL-managed: clicking a tab navigates to its link.
+ * Tabs are URL-managed: a linked tab renders as an anchor so it keeps the
+ * native middle-click / cmd-click "open in new tab" gestures.
  */
 export const NavigationTabBar = ({
   className,
   name = 'Navigation tab',
   tabs,
 }: NavigationTabBarProps) => {
-  const navigate = useNavigate()
   const { strippedPathname } = useLocation()
   const nonHiddenTabs = tabs.filter((t) => !t.hidden)
 
@@ -55,6 +58,41 @@ export const NavigationTabBar = ({
 
     return idx === -1 ? 0 : idx
   }, [nonHiddenTabs, strippedPathname])
+
+  const renderTab = (tab: NavigationTabBarItem, tabIndex: number) => {
+    const sharedProps = {
+      disableFocusRipple: true,
+      disableRipple: true,
+      role: 'tab' as const,
+      className: TAB_CLASSNAME,
+      disabled: tab.disabled,
+      icon: tab.icon ? <Icon name={tab.icon} /> : undefined,
+      iconPosition: 'start' as const,
+      label: <Typography variant="captionHl">{tab.title}</Typography>,
+      value: tabIndex,
+      ...a11yProps(tabIndex),
+      'data-test': tab.dataTest || undefined,
+    }
+
+    // A disabled tab stays a button: jsdom/AT treat `disabled` on an anchor as a no-op.
+    if (!tab.link || tab.disabled) {
+      return <Tab key={tab.title} component="button" {...sharedProps} />
+    }
+
+    return (
+      <Tab
+        key={tab.title}
+        component={Link}
+        to={tab.link}
+        onClick={(event: MouseEvent<HTMLAnchorElement>) => {
+          if (tab.link && matchPath(tab.link, strippedPathname)) {
+            event.preventDefault()
+          }
+        }}
+        {...sharedProps}
+      />
+    )
+  }
 
   return (
     <div className={tw('flex flex-row shadow-b', className)} data-test={NAVIGATION_TAB_BAR_TEST_ID}>
@@ -66,28 +104,7 @@ export const NavigationTabBar = ({
         aria-label={name}
         value={activeTabIndex}
       >
-        {nonHiddenTabs.map((tab, tabIndex) => (
-          <Tab
-            key={tab.title}
-            disableFocusRipple
-            disableRipple
-            role="tab"
-            component="button"
-            className="relative my-2 h-9 justify-between gap-1 overflow-visible rounded-xl p-2 text-grey-600 no-underline [min-height:unset] [min-width:unset] first:-ml-2 last:-mr-2 hover:bg-grey-100 hover:text-grey-700"
-            disabled={tab.disabled}
-            icon={tab.icon ? <Icon name={tab.icon} /> : undefined}
-            iconPosition="start"
-            label={<Typography variant="captionHl">{tab.title}</Typography>}
-            value={tabIndex}
-            onClick={() => {
-              if (tab.link && !matchPath(tab.link, strippedPathname)) {
-                navigate(tab.link)
-              }
-            }}
-            {...a11yProps(tabIndex)}
-            data-test={tab.dataTest || undefined}
-          />
-        ))}
+        {nonHiddenTabs.map(renderTab)}
       </Tabs>
     </div>
   )
