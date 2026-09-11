@@ -79,12 +79,15 @@ export const DatePicker = ({
   /**
    * Date will be passed to the parent as ISO
    * So we need to make sure to re-transform to DateTime for the component to read it
+   *
+   * Parsed in `defaultZone` rather than the ambient zone: the `Settings.defaultZone`
+   * effect below only runs after the first render, and MUI freezes the calendar on it.
    */
   const getValueFormatted = useCallback(() => {
     if (!value) return null
 
-    return typeof value === 'string' ? DateTime.fromISO(value) : value
-  }, [value])
+    return typeof value === 'string' ? DateTime.fromISO(value, { zone: defaultZone }) : value
+  }, [defaultZone, value])
 
   const [localDate, setLocalDate] = useState<DateTime | null>(getValueFormatted())
 
@@ -152,6 +155,7 @@ export const DatePicker = ({
           <MuiDatePicker
             name={name}
             format="MM/dd/yyyy"
+            timezone={defaultZone}
             disableFuture={disableFuture}
             disabled={disabled}
             disablePast={disablePast}

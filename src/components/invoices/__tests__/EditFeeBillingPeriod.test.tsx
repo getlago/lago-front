@@ -1,4 +1,6 @@
-import { act, renderHook } from '@testing-library/react'
+import { act, render, renderHook, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { Settings } from 'luxon'
 
 import { AllTheProviders } from '~/test-utils'
 
@@ -23,6 +25,8 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 
 const FROM_DATETIME = '2024-01-01T00:00:00.000Z'
 const TO_DATETIME = '2024-01-31T23:59:59.999Z'
+const PARIS_MIDNIGHT_FROM_DATETIME = '2026-09-09T22:00:00.000Z'
+const PARIS_END_OF_DAY_TO_DATETIME = '2026-09-30T21:59:59.999Z'
 
 describe('useEditFeeBillingPeriodDialog', () => {
   const customWrapper = ({ children }: { children: React.ReactNode }) =>
@@ -237,6 +241,61 @@ describe('useEditFeeBillingPeriodDialog', () => {
 
         expect(callback).not.toHaveBeenCalled()
         expect(didSubmitSucceed).toBe(false)
+      })
+    })
+  })
+
+  // Regression: the picker built its calendar in the ambient zone, so a period
+  // seeded at local midnight published the previous UTC day on the first click.
+  describe('GIVEN an ambient zone ahead of UTC and a period seeded at local midnight', () => {
+    describe('WHEN a start day is picked in the calendar', () => {
+      it('THEN should record that calendar day as the UTC start of day', async () => {
+        const originalDefaultZone = Settings.defaultZone
+        const user = userEvent.setup()
+        const callback = jest.fn()
+
+        Settings.defaultZone = 'Europe/Paris'
+
+        const dialogConfig: { children?: React.ReactNode; submit?: () => Promise<void> } = {}
+
+        // Never resolves: resolving runs the hook's close branch, which resets the
+        // form and drops the callback before the picker is driven.
+        mockFormDialogOpen.mockImplementation((config) => {
+          dialogConfig.children = config.children
+          dialogConfig.submit = config.form.submit
+
+          return new Promise(() => {})
+        })
+
+        const { result } = renderHook(() => useEditFeeBillingPeriodDialog(), {
+          wrapper: customWrapper,
+        })
+
+        act(() => {
+          result.current.openEditFeeBillingPeriodDialog({
+            fromDatetime: PARIS_MIDNIGHT_FROM_DATETIME,
+            toDatetime: PARIS_END_OF_DAY_TO_DATETIME,
+            callback,
+          })
+        })
+
+        render(<>{dialogConfig.children}</>, { wrapper: customWrapper })
+
+        const openFromCalendar = document.querySelectorAll('.open-picker-tooltip button')[0]
+
+        await user.click(openFromCalendar)
+        await user.click(await screen.findByRole('gridcell', { name: '17' }))
+
+        await act(async () => {
+          await dialogConfig.submit?.()
+        })
+
+        Settings.defaultZone = originalDefaultZone
+
+        expect(callback).toHaveBeenCalledWith(
+          '2026-09-17T00:00:00.000Z',
+          PARIS_END_OF_DAY_TO_DATETIME,
+        )
       })
     })
   })
