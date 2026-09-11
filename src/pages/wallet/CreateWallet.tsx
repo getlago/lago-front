@@ -14,6 +14,7 @@ import {
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'
+import { applyExistingCodeError, EXISTING_CODE_FIELD_ERRORS } from '~/core/form/existingCodeError'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import {
   CREATE_WALLET_ROUTE,
@@ -282,10 +283,8 @@ const CreateWallet = () => {
 
       if (!!errors?.length) {
         if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
-          const codeError = { code: { message: 'text_632a2d437e341dcc76817556', path: ['code'] } }
-
-          formApi.setErrorMap({ onDynamic: { fields: codeError } })
-          scrollToFirstInputError('create-wallet', codeError)
+          applyExistingCodeError(formApi)
+          scrollToFirstInputError('create-wallet', EXISTING_CODE_FIELD_ERRORS)
 
           return
         }

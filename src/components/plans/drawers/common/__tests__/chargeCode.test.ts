@@ -1,9 +1,4 @@
-import {
-  applyExistingCodeError,
-  buildChargeCodeSchema,
-  EXISTING_CODE_ERROR_MESSAGE,
-  seedChargeCode,
-} from '../chargeCode'
+import { buildChargeCodeSchema, seedChargeCode } from '../chargeCode'
 
 describe('chargeCode helpers', () => {
   describe('buildChargeCodeSchema', () => {
@@ -25,26 +20,6 @@ describe('chargeCode helpers', () => {
       it('THEN accepts an empty string', () => {
         expect(schema.safeParse('').success).toBe(true)
       })
-    })
-  })
-
-  describe('applyExistingCodeError', () => {
-    it('sets the duplicate-code message on the code field onDynamic error map', () => {
-      const setFieldMeta = jest.fn()
-
-      // Cast: the helper only needs `setFieldMeta` from the form API.
-      applyExistingCodeError({ setFieldMeta } as never)
-
-      expect(setFieldMeta).toHaveBeenCalledWith('code', expect.any(Function))
-
-      const updater = setFieldMeta.mock.calls[0][1] as (meta: {
-        errorMap?: Record<string, unknown>
-      }) => { errorMap?: { onDynamic?: { message?: string } } }
-      const next = updater({ errorMap: { onMount: 'kept' } })
-
-      expect(next.errorMap?.onDynamic?.message).toBe(EXISTING_CODE_ERROR_MESSAGE)
-      // Preserves other error-map entries.
-      expect((next.errorMap as Record<string, unknown>).onMount).toBe('kept')
     })
   })
 

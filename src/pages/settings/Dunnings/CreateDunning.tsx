@@ -16,6 +16,7 @@ import {
   PreviewCampaignEmailDrawerRef,
 } from '~/components/settings/dunnings/PreviewCampaignEmailDrawer'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
+import { EXISTING_CODE_ERROR_MESSAGE } from '~/core/form/existingCodeError'
 import { DUNNINGS_SETTINGS_ROUTE, useNavigate } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { scrollToTop } from '~/core/utils/domUtils'
@@ -59,7 +60,7 @@ const CreateDunning = () => {
 
   useEffect(() => {
     if (errorCode === FORM_ERRORS_ENUM.existingCode) {
-      formikProps.setFieldError('code', 'text_632a2d437e341dcc76817556')
+      formikProps.setFieldError('code', EXISTING_CODE_ERROR_MESSAGE)
       scrollToTop()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

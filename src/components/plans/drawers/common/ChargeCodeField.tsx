@@ -1,8 +1,6 @@
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withFieldGroup } from '~/hooks/forms/useAppform'
 
-import { EXISTING_CODE_ERROR_MESSAGE } from './chargeCode'
-
 type ChargeCodeFieldValues = {
   code: string
 }
@@ -28,24 +26,7 @@ const ChargeCodeField = withFieldGroup({
     const { translate } = useInternationalization()
 
     return (
-      <group.AppField
-        name="code"
-        listeners={{
-          // Clear the server "code already exists" error once the user edits the
-          // code so the submit button re-enables. Gated by the message so the zod
-          // required-check isn't wiped.
-          onChange: () => {
-            const meta = group.getFieldMeta('code')
-
-            if (meta?.errorMap?.onDynamic?.message === EXISTING_CODE_ERROR_MESSAGE) {
-              group.setFieldMeta('code', (current) => ({
-                ...current,
-                errorMap: { ...current.errorMap, onDynamic: undefined },
-              }))
-            }
-          },
-        }}
-      >
+      <group.AppField name="code">
         {(field) => (
           <field.TextInputField
             label={translate('text_629728388c4d2300e2d380b7')}
