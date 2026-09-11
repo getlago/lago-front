@@ -9,6 +9,28 @@
             "command": ".agents/hooks/enforce-tooling.sh"
           }
         ]
+      },
+      {
+        "matcher": "ExitWorktree",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/scripts/t3-worktree-exit-hook.sh\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "EnterWorktree",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pnpm install",
+            "timeout": 300,
+            "statusMessage": "Installing dependencies in worktree..."
+          }
+        ]
       }
     ]
   },

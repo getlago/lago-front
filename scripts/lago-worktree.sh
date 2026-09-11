@@ -27,6 +27,20 @@ PORT_START=3001
 # API ports: 4001, 4002, 4003, ...
 API_PORT_START=4001
 
+# T3 Code worktrees (.claude/worktrees/<name>, created by the EnterWorktree tool)
+# are a separate mechanism from `create`/`up` above: the worktree itself is
+# managed by T3, not this script — t3-up/t3-down only manage the container for
+# an existing worktree directory. Own port pool and slot file so they never
+# collide with the create/up numbering. Own compose dir OUTSIDE any worktree:
+# t3-down runs after ExitWorktree has already deleted the worktree directory,
+# so a compose file stored inside it would be gone before teardown could use it.
+T3_PORT_START=5001
+T3_SLOT_FILE="$LAGO_PATH/.t3-worktree-slots"
+T3_COMPOSE_DIR="$LAGO_PATH/.t3-front-containers"
+# Shared with scripts/conductor-front-container.sh: one pnpm store for every
+# workspace container regardless of which tool started it.
+T3_PNPM_STORE_VOL="lago_front_pnpm_store"
+
 # --- Helpers ---
 
 slot_file() { echo "$LAGO_PATH/.worktree-slots"; }
@@ -75,6 +89,23 @@ get_api_port()   { local sf; sf="$(slot_file)"; if [[ -f "$sf" ]]; then grep "^$
 get_api_base()   { local sf; sf="$(slot_file)"; if [[ -f "$sf" ]]; then grep "^${1}:" "$sf" 2>/dev/null | head -1 | cut -d: -f5; fi; true; }
 
 sanitize()   { echo "$1" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/_/g'; }
+
+t3_find_free_port() {
+  touch "$T3_SLOT_FILE"
+  local i p
+  for i in $(seq 0 199); do
+    p=$((T3_PORT_START + i))
+    if ! grep -q ":${p}$" "$T3_SLOT_FILE" 2>/dev/null && ! lsof -i ":${p}" &>/dev/null; then
+      echo "$p"
+      return
+    fi
+  done
+  echo "Error: no free T3 worktree port" >&2; exit 1
+}
+
+t3_register()   { local sf="$T3_SLOT_FILE"; touch "$sf"; grep -v "^${1}:" "$sf" > "$sf.tmp" 2>/dev/null || true; mv "$sf.tmp" "$sf"; echo "${1}:${2}" >> "$sf"; }
+t3_unregister() { local sf="$T3_SLOT_FILE"; [[ -f "$sf" ]] && { grep -v "^${1}:" "$sf" > "$sf.tmp" 2>/dev/null || true; mv "$sf.tmp" "$sf"; }; true; }
+t3_get_port()   { local sf="$T3_SLOT_FILE"; [[ -f "$sf" ]] && grep "^${1}:" "$sf" 2>/dev/null | head -1 | cut -d: -f2; true; }
 
 # --- Commands ---
 
@@ -413,6 +444,105 @@ cmd_destroy() {
   echo "Worktree '$name' destroyed."
 }
 
+cmd_t3_up() {
+  # No <name>: derive from the worktree dir itself, so this can run bare from
+  # inside a T3 worktree (the common case — opt-in, invoked by hand after
+  # EnterWorktree, not by any hook).
+  local wt_path="${1:-$(pwd)}"
+  wt_path="$(cd "$wt_path" && pwd)"
+  local name; name="$(basename "$wt_path")"
+
+  if ! docker ps --format '{{.Names}}' | grep -q 'lago_front_dev'; then
+    echo "Error: Main stack not running. Run: lago up -d" >&2; exit 1
+  fi
+
+  mkdir -p "$T3_COMPOSE_DIR"
+  docker volume create "$T3_PNPM_STORE_VOL" >/dev/null
+
+  local port san compose_file
+  port="$(t3_get_port "$name")"
+  [[ -z "$port" ]] && port="$(t3_find_free_port)"
+  t3_register "$name" "$port"
+  san="$(sanitize "$name")"
+  compose_file="$T3_COMPOSE_DIR/${san}.yml"
+
+  # .env is host-only tooling config (host `pnpm codegen`, tests): the shared
+  # API is reached over Traefik at api.lago.dev, since the worktree runs no API
+  # of its own. The compose `environment` block below overrides these same keys
+  # inside the container with the Docker-internal api:3000 address.
+  if [[ -f "$wt_path/.env" ]]; then
+    sed -i.bak '/^API_URL=/d; /^LAGO_API_PROXY_TARGET=/d; /^CODEGEN_API=/d' "$wt_path/.env"
+    rm -f "$wt_path/.env.bak"
+  fi
+  {
+    echo "API_URL=http://localhost:${port}/api"
+    echo "LAGO_API_PROXY_TARGET=https://api.lago.dev"
+    echo "CODEGEN_API=https://api.lago.dev/graphql"
+  } >> "$wt_path/.env"
+
+  cat > "$compose_file" << YAML
+name: lago_front_t3_${san}
+
+services:
+  front:
+    image: front_dev
+    pull_policy: never
+    container_name: lago_front_t3_${san}
+    stdin_open: true
+    restart: unless-stopped
+    command: bash -c "rm -rf /app/node_modules/.vite && ./start.dev.sh"
+    volumes:
+      - "${wt_path}:/app:cached"
+      - front_nm_t3_${san}:/app/node_modules
+      - front_dist_t3_${san}:/app/dist
+      - ${T3_PNPM_STORE_VOL}:/app/.pnpm-store
+    environment:
+      - NODE_ENV=development
+      - API_URL=http://localhost:${port}/api
+      - LAGO_API_PROXY_TARGET=http://api:3000
+      - CODEGEN_API=http://api:3000/graphql
+      - APP_DOMAIN=https://app.lago.dev
+      - "LAGO_WORKTREE_NAME=${name}"
+      - PORT=${port}
+    ports:
+      - "${port}:${port}"
+    networks:
+      - lago_net
+
+volumes:
+  front_nm_t3_${san}:
+  front_dist_t3_${san}:
+  ${T3_PNPM_STORE_VOL}:
+    external: true
+
+networks:
+  lago_net:
+    external: true
+    name: lago_dev_default
+YAML
+
+  docker compose -f "$compose_file" up -d
+
+  echo ""
+  echo "  Front [T3: $name] -> http://localhost:${port}"
+  echo ""
+}
+
+cmd_t3_down() {
+  local name="${1:-}"
+  [[ -z "$name" ]] && { echo "Usage: lago-worktree t3-down <name>" >&2; exit 1; }
+
+  local san compose_file
+  san="$(sanitize "$name")"
+  compose_file="$T3_COMPOSE_DIR/${san}.yml"
+
+  if [[ -f "$compose_file" ]]; then
+    docker compose -f "$compose_file" down -v
+    rm -f "$compose_file"
+  fi
+  t3_unregister "$name"
+}
+
 cmd_ps() {
   local sf
   sf="$(slot_file)"
@@ -474,6 +604,8 @@ case "$cmd" in
   down)    cmd_down "$@" ;;
   destroy) cmd_destroy "$@" ;;
   ps)      cmd_ps ;;
+  t3-up)   cmd_t3_up "$@" ;;
+  t3-down) cmd_t3_down "$@" ;;
   *)
     cat << 'EOF'
 lago-worktree — Isolated frontend (+ optional API) per git worktree
@@ -489,11 +621,18 @@ Commands:
   destroy <name>                    Stop + delete worktree(s)
   ps                                List instances
 
+  t3-up [path]                      Start a container for a T3 Code worktree
+                                     (.claude/worktrees/<name>). Opt-in: run by
+                                     hand from inside the worktree, or pass its
+                                     path. Not started automatically.
+  t3-down <name>                    Stop + remove that container
+
 Without --from-api, the front uses the shared main API (:3000).
 With --from-api=<branch>, a dedicated API container is created.
 
 Front ports auto-assigned: 3001, 3002, ...
 API ports auto-assigned:   4001, 4002, ...
+T3 worktree ports auto-assigned: 5001, 5002, ...
 
 Examples:
   lago-worktree create LAGO-0001
@@ -502,6 +641,8 @@ Examples:
   lago-worktree ps
   lago-worktree down LAGO-0001
   lago-worktree destroy LAGO-0001
+  lago-worktree t3-up
+  lago-worktree t3-down my-worktree-name
 EOF
     ;;
 esac
