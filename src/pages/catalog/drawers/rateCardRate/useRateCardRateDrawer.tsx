@@ -129,6 +129,8 @@ export const useRateCardRateDrawer = (): UseRateCardRateDrawerReturn => {
             currency: rateCard.currency,
             appliedPricingUnitCode: rateCard.appliedPricingUnitCode,
             billingTiming: rateCard.billingTiming,
+            proration: rateCard.proration,
+            recurring: rateCard.product.billableMetric?.recurring,
             productType: rateCard.product.productType,
             aggregationType: rateCard.product.billableMetric?.aggregationType,
           }}

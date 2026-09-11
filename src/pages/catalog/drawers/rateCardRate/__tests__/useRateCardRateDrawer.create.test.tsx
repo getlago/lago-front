@@ -7,6 +7,7 @@ import { ReactNode } from 'react'
 import { CREATE_MORE_SWITCH_TEST_ID } from '~/components/drawers/createMore/CreateMoreControl'
 import { addToast } from '~/core/apolloClient'
 import {
+  AggregationTypeEnum,
   CreateRateCardRateDocument,
   RateCardBillingTimingEnum,
   RateCardRateBillingIntervalUnitEnum,
@@ -464,5 +465,34 @@ describe('useRateCardRateDrawer create flow', () => {
         expect(mockClose).not.toHaveBeenCalled()
       })
     })
+  })
+})
+
+describe('creating a rate with unavailable models', () => {
+  it('does not submit the default Standard model for advance Max aggregation', async () => {
+    const captureInput = jest.fn()
+    const { result } = renderDrawerHook([createMock(captureInput)])
+    const card = buildRateCardForRateDrawer({ billingTiming: RateCardBillingTimingEnum.Advance })
+
+    act(() =>
+      result.current.openDrawer({
+        rateCard: {
+          ...card,
+          product: {
+            ...card.product,
+            billableMetric: {
+              id: 'metric-max',
+              aggregationType: AggregationTypeEnum.MaxAgg,
+              recurring: false,
+            },
+          },
+        },
+      }),
+    )
+    renderDrawerBody()
+    await userEvent.click(screen.getByTestId('seed-rate'))
+    await submit()
+
+    expect(captureInput).not.toHaveBeenCalled()
   })
 })

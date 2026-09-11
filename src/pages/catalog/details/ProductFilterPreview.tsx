@@ -3,7 +3,6 @@ import { generatePath } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import { Table, TablePlaceholder } from '~/components/designSystem/Table/Table'
-import { Typography } from '~/components/designSystem/Typography'
 import {
   AvailableFiltersEnum,
   escapeFilterLabel,
@@ -29,7 +28,6 @@ import { useProductFilterTableColumns } from '../useProductFilterTableColumns'
 
 export const PRODUCT_ITEM_FILTER_PREVIEW_CREATE_TEST_ID = 'product-item-filter-preview-create'
 export const PRODUCT_ITEM_FILTER_PREVIEW_VIEW_ALL_TEST_ID = 'product-item-filter-preview-view-all'
-export const PRODUCT_ITEM_FILTER_PREVIEW_EMPTY_TEST_ID = 'product-item-filter-preview-empty'
 
 const PREVIEW_LIMIT = 7
 
@@ -88,9 +86,6 @@ const ProductFilterPreviewList = ({ product }: { product: ProductForFilterPrevie
   const totalCount = data?.productFilters?.metadata?.totalCount ?? 0
   const isSearching = !!variables?.searchTerm
 
-  // Standard, search-aware table empty/error placeholder (same design as every
-  // other list in the app). The truly-empty, not-searching case is handled by
-  // the inline dashed box below, so this empty state only surfaces on search.
   const placeholder: TablePlaceholder = {
     errorState: isSearching
       ? {
@@ -121,24 +116,6 @@ const ProductFilterPreviewList = ({ product }: { product: ProductForFilterPrevie
   const viewAllTo = `${generatePath(PRODUCT_CATALOG_TAB_ROUTE, {
     tab: ProductCatalogTabsOptionsEnum.productFilters,
   })}?${PRODUCT_FILTER_LIST_FILTER_PREFIX}_${AvailableFiltersEnum.productFilterProduct}=${encodeURIComponent(productFilterValue)}`
-
-  const showEmptyBox = !isLoading && !error && !isSearching && collection.length === 0
-
-  if (showEmptyBox) {
-    return (
-      <div
-        data-test={PRODUCT_ITEM_FILTER_PREVIEW_EMPTY_TEST_ID}
-        className="flex flex-col items-center gap-1 rounded-xl border border-dashed border-grey-300 px-6 py-10 text-center"
-      >
-        <Typography variant="bodyHl" color="grey700">
-          {translate('text_1784585400245a6ghyeaz5wf')}
-        </Typography>
-        <Typography variant="caption" color="grey600">
-          {translate('text_1784585400245nj226z9y9tp')}
-        </Typography>
-      </div>
-    )
-  }
 
   return (
     <div className="flex flex-col gap-4">

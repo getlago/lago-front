@@ -7,6 +7,7 @@ import { addToast } from '~/core/apolloClient'
 import {
   AggregationTypeEnum,
   CurrencyEnum,
+  ProductForRateCardDrawerFragment,
   ProductTypeEnum,
   RateCardBillingTimingEnum,
   RateCardForDrawerFragment,
@@ -311,5 +312,35 @@ describe('useRateCardDrawer edit flow', () => {
 
     expect(contentProps?.isAttached).toBe(false)
     expect(contentProps?.disableCodeInput).toBe(false)
+  })
+})
+
+describe('rate card attachment metadata', () => {
+  const product: ProductForRateCardDrawerFragment = {
+    id: 'attached-usage',
+    name: 'Recurring API',
+    productType: ProductTypeEnum.Usage,
+    billableMetric: {
+      id: 'metric-1',
+      aggregationType: AggregationTypeEnum.SumAgg,
+      recurring: true,
+    },
+  }
+
+  it.each([
+    { attachToProduct: product },
+    { attachToProductFilter: { id: 'filter-1', name: 'Europe', product } },
+  ])('passes complete metadata for an attached product or filter', (attachment) => {
+    const { result } = renderDrawerHook()
+
+    act(() => result.current.openDrawer(attachment))
+
+    expect((lastDrawerArgs?.children as ReactElement).props.productSeed).toEqual({
+      value: 'attached-usage',
+      label: 'Recurring API',
+      productType: ProductTypeEnum.Usage,
+      aggregationType: AggregationTypeEnum.SumAgg,
+      recurring: true,
+    })
   })
 })

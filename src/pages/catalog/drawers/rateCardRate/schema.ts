@@ -5,6 +5,7 @@ import {
   validateChargeProperties,
 } from '~/formValidation/chargePropertiesSchema'
 import { addUnsupportedDateIssue } from '~/formValidation/zodCustoms'
+import { RateCardRateModelEnum } from '~/generated/graphql'
 
 import {
   RATE_CARD_RATE_EFFECTIVE_DATE_AFTER_ACTIVE_KEY,
@@ -13,8 +14,18 @@ import {
 } from './constants'
 import { isEffectiveFromAppendable, toChargeModel } from './utils'
 
+import {
+  getAvailableRateModels,
+  NO_AVAILABLE_RATE_MODELS_KEY,
+  RATE_MODEL_AVAILABILITY_LOADING_KEY,
+  RATE_MODEL_UNAVAILABLE_KEY,
+  RateModelConfiguration,
+} from '../../utils/rateModelAvailability'
+
 export type RateCardRateSchemaContext = {
   requiresConversionRate: boolean
+  rateModelConfiguration: RateModelConfiguration | undefined
+  lockedRateModel: RateCardRateModelEnum | undefined
   /** `effectiveFrom` of the rate currently in effect, null when the card has none yet. */
   effectiveFromBoundary: string | null
 }
@@ -53,7 +64,28 @@ export const buildRateCardRateSchema = (getContext: () => RateCardRateSchemaCont
   // `z.custom` not `z.object`: a strict object aborts before `superRefine` on the first
   // mismatch, replacing every translated message below with zod's untranslated "Required".
   z.custom<RateCardRateFormValues>().superRefine((values, ctx) => {
-    const { requiresConversionRate, effectiveFromBoundary } = getContext()
+    const {
+      requiresConversionRate,
+      effectiveFromBoundary,
+      rateModelConfiguration,
+      lockedRateModel,
+    } = getContext()
+    const availableRateModels = getAvailableRateModels(rateModelConfiguration)
+    let rateModelError: string | undefined
+
+    if (lockedRateModel !== undefined) {
+      if (values.rateModel !== lockedRateModel) rateModelError = RATE_MODEL_UNAVAILABLE_KEY
+    } else if (availableRateModels === undefined) {
+      rateModelError = RATE_MODEL_AVAILABILITY_LOADING_KEY
+    } else if (availableRateModels.length === 0) {
+      rateModelError = NO_AVAILABLE_RATE_MODELS_KEY
+    } else if (!availableRateModels.includes(values.rateModel)) {
+      rateModelError = RATE_MODEL_UNAVAILABLE_KEY
+    }
+
+    if (rateModelError) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['rateModel'], message: rateModelError })
+    }
 
     addEffectiveFromIssues(values.effectiveFrom, effectiveFromBoundary, ctx)
 
