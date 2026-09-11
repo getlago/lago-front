@@ -1,5 +1,5 @@
 import { ReactNode } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 import { CatalogPlanOverviewSectionsEnum } from '~/core/constants/tabsOptions'
 

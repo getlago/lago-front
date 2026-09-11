@@ -122,7 +122,7 @@ const executeAtInput = () => screen.getByPlaceholderText('text_17816865941253r8y
 describe('EditOrder', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
+    const useParamsMock = jest.requireMock('react-router').useParams as jest.Mock
 
     useParamsMock.mockReturnValue({ orderId: 'order-123' })
     mockUseGetOrderForEditQuery.mockReturnValue({

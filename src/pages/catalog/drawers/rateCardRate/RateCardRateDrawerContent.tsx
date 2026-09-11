@@ -241,7 +241,7 @@ const RateCardRateDrawerFormSections = withForm({
                 label={translate('text_629728388c4d2300e2d380b7')}
                 placeholder={translate('text_629728388c4d2300e2d380d9')}
                 beforeChangeFormatter="code"
-                disabled={isActiveRate || isCodeLocked}
+                disabled={isCodeLocked}
               />
             )}
           </form.AppField>

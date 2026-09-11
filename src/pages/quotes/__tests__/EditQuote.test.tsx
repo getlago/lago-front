@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { act } from 'react'
 
@@ -7,7 +7,10 @@ import { makeEmptyWalletItem, toWallets } from '~/core/serializers/serializeQuot
 import { CurrencyEnum } from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
-import EditQuote, { EDIT_QUOTE_PRICING_CTA_TEST_ID } from '../EditQuote'
+import EditQuote, {
+  EDIT_QUOTE_DOCUMENTATION_TEST_ID,
+  EDIT_QUOTE_PRICING_CTA_TEST_ID,
+} from '../EditQuote'
 
 // --- Shared state for mocks ---
 
@@ -345,7 +348,7 @@ describe('EditQuote', () => {
     mockSyncEntitiesWithBlocks.mockReturnValue(null)
     mockSyncDiscountBlocks.mockReturnValue(null)
 
-    const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
+    const useParamsMock = jest.requireMock('react-router').useParams as jest.Mock
 
     useParamsMock.mockReturnValue({ quoteId: 'quote-123' })
     mockUseQuote.mockReturnValue({ quote: mockQuote, loading: false, refetch: mockRefetchQuote })
@@ -485,7 +488,7 @@ describe('EditQuote', () => {
 
     describe('WHEN quoteId is not available', () => {
       it('THEN should not navigate', async () => {
-        const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
+        const useParamsMock = jest.requireMock('react-router').useParams as jest.Mock
 
         useParamsMock.mockReturnValue({})
 
@@ -521,6 +524,49 @@ describe('EditQuote', () => {
         await waitFor(() => {
           expect(screen.getByText('text_1779278937735vlpgsllouzy')).toBeInTheDocument()
         })
+      })
+    })
+  })
+
+  describe('GIVEN the documentation link', () => {
+    describe('WHEN the quote is loaded', () => {
+      it('THEN should display the documentation button in the header', () => {
+        render(<EditQuote />)
+
+        const header = screen.getByTestId(RIGHT_ASIDE_PAGE_HEADER_TEST_ID)
+
+        expect(within(header).getByTestId(EDIT_QUOTE_DOCUMENTATION_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the documentation button is clicked', () => {
+      it('THEN should open the quote editor documentation in a new tab', async () => {
+        const user = userEvent.setup()
+        const openSpy = jest.spyOn(window, 'open').mockImplementation(() => null)
+
+        render(<EditQuote />)
+
+        await user.click(screen.getByTestId(EDIT_QUOTE_DOCUMENTATION_TEST_ID))
+
+        expect(openSpy).toHaveBeenCalledWith(
+          'https://docs.getlago.com/guide/quotes/quote-editor',
+          '_blank',
+        )
+
+        openSpy.mockRestore()
+      })
+
+      it('THEN should not navigate away from the editor', async () => {
+        const user = userEvent.setup()
+        const openSpy = jest.spyOn(window, 'open').mockImplementation(() => null)
+
+        render(<EditQuote />)
+
+        await user.click(screen.getByTestId(EDIT_QUOTE_DOCUMENTATION_TEST_ID))
+
+        expect(testMockNavigateFn).not.toHaveBeenCalled()
+
+        openSpy.mockRestore()
       })
     })
   })

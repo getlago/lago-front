@@ -386,13 +386,27 @@ describe('RateCardRateDrawerContent', () => {
 
   describe('GIVEN the edited rate is already active', () => {
     describe('WHEN the drawer body renders', () => {
-      it.each([
-        ['code', RATE_CARD_RATE_DRAWER_CODE_TEST_ID],
-        ['billing interval count', RATE_CARD_RATE_DRAWER_BILLING_INTERVAL_COUNT_TEST_ID],
-      ])('THEN disables the %s input', (_, testId) => {
+      it('THEN disables the billing interval count input', () => {
         render(<Host isEdit isActiveRate />)
 
-        expect(screen.getByTestId(testId).querySelector('input')).toBeDisabled()
+        expect(
+          screen
+            .getByTestId(RATE_CARD_RATE_DRAWER_BILLING_INTERVAL_COUNT_TEST_ID)
+            .querySelector('input'),
+        ).toBeDisabled()
+      })
+
+      // `code` is not in `FROZEN_ON_ACTIVE`; only the parent card's attachment freezes it.
+      it('THEN keeps the code input editable while the parent card is unattached', () => {
+        render(<Host isEdit isActiveRate />)
+
+        expect(codeInput()).toBeEnabled()
+      })
+
+      it('THEN disables the code input once the parent card is attached', () => {
+        render(<Host isEdit isActiveRate isCodeLocked />)
+
+        expect(codeInput()).toBeDisabled()
       })
 
       it('THEN disables the billing interval unit', () => {

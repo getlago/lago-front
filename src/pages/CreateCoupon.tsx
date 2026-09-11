@@ -2,7 +2,7 @@ import InputAdornment from '@mui/material/InputAdornment'
 import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { Icon } from 'lago-design-system'
 import { useEffect, useState } from 'react'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { CouponCodeSnippet } from '~/components/coupons/CouponCodeSnippet'
 import { Alert } from '~/components/designSystem/Alert'
@@ -16,6 +16,7 @@ import { Checkbox, DatePicker } from '~/components/form'
 import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import { CouponDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { applyExistingCodeError } from '~/core/form/existingCodeError'
 import { COUPON_DETAILS_ROUTE, COUPONS_ROUTE, useNavigate } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { endOfDayIso } from '~/core/utils/dateUtils'
@@ -111,8 +112,6 @@ const CreateCoupon = () => {
     (state) => state.values.limitBillableMetricsList,
   )
 
-  const codeValue = useStore(form.store, (state) => state.values.code)
-
   // Subscribe to form state
   const isDirty = useStore(form.store, (state) => state.isDirty)
   const submissionAttempts = useStore(form.store, (state) => state.submissionAttempts)
@@ -153,27 +152,11 @@ const CreateCoupon = () => {
 
   useEffect(() => {
     if (errorCode === FORM_ERRORS_ENUM.existingCode) {
-      form.setFieldMeta('code', (meta) => ({
-        ...meta,
-        errorMap: {
-          ...meta.errorMap,
-          onDynamic: { message: 'text_632a2d437e341dcc76817556' },
-        },
-      }))
+      applyExistingCodeError(form)
       scrollToTop()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [errorCode])
-
-  useEffect(() => {
-    if (errorCode === FORM_ERRORS_ENUM.existingCode) {
-      form.setFieldMeta('code', (meta) => ({
-        ...meta,
-        errorMap: { ...meta.errorMap, onDynamic: undefined },
-      }))
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [codeValue])
 
   useEffect(() => {
     if (

@@ -12,6 +12,7 @@ import {
 import { render } from '~/test-utils'
 
 import {
+  PRODUCT_ITEM_DRAWER_CODE_TEST_ID,
   PRODUCT_ITEM_DRAWER_REMOVE_DESCRIPTION_TEST_ID,
   PRODUCT_ITEM_DRAWER_SHOW_DESCRIPTION_TEST_ID,
 } from '../ProductDrawerContent'
@@ -51,8 +52,8 @@ jest.mock('~/core/apolloClient', () => ({
   addToast: jest.fn(),
 }))
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useParams: () => ({ organizationSlug: 'acme' }),
 }))
 
@@ -104,6 +105,9 @@ const renderDrawerBody = () => {
     </MockedProvider>,
   )
 }
+
+const codeInput = () =>
+  screen.getByTestId(PRODUCT_ITEM_DRAWER_CODE_TEST_ID).querySelector('input') as HTMLInputElement
 
 describe('useProductDrawer', () => {
   beforeEach(() => {
@@ -170,7 +174,16 @@ describe('useProductDrawer', () => {
       )
       renderDrawerBody()
 
-      await waitFor(() => expect(screen.getByDisplayValue('seats')).toBeDisabled())
+      await waitFor(() => expect(codeInput()).toBeDisabled())
+    })
+
+    it('keeps the code input editable while the item is unattached', async () => {
+      const { result } = renderDrawerHook()
+
+      act(() => result.current.openDrawer({ product: productFixture }))
+      renderDrawerBody()
+
+      await waitFor(() => expect(codeInput()).toBeEnabled())
     })
 
     it('updates the item, closes and toasts without navigating or sending create-only fields', async () => {

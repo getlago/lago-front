@@ -309,4 +309,22 @@ describe('SubscriptionPlanPreviewTable', () => {
       expect(screen.getByText('Flat fee for 101 units and above')).toBeInTheDocument()
     })
   })
+
+  describe('GIVEN every row is hidden', () => {
+    describe('WHEN the data holds no rows', () => {
+      it('THEN should render nothing rather than empty table chrome', () => {
+        const { container } = render(
+          <SubscriptionPlanPreviewTable {...defaultProps} data={{ rows: [] }} />,
+        )
+
+        expect(
+          screen.queryByTestId(SUBSCRIPTION_PLAN_PREVIEW_TABLE_TEST_ID),
+        ).not.toBeInTheDocument()
+        expect(
+          screen.queryByTestId('preview-table-subscription-plan-preview'),
+        ).not.toBeInTheDocument()
+        expect(container.querySelectorAll('th')).toHaveLength(0)
+      })
+    })
+  })
 })

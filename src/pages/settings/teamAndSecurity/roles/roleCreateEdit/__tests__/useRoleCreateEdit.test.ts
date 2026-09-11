@@ -22,8 +22,8 @@ const mockEditRoleMutation = jest.fn()
 const mockAddToast = jest.fn()
 const mockHasPermissions = jest.fn()
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useParams: () => mockUseParams(),
   useLocation: () => mockUseLocation(),
   useNavigate: () => mockNavigate,

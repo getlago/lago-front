@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import Stack from '@mui/material/Stack'
 import { useEffect, useRef, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'
@@ -174,6 +174,8 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
 
   // handling data fetching
   useEffect(() => {
+    if (!integrationId) return
+
     if (selectedItemType === SelectedItemTypeEnum.Default) {
       getDefaultItems()
     } else if (selectedItemType === MappableTypeEnum.AddOn) {
@@ -181,7 +183,7 @@ const NetsuiteIntegrationItemsList = ({ integrationId }: { integrationId: string
     } else if (selectedItemType === MappableTypeEnum.BillableMetric) {
       getBillableMetricsList()
     }
-  }, [selectedItemType, getAddonList, getDefaultItems, getBillableMetricsList])
+  }, [integrationId, selectedItemType, getAddonList, getDefaultItems, getBillableMetricsList])
 
   return (
     <>

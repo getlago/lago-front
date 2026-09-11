@@ -3,7 +3,7 @@ import Tabs from '@mui/material/Tabs'
 import Typography from '@mui/material/Typography'
 import { Icon, IconName } from 'lago-design-system'
 import { MouseEvent, useMemo } from 'react'
-import { matchPath } from 'react-router-dom'
+import { matchPath } from 'react-router'
 
 import { Link, useLocation } from '~/core/router'
 import { tw } from '~/styles/utils'

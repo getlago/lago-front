@@ -16,9 +16,15 @@ jest.mock('~/components/settings/integrations/NetsuiteIntegrationSettings', () =
   __esModule: true,
   default: () => null,
 }))
+const mockItemsListProps = jest.fn()
+
 jest.mock('~/components/settings/integrations/NetsuiteIntegrationItemsList', () => ({
   __esModule: true,
-  default: () => null,
+  default: (props: { integrationId: string }) => {
+    mockItemsListProps(props)
+
+    return null
+  },
 }))
 jest.mock('~/pages/settings/integrations/NetsuiteAdditionalMappings', () => ({
   NetsuiteAdditionalMappings: () => null,
@@ -70,6 +76,25 @@ describe('NetsuiteIntegrationDetails', () => {
 
       expect(screen.queryByText('Test Integration')).not.toBeInTheDocument()
       expect(container.querySelector('.animate-pulse')).toBeInTheDocument()
+    })
+  })
+
+  describe('GIVEN the items tab is opened before the details query resolves', () => {
+    it('THEN passes the route integration id to the items list', async () => {
+      window.history.pushState({}, '', '/settings/integrations/lago/netsuite/test-id/items')
+      mockQueryResult.mockReturnValue({ data: undefined, loading: true })
+
+      await renderIntegrationPage(NetsuiteIntegrationDetails, {
+        useParams: { integrationId: 'test-id' },
+      })
+
+      await waitFor(() => {
+        expect(mockItemsListProps).toHaveBeenCalledWith(
+          expect.objectContaining({ integrationId: 'test-id' }),
+        )
+      })
+
+      window.history.pushState({}, '', '/')
     })
   })
 })

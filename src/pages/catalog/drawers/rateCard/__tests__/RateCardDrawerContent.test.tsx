@@ -15,6 +15,7 @@ import { RATE_CARD_FORM_DEFAULTS, RateCardFormValues } from '../constants'
 import {
   RATE_CARD_DRAWER_AVAILABLE_MODEL_CHIP_TEST_ID,
   RATE_CARD_DRAWER_AVAILABLE_MODELS_ALERT_TEST_ID,
+  RATE_CARD_DRAWER_CODE_TEST_ID,
   RATE_CARD_DRAWER_DESCRIPTION_TEST_ID,
   RATE_CARD_DRAWER_REMOVE_DESCRIPTION_TEST_ID,
   RATE_CARD_DRAWER_REMOVE_PRICING_UNIT_TEST_ID,
@@ -81,11 +82,20 @@ const buildUsageSeed = (aggregationType: AggregationTypeEnum): RateCardProductSe
 })
 
 type HarnessProps = {
+  disableCodeInput?: boolean
+  isAttached?: boolean
+  hasRates?: boolean
   values?: Partial<RateCardFormValues>
   productSeed?: RateCardProductSeed
 }
 
-const Harness = ({ values, productSeed = null }: HarnessProps): JSX.Element => {
+const Harness = ({
+  values,
+  productSeed = null,
+  disableCodeInput = false,
+  isAttached = false,
+  hasRates = false,
+}: HarnessProps): JSX.Element => {
   const form = useAppForm({ defaultValues: { ...RATE_CARD_FORM_DEFAULTS, ...values } })
 
   return (
@@ -102,8 +112,9 @@ const Harness = ({ values, productSeed = null }: HarnessProps): JSX.Element => {
       <RateCardDrawerContent
         form={form}
         isEdit={false}
-        isLocked={false}
-        disableCodeInput={false}
+        isAttached={isAttached}
+        hasRates={hasRates}
+        disableCodeInput={disableCodeInput}
         productSeed={productSeed}
         productFilterSeed={null}
       />
@@ -123,6 +134,12 @@ const renderWithPricingUnits = (
 
 const queryPricingUnitInput = (): HTMLInputElement | null =>
   document.querySelector<HTMLInputElement>('input[name="pricingUnit"]')
+
+const currencyInput = (): HTMLInputElement =>
+  document.querySelector('input[name="currency"]') as HTMLInputElement
+
+const codeInput = (): HTMLInputElement =>
+  screen.getByTestId(RATE_CARD_DRAWER_CODE_TEST_ID).querySelector('input') as HTMLInputElement
 
 const getDescriptionInput = (): HTMLTextAreaElement =>
   screen
@@ -379,6 +396,42 @@ describe('RateCardDrawerContent', () => {
         expect(screen.getByTestId(PRICING_UNIT_PROBE_TEST_ID)).toHaveTextContent('undefined')
         expect(screen.getByTestId(RATE_CARD_DRAWER_SHOW_PRICING_UNIT_TEST_ID)).toBeInTheDocument()
       })
+    })
+  })
+
+  describe('GIVEN the code lock', () => {
+    it('WHEN unlocked THEN the code input stays editable', () => {
+      renderContent()
+
+      expect(codeInput()).toBeEnabled()
+    })
+
+    it('WHEN locked THEN the code input is disabled', () => {
+      renderContent({ disableCodeInput: true })
+
+      expect(codeInput()).toBeDisabled()
+    })
+  })
+
+  // `RateCards::UpdateService`: `LOCKED_WITH_RATES` freezes on `rate_card.rates.exists?`,
+  // and the currency freezes on that OR on `attached_to_plan_or_subscription?`.
+  describe('GIVEN the billing-semantic fields', () => {
+    it('WHEN the card has neither rates nor attachments THEN they stay editable', () => {
+      renderContent()
+
+      expect(currencyInput()).toBeEnabled()
+    })
+
+    it('WHEN the card has a rate THEN they freeze', () => {
+      renderContent({ hasRates: true })
+
+      expect(currencyInput()).toBeDisabled()
+    })
+
+    it('WHEN the card is attached but has no rate THEN only the currency freezes', () => {
+      renderContent({ isAttached: true })
+
+      expect(currencyInput()).toBeDisabled()
     })
   })
 })

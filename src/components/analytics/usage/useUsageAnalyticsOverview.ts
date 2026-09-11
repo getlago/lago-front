@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { DateTime } from 'luxon'
 import { useCallback, useMemo } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router'
 
 import { formattedUsageDataForAreaChartLoadingFixture } from '~/components/analytics/usage/fixture'
 import {

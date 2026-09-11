@@ -92,7 +92,7 @@ describe('VoidOrderForm', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     capturedRichTextEditorProps = {}
-    const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
+    const useParamsMock = jest.requireMock('react-router').useParams as jest.Mock
 
     useParamsMock.mockReturnValue({ orderFormId: 'order-form-123' })
 

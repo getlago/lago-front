@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { createRef } from 'react'
 
 import { applyExistingCodeError } from '~/core/form/existingCodeError'
+import { FeatureFlagEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import {
@@ -17,6 +18,7 @@ import { CONNECTION_CATEGORY_SHORT_LABEL_KEYS, ConnectionCategory } from '../typ
 
 const mockOpen = jest.fn()
 const mockClose = jest.fn()
+const mockHasFeatureFlag = jest.fn(() => true)
 
 jest.mock('~/components/drawers/useDrawer', () => ({
   useFormDrawer: () => ({ open: mockOpen, close: mockClose }),
@@ -24,6 +26,11 @@ jest.mock('~/components/drawers/useDrawer', () => ({
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (key: string) => key }),
+}))
+
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  ...jest.requireActual('~/hooks/useOrganizationInfos'),
+  useOrganizationInfos: () => ({ hasFeatureFlag: mockHasFeatureFlag }),
 }))
 
 const FORM_ID = 'customer-connection-drawer-form'
@@ -34,6 +41,11 @@ const VALID_PAYMENT_VALUES: Partial<ConnectionFormValues> = {
   externalCustomerId: 'cus_123',
   syncWithProvider: false,
   providerPaymentMethods: { card: true },
+}
+
+const PAYMENT_VALUES_WITH_CODE: Partial<ConnectionFormValues> = {
+  ...VALID_PAYMENT_VALUES,
+  code: 'connection-1',
 }
 
 const renderDrawer = (overrides?: {
@@ -71,6 +83,7 @@ const getCodeInput = (): HTMLInputElement =>
 describe('CustomerConnectionDrawer', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockHasFeatureFlag.mockReturnValue(true)
   })
 
   describe('GIVEN the drawer is opened in create mode', () => {
@@ -280,6 +293,12 @@ describe('CustomerConnectionDrawer', () => {
 
         if (!formApi) throw new Error('the drawer form was not captured')
 
+        // The rejection only ever reaches the form through a submit, and the
+        // error clears on the revalidation that submit switches on.
+        await act(async () => {
+          await getLastOpenArgs().form.submit()
+        })
+
         act(() => applyExistingCodeError(formApi))
 
         expect(formApi.getFieldMeta('code')?.errorMap?.onDynamic).toBeTruthy()
@@ -349,6 +368,66 @@ describe('CustomerConnectionDrawer', () => {
           expect.objectContaining({ code: '' }),
           expect.anything(),
         )
+      })
+    })
+  })
+  describe('GIVEN the multi-connection feature flag gates the code field', () => {
+    describe('WHEN the drawer renders', () => {
+      it('THEN should read the gate from the multi-connection flag', () => {
+        renderDrawer()
+
+        expect(mockHasFeatureFlag).toHaveBeenCalledWith(FeatureFlagEnum.MultiConnection)
+      })
+    })
+
+    describe('WHEN the flag is disabled', () => {
+      beforeEach(() => {
+        mockHasFeatureFlag.mockReturnValue(false)
+      })
+
+      it.each([
+        ['create', undefined],
+        ['edit of a connection that already carries a code', PAYMENT_VALUES_WITH_CODE],
+      ])('THEN should not display the code input in %s mode', (_, initialValues) => {
+        const { ref } = renderDrawer()
+
+        act(() => ref.current?.openDrawer(ConnectionCategory.Payment, initialValues))
+
+        render(<>{getLastOpenArgs().children}</>)
+
+        expect(screen.queryByTestId(CONNECTION_CODE_FIELD_TEST_ID)).not.toBeInTheDocument()
+      })
+
+      it('THEN should leave the rest of the drawer untouched, the provider combobox still rendering', () => {
+        const { ref } = renderDrawer()
+
+        act(() => ref.current?.openDrawer(ConnectionCategory.Payment))
+
+        render(<>{getLastOpenArgs().children}</>)
+
+        expect(screen.getByRole('combobox')).toBeInTheDocument()
+      })
+
+      it('THEN should round-trip the code the connection was loaded with through onSave, unrendered', async () => {
+        const onSave = jest.fn().mockResolvedValue(true)
+        const { ref } = renderDrawer({ onSave })
+
+        act(() => ref.current?.openDrawer(ConnectionCategory.Payment, PAYMENT_VALUES_WITH_CODE))
+
+        render(<>{getLastOpenArgs().children}</>)
+
+        expect(screen.queryByTestId(CONNECTION_CODE_FIELD_TEST_ID)).not.toBeInTheDocument()
+
+        await act(async () => {
+          await getLastOpenArgs().form.submit()
+        })
+
+        expect(onSave).toHaveBeenCalledWith(
+          ConnectionCategory.Payment,
+          expect.objectContaining({ providerCode: 'stripe-1', code: 'connection-1' }),
+          expect.anything(),
+        )
+        expect(mockClose).toHaveBeenCalledTimes(1)
       })
     })
   })

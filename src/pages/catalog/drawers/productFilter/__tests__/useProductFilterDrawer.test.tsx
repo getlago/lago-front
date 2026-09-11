@@ -49,8 +49,8 @@ jest.mock('~/core/apolloClient', () => ({
   addToast: jest.fn(),
 }))
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useParams: () => ({ organizationSlug: 'acme' }),
 }))
 
@@ -135,6 +135,10 @@ const createProductFilterMock = (
 
 const duplicateCodeError = new GraphQLError('Value already exists', {
   extensions: { code: 'value_already_exist', details: { code: ['value_already_exist'] } },
+})
+
+const otherFieldError = new GraphQLError('Value already exists', {
+  extensions: { code: 'value_already_exist', details: { values: ['value_already_exist'] } },
 })
 
 const renderDrawerHook = (mocks: MockedResponse[] = []) =>
@@ -241,6 +245,20 @@ describe('useProductFilterDrawer', () => {
       expect(mockClose).not.toHaveBeenCalled()
       expect(mockNavigate).not.toHaveBeenCalled()
       expect(addToast).not.toHaveBeenCalled()
+    })
+
+    it('toasts instead of failing silently when the rejection is on another field', async () => {
+      const { result } = renderDrawerHook([
+        createProductFilterMock({ data: null, errors: [otherFieldError] }),
+      ])
+
+      act(() => result.current.openDrawer())
+      await seedAndSubmit()
+
+      await waitFor(() =>
+        expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' })),
+      )
+      expect(mockClose).not.toHaveBeenCalled()
     })
 
     it('seeds the values editor with the prefilled product filters (attachToProduct)', () => {

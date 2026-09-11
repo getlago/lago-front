@@ -12,8 +12,8 @@ const mockAddToast = jest.fn()
 const mockSetUrl = jest.fn()
 const mockOpenPanel = jest.fn()
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useNavigate: () => mockNavigate,
   generatePath: (route: string, params: Record<string, string>) => {
     let result = route
@@ -325,18 +325,20 @@ describe('useWalletActions', () => {
     })
   })
 
-  describe('GIVEN no walletId is provided', () => {
-    describe('WHEN copy ID action is clicked', () => {
-      it('THEN should copy an empty string', () => {
-        const closePopper = jest.fn()
-        const { result } = renderHook(() =>
-          useWalletActions({ ...defaultParams, walletId: undefined }),
-        )
-
-        result.current.actions[1].onAction(closePopper)
-
-        expect(mockCopyToClipboard).toHaveBeenCalledWith('')
-      })
+  it.each([
+    { walletId: undefined },
+    { customerId: undefined },
+    { walletId: '' },
+    { customerId: '' },
+  ])('GIVEN missing IDs %p THEN actions stay unavailable until both IDs exist', (missingIds) => {
+    const { result, rerender } = renderHook(useWalletActions, {
+      initialProps: { ...defaultParams, ...missingIds },
     })
+
+    expect(result.current.actions).toEqual([])
+
+    rerender(defaultParams)
+
+    expect(getVisibleActions(result.current.actions)).toHaveLength(7)
   })
 })

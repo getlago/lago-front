@@ -1,6 +1,6 @@
 import { act, waitFor } from '@testing-library/react'
 // eslint-disable-next-line lago/no-direct-rrd-nav-import
-import { useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router'
 
 import { initializeYup } from '~/formValidation/initializeYup'
 import { IntegrationTypeEnum } from '~/generated/graphql'
@@ -65,8 +65,8 @@ jest.mock('~/hooks/useDownloadFile', () => ({
 
 const mockNavigate = jest.fn()
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useParams: jest.fn(() => ({
     customerId: 'test-customer-id',
     tab: 'overview',

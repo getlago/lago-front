@@ -2,8 +2,8 @@ import { renderHook } from '@testing-library/react'
 
 import useCustomerPortalTranslate from '../useCustomerPortalTranslate'
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useParams: () => ({ token: 'test-token' }),
 }))
 

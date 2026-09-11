@@ -1,5 +1,5 @@
 import { ApolloError, gql, useApolloClient } from '@apollo/client'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { addToast } from '~/core/apolloClient'
 import {

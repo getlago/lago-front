@@ -173,6 +173,7 @@ exports[`InvoiceCustomerInfos Snapshot Tests should match snapshot for draft inv
         </div>
         <a
           class="*:text-blue-600"
+          data-discover="true"
           href="/customer/customer-1"
         >
           Acme Corporation
@@ -395,6 +396,7 @@ exports[`InvoiceCustomerInfos Snapshot Tests should match snapshot for invoice w
         </div>
         <a
           class="*:text-blue-600"
+          data-discover="true"
           href="/customer/customer-1"
         >
           Acme Corporation
@@ -622,6 +624,7 @@ exports[`InvoiceCustomerInfos Snapshot Tests should match snapshot for invoice w
         </div>
         <a
           class="*:text-blue-600"
+          data-discover="true"
           href="/customer/customer-minimal"
         >
           Minimal Customer
@@ -765,6 +768,7 @@ exports[`InvoiceCustomerInfos Snapshot Tests should match snapshot for invoice w
         </div>
         <a
           class="*:text-blue-600"
+          data-discover="true"
           href="/customer/customer-1"
         >
           Acme Corporation
@@ -1053,6 +1057,7 @@ exports[`InvoiceCustomerInfos Snapshot Tests should match snapshot for overdue i
         </div>
         <a
           class="*:text-blue-600"
+          data-discover="true"
           href="/customer/customer-1"
         >
           Acme Corporation
@@ -1291,6 +1296,7 @@ exports[`InvoiceCustomerInfos Snapshot Tests should match snapshot for partner c
         </div>
         <a
           class="*:text-blue-600"
+          data-discover="true"
           href="/customer/partner-customer"
         >
           Partner Corporation

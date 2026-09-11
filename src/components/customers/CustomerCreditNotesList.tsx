@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { debounce } from 'lodash'
 import { useEffect, useMemo, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router'
 
 import CreditNotesTable from '~/components/creditNote/CreditNotesTable'
 import { CustomerCreditNotesBreakdown } from '~/components/customers/CustomerCreditNotesBreakdown'

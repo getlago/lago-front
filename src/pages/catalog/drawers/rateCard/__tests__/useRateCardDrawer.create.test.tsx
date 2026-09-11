@@ -55,8 +55,8 @@ jest.mock('~/core/apolloClient', () => ({
   addToast: jest.fn(),
 }))
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useParams: () => ({ organizationSlug: 'acme' }),
 }))
 
@@ -125,7 +125,6 @@ const rateCardResult = {
   displayOnInvoice: true,
   regroupPaidFees: null,
   proration: false,
-  walletTargetable: false,
   attachedToPlanOrSubscription: false,
   attachedToSubscriptions: false,
   product: {
@@ -161,6 +160,9 @@ const createRateCardMock = (
 
 const duplicateCodeError = new GraphQLError('Value already exists', {
   extensions: { code: 'value_already_exist', details: { code: ['value_already_exist'] } },
+})
+const otherFieldError = new GraphQLError('Value already exists', {
+  extensions: { code: 'value_already_exist', details: { productId: ['value_already_exist'] } },
 })
 
 const renderDrawerHook = (mocks: MockedResponse[] = []) =>
@@ -230,7 +232,6 @@ describe('useRateCardDrawer create flow', () => {
       productId: 'pi-1',
       billingTiming: RateCardBillingTimingEnum.Arrears,
       proration: false,
-      walletTargetable: false,
       currency: CurrencyEnum.Usd,
       displayOnInvoice: true,
       regroupPaidFees: null,
@@ -319,5 +320,21 @@ describe('useRateCardDrawer create flow', () => {
     expect(mockClose).not.toHaveBeenCalled()
     expect(mockNavigate).not.toHaveBeenCalled()
     expect(addToast).not.toHaveBeenCalled()
+  })
+
+  it('toasts instead of failing silently when the rejection is on another field', async () => {
+    const { result } = renderDrawerHook([
+      createRateCardMock(() => undefined, { data: null, errors: [otherFieldError] }),
+    ])
+
+    act(() => result.current.openDrawer())
+    renderDrawerBody()
+    await userEvent.click(screen.getByTestId('seed-base'))
+    await submit()
+
+    await waitFor(() =>
+      expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' })),
+    )
+    expect(mockClose).not.toHaveBeenCalled()
   })
 })

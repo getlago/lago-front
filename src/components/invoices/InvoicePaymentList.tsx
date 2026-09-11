@@ -1,5 +1,5 @@
 import { FC } from 'react'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import { PaginatedContent } from '~/components/designSystem/Pagination'

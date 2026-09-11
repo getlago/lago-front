@@ -5,8 +5,8 @@ import { z } from 'zod'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
-import { clearExistingCodeError } from '~/core/form/existingCodeError'
 import {
+  FeatureFlagEnum,
   HubspotTargetedObjectsEnum,
   IntegrationTypeEnum,
   ProviderPaymentMethodsEnum,
@@ -14,6 +14,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 import { ConnectionComboBoxDataItem } from './ConnectionComboBox'
 import { ConnectionDrawerSection } from './ConnectionDrawerSection'
@@ -192,6 +193,8 @@ export const CustomerConnectionDrawer = forwardRef<
 >(({ onSave, connectionOptions, renderProviderContent }, ref) => {
   const { translate } = useInternationalization()
   const drawer = useFormDrawer()
+  const { hasFeatureFlag } = useOrganizationInfos()
+  const isMultiConnectionEnabled = hasFeatureFlag(FeatureFlagEnum.MultiConnection)
 
   const [context, setContext] = useState<{
     category: ConnectionCategory
@@ -246,19 +249,18 @@ export const CustomerConnectionDrawer = forwardRef<
                 lockedSelection={lockedSelection}
               />
 
-              <form.AppField
-                name="code"
-                listeners={{ onChange: () => clearExistingCodeError(form) }}
-              >
-                {(field) => (
-                  <field.TextInputField
-                    data-test={CONNECTION_CODE_FIELD_TEST_ID}
-                    label={translate('text_629728388c4d2300e2d380b7')}
-                    placeholder={translate('text_1788433814031zeagk490c7a')}
-                    beforeChangeFormatter="code"
-                  />
-                )}
-              </form.AppField>
+              {isMultiConnectionEnabled && (
+                <form.AppField name="code">
+                  {(field) => (
+                    <field.TextInputField
+                      data-test={CONNECTION_CODE_FIELD_TEST_ID}
+                      label={translate('text_629728388c4d2300e2d380b7')}
+                      placeholder={translate('text_1788433814031zeagk490c7a')}
+                      beforeChangeFormatter="code"
+                    />
+                  )}
+                </form.AppField>
+              )}
             </ConnectionDrawerSection>
 
             {renderProviderContent?.(form, { category, isEdition })}

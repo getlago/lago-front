@@ -19,8 +19,8 @@ jest.mock('@apollo/client', () => ({
   useApolloClient: () => mockApolloClient,
 }))
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useNavigate: () => mockNavigate,
   useSearchParams: () => mockUseSearchParams(),
   generatePath: jest.fn((route, params) => {

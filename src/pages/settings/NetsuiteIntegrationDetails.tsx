@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
@@ -174,7 +174,7 @@ const NetsuiteIntegrationDetails = () => {
               tab: NetsuiteIntegrationDetailsTabs.Items,
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
             }),
-            content: <NetsuiteIntegrationItemsList integrationId={netsuiteIntegration?.id ?? ''} />,
+            content: <NetsuiteIntegrationItemsList integrationId={integrationId} />,
           },
           {
             title: translate('text_1762436248915jmmwifqjtqd'),

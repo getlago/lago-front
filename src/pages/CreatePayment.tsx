@@ -3,7 +3,7 @@ import InputAdornment from '@mui/material/InputAdornment'
 import { useFormik } from 'formik'
 import { DateTime } from 'luxon'
 import { useCallback, useEffect, useMemo } from 'react'
-import { generatePath, useParams, useSearchParams } from 'react-router-dom'
+import { generatePath, useParams, useSearchParams } from 'react-router'
 import { date, object, string } from 'yup'
 
 import { Alert } from '~/components/designSystem/Alert'

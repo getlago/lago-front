@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { DateTime } from 'luxon'
 import { useCallback, useMemo } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router'
 
 import { UsageBreakdownType } from '~/components/analytics/usage/types'
 import { AvailableFiltersEnum, formatFiltersForQuery, getFilterValue } from '~/components/Filters'

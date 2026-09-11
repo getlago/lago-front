@@ -1,7 +1,6 @@
 import { gql } from '@apollo/client'
-import { useStore } from '@tanstack/react-form'
 import { useEffect, useMemo } from 'react'
-import { generatePath, useParams, useSearchParams } from 'react-router-dom'
+import { generatePath, useParams, useSearchParams } from 'react-router'
 
 import {
   LocalPricingUnitType,
@@ -21,6 +20,7 @@ import {
   CustomerSubscriptionDetailsTabsOptionsEnum,
   PlanDetailsTabsOptionsEnum,
 } from '~/core/constants/tabsOptions'
+import { applyExistingCodeError } from '~/core/form/existingCodeError'
 import {
   CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
   ERROR_404_ROUTE,
@@ -361,29 +361,10 @@ export const usePlanForm = ({
   // Propagate server-side code error to TanStack form
   useEffect(() => {
     if (errorCode === FORM_ERRORS_ENUM.existingCode) {
-      form.setFieldMeta('code', (meta) => ({
-        ...meta,
-        errorMap: {
-          ...meta.errorMap,
-          onDynamic: { message: 'text_632a2d437e341dcc76817556' },
-        },
-      }))
+      applyExistingCodeError(form)
       scrollToTop('[data-centered-page-wrapper]')
     }
   }, [errorCode, form])
-
-  // Clear code error when the code field value changes
-  const codeValue = useStore(form.store, (s) => s.values.code)
-
-  useEffect(() => {
-    if (errorCode === FORM_ERRORS_ENUM.existingCode) {
-      form.setFieldMeta('code', (meta) => ({
-        ...meta,
-        errorMap: { ...meta.errorMap, onDynamic: undefined },
-      }))
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [codeValue])
 
   return useMemo(
     () => ({

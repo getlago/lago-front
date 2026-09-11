@@ -345,8 +345,11 @@ describe('activityLogs utils', () => {
     it('should encode special characters in activity ID', () => {
       const result = buildLinkToActivityLog('log-with-special-chars-#-&-=')
 
-      expect(result).toContain('/devtool/activity-logs/log-with-special-chars-#-&-=')
-      expect(result).toContain('actl_activityIds=')
+      const url = new URL(result, window.location.origin)
+
+      expect(url.pathname).toBe('/devtool/activity-logs/log-with-special-chars-%23-%26-%3D')
+      expect(url.searchParams.get('actl_activityIds')).toBe('log-with-special-chars-#-&-=')
+      expect(url.hash).toBe('')
     })
   })
 })

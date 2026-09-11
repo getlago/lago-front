@@ -5,12 +5,12 @@ import {
   useParams,
   // eslint-disable-next-line lago/no-direct-rrd-nav-import
   useLocation as useRRLocation,
-} from 'react-router-dom'
+} from 'react-router'
 
 import { stripOrgSlug } from './utils/stripOrgSlug'
 
 /**
- * `State` defaults to `any` to match the `react-router-dom` `Location<State = any>`
+ * `State` defaults to `any` to match the `react-router` `Location<State = any>`
  * signature. Narrowing to `unknown` would break all existing call sites that
  * access `location.state.<field>` without a generic.
  */
@@ -36,7 +36,7 @@ export interface SlugAwareLocation<State = any> extends Location<State> {
  *
  * Returns the standard `Location` object plus `strippedPathname`. All other
  * fields (`pathname`, `search`, `hash`, `state`, `key`) pass through
- * unchanged from `react-router-dom`'s `useLocation`.
+ * unchanged from `react-router`'s `useLocation`.
  */
 export const useLocation = <State = any>(): SlugAwareLocation<State> => {
   const location = useRRLocation() as Location<State>

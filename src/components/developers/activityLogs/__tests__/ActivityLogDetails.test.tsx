@@ -48,8 +48,8 @@ jest.mock('~/hooks/activityLogs/useActivityLogsInformation', () => ({
   }),
 }))
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useParams: () => ({ logId: 'test-log-id' }),
 }))
 

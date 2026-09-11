@@ -12,6 +12,7 @@ import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGrou
 import { TaxCodeSnippet } from '~/components/taxes/TaxCodeSnippet'
 import { TaxFormInput } from '~/components/taxes/types'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
+import { applyExistingCodeError } from '~/core/form/existingCodeError'
 import { scrollToTop } from '~/core/utils/domUtils'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
@@ -90,29 +91,11 @@ const CreateTaxRate = () => {
 
   useEffect(() => {
     if (errorCode === FORM_ERRORS_ENUM.existingCode) {
-      form.setFieldMeta('code', (meta) => ({
-        ...meta,
-        errorMap: {
-          ...meta.errorMap,
-          onDynamic: { message: 'text_632a2d437e341dcc76817556' },
-        },
-      }))
+      applyExistingCodeError(form)
       scrollToTop()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [errorCode])
-
-  const codeValue = useStore(form.store, (state) => state.values.code)
-
-  useEffect(() => {
-    if (errorCode === FORM_ERRORS_ENUM.existingCode) {
-      form.setFieldMeta('code', (meta) => ({
-        ...meta,
-        errorMap: { ...meta.errorMap, onDynamic: undefined },
-      }))
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [codeValue])
 
   const formValues = useStore(form.store, (state) => state.values)
   const isDirty = useStore(form.store, (state) => state.isDirty)

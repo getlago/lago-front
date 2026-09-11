@@ -5,10 +5,7 @@ import { z } from 'zod'
 import { Button } from '~/components/designSystem/Button'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
-import {
-  applyExistingCodeError,
-  buildChargeCodeSchema,
-} from '~/components/plans/drawers/common/chargeCode'
+import { buildChargeCodeSchema } from '~/components/plans/drawers/common/chargeCode'
 import { LocalFixedChargeInput } from '~/components/plans/types'
 import { PlanFormProvider, usePlanFormContext } from '~/contexts/PlanFormContext'
 import { useDuplicatePlanVar } from '~/core/apolloClient'
@@ -17,6 +14,7 @@ import {
   MUI_INPUT_BASE_ROOT_CLASSNAME,
   SEARCH_ADD_ON_IN_FIXED_CHARGE_DRAWER_INPUT_CLASSNAME,
 } from '~/core/constants/form'
+import { applyExistingCodeError } from '~/core/form/existingCodeError'
 import getPropertyShape from '~/core/serializers/getPropertyShape'
 import { validateChargeProperties } from '~/formValidation/chargePropertiesSchema'
 import {
@@ -44,6 +42,7 @@ const buildFixedChargeDrawerSchema = (requireCode: boolean) =>
       applyUnitsImmediately: z.boolean(),
       chargeModel: z.enum(FixedChargeChargeModelEnum),
       code: buildChargeCodeSchema(requireCode),
+      displayInQuoteDocument: z.boolean(),
       id: z.string().optional(),
       invoiceDisplayName: z.string(),
       payInAdvance: z.boolean(),
@@ -76,6 +75,7 @@ interface FixedChargeDrawerProps {
   disabled?: boolean
   isEdition?: boolean
   isInSubscriptionForm?: boolean
+  isInQuoteForm?: boolean
   // TEMP (LAGO-1498): drop showCode + existingChargeCodes once the old
   // plan/subscription forms are retired and the Code field becomes unconditional.
   showCode?: boolean
@@ -98,6 +98,7 @@ export const FixedChargeDrawer = forwardRef<FixedChargeDrawerRef, FixedChargeDra
       disabled,
       isEdition,
       isInSubscriptionForm,
+      isInQuoteForm,
       showCode = false,
       existingChargeCodes,
       onSave,
@@ -128,6 +129,7 @@ export const FixedChargeDrawer = forwardRef<FixedChargeDrawerRef, FixedChargeDra
           applyUnitsImmediately: value.applyUnitsImmediately,
           chargeModel: value.chargeModel,
           code: value.code || undefined,
+          displayInQuoteDocument: value.displayInQuoteDocument,
           id: value.id,
           invoiceDisplayName: value.invoiceDisplayName || undefined,
           payInAdvance: value.payInAdvance,
@@ -199,6 +201,7 @@ export const FixedChargeDrawer = forwardRef<FixedChargeDrawerRef, FixedChargeDra
               isCreateMode={isCreateModeRef.current}
               isEdition={isEdition || false}
               isInSubscriptionForm={isInSubscriptionForm || false}
+              isInQuoteForm={isInQuoteForm || false}
               disabled={disabled || false}
               alertMessage={alertMessageRef.current}
               showCode={showCode}
@@ -240,6 +243,7 @@ export const FixedChargeDrawer = forwardRef<FixedChargeDrawerRef, FixedChargeDra
               applyUnitsImmediately: charge.applyUnitsImmediately || false,
               chargeModel: charge.chargeModel,
               code: charge.code || '',
+              displayInQuoteDocument: charge.displayInQuoteDocument ?? true,
               id: charge.id,
               invoiceDisplayName: charge.invoiceDisplayName || '',
               payInAdvance: charge.payInAdvance || false,

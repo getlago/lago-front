@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { Typography } from '~/components/designSystem/Typography'
 import { INVITATION_ROUTE } from '~/core/router'

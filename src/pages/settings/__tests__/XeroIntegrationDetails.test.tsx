@@ -20,9 +20,15 @@ jest.mock('~/components/settings/integrations/XeroIntegrationSettings', () => ({
   __esModule: true,
   default: () => null,
 }))
+const mockItemsListProps = jest.fn()
+
 jest.mock('~/components/settings/integrations/XeroIntegrationItemsList', () => ({
   __esModule: true,
-  default: () => null,
+  default: (props: { integrationId: string }) => {
+    mockItemsListProps(props)
+
+    return null
+  },
 }))
 
 const mockQueryResult = jest.fn()
@@ -72,6 +78,25 @@ describe('XeroIntegrationDetails', () => {
 
       expect(screen.queryByText('Test Integration')).not.toBeInTheDocument()
       expect(container.querySelector('.animate-pulse')).toBeInTheDocument()
+    })
+  })
+
+  describe('GIVEN the items tab is opened before the details query resolves', () => {
+    it('THEN passes the route integration id to the items list', async () => {
+      window.history.pushState({}, '', '/settings/integrations/lago/xero/test-id/items')
+      mockQueryResult.mockReturnValue({ data: undefined, loading: true })
+
+      await renderIntegrationPage(XeroIntegrationDetails, {
+        useParams: { integrationId: 'test-id' },
+      })
+
+      await waitFor(() => {
+        expect(mockItemsListProps).toHaveBeenCalledWith(
+          expect.objectContaining({ integrationId: 'test-id' }),
+        )
+      })
+
+      window.history.pushState({}, '', '/')
     })
   })
 })

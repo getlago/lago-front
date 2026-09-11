@@ -1,6 +1,7 @@
 import { revalidateLogic } from '@tanstack/react-form'
 import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { Settings } from 'luxon'
 
 import { InvoiceFormInput, LocalFeeInput } from '~/components/invoices/types'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -204,6 +205,14 @@ const findMenuButtonByIcon = (iconTestId: string) => {
 }
 
 describe('FeesSection', () => {
+  const originalDefaultZone = Settings.defaultZone
+  const originalNow = Settings.now
+
+  afterEach(() => {
+    Settings.defaultZone = originalDefaultZone
+    Settings.now = originalNow
+  })
+
   beforeAll(() => {
     // jsdom does not implement scrollIntoView
     Element.prototype.scrollIntoView = jest.fn()
@@ -274,6 +283,34 @@ describe('FeesSection', () => {
           }),
         )
         expect(container.querySelector('.MuiAutocomplete-root')).toBeNull()
+      })
+
+      // Regression: the period was seeded from the ambient zone while the row and the
+      // billing-period picker render it in UTC, so an org ahead of UTC seeded the
+      // previous displayed day.
+      it('THEN should seed the billing period on the UTC day', async () => {
+        const user = userEvent.setup()
+
+        Settings.defaultZone = 'Europe/Paris'
+        Settings.now = () => Date.UTC(2026, 8, 9, 22, 30)
+
+        render(<TestWrapper />, { mocks: addOnsMocks })
+
+        await user.click(screen.getByTestId(FEES_SECTION_ADD_ITEM_BUTTON_TEST_ID))
+        await user.click((await screen.findAllByRole('option'))[0])
+
+        await waitFor(() => {
+          expect(screen.getAllByTestId(FEES_SECTION_ITEM_TEST_ID)).toHaveLength(1)
+        })
+
+        const addedFee = lastForm?.state.values.fees[0]
+
+        expect(addedFee).toEqual(
+          expect.objectContaining({
+            fromDatetime: '2026-09-09T00:00:00.000Z',
+            toDatetime: '2026-09-09T23:59:59.999Z',
+          }),
+        )
       })
 
       it('THEN should clear the at-least-one-item error', async () => {

@@ -30,6 +30,24 @@ export const CustomPricingUnitSelector = ({
   const { translate } = useInternationalization()
   const { pricingUnits } = useCustomPricingUnits()
 
+  const fiatPricingUnitOption = useMemo(
+    () => ({
+      label: currency,
+      value: `${currency}${CUSTOM_PRICING_UNIT_SEPARATOR}${currency}${CUSTOM_PRICING_UNIT_SEPARATOR}${LocalPricingUnitType.Fiat}`,
+      labelNode: (
+        <ComboboxItem>
+          <Typography variant="body" color="grey700" noWrap>
+            {currency}
+          </Typography>
+          <Typography variant="caption" color="grey600" noWrap>
+            {translate('text_1750411499858a87tkuylqms')}
+          </Typography>
+        </ComboboxItem>
+      ),
+    }),
+    [currency, translate],
+  )
+
   const pricingUnitDataForCombobox = useMemo(() => {
     const formatedPricingUnits = pricingUnits.map((pricingUnit) => ({
       label: pricingUnit.name,
@@ -46,24 +64,24 @@ export const CustomPricingUnitSelector = ({
       ),
     }))
 
-    return [
-      {
-        label: currency,
-        value: `${currency}${CUSTOM_PRICING_UNIT_SEPARATOR}${currency}${CUSTOM_PRICING_UNIT_SEPARATOR}${LocalPricingUnitType.Fiat}`,
-        labelNode: (
-          <ComboboxItem>
-            <Typography variant="body" color="grey700" noWrap>
-              {currency}
-            </Typography>
-            <Typography variant="caption" color="grey600" noWrap>
-              {translate('text_1750411499858a87tkuylqms')}
-            </Typography>
-          </ComboboxItem>
-        ),
-      },
-      ...formatedPricingUnits,
-    ]
-  }, [currency, pricingUnits, translate])
+    return [fiatPricingUnitOption, ...formatedPricingUnits]
+  }, [fiatPricingUnitOption, pricingUnits])
+
+  // `ComboBox` only resolves a label when the value is one of the options' joined triples,
+  // so a bare `appliedPricingUnit.code` would render raw or, when absent, render nothing.
+  const selectedPricingUnitValue = useMemo(() => {
+    const appliedPricingUnit = localCharge.appliedPricingUnit
+
+    if (appliedPricingUnit?.type !== LocalPricingUnitType.Custom) {
+      return fiatPricingUnitOption.value
+    }
+
+    const matchingOption = pricingUnitDataForCombobox.find(
+      ({ value }) => value.split(CUSTOM_PRICING_UNIT_SEPARATOR)[0] === appliedPricingUnit.code,
+    )
+
+    return matchingOption?.value ?? appliedPricingUnit.code
+  }, [localCharge.appliedPricingUnit, pricingUnitDataForCombobox, fiatPricingUnitOption])
 
   return (
     <div className="flex flex-col gap-3">
@@ -75,7 +93,7 @@ export const CustomPricingUnitSelector = ({
         label={translate('text_1750411499858etvdxpxm4vd')}
         sortValues={false}
         data={pricingUnitDataForCombobox}
-        value={localCharge.appliedPricingUnit?.code}
+        value={selectedPricingUnitValue}
         onChange={(value) => {
           const [code, shortName, type] = value.split(CUSTOM_PRICING_UNIT_SEPARATOR)
 

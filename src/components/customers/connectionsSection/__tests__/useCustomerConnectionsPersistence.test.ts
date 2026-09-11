@@ -13,6 +13,7 @@ import {
 } from '~/core/constants/integrationPolling'
 import {
   AddCustomerDrawerFragment,
+  FeatureFlagEnum,
   HubspotTargetedObjectsEnum,
   IntegrationTypeEnum,
   LagoApiError,
@@ -62,6 +63,7 @@ const mockSetIntegrationDefault = jest.fn(() =>
 const mockClientQuery = jest.fn(() => Promise.resolve({ data: { customer: null } }))
 const mockAddToast = jest.fn()
 const mockApplyExistingCodeError = jest.fn()
+const mockHasFeatureFlag = jest.fn(() => true)
 
 const formApi = {} as CustomerConnectionDrawerFormApi
 
@@ -110,6 +112,11 @@ jest.mock('~/core/apolloClient', () => ({
 jest.mock('~/core/form/existingCodeError', () => ({
   ...jest.requireActual('~/core/form/existingCodeError'),
   applyExistingCodeError: (...args: unknown[]) => mockApplyExistingCodeError(...args),
+}))
+
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  ...jest.requireActual('~/hooks/useOrganizationInfos'),
+  useOrganizationInfos: () => ({ hasFeatureFlag: mockHasFeatureFlag }),
 }))
 
 /** The backend's non-persisted manual placeholder, prepended to the array */
@@ -185,6 +192,7 @@ const setup = () =>
 describe('useCustomerConnectionsPersistence', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockHasFeatureFlag.mockReturnValue(true)
   })
 
   describe('GIVEN a payment connection save', () => {
@@ -857,6 +865,24 @@ describe('useCustomerConnectionsPersistence', () => {
       )
     })
 
+    const ALREADY_USED_CODE_VALUES = {
+      code: 'already-used',
+      providerCode: 'stripe-eu',
+      providerType: ProviderTypeEnum.Stripe,
+      externalCustomerId: 'cus_123',
+    } as ConnectionFormValues
+
+    const rejectPaymentUpdateOnCode = (): void => {
+      mockUpdatePayment.mockResolvedValueOnce({
+        errors: [
+          {
+            message: 'Unprocessable Entity',
+            extensions: { details: { code: ['value_already_exist'] } },
+          },
+        ],
+      } as never)
+    }
+
     describe('WHEN the backend rejects another field as already used', () => {
       it('THEN should report it on a toast rather than on the Code input', async () => {
         mockUpdatePayment.mockResolvedValueOnce({
@@ -887,35 +913,48 @@ describe('useCustomerConnectionsPersistence', () => {
       })
     })
 
-    describe('WHEN the backend rejects the code as already used', () => {
-      it('THEN should surface it on the drawer Code input', async () => {
-        mockUpdatePayment.mockResolvedValueOnce({
-          errors: [
-            {
-              message: 'Unprocessable Entity',
-              extensions: { details: { code: ['value_already_exist'] } },
-            },
-          ],
-        } as never)
+    describe('WHEN the backend rejects the code as already used and the flag is enabled', () => {
+      it('THEN should surface it on the drawer Code input, not on the danger toast', async () => {
+        mockHasFeatureFlag.mockReturnValue(true)
+        rejectPaymentUpdateOnCode()
 
         const result = setup()
 
         const succeeded = await result.current.saveConnection(
           ConnectionCategory.Payment,
-          {
-            code: 'already-used',
-            providerCode: 'stripe-eu',
-            providerType: ProviderTypeEnum.Stripe,
-            externalCustomerId: 'cus_123',
-          } as ConnectionFormValues,
+          ALREADY_USED_CODE_VALUES,
           { isEdition: true, formApi },
         )
 
+        expect(mockHasFeatureFlag).toHaveBeenCalledWith(FeatureFlagEnum.MultiConnection)
         expect(succeeded).toBe(false)
         expect(mockApplyExistingCodeError).toHaveBeenCalledWith(formApi)
         expect(mockAddToast).not.toHaveBeenCalledWith(
+          expect.objectContaining({ severity: 'danger' }),
+        )
+        expect(mockAddToast).not.toHaveBeenCalledWith(
           expect.objectContaining({ severity: 'success' }),
         )
+      })
+    })
+
+    describe('WHEN the backend rejects the code as already used and the flag is disabled', () => {
+      it('THEN should surface it on the danger toast, never on the unrendered Code input', async () => {
+        mockHasFeatureFlag.mockReturnValue(false)
+        rejectPaymentUpdateOnCode()
+
+        const result = setup()
+
+        const succeeded = await result.current.saveConnection(
+          ConnectionCategory.Payment,
+          ALREADY_USED_CODE_VALUES,
+          { isEdition: true, formApi },
+        )
+
+        expect(mockHasFeatureFlag).toHaveBeenCalledWith(FeatureFlagEnum.MultiConnection)
+        expect(succeeded).toBe(false)
+        expect(mockApplyExistingCodeError).not.toHaveBeenCalled()
+        expect(mockAddToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
       })
     })
   })

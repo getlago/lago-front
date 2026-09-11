@@ -1,7 +1,7 @@
 import { FetchResult, gql } from '@apollo/client'
 import { revalidateLogic } from '@tanstack/react-form'
 import { useRef } from 'react'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 
 import { useCreateMore } from '~/components/drawers/createMore/useCreateMore'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
@@ -51,9 +51,9 @@ gql`
     displayOnInvoice
     regroupPaidFees
     proration
-    walletTargetable
     attachedToPlanOrSubscription
     attachedToSubscriptions
+    ratesCount
     product {
       id
       name
@@ -111,7 +111,6 @@ const mapRateCardToFormValues = (rateCard: RateCardForDrawerFragment): RateCardF
     regroupPaidFees: rateCard.regroupPaidFees,
   }),
   proration: rateCard.proration,
-  walletTargetable: rateCard.walletTargetable ?? false,
 })
 
 type ProductAttachment = { id: string; name: string }
@@ -168,18 +167,18 @@ const useRateCardForm = ({ onSuccess }: { onSuccess: (result: RateCardFormSucces
       let errors: FetchResult['errors']
 
       // Update serializes cleared optional fields to null (undefined would be
-      // stripped and the previous value would never clear); code, product item
-      // and product item filter are create-only, so they are not sent on update.
+      // stripped and the previous value would never clear); product item and
+      // product item filter are create-only, so they are not sent on update.
       if (editedRateCard) {
         const result = await updateRateCard({
           variables: {
             input: {
               id: editedRateCard.id,
               name: value.name,
+              code: value.code,
               description: value.description || null,
               billingTiming: value.billingTiming,
               proration: value.proration,
-              walletTargetable: value.walletTargetable,
               ...buildUpdatePricingInput({ currency, pricingUnit: value.pricingUnit }),
               ...invoiceFields,
             },
@@ -199,7 +198,6 @@ const useRateCardForm = ({ onSuccess }: { onSuccess: (result: RateCardFormSucces
               ...(value.description ? { description: value.description } : {}),
               billingTiming: value.billingTiming,
               proration: value.proration,
-              walletTargetable: value.walletTargetable,
               ...buildCreatePricingInput({ currency, pricingUnit: value.pricingUnit }),
               ...invoiceFields,
             },
@@ -212,8 +210,15 @@ const useRateCardForm = ({ onSuccess }: { onSuccess: (result: RateCardFormSucces
 
       // Backend rejected a duplicate code: surface it under the Code input and
       // keep the drawer open.
-      if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
+      if (hasDefinedGQLError('ValueAlreadyExist', errors, 'code')) {
         applyExistingCodeError(formApi)
+        return
+      }
+
+      // `silentErrorCodes` swallows everything else, so without this the submit looks like a
+      // no-op.
+      if (errors?.length) {
+        addToast({ severity: 'danger', translateKey: 'text_1788957148209tdcqiord3ut' })
         return
       }
 
@@ -329,9 +334,10 @@ export const useRateCardDrawer = () => {
     resetForm(rateCard, attachToProduct, attachToProductFilter)
 
     const isEdit = !!rateCard
-    // Attaching a rate card to a plan/subscription freezes everything except the
-    // display fields (name / description).
-    const isLocked = !!(rateCard?.attachedToPlanOrSubscription || rateCard?.attachedToSubscriptions)
+    // `RateCards::UpdateService`: `LOCKED_WITH_RATES` freezes the billing-semantic fields
+    // once a rate exists, and the currency additionally freezes on attachment.
+    const isAttached = !!rateCard?.attachedToPlanOrSubscription
+    const hasRates = (rateCard?.ratesCount ?? 0) > 0
 
     const productSource = rateCard?.product ?? attachToProductFilter?.product ?? attachToProduct
     const productSeed: RateCardProductSeed = productSource
@@ -377,8 +383,9 @@ export const useRateCardDrawer = () => {
         <RateCardDrawerContent
           form={form}
           isEdit={isEdit}
-          isLocked={isLocked}
-          disableCodeInput={isLocked || isEdit}
+          isAttached={isAttached}
+          hasRates={hasRates}
+          disableCodeInput={isAttached}
           productSeed={productSeed}
           productFilterSeed={productFilterSeed}
           resetSignal={resetSignal}

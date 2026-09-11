@@ -2,7 +2,7 @@ import * as Sentry from '@sentry/react'
 import { tw } from 'lago-design-system'
 import { useState } from 'react'
 import { Panel } from 'react-resizable-panels'
-import { matchRoutes } from 'react-router-dom'
+import { matchRoutes } from 'react-router'
 
 import { ChatHistory } from '~/components/aiAgent/ChatHistory'
 import { NavigationBar } from '~/components/aiAgent/NavigationBar'

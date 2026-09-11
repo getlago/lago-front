@@ -1,7 +1,7 @@
 import { ApolloError, ApolloQueryResult, gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
 import { Fragment, useEffect, useRef, useState } from 'react'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 
 import {
   SubscriptionUsageDetailDrawer,

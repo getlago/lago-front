@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import Decimal from 'decimal.js'
 import { DateTime } from 'luxon'
 import { useCallback, useMemo } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router'
 
 import {
   formattedMrrDataForAreaChartLoadingFixture,

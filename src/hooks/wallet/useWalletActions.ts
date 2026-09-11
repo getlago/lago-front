@@ -1,5 +1,5 @@
 import { IconName } from 'lago-design-system'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { buildLinkToActivityLog } from '~/components/activityLogs/utils'
 import { AvailableFiltersEnum } from '~/components/Filters'
@@ -61,6 +61,10 @@ export const useWalletActions = ({
 
   const isWalletActive = status === WalletStatusEnum.Active
 
+  if (!walletId || !customerId) {
+    return { actions: [] }
+  }
+
   const actions: WalletActionItem[] = [
     {
       label: translate('text_1741253143637fb7iatyka9w'),
@@ -70,8 +74,8 @@ export const useWalletActions = ({
       onAction: (closePopper) => {
         navigate(
           generatePath(CREATE_WALLET_TOP_UP_ROUTE, {
-            walletId: walletId as string,
-            customerId: customerId ?? null,
+            walletId,
+            customerId,
           }),
         )
         closePopper()
@@ -82,7 +86,7 @@ export const useWalletActions = ({
       startIcon: 'duplicate',
       hidden: !isWalletActive,
       onAction: (closePopper) => {
-        copyToClipboard(walletId || '')
+        copyToClipboard(walletId)
         addToast({
           severity: 'info',
           translateKey: 'text_1741253143637w2e9cbec620',
@@ -97,8 +101,8 @@ export const useWalletActions = ({
       onAction: (closePopper) => {
         navigate(
           generatePath(EDIT_WALLET_ROUTE, {
-            walletId: walletId as string,
-            customerId: customerId ?? null,
+            walletId,
+            customerId,
           }),
         )
         closePopper()
@@ -111,7 +115,7 @@ export const useWalletActions = ({
       disabled: !!(creditsBalance && creditsBalance <= 0),
       onAction: (closePopper) => {
         openVoidWalletDialog({
-          walletId: walletId as string,
+          walletId,
           rateAmount,
           creditsBalance,
           currency,
@@ -126,8 +130,8 @@ export const useWalletActions = ({
       onAction: (closePopper) => {
         navigate(
           generatePath(WALLET_DETAILS_ROUTE, {
-            walletId: walletId as string,
-            customerId: customerId as string,
+            walletId,
+            customerId,
             tab: WalletDetailsTabsOptionsEnum.alerts,
           }),
         )
@@ -139,7 +143,7 @@ export const useWalletActions = ({
       startIcon: 'pulse',
       hidden: !isWalletActive || !isPremium || !hasPermissions(['auditLogsView']),
       onAction: (closePopper) => {
-        const url = buildLinkToActivityLog(walletId as string, AvailableFiltersEnum.resourceIds)
+        const url = buildLinkToActivityLog(walletId, AvailableFiltersEnum.resourceIds)
 
         setUrl(url)
         open()
@@ -153,7 +157,7 @@ export const useWalletActions = ({
       danger: true,
       onAction: (closePopper) => {
         openTerminateCustomerWalletDialog({
-          walletId: walletId as string,
+          walletId,
         })
         closePopper()
       },

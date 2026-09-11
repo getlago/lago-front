@@ -11,6 +11,7 @@ const FixedChargeDrawerContent = OriginalFixedChargeDrawerContent as unknown as 
   isEdition?: boolean
   disabled?: boolean
   isInSubscriptionForm?: boolean
+  isInQuoteForm?: boolean
   alertMessage?: string
   showCode?: boolean
   existingChargeCodes?: (string | null | undefined)[]
@@ -29,6 +30,7 @@ let capturedAppFieldListeners: Record<string, { onChange?: (arg: { value: unknow
 const CHARGE_MODEL_SELECTOR_TEST_ID = 'charge-model-selector'
 const CHARGE_WRAPPER_SWITCH_TEST_ID = 'charge-wrapper-switch'
 const CHARGE_PAY_IN_ADVANCE_OPTION_TEST_ID = 'charge-pay-in-advance-option'
+const CHARGE_DISPLAY_IN_QUOTE_DOCUMENT_OPTION_TEST_ID = 'charge-display-in-quote-document-option'
 
 // --- Mock form values ---
 
@@ -232,6 +234,15 @@ jest.mock('~/components/plans/chargeAccordion/ChargeWrapperSwitch', () => ({
       <div data-test={CHARGE_WRAPPER_SWITCH_TEST_ID} data-disabled={String(!!props.disabled)} />
     )
   },
+}))
+
+jest.mock('~/components/plans/chargeAccordion/options/ChargeDisplayInQuoteDocumentOption', () => ({
+  ChargeDisplayInQuoteDocumentOption: (props: Record<string, unknown>) => (
+    <div
+      data-test={CHARGE_DISPLAY_IN_QUOTE_DOCUMENT_OPTION_TEST_ID}
+      data-disabled={String(!!props.disabled)}
+    />
+  ),
 }))
 
 jest.mock('~/components/plans/chargeAccordion/options/ChargePayInAdvanceOption', () => ({
@@ -567,6 +578,37 @@ describe('FixedChargeDrawerContent', () => {
         })
 
         expect(mockSetFieldValue).not.toHaveBeenCalledWith('code', expect.anything())
+      })
+    })
+  })
+
+  describe('GIVEN the quote-only "display in quote document" switch', () => {
+    describe('WHEN the drawer is not opened from a quote', () => {
+      it('THEN should not render the switch', () => {
+        render(<FixedChargeDrawerContent isCreateMode={false} />)
+
+        expect(
+          screen.queryByTestId(CHARGE_DISPLAY_IN_QUOTE_DOCUMENT_OPTION_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+
+      it('THEN should not render it either inside the subscription form', () => {
+        render(<FixedChargeDrawerContent isCreateMode={false} isInSubscriptionForm />)
+
+        expect(
+          screen.queryByTestId(CHARGE_DISPLAY_IN_QUOTE_DOCUMENT_OPTION_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the drawer is opened from a quote', () => {
+      it('THEN should render the switch, enabled even inside the subscription form', () => {
+        render(<FixedChargeDrawerContent isCreateMode={false} isInSubscriptionForm isInQuoteForm />)
+
+        const field = screen.getByTestId(CHARGE_DISPLAY_IN_QUOTE_DOCUMENT_OPTION_TEST_ID)
+
+        expect(field).toBeInTheDocument()
+        expect(field).toHaveAttribute('data-disabled', 'false')
       })
     })
   })

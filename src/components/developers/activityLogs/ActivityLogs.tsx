@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { generatePath, useParams, useSearchParams } from 'react-router-dom'
+import { generatePath, useParams, useSearchParams } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'

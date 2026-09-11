@@ -10,12 +10,15 @@ import {
 } from '~/generated/graphql'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
+import { CATALOG_RELATIONS_NO_PRODUCT_CATEGORY_TEST_ID } from '../CatalogRelationsInfoGrid'
 import RateCardDetailsOverview, {
   RATE_CARD_DETAILS_OVERVIEW_EDIT_TEST_ID,
 } from '../RateCardDetailsOverview'
 
 const CURRENCY_LABEL_KEY = 'text_1784925227817bab1mp540x7'
 const PRICING_UNIT_LABEL_KEY = 'text_1784925227817xt1irx4wum2'
+const PRODUCT_CATEGORY_LABEL_KEY = 'text_17877372202296ejgkqky70w'
+const PRODUCT_FILTER_LABEL_KEY = 'text_17849304406579sbwz4df14p'
 
 const mockOpenEditRateCardDrawer = jest.fn()
 const mockHasPermissions = jest.fn()
@@ -52,7 +55,6 @@ const attachedRateCard: RateCardForDetailsOverviewFragment = {
   displayOnInvoice: true,
   regroupPaidFees: RateCardRegroupPaidFeesEnum.None,
   proration: false,
-  walletTargetable: false,
   attachedToPlanOrSubscription: false,
   attachedToSubscriptions: false,
   product: {
@@ -60,6 +62,13 @@ const attachedRateCard: RateCardForDetailsOverviewFragment = {
     id: 'pitem-1',
     name: 'Seats',
     code: 'seats',
+    invoiceDisplayName: null,
+    productCategory: {
+      __typename: 'ProductCategory',
+      id: 'pcat-1',
+      name: 'Compute',
+      invoiceDisplayName: null,
+    },
     productType: 'usage',
     billableMetric: {
       __typename: 'BillableMetric',
@@ -81,6 +90,16 @@ const attachedRateCard: RateCardForDetailsOverviewFragment = {
 const noFilterRateCard: RateCardForDetailsOverviewFragment = {
   ...attachedRateCard,
   productFilter: null,
+}
+
+const noProductCategoryRateCard: RateCardForDetailsOverviewFragment = {
+  ...attachedRateCard,
+  product: { ...attachedRateCard.product, productCategory: null },
+}
+
+const invoiceDisplayNameRateCard: RateCardForDetailsOverviewFragment = {
+  ...attachedRateCard,
+  product: { ...attachedRateCard.product, invoiceDisplayName: 'Seats (billed)' },
 }
 
 const pricingUnitRateCard: RateCardForDetailsOverviewFragment = {
@@ -156,11 +175,12 @@ describe('RateCardDetailsOverview', () => {
         expect(await screen.findByText('USD')).toBeInTheDocument()
       })
 
-      it('THEN omits the pricing unit row entirely', async () => {
+      it('THEN still shows the pricing unit row, with a dash', async () => {
         await act(() => renderOverview())
 
         expect(await screen.findByText(CURRENCY_LABEL_KEY)).toBeInTheDocument()
-        expect(screen.queryByText(PRICING_UNIT_LABEL_KEY)).not.toBeInTheDocument()
+        expect(screen.getByText(PRICING_UNIT_LABEL_KEY)).toBeInTheDocument()
+        expect(screen.getByText('-')).toBeInTheDocument()
       })
 
       it('THEN displays the billing timing as a human label', async () => {
@@ -175,22 +195,48 @@ describe('RateCardDetailsOverview', () => {
         expect(await screen.findByText('text_66968fba80f8f89a8aefdebf')).toBeInTheDocument()
       })
 
-      it('THEN displays prorate amount and supports target wallet as No', async () => {
+      it('THEN displays the proration as No', async () => {
         await act(() => renderOverview())
 
         await screen.findByText('Standard rate card')
-        expect(screen.getAllByText('text_176416000997957yqelmt2m2')).toHaveLength(2)
+        expect(screen.getAllByText('text_176416000997957yqelmt2m2')).toHaveLength(1)
       })
     })
   })
 
   describe('GIVEN a rate card with no attached product item filter', () => {
     describe('WHEN the overview loads', () => {
-      it('THEN shows a dash instead of a link', async () => {
+      it('THEN hides the product item filter row entirely', async () => {
         await act(() => renderOverview(noFilterRateCard))
 
         expect(await screen.findByText('Standard rate card')).toBeInTheDocument()
+        expect(screen.queryByText(PRODUCT_FILTER_LABEL_KEY)).not.toBeInTheDocument()
         expect(screen.queryByRole('link', { name: 'EU pro filter' })).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a rate card whose product item has no product category', () => {
+    describe('WHEN the overview loads', () => {
+      it('THEN keeps the label and shows the no-category placeholder', async () => {
+        await act(() => renderOverview(noProductCategoryRateCard))
+
+        expect(await screen.findByText(PRODUCT_CATEGORY_LABEL_KEY)).toBeInTheDocument()
+        expect(
+          screen.getByTestId(CATALOG_RELATIONS_NO_PRODUCT_CATEGORY_TEST_ID),
+        ).toBeInTheDocument()
+        expect(screen.queryByRole('link', { name: 'Compute' })).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a product item with an invoice display name', () => {
+    describe('WHEN the overview loads', () => {
+      it('THEN prefers it over the name in the attached product item link', async () => {
+        await act(() => renderOverview(invoiceDisplayNameRateCard))
+
+        expect(await screen.findByRole('link', { name: 'Seats (billed)' })).toBeInTheDocument()
+        expect(screen.queryByRole('link', { name: 'Seats' })).not.toBeInTheDocument()
       })
     })
   })

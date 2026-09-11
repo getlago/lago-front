@@ -2,6 +2,7 @@ import { render } from '@testing-library/react'
 import { createRef } from 'react'
 
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
+import { EXISTING_CODE_ERROR_MESSAGE } from '~/core/form/existingCodeError'
 import { validateChargeProperties } from '~/formValidation/chargePropertiesSchema'
 
 import { UsageChargeDrawerFormValues } from '../constants'
@@ -370,6 +371,7 @@ describe('UsageChargeDrawer', () => {
           },
           chargeModel: 'standard' as UsageChargeDrawerFormValues['chargeModel'],
           code: 'calls',
+          displayInQuoteDocument: true,
           invoiceDisplayName: 'Test',
           invoiceable: true,
           minAmountCents: '100',
@@ -389,6 +391,7 @@ describe('UsageChargeDrawer', () => {
             code: 'calls',
             invoiceable: true,
             payInAdvance: false,
+            displayInQuoteDocument: true,
           }),
           -1,
         )
@@ -398,21 +401,25 @@ describe('UsageChargeDrawer', () => {
     describe('WHEN onSave reports a duplicate code', () => {
       it('THEN surfaces the error under the Code field (and keeps the drawer open)', async () => {
         mockOnSave.mockResolvedValueOnce(FORM_ERRORS_ENUM.existingCode)
-        const setFieldMeta = jest.fn()
+        const setErrorMap = jest.fn()
 
         render(<UsageChargeDrawer ref={drawerRef} onSave={mockOnSave} showCode />)
 
         const submit = capturedOnSubmit as unknown as (args: {
           value: Record<string, unknown>
-          formApi: { setFieldMeta: jest.Mock }
+          formApi: { setErrorMap: jest.Mock }
         }) => Promise<void>
 
         await submit({
           value: { ...capturedDefaultValues, code: 'dup_code' },
-          formApi: { setFieldMeta },
+          formApi: { setErrorMap },
         })
 
-        expect(setFieldMeta).toHaveBeenCalledWith('code', expect.any(Function))
+        expect(setErrorMap).toHaveBeenCalledWith({
+          onDynamic: {
+            fields: { code: { message: EXISTING_CODE_ERROR_MESSAGE, path: ['code'] } },
+          },
+        })
       })
     })
 
@@ -504,6 +511,7 @@ describe('UsageChargeDrawer', () => {
       },
       chargeModel: 'standard',
       code: 'api_calls',
+      displayInQuoteDocument: true,
       invoiceDisplayName: '',
       invoiceable: true,
       minAmountCents: '',
@@ -577,6 +585,8 @@ describe('UsageChargeDrawer', () => {
             filters: [],
             regroupPaidFees: null,
             taxes: [],
+            // A charge stored before the flag existed must open with the switch on
+            displayInQuoteDocument: true,
           }),
           { keepDefaultValues: true },
         )

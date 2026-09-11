@@ -6,6 +6,7 @@ import {
   Customer,
   CustomerForInvoiceDetailsFragment,
   ErrorCodesEnum,
+  InvoiceStatusTypeEnum,
   LagoApiError,
 } from '~/generated/graphql'
 import { useCustomerHasActiveWallet } from '~/hooks/customer/useCustomerHasActiveWallet'
@@ -132,7 +133,7 @@ export const useInvoiceAuthorizations = ({
 
   const authorizations = useMemo((): InvoiceAuthorizations => {
     return {
-      canRetryInvoice: hasTaxProviderError,
+      canRetryInvoice: hasTaxProviderError && status === InvoiceStatusTypeEnum.Failed,
       canFinalizeInvoice: !hasTaxProviderError && canFinalize,
       canDownloadOnlyPdf:
         !hasTaxProviderError && !canFinalize && canDownload && !canDownloadXmlFile,

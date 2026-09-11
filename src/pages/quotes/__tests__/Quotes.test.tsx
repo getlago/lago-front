@@ -29,8 +29,8 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 const mockNavigate = jest.fn()
 const mockUseParams = jest.fn()
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useNavigate: () => mockNavigate,
   useLocation: () => ({ pathname: '/quotes/quotes' }),
   useParams: () => mockUseParams(),

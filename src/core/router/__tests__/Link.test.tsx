@@ -1,10 +1,10 @@
 import { render, screen } from '@testing-library/react'
 import { createRef } from 'react'
-import { BrowserRouter } from 'react-router-dom'
+import { BrowserRouter } from 'react-router'
 
 import { Link } from '../Link'
 
-const mockUseParams = jest.requireMock('react-router-dom').useParams as jest.Mock
+const mockUseParams = jest.requireMock('react-router').useParams as jest.Mock
 
 describe('Link', () => {
   beforeEach(() => {
@@ -72,41 +72,42 @@ describe('Link', () => {
     })
   })
 
-  // Tripwire pinning v6 router behaviour for these inputs; stage 3's bump to
-  // react-router 7.18 is EXPECTED to change them, so a failure here is the signal.
   describe('GIVEN a protocol-relative or backslash-tricked "to" prop', () => {
     describe('WHEN rendering "//evil.com" with an organization slug', () => {
-      it('THEN should render the v6-observed href', () => {
+      it('THEN should normalize the href and stay on the app origin', () => {
         renderWithRouter(<Link to="//evil.com">Evil</Link>)
 
         const link = screen.getByText('Evil')
 
         expect(link).toHaveAttribute('href', '/acme/evil.com')
+        expect(link).toHaveProperty('origin', window.location.origin)
       })
     })
 
     describe('WHEN rendering "/\\evil.com" with an organization slug', () => {
-      it('THEN should render the v6-observed href', () => {
+      it('THEN should normalize the href and stay on the app origin', () => {
         renderWithRouter(<Link to={'/\\evil.com'}>Evil</Link>)
 
         const link = screen.getByText('Evil')
 
-        expect(link).toHaveAttribute('href', '/acme/\\evil.com')
+        expect(link).toHaveAttribute('href', '/acme/evil.com')
+        expect(link).toHaveProperty('origin', window.location.origin)
       })
     })
 
     describe('WHEN rendering "/acme//evil.com" with an organization slug', () => {
-      it('THEN should render the v6-observed href', () => {
+      it('THEN should normalize the href and stay on the app origin', () => {
         renderWithRouter(<Link to="/acme//evil.com">Evil</Link>)
 
         const link = screen.getByText('Evil')
 
         expect(link).toHaveAttribute('href', '/acme/evil.com')
+        expect(link).toHaveProperty('origin', window.location.origin)
       })
     })
 
     describe('WHEN rendering "//evil.com" with no organization slug', () => {
-      it('THEN should render the v6-observed href', () => {
+      it('THEN should preserve the off-origin href', () => {
         mockUseParams.mockReturnValue({})
 
         renderWithRouter(<Link to="//evil.com">Evil</Link>)
@@ -114,6 +115,7 @@ describe('Link', () => {
         const link = screen.getByText('Evil')
 
         expect(link).toHaveAttribute('href', '//evil.com')
+        expect(link).toHaveProperty('origin', 'http://evil.com')
       })
     })
   })

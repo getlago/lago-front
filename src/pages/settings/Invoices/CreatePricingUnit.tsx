@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
@@ -11,6 +11,7 @@ import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { applyExistingCodeError } from '~/core/form/existingCodeError'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { INVOICE_SETTINGS_ROUTE, useNavigate } from '~/core/router'
 import {
@@ -155,16 +156,7 @@ const CreatePricingUnit = () => {
       const { errors } = res
 
       if (!!errors && hasDefinedGQLError('ValueAlreadyExist', errors)) {
-        formApi.setErrorMap({
-          onDynamic: {
-            fields: {
-              code: {
-                message: translate('text_632a2d437e341dcc76817556'),
-                path: ['code'],
-              },
-            },
-          },
-        })
+        applyExistingCodeError(formApi)
       }
     },
     onSubmitInvalid({ formApi }) {

@@ -1,4 +1,4 @@
-import { Location, matchPath, NavigateOptions, useParams } from 'react-router-dom'
+import { Location, matchPath, NavigateOptions, useParams } from 'react-router'
 
 import { addLocationToHistory, authTokenVar, locationHistoryVar } from '~/core/apolloClient'
 import {

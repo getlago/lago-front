@@ -222,7 +222,7 @@ export default defineConfig(({ mode }) => {
             return 'assets/[name].[hash].js.map'
           },
           manualChunks: {
-            'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+            'vendor-react': ['react', 'react-dom', 'react-router'],
             'vendor-apollo': ['@apollo/client', 'graphql'],
             'vendor-mui': ['@mui/material', '@mui/x-date-pickers'],
             'vendor-charts': ['recharts'],

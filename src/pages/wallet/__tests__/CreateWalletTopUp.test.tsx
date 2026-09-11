@@ -187,7 +187,7 @@ describe('CreateWalletTopUp', () => {
   beforeEach(() => {
     jest.clearAllMocks()
 
-    const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
+    const useParamsMock = jest.requireMock('react-router').useParams as jest.Mock
 
     useParamsMock.mockReturnValue({
       customerId: 'customer-1',
@@ -528,7 +528,7 @@ describe('CreateWalletTopUp', () => {
         let voidCapturedVars: Record<string, unknown> | undefined
         let createCapturedVars: Record<string, unknown> | undefined
 
-        const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
+        const useParamsMock = jest.requireMock('react-router').useParams as jest.Mock
 
         useParamsMock.mockReturnValue({
           customerId: 'customer-1',
@@ -585,7 +585,7 @@ describe('CreateWalletTopUp', () => {
         const user = userEvent.setup()
         let createCapturedVars: Record<string, unknown> | undefined
 
-        const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
+        const useParamsMock = jest.requireMock('react-router').useParams as jest.Mock
 
         useParamsMock.mockReturnValue({
           customerId: 'customer-1',

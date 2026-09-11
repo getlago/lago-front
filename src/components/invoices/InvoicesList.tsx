@@ -1,7 +1,7 @@
 import { ApolloError, LazyQueryHookOptions } from '@apollo/client'
 import { IconName } from 'lago-design-system'
 import { useMemo } from 'react'
-import { generatePath, useSearchParams } from 'react-router-dom'
+import { generatePath, useSearchParams } from 'react-router'
 
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
 import { GenericPlaceholderProps } from '~/components/designSystem/GenericPlaceholder'

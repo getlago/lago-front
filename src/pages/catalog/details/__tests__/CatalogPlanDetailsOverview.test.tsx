@@ -8,8 +8,8 @@ import { CATALOG_PLAN_ADD_RATE_CARD_TEST_ID } from '../CatalogPlanRateCardsSecti
 
 const mockParams = { catalogPlanId: 'plan-1', section: undefined as string | undefined }
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useParams: () => mockParams,
 }))
 

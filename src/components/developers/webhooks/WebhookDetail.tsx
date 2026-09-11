@@ -1,4 +1,4 @@
-import { generatePath, matchPath, useParams } from 'react-router-dom'
+import { generatePath, matchPath, useParams } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import { NavigationTab, TabManagedBy } from '~/components/designSystem/NavigationTab'

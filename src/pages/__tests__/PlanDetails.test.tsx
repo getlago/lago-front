@@ -75,7 +75,7 @@ interface MainHeaderDropdownAction {
 describe('PlanDetails', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
+    const useParamsMock = jest.requireMock('react-router').useParams as jest.Mock
 
     useParamsMock.mockReturnValue({ planId: 'plan-123' })
     mockIsPremium.mockReturnValue(true)

@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
 import { FC, ReactNode, useEffect, useRef } from 'react'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 
 import { Avatar, AvatarBadge } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
@@ -153,6 +153,10 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
     walletDetailsDrawerRef.current?.openDrawer({ transactionId: id })
   }
 
+  const topUpPath = customerId
+    ? generatePath(CREATE_WALLET_TOP_UP_ROUTE, { customerId, walletId: wallet.id })
+    : undefined
+
   return (
     <>
       <div className="shadow-b">
@@ -192,14 +196,7 @@ export const WalletTransactionList: FC<WalletTransactionListProps> = ({
             subtitle={translate('text_62e0ee200a543924c8f67759')}
             buttonTitle={translate('text_62e0ee200a543924c8f6775d')}
             buttonVariant="primary"
-            buttonAction={() => {
-              navigate(
-                generatePath(CREATE_WALLET_TOP_UP_ROUTE, {
-                  customerId: customerId ?? null,
-                  walletId: wallet.id,
-                }),
-              )
-            }}
+            buttonAction={topUpPath ? () => navigate(topUpPath) : undefined}
             image={<EmptyImage width="136" height="104" />}
           />
         )}

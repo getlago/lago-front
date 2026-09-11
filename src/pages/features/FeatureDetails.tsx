@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 
 import { useDeleteFeatureDialog } from '~/components/features/DeleteFeatureDialog'
 import { FeatureDetailsActivityLogs } from '~/components/features/FeatureDetailsActivityLogs'

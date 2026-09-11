@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 
 import { CREATE_MORE_SWITCH_TEST_ID } from '~/components/drawers/createMore/CreateMoreControl'
 import { addToast } from '~/core/apolloClient'
-import { EXISTING_CODE_ERROR_MESSAGE } from '~/core/form/existingCodeError'
+import { EXISTING_CODE_FIELD_ERRORS } from '~/core/form/existingCodeError'
 import {
   CatalogPlanForCatalogPlanDrawerFragment,
   CurrencyEnum,
@@ -33,8 +33,8 @@ jest.mock('~/core/router', () => ({
   useNavigate: () => mockNavigate,
 }))
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useParams: () => ({ organizationSlug: 'acme' }),
 }))
 
@@ -198,9 +198,9 @@ describe('useCatalogPlanDrawer', () => {
 
       const { form } = lastOpenPayload().children.props
 
-      expect(form.getFieldMeta('code')?.errorMap?.onDynamic).toEqual({
-        message: EXISTING_CODE_ERROR_MESSAGE,
-      })
+      expect(form.getFieldMeta('code')?.errorMap?.onDynamic).toEqual(
+        EXISTING_CODE_FIELD_ERRORS.code,
+      )
     })
   })
 

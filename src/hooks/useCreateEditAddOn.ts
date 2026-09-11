@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useEffect, useMemo } from 'react'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 
 import { AddOnFormInput } from '~/components/addOns/types'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
