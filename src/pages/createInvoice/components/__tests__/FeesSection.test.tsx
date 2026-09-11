@@ -205,6 +205,14 @@ const findMenuButtonByIcon = (iconTestId: string) => {
 }
 
 describe('FeesSection', () => {
+  const originalDefaultZone = Settings.defaultZone
+  const originalNow = Settings.now
+
+  afterEach(() => {
+    Settings.defaultZone = originalDefaultZone
+    Settings.now = originalNow
+  })
+
   beforeAll(() => {
     // jsdom does not implement scrollIntoView
     Element.prototype.scrollIntoView = jest.fn()
@@ -281,11 +289,8 @@ describe('FeesSection', () => {
       // billing-period picker render it in UTC, so an org ahead of UTC seeded the
       // previous displayed day.
       it('THEN should seed the billing period on the UTC day', async () => {
-        const originalDefaultZone = Settings.defaultZone
-        const originalNow = Settings.now
         const user = userEvent.setup()
 
-        // 00:30 in Paris, still the previous day in UTC
         Settings.defaultZone = 'Europe/Paris'
         Settings.now = () => Date.UTC(2026, 8, 9, 22, 30)
 
@@ -299,9 +304,6 @@ describe('FeesSection', () => {
         })
 
         const addedFee = lastForm?.state.values.fees[0]
-
-        Settings.defaultZone = originalDefaultZone
-        Settings.now = originalNow
 
         expect(addedFee).toEqual(
           expect.objectContaining({

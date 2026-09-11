@@ -430,8 +430,6 @@ export const FeesSection = withForm({
                       placeholder={translate('text_6453819268763979024ad0ad')}
                       onChange={(value) => {
                         const addOn = addOnData?.addOns?.collection.find((c) => c.id === value)
-                        // The row and the billing-period picker both render this period in UTC,
-                        // so an org-zone midnight would seed it on the previous displayed day.
                         const today = DateTime.utc()
                         const addonApplicableTaxes = () => {
                           if (hasTaxProvider) return undefined
