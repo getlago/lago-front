@@ -3,7 +3,12 @@ import userEvent from '@testing-library/user-event'
 
 import { CREATE_MORE_SWITCH_TEST_ID } from '~/components/drawers/createMore/CreateMoreControl'
 import { addToast } from '~/core/apolloClient'
-import { CatalogPlanForCatalogPlanDrawerFragment, CurrencyEnum } from '~/generated/graphql'
+import { EXISTING_CODE_ERROR_MESSAGE } from '~/core/form/existingCodeError'
+import {
+  CatalogPlanForCatalogPlanDrawerFragment,
+  CurrencyEnum,
+  LagoApiError,
+} from '~/generated/graphql'
 import { AllTheProviders } from '~/test-utils'
 
 import {
@@ -107,6 +112,8 @@ describe('useCatalogPlanDrawer', () => {
       expect(lastOpenPayload().title).toBe(CATALOG_PLAN_DRAWER_TITLE_CREATE_KEY)
       expect(lastOpenPayload().secondaryAction).toBeDefined()
       expect(lastOpenPayload().closeOnSubmitSuccess).toBe(false)
+      // Drives `disableAutoGenerateCode` on `NameAndCodeGroup` (CatalogPlanDrawerContent.tsx).
+      expect(lastOpenPayload().children.props.isEdit).toBe(false)
     })
 
     it('GIVEN empty values THEN submit-first validation blocks the create mutation', async () => {
@@ -171,6 +178,30 @@ describe('useCatalogPlanDrawer', () => {
         }),
       )
     })
+
+    it('GIVEN a duplicate code THEN surfaces the existing-code error and keeps the drawer open', async () => {
+      mockCreate.mockResolvedValue({
+        data: undefined,
+        errors: [
+          { message: 'value_already_exist', extensions: { code: LagoApiError.ValueAlreadyExist } },
+        ],
+      })
+      mountHost()
+      act(() => openDrawer())
+      fillValidCreateValues()
+
+      await act(async () => {
+        await lastOpenPayload().form.submit()
+      })
+
+      expect(mockClose).not.toHaveBeenCalled()
+
+      const { form } = lastOpenPayload().children.props
+
+      expect(form.getFieldMeta('code')?.errorMap?.onDynamic).toEqual({
+        message: EXISTING_CODE_ERROR_MESSAGE,
+      })
+    })
   })
 
   describe('edit mode', () => {
@@ -180,6 +211,7 @@ describe('useCatalogPlanDrawer', () => {
 
       expect(lastOpenPayload().title).toBe(CATALOG_PLAN_DRAWER_TITLE_EDIT_KEY)
       expect(lastOpenPayload().secondaryAction).toBeUndefined()
+      expect(lastOpenPayload().children.props.isEdit).toBe(true)
     })
 
     it('GIVEN an attached plan THEN locks code and currency in the body props', () => {
@@ -270,6 +302,14 @@ describe('useCatalogPlanDrawer', () => {
     mountHost()
     act(() => openDrawer(existingPlan))
 
-    expect(typeof lastOpenPayload().shouldPromptOnClose).toBe('function')
+    const { shouldPromptOnClose, children } = lastOpenPayload()
+
+    expect(shouldPromptOnClose()).toBe(false)
+
+    act(() => {
+      children.props.form.setFieldValue('name', 'Updated name')
+    })
+
+    expect(shouldPromptOnClose()).toBe(true)
   })
 })

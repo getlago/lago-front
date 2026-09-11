@@ -20,8 +20,8 @@ import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 import { usePermissions } from '~/hooks/usePermissions'
 
 import CatalogPlanActivityLogs from './CatalogPlanActivityLogs'
+import { CatalogPlanContracts } from './CatalogPlanContracts'
 import { CatalogPlanDetailsOverview } from './CatalogPlanDetailsOverview'
-import { CatalogPlanSubscriptions } from './CatalogPlanSubscriptions'
 
 import { useCatalogPlanTableActions } from '../useCatalogPlanTableActions'
 
@@ -106,7 +106,7 @@ const CatalogPlanDetails = (): JSX.Element => {
       <MainHeader.Configure
         // Snapshot strips functions and tab content, so encode every mutable field the
         // closures/panes use but the header doesn't render, including the two lock-driving fields.
-        snapshotKey={`${catalogPlan?.description}|${catalogPlan?.invoiceDisplayName}|${catalogPlan?.currency}|${catalogPlan?.appliedRateCardsCount}|${catalogPlan?.attachedToContracts}`}
+        snapshotKey={`${catalogPlan?.code}|${catalogPlan?.description}|${catalogPlan?.invoiceDisplayName}|${catalogPlan?.currency}|${catalogPlan?.appliedRateCardsCount}|${catalogPlan?.attachedToContracts}`}
         breadcrumb={[
           { label: translate('text_62442e40cea25600b0b6d85a'), path: PLAN_PRICING_ROUTE },
           { label: translate('text_1789030049530nkyhqgwxpkt') },
@@ -137,11 +137,11 @@ const CatalogPlanDetails = (): JSX.Element => {
             ),
           },
           {
-            title: translate('text_6250304370f0f700a8fdc28d'),
-            link: buildTabLink(CatalogPlanDetailsTabsOptionsEnum.subscriptions),
+            title: translate('text_17891318128636r6g9igqqeq'),
+            link: buildTabLink(CatalogPlanDetailsTabsOptionsEnum.contracts),
             content: (
               <DetailsPage.Container className="pt-6">
-                <CatalogPlanSubscriptions planCode={catalogPlan?.code} />
+                <CatalogPlanContracts planCode={catalogPlan?.code} />
               </DetailsPage.Container>
             ),
           },

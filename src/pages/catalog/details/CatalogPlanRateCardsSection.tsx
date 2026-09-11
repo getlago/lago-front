@@ -1,14 +1,20 @@
-import { Typography } from '~/components/designSystem/Typography'
+import { Table, TablePlaceholder } from '~/components/designSystem/Table/Table'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-export const CATALOG_PLAN_RATE_CARDS_EMPTY_TEST_ID = 'catalog-plan-rate-cards-empty'
 export const CATALOG_PLAN_ADD_RATE_CARD_TEST_ID = 'catalog-plan-add-rate-card'
 
 // `planAppliedRateCards` and `createPlanAppliedRateCard` exist and are catalog-plan scoped,
 // but neither has a design yet, so the list and attach flow stay unbuilt here.
 export const CatalogPlanRateCardsSection = (): JSX.Element => {
   const { translate } = useInternationalization()
+
+  const placeholder: TablePlaceholder = {
+    emptyState: {
+      title: translate('text_1789030049529u2gzzho6x8x'),
+      subtitle: translate('text_17891323549937b5qwry7pn1'),
+    },
+  }
 
   return (
     <section>
@@ -22,14 +28,14 @@ export const CatalogPlanRateCardsSection = (): JSX.Element => {
         }}
       />
 
-      <div
-        className="flex flex-col items-center gap-1 rounded-xl border border-dashed border-grey-300 p-6 text-center"
-        data-test={CATALOG_PLAN_RATE_CARDS_EMPTY_TEST_ID}
-      >
-        <Typography variant="body" color="grey600">
-          {translate('text_1789030049529u2gzzho6x8x')}
-        </Typography>
-      </div>
+      <Table
+        name="catalog-plan-rate-cards"
+        data={[]}
+        columns={[]}
+        containerSize={0}
+        rowSize={72}
+        placeholder={placeholder}
+      />
     </section>
   )
 }

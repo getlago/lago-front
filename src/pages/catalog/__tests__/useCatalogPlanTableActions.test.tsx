@@ -3,9 +3,10 @@ import { act, render } from '@testing-library/react'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { addToast } from '~/core/apolloClient'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
+import { CurrencyEnum } from '~/generated/graphql'
 import { AllTheProviders } from '~/test-utils'
 
-import { useCatalogPlanTableActions } from '../useCatalogPlanTableActions'
+import { CatalogPlanActionTarget, useCatalogPlanTableActions } from '../useCatalogPlanTableActions'
 
 const COPY_PLAN_CODE_KEY = 'text_17890300495282w8aw4i2783'
 const PLAN_CODE_COPIED_KEY = 'text_1789030049528x3nlpl7hu7x'
@@ -40,11 +41,15 @@ jest.mock('~/core/apolloClient', () => ({
   addToast: jest.fn(),
 }))
 
-const catalogPlan = {
-  __typename: 'CatalogPlan' as const,
+const catalogPlan: CatalogPlanActionTarget = {
+  __typename: 'CatalogPlan',
   id: 'plan-1',
   name: 'Premium',
   code: 'premium',
+  currency: CurrencyEnum.Usd,
+  description: null,
+  invoiceDisplayName: null,
+  appliedRateCardsCount: 0,
   attachedToContracts: false,
 }
 
@@ -56,10 +61,11 @@ const Host = () => {
   return null
 }
 
-const itemsFor = (plan: typeof catalogPlan): ActionItem<never>[] =>
-  actions.buildActionItems(plan as never) as ActionItem<never>[]
+const itemsFor = (
+  plan: CatalogPlanActionTarget,
+): Array<ActionItem<CatalogPlanActionTarget> & { title: string }> => actions.buildActionItems(plan)
 
-const titles = (plan: typeof catalogPlan): unknown[] => itemsFor(plan).map((item) => item.title)
+const titles = (plan: CatalogPlanActionTarget): string[] => itemsFor(plan).map((item) => item.title)
 
 describe('useCatalogPlanTableActions', () => {
   beforeEach(() => {
@@ -84,7 +90,7 @@ describe('useCatalogPlanTableActions', () => {
     render(<Host />, { wrapper: AllTheProviders })
 
     act(() => {
-      itemsFor(catalogPlan)[0].onAction(catalogPlan as never)
+      itemsFor(catalogPlan)[0].onAction(catalogPlan)
     })
 
     expect(copyToClipboard).toHaveBeenCalledWith('premium')
@@ -97,7 +103,7 @@ describe('useCatalogPlanTableActions', () => {
     render(<Host />, { wrapper: AllTheProviders })
 
     act(() => {
-      itemsFor(catalogPlan)[1].onAction(catalogPlan as never)
+      itemsFor(catalogPlan)[1].onAction(catalogPlan)
     })
 
     expect(mockOpenDrawer).toHaveBeenCalledWith(catalogPlan)

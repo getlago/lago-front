@@ -35,7 +35,6 @@ gql`
     createdAt
     appliedRateCardsCount
     contractsCount
-    attachedToContracts
     ...CatalogPlanForCatalogPlanDrawer
     ...CatalogPlanForDeleteCatalogPlanDialog
   }

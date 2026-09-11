@@ -25,7 +25,6 @@ import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 import { CatalogPlanDrawerContent } from './CatalogPlanDrawerContent'
 import {
-  CATALOG_PLAN_DRAWER_SUBMIT_TEST_ID,
   CATALOG_PLAN_DRAWER_TITLE_CREATE_KEY,
   CATALOG_PLAN_DRAWER_TITLE_EDIT_KEY,
   CATALOG_PLAN_FORM_DEFAULTS,
@@ -236,7 +235,7 @@ export const useCatalogPlanDrawer = (): {
       secondaryAction: catalogPlan ? undefined : createMoreControl,
       mainAction: (
         <form.AppForm>
-          <form.SubmitButton dataTest={CATALOG_PLAN_DRAWER_SUBMIT_TEST_ID}>
+          <form.SubmitButton>
             {translate(
               catalogPlan ? 'text_17295436903260tlyb1gp1i7' : CATALOG_PLAN_DRAWER_TITLE_CREATE_KEY,
             )}

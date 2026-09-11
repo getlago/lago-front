@@ -1,9 +1,12 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 
 import { CatalogPlanOverviewSectionsEnum } from '~/core/constants/tabsOptions'
 import { AllTheProviders } from '~/test-utils'
 
-import { CatalogPlanOverviewNav } from '../CatalogPlanOverviewNav'
+import {
+  CATALOG_PLAN_OVERVIEW_NAV_TEST_ID,
+  CatalogPlanOverviewNav,
+} from '../CatalogPlanOverviewNav'
 
 type Props = {
   activeSection?: CatalogPlanOverviewSectionsEnum
@@ -82,5 +85,16 @@ describe('CatalogPlanOverviewNav', () => {
     renderNav({ rateCardsCount: undefined, loading: true })
 
     expect(screen.queryByText('0')).not.toBeInTheDocument()
+  })
+
+  it('GIVEN loading THEN skeletons only the item that declares a count', () => {
+    renderNav({ rateCardsCount: undefined, loading: true })
+
+    const nav = within(screen.getByTestId(CATALOG_PLAN_OVERVIEW_NAV_TEST_ID))
+    const planOverviewLink = nav.getByRole('link', { name: new RegExp(PLAN_OVERVIEW_LABEL) })
+    const rateCardsLink = nav.getByRole('link', { name: new RegExp(RATE_CARDS_LABEL) })
+
+    expect(planOverviewLink.querySelector('.animate-pulse')).not.toBeInTheDocument()
+    expect(rateCardsLink.querySelector('.animate-pulse')).toBeInTheDocument()
   })
 })

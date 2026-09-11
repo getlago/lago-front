@@ -1,5 +1,6 @@
 import { revalidateLogic } from '@tanstack/react-form'
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
 import { CurrencyEnum } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
@@ -7,6 +8,8 @@ import { AllTheProviders } from '~/test-utils'
 
 import { CatalogPlanDrawerContent } from '../CatalogPlanDrawerContent'
 import {
+  CATALOG_PLAN_DRAWER_REMOVE_DESCRIPTION_TEST_ID,
+  CATALOG_PLAN_DRAWER_SHOW_DESCRIPTION_TEST_ID,
   CATALOG_PLAN_DRAWER_TITLE_EDIT_KEY,
   CATALOG_PLAN_FORM_DEFAULTS,
   CatalogPlanFormValues,
@@ -120,6 +123,23 @@ describe('CatalogPlanDrawerContent', () => {
   it('GIVEN no description THEN shows the add-description button instead', () => {
     renderHost()
 
+    expect(screen.getByText(ADD_DESCRIPTION_BUTTON_KEY)).toBeInTheDocument()
+  })
+
+  it('GIVEN clicking add description THEN reveals the description field', async () => {
+    renderHost()
+
+    await userEvent.click(screen.getByTestId(CATALOG_PLAN_DRAWER_SHOW_DESCRIPTION_TEST_ID))
+
+    expect(descriptionInput()).toBeInTheDocument()
+  })
+
+  it('GIVEN clicking remove on an existing description THEN hides it again', async () => {
+    renderHost({ values: { description: 'Existing' } })
+
+    await userEvent.click(screen.getByTestId(CATALOG_PLAN_DRAWER_REMOVE_DESCRIPTION_TEST_ID))
+
+    expect(screen.queryByLabelText(DESCRIPTION_LABEL_KEY)).not.toBeInTheDocument()
     expect(screen.getByText(ADD_DESCRIPTION_BUTTON_KEY)).toBeInTheDocument()
   })
 

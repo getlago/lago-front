@@ -120,9 +120,9 @@ export const CatalogPlanOverviewSection = (): JSX.Element => {
                 label: translate('text_632b4acf0c41206cbcb8c324'),
                 value: catalogPlan?.currency || '-',
               },
-              {
+              !!catalogPlan?.invoiceDisplayName && {
                 label: translate('text_65018c8e5c6b626f030bcf26'),
-                value: catalogPlan?.invoiceDisplayName || '-',
+                value: catalogPlan.invoiceDisplayName,
               },
             ]}
           />

@@ -2,7 +2,6 @@ import { CurrencyEnum } from '~/generated/graphql'
 
 export const CATALOG_PLAN_FORM_ID = 'catalog-plan-drawer-form'
 
-export const CATALOG_PLAN_DRAWER_SUBMIT_TEST_ID = 'catalog-plan-drawer-submit'
 export const CATALOG_PLAN_DRAWER_SHOW_DESCRIPTION_TEST_ID = 'catalog-plan-drawer-show-description'
 export const CATALOG_PLAN_DRAWER_REMOVE_DESCRIPTION_TEST_ID =
   'catalog-plan-drawer-remove-description'

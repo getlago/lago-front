@@ -4,6 +4,7 @@ import { CatalogPlanOverviewSectionsEnum } from '~/core/constants/tabsOptions'
 import { AllTheProviders } from '~/test-utils'
 
 import { CatalogPlanDetailsOverview } from '../CatalogPlanDetailsOverview'
+import { CATALOG_PLAN_ADD_RATE_CARD_TEST_ID } from '../CatalogPlanRateCardsSection'
 
 const mockParams = { catalogPlanId: 'plan-1', section: undefined as string | undefined }
 
@@ -21,8 +22,21 @@ jest.mock('../CatalogPlanOverviewSection', () => ({
 }))
 
 jest.mock('../CatalogPlanOverviewNav', () => ({
-  CatalogPlanOverviewNav: ({ activeSection }: { activeSection: string }) => (
-    <div data-test="nav" data-active={activeSection} />
+  CatalogPlanOverviewNav: ({
+    activeSection,
+    rateCardsCount,
+    loading,
+  }: {
+    activeSection: string
+    rateCardsCount?: number
+    loading?: boolean
+  }) => (
+    <div
+      data-test="nav"
+      data-active={activeSection}
+      data-rate-cards-count={rateCardsCount}
+      data-loading={String(loading)}
+    />
   ),
 }))
 
@@ -54,6 +68,7 @@ describe('CatalogPlanDetailsOverview', () => {
 
     expect(screen.queryByTestId('plan-overview-section')).not.toBeInTheDocument()
     expect(screen.getByText(RATE_CARDS_EMPTY_KEY)).toBeInTheDocument()
+    expect(screen.getByTestId(CATALOG_PLAN_ADD_RATE_CARD_TEST_ID)).toBeInTheDocument()
     expect(screen.getByTestId('nav')).toHaveAttribute('data-active', 'rate-cards')
   })
 
@@ -63,5 +78,15 @@ describe('CatalogPlanDetailsOverview', () => {
 
     expect(screen.getByTestId('plan-overview-section')).toBeInTheDocument()
     expect(screen.getByTestId('nav')).toHaveAttribute('data-active', 'plan-overview')
+  })
+
+  it('GIVEN rateCardsCount and loading THEN forwards both to the nav', () => {
+    mockParams.section = undefined
+    render(<CatalogPlanDetailsOverview rateCardsCount={4} loading />, {
+      wrapper: AllTheProviders,
+    })
+
+    expect(screen.getByTestId('nav')).toHaveAttribute('data-rate-cards-count', '4')
+    expect(screen.getByTestId('nav')).toHaveAttribute('data-loading', 'true')
   })
 })

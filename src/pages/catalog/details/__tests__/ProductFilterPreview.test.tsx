@@ -141,9 +141,6 @@ describe('ProductFilterPreview', () => {
   })
 
   it('re-runs the query with the search term when the user searches', async () => {
-    // The search runs through useDebouncedSearch, which burns DEBOUNCE_SEARCH_MS on a real
-    // timer plus a second delay in its loading-blink guard. Waiting that out on the wall
-    // clock makes the assertion race CI load, so drive the timers explicitly instead.
     jest.useFakeTimers()
 
     await act(() =>

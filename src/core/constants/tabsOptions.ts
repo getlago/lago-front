@@ -125,7 +125,7 @@ export enum RateCardRateDetailsTabsOptionsEnum {
 
 export enum CatalogPlanDetailsTabsOptionsEnum {
   overview = 'overview',
-  subscriptions = 'subscriptions',
+  contracts = 'contracts',
   activityLogs = 'activity-logs',
 }
 

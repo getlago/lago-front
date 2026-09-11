@@ -5,6 +5,8 @@ export const contractStatusMapping = (status?: ContractStatusEnum | null): Statu
   switch (status) {
     case ContractStatusEnum.Active:
       return { type: StatusType.success, label: 'active' }
+    case ContractStatusEnum.Pending:
+      return { type: StatusType.default, label: 'pending' }
     case ContractStatusEnum.Canceled:
       return { type: StatusType.disabled, label: 'canceled' }
     case ContractStatusEnum.Terminated:

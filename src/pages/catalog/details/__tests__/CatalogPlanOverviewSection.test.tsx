@@ -30,10 +30,17 @@ jest.mock('react-router-dom', () => ({
   useParams: () => ({ catalogPlanId: 'plan-1' }),
 }))
 
-const buildMock = (
-  appliedRateCardsCount: number,
-  description: string | null = 'A description',
-) => ({
+type PlanOverrides = {
+  appliedRateCardsCount?: number
+  description?: string | null
+  invoiceDisplayName?: string | null
+}
+
+const buildMock = ({
+  appliedRateCardsCount = 0,
+  description = 'A description',
+  invoiceDisplayName = 'Cards',
+}: PlanOverrides) => ({
   request: {
     query: GetCatalogPlanForDetailsOverviewDocument,
     variables: { id: 'plan-1' },
@@ -47,7 +54,7 @@ const buildMock = (
         code: 'premium',
         currency: 'USD',
         description,
-        invoiceDisplayName: 'Cards',
+        invoiceDisplayName,
         appliedRateCardsCount,
         attachedToContracts: false,
       },
@@ -55,13 +62,10 @@ const buildMock = (
   },
 })
 
-const renderSection = (
-  appliedRateCardsCount = 0,
-  description: string | null = 'A description',
-): void => {
+const renderSection = (overrides: PlanOverrides = {}): void => {
   render(<CatalogPlanOverviewSection />, {
     wrapper: ({ children }) => (
-      <AllTheProviders forceTypenames mocks={[buildMock(appliedRateCardsCount, description)]}>
+      <AllTheProviders forceTypenames mocks={[buildMock(overrides)]}>
         {children}
       </AllTheProviders>
     ),
@@ -85,10 +89,17 @@ describe('CatalogPlanOverviewSection', () => {
   })
 
   it('GIVEN no description THEN hides the description row', async () => {
-    renderSection(0, null)
+    renderSection({ description: null })
 
     await waitFor(() => expect(screen.getByText('Premium')).toBeInTheDocument())
     expect(screen.queryByText('text_6388b923e514213fed58331c')).not.toBeInTheDocument()
+  })
+
+  it('GIVEN no invoice display name THEN hides the invoice display name row', async () => {
+    renderSection({ invoiceDisplayName: null })
+
+    await waitFor(() => expect(screen.getByText('Premium')).toBeInTheDocument())
+    expect(screen.queryByText('text_65018c8e5c6b626f030bcf26')).not.toBeInTheDocument()
   })
 
   it('GIVEN update permission THEN offers Edit plan', async () => {
@@ -121,7 +132,7 @@ describe('CatalogPlanOverviewSection', () => {
   })
 
   it('GIVEN no rate card THEN offers the quick action', async () => {
-    renderSection(0)
+    renderSection({ appliedRateCardsCount: 0 })
 
     await waitFor(() =>
       expect(screen.getByTestId(CATALOG_PLAN_QUICK_ACTION_RATE_CARDS_TEST_ID)).toBeInTheDocument(),
@@ -130,7 +141,7 @@ describe('CatalogPlanOverviewSection', () => {
   })
 
   it('GIVEN existing rate cards THEN hides the quick action', async () => {
-    renderSection(2)
+    renderSection({ appliedRateCardsCount: 2 })
 
     await waitFor(() => expect(screen.getByText('Premium')).toBeInTheDocument())
     expect(

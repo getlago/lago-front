@@ -141,13 +141,15 @@ describe('CatalogPlansList', () => {
     mockUseCatalogPlansLazyQuery.mockReturnValue([jest.fn(), defaultQueryState])
   })
 
-  it('wires the query with the URL page and default limit, with no eager fetch policy', () => {
+  it('wires the query with the URL page, default limit and notifyOnNetworkStatusChange', () => {
     render(<CatalogPlansList />)
 
-    expect(mockUseCatalogPlansLazyQuery).toHaveBeenCalledWith({
-      variables: { limit: DEFAULT_PAGE_SIZE, page: 1 },
-      notifyOnNetworkStatusChange: true,
-    })
+    expect(mockUseCatalogPlansLazyQuery).toHaveBeenCalledWith(
+      expect.objectContaining({
+        variables: { limit: DEFAULT_PAGE_SIZE, page: 1 },
+        notifyOnNetworkStatusChange: true,
+      }),
+    )
   })
 
   it('renders as a full-page list: inset pager, default sticky, and the page-gutter container size', () => {

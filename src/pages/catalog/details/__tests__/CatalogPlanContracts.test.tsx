@@ -3,13 +3,10 @@ import { ReactNode } from 'react'
 
 import { TableProps } from '~/components/designSystem/Table/Table'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
-import {
-  ContractForCatalogPlanSubscriptionsFragment,
-  ContractStatusEnum,
-} from '~/generated/graphql'
+import { ContractForCatalogPlanContractsFragment, ContractStatusEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import { CatalogPlanSubscriptions } from '../CatalogPlanSubscriptions'
+import { CatalogPlanContracts } from '../CatalogPlanContracts'
 
 const mockTableProps = jest.fn()
 const mockPaginatedContentProps = jest.fn()
@@ -48,8 +45,8 @@ const defaultQueryState = {
 }
 
 const buildContract = (
-  overrides: Partial<ContractForCatalogPlanSubscriptionsFragment> = {},
-): ContractForCatalogPlanSubscriptionsFragment => ({
+  overrides: Partial<ContractForCatalogPlanContractsFragment> = {},
+): ContractForCatalogPlanContractsFragment => ({
   __typename: 'Contract',
   id: 'contract-1',
   status: ContractStatusEnum.Active,
@@ -65,10 +62,10 @@ const buildContract = (
   ...overrides,
 })
 
-const getTableProps = (): TableProps<ContractForCatalogPlanSubscriptionsFragment> =>
+const getTableProps = (): TableProps<ContractForCatalogPlanContractsFragment> =>
   mockTableProps.mock.calls[0][0]
 
-describe('CatalogPlanSubscriptions', () => {
+describe('CatalogPlanContracts', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockUseGetCatalogPlanContractsQuery.mockReturnValue(defaultQueryState)
@@ -77,7 +74,7 @@ describe('CatalogPlanSubscriptions', () => {
   describe('GIVEN a known plan code', () => {
     describe('WHEN the tab renders', () => {
       it('THEN wires the query with the plan code, the URL page and the default limit', () => {
-        render(<CatalogPlanSubscriptions planCode="premium" />)
+        render(<CatalogPlanContracts planCode="premium" />)
 
         expect(mockUseGetCatalogPlanContractsQuery).toHaveBeenCalledWith(
           expect.objectContaining({
@@ -89,7 +86,7 @@ describe('CatalogPlanSubscriptions', () => {
       })
 
       it('THEN uses the tab-nested layout, not the full-page one', () => {
-        render(<CatalogPlanSubscriptions planCode="premium" />)
+        render(<CatalogPlanContracts planCode="premium" />)
 
         expect(getTableProps().containerSize).toBe(0)
         expect(mockPaginatedContentProps).toHaveBeenCalledWith(
@@ -109,7 +106,7 @@ describe('CatalogPlanSubscriptions', () => {
           },
         })
 
-        render(<CatalogPlanSubscriptions planCode="premium" />)
+        render(<CatalogPlanContracts planCode="premium" />)
 
         expect(mockPaginatedContentProps).toHaveBeenCalledWith(
           expect.objectContaining({
@@ -119,13 +116,13 @@ describe('CatalogPlanSubscriptions', () => {
       })
 
       it('THEN passes no row link, since the app has no contract detail route', () => {
-        render(<CatalogPlanSubscriptions planCode="premium" />)
+        render(<CatalogPlanContracts planCode="premium" />)
 
         expect(getTableProps().onRowActionLink).toBeUndefined()
       })
 
       it('THEN renders the four columns in order', () => {
-        render(<CatalogPlanSubscriptions planCode="premium" />)
+        render(<CatalogPlanContracts planCode="premium" />)
 
         expect(getTableProps().columns.map((column) => column?.key)).toEqual([
           'customer.displayName',
@@ -140,7 +137,7 @@ describe('CatalogPlanSubscriptions', () => {
   describe('GIVEN the plan code has not resolved yet', () => {
     describe('WHEN the tab renders', () => {
       it('THEN skips the query', () => {
-        render(<CatalogPlanSubscriptions />)
+        render(<CatalogPlanContracts />)
 
         expect(mockUseGetCatalogPlanContractsQuery).toHaveBeenCalledWith(
           expect.objectContaining({ skip: true }),
@@ -152,7 +149,7 @@ describe('CatalogPlanSubscriptions', () => {
   describe('GIVEN a contract row', () => {
     describe('WHEN the customer column content renders', () => {
       it('THEN shows the display name and a copyable external id', () => {
-        render(<CatalogPlanSubscriptions planCode="premium" />)
+        render(<CatalogPlanContracts planCode="premium" />)
 
         const customerColumn = getTableProps().columns.find(
           (column) => column?.key === 'customer.displayName',
@@ -167,7 +164,7 @@ describe('CatalogPlanSubscriptions', () => {
 
     describe('WHEN the status column content renders', () => {
       it('THEN maps the status through contractStatusMapping', () => {
-        render(<CatalogPlanSubscriptions planCode="premium" />)
+        render(<CatalogPlanContracts planCode="premium" />)
 
         const statusColumn = getTableProps().columns.find((column) => column?.key === 'status')
 
@@ -185,7 +182,7 @@ describe('CatalogPlanSubscriptions', () => {
 
     describe('WHEN the start date column content renders', () => {
       it('THEN shows the formatted date', () => {
-        render(<CatalogPlanSubscriptions planCode="premium" />)
+        render(<CatalogPlanContracts planCode="premium" />)
 
         const startedAtColumn = getTableProps().columns.find(
           (column) => column?.key === 'startedAt',
@@ -199,7 +196,7 @@ describe('CatalogPlanSubscriptions', () => {
       })
 
       it('THEN renders a dash when absent', () => {
-        render(<CatalogPlanSubscriptions planCode="premium" />)
+        render(<CatalogPlanContracts planCode="premium" />)
 
         const startedAtColumn = getTableProps().columns.find(
           (column) => column?.key === 'startedAt',
@@ -213,7 +210,7 @@ describe('CatalogPlanSubscriptions', () => {
 
     describe('WHEN the end date column content renders', () => {
       it('THEN shows the formatted date', () => {
-        render(<CatalogPlanSubscriptions planCode="premium" />)
+        render(<CatalogPlanContracts planCode="premium" />)
 
         const endedAtColumn = getTableProps().columns.find((column) => column?.key === 'endedAt')
 
@@ -223,7 +220,7 @@ describe('CatalogPlanSubscriptions', () => {
       })
 
       it('THEN renders a dash when absent', () => {
-        render(<CatalogPlanSubscriptions planCode="premium" />)
+        render(<CatalogPlanContracts planCode="premium" />)
 
         const endedAtColumn = getTableProps().columns.find((column) => column?.key === 'endedAt')
 
@@ -237,7 +234,7 @@ describe('CatalogPlanSubscriptions', () => {
   describe('GIVEN the table placeholder', () => {
     describe('WHEN the tab renders', () => {
       it('THEN the placeholder carries the empty-state copy', () => {
-        render(<CatalogPlanSubscriptions planCode="premium" />)
+        render(<CatalogPlanContracts planCode="premium" />)
 
         expect(getTableProps().placeholder?.emptyState?.title).toBe('text_1789030049530zaego9s9413')
         expect(getTableProps().placeholder?.emptyState?.subtitle).toBe(
@@ -255,7 +252,7 @@ describe('CatalogPlanSubscriptions', () => {
           error: new Error('boom'),
         })
 
-        render(<CatalogPlanSubscriptions planCode="premium" />)
+        render(<CatalogPlanContracts planCode="premium" />)
 
         expect(getTableProps().hasError).toBe(true)
         expect(getTableProps().placeholder?.errorState).toEqual(

@@ -11,13 +11,13 @@ import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { contractStatusMapping } from '~/core/constants/statusContractMapping'
 import { intlFormatDateTime } from '~/core/timezone'
 import {
-  ContractForCatalogPlanSubscriptionsFragment,
+  ContractForCatalogPlanContractsFragment,
   useGetCatalogPlanContractsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
-  fragment ContractForCatalogPlanSubscriptions on Contract {
+  fragment ContractForCatalogPlanContracts on Contract {
     id
     status
     startedAt
@@ -39,19 +39,17 @@ gql`
       }
       collection {
         id
-        ...ContractForCatalogPlanSubscriptions
+        ...ContractForCatalogPlanContracts
       }
     }
   }
 `
 
-type CatalogPlanSubscriptionsProps = {
+type CatalogPlanContractsProps = {
   planCode?: string
 }
 
-export const CatalogPlanSubscriptions = ({
-  planCode,
-}: CatalogPlanSubscriptionsProps): JSX.Element => {
+export const CatalogPlanContracts = ({ planCode }: CatalogPlanContractsProps): JSX.Element => {
   const { translate } = useInternationalization()
   const { page, goToPage } = usePageSearchParam()
 
@@ -61,7 +59,7 @@ export const CatalogPlanSubscriptions = ({
     notifyOnNetworkStatusChange: true,
   })
 
-  const columns: TableColumn<ContractForCatalogPlanSubscriptionsFragment>[] = [
+  const columns: TableColumn<ContractForCatalogPlanContractsFragment>[] = [
     {
       key: 'customer.displayName',
       title: translate('text_624efab67eb2570101d117be'),
@@ -137,7 +135,7 @@ export const CatalogPlanSubscriptions = ({
         sticky={false}
       >
         <Table
-          name="catalog-plan-subscriptions"
+          name="catalog-plan-contracts"
           data={data?.contracts?.collection ?? []}
           containerSize={0}
           containerClassName="border-t border-grey-300"

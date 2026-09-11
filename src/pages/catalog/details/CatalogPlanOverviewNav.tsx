@@ -17,6 +17,7 @@ type CatalogPlanOverviewNavItem = {
   section: CatalogPlanOverviewSectionsEnum
   icon: IconName
   labelKey: string
+  hasCount: boolean
   count?: number
 }
 
@@ -47,11 +48,13 @@ export const CatalogPlanOverviewNav = ({
       section: CatalogPlanOverviewSectionsEnum.planOverview,
       icon: 'file',
       labelKey: 'text_1789030049529z30uq3e7z48',
+      hasCount: false,
     },
     {
       section: CatalogPlanOverviewSectionsEnum.rateCards,
       icon: 'book',
       labelKey: 'text_1783104239825nxqno33u945',
+      hasCount: true,
       count: rateCardsCount,
     },
   ]
@@ -62,13 +65,14 @@ export const CatalogPlanOverviewNav = ({
     return `${overviewPath}/${section}`
   }
 
-  const renderCount = (count?: number): JSX.Element | null => {
+  const renderCount = (item: CatalogPlanOverviewNavItem): JSX.Element | null => {
+    if (!item.hasCount) return null
     if (loading) return <Skeleton variant="text" className="w-4" />
-    if (count === undefined) return null
+    if (item.count === undefined) return null
 
     return (
       <Typography variant="body" color="grey600" noWrap>
-        {count}
+        {item.count}
       </Typography>
     )
   }
@@ -87,7 +91,7 @@ export const CatalogPlanOverviewNav = ({
             to={getItemPath(item.section)}
             aria-current={isActive ? 'page' : undefined}
             className={tw(
-              'flex items-center gap-2 rounded-lg px-3 py-1 no-underline focus-visible:ring',
+              'flex items-center gap-2 rounded-lg px-3 py-1 no-underline hover:no-underline focus-visible:ring',
               isActive ? 'bg-grey-200' : 'hover:bg-grey-100',
             )}
           >
@@ -100,7 +104,7 @@ export const CatalogPlanOverviewNav = ({
             >
               {translate(item.labelKey)}
             </Typography>
-            {renderCount(item.count)}
+            {renderCount(item)}
           </Link>
         )
       })}

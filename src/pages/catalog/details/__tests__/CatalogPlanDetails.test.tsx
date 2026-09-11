@@ -1,3 +1,4 @@
+import { ApolloClient, useApolloClient } from '@apollo/client'
 import { act, render as rtlRender, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
@@ -16,7 +17,7 @@ import CatalogPlanDetails from '../CatalogPlanDetails'
 const EDIT_PLAN_KEY = 'text_1789030049528hmelti5lsxj'
 const DELETE_PLAN_KEY = 'text_1789030049528pjeaakmg1nc'
 const OVERVIEW_TAB_KEY = 'text_628cf761cbe6820138b8f2e4'
-const SUBSCRIPTIONS_TAB_KEY = 'text_6250304370f0f700a8fdc28d'
+const CONTRACTS_TAB_KEY = 'text_17891318128636r6g9igqqeq'
 const ACTIVITY_LOGS_TAB_KEY = 'text_1747314141347qq6rasuxisl'
 const PLANS_BREADCRUMB_KEY = 'text_62442e40cea25600b0b6d85a'
 const PLAN_BREADCRUMB_KEY = 'text_1789030049530nkyhqgwxpkt'
@@ -40,12 +41,12 @@ jest.mock('../CatalogPlanDetailsOverview', () => ({
   CatalogPlanDetailsOverview: () => <div data-test="overview-tab" />,
 }))
 
-const mockSubscriptionsProps = jest.fn()
+const mockContractsProps = jest.fn()
 
-jest.mock('../CatalogPlanSubscriptions', () => ({
-  CatalogPlanSubscriptions: (props: Record<string, unknown>) => {
-    mockSubscriptionsProps(props)
-    return <div data-test="subscriptions-tab" />
+jest.mock('../CatalogPlanContracts', () => ({
+  CatalogPlanContracts: (props: Record<string, unknown>) => {
+    mockContractsProps(props)
+    return <div data-test="contracts-tab" />
   },
 }))
 
@@ -97,10 +98,24 @@ const MainHeaderConfigSpy = (): null => {
   return null
 }
 
+let capturedApolloClient: ApolloClient<object> | undefined
+
+const ApolloClientSpy = (): null => {
+  capturedApolloClient = useApolloClient()
+  return null
+}
+
+const getCapturedApolloClient = (): ApolloClient<object> => {
+  if (!capturedApolloClient) throw new Error('Apollo client was not captured')
+
+  return capturedApolloClient
+}
+
 const CatalogPlanDetailsWithHeader = () => (
   <>
     <MainHeader />
     <MainHeaderConfigSpy />
+    <ApolloClientSpy />
     <CatalogPlanDetails />
   </>
 )
@@ -160,7 +175,7 @@ describe('CatalogPlanDetails', () => {
     await act(() => renderPage())
 
     expect(await screen.findByText(OVERVIEW_TAB_KEY)).toBeInTheDocument()
-    expect(screen.getByText(SUBSCRIPTIONS_TAB_KEY)).toBeInTheDocument()
+    expect(screen.getByText(CONTRACTS_TAB_KEY)).toBeInTheDocument()
     expect(screen.getByText(ACTIVITY_LOGS_TAB_KEY)).toBeInTheDocument()
   })
 
@@ -181,11 +196,11 @@ describe('CatalogPlanDetails', () => {
     })
   })
 
-  it('renders the subscriptions tab content scoped to the plan code', async () => {
-    await act(() => renderPage(CatalogPlanDetailsTabsOptionsEnum.subscriptions))
+  it('renders the contracts tab content scoped to the plan code', async () => {
+    await act(() => renderPage(CatalogPlanDetailsTabsOptionsEnum.contracts))
 
     await waitFor(() => {
-      expect(mockSubscriptionsProps).toHaveBeenCalledWith(
+      expect(mockContractsProps).toHaveBeenCalledWith(
         expect.objectContaining({ planCode: 'premium' }),
       )
     })
@@ -206,7 +221,7 @@ describe('CatalogPlanDetails', () => {
     await waitFor(() => {
       expect(screen.getByTestId('overview-tab')).toBeInTheDocument()
     })
-    expect(screen.queryByTestId('subscriptions-tab')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('contracts-tab')).not.toBeInTheDocument()
   })
 
   // That fallback happens to land on overview regardless of `match` (it's tab 0), so this
@@ -224,6 +239,32 @@ describe('CatalogPlanDetails', () => {
             }),
           ]),
         }),
+      )
+    })
+  })
+
+  it('pushes a new header config when only the code changes', async () => {
+    await act(() => renderPage())
+
+    await waitFor(() => {
+      expect(mainHeaderConfigSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ snapshotKey: expect.stringContaining('premium') }),
+      )
+    })
+
+    act(() => {
+      const client = getCapturedApolloClient()
+      const catalogPlanCacheId = client.cache.identify({ __typename: 'CatalogPlan', id: 'plan-1' })
+
+      client.cache.modify({
+        id: catalogPlanCacheId,
+        fields: { code: () => 'premium-v2' },
+      })
+    })
+
+    await waitFor(() => {
+      expect(mainHeaderConfigSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ snapshotKey: expect.stringContaining('premium-v2') }),
       )
     })
   })
