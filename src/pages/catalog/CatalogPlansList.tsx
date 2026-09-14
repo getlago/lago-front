@@ -2,7 +2,8 @@ import { gql } from '@apollo/client'
 import { useCallback } from 'react'
 
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
-import { Table, TableColumn, TablePlaceholder } from '~/components/designSystem/Table/Table'
+import { buildSearchAwareTablePlaceholder } from '~/components/designSystem/Table/buildSearchAwareTablePlaceholder'
+import { Table, TableColumn } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
@@ -146,34 +147,19 @@ const CatalogPlansList = (): JSX.Element => {
     },
   ]
 
-  const placeholder: TablePlaceholder = {
-    errorState: variables?.searchTerm
+  const placeholder = buildSearchAwareTablePlaceholder({
+    translate,
+    hasSearchTerm: !!variables?.searchTerm,
+    noResultTitleKey: 'text_1789030049528z655xwavs78',
+    emptyTitleKey: 'text_17890300495285vbd2xto1kc',
+    emptySubtitleKey: 'text_17890300495297g290y7et77',
+    emptyAction: canCreateCatalogPlans
       ? {
-          title: translate('text_623b53fea66c76017eaebb6e'),
-          subtitle: translate('text_63bab307a61c62af497e0599'),
+          buttonTitleKey: 'text_1789030049528b0qu0hphtg4',
+          onClick: () => openCatalogPlanDrawer(),
         }
-      : {
-          title: translate('text_629728388c4d2300e2d380d5'),
-          subtitle: translate('text_629728388c4d2300e2d380eb'),
-          buttonTitle: translate('text_629728388c4d2300e2d38110'),
-          buttonVariant: 'primary',
-          buttonAction: () => location.reload(),
-        },
-    emptyState: variables?.searchTerm
-      ? {
-          title: translate('text_1789030049528z655xwavs78'),
-          subtitle: translate('text_63bee4e10e2d53912bfe4da7'),
-        }
-      : {
-          title: translate('text_17890300495285vbd2xto1kc'),
-          subtitle: translate('text_17890300495297g290y7et77'),
-          ...(canCreateCatalogPlans && {
-            buttonTitle: translate('text_1789030049528b0qu0hphtg4'),
-            buttonVariant: 'primary',
-            buttonAction: () => openCatalogPlanDrawer(),
-          }),
-        },
-  }
+      : undefined,
+  })
 
   return (
     <>
