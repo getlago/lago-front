@@ -13,6 +13,7 @@ import {
 export const CONNECTION_FIELDS_INHERIT_RADIO_TEST_ID = 'connection-behavior-fields-inherit-radio'
 export const CONNECTION_FIELDS_SPECIFIC_RADIO_TEST_ID = 'connection-behavior-fields-specific-radio'
 export const CONNECTION_FIELDS_SKIP_RADIO_TEST_ID = 'connection-behavior-fields-skip-radio'
+export const CONNECTION_FIELDS_DIVIDER_TEST_ID = 'connection-behavior-fields-divider'
 
 const TEST_ID_BY_BEHAVIOR: Record<ConnectionBehavior, string> = {
   [ConnectionBehavior.INHERIT]: CONNECTION_FIELDS_INHERIT_RADIO_TEST_ID,
@@ -38,12 +39,14 @@ interface ConnectionBehaviorFieldsProps {
   onChange: (value: SelectedConnection) => void
   /** Rendered under the option's label, for the badges the category attaches to a behavior */
   renderBadge?: (behavior: ConnectionBehavior) => ReactNode
-  /** Rendered inside the selected option's card, under the label block */
-  renderSelectedContent?: (props: {
+  /** Rendered under the label of the selected option, as part of the connection choice itself */
+  renderChoiceContent?: (props: {
     behavior: ConnectionBehavior
     code: string
     onCodeChange: (code: string) => void
   }) => ReactNode
+  /** Rendered under the rule that closes the connection choice */
+  renderSelectedContent?: (behavior: ConnectionBehavior) => ReactNode
 }
 
 export const ConnectionBehaviorFields = ({
@@ -52,6 +55,7 @@ export const ConnectionBehaviorFields = ({
   value,
   onChange,
   renderBadge,
+  renderChoiceContent,
   renderSelectedContent,
 }: ConnectionBehaviorFieldsProps) => {
   const [behavior, setBehavior] = useState<ConnectionBehavior>(() =>
@@ -72,13 +76,14 @@ export const ConnectionBehaviorFields = ({
   const renderOption = (optionBehavior: ConnectionBehavior) => {
     const isSelected = behavior === optionBehavior
     const badge = renderBadge?.(optionBehavior)
-    const selectedContent = isSelected
-      ? renderSelectedContent?.({
+    const choiceContent = isSelected
+      ? renderChoiceContent?.({
           behavior: optionBehavior,
           code,
           onCodeChange: handleCodeChange,
         })
       : null
+    const selectedContent = isSelected ? renderSelectedContent?.(optionBehavior) : null
 
     return (
       <div
@@ -100,11 +105,15 @@ export const ConnectionBehaviorFields = ({
             labelVariant="body"
           />
           {!!badge && <div className="ml-9">{badge}</div>}
+          {!!choiceContent && <div className="ml-9">{choiceContent}</div>}
         </div>
 
         {!!selectedContent && (
           <>
-            <div className="-mx-4 border-b border-grey-300" />
+            <div
+              className="-mx-4 border-b border-grey-300"
+              data-test={CONNECTION_FIELDS_DIVIDER_TEST_ID}
+            />
             <div className="ml-9">{selectedContent}</div>
           </>
         )}

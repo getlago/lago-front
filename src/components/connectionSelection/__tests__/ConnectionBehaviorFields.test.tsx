@@ -5,6 +5,7 @@ import { ConnectionBehaviorEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import {
+  CONNECTION_FIELDS_DIVIDER_TEST_ID,
   CONNECTION_FIELDS_INHERIT_RADIO_TEST_ID,
   CONNECTION_FIELDS_SKIP_RADIO_TEST_ID,
   CONNECTION_FIELDS_SPECIFIC_RADIO_TEST_ID,
@@ -18,6 +19,7 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 
 const SPECIFIC_SLOT_TEST_ID = 'specific-slot'
 const BADGE_TEST_ID = 'inherit-badge'
+const BELOW_SLOT_TEST_ID = 'below-slot'
 
 const LABELS = {
   [ConnectionBehavior.INHERIT]: { label: 'Inherit' },
@@ -37,7 +39,10 @@ const renderFields = (value?: SelectedConnection) => {
       renderBadge={(behavior) =>
         behavior === ConnectionBehavior.INHERIT ? <span data-test={BADGE_TEST_ID} /> : null
       }
-      renderSelectedContent={({ behavior, code, onCodeChange }) => {
+      renderSelectedContent={(behavior) =>
+        behavior === ConnectionBehavior.SPECIFIC ? <div data-test={BELOW_SLOT_TEST_ID} /> : null
+      }
+      renderChoiceContent={({ behavior, code, onCodeChange }) => {
         if (behavior !== ConnectionBehavior.SPECIFIC) return null
 
         return (
@@ -163,6 +168,23 @@ describe('ConnectionBehaviorFields', () => {
         renderFields()
 
         expect(screen.getAllByTestId(BADGE_TEST_ID)).toHaveLength(1)
+      })
+    })
+  })
+
+  describe('GIVEN a selected option owning both a choice slot and a following block', () => {
+    describe('WHEN it renders', () => {
+      // The rule closes the connection choice: anything the choice owns, such as the connection
+      // combobox, belongs above it.
+      it('THEN should place the rule between the choice slot and that block', () => {
+        renderFields({ code: 'stripe_eu' })
+
+        const divider = screen.getByTestId(CONNECTION_FIELDS_DIVIDER_TEST_ID)
+        const choiceSlot = screen.getByTestId(SPECIFIC_SLOT_TEST_ID)
+        const belowSlot = screen.getByTestId(BELOW_SLOT_TEST_ID)
+
+        expect(choiceSlot.compareDocumentPosition(divider)).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
+        expect(divider.compareDocumentPosition(belowSlot)).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
       })
     })
   })

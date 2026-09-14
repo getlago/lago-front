@@ -15,6 +15,7 @@ gql`
         id
         code
         isDefault
+        paymentProvider
       }
     }
   }
@@ -48,7 +49,7 @@ export const useCustomerPaymentConnections = ({
     variables: { customerId },
     skip: skip || !customerId,
   })
-  const { paymentProviders, getPaymentProvider, isLoadingPaymentProviders } = usePaymentProviders()
+  const { paymentProviders, isLoadingPaymentProviders } = usePaymentProviders()
 
   const providerCollection = paymentProviders?.paymentProviders?.collection || []
 
@@ -63,7 +64,7 @@ export const useCustomerPaymentConnections = ({
         id: row.id,
         code: row.code,
         name: providerCollection.find((provider) => provider.code === row.code)?.name || row.code,
-        provider: getPaymentProvider(row.code),
+        provider: row.paymentProvider ?? null,
         isDefault: row.isDefault,
       },
     ]

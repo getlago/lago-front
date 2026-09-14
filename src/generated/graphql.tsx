@@ -14841,7 +14841,7 @@ export type CustomerPaymentConnectionsQueryVariables = Exact<{
 }>;
 
 
-export type CustomerPaymentConnectionsQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, paymentProviderCustomers: Array<{ __typename?: 'ProviderCustomer', id: string, code?: string | null, isDefault: boolean }> } | null };
+export type CustomerPaymentConnectionsQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, paymentProviderCustomers: Array<{ __typename?: 'ProviderCustomer', id: string, code?: string | null, isDefault: boolean, paymentProvider?: ProviderTypeEnum | null }> } | null };
 
 export type PaymentMethodItemFragment = { __typename?: 'PaymentMethod', id: string, isDefault: boolean, paymentProviderCode?: string | null, paymentProviderCustomerId?: string | null, paymentProviderType?: ProviderTypeEnum | null, paymentProviderName?: string | null, providerMethodId: string, deletedAt?: any | null, createdAt: any, details?: { __typename?: 'PaymentMethodDetails', brand?: string | null, expirationYear?: string | null, expirationMonth?: string | null, last4?: string | null, type?: string | null } | null };
 
@@ -36204,6 +36204,7 @@ export const CustomerPaymentConnectionsDocument = gql`
       id
       code
       isDefault
+      paymentProvider
     }
   }
 }

@@ -133,7 +133,7 @@ export const ConnectionPaymentSettingsDrawerContent = withForm({
       />
     )
 
-    const renderSelectedContent = ({
+    const renderChoiceContent = ({
       behavior: optionBehavior,
       code,
       onCodeChange,
@@ -142,24 +142,24 @@ export const ConnectionPaymentSettingsDrawerContent = withForm({
       code: string
       onCodeChange: (value: string) => void
     }) => {
-      if (optionBehavior === ConnectionBehavior.SKIP) return null
-
-      if (optionBehavior === ConnectionBehavior.INHERIT) {
-        return resolvedConnection ? renderMethodFields() : null
-      }
+      if (optionBehavior !== ConnectionBehavior.SPECIFIC) return null
 
       return (
-        <div className="flex flex-col gap-4">
-          <CustomerPaymentConnectionComboBox
-            customerId={customerId}
-            value={code}
-            onChange={onCodeChange}
-            error={connectionError ? translate(connectionError) : undefined}
-            PopperProps={{ displayInDialog: true }}
-          />
-          {!!resolvedConnection && renderMethodFields()}
-        </div>
+        <CustomerPaymentConnectionComboBox
+          customerId={customerId}
+          value={code}
+          onChange={onCodeChange}
+          error={connectionError ? translate(connectionError) : undefined}
+          PopperProps={{ displayInDialog: true }}
+        />
       )
+    }
+
+    const renderSelectedContent = (optionBehavior: ConnectionBehavior) => {
+      if (optionBehavior === ConnectionBehavior.SKIP) return null
+      if (!resolvedConnection) return null
+
+      return renderMethodFields()
     }
 
     return (
@@ -192,6 +192,7 @@ export const ConnectionPaymentSettingsDrawerContent = withForm({
               },
             }}
             renderBadge={renderBadge}
+            renderChoiceContent={renderChoiceContent}
             renderSelectedContent={renderSelectedContent}
           />
         </CenteredPage.PageSection>
