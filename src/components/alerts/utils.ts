@@ -4,17 +4,19 @@ import { applyExistingCodeError } from '~/core/form/existingCodeError'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { AlertThreshold, CurrencyEnum, ThresholdInput } from '~/generated/graphql'
 
+export type SortableThreshold = Pick<AlertThreshold, 'recurring' | 'value'>
+
 /**
  * Turns the API thresholds of an alert into the shape the thresholds table
  * expects: amounts deserialized (or truncated to units), non-recurring
  * thresholds first and the recurring one — if any — last, since the table
  * relies on that ordering to map row indexes back to the array.
  */
-export const sortAndFormatThresholds = (
-  thresholds: AlertThreshold[],
+export const sortAndFormatThresholds = <T extends SortableThreshold>(
+  thresholds: T[],
   currency: CurrencyEnum,
   shouldHandleUnits: boolean,
-): AlertThreshold[] => {
+): T[] => {
   const formattedThresholds = thresholds.map((threshold) => ({
     ...threshold,
     value: shouldHandleUnits
