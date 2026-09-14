@@ -66,6 +66,11 @@ gql`
     paymentMethod {
       id
     }
+    connections {
+      category
+      behavior
+      code
+    }
     skipInvoiceCustomSections
     selectedInvoiceCustomSections {
       id
@@ -96,6 +101,11 @@ gql`
       paymentMethodType
       paymentMethod {
         id
+      }
+      connections {
+        category
+        behavior
+        code
       }
       skipInvoiceCustomSections
       selectedInvoiceCustomSections {

@@ -31,8 +31,8 @@ interface ConnectionPaymentSettingsSelectorProps {
   'data-test'?: string
 }
 
-// Nothing reads connections back yet, so a wallet routed to manual payments through the legacy
-// drawer carries that choice on `paymentMethod` alone.
+// A wallet routed to manual through the legacy drawer carries that on `paymentMethod` alone: the
+// backend holds no override row for it, so its routing reads back as `inherit`.
 const seedConnection = (
   connection: SelectedConnection,
   paymentMethod: SelectedPaymentMethod,
