@@ -1,3 +1,4 @@
+import { SelectedConnection } from '~/components/connectionSelection/types'
 import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
 import { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types'
 import {
@@ -21,9 +22,12 @@ type TWalletRecurringRuleInput = NonNullable<
 
 export type TWalletDataForm = Omit<
   CreateCustomerWalletInput,
-  'customerId' | 'name' | 'code' | 'recurringTransactionRules'
+  'customerId' | 'name' | 'code' | 'recurringTransactionRules' | 'connections'
 > &
-  Omit<UpdateCustomerWalletInput, 'id' | 'name' | 'code' | 'recurringTransactionRules'> & {
+  Omit<
+    UpdateCustomerWalletInput,
+    'id' | 'name' | 'code' | 'recurringTransactionRules' | 'connections'
+  > & {
     // Always strings in the form ('' when unset) so they stay compatible
     // with NameAndCodeGroup's field mapping.
     name: string
@@ -32,13 +36,15 @@ export type TWalletDataForm = Omit<
       billableMetrics?: WalletScopeBillableMetric[] | null
     }
     paymentMethod?: SelectedPaymentMethod
+    paymentConnection?: SelectedConnection
     invoiceCustomSection?: InvoiceCustomSectionInput
     // Rules carry the FE-shaped payment/invoicing values at runtime
     // (transformRecurringTransactionRule), not the raw GQL reference inputs
     recurringTransactionRules?: Array<
-      Omit<TWalletRecurringRuleInput, 'paymentMethod' | 'invoiceCustomSection'> & {
+      Omit<TWalletRecurringRuleInput, 'paymentMethod' | 'invoiceCustomSection' | 'connections'> & {
         lagoId?: string | null
         paymentMethod?: SelectedPaymentMethod
+        paymentConnection?: SelectedConnection
         invoiceCustomSection?: InvoiceCustomSectionInput
       }
     > | null

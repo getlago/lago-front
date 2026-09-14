@@ -1,9 +1,11 @@
+import { SelectedConnection } from '~/components/connectionSelection/types'
 import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
 import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
 import { normalizePurchaseOrderNumber } from '~/components/purchaseOrder/PO'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
+  ConnectionsInput,
   CreateCustomerWalletInput,
   RecurringTransactionMethodEnum,
   RecurringTransactionTriggerEnum,
@@ -31,6 +33,13 @@ import { TWalletDataForm } from '~/pages/wallet/types'
  *   never reach the update input.
  */
 
+// An omitted category keeps whatever the backend stored, so an untouched choice must not
+// produce a `connections` key at all: `inherit` would destroy the existing override row.
+const formatConnections = (
+  paymentConnection: SelectedConnection,
+): { connections?: ConnectionsInput } =>
+  paymentConnection ? { connections: { payment: paymentConnection } } : {}
+
 const formatRecurringTransactionRules = (
   recurringTransactionRules: TWalletDataForm['recurringTransactionRules'],
   formType: keyof typeof FORM_TYPE_ENUM,
@@ -52,6 +61,7 @@ const formatRecurringTransactionRules = (
       expirationAt,
       ignorePaidTopUpLimits,
       invoiceCustomSection: ruleInvoiceCustomSection,
+      paymentConnection: rulePaymentConnection,
       ...rest
     } = rule
 
@@ -91,6 +101,7 @@ const formatRecurringTransactionRules = (
       ),
       // `null` (not `undefined`) on clear → BE erases the stored value.
       purchaseOrderNumber: normalizePurchaseOrderNumber(rule.purchaseOrderNumber),
+      ...formatConnections(rulePaymentConnection),
     }
   })
 }
@@ -113,6 +124,7 @@ export const mapFormToCreateInput = (
     appliesTo,
     priority,
     paymentMethod,
+    paymentConnection,
     invoiceCustomSection,
     billingEntityId,
     ...values
@@ -143,6 +155,7 @@ export const mapFormToCreateInput = (
       ? { paidTopUpMaxAmountCents: serializeAmount(values.paidTopUpMaxAmountCents, currency) }
       : {}),
     priority: priority || WALLET_DEFAULT_PRIORITY,
+    ...formatConnections(paymentConnection),
   }
 }
 
@@ -160,6 +173,7 @@ export const mapFormToUpdateInput = (
     appliesTo,
     priority,
     paymentMethod,
+    paymentConnection,
     invoiceCustomSection,
     billingEntityId,
     transactionName,
@@ -192,5 +206,6 @@ export const mapFormToUpdateInput = (
       ? { paidTopUpMaxAmountCents: serializeAmount(values.paidTopUpMaxAmountCents, currency) }
       : { paidTopUpMaxAmountCents: null }),
     priority: priority || WALLET_DEFAULT_PRIORITY,
+    ...formatConnections(paymentConnection),
   }
 }

@@ -67,6 +67,22 @@ jest.mock('~/components/paymentSettings/PaymentSettingsSelector', () => ({
   },
 }))
 
+jest.mock('~/components/paymentSettings/connectionFirst/ConnectionPaymentSettingsSelector', () => ({
+  ConnectionPaymentSettingsSelector: (props: Record<string, unknown>) => {
+    mockConnectionPaymentSelector(props)
+
+    return null
+  },
+}))
+
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  ...jest.requireActual('~/hooks/useOrganizationInfos'),
+  useOrganizationInfos: () => ({ hasFeatureFlag: mockHasFeatureFlag }),
+}))
+
+const mockConnectionPaymentSelector = jest.fn()
+const mockHasFeatureFlag = jest.fn(() => false)
+
 // Stub the rule drawer hook: the parent only needs openDrawer + onSave —
 // the drawer's own behaviour is covered by RecurringRuleDrawer.test.tsx.
 const mockOpenRuleDrawer = jest.fn()
@@ -192,6 +208,7 @@ describe('TopUpSection', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockIsPremium.mockReturnValue(true)
+    mockHasFeatureFlag.mockReturnValue(false)
     capturedDrawerProps.current = null
     formValuesProbe.current = null
   })
@@ -542,6 +559,33 @@ describe('TopUpSection', () => {
         render(<TestWrapper autoOpenRuleDrawer />)
 
         expect(mockOpenRuleDrawer).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the multi-connection flag', () => {
+    describe('WHEN it is off', () => {
+      it('THEN should keep mounting the legacy payment settings selector', () => {
+        render(<TestWrapper />)
+
+        expect(lastSelectorCall(mockPaymentSelector, ViewTypeEnum.WalletTopUp)).toBeDefined()
+        expect(mockConnectionPaymentSelector).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN it is on', () => {
+      it('THEN should mount the connection-first selector wired to the customer id', () => {
+        mockHasFeatureFlag.mockReturnValue(true)
+
+        render(<TestWrapper />)
+
+        expect(mockPaymentSelector).not.toHaveBeenCalled()
+        expect(mockConnectionPaymentSelector).toHaveBeenCalledWith(
+          expect.objectContaining({
+            viewType: ViewTypeEnum.WalletTopUp,
+            customerId: 'customer-id',
+          }),
+        )
       })
     })
   })

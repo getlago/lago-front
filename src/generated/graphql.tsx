@@ -1158,6 +1158,25 @@ export enum CommitmentTypeEnum {
   MinimumCommitment = 'minimum_commitment'
 }
 
+export enum ConnectionBehaviorEnum {
+  Inherit = 'inherit',
+  Skip = 'skip'
+}
+
+/** Route a billing object to a specific customer connection, or skip the category */
+export type ConnectionChoiceInput = {
+  behavior?: InputMaybe<ConnectionBehaviorEnum>;
+  code?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** Per-object connection routing, one choice per category. An omitted category keeps whatever is stored */
+export type ConnectionsInput = {
+  accounting?: InputMaybe<ConnectionChoiceInput>;
+  crm?: InputMaybe<ConnectionChoiceInput>;
+  payment?: InputMaybe<ConnectionChoiceInput>;
+  tax?: InputMaybe<ConnectionChoiceInput>;
+};
+
 /** The agreement a customer signed: an optional plan, a validity window and the billing anchor */
 export type Contract = {
   __typename?: 'Contract';
@@ -2034,6 +2053,7 @@ export type CreateCustomerWalletInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   code?: InputMaybe<Scalars['String']['input']>;
+  connections?: InputMaybe<ConnectionsInput>;
   currency: CurrencyEnum;
   customerId: Scalars['ID']['input'];
   expirationAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
@@ -2400,6 +2420,7 @@ export type CreateRateCardInput = {
   rates?: InputMaybe<Array<RateCardRateInput>>;
   regroupPaidFees?: InputMaybe<RateCardRegroupPaidFeesEnum>;
   taxCodes?: InputMaybe<Array<Scalars['String']['input']>>;
+  walletTargetable?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 /** Create rate card rate input arguments */
@@ -2430,6 +2451,7 @@ export type CreateRatePhaseInput = {
 };
 
 export type CreateRecurringTransactionRuleInput = {
+  connections?: InputMaybe<ConnectionsInput>;
   expirationAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   grantedCredits?: InputMaybe<Scalars['String']['input']>;
   grantsTargetTopUp?: InputMaybe<Scalars['Boolean']['input']>;
@@ -9753,6 +9775,7 @@ export type RateCard = {
   regroupPaidFees: RateCardRegroupPaidFeesEnum;
   taxes: Array<Tax>;
   updatedAt: Scalars['ISO8601DateTime']['output'];
+  walletTargetable?: Maybe<Scalars['Boolean']['output']>;
 };
 
 export enum RateCardBillingTimingEnum {
@@ -11178,6 +11201,7 @@ export type UpdateCustomerWalletInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   code?: InputMaybe<Scalars['String']['input']>;
+  connections?: InputMaybe<ConnectionsInput>;
   expirationAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   id: Scalars['ID']['input'];
   invoiceCustomSection?: InputMaybe<InvoiceCustomSectionsReferenceInput>;
@@ -11556,6 +11580,7 @@ export type UpdateRateCardInput = {
   proration?: InputMaybe<Scalars['Boolean']['input']>;
   regroupPaidFees?: InputMaybe<RateCardRegroupPaidFeesEnum>;
   taxCodes?: InputMaybe<Array<Scalars['String']['input']>>;
+  walletTargetable?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 /** Update rate card rate input arguments */
@@ -11586,6 +11611,7 @@ export type UpdateRatePhaseInput = {
 };
 
 export type UpdateRecurringTransactionRuleInput = {
+  connections?: InputMaybe<ConnectionsInput>;
   expirationAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   grantedCredits?: InputMaybe<Scalars['String']['input']>;
   grantsTargetTopUp?: InputMaybe<Scalars['Boolean']['input']>;
@@ -14810,6 +14836,13 @@ export type ConnectionPaymentMethodsQueryVariables = Exact<{
 
 export type ConnectionPaymentMethodsQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, paymentMethods: { __typename?: 'PaymentMethodCollection', collection: Array<{ __typename?: 'PaymentMethod', id: string, isDefault: boolean, paymentProviderCode?: string | null, paymentProviderCustomerId?: string | null, paymentProviderType?: ProviderTypeEnum | null, paymentProviderName?: string | null, providerMethodId: string, deletedAt?: any | null, createdAt: any, details?: { __typename?: 'PaymentMethodDetails', brand?: string | null, expirationYear?: string | null, expirationMonth?: string | null, last4?: string | null, type?: string | null } | null }> } } | null } | null };
 
+export type CustomerPaymentConnectionsQueryVariables = Exact<{
+  customerId: Scalars['ID']['input'];
+}>;
+
+
+export type CustomerPaymentConnectionsQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, paymentProviderCustomers: Array<{ __typename?: 'ProviderCustomer', id: string, code?: string | null, isDefault: boolean }> } | null };
+
 export type PaymentMethodItemFragment = { __typename?: 'PaymentMethod', id: string, isDefault: boolean, paymentProviderCode?: string | null, paymentProviderCustomerId?: string | null, paymentProviderType?: ProviderTypeEnum | null, paymentProviderName?: string | null, providerMethodId: string, deletedAt?: any | null, createdAt: any, details?: { __typename?: 'PaymentMethodDetails', brand?: string | null, expirationYear?: string | null, expirationMonth?: string | null, last4?: string | null, type?: string | null } | null };
 
 export type PaymentMethodsQueryVariables = Exact<{
@@ -16677,7 +16710,7 @@ export type VoidQuoteVersionMutationVariables = Exact<{
 
 export type VoidQuoteVersionMutation = { __typename?: 'Mutation', voidQuoteVersion?: { __typename?: 'QuoteVersion', id: string, status: StatusEnum } | null };
 
-export type TestQuoteVersionCachedFieldsFragment = { __typename?: 'QuoteVersion', mentionVariables: any, billingItems?: any | null };
+export type TestQuoteVersionCachedFieldsFragment = { __typename?: 'QuoteVersion', mentionVariables: any, billingItems?: any | null, content?: string | null };
 
 export type AddQuoteImageMutationVariables = Exact<{
   input: AddQuoteImageInput;
@@ -23448,6 +23481,7 @@ export const TestQuoteVersionCachedFieldsFragmentDoc = gql`
     fragment TestQuoteVersionCachedFields on QuoteVersion {
   mentionVariables
   billingItems
+  content
 }
     `;
 export const QuotePreviewCustomerFragmentDoc = gql`
@@ -36162,6 +36196,54 @@ export type ConnectionPaymentMethodsQueryHookResult = ReturnType<typeof useConne
 export type ConnectionPaymentMethodsLazyQueryHookResult = ReturnType<typeof useConnectionPaymentMethodsLazyQuery>;
 export type ConnectionPaymentMethodsSuspenseQueryHookResult = ReturnType<typeof useConnectionPaymentMethodsSuspenseQuery>;
 export type ConnectionPaymentMethodsQueryResult = Apollo.QueryResult<ConnectionPaymentMethodsQuery, ConnectionPaymentMethodsQueryVariables>;
+export const CustomerPaymentConnectionsDocument = gql`
+    query CustomerPaymentConnections($customerId: ID!) {
+  customer(id: $customerId) {
+    id
+    paymentProviderCustomers {
+      id
+      code
+      isDefault
+    }
+  }
+}
+    `;
+
+/**
+ * __useCustomerPaymentConnectionsQuery__
+ *
+ * To run a query within a React component, call `useCustomerPaymentConnectionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCustomerPaymentConnectionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCustomerPaymentConnectionsQuery({
+ *   variables: {
+ *      customerId: // value for 'customerId'
+ *   },
+ * });
+ */
+export function useCustomerPaymentConnectionsQuery(baseOptions: Apollo.QueryHookOptions<CustomerPaymentConnectionsQuery, CustomerPaymentConnectionsQueryVariables> & ({ variables: CustomerPaymentConnectionsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CustomerPaymentConnectionsQuery, CustomerPaymentConnectionsQueryVariables>(CustomerPaymentConnectionsDocument, options);
+      }
+export function useCustomerPaymentConnectionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CustomerPaymentConnectionsQuery, CustomerPaymentConnectionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CustomerPaymentConnectionsQuery, CustomerPaymentConnectionsQueryVariables>(CustomerPaymentConnectionsDocument, options);
+        }
+// @ts-ignore
+export function useCustomerPaymentConnectionsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<CustomerPaymentConnectionsQuery, CustomerPaymentConnectionsQueryVariables>): Apollo.UseSuspenseQueryResult<CustomerPaymentConnectionsQuery, CustomerPaymentConnectionsQueryVariables>;
+export function useCustomerPaymentConnectionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CustomerPaymentConnectionsQuery, CustomerPaymentConnectionsQueryVariables>): Apollo.UseSuspenseQueryResult<CustomerPaymentConnectionsQuery | undefined, CustomerPaymentConnectionsQueryVariables>;
+export function useCustomerPaymentConnectionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CustomerPaymentConnectionsQuery, CustomerPaymentConnectionsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<CustomerPaymentConnectionsQuery, CustomerPaymentConnectionsQueryVariables>(CustomerPaymentConnectionsDocument, options);
+        }
+export type CustomerPaymentConnectionsQueryHookResult = ReturnType<typeof useCustomerPaymentConnectionsQuery>;
+export type CustomerPaymentConnectionsLazyQueryHookResult = ReturnType<typeof useCustomerPaymentConnectionsLazyQuery>;
+export type CustomerPaymentConnectionsSuspenseQueryHookResult = ReturnType<typeof useCustomerPaymentConnectionsSuspenseQuery>;
+export type CustomerPaymentConnectionsQueryResult = Apollo.QueryResult<CustomerPaymentConnectionsQuery, CustomerPaymentConnectionsQueryVariables>;
 export const PaymentMethodsDocument = gql`
     query PaymentMethods($externalCustomerId: ID!, $withDeleted: Boolean) {
   paymentMethods(

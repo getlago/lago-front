@@ -1,5 +1,6 @@
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
+  ConnectionBehaviorEnum,
   CurrencyEnum,
   GetCustomerInfosForWalletFormQuery,
   GetWalletInfosForWalletFormQuery,
@@ -428,5 +429,66 @@ describe('currency precision (non-2-decimal currencies)', () => {
     )
 
     expect(input.paidTopUpMinAmountCents).toBe(12345)
+  })
+})
+
+describe('connections payload', () => {
+  it('omits connections entirely when the connection drawer was never saved', () => {
+    expect(mapFormToCreateInput(baseForm(), 'customer-id')).not.toHaveProperty('connections')
+    expect(mapFormToUpdateInput(baseForm(), 'wallet-id')).not.toHaveProperty('connections')
+  })
+
+  it('sends the wallet payment connection on both create and update', () => {
+    const form = baseForm({ paymentConnection: { code: 'stripe_eu' } })
+
+    expect(mapFormToCreateInput(form, 'customer-id').connections).toEqual({
+      payment: { code: 'stripe_eu' },
+    })
+    expect(mapFormToUpdateInput(form, 'wallet-id').connections).toEqual({
+      payment: { code: 'stripe_eu' },
+    })
+  })
+
+  it('keeps each recurring rule connection independent from the wallet one', () => {
+    const input = mapFormToCreateInput(
+      baseForm({
+        paymentConnection: { behavior: ConnectionBehaviorEnum.Skip },
+        recurringTransactionRules: [
+          {
+            trigger: RecurringTransactionTriggerEnum.Interval,
+            method: RecurringTransactionMethodEnum.Fixed,
+            interval: RecurringTransactionIntervalEnum.Monthly,
+            paidCredits: '1',
+            grantedCredits: '1',
+            paymentConnection: { code: 'adyen_global' },
+          },
+        ] as TWalletDataForm['recurringTransactionRules'],
+      }),
+      'customer-id',
+    )
+
+    expect(input.connections).toEqual({ payment: { behavior: ConnectionBehaviorEnum.Skip } })
+    expect(input.recurringTransactionRules?.[0]?.connections).toEqual({
+      payment: { code: 'adyen_global' },
+    })
+  })
+
+  it('omits connections on a rule whose connection was never saved', () => {
+    const input = mapFormToCreateInput(
+      baseForm({
+        recurringTransactionRules: [
+          {
+            trigger: RecurringTransactionTriggerEnum.Interval,
+            method: RecurringTransactionMethodEnum.Fixed,
+            interval: RecurringTransactionIntervalEnum.Monthly,
+            paidCredits: '1',
+            grantedCredits: '1',
+          },
+        ] as TWalletDataForm['recurringTransactionRules'],
+      }),
+      'customer-id',
+    )
+
+    expect(input.recurringTransactionRules?.[0]).not.toHaveProperty('connections')
   })
 })
