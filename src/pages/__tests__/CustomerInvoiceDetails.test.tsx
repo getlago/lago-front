@@ -254,8 +254,8 @@ jest.mock('~/components/invoices/DisputeInvoiceDialog', () => ({
   useDisputeInvoiceDialog: () => ({ openDisputeInvoiceDialog: jest.fn() }),
 }))
 
-jest.mock('~/components/invoices/AddMetadataDrawer', () => ({
-  AddMetadataDrawer: () => null,
+jest.mock('~/components/invoices/addMetadataDrawer/useAddMetadataDrawer', () => ({
+  useAddMetadataDrawer: () => ({ openDrawer: jest.fn() }),
 }))
 
 jest.mock('~/components/dialogs/PremiumWarningDialog', () => ({

@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import Stack from '@mui/material/Stack'
-import { useCallback, useMemo, useRef } from 'react'
+import { useCallback, useMemo } from 'react'
 import { generatePath, useParams } from 'react-router'
 
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
@@ -9,7 +9,7 @@ import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder
 import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { buildInvoiceDocumentData } from '~/components/emails/buildDocumentData'
-import { AddMetadataDrawer, AddMetadataDrawerRef } from '~/components/invoices/AddMetadataDrawer'
+import { useAddMetadataDrawer } from '~/components/invoices/addMetadataDrawer/useAddMetadataDrawer'
 import { useDeleteInvoiceDialog } from '~/components/invoices/DeleteInvoiceDialog'
 import { useDisputeInvoiceDialog } from '~/components/invoices/DisputeInvoiceDialog'
 import { useUpdateInvoicePaymentStatusDialog } from '~/components/invoices/EditInvoicePaymentStatusDialog'
@@ -320,7 +320,6 @@ const CustomerInvoiceDetails = () => {
   const { openDeleteInvoiceDialog } = useDeleteInvoiceDialog()
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
   const { openUpdateInvoicePaymentStatusDialog } = useUpdateInvoicePaymentStatusDialog()
-  const addMetadataDrawerDialogRef = useRef<AddMetadataDrawerRef>(null)
   const { openDisputeInvoiceDialog } = useDisputeInvoiceDialog()
   const activeTabContent = useMainHeaderTabContent()
 
@@ -351,6 +350,8 @@ const CustomerInvoiceDetails = () => {
   })
   const invoice = data?.invoice
   const invoiceFees = feesData?.invoice?.fees
+
+  const { openDrawer: openAddMetadataDrawer } = useAddMetadataDrawer({ invoiceId: invoice?.id })
 
   const { data: customerData, loading: customerLoading } = useGetInvoiceCustomerQuery({
     variables: { id: invoice?.customer?.id as string },
@@ -920,7 +921,7 @@ const CustomerInvoiceDetails = () => {
           label: translate('text_1739289860782ljvy21lcake'),
           hidden: !authorizations.canUpdatePaymentStatus,
           onClick: (closePopper: () => void) => {
-            addMetadataDrawerDialogRef.current?.openDrawer()
+            openAddMetadataDrawer()
             closePopper()
           },
         },
@@ -1068,8 +1069,6 @@ const CustomerInvoiceDetails = () => {
       ) : (
         <DetailsPage.Container>{activeTabContent}</DetailsPage.Container>
       )}
-
-      {!!invoice && <AddMetadataDrawer ref={addMetadataDrawerDialogRef} invoiceId={invoice.id} />}
     </>
   )
 }
