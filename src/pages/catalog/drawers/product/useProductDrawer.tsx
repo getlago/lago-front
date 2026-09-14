@@ -80,7 +80,7 @@ const productDrawerSchema = z
   .superRefine((values, ctx) => {
     // A usage item bills against a billable metric; the API leaves it optional
     // so the requirement is enforced here.
-    if (values.productType === ProductTypeEnum.Usage && !values.billableMetricId) {
+    if (values.productType === ProductTypeEnum.Metered && !values.billableMetricId) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['billableMetricId'],
@@ -159,7 +159,7 @@ const useProductForm = ({ onSuccess }: { onSuccess: (result: ProductFormSuccess)
               productType: value.productType as ProductTypeEnum,
               productCategoryId: value.productCategoryId || undefined,
               billableMetricId:
-                value.productType === ProductTypeEnum.Usage
+                value.productType === ProductTypeEnum.Metered
                   ? value.billableMetricId || undefined
                   : undefined,
               description: value.description || undefined,
