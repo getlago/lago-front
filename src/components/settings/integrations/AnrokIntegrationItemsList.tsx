@@ -12,13 +12,18 @@ import {
   AnrokIntegrationItemsListAddonsFragmentDoc,
   AnrokIntegrationItemsListBillableMetricsFragmentDoc,
   AnrokIntegrationItemsListDefaultFragmentDoc,
+  AnrokIntegrationItemsListProductsFragmentDoc,
+  FeatureFlagEnum,
   MappableTypeEnum,
   useGetAddOnsForAnrokItemsListLazyQuery,
   useGetAnrokIntegrationCollectionMappingsLazyQuery,
   useGetBillableMetricsForAnrokItemsListLazyQuery,
+  useGetProductsForAnrokItemsListLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { usePermissions } from '~/hooks/usePermissions'
 import {
   AnrokIntegrationMapItemDrawer,
   AnrokIntegrationMapItemDrawerRef,
@@ -28,17 +33,20 @@ import { MenuPopper } from '~/styles'
 import AnrokIntegrationItemsListAddons from './AnrokIntegrationItemsListAddons'
 import AnrokIntegrationItemsListBillableMetrics from './AnrokIntegrationItemsListBillableMetrics'
 import AnrokIntegrationItemsListDefault from './AnrokIntegrationItemsListDefault'
+import AnrokIntegrationItemsListProducts from './AnrokIntegrationItemsListProducts'
 
 const SelectedItemTypeEnum = {
   Default: 'Default',
   [MappableTypeEnum.AddOn]: 'AddOn',
   [MappableTypeEnum.BillableMetric]: 'BillableMetric',
+  [MappableTypeEnum.Product]: 'Product',
 } as const
 
 const SelectedItemTypeEnumTranslation = {
   Default: 'text_65281f686a80b400c8e2f6d1',
   [MappableTypeEnum.AddOn]: 'text_629728388c4d2300e2d3801a',
   [MappableTypeEnum.BillableMetric]: 'text_623b497ad05b960101be3438',
+  [MappableTypeEnum.Product]: 'text_17831042398250iwa2xp8pba',
 } as const
 
 gql`
@@ -95,14 +103,39 @@ gql`
     }
   }
 
+  query getProductsForAnrokItemsList(
+    $page: Int
+    $limit: Int
+    $searchTerm: String
+    # integrationId used in item list fragment
+    $integrationId: ID!
+  ) {
+    products(page: $page, limit: $limit, searchTerm: $searchTerm) {
+      metadata {
+        currentPage
+        totalPages
+        totalCount
+      }
+      collection {
+        id
+        ...AnrokIntegrationItemsListProducts
+      }
+    }
+  }
+
   ${AnrokIntegrationItemsListDefaultFragmentDoc}
   ${AnrokIntegrationItemsListAddonsFragmentDoc}
   ${AnrokIntegrationItemsListBillableMetricsFragmentDoc}
+  ${AnrokIntegrationItemsListProductsFragmentDoc}
 `
 
 const AnrokIntegrationItemsList = ({ integrationId }: { integrationId: string }) => {
   const { translate } = useInternationalization()
+  const { hasFeatureFlag, loading: isOrganizationLoading } = useOrganizationInfos()
+  const { hasPermissions } = usePermissions()
   const anrokIntegrationMapItemDrawerRef = useRef<AnrokIntegrationMapItemDrawerRef>(null)
+  const canViewProducts =
+    hasFeatureFlag(FeatureFlagEnum.ProductCatalog) && hasPermissions(['productsView'])
   const [searchParams, setSearchParams] = useSearchParams({
     item_type: SelectedItemTypeEnum.Default,
   })
@@ -163,6 +196,23 @@ const AnrokIntegrationItemsList = ({ integrationId }: { integrationId: string })
     },
   })
 
+  const [
+    getProductsList,
+    {
+      data: productsData,
+      loading: productsLoading,
+      error: productsError,
+      variables: productsVariables,
+      fetchMore: fetchMoreProducts,
+    },
+  ] = useGetProductsForAnrokItemsListLazyQuery({
+    notifyOnNetworkStatusChange: true,
+    variables: {
+      limit: DEFAULT_PAGE_SIZE,
+      integrationId,
+    },
+  })
+
   const { debouncedSearch: debouncedSearchAddons, isLoading: isLoadingAddons } = useDebouncedSearch(
     getAddonList,
     addonLoading,
@@ -170,6 +220,18 @@ const AnrokIntegrationItemsList = ({ integrationId }: { integrationId: string })
 
   const { debouncedSearch: debouncedSearchBillableMetrics, isLoading: isLoadingBillableMetrics } =
     useDebouncedSearch(getBillableMetricsList, billableMetricsLoading)
+  const { debouncedSearch: debouncedSearchProducts, isLoading: isLoadingProducts } =
+    useDebouncedSearch(getProductsList, productsLoading)
+
+  useEffect(() => {
+    if (
+      !isOrganizationLoading &&
+      selectedItemType === MappableTypeEnum.Product &&
+      !canViewProducts
+    ) {
+      setSelectedItemType(SelectedItemTypeEnum.Default)
+    }
+  }, [canViewProducts, isOrganizationLoading, selectedItemType])
 
   // handeling data fetching
   useEffect(() => {
@@ -179,8 +241,17 @@ const AnrokIntegrationItemsList = ({ integrationId }: { integrationId: string })
       getAddonList()
     } else if (selectedItemType === MappableTypeEnum.BillableMetric) {
       getBillableMetricsList()
+    } else if (selectedItemType === MappableTypeEnum.Product && canViewProducts) {
+      getProductsList()
     }
-  }, [selectedItemType, getAddonList, getDefaultItems, getBillableMetricsList])
+  }, [
+    selectedItemType,
+    canViewProducts,
+    getAddonList,
+    getDefaultItems,
+    getBillableMetricsList,
+    getProductsList,
+  ])
 
   return (
     <>
@@ -232,6 +303,19 @@ const AnrokIntegrationItemsList = ({ integrationId }: { integrationId: string })
                 >
                   {translate('text_623b497ad05b960101be3438')}
                 </Button>
+                {canViewProducts && (
+                  <Button
+                    variant="quaternary"
+                    align="left"
+                    fullWidth
+                    onClick={() => {
+                      setSelectedItemType(MappableTypeEnum.Product)
+                      closePopper()
+                    }}
+                  >
+                    {translate('text_17831042398250iwa2xp8pba')}
+                  </Button>
+                )}
               </MenuPopper>
             )}
           </Popper>
@@ -247,6 +331,12 @@ const AnrokIntegrationItemsList = ({ integrationId }: { integrationId: string })
           <SearchInput
             onChange={debouncedSearchBillableMetrics}
             placeholder={translate('text_63ba9ee977a67c9693f50aea')}
+          />
+        )}
+        {selectedItemType === MappableTypeEnum.Product && canViewProducts && (
+          <SearchInput
+            onChange={debouncedSearchProducts}
+            placeholder={translate('text_1783980718114714izppxdwq')}
           />
         )}
       </div>
@@ -280,6 +370,17 @@ const AnrokIntegrationItemsList = ({ integrationId }: { integrationId: string })
           hasError={!!billableMetricsError}
           anrokIntegrationMapItemDrawerRef={anrokIntegrationMapItemDrawerRef}
           searchTerm={billableMetricsVariables?.searchTerm}
+        />
+      )}
+      {selectedItemType === MappableTypeEnum.Product && canViewProducts && (
+        <AnrokIntegrationItemsListProducts
+          data={productsData}
+          fetchMoreProducts={fetchMoreProducts}
+          integrationId={integrationId}
+          isLoading={isLoadingProducts}
+          hasError={!!productsError}
+          anrokIntegrationMapItemDrawerRef={anrokIntegrationMapItemDrawerRef}
+          searchTerm={productsVariables?.searchTerm}
         />
       )}
 
