@@ -2,7 +2,8 @@ import { ApolloClient, DocumentNode } from '@apollo/client'
 import { OperationDefinitionNode } from 'graphql'
 
 /**
- * Evicts a deleted entity from the Apollo cache and removes it from paginated list fields.
+ * Evicts a deleted entity from the Apollo cache, removes it from paginated list fields and
+ * brings their `metadata` back in step with the shortened collection.
  *
  * Uses `cache.batch` with selective `onWatchUpdated` to suppress notifications to detail page
  * query watchers (preventing an immediate 404 refetch), while still allowing list query
@@ -59,6 +60,34 @@ import { OperationDefinitionNode } from 'graphql'
  * })
  * ```
  */
+type PaginatedListMetadata = {
+  currentPage?: number
+  totalPages?: number
+  totalCount?: number
+}
+
+const metadataAfterRemoval = (
+  metadata: PaginatedListMetadata | undefined,
+  remainingOnPage: number,
+): PaginatedListMetadata | undefined => {
+  if (!metadata) return metadata
+
+  const next = { ...metadata }
+  const currentPage = next.currentPage ?? 1
+
+  if (typeof next.totalCount === 'number') {
+    next.totalCount = Math.max(0, next.totalCount - 1)
+  }
+
+  // `PaginatedContent` only pages back when `currentPage > totalPages`, so an untouched
+  // `totalPages` strands the user on the page the deletion just emptied.
+  if (remainingOnPage === 0 && currentPage > 1) {
+    next.totalPages = currentPage - 1
+  }
+
+  return next
+}
+
 export const evictFromCache = (
   client: ApolloClient<object>,
   options: {
@@ -106,12 +135,17 @@ export const evictFromCache = (
             [fieldName](existing: any) {
               if (!existing?.collection) return existing
 
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const collection = existing.collection.filter((ref: any) => {
+                return cache.identify(ref) !== cacheId
+              })
+
+              if (collection.length === existing.collection.length) return existing
+
               return {
                 ...existing,
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                collection: existing.collection.filter((ref: any) => {
-                  return cache.identify(ref) !== cacheId
-                }),
+                collection,
+                metadata: metadataAfterRemoval(existing.metadata, collection.length),
               }
             },
           },
