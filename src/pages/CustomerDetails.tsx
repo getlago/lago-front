@@ -10,6 +10,7 @@ import { hasDefinedGQLError } from '~/core/apolloClient'
 import {
   INTEGRATION_POLLING_INTERVAL,
   MAX_INTEGRATION_POLLING_ATTEMPTS,
+  MAX_INTEGRATION_POLLING_LOADING_WAITS,
 } from '~/core/constants/integrationPolling'
 import { CUSTOMERS_LIST_ROUTE, useLocation, useNavigate } from '~/core/router'
 import {
@@ -100,6 +101,7 @@ const CustomerDetails = (): ReactElement => {
 
     let cancelled = false
     let completedPolls = 0
+    let loadingWaits = 0
     let timeout: ReturnType<typeof setTimeout>
 
     const finishPolling = (): void => {
@@ -110,6 +112,13 @@ const CustomerDetails = (): ReactElement => {
       const currentQuery = pollingContextRef.current
 
       if (currentQuery.loading) {
+        loadingWaits += 1
+
+        if (loadingWaits >= MAX_INTEGRATION_POLLING_LOADING_WAITS) {
+          finishPolling()
+          return
+        }
+
         timeout = setTimeout(() => void poll(), INTEGRATION_POLLING_INTERVAL)
         return
       }
@@ -127,9 +136,10 @@ const CustomerDetails = (): ReactElement => {
       try {
         const result = await refetch()
 
-        integrationFound = hasIntegrationCustomer(result.data.customer)
+        integrationFound = hasIntegrationCustomer(result.data?.customer)
       } catch {
-        // Apollo exposes refetch failures through the query's error state.
+        // `errorPolicy: 'all'` (apolloClient/init.ts) resolves GraphQL errors with no data,
+        // so only network failures reject here and the query's error state surfaces them.
       }
 
       if (cancelled) return

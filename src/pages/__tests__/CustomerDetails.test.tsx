@@ -3,6 +3,10 @@ import { StrictMode } from 'react'
 // eslint-disable-next-line lago/no-direct-rrd-nav-import
 import { useLocation, useParams } from 'react-router'
 
+import {
+  INTEGRATION_POLLING_INTERVAL,
+  MAX_INTEGRATION_POLLING_LOADING_WAITS,
+} from '~/core/constants/integrationPolling'
 import { initializeYup } from '~/formValidation/initializeYup'
 import { IntegrationTypeEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
@@ -218,6 +222,36 @@ describe('CustomerDetails', () => {
       await advancePolling()
       expect(mockRefetch).toHaveBeenCalledTimes(3)
       expect(mockNavigate).toHaveBeenCalledTimes(1)
+    })
+
+    it('gives up and clears the flag when the initial query never settles', async () => {
+      const initialResult = mockUseGetCustomerQuery()
+
+      mockUseGetCustomerQuery.mockReturnValue({ ...initialResult, data: undefined, loading: true })
+      render(<CustomerDetails />)
+
+      await advancePolling(MAX_INTEGRATION_POLLING_LOADING_WAITS * INTEGRATION_POLLING_INTERVAL)
+      expect(mockRefetch).not.toHaveBeenCalled()
+      expect(mockNavigate).toHaveBeenCalledTimes(1)
+      expect(mockNavigate).toHaveBeenCalledWith(pathname, { replace: true, state: {} })
+
+      await advancePolling(60_000)
+      expect(mockRefetch).not.toHaveBeenCalled()
+      expect(mockNavigate).toHaveBeenCalledTimes(1)
+    })
+
+    it('counts a refetch that resolves without data as a completed poll', async () => {
+      // `errorPolicy: 'all'` resolves a GraphQL error with `data: undefined` instead of rejecting
+      mockRefetch.mockResolvedValue({ data: undefined })
+      render(<CustomerDetails />)
+
+      await advancePolling(2000)
+      expect(mockNavigate).not.toHaveBeenCalled()
+      await advancePolling()
+      expect(mockRefetch).toHaveBeenCalledTimes(3)
+      expect(mockNavigate).toHaveBeenCalledTimes(1)
+      await advancePolling(5000)
+      expect(mockRefetch).toHaveBeenCalledTimes(3)
     })
 
     it('stops without polling when the initial query returns an integration', async () => {
