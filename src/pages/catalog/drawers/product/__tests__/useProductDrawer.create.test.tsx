@@ -58,7 +58,7 @@ jest.mock('../ProductDrawerContent', () => ({
     form,
   }: {
     form: {
-      setFieldValue: (name: string, value: string) => void
+      setFieldValue: (name: string, value: string | undefined) => void
       state: { values: { productCategoryId?: string } }
     }
   }) => (
@@ -72,6 +72,12 @@ jest.mock('../ProductDrawerContent', () => ({
         }}
       >
         seed
+      </button>
+      <button
+        data-test="clear-product-category"
+        onClick={() => form.setFieldValue('productCategoryId', undefined)}
+      >
+        clear
       </button>
       <span data-test="product-id-value">{form.state.values.productCategoryId ?? ''}</span>
     </>
@@ -240,6 +246,28 @@ describe('useProductDrawer create flow', () => {
       </MockedProvider>,
     )
     expect(screen.getByTestId('product-id-value')).toHaveTextContent('prod-1')
+  })
+
+  // The combobox clear button stores `undefined`, which a plain `z.string()` rejects as
+  // "This value is not valid" even though the product category is optional.
+  it('submits after the prefilled product category is cleared', async () => {
+    const { result } = renderDrawerHook([createProductMock()])
+
+    act(() => result.current.openDrawer({ attachToProductCategory: ATTACHED_PRODUCT }))
+
+    render(
+      <MockedProvider mocks={[]} addTypename={false}>
+        {lastDrawerArgs?.children}
+      </MockedProvider>,
+    )
+    await userEvent.click(screen.getByTestId('seed-fixed-item'))
+    await userEvent.click(screen.getByTestId('clear-product-category'))
+    await act(async () => {
+      await lastDrawerArgs?.form?.submit()
+    })
+
+    await waitFor(() => expect(mockClose).toHaveBeenCalledTimes(1))
+    expect(mockNavigate).toHaveBeenCalledWith('/product-catalog/products/pitem-1/overview')
   })
 
   it('keeps the drawer open on a duplicate code without toasting', async () => {
