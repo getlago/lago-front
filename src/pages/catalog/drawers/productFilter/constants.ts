@@ -33,7 +33,9 @@ export const productFilterDrawerSchema = z.object({
   code: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
   description: z.string(),
   invoiceDisplayName: z.string(),
-  productId: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
+  productId: z
+    .string({ error: 'text_624ea7c29103fd010732ab7d' })
+    .min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
   values: z
     .array(z.object({ billableMetricFilterId: z.string(), value: z.string().optional() }))
     .min(1, { message: 'text_624ea7c29103fd010732ab7d' }),

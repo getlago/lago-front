@@ -76,10 +76,27 @@ jest.mock('../RateCardDrawerContent', () => ({
     form,
   }: {
     form: {
+      Subscribe: (props: {
+        selector: (state: { values: { productId: string } }) => string
+        children: (productId: string) => ReactNode
+      }) => ReactNode
       setFieldValue: (name: string, value: unknown) => void
     }
   }) => (
     <>
+      <form.Subscribe selector={(state) => state.values.productId}>
+        {(productId) => <output aria-label="selected product">{productId}</output>}
+      </form.Subscribe>
+      <button
+        type="button"
+        onClick={() => {
+          form.setFieldValue('name', 'Metered API')
+          form.setFieldValue('code', 'metered_api')
+          form.setFieldValue('currency', 'USD')
+        }}
+      >
+        seed required fields
+      </button>
       <button
         data-test="seed-base"
         onClick={() => {
@@ -222,6 +239,7 @@ describe('useRateCardDrawer create flow', () => {
     act(() => result.current.openDrawer())
     renderDrawerBody()
     await userEvent.click(screen.getByTestId('seed-base'))
+    expect(screen.getByLabelText('selected product')).toHaveTextContent('pi-1')
     await submit()
 
     await waitFor(() => expect(mockClose).toHaveBeenCalledTimes(1))
@@ -304,6 +322,33 @@ describe('useRateCardDrawer create flow', () => {
     expect(capturedInput).toMatchObject({ name: 'Metered API' })
     expect(mockClose).not.toHaveBeenCalled()
     expect(mockNavigate).not.toHaveBeenCalled()
+    await waitFor(() => expect(screen.getByLabelText('selected product')).toBeEmptyDOMElement())
+  })
+
+  it('retains the attached product after a create-more save', async () => {
+    const { result } = renderDrawerHook([createRateCardMock(() => undefined)])
+
+    act(() =>
+      result.current.openDrawer({
+        attachToProduct: {
+          id: 'attached-product',
+          name: 'Seats',
+          productType: ProductTypeEnum.Fixed,
+        },
+      }),
+    )
+
+    render(<>{lastDrawerArgs?.secondaryAction}</>)
+    await userEvent.click(screen.getByTestId(CREATE_MORE_SWITCH_TEST_ID))
+
+    renderDrawerBody()
+    expect(screen.getByLabelText('selected product')).toHaveTextContent('attached-product')
+    await userEvent.click(screen.getByRole('button', { name: 'seed required fields' }))
+    await submit()
+
+    await waitFor(() =>
+      expect(screen.getByLabelText('selected product')).toHaveTextContent('attached-product'),
+    )
   })
 
   it('keeps the drawer open on a duplicate code without toasting', async () => {

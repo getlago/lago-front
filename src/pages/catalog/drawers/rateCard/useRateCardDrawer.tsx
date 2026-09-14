@@ -14,6 +14,8 @@ import { prependOrgSlug } from '~/core/router/utils/prependOrgSlug'
 import { escapeDoubleQuotes } from '~/core/utils/escapeDoubleQuotes'
 import {
   LagoApiError,
+  ProductForRateCardDrawerFragment,
+  ProductForRateCardDrawerFragmentDoc,
   RateCardBillingTimingEnum,
   RateCardForDrawerFragment,
   useCreateRateCardMutation,
@@ -56,15 +58,12 @@ gql`
     ratesCount
     product {
       id
-      name
       code
-      productType
+      ...ProductForRateCardDrawer
       billableMetric {
         id
         name
         code
-        aggregationType
-        recurring
       }
     }
     productFilter {
@@ -87,6 +86,8 @@ gql`
       ...RateCardForDrawer
     }
   }
+
+  ${ProductForRateCardDrawerFragmentDoc}
 `
 
 // The create title doubles as the create submit label (identical copy).
@@ -113,11 +114,11 @@ const mapRateCardToFormValues = (rateCard: RateCardForDrawerFragment): RateCardF
   proration: rateCard.proration,
 })
 
-type ProductAttachment = { id: string; name: string }
+type ProductAttachment = ProductForRateCardDrawerFragment
 type ProductFilterAttachment = {
   id: string
   name: string
-  product: { id: string; name: string }
+  product: ProductAttachment
 }
 
 type RateCardFormSuccess = {
@@ -344,15 +345,9 @@ export const useRateCardDrawer = () => {
       ? {
           value: productSource.id,
           label: productSource.name,
-          // Only the edit fragment carries the metadata that drives the derived
-          // sections; the attach args are label-only.
-          ...(rateCard?.product
-            ? {
-                productType: rateCard.product.productType,
-                aggregationType: rateCard.product.billableMetric?.aggregationType,
-                recurring: rateCard.product.billableMetric?.recurring,
-              }
-            : {}),
+          productType: productSource.productType,
+          aggregationType: productSource.billableMetric?.aggregationType,
+          recurring: productSource.billableMetric?.recurring,
         }
       : null
 

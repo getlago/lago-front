@@ -41,6 +41,7 @@ export const buildRateCardForRateDrawer = (
   currency: CurrencyEnum.Usd,
   appliedPricingUnitCode: null,
   billingTiming: RateCardBillingTimingEnum.Arrears,
+  proration: false,
   attachedToPlanOrSubscription: false,
   attachedToSubscriptions: false,
   product: {
@@ -51,6 +52,7 @@ export const buildRateCardForRateDrawer = (
       __typename: 'BillableMetric',
       id: 'bm-1',
       aggregationType: AggregationTypeEnum.SumAgg,
+      recurring: false,
     },
   },
   activeRate: null,
