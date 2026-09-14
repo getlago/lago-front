@@ -1,3 +1,5 @@
+import { FeatureFlagEnum } from '~/generated/graphql'
+
 import { CustomRouteObject } from './types'
 import { lazyLoad } from './utils'
 
@@ -67,11 +69,13 @@ export const catalogRoutes: CustomRouteObject[] = [
     private: true,
     element: <CatalogPlanDetails />,
     permissions: ['plansView'],
+    featureFlag: FeatureFlagEnum.ProductCatalog,
   },
   {
     path: [PLAN_PRICING_ROUTE],
     private: true,
     element: <CatalogPlansList />,
     permissions: ['plansView'],
+    featureFlag: FeatureFlagEnum.ProductCatalog,
   },
 ]
