@@ -9497,11 +9497,13 @@ export type QueryRateCardsArgs = {
   code?: InputMaybe<Scalars['String']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
+  productCategoryIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
   productCode?: InputMaybe<Scalars['String']['input']>;
   productFilterCode?: InputMaybe<Scalars['String']['input']>;
-  productFilterId?: InputMaybe<Scalars['ID']['input']>;
-  productId?: InputMaybe<Scalars['ID']['input']>;
+  productFilterIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
+  productIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
+  withoutProductCategory?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 
@@ -15992,8 +15994,9 @@ export type RateCardsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
-  productId?: InputMaybe<Scalars['ID']['input']>;
-  productFilterId?: InputMaybe<Scalars['ID']['input']>;
+  productIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
+  productFilterIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
+  productCategoryIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
 }>;
 
 
@@ -16142,7 +16145,7 @@ export type RateCardForPreviewProductFragment = { __typename?: 'Product', id: st
 export type RateCardForPreviewProductFilterFragment = { __typename?: 'ProductFilter', id: string, name: string, product: { __typename?: 'Product', id: string, name: string } };
 
 export type GetRateCardsForProductDetailsQueryVariables = Exact<{
-  productId?: InputMaybe<Scalars['ID']['input']>;
+  productIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
 }>;
@@ -16151,7 +16154,7 @@ export type GetRateCardsForProductDetailsQueryVariables = Exact<{
 export type GetRateCardsForProductDetailsQuery = { __typename?: 'Query', rateCards: { __typename?: 'RateCardCollection', metadata: { __typename?: 'CollectionMetadata', totalCount: number }, collection: Array<{ __typename?: 'RateCard', id: string, name: string, code: string, createdAt: any, ratesCount: number, currency: CurrencyEnum, appliedPricingUnitCode?: string | null, description?: string | null, billingTiming: RateCardBillingTimingEnum, displayOnInvoice: boolean, regroupPaidFees: RateCardRegroupPaidFeesEnum, proration: boolean, attachedToPlanOrSubscription: boolean, attachedToSubscriptions: boolean, product: { __typename?: 'Product', id: string, name: string, code: string, productType: ProductTypeEnum, billableMetric?: { __typename?: 'BillableMetric', id: string, name: string, code: string, aggregationType: AggregationTypeEnum, recurring: boolean } | null }, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, code: string } | null, activeRate?: { __typename?: 'RateCardRate', id: string, rateModel: RateCardRateModelEnum, minAmountCents: any, rateProperties: { __typename?: 'Properties', amount?: string | null, rate?: string | null, packageSize?: any | null, pricingGroupKeys?: Array<string> | null, freeUnits?: any | null, fixedAmount?: string | null, freeUnitsPerEvents?: any | null, freeUnitsPerTotalAggregation?: string | null, perTransactionMinAmount?: string | null, perTransactionMaxAmount?: string | null, customProperties?: any | null, graduatedRanges?: Array<{ __typename?: 'GraduatedRange', perUnitAmount: string, flatAmount: string, fromValue: number, toValue?: number | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'GraduatedPercentageRange', rate: string, flatAmount: string, fromValue: number, toValue?: number | null }> | null, volumeRanges?: Array<{ __typename?: 'VolumeRange', perUnitAmount: string, flatAmount: string, fromValue: any, toValue?: any | null }> | null } } | null }> } };
 
 export type GetRateCardsForProductFilterDetailsQueryVariables = Exact<{
-  productFilterId?: InputMaybe<Scalars['ID']['input']>;
+  productFilterIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
 }>;
@@ -41657,13 +41660,14 @@ export type ProductsLazyQueryHookResult = ReturnType<typeof useProductsLazyQuery
 export type ProductsSuspenseQueryHookResult = ReturnType<typeof useProductsSuspenseQuery>;
 export type ProductsQueryResult = Apollo.QueryResult<ProductsQuery, ProductsQueryVariables>;
 export const RateCardsDocument = gql`
-    query rateCards($page: Int, $limit: Int, $searchTerm: String, $productId: ID, $productFilterId: ID) {
+    query rateCards($page: Int, $limit: Int, $searchTerm: String, $productIds: [ID!], $productFilterIds: [ID!], $productCategoryIds: [ID!]) {
   rateCards(
     page: $page
     limit: $limit
     searchTerm: $searchTerm
-    productId: $productId
-    productFilterId: $productFilterId
+    productIds: $productIds
+    productFilterIds: $productFilterIds
+    productCategoryIds: $productCategoryIds
   ) {
     collection {
       id
@@ -42416,8 +42420,8 @@ export type GetRateCardForDetailsOverviewLazyQueryHookResult = ReturnType<typeof
 export type GetRateCardForDetailsOverviewSuspenseQueryHookResult = ReturnType<typeof useGetRateCardForDetailsOverviewSuspenseQuery>;
 export type GetRateCardForDetailsOverviewQueryResult = Apollo.QueryResult<GetRateCardForDetailsOverviewQuery, GetRateCardForDetailsOverviewQueryVariables>;
 export const GetRateCardsForProductDetailsDocument = gql`
-    query getRateCardsForProductDetails($productId: ID, $limit: Int, $searchTerm: String) {
-  rateCards(productId: $productId, limit: $limit, searchTerm: $searchTerm) {
+    query getRateCardsForProductDetails($productIds: [ID!], $limit: Int, $searchTerm: String) {
+  rateCards(productIds: $productIds, limit: $limit, searchTerm: $searchTerm) {
     metadata {
       totalCount
     }
@@ -42467,9 +42471,9 @@ export type GetRateCardsForProductDetailsLazyQueryHookResult = ReturnType<typeof
 export type GetRateCardsForProductDetailsSuspenseQueryHookResult = ReturnType<typeof useGetRateCardsForProductDetailsSuspenseQuery>;
 export type GetRateCardsForProductDetailsQueryResult = Apollo.QueryResult<GetRateCardsForProductDetailsQuery, GetRateCardsForProductDetailsQueryVariables>;
 export const GetRateCardsForProductFilterDetailsDocument = gql`
-    query getRateCardsForProductFilterDetails($productFilterId: ID, $limit: Int, $searchTerm: String) {
+    query getRateCardsForProductFilterDetails($productFilterIds: [ID!], $limit: Int, $searchTerm: String) {
   rateCards(
-    productFilterId: $productFilterId
+    productFilterIds: $productFilterIds
     limit: $limit
     searchTerm: $searchTerm
   ) {

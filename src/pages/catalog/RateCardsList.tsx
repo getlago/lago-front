@@ -8,7 +8,6 @@ import { Table, TablePlaceholder } from '~/components/designSystem/Table/Table'
 import {
   Filters,
   formatFiltersForRateCardsQuery,
-  mapRateCardFilterVars,
   RateCardAvailableFilters,
 } from '~/components/Filters'
 import { SearchInput } from '~/components/SearchInput'
@@ -33,15 +32,17 @@ gql`
     $page: Int
     $limit: Int
     $searchTerm: String
-    $productId: ID
-    $productFilterId: ID
+    $productIds: [ID!]
+    $productFilterIds: [ID!]
+    $productCategoryIds: [ID!]
   ) {
     rateCards(
       page: $page
       limit: $limit
       searchTerm: $searchTerm
-      productId: $productId
-      productFilterId: $productFilterId
+      productIds: $productIds
+      productFilterIds: $productFilterIds
+      productCategoryIds: $productCategoryIds
     ) {
       collection {
         id
@@ -69,7 +70,7 @@ const RateCardsList = () => {
   const { page, goToPage } = usePageSearchParam()
 
   const filtersForRateCardsQuery = useMemo(
-    () => mapRateCardFilterVars(formatFiltersForRateCardsQuery(searchParams)),
+    () => formatFiltersForRateCardsQuery(searchParams),
     [searchParams],
   )
 

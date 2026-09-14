@@ -24,7 +24,6 @@ import {
   getFilterValue,
   isValidDateRangeValue,
   keyWithPrefix,
-  mapRateCardFilterVars,
   orderIntervalBounds,
   parseFromToValue,
   parseMetadataFilter,
@@ -1715,41 +1714,6 @@ describe('Filters utils', () => {
       const params = new URLSearchParams()
 
       expect(formatFiltersForRateCardsQuery(params)).toEqual({})
-    })
-  })
-
-  describe('mapRateCardFilterVars', () => {
-    it('down-maps the first productIds entry to productId', () => {
-      expect(mapRateCardFilterVars({ productIds: ['id1', 'id2'] })).toEqual({
-        productId: 'id1',
-      })
-    })
-
-    it('down-maps the first productFilterIds entry to productFilterId', () => {
-      expect(mapRateCardFilterVars({ productFilterIds: ['f1'] })).toEqual({
-        productFilterId: 'f1',
-      })
-    })
-
-    it('ignores productCategoryIds entirely (no current rateCards arg for the ProductCategory dimension)', () => {
-      expect(mapRateCardFilterVars({ productCategoryIds: ['cat-1'] })).toEqual({})
-    })
-
-    it('combines all mapped dimensions and still ignores productCategoryIds', () => {
-      expect(
-        mapRateCardFilterVars({
-          productCategoryIds: ['cat-1'],
-          productIds: ['id1'],
-          productFilterIds: ['f1'],
-        }),
-      ).toEqual({
-        productId: 'id1',
-        productFilterId: 'f1',
-      })
-    })
-
-    it('returns an empty object when given no plurals', () => {
-      expect(mapRateCardFilterVars({})).toEqual({})
     })
   })
 

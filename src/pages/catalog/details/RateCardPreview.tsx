@@ -61,8 +61,8 @@ gql`
 // `RateCardForList` (the same fragment powering the standalone list) so the three
 // surfaces never drift on which fields a rate card row needs.
 gql`
-  query getRateCardsForProductDetails($productId: ID, $limit: Int, $searchTerm: String) {
-    rateCards(productId: $productId, limit: $limit, searchTerm: $searchTerm) {
+  query getRateCardsForProductDetails($productIds: [ID!], $limit: Int, $searchTerm: String) {
+    rateCards(productIds: $productIds, limit: $limit, searchTerm: $searchTerm) {
       metadata {
         totalCount
       }
@@ -74,11 +74,11 @@ gql`
   }
 
   query getRateCardsForProductFilterDetails(
-    $productFilterId: ID
+    $productFilterIds: [ID!]
     $limit: Int
     $searchTerm: String
   ) {
-    rateCards(productFilterId: $productFilterId, limit: $limit, searchTerm: $searchTerm) {
+    rateCards(productFilterIds: $productFilterIds, limit: $limit, searchTerm: $searchTerm) {
       metadata {
         totalCount
       }
@@ -207,7 +207,7 @@ const RateCardPreviewListForProduct = ({
 }) => {
   const [getRateCards, { data, error, loading, variables }] =
     useGetRateCardsForProductDetailsLazyQuery({
-      variables: { productId, limit: PREVIEW_LIMIT },
+      variables: { productIds: [productId], limit: PREVIEW_LIMIT },
       notifyOnNetworkStatusChange: true,
       fetchPolicy: 'cache-and-network',
     })
@@ -247,7 +247,7 @@ const RateCardPreviewListForProductFilter = ({
 }) => {
   const [getRateCards, { data, error, loading, variables }] =
     useGetRateCardsForProductFilterDetailsLazyQuery({
-      variables: { productFilterId, limit: PREVIEW_LIMIT },
+      variables: { productFilterIds: [productFilterId], limit: PREVIEW_LIMIT },
       notifyOnNetworkStatusChange: true,
       fetchPolicy: 'cache-and-network',
     })
