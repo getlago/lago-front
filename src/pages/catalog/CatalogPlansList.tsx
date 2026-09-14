@@ -68,6 +68,8 @@ const CatalogPlansList = (): JSX.Element => {
   const [getCatalogPlans, { data, error, loading, variables }] = useCatalogPlansLazyQuery({
     variables: { limit: DEFAULT_PAGE_SIZE, page },
     notifyOnNetworkStatusChange: true,
+    fetchPolicy: 'network-only',
+    nextFetchPolicy: 'network-only',
   })
   const { debouncedSearch, isLoading } = useDebouncedSearch(getCatalogPlans, loading)
 

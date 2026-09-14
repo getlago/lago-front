@@ -148,6 +148,8 @@ describe('CatalogPlansList', () => {
       expect.objectContaining({
         variables: { limit: DEFAULT_PAGE_SIZE, page: 1 },
         notifyOnNetworkStatusChange: true,
+        fetchPolicy: 'network-only',
+        nextFetchPolicy: 'network-only',
       }),
     )
   })
