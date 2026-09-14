@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react'
+import { fireEvent, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { render } from '~/test-utils'
@@ -119,6 +119,37 @@ describe('NavigationTabBar', () => {
         render(<NavigationTabBar tabs={baseTabs} />)
 
         await user.click(screen.getByTestId('tab-invoices'))
+
+        expect(window.location.pathname).toBe('/customers/1/invoices')
+      })
+    })
+
+    describe('WHEN the tab is the active one and the click is cmd-clicked', () => {
+      it('THEN should not prevent the browser default', () => {
+        window.history.pushState({}, '', '/customers/1/invoices')
+
+        render(<NavigationTabBar tabs={baseTabs} />)
+
+        const event = new MouseEvent('click', {
+          bubbles: true,
+          cancelable: true,
+          button: 0,
+          metaKey: true,
+        })
+
+        screen.getByTestId('tab-invoices').dispatchEvent(event)
+
+        expect(event.defaultPrevented).toBe(false)
+      })
+    })
+  })
+
+  describe('GIVEN a focused linked tab', () => {
+    describe('WHEN Space is pressed', () => {
+      it('THEN should navigate to the tab link', () => {
+        render(<NavigationTabBar tabs={baseTabs} />)
+
+        fireEvent.keyUp(screen.getByTestId('tab-invoices'), { key: ' ' })
 
         expect(window.location.pathname).toBe('/customers/1/invoices')
       })

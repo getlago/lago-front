@@ -2,7 +2,7 @@ import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 import Typography from '@mui/material/Typography'
 import { Icon, IconName } from 'lago-design-system'
-import { MouseEvent, useMemo } from 'react'
+import { KeyboardEvent, MouseEvent, useMemo } from 'react'
 import { matchPath } from 'react-router'
 
 import { Link, useLocation } from '~/core/router'
@@ -85,8 +85,28 @@ export const NavigationTabBar = ({
         component={Link}
         to={tab.link}
         onClick={(event: MouseEvent<HTMLAnchorElement>) => {
+          if (
+            event.metaKey ||
+            event.ctrlKey ||
+            event.shiftKey ||
+            event.altKey ||
+            event.button !== 0
+          ) {
+            return
+          }
+
           if (tab.link && matchPath(tab.link, strippedPathname)) {
             event.preventDefault()
+          }
+        }}
+        onKeyDown={(event: KeyboardEvent<HTMLAnchorElement>) => {
+          if (event.key === ' ') {
+            event.preventDefault()
+          }
+        }}
+        onKeyUp={(event: KeyboardEvent<HTMLAnchorElement>) => {
+          if (event.key === ' ') {
+            event.currentTarget.click()
           }
         }}
         {...sharedProps}
