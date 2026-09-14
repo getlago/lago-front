@@ -1,9 +1,14 @@
 import { screen } from '@testing-library/react'
+import { print } from 'graphql'
 import { ReactNode } from 'react'
 
 import { TableProps } from '~/components/designSystem/Table/Table'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
-import { ContractForCatalogPlanContractsFragment, ContractStatusEnum } from '~/generated/graphql'
+import {
+  ContractForCatalogPlanContractsFragment,
+  ContractForCatalogPlanContractsFragmentDoc,
+  ContractStatusEnum,
+} from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import { CatalogPlanContracts } from '../CatalogPlanContracts'
@@ -30,6 +35,13 @@ jest.mock('~/components/designSystem/Pagination', () => ({
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (key: string) => key }),
+}))
+
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  useOrganizationInfos: () => ({
+    intlFormatDateTimeOrgaTZ: (date: string) =>
+      jest.requireActual('~/core/timezone').intlFormatDateTime(date),
+  }),
 }))
 
 jest.mock('~/generated/graphql', () => ({
@@ -81,6 +93,8 @@ describe('CatalogPlanContracts', () => {
             variables: { planCode: 'premium', limit: DEFAULT_PAGE_SIZE, page: 1 },
             skip: false,
             notifyOnNetworkStatusChange: true,
+            fetchPolicy: 'network-only',
+            nextFetchPolicy: 'network-only',
           }),
         )
       })
@@ -131,6 +145,13 @@ describe('CatalogPlanContracts', () => {
           'endedAt',
         ])
       })
+
+      it('THEN selects firstname and lastname on the customer', () => {
+        const selection = print(ContractForCatalogPlanContractsFragmentDoc)
+
+        expect(selection).toContain('firstname')
+        expect(selection).toContain('lastname')
+      })
     })
   })
 
@@ -141,6 +162,20 @@ describe('CatalogPlanContracts', () => {
 
         expect(mockUseGetCatalogPlanContractsQuery).toHaveBeenCalledWith(
           expect.objectContaining({ skip: true }),
+        )
+      })
+
+      it('THEN keeps the table loading instead of showing the empty state', () => {
+        render(<CatalogPlanContracts />)
+
+        expect(getTableProps().isLoading).toBe(true)
+      })
+
+      it('THEN keeps the pager loading too', () => {
+        render(<CatalogPlanContracts />)
+
+        expect(mockPaginatedContentProps).toHaveBeenCalledWith(
+          expect.objectContaining({ loading: true }),
         )
       })
     })
@@ -159,6 +194,34 @@ describe('CatalogPlanContracts', () => {
 
         expect(screen.getByText('Acme Inc.')).toBeInTheDocument()
         expect(screen.getByText('acme')).toBeInTheDocument()
+      })
+
+      it('THEN shows real initials for an individual customer without a name', () => {
+        render(<CatalogPlanContracts planCode="premium" />)
+
+        const customerColumn = getTableProps().columns.find(
+          (column) => column?.key === 'customer.displayName',
+        )
+
+        render(
+          <>
+            {customerColumn?.content(
+              buildContract({
+                customer: {
+                  __typename: 'Customer',
+                  id: 'cus-2',
+                  name: null,
+                  displayName: 'John Doe',
+                  firstname: 'John',
+                  lastname: 'Doe',
+                  externalId: 'john-doe',
+                },
+              }),
+            )}
+          </>,
+        )
+
+        expect(screen.getByText('JD')).toBeInTheDocument()
       })
     })
 

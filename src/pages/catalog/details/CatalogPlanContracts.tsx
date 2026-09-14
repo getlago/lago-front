@@ -9,12 +9,12 @@ import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { contractStatusMapping } from '~/core/constants/statusContractMapping'
-import { intlFormatDateTime } from '~/core/timezone'
 import {
   ContractForCatalogPlanContractsFragment,
   useGetCatalogPlanContractsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 gql`
   fragment ContractForCatalogPlanContracts on Contract {
@@ -26,6 +26,8 @@ gql`
       id
       name
       displayName
+      firstname
+      lastname
       externalId
     }
   }
@@ -51,12 +53,15 @@ type CatalogPlanContractsProps = {
 
 export const CatalogPlanContracts = ({ planCode }: CatalogPlanContractsProps): JSX.Element => {
   const { translate } = useInternationalization()
+  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const { page, goToPage } = usePageSearchParam()
 
   const { data, loading, error } = useGetCatalogPlanContractsQuery({
     variables: { planCode: planCode as string, limit: DEFAULT_PAGE_SIZE, page },
     skip: !planCode,
     notifyOnNetworkStatusChange: true,
+    fetchPolicy: 'network-only',
+    nextFetchPolicy: 'network-only',
   })
 
   const columns: TableColumn<ContractForCatalogPlanContractsFragment>[] = [
@@ -96,7 +101,7 @@ export const CatalogPlanContracts = ({ planCode }: CatalogPlanContractsProps): J
       minWidth: 150,
       content: ({ startedAt }) => (
         <Typography variant="body" color="grey700">
-          {startedAt ? intlFormatDateTime(startedAt).date : '-'}
+          {startedAt ? intlFormatDateTimeOrgaTZ(startedAt).date : '-'}
         </Typography>
       ),
     },
@@ -106,7 +111,7 @@ export const CatalogPlanContracts = ({ planCode }: CatalogPlanContractsProps): J
       minWidth: 150,
       content: ({ endedAt }) => (
         <Typography variant="body" color="grey700">
-          {endedAt ? intlFormatDateTime(endedAt).date : '-'}
+          {endedAt ? intlFormatDateTimeOrgaTZ(endedAt).date : '-'}
         </Typography>
       ),
     },
@@ -130,7 +135,7 @@ export const CatalogPlanContracts = ({ planCode }: CatalogPlanContractsProps): J
     <section>
       <PaginatedContent
         metadata={data?.contracts?.metadata}
-        loading={loading}
+        loading={loading || !planCode}
         onPageChange={goToPage}
         sticky={false}
       >
@@ -140,7 +145,7 @@ export const CatalogPlanContracts = ({ planCode }: CatalogPlanContractsProps): J
           containerSize={0}
           containerClassName="border-t border-grey-300"
           rowSize={72}
-          isLoading={loading}
+          isLoading={loading || !planCode}
           hasError={!!error}
           columns={columns}
           placeholder={placeholder}
