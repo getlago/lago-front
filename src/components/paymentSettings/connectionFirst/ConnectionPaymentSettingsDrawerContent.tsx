@@ -8,11 +8,9 @@ import {
 } from '~/components/connectionSelection/types'
 import { Chip } from '~/components/designSystem/Chip'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
-import { PaymentMethodFields } from '~/components/paymentMethodSelection/PaymentMethodFields'
 import { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types'
 import {
   VIEW_TYPE_PAYMENT_CAPTION_KEYS,
-  VIEW_TYPE_TRANSLATION_KEYS,
   ViewTypeEnum,
 } from '~/core/constants/billingObjectViewTypes'
 import { PaymentMethodTypeEnum } from '~/generated/graphql'
@@ -21,6 +19,7 @@ import { useConnectionPaymentMethodsList } from '~/hooks/customer/useConnectionP
 import { useCustomerPaymentConnections } from '~/hooks/customer/useCustomerPaymentConnections'
 import { withForm } from '~/hooks/forms/useAppform'
 
+import { ConnectionPaymentMethodFields } from './ConnectionPaymentMethodFields'
 import { CONNECTION_PAYMENT_SETTINGS_DEFAULT_VALUES } from './connectionPaymentSettingsSchema'
 
 export const CONNECTION_PAYMENT_NO_DEFAULT_METHOD_CHIP_TEST_ID =
@@ -51,7 +50,6 @@ export const ConnectionPaymentSettingsDrawerContent = withForm({
   props: contentDefaultProps,
   render: function ConnectionPaymentSettingsDrawerContentRender({ form, viewType, customerId }) {
     const { translate } = useInternationalization()
-    const objectLabel = translate(VIEW_TYPE_TRANSLATION_KEYS[viewType])
 
     const connection = useStore(form.store, (s) => s.values.connection)
     const paymentMethod = useStore(form.store, (s) => s.values.paymentMethod)
@@ -85,56 +83,80 @@ export const ConnectionPaymentSettingsDrawerContent = withForm({
         withDeleted: false,
       })
 
-    const hasDefaultPaymentMethod = connectionPaymentMethods.some((method) => method.isDefault)
+    const hasDefaultPaymentMethod =
+      loadingPaymentMethods || connectionPaymentMethods.some((method) => method.isDefault)
 
     const handleConnectionChange = (value: typeof connection): void => {
       form.setFieldValue('connection', value)
       form.setFieldValue('paymentMethod', toResetPaymentMethod(deriveConnectionBehavior(value)))
     }
 
-    const renderPaymentMethodSection = () => {
-      if (!resolvedConnection) return null
+    const renderBadge = (optionBehavior: ConnectionBehavior) => {
+      if (optionBehavior !== ConnectionBehavior.INHERIT) return null
+      if (!defaultConnection || hasDefaultPaymentMethod) return null
 
       return (
-        <CenteredPage.PageSection>
-          <div className="flex items-center gap-2">
-            <CenteredPage.PageSectionTitle
-              title={translate('text_17440371192353kif37ol194')}
-              description={translate('text_1782804838056cnj8mzoxrd3')}
-            />
-            {!loadingPaymentMethods && !hasDefaultPaymentMethod && (
-              <Chip
-                label={translate('text_1789374590510zcsc35s62mc')}
-                data-test={CONNECTION_PAYMENT_NO_DEFAULT_METHOD_CHIP_TEST_ID}
-              />
-            )}
-          </div>
-          <PaymentMethodFields
-            // PaymentMethodFields seeds its branch into local state once, so a connection change —
-            // which resets the stored method — has to remount it or the two desync.
-            key={connection?.code ?? connection?.behavior ?? 'inherit'}
-            viewType={viewType}
-            paymentMethodsList={connectionPaymentMethods}
-            showManualOption={false}
-            value={paymentMethod}
-            onChange={(value) => form.setFieldValue('paymentMethod', value)}
-            error={paymentMethodError ? translate(paymentMethodError) : undefined}
+        <Chip
+          label={translate('text_1789374590510zcsc35s62mc')}
+          data-test={CONNECTION_PAYMENT_NO_DEFAULT_METHOD_CHIP_TEST_ID}
+        />
+      )
+    }
+
+    const renderMethodFields = () => (
+      <ConnectionPaymentMethodFields
+        // The method control seeds its branch into local state, so swapping one specific connection
+        // for another — same card, same position — has to remount it or the two desync.
+        key={connection?.code ?? connection?.behavior ?? 'inherit'}
+        viewType={viewType}
+        paymentMethodsList={connectionPaymentMethods}
+        hasDefaultPaymentMethod={hasDefaultPaymentMethod}
+        value={paymentMethod}
+        onChange={(value) => form.setFieldValue('paymentMethod', value)}
+        error={paymentMethodError ? translate(paymentMethodError) : undefined}
+      />
+    )
+
+    const renderSelectedContent = ({
+      behavior: optionBehavior,
+      code,
+      onCodeChange,
+    }: {
+      behavior: ConnectionBehavior
+      code: string
+      onCodeChange: (value: string) => void
+    }) => {
+      if (optionBehavior === ConnectionBehavior.SKIP) return null
+
+      if (optionBehavior === ConnectionBehavior.INHERIT) {
+        return resolvedConnection ? renderMethodFields() : null
+      }
+
+      return (
+        <div className="flex flex-col gap-4">
+          <CustomerPaymentConnectionComboBox
+            customerId={customerId}
+            value={code}
+            onChange={onCodeChange}
+            error={connectionError ? translate(connectionError) : undefined}
+            PopperProps={{ displayInDialog: true }}
           />
-        </CenteredPage.PageSection>
+          {!!resolvedConnection && renderMethodFields()}
+        </div>
       )
     }
 
     return (
       <CenteredPage.SectionWrapper>
         <CenteredPage.PageTitle
-          title={translate('text_17828013737948943pe3k8nc')}
+          title={translate('text_1784888105056o78z8t3kjrg')}
           description={translate(VIEW_TYPE_PAYMENT_CAPTION_KEYS[viewType])}
         />
 
         <CenteredPage.PageSection>
           <CenteredPage.PageSectionTitle
-            title={translate('text_1789374590507j8hnidtlhwy')}
-            description={translate('text_1789374590509v2b36j2hx7h', { object: objectLabel })}
+            title={translate('text_17828013737948943pe3k8nc')}
+            description={translate('text_1789374590509v2b36j2hx7h')}
           />
           <ConnectionBehaviorFields
             name={CONNECTION_BEHAVIOR_RADIO_NAME}
@@ -143,30 +165,20 @@ export const ConnectionPaymentSettingsDrawerContent = withForm({
             labels={{
               [ConnectionBehavior.INHERIT]: {
                 label: translate('text_17893745905099pokuoi3cgy'),
-                sublabel: translate('text_17893745905093cihf2jox45', { object: objectLabel }),
               },
               [ConnectionBehavior.SPECIFIC]: {
                 label: translate('text_1789374590509lq5ubwjbszf'),
-                sublabel: translate('text_1789374590509i8hkubiga0q', { object: objectLabel }),
+                sublabel: translate('text_1789374590509i8hkubiga0q'),
               },
               [ConnectionBehavior.SKIP]: {
                 label: translate('text_1789374590509hp59xx8xxb2'),
-                sublabel: translate('text_1782801373795mbjugce2ya0'),
+                sublabel: translate('text_17893745905093cihf2jox45'),
               },
             }}
-            renderSpecific={({ value, onChange }) => (
-              <CustomerPaymentConnectionComboBox
-                customerId={customerId}
-                value={value}
-                onChange={onChange}
-                error={connectionError ? translate(connectionError) : undefined}
-                PopperProps={{ displayInDialog: true }}
-              />
-            )}
+            renderBadge={renderBadge}
+            renderSelectedContent={renderSelectedContent}
           />
         </CenteredPage.PageSection>
-
-        {renderPaymentMethodSection()}
       </CenteredPage.SectionWrapper>
     )
   },

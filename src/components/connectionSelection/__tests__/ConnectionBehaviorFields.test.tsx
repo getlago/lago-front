@@ -10,23 +10,23 @@ import {
   CONNECTION_FIELDS_SPECIFIC_RADIO_TEST_ID,
   ConnectionBehaviorFields,
 } from '../ConnectionBehaviorFields'
-import { SelectedConnection } from '../types'
+import { ConnectionBehavior, SelectedConnection } from '../types'
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (key: string) => key, locale: 'en' }),
 }))
 
 const SPECIFIC_SLOT_TEST_ID = 'specific-slot'
+const BADGE_TEST_ID = 'inherit-badge'
 
 const LABELS = {
-  inherit: { label: 'Inherit', sublabel: 'Inherit sublabel' },
-  specific: { label: 'Specific', sublabel: 'Specific sublabel' },
-  skip: { label: 'Skip', sublabel: 'Skip sublabel' },
+  [ConnectionBehavior.INHERIT]: { label: 'Inherit' },
+  [ConnectionBehavior.SPECIFIC]: { label: 'Specific', sublabel: 'Specific sublabel' },
+  [ConnectionBehavior.SKIP]: { label: 'Skip', sublabel: 'Skip sublabel' },
 }
 
 const renderFields = (value?: SelectedConnection) => {
   const onChange = jest.fn()
-  const onCodeChange = jest.fn()
 
   render(
     <ConnectionBehaviorFields
@@ -34,13 +34,16 @@ const renderFields = (value?: SelectedConnection) => {
       labels={LABELS}
       value={value}
       onChange={onChange}
-      renderSpecific={({ value: code, onChange: handleCodeChange }) => {
-        onCodeChange.mockImplementation(handleCodeChange)
+      renderBadge={(behavior) =>
+        behavior === ConnectionBehavior.INHERIT ? <span data-test={BADGE_TEST_ID} /> : null
+      }
+      renderSelectedContent={({ behavior, code, onCodeChange }) => {
+        if (behavior !== ConnectionBehavior.SPECIFIC) return null
 
         return (
           <button
             data-test={SPECIFIC_SLOT_TEST_ID}
-            onClick={() => handleCodeChange('stripe_eu')}
+            onClick={() => onCodeChange('stripe_eu')}
             type="button"
           >
             {code}
@@ -150,6 +153,16 @@ describe('ConnectionBehaviorFields', () => {
         renderFields({ behavior: ConnectionBehaviorEnum.Skip })
 
         expect(screen.queryByTestId(SPECIFIC_SLOT_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a badge attached to one behavior', () => {
+    describe('WHEN the control renders', () => {
+      it('THEN should display it under that option only', () => {
+        renderFields()
+
+        expect(screen.getAllByTestId(BADGE_TEST_ID)).toHaveLength(1)
       })
     })
   })

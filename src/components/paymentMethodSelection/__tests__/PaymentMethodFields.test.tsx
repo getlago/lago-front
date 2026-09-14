@@ -195,27 +195,4 @@ describe('PaymentMethodFields', () => {
 
     expect(onBehaviorChange).toHaveBeenCalledWith('manual')
   })
-
-  it('renders the manual branch by default', () => {
-    render(<PaymentMethodFields {...baseProps} value={undefined} onChange={jest.fn()} />)
-
-    expect(screen.getByTestId(PM_FIELDS_MANUAL_RADIO_TEST_ID)).toBeInTheDocument()
-  })
-
-  // Manual moves up to the connection level in the connection-first drawer, where a manual method
-  // under an inherited or specific connection is not a combination the value model allows.
-  it('drops the manual branch when the consumer opts out of it', () => {
-    render(
-      <PaymentMethodFields
-        {...baseProps}
-        value={undefined}
-        onChange={jest.fn()}
-        showManualOption={false}
-      />,
-    )
-
-    expect(screen.queryByTestId(PM_FIELDS_MANUAL_RADIO_TEST_ID)).not.toBeInTheDocument()
-    expect(screen.getByTestId(PM_FIELDS_FALLBACK_RADIO_TEST_ID)).toBeInTheDocument()
-    expect(screen.getByTestId(PM_FIELDS_SPECIFIC_RADIO_TEST_ID)).toBeInTheDocument()
-  })
 })

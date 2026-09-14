@@ -67,8 +67,8 @@ jest.mock('~/hooks/customer/useConnectionPaymentMethodsList', () => ({
   }),
 }))
 
-jest.mock('~/components/paymentMethodSelection/PaymentMethodFields', () => ({
-  PaymentMethodFields: (props: Record<string, unknown>) => {
+jest.mock('../ConnectionPaymentMethodFields', () => ({
+  ConnectionPaymentMethodFields: (props: Record<string, unknown>) => {
     mockPaymentMethodFieldsProps.current = props
 
     return <div data-test="payment-method-fields" />
@@ -184,14 +184,6 @@ describe('ConnectionPaymentSettingsSelector', () => {
         render(<>{opened.children}</>)
 
         expect(screen.getByTestId(PAYMENT_METHOD_FIELDS_TEST_ID)).toBeInTheDocument()
-      })
-
-      it('THEN should offer the method sub-choice without its manual branch', async () => {
-        const { opened } = await openDrawerFromSelector()
-
-        render(<>{opened.children}</>)
-
-        expect(mockPaymentMethodFieldsProps.current?.showManualOption).toBe(false)
       })
 
       it('THEN should flag a connection with no default payment method', async () => {

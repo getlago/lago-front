@@ -2,7 +2,6 @@ import { act, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ReactNode } from 'react'
 
-import { CONNECTION_FIELDS_INHERIT_RADIO_TEST_ID } from '~/components/connectionSelection/ConnectionBehaviorFields'
 import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { PaymentMethodTypeEnum } from '~/generated/graphql'
 import { CustomerPaymentConnection } from '~/hooks/customer/useCustomerPaymentConnections'
@@ -17,6 +16,7 @@ const mockOpen = jest.fn()
 const mockClose = jest.fn()
 
 const PAYMENT_METHOD_COMBOBOX_TEST_ID = 'pm-combobox'
+const CONNECTION_COMBOBOX_TEST_ID = 'connection-combobox'
 
 const DEFAULT_CONNECTION: CustomerPaymentConnection = {
   id: 'conn-a',
@@ -68,13 +68,23 @@ jest.mock('~/components/paymentMethodSelection/PaymentMethodComboBox', () => ({
   PaymentMethodComboBox: () => <div data-test="pm-combobox" />,
 }))
 
+jest.mock('~/components/connectionSelection/CustomerPaymentConnectionComboBox', () => ({
+  CustomerPaymentConnectionComboBox: ({ onChange }: { onChange: (code: string) => void }) => (
+    <button
+      data-test="connection-combobox"
+      onClick={() => onChange('adyen_global')}
+      type="button"
+    />
+  ),
+}))
+
 describe('ConnectionPaymentSettings method control', () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })
 
   describe('GIVEN a specific connection routed to a specific payment method', () => {
-    describe('WHEN the user switches the connection back to the customer default', () => {
+    describe('WHEN the user swaps it for another specific connection', () => {
       it('THEN should reset the displayed method branch alongside the stored value', async () => {
         const user = userEvent.setup()
         const onChange = jest.fn()
@@ -103,11 +113,7 @@ describe('ConnectionPaymentSettings method control', () => {
 
         expect(screen.getByTestId(PAYMENT_METHOD_COMBOBOX_TEST_ID)).toBeInTheDocument()
 
-        await user.click(
-          screen
-            .getByTestId(CONNECTION_FIELDS_INHERIT_RADIO_TEST_ID)
-            .querySelector('input') as HTMLInputElement,
-        )
+        await user.click(screen.getByTestId(CONNECTION_COMBOBOX_TEST_ID))
 
         expect(screen.queryByTestId(PAYMENT_METHOD_COMBOBOX_TEST_ID)).not.toBeInTheDocument()
 

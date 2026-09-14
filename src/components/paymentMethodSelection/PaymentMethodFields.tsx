@@ -4,7 +4,6 @@ import { Radio } from '~/components/form/Radio/Radio'
 import { VIEW_TYPE_TRANSLATION_KEYS, ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { PaymentMethodTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { PaymentMethodList } from '~/hooks/customer/usePaymentMethodsList'
 
 import { PaymentMethodComboBox } from './PaymentMethodComboBox'
 import { deriveBehavior, PaymentMethodBehavior, SelectedPaymentMethod } from './types'
@@ -32,14 +31,11 @@ const toValue = (
 
 interface PaymentMethodFieldsProps {
   viewType: ViewTypeEnum
-  externalCustomerId?: string
+  externalCustomerId: string
   value?: SelectedPaymentMethod
   onChange: (value: SelectedPaymentMethod) => void
   onBehaviorChange?: (behavior: PaymentMethodBehavior) => void
   error?: string
-  /** Connection-scoped methods; without it the combobox falls back to the customer-wide list */
-  paymentMethodsList?: PaymentMethodList
-  showManualOption?: boolean
 }
 
 export const PaymentMethodFields = ({
@@ -49,8 +45,6 @@ export const PaymentMethodFields = ({
   onChange,
   onBehaviorChange,
   error,
-  paymentMethodsList,
-  showManualOption = true,
 }: PaymentMethodFieldsProps) => {
   const { translate } = useInternationalization()
   const viewTypeLabel = translate(VIEW_TYPE_TRANSLATION_KEYS[viewType])
@@ -99,7 +93,6 @@ export const PaymentMethodFields = ({
           <div className="ml-9 mt-4">
             <PaymentMethodComboBox
               externalCustomerId={externalCustomerId}
-              paymentMethodsList={paymentMethodsList}
               selectedPaymentMethod={{
                 paymentMethodId: paymentMethodId || undefined,
                 paymentMethodType: PaymentMethodTypeEnum.Provider,
@@ -112,19 +105,17 @@ export const PaymentMethodFields = ({
         )}
       </div>
 
-      {showManualOption && (
-        <div data-test={PM_FIELDS_MANUAL_RADIO_TEST_ID}>
-          <Radio
-            name="paymentMethodBehavior"
-            value={PaymentMethodBehavior.MANUAL}
-            checked={behavior === PaymentMethodBehavior.MANUAL}
-            onChange={(next) => handleBehaviorChange(next as PaymentMethodBehavior)}
-            label={translate('text_1782801373795pwkwintj6s8')}
-            sublabel={translate('text_1782801373795mbjugce2ya0')}
-            labelVariant="body"
-          />
-        </div>
-      )}
+      <div data-test={PM_FIELDS_MANUAL_RADIO_TEST_ID}>
+        <Radio
+          name="paymentMethodBehavior"
+          value={PaymentMethodBehavior.MANUAL}
+          checked={behavior === PaymentMethodBehavior.MANUAL}
+          onChange={(next) => handleBehaviorChange(next as PaymentMethodBehavior)}
+          label={translate('text_1782801373795pwkwintj6s8')}
+          sublabel={translate('text_1782801373795mbjugce2ya0')}
+          labelVariant="body"
+        />
+      </div>
     </div>
   )
 }

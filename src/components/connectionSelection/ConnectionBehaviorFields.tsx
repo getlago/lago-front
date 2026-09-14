@@ -1,6 +1,7 @@
 import { ReactNode, useState } from 'react'
 
 import { Radio } from '~/components/form/Radio/Radio'
+import { tw } from '~/styles/utils'
 
 import {
   ConnectionBehavior,
@@ -13,9 +14,21 @@ export const CONNECTION_FIELDS_INHERIT_RADIO_TEST_ID = 'connection-behavior-fiel
 export const CONNECTION_FIELDS_SPECIFIC_RADIO_TEST_ID = 'connection-behavior-fields-specific-radio'
 export const CONNECTION_FIELDS_SKIP_RADIO_TEST_ID = 'connection-behavior-fields-skip-radio'
 
+const TEST_ID_BY_BEHAVIOR: Record<ConnectionBehavior, string> = {
+  [ConnectionBehavior.INHERIT]: CONNECTION_FIELDS_INHERIT_RADIO_TEST_ID,
+  [ConnectionBehavior.SPECIFIC]: CONNECTION_FIELDS_SPECIFIC_RADIO_TEST_ID,
+  [ConnectionBehavior.SKIP]: CONNECTION_FIELDS_SKIP_RADIO_TEST_ID,
+}
+
+const BEHAVIOR_ORDER: ConnectionBehavior[] = [
+  ConnectionBehavior.INHERIT,
+  ConnectionBehavior.SPECIFIC,
+  ConnectionBehavior.SKIP,
+]
+
 interface ConnectionBehaviorOptionLabels {
   label: string
-  sublabel: string
+  sublabel?: string
 }
 
 interface ConnectionBehaviorFieldsProps {
@@ -23,7 +36,14 @@ interface ConnectionBehaviorFieldsProps {
   labels: Record<ConnectionBehavior, ConnectionBehaviorOptionLabels>
   value?: SelectedConnection
   onChange: (value: SelectedConnection) => void
-  renderSpecific: (props: { value: string; onChange: (code: string) => void }) => ReactNode
+  /** Rendered under the option's label, for the badges the category attaches to a behavior */
+  renderBadge?: (behavior: ConnectionBehavior) => ReactNode
+  /** Rendered inside the selected option's card, under the label block */
+  renderSelectedContent?: (props: {
+    behavior: ConnectionBehavior
+    code: string
+    onCodeChange: (code: string) => void
+  }) => ReactNode
 }
 
 export const ConnectionBehaviorFields = ({
@@ -31,7 +51,8 @@ export const ConnectionBehaviorFields = ({
   labels,
   value,
   onChange,
-  renderSpecific,
+  renderBadge,
+  renderSelectedContent,
 }: ConnectionBehaviorFieldsProps) => {
   const [behavior, setBehavior] = useState<ConnectionBehavior>(() =>
     deriveConnectionBehavior(value),
@@ -48,48 +69,43 @@ export const ConnectionBehaviorFields = ({
     onChange(toConnectionChoice(ConnectionBehavior.SPECIFIC, nextCode))
   }
 
-  return (
-    <div className="flex flex-col gap-4">
-      <div data-test={CONNECTION_FIELDS_INHERIT_RADIO_TEST_ID}>
-        <Radio
-          name={name}
-          value={ConnectionBehavior.INHERIT}
-          checked={behavior === ConnectionBehavior.INHERIT}
-          onChange={(next) => handleBehaviorChange(next as ConnectionBehavior)}
-          label={labels[ConnectionBehavior.INHERIT].label}
-          sublabel={labels[ConnectionBehavior.INHERIT].sublabel}
-          labelVariant="body"
-        />
-      </div>
+  const renderOption = (optionBehavior: ConnectionBehavior) => {
+    const isSelected = behavior === optionBehavior
+    const badge = renderBadge?.(optionBehavior)
+    const selectedContent = isSelected
+      ? renderSelectedContent?.({
+          behavior: optionBehavior,
+          code,
+          onCodeChange: handleCodeChange,
+        })
+      : null
 
-      <div data-test={CONNECTION_FIELDS_SPECIFIC_RADIO_TEST_ID}>
-        <Radio
-          name={name}
-          value={ConnectionBehavior.SPECIFIC}
-          checked={behavior === ConnectionBehavior.SPECIFIC}
-          onChange={(next) => handleBehaviorChange(next as ConnectionBehavior)}
-          label={labels[ConnectionBehavior.SPECIFIC].label}
-          sublabel={labels[ConnectionBehavior.SPECIFIC].sublabel}
-          labelVariant="body"
-        />
-        {behavior === ConnectionBehavior.SPECIFIC && (
-          <div className="ml-9 mt-4">
-            {renderSpecific({ value: code, onChange: handleCodeChange })}
-          </div>
+    return (
+      <div
+        key={optionBehavior}
+        className={tw(
+          'flex flex-col gap-4 rounded-xl border bg-white p-4',
+          isSelected ? 'border-blue-600' : 'border-grey-400',
         )}
-      </div>
+        data-test={TEST_ID_BY_BEHAVIOR[optionBehavior]}
+      >
+        <div className="flex flex-col gap-2">
+          <Radio
+            name={name}
+            value={optionBehavior}
+            checked={isSelected}
+            onChange={(next) => handleBehaviorChange(next as ConnectionBehavior)}
+            label={labels[optionBehavior].label}
+            sublabel={labels[optionBehavior].sublabel}
+            labelVariant="body"
+          />
+          {!!badge && <div className="ml-9">{badge}</div>}
+        </div>
 
-      <div data-test={CONNECTION_FIELDS_SKIP_RADIO_TEST_ID}>
-        <Radio
-          name={name}
-          value={ConnectionBehavior.SKIP}
-          checked={behavior === ConnectionBehavior.SKIP}
-          onChange={(next) => handleBehaviorChange(next as ConnectionBehavior)}
-          label={labels[ConnectionBehavior.SKIP].label}
-          sublabel={labels[ConnectionBehavior.SKIP].sublabel}
-          labelVariant="body"
-        />
+        {!!selectedContent && <div className="ml-9">{selectedContent}</div>}
       </div>
-    </div>
-  )
+    )
+  }
+
+  return <div className="flex flex-col gap-4">{BEHAVIOR_ORDER.map(renderOption)}</div>
 }
