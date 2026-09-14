@@ -18,6 +18,7 @@ If no Linear URL was provided, ask for it with AskUserQuestion and stop until gi
 
 2. **Fetch all sources**:
    - Linear ticket via the Linear MCP `get_issue` tool — the WHOLE ticket, not just the description: title, description, acceptance criteria, current state, labels, relations (blocked-by/related/duplicates), attachments and linked designs. Then fetch the full comment thread via `list_comments`: comments often carry decisions, scope changes and repro details that never made it back into the description — on conflict, a later comment overrides the description; note it in spec.md.
+   - **A design attachment is a source, not a bookmark.** When the ticket links a Figma node or any mockup, OPEN it (`get_screenshot` on the node, `get_metadata` to find its sub-frames) and read the states it draws. Derive acceptance criteria from it: the literal copy of every label, sublabel, title and empty state; the container shape (card / plain, where separators fall); one criterion per state the mockup draws for the same control. A design URL recorded under `## Sources` with no criteria derived from it is paid back in operator correction rounds, which no gate and no reviewer catches.
    - Every Notion URL given, via the Notion MCP `notion-fetch` tool: product requirements, technical constraints, edge cases.
    - If a Notion page linked INSIDE the Linear ticket clearly holds the product/tech spec, fetch that too.
    - Conflict between sources → the Linear ticket wins for scope, Notion wins for product/UX detail; note the conflict in spec.md.

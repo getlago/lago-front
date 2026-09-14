@@ -182,6 +182,8 @@ Read the handler BEFORE calling anything a bug.
 | Click does nothing on part of a block | hitbox is the inner content, not the row |
 | Menu / popper / tooltip "never opens" | it may be in the DOM but positioned out of view — compare its rect with the scroll container's, check `offsetParent`, `scrollTop` in the offset math, clipping and z-index |
 | Looks off (spacing, alignment) | measure from the CSS source and fix the computed delta, never by eye |
+| A control states an absence ("no default", "none available") | re-read once the data settles — it must render nothing while its query is in flight, never assert the negative early |
+| A raw enum or a repeated label in the UI (`stripe`, label == sublabel) | a display mapping was skipped; find the value's label map instead of printing the field |
 
 `src/` edits (CSS included) hot-reload — the operator just reloads. Restart only for dependency/config changes.
 
