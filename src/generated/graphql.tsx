@@ -13368,8 +13368,6 @@ export type GetFeatureForDetailsOverviewQuery = { __typename?: 'Query', feature:
 
 export type FeaturePrivilegeAccordionFragment = { __typename?: 'PrivilegeObject', id: string, code: string, name?: string | null, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } };
 
-export type OrganizationForDatePickerFragment = { __typename?: 'CurrentOrganization', id: string, timezone?: TimezoneEnum | null };
-
 export type GetGrossRevenuesQueryVariables = Exact<{
   currency: CurrencyEnum;
   externalCustomerId?: InputMaybe<Scalars['String']['input']>;
@@ -21586,12 +21584,6 @@ export const EditCustomerInvoiceCustomSectionFragmentDoc = gql`
   skipInvoiceCustomSections
 }
     `;
-export const OrganizationForDatePickerFragmentDoc = gql`
-    fragment OrganizationForDatePicker on CurrentOrganization {
-  id
-  timezone
-}
-    `;
 export const MainOrganizationInfosFragmentDoc = gql`
     fragment MainOrganizationInfos on CurrentOrganization {
   id
@@ -21605,9 +21597,8 @@ export const MainOrganizationInfosFragmentDoc = gql`
   canCreateBillingEntity
   authenticationMethods
   authenticatedMethod
-  ...OrganizationForDatePicker
 }
-    ${OrganizationForDatePickerFragmentDoc}`;
+    `;
 export const AddOnItemFragmentDoc = gql`
     fragment AddOnItem on AddOn {
   id

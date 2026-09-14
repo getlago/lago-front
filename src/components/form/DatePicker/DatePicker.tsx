@@ -1,11 +1,10 @@
-import { gql } from '@apollo/client'
 import type { PopperProps as MuiPopperProps } from '@mui/material/Popper'
 import { PickersCalendarHeader, PickersDay } from '@mui/x-date-pickers'
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon'
 import { DesktopDatePicker as MuiDatePicker } from '@mui/x-date-pickers/DesktopDatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { Icon } from 'lago-design-system'
-import { DateTime, Settings } from 'luxon'
+import { DateTime } from 'luxon'
 import { ReactNode, useCallback, useEffect, useState } from 'react'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
@@ -14,18 +13,9 @@ import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { TextInputProps } from '~/components/form'
 import { MIN_SUPPORTED_DATE } from '~/core/constants/form'
-import { getTimezoneConfig } from '~/core/timezone'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { theme } from '~/styles'
 import { tw } from '~/styles/utils'
-
-gql`
-  fragment OrganizationForDatePicker on CurrentOrganization {
-    id
-    timezone
-  }
-`
 
 enum DATE_PICKER_ERROR_ENUM {
   invalid = 'invalid',
@@ -74,14 +64,10 @@ export const DatePicker = ({
   helperText,
 }: DatePickerProps) => {
   const { translate } = useInternationalization()
-  const { organization } = useOrganizationInfos()
 
   /**
    * Date will be passed to the parent as ISO
    * So we need to make sure to re-transform to DateTime for the component to read it
-   *
-   * Parsed in `defaultZone` rather than the ambient zone: the `Settings.defaultZone`
-   * effect below only runs after the first render, and MUI freezes the calendar on it.
    */
   const getValueFormatted = useCallback(() => {
     if (!value) return null
@@ -103,17 +89,6 @@ export const DatePicker = ({
     }
     return helperText
   }, [error, helperText, isInvalid, showErrorInTooltip, translate])
-
-  useEffect(() => {
-    if (defaultZone) Settings.defaultZone = defaultZone
-
-    return () => {
-      // Reset timezone to default
-      if (defaultZone) Settings.defaultZone = getTimezoneConfig(organization?.timezone).name
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   useEffect(() => {
     setLocalDate(getValueFormatted())
