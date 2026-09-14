@@ -6,7 +6,6 @@ import {
   ProductTypeEnum,
   RateCardBillingTimingEnum,
   RateCardForListFragment,
-  RateCardRegroupPaidFeesEnum,
 } from '~/generated/graphql'
 
 import { useRateCardTableActions } from '../useRateCardTableActions'
@@ -47,7 +46,7 @@ const buildRateCard = (
   description: null,
   billingTiming: RateCardBillingTimingEnum.Arrears,
   displayOnInvoice: true,
-  regroupPaidFees: RateCardRegroupPaidFeesEnum.None,
+  regroupPaidFees: null,
   proration: false,
   attachedToPlanOrSubscription: false,
   attachedToSubscriptions: false,

@@ -6,7 +6,6 @@ import {
   GetRateCardForDetailsOverviewDocument,
   RateCardBillingTimingEnum,
   RateCardForDetailsOverviewFragment,
-  RateCardRegroupPaidFeesEnum,
 } from '~/generated/graphql'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
@@ -53,7 +52,7 @@ const attachedRateCard: RateCardForDetailsOverviewFragment = {
   appliedPricingUnitCode: null,
   billingTiming: RateCardBillingTimingEnum.Arrears,
   displayOnInvoice: true,
-  regroupPaidFees: RateCardRegroupPaidFeesEnum.None,
+  regroupPaidFees: null,
   proration: false,
   attachedToPlanOrSubscription: false,
   attachedToSubscriptions: false,

@@ -19,7 +19,6 @@ import {
   ProductTypeEnum,
   RateCardForListFragment,
   RateCardRateModelEnum,
-  RateCardRegroupPaidFeesEnum,
 } from '~/generated/graphql'
 import { AllTheProviders } from '~/test-utils'
 
@@ -98,7 +97,7 @@ const buildRow = (index: number): RateCardForListFragment => ({
   description: null,
   billingTiming: 'advance' as RateCardForListFragment['billingTiming'],
   displayOnInvoice: true,
-  regroupPaidFees: RateCardRegroupPaidFeesEnum.None,
+  regroupPaidFees: null,
   proration: false,
   attachedToPlanOrSubscription: false,
   attachedToSubscriptions: false,
