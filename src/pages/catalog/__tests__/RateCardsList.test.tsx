@@ -41,7 +41,6 @@ jest.mock('~/components/Filters', () => ({
     Component: () => null,
   },
   formatFiltersForRateCardsQuery: () => ({}),
-  mapRateCardFilterVars: () => ({}),
   RateCardAvailableFilters: [],
 }))
 

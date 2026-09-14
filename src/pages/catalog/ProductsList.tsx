@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { tw } from 'lago-design-system'
 import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router'
 
@@ -146,7 +145,7 @@ const ProductsList = () => {
   // at it instead of running edge to edge; the table keeps only the minimal
   // 4px cell gutter.
   return (
-    <div className="px-4 md:px-12">
+    <div className="flex flex-1 flex-col px-4 md:px-12">
       <Filters.Provider
         filtersNamePrefix={PRODUCT_LIST_FILTER_PREFIX}
         availableFilters={ProductAvailableFilters}
@@ -164,13 +163,12 @@ const ProductsList = () => {
         metadata={data?.products?.metadata}
         loading={isLoading}
         onPageChange={goToPage}
-        sticky={false}
       >
         <Table
           name="product-items-list"
           data={data?.products?.collection ?? []}
           containerSize={4}
-          containerClassName={tw('border-t border-grey-300')}
+          containerClassName="-mb-px h-auto shrink-0 border-t border-grey-300"
           rowSize={72}
           isLoading={isLoading}
           hasError={!!error}

@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { tw } from 'lago-design-system'
 import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router'
 
@@ -8,7 +7,6 @@ import { Table, TablePlaceholder } from '~/components/designSystem/Table/Table'
 import {
   Filters,
   formatFiltersForRateCardsQuery,
-  mapRateCardFilterVars,
   RateCardAvailableFilters,
 } from '~/components/Filters'
 import { SearchInput } from '~/components/SearchInput'
@@ -33,15 +31,17 @@ gql`
     $page: Int
     $limit: Int
     $searchTerm: String
-    $productId: ID
-    $productFilterId: ID
+    $productIds: [ID!]
+    $productFilterIds: [ID!]
+    $productCategoryIds: [ID!]
   ) {
     rateCards(
       page: $page
       limit: $limit
       searchTerm: $searchTerm
-      productId: $productId
-      productFilterId: $productFilterId
+      productIds: $productIds
+      productFilterIds: $productFilterIds
+      productCategoryIds: $productCategoryIds
     ) {
       collection {
         id
@@ -69,7 +69,7 @@ const RateCardsList = () => {
   const { page, goToPage } = usePageSearchParam()
 
   const filtersForRateCardsQuery = useMemo(
-    () => mapRateCardFilterVars(formatFiltersForRateCardsQuery(searchParams)),
+    () => formatFiltersForRateCardsQuery(searchParams),
     [searchParams],
   )
 
@@ -130,7 +130,7 @@ const RateCardsList = () => {
   // at it instead of running edge to edge; the table keeps only the minimal
   // 4px cell gutter.
   return (
-    <div className="px-4 md:px-12" data-test={RATE_CARDS_LIST_TEST_ID}>
+    <div className="flex flex-1 flex-col px-4 md:px-12" data-test={RATE_CARDS_LIST_TEST_ID}>
       <Filters.Provider
         filtersNamePrefix={RATE_CARD_LIST_FILTER_PREFIX}
         availableFilters={RateCardAvailableFilters}
@@ -148,13 +148,12 @@ const RateCardsList = () => {
         metadata={data?.rateCards?.metadata}
         loading={isLoading}
         onPageChange={goToPage}
-        sticky={false}
       >
         <Table
           name="rate-cards-list"
           data={data?.rateCards?.collection ?? []}
           containerSize={4}
-          containerClassName={tw('border-t border-grey-300')}
+          containerClassName="-mb-px h-auto shrink-0 border-t border-grey-300"
           rowSize={72}
           isLoading={isLoading}
           hasError={!!error}

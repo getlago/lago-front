@@ -73,7 +73,9 @@ const productDrawerSchema = z
     code: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
     description: z.string(),
     invoiceDisplayName: z.string(),
-    productCategoryId: z.string(),
+    // Not `z.string()`: the combobox clear button stores `undefined`, which a bare
+    // string rejects, so clearing an optional category would block the submit.
+    productCategoryId: z.string().optional(),
     productType: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
     billableMetricId: z.string(),
   })
