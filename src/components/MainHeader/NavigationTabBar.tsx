@@ -59,7 +59,7 @@ export const NavigationTabBar = ({
     return idx === -1 ? 0 : idx
   }, [nonHiddenTabs, strippedPathname])
 
-  const renderTab = (tab: NavigationTabBarItem, tabIndex: number) => {
+  const renderTab = (tab: NavigationTabBarItem, tabIndex: number): JSX.Element => {
     const sharedProps = {
       disableFocusRipple: true,
       disableRipple: true,
@@ -124,7 +124,7 @@ export const NavigationTabBar = ({
         aria-label={name}
         value={activeTabIndex}
       >
-        {nonHiddenTabs.map(renderTab)}
+        {nonHiddenTabs.map((tab, tabIndex) => renderTab(tab, tabIndex))}
       </Tabs>
     </div>
   )
