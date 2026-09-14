@@ -15,7 +15,7 @@ import CatalogPlansList, {
 
 const SEARCH_PLANS_KEY = 'text_1789030049528lqtvvif9k1p'
 const COL_RATE_CARDS_KEY = 'text_1789030049528f40pn120tj7'
-const COL_SUBSCRIPTIONS_KEY = 'text_1789030049528f6kajqwypsr'
+const COL_CONTRACTS_KEY = 'text_1789030049528f6kajqwypsr'
 const CREATE_PLAN_KEY = 'text_1789030049528b0qu0hphtg4'
 const LIST_EMPTY_TITLE_KEY = 'text_17890300495285vbd2xto1kc'
 const LIST_SEARCH_EMPTY_TITLE_KEY = 'text_1789030049528z655xwavs78'
@@ -182,7 +182,7 @@ describe('CatalogPlansList', () => {
     expect(columns[2]).toEqual(
       expect.objectContaining({
         key: 'contractsCount',
-        title: COL_SUBSCRIPTIONS_KEY,
+        title: COL_CONTRACTS_KEY,
         textAlign: 'right',
       }),
     )
