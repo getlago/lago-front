@@ -107,6 +107,7 @@ export const TopUpSection = withForm({
         <ConnectionPaymentSettingsSelector
           viewType={ViewTypeEnum.WalletTopUp}
           customerId={customerId}
+          externalCustomerId={externalCustomerId}
           connection={walletValues.paymentConnection}
           paymentMethod={walletValues.paymentMethod}
           onChange={({ connection, paymentMethod }) => {

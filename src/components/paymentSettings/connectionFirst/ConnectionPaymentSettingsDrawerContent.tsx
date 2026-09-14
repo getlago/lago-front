@@ -1,4 +1,5 @@
 import { useStore } from '@tanstack/react-form'
+import { useEffect } from 'react'
 
 import { paymentAvatarMapping } from '~/components/avatarMappings'
 import { ConnectionBehaviorFields } from '~/components/connectionSelection/ConnectionBehaviorFields'
@@ -17,8 +18,8 @@ import {
 } from '~/core/constants/billingObjectViewTypes'
 import { PaymentMethodTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useConnectionPaymentMethodsList } from '~/hooks/customer/useConnectionPaymentMethodsList'
 import { useCustomerPaymentConnections } from '~/hooks/customer/useCustomerPaymentConnections'
+import { usePaymentMethodsList } from '~/hooks/customer/usePaymentMethodsList'
 import { withForm } from '~/hooks/forms/useAppform'
 
 import { ConnectionPaymentMethodFields } from './ConnectionPaymentMethodFields'
@@ -41,17 +42,24 @@ const toResetPaymentMethod = (behavior: ConnectionBehavior): SelectedPaymentMeth
 interface ConnectionPaymentSettingsDrawerContentExtraProps {
   viewType: ViewTypeEnum
   customerId: string
+  externalCustomerId: string
 }
 
 const contentDefaultProps: ConnectionPaymentSettingsDrawerContentExtraProps = {
   viewType: ViewTypeEnum.WalletTopUp,
   customerId: '',
+  externalCustomerId: '',
 }
 
 export const ConnectionPaymentSettingsDrawerContent = withForm({
   defaultValues: CONNECTION_PAYMENT_SETTINGS_DEFAULT_VALUES,
   props: contentDefaultProps,
-  render: function ConnectionPaymentSettingsDrawerContentRender({ form, viewType, customerId }) {
+  render: function ConnectionPaymentSettingsDrawerContentRender({
+    form,
+    viewType,
+    customerId,
+    externalCustomerId,
+  }) {
     const { translate } = useInternationalization()
 
     const connection = useStore(form.store, (s) => s.values.connection)
@@ -81,14 +89,36 @@ export const ConnectionPaymentSettingsDrawerContent = withForm({
 
     const resolvedConnection = getResolvedConnection()
 
-    const { data: connectionPaymentMethods, loading: loadingPaymentMethods } =
-      useConnectionPaymentMethodsList({
-        customerId,
-        connectionId: resolvedConnection?.id,
-        withDeleted: false,
-      })
+    // The connection-scoped query reads through the singular `providerCustomer`, so it only ever
+    // answers for one connection. Filtering the customer-wide list keeps every connection answerable.
+    const { data: customerPaymentMethods, loading: loadingPaymentMethods } = usePaymentMethodsList({
+      externalCustomerId,
+      withDeleted: false,
+      skip: !resolvedConnection,
+    })
+
+    const connectionPaymentMethods = resolvedConnection
+      ? customerPaymentMethods.filter(
+          (method) => method.paymentProviderCustomerId === resolvedConnection.id,
+        )
+      : []
 
     const defaultPaymentMethod = connectionPaymentMethods.find((method) => method.isDefault)
+
+    const selectedMethodId = paymentMethod?.paymentMethodId
+    const selectedMethodIsForeign =
+      !!selectedMethodId &&
+      !loadingPaymentMethods &&
+      !connectionPaymentMethods.some((method) => method.id === selectedMethodId)
+
+    useEffect(() => {
+      if (!selectedMethodIsForeign) return
+
+      form.setFieldValue('paymentMethod', {
+        paymentMethodId: null,
+        paymentMethodType: PaymentMethodTypeEnum.Provider,
+      })
+    }, [selectedMethodIsForeign, form])
 
     const handleConnectionChange = (value: typeof connection): void => {
       form.setFieldValue('connection', value)

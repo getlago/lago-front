@@ -1,4 +1,4 @@
-import { act, screen } from '@testing-library/react'
+import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ReactNode } from 'react'
 
@@ -38,7 +38,9 @@ const STRIPE_CONNECTION: CustomerPaymentConnection = {
 
 const mockConnections = { current: [STRIPE_CONNECTION] as CustomerPaymentConnection[] }
 const mockIsDefaultManual = { current: false }
-const mockPaymentMethods = { current: [] as Array<{ id: string; isDefault: boolean }> }
+const mockPaymentMethods = {
+  current: [] as Array<{ id: string; isDefault: boolean; paymentProviderCustomerId: string }>,
+}
 const mockPaymentMethodFieldsProps: { current: Record<string, unknown> | null } = { current: null }
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
@@ -63,8 +65,8 @@ jest.mock('~/hooks/customer/useCustomerPaymentConnections', () => ({
   }),
 }))
 
-jest.mock('~/hooks/customer/useConnectionPaymentMethodsList', () => ({
-  useConnectionPaymentMethodsList: () => ({
+jest.mock('~/hooks/customer/usePaymentMethodsList', () => ({
+  usePaymentMethodsList: () => ({
     data: mockPaymentMethods.current,
     loading: false,
     error: false,
@@ -95,6 +97,7 @@ const openDrawerFromSelector = async (
     <ConnectionPaymentSettingsSelector
       viewType={ViewTypeEnum.WalletTopUp}
       customerId="customer-1"
+      externalCustomerId="ext-customer-1"
       connection={undefined}
       paymentMethod={undefined}
       onChange={onChange}
@@ -125,6 +128,7 @@ describe('ConnectionPaymentSettingsSelector', () => {
           <ConnectionPaymentSettingsSelector
             viewType={ViewTypeEnum.WalletTopUp}
             customerId="customer-1"
+            externalCustomerId="ext-customer-1"
             connection={undefined}
             paymentMethod={undefined}
             onChange={jest.fn()}
@@ -275,6 +279,7 @@ describe('ConnectionPaymentSettingsSelector', () => {
           <ConnectionPaymentSettingsSelector
             viewType={ViewTypeEnum.WalletTopUp}
             customerId="customer-1"
+            externalCustomerId="ext-customer-1"
             connection={connection}
             paymentMethod={undefined}
             onChange={jest.fn()}
@@ -298,6 +303,7 @@ describe('ConnectionPaymentSettingsSelector', () => {
           <ConnectionPaymentSettingsSelector
             viewType={ViewTypeEnum.WalletTopUp}
             customerId="customer-1"
+            externalCustomerId="ext-customer-1"
             connection={undefined}
             paymentMethod={MANUAL_PAYMENT_METHOD}
             onChange={jest.fn()}
@@ -371,6 +377,53 @@ describe('ConnectionPaymentSettingsSelector', () => {
         render(<>{opened.children}</>)
 
         expect(screen.queryByTestId('payment-method-fields')).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN payment methods spread across several connections', () => {
+    describe('WHEN a connection resolves', () => {
+      it('THEN should offer only the methods belonging to it', async () => {
+        mockPaymentMethods.current = [
+          { id: 'pm-own', isDefault: true, paymentProviderCustomerId: STRIPE_CONNECTION.id },
+          { id: 'pm-other', isDefault: true, paymentProviderCustomerId: 'conn-other' },
+        ]
+
+        const { opened } = await openDrawerFromSelector()
+
+        render(<>{opened.children}</>)
+
+        expect(mockPaymentMethodFieldsProps.current?.paymentMethodsList).toEqual([
+          { id: 'pm-own', isDefault: true, paymentProviderCustomerId: STRIPE_CONNECTION.id },
+        ])
+      })
+    })
+  })
+
+  describe('GIVEN a stored method belonging to another connection', () => {
+    describe('WHEN the drawer content mounts', () => {
+      // The customer default can change after the wallet was saved, leaving a method the resolved
+      // connection cannot honour.
+      it('THEN should drop it rather than submit it', async () => {
+        mockPaymentMethods.current = [
+          { id: 'pm-own', isDefault: true, paymentProviderCustomerId: STRIPE_CONNECTION.id },
+        ]
+
+        const { opened } = await openDrawerFromSelector({
+          paymentMethod: {
+            paymentMethodId: 'pm-other',
+            paymentMethodType: PaymentMethodTypeEnum.Provider,
+          },
+        })
+
+        render(<>{opened.children}</>)
+
+        await waitFor(() =>
+          expect(mockPaymentMethodFieldsProps.current?.value).toEqual({
+            paymentMethodId: null,
+            paymentMethodType: PaymentMethodTypeEnum.Provider,
+          }),
+        )
       })
     })
   })

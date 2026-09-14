@@ -55,9 +55,9 @@ jest.mock('~/hooks/customer/useCustomerPaymentConnections', () => ({
   }),
 }))
 
-jest.mock('~/hooks/customer/useConnectionPaymentMethodsList', () => ({
-  useConnectionPaymentMethodsList: () => ({
-    data: [],
+jest.mock('~/hooks/customer/usePaymentMethodsList', () => ({
+  usePaymentMethodsList: () => ({
+    data: [{ id: 'pm_1', isDefault: false, paymentProviderCustomerId: 'conn-b' }],
     loading: false,
     error: false,
     refetch: jest.fn(),
@@ -93,6 +93,7 @@ describe('ConnectionPaymentSettings method control', () => {
           <ConnectionPaymentSettingsSelector
             viewType={ViewTypeEnum.WalletTopUp}
             customerId="customer-1"
+            externalCustomerId="ext-customer-1"
             connection={{ code: OTHER_CONNECTION.code }}
             paymentMethod={{
               paymentMethodId: 'pm_1',
