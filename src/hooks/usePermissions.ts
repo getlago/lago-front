@@ -26,6 +26,7 @@ gql`
       billingEntitiesCreate
       billingEntitiesUpdate
       billingEntitiesDelete
+      contractsView
       couponsAttach
       couponsCreate
       couponsDelete

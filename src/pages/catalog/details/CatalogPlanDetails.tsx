@@ -144,6 +144,7 @@ const CatalogPlanDetails = (): JSX.Element => {
                 <CatalogPlanContracts planCode={catalogPlan?.code} />
               </DetailsPage.Container>
             ),
+            hidden: !hasPermissions(['contractsView']),
           },
           {
             title: translate('text_1747314141347qq6rasuxisl'),

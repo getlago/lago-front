@@ -10,6 +10,7 @@ import {
 } from '~/components/MainHeader/mainHeaderTestIds'
 import { CatalogPlanDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CurrencyEnum, GetCatalogPlanForDetailsDocument } from '~/generated/graphql'
+import { TMembershipPermissions } from '~/hooks/usePermissions'
 import { AllTheProviders, testMockNavigateFn } from '~/test-utils'
 
 import CatalogPlanDetails from '../CatalogPlanDetails'
@@ -171,7 +172,7 @@ describe('CatalogPlanDetails', () => {
     expect(screen.getByText(PLAN_BREADCRUMB_KEY)).toBeInTheDocument()
   })
 
-  it('shows the overview, subscriptions and activity logs tabs for a premium user', async () => {
+  it('shows the overview, contracts and activity logs tabs for a premium user', async () => {
     await act(() => renderPage())
 
     expect(await screen.findByText(OVERVIEW_TAB_KEY)).toBeInTheDocument()
@@ -186,6 +187,19 @@ describe('CatalogPlanDetails', () => {
 
     expect(await screen.findByText(OVERVIEW_TAB_KEY)).toBeInTheDocument()
     expect(screen.queryByText(ACTIVITY_LOGS_TAB_KEY)).not.toBeInTheDocument()
+  })
+
+  // The contracts query is gated on `contracts:view` server-side, so an ungated tab
+  // would open onto a `forbidden` error.
+  it('hides the contracts tab without the contracts view permission', async () => {
+    mockHasPermissions.mockImplementation(
+      (permissions: Array<keyof TMembershipPermissions>) => !permissions.includes('contractsView'),
+    )
+
+    await act(() => renderPage())
+
+    expect(await screen.findByText(OVERVIEW_TAB_KEY)).toBeInTheDocument()
+    expect(screen.queryByText(CONTRACTS_TAB_KEY)).not.toBeInTheDocument()
   })
 
   it('renders the overview tab content', async () => {
