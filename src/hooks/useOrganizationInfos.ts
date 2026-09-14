@@ -12,7 +12,6 @@ import {
 import {
   FeatureFlagEnum,
   MainOrganizationInfosFragment,
-  OrganizationForDatePickerFragmentDoc,
   PremiumIntegrationTypeEnum,
   TimezoneEnum,
   useGetOrganizationInfosQuery,
@@ -32,8 +31,6 @@ gql`
     canCreateBillingEntity
     authenticationMethods
     authenticatedMethod
-
-    ...OrganizationForDatePicker
   }
 
   query getOrganizationInfos {
@@ -41,8 +38,6 @@ gql`
       ...MainOrganizationInfos
     }
   }
-
-  ${OrganizationForDatePickerFragmentDoc}
 `
 
 type UseOrganizationInfos = () => {

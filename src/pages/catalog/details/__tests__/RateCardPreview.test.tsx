@@ -149,7 +149,7 @@ describe('RateCardPreview', () => {
     const collection = Array.from({ length: 7 }, (_, index) => buildRow(index + 1))
 
     await act(() =>
-      renderPreview([productQueryMock({ productId: PRODUCT_ITEM_ID, limit: 7 }, collection, 7)]),
+      renderPreview([productQueryMock({ productIds: [PRODUCT_ITEM_ID], limit: 7 }, collection, 7)]),
     )
 
     await waitFor(() => {
@@ -162,9 +162,9 @@ describe('RateCardPreview', () => {
 
     await act(() =>
       renderPreview([
-        productQueryMock({ productId: PRODUCT_ITEM_ID, limit: 7 }, [buildRow(1)], 1),
+        productQueryMock({ productIds: [PRODUCT_ITEM_ID], limit: 7 }, [buildRow(1)], 1),
         productQueryMock(
-          { productId: PRODUCT_ITEM_ID, limit: 7, searchTerm: 'region' },
+          { productIds: [PRODUCT_ITEM_ID], limit: 7, searchTerm: 'region' },
           [{ ...buildRow(9), name: 'Searched rate card' }],
           1,
         ),
@@ -186,7 +186,7 @@ describe('RateCardPreview', () => {
 
   it('shows the classic table placeholder (not a dashed box) when there are no rate cards and no active search', async () => {
     await act(() =>
-      renderPreview([productQueryMock({ productId: PRODUCT_ITEM_ID, limit: 7 }, [], 0)]),
+      renderPreview([productQueryMock({ productIds: [PRODUCT_ITEM_ID], limit: 7 }, [], 0)]),
     )
 
     const emptyState = await screen.findByTestId(GENERIC_PLACEHOLDER_TEST_ID)
@@ -200,7 +200,9 @@ describe('RateCardPreview', () => {
     const collection = Array.from({ length: 7 }, (_, index) => buildRow(index + 1))
 
     await act(() =>
-      renderPreview([productQueryMock({ productId: PRODUCT_ITEM_ID, limit: 7 }, collection, 12)]),
+      renderPreview([
+        productQueryMock({ productIds: [PRODUCT_ITEM_ID], limit: 7 }, collection, 12),
+      ]),
     )
 
     const viewAll = await screen.findByTestId(RATE_CARD_PREVIEW_VIEW_ALL_TEST_ID)
@@ -217,7 +219,7 @@ describe('RateCardPreview', () => {
     const collection = Array.from({ length: 5 }, (_, index) => buildRow(index + 1))
 
     await act(() =>
-      renderPreview([productQueryMock({ productId: PRODUCT_ITEM_ID, limit: 7 }, collection, 5)]),
+      renderPreview([productQueryMock({ productIds: [PRODUCT_ITEM_ID], limit: 7 }, collection, 5)]),
     )
 
     await waitFor(() => {
@@ -228,7 +230,7 @@ describe('RateCardPreview', () => {
 
   it('opens the drawer prefilled with this product item when the create button is clicked', async () => {
     await act(() =>
-      renderPreview([productQueryMock({ productId: PRODUCT_ITEM_ID, limit: 7 }, [], 0)]),
+      renderPreview([productQueryMock({ productIds: [PRODUCT_ITEM_ID], limit: 7 }, [], 0)]),
     )
 
     await userEvent.click(screen.getByTestId(RATE_CARD_PREVIEW_CREATE_TEST_ID))
@@ -242,7 +244,7 @@ describe('RateCardPreview', () => {
     mockHasPermissions.mockReturnValue(false)
 
     await act(() =>
-      renderPreview([productQueryMock({ productId: PRODUCT_ITEM_ID, limit: 7 }, [], 0)]),
+      renderPreview([productQueryMock({ productIds: [PRODUCT_ITEM_ID], limit: 7 }, [], 0)]),
     )
 
     expect(screen.queryByTestId(RATE_CARD_PREVIEW_CREATE_TEST_ID)).not.toBeInTheDocument()
@@ -256,7 +258,7 @@ describe('RateCardPreview', () => {
         renderPreview(
           [
             productFilterQueryMock(
-              { productFilterId: PRODUCT_ITEM_FILTER_ID, limit: 7 },
+              { productFilterIds: [PRODUCT_ITEM_FILTER_ID], limit: 7 },
               collection,
               9,
             ),
@@ -276,7 +278,7 @@ describe('RateCardPreview', () => {
     it('opens the drawer prefilled with this product item filter when the create button is clicked', async () => {
       await act(() =>
         renderPreview(
-          [productFilterQueryMock({ productFilterId: PRODUCT_ITEM_FILTER_ID, limit: 7 }, [], 0)],
+          [productFilterQueryMock({ productFilterIds: [PRODUCT_ITEM_FILTER_ID], limit: 7 }, [], 0)],
           productFilterScope,
         ),
       )

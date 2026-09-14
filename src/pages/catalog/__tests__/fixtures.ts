@@ -46,7 +46,7 @@ export const buildRateCardForRateDrawer = (
   product: {
     __typename: 'Product',
     id: 'product-1',
-    productType: ProductTypeEnum.Usage,
+    productType: ProductTypeEnum.Metered,
     billableMetric: {
       __typename: 'BillableMetric',
       id: 'bm-1',

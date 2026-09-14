@@ -3,7 +3,7 @@
 // Leading to not being able to test the text content exactly via test
 // Letting the code here for now, but will need to retry later
 import { act, cleanup, renderHook, screen } from '@testing-library/react'
-import { Settings } from 'luxon'
+import { DateTime, Settings } from 'luxon'
 
 import {
   SubscriptionDatesOffsetHelperComponent,
@@ -78,6 +78,31 @@ describe('SubscriptionDatesOffsetHelperComponent', () => {
     await prepare()
 
     expect(screen.getByTestId(DATA_TEST_ID)).toBeInTheDocument()
+  })
+
+  // Regression: today was read in the ambient zone, which the mounted DatePicker used to pin to
+  // UTC. Without that global write, the same date read as future in an organization ahead of UTC.
+  describe('GIVEN a subscription starting on the current UTC day', () => {
+    const subscriptionAt = DateTime.utc().startOf('day').toISO() as string
+
+    afterEach(() => {
+      Settings.defaultZone = 'UTC'
+    })
+
+    describe('WHEN the ambient zone is ahead of UTC', () => {
+      it('THEN should render the same helper text as in UTC', async () => {
+        await prepare({ subscriptionAt })
+
+        const inUtc = screen.getByTestId(DATA_TEST_ID).textContent
+
+        cleanup()
+        Settings.defaultZone = 'Europe/Paris'
+
+        await prepare({ subscriptionAt })
+
+        expect(screen.getByTestId(DATA_TEST_ID).textContent).toBe(inUtc)
+      })
+    })
   })
 
   // describe('with Organization in UTC', () => {
