@@ -183,7 +183,13 @@ describe('useCatalogPlanDrawer', () => {
       mockCreate.mockResolvedValue({
         data: undefined,
         errors: [
-          { message: 'value_already_exist', extensions: { code: LagoApiError.ValueAlreadyExist } },
+          {
+            message: 'value_already_exist',
+            extensions: {
+              code: LagoApiError.ValueAlreadyExist,
+              details: { code: ['value_already_exist'] },
+            },
+          },
         ],
       })
       mountHost()
@@ -201,6 +207,32 @@ describe('useCatalogPlanDrawer', () => {
       expect(form.getFieldMeta('code')?.errorMap?.onDynamic).toEqual(
         EXISTING_CODE_FIELD_ERRORS.code,
       )
+    })
+
+    it('GIVEN a collision reported on another field THEN leaves the code field clean', async () => {
+      mockCreate.mockResolvedValue({
+        data: undefined,
+        errors: [
+          {
+            message: 'value_already_exist',
+            extensions: {
+              code: LagoApiError.ValueAlreadyExist,
+              details: { name: ['value_already_exist'] },
+            },
+          },
+        ],
+      })
+      mountHost()
+      act(() => openDrawer())
+      fillValidCreateValues()
+
+      await act(async () => {
+        await lastOpenPayload().form.submit()
+      })
+
+      const { form } = lastOpenPayload().children.props
+
+      expect(form.getFieldMeta('code')?.errorMap?.onDynamic).toBeUndefined()
     })
   })
 

@@ -140,7 +140,7 @@ const useCatalogPlanForm = ({
         errors = result.errors
       }
 
-      if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
+      if (hasDefinedGQLError('ValueAlreadyExist', errors, 'code')) {
         applyExistingCodeError(formApi)
         return
       }
