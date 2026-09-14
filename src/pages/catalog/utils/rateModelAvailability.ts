@@ -23,7 +23,7 @@ export type RateModelConfiguration = RateModelProduct & {
 export const isRateCardProrationSupported = (product: RateModelProduct): boolean | undefined => {
   if (product.productType === ProductTypeEnum.Fixed) return true
   if (
-    product.productType !== ProductTypeEnum.Usage ||
+    product.productType !== ProductTypeEnum.Metered ||
     !product.aggregationType ||
     typeof product.recurring !== 'boolean'
   ) {
@@ -46,7 +46,7 @@ export const getAvailableRateModels = (
   const isAdvance = billingTiming === RateCardBillingTimingEnum.Advance
 
   if (
-    productType === ProductTypeEnum.Usage &&
+    productType === ProductTypeEnum.Metered &&
     isAdvance &&
     (aggregationType === AggregationTypeEnum.LatestAgg ||
       aggregationType === AggregationTypeEnum.MaxAgg ||

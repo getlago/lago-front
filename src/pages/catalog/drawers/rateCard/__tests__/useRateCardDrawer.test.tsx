@@ -319,7 +319,7 @@ describe('rate card attachment metadata', () => {
   const product: ProductForRateCardDrawerFragment = {
     id: 'attached-usage',
     name: 'Recurring API',
-    productType: ProductTypeEnum.Usage,
+    productType: ProductTypeEnum.Metered,
     billableMetric: {
       id: 'metric-1',
       aggregationType: AggregationTypeEnum.SumAgg,
@@ -338,7 +338,7 @@ describe('rate card attachment metadata', () => {
     expect((lastDrawerArgs?.children as ReactElement).props.productSeed).toEqual({
       value: 'attached-usage',
       label: 'Recurring API',
-      productType: ProductTypeEnum.Usage,
+      productType: ProductTypeEnum.Metered,
       aggregationType: AggregationTypeEnum.SumAgg,
       recurring: true,
     })

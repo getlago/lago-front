@@ -145,7 +145,7 @@ describe('getAvailableRateModels', () => {
       'returns the approved %s models',
       (billingTiming) => {
         expect(
-          getAvailableRateModels({ productType: ProductTypeEnum.Usage, ...row, billingTiming }),
+          getAvailableRateModels({ productType: ProductTypeEnum.Metered, ...row, billingTiming }),
         ).toEqual(row[billingTiming])
       },
     )
@@ -208,7 +208,7 @@ describe('getAvailableRateModels', () => {
     ({ expected, ...configuration }) => {
       expect(
         getAvailableRateModels({
-          productType: ProductTypeEnum.Usage,
+          productType: ProductTypeEnum.Metered,
           aggregationType: AggregationTypeEnum.CustomAgg,
           ...configuration,
         }),
@@ -217,7 +217,7 @@ describe('getAvailableRateModels', () => {
   )
 
   const completeUsage: RateModelConfiguration = {
-    productType: ProductTypeEnum.Usage,
+    productType: ProductTypeEnum.Metered,
     aggregationType: AggregationTypeEnum.SumAgg,
     recurring: false,
     billingTiming: RateCardBillingTimingEnum.Arrears,
@@ -242,25 +242,25 @@ describe('isRateCardProrationSupported', () => {
   it.each([
     { productType: ProductTypeEnum.Fixed, expected: true },
     {
-      productType: ProductTypeEnum.Usage,
+      productType: ProductTypeEnum.Metered,
       aggregationType: AggregationTypeEnum.SumAgg,
       recurring: true,
       expected: true,
     },
     {
-      productType: ProductTypeEnum.Usage,
+      productType: ProductTypeEnum.Metered,
       aggregationType: AggregationTypeEnum.SumAgg,
       recurring: false,
       expected: false,
     },
     {
-      productType: ProductTypeEnum.Usage,
+      productType: ProductTypeEnum.Metered,
       aggregationType: AggregationTypeEnum.WeightedSumAgg,
       recurring: true,
       expected: false,
     },
     {
-      productType: ProductTypeEnum.Usage,
+      productType: ProductTypeEnum.Metered,
       aggregationType: AggregationTypeEnum.SumAgg,
       expected: undefined,
     },

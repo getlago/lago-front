@@ -61,7 +61,7 @@ const productScope: RateCardPreviewScope = {
   product: {
     id: PRODUCT_ITEM_ID,
     name: 'Seats',
-    productType: ProductTypeEnum.Usage,
+    productType: ProductTypeEnum.Metered,
     billableMetric: {
       id: 'metric-1',
       aggregationType: AggregationTypeEnum.SumAgg,
@@ -77,7 +77,7 @@ const productFilterScope: RateCardPreviewScope = {
     product: {
       id: PRODUCT_ITEM_ID,
       name: 'Seats',
-      productType: ProductTypeEnum.Usage,
+      productType: ProductTypeEnum.Metered,
       billableMetric: {
         id: 'metric-1',
         aggregationType: AggregationTypeEnum.SumAgg,
@@ -284,7 +284,7 @@ describe('RateCardPreview', () => {
       attachToProduct: {
         id: PRODUCT_ITEM_ID,
         name: 'Seats',
-        productType: ProductTypeEnum.Usage,
+        productType: ProductTypeEnum.Metered,
         billableMetric: {
           id: 'metric-1',
           aggregationType: AggregationTypeEnum.SumAgg,
@@ -346,7 +346,7 @@ describe('RateCardPreview', () => {
           product: {
             id: PRODUCT_ITEM_ID,
             name: 'Seats',
-            productType: ProductTypeEnum.Usage,
+            productType: ProductTypeEnum.Metered,
             billableMetric: {
               id: 'metric-1',
               aggregationType: AggregationTypeEnum.SumAgg,

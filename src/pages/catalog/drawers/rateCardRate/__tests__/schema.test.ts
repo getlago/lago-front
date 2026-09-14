@@ -22,7 +22,7 @@ import { buildRateCardRateSchema, RateCardRateSchemaContext } from '../schema'
 
 describe('buildRateCardRateSchema', () => {
   const validConfiguration: RateModelConfiguration = {
-    productType: ProductTypeEnum.Usage,
+    productType: ProductTypeEnum.Metered,
     aggregationType: AggregationTypeEnum.SumAgg,
     recurring: false,
     billingTiming: RateCardBillingTimingEnum.Arrears,

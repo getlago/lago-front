@@ -555,7 +555,7 @@ const betaProduct: QueriedProduct = {
   id: 'product-2',
   name: 'Beta API',
   code: 'beta',
-  productType: ProductTypeEnum.Usage,
+  productType: ProductTypeEnum.Metered,
   billableMetric: {
     __typename: 'BillableMetric',
     id: 'metric-2',
