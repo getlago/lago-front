@@ -106,17 +106,16 @@ export const ConnectionPaymentSettingsDrawerContent = withForm({
 
       return (
         <Chip
-          // MUI sizes .MuiChip-avatar to 24px and gives it a -6px right margin that eats into the
-          // 8px the chip root already spaces its children by.
-          className="[&_.MuiChip-avatar]:mx-0 [&_.MuiChip-avatar]:size-4"
-          avatar={
-            defaultConnection.provider ? (
-              <Avatar size="small" variant="connector-full">
-                {paymentAvatarMapping[defaultConnection.provider]}
-              </Avatar>
-            ) : undefined
+          label={
+            <span className="flex items-center gap-2">
+              {!!defaultConnection.provider && (
+                <Avatar size="small" variant="connector-full">
+                  {paymentAvatarMapping[defaultConnection.provider]}
+                </Avatar>
+              )}
+              {defaultConnection.code}
+            </span>
           }
-          label={defaultConnection.code}
           data-test={CONNECTION_DEFAULT_CHIP_TEST_ID}
         />
       )
@@ -124,8 +123,6 @@ export const ConnectionPaymentSettingsDrawerContent = withForm({
 
     const renderMethodFields = () => (
       <ConnectionPaymentMethodFields
-        // The method control seeds its branch into local state, so swapping one specific connection
-        // for another — same card, same position — has to remount it or the two desync.
         key={connection?.code ?? connection?.behavior ?? 'inherit'}
         viewType={viewType}
         paymentMethodsList={connectionPaymentMethods}

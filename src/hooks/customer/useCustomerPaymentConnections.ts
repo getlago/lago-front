@@ -5,8 +5,6 @@ import { MANUAL_CONNECTION_CODE } from '~/components/customerConnections/custome
 import { usePaymentProviders } from '~/components/customerConnections/usePaymentProviders'
 import { ProviderTypeEnum, useCustomerPaymentConnectionsQuery } from '~/generated/graphql'
 
-// No nested `paymentMethods` here: it crashes on the manual placeholder row — the resolved
-// connection's methods come from `useConnectionPaymentMethodsList`.
 gql`
   query CustomerPaymentConnections($customerId: ID!) {
     customer(id: $customerId) {
