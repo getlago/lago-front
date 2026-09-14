@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Tooltip } from '~/components/designSystem/Tooltip'
@@ -7,40 +7,52 @@ import { CreateMoreResetBoundary } from '~/components/drawers/createMore/CreateM
 import { CreateMoreResetSignal } from '~/components/drawers/createMore/useCreateMore'
 import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
+import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 
-import { PRODUCT_FORM_DEFAULTS } from './constants'
+import {
+  CATALOG_PLAN_DRAWER_REMOVE_DESCRIPTION_TEST_ID,
+  CATALOG_PLAN_DRAWER_SHOW_DESCRIPTION_TEST_ID,
+  CATALOG_PLAN_DRAWER_TITLE_CREATE_KEY,
+  CATALOG_PLAN_DRAWER_TITLE_EDIT_KEY,
+  CATALOG_PLAN_FORM_DEFAULTS,
+} from './constants'
 
-export const PRODUCT_DRAWER_CODE_TEST_ID = 'product-drawer-code'
-export const PRODUCT_DRAWER_REMOVE_DESCRIPTION_TEST_ID = 'product-drawer-remove-description'
-export const PRODUCT_DRAWER_SHOW_DESCRIPTION_TEST_ID = 'product-drawer-show-description'
-
-type ProductCategoryDrawerSectionsExtraProps = {
+type CatalogPlanDrawerSectionsExtraProps = {
   isEdit: boolean
   disableCodeInput: boolean
+  disableCurrencyInput: boolean
 }
 
-const productCategoryDrawerSectionsDefaultProps: ProductCategoryDrawerSectionsExtraProps = {
+const catalogPlanDrawerSectionsDefaultProps: CatalogPlanDrawerSectionsExtraProps = {
   isEdit: false,
   disableCodeInput: false,
+  disableCurrencyInput: false,
 }
 
-// Holds the description-reveal state so it resets alongside the form when the
-// keyed wrapper remounts after a "create more" save.
-const ProductCategoryDrawerFormSections = withForm({
-  defaultValues: PRODUCT_FORM_DEFAULTS,
-  props: productCategoryDrawerSectionsDefaultProps,
-  render: function ProductCategoryDrawerFormSectionsRender({ form, isEdit, disableCodeInput }) {
+const CatalogPlanDrawerFormSections = withForm({
+  defaultValues: CATALOG_PLAN_FORM_DEFAULTS,
+  props: catalogPlanDrawerSectionsDefaultProps,
+  render: function CatalogPlanDrawerFormSectionsRender({
+    form,
+    isEdit,
+    disableCodeInput,
+    disableCurrencyInput,
+  }) {
     const { translate } = useInternationalization()
     const [shouldDisplayDescription, setShouldDisplayDescription] = useState(
       () => !!form.state.values.description,
     )
 
-    const handleHideDescription = () => {
-      // Skip the write when already empty: setFieldValue always marks the
-      // field dirty, which would arm the discard-changes prompt after a
-      // no-op add-description -> trash round trip.
+    const currencyComboboxData = useMemo(
+      () => Object.values(CurrencyEnum).map((currency) => ({ value: currency, label: currency })),
+      [],
+    )
+
+    const handleHideDescription = (): void => {
+      // Skip the write when already empty: setFieldValue always marks the field
+      // dirty, which would arm the discard prompt after a no-op round trip.
       if (form.state.values.description) {
         form.setFieldValue('description', '')
       }
@@ -51,18 +63,20 @@ const ProductCategoryDrawerFormSections = withForm({
       <>
         <div className="flex flex-col gap-2">
           <Typography variant="headline" color="grey700">
-            {translate(isEdit ? 'text_1783627031283awv8tgambrd' : 'text_1783622030703h5vhmp73muk')}
+            {translate(
+              isEdit ? CATALOG_PLAN_DRAWER_TITLE_EDIT_KEY : CATALOG_PLAN_DRAWER_TITLE_CREATE_KEY,
+            )}
           </Typography>
           <Typography variant="body" color="grey600">
-            {translate('text_1783627031282jq9sg0b691l')}
+            {translate('text_17890300495297g290y7et77')}
           </Typography>
         </div>
 
         <CenteredPage.SubsectionWrapper>
           <CenteredPage.PageSection>
             <CenteredPage.PageSectionTitle
-              title={translate('text_17836270312826gyudi4ayy2')}
-              description={translate('text_1783627031283920r4ap3cwe')}
+              title={translate('text_1789030049529u3ir4amu9hm')}
+              description={translate('text_1789030049529625oe5wbt34')}
             />
 
             <NameAndCodeGroup
@@ -70,13 +84,15 @@ const ProductCategoryDrawerFormSections = withForm({
               fields={{ name: 'name', code: 'code' }}
               disableCodeInput={disableCodeInput}
               disableAutoGenerateCode={isEdit}
-              codeDataTest={PRODUCT_DRAWER_CODE_TEST_ID}
               nameProps={{
                 autoFocus: true,
-                placeholder: translate('text_17836270312839ylvd3gjr17'),
+                placeholder: translate('text_17890300495297ou6ajze8ia'),
               }}
               codeProps={{
-                placeholder: translate('text_178362703128304wpnxjmfnu'),
+                placeholder: translate('text_17890300495294bo4562celz'),
+                ...(disableCodeInput && {
+                  helperText: translate('text_1789030049529z3g1y1pk6ko'),
+                }),
               }}
             />
 
@@ -87,7 +103,7 @@ const ProductCategoryDrawerFormSections = withForm({
                     <field.TextInputField
                       multiline
                       className="mr-3 flex-1"
-                      label={translate('text_629728388c4d2300e2d380f1')}
+                      label={translate('text_6388b923e514213fed58331c')}
                       placeholder={translate('text_1750257831368ae3rtaclhjy')}
                       rows="3"
                     />
@@ -102,7 +118,7 @@ const ProductCategoryDrawerFormSections = withForm({
                     icon="trash"
                     variant="quaternary"
                     onClick={handleHideDescription}
-                    data-test={PRODUCT_DRAWER_REMOVE_DESCRIPTION_TEST_ID}
+                    data-test={CATALOG_PLAN_DRAWER_REMOVE_DESCRIPTION_TEST_ID}
                   />
                 </Tooltip>
               </div>
@@ -113,11 +129,25 @@ const ProductCategoryDrawerFormSections = withForm({
                 startIcon="plus"
                 variant="inline"
                 onClick={() => setShouldDisplayDescription(true)}
-                data-test={PRODUCT_DRAWER_SHOW_DESCRIPTION_TEST_ID}
+                data-test={CATALOG_PLAN_DRAWER_SHOW_DESCRIPTION_TEST_ID}
               >
                 {translate('text_642d5eb2783a2ad10d670324')}
               </Button>
             )}
+
+            <form.AppField name="currency">
+              {(field) => (
+                <field.ComboBoxField
+                  disableClearable
+                  label={translate('text_1789030049529w52cf8ux80o')}
+                  data={currencyComboboxData}
+                  disabled={disableCurrencyInput}
+                  {...(disableCurrencyInput && {
+                    helperText: translate('text_1789030049529qgfhsggx3r0'),
+                  })}
+                />
+              )}
+            </form.AppField>
           </CenteredPage.PageSection>
 
           <CenteredPage.PageSection>
@@ -142,34 +172,34 @@ const ProductCategoryDrawerFormSections = withForm({
   },
 })
 
-type ProductCategoryDrawerContentExtraProps = ProductCategoryDrawerSectionsExtraProps & {
+type CatalogPlanDrawerContentExtraProps = CatalogPlanDrawerSectionsExtraProps & {
   resetSignal?: CreateMoreResetSignal
 }
 
-const productCategoryDrawerContentDefaultProps: ProductCategoryDrawerContentExtraProps = {
-  ...productCategoryDrawerSectionsDefaultProps,
+const catalogPlanDrawerContentDefaultProps: CatalogPlanDrawerContentExtraProps = {
+  ...catalogPlanDrawerSectionsDefaultProps,
   resetSignal: undefined,
 }
 
-// Drawer body: `children` is captured once at open(), so reactive state lives
-// here; `form` is the data-passing seam. After a "create more" save the reset
-// signal remounts the sections (fresh form fields + description state) with a
-// fade-in, scrolls the drawer back to the top, and refocuses the Name input.
-export const ProductCategoryDrawerContent = withForm({
-  defaultValues: PRODUCT_FORM_DEFAULTS,
-  props: productCategoryDrawerContentDefaultProps,
-  render: function ProductCategoryDrawerContentRender({
+// `children` is captured once at open(), so reactive state (the remount below)
+// has to live in this body, not the hook that opens the drawer.
+export const CatalogPlanDrawerContent = withForm({
+  defaultValues: CATALOG_PLAN_FORM_DEFAULTS,
+  props: catalogPlanDrawerContentDefaultProps,
+  render: function CatalogPlanDrawerContentRender({
     form,
     isEdit,
     disableCodeInput,
+    disableCurrencyInput,
     resetSignal,
   }) {
     return (
       <CreateMoreResetBoundary resetSignal={resetSignal}>
-        <ProductCategoryDrawerFormSections
+        <CatalogPlanDrawerFormSections
           form={form}
           isEdit={isEdit}
           disableCodeInput={disableCodeInput}
+          disableCurrencyInput={disableCurrencyInput}
         />
       </CreateMoreResetBoundary>
     )

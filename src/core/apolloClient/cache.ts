@@ -19,6 +19,8 @@ export const queryFieldPolicies: Record<string, FieldPolicy> = {
   apiKeys: createSinglePageFieldPolicy(),
   appliedCoupons: createSinglePageFieldPolicy(),
   billableMetrics: createSinglePageFieldPolicy(),
+  catalogPlans: createSinglePageFieldPolicy(),
+  contracts: createSinglePageFieldPolicy(),
   coupons: createSinglePageFieldPolicy(),
   creditNotes: createSinglePageFieldPolicy(),
   customerInvoices: createSinglePageFieldPolicy(),

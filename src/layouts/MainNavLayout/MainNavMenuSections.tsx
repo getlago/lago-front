@@ -8,6 +8,8 @@ import {
   ANALYTIC_TABS_ROUTE,
   BILLABLE_METRIC_DETAILS_ROUTE,
   BILLABLE_METRICS_ROUTE,
+  CATALOG_PLAN_DETAILS_ROUTE,
+  CATALOG_PLAN_DETAILS_SECTION_ROUTE,
   COUPON_DETAILS_ROUTE,
   COUPONS_ROUTE,
   CREDIT_NOTES_ROUTE,
@@ -170,7 +172,7 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
       icon: 'board',
       link: PLAN_PRICING_ROUTE,
       canBeClickedOnActive: true,
-      match: [PLAN_PRICING_ROUTE],
+      match: [PLAN_PRICING_ROUTE, CATALOG_PLAN_DETAILS_ROUTE, CATALOG_PLAN_DETAILS_SECTION_ROUTE],
       hidden: !hasFeatureFlag(FeatureFlagEnum.ProductCatalog) || !hasPermissions(['plansView']),
     },
   ]
