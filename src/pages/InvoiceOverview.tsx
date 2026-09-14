@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import Stack from '@mui/material/Stack'
 import { Icon } from 'lago-design-system'
 import { memo, useRef } from 'react'
-import { generatePath, LinkProps, useParams } from 'react-router-dom'
+import { generatePath, LinkProps, useParams } from 'react-router'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
@@ -204,6 +204,7 @@ interface InvoiceOverviewProps {
   downloadInvoiceXml: DownloadInvoiceItemMutationFn
   hasError: boolean
   hasTaxProviderError: boolean
+  canRetryInvoice: boolean
   invoice: AllInvoiceDetailsForCustomerInvoiceDetailsFragment | null | undefined
   loading: boolean
   loadingInvoiceDownload: boolean
@@ -371,6 +372,7 @@ const InvoiceOverview = memo(
     downloadInvoiceXml,
     hasError,
     hasTaxProviderError,
+    canRetryInvoice,
     invoice,
     loading,
     loadingInvoiceDownload,
@@ -481,7 +483,7 @@ const InvoiceOverview = memo(
               loadingInvoiceDownload={loadingInvoiceDownload}
               loadingInvoiceXmlDownload={loadingInvoiceXmlDownload}
               hasError={hasError}
-              hasTaxProviderError={hasTaxProviderError}
+              canRetryInvoice={canRetryInvoice}
               refreshInvoice={refreshInvoice}
               retryInvoice={retryInvoice}
               downloadInvoice={downloadInvoice}

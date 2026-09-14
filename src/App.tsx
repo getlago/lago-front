@@ -5,7 +5,7 @@ import { StyledEngineProvider, ThemeProvider } from '@mui/material/styles'
 import { captureException } from '@sentry/react'
 import { useEffect, useState } from 'react'
 import { Panel, PanelGroup } from 'react-resizable-panels'
-import { BrowserRouter, MemoryRouter } from 'react-router-dom'
+import { BrowserRouter, MemoryRouter } from 'react-router'
 
 import { AiAgent } from '~/components/aiAgent/AiAgent'
 import { Spinner } from '~/components/designSystem/Spinner'
@@ -124,7 +124,7 @@ const App = () => {
                 <NiceModalProvider>
                   <QuotePdfProvider>
                     <PanelGroup direction="vertical" autoSaveId={DEVTOOL_AUTO_SAVE_ID}>
-                      <BrowserRouter basename="/">
+                      <BrowserRouter basename="/" useTransitions={false}>
                         <Panel id="app-panel-group">
                           <PanelGroup direction="horizontal">
                             <Panel id="app-panel">
@@ -137,7 +137,7 @@ const App = () => {
                         </Panel>
                         <ToastContainer />
                       </BrowserRouter>
-                      <MemoryRouter initialEntries={[DEVTOOL_ROUTE]}>
+                      <MemoryRouter initialEntries={[DEVTOOL_ROUTE]} useTransitions={false}>
                         <DevtoolsErrorBoundary>
                           <DevtoolsView />
                         </DevtoolsErrorBoundary>

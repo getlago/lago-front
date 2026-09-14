@@ -10,6 +10,7 @@ import {
 import {
   ConnectionFormValues,
   CustomerConnectionDrawer,
+  CustomerConnectionDrawerFormApi,
 } from '~/components/customerConnections/CustomerConnectionDrawer'
 import {
   CustomerConnectionRow,
@@ -37,10 +38,12 @@ import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import {
   CustomerDetailsFragment,
+  FeatureFlagEnum,
   ProviderPaymentMethodsEnum,
   useIntegrationsListForCustomerMainInfosQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import EmptyImage from '~/public/images/maneki/empty.svg'
 import { tw } from '~/styles/utils'
 
@@ -99,18 +102,21 @@ type CustomerConnectionsSectionProps = {
  * connection on the right, and the payment-methods block scoped to the
  * payment connection. Add / edit / delete persist immediately through the
  * dedicated per-connection mutations (useCustomerConnectionsPersistence).
- * The hardcoded manual-payment row lands with the default flow.
  */
 export const CustomerConnectionsSection = ({ customer }: CustomerConnectionsSectionProps) => {
   const { translate } = useInternationalization()
   const centralizedDialog = useCentralizedDialog()
 
   const connectionOptions = useConnectionOptions()
+  const { hasFeatureFlag } = useOrganizationInfos()
+  const isMultiConnectionEnabled = hasFeatureFlag(FeatureFlagEnum.MultiConnection)
+
   const { drawerRef, openCreate, openEdit } = useCustomerConnectionDrawer()
-  const { saveConnection, deleteConnection } = useCustomerConnectionsPersistence({
-    customer,
-    connectionOptions,
-  })
+  const { saveConnection, deleteConnection, setConnectionAsDefault } =
+    useCustomerConnectionsPersistence({
+      customer,
+      connectionOptions,
+    })
 
   const { data: integrationsData, loading: integrationsLoading } =
     useIntegrationsListForCustomerMainInfosQuery({
@@ -170,6 +176,7 @@ export const CustomerConnectionsSection = ({ customer }: CustomerConnectionsSect
       const providerConnection = getProviderPaymentConnection(customer)
 
       return {
+        code: providerConnection?.code ?? '',
         providerCode: customer.paymentProviderCode ?? undefined,
         providerType: customer.paymentProvider ?? undefined,
         externalCustomerId: providerConnection?.providerCustomerId ?? '',
@@ -184,6 +191,7 @@ export const CustomerConnectionsSection = ({ customer }: CustomerConnectionsSect
     const existing = getIntegrationCustomerForCategory(customer, category)
 
     return {
+      code: existing?.code ?? '',
       providerCode: existing?.integrationCode ?? undefined,
       providerType: existing?.integrationType ?? undefined,
       externalCustomerId: existing?.externalCustomerId ?? '',
@@ -201,7 +209,12 @@ export const CustomerConnectionsSection = ({ customer }: CustomerConnectionsSect
   // link keeps it editable so the connection can be re-pointed
   const openConnectionEdit = (row: CustomerConnectionRow) => {
     const lockedSelection = isProviderPersisted(row.category, row.code)
-      ? { title: row.name, subtitle: row.code, icon: row.icon ?? null }
+      ? {
+          title: row.name,
+          subtitle: row.code,
+          icon: row.icon ?? null,
+          isDefault: isMultiConnectionEnabled && row.isDefault,
+        }
       : undefined
 
     openEdit(row.category, getInitialValues(row.category), lockedSelection)
@@ -227,9 +240,9 @@ export const CustomerConnectionsSection = ({ customer }: CustomerConnectionsSect
   const handleSaveConnection = async (
     category: ConnectionCategory,
     values: ConnectionFormValues,
-    { isEdition }: { isEdition: boolean },
+    { isEdition, formApi }: { isEdition: boolean; formApi: CustomerConnectionDrawerFormApi },
   ): Promise<boolean> => {
-    const succeeded = await saveConnection(category, values, { isEdition })
+    const succeeded = await saveConnection(category, values, { isEdition, formApi })
 
     // The drawer closes on a truthy onSave — report the failure instead of
     // throwing, so it stays open (with its values intact) without raising an
@@ -258,8 +271,6 @@ export const CustomerConnectionsSection = ({ customer }: CustomerConnectionsSect
       )
     }
 
-    // The customer has no connection yet — the manual-payment default view
-    // lands with the default flow
     if (!selectedRow) {
       return (
         <GenericPlaceholder
@@ -277,10 +288,11 @@ export const CustomerConnectionsSection = ({ customer }: CustomerConnectionsSect
             rows={rows}
             grouped
             showTypeColumn={false}
-            showStatusColumn
+            showStatusColumn={isMultiConnectionEnabled}
             selectedRowId={selectedRow.id}
             onRowClick={(row) => setUserSelectedId(row.id)}
             onEdit={openConnectionEdit}
+            onSetDefault={isMultiConnectionEnabled ? setConnectionAsDefault : undefined}
             onDelete={openDeleteDialog}
           />
         </div>

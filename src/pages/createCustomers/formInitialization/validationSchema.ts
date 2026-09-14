@@ -61,11 +61,13 @@ export const validationSchema = z.object({
     .array(
       z.object({
         id: z.string().optional(),
+        code: z.string().optional(),
         category: z.enum([
           ConnectionCategory.Accounting,
           ConnectionCategory.Tax,
           ConnectionCategory.Crm,
         ]),
+        isDefault: z.boolean().optional(),
         providerCode: z.string().optional(),
         providerType: z.enum(IntegrationTypeEnum).optional(),
         externalCustomerId: z.string().optional(),

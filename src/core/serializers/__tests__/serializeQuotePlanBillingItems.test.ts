@@ -3,6 +3,7 @@ import type {
   LocalUsageChargeInput,
   PlanFormInput,
 } from '~/components/plans/types'
+import { comparable } from '~/core/utils/comparableValue'
 import { planFormSchema } from '~/formValidation/planFormSchema'
 import {
   AggregationTypeEnum,
@@ -880,6 +881,7 @@ describe('round-trip: toPlanBillingItems → fromPlanBillingItems', () => {
       prorated: false,
       invoiceable: true,
       taxCodes: [],
+      displayInQuoteDocument: false,
     }
 
     const formValues: PlanFormInput = {
@@ -907,6 +909,7 @@ describe('round-trip: toPlanBillingItems → fromPlanBillingItems', () => {
     expect(roundTrippedCharge?.invoiceDisplayName).toBe('CPU Compute')
     expect(roundTrippedCharge?.billableMetric.filters).toHaveLength(1)
     expect(roundTrippedCharge?.billableMetric.filters?.[0]?.key).toBe('region')
+    expect(roundTrippedCharge?.displayInQuoteDocument).toBe(false)
   })
 
   it('round-trips fixed charges and minimum commitment', () => {
@@ -925,6 +928,7 @@ describe('round-trip: toPlanBillingItems → fromPlanBillingItems', () => {
       prorated: false,
       properties: { amount: '500' } as LocalFixedChargeInput['properties'],
       taxCodes: [],
+      displayInQuoteDocument: false,
     }
 
     const formValues: PlanFormInput = {
@@ -951,6 +955,7 @@ describe('round-trip: toPlanBillingItems → fromPlanBillingItems', () => {
     expect(rtFixedCharge.addOn.name).toBe('Premium Support')
     expect(rtFixedCharge.units).toBe('1')
     expect(rtFixedCharge.invoiceDisplayName).toBe('Support Package')
+    expect(rtFixedCharge.displayInQuoteDocument).toBe(false)
 
     // Minimum commitment round-trip
     expect(fv.minimumCommitment).toBeDefined()
@@ -1419,5 +1424,74 @@ describe('toPlanBillingItems — snapshot ids are bound to the quoted plan', () 
         expect(result.plans[0].payload.charges?.[0].id).toBe('child_charge')
       })
     })
+  })
+})
+
+describe('displayInQuoteDocument', () => {
+  // The backend closes `overrides.*` with `additionalProperties: {not: {}}`; an extra key
+  // there returns a 422 the front end swallows via silentErrorCodes, so the quote would
+  // silently stop saving.
+  it('never reaches the overrides payload, and toggling it leaves overrides identical', () => {
+    const visible: PlanFormInput = {
+      ...baseFormValues,
+      charges: [usageCharge('charge_1', 'count_bm')],
+      fixedCharges: [fixedCharge('fc_1', 'support')],
+    }
+    const hidden: PlanFormInput = {
+      ...visible,
+      charges: [{ ...visible.charges[0], displayInQuoteDocument: false }],
+      fixedCharges: [{ ...visible.fixedCharges[0], displayInQuoteDocument: false }],
+    }
+
+    const visibleOverrides = toPlanBillingItems(basePricingState, visible).plans[0].overrides
+    const hiddenOverrides = toPlanBillingItems(basePricingState, hidden).plans[0].overrides
+
+    expect(comparable(hiddenOverrides)).toBe(comparable(visibleOverrides))
+    expect(hiddenOverrides.charges?.[0]).not.toHaveProperty('displayInQuoteDocument')
+    expect(hiddenOverrides.fixedCharges?.[0]).not.toHaveProperty('displayInQuoteDocument')
+  })
+
+  it('lands in the payload for both charge kinds', () => {
+    const formValues: PlanFormInput = {
+      ...baseFormValues,
+      charges: [{ ...usageCharge('charge_1', 'count_bm'), displayInQuoteDocument: false }],
+      fixedCharges: [{ ...fixedCharge('fc_1', 'support'), displayInQuoteDocument: false }],
+    }
+
+    const { payload } = toPlanBillingItems(basePricingState, formValues).plans[0]
+
+    expect(payload.charges?.[0].displayInQuoteDocument).toBe(false)
+    expect(payload.fixedCharges?.[0].displayInQuoteDocument).toBe(false)
+  })
+
+  it('defaults to true when a stored payload predates the flag', () => {
+    const formValues: PlanFormInput = {
+      ...baseFormValues,
+      charges: [usageCharge('charge_1', 'count_bm')],
+      fixedCharges: [fixedCharge('fc_1', 'support')],
+    }
+    const { plans } = toPlanBillingItems(basePricingState, formValues)
+
+    delete plans[0].payload.charges?.[0].displayInQuoteDocument
+    delete plans[0].payload.fixedCharges?.[0].displayInQuoteDocument
+
+    const { formValues: restored } = fromPlanBillingItems(plans)
+
+    expect(restored?.charges[0].displayInQuoteDocument).toBe(true)
+    expect(restored?.fixedCharges[0].displayInQuoteDocument).toBe(true)
+  })
+
+  it('survives an amendment round-trip (omitStartDate)', () => {
+    const formValues: PlanFormInput = {
+      ...baseFormValues,
+      charges: [{ ...usageCharge('charge_1', 'count_bm'), displayInQuoteDocument: false }],
+    }
+
+    const { plans } = toPlanBillingItems(basePricingState, formValues, undefined, {
+      omitStartDate: true,
+    })
+    const { formValues: restored } = fromPlanBillingItems(plans)
+
+    expect(restored?.charges[0].displayInQuoteDocument).toBe(false)
   })
 })

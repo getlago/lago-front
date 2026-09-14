@@ -11,6 +11,10 @@ import {
 import userEvent from '@testing-library/user-event'
 
 import {
+  GENERIC_PLACEHOLDER_IMAGE_TEST_ID,
+  GENERIC_PLACEHOLDER_TEST_ID,
+} from '~/components/designSystem/GenericPlaceholder'
+import {
   GetProductFiltersForProductDetailsDocument,
   ProductFilterForListFragment,
   ProductForFilterPreviewFragment,
@@ -20,7 +24,6 @@ import { AllTheProviders } from '~/test-utils'
 
 import ProductFilterPreview, {
   PRODUCT_ITEM_FILTER_PREVIEW_CREATE_TEST_ID,
-  PRODUCT_ITEM_FILTER_PREVIEW_EMPTY_TEST_ID,
   PRODUCT_ITEM_FILTER_PREVIEW_VIEW_ALL_TEST_ID,
 } from '../ProductFilterPreview'
 
@@ -264,15 +267,15 @@ describe('ProductFilterPreview', () => {
     expect(screen.queryByTestId(PRODUCT_ITEM_FILTER_PREVIEW_CREATE_TEST_ID)).not.toBeInTheDocument()
   })
 
-  it('renders the inline dashed empty box when there are no filters and no active search', async () => {
+  it('renders the standard table empty state when there are no filters and no active search', async () => {
     await act(() =>
       renderPreview([filtersQueryMock({ productId: PRODUCT_ITEM_ID, limit: 7 }, [], 0)]),
     )
 
-    const emptyBox = await screen.findByTestId(PRODUCT_ITEM_FILTER_PREVIEW_EMPTY_TEST_ID)
-
-    expect(emptyBox).toBeInTheDocument()
-    expect(emptyBox).toHaveClass('border-dashed')
+    expect(await screen.findByRole('table')).toBeInTheDocument()
+    expect(await screen.findByTestId(GENERIC_PLACEHOLDER_TEST_ID)).toBeInTheDocument()
+    expect(screen.getByTestId(GENERIC_PLACEHOLDER_IMAGE_TEST_ID)).toBeInTheDocument()
     expect(screen.getByText('text_1784585400245a6ghyeaz5wf')).toBeInTheDocument()
+    expect(screen.getByText('text_1784585400245nj226z9y9tp')).toBeInTheDocument()
   })
 })

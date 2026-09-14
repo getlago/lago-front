@@ -76,6 +76,7 @@ gql`
     currency
     appliedPricingUnitCode
     billingTiming
+    proration
     attachedToPlanOrSubscription
     attachedToSubscriptions
     product {
@@ -84,6 +85,7 @@ gql`
       billableMetric {
         id
         aggregationType
+        recurring
       }
     }
     activeRate {
@@ -139,6 +141,8 @@ export const useRateCardRateForm = ({
   const schemaContextRef = useRef<RateCardRateSchemaContext>({
     requiresConversionRate: false,
     effectiveFromBoundary: null,
+    rateModelConfiguration: undefined,
+    lockedRateModel: undefined,
   })
   // A boundary moved by a save in this session: the card snapshot the drawer opened with does
   // not know about it, so re-deriving alone would walk the boundary back on every reset.
@@ -185,12 +189,12 @@ export const useRateCardRateForm = ({
         const isActiveRate = editedRate.status === RateCardRateStatusEnum.Active
         const input: UpdateRateCardRateInput = {
           id: editedRate.id,
+          code: value.code,
           rateProperties,
           ...conversionRate,
           ...(isActiveRate
             ? {}
             : {
-                code: value.code,
                 effectiveFrom: value.effectiveFrom,
                 rateModel: value.rateModel,
                 billingIntervalCount: Number(value.billingIntervalCount),
@@ -265,6 +269,14 @@ export const useRateCardRateForm = ({
     editedRateRef.current = rate
     schemaContextRef.current = {
       requiresConversionRate: !!rateCard.appliedPricingUnitCode,
+      lockedRateModel: rate?.status === RateCardRateStatusEnum.Active ? rate.rateModel : undefined,
+      rateModelConfiguration: {
+        productType: rateCard.product.productType,
+        aggregationType: rateCard.product.billableMetric?.aggregationType,
+        recurring: rateCard.product.billableMetric?.recurring,
+        billingTiming: rateCard.billingTiming,
+        proration: rateCard.proration,
+      },
       effectiveFromBoundary: laterEffectiveFrom(
         deriveEffectiveFromBoundary(rateCard, rate),
         boundaryFloorRef.current,

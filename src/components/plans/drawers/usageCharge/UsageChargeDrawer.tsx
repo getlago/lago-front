@@ -6,10 +6,7 @@ import { z } from 'zod'
 import { Button } from '~/components/designSystem/Button'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
-import {
-  applyExistingCodeError,
-  buildChargeCodeSchema,
-} from '~/components/plans/drawers/common/chargeCode'
+import { buildChargeCodeSchema } from '~/components/plans/drawers/common/chargeCode'
 import {
   LocalChargeFilterInput,
   LocalPricingUnitInput,
@@ -24,6 +21,7 @@ import {
   MUI_INPUT_BASE_ROOT_CLASSNAME,
   SEARCH_BILLABLE_METRIC_IN_USAGE_CHARGE_DRAWER_INPUT_CLASSNAME,
 } from '~/core/constants/form'
+import { applyExistingCodeError } from '~/core/form/existingCodeError'
 import getPropertyShape from '~/core/serializers/getPropertyShape'
 import {
   PropertiesZodInput,
@@ -157,6 +155,7 @@ const buildUsageChargeDrawerSchema = (requireCode: boolean) =>
       appliedPricingUnit: z.custom<LocalPricingUnitInput>().optional(),
       chargeModel: z.enum(ChargeModelEnum),
       code: buildChargeCodeSchema(requireCode),
+      displayInQuoteDocument: z.boolean(),
       id: z.string().optional(),
       invoiceDisplayName: z.string(),
       invoiceable: z.boolean(),
@@ -231,6 +230,7 @@ export interface UsageChargeDrawerRef {
 interface UsageChargeDrawerProps {
   disabled?: boolean
   isInSubscriptionForm?: boolean
+  isInQuoteForm?: boolean
   // TEMP (LAGO-1498): drop showCode + existingChargeCodes once the old
   // plan/subscription forms are retired and the Code field becomes unconditional.
   showCode?: boolean
@@ -258,6 +258,7 @@ export const UsageChargeDrawer = forwardRef<UsageChargeDrawerRef, UsageChargeDra
     {
       disabled,
       isInSubscriptionForm,
+      isInQuoteForm,
       showCode = false,
       existingChargeCodes,
       subscriptionFormType,
@@ -291,6 +292,7 @@ export const UsageChargeDrawer = forwardRef<UsageChargeDrawerRef, UsageChargeDra
           appliedPricingUnit: value.appliedPricingUnit,
           chargeModel: value.chargeModel,
           code: value.code || undefined,
+          displayInQuoteDocument: value.displayInQuoteDocument,
           id: value.id,
           invoiceDisplayName: value.invoiceDisplayName || undefined,
           invoiceable: value.invoiceable,
@@ -365,6 +367,7 @@ export const UsageChargeDrawer = forwardRef<UsageChargeDrawerRef, UsageChargeDra
               isCreateMode={isCreateModeRef.current}
               disabled={disabled}
               isInSubscriptionForm={isInSubscriptionForm}
+              isInQuoteForm={isInQuoteForm}
               showCode={showCode}
               existingChargeCodes={existingChargeCodes}
               subscriptionFormType={subscriptionFormType}
@@ -412,6 +415,7 @@ export const UsageChargeDrawer = forwardRef<UsageChargeDrawerRef, UsageChargeDra
               appliedPricingUnit: charge.appliedPricingUnit,
               chargeModel: charge.chargeModel,
               code: charge.code || '',
+              displayInQuoteDocument: charge.displayInQuoteDocument ?? true,
               id: charge.id,
               invoiceDisplayName: charge.invoiceDisplayName || '',
               invoiceable: charge.invoiceable ?? true,

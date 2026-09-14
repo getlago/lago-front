@@ -435,6 +435,7 @@ export function SubscriptionPricingContent({
               form={planForm}
               alreadyExistingFixedChargesIds={planData?.fixedCharges?.map((c) => c.id) || []}
               isInSubscriptionForm
+              isInQuoteForm
               isEdition={false}
             />
 
@@ -442,6 +443,7 @@ export function SubscriptionPricingContent({
               form={planForm}
               alreadyExistingCharges={(planData?.charges ?? []) as LocalUsageChargeInput[]}
               isInSubscriptionForm
+              isInQuoteForm
               isEdition={false}
             />
 

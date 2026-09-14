@@ -24,6 +24,7 @@ import { tw } from '~/styles/utils'
 
 import { PRODUCT_ITEM_FORM_DEFAULTS } from './constants'
 
+export const PRODUCT_ITEM_DRAWER_CODE_TEST_ID = 'product-item-drawer-code'
 export const PRODUCT_ITEM_DRAWER_REMOVE_DESCRIPTION_TEST_ID =
   'product-item-drawer-remove-description'
 export const PRODUCT_ITEM_DRAWER_SHOW_DESCRIPTION_TEST_ID = 'product-item-drawer-show-description'
@@ -132,7 +133,7 @@ const ProductDrawerFormSections = withForm({
     const productTypeData = useMemo(
       () => [
         { value: ProductTypeEnum.Fixed, label: translate('text_1783980718113ritmy7z94je') },
-        { value: ProductTypeEnum.Usage, label: translate('text_17839807181133l3z83156s6') },
+        { value: ProductTypeEnum.Metered, label: translate('text_17839807181133l3z83156s6') },
       ],
       [translate],
     )
@@ -170,6 +171,7 @@ const ProductDrawerFormSections = withForm({
               fields={{ name: 'name', code: 'code' }}
               disableCodeInput={disableCodeInput}
               disableAutoGenerateCode={isEdit}
+              codeDataTest={PRODUCT_ITEM_DRAWER_CODE_TEST_ID}
               nameProps={{
                 autoFocus: true,
                 placeholder: translate('text_1783980718113x7oxinm95hb'),
@@ -244,7 +246,7 @@ const ProductDrawerFormSections = withForm({
               )}
             </form.AppField>
 
-            {productType === ProductTypeEnum.Usage && (
+            {productType === ProductTypeEnum.Metered && (
               <form.AppField name="billableMetricId">
                 {(field) => (
                   <field.ComboBoxField

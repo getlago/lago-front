@@ -1,3 +1,5 @@
+import { Settings } from 'luxon'
+
 import { BillingTimeEnum, PlanInterval } from '~/generated/graphql'
 
 import { getBillingTimeHelperKey } from '../getBillingTimeHelperKey'
@@ -227,6 +229,30 @@ describe('getBillingTimeHelperKey', () => {
 
       expect(result?.key).toBe('text_62ea7cd44cd4b14bb9ac1da2')
       expect(result?.variables).toHaveProperty('day')
+    })
+  })
+
+  // Regression: the date was read in the ambient zone, which the mounted DatePicker used to pin to
+  // UTC. Without that global write, an organization west of UTC keyed the anniversary one day early.
+  describe('GIVEN an ambient zone behind UTC', () => {
+    const originalDefaultZone = Settings.defaultZone
+
+    afterEach(() => {
+      Settings.defaultZone = originalDefaultZone
+    })
+
+    describe('WHEN billingTime is Anniversary on a UTC-backed subscription date', () => {
+      it('THEN should key the anniversary on the UTC calendar day', () => {
+        Settings.defaultZone = 'America/New_York'
+
+        const result = getBillingTimeHelperKey(
+          BillingTimeEnum.Anniversary,
+          '2026-05-29T00:00:00.000Z',
+          PlanInterval.Monthly,
+        )
+
+        expect(result).toEqual({ key: 'text_62ea7cd44cd4b14bb9ac1d86' })
+      })
     })
   })
 })

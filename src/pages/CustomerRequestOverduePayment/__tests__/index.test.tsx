@@ -43,8 +43,8 @@ jest.mock('~/hooks/core/useLocationHistory', () => ({
   }),
 }))
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useParams: () => ({ customerId: 'test-customer-id' }),
   useSearchParams: () => [mockSearchParams],
   generatePath: jest.fn((route: string, params: Record<string, string>) => {

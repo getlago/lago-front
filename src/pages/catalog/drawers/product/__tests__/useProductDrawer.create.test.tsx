@@ -38,8 +38,8 @@ jest.mock('~/core/apolloClient', () => ({
   addToast: jest.fn(),
 }))
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useParams: () => ({ organizationSlug: 'acme' }),
 }))
 
@@ -58,7 +58,7 @@ jest.mock('../ProductDrawerContent', () => ({
     form,
   }: {
     form: {
-      setFieldValue: (name: string, value: string) => void
+      setFieldValue: (name: string, value: string | undefined) => void
       state: { values: { productCategoryId?: string } }
     }
   }) => (
@@ -72,6 +72,12 @@ jest.mock('../ProductDrawerContent', () => ({
         }}
       >
         seed
+      </button>
+      <button
+        data-test="clear-product-category"
+        onClick={() => form.setFieldValue('productCategoryId', undefined)}
+      >
+        clear
       </button>
       <span data-test="product-id-value">{form.state.values.productCategoryId ?? ''}</span>
     </>
@@ -134,6 +140,12 @@ const createProductForProductCategoryMock = (): MockedResponse => ({
 
 const duplicateCodeError = new GraphQLError('Value already exists', {
   extensions: { code: 'value_already_exist', details: { code: ['value_already_exist'] } },
+})
+const otherFieldError = new GraphQLError('Value already exists', {
+  extensions: {
+    code: 'value_already_exist',
+    details: { productCategoryId: ['value_already_exist'] },
+  },
 })
 
 const renderDrawerHook = (mocks: MockedResponse[] = []) =>
@@ -236,6 +248,28 @@ describe('useProductDrawer create flow', () => {
     expect(screen.getByTestId('product-id-value')).toHaveTextContent('prod-1')
   })
 
+  // The combobox clear button stores `undefined`, which a plain `z.string()` rejects as
+  // "This value is not valid" even though the product category is optional.
+  it('submits after the prefilled product category is cleared', async () => {
+    const { result } = renderDrawerHook([createProductMock()])
+
+    act(() => result.current.openDrawer({ attachToProductCategory: ATTACHED_PRODUCT }))
+
+    render(
+      <MockedProvider mocks={[]} addTypename={false}>
+        {lastDrawerArgs?.children}
+      </MockedProvider>,
+    )
+    await userEvent.click(screen.getByTestId('seed-fixed-item'))
+    await userEvent.click(screen.getByTestId('clear-product-category'))
+    await act(async () => {
+      await lastDrawerArgs?.form?.submit()
+    })
+
+    await waitFor(() => expect(mockClose).toHaveBeenCalledTimes(1))
+    expect(mockNavigate).toHaveBeenCalledWith('/product-catalog/products/pitem-1/overview')
+  })
+
   it('keeps the drawer open on a duplicate code without toasting', async () => {
     const { result } = renderDrawerHook([
       createProductMock({ data: null, errors: [duplicateCodeError] }),
@@ -248,5 +282,19 @@ describe('useProductDrawer create flow', () => {
     expect(mockClose).not.toHaveBeenCalled()
     expect(mockNavigate).not.toHaveBeenCalled()
     expect(addToast).not.toHaveBeenCalled()
+  })
+
+  it('toasts instead of failing silently when the rejection is on another field', async () => {
+    const { result } = renderDrawerHook([
+      createProductMock({ data: null, errors: [otherFieldError] }),
+    ])
+
+    act(() => result.current.openDrawer())
+    await seedAndSubmit()
+
+    await waitFor(() =>
+      expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' })),
+    )
+    expect(mockClose).not.toHaveBeenCalled()
   })
 })

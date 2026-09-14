@@ -1,6 +1,6 @@
 import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { useEffect, useState } from 'react'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 
 import { AddOnCodeSnippet } from '~/components/addOns/AddOnCodeSnippet'
 import { Button } from '~/components/designSystem/Button'
@@ -11,6 +11,7 @@ import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
 import { TaxesSelectorSection } from '~/components/taxes/TaxesSelectorSection'
 import { FORM_ERRORS_ENUM, SEARCH_TAX_INPUT_FOR_ADD_ON_CLASSNAME } from '~/core/constants/form'
+import { applyExistingCodeError } from '~/core/form/existingCodeError'
 import { ADD_ON_DETAILS_ROUTE, ADD_ONS_ROUTE, useNavigate } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { scrollToTop } from '~/core/utils/domUtils'
@@ -98,30 +99,13 @@ const CreateAddOn = () => {
     setShouldDisplayDescription(!!addOn?.description)
   }, [addOn?.description])
 
-  const setCodeExistsError = (message: string | undefined): void => {
-    form.setFieldMeta('code', (meta) => ({
-      ...meta,
-      errorMap: { ...meta.errorMap, onDynamic: message ? { message } : undefined },
-    }))
-  }
-
   useEffect(() => {
     if (errorCode === FORM_ERRORS_ENUM.existingCode) {
-      setCodeExistsError('text_632a2d437e341dcc76817556')
+      applyExistingCodeError(form)
       scrollToTop()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [errorCode])
-
-  const codeValue = useStore(form.store, (state) => state.values.code)
-
-  useEffect(() => {
-    // Clear the server "code already exists" error once the user edits the code
-    if (errorCode === FORM_ERRORS_ENUM.existingCode) {
-      setCodeExistsError(undefined)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [codeValue])
 
   const formValues = useStore(form.store, (state) => state.values)
   const amountCurrency = useStore(form.store, (state) => state.values.amountCurrency)

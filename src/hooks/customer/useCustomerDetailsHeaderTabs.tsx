@@ -1,4 +1,4 @@
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { CustomerActivityLogs } from '~/components/customers/CustomerActivityLogs'
 import { CustomerAppliedCouponsList } from '~/components/customers/CustomerAppliedCouponsList'

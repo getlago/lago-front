@@ -22,6 +22,7 @@ export const typeDefs = gql`
     currencies_does_not_match
     does_not_match_item_amounts
     email_already_used
+    invalid_status
     invite_already_exists
     invite_email_mistmatch
     invite_not_found

@@ -1,6 +1,6 @@
 import { ApolloError, gql, LazyQueryHookOptions } from '@apollo/client'
 import { FC } from 'react'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { Status } from '~/components/designSystem/Status'

@@ -14,6 +14,7 @@ import { buildChargeFilterAddFilterButtonId } from '~/components/plans/chargeAcc
 import { ChargeModelSelector } from '~/components/plans/chargeAccordion/ChargeModelSelector'
 import { ChargeWrapperSwitch } from '~/components/plans/chargeAccordion/ChargeWrapperSwitch'
 import { CustomPricingUnitSelector } from '~/components/plans/chargeAccordion/CustomPricingUnitSelector'
+import { ChargeDisplayInQuoteDocumentOption } from '~/components/plans/chargeAccordion/options/ChargeDisplayInQuoteDocumentOption'
 import { ChargeInvoicingStrategyOption } from '~/components/plans/chargeAccordion/options/ChargeInvoicingStrategyOption'
 import { ChargePayInAdvanceOption } from '~/components/plans/chargeAccordion/options/ChargePayInAdvanceOption'
 import { SpendingMinimumOptionSection } from '~/components/plans/chargeAccordion/SpendingMinimumOptionSection'
@@ -63,6 +64,7 @@ interface UsageChargeDrawerContentExtraProps {
   isCreateMode: boolean
   disabled?: boolean
   isInSubscriptionForm?: boolean
+  isInQuoteForm?: boolean
   // TEMP (LAGO-1498): Code is shown only via the v2 details/edition UI.
   showCode?: boolean
   existingChargeCodes?: (string | null | undefined)[]
@@ -79,6 +81,7 @@ const usageChargeDrawerContentDefaultProps: UsageChargeDrawerContentExtraProps =
   isCreateMode: false,
   disabled: false,
   isInSubscriptionForm: false,
+  isInQuoteForm: false,
   showCode: false,
   existingChargeCodes: undefined,
   subscriptionFormType: undefined,
@@ -98,6 +101,7 @@ export const UsageChargeDrawerContent = withForm({
     isCreateMode,
     disabled,
     isInSubscriptionForm,
+    isInQuoteForm,
     showCode,
     existingChargeCodes,
     subscriptionFormType,
@@ -693,6 +697,14 @@ export const UsageChargeDrawerContent = withForm({
                     )}
                   </form.AppField>
                 </div>
+              )}
+
+              {isInQuoteForm && (
+                <ChargeDisplayInQuoteDocumentOption
+                  form={form}
+                  fields={{ displayInQuoteDocument: 'displayInQuoteDocument' }}
+                  disabled={disabled}
+                />
               )}
 
               {!formValues.payInAdvance && (

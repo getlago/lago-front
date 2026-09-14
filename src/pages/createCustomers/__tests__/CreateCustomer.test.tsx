@@ -28,6 +28,13 @@ jest.mock('~/components/drawers/useDrawer', () => ({
   useFormDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
 }))
 
+const mockAddToast = jest.fn()
+
+jest.mock('~/core/apolloClient/reactiveVars/toastVar', () => ({
+  ...jest.requireActual('~/core/apolloClient/reactiveVars/toastVar'),
+  addToast: (...args: unknown[]) => mockAddToast(...args),
+}))
+
 // Mock data for required queries
 const defaultMocks: TestMocksType = [
   {
@@ -490,6 +497,37 @@ describe('CreateCustomer Integration Tests', () => {
       await waitFor(() => {
         expect(externalIdInput).toHaveAttribute('aria-invalid', 'true')
       })
+    })
+
+    it('THEN should report a duplicate connection code on a toast, leaving externalId valid', async () => {
+      const user = userEvent.setup()
+
+      mockOnSave.mockResolvedValue({
+        errors: [
+          {
+            message: 'Unprocessable Entity',
+            extensions: {
+              status: 422,
+              code: 'unprocessable_entity',
+              details: { code: ['value_already_exist'] },
+            },
+          },
+        ],
+      })
+
+      renderCreateCustomer(<CreateCustomer />)
+      await waitForFormReady()
+
+      const externalIdInput = screen.getByLabelText(/customer external id/i)
+
+      await user.type(externalIdInput, 'test-customer')
+      await user.click(screen.getByTestId('submit-customer'))
+
+      await waitFor(() => {
+        expect(mockAddToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
+      })
+
+      expect(externalIdInput).not.toHaveAttribute('aria-invalid', 'true')
     })
 
     it('THEN should not reset form when Stripe third-party error is returned', async () => {

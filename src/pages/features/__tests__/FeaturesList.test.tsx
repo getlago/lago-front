@@ -35,8 +35,8 @@ jest.mock('~/components/features/DeleteFeatureDialog', () => ({
   useDeleteFeatureDialog: () => ({ openDeleteFeatureDialog: jest.fn() }),
 }))
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useNavigate: jest.fn(() => jest.fn()),
   generatePath: jest.fn((route: string) => route),
 }))

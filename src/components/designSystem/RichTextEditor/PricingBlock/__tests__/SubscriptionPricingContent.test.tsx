@@ -190,11 +190,19 @@ jest.mock('../useQuotePlanSettingsDrawer', () => ({
 
 // Mock reused section components
 jest.mock('~/components/plans/form/FixedChargesSection', () => ({
-  FixedChargesSection: () => <div data-test="fixed-charges-section">Fixed Charges</div>,
+  FixedChargesSection: ({ isInQuoteForm }: { isInQuoteForm?: boolean }) => (
+    <div data-test="fixed-charges-section" data-in-quote-form={String(!!isInQuoteForm)}>
+      Fixed Charges
+    </div>
+  ),
 }))
 
 jest.mock('~/components/plans/UsageChargesSection', () => ({
-  UsageChargesSection: () => <div data-test="usage-charges-section">Usage Charges</div>,
+  UsageChargesSection: ({ isInQuoteForm }: { isInQuoteForm?: boolean }) => (
+    <div data-test="usage-charges-section" data-in-quote-form={String(!!isInQuoteForm)}>
+      Usage Charges
+    </div>
+  ),
 }))
 
 jest.mock('~/components/plans/CommitmentsSection', () => ({
@@ -289,6 +297,16 @@ describe('SubscriptionPricingContent', () => {
     expect(screen.getByTestId('usage-charges-section')).toBeInTheDocument()
     expect(screen.getByTestId('commitments-section')).toBeInTheDocument()
     expect(screen.getByTestId('progressive-billing-section')).toBeInTheDocument()
+
+    // Gates the quote-only "display in quote document" switch inside the charge drawers
+    expect(screen.getByTestId('fixed-charges-section')).toHaveAttribute(
+      'data-in-quote-form',
+      'true',
+    )
+    expect(screen.getByTestId('usage-charges-section')).toHaveAttribute(
+      'data-in-quote-form',
+      'true',
+    )
   })
 
   it('syncs state to stateRef when plan is selected', async () => {

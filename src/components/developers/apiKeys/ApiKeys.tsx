@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import { Icon } from 'lago-design-system'
 import { DateTime } from 'luxon'
 import { useCallback, useEffect, useState } from 'react'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import { PaginatedContent } from '~/components/designSystem/Pagination'

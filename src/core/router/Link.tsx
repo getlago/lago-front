@@ -1,6 +1,6 @@
 import { forwardRef } from 'react'
 // eslint-disable-next-line lago/no-direct-rrd-nav-import
-import { LinkProps, Link as RRLink, useParams } from 'react-router-dom'
+import { LinkProps, Link as RRLink, useParams } from 'react-router'
 
 import { prependOrgSlug } from './utils/prependOrgSlug'
 

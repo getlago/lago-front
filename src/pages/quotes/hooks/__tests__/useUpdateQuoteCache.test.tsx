@@ -17,6 +17,7 @@ const VERSION_FRAGMENT = gql`
   fragment TestQuoteVersionCachedFields on QuoteVersion {
     mentionVariables
     billingItems
+    content
   }
 `
 
@@ -32,12 +33,19 @@ const FRESH_BILLING_ITEMS = {
   walletCredits: [{ payload: { currency: CurrencyEnum.Aud } }],
 }
 
+const STALE_CONTENT = '<p>Content loaded with the page</p>'
+const FRESH_CONTENT = '<p>Content the user just typed</p>'
+
 const cacheEntityId = (cache: InMemoryCache): string =>
   cache.identify({ __typename: 'QuoteVersion', id: VERSION_ID }) as string
 
 const readVersion = (
   cache: InMemoryCache,
-): { mentionVariables: Record<string, string>; billingItems: unknown } | null =>
+): {
+  mentionVariables: Record<string, string>
+  billingItems: unknown
+  content: string | null
+} | null =>
   cache.readFragment({
     id: cacheEntityId(cache),
     fragment: VERSION_FRAGMENT,
@@ -53,6 +61,7 @@ const seedCache = (): InMemoryCache => {
       __typename: 'QuoteVersion',
       mentionVariables: STALE_VARIABLES,
       billingItems: STALE_BILLING_ITEMS,
+      content: STALE_CONTENT,
     },
   })
 
@@ -72,6 +81,7 @@ const buildWrapper = (cache: InMemoryCache, variables: Record<string, unknown>) 
             billingEntityId: 'be-2',
             mentionVariables: FRESH_VARIABLES,
             billingItems: FRESH_BILLING_ITEMS,
+            content: FRESH_CONTENT,
           },
         },
       },
@@ -113,6 +123,31 @@ describe('useUpdateQuote — server-recomputed fields refresh in the cache', () 
           expect(readVersion(cache)?.mentionVariables).toEqual(FRESH_VARIABLES)
         })
         expect(readVersion(cache)?.billingItems).toEqual(FRESH_BILLING_ITEMS)
+      })
+    })
+  })
+
+  describe('GIVEN a cached quote version still carrying the content loaded with the page', () => {
+    describe('WHEN the editor autosaves the edited content', () => {
+      // Without `content` in the mutation selection set the cache keeps the page-load
+      // value, and Download PDF reprints it however many times the content changes.
+      it('THEN should refresh the cached content', async () => {
+        const cache = seedCache()
+        const input = { id: VERSION_ID, content: FRESH_CONTENT }
+
+        expect(readVersion(cache)?.content).toEqual(STALE_CONTENT)
+
+        const { result } = renderHook(() => useUpdateQuote(), {
+          wrapper: buildWrapper(cache, input),
+        })
+
+        await act(async () => {
+          await result.current.updateQuoteVersion(input, false)
+        })
+
+        await waitFor(() => {
+          expect(readVersion(cache)?.content).toEqual(FRESH_CONTENT)
+        })
       })
     })
   })

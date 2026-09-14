@@ -12,6 +12,7 @@ export interface FixedChargeDrawerFormValues {
   applyUnitsImmediately: boolean
   chargeModel: FixedChargeChargeModelEnum
   code: string
+  displayInQuoteDocument: boolean
   id?: string
   invoiceDisplayName: string
   payInAdvance: boolean
@@ -27,6 +28,7 @@ export const DEFAULT_VALUES: FixedChargeDrawerFormValues = {
   applyUnitsImmediately: false,
   chargeModel: FixedChargeChargeModelEnum.Standard,
   code: '',
+  displayInQuoteDocument: true,
   id: undefined,
   invoiceDisplayName: '',
   payInAdvance: false,

@@ -1,6 +1,6 @@
 import { useApolloClient } from '@apollo/client'
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 import { Spinner } from '~/components/designSystem/Spinner'
 import { onAccessCustomerPortal, pausePersistence } from '~/core/apolloClient'

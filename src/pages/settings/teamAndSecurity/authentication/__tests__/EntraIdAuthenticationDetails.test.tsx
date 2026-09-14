@@ -25,8 +25,8 @@ import {
 const mockNavigateFn = jest.fn()
 const mockUseParams = jest.fn().mockReturnValue({ integrationId: 'integration-123' })
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useNavigate: () => mockNavigateFn,
   useParams: () => mockUseParams(),
 }))

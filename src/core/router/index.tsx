@@ -173,7 +173,7 @@ export * from './QuotesRoutes'
 export * from './SettingRoutes'
 export * from './types'
 
-// Slug-aware wrappers — use these over `react-router-dom` at call sites so
+// Slug-aware wrappers - use these over `react-router` at call sites so
 // the org slug is auto-prepended and, in any case, took into account.
 // Enforced by the ESLint `no-restricted-imports` in  packages/configs/eslint.config.mjs
 export { Link } from './Link'

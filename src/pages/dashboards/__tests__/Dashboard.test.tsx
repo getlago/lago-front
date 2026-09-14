@@ -1,11 +1,12 @@
-import { screen, waitFor } from '@testing-library/react'
+import { EmbedDashboardParams, EmbeddedDashboard } from '@superset-ui/embedded-sdk'
+import { act, screen, waitFor } from '@testing-library/react'
 
 import { GENERIC_PLACEHOLDER_TEST_ID } from '~/components/designSystem/GenericPlaceholder'
 import { getItemFromLS, setItemFromLS } from '~/core/utils/localStorage'
 import { SupersetDashboardsDocument } from '~/generated/graphql'
 import { render, TestMocksType } from '~/test-utils'
 
-import Dashboard, { DASHBOARD_MOUNT_TEST_ID } from '../Dashboard'
+import Dashboard, { DASHBOARD_MOUNT_TEST_ID, DashboardProps } from '../Dashboard'
 
 // --- Superset SDK -----------------------------------------------------------
 const mockUnmount = jest.fn()
@@ -85,15 +86,48 @@ const errorMock: TestMocksType = [
   { request: { query: SupersetDashboardsDocument }, error: new Error('boom') },
 ]
 
-const renderAnalytics = (mocks: TestMocksType = successMock) =>
-  render(
-    <Dashboard
-      contentTitle="Analytics title"
-      dashboardTitle="Lago Dashboard"
-      dashboardTitleTestKey="superset-dashboard-test-name-analytics"
-    />,
-    { mocks },
-  )
+const analyticsProps: DashboardProps = {
+  contentTitle: 'Analytics title',
+  dashboardTitle: 'Lago Dashboard',
+  dashboardTitleTestKey: 'superset-dashboard-test-name-analytics',
+}
+
+const renderAnalytics = (mocks: TestMocksType = successMock): ReturnType<typeof render> =>
+  render(<Dashboard {...analyticsProps} />, { mocks })
+
+const deferEmbed = (): {
+  instance: jest.Mocked<EmbeddedDashboard>
+  resolve: () => void
+} => {
+  const instance: jest.Mocked<EmbeddedDashboard> = {
+    unmount: jest.fn(),
+    observeDataMask: jest.fn(),
+    getScrollSize: jest.fn(),
+    getDashboardPermalink: jest.fn(),
+    getActiveTabs: jest.fn(),
+    getDataMask: jest.fn(),
+    getChartStates: jest.fn(),
+    getChartDataPayloads: jest.fn(),
+    setThemeConfig: jest.fn(),
+    setThemeMode: jest.fn(),
+  }
+  let resolve!: () => void
+  const promise = new Promise<EmbeddedDashboard>((resolveInstance) => {
+    resolve = () => resolveInstance(instance)
+  })
+
+  mockEmbedDashboard.mockImplementationOnce(({ id, mountPoint }: EmbedDashboardParams) => {
+    const iframe = document.createElement('iframe')
+
+    iframe.title = id
+    mountPoint.replaceChildren(iframe)
+    instance.unmount.mockImplementation(() => mountPoint.replaceChildren())
+
+    return promise
+  })
+
+  return { instance, resolve }
+}
 
 const renderRevenue = (mocks: TestMocksType = successMock) =>
   render(
@@ -116,6 +150,10 @@ describe('Dashboard', () => {
     })
   })
 
+  afterEach(() => {
+    jest.useRealTimers()
+  })
+
   describe('GIVEN the dashboards query resolves', () => {
     it('THEN renders the content title and a per-dashboard mount node', async () => {
       renderAnalytics()
@@ -134,7 +172,7 @@ describe('Dashboard', () => {
 
       expect(config.id).toBe('embed-1')
       expect(config.supersetDomain).toBe('https://localhost:8089')
-      expect(config.mountPoint).toBe(document.getElementById('superset-lago-dashboard'))
+      expect(screen.getByTestId(DASHBOARD_MOUNT_TEST_ID)).toContainElement(config.mountPoint)
       expect(config.dashboardUiConfig.hideTitle).toBe(true)
       await expect(config.fetchGuestToken()).resolves.toBe('token-1')
     })
@@ -218,7 +256,96 @@ describe('Dashboard', () => {
     })
   })
 
+  describe('GIVEN dashboard embedding is still pending', () => {
+    beforeEach(() => {
+      mockIsFeatureFlagActive.mockReturnValue(true)
+    })
+
+    it('WHEN the component unmounts THEN disposes a late instance without observing filters', async () => {
+      const pending = deferEmbed()
+      const { unmount } = renderAnalytics()
+
+      await waitFor(() => expect(mockEmbedDashboard).toHaveBeenCalledTimes(1))
+
+      unmount()
+
+      await act(async () => pending.resolve())
+
+      expect(pending.instance.unmount).toHaveBeenCalledTimes(1)
+      expect(pending.instance.observeDataMask).not.toHaveBeenCalled()
+    })
+
+    it.each(['oldest first', 'newest first'])(
+      'WHEN two switches complete %s THEN keeps the current dashboard mounted',
+      async (completionOrder) => {
+        const first = deferEmbed()
+        const second = deferEmbed()
+        const current = deferEmbed()
+        const { rerender, unmount } = renderAnalytics()
+
+        await waitFor(() => expect(mockEmbedDashboard).toHaveBeenCalledTimes(1))
+
+        mockGetItemFromLS.mockImplementation((key: string) =>
+          key === analyticsProps.dashboardTitleTestKey ? 'Revenue Recognition' : undefined,
+        )
+        rerender(<Dashboard {...analyticsProps} />)
+        await waitFor(() => expect(mockEmbedDashboard).toHaveBeenCalledTimes(2))
+
+        mockGetItemFromLS.mockReturnValue(undefined)
+        rerender(<Dashboard {...analyticsProps} />)
+        await waitFor(() => expect(mockEmbedDashboard).toHaveBeenCalledTimes(3))
+
+        const currentIframe = screen.getByTitle('embed-1')
+        const completions =
+          completionOrder === 'oldest first' ? [first, second, current] : [current, second, first]
+
+        for (const pending of completions) {
+          await act(async () => pending.resolve())
+          expect(currentIframe).toBeInTheDocument()
+          expect(
+            screen.getByTestId(DASHBOARD_MOUNT_TEST_ID).querySelectorAll('iframe'),
+          ).toHaveLength(1)
+        }
+
+        expect(first.instance.unmount).toHaveBeenCalledTimes(1)
+        expect(second.instance.unmount).toHaveBeenCalledTimes(1)
+        expect(first.instance.observeDataMask).not.toHaveBeenCalled()
+        expect(second.instance.observeDataMask).not.toHaveBeenCalled()
+        expect(current.instance.observeDataMask).toHaveBeenCalledTimes(1)
+        expect(current.instance.unmount).not.toHaveBeenCalled()
+
+        unmount()
+
+        expect(current.instance.unmount).toHaveBeenCalledTimes(1)
+      },
+    )
+  })
+
   describe('GIVEN the component unmounts', () => {
+    it('THEN cancels pending filter saves and ignores late data masks', async () => {
+      mockIsFeatureFlagActive.mockReturnValue(true)
+
+      const { unmount } = renderAnalytics()
+
+      await waitFor(() => expect(mockObserveDataMask).toHaveBeenCalledTimes(1))
+
+      jest.useFakeTimers()
+
+      const observeCallback = mockObserveDataMask.mock.calls[0][0]
+      const dataMask = { 'NATIVE_FILTER-abc': { filterState: { value: ['EUR'] } } }
+
+      observeCallback(dataMask)
+      unmount()
+      jest.runOnlyPendingTimers()
+
+      expect(mockSetItemFromLS).not.toHaveBeenCalled()
+
+      observeCallback(dataMask)
+      jest.runOnlyPendingTimers()
+
+      expect(mockSetItemFromLS).not.toHaveBeenCalled()
+    })
+
     it('THEN tears down the embedded dashboard', async () => {
       const { unmount } = renderAnalytics()
 

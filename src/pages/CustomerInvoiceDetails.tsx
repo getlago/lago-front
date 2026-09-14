@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import Stack from '@mui/material/Stack'
 import { useCallback, useMemo, useRef } from 'react'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
 import { Alert } from '~/components/designSystem/Alert'
@@ -20,7 +20,7 @@ import { InvoicePaymentList } from '~/components/invoices/InvoicePaymentList'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
-import { addToast, LagoGQLError } from '~/core/apolloClient'
+import { addToast, hasDefinedGQLError, LagoGQLError } from '~/core/apolloClient'
 import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import {
   CustomerDetailsTabsOptions,
@@ -391,14 +391,29 @@ const CustomerInvoiceDetails = () => {
   const [retryInvoice, { loading: loadingRetryInvoice }] = useRetryInvoiceMutation({
     variables: { input: { id: invoiceId || '' } },
     context: {
-      silentErrorCodes: [LagoApiError.UnprocessableEntity, LagoApiError.InternalError],
+      silentErrorCodes: [
+        LagoApiError.UnprocessableEntity,
+        LagoApiError.InternalError,
+        LagoApiError.InvalidStatus,
+      ],
     },
     onCompleted: async ({ retryInvoice: retryInvoiceResult }) => {
       if (retryInvoiceResult?.id) {
         await refetch()
       }
     },
-    onError: ({ graphQLErrors }) => {
+    onError: async ({ graphQLErrors }) => {
+      if (hasDefinedGQLError('InvalidStatus', graphQLErrors)) {
+        addToast({
+          severity: 'danger',
+          translateKey: 'text_178902128702148v9ietuprl',
+        })
+
+        await refetch()
+
+        return
+      }
+
       graphQLErrors.forEach((graphQLError) => {
         const { extensions } = graphQLError as LagoGQLError
 
@@ -580,6 +595,7 @@ const CustomerInvoiceDetails = () => {
             downloadInvoiceXml={downloadInvoiceXml}
             hasError={hasError}
             hasTaxProviderError={!!hasTaxProviderError}
+            canRetryInvoice={authorizations.canRetryInvoice}
             invoice={data?.invoice}
             loading={isLoading}
             customer={customer}
@@ -684,6 +700,7 @@ const CustomerInvoiceDetails = () => {
     downloadInvoice,
     hasError,
     hasTaxProviderError,
+    authorizations.canRetryInvoice,
     data?.invoice,
     isLoading,
     customer,

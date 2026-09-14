@@ -89,6 +89,7 @@ const renderOverview = ({
       fees={FEES}
       hasError={false}
       hasTaxProviderError={false}
+      canRetryInvoice={false}
       loading={false}
       loadingInvoiceDownload={false}
       loadingInvoiceXmlDownload={false}

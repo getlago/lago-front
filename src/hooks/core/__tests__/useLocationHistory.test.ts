@@ -1,5 +1,5 @@
 import { act, renderHook } from '@testing-library/react'
-import type { Location } from 'react-router-dom'
+import type { Location } from 'react-router'
 
 import { authTokenVar, locationHistoryVar } from '~/core/apolloClient'
 import { FeatureFlagEnum } from '~/generated/graphql'
@@ -45,8 +45,8 @@ const MOCK_HISTORY_VAR = [
   },
 ]
 
-jest.mock('react-router-dom', () => {
-  const actual = jest.requireActual('react-router-dom')
+jest.mock('react-router', () => {
+  const actual = jest.requireActual('react-router')
 
   return {
     ...actual,
@@ -55,7 +55,7 @@ jest.mock('react-router-dom', () => {
   }
 })
 
-const mockUseParams = jest.requireMock('react-router-dom').useParams as jest.Mock
+const mockUseParams = jest.requireMock('react-router').useParams as jest.Mock
 
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({

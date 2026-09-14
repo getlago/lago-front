@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { useStore } from '@tanstack/react-form'
 import { useCallback } from 'react'
-import { generatePath, useSearchParams } from 'react-router-dom'
+import { generatePath, useSearchParams } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'

@@ -102,7 +102,7 @@ const rateCardFixture = {
     __typename: 'Product',
     id: 'product-1',
     name: 'API calls',
-    productType: 'usage',
+    productType: 'metered',
     productCategory: { __typename: 'ProductCategory', id: 'pcategory-1', name: 'Platform' },
     billableMetric: {
       __typename: 'BillableMetric',
@@ -385,6 +385,19 @@ describe('buildRateCardRateSnapshotKey', () => {
       ])('THEN %s changes the key', (_, override) => {
         expect(buildRateCardRateSnapshotKey({ rate, rateCard })).not.toBe(
           buildRateCardRateSnapshotKey({ rate: { ...rate, ...override }, rateCard }),
+        )
+      })
+    })
+  })
+
+  describe('GIVEN the parent card was renamed', () => {
+    describe('WHEN the snapshot keys are compared', () => {
+      it('THEN the key changes, so the header stops showing the old card code', () => {
+        expect(buildRateCardRateSnapshotKey({ rate, rateCard })).not.toBe(
+          buildRateCardRateSnapshotKey({
+            rate,
+            rateCard: { ...rateCard, code: 'renamed_rate_card' },
+          }),
         )
       })
     })

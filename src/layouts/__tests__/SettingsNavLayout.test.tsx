@@ -1,39 +1,115 @@
-import SettingsNavLayout, {
-  SETTINGS_NAV_BACK_BUTTON_TEST_ID,
-  SETTINGS_NAV_BILLING_ENTITY_ITEM_TEST_ID,
-  SETTINGS_NAV_BURGER_BUTTON_TEST_ID,
-  SETTINGS_NAV_CREATE_BILLING_ENTITY_BUTTON_TEST_ID,
-} from '../SettingsNavLayout'
+import { screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
-describe('SettingsNavLayout test IDs', () => {
-  it('exports expected test ID constants', () => {
-    expect(SETTINGS_NAV_BURGER_BUTTON_TEST_ID).toBe('settings-nav-burger-button')
-    expect(SETTINGS_NAV_BACK_BUTTON_TEST_ID).toBe('settings-nav-back-button')
-    expect(SETTINGS_NAV_CREATE_BILLING_ENTITY_BUTTON_TEST_ID).toBe(
-      'settings-nav-create-billing-entity-button',
+import { GetBillingEntitiesDocument } from '~/generated/graphql'
+import { TMembershipPermissions } from '~/hooks/usePermissions'
+import { render } from '~/test-utils'
+
+import SettingsNavLayout, { SETTINGS_NAV_BACK_BUTTON_TEST_ID } from '../SettingsNavLayout'
+
+const mockPermissions = new Set<keyof TMembershipPermissions>()
+
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({
+    hasPermissions: (permissions: Array<keyof TMembershipPermissions>) =>
+      permissions.every((permission) => mockPermissions.has(permission)),
+  }),
+}))
+
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  useOrganizationInfos: () => ({ organization: { canCreateBillingEntity: false } }),
+}))
+
+jest.mock('~/hooks/core/useLocationHistory', () => ({
+  useLocationHistory: () => ({ goBack: jest.fn() }),
+}))
+
+jest.mock('~/components/dialogs/PremiumWarningDialog', () => ({
+  usePremiumWarningDialog: () => ({ open: jest.fn() }),
+}))
+
+const renderSettings = () =>
+  render(<SettingsNavLayout />, {
+    useParams: { organizationSlug: 'acme' },
+    mocks: [
+      {
+        request: { query: GetBillingEntitiesDocument, variables: {} },
+        result: { data: { billingEntities: { collection: [] } } },
+      },
+    ],
+  })
+
+describe('SettingsNavLayout', () => {
+  const originalScrollTo = HTMLElement.prototype.scrollTo
+
+  beforeAll(() => {
+    HTMLElement.prototype.scrollTo = jest.fn()
+  })
+
+  afterAll(() => {
+    HTMLElement.prototype.scrollTo = originalScrollTo
+  })
+
+  beforeEach(() => {
+    mockPermissions.clear()
+    window.history.replaceState({}, '', '/acme/settings/general')
+  })
+
+  it('renders the settings navigation without links for restricted sections', () => {
+    renderSettings()
+
+    expect(screen.getByTestId(SETTINGS_NAV_BACK_BUTTON_TEST_ID)).toBeInTheDocument()
+    expect(screen.queryByRole('link')).not.toBeInTheDocument()
+  })
+
+  it.each<{ permission: keyof TMembershipPermissions; name: string; path: string }>([
+    { permission: 'organizationView', name: 'General', path: '/settings/general' },
+    {
+      permission: 'organizationIntegrationsView',
+      name: 'Integrations',
+      path: '/settings/integrations/lago',
+    },
+    {
+      permission: 'organizationInvoicesView',
+      name: 'Invoices',
+      path: '/settings/invoice-sections',
+    },
+    {
+      permission: 'dunningCampaignsView',
+      name: 'Dunning',
+      path: '/settings/dunnings',
+    },
+    { permission: 'organizationTaxesView', name: 'Taxes', path: '/settings/taxes' },
+  ])('shows only $name when $permission is granted', ({ permission, name, path }) => {
+    mockPermissions.add(permission)
+    renderSettings()
+
+    expect(screen.getAllByRole('link')).toHaveLength(1)
+    expect(screen.getByRole('link', { name })).toHaveAttribute('href', `/acme${path}`)
+  })
+
+  it.each<keyof TMembershipPermissions>([
+    'organizationMembersView',
+    'rolesView',
+    'authenticationMethodsView',
+    'securityLogsView',
+  ])('shows Team & Security with only %s access', (permission) => {
+    mockPermissions.add(permission)
+    renderSettings()
+
+    expect(screen.getAllByRole('link')).toHaveLength(1)
+    expect(screen.getByRole('link', { name: 'Team & Security' })).toHaveAttribute(
+      'href',
+      '/acme/settings/team-and-security',
     )
-    expect(SETTINGS_NAV_BILLING_ENTITY_ITEM_TEST_ID).toBe('settings-nav-billing-entity-item')
   })
 
-  it('test ID constants follow kebab-case naming convention', () => {
-    const testIds = [
-      SETTINGS_NAV_BURGER_BUTTON_TEST_ID,
-      SETTINGS_NAV_BACK_BUTTON_TEST_ID,
-      SETTINGS_NAV_CREATE_BILLING_ENTITY_BUTTON_TEST_ID,
-      SETTINGS_NAV_BILLING_ENTITY_ITEM_TEST_ID,
-    ]
+  it('navigates to taxes in the organization from the URL', async () => {
+    mockPermissions.add('organizationTaxesView')
+    renderSettings()
 
-    testIds.forEach((testId) => {
-      expect(testId).toMatch(/^[a-z-]+$/)
-    })
-  })
-})
+    await userEvent.click(screen.getByRole('link', { name: 'Taxes' }))
 
-describe('SettingsNavLayout generateTabs function', () => {
-  // Import the component to test the generateTabs function behavior indirectly
-
-  it('component exports successfully', () => {
-    expect(SettingsNavLayout).toBeDefined()
-    expect(typeof SettingsNavLayout).toBe('function')
+    expect(window.location.pathname).toBe('/acme/settings/taxes')
   })
 })

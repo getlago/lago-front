@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { Fragment } from 'react'
-import { useParams, useSearchParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router'
 
 import { CodeSnippet } from '~/components/CodeSnippet'
 import { Alert } from '~/components/designSystem/Alert'

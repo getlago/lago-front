@@ -26,6 +26,7 @@ const PRODUCT_ITEM_FILTER_DRAWER_REMOVE_DESCRIPTION_TEST_ID =
 const PRODUCT_ITEM_FILTER_DRAWER_SHOW_DESCRIPTION_TEST_ID =
   'product-item-filter-drawer-show-description'
 
+export const PRODUCT_ITEM_FILTER_DRAWER_CODE_TEST_ID = 'product-item-filter-drawer-code'
 export const PRODUCT_ITEM_FILTER_DRAWER_MISSING_VALUES_ALERT_TEST_ID =
   'product-item-filter-drawer-missing-values-alert'
 
@@ -162,6 +163,7 @@ const ProductFilterDrawerFormSections = withForm({
               fields={{ name: 'name', code: 'code' }}
               disableCodeInput={disableCodeInput}
               disableAutoGenerateCode={isEdit}
+              codeDataTest={PRODUCT_ITEM_FILTER_DRAWER_CODE_TEST_ID}
               nameProps={{ autoFocus: true }}
             />
 

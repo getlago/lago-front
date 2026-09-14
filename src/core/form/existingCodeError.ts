@@ -1,15 +1,23 @@
 import { AnyFormApi } from '@tanstack/react-form'
 
-// Backend "code already exists" message, surfaced under the Code input on save
-// and cleared when the user edits the code (so submit re-enables). Shared by
-// every entity form with a unique code so the string can't drift between them.
+// Backend "code already exists" message, surfaced under the Code input on save.
+// Shared by every entity form with a unique code so the string can't drift
+// between them.
 export const EXISTING_CODE_ERROR_MESSAGE = 'text_632a2d437e341dcc76817556'
 
-// Surfaces the backend duplicate-code rejection under the Code input (keeps the
-// drawer open). Same pattern as plan-settings code.
+// The field-error slice `applyExistingCodeError` writes. Exported for the forms
+// that also hand it to `scrollToFirstInputError`.
+export const EXISTING_CODE_FIELD_ERRORS = {
+  code: { message: EXISTING_CODE_ERROR_MESSAGE, path: ['code'] },
+}
+
+// Surfaces the backend duplicate-code rejection under the Code input, keeping
+// the form open.
+//
+// Not `setFieldMeta`: only `setErrorMap` stamps `errorSourceMap.onDynamic =
+// 'form'`, which is what lets the next form validation drop the error again. An
+// error written with `setFieldMeta` reads as field-owned, no field-level
+// validator ever clears it, and submit stays disabled for the life of the form.
 export const applyExistingCodeError = (formApi: AnyFormApi): void => {
-  formApi.setFieldMeta('code', (meta) => ({
-    ...meta,
-    errorMap: { ...meta.errorMap, onDynamic: { message: EXISTING_CODE_ERROR_MESSAGE } },
-  }))
+  formApi.setErrorMap({ onDynamic: { fields: EXISTING_CODE_FIELD_ERRORS } })
 }

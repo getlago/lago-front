@@ -5,6 +5,10 @@
  * so we can intercept warnings from libraries that cache console references.
  */
 
+import { TextEncoder } from 'node:util'
+
+globalThis.TextEncoder = TextEncoder
+
 /**
  * Patterns to suppress in test console output.
  * Each pattern is an array of strings that must ALL be present in the message.
@@ -33,10 +37,6 @@ const SUPPRESSED_PATTERNS: string[][] = [
 
   // Apollo cache merge warnings (test environment artifact)
   ['Cache data may be lost when replacing'],
-
-  // React Router v7 future flag warnings
-  ['React Router Future Flag Warning', 'v7_startTransition'],
-  ['React Router Future Flag Warning', 'v7_relativeSplatPath'],
 
   // GraphQL fragment duplicate warnings (test environment artifact)
   ['Warning: fragment with name', 'already exists'],

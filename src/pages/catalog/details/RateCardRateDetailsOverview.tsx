@@ -1,31 +1,22 @@
 import { gql } from '@apollo/client'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { Status } from '~/components/designSystem/Status'
-import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { PageSectionTitle } from '~/components/layouts/Section'
 import { PlanDetailsChargeWrapperSwitch } from '~/components/plans/details/PlanDetailsChargeWrapperSwitch'
 import { chargeModelLookupTranslation } from '~/core/constants/form'
 import { rateCardRateStatusMapping } from '~/core/constants/statusRateCardRateMapping'
-import {
-  ProductCategoryDetailsTabsOptionsEnum,
-  ProductDetailsTabsOptionsEnum,
-  ProductFilterDetailsTabsOptionsEnum,
-  RateCardDetailsTabsOptionsEnum,
-} from '~/core/constants/tabsOptions'
+import { RateCardDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
-import {
-  Link,
-  PRODUCT_CATEGORY_DETAILS_ROUTE,
-  PRODUCT_DETAILS_ROUTE,
-  PRODUCT_FILTER_DETAILS_ROUTE,
-  RATE_CARD_DETAILS_ROUTE,
-} from '~/core/router'
+import { Link, RATE_CARD_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
 import {
+  ProductCategoryForCatalogRelationsFragmentDoc,
+  ProductFilterForCatalogRelationsFragmentDoc,
+  ProductForCatalogRelationsFragmentDoc,
   RateCardBillingTimingEnum,
   RateCardForRateDetailsFragment,
   RateCardRateForDetailsFragment,
@@ -34,6 +25,8 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCustomPricingUnits } from '~/hooks/plans/useCustomPricingUnits'
 import { usePermissions } from '~/hooks/usePermissions'
+
+import { CatalogRelationsInfoGrid } from './CatalogRelationsInfoGrid'
 
 import {
   BILLING_INTERVAL_UNIT_TRANSLATION_KEY,
@@ -51,24 +44,26 @@ gql`
     billingTiming
     product {
       id
-      name
+      ...ProductForCatalogRelations
       productCategory {
         id
-        name
+        ...ProductCategoryForCatalogRelations
       }
     }
     productFilter {
       id
-      name
+      ...ProductFilterForCatalogRelations
     }
   }
+
+  ${ProductCategoryForCatalogRelationsFragmentDoc}
+  ${ProductForCatalogRelationsFragmentDoc}
+  ${ProductFilterForCatalogRelationsFragmentDoc}
 `
 
 export const RATE_CARD_RATE_DETAILS_OVERVIEW_EDIT_TEST_ID = 'rate-card-rate-details-overview-edit'
 export const RATE_CARD_RATE_DETAILS_OVERVIEW_STATUS_TEST_ID =
   'rate-card-rate-details-overview-status'
-export const RATE_CARD_RATE_DETAILS_OVERVIEW_NO_PRODUCT_CATEGORY_TEST_ID =
-  'rate-card-rate-details-overview-no-product-category'
 
 export const RATE_CARD_RATE_DETAILS_BILLING_INTERVAL_VALUE_KEY = 'text_17877372202287udsa3vj1ul'
 
@@ -91,49 +86,6 @@ const RateCardRateDetailsOverview = ({
   const pricingUnitShortName = pricingUnits.find(
     (unit) => unit.code === rateCard.appliedPricingUnitCode,
   )?.shortName
-
-  const attachedProductCategory = product.productCategory ? (
-    <Link
-      to={generatePath(PRODUCT_CATEGORY_DETAILS_ROUTE, {
-        productCategoryId: product.productCategory.id,
-        tab: ProductCategoryDetailsTabsOptionsEnum.overview,
-      })}
-    >
-      {product.productCategory.name}
-    </Link>
-  ) : (
-    <Typography
-      variant="body"
-      color="grey600"
-      data-test={RATE_CARD_RATE_DETAILS_OVERVIEW_NO_PRODUCT_CATEGORY_TEST_ID}
-    >
-      {translate('text_1784590896872hcbug1hthjl')}
-    </Typography>
-  )
-
-  const attachedProduct = (
-    <Link
-      to={generatePath(PRODUCT_DETAILS_ROUTE, {
-        productId: product.id,
-        tab: ProductDetailsTabsOptionsEnum.overview,
-      })}
-    >
-      {product.name}
-    </Link>
-  )
-
-  const attachedProductFilter = productFilter ? (
-    <Link
-      to={generatePath(PRODUCT_FILTER_DETAILS_ROUTE, {
-        productFilterId: productFilter.id,
-        tab: ProductFilterDetailsTabsOptionsEnum.overview,
-      })}
-    >
-      {productFilter.name}
-    </Link>
-  ) : (
-    '-'
-  )
 
   const attachedRateCard = (
     <Link
@@ -176,20 +128,14 @@ const RateCardRateDetailsOverview = ({
         />
       )}
 
+      <CatalogRelationsInfoGrid
+        productCategory={product.productCategory}
+        product={product}
+        productFilter={productFilter}
+      />
+
       <DetailsPage.InfoGrid
         grid={[
-          {
-            label: translate('text_17877372202296ejgkqky70w'),
-            value: attachedProductCategory,
-          },
-          {
-            label: translate('text_1784925227817ekmphmxz74c'),
-            value: attachedProduct,
-          },
-          {
-            label: translate('text_17849304406579sbwz4df14p'),
-            value: attachedProductFilter,
-          },
           {
             label: translate('text_1787737220228091rkbqj1vl'),
             value: attachedRateCard,

@@ -1,5 +1,5 @@
 import { IconName } from 'lago-design-system'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { EDIT_ORDER_ROUTE, EXECUTE_ORDER_ROUTE, useNavigate } from '~/core/router'
 import { OrderListItemFragment, OrderStatusEnum } from '~/generated/graphql'

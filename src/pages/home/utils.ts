@@ -1,4 +1,4 @@
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { NewAnalyticsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {

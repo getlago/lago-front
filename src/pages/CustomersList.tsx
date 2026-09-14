@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useMemo, useState } from 'react'
-import { generatePath, useSearchParams } from 'react-router-dom'
+import { generatePath, useSearchParams } from 'react-router'
 
 import { useDeleteCustomerDialog } from '~/components/customers/DeleteCustomerDialog'
 import { computeCustomerInitials } from '~/components/customers/utils'

@@ -41,12 +41,11 @@ jest.mock('~/components/Filters', () => ({
     Component: () => null,
   },
   formatFiltersForRateCardsQuery: () => ({}),
-  mapRateCardFilterVars: () => ({}),
   RateCardAvailableFilters: [],
 }))
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useSearchParams: () => [new URLSearchParams(), jest.fn()],
 }))
 
@@ -110,7 +109,6 @@ const buildRateCard = (
   displayOnInvoice: true,
   regroupPaidFees: RateCardRegroupPaidFeesEnum.None,
   proration: false,
-  walletTargetable: false,
   attachedToPlanOrSubscription: false,
   attachedToSubscriptions: false,
   product: {

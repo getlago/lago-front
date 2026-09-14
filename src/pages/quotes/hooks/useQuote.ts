@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql, WatchQueryFetchPolicy } from '@apollo/client'
 
 import { QuoteDetailItemFragment, useGetQuoteQuery } from '~/generated/graphql'
 
@@ -89,10 +89,14 @@ interface UseQuoteReturn {
   refetch: ReturnType<typeof useGetQuoteQuery>['refetch']
 }
 
-export const useQuote = (id?: string): UseQuoteReturn => {
+export const useQuote = (
+  id?: string,
+  options?: { fetchPolicy?: WatchQueryFetchPolicy },
+): UseQuoteReturn => {
   const { data, loading, error, refetch } = useGetQuoteQuery({
     variables: { id: id || '' },
     skip: !id,
+    ...(options?.fetchPolicy ? { fetchPolicy: options.fetchPolicy } : {}),
   })
 
   return {

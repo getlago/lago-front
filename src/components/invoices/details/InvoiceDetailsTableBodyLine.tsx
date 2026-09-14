@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import Stack from '@mui/material/Stack'
 import { tw } from 'lago-design-system'
 import { memo, RefObject, useMemo } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import { Popper } from '~/components/designSystem/Popper'

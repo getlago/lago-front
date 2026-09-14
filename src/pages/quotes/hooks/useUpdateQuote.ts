@@ -17,6 +17,7 @@ gql`
       billingEntityId
       mentionVariables
       billingItems
+      content
     }
   }
 

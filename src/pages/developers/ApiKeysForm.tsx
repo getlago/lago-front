@@ -2,7 +2,7 @@ import { gql } from '@apollo/client'
 import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { Icon } from 'lago-design-system'
 import { useEffect } from 'react'
-import { NavigateOptions, useParams } from 'react-router-dom'
+import { NavigateOptions, useParams } from 'react-router'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'

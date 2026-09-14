@@ -1,6 +1,6 @@
 import { act, configure, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter } from 'react-router'
 
 import { setItemFromLS } from '~/core/utils/localStorage'
 import { REDIRECT_AFTER_LOGIN_LS_KEY } from '~/core/utils/localStorageKeys'
@@ -14,10 +14,14 @@ const mockSetItemFromLS = setItemFromLS as jest.Mock
 const mockFetchOktaAuthorizeUrl = jest.fn()
 const mockUseLocation = jest.fn()
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useLocation: () => mockUseLocation(),
-}))
+jest.mock('react-router', () => {
+  const actual = jest.requireActual('react-router')
+
+  return {
+    ...actual,
+    useLocation: () => mockUseLocation(),
+  }
+})
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({

@@ -1,7 +1,7 @@
 import { FetchResult, gql } from '@apollo/client'
 import { revalidateLogic } from '@tanstack/react-form'
 import { useRef } from 'react'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 
 import { useCreateMore } from '~/components/drawers/createMore/useCreateMore'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
@@ -218,8 +218,15 @@ const useProductFilterForm = ({
 
       // Backend rejected a duplicate code: surface it under the Code input and
       // keep the drawer open.
-      if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
+      if (hasDefinedGQLError('ValueAlreadyExist', errors, 'code')) {
         applyExistingCodeError(formApi)
+        return
+      }
+
+      // `silentErrorCodes` swallows everything else, so without this the submit looks like a
+      // no-op.
+      if (errors?.length) {
+        addToast({ severity: 'danger', translateKey: 'text_1788957148209054ur2tx4nr' })
         return
       }
 
