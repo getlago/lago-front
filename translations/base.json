@@ -4959,5 +4959,8 @@
   "text_1789030049530zaego9s9413": "No contract yet",
   "text_1789030049530fpa31j8cd53": "Contracts on this plan will appear here.",
   "text_17891318128636r6g9igqqeq": "Contract",
-  "text_17891323549937b5qwry7pn1": "Rate cards priced on this plan will appear here."
+  "text_17891323549937b5qwry7pn1": "Rate cards priced on this plan will appear here.",
+  "text_1789033674097sd7erhjfvp5": "No rate models are available for these invoicing settings. Update the rate card's billing timing or proration.",
+  "text_1789033674097g9f5muxpeon": "This rate model is not available for this rate card's invoicing settings.",
+  "text_1789033796306gu724up7qa2": "Rate model availability is loading. Please wait before saving."
 }

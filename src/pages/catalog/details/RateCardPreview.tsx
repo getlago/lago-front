@@ -14,6 +14,7 @@ import { RATE_CARD_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { ProductCatalogTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { Link, PRODUCT_CATALOG_TAB_ROUTE } from '~/core/router'
 import {
+  ProductForRateCardDrawerFragmentDoc,
   RateCardForListFragment,
   RateCardForListFragmentDoc,
   RateCardForPreviewProductFilterFragment,
@@ -42,7 +43,7 @@ import { useRateCardTableColumns } from '../useRateCardTableColumns'
 gql`
   fragment RateCardForPreviewProduct on Product {
     id
-    name
+    ...ProductForRateCardDrawer
   }
 
   fragment RateCardForPreviewProductFilter on ProductFilter {
@@ -50,9 +51,11 @@ gql`
     name
     product {
       id
-      name
+      ...ProductForRateCardDrawer
     }
   }
+
+  ${ProductForRateCardDrawerFragmentDoc}
 `
 
 // The `rateCards` root field is queried twice more here (co-located, operation names
@@ -100,7 +103,7 @@ const PREVIEW_LIMIT = 7
 // Discriminated scope: which parent entity this preview is embedded under. Typed
 // off the co-located parent fragments above (not inline shapes), so the parent
 // detail queries that spread those fragments are what supply the data. The
-// productFilter fragment additionally carries its own product item (id/name)
+// productFilter fragment additionally carries its own product item metadata
 // because that is the exact shape `useRateCardDrawer`'s `attachToProductFilter`
 // needs to seed the create form's product item combobox.
 export type RateCardPreviewScope =
