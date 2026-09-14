@@ -36,7 +36,10 @@
     "translations:ensure-consistency": "node scripts/translations/ensure-translations-consistency",
     "codemod": "node scripts/codemod.js",
     "bundle-analyzer": "pnpx vite-bundle-analyzer",
-    "prepare": "husky"
+    "prepare": "husky",
+    "t3:up": "scripts/lago-worktree.sh t3-up",
+    "t3:down": "scripts/lago-worktree.sh t3-down",
+    "t3:open": "scripts/lago-worktree.sh t3-open"
   },
   "devDependencies": {
     "@babel/preset-env": "7.29.7",

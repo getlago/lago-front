@@ -8242,7 +8242,7 @@ export type ProductFilterValueInput = {
 
 export enum ProductTypeEnum {
   Fixed = 'fixed',
-  Usage = 'usage'
+  Metered = 'metered'
 }
 
 export type ProjectedChargeFilterUsage = {
@@ -13369,8 +13369,6 @@ export type GetFeatureForDetailsOverviewQueryVariables = Exact<{
 export type GetFeatureForDetailsOverviewQuery = { __typename?: 'Query', feature: { __typename?: 'FeatureObject', id: string, name?: string | null, code: string, description?: string | null, privileges: Array<{ __typename?: 'PrivilegeObject', id: string, name?: string | null, code: string, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } }> } };
 
 export type FeaturePrivilegeAccordionFragment = { __typename?: 'PrivilegeObject', id: string, code: string, name?: string | null, valueType: PrivilegeValueTypeEnum, config: { __typename?: 'PrivilegeConfigObject', selectOptions?: Array<string> | null } };
-
-export type OrganizationForDatePickerFragment = { __typename?: 'CurrentOrganization', id: string, timezone?: TimezoneEnum | null };
 
 export type GetGrossRevenuesQueryVariables = Exact<{
   currency: CurrencyEnum;
@@ -21589,12 +21587,6 @@ export const EditCustomerInvoiceCustomSectionFragmentDoc = gql`
   skipInvoiceCustomSections
 }
     `;
-export const OrganizationForDatePickerFragmentDoc = gql`
-    fragment OrganizationForDatePicker on CurrentOrganization {
-  id
-  timezone
-}
-    `;
 export const MainOrganizationInfosFragmentDoc = gql`
     fragment MainOrganizationInfos on CurrentOrganization {
   id
@@ -21608,9 +21600,8 @@ export const MainOrganizationInfosFragmentDoc = gql`
   canCreateBillingEntity
   authenticationMethods
   authenticatedMethod
-  ...OrganizationForDatePicker
 }
-    ${OrganizationForDatePickerFragmentDoc}`;
+    `;
 export const AddOnItemFragmentDoc = gql`
     fragment AddOnItem on AddOn {
   id

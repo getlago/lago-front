@@ -179,4 +179,47 @@ describe('DatePicker', () => {
       })
     })
   })
+
+  // Regression: the picker wrote `Settings.defaultZone` from a mount effect, so every ambient-zone
+  // reader in the app ran in a zone picked by whichever form component happened to be mounted.
+  describe('GIVEN a declared zone differing from the ambient one', () => {
+    describe('WHEN the picker mounts and unmounts', () => {
+      it('THEN should leave the ambient zone untouched', () => {
+        Settings.defaultZone = 'Europe/Paris'
+
+        const { unmount } = render(
+          <DatePicker value="2026-09-17T00:00:00.000Z" defaultZone="UTC" onChange={jest.fn()} />,
+        )
+
+        expect(Settings.defaultZone.name).toBe('Europe/Paris')
+
+        unmount()
+
+        expect(Settings.defaultZone.name).toBe('Europe/Paris')
+      })
+    })
+  })
+
+  describe('GIVEN a rendered picker', () => {
+    describe('WHEN its declared zone changes', () => {
+      it('THEN should re-read the value in the new zone', () => {
+        const { rerender } = render(
+          <DatePicker value="2026-09-17T00:00:00.000Z" defaultZone="UTC" onChange={jest.fn()} />,
+        )
+
+        expect(getPickerProps().value?.zoneName).toBe('UTC')
+
+        rerender(
+          <DatePicker
+            value="2026-09-17T00:00:00.000Z"
+            defaultZone="Asia/Tokyo"
+            onChange={jest.fn()}
+          />,
+        )
+
+        expect(getPickerProps().value?.zoneName).toBe('Asia/Tokyo')
+        expect(getPickerProps().timezone).toBe('Asia/Tokyo')
+      })
+    })
+  })
 })

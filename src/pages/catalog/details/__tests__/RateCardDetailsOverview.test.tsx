@@ -69,7 +69,7 @@ const attachedRateCard: RateCardForDetailsOverviewFragment = {
       name: 'Compute',
       invoiceDisplayName: null,
     },
-    productType: 'usage',
+    productType: 'metered',
     billableMetric: {
       __typename: 'BillableMetric',
       id: 'bm-1',

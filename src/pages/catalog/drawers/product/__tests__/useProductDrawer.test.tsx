@@ -78,7 +78,7 @@ const productFixture: ProductForDrawerFragment = {
 
 const usageProductFixture: ProductForDrawerFragment = {
   ...productFixture,
-  productType: ProductTypeEnum.Usage,
+  productType: ProductTypeEnum.Metered,
   billableMetric: { id: 'bm-1', name: 'API calls', code: 'api_calls' },
 }
 

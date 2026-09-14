@@ -65,7 +65,7 @@ const usageProduct: ProductForDetailsOverviewFragment = {
   ...fixedProduct,
   description: null,
   invoiceDisplayName: null,
-  productType: ProductTypeEnum.Usage,
+  productType: ProductTypeEnum.Metered,
   productCategory: null,
   billableMetric: {
     __typename: 'BillableMetric',
