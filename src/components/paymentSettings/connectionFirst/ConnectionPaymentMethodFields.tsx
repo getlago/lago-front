@@ -6,13 +6,15 @@ import { Radio } from '~/components/form/Radio/Radio'
 import { PaymentMethodComboBox } from '~/components/paymentMethodSelection/PaymentMethodComboBox'
 import { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types'
 import { VIEW_TYPE_TRANSLATION_KEYS, ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
+import { formatPaymentMethodDetails } from '~/core/formats/formatPaymentMethodDetails'
 import { PaymentMethodTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { PaymentMethodList } from '~/hooks/customer/usePaymentMethodsList'
+import { PaymentMethodItem, PaymentMethodList } from '~/hooks/customer/usePaymentMethodsList'
 
 export const CONNECTION_METHOD_DEFAULT_RADIO_TEST_ID = 'connection-payment-method-default-radio'
 export const CONNECTION_METHOD_SPECIFIC_RADIO_TEST_ID = 'connection-payment-method-specific-radio'
 export const CONNECTION_METHOD_NO_DEFAULT_CHIP_TEST_ID = 'connection-payment-method-no-default-chip'
+export const CONNECTION_METHOD_DEFAULT_CHIP_TEST_ID = 'connection-payment-method-default-chip'
 
 enum MethodBehavior {
   DEFAULT = 'default',
@@ -27,7 +29,7 @@ const toValue = (behavior: MethodBehavior, paymentMethodId: string): SelectedPay
 interface ConnectionPaymentMethodFieldsProps {
   viewType: ViewTypeEnum
   paymentMethodsList: PaymentMethodList
-  hasDefaultPaymentMethod: boolean
+  defaultPaymentMethod?: PaymentMethodItem
   value?: SelectedPaymentMethod
   onChange: (value: SelectedPaymentMethod) => void
   error?: string
@@ -37,7 +39,7 @@ interface ConnectionPaymentMethodFieldsProps {
 export const ConnectionPaymentMethodFields = ({
   viewType,
   paymentMethodsList,
-  hasDefaultPaymentMethod,
+  defaultPaymentMethod,
   value,
   onChange,
   error,
@@ -59,6 +61,31 @@ export const ConnectionPaymentMethodFields = ({
 
     setPaymentMethodId(nextId)
     onChange(toValue(MethodBehavior.SPECIFIC, nextId))
+  }
+
+  const renderDefaultMethodChip = () => {
+    if (!defaultPaymentMethod) {
+      return (
+        <Chip
+          color="grey600"
+          label={translate('text_1789374590510zcsc35s62mc')}
+          data-test={CONNECTION_METHOD_NO_DEFAULT_CHIP_TEST_ID}
+        />
+      )
+    }
+
+    const { details } = defaultPaymentMethod
+    const expiration =
+      details?.expirationMonth && details?.expirationYear
+        ? ` • ${translate('text_1762437511802zhw5mx0iamd')} ${details.expirationMonth}/${details.expirationYear.slice(-2)}`
+        : ''
+
+    return (
+      <Chip
+        label={`${formatPaymentMethodDetails(details)}${expiration}`}
+        data-test={CONNECTION_METHOD_DEFAULT_CHIP_TEST_ID}
+      />
+    )
   }
 
   return (
@@ -83,14 +110,7 @@ export const ConnectionPaymentMethodFields = ({
           label={translate('text_1789374590507j8hnidtlhwy')}
           labelVariant="body"
         />
-        {!hasDefaultPaymentMethod && (
-          <div className="ml-9">
-            <Chip
-              label={translate('text_1789374590510zcsc35s62mc')}
-              data-test={CONNECTION_METHOD_NO_DEFAULT_CHIP_TEST_ID}
-            />
-          </div>
-        )}
+        <div className="ml-9">{renderDefaultMethodChip()}</div>
       </div>
 
       <div data-test={CONNECTION_METHOD_SPECIFIC_RADIO_TEST_ID}>

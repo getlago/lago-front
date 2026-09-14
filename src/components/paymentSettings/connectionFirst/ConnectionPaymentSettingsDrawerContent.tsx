@@ -1,11 +1,13 @@
 import { useStore } from '@tanstack/react-form'
 
+import { paymentAvatarMapping } from '~/components/avatarMappings'
 import { ConnectionBehaviorFields } from '~/components/connectionSelection/ConnectionBehaviorFields'
 import { CustomerPaymentConnectionComboBox } from '~/components/connectionSelection/CustomerPaymentConnectionComboBox'
 import {
   ConnectionBehavior,
   deriveConnectionBehavior,
 } from '~/components/connectionSelection/types'
+import { Avatar } from '~/components/designSystem/Avatar'
 import { Chip } from '~/components/designSystem/Chip'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types'
@@ -22,8 +24,8 @@ import { withForm } from '~/hooks/forms/useAppform'
 import { ConnectionPaymentMethodFields } from './ConnectionPaymentMethodFields'
 import { CONNECTION_PAYMENT_SETTINGS_DEFAULT_VALUES } from './connectionPaymentSettingsSchema'
 
-export const CONNECTION_PAYMENT_NO_DEFAULT_METHOD_CHIP_TEST_ID =
-  'connection-payment-no-default-method-chip'
+export const CONNECTION_NO_DEFAULT_CHIP_TEST_ID = 'connection-payment-no-default-connection-chip'
+export const CONNECTION_DEFAULT_CHIP_TEST_ID = 'connection-payment-default-connection-chip'
 
 const CONNECTION_BEHAVIOR_RADIO_NAME = 'paymentConnectionBehavior'
 
@@ -76,15 +78,13 @@ export const ConnectionPaymentSettingsDrawerContent = withForm({
 
     const resolvedConnection = getResolvedConnection()
 
-    const { data: connectionPaymentMethods, loading: loadingPaymentMethods } =
-      useConnectionPaymentMethodsList({
-        customerId,
-        connectionId: resolvedConnection?.id,
-        withDeleted: false,
-      })
+    const { data: connectionPaymentMethods } = useConnectionPaymentMethodsList({
+      customerId,
+      connectionId: resolvedConnection?.id,
+      withDeleted: false,
+    })
 
-    const hasDefaultPaymentMethod =
-      loadingPaymentMethods || connectionPaymentMethods.some((method) => method.isDefault)
+    const defaultPaymentMethod = connectionPaymentMethods.find((method) => method.isDefault)
 
     const handleConnectionChange = (value: typeof connection): void => {
       form.setFieldValue('connection', value)
@@ -93,12 +93,28 @@ export const ConnectionPaymentSettingsDrawerContent = withForm({
 
     const renderBadge = (optionBehavior: ConnectionBehavior) => {
       if (optionBehavior !== ConnectionBehavior.INHERIT) return null
-      if (!defaultConnection || hasDefaultPaymentMethod) return null
+
+      if (!defaultConnection) {
+        return (
+          <Chip
+            color="grey600"
+            label={translate('text_1789382180711vi1jj3immjw')}
+            data-test={CONNECTION_NO_DEFAULT_CHIP_TEST_ID}
+          />
+        )
+      }
 
       return (
         <Chip
-          label={translate('text_1789374590510zcsc35s62mc')}
-          data-test={CONNECTION_PAYMENT_NO_DEFAULT_METHOD_CHIP_TEST_ID}
+          avatar={
+            defaultConnection.provider ? (
+              <Avatar size="small" variant="connector-full">
+                {paymentAvatarMapping[defaultConnection.provider]}
+              </Avatar>
+            ) : undefined
+          }
+          label={defaultConnection.code}
+          data-test={CONNECTION_DEFAULT_CHIP_TEST_ID}
         />
       )
     }
@@ -110,7 +126,7 @@ export const ConnectionPaymentSettingsDrawerContent = withForm({
         key={connection?.code ?? connection?.behavior ?? 'inherit'}
         viewType={viewType}
         paymentMethodsList={connectionPaymentMethods}
-        hasDefaultPaymentMethod={hasDefaultPaymentMethod}
+        defaultPaymentMethod={defaultPaymentMethod}
         value={paymentMethod}
         onChange={(value) => form.setFieldValue('paymentMethod', value)}
         error={paymentMethodError ? translate(paymentMethodError) : undefined}

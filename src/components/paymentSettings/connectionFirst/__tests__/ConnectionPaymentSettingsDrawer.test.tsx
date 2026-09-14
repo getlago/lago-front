@@ -12,7 +12,10 @@ import { ConnectionBehaviorEnum, PaymentMethodTypeEnum } from '~/generated/graph
 import { CustomerPaymentConnection } from '~/hooks/customer/useCustomerPaymentConnections'
 import { render } from '~/test-utils'
 
-import { CONNECTION_PAYMENT_NO_DEFAULT_METHOD_CHIP_TEST_ID } from '../ConnectionPaymentSettingsDrawerContent'
+import {
+  CONNECTION_DEFAULT_CHIP_TEST_ID,
+  CONNECTION_NO_DEFAULT_CHIP_TEST_ID,
+} from '../ConnectionPaymentSettingsDrawerContent'
 import {
   CONNECTION_PAYMENT_SETTINGS_SELECTOR_TEST_ID,
   CONNECTION_SUMMARY_KEY_BY_BEHAVIOR,
@@ -34,7 +37,6 @@ const STRIPE_CONNECTION: CustomerPaymentConnection = {
 
 const mockConnections = { current: [STRIPE_CONNECTION] as CustomerPaymentConnection[] }
 const mockPaymentMethods = { current: [] as Array<{ id: string; isDefault: boolean }> }
-const mockPaymentMethodsLoading = { current: false }
 const mockPaymentMethodFieldsProps: { current: Record<string, unknown> | null } = { current: null }
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
@@ -61,7 +63,7 @@ jest.mock('~/hooks/customer/useCustomerPaymentConnections', () => ({
 jest.mock('~/hooks/customer/useConnectionPaymentMethodsList', () => ({
   useConnectionPaymentMethodsList: () => ({
     data: mockPaymentMethods.current,
-    loading: mockPaymentMethodsLoading.current,
+    loading: false,
     error: false,
     refetch: jest.fn(),
   }),
@@ -109,7 +111,6 @@ describe('ConnectionPaymentSettingsSelector', () => {
     jest.clearAllMocks()
     mockConnections.current = [STRIPE_CONNECTION]
     mockPaymentMethods.current = []
-    mockPaymentMethodsLoading.current = false
     mockPaymentMethodFieldsProps.current = null
   })
 
@@ -186,26 +187,14 @@ describe('ConnectionPaymentSettingsSelector', () => {
         expect(screen.getByTestId(PAYMENT_METHOD_FIELDS_TEST_ID)).toBeInTheDocument()
       })
 
-      it('THEN should flag a connection with no default payment method', async () => {
+      it('THEN should name the resolved connection on the option', async () => {
         const { opened } = await openDrawerFromSelector()
 
         render(<>{opened.children}</>)
 
-        expect(
-          screen.getByTestId(CONNECTION_PAYMENT_NO_DEFAULT_METHOD_CHIP_TEST_ID),
-        ).toBeInTheDocument()
-      })
-
-      it('THEN should hide the flag once the connection exposes a default payment method', async () => {
-        mockPaymentMethods.current = [{ id: 'pm_1', isDefault: true }]
-
-        const { opened } = await openDrawerFromSelector()
-
-        render(<>{opened.children}</>)
-
-        expect(
-          screen.queryByTestId(CONNECTION_PAYMENT_NO_DEFAULT_METHOD_CHIP_TEST_ID),
-        ).not.toBeInTheDocument()
+        expect(screen.getByTestId(CONNECTION_DEFAULT_CHIP_TEST_ID)).toHaveTextContent(
+          STRIPE_CONNECTION.code,
+        )
       })
     })
 
@@ -338,18 +327,17 @@ describe('ConnectionPaymentSettingsSelector', () => {
     })
   })
 
-  describe('GIVEN the connection payment methods are still loading', () => {
+  describe('GIVEN a customer with no default connection', () => {
     describe('WHEN the drawer content mounts', () => {
-      it('THEN should not flag the connection as missing a default payment method', async () => {
-        mockPaymentMethodsLoading.current = true
+      it('THEN should flag the option instead of naming a connection', async () => {
+        mockConnections.current = []
 
         const { opened } = await openDrawerFromSelector()
 
         render(<>{opened.children}</>)
 
-        expect(
-          screen.queryByTestId(CONNECTION_PAYMENT_NO_DEFAULT_METHOD_CHIP_TEST_ID),
-        ).not.toBeInTheDocument()
+        expect(screen.getByTestId(CONNECTION_NO_DEFAULT_CHIP_TEST_ID)).toBeInTheDocument()
+        expect(screen.queryByTestId(CONNECTION_DEFAULT_CHIP_TEST_ID)).not.toBeInTheDocument()
       })
     })
   })

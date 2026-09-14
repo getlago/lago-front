@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { PM_FIELDS_MANUAL_RADIO_TEST_ID } from '~/components/paymentMethodSelection/PaymentMethodFields'
 import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { PaymentMethodTypeEnum } from '~/generated/graphql'
-import { PaymentMethodList } from '~/hooks/customer/usePaymentMethodsList'
+import { PaymentMethodItem, PaymentMethodList } from '~/hooks/customer/usePaymentMethodsList'
 import { render } from '~/test-utils'
 
 import {
@@ -15,6 +15,12 @@ import {
 } from '../ConnectionPaymentMethodFields'
 
 const PAYMENT_METHOD_COMBOBOX_TEST_ID = 'pm-combobox'
+
+const DEFAULT_PAYMENT_METHOD = {
+  id: 'pm_1',
+  isDefault: true,
+  details: { type: 'card', brand: 'visa', last4: '4242' },
+} as PaymentMethodItem
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (key: string) => key, locale: 'en' }),
@@ -33,7 +39,7 @@ const renderFields = (
     <ConnectionPaymentMethodFields
       viewType={ViewTypeEnum.WalletTopUp}
       paymentMethodsList={[] as PaymentMethodList}
-      hasDefaultPaymentMethod
+      defaultPaymentMethod={DEFAULT_PAYMENT_METHOD}
       value={undefined}
       onChange={onChange}
       {...props}
@@ -79,7 +85,7 @@ describe('ConnectionPaymentMethodFields', () => {
 
     describe('WHEN the connection exposes no default payment method', () => {
       it('THEN should flag it under the default branch', () => {
-        renderFields({ hasDefaultPaymentMethod: false })
+        renderFields({ defaultPaymentMethod: undefined })
 
         expect(screen.getByTestId(CONNECTION_METHOD_NO_DEFAULT_CHIP_TEST_ID)).toBeInTheDocument()
       })

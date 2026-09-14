@@ -102,7 +102,12 @@ export const ConnectionBehaviorFields = ({
           {!!badge && <div className="ml-9">{badge}</div>}
         </div>
 
-        {!!selectedContent && <div className="ml-9">{selectedContent}</div>}
+        {!!selectedContent && (
+          <>
+            <div className="-mx-4 border-b border-grey-300" />
+            <div className="ml-9">{selectedContent}</div>
+          </>
+        )}
       </div>
     )
   }
