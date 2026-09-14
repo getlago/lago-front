@@ -78,11 +78,12 @@ export const ConnectionPaymentSettingsDrawerContent = withForm({
 
     const resolvedConnection = getResolvedConnection()
 
-    const { data: connectionPaymentMethods } = useConnectionPaymentMethodsList({
-      customerId,
-      connectionId: resolvedConnection?.id,
-      withDeleted: false,
-    })
+    const { data: connectionPaymentMethods, loading: loadingPaymentMethods } =
+      useConnectionPaymentMethodsList({
+        customerId,
+        connectionId: resolvedConnection?.id,
+        withDeleted: false,
+      })
 
     const defaultPaymentMethod = connectionPaymentMethods.find((method) => method.isDefault)
 
@@ -126,6 +127,7 @@ export const ConnectionPaymentSettingsDrawerContent = withForm({
         key={connection?.code ?? connection?.behavior ?? 'inherit'}
         viewType={viewType}
         paymentMethodsList={connectionPaymentMethods}
+        loading={loadingPaymentMethods}
         defaultPaymentMethod={defaultPaymentMethod}
         value={paymentMethod}
         onChange={(value) => form.setFieldValue('paymentMethod', value)}

@@ -29,6 +29,7 @@ const toValue = (behavior: MethodBehavior, paymentMethodId: string): SelectedPay
 interface ConnectionPaymentMethodFieldsProps {
   viewType: ViewTypeEnum
   paymentMethodsList: PaymentMethodList
+  loading?: boolean
   defaultPaymentMethod?: PaymentMethodItem
   value?: SelectedPaymentMethod
   onChange: (value: SelectedPaymentMethod) => void
@@ -39,6 +40,7 @@ interface ConnectionPaymentMethodFieldsProps {
 export const ConnectionPaymentMethodFields = ({
   viewType,
   paymentMethodsList,
+  loading = false,
   defaultPaymentMethod,
   value,
   onChange,
@@ -64,6 +66,8 @@ export const ConnectionPaymentMethodFields = ({
   }
 
   const renderDefaultMethodChip = () => {
+    if (loading) return null
+
     if (!defaultPaymentMethod) {
       return (
         <Chip

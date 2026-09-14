@@ -3,7 +3,9 @@ import { gql } from '@apollo/client'
 import { ConnectionComboBoxDataItem } from '~/components/customerConnections/ConnectionComboBox'
 import { MANUAL_CONNECTION_CODE } from '~/components/customerConnections/customerIntegrationConst'
 import { usePaymentProviders } from '~/components/customerConnections/usePaymentProviders'
+import { providerLabels } from '~/components/PaymentProviderChip'
 import { ProviderTypeEnum, useCustomerPaymentConnectionsQuery } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
   query CustomerPaymentConnections($customerId: ID!) {
@@ -48,6 +50,7 @@ export const useCustomerPaymentConnections = ({
     skip: skip || !customerId,
   })
   const { paymentProviders, isLoadingPaymentProviders } = usePaymentProviders()
+  const { translate } = useInternationalization()
 
   const providerCollection = paymentProviders?.paymentProviders?.collection || []
 
@@ -73,8 +76,8 @@ export const useCustomerPaymentConnections = ({
     options: connections.map((connection) => ({
       value: connection.code,
       label: connection.name,
-      subLabel: connection.code,
-      group: connection.provider || '',
+      subLabel: connection.name === connection.code ? undefined : connection.code,
+      group: connection.provider ? translate(providerLabels[connection.provider]) : '',
       isDefault: connection.isDefault,
     })),
     defaultConnection: connections.find((connection) => connection.isDefault),

@@ -31,14 +31,7 @@ const paymentProvidersMock = {
   },
 }
 
-const buildConnectionsMock = (
-  paymentProviderCustomers: Array<{
-    __typename: string
-    id: string
-    code: string | null
-    isDefault: boolean
-  }>,
-) => ({
+const buildConnectionsMock = (paymentProviderCustomers: ConnectionRow[]) => ({
   request: {
     query: CustomerPaymentConnectionsDocument,
     variables: { customerId: CUSTOMER_ID },
@@ -54,19 +47,29 @@ const buildConnectionsMock = (
   },
 })
 
+type ConnectionRow = {
+  __typename: string
+  id: string
+  code: string | null
+  isDefault: boolean
+  paymentProvider?: ProviderTypeEnum | null
+}
+
 const prepare = async (
-  paymentProviderCustomers = [
+  paymentProviderCustomers: ConnectionRow[] = [
     {
       __typename: 'ProviderCustomer',
       id: 'conn-1',
       code: 'stripe_eu',
       isDefault: true,
+      paymentProvider: ProviderTypeEnum.Stripe,
     },
     {
       __typename: 'ProviderCustomer',
       id: 'conn-2',
       code: 'adyen_global',
       isDefault: false,
+      paymentProvider: ProviderTypeEnum.Adyen,
     },
   ],
 ) => {
@@ -122,14 +125,14 @@ describe('useCustomerPaymentConnections', () => {
             value: 'stripe_eu',
             label: 'Stripe EU',
             subLabel: 'stripe_eu',
-            group: ProviderTypeEnum.Stripe,
+            group: 'Stripe',
             isDefault: true,
           },
           {
             value: 'adyen_global',
             label: 'Adyen Global',
             subLabel: 'adyen_global',
-            group: ProviderTypeEnum.Adyen,
+            group: 'Adyen',
             isDefault: false,
           },
         ])

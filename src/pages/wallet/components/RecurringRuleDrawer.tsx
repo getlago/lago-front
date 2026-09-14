@@ -107,8 +107,10 @@ const RecurringRuleDrawerContent = withForm({
 
     const rule = useStore(form.store, (state) => state.values)
 
+    const isMultiConnectionEnabled = hasFeatureFlag(FeatureFlagEnum.MultiConnection)
+
     const renderPaymentSettingsSelector = (customerId: string, externalCustomerId: string) => {
-      if (!hasFeatureFlag(FeatureFlagEnum.MultiConnection)) {
+      if (!isMultiConnectionEnabled) {
         return (
           <PaymentSettingsSelector
             viewType={ViewTypeEnum.WalletRecurringTopUp}
@@ -544,7 +546,11 @@ const RecurringRuleDrawerContent = withForm({
           {customerData?.customer?.externalId && (
             <CenteredPage.PageSection>
               <CenteredPage.PageSectionTitle
-                title={translate('text_1784888105056o78z8t3kjrg')}
+                title={translate(
+                  isMultiConnectionEnabled
+                    ? 'text_1789381469546g27fewh3r8c'
+                    : 'text_1784888105056o78z8t3kjrg',
+                )}
                 description={translate(
                   VIEW_TYPE_PAYMENT_CAPTION_KEYS[ViewTypeEnum.WalletRecurringTopUp],
                 )}

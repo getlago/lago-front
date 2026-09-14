@@ -89,8 +89,10 @@ export const TopUpSection = withForm({
       )
     })
 
+    const isMultiConnectionEnabled = hasFeatureFlag(FeatureFlagEnum.MultiConnection)
+
     const renderPaymentSettingsSelector = (customerId: string, externalCustomerId: string) => {
-      if (!hasFeatureFlag(FeatureFlagEnum.MultiConnection)) {
+      if (!isMultiConnectionEnabled) {
         return (
           <PaymentSettingsSelector
             viewType={ViewTypeEnum.WalletTopUp}
@@ -250,7 +252,11 @@ export const TopUpSection = withForm({
           <section className="flex w-full flex-col gap-6">
             <div className="flex flex-col gap-1">
               <Typography variant="subhead1">
-                {translate('text_1784888105056o78z8t3kjrg')}
+                {translate(
+                  isMultiConnectionEnabled
+                    ? 'text_1789381469546g27fewh3r8c'
+                    : 'text_1784888105056o78z8t3kjrg',
+                )}
               </Typography>
               <Typography variant="caption">
                 {translate(VIEW_TYPE_PAYMENT_CAPTION_KEYS[ViewTypeEnum.WalletTopUp])}
