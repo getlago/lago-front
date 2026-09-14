@@ -149,7 +149,7 @@ export const ConnectionPaymentSettingsDrawerContent = withForm({
     return (
       <CenteredPage.SectionWrapper>
         <CenteredPage.PageTitle
-          title={translate('text_1784888105056o78z8t3kjrg')}
+          title={translate('text_1789381469546g27fewh3r8c')}
           description={translate(VIEW_TYPE_PAYMENT_CAPTION_KEYS[viewType])}
         />
 

@@ -64,7 +64,7 @@ export const ConnectionPaymentSettingsSelector = ({
   return (
     <Selector
       icon="coin-dollar"
-      title={translate('text_17828013737948943pe3k8nc')}
+      title={translate('text_1789381469546g27fewh3r8c')}
       subtitle={translate(
         CONNECTION_SUMMARY_KEY_BY_BEHAVIOR[deriveConnectionBehavior(seededConnection)],
       )}

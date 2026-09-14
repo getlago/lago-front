@@ -56,7 +56,7 @@ export const useConnectionPaymentSettingsDrawer = ({
     )
 
     drawer.open({
-      title: translate('text_17828013737948943pe3k8nc'),
+      title: translate('text_1789381469546g27fewh3r8c'),
       form: { id: CONNECTION_PAYMENT_SETTINGS_FORM_ID, submit: form.handleSubmit },
       closeOnSubmitSuccess: false,
       shouldPromptOnClose: () => form.state.isDirty,
