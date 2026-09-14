@@ -106,6 +106,9 @@ export const ConnectionPaymentSettingsDrawerContent = withForm({
 
       return (
         <Chip
+          // MUI sizes .MuiChip-avatar to 24px and gives it a -6px right margin that eats into the
+          // 8px the chip root already spaces its children by.
+          className="[&_.MuiChip-avatar]:mx-0 [&_.MuiChip-avatar]:size-4"
           avatar={
             defaultConnection.provider ? (
               <Avatar size="small" variant="connector-full">
