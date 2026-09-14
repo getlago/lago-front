@@ -33,6 +33,8 @@ interface UseCustomerPaymentConnectionsReturn {
   connections: CustomerPaymentConnection[]
   options: ConnectionComboBoxDataItem[]
   defaultConnection: CustomerPaymentConnection | undefined
+  /** The customer routes to manual payments by default: no connection, and none to select */
+  isDefaultManual: boolean
   loading: boolean
 }
 
@@ -71,6 +73,10 @@ export const useCustomerPaymentConnections = ({
     ]
   }, [])
 
+  const isDefaultManual = (data?.customer?.paymentProviderCustomers || []).some(
+    (row) => row.isDefault && row.code === MANUAL_CONNECTION_CODE,
+  )
+
   return {
     connections,
     options: connections.map((connection) => ({
@@ -81,6 +87,7 @@ export const useCustomerPaymentConnections = ({
       isDefault: connection.isDefault,
     })),
     defaultConnection: connections.find((connection) => connection.isDefault),
+    isDefaultManual,
     loading: loading || isLoadingPaymentProviders,
   }
 }

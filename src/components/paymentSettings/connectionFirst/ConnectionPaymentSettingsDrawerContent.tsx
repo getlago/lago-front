@@ -26,6 +26,7 @@ import { CONNECTION_PAYMENT_SETTINGS_DEFAULT_VALUES } from './connectionPaymentS
 
 export const CONNECTION_NO_DEFAULT_CHIP_TEST_ID = 'connection-payment-no-default-connection-chip'
 export const CONNECTION_DEFAULT_CHIP_TEST_ID = 'connection-payment-default-connection-chip'
+export const CONNECTION_MANUAL_DEFAULT_CHIP_TEST_ID = 'connection-payment-manual-default-chip'
 
 const CONNECTION_BEHAVIOR_RADIO_NAME = 'paymentConnectionBehavior'
 
@@ -65,7 +66,9 @@ export const ConnectionPaymentSettingsDrawerContent = withForm({
     )
 
     const behavior = deriveConnectionBehavior(connection)
-    const { connections, defaultConnection } = useCustomerPaymentConnections({ customerId })
+    const { connections, defaultConnection, isDefaultManual } = useCustomerPaymentConnections({
+      customerId,
+    })
 
     const getResolvedConnection = () => {
       if (behavior === ConnectionBehavior.SKIP) return undefined
@@ -94,6 +97,15 @@ export const ConnectionPaymentSettingsDrawerContent = withForm({
 
     const renderBadge = (optionBehavior: ConnectionBehavior) => {
       if (optionBehavior !== ConnectionBehavior.INHERIT) return null
+
+      if (isDefaultManual) {
+        return (
+          <Chip
+            label={translate('text_173799550683709p2rqkoqd5')}
+            data-test={CONNECTION_MANUAL_DEFAULT_CHIP_TEST_ID}
+          />
+        )
+      }
 
       if (!defaultConnection) {
         return (

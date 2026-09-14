@@ -14,6 +14,7 @@ import { render } from '~/test-utils'
 
 import {
   CONNECTION_DEFAULT_CHIP_TEST_ID,
+  CONNECTION_MANUAL_DEFAULT_CHIP_TEST_ID,
   CONNECTION_NO_DEFAULT_CHIP_TEST_ID,
 } from '../ConnectionPaymentSettingsDrawerContent'
 import {
@@ -36,6 +37,7 @@ const STRIPE_CONNECTION: CustomerPaymentConnection = {
 }
 
 const mockConnections = { current: [STRIPE_CONNECTION] as CustomerPaymentConnection[] }
+const mockIsDefaultManual = { current: false }
 const mockPaymentMethods = { current: [] as Array<{ id: string; isDefault: boolean }> }
 const mockPaymentMethodFieldsProps: { current: Record<string, unknown> | null } = { current: null }
 
@@ -56,6 +58,7 @@ jest.mock('~/hooks/customer/useCustomerPaymentConnections', () => ({
     connections: mockConnections.current,
     options: [],
     defaultConnection: mockConnections.current.find((connection) => connection.isDefault),
+    isDefaultManual: mockIsDefaultManual.current,
     loading: false,
   }),
 }))
@@ -110,6 +113,7 @@ describe('ConnectionPaymentSettingsSelector', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockConnections.current = [STRIPE_CONNECTION]
+    mockIsDefaultManual.current = false
     mockPaymentMethods.current = []
     mockPaymentMethodFieldsProps.current = null
   })
@@ -338,6 +342,35 @@ describe('ConnectionPaymentSettingsSelector', () => {
 
         expect(screen.getByTestId(CONNECTION_NO_DEFAULT_CHIP_TEST_ID)).toBeInTheDocument()
         expect(screen.queryByTestId(CONNECTION_DEFAULT_CHIP_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a customer whose default routing is manual payments', () => {
+    describe('WHEN the drawer content mounts', () => {
+      it('THEN should say so on the option instead of naming a connection', async () => {
+        mockConnections.current = []
+        mockIsDefaultManual.current = true
+
+        const { opened } = await openDrawerFromSelector()
+
+        render(<>{opened.children}</>)
+
+        expect(screen.getByTestId(CONNECTION_MANUAL_DEFAULT_CHIP_TEST_ID)).toBeInTheDocument()
+        expect(screen.queryByTestId(CONNECTION_NO_DEFAULT_CHIP_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.queryByTestId(CONNECTION_DEFAULT_CHIP_TEST_ID)).not.toBeInTheDocument()
+      })
+
+      // Manual resolves to no connection, so there is no method to choose under it.
+      it('THEN should not offer the payment method sub-choice', async () => {
+        mockConnections.current = []
+        mockIsDefaultManual.current = true
+
+        const { opened } = await openDrawerFromSelector()
+
+        render(<>{opened.children}</>)
+
+        expect(screen.queryByTestId('payment-method-fields')).not.toBeInTheDocument()
       })
     })
   })

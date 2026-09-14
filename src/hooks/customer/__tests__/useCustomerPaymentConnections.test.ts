@@ -159,6 +159,7 @@ describe('useCustomerPaymentConnections', () => {
         ])
 
         expect(result.current.connections.map((connection) => connection.id)).toEqual(['conn-1'])
+        expect(result.current.isDefaultManual).toBe(false)
       })
     })
   })
@@ -178,6 +179,25 @@ describe('useCustomerPaymentConnections', () => {
         expect(result.current.connections[0]).toEqual(
           expect.objectContaining({ name: 'gocardless_uk', provider: null }),
         )
+      })
+    })
+  })
+
+  describe('GIVEN the manual placeholder is the customer default', () => {
+    describe('WHEN the queries resolve', () => {
+      it('THEN should report it, leaving no selectable default connection', async () => {
+        const { result } = await prepare([
+          {
+            __typename: 'ProviderCustomer',
+            id: 'conn-manual',
+            code: MANUAL_CONNECTION_CODE,
+            isDefault: true,
+          },
+        ])
+
+        expect(result.current.isDefaultManual).toBe(true)
+        expect(result.current.defaultConnection).toBeUndefined()
+        expect(result.current.connections).toEqual([])
       })
     })
   })
