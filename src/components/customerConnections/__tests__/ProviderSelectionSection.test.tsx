@@ -1,4 +1,4 @@
-import { configure, render, screen } from '@testing-library/react'
+import { configure, render, screen, waitFor } from '@testing-library/react'
 
 import { ConnectionComboBoxDataItem } from '~/components/customerConnections/ConnectionComboBox'
 import type { CustomerConnectionDrawerFormApi } from '~/components/customerConnections/CustomerConnectionDrawer'
@@ -150,9 +150,8 @@ describe('ProviderSelectionSection', () => {
 
         // Options themselves are virtualized (not mounted in jsdom):
         // the open state is the behaviour under test
-        // 1s default: the popper loses the race under a loaded parallel run
-        expect(await screen.findByRole('listbox', {}, { timeout: 5000 })).toBeInTheDocument()
-        expect(input).toHaveAttribute('aria-expanded', 'true')
+        await waitFor(() => expect(input).toHaveAttribute('aria-expanded', 'true'))
+        expect(screen.getByRole('listbox')).toBeInTheDocument()
       })
 
       it('THEN should not auto-open the menu on focus when a provider is already selected', () => {
