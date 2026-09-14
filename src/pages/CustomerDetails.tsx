@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { useEffect, useRef } from 'react'
+import { ReactElement } from 'react'
 import { useParams } from 'react-router'
 
 import { useAddCouponToCustomerDialog } from '~/components/customers/AddCouponToCustomerDialog'
@@ -7,11 +7,7 @@ import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import { hasDefinedGQLError } from '~/core/apolloClient'
-import {
-  INTEGRATION_POLLING_INTERVAL,
-  MAX_INTEGRATION_POLLING_ATTEMPTS,
-} from '~/core/constants/integrationPolling'
-import { CUSTOMERS_LIST_ROUTE, useLocation, useNavigate } from '~/core/router'
+import { CUSTOMERS_LIST_ROUTE } from '~/core/router'
 import {
   AddCustomerDrawerFragmentDoc,
   CustomerMainInfosFragmentDoc,
@@ -22,6 +18,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCustomerDetailsHeaderActions } from '~/hooks/customer/useCustomerDetailsHeaderActions'
 import { useCustomerDetailsHeaderEntity } from '~/hooks/customer/useCustomerDetailsHeaderEntity'
 import { useCustomerDetailsHeaderTabs } from '~/hooks/customer/useCustomerDetailsHeaderTabs'
+import { useCustomerIntegrationPolling } from '~/hooks/customer/useCustomerIntegrationPolling'
 import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
@@ -66,18 +63,12 @@ gql`
   ${CustomerMainInfosFragmentDoc}
 `
 
-const CustomerDetails = () => {
+const CustomerDetails = (): ReactElement => {
   const { openAddCouponToCustomerDialog } = useAddCouponToCustomerDialog()
-  const pollingAttemptsRef = useRef(0)
   const { translate } = useInternationalization()
-  const navigate = useNavigate()
-  const location = useLocation()
   const { customerId } = useParams()
 
-  const shouldPollIntegrations = (location.state as { shouldPollIntegrations?: boolean })
-    ?.shouldPollIntegrations
-
-  const { data, loading, error, startPolling, stopPolling } = useGetCustomerQuery({
+  const { data, loading, error, refetch } = useGetCustomerQuery({
     variables: { id: customerId as string },
     skip: !customerId,
     notifyOnNetworkStatusChange: true,
@@ -86,36 +77,8 @@ const CustomerDetails = () => {
   })
 
   const customer = data?.customer
-  const hasAnyIntegrationCustomer = !!customer?.integrationCustomers?.length
 
-  // Start polling when coming from edit page with integrations (backend may process them async)
-  useEffect(() => {
-    if (shouldPollIntegrations && !hasAnyIntegrationCustomer) {
-      pollingAttemptsRef.current = 0
-      startPolling(INTEGRATION_POLLING_INTERVAL)
-    }
-
-    return () => {
-      stopPolling()
-    }
-    // Only run on mount when shouldPollIntegrations is true
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shouldPollIntegrations])
-
-  // Stop polling when integrations are loaded or max attempts reached
-  useEffect(() => {
-    if (!shouldPollIntegrations) return
-
-    pollingAttemptsRef.current += 1
-
-    if (
-      hasAnyIntegrationCustomer ||
-      pollingAttemptsRef.current >= MAX_INTEGRATION_POLLING_ATTEMPTS
-    ) {
-      stopPolling()
-      navigate(location.pathname, { replace: true, state: {} })
-    }
-  }, [shouldPollIntegrations, hasAnyIntegrationCustomer, stopPolling, navigate, location.pathname])
+  useCustomerIntegrationPolling({ customerId, customer, loading, refetch })
 
   useNotFoundRedirect({
     error,
