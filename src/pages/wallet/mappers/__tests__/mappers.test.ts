@@ -79,7 +79,7 @@ const baseForm = (overrides: Partial<TWalletDataForm> = {}): TWalletDataForm => 
   paidTopUpMinAmountCents: undefined,
   paidTopUpMaxAmountCents: undefined,
   ignorePaidTopUpLimitsOnCreation: false,
-  priority: 50,
+  priority: '50',
   paymentMethod: { paymentMethodType: undefined, paymentMethodId: undefined },
   invoiceCustomSection: { invoiceCustomSections: [], skipInvoiceCustomSections: false },
   ...overrides,
@@ -104,7 +104,7 @@ describe('mapFromApiToForm', () => {
     expect(values.paidTopUpMinAmountCents).toBeUndefined()
     expect(values.paidTopUpMaxAmountCents).toBeUndefined()
     expect(values.ignorePaidTopUpLimitsOnCreation).toBe(false)
-    expect(values.priority).toBe(WALLET_DEFAULT_PRIORITY)
+    expect(values.priority).toBe(String(WALLET_DEFAULT_PRIORITY))
     expect(values.appliesTo).toEqual({ feeTypes: [], billableMetrics: [] })
   })
 
@@ -121,7 +121,7 @@ describe('mapFromApiToForm', () => {
     // min/max are deserialized from cents to display amount
     expect(values.paidTopUpMinAmountCents).toBe(10)
     expect(values.paidTopUpMaxAmountCents).toBe(100)
-    expect(values.priority).toBe(10)
+    expect(values.priority).toBe('10')
     expect(values.paymentMethod).toEqual({
       paymentMethodType: 'provider',
       paymentMethodId: 'pm-id',

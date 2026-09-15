@@ -58,7 +58,7 @@ enum NetPaymentTermModelTypesEnum {
 
 type FormValues = {
   netPaymentTerm: string
-  customPeriod: number | ''
+  customPeriod: string
 }
 
 const initialValues: FormValues = {
@@ -69,12 +69,12 @@ const initialValues: FormValues = {
 const validationSchema = z
   .object({
     netPaymentTerm: z.enum(NetPaymentTermValuesEnum),
-    customPeriod: z.union([z.number(), z.literal('')]),
+    customPeriod: z.string(),
   })
   .refine(
     (data) =>
       data.netPaymentTerm !== NetPaymentTermValuesEnum.custom ||
-      (typeof data.customPeriod === 'number' && data.customPeriod >= 0),
+      (data.customPeriod !== '' && Number(data.customPeriod) >= 0),
     { path: ['customPeriod'], message: '' },
   )
 
@@ -92,7 +92,7 @@ const getInitialFormValues = (model: ModelData | null): FormValues => {
 
   return {
     netPaymentTerm: isCustomValue ? NetPaymentTermValuesEnum.custom : String(model.netPaymentTerm),
-    customPeriod: isCustomValue ? model.netPaymentTerm : '',
+    customPeriod: isCustomValue ? String(model.netPaymentTerm) : '',
   }
 }
 

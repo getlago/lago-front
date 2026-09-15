@@ -60,7 +60,7 @@ export const mapFromApiToForm = ({
     ? deserializeAmount(wallet.paidTopUpMaxAmountCents, currency)
     : undefined,
   ignorePaidTopUpLimitsOnCreation: false,
-  priority: wallet?.priority || WALLET_DEFAULT_PRIORITY,
+  priority: String(wallet?.priority || WALLET_DEFAULT_PRIORITY),
   paymentMethod: {
     paymentMethodType: wallet?.paymentMethodType,
     paymentMethodId: wallet?.paymentMethod?.id,
