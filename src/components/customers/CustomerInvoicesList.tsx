@@ -37,6 +37,7 @@ import {
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { getTimezoneConfig, intlFormatDateTime } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
+import { handleDownloadFile } from '~/core/utils/downloadFile'
 import {
   BillingEntityEmailSettingsEnum,
   CurrencyEnum,
@@ -53,7 +54,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-import { useDownloadFile } from '~/hooks/useDownloadFile'
 import { useGeneratePaymentUrl } from '~/hooks/useGeneratePaymentUrl'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
 import { useResendEmailDialog } from '~/hooks/useResendEmailDialog'
@@ -182,7 +182,6 @@ export const CustomerInvoicesList: FC<CustomerInvoicesListProps> = ({
   const actions = usePermissionsInvoiceActions()
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
   const { openResendInvoiceForCollectionDialog } = useResendInvoiceForCollectionDialog()
-  const { handleDownloadFile } = useDownloadFile()
   const { showResendEmailDialog } = useResendEmailDialog()
 
   const [downloadInvoice] = useDownloadInvoiceItemMutation({

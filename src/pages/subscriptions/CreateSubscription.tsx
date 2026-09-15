@@ -356,40 +356,16 @@ const CreateSubscription = () => {
     subscriptionForm.handleSubmit()
   }
 
-  // NOTE: useCallback here is needed
-  // It handles the case where the user clicks on the button while being focused on a plan's input
-  const SubmitButton = useCallback(() => {
-    const buttonLabel = () => {
-      if (formType === FORM_TYPE_ENUM.creation) return translate('text_65118a52df984447c1869463')
-      if (formType === FORM_TYPE_ENUM.edition) return translate('text_62d7f6178ec94cd09370e63c')
-      return translate('text_65118a52df984447c18694c6')
-    }
+  const getSubmitButtonLabel = (): string => {
+    if (formType === FORM_TYPE_ENUM.creation) return translate('text_65118a52df984447c1869463')
+    if (formType === FORM_TYPE_ENUM.edition) return translate('text_62d7f6178ec94cd09370e63c')
+    return translate('text_65118a52df984447c18694c6')
+  }
 
-    return (
-      <Button
-        type="submit"
-        disabled={
-          !subscriptionCanSubmit ||
-          !planFormCanSubmit ||
-          (formType === FORM_TYPE_ENUM.edition && !subscriptionIsDirty && !planFormIsDirty)
-        }
-        loading={subscriptionIsSubmitting}
-        data-test="submit"
-      >
-        <Typography color="inherit" noWrap>
-          {buttonLabel()}
-        </Typography>
-      </Button>
-    )
-  }, [
-    formType,
-    planFormIsDirty,
-    planFormCanSubmit,
-    subscriptionIsDirty,
-    subscriptionCanSubmit,
-    subscriptionIsSubmitting,
-    translate,
-  ])
+  const isSubmitDisabled =
+    !subscriptionCanSubmit ||
+    !planFormCanSubmit ||
+    (formType === FORM_TYPE_ENUM.edition && !subscriptionIsDirty && !planFormIsDirty)
 
   const customerName = customer?.displayName
 
@@ -710,7 +686,16 @@ const CreateSubscription = () => {
             <Button variant="quaternary" onClick={handleClose}>
               {translate('text_6411e6b530cb47007488b027')}
             </Button>
-            <SubmitButton />
+            <Button
+              type="submit"
+              disabled={isSubmitDisabled}
+              loading={subscriptionIsSubmitting}
+              data-test="submit"
+            >
+              <Typography color="inherit" noWrap>
+                {getSubmitButtonLabel()}
+              </Typography>
+            </Button>
           </CenteredPage.StickyFooter>
         </CenteredPage.Wrapper>
       </form>

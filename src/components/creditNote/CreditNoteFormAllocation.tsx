@@ -52,7 +52,9 @@ export const CreditNoteFormAllocation = ({
     (refund.path && getIn(formikProps.touched, refund.path)) ||
     (offset.path && getIn(formikProps.touched, offset.path))
 
-  const hasPayBackErrors = !!getIn(formikProps.errors, 'payBackErrors')
+  const hasPayBackErrors =
+    !!getIn(formikProps.errors, 'payBackErrors') ||
+    getIn(formikProps.errors, 'payBack.0.value') === LagoApiError.DoesNotMatchItemAmounts
   const shouldShowPayBackErrors = hasPayBackErrors && isAnyPayBackFieldTouched
 
   const allocationCaptionColor = shouldShowPayBackErrors ? 'danger600' : 'grey600'

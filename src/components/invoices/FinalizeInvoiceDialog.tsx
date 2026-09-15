@@ -2,6 +2,7 @@ import { gql, useApolloClient } from '@apollo/client'
 
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast, LagoGQLError } from '~/core/apolloClient'
+import { formattedDateWithTimezone } from '~/core/timezone/utils'
 import {
   AllInvoiceDetailsForCustomerInvoiceDetailsFragmentDoc,
   InvoiceForFinalizeInvoiceFragment,
@@ -10,7 +11,6 @@ import {
   useFinalizeInvoiceMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useFormatterDateHelper } from '~/hooks/helpers/useFormatterDateHelper'
 
 gql`
   fragment InvoiceForFinalizeInvoice on Invoice {
@@ -40,7 +40,6 @@ type FinalizeInvoiceDialogData = {
 export const useFinalizeInvoiceDialog = () => {
   const centralizedDialog = useCentralizedDialog()
   const { translate } = useInternationalization()
-  const { formattedDateWithTimezone } = useFormatterDateHelper()
   const client = useApolloClient()
 
   const [finalizeInvoice] = useFinalizeInvoiceMutation({

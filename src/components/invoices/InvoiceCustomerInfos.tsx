@@ -11,13 +11,13 @@ import { invoiceStatusMapping, paymentStatusMapping } from '~/core/constants/sta
 import { formatAddress } from '~/core/formats/formatAddress'
 import { CUSTOMER_DETAILS_ROUTE, Link } from '~/core/router'
 import { intlFormatDateTime } from '~/core/timezone'
+import { formattedDateWithTimezone } from '~/core/timezone/utils'
 import {
   CustomerAccountTypeEnum,
   InvoiceForInvoiceInfosFragment,
   InvoiceStatusTypeEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useFormatterDateHelper } from '~/hooks/helpers/useFormatterDateHelper'
 
 import { DetailsPage } from '../layouts/DetailsPage'
 
@@ -72,7 +72,6 @@ const InvoiceCustomerInfosComponent = ({
   onPurchaseOrderNumberChange,
 }: InvoiceCustomerInfosProps) => {
   const { customer } = invoice || {}
-  const { formattedDateWithTimezone } = useFormatterDateHelper()
   const { translate } = useInternationalization()
 
   const customerName = customer?.displayName

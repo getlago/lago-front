@@ -38,6 +38,7 @@ import {
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
+import { handleDownloadFile } from '~/core/utils/downloadFile'
 import { regeneratePath } from '~/core/utils/regenerateUtils'
 import {
   BillingEntityEmailSettingsEnum,
@@ -50,7 +51,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-import { useDownloadFile } from '~/hooks/useDownloadFile'
 import { useGeneratePaymentUrl } from '~/hooks/useGeneratePaymentUrl'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
 import { useResendEmailDialog } from '~/hooks/useResendEmailDialog'
@@ -88,8 +88,6 @@ const InvoicesList = ({
   const { showResendEmailDialog } = useResendEmailDialog()
 
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
-
-  const { handleDownloadFile } = useDownloadFile()
 
   const { openFinalizeInvoiceDialog } = useFinalizeInvoiceDialog()
   const { openDeleteInvoiceDialog } = useDeleteInvoiceDialog()

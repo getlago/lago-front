@@ -38,10 +38,8 @@ jest.mock('~/hooks/usePermissions', () => ({
   }),
 }))
 
-jest.mock('~/hooks/useDownloadFile', () => ({
-  useDownloadFile: () => ({
-    handleDownloadFile: mockHandleDownloadFile,
-  }),
+jest.mock('~/core/utils/downloadFile', () => ({
+  handleDownloadFile: (...args: unknown[]) => mockHandleDownloadFile(...args),
 }))
 
 jest.mock('~/generated/graphql', () => ({

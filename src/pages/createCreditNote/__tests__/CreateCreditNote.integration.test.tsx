@@ -1,5 +1,5 @@
 import NiceModal from '@ebay/nice-modal-react'
-import { act, screen, waitFor } from '@testing-library/react'
+import { act, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import {
@@ -67,6 +67,7 @@ const createCreditNoteEstimateMock = (
         ],
         maxCreditableAmountCents,
         maxRefundableAmountCents,
+        maxOffsettableAmountCents: '0',
         subTotalExcludingTaxesAmountCents: '10000',
         taxesAmountCents: '0',
         taxesRate: 0,
@@ -575,8 +576,17 @@ describe('CreateCreditNote', () => {
   })
 
   describe('PayBack Scenarios - API Error Handling', () => {
+    afterEach(() => {
+      jest.restoreAllMocks()
+    })
+
     it('should handle DoesNotMatchItemAmounts error from API', async () => {
-      // Mock onCreate to return DoesNotMatchItemAmounts error
+      const user = userEvent.setup()
+
+      // JSDOM has no layout; give the real combobox virtualizer a visible viewport.
+      jest.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(400)
+      jest.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(400)
+
       const mockOnCreateWithError = jest.fn().mockResolvedValue({
         errors: {
           graphQLErrors: [
@@ -591,27 +601,54 @@ describe('CreateCreditNote', () => {
 
       mockUseCreateCreditNote.mockReturnValue({
         loading: false,
-        invoice: {
-          ...defaultMockInvoice,
-          // Set initial values that would trigger validation
-          reason: CreditNoteReasonEnum.Other,
-        },
+        invoice: defaultMockInvoice,
+        hasCreditableOrRefundableAmount: true,
         feesPerInvoice: defaultMockFeesPerInvoice,
         feeForAddOn: undefined,
         feeForCredit: undefined,
         onCreate: mockOnCreateWithError,
       })
 
-      await act(() => render(<CreateCreditNote />))
+      render(<CreateCreditNote />, { mocks: [createCreditNoteEstimateMock()] })
 
-      // The form should be rendered
-      expect(screen.getByTestId(SUBMIT_BUTTON_TEST_ID)).toBeInTheDocument()
+      await screen.findByText('Add for future invoices (max: $100.00)')
+      await user.click(screen.getByRole('combobox'))
+      await user.type(screen.getByRole('combobox'), 'Other')
+      await user.click(await screen.findByRole('option', { name: /Other/ }))
 
-      // Note: To fully test error handling, we'd need to:
-      // 1. Fill in the reason field
-      // 2. Click submit
-      // 3. Verify error message appears
-      // This requires proper combobox interaction which is complex in tests
+      const creditInput = within(screen.getByTestId(CREDIT_AMOUNT_INPUT_TEST_ID)).getByRole(
+        'textbox',
+      )
+      const refundInput = within(screen.getByTestId(REFUND_AMOUNT_INPUT_TEST_ID)).getByRole(
+        'textbox',
+      )
+
+      await user.clear(creditInput)
+      await user.type(creditInput, '60')
+      await user.clear(refundInput)
+      await user.type(refundInput, '40')
+      await user.tab()
+
+      const submitButton = screen.getByTestId(SUBMIT_BUTTON_TEST_ID)
+
+      await waitFor(() => expect(submitButton).toBeEnabled())
+      await user.click(submitButton)
+
+      await waitFor(() => expect(mockOnCreateWithError).toHaveBeenCalledTimes(1))
+      expect(mockOnCreateWithError).toHaveBeenCalledWith(
+        expect.objectContaining({
+          reason: CreditNoteReasonEnum.Other,
+          payBack: expect.arrayContaining([
+            expect.objectContaining({ type: 'credit', value: '60' }),
+            expect.objectContaining({ type: 'refund', value: '40' }),
+          ]),
+        }),
+      )
+      expect(
+        await screen.findByText(
+          'Please make sure all amount are well defined to create the credit note.',
+        ),
+      ).toBeVisible()
     })
   })
 
