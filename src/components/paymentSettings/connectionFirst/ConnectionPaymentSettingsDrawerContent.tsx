@@ -74,9 +74,12 @@ export const ConnectionPaymentSettingsDrawerContent = withForm({
     )
 
     const behavior = deriveConnectionBehavior(connection)
-    const { connections, defaultConnection, isDefaultManual } = useCustomerPaymentConnections({
-      customerId,
-    })
+    const {
+      connections,
+      defaultConnection,
+      isDefaultManual,
+      loading: loadingConnections,
+    } = useCustomerPaymentConnections({ customerId })
 
     const getResolvedConnection = () => {
       if (behavior === ConnectionBehavior.SKIP) return undefined
@@ -91,7 +94,11 @@ export const ConnectionPaymentSettingsDrawerContent = withForm({
 
     // The connection-scoped query reads through the singular `providerCustomer`, so it only ever
     // answers for one connection. Filtering the customer-wide list keeps every connection answerable.
-    const { data: customerPaymentMethods, loading: loadingPaymentMethods } = usePaymentMethodsList({
+    const {
+      data: customerPaymentMethods,
+      loading: loadingPaymentMethods,
+      error: paymentMethodsError,
+    } = usePaymentMethodsList({
       externalCustomerId,
       withDeleted: false,
       skip: !resolvedConnection,
@@ -105,10 +112,15 @@ export const ConnectionPaymentSettingsDrawerContent = withForm({
 
     const defaultPaymentMethod = connectionPaymentMethods.find((method) => method.isDefault)
 
+    // Skipping the methods query reports `loading: false`, so a stored method would read as foreign
+    // while the connections are still resolving, or when either query failed.
+    const methodsAnswered =
+      !!resolvedConnection && !loadingConnections && !loadingPaymentMethods && !paymentMethodsError
+
     const selectedMethodId = paymentMethod?.paymentMethodId
     const selectedMethodIsForeign =
       !!selectedMethodId &&
-      !loadingPaymentMethods &&
+      methodsAnswered &&
       !connectionPaymentMethods.some((method) => method.id === selectedMethodId)
 
     useEffect(() => {

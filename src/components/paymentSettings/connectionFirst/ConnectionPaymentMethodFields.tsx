@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { Chip } from '~/components/designSystem/Chip'
 import { Typography } from '~/components/designSystem/Typography'
@@ -52,6 +52,15 @@ export const ConnectionPaymentMethodFields = ({
     value?.paymentMethodId ? MethodBehavior.SPECIFIC : MethodBehavior.DEFAULT,
   )
   const [paymentMethodId, setPaymentMethodId] = useState<string>(() => value?.paymentMethodId || '')
+
+  // A reset from the parent publishes `null`, while picking the specific branch before choosing an
+  // id publishes `undefined`. Only the first pulls the control back to the default branch.
+  useEffect(() => {
+    if (value?.paymentMethodId !== null) return
+
+    setBehavior(MethodBehavior.DEFAULT)
+    setPaymentMethodId('')
+  }, [value?.paymentMethodId])
 
   const handleBehaviorChange = (next: MethodBehavior): void => {
     setBehavior(next)

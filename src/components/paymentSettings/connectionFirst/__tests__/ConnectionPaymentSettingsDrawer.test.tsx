@@ -38,6 +38,8 @@ const STRIPE_CONNECTION: CustomerPaymentConnection = {
 
 const mockConnections = { current: [STRIPE_CONNECTION] as CustomerPaymentConnection[] }
 const mockIsDefaultManual = { current: false }
+const mockConnectionsLoading = { current: false }
+const mockPaymentMethodsError = { current: false }
 const mockPaymentMethods = {
   current: [] as Array<{ id: string; isDefault: boolean; paymentProviderCustomerId: string }>,
 }
@@ -61,7 +63,7 @@ jest.mock('~/hooks/customer/useCustomerPaymentConnections', () => ({
     options: [],
     defaultConnection: mockConnections.current.find((connection) => connection.isDefault),
     isDefaultManual: mockIsDefaultManual.current,
-    loading: false,
+    loading: mockConnectionsLoading.current,
   }),
 }))
 
@@ -69,7 +71,7 @@ jest.mock('~/hooks/customer/usePaymentMethodsList', () => ({
   usePaymentMethodsList: () => ({
     data: mockPaymentMethods.current,
     loading: false,
-    error: false,
+    error: mockPaymentMethodsError.current,
     refetch: jest.fn(),
   }),
 }))
@@ -117,6 +119,8 @@ describe('ConnectionPaymentSettingsSelector', () => {
     jest.clearAllMocks()
     mockConnections.current = [STRIPE_CONNECTION]
     mockIsDefaultManual.current = false
+    mockConnectionsLoading.current = false
+    mockPaymentMethodsError.current = false
     mockPaymentMethods.current = []
     mockPaymentMethodFieldsProps.current = null
   })
@@ -425,6 +429,28 @@ describe('ConnectionPaymentSettingsSelector', () => {
           }),
         )
       })
+    })
+  })
+
+  describe('GIVEN a stored method and an answer not in yet', () => {
+    const storedMethod = {
+      paymentMethodId: 'pm-own',
+      paymentMethodType: PaymentMethodTypeEnum.Provider,
+    }
+
+    // Skipping the methods query reports loading: false, so an unguarded check reads the stored
+    // method as foreign and drops a perfectly valid choice.
+    it.each([
+      ['the connections are still resolving', () => (mockConnectionsLoading.current = true)],
+      ['the methods query failed', () => (mockPaymentMethodsError.current = true)],
+    ])('WHEN %s THEN should keep the stored method', async (_, arrange) => {
+      arrange()
+
+      const { opened } = await openDrawerFromSelector({ paymentMethod: storedMethod })
+
+      render(<>{opened.children}</>)
+
+      await waitFor(() => expect(mockPaymentMethodFieldsProps.current?.value).toEqual(storedMethod))
     })
   })
 })

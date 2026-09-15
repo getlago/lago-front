@@ -1,7 +1,9 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { useState } from 'react'
 
 import { PM_FIELDS_MANUAL_RADIO_TEST_ID } from '~/components/paymentMethodSelection/PaymentMethodFields'
+import { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types'
 import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { PaymentMethodTypeEnum } from '~/generated/graphql'
 import { PaymentMethodItem, PaymentMethodList } from '~/hooks/customer/usePaymentMethodsList'
@@ -132,6 +134,53 @@ describe('ConnectionPaymentMethodFields', () => {
           paymentMethodId: null,
           paymentMethodType: PaymentMethodTypeEnum.Provider,
         })
+      })
+    })
+  })
+
+  describe('GIVEN the specific branch showing a chosen method', () => {
+    describe('WHEN the parent resets the stored value', () => {
+      // The control seeds the branch into local state, so a reset it does not follow leaves the UI
+      // showing a method the form no longer holds.
+      it('THEN should fall back to the default branch', async () => {
+        const user = userEvent.setup()
+
+        const Harness = () => {
+          const [value, setValue] = useState<SelectedPaymentMethod>({
+            paymentMethodId: 'pm_1',
+            paymentMethodType: PaymentMethodTypeEnum.Provider,
+          })
+
+          return (
+            <>
+              <button
+                data-test="external-reset"
+                onClick={() =>
+                  setValue({
+                    paymentMethodId: null,
+                    paymentMethodType: PaymentMethodTypeEnum.Provider,
+                  })
+                }
+                type="button"
+              />
+              <ConnectionPaymentMethodFields
+                viewType={ViewTypeEnum.WalletTopUp}
+                paymentMethodsList={[] as PaymentMethodList}
+                value={value}
+                onChange={setValue}
+              />
+            </>
+          )
+        }
+
+        render(<Harness />)
+
+        expect(radioOf(CONNECTION_METHOD_SPECIFIC_RADIO_TEST_ID)).toBeTruthy()
+        expect(screen.getByTestId(PAYMENT_METHOD_COMBOBOX_TEST_ID)).toBeInTheDocument()
+
+        await user.click(screen.getByTestId('external-reset'))
+
+        expect(screen.queryByTestId(PAYMENT_METHOD_COMBOBOX_TEST_ID)).not.toBeInTheDocument()
       })
     })
   })
