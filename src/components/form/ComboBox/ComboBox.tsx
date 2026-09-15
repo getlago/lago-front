@@ -63,16 +63,13 @@ export const ComboBox = ({
   }, [rawData])
   const prevRawData = prevRawDataRef.current
 
-  // when `data` gets updated, make sure that if the current value is not belonging to
-  //   a deleted option
-  // N.B: we compute the diff to not delete a "freeForm" value
+  // Only clear removed options; values that were never options may be free-form.
   useEffect(() => {
     if (prevRawData && data) {
-      const deletedOptions = prevRawData.filter(
-        ({ value: oldVal }) => !data.find(({ value: newVal }) => oldVal === newVal),
-      )
+      const wasAnOption = prevRawData.some((option) => option.value === value)
+      const isStillAnOption = data.some((option) => option.value === value)
 
-      if (deletedOptions.find(({ value: deletedValue }) => value === deletedValue)) {
+      if (wasAnOption && !isStillAnOption) {
         onChange('')
       }
     }

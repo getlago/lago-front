@@ -174,7 +174,7 @@ const MemberList = () => {
         setSearchQuery={(value) => {
           goToPage(1)
           setSearchQuery(value)
-          debouncedSearch?.(value)
+          debouncedSearch(value)
         }}
         type="members"
       />

@@ -322,7 +322,7 @@ const InvoicesPage = () => {
                 <SearchInput
                   onChange={(value) => {
                     goToPage(1)
-                    invoiceDebounceSearch?.(value)
+                    invoiceDebounceSearch(value)
                   }}
                   placeholder={translate('text_63c68131568d582a38233e84')}
                 />

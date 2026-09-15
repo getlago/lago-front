@@ -188,7 +188,7 @@ const CouponsList = () => {
           <SearchInput
             onChange={(value) => {
               goToPage(1)
-              debouncedSearch?.(value)
+              debouncedSearch(value)
             }}
             placeholder={translate('text_63beebbf4f60e2f553232782')}
           />

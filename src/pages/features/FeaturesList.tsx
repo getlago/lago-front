@@ -137,7 +137,7 @@ const FeaturesList = () => {
           <SearchInput
             onChange={(value) => {
               goToPage(1)
-              debouncedSearch?.(value)
+              debouncedSearch(value)
             }}
             placeholder={translate('text_1752692673070xf4wtgsrsum')}
           />

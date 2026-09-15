@@ -13,7 +13,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 interface UseCustomersListFiltersSectionParams {
-  debouncedSearch?: (value: string) => void
+  debouncedSearch: (value: string) => void
 }
 
 export function useCustomersListHeaderFilters({

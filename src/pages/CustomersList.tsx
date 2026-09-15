@@ -132,7 +132,7 @@ const CustomersList = () => {
 
   const searchAndResetPage = (value: string) => {
     goToPage(1)
-    debouncedSearch?.(value)
+    debouncedSearch(value)
   }
 
   const headerActions = useCustomersListHeaderActions()

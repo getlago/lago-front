@@ -133,7 +133,7 @@ const SubscriptionsPage = () => {
   // out-of-range page (filter changes reset the page centrally in useFilters).
   const searchAndResetPage = (value: string) => {
     goToPage(1)
-    debouncedSearch?.(value)
+    debouncedSearch(value)
   }
 
   const subscriptions = data?.subscriptions.collection as Subscription[]

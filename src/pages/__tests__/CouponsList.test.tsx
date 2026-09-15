@@ -1,10 +1,16 @@
+import { fireEvent, screen } from '@testing-library/react'
+
+import { MainHeaderConfig } from '~/components/MainHeader/types'
 import { CouponStatusEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import CouponsList from '../CouponsList'
 
-const mockMainHeaderConfigure = jest.fn()
+const mockMainHeaderConfigure = jest.fn<void, [MainHeaderConfig]>()
 const mockTableProps = jest.fn()
+const mockGoToPage = jest.fn()
+const mockDebouncedSearch = jest.fn()
+let mockPage = 1
 
 const mockCanCreate = jest.fn()
 const mockCanEdit = jest.fn()
@@ -13,7 +19,7 @@ const mockCanDelete = jest.fn()
 
 jest.mock('~/components/MainHeader/MainHeader', () => ({
   MainHeader: {
-    Configure: (props: Record<string, unknown>) => {
+    Configure: (props: MainHeaderConfig): null => {
       mockMainHeaderConfigure(props)
       return null
     },
@@ -29,11 +35,7 @@ jest.mock('~/components/designSystem/Table/Table', () => ({
 
 jest.mock('~/components/designSystem/Pagination', () => ({
   PaginatedContent: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-  usePageSearchParam: () => ({ page: 1, goToPage: jest.fn() }),
-}))
-
-jest.mock('~/components/SearchInput', () => ({
-  SearchInput: () => null,
+  usePageSearchParam: () => ({ page: mockPage, goToPage: mockGoToPage }),
 }))
 
 jest.mock('~/components/coupons/useDeleteCoupon', () => ({
@@ -79,7 +81,7 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
 
 jest.mock('~/hooks/useDebouncedSearch', () => ({
   useDebouncedSearch: () => ({
-    debouncedSearch: jest.fn(),
+    debouncedSearch: mockDebouncedSearch,
     isLoading: false,
   }),
 }))
@@ -99,10 +101,50 @@ jest.mock('~/core/constants/statusCouponMapping', () => ({
 describe('CouponsList', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockPage = 1
     mockCanCreate.mockReturnValue(true)
     mockCanEdit.mockReturnValue(true)
     mockCanTerminate.mockReturnValue(true)
     mockCanDelete.mockReturnValue(true)
+  })
+
+  describe('GIVEN the list is on page 3', (): void => {
+    it('WHEN search is edited or cleared THEN resets the page before searching', (): void => {
+      mockPage = 3
+
+      render(<CouponsList />)
+
+      const [headerConfig] = mockMainHeaderConfigure.mock.calls[0]
+
+      render(<>{headerConfig.filtersSection}</>)
+
+      const searchInput = screen.getByRole('textbox')
+
+      fireEvent.change(searchInput, { target: { value: 'new query' } })
+
+      expect(searchInput).toHaveValue('new query')
+      expect(mockGoToPage).toHaveBeenCalledTimes(1)
+      expect(mockGoToPage).toHaveBeenCalledWith(1)
+      expect(mockDebouncedSearch).toHaveBeenCalledTimes(1)
+      expect(mockDebouncedSearch).toHaveBeenCalledWith('new query')
+      expect(mockGoToPage.mock.invocationCallOrder[0]).toBeLessThan(
+        mockDebouncedSearch.mock.invocationCallOrder[0],
+      )
+
+      mockGoToPage.mockClear()
+      mockDebouncedSearch.mockClear()
+
+      fireEvent.change(searchInput, { target: { value: '' } })
+
+      expect(searchInput).toHaveValue('')
+      expect(mockGoToPage).toHaveBeenCalledTimes(1)
+      expect(mockGoToPage).toHaveBeenCalledWith(1)
+      expect(mockDebouncedSearch).toHaveBeenCalledTimes(1)
+      expect(mockDebouncedSearch).toHaveBeenCalledWith('')
+      expect(mockGoToPage.mock.invocationCallOrder[0]).toBeLessThan(
+        mockDebouncedSearch.mock.invocationCallOrder[0],
+      )
+    })
   })
 
   describe('GIVEN the component is rendered', () => {

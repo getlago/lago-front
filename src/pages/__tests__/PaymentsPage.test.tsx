@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react'
+import { fireEvent, screen } from '@testing-library/react'
 
 import { MainHeaderConfig } from '~/components/MainHeader/types'
 import { render, testMockNavigateFn } from '~/test-utils'
@@ -23,6 +23,13 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 }))
 
 const mockDebouncedSearch = jest.fn()
+const mockGoToPage = jest.fn()
+let mockPage = 1
+
+jest.mock('~/components/designSystem/Pagination', () => ({
+  ...jest.requireActual('~/components/designSystem/Pagination'),
+  usePageSearchParam: () => ({ page: mockPage, goToPage: mockGoToPage }),
+}))
 
 jest.mock('~/hooks/useDebouncedSearch', () => ({
   useDebouncedSearch: () => ({
@@ -74,9 +81,36 @@ jest.mock('~/components/dialogs/PremiumWarningDialog', () => ({
 describe('PaymentsPage', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockPage = 1
     capturedConfig = null
     mockIsPremium.mockReturnValue(true)
     mockOpenPremiumWarningDialog.mockClear()
+  })
+
+  describe('GIVEN the list is on page 3', (): void => {
+    it('WHEN search is edited or cleared THEN resets the page before searching', (): void => {
+      mockPage = 3
+      render(<PaymentsPage />)
+      render(<>{capturedConfig?.filtersSection}</>)
+
+      const input = screen.getByRole('textbox')
+
+      for (const value of [' new query ', '']) {
+        mockGoToPage.mockClear()
+        mockDebouncedSearch.mockClear()
+
+        fireEvent.change(input, { target: { value } })
+
+        expect(input).toHaveValue(value)
+        expect(mockGoToPage).toHaveBeenCalledTimes(1)
+        expect(mockGoToPage).toHaveBeenCalledWith(1)
+        expect(mockDebouncedSearch).toHaveBeenCalledTimes(1)
+        expect(mockDebouncedSearch).toHaveBeenCalledWith(value)
+        expect(mockGoToPage.mock.invocationCallOrder[0]).toBeLessThan(
+          mockDebouncedSearch.mock.invocationCallOrder[0],
+        )
+      }
+    })
   })
 
   describe('GIVEN the page is rendered', () => {

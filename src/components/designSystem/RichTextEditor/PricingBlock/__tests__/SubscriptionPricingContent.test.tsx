@@ -16,6 +16,7 @@ import {
   PlanInterval,
 } from '~/generated/graphql'
 import { usePlanFormSetup } from '~/hooks/plans/usePlanFormSetup'
+import type { UseDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import type { QuoteCustomer } from '~/pages/quotes/hooks/useSubscriptionPricingDrawer'
 import { render } from '~/test-utils'
 
@@ -60,8 +61,11 @@ jest.mock('@tanstack/react-virtual', () => ({
 }))
 
 jest.mock('~/hooks/useDebouncedSearch', () => ({
-  useDebouncedSearch: (searchQuery: unknown) => ({
-    debouncedSearch: searchQuery,
+  useDebouncedSearch: (): ReturnType<UseDebouncedSearch> => ({
+    debouncedSearch: Object.assign(jest.fn<void, [string]>(), {
+      cancel: jest.fn(),
+      flush: jest.fn(),
+    }),
     isLoading: false,
   }),
 }))
