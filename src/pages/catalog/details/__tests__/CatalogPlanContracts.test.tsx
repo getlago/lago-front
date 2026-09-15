@@ -89,12 +89,12 @@ describe('CatalogPlanContracts', () => {
         )
       })
 
-      it('THEN uses an inset table with sticky pagination', () => {
+      it('THEN uses a non-inset table with non-sticky pagination', () => {
         render(<CatalogPlanContracts planCode="premium" />)
 
-        expect(getTableProps().containerSize).toBe(4)
+        expect(getTableProps().containerSize).toBe(0)
         expect(mockPaginatedContentProps).toHaveBeenCalledWith(
-          expect.not.objectContaining({ sticky: false }),
+          expect.objectContaining({ sticky: false }),
         )
       })
 
