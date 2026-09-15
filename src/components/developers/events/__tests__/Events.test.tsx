@@ -21,8 +21,8 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
-jest.mock('~/core/utils/getCurrentBreakpoint', () => ({
-  getCurrentBreakpoint: () => 'md',
+jest.mock('~/core/utils/isMobileViewport', () => ({
+  isMobileViewport: () => false,
 }))
 
 jest.mock('~/generated/graphql', () => ({

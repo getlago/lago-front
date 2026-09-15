@@ -21,10 +21,6 @@ jest.mock('~/hooks/helpers/useFormatterDateHelper', () => ({
   }),
 }))
 
-jest.mock('~/core/utils/getCurrentBreakpoint', () => ({
-  getCurrentBreakpoint: () => 'md',
-}))
-
 const anEvent = (overrides: Record<string, unknown> = {}) => ({
   __typename: 'Event' as const,
   id: 'organization-1-subscription-1-transaction-1-1740000000',
@@ -64,8 +60,32 @@ const renderTable = (collection: ReturnType<typeof anEvent>[], activeRowId?: str
   )
 
 describe('EventTable', () => {
+  const originalWidth = window.innerWidth
+
   beforeEach(() => {
     jest.clearAllMocks()
+    window.innerWidth = 1024
+  })
+
+  afterEach(() => {
+    window.innerWidth = originalWidth
+  })
+
+  it('opens the mobile detail view using the viewport width at click time', async () => {
+    const user = userEvent.setup()
+
+    renderTable([anEvent()])
+
+    window.innerWidth = 775.5
+    await user.click(screen.getByRole('row', { name: /api_calls/ }))
+
+    expect(logListRef.current?.updateView).toHaveBeenCalledWith('forward')
+
+    jest.clearAllMocks()
+    window.innerWidth = 776
+    await user.click(screen.getByRole('row', { name: /api_calls/ }))
+
+    expect(logListRef.current?.updateView).not.toHaveBeenCalled()
   })
 
   describe('GIVEN two events sharing the same transactionId', () => {

@@ -16,7 +16,7 @@ import { SearchInput } from '~/components/SearchInput'
 import { WEBHOOK_LOGS_FILTER_PREFIX } from '~/core/constants/filters'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { useNavigate } from '~/core/router'
-import { getCurrentBreakpoint } from '~/core/utils/getCurrentBreakpoint'
+import { isMobileViewport } from '~/core/utils/isMobileViewport'
 import { useGetWebhookLogLazyQuery, WebhookLogFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
@@ -143,7 +143,7 @@ export const WebhookLogs = ({ webhookId }: WebhookLogsProps) => {
       if (logCollection?.length) {
         const firstLog = logCollection[0]
 
-        if (firstLog && getCurrentBreakpoint() !== 'sm') {
+        if (firstLog && !isMobileViewport()) {
           navigate(
             {
               pathname: generatePath(WEBHOOK_LOGS_ROUTE, { webhookId, logId: firstLog.id }),

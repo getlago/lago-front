@@ -16,7 +16,7 @@ import {
 import { ACTIVITY_LOG_FILTER_PREFIX } from '~/core/constants/filters'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { useNavigate } from '~/core/router'
-import { getCurrentBreakpoint } from '~/core/utils/getCurrentBreakpoint'
+import { isMobileViewport } from '~/core/utils/isMobileViewport'
 import { ActivityItemFragment, LagoApiError, useActivityLogsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -100,7 +100,7 @@ export const ActivityLogs = () => {
       if (logCollection?.length) {
         const firstLog = logCollection[0]
 
-        if (firstLog && getCurrentBreakpoint() !== 'sm') {
+        if (firstLog && !isMobileViewport()) {
           const path = generatePath(ACTIVITY_LOG_ROUTE, { logId: firstLog.activityId })
           const query = currentSearchParams?.toString()
           const search = query ? `?${query}` : ''

@@ -1,7 +1,9 @@
 import { ThemeProvider } from '@mui/material/styles'
 import { act, configure, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import type { ComponentProps, ReactElement } from 'react'
 
+import type RichTextEditor from '~/components/designSystem/RichTextEditor/RichTextEditor'
 import { theme } from '~/styles'
 
 import type { QuotePreviewProps } from '../buildQuotePreviewProps'
@@ -9,15 +11,30 @@ import { QuotePdfProvider, useDownloadQuotePdf } from '../QuotePdfProvider'
 
 configure({ testIdAttribute: 'data-test' })
 
-let capturedEditorProps: Record<string, unknown> = {}
+let capturedEditorProps: Partial<ComponentProps<typeof RichTextEditor>> = {}
 const mockMountedContents: string[] = []
+
+type QuotePdfRendererModule = typeof import('../QuotePdfRenderer')
+
+const mockLoadQuotePdfRenderer = jest.fn<Promise<QuotePdfRendererModule>, []>(() =>
+  Promise.resolve(jest.requireActual<QuotePdfRendererModule>('../QuotePdfRenderer')),
+)
+
+jest.mock('../QuotePdfRenderer', () => ({
+  __esModule: true,
+  // Babel's dynamic import adopts this promise, allowing chunk loading to be controlled.
+  then: (
+    resolve: (module: QuotePdfRendererModule) => void,
+    reject: (error: Error) => void,
+  ): Promise<void> => mockLoadQuotePdfRenderer().then(resolve, reject),
+}))
 
 jest.mock('~/components/designSystem/RichTextEditor/RichTextEditor', () => {
   const ReactLib = jest.requireActual<typeof import('react')>('react')
 
   return {
     __esModule: true,
-    default: function MockRichTextEditor(props: Record<string, unknown>) {
+    default: function MockRichTextEditor(props: ComponentProps<typeof RichTextEditor>) {
       capturedEditorProps = props
       ReactLib.useEffect(() => {
         mockMountedContents.push(props.content as string)
@@ -76,6 +93,114 @@ describe('QuotePdfProvider', () => {
     jest.clearAllMocks()
     capturedEditorProps = {}
     mockMountedContents.length = 0
+  })
+
+  it('does not load the PDF renderer until a download is requested', () => {
+    render(
+      <QuotePdfProvider>
+        <Consumer props={PROPS} />
+      </QuotePdfProvider>,
+    )
+
+    expect(mockLoadQuotePdfRenderer).not.toHaveBeenCalled()
+  })
+
+  it('starts the render timeout only after the renderer module has loaded and mounted', async () => {
+    jest.useFakeTimers()
+    let resolveModule: (module: QuotePdfRendererModule) => void = () => {}
+
+    mockLoadQuotePdfRenderer.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          resolveModule = resolve
+        }),
+    )
+
+    try {
+      render(
+        <QuotePdfProvider>
+          <Consumer props={PROPS} />
+        </QuotePdfProvider>,
+      )
+
+      await act(async () => {
+        screen.getByRole('button', { name: 'download' }).click()
+      })
+
+      act(() => jest.advanceTimersByTime(6000))
+
+      expect(mockLoadQuotePdfRenderer).toHaveBeenCalledTimes(1)
+      expect(mockMountedContents).toEqual([])
+      expect(addToast).not.toHaveBeenCalled()
+
+      await act(async () => {
+        resolveModule(jest.requireActual<QuotePdfRendererModule>('../QuotePdfRenderer'))
+      })
+
+      expect(mockMountedContents).toEqual([PROPS.content])
+
+      act(() => jest.advanceTimersByTime(4999))
+      expect(addToast).not.toHaveBeenCalled()
+
+      act(() => jest.advanceTimersByTime(1))
+      expect(addToast).toHaveBeenCalledTimes(1)
+      expect(printHtmlContent).not.toHaveBeenCalled()
+    } finally {
+      jest.useRealTimers()
+    }
+  })
+
+  it('rejects a failed module load and prints the next queued request', async () => {
+    let rejectModule: (error: Error) => void = () => {}
+    let firstDownload: Promise<void> | undefined
+    let secondDownload: Promise<void> | undefined
+
+    mockLoadQuotePdfRenderer.mockImplementationOnce(
+      () =>
+        new Promise((_, reject) => {
+          rejectModule = reject
+        }),
+    )
+
+    const CaptureQueue = (): ReactElement => {
+      const { download } = useDownloadQuotePdf()
+
+      return (
+        <button
+          onClick={() => {
+            firstDownload = download({ ...PROPS, content: '<p>A</p>' })
+            secondDownload = download({ ...PROPS, content: '<p>B</p>' })
+          }}
+        >
+          download queue
+        </button>
+      )
+    }
+
+    render(
+      <QuotePdfProvider>
+        <CaptureQueue />
+      </QuotePdfProvider>,
+    )
+
+    await userEvent.click(screen.getByRole('button', { name: 'download queue' }))
+
+    await act(async () => {
+      rejectModule(new Error('PDF chunk unavailable'))
+    })
+
+    await expect(firstDownload).rejects.toThrow('PDF chunk unavailable')
+    expect(addToast).toHaveBeenCalledTimes(1)
+    expect(mockLoadQuotePdfRenderer).toHaveBeenCalledTimes(2)
+    expect(mockMountedContents).toEqual(['<p>B</p>'])
+
+    act(() => capturedEditorProps.onPreviewReady?.('<p>B rendered</p>'))
+
+    await expect(secondDownload).resolves.toBeUndefined()
+    expect(printHtmlContent).toHaveBeenCalledTimes(1)
+    expect(printHtmlContent).toHaveBeenCalledWith(
+      '<div class="rich-text-editor"><div class="ProseMirror" contenteditable="false"><p>B rendered</p></div></div>',
+    )
   })
 
   it('renders the preview off-screen and prints the serialized HTML on ready', async () => {
@@ -272,12 +397,14 @@ describe('QuotePdfProvider', () => {
     // The bundle is still loading: the off-screen editor must not mount yet,
     // otherwise its DOM snapshot would capture untranslated (empty) headers.
     expect(screen.queryByTestId('hidden-preview')).not.toBeInTheDocument()
+    expect(mockLoadQuotePdfRenderer).not.toHaveBeenCalled()
 
     await act(async () => {
       resolvePreload()
     })
 
     expect(screen.getByTestId('hidden-preview')).toBeInTheDocument()
+    expect(capturedEditorProps.customerLocale).toBe('fr')
   })
 
   it('does not preload a locale when the content is empty', async () => {
