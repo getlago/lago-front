@@ -11,6 +11,7 @@ import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGrou
 import { addToast, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
 import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { applyExistingCodeError } from '~/core/form/existingCodeError'
 import { ANROK_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import {
   AddAnrokIntegrationDialogFragment,
@@ -175,16 +176,7 @@ export const useAddAnrokDialog = () => {
       }
 
       if (hasDefinedGQLError('ValueAlreadyExist', res.errors)) {
-        formApi.setErrorMap({
-          onDynamic: {
-            fields: {
-              code: {
-                message: translate('text_632a2d437e341dcc76817556'),
-                path: ['code'],
-              },
-            },
-          },
-        })
+        applyExistingCodeError(formApi)
       }
     },
   })

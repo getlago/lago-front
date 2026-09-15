@@ -11,6 +11,7 @@ import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGrou
 import { addToast } from '~/core/apolloClient'
 import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { applyExistingCodeError } from '~/core/form/existingCodeError'
 import { FLUTTERWAVE_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import { zodOptionalUrl } from '~/formValidation/zodCustoms'
 import {
@@ -174,16 +175,7 @@ export const useAddFlutterwaveDialog = () => {
           res.data?.paymentProvider?.id !== flutterwaveProvider?.id)
 
       if (isNotAllowedToMutate) {
-        formApi.setErrorMap({
-          onDynamic: {
-            fields: {
-              code: {
-                message: translate('text_632a2d437e341dcc76817556'),
-                path: ['code'],
-              },
-            },
-          },
-        })
+        applyExistingCodeError(formApi)
         return
       }
 
