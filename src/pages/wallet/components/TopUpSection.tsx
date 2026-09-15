@@ -7,6 +7,7 @@ import { Selector, SelectorActions } from '~/components/designSystem/Selector'
 import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { InvoicingSettingsSelector } from '~/components/invoicingSettings/InvoicingSettingsSelector'
+import { ConnectionPaymentSettingsSelector } from '~/components/paymentSettings/connectionFirst/ConnectionPaymentSettingsSelector'
 import { PaymentSettingsSelector } from '~/components/paymentSettings/PaymentSettingsSelector'
 import { ADD_RECURRING_RULE_BUTTON_DATA_TEST } from '~/components/wallets/utils/dataTestConstants'
 import {
@@ -15,10 +16,11 @@ import {
   ViewTypeEnum,
 } from '~/core/constants/billingObjectViewTypes'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
-import { GetCustomerInfosForWalletFormQuery } from '~/generated/graphql'
+import { FeatureFlagEnum, GetCustomerInfosForWalletFormQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { useRecurringRuleDrawer } from '~/pages/wallet/components/RecurringRuleDrawer'
 import { emptyWalletFormDefaultValues } from '~/pages/wallet/mappers/mapFromApiToForm'
 
@@ -61,6 +63,7 @@ export const TopUpSection = withForm({
   }) {
     const { isPremium } = useCurrentUser()
     const { translate } = useInternationalization()
+    const { hasFeatureFlag } = useOrganizationInfos()
     const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
 
     const recurringTransactionRules = useStore(
@@ -85,6 +88,35 @@ export const TopUpSection = withForm({
         ([key, value]) => key.startsWith('recurringTransactionRules') && !!value,
       )
     })
+
+    const isMultiConnectionEnabled = hasFeatureFlag(FeatureFlagEnum.MultiConnection)
+
+    const renderPaymentSettingsSelector = (customerId: string, externalCustomerId: string) => {
+      if (!isMultiConnectionEnabled) {
+        return (
+          <PaymentSettingsSelector
+            viewType={ViewTypeEnum.WalletTopUp}
+            externalCustomerId={externalCustomerId}
+            value={walletValues.paymentMethod}
+            onChange={(value) => form.setFieldValue('paymentMethod', value)}
+          />
+        )
+      }
+
+      return (
+        <ConnectionPaymentSettingsSelector
+          viewType={ViewTypeEnum.WalletTopUp}
+          customerId={customerId}
+          externalCustomerId={externalCustomerId}
+          connection={walletValues.paymentConnection}
+          paymentMethod={walletValues.paymentMethod}
+          onChange={({ connection, paymentMethod }) => {
+            form.setFieldValue('paymentConnection', connection)
+            form.setFieldValue('paymentMethod', paymentMethod)
+          }}
+        />
+      )
+    }
 
     const { openDrawer } = useRecurringRuleDrawer({
       customerData,
@@ -221,18 +253,20 @@ export const TopUpSection = withForm({
           <section className="flex w-full flex-col gap-6">
             <div className="flex flex-col gap-1">
               <Typography variant="subhead1">
-                {translate('text_1784888105056o78z8t3kjrg')}
+                {translate(
+                  isMultiConnectionEnabled
+                    ? 'text_1789381469546g27fewh3r8c'
+                    : 'text_1784888105056o78z8t3kjrg',
+                )}
               </Typography>
               <Typography variant="caption">
                 {translate(VIEW_TYPE_PAYMENT_CAPTION_KEYS[ViewTypeEnum.WalletTopUp])}
               </Typography>
             </div>
-            <PaymentSettingsSelector
-              viewType={ViewTypeEnum.WalletTopUp}
-              externalCustomerId={customerData.customer.externalId}
-              value={walletValues.paymentMethod}
-              onChange={(value) => form.setFieldValue('paymentMethod', value)}
-            />
+            {renderPaymentSettingsSelector(
+              customerData.customer.id,
+              customerData.customer.externalId,
+            )}
           </section>
         )}
       </>

@@ -1,3 +1,7 @@
+import {
+  findPaymentRouting,
+  toSelectedConnection,
+} from '~/components/connectionSelection/fromConnectionRouting'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount, getCurrencyPrecision } from '~/core/serializers/serializeAmount'
 import {
@@ -61,6 +65,7 @@ export const mapFromApiToForm = ({
     : undefined,
   ignorePaidTopUpLimitsOnCreation: false,
   priority: wallet?.priority || WALLET_DEFAULT_PRIORITY,
+  paymentConnection: toSelectedConnection(findPaymentRouting(wallet?.connections)),
   paymentMethod: {
     paymentMethodType: wallet?.paymentMethodType,
     paymentMethodId: wallet?.paymentMethod?.id,

@@ -1,0 +1,258 @@
+import { useStore } from '@tanstack/react-form'
+import { useEffect } from 'react'
+
+import { paymentAvatarMapping } from '~/components/avatarMappings'
+import { ConnectionBehaviorFields } from '~/components/connectionSelection/ConnectionBehaviorFields'
+import { CustomerPaymentConnectionComboBox } from '~/components/connectionSelection/CustomerPaymentConnectionComboBox'
+import {
+  ConnectionBehavior,
+  deriveConnectionBehavior,
+} from '~/components/connectionSelection/types'
+import { Avatar } from '~/components/designSystem/Avatar'
+import { Chip } from '~/components/designSystem/Chip'
+import { CenteredPage } from '~/components/layouts/CenteredPage'
+import { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types'
+import {
+  VIEW_TYPE_PAYMENT_CAPTION_KEYS,
+  ViewTypeEnum,
+} from '~/core/constants/billingObjectViewTypes'
+import { PaymentMethodTypeEnum } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCustomerPaymentConnections } from '~/hooks/customer/useCustomerPaymentConnections'
+import { usePaymentMethodsList } from '~/hooks/customer/usePaymentMethodsList'
+import { withForm } from '~/hooks/forms/useAppform'
+
+import { ConnectionPaymentMethodFields } from './ConnectionPaymentMethodFields'
+import { CONNECTION_PAYMENT_SETTINGS_DEFAULT_VALUES } from './connectionPaymentSettingsSchema'
+
+export const CONNECTION_NO_DEFAULT_CHIP_TEST_ID = 'connection-payment-no-default-connection-chip'
+export const CONNECTION_DEFAULT_CHIP_TEST_ID = 'connection-payment-default-connection-chip'
+export const CONNECTION_MANUAL_DEFAULT_CHIP_TEST_ID = 'connection-payment-manual-default-chip'
+
+const CONNECTION_BEHAVIOR_RADIO_NAME = 'paymentConnectionBehavior'
+
+const toResetPaymentMethod = (behavior: ConnectionBehavior): SelectedPaymentMethod => ({
+  paymentMethodId: null,
+  paymentMethodType:
+    behavior === ConnectionBehavior.SKIP
+      ? PaymentMethodTypeEnum.Manual
+      : PaymentMethodTypeEnum.Provider,
+})
+
+interface ConnectionPaymentSettingsDrawerContentExtraProps {
+  viewType: ViewTypeEnum
+  customerId: string
+  externalCustomerId: string
+}
+
+const contentDefaultProps: ConnectionPaymentSettingsDrawerContentExtraProps = {
+  viewType: ViewTypeEnum.WalletTopUp,
+  customerId: '',
+  externalCustomerId: '',
+}
+
+export const ConnectionPaymentSettingsDrawerContent = withForm({
+  defaultValues: CONNECTION_PAYMENT_SETTINGS_DEFAULT_VALUES,
+  props: contentDefaultProps,
+  render: function ConnectionPaymentSettingsDrawerContentRender({
+    form,
+    viewType,
+    customerId,
+    externalCustomerId,
+  }) {
+    const { translate } = useInternationalization()
+
+    const connection = useStore(form.store, (s) => s.values.connection)
+    const paymentMethod = useStore(form.store, (s) => s.values.paymentMethod)
+    const connectionError = useStore(
+      form.store,
+      (s) => s.fieldMeta.connection?.errors?.[0]?.message,
+    )
+    const paymentMethodError = useStore(
+      form.store,
+      (s) => s.fieldMeta.paymentMethod?.errors?.[0]?.message,
+    )
+
+    const behavior = deriveConnectionBehavior(connection)
+    const {
+      connections,
+      defaultConnection,
+      isDefaultManual,
+      loading: loadingConnections,
+    } = useCustomerPaymentConnections({ customerId })
+
+    const getResolvedConnection = () => {
+      if (behavior === ConnectionBehavior.SKIP) return undefined
+      if (behavior === ConnectionBehavior.SPECIFIC) {
+        return connections.find((item) => item.code === connection?.code)
+      }
+
+      return defaultConnection
+    }
+
+    const resolvedConnection = getResolvedConnection()
+
+    // The connection-scoped query reads through the singular `providerCustomer`, so it only ever
+    // answers for one connection. Filtering the customer-wide list keeps every connection answerable.
+    const {
+      data: customerPaymentMethods,
+      loading: loadingPaymentMethods,
+      error: paymentMethodsError,
+    } = usePaymentMethodsList({
+      externalCustomerId,
+      withDeleted: false,
+      skip: !resolvedConnection,
+    })
+
+    const connectionPaymentMethods = resolvedConnection
+      ? customerPaymentMethods.filter(
+          (method) => method.paymentProviderCustomerId === resolvedConnection.id,
+        )
+      : []
+
+    const defaultPaymentMethod = connectionPaymentMethods.find((method) => method.isDefault)
+
+    // Skipping the methods query reports `loading: false`, so a stored method would read as foreign
+    // while the connections are still resolving, or when either query failed.
+    const methodsAnswered =
+      !!resolvedConnection && !loadingConnections && !loadingPaymentMethods && !paymentMethodsError
+
+    const selectedMethodId = paymentMethod?.paymentMethodId
+    const selectedMethodIsForeign =
+      !!selectedMethodId &&
+      methodsAnswered &&
+      !connectionPaymentMethods.some((method) => method.id === selectedMethodId)
+
+    useEffect(() => {
+      if (!selectedMethodIsForeign) return
+
+      form.setFieldValue('paymentMethod', {
+        paymentMethodId: null,
+        paymentMethodType: PaymentMethodTypeEnum.Provider,
+      })
+    }, [selectedMethodIsForeign, form])
+
+    const handleConnectionChange = (value: typeof connection): void => {
+      form.setFieldValue('connection', value)
+      form.setFieldValue('paymentMethod', toResetPaymentMethod(deriveConnectionBehavior(value)))
+    }
+
+    const renderBadge = (optionBehavior: ConnectionBehavior) => {
+      if (optionBehavior !== ConnectionBehavior.INHERIT) return null
+
+      if (isDefaultManual) {
+        return (
+          <Chip
+            label={translate('text_173799550683709p2rqkoqd5')}
+            data-test={CONNECTION_MANUAL_DEFAULT_CHIP_TEST_ID}
+          />
+        )
+      }
+
+      if (!defaultConnection) {
+        return (
+          <Chip
+            color="grey600"
+            label={translate('text_1789382180711vi1jj3immjw')}
+            data-test={CONNECTION_NO_DEFAULT_CHIP_TEST_ID}
+          />
+        )
+      }
+
+      return (
+        <Chip
+          label={
+            <span className="flex items-center gap-2">
+              {!!defaultConnection.provider && (
+                <Avatar size="small" variant="connector-full">
+                  {paymentAvatarMapping[defaultConnection.provider]}
+                </Avatar>
+              )}
+              {defaultConnection.code}
+            </span>
+          }
+          data-test={CONNECTION_DEFAULT_CHIP_TEST_ID}
+        />
+      )
+    }
+
+    const renderMethodFields = () => (
+      <ConnectionPaymentMethodFields
+        key={connection?.code ?? connection?.behavior ?? 'inherit'}
+        viewType={viewType}
+        paymentMethodsList={connectionPaymentMethods}
+        loading={loadingPaymentMethods}
+        defaultPaymentMethod={defaultPaymentMethod}
+        value={paymentMethod}
+        onChange={(value) => form.setFieldValue('paymentMethod', value)}
+        error={paymentMethodError ? translate(paymentMethodError) : undefined}
+      />
+    )
+
+    const renderChoiceContent = ({
+      behavior: optionBehavior,
+      code,
+      onCodeChange,
+    }: {
+      behavior: ConnectionBehavior
+      code: string
+      onCodeChange: (value: string) => void
+    }) => {
+      if (optionBehavior !== ConnectionBehavior.SPECIFIC) return null
+
+      return (
+        <CustomerPaymentConnectionComboBox
+          customerId={customerId}
+          value={code}
+          onChange={onCodeChange}
+          error={connectionError ? translate(connectionError) : undefined}
+          PopperProps={{ displayInDialog: true }}
+        />
+      )
+    }
+
+    const renderSelectedContent = (optionBehavior: ConnectionBehavior) => {
+      if (optionBehavior === ConnectionBehavior.SKIP) return null
+      if (!resolvedConnection) return null
+
+      return renderMethodFields()
+    }
+
+    return (
+      <CenteredPage.SectionWrapper>
+        <CenteredPage.PageTitle
+          title={translate('text_1789381469546g27fewh3r8c')}
+          description={translate(VIEW_TYPE_PAYMENT_CAPTION_KEYS[viewType])}
+        />
+
+        <CenteredPage.PageSection>
+          <CenteredPage.PageSectionTitle
+            title={translate('text_17828013737948943pe3k8nc')}
+            description={translate('text_1789374590509v2b36j2hx7h')}
+          />
+          <ConnectionBehaviorFields
+            name={CONNECTION_BEHAVIOR_RADIO_NAME}
+            value={connection}
+            onChange={handleConnectionChange}
+            labels={{
+              [ConnectionBehavior.INHERIT]: {
+                label: translate('text_17893745905099pokuoi3cgy'),
+              },
+              [ConnectionBehavior.SPECIFIC]: {
+                label: translate('text_1789374590509lq5ubwjbszf'),
+                sublabel: translate('text_1789374590509i8hkubiga0q'),
+              },
+              [ConnectionBehavior.SKIP]: {
+                label: translate('text_1789374590509hp59xx8xxb2'),
+                sublabel: translate('text_17893745905093cihf2jox45'),
+              },
+            }}
+            renderBadge={renderBadge}
+            renderChoiceContent={renderChoiceContent}
+            renderSelectedContent={renderSelectedContent}
+          />
+        </CenteredPage.PageSection>
+      </CenteredPage.SectionWrapper>
+    )
+  },
+})

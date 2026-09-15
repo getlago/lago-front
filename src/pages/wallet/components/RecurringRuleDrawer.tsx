@@ -10,6 +10,7 @@ import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { ButtonSelector, ComboBox, Switch } from '~/components/form'
 import { InvoicingSettingsSelector } from '~/components/invoicingSettings/InvoicingSettingsSelector'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
+import { ConnectionPaymentSettingsSelector } from '~/components/paymentSettings/connectionFirst/ConnectionPaymentSettingsSelector'
 import { PaymentSettingsSelector } from '~/components/paymentSettings/PaymentSettingsSelector'
 import { PurchaseOrderFormBlock } from '~/components/purchaseOrder/PurchaseOrderFormBlock'
 import { getWordingForWalletCreationAlert } from '~/components/wallets/utils'
@@ -32,6 +33,7 @@ import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { intlFormatDateTime } from '~/core/timezone'
 import {
   CurrencyEnum,
+  FeatureFlagEnum,
   GetCustomerInfosForWalletFormQuery,
   RecurringTransactionIntervalEnum,
   RecurringTransactionMethodEnum,
@@ -39,6 +41,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm, withForm } from '~/hooks/forms/useAppform'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { TransactionMetadataGroup } from '~/pages/wallet/components/TransactionMetadataGroup'
 import { topUpAmountError, walletFormErrorCodes } from '~/pages/wallet/form'
 import { recurringRuleValidationSchema } from '~/pages/wallet/formInitialization/validationSchema'
@@ -100,8 +103,40 @@ const RecurringRuleDrawerContent = withForm({
     walletValues,
   }) {
     const { translate } = useInternationalization()
+    const { hasFeatureFlag } = useOrganizationInfos()
 
     const rule = useStore(form.store, (state) => state.values)
+
+    const isMultiConnectionEnabled = hasFeatureFlag(FeatureFlagEnum.MultiConnection)
+
+    const renderPaymentSettingsSelector = (customerId: string, externalCustomerId: string) => {
+      if (!isMultiConnectionEnabled) {
+        return (
+          <PaymentSettingsSelector
+            viewType={ViewTypeEnum.WalletRecurringTopUp}
+            externalCustomerId={externalCustomerId}
+            value={rule.paymentMethod}
+            onChange={(value) => form.setFieldValue('paymentMethod', value)}
+            data-test={RECURRING_RULE_PAYMENT_SETTINGS_SELECTOR_DATA_TEST}
+          />
+        )
+      }
+
+      return (
+        <ConnectionPaymentSettingsSelector
+          viewType={ViewTypeEnum.WalletRecurringTopUp}
+          customerId={customerId}
+          externalCustomerId={externalCustomerId}
+          connection={rule.paymentConnection}
+          paymentMethod={rule.paymentMethod}
+          onChange={({ connection, paymentMethod }) => {
+            form.setFieldValue('paymentConnection', connection)
+            form.setFieldValue('paymentMethod', paymentMethod)
+          }}
+          data-test={RECURRING_RULE_PAYMENT_SETTINGS_SELECTOR_DATA_TEST}
+        />
+      )
+    }
 
     const { currency, rateAmount, paidTopUpMinAmountCents, paidTopUpMaxAmountCents } = walletValues
 
@@ -512,18 +547,19 @@ const RecurringRuleDrawerContent = withForm({
           {customerData?.customer?.externalId && (
             <CenteredPage.PageSection>
               <CenteredPage.PageSectionTitle
-                title={translate('text_1784888105056o78z8t3kjrg')}
+                title={translate(
+                  isMultiConnectionEnabled
+                    ? 'text_1789381469546g27fewh3r8c'
+                    : 'text_1784888105056o78z8t3kjrg',
+                )}
                 description={translate(
                   VIEW_TYPE_PAYMENT_CAPTION_KEYS[ViewTypeEnum.WalletRecurringTopUp],
                 )}
               />
-              <PaymentSettingsSelector
-                viewType={ViewTypeEnum.WalletRecurringTopUp}
-                externalCustomerId={customerData.customer.externalId}
-                value={rule.paymentMethod}
-                onChange={(value) => form.setFieldValue('paymentMethod', value)}
-                data-test={RECURRING_RULE_PAYMENT_SETTINGS_SELECTOR_DATA_TEST}
-              />
+              {renderPaymentSettingsSelector(
+                customerData.customer.id,
+                customerData.customer.externalId,
+              )}
             </CenteredPage.PageSection>
           )}
 

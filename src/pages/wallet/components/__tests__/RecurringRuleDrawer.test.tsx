@@ -69,6 +69,22 @@ jest.mock('~/components/paymentSettings/PaymentSettingsSelector', () => ({
   },
 }))
 
+const mockConnectionPaymentSelector = jest.fn()
+const mockHasFeatureFlag = jest.fn(() => false)
+
+jest.mock('~/components/paymentSettings/connectionFirst/ConnectionPaymentSettingsSelector', () => ({
+  ConnectionPaymentSettingsSelector: (props: Record<string, unknown>) => {
+    mockConnectionPaymentSelector(props)
+
+    return null
+  },
+}))
+
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  ...jest.requireActual('~/hooks/useOrganizationInfos'),
+  useOrganizationInfos: () => ({ hasFeatureFlag: mockHasFeatureFlag }),
+}))
+
 const customerData = {
   customer: {
     id: 'customer-id',
@@ -126,6 +142,7 @@ type OpenedDrawer = {
 describe('RecurringRuleDrawer', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockHasFeatureFlag.mockReturnValue(false)
   })
 
   // The hook has to run inside a component; this host exposes its openDrawer
@@ -774,6 +791,38 @@ describe('RecurringRuleDrawer', () => {
         await waitFor(() => {
           expect(queryInput('paidCredits')).toHaveValue('')
         })
+      })
+    })
+  })
+
+  describe('GIVEN the multi-connection flag', () => {
+    describe('WHEN it is off', () => {
+      it('THEN should keep mounting the legacy payment settings selector', () => {
+        const { open } = renderDrawer()
+
+        openAndMount(open)
+
+        expect(mockPaymentSelector).toHaveBeenCalled()
+        expect(mockConnectionPaymentSelector).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN it is on', () => {
+      it('THEN should mount the connection-first selector keeping the rule data-test', () => {
+        mockHasFeatureFlag.mockReturnValue(true)
+
+        const { open } = renderDrawer()
+
+        openAndMount(open)
+
+        expect(mockPaymentSelector).not.toHaveBeenCalled()
+        expect(mockConnectionPaymentSelector).toHaveBeenCalledWith(
+          expect.objectContaining({
+            viewType: ViewTypeEnum.WalletRecurringTopUp,
+            customerId: 'customer-id',
+            'data-test': RECURRING_RULE_PAYMENT_SETTINGS_SELECTOR_DATA_TEST,
+          }),
+        )
       })
     })
   })
