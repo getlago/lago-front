@@ -3,10 +3,10 @@ import { ConnectionBehaviorFields } from '~/components/connectionSelection/Conne
 import { CustomerIntegrationConnectionComboBox } from '~/components/connectionSelection/CustomerIntegrationConnectionComboBox'
 import { ConnectionBehavior, SelectedConnection } from '~/components/connectionSelection/types'
 import {
-  CONNECTION_CATEGORY_SHORT_LABEL_KEYS,
   ConnectionCategory,
   IntegrationConnectionCategory,
 } from '~/components/customerConnections/types'
+import { Alert } from '~/components/designSystem/Alert'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Chip } from '~/components/designSystem/Chip'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
@@ -25,16 +25,24 @@ export const getAdditionalIntegrationNoDefaultChipTestId = (
   category: IntegrationConnectionCategory,
 ): string => `additional-integration-no-default-chip-${category}`
 
+export const ADDITIONAL_INTEGRATION_TAX_DISCLAIMER_TEST_ID = 'additional-integration-tax-disclaimer'
+
+const SECTION_TITLE_KEYS: Record<IntegrationConnectionCategory, string> = {
+  [ConnectionCategory.Accounting]: 'text_1789484418604g11y3mfz7wg',
+  [ConnectionCategory.Crm]: 'text_1789484418604u9jwo53k9x1',
+  [ConnectionCategory.Tax]: 'text_1789484418604tf121luenvy',
+}
+
 const SECTION_DESCRIPTION_KEYS: Record<IntegrationConnectionCategory, string> = {
   [ConnectionCategory.Accounting]: 'text_17894722527939a63qfcbsq7',
   [ConnectionCategory.Crm]: 'text_1789472252793b2pou5uhlga',
   [ConnectionCategory.Tax]: 'text_17894722527934hwum28uzp9',
 }
 
-const INHERIT_LABEL_KEYS: Record<IntegrationConnectionCategory, string> = {
-  [ConnectionCategory.Accounting]: 'text_17894722527938f62t2pxak2',
-  [ConnectionCategory.Crm]: 'text_1789472252793n31n0milktd',
-  [ConnectionCategory.Tax]: 'text_1789472252793fujnc22e4yz',
+const SPECIFIC_SUBLABEL_KEYS: Record<IntegrationConnectionCategory, string> = {
+  [ConnectionCategory.Accounting]: 'text_17894844186055sp1oza9yto',
+  [ConnectionCategory.Crm]: 'text_1789484418605ycq3wm3ui4f',
+  [ConnectionCategory.Tax]: 'text_1789484418605umweat8mggj',
 }
 
 const SKIP_LABEL_KEYS: Record<IntegrationConnectionCategory, string> = {
@@ -124,7 +132,7 @@ export const AdditionalIntegrationSettingsSection = ({
   return (
     <CenteredPage.PageSection>
       <CenteredPage.PageSectionTitle
-        title={translate(CONNECTION_CATEGORY_SHORT_LABEL_KEYS[category])}
+        title={translate(SECTION_TITLE_KEYS[category])}
         description={translate(SECTION_DESCRIPTION_KEYS[category])}
       />
       <div data-test={getAdditionalIntegrationSectionTestId(category)}>
@@ -134,10 +142,11 @@ export const AdditionalIntegrationSettingsSection = ({
           onChange={onChange}
           labels={{
             [ConnectionBehavior.INHERIT]: {
-              label: translate(INHERIT_LABEL_KEYS[category]),
+              label: translate('text_1789484418605ewe86zu0g4c'),
             },
             [ConnectionBehavior.SPECIFIC]: {
               label: translate('text_1789374590509lq5ubwjbszf'),
+              sublabel: translate(SPECIFIC_SUBLABEL_KEYS[category]),
             },
             [ConnectionBehavior.SKIP]: {
               label: translate(SKIP_LABEL_KEYS[category]),
@@ -148,6 +157,11 @@ export const AdditionalIntegrationSettingsSection = ({
           renderChoiceContent={renderChoiceContent}
         />
       </div>
+      {category === ConnectionCategory.Tax && (
+        <Alert type="info" data-test={ADDITIONAL_INTEGRATION_TAX_DISCLAIMER_TEST_ID}>
+          {translate('text_1789484418605toonu3phjvh')}
+        </Alert>
+      )}
     </CenteredPage.PageSection>
   )
 }

@@ -27,6 +27,7 @@ import {
   SHOW_RECURRING_EXPIRATION_AT_DATA_TEST,
 } from '~/components/wallets/utils/dataTestConstants'
 import {
+  VIEW_TYPE_INTEGRATIONS_CAPTION_KEYS,
   VIEW_TYPE_INVOICING_CAPTION_KEYS,
   VIEW_TYPE_PAYMENT_CAPTION_KEYS,
   ViewTypeEnum,
@@ -585,6 +586,12 @@ const RecurringRuleDrawerContent = withForm({
 
           {isMultiConnectionEnabled && !!customerData?.customer?.id && (
             <CenteredPage.PageSection>
+              <CenteredPage.PageSectionTitle
+                title={translate('text_1789472252793twqbda38ec2')}
+                description={translate(
+                  VIEW_TYPE_INTEGRATIONS_CAPTION_KEYS[ViewTypeEnum.WalletRecurringTopUp],
+                )}
+              />
               {renderAdditionalIntegrationSettingsSelector(customerData.customer.id)}
             </CenteredPage.PageSection>
           )}

@@ -13,6 +13,7 @@ import { ConnectionPaymentSettingsSelector } from '~/components/paymentSettings/
 import { PaymentSettingsSelector } from '~/components/paymentSettings/PaymentSettingsSelector'
 import { ADD_RECURRING_RULE_BUTTON_DATA_TEST } from '~/components/wallets/utils/dataTestConstants'
 import {
+  VIEW_TYPE_INTEGRATIONS_CAPTION_KEYS,
   VIEW_TYPE_INVOICING_CAPTION_KEYS,
   VIEW_TYPE_PAYMENT_CAPTION_KEYS,
   ViewTypeEnum,
@@ -299,6 +300,14 @@ export const TopUpSection = withForm({
 
         {!!additionalIntegrationCustomerId && (
           <section className="flex w-full flex-col gap-6">
+            <div className="flex flex-col gap-1">
+              <Typography variant="subhead1">
+                {translate('text_1789472252793twqbda38ec2')}
+              </Typography>
+              <Typography variant="caption">
+                {translate(VIEW_TYPE_INTEGRATIONS_CAPTION_KEYS[ViewTypeEnum.WalletTopUp])}
+              </Typography>
+            </div>
             {renderAdditionalIntegrationSettingsSelector(additionalIntegrationCustomerId)}
           </section>
         )}

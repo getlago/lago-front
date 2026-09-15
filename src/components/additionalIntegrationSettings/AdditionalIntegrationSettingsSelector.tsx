@@ -17,7 +17,7 @@ export const ADDITIONAL_INTEGRATION_SETTINGS_SELECTOR_TEST_ID =
   'additional-integration-settings-selector'
 
 export const ADDITIONAL_INTEGRATION_SUMMARY_KEY_BY_BEHAVIOR: Record<ConnectionBehavior, string> = {
-  [ConnectionBehavior.INHERIT]: 'text_1789374590510l3b1mod7l77',
+  [ConnectionBehavior.INHERIT]: 'text_17894845850934kgklcyl5dz',
   [ConnectionBehavior.SPECIFIC]: 'text_17893745905100lz4yq92hs3',
   [ConnectionBehavior.SKIP]: 'text_1789472252793x3dxbqu3x10',
 }
@@ -62,8 +62,8 @@ export const AdditionalIntegrationSettingsSelector = ({
 
   return (
     <Selector
-      icon="apps"
-      title={translate('text_1789472252793twqbda38ec2')}
+      icon="plug"
+      title={translate('text_1789484166778dwpk49ynwbz')}
       subtitle={getSubtitle()}
       endContent={<Button icon="chevron-right-filled" variant="quaternary" tabIndex={-1} />}
       onClick={() => openDrawer(values)}

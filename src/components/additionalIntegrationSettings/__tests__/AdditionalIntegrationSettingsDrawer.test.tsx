@@ -18,6 +18,7 @@ import { render } from '~/test-utils'
 
 import { ADDITIONAL_INTEGRATION_CATEGORIES } from '../additionalIntegrationSettingsSchema'
 import {
+  ADDITIONAL_INTEGRATION_TAX_DISCLAIMER_TEST_ID,
   getAdditionalIntegrationDefaultChipTestId,
   getAdditionalIntegrationNoDefaultChipTestId,
   getAdditionalIntegrationSectionTestId,
@@ -494,6 +495,23 @@ describe('AdditionalIntegrationSettingsSelector', () => {
             getAdditionalIntegrationDefaultChipTestId(ConnectionCategory.Accounting),
           ),
         ).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN prepaid credit invoices carry no tax', () => {
+    describe('WHEN the drawer content mounts', () => {
+      it('THEN should disclaim it under the tax section only', async () => {
+        const { opened } = await openDrawerFromSelector()
+
+        render(<>{opened.children}</>)
+
+        expect(
+          within(sectionOf(ConnectionCategory.Tax).closest('section') as HTMLElement).getByTestId(
+            ADDITIONAL_INTEGRATION_TAX_DISCLAIMER_TEST_ID,
+          ),
+        ).toBeInTheDocument()
+        expect(screen.getAllByTestId(ADDITIONAL_INTEGRATION_TAX_DISCLAIMER_TEST_ID)).toHaveLength(1)
       })
     })
   })
