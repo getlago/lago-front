@@ -19,7 +19,6 @@ import {
   ProductFilterForListFragment,
   ProductForFilterPreviewFragment,
 } from '~/generated/graphql'
-import { DEBOUNCE_SEARCH_MS } from '~/hooks/useDebouncedSearch'
 import { AllTheProviders } from '~/test-utils'
 
 import ProductFilterPreview, {
@@ -165,9 +164,6 @@ describe('ProductFilterPreview', () => {
   })
 
   it('re-runs the query with the search term when the user searches', async () => {
-    // The search runs through useDebouncedSearch, which burns DEBOUNCE_SEARCH_MS on a real
-    // timer plus a second delay in its loading-blink guard. Waiting that out on the wall
-    // clock makes the assertion race CI load, so drive the timers explicitly instead.
     jest.useFakeTimers()
 
     await act(() =>
@@ -185,13 +181,10 @@ describe('ProductFilterPreview', () => {
       target: { value: 'region' },
     })
 
-    // First pass fires the debounced query, second flushes the mocked link and the
-    // loading-blink timeout that gates the result render.
+    // runAllTimersAsync, not advanceTimersByTimeAsync: MockLink's response timer for
+    // the search query is itself created by this flush, so a fixed-width advance misses it.
     await act(async () => {
-      jest.advanceTimersByTime(DEBOUNCE_SEARCH_MS)
-    })
-    await act(async () => {
-      jest.advanceTimersByTime(DEBOUNCE_SEARCH_MS)
+      await jest.runAllTimersAsync()
     })
 
     expect(screen.getByText('Searched region')).toBeInTheDocument()

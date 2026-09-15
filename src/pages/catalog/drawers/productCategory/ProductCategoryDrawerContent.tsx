@@ -1,19 +1,14 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
-import { BASE_DRAWER_CONTENT_ATTR } from '~/components/drawers/const'
-import {
-  CreateMoreResetSignal,
-  useCreateMoreResetIteration,
-} from '~/components/drawers/createMore/useCreateMore'
-import { focusFirstInput } from '~/components/drawers/useFocusTrap'
+import { CreateMoreResetBoundary } from '~/components/drawers/createMore/CreateMoreResetBoundary'
+import { CreateMoreResetSignal } from '~/components/drawers/createMore/useCreateMore'
 import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
-import { tw } from '~/styles/utils'
 
 import { PRODUCT_FORM_DEFAULTS } from './constants'
 
@@ -169,31 +164,14 @@ export const ProductCategoryDrawerContent = withForm({
     disableCodeInput,
     resetSignal,
   }) {
-    const rootRef = useRef<HTMLDivElement>(null)
-    const resetIteration = useCreateMoreResetIteration(resetSignal)
-
-    useEffect(() => {
-      if (resetIteration === 0) return
-
-      rootRef.current
-        ?.closest<HTMLElement>(`[${BASE_DRAWER_CONTENT_ATTR}]`)
-        ?.scrollTo({ top: 0, behavior: 'smooth' })
-      focusFirstInput(rootRef.current)
-    }, [resetIteration])
-
     return (
-      <div ref={rootRef}>
-        <div
-          key={resetIteration}
-          className={tw('flex flex-col gap-12', resetIteration > 0 && 'animate-fade-in-right')}
-        >
-          <ProductCategoryDrawerFormSections
-            form={form}
-            isEdit={isEdit}
-            disableCodeInput={disableCodeInput}
-          />
-        </div>
-      </div>
+      <CreateMoreResetBoundary resetSignal={resetSignal}>
+        <ProductCategoryDrawerFormSections
+          form={form}
+          isEdit={isEdit}
+          disableCodeInput={disableCodeInput}
+        />
+      </CreateMoreResetBoundary>
     )
   },
 })

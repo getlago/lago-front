@@ -3,7 +3,8 @@ import { useCallback } from 'react'
 import { generatePath } from 'react-router'
 
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
-import { Table, TableColumn, TablePlaceholder } from '~/components/designSystem/Table/Table'
+import { buildSearchAwareTablePlaceholder } from '~/components/designSystem/Table/buildSearchAwareTablePlaceholder'
+import { Table, TableColumn } from '~/components/designSystem/Table/Table'
 import { ActionColumn, ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
@@ -179,34 +180,19 @@ const ProductCategoriesList = () => {
     },
   ]
 
-  const placeholder: TablePlaceholder = {
-    errorState: variables?.searchTerm
+  const placeholder = buildSearchAwareTablePlaceholder({
+    translate,
+    hasSearchTerm: !!variables?.searchTerm,
+    noResultTitleKey: 'text_1783622030703xtzifa6nivi',
+    emptyTitleKey: 'text_1783622030703gf47xn4zdit',
+    emptySubtitleKey: 'text_1783622030703a20cxlyb5xr',
+    emptyAction: canCreateProductCategories
       ? {
-          title: translate('text_623b53fea66c76017eaebb6e'),
-          subtitle: translate('text_63bab307a61c62af497e0599'),
+          buttonTitleKey: 'text_1783622030703h5vhmp73muk',
+          onClick: () => openProductCategoryDrawer(),
         }
-      : {
-          title: translate('text_629728388c4d2300e2d380d5'),
-          subtitle: translate('text_629728388c4d2300e2d380eb'),
-          buttonTitle: translate('text_629728388c4d2300e2d38110'),
-          buttonVariant: 'primary',
-          buttonAction: () => location.reload(),
-        },
-    emptyState: variables?.searchTerm
-      ? {
-          title: translate('text_1783622030703xtzifa6nivi'),
-          subtitle: translate('text_63bee4e10e2d53912bfe4da7'),
-        }
-      : {
-          title: translate('text_1783622030703gf47xn4zdit'),
-          subtitle: translate('text_1783622030703a20cxlyb5xr'),
-          ...(canCreateProductCategories && {
-            buttonTitle: translate('text_1783622030703h5vhmp73muk'),
-            buttonVariant: 'primary',
-            buttonAction: () => openProductCategoryDrawer(),
-          }),
-        },
-  }
+      : undefined,
+  })
 
   // Inset layout (per design, same as the customer subscriptions tab): the
   // wrapper owns the page gutter so the row dividers and the pager border stop
