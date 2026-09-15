@@ -1,3 +1,5 @@
+import { useEffect } from 'react'
+
 import { buildConnectionComboBoxData } from '~/components/customerConnections/ConnectionComboBox'
 import {
   CONNECTION_CATEGORY_SELECT_TITLE_KEYS,
@@ -28,7 +30,15 @@ export const CustomerIntegrationConnectionComboBox = ({
   const { translate } = useInternationalization()
   const { options, loading } = useCustomerIntegrationConnections({ customerId, category })
 
-  const selectedValue = options.some((option) => option.value === value) ? value : undefined
+  const isValueSelectable = options.some((option) => option.value === value)
+
+  // A connection deleted on the customer after the object was saved must not survive in the form:
+  // the schema only refines on an empty code, so a dangling one would re-persist without an error.
+  useEffect(() => {
+    if (loading || !value || isValueSelectable) return
+
+    onChange('')
+  }, [loading, value, isValueSelectable, onChange])
 
   return (
     <ComboBox
@@ -37,7 +47,7 @@ export const CustomerIntegrationConnectionComboBox = ({
       data={buildConnectionComboBoxData(options)}
       placeholder={translate(CONNECTION_CATEGORY_SELECT_TITLE_KEYS[category])}
       emptyText={translate('text_1789374590510g6jwxpdsf9q')}
-      value={selectedValue}
+      value={isValueSelectable ? value : undefined}
       onChange={onChange}
       error={error}
       sortValues={false}

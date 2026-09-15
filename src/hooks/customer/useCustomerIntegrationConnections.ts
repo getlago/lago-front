@@ -3,7 +3,7 @@ import { gql } from '@apollo/client'
 import { ConnectionComboBoxDataItem } from '~/components/customerConnections/ConnectionComboBox'
 import { INTEGRATION_TYPE_TO_CATEGORY } from '~/components/customerConnections/customerIntegrationConst'
 import { IntegrationConnectionCategory } from '~/components/customerConnections/types'
-import { useConnectionOptions } from '~/components/customerConnections/useConnectionOptions'
+import { useCategoryIntegrationOptions } from '~/components/customerConnections/useCategoryIntegrationOptions'
 import { IntegrationTypeEnum, useCustomerIntegrationConnectionsQuery } from '~/generated/graphql'
 
 gql`
@@ -95,9 +95,10 @@ export const useCustomerIntegrationConnections = ({
     variables: { customerId },
     skip: skip || !customerId,
   })
-  const { connectionOptions, isLoading } = useConnectionOptions()
-
-  const organizationIntegrations = connectionOptions[category] || []
+  const { options: organizationIntegrations, isLoading } = useCategoryIntegrationOptions({
+    category,
+    skip: skip || !customerId,
+  })
 
   const connections = (data?.customer?.integrationCustomers || []).reduce<
     CustomerIntegrationConnection[]

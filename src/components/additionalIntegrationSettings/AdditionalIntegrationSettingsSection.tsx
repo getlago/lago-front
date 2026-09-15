@@ -65,10 +65,11 @@ export const AdditionalIntegrationSettingsSection = ({
   error,
 }: AdditionalIntegrationSettingsSectionProps) => {
   const { translate } = useInternationalization()
-  const { defaultConnection } = useCustomerIntegrationConnections({ customerId, category })
+  const { defaultConnection, loading } = useCustomerIntegrationConnections({ customerId, category })
 
   const renderBadge = (optionBehavior: ConnectionBehavior) => {
     if (optionBehavior !== ConnectionBehavior.INHERIT) return null
+    if (loading) return null
 
     if (!defaultConnection) {
       return (

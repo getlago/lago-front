@@ -69,6 +69,8 @@ const mockConnectionsByCategory = {
   current: {} as Partial<Record<IntegrationConnectionCategory, CustomerIntegrationConnection[]>>,
 }
 
+const mockConnectionsLoading = { current: false }
+
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (key: string) => key, locale: 'en' }),
 }))
@@ -99,7 +101,7 @@ jest.mock('~/hooks/customer/useCustomerIntegrationConnections', () => ({
         isDefault: connection.isDefault,
       })),
       defaultConnection: connections.find((connection) => connection.isDefault),
-      loading: false,
+      loading: mockConnectionsLoading.current,
     }
   },
 }))
@@ -147,6 +149,7 @@ const comboBoxIn = (category: IntegrationConnectionCategory) =>
 describe('AdditionalIntegrationSettingsSelector', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockConnectionsLoading.current = false
     mockConnectionsByCategory.current = {
       [ConnectionCategory.Accounting]: [NETSUITE_CONNECTION],
       [ConnectionCategory.Crm]: [HUBSPOT_CONNECTION],
@@ -492,6 +495,33 @@ describe('AdditionalIntegrationSettingsSelector', () => {
           ),
         ).toBeInTheDocument()
       })
+    })
+  })
+
+  describe('GIVEN the customer connections are still loading', () => {
+    describe('WHEN the drawer content mounts', () => {
+      it.each(ADDITIONAL_INTEGRATION_CATEGORIES)(
+        'THEN should show no badge on the %s inherit option',
+        async (category) => {
+          mockConnectionsLoading.current = true
+          mockConnectionsByCategory.current[category] = []
+
+          const { opened } = await openDrawerFromSelector()
+
+          render(<>{opened.children}</>)
+
+          expect(
+            within(sectionOf(category)).queryByTestId(
+              getAdditionalIntegrationNoDefaultChipTestId(category),
+            ),
+          ).not.toBeInTheDocument()
+          expect(
+            within(sectionOf(category)).queryByTestId(
+              getAdditionalIntegrationDefaultChipTestId(category),
+            ),
+          ).not.toBeInTheDocument()
+        },
+      )
     })
   })
 })

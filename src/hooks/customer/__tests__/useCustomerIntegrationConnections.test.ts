@@ -13,27 +13,33 @@ import { useCustomerIntegrationConnections } from '../useCustomerIntegrationConn
 
 const CUSTOMER_ID = 'customer-1'
 
-// The three org-integration queries share the `integrations(limit: 1000)` cache field, so
-// mocking them one category at a time makes the last write erase the others.
-jest.mock('~/components/customerConnections/useConnectionOptions', () => ({
-  useConnectionOptions: () => ({
-    connectionOptions: {
-      accounting: [
-        { value: 'netsuite_eu', label: 'Netsuite EU', subLabel: 'netsuite_eu', group: 'Netsuite' },
-        { value: 'xero_uk', label: 'Xero UK', subLabel: 'xero_uk', group: 'Xero' },
-      ],
-      crm: [
-        {
-          value: 'hubspot_main',
-          label: 'Hubspot Main',
-          subLabel: 'hubspot_main',
-          group: 'Hubspot',
-        },
-      ],
-      tax: [{ value: 'anrok_eu', label: 'Anrok EU', subLabel: 'anrok_eu', group: 'Anrok' }],
-    },
-    isLoading: false,
-  }),
+const ORGANIZATION_OPTIONS = {
+  accounting: [
+    { value: 'netsuite_eu', label: 'Netsuite EU', subLabel: 'netsuite_eu', group: 'Netsuite' },
+    { value: 'xero_uk', label: 'Xero UK', subLabel: 'xero_uk', group: 'Xero' },
+  ],
+  crm: [
+    { value: 'hubspot_main', label: 'Hubspot Main', subLabel: 'hubspot_main', group: 'Hubspot' },
+  ],
+  tax: [{ value: 'anrok_eu', label: 'Anrok EU', subLabel: 'anrok_eu', group: 'Anrok' }],
+}
+
+const categoryOptionsArgs: { current: { category: string; skip?: boolean } | null } = {
+  current: null,
+}
+
+jest.mock('~/components/customerConnections/useCategoryIntegrationOptions', () => ({
+  useCategoryIntegrationOptions: (args: {
+    category: keyof typeof ORGANIZATION_OPTIONS
+    skip?: boolean
+  }) => {
+    categoryOptionsArgs.current = args
+
+    return {
+      options: args.skip ? [] : ORGANIZATION_OPTIONS[args.category],
+      isLoading: false,
+    }
+  },
 }))
 
 type IntegrationCustomerRow = {
@@ -115,6 +121,10 @@ const prepare = async (
 }
 
 describe('useCustomerIntegrationConnections', () => {
+  beforeEach(() => {
+    categoryOptionsArgs.current = null
+  })
+
   describe('GIVEN a customer carrying connections in every category', () => {
     describe('WHEN the queries resolve', () => {
       it('THEN should keep only the rows belonging to the requested category', async () => {
@@ -261,6 +271,62 @@ describe('useCustomerIntegrationConnections', () => {
         expect(result.current.connections).toEqual([])
         expect(result.current.options).toEqual([])
         expect(result.current.defaultConnection).toBeUndefined()
+      })
+
+      it('THEN should skip the organization integrations too', async () => {
+        const customWrapper = ({ children }: { children: React.ReactNode }) =>
+          AllTheProviders({ children, mocks: [], forceTypenames: true })
+
+        renderHook(
+          () => useCustomerIntegrationConnections({ category: ConnectionCategory.Accounting }),
+          { wrapper: customWrapper },
+        )
+
+        await act(() => wait(0))
+
+        expect(categoryOptionsArgs.current).toEqual({
+          category: ConnectionCategory.Accounting,
+          skip: true,
+        })
+      })
+    })
+  })
+
+  describe('GIVEN the caller skips the hook', () => {
+    describe('WHEN it runs with a customer id', () => {
+      it('THEN should skip the organization integrations as well', async () => {
+        const customWrapper = ({ children }: { children: React.ReactNode }) =>
+          AllTheProviders({ children, mocks: [], forceTypenames: true })
+
+        renderHook(
+          () =>
+            useCustomerIntegrationConnections({
+              customerId: CUSTOMER_ID,
+              category: ConnectionCategory.Accounting,
+              skip: true,
+            }),
+          { wrapper: customWrapper },
+        )
+
+        await act(() => wait(0))
+
+        expect(categoryOptionsArgs.current).toEqual({
+          category: ConnectionCategory.Accounting,
+          skip: true,
+        })
+      })
+    })
+  })
+
+  describe('GIVEN the hook runs for a category', () => {
+    describe('WHEN the customer query is active', () => {
+      it('THEN should ask the organization integrations for that category only', async () => {
+        await prepare(ConnectionCategory.Crm)
+
+        expect(categoryOptionsArgs.current).toEqual({
+          category: ConnectionCategory.Crm,
+          skip: false,
+        })
       })
     })
   })

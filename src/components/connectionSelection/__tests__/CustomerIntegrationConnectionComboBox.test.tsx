@@ -126,12 +126,26 @@ describe('CustomerIntegrationConnectionComboBox', () => {
     })
 
     describe('WHEN the stored code is no longer among the options', () => {
-      // A connection removed from the customer after the object was saved would otherwise
-      // render as a raw orphan code the user cannot act on.
       it('THEN should show nothing rather than the stale code', () => {
         const { input } = renderComboBox({ value: 'deleted_connection' })
 
         expect(input).toHaveValue('')
+      })
+
+      it('THEN should clear the stored code so the schema blocks the save', () => {
+        const { onChange } = renderComboBox({ value: 'deleted_connection' })
+
+        expect(onChange).toHaveBeenCalledWith('')
+      })
+    })
+
+    describe('WHEN the options are still loading', () => {
+      it('THEN should keep the stored code untouched', () => {
+        mockLoading.current = true
+
+        const { onChange } = renderComboBox({ value: 'deleted_connection' })
+
+        expect(onChange).not.toHaveBeenCalled()
       })
     })
 
@@ -165,6 +179,16 @@ describe('CustomerIntegrationConnectionComboBox', () => {
   })
 
   describe('GIVEN the customer has no connection in the category', () => {
+    describe('WHEN a code was stored before the connections were removed', () => {
+      it('THEN should clear it', () => {
+        mockConnections.current = []
+
+        const { onChange } = renderComboBox({ value: NETSUITE_CONNECTION.code })
+
+        expect(onChange).toHaveBeenCalledWith('')
+      })
+    })
+
     describe('WHEN the list is opened', () => {
       it('THEN should offer no option', async () => {
         mockConnections.current = []
