@@ -33,12 +33,30 @@ import { TWalletDataForm } from '~/pages/wallet/types'
  *   never reach the update input.
  */
 
+type FormConnections = {
+  paymentConnection?: SelectedConnection
+  accountingConnection?: SelectedConnection
+  crmConnection?: SelectedConnection
+  taxConnection?: SelectedConnection
+}
+
 // An omitted category keeps whatever the backend stored, so an untouched choice must not
 // produce a `connections` key at all: `inherit` would destroy the existing override row.
-const formatConnections = (
-  paymentConnection: SelectedConnection,
-): { connections?: ConnectionsInput } =>
-  paymentConnection ? { connections: { payment: paymentConnection } } : {}
+const formatConnections = ({
+  paymentConnection,
+  accountingConnection,
+  crmConnection,
+  taxConnection,
+}: FormConnections): { connections?: ConnectionsInput } => {
+  const connections: ConnectionsInput = {
+    ...(paymentConnection ? { payment: paymentConnection } : {}),
+    ...(accountingConnection ? { accounting: accountingConnection } : {}),
+    ...(crmConnection ? { crm: crmConnection } : {}),
+    ...(taxConnection ? { tax: taxConnection } : {}),
+  }
+
+  return Object.keys(connections).length ? { connections } : {}
+}
 
 const formatRecurringTransactionRules = (
   recurringTransactionRules: TWalletDataForm['recurringTransactionRules'],
@@ -62,6 +80,9 @@ const formatRecurringTransactionRules = (
       ignorePaidTopUpLimits,
       invoiceCustomSection: ruleInvoiceCustomSection,
       paymentConnection: rulePaymentConnection,
+      accountingConnection: ruleAccountingConnection,
+      crmConnection: ruleCrmConnection,
+      taxConnection: ruleTaxConnection,
       ...rest
     } = rule
 
@@ -101,7 +122,12 @@ const formatRecurringTransactionRules = (
       ),
       // `null` (not `undefined`) on clear → BE erases the stored value.
       purchaseOrderNumber: normalizePurchaseOrderNumber(rule.purchaseOrderNumber),
-      ...formatConnections(rulePaymentConnection),
+      ...formatConnections({
+        paymentConnection: rulePaymentConnection,
+        accountingConnection: ruleAccountingConnection,
+        crmConnection: ruleCrmConnection,
+        taxConnection: ruleTaxConnection,
+      }),
     }
   })
 }
@@ -125,6 +151,9 @@ export const mapFormToCreateInput = (
     priority,
     paymentMethod,
     paymentConnection,
+    accountingConnection,
+    crmConnection,
+    taxConnection,
     invoiceCustomSection,
     billingEntityId,
     ...values
@@ -155,7 +184,12 @@ export const mapFormToCreateInput = (
       ? { paidTopUpMaxAmountCents: serializeAmount(values.paidTopUpMaxAmountCents, currency) }
       : {}),
     priority: priority || WALLET_DEFAULT_PRIORITY,
-    ...formatConnections(paymentConnection),
+    ...formatConnections({
+      paymentConnection,
+      accountingConnection,
+      crmConnection,
+      taxConnection,
+    }),
   }
 }
 
@@ -174,6 +208,9 @@ export const mapFormToUpdateInput = (
     priority,
     paymentMethod,
     paymentConnection,
+    accountingConnection,
+    crmConnection,
+    taxConnection,
     invoiceCustomSection,
     billingEntityId,
     transactionName,
@@ -206,6 +243,11 @@ export const mapFormToUpdateInput = (
       ? { paidTopUpMaxAmountCents: serializeAmount(values.paidTopUpMaxAmountCents, currency) }
       : { paidTopUpMaxAmountCents: null }),
     priority: priority || WALLET_DEFAULT_PRIORITY,
-    ...formatConnections(paymentConnection),
+    ...formatConnections({
+      paymentConnection,
+      accountingConnection,
+      crmConnection,
+      taxConnection,
+    }),
   }
 }

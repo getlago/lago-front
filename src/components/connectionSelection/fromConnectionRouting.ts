@@ -12,10 +12,10 @@ type ConnectionRoutingRow = {
   code?: string | null
 }
 
-export const findPaymentRouting = <T extends ConnectionRoutingRow>(
+export const findConnectionRouting = <T extends ConnectionRoutingRow>(
   connections: T[] | null | undefined,
-): T | undefined =>
-  connections?.find((routing) => routing.category === ConnectionCategoryEnum.Payment)
+  category: ConnectionCategoryEnum,
+): T | undefined => connections?.find((routing) => routing.category === category)
 
 /**
  * `inherit` carries the customer default's code, so reading `code` without branching on

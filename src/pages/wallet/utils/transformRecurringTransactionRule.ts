@@ -1,8 +1,8 @@
 import {
-  findPaymentRouting,
+  findConnectionRouting,
   toSelectedConnection,
 } from '~/components/connectionSelection/fromConnectionRouting'
-import { GetWalletInfosForWalletFormQuery } from '~/generated/graphql'
+import { ConnectionCategoryEnum, GetWalletInfosForWalletFormQuery } from '~/generated/graphql'
 
 type RecurringTransactionRuleFromQuery = NonNullable<
   NonNullable<GetWalletInfosForWalletFormQuery['wallet']>['recurringTransactionRules']
@@ -24,7 +24,18 @@ export const transformRecurringTransactionRule = (rule: RecurringTransactionRule
 
   return {
     ...rules,
-    paymentConnection: toSelectedConnection(findPaymentRouting(rule.connections)),
+    paymentConnection: toSelectedConnection(
+      findConnectionRouting(rule.connections, ConnectionCategoryEnum.Payment),
+    ),
+    accountingConnection: toSelectedConnection(
+      findConnectionRouting(rule.connections, ConnectionCategoryEnum.Accounting),
+    ),
+    crmConnection: toSelectedConnection(
+      findConnectionRouting(rule.connections, ConnectionCategoryEnum.Crm),
+    ),
+    taxConnection: toSelectedConnection(
+      findConnectionRouting(rule.connections, ConnectionCategoryEnum.Tax),
+    ),
     paymentMethod: {
       paymentMethodType: rule.paymentMethodType,
       paymentMethodId: rule.paymentMethod?.id,
