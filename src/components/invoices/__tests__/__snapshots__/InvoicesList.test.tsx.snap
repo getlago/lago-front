@@ -4203,6 +4203,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                 <a
                   aria-label="INV-DRAFT"
                   class="text-inherit hover:no-underline focus:ring-0"
+                  data-discover="true"
                   href="/customer/customer-1/invoice/invoice-draft/overview"
                   tabindex="-1"
                 >
@@ -4489,6 +4490,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                 <a
                   aria-label="INV-FINALIZED"
                   class="text-inherit hover:no-underline focus:ring-0"
+                  data-discover="true"
                   href="/customer/customer-1/invoice/invoice-finalized/overview"
                   tabindex="-1"
                 >
@@ -4796,6 +4798,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different invoice sta
                 <a
                   aria-label="INV-VOIDED"
                   class="text-inherit hover:no-underline focus:ring-0"
+                  data-discover="true"
                   href="/customer/customer-1/invoice/invoice-voided/overview"
                   tabindex="-1"
                 >
@@ -5220,6 +5223,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                 <a
                   aria-label="INV-PENDING"
                   class="text-inherit hover:no-underline focus:ring-0"
+                  data-discover="true"
                   href="/customer/customer-1/invoice/invoice-pending/overview"
                   tabindex="-1"
                 >
@@ -5527,6 +5531,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                 <a
                   aria-label="INV-SUCCEEDED"
                   class="text-inherit hover:no-underline focus:ring-0"
+                  data-discover="true"
                   href="/customer/customer-1/invoice/invoice-succeeded/overview"
                   tabindex="-1"
                 >
@@ -5834,6 +5839,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with different payment sta
                 <a
                   aria-label="INV-FAILED"
                   class="text-inherit hover:no-underline focus:ring-0"
+                  data-discover="true"
                   href="/customer/customer-1/invoice/invoice-failed/overview"
                   tabindex="-1"
                 >
@@ -6632,6 +6638,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                 <a
                   aria-label="INV-001"
                   class="text-inherit hover:no-underline focus:ring-0"
+                  data-discover="true"
                   href="/customer/customer-1/invoice/invoice-1/overview"
                   tabindex="-1"
                 >
@@ -6939,6 +6946,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                 <a
                   aria-label="INV-002"
                   class="text-inherit hover:no-underline focus:ring-0"
+                  data-discover="true"
                   href="/customer/customer-2/invoice/invoice-2/overview"
                   tabindex="-1"
                 >
@@ -7246,6 +7254,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with invoices 1`] = `
                 <a
                   aria-label="INV-003"
                   class="text-inherit hover:no-underline focus:ring-0"
+                  data-discover="true"
                   href="/customer/customer-3/invoice/invoice-3/overview"
                   tabindex="-1"
                 >
@@ -7691,6 +7700,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with overdue invoice 1`] =
                 <a
                   aria-label="INV-001"
                   class="text-inherit hover:no-underline focus:ring-0"
+                  data-discover="true"
                   href="/customer/customer-1/invoice/invoice-1/overview"
                   tabindex="-1"
                 >
@@ -8148,6 +8158,7 @@ exports[`InvoicesList Snapshot Tests matches snapshot with partially paid invoic
                 <a
                   aria-label="INV-001"
                   class="text-inherit hover:no-underline focus:ring-0"
+                  data-discover="true"
                   href="/customer/customer-1/invoice/invoice-1/overview"
                   tabindex="-1"
                 >
