@@ -221,10 +221,10 @@ describe('ProductCategoryDetailsProducts', () => {
 
         const [editAction, deleteAction] = actions
 
-        editAction?.onAction(product)
+        editAction?.onAction?.(product)
         expect(mockOpenProductDrawer).toHaveBeenCalledWith({ product })
 
-        deleteAction?.onAction(product)
+        deleteAction?.onAction?.(product)
         expect(mockOpenDeleteProductDialog).toHaveBeenCalledWith({ product })
       })
 

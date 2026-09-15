@@ -197,6 +197,7 @@ export const CouponDetailsAppliedCoupons = ({ couponCode }: CouponDetailsApplied
           isLoading={loading}
           hasError={!!error}
           rowSize={72}
+          rowLinkLabel={({ customer }) => customer?.name ?? ''}
           onRowActionLink={getRowActionLink}
           placeholder={{
             emptyState: {

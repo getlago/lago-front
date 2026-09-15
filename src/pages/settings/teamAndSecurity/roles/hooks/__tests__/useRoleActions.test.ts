@@ -183,7 +183,9 @@ describe('useRoleActions', () => {
         result.current.navigateToDuplicate(ROLE_ID)
       })
 
-      expect(testMockNavigateFn).toHaveBeenCalledWith('/settings/team-and-security/roles/create')
+      expect(testMockNavigateFn).toHaveBeenCalledWith(
+        `/settings/team-and-security/roles/create?duplicate-from=${ROLE_ID}`,
+      )
     })
   })
 

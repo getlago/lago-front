@@ -16,7 +16,7 @@ import { PAYMENT_DETAILS_ROUTE } from '~/core/router'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { isInvoice, isPaymentRequest } from '~/core/utils/payableUtils'
+import { getPayableNumber, isInvoice, isPaymentRequest } from '~/core/utils/payableUtils'
 import {
   BillingEntityEmailSettingsEnum,
   CurrencyEnum,
@@ -214,6 +214,7 @@ export const PaymentsList: FC<PaymentsListProps> = ({
           ]
         }}
         actionColumnTooltip={() => translate('text_637f813d31381b1ed90ab326')}
+        rowLinkLabel={({ payable }) => getPayableNumber(payable)}
         onRowActionLink={(request) =>
           generatePath(PAYMENT_DETAILS_ROUTE, {
             paymentId: request.id,

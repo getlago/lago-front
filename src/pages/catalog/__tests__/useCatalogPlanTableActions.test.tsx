@@ -1,12 +1,15 @@
 import { act, render } from '@testing-library/react'
 
-import { ActionItem } from '~/components/designSystem/Table/types'
 import { addToast } from '~/core/apolloClient'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { CurrencyEnum } from '~/generated/graphql'
 import { AllTheProviders } from '~/test-utils'
 
-import { CatalogPlanActionTarget, useCatalogPlanTableActions } from '../useCatalogPlanTableActions'
+import {
+  CatalogPlanActionItem,
+  CatalogPlanActionTarget,
+  useCatalogPlanTableActions,
+} from '../useCatalogPlanTableActions'
 
 const COPY_PLAN_CODE_KEY = 'text_17890300495282w8aw4i2783'
 const PLAN_CODE_COPIED_KEY = 'text_1789030049528x3nlpl7hu7x'
@@ -61,9 +64,8 @@ const Host = () => {
   return null
 }
 
-const itemsFor = (
-  plan: CatalogPlanActionTarget,
-): Array<ActionItem<CatalogPlanActionTarget> & { title: string }> => actions.buildActionItems(plan)
+const itemsFor = (plan: CatalogPlanActionTarget): Array<CatalogPlanActionItem> =>
+  actions.buildActionItems(plan)
 
 const titles = (plan: CatalogPlanActionTarget): string[] => itemsFor(plan).map((item) => item.title)
 

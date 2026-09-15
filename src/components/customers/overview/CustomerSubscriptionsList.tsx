@@ -141,6 +141,7 @@ export const CustomerSubscriptionsList = ({
             containerSize={4}
             isLoading={loading}
             actionColumnTooltip={() => translate('text_634687079be251fdb438338f')}
+            rowLinkLabel={({ name }) => name ?? ''}
             onRowActionLink={({ id }) =>
               generatePath(CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE, {
                 customerId: customerId as string,
