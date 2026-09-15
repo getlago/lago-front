@@ -28,6 +28,22 @@ const DETAIL_QUERY = parse(`
   }
 `)
 
+const PAGED_LIST_QUERY = parse(`
+  query getPagedItems {
+    items {
+      collection {
+        id
+        name
+      }
+      metadata {
+        currentPage
+        totalPages
+        totalCount
+      }
+    }
+  }
+`)
+
 const SECOND_LIST_QUERY = parse(`
   query getOtherItems {
     otherItems {
@@ -326,6 +342,126 @@ describe('evictFromCache', () => {
         })
 
         expect(listCallback).toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN a paginated list whose metadata carries a total count', () => {
+    const seedPage = (
+      client: ApolloClient<object>,
+      collection: { id: string; name: string }[],
+      metadata: { currentPage: number; totalPages: number; totalCount: number },
+    ) =>
+      client.cache.writeQuery({
+        query: PAGED_LIST_QUERY,
+        data: {
+          items: {
+            __typename: 'ItemCollection',
+            collection: collection.map((item) => ({ __typename: 'Item', ...item })),
+            metadata: { __typename: 'Metadata', ...metadata },
+          },
+        },
+      })
+
+    const readMetadata = (client: ApolloClient<object>) =>
+      (
+        client.cache.readQuery({ query: PAGED_LIST_QUERY }) as {
+          items: { metadata: { currentPage: number; totalPages: number; totalCount: number } }
+        }
+      ).items.metadata
+
+    describe('WHEN a row is removed from a page that keeps other rows', () => {
+      it('THEN should decrement totalCount and leave totalPages alone', () => {
+        const client = createTestClient()
+
+        seedPage(
+          client,
+          [
+            { id: 'item-1', name: 'First' },
+            { id: 'item-2', name: 'Second' },
+          ],
+          { currentPage: 1, totalPages: 2, totalCount: 21 },
+        )
+
+        evictFromCache(client, {
+          id: 'item-2',
+          __typename: 'Item',
+          listFieldName: 'items',
+          listQueryDocument: PAGED_LIST_QUERY,
+        })
+
+        expect(readMetadata(client)).toEqual(
+          expect.objectContaining({ currentPage: 1, totalPages: 2, totalCount: 20 }),
+        )
+      })
+    })
+
+    describe('WHEN the removed row was the last one on a page past the first', () => {
+      it('THEN should drop totalPages below currentPage so the pager can move back', () => {
+        const client = createTestClient()
+
+        seedPage(client, [{ id: 'item-21', name: 'Last' }], {
+          currentPage: 2,
+          totalPages: 2,
+          totalCount: 21,
+        })
+
+        evictFromCache(client, {
+          id: 'item-21',
+          __typename: 'Item',
+          listFieldName: 'items',
+          listQueryDocument: PAGED_LIST_QUERY,
+        })
+
+        expect(readMetadata(client)).toEqual(
+          expect.objectContaining({ currentPage: 2, totalPages: 1, totalCount: 20 }),
+        )
+      })
+    })
+
+    describe('WHEN the removed row was the last one of the whole list', () => {
+      it('THEN should zero totalCount and keep the single page', () => {
+        const client = createTestClient()
+
+        seedPage(client, [{ id: 'item-1', name: 'Only' }], {
+          currentPage: 1,
+          totalPages: 1,
+          totalCount: 1,
+        })
+
+        evictFromCache(client, {
+          id: 'item-1',
+          __typename: 'Item',
+          listFieldName: 'items',
+          listQueryDocument: PAGED_LIST_QUERY,
+        })
+
+        expect(readMetadata(client)).toEqual(
+          expect.objectContaining({ currentPage: 1, totalPages: 1, totalCount: 0 }),
+        )
+      })
+    })
+
+    describe('WHEN the evicted entity is not in the list', () => {
+      it('THEN should leave the metadata untouched', () => {
+        const client = createTestClient()
+
+        seedPage(client, [{ id: 'item-1', name: 'First' }], {
+          currentPage: 1,
+          totalPages: 1,
+          totalCount: 1,
+        })
+
+        evictFromCache(client, {
+          id: 'item-99',
+          __typename: 'Item',
+          listFieldName: 'items',
+          listQueryDocument: PAGED_LIST_QUERY,
+        })
+
+        expect(readMetadata(client)).toEqual(
+          expect.objectContaining({ currentPage: 1, totalPages: 1, totalCount: 1 }),
+        )
       })
     })
   })

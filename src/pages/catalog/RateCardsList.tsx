@@ -3,7 +3,8 @@ import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router'
 
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
-import { Table, TablePlaceholder } from '~/components/designSystem/Table/Table'
+import { buildSearchAwareTablePlaceholder } from '~/components/designSystem/Table/buildSearchAwareTablePlaceholder'
+import { Table } from '~/components/designSystem/Table/Table'
 import {
   Filters,
   formatFiltersForRateCardsQuery,
@@ -96,34 +97,19 @@ const RateCardsList = () => {
 
   const columns = useRateCardTableColumns({ withAttachedTo: true })
 
-  const placeholder: TablePlaceholder = {
-    errorState: variables?.searchTerm
+  const placeholder = buildSearchAwareTablePlaceholder({
+    translate,
+    hasSearchTerm: !!variables?.searchTerm,
+    noResultTitleKey: 'text_17849293094732goytgdvyql',
+    emptyTitleKey: 'text_1784929309473260i6j8d7kb',
+    emptySubtitleKey: 'text_1784929309473m4m8kk6q6g5',
+    emptyAction: canCreateRateCards
       ? {
-          title: translate('text_623b53fea66c76017eaebb6e'),
-          subtitle: translate('text_63bab307a61c62af497e0599'),
+          buttonTitleKey: RATE_CARD_DRAWER_TITLE_CREATE_KEY,
+          onClick: () => openRateCardDrawer(),
         }
-      : {
-          title: translate('text_629728388c4d2300e2d380d5'),
-          subtitle: translate('text_629728388c4d2300e2d380eb'),
-          buttonTitle: translate('text_629728388c4d2300e2d38110'),
-          buttonVariant: 'primary',
-          buttonAction: () => location.reload(),
-        },
-    emptyState: variables?.searchTerm
-      ? {
-          title: translate('text_17849293094732goytgdvyql'),
-          subtitle: translate('text_63bee4e10e2d53912bfe4da7'),
-        }
-      : {
-          title: translate('text_1784929309473260i6j8d7kb'),
-          subtitle: translate('text_1784929309473m4m8kk6q6g5'),
-          ...(canCreateRateCards && {
-            buttonTitle: translate(RATE_CARD_DRAWER_TITLE_CREATE_KEY),
-            buttonVariant: 'primary',
-            buttonAction: () => openRateCardDrawer(),
-          }),
-        },
-  }
+      : undefined,
+  })
 
   // Inset layout (per design, same as the customer subscriptions tab): the
   // wrapper owns the page gutter so the row dividers and the pager border stop

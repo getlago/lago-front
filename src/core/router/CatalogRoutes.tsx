@@ -1,3 +1,5 @@
+import { FeatureFlagEnum } from '~/generated/graphql'
+
 import { CustomRouteObject } from './types'
 import { lazyLoad } from './utils'
 
@@ -9,7 +11,8 @@ const ProductDetails = lazyLoad(() => import('~/pages/catalog/details/ProductDet
 const ProductFilterDetails = lazyLoad(() => import('~/pages/catalog/details/ProductFilterDetails'))
 const RateCardDetails = lazyLoad(() => import('~/pages/catalog/details/RateCardDetails'))
 const RateCardRateDetails = lazyLoad(() => import('~/pages/catalog/details/RateCardRateDetails'))
-const Plans = lazyLoad(() => import('~/pages/catalog/Plans'))
+const CatalogPlansList = lazyLoad(() => import('~/pages/catalog/CatalogPlansList'))
+const CatalogPlanDetails = lazyLoad(() => import('~/pages/catalog/details/CatalogPlanDetails'))
 
 export const PRODUCT_CATALOG_ROUTE = '/product-catalog'
 export const PRODUCT_CATALOG_TAB_ROUTE = '/product-catalog/:tab'
@@ -21,6 +24,8 @@ export const RATE_CARD_DETAILS_ROUTE = '/product-catalog/rate-cards/:rateCardId/
 export const RATE_CARD_RATE_DETAILS_ROUTE =
   '/product-catalog/rate-cards/:rateCardId/rates/:rateId/:tab'
 export const PLAN_PRICING_ROUTE = '/plan-pricing'
+export const CATALOG_PLAN_DETAILS_ROUTE = '/plan-pricing/:catalogPlanId/:tab'
+export const CATALOG_PLAN_DETAILS_SECTION_ROUTE = '/plan-pricing/:catalogPlanId/overview/:section'
 
 export const catalogRoutes: CustomRouteObject[] = [
   {
@@ -60,9 +65,17 @@ export const catalogRoutes: CustomRouteObject[] = [
     permissionsOr: ['productCategoriesView', 'productsView', 'productFiltersView', 'rateCardsView'],
   },
   {
+    path: [CATALOG_PLAN_DETAILS_SECTION_ROUTE, CATALOG_PLAN_DETAILS_ROUTE],
+    private: true,
+    element: <CatalogPlanDetails />,
+    permissions: ['plansView'],
+    featureFlag: FeatureFlagEnum.ProductCatalog,
+  },
+  {
     path: [PLAN_PRICING_ROUTE],
     private: true,
-    element: <Plans />,
+    element: <CatalogPlansList />,
     permissions: ['plansView'],
+    featureFlag: FeatureFlagEnum.ProductCatalog,
   },
 ]

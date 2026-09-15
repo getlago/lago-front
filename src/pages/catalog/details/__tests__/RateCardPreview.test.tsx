@@ -19,9 +19,7 @@ import {
   ProductTypeEnum,
   RateCardForListFragment,
   RateCardRateModelEnum,
-  RateCardRegroupPaidFeesEnum,
 } from '~/generated/graphql'
-import { DEBOUNCE_SEARCH_MS } from '~/hooks/useDebouncedSearch'
 import { AllTheProviders } from '~/test-utils'
 
 import RateCardPreview, {
@@ -99,7 +97,7 @@ const buildRow = (index: number): RateCardForListFragment => ({
   description: null,
   billingTiming: 'advance' as RateCardForListFragment['billingTiming'],
   displayOnInvoice: true,
-  regroupPaidFees: RateCardRegroupPaidFeesEnum.None,
+  regroupPaidFees: null,
   proration: false,
   attachedToPlanOrSubscription: false,
   attachedToSubscriptions: false,
@@ -199,9 +197,6 @@ describe('RateCardPreview', () => {
   })
 
   it('re-runs the query with the search term when the user searches', async () => {
-    // The search runs through useDebouncedSearch, which burns DEBOUNCE_SEARCH_MS on a real
-    // timer plus a second delay in its loading-blink guard. Waiting that out on the wall
-    // clock makes the assertion race CI load, so drive the timers explicitly instead.
     jest.useFakeTimers()
 
     await act(() =>
@@ -219,13 +214,10 @@ describe('RateCardPreview', () => {
       target: { value: 'region' },
     })
 
-    // First pass fires the debounced query, second flushes the mocked link and the
-    // loading-blink timeout that gates the result render.
+    // runAllTimersAsync, not advanceTimersByTimeAsync: MockLink's response timer for
+    // the search query is itself created by this flush, so a fixed-width advance misses it.
     await act(async () => {
-      jest.advanceTimersByTime(DEBOUNCE_SEARCH_MS)
-    })
-    await act(async () => {
-      jest.advanceTimersByTime(DEBOUNCE_SEARCH_MS)
+      await jest.runAllTimersAsync()
     })
 
     expect(screen.getByText('Searched rate card')).toBeInTheDocument()

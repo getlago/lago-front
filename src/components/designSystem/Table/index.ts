@@ -1,3 +1,4 @@
+export * from './buildSearchAwareTablePlaceholder'
 export * from './ChargeTable'
 export * from './HorizontalDataTable'
 export * from './PreviewTable'
