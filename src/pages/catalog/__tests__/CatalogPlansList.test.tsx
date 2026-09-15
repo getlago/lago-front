@@ -154,7 +154,7 @@ describe('CatalogPlansList', () => {
     )
   })
 
-  it('renders as a full-page list: inset pager, default sticky, and the page-gutter container size', () => {
+  it('renders an inset list with sticky pagination and a minimal cell gutter', () => {
     render(<CatalogPlansList />)
 
     const paginatedContentProps = mockPaginatedContentProps.mock.calls[0][0] as {
@@ -162,9 +162,9 @@ describe('CatalogPlansList', () => {
       sticky?: boolean
     }
 
-    expect(paginatedContentProps.insetPager).toBe(true)
+    expect(paginatedContentProps.insetPager).toBeUndefined()
     expect(paginatedContentProps.sticky).toBeUndefined()
-    expect(getTableProps().containerSize).toEqual({ default: 16, md: 48 })
+    expect(getTableProps().containerSize).toBe(4)
   })
 
   it('renders the four list columns, with the counts and the date right-aligned', () => {

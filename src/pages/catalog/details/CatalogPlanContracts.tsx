@@ -1,12 +1,10 @@
 import { gql } from '@apollo/client'
 
-import { computeCustomerInitials } from '~/components/customers/utils'
-import { Avatar } from '~/components/designSystem/Avatar'
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Status } from '~/components/designSystem/Status'
 import { Table, TableColumn, TablePlaceholder } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
-import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
+import { PageSectionTitle } from '~/components/layouts/Section'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { contractStatusMapping } from '~/core/constants/statusContractMapping'
 import {
@@ -19,17 +17,11 @@ import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 gql`
   fragment ContractForCatalogPlanContracts on Contract {
     id
+    name
+    externalId
     status
     startedAt
     endedAt
-    customer {
-      id
-      name
-      displayName
-      firstname
-      lastname
-      externalId
-    }
   }
 
   query getCatalogPlanContracts($page: Int, $limit: Int, $planCode: String) {
@@ -57,7 +49,7 @@ export const CatalogPlanContracts = ({ planCode }: CatalogPlanContractsProps): J
   const { page, goToPage } = usePageSearchParam()
 
   const { data, loading, error } = useGetCatalogPlanContractsQuery({
-    variables: { planCode: planCode as string, limit: DEFAULT_PAGE_SIZE, page },
+    variables: { planCode, limit: DEFAULT_PAGE_SIZE, page },
     skip: !planCode,
     notifyOnNetworkStatusChange: true,
     fetchPolicy: 'network-only',
@@ -66,51 +58,40 @@ export const CatalogPlanContracts = ({ planCode }: CatalogPlanContractsProps): J
 
   const columns: TableColumn<ContractForCatalogPlanContractsFragment>[] = [
     {
-      key: 'customer.displayName',
-      title: translate('text_624efab67eb2570101d117be'),
-      maxSpace: true,
-      minWidth: 340,
-      content: ({ customer }) => (
-        <div className="flex items-center gap-3">
-          <Avatar
-            size="big"
-            variant="user"
-            identifier={customer.displayName}
-            initials={computeCustomerInitials(customer)}
-          />
-          <div className="flex flex-col">
-            <Typography variant="bodyHl" color="textSecondary" noWrap>
-              {customer.displayName}
-            </Typography>
-            <TypographyWithCopy variant="caption" color="grey600" noWrap>
-              {customer.externalId}
-            </TypographyWithCopy>
-          </div>
-        </div>
-      ),
-    },
-    {
       key: 'status',
       title: translate('text_62d7f6178ec94cd09370e5fb'),
       minWidth: 120,
       content: ({ status }) => <Status {...contractStatusMapping(status)} />,
     },
     {
+      key: 'name',
+      title: translate('text_6419c64eace749372fc72b0f'),
+      maxSpace: true,
+      minWidth: 200,
+      content: ({ name, externalId }) => (
+        <Typography variant="bodyHl" color="textSecondary" noWrap>
+          {name || externalId}
+        </Typography>
+      ),
+    },
+    {
       key: 'startedAt',
+      textAlign: 'right',
       title: translate('text_65201c5a175a4b0238abf29e'),
       minWidth: 150,
       content: ({ startedAt }) => (
-        <Typography variant="body" color="grey700">
+        <Typography variant="body" color="grey600" noWrap>
           {startedAt ? intlFormatDateTimeOrgaTZ(startedAt).date : '-'}
         </Typography>
       ),
     },
     {
       key: 'endedAt',
+      textAlign: 'right',
       title: translate('text_65201c5a175a4b0238abf2a0'),
       minWidth: 150,
       content: ({ endedAt }) => (
-        <Typography variant="body" color="grey700">
+        <Typography variant="body" color="grey600" noWrap>
           {endedAt ? intlFormatDateTimeOrgaTZ(endedAt).date : '-'}
         </Typography>
       ),
@@ -132,19 +113,22 @@ export const CatalogPlanContracts = ({ planCode }: CatalogPlanContractsProps): J
   }
 
   return (
-    <section>
+    <section className="flex flex-1 flex-col px-4 pt-6 md:px-12">
+      <PageSectionTitle
+        title={translate('text_1789463364350r8k8jukikz1')}
+        subtitle={translate('text_1789463364350p2k2yremb26')}
+      />
       <PaginatedContent
         metadata={data?.contracts?.metadata}
         loading={loading || !planCode}
         onPageChange={goToPage}
-        sticky={false}
       >
         <Table
           name="catalog-plan-contracts"
           data={data?.contracts?.collection ?? []}
-          containerSize={0}
-          containerClassName="border-t border-grey-300"
-          rowSize={72}
+          containerSize={4}
+          containerClassName="-mb-px h-auto shrink-0 border-t border-grey-300"
+          rowSize={48}
           isLoading={loading || !planCode}
           hasError={!!error}
           columns={columns}

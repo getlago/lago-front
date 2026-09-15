@@ -4942,8 +4942,6 @@
   "text_17890300495297ou6ajze8ia": "Type a plan name",
   "text_17890300495294bo4562celz": "Type a plan code",
   "text_1789030049529w52cf8ux80o": "Plan currency",
-  "text_1789030049529z3g1y1pk6ko": "This code cannot be changed because the plan is attached to a contract.",
-  "text_1789030049529qgfhsggx3r0": "This currency cannot be changed because the plan is priced by rate cards or attached to a contract.",
   "text_1789030049529bjp3ly202fr": "Plan successfully created",
   "text_1789030049529tdyr0nk1liw": "Plan successfully edited",
   "text_1789030049529lpefaj6vz74": "Plan {{planName}} successfully created. <a href=\"{{planUrl}}\">See plan</a>",
@@ -4962,5 +4960,7 @@
   "text_17891323549937b5qwry7pn1": "Rate cards priced on this plan will appear here.",
   "text_1789033674097sd7erhjfvp5": "No rate models are available for these invoicing settings. Update the rate card's billing timing or proration.",
   "text_1789033674097g9f5muxpeon": "This rate model is not available for this rate card's invoicing settings.",
-  "text_1789033796306gu724up7qa2": "Rate model availability is loading. Please wait before saving."
+  "text_1789033796306gu724up7qa2": "Rate model availability is loading. Please wait before saving.",
+  "text_1789463364350r8k8jukikz1": "Attached contracts",
+  "text_1789463364350p2k2yremb26": "All contracts created from this plan."
 }
