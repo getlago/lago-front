@@ -14911,6 +14911,20 @@ export type ConnectionPaymentMethodsQueryVariables = Exact<{
 
 export type ConnectionPaymentMethodsQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, paymentMethods: { __typename?: 'PaymentMethodCollection', collection: Array<{ __typename?: 'PaymentMethod', id: string, isDefault: boolean, paymentProviderCode?: string | null, paymentProviderCustomerId?: string | null, paymentProviderType?: ProviderTypeEnum | null, paymentProviderName?: string | null, providerMethodId: string, deletedAt?: any | null, createdAt: any, details?: { __typename?: 'PaymentMethodDetails', brand?: string | null, expirationYear?: string | null, expirationMonth?: string | null, last4?: string | null, type?: string | null } | null }> } } | null } | null };
 
+export type CustomerIntegrationConnectionsQueryVariables = Exact<{
+  customerId: Scalars['ID']['input'];
+}>;
+
+
+export type CustomerIntegrationConnectionsQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, integrationCustomers: Array<
+      | { __typename: 'AnrokCustomer', id: string, code?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean }
+      | { __typename: 'AvalaraCustomer', id: string, code?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean }
+      | { __typename: 'HubspotCustomer', id: string, code?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean }
+      | { __typename: 'NetsuiteCustomer', id: string, code?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean }
+      | { __typename: 'SalesforceCustomer', id: string, code?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean }
+      | { __typename: 'XeroCustomer', id: string, code?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean }
+    > } | null };
+
 export type CustomerPaymentConnectionsQueryVariables = Exact<{
   customerId: Scalars['ID']['input'];
 }>;
@@ -36446,6 +36460,99 @@ export type ConnectionPaymentMethodsQueryHookResult = ReturnType<typeof useConne
 export type ConnectionPaymentMethodsLazyQueryHookResult = ReturnType<typeof useConnectionPaymentMethodsLazyQuery>;
 export type ConnectionPaymentMethodsSuspenseQueryHookResult = ReturnType<typeof useConnectionPaymentMethodsSuspenseQuery>;
 export type ConnectionPaymentMethodsQueryResult = Apollo.QueryResult<ConnectionPaymentMethodsQuery, ConnectionPaymentMethodsQueryVariables>;
+export const CustomerIntegrationConnectionsDocument = gql`
+    query CustomerIntegrationConnections($customerId: ID!) {
+  customer(id: $customerId) {
+    id
+    integrationCustomers {
+      ... on NetsuiteCustomer {
+        __typename
+        id
+        code
+        integrationCode
+        integrationType
+        isDefault
+      }
+      ... on XeroCustomer {
+        __typename
+        id
+        code
+        integrationCode
+        integrationType
+        isDefault
+      }
+      ... on AnrokCustomer {
+        __typename
+        id
+        code
+        integrationCode
+        integrationType
+        isDefault
+      }
+      ... on AvalaraCustomer {
+        __typename
+        id
+        code
+        integrationCode
+        integrationType
+        isDefault
+      }
+      ... on HubspotCustomer {
+        __typename
+        id
+        code
+        integrationCode
+        integrationType
+        isDefault
+      }
+      ... on SalesforceCustomer {
+        __typename
+        id
+        code
+        integrationCode
+        integrationType
+        isDefault
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useCustomerIntegrationConnectionsQuery__
+ *
+ * To run a query within a React component, call `useCustomerIntegrationConnectionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCustomerIntegrationConnectionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCustomerIntegrationConnectionsQuery({
+ *   variables: {
+ *      customerId: // value for 'customerId'
+ *   },
+ * });
+ */
+export function useCustomerIntegrationConnectionsQuery(baseOptions: Apollo.QueryHookOptions<CustomerIntegrationConnectionsQuery, CustomerIntegrationConnectionsQueryVariables> & ({ variables: CustomerIntegrationConnectionsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CustomerIntegrationConnectionsQuery, CustomerIntegrationConnectionsQueryVariables>(CustomerIntegrationConnectionsDocument, options);
+      }
+export function useCustomerIntegrationConnectionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CustomerIntegrationConnectionsQuery, CustomerIntegrationConnectionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CustomerIntegrationConnectionsQuery, CustomerIntegrationConnectionsQueryVariables>(CustomerIntegrationConnectionsDocument, options);
+        }
+// @ts-ignore
+export function useCustomerIntegrationConnectionsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<CustomerIntegrationConnectionsQuery, CustomerIntegrationConnectionsQueryVariables>): Apollo.UseSuspenseQueryResult<CustomerIntegrationConnectionsQuery, CustomerIntegrationConnectionsQueryVariables>;
+export function useCustomerIntegrationConnectionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CustomerIntegrationConnectionsQuery, CustomerIntegrationConnectionsQueryVariables>): Apollo.UseSuspenseQueryResult<CustomerIntegrationConnectionsQuery | undefined, CustomerIntegrationConnectionsQueryVariables>;
+export function useCustomerIntegrationConnectionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CustomerIntegrationConnectionsQuery, CustomerIntegrationConnectionsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<CustomerIntegrationConnectionsQuery, CustomerIntegrationConnectionsQueryVariables>(CustomerIntegrationConnectionsDocument, options);
+        }
+export type CustomerIntegrationConnectionsQueryHookResult = ReturnType<typeof useCustomerIntegrationConnectionsQuery>;
+export type CustomerIntegrationConnectionsLazyQueryHookResult = ReturnType<typeof useCustomerIntegrationConnectionsLazyQuery>;
+export type CustomerIntegrationConnectionsSuspenseQueryHookResult = ReturnType<typeof useCustomerIntegrationConnectionsSuspenseQuery>;
+export type CustomerIntegrationConnectionsQueryResult = Apollo.QueryResult<CustomerIntegrationConnectionsQuery, CustomerIntegrationConnectionsQueryVariables>;
 export const CustomerPaymentConnectionsDocument = gql`
     query CustomerPaymentConnections($customerId: ID!) {
   customer(id: $customerId) {

@@ -4,7 +4,7 @@ import {
   ConnectionResolvedBehaviorEnum,
 } from '~/generated/graphql'
 
-import { findPaymentRouting, toSelectedConnection } from '../fromConnectionRouting'
+import { findConnectionRouting, toSelectedConnection } from '../fromConnectionRouting'
 
 const routing = (
   category: ConnectionCategoryEnum,
@@ -14,8 +14,8 @@ const routing = (
 
 describe('fromConnectionRouting', () => {
   describe('GIVEN a routing list covering every category', () => {
-    describe('WHEN the payment one is looked up', () => {
-      it('THEN should return it regardless of its position', () => {
+    describe('WHEN a category is looked up', () => {
+      it('THEN should return its own routing regardless of position', () => {
         const rows = [
           routing(ConnectionCategoryEnum.Tax, ConnectionResolvedBehaviorEnum.Inherit, 'anrok_eu'),
           routing(
@@ -23,9 +23,18 @@ describe('fromConnectionRouting', () => {
             ConnectionResolvedBehaviorEnum.Specific,
             'stripe_eu',
           ),
+          routing(
+            ConnectionCategoryEnum.Accounting,
+            ConnectionResolvedBehaviorEnum.Specific,
+            'netsuite_eu',
+          ),
         ]
 
-        expect(findPaymentRouting(rows)?.code).toBe('stripe_eu')
+        expect(findConnectionRouting(rows, ConnectionCategoryEnum.Payment)?.code).toBe('stripe_eu')
+        expect(findConnectionRouting(rows, ConnectionCategoryEnum.Accounting)?.code).toBe(
+          'netsuite_eu',
+        )
+        expect(findConnectionRouting(rows, ConnectionCategoryEnum.Crm)).toBeUndefined()
       })
     })
   })
@@ -80,7 +89,9 @@ describe('fromConnectionRouting', () => {
   describe('GIVEN an object with no routing at all', () => {
     describe('WHEN it is mapped to the form', () => {
       it('THEN should leave the field untouched', () => {
-        expect(toSelectedConnection(findPaymentRouting(undefined))).toBeUndefined()
+        expect(
+          toSelectedConnection(findConnectionRouting(undefined, ConnectionCategoryEnum.Payment)),
+        ).toBeUndefined()
       })
     })
   })

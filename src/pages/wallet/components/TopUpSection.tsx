@@ -2,6 +2,8 @@ import Box from '@mui/material/Box'
 import { useStore } from '@tanstack/react-form'
 import { useEffect, useRef } from 'react'
 
+import { AdditionalIntegrationSettingsSelector } from '~/components/additionalIntegrationSettings/AdditionalIntegrationSettingsSelector'
+import { ConnectionCategory } from '~/components/customerConnections/types'
 import { Button } from '~/components/designSystem/Button'
 import { Selector, SelectorActions } from '~/components/designSystem/Selector'
 import { Typography } from '~/components/designSystem/Typography'
@@ -11,6 +13,7 @@ import { ConnectionPaymentSettingsSelector } from '~/components/paymentSettings/
 import { PaymentSettingsSelector } from '~/components/paymentSettings/PaymentSettingsSelector'
 import { ADD_RECURRING_RULE_BUTTON_DATA_TEST } from '~/components/wallets/utils/dataTestConstants'
 import {
+  VIEW_TYPE_INTEGRATIONS_CAPTION_KEYS,
   VIEW_TYPE_INVOICING_CAPTION_KEYS,
   VIEW_TYPE_PAYMENT_CAPTION_KEYS,
   ViewTypeEnum,
@@ -90,6 +93,9 @@ export const TopUpSection = withForm({
     })
 
     const isMultiConnectionEnabled = hasFeatureFlag(FeatureFlagEnum.MultiConnection)
+    const additionalIntegrationCustomerId = isMultiConnectionEnabled
+      ? customerData?.customer?.id
+      : undefined
 
     const renderPaymentSettingsSelector = (customerId: string, externalCustomerId: string) => {
       if (!isMultiConnectionEnabled) {
@@ -117,6 +123,22 @@ export const TopUpSection = withForm({
         />
       )
     }
+
+    const renderAdditionalIntegrationSettingsSelector = (customerId: string) => (
+      <AdditionalIntegrationSettingsSelector
+        customerId={customerId}
+        values={{
+          [ConnectionCategory.Accounting]: walletValues.accountingConnection,
+          [ConnectionCategory.Crm]: walletValues.crmConnection,
+          [ConnectionCategory.Tax]: walletValues.taxConnection,
+        }}
+        onChange={(values) => {
+          form.setFieldValue('accountingConnection', values[ConnectionCategory.Accounting])
+          form.setFieldValue('crmConnection', values[ConnectionCategory.Crm])
+          form.setFieldValue('taxConnection', values[ConnectionCategory.Tax])
+        }}
+      />
+    )
 
     const { openDrawer } = useRecurringRuleDrawer({
       customerData,
@@ -227,7 +249,7 @@ export const TopUpSection = withForm({
         {customerData?.customer?.id && (
           <section
             className={
-              customerData?.customer?.externalId
+              customerData?.customer?.externalId || !!additionalIntegrationCustomerId
                 ? 'flex w-full flex-col gap-6 pb-12 shadow-b'
                 : 'flex w-full flex-col gap-6'
             }
@@ -250,7 +272,13 @@ export const TopUpSection = withForm({
         )}
 
         {customerData?.customer?.externalId && (
-          <section className="flex w-full flex-col gap-6">
+          <section
+            className={
+              additionalIntegrationCustomerId
+                ? 'flex w-full flex-col gap-6 pb-12 shadow-b'
+                : 'flex w-full flex-col gap-6'
+            }
+          >
             <div className="flex flex-col gap-1">
               <Typography variant="subhead1">
                 {translate(
@@ -267,6 +295,20 @@ export const TopUpSection = withForm({
               customerData.customer.id,
               customerData.customer.externalId,
             )}
+          </section>
+        )}
+
+        {!!additionalIntegrationCustomerId && (
+          <section className="flex w-full flex-col gap-6">
+            <div className="flex flex-col gap-1">
+              <Typography variant="subhead1">
+                {translate('text_1789472252793twqbda38ec2')}
+              </Typography>
+              <Typography variant="caption">
+                {translate(VIEW_TYPE_INTEGRATIONS_CAPTION_KEYS[ViewTypeEnum.WalletTopUp])}
+              </Typography>
+            </div>
+            {renderAdditionalIntegrationSettingsSelector(additionalIntegrationCustomerId)}
           </section>
         )}
       </>

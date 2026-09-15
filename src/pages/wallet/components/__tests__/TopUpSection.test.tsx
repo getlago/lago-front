@@ -3,11 +3,13 @@ import { act, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useState } from 'react'
 
+import { ConnectionCategory } from '~/components/customerConnections/types'
 import { SELECTOR_HOVER_ACTIONS_TEST_ID } from '~/components/designSystem/Selector'
 import { ADD_RECURRING_RULE_BUTTON_DATA_TEST } from '~/components/wallets/utils/dataTestConstants'
 import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import {
+  ConnectionBehaviorEnum,
   CurrencyEnum,
   GetCustomerInfosForWalletFormQuery,
   RecurringTransactionMethodEnum,
@@ -75,12 +77,24 @@ jest.mock('~/components/paymentSettings/connectionFirst/ConnectionPaymentSetting
   },
 }))
 
+jest.mock(
+  '~/components/additionalIntegrationSettings/AdditionalIntegrationSettingsSelector',
+  () => ({
+    AdditionalIntegrationSettingsSelector: (props: Record<string, unknown>) => {
+      mockAdditionalIntegrationSelector(props)
+
+      return null
+    },
+  }),
+)
+
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   ...jest.requireActual('~/hooks/useOrganizationInfos'),
   useOrganizationInfos: () => ({ hasFeatureFlag: mockHasFeatureFlag }),
 }))
 
 const mockConnectionPaymentSelector = jest.fn()
+const mockAdditionalIntegrationSelector = jest.fn()
 const mockHasFeatureFlag = jest.fn(() => false)
 
 // Stub the rule drawer hook: the parent only needs openDrawer + onSave —
@@ -571,6 +585,12 @@ describe('TopUpSection', () => {
         expect(lastSelectorCall(mockPaymentSelector, ViewTypeEnum.WalletTopUp)).toBeDefined()
         expect(mockConnectionPaymentSelector).not.toHaveBeenCalled()
       })
+
+      it('THEN should not mount the additional integration settings selector at all', () => {
+        render(<TestWrapper />)
+
+        expect(mockAdditionalIntegrationSelector).not.toHaveBeenCalled()
+      })
     })
 
     describe('WHEN it is on', () => {
@@ -586,6 +606,65 @@ describe('TopUpSection', () => {
             customerId: 'customer-id',
           }),
         )
+      })
+
+      it('THEN should mount the additional integration settings selector on the customer id', () => {
+        mockHasFeatureFlag.mockReturnValue(true)
+
+        render(<TestWrapper />)
+
+        expect(mockAdditionalIntegrationSelector).toHaveBeenCalledWith(
+          expect.objectContaining({ customerId: 'customer-id' }),
+        )
+      })
+
+      it('THEN should feed it the wallet-level connection values', () => {
+        mockHasFeatureFlag.mockReturnValue(true)
+
+        render(
+          <TestWrapper
+            defaultsOverride={{
+              accountingConnection: { code: 'netsuite_eu' },
+              crmConnection: { behavior: ConnectionBehaviorEnum.Skip },
+            }}
+          />,
+        )
+
+        expect(mockAdditionalIntegrationSelector).toHaveBeenCalledWith(
+          expect.objectContaining({
+            values: {
+              [ConnectionCategory.Accounting]: { code: 'netsuite_eu' },
+              [ConnectionCategory.Crm]: { behavior: ConnectionBehaviorEnum.Skip },
+              [ConnectionCategory.Tax]: undefined,
+            },
+          }),
+        )
+      })
+
+      it('THEN should commit the three categories the drawer publishes', async () => {
+        mockHasFeatureFlag.mockReturnValue(true)
+
+        render(<TestWrapper />)
+
+        const onChange = mockAdditionalIntegrationSelector.mock.calls.at(-1)?.[0]?.onChange as (
+          values: Record<string, unknown>,
+        ) => void
+
+        act(() => {
+          onChange({
+            [ConnectionCategory.Accounting]: { code: 'netsuite_eu' },
+            [ConnectionCategory.Crm]: undefined,
+            [ConnectionCategory.Tax]: { behavior: ConnectionBehaviorEnum.Skip },
+          })
+        })
+
+        await waitFor(() => {
+          expect(formValuesProbe.current?.accountingConnection).toEqual({ code: 'netsuite_eu' })
+        })
+        expect(formValuesProbe.current?.crmConnection).toBeUndefined()
+        expect(formValuesProbe.current?.taxConnection).toEqual({
+          behavior: ConnectionBehaviorEnum.Skip,
+        })
       })
     })
   })

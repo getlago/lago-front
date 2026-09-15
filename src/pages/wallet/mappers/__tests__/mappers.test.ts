@@ -1,6 +1,8 @@
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
   ConnectionBehaviorEnum,
+  ConnectionCategoryEnum,
+  ConnectionResolvedBehaviorEnum,
   CurrencyEnum,
   GetCustomerInfosForWalletFormQuery,
   GetWalletInfosForWalletFormQuery,
@@ -490,5 +492,203 @@ describe('connections payload', () => {
     )
 
     expect(input.recurringTransactionRules?.[0]).not.toHaveProperty('connections')
+  })
+
+  // An omitted category keeps whatever the backend stored, so a category the user never
+  // opened must not appear — `inherit` would erase an existing override row.
+  it.each([
+    ['accountingConnection', 'accounting'],
+    ['crmConnection', 'crm'],
+    ['taxConnection', 'tax'],
+  ])('sends %s alone when it is the only touched category', (field, key) => {
+    const form = baseForm({ [field]: { code: 'connection_code' } } as Partial<TWalletDataForm>)
+
+    expect(mapFormToCreateInput(form, 'customer-id').connections).toEqual({
+      [key]: { code: 'connection_code' },
+    })
+    expect(mapFormToUpdateInput(form, 'wallet-id').connections).toEqual({
+      [key]: { code: 'connection_code' },
+    })
+  })
+
+  it('sends every touched category in one payload on both create and update', () => {
+    const form = baseForm({
+      paymentConnection: { code: 'stripe_eu' },
+      accountingConnection: { code: 'netsuite_eu' },
+      crmConnection: { behavior: ConnectionBehaviorEnum.Skip },
+      taxConnection: { behavior: ConnectionBehaviorEnum.Inherit },
+    })
+
+    const expected = {
+      payment: { code: 'stripe_eu' },
+      accounting: { code: 'netsuite_eu' },
+      crm: { behavior: ConnectionBehaviorEnum.Skip },
+      tax: { behavior: ConnectionBehaviorEnum.Inherit },
+    }
+
+    expect(mapFormToCreateInput(form, 'customer-id').connections).toEqual(expected)
+    expect(mapFormToUpdateInput(form, 'wallet-id').connections).toEqual(expected)
+  })
+
+  it('leaves the untouched categories out of the payload', () => {
+    const connections = mapFormToCreateInput(
+      baseForm({ accountingConnection: { code: 'netsuite_eu' } }),
+      'customer-id',
+    ).connections
+
+    expect(connections).not.toHaveProperty('payment')
+    expect(connections).not.toHaveProperty('crm')
+    expect(connections).not.toHaveProperty('tax')
+  })
+
+  it('keeps each recurring rule integration connection independent from the wallet one', () => {
+    const input = mapFormToCreateInput(
+      baseForm({
+        accountingConnection: { code: 'netsuite_wallet' },
+        taxConnection: { behavior: ConnectionBehaviorEnum.Skip },
+        recurringTransactionRules: [
+          {
+            trigger: RecurringTransactionTriggerEnum.Interval,
+            method: RecurringTransactionMethodEnum.Fixed,
+            interval: RecurringTransactionIntervalEnum.Monthly,
+            paidCredits: '1',
+            grantedCredits: '1',
+            accountingConnection: { behavior: ConnectionBehaviorEnum.Skip },
+            crmConnection: { code: 'hubspot_rule' },
+          },
+        ] as TWalletDataForm['recurringTransactionRules'],
+      }),
+      'customer-id',
+    )
+
+    expect(input.connections).toEqual({
+      accounting: { code: 'netsuite_wallet' },
+      tax: { behavior: ConnectionBehaviorEnum.Skip },
+    })
+    expect(input.recurringTransactionRules?.[0]?.connections).toEqual({
+      accounting: { behavior: ConnectionBehaviorEnum.Skip },
+      crm: { code: 'hubspot_rule' },
+    })
+  })
+
+  // The FE-shaped fields are consumed by formatConnections; leaking them raw would be
+  // rejected by the recurring-rule input.
+  it('never leaks the form-shaped connection fields onto a rule', () => {
+    const rule = mapFormToCreateInput(
+      baseForm({
+        recurringTransactionRules: [
+          {
+            trigger: RecurringTransactionTriggerEnum.Interval,
+            method: RecurringTransactionMethodEnum.Fixed,
+            interval: RecurringTransactionIntervalEnum.Monthly,
+            paidCredits: '1',
+            grantedCredits: '1',
+            accountingConnection: { code: 'netsuite_eu' },
+            crmConnection: { code: 'hubspot_main' },
+            taxConnection: { code: 'anrok_eu' },
+          },
+        ] as TWalletDataForm['recurringTransactionRules'],
+      }),
+      'customer-id',
+    ).recurringTransactionRules?.[0]
+
+    expect(rule).not.toHaveProperty('accountingConnection')
+    expect(rule).not.toHaveProperty('crmConnection')
+    expect(rule).not.toHaveProperty('taxConnection')
+  })
+})
+
+describe('connections read-back', () => {
+  const routing = (
+    category: ConnectionCategoryEnum,
+    behavior: ConnectionResolvedBehaviorEnum,
+    code?: string,
+  ) => ({ category, behavior, code })
+
+  const walletWithRouting = (
+    connections: ReturnType<typeof routing>[],
+    ruleConnections: ReturnType<typeof routing>[] = [],
+  ) =>
+    ({
+      ...wallet,
+      connections,
+      recurringTransactionRules: [
+        { ...wallet.recurringTransactionRules?.[0], connections: ruleConnections },
+      ],
+    }) as unknown as NonNullable<GetWalletInfosForWalletFormQuery['wallet']>
+
+  it('seeds each category field from its own routing row', () => {
+    const values = mapFromApiToForm({
+      wallet: walletWithRouting([
+        routing(
+          ConnectionCategoryEnum.Payment,
+          ConnectionResolvedBehaviorEnum.Specific,
+          'stripe_eu',
+        ),
+        routing(
+          ConnectionCategoryEnum.Accounting,
+          ConnectionResolvedBehaviorEnum.Specific,
+          'netsuite_eu',
+        ),
+        routing(ConnectionCategoryEnum.Crm, ConnectionResolvedBehaviorEnum.Skip),
+        routing(ConnectionCategoryEnum.Tax, ConnectionResolvedBehaviorEnum.Specific, 'anrok_eu'),
+      ]),
+      customerData,
+      currency: CurrencyEnum.Usd,
+    })
+
+    expect(values.paymentConnection).toEqual({ code: 'stripe_eu' })
+    expect(values.accountingConnection).toEqual({ code: 'netsuite_eu' })
+    expect(values.crmConnection).toEqual({ behavior: ConnectionBehaviorEnum.Skip })
+    expect(values.taxConnection).toEqual({ code: 'anrok_eu' })
+  })
+
+  // An `inherit` row carries the customer default's code: read back as an override it would
+  // freeze the wallet onto a connection the user never picked.
+  it.each([
+    ['accountingConnection', ConnectionCategoryEnum.Accounting],
+    ['crmConnection', ConnectionCategoryEnum.Crm],
+    ['taxConnection', ConnectionCategoryEnum.Tax],
+  ])('leaves %s untouched on an inherited row', (field, category) => {
+    const values = mapFromApiToForm({
+      wallet: walletWithRouting([
+        routing(category, ConnectionResolvedBehaviorEnum.Inherit, 'customer_default'),
+      ]),
+      customerData,
+      currency: CurrencyEnum.Usd,
+    })
+
+    expect(values[field as keyof TWalletDataForm]).toBeUndefined()
+  })
+
+  it('seeds the rule fields from the rule routing, independently of the wallet one', () => {
+    const values = mapFromApiToForm({
+      wallet: walletWithRouting(
+        [
+          routing(
+            ConnectionCategoryEnum.Accounting,
+            ConnectionResolvedBehaviorEnum.Specific,
+            'netsuite_wallet',
+          ),
+        ],
+        [
+          routing(ConnectionCategoryEnum.Accounting, ConnectionResolvedBehaviorEnum.Skip),
+          routing(
+            ConnectionCategoryEnum.Crm,
+            ConnectionResolvedBehaviorEnum.Specific,
+            'hubspot_rule',
+          ),
+        ],
+      ),
+      customerData,
+      currency: CurrencyEnum.Usd,
+    })
+
+    expect(values.accountingConnection).toEqual({ code: 'netsuite_wallet' })
+    expect(values.recurringTransactionRules?.[0]?.accountingConnection).toEqual({
+      behavior: ConnectionBehaviorEnum.Skip,
+    })
+    expect(values.recurringTransactionRules?.[0]?.crmConnection).toEqual({ code: 'hubspot_rule' })
+    expect(values.recurringTransactionRules?.[0]?.taxConnection).toBeUndefined()
   })
 })
