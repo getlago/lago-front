@@ -1,4 +1,4 @@
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { Status } from '~/components/designSystem/Status'
 import { TableColumn } from '~/components/designSystem/Table/Table'

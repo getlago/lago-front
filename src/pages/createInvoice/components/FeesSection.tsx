@@ -430,7 +430,7 @@ export const FeesSection = withForm({
                       placeholder={translate('text_6453819268763979024ad0ad')}
                       onChange={(value) => {
                         const addOn = addOnData?.addOns?.collection.find((c) => c.id === value)
-                        const today = DateTime.now()
+                        const today = DateTime.utc()
                         const addonApplicableTaxes = () => {
                           if (hasTaxProvider) return undefined
                           if (!!addOn?.taxes?.length) return addOn?.taxes

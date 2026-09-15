@@ -1,6 +1,6 @@
 import { FetchResult, gql } from '@apollo/client'
 import { useEffect, useRef } from 'react'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 
 import { addToast, hasDefinedGQLError, PspErrorCode } from '~/core/apolloClient'
 import { CustomerDetailsTabsOptions } from '~/core/constants/tabsOptions'

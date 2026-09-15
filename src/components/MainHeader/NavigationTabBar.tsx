@@ -3,7 +3,7 @@ import Tabs from '@mui/material/Tabs'
 import Typography from '@mui/material/Typography'
 import { Icon, IconName } from 'lago-design-system'
 import { MouseEvent, useMemo } from 'react'
-import { matchPath } from 'react-router-dom'
+import { matchPath } from 'react-router'
 
 import { Link, useLocation } from '~/core/router'
 import { isModifiedClick } from '~/core/utils/isModifiedClick'
@@ -43,7 +43,8 @@ const a11yProps = (index: number) => {
 /**
  * NavigationTabBar — renders only the tab buttons (no content panels).
  * Tab content is resolved by the page via useMainHeaderTabContent hook.
- * Tabs are URL-managed: clicking a tab navigates to its link.
+ * Tabs are URL-managed: a linked tab renders as an anchor so it keeps the
+ * native middle-click / cmd-click "open in new tab" gestures.
  */
 export const NavigationTabBar = ({
   className,
@@ -60,11 +61,11 @@ export const NavigationTabBar = ({
     return idx === -1 ? 0 : idx
   }, [nonHiddenTabs, strippedPathname])
 
-  const renderTab = (tab: NavigationTabBarItem, tabIndex: number) => {
+  const renderTab = (tab: NavigationTabBarItem, tabIndex: number): JSX.Element => {
     const sharedProps = {
       disableFocusRipple: true,
       disableRipple: true,
-      role: 'tab',
+      role: 'tab' as const,
       className: TAB_CLASSNAME,
       disabled: tab.disabled,
       icon: tab.icon ? <Icon name={tab.icon} /> : undefined,

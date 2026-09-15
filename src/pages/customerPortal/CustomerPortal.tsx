@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { Outlet } from 'react-router-dom'
+import { Outlet } from 'react-router'
 
 import CustomerPortalLoading from '~/components/customerPortal/common/CustomerPortalLoading'
 import CustomerPortalSidebar from '~/components/customerPortal/common/CustomerPortalSidebar'

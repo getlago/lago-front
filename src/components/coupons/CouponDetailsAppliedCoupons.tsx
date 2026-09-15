@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { CouponCaption } from '~/components/coupons/CouponCaption'
 import { APPLIED_COUPON_STATUS_CONFIG } from '~/components/coupons/utils'

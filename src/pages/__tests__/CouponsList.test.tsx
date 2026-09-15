@@ -1,4 +1,4 @@
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { CouponStatusEnum } from '~/generated/graphql'
@@ -55,8 +55,8 @@ jest.mock('~/components/designSystem/Status', () => ({
   Status: () => null,
 }))
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useNavigate: jest.fn(() => jest.fn()),
   generatePath: jest.fn((route: string) => route),
 }))

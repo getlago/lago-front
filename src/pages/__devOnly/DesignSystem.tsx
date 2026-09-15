@@ -4,7 +4,7 @@ import InputAdornment from '@mui/material/InputAdornment'
 import Stack from '@mui/material/Stack'
 import { useFormik } from 'formik'
 import { Icon, IconName } from 'lago-design-system'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 import { boolean, number, object, string } from 'yup'
 
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'

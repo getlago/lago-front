@@ -1,5 +1,5 @@
 import { IconName } from 'lago-design-system'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { EDIT_QUOTE_ROUTE, VOID_QUOTE_ROUTE } from '~/core/router'
 import { StatusEnum } from '~/generated/graphql'

@@ -1,4 +1,5 @@
 import { screen } from '@testing-library/react'
+import { useParams } from 'react-router'
 
 import { ButtonLinkBaseProps } from '~/components/designSystem/ButtonLink'
 import { GENERIC_PLACEHOLDER_TEST_ID } from '~/components/designSystem/GenericPlaceholder'
@@ -132,12 +133,67 @@ const mockWallet = {
 describe('WalletDetails', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
+    capturedBreadcrumb = undefined
+    capturedTabs = undefined
+    capturedEntity = undefined
 
-    useParamsMock.mockReturnValue({
+    jest.mocked(useParams).mockReturnValue({
       walletId: 'wallet-1',
       customerId: 'customer-1',
     })
+  })
+
+  it.each([{ walletId: undefined }, { customerId: undefined }])(
+    'GIVEN missing route IDs %p THEN omits wallet links until both IDs exist',
+    (missingIds) => {
+      jest.mocked(useParams).mockReturnValue({
+        walletId: 'wallet-1',
+        customerId: 'customer-1',
+        ...missingIds,
+      })
+      mockUseGetWalletDetailsQuery.mockReturnValue({
+        data: { wallet: mockWallet },
+        loading: false,
+      })
+
+      const { rerender } = render(<WalletDetails />)
+
+      expect(capturedTabs).toEqual([])
+
+      jest.mocked(useParams).mockReturnValue({
+        walletId: 'wallet-1',
+        customerId: 'customer-1',
+      })
+      rerender(<WalletDetails />)
+
+      expect(capturedTabs?.map(({ link }) => link)).toEqual([
+        '/customer/customer-1/wallet-details/wallet-1/overview',
+        '/customer/customer-1/wallet-details/wallet-1/recurring-rule',
+        '/customer/customer-1/wallet-details/wallet-1/transactions',
+        '/customer/customer-1/wallet-details/wallet-1/alerts',
+      ])
+    },
+  )
+
+  it('GIVEN no customer ID THEN keeps the customer breadcrumb without a link', () => {
+    jest.mocked(useParams).mockReturnValue({ walletId: 'wallet-1' })
+    mockUseGetWalletDetailsQuery.mockReturnValue({
+      data: { wallet: { ...mockWallet, customer: { name: 'Acme' } } },
+      loading: false,
+    })
+
+    render(<WalletDetails />)
+
+    expect(capturedBreadcrumb?.[1]).toEqual({ label: 'Acme', path: undefined, loading: false })
+  })
+
+  it('GIVEN no wallet ID THEN skips the wallet query', () => {
+    jest.mocked(useParams).mockReturnValue({ customerId: 'customer-1' })
+    mockUseGetWalletDetailsQuery.mockReturnValue({ data: undefined, loading: false })
+
+    render(<WalletDetails />)
+
+    expect(mockUseGetWalletDetailsQuery).toHaveBeenCalledWith({ skip: true })
   })
 
   describe('GIVEN the wallet query errors', () => {

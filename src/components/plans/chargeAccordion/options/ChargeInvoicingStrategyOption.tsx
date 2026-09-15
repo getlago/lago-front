@@ -10,7 +10,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 
 interface ChargeInvoicingStrategyOptionProps {
-  localCharge: LocalUsageChargeInput
+  localCharge: Pick<LocalUsageChargeInput, 'payInAdvance' | 'invoiceable' | 'regroupPaidFees'>
   disabled?: boolean
   openPremiumDialog: VoidFunction
   handleUpdate: ({

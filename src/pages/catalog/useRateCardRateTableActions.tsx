@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { ActionColumn, ActionItem } from '~/components/designSystem/Table/types'
 import { RateCardRateDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'

@@ -1,5 +1,4 @@
-import debounce from 'lodash/debounce'
-import { useCallback, useMemo } from 'react'
+import { useMemo } from 'react'
 import {
   Line,
   LineChart,
@@ -36,6 +35,8 @@ import {
 } from './utils'
 
 const LOADING_TICK_SIZE = 32
+const DEFAULT_TOOLTIP_Y_GAP = 60
+const TOOLTIP_INNER_LINE_HEIGHT = 31
 
 type DotPrefix<T extends string> = T extends '' ? '' : `.${T}`
 type DotNestedKeys<T> = (
@@ -167,13 +168,6 @@ const MultipleLineChart = <T extends DataItem>({
   const { hoverDataIndex, setHoverDataIndex, setClickedDataIndex, handleMouseLeave } =
     useAnalyticsState()
 
-  const handleHoverUpdate = useCallback(
-    (index: number | undefined) => {
-      setHoverDataIndex(index)
-    },
-    [setHoverDataIndex],
-  )
-
   const { localData, localLines } = useMemo(() => {
     if (loading || !data) {
       return {
@@ -194,19 +188,7 @@ const MultipleLineChart = <T extends DataItem>({
     }
   }, [blur, data, lines, loading])
 
-  // Use the hover data index from context
-  const { localHoverDataIndex } = useMemo(() => {
-    return {
-      localHoverDataIndex: hoverDataIndex,
-    }
-  }, [hoverDataIndex])
-
-  const yTooltipPosition = useMemo(() => {
-    const DEFAULT_TOOLTIP_Y_GAP = 60
-    const TOOLTIP_INNER_LINE_HEIGHT = 31
-
-    return -(DEFAULT_TOOLTIP_Y_GAP + (lines.length || 0) * TOOLTIP_INNER_LINE_HEIGHT)
-  }, [lines.length])
+  const yTooltipPosition = -(DEFAULT_TOOLTIP_Y_GAP + lines.length * TOOLTIP_INNER_LINE_HEIGHT)
 
   const hasOnlyZeroValues: boolean = useMemo(() => {
     if (!localData?.length || loading) {
@@ -238,26 +220,11 @@ const MultipleLineChart = <T extends DataItem>({
             typeof event?.activeTooltipIndex === 'number' &&
             setClickedDataIndex(event.activeTooltipIndex)
           }
-          onMouseMove={useMemo(
-            () =>
-              debounce(
-                (event) => {
-                  const newIndex = event?.activeTooltipIndex
-
-                  if (typeof newIndex === 'number') {
-                    handleHoverUpdate(newIndex)
-                  }
-                },
-                // Scale debounce time more aggressively for larger datasets
-                // For 300 elements: ~8ms
-                // For 1000 elements: ~49ms
-                Math.max(1, Math.round(Math.pow((localData?.length || 0) / 300, 1.5) * 8)),
-                {
-                  leading: true,
-                },
-              ),
-            [handleHoverUpdate, localData?.length],
-          )}
+          onMouseMove={(event) => {
+            if (typeof event?.activeTooltipIndex === 'number') {
+              setHoverDataIndex(event.activeTooltipIndex)
+            }
+          }}
           onMouseLeave={handleMouseLeave}
         >
           <XAxis
@@ -413,8 +380,8 @@ const MultipleLineChart = <T extends DataItem>({
           })}
           {!loading && (
             <RechartTooltip
-              defaultIndex={localHoverDataIndex}
-              active={typeof localHoverDataIndex === 'number'}
+              defaultIndex={hoverDataIndex}
+              active={typeof hoverDataIndex === 'number'}
               includeHidden={true}
               cursor={{
                 stroke: `${theme.palette.grey[500]}`,

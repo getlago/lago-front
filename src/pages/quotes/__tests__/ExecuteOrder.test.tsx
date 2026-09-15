@@ -115,7 +115,7 @@ const mockOrder = {
 describe('ExecuteOrder', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
+    const useParamsMock = jest.requireMock('react-router').useParams as jest.Mock
 
     useParamsMock.mockReturnValue({ orderId: 'order-123' })
     mockUseGetOrderForExecuteQuery.mockReturnValue({

@@ -2,10 +2,6 @@ import { z } from 'zod'
 
 import { generateUniqueCode } from '~/core/utils/generateUniqueCode'
 
-// Duplicate-code helpers now live in core so non-plan entity forms can share
-// them; re-exported here so the charge drawers keep their historical import.
-export { applyExistingCodeError, EXISTING_CODE_ERROR_MESSAGE } from '~/core/form/existingCodeError'
-
 const CODE_REQUIRED_MESSAGE = 'text_624ea7c29103fd010732ab7d'
 
 // `code` is only required when the field is shown (v2 details/edition via

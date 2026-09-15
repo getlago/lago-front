@@ -11,16 +11,18 @@ import {
 import userEvent from '@testing-library/user-event'
 
 import {
+  GENERIC_PLACEHOLDER_IMAGE_TEST_ID,
+  GENERIC_PLACEHOLDER_TEST_ID,
+} from '~/components/designSystem/GenericPlaceholder'
+import {
   GetProductFiltersForProductDetailsDocument,
   ProductFilterForListFragment,
   ProductForFilterPreviewFragment,
 } from '~/generated/graphql'
-import { DEBOUNCE_SEARCH_MS } from '~/hooks/useDebouncedSearch'
 import { AllTheProviders } from '~/test-utils'
 
 import ProductFilterPreview, {
   PRODUCT_ITEM_FILTER_PREVIEW_CREATE_TEST_ID,
-  PRODUCT_ITEM_FILTER_PREVIEW_EMPTY_TEST_ID,
   PRODUCT_ITEM_FILTER_PREVIEW_VIEW_ALL_TEST_ID,
 } from '../ProductFilterPreview'
 
@@ -162,9 +164,6 @@ describe('ProductFilterPreview', () => {
   })
 
   it('re-runs the query with the search term when the user searches', async () => {
-    // The search runs through useDebouncedSearch, which burns DEBOUNCE_SEARCH_MS on a real
-    // timer plus a second delay in its loading-blink guard. Waiting that out on the wall
-    // clock makes the assertion race CI load, so drive the timers explicitly instead.
     jest.useFakeTimers()
 
     await act(() =>
@@ -182,13 +181,10 @@ describe('ProductFilterPreview', () => {
       target: { value: 'region' },
     })
 
-    // First pass fires the debounced query, second flushes the mocked link and the
-    // loading-blink timeout that gates the result render.
+    // runAllTimersAsync, not advanceTimersByTimeAsync: MockLink's response timer for
+    // the search query is itself created by this flush, so a fixed-width advance misses it.
     await act(async () => {
-      jest.advanceTimersByTime(DEBOUNCE_SEARCH_MS)
-    })
-    await act(async () => {
-      jest.advanceTimersByTime(DEBOUNCE_SEARCH_MS)
+      await jest.runAllTimersAsync()
     })
 
     expect(screen.getByText('Searched region')).toBeInTheDocument()
@@ -264,15 +260,15 @@ describe('ProductFilterPreview', () => {
     expect(screen.queryByTestId(PRODUCT_ITEM_FILTER_PREVIEW_CREATE_TEST_ID)).not.toBeInTheDocument()
   })
 
-  it('renders the inline dashed empty box when there are no filters and no active search', async () => {
+  it('renders the standard table empty state when there are no filters and no active search', async () => {
     await act(() =>
       renderPreview([filtersQueryMock({ productId: PRODUCT_ITEM_ID, limit: 7 }, [], 0)]),
     )
 
-    const emptyBox = await screen.findByTestId(PRODUCT_ITEM_FILTER_PREVIEW_EMPTY_TEST_ID)
-
-    expect(emptyBox).toBeInTheDocument()
-    expect(emptyBox).toHaveClass('border-dashed')
+    expect(await screen.findByRole('table')).toBeInTheDocument()
+    expect(await screen.findByTestId(GENERIC_PLACEHOLDER_TEST_ID)).toBeInTheDocument()
+    expect(screen.getByTestId(GENERIC_PLACEHOLDER_IMAGE_TEST_ID)).toBeInTheDocument()
     expect(screen.getByText('text_1784585400245a6ghyeaz5wf')).toBeInTheDocument()
+    expect(screen.getByText('text_1784585400245nj226z9y9tp')).toBeInTheDocument()
   })
 })

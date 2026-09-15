@@ -1,4 +1,4 @@
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { useDeleteCustomerDialog } from '~/components/customers/DeleteCustomerDialog'
 import { MainHeaderAction } from '~/components/MainHeader/types'

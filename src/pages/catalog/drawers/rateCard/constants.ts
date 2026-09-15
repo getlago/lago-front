@@ -18,14 +18,15 @@ export const rateCardDrawerSchema = z
     name: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
     code: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
     description: z.string(),
-    productId: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
-    productFilterId: z.string(),
+    productId: z
+      .string({ error: 'text_624ea7c29103fd010732ab7d' })
+      .min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
+    productFilterId: z.string().optional(),
     pricingUnit: z.string().optional(),
     currency: z.union([z.nativeEnum(CurrencyEnum), z.literal('')]),
     billingTiming: z.nativeEnum(RateCardBillingTimingEnum),
     invoicingStrategy: z.enum(['invoiceable', 'regroupPaidFees', 'none']),
     proration: z.boolean(),
-    walletTargetable: z.boolean(),
   })
   .superRefine((values, ctx) => {
     if (!values.currency) {
@@ -52,7 +53,6 @@ export const RATE_CARD_FORM_DEFAULTS: RateCardFormValues = {
   billingTiming: RateCardBillingTimingEnum.Arrears,
   invoicingStrategy: 'invoiceable',
   proration: false,
-  walletTargetable: false,
 }
 
 export const mapStrategyToInvoiceFields = (

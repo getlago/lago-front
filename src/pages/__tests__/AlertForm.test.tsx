@@ -239,7 +239,7 @@ const mockLoadedQueries = ({
 }
 
 const setParams = (params: Record<string, string>) => {
-  const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
+  const useParamsMock = jest.requireMock('react-router').useParams as jest.Mock
 
   useParamsMock.mockReturnValue(params)
 }

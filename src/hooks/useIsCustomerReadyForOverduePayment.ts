@@ -1,5 +1,5 @@
 import { ApolloError, gql } from '@apollo/client'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 import { useGetCustomerOverdueInvoicesReadyForPaymentProcessingQuery } from '~/generated/graphql'
 

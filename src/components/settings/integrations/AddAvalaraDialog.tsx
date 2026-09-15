@@ -2,7 +2,7 @@ import { gql, useApolloClient } from '@apollo/client'
 import { captureException } from '@sentry/react'
 import { revalidateLogic } from '@tanstack/react-form'
 import { forwardRef, useId, useImperativeHandle, useRef, useState } from 'react'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 import { z } from 'zod'
 
 import { Alert } from '~/components/designSystem/Alert'
@@ -13,6 +13,7 @@ import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGrou
 import { addToast, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
 import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { applyExistingCodeError } from '~/core/form/existingCodeError'
 import { AVALARA_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import {
   AddAvalaraIntegrationDialogFragment,
@@ -173,16 +174,7 @@ export const useAddAvalaraDialog = () => {
         })
 
         if (hasDefinedGQLError('ValueAlreadyExist', res.errors)) {
-          formApi.setErrorMap({
-            onDynamic: {
-              fields: {
-                code: {
-                  message: translate('text_632a2d437e341dcc76817556'),
-                  path: ['code'],
-                },
-              },
-            },
-          })
+          applyExistingCodeError(formApi)
         }
 
         return
@@ -211,16 +203,7 @@ export const useAddAvalaraDialog = () => {
         })
 
         if (hasDefinedGQLError('ValueAlreadyExist', res.errors)) {
-          formApi.setErrorMap({
-            onDynamic: {
-              fields: {
-                code: {
-                  message: translate('text_632a2d437e341dcc76817556'),
-                  path: ['code'],
-                },
-              },
-            },
-          })
+          applyExistingCodeError(formApi)
         }
       } catch (error) {
         if (error instanceof AuthError) {

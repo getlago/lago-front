@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import { Table, TablePlaceholder } from '~/components/designSystem/Table/Table'
@@ -14,6 +14,7 @@ import { RATE_CARD_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { ProductCatalogTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { Link, PRODUCT_CATALOG_TAB_ROUTE } from '~/core/router'
 import {
+  ProductForRateCardDrawerFragmentDoc,
   RateCardForListFragment,
   RateCardForListFragmentDoc,
   RateCardForPreviewProductFilterFragment,
@@ -42,7 +43,7 @@ import { useRateCardTableColumns } from '../useRateCardTableColumns'
 gql`
   fragment RateCardForPreviewProduct on Product {
     id
-    name
+    ...ProductForRateCardDrawer
   }
 
   fragment RateCardForPreviewProductFilter on ProductFilter {
@@ -50,9 +51,11 @@ gql`
     name
     product {
       id
-      name
+      ...ProductForRateCardDrawer
     }
   }
+
+  ${ProductForRateCardDrawerFragmentDoc}
 `
 
 // The `rateCards` root field is queried twice more here (co-located, operation names
@@ -61,8 +64,8 @@ gql`
 // `RateCardForList` (the same fragment powering the standalone list) so the three
 // surfaces never drift on which fields a rate card row needs.
 gql`
-  query getRateCardsForProductDetails($productId: ID, $limit: Int, $searchTerm: String) {
-    rateCards(productId: $productId, limit: $limit, searchTerm: $searchTerm) {
+  query getRateCardsForProductDetails($productIds: [ID!], $limit: Int, $searchTerm: String) {
+    rateCards(productIds: $productIds, limit: $limit, searchTerm: $searchTerm) {
       metadata {
         totalCount
       }
@@ -74,11 +77,11 @@ gql`
   }
 
   query getRateCardsForProductFilterDetails(
-    $productFilterId: ID
+    $productFilterIds: [ID!]
     $limit: Int
     $searchTerm: String
   ) {
-    rateCards(productFilterId: $productFilterId, limit: $limit, searchTerm: $searchTerm) {
+    rateCards(productFilterIds: $productFilterIds, limit: $limit, searchTerm: $searchTerm) {
       metadata {
         totalCount
       }
@@ -100,7 +103,7 @@ const PREVIEW_LIMIT = 7
 // Discriminated scope: which parent entity this preview is embedded under. Typed
 // off the co-located parent fragments above (not inline shapes), so the parent
 // detail queries that spread those fragments are what supply the data. The
-// productFilter fragment additionally carries its own product item (id/name)
+// productFilter fragment additionally carries its own product item metadata
 // because that is the exact shape `useRateCardDrawer`'s `attachToProductFilter`
 // needs to seed the create form's product item combobox.
 export type RateCardPreviewScope =
@@ -207,7 +210,7 @@ const RateCardPreviewListForProduct = ({
 }) => {
   const [getRateCards, { data, error, loading, variables }] =
     useGetRateCardsForProductDetailsLazyQuery({
-      variables: { productId, limit: PREVIEW_LIMIT },
+      variables: { productIds: [productId], limit: PREVIEW_LIMIT },
       notifyOnNetworkStatusChange: true,
       fetchPolicy: 'cache-and-network',
     })
@@ -247,7 +250,7 @@ const RateCardPreviewListForProductFilter = ({
 }) => {
   const [getRateCards, { data, error, loading, variables }] =
     useGetRateCardsForProductFilterDetailsLazyQuery({
-      variables: { productFilterId, limit: PREVIEW_LIMIT },
+      variables: { productFilterIds: [productFilterId], limit: PREVIEW_LIMIT },
       notifyOnNetworkStatusChange: true,
       fetchPolicy: 'cache-and-network',
     })

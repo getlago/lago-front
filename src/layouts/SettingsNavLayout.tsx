@@ -1,6 +1,6 @@
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 import { useEffect, useRef, useState } from 'react'
-import { generatePath, Location, Outlet, useParams } from 'react-router-dom'
+import { generatePath, Location, Outlet, useParams } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import { ButtonLink } from '~/components/designSystem/ButtonLink'

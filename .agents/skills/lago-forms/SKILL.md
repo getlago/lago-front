@@ -159,13 +159,15 @@ formApi.setErrorMap({
 })
 ```
 
-Clear the error when the user edits the field, or submit stays disabled — setting and
-clearing are two separate jobs. For a duplicate `code`, `applyExistingCodeError(formApi)`
-(`~/core/form/existingCodeError`) does only the setting half, in the mutation catch on
-`LagoApiError.ValueAlreadyExist`. The clearing half belongs to the field, gated on
-`EXISTING_CODE_ERROR_MESSAGE` so it does not wipe the zod required-check — already
-implemented in `NameAndCodeGroup` and `ChargeCodeField`, so mount one of those rather
-than re-wiring the listener.
+Prefer `setErrorMap` for a server error: it stamps the error as form-owned, so the next
+validation drops it and submit re-enables on its own. A `setFieldMeta` error reads as
+field-owned, and on these forms — schema on the form, no validator on the field — nothing
+ever clears it, so submit stays disabled for the life of the form.
+
+For a duplicate `code` that is `applyExistingCodeError(formApi)`
+(`~/core/form/existingCodeError`), called in the mutation catch on
+`LagoApiError.ValueAlreadyExist`. It needs no clearing counterpart; do not add a listener
+to clear it.
 
 Validator-produced errors live directly on `errorMap.onDynamic` keyed by field path; the
 `.fields` sub-shape exists only for errors set manually. Reading section validity for

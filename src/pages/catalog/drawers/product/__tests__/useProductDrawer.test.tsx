@@ -52,8 +52,8 @@ jest.mock('~/core/apolloClient', () => ({
   addToast: jest.fn(),
 }))
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useParams: () => ({ organizationSlug: 'acme' }),
 }))
 
@@ -78,7 +78,7 @@ const productFixture: ProductForDrawerFragment = {
 
 const usageProductFixture: ProductForDrawerFragment = {
   ...productFixture,
-  productType: ProductTypeEnum.Usage,
+  productType: ProductTypeEnum.Metered,
   billableMetric: { id: 'bm-1', name: 'API calls', code: 'api_calls' },
 }
 

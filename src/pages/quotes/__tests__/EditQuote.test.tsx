@@ -348,7 +348,7 @@ describe('EditQuote', () => {
     mockSyncEntitiesWithBlocks.mockReturnValue(null)
     mockSyncDiscountBlocks.mockReturnValue(null)
 
-    const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
+    const useParamsMock = jest.requireMock('react-router').useParams as jest.Mock
 
     useParamsMock.mockReturnValue({ quoteId: 'quote-123' })
     mockUseQuote.mockReturnValue({ quote: mockQuote, loading: false, refetch: mockRefetchQuote })
@@ -488,7 +488,7 @@ describe('EditQuote', () => {
 
     describe('WHEN quoteId is not available', () => {
       it('THEN should not navigate', async () => {
-        const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
+        const useParamsMock = jest.requireMock('react-router').useParams as jest.Mock
 
         useParamsMock.mockReturnValue({})
 

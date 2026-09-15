@@ -1,6 +1,6 @@
 import { revalidateLogic } from '@tanstack/react-form'
 import { useEffect, useRef } from 'react'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { BillingEntityFormPicker } from '~/components/billingEntity/BillingEntityFormPicker'
 import { Button } from '~/components/designSystem/Button'

@@ -1,5 +1,4 @@
-import debounce from 'lodash/debounce'
-import { memo, useCallback, useMemo } from 'react'
+import { memo } from 'react'
 import {
   Area,
   AreaChart as RechartAreaChart,
@@ -76,20 +75,6 @@ const AreaChart = memo(
     const { hoverDataIndex, setHoverDataIndex, setClickedDataIndex, handleMouseLeave } =
       useAnalyticsState()
 
-    const handleHoverUpdate = useCallback(
-      (index: number | undefined) => {
-        setHoverDataIndex(index)
-      },
-      [setHoverDataIndex],
-    )
-
-    // Use the hover data index from context
-    const { localHoverDataIndex } = useMemo(() => {
-      return {
-        localHoverDataIndex: hoverDataIndex,
-      }
-    }, [hoverDataIndex])
-
     return (
       <ChartWrapper blur={blur}>
         <ResponsiveContainer width="100%" height={height}>
@@ -105,26 +90,11 @@ const AreaChart = memo(
               typeof event?.activeTooltipIndex === 'number' &&
               setClickedDataIndex(event.activeTooltipIndex)
             }
-            onMouseMove={useMemo(
-              () =>
-                debounce(
-                  (event) => {
-                    const newIndex = event?.activeTooltipIndex
-
-                    if (typeof newIndex === 'number') {
-                      handleHoverUpdate(newIndex)
-                    }
-                  },
-                  // Scale debounce time more aggressively for larger datasets
-                  // For 300 elements: ~8ms
-                  // For 1000 elements: ~49ms
-                  Math.max(1, Math.round(Math.pow((data?.length || 0) / 300, 1.5) * 8)),
-                  {
-                    leading: true,
-                  },
-                ),
-              [handleHoverUpdate, data?.length],
-            )}
+            onMouseMove={(event) => {
+              if (typeof event?.activeTooltipIndex === 'number') {
+                setHoverDataIndex(event.activeTooltipIndex)
+              }
+            }}
             onMouseLeave={handleMouseLeave}
           >
             <defs>
@@ -254,8 +224,8 @@ const AreaChart = memo(
             {!loading && (
               <RechartTooltip
                 isAnimationActive={false}
-                defaultIndex={localHoverDataIndex}
-                active={typeof localHoverDataIndex === 'number'}
+                defaultIndex={hoverDataIndex}
+                active={typeof hoverDataIndex === 'number'}
                 cursor={{
                   stroke: `${theme.palette.grey[500]}`,
                   strokeDasharray: '2 2',

@@ -1,5 +1,5 @@
 import { FC, RefObject } from 'react'
-import { generatePath, useSearchParams } from 'react-router-dom'
+import { generatePath, useSearchParams } from 'react-router'
 
 import { ActivityLogsTable as Table } from '~/components/activityLogs/ActivityLogsTable'
 import { PaginatedContent } from '~/components/designSystem/Pagination'

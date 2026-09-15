@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { ReactNode } from 'react'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'

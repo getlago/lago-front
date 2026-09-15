@@ -129,7 +129,7 @@ describe('SubscriptionDetails', () => {
     mockIsStatusEditable.mockReturnValue(true)
     mockUseCurrentUser.mockReturnValue({ isPremium: true })
 
-    const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
+    const useParamsMock = jest.requireMock('react-router').useParams as jest.Mock
 
     useParamsMock.mockReturnValue({
       customerId: 'customer-1',
@@ -559,7 +559,7 @@ describe('SubscriptionDetails', () => {
 
   describe('GIVEN the subscription is accessed from plan context', () => {
     beforeEach(() => {
-      const useParamsMock = jest.requireMock('react-router-dom').useParams as jest.Mock
+      const useParamsMock = jest.requireMock('react-router').useParams as jest.Mock
 
       useParamsMock.mockReturnValue({
         planId: 'plan-1',

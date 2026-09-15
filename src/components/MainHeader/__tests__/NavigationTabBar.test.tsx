@@ -18,6 +18,7 @@ const baseTabs: NavigationTabBarItem[] = [
 describe('NavigationTabBar', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    window.history.pushState({}, '', '/')
   })
 
   describe('GIVEN tabs are provided', () => {
@@ -142,6 +143,27 @@ describe('NavigationTabBar', () => {
         render(<NavigationTabBar tabs={tabsWithDisabledLink} />)
 
         expect(screen.getByTestId('tab-disabled')).not.toHaveAttribute('href')
+      })
+    })
+  })
+
+  describe('GIVEN the tab already matching the URL', () => {
+    describe('WHEN the user cmd-clicks it', () => {
+      it('THEN should not prevent the browser default', () => {
+        window.history.pushState({}, '', '/customers/1/invoices')
+
+        render(<NavigationTabBar tabs={baseTabs} />)
+
+        const event = new MouseEvent('click', {
+          bubbles: true,
+          cancelable: true,
+          button: 0,
+          metaKey: true,
+        })
+
+        screen.getByTestId('tab-invoices').dispatchEvent(event)
+
+        expect(event.defaultPrevented).toBe(false)
       })
     })
   })

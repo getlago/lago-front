@@ -1,5 +1,5 @@
 import { FC } from 'react'
-import { generatePath, useSearchParams } from 'react-router-dom'
+import { generatePath, useSearchParams } from 'react-router'
 
 import { CustomerPaymentsList } from '~/components/customers/CustomerPaymentsList'
 import { usePageSearchParam } from '~/components/designSystem/Pagination'

@@ -1,21 +1,19 @@
 import InputAdornment from '@mui/material/InputAdornment'
 import { useStore } from '@tanstack/react-form'
-import { useEffect, useMemo, useRef } from 'react'
+import { useMemo, useRef } from 'react'
 
+import { Alert } from '~/components/designSystem/Alert'
 import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
-import { BASE_DRAWER_CONTENT_ATTR } from '~/components/drawers/const'
-import {
-  CreateMoreResetSignal,
-  useCreateMoreResetIteration,
-} from '~/components/drawers/createMore/useCreateMore'
-import { focusFirstInput } from '~/components/drawers/useFocusTrap'
+import { CreateMoreResetBoundary } from '~/components/drawers/createMore/CreateMoreResetBoundary'
+import { CreateMoreResetSignal } from '~/components/drawers/createMore/useCreateMore'
+import { BasicComboBoxData } from '~/components/form/ComboBox/types'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { ChargeModelSelector } from '~/components/plans/chargeAccordion/ChargeModelSelector'
 import { ChargeWrapperSwitch } from '~/components/plans/chargeAccordion/ChargeWrapperSwitch'
 import { SpendingMinimumOptionSection } from '~/components/plans/chargeAccordion/SpendingMinimumOptionSection'
 import { useCustomChargeDrawer } from '~/components/plans/drawers/common/useCustomChargeDrawer'
-import { clearExistingCodeError } from '~/core/form/existingCodeError'
+import { chargeModelLookupTranslation } from '~/core/constants/form'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import getPropertyShape from '~/core/serializers/getPropertyShape'
 import { getTimezoneConfig } from '~/core/timezone'
@@ -32,7 +30,6 @@ import { withForm } from '~/hooks/forms/useAppform'
 import { useChargeForm } from '~/hooks/plans/useChargeForm'
 import { useCustomPricingUnits } from '~/hooks/plans/useCustomPricingUnits'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-import { tw } from '~/styles/utils'
 
 import {
   BILLING_INTERVAL_UNIT_TRANSLATION_KEY,
@@ -45,6 +42,13 @@ import {
   isEffectiveFromAppendable,
   toChargeModel,
 } from './utils'
+
+import {
+  getAvailableRateModels,
+  NO_AVAILABLE_RATE_MODELS_KEY,
+  RATE_MODEL_AVAILABILITY_LOADING_KEY,
+  RATE_MODEL_UNAVAILABLE_KEY,
+} from '../../utils/rateModelAvailability'
 
 export const RATE_CARD_RATE_DRAWER_CODE_TEST_ID = 'rate-card-rate-code'
 export const RATE_CARD_RATE_DRAWER_BILLING_INTERVAL_COUNT_TEST_ID =
@@ -60,6 +64,8 @@ export type RateCardRateDrawerRateCard = {
   billingTiming: RateCardBillingTimingEnum
   productType: ProductTypeEnum
   aggregationType?: AggregationTypeEnum | null
+  recurring?: boolean | null
+  proration: boolean
 }
 
 type RateCardRateDrawerSectionsExtraProps = {
@@ -80,6 +86,7 @@ const rateCardRateDrawerSectionsDefaultProps: RateCardRateDrawerSectionsExtraPro
     billingTiming: RateCardBillingTimingEnum.Arrears,
     productType: ProductTypeEnum.Fixed,
     aggregationType: undefined,
+    proration: false,
   },
   isEdit: false,
   isActiveRate: false,
@@ -122,21 +129,42 @@ const RateCardRateDrawerFormSections = withForm({
     const isCodeDerivedFromDateRef = useRef(!isEdit)
     const isSeedingCodeRef = useRef(false)
 
-    const rateModelComboboxData = useMemo(() => {
-      if (rateCard.productType === ProductTypeEnum.Fixed) {
-        return getFixedChargeModelComboboxData()
-      }
+    const availableRateModels = getAvailableRateModels(rateCard)
+    const availableRateModelValues: readonly string[] = availableRateModels ?? []
+    const isRateModelAvailable = availableRateModelValues.includes(rateModel)
+    let rateModelOptions: BasicComboBoxData[] = []
 
-      if (!rateCard.aggregationType) return []
-
-      return getUsageChargeModelComboboxData({
+    if (rateCard.productType === ProductTypeEnum.Fixed) {
+      rateModelOptions = getFixedChargeModelComboboxData()
+    } else if (rateCard.aggregationType) {
+      rateModelOptions = getUsageChargeModelComboboxData({
         isPremium,
         aggregationType: rateCard.aggregationType,
       })
-      // The two getters are recreated on every render by `useChargeForm`, so listing them
-      // would defeat this memo; their output only varies with the deps kept below.
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [rateCard.productType, rateCard.aggregationType, isPremium])
+    }
+
+    const rateModelComboboxData = rateModelOptions.filter((option) =>
+      availableRateModelValues.includes(option.value),
+    )
+
+    if (!isRateModelAvailable) {
+      const currentModelOption = rateModelOptions.find((option) => option.value === rateModel) ?? {
+        label: translate(chargeModelLookupTranslation[toChargeModel(rateModel)]),
+        value: rateModel,
+      }
+
+      rateModelComboboxData.push({ ...currentModelOption, disabled: true })
+    }
+
+    let modelCompatibilityMessage: string | undefined
+
+    if (!isActiveRate) {
+      if (availableRateModels?.length === 0) {
+        modelCompatibilityMessage = translate(NO_AVAILABLE_RATE_MODELS_KEY)
+      } else if (availableRateModels && !isRateModelAvailable) {
+        modelCompatibilityMessage = translate(RATE_MODEL_UNAVAILABLE_KEY)
+      }
+    }
 
     const billingIntervalUnitComboboxData = useMemo(
       () =>
@@ -170,9 +198,9 @@ const RateCardRateDrawerFormSections = withForm({
     const handleRateModelUpdate = (name: string, value: unknown) => {
       if (name !== 'chargeModel') return
 
-      const nextRateModel = value as RateCardRateModelEnum
+      const nextRateModel = availableRateModels?.find((model) => model === value)
 
-      if (nextRateModel === rateModel) return
+      if (!nextRateModel || nextRateModel === rateModel || isActiveRate) return
 
       if (!isPremium && nextRateModel === RateCardRateModelEnum.GraduatedPercentage) {
         openPremiumWarningDialog()
@@ -230,8 +258,6 @@ const RateCardRateDrawerFormSections = withForm({
             name="code"
             listeners={{
               onChange: () => {
-                clearExistingCodeError(form)
-
                 if (isSeedingCodeRef.current) return
 
                 isCodeDerivedFromDateRef.current = false
@@ -334,13 +360,21 @@ const RateCardRateDrawerFormSections = withForm({
             </div>
           )}
 
-          <ChargeModelSelector
-            label={translate('text_65201b8216455901fe273dd5')}
-            disabled={isActiveRate}
-            localCharge={localCharge}
-            chargeModelComboboxData={rateModelComboboxData}
-            handleUpdate={handleRateModelUpdate}
-          />
+          {!isActiveRate && availableRateModels === undefined && (
+            <Alert type="info">{translate(RATE_MODEL_AVAILABILITY_LOADING_KEY)}</Alert>
+          )}
+          <form.AppField name="rateModel">
+            {() => (
+              <ChargeModelSelector
+                label={translate('text_65201b8216455901fe273dd5')}
+                disabled={isActiveRate || availableRateModels === undefined}
+                localCharge={localCharge}
+                chargeModelComboboxData={rateModelComboboxData}
+                handleUpdate={handleRateModelUpdate}
+                alreadyUsedChargeAlertMessage={modelCompatibilityMessage}
+              />
+            )}
+          </form.AppField>
 
           <ChargeWrapperSwitch
             chargeType={rateCard.productType === ProductTypeEnum.Fixed ? 'fixed' : 'usage'}
@@ -419,35 +453,18 @@ export const RateCardRateDrawerContent = withForm({
     initialMinAmountCents,
     resetSignal,
   }) {
-    const rootRef = useRef<HTMLDivElement>(null)
-    const resetIteration = useCreateMoreResetIteration(resetSignal)
-
-    useEffect(() => {
-      if (resetIteration === 0) return
-
-      rootRef.current
-        ?.closest<HTMLElement>(`[${BASE_DRAWER_CONTENT_ATTR}]`)
-        ?.scrollTo({ top: 0, behavior: 'smooth' })
-      focusFirstInput(rootRef.current)
-    }, [resetIteration])
-
     return (
-      <div ref={rootRef}>
-        <div
-          key={resetIteration}
-          className={tw('flex flex-col gap-12', resetIteration > 0 && 'animate-fade-in-right')}
-        >
-          <RateCardRateDrawerFormSections
-            form={form}
-            rateCard={rateCard}
-            isEdit={isEdit}
-            isActiveRate={isActiveRate}
-            isCodeLocked={isCodeLocked}
-            getEffectiveFromBoundary={getEffectiveFromBoundary}
-            initialMinAmountCents={initialMinAmountCents}
-          />
-        </div>
-      </div>
+      <CreateMoreResetBoundary resetSignal={resetSignal}>
+        <RateCardRateDrawerFormSections
+          form={form}
+          rateCard={rateCard}
+          isEdit={isEdit}
+          isActiveRate={isActiveRate}
+          isCodeLocked={isCodeLocked}
+          getEffectiveFromBoundary={getEffectiveFromBoundary}
+          initialMinAmountCents={initialMinAmountCents}
+        />
+      </CreateMoreResetBoundary>
     )
   },
 })

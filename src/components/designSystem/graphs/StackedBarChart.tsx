@@ -1,6 +1,5 @@
 import { tw } from 'lago-design-system'
-import debounce from 'lodash/debounce'
-import { useCallback, useMemo } from 'react'
+import { useMemo } from 'react'
 import {
   Bar,
   BarChart,
@@ -88,6 +87,8 @@ type StackedBarChartProps<T> = {
 }
 
 const LOADING_TICK_SIZE = 32
+const DEFAULT_TOOLTIP_Y_GAP = 60
+const TOOLTIP_INNER_LINE_HEIGHT = 31
 
 type CustomTooltipProps<T> = {
   includeHidden: boolean
@@ -146,7 +147,7 @@ const CustomTooltip = <T,>({
       </Typography>
 
       <div className="flex flex-col gap-2">
-        {bars
+        {[...bars]
           .sort((a, b) => (a?.tooltipIndex || 0) - (b?.tooltipIndex || 0))
           .map((bar, i) => (
             <div key={i} className="flex items-center justify-between gap-2">
@@ -184,13 +185,6 @@ const StackedBarChart = <T extends DataItem>({
   const { setClickedDataIndex, setHoverDataIndex, hoverDataIndex, handleMouseLeave } =
     useAnalyticsState()
 
-  const handleHoverUpdate = useCallback(
-    (index: number | undefined) => {
-      setHoverDataIndex(index)
-    },
-    [setHoverDataIndex],
-  )
-
   const { localData, localBars } = useMemo(() => {
     const fakeData = {
       localData: multipleStackedBarChartLoadingFakeData as unknown as T[],
@@ -209,18 +203,7 @@ const StackedBarChart = <T extends DataItem>({
     }
   }, [blur, data, bars, loading])
 
-  const { localHoverDataIndex } = useMemo(() => {
-    return {
-      localHoverDataIndex: hoverDataIndex,
-    }
-  }, [hoverDataIndex])
-
-  const yTooltipPosition = useMemo(() => {
-    const DEFAULT_TOOLTIP_Y_GAP = 60
-    const TOOLTIP_INNER_LINE_HEIGHT = 31
-
-    return -(DEFAULT_TOOLTIP_Y_GAP + (bars.length || 0) * TOOLTIP_INNER_LINE_HEIGHT)
-  }, [bars.length])
+  const yTooltipPosition = -(DEFAULT_TOOLTIP_Y_GAP + bars.length * TOOLTIP_INNER_LINE_HEIGHT)
 
   const hasOnlyZeroValues: boolean = useMemo(() => {
     if (!localData?.length || loading) {
@@ -266,15 +249,11 @@ const StackedBarChart = <T extends DataItem>({
           data={localData}
           stackOffset="sign"
           onMouseLeave={handleMouseLeave}
-          onMouseMove={useMemo(
-            () =>
-              debounce((event) => {
-                const index = event?.activeTooltipIndex
-
-                if (typeof index === 'number') handleHoverUpdate(index)
-              }, 16),
-            [handleHoverUpdate],
-          )}
+          onMouseMove={(event) => {
+            if (typeof event?.activeTooltipIndex === 'number') {
+              setHoverDataIndex(event.activeTooltipIndex)
+            }
+          }}
           onClick={(event) => {
             if (typeof event?.activeTooltipIndex === 'number') {
               setClickedDataIndex(event.activeTooltipIndex)
@@ -469,9 +448,9 @@ const StackedBarChart = <T extends DataItem>({
 
           {!loading && (
             <RechartTooltip
-              defaultIndex={localHoverDataIndex}
+              defaultIndex={hoverDataIndex}
               cursor={false}
-              active={typeof localHoverDataIndex === 'number'}
+              active={typeof hoverDataIndex === 'number'}
               includeHidden={true}
               offset={0}
               position={{ y: yTooltipPosition }}
@@ -498,14 +477,14 @@ const StackedBarChart = <T extends DataItem>({
             />
           )}
 
-          {typeof localHoverDataIndex === 'number' && (
+          {typeof hoverDataIndex === 'number' && (
             <>
               <Customized
                 // @ts-expect-error Recharts xAxisMap and yAxisMap prop typing is incomplete
                 component={({ xAxisMap, yAxisMap }) => {
                   const xAxis = xAxisMap[Object.keys(xAxisMap)[0]]
                   const yAxis = yAxisMap[Object.keys(yAxisMap)[0]]
-                  const xValue = data?.[localHoverDataIndex]?.[xAxisDataKey]
+                  const xValue = data?.[hoverDataIndex]?.[xAxisDataKey]
 
                   if (!xAxis || !xValue || typeof xAxis.scale !== 'function') return null
 
@@ -530,7 +509,7 @@ const StackedBarChart = <T extends DataItem>({
             </>
           )}
 
-          {localBars
+          {[...localBars]
             .sort((a, b) => (a?.barIndex || -100) - (b?.barIndex || -100))
             .map((line) => (
               <Bar

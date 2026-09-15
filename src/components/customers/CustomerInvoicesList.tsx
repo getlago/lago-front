@@ -1,7 +1,7 @@
 import { FetchMoreQueryOptions, gql } from '@apollo/client'
 import { IconName } from 'lago-design-system'
 import { FC } from 'react'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
 import { PaginatedContent } from '~/components/designSystem/Pagination'

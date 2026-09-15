@@ -48,8 +48,8 @@ jest.mock('~/hooks/useBillingEntitiesOptions', () => ({
   }),
 }))
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useParams: jest.fn(() => ({ customerId: 'cust-123' })),
   generatePath: jest.fn((route: string, params: { customerId: string }) =>
     route.replace(':customerId', params.customerId),

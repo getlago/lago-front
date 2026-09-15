@@ -1,3 +1,6 @@
+import { AnyFormApi } from '@tanstack/react-form'
+
+import { applyExistingCodeError } from '~/core/form/existingCodeError'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { AlertThreshold, CurrencyEnum, ThresholdInput } from '~/generated/graphql'
 
@@ -91,23 +94,12 @@ export const createThresholdSetters = (form: ThresholdsFormApi): ThresholdSetter
   },
 })
 
-/** The slice of an alert form the duplicate-code error handler relies on. */
-type CodeErrorFormApi = {
-  setErrorMap: (errorMap: {
-    onDynamic: { fields: { code: { message: string; path: ['code'] } } }
-  }) => void
-}
-
 /**
  * Marks the code field with the "value already exists" error and scrolls back
  * to it, as both alert forms do when the API rejects a duplicate code.
  */
-export const setCodeAlreadyExistsError = (formApi: CodeErrorFormApi): void => {
-  formApi.setErrorMap({
-    onDynamic: {
-      fields: { code: { message: 'text_632a2d437e341dcc76817556', path: ['code'] } },
-    },
-  })
+export const setCodeAlreadyExistsError = (formApi: AnyFormApi): void => {
+  applyExistingCodeError(formApi)
 
   document.getElementById('root')?.scrollTo({ top: 0 })
 }

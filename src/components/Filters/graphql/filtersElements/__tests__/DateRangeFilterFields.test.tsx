@@ -194,8 +194,7 @@ describe('DateRangeFilterFields', () => {
     const renderInAmbientZone = (
       ambientZone: string,
     ): { fromPicker: DatePickerProps; toPicker: DatePickerProps; setFilterValue: jest.Mock } => {
-      // DatePicker only switches Settings.defaultZone from an effect, so the first render sees
-      // the organization's zone — which UserIdentifier sets app-wide.
+      // The ambient zone is the organization's, which UserIdentifier sets app-wide.
       Settings.defaultZone = ambientZone
 
       const setFilterValue = jest.fn()

@@ -20,10 +20,9 @@ type FiltersItemRateCardProductCategoryProps = {
 }
 
 // Multi-select, array-native: real selections reach the URL/filter state as a plural
-// `productCategoryIds` array (see formatFiltersForRateCardsQuery). The `rateCards` query has no
-// productCategory-level arg today though, so mapRateCardFilterVars ignores this dimension
-// entirely - it is UI-only pending backend support. Reuses the same `productCategories` query
-// as FiltersItemProductProductCategory rather than co-locating a duplicate.
+// `productCategoryIds` array (see formatFiltersForRateCardsQuery), which the `rateCards`
+// query now accepts directly. Reuses the same `productCategories` query as
+// FiltersItemProductProductCategory rather than co-locating a duplicate.
 export const FiltersItemRateCardProductCategory = ({
   value,
   setFilterValue,

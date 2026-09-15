@@ -1,8 +1,9 @@
 import { gql } from '@apollo/client'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
-import { Table, TablePlaceholder } from '~/components/designSystem/Table/Table'
+import { buildSearchAwareTablePlaceholder } from '~/components/designSystem/Table/buildSearchAwareTablePlaceholder'
+import { Table } from '~/components/designSystem/Table/Table'
 import {
   AvailableFiltersEnum,
   escapeFilterLabel,
@@ -71,31 +72,13 @@ const ProductsPreview = ({ productCategory }: { productCategory: ProductCategory
 
   const totalCount = data?.products?.metadata?.totalCount ?? 0
 
-  // Standard, search-aware table empty/error placeholder (same design as every
-  // other list in the app); the Table renders it via `hasError`/empty data.
-  const placeholder: TablePlaceholder = {
-    errorState: variables?.searchTerm
-      ? {
-          title: translate('text_623b53fea66c76017eaebb6e'),
-          subtitle: translate('text_63bab307a61c62af497e0599'),
-        }
-      : {
-          title: translate('text_629728388c4d2300e2d380d5'),
-          subtitle: translate('text_629728388c4d2300e2d380eb'),
-          buttonTitle: translate('text_629728388c4d2300e2d38110'),
-          buttonVariant: 'primary',
-          buttonAction: () => location.reload(),
-        },
-    emptyState: variables?.searchTerm
-      ? {
-          title: translate('text_1783980718114wya9wp01m5i'),
-          subtitle: translate('text_63bee4e10e2d53912bfe4da7'),
-        }
-      : {
-          title: translate('text_1783980718114bqx4jce32fv'),
-          subtitle: translate('text_1783980718114kj0fch41rw4'),
-        },
-  }
+  const placeholder = buildSearchAwareTablePlaceholder({
+    translate,
+    hasSearchTerm: !!variables?.searchTerm,
+    noResultTitleKey: 'text_1783980718114wya9wp01m5i',
+    emptyTitleKey: 'text_1783980718114bqx4jce32fv',
+    emptySubtitleKey: 'text_1783980718114kj0fch41rw4',
+  })
 
   // The productCategory filter value is id-encoded (chip shows the code); the "View all"
   // link deep-links to the standalone list pre-filtered on this productCategory.

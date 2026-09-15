@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react'
-import { generatePath } from 'react-router-dom'
+import { generatePath } from 'react-router'
 
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE } from '~/core/router'

@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
@@ -69,7 +69,6 @@ export const buildRateCardSnapshotKey = (
     rateCard?.ratesCount,
     rateCard?.currency,
     rateCard?.appliedPricingUnitCode,
-    rateCard?.walletTargetable,
     rateCard?.displayOnInvoice,
     rateCard?.regroupPaidFees,
     rateCard?.activeRate?.effectiveFrom,

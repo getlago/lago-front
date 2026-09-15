@@ -3,7 +3,7 @@ import Stack from '@mui/material/Stack'
 import { useFormik } from 'formik'
 import _omit from 'lodash/omit'
 import { useEffect, useRef, useState } from 'react'
-import { matchPath } from 'react-router-dom'
+import { matchPath } from 'react-router'
 import { array, bool, number, object, string } from 'yup'
 
 import { BillableMetricCodeSnippet } from '~/components/billableMetrics/BillableMetricCodeSnippet'

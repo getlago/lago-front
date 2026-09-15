@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { generatePath, useParams } from 'react-router-dom'
+import { generatePath, useParams } from 'react-router'
 
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
@@ -170,7 +170,7 @@ const AnrokIntegrationDetails = () => {
               tab: AnrokIntegrationDetailsTabs.Items,
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
             }),
-            content: <AnrokIntegrationItemsList integrationId={anrokIntegration?.id} />,
+            content: <AnrokIntegrationItemsList integrationId={integrationId} />,
           },
         ]}
       />

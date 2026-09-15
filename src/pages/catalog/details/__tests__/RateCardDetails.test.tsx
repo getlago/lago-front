@@ -73,7 +73,6 @@ const rateCardFixture = {
   displayOnInvoice: true,
   regroupPaidFees: null,
   proration: false,
-  walletTargetable: false,
   attachedToPlanOrSubscription: false,
   attachedToSubscriptions: false,
   ratesCount: 0,
@@ -82,7 +81,7 @@ const rateCardFixture = {
     id: 'pitem-1',
     name: 'Seats',
     code: 'seats',
-    productType: 'usage',
+    productType: 'metered',
     billableMetric: {
       __typename: 'BillableMetric',
       id: 'bm-1',

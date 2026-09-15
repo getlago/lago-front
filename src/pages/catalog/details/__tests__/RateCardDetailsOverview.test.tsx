@@ -6,7 +6,6 @@ import {
   GetRateCardForDetailsOverviewDocument,
   RateCardBillingTimingEnum,
   RateCardForDetailsOverviewFragment,
-  RateCardRegroupPaidFeesEnum,
 } from '~/generated/graphql'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
@@ -53,9 +52,8 @@ const attachedRateCard: RateCardForDetailsOverviewFragment = {
   appliedPricingUnitCode: null,
   billingTiming: RateCardBillingTimingEnum.Arrears,
   displayOnInvoice: true,
-  regroupPaidFees: RateCardRegroupPaidFeesEnum.None,
+  regroupPaidFees: null,
   proration: false,
-  walletTargetable: false,
   attachedToPlanOrSubscription: false,
   attachedToSubscriptions: false,
   product: {
@@ -70,7 +68,7 @@ const attachedRateCard: RateCardForDetailsOverviewFragment = {
       name: 'Compute',
       invoiceDisplayName: null,
     },
-    productType: 'usage',
+    productType: 'metered',
     billableMetric: {
       __typename: 'BillableMetric',
       id: 'bm-1',
@@ -196,11 +194,11 @@ describe('RateCardDetailsOverview', () => {
         expect(await screen.findByText('text_66968fba80f8f89a8aefdebf')).toBeInTheDocument()
       })
 
-      it('THEN displays prorate amount and supports target wallet as No', async () => {
+      it('THEN displays the proration as No', async () => {
         await act(() => renderOverview())
 
         await screen.findByText('Standard rate card')
-        expect(screen.getAllByText('text_176416000997957yqelmt2m2')).toHaveLength(2)
+        expect(screen.getAllByText('text_176416000997957yqelmt2m2')).toHaveLength(1)
       })
     })
   })

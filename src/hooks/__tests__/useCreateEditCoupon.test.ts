@@ -53,8 +53,8 @@ jest.mock('~/core/router', () => ({
   useNavigate: () => mockNavigate,
 }))
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useParams: () => mockParams,
 }))
 

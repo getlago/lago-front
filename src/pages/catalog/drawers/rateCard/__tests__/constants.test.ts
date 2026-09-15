@@ -13,6 +13,8 @@ import {
   rateCardDrawerSchema,
 } from '../constants'
 
+const VALUE_REQUIRED_KEY = 'text_624ea7c29103fd010732ab7d'
+
 describe('rate card constants', () => {
   it('defaults billing timing to arrears without a pricing unit', () => {
     expect(RATE_CARD_FORM_DEFAULTS.billingTiming).toBe(RateCardBillingTimingEnum.Arrears)
@@ -67,6 +69,33 @@ describe('rate card constants', () => {
         code: 'c',
       }).success,
     ).toBe(false)
+  })
+
+  // The combobox clear button stores `undefined`, not ''.
+  it('reports the required message when productId is cleared', () => {
+    const result = rateCardDrawerSchema.safeParse({
+      ...RATE_CARD_FORM_DEFAULTS,
+      currency: 'USD',
+      name: 'N',
+      code: 'c',
+      productId: undefined,
+    })
+
+    expect(result.success).toBe(false)
+    expect(result.error?.issues[0]?.message).toBe(VALUE_REQUIRED_KEY)
+  })
+
+  it('accepts a cleared product filter', () => {
+    expect(
+      rateCardDrawerSchema.safeParse({
+        ...RATE_CARD_FORM_DEFAULTS,
+        currency: 'USD',
+        name: 'N',
+        code: 'c',
+        productId: 'pi_1',
+        productFilterId: undefined,
+      }).success,
+    ).toBe(true)
   })
 
   it('omits the pricing unit code on create when there is none', () => {

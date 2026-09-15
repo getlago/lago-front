@@ -14,12 +14,8 @@ type DateRangeFilterFieldsProps = {
   placement?: DatePickerProps['placement']
 }
 
-/**
- * Bounds are parsed in the pickers' own zone, not the ambient Luxon one. `DatePicker` only
- * switches `Settings.defaultZone` from an effect, so during the first render the ambient zone
- * is still the organization's — which would put a UTC-backed bound on the previous calendar
- * day and cap the calendars one day off.
- */
+// Bounds are parsed in the pickers' own zone: the ambient Luxon zone is the organization's, which
+// would put a UTC-backed bound on the previous calendar day and clamp the opposite bound one day off.
 const parseBound = (isoDate?: string | null, zone?: string): DateTime | undefined => {
   if (!isoDate) return undefined
 

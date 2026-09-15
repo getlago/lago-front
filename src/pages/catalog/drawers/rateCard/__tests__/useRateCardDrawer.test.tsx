@@ -7,6 +7,7 @@ import { addToast } from '~/core/apolloClient'
 import {
   AggregationTypeEnum,
   CurrencyEnum,
+  ProductForRateCardDrawerFragment,
   ProductTypeEnum,
   RateCardBillingTimingEnum,
   RateCardForDrawerFragment,
@@ -51,8 +52,8 @@ jest.mock('~/core/apolloClient', () => ({
   addToast: jest.fn(),
 }))
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useParams: () => ({ organizationSlug: 'acme' }),
 }))
 
@@ -96,7 +97,6 @@ const rateCardFixture: RateCardForDrawerFragment = {
   displayOnInvoice: false,
   regroupPaidFees: RateCardRegroupPaidFeesEnum.Invoice,
   proration: true,
-  walletTargetable: true,
   attachedToPlanOrSubscription: false,
   attachedToSubscriptions: false,
   ratesCount: 0,
@@ -104,7 +104,7 @@ const rateCardFixture: RateCardForDrawerFragment = {
     id: 'pi-1',
     name: 'Metered API',
     code: 'metered_api',
-    productType: ProductTypeEnum.Usage,
+    productType: ProductTypeEnum.Metered,
     billableMetric: {
       id: 'bm-1',
       name: 'API calls',
@@ -183,7 +183,6 @@ describe('useRateCardDrawer edit flow', () => {
       description: 'Old description',
       billingTiming: RateCardBillingTimingEnum.Advance,
       proration: true,
-      walletTargetable: true,
       currency: CurrencyEnum.Usd,
       displayOnInvoice: false,
       regroupPaidFees: RateCardRegroupPaidFeesEnum.Invoice,
@@ -313,5 +312,35 @@ describe('useRateCardDrawer edit flow', () => {
 
     expect(contentProps?.isAttached).toBe(false)
     expect(contentProps?.disableCodeInput).toBe(false)
+  })
+})
+
+describe('rate card attachment metadata', () => {
+  const product: ProductForRateCardDrawerFragment = {
+    id: 'attached-usage',
+    name: 'Recurring API',
+    productType: ProductTypeEnum.Metered,
+    billableMetric: {
+      id: 'metric-1',
+      aggregationType: AggregationTypeEnum.SumAgg,
+      recurring: true,
+    },
+  }
+
+  it.each([
+    { attachToProduct: product },
+    { attachToProductFilter: { id: 'filter-1', name: 'Europe', product } },
+  ])('passes complete metadata for an attached product or filter', (attachment) => {
+    const { result } = renderDrawerHook()
+
+    act(() => result.current.openDrawer(attachment))
+
+    expect((lastDrawerArgs?.children as ReactElement).props.productSeed).toEqual({
+      value: 'attached-usage',
+      label: 'Recurring API',
+      productType: ProductTypeEnum.Metered,
+      aggregationType: AggregationTypeEnum.SumAgg,
+      recurring: true,
+    })
   })
 })

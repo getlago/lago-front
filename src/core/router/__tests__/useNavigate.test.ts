@@ -14,7 +14,7 @@ jest.mock('../utils/prependOrgSlug', () => ({
   }),
 }))
 
-const mockUseParams = jest.requireMock('react-router-dom').useParams as jest.Mock
+const mockUseParams = jest.requireMock('react-router').useParams as jest.Mock
 
 describe('useNavigate', () => {
   beforeEach(() => {
