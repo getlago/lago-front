@@ -1,14 +1,9 @@
 import { screen } from '@testing-library/react'
-import { print } from 'graphql'
 import { ReactNode } from 'react'
 
 import { TableProps } from '~/components/designSystem/Table/Table'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
-import {
-  ContractForCatalogPlanContractsFragment,
-  ContractForCatalogPlanContractsFragmentDoc,
-  ContractStatusEnum,
-} from '~/generated/graphql'
+import { ContractForCatalogPlanContractsFragment, ContractStatusEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import { CatalogPlanContracts } from '../CatalogPlanContracts'
@@ -64,13 +59,8 @@ const buildContract = (
   status: ContractStatusEnum.Active,
   startedAt: '2026-06-11T00:00:00Z',
   endedAt: null,
-  customer: {
-    __typename: 'Customer',
-    id: 'cus-1',
-    name: 'Acme',
-    displayName: 'Acme Inc.',
-    externalId: 'acme',
-  },
+  name: 'Premium contract',
+  externalId: 'premium-contract',
   ...overrides,
 })
 
@@ -99,7 +89,7 @@ describe('CatalogPlanContracts', () => {
         )
       })
 
-      it('THEN uses the tab-nested layout, not the full-page one', () => {
+      it('THEN uses a non-inset table with non-sticky pagination', () => {
         render(<CatalogPlanContracts planCode="premium" />)
 
         expect(getTableProps().containerSize).toBe(0)
@@ -139,18 +129,11 @@ describe('CatalogPlanContracts', () => {
         render(<CatalogPlanContracts planCode="premium" />)
 
         expect(getTableProps().columns.map((column) => column?.key)).toEqual([
-          'customer.displayName',
           'status',
+          'name',
           'startedAt',
           'endedAt',
         ])
-      })
-
-      it('THEN selects firstname and lastname on the customer', () => {
-        const selection = print(ContractForCatalogPlanContractsFragmentDoc)
-
-        expect(selection).toContain('firstname')
-        expect(selection).toContain('lastname')
       })
     })
   })
@@ -182,46 +165,19 @@ describe('CatalogPlanContracts', () => {
   })
 
   describe('GIVEN a contract row', () => {
-    describe('WHEN the customer column content renders', () => {
-      it('THEN shows the display name and a copyable external id', () => {
+    describe('WHEN the name column content renders', () => {
+      it.each([
+        { name: 'Premium contract', expected: 'Premium contract' },
+        { name: null, expected: 'premium-contract' },
+        { name: '', expected: 'premium-contract' },
+      ])('THEN shows $expected for name $name', ({ name, expected }) => {
         render(<CatalogPlanContracts planCode="premium" />)
 
-        const customerColumn = getTableProps().columns.find(
-          (column) => column?.key === 'customer.displayName',
-        )
+        const nameColumn = getTableProps().columns.find((column) => column?.key === 'name')
 
-        render(<>{customerColumn?.content(buildContract())}</>)
+        render(<>{nameColumn?.content(buildContract({ name }))}</>)
 
-        expect(screen.getByText('Acme Inc.')).toBeInTheDocument()
-        expect(screen.getByText('acme')).toBeInTheDocument()
-      })
-
-      it('THEN shows real initials for an individual customer without a name', () => {
-        render(<CatalogPlanContracts planCode="premium" />)
-
-        const customerColumn = getTableProps().columns.find(
-          (column) => column?.key === 'customer.displayName',
-        )
-
-        render(
-          <>
-            {customerColumn?.content(
-              buildContract({
-                customer: {
-                  __typename: 'Customer',
-                  id: 'cus-2',
-                  name: null,
-                  displayName: 'John Doe',
-                  firstname: 'John',
-                  lastname: 'Doe',
-                  externalId: 'john-doe',
-                },
-              }),
-            )}
-          </>,
-        )
-
-        expect(screen.getByText('JD')).toBeInTheDocument()
+        expect(screen.getByText(expected)).toBeInTheDocument()
       })
     })
 

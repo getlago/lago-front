@@ -16031,7 +16031,7 @@ export type CatalogPlanActivityLogsQueryVariables = Exact<{
 
 export type CatalogPlanActivityLogsQuery = { __typename?: 'Query', activityLogs?: { __typename?: 'ActivityLogCollection', collection: Array<{ __typename?: 'ActivityLog', activityId: string, activityType: ActivityTypeEnum, activityObject?: any | null, loggedAt: any, externalCustomerId?: string | null, externalSubscriptionId?: string | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } | null };
 
-export type ContractForCatalogPlanContractsFragment = { __typename?: 'Contract', id: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, firstname?: string | null, lastname?: string | null, externalId: string } };
+export type ContractForCatalogPlanContractsFragment = { __typename?: 'Contract', id: string, name?: string | null, externalId: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null };
 
 export type GetCatalogPlanContractsQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -16040,7 +16040,7 @@ export type GetCatalogPlanContractsQueryVariables = Exact<{
 }>;
 
 
-export type GetCatalogPlanContractsQuery = { __typename?: 'Query', contracts: { __typename?: 'ContractCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Contract', id: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, customer: { __typename?: 'Customer', id: string, name?: string | null, displayName: string, firstname?: string | null, lastname?: string | null, externalId: string } }> } };
+export type GetCatalogPlanContractsQuery = { __typename?: 'Query', contracts: { __typename?: 'ContractCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Contract', id: string, name?: string | null, externalId: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null }> } };
 
 export type CatalogPlanForCatalogPlanDetailsFragment = { __typename?: 'CatalogPlan', id: string, name: string, code: string, currency: CurrencyEnum, description?: string | null, invoiceDisplayName?: string | null, appliedRateCardsCount: number, attachedToContracts: boolean };
 
@@ -22841,17 +22841,11 @@ ${ProductForDeleteProductDialogFragmentDoc}`;
 export const ContractForCatalogPlanContractsFragmentDoc = gql`
     fragment ContractForCatalogPlanContracts on Contract {
   id
+  name
+  externalId
   status
   startedAt
   endedAt
-  customer {
-    id
-    name
-    displayName
-    firstname
-    lastname
-    externalId
-  }
 }
     `;
 export const CatalogPlanForCatalogPlanDetailsFragmentDoc = gql`

@@ -162,7 +162,7 @@ const CatalogPlansList = (): JSX.Element => {
   })
 
   return (
-    <>
+    <div className="flex flex-1 flex-col px-4 md:px-12">
       <MainHeader.Configure
         entity={{ viewName: translate('text_62442e40cea25600b0b6d85a') }}
         actions={{ items: actions }}
@@ -176,7 +176,6 @@ const CatalogPlansList = (): JSX.Element => {
       />
 
       <PaginatedContent
-        insetPager
         metadata={data?.catalogPlans?.metadata}
         loading={isLoading}
         onPageChange={goToPage}
@@ -184,7 +183,7 @@ const CatalogPlansList = (): JSX.Element => {
         <Table
           name="catalog-plans-list"
           data={data?.catalogPlans?.collection ?? []}
-          containerSize={{ default: 16, md: 48 }}
+          containerSize={4}
           containerClassName="-mb-px h-auto shrink-0 border-t border-grey-300"
           rowSize={72}
           isLoading={isLoading}
@@ -197,7 +196,7 @@ const CatalogPlansList = (): JSX.Element => {
           placeholder={placeholder}
         />
       </PaginatedContent>
-    </>
+    </div>
   )
 }
 
