@@ -23,9 +23,6 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
-const mockStreamChunk = jest.fn()
-const mockSetChatDone = jest.fn()
-
 let mockState: ChatState
 let mockAgentType: AiAgentTypeEnum
 
@@ -34,11 +31,6 @@ jest.mock('~/hooks/aiAgent/useAiAgent', () => ({
   useAiAgent: () => ({
     agentType: mockAgentType,
     state: mockState,
-    lastAssistantMessage: mockState.messages
-      .filter((message: ChatMessage) => message.role === 'assistant')
-      .pop(),
-    streamChunk: mockStreamChunk,
-    setChatDone: mockSetChatDone,
   }),
 }))
 
@@ -151,46 +143,6 @@ describe('ChatConversation', () => {
         render(<ChatConversation subscription={idleSubscription} />)
 
         expect(screen.getByTestId(CHAT_MESSAGE_ERROR_TEST_ID)).toBeInTheDocument()
-      })
-    })
-  })
-
-  describe('GIVEN the subscription streams', () => {
-    describe('WHEN a chunk arrives', () => {
-      it('THEN should append the chunk to the last assistant message', () => {
-        render(
-          <ChatConversation
-            subscription={
-              {
-                data: { aiConversationStreamed: { chunk: 'partial', done: false } },
-                error: undefined,
-              } as unknown as OnConversationSubscriptionHookResult
-            }
-          />,
-        )
-
-        expect(mockStreamChunk).toHaveBeenCalledWith({
-          messageId: 'assistant-1',
-          chunk: 'partial',
-        })
-      })
-    })
-
-    describe('WHEN the stream completes', () => {
-      it('THEN should mark the last assistant message as done', () => {
-        render(
-          <ChatConversation
-            subscription={
-              {
-                data: { aiConversationStreamed: { chunk: null, done: true } },
-                error: undefined,
-              } as unknown as OnConversationSubscriptionHookResult
-            }
-          />,
-        )
-
-        expect(mockSetChatDone).toHaveBeenCalledWith('assistant-1')
-        expect(mockStreamChunk).not.toHaveBeenCalled()
       })
     })
   })
