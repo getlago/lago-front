@@ -43,7 +43,7 @@
 
 ## Code Quality
 
-- Never put Linear ticket IDs (e.g. ING-123, LAGO-456) in code comments — describe, if needed, the pending work itself instead
+- Never put Linear ticket IDs (the `<TEAM>-<N>` shape) in code comments or anywhere under `.agents/**` — describe the pending work itself instead; `scripts/skill-budget.sh` fails the push on one
 - TypeScript strict mode with proper typing
 - ESLint rules from `lago-configs` package
 - Consistent naming: camelCase for variables, PascalCase for components
@@ -137,6 +137,7 @@ Read these on demand when working on the relevant area (backtick-wrapped so they
 are referenced, not auto-loaded):
 
 - **Folder architecture**: `@.agents/docs/folder-architecture.md`
+- **Coding styleguide (Notion mirror)**: `@.agents/docs/frontend-coding-styleguide.md`
 - **Library documentation**: `@.agents/docs/documentation.md`
 - **GraphQL fragments & type safety**: `@.agents/docs/graphql-fragments.md`
 - **Testing best practices**: `@.agents/docs/testing-practices.md`

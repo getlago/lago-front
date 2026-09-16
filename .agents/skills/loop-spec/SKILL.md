@@ -1,6 +1,6 @@
 ---
 name: loop-spec
-description: 'Phase 1 of the loop pipeline for lago-front. Takes a Linear ticket URL (required) and optionally Notion spec page URLs, reads all sources, explores the lago-front codebase, and writes an operational spec to the run state dir. Use when user says "/loop-spec <linear-url> [notion-urls...]" or asks to spec a ticket for the loop pipeline.'
+description: 'Phase 1 of the loop pipeline for lago-front. Takes a Linear ticket URL (required) and optionally Notion spec page URLs, reads all sources, verifies every premise the ticket states against the running code, and writes an operational spec to the run state dir. Use when user says "/loop-spec <linear-url> [notion-urls...]" or asks to spec a ticket for the loop pipeline.'
 ---
 
 # Loop Spec — phase 1 of loop-run
@@ -12,22 +12,26 @@ If no Linear URL was provided, ask for it with AskUserQuestion and stop until gi
 
 **State dir:** `$LOOP_STATE_DIR/<ISSUE-ID>/` (default `~/.claude/loop-state/<ISSUE-ID>/`) — per-developer, outside the repo, never committed.
 
+**This phase is the only one that fetches.** spec.md carries everything the builder and the reviewers need from Linear, Notion and Figma, verbatim where it matters; no later phase re-reads a source.
+
 ## Steps
 
-1. **Extract the issue ID** from the URL (pattern `[A-Z]+-\d+`, uppercase — any Linear team prefix: LAGO, ING, ...). All state for this run lives in the state dir — create the directory.
+1. **Extract the issue ID** from the URL (pattern `[A-Z]+-\d+`, uppercase — any Linear team prefix). All state for this run lives in the state dir — create the directory.
 
 2. **Fetch all sources**:
-   - Linear ticket via the Linear MCP `get_issue` tool — the WHOLE ticket, not just the description: title, description, acceptance criteria, current state, labels, relations (blocked-by/related/duplicates), attachments and linked designs. Then fetch the full comment thread via `list_comments`: comments often carry decisions, scope changes and repro details that never made it back into the description — on conflict, a later comment overrides the description; note it in spec.md.
-   - **A design attachment is a source, not a bookmark.** When the ticket links a Figma node or any mockup, OPEN it (`get_screenshot` on the node, `get_metadata` to find its sub-frames) and read the states it draws. Derive acceptance criteria from it: the literal copy of every label, sublabel, title and empty state; the container shape (card / plain, where separators fall); one criterion per state the mockup draws for the same control. A design URL recorded under `## Sources` with no criteria derived from it is paid back in operator correction rounds, which no gate and no reviewer catches.
-   - Every Notion URL given, via the Notion MCP `notion-fetch` tool: product requirements, technical constraints, edge cases.
-   - If a Notion page linked INSIDE the Linear ticket clearly holds the product/tech spec, fetch that too.
+   - Linear ticket via the Linear MCP `get_issue` tool — the WHOLE ticket: title, description, acceptance criteria, current state, labels, relations, attachments and linked designs. Then the full comment thread via `list_comments`: comments carry decisions, scope changes and repro details that never made it back into the description — on conflict, a later comment overrides the description; note it in spec.md.
+   - **A design attachment is a source, not a bookmark.** When the ticket links a Figma node or any mockup, OPEN it (`get_screenshot` on the node, `get_metadata` for its sub-frames) and derive acceptance criteria from it: the literal copy of every label and empty state, the container shape, one criterion per state the mockup draws for the same control.
+   - Every Notion URL given, via the Notion MCP `notion-fetch` tool, plus any Notion page linked inside the ticket that clearly holds the product/tech spec.
    - Conflict between sources → the Linear ticket wins for scope, Notion wins for product/UX detail; note the conflict in spec.md.
 
-3. **Explore the codebase.** Locate every file the ticket touches (components, hooks, GraphQL documents, translations, tests). Follow existing patterns — read neighboring code, don't invent structure. If GraphQL operations change, note that `pnpm codegen` is required.
+3. **Explore the codebase.** Locate every file the ticket touches (components, hooks, GraphQL documents, translations, tests). Follow existing patterns — read neighboring code, don't invent structure. If GraphQL operations change, note that `pnpm codegen` is required. Then apply the checks below; they are capped by `scripts/skill-budget.sh`.
 
-   **A backend default is a backend fact, not a ticket claim.** When the ticket says the backend derives, defaults or backfills a value, open the model and the service: record in spec.md the callback, when it fires (create only vs every validation) and what input triggers it (nil vs empty string vs omitted key), then state which side owns the default. A front-end fallback mirroring a backend default is duplication to delete, not scope to add.
-
-   **Date fields**: for every date in scope, pin in spec.md whether it is a calendar day or an instant, and state the write zone and the display zone together. Lago floors arrears dates to UTC midnight and the codebase pins date-only pickers to `TimezoneEnum.TzUtc`, so a date-only field must be written AND displayed in UTC. Naming the org timezone for one is how the display ends up disagreeing with the stored value.
+   <!-- checks:start -->
+   1. **Every premise is verified or marked.** For each constraint the ticket states as a fact about the code ("the frontend must handle X itself", "the backend does not send Y", "this component is only used here"), find the line that confirms it and record it under `## Premises` as `verified: <path:line>`. Nothing confirms it → `premise: unverified — <what the code shows instead>`. A criterion resting on an unverified premise is flagged in `## Acceptance criteria`. The most expensive diff this pipeline has shipped solved around a constraint that was false against the running code.
+   2. **A backend default is a backend fact.** When the ticket says the backend derives, defaults or backfills a value, open the model and the service: record the callback, when it fires, and what input triggers it, then state which side owns the default. A front-end fallback mirroring a backend default is duplication to delete, not scope to add.
+   3. **Date fields** are pinned as calendar day or instant, with write zone and display zone stated together. Lago floors arrears dates to UTC midnight and date-only pickers are pinned to `TimezoneEnum.TzUtc`, so a date-only field is written AND displayed in UTC.
+   4. **Existing mechanism first.** For each behaviour the ticket asks for, name the global or shared thing that may already provide it (Apollo error link, toast layer, router wrappers, design-system component, a sibling hook) and record whether it covers the case. "Files to touch" lists a new file only when this search came back empty, with the search recorded.
+   <!-- checks:end -->
 
 4. **Write `spec.md`** in the state dir, with exactly these sections:
 
@@ -38,14 +42,20 @@ If no Linear URL was provided, ask for it with AskUserQuestion and stop until gi
    - Linear: <linear URL>
    - Notion: <each notion URL, or "none">
 
+   ## Ticket
+   <the ticket verbatim: title, description, acceptance criteria as written, and every comment that changed scope or carries a decision — quoted, with author role and date. Reviewers read this instead of Linear.>
+
    ## Summary
    <2-4 sentences: what changes and why>
 
+   ## Premises
+   <one line per claim the ticket makes about the code: `verified: <path:line>` or `premise: unverified — <what the code shows>`>
+
    ## Acceptance criteria
-   <numbered list, testable statements, taken/derived from the ticket>
+   <numbered list, testable statements, taken/derived from the ticket; a criterion resting on an unverified premise says so>
 
    ## Files to touch
-   <bullet list of exact paths relative to front/, one line each with what changes there>
+   <bullet list of exact paths relative to front/, one line each with what changes there; a new file names the existing-mechanism search that came back empty>
 
    ## Non-goals
    <what is explicitly out of scope>
@@ -59,7 +69,7 @@ If no Linear URL was provided, ask for it with AskUserQuestion and stop until gi
    <optional: `pnpm codegen` + clean-diff check if GraphQL changed>
    ```
 
-5. **Report** the spec path and a 3-line summary to the operator.
+5. **Report** the spec path, a 3-line summary, and every `unverified` premise to the operator.
 
 ## Hard rules
 

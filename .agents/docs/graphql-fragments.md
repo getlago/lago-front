@@ -45,7 +45,7 @@ reference, B's read goes incomplete, B refetches. Ping-pong.
 `notifyOnNetworkStatusChange: true` and `MainNavLayout` renders
 `{isLoading && <Spinner/>}` / `{!isLoading && <Outlet/>}`. A background refetch
 therefore **unmounts the whole routed page**, which remounts and re-fires all of its
-own `cache-and-network` queries. This was BIL-550: the customer invoices view visibly
+own `cache-and-network` queries. Observed as the customer invoices view visibly
 loading twice, plus a burst of duplicate operations across the app.
 
 **Symptoms that point here:** a view that renders twice, layout-level operations
