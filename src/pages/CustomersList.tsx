@@ -255,12 +255,10 @@ const CustomersList = () => {
                 ? {
                     startIcon: 'pen',
                     title: translate('text_6261640f28a49700f1290df3'),
-                    onAction: () =>
-                      navigate(
-                        generatePath(UPDATE_CUSTOMER_ROUTE, {
-                          customerId: customer.id,
-                        }),
-                      ),
+                    link: () =>
+                      generatePath(UPDATE_CUSTOMER_ROUTE, {
+                        customerId: customer.id,
+                      }),
                   }
                 : null,
               hasPermissions(['customersDelete'])

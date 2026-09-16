@@ -23,7 +23,6 @@ import {
   CUSTOMERS_LIST_ROUTE,
   FEATURE_DETAILS_ROUTE,
   FEATURES_ROUTE,
-  FORECASTS_ROUTE,
   INVOICES_ROUTE,
   PAYMENT_DETAILS_ROUTE,
   PAYMENTS_ROUTE,
@@ -51,7 +50,6 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { NavLayout } from '~/layouts/NavLayout'
-import { BadgeAI } from '~/pages/forecasts/Forecasts'
 
 import { MAIN_NAV_CUSTOMERS_TEST_ID } from './mainNavTestIds'
 import { getNavTabs, NavTab } from './utils'
@@ -81,14 +79,6 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
       link: ANALYTIC_ROUTE,
       match: [ANALYTIC_ROUTE, ANALYTIC_TABS_ROUTE],
       hidden: !hasPermissions(['analyticsView']),
-    },
-    {
-      title: translate('text_1753014457040hxp6wkphkvw'),
-      icon: 'forecast',
-      link: FORECASTS_ROUTE,
-      match: [FORECASTS_ROUTE],
-      hidden: !hasPermissions(['analyticsView']),
-      extraComponent: <BadgeAI />,
     },
     {
       title: translate('text_1780667013874s6wl9cmxe7q'),

@@ -1,7 +1,7 @@
-import { fireEvent, screen } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { render } from '~/test-utils'
+import { render, testMockNavigateFn } from '~/test-utils'
 
 import {
   NAVIGATION_TAB_BAR_TEST_ID,
@@ -85,46 +85,70 @@ describe('NavigationTabBar', () => {
 
   describe('GIVEN a tab with a link', () => {
     describe('WHEN the component renders', () => {
-      // An anchor is what makes cmd-click / middle-click open the tab in a new browser tab.
-      it('THEN should render it as an anchor carrying the link as href', () => {
+      it.each([
+        ['tab-overview', '/customers/1/overview'],
+        ['tab-invoices', '/customers/1/invoices'],
+        ['tab-usage', '/customers/1/usage'],
+      ])('THEN should render %s as an anchor to its target', (testId, href) => {
         render(<NavigationTabBar tabs={baseTabs} />)
 
-        const tab = screen.getByTestId('tab-invoices')
+        expect(screen.getByTestId(testId)).toHaveAttribute('href', href)
+      })
+    })
 
-        expect(tab.tagName).toBe('A')
-        expect(tab).toHaveAttribute('href', '/customers/1/invoices')
+    describe('WHEN the user clicks it', () => {
+      // Clicking the inner label rather than the tab root mirrors how the e2e
+      // suite drives tabs: `cy.get('[role="tab"]').contains(...)` resolves to
+      // the deepest element holding the text.
+      it('THEN should navigate to that tab through the anchor', async () => {
+        const user = userEvent.setup()
+
+        window.history.pushState({}, '', '/customers/1/overview')
+
+        render(<NavigationTabBar tabs={baseTabs} />)
+
+        await user.click(screen.getByText('Invoices'))
+
+        expect(window.location.pathname).toBe('/customers/1/invoices')
+        expect(testMockNavigateFn).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN a tab with a link and the keyboard focus', () => {
+    describe('WHEN the user presses Space', () => {
+      it('THEN should activate that tab', async () => {
+        const user = userEvent.setup()
+
+        window.history.pushState({}, '', '/customers/1/overview')
+
+        render(<NavigationTabBar tabs={baseTabs} />)
+
+        screen.getByTestId('tab-invoices').focus()
+        await user.keyboard(' ')
+
+        expect(window.location.pathname).toBe('/customers/1/invoices')
       })
     })
   })
 
   describe('GIVEN a disabled tab', () => {
     describe('WHEN the component renders', () => {
-      it('THEN should keep it a button rather than a link', () => {
-        render(
-          <NavigationTabBar
-            tabs={[{ title: 'Disabled', link: '/disabled', disabled: true, dataTest: 'tab-off' }]}
-          />,
-        )
+      it('THEN should keep it a button so it stays unfollowable', () => {
+        const tabsWithDisabledLink: NavigationTabBarItem[] = [
+          { title: 'Overview', link: '/overview', dataTest: 'tab-overview' },
+          { title: 'Disabled', link: '/disabled', disabled: true, dataTest: 'tab-disabled' },
+        ]
 
-        expect(screen.getByTestId('tab-off').tagName).toBe('BUTTON')
+        render(<NavigationTabBar tabs={tabsWithDisabledLink} />)
+
+        expect(screen.getByTestId('tab-disabled')).not.toHaveAttribute('href')
       })
     })
   })
 
-  describe('GIVEN a user clicks on a tab', () => {
-    describe('WHEN the tab has a link different from current path', () => {
-      it('THEN should navigate to the tab link', async () => {
-        const user = userEvent.setup()
-
-        render(<NavigationTabBar tabs={baseTabs} />)
-
-        await user.click(screen.getByTestId('tab-invoices'))
-
-        expect(window.location.pathname).toBe('/customers/1/invoices')
-      })
-    })
-
-    describe('WHEN the tab is the active one and the click is cmd-clicked', () => {
+  describe('GIVEN the tab already matching the URL', () => {
+    describe('WHEN the user cmd-clicks it', () => {
       it('THEN should not prevent the browser default', () => {
         window.history.pushState({}, '', '/customers/1/invoices')
 
@@ -144,24 +168,40 @@ describe('NavigationTabBar', () => {
     })
   })
 
-  describe('GIVEN a focused linked tab', () => {
-    describe('WHEN Space is pressed', () => {
-      it('THEN should navigate to the tab link', () => {
-        render(<NavigationTabBar tabs={baseTabs} />)
-
-        fireEvent.keyUp(screen.getByTestId('tab-invoices'), { key: ' ' })
-
-        expect(window.location.pathname).toBe('/customers/1/invoices')
-      })
-    })
-  })
-
   describe('GIVEN a custom name prop', () => {
     describe('WHEN the component renders', () => {
       it('THEN should set the aria-label on the Tabs', () => {
         render(<NavigationTabBar tabs={baseTabs} name="Customer tabs" />)
 
         expect(screen.getByRole('tablist', { name: 'Customer tabs' })).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the tab already matching the URL', () => {
+    afterEach(() => {
+      jest.restoreAllMocks()
+    })
+
+    describe('WHEN the user clicks it', () => {
+      // The pathname cannot see the guard: react-router replaces an identical
+      // target, so the URL is unchanged with or without it. Whether history was
+      // touched at all is the only observable difference.
+      it('THEN should not touch history at all', async () => {
+        const user = userEvent.setup()
+
+        window.history.pushState({}, '', '/customers/1/overview')
+
+        render(<NavigationTabBar tabs={baseTabs} />)
+
+        const pushState = jest.spyOn(window.history, 'pushState')
+        const replaceState = jest.spyOn(window.history, 'replaceState')
+
+        await user.click(screen.getByTestId('tab-overview'))
+
+        expect(pushState).not.toHaveBeenCalled()
+        expect(replaceState).not.toHaveBeenCalled()
+        expect(window.location.pathname).toBe('/customers/1/overview')
       })
     })
   })

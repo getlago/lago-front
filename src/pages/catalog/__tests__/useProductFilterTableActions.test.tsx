@@ -84,10 +84,10 @@ describe('useProductFilterTableActions', () => {
 
         const [editAction, deleteAction] = actions
 
-        editAction?.onAction(productFilter)
+        editAction?.onAction?.(productFilter)
         expect(mockOpenProductFilterDrawer).toHaveBeenCalledWith({ productFilter })
 
-        deleteAction?.onAction(productFilter)
+        deleteAction?.onAction?.(productFilter)
         expect(mockOpenDeleteProductFilterDialog).toHaveBeenCalledWith({ productFilter })
       })
     })

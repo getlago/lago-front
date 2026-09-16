@@ -199,6 +199,15 @@ const rateCard = buildRateCardForRateDrawer({ activeRate: buildRate() })
 render(<RateDrawer rateCard={rateCard} />)
 ```
 
+### `toBeChecked()` Does Not Work on This Codebase's `Radio`
+
+`src/components/form/Radio/Radio.tsx` spreads `isBoolean(value) ? { checked: value } : { value }`, so a
+string-valued radio never sets the DOM `checked` attribute and `expect(input).toBeChecked()` silently
+fails for it. The visual state lives in `<RadioIcon checked={checked} />`.
+
+Assert the branch through what selecting it reveals — the slot, combobox or block it renders — not
+through the input.
+
 ### Use Component Props Types in Tests
 
 **ALWAYS** import and use the component's exported props type when writing tests. Never create a separate type definition that duplicates the component's props structure.

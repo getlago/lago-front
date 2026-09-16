@@ -192,13 +192,13 @@ describe('ProductCategoriesList', () => {
       expect(editAction).toEqual(
         expect.objectContaining({ startIcon: 'pen', title: 'text_629728388c4d2300e2d3816a' }),
       )
-      editAction?.onAction(productCategory)
+      editAction?.onAction?.(productCategory)
       expect(mockOpenProductCategoryDrawer).toHaveBeenCalledWith(productCategory)
 
       expect(deleteAction).toEqual(
         expect.objectContaining({ startIcon: 'trash', title: 'text_629728388c4d2300e2d38182' }),
       )
-      deleteAction?.onAction(productCategory)
+      deleteAction?.onAction?.(productCategory)
       expect(mockOpenDeleteProductCategoryDialog).toHaveBeenCalledWith({ productCategory })
     })
 
