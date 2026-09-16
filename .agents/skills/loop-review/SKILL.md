@@ -30,7 +30,7 @@ description: 'Phase 3 of the loop pipeline for lago-front. Takes an ISSUE-ID, re
    <front>/scripts/loop-plan-check.sh <worktree> <state dir>/plan.md   # new files / exports outside plan.md
    ```
 
-   `loop-plan-check.sh` exit 1 is not a FAIL by itself: it lists what the plan did not declare, and each item becomes a question for check 2 below. loop-run runs the adversarial pass on the same signal.
+   `loop-plan-check.sh` exit 3 means new files/exports exist and plan.md declares them: each declared item is a question for check 2 below, and loop-run runs the adversarial pass on the same signal. Exit 1 (undeclared) should not survive the build gate; if it does, it is a FAIL issue tagged `[gate:plan]`.
 
 3. **The whole diff first**: read spec.md `## Ticket` and `## Acceptance criteria`, then the diff end to end, and answer before any check: does this diff, as a whole, make sense for the ticket's objective, and is it the smallest change that meets the criteria? A diff can pass every check below and still miss the point, or solve around a premise spec.md marked `unverified` — both are FAIL issues.
 

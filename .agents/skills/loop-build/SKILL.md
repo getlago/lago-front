@@ -109,7 +109,7 @@ description: 'Phase 2 of the loop pipeline for lago-front. Takes an ISSUE-ID, re
 7. **Gates** (run in the worktree, all must pass):
    - `pnpm lint` (use `pnpm lint:fix` first if there are formatting issues), `pnpm types`, `pnpm translations:inspect`, `pnpm translations:ensure-consistency`.
    - `<front>/scripts/diff-hygiene.sh origin/main <worktree> <state dir>/plan.md` — every added comment is declared with a category, none in a refused position. Flagged → delete it (the default) or, for a real constraint/why-not/trap, add its line to `## Comments kept`.
-   - `<front>/scripts/loop-plan-check.sh <worktree> <state dir>/plan.md` — every new file / export is declared. Exit 1 → either delete the abstraction or declare it in plan.md with its reason; never leave it undeclared.
+   - `<front>/scripts/loop-plan-check.sh <worktree> <state dir>/plan.md` — every new file / export / re-export is declared. Exit 1 → either delete the abstraction or declare it in plan.md with its reason; never leave it undeclared. Exit 3 (all declared) passes the gate: it is loop-run's signal to run the adversarial pass on what was declared.
    - Scoped jest on the paths make-tests produced/touched. NEVER run the full suite (`pnpm test` with no path is FORBIDDEN).
    - A jest failure that does not reproduce in isolation or under `--runInBand` is load/cold-cache flake, not a regression: rerun before diagnosing or consuming a cycle.
 

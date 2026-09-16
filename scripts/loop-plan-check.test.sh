@@ -46,8 +46,25 @@ expect "undeclared export in new file listed" "export: NEW_THING" "$out"
 refute "generated export ignored" "Generated" "$out"
 
 printf '# plan\n## Files to change\n- src/core/a.ts\n## New files\n- src/core/newThing.ts — no sibling hosts it\n## New exports\n- helper (src/core/a.ts)\n- NEW_THING (src/core/newThing.ts)\n' >"$plan"
-expect "declared plan passes" "rc=0" "$(run_plan "$plan")"
+out="$(run_plan "$plan")"
+expect "fully declared plan is the adversarial trigger" "adversarial pass applies" "$out"
+expect "fully declared plan exits 3" "rc=3" "$out"
 rm "$wt/src/core/newThing.ts"
+
+src 'export const a = 1'
+expect "no new export exits 0" "rc=0" "$(run_plan "$plan")"
+
+src 'export const a = 1' "export { helper, other as renamed } from './b'" "export type { Shape } from './b'"
+out="$(run_plan "$plan")"
+expect "named re-export detected" "export: renamed" "$out"
+expect "type re-export detected" "export: Shape" "$out"
+refute "declared name in a re-export accepted" "export: helper" "$out"
+
+src 'export const a = 1' "export * from './everything'"
+expect "star re-export needs the module in the plan" "reexport: ./everything" "$(run_plan "$plan")"
+printf '# plan\n## New exports\n- everything re-exported from ./everything\n' >"$plan"
+expect "declared star re-export triggers adversarial" "rc=3" "$(run_plan "$plan")"
+printf '# plan\n## Files to change\n- src/core/a.ts\n## New files\n- src/core/newThing.ts\n## New exports\n- helper (src/core/a.ts)\n- NEW_THING\n' >"$plan"
 
 # --- diff hygiene: positions ------------------------------------------------
 src 'export const a = 1' 'export const b = 2'
