@@ -80,7 +80,9 @@ export const mapFromApiToForm = ({
   ),
   paymentMethod: {
     paymentMethodType: wallet?.paymentMethodType,
-    paymentMethodId: wallet?.paymentMethod?.id,
+    // `null` is "no method persisted", which both drawers read as the default branch. Leaving it
+    // `undefined` marks an unfinished specific selection and their schemas refuse to submit.
+    paymentMethodId: wallet?.paymentMethod?.id ?? null,
   },
   invoiceCustomSection: {
     invoiceCustomSections: wallet?.selectedInvoiceCustomSections || [],

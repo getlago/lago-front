@@ -42,12 +42,14 @@ type FormConnections = {
 
 // An omitted category keeps whatever the backend stored, so an untouched choice must not
 // produce a `connections` key at all: `inherit` would destroy the existing override row.
-const formatConnections = ({
-  paymentConnection,
-  accountingConnection,
-  crmConnection,
-  taxConnection,
-}: FormConnections): { connections?: ConnectionsInput } => {
+const formatConnections = (
+  { paymentConnection, accountingConnection, crmConnection, taxConnection }: FormConnections,
+  isMultiConnectionEnabled: boolean,
+): { connections?: ConnectionsInput } => {
+  // `Wallets::{Create,Update}Service` refuses any payload carrying `connections` while the flag is
+  // off, so a wallet whose stored routing was hydrated must not resend it or every save fails.
+  if (!isMultiConnectionEnabled) return {}
+
   const connections: ConnectionsInput = {
     ...(paymentConnection ? { payment: paymentConnection } : {}),
     ...(accountingConnection ? { accounting: accountingConnection } : {}),
@@ -61,6 +63,7 @@ const formatConnections = ({
 const formatRecurringTransactionRules = (
   recurringTransactionRules: TWalletDataForm['recurringTransactionRules'],
   formType: keyof typeof FORM_TYPE_ENUM,
+  isMultiConnectionEnabled: boolean,
 ) => {
   if (!recurringTransactionRules || recurringTransactionRules.length === 0) return []
 
@@ -122,12 +125,15 @@ const formatRecurringTransactionRules = (
       ),
       // `null` (not `undefined`) on clear → BE erases the stored value.
       purchaseOrderNumber: normalizePurchaseOrderNumber(rule.purchaseOrderNumber),
-      ...formatConnections({
-        paymentConnection: rulePaymentConnection,
-        accountingConnection: ruleAccountingConnection,
-        crmConnection: ruleCrmConnection,
-        taxConnection: ruleTaxConnection,
-      }),
+      ...formatConnections(
+        {
+          paymentConnection: rulePaymentConnection,
+          accountingConnection: ruleAccountingConnection,
+          crmConnection: ruleCrmConnection,
+          taxConnection: ruleTaxConnection,
+        },
+        isMultiConnectionEnabled,
+      ),
     }
   })
 }
@@ -140,6 +146,7 @@ const formatAppliesTo = (appliesTo: TWalletDataForm['appliesTo']) => ({
 export const mapFormToCreateInput = (
   formValues: TWalletDataForm,
   customerId: string,
+  isMultiConnectionEnabled: boolean,
 ): CreateCustomerWalletInput => {
   const {
     grantedCredits,
@@ -173,6 +180,7 @@ export const mapFormToCreateInput = (
     recurringTransactionRules: formatRecurringTransactionRules(
       recurringTransactionRules,
       FORM_TYPE_ENUM.creation,
+      isMultiConnectionEnabled,
     ),
     appliesTo: formatAppliesTo(appliesTo),
     paymentMethod,
@@ -184,18 +192,17 @@ export const mapFormToCreateInput = (
       ? { paidTopUpMaxAmountCents: serializeAmount(values.paidTopUpMaxAmountCents, currency) }
       : {}),
     priority: priority || WALLET_DEFAULT_PRIORITY,
-    ...formatConnections({
-      paymentConnection,
-      accountingConnection,
-      crmConnection,
-      taxConnection,
-    }),
+    ...formatConnections(
+      { paymentConnection, accountingConnection, crmConnection, taxConnection },
+      isMultiConnectionEnabled,
+    ),
   }
 }
 
 export const mapFormToUpdateInput = (
   formValues: TWalletDataForm,
   walletId: string,
+  isMultiConnectionEnabled: boolean,
 ): UpdateCustomerWalletInput => {
   /* eslint-disable @typescript-eslint/no-unused-vars -- object-rest omit: create-only fields must not reach the update input */
   const {
@@ -226,6 +233,7 @@ export const mapFormToUpdateInput = (
     recurringTransactionRules: formatRecurringTransactionRules(
       recurringTransactionRules,
       FORM_TYPE_ENUM.edition,
+      isMultiConnectionEnabled,
     ),
     id: walletId,
     // `null` (not `undefined`) on clear → BE stores NULL on the
@@ -243,11 +251,9 @@ export const mapFormToUpdateInput = (
       ? { paidTopUpMaxAmountCents: serializeAmount(values.paidTopUpMaxAmountCents, currency) }
       : { paidTopUpMaxAmountCents: null }),
     priority: priority || WALLET_DEFAULT_PRIORITY,
-    ...formatConnections({
-      paymentConnection,
-      accountingConnection,
-      crmConnection,
-      taxConnection,
-    }),
+    ...formatConnections(
+      { paymentConnection, accountingConnection, crmConnection, taxConnection },
+      isMultiConnectionEnabled,
+    ),
   }
 }

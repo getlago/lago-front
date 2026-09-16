@@ -25,6 +25,7 @@ import {
 } from '~/core/router'
 import {
   CurrencyEnum,
+  FeatureFlagEnum,
   GetWalletInfosForWalletFormQuery,
   LagoApiError,
   useCreateCustomerWalletMutation,
@@ -177,7 +178,8 @@ const CreateWallet = () => {
 
   const { customerId = '', walletId = '' } = useParams()
   const { translate } = useInternationalization()
-  const { organization } = useOrganizationInfos()
+  const { organization, hasFeatureFlag } = useOrganizationInfos()
+  const isMultiConnectionEnabled = hasFeatureFlag(FeatureFlagEnum.MultiConnection)
 
   const centralizedDialog = useCentralizedDialog()
 
@@ -285,10 +287,12 @@ const CreateWallet = () => {
       const { errors } =
         formType === FORM_TYPE_ENUM.edition
           ? await updateWallet({
-              variables: { input: mapFormToUpdateInput(value, walletId) },
+              variables: { input: mapFormToUpdateInput(value, walletId, isMultiConnectionEnabled) },
             })
           : await createWallet({
-              variables: { input: mapFormToCreateInput(value, customerId) },
+              variables: {
+                input: mapFormToCreateInput(value, customerId, isMultiConnectionEnabled),
+              },
             })
 
       if (!!errors?.length) {

@@ -38,7 +38,7 @@ export const transformRecurringTransactionRule = (rule: RecurringTransactionRule
     ),
     paymentMethod: {
       paymentMethodType: rule.paymentMethodType,
-      paymentMethodId: rule.paymentMethod?.id,
+      paymentMethodId: rule.paymentMethod?.id ?? null,
     },
     invoiceCustomSection: {
       invoiceCustomSections: rule.selectedInvoiceCustomSections || [],

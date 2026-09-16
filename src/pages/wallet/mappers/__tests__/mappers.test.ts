@@ -6,11 +6,12 @@ import {
   CurrencyEnum,
   GetCustomerInfosForWalletFormQuery,
   GetWalletInfosForWalletFormQuery,
+  PaymentMethodTypeEnum,
   RecurringTransactionIntervalEnum,
   RecurringTransactionMethodEnum,
   RecurringTransactionTriggerEnum,
 } from '~/generated/graphql'
-import { TWalletDataForm } from '~/pages/wallet/types'
+import { TWalletDataForm, TWalletRecurringRule } from '~/pages/wallet/types'
 
 import { mapFromApiToForm, WALLET_DEFAULT_PRIORITY } from '../mapFromApiToForm'
 import { mapFormToCreateInput, mapFormToUpdateInput } from '../mapFromFormToApi'
@@ -155,7 +156,7 @@ describe('mapFromApiToForm', () => {
 
 describe('mapFormToCreateInput', () => {
   it('serializes the creation input with defaults', () => {
-    const input = mapFormToCreateInput(baseForm(), 'customer-id')
+    const input = mapFormToCreateInput(baseForm(), 'customer-id', true)
 
     expect(input.customerId).toBe('customer-id')
     expect(input.currency).toBe(CurrencyEnum.Usd)
@@ -178,6 +179,7 @@ describe('mapFormToCreateInput', () => {
     const input = mapFormToCreateInput(
       baseForm({ paidTopUpMinAmountCents: 123.45, paidTopUpMaxAmountCents: 500 }),
       'customer-id',
+      true,
     )
 
     expect(input.paidTopUpMinAmountCents).toBe(serializeAmount(123.45, CurrencyEnum.Usd))
@@ -196,6 +198,7 @@ describe('mapFormToCreateInput', () => {
         },
       }),
       'customer-id',
+      true,
     )
 
     expect(input.appliesTo).toEqual({ feeTypes: [], billableMetricIds: ['bm-1', 'bm-2'] })
@@ -217,6 +220,7 @@ describe('mapFormToCreateInput', () => {
         ] as TWalletDataForm['recurringTransactionRules'],
       }),
       'customer-id',
+      true,
     )
     const rule = input.recurringTransactionRules?.[0]
 
@@ -249,6 +253,7 @@ describe('mapFormToCreateInput', () => {
         ] as TWalletDataForm['recurringTransactionRules'],
       }),
       'customer-id',
+      true,
     )
     const rule = input.recurringTransactionRules?.[0]
 
@@ -262,14 +267,14 @@ describe('mapFormToCreateInput', () => {
   // `null` (not `undefined`) on clear → BE erases the stored value.
   it('normalizes the wallet purchaseOrderNumber: trimmed when set, explicit null when cleared', () => {
     expect(
-      mapFormToCreateInput(baseForm({ purchaseOrderNumber: '  PO-9  ' }), 'customer-id')
+      mapFormToCreateInput(baseForm({ purchaseOrderNumber: '  PO-9  ' }), 'customer-id', true)
         .purchaseOrderNumber,
     ).toBe('PO-9')
     expect(
-      mapFormToCreateInput(baseForm({ purchaseOrderNumber: '   ' }), 'customer-id')
+      mapFormToCreateInput(baseForm({ purchaseOrderNumber: '   ' }), 'customer-id', true)
         .purchaseOrderNumber,
     ).toBeNull()
-    expect(mapFormToCreateInput(baseForm(), 'customer-id').purchaseOrderNumber).toBeNull()
+    expect(mapFormToCreateInput(baseForm(), 'customer-id', true).purchaseOrderNumber).toBeNull()
   })
 
   it('normalizes the rule purchaseOrderNumber: trimmed when set, explicit null when cleared', () => {
@@ -288,6 +293,7 @@ describe('mapFormToCreateInput', () => {
           ] as TWalletDataForm['recurringTransactionRules'],
         }),
         'customer-id',
+        true,
       ).recurringTransactionRules?.[0]
 
     expect(buildRuleInput('  PO-RULE  ')?.purchaseOrderNumber).toBe('PO-RULE')
@@ -298,7 +304,7 @@ describe('mapFormToCreateInput', () => {
 
 describe('mapFormToUpdateInput', () => {
   it('excludes create-only fields and sends explicit nulls for cleared min/max', () => {
-    const input = mapFormToUpdateInput(baseForm(), 'wallet-id')
+    const input = mapFormToUpdateInput(baseForm(), 'wallet-id', true)
 
     expect(input.id).toBe('wallet-id')
     // create-only fields never reach the update input
@@ -320,6 +326,7 @@ describe('mapFormToUpdateInput', () => {
     const input = mapFormToUpdateInput(
       baseForm({ paidTopUpMinAmountCents: 10, paidTopUpMaxAmountCents: 100 }),
       'wallet-id',
+      true,
     )
 
     expect(input.paidTopUpMinAmountCents).toBe(serializeAmount(10, CurrencyEnum.Usd))
@@ -342,6 +349,7 @@ describe('mapFormToUpdateInput', () => {
         ] as TWalletDataForm['recurringTransactionRules'],
       }),
       'wallet-id',
+      true,
     )
 
     expect(input.recurringTransactionRules?.[0]?.lagoId).toBe('rule-lago-id')
@@ -351,13 +359,14 @@ describe('mapFormToUpdateInput', () => {
   // `null` (not `undefined`) on clear → BE erases the stored value.
   it('normalizes the wallet purchaseOrderNumber: trimmed when set, explicit null when cleared', () => {
     expect(
-      mapFormToUpdateInput(baseForm({ purchaseOrderNumber: '  PO-9  ' }), 'wallet-id')
+      mapFormToUpdateInput(baseForm({ purchaseOrderNumber: '  PO-9  ' }), 'wallet-id', true)
         .purchaseOrderNumber,
     ).toBe('PO-9')
     expect(
-      mapFormToUpdateInput(baseForm({ purchaseOrderNumber: '' }), 'wallet-id').purchaseOrderNumber,
+      mapFormToUpdateInput(baseForm({ purchaseOrderNumber: '' }), 'wallet-id', true)
+        .purchaseOrderNumber,
     ).toBeNull()
-    expect(mapFormToUpdateInput(baseForm(), 'wallet-id').purchaseOrderNumber).toBeNull()
+    expect(mapFormToUpdateInput(baseForm(), 'wallet-id', true).purchaseOrderNumber).toBeNull()
   })
 })
 
@@ -397,6 +406,7 @@ describe('currency precision (non-2-decimal currencies)', () => {
         paidTopUpMaxAmountCents: 10000,
       }),
       'customer-id',
+      true,
     )
 
     expect(input.paidTopUpMinAmountCents).toBe(1000)
@@ -407,6 +417,7 @@ describe('currency precision (non-2-decimal currencies)', () => {
     const input = mapFormToCreateInput(
       baseForm({ currency: CurrencyEnum.Bhd, paidTopUpMaxAmountCents: 12.345 }),
       'customer-id',
+      true,
     )
 
     expect(input.paidTopUpMaxAmountCents).toBe(12345)
@@ -428,6 +439,7 @@ describe('currency precision (non-2-decimal currencies)', () => {
     const input = mapFormToUpdateInput(
       baseForm({ currency: CurrencyEnum.Eur, paidTopUpMinAmountCents: 123.45 }),
       'wallet-id',
+      true,
     )
 
     expect(input.paidTopUpMinAmountCents).toBe(12345)
@@ -436,17 +448,17 @@ describe('currency precision (non-2-decimal currencies)', () => {
 
 describe('connections payload', () => {
   it('omits connections entirely when the connection drawer was never saved', () => {
-    expect(mapFormToCreateInput(baseForm(), 'customer-id')).not.toHaveProperty('connections')
-    expect(mapFormToUpdateInput(baseForm(), 'wallet-id')).not.toHaveProperty('connections')
+    expect(mapFormToCreateInput(baseForm(), 'customer-id', true)).not.toHaveProperty('connections')
+    expect(mapFormToUpdateInput(baseForm(), 'wallet-id', true)).not.toHaveProperty('connections')
   })
 
   it('sends the wallet payment connection on both create and update', () => {
     const form = baseForm({ paymentConnection: { code: 'stripe_eu' } })
 
-    expect(mapFormToCreateInput(form, 'customer-id').connections).toEqual({
+    expect(mapFormToCreateInput(form, 'customer-id', true).connections).toEqual({
       payment: { code: 'stripe_eu' },
     })
-    expect(mapFormToUpdateInput(form, 'wallet-id').connections).toEqual({
+    expect(mapFormToUpdateInput(form, 'wallet-id', true).connections).toEqual({
       payment: { code: 'stripe_eu' },
     })
   })
@@ -467,6 +479,7 @@ describe('connections payload', () => {
         ] as TWalletDataForm['recurringTransactionRules'],
       }),
       'customer-id',
+      true,
     )
 
     expect(input.connections).toEqual({ payment: { behavior: ConnectionBehaviorEnum.Skip } })
@@ -489,6 +502,7 @@ describe('connections payload', () => {
         ] as TWalletDataForm['recurringTransactionRules'],
       }),
       'customer-id',
+      true,
     )
 
     expect(input.recurringTransactionRules?.[0]).not.toHaveProperty('connections')
@@ -503,10 +517,10 @@ describe('connections payload', () => {
   ])('sends %s alone when it is the only touched category', (field, key) => {
     const form = baseForm({ [field]: { code: 'connection_code' } } as Partial<TWalletDataForm>)
 
-    expect(mapFormToCreateInput(form, 'customer-id').connections).toEqual({
+    expect(mapFormToCreateInput(form, 'customer-id', true).connections).toEqual({
       [key]: { code: 'connection_code' },
     })
-    expect(mapFormToUpdateInput(form, 'wallet-id').connections).toEqual({
+    expect(mapFormToUpdateInput(form, 'wallet-id', true).connections).toEqual({
       [key]: { code: 'connection_code' },
     })
   })
@@ -526,14 +540,15 @@ describe('connections payload', () => {
       tax: { behavior: ConnectionBehaviorEnum.Inherit },
     }
 
-    expect(mapFormToCreateInput(form, 'customer-id').connections).toEqual(expected)
-    expect(mapFormToUpdateInput(form, 'wallet-id').connections).toEqual(expected)
+    expect(mapFormToCreateInput(form, 'customer-id', true).connections).toEqual(expected)
+    expect(mapFormToUpdateInput(form, 'wallet-id', true).connections).toEqual(expected)
   })
 
   it('leaves the untouched categories out of the payload', () => {
     const connections = mapFormToCreateInput(
       baseForm({ accountingConnection: { code: 'netsuite_eu' } }),
       'customer-id',
+      true,
     ).connections
 
     expect(connections).not.toHaveProperty('payment')
@@ -559,6 +574,7 @@ describe('connections payload', () => {
         ] as TWalletDataForm['recurringTransactionRules'],
       }),
       'customer-id',
+      true,
     )
 
     expect(input.connections).toEqual({
@@ -590,6 +606,7 @@ describe('connections payload', () => {
         ] as TWalletDataForm['recurringTransactionRules'],
       }),
       'customer-id',
+      true,
     ).recurringTransactionRules?.[0]
 
     expect(rule).not.toHaveProperty('accountingConnection')
@@ -690,5 +707,65 @@ describe('connections read-back', () => {
     })
     expect(values.recurringTransactionRules?.[0]?.crmConnection).toEqual({ code: 'hubspot_rule' })
     expect(values.recurringTransactionRules?.[0]?.taxConnection).toBeUndefined()
+  })
+})
+
+describe('multi_connection disabled', () => {
+  const formWithStoredRouting = () =>
+    baseForm({
+      paymentConnection: { code: 'stripe_eu' },
+      taxConnection: { behavior: ConnectionBehaviorEnum.Skip },
+      recurringTransactionRules: [
+        {
+          ...(baseForm().recurringTransactionRules?.[0] as TWalletRecurringRule),
+          paymentConnection: { code: 'stripe_eu' },
+        },
+      ],
+    })
+
+  // `Wallets::{Create,Update}Service` refuses any payload carrying `connections` while the flag is
+  // off, so a hydrated routing resent on an unrelated edit would fail every save.
+  it.each([
+    ['creation', () => mapFormToCreateInput(formWithStoredRouting(), 'customer-id', false)],
+    ['edition', () => mapFormToUpdateInput(formWithStoredRouting(), 'wallet-id', false)],
+  ])('omits connections from the %s payload, rules included', (_, run) => {
+    const input = run()
+
+    expect(input.connections).toBeUndefined()
+    expect(input.recurringTransactionRules?.[0]?.connections).toBeUndefined()
+  })
+
+  it('still sends them once the flag is on', () => {
+    const input = mapFormToUpdateInput(formWithStoredRouting(), 'wallet-id', true)
+
+    expect(input.connections).toEqual({
+      payment: { code: 'stripe_eu' },
+      tax: { behavior: ConnectionBehaviorEnum.Skip },
+    })
+    expect(input.recurringTransactionRules?.[0]?.connections).toEqual({
+      payment: { code: 'stripe_eu' },
+    })
+  })
+})
+
+describe('payment method read-back', () => {
+  // A wallet saved with the customer default has `paymentMethod: null`. Left `undefined`, both
+  // drawer schemas read it as an unfinished specific selection and refuse to submit.
+  it('normalises an absent persisted method to null, on the wallet and on its rules', () => {
+    const values = mapFromApiToForm({
+      wallet: {
+        ...wallet,
+        paymentMethodType: PaymentMethodTypeEnum.Provider,
+        paymentMethod: null,
+        recurringTransactionRules: [
+          { ...wallet.recurringTransactionRules?.[0], paymentMethod: null },
+        ],
+      } as unknown as NonNullable<GetWalletInfosForWalletFormQuery['wallet']>,
+      customerData: undefined,
+      currency: CurrencyEnum.Usd,
+    })
+
+    expect(values.paymentMethod?.paymentMethodId).toBeNull()
+    expect(values.recurringTransactionRules?.[0]?.paymentMethod?.paymentMethodId).toBeNull()
   })
 })
