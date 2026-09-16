@@ -10,6 +10,7 @@ import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { MainHeaderAction } from '~/components/MainHeader/types'
 import { SearchInput } from '~/components/SearchInput'
 import { addToast } from '~/core/apolloClient'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
@@ -20,6 +21,11 @@ import { ContractForContractsListFragment, useGetContractsListLazyQuery } from '
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { usePermissions } from '~/hooks/usePermissions'
+
+import { useContractDrawer } from './drawers/contract/useContractDrawer'
+
+export const CONTRACTS_CREATE_TEST_ID = 'contracts-create'
 
 gql`
   fragment ContractForContractsList on Contract {
@@ -52,6 +58,8 @@ gql`
 const ContractsPage = (): JSX.Element => {
   const { translate } = useInternationalization()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
+  const { openDrawer: openContractDrawer } = useContractDrawer()
+  const { hasPermissions } = usePermissions()
   const { page, goToPage } = usePageSearchParam()
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
   const [getContracts, { data, loading, error, refetch }] = useGetContractsListLazyQuery({
@@ -62,6 +70,17 @@ const ContractsPage = (): JSX.Element => {
   })
   const { isLoading } = useDebouncedSearch(getContracts, loading)
   const totalCount = data?.contracts.metadata.totalCount
+
+  const actions: MainHeaderAction[] = [
+    {
+      type: 'action',
+      label: translate('text_1789553562287qzstcfu6er0'),
+      variant: 'primary',
+      hidden: !hasPermissions(['contractsCreate']),
+      dataTest: CONTRACTS_CREATE_TEST_ID,
+      onClick: () => openContractDrawer(),
+    },
+  ]
 
   const getActions = (
     contract: ContractForContractsListFragment,
@@ -140,6 +159,7 @@ const ContractsPage = (): JSX.Element => {
           metadata: formatCountToMetadata(totalCount, translate),
           metadataLoading: isLoading && totalCount === undefined,
         }}
+        actions={{ items: actions }}
         filtersSection={
           <div className="flex flex-col gap-3 md:flex-row md:items-center">
             <SearchInput disabled placeholder={translate('text_1789489416655gvo52mdwtur')} />
