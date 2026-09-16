@@ -1,5 +1,6 @@
 import { gql, useApolloClient } from '@apollo/client'
 import { revalidateLogic } from '@tanstack/react-form'
+import { GraphQLFormattedError } from 'graphql'
 import { useId, useRef, useState } from 'react'
 import { generatePath } from 'react-router'
 import { z } from 'zod'
@@ -15,6 +16,7 @@ import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGrou
 import { addToast, envGlobalVar } from '~/core/apolloClient'
 import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { applyExistingCodeErrorOrToast } from '~/core/form/existingCodeError'
 import { NETSUITE_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import { zodOptionalUrl } from '~/formValidation/zodCustoms'
 import {
@@ -28,8 +30,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { NetsuiteIntegrationDetailsTabs } from '~/pages/settings/NetsuiteIntegrationDetails'
-
-import { handleDuplicateCodeError } from './handleDuplicateCodeError'
 
 gql`
   fragment NetsuiteForCreateDialogDialog on NetsuiteIntegration {
@@ -173,6 +173,16 @@ export const useAddNetsuiteDialog = () => {
       const netsuiteProvider = dataRef.current?.provider
       const isEdition = !!netsuiteProvider
 
+      const handleError = (errors: readonly GraphQLFormattedError[]) => {
+        if (!applyExistingCodeErrorOrToast(formApi, errors)) return
+
+        const modalContainer = document.getElementsByClassName('MuiDialog-container')[0]
+
+        if (modalContainer) {
+          modalContainer.scrollTo({ top: 0 })
+        }
+      }
+
       if (isEdition) {
         const res = await updateIntegration({
           variables: {
@@ -184,7 +194,9 @@ export const useAddNetsuiteDialog = () => {
           context: { silentErrorDetails: [LagoApiError.ValueAlreadyExist] },
         })
 
-        handleDuplicateCodeError(formApi, res.errors)
+        if (res.errors) {
+          handleError(res.errors)
+        }
       } else {
         const connectionId = `netsuite-tba-${componentId.replaceAll(':', '')}-${Date.now()}`
         const Nango = (await import('@nangohq/frontend')).default
@@ -209,7 +221,9 @@ export const useAddNetsuiteDialog = () => {
               context: { silentErrorDetails: [LagoApiError.ValueAlreadyExist] },
             })
 
-            handleDuplicateCodeError(formApi, res.errors)
+            if (res.errors) {
+              handleError(res.errors)
+            }
           }
         } catch {
           setShowGlobalError(true)

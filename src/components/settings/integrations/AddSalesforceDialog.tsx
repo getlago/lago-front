@@ -1,5 +1,6 @@
 import { gql, useApolloClient } from '@apollo/client'
 import { revalidateLogic } from '@tanstack/react-form'
+import { GraphQLFormattedError } from 'graphql'
 import { useRef, useState } from 'react'
 import { generatePath } from 'react-router'
 import { z } from 'zod'
@@ -12,6 +13,7 @@ import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGrou
 import { addToast } from '~/core/apolloClient'
 import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { applyExistingCodeErrorOrToast } from '~/core/form/existingCodeError'
 import { SALESFORCE_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import {
   GetSalesforceIntegrationsListDocument,
@@ -23,8 +25,6 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
-
-import { handleDuplicateCodeError } from './handleDuplicateCodeError'
 
 gql`
   fragment SalesforceForCreateDialog on SalesforceIntegration {
@@ -128,6 +128,16 @@ export const useAddSalesforceDialog = () => {
       const salesforceProvider = dataRef.current?.provider
       const isEdition = !!salesforceProvider
 
+      const handleError = (errors: readonly GraphQLFormattedError[]) => {
+        if (!applyExistingCodeErrorOrToast(formApi, errors)) return
+
+        const modalContainer = document.getElementsByClassName('MuiDialog-container')[0]
+
+        if (modalContainer) {
+          modalContainer.scrollTo({ top: 0 })
+        }
+      }
+
       try {
         if (isEdition) {
           const res = await updateIntegration({
@@ -140,7 +150,9 @@ export const useAddSalesforceDialog = () => {
             context: { silentErrorDetails: [LagoApiError.ValueAlreadyExist] },
           })
 
-          handleDuplicateCodeError(formApi, res.errors)
+          if (res.errors) {
+            handleError(res.errors)
+          }
         } else {
           const res = await createIntegration({
             variables: {
@@ -149,7 +161,9 @@ export const useAddSalesforceDialog = () => {
             context: { silentErrorDetails: [LagoApiError.ValueAlreadyExist] },
           })
 
-          handleDuplicateCodeError(formApi, res.errors)
+          if (res.errors) {
+            handleError(res.errors)
+          }
         }
       } catch {
         setShowGlobalError(true)
