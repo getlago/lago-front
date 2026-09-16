@@ -1,11 +1,19 @@
-import { act, cleanup, renderHook, screen } from '@testing-library/react'
+import { act, cleanup, renderHook } from '@testing-library/react'
 import { ReactNode } from 'react'
 
-import { EXISTING_CODE_ERROR_MESSAGE } from '~/core/form/existingCodeError'
-import { AddAnrokIntegrationDialogFragment, LagoApiError } from '~/generated/graphql'
+import { AddAnrokIntegrationDialogFragment } from '~/generated/graphql'
 import { AllTheProviders, render } from '~/test-utils'
 
+import { describeDuplicateRejectionRouting, rejectedUnder } from './duplicateRejectionHelpers'
+
 import { useAddAnrokDialog } from '../AddAnrokDialog'
+
+const mockAddToast = jest.fn()
+
+jest.mock('~/core/apolloClient/reactiveVars/toastVar', () => ({
+  ...jest.requireActual('~/core/apolloClient/reactiveVars/toastVar'),
+  addToast: (...args: unknown[]) => mockAddToast(...args),
+}))
 
 const mockDialogOpen = jest.fn()
 const mockCreate = jest.fn()
@@ -51,11 +59,10 @@ describe('useAddAnrokDialog', () => {
     mockDialogOpen.mockImplementation(() => new Promise(() => {}))
   })
 
-  describe('GIVEN the backend rejects the update for a duplicate code', () => {
-    const submitEdition = async (): Promise<() => Promise<unknown>> => {
-      mockUpdate.mockResolvedValue({
-        errors: [{ extensions: { details: { code: [LagoApiError.ValueAlreadyExist] } } }],
-      })
+  describeDuplicateRejectionRouting(
+    'update',
+    async (detailsKey) => {
+      mockUpdate.mockResolvedValue(rejectedUnder(detailsKey))
 
       const { result } = renderHook(() => useAddAnrokDialog(), { wrapper })
 
@@ -68,18 +75,8 @@ describe('useAddAnrokDialog', () => {
       await act(() => render(<>{dialogProps.children}</>))
 
       return dialogProps.form.submit
-    }
-
-    describe('WHEN submitting the dialog', () => {
-      it('THEN surfaces the shared duplicate-code message under the code input', async () => {
-        const submit = await submitEdition()
-
-        await act(async () => {
-          await expect(submit()).rejects.toThrow()
-        })
-
-        expect(await screen.findByText(EXISTING_CODE_ERROR_MESSAGE)).toBeInTheDocument()
-      })
-    })
-  })
+    },
+    () =>
+      expect(mockAddToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' })),
+  )
 })

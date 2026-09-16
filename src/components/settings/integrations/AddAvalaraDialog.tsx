@@ -174,7 +174,11 @@ export const useAddAvalaraDialog = () => {
         })
 
         if (hasDefinedGQLError('ValueAlreadyExist', res.errors)) {
-          applyExistingCodeError(formApi)
+          if (hasDefinedGQLError('ValueAlreadyExist', res.errors, 'code')) {
+            applyExistingCodeError(formApi)
+          } else {
+            addToast({ severity: 'danger', translateKey: 'text_622f7a3dc32ce100c46a5154' })
+          }
         }
 
         return
@@ -202,7 +206,7 @@ export const useAddAvalaraDialog = () => {
           },
         })
 
-        if (hasDefinedGQLError('ValueAlreadyExist', res.errors)) {
+        if (hasDefinedGQLError('ValueAlreadyExist', res.errors, 'code')) {
           applyExistingCodeError(formApi)
         }
       } catch (error) {

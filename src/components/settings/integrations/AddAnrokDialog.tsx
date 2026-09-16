@@ -176,7 +176,11 @@ export const useAddAnrokDialog = () => {
       }
 
       if (hasDefinedGQLError('ValueAlreadyExist', res.errors)) {
-        applyExistingCodeError(formApi)
+        if (hasDefinedGQLError('ValueAlreadyExist', res.errors, 'code')) {
+          applyExistingCodeError(formApi)
+        } else {
+          addToast({ severity: 'danger', translateKey: 'text_622f7a3dc32ce100c46a5154' })
+        }
       }
     },
   })
