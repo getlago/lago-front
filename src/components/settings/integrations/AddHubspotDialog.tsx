@@ -1,6 +1,5 @@
 import { gql, useApolloClient } from '@apollo/client'
 import { revalidateLogic } from '@tanstack/react-form'
-import { GraphQLFormattedError } from 'graphql'
 import { useId, useRef, useState } from 'react'
 import { generatePath } from 'react-router'
 import { z } from 'zod'
@@ -17,7 +16,6 @@ import { addToast, envGlobalVar } from '~/core/apolloClient'
 import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import { getHubspotTargetedObjectTranslationKey } from '~/core/constants/form'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { applyExistingCodeErrorOrToast } from '~/core/form/existingCodeError'
 import { HUBSPOT_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import {
   GetHubspotIntegrationsListDocument,
@@ -30,6 +28,8 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
+
+import { handleDuplicateCodeError } from './handleDuplicateCodeError'
 
 gql`
   fragment HubspotForCreateDialog on HubspotIntegration {
@@ -144,16 +144,6 @@ export const useAddHubspotDialog = () => {
       const hubspotProvider = dataRef.current?.provider
       const isEdition = !!hubspotProvider
 
-      const handleError = (errors: readonly GraphQLFormattedError[]) => {
-        if (!applyExistingCodeErrorOrToast(formApi, errors)) return
-
-        const modalContainer = document.getElementsByClassName('MuiDialog-container')[0]
-
-        if (modalContainer) {
-          modalContainer.scrollTo({ top: 0 })
-        }
-      }
-
       if (isEdition) {
         const res = await updateIntegration({
           variables: {
@@ -165,9 +155,7 @@ export const useAddHubspotDialog = () => {
           context: { silentErrorDetails: [LagoApiError.ValueAlreadyExist] },
         })
 
-        if (res.errors) {
-          handleError(res.errors)
-        }
+        handleDuplicateCodeError(formApi, res.errors)
       } else {
         const connectionId = `hubspot-${componentId.replaceAll(':', '')}-${Date.now()}`
         const Nango = (await import('@nangohq/frontend')).default
@@ -184,9 +172,7 @@ export const useAddHubspotDialog = () => {
               context: { silentErrorDetails: [LagoApiError.ValueAlreadyExist] },
             })
 
-            if (res.errors) {
-              handleError(res.errors)
-            }
+            handleDuplicateCodeError(formApi, res.errors)
           }
         } catch {
           setShowGlobalError(true)

@@ -1,6 +1,5 @@
 import { gql, useApolloClient } from '@apollo/client'
 import { revalidateLogic } from '@tanstack/react-form'
-import { GraphQLFormattedError } from 'graphql'
 import { useId, useRef, useState } from 'react'
 import { generatePath } from 'react-router'
 import { z } from 'zod'
@@ -16,7 +15,6 @@ import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGrou
 import { addToast, envGlobalVar } from '~/core/apolloClient'
 import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { applyExistingCodeErrorOrToast } from '~/core/form/existingCodeError'
 import { useNavigate, XERO_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
 import {
   GetXeroIntegrationsListDocument,
@@ -29,6 +27,8 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { XeroIntegrationDetailsTabs } from '~/pages/settings/XeroIntegrationDetails'
+
+import { handleDuplicateCodeError } from './handleDuplicateCodeError'
 
 gql`
   fragment XeroForCreateDialogDialog on XeroIntegration {
@@ -147,16 +147,6 @@ export const useAddXeroDialog = () => {
       const xeroProvider = dataRef.current?.provider
       const isEdition = !!xeroProvider
 
-      const handleError = (errors: readonly GraphQLFormattedError[]) => {
-        if (!applyExistingCodeErrorOrToast(formApi, errors)) return
-
-        const modalContainer = document.getElementsByClassName('MuiDialog-container')[0]
-
-        if (modalContainer) {
-          modalContainer.scrollTo({ top: 0 })
-        }
-      }
-
       if (isEdition) {
         const res = await updateIntegration({
           variables: {
@@ -168,9 +158,7 @@ export const useAddXeroDialog = () => {
           context: { silentErrorDetails: [LagoApiError.ValueAlreadyExist] },
         })
 
-        if (res.errors) {
-          handleError(res.errors)
-        }
+        handleDuplicateCodeError(formApi, res.errors)
       } else {
         const connectionId = `xero-${componentId.replaceAll(':', '')}-${Date.now()}`
         const Nango = (await import('@nangohq/frontend')).default
@@ -187,9 +175,7 @@ export const useAddXeroDialog = () => {
               context: { silentErrorDetails: [LagoApiError.ValueAlreadyExist] },
             })
 
-            if (res.errors) {
-              handleError(res.errors)
-            }
+            handleDuplicateCodeError(formApi, res.errors)
           }
         } catch {
           setShowGlobalError(true)
