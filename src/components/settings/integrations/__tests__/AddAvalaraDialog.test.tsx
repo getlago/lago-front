@@ -1,12 +1,20 @@
-import { act, cleanup, renderHook, screen } from '@testing-library/react'
+import { act, cleanup, renderHook } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ReactNode } from 'react'
 
-import { EXISTING_CODE_ERROR_MESSAGE } from '~/core/form/existingCodeError'
-import { AddAvalaraIntegrationDialogFragment, LagoApiError } from '~/generated/graphql'
+import { AddAvalaraIntegrationDialogFragment } from '~/generated/graphql'
 import { AllTheProviders, render } from '~/test-utils'
 
+import { describeDuplicateRejectionRouting, rejectedUnder } from './duplicateRejectionHelpers'
+
 import { useAddAvalaraDialog } from '../AddAvalaraDialog'
+
+const mockAddToast = jest.fn()
+
+jest.mock('~/core/apolloClient/reactiveVars/toastVar', () => ({
+  ...jest.requireActual('~/core/apolloClient/reactiveVars/toastVar'),
+  addToast: (...args: unknown[]) => mockAddToast(...args),
+}))
 
 const mockDialogOpen = jest.fn()
 const mockCreate = jest.fn()
@@ -53,10 +61,6 @@ const avalaraIntegration: AddAvalaraIntegrationDialogFragment = {
   licenseKey: 'license-key',
 }
 
-const DUPLICATE_CODE_REJECTION = {
-  errors: [{ extensions: { details: { code: [LagoApiError.ValueAlreadyExist] } } }],
-}
-
 const getInput = (name: string): HTMLInputElement =>
   document.querySelector(`input[name="${name}"]`) as HTMLInputElement
 
@@ -71,58 +75,50 @@ describe('useAddAvalaraDialog', () => {
     mockNangoAuth.mockResolvedValue({ connectionId: 'nango-connection-id' })
   })
 
-  describe('GIVEN the backend rejects the edition for a duplicate code', () => {
-    describe('WHEN submitting the dialog', () => {
-      it('THEN surfaces the shared duplicate-code message under the code input', async () => {
-        mockUpdate.mockResolvedValue(DUPLICATE_CODE_REJECTION)
+  describeDuplicateRejectionRouting(
+    'edition',
+    async (detailsKey) => {
+      mockUpdate.mockResolvedValue(rejectedUnder(detailsKey))
 
-        const { result } = renderHook(() => useAddAvalaraDialog(), { wrapper })
+      const { result } = renderHook(() => useAddAvalaraDialog(), { wrapper })
 
-        act(() => {
-          result.current.openAddAvalaraDialog({ integration: avalaraIntegration })
-        })
-
-        const dialogProps = mockDialogOpen.mock.calls[0][0]
-
-        await act(() => render(<>{dialogProps.children}</>))
-
-        await act(async () => {
-          await expect(dialogProps.form.submit()).rejects.toThrow()
-        })
-
-        expect(await screen.findByText(EXISTING_CODE_ERROR_MESSAGE)).toBeInTheDocument()
+      act(() => {
+        result.current.openAddAvalaraDialog({ integration: avalaraIntegration })
       })
-    })
-  })
 
-  describe('GIVEN the backend rejects the creation for a duplicate code', () => {
-    describe('WHEN submitting the dialog', () => {
-      it('THEN surfaces the shared duplicate-code message under the code input', async () => {
-        mockCreate.mockResolvedValue(DUPLICATE_CODE_REJECTION)
+      const dialogProps = mockDialogOpen.mock.calls[0][0]
 
-        const user = userEvent.setup()
-        const { result } = renderHook(() => useAddAvalaraDialog(), { wrapper })
+      await act(() => render(<>{dialogProps.children}</>))
 
-        act(() => {
-          result.current.openAddAvalaraDialog()
-        })
+      return dialogProps.form.submit
+    },
+    () =>
+      expect(mockAddToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' })),
+  )
 
-        const dialogProps = mockDialogOpen.mock.calls[0][0]
+  describeDuplicateRejectionRouting(
+    'creation',
+    async (detailsKey) => {
+      mockCreate.mockResolvedValue(rejectedUnder(detailsKey))
 
-        await act(() => render(<>{dialogProps.children}</>))
+      const user = userEvent.setup()
+      const { result } = renderHook(() => useAddAvalaraDialog(), { wrapper })
 
-        await user.type(getInput('name'), 'Test Integration')
-        await user.type(getInput('accountId'), 'account-id')
-        await user.type(getInput('licenseKey'), 'license-key')
-        await user.type(getInput('companyCode'), 'company-code')
-
-        await act(async () => {
-          await expect(dialogProps.form.submit()).rejects.toThrow()
-        })
-
-        expect(mockCreate).toHaveBeenCalled()
-        expect(await screen.findByText(EXISTING_CODE_ERROR_MESSAGE)).toBeInTheDocument()
+      act(() => {
+        result.current.openAddAvalaraDialog()
       })
-    })
-  })
+
+      const dialogProps = mockDialogOpen.mock.calls[0][0]
+
+      await act(() => render(<>{dialogProps.children}</>))
+
+      await user.type(getInput('name'), 'Test Integration')
+      await user.type(getInput('accountId'), 'account-id')
+      await user.type(getInput('licenseKey'), 'license-key')
+      await user.type(getInput('companyCode'), 'company-code')
+
+      return dialogProps.form.submit
+    },
+    () => expect(mockAddToast).not.toHaveBeenCalled(),
+  )
 })

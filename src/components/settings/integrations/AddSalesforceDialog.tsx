@@ -128,7 +128,7 @@ export const useAddSalesforceDialog = () => {
       const isEdition = !!salesforceProvider
 
       const handleError = (errors: readonly GraphQLFormattedError[]) => {
-        if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
+        if (hasDefinedGQLError('ValueAlreadyExist', errors, 'code')) {
           applyExistingCodeError(formApi)
 
           const modalContainer = document.getElementsByClassName('MuiDialog-container')[0]

@@ -11,7 +11,7 @@ description: 'Cleanup phase of the loop pipeline for lago-front, for the `worktr
 
 ## Steps
 
-1. **List candidates**: worktree names from `front-worktrees/` starting with a Linear issue ID — pattern `^[A-Z]+-\d+(-.*)?$` (any team prefix: LAGO, ING, ...; with or without the topic slug suffix, e.g. `ING-517-swap-customer-overview-connection`). Cross-check `.worktree-slots`.
+1. **List candidates**: worktree names from `front-worktrees/` starting with a Linear issue ID — pattern `^[A-Z]+-\d+(-.*)?$` (any team prefix, with or without the topic slug suffix, e.g. `<TEAM>-<N>-swap-customer-overview-connection`). Cross-check `.worktree-slots`.
 
 2. **Check merge state** for each candidate:
 

@@ -62,7 +62,7 @@ seeds with `Fixes LAGO-XXX`. Prefixes in use are `LAGO`, `ING`, `BIL`, `INT`, so
 ticket.
 
 ```
-:admission_tickets: <https://linear.app/getlago/issue/ING-497/slug|linear.app/getlago/issue/ING-497/slug>
+:admission_tickets: <https://linear.app/getlago/issue/<ISSUE-ID>/slug|linear.app/getlago/issue/<ISSUE-ID>/slug>
 ```
 
 The body usually carries only the id, not a full URL. `https://linear.app/getlago/issue/<ID>`
@@ -81,7 +81,7 @@ verbatim, slug included.
 ```
 **refactor(multi-connections): port payment & invoicing settings drawers**
 :pr: <https://github.com/getlago/lago-front/pull/4003|github.com/getlago/lago-front/pull/4003>
-:admission_tickets: <https://linear.app/getlago/issue/ING-497/slug|linear.app/getlago/issue/ING-497/slug>
+:admission_tickets: <https://linear.app/getlago/issue/<ISSUE-ID>/slug|linear.app/getlago/issue/<ISSUE-ID>/slug>
 :link: <https://recurring-rule-form-drawer-app.staging.getlago.com/>
 ```
 

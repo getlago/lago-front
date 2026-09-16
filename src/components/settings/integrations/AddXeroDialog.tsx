@@ -147,7 +147,7 @@ export const useAddXeroDialog = () => {
       const isEdition = !!xeroProvider
 
       const handleError = (errors: readonly GraphQLFormattedError[]) => {
-        if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
+        if (hasDefinedGQLError('ValueAlreadyExist', errors, 'code')) {
           applyExistingCodeError(formApi)
 
           const modalContainer = document.getElementsByClassName('MuiDialog-container')[0]

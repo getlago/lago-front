@@ -173,7 +173,7 @@ export const useAddNetsuiteDialog = () => {
       const isEdition = !!netsuiteProvider
 
       const handleError = (errors: readonly GraphQLFormattedError[]) => {
-        if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
+        if (hasDefinedGQLError('ValueAlreadyExist', errors, 'code')) {
           applyExistingCodeError(formApi)
 
           const modalContainer = document.getElementsByClassName('MuiDialog-container')[0]

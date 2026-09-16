@@ -75,7 +75,7 @@ return (
 | ---- | --- |
 | Always pass `validationLogic: revalidateLogic()` | Omitted, TanStack falls back to `defaultValidationLogic`, which never runs `onDynamic` — the schema is silently skipped and every value passes |
 | **Submit-first**: the form is never invalid before the first submit attempt | `revalidateLogic()` is `mode: 'submit'` + `modeAfterSubmission: 'change'`. Submit stays enabled until then, whatever the field type |
-| A field component publishes the value; the **schema** decides if it is acceptable | A component that withholds a rejected value leaves the input and the form state disagreeing — the ING-634 bug. Only a value with no representation at all (unparseable date) may be withheld |
+| A field component publishes the value; the **schema** decides if it is acceptable | A component that withholds a rejected value leaves the input and the form state disagreeing — a shipped bug. Only a value with no representation at all (unparseable date) may be withheld |
 | Bare `<form.SubmitButton>` inside `<form.AppForm>` | It subscribes to `canSubmit` + `isSubmitting` and gets the spinner for free. `canSubmit` excludes `isDirty` **by design** — never add a `!isDirty` gate |
 | `await` every async call inside `onSubmit` | `isSubmitting` flips back when `onSubmit`'s own promise resolves, so a dropped promise kills the spinner before the mutation settles |
 | `useStore(form.store, (s) => …)` for anything read in the render | `form.state.*` is a passive read: no subscription, no re-render. It is fine inside event handlers, which only need a snapshot. Import `useStore` from `@tanstack/react-form` |
@@ -88,7 +88,7 @@ return (
 `form.AppField` + the registered `field.*` components only — never a raw input, never a
 hand-wired `<Button type="submit">`. **Write the schema against the stored shape below**,
 not against the payload the API wants: a mismatch fails silently, leaving submit disabled
-with no error and no request (the BIL-410 regression).
+with no error and no request (a shipped regression).
 
 | Component | Stored value |
 | --------- | ------------ |
