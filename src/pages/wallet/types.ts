@@ -37,6 +37,9 @@ export type TWalletDataForm = Omit<
     }
     paymentMethod?: SelectedPaymentMethod
     paymentConnection?: SelectedConnection
+    accountingConnection?: SelectedConnection
+    crmConnection?: SelectedConnection
+    taxConnection?: SelectedConnection
     invoiceCustomSection?: InvoiceCustomSectionInput
     // Rules carry the FE-shaped payment/invoicing values at runtime
     // (transformRecurringTransactionRule), not the raw GQL reference inputs
@@ -45,6 +48,9 @@ export type TWalletDataForm = Omit<
         lagoId?: string | null
         paymentMethod?: SelectedPaymentMethod
         paymentConnection?: SelectedConnection
+        accountingConnection?: SelectedConnection
+        crmConnection?: SelectedConnection
+        taxConnection?: SelectedConnection
         invoiceCustomSection?: InvoiceCustomSectionInput
       }
     > | null

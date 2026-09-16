@@ -1,10 +1,11 @@
 import {
-  findPaymentRouting,
+  findConnectionRouting,
   toSelectedConnection,
 } from '~/components/connectionSelection/fromConnectionRouting'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount, getCurrencyPrecision } from '~/core/serializers/serializeAmount'
 import {
+  ConnectionCategoryEnum,
   CurrencyEnum,
   GetCustomerInfosForWalletFormQuery,
   GetWalletInfosForWalletFormQuery,
@@ -65,7 +66,18 @@ export const mapFromApiToForm = ({
     : undefined,
   ignorePaidTopUpLimitsOnCreation: false,
   priority: wallet?.priority || WALLET_DEFAULT_PRIORITY,
-  paymentConnection: toSelectedConnection(findPaymentRouting(wallet?.connections)),
+  paymentConnection: toSelectedConnection(
+    findConnectionRouting(wallet?.connections, ConnectionCategoryEnum.Payment),
+  ),
+  accountingConnection: toSelectedConnection(
+    findConnectionRouting(wallet?.connections, ConnectionCategoryEnum.Accounting),
+  ),
+  crmConnection: toSelectedConnection(
+    findConnectionRouting(wallet?.connections, ConnectionCategoryEnum.Crm),
+  ),
+  taxConnection: toSelectedConnection(
+    findConnectionRouting(wallet?.connections, ConnectionCategoryEnum.Tax),
+  ),
   paymentMethod: {
     paymentMethodType: wallet?.paymentMethodType,
     paymentMethodId: wallet?.paymentMethod?.id,

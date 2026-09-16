@@ -27,7 +27,7 @@ gql`
   }
 `
 
-export const useAccountingProviders = (): {
+export const useAccountingProviders = ({ skip = false }: { skip?: boolean } = {}): {
   accountingProviders: GetAccountingIntegrationsForExternalAppsAccordionQuery | undefined
   isLoadingAccountProviders: boolean
   getAccountingProviderFromCode: (code: string | undefined) => IntegrationTypeEnum | undefined
@@ -35,6 +35,7 @@ export const useAccountingProviders = (): {
   const { data: accountingProviders, loading: isLoadingAccountProviders } =
     useGetAccountingIntegrationsForExternalAppsAccordionQuery({
       variables: { limit: 1000 },
+      skip,
     })
 
   const getAccountingProviderFromCode = (

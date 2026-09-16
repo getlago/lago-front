@@ -2,6 +2,8 @@ import InputAdornment from '@mui/material/InputAdornment'
 import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { DateTime } from 'luxon'
 
+import { AdditionalIntegrationSettingsSelector } from '~/components/additionalIntegrationSettings/AdditionalIntegrationSettingsSelector'
+import { ConnectionCategory } from '~/components/customerConnections/types'
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { Tooltip } from '~/components/designSystem/Tooltip'
@@ -18,12 +20,14 @@ import {
   DELETE_RECURRING_EXPIRATION_AT_DATA_TEST,
   RECURRING_IGNORE_PAID_TOPUP_LIMITS_SWITCH_DATA_TEST,
   RECURRING_INVOICE_REQUIRES_SUCCESSFUL_PAYMENT_SWITCH_DATA_TEST,
+  RECURRING_RULE_ADDITIONAL_INTEGRATION_SETTINGS_SELECTOR_DATA_TEST,
   RECURRING_RULE_INVOICING_SETTINGS_SELECTOR_DATA_TEST,
   RECURRING_RULE_PAYMENT_SETTINGS_SELECTOR_DATA_TEST,
   RECURRING_TOPUP_TYPE_DATA_TEST,
   SHOW_RECURRING_EXPIRATION_AT_DATA_TEST,
 } from '~/components/wallets/utils/dataTestConstants'
 import {
+  VIEW_TYPE_INTEGRATIONS_CAPTION_KEYS,
   VIEW_TYPE_INVOICING_CAPTION_KEYS,
   VIEW_TYPE_PAYMENT_CAPTION_KEYS,
   ViewTypeEnum,
@@ -137,6 +141,23 @@ const RecurringRuleDrawerContent = withForm({
         />
       )
     }
+
+    const renderAdditionalIntegrationSettingsSelector = (customerId: string) => (
+      <AdditionalIntegrationSettingsSelector
+        customerId={customerId}
+        values={{
+          [ConnectionCategory.Accounting]: rule.accountingConnection,
+          [ConnectionCategory.Crm]: rule.crmConnection,
+          [ConnectionCategory.Tax]: rule.taxConnection,
+        }}
+        onChange={(values) => {
+          form.setFieldValue('accountingConnection', values[ConnectionCategory.Accounting])
+          form.setFieldValue('crmConnection', values[ConnectionCategory.Crm])
+          form.setFieldValue('taxConnection', values[ConnectionCategory.Tax])
+        }}
+        data-test={RECURRING_RULE_ADDITIONAL_INTEGRATION_SETTINGS_SELECTOR_DATA_TEST}
+      />
+    )
 
     const { currency, rateAmount, paidTopUpMinAmountCents, paidTopUpMaxAmountCents } = walletValues
 
@@ -560,6 +581,18 @@ const RecurringRuleDrawerContent = withForm({
                 customerData.customer.id,
                 customerData.customer.externalId,
               )}
+            </CenteredPage.PageSection>
+          )}
+
+          {isMultiConnectionEnabled && !!customerData?.customer?.id && (
+            <CenteredPage.PageSection>
+              <CenteredPage.PageSectionTitle
+                title={translate('text_1789472252793twqbda38ec2')}
+                description={translate(
+                  VIEW_TYPE_INTEGRATIONS_CAPTION_KEYS[ViewTypeEnum.WalletRecurringTopUp],
+                )}
+              />
+              {renderAdditionalIntegrationSettingsSelector(customerData.customer.id)}
             </CenteredPage.PageSection>
           )}
 
