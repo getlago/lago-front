@@ -21,11 +21,11 @@ const CONNECTION_CATEGORY_TO_API_CATEGORY: Record<ConnectionCategory, Connection
   [ConnectionCategory.Crm]: ConnectionCategoryEnum.Crm,
 }
 
-type ConnectionRoutingRow = ConnectionRoutingDisplay & {
+export type ConnectionRoutingRow = ConnectionRoutingDisplay & {
   category: ConnectionCategoryEnum
 }
 
-type ConnectionRoutingGridItem = {
+export type ConnectionRoutingGridItem = {
   label: string
   value: ReactNode
 }

@@ -319,12 +319,7 @@ const WalletDetails = () => {
               }),
               content: (
                 <DetailsPage.Container className="mt-12">
-                  <WalletExternalApps
-                    wallet={wallet}
-                    walletId={walletId}
-                    customerId={customerId}
-                    canEditWallet={canEditWallet}
-                  />
+                  <WalletExternalApps wallet={wallet} canEditWallet={canEditWallet} />
                 </DetailsPage.Container>
               ),
             },

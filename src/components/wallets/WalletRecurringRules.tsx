@@ -284,7 +284,7 @@ const RecurringRuleConnectionSections = ({
   wallet: WalletDetailsFragment
   showInvoiceCustomSectionsRow: boolean
   canEditWallet: boolean
-}) => {
+}): JSX.Element => {
   const { translate } = useInternationalization()
 
   const customerId = wallet.customer?.id

@@ -4,12 +4,14 @@ import { ConnectionCategory } from '~/components/customerConnections/types'
 import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types'
-import { ConnectionCategoryEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { ConnectionRoutingDisplay } from './ConnectionRoutingValue'
 import { PaymentMethodValue } from './PaymentMethodValue'
-import { useConnectionRoutingGridItems } from './useConnectionRoutingGridItems'
+import {
+  ConnectionRoutingGridItem,
+  ConnectionRoutingRow,
+  useConnectionRoutingGridItems,
+} from './useConnectionRoutingGridItems'
 
 export const CONNECTION_SETTINGS_PAYMENT_SECTION_TEST_ID = 'connection-settings-payment-section'
 export const CONNECTION_SETTINGS_ADDITIONAL_SECTION_TEST_ID =
@@ -21,18 +23,13 @@ const ADDITIONAL_CATEGORIES = [
   ConnectionCategory.Crm,
 ]
 
-type GridItem = {
-  label: string
-  value: ReactNode
-}
-
 type SectionHeaderProps = {
   title: string
   description: string
   action?: ReactNode
 }
 
-const SectionHeader = ({ title, description, action }: SectionHeaderProps) => (
+const SectionHeader = ({ title, description, action }: SectionHeaderProps): JSX.Element => (
   <div className="flex items-start justify-between gap-4">
     <div className="flex flex-col">
       <Typography variant="bodyHl" color="grey700">
@@ -49,7 +46,7 @@ const SectionHeader = ({ title, description, action }: SectionHeaderProps) => (
 )
 
 type ConnectionSettingsSectionsProps = {
-  connections?: (ConnectionRoutingDisplay & { category: ConnectionCategoryEnum })[] | null
+  connections?: ConnectionRoutingRow[] | null
   customerId?: string
   externalCustomerId?: string
   selectedPaymentMethod?: SelectedPaymentMethod
@@ -57,7 +54,7 @@ type ConnectionSettingsSectionsProps = {
   additionalDescription: string
   paymentAction?: ReactNode
   additionalAction?: ReactNode
-  extraPaymentItems?: GridItem[]
+  extraPaymentItems?: ConnectionRoutingGridItem[]
 }
 
 export const ConnectionSettingsSections = ({
@@ -70,7 +67,7 @@ export const ConnectionSettingsSections = ({
   paymentAction,
   additionalAction,
   extraPaymentItems = [],
-}: ConnectionSettingsSectionsProps) => {
+}: ConnectionSettingsSectionsProps): JSX.Element => {
   const { translate } = useInternationalization()
 
   const paymentConnectionItems = useConnectionRoutingGridItems({

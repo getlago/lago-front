@@ -13,34 +13,29 @@ export const WALLET_EXTERNAL_APPS_EDIT_ADDITIONAL_TEST_ID = 'wallet-external-app
 
 type WalletExternalAppsProps = {
   wallet?: WalletDetailsFragment | null
-  walletId?: string
-  customerId?: string
   canEditWallet: boolean
 }
 
-const WalletExternalApps = ({
-  wallet,
-  walletId,
-  customerId,
-  canEditWallet,
-}: WalletExternalAppsProps) => {
+const WalletExternalApps = ({ wallet, canEditWallet }: WalletExternalAppsProps): JSX.Element => {
   const { translate } = useInternationalization()
 
+  const customerId = wallet?.customer?.id
+
   if (!wallet) {
-    return
+    return <></>
   }
 
   const renderEditLink = (
     routerState: Record<string, boolean>,
     dataTest: string,
   ): ReactNode | null => {
-    if (!canEditWallet || !walletId || !customerId) return null
+    if (!canEditWallet || !customerId) return null
 
     return (
       <ButtonLink
         buttonProps={{ variant: 'inline' }}
         type="button"
-        to={generatePath(EDIT_WALLET_ROUTE, { walletId, customerId })}
+        to={generatePath(EDIT_WALLET_ROUTE, { walletId: wallet.id, customerId })}
         routerState={routerState}
         data-test={dataTest}
       >
@@ -53,7 +48,7 @@ const WalletExternalApps = ({
     <div data-test={WALLET_EXTERNAL_APPS_CONTAINER_TEST_ID} className="flex flex-col gap-12">
       <ConnectionSettingsSections
         connections={wallet.connections}
-        customerId={wallet.customer?.id}
+        customerId={customerId}
         externalCustomerId={wallet.customer?.externalId}
         selectedPaymentMethod={{
           paymentMethodType: wallet.paymentMethodType,

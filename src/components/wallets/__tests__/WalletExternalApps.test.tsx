@@ -93,15 +93,7 @@ const renderComponent = ({
 }: {
   wallet?: WalletDetailsFragment | null
   canEditWallet?: boolean
-} = {}) =>
-  render(
-    <WalletExternalApps
-      wallet={wallet}
-      walletId="wallet-1"
-      customerId="customer-1"
-      canEditWallet={canEditWallet}
-    />,
-  )
+} = {}) => render(<WalletExternalApps wallet={wallet} canEditWallet={canEditWallet} />)
 
 describe('WalletExternalApps', () => {
   beforeEach(() => {
