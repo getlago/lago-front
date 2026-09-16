@@ -26,7 +26,7 @@ description: 'Phase 3 of the loop pipeline for lago-front. Takes an ISSUE-ID, re
 
    ```bash
    pnpm lint && pnpm types && pnpm translations:inspect && pnpm translations:ensure-consistency
-   <front>/scripts/diff-hygiene.sh origin/main <worktree>      # comment runs over 2 lines
+   <front>/scripts/diff-hygiene.sh origin/main <worktree> <state dir>/plan.md   # every added comment declared, none in a refused position
    <front>/scripts/loop-plan-check.sh <worktree> <state dir>/plan.md   # new files / exports outside plan.md
    ```
 
@@ -43,7 +43,7 @@ description: 'Phase 3 of the loop pipeline for lago-front. Takes an ISSUE-ID, re
    4. **Conventions and translations**: neighboring code style, `.agents/docs/frontend-coding-styleguide.md`, codegen output consistent; new keys in `translations/base.json` only where no existing label fit (search for one), no dead keys.
    5. **Tests exist and test the branch**: make-tests output is in the diff; no fixture default switches off the branch a test claims to cover (`.agents/docs/testing-practices.md` → "Fixture Defaults"); with more than one navigating path, assertions pin the destination with `toHaveBeenCalledWith` and assert the routes NOT taken; every callback the component passes to a mocked hook (`onCompleted`, `onError`, ...) is captured and invoked.
    6. **Follow the calls out of the diff**: when the diff passes an existing hook/util an argument that used to be constant, open that implementation and verify it honours it; when it reuses a form component on a new surface, walk every optional callback prop the new caller omits and name the user action that omission disables; when it redirects to a route constant, confirm the tab it resolves to; for each persisted field, state what the read path puts back and what the next save sends.
-   7. **Comment content and leftovers**: `diff-hygiene.sh` printed every added comment — FAIL any that restates the code, justifies the diff (belongs in the commit body), answers a review round, or duplicates another file's; keep only an external constraint, a why-not-the-obvious, or an edit trap. No dead code, no unused exports.
+   7. **Declared comments earn their category, and nothing is left behind**: `diff-hygiene.sh` already refused undeclared and mis-positioned comments; read only plan.md `## Comments kept` and FAIL any line whose comment does not do what its category claims — a `constraint` with no identifier a reader could grep, a `why-not` where the alternative was never viable, a `trap` nothing actually trips — or that justifies the diff or answers a review round. No dead code, no unused exports.
    <!-- checks:end -->
 
 5. **Second pass with the code-review skill — inline.** Run `/code-review` in THIS session on the worktree diff, never through the Agent tool: a subagent copy has stalled past its bound on every recorded run and returned later against a stale tree. Fold confirmed findings into the issues list and state in review.md which pass produced each.

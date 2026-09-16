@@ -81,11 +81,14 @@ description: 'Phase 2 of the loop pipeline for lago-front. Takes an ISSUE-ID, re
    ## Estimated size
    <N lines>
 
+   ## Comments kept
+   <one line per comment the diff keeps: `- <path> — constraint|why-not|trap — "<first words>"`; or "none">
+
    ## Deviations
    <appended during implementation: what changed from the plan above and the one-line reason>
    ```
 
-   Start from spec.md `## Files to touch` and `## Premises`. The default for `## New files` and `## New exports` is "none": write the diff in your head without the abstraction first, and add it only when the inline version is larger. Read `.agents/docs/frontend-coding-styleguide.md` now, before the first edit.
+   Start from spec.md `## Files to touch` and `## Premises`. The default for `## New files`, `## New exports` and `## Comments kept` is "none": write the diff in your head without the abstraction first, and add it only when the inline version is larger. Read `.agents/docs/frontend-coding-styleguide.md` now, before the first edit.
 
 5. **Implement** per spec.md and plan.md, inside the `worktree:` path from state.md only (in `in-place` that is the cwd). The checks below are capped by `scripts/skill-budget.sh`.
 
@@ -93,7 +96,7 @@ description: 'Phase 2 of the loop pipeline for lago-front. Takes an ISSUE-ID, re
    1. **The plan is the scope.** Reality diverges from spec.md or plan.md → append the divergence and its reason to plan.md `## Deviations` and continue only if minor; otherwise stop and report. A premise spec.md marks `unverified` is not built around: build what the code shows, and say so in the report.
    2. **Existing mechanism first.** Before writing a component, hook, util or handler, search `lago-design-system`, the shared modules and the global layers (Apollo error link, toast, router wrappers) for one that already does the job — reuse or extend, never duplicate. When the spec says to mirror a sibling, diff YOUR dependency list against ITS: a dependency the sibling deliberately avoided (an aggregate hook, a wider query) needs a reason in the report.
    3. **Translations** (`translations/base.json`): search for an existing label with the same meaning before adding a key; new keys only when nothing fits, following the naming pattern; remove a key when the change removes its last usage.
-   4. **Comments**: `.agents/docs/typescript-conventions.md` → "Comments: Default to None" is binding. `scripts/diff-hygiene.sh` fails the gate on any run over 2 lines; content is yours: delete every comment you would also write in the commit body, or that answers a reviewer. What survives names an external constraint, why NOT the obvious alternative, or a trap that bites on edit. Expect zero on a typical diff.
+   4. **Comments are declared or deleted.** `scripts/diff-hygiene.sh` flags every comment the diff adds unless plan.md `## Comments kept` lists it with its category — `constraint` (an external rule the reader cannot see, identifier named), `why-not` (the obvious alternative is wrong), `trap` (an edit here breaks something elsewhere) — and refuses outright a comment inside a `type`/`interface` body, above an import, one that repeats the export's name, or one over 2 lines. Nothing else is a category: "explains the prop", "describes the step", "summarises the function" are deletions. Expect `none` on a typical diff.
    5. **Never `as unknown as` your way past a type.** A shared component's prop type: narrow to `Pick<...>` of the fields it reads. Two enums with identical members: an exhaustive `Record<Source, Target>` lookup, the only form that breaks the build when one enum grows.
    6. **Copied state goes stale.** A config snapshot (`MainHeader.Configure`), a drawer `open({ children })`, a child seeding `useState` from a prop: each copies a mutable value once. Either encode every field it reads in a key (remount / snapshot key) or pass a getter / read the prop. A parent that resets a value the child also stores is a silent wrong-save.
    7. **A redirect in a `useEffect` does not stop its own render**: pair every guard effect with an early `return null` on the same condition (after all hooks), and assert `container.firstChild` is null.
@@ -105,7 +108,7 @@ description: 'Phase 2 of the loop pipeline for lago-front. Takes an ISSUE-ID, re
 
 7. **Gates** (run in the worktree, all must pass):
    - `pnpm lint` (use `pnpm lint:fix` first if there are formatting issues), `pnpm types`, `pnpm translations:inspect`, `pnpm translations:ensure-consistency`.
-   - `<front>/scripts/diff-hygiene.sh origin/main <worktree>` — comment runs over 2 lines.
+   - `<front>/scripts/diff-hygiene.sh origin/main <worktree> <state dir>/plan.md` — every added comment is declared with a category, none in a refused position. Flagged → delete it (the default) or, for a real constraint/why-not/trap, add its line to `## Comments kept`.
    - `<front>/scripts/loop-plan-check.sh <worktree> <state dir>/plan.md` — every new file / export is declared. Exit 1 → either delete the abstraction or declare it in plan.md with its reason; never leave it undeclared.
    - Scoped jest on the paths make-tests produced/touched. NEVER run the full suite (`pnpm test` with no path is FORBIDDEN).
    - A jest failure that does not reproduce in isolation or under `--runInBand` is load/cold-cache flake, not a regression: rerun before diagnosing or consuming a cycle.

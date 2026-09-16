@@ -43,7 +43,7 @@ No free-text feedback given → default to the unanswered external PR comments. 
    - Same build rules as loop-build: existing mechanism first, reuse `translations/base.json` labels, no dead keys, no dead code, no comment that answers the reviewer. A new file or export goes into plan.md `## Deviations` with its reason.
    - Feedback ambiguous → STOP and ask before coding.
 
-4. **Gates** (in that same path, all must pass): `pnpm lint`, `pnpm types`, `pnpm translations:inspect`, `pnpm translations:ensure-consistency`, `"$SCRIPTS/diff-hygiene.sh" origin/main <worktree>`. If the change touched testable logic: re-invoke the `make-tests` skill on the affected paths, then scoped jest on those paths only. NEVER the full suite.
+4. **Gates** (in that same path, all must pass): `pnpm lint`, `pnpm types`, `pnpm translations:inspect`, `pnpm translations:ensure-consistency`, `"$SCRIPTS/diff-hygiene.sh" origin/main <worktree> <state dir>/plan.md` (a comment the revision keeps goes into plan.md `## Comments kept` with its category, or goes). If the change touched testable logic: re-invoke the `make-tests` skill on the affected paths, then scoped jest on those paths only. NEVER the full suite.
 
 5. **Restart the app**: `"$SCRIPTS/loop-restart.sh" <state dir>/state.md` (no container → warning, never a blocker).
 

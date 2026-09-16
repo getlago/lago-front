@@ -57,7 +57,7 @@ desyncs Conductor's diff view and its archive-time branch deletion.
 
 The loop's quality comes from the harness, not from the prompt. Four properties are load-bearing:
 
-- **Verification is external to the generator.** The exit condition is never "the agent thinks it is done": it is `pnpm lint`, `pnpm types`, `pnpm translations:*`, `diff-hygiene.sh`, scoped jest, a PASS verdict from a reviewer that never saw the builder's reasoning, and green CI.
+- **Verification is external to the generator.** The exit condition is never "the agent thinks it is done": it is `pnpm lint`, `pnpm types`, `pnpm translations:*`, `diff-hygiene.sh` (a comment exists only if plan.md declares why), scoped jest, a PASS verdict from a reviewer that never saw the builder's reasoning, and green CI.
 - **The reviewer runs in a fresh subagent.** A builder reviewing its own work grades itself. `loop-run` dispatches `loop-review` with clean context, and the reviewer re-runs the gates instead of trusting the build phase's claim. A second, adversarial reviewer is dispatched only when `loop-plan-check.sh` finds a file or export the plan did not declare — it derives the smallest diff for the criteria before it is allowed to see the real one.
 - **The retry budget is mechanical.** `scripts/iter-budget.sh` keeps the counters on disk and refuses the fourth attempt.
 - **The instruction set is capped.** `scripts/skill-budget.sh` runs on every push: 7 checks in `loop-review`, 7 in `loop-build`, 5 in `loop-spec`, 150 lines in `loop-run`, and no Linear ticket ID anywhere under `.agents/`. A check enters only by deleting one; `loop-flywheel` deletes the ones the journal shows never fire.
@@ -125,7 +125,7 @@ Per-developer, outside the repo, in `$LOOP_STATE_DIR/<ISSUE-ID>/`:
 | File | Written by | Purpose |
 |---|---|---|
 | `spec.md` | loop-spec | the operational spec the whole run is judged against, ticket included verbatim, every premise verified or marked |
-| `plan.md` | loop-build | the declared minimal diff: files, new files, new exports, deviations |
+| `plan.md` | loop-build | the declared minimal diff: files, new files, new exports, comments kept (with category), deviations |
 | `state.md` | loop-build | layout, worktree path, branch, dev port, workspace + container when there is one |
 | `review.md` | loop-review | current PASS/FAIL verdict, every issue tagged with the check that produced it |
 | `adversarial.md` | adversarial pass | verdict of the smallest-diff comparison, when the pass was triggered |
@@ -142,4 +142,4 @@ Plus two files shared across runs: `_journal.md` (one row per run, written by `l
 
 Every run that struggles writes down why. `_flywheel.md` collects proposed edits to the skills, evidence attached; the loop never edits its own instructions. `/loop-flywheel` is the harvest: it admits a proposal only if it would have prevented the failure **and** a second, different occurrence is plausible, writes it as a script or lint rule when it can be one, and takes a check slot only by freeing one. It also prunes: a check with no `fail-check:` entry across the last 15 journal rows is deleted or converted. `_journal.md` is how you tell whether any of it helped — average iterations per run should fall, and `fail-check:` should name the checks that actually earn their place.
 
-Scripts live in the front checkout's `scripts/` (`front/scripts/` from the monorepo root), each documented in its header: `iter-budget.sh` (retry budget), `skill-budget.sh` (instruction caps, pre-push), `diff-hygiene.sh` (comment length gate), `loop-plan-check.sh` (adversarial trigger), `loop-restart.sh` (container reload), `loop-ci-log.sh` (CI failure capture), `loop-journal.sh` (journal row), `loop-notify.sh` (exit DM).
+Scripts live in the front checkout's `scripts/` (`front/scripts/` from the monorepo root), each documented in its header: `iter-budget.sh` (retry budget), `skill-budget.sh` (instruction caps, pre-push), `diff-hygiene.sh` (comment gate: every added comment declared in plan.md with a category, prop docs and import banners refused), `loop-plan-check.sh` (adversarial trigger), `loop-restart.sh` (container reload), `loop-ci-log.sh` (CI failure capture), `loop-journal.sh` (journal row), `loop-notify.sh` (exit DM).
