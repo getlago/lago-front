@@ -267,8 +267,8 @@ A spec that unconditionally clicks a premium-gated control (graduated-percentage
 charge model, percentage per-transaction min/max, spending minimum, minimum
 commitment, progressive billing, subscription plan-override editing, …) gets the
 `PremiumWarningDialog` instead of the expected input, so the assertion times out
-on forks while passing internally — which is exactly what blocked contributions
-in LAGO-1555.
+on forks while passing internally — which is exactly what has blocked fork
+contributions before.
 
 **Rule: any step touching a premium-gated control must branch on premium.**
 `cy.login()` / `cy.signup()` capture the org's premium state from the
