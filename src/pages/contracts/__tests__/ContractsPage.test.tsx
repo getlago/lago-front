@@ -3,9 +3,11 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
+import { CONTRACTS_ROUTE, objectListRoutes } from '~/core/router/ObjectsRoutes'
 import {
   ContractForContractsListFragment,
   ContractStatusEnum,
+  FeatureFlagEnum,
   GetContractsListDocument,
   GetContractsListQuery,
   GetContractsListQueryVariables,
@@ -149,5 +151,19 @@ describe('ContractsPage', () => {
     expect(screen.queryByRole('navigation', { name: 'pagination' })).not.toBeInTheDocument()
     fireEvent.click(retry)
     await waitFor(() => expect(screen.getByText('Enterprise agreement')).toBeInTheDocument())
+  })
+  it('registers the list route behind the contractsView permission and ProductCatalog flag', () => {
+    const route = objectListRoutes.find(
+      ({ path }) => Array.isArray(path) && path.includes(CONTRACTS_ROUTE),
+    )
+
+    expect(CONTRACTS_ROUTE).toBe('/contracts')
+    expect(route).toEqual(
+      expect.objectContaining({
+        private: true,
+        permissions: ['contractsView'],
+        featureFlag: FeatureFlagEnum.ProductCatalog,
+      }),
+    )
   })
 })
