@@ -174,8 +174,6 @@ export const useAddAvalaraDialog = () => {
         })
 
         if (hasDefinedGQLError('ValueAlreadyExist', res.errors)) {
-          // This mutation silences UnprocessableEntity, so the error link raises
-          // nothing: a collision under any other key has to surface from here.
           if (hasDefinedGQLError('ValueAlreadyExist', res.errors, 'code')) {
             applyExistingCodeError(formApi)
           } else {
