@@ -17,7 +17,7 @@ import {
 } from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
-import ContractsPage from '../ContractsPage'
+import ContractsPage, { CONTRACTS_CREATE_TEST_ID } from '../ContractsPage'
 
 jest.mock('~/core/apolloClient', () => ({
   ...jest.requireActual('~/core/apolloClient'),
@@ -32,6 +32,23 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
     intlFormatDateTimeOrgaTZ: (date: string) => ({ date: date.slice(0, 10) }),
   }),
+}))
+
+const mockOpenContractDrawer = jest.fn()
+const mockHasPermissions = jest.fn().mockReturnValue(true)
+
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({ hasPermissions: mockHasPermissions }),
+}))
+
+// The drawer stack relies on import.meta (unsupported in jest)
+jest.mock('~/components/drawers/useDrawer', () => ({
+  useDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+  useFormDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+}))
+
+jest.mock('~/pages/contracts/drawers/contract/useContractDrawer', () => ({
+  useContractDrawer: () => ({ openDrawer: mockOpenContractDrawer }),
 }))
 
 const contract: ContractForContractsListFragment = {
@@ -72,6 +89,7 @@ const contractsMock = (
 describe('ContractsPage', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockHasPermissions.mockReturnValue(true)
     window.history.replaceState({}, '', '/acme/contracts')
   })
 
@@ -291,5 +309,38 @@ describe('ContractsPage', () => {
         featureFlag: FeatureFlagEnum.ProductCatalog,
       }),
     )
+  })
+  it('opens the create drawer from the header action', async () => {
+    render(
+      <>
+        <MainHeader />
+        <ContractsPage />
+      </>,
+      { mocks: [contractsMock()] },
+    )
+
+    const createButton = await screen.findByRole('button', { name: 'Create a contract' })
+
+    expect(createButton).toBeEnabled()
+    expect(createButton).toHaveAttribute('data-test', CONTRACTS_CREATE_TEST_ID)
+
+    fireEvent.click(createButton)
+    expect(mockOpenContractDrawer).toHaveBeenCalledTimes(1)
+  })
+  it('hides the create action without the contractsCreate permission', async () => {
+    mockHasPermissions.mockImplementation(
+      (permissions: string[]) => !permissions.includes('contractsCreate'),
+    )
+
+    render(
+      <>
+        <MainHeader />
+        <ContractsPage />
+      </>,
+      { mocks: [contractsMock()] },
+    )
+
+    expect(await screen.findByText('Enterprise agreement')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Create a contract' })).not.toBeInTheDocument()
   })
 })
