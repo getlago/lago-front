@@ -1,10 +1,11 @@
-import { act, cleanup, renderHook, screen } from '@testing-library/react'
+import { act, cleanup, renderHook } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ReactNode } from 'react'
 
-import { EXISTING_CODE_ERROR_MESSAGE } from '~/core/form/existingCodeError'
-import { AddAvalaraIntegrationDialogFragment, LagoApiError } from '~/generated/graphql'
+import { AddAvalaraIntegrationDialogFragment } from '~/generated/graphql'
 import { AllTheProviders, render } from '~/test-utils'
+
+import { describeDuplicateRejectionRouting, rejectedUnder } from './duplicateRejectionHelpers'
 
 import { useAddAvalaraDialog } from '../AddAvalaraDialog'
 
@@ -53,10 +54,6 @@ const avalaraIntegration: AddAvalaraIntegrationDialogFragment = {
   licenseKey: 'license-key',
 }
 
-const rejectedUnder = (detailsKey: string) => ({
-  errors: [{ extensions: { details: { [detailsKey]: [LagoApiError.ValueAlreadyExist] } } }],
-})
-
 const getInput = (name: string): HTMLInputElement =>
   document.querySelector(`input[name="${name}"]`) as HTMLInputElement
 
@@ -71,111 +68,41 @@ describe('useAddAvalaraDialog', () => {
     mockNangoAuth.mockResolvedValue({ connectionId: 'nango-connection-id' })
   })
 
-  describe('GIVEN the backend rejects the edition for a duplicate code', () => {
-    describe('WHEN submitting the dialog', () => {
-      it('THEN surfaces the shared duplicate-code message under the code input', async () => {
-        mockUpdate.mockResolvedValue(rejectedUnder('code'))
+  describeDuplicateRejectionRouting('edition', async (detailsKey) => {
+    mockUpdate.mockResolvedValue(rejectedUnder(detailsKey))
 
-        const { result } = renderHook(() => useAddAvalaraDialog(), { wrapper })
+    const { result } = renderHook(() => useAddAvalaraDialog(), { wrapper })
 
-        act(() => {
-          result.current.openAddAvalaraDialog({ integration: avalaraIntegration })
-        })
-
-        const dialogProps = mockDialogOpen.mock.calls[0][0]
-
-        await act(() => render(<>{dialogProps.children}</>))
-
-        await act(async () => {
-          await expect(dialogProps.form.submit()).rejects.toThrow()
-        })
-
-        expect(await screen.findByText(EXISTING_CODE_ERROR_MESSAGE)).toBeInTheDocument()
-      })
+    act(() => {
+      result.current.openAddAvalaraDialog({ integration: avalaraIntegration })
     })
+
+    const dialogProps = mockDialogOpen.mock.calls[0][0]
+
+    await act(() => render(<>{dialogProps.children}</>))
+
+    return dialogProps.form.submit
   })
 
-  describe('GIVEN the backend rejects the creation for a duplicate code', () => {
-    describe('WHEN submitting the dialog', () => {
-      it('THEN surfaces the shared duplicate-code message under the code input', async () => {
-        mockCreate.mockResolvedValue(rejectedUnder('code'))
+  describeDuplicateRejectionRouting('creation', async (detailsKey) => {
+    mockCreate.mockResolvedValue(rejectedUnder(detailsKey))
 
-        const user = userEvent.setup()
-        const { result } = renderHook(() => useAddAvalaraDialog(), { wrapper })
+    const user = userEvent.setup()
+    const { result } = renderHook(() => useAddAvalaraDialog(), { wrapper })
 
-        act(() => {
-          result.current.openAddAvalaraDialog()
-        })
-
-        const dialogProps = mockDialogOpen.mock.calls[0][0]
-
-        await act(() => render(<>{dialogProps.children}</>))
-
-        await user.type(getInput('name'), 'Test Integration')
-        await user.type(getInput('accountId'), 'account-id')
-        await user.type(getInput('licenseKey'), 'license-key')
-        await user.type(getInput('companyCode'), 'company-code')
-
-        await act(async () => {
-          await expect(dialogProps.form.submit()).rejects.toThrow()
-        })
-
-        expect(mockCreate).toHaveBeenCalled()
-        expect(await screen.findByText(EXISTING_CODE_ERROR_MESSAGE)).toBeInTheDocument()
-      })
-    })
-  })
-
-  describe('GIVEN the backend reports the collision under another unique field', () => {
-    describe('WHEN submitting the edition', () => {
-      it('THEN leaves the code input clean', async () => {
-        mockUpdate.mockResolvedValue(rejectedUnder('externalId'))
-
-        const { result } = renderHook(() => useAddAvalaraDialog(), { wrapper })
-
-        act(() => {
-          result.current.openAddAvalaraDialog({ integration: avalaraIntegration })
-        })
-
-        const dialogProps = mockDialogOpen.mock.calls[0][0]
-
-        await act(() => render(<>{dialogProps.children}</>))
-
-        await act(async () => {
-          await expect(dialogProps.form.submit()).rejects.toThrow()
-        })
-
-        expect(screen.queryByText(EXISTING_CODE_ERROR_MESSAGE)).not.toBeInTheDocument()
-      })
+    act(() => {
+      result.current.openAddAvalaraDialog()
     })
 
-    describe('WHEN submitting the creation', () => {
-      it('THEN leaves the code input clean', async () => {
-        mockCreate.mockResolvedValue(rejectedUnder('externalId'))
+    const dialogProps = mockDialogOpen.mock.calls[0][0]
 
-        const user = userEvent.setup()
-        const { result } = renderHook(() => useAddAvalaraDialog(), { wrapper })
+    await act(() => render(<>{dialogProps.children}</>))
 
-        act(() => {
-          result.current.openAddAvalaraDialog()
-        })
+    await user.type(getInput('name'), 'Test Integration')
+    await user.type(getInput('accountId'), 'account-id')
+    await user.type(getInput('licenseKey'), 'license-key')
+    await user.type(getInput('companyCode'), 'company-code')
 
-        const dialogProps = mockDialogOpen.mock.calls[0][0]
-
-        await act(() => render(<>{dialogProps.children}</>))
-
-        await user.type(getInput('name'), 'Test Integration')
-        await user.type(getInput('accountId'), 'account-id')
-        await user.type(getInput('licenseKey'), 'license-key')
-        await user.type(getInput('companyCode'), 'company-code')
-
-        await act(async () => {
-          await expect(dialogProps.form.submit()).rejects.toThrow()
-        })
-
-        expect(mockCreate).toHaveBeenCalled()
-        expect(screen.queryByText(EXISTING_CODE_ERROR_MESSAGE)).not.toBeInTheDocument()
-      })
-    })
+    return dialogProps.form.submit
   })
 })

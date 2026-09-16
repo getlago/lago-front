@@ -1,9 +1,10 @@
-import { act, cleanup, renderHook, screen } from '@testing-library/react'
+import { act, cleanup, renderHook } from '@testing-library/react'
 import { ReactNode } from 'react'
 
-import { EXISTING_CODE_ERROR_MESSAGE } from '~/core/form/existingCodeError'
-import { LagoApiError, SalesforceForCreateDialogFragment } from '~/generated/graphql'
+import { SalesforceForCreateDialogFragment } from '~/generated/graphql'
 import { AllTheProviders, render } from '~/test-utils'
+
+import { describeDuplicateRejectionRouting, rejectedUnder } from './duplicateRejectionHelpers'
 
 import { useAddSalesforceDialog } from '../AddSalesforceDialog'
 
@@ -51,10 +52,8 @@ describe('useAddSalesforceDialog', () => {
     mockDialogOpen.mockImplementation(() => new Promise(() => {}))
   })
 
-  const submitEdition = async (detailsKey: string): Promise<() => Promise<unknown>> => {
-    mockUpdate.mockResolvedValue({
-      errors: [{ extensions: { details: { [detailsKey]: [LagoApiError.ValueAlreadyExist] } } }],
-    })
+  describeDuplicateRejectionRouting('update', async (detailsKey) => {
+    mockUpdate.mockResolvedValue(rejectedUnder(detailsKey))
 
     const { result } = renderHook(() => useAddSalesforceDialog(), { wrapper })
 
@@ -67,33 +66,5 @@ describe('useAddSalesforceDialog', () => {
     await act(() => render(<>{dialogProps.children}</>))
 
     return dialogProps.form.submit
-  }
-
-  describe('GIVEN the backend rejects the update for a duplicate code', () => {
-    describe('WHEN submitting the dialog', () => {
-      it('THEN surfaces the shared duplicate-code message under the code input', async () => {
-        const submit = await submitEdition('code')
-
-        await act(async () => {
-          await expect(submit()).rejects.toThrow()
-        })
-
-        expect(await screen.findByText(EXISTING_CODE_ERROR_MESSAGE)).toBeInTheDocument()
-      })
-    })
-  })
-
-  describe('GIVEN the backend reports the collision under another unique field', () => {
-    describe('WHEN submitting the dialog', () => {
-      it('THEN leaves the code input clean', async () => {
-        const submit = await submitEdition('externalId')
-
-        await act(async () => {
-          await expect(submit()).rejects.toThrow()
-        })
-
-        expect(screen.queryByText(EXISTING_CODE_ERROR_MESSAGE)).not.toBeInTheDocument()
-      })
-    })
   })
 })
