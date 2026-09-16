@@ -212,10 +212,10 @@ describe('RateCardsList', () => {
 
     const [editAction, deleteAction] = actions
 
-    editAction?.onAction(rateCard)
+    editAction?.onAction?.(rateCard)
     expect(mockOpenRateCardDrawer).toHaveBeenCalledWith({ rateCard })
 
-    deleteAction?.onAction(rateCard)
+    deleteAction?.onAction?.(rateCard)
     expect(mockOpenDeleteRateCardDialog).toHaveBeenCalledWith({ rateCard })
   })
 

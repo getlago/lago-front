@@ -101,11 +101,12 @@ export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
         invalidWrapper={(wrapperChildren) => (
           <Link
             tabIndex={-1}
+            aria-current={type === 'tab' && active ? 'page' : undefined}
             className={classNames}
             to={to}
             state={routerState}
             ref={ref}
-            data-test={`tab-internal-button-link-${title?.toLowerCase()}`}
+            data-test={title ? `tab-internal-button-link-${title.toLowerCase()}` : undefined}
           >
             {wrapperChildren}
           </Link>

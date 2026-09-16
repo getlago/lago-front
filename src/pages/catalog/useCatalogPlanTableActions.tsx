@@ -21,6 +21,11 @@ import { useCatalogPlanDrawer } from './drawers/catalogPlan/useCatalogPlanDrawer
 export type CatalogPlanActionTarget = CatalogPlanForCatalogPlanDrawerFragment &
   CatalogPlanForDeleteCatalogPlanDialogFragment
 
+export type CatalogPlanActionItem = ActionItem<CatalogPlanActionTarget> & {
+  title: string
+  onAction: (item: CatalogPlanActionTarget) => void | Promise<void>
+}
+
 export const useCatalogPlanTableActions = (): {
   actionColumn: ActionColumn<CatalogPlanActionTarget>
   actionColumnTooltip: () => string
@@ -28,7 +33,7 @@ export const useCatalogPlanTableActions = (): {
   buildActionItems: (
     catalogPlan: CatalogPlanActionTarget,
     callbacks?: { onDeleted?: () => void },
-  ) => Array<ActionItem<CatalogPlanActionTarget> & { title: string }>
+  ) => Array<CatalogPlanActionItem>
 } => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
@@ -63,8 +68,8 @@ export const useCatalogPlanTableActions = (): {
     (
       catalogPlan: CatalogPlanActionTarget,
       callbacks?: { onDeleted?: () => void },
-    ): Array<ActionItem<CatalogPlanActionTarget> & { title: string }> => {
-      const items: Array<ActionItem<CatalogPlanActionTarget> & { title: string }> = [
+    ): Array<CatalogPlanActionItem> => {
+      const items: Array<CatalogPlanActionItem> = [
         {
           startIcon: 'duplicate',
           title: translate('text_17890300495282w8aw4i2783'),

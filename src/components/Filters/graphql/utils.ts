@@ -21,7 +21,6 @@ import {
   filterDataLabelCommaPlaceholder,
   filterWithoutProductCategoryValue,
   filterWithoutProductValue,
-  ForecastsAvailableFilters,
   InvoiceAvailableFilters,
   MrrBreakdownPlansAvailableFilters,
   MrrOverviewAvailableFilters,
@@ -55,7 +54,6 @@ import {
   CUSTOMER_CREDIT_NOTES_FILTER_PREFIX,
   CUSTOMER_LIST_FILTER_PREFIX,
   CUSTOMER_PAYMENTS_FILTER_PREFIX,
-  FORECASTS_FILTER_PREFIX,
   INVOICE_LIST_FILTER_PREFIX,
   MRR_BREAKDOWN_OVERVIEW_FILTER_PREFIX,
   MRR_BREAKDOWN_PLANS_FILTER_PREFIX,
@@ -83,7 +81,6 @@ import {
   type CustomersQueryVariables,
   type GetApiLogsQueryVariables,
   type GetCreditNotesListQueryVariables,
-  type GetForecastsQueryVariables,
   type GetInvoiceCollectionsForAnalyticsQueryVariables,
   type GetInvoicesListQueryVariables,
   type GetMrrsQueryVariables,
@@ -994,40 +991,6 @@ export const formatFiltersForUsageBillableMetricQuery = (
       AvailableFiltersEnum.timeGranularity,
     ],
     filtersNamePrefix: ANALYTICS_USAGE_BILLABLE_METRIC_FILTER_PREFIX,
-  })
-}
-
-type ForecastsQueryFilters = Partial<
-  Pick<
-    GetForecastsQueryVariables,
-    | 'billableMetricCode'
-    | 'billingEntityCode'
-    | 'currency'
-    | 'customerCountry'
-    | 'customerType'
-    | 'externalCustomerId'
-    | 'externalSubscriptionId'
-    | 'isCustomerTinEmpty'
-    | 'planCode'
-    | 'timeGranularity'
-  >
->
-
-export const formatFiltersForForecastsQuery = (
-  searchParams: URLSearchParams,
-): ForecastsQueryFilters => {
-  const keyMap: Partial<Record<AvailableFiltersEnum, keyof ForecastsQueryFilters & string>> = {
-    [AvailableFiltersEnum.country]: 'customerCountry',
-    [AvailableFiltersEnum.customerType]: 'customerType',
-    [AvailableFiltersEnum.customerExternalId]: 'externalCustomerId',
-    [AvailableFiltersEnum.subscriptionExternalId]: 'externalSubscriptionId',
-  }
-
-  return formatFiltersForQuery<ForecastsQueryFilters>({
-    keyMap,
-    searchParams,
-    availableFilters: [...ForecastsAvailableFilters, AvailableFiltersEnum.timeGranularity],
-    filtersNamePrefix: FORECASTS_FILTER_PREFIX,
   })
 }
 

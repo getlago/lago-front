@@ -2,13 +2,18 @@ import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 import Typography from '@mui/material/Typography'
 import { Icon, IconName } from 'lago-design-system'
-import { KeyboardEvent, MouseEvent, useMemo } from 'react'
+import { MouseEvent, useMemo } from 'react'
 import { matchPath } from 'react-router'
 
 import { Link, useLocation } from '~/core/router'
+import { isModifiedClick } from '~/core/utils/isModifiedClick'
+import { spaceActivatesAnchorProps } from '~/core/utils/spaceActivatesAnchor'
 import { tw } from '~/styles/utils'
 
 import { isTabActive } from './utils'
+
+const TAB_CLASSNAME =
+  'relative my-2 h-9 justify-between gap-1 overflow-visible rounded-xl p-2 text-grey-600 no-underline [min-height:unset] [min-width:unset] first:-ml-2 last:-mr-2 hover:bg-grey-100 hover:text-grey-700 hover:no-underline focus:rounded-xl focus:ring-0'
 
 export const NAVIGATION_TAB_BAR_TEST_ID = 'navigation-tab-bar'
 
@@ -27,9 +32,6 @@ type NavigationTabBarProps = {
   className?: string
   tabs: Array<NavigationTabBarItem>
 }
-
-const TAB_CLASSNAME =
-  'relative my-2 h-9 justify-between gap-1 overflow-visible rounded-xl p-2 text-grey-600 no-underline [min-height:unset] [min-width:unset] first:-ml-2 last:-mr-2 hover:bg-grey-100 hover:text-grey-700 hover:no-underline'
 
 const a11yProps = (index: number) => {
   return {
@@ -74,44 +76,28 @@ export const NavigationTabBar = ({
       'data-test': tab.dataTest || undefined,
     }
 
-    // A disabled tab stays a button: jsdom/AT treat `disabled` on an anchor as a no-op.
-    if (!tab.link || tab.disabled) {
-      return <Tab key={tab.title} component="button" {...sharedProps} />
+    // A disabled tab stays a button: MUI only forwards `disabled` to real
+    // buttons, an anchor would still be followable.
+    if (!!tab.link && !tab.disabled) {
+      const link = tab.link
+
+      return (
+        <Tab
+          key={tab.title}
+          {...sharedProps}
+          {...spaceActivatesAnchorProps}
+          component={Link}
+          to={link}
+          onClick={(event: MouseEvent<HTMLAnchorElement>) => {
+            if (!isModifiedClick(event) && !!matchPath(link, strippedPathname)) {
+              event.preventDefault()
+            }
+          }}
+        />
+      )
     }
 
-    return (
-      <Tab
-        key={tab.title}
-        component={Link}
-        to={tab.link}
-        onClick={(event: MouseEvent<HTMLAnchorElement>) => {
-          if (
-            event.metaKey ||
-            event.ctrlKey ||
-            event.shiftKey ||
-            event.altKey ||
-            event.button !== 0
-          ) {
-            return
-          }
-
-          if (tab.link && matchPath(tab.link, strippedPathname)) {
-            event.preventDefault()
-          }
-        }}
-        onKeyDown={(event: KeyboardEvent<HTMLAnchorElement>) => {
-          if (event.key === ' ') {
-            event.preventDefault()
-          }
-        }}
-        onKeyUp={(event: KeyboardEvent<HTMLAnchorElement>) => {
-          if (event.key === ' ') {
-            event.currentTarget.click()
-          }
-        }}
-        {...sharedProps}
-      />
-    )
+    return <Tab key={tab.title} {...sharedProps} component="button" />
   }
 
   return (

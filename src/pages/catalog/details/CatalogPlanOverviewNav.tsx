@@ -1,15 +1,15 @@
-import { Icon, IconName } from 'lago-design-system'
+import { IconName } from 'lago-design-system'
 import { generatePath } from 'react-router'
 
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
+import { VerticalMenu } from '~/components/designSystem/VerticalMenu'
 import {
   CatalogPlanDetailsTabsOptionsEnum,
   CatalogPlanOverviewSectionsEnum,
 } from '~/core/constants/tabsOptions'
-import { CATALOG_PLAN_DETAILS_ROUTE, Link } from '~/core/router'
+import { CATALOG_PLAN_DETAILS_ROUTE } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { tw } from '~/styles/utils'
 
 export const CATALOG_PLAN_OVERVIEW_NAV_TEST_ID = 'catalog-plan-overview-nav'
 
@@ -71,7 +71,7 @@ export const CatalogPlanOverviewNav = ({
     if (item.count === undefined) return null
 
     return (
-      <Typography variant="body" color="grey600" noWrap>
+      <Typography variant="caption" color="inherit" noWrap>
         {item.count}
       </Typography>
     )
@@ -82,32 +82,16 @@ export const CatalogPlanOverviewNav = ({
       className="flex w-58 flex-shrink-0 flex-col gap-1"
       data-test={CATALOG_PLAN_OVERVIEW_NAV_TEST_ID}
     >
-      {items.map((item) => {
-        const isActive = item.section === activeSection
-
-        return (
-          <Link
-            key={item.section}
-            to={getItemPath(item.section)}
-            aria-current={isActive ? 'page' : undefined}
-            className={tw(
-              'flex items-center gap-2 rounded-lg px-3 py-1 no-underline hover:no-underline focus-visible:ring',
-              isActive ? 'bg-grey-200' : 'hover:bg-grey-100',
-            )}
-          >
-            <Icon name={item.icon} size="small" color={isActive ? 'primary' : 'dark'} />
-            <Typography
-              className="flex-1"
-              variant="body"
-              color={isActive ? 'primary600' : 'grey600'}
-              noWrap
-            >
-              {translate(item.labelKey)}
-            </Typography>
-            {renderCount(item)}
-          </Link>
-        )
-      })}
+      <VerticalMenu
+        tabs={items.map((item) => ({
+          link: getItemPath(item.section),
+          title: translate(item.labelKey),
+          icon: item.icon,
+          active: item.section === activeSection,
+          canBeClickedOnActive: true,
+          extraComponent: renderCount(item) ?? undefined,
+        }))}
+      />
     </nav>
   )
 }

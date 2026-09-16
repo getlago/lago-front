@@ -545,6 +545,7 @@ const PaymentDetails = () => {
             containerSize={{
               default: 4,
             }}
+            rowLinkLabel={({ number }) => number}
             onRowActionLink={({ id }) =>
               generatePath(CUSTOMER_INVOICE_DETAILS_ROUTE, {
                 customerId: customerId || (customer?.id as string),

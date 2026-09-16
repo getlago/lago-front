@@ -11,6 +11,7 @@ import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGrou
 import { addToast } from '~/core/apolloClient'
 import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { applyExistingCodeError } from '~/core/form/existingCodeError'
 import { STRIPE_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import {
   AddStripePaymentProviderInput,
@@ -168,16 +169,7 @@ export const useAddStripeDialog = () => {
           res.data?.paymentProvider?.id !== stripeProvider?.id)
 
       if (isNotAllowedToMutate) {
-        formApi.setErrorMap({
-          onDynamic: {
-            fields: {
-              code: {
-                message: translate('text_632a2d437e341dcc76817556'),
-                path: ['code'],
-              },
-            },
-          },
-        })
+        applyExistingCodeError(formApi)
         return
       }
 

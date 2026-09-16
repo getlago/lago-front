@@ -90,9 +90,6 @@ const CatalogPlanDrawerFormSections = withForm({
               }}
               codeProps={{
                 placeholder: translate('text_17890300495294bo4562celz'),
-                ...(disableCodeInput && {
-                  helperText: translate('text_1789030049529z3g1y1pk6ko'),
-                }),
               }}
             />
 
@@ -142,9 +139,6 @@ const CatalogPlanDrawerFormSections = withForm({
                   label={translate('text_1789030049529w52cf8ux80o')}
                   data={currencyComboboxData}
                   disabled={disableCurrencyInput}
-                  {...(disableCurrencyInput && {
-                    helperText: translate('text_1789030049529qgfhsggx3r0'),
-                  })}
                 />
               )}
             </form.AppField>

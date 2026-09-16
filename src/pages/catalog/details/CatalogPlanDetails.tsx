@@ -139,11 +139,7 @@ const CatalogPlanDetails = (): JSX.Element => {
           {
             title: translate('text_17891318128636r6g9igqqeq'),
             link: buildTabLink(CatalogPlanDetailsTabsOptionsEnum.contracts),
-            content: (
-              <DetailsPage.Container className="pt-6">
-                <CatalogPlanContracts planCode={catalogPlan?.code} />
-              </DetailsPage.Container>
-            ),
+            content: <CatalogPlanContracts planCode={catalogPlan?.code} />,
             hidden: !hasPermissions(['contractsView']),
           },
           {

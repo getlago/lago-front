@@ -98,12 +98,9 @@ export const ActivityLogsSection: FC<ActivityLogsSectionProps> = ({
           error={error}
           isLoading={loading}
           refetch={refetch}
-          onRowActionLink={(row) => {
+          onRowActionClick={(row) => {
             openPanel()
             setUrl(buildLinkToActivityLog(row.activityId))
-
-            // We return an empty string to avoid the default behavior of the table
-            return ''
           }}
         />
       </PaginatedContent>

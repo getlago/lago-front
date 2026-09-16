@@ -215,9 +215,7 @@ export const SubscriptionAlertsList = ({
                   {
                     title: translate('text_1746546924392wfvshvfrjos'),
                     startIcon: 'pen',
-                    onAction: () => {
-                      navigate(getEditAlertUrl(id))
-                    },
+                    link: () => getEditAlertUrl(id),
                   },
                   {
                     title: translate('text_17465469243924wwxl5pgoxi'),

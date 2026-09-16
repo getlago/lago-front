@@ -16,6 +16,7 @@ import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGrou
 import { addToast, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
 import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { applyExistingCodeError } from '~/core/form/existingCodeError'
 import { NETSUITE_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import { zodOptionalUrl } from '~/formValidation/zodCustoms'
 import {
@@ -173,16 +174,7 @@ export const useAddNetsuiteDialog = () => {
 
       const handleError = (errors: readonly GraphQLFormattedError[]) => {
         if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
-          formApi.setErrorMap({
-            onDynamic: {
-              fields: {
-                code: {
-                  message: translate('text_632a2d437e341dcc76817556'),
-                  path: ['code'],
-                },
-              },
-            },
-          })
+          applyExistingCodeError(formApi)
 
           const modalContainer = document.getElementsByClassName('MuiDialog-container')[0]
 
