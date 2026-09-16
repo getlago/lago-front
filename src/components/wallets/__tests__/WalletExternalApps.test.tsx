@@ -31,6 +31,24 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
   }),
 }))
 
+const PAYMENT_CONNECTION = {
+  id: 'pc-1',
+  code: 'stripe-eu',
+  name: 'Stripe EU',
+  provider: null,
+  isDefault: true,
+}
+
+jest.mock('~/hooks/customer/useCustomerPaymentConnections', () => ({
+  useCustomerPaymentConnections: () => ({
+    connections: [PAYMENT_CONNECTION],
+    options: [],
+    defaultConnection: PAYMENT_CONNECTION,
+    isDefaultManual: false,
+    loading: false,
+  }),
+}))
+
 jest.mock('~/hooks/customer/usePaymentMethodsList', () => ({
   usePaymentMethodsList: () => ({
     data: mockPaymentMethodsList,
@@ -157,7 +175,9 @@ describe('WalletExternalApps', () => {
 
     describe('WHEN the wallet pays through a specific payment method', () => {
       it('THEN should display the resolved payment method', () => {
-        const paymentMethod = createMockPaymentMethod()
+        const paymentMethod = createMockPaymentMethod({
+          paymentProviderCustomerId: PAYMENT_CONNECTION.id,
+        })
 
         mockPaymentMethodsList = [paymentMethod]
 

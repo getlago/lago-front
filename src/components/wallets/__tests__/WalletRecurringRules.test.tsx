@@ -532,7 +532,7 @@ describe('WalletRecurringRules', () => {
         expect(screen.queryByTestId(getDataTest(0))).not.toBeInTheDocument()
       })
 
-      it('THEN should give each rule its own Edit links', () => {
+      it('THEN should keep the Edit links on the first rule only, the one the form edits', () => {
         render(
           <WalletRecurringRules
             canEditWallet
@@ -551,8 +551,11 @@ describe('WalletRecurringRules', () => {
           screen.getByTestId(WALLET_RECURRING_RULES_EDIT_PAYMENT_TEST_ID(0)),
         ).toBeInTheDocument()
         expect(
-          screen.getByTestId(WALLET_RECURRING_RULES_EDIT_PAYMENT_TEST_ID(1)),
-        ).toBeInTheDocument()
+          screen.queryByTestId(WALLET_RECURRING_RULES_EDIT_PAYMENT_TEST_ID(1)),
+        ).not.toBeInTheDocument()
+        expect(
+          screen.queryByTestId(WALLET_RECURRING_RULES_EDIT_ADDITIONAL_TEST_ID(1)),
+        ).not.toBeInTheDocument()
       })
 
       it("THEN should hand the rule's own routing to its connection row", () => {

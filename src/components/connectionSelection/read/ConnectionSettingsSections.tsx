@@ -1,9 +1,11 @@
 import { ReactNode } from 'react'
 
+import { findConnectionRouting } from '~/components/connectionSelection/fromConnectionRouting'
 import { ConnectionCategory } from '~/components/customerConnections/types'
 import { Typography } from '~/components/designSystem/Typography'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types'
+import { ConnectionCategoryEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { PaymentMethodValue } from './PaymentMethodValue'
@@ -103,6 +105,11 @@ export const ConnectionSettingsSections = ({
                 <PaymentMethodValue
                   selectedPaymentMethod={selectedPaymentMethod}
                   externalCustomerId={externalCustomerId}
+                  customerId={customerId}
+                  paymentRouting={findConnectionRouting(
+                    connections,
+                    ConnectionCategoryEnum.Payment,
+                  )}
                 />
               ),
             },

@@ -289,8 +289,10 @@ const RecurringRuleConnectionSections = ({
 
   const customerId = wallet.customer?.id
 
+  // The wallet form only ever opens and saves recurringTransactionRules[0] (see TopUpSection),
+  // so an Edit on any later rule would silently edit the first one.
   const renderEditLink = (dataTest: string): React.ReactNode => {
-    if (!canEditWallet || !customerId) return null
+    if (!canEditWallet || !customerId || ruleIndex !== 0) return null
 
     return (
       <ButtonLink
