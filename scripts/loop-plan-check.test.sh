@@ -5,11 +5,29 @@ set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 test_root="$(mktemp -d)"
+[ -n "$test_root" ] && [ -d "$test_root" ] || { echo "mktemp -d gave no sandbox" >&2; exit 1; }
 trap 'rm -rf "$test_root"' EXIT
 
 wt="$test_root/wt"
 mkdir -p "$wt/src/core" "$wt/src/generated"
+
+# Everything below commits and rewrites refs with `git -C "$wt"`. Were $wt ever to land on a real
+# checkout, `add -A` would record the whole repo as deleted, so prove the sandbox owns it first.
+case "$wt" in
+  "$test_root"/*) ;;
+  *) echo "refusing: $wt escapes the sandbox $test_root" >&2; exit 1 ;;
+esac
+if git -C "$wt" rev-parse --show-toplevel >/dev/null 2>&1; then
+  echo "refusing: $wt already sits inside a git repository" >&2
+  exit 1
+fi
+
 git -C "$wt" init -q -b main
+sandbox_top="$(cd "$wt" && git rev-parse --show-toplevel)"
+[ "$sandbox_top" = "$(cd "$wt" && pwd -P)" ] || {
+  echo "refusing: $wt is not its own repository root ($sandbox_top)" >&2
+  exit 1
+}
 git -C "$wt" config user.email t@example.com
 git -C "$wt" config user.name t
 printf 'export const a = 1\n' >"$wt/src/core/a.ts"
