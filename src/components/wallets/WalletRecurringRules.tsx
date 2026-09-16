@@ -151,7 +151,7 @@ const RecurringRuleBlock = ({
   }
 
   return (
-    <>
+    <div className={tw('flex flex-col', isMultiConnectionEnabled ? 'gap-12' : 'gap-4')}>
       <section className={tw('flex flex-col gap-6', showPaymentSection && 'pb-12 shadow-b')}>
         <DetailsPage.InfoGrid
           grid={[
@@ -268,7 +268,7 @@ const RecurringRuleBlock = ({
       </section>
 
       {showPaymentSection && renderPaymentSection()}
-    </>
+    </div>
   )
 }
 
@@ -300,7 +300,7 @@ const RecurringRuleConnectionSections = ({
         routerState={{ openRecurringRuleDrawer: true }}
         data-test={dataTest}
       >
-        {translate('text_62e161ceb87c201025388aa2')}
+        {translate('text_63e51ef4985f0ebd75c212fc')}
       </ButtonLink>
     )
   }

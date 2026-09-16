@@ -113,7 +113,7 @@ export const ConnectionSettingsSections = ({
 
       <section
         data-test={CONNECTION_SETTINGS_ADDITIONAL_SECTION_TEST_ID}
-        className="flex flex-col gap-6"
+        className="flex flex-col gap-6 pb-12"
       >
         <SectionHeader
           title={translate('text_178955797239251hkkoh9sbb')}

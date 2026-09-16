@@ -251,7 +251,7 @@ const WalletDetails = () => {
                   {canEditWallet && (
                     <ButtonLink
                       buttonProps={{
-                        variant: 'quaternary',
+                        variant: 'inline',
                       }}
                       type="button"
                       to={generatePath(EDIT_WALLET_ROUTE, {
@@ -260,7 +260,7 @@ const WalletDetails = () => {
                       })}
                       data-test="edit-wallet"
                     >
-                      {translate('text_62e161ceb87c201025388aa2')}
+                      {translate('text_63e51ef4985f0ebd75c212fc')}
                     </ButtonLink>
                   )}
                 </>
@@ -288,7 +288,7 @@ const WalletDetails = () => {
                   {canEditWallet && (
                     <ButtonLink
                       buttonProps={{
-                        variant: 'quaternary',
+                        variant: 'inline',
                       }}
                       type="button"
                       to={generatePath(EDIT_WALLET_ROUTE, {
@@ -297,7 +297,7 @@ const WalletDetails = () => {
                       })}
                       routerState={{ openRecurringRuleDrawer: true }}
                     >
-                      {translate('text_62e161ceb87c201025388aa2')}
+                      {translate('text_63e51ef4985f0ebd75c212fc')}
                     </ButtonLink>
                   )}
                 </>

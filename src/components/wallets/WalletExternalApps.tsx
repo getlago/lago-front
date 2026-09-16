@@ -39,7 +39,7 @@ const WalletExternalApps = ({ wallet, canEditWallet }: WalletExternalAppsProps):
         routerState={routerState}
         data-test={dataTest}
       >
-        {translate('text_62e161ceb87c201025388aa2')}
+        {translate('text_63e51ef4985f0ebd75c212fc')}
       </ButtonLink>
     )
   }
