@@ -13,16 +13,17 @@ import { DialogResult } from '~/components/dialogs/types'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { Checkbox } from '~/components/form'
 import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
-import { addToast, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
+import { addToast, envGlobalVar } from '~/core/apolloClient'
 import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import { getHubspotTargetedObjectTranslationKey } from '~/core/constants/form'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { applyExistingCodeError } from '~/core/form/existingCodeError'
+import { applyExistingCodeErrorOrToast } from '~/core/form/existingCodeError'
 import { HUBSPOT_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import {
   GetHubspotIntegrationsListDocument,
   HubspotForCreateDialogFragment,
   HubspotTargetedObjectsEnum,
+  LagoApiError,
   useCreateHubspotIntegrationMutation,
   useDestroyNangoIntegrationMutation,
   useUpdateHubspotIntegrationMutation,
@@ -144,14 +145,12 @@ export const useAddHubspotDialog = () => {
       const isEdition = !!hubspotProvider
 
       const handleError = (errors: readonly GraphQLFormattedError[]) => {
-        if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
-          applyExistingCodeError(formApi)
+        if (!applyExistingCodeErrorOrToast(formApi, errors)) return
 
-          const modalContainer = document.getElementsByClassName('MuiDialog-container')[0]
+        const modalContainer = document.getElementsByClassName('MuiDialog-container')[0]
 
-          if (modalContainer) {
-            modalContainer.scrollTo({ top: 0 })
-          }
+        if (modalContainer) {
+          modalContainer.scrollTo({ top: 0 })
         }
       }
 
@@ -163,6 +162,7 @@ export const useAddHubspotDialog = () => {
               id: hubspotProvider?.id || '',
             },
           },
+          context: { silentErrorDetails: [LagoApiError.ValueAlreadyExist] },
         })
 
         if (res.errors) {
@@ -181,6 +181,7 @@ export const useAddHubspotDialog = () => {
               variables: {
                 input: { ...value, connectionId },
               },
+              context: { silentErrorDetails: [LagoApiError.ValueAlreadyExist] },
             })
 
             if (res.errors) {

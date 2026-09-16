@@ -53,9 +53,9 @@ const avalaraIntegration: AddAvalaraIntegrationDialogFragment = {
   licenseKey: 'license-key',
 }
 
-const DUPLICATE_CODE_REJECTION = {
-  errors: [{ extensions: { details: { code: [LagoApiError.ValueAlreadyExist] } } }],
-}
+const rejectedUnder = (detailsKey: string) => ({
+  errors: [{ extensions: { details: { [detailsKey]: [LagoApiError.ValueAlreadyExist] } } }],
+})
 
 const getInput = (name: string): HTMLInputElement =>
   document.querySelector(`input[name="${name}"]`) as HTMLInputElement
@@ -74,7 +74,7 @@ describe('useAddAvalaraDialog', () => {
   describe('GIVEN the backend rejects the edition for a duplicate code', () => {
     describe('WHEN submitting the dialog', () => {
       it('THEN surfaces the shared duplicate-code message under the code input', async () => {
-        mockUpdate.mockResolvedValue(DUPLICATE_CODE_REJECTION)
+        mockUpdate.mockResolvedValue(rejectedUnder('code'))
 
         const { result } = renderHook(() => useAddAvalaraDialog(), { wrapper })
 
@@ -98,7 +98,7 @@ describe('useAddAvalaraDialog', () => {
   describe('GIVEN the backend rejects the creation for a duplicate code', () => {
     describe('WHEN submitting the dialog', () => {
       it('THEN surfaces the shared duplicate-code message under the code input', async () => {
-        mockCreate.mockResolvedValue(DUPLICATE_CODE_REJECTION)
+        mockCreate.mockResolvedValue(rejectedUnder('code'))
 
         const user = userEvent.setup()
         const { result } = renderHook(() => useAddAvalaraDialog(), { wrapper })
@@ -122,6 +122,59 @@ describe('useAddAvalaraDialog', () => {
 
         expect(mockCreate).toHaveBeenCalled()
         expect(await screen.findByText(EXISTING_CODE_ERROR_MESSAGE)).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the backend reports the collision under another unique field', () => {
+    describe('WHEN submitting the edition', () => {
+      it('THEN leaves the code input clean', async () => {
+        mockUpdate.mockResolvedValue(rejectedUnder('externalId'))
+
+        const { result } = renderHook(() => useAddAvalaraDialog(), { wrapper })
+
+        act(() => {
+          result.current.openAddAvalaraDialog({ integration: avalaraIntegration })
+        })
+
+        const dialogProps = mockDialogOpen.mock.calls[0][0]
+
+        await act(() => render(<>{dialogProps.children}</>))
+
+        await act(async () => {
+          await expect(dialogProps.form.submit()).rejects.toThrow()
+        })
+
+        expect(screen.queryByText(EXISTING_CODE_ERROR_MESSAGE)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN submitting the creation', () => {
+      it('THEN leaves the code input clean', async () => {
+        mockCreate.mockResolvedValue(rejectedUnder('externalId'))
+
+        const user = userEvent.setup()
+        const { result } = renderHook(() => useAddAvalaraDialog(), { wrapper })
+
+        act(() => {
+          result.current.openAddAvalaraDialog()
+        })
+
+        const dialogProps = mockDialogOpen.mock.calls[0][0]
+
+        await act(() => render(<>{dialogProps.children}</>))
+
+        await user.type(getInput('name'), 'Test Integration')
+        await user.type(getInput('accountId'), 'account-id')
+        await user.type(getInput('licenseKey'), 'license-key')
+        await user.type(getInput('companyCode'), 'company-code')
+
+        await act(async () => {
+          await expect(dialogProps.form.submit()).rejects.toThrow()
+        })
+
+        expect(mockCreate).toHaveBeenCalled()
+        expect(screen.queryByText(EXISTING_CODE_ERROR_MESSAGE)).not.toBeInTheDocument()
       })
     })
   })

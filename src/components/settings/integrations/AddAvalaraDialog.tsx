@@ -10,10 +10,10 @@ import { useFormDialogOpeningDialog } from '~/components/dialogs/FormDialogOpeni
 import { DialogResult } from '~/components/dialogs/types'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
-import { addToast, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
+import { addToast, envGlobalVar } from '~/core/apolloClient'
 import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { applyExistingCodeError } from '~/core/form/existingCodeError'
+import { applyExistingCodeErrorOrToast } from '~/core/form/existingCodeError'
 import { AVALARA_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import {
   AddAvalaraIntegrationDialogFragment,
@@ -173,9 +173,7 @@ export const useAddAvalaraDialog = () => {
           context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
         })
 
-        if (hasDefinedGQLError('ValueAlreadyExist', res.errors)) {
-          applyExistingCodeError(formApi)
-        }
+        applyExistingCodeErrorOrToast(formApi, res.errors)
 
         return
       }
@@ -200,11 +198,10 @@ export const useAddAvalaraDialog = () => {
               connectionId: nangoApiKeyConnection?.connectionId || '',
             },
           },
+          context: { silentErrorDetails: [LagoApiError.ValueAlreadyExist] },
         })
 
-        if (hasDefinedGQLError('ValueAlreadyExist', res.errors)) {
-          applyExistingCodeError(formApi)
-        }
+        applyExistingCodeErrorOrToast(formApi, res.errors)
       } catch (error) {
         if (error instanceof AuthError) {
           nangoErrorRef.current?.setShow(true)

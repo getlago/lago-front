@@ -10,13 +10,14 @@ import { useFormDialogOpeningDialog } from '~/components/dialogs/FormDialogOpeni
 import { DialogResult } from '~/components/dialogs/types'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
-import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { addToast } from '~/core/apolloClient'
 import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { applyExistingCodeError } from '~/core/form/existingCodeError'
+import { applyExistingCodeErrorOrToast } from '~/core/form/existingCodeError'
 import { SALESFORCE_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import {
   GetSalesforceIntegrationsListDocument,
+  LagoApiError,
   SalesforceForCreateDialogFragment,
   useCreateSalesforceIntegrationMutation,
   useDestroyNangoIntegrationMutation,
@@ -128,14 +129,12 @@ export const useAddSalesforceDialog = () => {
       const isEdition = !!salesforceProvider
 
       const handleError = (errors: readonly GraphQLFormattedError[]) => {
-        if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
-          applyExistingCodeError(formApi)
+        if (!applyExistingCodeErrorOrToast(formApi, errors)) return
 
-          const modalContainer = document.getElementsByClassName('MuiDialog-container')[0]
+        const modalContainer = document.getElementsByClassName('MuiDialog-container')[0]
 
-          if (modalContainer) {
-            modalContainer.scrollTo({ top: 0 })
-          }
+        if (modalContainer) {
+          modalContainer.scrollTo({ top: 0 })
         }
       }
 
@@ -148,6 +147,7 @@ export const useAddSalesforceDialog = () => {
                 id: salesforceProvider?.id || '',
               },
             },
+            context: { silentErrorDetails: [LagoApiError.ValueAlreadyExist] },
           })
 
           if (res.errors) {
@@ -158,6 +158,7 @@ export const useAddSalesforceDialog = () => {
             variables: {
               input: value,
             },
+            context: { silentErrorDetails: [LagoApiError.ValueAlreadyExist] },
           })
 
           if (res.errors) {

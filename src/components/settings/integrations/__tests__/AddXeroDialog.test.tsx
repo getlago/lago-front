@@ -62,34 +62,48 @@ describe('useAddXeroDialog', () => {
     mockDialogOpen.mockImplementation(() => new Promise(() => {}))
   })
 
+  const submitEdition = async (detailsKey: string): Promise<() => Promise<unknown>> => {
+    mockUpdate.mockResolvedValue({
+      errors: [{ extensions: { details: { [detailsKey]: [LagoApiError.ValueAlreadyExist] } } }],
+    })
+
+    const { result } = renderHook(() => useAddXeroDialog(), { wrapper })
+
+    act(() => {
+      result.current.openAddXeroDialog({ provider: xeroProvider })
+    })
+
+    const dialogProps = mockDialogOpen.mock.calls[0][0]
+
+    await act(() => render(<>{dialogProps.children}</>))
+
+    return dialogProps.form.submit
+  }
+
   describe('GIVEN the backend rejects the update for a duplicate code', () => {
-    const submitEdition = async (): Promise<() => Promise<unknown>> => {
-      mockUpdate.mockResolvedValue({
-        errors: [{ extensions: { details: { code: [LagoApiError.ValueAlreadyExist] } } }],
-      })
-
-      const { result } = renderHook(() => useAddXeroDialog(), { wrapper })
-
-      act(() => {
-        result.current.openAddXeroDialog({ provider: xeroProvider })
-      })
-
-      const dialogProps = mockDialogOpen.mock.calls[0][0]
-
-      await act(() => render(<>{dialogProps.children}</>))
-
-      return dialogProps.form.submit
-    }
-
     describe('WHEN submitting the dialog', () => {
       it('THEN surfaces the shared duplicate-code message under the code input', async () => {
-        const submit = await submitEdition()
+        const submit = await submitEdition('code')
 
         await act(async () => {
           await expect(submit()).rejects.toThrow()
         })
 
         expect(await screen.findByText(EXISTING_CODE_ERROR_MESSAGE)).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the backend reports the collision under another unique field', () => {
+    describe('WHEN submitting the dialog', () => {
+      it('THEN leaves the code input clean', async () => {
+        const submit = await submitEdition('externalId')
+
+        await act(async () => {
+          await expect(submit()).rejects.toThrow()
+        })
+
+        expect(screen.queryByText(EXISTING_CODE_ERROR_MESSAGE)).not.toBeInTheDocument()
       })
     })
   })

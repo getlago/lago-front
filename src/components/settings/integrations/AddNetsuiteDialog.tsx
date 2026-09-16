@@ -13,14 +13,15 @@ import { DialogResult } from '~/components/dialogs/types'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { Checkbox } from '~/components/form'
 import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
-import { addToast, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
+import { addToast, envGlobalVar } from '~/core/apolloClient'
 import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { applyExistingCodeError } from '~/core/form/existingCodeError'
+import { applyExistingCodeErrorOrToast } from '~/core/form/existingCodeError'
 import { NETSUITE_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import { zodOptionalUrl } from '~/formValidation/zodCustoms'
 import {
   GetNetsuiteIntegrationsListDocument,
+  LagoApiError,
   NetsuiteForCreateDialogDialogFragment,
   useCreateNetsuiteIntegrationMutation,
   useDestroyNangoIntegrationMutation,
@@ -173,14 +174,12 @@ export const useAddNetsuiteDialog = () => {
       const isEdition = !!netsuiteProvider
 
       const handleError = (errors: readonly GraphQLFormattedError[]) => {
-        if (hasDefinedGQLError('ValueAlreadyExist', errors)) {
-          applyExistingCodeError(formApi)
+        if (!applyExistingCodeErrorOrToast(formApi, errors)) return
 
-          const modalContainer = document.getElementsByClassName('MuiDialog-container')[0]
+        const modalContainer = document.getElementsByClassName('MuiDialog-container')[0]
 
-          if (modalContainer) {
-            modalContainer.scrollTo({ top: 0 })
-          }
+        if (modalContainer) {
+          modalContainer.scrollTo({ top: 0 })
         }
       }
 
@@ -192,6 +191,7 @@ export const useAddNetsuiteDialog = () => {
               id: netsuiteProvider?.id || '',
             },
           },
+          context: { silentErrorDetails: [LagoApiError.ValueAlreadyExist] },
         })
 
         if (res.errors) {
@@ -218,6 +218,7 @@ export const useAddNetsuiteDialog = () => {
               variables: {
                 input: { ...value, connectionId },
               },
+              context: { silentErrorDetails: [LagoApiError.ValueAlreadyExist] },
             })
 
             if (res.errors) {

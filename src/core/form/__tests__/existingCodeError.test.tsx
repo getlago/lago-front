@@ -1,16 +1,26 @@
 import { AnyFormApi, revalidateLogic } from '@tanstack/react-form'
 import { act, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { GraphQLFormattedError } from 'graphql'
 import { z } from 'zod'
 
+import { LagoApiError } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { render } from '~/test-utils'
 
 import {
   applyExistingCodeError,
+  applyExistingCodeErrorOrToast,
   EXISTING_CODE_ERROR_MESSAGE,
   EXISTING_CODE_FIELD_ERRORS,
 } from '../existingCodeError'
+
+const mockAddToast = jest.fn()
+
+jest.mock('~/core/apolloClient/reactiveVars/toastVar', () => ({
+  ...jest.requireActual('~/core/apolloClient/reactiveVars/toastVar'),
+  addToast: (...args: unknown[]) => mockAddToast(...args),
+}))
 
 // Identity translate so the surfaced error renders as its message key and can be
 // asserted through the exported constant (never a raw translation literal).
@@ -117,6 +127,85 @@ describe('EXISTING_CODE_FIELD_ERRORS', () => {
   it('keys the message under the code field for scrollToFirstInputError', () => {
     expect(EXISTING_CODE_FIELD_ERRORS).toEqual({
       code: { message: EXISTING_CODE_ERROR_MESSAGE, path: ['code'] },
+    })
+  })
+})
+
+describe('applyExistingCodeErrorOrToast', () => {
+  afterEach(() => {
+    formRef = null
+    jest.clearAllMocks()
+  })
+
+  const rejectedUnder = (key: string): readonly GraphQLFormattedError[] =>
+    [
+      { extensions: { details: { [key]: [LagoApiError.ValueAlreadyExist] } } },
+    ] as unknown as readonly GraphQLFormattedError[]
+
+  const submitThenRoute = async (errors?: readonly GraphQLFormattedError[]): Promise<boolean> => {
+    const user = userEvent.setup()
+
+    await act(() => render(<CodeFormHarness />))
+
+    await user.type(screen.getByRole('textbox'), 'taken')
+    await act(async () => {
+      await getForm().handleSubmit()
+    })
+
+    let applied = false
+
+    act(() => {
+      applied = applyExistingCodeErrorOrToast(getForm(), errors)
+    })
+
+    return applied
+  }
+
+  describe('GIVEN the backend reports the collision under the code key', () => {
+    it('THEN surfaces the shared message under the code input', async () => {
+      await submitThenRoute(rejectedUnder('code'))
+
+      expect(await screen.findByText(EXISTING_CODE_ERROR_MESSAGE)).toBeInTheDocument()
+    })
+
+    it('THEN raises no toast and reports the code input as flagged', async () => {
+      const applied = await submitThenRoute(rejectedUnder('code'))
+
+      expect(applied).toBe(true)
+      expect(mockAddToast).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('GIVEN the backend reports the collision under another unique field', () => {
+    it('THEN leaves the code input clean', async () => {
+      await submitThenRoute(rejectedUnder('externalId'))
+
+      expect(screen.queryByText(EXISTING_CODE_ERROR_MESSAGE)).not.toBeInTheDocument()
+    })
+
+    it('THEN raises the generic error toast instead of dropping the rejection', async () => {
+      const applied = await submitThenRoute(rejectedUnder('externalId'))
+
+      expect(applied).toBe(false)
+      expect(mockAddToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
+    })
+  })
+
+  describe('GIVEN a rejection that is not a duplicate value', () => {
+    it.each([
+      ['no errors at all', undefined],
+      [
+        'another error code',
+        [
+          { extensions: { details: { code: [LagoApiError.UnprocessableEntity] } } },
+        ] as unknown as readonly GraphQLFormattedError[],
+      ],
+    ])('THEN leaves the form and the toasts untouched for %s', async (_, errors) => {
+      const applied = await submitThenRoute(errors)
+
+      expect(applied).toBe(false)
+      expect(screen.queryByText(EXISTING_CODE_ERROR_MESSAGE)).not.toBeInTheDocument()
+      expect(mockAddToast).not.toHaveBeenCalled()
     })
   })
 })
