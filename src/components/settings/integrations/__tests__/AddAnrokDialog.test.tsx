@@ -8,6 +8,13 @@ import { describeDuplicateRejectionRouting, rejectedUnder } from './duplicateRej
 
 import { useAddAnrokDialog } from '../AddAnrokDialog'
 
+const mockAddToast = jest.fn()
+
+jest.mock('~/core/apolloClient/reactiveVars/toastVar', () => ({
+  ...jest.requireActual('~/core/apolloClient/reactiveVars/toastVar'),
+  addToast: (...args: unknown[]) => mockAddToast(...args),
+}))
+
 const mockDialogOpen = jest.fn()
 const mockCreate = jest.fn()
 const mockUpdate = jest.fn()
@@ -52,19 +59,24 @@ describe('useAddAnrokDialog', () => {
     mockDialogOpen.mockImplementation(() => new Promise(() => {}))
   })
 
-  describeDuplicateRejectionRouting('update', async (detailsKey) => {
-    mockUpdate.mockResolvedValue(rejectedUnder(detailsKey))
+  describeDuplicateRejectionRouting(
+    'update',
+    async (detailsKey) => {
+      mockUpdate.mockResolvedValue(rejectedUnder(detailsKey))
 
-    const { result } = renderHook(() => useAddAnrokDialog(), { wrapper })
+      const { result } = renderHook(() => useAddAnrokDialog(), { wrapper })
 
-    act(() => {
-      result.current.openAddAnrokDialog({ integration: anrokIntegration })
-    })
+      act(() => {
+        result.current.openAddAnrokDialog({ integration: anrokIntegration })
+      })
 
-    const dialogProps = mockDialogOpen.mock.calls[0][0]
+      const dialogProps = mockDialogOpen.mock.calls[0][0]
 
-    await act(() => render(<>{dialogProps.children}</>))
+      await act(() => render(<>{dialogProps.children}</>))
 
-    return dialogProps.form.submit
-  })
+      return dialogProps.form.submit
+    },
+    () =>
+      expect(mockAddToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' })),
+  )
 })

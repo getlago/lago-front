@@ -13,14 +13,13 @@ import { DialogResult } from '~/components/dialogs/types'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { Checkbox } from '~/components/form'
 import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
-import { addToast, envGlobalVar } from '~/core/apolloClient'
+import { addToast, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
 import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { applyExistingCodeErrorOrToast } from '~/core/form/existingCodeError'
+import { applyExistingCodeError } from '~/core/form/existingCodeError'
 import { useNavigate, XERO_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
 import {
   GetXeroIntegrationsListDocument,
-  LagoApiError,
   useCreateXeroIntegrationMutation,
   useDestroyNangoIntegrationMutation,
   useUpdateXeroIntegrationMutation,
@@ -148,12 +147,14 @@ export const useAddXeroDialog = () => {
       const isEdition = !!xeroProvider
 
       const handleError = (errors: readonly GraphQLFormattedError[]) => {
-        if (!applyExistingCodeErrorOrToast(formApi, errors)) return
+        if (hasDefinedGQLError('ValueAlreadyExist', errors, 'code')) {
+          applyExistingCodeError(formApi)
 
-        const modalContainer = document.getElementsByClassName('MuiDialog-container')[0]
+          const modalContainer = document.getElementsByClassName('MuiDialog-container')[0]
 
-        if (modalContainer) {
-          modalContainer.scrollTo({ top: 0 })
+          if (modalContainer) {
+            modalContainer.scrollTo({ top: 0 })
+          }
         }
       }
 
@@ -165,7 +166,6 @@ export const useAddXeroDialog = () => {
               id: xeroProvider?.id || '',
             },
           },
-          context: { silentErrorDetails: [LagoApiError.ValueAlreadyExist] },
         })
 
         if (res.errors) {
@@ -184,7 +184,6 @@ export const useAddXeroDialog = () => {
               variables: {
                 input: { ...value, connectionId },
               },
-              context: { silentErrorDetails: [LagoApiError.ValueAlreadyExist] },
             })
 
             if (res.errors) {

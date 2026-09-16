@@ -11,7 +11,13 @@ type OpenDialog = (detailsKey: string) => Promise<() => Promise<unknown>>
 
 // The duplicate-rejection contract shared by every integration dialog: the Code
 // input carries the error only when the API keys the collision under `code`.
-export const describeDuplicateRejectionRouting = (label: string, openDialog: OpenDialog): void => {
+// `expectFallback` asserts where a collision under another key surfaces instead,
+// which differs per dialog depending on whether its mutation mutes the error link.
+export const describeDuplicateRejectionRouting = (
+  label: string,
+  openDialog: OpenDialog,
+  expectFallback?: () => void,
+): void => {
   const submitAndExpectRejection = async (detailsKey: string): Promise<void> => {
     const submit = await openDialog(detailsKey)
 
@@ -36,6 +42,7 @@ export const describeDuplicateRejectionRouting = (label: string, openDialog: Ope
         await submitAndExpectRejection('externalId')
 
         expect(screen.queryByText(EXISTING_CODE_ERROR_MESSAGE)).not.toBeInTheDocument()
+        expectFallback?.()
       })
     })
   })

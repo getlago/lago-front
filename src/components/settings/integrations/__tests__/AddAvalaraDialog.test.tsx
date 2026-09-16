@@ -9,6 +9,13 @@ import { describeDuplicateRejectionRouting, rejectedUnder } from './duplicateRej
 
 import { useAddAvalaraDialog } from '../AddAvalaraDialog'
 
+const mockAddToast = jest.fn()
+
+jest.mock('~/core/apolloClient/reactiveVars/toastVar', () => ({
+  ...jest.requireActual('~/core/apolloClient/reactiveVars/toastVar'),
+  addToast: (...args: unknown[]) => mockAddToast(...args),
+}))
+
 const mockDialogOpen = jest.fn()
 const mockCreate = jest.fn()
 const mockUpdate = jest.fn()
@@ -68,41 +75,50 @@ describe('useAddAvalaraDialog', () => {
     mockNangoAuth.mockResolvedValue({ connectionId: 'nango-connection-id' })
   })
 
-  describeDuplicateRejectionRouting('edition', async (detailsKey) => {
-    mockUpdate.mockResolvedValue(rejectedUnder(detailsKey))
+  describeDuplicateRejectionRouting(
+    'edition',
+    async (detailsKey) => {
+      mockUpdate.mockResolvedValue(rejectedUnder(detailsKey))
 
-    const { result } = renderHook(() => useAddAvalaraDialog(), { wrapper })
+      const { result } = renderHook(() => useAddAvalaraDialog(), { wrapper })
 
-    act(() => {
-      result.current.openAddAvalaraDialog({ integration: avalaraIntegration })
-    })
+      act(() => {
+        result.current.openAddAvalaraDialog({ integration: avalaraIntegration })
+      })
 
-    const dialogProps = mockDialogOpen.mock.calls[0][0]
+      const dialogProps = mockDialogOpen.mock.calls[0][0]
 
-    await act(() => render(<>{dialogProps.children}</>))
+      await act(() => render(<>{dialogProps.children}</>))
 
-    return dialogProps.form.submit
-  })
+      return dialogProps.form.submit
+    },
+    () =>
+      expect(mockAddToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' })),
+  )
 
-  describeDuplicateRejectionRouting('creation', async (detailsKey) => {
-    mockCreate.mockResolvedValue(rejectedUnder(detailsKey))
+  describeDuplicateRejectionRouting(
+    'creation',
+    async (detailsKey) => {
+      mockCreate.mockResolvedValue(rejectedUnder(detailsKey))
 
-    const user = userEvent.setup()
-    const { result } = renderHook(() => useAddAvalaraDialog(), { wrapper })
+      const user = userEvent.setup()
+      const { result } = renderHook(() => useAddAvalaraDialog(), { wrapper })
 
-    act(() => {
-      result.current.openAddAvalaraDialog()
-    })
+      act(() => {
+        result.current.openAddAvalaraDialog()
+      })
 
-    const dialogProps = mockDialogOpen.mock.calls[0][0]
+      const dialogProps = mockDialogOpen.mock.calls[0][0]
 
-    await act(() => render(<>{dialogProps.children}</>))
+      await act(() => render(<>{dialogProps.children}</>))
 
-    await user.type(getInput('name'), 'Test Integration')
-    await user.type(getInput('accountId'), 'account-id')
-    await user.type(getInput('licenseKey'), 'license-key')
-    await user.type(getInput('companyCode'), 'company-code')
+      await user.type(getInput('name'), 'Test Integration')
+      await user.type(getInput('accountId'), 'account-id')
+      await user.type(getInput('licenseKey'), 'license-key')
+      await user.type(getInput('companyCode'), 'company-code')
 
-    return dialogProps.form.submit
-  })
+      return dialogProps.form.submit
+    },
+    () => expect(mockAddToast).not.toHaveBeenCalled(),
+  )
 })

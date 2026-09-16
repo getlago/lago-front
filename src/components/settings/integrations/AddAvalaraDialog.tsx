@@ -10,10 +10,10 @@ import { useFormDialogOpeningDialog } from '~/components/dialogs/FormDialogOpeni
 import { DialogResult } from '~/components/dialogs/types'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
-import { addToast, envGlobalVar } from '~/core/apolloClient'
+import { addToast, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
 import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { applyExistingCodeErrorOrToast } from '~/core/form/existingCodeError'
+import { applyExistingCodeError } from '~/core/form/existingCodeError'
 import { AVALARA_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import {
   AddAvalaraIntegrationDialogFragment,
@@ -173,7 +173,15 @@ export const useAddAvalaraDialog = () => {
           context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
         })
 
-        applyExistingCodeErrorOrToast(formApi, res.errors)
+        if (hasDefinedGQLError('ValueAlreadyExist', res.errors)) {
+          // This mutation silences UnprocessableEntity, so the error link raises
+          // nothing: a collision under any other key has to surface from here.
+          if (hasDefinedGQLError('ValueAlreadyExist', res.errors, 'code')) {
+            applyExistingCodeError(formApi)
+          } else {
+            addToast({ severity: 'danger', translateKey: 'text_622f7a3dc32ce100c46a5154' })
+          }
+        }
 
         return
       }
@@ -198,10 +206,11 @@ export const useAddAvalaraDialog = () => {
               connectionId: nangoApiKeyConnection?.connectionId || '',
             },
           },
-          context: { silentErrorDetails: [LagoApiError.ValueAlreadyExist] },
         })
 
-        applyExistingCodeErrorOrToast(formApi, res.errors)
+        if (hasDefinedGQLError('ValueAlreadyExist', res.errors, 'code')) {
+          applyExistingCodeError(formApi)
+        }
       } catch (error) {
         if (error instanceof AuthError) {
           nangoErrorRef.current?.setShow(true)
