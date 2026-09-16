@@ -35,14 +35,9 @@ SCRIPTS="$FRONT/scripts"
 
 0. **Sweep** (`worktree` layout only): invoke `loop-clean`; the operator confirms or skips, the run continues either way.
 
-1. **Check the gates this run depends on**: `pnpm agents:check` in `$FRONT`. It exercises
-   `loop-plan-check.sh` and `diff-hygiene.sh`, the two gates the build phase is about to trust — a
-   silent break there means undeclared files and comments ship unflagged. It is deliberately NOT in
-   `code:style`, so nothing else runs it: a red here stops the run.
+1. **Spec**: invoke `loop-spec` with the URL(s); extract `<ISSUE-ID>`; `"$SCRIPTS/iter-budget.sh" <ISSUE-ID> reset`. With `--confirm-spec`: show the operator spec.md's Summary, Premises (every `unverified` one first) and Files to touch, ask "why does this exist?" for each new file, and wait for a go — the single human checkpoint this flag buys. Amendments go into spec.md before build.
 
-2. **Spec**: invoke `loop-spec` with the URL(s); extract `<ISSUE-ID>`; `"$SCRIPTS/iter-budget.sh" <ISSUE-ID> reset`. With `--confirm-spec`: show the operator spec.md's Summary, Premises (every `unverified` one first) and Files to touch, ask "why does this exist?" for each new file, and wait for a go — the single human checkpoint this flag buys. Amendments go into spec.md before build.
-
-3. **Build ↔ review cycle** (max 3 — the cap is MECHANICAL, `iter-budget.sh`, never counted in your head):
+2. **Build ↔ review cycle** (max 3 — the cap is MECHANICAL, `iter-budget.sh`, never counted in your head):
    1. `"$SCRIPTS/iter-budget.sh" <ISSUE-ID> review` — exit 1 → the 3-FAIL STOP path, whatever you believe the count is.
    2. Invoke `loop-build` with `<ISSUE-ID>` and the layout. First iteration only: claim the ticket on Linear (`save_issue`: assignee = operator matched by `git config user.email`, status "Dev in Progress"); a Linear failure warns and continues.
    3. **Review in a FRESH subagent** (Agent tool, general-purpose: "Invoke the loop-review skill for <ISSUE-ID> and follow it exactly"). Never inline. Its prompt carries nothing but the ISSUE-ID — spec.md holds the ticket, so no reviewer fetches Linear or Notion.
@@ -51,9 +46,9 @@ SCRIPTS="$FRONT/scripts"
    6. Findings arriving AFTER a verdict is written are scored against a stale tree: re-verify each against the current diff, act only on regressions this diff introduced.
    7. 3 FAILs or iter-budget exit 1: STOP — `impediment.md`, exit DM, report. No git artifacts exist yet.
 
-4. **Restart the app**: `"$SCRIPTS/loop-restart.sh" <state dir>/state.md` (clears the vite cache first; no container → one-line warning, never a blocker).
+3. **Restart the app**: `"$SCRIPTS/loop-restart.sh" <state dir>/state.md` (clears the vite cache first; no container → one-line warning, never a blocker).
 
-5. **Ship** (after PASS), inside the `worktree:` path from state.md (`in-place`: the cwd, drop `git -C`):
+4. **Ship** (after PASS), inside the `worktree:` path from state.md (`in-place`: the cwd, drop `git -C`):
    1. **Commit** — stage everything, message EXACTLY:
 
       ```
@@ -76,14 +71,14 @@ SCRIPTS="$FRONT/scripts"
    3. **PR** (ready, not draft): `gh pr create --assignee @me`, title = commit subject, body = commit body.
    4. **Linear**: move the issue to "In Review" (`save_issue`).
 
-6. **CI gate** (max 3 fix cycles, `iter-budget.sh`): `gh pr checks <PR> --watch`. All green → Announce. Any red → triage the special cases FIRST, they consume no budget:
+5. **CI gate** (max 3 fix cycles, `iter-budget.sh`): `gh pr checks <PR> --watch`. All green → Announce. Any red → triage the special cases FIRST, they consume no budget:
    - **`Run Codegen` red with an unmerged companion lago-api PR**: CI builds the schema from lago-api `main`. Qualifies only with BOTH a concrete companion PR (from the ticket/spec, or named by the codegen errors) AND a one-time `gh pr view <N> --repo getlago/lago-api --json state,title` showing it open, recorded in the state dir. Then skip fix mode, Announce with the plain template, note the pending merge in the journal and the final report. Any other red alongside → real failure.
    - **Code-scanning (CodeQL) red**: `gh api --paginate 'repos/getlago/lago-front/code-scanning/alerts?per_page=100'`, filter `state == "dismissed"` yourself (single-value `state` param). A dismissed alert with the same `rule.id`, file AND overlapping region is a re-fingerprint no code change clears: fix other reds first; when it is the only red, STOP with outcome `needs-operator-adjudication` asking the operator to dismiss it referencing the prior one. Same rule elsewhere in the file is a real finding.
    - **Red inherited from a non-`main` base**: `gh pr checks <base PR>` shows the same signature → not this diff's; no cycle charged, both PR URLs in the journal, run ends `needs-operator-adjudication` unless the operator says otherwise in chat. No Slack post.
    - **Neither** → `"$SCRIPTS/iter-budget.sh" <ISSUE-ID> ci` (exit 1 → STOP path), then `"$SCRIPTS/loop-ci-log.sh" <ISSUE-ID> <run-id> <N>` — raw log to disk, ≤40 decisive lines back. Write `ci-failure.md` from those lines (job, matched lines, file:line, `raw: <path>`, ≤60 lines; the script already archived the previous one), re-enter build in fix mode, commit `fix(<context>): address CI failures`, push, watch again. **Never `cat` the raw log, never `gh run view` without the script.**
    - 3 red cycles: STOP — `impediment.md`, exit DM, report with the PR URL and the distilled failure. **No Slack channel post while CI is red.**
 
-7. **Announce** (CI fully green — sole carve-out: the verified codegen case). Post to `#frontend` via the Slack MCP, EXACTLY this, a BLANK line between the three lines (the connector collapses single newlines):
+6. **Announce** (CI fully green — sole carve-out: the verified codegen case). Post to `#frontend` via the Slack MCP, EXACTLY this, a BLANK line between the three lines (the connector collapses single newlines):
 
    ```
    **<type>(<context>): <Title>**
@@ -93,15 +88,15 @@ SCRIPTS="$FRONT/scripts"
    :admission_tickets: <Linear issue URL>
    ```
 
-8. **External comments**: `gh api repos/getlago/lago-front/pulls/<PR>/comments` + `gh pr view <PR> --json comments`. Any comment by someone other than the operator (`gh api user --jq .login`), human or bot → the loop-revise protocol: evaluate critically, apply if sound, ALWAYS reply (thanks + applied with sha, or not applied with a one-line technical reason).
+7. **External comments**: `gh api repos/getlago/lago-front/pulls/<PR>/comments` + `gh pr view <PR> --json comments`. Any comment by someone other than the operator (`gh api user --jq .login`), human or bot → the loop-revise protocol: evaluate critically, apply if sound, ALWAYS reply (thanks + applied with sha, or not applied with a one-line technical reason).
 
-9. **Final report**: PR URL, Linear state, CI status, Slack link, replies posted, cycle counts, and the cleanup line — `worktree`: `loop-clean` after merge; `in-place`: nothing here, the operator archives the Conductor workspace.
+8. **Final report**: PR URL, Linear state, CI status, Slack link, replies posted, cycle counts, and the cleanup line — `worktree`: `loop-clean` after merge; `in-place`: nothing here, the operator archives the Conductor workspace.
 
 ## Journal & flywheel — SILENT, on EVERY terminal outcome
 
 Happy path and every STOP alike; never ping the operator, never mention in Slack.
 
-1. **Journal**: `"$SCRIPTS/loop-journal.sh" <ISSUE-ID> <iters N/3> <ci N/3> "<gates red at least once, or none>" <outcome> "<fail-checks, or none>" "<one short phrase>"`. `fail-checks` = every tag collected in step 3.5 across iterations (`review#5,gate:types,adversarial`) — the pruning in `loop-flywheel` runs on this column. Outcomes: `shipped` / `stopped-review` / `stopped-ci` / `needs-operator-adjudication` / `stopped-error`.
+1. **Journal**: `"$SCRIPTS/loop-journal.sh" <ISSUE-ID> <iters N/3> <ci N/3> "<gates red at least once, or none>" <outcome> "<fail-checks, or none>" "<one short phrase>"`. `fail-checks` = every tag collected in step 2.5 across iterations (`review#5,gate:types,adversarial`) — the pruning in `loop-flywheel` runs on this column. Outcomes: `shipped` / `stopped-review` / `stopped-ci` / `needs-operator-adjudication` / `stopped-error`.
 
 2. **Flywheel**: for each recurring or avoidable failure (review-history, ci-failure-history, external comments) apply the admission test — *would a better instruction have prevented it, AND can I name a second, different plausible occurrence?* Both yes → append to `$LOOP_STATE_DIR/_flywheel.md`:
 
