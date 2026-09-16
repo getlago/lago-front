@@ -125,6 +125,57 @@ describe('ConnectionPaymentSettingsSelector', () => {
     mockPaymentMethodFieldsProps.current = null
   })
 
+  describe('GIVEN the details view asks for the drawer to open on landing', () => {
+    describe('WHEN the selector mounts with autoOpen', () => {
+      it('THEN should open the drawer once, seeded with the current values', () => {
+        const { rerender } = render(
+          <ConnectionPaymentSettingsSelector
+            viewType={ViewTypeEnum.WalletTopUp}
+            customerId="customer-1"
+            externalCustomerId="ext-customer-1"
+            connection={{ code: 'stripe-connection' }}
+            paymentMethod={undefined}
+            onChange={jest.fn()}
+            autoOpen
+          />,
+        )
+
+        expect(mockOpen).toHaveBeenCalledTimes(1)
+
+        rerender(
+          <ConnectionPaymentSettingsSelector
+            viewType={ViewTypeEnum.WalletTopUp}
+            customerId="customer-1"
+            externalCustomerId="ext-customer-1"
+            connection={{ code: 'stripe-connection' }}
+            paymentMethod={undefined}
+            onChange={jest.fn()}
+            autoOpen
+          />,
+        )
+
+        expect(mockOpen).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    describe('WHEN the selector mounts without autoOpen', () => {
+      it('THEN should not open the drawer', () => {
+        render(
+          <ConnectionPaymentSettingsSelector
+            viewType={ViewTypeEnum.WalletTopUp}
+            customerId="customer-1"
+            externalCustomerId="ext-customer-1"
+            connection={undefined}
+            paymentMethod={undefined}
+            onChange={jest.fn()}
+          />,
+        )
+
+        expect(mockOpen).not.toHaveBeenCalled()
+      })
+    })
+  })
+
   describe('GIVEN the selector is mounted', () => {
     describe('WHEN it renders', () => {
       it('THEN should display the entry card without opening the drawer', () => {

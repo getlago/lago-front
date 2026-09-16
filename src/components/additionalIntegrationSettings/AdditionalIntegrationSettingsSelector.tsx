@@ -1,3 +1,5 @@
+import { useEffect, useRef } from 'react'
+
 import {
   ConnectionBehavior,
   deriveConnectionBehavior,
@@ -26,6 +28,7 @@ interface AdditionalIntegrationSettingsSelectorProps {
   customerId: string
   values: AdditionalIntegrationSettingsValues
   onChange: (values: AdditionalIntegrationSettingsValues) => void
+  autoOpen?: boolean
   'data-test'?: string
 }
 
@@ -33,6 +36,7 @@ export const AdditionalIntegrationSettingsSelector = ({
   customerId,
   values,
   onChange,
+  autoOpen = false,
   'data-test': dataTest = ADDITIONAL_INTEGRATION_SETTINGS_SELECTOR_TEST_ID,
 }: AdditionalIntegrationSettingsSelectorProps) => {
   const { translate } = useInternationalization()
@@ -40,6 +44,16 @@ export const AdditionalIntegrationSettingsSelector = ({
     customerId,
     onSave: onChange,
   })
+
+  const hasAutoOpened = useRef(false)
+
+  useEffect(() => {
+    if (!autoOpen || hasAutoOpened.current) return
+
+    hasAutoOpened.current = true
+    openDrawer(values)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoOpen])
 
   const getSubtitle = (): string => {
     const segments = ADDITIONAL_INTEGRATION_CATEGORIES.reduce<string[]>((acc, category) => {

@@ -4995,5 +4995,14 @@
   "text_1789484418605ycq3wm3ui4f": "Sync invoices with the selected CRM provider.",
   "text_1789484418605umweat8mggj": "Send invoices to the selected tax provider.",
   "text_1789484418605toonu3phjvh": "Prepaid credit invoices are tax-excluded. Defining a tax provider won't affect the tax computed on these invoices.",
-  "text_17894845850934kgklcyl5dz": "Customer default connections"
+  "text_17894845850934kgklcyl5dz": "Customer default connections",
+  "text_17895579723912nhrvw71sp8": "External apps",
+  "text_1789557972391wk0smb0t3km": "How the wallet invoices are paid.",
+  "text_178955797239251hkkoh9sbb": "Additional app settings",
+  "text_1789557972392sivbc9oyt08": "How wallet's invoices connects to external tools.",
+  "text_1789557972392jhb3cywzp35": "Payment connection",
+  "text_1789557972392kzvs8grsxor": "Tax connection",
+  "text_1789557972392ui25nl8slm3": "Accounting connection",
+  "text_1789558944658bay5bstkcut": "Customer default",
+  "text_1789558944658vo5lmtt0mw5": "How the recurring top-up are paid."
 }

@@ -174,6 +174,9 @@ const CreateWallet = () => {
   // as the wallet data is ready (bridge until the dedicated rule mutations,
   // ING-529, allow editing straight from the detail view).
   const autoOpenRuleDrawer = location.state?.openRecurringRuleDrawer === true
+  const autoOpenPaymentConnectionDrawer = location.state?.openConnectionPaymentDrawer === true
+  const autoOpenAdditionalIntegrationDrawer =
+    location.state?.openAdditionalIntegrationDrawer === true
 
   const { customerId = '', walletId = '' } = useParams()
   const { translate } = useInternationalization()
@@ -391,6 +394,10 @@ const CreateWallet = () => {
               isRecurringTopUpEnabled={isRecurringTopUpEnabled}
               setIsRecurringTopUpEnabled={setIsRecurringTopUpEnabled}
               autoOpenRuleDrawer={autoOpenRuleDrawer && !isLoading}
+              autoOpenPaymentConnectionDrawer={autoOpenPaymentConnectionDrawer && !isLoading}
+              autoOpenAdditionalIntegrationDrawer={
+                autoOpenAdditionalIntegrationDrawer && !isLoading
+              }
             />
           </CenteredPage.Container>
         )}

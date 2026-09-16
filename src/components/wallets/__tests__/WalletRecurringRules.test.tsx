@@ -1,6 +1,8 @@
 import { screen } from '@testing-library/react'
 
 import {
+  ConnectionCategoryEnum,
+  ConnectionResolvedBehaviorEnum,
   PaymentMethodTypeEnum,
   RecurringTransactionIntervalEnum,
   RecurringTransactionMethodEnum,
@@ -12,6 +14,8 @@ import { PaymentMethodItem } from '~/hooks/customer/usePaymentMethodsList'
 import { render } from '~/test-utils'
 
 import WalletRecurringRules, {
+  WALLET_RECURRING_RULES_EDIT_ADDITIONAL_TEST_ID,
+  WALLET_RECURRING_RULES_EDIT_PAYMENT_TEST_ID,
   WALLET_RECURRING_RULES_EMPTY_TEST_ID,
   WALLET_RECURRING_RULES_RULE_TEST_ID,
 } from '../WalletRecurringRules'
@@ -23,12 +27,36 @@ let mockPaymentMethodsList: PaymentMethodItem[] = []
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (key: string) => key }),
 }))
+let mockHasFeatureFlag = false
+
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
     organization: { defaultCurrency: 'USD' },
     intlFormatDateTimeOrgaTZ: () => ({ date: '2024-01-01' }),
-    hasFeatureFlag: () => false,
+    hasFeatureFlag: () => mockHasFeatureFlag,
   }),
+}))
+
+// routerState (the drawer auto-open intent) never reaches the DOM, so the Edit
+// links can only be asserted through the props they receive.
+const mockButtonLink = jest.fn()
+
+jest.mock('~/components/designSystem/ButtonLink', () => ({
+  ButtonLink: (props: Record<string, unknown>) => {
+    mockButtonLink(props)
+
+    return <button data-test={props['data-test'] as string} type="button" />
+  },
+}))
+
+const mockConnectionRoutingValue = jest.fn()
+
+jest.mock('~/components/connectionSelection/read/ConnectionRoutingValue', () => ({
+  ConnectionRoutingValue: (props: Record<string, unknown>) => {
+    mockConnectionRoutingValue(props)
+
+    return null
+  },
 }))
 jest.mock('~/hooks/useCurrentUser', () => ({
   useCurrentUser: () => ({ isPremium: true }),
@@ -95,6 +123,7 @@ const createMockRecurringRule = (overrides = {}): WalletRecurringRule =>
     paymentMethod: null,
     skipInvoiceCustomSections: false,
     selectedInvoiceCustomSections: [],
+    connections: [],
     ...overrides,
   }) as WalletRecurringRule
 
@@ -119,8 +148,10 @@ const createMockWallet = (overrides = {}) =>
 
 describe('WalletRecurringRules', () => {
   beforeEach(() => {
+    jest.clearAllMocks()
     mockPaymentMethodsList = []
     mockCustomerIcsData = null
+    mockHasFeatureFlag = false
   })
 
   describe('GIVEN no wallet', () => {
@@ -410,6 +441,140 @@ describe('WalletRecurringRules', () => {
       )
 
       expect(screen.queryByText(RULE_NUMBER_TRANSLATION_KEY)).not.toBeInTheDocument()
+    })
+  })
+
+  describe('GIVEN the multi_connection feature flag', () => {
+    const ruleWithConnections = () =>
+      createMockRecurringRule({
+        connections: [
+          {
+            category: ConnectionCategoryEnum.Payment,
+            behavior: ConnectionResolvedBehaviorEnum.Specific,
+            code: 'stripe-eu',
+          },
+        ],
+      })
+
+    describe('WHEN the flag is disabled', () => {
+      it('THEN should not render the rule connections', () => {
+        render(
+          <WalletRecurringRules
+            wallet={createMockWallet({ recurringTransactionRules: [ruleWithConnections()] })}
+          />,
+        )
+
+        expect(mockConnectionRoutingValue).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the flag is enabled', () => {
+      beforeEach(() => {
+        mockHasFeatureFlag = true
+      })
+
+      it('THEN should render the four connection rows of each rule', () => {
+        render(
+          <WalletRecurringRules
+            wallet={createMockWallet({
+              recurringTransactionRules: [
+                ruleWithConnections(),
+                createMockRecurringRule({ lagoId: 'rule-2' }),
+              ],
+            })}
+          />,
+        )
+
+        expect(mockConnectionRoutingValue).toHaveBeenCalledTimes(8)
+      })
+
+      it.each([
+        ['payment', WALLET_RECURRING_RULES_EDIT_PAYMENT_TEST_ID],
+        ['additional apps', WALLET_RECURRING_RULES_EDIT_ADDITIONAL_TEST_ID],
+      ])(
+        'THEN its %s Edit link should open the rule drawer on the wallet form',
+        (_, getDataTest) => {
+          render(
+            <WalletRecurringRules
+              canEditWallet
+              wallet={createMockWallet({
+                id: 'wallet-1',
+                customer: { id: 'customer-1' },
+                recurringTransactionRules: [ruleWithConnections()],
+              })}
+            />,
+          )
+
+          expect(screen.getByTestId(getDataTest(0))).toBeInTheDocument()
+          expect(mockButtonLink).toHaveBeenCalledWith(
+            expect.objectContaining({
+              'data-test': getDataTest(0),
+              to: '/customer/customer-1/wallet/wallet-1',
+              routerState: { openRecurringRuleDrawer: true },
+            }),
+          )
+        },
+      )
+
+      it.each([
+        ['payment', WALLET_RECURRING_RULES_EDIT_PAYMENT_TEST_ID],
+        ['additional apps', WALLET_RECURRING_RULES_EDIT_ADDITIONAL_TEST_ID],
+      ])('THEN should hide the %s Edit link on a read-only wallet', (_, getDataTest) => {
+        render(
+          <WalletRecurringRules
+            wallet={createMockWallet({
+              customer: { id: 'customer-1' },
+              recurringTransactionRules: [ruleWithConnections()],
+            })}
+          />,
+        )
+
+        expect(screen.queryByTestId(getDataTest(0))).not.toBeInTheDocument()
+      })
+
+      it('THEN should give each rule its own Edit links', () => {
+        render(
+          <WalletRecurringRules
+            canEditWallet
+            wallet={createMockWallet({
+              id: 'wallet-1',
+              customer: { id: 'customer-1' },
+              recurringTransactionRules: [
+                ruleWithConnections(),
+                createMockRecurringRule({ lagoId: 'rule-2' }),
+              ],
+            })}
+          />,
+        )
+
+        expect(
+          screen.getByTestId(WALLET_RECURRING_RULES_EDIT_PAYMENT_TEST_ID(0)),
+        ).toBeInTheDocument()
+        expect(
+          screen.getByTestId(WALLET_RECURRING_RULES_EDIT_PAYMENT_TEST_ID(1)),
+        ).toBeInTheDocument()
+      })
+
+      it("THEN should hand the rule's own routing to its connection row", () => {
+        render(
+          <WalletRecurringRules
+            wallet={createMockWallet({
+              customer: { id: 'customer-1' },
+              recurringTransactionRules: [ruleWithConnections()],
+            })}
+          />,
+        )
+
+        expect(mockConnectionRoutingValue).toHaveBeenCalledWith(
+          expect.objectContaining({
+            customerId: 'customer-1',
+            routing: expect.objectContaining({
+              category: ConnectionCategoryEnum.Payment,
+              code: 'stripe-eu',
+            }),
+          }),
+        )
+      })
     })
   })
 })

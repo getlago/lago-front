@@ -42,6 +42,8 @@ interface TopUpSectionExtraProps {
    * mutations exist (ING-529). Only pass it once the wallet data is loaded.
    */
   autoOpenRuleDrawer?: boolean
+  autoOpenPaymentConnectionDrawer?: boolean
+  autoOpenAdditionalIntegrationDrawer?: boolean
 }
 
 const topUpSectionDefaultProps: TopUpSectionExtraProps = {
@@ -51,6 +53,8 @@ const topUpSectionDefaultProps: TopUpSectionExtraProps = {
   isRecurringTopUpEnabled: false,
   setIsRecurringTopUpEnabled: () => {},
   autoOpenRuleDrawer: false,
+  autoOpenPaymentConnectionDrawer: false,
+  autoOpenAdditionalIntegrationDrawer: false,
 }
 
 export const TopUpSection = withForm({
@@ -63,6 +67,8 @@ export const TopUpSection = withForm({
     isRecurringTopUpEnabled,
     setIsRecurringTopUpEnabled,
     autoOpenRuleDrawer,
+    autoOpenPaymentConnectionDrawer,
+    autoOpenAdditionalIntegrationDrawer,
   }) {
     const { isPremium } = useCurrentUser()
     const { translate } = useInternationalization()
@@ -120,6 +126,7 @@ export const TopUpSection = withForm({
             form.setFieldValue('paymentConnection', connection)
             form.setFieldValue('paymentMethod', paymentMethod)
           }}
+          autoOpen={autoOpenPaymentConnectionDrawer}
         />
       )
     }
@@ -137,6 +144,7 @@ export const TopUpSection = withForm({
           form.setFieldValue('crmConnection', values[ConnectionCategory.Crm])
           form.setFieldValue('taxConnection', values[ConnectionCategory.Tax])
         }}
+        autoOpen={autoOpenAdditionalIntegrationDrawer}
       />
     )
 

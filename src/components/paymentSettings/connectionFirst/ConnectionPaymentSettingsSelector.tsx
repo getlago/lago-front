@@ -1,3 +1,5 @@
+import { useEffect, useRef } from 'react'
+
 import {
   ConnectionBehavior,
   deriveConnectionBehavior,
@@ -28,6 +30,7 @@ interface ConnectionPaymentSettingsSelectorProps {
   connection: SelectedConnection
   paymentMethod: SelectedPaymentMethod
   onChange: (values: ConnectionPaymentSettingsValues) => void
+  autoOpen?: boolean
   'data-test'?: string
 }
 
@@ -52,6 +55,7 @@ export const ConnectionPaymentSettingsSelector = ({
   connection,
   paymentMethod,
   onChange,
+  autoOpen = false,
   'data-test': dataTest = CONNECTION_PAYMENT_SETTINGS_SELECTOR_TEST_ID,
 }: ConnectionPaymentSettingsSelectorProps) => {
   const { translate } = useInternationalization()
@@ -63,6 +67,16 @@ export const ConnectionPaymentSettingsSelector = ({
   })
 
   const seededConnection = seedConnection(connection, paymentMethod)
+
+  const hasAutoOpened = useRef(false)
+
+  useEffect(() => {
+    if (!autoOpen || hasAutoOpened.current) return
+
+    hasAutoOpened.current = true
+    openDrawer({ connection: seededConnection, paymentMethod })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoOpen])
 
   return (
     <Selector

@@ -15,10 +15,13 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
+let mockHasFeatureFlag = false
+
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
     organization: { id: 'org-1', defaultCurrency: 'USD' },
     intlFormatDateTimeOrgaTZ: () => ({ date: '2024-01-01' }),
+    hasFeatureFlag: () => mockHasFeatureFlag,
   }),
 }))
 
@@ -86,6 +89,11 @@ jest.mock('~/components/wallets/WalletRecurringRules', () => ({
   default: () => <div data-test="mock-wallet-recurring-rules" />,
 }))
 
+jest.mock('~/components/wallets/WalletExternalApps', () => ({
+  __esModule: true,
+  default: () => <div data-test="mock-wallet-external-apps" />,
+}))
+
 jest.mock('~/components/wallets/WalletTransactions', () => ({
   WalletTransactions: () => <div data-test="mock-wallet-transactions" />,
 }))
@@ -133,6 +141,7 @@ const mockWallet = {
 describe('WalletDetails', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockHasFeatureFlag = false
     capturedBreadcrumb = undefined
     capturedTabs = undefined
     capturedEntity = undefined
@@ -316,6 +325,55 @@ describe('WalletDetails', () => {
 
         expect(item?.loading).toBe(true)
         expect(item?.label).toBe('')
+      })
+    })
+  })
+
+  describe('GIVEN the multi_connection feature flag', () => {
+    beforeEach(() => {
+      mockUseGetWalletDetailsQuery.mockReturnValue({
+        data: { wallet: mockWallet },
+        loading: false,
+      })
+    })
+
+    describe('WHEN the flag is disabled', () => {
+      it('THEN should not expose the external apps tab', () => {
+        render(<WalletDetails />)
+
+        expect(capturedTabs?.map(({ link }) => link)).not.toContain(
+          '/customer/customer-1/wallet-details/wallet-1/external-apps',
+        )
+      })
+    })
+
+    describe('WHEN the flag is enabled', () => {
+      it('THEN should expose the external apps tab between recurring rule and transactions', () => {
+        mockHasFeatureFlag = true
+
+        render(<WalletDetails />)
+
+        expect(capturedTabs?.map(({ link }) => link)).toEqual([
+          '/customer/customer-1/wallet-details/wallet-1/overview',
+          '/customer/customer-1/wallet-details/wallet-1/recurring-rule',
+          '/customer/customer-1/wallet-details/wallet-1/external-apps',
+          '/customer/customer-1/wallet-details/wallet-1/transactions',
+          '/customer/customer-1/wallet-details/wallet-1/alerts',
+        ])
+      })
+
+      it('THEN its content should render the external apps read view', () => {
+        mockHasFeatureFlag = true
+
+        render(<WalletDetails />)
+
+        const externalAppsTab = capturedTabs?.find(({ link }) =>
+          link?.endsWith(WalletDetailsTabsOptionsEnum.externalApps),
+        )
+
+        render(<>{externalAppsTab?.content}</>)
+
+        expect(screen.getByTestId('mock-wallet-external-apps')).toBeInTheDocument()
       })
     })
   })
