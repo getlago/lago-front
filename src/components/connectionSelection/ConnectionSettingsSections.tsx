@@ -1,5 +1,6 @@
 import { ReactNode } from 'react'
 
+import { ADDITIONAL_INTEGRATION_CATEGORIES } from '~/components/additionalIntegrationSettings/additionalIntegrationSettingsSchema'
 import { findConnectionRouting } from '~/components/connectionSelection/fromConnectionRouting'
 import { ConnectionCategory } from '~/components/customerConnections/types'
 import { Typography } from '~/components/designSystem/Typography'
@@ -18,12 +19,6 @@ import {
 export const CONNECTION_SETTINGS_PAYMENT_SECTION_TEST_ID = 'connection-settings-payment-section'
 export const CONNECTION_SETTINGS_ADDITIONAL_SECTION_TEST_ID =
   'connection-settings-additional-section'
-
-const ADDITIONAL_CATEGORIES = [
-  ConnectionCategory.Tax,
-  ConnectionCategory.Accounting,
-  ConnectionCategory.Crm,
-]
 
 type SectionHeaderProps = {
   title: string
@@ -79,7 +74,7 @@ export const ConnectionSettingsSections = ({
   })
 
   const additionalConnectionItems = useConnectionRoutingGridItems({
-    categories: ADDITIONAL_CATEGORIES,
+    categories: ADDITIONAL_INTEGRATION_CATEGORIES,
     connections,
     customerId,
   })

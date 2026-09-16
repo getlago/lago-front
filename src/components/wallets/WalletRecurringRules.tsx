@@ -1,6 +1,6 @@
 import { generatePath } from 'react-router'
 
-import { ConnectionSettingsSections } from '~/components/connectionSelection/read/ConnectionSettingsSections'
+import { ConnectionSettingsSections } from '~/components/connectionSelection/ConnectionSettingsSections'
 import { ButtonLink } from '~/components/designSystem/ButtonLink'
 import { Typography } from '~/components/designSystem/Typography'
 import { InvoiceCustomSectionDisplay } from '~/components/invoceCustomFooter/InvoiceCustomSectionDisplay'

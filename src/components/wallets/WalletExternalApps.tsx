@@ -1,7 +1,7 @@
 import { ReactNode } from 'react'
 import { generatePath } from 'react-router'
 
-import { ConnectionSettingsSections } from '~/components/connectionSelection/read/ConnectionSettingsSections'
+import { ConnectionSettingsSections } from '~/components/connectionSelection/ConnectionSettingsSections'
 import { ButtonLink } from '~/components/designSystem/ButtonLink'
 import { EDIT_WALLET_ROUTE } from '~/core/router'
 import { WalletDetailsFragment } from '~/generated/graphql'

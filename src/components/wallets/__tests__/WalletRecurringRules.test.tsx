@@ -51,7 +51,7 @@ jest.mock('~/components/designSystem/ButtonLink', () => ({
 
 const mockConnectionRoutingValue = jest.fn()
 
-jest.mock('~/components/connectionSelection/read/ConnectionRoutingValue', () => ({
+jest.mock('~/components/connectionSelection/ConnectionRoutingValue', () => ({
   ConnectionRoutingValue: (props: Record<string, unknown>) => {
     mockConnectionRoutingValue(props)
 
