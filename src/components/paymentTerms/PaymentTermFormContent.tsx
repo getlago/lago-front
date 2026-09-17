@@ -1,131 +1,20 @@
 import InputAdornment from '@mui/material/InputAdornment'
 import { useStore } from '@tanstack/react-form'
-import { z } from 'zod'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Typography } from '~/components/designSystem/Typography'
-import { PAYMENT_TERM_INPUT_CLASSNAME } from '~/core/constants/form'
-import {
-  PAYMENT_TERM_DAY_OF_MONTH_MAX,
-  PAYMENT_TERM_DAY_OF_MONTH_MIN,
-  PAYMENT_TERM_DEFAULT_MONTH_OFFSET,
-  PAYMENT_TERM_FIELDS_BY_TYPE,
-  PAYMENT_TERM_INHERIT,
-  PAYMENT_TERM_MONTH_OFFSET_MAX,
-  PAYMENT_TERM_MONTH_OFFSET_MIN,
-} from '~/core/constants/paymentTerm'
+import { PAYMENT_TERM_FIELDS_BY_TYPE } from '~/core/constants/paymentTerm'
 import { ResolvablePaymentTerm } from '~/core/utils/paymentTerm'
-import { PaymentTermTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 import { usePaymentTerm } from '~/hooks/usePaymentTerm'
 
-export const PAYMENT_TERM_TYPE_COMBOBOX_TEST_CLASSNAME = PAYMENT_TERM_INPUT_CLASSNAME
-export const PAYMENT_TERM_DUE_DATE_PREVIEW_TEST_ID = 'payment-term-due-date-preview'
-
-export type PaymentTermType = PaymentTermTypeEnum | typeof PAYMENT_TERM_INHERIT
-
-/**
- * `termType` starts out unset, so a level with no term of its own and nothing to inherit
- * from reports a required-field error instead of submitting an empty term. A level that
- * can inherit is seeded with `PAYMENT_TERM_INHERIT` by its caller.
- *
- * The numeric fields are seeded rather than left blank so that switching term type
- * reveals a usable value straight away. Values belonging to a type the user moved away
- * from are simply not sent: `buildPaymentTermInput` emits only the chosen type's fields.
- */
-export const PAYMENT_TERM_FORM_DEFAULT_VALUES = {
-  termType: undefined as PaymentTermType | undefined,
-  days: 0 as number | '',
-  dayOfMonth: PAYMENT_TERM_DAY_OF_MONTH_MIN as number | '',
-  monthOffset: PAYMENT_TERM_DEFAULT_MONTH_OFFSET as number | '',
-}
-
-export type PaymentTermFormValues = typeof PAYMENT_TERM_FORM_DEFAULT_VALUES
-
-/** Whether the value stands for a concrete term rather than the inherit choice. */
-export const isConcreteTermType = (
-  termType: PaymentTermType | undefined,
-): termType is PaymentTermTypeEnum => !!termType && termType !== PAYMENT_TERM_INHERIT
-
-const isPositiveIntegerWithin = (value: number | '', min: number, max: number): boolean =>
-  typeof value === 'number' && Number.isInteger(value) && value >= min && value <= max
-
-/**
- * Mirrors the API's discriminated-union validation: a type's own fields are required and
- * bounded, and nothing else is looked at.
- */
-export const paymentTermFormSchema = z
-  .object({
-    termType: z.union([z.enum(PaymentTermTypeEnum), z.literal(PAYMENT_TERM_INHERIT)], {
-      message: 'text_1789042962229hmb871mrfas',
-    }),
-    days: z.union([z.number(), z.literal('')]),
-    dayOfMonth: z.union([z.number(), z.literal('')]),
-    monthOffset: z.union([z.number(), z.literal('')]),
-  })
-  .superRefine((values, ctx) => {
-    if (!isConcreteTermType(values.termType)) return
-
-    const fields = PAYMENT_TERM_FIELDS_BY_TYPE[values.termType]
-
-    if (
-      fields.includes('days') &&
-      !isPositiveIntegerWithin(values.days, 0, Number.MAX_SAFE_INTEGER)
-    ) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['days'],
-        message: 'text_1789042962229bk0kdnqlbpc',
-      })
-    }
-
-    if (
-      fields.includes('dayOfMonth') &&
-      !isPositiveIntegerWithin(
-        values.dayOfMonth,
-        PAYMENT_TERM_DAY_OF_MONTH_MIN,
-        PAYMENT_TERM_DAY_OF_MONTH_MAX,
-      )
-    ) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['dayOfMonth'],
-        message: 'text_1789042962229ojqymcu3289',
-      })
-    }
-
-    // Absent is valid — the API fills the default — but a value that is present must be in range.
-    if (
-      fields.includes('monthOffset') &&
-      values.monthOffset !== '' &&
-      !isPositiveIntegerWithin(
-        values.monthOffset,
-        PAYMENT_TERM_MONTH_OFFSET_MIN,
-        PAYMENT_TERM_MONTH_OFFSET_MAX,
-      )
-    ) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['monthOffset'],
-        message: 'text_1789042962229esmw981wwyt',
-      })
-    }
-  })
-
-/** Turns the form's string-tolerant values into a term the date math can read. */
-export const paymentTermFromFormValues = (
-  values: PaymentTermFormValues,
-): ResolvablePaymentTerm | null => {
-  if (!isConcreteTermType(values.termType)) return null
-
-  return {
-    termType: values.termType,
-    days: values.days === '' ? 0 : Number(values.days),
-    dayOfMonth: values.dayOfMonth === '' ? null : Number(values.dayOfMonth),
-    monthOffset: values.monthOffset === '' ? null : Number(values.monthOffset),
-  }
-}
+import {
+  PAYMENT_TERM_DUE_DATE_PREVIEW_TEST_ID,
+  PAYMENT_TERM_TYPE_COMBOBOX_TEST_CLASSNAME,
+} from './dataTestConstants'
+import { PAYMENT_TERM_FORM_DEFAULT_VALUES } from './types'
+import { isConcreteTermType, paymentTermFromFormValues } from './utils'
 
 type PaymentTermFormContentExtraProps = {
   /**
