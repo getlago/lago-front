@@ -4,6 +4,7 @@ import { useRef } from 'react'
 
 import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { DialogResult } from '~/components/dialogs/types'
+import { EDIT_PAYMENT_TERM_SUBMIT_BUTTON_TEST_ID } from '~/components/paymentTerms/dataTestConstants'
 import { PaymentTermFormContent } from '~/components/paymentTerms/PaymentTermFormContent'
 import { PAYMENT_TERM_FORM_DEFAULT_VALUES } from '~/components/paymentTerms/types'
 import { isConcreteTermType } from '~/components/paymentTerms/utils'
@@ -18,7 +19,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
-import { EDIT_PAYMENT_TERM_SUBMIT_BUTTON_TEST_ID } from './dataTestConstants'
 import { EditPaymentTermDialogData, ModelData, PaymentTermModelTypesEnum } from './types'
 import { getInheritedFrom, getInitialFormValues, isCustomer } from './utils'
 
