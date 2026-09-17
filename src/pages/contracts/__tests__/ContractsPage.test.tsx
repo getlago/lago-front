@@ -1,9 +1,12 @@
 import { MockedResponse } from '@apollo/client/testing'
 import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 
+import { OPEN_ACTION_BUTTON_TEST_ID } from '~/components/designSystem/Table/Table'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { addToast } from '~/core/apolloClient'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { CONTRACTS_ROUTE, objectListRoutes } from '~/core/router/ObjectsRoutes'
+import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
   ContractForContractsListFragment,
   ContractStatusEnum,
@@ -15,6 +18,23 @@ import {
 import { render, testMockNavigateFn } from '~/test-utils'
 
 import ContractsPage from '../ContractsPage'
+
+const mockOpenTerminateContractDialog = jest.fn()
+
+jest.mock('../useTerminateContractDialog', () => ({
+  useTerminateContractDialog: () => ({
+    openTerminateContractDialog: mockOpenTerminateContractDialog,
+  }),
+}))
+
+jest.mock('~/core/apolloClient', () => ({
+  ...jest.requireActual('~/core/apolloClient'),
+  addToast: jest.fn(),
+}))
+
+jest.mock('~/core/utils/copyToClipboard', () => ({
+  copyToClipboard: jest.fn(),
+}))
 
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
@@ -87,6 +107,7 @@ describe('ContractsPage', () => {
       'Customer name',
       'Start date',
       'End date',
+      '',
     ])
     expect(headers[2]).toHaveStyle({ width: '100%' })
     expect(headers[1]).toHaveStyle({ width: 'auto' })
@@ -112,7 +133,9 @@ describe('ContractsPage', () => {
     render(<ContractsPage />, { mocks: [contractsMock([contract], 1, DEFAULT_PAGE_SIZE)] })
 
     expect(await screen.findByText('Enterprise agreement')).toBeInTheDocument()
-    expect(screen.queryByRole('navigation', { name: 'pagination' })).not.toBeInTheDocument()
+    await waitFor(() =>
+      expect(screen.queryByRole('navigation', { name: 'pagination' })).not.toBeInTheDocument(),
+    )
   })
 
   it('links rows to contract details and supports pointer and keyboard navigation', async () => {
@@ -134,18 +157,49 @@ describe('ContractsPage', () => {
     expect(testMockNavigateFn).toHaveBeenCalledWith('/contracts/contract-1')
   })
 
-  it('shows loading controls while fetching and the empty state after an empty response', async () => {
+  it('copies the external ID and opens the terminate dialog from the row action menu', async () => {
+    render(<ContractsPage />, { mocks: [contractsMock()] })
+
+    const row = await screen.findByTestId('table-row-0')
+
+    fireEvent.click(within(row).getByTestId(OPEN_ACTION_BUTTON_TEST_ID))
+    fireEvent.click(await screen.findByTestId('copy-contract-external-id'))
+
+    expect(copyToClipboard).toHaveBeenCalledWith('enterprise-2026')
+    expect(addToast).toHaveBeenCalledWith({
+      severity: 'info',
+      translateKey: 'text_1789636691484fyt51yyc9uh',
+    })
+
+    await waitFor(() =>
+      expect(screen.queryByTestId('copy-contract-external-id')).not.toBeInTheDocument(),
+    )
+    fireEvent.click(within(row).getByTestId(OPEN_ACTION_BUTTON_TEST_ID))
+    fireEvent.click(await screen.findByTestId('terminate-contract'))
+
+    expect(mockOpenTerminateContractDialog).toHaveBeenCalledWith({
+      name: 'Enterprise agreement',
+    })
+  })
+
+  it('shows a full page of skeleton rows while fetching, then the empty state', async () => {
     render(<ContractsPage />, { mocks: [{ ...contractsMock([], 1, 0), delay: 30 }] })
 
+    expect(screen.getAllByRole('row')).toHaveLength(DEFAULT_PAGE_SIZE + 1)
     expect(screen.getByRole('button', { name: 'next page' })).toBeDisabled()
+    expect(screen.queryByText('No contract yet')).not.toBeInTheDocument()
+
     expect(await screen.findByText('No contract yet')).toBeInTheDocument()
     expect(screen.queryByRole('navigation', { name: 'pagination' })).not.toBeInTheDocument()
   })
 
-  it('falls back to the external ID when the contract has no name', async () => {
-    render(<ContractsPage />, { mocks: [contractsMock([{ ...contract, name: null }])] })
+  it('handles nullable contract names and dates', async () => {
+    render(<ContractsPage />, {
+      mocks: [contractsMock([{ ...contract, name: null, startedAt: null, endedAt: null }])],
+    })
 
     expect(await screen.findByText('enterprise-2026')).toBeInTheDocument()
+    expect(screen.getAllByText('-')).toHaveLength(2)
   })
 
   it('retries failed requests without reloading the page', async () => {
@@ -158,7 +212,9 @@ describe('ContractsPage', () => {
 
     const retry = await screen.findByRole('button', { name: /refresh/i })
 
-    expect(screen.queryByRole('navigation', { name: 'pagination' })).not.toBeInTheDocument()
+    await waitFor(() =>
+      expect(screen.queryByRole('navigation', { name: 'pagination' })).not.toBeInTheDocument(),
+    )
     fireEvent.click(retry)
     await waitFor(() => expect(screen.getByText('Enterprise agreement')).toBeInTheDocument())
   })

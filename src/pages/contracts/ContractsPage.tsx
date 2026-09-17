@@ -6,16 +6,22 @@ import { Button } from '~/components/designSystem/Button'
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Status } from '~/components/designSystem/Status'
 import { Table, TableColumn } from '~/components/designSystem/Table/Table'
+import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { SearchInput } from '~/components/SearchInput'
+import { addToast } from '~/core/apolloClient'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { contractStatusMapping } from '~/core/constants/statusContractMapping'
 import { CONTRACT_DETAILS_ROUTE } from '~/core/router'
-import { ContractForContractsListFragment, useGetContractsListQuery } from '~/generated/graphql'
+import { copyToClipboard } from '~/core/utils/copyToClipboard'
+import { ContractForContractsListFragment, useGetContractsListLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+
+import { useTerminateContractDialog } from './useTerminateContractDialog'
 
 gql`
   fragment ContractForContractsList on Contract {
@@ -48,13 +54,42 @@ gql`
 const ContractsPage = (): JSX.Element => {
   const { translate } = useInternationalization()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
+  const { openTerminateContractDialog } = useTerminateContractDialog()
   const { page, goToPage } = usePageSearchParam()
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
-  const { data, loading, error, refetch } = useGetContractsListQuery({
+  const [getContracts, { data, loading, error, refetch }] = useGetContractsListLazyQuery({
     variables: { page, limit: pageSize },
     notifyOnNetworkStatusChange: true,
+    fetchPolicy: 'network-only',
+    nextFetchPolicy: 'network-only',
   })
+  const { isLoading } = useDebouncedSearch(getContracts, loading)
   const totalCount = data?.contracts.metadata.totalCount
+
+  const getActions = (
+    contract: ContractForContractsListFragment,
+  ): ActionItem<ContractForContractsListFragment>[] => [
+    {
+      startIcon: 'duplicate',
+      title: translate('text_1789636691484c9hodzevcvd'),
+      dataTest: 'copy-contract-external-id',
+      onAction: () => {
+        copyToClipboard(contract.externalId)
+        addToast({
+          severity: 'info',
+          translateKey: 'text_1789636691484fyt51yyc9uh',
+        })
+      },
+    },
+    {
+      startIcon: 'trash',
+      title: translate('text_17896366914848hled21jz6q'),
+      dataTest: 'terminate-contract',
+      onAction: () => {
+        openTerminateContractDialog({ name: contract.name || contract.externalId })
+      },
+    },
+  ]
 
   const columns: TableColumn<ContractForContractsListFragment>[] = [
     {
@@ -110,7 +145,7 @@ const ContractsPage = (): JSX.Element => {
         entity={{
           viewName: translate('text_17894894166553ysarr965xr'),
           metadata: formatCountToMetadata(totalCount, translate),
-          metadataLoading: loading && totalCount === undefined,
+          metadataLoading: isLoading && totalCount === undefined,
         }}
         filtersSection={
           <div className="flex flex-col gap-3 md:flex-row md:items-center">
@@ -124,7 +159,7 @@ const ContractsPage = (): JSX.Element => {
       <PaginatedContent
         insetPager
         metadata={error ? undefined : data?.contracts.metadata}
-        loading={loading}
+        loading={isLoading}
         pageSize={pageSize}
         onPageChange={goToPage}
         onPageSizeChange={(size) => {
@@ -139,11 +174,13 @@ const ContractsPage = (): JSX.Element => {
           rowSize={48}
           containerSize={{ default: 16, md: 48 }}
           containerClassName="-mb-px h-auto shrink-0 border-t border-grey-300"
-          isLoading={loading}
+          isLoading={isLoading}
           loadingRowCount={pageSize}
           hasError={!!error}
           onRowActionLink={({ id }) => generatePath(CONTRACT_DETAILS_ROUTE, { id })}
           rowLinkLabel={({ name, externalId }) => name || externalId}
+          actionColumnTooltip={() => translate('text_1789637038124d2rpm0ng6c2')}
+          actionColumn={getActions}
           placeholder={{
             emptyState: {
               title: translate('text_1789030049530zaego9s9413'),
