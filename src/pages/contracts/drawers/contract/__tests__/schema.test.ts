@@ -4,6 +4,7 @@ const validValues = {
   externalCustomerId: 'customer-external-id',
   planCode: 'enterprise',
   name: '',
+  consolidateInvoice: true,
   startedAt: '2099-01-01T00:00:00.000Z',
   endedAt: '2099-02-01T00:00:00.000Z',
   billingAnchorDate: '2099-01-01T00:00:00.000Z',
@@ -45,6 +46,20 @@ describe('contractSchema', () => {
 
     expect(result.error.issues).toEqual(
       expect.arrayContaining([expect.objectContaining({ path: ['endedAt'] })]),
+    )
+  })
+
+  it('rejects a purchase order number longer than 255 characters', () => {
+    const result = contractSchema.safeParse({
+      ...validValues,
+      purchaseOrderNumber: 'a'.repeat(256),
+    })
+
+    expect(result.success).toBe(false)
+    if (result.success) return
+
+    expect(result.error.issues).toEqual(
+      expect.arrayContaining([expect.objectContaining({ path: ['purchaseOrderNumber'] })]),
     )
   })
 })

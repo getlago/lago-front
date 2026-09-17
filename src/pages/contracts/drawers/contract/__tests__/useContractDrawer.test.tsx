@@ -74,8 +74,16 @@ jest.mock('../ContractDrawerContent', () => ({
       type="button"
       onClick={() => {
         form.setFieldValue('externalCustomerId', 'customer-external-id')
+        form.setFieldValue('externalId', 'customer-contract-id')
         form.setFieldValue('planCode', 'enterprise')
         form.setFieldValue('name', 'Enterprise agreement')
+        form.setFieldValue('billingEntityId', 'billing-entity-1')
+        form.setFieldValue('consolidateInvoice', false)
+        form.setFieldValue('paymentMethod', {
+          paymentMethodId: 'payment-method-1',
+          paymentMethodType: 'provider',
+        })
+        form.setFieldValue('purchaseOrderNumber', '  PO-42  ')
         form.setFieldValue('startedAt', '2099-01-01T00:00:00.000Z')
         form.setFieldValue('endedAt', '2099-02-01T00:00:00.000Z')
         form.setFieldValue('billingAnchorDate', '2099-01-01T00:00:00.000Z')
@@ -141,7 +149,7 @@ describe('useContractDrawer', () => {
           createContract: {
             id: 'contract-1',
             name: 'Enterprise agreement',
-            externalId: '11111111-1111-4111-8111-111111111111',
+            externalId: 'customer-contract-id',
           },
         },
       },
@@ -156,9 +164,16 @@ describe('useContractDrawer', () => {
     await waitFor(() => expect(mockClose).toHaveBeenCalledTimes(1))
     expect(capturedInput).toEqual({
       externalCustomerId: 'customer-external-id',
-      externalId: '11111111-1111-4111-8111-111111111111',
+      externalId: 'customer-contract-id',
       planCode: 'enterprise',
       name: 'Enterprise agreement',
+      billingEntityId: 'billing-entity-1',
+      consolidateInvoice: false,
+      paymentMethod: {
+        paymentMethodId: 'payment-method-1',
+        paymentMethodType: 'provider',
+      },
+      purchaseOrderNumber: 'PO-42',
       startedAt: '2099-01-01T00:00:00.000Z',
       endedAt: '2099-02-01T00:00:00.000Z',
       billingAnchorDate: '2099-01-01',

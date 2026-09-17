@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon'
 import { z } from 'zod'
 
+import { addPurchaseOrderNumberMaxLengthIssue } from '~/components/purchaseOrder/validation'
 import { addUnsupportedDateIssue } from '~/formValidation/zodCustoms'
 
 import { ContractFormValues, VALUE_REQUIRED_KEY } from './constants'
@@ -52,6 +53,8 @@ export const contractSchema = z.custom<ContractFormValues>().superRefine((data, 
   } else {
     addUnsupportedDateIssue(ctx, data.billingAnchorDate, ['billingAnchorDate'])
   }
+
+  addPurchaseOrderNumberMaxLengthIssue(ctx, data.purchaseOrderNumber, ['purchaseOrderNumber'])
 
   if (!data.endedAt) return
 

@@ -16628,7 +16628,7 @@ export type GetCustomersForContractDrawerQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomersForContractDrawerQuery = { __typename?: 'Query', customers: { __typename?: 'CustomerCollection', collection: Array<{ __typename?: 'Customer', id: string, displayName: string, externalId: string, applicableTimezone: TimezoneEnum }> } };
+export type GetCustomersForContractDrawerQuery = { __typename?: 'Query', customers: { __typename?: 'CustomerCollection', collection: Array<{ __typename?: 'Customer', id: string, displayName: string, externalId: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } }> } };
 
 export type GetCatalogPlansForContractDrawerQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -44215,6 +44215,9 @@ export const GetCustomersForContractDrawerDocument = gql`
       displayName
       externalId
       applicableTimezone
+      billingEntity {
+        id
+      }
     }
   }
 }
