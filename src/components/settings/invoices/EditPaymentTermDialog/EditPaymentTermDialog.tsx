@@ -5,31 +5,24 @@ import { useRef } from 'react'
 import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { DialogResult } from '~/components/dialogs/types'
 import { PaymentTermFormContent } from '~/components/paymentTerms/PaymentTermFormContent'
-import {
-  PAYMENT_TERM_FORM_DEFAULT_VALUES,
-  PaymentTermFormValues,
-} from '~/components/paymentTerms/types'
+import { PAYMENT_TERM_FORM_DEFAULT_VALUES } from '~/components/paymentTerms/types'
 import { isConcreteTermType } from '~/components/paymentTerms/utils'
 import { paymentTermFormSchema } from '~/components/paymentTerms/validationSchema'
 import { addToast } from '~/core/apolloClient'
 import { MUI_INPUT_BASE_ROOT_CLASSNAME, PAYMENT_TERM_INPUT_CLASSNAME } from '~/core/constants/form'
-import {
-  DEFAULT_PAYMENT_TERM,
-  PAYMENT_TERM_DEFAULT_MONTH_OFFSET,
-  PAYMENT_TERM_INHERIT,
-} from '~/core/constants/paymentTerm'
 import { buildPaymentTermInput } from '~/core/utils/paymentTerm'
 import {
-  EditBillingEntityPaymentTermForDialogFragment,
-  EditCustomerPaymentTermForDialogFragment,
   useUpdateBillingEntityPaymentTermMutation,
   useUpdateCustomerPaymentTermMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
-export const EDIT_PAYMENT_TERM_FORM_ID = 'edit-payment-term-form'
-export const EDIT_PAYMENT_TERM_SUBMIT_BUTTON_TEST_ID = 'edit-payment-term-submit'
+import { EDIT_PAYMENT_TERM_SUBMIT_BUTTON_TEST_ID } from './dataTestConstants'
+import { EditPaymentTermDialogData, ModelData, PaymentTermModelTypesEnum } from './types'
+import { getInheritedFrom, getInitialFormValues, isCustomer } from './utils'
+
+const EDIT_PAYMENT_TERM_FORM_ID = 'edit-payment-term-form'
 
 gql`
   fragment EditCustomerPaymentTermForDialog on Customer {
@@ -77,55 +70,6 @@ gql`
     }
   }
 `
-
-enum PaymentTermModelTypesEnum {
-  Customer = 'Customer',
-  BillingEntity = 'BillingEntity',
-}
-
-type ModelData =
-  EditCustomerPaymentTermForDialogFragment | EditBillingEntityPaymentTermForDialogFragment
-
-const isCustomer = (model: ModelData): model is EditCustomerPaymentTermForDialogFragment =>
-  model.__typename === PaymentTermModelTypesEnum.Customer
-
-/**
- * The inherit choice, offered only on a level that has a parent to fall back to. The
- * billing entity is the last level of the chain, so it never gets one.
- */
-const getInheritedFrom = (model: ModelData | null) => {
-  if (!model || !isCustomer(model)) return undefined
-
-  return {
-    term: model.billingEntity?.paymentTerm ?? DEFAULT_PAYMENT_TERM,
-    labelKey: 'text_1728374331992d2alok9y3kr',
-  }
-}
-
-const getInitialFormValues = (
-  model: ModelData | null,
-  canInherit: boolean,
-): PaymentTermFormValues => {
-  const paymentTerm = model?.paymentTerm
-
-  if (!paymentTerm) {
-    return {
-      ...PAYMENT_TERM_FORM_DEFAULT_VALUES,
-      termType: canInherit ? PAYMENT_TERM_INHERIT : undefined,
-    }
-  }
-
-  return {
-    termType: paymentTerm.termType,
-    days: paymentTerm.days ?? PAYMENT_TERM_FORM_DEFAULT_VALUES.days,
-    dayOfMonth: paymentTerm.dayOfMonth ?? PAYMENT_TERM_FORM_DEFAULT_VALUES.dayOfMonth,
-    monthOffset: paymentTerm.monthOffset ?? PAYMENT_TERM_DEFAULT_MONTH_OFFSET,
-  }
-}
-
-type EditPaymentTermDialogData = {
-  model: ModelData | null | undefined
-}
 
 export const useEditPaymentTermDialog = () => {
   const formDialog = useFormDialog()

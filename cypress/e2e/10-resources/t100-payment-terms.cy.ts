@@ -5,7 +5,7 @@ import {
   PAYMENT_TERM_EDIT_BUTTON_TEST_ID,
   PAYMENT_TERM_SETTINGS_ROW_TEST_ID,
 } from '~/components/paymentTerms/dataTestConstants'
-import { EDIT_PAYMENT_TERM_SUBMIT_BUTTON_TEST_ID } from '~/components/settings/invoices/EditPaymentTermDialog'
+import { EDIT_PAYMENT_TERM_SUBMIT_BUTTON_TEST_ID } from '~/components/settings/invoices/EditPaymentTermDialog/dataTestConstants'
 import { PaymentTermTypeEnum } from '~/generated/graphql'
 
 import { customerName } from '../../support/reusableConstants'

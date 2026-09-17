@@ -4,7 +4,6 @@ import { useStore } from '@tanstack/react-form'
 import { Alert } from '~/components/designSystem/Alert'
 import { Typography } from '~/components/designSystem/Typography'
 import { PAYMENT_TERM_FIELDS_BY_TYPE } from '~/core/constants/paymentTerm'
-import { ResolvablePaymentTerm } from '~/core/utils/paymentTerm'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 import { usePaymentTerm } from '~/hooks/usePaymentTerm'
@@ -13,7 +12,7 @@ import {
   PAYMENT_TERM_DUE_DATE_PREVIEW_TEST_ID,
   PAYMENT_TERM_TYPE_COMBOBOX_TEST_CLASSNAME,
 } from './dataTestConstants'
-import { PAYMENT_TERM_FORM_DEFAULT_VALUES } from './types'
+import { PAYMENT_TERM_FORM_DEFAULT_VALUES, PaymentTermInheritedFrom } from './types'
 import { isConcreteTermType, paymentTermFromFormValues } from './utils'
 
 type PaymentTermFormContentExtraProps = {
@@ -21,7 +20,7 @@ type PaymentTermFormContentExtraProps = {
    * Prepends an inherit choice to the term type list, labelled with the value that would
    * be inherited. Omit it on a level that has no parent to fall back to.
    */
-  inheritedFrom?: { term: ResolvablePaymentTerm; labelKey: string }
+  inheritedFrom?: PaymentTermInheritedFrom
   /** Set when the form is rendered inside a dialog, so the popper escapes it. */
   displayInDialog?: boolean
 }

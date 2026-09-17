@@ -36,7 +36,7 @@ import {
   PAYMENT_TERM_SETTINGS_ROW_TEST_ID,
 } from '~/components/paymentTerms/dataTestConstants'
 import { useEditFinalizeZeroAmountInvoiceDialog } from '~/components/settings/invoices/EditFinalizeZeroAmountInvoiceDialog/EditFinalizeZeroAmountInvoiceDialog'
-import { useEditPaymentTermDialog } from '~/components/settings/invoices/EditPaymentTermDialog'
+import { useEditPaymentTermDialog } from '~/components/settings/invoices/EditPaymentTermDialog/EditPaymentTermDialog'
 import {
   INVOICE_ISSUING_DATE_ADJUSTMENT_SETTING_KEYS,
   INVOICE_ISSUING_DATE_ANCHOR_SETTING_KEYS,

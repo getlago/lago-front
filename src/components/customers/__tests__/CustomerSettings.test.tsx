@@ -105,7 +105,7 @@ jest.mock('~/components/customers/DeleteCustomerPaymentTermDialog', () => ({
   }),
 }))
 
-jest.mock('~/components/settings/invoices/EditPaymentTermDialog', () => ({
+jest.mock('~/components/settings/invoices/EditPaymentTermDialog/EditPaymentTermDialog', () => ({
   useEditPaymentTermDialog: () => ({
     openEditPaymentTermDialog: jest.fn(),
   }),

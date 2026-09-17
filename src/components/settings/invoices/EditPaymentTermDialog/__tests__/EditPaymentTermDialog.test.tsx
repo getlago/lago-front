@@ -18,10 +18,8 @@ import {
 } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
-import {
-  EDIT_PAYMENT_TERM_SUBMIT_BUTTON_TEST_ID,
-  useEditPaymentTermDialog,
-} from '../EditPaymentTermDialog'
+import { EDIT_PAYMENT_TERM_SUBMIT_BUTTON_TEST_ID } from '../dataTestConstants'
+import { useEditPaymentTermDialog } from '../EditPaymentTermDialog'
 
 jest.mock('@tanstack/react-virtual', () => ({
   useVirtualizer: ({ count }: { count: number }) => ({
