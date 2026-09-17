@@ -4958,5 +4958,10 @@
   "text_1789489416655gvo52mdwtur": "Search contracts",
   "text_1789489416655cg75diwmbkv": "Your customers’ contracts will appear here.",
   "text_1789636691484c9hodzevcvd": "Copy external ID",
-  "text_1789636691484fyt51yyc9uh": "External ID copied to clipboard"
+  "text_1789636691484fyt51yyc9uh": "External ID copied to clipboard",
+  "text_17896366914848hled21jz6q": "Terminate contract",
+  "text_1789636691484vy3pf1f7c2r": "Terminate {{contractName}}?",
+  "text_1789636691484w2nd40iyljv": "Terminating a contract stops future billing and cannot be undone.",
+  "text_1789636691484vv5ug3lqzuo": "Contract termination is not available yet.",
+  "text_1789637038124d2rpm0ng6c2": "Copy ID, terminate"
 }
