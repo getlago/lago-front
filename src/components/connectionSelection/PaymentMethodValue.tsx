@@ -2,10 +2,10 @@ import { Chip } from '~/components/designSystem/Chip'
 import { Typography } from '~/components/designSystem/Typography'
 import { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types'
 import { useResolvedPaymentMethodDisplay } from '~/components/paymentMethodSelection/useResolvedPaymentMethodDisplay'
-import { ConnectionResolvedBehaviorEnum } from '~/generated/graphql'
+import { ConnectionResolvedBehaviorEnum, PaymentMethodTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useCustomerConnectionPaymentMethods } from '~/hooks/customer/useCustomerConnectionPaymentMethods'
 import { useCustomerPaymentConnections } from '~/hooks/customer/useCustomerPaymentConnections'
-import { usePaymentMethodsList } from '~/hooks/customer/usePaymentMethodsList'
 
 import { ConnectionRoutingDisplay } from './ConnectionRoutingValue'
 
@@ -14,14 +14,12 @@ export const PAYMENT_METHOD_VALUE_INHERITED_TEST_ID = 'payment-method-value-inhe
 
 type PaymentMethodValueProps = {
   selectedPaymentMethod?: SelectedPaymentMethod
-  externalCustomerId?: string
   customerId?: string
   paymentRouting?: ConnectionRoutingDisplay
 }
 
 export const PaymentMethodValue = ({
   selectedPaymentMethod,
-  externalCustomerId,
   customerId,
   paymentRouting,
 }: PaymentMethodValueProps): JSX.Element => {
@@ -42,31 +40,36 @@ export const PaymentMethodValue = ({
 
   const resolvedConnection = getResolvedConnection()
 
-  const { data: customerPaymentMethods } = usePaymentMethodsList({
-    externalCustomerId: externalCustomerId || '',
-    withDeleted: false,
-    skip: !resolvedConnection,
+  const {
+    data: connectionPaymentMethods,
+    loading: loadingPaymentMethods,
+    error: paymentMethodsError,
+  } = useCustomerConnectionPaymentMethods({
+    customerId,
+    connectionId: resolvedConnection?.id,
   })
 
-  // A method belongs to one connection, so the customer-wide list is scoped the same way the
-  // edit drawer scopes it (ConnectionPaymentSettingsDrawerContent): without this the default
-  // card of another connection would be shown as the one paying this object.
-  const connectionPaymentMethods = resolvedConnection
-    ? customerPaymentMethods.filter(
-        (method) => method.paymentProviderCustomerId === resolvedConnection.id,
-      )
-    : []
-
-  const { isInherited, label } = useResolvedPaymentMethodDisplay(
+  const { isInherited, isManual, label } = useResolvedPaymentMethodDisplay(
     selectedPaymentMethod,
     connectionPaymentMethods,
   )
 
   const showInheritedLabel = isInherited && !isSkipped
 
+  // `useResolvedPaymentMethodDisplay` reports manual whenever nothing resolves, an inference the
+  // legacy surfaces rely on. Here the routing decides that, so a connection that simply has no
+  // method yet — or has not answered — must not read as a manual payment.
+  const isManualRouting =
+    isSkipped || selectedPaymentMethod?.paymentMethodType === PaymentMethodTypeEnum.Manual
+  const inferredManual = isManual && !isManualRouting
+  const displayedLabel =
+    inferredManual || loadingPaymentMethods || paymentMethodsError
+      ? translate('text_1754570508183hxl33n573yi')
+      : label
+
   return (
     <span className="flex items-center gap-2">
-      <Chip data-test={PAYMENT_METHOD_VALUE_CHIP_TEST_ID} label={label} />
+      <Chip data-test={PAYMENT_METHOD_VALUE_CHIP_TEST_ID} label={displayedLabel} />
 
       {showInheritedLabel && (
         <Typography

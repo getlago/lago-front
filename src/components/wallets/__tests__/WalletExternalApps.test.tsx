@@ -49,12 +49,12 @@ jest.mock('~/hooks/customer/useCustomerPaymentConnections', () => ({
   }),
 }))
 
-jest.mock('~/hooks/customer/usePaymentMethodsList', () => ({
-  usePaymentMethodsList: () => ({
+jest.mock('~/hooks/customer/useCustomerConnectionPaymentMethods', () => ({
+  useCustomerConnectionPaymentMethods: () => ({
     data: mockPaymentMethodsList,
     loading: false,
     error: false,
-    refetch: jest.fn(),
+    isComplete: true,
   }),
 }))
 

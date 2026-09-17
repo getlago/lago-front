@@ -50,12 +50,17 @@ jest.mock('~/hooks/customer/useCustomerPaymentConnections', () => ({
   }),
 }))
 
-jest.mock('~/hooks/customer/usePaymentMethodsList', () => ({
-  usePaymentMethodsList: () => ({
-    data: mockPaymentMethodsList,
+// The real hook is scoped by the backend, so the mock answers per connection too: returning the
+// whole list here would hide exactly the mix-up these cases guard.
+jest.mock('~/hooks/customer/useCustomerConnectionPaymentMethods', () => ({
+  useCustomerConnectionPaymentMethods: ({ connectionId }: { connectionId?: string }) => ({
+    data: mockPaymentMethodsList.filter(
+      (method: { paymentProviderCustomerId?: string | null }) =>
+        !method.paymentProviderCustomerId || method.paymentProviderCustomerId === connectionId,
+    ),
     loading: false,
     error: false,
-    refetch: jest.fn(),
+    isComplete: true,
   }),
 }))
 
@@ -80,7 +85,6 @@ describe('PaymentMethodValue', () => {
               paymentMethodType: PaymentMethodTypeEnum.Provider,
               paymentMethodId: paymentMethod.id,
             }}
-            externalCustomerId="ext-customer-1"
             customerId="customer-1"
           />,
         )
@@ -98,13 +102,7 @@ describe('PaymentMethodValue', () => {
           createMockPaymentMethod({ isDefault: true, paymentProviderCustomerId: CONNECTION_A.id }),
         ]
 
-        render(
-          <PaymentMethodValue
-            selectedPaymentMethod={undefined}
-            externalCustomerId="ext-customer-1"
-            customerId="customer-1"
-          />,
-        )
+        render(<PaymentMethodValue selectedPaymentMethod={undefined} customerId="customer-1" />)
 
         expect(screen.getByTestId(PAYMENT_METHOD_VALUE_CHIP_TEST_ID)).toBeInTheDocument()
         expect(screen.getByTestId(PAYMENT_METHOD_VALUE_INHERITED_TEST_ID)).toBeInTheDocument()
@@ -118,7 +116,6 @@ describe('PaymentMethodValue', () => {
         render(
           <PaymentMethodValue
             selectedPaymentMethod={{ paymentMethodType: PaymentMethodTypeEnum.Manual }}
-            externalCustomerId="ext-customer-1"
           />,
         )
 
@@ -142,7 +139,6 @@ describe('PaymentMethodValue', () => {
         render(
           <PaymentMethodValue
             selectedPaymentMethod={undefined}
-            externalCustomerId="ext-customer-1"
             customerId="customer-1"
             paymentRouting={{
               behavior: ConnectionResolvedBehaviorEnum.Specific,
@@ -168,7 +164,6 @@ describe('PaymentMethodValue', () => {
         render(
           <PaymentMethodValue
             selectedPaymentMethod={undefined}
-            externalCustomerId="ext-customer-1"
             customerId="customer-1"
             paymentRouting={{
               behavior: ConnectionResolvedBehaviorEnum.Specific,
@@ -190,7 +185,6 @@ describe('PaymentMethodValue', () => {
         render(
           <PaymentMethodValue
             selectedPaymentMethod={undefined}
-            externalCustomerId="ext-customer-1"
             customerId="customer-1"
             paymentRouting={{ behavior: ConnectionResolvedBehaviorEnum.Skip, code: null }}
           />,
@@ -198,6 +192,47 @@ describe('PaymentMethodValue', () => {
 
         expect(screen.queryByTestId(PAYMENT_METHOD_VALUE_INHERITED_TEST_ID)).not.toBeInTheDocument()
       })
+    })
+  })
+
+  describe('GIVEN a connection that resolves but owns no payment method', () => {
+    // `useResolvedPaymentMethodDisplay` reports manual whenever nothing resolves. The routing
+    // decides that here, so an empty connection must not read as a manual payment.
+    it('THEN should not claim the object is paid manually', () => {
+      mockPaymentMethodsList = []
+
+      render(
+        <PaymentMethodValue
+          selectedPaymentMethod={undefined}
+          customerId="customer-1"
+          paymentRouting={{
+            behavior: ConnectionResolvedBehaviorEnum.Specific,
+            code: CONNECTION_A.code,
+          }}
+        />,
+      )
+
+      expect(screen.getByTestId(PAYMENT_METHOD_VALUE_CHIP_TEST_ID)).not.toHaveTextContent(
+        'text_173799550683709p2rqkoqd5',
+      )
+    })
+  })
+
+  describe('GIVEN the routing itself skips the payment category', () => {
+    it('THEN should still say the object is paid manually', () => {
+      mockPaymentMethodsList = []
+
+      render(
+        <PaymentMethodValue
+          selectedPaymentMethod={undefined}
+          customerId="customer-1"
+          paymentRouting={{ behavior: ConnectionResolvedBehaviorEnum.Skip }}
+        />,
+      )
+
+      expect(screen.getByTestId(PAYMENT_METHOD_VALUE_CHIP_TEST_ID)).toHaveTextContent(
+        'text_173799550683709p2rqkoqd5',
+      )
     })
   })
 })

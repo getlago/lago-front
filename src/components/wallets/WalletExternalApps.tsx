@@ -49,7 +49,6 @@ const WalletExternalApps = ({ wallet, canEditWallet }: WalletExternalAppsProps):
       <ConnectionSettingsSections
         connections={wallet.connections}
         customerId={customerId}
-        externalCustomerId={wallet.customer?.externalId}
         selectedPaymentMethod={{
           paymentMethodType: wallet.paymentMethodType,
           paymentMethodId: wallet.paymentMethod?.id,

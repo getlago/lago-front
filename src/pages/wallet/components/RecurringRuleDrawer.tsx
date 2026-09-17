@@ -130,7 +130,6 @@ const RecurringRuleDrawerContent = withForm({
         <ConnectionPaymentSettingsSelector
           viewType={ViewTypeEnum.WalletRecurringTopUp}
           customerId={customerId}
-          externalCustomerId={externalCustomerId}
           connection={rule.paymentConnection}
           paymentMethod={rule.paymentMethod}
           onChange={({ connection, paymentMethod }) => {

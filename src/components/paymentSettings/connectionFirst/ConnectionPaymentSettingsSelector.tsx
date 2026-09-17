@@ -26,7 +26,6 @@ export const CONNECTION_SUMMARY_KEY_BY_BEHAVIOR: Record<ConnectionBehavior, stri
 interface ConnectionPaymentSettingsSelectorProps {
   viewType: ViewTypeEnum
   customerId: string
-  externalCustomerId: string
   connection: SelectedConnection
   paymentMethod: SelectedPaymentMethod
   onChange: (values: ConnectionPaymentSettingsValues) => void
@@ -51,7 +50,6 @@ const seedConnection = (
 export const ConnectionPaymentSettingsSelector = ({
   viewType,
   customerId,
-  externalCustomerId,
   connection,
   paymentMethod,
   onChange,
@@ -62,7 +60,6 @@ export const ConnectionPaymentSettingsSelector = ({
   const { openDrawer } = useConnectionPaymentSettingsDrawer({
     viewType,
     customerId,
-    externalCustomerId,
     onSave: onChange,
   })
 

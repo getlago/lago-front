@@ -40,6 +40,8 @@ const mockConnections = { current: [STRIPE_CONNECTION] as CustomerPaymentConnect
 const mockIsDefaultManual = { current: false }
 const mockConnectionsLoading = { current: false }
 const mockPaymentMethodsError = { current: false }
+const mockMethodsComplete = { current: true }
+const mockMethodsArgs: { current: Record<string, unknown> | null } = { current: null }
 const mockPaymentMethods = {
   current: [] as Array<{ id: string; isDefault: boolean; paymentProviderCustomerId: string }>,
 }
@@ -67,13 +69,17 @@ jest.mock('~/hooks/customer/useCustomerPaymentConnections', () => ({
   }),
 }))
 
-jest.mock('~/hooks/customer/usePaymentMethodsList', () => ({
-  usePaymentMethodsList: () => ({
-    data: mockPaymentMethods.current,
-    loading: false,
-    error: mockPaymentMethodsError.current,
-    refetch: jest.fn(),
-  }),
+jest.mock('~/hooks/customer/useCustomerConnectionPaymentMethods', () => ({
+  useCustomerConnectionPaymentMethods: (args: Record<string, unknown>) => {
+    mockMethodsArgs.current = args
+
+    return {
+      data: mockPaymentMethods.current,
+      loading: false,
+      error: mockPaymentMethodsError.current,
+      isComplete: mockMethodsComplete.current,
+    }
+  },
 }))
 
 jest.mock('../ConnectionPaymentMethodFields', () => ({
@@ -99,7 +105,6 @@ const openDrawerFromSelector = async (
     <ConnectionPaymentSettingsSelector
       viewType={ViewTypeEnum.WalletTopUp}
       customerId="customer-1"
-      externalCustomerId="ext-customer-1"
       connection={undefined}
       paymentMethod={undefined}
       onChange={onChange}
@@ -121,6 +126,7 @@ describe('ConnectionPaymentSettingsSelector', () => {
     mockIsDefaultManual.current = false
     mockConnectionsLoading.current = false
     mockPaymentMethodsError.current = false
+    mockMethodsComplete.current = true
     mockPaymentMethods.current = []
     mockPaymentMethodFieldsProps.current = null
   })
@@ -132,7 +138,6 @@ describe('ConnectionPaymentSettingsSelector', () => {
           <ConnectionPaymentSettingsSelector
             viewType={ViewTypeEnum.WalletTopUp}
             customerId="customer-1"
-            externalCustomerId="ext-customer-1"
             connection={{ code: 'stripe-connection' }}
             paymentMethod={undefined}
             onChange={jest.fn()}
@@ -146,7 +151,6 @@ describe('ConnectionPaymentSettingsSelector', () => {
           <ConnectionPaymentSettingsSelector
             viewType={ViewTypeEnum.WalletTopUp}
             customerId="customer-1"
-            externalCustomerId="ext-customer-1"
             connection={{ code: 'stripe-connection' }}
             paymentMethod={undefined}
             onChange={jest.fn()}
@@ -164,7 +168,6 @@ describe('ConnectionPaymentSettingsSelector', () => {
           <ConnectionPaymentSettingsSelector
             viewType={ViewTypeEnum.WalletTopUp}
             customerId="customer-1"
-            externalCustomerId="ext-customer-1"
             connection={undefined}
             paymentMethod={undefined}
             onChange={jest.fn()}
@@ -183,7 +186,6 @@ describe('ConnectionPaymentSettingsSelector', () => {
           <ConnectionPaymentSettingsSelector
             viewType={ViewTypeEnum.WalletTopUp}
             customerId="customer-1"
-            externalCustomerId="ext-customer-1"
             connection={undefined}
             paymentMethod={undefined}
             onChange={jest.fn()}
@@ -334,7 +336,6 @@ describe('ConnectionPaymentSettingsSelector', () => {
           <ConnectionPaymentSettingsSelector
             viewType={ViewTypeEnum.WalletTopUp}
             customerId="customer-1"
-            externalCustomerId="ext-customer-1"
             connection={connection}
             paymentMethod={undefined}
             onChange={jest.fn()}
@@ -358,7 +359,6 @@ describe('ConnectionPaymentSettingsSelector', () => {
           <ConnectionPaymentSettingsSelector
             viewType={ViewTypeEnum.WalletTopUp}
             customerId="customer-1"
-            externalCustomerId="ext-customer-1"
             connection={undefined}
             paymentMethod={MANUAL_PAYMENT_METHOD}
             onChange={jest.fn()}
@@ -438,19 +438,17 @@ describe('ConnectionPaymentSettingsSelector', () => {
 
   describe('GIVEN payment methods spread across several connections', () => {
     describe('WHEN a connection resolves', () => {
-      it('THEN should offer only the methods belonging to it', async () => {
-        mockPaymentMethods.current = [
-          { id: 'pm-own', isDefault: true, paymentProviderCustomerId: STRIPE_CONNECTION.id },
-          { id: 'pm-other', isDefault: true, paymentProviderCustomerId: 'conn-other' },
-        ]
-
+      // A customer-wide page cannot answer for a connection: it is capped, so a method past the cap
+      // would read as belonging to no connection at all.
+      it('THEN should ask for that connection rather than filter a customer-wide list', async () => {
         const { opened } = await openDrawerFromSelector()
 
         render(<>{opened.children}</>)
 
-        expect(mockPaymentMethodFieldsProps.current?.paymentMethodsList).toEqual([
-          { id: 'pm-own', isDefault: true, paymentProviderCustomerId: STRIPE_CONNECTION.id },
-        ])
+        expect(mockMethodsArgs.current).toEqual({
+          customerId: 'customer-1',
+          connectionId: STRIPE_CONNECTION.id,
+        })
       })
     })
   })

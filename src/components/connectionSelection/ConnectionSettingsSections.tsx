@@ -45,7 +45,6 @@ const SectionHeader = ({ title, description, action }: SectionHeaderProps): JSX.
 type ConnectionSettingsSectionsProps = {
   connections?: ConnectionRoutingRow[] | null
   customerId?: string
-  externalCustomerId?: string
   selectedPaymentMethod?: SelectedPaymentMethod
   paymentDescription: string
   additionalDescription: string
@@ -57,7 +56,6 @@ type ConnectionSettingsSectionsProps = {
 export const ConnectionSettingsSections = ({
   connections,
   customerId,
-  externalCustomerId,
   selectedPaymentMethod,
   paymentDescription,
   additionalDescription,
@@ -99,7 +97,6 @@ export const ConnectionSettingsSections = ({
               value: (
                 <PaymentMethodValue
                   selectedPaymentMethod={selectedPaymentMethod}
-                  externalCustomerId={externalCustomerId}
                   customerId={customerId}
                   paymentRouting={findConnectionRouting(
                     connections,

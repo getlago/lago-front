@@ -311,7 +311,6 @@ const RecurringRuleConnectionSections = ({
     <ConnectionSettingsSections
       connections={rule.connections}
       customerId={customerId}
-      externalCustomerId={wallet.customer?.externalId}
       selectedPaymentMethod={{
         paymentMethodType: rule.paymentMethodType,
         paymentMethodId: rule.paymentMethod?.id,

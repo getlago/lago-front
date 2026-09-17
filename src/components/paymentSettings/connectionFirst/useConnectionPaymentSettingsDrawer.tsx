@@ -20,7 +20,6 @@ const CONNECTION_PAYMENT_SETTINGS_SAVE_TEST_ID = 'connection-payment-settings-dr
 interface UseConnectionPaymentSettingsDrawerProps {
   viewType: ViewTypeEnum
   customerId: string
-  externalCustomerId: string
   onSave: (values: ConnectionPaymentSettingsValues) => void | Promise<void>
 }
 
@@ -31,7 +30,6 @@ interface UseConnectionPaymentSettingsDrawerReturn {
 export const useConnectionPaymentSettingsDrawer = ({
   viewType,
   customerId,
-  externalCustomerId,
   onSave,
 }: UseConnectionPaymentSettingsDrawerProps): UseConnectionPaymentSettingsDrawerReturn => {
   const { translate } = useInternationalization()
@@ -69,7 +67,6 @@ export const useConnectionPaymentSettingsDrawer = ({
           form={form}
           viewType={viewType}
           customerId={customerId}
-          externalCustomerId={externalCustomerId}
         />
       ),
       mainAction: (

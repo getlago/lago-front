@@ -14867,6 +14867,14 @@ export type ConnectionPaymentMethodsQueryVariables = Exact<{
 
 export type ConnectionPaymentMethodsQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, providerCustomer?: { __typename?: 'ProviderCustomer', id: string, paymentMethods: { __typename?: 'PaymentMethodCollection', collection: Array<{ __typename?: 'PaymentMethod', id: string, isDefault: boolean, paymentProviderCode?: string | null, paymentProviderCustomerId?: string | null, paymentProviderType?: ProviderTypeEnum | null, paymentProviderName?: string | null, providerMethodId: string, deletedAt?: any | null, createdAt: any, details?: { __typename?: 'PaymentMethodDetails', brand?: string | null, expirationYear?: string | null, expirationMonth?: string | null, last4?: string | null, type?: string | null } | null }> } } | null } | null };
 
+export type CustomerConnectionPaymentMethodsQueryVariables = Exact<{
+  customerId: Scalars['ID']['input'];
+  limit: Scalars['Int']['input'];
+}>;
+
+
+export type CustomerConnectionPaymentMethodsQuery = { __typename?: 'Query', customer?: { __typename?: 'Customer', id: string, paymentProviderCustomers: Array<{ __typename?: 'ProviderCustomer', id: string, paymentMethods: { __typename?: 'PaymentMethodCollection', collection: Array<{ __typename?: 'PaymentMethod', id: string, isDefault: boolean, paymentProviderCode?: string | null, paymentProviderCustomerId?: string | null, paymentProviderType?: ProviderTypeEnum | null, paymentProviderName?: string | null, providerMethodId: string, deletedAt?: any | null, createdAt: any, details?: { __typename?: 'PaymentMethodDetails', brand?: string | null, expirationYear?: string | null, expirationMonth?: string | null, last4?: string | null, type?: string | null } | null }>, metadata: { __typename?: 'CollectionMetadata', totalCount: number } } }> } | null };
+
 export type CustomerIntegrationConnectionsQueryVariables = Exact<{
   customerId: Scalars['ID']['input'];
 }>;
@@ -36402,6 +36410,61 @@ export type ConnectionPaymentMethodsQueryHookResult = ReturnType<typeof useConne
 export type ConnectionPaymentMethodsLazyQueryHookResult = ReturnType<typeof useConnectionPaymentMethodsLazyQuery>;
 export type ConnectionPaymentMethodsSuspenseQueryHookResult = ReturnType<typeof useConnectionPaymentMethodsSuspenseQuery>;
 export type ConnectionPaymentMethodsQueryResult = Apollo.QueryResult<ConnectionPaymentMethodsQuery, ConnectionPaymentMethodsQueryVariables>;
+export const CustomerConnectionPaymentMethodsDocument = gql`
+    query CustomerConnectionPaymentMethods($customerId: ID!, $limit: Int!) {
+  customer(id: $customerId) {
+    id
+    paymentProviderCustomers {
+      id
+      paymentMethods(withDeleted: false, limit: $limit) {
+        collection {
+          ...PaymentMethodItem
+        }
+        metadata {
+          totalCount
+        }
+      }
+    }
+  }
+}
+    ${PaymentMethodItemFragmentDoc}`;
+
+/**
+ * __useCustomerConnectionPaymentMethodsQuery__
+ *
+ * To run a query within a React component, call `useCustomerConnectionPaymentMethodsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCustomerConnectionPaymentMethodsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCustomerConnectionPaymentMethodsQuery({
+ *   variables: {
+ *      customerId: // value for 'customerId'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useCustomerConnectionPaymentMethodsQuery(baseOptions: Apollo.QueryHookOptions<CustomerConnectionPaymentMethodsQuery, CustomerConnectionPaymentMethodsQueryVariables> & ({ variables: CustomerConnectionPaymentMethodsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CustomerConnectionPaymentMethodsQuery, CustomerConnectionPaymentMethodsQueryVariables>(CustomerConnectionPaymentMethodsDocument, options);
+      }
+export function useCustomerConnectionPaymentMethodsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CustomerConnectionPaymentMethodsQuery, CustomerConnectionPaymentMethodsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CustomerConnectionPaymentMethodsQuery, CustomerConnectionPaymentMethodsQueryVariables>(CustomerConnectionPaymentMethodsDocument, options);
+        }
+// @ts-ignore
+export function useCustomerConnectionPaymentMethodsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<CustomerConnectionPaymentMethodsQuery, CustomerConnectionPaymentMethodsQueryVariables>): Apollo.UseSuspenseQueryResult<CustomerConnectionPaymentMethodsQuery, CustomerConnectionPaymentMethodsQueryVariables>;
+export function useCustomerConnectionPaymentMethodsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CustomerConnectionPaymentMethodsQuery, CustomerConnectionPaymentMethodsQueryVariables>): Apollo.UseSuspenseQueryResult<CustomerConnectionPaymentMethodsQuery | undefined, CustomerConnectionPaymentMethodsQueryVariables>;
+export function useCustomerConnectionPaymentMethodsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<CustomerConnectionPaymentMethodsQuery, CustomerConnectionPaymentMethodsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<CustomerConnectionPaymentMethodsQuery, CustomerConnectionPaymentMethodsQueryVariables>(CustomerConnectionPaymentMethodsDocument, options);
+        }
+export type CustomerConnectionPaymentMethodsQueryHookResult = ReturnType<typeof useCustomerConnectionPaymentMethodsQuery>;
+export type CustomerConnectionPaymentMethodsLazyQueryHookResult = ReturnType<typeof useCustomerConnectionPaymentMethodsLazyQuery>;
+export type CustomerConnectionPaymentMethodsSuspenseQueryHookResult = ReturnType<typeof useCustomerConnectionPaymentMethodsSuspenseQuery>;
+export type CustomerConnectionPaymentMethodsQueryResult = Apollo.QueryResult<CustomerConnectionPaymentMethodsQuery, CustomerConnectionPaymentMethodsQueryVariables>;
 export const CustomerIntegrationConnectionsDocument = gql`
     query CustomerIntegrationConnections($customerId: ID!) {
   customer(id: $customerId) {
