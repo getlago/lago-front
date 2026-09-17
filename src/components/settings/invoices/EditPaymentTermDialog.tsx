@@ -4,6 +4,7 @@ import { useRef } from 'react'
 
 import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { DialogResult } from '~/components/dialogs/types'
+import { EDIT_PAYMENT_TERM_SUBMIT_BUTTON_TEST_ID } from '~/components/paymentTerms/dataTestConstants'
 import { PaymentTermFormContent } from '~/components/paymentTerms/PaymentTermFormContent'
 import {
   PAYMENT_TERM_FORM_DEFAULT_VALUES,
@@ -29,7 +30,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
 export const EDIT_PAYMENT_TERM_FORM_ID = 'edit-payment-term-form'
-export const EDIT_PAYMENT_TERM_SUBMIT_BUTTON_TEST_ID = 'edit-payment-term-submit'
 
 gql`
   fragment EditCustomerPaymentTermForDialog on Customer {
