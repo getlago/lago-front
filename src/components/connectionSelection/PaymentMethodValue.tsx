@@ -54,24 +54,27 @@ export const PaymentMethodValue = ({
     connectionPaymentMethods,
   )
 
-  const showInheritedLabel = isInherited && !isSkipped
-
   // `useResolvedPaymentMethodDisplay` reports manual whenever nothing resolves, an inference the
   // legacy surfaces rely on. Here the routing decides that, so a connection that simply has no
   // method yet — or has not answered — must not read as a manual payment.
   const isManualRouting =
     isSkipped || selectedPaymentMethod?.paymentMethodType === PaymentMethodTypeEnum.Manual
-  const inferredManual = isManual && !isManualRouting
-  const displayedLabel =
-    inferredManual || loadingPaymentMethods || paymentMethodsError
-      ? translate('text_1754570508183hxl33n573yi')
-      : label
+  const hasMethod = !loadingPaymentMethods && !paymentMethodsError && (isManualRouting || !isManual)
+
+  // Nothing pays this object: no chip to carry a value, and nothing for it to inherit from.
+  if (!hasMethod) {
+    return (
+      <Typography variant="body" color="grey700" component="span">
+        {translate('text_1754570508183hxl33n573yi')}
+      </Typography>
+    )
+  }
 
   return (
     <span className="flex items-center gap-2">
-      <Chip data-test={PAYMENT_METHOD_VALUE_CHIP_TEST_ID} label={displayedLabel} />
+      <Chip data-test={PAYMENT_METHOD_VALUE_CHIP_TEST_ID} label={label} />
 
-      {showInheritedLabel && (
+      {isInherited && !isSkipped && (
         <Typography
           data-test={PAYMENT_METHOD_VALUE_INHERITED_TEST_ID}
           variant="body"

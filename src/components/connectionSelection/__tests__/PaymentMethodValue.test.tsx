@@ -40,11 +40,13 @@ const CONNECTION_B = {
   isDefault: false,
 }
 
+let mockConnections: Array<typeof CONNECTION_A> = [CONNECTION_A, CONNECTION_B]
+
 jest.mock('~/hooks/customer/useCustomerPaymentConnections', () => ({
   useCustomerPaymentConnections: () => ({
-    connections: [CONNECTION_A, CONNECTION_B],
+    connections: mockConnections,
     options: [],
-    defaultConnection: CONNECTION_A,
+    defaultConnection: mockConnections.find((connection) => connection.isDefault),
     isDefaultManual: false,
     loading: false,
   }),
@@ -68,6 +70,7 @@ describe('PaymentMethodValue', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockPaymentMethodsList = []
+    mockConnections = [CONNECTION_A, CONNECTION_B]
   })
 
   describe('GIVEN the object selects a specific provider method', () => {
@@ -147,7 +150,7 @@ describe('PaymentMethodValue', () => {
           />,
         )
 
-        expect(screen.getByTestId(PAYMENT_METHOD_VALUE_CHIP_TEST_ID)).not.toHaveTextContent('4242')
+        expect(screen.queryByTestId(PAYMENT_METHOD_VALUE_CHIP_TEST_ID)).not.toBeInTheDocument()
       })
     })
 
@@ -212,9 +215,8 @@ describe('PaymentMethodValue', () => {
         />,
       )
 
-      expect(screen.getByTestId(PAYMENT_METHOD_VALUE_CHIP_TEST_ID)).not.toHaveTextContent(
-        'text_173799550683709p2rqkoqd5',
-      )
+      expect(screen.queryByTestId(PAYMENT_METHOD_VALUE_CHIP_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.queryByTestId(PAYMENT_METHOD_VALUE_INHERITED_TEST_ID)).not.toBeInTheDocument()
     })
   })
 
@@ -233,6 +235,21 @@ describe('PaymentMethodValue', () => {
       expect(screen.getByTestId(PAYMENT_METHOD_VALUE_CHIP_TEST_ID)).toHaveTextContent(
         'text_173799550683709p2rqkoqd5',
       )
+    })
+  })
+
+  describe('GIVEN a customer with no connection at all', () => {
+    // Nothing resolves, so there is no value to put in a chip and nothing to inherit from: the
+    // row reads as a plain dash.
+    it('THEN should show neither a chip nor the customer-default label', () => {
+      mockConnections = []
+      mockPaymentMethodsList = []
+
+      render(<PaymentMethodValue selectedPaymentMethod={undefined} customerId="customer-1" />)
+
+      expect(screen.queryByTestId(PAYMENT_METHOD_VALUE_CHIP_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.queryByTestId(PAYMENT_METHOD_VALUE_INHERITED_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.getByText('text_1754570508183hxl33n573yi')).toBeInTheDocument()
     })
   })
 })
