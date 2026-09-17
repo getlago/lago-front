@@ -1,6 +1,6 @@
 import NiceModal from '@ebay/nice-modal-react'
 import { cleanup, screen, waitFor } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+import userEvent, { UserEvent } from '@testing-library/user-event'
 
 import {
   FORM_DIALOG_CANCEL_BUTTON_TEST_ID,
@@ -66,6 +66,14 @@ const Harness = ({ data }: { data: EditBillingEntityInvoiceNumberingDialogData }
 
 const getSubmitButton = () => document.querySelector('button[type="submit"]') as HTMLButtonElement
 const getPrefixInput = () => screen.getAllByRole('textbox')[0]
+
+// Pasted in one event: the preview subscription re-renders on every keystroke, and
+// `user.type` loses characters to the element it remounts underneath.
+const setPrefix = async (user: UserEvent, value: string): Promise<void> => {
+  await user.clear(getPrefixInput())
+
+  if (value) await user.paste(value)
+}
 
 // The design-system radio is read-only and renders its selection as a filled circle.
 const isNumberingChecked = (value: BillingEntityDocumentNumberingEnum): boolean =>
@@ -141,8 +149,7 @@ describe('useEditBillingEntityInvoiceNumberingDialog', () => {
       it('THEN should keep the submit button disabled', async () => {
         const { user } = await prepare()
 
-        await user.clear(getPrefixInput())
-        await user.type(getPrefixInput(), 'ABCDEFGHIJK')
+        await setPrefix(user, 'ABCDEFGHIJK')
 
         await user.click(getSubmitButton())
 
@@ -156,7 +163,7 @@ describe('useEditBillingEntityInvoiceNumberingDialog', () => {
       it('THEN should keep the submit button disabled', async () => {
         const { user } = await prepare()
 
-        await user.clear(getPrefixInput())
+        await setPrefix(user, '')
 
         await user.click(getSubmitButton())
 
@@ -174,8 +181,11 @@ describe('useEditBillingEntityInvoiceNumberingDialog', () => {
           mocks: [buildMutationMock(BillingEntityDocumentNumberingEnum.PerCustomer, 'NEW')],
         })
 
-        await user.clear(getPrefixInput())
-        await user.type(getPrefixInput(), 'NEW')
+        await setPrefix(user, 'NEW')
+
+        await waitFor(() => {
+          expect(getSubmitButton()).not.toBeDisabled()
+        })
 
         await user.click(getSubmitButton())
 
@@ -209,8 +219,7 @@ describe('useEditBillingEntityInvoiceNumberingDialog', () => {
       it('THEN should reset the form to the seeded values', async () => {
         const { user } = await prepare()
 
-        await user.clear(getPrefixInput())
-        await user.type(getPrefixInput(), 'CHANGED')
+        await setPrefix(user, 'CHANGED')
         expect(getPrefixInput()).toHaveValue('CHANGED')
 
         await user.click(screen.getByTestId(FORM_DIALOG_CANCEL_BUTTON_TEST_ID))

@@ -1,6 +1,6 @@
 import NiceModal from '@ebay/nice-modal-react'
 import { cleanup, screen, waitFor } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+import userEvent, { UserEvent } from '@testing-library/user-event'
 
 import {
   FORM_DIALOG_CANCEL_BUTTON_TEST_ID,
@@ -65,6 +65,11 @@ const Harness = ({ invoiceGracePeriod }: { invoiceGracePeriod: number }) => {
 
 const getSubmitButton = () => document.querySelector('button[type="submit"]') as HTMLButtonElement
 
+const setGracePeriod = async (user: UserEvent, value: string): Promise<void> => {
+  await user.clear(screen.getByRole('textbox'))
+  await user.paste(value)
+}
+
 async function prepare({
   invoiceGracePeriod = 10,
   mocks = [],
@@ -123,10 +128,7 @@ describe('useEditBillingEntityGracePeriodDialog', () => {
       it('THEN should keep the submit button disabled', async () => {
         const { user } = await prepare()
 
-        const input = screen.getByRole('textbox')
-
-        await user.clear(input)
-        await user.type(input, '400')
+        await setGracePeriod(user, '400')
 
         await user.click(getSubmitButton())
 
@@ -145,10 +147,7 @@ describe('useEditBillingEntityGracePeriodDialog', () => {
           mocks: [buildMutationMock(30)],
         })
 
-        const input = screen.getByRole('textbox')
-
-        await user.clear(input)
-        await user.type(input, '30')
+        await setGracePeriod(user, '30')
 
         await user.click(getSubmitButton())
 
@@ -179,11 +178,8 @@ describe('useEditBillingEntityGracePeriodDialog', () => {
       it('THEN should reset the form to the seeded value', async () => {
         const { user } = await prepare({ invoiceGracePeriod: 7 })
 
-        const input = screen.getByRole('textbox')
-
-        await user.clear(input)
-        await user.type(input, '21')
-        expect(input).toHaveValue('21')
+        await setGracePeriod(user, '21')
+        expect(screen.getByRole('textbox')).toHaveValue('21')
 
         await user.click(screen.getByTestId(FORM_DIALOG_CANCEL_BUTTON_TEST_ID))
 
