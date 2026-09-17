@@ -13469,6 +13469,17 @@ export type VoidCreditNoteMutationVariables = Exact<{
 
 export type VoidCreditNoteMutation = { __typename?: 'Mutation', voidCreditNote?: { __typename?: 'CreditNote', id: string } | null };
 
+export type ContractForCustomerContractsListFragment = { __typename?: 'Contract', id: string, name?: string | null, externalId: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null };
+
+export type GetCustomerContractsListQueryVariables = Exact<{
+  externalCustomerId: Scalars['String']['input'];
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetCustomerContractsListQuery = { __typename?: 'Query', contracts: { __typename?: 'ContractCollection', collection: Array<{ __typename?: 'Contract', id: string, name?: string | null, externalId: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
+
 export type GetCustomerOverdueBalancesQueryVariables = Exact<{
   externalCustomerId: Scalars['String']['input'];
   currency?: InputMaybe<CurrencyEnum>;
@@ -19432,6 +19443,16 @@ export const CreditNoteForVoidCreditNoteDialogFragmentDoc = gql`
   id
   totalAmountCents
   currency
+}
+    `;
+export const ContractForCustomerContractsListFragmentDoc = gql`
+    fragment ContractForCustomerContractsList on Contract {
+  id
+  name
+  externalId
+  status
+  startedAt
+  endedAt
 }
     `;
 export const EditCustomerIssuingDatePolicyDialogFragmentDoc = gql`
@@ -29749,6 +29770,58 @@ export function useVoidCreditNoteMutation(baseOptions?: Apollo.MutationHookOptio
 export type VoidCreditNoteMutationHookResult = ReturnType<typeof useVoidCreditNoteMutation>;
 export type VoidCreditNoteMutationResult = Apollo.MutationResult<VoidCreditNoteMutation>;
 export type VoidCreditNoteMutationOptions = Apollo.BaseMutationOptions<VoidCreditNoteMutation, VoidCreditNoteMutationVariables>;
+export const GetCustomerContractsListDocument = gql`
+    query getCustomerContractsList($externalCustomerId: String!, $page: Int, $limit: Int) {
+  contracts(externalCustomerId: $externalCustomerId, page: $page, limit: $limit) {
+    collection {
+      ...ContractForCustomerContractsList
+    }
+    metadata {
+      currentPage
+      totalPages
+      totalCount
+    }
+  }
+}
+    ${ContractForCustomerContractsListFragmentDoc}`;
+
+/**
+ * __useGetCustomerContractsListQuery__
+ *
+ * To run a query within a React component, call `useGetCustomerContractsListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCustomerContractsListQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCustomerContractsListQuery({
+ *   variables: {
+ *      externalCustomerId: // value for 'externalCustomerId'
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetCustomerContractsListQuery(baseOptions: Apollo.QueryHookOptions<GetCustomerContractsListQuery, GetCustomerContractsListQueryVariables> & ({ variables: GetCustomerContractsListQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetCustomerContractsListQuery, GetCustomerContractsListQueryVariables>(GetCustomerContractsListDocument, options);
+      }
+export function useGetCustomerContractsListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetCustomerContractsListQuery, GetCustomerContractsListQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetCustomerContractsListQuery, GetCustomerContractsListQueryVariables>(GetCustomerContractsListDocument, options);
+        }
+// @ts-ignore
+export function useGetCustomerContractsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetCustomerContractsListQuery, GetCustomerContractsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerContractsListQuery, GetCustomerContractsListQueryVariables>;
+export function useGetCustomerContractsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerContractsListQuery, GetCustomerContractsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetCustomerContractsListQuery | undefined, GetCustomerContractsListQueryVariables>;
+export function useGetCustomerContractsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetCustomerContractsListQuery, GetCustomerContractsListQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetCustomerContractsListQuery, GetCustomerContractsListQueryVariables>(GetCustomerContractsListDocument, options);
+        }
+export type GetCustomerContractsListQueryHookResult = ReturnType<typeof useGetCustomerContractsListQuery>;
+export type GetCustomerContractsListLazyQueryHookResult = ReturnType<typeof useGetCustomerContractsListLazyQuery>;
+export type GetCustomerContractsListSuspenseQueryHookResult = ReturnType<typeof useGetCustomerContractsListSuspenseQuery>;
+export type GetCustomerContractsListQueryResult = Apollo.QueryResult<GetCustomerContractsListQuery, GetCustomerContractsListQueryVariables>;
 export const GetCustomerOverdueBalancesDocument = gql`
     query getCustomerOverdueBalances($externalCustomerId: String!, $currency: CurrencyEnum, $expireCache: Boolean) {
   paymentRequests(externalCustomerId: $externalCustomerId) {
