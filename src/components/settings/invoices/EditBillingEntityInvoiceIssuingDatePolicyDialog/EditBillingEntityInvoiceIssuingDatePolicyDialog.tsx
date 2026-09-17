@@ -12,11 +12,12 @@ import { addToast } from '~/core/apolloClient'
 import {
   BillingEntitySubscriptionInvoiceIssuingDateAdjustmentEnum,
   BillingEntitySubscriptionInvoiceIssuingDateAnchorEnum,
-  EditBillingEntityInvoiceIssuingDatePolicyDialogFragment,
   useUpdateBillingEntityInvoiceIssuingDatePolicyMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
+
+import { EditBillingEntityInvoiceIssuingDatePolicyDialogData } from './types'
 
 gql`
   fragment EditBillingEntityInvoiceIssuingDatePolicyDialog on BillingEntity {
@@ -38,10 +39,6 @@ gql`
 
 export const EDIT_BILLING_ENTITY_INVOICE_ISSUING_DATE_POLICY_FORM_ID =
   'edit-billing-entity-invoice-issuing-date-policy-form'
-
-type EditBillingEntityInvoiceIssuingDatePolicyDialogData = {
-  billingEntity: EditBillingEntityInvoiceIssuingDatePolicyDialogFragment
-}
 
 export const useEditBillingEntityInvoiceIssuingDatePolicyDialog = () => {
   const formDialog = useFormDialog()
