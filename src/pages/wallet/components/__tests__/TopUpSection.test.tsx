@@ -140,11 +140,15 @@ const TestWrapper = ({
   initiallyEnabled = false,
   withValidation = false,
   autoOpenRuleDrawer = false,
+  autoOpenPaymentConnectionDrawer = false,
+  autoOpenAdditionalIntegrationDrawer = false,
 }: {
   defaultsOverride?: Partial<TWalletDataForm>
   initiallyEnabled?: boolean
   withValidation?: boolean
   autoOpenRuleDrawer?: boolean
+  autoOpenPaymentConnectionDrawer?: boolean
+  autoOpenAdditionalIntegrationDrawer?: boolean
 }) => {
   const form = useAppForm({
     defaultValues: {
@@ -180,6 +184,8 @@ const TestWrapper = ({
         isRecurringTopUpEnabled={isRecurringTopUpEnabled}
         setIsRecurringTopUpEnabled={setIsRecurringTopUpEnabled}
         autoOpenRuleDrawer={autoOpenRuleDrawer}
+        autoOpenPaymentConnectionDrawer={autoOpenPaymentConnectionDrawer}
+        autoOpenAdditionalIntegrationDrawer={autoOpenAdditionalIntegrationDrawer}
       />
       {withValidation && (
         <button
@@ -607,6 +613,31 @@ describe('TopUpSection', () => {
           }),
         )
       })
+
+      it.each([
+        [
+          'payment connection',
+          { autoOpenPaymentConnectionDrawer: true },
+          () => mockConnectionPaymentSelector,
+          () => mockAdditionalIntegrationSelector,
+        ],
+        [
+          'additional integration',
+          { autoOpenAdditionalIntegrationDrawer: true },
+          () => mockAdditionalIntegrationSelector,
+          () => mockConnectionPaymentSelector,
+        ],
+      ])(
+        'THEN should forward the %s auto-open intent to that selector only',
+        (_, props, getTargetMock, getOtherMock) => {
+          mockHasFeatureFlag.mockReturnValue(true)
+
+          render(<TestWrapper {...props} />)
+
+          expect(getTargetMock()).toHaveBeenCalledWith(expect.objectContaining({ autoOpen: true }))
+          expect(getOtherMock()).toHaveBeenCalledWith(expect.objectContaining({ autoOpen: false }))
+        },
+      )
 
       it('THEN should mount the additional integration settings selector on the customer id', () => {
         mockHasFeatureFlag.mockReturnValue(true)

@@ -1,3 +1,7 @@
+import { generatePath } from 'react-router'
+
+import { ConnectionSettingsSections } from '~/components/connectionSelection/ConnectionSettingsSections'
+import { ButtonLink } from '~/components/designSystem/ButtonLink'
 import { Typography } from '~/components/designSystem/Typography'
 import { InvoiceCustomSectionDisplay } from '~/components/invoceCustomFooter/InvoiceCustomSectionDisplay'
 import { hasInvoiceCustomSectionsContent } from '~/components/invoceCustomFooter/utils'
@@ -7,7 +11,9 @@ import PremiumFeature from '~/components/premium/PremiumFeature'
 import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { getIntervalTranslationKey } from '~/core/constants/form'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { EDIT_WALLET_ROUTE } from '~/core/router'
 import {
+  FeatureFlagEnum,
   RecurringTransactionMethodEnum,
   RecurringTransactionTriggerEnum,
   WalletDetailsFragment,
@@ -23,6 +29,11 @@ export const WALLET_RECURRING_RULES_EMPTY_TEST_ID = 'wallet-recurring-rules-empt
 export const WALLET_RECURRING_RULES_RULE_TEST_ID = (index: number) =>
   `wallet-recurring-rules-rule-${index}`
 const WALLET_RECURRING_RULES_TOPUP_TYPE_TEST_ID = 'wallet-recurring-rules-topup-type'
+
+export const WALLET_RECURRING_RULES_EDIT_PAYMENT_TEST_ID = (index: number) =>
+  `wallet-recurring-rules-edit-payment-${index}`
+export const WALLET_RECURRING_RULES_EDIT_ADDITIONAL_TEST_ID = (index: number) =>
+  `wallet-recurring-rules-edit-additional-${index}`
 
 const YES_TRANSLATION_KEY = 'text_1764160009979jzn4xunn1z8'
 const NO_TRANSLATION_KEY = 'text_176416000997957yqelmt2m2'
@@ -44,17 +55,23 @@ const SectionTitle = ({ title, subtitle }: { title: string; subtitle: string }) 
 
 const RecurringRuleBlock = ({
   rule,
+  ruleIndex,
   wallet,
   paymentMethodsList,
   customerIcsData,
+  canEditWallet,
 }: {
   rule: WalletRecurringRule
+  ruleIndex: number
   wallet: WalletDetailsFragment
   paymentMethodsList?: PaymentMethodList
   customerIcsData: CustomerIcsData
+  canEditWallet: boolean
 }) => {
   const { translate } = useInternationalization()
-  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
+  const { intlFormatDateTimeOrgaTZ, hasFeatureFlag } = useOrganizationInfos()
+
+  const isMultiConnectionEnabled = hasFeatureFlag(FeatureFlagEnum.MultiConnection)
 
   const paymentMethodValue = useResolvedPaymentMethodValue(
     {
@@ -107,10 +124,34 @@ const RecurringRuleBlock = ({
     customerIcsData,
   })
 
-  const showPaymentSection = paymentMethodValue !== '-' || showInvoiceCustomSectionsRow
+  const showPaymentSection =
+    isMultiConnectionEnabled || paymentMethodValue !== '-' || showInvoiceCustomSectionsRow
+
+  const renderPaymentSection = () => {
+    if (isMultiConnectionEnabled) {
+      return (
+        <RecurringRuleConnectionSections
+          rule={rule}
+          ruleIndex={ruleIndex}
+          wallet={wallet}
+          showInvoiceCustomSectionsRow={showInvoiceCustomSectionsRow}
+          canEditWallet={canEditWallet}
+        />
+      )
+    }
+
+    return (
+      <RecurringRulePaymentSection
+        rule={rule}
+        wallet={wallet}
+        paymentMethodValue={paymentMethodValue}
+        showInvoiceCustomSectionsRow={showInvoiceCustomSectionsRow}
+      />
+    )
+  }
 
   return (
-    <>
+    <div className={tw('flex flex-col', isMultiConnectionEnabled ? 'gap-12' : 'gap-4')}>
       <section className={tw('flex flex-col gap-6', showPaymentSection && 'pb-12 shadow-b')}>
         <DetailsPage.InfoGrid
           grid={[
@@ -226,15 +267,77 @@ const RecurringRuleBlock = ({
         )}
       </section>
 
-      {showPaymentSection && (
-        <RecurringRulePaymentSection
-          rule={rule}
-          wallet={wallet}
-          paymentMethodValue={paymentMethodValue}
-          showInvoiceCustomSectionsRow={showInvoiceCustomSectionsRow}
-        />
-      )}
-    </>
+      {showPaymentSection && renderPaymentSection()}
+    </div>
+  )
+}
+
+const RecurringRuleConnectionSections = ({
+  rule,
+  ruleIndex,
+  wallet,
+  showInvoiceCustomSectionsRow,
+  canEditWallet,
+}: {
+  rule: WalletRecurringRule
+  ruleIndex: number
+  wallet: WalletDetailsFragment
+  showInvoiceCustomSectionsRow: boolean
+  canEditWallet: boolean
+}): JSX.Element => {
+  const { translate } = useInternationalization()
+
+  const customerId = wallet.customer?.id
+
+  // The wallet form only ever opens and saves recurringTransactionRules[0] (see TopUpSection),
+  // so an Edit on any later rule would silently edit the first one.
+  const renderEditLink = (dataTest: string): React.ReactNode => {
+    if (!canEditWallet || !customerId || ruleIndex !== 0) return null
+
+    return (
+      <ButtonLink
+        buttonProps={{ variant: 'inline' }}
+        type="button"
+        to={generatePath(EDIT_WALLET_ROUTE, { walletId: wallet.id, customerId })}
+        routerState={{ openRecurringRuleDrawer: true }}
+        data-test={dataTest}
+      >
+        {translate('text_63e51ef4985f0ebd75c212fc')}
+      </ButtonLink>
+    )
+  }
+
+  return (
+    <ConnectionSettingsSections
+      connections={rule.connections}
+      customerId={customerId}
+      externalCustomerId={wallet.customer?.externalId}
+      selectedPaymentMethod={{
+        paymentMethodType: rule.paymentMethodType,
+        paymentMethodId: rule.paymentMethod?.id,
+      }}
+      paymentDescription={translate('text_1789558944658vo5lmtt0mw5')}
+      additionalDescription={translate('text_1789557972392sivbc9oyt08')}
+      paymentAction={renderEditLink(WALLET_RECURRING_RULES_EDIT_PAYMENT_TEST_ID(ruleIndex))}
+      additionalAction={renderEditLink(WALLET_RECURRING_RULES_EDIT_ADDITIONAL_TEST_ID(ruleIndex))}
+      extraPaymentItems={
+        showInvoiceCustomSectionsRow
+          ? [
+              {
+                label: translate('text_1773043324342n1x2iltnxvw'),
+                value: (
+                  <InvoiceCustomSectionDisplay
+                    selectedSections={rule.selectedInvoiceCustomSections}
+                    skipSections={rule.skipInvoiceCustomSections}
+                    customerId={customerId}
+                    viewType={ViewTypeEnum.WalletRecurringTopUp}
+                  />
+                ),
+              },
+            ]
+          : []
+      }
+    />
   )
 }
 
@@ -290,6 +393,7 @@ const RecurringRulePaymentSection = ({
 
 type WalletRecurringRulesProps = {
   wallet?: WalletDetailsFragment | null
+  canEditWallet?: boolean
 }
 
 /**
@@ -297,7 +401,7 @@ type WalletRecurringRulesProps = {
  * Editing goes through the wallet edition form — the rules have no dedicated
  * mutation, they only travel nested in updateCustomerWallet.
  */
-const WalletRecurringRules = ({ wallet }: WalletRecurringRulesProps) => {
+const WalletRecurringRules = ({ wallet, canEditWallet = false }: WalletRecurringRulesProps) => {
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
 
@@ -351,9 +455,11 @@ const WalletRecurringRules = ({ wallet }: WalletRecurringRulesProps) => {
 
             <RecurringRuleBlock
               rule={rule}
+              ruleIndex={index}
               wallet={wallet}
               paymentMethodsList={paymentMethodsList}
               customerIcsData={customerIcsData}
+              canEditWallet={canEditWallet}
             />
           </div>
         ))}

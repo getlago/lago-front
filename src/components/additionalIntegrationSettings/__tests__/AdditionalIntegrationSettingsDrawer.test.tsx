@@ -158,6 +158,40 @@ describe('AdditionalIntegrationSettingsSelector', () => {
     }
   })
 
+  describe('GIVEN the details view asks for the drawer to open on landing', () => {
+    const EMPTY_VALUES = {
+      [ConnectionCategory.Accounting]: undefined,
+      [ConnectionCategory.Crm]: undefined,
+      [ConnectionCategory.Tax]: undefined,
+    }
+
+    describe('WHEN the selector mounts with autoOpen', () => {
+      it('THEN should open the drawer once', () => {
+        const { rerender } = render(
+          <AdditionalIntegrationSettingsSelector
+            customerId="customer-1"
+            values={EMPTY_VALUES}
+            onChange={jest.fn()}
+            autoOpen
+          />,
+        )
+
+        expect(mockOpen).toHaveBeenCalledTimes(1)
+
+        rerender(
+          <AdditionalIntegrationSettingsSelector
+            customerId="customer-1"
+            values={EMPTY_VALUES}
+            onChange={jest.fn()}
+            autoOpen
+          />,
+        )
+
+        expect(mockOpen).toHaveBeenCalledTimes(1)
+      })
+    })
+  })
+
   describe('GIVEN the selector is mounted', () => {
     describe('WHEN it renders', () => {
       it('THEN should display the entry card without opening the drawer', () => {
