@@ -1,7 +1,8 @@
 import { gql } from '@apollo/client'
 import { useStore } from '@tanstack/react-form'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
+import { BillingEntityFormPicker } from '~/components/billingEntity/BillingEntityFormPicker'
 import { SubscriptionDatesOffsetHelperComponent } from '~/components/customers/subscriptions/SubscriptionDatesOffsetHelperComponent'
 import { Button } from '~/components/designSystem/Button'
 import { Tooltip } from '~/components/designSystem/Tooltip'
@@ -10,6 +11,9 @@ import { CreateMoreResetBoundary } from '~/components/drawers/createMore/CreateM
 import { CreateMoreResetSignal } from '~/components/drawers/createMore/useCreateMore'
 import { ComboboxItem } from '~/components/form/ComboBox/ComboBoxItem'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
+import { PaymentSettingsSelector } from '~/components/paymentSettings/PaymentSettingsSelector'
+import { PurchaseOrderFormBlock } from '~/components/purchaseOrder/PurchaseOrderFormBlock'
+import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { getTimezoneConfig } from '~/core/timezone'
 import {
   TimezoneEnum,
@@ -22,12 +26,15 @@ import { withForm } from '~/hooks/forms/useAppform'
 import {
   CONTRACT_DRAWER_CUSTOMER_COMBOBOX_TEST_ID,
   CONTRACT_DRAWER_PLAN_COMBOBOX_TEST_ID,
+  CONTRACT_DRAWER_REMOVE_EXTERNAL_ID_TEST_ID,
   CONTRACT_DRAWER_REMOVE_NAME_TEST_ID,
+  CONTRACT_DRAWER_SHOW_EXTERNAL_ID_TEST_ID,
   CONTRACT_DRAWER_SHOW_NAME_TEST_ID,
   CONTRACT_DRAWER_TITLE_CREATE_KEY,
   CONTRACT_FORM_DEFAULTS,
   ContractDrawerCustomer,
 } from './constants'
+import { ContractInvoicingSettingsSection } from './ContractInvoicingSettingsSection'
 
 gql`
   query getCustomersForContractDrawer($page: Int, $limit: Int, $searchTerm: String) {
@@ -37,6 +44,9 @@ gql`
         displayName
         externalId
         applicableTimezone
+        billingEntity {
+          id
+        }
       }
     }
   }
@@ -77,6 +87,9 @@ const ContractDrawerFormSections = withForm({
   render: function ContractDrawerFormSectionsRender({ form, seededCustomer }) {
     const { translate } = useInternationalization()
     const [shouldDisplayName, setShouldDisplayName] = useState(() => !!form.state.values.name)
+    const [shouldDisplayExternalId, setShouldDisplayExternalId] = useState(
+      () => !!form.state.values.externalId,
+    )
 
     const [getCustomers, { data: customersData, loading: customersLoading }] =
       useGetCustomersForContractDrawerLazyQuery({ variables: { limit: OPTIONS_PAGE_SIZE } })
@@ -91,10 +104,37 @@ const ContractDrawerFormSections = withForm({
     }, [getCustomers, getCatalogPlans])
 
     const externalCustomerId = useStore(form.store, (state) => state.values.externalCustomerId)
+    const billingEntityId = useStore(form.store, (state) => state.values.billingEntityId)
+    const consolidateInvoice = useStore(form.store, (state) => state.values.consolidateInvoice)
+    const paymentMethod = useStore(form.store, (state) => state.values.paymentMethod)
     const startedAt = useStore(form.store, (state) => state.values.startedAt)
     const endedAt = useStore(form.store, (state) => state.values.endedAt)
 
     const customersCollection = customersData?.customers?.collection
+    const lastInitializedCustomerRef = useRef<string | undefined>(undefined)
+
+    const selectedCustomer = useMemo(
+      () => customersCollection?.find(({ externalId }) => externalId === externalCustomerId),
+      [customersCollection, externalCustomerId],
+    )
+
+    useEffect(() => {
+      if (!externalCustomerId) {
+        if (lastInitializedCustomerRef.current !== undefined) {
+          form.setFieldValue('billingEntityId', undefined)
+          form.setFieldValue('paymentMethod', undefined)
+          lastInitializedCustomerRef.current = undefined
+        }
+        return
+      }
+
+      if (!selectedCustomer) return
+      if (lastInitializedCustomerRef.current === externalCustomerId) return
+
+      form.setFieldValue('billingEntityId', selectedCustomer.billingEntity?.id)
+      form.setFieldValue('paymentMethod', undefined)
+      lastInitializedCustomerRef.current = externalCustomerId
+    }, [externalCustomerId, form, selectedCustomer])
 
     const comboboxCustomersData = useMemo(
       () =>
@@ -155,6 +195,13 @@ const ContractDrawerFormSections = withForm({
       setShouldDisplayName(false)
     }
 
+    const handleHideExternalId = (): void => {
+      if (form.state.values.externalId) {
+        form.setFieldValue('externalId', '')
+      }
+      setShouldDisplayExternalId(false)
+    }
+
     return (
       <>
         <div className="flex flex-col gap-2">
@@ -188,6 +235,13 @@ const ContractDrawerFormSections = withForm({
               )}
             </form.AppField>
 
+            <BillingEntityFormPicker
+              label={translate('text_1743611497157teaa1zu8l24')}
+              value={billingEntityId}
+              onChange={(id) => form.setFieldValue('billingEntityId', id)}
+              helperText={translate('text_17800541562349k15h7ik07c')}
+            />
+
             <form.AppField name="planCode">
               {(field) => (
                 <field.ComboBoxField
@@ -209,6 +263,33 @@ const ContractDrawerFormSections = withForm({
               description={translate('text_1789552637141f22za3l5g2u')}
             />
 
+            {shouldDisplayExternalId && (
+              <div className="flex items-center">
+                <form.AppField name="externalId">
+                  {(field) => (
+                    <field.TextInputField
+                      className="mr-3 flex-1"
+                      label={translate('text_1789644720009contract')}
+                      placeholder={translate('text_1789644720010contract')}
+                      helperText={translate('text_1789644720011contract')}
+                    />
+                  )}
+                </form.AppField>
+                <Tooltip
+                  className="mt-7 h-fit"
+                  placement="top-end"
+                  title={translate('text_63aa085d28b8510cd46443ff')}
+                >
+                  <Button
+                    icon="trash"
+                    variant="quaternary"
+                    onClick={handleHideExternalId}
+                    data-test={CONTRACT_DRAWER_REMOVE_EXTERNAL_ID_TEST_ID}
+                  />
+                </Tooltip>
+              </div>
+            )}
+
             {shouldDisplayName && (
               <div className="flex items-center">
                 <form.AppField name="name">
@@ -216,6 +297,7 @@ const ContractDrawerFormSections = withForm({
                     <field.TextInputField
                       className="mr-3 flex-1"
                       label={translate('text_1789552637141273ewsjqx7j')}
+                      placeholder={translate('text_1789644720012contract')}
                     />
                   )}
                 </form.AppField>
@@ -233,17 +315,30 @@ const ContractDrawerFormSections = withForm({
                 </Tooltip>
               </div>
             )}
-            {!shouldDisplayName && (
-              <Button
-                fitContent
-                startIcon="plus"
-                variant="inline"
-                onClick={() => setShouldDisplayName(true)}
-                data-test={CONTRACT_DRAWER_SHOW_NAME_TEST_ID}
-              >
-                {translate('text_17895526371415m2ipvxifqn')}
-              </Button>
-            )}
+            <div className="flex items-center gap-4">
+              {!shouldDisplayExternalId && (
+                <Button
+                  fitContent
+                  startIcon="plus"
+                  variant="inline"
+                  onClick={() => setShouldDisplayExternalId(true)}
+                  data-test={CONTRACT_DRAWER_SHOW_EXTERNAL_ID_TEST_ID}
+                >
+                  {translate('text_65118a52df984447c1869472')}
+                </Button>
+              )}
+              {!shouldDisplayName && (
+                <Button
+                  fitContent
+                  startIcon="plus"
+                  variant="inline"
+                  onClick={() => setShouldDisplayName(true)}
+                  data-test={CONTRACT_DRAWER_SHOW_NAME_TEST_ID}
+                >
+                  {translate('text_17895526371415m2ipvxifqn')}
+                </Button>
+              )}
+            </div>
 
             <div className="flex flex-col gap-1">
               <div className="flex flex-col gap-3 md:flex-row md:[&>*]:flex-1">
@@ -299,6 +394,41 @@ const ContractDrawerFormSections = withForm({
                 />
               )}
             </form.AppField>
+
+            <form.AppField name="purchaseOrderNumber">
+              {(field) => (
+                <PurchaseOrderFormBlock
+                  value={field.state.value}
+                  description={translate('text_1789644720008contract')}
+                  onChange={(value) => field.handleChange(value ?? undefined)}
+                />
+              )}
+            </form.AppField>
+          </CenteredPage.PageSection>
+
+          <CenteredPage.PageSection>
+            <CenteredPage.PageSectionTitle
+              title={translate('text_17423672025282dl7iozy1ru')}
+              description={translate('text_1789644720001contract')}
+            />
+            <ContractInvoicingSettingsSection
+              consolidateInvoice={consolidateInvoice}
+              onChange={(value) => form.setFieldValue('consolidateInvoice', value)}
+            />
+          </CenteredPage.PageSection>
+
+          <CenteredPage.PageSection>
+            <CenteredPage.PageSectionTitle
+              title={translate('text_17828013737948943pe3k8nc')}
+              description={translate('text_1789644720002contract')}
+            />
+            <PaymentSettingsSelector
+              viewType={ViewTypeEnum.Contract}
+              externalCustomerId={externalCustomerId}
+              value={paymentMethod}
+              disabled={!externalCustomerId}
+              onChange={(value) => form.setFieldValue('paymentMethod', value)}
+            />
           </CenteredPage.PageSection>
         </CenteredPage.SubsectionWrapper>
       </>

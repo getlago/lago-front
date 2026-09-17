@@ -57,6 +57,7 @@ const renderSelector = (
     onChange?: (value: SelectedPaymentMethod) => void
     externalCustomerId?: string
     dataTest?: string
+    disabled?: boolean
   } = {},
 ) => {
   const onChange = overrides.onChange ?? jest.fn()
@@ -67,6 +68,7 @@ const renderSelector = (
       externalCustomerId={overrides.externalCustomerId ?? 'ext-1'}
       value={overrides.value}
       onChange={onChange}
+      disabled={overrides.disabled}
       data-test={overrides.dataTest}
     />,
   )
@@ -79,6 +81,7 @@ const lastSelectorProps = () =>
     subtitle?: string
     onClick?: () => void
     'data-test'?: string
+    disabled?: boolean
   }
 
 const lastDrawerProps = () =>
@@ -113,6 +116,12 @@ describe('PaymentSettingsSelector', () => {
         renderSelector()
 
         expect(lastDrawerProps().viewType).toBe(ViewTypeEnum.WalletTopUp)
+      })
+
+      it('THEN forwards its disabled state', () => {
+        renderSelector({ disabled: true })
+
+        expect(lastSelectorProps().disabled).toBe(true)
       })
 
       it('THEN should forward the external customer id', () => {

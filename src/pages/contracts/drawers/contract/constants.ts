@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon'
 
+import { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types'
 import { getTimezoneConfig } from '~/core/timezone'
 import { TimezoneEnum } from '~/generated/graphql'
 
@@ -7,6 +8,8 @@ export const CONTRACT_FORM_ID = 'contract-drawer-form'
 
 export const CONTRACT_DRAWER_SUBMIT_TEST_ID = 'contract-drawer-submit'
 export const CONTRACT_DRAWER_SHOW_NAME_TEST_ID = 'contract-drawer-show-name'
+export const CONTRACT_DRAWER_SHOW_EXTERNAL_ID_TEST_ID = 'contract-drawer-show-external-id'
+export const CONTRACT_DRAWER_REMOVE_EXTERNAL_ID_TEST_ID = 'contract-drawer-remove-external-id'
 export const CONTRACT_DRAWER_REMOVE_NAME_TEST_ID = 'contract-drawer-remove-name'
 export const CONTRACT_DRAWER_CUSTOMER_COMBOBOX_TEST_ID = 'contract-drawer-customer-combobox'
 export const CONTRACT_DRAWER_PLAN_COMBOBOX_TEST_ID = 'contract-drawer-plan-combobox'
@@ -25,8 +28,13 @@ export const CONTRACT_DRAWER_TITLE_CREATE_KEY = 'text_1789552637140uev14bbwspq'
  */
 export interface ContractFormValues {
   externalCustomerId: string
+  externalId: string
   planCode: string
   name: string
+  billingEntityId?: string
+  consolidateInvoice: boolean
+  paymentMethod?: SelectedPaymentMethod
+  purchaseOrderNumber?: string | null
   startedAt: string
   endedAt?: string
   billingAnchorDate: string
@@ -36,6 +44,7 @@ export interface ContractDrawerCustomer {
   externalId: string
   displayName?: string | null
   applicableTimezone?: TimezoneEnum | null
+  billingEntityId?: string
 }
 
 /**
@@ -56,8 +65,13 @@ export const buildContractFormDefaults = (
 
   return {
     externalCustomerId: customer?.externalId ?? '',
+    externalId: '',
     planCode: '',
     name: '',
+    billingEntityId: customer?.billingEntityId,
+    consolidateInvoice: true,
+    paymentMethod: undefined,
+    purchaseOrderNumber: undefined,
     startedAt: today,
     endedAt: undefined,
     billingAnchorDate: today,
@@ -70,8 +84,13 @@ export const buildContractFormDefaults = (
  *  module free of a `DateTime.now()` evaluated at import. */
 export const CONTRACT_FORM_DEFAULTS: ContractFormValues = {
   externalCustomerId: '',
+  externalId: '',
   planCode: '',
   name: '',
+  billingEntityId: undefined,
+  consolidateInvoice: true,
+  paymentMethod: undefined,
+  purchaseOrderNumber: undefined,
   startedAt: '2026-01-01',
   endedAt: undefined,
   billingAnchorDate: '2026-01-01',
